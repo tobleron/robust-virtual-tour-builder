@@ -1,0 +1,2068 @@
+
+
+========================================
+FILE: ./index.html
+========================================
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Remax Virtual Tour Builder</title>
+
+    <script>
+      // Force WebGL to keep the image buffer available for recording
+      const oldGetContext = HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.getContext = function (type, attributes) {
+        if (
+          type === "webgl" ||
+          type === "experimental-webgl" ||
+          type === "webgl2"
+        ) {
+          attributes = attributes || {};
+          attributes.preserveDrawingBuffer = true; // <--- The Magic Switch
+          attributes.alpha = false; // Force opaque background
+        }
+        return oldGetContext.call(this, type, attributes);
+      };
+    </script>
+
+    <link rel="stylesheet" href="src/libs/pannellum.css" />
+    <script src="src/libs/pannellum.js"></script>
+    <script src="src/libs/jszip.min.js"></script>
+    <script src="src/libs/FileSaver.min.js"></script>
+
+    <link rel="stylesheet" href="css/style.css" />
+
+    <style>
+      /* System Alerts */
+      #system-alert,
+      #error-console {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: #dc3545;
+        color: white;
+        padding: 15px;
+        text-align: center;
+        z-index: 10000;
+        font-family: sans-serif;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div id="sidebar"></div>
+      <div id="viewer-container">
+        <div id="panorama"></div>
+        <div id="placeholder-text" class="viewer-placeholder">
+          <h3>Ready to Build</h3>
+          <p>Use the sidebar to upload your images.</p>
+        </div>
+      </div>
+      <div id="modal-container"></div>
+    </div>
+
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>
+
+
+========================================
+FILE: ./css/style.css
+========================================
+:root {
+  --primary: #003da5;
+  --danger: #dc3545;
+  --light: #f8f9fa;
+  --dark: #212529;
+}
+
+body,
+html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+#app {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+/* SIDEBAR */
+#sidebar {
+  width: 300px;
+  min-width: 300px;
+  background: white;
+  border-right: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  z-index: 20;
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar-header {
+  padding: 20px;
+  background: var(--primary);
+  color: white;
+}
+.sidebar-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+.sidebar-content {
+  padding: 15px;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+/* Upload Box */
+.upload-box {
+  display: block;
+  border: 2px dashed #cbd5e0;
+  border-radius: 8px;
+  padding: 30px 10px;
+  text-align: center;
+  color: #718096;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #f7fafc;
+}
+.upload-box:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: #ebf8ff;
+}
+
+/* List Items */
+/* --- SCENE LIST ITEMS (Redesigned) --- */
+.scene-item {
+  display: flex; /* Row Layout */
+  align-items: stretch; /* Stretch handle to full height */
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  overflow: hidden; /* Keeps corners rounded */
+  transition: all 0.2s;
+  padding: 0 !important; /* REMOVE old padding to let handle fit */
+
+  /* --- TOUCH FIXES --- */
+  -webkit-touch-callout: none !important; /* Disable Android/iOS Context Menu */
+  -webkit-user-select: none !important; /* Disable Text Selection */
+  user-select: none !important;
+  touch-action: pan-y; /* Allow scrolling, prevent horizontal swipe interference */
+}
+
+/* The Active Blue Strip */
+.scene-item.active {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary); /* subtle glow */
+}
+
+/* The New "Gutter" Handle */
+.drag-zone {
+  width: 40px; /* WIDER HANDLE for easier touch */
+  background: #f1f5f9; /* Light Grey Background */
+  border-right: 1px solid #e2e8f0;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0; /* Prevent shrinking */
+}
+.drag-zone:hover,
+.drag-zone:active {
+  background: #e2e8f0; /* Darker on interaction */
+  color: var(--primary);
+}
+.drag-zone svg {
+  fill: #94a3b8;
+  width: 18px; /* Larger Icon */
+  height: 18px;
+  pointer-events: none; /* Ensure clicks pass through to the handle div */
+}
+.scene-item.active .drag-zone svg {
+  fill: var(--primary);
+}
+
+/* The Content Area (Thumbnail + Text) */
+.scene-content {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  padding: 8px 12px; /* Padding moves here */
+  gap: 12px;
+  cursor: pointer;
+}
+.scene-content:hover {
+  background: #fafafa;
+}
+
+/* --- IMAGE FIX: Prevent Browser Drag/Save --- */
+.scene-content img {
+  pointer-events: none; /* Click passes through to the parent div */
+  -webkit-user-drag: none; /* Disable native browser image dragging */
+  user-drag: none;
+}
+
+/* Dragging State */
+.scene-item.dragging {
+  opacity: 0.5;
+  background: #e2e8f0;
+  border: 2px dashed #94a3b8;
+}
+.scene-item.drag-over {
+  border-top: 3px solid var(--primary); /* Clear drop indicator */
+  margin-top: -3px; /* Prevent jitter */
+}
+
+/* VIEWER AREA */
+#viewer-container {
+  flex-grow: 1;
+  position: relative;
+  background: #1a202c;
+}
+#panorama {
+  width: 100%;
+  height: 100%;
+}
+
+/* Empty State Placeholder */
+.viewer-placeholder {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #718096;
+  text-align: center;
+  pointer-events: none;
+}
+
+/* MODAL */
+.modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.modal-box {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  width: 320px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+.btn {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  color: white;
+  margin-top: 10px;
+}
+.btn-primary {
+  background: var(--primary);
+}
+
+/* Placeholder Text Styling */
+.viewer-placeholder {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: #888;
+  font-family: sans-serif;
+  pointer-events: none; /* Allows you to click through it if needed */
+  z-index: 0; /* Sits behind the viewer */
+}
+
+.viewer-placeholder h3 {
+  margin: 0 0 10px 0;
+  color: #333;
+}
+
+/* Ensure the viewer sits ON TOP when it loads */
+#panorama {
+  position: relative;
+  z-index: 1;
+}
+/* ... existing css ... */
+
+/* LINKING MODE CURSOR OVERRIDE */
+/* Forces a crosshair cursor when 'isLinking' is active */
+.linking-mode,
+.linking-mode canvas,
+.linking-mode .pnlm-dragfix {
+  cursor: crosshair !important;
+}
+
+/* Optional: Make the button look active when clicked */
+#btn-link.active {
+  background-color: #002a70; /* Darker Blue */
+  box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Add to bottom of style.css */
+#btn-delete-scene:hover {
+  background-color: #f8d7da;
+  border-radius: 4px;
+}
+
+/* SIDEBAR HEADER UPDATE */
+.sidebar-header {
+  padding: 20px;
+  background: var(--primary);
+  color: white;
+  text-align: center; /* Center the logo */
+}
+
+.brand-logo {
+  display: block;
+  margin: 0 auto 10px auto;
+  max-width: 120px;
+  height: auto;
+  background: white; /* Optional: if logo has transparency and needs backing */
+  padding: 5px;
+  border-radius: 4px;
+}
+
+/* VIEWER WATERMARK (The small logo on the image) */
+.viewer-watermark {
+  position: absolute;
+  bottom: 20px; /* CHANGED: Was top */
+  right: 20px; /* CHANGED: Was left */
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+.viewer-watermark img {
+  height: 50px; /* Small and subtle */
+  width: auto;
+  display: block;
+  filter: drop-shadow(
+    0 2px 4px rgba(0, 0, 0, 0.5)
+  ); /* Make it pop against bright windows */
+}
+
+/* --- SYSTEM ALERTS & WARNINGS --- */
+#error-console,
+#system-alert {
+  display: none; /* Hidden by default */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: #dc3545; /* Red */
+  color: white;
+  padding: 20px;
+  z-index: 10000;
+  text-align: center;
+  font-family: "Segoe UI", sans-serif;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+#error-console strong {
+  font-size: 1.2em;
+  display: block;
+  margin-bottom: 10px;
+}
+
+/* --- SYSTEM ALERTS --- */
+#system-alert,
+#error-console {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #dc3545; /* Red */
+  color: white;
+  padding: 15px;
+  text-align: center;
+  z-index: 10000;
+  font-family: sans-serif;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* DRAG AND DROP STYLES */
+.drag-handle {
+  cursor: grab;
+  padding: 0 8px;
+  color: #cbd5e0;
+  font-size: 18px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  user-select: none;
+}
+.drag-handle:hover {
+  color: #4a5568;
+}
+
+.scene-item.dragging {
+  opacity: 0.5;
+  background: #e2e8f0;
+  border: 1px dashed #999;
+}
+
+.scene-item.drag-over {
+  border-top: 2px solid var(--primary);
+  transform: translateY(2px); /* Subtle nudge */
+  transition: transform 0.1s;
+}
+
+
+========================================
+FILE: ./src/components/Viewer.js
+========================================
+import { store } from "../store.js";
+
+let viewer = null;
+let mediaRecorder = null;
+let recordedChunks = [];
+let isRecording = false;
+
+export function initViewer() {
+  const viewerContainer = document.getElementById("viewer-container");
+
+  // --- 1. CSS INJECTION ---
+  const oldStyle = document.getElementById("viewer-styles");
+  if (oldStyle) oldStyle.remove();
+
+  const style = document.createElement("style");
+  style.id = "viewer-styles";
+  style.innerHTML = `
+        /* ANIMATION DEFINITION: Clean Mechanical Pulse (No Glow) */
+        @keyframes gentle-pulse {
+            0% { transform: rotateX(60deg) scale(1); }
+            50% { transform: rotateX(60deg) scale(1.1); }
+            100% { transform: rotateX(60deg) scale(1); }
+        }
+
+        /* Container */
+        .pnlm-hotspot.flat-arrow {
+            overflow: visible !important;
+            background: none !important;
+            border: none !important;
+            
+            /* SIZE: 90px */
+            width: 90px !important;
+            height: 90px !important;
+            margin-left: -45px !important; 
+            margin-top: -45px !important;
+            
+            cursor: pointer;
+            perspective: 800px; 
+            z-index: 50;
+        }
+
+        /* The Graphic */
+        .custom-arrow-svg {
+            width: 90px !important;
+            height: 90px !important;
+            display: block;
+            
+            /* Apply the Animation */
+            animation: gentle-pulse 3s infinite ease-in-out;
+            transform-origin: center center;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            
+            /* STATIC REALISTIC SHADOW (No blinking color) */
+            filter: drop-shadow(0 10px 5px rgba(0,0,0,0.5)); 
+        }
+
+        /* Hover: STOP animation and Lift */
+        .pnlm-hotspot.flat-arrow:hover .custom-arrow-svg {
+            animation: none; /* Stop moving so it's easy to click */
+            transform: rotateX(60deg) translateY(-10px) scale(1.2);
+            /* Slightly deeper shadow on lift, but still black/realistic */
+            filter: drop-shadow(0 20px 10px rgba(0,0,0,0.4)); 
+        }
+        
+        /* DELETE BUTTON STYLING */
+        .delete-hotspot {
+            position: absolute; 
+            top: 0; right: 0; 
+            width: 24px; height: 24px; 
+            background: #dc3545; 
+            color: white; 
+            border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; 
+            font-weight: bold; font-size: 16px; font-family: sans-serif;
+            z-index: 100; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            border: 2px solid white;
+            transition: transform 0.2s;
+        }
+        .delete-hotspot:hover {
+            transform: scale(1.2);
+            background: #bd2130;
+        }
+
+        .viewer-watermark {
+            position: absolute;
+            bottom: 20px; right: 20px; z-index: 10;
+            pointer-events: none; opacity: 0.9;
+        }
+        .viewer-watermark img { height: 50px; width: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+        }
+    `;
+  document.head.appendChild(style);
+
+  if (viewerContainer && !document.getElementById("viewer-watermark")) {
+    const logo = document.createElement("div");
+    logo.id = "viewer-watermark";
+    logo.className = "viewer-watermark";
+    logo.innerHTML = `<img src="images/logo.png" alt="Remax">`;
+    viewerContainer.appendChild(logo);
+  }
+
+  // 2. Global Recording Function
+  window.toggleRecording = () => {
+    const canvas = document.querySelector(".pnlm-render-container canvas");
+    if (!isRecording) {
+      if (!canvas) {
+        alert("Viewer not ready.");
+        return false;
+      }
+      const stream = canvas.captureStream(60);
+      const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp9")
+        ? "video/webm;codecs=vp9"
+        : "video/webm";
+      try {
+        mediaRecorder = new MediaRecorder(stream, {
+          mimeType,
+          videoBitsPerSecond: 8000000,
+        });
+      } catch (e) {
+        alert("Recorder failed: " + e.message);
+        return false;
+      }
+      recordedChunks = [];
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) recordedChunks.push(e.data);
+      };
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(recordedChunks, { type: "video/webm" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.style.display = "none";
+        a.href = url;
+        a.download = `Remax_Clip_${Date.now()}.webm`;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+        }, 100);
+      };
+      mediaRecorder.start();
+      isRecording = true;
+      if (viewerContainer) viewerContainer.style.border = "5px solid #dc3545";
+      return true;
+    } else {
+      if (mediaRecorder && mediaRecorder.state !== "inactive")
+        mediaRecorder.stop();
+      isRecording = false;
+      if (viewerContainer) viewerContainer.style.border = "none";
+      return false;
+    }
+  };
+
+  // 3. Store Subscription
+  store.subscribe((state) => {
+    if (state.scenes.length === 0) return;
+    const placeholder = document.getElementById("placeholder-text");
+    if (placeholder) placeholder.style.display = "none";
+
+    const currentScene = state.scenes[state.activeIndex];
+    if (viewer) {
+      try {
+        viewer.destroy();
+      } catch (e) {}
+    }
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      viewer = pannellum.viewer("panorama", {
+        type: "equirectangular",
+        panorama: e.target.result,
+        autoLoad: true,
+        autoRotate: 0,
+        sceneFadeDuration: 0,
+        hfov: 85,
+        minHfov: 40,
+        maxHfov: 100,
+        yaw: state.activeYaw,
+        // MAP WITH INDEX (i) to allow deletion
+        hotSpots: currentScene.hotspots.map((h, i) => ({
+          pitch: h.pitch,
+          yaw: h.yaw,
+          type: "info",
+          cssClass: "flat-arrow",
+          text: `Go to ${h.target}`,
+          createTooltipArgs: { i: i }, // PASS INDEX TO TOOLTIP
+
+          // --- METALLIC GOLD ARROW + DELETE BUTTON ---
+          createTooltipFunc: (hotSpotDiv, args) => {
+            hotSpotDiv.style.width = "90px";
+            hotSpotDiv.style.height = "90px";
+
+            // ONLY SHOW DELETE IF LINKING MODE IS ON
+            const deleteBtn = state.isLinking
+              ? `<div class="delete-hotspot" title="Delete Link">&times;</div>`
+              : "";
+
+            hotSpotDiv.innerHTML = `
+                            ${deleteBtn}
+                            <svg class="custom-arrow-svg" viewBox="0 0 100 100" width="90" height="90" style="overflow:visible;">
+                                <defs>
+                                    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#BF953F;stop-opacity:1" />
+                                        <stop offset="50%" style="stop-color:#FCF6BA;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#B38728;stop-opacity:1" />
+                                    </linearGradient>
+                                </defs>
+
+                                <g stroke="#5e4b25" stroke-width="14" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M15 65 L50 30 L85 65" />
+                                    <path d="M15 90 L50 55 L85 90" />
+                                </g>
+
+                                <g stroke="url(#goldGradient)" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M15 65 L50 30 L85 65" />
+                                    <path d="M15 90 L50 55 L85 90" />
+                                </g>
+                                
+                                <circle cx="50" cy="50" r="50" fill="transparent" /> 
+                            </svg>
+                        `;
+
+            // 1. DELETE HANDLER
+            const delBtn = hotSpotDiv.querySelector(".delete-hotspot");
+            if (delBtn) {
+              delBtn.onclick = (e) => {
+                e.stopPropagation(); // STOP SCENE JUMP
+                if (confirm("Remove this link?")) {
+                  store.removeHotspot(state.activeIndex, args.i);
+                }
+              };
+            }
+
+            // 2. NAVIGATE HANDLER
+            hotSpotDiv.onclick = (e) => {
+              // Safety: Do not jump if we clicked the delete button
+              if (e.target.classList.contains("delete-hotspot")) return;
+
+              const targetIndex = state.scenes.findIndex(
+                (s) => s.name === h.target,
+              );
+              if (targetIndex !== -1) {
+                // --- CLICK FIX: Look at VIEW, not FLOOR ---
+                let lookPitch = 0; // Default: Horizon
+                let lookYaw = h.yaw;
+                if (h.viewFrame) {
+                  // Use Saved Director View
+                  lookPitch = h.viewFrame.pitch;
+                  lookYaw = h.viewFrame.yaw;
+                }
+
+                viewer.lookAt(lookPitch, lookYaw, 40, 800);
+                setTimeout(() => {
+                  store.setActiveScene(targetIndex, h.yaw);
+                }, 800);
+              }
+            };
+          },
+        })),
+      });
+      window.pannellumViewer = viewer;
+
+      // Capture Camera for "Director's View"
+      viewer.on("mousedown", (event) => {
+        const coords = viewer.mouseEventToCoords(event);
+        const camPitch = viewer.getPitch();
+        const camYaw = viewer.getYaw();
+        const camHfov = viewer.getHfov();
+        document.dispatchEvent(
+          new CustomEvent("viewer-click", {
+            detail: {
+              pitch: coords[0],
+              yaw: coords[1],
+              camPitch,
+              camYaw,
+              camHfov,
+            },
+          }),
+        );
+      });
+    };
+    reader.readAsDataURL(currentScene.file);
+  });
+}
+
+
+========================================
+FILE: ./src/components/Sidebar.js
+========================================
+import { store } from "../store.js";
+import { exportTour } from "../systems/Exporter.js";
+import { processImage } from "../systems/Resizer.js";
+import { startAutoTeaser } from "../systems/TeaserSystem.js";
+import { Simulator } from "./Simulator.js";
+
+export function initSidebar() {
+  const container = document.getElementById("sidebar");
+  if (!container) return;
+
+  // Inject Sidebar HTML
+  container.innerHTML = `
+        <div class="sidebar-header">
+            <h2>REMAX Virtual Tour Builder</h2>
+            <small>Version 10.0 (Fast Teaser)</small>
+        </div>
+        
+        <div style="padding: 15px; background: #f1f5f9; border-bottom: 1px solid #ddd;">
+            <label style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase;">Property Name</label>
+            <input type="text" id="tour-name-input" value="New Virtual Tour" 
+                style="width: 100%; box-sizing: border-box; padding: 8px; margin-top: 5px; border: 1px solid #cbd5e1; border-radius: 4px; font-weight: 600; color: #334155;">
+        </div>
+
+        <div class="sidebar-content">
+            <label class="upload-box" id="upload-label">
+                <strong>Upload 360 Images</strong><br>
+                <small>Auto-compresses to 4K WebP</small>
+                <input type="file" id="file-input" multiple accept="image/*" hidden>
+            </label>
+            <div id="processing-ui" style="display:none; margin-bottom:20px;">
+                <div style="font-weight:bold; color:#003da5; margin-bottom:5px;">Optimizing...</div>
+                <div style="background:#eee; height:10px; border-radius:5px; overflow:hidden;">
+                    <div id="progress-bar" style="width:0%; height:100%; background:#003da5; transition:width 0.2s;"></div>
+                </div>
+                <small id="progress-text" style="color:#666;">0/0 processed</small>
+            </div>
+            <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+            <div id="scene-list-container"></div>
+        </div>
+        
+        <div style="padding: 15px; border-top: 1px solid #ddd; background: #fff;">
+            <button id="btn-link" class="btn btn-primary" disabled style="opacity:0.5; margin-bottom:5px;">Add Link</button>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; margin-bottom:15px;">
+                <button id="btn-preview" class="btn" disabled style="background:#17a2b8; color:white; opacity:0.5;"> Preview</button>
+                <button id="btn-export" class="btn" disabled style="background:#28a745; opacity:0.5;">Export</button>
+            </div>
+            <label style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase;">Director Tools</label>
+            <button id="btn-record" class="btn" disabled style="background:#dc3545; opacity:0.5; margin-top:5px; margin-bottom:5px;">
+                 Record Clip (Manual)
+            </button>
+            <button id="btn-teaser" class="btn" disabled style="background:#6f42c1; color:white; opacity:0.5;">
+                 Auto-Teaser (AI)
+            </button>
+        </div>
+
+        <div id="context-menu" style="display:none; position:fixed; z-index:100; background:white; border:1px solid #ccc; box-shadow:2px 2px 10px rgba(0,0,0,0.2); padding:5px; border-radius:4px;">
+            <div id="btn-clear-links" style="padding:8px 15px; cursor:pointer; color:#003da5; font-weight:bold; border-bottom:1px solid #eee;">Clear Links </div>
+            <div id="btn-delete-scene" style="padding:8px 15px; cursor:pointer; color:#dc3545; font-weight:bold;">Delete Scene </div>
+        </div>
+    `;
+
+  // --- ELEMENTS ---
+  const fileInput = document.getElementById("file-input");
+  const tourNameInput = document.getElementById("tour-name-input");
+  const processingUi = document.getElementById("processing-ui");
+  const progressBar = document.getElementById("progress-bar");
+  const progressText = document.getElementById("progress-text");
+  const list = document.getElementById("scene-list-container");
+  const contextMenu = document.getElementById("context-menu");
+  const btnDelete = document.getElementById("btn-delete-scene");
+  const btnClearLinks = document.getElementById("btn-clear-links");
+
+  // Buttons
+  const btnLink = document.getElementById("btn-link");
+  const btnPreview = document.getElementById("btn-preview");
+  const btnExport = document.getElementById("btn-export");
+  const btnRecord = document.getElementById("btn-record");
+  const btnTeaser = document.getElementById("btn-teaser");
+  const viewerContainer = document.getElementById("viewer-container");
+
+  let targetContextIndex = -1;
+
+  // --- BUTTON LOGIC ---
+  btnPreview.addEventListener("click", () => Simulator.open());
+
+  // Single Teaser Mode
+  btnTeaser.addEventListener("click", () => {
+    if (confirm("Start Auto-Director? Please do not touch the mouse.")) {
+      startAutoTeaser();
+    }
+  });
+
+  btnRecord.addEventListener("click", () => {
+    if (window.toggleRecording) {
+      const isRecordingNow = window.toggleRecording();
+      if (isRecordingNow) {
+        btnRecord.innerText = " Stop Recording";
+        btnRecord.classList.add("blink");
+      } else {
+        btnRecord.innerText = " Record Clip (Manual)";
+        btnRecord.classList.remove("blink");
+      }
+    }
+  });
+
+  // ... Standard Events ...
+  tourNameInput.addEventListener("input", (e) =>
+    store.setTourName(e.target.value),
+  );
+  fileInput.addEventListener("change", async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    document.getElementById("upload-label").style.display = "none";
+    processingUi.style.display = "block";
+
+    const sceneDataList = []; // New array to hold pairs
+
+    for (let i = 0; i < files.length; i++) {
+      progressText.innerText = `Processing ${i + 1} of ${files.length}`;
+      progressBar.style.width = ((i + 1) / files.length) * 100 + "%";
+
+      try {
+        // 1. Create the lightweight "Preview" for the browser (Fast)
+        const previewFile = await processImage(files[i]);
+
+        // 2. Keep the "Original" for the Exporter (High Quality)
+        // We pair them together:
+        sceneDataList.push({
+          original: files[i],
+          preview: previewFile,
+          name: previewFile.name,
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // Send the PAIRS to the store
+    store.addScenes(sceneDataList);
+
+    processingUi.style.display = "none";
+    document.getElementById("upload-label").style.display = "block";
+    fileInput.value = "";
+  });
+
+  document.addEventListener("click", () => {
+    contextMenu.style.display = "none";
+  });
+  btnDelete.addEventListener("click", () => {
+    if (targetContextIndex > -1 && confirm("Remove this image?")) {
+      store.deleteScene(targetContextIndex);
+    }
+    contextMenu.style.display = "none";
+  });
+  btnClearLinks.addEventListener("click", () => {
+    if (
+      targetContextIndex > -1 &&
+      confirm("Clear all links from this image?")
+    ) {
+      store.clearHotspots(targetContextIndex);
+    }
+    contextMenu.style.display = "none";
+  });
+  btnLink.addEventListener("click", () => {
+    store.state.isLinking = !store.state.isLinking;
+    if (store.state.isLinking) {
+      btnLink.classList.add("active");
+      btnLink.innerText = "Cancel Link";
+      if (viewerContainer) viewerContainer.classList.add("linking-mode");
+    } else {
+      btnLink.classList.remove("active");
+      btnLink.innerText = "Add Link";
+      if (viewerContainer) viewerContainer.classList.remove("linking-mode");
+    }
+  });
+  btnExport.addEventListener("click", () => exportTour(store.state.scenes));
+
+  store.subscribe((state) => {
+    // 1. Check Linking Mode UI
+    if (!state.isLinking) {
+      btnLink.classList.remove("active");
+      btnLink.innerText = "Add Link";
+      if (viewerContainer) viewerContainer.classList.remove("linking-mode");
+    } else {
+      btnLink.classList.add("active");
+      btnLink.innerText = "Cancel Link";
+      if (viewerContainer) viewerContainer.classList.add("linking-mode");
+    }
+
+    // 2. Handle Empty State
+    if (state.scenes.length === 0) {
+      list.innerHTML = `<div style="text-align:center; color:#999; font-size:0.9rem; padding:20px;">No scenes loaded.</div>`;
+      btnLink.disabled = true;
+      btnLink.style.opacity = 0.5;
+      btnExport.disabled = true;
+      btnExport.style.opacity = 0.5;
+      btnRecord.disabled = true;
+      btnRecord.style.opacity = 0.5;
+      btnTeaser.disabled = true;
+      btnTeaser.style.opacity = 0.5;
+      btnPreview.disabled = true;
+      btnPreview.style.opacity = 0.5;
+      return;
+    }
+
+    // 3. Render List (Clean Reset)
+    list.innerHTML = "";
+
+    state.scenes.forEach((scene, index) => {
+      const item = document.createElement("div");
+      item.className = `scene-item ${index === state.activeIndex ? "active" : ""}`;
+
+      // Enable dragging
+      item.draggable = true;
+      item.dataset.index = index;
+
+      const thumbUrl = URL.createObjectURL(scene.file);
+
+      // --- NEW LAYOUT WITH EVENT KILLERS ---
+      // 1. Drag Zone: oncontextmenu="return false" blocks the menu
+      // 2. Image: pointer-events:none + oncontextmenu blocks interactions
+      item.innerHTML = `
+                <div class="drag-zone" title="Drag to Reorder" oncontextmenu="event.preventDefault(); return false;">
+                    <svg viewBox="0 0 24 24" style="pointer-events:none;">
+                        <path d="M9 3H11V21H9V3ZM13 3H15V21H13V3Z" /> 
+                    </svg>
+                </div>
+
+                <div class="scene-content">
+                    <img src="${thumbUrl}" 
+                         oncontextmenu="event.preventDefault(); return false;" 
+                         style="width:60px; height:40px; object-fit:cover; border-radius:4px; background:#ddd; box-shadow:0 1px 3px rgba(0,0,0,0.1); pointer-events:none; -webkit-touch-callout:none;">
+                    
+                    <div style="overflow:hidden; display:flex; flex-direction:column; justify-content:center;">
+                        <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600; font-size:14px; color:#333;">
+                            ${scene.name}
+                        </span>
+                        <span style="font-size:11px; color:#64748b; margin-top:2px;">
+                            ${scene.hotspots.length} links
+                        </span>
+                    </div>
+                </div>
+            `;
+
+      // A. View Handler
+      const contentDiv = item.querySelector(".scene-content");
+      contentDiv.onclick = () => store.setActiveScene(index);
+
+      // Custom Context Menu (Delete/Clear) - Only for the CONTENT area
+      contentDiv.oncontextmenu = (e) => {
+        e.preventDefault();
+        e.stopPropagation(); // Stop it from bubbling
+        targetContextIndex = index;
+        contextMenu.style.display = "block";
+        contextMenu.style.left = e.pageX + "px";
+        contextMenu.style.top = e.pageY + "px";
+      };
+
+      // B. Drag Handler
+      item.addEventListener("dragstart", (e) => {
+        e.dataTransfer.setData("text/plain", index);
+        e.dataTransfer.effectAllowed = "move";
+        setTimeout(() => item.classList.add("dragging"), 0);
+      });
+      item.addEventListener("dragend", () => {
+        item.classList.remove("dragging");
+        document
+          .querySelectorAll(".scene-item")
+          .forEach((el) => el.classList.remove("drag-over"));
+      });
+      item.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        item.classList.add("drag-over");
+      });
+      item.addEventListener("dragleave", () =>
+        item.classList.remove("drag-over"),
+      );
+      item.addEventListener("drop", (e) => {
+        e.preventDefault();
+        const fromIndex = parseInt(e.dataTransfer.getData("text/plain"));
+        const toIndex = index;
+        item.classList.remove("drag-over");
+        store.reorderScenes(fromIndex, toIndex);
+      });
+
+      list.appendChild(item);
+    });
+
+    // 4. Enable Buttons
+    btnLink.disabled = false;
+    btnLink.style.opacity = 1;
+    btnExport.disabled = false;
+    btnExport.style.opacity = 1;
+    btnRecord.disabled = false;
+    btnRecord.style.opacity = 1;
+    btnTeaser.disabled = false;
+    btnTeaser.style.opacity = 1;
+    btnPreview.disabled = false;
+    btnPreview.style.opacity = 1;
+  });
+}
+
+
+========================================
+FILE: ./src/components/LinkModal.js
+========================================
+import { store } from "../store.js";
+import { calculateReturnVector } from "../systems/AutoLinker.js";
+
+export function showLinkModal(pitch, yaw, camPitch, camYaw, camHfov) {
+  const state = store.state;
+  const container = document.getElementById("modal-container");
+
+  // SMART SELECTION: Calculate the next scene index
+  const nextIndex = state.activeIndex + 1;
+
+  container.innerHTML = `
+        <div class="modal-overlay">
+            <div class="modal-box">
+                <h3>Link Destination</h3>
+                <p style="font-size:12px; color:#666; margin-bottom:10px;">
+                    Saving current view as "Target"
+                </p>
+                <select id="link-target" style="width: 100%; padding: 8px; margin-bottom: 10px;">
+                    <option value="">-- Select Room --</option>
+                    ${state.scenes
+                      .map((s, i) => {
+                        // AUTO-SELECT LOGIC: If this is the next image, select it by default
+                        const isNext = i === nextIndex ? "selected" : "";
+                        // Don't allow linking to self
+                        if (i === state.activeIndex) return "";
+                        return `<option value="${s.name}" ${isNext}>${s.name}</option>`;
+                      })
+                      .join("")}
+                </select>
+                
+                <div>
+                    <input type="checkbox" id="auto-return" checked>
+                    <label for="auto-return">Auto-create return link</label>
+                </div>
+                <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
+                
+                <button class="btn btn-primary" id="save-link">Save Link</button>
+                <button class="btn" id="cancel-link" style="background:#ccc; color:#333">Cancel</button>
+            </div>
+        </div>
+    `;
+
+  document.getElementById("save-link").onclick = () => {
+    const targetName = document.getElementById("link-target").value;
+    const autoReturn = document.getElementById("auto-return").checked;
+
+    if (targetName) {
+      // 1. Save Forward Link
+      store.addHotspot(state.activeIndex, {
+        pitch,
+        yaw,
+        target: targetName,
+        viewFrame: { pitch: camPitch, yaw: camYaw, hfov: camHfov },
+      });
+
+      // 2. Save Return Link (Auto)
+      if (autoReturn) {
+        const targetIndex = state.scenes.findIndex(
+          (s) => s.name === targetName,
+        );
+        if (targetIndex !== -1) {
+          const returnCoords = calculateReturnVector(pitch, yaw);
+          store.addHotspot(targetIndex, {
+            pitch: returnCoords.pitch,
+            yaw: returnCoords.yaw,
+            target: state.scenes[state.activeIndex].name,
+            viewFrame: {
+              pitch: 0,
+              yaw: returnCoords.yaw,
+              hfov: 100,
+            },
+          });
+        }
+      }
+    }
+    container.innerHTML = "";
+    store.state.isLinking = false;
+  };
+
+  document.getElementById("cancel-link").onclick = () => {
+    container.innerHTML = "";
+    store.state.isLinking = false;
+  };
+}
+
+
+========================================
+FILE: ./src/components/Simulator.js
+========================================
+// src/components/Simulator.js
+
+const style = document.createElement("style");
+style.innerHTML = `
+    /* 1. BASE SIMULATOR STYLES */
+    body.sim-mode { overflow: hidden; }
+    body.sim-mode #sidebar { display: none !important; }
+    body.sim-mode #btn-record, body.sim-mode #btn-teaser { opacity: 0; pointer-events: none; }
+    
+    #sim-overlay {
+        display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(10, 10, 10, 0.95); z-index: 9990;
+        align-items: center; justify-content: center;
+    }
+    body.sim-mode #sim-overlay { display: flex !important; }
+
+    /* 2. VIEWER CONTAINER (Default Portrait) */
+    body.sim-mode #viewer-container {
+        position: fixed !important; z-index: 9995;
+        box-shadow: 0 0 50px rgba(0,0,0,0.8); border: 4px solid #333; border-radius: 8px;
+        top: 0 !important; bottom: 0 !important; left: 0 !important; right: 0 !important;
+        margin: auto !important;
+        transition: all 0.3s ease;
+    }
+    
+    body.sim-desktop #viewer-container { width: 80vw; height: auto; aspect-ratio: 16/9; max-height: 80vh; }
+    body.sim-mobile #viewer-container { width: 340px; height: 600px; aspect-ratio: unset; }
+
+    /* 3. CONTROLS (Default Portrait: Bottom Center) */
+    .sim-controls {
+        position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+        z-index: 2147483647;
+        background: rgba(0, 0, 0, 0.8); padding: 12px 25px;
+        border-radius: 50px; backdrop-filter: blur(10px); display: flex; gap: 15px;
+        border: 1px solid rgba(255,255,255,0.2);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        flex-direction: row;
+    }
+
+    /* 4. LANDSCAPE FIX (Buttons Left, Viewer Centered in Remaining Space) */
+    @media (orientation: landscape) {
+        /* Stack buttons on the left */
+        .sim-controls {
+            bottom: auto; left: 20px; top: 50%; 
+            transform: translateY(-50%);
+            flex-direction: column;
+            width: auto;
+            padding: 20px 12px; 
+        }
+        
+        /* Center Viewer relative to the EMPTY SPACE on the right */
+        body.sim-mode #viewer-container {
+            margin: 0 !important;
+            top: 50% !important;
+            
+            /* Shift center point to the right to account for buttons */
+            left: calc(50% + 50px) !important; 
+            transform: translate(-50%, -50%) !important;
+            
+            /* Ensure it fits */
+            max-width: 70vw !important;  
+            max-height: 85vh !important;
+        }
+    }
+
+    .sim-btn {
+        background: transparent; border: 1px solid rgba(255,255,255,0.4); color: white;
+        padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 13px; transition: 0.2s; white-space: nowrap;
+    }
+    .sim-btn:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+    .sim-btn.active { background: #003da5; border-color: #003da5; color: white; box-shadow: 0 0 10px #003da5; }
+    .sim-btn.exit-btn { background: #dc3545; border-color: #dc3545; }
+`;
+document.head.appendChild(style);
+
+export const Simulator = {
+  init() {
+    if (document.getElementById("sim-overlay")) return;
+    const simOverlay = document.createElement("div");
+    simOverlay.id = "sim-overlay";
+    simOverlay.innerHTML = `
+            <div class="sim-controls">
+                <button class="sim-btn active" id="sim-desktop">Desktop (16:9)</button>
+                <button class="sim-btn" id="sim-mobile">Mobile</button>
+                <button class="sim-btn exit-btn" id="sim-exit">Exit</button>
+            </div>
+        `;
+    document.body.appendChild(simOverlay);
+    document.getElementById("sim-desktop").onclick = () =>
+      this.setMode("desktop");
+    document.getElementById("sim-mobile").onclick = () =>
+      this.setMode("mobile");
+    document.getElementById("sim-exit").onclick = () => this.exit();
+  },
+  open() {
+    this.init();
+    this.setMode("desktop");
+    document.body.classList.add("sim-mode");
+    setTimeout(() => {
+      if (window.pannellumViewer) window.pannellumViewer.resize();
+    }, 350);
+  },
+  setMode(mode) {
+    document.body.classList.remove("sim-desktop", "sim-mobile");
+    document.body.classList.add(`sim-${mode}`);
+    document
+      .getElementById("sim-desktop")
+      .classList.toggle("active", mode === "desktop");
+    document
+      .getElementById("sim-mobile")
+      .classList.toggle("active", mode === "mobile");
+    setTimeout(() => {
+      if (window.pannellumViewer) window.pannellumViewer.resize();
+    }, 350);
+  },
+  exit() {
+    document.body.classList.remove("sim-mode", "sim-desktop", "sim-mobile");
+    setTimeout(() => {
+      if (window.pannellumViewer) window.pannellumViewer.resize();
+    }, 350);
+  },
+};
+
+
+========================================
+FILE: ./src/systems/AutoLinker.js
+========================================
+export function calculateReturnVector(pitch, yaw) {
+  // Yaw: Rotate 180 degrees to look back
+  const returnYaw = (yaw + 180) % 360;
+
+  // Pitch: FORCE TO 0 (Eye Level)
+  // Previously -28 (Floor), now corrected to 0 as requested.
+  const returnPitch = 0;
+
+  return {
+    yaw: returnYaw,
+    pitch: returnPitch,
+  };
+}
+
+
+========================================
+FILE: ./src/systems/Exporter.js
+========================================
+// src/systems/Exporter.js
+
+// 1. HIGH-FIDELITY RESIZER (92% Quality)
+// width: The target width (e.g., 2048 or 1024)
+async function resizeImage(file, width) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const scale = width / img.width;
+      canvas.width = width;
+      canvas.height = img.height * scale;
+
+      const ctx = canvas.getContext("2d");
+      // Premium smoothing for Real Estate textures
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      canvas.toBlob(
+        (blob) => {
+          URL.revokeObjectURL(url);
+          resolve(blob);
+        },
+        "image/webp",
+        0.92,
+      );
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("Failed to load image for resizing"));
+    };
+
+    img.src = url;
+  });
+}
+
+// Helper to fetch local library files
+async function fetchLib(filename) {
+  const response = await fetch(`src/libs/${filename}`);
+  if (!response.ok) throw new Error(`Missing Library: ${filename}`);
+  return await response.blob();
+}
+
+export async function exportTour(scenes) {
+  const { store } = await import("../store.js");
+  const tourName = store.state.tourName || "Virtual_Tour";
+  const safeName = tourName.replace(/[^a-z0-9]/gi, "_").toLowerCase();
+
+  const zip = new JSZip();
+
+  // --- 1. SETUP FOLDERS (3 TIERS) ---
+  const f4k = zip.folder("tour_4k");
+  const f2k = zip.folder("tour_2k");
+  const fhd = zip.folder("tour_hd");
+
+  const folders = [f4k, f2k, fhd];
+
+  // Create Asset/Lib structure for all
+  folders.forEach((f) => {
+    f.folder("assets");
+    f.folder("libs");
+  });
+
+  // --- 2. BUNDLE LIBRARIES ---
+  try {
+    const panJS = await fetchLib("pannellum.js");
+    const panCSS = await fetchLib("pannellum.css");
+
+    folders.forEach((f) => {
+      f.folder("libs").file("pannellum.js", panJS);
+      f.folder("libs").file("pannellum.css", panCSS);
+    });
+  } catch (e) {
+    alert("Error bundling libraries: " + e.message);
+    return;
+  }
+
+  // --- 3. FETCH LOGO ---
+  let logoBlob = null;
+  try {
+    const response = await fetch("images/logo.png");
+    if (response.ok) {
+      logoBlob = await response.blob();
+      folders.forEach((f) => {
+        f.folder("assets").file("logo.png", logoBlob);
+      });
+    }
+  } catch (e) {
+    console.warn("Logo not found");
+  }
+
+  // --- 4. PROCESS IMAGES (3 TIERS) ---
+  for (const s of scenes) {
+    // FORCE the use of the raw original for all exports to avoid "Generation Loss"
+    const sourceFile = s.originalFile || s.file;
+
+    // A. 4K (Master Quality) - Resize from Original at 92%
+    try {
+      const blob4k = await resizeImage(sourceFile, 4096);
+      f4k.folder("assets").file(`images/${s.name}`, blob4k);
+    } catch (err) {
+      f4k.folder("assets").file(`images/${s.name}`, sourceFile);
+    }
+
+    // B. 2K (2048px) - Resize from Original at 92%
+    try {
+      const blob2k = await resizeImage(sourceFile, 2048);
+      f2k.folder("assets").file(`images/${s.name}`, blob2k);
+    } catch (err) {
+      f2k.folder("assets").file(`images/${s.name}`, sourceFile);
+    }
+
+    // C. HD (Adjusted to 1280px for better clarity)
+    try {
+      // Increasing from 1024 to 1280 prevents "mushy" textures on mobile
+      const blobHD = await resizeImage(sourceFile, 1280);
+      fhd.folder("assets").file(`images/${s.name}`, blobHD);
+    } catch (err) {
+      fhd.folder("assets").file(`images/${s.name}`, sourceFile);
+    }
+  }
+
+  // --- 5. GENERATE HTML (Ambient Cinema Design) ---
+  const generateHTML = (maxW) => {
+    const firstSceneName = scenes[0].name;
+
+    // A. Data Construction
+    const rawScenesData = {};
+    scenes.forEach((s) => {
+      rawScenesData[s.name] = {
+        panorama: `assets/images/${s.name}`,
+        autoLoad: true,
+        hotSpots: s.hotspots.map((h) => ({
+          pitch: h.pitch,
+          yaw: h.yaw,
+          target: h.target,
+          viewFrame: h.viewFrame || null,
+        })),
+      };
+    });
+
+    // B. CSS: Ambient Background + Responsive Arrows + Logo Fix
+    const customCSS = `
+            body { 
+                margin: 0; padding: 0; width: 100%; height: 100%; 
+                display: flex; align-items: center; justify-content: center;
+                overflow: hidden; 
+                background-color: #111;
+            }
+            
+            /* AMBIENT BACKGROUND GLOW */
+            body::before {
+                content: "";
+                position: fixed;
+                top: -20px; left: -20px; right: -20px; bottom: -20px;
+                background: url('assets/images/${firstSceneName}') no-repeat center center fixed;
+                background-size: cover;
+                filter: blur(25px) brightness(0.4);
+                z-index: -1;
+            }
+
+            /* THE STAGE (Cinema Box Wrapper) */
+            #stage {
+                position: relative;
+                width: 100%; 
+                height: 100%;
+                max-width: ${maxW};      /* The Quality Lock */
+                max-height: 90vh;        /* Prevent vertical scrolling */
+                aspect-ratio: 16/9;      /* Cinematic Ratio */
+                box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+                border-radius: 8px;
+                overflow: hidden;
+                background: #000;
+            }
+            /* Mobile Override */
+            @media (max-width: 600px) {
+                #stage { 
+                    max-width: 100%; 
+                    max-height: 100%; 
+                    border-radius: 0;
+                    aspect-ratio: auto;
+                }
+            }
+            
+            #panorama { width: 100%; height: 100%; }
+
+            /* ANIMATION: Clean Mechanical Pulse */
+            @keyframes gentle-pulse {
+                0% { transform: rotateX(60deg) scale(1); }
+                50% { transform: rotateX(60deg) scale(1.1); }
+                100% { transform: rotateX(60deg) scale(1); }
+            }
+
+            /* RESPONSIVE ARROWS (Reduced to 8% of Height) */
+.pnlm-hotspot.flat-arrow {
+    background-image: none !important; 
+    background-color: transparent !important;
+    border: none !important;
+    
+    /* NEW SIZING: 8% instead of 15% */
+    height: 8% !important;
+    width: auto !important; 
+    aspect-ratio: 1 / 1;
+    
+    margin-left: -4% !important; /* Half of 8% to center */
+    margin-top: -4% !important;
+    
+    overflow: visible !important;
+    cursor: pointer;
+    perspective: 800px; 
+    z-index: 50;
+}
+
+            .custom-arrow-svg {
+                width: 100% !important; 
+                height: 100% !important;
+                display: block;
+                animation: gentle-pulse 3s infinite ease-in-out;
+                transform-origin: center center;
+                transition: transform 0.3s;
+                filter: drop-shadow(0 10px 5px rgba(0,0,0,0.5));
+            }
+
+            .pnlm-hotspot.flat-arrow:hover .custom-arrow-svg {
+                animation: none;
+                transform: rotateX(60deg) translateY(-10%) scale(1.2);
+                filter: drop-shadow(0 20px 10px rgba(0,0,0,0.4));
+            }
+
+            /* LOGO INSIDE THE BOX */
+            .watermark { 
+                position: absolute; 
+                bottom: 20px; 
+                right: 20px; 
+                z-index: 10; 
+                pointer-events: none; 
+                opacity: 0.9; 
+            }
+            .watermark img { 
+                height: 50px; 
+                width: auto; 
+                filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); 
+            }
+        `;
+
+    // C. JS: Renderer
+    const renderFunctionScript = `
+            function renderGoldArrow(hotSpotDiv, args) {
+                hotSpotDiv.classList.add('custom-tooltip');
+                
+                hotSpotDiv.innerHTML = \`
+                    <svg class="custom-arrow-svg" viewBox="0 0 100 100" style="overflow:visible;">
+                        <defs>
+                            <linearGradient id="goldGradient_\${Math.floor(Math.random() * 10000)}" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#BF953F;stop-opacity:1" />
+                                <stop offset="50%" style="stop-color:#FCF6BA;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#B38728;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <g stroke="#5e4b25" stroke-width="14" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M15 65 L50 30 L85 65" />
+                            <path d="M15 90 L50 55 L85 90" />
+                        </g>
+                        <g stroke="url(#goldGradient)" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M15 65 L50 30 L85 65" />
+                            <path d="M15 90 L50 55 L85 90" />
+                        </g>
+                        <circle cx="50" cy="50" r="50" fill="transparent" /> 
+                    </svg>
+                \`;
+
+                // Fix Gradient Scope
+                const gradId = hotSpotDiv.querySelector('linearGradient').id;
+                hotSpotDiv.querySelectorAll('g[stroke^="url(#"]').forEach(g => {
+                    g.setAttribute('stroke', 'url(#' + gradId + ')');
+                });
+
+                // CLICK HANDLER
+                hotSpotDiv.onclick = function() {
+                    let lookPitch = 0; 
+                    let lookYaw = args.yaw; 
+                    if (args.viewFrame) {
+                        lookPitch = args.viewFrame.pitch;
+                        lookYaw = args.viewFrame.yaw;
+                    }
+                    window.viewer.lookAt(lookPitch, lookYaw, 40, 800);
+                    setTimeout(() => {
+                        window.viewer.loadScene(args.targetSceneId, "same", "same", "same");
+                    }, 800);
+                };
+            }
+        `;
+
+    return `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${tourName}</title>
+    <link rel="stylesheet" href="libs/pannellum.css"/>
+    <script src="libs/pannellum.js"></script>
+    <style>${customCSS}</style>
+</head>
+<body>
+    <div id="stage">
+        <div id="panorama"></div>
+        ${logoBlob ? '<div class="watermark"><img src="assets/logo.png"></div>' : ""}
+    </div>
+    
+    <script>
+        ${renderFunctionScript}
+
+        const scenesData = ${JSON.stringify(rawScenesData)};
+        const firstSceneId = "${scenes[0].name}";
+
+        const config = {
+            "default": {
+                "firstScene": firstSceneId,
+                "sceneFadeDuration": 1000,
+                "autoRotate": 0
+            },
+            "scenes": {}
+        };
+
+        for (const [name, data] of Object.entries(scenesData)) {
+            config.scenes[name] = {
+                panorama: data.panorama,
+                autoLoad: true,
+                hotSpots: data.hotSpots.map(h => ({
+                    pitch: h.pitch,
+                    yaw: h.yaw,
+                    type: "info",
+                    cssClass: "flat-arrow",
+                    createTooltipFunc: renderGoldArrow,
+                    createTooltipArgs: { 
+                        targetSceneId: h.target, 
+                        yaw: h.yaw,
+                        viewFrame: h.viewFrame 
+                    }
+                }))
+            };
+        }
+
+        window.viewer = pannellum.viewer('panorama', config);
+    </script>
+</body>
+</html>`;
+  };
+
+  // GENERATE THE 3 TIERS (Cinema Box Max Widths)
+  f4k.file("index.html", generateHTML("1600px"));
+  f2k.file("index.html", generateHTML("1100px"));
+  fhd.file("index.html", generateHTML("500px"));
+
+  // --- 6. EMBED KIT ---
+  const embedText = `
+REMAX VIRTUAL TOUR - EMBED CODES
+
+1. PREMIUM 4K (Cinema 1600px - Master Quality)
+<iframe src="[URL]/tour_4k/index.html" width="100%" height="900" style="border:0;" allowfullscreen></iframe>
+
+2. STANDARD 2K (Cinema 1100px - Laptop Standard)
+<iframe src="[URL]/tour_2k/index.html" width="100%" height="700" style="border:0;" allowfullscreen></iframe>
+
+3. MOBILE HD (Cinema 500px - Fast 4G)
+<iframe src="[URL]/tour_hd/index.html" width="100%" height="600" style="border:0;" allowfullscreen></iframe>
+`;
+
+  zip.file("embed_codes.txt", embedText);
+
+  // --- 7. SAVE ZIP ---
+  const zipFilename = `Remax_${safeName}_Ambient_v10.zip`;
+  const content = await zip.generateAsync({ type: "blob" });
+  saveAs(content, zipFilename);
+}
+
+
+========================================
+FILE: ./src/systems/Resizer.js
+========================================
+export async function processImage(file) {
+  // TARGET: 4K (4096px) - The "Sweet Spot" for 7-inch tablets & Web
+  const bitmap = await createImageBitmap(file, {
+    resizeWidth: 4096,
+    resizeQuality: "high",
+  });
+
+  const canvas = document.createElement("canvas");
+  canvas.width = bitmap.width;
+  canvas.height = bitmap.height;
+
+  const ctx = canvas.getContext("bitmaprenderer");
+  ctx.transferFromImageBitmap(bitmap);
+
+  return new Promise((resolve) => {
+    canvas.toBlob(
+      (blob) => {
+        // Smart Renaming Logic
+        let newName = file.name.replace(/\.[^/.]+$/, "");
+        const match = file.name.match(/_(\d{6}_\d{2}_\d{3})/); // Matches Insta360 timestamp
+        if (match && match[1]) {
+          newName = match[1];
+        }
+
+        const newFile = new File([blob], newName + ".webp", {
+          type: "image/webp",
+          lastModified: Date.now(),
+        });
+        resolve(newFile);
+      },
+      "image/webp",
+      0.75,
+    ); // 75% Quality is standard for WebP
+  });
+}
+
+
+========================================
+FILE: ./src/systems/TeaserSystem.js
+========================================
+import { store } from "../store.js";
+
+let isTeasing = false;
+let ghostCanvas = null;
+let ghostCtx = null;
+let mediaRecorder = null;
+let recordedChunks = [];
+let streamLoopId = null;
+
+let fadeOpacity = 0;
+
+function initGhost() {
+  if (ghostCanvas) return;
+  ghostCanvas = document.createElement("canvas");
+  ghostCanvas.width = 1920;
+  ghostCanvas.height = 1080;
+  ghostCtx = ghostCanvas.getContext("2d", { alpha: false });
+}
+
+function startGhostLoop() {
+  const draw = () => {
+    const sourceCanvas = document.querySelector(
+      ".pnlm-render-container canvas",
+    );
+    // Only draw if source is valid
+    if (sourceCanvas && sourceCanvas.width > 0) {
+      // Safe draw: Aspect Fill
+      const sw = sourceCanvas.width,
+        sh = sourceCanvas.height;
+      const dw = ghostCanvas.width,
+        dh = ghostCanvas.height;
+      const sourceAspect = sw / sh;
+      const destAspect = dw / dh;
+      let renderW, renderH, renderX, renderY;
+
+      if (sourceAspect > destAspect) {
+        renderH = dh;
+        renderW = dh * sourceAspect;
+        renderX = (dw - renderW) / 2;
+        renderY = 0;
+      } else {
+        renderW = dw;
+        renderH = dw / sourceAspect;
+        renderX = 0;
+        renderY = (dh - renderH) / 2;
+      }
+
+      ghostCtx.fillStyle = "#000";
+      ghostCtx.fillRect(0, 0, dw, dh);
+      ghostCtx.drawImage(sourceCanvas, renderX, renderY, renderW, renderH);
+
+      // Fade Overlay
+      if (fadeOpacity > 0) {
+        ghostCtx.fillStyle = `rgba(0, 0, 0, ${fadeOpacity})`;
+        ghostCtx.fillRect(0, 0, dw, dh);
+      }
+    }
+    streamLoopId = requestAnimationFrame(draw);
+  };
+  draw();
+}
+
+function getWalkPath() {
+  const scenes = store.state.scenes;
+  if (scenes.length === 0) return [];
+
+  let path = [];
+  let visited = new Set();
+  let currentIdx = 0;
+
+  // First room default
+  path.push({ idx: 0, targetYaw: 0, targetPitch: 0, targetHfov: 60 });
+  visited.add(0);
+
+  for (let i = 0; i < 8; i++) {
+    const currentScene = scenes[currentIdx];
+    const link = currentScene.hotspots.find((h) => {
+      const tIdx = scenes.findIndex((s) => s.name === h.target);
+      return tIdx !== -1 && !visited.has(tIdx);
+    });
+    if (link) {
+      const nextIdx = scenes.findIndex((s) => s.name === link.target);
+
+      // --- LOGIC: USE SAVED DIRECTOR VIEW ---
+      if (link.viewFrame) {
+        // User saved a specific look
+        path[path.length - 1].targetYaw = link.viewFrame.yaw;
+        path[path.length - 1].targetPitch = link.viewFrame.pitch;
+      } else {
+        // Auto-generated or old link: Aim at the icon
+        path[path.length - 1].targetYaw = link.yaw;
+        path[path.length - 1].targetPitch = 0;
+      }
+
+      path.push({ idx: nextIdx, targetYaw: 0, targetPitch: 0 });
+      visited.add(nextIdx);
+      currentIdx = nextIdx;
+    } else {
+      break;
+    }
+  }
+  return path;
+}
+
+export async function startAutoTeaser() {
+  if (isTeasing) return;
+  initGhost();
+
+  const scenes = store.state.scenes;
+  if (scenes.length === 0) {
+    alert("No scenes.");
+    return;
+  }
+
+  const overlay = document.getElementById("teaser-overlay");
+  const bar = document.getElementById("teaser-progress");
+  const label = document.getElementById("teaser-text");
+  if (overlay) overlay.style.display = "flex";
+  isTeasing = true;
+
+  const pathIndices = getWalkPath();
+  const clipDuration = 2500;
+  const fadeDuration = 300;
+
+  console.log(" Starting Director Teaser", pathIndices);
+
+  startGhostLoop();
+
+  const stream = ghostCanvas.captureStream(30);
+  let options = { mimeType: "video/webm" };
+  if (MediaRecorder.isTypeSupported("video/webm;codecs=vp9"))
+    options.mimeType = "video/webm;codecs=vp9";
+
+  try {
+    mediaRecorder = new MediaRecorder(stream, options);
+  } catch (e) {
+    alert("Codec Error: " + e.message);
+    overlay.style.display = "none";
+    isTeasing = false;
+    return;
+  }
+
+  recordedChunks = [];
+  mediaRecorder.ondataavailable = (e) => {
+    if (e.data.size > 0) recordedChunks.push(e.data);
+  };
+  mediaRecorder.start();
+
+  for (let i = 0; i < pathIndices.length; i++) {
+    const step = pathIndices[i];
+    const currentScene = scenes[step.idx];
+
+    let targetYaw = step.targetYaw;
+    let targetPitch = step.targetPitch || 0;
+
+    // Last scene default drift
+    if (i === pathIndices.length - 1) {
+      targetYaw = (store.state.activeYaw + 40) % 360;
+    }
+
+    // A. FADE IN & LOAD
+    // Start EXACTLY at the Director's View
+    store.setActiveScene(step.idx, targetYaw);
+
+    // Wait for viewer to exist
+    while (!window.pannellumViewer) await new Promise((r) => setTimeout(r, 50));
+
+    // Set Initial Director Frame
+    window.pannellumViewer.setYaw(targetYaw);
+    window.pannellumViewer.setPitch(targetPitch);
+    window.pannellumViewer.setHfov(110); // Start Wide
+
+    // --- BLACK SCREEN FIX: Wait until image is actually loaded ---
+    const loadStart = Date.now();
+    while (!window.pannellumViewer.isLoaded()) {
+      await new Promise((r) => setTimeout(r, 100));
+      // Safety timeout 3s
+      if (Date.now() - loadStart > 3000) break;
+    }
+    await new Promise((r) => setTimeout(r, 500)); // Extra buffer
+
+    // Fade In (Black -> Clear)
+    const fadeStart = Date.now();
+    while (Date.now() - fadeStart < fadeDuration) {
+      fadeOpacity = 1 - (Date.now() - fadeStart) / fadeDuration;
+      await new Promise((r) => requestAnimationFrame(r));
+    }
+    fadeOpacity = 0;
+
+    // B. ANIMATE (Pure Zoom / Tunnel Effect)
+    if (bar) bar.style.width = (i / pathIndices.length) * 100 + "%";
+    if (label) label.innerText = `Director Cam: ${currentScene.name}`;
+
+    const moveStart = Date.now();
+
+    while (Date.now() - moveStart < clipDuration) {
+      if (window.pannellumViewer) {
+        const p = (Date.now() - moveStart) / clipDuration;
+        // Ease In (Accelerate into the link)
+        const ease = p * p;
+
+        // NO ROTATION (Lock to Director View)
+        // Just Zoom: 110 -> 40 (Deep Zoom)
+        window.pannellumViewer.setHfov(110 - 70 * ease);
+      }
+      await new Promise((r) => requestAnimationFrame(r));
+    }
+
+    // C. FADE OUT
+    if (i < pathIndices.length - 1) {
+      const fadeOutStart = Date.now();
+      while (Date.now() - fadeOutStart < fadeDuration) {
+        fadeOpacity = (Date.now() - fadeOutStart) / fadeDuration;
+        await new Promise((r) => requestAnimationFrame(r));
+      }
+      fadeOpacity = 1;
+    }
+  }
+
+  if (mediaRecorder.state !== "inactive") mediaRecorder.stop();
+
+  mediaRecorder.onstop = () => {
+    cancelAnimationFrame(streamLoopId);
+    fadeOpacity = 0;
+    if (recordedChunks.length === 0) return;
+
+    const blob = new Blob(recordedChunks, { type: "video/webm" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.style.display = "none";
+    a.href = url;
+    a.download = `Remax_Director_Teaser.webm`;
+    document.body.appendChild(a);
+    a.click();
+
+    if (overlay) overlay.style.display = "none";
+    isTeasing = false;
+    setTimeout(() => alert(" Teaser Ready."), 500);
+  };
+}
+
+
+========================================
+FILE: ./src/main.js
+========================================
+// ... (Canvas Fix code remains) ...
+
+import { initSidebar } from "./components/Sidebar.js";
+import { initViewer } from "./components/Viewer.js";
+import { showLinkModal } from "./components/LinkModal.js";
+import { store } from "./store.js";
+
+console.log("Initializing Remax Builder...");
+
+initSidebar();
+initViewer();
+
+// Global Event Listener
+document.addEventListener("viewer-click", (e) => {
+  if (store.state.isLinking) {
+    // Extract All Data (Including Director Camera)
+    const { pitch, yaw, camPitch, camYaw, camHfov } = e.detail;
+    showLinkModal(pitch, yaw, camPitch, camYaw, camHfov);
+  }
+});
+
+
+========================================
+FILE: ./src/store.js
+========================================
+export const store = {
+  state: {
+    tourName: "New Virtual Tour",
+    scenes: [],
+    activeIndex: -1,
+    activeYaw: 0,
+    isLinking: false,
+  },
+
+  listeners: [],
+
+  setTourName(name) {
+    this.state.tourName = name;
+    this.notify();
+  },
+
+  addScenes(sceneDataList) {
+    // sceneDataList is now an array of objects: { original, preview, name }
+    const newScenes = sceneDataList.map((data) => ({
+      name: data.name,
+      file: data.preview, // Used by Viewer/Sidebar (Fast)
+      originalFile: data.original, // Used by Exporter (Master Quality) - SAVED!
+      hotspots: [],
+    }));
+
+    this.state.scenes = [...this.state.scenes, ...newScenes].sort((a, b) =>
+      a.name.localeCompare(b.name),
+    );
+
+    if (this.state.activeIndex === -1 && this.state.scenes.length > 0) {
+      this.state.activeIndex = 0;
+      this.state.activeYaw = 0;
+    }
+    this.notify();
+  },
+
+  setActiveScene(index, startYaw = 0) {
+    this.state.activeIndex = index;
+    this.state.activeYaw = startYaw;
+    this.notify();
+  },
+
+  addHotspot(sceneIndex, hotspotData) {
+    this.state.scenes[sceneIndex].hotspots.push(hotspotData);
+    this.notify();
+  },
+
+  removeHotspot(sceneIndex, hotspotIndex) {
+    if (this.state.scenes[sceneIndex]) {
+      this.state.scenes[sceneIndex].hotspots.splice(hotspotIndex, 1);
+      this.notify();
+    }
+  },
+  // Inside src/store.js
+
+  reorderScenes(fromIndex, toIndex) {
+    if (fromIndex === toIndex) return;
+
+    const scenes = this.state.scenes;
+    const [movedItem] = scenes.splice(fromIndex, 1);
+    scenes.splice(toIndex, 0, movedItem);
+
+    // INTELLIGENT TRACKING: Keep the active scene highlighted correctly
+    // regardless of where it moves.
+    if (this.state.activeIndex === fromIndex) {
+      this.state.activeIndex = toIndex;
+    } else if (
+      this.state.activeIndex > fromIndex &&
+      this.state.activeIndex <= toIndex
+    ) {
+      this.state.activeIndex--;
+    } else if (
+      this.state.activeIndex < fromIndex &&
+      this.state.activeIndex >= toIndex
+    ) {
+      this.state.activeIndex++;
+    }
+
+    this.notify();
+  },
+
+  // NEW: Function to clear links from a scene
+  clearHotspots(sceneIndex) {
+    if (this.state.scenes[sceneIndex]) {
+      this.state.scenes[sceneIndex].hotspots = [];
+      this.notify();
+    }
+  },
+
+  deleteScene(index) {
+    this.state.scenes.splice(index, 1);
+    if (this.state.scenes.length === 0) {
+      this.state.activeIndex = -1;
+    } else if (index === this.state.activeIndex) {
+      this.state.activeIndex = 0;
+    } else if (index < this.state.activeIndex) {
+      this.state.activeIndex--;
+    }
+    this.notify();
+  },
+
+  subscribe(callback) {
+    this.listeners.push(callback);
+  },
+
+  notify() {
+    this.listeners.forEach((cb) => cb(this.state));
+  },
+};

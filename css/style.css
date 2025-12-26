@@ -1,0 +1,351 @@
+:root {
+  --primary: #003da5;
+  --danger: #dc3545;
+  --light: #f8f9fa;
+  --dark: #212529;
+}
+
+body,
+html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+#app {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+/* SIDEBAR */
+#sidebar {
+  width: 300px;
+  min-width: 300px;
+  background: white;
+  border-right: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  z-index: 20;
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar-header {
+  padding: 20px;
+  background: var(--primary);
+  color: white;
+}
+.sidebar-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+.sidebar-content {
+  padding: 15px;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+/* Upload Box */
+.upload-box {
+  display: block;
+  border: 2px dashed #cbd5e0;
+  border-radius: 8px;
+  padding: 30px 10px;
+  text-align: center;
+  color: #718096;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #f7fafc;
+}
+.upload-box:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: #ebf8ff;
+}
+
+/* List Items */
+/* --- SCENE LIST ITEMS (Redesigned) --- */
+.scene-item {
+  display: flex; /* Row Layout */
+  align-items: stretch; /* Stretch handle to full height */
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  overflow: hidden; /* Keeps corners rounded */
+  transition: all 0.2s;
+  padding: 0 !important; /* REMOVE old padding to let handle fit */
+
+  /* --- TOUCH FIXES --- */
+  -webkit-touch-callout: none !important; /* Disable Android/iOS Context Menu */
+  -webkit-user-select: none !important; /* Disable Text Selection */
+  user-select: none !important;
+  touch-action: pan-y; /* Allow scrolling, prevent horizontal swipe interference */
+}
+
+/* The Active Blue Strip */
+.scene-item.active {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary); /* subtle glow */
+}
+
+/* The New "Gutter" Handle */
+.drag-zone {
+  width: 40px; /* WIDER HANDLE for easier touch */
+  background: #f1f5f9; /* Light Grey Background */
+  border-right: 1px solid #e2e8f0;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0; /* Prevent shrinking */
+}
+.drag-zone:hover,
+.drag-zone:active {
+  background: #e2e8f0; /* Darker on interaction */
+  color: var(--primary);
+}
+.drag-zone svg {
+  fill: #94a3b8;
+  width: 18px; /* Larger Icon */
+  height: 18px;
+  pointer-events: none; /* Ensure clicks pass through to the handle div */
+}
+.scene-item.active .drag-zone svg {
+  fill: var(--primary);
+}
+
+/* The Content Area (Thumbnail + Text) */
+.scene-content {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  padding: 8px 12px; /* Padding moves here */
+  gap: 12px;
+  cursor: pointer;
+}
+.scene-content:hover {
+  background: #fafafa;
+}
+
+/* --- IMAGE FIX: Prevent Browser Drag/Save --- */
+.scene-content img {
+  pointer-events: none; /* Click passes through to the parent div */
+  -webkit-user-drag: none; /* Disable native browser image dragging */
+  user-drag: none;
+}
+
+/* Dragging State */
+.scene-item.dragging {
+  opacity: 0.5;
+  background: #e2e8f0;
+  border: 2px dashed #94a3b8;
+}
+.scene-item.drag-over {
+  border-top: 3px solid var(--primary); /* Clear drop indicator */
+  margin-top: -3px; /* Prevent jitter */
+}
+
+/* VIEWER AREA */
+#viewer-container {
+  flex-grow: 1;
+  position: relative;
+  background: #1a202c;
+}
+#panorama {
+  width: 100%;
+  height: 100%;
+}
+
+/* Empty State Placeholder */
+.viewer-placeholder {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #718096;
+  text-align: center;
+  pointer-events: none;
+}
+
+/* MODAL */
+.modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.modal-box {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  width: 320px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+.btn {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  color: white;
+  margin-top: 10px;
+}
+.btn-primary {
+  background: var(--primary);
+}
+
+/* Placeholder Text Styling */
+.viewer-placeholder {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: #888;
+  font-family: sans-serif;
+  pointer-events: none; /* Allows you to click through it if needed */
+  z-index: 0; /* Sits behind the viewer */
+}
+
+.viewer-placeholder h3 {
+  margin: 0 0 10px 0;
+  color: #333;
+}
+
+/* Ensure the viewer sits ON TOP when it loads */
+#panorama {
+  position: relative;
+  z-index: 1;
+}
+/* ... existing css ... */
+
+/* LINKING MODE CURSOR OVERRIDE */
+/* Forces a crosshair cursor when 'isLinking' is active */
+.linking-mode,
+.linking-mode canvas,
+.linking-mode .pnlm-dragfix {
+  cursor: crosshair !important;
+}
+
+/* Optional: Make the button look active when clicked */
+#btn-link.active {
+  background-color: #002a70; /* Darker Blue */
+  box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Add to bottom of style.css */
+#btn-delete-scene:hover {
+  background-color: #f8d7da;
+  border-radius: 4px;
+}
+
+/* SIDEBAR HEADER UPDATE */
+.sidebar-header {
+  padding: 20px;
+  background: var(--primary);
+  color: white;
+  text-align: center; /* Center the logo */
+}
+
+.brand-logo {
+  display: block;
+  margin: 0 auto 10px auto;
+  max-width: 120px;
+  height: auto;
+  background: white; /* Optional: if logo has transparency and needs backing */
+  padding: 5px;
+  border-radius: 4px;
+}
+
+/* VIEWER WATERMARK (The small logo on the image) */
+.viewer-watermark {
+  position: absolute;
+  bottom: 20px; /* CHANGED: Was top */
+  right: 20px; /* CHANGED: Was left */
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+.viewer-watermark img {
+  height: 50px; /* Small and subtle */
+  width: auto;
+  display: block;
+  filter: drop-shadow(
+    0 2px 4px rgba(0, 0, 0, 0.5)
+  ); /* Make it pop against bright windows */
+}
+
+/* --- SYSTEM ALERTS & WARNINGS --- */
+#error-console,
+#system-alert {
+  display: none; /* Hidden by default */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: #dc3545; /* Red */
+  color: white;
+  padding: 20px;
+  z-index: 10000;
+  text-align: center;
+  font-family: "Segoe UI", sans-serif;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+#error-console strong {
+  font-size: 1.2em;
+  display: block;
+  margin-bottom: 10px;
+}
+
+/* --- SYSTEM ALERTS --- */
+#system-alert,
+#error-console {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #dc3545; /* Red */
+  color: white;
+  padding: 15px;
+  text-align: center;
+  z-index: 10000;
+  font-family: sans-serif;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* DRAG AND DROP STYLES */
+.drag-handle {
+  cursor: grab;
+  padding: 0 8px;
+  color: #cbd5e0;
+  font-size: 18px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  user-select: none;
+}
+.drag-handle:hover {
+  color: #4a5568;
+}
+
+.scene-item.dragging {
+  opacity: 0.5;
+  background: #e2e8f0;
+  border: 1px dashed #999;
+}
+
+.scene-item.drag-over {
+  border-top: 2px solid var(--primary);
+  transform: translateY(2px); /* Subtle nudge */
+  transition: transform 0.1s;
+}

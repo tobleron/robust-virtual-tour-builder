@@ -1,0 +1,115 @@
+---- ExifTool ----
+ExifTool Version Number         : 13.44
+Warning                         : [minor] Unrecognized MakerNotes
+---- System ----
+File Name                       : IMG_20251223_154744_00_005_PureShot.jpg
+Directory                       : .
+File Size                       : 35 MB
+File Modification Date/Time     : 2025:12:24 19:40:08+02:00
+File Access Date/Time           : 2025:12:24 19:40:06+02:00
+File Inode Change Date/Time     : 2025:12:24 20:02:30+02:00
+File Permissions                : -rw-rw----
+---- File ----
+File Type                       : JPEG
+File Type Extension             : jpg
+MIME Type                       : image/jpeg
+Exif Byte Order                 : Little-endian (Intel, II)
+Image Width                     : 11968
+Image Height                    : 5984
+Encoding Process                : Baseline DCT, Huffman coding
+Bits Per Sample                 : 8
+Color Components                : 3
+Y Cb Cr Sub Sampling            : YCbCr4:2:0 (2 2)
+---- JFIF ----
+JFIF Version                    : 1.01
+Resolution Unit                 : inches
+X Resolution                    : 96
+Y Resolution                    : 96
+---- IFD0 ----
+Subfile Type                    : Full-resolution image
+Image Width                     : 5984
+Image Height                    : 11968
+Bits Per Sample                 : 16
+Compression                     : Uncompressed
+Make                            : Arashi Vision
+Camera Model Name               : insta360 x3
+Orientation                     : Horizontal (normal)
+Samples Per Pixel               : 1
+Planar Configuration            : Chunky
+Software                        : v1.1.6_build1
+Modify Date                     : 2025:12:23 15:47:46
+Sample Format                   : Unsigned
+CFA Repeat Pattern Dim          : 2 2
+CFA Pattern 2                   : 1 2 0 1
+User Comment                    : 
+DNG Version                     : 1.3.0.0
+DNG Backward Version            : 1.3.0.0
+Unique Camera Model             : Insta360 X3
+CFA Plane Color                 : Red,Green,Blue
+CFA Layout                      : Rectangular
+Black Level Repeat Dim          : 2 2
+Black Level                     : 1026 1025 1025 1025
+White Level                     : 16383
+Color Matrix 1                  : 0.8479999899 -0.1906999942 -0.03860000104 -0.4395999906 1.333299995 0.2725999948 -0.08219999777 0.2452999946 0.7939000129
+As Shot Neutral                 : 0.6450393795 1 0.385796368
+Baseline Exposure               : 0.4999999998
+Baseline Noise                  : 1
+Baseline Sharpness              : 1
+DNG Private Data                : (Binary data 1789 bytes, use -b option to extract)
+Calibration Illuminant 1        : D65
+Profile Hue Sat Map Dims        : 1 2 1
+Profile Hue Sat Map Data 1      : 1 0.930000007152557 1 1 0.930000007152557 1
+Profile Hue Sat Map Encoding    : sRGB
+---- ExifIFD ----
+Exposure Time                   : 1/800
+F Number                        : 1.9
+Exposure Program                : Program AE
+ISO                             : 112
+Date/Time Original              : 2025:12:23 15:47:46
+Exposure Compensation           : 0
+Metering Mode                   : Center-weighted average
+Focal Length                    : 1.2 mm
+User Comment                    : 
+White Balance                   : Manual
+Focal Length In 35mm Format     : 6 mm
+Contrast                        : Normal
+Saturation                      : Normal
+Sharpness                       : Normal
+---- GPS ----
+GPS Latitude Ref                : North
+GPS Latitude                    : 30 deg 1' 42.64"
+GPS Longitude Ref               : East
+GPS Longitude                   : 31 deg 32' 51.17"
+GPS Altitude Ref                : Above Sea Level
+GPS Altitude                    : 357.600028 m
+---- XMP-x ----
+XMP Toolkit                     : XMP Core 4.4.0-Exiv2
+---- XMP-GPano ----
+Use Panorama Viewer             : True
+Projection Type                 : equirectangular
+Cropped Area Image Width Pixels : 11968
+Cropped Area Image Height Pixels: 5984
+Full Pano Width Pixels          : 11968
+Full Pano Height Pixels         : 5984
+Cropped Area Left Pixels        : 0
+Cropped Area Top Pixels         : 0
+Initial View Vertical FOV Degrees: 95
+Capture Software                : insta360 x3
+Stitching Software              : Insta360 Studio 5.8.6
+Initial Horizontal FOV Degrees  : 100
+---- Composite ----
+Aperture                        : 1.9
+CFA Pattern                     : [Green,Blue][Red,Green]
+Image Size                      : 11968x5984
+Megapixels                      : 71.6
+Scale Factor To 35 mm Equivalent: 4.8
+Shutter Speed                   : 1/800
+GPS Altitude                    : 357.6 m Above Sea Level
+GPS Latitude                    : 30 deg 1' 42.64" N
+GPS Longitude                   : 31 deg 32' 51.17" E
+Circle Of Confusion             : 0.006 mm
+Field Of View                   : 143.1 deg
+Focal Length                    : 1.2 mm (35 mm equivalent: 6.0 mm)
+GPS Position                    : 30 deg 1' 42.64" N, 31 deg 32' 51.17" E
+Hyperfocal Distance             : 0.13 m
+Light Value                     : 11.3

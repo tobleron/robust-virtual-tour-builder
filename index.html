@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Remax Virtual Tour Builder</title>
+
+    <script>
+      // Force WebGL to keep the image buffer available for recording
+      const oldGetContext = HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.getContext = function (type, attributes) {
+        if (
+          type === "webgl" ||
+          type === "experimental-webgl" ||
+          type === "webgl2"
+        ) {
+          attributes = attributes || {};
+          attributes.preserveDrawingBuffer = true; // <--- The Magic Switch
+          attributes.alpha = false; // Force opaque background
+        }
+        return oldGetContext.call(this, type, attributes);
+      };
+    </script>
+
+    <link rel="stylesheet" href="src/libs/pannellum.css" />
+    <script src="src/libs/pannellum.js"></script>
+    <script src="src/libs/jszip.min.js"></script>
+    <script src="src/libs/FileSaver.min.js"></script>
+
+    <link rel="stylesheet" href="css/style.css" />
+
+    <style>
+      /* System Alerts */
+      #system-alert,
+      #error-console {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: #dc3545;
+        color: white;
+        padding: 15px;
+        text-align: center;
+        z-index: 10000;
+        font-family: sans-serif;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div id="sidebar"></div>
+      <div id="viewer-container">
+        <div id="panorama"></div>
+        <div id="placeholder-text" class="viewer-placeholder">
+          <h3>Ready to Build</h3>
+          <p>Use the sidebar to upload your images.</p>
+        </div>
+      </div>
+      <div id="modal-container"></div>
+    </div>
+
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>
