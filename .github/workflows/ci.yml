@@ -1,0 +1,53 @@
+name: Version Check & CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Verify Version Consistency
+      run: |
+        # Simple script to check if version in src/version.js matches index.html
+        # This is a basic check.
+        if [ -f src/version.js ] && [ -f index.html ]; then
+          echo "Checking version consistency..."
+          # Extract version from src/version.js (assuming format like: export const APP_VERSION = 'v0.7.12';)
+          JS_VERSION=$(grep "APP_VERSION" src/version.js | cut -d"'" -f2)
+          echo "JS Version: $JS_VERSION"
+          
+          if [ -z "$JS_VERSION" ]; then
+             echo "Could not find APP_VERSION in src/version.js"
+             # Warn but don't fail for now as the format might vary
+          else
+             # Check if index.html contains the version
+             if grep -q "$JS_VERSION" index.html; then
+               echo "Found matching version $JS_VERSION in index.html"
+             else
+               echo "WARNING: Version $JS_VERSION not found in index.html"
+               # exit 1 # Uncomment to enforce
+             fi
+          fi
+        else
+          echo "Files not found for version check, skipping."
+        fi
+
+    - name: Install dependencies
+      if: hashFiles('package.json') != ''
+      run: npm install
+
+    - name: Build (if applicable)
+      if: hashFiles('package.json') != '' && hashFiles('package-lock.json') != ''
+      run: npm run build --if-present

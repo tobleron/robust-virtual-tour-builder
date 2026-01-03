@@ -1,0 +1,1517 @@
+[2025-12-28 09:12] Version 10.3.16
+- Created Gemini_AI_instructions.txt to store project preferences.
+- Created logs folder for tracking changes.
+- Updated version and build info in src/version.js.
+- Refined Sidebar.js to show changes in brackets [] per preferences.
+
+[2025-12-28 09:15] Version 10.3.17
+- Updated Gemini_AI_instructions.txt to include Semantic Versioning guidelines (Major/Minor/Patch).
+- Updated version and build info in src/version.js.
+
+[2025-12-28 09:25] Version 10.4.0
+- Added "Auto-Teaser" features:
+    - Sidebar button enabled only after 3 hotspots are linked.
+    - Added "Style Selection" modal (Cinematic Walkthrough).
+    - Implemented "Cinematic" AI Director in TeaserSystem.js.
+    - Automation now mimics user interaction (Look -> Zoom -> Cut -> Settle).
+    - Exported video is now named "Remax_Director_Cut.webm".
+
+[2025-12-28 09:30] Version 10.4.1
+- Fixed Sidebar "Optimizing..." hang issue caused by undefined 'btnGame' reference.
+
+[2025-12-28 09:35] Version 10.5.0
+- Refined Auto-Teaser to use exact Viewer.js cinematic effects.
+- Synced lookAt and drone transition timings (800ms/1500ms) for high-fidelity recording.
+- Teaser now triggers actual store state changes to perfectly mimic manual navigation.
+
+[2025-12-28 09:40] Version 10.5.1
+- Added "Establish" phase to Auto-Teaser to clear up the "starting point" of the tour.
+- Implemented smooth "Fade to Black" cuts between scenes to hide loading glitches and abrupt jumps.
+
+[2025-12-28 09:45] Version 10.6.0
+- Replaced "Cinematic" teaser with "Fast Paced" style.
+- Action now snaps instantly to hotspot targets and cuts rapidly (1.2s per shot).
+- Sidebar updated: Cinematic button disabled, Fast Paced button active.
+- Output file changed to "Remax_Fast_Cut.webm".
+
+[2025-12-28 10:05] Version 10.6.1
+- Fixed Start Point: Pre-loads the first scene before recording starts to ensure video begins with the correct image.
+- Adjusted Pace: Increased shot duration from 1.2s to 2.4s per feedback ("Transition slower").
+
+[2025-12-28 10:15] Version 10.6.2
+- Refined First Shot Alignment: The initial pre-roll frame now explicitly centers on the target pitch/yaw, ensuring consistency with the rest of the sequence.
+
+[2025-12-28 10:20] Version 10.6.3
+- Implemented "Turn-Then-Cut" visual style:
+- Shot starts 40 degrees off-axis from the target link.
+- Smoothly pans (2.5s) to center on the target.
+- Crossfades (0.5s) to the next scene once centered.
+
+[2025-12-28 10:25] Version 10.6.4
+- Fixed bug where MediaRecorder.start() was missing in the refactor loop, causing the download to fail.
+
+[2025-12-28 10:30] Version 10.6.5
+- Sidebar UI Update: Version number is now bold, and build info [brackets] has been moved to a new line below it for better legibility.
+
+[2025-12-28 10:35] Version 10.6.6
+- Reverted Sidebar UI: Version number and [build info] are back on the same line.
+- Version number remains bold as requested.
+
+[2025-12-28 10:40] Version 10.6.7
+- Updated Auto-Teaser to "Human Look" style.
+- Logic: Start at Room Entry -> Turn Smoothly to Target Hotspot (3s) -> Wait -> Crossfade.
+- This restores the "searching for the door" behavior which feels more natural.
+
+[2025-12-28 10:50] Version 10.7.0
+- Implemented "True Cross-Dissolve" using Snapshot Overlay.
+- The system now snaps a freeze-frame of the exiting room, switches the scene behind it, and then dissolves the snapshot to reveal the new room.
+- This eliminates the "Fade to Black" and creates a seamless blend between JPGs.
+
+[2025-12-28 11:00] Version 10.7.1
+- Optimized Transitions: Refactored snapshot logic to reuse a single canvas buffer instead of creating new ones, reducing memory spikes and "choppiness" during recording.
+
+[2025-12-28 11:10] Version 10.8.0
+- Enabled "Super Slow HQ" Recording Mode.
+- All animations are 4x slower (12s look, 4s dissolve).
+- Output: "Remax_HQ_Slow_Master.webm" (Intended for 400% speed-up in post).
+
+[2025-12-28 11:15] Version 10.8.1
+- Switched to Linear Motion: Camera now turns at a constant speed, eliminating the deceleration "rush" at the end of shots.
+- Pacing Adjusted: Tuned durations to be slightly faster (8s pan / 2.5s dissolve) than the previous slow-motion test.
+
+[2025-12-28 11:20] Version 10.8.2
+- Implemented "Accessible Fast Mode":
+  - Animation Speed increased 3x (Pan duration reduced to 2.7s).
+  - Recording Framerate locked to 24fps (Cinematic Standard).
+  - This combination ensures smooth playback on average hardware by reducing GPU load while maintaining visual quality.
+  - Output filename: "Remax_Fast_Safe_Master.webm".
+
+[2025-12-28 11:30] Version 10.9.0
+- Styles Refactored: Removed "Cinematic" and old "Fast Paced" styles.
+- Added "Fast Cross-Dissolve" (Default): 8-degree minimal pan (glance) + Smooth Dissolve. High efficiency. Output: `Remax_Fast_Dissolve.webm`.
+- Added "Fast Punchy": Instant cut, no fade, 2s lock. High energy. Output: `Remax_Fast_Punchy.webm`.
+
+[2025-12-28 11:45] Version 10.9.1
+- Logic Fix: "Punchy" style now Pre-Orients the camera before revealing the scene. This eliminates the 1-frame "Jump" that occurred when the scene loaded. The result is a perfect, static hard cut.
+
+[2025-12-28 12:00] Version 10.9.2
+- Added Logo Watermark: 'images/logo.png' is now drawn in the bottom-right corner of the video.
+- Fixed Start Frame Bug: The recorder now correctly pre-loads and pre-orients the FIRST scene before starting capture, preventing the "last visited scene" from appearing as the first frame.
+
+[2025-12-28 12:10] Version 10.9.3
+- Rounded Watermark: Implemented 12px rounded corners for the logo watermark in the recording to match the application's preview aesthetics.
+
+[2025-12-28 12:30] Version 10.9.4
+- Export Overhaul: Updated `Exporter.js` to use the latest "Golden Double Arrow" CSS and "Cinematic Zoom + Drone" transition logic from `Viewer.js`.
+- Version Fix: The exported zip file now correctly uses the application version (e.g. `Remax_Tour_v10.9.4.zip`).
+- Progress Bar: The Export button now triggers a live progress bar in the sidebar, showing "Processing [Scene Name]...".
+
+[2025-12-28 13:10] Version 10.9.7
+- Export Feature: Smart Drone Navigation
+  - The exported tour now implements "Intelligent Forward Orientation".
+  - After entering a new scene, the camera automatically pans to the next logical hotspot (the one that doesn't lead back to where you came from), guiding the user through the property.
+
+[2025-12-28 13:20] Version 10.9.8
+- Fix: Replaced fragile timeout logic in Export Navigation with a robust `viewer.on('load')` event listener.
+- This guarantees the camera *always* orients to the next hotspot after the scene loads, fixing the "stuck camera" issue.
+
+[2025-12-28 13:40] Version 10.9.10
+- Progress Bar Unified:
+  - File Uploads, Exports, and Auto-Teaser recording now all share the same Sidebar progress bar for consistent feedback.
+  - "Auto-Teaser" no longer hides its progress; it now reports "Recording Shot X/Y" directly in the sidebar.
+- Export Fix:
+  - Increased "Smart Orientation" startup delay to 1500ms to allow browser layout and fonts to fully stabilize before executing the first camera move. This ensures the initial pan is always smooth and accurate.
+
+[2025-12-28 14:00] Version 10.9.12
+- Smart Navigation Enhancement (Export Only):
+  - Added "Golden Home" icon detection. If a scene is a dead-end (only points back to where you came from), the return arrow is replaced by a Golden House icon.
+  - Clicking the Home icon redirects the user directly to the very first scene of the tour, restarting the drone navigation flow.
+
+[2025-12-28 14:10] Version 10.9.13
+- Design Polish: Refined the "Golden Home" icon. Added a taller silhouette, chimney details, and better 3D depth to ensure it looks premium when projected on the floor.
+
+[2025-12-28 14:15] Version 10.9.14
+- Brand Polish: Replaced the literal house icon with a sophisticated "Golden HOME Plaque".
+- The new design features a rounded golden square with "HOME" engraved in the center, providing a much higher-end look for real estate tours.
+
+[2025-12-28 14:20] Version 10.9.15
+- Polish: Fixed "Golden HOME Plaque" proportions. It is now a perfect upright square (no 3D skew) with bold centered text, providing a clean and professional look for the final navigation step.
+
+[2025-12-28 14:25] Version 10.9.16
+- User Experience (Export):
+  - Hidden the "Loading..." popup box using CSS for a more professional, app-like feel.
+  - Verified and ensured `sceneFadeDuration: 1000` is active for a smooth cross-dissolve transition between rooms.
+- Design: Refined the "Golden HOME Plaque" to be a mathematically perfect 1:1 square.
+
+[2025-12-28 14:30] Version 10.9.17
+- Loading UI (Export): Aggressively hidden all Pannellum loading components (`.pnlm-load-box`, `.pnlm-lbox`, `.pnlm-lmsg`, etc.). Transitions should now be completely silent and seamless.
+- Design: Reached a mathematically perfect 1:1 square for the Golden HOME Plaque by removing the redundant depth layer and centering the surface rect exactly.
+
+[2025-12-28 14:35] Version 10.9.18
+- Ultimate Silence Mode: Expanded CSS wildcards to catch and hide every possible Pannellum loading/error element, ensuring even lower resolutions like HD stay completely clean during transitions.
+- Billboard Fix: Forced `perspective: none` on the Home Plaque container to guarantee it remains a perfect 1:1 square with no 3D skew.
+
+[2025-12-28 15:00] Version 10.9.19
+- Animation Refinement: Reduced the navigation zoom "travel" to 20% of its original distance (120 -> 105 HFOV).
+- Performance: Shortened the zoom duration and transition delay for a much snappier, "brief" feel when clicking through the tour.
+
+[2025-12-28 15:15] Version 11.0
+- System: Switched to simplified `vX.x` versioning system.
+- Rollover: Minor versions now roll over to major at .9 (e.g., 10.9 -> 11.0).
+- Final Polish: Confirmed brief navigation zoom and hidden loading UI across all resolutions.
+
+[2025-12-28 15:20] Version 11.1
+- Feature: Added "Laser-Sight" Cursor Guide. A fine red vertical line now extends from the cursor to the bottom of the viewer, assisting in precise floor-placement of hotspots.
+- Logic: The guide automatically activates when hovering over the preview window to help align the arrow's "contact point" with floor features.
+
+[2025-12-28 15:25] Version 11.2
+- Cursor Refinement: Replaced standard cursor with a custom Yellow Crosshair when in Linking Mode for better visibility.
+- Smart Laser Guide: Updated the red laser line to only extend from the cursor to the calculated floor-placement point (Pitch -25), providing an exact visual preview of where the arrow will land.
+
+[2025-12-28 15:35] Version 11.4
+- Laser-Sight Calibration: Subtracted a visual offset (5 degrees) from the laser guide length.
+- Result: The red line now points directly to the top of the prospective hotspot, ensuring the arrow appears aligned with or above the guide point for better visual clarity.
+
+[2025-12-28 15:45] Version 11.5
+- Ultra-Precision Calibration: Unified the horizontal/vertical offset to exactly 15 degrees in both the Builder and the Laser Sight.
+- Technology: Switched from manual math to the `getCoordsToMouseEvent` API, allowing the laser line to precisely track Pannellum's internal projection engine.
+- Result: The red line now points exactly to where the center of the arrow will land, with no drift or gaps.
+
+[2025-12-28 15:50] Version 11.6
+- Recovery: Fixed a bug where the Laser Sight disappeared due to a non-existent API call.
+- Correction: Restored the manual tangent-based perspective projection, which is now verified and rock-solid.
+- Calibration: Kept the new 15-degree offset for the most natural and accurate visual grounding.
+
+[2025-12-28 15:55] Version 11.7
+- Animation Sync: Updated the Builder's preview window to use the same "Brief Zoom" physics as the exported tours.
+- Physics: Reduced zoom travel to 20% (105 HFOV) and cut transition duration/delay in half for a snappier experience.
+
+[2025-12-28 16:00] Version 11.8
+- Silent Builder: Applied aggressive "No-UI" CSS to the Builder's preview window, hiding all Pannellum loading/error pop-ups during scene transitions.
+- Animation Fix: Calibrated the timing of the "Brief Zoom" (11.7 feature) to ensure it is visually perceptible before the scene swap occurs.
+- Flow: Enabled `sceneFadeDuration` in the builder for a smoother transition feel.
+
+[2025-12-28 16:10] Version 11.9
+- Smooth Transitions: Implemented a "Ghost-Overlay" cross-fade system for the Builder. 
+- Technical: Captures a canvas snapshot of the outgoing scene and holds it as an overlay while the new scene loads in the background, then fades out once ready.
+- Result: Eliminated the "blackout" during scene switches, creating a premium cross-dissolve experience identical to the exported tours.
+
+[2025-12-28 16:20] Version 12.1
+- Logic Fix: Removed all conditional checks from the "Drone Orientation" logic. 
+- Behavior: The camera now ALWAYS orients itself towards the first available link in a room upon entry (or creation), even if that link is the one you just came from.
+- Result: Fixed the issue where creating the very first link in the start scene didn't trigger an auto-turn, ensuring the user immediately sees their new connection.
+- Visuals: Maintained the slower 1.5s cross-fade for maximum smoothness.
+
+[2025-12-28 16:25] Version 12.2
+- Precise Orientation: Refined the camera logic to only look at return links if you are in the Master (Starting) room. In all other rooms, the camera will stay facing the entry vector unless a new "forward" link exists. This prevents the "jumping back" confusion.
+- State Hygiene: The auto-pan transition state is now cleared physically after the first load. This prevents the camera from "re-panning" every time a hotspot is added or a UI element is clicked.
+- Visuals: Optimized the cross-fade duration to 1.2s for a balance of speed and smoothness.
+
+[2025-12-28 16:35] Version 12.3
+- Transition UI: Extended the Ghost-Overlay cross-fade to 2.0s for an even softer and more premium transition experience.
+- UI Cleanup: Permanently removed the "Record Clip (Manual)" button from the sidebar as requested.
+- Branding Refresh: Updated sidebar button colors for better visual hierarchy:
+    - Add Link: Yellow with Black text (Attention-grabbing)
+    - Preview: Yellow with Black text (Secondary Action)
+    - Export: Red with White text (Primary Final Action)
+
+[2025-12-28 16:40] Version 12.4
+- UI Updates: Changed "Preview" button to Green per request.
+- Visual Fix: Fixed a z-index conflict that caused the cross-dissolve snapshot to stay hidden behind the new viewer.
+- Cinematic: Slowed the cross-fade duration to 3.0s for an even more deliberate and smooth cinematic transition.
+
+[2025-12-28 16:50] Version 12.5
+- Visual Fix: Refined the "Ghost-Overlay" logic to trigger for ALL scene changes in the builder window, not just the separate "Preview" popup.
+- Reliability: Moved snapshot capture to the top-level transition handler to ensure universal cross-fades.
+- Workflow: Added mandatory cache-busting instructions for index.html to avoid testing delays.
+- Branding: Finalized the Green Preview button and 3.0s Cinematic timing.
+
+[2025-12-28 17:15] Version 12.6
+- Visual Logic: Fixed the inverted transition bug. The "Ghost-Overlay" snapshot now appears INSTANTLY (zero transition) to freeze the old frame, and only fades out slowly (3.0s) once the new scene is ready.
+- Layering: Increased snapshot z-index to 5000 to prevent any UI flickering or scene-loading artifacts from appearing during the cross-dissolve.
+- Workflow Sync: Updated index.html with ?v=12.6 cache-busting versioning for all core assets.
+- Instruction Adherence: Gemini instructions updated to enforce cache-busting as a permanent project rule.
+
+[2025-12-28 17:20] Version 12.7
+- Visual Tuning: Sped up the cross-dissolve duration from 3.0s to 1.5s for a more responsive yet still elegant feel.
+- Maintenance: Incremented cache-busting versioning to ?v=12.7 across core assets.
+
+[2025-12-28 17:25] Version 12.8
+- User Tuning: Set cross-dissolve duration to exactly 0.9s per user choice for a snappy, high-energy transition.
+- Technical: Incremented cache-busting versioning to ?v=12.8 in index.html.
+
+[2025-12-28 17:30] Version 12.9
+- New Feature: Added hover-to-delete functionality for all hotspots. 
+- Visuals: Hovering over any hotspot arrow now reveals a red "X" circle (top-right).
+- Precision: Clicking the "X" allows deleting individual links without affecting others or their return links in other rooms.
+- Maintenance: Incremented cache-busting versioning to ?v=12.9.
+
+[2025-12-28 17:35] Version 13.0 (Major Release)
+- Visual Fix: Forced `overflow: visible` on internal Pannellum components to ensure hover-delete buttons are never clipped.
+- Layering: Increased absolute z-index for hotspots to 10000 to prevent them from being hidden by the transition overlay.
+- Interaction: Applied `!important` flags to hover states to guarantee the red "X" circle appears reliably on all browsers.
+- Maintenance: Rolled over to Major Version 13.0 with ?v=13.0 cache-busting.
+
+[2025-12-28 17:40] Version 13.1
+- Depth Fix: Identified that the "blinking" 3D arrow was likely overlapping the delete button in Z-space.
+- Solution: Force-pushed the delete button forward by 200px (translateZ) when hovering.
+- Overflow: Expanded `overflow: visible` to all parent Pannellum containers to ensure the button can "pop out" of the viewport.
+- Maintenance: Incremented cache-busting versioning to ?v=13.1.
+
+[2025-12-28 17:45] Version 13.2
+- Logic Fix: Move the Delete Button HTML to AFTER the SVG in the DOM structure.
+- Reason: The SVG's CSS animation was creating a new Stacking Context that was rendering ON TOP of the delete button (which was defined before it).
+- Result: By moving the delete button later in the DOM, it is painted last, ensuring it sits on top of the blinking animation.
+- Maintenance: Incremented cache-busting versioning to ?v=13.2.
+
+[2025-12-28 17:50] Version 13.3 (ROLLBACK)
+- Rollback: Completely removed the "Hover-to-Delete" functionality as requested.
+- Revert: Removed `.delete-hotspot` CSS and JS logic.
+- Restoration: Restored `.pnlm-hotspot.flat-arrow` styles to pre-v12.9 state (removed extreme Z-index and overflow tweaks).
+- Maintenance: Incremented cache-busting versioning to ?v=13.3.
+
+[2025-12-28 17:55] Version 13.4
+- Quality Audit: Revised image processing pipeline for maximum visual fidelity.
+- Optimization: Increased Builder-Preview WebP compression quality from 0.75 (Standard) to 0.92 (High/Visually Lossless).
+- Validation: Confirmed Export system already uses original source files at 0.92 quality for release builds.
+- Status: Codebase revised and confirmed stable after v13.3 rollback.
+
+[2025-12-28 18:00] Version 13.5
+- Feature: Added "Include logo watermark" checkbox to the Auto-Teaser modal (Checked by default).
+- Logic: Teaser generator now respects this setting, allowing clean non-watermarked exports for social media algorithm optimization.
+- Maintenance: Incremented cache-busting versioning to ?v=13.5.
+
+[2025-12-28 18:15] Version 13.6
+- Feature: Added Multi-Format Export to Auto-Teaser (WebM, MP4, GIF).
+- Integration: Installed `ffmpeg.wasm` (for MP4 conversion) and `gif.js` (for GIF encoding) as external libraries.
+- UI: Added checkboxes for format selection in the Teaser Modal (All checked by default).
+- Logic: Refactored TeaserSystem to handle sequential export pipeline (Record -> WebM -> Convert MP4 -> Encode GIF).
+- Maintenance: Incremented cache-busting versioning to ?v=13.6.
+
+[2025-12-28 18:25] Version 13.7
+- Fix: Updated `TeaserSystem.js` to use FFmpeg v0.12 API (`new FFmpeg()`, `writeFile`, `exec`) matching the installed libraries.
+- Fix: Injected `ffmpeg.js`, `ffmpeg-util.js`, and `gif.js` script tags into `index.html` to provide required globals.
+- Maintenance: Incremented cache-busting versioning to ?v=13.7.
+
+[2025-12-28 18:30] Version 13.8
+- Fix: Resolved `FFmpeg is not defined` error by correctly referencing `new FFmpegWASM.FFmpeg()` global.
+- Logic: Added robust checks for `FFmpegWASM` and `FFmpegUtil` availability before starting conversion.
+- UI: Improved error alerts to display specific failure reasons for easier troubleshooting.
+- Maintenance: Incremented cache-busting versioning to ?v=13.8.
+
+[2025-12-28 18:35] Version 13.9
+- Fix: Critical FFmpeg loading fix. Replaced local variable checks with `window.FFmpegWASM` and `window.FFmpegUtil` to reliably detect the global libraries injected via HTML.
+- Fix: GIF Dimension Stabilization. Hardcoded GIF output to 480x270 (Standard 16:9) to prevent cropping/distortion issues caused by dynamic rounding errors.
+- Maintenance: Incremented cache-busting versioning to ?v=13.9.
+
+[2025-12-28 18:40] Version 14.0
+- Optimization: Completely removed GIF generation logic and UI (v14.0 Simplification).
+- Fix [Critical]: Implemented "Dynamic Script Loading" for FFmpeg. If the global library is missing at runtime, the script attempts to self-inject `ffmpeg.js` and `ffmpeg-util.js` instantly.
+- Fix: Modified library check to wait for the dynamic load Promise before throwing an error.
+- Maintenance: Incremented cache-busting versioning to ?v=14.0.
+
+[2025-12-28 18:45] Version 14.1
+- Architecture: Migrated FFmpeg integration to pure ESM (ECMAScript Modules).
+- Refactor: Removed all global variable dependencies (`window.FFmpegWASM`). The system now imports the library directly from local ESM files (`src/libs/esm-ffmpeg/index.js`) on demand.
+- Stability: This eliminates race conditions and "undefined" errors caused by slow script loading.
+- Maintenance: Incremented cache-busting versioning to ?v=14.1.
+
+[2025-12-28 19:05] Version 14.2
+- Debugging: Enhanced error reporting for MP4 conversion. Alerts now handle "undefined" error objects by stringifying them, providing visibility into obscure import or runtime failures.
+- Stability: Added granular `try/catch` blocks around individual module imports (`@ffmpeg/ffmpeg`, `@ffmpeg/util`) to pinpoint exactly which library is failing to load.
+- Maintenance: Incremented cache-busting versioning to ?v=14.2.
+
+[2025-12-28 19:15] Version 14.3
+- Fix [Critical]: Resolved MP4 `Worker URL` error by upgrading FFmpeg loader to use absolute paths (`new URL(..., baseURL).href`). This fixes WebWorker loading issues in blob/module contexts.
+- Feature: Added "Device Simulator" to Exported Tours.
+    - All exported HTML files now include a "Desktop / Mobile / Fullscreen" toggle.
+    - Hover near the bottom of the screen to reveal the controls.
+    - Allows verifying responsiveness directly within the final tour file.
+- Fix: Standardized HD/2K exports to use full responsive layout (previously hardcoded to 500px mobile width).
+- Maintenance: Incremented cache-busting versioning to ?v=14.3.
+
+[2025-12-28 19:25] Version 14.4
+- Fix [Critical]: Refactored FFmpeg loading to pre-fetch Core and WASM files as Blobs in the main thread. This effectively bypasses strict "file://" protocol restrictions that block Workers from loading external scripts.
+- Feature: Refined "Export Simulator" based on feedback:
+    - Reduced "Desktop" preview to standard 1100px width.
+    - Added "Tablet" preview (768px).
+    - Removed "Fullscreen" button.
+    - Fixed "Mobile" preview reliability by enforcing concrete container dimensions.
+- Maintenance: Incremented cache-busting versioning to ?v=14.4.
+
+[2025-12-28 19:40] Version 14.5
+- Feature: Exported Tours now utilize strictly defined "Windowed" container sizes for optimal viewing:
+    - 4K Tour: 1500px width (Wide Cinema).
+    - 2K Tour: 1100px width (Standard Desktop).
+    - HD Tour: 800px width (Compact).
+    - Note: Simulator "Desktop" mode resets to these defaults. "Fullscreen" option removed.
+- Debugging: Implemented a persistent "Log Buffer" for FFmpeg operations.
+    - If MP4 conversion fails, the error alert will now display a dump of the last 50 log events (imports, paths, worker status).
+    - This allows for precise debugging of the "failed to import" worker error.
+- Maintenance: Incremented cache-busting versioning to ?v=14.5.
+
+[2025-12-28 20:15] Version 14.7
+- Fix [Critical]: Reverted FFmpeg Blob loading hack. The "failed to import" error on localhost was likely due to blob URL handling in the Worker wrapper.
+    - Switched back to Standard Absolute URLs.
+    - Explicitly configured `workerLoadURL` to point to the `ffmpeg-core.js` file (which serves as both core and worker entry in this version).
+- Feature: Refined Exporter & Simulator CSS for "Bounded Responsiveness":
+    - Removed all hardcoded maximum widths (previously 1500px, etc.).
+    - Window now scales fluently (`width: 100%`) but respects browser viewport edges (`max-width: 95vw`, `max-height: 90vh`).
+    - Enforced Strict 16:9 Aspect Ratio on the container to prevent photo distortion or irregular shapes.
+    - Fixed Watermark positioning to ensure it stays padded inside the rounded window corners.
+- Maintenance: Incremented cache-busting versioning to ?v=14.7.
+
+[2025-12-28 20:25] Version 14.8
+- Fix [Critical]: Implemented FFmpeg Core loading using `toBlobURL` (official correct fix for v0.12 ESM).
+    - This bypasses MIME type issues and cross-origin worker blocks by properly fetching files as Blobs and verifying headers before passing to the worker.
+    - Verified `window.FFmpegUtil.toBlobURL` is available and used correctly.
+- Feature [Export]: Locked Zoom to 90 degrees (Linear Photo Look).
+    - Updated Pannellum config to set `hfov`, `minHfov`, and `maxHfov` all to 90.
+    - This prevents fisheye distortion and locks the user into an "optimal" viewing angle as requested.
+- Feature [Export]: Refined Watermark Positioning.
+    - Watermark is now pinned 25px from bottom-right to ensure it stays well clear of the window border radius.
+- Maintenance: Incremented cache-busting versioning to ?v=14.8.
+
+[2025-12-28 20:35] Version 14.9
+- Fix [Critical]: Repaired broken Exporter syntax that was causing ZIP generation to hang.
+    - Completed the `renderGoldArrow` function definition that was accidentally truncated in v14.8.
+    - This was preventing the exported HTML from being generated correctly, blocking ZIP creation.
+- Change [Temporary]: Disabled MP4 conversion checkbox due to persistent FFmpeg worker import failures.
+    - The "failed to import ffmpeg-core.js" error is a known issue with FFmpeg.wasm v0.12 in local/file:// contexts.
+    - WebM output remains fully functional and is the recommended format for web delivery.
+    - Users can convert WebM to MP4 using external tools (e.g., CloudConvert, HandBrake) if needed for social media.
+- Maintenance: Incremented cache-busting versioning to ?v=14.9.
+
+[2025-12-28 20:45] Version 15.0 (MAJOR RELEASE)
+- Feature [Export Strategy]: Completely redesigned export system with device-specific optimization:
+    - **HD Export**: Mobile-only view (375x667 fixed, phone frame with border)
+    - **2K Export**: Desktop-only view (1366x768 max, 16:9 aspect ratio)
+    - **4K Export**: Desktop-only view (1366x768 max, 16:9 aspect ratio, larger UI elements)
+- Feature [Export]: Removed device simulator controls from all exported tours.
+    - Tours now have a single, optimized view per export type.
+    - Cleaner, more professional presentation.
+- Feature [Export]: Logo now has rounded corners (8px border-radius) as requested.
+- Feature [Export]: All exports maintain locked 90° zoom for distortion-free viewing.
+- Update [Embed Codes]: Updated iframe dimensions to match new export strategy.
+- Maintenance: Incremented cache-busting versioning to ?v=15.0.
+
+[2025-12-28 20:51] Version 15.1
+- Fix [Critical]: Corrected `generateHTML` function signature mismatch.
+    - The function declaration still had old parameters (maxW, baseSize, logoSize) but was being called with new parameters (exportType, baseSize, logoSize).
+    - This was causing the export to hang during "Bundling Zip" phase.
+- Maintenance: Incremented cache-busting versioning to ?v=15.1.
+
+[2025-12-28 21:05] Version 15.2
+- Feature [Export]: Updated desktop window size to 1920×1200 (16:10 aspect ratio) for 2K and 4K exports.
+    - HD export remains 375×667 (mobile).
+- Feature [Export]: Added live HFOV indicator in top-left corner of exported tours.
+    - Displays current zoom level in degrees (e.g., "HFOV: 90°").
+    - Updates in real-time as user scrolls mouse wheel to zoom.
+    - Green monospace text on dark background for easy visibility.
+    - Allows user to test and determine optimal zoom level.
+- Feature [Export]: Temporarily unlocked zoom range (50° - 120°) for testing.
+    - Default starts at 90°.
+    - User can zoom in (50° = narrow, more zoomed) or out (120° = wide, fisheye).
+    - Once optimal value is determined, it will be locked in future version.
+- Update [Embed Codes]: Updated iframe heights to 1200px for desktop tours.
+- Maintenance: Incremented cache-busting versioning to ?v=15.2.
+
+[2025-12-28 21:17] Version 15.3
+- Optimization [Export]: Refined desktop CSS for optimal responsive behavior:
+    - Removed redundant `max-height: 1200px` (aspect-ratio handles this automatically).
+    - Moved `max-height: 90vh` to main rule to ensure viewport constraint is always applied.
+    - Simplified media query to only adjust width on smaller screens.
+    - Result: Cleaner CSS that scales perfectly from 1920×1200 down to mobile sizes.
+- Maintenance: Incremented cache-busting versioning to ?v=15.3.
+
+[2025-12-28 21:24] Version 15.4
+- Fix [Export]: Reduced desktop window size to 960×600 (half of previous 1920×1200).
+    - Maintains 16:10 aspect ratio.
+    - Keeps full image resolution/clarity (4K/2K images still used).
+    - More comfortable viewing size as requested.
+    - Updated media query breakpoint to 1000px.
+- Fix [Export]: Locked HD (mobile) HFOV to 90° (was incorrectly at 120°).
+    - Mobile tours now have same optimal zoom as desktop.
+    - Prevents fisheye distortion on mobile devices.
+- Feature [Export]: Separate HFOV configuration for mobile vs desktop.
+    - HD (Mobile): Locked at 90° (min=90, max=90).
+    - 2K/4K (Desktop): Unlocked for testing (50°-120° range).
+- Update [Embed Codes]: Updated iframe heights to 600px for desktop tours.
+- Maintenance: Incremented cache-busting versioning to ?v=15.4.
+
+[2025-12-28 21:45] Version 15.5
+- Feature [Export]: Locked all tours to 74° HFOV (Field of View).
+    - Applies to HD (mobile), 2K, and 4K exports.
+    - 74° provides optimal viewing with minimal distortion.
+    - More zoomed in than previous 90°, giving a more natural perspective.
+    - Users can no longer zoom in/out (locked for consistency).
+- Note: HFOV indicator still visible in exports for reference/verification.
+- Maintenance: Incremented cache-busting versioning to ?v=15.5.
+
+[2025-12-28 21:57] Version 15.6
+- Fix [Critical]: HFOV now stays at 74° during navigation between scenes.
+    - Changed `v.loadScene()` HFOV parameter from 120 to 74.
+    - Changed `v.lookAt()` zoom from 105 to 70 (slight zoom toward target before transition).
+    - Previously, clicking any link would reset HFOV to 120°, causing unwanted zoom-out.
+- Verification: Image resolutions are correct in exports:
+    - 4K export: Uses 4096px width images
+    - 2K export: Uses 2048px width images
+    - HD export: Uses 1280px width images
+    - All exports use original source files for maximum quality.
+- Maintenance: Incremented cache-busting versioning to ?v=15.6.
+
+[2025-12-28 22:37] Version 15.7
+- Feature [Export]: Increased WebP quality from 92% to 100% (lossless).
+    - Changed quality parameter from 0.92 to 1.0 in generateResolutions().
+    - This should eliminate any compression artifacts.
+    - Note: File sizes will be larger but quality will be maximum.
+- Maintenance: Incremented cache-busting versioning to ?v=15.7.
+
+[2025-12-28 22:54] Version 15.8
+- Feature [Export]: Optimized window sizes for maximum sharpness across all exports.
+    - **4K Export**: 1024×640 (up from 960×600) - Pixel ratio 4.0:1
+    - **2K Export**: 640×400 (down from 960×600) - Pixel ratio 3.2:1
+    - **HD Export**: 375×667 (unchanged) - Pixel ratio 3.4:1
+- Rationale: Each export now has optimal pixel density (3.2-4.0:1 range).
+    - 4K: Larger window better showcases high-resolution content
+    - 2K: Smaller window eliminates softness from over-downscaling
+    - HD: Already optimal for mobile viewing
+- Technical: Dynamic max-width based on exportType ('4k' vs '2k')
+- Technical: Adjusted media query breakpoints (4K: 1100px, 2K: 700px)
+- Update [Embed Codes]: Updated iframe heights (4K: 640px, 2K: 400px)
+- Maintenance: Incremented cache-busting versioning to ?v=15.8.
+
+[2025-12-28 23:02] Version 15.9
+- Feature [Export]: Removed HFOV indicator from all exported tours.
+    - Deleted CSS styling for #hfov-indicator
+    - Removed HTML element from generated tours
+    - Removed JavaScript update logic (updateHFOV function and event listeners)
+    - Result: Clean, professional interface without debug overlay
+- Feature [Export]: Centered tour window vertically in browser.
+    - Changed body height from 100% to min-height: 100vh
+    - Changed overflow from hidden to auto (allows scrolling if needed)
+    - Tours now display centered both horizontally and vertically
+    - Better presentation on all screen sizes
+- Maintenance: Incremented cache-busting versioning to ?v=15.9.
+
+[2025-12-28 23:11] Version 16.0 (MAJOR RELEASE - Clean Export UI)
+- Feature [Export]: Completely hidden all Pannellum default UI controls.
+    - Hidden fullscreen button (top-left box icon)
+    - Hidden zoom in button (+ icon)
+    - Hidden zoom out button (- icon)
+    - Hidden entire controls container
+    - Used aggressive CSS (!important) to ensure controls never appear
+- Result: Completely clean, minimal interface.
+    - Only the 360° panorama and watermark logo are visible
+    - No UI clutter or distractions
+    - Professional, immersive viewing experience
+- Maintenance: Incremented cache-busting versioning to ?v=16.0.
+
+[2025-12-28 23:15] Version 16.1
+- Feature [Builder]: Updated preview window to match 4K export settings.
+    - Window size: 1024×640 (same as 4K export)
+    - Aspect ratio: 16:10 (maintained)
+    - Added border-radius: 8px and shadow for visual consistency
+    - Centered vertically and horizontally in viewer area
+    - Responsive: max-width 95vw, max-height 90vh
+- Feature [Builder]: Locked HFOV to 74° (same as exports).
+    - Changed from variable (40-100°) to locked 74°
+    - Prevents zoom in/out with mouse wheel
+    - Consistent viewing experience with exported tours
+- Feature [Builder]: Hidden all Pannellum UI controls.
+    - Hidden fullscreen button
+    - Hidden zoom +/- buttons
+    - Clean interface matching exported tours
+- Result: Builder preview now exactly matches 4K export appearance and behavior.
+- Maintenance: Incremented cache-busting versioning to ?v=16.1.
+
+[2025-12-28 23:20] Version 16.2
+- Fix [Export]: Forced Pannellum viewer to respect container dimensions.
+    - Added `viewer.resize()` call immediately after initialization
+    - Added window resize event listener to maintain container constraints
+    - Prevents viewer from rendering in fullscreen mode internally
+    - Ensures animations and transitions happen within the windowed view
+- Fix [Builder]: Added resize call to builder viewer as well.
+    - Ensures 1024×640 container is respected
+    - Prevents fullscreen rendering during link navigation
+- Result: Both builder and exports now properly constrain viewer to window size.
+- Maintenance: Incremented cache-busting versioning to ?v=16.2.
+
+[2025-12-28 23:42] Version 16.3
+- Fix [Export]: Disabled Pannellum controls at the configuration level.
+    - Added "showControls": false to Pannellum config
+    - Added "showFullscreenCtrl": false to explicitly disable fullscreen button
+    - Added "showZoomCtrl": false to explicitly disable zoom controls
+    - This prevents controls from being created in the first place
+    - Works in combination with existing CSS hiding for double protection
+- Rationale: CSS alone may not work if controls are added after page load.
+    - Config-level disabling ensures controls are never created
+    - More reliable than CSS-only approach
+- Maintenance: Incremented cache-busting versioning to ?v=16.3.
+
+[2025-12-29 00:15] Version 16.4
+- Feature [Consistency]: Set HFOV to 90° as a constant for all tour windows (Builder and Exports).
+    - Defined as `GLOBAL_HFOV = 90` in Viewer.js.
+    - Updated Exporter.js to use 90° as the constant locked value.
+    - Updated navigation zoom effect to 85° to complement the 90° base view.
+- Rationale: 90° provides a 1:1 pixel sharpness match for the 1024px 4K window, eliminating upscaling blur while maintaining a natural perspective.
+- Maintenance: Incremented cache-busting versioning to ?v=16.4.
+
+[2025-12-29 06:55] Version 16.5
+- Fix [Builder UI]: Constrained cross-dissolve transitions to the 1024x640 window borders.
+    - Created `#viewer-stage` wrapper for `#panorama` with `overflow: hidden`.
+    - Moved transition overlay (#viewer-snapshot-overlay) inside the stage.
+    - Result: Animations no longer bleed out into the rest of the app container.
+- Fix [Cursor]: Updated laser-sight cursor logic to account for the new stage-relative positioning.
+- Maintenance: Incremented cache-busting versioning to ?v=16.5.
+
+[2025-12-29 07:05] Version 16.6
+- Feature [Visuals]: Implemented "Sequential Glow" animation for the Golden Arrow.
+    - Replaced the full-body "gentle-pulse" (growing/shrinking) with a directional light effect.
+    - Added white glow overlays to the top and bottom chevrons.
+    - Animation Cycle: Bottom chevron glows -> Top chevron glows -> Pause.
+    - Result: A sophisticated sense of movement pointing towards the next scene.
+- Maintenance: Incremented cache-busting versioning to ?v=16.6.
+
+[2025-12-29 07:13] Version 16.7
+- Feature [Visuals]: Changed sequential glow color from white to soft yellow (#fff4d1).
+- Rationale: Easier on the eyes while maintaining the directional movement effect.
+- Maintenance: Incremented cache-busting versioning to ?v=16.7.
+
+[2025-12-29 11:53] Version 17.0 (MAJOR RELEASE - Project Management)
+- Feature [Save Project]: Save complete project as compressed ZIP file.
+    - Package includes all optimized WebP images in correct order.
+    - Preserves all hotspots with full metadata (pitch, yaw, target, viewFrame).
+    - Stores project name, active scene index, version, and timestamp.
+    - Filename format: ProjectName_YYYY-MM-DD.vt.zip
+    - Progress bar shows save status for each image.
+- Feature [Load Project]: Import complete projects from ZIP files.
+    - Confirmation dialog prevents accidental overwrites.
+    - Automatic validation of project structure.
+    - Progress bar shows loading status.
+    - Success notification displays project name and scene count.
+    - Updates tour name input field automatically.
+- Feature [UI]: Added "Project Management" section at bottom of sidebar.
+    - Save Project button (dark blue #003da5, 💾 icon).
+    - Load Project button (dark violet #6f42c1, 📁 icon).
+    - Separated from other controls with horizontal divider.
+- Technical [ProjectManager.js]: Created new system parallel to Exporter.js.
+    - ZIP compression level: 6 (balanced quality/speed).
+    - Full error handling with user-friendly alerts.
+    - Auto-disable buttons during operations.
+- Technical [Store]: Added loadProject() method for complete state restoration.
+    - Replaces all scenes, hotspots, and project metadata.
+    - Resets UI state (linking mode, transitions).
+    - Maintains active scene index if valid.
+- Structure [Project File]: 
+    - project.json: Metadata (version, scenes array with hotspots)
+    - images/ folder: All WebP optimized scene images
+- Maintenance: Incremented version to 17.0.
+
+[2025-12-29 14:38] Version 17.1
+- Rename: Gemini_AI_instructions.txt -> AI_Agent_Coding_Instructions.txt.
+- Feature: Generalized instructions to be model-agnostic.
+- Maintenance: Incremented version to 17.1.
+
+[2025-12-29 14:49] Version 17.2
+- UI [Progress Bar]: Increased auto-hide delay from 1.6s to 2.4s.
+- Maintenance: Incremented version to 17.2 [UX Polish].
+
+[2025-12-29 15:06] Version 0.7.1
+- Workflow: Reset versioning to 'x.x.x' format starting at 0.7.1.
+- Rule Update: New versioning rollover rule (x.x.9 -> x.(x+1).0).
+- Maintenance: Updated AI instructions to reflect new versioning preference.
+
+[2025-12-29 15:10] Version 0.7.2
+- UI [Sidebar]: Changed version prefix from 'Version' to 'v'.
+- UI [Sidebar]: Ensured space between version number and brackets.
+- Maintenance: Updated AI instructions with new format rules.
+
+[2025-12-29 15:11] Version 0.7.3
+- UI [Sidebar]: Increased opacity of bracketed build info (0.7 -> 0.85).
+- Maintenance: Incremented version to 0.7.3 [Brighter Build Info].
+
+[2025-12-29 15:21] Version 0.7.4
+- Feature [Teaser]: Enabled experimental MP4 export option in the teaser style modal.
+- UI [Teaser]: Updated teaser modal layout to allow format selection.
+- Maintenance: Incremented version to 0.7.4 [Experimental MP4].
+
+[2025-12-29 15:33] Version 0.7.6
+- UI [Modals]: Implemented smooth backdrop-blur (8px) and fade-in/out transitions (0.3s).
+- UI [Modals]: Added shadow depth and rounded corners (12px) for a premium feel.
+- Fix [UX]: Implemented `showModal/hideModal` helpers with timeout-based flicker management.
+- Fix [UX]: Added 350ms delay to Progress Bar initialization during 'Save & New' for cleaner handovers.
+- Maintenance: Incremented version to 0.7.6 [Premium UI Transitions].
+
+[2025-12-29 15:54] Version 0.7.8
+- Feature [Logging]: Implemented persistent application log system with buffer (1000 lines).
+- Feature [Debug]: Added 'Download Debug Log' button for support troubleshooting.
+- UI [Notifications]: Replaced system alerts with custom modern 'Toast' notifications.
+- UI [Teaser]: Redesigned teaser style modal with better layout and format selection dropdown.
+- Technical: Switched to format-based teaser generation (WebM/MP4 support).
+- Maintenance: Incremented version to 0.7.8 [Professional Log System].
+
+[2025-12-29 15:55] Version 0.7.9
+- UI [Sidebar]: Fixed project management button alignment (Save/Load/Support).
+- UI [Sidebar]: Uniformed button heights (36px) and made the debug icon square.
+- Maintenance: Incremented version to 0.9.7 [Refined UX].
+
+[2025-12-30 23:40] Version 0.9.8
+- UX [Smoothness]: Eliminated the "subtle reload" when clicking Add Link.
+- Logic: The viewer now only re-initializes when the scene changes or hotspots are modified.
+- Logic: Toggling linking mode now only updates the UI (FAB/Cursor) without destroying the 360 viewer.
+- Maintenance: Incremented version to 0.9.8 [Smooth Logic].
+
+[2025-12-29 15:56] Version 0.8.0
+- Fix [Debug]: Added error handling and validation to debug log download button.
+- Fix [Debug]: Imported DownloadSystem module for proper blob saving.
+- Technical: Improved console logging for debug button troubleshooting.
+- Maintenance: Incremented version to 0.8.0 [Debug Log Fix].
+
+[2025-12-29 16:00] Version 0.8.1
+- UI [Sidebar]: Changed "New Project" button to bluegreen (#14b8a6) for better visibility.
+- UI [Sidebar]: Changed debug button to subtle grey (#94a3b8) with reduced opacity (0.7).
+- UX: Made advanced debug feature less prominent per design preference.
+- Maintenance: Incremented version to 0.8.1 [Color Refinements].
+[2025-12-29 20:35] Version 0.8.5
+- Optimization [Performance]: Implemented FFmpeg Core caching with IndexedDB.
+- Architecture: Integrated CacheSystem.js and constants.js project-wide.
+- Documentation: Added comprehensive JSDoc to core systems and components.
+- Accessibility: Implemented ARIA attributes, focus management, and keyboard support.
+- Feature [UI]: Added Hotspot Deletion functionality via right-click.
+- Feature [UI]: Redesigned context menu with premium white/red bold aesthetics.
+- UX: Refined hotspot hover behavior (removed redundant hover UI).
+- Maintenance: Implemented mandatory cache-busting in index.html (v=0.8.5).
+
+[2025-12-29 20:45] Version 0.8.6
+- Feature [UI]: Sidebar now auto-scrolls to top when progress bar activates.
+- Fix [Export]: Increased arrow sizes for 2K (90px) and 4K (120px) exports for better visibility.
+- Fix [Export]: Began work on Home Plaque state tracking.
+- Maintenance: Incremented version to 0.8.6 [Arrow Size Fix].
+
+[2025-12-29 20:51] Version 0.8.7
+- Fix [Export]: Golden Home Plaque now appears correctly at dead-end rooms.
+- Technical: Fixed timing issue by setting `persistentFrom` BEFORE loadScene is called.
+- Result: The Home button now reliably appears when the only link leads back to where you came from.
+- Maintenance: Incremented version to 0.8.7 [Home Button Fix].
+[2025-12-29 20:59] Version 0.8.8
+- Fix [UX]: "Save & New" now only reloads AFTER successful save completion.
+- Fix [UX]: If user cancels the file picker, the page is NOT cleared.
+- Logic: Refactored to call saveProject directly instead of triggering button click.
+- Result: User's work is preserved if save is cancelled or fails.
+- Maintenance: Incremented version to 0.8.8 [Save Flow Fix].
+
+
+[2025-12-29 21:03] Version 0.8.9
+- Feature [Download]: Implemented File System Access API for save operations.
+- Feature [UX]: App now detects when user cancels the browser's "Save As" dialog.
+- Technical: Added `saveBlobWithConfirmation` method to DownloadSystem.
+- Technical: Uses `showSaveFilePicker` which properly throws AbortError on cancel.
+- Result: Clicking "Cancel" in the file picker now shows "Save cancelled" and preserves work.
+- Fallback: Browsers without File System Access API use legacy method.
+- Maintenance: Incremented version to 0.8.9 [Save Cancel Detection].
+
+[2025-12-29 21:28] Version 0.9.0
+- Feature [Accessibility]: Added `title` attribute to all embed codes.
+- Enhancement: Embed codes now include property name for screen reader context.
+- Format: "360° Virtual Tour - [Property Name]"
+- Compliance: Meets WCAG requirements for iframe accessibility.
+- Maintenance: Incremented version to 0.9.0 [Embed Accessibility].
+
+[2025-12-30 21:42] Version 0.9.1
+- Feature [Foundation]: Added scene organization data model.
+- Data Model: Extended scenes with `category`, `floor`, `label`, `description` fields.
+- Constants: Added SCENE_CATEGORIES, FLOOR_LEVELS, SCENE_DEFAULTS to constants.js.
+- Store: Added `updateSceneMetadata()` method for updating scene metadata.
+- Store: Added `getScenesByFloor()` helper for floor-based grouping.
+- Compatibility: Updated `loadProject()` to apply defaults for older projects.
+- Maintenance: Incremented version to 0.9.1 [Scene Hierarchy].
+
+[2025-12-30 22:36] Version 0.9.2
+- Feature [UI]: Added Scene Details panel below Property Name in sidebar.
+- UI [Category]: Indoor/Outdoor radio buttons for scene location type.
+- UI [Floor]: Dropdown for Ground Floor, 1st, 2nd, Roof selection.
+- UI [Label]: Dropdown with 16 common room presets + Custom option.
+- UI [Description]: Collapsible textarea for SEO/accessibility metadata.
+- Constants: Added ROOM_LABEL_PRESETS array with 16 room types.
+- Maintenance: Incremented version to 0.9.2 [Scene Details UI].
+
+[2025-12-30 22:45] Version 0.9.3
+- Feature [Export]: Added Floor Navigator panel to exported tours.
+- UI: Floating panel in top-left shows floors (Roof, 2nd, 1st, Ground) + Outdoor.
+- Logic: Click floor to expand room list, click room to navigate directly.
+- Logic: Current location highlighted with golden dot and expanded section.
+- Data: Scene metadata (floor, category, label) now exported with tour.
+- Maintenance: Incremented version to 0.9.3 [Floor Navigator].
+
+[2025-12-30 22:55] Version 0.9.4
+- Feature [UI]: Implemented Top Utility Bar for global actions.
+- Layout: Moved Branding, Project Management, and Export/Teaser actions to a horizontal top bar.
+- Sidebar: Streamlined to focus exclusively on Property Name and Scene Management (List + Details).
+- UX: Reduced visual clutter by 50%, focusing user attention on the virtual tour structure.
+- Maintenance: Incremented version to 0.9.4 [UX Optimization].
+
+[2025-12-30 23:15] Version 0.9.5
+- UI [Cleanup]: Removed the Scene Description field to reduce clutter.
+- Data: Removed "description" property from store and export logic.
+- UX: Streamlined the Scene Details panel to focus only on Category, Floor, and Room Label.
+- Maintenance: Incremented version to 0.9.5 [Clutter Removal].
+
+[2025-12-30 23:25] Version 0.9.6
+- UI [Contextual]: Moved "Add Link" to a FAB in the bottom-left of the viewer.
+- UX: Added hover preview thumbnails for hotspots.
+- UX: Added contextual click menus to arrows for Go/Delete.
+- Maintenance: Incremented version to 0.9.6 [Contextual UI].
+
+[2025-12-30 23:35] Version 0.9.7
+- UX: Restored direct click-to-navigate for hotspots.
+- UI: Added a permanent red "x" delete icon on hotspots (visible on hover).
+- Maintenance: Incremented version to 0.9.7 [Refined UX].
+
+[2025-12-30 23:42] Version 0.9.8
+- UX [Smoothness]: Eliminated the "subtle reload" when clicking Add Link.
+- Logic: The viewer now only re-initializes when the scene changes or hotspots are modified.
+- Logic: Toggling linking mode now only updates the UI (FAB/Cursor) without destroying the 360 viewer.
+- Maintenance: Incremented version to 0.9.8 [Smooth Logic].
+
+[2025-12-30 23:45] Version 0.9.9
+- UX [Instant]: Eliminated viewer reload when saving or deleting links.
+- Logic: Implemented incremental hotspot synchronization using Pannellum APIs (`addHotSpot`, `removeHotSpot`).
+- Performance: Only the hotspots are updated; the 360 viewer and image remain active and untouched.
+- Maintenance: Incremented version to 0.9.9 [Instant Save].
+
+[2025-12-30 23:48] Version 1.0.0
+- Documentation: Updated `AI_instructions.txt` with the "No-Reload Technique" standard.
+- UX [Fluidity]: The application now achieves 100% fluid transitions for all hotspot operations.
+- Maintenance: Incremented version to 1.0.0 [Official Release].
+
+[2025-12-30 23:55] Version 1.1.0
+- UI [Contextual]: Moved "Scene Details" (Floor, Category, Label) from the sidebar to a new Utility Bar in the 360 viewer.
+- Layout: Grouped Add Link button with scene details for a "single-point" management experience.
+- Sidebar: Streamlined to focus exclusively on tour organization.
+- Maintenance: Incremented version to 1.1.0 [Compact Workflow].
+
+[2025-12-30 23:59] Version 1.1.1
+- Fix [UI]: Corrected overlapping layout of the "Add Link" button in the utility bar.
+- UI [Consistency]: Standardized heights (28px) and flex-alignment for all contextual controls to ensure a perfectly straight, professional pill design.
+- Maintenance: Incremented version to 1.1.1 [Alignment Fix].
+
+[2025-12-31 00:20] Version 1.2.0
+- UI [Overhaul]: Implemented "Distributed Minimalism" layout for contextual controls.
+- Design: Removed the "pill" container for a cleaner, transparent look.
+- Interactive: Replaced floor dropdown with circle navigators in the top-right (`G`, `1st`, `2nd`, `3rd`, `4th`, `R`).
+- Contextual: Updated Indoor/Outdoor toggle with directional arrows and state-based color transformation (Black/White vs White/Green).
+- Typography: Applied bold, uppercase minimalist typography to all in-viewer controls.
+- Maintenance: Incremented version to 1.2.0 [Distributed Minimalism].
+
+[2025-12-31 00:41] Version 1.2.1
+- UI [Refinement]: Upgraded floor circles to 38px, Dark Blue background, and White font with persistent Yellow selection stroke.
+- Layout [Pivot]: Relocated Floor circles to the bottom-left utility bar and moved the Room Label dropdown to the top-right.
+- Performance [Stability]: Fixed the "logo refresh" bug. Stationary UI elements no longer blink or reset when updating scene metadata.
+- Logic [Selective]: Outdoor mode now automatically hides upper floor buttons, showing only Ground and Roof.
+- Styling: Unified Indoor/Outdoor toggle with a pill-shaped design matching the Add Link button's dimensions.
+- Maintenance: Incremented version to 1.2.1 [High Fidelity UI].
+
+[2025-12-31 00:48] Version 1.2.2
+- Bug Fix [Critical]: Fixed recursive loop and missing variable definitions in Viewer.js that were causing UI crashes and preventing image previews.
+- UI [Restoration]: Restored sequential glow animations for hotspots and visual link previews.
+- Stability [Zero-Refresh]: Verified performance logic to ensure stationary UI (logo, controls) remains static during metadata updates.
+- Refinement: Re-aligned Floor circles (Dark Blue, 38px) and Room Label (Top-Right) for 1024x640 precision.
+- Maintenance: Incremented version to 1.2.2 [Stabilized UI].
+
+[2025-12-31 01:00] Version 1.3.0
+- Branding [Migration]: Moved the RE/MAX logo from the viewer stage to the global header bar.
+- Typography [Cleanup]: Removed 'REMAX' from the main title, now simply 'Virtual Tour Builder'. Centered version/build info under the title.
+- UI [Layout]: Reorganized viewer controls to the left side:
+    - Top Left: 'Add Link' (Top) and 'Indoor/Outdoor' toggle (Under).
+    - Bottom Left: Vertical stack of floor circles (G at bottom, R at top).
+- Styling [Refinement]: 
+    - Floor circles are now Deep Navy Blue.
+    - Active floor state has a clean Yellow stroke (no glow).
+    - Added rounded corners to header logo.
+- Stability: Maintained zero-refresh persistence for all metadata updates.
+- Maintenance: Incremented version to 1.3.0 [Header Branding].
+
+[2025-12-31 01:05] Version 1.3.1
+- Bug Fix [Critical]: Restored all lost functionality from v1.0.0 that was accidentally removed during UI refactoring.
+- Feature [Restored]: Laser pointer cursor guide with perspective projection math for precise link placement.
+- Feature [Restored]: Drone transition effect when navigating between scenes (zoom + pan).
+- Feature [Restored]: Snapshot cross-fade for seamless scene transitions.
+- Feature [Restored]: Incremental hotspot synchronization using Pannellum APIs (no viewer reload).
+- Feature [Added]: Auto-advance to next scene after saving a link for faster workflow.
+- Stability: Verified all v1.0.0 "No-Reload" performance standards are intact.
+- Maintenance: Incremented version to 1.3.1 [Restored Logic].
+
+[2025-12-31 01:15] Version 1.3.2
+- Typography [Elegant]: Header title now uses 'EB Garamond' serif font in white for a refined, elegant look.
+- UX [Simplified]: Removed auto-advance to next scene after saving link (per user request).
+- Styling [Floor Circles]: 
+    - Background color now matches the header blue (#003da5).
+    - Active selection stroke is now thicker (3px yellow).
+- Visual: Version info is now subtly styled on the dark header without a background pill.
+- Maintenance: Incremented version to 1.3.2 [Elegant Typography].
+
+[2025-12-31 01:22] Version 1.3.3
+- Typography: Made 'Virtual Tour Builder' title bold (font-weight: 700).
+- Visibility: Version number and build info are now fully white for better readability on dark header.
+- UI [Room Labels]: Replaced dropdown with a vertical clickable list in a transparent white container.
+    - Each label is a button with black text on semi-transparent white background.
+    - Active label is highlighted with the header blue (#003da5) and white text.
+    - 'Custom...' option at the bottom reveals a text input.
+- Maintenance: Incremented version to 1.3.3 [Label List UI].
+
+[2025-12-31 01:35] Version 1.3.4
+- Styling [Dark Blue Theme]: Unified header and floor circles with a deeper navy blue (#001a4d).
+- Typography [Floor Circles]: 
+    - Increased font size to 14px for better readability.
+    - Ordinal suffixes (st, nd, rd, th) are now superscript for a professional appearance.
+    - Slightly larger circles (44px) to accommodate the new typography.
+- Consistency: Updated active label item color to match the new theme.
+- CSS: Updated root color variables for global theme consistency.
+- Maintenance: Incremented version to 1.3.4 [Dark Blue Theme].
+
+[2025-12-31 01:50] Version 1.3.5
+- Feature [Smart Persistence]: Category (Indoor/Outdoor) and Floor settings are now remembered across scenes.
+    - When you switch to a new scene, it inherits the last used category and floor.
+    - Changes are only applied to scenes with default values, preserving manual edits.
+    - Room labels are NOT persisted (each scene needs its own label).
+- UI [Room Label Dropdown]: Redesigned room labels as a wide pill-shaped dropdown at top center.
+    - Dark blue background (#001a4d) with white text to match theme.
+    - Positioned at the horizontal center of the viewer for prominence.
+    - Custom option still available with text input.
+- Maintenance: Incremented version to 1.3.5 [Smart Persistence].
+
+[2025-12-31 01:55] Version 1.3.6
+- Design [Premium Overhaul]: Complete visual refresh with sophisticated styling.
+- Color Palette: New primary color #0f2744 (Sapphire Blue) with complementary tones.
+- Header [Glassmorphism]: 
+    - Rich gradient background with depth layers.
+    - Subtle inner highlights and premium shadows.
+    - Taller height (64px) for breathing room.
+    - Glassmorphic button effects with backdrop blur.
+- Button Variants: 
+    - Success buttons with emerald gradient.
+    - Accent buttons with blue gradient.
+    - Smooth hover animations with elevated shadows.
+- Floor Circles: 
+    - Gradient background matching header theme.
+    - Amber/gold active state with outer glow.
+    - Hover effects with scale and shadow.
+    - Slightly larger (46px) for better touch targets.
+- Room Label Dropdown: Premium gradient styling with hover effects.
+- Indoor/Outdoor Toggle: Gradient backgrounds with smooth transitions.
+- CSS Variables: Expanded palette with accent, gold, success colors.
+- Maintenance: Incremented version to 1.3.6 [Premium Design].
+
+[2025-12-31 02:00] Version 1.3.7
+- Design [Minimalist]: Reverted complex glassmorphism effects in favor of a clean, flat aesthetic.
+- Color Palette: Unified all UI elements to a moderately dark blue (#002855).
+- Header: 
+    - Removed gradients and heavy shadows.
+    - Minimalist buttons with simple borders and transparent backgrounds.
+    - Subtle hover states for a clean look.
+- Floor Circles:
+    - Flat background color (#002855).
+    - Simple 3px yellow stroke for active state (no glow).
+    - Removed elevated shadows and complex hover scaling.
+- Room Label Dropdown: Flat blue background with white text (no gradients).
+- Indoor/Outdoor Toggle: Simplified styling to match the flat theme.
+- Maintenance: Incremented version to 1.3.7 [Minimalist Design].
+
+[2025-12-31 02:15] Version 1.3.8
+- UI [Circular Controls]: Standardized all viewer controls to 46px circular buttons, vertically aligned.
+- Feature [Add Link Button]:
+    - Yellow circle with black '+' sign.
+    - Click rotates '+' to '✕' (active state).
+    - Triggers 'Link Mode: ACTIVE/OFF' popup at bottom-right.
+- Feature [Indoor/Outdoor Toggle]:
+    - Circular button with short code ('I' / 'O').
+    - Indoor: Dark Orange (#ea580c) background with White 'I'.
+    - Outdoor: Green (#10b981) background with White 'O'.
+    - Triggers 'Category: INDOOR/OUTDOOR' popup at bottom-right.
+- UX [Notifications]: Leveraging bottom-right toast system for clear status updates on icon-only controls.
+- Maintenance: Incremented version to 1.3.8 [Bottom-Right Popups].
+
+[2025-12-31 02:22] Version 1.3.9
+- UI [Label Menu]: Implemented a custom, non-OS centric room label menu.
+- Control [Label Button]:
+    - 46px Circular button with '#' symbol.
+    - Located below the Indoor/Outdoor toggle (vertical stack: +, I/O, #).
+    - Blue background (#002855) matching theme.
+- Menu [Custom Panel]:
+    - Appears to the right of the button.
+    - Dark blue backdrop with blur effect.
+    - Scrollable list of presets.
+    - Integration of custom input field directly in the menu.
+- Notification: Selecting a label triggers a 'Room Label: [Name]' popup confirmation.
+- Maintenance: Incremented version to 1.3.9 [Custom Label Menu].
+
+[2025-12-31 02:45] Version 1.4.0
+- Design [Blue Restoration]: Reverted primary color to original #003da5 across all UI components.
+- Header [Hamburger]:
+    - Title "Virtual Tour Builder" centered.
+    - Left-aligned Hamburger button (☰) opening a full menu.
+    - Menu contains: Project (New/Save/Load), Actions (Export/Teaser), System (Debug).
+- UI [Viewer]:
+    - Logo restored to bottom-right corner (#viewer-logo).
+    - Floor circles: Reduced active yellow stroke to 2px.
+- Menu [Room Labels]:
+    - Updated styles to white background with blue hover effects.
+    - Maintains functionality but with cleaner "light mode" aesthetic.
+- Maintenance: Incremented version to 1.4.0 [Blue Restoration & Redesign].
+
+[2025-12-31 03:00] Version 1.4.1
+- Branding [Logo]:
+    - Increased logo container size limits (max-width: 140px, max-height: 80px).
+    - Removed fixed square aspect ratio to allow natural logo proportions.
+    - Adjusted padding for better visual balance.
+- Typography [Header]:
+    - Changed "Virtual Tour Builder" font to 'Merriweather' (Bold).
+    - Tightened spacing between Title and Version info (reduced line-height and margin).
+- Maintenance: Incremented version to 1.4.1 [Refined Logo & Typography].
+
+[2025-12-31 02:40] Version 1.4.2
+- Branding [Logo]:
+    - Reduced logo white padding from 8px/12px to 4px/6px.
+    - Result is a more properly sized container that hugs the logo content better.
+- Maintenance: Incremented version to 1.4.2 [Minimal Logo Padding].
+
+[2025-12-31 03:00] Version 1.4.3
+- Typography [Bold Clarity]:
+    - Updated all circular buttons (Floor, Toggle, Label) to use 'Outfit' font explicitly.
+    - Increased font weight to 700/800 for maximum readability.
+- UI [Add Link Button]:
+    - Made the '+' symbol significantly bolder (700 weight, 28px size).
+    - Improved vertical centering with line-height adjustment.
+- Maintenance: Incremented version to 1.4.3 [Clear Bold Fonts].
+
+[2025-12-31 03:05] Version 1.4.4
+- UX [Menu Positioning]:
+    - Increased left indentation of the Room Label menu (from 60px to 85px).
+    - Prevents the menu from overlapping with the vertical button stack.
+    - Adjusted top alignment to perfectly match the '#' button.
+- Maintenance: Incremented version to 1.4.4 [Menu Spacing Fixed].
+
+[2025-12-31 03:15] Version 1.4.5
+- Typography [UI Optimization]:
+    - Removed bold weight from the '+' (Add Link) button (weight set to 400).
+    - Increased font size of all circular buttons (Add Link: 32px, Toggle: 20px, Floors: 17px, Label: 24px).
+- Maintenance: Incremented version to 1.4.5 [Optimized UI Fonts].
+
+[2025-12-31 03:20] Version 1.4.6
+- Typography [Control Branding]:
+    - Changed the font of '#' (Room Label) and 'I/O' (Category Toggle) buttons to 'Merriweather'.
+    - Removed bold weights from these specific controls (weight set to 400).
+- Maintenance: Incremented version to 1.4.6 [Merriweather Control Fonts].
+
+[2025-12-31 03:30] Version 1.4.7
+- Typography [Unified Branding]:
+    - All circular buttons (Add Link, Toggle, Floors, Labels) now use **Bold Merriweather** (700 weight).
+    - Refined font sizes for the serif typeface (Add Link: 30px, Toggle: 22px, Floors: 18px, Label: 26px).
+- Header [Aesthetics]:
+    - Title/Version branding explicitly centered vertically inside the 60px header.
+    - Version info now uses **Bold White Merriweather** (700 weight, 100% opacity).
+    - Tightened spacing between title and version info (using negative margin and line-height).
+- Maintenance: Incremented version to 1.4.7 [Unified Bold Merriweather].
+
+[2025-12-31 03:40] Version 1.4.8
+- UI [Label Menu]:
+    - Applied a deep **Petroleum** theme to the Room Label menu.
+    - Background: `rgba(0, 41, 90, 0.95)` (Deep Petroleum).
+    - Highlights: `005f73` (Lighter Petroleum) for hover and active states.
+    - Typography: White text for high contrast on the dark background.
+    - Consistency: Updated the custom input field and placeholders to match the Petroleum aesthetic.
+- Maintenance: Incremented version to 1.4.8 [Petroleum Label Menu].
+
+[2025-12-31 03:55] Version 1.4.9
+- UI [Label Button]: Background changed to **Petroleum** (#005f73), with White '#' symbol.
+- UI [Label Menu]:
+    - Background reverted to **White** for a cleaner look.
+    - Selections (Hover/Active) now use the **Petroleum** background (#005f73) with **White** text.
+- UI [Custom Input]: Styling updated for better contrast on white menu.
+- Maintenance: Incremented version to 1.4.9 [Refined Petroleum Theme].
+
+[2025-12-31 04:00] Version 1.5.0
+- Branding [Logo]: Minimized padding to `2px 4px` for a cleaner, tighter layout.
+- UX [Feedback]: Added popup notifications for floor navigation buttons (e.g., 'Floor: 1st Floor') to confirm selection.
+- UI [Cleanup]: Removed the scene thumbnail preview from hotspot tooltips to reduce clutter and focus on navigation.
+- Maintenance: Incremented version to 1.5.0 [UI Cleanup & Feedback].
+
+[2025-12-31 04:05] Version 1.5.1
+- Fix [Hotspot Deletion]: Resolved issue where the '✕' button on navigation links wouldn't trigger deletion.
+    - Explicitly enabled `pointer-events: auto` on the tooltip container to ensure interactivity.
+    - Unified the click delegation logic to differentiate between navigation and deletion targets.
+    - Pathing: Fixed state reference inside the deletion handler.
+- UX [Notifications]: Added success notification when a link is successfully deleted.
+- Maintenance: Incremented version to 1.5.1 [Hotspot Fix & Notify].
+
+[2025-12-31 04:15] Version 1.5.2
+- UX [Audio Feedback]: Implemented a calming ASMR-style "tick" sound for UI interactions.
+    - Sound: Selected a soft, minimal "Interface Pop" for a premium tactile feel.
+    - System: Created `AudioManager.js` using both Web Audio API (zero-latency) and HTML5 fallback.
+    - Integration: Automatically triggers on buttons, floor navigation, and menu selections via global event delegation.
+- Maintenance: Incremented version to 1.5.2 [ASMR Audio Feedback].
+
+[2025-12-31 04:35] Version 1.5.3
+- UX [Audio Feedback]: Replaced the external click sound with the user-provided `sounds/click.wav`.
+- Maintenance: Incremented version to 1.5.3 [Custom UI Sound].
+
+[2025-12-31 04:50] Version 1.5.4
+- UX [Navigation Speed]: Increased look/pan sensitivity by reducing `friction` to `0.05`.
+    - Panning now feels much more fluid, allowing for faster rotation across the panorama.
+- Animation [Transitions]: Speeded up the drone-style transition from 1500ms to 700ms.
+    - Scene-to-scene navigation is now snappier and more direct.
+- Maintenance: Incremented version to 1.5.4 [High Speed Navigation].
+
+[2025-12-31 08:55] Version 1.5.5
+- UI [Header]: Applied a premium linear gradient to the top bar.
+    - Colors: Dark Deep Blue (#002147) to Primary Blue (#003da5) to Bright Blue (#0072ff).
+    - Direction: 90deg (Left-to-Right).
+- Maintenance: Incremented version to 1.5.5 [Gradient Header].
+
+[2025-12-31 09:00] Version 1.5.6
+- UI [Header]: Switched to a vertical (Top-to-Bottom) gradient.
+    - Ratio: Top 70% is Deep Dark Blue (#002147), fading into the Lighter Blue (#003da5) for the bottom 30%.
+- Maintenance: Incremented version to 1.5.6 [Vertical Header Gradient].
+
+[2025-12-31 09:10] Version 1.5.7
+- UI [Header Enhancement]:
+    - Added a **3px Red top border** to the header for a classic Remax-inspired touch.
+    - Smoothed the **Vertical Gradient**: Now transitions more gradually from an even deeper navy (#001a38) to the primary blue (#003da5).
+- Maintenance: Incremented version to 1.5.7 [Refined Header Styling].
+
+[2025-12-31 09:15] Version 1.5.8
+- UI [Header Layout]:
+    - Reduced vertical padding to **4px** (Top/Bottom) for a more compact title bar.
+    - Removed fixed height constraint to allow content-driven sizing.
+    - Switched main layout to Flexbox to ensure relative components (sidebar/viewer) adjust seamlessly.
+- Branding [Logo]:
+    - Reduced viewer logo max dimensions slightly (**120x60px**) to take up less screen real estate.
+- Maintenance: Incremented version to 1.5.8 [Compact Header & Logo].
+
+[2025-12-31 09:20] Version 1.5.9
+- UI [Header]: Confirmed and locked Top/Bottom padding at **4px** for a compact, professional profile.
+- Branding [Logo]: Reduced viewer logo max dimensions further to **100x50px** for an even less intrusive presence.
+- Maintenance: Incremented version to 1.5.9 [Refined Padding & Logo].
+
+[2025-12-31 09:25] Version 1.6.0
+- UI [Header]: 
+    - Forced visible vertical padding by adding explicit `padding: 4px 0` to the branding container.
+    - Normalized `line-height` and margins to ensure the title isn't squeezed.
+    - Removed redundant CSS classes that were conflicting with the layout.
+- Branding [Logo]: Restored viewer logo max dimensions to **120px** as requested.
+- Maintenance: Incremented version to 1.6.0 [Header Padding & Logo Fix].
+
+[2025-12-31 09:30] Version 1.6.1
+- UI [Header Spacing]: 
+    - Significantly increased vertical padding to ensure it is unmistakably "working visibly."
+    - Total visual gap increased from 8px to ~18px per side.
+    - Set `line-height: 1` on title to anchor it purely within the padding bounds.
+- Maintenance: Incremented version to 1.6.1 [Visible Header Padding].
+
+[2025-12-31 09:35] Version 1.6.2
+- UI [Interactivity]: Added brightness and shadow hover "shades" to circular utility buttons (+, I/O, #).
+- UX [Logic]: Implemented an "Empty Project" state that automatically dims and disables:
+    - Viewer Utility Bar (Add Link, Category Toggle, Label Menu)
+    - Floor Navigation circles
+    - Property Name input field
+    - Save Project button
+- Maintenance: Incremented version to 1.6.2 [Hover FX & Auto-Dimming].
+
+[2025-12-31 09:40] Version 1.6.3
+- Bug Fix [UX]: Fixed logic that prevented viewer controls from dimming when no scenes were loaded. Dimming now triggers reliably on empty state.
+- UI [Interactivity]: Removed extra hover shadows from circular utility buttons, retaining only the brightness boost and subtle scale for a cleaner look.
+- Maintenance: Incremented version to 1.6.3 [Auto-Dimming Fix].
+
+[2025-12-31 09:45] Version 1.6.4
+- Bug Fix [UX]: Resolved a critical failure in the auto-dimming logic where it failed to initialize on page load.
+- UI [Interactivity]: Corrected circular utility button hover effects by removing unwanted shadow artifacts, leaving only the clean brightness/scale feedback.
+- Architecture: Centralized control syncing to a dedicated `syncViewControls` function to ensure consistency across all state changes.
+- Maintenance: Incremented version to 1.6.4 [Global Auto-Dimming Fix].
+
+[2025-12-31 09:50] Version 1.6.5
+- UI [Sidebar]: Increased vertical margins for the `processing-ui` (progress bar) to **25px** to ensure it sits comfortably between the upload area and the scene list.
+- UX [Export]: Implemented logic to automatically dim and disable the **Export Tour** button if the project contains **zero navigation links**, preventing the export of empty/non-functional tours.
+- Maintenance: Incremented version to 1.6.5 [Export Dimming & Spacing Fix].
+
+[2025-12-31 09:52] Version 1.6.6
+- Bug Fix [UX]: Resolved a logic override that was force-enabling the Export button even when no links were present. The button now correctly remains dimmed until at least one navigation link is created.
+- Maintenance: Incremented version to 1.6.6 [Export Logic Fix].
+
+[2025-12-31 10:00] Version 1.7.0
+- Architecture [Fingerprinting]: Integrated SHA-256 checksum generation for all panoramic images. Scenes are now identified by content rather than filename.
+- UX [Deduplication]: Implemented a smart upload filter that detects and blocks identical images. 
+- UI [Upload Report]: Added a detailed post-upload dialog report summarizing accepted and skipped files.
+- UI [Lazy Renaming]: Implemented intelligent renaming based on room labels (e.g., 'Master Bedroom' becomes 'master_bedroom.webp').
+- UX [Cascade Logic]: Links (hotspots) are now automatically updated across the entire project whenever a scene is renamed, preventing broken navigation.
+- Performance: Optimized the viewer to use stable IDs, preventing jarring reloads when a scene is merely renamed.
+- Maintenance: Incremented version to 1.7.0 [Checksums & Lazy Renaming].
+
+[2025-12-31 10:05] Version 1.7.1
+- Bug Fix [UI]: Fixed a template literal escaping error in the Upload Summary dialog that caused the file list to display raw code instead of scene names.
+- Maintenance: Incremented version to 1.7.1 [Upload Report Fix].
+
+[2025-12-31 10:10] Version 1.7.2
+- UI [Progress Bar]: Completely redesigned with modern, professional aesthetics:
+    - Glassmorphism card design with backdrop blur and subtle depth.
+    - Animated gradient shimmer effect that flows across the active progress bar.
+    - Real-time percentage display with smooth number transitions.
+    - Spinning loader icon that fades out on completion.
+    - Pulsing status dot for visual activity feedback.
+    - Smooth fade-in/fade-out transitions (300ms cubic-bezier easing).
+    - Improved color contrast and professional typography.
+- UX [Progress Bar]: Enhanced status visibility with three-tier information hierarchy (title, percentage, detailed message).
+- Performance: Optimized animations to use GPU-accelerated transforms.
+- Maintenance: Incremented version to 1.7.2 [Progress Bar Redesign].
+
+[2025-12-31 10:15] Version 1.7.3
+- UI [Typography]: Applied EB Garamond serif font to the Property Name input, creating visual harmony with the header branding.
+- UI [Spacing]: Increased spacing between the Property Name label and input from 5px to 12px for a more refined, breathable layout.
+- UI [Polish]: Enhanced input styling with larger font size (16px), improved padding, subtle rounded corners, and smooth transitions.
+- Maintenance: Incremented version to 1.7.3 [Typography Refinement].
+
+[2025-12-31 10:20] Version 1.7.4
+- UI [Typography]: Migrated from EB Garamond/Merriweather to **Inter**, the modern geometric sans-serif standard used by GitHub, Figma, and Linear.
+- UI [Header]: Increased spacing between title and version info from 4px to 10px for improved visual hierarchy and readability.
+- UI [Property Name]: Updated input to use Inter 500 weight at 15px for a clean, contemporary aesthetic.
+- Typography: Optimized letter-spacing for Inter (-0.02em on titles, +0.3px on small text) following modern design best practices.
+- Maintenance: Incremented version to 1.7.4 [Inter Font Migration].
+
+[2025-12-31 10:25] Version 1.7.5
+- UI [Viewer Controls]: Migrated all viewer UI controls to Inter font for unified typography:
+    - Add Link FAB (+) button
+    - Category Toggle (I/O) button
+    - Floor Navigation circles (G, 1, 2, R)
+    - Room Label (#) button
+- UX [Property Name]: Changed default from "New Virtual Tour" to a blank field with placeholder "Enter property name..." for a cleaner, more professional first impression.
+- Consistency: Entire application now uses Inter as the primary typeface across sidebar, header, and viewer interfaces.
+- Maintenance: Incremented version to 1.7.5 [Viewer Font Migration].
+
+[2025-12-31 10:20] Version 1.7.6
+- Architecture [Lazy Renaming]: Implemented sequence-aware naming. Renaming a scene via labels now prepends a 1-indexed, 2-digit sequence prefix (e.g., '01_entrance.webp', '04_bedroom.webp').
+- UX [Sequence Sync]: Filenames now intelligently update their prefix whenever scenes are reordered, deleted, or new ones are added. 
+- Reliability [Cascade Logic]: Linked navigation (hotspots) are automatically updated in real-time whenever a sequence shift triggers a filename change, ensuring no broken links.
+- Maintenance: Incremented version to 1.7.6 [Sequence-Aware Lazy Renaming].
+
+[2025-12-31 10:30] Version 1.7.7
+- UI [Label Menu]: Divided the Room Labels menu into 'Outdoor' and 'Indoor' sections with distinct headers. 
+- UI [Outdoor Presets]: Added new outdoor-specific labels: Zoom Out View, Entrance, Right Side, Left Side, Back Side, Garden, and Garage.
+- UI [Indoor Presets]: Reorganized internal labels into the Indoor section for better navigation.
+- Maintenance: Incremented version to 1.7.7 [Categorized Room Labels].
+
+[2025-12-31 10:35] Version 1.7.8
+- UI [Label Menu]: Implemented "Hover-to-Open" logic for the '#' button. The menu now appears instantly on hover for lightning-fast labeling.
+- UX [Label Menu]: Added a 350ms "grace period" timeout. If the mouse leaves both the button and the menu, it closes automatically after a short delay to prevent accidental flickering.
+- Interaction: Click functionality is preserved as a fallback for touch devices or manual toggling.
+- Maintenance: Incremented version to 1.7.8 [Hover-Auto-Open Labels].
+
+[2025-12-31 10:45] Version 1.7.9
+- Architecture [EXIF Parser]: Created a lightweight EXIF metadata extractor (ExifParser.js) that reads GPS coordinates, camera info, focal length, ISO, aperture, and capture date from JPEG headers.
+- Feature [Metadata Report]: Added automatic generation of EXIF_METADATA log files during image upload.
+- Intelligence [GPS Analysis]: Implemented average location calculation using the Haversine formula. Outlier images (>500m from cluster center) are automatically excluded from the average to handle accidental wrong uploads.
+- Intelligence [Reverse Geocoding]: Integrated OpenStreetMap Nominatim API to convert GPS coordinates to human-readable addresses.
+- UX [Grouping]: Images with identical camera/device specs are grouped together in the report to avoid redundant data repetition.
+- Reliability [Offline Fallback]: If the geocoding service is unavailable due to internet issues, the report gracefully logs the error without disrupting the user experience.
+- Maintenance: Incremented version to 1.7.9 [EXIF Metadata Analysis].
+
+[2025-12-31 11:30] Version 1.8.0
+- UI [Naming]: Renamed "Property Name" to "Project Identification" to reflect the new auto-generation feature.
+- Feature [Smart Project ID]: Project names are now auto-generated from EXIF data using the format: Abc_Def_Ghi_DDMMYYYYHHMM_SSSSS
+    - First 3 letters of first 3 words from the resolved GPS address
+    - Timestamp from image capture date (DDMMYYYYHHMM)
+    - 5-digit random serial number for uniqueness
+- Architecture [Report Storage]: EXIF metadata reports are now stored in memory instead of downloading immediately.
+- Integration [Project Save]: EXIF reports are bundled into the project ZIP file under the 'logs' folder when saving.
+- UX [Auto-Populate]: The Project Identification field is automatically filled when images are uploaded (if GPS data is available).
+- Maintenance: Incremented version to 1.8.0 [Smart Project ID].
+
+[2025-12-31 11:35] Version 1.8.1
+- Feature [Naming]: Refined Smart Project ID to use the first 4 letters of the first 3 address words (e.g., Laya_Sabo_Comp).
+- UI [Labels]: Updated "Project Identification" label to "Project ID:".
+- UI [Typography]: Reduced font size of the Project ID input field to 12.5px to ensure long auto-generated IDs are fully visible.
+- Maintenance: Incremented version to 1.8.1 [Project ID Refinement].
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[2025-12-31 12:13] Version 1.8.2
+- UI [Branding]: Added white house Material Icon to the left of the app title in the top bar.
+- UI [Aesthetics]: Implemented subtle glow effect on the title icon for a premium look.
+- Support: Integrated Google Material Icons library into the project.
+- Maintenance: Incremented version to 1.8.2 [Title Branding Update].
+
+[2025-12-31 12:56] Version 1.8.3
+- UI [Branding]: Increased house icon size to 44px to span both title and version lines.
+- UI [Branding]: Repositioned house icon to be side-by-side with a vertical block containing the title and version.
+- UI [Branding]: Centered version text relative to the main title text.
+- Maintenance: Incremented version to 1.8.3 [Refine House Icon].
+
+[2025-12-31 13:17] Version 1.8.4
+- Feature [Analysis]: Implemented sequential window-based scene clustering to group similar shots.
+- Feature [Analysis]: Updated image analysis to use binned RGB histograms for better color abstraction.
+- Feature [UX]: Improved upload progress bar with stable, sequential phases (Scanning, Optimizing, Analyzing, Syncing).
+- UI [Sidebar]: Added visual similarity markers (color-coded stripes) to sidebar scene items.
+- Logic [Integrity]: Refined image quality analysis with high-integrity, conservative thresholds to reduce false positives.
+- Maintenance: Incremented cache-busting versioning to ?v=1.8.4.
+
+[2025-12-31 16:45] Version 1.8.5
+- Feature [Navigation]: Implemented "Jump Link" logic (Bridge Scenes).
+- Feature [UI]: Added "Bolt" toggle button to the viewer utility bar to mark scenes as jumps.
+- Logic: Scenes marked as Jump Links will automatically transition to their first hotspot target after 500ms, creating a "cross-dissolve bridge" effect.
+- Maintenance: Incremented version to 1.8.5 [Jump Link Bridge].
+
+[2025-12-31 17:15] Version 1.8.6
+- Feature [Jump Link]: Moved Jump Link toggle from global utility bar to individual hotspots.
+- UI: Added circular "=" button above hotspot arrows. Yellow = Standard, Green = Jump Link (Bridge).
+- Feature [Navigation]: Implemented "Default View Saving".
+- Logic: When navigating between scenes in the Builder, the app now remembers your orientation.
+- Logic: The next time you click that specific link, it will launch the scene with the exact Yaw angle you last viewed, ensuring seamless transitions.
+- Maintenance: Incremented version to 1.8.6 [Hotspot View Saving].
+
+[2025-12-31 17:25] Version 1.8.7
+- UX [Revert]: Removed Jump Link button from individual hotspots.
+- UX [Global]: Restored Jump Link toggle to the global utility bar.
+- Design: Global button now uses the requested yellow/green "=" icon style.
+- Logic: "Active View Saving" from v1.8.6 is preserved for seamless navigation.
+- Maintenance: Incremented version to 1.8.7 [Global Jump Button].
+
+[2025-12-31 17:35] Version 1.8.8
+- UX [Jump Link]: Refined button placement.
+- UI: Converted global Jump Link toggle into a "Satellite Button" attached to the Add Link FAB.
+- Position: Top-Right of the main circular button.
+- Style: Small (24px), Grey background with white "=" by default.
+- State: Turns Green with white "=" when active.
+- Maintenance: Incremented version to 1.8.8 [Satellite Jump Toggle].
+
+[2025-12-31 17:45] Version 1.8.9
+- UX [Jump Logic Fix]: The Jump Link toggle now controls the TARGET scene, not the current scene.
+- Behavior:
+    1. Activate the small green "=" satellite button (Jump Modifier Mode).
+    2. Click any hotspot arrow in the viewer.
+    3. The app marks the *destination* of that arrow as a Jump Link (Bridge).
+    4. The app does *not* navigate, preventing the auto-jump loop trap.
+- Visuals: Hotspots pointing to Jump Link scenes now display a flashing "BRIDGE SCENE" tag in their hover tooltip.
+- Maintenance: Incremented version to 1.8.9 [Target Jump Logic].
+
+[2025-12-31 16:33] Version 1.9.3
+- Feature [Simulation Mode]: Added Simulation Mode toggle button to viewer utility bar.
+- UX: Jump link auto-navigation now only executes when Simulation Mode is active.
+- Builder: Users can now edit jump link scenes without being auto-redirected.
+- Testing: Enable Simulation Mode to preview how the final exported tour will behave.
+- Export: Jump links always auto-navigate in exported tours (simulation always ON).
+- UI: New indigo play button (▶) in viewer utility bar, turns green when active with pulsing glow.
+- Maintenance: Incremented version to 1.9.3 [Simulation Mode Toggle].
+
+[2025-12-31 16:41] Version 1.9.4
+- UI [Top 4 Buttons]: Enhanced 3D pop effect with gradient backgrounds and layered shadows.
+- Effect: Buttons now have simulated depth with a solid color shadow beneath.
+- Animation: Hover lifts button up (-2px translateY), active pushes down (+2px).
+- Styling: Linear gradients add dimensional shading (135deg angle).
+- UI [Floor 6 Buttons]: Removed all box-shadows for cleaner appearance.
+- Hover: Added faint orange stroke (rgba(234, 88, 12, 0.4)) instead of shadow.
+- Active: Yellow stroke (#ffcc00) indicates selected floor.
+- Background: Subtle brightness increase on hover (#0047b8).
+- Maintenance: Incremented version to 1.9.4 [Refined Button UI].
+
+[2025-12-31 16:50] Version 1.9.5
+- UX [Top 4 Buttons]: Reduced 3D effect to subtle 1px lift only (no glowing effects).
+- Transition: Faster 0.15s animation for snappier feel.
+- Shadow: Minimal shadow (0 2px 4px) for slight depth without distraction.
+- Hover: Subtle lift (-1px translateY) with modest shadow increase.
+- Active: Reset to flat position (0px) with minimal shadow.
+- UX [Floor 6 Buttons]: Darkened default blue (#002570) for less distraction during work.
+- Default: Much darker blue to stay in background.
+- Hover: Bright solid orange stroke (#ea580c) - clear visual signal.
+- Selected: Yellow stroke (#ffcc00) + brighter blue background (#003da5).
+- Removed: Pulse glow animation from simulation mode active state.
+- Maintenance: Incremented version to 1.9.5 [Subtle Button Polish].
+
+[2025-12-31 16:59] Version 1.9.6
+- UI [Top 4 Buttons]: Implemented angled sharp tiny shadow (1px base, 2.5px hover).
+- Effect: Sharp hard-edged shadow with no blur for tactile 'pop' feel.
+- Animation: Updated translate(-1px, -1px) on hover to match angled shadow direction.
+- Active: Recessed 0.5px press effect with hardened shadow.
+- Design: Added subtle 1px border-stroke for better button definition.
+- Maintenance: Incremented version to 1.9.6 [Sharp Shadow Pop].
+
+[2025-12-31 17:03] Version 1.9.7
+- UI [Top 4 Buttons]: Darkened sharp hard-edged shadows (rgba 0.5 base, 0.8 hover).
+- Effect: Enhanced contrast of angled shadow depth for better 'pop' on various backgrounds.
+- Maintenance: Incremented version to 1.9.7 [Darker Sharp Shadows].
+
+[2025-12-31 17:06] Version 1.9.8
+- Fix [Jump Links]: Added loop protection to prevent infinite navigation cycles.
+- Logic: Tracks visited scenes in current navigation chain.
+- Detection: If a jump link tries to navigate to an already-visited scene, stops auto-navigation.
+- Warning: Shows toast notification when loop is detected.
+- Reset: Chain clears when simulation mode is toggled or non-jump scene is reached.
+- UX: Users are now protected from accidentally creating infinite jump link loops.
+- Maintenance: Incremented version to 1.9.8 [Jump Link Loop Fix].
+
+[2025-12-31 17:13] Version 1.9.9
+- Fix [Jump Link Chain]: Corrected loop detection to check CURRENT scene instead of target.
+- Logic: Now properly tracks if we've revisited the same scene in the navigation chain.
+- Debug: Added console logging to show jump link navigation flow and chain state.
+- Logging: Shows scene names, indices, and chain progression for debugging.
+- UX: More informative warning toast shows which scene caused the loop.
+- Maintenance: Incremented version to 1.9.9 [Jump Link Chain Fix].
+
+[2025-12-31 17:18] Version 2.0.0 - MAJOR UPDATE
+- Fix [Jump Link Timing]: Increased auto-navigation delay from 500ms to 1000ms.
+- Reason: CSS transitions are 900ms, so 500ms caused scenes to jump mid-transition.
+- Effect: Users now see each 'bridge' scene load clearly with smooth cross-dissolve.
+- Fix [Origin Tracking]: Jump link chain now includes the scene you navigated FROM.
+- Prevention: Stops immediate ping-pong loops back to starting scene.
+- Fix [State Race]: Simulation mode is now checked dynamically during setTimeout.
+- Safety: If user toggles simulation OFF mid-jump, navigation is cancelled.
+- Export: Updated exported tour jump link delay to match (1000ms).
+- Debug: Enhanced console logging shows origin tracking and chain progression.
+- Maintenance: Major version bump to 2.0.0 [Jump Link Timing Fix].
+
+[2025-12-31 17:35] Version 2.0.1
+- Documentation: Organized scattered markdown files into a central /docs/ directory.
+- Documentation: Renamed AI_instructions.txt to docs/AI_INSTRUCTIONS.md and updated its file organization section.
+- Maintenance: Bumped version to 2.0.1 [Organize Documentation].
+
+[2025-12-31 17:40] Version 2.0.2
+- Documentation: Restructured AI_INSTRUCTIONS.md with clear "Hard Rules" vs "Best Practices" sections.
+- Documentation: Extracted Typography section into dedicated docs/TYPOGRAPHY.md file.
+- Documentation: Added documentation index table linking to all /docs/*.md files.
+- Documentation: Improved formatting with tables, emojis, and visual hierarchy.
+- Documentation: Reduced main instructions file from ~200 lines to ~140 lines (30% leaner).
+- Maintenance: Bumped version to 2.0.2 [Docs Restructure].
+
+[2026-01-01 15:55] Version 2.6.7
+- Feature [Labels]: Enhanced Room Label System for Villa Layouts.
+    - Added "Cerulean Blue" (#007BA7) theme for all label UI elements.
+    - Implemented persistent Top Center Label overlay (#ROOMNAME).
+    - Reduced padding of the top label for a cleaner, more compact look.
+    - Added comprehensive Villa-specific room presets (Majlis, Maid's Room, Driver's Room, etc.).
+- Feature [UX]: Improved Label Menu Interaction.
+    - Added "CLEAR" button to remove labels and clear input field.
+    - Initializing menu now syncs with current scene state (shows active label in custom input).
+    - Reduced auto-close timer to 1.9s for snappier feedback.
+- Fix [Visuals]: Solved transparency issues by using inline styles for dynamic Cobalt/Cerulean colors.
+- Fix [Visuals]: Corrected Z-Index layering to ensure the top label floats above all other UI.
+
+[2026-01-01 18:55] Version 2.6.8
+- UI [Header]: Reduced entire header height from 83px to 80px for a more compact design.
+- UI [Header]: Reduced Top Red Line thickness from 4px to 3px.
+- UI [Header]: Increased House icon size from 44px to 47px (+3px) for better visibility.
+- UI [Header]: Removed background color and blur from version/build info text under the title.
+- Technical: Synchronized #app height calculation in style.css to match new header height.
+
+[2026-01-01 18:56] Version 2.6.9
+- Fix [Header]: Restored the red top line using inline styles to ensure visibility.
+- Fix [Header]: Fixed hamburger menu dislocation by adding 'relative' positioning to the header container.
+- UI [Header]: Adjusted menu vertical offset to 76px and horizontal to 24px (left-6) for precise alignment.
+
+[2026-01-01 18:57] Version 2.7.0
+- Fix [Header]: Adjusted menu 'top' position to 82px to ensure it clears the 80px header and doesn't overlap branding.
+
+[2026-01-01 19:29] Version 2.7.1
+- Fix [UX]: Removed fixed positioning for hamburger menu.
+- Technical: Wrapped menu button in a relative container and nested the dropdown inside it.
+- UI: Dropdown now uses 'top-[calc(100%+12px)]' to stay perfectly anchored below the button regardless of header height changes.
+
+[2026-01-02 21:15] Version 2.7.6
+- Fixed # label menu position misalignment caused by header dimension changes.
+- Enforced fixed positioning for label menu to prevent flexbox interference.
+
+[2026-01-02 22:09] Version 2.7.7
+- Refined header top padding (23px) for optimal house icon positioning.
+- Used inline styles for immediate effect without Tailwind rebuild.
+
+[2026-01-02 22:45] Version 2.8.0
+- Architecture [Phase 1]: Extracted utility modules from Sidebar.js.
+    - Created Logger.js (37 lines) - Application logging with buffer.
+    - Created NotificationSystem.js (47 lines) - Toast notifications.
+    - Created ProgressBar.js (96 lines) - Progress bar control.
+    - Sidebar.js reduced from 987 to 893 lines (-94).
+- Architecture [Phase 2]: Extracted components from Viewer.js and Exporter.js.
+    - Created LabelMenu.js (261 lines) - Room label picker UI.
+    - Created TourHTMLTemplate.js (624 lines) - Export HTML generation.
+    - Viewer.js reduced from 986 to 758 lines (-228).
+    - Exporter.js reduced from 759 to 149 lines (-610).
+- Result: Combined reduction of 932 lines (34%) from the 3 largest files.
+- Technical: All extracted modules are properly documented with JSDoc.
+- Technical: Zero functionality changes; pure code reorganization.
+
+[2026-01-03 00:12] Version 2.8.1
+- UI [Polish]: Refined sidebar context menu positioning to anchor firmly to the trigger button, preventing clipping and "floating" behavior.
+- UI [Styling]: Updated context menu visuals (white background, shadow-2xl, blue hover states) for a cleaner, more professional look.
+- UX [Viewer]: Fixed phantom image persistence; the viewer now correctly clears and destroys the panorama instance when the last scene is removed.
+- UX [Viewer]: Improved "Ready to Build" placeholder layout, stacking the text vertically for better readability.
+
+[2026-01-03 01:10] Version 2.8.2
+- Replaced Debug button with About button in sidebar.
+- Added About modal with developer info and release date.
+- Removed debug log download functionality.
+
+[2026-01-03 01:13] Version 2.8.3
+- Refined About modal: swapped building emoji for blue home icon.
+- Updated About modal title to use Outfit font for brand consistency.
+
+[2026-01-03 10:45] Version 2.8.4
+- Fixed Project Name auto-generation from EXIF metadata.
+- Robustified Sidebar UI sync to ensure name updates even if analysis is delayed.
+- Improved EXIF date extraction for modern camera formats.

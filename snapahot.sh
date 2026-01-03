@@ -1,1 +1,0 @@
-outfile="Project_snapshot_$(date +%Y%m%d_%H%M%S).txt"; find . -type f -not -path "*/libs/*" -not -path "*/.git/*" -not -name "$outfile" \( -name "*.js" -o -name "*.html" -o -name "*.css" \) -exec printf "\n\n========================================\nFILE: {}\n========================================\n" \; -exec cat {} \; > "$outfile"; echo "✅ Snapshot saved to: $outfile"

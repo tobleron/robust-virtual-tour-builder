@@ -1,66 +1,162 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Remax Virtual Tour Builder</title>
 
-    <script>
-      // Force WebGL to keep the image buffer available for recording
-      const oldGetContext = HTMLCanvasElement.prototype.getContext;
-      HTMLCanvasElement.prototype.getContext = function (type, attributes) {
-        if (
-          type === "webgl" ||
-          type === "experimental-webgl" ||
-          type === "webgl2"
-        ) {
-          attributes = attributes || {};
-          attributes.preserveDrawingBuffer = true; // <--- The Magic Switch
-          attributes.alpha = false; // Force opaque background
-        }
-        return oldGetContext.call(this, type, attributes);
-      };
-    </script>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Remax Virtual Tour Builder</title>
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='%23003da5'/><path d='M50 10 A40 40 0 0 1 50 90' fill='%23dc3545'/><path d='M40 10 L40 90 M60 10 L60 90' stroke='white' stroke-width='2'/></svg>">
 
-    <link rel="stylesheet" href="src/libs/pannellum.css" />
-    <script src="src/libs/pannellum.js"></script>
-    <script src="src/libs/jszip.min.js"></script>
-    <script src="src/libs/FileSaver.min.js"></script>
-
-    <link rel="stylesheet" href="css/style.css" />
-
-    <style>
-      /* System Alerts */
-      #system-alert,
-      #error-console {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        background: #dc3545;
-        color: white;
-        padding: 15px;
-        text-align: center;
-        z-index: 10000;
-        font-family: sans-serif;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  <script>
+    // Force WebGL to keep the image buffer available for recording
+    const oldGetContext = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function (type, attributes) {
+      if (
+        type === "webgl" ||
+        type === "experimental-webgl" ||
+        type === "webgl2"
+      ) {
+        attributes = attributes || {};
+        attributes.preserveDrawingBuffer = true; // <--- The Magic Switch
+        attributes.alpha = false; // Force opaque background
       }
-    </style>
-  </head>
-  <body>
-    <div id="app">
-      <div id="sidebar"></div>
-      <div id="viewer-container">
-        <div id="panorama"></div>
-        <div id="placeholder-text" class="viewer-placeholder">
-          <h3>Ready to Build</h3>
-          <p>Use the sidebar to upload your images.</p>
-        </div>
-      </div>
-      <div id="modal-container"></div>
-    </div>
+      return oldGetContext.call(this, type, attributes);
+    };
+  </script>
 
-    <script type="module" src="src/main.js"></script>
-  </body>
+  <link rel="stylesheet" href="src/libs/pannellum.css" />
+  <script src="src/libs/pannellum.js"></script>
+  <script src="src/libs/jszip.min.js"></script>
+  <script src="src/libs/FileSaver.min.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;700&display=swap"
+    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <!-- Tailwind CSS (Preflight + Utilities) -->
+  <link rel="stylesheet" href="css/output.css" />
+  <!-- Custom Overrides -->
+  <link rel="stylesheet" href="css/style.css?v=2.8.4" />
+
+  <style>
+    /* Modern Toast Notifications */
+    #notification-container {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      z-index: 20000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: rgba(30, 41, 59, 0.95);
+      backdrop-filter: blur(8px);
+      color: white;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      opacity: 0;
+      transform: translateX(30px);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      pointer-events: auto;
+      border-left: 4px solid #3b82f6;
+      min-width: 280px;
+      max-width: 450px;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .toast.error {
+      border-left-color: #ef4444;
+      background: rgba(69, 10, 10, 0.95);
+    }
+
+    .toast.success {
+      border-left-color: #10b981;
+      background: rgba(6, 78, 59, 0.95);
+    }
+
+    .toast.warning {
+      border-left-color: #f59e0b;
+      background: rgba(69, 26, 3, 0.95);
+    }
+
+    /* Progress Bar Animations */
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: 200% center;
+      }
+
+      100% {
+        background-position: -200% center;
+      }
+    }
+
+    @keyframes pulse-dot {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.5;
+        transform: scale(0.8);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="notification-container"></div>
+  <div id="top-bar"></div>
+  <div id="app">
+    <div id="sidebar"></div>
+    <div id="viewer-container">
+      <div id="viewer-stage">
+        <div id="panorama"></div>
+        <div id="cursor-guide"></div>
+      </div>
+      <div id="placeholder-text" class="viewer-placeholder">
+        <h3>Ready to Build</h3>
+        <p>Use the sidebar to upload your images.</p>
+      </div>
+    </div>
+    <div id="modal-container"></div>
+  </div>
+
+  <!-- LIBRARIES -->
+  <script src="src/libs/gif.js"></script>
+  <!-- <script src="src/libs/ffmpeg.js"></script> -->
+  <!-- <script src="src/libs/ffmpeg-util.js"></script> -->
+
+  <script type="module" src="src/main.js?v=2.8.4"></script>
+</body>
+
 </html>

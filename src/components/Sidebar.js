@@ -1,303 +1,694 @@
 import { store } from "../store.js";
 import { exportTour } from "../systems/Exporter.js";
-import { processImage } from "../systems/Resizer.js";
 import { startAutoTeaser } from "../systems/TeaserSystem.js";
-import { Simulator } from "./Simulator.js";
+import { saveProject, loadProject } from "../systems/ProjectManager.js";
+import { VERSION, BUILD_INFO } from "../version.js";
+import { DownloadSystem } from "../systems/DownloadSystem.js";
+import { UploadProcessor } from "../systems/UploadProcessor.js";
+import { UploadReport } from "./UploadReport.js";
+import { SceneList } from "./SceneList.js";
 
 export function initSidebar() {
-  const container = document.getElementById("sidebar");
-  if (!container) return;
+    const container = document.getElementById("sidebar");
+    const topBar = document.getElementById("top-bar");
+    if (!container || !topBar) return;
 
-  // Inject Sidebar HTML
-  container.innerHTML = `
-        <div class="sidebar-header">
-            <h2>REMAX Virtual Tour Builder</h2>
-            <small>Version 10.0 (Fast Teaser)</small>
-        </div>
-        
-        <div style="padding: 15px; background: #f1f5f9; border-bottom: 1px solid #ddd;">
-            <label style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase;">Property Name</label>
-            <input type="text" id="tour-name-input" value="New Virtual Tour" 
-                style="width: 100%; box-sizing: border-box; padding: 8px; margin-top: 5px; border: 1px solid #cbd5e1; border-radius: 4px; font-weight: 600; color: #334155;">
-        </div>
+    // 1. Deactivate Top Bar (Migrated to Sidebar)
+    topBar.style.display = "none";
 
-        <div class="sidebar-content">
-            <label class="upload-box" id="upload-label">
-                <strong>Upload 360 Images</strong><br>
-                <small>Auto-compresses to 4K WebP</small>
-                <input type="file" id="file-input" multiple accept="image/*" hidden>
-            </label>
-            <div id="processing-ui" style="display:none; margin-bottom:20px;">
-                <div style="font-weight:bold; color:#003da5; margin-bottom:5px;">Optimizing...</div>
-                <div style="background:#eee; height:10px; border-radius:5px; overflow:hidden;">
-                    <div id="progress-bar" style="width:0%; height:100%; background:#003da5; transition:width 0.2s;"></div>
+    // 2. Inject Sidebar HTML (Tailwind optimized)
+    container.className = "w-[320px] min-w-[320px] bg-white flex flex-col z-20 border-r border-black/10 shrink-0 h-full overflow-hidden font-ui";
+
+    container.innerHTML = `
+        <!-- Sidebar Branding Header -->
+        <div class="relative w-full flex flex-col z-30 text-white shrink-0" style="border-top: 2px solid #dc3545; background: linear-gradient(to bottom, #001a38 0%, #002a70 50%, #003da5 100%);">
+            
+            <!-- Header Content - Premium Sizing -->
+            <div class="flex flex-col items-center px-5 pb-4" style="padding-top: 23px;">
+                <!-- House Icon - Top Centered with Extra Padding -->
+                <span class="material-icons text-white drop-shadow-lg mb-0.5 mt-1" style="font-size: 36px;">home</span>
+                <!-- Brand Title -->
+                <h1 class="font-black text-white tracking-tight drop-shadow-sm text-center" style="font-size: 24px;">Virtual Tour Builder</h1>
+                <!-- Version Info -->
+                <div class="flex items-center gap-2 text-white/50">
+                    <span class="text-[11px] font-bold">v${VERSION}</span>
+                    <span class="text-[11px]">•</span>
+                    <span class="text-[11px] font-medium">${BUILD_INFO}</span>
                 </div>
-                <small id="progress-text" style="color:#666;">0/0 processed</small>
             </div>
-            <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
-            <div id="scene-list-container"></div>
-        </div>
-        
-        <div style="padding: 15px; border-top: 1px solid #ddd; background: #fff;">
-            <button id="btn-link" class="btn btn-primary" disabled style="opacity:0.5; margin-bottom:5px;">Add Link</button>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; margin-bottom:15px;">
-                <button id="btn-preview" class="btn" disabled style="background:#17a2b8; color:white; opacity:0.5;"> Preview</button>
-                <button id="btn-export" class="btn" disabled style="background:#28a745; opacity:0.5;">Export</button>
+            
+            <!-- Direct Action Buttons Grid -->
+            <style>
+                .sidebar-action-btn {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 2px;
+                    padding: 10px 4px;
+                    background: rgba(255,255,255,0.08);
+                    border: none;
+                    border-radius: 10px;
+                    color: white;
+                    cursor: pointer;
+                    transition: all 0.15s ease;
+                    box-shadow: 
+                        0 2px 4px rgba(0,0,0,0.3),
+                        inset 0 1px 0 rgba(255,255,255,0.08);
+                }
+                .sidebar-action-btn:hover {
+                    background: rgba(255,255,255,0.15);
+                    transform: translateY(-2px);
+                    box-shadow: 
+                        0 4px 12px rgba(0,0,0,0.4),
+                        inset 0 1px 0 rgba(255,255,255,0.12);
+                }
+                .sidebar-action-btn:active {
+                    transform: translateY(1px);
+                    background: rgba(255,255,255,0.05);
+                    box-shadow: 
+                        inset 0 2px 6px rgba(0,0,0,0.3);
+                }
+                .sidebar-action-btn .material-icons {
+                    font-size: 22px;
+                    opacity: 0.95;
+                }
+                .sidebar-action-btn span:last-child {
+                    font-size: 9px;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.04em;
+                    opacity: 0.7;
+                }
+                .sidebar-action-btn-wide {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    padding: 10px 12px;
+                    background: rgba(255,255,255,0.08);
+                    border: none;
+                    border-radius: 10px;
+                    color: white;
+                    cursor: pointer;
+                    transition: all 0.15s ease;
+                    box-shadow: 
+                        0 2px 4px rgba(0,0,0,0.3),
+                        inset 0 1px 0 rgba(255,255,255,0.08);
+                }
+                .sidebar-action-btn-wide:hover:not(:disabled) {
+                    background: rgba(255,255,255,0.15);
+                    transform: translateY(-2px);
+                    box-shadow: 
+                        0 4px 12px rgba(0,0,0,0.4),
+                        inset 0 1px 0 rgba(255,255,255,0.12);
+                }
+                .sidebar-action-btn-wide:active:not(:disabled) {
+                    transform: translateY(1px);
+                    background: rgba(255,255,255,0.05);
+                    box-shadow: 
+                        inset 0 2px 6px rgba(0,0,0,0.3);
+                }
+                .sidebar-action-btn-wide .material-icons {
+                    font-size: 18px;
+                    opacity: 0.95;
+                }
+                .sidebar-action-btn-wide span:last-child {
+                    font-size: 11px;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.04em;
+                }
+                .sidebar-action-btn-wide:disabled {
+                    cursor: not-allowed;
+                }
+
+                /* Premium Modal Styling */
+                .modal-box-premium {
+                    background: linear-gradient(to bottom, #001a38 0%, #002a70 50%, #003da5 100%) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                    color: white !important;
+                    padding: 32px 24px !important;
+                    border-radius: 20px !important;
+                    text-align: center;
+                    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6) !important;
+                    width: 100%;
+                    max-width: 340px;
+                }
+                .modal-box-premium h2, .modal-box-premium h3 {
+                    color: white !important;
+                    font-family: var(--font-heading) !important;
+                    margin-bottom: 8px !important;
+                }
+                .modal-box-premium p {
+                    color: rgba(255, 255, 255, 0.7) !important;
+                    font-size: 13px !important;
+                    line-height: 1.5 !important;
+                    margin-bottom: 24px !important;
+                }
+                .modal-btn-premium {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 10px;
+                    padding: 14px 16px;
+                    background: rgba(255, 255, 255, 0.08);
+                    border: none;
+                    border-radius: 12px;
+                    color: white;
+                    cursor: pointer;
+                    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+                    font-family: var(--font-ui);
+                    font-weight: 700;
+                    font-size: 12px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.04em;
+                    box-shadow: 
+                        0 4px 6px rgba(0, 0, 0, 0.2),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                }
+                .modal-btn-premium:hover {
+                    background: rgba(255, 255, 255, 0.15);
+                    transform: translateY(-2px);
+                    box-shadow: 
+                        0 8px 15px rgba(0, 0, 0, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+                }
+                .modal-btn-premium:active {
+                    transform: translateY(1px);
+                    background: rgba(255, 255, 255, 0.05);
+                    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+                }
+                .modal-btn-premium.btn-blue {
+                    background: #1e40af; /* Darker Blue */
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                }
+                .modal-btn-premium.btn-blue:hover {
+                    background: #3b82f6; /* Lightens up */
+                }
+                .modal-btn-premium.btn-red {
+                    background: #9b1c2e; /* Darker RE/MAX Red */
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                }
+                .modal-btn-premium.btn-red:hover {
+                    background: #dc3545; /* True RE/MAX Red */
+                }
+                .modal-btn-premium.btn-green {
+                    background: #065f46; /* Darker Green */
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                }
+                .modal-btn-premium.btn-green:hover {
+                    background: #10b981; /* Lightens up */
+                }
+                .modal-btn-premium.btn-secondary {
+                    background: transparent;
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    opacity: 0.7;
+                    box-shadow: none;
+                }
+                .modal-btn-premium.btn-secondary:hover {
+                    opacity: 1;
+                    background: rgba(255, 255, 255, 0.05);
+                }
+            </style>
+            <div style="padding: 0 16px 14px 16px;">
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
+                    <button id="btn-new-project" class="sidebar-action-btn" title="New Project">
+                        <span class="material-icons">note_add</span>
+                        <span>New</span>
+                    </button>
+                    <button id="btn-save-project" class="sidebar-action-btn" title="Save Project">
+                        <span class="material-icons">save</span>
+                        <span>Save</span>
+                    </button>
+                    <button id="btn-load-project" class="sidebar-action-btn" title="Load Project">
+                        <span class="material-icons">folder_open</span>
+                        <span>Load</span>
+                    </button>
+                    <button id="btn-about" class="sidebar-action-btn" title="About App">
+                        <span class="material-icons">info</span>
+                        <span>About</span>
+                    </button>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-top: 6px;">
+                    <button id="btn-export" class="sidebar-action-btn-wide" disabled title="Export Tour" style="opacity: 0.4;">
+                        <span class="material-icons" style="color: #10b981;">inventory_2</span>
+                        <span>Export</span>
+                    </button>
+                    <button id="btn-teaser" class="sidebar-action-btn-wide" disabled title="Auto-Teaser" style="opacity: 0.4;">
+                        <span class="material-icons" style="color: #f97316;">movie</span>
+                        <span>Teaser</span>
+                    </button>
+                </div>
             </div>
-            <label style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase;">Director Tools</label>
-            <button id="btn-record" class="btn" disabled style="background:#dc3545; opacity:0.5; margin-top:5px; margin-bottom:5px;">
-                 Record Clip (Manual)
-            </button>
-            <button id="btn-teaser" class="btn" disabled style="background:#6f42c1; color:white; opacity:0.5;">
-                 Auto-Teaser (AI)
-            </button>
+
+            <input type="file" id="project-file-input" accept=".zip,.vt.zip" hidden>
         </div>
 
-        <div id="context-menu" style="display:none; position:fixed; z-index:100; background:white; border:1px solid #ccc; box-shadow:2px 2px 10px rgba(0,0,0,0.2); padding:5px; border-radius:4px;">
-            <div id="btn-clear-links" style="padding:8px 15px; cursor:pointer; color:#003da5; font-weight:bold; border-bottom:1px solid #eee;">Clear Links </div>
-            <div id="btn-delete-scene" style="padding:8px 15px; cursor:pointer; color:#dc3545; font-weight:bold;">Delete Scene </div>
+        <!-- Sidebar Body: Project Name & Upload -->
+        <div class="flex flex-col bg-slate-50 border-b border-slate-200 shadow-sm shrink-0">
+            <div class="p-4 pt-5 pb-3">
+                <div class="flex items-center justify-between mb-1.5 px-1">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Project Name</label>
+                    <span class="text-[9px] font-bold text-remax-blue/60 uppercase">Draft Mode</span>
+                </div>
+                <input type="text" id="tour-name-input" value="" 
+                    placeholder="Tour Name..." 
+                    class="w-full px-3 h-10 bg-white border border-slate-200 rounded-lg font-ui font-normal text-[10px] text-slate-700 focus:outline-none focus:ring-2 focus:ring-remax-blue/10 focus:border-remax-blue transition-all truncate shadow-sm placeholder:text-slate-300">
+            </div>
+            
+            <div class="px-4 pb-4">
+                <label class="w-full h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center gap-2.5 cursor-pointer transition-all hover:bg-remax-blue hover:text-white hover:border-remax-blue hover:shadow-lg hover:shadow-remax-blue/20 group active:scale-95 shadow-sm overflow-hidden" id="upload-label">
+                    <div class="w-6 h-6 rounded-full bg-remax-blue/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+                        <span class="material-icons text-[15px] text-remax-blue group-hover:text-white transition-colors">cloud_upload</span>
+                    </div>
+                    <strong class="text-[11px] font-bold tracking-tight text-slate-600 group-hover:text-white">Upload 360 Images</strong>
+                    <input type="file" id="file-input" multiple accept="image/*" hidden>
+                </label>
+            </div>
+        </div>
+
+        <!-- Sidebar Content Area -->
+        <div class="sidebar-content flex-1 overflow-y-auto overflow-x-hidden hide-scrollbar flex flex-col bg-white">
+            <!-- Processing UI -->
+            <div id="processing-ui" class="hidden m-4 bg-white border border-slate-100 rounded-xl p-4 shadow-xl ring-1 ring-remax-blue/5">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <div id="progress-spinner" class="w-3 h-3 border-2 border-slate-100 border-t-remax-blue rounded-full animate-spin"></div>
+                        <div id="progress-title" class="font-bold text-slate-800 text-[10px] uppercase tracking-wide">Processing</div>
+                    </div>
+                    <div id="progress-percentage" class="font-black text-remax-blue text-xs font-heading">0%</div>
+                </div>
+                <div class="bg-slate-100 h-1.5 rounded-full overflow-hidden relative">
+                    <div id="progress-bar" class="w-0 h-full bg-remax-blue transition-all duration-300 rounded-full relative">
+                         <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
+                    </div>
+                </div>
+                <div id="progress-text" class="text-[9px] text-slate-400 mt-2 font-bold uppercase tracking-tighter flex items-center gap-1.5">
+                    <span class="w-1 h-1 bg-remax-success rounded-full animate-pulse"></span>
+                    <span id="progress-text-content">System Ready</span>
+                </div>
+            </div>
+
+            <div id="scene-list-container" class="p-3 pt-4 flex-1"></div>
+        </div>
+
+
+
+        <!-- TEASER STYLE MODAL -->
+        <div id="style-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); backdrop-filter:blur(12px); z-index:11000; justify-content:center; align-items:center; padding:16px; transition:opacity 0.3s ease-in-out; opacity:0;">
+            <div class="modal-box-premium" style="transform:scale(0.95); transition:all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
+                <div style="margin-bottom: 20px;">
+                    <span class="material-icons" style="font-size: 48px; color: #f97316; filter: drop-shadow(0 0 12px rgba(249, 115, 22, 0.4));">movie</span>
+                </div>
+                <h3 style="margin-top:0; font-size: 22px; font-weight: 800; letter-spacing: -0.02em;">Select Teaser Style</h3>
+                <p>Choose how the video should be recorded.</p>
+                
+                <label style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:20px; font-size:12px; font-weight:600; color:rgba(255,255,255,0.8); cursor:pointer;">
+                    <input type="checkbox" id="chk-teaser-watermark" checked style="width:16px; height:16px; border-radius:4px; accent-color: #3b82f6;">
+                    Include logo watermark
+                </label>
+                
+                <div style="margin-bottom:24px; padding:16px; border-radius:16px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); text-align:left;">
+                    <div style="font-size:10px; font-weight:800; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:8px;">Choose Video Format:</div>
+                    <select id="sel-teaser-format" style="width:100%; height: 40px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:0 12px; font-weight:700; color:white; font-size:11px; outline:none; cursor:pointer;">
+                        <option value="webm">WebM (Standard - Faster)</option>
+                        <option value="mp4">MP4 (Experimental - High Quality)</option>
+                    </select>
+                    <p style="font-size:9px; color:rgba(255,255,255,0.4); margin-top: 10px; margin-bottom: 0; line-height:1.2;">Note: MP4 encoding happens in-browser and is hardware intensive.</p>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <button id="btn-style-dissolve" class="modal-btn-premium btn-blue" style="width: 100%; flex-direction: column; padding: 16px;">
+                        <span style="font-size: 13px;">Fast Cross-Dissolve</span>
+                        <span style="font-size: 9px; opacity: 0.6; text-transform: none; font-weight: 500;">Micro-panning with smooth transitions</span>
+                    </button>
+                    
+                    <button id="btn-style-punchy" class="modal-btn-premium" style="width: 100%; background:rgba(249, 115, 22, 0.2); border: 1px solid rgba(249, 115, 22, 0.3); flex-direction: column; padding: 16px;">
+                        <span style="font-size: 13px;">Punchy Cuts Loop</span>
+                        <span style="font-size: 9px; opacity: 0.6; text-transform: none; font-weight: 500;">Fast, dynamic cuts focused on links</span>
+                    </button>
+                </div>
+                
+                <button id="btn-close-style" class="modal-btn-premium btn-secondary" style="width:100%; margin-top: 16px;">
+                    Dismiss
+                </button>
+            </div>
+        </div>
+
+        <!-- NEW PROJECT MODAL -->
+        <div id="new-project-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); backdrop-filter:blur(12px); z-index:11000; justify-content:center; align-items:center; padding:16px; transition:opacity 0.3s ease-in-out; opacity:0;">
+            <div class="modal-box-premium" style="transform:scale(0.95); transition:all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
+                <div style="margin-bottom: 20px;">
+                    <span class="material-icons" style="font-size: 48px; color: #3b82f6; filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.4));">construction</span>
+                </div>
+                <h2 style="margin-top:0; font-size: 22px; font-weight: 800; letter-spacing: -0.02em;">Start New Project?</h2>
+                <p>Your current virtual tour will be cleared. Do you want to save it first or start fresh?</p>
+                
+                <div style="display:grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px;">
+                    <button id="btn-new-save" class="modal-btn-premium btn-green">
+                        <span class="material-icons" style="font-size: 18px;">save</span>
+                        <span>Save & Start New</span>
+                    </button>
+                    <button id="btn-new-discard" class="modal-btn-premium btn-red">
+                        <span class="material-icons" style="font-size: 18px;">delete_forever</span>
+                        <span>Discard All Changes</span>
+                    </button>
+                    <button id="btn-new-cancel" class="modal-btn-premium btn-blue">
+                        <span class="material-icons" style="font-size: 18px;">edit</span>
+                        <span>Continue Editing</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABOUT MODAL -->
+        <div id="about-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); backdrop-filter:blur(12px); z-index:11000; justify-content:center; align-items:center; padding:16px; transition:opacity 0.3s ease-in-out; opacity:0;">
+            <div class="modal-box-premium" style="transform:scale(0.95); transition:all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); max-width: 320px;">
+                <div style="margin-bottom: 20px;">
+                    <span class="material-icons" style="font-size: 56px; color: #3b82f6; filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.5));">home</span>
+                </div>
+                <h2 style="margin-top:0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em;">Tour Builder</h2>
+                
+                <div style="margin: 24px 0; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); text-align: left;">
+                    <div style="margin-bottom: 16px;">
+                        <span style="font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.05em; display: block;">Developer</span>
+                        <span style="font-size: 15px; font-weight: 700; color: white;">Arto Kalishian</span>
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                        <span style="font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.05em; display: block;">Release Date</span>
+                        <span style="font-size: 15px; font-weight: 700; color: white;">December 30, 2025</span>
+                    </div>
+                    <div>
+                        <span style="font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.05em; display: block;">Current Version</span>
+                        <span style="font-size: 15px; font-weight: 700; color: white;">v${VERSION}</span>
+                        <span style="font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.6); display: block; margin-top: 4px;">${BUILD_INFO}</span>
+                    </div>
+                </div>
+                
+                <button id="btn-close-about" class="modal-btn-premium btn-blue" style="width:100%;">
+                    <span>Close</span>
+                </button>
+            </div>
         </div>
     `;
 
-  // --- ELEMENTS ---
-  const fileInput = document.getElementById("file-input");
-  const tourNameInput = document.getElementById("tour-name-input");
-  const processingUi = document.getElementById("processing-ui");
-  const progressBar = document.getElementById("progress-bar");
-  const progressText = document.getElementById("progress-text");
-  const list = document.getElementById("scene-list-container");
-  const contextMenu = document.getElementById("context-menu");
-  const btnDelete = document.getElementById("btn-delete-scene");
-  const btnClearLinks = document.getElementById("btn-clear-links");
+    // Action buttons are now directly visible - no menu toggle needed
 
-  // Buttons
-  const btnLink = document.getElementById("btn-link");
-  const btnPreview = document.getElementById("btn-preview");
-  const btnExport = document.getElementById("btn-export");
-  const btnRecord = document.getElementById("btn-record");
-  const btnTeaser = document.getElementById("btn-teaser");
-  const viewerContainer = document.getElementById("viewer-container");
+    // --- CONTEXT MENU CREATION (Moved to Body) ---
+    const existingMenu = document.getElementById("context-menu");
+    if (existingMenu) existingMenu.remove();
 
-  let targetContextIndex = -1;
+    const contextMenu = document.createElement("div");
+    contextMenu.id = "context-menu";
+    contextMenu.className = "hidden fixed z-[10000] bg-white border border-slate-200 rounded-xl shadow-2xl p-1.5 min-w-[180px] flex-col divide-y divide-slate-100 font-ui transform transition-all duration-100 ease-out origin-top-right";
+    contextMenu.innerHTML = `
+        <div id="btn-clear-links" class="px-3 py-2.5 cursor-pointer text-slate-600 font-bold text-[10px] uppercase tracking-wider hover:bg-blue-50 hover:text-remax-blue rounded-lg transition-all flex items-center justify-between group">
+            <div class="flex items-center gap-2.5">
+                <span class="material-icons text-[14px]">link_off</span>
+                <span>Clear Links</span>
+            </div>
+        </div>
+        <div id="btn-delete-scene" class="px-3 py-2.5 cursor-pointer text-slate-500 font-bold text-[10px] uppercase tracking-wider hover:bg-red-50 hover:text-remax-red rounded-lg transition-all flex items-center justify-between group mt-0.5">
+            <div class="flex items-center gap-2.5">
+                <span class="material-icons text-[14px]">delete_outline</span>
+                <span>Remove</span>
+            </div>
+        </div>
+  `;
+    document.body.appendChild(contextMenu);
 
-  // --- BUTTON LOGIC ---
-  btnPreview.addEventListener("click", () => Simulator.open());
+    // --- ELEMENTS ---
+    const fileInput = document.getElementById("file-input");
+    const tourNameInput = document.getElementById("tour-name-input");
+    const processingUi = document.getElementById("processing-ui");
+    const progressTitle = document.getElementById("progress-title");
+    const progressBar = document.getElementById("progress-bar");
+    const progressText = document.getElementById("progress-text");
+    const list = document.getElementById("scene-list-container");
+    // contextMenu is already defined above
+    const btnDelete = document.getElementById("btn-delete-scene");
+    const btnClearLinks = document.getElementById("btn-clear-links");
 
-  // Single Teaser Mode
-  btnTeaser.addEventListener("click", () => {
-    if (confirm("Start Auto-Director? Please do not touch the mouse.")) {
-      startAutoTeaser();
+    // Buttons
+    const btnExport = document.getElementById("btn-export");
+    const btnTeaser = document.getElementById("btn-teaser");
+    const btnNewProject = document.getElementById("btn-new-project");
+    const btnSaveProject = document.getElementById("btn-save-project");
+    const btnLoadProject = document.getElementById("btn-load-project");
+    const btnAbout = document.getElementById("btn-about");
+    const projectFileInput = document.getElementById("project-file-input");
+    const viewerContainer = document.getElementById("viewer-container");
+    const placeholderText = document.getElementById("placeholder-text");
+
+    // Logger, NotificationSystem, and ProgressBar are now in src/utils/
+    // They are initialized in main.js before this component loads
+
+
+
+    // --- COMPONENT INITIALIZATION ---
+    SceneList.init(list, contextMenu);
+
+    // --- MODAL HELPERS ---
+    const styleModal = document.getElementById("style-modal");
+    const btnStyleDissolve = document.getElementById("btn-style-dissolve");
+    const btnStylePunchy = document.getElementById("btn-style-punchy");
+    const btnCloseStyle = document.getElementById("btn-close-style");
+    const chkTeaserWatermark = document.getElementById("chk-teaser-watermark");
+    const selTeaserFormat = document.getElementById("sel-teaser-format");
+
+    const newProjectModal = document.getElementById("new-project-modal");
+    const btnNewSave = document.getElementById("btn-new-save");
+    const btnNewDiscard = document.getElementById("btn-new-discard");
+    const btnNewCancel = document.getElementById("btn-new-cancel");
+
+    const aboutModal = document.getElementById("about-modal");
+    const btnCloseAbout = document.getElementById("btn-close-about");
+
+    const showModal = (el) => {
+        el.style.display = "flex";
+        setTimeout(() => { el.style.opacity = "1"; }, 10);
+    };
+    const hideModal = (el) => {
+        el.style.opacity = "0";
+        setTimeout(() => { el.style.display = "none"; }, 300);
+    };
+
+    if (btnTeaser) {
+        btnTeaser.addEventListener("click", () => showModal(styleModal));
     }
-  });
-
-  btnRecord.addEventListener("click", () => {
-    if (window.toggleRecording) {
-      const isRecordingNow = window.toggleRecording();
-      if (isRecordingNow) {
-        btnRecord.innerText = " Stop Recording";
-        btnRecord.classList.add("blink");
-      } else {
-        btnRecord.innerText = " Record Clip (Manual)";
-        btnRecord.classList.remove("blink");
-      }
+    if (btnCloseStyle) {
+        btnCloseStyle.addEventListener("click", () => hideModal(styleModal));
     }
-  });
-
-  // ... Standard Events ...
-  tourNameInput.addEventListener("input", (e) =>
-    store.setTourName(e.target.value),
-  );
-  fileInput.addEventListener("change", async (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length === 0) return;
-
-    document.getElementById("upload-label").style.display = "none";
-    processingUi.style.display = "block";
-
-    const sceneDataList = []; // New array to hold pairs
-
-    for (let i = 0; i < files.length; i++) {
-      progressText.innerText = `Processing ${i + 1} of ${files.length}`;
-      progressBar.style.width = ((i + 1) / files.length) * 100 + "%";
-
-      try {
-        // 1. Create the lightweight "Preview" for the browser (Fast)
-        const previewFile = await processImage(files[i]);
-
-        // 2. Keep the "Original" for the Exporter (High Quality)
-        // We pair them together:
-        sceneDataList.push({
-          original: files[i],
-          preview: previewFile,
-          name: previewFile.name,
+    if (btnStyleDissolve) {
+        btnStyleDissolve.addEventListener("click", () => {
+            hideModal(styleModal);
+            const includeLogo = chkTeaserWatermark ? chkTeaserWatermark.checked : true;
+            const format = selTeaserFormat ? selTeaserFormat.value : "webm";
+            startAutoTeaser("dissolve", includeLogo, format);
         });
-      } catch (err) {
-        console.error(err);
-      }
+    }
+    if (btnStylePunchy) {
+        btnStylePunchy.addEventListener("click", () => {
+            hideModal(styleModal);
+            const includeLogo = chkTeaserWatermark ? chkTeaserWatermark.checked : true;
+            const format = selTeaserFormat ? selTeaserFormat.value : "webm";
+            startAutoTeaser("punchy", includeLogo, format);
+        });
     }
 
-    // Send the PAIRS to the store
-    store.addScenes(sceneDataList);
 
-    processingUi.style.display = "none";
-    document.getElementById("upload-label").style.display = "block";
-    fileInput.value = "";
-  });
 
-  document.addEventListener("click", () => {
-    contextMenu.style.display = "none";
-  });
-  btnDelete.addEventListener("click", () => {
-    if (targetContextIndex > -1 && confirm("Remove this image?")) {
-      store.deleteScene(targetContextIndex);
-    }
-    contextMenu.style.display = "none";
-  });
-  btnClearLinks.addEventListener("click", () => {
-    if (
-      targetContextIndex > -1 &&
-      confirm("Clear all links from this image?")
-    ) {
-      store.clearHotspots(targetContextIndex);
-    }
-    contextMenu.style.display = "none";
-  });
-  btnLink.addEventListener("click", () => {
-    store.state.isLinking = !store.state.isLinking;
-    if (store.state.isLinking) {
-      btnLink.classList.add("active");
-      btnLink.innerText = "Cancel Link";
-      if (viewerContainer) viewerContainer.classList.add("linking-mode");
-    } else {
-      btnLink.classList.remove("active");
-      btnLink.innerText = "Add Link";
-      if (viewerContainer) viewerContainer.classList.remove("linking-mode");
-    }
-  });
-  btnExport.addEventListener("click", () => exportTour(store.state.scenes));
+    // --- CORE EVENTS ---
 
-  store.subscribe((state) => {
-    // 1. Check Linking Mode UI
-    if (!state.isLinking) {
-      btnLink.classList.remove("active");
-      btnLink.innerText = "Add Link";
-      if (viewerContainer) viewerContainer.classList.remove("linking-mode");
-    } else {
-      btnLink.classList.add("active");
-      btnLink.innerText = "Cancel Link";
-      if (viewerContainer) viewerContainer.classList.add("linking-mode");
+    // Smart content-based font sizing for Project ID input
+    // Scales font down when text is long to fit more content
+    function adjustInputFontSize() {
+        const input = tourNameInput;
+        const text = input.value || input.placeholder;
+        const containerWidth = input.offsetWidth - 24; // Subtract padding (12px * 2)
+
+        // Calculate approximate character width at 16px
+        const baseCharWidth = 9; // Average character width in Inter font at 16px
+        const maxCharsAt16px = Math.floor(containerWidth / baseCharWidth);
+
+        // Determine optimal font size based on text length
+        let fontSize;
+        if (text.length <= maxCharsAt16px) {
+            fontSize = 16; // Full size when text fits
+        } else if (text.length <= maxCharsAt16px * 1.15) {
+            fontSize = 15; // Slightly smaller
+        } else if (text.length <= maxCharsAt16px * 1.3) {
+            fontSize = 14; // WCAG minimum
+        } else {
+            fontSize = 14; // Never go below 14px (WCAG compliant)
+        }
+
+        input.style.fontSize = `${fontSize}px`;
+
+        // Also adjust placeholder font size
+        if (text === input.placeholder) {
+            input.style.fontSize = '14px'; // Smaller placeholder for long text
+        }
     }
 
-    // 2. Handle Empty State
-    if (state.scenes.length === 0) {
-      list.innerHTML = `<div style="text-align:center; color:#999; font-size:0.9rem; padding:20px;">No scenes loaded.</div>`;
-      btnLink.disabled = true;
-      btnLink.style.opacity = 0.5;
-      btnExport.disabled = true;
-      btnExport.style.opacity = 0.5;
-      btnRecord.disabled = true;
-      btnRecord.style.opacity = 0.5;
-      btnTeaser.disabled = true;
-      btnTeaser.style.opacity = 0.5;
-      btnPreview.disabled = true;
-      btnPreview.style.opacity = 0.5;
-      return;
-    }
-
-    // 3. Render List (Clean Reset)
-    list.innerHTML = "";
-
-    state.scenes.forEach((scene, index) => {
-      const item = document.createElement("div");
-      item.className = `scene-item ${index === state.activeIndex ? "active" : ""}`;
-
-      // Enable dragging
-      item.draggable = true;
-      item.dataset.index = index;
-
-      const thumbUrl = URL.createObjectURL(scene.file);
-
-      // --- NEW LAYOUT WITH EVENT KILLERS ---
-      // 1. Drag Zone: oncontextmenu="return false" blocks the menu
-      // 2. Image: pointer-events:none + oncontextmenu blocks interactions
-      item.innerHTML = `
-                <div class="drag-zone" title="Drag to Reorder" oncontextmenu="event.preventDefault(); return false;">
-                    <svg viewBox="0 0 24 24" style="pointer-events:none;">
-                        <path d="M9 3H11V21H9V3ZM13 3H15V21H13V3Z" /> 
-                    </svg>
-                </div>
-
-                <div class="scene-content">
-                    <img src="${thumbUrl}" 
-                         oncontextmenu="event.preventDefault(); return false;" 
-                         style="width:60px; height:40px; object-fit:cover; border-radius:4px; background:#ddd; box-shadow:0 1px 3px rgba(0,0,0,0.1); pointer-events:none; -webkit-touch-callout:none;">
-                    
-                    <div style="overflow:hidden; display:flex; flex-direction:column; justify-content:center;">
-                        <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600; font-size:14px; color:#333;">
-                            ${scene.name}
-                        </span>
-                        <span style="font-size:11px; color:#64748b; margin-top:2px;">
-                            ${scene.hotspots.length} links
-                        </span>
-                    </div>
-                </div>
-            `;
-
-      // A. View Handler
-      const contentDiv = item.querySelector(".scene-content");
-      contentDiv.onclick = () => store.setActiveScene(index);
-
-      // Custom Context Menu (Delete/Clear) - Only for the CONTENT area
-      contentDiv.oncontextmenu = (e) => {
-        e.preventDefault();
-        e.stopPropagation(); // Stop it from bubbling
-        targetContextIndex = index;
-        contextMenu.style.display = "block";
-        contextMenu.style.left = e.pageX + "px";
-        contextMenu.style.top = e.pageY + "px";
-      };
-
-      // B. Drag Handler
-      item.addEventListener("dragstart", (e) => {
-        e.dataTransfer.setData("text/plain", index);
-        e.dataTransfer.effectAllowed = "move";
-        setTimeout(() => item.classList.add("dragging"), 0);
-      });
-      item.addEventListener("dragend", () => {
-        item.classList.remove("dragging");
-        document
-          .querySelectorAll(".scene-item")
-          .forEach((el) => el.classList.remove("drag-over"));
-      });
-      item.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = "move";
-        item.classList.add("drag-over");
-      });
-      item.addEventListener("dragleave", () =>
-        item.classList.remove("drag-over"),
-      );
-      item.addEventListener("drop", (e) => {
-        e.preventDefault();
-        const fromIndex = parseInt(e.dataTransfer.getData("text/plain"));
-        const toIndex = index;
-        item.classList.remove("drag-over");
-        store.reorderScenes(fromIndex, toIndex);
-      });
-
-      list.appendChild(item);
+    // Update on input
+    tourNameInput.addEventListener("input", (e) => {
+        store.setTourName(e.target.value);
+        e.target.title = e.target.value || "Click to edit project name";
+        adjustInputFontSize();
     });
 
-    // 4. Enable Buttons
-    btnLink.disabled = false;
-    btnLink.style.opacity = 1;
-    btnExport.disabled = false;
-    btnExport.style.opacity = 1;
-    btnRecord.disabled = false;
-    btnRecord.style.opacity = 1;
-    btnTeaser.disabled = false;
-    btnTeaser.style.opacity = 1;
-    btnPreview.disabled = false;
-    btnPreview.style.opacity = 1;
-  });
+    // Adjust on load and window resize
+    adjustInputFontSize();
+    window.addEventListener('resize', adjustInputFontSize);
+
+    fileInput.addEventListener("change", async (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length === 0) return;
+
+        const result = await UploadProcessor.processUploads(files, (pct, msg, isProc, phase) => {
+            window.updateProgressBar(pct, msg, isProc, phase);
+        });
+
+        fileInput.value = "";
+
+        // Show Report Dialog
+        UploadReport.show(store.state.lastUploadReport, result.qualityResults);
+    });
+
+
+    // Context menu actions are now handled in SceneList.js
+
+    btnExport.addEventListener("click", async () => {
+        btnExport.disabled = true;
+        window.updateProgressBar(0, "Initializing Export...", true, "Exporting...");
+        await exportTour(store.state.scenes, (done, total, message) => {
+            window.updateProgressBar(Math.round((done / total) * 100), message);
+        });
+        window.updateProgressBar(100, "Export Complete!", true);
+        btnExport.disabled = false;
+    });
+
+    btnNewProject.addEventListener("click", () => {
+        if (store.state.scenes.length === 0) { location.reload(); return; }
+        showModal(newProjectModal);
+    });
+
+    btnNewSave.addEventListener("click", async () => {
+        hideModal(newProjectModal);
+        try {
+            await saveProject(store.state, (pct, total, message) => window.updateProgressBar(pct, message, true, "Saving Project..."));
+            window.notify("Project saved! Starting new project...", "success");
+            setTimeout(() => location.reload(), 1500);
+        } catch (err) {
+            if (err.message === 'USER_CANCELLED') window.notify("Save cancelled.", "info");
+            else window.notify("Save failed.", "error");
+            window.updateProgressBar(0, "", false);
+        }
+    });
+
+    btnNewDiscard.addEventListener("click", () => { hideModal(newProjectModal); location.reload(); });
+    btnNewCancel.addEventListener("click", () => hideModal(newProjectModal));
+
+    btnSaveProject.addEventListener("click", async () => {
+        if (store.state.scenes.length === 0) { window.notify("Nothing to save.", "warning"); return; }
+        try {
+            btnSaveProject.disabled = true;
+            await saveProject(store.state, (pct, total, message) => window.updateProgressBar(pct, message, true, "Saving Project..."));
+        } catch (error) { window.notify("Failed to save: " + error.message, "error"); }
+        finally { window.updateProgressBar(0, "", false); btnSaveProject.disabled = false; }
+    });
+
+    if (btnAbout) {
+        btnAbout.addEventListener("click", () => showModal(aboutModal));
+    }
+    if (btnCloseAbout) {
+        btnCloseAbout.addEventListener("click", () => hideModal(aboutModal));
+    }
+
+    btnLoadProject.addEventListener("click", () => {
+        if (store.state.scenes.length > 0 && !confirm("Loading will replace your work. Continue?")) return;
+        projectFileInput.click();
+    });
+
+    projectFileInput.addEventListener("change", async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+            btnLoadProject.disabled = true;
+            const loadedData = await loadProject(file, (pct, total, message) => window.updateProgressBar(pct, message, true, "Loading Project..."));
+            store.loadProject(loadedData);
+            if (loadedData.scenes.length > 0) store.setActiveScene(0, 0);
+            window.updateProgressBar(100, `✅ Loaded!`, true, "Project Ready");
+        } catch (err) { window.notify("Load failed: " + err.message, "error"); }
+        finally { window.updateProgressBar(0, "", false); btnLoadProject.disabled = false; }
+        projectFileInput.value = "";
+    });
+
+    // --- STORE SUBSCRIPTION ---
+    let lastSceneCount = -1;
+    let lastActiveIndex = -1;
+    let lastHotspotDataStr = "";
+
+    const updateSidebar = (state) => {
+        // 1. Sync Project Name (Always do this first, even if no scenes)
+        if (tourNameInput && state.tourName !== tourNameInput.value) {
+            console.log(`🔄 [Sidebar] Syncing input value to: "${state.tourName}"`);
+            tourNameInput.value = state.tourName || "";
+            if (typeof adjustInputFontSize === 'function') adjustInputFontSize();
+        }
+
+        if (viewerContainer) {
+            if (state.isLinking) viewerContainer.classList.add("linking-mode");
+            else viewerContainer.classList.remove("linking-mode");
+        }
+
+        if (state.scenes.length === 0) {
+            list.innerHTML = `
+        <div class="flex flex-col items-center justify-center py-24 px-8 text-center animate-fade-in">
+            <span class="material-icons text-6xl text-slate-100 mb-4 scale-110 drop-shadow-sm">image_not_supported</span>
+            <p class="text-sm font-black text-slate-300 leading-tight uppercase tracking-widest">No scenes loaded</p>
+            <p class="text-[10px] text-slate-400 mt-3 font-semibold max-w-[180px] mx-auto leading-relaxed">Upload 360 images above to start building your project.</p>
+        </div>
+      `;
+            btnExport.disabled = true; btnExport.style.opacity = 0.5;
+            btnTeaser.disabled = true; btnTeaser.style.opacity = 0.5;
+            btnSaveProject.disabled = true; btnSaveProject.style.opacity = 0.5;
+            tourNameInput.disabled = true; tourNameInput.style.opacity = 0.5;
+            lastSceneCount = 0;
+            if (placeholderText) placeholderText.style.display = "flex";
+            return;
+        }
+
+        // Hide Placeholder
+        if (placeholderText) placeholderText.style.display = "none";
+
+        // Restore states when images are present
+        tourNameInput.disabled = false; tourNameInput.style.opacity = 1;
+        btnSaveProject.disabled = false; btnSaveProject.style.opacity = 1;
+
+        const currentHotspotDataStr = JSON.stringify(state.scenes.map(s => s.hotspots.length));
+        const totalHotspots = state.scenes.reduce((acc, s) => acc + s.hotspots.length, 0);
+        const teaserReady = totalHotspots >= 3;
+        const exportReady = totalHotspots > 0;
+
+        if (teaserReady) { btnTeaser.disabled = false; btnTeaser.style.opacity = 1; }
+        else { btnTeaser.disabled = true; btnTeaser.style.opacity = 0.5; }
+
+        if (exportReady) { btnExport.disabled = false; btnExport.style.opacity = 1; }
+        else { btnExport.disabled = true; btnExport.style.opacity = 0.5; }
+
+        if (state.scenes.length === lastSceneCount && state.activeIndex === lastActiveIndex && currentHotspotDataStr === lastHotspotDataStr) return;
+
+        lastSceneCount = state.scenes.length;
+        lastActiveIndex = state.activeIndex;
+        lastHotspotDataStr = currentHotspotDataStr;
+
+        // Delegate scene list rendering to specialized component
+        SceneList.render(state);
+    };
+
+    store.subscribe(updateSidebar);
+    updateSidebar(store.state);
 }

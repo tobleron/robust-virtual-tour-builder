@@ -1,0 +1,272 @@
+/* RE/MAX Virtual Tour Builder - Tailwind v4 Source CSS */
+@import "tailwindcss";
+
+/* RE/MAX Brand Colors - Custom Theme */
+@theme {
+    /* Primary Blues */
+    --color-remax-blue: #003da5;
+    --color-remax-blue-dark: #002a70;
+    --color-remax-blue-darker: #001a38;
+    --color-remax-navy: #002147;
+
+    /* Accent Colors */
+    --color-remax-red: #dc3545;
+    --color-remax-gold: #ffcc00;
+    --color-remax-gold-light: #fdb931;
+
+    /* Viewer Dimensions (Updated: +14% from 32px) */
+    --spacing-viewer-btn: 37px;
+    --spacing-viewer-icon: 21px;
+
+    /* UI Colors */
+    --color-viewer-bg: #1a202c;
+    --color-sidebar-bg: #ffffff;
+
+    /* Success/Danger */
+    --color-success: #10b981;
+    --color-danger: #dc3545;
+
+    /* Viewer Icon Colors */
+    --color-floor-default: #001a4d;
+    --color-floor-hover: #ea580c;
+    --color-floor-active: #003da5;
+    --color-floor-border-active: #ffcc00;
+
+    /* Transition Speeds */
+    --transition-speed-fast: 0.15s;
+    --transition-speed-normal: 0.3s;
+
+    /* Viewer Dimensions (Updated: +14% from 32px) */
+    --spacing-viewer-btn: 37px;
+    --spacing-viewer-icon: 18px;
+
+    /* Typography */
+    --font-heading: "Outfit", system-ui, sans-serif;
+    --font-body: "Outfit", system-ui, sans-serif;
+    --font-ui: "Inter", system-ui, sans-serif;
+
+    /* Animations */
+    --animate-glow-sequence: glow-sequence 1.8s infinite;
+    --animate-fade-in: fade-in 0.3s ease-out;
+
+    @keyframes glow-sequence {
+
+        0%,
+        100% {
+            fill-opacity: 0;
+            filter: brightness(1);
+        }
+
+        10%,
+        30% {
+            fill-opacity: 0.8;
+            filter: brightness(1.5);
+        }
+
+        40% {
+            fill-opacity: 0;
+            filter: brightness(1);
+        }
+    }
+
+    @keyframes fade-in {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}
+
+/* Preflight Reset - Professional Standardization */
+*,
+*::before,
+*::after {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* Hide scrollbars globally for a clean app look */
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* Tactile Pop Effect Utility */
+.btn-viewer-pop {
+    transition: all 0.12s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+}
+
+.btn-viewer-pop:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 2px 2.5px 0 rgba(0, 0, 0, 0.8);
+}
+
+.btn-viewer-pop:active {
+    transform: translate(1px, 1px);
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0.5);
+}
+
+/* Glassmorphism Preset */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+/* Disabled/Dimmed State for Utility Bar */
+.viewer-utility-dimmed {
+    opacity: 0.15 !important;
+    pointer-events: none !important;
+    filter: grayscale(1) contrast(0.8);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+/* Simulation Toggle Active State */
+#v-scene-sim-toggle.active {
+    background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%) !important;
+}
+
+/* Floor Circle Active State Override */
+/* Ensure Yellow Border wins over Orange Hover */
+.floor-circle.border-floor-border-active {
+    border-color: var(--color-floor-border-active) !important;
+}
+
+/* Custom Hotspot Arrow Rotation (Legacy Compatibility) */
+.rotate-arrow-x {
+    transform: rotateX(65deg);
+}
+
+/* PANNELLUM ENGINE FIXES & HOTSPOT STYLES */
+.pnlm-hotspot.flat-arrow {
+    overflow: visible !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+    pointer-events: auto !important;
+    width: 110px !important;
+    height: 110px !important;
+    margin-left: -55px !important;
+    margin-top: -55px !important;
+    cursor: pointer;
+    perspective: 1500px;
+    z-index: 2000 !important;
+    transform-style: preserve-3d;
+}
+
+.custom-arrow-svg {
+    width: 110px !important;
+    height: 110px !important;
+    display: block;
+    pointer-events: none;
+    transform: rotateX(65deg);
+    transform-origin: center center;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    filter: drop-shadow(0 8px 4px rgba(0, 0, 0, 0.4));
+}
+
+.glow-unit {
+    fill-opacity: 0;
+    fill: #fff4d1;
+}
+
+.glow-bottom {
+    animation: var(--animate-glow-sequence);
+}
+
+.glow-top {
+    animation: var(--animate-glow-sequence);
+    animation-delay: 0.4s;
+}
+
+.pnlm-hotspot.flat-arrow:hover .custom-arrow-svg {
+    transform: rotateX(65deg) translateY(-20px) scale(1.1);
+    filter: drop-shadow(0 30px 15px rgba(0, 0, 0, 0.3));
+}
+
+/* Hotspot Preview Styling */
+.hotspot-preview {
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    width: 120px;
+    height: 80px;
+    background: rgba(0, 0, 0, 0.85);
+    border: 2px solid theme('colors.remax-gold');
+    border-radius: 8px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+    z-index: 3000;
+}
+
+.flat-arrow:hover .hotspot-preview {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.hotspot-delete-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 22px;
+    height: 22px;
+    background: theme('colors.remax-red');
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    z-index: 3001;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.flat-arrow:hover .hotspot-delete-btn {
+    opacity: 1;
+}
+
+/* Hotspot Visibility & Navigation Logic */
+.pnlm-hotspot.flat-arrow.hidden-in-sim {
+    display: none !important;
+}
+
+/* Return Link - Visual subordination to prioritize flow */
+.pnlm-hotspot.flat-arrow.return-link {
+    opacity: 0.6;
+    filter: saturate(0.5) brightness(0.9);
+}
+
+.pnlm-hotspot.flat-arrow.return-link:hover {
+    opacity: 1;
+    filter: none;
+}
+
+/* Hide return links entirely during simulation to clear the path forward */
+.pnlm-hotspot.flat-arrow.return-link.in-simulation {
+    display: none !important;
+}
+
+.pnlm-load-box,
+.pnlm-loading-container {
+    display: none !important;
+}
