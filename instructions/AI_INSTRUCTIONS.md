@@ -29,12 +29,18 @@ These rules are **non-negotiable** and must be followed on every change:
 - **Files**: `style.css?v=X.X.X` and `main.js?v=X.X.X`
 - **Sync**: Version must match `src/version.js`
 
-### 4. Error Handling
+### 4. Git Protocol
+- **Requirement**: Perform a Git commit on **EVERY** version bump
+- **Message Format**: `vX.X.X [Brief Description]` (Description matches `BUILD_INFO` in `version.js`)
+- **Main Branch**: Always commit to the `main` branch unless specifically directed otherwise
+- **Pushing**: Push to remote repository after successful local commit if environment allows
+
+### 5. Error Handling
 - ❌ **Never** use blocking `alert()` dialogs
 - ✅ Use the toast notification system (`showToast()`)
 - ✅ Log errors to the debug buffer
 
-### 5. State Preservation
+### 6. State Preservation
 - Only reload/reset **AFTER** successful operations, not before
 - Detect user cancellation (e.g., file picker cancel) and preserve state
 - Use the **No-Reload Technique**: incremental UI updates over full re-initialization

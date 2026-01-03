@@ -163,25 +163,24 @@ export function initViewer() {
     lastHotspotCount = currentScene.hotspots.length;
 
     const snapshot = document.getElementById("viewer-snapshot-overlay");
-    if (viewer) {
-      if (snapshot) {
-        try {
-          const canvas = viewerContainer.querySelector("canvas");
-          snapshot.style.backgroundImage = `url(${canvas.toDataURL("image/webp", 0.7)})`;
-          snapshot.classList.add("snapshot-visible");
-        } catch (e) { }
-      }
-      try { viewer.destroy(); } catch (e) { }
-    }
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
+    const loadNewScene = () => {
+      // Clean up previous blob URL if any
+      if (window._currentPanoramaUrl) {
+        URL.revokeObjectURL(window._currentPanoramaUrl);
+      }
+      window._currentPanoramaUrl = URL.createObjectURL(currentScene.file);
+
+      // SANITIZATION: Ensure yaw and pitch are never NaN
+      const initialPitch = Number.isFinite(state.activePitch) ? state.activePitch : 0;
+      const initialYaw = Number.isFinite(state.activeYaw) ? state.activeYaw : 0;
+
       viewer = pannellum.viewer("panorama", {
         type: "equirectangular",
-        panorama: e.target.result,
+        panorama: window._currentPanoramaUrl,
         autoLoad: true,
-        pitch: state.activePitch || 0,
-        yaw: state.activeYaw || 0,
+        pitch: initialPitch,
+        yaw: initialYaw,
         hfov: GLOBAL_HFOV,
         minHfov: GLOBAL_HFOV,
         maxHfov: GLOBAL_HFOV,
@@ -191,9 +190,24 @@ export function initViewer() {
       window.pannellumViewer = viewer;
 
       viewer.on('load', () => {
-        if (snapshot) snapshot.classList.remove("snapshot-visible");
+        // Fade out AND clear snapshot
+        if (snapshot) {
+          snapshot.classList.remove("snapshot-visible");
+          setTimeout(() => {
+            if (!snapshot.classList.contains("snapshot-visible")) {
+              snapshot.style.backgroundImage = 'none';
+            }
+          }, 450);
+        }
         handleAutoForward(currentScene, state, viewer);
       });
+
+      // Safety timeout for snapshot dismissal
+      setTimeout(() => {
+        if (snapshot && snapshot.classList.contains("snapshot-visible")) {
+          snapshot.classList.remove("snapshot-visible");
+        }
+      }, 3000);
 
       viewer.on('mousedown', (e) => {
         const isLinking = store.state.isLinking;
@@ -239,7 +253,38 @@ export function initViewer() {
       });
     };
 
-    reader.readAsDataURL(currentScene.file);
+    if (viewer) {
+      if (snapshot) {
+        try {
+          // Capture current frame for transition
+          const canvas = viewerContainer.querySelector("canvas");
+          if (canvas) {
+            const dataUrl = canvas.toDataURL("image/webp", 0.7);
+            // Verify data URL is not just uninitialized buffer (very short)
+            if (dataUrl.length > 1000) {
+              snapshot.style.backgroundImage = `url(${dataUrl})`;
+              snapshot.classList.add("snapshot-visible");
+            }
+          }
+        } catch (e) {
+          console.warn("Snapshot capture failed:", e);
+        }
+      }
+
+      // 1. Destroy old viewer
+      try { viewer.destroy(); } catch (e) { }
+      viewer = null;
+      window.pannellumViewer = null;
+
+      // 2. Micro-delay to allow WebGL context to breathe and clear resources
+      // This specifically prevents "color bar" glitches on rapid transitions
+      requestAnimationFrame(() => {
+        setTimeout(loadNewScene, 50);
+      });
+    } else {
+      loadNewScene();
+    }
+
   });
 }
 

@@ -1515,3 +1515,14 @@
 - Fixed Project Name auto-generation from EXIF metadata.
 - Robustified Sidebar UI sync to ensure name updates even if analysis is delayed.
 - Improved EXIF date extraction for modern camera formats.
+
+[2026-01-03 13:20] Version 2.8.5
+- Refined Return Prompt UI with better centering and animation logic.
+- Synchronized button active states for RE/MAX red branding.
+
+[2026-01-03 13:42] Version 2.8.6
+- Resolved WebGL race conditions in scene transitions with micro-delay hand-off.
+- Fixed "Oval Distortion" (NaN bug) by sanitizing yaw/pitch coordinates project-wide.
+- Restored "Normally Dimmed" viewer aesthetics (slate-900 palette).
+- Implemented "Circuit Breaker" loop protection for Auto-Forward sequences.
+- Improved sidebar animation logic and transition overlay visibility.

@@ -41,9 +41,11 @@ export function setPendingReturnSceneName(val) { pendingReturnSceneName = val; }
  * Centralized navigation function
  */
 export function navigateToScene(targetIndex, sourceSceneIndex, sourceHotspotIndex, targetYaw = 0, targetPitch = 0) {
-    // 1. TRACK HISTORY: Always record where we just came from
-    // This allows the NEW scene to know which hotspot brought us here
-    // Useful for bidirectional view saving and "Return Link" suggestions
+    // 1. SANITIZE: Prevent NaN from entering the state
+    const cleanYaw = Number.isFinite(targetYaw) ? targetYaw : 0;
+    const cleanPitch = Number.isFinite(targetPitch) ? targetPitch : 0;
+
+    // 2. TRACK HISTORY: Always record where we just came from
     incomingLink = {
         sceneIndex: sourceSceneIndex,
         hotspotIndex: sourceHotspotIndex
@@ -51,12 +53,11 @@ export function navigateToScene(targetIndex, sourceSceneIndex, sourceHotspotInde
 
     console.log(`Navigation Sequence: Scene ${sourceSceneIndex} → Scene ${targetIndex} via Hotspot ${sourceHotspotIndex}`);
 
-    // 2. TRIGGER STATE CHANGE
-    // 'transition: { type: "link" }' informs components this was an intentional navigation
+    // 3. TRIGGER STATE CHANGE
     store.setActiveScene(targetIndex, {
         transition: { type: "link" },
-        targetYaw: targetYaw,
-        targetPitch: targetPitch
+        targetYaw: cleanYaw,
+        targetPitch: cleanPitch
     });
 }
 
@@ -97,20 +98,31 @@ export function updateReturnPrompt(state, scene) {
  */
 export function handleAutoForward(currentScene, state, viewer) {
     if (currentScene.isAutoForward && !state.isLinking && isSimulationMode) {
+        // Initialize chain if starting
         if (autoForwardChain.length === 0 && incomingLink) {
             autoForwardChain.push(incomingLink.sceneIndex);
         }
 
+        // Loop detection
         if (autoForwardChain.includes(state.activeIndex)) {
-            console.warn(`Auto-forward loop detected!`);
+            console.warn(`Auto-forward loop detected! Scene Index ${state.activeIndex} was already visited in this sequence.`);
             autoForwardChain = [];
-            if (window.notify) window.notify(`⚠️ Loop detected. Auto-navigation stopped.`, 'warning');
+            if (window.notify) window.notify(`⚠️ Navigation loop detected. Auto-forward paused.`, 'warning');
             return;
         }
 
         autoForwardChain.push(state.activeIndex);
+
+        // Circuit breaker: Prevent chains longer than 15 hops
+        if (autoForwardChain.length > 15) {
+            console.error("Auto-forward safety cut-off: Chain too long.");
+            autoForwardChain = [];
+            return;
+        }
+
         const visitedSceneNames = autoForwardChain.map(idx => state.scenes[idx]?.name).filter(Boolean);
 
+        // Find next target that isn't where we just came from (if possible)
         let bestHotspot = currentScene.hotspots.find(h => !visitedSceneNames.includes(h.target));
         if (!bestHotspot && currentScene.hotspots.length > 0) {
             bestHotspot = currentScene.hotspots[0];
@@ -119,18 +131,23 @@ export function handleAutoForward(currentScene, state, viewer) {
         if (bestHotspot) {
             const targetIndex = state.scenes.findIndex(s => s.name === bestHotspot.target);
             if (targetIndex !== -1) {
+                // Micro-delay to let the current scene settle before jumping
                 setTimeout(() => {
                     const simToggle = document.getElementById('v-scene-sim-toggle');
                     const stillSimulating = simToggle && simToggle.classList.contains("active");
 
                     if (store.state.activeIndex === state.activeIndex && !store.state.isLinking && stillSimulating) {
                         const hsIndex = currentScene.hotspots.indexOf(bestHotspot);
-                        navigateToScene(targetIndex, state.activeIndex, hsIndex !== -1 ? hsIndex : 0, bestHotspot.targetYaw || 0, bestHotspot.viewFrame ? bestHotspot.viewFrame.pitch : 0);
+                        const tYaw = Number.isFinite(bestHotspot.targetYaw) ? bestHotspot.targetYaw : 0;
+                        const tPitch = (bestHotspot.viewFrame && Number.isFinite(bestHotspot.viewFrame.pitch)) ? bestHotspot.viewFrame.pitch : 0;
+
+                        navigateToScene(targetIndex, state.activeIndex, hsIndex !== -1 ? hsIndex : 0, tYaw, tPitch);
                     }
-                }, 1000);
+                }, 1200);
             }
         }
     } else {
+        // Clear chain when manual navigation or toggle off
         if (autoForwardChain.length > 0) {
             autoForwardChain = [];
         }

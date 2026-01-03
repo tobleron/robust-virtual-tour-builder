@@ -20,8 +20,6 @@ import { store } from "../store.js";
  */
 export function createHotspotConfig(h, i, state, scene, incomingLink, isSimulationMode, navigateToScene) {
     const targetScene = state.scenes.find(s => s.name === h.target);
-    const thumbUrl = targetScene ? URL.createObjectURL(targetScene.file) : "";
-
     // NAVIGATION LOGIC: Identify if this is the link we just came from
     const isReturnLink = incomingLink && state.scenes[incomingLink.sceneIndex]?.name === h.target;
     const isAutoForwardScene = scene.isAutoForward;

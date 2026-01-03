@@ -23,7 +23,7 @@ export function setupViewerUI(viewerStage, viewer) {
     // Snapshot Overlay
     const snapshot = document.createElement("div");
     snapshot.id = "viewer-snapshot-overlay";
-    snapshot.className = "absolute inset-0 bg-cover bg-center z-[5000] pointer-events-none opacity-0 transition-opacity duration-[900ms] ease-in-out";
+    snapshot.className = "absolute inset-0 bg-center bg-no-repeat z-[5000] pointer-events-none opacity-0 transition-opacity duration-300 ease-in-out";
     viewerStage.appendChild(snapshot);
 
     // Top Left Utility Bar
@@ -147,10 +147,10 @@ export function setupViewerUI(viewerStage, viewer) {
     // Return Link Prompt
     const returnPrompt = document.createElement("div");
     returnPrompt.id = "return-link-prompt";
-    returnPrompt.className = "hidden fixed bottom-24 left-1/2 -translate-x-1/2 glass-panel rounded-full px-5 py-2.5 items-center gap-3 shadow-2xl z-[4000] border border-remax-gold/20 cursor-pointer transition-all hover:scale-105 active:scale-95 animate-fade-in";
+    returnPrompt.className = "hidden fixed bottom-24 left-1/2 -translate-x-1/2 glass-panel rounded-full px-5 py-2.5 items-center gap-3 shadow-2xl z-[4000] border border-remax-gold/20 cursor-pointer transition-all hover:scale-105 active:scale-95 animate-fade-in-centered";
     returnPrompt.innerHTML = `
         <div class="w-6 h-6 bg-remax-gold rounded-full flex items-center justify-center text-black font-black text-xs shadow-sm">↩</div>
-        <div class="return-link-text font-ui text-[13px] font-bold text-slate-800">Add Return Link</div>
+        <div class="return-link-text font-ui text-[13px] font-bold text-white">Add Return Link</div>
     `;
     returnPrompt.onclick = (e) => {
         e.stopPropagation();
