@@ -70,10 +70,14 @@ export function createHotspotConfig(h, i, state, scene, incomingLink, isSimulati
                     const targetIndex = state.scenes.findIndex(s => s.name === h.target);
                     if (targetIndex !== -1) {
                         // USE CENTRALIZED NAVIGATION: Ensures consistent tracking
-                        // For return links with returnViewFrame, use return view; otherwise use standard view
+                        // For return links with returnViewFrame, use return view; otherwise use viewFrame
                         const useReturnView = h.isReturnLink && h.returnViewFrame;
-                        const navYaw = useReturnView ? h.returnViewFrame.yaw : (h.targetYaw || 0);
-                        const navPitch = useReturnView ? h.returnViewFrame.pitch : (h.viewFrame ? h.viewFrame.pitch : 0);
+                        const navYaw = useReturnView
+                            ? h.returnViewFrame.yaw
+                            : (h.viewFrame ? h.viewFrame.yaw : 0);
+                        const navPitch = useReturnView
+                            ? h.returnViewFrame.pitch
+                            : (h.viewFrame ? h.viewFrame.pitch : 0);
                         navigateToScene(targetIndex, state.activeIndex, i, navYaw, navPitch);
                     }
                 }

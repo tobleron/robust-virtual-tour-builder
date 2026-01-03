@@ -1,2 +1,2 @@
-export const VERSION = "2.9.0-beta";
-export const BUILD_INFO = "Director's Pitch";
+export const VERSION = "2.9.1-beta";
+export const BUILD_INFO = "ViewFrame Priority";

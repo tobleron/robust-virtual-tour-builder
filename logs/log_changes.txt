@@ -1555,3 +1555,8 @@
 - Feature: All links now store exact camera pitch (Director's Pitch).
 - Previously, return links forced pitch to 0 (horizon); now respects director's view.
 - The director's camera angle at link creation time determines arrival orientation.
+
+[2026-01-03 15:29] Version 2.9.1-beta
+- Fix: Normal links now use `viewFrame.yaw` instead of `targetYaw`.
+- This ensures the original Director's View is used, not the "live-updating" last-visited yaw.
+- Both manual and auto-forward navigation now respect the saved viewFrame consistently.
