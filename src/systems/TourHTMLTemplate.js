@@ -17,37 +17,39 @@
  * @returns {string} Complete HTML document string
  */
 export function generateTourHTML(scenes, tourName, hasLogo, exportType, baseSize, logoSize, version) {
-    const firstSceneName = scenes[0].name;
-    const rawScenesData = {};
-    scenes.forEach((s) => {
-        rawScenesData[s.name] = {
-            panorama: `assets/images/${s.name}`,
-            autoLoad: true,
-            floor: s.floor || "ground",
-            category: s.category || "indoor",
-            label: s.label || s.name,
-            isAutoForward: s.isAutoForward || false,
-            hotSpots: s.hotspots.map((h) => ({
-                pitch: h.displayPitch !== undefined ? h.displayPitch : h.pitch,
-                yaw: h.yaw,
-                target: h.target,
-                truePitch: h.pitch,
-                viewFrame: h.viewFrame || null,
-            })),
-        };
-    });
+  const firstSceneName = scenes[0].name;
+  const rawScenesData = {};
+  scenes.forEach((s) => {
+    rawScenesData[s.name] = {
+      panorama: `assets/images/${s.name}`,
+      autoLoad: true,
+      floor: s.floor || "ground",
+      category: s.category || "indoor",
+      label: s.label || s.name,
+      isAutoForward: s.isAutoForward || false,
+      hotSpots: s.hotspots.map((h) => ({
+        pitch: h.displayPitch !== undefined ? h.displayPitch : h.pitch,
+        yaw: h.yaw,
+        target: h.target,
+        truePitch: h.pitch,
+        viewFrame: h.viewFrame || null,
+        returnViewFrame: h.returnViewFrame || null,
+        isReturnLink: h.isReturnLink || false,
+      })),
+    };
+  });
 
-    const isMobile = exportType === 'hd';
+  const isMobile = exportType === 'hd';
 
-    const customCSS = generateCSS(firstSceneName, isMobile, exportType, baseSize, logoSize);
-    const renderFunctionScript = generateRenderScript(baseSize);
+  const customCSS = generateCSS(firstSceneName, isMobile, exportType, baseSize, logoSize);
+  const renderFunctionScript = generateRenderScript(baseSize);
 
-    // Config: HFOV Settings - LOCKED at 90° for all tours
-    const hfovDefault = 90;
-    const hfovMin = 90;
-    const hfovMax = 90;
+  // Config: HFOV Settings - LOCKED at 90° for all tours
+  const hfovDefault = 90;
+  const hfovMin = 90;
+  const hfovMax = 90;
 
-    return `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${tourName}</title><link rel="stylesheet" href="libs/pannellum.css"/><script src="libs/pannellum.js"></script><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"><style>${customCSS}</style></head><body><div id="stage"><div id="panorama"></div><div id="floor-nav" class="floor-navigator"></div>${hasLogo ? '<div class="watermark"><img src="assets/logo.png"></div>' : ""}</div>
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${tourName}</title><link rel="stylesheet" href="libs/pannellum.css"/><script src="libs/pannellum.js"></script><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"><style>${customCSS}</style></head><body><div id="stage"><div id="panorama"></div><div id="floor-nav" class="floor-navigator"></div>${hasLogo ? '<div class="watermark"><img src="assets/logo.png"></div>' : ""}</div>
 
   <script>
     const firstSceneId = "${scenes[0].name}";
@@ -107,7 +109,7 @@ export function generateTourHTML(scenes, tourName, hasLogo, exportType, baseSize
  * Generate CSS for the exported tour
  */
 function generateCSS(firstSceneName, isMobile, exportType, baseSize, logoSize) {
-    return `
+  return `
     /* BASE RESET */
     body { 
       margin: 0; padding: 0; 
@@ -380,7 +382,7 @@ function generateCSS(firstSceneName, isMobile, exportType, baseSize, logoSize) {
  * Generate the render function script for hotspot arrows
  */
 function generateRenderScript(baseSize) {
-    return `
+  return `
     function renderGoldArrow(hotSpotDiv, args) {
       const currentSceneId = window.viewer.getScene();
       const currentSceneData = scenesData[currentSceneId];
@@ -446,7 +448,7 @@ function generateRenderScript(baseSize) {
  * Generate the load event script for auto-navigation
  */
 function generateLoadEventScript() {
-    return `
+  return `
     window.viewer.on('load', function() {
       const currentSceneId = window.viewer.getScene();
       const currentSceneData = scenesData[currentSceneId];
@@ -501,7 +503,7 @@ function generateLoadEventScript() {
  * Generate the floor navigator script
  */
 function generateFloorNavScript() {
-    return `
+  return `
     const floorOrder = ['roof', 'fourth', 'third', 'second', 'first', 'ground', 'b1', 'b2'];
     const floorLabels = {
       'b2': 'B<sup>-2</sup>',
@@ -608,7 +610,7 @@ function generateFloorNavScript() {
  * @returns {string} Embed codes content
  */
 export function generateEmbedCodes(tourName, version) {
-    return `REMAX VIRTUAL TOUR - EMBED CODES
+  return `REMAX VIRTUAL TOUR - EMBED CODES
 Version: ${version}
 Property: ${tourName}
 

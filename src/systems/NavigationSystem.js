@@ -138,8 +138,14 @@ export function handleAutoForward(currentScene, state, viewer) {
 
                     if (store.state.activeIndex === state.activeIndex && !store.state.isLinking && stillSimulating) {
                         const hsIndex = currentScene.hotspots.indexOf(bestHotspot);
-                        const tYaw = Number.isFinite(bestHotspot.targetYaw) ? bestHotspot.targetYaw : 0;
-                        const tPitch = (bestHotspot.viewFrame && Number.isFinite(bestHotspot.viewFrame.pitch)) ? bestHotspot.viewFrame.pitch : 0;
+                        // For return links with returnViewFrame, use return view; otherwise use standard view
+                        const useReturnView = bestHotspot.isReturnLink && bestHotspot.returnViewFrame;
+                        const tYaw = useReturnView
+                            ? bestHotspot.returnViewFrame.yaw
+                            : (Number.isFinite(bestHotspot.targetYaw) ? bestHotspot.targetYaw : 0);
+                        const tPitch = useReturnView
+                            ? bestHotspot.returnViewFrame.pitch
+                            : (bestHotspot.viewFrame && Number.isFinite(bestHotspot.viewFrame.pitch)) ? bestHotspot.viewFrame.pitch : 0;
 
                         navigateToScene(targetIndex, state.activeIndex, hsIndex !== -1 ? hsIndex : 0, tYaw, tPitch);
                     }

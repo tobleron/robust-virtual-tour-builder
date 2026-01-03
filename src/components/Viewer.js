@@ -253,7 +253,13 @@ export function initViewer() {
         if (incoming && viewportSaveTimeout === null) {
           if (state.transition && (state.transition.type === 'link' || state.transition.type === 'drone')) {
             const currentYaw = viewer.getYaw();
-            store.updateHotspotTargetYaw(incoming.sceneIndex, incoming.hotspotIndex, currentYaw);
+            const hotspot = state.scenes[incoming.sceneIndex]?.hotspots[incoming.hotspotIndex];
+            // For return links, update returnViewFrame; otherwise update targetYaw
+            if (hotspot?.isReturnLink && hotspot?.returnViewFrame) {
+              store.updateHotspotReturnYaw(incoming.sceneIndex, incoming.hotspotIndex, currentYaw);
+            } else {
+              store.updateHotspotTargetYaw(incoming.sceneIndex, incoming.hotspotIndex, currentYaw);
+            }
           }
         }
       });
@@ -266,7 +272,13 @@ export function initViewer() {
           }
           viewportSaveTimeout = setTimeout(() => {
             const currentYaw = viewer.getYaw();
-            store.updateHotspotTargetYaw(incoming.sceneIndex, incoming.hotspotIndex, currentYaw);
+            const hotspot = state.scenes[incoming.sceneIndex]?.hotspots[incoming.hotspotIndex];
+            // For return links, update returnViewFrame; otherwise update targetYaw
+            if (hotspot?.isReturnLink && hotspot?.returnViewFrame) {
+              store.updateHotspotReturnYaw(incoming.sceneIndex, incoming.hotspotIndex, currentYaw);
+            } else {
+              store.updateHotspotTargetYaw(incoming.sceneIndex, incoming.hotspotIndex, currentYaw);
+            }
             viewportSaveTimeout = null;
           }, 800);
         }

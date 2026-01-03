@@ -44,7 +44,9 @@ export async function saveProject(state, onProgress) {
                 target: h.target,
                 displayPitch: h.displayPitch,
                 truePitch: h.truePitch,
-                viewFrame: h.viewFrame || null
+                viewFrame: h.viewFrame || null,
+                returnViewFrame: h.returnViewFrame || null,
+                isReturnLink: h.isReturnLink || false
             }))
         }))
     };
@@ -172,7 +174,11 @@ export async function loadProject(zipFile, onProgress) {
                 floor: sceneMetadata.floor || "ground",
                 file: file,
                 originalFile: file,
-                hotspots: sceneMetadata.hotspots || []
+                hotspots: (sceneMetadata.hotspots || []).map(h => ({
+                    ...h,
+                    returnViewFrame: h.returnViewFrame || null,
+                    isReturnLink: h.isReturnLink || false
+                }))
             });
 
             loadedImages++;

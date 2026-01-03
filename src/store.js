@@ -225,6 +225,18 @@ export const store = {
     }
   },
 
+  /**
+   * Update the return view yaw for a return link hotspot
+   * Used for bidirectional view saving when navigating via return links
+   */
+  updateHotspotReturnYaw(sceneIndex, hotspotIndex, yaw) {
+    const hotspot = this.state.scenes[sceneIndex]?.hotspots[hotspotIndex];
+    if (hotspot && hotspot.returnViewFrame) {
+      hotspot.returnViewFrame.yaw = yaw;
+      // Do NOT notify to prevent viewer reload. Silent update.
+    }
+  },
+
   getScenesByFloor() {
     const grouped = {};
     this.state.scenes.forEach((scene, index) => {

@@ -1,6 +1,6 @@
 # AI Instructions & Project Preferences
 
-> **Quick Reference for AI Agents**  
+> **Quick Reference for AI Agents**
 > This document defines mandatory rules and best practices for AI-assisted development on this project.
 
 ## ⚠️ Hard Rules (Must Follow)
@@ -8,42 +8,53 @@
 These rules are **non-negotiable** and must be followed on every change:
 
 ### 1. Versioning
-- **Format**: Use `vX.X.X` (semantic versioning: major.minor.patch)
-- **Rollover**: When patch reaches 9, increment minor and reset patch (e.g., `v0.7.9` → `v0.8.0`)
+- **Format**: Use `vX.X.X` for stable releases and `vX.X.X-beta` for development updates.
+- **Rollover**: When patch reaches 9, increment minor and reset patch (e.g., `v0.7.9` → `v0.8.0`).
 - **Location**: `src/version.js`
-- **Display**: Show as `vX.X.X [Brief Description]` with **max 3 words** in brackets
-- **Consistency**: Bump version on **EVERY** user-facing change
+- **Display**: Show as `vX.X.X[-beta] [Brief Description]` with **max 3 words** in brackets.
+- **Consistency**: Bump version on **EVERY** user-facing change.
 
 ### 2. Change Logging
 - **Location**: `/logs/log_changes.txt`
 - **Format**:
   ```
-  [YYYY-MM-DD HH:MM] Version X.Y.Z
+  [YYYY-MM-DD HH:MM] Version X.Y.Z[-beta]
   - Change description 1
   - Change description 2
   ```
-- **Frequency**: Log **every** version bump with clear descriptions
+- **Frequency**: Log **every** version bump with clear descriptions.
 
 ### 3. Cache Busting
-- **Requirement**: Update `?v=X.X.X` query parameters in `index.html` on **EVERY** version bump
-- **Files**: `style.css?v=X.X.X` and `main.js?v=X.X.X`
-- **Sync**: Version must match `src/version.js`
+- **Requirement**: Update `?v=X.X.X` query parameters in `index.html` on **EVERY** version bump.
+- **Files**: `style.css?v=...` and `main.js?v=...`
+- **Sync**: Version string must match `src/version.js` exactly (including `-beta` suffix if present).
 
 ### 4. Git Protocol
-- **Requirement**: Perform a Git commit on **EVERY** version bump
-- **Message Format**: `vX.X.X [Brief Description]` (Description matches `BUILD_INFO` in `version.js`)
-- **Main Branch**: Always commit to the `main` branch unless specifically directed otherwise
-- **Pushing**: Push to remote repository after successful local commit if environment allows
+- **Default Branch**: Always commit and push to the `develop` branch for standard updates.
+- **Stable Branch**: **NEVER** push directly to `main`. Merge to `main` only when explicitly directed for a Stable Release (see Rule #7).
+- **Requirement**: Perform a Git commit on **EVERY** version bump.
+- **Message Format**: `vX.X.X[-beta] [Brief Description]` (Description matches `BUILD_INFO` in `version.js`).
 
 ### 5. Error Handling
-- ❌ **Never** use blocking `alert()` dialogs
-- ✅ Use the toast notification system (`showToast()`)
-- ✅ Log errors to the debug buffer
+- ❌ **Never** use blocking `alert()` dialogs.
+- ✅ Use the toast notification system (`showToast()`).
+- ✅ Log errors to the debug buffer.
 
 ### 6. State Preservation
-- Only reload/reset **AFTER** successful operations, not before
-- Detect user cancellation (e.g., file picker cancel) and preserve state
-- Use the **No-Reload Technique**: incremental UI updates over full re-initialization
+- Only reload/reset **AFTER** successful operations, not before.
+- Detect user cancellation (e.g., file picker cancel) and preserve state.
+- Use the **No-Reload Technique**: incremental UI updates over full re-initialization.
+
+### 7. Stable vs. Unstable Workflow
+- **Unstable (Routine Work)**:
+  - **Branch**: `develop`
+  - **Version**: Must include suffix (e.g., `v1.0.4-beta`).
+  - **Action**: Tag as "Pre-release" in GitHub.
+- **Stable (Production Release)**:
+  - **Trigger**: Only when explicitly requested by user ("Make a stable release").
+  - **Branch**: Merge `develop` into `main`.
+  - **Version**: Remove `-beta` suffix (e.g., `v1.0.4-beta` → `v1.0.4`) and perform a clean bump.
+  - **Action**: Tag as "Latest Release" in GitHub.
 
 ---
 
@@ -146,8 +157,6 @@ This project uses a **dual-font system** (Outfit + Inter) for optimal readabilit
 
 ---
 
----
-
 ## 💬 Communication Style
 
 - Explain changes made, not just what code was written
@@ -175,7 +184,7 @@ This project uses a **dual-font system** (Outfit + Inter) for optimal readabilit
 
 *Place any minor tweaks, experimental preferences, or temporary overrides here.*
 
-- (None currently)
+- **Branching Note**: Ensure local `git` configuration is set to push to `origin develop` by default to avoid accidental main pushes.
 
 ---
 

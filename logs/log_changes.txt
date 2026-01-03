@@ -1537,3 +1537,11 @@
 - Reset auto-forward chain on manual sidebar navigation.
 - Created debugTelemetry.js utility for centralized error tracking.
 - Created viewerHealthCheck.js utility for monitoring viewer state.
+
+[2026-01-03 14:40] Version 2.8.8-beta
+- Feature: Implemented separate return link view storage for directional awareness.
+- Return links now store `returnViewFrame` to capture the "facing back" perspective.
+- Navigation via return links uses `returnViewFrame` for camera orientation.
+- Auto-forward chains respect return link views for seamless bidirectional navigation.
+- Added `updateHotspotReturnYaw()` method to store for bidirectional view saving.
+- Updated ProjectManager and TourHTMLTemplate for return link serialization.
