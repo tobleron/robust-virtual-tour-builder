@@ -197,20 +197,19 @@ export function showLinkModal(pitch, yaw, camPitch, camYaw, camHfov, pendingRetu
     const displayPitch = pitch - HOTSPOT_VISUAL_OFFSET_DEGREES;
 
     // 3. Save Forward Link with Metadata
-    // For return links: store current camera view in returnViewFrame
-    // For normal links: store current camera view in viewFrame
+    // All links store the exact camera view (pitch, yaw, hfov) the director was looking at
     store.addHotspot(state.activeIndex, {
       pitch: pitch,        // Original eye-level click point (used for zoom targeting)
       displayPitch: displayPitch, // Visual arrow location (appears at floor level)
       yaw,
       target: targetName,
-      // Standard view frame (horizon-facing for return links, camera view for forward links)
+      // View frame: stores the exact camera orientation for arrival at destination
       viewFrame: {
-        pitch: isReturnLink ? 0 : camPitch,
-        yaw: isReturnLink ? camYaw : camYaw,
+        pitch: camPitch,   // Exact camera pitch (director's choice)
+        yaw: camYaw,
         hfov: camHfov
       },
-      // Return view frame: captures the 180° rotated perspective for return navigation
+      // Return view frame: for return links, stores the "facing back" perspective
       returnViewFrame: isReturnLink ? {
         pitch: camPitch,
         yaw: camYaw,

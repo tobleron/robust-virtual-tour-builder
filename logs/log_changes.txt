@@ -1550,3 +1550,8 @@
 - Fix [Critical]: Navigation views were being lost due to parameter mismatch.
 - navigateToScene was passing an object to setActiveScene instead of individual parameters.
 - Stored yaw/pitch values now correctly applied when transitioning between scenes.
+
+[2026-01-03 15:02] Version 2.9.0-beta
+- Feature: All links now store exact camera pitch (Director's Pitch).
+- Previously, return links forced pitch to 0 (horizon); now respects director's view.
+- The director's camera angle at link creation time determines arrival orientation.
