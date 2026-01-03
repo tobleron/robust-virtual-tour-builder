@@ -30,6 +30,9 @@ let lastFloor = "ground";
 // Viewport saving debounce to prevent accidental changes
 let viewportSaveTimeout = null;
 
+// Scene loading guard to prevent race conditions
+let isSceneLoading = false;
+
 /**
  * Main Viewer Component
  */
@@ -125,8 +128,9 @@ export function initViewer() {
     if (hasSceneChanged) {
       const isLinkedNavigation = state.transition && (state.transition.type === 'link' || state.transition.type === 'drone');
       if (!isLinkedNavigation) {
-        // Manual jump (Sidebar) - Clear stale history
+        // Manual jump (Sidebar) - Clear stale history and auto-forward chain
         setIncomingLink(null);
+        resetAutoForwardChain();
       }
     }
 
@@ -165,6 +169,13 @@ export function initViewer() {
     const snapshot = document.getElementById("viewer-snapshot-overlay");
 
     const loadNewScene = () => {
+      // GUARD: Prevent race conditions from rapid scene switching
+      if (isSceneLoading) {
+        console.warn("[Viewer] Scene load already in progress, skipping");
+        return;
+      }
+      isSceneLoading = true;
+
       // Clean up previous blob URL if any
       if (window._currentPanoramaUrl) {
         URL.revokeObjectURL(window._currentPanoramaUrl);
@@ -190,6 +201,7 @@ export function initViewer() {
       window.pannellumViewer = viewer;
 
       viewer.on('load', () => {
+        isSceneLoading = false;
         // Fade out AND clear snapshot
         if (snapshot) {
           snapshot.classList.remove("snapshot-visible");
@@ -200,6 +212,14 @@ export function initViewer() {
           }, 450);
         }
         handleAutoForward(currentScene, state, viewer);
+      });
+
+      viewer.on('error', (err) => {
+        isSceneLoading = false;
+        console.error('[Viewer] Panorama load error:', err);
+        if (window.notify) window.notify("Failed to load scene", "error");
+        // Clear stuck snapshot on error
+        if (snapshot) snapshot.classList.remove("snapshot-visible");
       });
 
       // Safety timeout for snapshot dismissal

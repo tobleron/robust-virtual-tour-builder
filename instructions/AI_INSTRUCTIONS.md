@@ -134,6 +134,17 @@ This project uses a **dual-font system** (Outfit + Inter) for optimal readabilit
 - Test the happy path **AND** edge cases (cancel, error, empty state)
 - Verify changes in browser after each modification
 - Ensure state is preserved on unexpected interruptions
+- **Visual Debugging**: Use the `test_images/` folder (3 images) for consistent upload testing.
+
+---
+
+## 🛠️ Local Development & Debugging
+
+- **Dev Server**: The project is served via `npx live-server --port=9999`.
+- **URL**: Access the application at [http://localhost:9999](http://localhost:9999) for DOM testing and visual verification.
+- **Agent Workflow**: Always prefer testing on `localhost:9999` when visual confirmation is required.
+
+---
 
 ---
 

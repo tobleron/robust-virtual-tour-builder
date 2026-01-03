@@ -44,44 +44,54 @@ export async function getChecksum(file) {
  * const optimizedFile = await processImage(originalFile); // 4K WebP, 4 MB
  */
 export async function processImage(file) {
-  // Use createImageBitmap for hardware-accelerated resizing
-  // This is faster and more efficient than canvas drawImage
-  const bitmap = await createImageBitmap(file, {
-    resizeWidth: PROCESSED_IMAGE_WIDTH, // 4096px - The "sweet spot" for 7-inch tablets & web
-    resizeQuality: IMAGE_RESIZE_QUALITY, // "high" quality interpolation
-  });
+  try {
+    // Use createImageBitmap for hardware-accelerated resizing
+    // This is faster and more efficient than canvas drawImage
+    const bitmap = await createImageBitmap(file, {
+      resizeWidth: PROCESSED_IMAGE_WIDTH, // 4096px - The "sweet spot" for 7-inch tablets & web
+      resizeQuality: IMAGE_RESIZE_QUALITY, // "high" quality interpolation
+    });
 
-  const canvas = document.createElement("canvas");
-  canvas.width = bitmap.width;
-  canvas.height = bitmap.height;
+    const canvas = document.createElement("canvas");
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
 
-  // Use bitmaprenderer for zero-copy transfer (most efficient method)
-  const ctx = canvas.getContext("bitmaprenderer");
-  ctx.transferFromImageBitmap(bitmap);
+    // Use bitmaprenderer for zero-copy transfer (most efficient method)
+    const ctx = canvas.getContext("bitmaprenderer");
+    ctx.transferFromImageBitmap(bitmap);
 
-  return new Promise((resolve) => {
-    canvas.toBlob(
-      (blob) => {
-        // Smart filename extraction from Insta360 camera format
-        // Pattern: IMG_20231215_14_032.jpg → 20231215_032 (removing middle time segment)
-        let newName = file.name.replace(/\.[^/.]+$/, ""); // Remove extension
-        const match = file.name.match(/_(\d{6})_\d{2}_(\d{3})/); // Match pattern and capture date + serial
+    return new Promise((resolve, reject) => {
+      canvas.toBlob(
+        (blob) => {
+          // GUARD: Validate blob was created successfully
+          if (!blob) {
+            reject(new Error(`Failed to convert ${file.name} to WebP`));
+            return;
+          }
 
-        if (match && match[1] && match[2]) {
-          newName = `${match[1]}_${match[2]}`; // Combine: date_serial (e.g., 20231215_032)
-        }
+          // Smart filename extraction from Insta360 camera format
+          // Pattern: IMG_20231215_14_032.jpg → 20231215_032 (removing middle time segment)
+          let newName = file.name.replace(/\.[^/.]+$/, ""); // Remove extension
+          const match = file.name.match(/_(\d{6})_\d{2}_(\d{3})/); // Match pattern and capture date + serial
 
-        // Create new file with WebP extension
-        const newFile = new File([blob], newName + ".webp", {
-          type: "image/webp",
-          lastModified: Date.now(),
-        });
+          if (match && match[1] && match[2]) {
+            newName = `${match[1]}_${match[2]}`; // Combine: date_serial (e.g., 20231215_032)
+          }
 
-        resolve(newFile);
-      },
-      "image/webp",
-      WEBP_QUALITY, // 0.92 = visually lossless, ~40% smaller than JPEG
-    );
-  });
+          // Create new file with WebP extension
+          const newFile = new File([blob], newName + ".webp", {
+            type: "image/webp",
+            lastModified: Date.now(),
+          });
+
+          resolve(newFile);
+        },
+        "image/webp",
+        WEBP_QUALITY, // 0.92 = visually lossless, ~40% smaller than JPEG
+      );
+    });
+  } catch (err) {
+    throw new Error(`Image processing failed for ${file.name}: ${err.message}`);
+  }
 }
 

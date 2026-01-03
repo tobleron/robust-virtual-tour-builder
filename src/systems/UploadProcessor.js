@@ -49,19 +49,31 @@ export const UploadProcessor = {
         const uniqueToProcess = sceneDataList.length;
         for (let i = 0; i < uniqueToProcess; i++) {
             const item = sceneDataList[i];
-            const previewFile = await processImage(item.original);
-            item.preview = previewFile;
-            item.name = previewFile.name;
-            item.originalName = item.original.name;
+            try {
+                const previewFile = await processImage(item.original);
+                item.preview = previewFile;
+                item.name = previewFile.name;
+                item.originalName = item.original.name;
+            } catch (err) {
+                // GRACEFUL DEGRADATION: Log error but continue with other files
+                console.error(`[UploadProcessor] Processing failed for ${item.original.name}:`, err);
+                item.error = err.message;
+                item.skipped = true;
+                continue;
+            }
 
             const progress = 33 + Math.round(((i + 1) / uniqueToProcess) * 33);
             updateProgress(progress, `Optimizing: ${i + 1}/${uniqueToProcess}`);
         }
 
+        // Filter out failed items before further processing
+        const validItems = sceneDataList.filter(item => !item.skipped);
+
         // --- Phase 3: Analysis (Technical Quality) ---
         updateProgress(66, "Analyzing quality...", true, "Analysis");
-        for (let i = 0; i < uniqueToProcess; i++) {
-            const item = sceneDataList[i];
+        const validCount = validItems.length;
+        for (let i = 0; i < validCount; i++) {
+            const item = validItems[i];
             const qualityData = await analyzeImageQuality(item.original);
             item.quality = qualityData;
             qualityResults.push({
@@ -70,8 +82,8 @@ export const UploadProcessor = {
                 quality: qualityData
             });
 
-            const progress = 66 + Math.round(((i + 1) / uniqueToProcess) * 34);
-            updateProgress(progress, `Analyzing: ${i + 1}/${uniqueToProcess}`);
+            const progress = 66 + Math.round(((i + 1) / validCount) * 34);
+            updateProgress(progress, `Analyzing: ${i + 1}/${validCount}`);
         }
 
         const duration = ((Date.now() - startTime) / 1000).toFixed(1);
@@ -79,10 +91,10 @@ export const UploadProcessor = {
         // --- Phase 4: Sequential Scene Grouping ---
         updateProgress(95, "Syncing scene blocks...", true, "Clustering");
 
-        // 1. Get all scenes (existing + new) and sort them by name (sequence)
+        // 1. Get all scenes (existing + new valid items) and sort them by name (sequence)
         const allScenes = [
             ...store.state.scenes,
-            ...sceneDataList
+            ...validItems
         ].sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
 
         // 2. Sequential Window-Based Clustering
@@ -111,12 +123,12 @@ export const UploadProcessor = {
             }
         }
 
-        // 3. Commit to store
-        store.addScenes(sceneDataList);
+        // 3. Commit to store (only valid items)
+        store.addScenes(validItems);
         updateProgress(100, `Completed in ${duration}s`, false);
 
         // 4. Handle EXIF meta-processing (Async)
-        this.processExifMetadata(sceneDataList);
+        this.processExifMetadata(validItems);
 
         return { qualityResults, duration };
     },

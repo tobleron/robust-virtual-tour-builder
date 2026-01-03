@@ -1526,3 +1526,14 @@
 - Restored "Normally Dimmed" viewer aesthetics (slate-900 palette).
 - Implemented "Circuit Breaker" loop protection for Auto-Forward sequences.
 - Improved sidebar animation logic and transition overlay visibility.
+
+[2026-01-03 13:53] Version 2.8.7
+- Added viewer scene loading guard to prevent race conditions during rapid scene switching.
+- Added Pannellum error event handler for panorama load failures.
+- Enhanced hotspot sync with null guards for scene validation.
+- Improved Resizer with try-catch error handling and blob validation.
+- Added store method type validation for setActiveScene index bounds checking.
+- Implemented graceful degradation in UploadProcessor (single file failures no longer abort batch).
+- Reset auto-forward chain on manual sidebar navigation.
+- Created debugTelemetry.js utility for centralized error tracking.
+- Created viewerHealthCheck.js utility for monitoring viewer state.

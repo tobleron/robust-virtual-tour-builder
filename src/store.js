@@ -77,13 +77,16 @@ export const store = {
   },
 
   setActiveScene(index, startYaw = 0, startPitch = 0, transition = null) {
-    if (index >= 0 && index < this.state.scenes.length) {
-      this.state.activeIndex = index;
-      this.state.activeYaw = startYaw;
-      this.state.activePitch = startPitch;
-      this.state.transition = transition || { type: null, targetHotspotIndex: -1 };
-      this.notify();
+    // GUARD: Validate index is a valid integer within bounds
+    if (!Number.isInteger(index) || index < 0 || index >= this.state.scenes.length) {
+      console.warn(`[Store] setActiveScene: Invalid index ${index} (scenes: ${this.state.scenes.length})`);
+      return;
     }
+    this.state.activeIndex = index;
+    this.state.activeYaw = startYaw;
+    this.state.activePitch = startPitch;
+    this.state.transition = transition || { type: null, targetHotspotIndex: -1 };
+    this.notify();
   },
 
   addHotspot(sceneIndex, hotspotData, skipNotify = false) {

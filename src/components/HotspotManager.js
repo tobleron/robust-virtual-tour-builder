@@ -89,6 +89,11 @@ export function createHotspotConfig(h, i, state, scene, incomingLink, isSimulati
  */
 export function syncHotspots(v, state, scene, incomingLink, isSimulationMode, navigateToScene) {
     if (!v) return;
+    // GUARD: Validate scene and hotspots array exist
+    if (!scene || !Array.isArray(scene.hotspots)) {
+        console.warn('[HotspotManager] Invalid scene or missing hotspots array');
+        return;
+    }
     const hs = v.getConfig().hotSpots || [];
     hs.forEach(h => { if (h.id) v.removeHotSpot(h.id); });
     scene.hotspots.forEach((h, i) => v.addHotSpot(
