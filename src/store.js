@@ -218,21 +218,27 @@ export const store = {
     this.notify();
   },
 
-  updateHotspotTargetYaw(sceneIndex, hotspotIndex, yaw) {
-    if (this.state.scenes[sceneIndex] && this.state.scenes[sceneIndex].hotspots[hotspotIndex]) {
-      this.state.scenes[sceneIndex].hotspots[hotspotIndex].targetYaw = yaw;
+  /**
+   * Update the arrival view for a normal link hotspot.
+   * yaw and pitch are saved live as the user pans in the destination scene.
+   */
+  updateHotspotTargetView(sceneIndex, hotspotIndex, yaw, pitch) {
+    const hotspot = this.state.scenes[sceneIndex]?.hotspots[hotspotIndex];
+    if (hotspot) {
+      hotspot.targetYaw = yaw;
+      hotspot.targetPitch = pitch;
       // Do NOT notify to prevent viewer reload. Silent update.
     }
   },
 
   /**
-   * Update the return view yaw for a return link hotspot
-   * Used for bidirectional view saving when navigating via return links
+   * Update the arrival view for a return link hotspot.
    */
-  updateHotspotReturnYaw(sceneIndex, hotspotIndex, yaw) {
+  updateHotspotReturnView(sceneIndex, hotspotIndex, yaw, pitch) {
     const hotspot = this.state.scenes[sceneIndex]?.hotspots[hotspotIndex];
     if (hotspot && hotspot.returnViewFrame) {
       hotspot.returnViewFrame.yaw = yaw;
+      hotspot.returnViewFrame.pitch = pitch;
       // Do NOT notify to prevent viewer reload. Silent update.
     }
   },

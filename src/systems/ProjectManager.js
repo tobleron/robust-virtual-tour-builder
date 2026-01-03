@@ -46,7 +46,9 @@ export async function saveProject(state, onProgress) {
                 truePitch: h.truePitch,
                 viewFrame: h.viewFrame || null,
                 returnViewFrame: h.returnViewFrame || null,
-                isReturnLink: h.isReturnLink || false
+                isReturnLink: h.isReturnLink || false,
+                targetYaw: h.targetYaw,
+                targetPitch: h.targetPitch
             }))
         }))
     };

@@ -134,16 +134,23 @@ export function handleAutoForward(currentScene, state, viewer) {
 
                     if (store.state.activeIndex === state.activeIndex && !store.state.isLinking && stillSimulating) {
                         const hsIndex = currentScene.hotspots.indexOf(bestHotspot);
-                        // For return links with returnViewFrame, use return view; otherwise use viewFrame
-                        const useReturnView = bestHotspot.isReturnLink && bestHotspot.returnViewFrame;
-                        const tYaw = useReturnView
-                            ? bestHotspot.returnViewFrame.yaw
-                            : (bestHotspot.viewFrame && Number.isFinite(bestHotspot.viewFrame.yaw))
-                                ? bestHotspot.viewFrame.yaw : 0;
-                        const tPitch = useReturnView
-                            ? bestHotspot.returnViewFrame.pitch
-                            : (bestHotspot.viewFrame && Number.isFinite(bestHotspot.viewFrame.pitch))
-                                ? bestHotspot.viewFrame.pitch : 0;
+
+                        // PRIORITY LOGIC:
+                        let tYaw = 0;
+                        let tPitch = 0;
+
+                        if (bestHotspot.isReturnLink && bestHotspot.returnViewFrame) {
+                            tYaw = bestHotspot.returnViewFrame.yaw !== undefined ? bestHotspot.returnViewFrame.yaw : 0;
+                            tPitch = bestHotspot.returnViewFrame.pitch !== undefined ? bestHotspot.returnViewFrame.pitch : 0;
+                        } else {
+                            if (bestHotspot.targetYaw !== undefined) {
+                                tYaw = bestHotspot.targetYaw;
+                                tPitch = bestHotspot.targetPitch !== undefined ? bestHotspot.targetPitch : 0;
+                            } else if (bestHotspot.viewFrame) {
+                                tYaw = bestHotspot.viewFrame.yaw !== undefined ? bestHotspot.viewFrame.yaw : 0;
+                                tPitch = bestHotspot.viewFrame.pitch !== undefined ? bestHotspot.viewFrame.pitch : 0;
+                            }
+                        }
 
                         navigateToScene(targetIndex, state.activeIndex, hsIndex !== -1 ? hsIndex : 0, tYaw, tPitch);
                     }

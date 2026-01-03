@@ -70,14 +70,29 @@ export function createHotspotConfig(h, i, state, scene, incomingLink, isSimulati
                     const targetIndex = state.scenes.findIndex(s => s.name === h.target);
                     if (targetIndex !== -1) {
                         // USE CENTRALIZED NAVIGATION: Ensures consistent tracking
-                        // For return links with returnViewFrame, use return view; otherwise use viewFrame
-                        const useReturnView = h.isReturnLink && h.returnViewFrame;
-                        const navYaw = useReturnView
-                            ? h.returnViewFrame.yaw
-                            : (h.viewFrame ? h.viewFrame.yaw : 0);
-                        const navPitch = useReturnView
-                            ? h.returnViewFrame.pitch
-                            : (h.viewFrame ? h.viewFrame.pitch : 0);
+                        // PRIORITY LOGIC:
+                        // 1. Live Saved View (h.targetYaw / h.targetPitch) - last place user looked in target
+                        // 2. Director's View (h.viewFrame) - captured at link creation
+                        // 3. Fallback (0, 0)
+
+                        let navYaw = 0;
+                        let navPitch = 0;
+
+                        if (h.isReturnLink && h.returnViewFrame) {
+                            // Return links prioritize their specific return frame
+                            navYaw = h.returnViewFrame.yaw !== undefined ? h.returnViewFrame.yaw : 0;
+                            navPitch = h.returnViewFrame.pitch !== undefined ? h.returnViewFrame.pitch : 0;
+                        } else {
+                            // Normal links check for live-saved target view first
+                            if (h.targetYaw !== undefined) {
+                                navYaw = h.targetYaw;
+                                navPitch = h.targetPitch !== undefined ? h.targetPitch : 0;
+                            } else if (h.viewFrame) {
+                                // Fallback to original Director's View
+                                navYaw = h.viewFrame.yaw !== undefined ? h.viewFrame.yaw : 0;
+                                navPitch = h.viewFrame.pitch !== undefined ? h.viewFrame.pitch : 0;
+                            }
+                        }
                         navigateToScene(targetIndex, state.activeIndex, i, navYaw, navPitch);
                     }
                 }

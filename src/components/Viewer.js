@@ -233,18 +233,15 @@ export function initViewer() {
         const isLinking = store.state.isLinking;
         if (!isLinking) return;
         const coords = viewer.mouseEventToCoords(e);
-        const pitch = coords[0];
-        const yaw = coords[1];
-        showLinkModal(pitch, yaw, getPendingReturnSceneName(), (targetSceneName, targetYaw, targetPitch) => {
-          store.addHotspot(state.activeIndex, {
-            target: targetSceneName,
-            pitch: pitch - 15,
-            yaw: yaw,
-            targetYaw: targetYaw,
-            viewFrame: { pitch: targetPitch }
-          });
-          setPendingReturnSceneName(null);
-        });
+        const clickPitch = coords[0];
+        const clickYaw = coords[1];
+        // Capture current camera view for "Director's View" navigation
+        const camPitch = viewer.getPitch();
+        const camYaw = viewer.getYaw();
+        const camHfov = viewer.getHfov();
+        // Pass all required arguments to LinkModal (which handles saving internally)
+        showLinkModal(clickPitch, clickYaw, camPitch, camYaw, camHfov, getPendingReturnSceneName());
+        setPendingReturnSceneName(null);
       });
 
       // Bi-Directional View Saving
@@ -253,12 +250,13 @@ export function initViewer() {
         if (incoming && viewportSaveTimeout === null) {
           if (state.transition && (state.transition.type === 'link' || state.transition.type === 'drone')) {
             const currentYaw = viewer.getYaw();
+            const currentPitch = viewer.getPitch();
             const hotspot = state.scenes[incoming.sceneIndex]?.hotspots[incoming.hotspotIndex];
             // For return links, update returnViewFrame; otherwise update targetYaw
             if (hotspot?.isReturnLink && hotspot?.returnViewFrame) {
-              store.updateHotspotReturnYaw(incoming.sceneIndex, incoming.hotspotIndex, currentYaw);
+              store.updateHotspotReturnView(incoming.sceneIndex, incoming.hotspotIndex, currentYaw, currentPitch);
             } else {
-              store.updateHotspotTargetYaw(incoming.sceneIndex, incoming.hotspotIndex, currentYaw);
+              store.updateHotspotTargetView(incoming.sceneIndex, incoming.hotspotIndex, currentYaw, currentPitch);
             }
           }
         }
@@ -272,12 +270,13 @@ export function initViewer() {
           }
           viewportSaveTimeout = setTimeout(() => {
             const currentYaw = viewer.getYaw();
+            const currentPitch = viewer.getPitch();
             const hotspot = state.scenes[incoming.sceneIndex]?.hotspots[incoming.hotspotIndex];
             // For return links, update returnViewFrame; otherwise update targetYaw
             if (hotspot?.isReturnLink && hotspot?.returnViewFrame) {
-              store.updateHotspotReturnYaw(incoming.sceneIndex, incoming.hotspotIndex, currentYaw);
+              store.updateHotspotReturnView(incoming.sceneIndex, incoming.hotspotIndex, currentYaw, currentPitch);
             } else {
-              store.updateHotspotTargetYaw(incoming.sceneIndex, incoming.hotspotIndex, currentYaw);
+              store.updateHotspotTargetView(incoming.sceneIndex, incoming.hotspotIndex, currentYaw, currentPitch);
             }
             viewportSaveTimeout = null;
           }, 800);

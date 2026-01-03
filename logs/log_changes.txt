@@ -1560,3 +1560,17 @@
 - Fix: Normal links now use `viewFrame.yaw` instead of `targetYaw`.
 - This ensures the original Director's View is used, not the "live-updating" last-visited yaw.
 - Both manual and auto-forward navigation now respect the saved viewFrame consistently.
+
+[2026-01-03 16:45] Version 3.0.0 - Stable Release
+- Major Fix: Resolved "Previous Scene View" carry-over bug.
+- Implementation: Live Orientation saving for both Yaw and Pitch.
+- Priority Logic: Live Saved View > Director's View > Default.
+- Critical Bug Fix: Corrected `showLinkModal` argument mismatch in `Viewer.js`.
+- Full persistence in Project ZIPs and Exported Tours.
+
+[2026-01-03 16:35] Version 2.9.3-beta
+- Fix: Navigation now prioritizes "Live Saved View" over "Initial Director's View".
+- Previously, navigating to a scene would often use the source scene's camera orientation or a static creation-time view, ignoring where the user last looked.
+- Implementation: Both Yaw and Pitch are now saved live to the hotspot's target view when the user pans in the destination.
+- New Priority: 1. Live Saved View (h.targetYaw/Pitch) -> 2. Director's View (h.viewFrame) -> 3. Fallback (0, 0).
+- Fixed in both the Builder and Exported Tours.

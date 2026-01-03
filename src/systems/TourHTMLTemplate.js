@@ -35,6 +35,8 @@ export function generateTourHTML(scenes, tourName, hasLogo, exportType, baseSize
         viewFrame: h.viewFrame || null,
         returnViewFrame: h.returnViewFrame || null,
         isReturnLink: h.isReturnLink || false,
+        targetYaw: h.targetYaw,
+        targetPitch: h.targetPitch
       })),
     };
   });
@@ -86,7 +88,18 @@ export function generateTourHTML(scenes, tourName, hasLogo, exportType, baseSize
           type: "info", 
           cssClass: "flat-arrow", 
           createTooltipFunc: renderGoldArrow, 
-          createTooltipArgs: { i: idx, targetSceneId: h.target, pitch: h.pitch, yaw: h.yaw, truePitch: h.truePitch, viewFrame: h.viewFrame } 
+          createTooltipArgs: { 
+            i: idx, 
+            targetSceneId: h.target, 
+            pitch: h.pitch, 
+            yaw: h.yaw, 
+            truePitch: h.truePitch, 
+            viewFrame: h.viewFrame,
+            targetYaw: h.targetYaw,
+            targetPitch: h.targetPitch,
+            isReturnLink: h.isReturnLink,
+            returnViewFrame: h.returnViewFrame
+          } 
         })) 
       }; 
     } 
@@ -428,6 +441,23 @@ function generateRenderScript(baseSize) {
       }
       
       hotSpotDiv.onclick = function() {
+        // PRIORITY LOGIC:
+        let navYaw = 90; // Fallback
+        let navPitch = 0;
+
+        if (args.isReturnLink && args.returnViewFrame) {
+          navYaw = args.returnViewFrame.yaw !== undefined ? args.returnViewFrame.yaw : 90;
+          navPitch = args.returnViewFrame.pitch !== undefined ? args.returnViewFrame.pitch : 0;
+        } else {
+          if (args.targetYaw !== undefined) {
+             navYaw = args.targetYaw;
+             navPitch = args.targetPitch !== undefined ? args.targetPitch : 0;
+          } else if (args.viewFrame) {
+             navYaw = args.viewFrame.yaw !== undefined ? args.viewFrame.yaw : 90;
+             navPitch = args.viewFrame.pitch !== undefined ? args.viewFrame.pitch : 0;
+          }
+        }
+
         const v = window.viewer;
         v.lookAt(args.truePitch, args.yaw, 85, 400);
         const currentScene = v.getScene();
@@ -437,7 +467,7 @@ function generateRenderScript(baseSize) {
         setTimeout(() => { 
           const finalTarget = hotSpotDiv.getAttribute('data-target-home') === 'true' 
                               ? firstSceneId : args.targetSceneId;
-          v.loadScene(finalTarget, "same", "same", 90);
+          v.loadScene(finalTarget, navPitch, navYaw, 90);
         }, 450);
       };
     }
