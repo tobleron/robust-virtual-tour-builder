@@ -51,14 +51,10 @@ export function navigateToScene(targetIndex, sourceSceneIndex, sourceHotspotInde
         hotspotIndex: sourceHotspotIndex
     };
 
-    console.log(`Navigation Sequence: Scene ${sourceSceneIndex} → Scene ${targetIndex} via Hotspot ${sourceHotspotIndex}`);
+    console.log(`Navigation Sequence: Scene ${sourceSceneIndex} → Scene ${targetIndex} via Hotspot ${sourceHotspotIndex} (Yaw: ${cleanYaw}, Pitch: ${cleanPitch})`);
 
-    // 3. TRIGGER STATE CHANGE
-    store.setActiveScene(targetIndex, {
-        transition: { type: "link" },
-        targetYaw: cleanYaw,
-        targetPitch: cleanPitch
-    });
+    // 3. TRIGGER STATE CHANGE - Pass parameters correctly: index, yaw, pitch, transition
+    store.setActiveScene(targetIndex, cleanYaw, cleanPitch, { type: "link" });
 }
 
 /**

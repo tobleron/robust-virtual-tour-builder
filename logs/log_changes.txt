@@ -1545,3 +1545,8 @@
 - Auto-forward chains respect return link views for seamless bidirectional navigation.
 - Added `updateHotspotReturnYaw()` method to store for bidirectional view saving.
 - Updated ProjectManager and TourHTMLTemplate for return link serialization.
+
+[2026-01-03 14:51] Version 2.8.9-beta
+- Fix [Critical]: Navigation views were being lost due to parameter mismatch.
+- navigateToScene was passing an object to setActiveScene instead of individual parameters.
+- Stored yaw/pitch values now correctly applied when transitioning between scenes.
