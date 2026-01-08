@@ -179,6 +179,26 @@ export async function loadProject(zipFile, onProgress) {
             }))
         }));
 
+        // --- VALIDATION: Filter out links to non-existent scenes ---
+        const validSceneNames = new Set(scenes.map(s => s.name));
+        let brokenLinksRemoved = 0;
+
+        scenes.forEach(scene => {
+            const originalCount = scene.hotspots.length;
+            scene.hotspots = scene.hotspots.filter(h => {
+                const isValid = validSceneNames.has(h.target);
+                if (!isValid) {
+                    console.warn(`[ProjectManager] Removing broken link in scene "${scene.name}" pointing to missing target: "${h.target}"`);
+                }
+                return isValid;
+            });
+            brokenLinksRemoved += (originalCount - scene.hotspots.length);
+        });
+
+        if (brokenLinksRemoved > 0) {
+            console.info(`[ProjectManager] Cleanup complete. Removed ${brokenLinksRemoved} broken links.`);
+        }
+
         const loadedProject = {
             tourName: projectData.projectName || "Imported Tour",
             scenes: scenes,

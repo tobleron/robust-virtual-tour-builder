@@ -19,6 +19,7 @@ import {
 import { setupViewerUI } from "./ViewerUI.js";
 import { HotspotLineSystem } from "../systems/HotspotLineSystem.js";
 import { Debug } from "../utils/Debug.js";
+import { HOTSPOT_VISUAL_OFFSET_DEGREES } from "../constants.js";
 
 const GLOBAL_HFOV = 90;
 let viewerA = null;
@@ -480,18 +481,8 @@ export function initViewer() {
         isSimulation: getIsSimulationMode()
       });
 
-      // SIMULATION MODE: SIMPLE SEQUENTIAL - Swap first, THEN start panning
-      if (getIsSimulationMode() && newViewer) {
-        finishSwap();
-
-        // Start panning after scene is visible and stable (500ms)
-        setTimeout(() => {
-          handleAutoForward(loadedScene, store.state, newViewer);
-        }, 500);
-      } else {
-        // Non-simulation: swap immediately
-        finishSwap();
-      }
+      // TRIGGER CROSSFADE OR CUT
+      finishSwap();
 
       function finishSwap() {
         const finishStartTime = Date.now();

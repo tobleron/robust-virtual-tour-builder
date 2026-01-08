@@ -612,3 +612,114 @@ body.auto-pilot-active #v-scene-sim-toggle {
     box-shadow: 1px 1px 1px #000, 0 0 0 6px rgba(220, 53, 69, 0);
   }
 }
+
+/* ============================================================================
+   HOTSPOT ARC UI (Added via Agent)
+   Directly added here to bypass compilation/cache issues.
+   ============================================================================ */
+
+.hotspot-delete-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 24px;
+  height: 24px;
+  background: #dc3545;
+  color: white;
+  border-radius: 50%;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  z-index: 10000;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  pointer-events: auto;
+}
+
+/* Hotspot Controls Container - at bottom of arrow */
+.hotspot-controls {
+  position: absolute;
+  bottom: 0px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 3px;
+  z-index: 10000;
+  pointer-events: auto;
+}
+
+.hotspot-forward-btn {
+  width: 22px;
+  height: 17px;
+  background: #374151;
+  /* Dark grey for inactive */
+  color: white;
+  border-radius: 3px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
+  pointer-events: auto;
+}
+
+.hotspot-return-btn {
+  width: 22px;
+  height: 17px;
+  background: #374151;
+  /* Dark grey for inactive */
+  color: white;
+  border-radius: 3px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
+  pointer-events: auto;
+}
+
+/* Hover Scale Effects */
+.hotspot-forward-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.hotspot-return-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* Active State Styles */
+.hotspot-forward-btn.active {
+  background: #059669 !important;
+  /* Darker green for better contrast */
+  color: white !important;
+  border-color: #059669 !important;
+}
+
+.hotspot-return-btn.active {
+  background: #ea580c !important;
+  /* Darker orange for better contrast */
+  color: white !important;
+  border-color: #ea580c !important;
+}
+
+/* Ensure Parent has overflow visible */
+.pnlm-hotspot.flat-arrow {
+  overflow: visible !important;
+}

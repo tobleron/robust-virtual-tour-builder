@@ -130,7 +130,7 @@ export function stopAutoPilot(returnToStart = true) {
     // Reset toggle button appearance (play = green)
     const simToggle = document.getElementById('v-scene-sim-toggle');
     if (simToggle) {
-        simToggle.innerHTML = '<span class="material-icons" style="font-size: 22px;">play_arrow</span>';
+        simToggle.innerHTML = '<span class="material-icons" style="font-size: 22px; color: white;">play_arrow</span>';
         simToggle.style.removeProperty('background-color');
         simToggle.style.setProperty('background-color', '#10b981', 'important');
         // simToggle.classList.remove('active'); // REMOVED: No longer using .active class
@@ -170,10 +170,17 @@ export function onSceneArrival(sceneIndex, isChainEnd = false) {
 
     // Check if current scene is auto-forward - NavigationSystem handles those
     // UNLESS we are specifically told that the chain has ended
+    // Check if current scene is auto-forward - NavigationSystem handles those
+    // UNLESS we are specifically told that the chain has ended
     const currentScene = store.state.scenes[sceneIndex];
+
+    // MODIFIED: SimulationSystem now handles EVERYTHING ensuring smart unvisited priority.
+    // We no longer yield to NavigationSystem for auto-forward scenes.
+    /*
     if (currentScene?.isAutoForward && !isChainEnd) {
         return;
     }
+    */
 
     // Schedule next advance
     pendingAdvance = setTimeout(() => {
@@ -253,54 +260,69 @@ function advanceToNextScene() {
  */
 function findBestNextLink(currentScene, state) {
     const hotspots = currentScene.hotspots;
+    if (!hotspots || hotspots.length === 0) return null;
 
-    // Separate forward and return links
-    const forwardLinks = [];
-    const returnLinks = [];
-
-    for (let i = 0; i < hotspots.length; i++) {
-        const h = hotspots[i];
+    // Build enriched link list
+    const allLinks = hotspots.map((h, i) => {
         const targetIndex = state.scenes.findIndex(s => s.name === h.target);
+        if (targetIndex === -1) return null;
+        const targetScene = state.scenes[targetIndex];
+        return {
+            hotspot: h,
+            hotspotIndex: i,
+            targetIndex,
+            isVisited: visitedScenes.includes(targetIndex),
+            isReturn: !!h.isReturnLink,
+            isBridge: !!targetScene?.isAutoForward
+        };
+    }).filter(Boolean);
 
-        if (targetIndex === -1) continue; // Invalid target
-
-        const linkInfo = { hotspot: h, hotspotIndex: i, targetIndex };
-
-        if (h.isReturnLink) {
-            returnLinks.push(linkInfo);
-        } else {
-            forwardLinks.push(linkInfo);
-        }
+    // PRIORITY 1: UNVISITED Forward Bridge (Newest first)
+    // Bridge scenes are hallways/stairs - we want to traverse them as much as possible
+    const unvisitedForwardBridge = [...allLinks].reverse().find(l => !l.isVisited && !l.isReturn && l.isBridge);
+    if (unvisitedForwardBridge) {
+        Debug.debug('Simulation', 'Target: Unvisited Forward Bridge (Newest)');
+        return unvisitedForwardBridge;
     }
 
-    // Priority 1: Forward link to unvisited scene
-    const unvisitedForward = forwardLinks.find(l => !visitedScenes.includes(l.targetIndex));
-    if (unvisitedForward) {
-        Debug.debug('Simulation', 'Chose unvisited forward link');
-        return unvisitedForward;
+    // PRIORITY 2: UNVISITED Forward Room (Newest first)
+    const unvisitedForwardRoom = [...allLinks].reverse().find(l => !l.isVisited && !l.isReturn);
+    if (unvisitedForwardRoom) {
+        Debug.debug('Simulation', 'Target: Unvisited Forward Room (Newest)');
+        return unvisitedForwardRoom;
     }
 
-    // Priority 2: Return link to unvisited scene
-    const unvisitedReturn = returnLinks.find(l => !visitedScenes.includes(l.targetIndex));
-    if (unvisitedReturn) {
-        Debug.debug('Simulation', 'Chose unvisited return link');
-        return unvisitedReturn;
+    // PRIORITY 3: UNVISITED Return Bridge (Newest first)
+    const unvisitedReturnBridge = [...allLinks].reverse().find(l => !l.isVisited && l.isReturn && l.isBridge);
+    if (unvisitedReturnBridge) {
+        Debug.debug('Simulation', 'Target: Unvisited Return Bridge (Newest)');
+        return unvisitedReturnBridge;
     }
 
-    // Priority 3: Fallback to ANY forward link (circular route)
-    // We prefer the one we haven't visited in the longest time? For now just the first one.
-    if (forwardLinks.length > 0) {
-        Debug.debug('Simulation', 'Chose visited forward link (looping)');
-        return forwardLinks[0];
+    // PRIORITY 4: UNVISITED Return Room (Newest first)
+    const unvisitedReturnRoom = [...allLinks].reverse().find(l => !l.isVisited && l.isReturn);
+    if (unvisitedReturnRoom) {
+        Debug.debug('Simulation', 'Target: Unvisited Return Room (Newest)');
+        return unvisitedReturnRoom;
     }
 
-    // Priority 4: Fallback to ANY return link (backtracking)
-    if (returnLinks.length > 0) {
-        Debug.debug('Simulation', 'Chose visited return link (backtracking)');
-        return returnLinks[0];
+    // --- FALLBACK (ALL REACHABLE ALREADY VISITED) ---
+    // Instead of stopping, we follow visited links to find new branches elsewhere.
+
+    // PRIORITY 5: NEWEST Forward (visited)
+    const visitedForward = [...allLinks].reverse().find(l => !l.isReturn);
+    if (visitedForward) {
+        Debug.debug('Simulation', 'Target: Visited Forward (Loop/Breadth Search)');
+        return visitedForward;
     }
 
-    // All directly reachable scenes have been visited AND no links exist - tour complete
+    // PRIORITY 6: NEWEST Return (visited)
+    const visitedReturn = [...allLinks].reverse().find(l => l.isReturn);
+    if (visitedReturn) {
+        Debug.debug('Simulation', 'Target: Visited Return (Backtrack Search)');
+        return visitedReturn;
+    }
+
     return null;
 }
 

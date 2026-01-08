@@ -684,3 +684,14 @@
 - Feature: Added "Reluctant" Edge Following. Ratchet lock can be overridden by pushing the cursor against the window boundaries, moving the camera at 40% speed.
 - UX: Implemented Cubic Sensitivity Curve. Camera is now precision-tuned to be heavy and steady near the center for pixel-perfect placement, while becoming agile and compliant near the screen edges.
 - Maintenance: Promoted to stable release [main].
+[2026-01-08 23:43] Version 4.0.4
+- Redesigned link creation UI with hover-activated control buttons
+- Added two rectangular buttons (A/R) at the bottom of each link arrow
+- A button: Toggle Auto-Forward mode (grey → green when active)
+- R button: Toggle Return Link mode (grey → orange when active)
+- Kept red delete button (X) at top-right, visible on hover only
+- Buttons are always visible and positioned flush with arrow (0px gap)
+- Used darker green (#059669) and orange (#ea580c) for better contrast
+- Simplified LinkModal to only handle destination selection
+- Removed auto-forward and return-link checkboxes from modal
+

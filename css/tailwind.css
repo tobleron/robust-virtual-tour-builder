@@ -222,28 +222,99 @@
 
 .hotspot-delete-btn {
     position: absolute;
-    top: 0;
-    right: 0;
-    width: 22px;
-    height: 22px;
-    background: theme('colors.remax-red');
+    top: 5px;
+    right: 5px;
+    width: 24px;
+    height: 24px;
+    background: #dc3545;
+    /* RE/MAX Red */
     color: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 800;
     cursor: pointer;
     border: 2px solid white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     z-index: 3001;
     opacity: 0;
-    transition: opacity 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.hotspot-forward-btn {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 24px;
+    background: white;
+    color: #10b981;
+    /* Success Green */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 900;
+    cursor: pointer;
+    border: 2px solid #10b981;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    z-index: 3001;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.hotspot-return-btn {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 24px;
+    height: 24px;
+    background: #f97316;
+    /* Remax Orange */
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    z-index: 3001;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .flat-arrow:hover .hotspot-delete-btn {
     opacity: 1;
+    transform: scale(1.1);
+}
+
+.flat-arrow:hover .hotspot-forward-btn {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.1);
+}
+
+.flat-arrow:hover .hotspot-return-btn {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* Active states for the buttons to show current mode */
+.hotspot-forward-btn.active {
+    background: #10b981 !important;
+    color: white !important;
+}
+
+.hotspot-return-btn.active {
+    background: #ea580c !important;
+    /* Darker orange */
+    box-shadow: 0 0 10px rgba(234, 88, 12, 0.5) !important;
 }
 
 /* Hotspot Visibility & Navigation Logic */

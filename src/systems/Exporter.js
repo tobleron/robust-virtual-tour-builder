@@ -30,7 +30,7 @@ function uploadAndProcess(formData, onProgress) {
         xhr.upload.onprogress = (e) => {
             if (e.lengthComputable) {
                 const percent = Math.round((e.loaded / e.total) * 50);
-                if (onProgress) onProgress(percent, 100, `Uploading: ${Math.round((e.loaded/1024/1024))}MB sent`);
+                if (onProgress) onProgress(percent, 100, `Uploading: ${Math.round((e.loaded / 1024 / 1024))}MB sent`);
             }
         };
 
@@ -130,19 +130,20 @@ export async function exportTour(scenes, onProgress) {
         // 4. Append Scene Images (Raw)
         scenes.forEach((s, idx) => {
             const file = s.originalFile || s.file;
-            formData.append(`scene_${idx}`, file, s.name); 
+            formData.append(`scene_${idx}`, file, s.name);
         });
 
         // 5. Send via XHR
         const zipBlob = await uploadAndProcess(formData, onProgress);
-        
+
         if (onProgress) onProgress(100, 100, "Saving...");
         DownloadSystem.saveBlob(zipBlob, `Export_RMX_${safeName}_v${VERSION}.zip`);
 
     } catch (err) {
         console.error("Export failed:", err);
         Debug.error("Exporter", "Tour Export Failed", { error: err.message });
-        alert(`Export Failed: ${err.message}`);
+        if (window.notify) window.notify(`Export Failed: ${err.message}`, "error");
+
         if (onProgress) onProgress(0, 0, "Failed");
     }
 }

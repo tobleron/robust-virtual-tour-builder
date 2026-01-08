@@ -67,6 +67,8 @@ export function generateTourHTML(scenes, tourName, hasLogo, exportType, baseSize
         "firstScene": "${scenes[0].name}",
         "sceneFadeDuration": 1000,
         "autoRotate": 0,
+        "pitch": ${scenes[0].hotspots && scenes[0].hotspots[0] && scenes[0].hotspots[0].viewFrame && scenes[0].hotspots[0].viewFrame.pitch ? scenes[0].hotspots[0].viewFrame.pitch : 0},
+        "yaw": ${scenes[0].hotspots && scenes[0].hotspots[0] && scenes[0].hotspots[0].viewFrame && scenes[0].hotspots[0].viewFrame.yaw ? scenes[0].hotspots[0].viewFrame.yaw : 0},
         "hfov": ${hfovDefault},
         "minHfov": ${hfovMin},
         "maxHfov": ${hfovMax},

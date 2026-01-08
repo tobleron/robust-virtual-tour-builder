@@ -60,13 +60,12 @@ export function setupViewerUI(viewerStage, viewer) {
 
     // Determine initial state based on auto-pilot status
     if (isAutoPilotActive()) {
-        simToggle.innerHTML = '<span class="material-icons" style="font-size: 22px;">stop</span>';
-        simToggle.style.setProperty('background-color', '#dc3545', 'important'); // Force RED
+        simToggle.innerHTML = '<span class="material-icons" style="font-size: 22px; color: white;">stop</span>';
+        simToggle.style.setProperty('background-color', '#dc3545', 'important'); // RED
         simToggle.title = "Stop Auto-Pilot Simulation";
-        simToggle.classList.add('active');
     } else {
-        simToggle.innerHTML = '<span class="material-icons" style="font-size: 22px;">play_arrow</span>';
-        simToggle.style.setProperty('background-color', '#10b981', 'important'); // Force GREEN
+        simToggle.innerHTML = '<span class="material-icons" style="font-size: 22px; color: white;">play_arrow</span>';
+        simToggle.style.setProperty('background-color', '#10b981', 'important'); // GREEN
         simToggle.title = "Start Auto-Pilot Simulation";
     }
 

@@ -87,40 +87,8 @@ export function showLinkModal(pitch, yaw, camPitch, camYaw, camHfov, pendingRetu
       .join("")}
                 </select>
                 
-                <div style="margin-top: 8px; display: flex; flex-direction: column; gap: 12px; padding: 16px; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
-                    <!-- Return Link Checkbox -->
-                    <div style="display: flex; align-items: flex-start; gap: 10px;">
-                        <input 
-                          type="checkbox" 
-                          id="is-return-link" 
-                          style="width: 18px; height: 18px; margin-top: 2px; accent-color: #3b82f6; cursor: pointer;"
-                        >
-                        <div>
-                            <label for="is-return-link" style="font-weight: 700; font-size: 13px; display: block; color: white; cursor: pointer;">
-                                Return Link
-                            </label>
-                            <span style="font-size: 13px; color: rgba(255,255,255,0.6); display: block; line-height: 1.4; margin-top: 3px;">
-                              ↩ Check this if you're creating a link back/exit. Camera will look straight ahead (horizon) when arriving.
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- Auto-Forward Scene Checkbox -->
-                    <div style="display: flex; align-items: flex-start; gap: 10px;">
-                        <input 
-                          type="checkbox" 
-                          id="is-auto-forward" 
-                          style="width: 18px; height: 18px; margin-top: 2px; accent-color: #f97316; cursor: pointer;"
-                        >
-                        <div>
-                            <label for="is-auto-forward" style="font-weight: 700; font-size: 13px; display: block; color: white; cursor: pointer;">
-                                Auto-Forward Scene (Bridge)
-                            </label>
-                            <span style="font-size: 13px; color: rgba(255,255,255,0.6); display: block; line-height: 1.4; margin-top: 3px;">
-                              ⚡ Target scene will automatically forward to next link in Simulation Mode (useful for hallways, staircases).
-                            </span>
-                        </div>
-                    </div>
+                <div style="margin-top: 8px; display: none; flex-direction: column; gap: 12px; padding: 16px; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                    <!-- Checkboxes hidden: functionality moved to hover buttons -->
                 </div>
                 
                 <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 20px;">
@@ -148,36 +116,9 @@ export function showLinkModal(pitch, yaw, camPitch, camYaw, camHfov, pendingRetu
 
 
   /**
-   * Helper: Update Auto-Forward checkbox based on selected scene
+   * Helper: Update Auto-Forward initial logic (no longer visible in modal)
    */
   const targetSelect = document.getElementById("link-target");
-  const autoForwardCheck = document.getElementById("is-auto-forward");
-  const returnCheck = document.getElementById("is-return-link");
-
-  // Initial State Logic
-  const updateAutoForwardCheck = () => {
-    const name = targetSelect.value;
-    const scene = state.scenes.find(s => s.name === name);
-    if (scene) {
-      autoForwardCheck.checked = !!scene.isAutoForward;
-    } else {
-      autoForwardCheck.checked = false;
-    }
-  };
-
-  // 1. Set Return Link Default: Checked ONLY if we are in "Assist Mode" (pending return scene exists)
-  // Otherwise false (standard manual link)
-  if (pendingReturnSceneName) {
-    returnCheck.checked = true;
-  } else {
-    returnCheck.checked = false;
-  }
-
-  // 2. Set Auto-Forward initial state
-  updateAutoForwardCheck();
-
-  // 3. Listen for changes
-  targetSelect.addEventListener("change", updateAutoForwardCheck);
 
   /**
    * Handle link save action
@@ -186,8 +127,12 @@ export function showLinkModal(pitch, yaw, camPitch, camYaw, camHfov, pendingRetu
   const saveButton = document.getElementById("save-link");
   saveButton.onclick = () => {
     const targetName = document.getElementById("link-target").value;
-    const isReturnLink = document.getElementById("is-return-link").checked;
-    const isAutoForward = document.getElementById("is-auto-forward").checked;
+
+    // Default values for new links - can be changed via hover buttons
+    const isReturnLink = !!pendingReturnSceneName;
+    const targetIdx = state.scenes.findIndex(s => s.name === targetName);
+    const targetScene = state.scenes[targetIdx];
+    const isAutoForward = targetScene ? !!targetScene.isAutoForward : false;
 
     if (!targetName) {
       if (window.notify) window.notify("Please select a destination room", "warning");
@@ -205,37 +150,26 @@ export function showLinkModal(pitch, yaw, camPitch, camYaw, camHfov, pendingRetu
     const displayPitch = pitch - HOTSPOT_VISUAL_OFFSET_DEGREES;
 
     // 3. Save Forward Link with Metadata
-    // All links store the exact camera view (pitch, yaw, hfov) the director was looking at
     store.addHotspot(state.activeIndex, {
-      pitch: pitch,        // Original eye-level click point (used for zoom targeting)
-      displayPitch: displayPitch, // Visual arrow location (appears at floor level)
+      pitch: pitch,
+      displayPitch: displayPitch,
       yaw,
-      // Transition Start Point: Use the camera's orientation when linking started
       startPitch: linkDraft ? linkDraft.camPitch : camPitch,
       startYaw: linkDraft ? linkDraft.camYaw : camYaw,
       startHfov: linkDraft ? linkDraft.camHfov : camHfov,
       target: targetName,
-      // View frame: stores the exact camera orientation for arrival at destination
       viewFrame: {
-        pitch: camPitch,   // Exact camera pitch (director's choice)
+        pitch: camPitch,
         yaw: camYaw,
         hfov: camHfov
       },
-      // Return view frame: for return links, stores the "facing back" perspective
       returnViewFrame: isReturnLink ? {
         pitch: camPitch,
         yaw: camYaw,
         hfov: camHfov
       } : null,
-      isReturnLink: isReturnLink // Tag for navigation logic
-    }, true); // Skip immediate notify for batch update
-
-    // 4. Update Target Scene Metadata (Auto-Forward Status)
-    const targetIndex = state.scenes.findIndex(s => s.name === targetName);
-    if (targetIndex !== -1) {
-      // Only update if changed to prevent unnecessary writes, though updateSceneMetadata handles diffs
-      store.updateSceneMetadata(targetIndex, { isAutoForward: isAutoForward });
-    }
+      isReturnLink: isReturnLink
+    }, true);
 
     // Close modal and update UI
     container.innerHTML = "";

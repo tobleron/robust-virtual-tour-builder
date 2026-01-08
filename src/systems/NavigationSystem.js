@@ -252,8 +252,8 @@ export function navigateToScene(targetIndex, sourceSceneIndex, sourceHotspotInde
 
             // MOMENTUM LOGIC:
             // 1. First Link (Manual Click): Start exactly at Point A (0% offset) to match the user's defined "Start View".
-            // 2. Continuous Chain (Auto-Forward): Start at 10% offset ("Moving Handover") to preserve motion flow.
-            const momentum = (autoForwardChain.length > 0) ? 0.10 : 0.0;
+            // 2. Continuous Chain (Auto-Forward) OR Simulation Mode: Start at 10% offset ("Moving Handover") to preserve motion flow.
+            const momentum = (autoForwardChain.length > 0 || isSimulationMode) ? 0.10 : 0.0;
 
             const startPitch = actualStartPitch + (targetPitchForPan - actualStartPitch) * momentum;
             const startYaw = actualStartYaw + yawDiff * momentum;
@@ -379,7 +379,15 @@ export function handleAutoForward(currentScene, state, viewer) {
         hasIncomingLink: !!incomingLink
     });
 
-    if (currentScene.isAutoForward && !state.isLinking && isSimulationMode) {
+    // SIMULATION MODE OVERRIDE: 
+    // In Simulation Mode, we disable the "dumb" NavigationSystem auto-forward logic
+    // and let the "smart" SimulationSystem handle decision making (unvisited priority).
+    if (isSimulationMode) {
+        Debug.debug('Navigation', 'AutoForward logic skipped: Simulation Mode active');
+        return;
+    }
+
+    if (currentScene.isAutoForward && !state.isLinking) {
         Debug.info('Navigation', `AutoForward Processing: ${currentScene.name}`);
 
         // Initialize chain if starting

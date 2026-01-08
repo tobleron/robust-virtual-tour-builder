@@ -41,6 +41,9 @@ export function createHotspotConfig(h, i, state, scene, incomingLink, isSimulati
         type: "info",
         cssClass: cssClass,
         createTooltipFunc: (div) => {
+            const isAutoForward = isTargetAutoForward;
+            const isReturn = !!h.isReturnLink;
+
             div.innerHTML = `
         <div class="hotspot-delete-btn" title="Delete Link">✕</div>
         <svg class="custom-arrow-svg" viewBox="0 0 100 100">
@@ -52,6 +55,10 @@ export function createHotspotConfig(h, i, state, scene, incomingLink, isSimulati
           <path class="glow-unit glow-top" d="M10 40 L50 10 L90 40 L90 60 L50 30 L10 60 Z" />
           <path class="glow-unit glow-bottom" d="M10 70 L50 40 L90 70 L90 90 L50 60 L10 90 Z" />
         </svg>
+        <div class="hotspot-controls">
+          <div class="hotspot-forward-btn ${isAutoForward ? 'active' : ''}" title="Toggle Auto-Forward">A</div>
+          <div class="hotspot-return-btn ${isReturn ? 'active' : ''}" title="Toggle Return Link">R</div>
+        </div>
       `;
 
             // Ensure tooltip content is interactive
@@ -67,6 +74,8 @@ export function createHotspotConfig(h, i, state, scene, incomingLink, isSimulati
                 });
 
                 const deleteBtn = e.target.closest('.hotspot-delete-btn');
+                const forwardBtn = e.target.closest('.hotspot-forward-btn');
+                const returnBtn = e.target.closest('.hotspot-return-btn');
 
                 // 1. Delete Link
                 if (deleteBtn) {
@@ -76,7 +85,36 @@ export function createHotspotConfig(h, i, state, scene, incomingLink, isSimulati
                     return;
                 }
 
-                // 2. Navigation
+                // 2. Toggle Auto-Forward (on target scene)
+                if (forwardBtn) {
+                    e.stopPropagation(); e.preventDefault();
+                    if (targetScene) {
+                        const targetIndex = state.scenes.findIndex(s => s.name === h.target);
+                        const currentVal = !!targetScene.isAutoForward;
+                        store.updateSceneMetadata(targetIndex, { isAutoForward: !currentVal });
+                        if (window.notify) window.notify(!currentVal ? "Auto-forward: ENABLED" : "Auto-forward: DISABLED", "success");
+                    }
+                    return;
+                }
+
+                // 3. Toggle Return Link
+                if (returnBtn) {
+                    e.stopPropagation(); e.preventDefault();
+                    h.isReturnLink = !h.isReturnLink;
+                    // Ensure return view frame exists if enabled
+                    if (h.isReturnLink && !h.returnViewFrame) {
+                        h.returnViewFrame = {
+                            pitch: h.viewFrame?.pitch !== undefined ? h.viewFrame.pitch : 0,
+                            yaw: h.viewFrame?.yaw !== undefined ? h.viewFrame.yaw : 0,
+                            hfov: h.viewFrame?.hfov !== undefined ? h.viewFrame.hfov : 90
+                        };
+                    }
+                    store.notify(); // Re-sync UI
+                    if (window.notify) window.notify(h.isReturnLink ? "Return Link: ENABLED" : "Return Link: DISABLED", "success");
+                    return;
+                }
+
+                // 4. Navigation
                 if (targetScene) {
                     const targetIndex = state.scenes.findIndex(s => s.name === h.target);
                     if (targetIndex !== -1) {
