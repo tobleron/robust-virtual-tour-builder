@@ -31,16 +31,16 @@ export async function extractExifData(file) {
             } catch (e) {
                 errorDetails = await response.text();
             }
-            
+
             Debug.error("ExifParser", `Backend Metadata Extraction Failed (${response.status})`, { details: errorDetails });
             return { error: errorDetails };
         }
 
         const data = await response.json();
-        
+
         // Map Rust field names to JS expected names
         // Backend returns { exif: { ... }, quality: { ... } }
-        
+
         const mappedQuality = {
             ...data.quality,
             isBlurry: data.quality.is_blurry,
@@ -62,6 +62,9 @@ export async function extractExifData(file) {
         const result = {
             ...data.exif,
             dateTime: data.exif.date_time,
+            focalLength: data.exif.focal_length,
+            aperture: data.exif.aperture,
+            iso: data.exif.iso,
             quality: mappedQuality
         };
 
@@ -228,7 +231,7 @@ export function calculateSimilarity(resultA, resultB) {
  */
 function intersectBinned(histA, histB, numBins) {
     if (!histA || !histB) return 0;
-    
+
     const binSize = 256 / numBins;
     const binnedA = new Float32Array(numBins);
     const binnedB = new Float32Array(numBins);
@@ -239,7 +242,7 @@ function intersectBinned(histA, histB, numBins) {
         // Backend might return larger arrays if bit depth differs, but we assume 256 bins for 8-bit
         const valA = histA[i] || 0;
         const valB = histB[i] || 0;
-        
+
         binnedA[binIdx] += valA;
         binnedB[binIdx] += valB;
     }

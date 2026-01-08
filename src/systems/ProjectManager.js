@@ -56,6 +56,27 @@ export async function saveProject(state, onProgress) {
 
     const tourName = state.tourName || "Virtual_Tour";
     const safeName = tourName.replace(/[^a-z0-9]/gi, "_").toLowerCase();
+    const dateStr = new Date().toISOString().split('T')[0];
+    const filename = `Saved_RMX_${safeName}_v${VERSION}_${dateStr}.vt.zip`;
+
+    // 1. Acquire File Handle EARLY (while user gesture is still active)
+    let fileHandle = null;
+    let useFileHandle = 'showSaveFilePicker' in window;
+
+    if (useFileHandle) {
+        try {
+            // Request handle for ZIP file
+            fileHandle = await DownloadSystem.getFileHandle(filename, 'application/zip');
+        } catch (err) {
+            if (err.name === 'AbortError') {
+                console.log("Project save cancelled by user.");
+                if (onProgress) onProgress(0, 0, "Cancelled");
+                throw new Error('USER_CANCELLED');
+            }
+            console.warn("[ProjectManager] File picker failed, falling back to legacy download:", err);
+            useFileHandle = false;
+        }
+    }
 
     if (onProgress) onProgress(0, 100, "Preparing metadata...");
 
@@ -99,25 +120,26 @@ export async function saveProject(state, onProgress) {
     }));
 
     try {
+        // 2. Heavy Lifting (Zip Generation) - takes time
         const zipBlob = await runZipTask('SAVE_PROJECT', {
             projectData,
             files,
             exifReport: state.exifReport
         }, onProgress);
 
-        const dateStr = new Date().toISOString().split('T')[0];
-        const filename = `Saved_RMX_${safeName}_v${VERSION}_${dateStr}.vt.zip`;
-
         if (onProgress) onProgress(100, 100, "Saving...");
-        await DownloadSystem.saveBlobWithConfirmation(zipBlob, filename);
-        if (onProgress) onProgress(100, 100, "Download Started!");
+
+        // 3. Write to File (using handle acquired in step 1, or legacy fallback)
+        if (useFileHandle && fileHandle) {
+            await DownloadSystem.writeFileToHandle(fileHandle, zipBlob);
+            if (onProgress) onProgress(100, 100, "Saved!");
+        } else {
+            // Legacy download (anchor click)
+            DownloadSystem.saveBlob(zipBlob, filename);
+            if (onProgress) onProgress(100, 100, "Download Started!");
+        }
         return true;
     } catch (err) {
-        if (err.message === 'USER_CANCELLED') {
-            console.log("Project save cancelled by user.");
-            if (onProgress) onProgress(0, 0, "Cancelled");
-            return false;
-        }
         console.error("Project save failed:", err);
         if (onProgress) onProgress(0, 0, "Failed");
         throw err;

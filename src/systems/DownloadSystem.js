@@ -63,6 +63,37 @@ export class DownloadSystem {
     }
 
     /**
+     * Get a file handle for saving - MUST be called during a user gesture
+     * 
+     * @param {string} filename - Suggested filename
+     * @param {string} type - MIME type
+     * @returns {Promise<FileSystemFileHandle>}
+     */
+    static async getFileHandle(filename, type = 'application/octet-stream') {
+        const extension = filename.split('.').pop().toLowerCase();
+        const options = {
+            suggestedName: filename,
+            types: [{
+                description: 'Project File',
+                accept: { [type]: [`.${extension}`] }
+            }]
+        };
+        return await window.showSaveFilePicker(options);
+    }
+
+    /**
+     * Write a blob to an existing file handle
+     * 
+     * @param {FileSystemFileHandle} handle 
+     * @param {Blob} blob 
+     */
+    static async writeFileToHandle(handle, blob) {
+        const writable = await handle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+    }
+
+    /**
      * Save a Blob with confirmation - detects if user cancels the file picker
      * 
      * Uses the modern File System Access API (showSaveFilePicker) which
@@ -79,23 +110,11 @@ export class DownloadSystem {
         // Check if File System Access API is available
         if ('showSaveFilePicker' in window) {
             try {
-                // Determine file type for the picker
-                const extension = filename.split('.').pop().toLowerCase();
                 const mimeType = blob.type || 'application/octet-stream';
 
-                const options = {
-                    suggestedName: filename,
-                    types: [{
-                        description: 'Project File',
-                        accept: { [mimeType]: [`.${extension}`] }
-                    }]
-                };
-
                 // This will THROW an AbortError if user cancels!
-                const handle = await window.showSaveFilePicker(options);
-                const writable = await handle.createWritable();
-                await writable.write(blob);
-                await writable.close();
+                const handle = await this.getFileHandle(filename, mimeType);
+                await this.writeFileToHandle(handle, blob);
 
                 console.log(`[DownloadSystem] File saved successfully: ${filename}`);
                 return true; // User saved the file

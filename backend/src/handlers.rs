@@ -11,7 +11,10 @@ use std::fmt;
 use zip::write::FileOptions;
 use std::collections::HashMap;
 use rayon::prelude::*;
+use img_parts::webp::WebP;
 
+use img_parts::riff::{RiffContent, RiffChunk};
+use bytes::Bytes;
 // Configs
 const PROCESSED_IMAGE_WIDTH: u32 = 4096;
 const TEMP_DIR: &str = "/tmp/remax_backend";
@@ -92,13 +95,13 @@ fn get_temp_path(extension: &str) -> PathBuf {
 
 // --- Metadata Structs ---
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct GpsData {
     pub lat: f64,
     pub lon: f64,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ExifMetadata {
     pub make: Option<String>,
     pub model: Option<String>,
@@ -106,9 +109,12 @@ pub struct ExifMetadata {
     pub gps: Option<GpsData>,
     pub width: u32,
     pub height: u32,
+    pub focal_length: Option<f32>,
+    pub aperture: Option<f32>,
+    pub iso: Option<u32>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct QualityStats {
     pub avg_luminance: u32,
     pub black_clipping: f32,
@@ -116,14 +122,14 @@ pub struct QualityStats {
     pub sharpness_variance: u32,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ColorHist {
     pub r: Vec<u32>,
     pub g: Vec<u32>,
     pub b: Vec<u32>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct QualityAnalysis {
     pub score: f32,
     pub histogram: Vec<u32>,
@@ -140,15 +146,48 @@ pub struct QualityAnalysis {
     pub analysis: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct MetadataResponse {
     pub exif: ExifMetadata,
     pub quality: QualityAnalysis,
+    pub is_optimized: bool,
 }
 
 // --- Internal Processing Logic (Extracted for reuse) ---
 
 fn perform_metadata_extraction(img: &image::DynamicImage, input_data: &[u8]) -> Result<MetadataResponse, String> {
+    // 0. Check for existing "reMX" specific metadata (PREVENTION of Re-optimization)
+    // We parse the input bytes as WebP to see if our custom chunk exists.
+    if let Ok(webp) = WebP::from_bytes(Bytes::copy_from_slice(input_data)) {
+        if let Some(chunk) = webp.chunk_by_id(*b"reMX") {
+            let data_ref = chunk.content();
+            let slice = match data_ref {
+                RiffContent::Data(data) => data.as_ref(),
+                _ => &[] as &[u8],
+            };
+            
+            // Try to deserialize as full MetadataResponse first (new format)
+            if let Ok(mut full_meta) = serde_json::from_slice::<MetadataResponse>(slice) {
+                full_meta.is_optimized = true;
+                return Ok(full_meta);
+            }
+
+            // Fallback for older "QualityAnalysis" only chunks
+            if let Ok(prev_analysis) = serde_json::from_slice::<QualityAnalysis>(slice) {
+                 let (w, h) = (img.width(), img.height());
+                 return Ok(MetadataResponse {
+                     exif: ExifMetadata {
+                        make: None, model: None, date_time: None, gps: None,
+                        width: w, height: h,
+                        focal_length: None, aperture: None, iso: None,
+                     }, 
+                     quality: prev_analysis,
+                     is_optimized: true
+                 });
+            }
+        }
+    }
+
     // 1. Parse EXIF
     let mut reader = Cursor::new(input_data);
     let exif_reader = exif::Reader::new();
@@ -158,11 +197,28 @@ fn perform_metadata_extraction(img: &image::DynamicImage, input_data: &[u8]) -> 
     let mut model = None;
     let mut date_time = None;
     let mut gps = None;
+    let mut focal_length = None;
+    let mut aperture = None;
+    let mut iso = None;
 
     if let Some(exif) = exif_data {
         make = exif.get_field(exif::Tag::Make, exif::In::PRIMARY).map(|f| f.display_value().to_string().replace("\"", ""));
         model = exif.get_field(exif::Tag::Model, exif::In::PRIMARY).map(|f| f.display_value().to_string().replace("\"", ""));
         date_time = exif.get_field(exif::Tag::DateTimeOriginal, exif::In::PRIMARY).map(|f| f.display_value().to_string());
+
+        focal_length = exif.get_field(exif::Tag::FocalLength, exif::In::PRIMARY).and_then(|f| {
+            if let exif::Value::Rational(ref v) = f.value {
+                v.get(0).map(|r| r.to_f64() as f32)
+            } else { None }
+        });
+        aperture = exif.get_field(exif::Tag::FNumber, exif::In::PRIMARY).and_then(|f| {
+            if let exif::Value::Rational(ref v) = f.value {
+                v.get(0).map(|r| r.to_f64() as f32)
+            } else { None }
+        });
+        iso = exif.get_field(exif::Tag::PhotographicSensitivity, exif::In::PRIMARY).and_then(|f| {
+            f.value.get_uint(0)
+        });
 
         let lat_field = exif.get_field(exif::Tag::GPSLatitude, exif::In::PRIMARY);
         let lat_ref_field = exif.get_field(exif::Tag::GPSLatitudeRef, exif::In::PRIMARY);
@@ -288,6 +344,7 @@ fn perform_metadata_extraction(img: &image::DynamicImage, input_data: &[u8]) -> 
         exif: ExifMetadata {
             make, model, date_time, gps,
             width: orig_w, height: orig_h,
+            focal_length, aperture, iso,
         },
         quality: QualityAnalysis {
             score,
@@ -303,8 +360,24 @@ fn perform_metadata_extraction(img: &image::DynamicImage, input_data: &[u8]) -> 
             has_black_clipping, has_white_clipping,
             issues, warnings,
             analysis: if analysis.is_empty() { None } else { Some(analysis.join(" ")) },
-        }
+        },
+        is_optimized: false
     })
+}
+
+// INJECTION HELPER
+fn inject_remx_chunk(webp_data: Vec<u8>, metadata: &MetadataResponse) -> Result<Vec<u8>, String> {
+    let mut webp = WebP::from_bytes(Bytes::from(webp_data)).map_err(|e| e.to_string())?;
+    let json = serde_json::to_string(metadata).map_err(|e| e.to_string())?;
+    
+    // Create custom chunk "reMX"
+    let chunk = RiffChunk::new(*b"reMX", RiffContent::Data(Bytes::from(json)));
+    webp.chunks_mut().push(chunk);
+    
+    // Encode back to bytes
+    let mut writer = Cursor::new(Vec::new());
+    webp.encoder().write_to(&mut writer).map_err(|e: std::io::Error| e.to_string())?;
+    Ok(writer.into_inner())
 }
 
 // --- Handlers ---
@@ -330,10 +403,24 @@ pub async fn process_image_full(mut payload: Multipart) -> Result<HttpResponse, 
         let metadata = perform_metadata_extraction(&img, &data)?;
         
         // 2. Image Optimization (4K WebP + Tiny 512px Progressive Preview)
-        let resized = img.resize(PROCESSED_IMAGE_WIDTH, PROCESSED_IMAGE_WIDTH, image::imageops::FilterType::Lanczos3);
-        let mut webp_buffer = Cursor::new(Vec::new());
-        resized.write_to(&mut webp_buffer, image::ImageFormat::WebP)
-            .map_err(|e| format!("Failed to encode WebP: {}", e))?;
+        
+        let webp_buffer_vec = if metadata.is_optimized && img.width() == PROCESSED_IMAGE_WIDTH {
+             // Skip Re-optimization!
+             tracing::info!("Image already optimized. Skipping resize and encode.");
+             // If input was WebP (which it likely is if is_optimized is true), use it.
+             // data is the raw input bytes.
+             data.clone()
+        } else {
+            let resized = img.resize(PROCESSED_IMAGE_WIDTH, PROCESSED_IMAGE_WIDTH, image::imageops::FilterType::Lanczos3);
+            let mut buf = Cursor::new(Vec::new());
+            resized.write_to(&mut buf, image::ImageFormat::WebP)
+                .map_err(|e| format!("Failed to encode WebP: {}", e))?;
+            
+            // INJECT METADATA
+            inject_remx_chunk(buf.into_inner(), &metadata)?
+        };
+
+        let webp_buffer = Cursor::new(webp_buffer_vec);
 
         let tiny = img.thumbnail(512, 512);
         let mut tiny_buffer = Cursor::new(Vec::new());
@@ -397,6 +484,17 @@ pub async fn optimize_image(mut payload: Multipart) -> Result<HttpResponse, AppE
         let mut webp_buffer = Cursor::new(Vec::new());
         resized.write_to(&mut webp_buffer, image::ImageFormat::WebP)
             .map_err(|e| format!("Failed to encode WebP: {}", e))?;
+        
+        // Optimize Image also needs to inject metadata maybe?
+        // User said "prevent re-optimization".
+        // But `optimize_image` in this handler seems to just resize.
+        // It doesn't seem to get `QualityAnalysis` first unless we call extract.
+        // But `process_image_full` calls both.
+        // Let's assume `optimize_image` is strictly for the tool's internal use or similar.
+        // However, if we want to be consistent, we should inject here too if we had the analysis.
+        // But we don't calculate analysis in `optimize_image`.
+        // So we leave it as is, or we verify if `optimize_image` should also gain analysis capabilities.
+        // Given the prompt "when an image is uploaded ... processed by the tool", it likely refers to `process_image_full` which does the heavy lifting.
         
         Ok(webp_buffer.into_inner())
     }).await.map_err(|e| AppError::InternalError(e.to_string()))?;
@@ -737,5 +835,28 @@ pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, App
             let _ = fs::remove_file(&input_path);
             Err(AppError::FFmpegError(e))
         },
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use img_parts::riff::RiffContent;
+
+        // Probe removed
+    
+    #[test]
+    fn test_quality_analysis_serialization() {
+       let analysis = QualityAnalysis {
+            score: 9.0,
+            histogram: vec![0; 256],
+            color_hist: ColorHist { r: vec![], g: vec![], b: vec![] },
+            stats: QualityStats { avg_luminance: 100, black_clipping: 0.0, white_clipping: 0.0, sharpness_variance: 50 },
+            is_blurry: false, is_soft: false, is_severely_dark: false, is_dim: false,
+            has_black_clipping: false, has_white_clipping: false,
+            issues: 0, warnings: 0, analysis: None
+        };
+        let json = serde_json::to_string(&analysis).unwrap();
+        assert!(json.contains("\"score\":9.0"));
     }
 }

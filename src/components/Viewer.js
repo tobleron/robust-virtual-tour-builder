@@ -1056,6 +1056,19 @@ function syncViewControls(state) {
 
   if (utilityBar) {
     utilityBar.classList.toggle("viewer-utility-dimmed", !hasScenes);
+
+    // SYNC SIMULATION BUTTON (Robustness fix)
+    const simToggle = document.getElementById("v-scene-sim-toggle");
+    if (simToggle) {
+      const isSim = getIsSimulationMode(); // This is the source of truth for UI display
+      if (isSim) {
+        simToggle.innerHTML = '<span class="material-icons" style="font-size: 22px;">stop</span>';
+        simToggle.style.setProperty('background-color', '#dc3545', 'important');
+      } else {
+        simToggle.innerHTML = '<span class="material-icons" style="font-size: 22px;">play_arrow</span>';
+        simToggle.style.setProperty('background-color', '#10b981', 'important');
+      }
+    }
   }
   if (floorNav) {
     floorNav.classList.toggle("viewer-utility-dimmed", !hasScenes);

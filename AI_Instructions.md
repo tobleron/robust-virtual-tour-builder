@@ -80,6 +80,10 @@ The AI agent must autonomously decide the target branch based on the risk profil
 - **Backend**: Run `cargo clean` in the `backend/` directory to remove large build artifacts (`target/`).
 - **Logs**: Rotate or clear non-essential logs in the `logs/` directory (e.g., `telemetry.log`).
 - **Test Artifacts**: Remove temporary test ZIPs from the `test/` directory once verification is complete.
+- **Git Hygiene**:
+    - **No Binaries**: NEVER commit large binaries (>1MB) to the repository unless explicitly requested.
+    - **Ghost Bloat**: If a large file was accidentally committed, use `git filter-branch` or `git filter-repo` to strike it from the entire history before pushing.
+    - **History Truncation**: Periodically evaluate if old history (e.g., before major architectural shifts like v4.0.0) should be truncated to maintain a lean `.git` footprint.
 - **Purpose**: Prevents massive build artifacts and temporary data from bloating the repository and slowing down Git operations.
 
 ---

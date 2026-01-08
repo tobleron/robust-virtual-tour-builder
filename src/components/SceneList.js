@@ -33,9 +33,10 @@ export const SceneList = {
         const btnDelete = document.getElementById("btn-delete-scene");
         const btnClearLinks = document.getElementById("btn-clear-links");
 
-        document.addEventListener("click", () => {
-            this.contextMenu.classList.add("hidden");
-            this.contextMenu.classList.remove("flex");
+        document.addEventListener("click", (e) => {
+            // Don't close if clicking the trigger button or the menu itself
+            if (e.target.closest('.scene-more-btn') || e.target.closest('#context-menu')) return;
+            this.hideContextMenu();
         });
 
         if (btnDelete) {
@@ -161,8 +162,15 @@ export const SceneList = {
             if (isMoreBtn) {
                 e.stopPropagation();
                 e.preventDefault();
-                console.log(`[SceneList] Context menu triggered for index ${index}`);
-                this.showContextMenu(isMoreBtn, index);
+
+                const isAlreadyOpen = !this.contextMenu.classList.contains("hidden") && this.targetContextIndex === index;
+
+                if (isAlreadyOpen) {
+                    this.hideContextMenu();
+                } else {
+                    console.log(`[SceneList] Context menu triggered for index ${index}`);
+                    this.showContextMenu(isMoreBtn, index);
+                }
                 return;
             }
 
@@ -276,12 +284,7 @@ export const SceneList = {
         // Interaction Events - NOW HANDLED BY DELEGATION IN RENDER()
         // Removed individual onclick handlers to prevent double-firing and improve performance.
 
-        item.querySelector(`#more-${index}`).addEventListener('click', (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            console.log(`[SceneList] Context menu triggered for index ${index}`);
-            this.showContextMenu(e.currentTarget, index);
-        });
+
 
         // Explicitly disable browser context menu
         item.oncontextmenu = (e) => {

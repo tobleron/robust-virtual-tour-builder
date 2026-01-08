@@ -29,9 +29,11 @@ export async function generateExifReport(sceneDataList) {
 
     for (const item of sceneDataList) {
         const file = item.original;
-        const exif = await extractExifData(file);
-        // Use pre-calculated quality or fall back
-        const quality = item.quality || await analyzeImageQuality(file);
+
+        // Optimization: Use pre-existing metadata if available from UploadProcessor
+        const exif = item.metadata || await extractExifData(file);
+        const quality = item.quality || item.metadata?.quality || await analyzeImageQuality(file);
+
         exifResults.push({ filename: file.name, exif, quality });
 
         if (exif.gps) {

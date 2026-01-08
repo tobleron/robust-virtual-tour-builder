@@ -544,7 +544,7 @@ html {
 /* Dim the entire sidebar during auto-pilot (editing interface) */
 body.auto-pilot-active #sidebar {
   pointer-events: none;
-  opacity: 0.4;
+  opacity: 0.85;
   filter: grayscale(100%);
   transition: all 0.3s ease;
 }

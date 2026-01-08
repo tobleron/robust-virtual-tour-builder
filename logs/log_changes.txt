@@ -1,3 +1,8 @@
+[2026-01-08 17:35] Version 4.0.3 [Pre-Axum Stable]
+- Milestone: Consolidated all pending changes to stable branch prior to Axum migration analysis.
+- Backend: Fixed unused ImageEXIF import warning in handlers.rs.
+- Maintenance: Pre-migration checkpoint for comprehensive backend framework evaluation.
+
 [2026-01-08 11:15] Version 4.0.2 [HFOV Lock]
 - Feature: Locked camera HFOV to 90° and disabled all user zoom controls (scroll/pinch) for consistent perspective.
 - UI: Refined Auto-Pilot simulation button visibility (increased opacity for info badges).
