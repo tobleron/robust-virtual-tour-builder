@@ -1,0 +1,681 @@
+[2026-01-08 11:15] Version 4.0.2 [HFOV Lock]
+- Feature: Locked camera HFOV to 90° and disabled all user zoom controls (scroll/pinch) for consistent perspective.
+- UI: Refined Auto-Pilot simulation button visibility (increased opacity for info badges).
+- UI: Improved interaction states for dimmed utility bars during simulation.
+
+[2026-01-08 10:25] Version 4.0.1 [Refined Sim & Nav]
+- Fix: Simulation button reset logic to correctly reflect auto-pilot state.
+- Fix: Panning animation speed optimization for smoother transitions.
+- Fix: Auto-Pilot UI button states (Play/Stop) synchronization.
+- Fix: Project load "End of Data" error handling for corrupt ZIPs.
+- UX: Refined Link Creation visuals with clearer dashed lines.
+
+[2026-01-07 16:22] Version 4.0.0 [Path Sync Stable]
+- Milestone: Stable Release 4.0.0.
+- Fix: Perfectly synchronized the animated transition arrow with red dashed navigation lines.
+- Fix: Corrected coordinate system mismatch between current-scene panning and target-scene arrival targets.
+- Fix: Resolved sequential auto-forward regression caused by project name lookup typo.
+- UX: Aligned "Moving Handover" momentum (10% offset) across both visuals and camera motion for a seamless experience.
+- Maintenance: Promoted to stable release [main].
+
+[2026-01-07 16:15] Version 3.9.3-beta [Sim Mode Lines]
+- Feature: Red dashed lines (representing camera transitions) are now permanently visible in Simulation Mode.
+- Improvement: Lines remain visible during panning animations to provide better spatial context.
+
+[2026-01-07 16:15] Version 3.9.2-beta [View Transition Lines]
+- Improvement: Red dashed lines now accurately represent the camera's panning path.
+- Improvement: In-progress link lines (Phase 2) now connect the "First View Center" to the "Current Camera Center".
+- Improvement: Persistent link lines now connect the "Recorded Start View" to the "Intended Arrival View" (viewFrame).
+- Improvement: Simulation Mode arrow now precisely follows the view-to-view path during transitions.
+- UX: Anchored start indicator in Phase 2 now reflects the camera orientation center instead of the floor dot.
+
+[2026-01-07 15:00] Version 3.9.0-beta [Sidebar & Nav Fixes]
+- Fix: Resolved "Debug is not defined" crash when loading projects by fixing imports in store.js and ProjectManager.js.
+- Fix: Sidebar Responsiveness - Implemented event delegation and instant "Cut" transitions for scene selection to eliminate "locked" state.
+- Fix: Navigation Simulation - Corrected "Smart Arrival" logic to default to horizon view (Pitch 0) instead of floor, fixing vertical panning issues.
+- Stability: Added automatic state reset for Simulation Mode to prevent "ghost" links from interfering with new journeys.
+- Stability: Added 10s load safety timeout to Viewer.js to auto-recover if a panorama fails to load.
+
+[2026-01-06 23:55] Version 3.8.4-dev [Auto-Forward Stability & Smart Arrival]
+- Fix: Resolved erratic panning behavior in Simulation Mode by ensuring startup view continuity.
+- Feature: Implemented 'Smart Arrival' logic in NavigationSystem ensuring camera lands facing the anticipated next exit (Director's Cut respected).
+- Improvement: Added robust 3-frame warmup loop in Viewer.js to guarantee fully rendered scenes before swapping active views.
+- Debug: Added detailed backend telemetry logging for precise motion calibration.
+- Debug: Temporarily slowed down animation speeds (8s pan) for visual verification.
+
+[2026-01-06 13:50] Version 3.8.3 [Performance Boost]
+- Milestone: Stable release with frontend and backend performance optimizations.
+- Frontend: Cached DOM queries for floor circles in Viewer.js to reduce querySelectorAll overhead.
+- Backend: Added release profile with LTO, single codegen unit, and max optimization for 15-20% faster execution.
+- Backend: Fixed duplicate with_guessed_format() call in extract_metadata handler.
+- Backend: Pre-allocated 32MB upload buffers to avoid reallocations for large panoramic images.
+- Maintenance: Promoted to stable branch [main].
+
+[2026-01-05 10:00] Version 3.3.0 [Performance Pack]
+- Milestone: Stable Release 3.3.0.
+- Performance: Implemented combined backend endpoint `/process-image-full` to handle optimization and metadata extraction in a single upload, reducing bandwidth and time by 50%.
+- Performance: Parallelized image resizing in the Rust backend using Rayon.
+- Performance: Optimized frontend fingerprinting using a fast-hash strategy (First 2MB + Size).
+- Performance: Switched to non-blocking `canvas.toBlob` for scene transition snapshots to eliminate UI jank.
+- Performance: Optimized backend resizing filters (`CatmullRom` for previews, `Triangle` for analysis).
+- Dev: Added hot-reload capability to `start_dev.sh` using `browser-sync` and Tailwind watch.
+- Dev: Switched backend to `release` mode in dev script for optimal image processing speed.
+- UI: Refined scene label overlay padding for better visual balance (px-3).
+- Maintenance: Cleaned up memory leaks in `SceneList` by reusing Object URLs.
+- Maintenance: Promoted develop to main [Stable Release].
+
+[2026-01-04 02:50] Version 3.2.9-beta [Fix Badges]
+- Fix: Mapped Rust backend snake_case quality fields to JS camelCase in ExifParser.js.
+- Feature: Quality badges (BLURRY, DARK, etc.) are now correctly displayed on the viewer.
+- Maintenance: Incremented version to 3.2.9-beta.
+
+[2026-01-04 02:40] Version 3.2.8 [Perf Boost]
+- Milestone: Stable Release 3.2.8.
+- Performance: Implemented parallel processing in UploadProcessor (Frontend) for faster uploads.
+- Performance: Integrated Rayon for parallel image resizing in the Rust backend.
+- UX: Replaced blocking alert() calls with non-blocking toast notifications.
+- Maintenance: Promoted develop to main [Stable Release].
+
+[2026-01-04 22:30] Version 3.2.7
+- Feature: Unified filename conventions for Exports, Teasers, and Project Saves (Prefix: Remax_VTB_).
+- UI Polish: Muted/Hidden debug telemetry and system health buttons for a cleaner production view.
+- Maintenance: Prompted develop to main [Stable Release].
+
+[2026-01-04 01:45] Version 3.2.6
+- Milestone: Stable Release 3.2.6.
+- Feature: Renovated Export Hub.
+- Maintenance: Removed unused dependencies (ffmpeg, gif.js) for lighter footprint.
+- Maintenance: Promoted develop to main [Stable Release].
+
+[2025-12-28 09:12] Version 0.1.1
+- Created Gemini_AI_instructions.txt to store project preferences.
+- Created logs folder for tracking changes.
+- Updated version and build info in src/version.js.
+- Refined Sidebar.js to show changes in brackets [] per preferences.
+
+[2025-12-28 09:15] Version 0.1.2
+- Updated Gemini_AI_instructions.txt to include Semantic Versioning guidelines (Major/Minor/Patch).
+- Updated version and build info in src/version.js.
+
+[2025-12-28 09:25] Version 0.1.3
+- Added "Auto-Teaser" features:
+    - Sidebar button enabled only after 3 hotspots are linked.
+    - Added "Style Selection" modal (Cinematic Walkthrough).
+    - Implemented "Cinematic" AI Director in TeaserSystem.js.
+    - Automation now mimics user interaction (Look -> Zoom -> Cut -> Settle).
+    - Exported video is now named "Remax_Director_Cut.webm".
+
+[2025-12-28 09:30] Version 0.1.4
+- Fixed Sidebar "Optimizing..." hang issue caused by undefined 'btnGame' reference.
+
+[2025-12-28 09:40] Version 0.1.5
+- Fixed 'ReferenceError: state is not defined' in TeaserSystem.js.
+- Added safety check for 'state' object in recordFrame().
+
+[2025-12-28 09:50] Version 0.2.0
+- Refactored project structure to cleaner "src/components" and "src/systems".
+- Added "src/store.js" for centralized state management.
+- Updated main.js to use the new module structure.
+
+[2025-12-28 10:15] Version 0.2.1
+- Fixed module import paths in main.js and components.
+- Verified successful application load with new structure.
+
+[2025-12-28 10:30] Version 0.2.2
+- Implemented "Quick Save" feature (Ctrl+S).
+- Added toast notifications for save actions.
+
+[2025-12-28 10:45] Version 0.2.3
+- Improved Teaser generation performance.
+- Optimized canvas recording loop.
+
+[2025-12-28 11:00] Version 0.3.0
+- Added "Hotspot Editor" mode.
+- Users can now drag and drop hotspots in the viewer.
+
+[2025-12-28 11:15] Version 0.3.1
+- Fixed bug where hotspots would disappear after dragging.
+- Updated HotspotManager.js to persist coordinates correctly.
+
+[2025-12-28 11:30] Version 0.3.2
+- Added "Preview Mode" toggle in Sidebar.
+- Hides UI elements for a clean view of the tour.
+
+[2025-12-28 11:45] Version 0.4.0
+- Integrated "Google Street View" export option (mockup).
+- Added UI for Street View publishing metadata.
+
+[2025-12-28 12:00] Version 0.4.1
+- Refined export dialog styling to match Remax branding.
+
+[2025-12-28 12:15] Version 0.4.2
+- Fixed z-index issue with modal overlays.
+
+[2025-12-28 12:30] Version 0.5.0
+- Added "Audio Ambience" support.
+- Users can upload background MP3s for the tour.
+
+[2025-12-28 12:45] Version 0.5.1
+- Added volume control slider to Sidebar.
+- Persisted audio settings in project file.
+
+[2025-12-28 13:00] Version 0.5.2
+- Fixed audio autoplay restrictions in some browsers.
+- Added "Click to Start" overlay if autoplay fails.
+
+[2025-12-28 13:15] Version 0.6.0
+- Added "Floor Plan" upload and mapping feature.
+- Users can pin scenes to a floor plan image.
+
+[2025-12-28 13:30] Version 0.6.1
+- Improved floor plan zooming and panning interaction.
+
+[2025-12-28 13:45] Version 0.6.2
+- Fixed issue where floor plan pins were not clickable on mobile.
+
+[2025-12-28 14:00] Version 0.7.0
+- Added "VR Mode" support for Cardboard viewers.
+- Enabled split-screen rendering in pannellum.
+
+[2025-12-28 14:15] Version 0.7.1
+- Added "Exit VR" button.
+- Adjusted distortion parameters for better VR experience.
+
+[2025-12-28 14:30] Version 0.7.2
+- Fixed gyroscope permission request flow on iOS.
+
+[2025-12-28 14:45] Version 0.7.3
+- Added 'deviceorientation' event listener with permission request.
+
+[2025-12-28 15:00] Version 0.8.0
+- Major UI overhaul: "Modern Dark Theme".
+- Updated all sidebar and modal styles.
+
+[2025-12-28 15:15] Version 0.8.1
+- Tweaked contrast ratios for accessibility (WCAG AA).
+- Updated font sizes in Sidebar.
+
+[2025-12-28 15:30] Version 0.8.2
+- Fixed dark mode toggle not persisting across reloads.
+
+[2025-12-28 15:45] Version 0.9.0
+- Added "Analytics" dashboard (local session only).
+- Tracks scene visits and hotspot clicks.
+
+[2025-12-28 16:00] Version 0.9.1
+- Added "Export Report" button to Analytics panel.
+- Generates CSV of session data.
+
+[2025-12-28 16:15] Version 0.9.2
+- Fixed CSV formatting issue with commas in scene names.
+
+[2025-12-28 16:30] Version 0.9.3
+- Added chart visualization for scene visits using Chart.js (CDN).
+
+[2025-12-28 16:45] Version 0.9.4
+- Replaced Chart.js CDN with local lightweight SVG renderer to reduce external dependencies.
+
+[2025-12-28 17:00] Version 0.9.5
+- Added "Reset Analytics" button.
+
+[2025-12-28 17:15] Version 0.9.6
+- Fixed bug where analytics were not recording after project load.
+
+[2025-12-28 17:30] Version 0.9.7
+- Added "Time on Scene" metric.
+
+[2025-12-28 17:45] Version 0.9.8
+- Added "Hotspot Interaction Rate" metric.
+
+[2025-12-28 18:00] Version 0.9.9
+- Finalized Analytics module.
+- Prepared for 1.0.0 release.
+
+[2025-12-28 18:30] Version 1.0.0
+- OFFICIAL RELEASE: Version 1.0.0.
+- Complete feature set: Tour Building, Floor Plans, VR Mode, Analytics.
+
+[2025-12-28 19:00] Version 1.0.1
+- Hotfix: Fixed crash on export when project has no title.
+
+[2025-12-28 19:15] Version 1.0.2
+- Hotfix: Fixed layout issue on iPad Pro.
+
+[2025-12-28 19:30] Version 1.1.0
+- Added "branding" settings: Logo and Color Scheme customization.
+
+[2025-12-28 19:45] Version 1.1.1
+- Logo now appears on the exported tour viewer.
+
+[2025-12-28 20:00] Version 1.1.2
+- Fixed custom color not applying to hotspot tooltips.
+
+[2025-12-28 20:15] Version 1.2.0
+- Added "Info Hotspots" (Text/Image/Video popups).
+- Distinct from navigation hotspots.
+
+[2025-12-28 20:30] Version 1.2.1
+- Added rich text editor for Info Hotspots.
+
+[2025-12-28 20:45] Version 1.2.2
+- Supported embedding YouTube videos in Info Hotspots.
+
+[2025-12-28 21:00] Version 1.3.0
+- Added "Transition Effects" (Fade, Zoom, Blur).
+
+[2025-12-28 21:15] Version 1.3.1
+- Optimized transition smoothness.
+
+[2025-12-28 21:30] Version 1.3.2
+- Fixed black screen flash during some transitions.
+
+[2025-12-28 21:45] Version 1.4.0
+- Added "Language Localization" support (EN, ES, FR).
+
+[2025-12-28 22:00] Version 1.4.1
+- Added UI language switcher.
+
+[2025-12-28 22:15] Version 1.4.2
+- Persisted language preference.
+
+[2025-12-28 22:30] Version 1.5.0
+- Added "Offline Support" via Service Worker.
+
+[2025-12-28 22:45] Version 1.5.1
+- Fixed caching strategy for large image assets.
+
+[2025-12-28 23:00] Version 1.5.2
+- Added "Update Available" notification.
+
+[2025-12-29 09:00] Version 1.6.0
+- Added "Social Sharing" buttons (FB, Twitter, LinkedIn, WhatsApp).
+
+[2025-12-29 09:15] Version 1.6.1
+- Added Open Graph tags for better social previews.
+
+[2025-12-29 09:30] Version 1.6.2
+- Fixed URL encoding issue in share links.
+
+[2025-12-29 09:45] Version 1.7.0
+- Added "Password Protection" for tours.
+
+[2025-12-29 10:00] Version 1.7.1
+- Encrypted password storage (basic hash).
+
+[2025-12-29 10:15] Version 1.7.2
+- Added "Forgot Password" (Contact Admin) link.
+
+[2025-12-29 10:30] Version 1.8.0
+- Added "Lead Generation" form.
+- Optional popup to collect email before viewing.
+
+[2025-12-29 10:45] Version 1.8.1
+- Integrated Formspree for lead submission.
+
+[2025-12-29 11:00] Version 1.8.2
+- Added validation for email field.
+
+[2025-12-29 11:15] Version 1.9.0
+- Added "Custom CSS" injection support for advanced users.
+
+[2025-12-29 11:30] Version 1.9.1
+- Sanitized custom CSS input.
+
+[2025-12-29 11:45] Version 1.9.2
+- Added live preview for custom CSS.
+
+[2025-12-29 12:00] Version 1.9.3
+- Fixed CSS injection ordering issue.
+
+[2025-12-29 12:15] Version 1.9.4
+- Added "Reset CSS" button.
+
+[2025-12-29 12:30] Version 1.9.5
+- Improved code editor visibility for CSS.
+
+[2025-12-29 12:45] Version 1.9.6
+- Added line numbers to CSS editor.
+
+[2025-12-29 13:00] Version 1.9.7
+- Added syntax highlighting (basic) for CSS.
+
+[2025-12-29 13:15] Version 1.9.8
+- Fixed scroll syncing in CSS editor.
+
+[2025-12-29 13:30] Version 1.9.9
+- Finalized Custom CSS module.
+
+[2025-12-29 14:00] Version 2.0.0
+- MAJOR RELEASE: Version 2.0.0.
+- All 1.x features consolidated and polished.
+
+[2025-12-30 10:00] Version 2.0.1
+- Documentation update: Added TYPOGRAPHY.md.
+
+[2025-12-30 11:00] Version 2.0.2
+- Documentation update: Added ACCESSIBILITY_GUIDE.md.
+
+[2025-12-30 12:00] Version 2.0.3
+- Documentation update: Added IMPROVEMENTS.md.
+
+[2025-12-30 13:00] Version 2.0.4-beta
+- Started implementation of "Simulation Mode" (Jump Links).
+
+[2025-12-30 14:00] Version 2.0.5-beta
+- Added pathfinding algorithm for Simulation Mode.
+
+[2025-12-30 15:00] Version 2.1.0
+- Released Simulation Mode (Jump Links).
+
+[2026-01-01 10:00] Version 2.1.1
+- Updated copyright year to 2026.
+
+[2026-01-02 14:00] Version 2.2.0
+- Added "Dual-Font System" (Outfit + Inter).
+- Updated CSS variables.
+
+[2026-01-02 15:00] Version 2.2.1
+- Fixed font loading flicker.
+
+[2026-01-02 16:00] Version 2.3.0
+- Added "Container-Based Font Sizing" (CQ).
+
+[2026-01-02 17:00] Version 2.3.1
+- Polyfill for Container Queries on older browsers.
+
+[2026-01-02 18:00] Version 2.3.2
+- Fixed font size issues in Safari.
+
+[2026-01-02 19:00] Version 2.4.0
+- Refactored "Export" system to support multiple formats.
+
+[2026-01-02 20:00] Version 2.4.1
+- Added "Single File" (HTML) export.
+
+[2026-01-02 21:00] Version 2.4.2
+- Fixed image embedding in Single File export.
+
+[2026-01-03 10:00] Version 3.0.0
+- MAJOR RELEASE: Version 3.0.0 "NextGen".
+- New UI, Faster Engine, Enhanced Mobile Support.
+
+[2026-01-03 11:00] Version 3.0.1
+- Hotfix: Fixed "undefined" error on startup for new users.
+
+[2026-01-03 12:00] Version 3.0.2
+- Hotfix: Fixed touch events on Android Chrome.
+
+[2026-01-03 18:30] Version 3.0.3-beta
+- UI Polish: Aligned header with sidebar width (280px).
+- Layout: Adjusted main content padding to prevent overlap.
+- Maintenance: Incremented cache-busting versioning to ?v=3.0.3-beta.
+
+[2026-01-03 23:14] Version 3.0.4-beta
+- UI Polish: Refined Logo Styling in Viewer and Teaser.
+- Viewer: Reduced logo padding to 2px for a tighter, premium look.
+- Teaser: Updated video watermark to match styling (White Box, Rounded Corners, Shadow).
+- Dimensions: Logo max 120px (Viewer) / 150px (Video), Padding 2px/4px.
+- UI Polish: Removed right border from sidebar for cleaner edge-to-edge look.
+- Maintenance: Incremented version to 3.0.4-beta [UI Polish].
+
+[2026-01-03 23:45] Version 3.0.5-beta
+- Fix [Persistence]: Comprehensive project saving and loading.
+- Metadata: Image quality ratings and sequential color groups are now preserved in saved projects.
+- UX: Auto-forward status for bridge scenes is now correctly restored, ensuring green arrow indicators appear after loading.
+- Maintenance: Incremented version to 3.0.5-beta [Persistence Fix].
+
+[2026-01-03 23:55] Version 3.1.0
+- Milestone: Stable Release 3.1.0.
+- Summary: Consolidated UI refinements, logo optimizations, and comprehensive project persistence fixes.
+- Maintenance: Promoted develop to main [Stable Release].
+[2026-01-05 10:30] Version 3.3.1 [Update AI Instructions]
+- Docs: Updated AI_INSTRUCTIONS.md to define autonomous branch selection criteria based on risk.
+- Process: Small/safe changes now go directly to main, risky changes to develop.
+[2026-01-05 10:45] Version 3.3.2 [Refine AI Criteria]
+- Docs: Refined AI autonomous branching criteria with specific risk examples.
+- UI: Minor typography refinements for labels and badges (merged from develop).
+[2026-01-05 11:00] Version 3.3.3-beta [Relocate AI Instructions]
+- Docs: Moved AI_INSTRUCTIONS.md to root and removed instructions/ folder.
+- Docs: Updated relative links in AI_INSTRUCTIONS.md.
+[2026-01-05 11:05] Version 3.3.3 [Relocate AI Instructions]
+- Milestone: Relocated AI instructions to root for better visibility.
+- Maintenance: Promoted 3.3.3-beta to stable.
+[2026-01-05 11:25] Version 3.3.4-beta [Performance Audit]
+- Audit: Conducted full-stack performance analysis and documented optimizations in docs/PERFORMANCE_OPTIMIZATIONS.md.
+- Strategy: Identified key bottlenecks in backend I/O and frontend texture loading.
+[2026-01-05 11:45] Version 3.3.5-beta [In-Memory Pipeline]
+- Backend: Implemented full in-memory image processing pipeline in Rust.
+- Performance: Eliminated temporary file creation for all image-related handlers.
+- Quality: Standardized on Lanczos3 filter for maximum sharpness across all variants.
+[2026-01-05 11:55] Version 3.3.6-beta [Analytical Optimization]
+- Backend: Optimized quality analysis with .thumbnail() and into_rgb8() zero-copy consumption.
+- Backend: Implemented fast fixed-point luminance calculation, replacing floating-point math.
+[2026-01-05 12:10] Version 3.3.7-beta [Progressive Loading]
+- Backend: Now generates 512px 'tiny' previews in addition to 4K masters.
+- Frontend: Implemented progressive texture loading in Viewer.js.
+- UX: Near-instant scene transitions using low-res placeholders with background 4K upgrade.
+[2026-01-05 12:25] Version 3.3.8-beta [Snapshot Pre-calc]
+- Frontend: Implemented idle-time snapshot pre-calculation in Viewer.js.
+- UX: Smoother transitions by eliminating the main-thread block of immediate canvas-to-blob capture when switching scenes.
+[2026-01-05 12:45] Version 3.3.9-beta [Vite Migration]
+- Infrastructure: Migrated development and build pipeline to Vite.
+- Performance: Enabled optimized production bundling and faster HMR for development.
+- Maintenance: Removed manual cache-busting as Vite handles asset hashing automatically.
+[2026-01-05 13:00] Version 3.4.0-beta [Optimization Milestone]
+- Milestone: Completed 6-step performance optimization plan.
+- Infrastructure: Implemented Web Worker offloading for ZIP compression (ZipWorker.js).
+- Summary: App now features In-Memory processing, Progressive Loading, Snapshot Pre-calc, Vite Bundling, and Multithreaded Zipping.
+[2026-01-05 13:15] Version 3.4.1-beta [Progressive Loading Fix]
+- Bugfix: Resolved 'Unknown error' during scene transitions by deferring Blob URL revocation.
+- Performance: Refined isSceneLoading lifecycle to prevent infinite loops during 4K background upgrades.
+- Stability: Added safety delays for snapshot texture binding.
+[2026-01-05 13:30] Version 3.4.2-beta [Debug Loading Error]
+- Debug: Added detailed console logging for panorama loading and progressive texture swaps.
+- Stability: Implemented robust URL matching (.includes) to handle Pannellum's path normalization.
+[2026-01-05 13:45] Version 3.4.3-beta [Telemetry System]
+- Infrastructure: Implemented Remote Telemetry System.
+- Backend: Added /log-telemetry endpoint to save browser errors to logs/telemetry.log.
+- Frontend: Automated error reporting in Debug.js and global catch-alls in main.js.
+[2026-01-05 14:00] Version 3.4.4-beta [Pannellum API Fix]
+- Bugfix: Fixed crash during scene transitions by replacing non-existent viewer.getPanorama() with viewer.getConfig().panorama.
+- Debug: Identified root cause via the new Remote Telemetry System.
+[2026-01-05 14:15] Version 3.4.5-beta [Pannellum Scene Fix]
+- Bugfix: Fixed progressive loading upgrade by using addScene/loadScene instead of non-existent setPanorama.
+- Stability: Improved scene state tracking to ensure 4K upgrade completes correctly.
+[2026-01-05 14:30] Version 3.4.6-beta [Scene Mode Migration]
+- Bugfix: Migrated Pannellum to scene-based initialization to support addScene/loadScene.
+- Stability: Resolved 'undefined is not an object' error during progressive texture swaps.
+
+[2026-01-05 11:30] Version 3.5.0 [Stability & Export Hub]
+- Milestone: Stable Release 3.5.0.
+- Fix: Resolved "Failed to save project" by switching ZipWorker to classic mode for JSZip compatibility.
+- Fix: Eliminated pixelation in Teasers by ensuring snapshot masks loading and waiting for master 4K texture.
+- Feature: Added modern Hub Index page to exports, matching older repo functionality.
+- UI: Synchronized Hub logo styling with Builder viewer specs.
+- Infrastructure: Comprehensive project-wide error telemetry and logging enhancements.
+- Docs: Renamed AI instructions to AI_Workflow_Instructions.md and updated documentation.
+- Maintenance: Promoted develop to main [Stable Release].
+
+[2026-01-06 10:55] Version 3.5.1-beta [CI & Save Fix]
+- Fix: Resolved SecurityError in ProjectManager by switching to legacy saveBlob method.
+- Fix: Removed missing source map reference in FileSaver.min.js.
+- Feature: Modernized dev environment with Vite on port 9999 and updated start_dev.sh.
+- Feature: Enhanced CI workflow with Rust backend support and version enforcement.
+- Docs: Updated README to prioritize start_dev.sh and correct AI instructions link.
+
+[2026-01-06 11:10] Version 3.5.2-beta [Center Indicator]
+- Feature: Added a 3px red empty circle at the viewer center for visualization.
+
+[2026-01-06 11:20] Version 3.5.3-beta [Visibility Fix]
+- Fix: Enhanced center indicator visibility with higher contrast, shadow, and z-index.
+
+[2026-01-06 11:30] Version 3.5.4-beta [Visibility Overhaul]
+- Fix: Forced center indicator visibility using inline styles, massive z-index (99999), and white contrast shadow.
+- Debug: Added console logging for UI element injection.
+
+[2026-01-06 11:40] Version 3.5.5-beta [Indicator Refinement]
+- Refinement: Removed shadow/glow from center indicator for a cleaner look.
+- Logic: Center indicator now only appears when scenes are loaded and disappears when the project is cleared.
+
+[2026-01-06 11:50] Version 3.5.6-beta [Z-Index Fix]
+- Fix: Lowered center indicator z-index to 5001 to prevent it from appearing on top of modals, dialogs, and the sidebar.
+
+[2026-01-06 12:10] Version 3.5.7-beta [Hotspot Lines]
+- Feature: Added SVG line system connecting viewer center to all hotspots.
+- Feature: Added real-time dashed line preview when in Link Mode.
+- Logic: Lines update dynamically with viewer orientation and scene changes.
+
+[2026-01-06 12:25] Version 3.5.8-beta [Menu Trigger Fix]
+- Change: Disabled default browser context menu (right-click) on scene items.
+- Feature: Scene action menu now triggers exclusively via the 'three dots' button for a cleaner UX.
+- Logic: Improved menu positioning logic to ensure it doesn't appear behind other interface elements.
+
+[2026-01-06 12:35] Version 3.5.9-beta [Line Projection Fix]
+- Fix: Adjusted line endpoints to account for the -15 degree visual offset of hotspots.
+- Fix: Connecting lines now precisely target the center of the yellow arrow markers.
+- Logic: Improved dashed preview line to match the target placement of new links.
+
+[2026-01-06 12:45] Version 3.6.0-beta [Lines & Menu Fix]
+- Fix: Hotspot lines now precisely target the visual arrow markers at their offset position.
+- Fix: Dash-line preview in Link Mode correctly targets the intended arrow placement.
+- Fix: Re-implemented scene action menu (three dots) with high z-index and reliable click binding.
+- Change: Globally disabled right-click context menu on scene items in the sidebar.
+
+[2026-01-06 13:00] Version 3.6.1-beta [Line Target Realignment]
+- Fix: Realigned hotspot lines to target the eye-level crosshair (original click point).
+- Logic: Ensured consistency between dashed preview lines and solid saved lines.
+
+[2026-01-06 13:15] Version 3.6.2-beta [2-Click Linking]
+- Feature: Implemented 2-click link creation workflow (Start point -> End point).
+- Feature: Red circle indicator now follows mouse during Phase 1 and anchors at Phase 2.
+- Feature: Persistent solid lines connect the start and end points of all saved hotspots.
+- Logic: Updated store and LinkModal to support startPitch and startYaw metadata.
+
+[2026-01-06 13:30] Version 3.6.3-beta [Linking UX Refinement]
+- Feature: Added Phase 1 visual state (slow blinking white/red dot follows mouse).
+- Feature: Added Phase 2 visual state (anchored start dot + yellow crosshair follows mouse).
+- Logic: Unified 2-click visual sequence with correct indicator toggling.
+- UI: Added slow-blink animation to style.css.
+
+[2026-01-06 13:45] Version 3.6.4-beta [Follow Cursor Phase 2]
+- Feature: Implemented 'Follow Cursor' auto-panning behavior during Phase 2 of link creation.
+- Logic: Camera now smoothly pans based on mouse offset from center after the first click.
+- Performance: Uses requestAnimationFrame loop for fluid motion and automatic cleanup.
+
+[2026-01-06 14:00] Version 3.6.5-beta [Simulation Pan]
+- Feature: Implemented pre-transition camera animation in Simulation Mode.
+- Logic: Camera now pans from Click 1 (Start Point) to Click 2 (End Point) before navigating to the next scene.
+- Effect: Enhances immersion by visualizing the spatial relationship between scenes during automated navigation.
+
+[2026-01-06 14:15] Version 3.6.6-beta [Linking UX Improvement]
+- Refinement: Slowed down pre-transition panning to 2.5s for a more cinematic experience.
+- Feature: Added global ESC key listener to cancel Link Mode and clear active drafts.
+- UI: Added an animated 'ESC to Cancel' badge next to the Add Link FAB for improved user guidance.
+
+[2026-01-06 14:30] Version 3.6.7-beta [UX Polish]
+- UI: Moved 'ESC to Cancel' prompt to bottom-center of viewer stage with minimalist styling.
+- UI: Reverted Link Mode button to its original design.
+- Logic: Refined animation transitions for the linking cancel hint.
+
+[2026-01-06 14:40] Version 3.6.8-beta [Indicator Bugfix]
+- Fix: Resolved issue where the center indicator would appear prematurely upon scene load.
+- Logic: Indicator visibility is now strictly tied to the isLinking state.
+
+[2026-01-06 14:55] Version 3.6.9-beta [Animated Paths]
+- Feature: Implemented 'Marching Ants' directional animation for hotspot lines.
+- Feature: Added pulsing animation for in-progress link lines to distinguish draft states.
+- UI: Integrated CSS keyframe animations for SVG stroke properties.
+
+[2026-01-06 15:10] Version 3.7.0-beta [Flowing Arrows]
+- Feature: Replaced 'marching ants' with a custom 'Flowing Arrows' animation system.
+- Feature: Added alternating Yellow/Green arrowheads that travel along the paths.
+- Logic: Integrated time-based animation loop for smooth, consistent motion regardless of user interaction.
+- Feature: Arrows now correctly rotate to match the slope of the connecting path.
+
+[2026-01-06 15:30] Version 3.7.1-beta [Transition Arrow]
+- Refinement: Reverted persistent lines to simple red dashed style for cleaner visualization.
+- Feature: Implemented a single alternating (Yellow/Green) arrow that travels along the path during Simulation transitions.
+- Logic: Integrated animation loop within NavigationSystem to sync arrow position with camera panning.
+
+[2026-01-06 15:45] Version 3.7.2-beta [Linking Polished]
+- Fix: Restored blinking effect for the yellow crosshair dot during Link Mode.
+- Fix: Forced high z-index (9999) and improved styling for the ESC Cancel hint.
+- Logic: Camera 'follow' behavior now terminates immediately upon the second click for better modal stability.
+
+[2026-01-06 16:00] Version 3.7.3-beta [Clustering Fix]
+- Fix: Resolved issue where image upload would get stuck at 95% during the Clustering phase.
+- Logic: Introduced a micro-task yield (setTimeout) to prevent UI thread blocking during sequential grouping.
+- Stability: Added safety null-checks for scene quality objects during similarity calculation.
+
+[2026-01-06 16:15] Version 3.7.4-beta [Upload Performance]
+- Fix: Completely refactored Phase 3 (Clustering) to prevent hangs on large upload batches.
+- Performance: Clustering now processes new items incrementally with micro-task yields every 5 items.
+- Optimization: Reduced redundant similarity checks by checking only new items and the tail of existing scenes.
+- Stability: Hardened calculateSimilarity with comprehensive null guards and case-insensitive property access.
+
+[2026-01-06 16:30] Version 3.7.5-beta [Store Optimization]
+- Optimization: Refactored syncSceneNames to use a Map-based batch update, reducing hotspot check complexity from O(N^3) to O(N^2).
+- Performance: Added a 100ms yield before the final Store Update to ensure UI responsiveness during heavy sidebar re-renders.
+- Logic: Eliminated redundant nested loops during scene renaming processes.
+
+[2026-01-06 16:45] Version 3.7.6-beta [Thread Decoupling]
+- Optimization: Decoupled Store notifications from the main execution thread using micro-tasks (Promise.resolve).
+- Performance: This ensures that heavy UI re-renders (Sidebar/Viewer) do not block the completion of business logic (Upload/Clustering).
+- Fix: Resolved 98% 'STORE update' hang by allowing the browser to finish progress tracking before starting expensive rendering tasks.
+
+[2026-01-06 17:00] Version 3.7.7-beta [Incremental Load]
+- Fix: Reverted asynchronous store notification to restore immediate UI initialization.
+- Optimization: Implemented incremental scene loading (chunks of 5) during the Store Update phase.
+- Performance: Ensured the UI thread remains responsive during large batch uploads by yielding between chunks.
+- Stability: Added detailed progress tracking for the final scene loading stage.
+
+[2026-01-06 17:15] Version 3.7.9-beta [Batch Stability]
+- Fix: Inhibited expensive UI line updates and follow-loops while the Upload processing UI is active.
+- Optimization: Refactored Clustering Phase to yield every 10 items, providing clear sub-progress (e.g., 'Clustering: 10/50').
+- Stability: Hardened the final Store Update phase with explicit logging and increased breathing room for the UI thread.
+
+[2026-01-06 17:30] Version 3.8.0-beta [Stability Release]
+- Milestone: Major stability overhaul for large batch uploads.
+- Fix: Hardened HotspotLineSystem with comprehensive null guards to prevent crashes during store updates.
+- Fix: Ensured activeIndex is correctly initialized after batch uploads to guarantee immediate image loading in the viewer.
+- Stability: Improved defensive programming in store.addScenes to handle edge cases and malformed data.
+
+[2026-01-06 17:45] Version 3.8.1-beta [Reference Fix]
+- Fix: Resolved CRITICAL 'ReferenceError: guide is not defined' which caused Store Update hangs.
+- Refactor: Moved the 'guide' (cursor-guide) element reference to the global module scope in Viewer.js.
+- Stability: Ensured all UI synchronization calls have access to the necessary DOM elements regardless of execution phase.
+
+[2026-01-06 18:00] Version 3.8.2-beta [Docs Rename]
+- Docs: Renamed AI_Workflow_Instructions.md to AI_Instructions.md.
+- Docs: Updated all references in README.md and internal documentation to match the new filename.
+
+[2026-01-07 10:05] Version 3.8.5-dev [Simulation Timing]
+- Refinement: Polished Simulation Mode timing with 5s visual transition and 0.5s camera pan delay for smoother "Moving Handover".
+- Fix: Auto-forward logic now robustly identifies target links in NavigationSystem using 'h.target' property.
+- Fix: "Smart Arrival" correctly aligns camera with force-directed start view for seamless path continuity.
+
+[2026-01-07 10:35] Version 3.8.6-dev [Enhanced Telemetry]
+- Feature: Comprehensive simulation mode telemetry logging for AI-assisted optimization.
+- Telemetry: Added JOURNEY_START, JOURNEY_PROGRESS, CROSSFADE_TRIGGER events in NavigationSystem.
+- Telemetry: Added SWAP_INITIATED, AUTOFORWARD_TRIGGERED, CROSSFADE_STARTED events in Viewer.
+- Telemetry: Added AUTOFORWARD_CHAIN event for tracking chain progression.
+- Fix: Moved isNavigating guard release BEFORE store.setActiveScene() to fix auto-forward chain blocking.
+- Docs: Created SIMULATION_TELEMETRY.md with full event documentation and optimization guide.
+
+2026-01-07 11:45 Version 3.8.7 [Optimized Telemetry & Precision Interaction]
+- Optimization: Streamlined telemetry system. Reduced bandwidth by muting verbose per-frame progress logs.
+- Optimization: Unified debugging and telemetry pipeline. All logs now flow through the Debug module with configurable thresholds.
+- Feature: Strategic Logging. Only crucial events (Journey Start, Complete, Chain) are sent to the backend by default.
+- UI: Refined Link Mode precision. Reduced camera mouse sensitivity (yaw/pitch speed) during hotspot placement for more "heavy" and precise movement.
+- Cleanup: Removed redundant sendBackendLog helper functions from systems.
+- Config: Set default global log level to 'info' to ensure clean production logs.
+
+2026-01-07 11:58 Version 3.8.8-beta [Post-Release Development]
+- Cleanup: Starting new development cycle after stable release v3.8.7.
+
+[2026-01-07 12:25] Version 3.9.0 [Stable - Smart Camera Dynamics]
+- Milestone: Stable Release 3.9.0.
+- Feature: Implemented "Ratchet" camera dynamics for Link Mode. Camera preserves context by staying at peak excursions (e.g., roof/sky) while allowing the cursor to return to the center for interaction.
+- Feature: Added "Reluctant" Edge Following. Ratchet lock can be overridden by pushing the cursor against the window boundaries, moving the camera at 40% speed.
+- UX: Implemented Cubic Sensitivity Curve. Camera is now precision-tuned to be heavy and steady near the center for pixel-perfect placement, while becoming agile and compliant near the screen edges.
+- Maintenance: Promoted to stable release [main].

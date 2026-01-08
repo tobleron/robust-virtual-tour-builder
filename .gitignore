@@ -1,0 +1,19 @@
+# Node
+node_modules/
+npm-debug.log*
+package-lock.json
+
+# Rust
+backend/target/
+backend/Cargo.lock
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/debug_log_*.json
+
+# Build
+dist/
+css/output.css
