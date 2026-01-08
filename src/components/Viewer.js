@@ -215,10 +215,51 @@ export function initViewer() {
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
         if (store.state.isLinking) {
-          console.log("[Viewer] ESC pressed: Cancelling Link Mode");
           store.state.isLinking = false;
-          store.setLinkDraft(null); // Triggers notify()
-          if (window.notify) window.notify("Link Mode: CANCELLED", "warning");
+          store.setLinkDraft(null);
+          store.notify();
+          window.notify("Link Cancelled", "info");
+        }
+      }
+
+      if (e.key === "Enter") {
+        const state = store.state;
+        if (state.isLinking && state.linkDraft) {
+          // FINISH LINKING
+          console.log("[Viewer] Enter pressed. Finishing link creation.");
+
+          // STOP movement
+          followLoopActive = false;
+
+          const draft = state.linkDraft;
+          // Target location is the LAST point added.
+          // If no intermediate points, maybe use the start point? (Zero length link?)
+          // Or use current mouse path? We can't easily get mouse path here without tracking it.
+          // Assumption: User clicked at least once for start.
+          // If they press Enter immediately after start -> valid 0-length link? Or error?
+          // Better: If points > 0, use the last one. If 0, warn user.
+
+          let targetPitch, targetYaw;
+
+          if (draft.intermediatePoints && draft.intermediatePoints.length > 0) {
+            const lastPoint = draft.intermediatePoints[draft.intermediatePoints.length - 1];
+            targetPitch = lastPoint.pitch;
+            targetYaw = lastPoint.yaw;
+          } else {
+            // No intermediate points. Use start point? 
+            // Or maybe they just want to link to a scene without a path?
+            // Let's just use the start point, creating a point-hotspot without a line?
+            targetPitch = draft.pitch;
+            targetYaw = draft.yaw;
+          }
+
+          const viewer = getActiveViewer();
+          const camPitch = viewer ? viewer.getPitch() : 0;
+          const camYaw = viewer ? viewer.getYaw() : 0;
+          const camHfov = viewer ? viewer.getHfov() : 100;
+
+          showLinkModal(targetPitch, targetYaw, camPitch, camYaw, camHfov, getPendingReturnSceneName(), draft);
+          setPendingReturnSceneName(null);
         }
       }
     });
@@ -493,6 +534,8 @@ export function initViewer() {
 
         // 2. DRAW UI (Hidden but ready)
         HotspotLineSystem.updateLines(getActiveViewer(), state, lastMouseEvent);
+        // Force redraw of persistent lines (waypoints) specifically after state sync
+        setTimeout(() => HotspotLineSystem.updateLines(getActiveViewer(), state), 0);
 
         // 3. TRIGGER CROSSFADE OR CUT
         const isCut = state.transition && state.transition.type === 'cut';
@@ -833,20 +876,41 @@ export function initViewer() {
             yaw: clickYaw,
             camPitch,
             camYaw,
-            camHfov
+            camHfov,
+            intermediatePoints: [] // Initialize path array
           });
-          if (window.notify) window.notify("Start Point Set. Now click the target location.", "success");
+          if (window.notify) window.notify("Start Point Set. Click to add path points. ENTER to finish.", "success");
         } else {
-          // --- CLICK 2: TARGET LOCATION ---
-          console.log("[Viewer] Click 2: Opening Link Modal", { clickPitch, clickYaw });
-          followLoopActive = false; // STOP movement immediately
-          const draft = state.linkDraft;
-          // Capture current camera view for destination
-          showLinkModal(clickPitch, clickYaw, camPitch, camYaw, camHfov, getPendingReturnSceneName(), draft);
-          setPendingReturnSceneName(null);
-          // Note: store.setLinkDraft(null) will be called after saving in LinkModal
+          // --- CLICK 2+: INTERMEDIATE POINTS ---
+          console.log("[Viewer] Adding intermediate point", { clickPitch, clickYaw });
+
+          // Add this point to the draft
+          const currentDraft = state.linkDraft;
+          if (!currentDraft.intermediatePoints) currentDraft.intermediatePoints = [];
+
+          currentDraft.intermediatePoints.push({
+            pitch: clickPitch,
+            yaw: clickYaw,
+            camPitch,
+            camYaw
+          });
+
+          // Verify we updated the internal object (store state is reactive but deep mutations might need check)
+          // We trigger an update to ensure reactivity if needed, or just rely on the object ref
+          store.notify();
+
+          if (window.notify) window.notify(`Point Added (${currentDraft.intermediatePoints.length}). Press ENTER to finish.`, "success");
         }
       });
+
+      // KEYDOWN LISTENER FOR "ENTER" TO FINISH LINKING
+      // We attach it to the container or window, but ensure we don't duplicate
+      // Best to attach once globally or manage carefully. 
+      // Since `newViewer` is created often, let's attach to the viewer container via a named function we can remove?
+      // Or just check state in a global listener. 
+      // Actually, Global listener in initViewer is better, but let's put it here for now if we can ensure cleanup.
+      // Better: Use a dedicated finishLinking function called by a global listener established in initViewer.
+
 
       newViewer.on('animatefinished', () => {
         requestIdleSnapshot(); // Re-capture after animation stops

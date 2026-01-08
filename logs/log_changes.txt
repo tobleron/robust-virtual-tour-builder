@@ -1,3 +1,17 @@
+[2026-01-09 00:37] Version 4.0.5 [Multi-Point Links]
+- Feature: Multi-point link creation. Users can now define complex navigation paths by clicking multiple points on the floor.
+- UX: Red dashed lines now accurately represent the camera voyage connecting recorded view centers for each waypoint.
+- UI: Added persistent waypoint visualization during link drafting with a real-time yellow rubber-band guide.
+- Animation: Simulation mode now interpolates the yellow-green arrow precisely along the multi-segment waypoint path.
+- Stability: Forced UI re-draw during scene swaps to ensure path consistency.
+- Maintenance: Executed project cleanup (cargo clean) and log rotation.
+
+[2026-01-08 23:43] Version 4.0.4 [Link UI Redesign]
+- Redesigned link creation UI with hover-activated control buttons.
+- Added two rectangular buttons (A/R) at the bottom of each link arrow for Auto-Forward and Return Link toggling.
+- Improved contrast with darker green and orange states.
+- Simplified LinkModal by removing checkbox overhead.
+
 [2026-01-08 17:35] Version 4.0.3 [Pre-Axum Stable]
 - Milestone: Consolidated all pending changes to stable branch prior to Axum migration analysis.
 - Backend: Fixed unused ImageEXIF import warning in handlers.rs.
@@ -684,14 +698,5 @@
 - Feature: Added "Reluctant" Edge Following. Ratchet lock can be overridden by pushing the cursor against the window boundaries, moving the camera at 40% speed.
 - UX: Implemented Cubic Sensitivity Curve. Camera is now precision-tuned to be heavy and steady near the center for pixel-perfect placement, while becoming agile and compliant near the screen edges.
 - Maintenance: Promoted to stable release [main].
-[2026-01-08 23:43] Version 4.0.4
-- Redesigned link creation UI with hover-activated control buttons
-- Added two rectangular buttons (A/R) at the bottom of each link arrow
-- A button: Toggle Auto-Forward mode (grey → green when active)
-- R button: Toggle Return Link mode (grey → orange when active)
-- Kept red delete button (X) at top-right, visible on hover only
-- Buttons are always visible and positioned flush with arrow (0px gap)
-- Used darker green (#059669) and orange (#ea580c) for better contrast
-- Simplified LinkModal to only handle destination selection
-- Removed auto-forward and return-link checkboxes from modal
+
 

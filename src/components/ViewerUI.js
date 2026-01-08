@@ -158,7 +158,10 @@ export function setupViewerUI(viewerStage, viewer) {
         text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
         white-space: nowrap;
     `;
-    cancelHint.textContent = "ESC to Cancel";
+    cancelHint.innerHTML = "ESC to Cancel<br><span style='font-size:10px; opacity:0.8'>ENTER to Finish</span>";
+    // Allow clicking on the text if needed, but usually it's just visual.
+    // CSS text-align center is needed for the multi-line
+    cancelHint.style.textAlign = "center";
     viewerStage.appendChild(cancelHint);
 
     // Floor Navigation

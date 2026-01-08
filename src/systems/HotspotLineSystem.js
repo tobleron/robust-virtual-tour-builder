@@ -59,43 +59,91 @@ export class HotspotLineSystem {
                         while (yawDiff > 180) yawDiff -= 360;
                         while (yawDiff < -180) yawDiff += 360;
 
-                        startPitch = startPitch + (endPitch - startPitch) * momentum;
-                        startYaw = startYaw + yawDiff * momentum;
+                        // If we have waypoints, momentum should apply to the first segment
+                        if (!h.waypoints || h.waypoints.length === 0) {
+                            startPitch = startPitch + (endPitch - startPitch) * momentum;
+                            startYaw = startYaw + yawDiff * momentum;
+                        }
                     }
                 }
 
-                const startCoords = this.getScreenCoords(viewer, startPitch, startYaw, rect);
-                const endCoords = this.getScreenCoords(viewer, endPitch, endYaw, rect);
+                // DRAW MULTI-POINT PATH (Red Dashed)
+                if (h.waypoints && h.waypoints.length > 0) {
+                    let prevP = { pitch: startPitch, yaw: startYaw };
 
-                if (startCoords && endCoords) {
-                    this.drawLine(svg, startCoords.x, startCoords.y, endCoords.x, endCoords.y, "#ef4444", 1.5, 0.6, "4,4");
+                    // Draw Start -> W1 -> W2 ... -> End
+                    const allPoints = [...h.waypoints, { pitch: endPitch, yaw: endYaw }];
+
+                    allPoints.forEach(p => {
+                        const pStart = this.getScreenCoords(viewer, prevP.pitch, prevP.yaw, rect);
+                        const pEnd = this.getScreenCoords(viewer, p.pitch, p.yaw, rect);
+
+                        if (pStart && pEnd) {
+                            this.drawLine(svg, pStart.x, pStart.y, pEnd.x, pEnd.y, "#ef4444", 1.5, 0.6, "4,4");
+                        }
+                        prevP = p;
+                    });
+                } else {
+                    // Standard straight line
+                    const startCoords = this.getScreenCoords(viewer, startPitch, startYaw, rect);
+                    const endCoords = this.getScreenCoords(viewer, endPitch, endYaw, rect);
+
+                    if (startCoords && endCoords) {
+                        this.drawLine(svg, startCoords.x, startCoords.y, endCoords.x, endCoords.y, "#ef4444", 1.5, 0.6, "4,4");
+                    }
                 }
             }
         });
 
         // 2. DRAW IN-PROGRESS LINES if in linking mode
-        if (state.isLinking && state.linkDraft && mouseEvent) {
+        if (state.isLinking && state.linkDraft) {
             const draft = state.linkDraft;
-            const mouseCoords = viewer.mouseEventToCoords(mouseEvent);
-            const click2Pitch = mouseCoords[0];
-            const click2Yaw = mouseCoords[1];
 
-            // A. Red Dashed Line (CAMERA PATH)
-            // Connects Phase 1 center to CURRENT center
-            const redStart = this.getScreenCoords(viewer, draft.camPitch, draft.camYaw, rect);
-            const redEnd = this.getScreenCoords(viewer, viewer.getPitch(), viewer.getYaw(), rect);
+            // --- A. RED DASHED LINES (CAMERA PATH) ---
+            // Connecting camera centers at each click
+            let prevCam = { pitch: draft.camPitch, yaw: draft.camYaw };
 
-            if (redStart && redEnd) {
-                this.drawLine(svg, redStart.x, redStart.y, redEnd.x, redEnd.y, "#ef4444", 2, 0.8, "5,5");
+            if (draft.intermediatePoints && draft.intermediatePoints.length > 0) {
+                draft.intermediatePoints.forEach(p => {
+                    const startCoords = this.getScreenCoords(viewer, prevCam.pitch, prevCam.yaw, rect);
+                    const endCoords = this.getScreenCoords(viewer, p.camPitch, p.camYaw, rect);
+                    if (startCoords && endCoords) {
+                        this.drawLine(svg, startCoords.x, startCoords.y, endCoords.x, endCoords.y, "#ef4444", 2, 0.8, "5,5");
+                    }
+                    prevCam = { pitch: p.camPitch, yaw: p.camYaw };
+                });
             }
 
-            // B. Yellow Dashed Line (PHYSICAL ATTACHMENT)
-            // Connects Phase 1 click point to Phase 2 click point (mouse)
-            const yellowStart = this.getScreenCoords(viewer, draft.pitch, draft.yaw, rect);
-            const yellowEnd = this.getScreenCoords(viewer, click2Pitch, click2Yaw, rect);
+            // Camera Path Rubber Band: from last waypoint camera center to CURRENT camera center
+            const redStart = this.getScreenCoords(viewer, prevCam.pitch, prevCam.yaw, rect);
+            const redEnd = this.getScreenCoords(viewer, viewer.getPitch(), viewer.getYaw(), rect);
+            if (redStart && redEnd) {
+                this.drawLine(svg, redStart.x, redStart.y, redEnd.x, redEnd.y, "#ef4444", 1.5, 0.6, "4,4");
+            }
 
-            if (yellowStart && yellowEnd) {
-                this.drawLine(svg, yellowStart.x, yellowStart.y, yellowEnd.x, yellowEnd.y, "#fbbf24", 1.5, 0.7, "3,3");
+            // --- B. YELLOW DASHED LINES (FLOOR PATH / VISUAL INDICATOR) ---
+            // Only visible during drafting to show where your clicks are
+            let prevFloor = { pitch: draft.pitch, yaw: draft.yaw };
+
+            if (draft.intermediatePoints && draft.intermediatePoints.length > 0) {
+                draft.intermediatePoints.forEach(p => {
+                    const startCoords = this.getScreenCoords(viewer, prevFloor.pitch, prevFloor.yaw, rect);
+                    const endCoords = this.getScreenCoords(viewer, p.pitch, p.yaw, rect);
+                    if (startCoords && endCoords) {
+                        this.drawLine(svg, startCoords.x, startCoords.y, endCoords.x, endCoords.y, "#fbbf24", 0.5, 0.4, "2,2"); // Subtle path indicator
+                    }
+                    prevFloor = { pitch: p.pitch, yaw: p.yaw };
+                });
+            }
+
+            // Floor Path Rubber Band (to Mouse)
+            if (mouseEvent) {
+                const mouseCoords = viewer.mouseEventToCoords(mouseEvent);
+                const yellowStart = this.getScreenCoords(viewer, prevFloor.pitch, prevFloor.yaw, rect);
+                const yellowEnd = this.getScreenCoords(viewer, mouseCoords[0], mouseCoords[1], rect);
+                if (yellowStart && yellowEnd) {
+                    this.drawLine(svg, yellowStart.x, yellowStart.y, yellowEnd.x, yellowEnd.y, "#fbbf24", 1.5, 0.7, "3,3");
+                }
             }
         }
     }
@@ -103,19 +151,97 @@ export class HotspotLineSystem {
     /**
      * Draw a single alternating arrow for simulation transitions
      */
-    static drawSimulationArrow(viewer, startPitch, startYaw, endPitch, endYaw, progress, opacity = 1.0) {
+    static drawSimulationArrow(viewer, startPitch, startYaw, endPitch, endYaw, progress, opacity = 1.0, waypoints = []) {
         const svg = document.getElementById("viewer-hotspot-lines");
         if (!svg || !viewer) return;
 
         const rect = svg.getBoundingClientRect();
-        const start = this.getScreenCoords(viewer, startPitch, startYaw, rect);
-        const end = this.getScreenCoords(viewer, endPitch, endYaw, rect);
+
+        // 1. CONSTRUCT POINTS LIST (Start -> Waypoints -> End)
+        const path = [{ pitch: startPitch, yaw: startYaw }];
+        if (waypoints && waypoints.length > 0) {
+            path.push(...waypoints);
+        }
+        path.push({ pitch: endPitch, yaw: endYaw });
+
+        // 2. CALCULATE SEGMENT DISTANCES
+        let totalDistance = 0;
+        const segments = [];
+
+        for (let i = 0; i < path.length - 1; i++) {
+            const p1 = path[i];
+            const p2 = path[i + 1];
+
+            // Calculate shortest yaw diff
+            let yawDiff = p2.yaw - p1.yaw;
+            while (yawDiff > 180) yawDiff -= 360;
+            while (yawDiff < -180) yawDiff += 360;
+
+            const pitchDiff = p2.pitch - p1.pitch;
+            // Euclidean distance in degree-space (approximation)
+            const dist = Math.sqrt(yawDiff * yawDiff + pitchDiff * pitchDiff);
+
+            segments.push({
+                dist,
+                yawDiff,
+                pitchDiff,
+                p1,
+                p2
+            });
+            totalDistance += dist;
+        }
+
+        // 3. FIND CURRENT POSITION
+        const targetDist = progress * totalDistance;
+        let pCurrentPitch = startPitch;
+        let pCurrentYaw = startYaw;
+        let pNextYaw = endYaw;
+
+        // Default Rotation in case of 0 distance
+        // Use the first segment direction if available
+        let yawForRotation = (segments.length > 0) ? segments[0].yawDiff : (endYaw - startYaw);
+        let pitchForRotation = (segments.length > 0) ? segments[0].pitchDiff : (endPitch - startPitch);
+
+        if (totalDistance > 0 && segments.length > 0) {
+            let covered = 0;
+            let currentSegment = segments[0];
+
+            for (let seg of segments) {
+                if (targetDist <= covered + seg.dist) {
+                    currentSegment = seg;
+                    const segmentProgress = (seg.dist > 0) ? (targetDist - covered) / seg.dist : 0;
+                    pCurrentPitch = seg.p1.pitch + seg.pitchDiff * segmentProgress;
+                    pCurrentYaw = seg.p1.yaw + seg.yawDiff * segmentProgress;
+
+                    yawForRotation = seg.yawDiff;
+                    pitchForRotation = seg.pitchDiff;
+                    break;
+                }
+                covered += seg.dist;
+                // If we overshoot (floating point), stick to last segment
+                currentSegment = seg;
+                pCurrentPitch = seg.p2.pitch;
+                pCurrentYaw = seg.p2.yaw;
+                yawForRotation = seg.yawDiff;
+                pitchForRotation = seg.pitchDiff;
+            }
+        }
+
+        // 4. PROJECT TO SCREEN
+        const start = this.getScreenCoords(viewer, pCurrentPitch, pCurrentYaw, rect);
+
+        // For rotation: Project a point slightly ahead along the CURRENT SEGMENT vector
+        // This is smoother than looking at the next waypoint
+        const lookAheadRatio = 0.01;
+        const pLookAheadPitch = pCurrentPitch + pitchForRotation * lookAheadRatio;
+        const pLookAheadYaw = pCurrentYaw + yawForRotation * lookAheadRatio;
+
+        const end = this.getScreenCoords(viewer, pLookAheadPitch, pLookAheadYaw, rect);
 
         if (!start || !end) return;
 
-        // Current position based on progress (0.0 to 1.0)
-        const x = start.x + (end.x - start.x) * progress;
-        const y = start.y + (end.y - start.y) * progress;
+        const x = start.x;
+        const y = start.y;
 
         // Rotation angle
         const angle = Math.atan2(end.y - start.y, end.x - start.x) * (180 / Math.PI);

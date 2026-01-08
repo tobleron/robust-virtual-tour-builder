@@ -317,7 +317,18 @@ export function navigateToScene(targetIndex, sourceSceneIndex, sourceHotspotInde
 
                 // Update UI: Draw arrow following the actual camera pan path
                 HotspotLineSystem.updateLines(viewer, state);
-                HotspotLineSystem.drawSimulationArrow(viewer, arrowStartPitch, arrowStartYaw, targetPitchForPan, targetYawForPan, progress, 1.0);
+                // Update UI: Draw arrow following the actual camera pan path
+                HotspotLineSystem.updateLines(viewer, state);
+                HotspotLineSystem.drawSimulationArrow(
+                    viewer,
+                    arrowStartPitch,
+                    arrowStartYaw,
+                    targetPitchForPan,
+                    targetYawForPan,
+                    progress,
+                    1.0,
+                    hotspot ? hotspot.waypoints : []
+                );
 
                 requestAnimationFrame(animLoop);
             };

@@ -158,6 +158,10 @@ export function showLinkModal(pitch, yaw, camPitch, camYaw, camHfov, pendingRetu
       startYaw: linkDraft ? linkDraft.camYaw : camYaw,
       startHfov: linkDraft ? linkDraft.camHfov : camHfov,
       target: targetName,
+      // Save multi-point path (camera centers) if available
+      waypoints: (linkDraft && linkDraft.intermediatePoints)
+        ? linkDraft.intermediatePoints.map(p => ({ pitch: p.camPitch, yaw: p.camYaw }))
+        : [],
       viewFrame: {
         pitch: camPitch,
         yaw: camYaw,
