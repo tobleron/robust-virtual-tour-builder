@@ -12,6 +12,7 @@
 
 import { store } from "../store.js";
 import { DownloadSystem } from "./DownloadSystem.js";
+import { getSimulationPath, startAutoPilot, stopAutoPilot, isAutoPilotActive } from "./SimulationSystem.js";
 import { CacheSystem } from "./CacheSystem.js";
 import { VideoEncoder } from "./VideoEncoder.js";
 import { Debug } from "../utils/Debug.js";
@@ -27,6 +28,9 @@ import {
   FFMPEG_CORE_VERSION,
   SCENE_STABILIZATION_DELAY,
   VIEWER_LOAD_CHECK_INTERVAL,
+  PANNING_VELOCITY,
+  PANNING_MIN_DURATION,
+  PANNING_MAX_DURATION,
 } from "../constants.js";
 import { VERSION } from "../version.js";
 
@@ -156,9 +160,18 @@ function getWalkPath() {
       const nextIdx = scenes.findIndex(s => s.name === forwardLink.target);
 
       // Update the PREVIOUS step to know where it's going (for Dissolve lookAt)
+      // Use viewFrame (Camera View of Last Click) if available, otherwise fallback to hotspot location
+      let transYaw = forwardLink.yaw;
+      let transPitch = forwardLink.pitch || 0;
+
+      if (forwardLink.viewFrame) {
+        transYaw = forwardLink.viewFrame.yaw;
+        transPitch = forwardLink.viewFrame.pitch;
+      }
+
       path[path.length - 1].transitionTarget = {
-        yaw: forwardLink.yaw,
-        pitch: forwardLink.pitch || 0,
+        yaw: transYaw,
+        pitch: transPitch,
         targetName: forwardLink.target
       };
 
@@ -174,12 +187,13 @@ function getWalkPath() {
         linkPitch: forwardLink.pitch
       });
 
-      if (forwardLink.targetYaw !== undefined) {
-        arrivalYaw = forwardLink.targetYaw;
-        arrivalPitch = forwardLink.targetPitch !== undefined ? forwardLink.targetPitch : 0;
-      } else if (forwardLink.viewFrame) {
+      // Priority: viewFrame (creation camera view) > targetYaw (manually set arrival)
+      if (forwardLink.viewFrame) {
         arrivalYaw = forwardLink.viewFrame.yaw !== undefined ? forwardLink.viewFrame.yaw : 0;
         arrivalPitch = forwardLink.viewFrame.pitch !== undefined ? forwardLink.viewFrame.pitch : 0;
+      } else if (forwardLink.targetYaw !== undefined) {
+        arrivalYaw = forwardLink.targetYaw;
+        arrivalPitch = forwardLink.targetPitch !== undefined ? forwardLink.targetPitch : 0;
       }
       Debug.debug('Teaser', `Scene ${nextIdx} arrivalView:`, { yaw: arrivalYaw, pitch: arrivalPitch });
 
@@ -210,9 +224,18 @@ function getWalkPath() {
       if (nextIdx === -1) break; // Invalid target
 
       // Update the PREVIOUS step to know where it's going
+      // Use viewFrame (Camera View of Last Click) explicitly
+      let transYaw = returnLink.yaw;
+      let transPitch = returnLink.pitch || 0;
+
+      if (returnLink.viewFrame) {
+        transYaw = returnLink.viewFrame.yaw;
+        transPitch = returnLink.viewFrame.pitch;
+      }
+
       path[path.length - 1].transitionTarget = {
-        yaw: returnLink.yaw,
-        pitch: returnLink.pitch || 0,
+        yaw: transYaw,
+        pitch: transPitch,
         targetName: returnLink.target
       };
 
@@ -228,12 +251,13 @@ function getWalkPath() {
         linkPitch: returnLink.pitch
       });
 
-      if (returnLink.targetYaw !== undefined) {
-        arrivalYaw = returnLink.targetYaw;
-        arrivalPitch = returnLink.targetPitch !== undefined ? returnLink.targetPitch : 0;
-      } else if (returnLink.viewFrame) {
+      // Priority: viewFrame > targetYaw
+      if (returnLink.viewFrame) {
         arrivalYaw = returnLink.viewFrame.yaw !== undefined ? returnLink.viewFrame.yaw : 0;
         arrivalPitch = returnLink.viewFrame.pitch !== undefined ? returnLink.viewFrame.pitch : 0;
+      } else if (returnLink.targetYaw !== undefined) {
+        arrivalYaw = returnLink.targetYaw;
+        arrivalPitch = returnLink.targetPitch !== undefined ? returnLink.targetPitch : 0;
       }
 
       path.push({
@@ -266,6 +290,12 @@ export async function startAutoTeaser(style = "fast", includeLogo = true, format
   const scenes = store.state.scenes;
   if (scenes.length === 0) {
     console.error("No scenes to film.");
+    return;
+  }
+
+  // CINEMATIC MODE: Run actual simulation and record it
+  if (style === "cinematic") {
+    await startCinematicTeaser(includeLogo, format);
     return;
   }
 
@@ -325,6 +355,96 @@ export async function startAutoTeaser(style = "fast", includeLogo = true, format
   }
 }
 
+/**
+ * CINEMATIC MODE: Record the actual simulation as it runs
+ * This captures EXACTLY what the user sees during simulation mode
+ */
+async function startCinematicTeaser(includeLogo = true, format = "webm") {
+  if (isTeasing) return;
+
+  try {
+    // 1. Initial Setup
+    initGhost();
+    isTeasing = true;
+    const overlay = document.getElementById("teaser-overlay");
+    const label = document.getElementById("teaser-text");
+    if (overlay) overlay.style.display = "flex";
+    if (label) label.innerText = "Recording Simulation...";
+
+    const tourName = store.state.tourName || "Virtual_Tour";
+    const safeName = tourName.replace(/[^a-z0-9]/gi, "_").toLowerCase();
+    const baseName = `Teaser_RMX_${safeName}_v${VERSION}_Cinematic`;
+
+    if (window.updateProgressBar) {
+      window.updateProgressBar(0, "Starting Cinematic Recording...", true, "Recording Simulation");
+    }
+
+    // 2. Setup Ghost Canvas and Recorder
+    startGhostLoop();
+    const stream = ghostCanvas.captureStream(TEASER_FRAME_RATE);
+    const recorder = setupMediaRecorder(stream);
+    if (!recorder) {
+      if (overlay) overlay.style.display = "none";
+      isTeasing = false;
+      return;
+    }
+
+    // 3. Load logo for watermark
+    const logoState = await loadLogo();
+    const snapState = createSnapshotState();
+
+    // 4. Setup rendering loop (captures viewer output + logo)
+    cancelAnimationFrame(streamLoopId);
+    updateAnimationLoop("cinematic", includeLogo, logoState, snapState);
+
+    // 5. Start recording
+    recorder.start();
+    Debug.info('Teaser', 'Cinematic recording started - running simulation');
+
+    // 6. Start the ACTUAL simulation
+    // This will run the auto-pilot which handles all camera movements, waypoints, timing, etc.
+    startAutoPilot();
+
+    // 7. Wait for simulation to complete
+    // Poll until isAutoPilotActive() returns false
+    await new Promise((resolve) => {
+      const checkComplete = () => {
+        if (!isAutoPilotActive()) {
+          Debug.info('Teaser', 'Simulation complete - stopping recording');
+          resolve();
+        } else {
+          // Update progress based on visited scenes (rough estimate)
+          if (label) label.innerText = "Recording Simulation...";
+          setTimeout(checkComplete, 500);
+        }
+      };
+      // Start checking after a brief delay to let simulation begin
+      setTimeout(checkComplete, 1000);
+    });
+
+    // 8. Brief hold at the end
+    await new Promise(r => setTimeout(r, 500));
+
+    // 9. Stop recording and finalize
+    recorder.stop();
+    recorder.onstop = () => finalizeTeaser(recordedChunks, format, baseName, overlay);
+
+  } catch (err) {
+    console.error("Cinematic Teaser Failed:", err);
+    isTeasing = false;
+
+    // Make sure simulation is stopped if it was running
+    if (isAutoPilotActive()) {
+      stopAutoPilot(false);
+    }
+
+    const overlay = document.getElementById("teaser-overlay");
+    if (overlay) overlay.style.display = "none";
+    if (window.notify) window.notify("Cinematic Teaser Failed", "error");
+    if (window.updateProgressBar) window.updateProgressBar(0, "Error", false);
+  }
+}
+
 // --- MODULAR SUB-FUNCTIONS ---
 
 function getTeaserConfig(style, timestamp) {
@@ -338,6 +458,13 @@ function getTeaserConfig(style, timestamp) {
       baseName: baseName
     };
   }
+
+  if (style === "cinematic") {
+    return {
+      ...TEASER_STYLE_DISSOLVE, // Cinematic uses smooth dissolve
+      baseName: baseName + "_Cinematic"
+    };
+  }
   return {
     ...TEASER_STYLE_DISSOLVE,
     baseName: baseName
@@ -345,7 +472,7 @@ function getTeaserConfig(style, timestamp) {
 }
 
 function setupMediaRecorder(stream) {
-  let options = { 
+  let options = {
     mimeType: "video/webm",
     videoBitsPerSecond: 10000000 // 10 Mbps for high-quality 1080p
   };
@@ -388,7 +515,7 @@ function createSnapshotState() {
 function updateAnimationLoop(style, includeLogo, logoState, snapState) {
   const draw = () => {
     const sourceCanvas = document.querySelector(".pnlm-render-container canvas");
-    
+
     // 1. Draw current viewer frame (or black if not ready)
     if (ghostCtx) {
       if (sourceCanvas && sourceCanvas.width > 0) {
@@ -508,12 +635,22 @@ function renderSnapshotOverlay(snapCanvas) {
 
 async function prepareFirstScene(step, label, style, config) {
   // For punchy: load at arrivalView; for dissolve: load at transitionTarget offset
+  // For cinematic: load at startYaw/startPitch (beginning of the waypoint path)
   let initialYaw = 0;
   let initialPitch = 0;
 
   if (style === "punchy") {
     // Punchy uses arrivalView (saved camera position)
     if (step.arrivalView) {
+      initialYaw = step.arrivalView.yaw || 0;
+      initialPitch = step.arrivalView.pitch || 0;
+    }
+  } else if (style === "cinematic") {
+    // Cinematic uses startYaw/startPitch (beginning of waypoint path)
+    if (step.transitionTarget) {
+      initialYaw = step.transitionTarget.startYaw ?? step.arrivalView?.yaw ?? 0;
+      initialPitch = step.transitionTarget.startPitch ?? step.arrivalView?.pitch ?? 0;
+    } else if (step.arrivalView) {
       initialYaw = step.arrivalView.yaw || 0;
       initialPitch = step.arrivalView.pitch || 0;
     }
@@ -579,6 +716,113 @@ async function recordShot(i, pathSteps, style, config, label, snapCtx) {
     // Camera is already positioned correctly from prepareFirstScene/transitionToNextShot
     // Just wait for the clip duration
     await new Promise(r => setTimeout(r, config.clipDuration));
+  } else if (style === "cinematic") {
+    // CINEMATIC: Animate through ALL waypoints like the simulation arrow
+    // This follows the exact path the user created with multi-point links
+
+    if (!step.transitionTarget) {
+      // No transition target means we're at the end - just hold
+      await new Promise(r => setTimeout(r, config.clipDuration / 2));
+      return;
+    }
+
+    const waypoints = step.transitionTarget.waypoints || [];
+    const startYaw = step.transitionTarget.startYaw ?? step.arrivalView?.yaw ?? viewer.getYaw();
+    const startPitch = step.transitionTarget.startPitch ?? step.arrivalView?.pitch ?? viewer.getPitch();
+    const endYaw = step.transitionTarget.yaw;
+    const endPitch = step.transitionTarget.pitch;
+
+    // Build full path: Start -> Waypoints -> End
+    const path = [{ yaw: startYaw, pitch: startPitch }];
+    waypoints.forEach(wp => {
+      // Waypoints may have yaw/pitch or camYaw/camPitch depending on format
+      const wpYaw = wp.yaw ?? wp.camYaw ?? 0;
+      const wpPitch = wp.pitch ?? wp.camPitch ?? 0;
+      path.push({ yaw: wpYaw, pitch: wpPitch });
+    });
+    path.push({ yaw: endYaw, pitch: endPitch });
+
+    // Calculate total distance for timing
+    let totalDistance = 0;
+    const segments = [];
+
+    for (let j = 0; j < path.length - 1; j++) {
+      const p1 = path[j];
+      const p2 = path[j + 1];
+
+      let yawDiff = p2.yaw - p1.yaw;
+      while (yawDiff > 180) yawDiff -= 360;
+      while (yawDiff < -180) yawDiff += 360;
+
+      const pitchDiff = p2.pitch - p1.pitch;
+      const dist = Math.sqrt(yawDiff * yawDiff + pitchDiff * pitchDiff);
+
+      segments.push({ dist, yawDiff, pitchDiff, p1, p2 });
+      totalDistance += dist;
+    }
+
+    Debug.debug('Teaser', `Cinematic path for scene ${step.idx}:`, {
+      pathLength: path.length,
+      totalDistance: totalDistance.toFixed(1),
+      waypoints: waypoints.length
+    });
+
+    // Use the EXACT SAME velocity formula as simulation mode (NavigationSystem.js)
+    // Formula: duration = (totalDistance / PANNING_VELOCITY) * 1000ms
+    // Clamped between PANNING_MIN_DURATION and PANNING_MAX_DURATION
+    const rawDuration = (totalDistance / PANNING_VELOCITY) * 1000;
+    const dynamicDuration = Math.min(Math.max(rawDuration, PANNING_MIN_DURATION), PANNING_MAX_DURATION);
+
+    Debug.debug('Teaser', `Cinematic animation timing:`, {
+      totalDistance: totalDistance.toFixed(1),
+      velocity: PANNING_VELOCITY,
+      rawDuration: Math.round(rawDuration),
+      clampedDuration: Math.round(dynamicDuration)
+    });
+
+    // Animate through the path
+    const startTime = Date.now();
+
+    while (Date.now() - startTime < dynamicDuration) {
+      const v = window.pannellumViewer;
+      if (!v) break;
+
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / dynamicDuration, 1.0);
+      const targetDist = progress * totalDistance;
+
+      // Find current position on path
+      let currentYaw = startYaw;
+      let currentPitch = startPitch;
+
+      if (totalDistance > 0 && segments.length > 0) {
+        let covered = 0;
+
+        for (const seg of segments) {
+          if (targetDist <= covered + seg.dist) {
+            const segmentProgress = (seg.dist > 0) ? (targetDist - covered) / seg.dist : 0;
+            currentYaw = seg.p1.yaw + seg.yawDiff * segmentProgress;
+            currentPitch = seg.p1.pitch + seg.pitchDiff * segmentProgress;
+            break;
+          }
+          covered += seg.dist;
+          currentYaw = seg.p2.yaw;
+          currentPitch = seg.p2.pitch;
+        }
+      }
+
+      v.setYaw(currentYaw);
+      v.setPitch(currentPitch);
+
+      await new Promise(r => requestAnimationFrame(r));
+    }
+
+    // Ensure we end exactly at the target
+    if (window.pannellumViewer) {
+      window.pannellumViewer.setYaw(endYaw);
+      window.pannellumViewer.setPitch(endPitch);
+    }
+
   } else {
     // DISSOLVE: Animate pan from (transitionTarget - offset) to transitionTarget
     const targetYaw = step.transitionTarget ? step.transitionTarget.yaw : viewer.getYaw();
@@ -617,6 +861,15 @@ async function transitionToNextShot(i, pathSteps, style, config, snapCanvas) {
   if (style === "punchy") {
     // PUNCHY: Use arrivalView (saved camera position from link)
     if (nextStep.arrivalView) {
+      nextYaw = nextStep.arrivalView.yaw || 0;
+      nextPitch = nextStep.arrivalView.pitch || 0;
+    }
+  } else if (style === "cinematic") {
+    // CINEMATIC: Use startYaw/startPitch (beginning of waypoint path for next scene)
+    if (nextStep.transitionTarget) {
+      nextYaw = nextStep.transitionTarget.startYaw ?? nextStep.arrivalView?.yaw ?? 0;
+      nextPitch = nextStep.transitionTarget.startPitch ?? nextStep.arrivalView?.pitch ?? 0;
+    } else if (nextStep.arrivalView) {
       nextYaw = nextStep.arrivalView.yaw || 0;
       nextPitch = nextStep.arrivalView.pitch || 0;
     }
@@ -681,7 +934,7 @@ async function waitForViewerReady() {
       // we MUST wait until the 'master' scene is actually the active one.
       const currentScene = v.getScene();
       const config = v.getConfig();
-      
+
       // If the viewer has multiple scenes (progressive mode), wait for 'master'
       if (config.scenes && config.scenes.master && config.scenes.preview) {
         if (currentScene === 'master') {

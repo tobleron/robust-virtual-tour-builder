@@ -700,3 +700,12 @@
 - Maintenance: Promoted to stable release [main].
 
 
+
+[2026-01-10 10:25] Version 4.0.6 [Teasers & Links]
+- Feature: Cinematic Teasers. Implemented high-quality video recording that follows multi-point waypoint paths with smooth transitions.
+- Feature: AI Selection Tools. Added 1024px square and 16:9 rectangle selection modes for precision AI image generation.
+- Feature: Project Management. Added "New Project" and "Save Project" (ZIP) functionality to the sidebar.
+- Improvement: Simulation Logic. Enhanced pathfinding to prioritize unvisited scenes and efficiently traverse multi-segment links.
+- Improvement: Navigation System. Fixed arrow alignment and movement for complex paths; added PANNING_VELOCITY constants.
+- UI: Redesigned link creation indicators. Yellow dashed lines for drafting, permanent red lines for active paths.
+- Cleanup: Executed project-wide cleanup (cargo clean, log rotation) and promoted to stable main branch.

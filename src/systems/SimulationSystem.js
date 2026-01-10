@@ -257,8 +257,12 @@ function advanceToNextScene() {
  * 1. Forward links to unvisited scenes
  * 2. Return links to unvisited scenes (only if no forward links exist)
  * 3. null - tour complete when all reachable scenes visited
+ * @param {Object} currentScene - Current scene object
+ * @param {Object} state - Application state
+ * @param {Array} explicitVisitedScenes - Optional: Use this instead of module-level visitedScenes
  */
-function findBestNextLink(currentScene, state) {
+function findBestNextLink(currentScene, state, explicitVisitedScenes = null) {
+    const visited = explicitVisitedScenes || visitedScenes;
     const hotspots = currentScene.hotspots;
     if (!hotspots || hotspots.length === 0) return null;
 
@@ -271,7 +275,7 @@ function findBestNextLink(currentScene, state) {
             hotspot: h,
             hotspotIndex: i,
             targetIndex,
-            isVisited: visitedScenes.includes(targetIndex),
+            isVisited: visited.includes(targetIndex),
             isReturn: !!h.isReturnLink,
             isBridge: !!targetScene?.isAutoForward
         };
@@ -363,4 +367,155 @@ export function initSimulationKeyHandler() {
             stopAutoPilot(true);
         }
     });
+}
+
+// ============================================================================
+// Path Generation for Teaser
+// ============================================================================
+
+/**
+ * Generates the full path that the simulation would take.
+ * Used by TeaserSystem to create "Cinematic Scenes" mode.
+ * Returns an array of steps compatible with TeaserSystem.
+ */
+export function getSimulationPath() {
+    const state = store.state;
+    if (state.scenes.length === 0) return [];
+
+    let path = [];
+    let visited = new Set();
+    let currentIdx = 0; // Start at scene 0
+    let loopCount = 0;
+    const MAX_STEPS = 50; // Safety limit
+
+    // Initial Scene (Scene 0)
+    // For the start, we use the default initial view or the first scene's data
+    // Teaser System logic for first scene:
+    /*
+      let firstArrivalYaw = 0;
+      if (firstScene.hotspots && firstScene.hotspots.length > 0) {
+        if (firstHotspot.viewFrame) { ... }
+      }
+    */
+    // We will let TeaserSystem handle the initial arrival view logic for the *first* frame
+    // taking the pointer from logical start.
+    // For the simulation path, we just need to track the sequence of [CurrentScene -> Link -> NextScene]
+
+    // Initialize with scene 0
+    visited.add(0);
+
+    // We add the first scene as the starting point.
+    // Teaser expects the path to includes the current scene and where it's going.
+
+    // BUT: findBestNextLink needs `visitedScenes` array which is local to the module usually.
+    // We will make a local visited array for this calculation.
+    let localVisited = [0];
+
+    // To construct the path consistent with TeaserSystem:
+    // We need to iterate: Find link from Current -> Next. 
+    // Add Current to path with transitionTarget = Link.
+
+    // Step 0: We are at Scene 0.
+    // We can't fully fill Scene 0's object until we know the link.
+
+    let currentPathObj = {
+        idx: 0,
+        transitionTarget: null,
+        arrivalView: { yaw: 0, pitch: 0 } // Default for start, TeaserSystem might refine this
+    };
+
+    // Try to refine arrivalView of start (matches TeaserSystem logic roughly)
+    const firstScene = state.scenes[0];
+    if (firstScene.hotspots && firstScene.hotspots.length > 0) {
+        // Try to find a logical "start view" - typically viewFrame of first hotspot
+        // This creates a nice "Director's View" start
+        const startHotspot = firstScene.hotspots[0];
+        if (startHotspot.viewFrame) {
+            currentPathObj.arrivalView.yaw = startHotspot.viewFrame.yaw ?? 0;
+            currentPathObj.arrivalView.pitch = startHotspot.viewFrame.pitch ?? 0;
+        }
+    }
+
+    path.push(currentPathObj);
+
+    while (loopCount < MAX_STEPS) {
+        const currentScene = state.scenes[currentIdx];
+        if (!currentScene) break;
+
+        // Use the internal logic but with our local visited set
+        // We need to mock the global 'visitedScenes' for the helper function
+        // or refactor the helper to accept visited list.
+        // Refactoring findBestNextLink to accept visited list is cleaner.
+
+        const nextLink = findBestNextLink(currentScene, state, localVisited);
+
+        if (!nextLink) break;
+
+        const { hotspot, targetIndex } = nextLink;
+
+        // 1. Update current path object with transition info (WE ARE LEAVING CURRENT SCENE VIA THIS LINK)
+        let transYaw = hotspot.yaw;
+        let transPitch = hotspot.pitch || 0;
+        if (hotspot.viewFrame) {
+            transYaw = hotspot.viewFrame.yaw;
+            transPitch = hotspot.viewFrame.pitch;
+        }
+
+        // Get start position for waypoint animation
+        let startYaw = hotspot.startYaw ?? 0;
+        let startPitch = hotspot.startPitch ?? 0;
+
+        currentPathObj.transitionTarget = {
+            yaw: transYaw,
+            pitch: transPitch,
+            targetName: hotspot.target,
+            startYaw: startYaw,
+            startPitch: startPitch,
+            waypoints: hotspot.waypoints || []
+        };
+
+        // 2. Prepare Next Path Object (WE ARE ARRIVING AT TARGET SCENE)
+        let arrivalYaw = 0;
+        let arrivalPitch = 0;
+
+        // Logic from SimulationSystem.js advanceToNextScene for arrival
+        if (hotspot.isReturnLink && hotspot.returnViewFrame) {
+            arrivalYaw = hotspot.returnViewFrame.yaw ?? 0;
+            arrivalPitch = hotspot.returnViewFrame.pitch ?? 0;
+        } else if (hotspot.viewFrame) {
+            // Standard forward link arrival often looks "straight ahead" or uses viewFrame if treated as source
+            // SimulationSystem uses:
+            // } else if (hotspot.viewFrame) { ... }
+            // Wait, advanceToNextScene uses viewFrame of the HOTSPOT as the arrival view? 
+            // That's usually the "Director's View" of the generated link, which is reasonable.
+            arrivalYaw = hotspot.viewFrame.yaw ?? 0;
+            arrivalPitch = hotspot.viewFrame.pitch ?? 0;
+        } else if (hotspot.targetYaw !== undefined) {
+            arrivalYaw = hotspot.targetYaw;
+            arrivalPitch = hotspot.targetPitch ?? 0;
+        }
+
+        const nextPathObj = {
+            idx: targetIndex,
+            transitionTarget: null,
+            arrivalView: { yaw: arrivalYaw, pitch: arrivalPitch }
+        };
+
+        path.push(nextPathObj); // Add to path
+        currentPathObj = nextPathObj; // Update pointer
+
+        // Update loop state
+        localVisited.push(targetIndex);
+        currentIdx = targetIndex;
+        loopCount++;
+
+        // Stop if we returned to start (optional, but standard for teasers)
+        // Simulation usually stops when no unvisited, or eventually returns to start.
+        // If we hit Scene 0 again, and we have visited a bunch of stuff, we can probably stop.
+        if (targetIndex === 0 && localVisited.length > 2) {
+            break;
+        }
+    }
+
+    return path;
 }

@@ -246,9 +246,9 @@ export function navigateToScene(targetIndex, sourceSceneIndex, sourceHotspotInde
 
         try {
             // Calculate interpolation start position (accounting for momentum)
-            let yawDiff = targetYawForPan - actualStartYaw;
-            while (yawDiff > 180) yawDiff -= 360;
-            while (yawDiff < -180) yawDiff += 360;
+            let initialYawDiff = targetYawForPan - actualStartYaw;
+            while (initialYawDiff > 180) initialYawDiff -= 360;
+            while (initialYawDiff < -180) initialYawDiff += 360;
 
             // MOMENTUM LOGIC:
             // 1. First Link (Manual Click): Start exactly at Point A (0% offset) to match the user's defined "Start View".
@@ -256,24 +256,59 @@ export function navigateToScene(targetIndex, sourceSceneIndex, sourceHotspotInde
             const momentum = (autoForwardChain.length > 0 || isSimulationMode) ? 0.10 : 0.0;
 
             const startPitch = actualStartPitch + (targetPitchForPan - actualStartPitch) * momentum;
-            const startYaw = actualStartYaw + yawDiff * momentum;
+            const startYaw = actualStartYaw + initialYawDiff * momentum;
             const startHfov = actualStartHfov + (targetHfovForPan - actualStartHfov) * momentum;
 
             Debug.debug('Navigation', `Moving Handover: Starting at ${(momentum * 100).toFixed(0)}% (Yaw: ${startYaw.toFixed(1)}°, Pitch: ${startPitch.toFixed(1)}°, HFOV: ${startHfov.toFixed(1)})`);
 
-            // CRITICAL: Always set camera position before lookAt to ensure consistent starting point
+            // CRITICAL: Always set camera position before animation to ensure consistent starting point
             viewer.setPitch(startPitch, false);
             viewer.setYaw(startYaw, false);
             viewer.setHfov(startHfov, false);
 
-            // Animation tracking
-            // DYNAMIC VELOCITY CALCULATION:
-            // Calculate total angular distance to determine duration
-            const pitchDiff = Math.abs(targetPitchForPan - startPitch);
-            const totalDistance = Math.sqrt(Math.pow(yawDiff * (1.0 - momentum), 2) + Math.pow(pitchDiff, 2));
+            // BUILD WAYPOINT PATH for camera interpolation
+            // Path: Start -> Waypoints -> End
+            const waypoints = hotspot.waypoints || [];
+            const cameraPath = [{ pitch: startPitch, yaw: startYaw }];
 
-            // Formula: (Distance / Velocity) * 1000ms
-            const rawDuration = (totalDistance / PANNING_VELOCITY) * 1000;
+            // Add waypoints (they store camera orientation as pitch/yaw)
+            waypoints.forEach(wp => {
+                const wpPitch = wp.pitch !== undefined ? wp.pitch : (wp.camPitch !== undefined ? wp.camPitch : 0);
+                const wpYaw = wp.yaw !== undefined ? wp.yaw : (wp.camYaw !== undefined ? wp.camYaw : 0);
+                cameraPath.push({ pitch: wpPitch, yaw: wpYaw });
+            });
+
+            // Add final destination
+            cameraPath.push({ pitch: targetPitchForPan, yaw: targetYawForPan });
+
+            // CALCULATE SEGMENT DISTANCES for proper interpolation
+            let totalPathDistance = 0;
+            const segments = [];
+
+            for (let i = 0; i < cameraPath.length - 1; i++) {
+                const p1 = cameraPath[i];
+                const p2 = cameraPath[i + 1];
+
+                // Calculate shortest yaw difference
+                let segYawDiff = p2.yaw - p1.yaw;
+                while (segYawDiff > 180) segYawDiff -= 360;
+                while (segYawDiff < -180) segYawDiff += 360;
+
+                const segPitchDiff = p2.pitch - p1.pitch;
+                const segDist = Math.sqrt(segYawDiff * segYawDiff + segPitchDiff * segPitchDiff);
+
+                segments.push({
+                    dist: segDist,
+                    yawDiff: segYawDiff,
+                    pitchDiff: segPitchDiff,
+                    p1,
+                    p2
+                });
+                totalPathDistance += segDist;
+            }
+
+            // DYNAMIC VELOCITY CALCULATION using total path distance
+            const rawDuration = (totalPathDistance / PANNING_VELOCITY) * 1000;
             const panDuration = Math.min(Math.max(rawDuration, PANNING_MIN_DURATION), PANNING_MAX_DURATION);
 
             const startTime = Date.now();
@@ -285,7 +320,8 @@ export function navigateToScene(targetIndex, sourceSceneIndex, sourceHotspotInde
                 from: sourceScene?.name,
                 to: state.scenes[targetIndex]?.name,
                 panDuration: Math.round(panDuration),
-                distance: totalDistance.toFixed(1)
+                distance: totalPathDistance.toFixed(1),
+                waypointCount: waypoints.length
             });
 
             // Arrow reference points:
@@ -293,7 +329,7 @@ export function navigateToScene(targetIndex, sourceSceneIndex, sourceHotspotInde
             const arrowStartPitch = startPitch;
             const arrowStartYaw = startYaw;
 
-            // ANIMATION LOOP
+            // ANIMATION LOOP - Now manually interpolates through waypoints
             const animLoop = () => {
                 if (journeyId !== currentJourneyId) {
                     Debug.warn('Navigation', `JOURNEY_CANCELLED`, { journeyId });
@@ -310,13 +346,46 @@ export function navigateToScene(targetIndex, sourceSceneIndex, sourceHotspotInde
 
                 if (progress >= 1.0) {
                     crossfadeTriggered = true;
+                    // Set final position exactly
+                    viewer.setPitch(targetPitchForPan, false);
+                    viewer.setYaw(targetYawForPan, false);
+                    viewer.setHfov(targetHfovForPan, false);
                     finalize();
                     clearSimulationUI();
                     return;
                 }
 
-                // Update UI: Draw arrow following the actual camera pan path
-                HotspotLineSystem.updateLines(viewer, state);
+                // CALCULATE CAMERA POSITION along the multi-segment path
+                const targetDist = progress * totalPathDistance;
+                let camPitch = startPitch;
+                let camYaw = startYaw;
+
+                if (totalPathDistance > 0 && segments.length > 0) {
+                    let covered = 0;
+
+                    for (const seg of segments) {
+                        if (targetDist <= covered + seg.dist) {
+                            // We're within this segment
+                            const segProgress = seg.dist > 0 ? (targetDist - covered) / seg.dist : 0;
+                            camPitch = seg.p1.pitch + seg.pitchDiff * segProgress;
+                            camYaw = seg.p1.yaw + seg.yawDiff * segProgress;
+                            break;
+                        }
+                        covered += seg.dist;
+                        // Move to end of this segment
+                        camPitch = seg.p2.pitch;
+                        camYaw = seg.p2.yaw;
+                    }
+                }
+
+                // MANUALLY SET CAMERA POSITION (not using lookAt which goes direct)
+                viewer.setPitch(camPitch, false);
+                viewer.setYaw(camYaw, false);
+
+                // Interpolate HFOV linearly
+                const hfovProgress = startHfov + (targetHfovForPan - startHfov) * progress;
+                viewer.setHfov(hfovProgress, false);
+
                 // Update UI: Draw arrow following the actual camera pan path
                 HotspotLineSystem.updateLines(viewer, state);
                 HotspotLineSystem.drawSimulationArrow(
@@ -327,15 +396,14 @@ export function navigateToScene(targetIndex, sourceSceneIndex, sourceHotspotInde
                     targetYawForPan,
                     progress,
                     1.0,
-                    hotspot ? hotspot.waypoints : []
+                    waypoints
                 );
 
                 requestAnimationFrame(animLoop);
             };
 
-            // START
+            // START - No longer using lookAt, animation loop handles everything
             requestAnimationFrame(animLoop);
-            viewer.lookAt(targetPitchForPan, targetYawForPan, targetHfovForPan, panDuration);
 
         } catch (e) {
             console.error("[Navigation] Critical error in simulation animation loop:", e);

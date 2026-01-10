@@ -350,6 +350,11 @@ export function initSidebar() {
                         <span style="font-size: 13px;">Fast Cut Scenes</span>
                         <span style="font-size: 12px; opacity: 0.6; text-transform: none; font-weight: 500;">Fast, dynamic cuts focused on links</span>
                     </button>
+                    
+                    <button id="btn-style-cinematic" class="modal-btn-premium btn-blue" style="width: 100%; flex-direction: column; padding: 12px;">
+                        <span style="font-size: 13px;">Cinematic Scenes</span>
+                        <span style="font-size: 12px; opacity: 0.6; text-transform: none; font-weight: 500;">Exact recording of simulation path</span>
+                    </button>
                 </div>
                 
                 <button id="btn-close-style" class="modal-btn-premium btn-secondary" style="width:100%; margin-top: 16px;">
@@ -496,6 +501,7 @@ export function initSidebar() {
     const styleModal = document.getElementById("style-modal");
     const btnStyleDissolve = document.getElementById("btn-style-dissolve");
     const btnStylePunchy = document.getElementById("btn-style-punchy");
+    const btnStyleCinematic = document.getElementById("btn-style-cinematic");
     const btnCloseStyle = document.getElementById("btn-close-style");
     const chkTeaserWatermark = document.getElementById("chk-teaser-watermark");
     const selTeaserFormat = document.getElementById("sel-teaser-format");
@@ -541,6 +547,15 @@ export function initSidebar() {
             const includeLogo = chkTeaserWatermark ? chkTeaserWatermark.checked : true;
             const format = selTeaserFormat ? selTeaserFormat.value : "webm";
             startAutoTeaser("punchy", includeLogo, format);
+        });
+    }
+
+    if (btnStyleCinematic) {
+        btnStyleCinematic.addEventListener("click", () => {
+            hideModal(styleModal);
+            const includeLogo = chkTeaserWatermark ? chkTeaserWatermark.checked : true;
+            const format = selTeaserFormat ? selTeaserFormat.value : "webm";
+            startAutoTeaser("cinematic", includeLogo, format);
         });
     }
 

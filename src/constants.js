@@ -67,7 +67,7 @@ export const TEASER_CANVAS_HEIGHT = 1080;
  * Teaser recording frame rate (FPS)
  * 24 FPS is cinematic standard and reduces file size
  */
-export const TEASER_FRAME_RATE = 24;
+export const TEASER_FRAME_RATE = 60;
 
 /**
  * Teaser style: Dissolve (smooth crossfade between scenes)

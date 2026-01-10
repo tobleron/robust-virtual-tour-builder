@@ -254,8 +254,20 @@ export function initViewer() {
           }
 
           const viewer = getActiveViewer();
-          const camPitch = viewer ? viewer.getPitch() : 0;
-          const camYaw = viewer ? viewer.getYaw() : 0;
+
+          // FIX: Use the last clicked point's camera view as the target viewFrame, 
+          // instead of the current cursor/camera location at the moment of pressing Enter.
+          let camPitch, camYaw;
+
+          if (draft.intermediatePoints && draft.intermediatePoints.length > 0) {
+            const lastPoint = draft.intermediatePoints[draft.intermediatePoints.length - 1];
+            camPitch = lastPoint.camPitch;
+            camYaw = lastPoint.camYaw;
+          } else {
+            camPitch = draft.camPitch;
+            camYaw = draft.camYaw;
+          }
+
           const camHfov = viewer ? viewer.getHfov() : 100;
 
           showLinkModal(targetPitch, targetYaw, camPitch, camYaw, camHfov, getPendingReturnSceneName(), draft);

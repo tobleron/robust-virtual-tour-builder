@@ -1,2 +1,2 @@
-export const VERSION = "4.0.5";
-export const BUILD_INFO = "[Multi-Point Links]";
+export const VERSION = "4.0.6";
+export const BUILD_INFO = "[Teasers & Links]";
