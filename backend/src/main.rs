@@ -1,5 +1,6 @@
 use actix_cors::Cors;
-use actix_web::{web, App, HttpServer, HttpResponse, Responder};
+use actix_web::{web, App, HttpServer, HttpResponse, Responder, middleware::DefaultHeaders};
+use actix_governor::{Governor, GovernorConfigBuilder};
 use std::io;
 use tracing_actix_web::TracingLogger;
 
@@ -28,6 +29,7 @@ async fn main() -> io::Result<()> {
             Cors::default()
                 .allowed_origin("http://localhost:5173")  // Vite dev server
                 .allowed_origin("http://127.0.0.1:5173")
+                .allowed_origin("http://localhost:9999")
                 .allowed_origin_fn(|origin, _req_head| {
                     // Allow file:// protocol for Electron/desktop apps
                     origin.as_bytes().starts_with(b"file://")
@@ -39,9 +41,41 @@ async fn main() -> io::Result<()> {
                 ])
                 .max_age(3600)
         };
+        
+        // Rate Limiting: Prevent DoS attacks and API abuse
+        let governor_conf = GovernorConfigBuilder::default()
+            .per_second(30)      // 30 requests per second (generous for image uploads)
+            .burst_size(50)      // Allow bursts up to 50 requests
+            .finish()
+            .unwrap();
 
         App::new()
             .wrap(TracingLogger::default()) // Structured request logging
+            
+            // Security Headers: Protect against common web vulnerabilities
+            .wrap(DefaultHeaders::new()
+                // Prevent MIME type sniffing
+                .add(("X-Content-Type-Options", "nosniff"))
+                
+                // Prevent clickjacking by blocking iframe embedding
+                .add(("X-Frame-Options", "DENY"))
+                
+                // Enable browser XSS protection (legacy, but still useful)
+                .add(("X-XSS-Protection", "1; mode=block"))
+                
+                // Control referrer information
+                .add(("Referrer-Policy", "strict-origin-when-cross-origin"))
+                
+                // Disable unnecessary browser features
+                .add(("Permissions-Policy", "geolocation=(), microphone=(), camera=()"))
+                
+                // Prevent DNS prefetching for privacy
+                .add(("X-DNS-Prefetch-Control", "off"))
+            )
+            
+            // Rate Limiting: Apply to all routes
+            .wrap(Governor::new(&governor_conf))
+            
             .wrap(cors)
             .route("/health", web::get().to(health_check))
             .route("/log-telemetry", web::post().to(handlers::log_telemetry))

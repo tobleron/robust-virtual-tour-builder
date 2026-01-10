@@ -4,7 +4,7 @@
  * Manages the visualization of connecting lines between the viewer center
  * and hotspots.
  */
-import { getIsSimulationMode, calculateSmartArrivalTarget, getAutoForwardChain } from "./NavigationSystem.js";
+import { getIsSimulationMode, calculateSmartArrivalTarget, getAutoForwardChain, getPreviewingLink } from "./NavigationSystem.js";
 import { getCatmullRomSpline } from "../utils/PathInterpolation.js";
 
 export class HotspotLineSystem {
@@ -125,13 +125,91 @@ export class HotspotLineSystem {
                     this.drawLine(svg, startCoords.x, startCoords.y, endCoords.x, endCoords.y, "#fbbf24", 3.0, 0.8, "3,3");
                 }
             }
+        } else if (!getIsSimulationMode()) {
+            // 3. DRAW PREVIEW ARROWS (Normal Mode Only)
+            // Persistent green arrow at the START of the path, clickable for preview
+
+            // Get currently previewing link to hide its static arrow
+            const previewingLink = getPreviewingLink();
+
+            currentScene.hotspots.forEach((h, i) => {
+                // Skip drawing the static arrow if this hotspot is currently being previewed
+                if (previewingLink && previewingLink.sceneIndex === state.activeIndex && previewingLink.hotspotIndex === i) {
+                    return; // Don't draw static arrow - the animated one is running
+                }
+
+                // Only if we have camera path data
+                if (h && h.startPitch !== undefined && h.startYaw !== undefined && h.viewFrame) {
+                    let startPitch = h.startPitch;
+                    let startYaw = h.startYaw;
+
+                    // Determine rotation angle (Tangent at start)
+                    let angle = 0;
+
+                    // Use Waypoints or straight line to End for tangent
+                    let nextPoint = null;
+                    if (h.waypoints && h.waypoints.length > 0) {
+                        nextPoint = h.waypoints[0];
+                    } else {
+                        nextPoint = { yaw: h.viewFrame.yaw, pitch: h.viewFrame.pitch };
+                    }
+
+                    if (nextPoint) {
+                        const p1 = { pitch: startPitch, yaw: startYaw };
+
+                        // FIX: Use spline interpolation for smooth tangent if possible, or just p1->p2
+                        // To fix the "gap", we ensure we draw at the exact projected pixel of startPitch/startYaw
+                        const s1 = this.getScreenCoords(viewer, p1.pitch, p1.yaw, rect);
+                        const s2 = this.getScreenCoords(viewer, nextPoint.pitch, nextPoint.yaw, rect);
+
+                        if (s1 && s2) {
+                            angle = Math.atan2(s2.y - s1.y, s2.x - s1.x) * (180 / Math.PI);
+
+                            // Draw the Arrow
+                            const arrow = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                            // Shape: Same as sim arrow
+                            // FIX ALIGNMENT: The 'd' path defines the shape relative to (0,0).
+                            // M -10,-7 L 6,0 L -10,7 Z
+                            // (0,0) is 6px behind the tip.
+                            // If the red line starts at (0,0), the arrow centers on it.
+                            // If we want the arrow TIP to be near the start of the defined curve? 
+                            // No, usually the arrow body sits ON the path start.
+                            // We will leave the shape, but ensure the red line starts properly.
+                            arrow.setAttribute("d", "M -10,-7 L 6,0 L -10,7 Z");
+                            arrow.setAttribute("fill", "#10b981"); // Green
+                            arrow.setAttribute("stroke", "#000");
+                            arrow.setAttribute("stroke-width", "1");
+                            arrow.setAttribute("transform", `translate(${s1.x}, ${s1.y}) rotate(${angle})`);
+                            arrow.setAttribute("class", "preview-arrow");
+                            arrow.setAttribute("data-hs-index", i);
+                            arrow.style.cursor = "pointer";
+                            arrow.style.pointerEvents = "all"; // Enable clicking
+
+                            // Hover effect
+                            arrow.onmouseover = () => arrow.setAttribute("fill", "#34d399");
+                            arrow.onmouseout = () => arrow.setAttribute("fill", "#10b981");
+
+                            svg.appendChild(arrow);
+                        }
+                    }
+                }
+            });
         }
     }
 
     /**
      * Draw a single alternating arrow for simulation transitions
+     * @param {Object} viewer - Pannellum viewer instance
+     * @param {number} startPitch - Starting pitch
+     * @param {number} startYaw - Starting yaw
+     * @param {number} endPitch - Ending pitch
+     * @param {number} endYaw - Ending yaw
+     * @param {number} progress - Animation progress (0-1)
+     * @param {number} opacity - Arrow opacity (0-1)
+     * @param {Array} waypoints - Optional intermediate waypoints
+     * @param {string|null} colorOverride - Optional color override (e.g., 'red' for preview blink)
      */
-    static drawSimulationArrow(viewer, startPitch, startYaw, endPitch, endYaw, progress, opacity = 1.0, waypoints = []) {
+    static drawSimulationArrow(viewer, startPitch, startYaw, endPitch, endYaw, progress, opacity = 1.0, waypoints = [], colorOverride = null) {
         const svg = document.getElementById("viewer-hotspot-lines");
         if (!svg || !viewer) return;
 
@@ -174,44 +252,166 @@ export class HotspotLineSystem {
         }
 
         // 3. FIND CURRENT POSITION
-        const targetDist = progress * totalDistance;
-        let pCurrentPitch = startPitch;
-        let pCurrentYaw = startYaw;
+        let pCurrentPitch, pCurrentYaw;
+        let yawForRotation, pitchForRotation;
 
-        let yawForRotation = (segments.length > 0) ? segments[0].yawDiff : (endYaw - startYaw);
-        let pitchForRotation = (segments.length > 0) ? segments[0].pitchDiff : (endPitch - startPitch);
+        // FIX: When progress is 1.0 (or greater), place arrow EXACTLY at endpoint
+        if (progress >= 1.0) {
+            pCurrentPitch = endPitch;
+            pCurrentYaw = endYaw;
 
-        if (totalDistance > 0 && segments.length > 0) {
-            let covered = 0;
-
-            for (let seg of segments) {
-                if (targetDist <= covered + seg.dist) {
-                    const segmentProgress = (seg.dist > 0) ? (targetDist - covered) / seg.dist : 0;
-                    pCurrentPitch = seg.p1.pitch + seg.pitchDiff * segmentProgress;
-                    pCurrentYaw = seg.p1.yaw + seg.yawDiff * segmentProgress;
-
-                    yawForRotation = seg.yawDiff;
-                    pitchForRotation = seg.pitchDiff;
-                    break;
+            // Use the last segment's direction for rotation at endpoint
+            if (segments.length > 0) {
+                // Search backwards for a stable segment for rotation
+                let stableSeg = segments[segments.length - 1];
+                for (let k = segments.length - 1; k >= 0; k--) {
+                    if (segments[k].dist >= 0.5) {
+                        stableSeg = segments[k];
+                        break;
+                    }
                 }
-                covered += seg.dist;
-                // If overshoot or end
-                pCurrentPitch = seg.p2.pitch;
-                pCurrentYaw = seg.p2.yaw;
-                yawForRotation = seg.yawDiff;
-                pitchForRotation = seg.pitchDiff;
+                yawForRotation = stableSeg.yawDiff;
+                pitchForRotation = stableSeg.pitchDiff;
+            } else {
+                yawForRotation = endYaw - startYaw;
+                pitchForRotation = endPitch - startPitch;
+            }
+        } else {
+            const targetDist = progress * totalDistance;
+            pCurrentPitch = startPitch;
+            pCurrentYaw = startYaw;
+
+            yawForRotation = (segments.length > 0) ? segments[0].yawDiff : (endYaw - startYaw);
+            pitchForRotation = (segments.length > 0) ? segments[0].pitchDiff : (endPitch - startPitch);
+
+            if (totalDistance > 0 && segments.length > 0) {
+                let covered = 0;
+
+                for (let i = 0; i < segments.length; i++) {
+                    const seg = segments[i];
+                    // Check if this segment contains the target distance
+                    if (targetDist <= covered + seg.dist) {
+                        const segmentProgress = (seg.dist > 0) ? (targetDist - covered) / seg.dist : 0;
+                        pCurrentPitch = seg.p1.pitch + seg.pitchDiff * segmentProgress;
+                        pCurrentYaw = seg.p1.yaw + seg.yawDiff * segmentProgress;
+
+                        // ROBUST ROTATION (Fix for end-of-path jitter)
+                        // Search backwards for a segment with significant length to use as rotation vector
+                        let stableSeg = seg;
+                        let foundStable = false;
+
+                        if (seg.dist < 0.5) { // Threshold: 0.5 degrees
+                            // Look backwards first
+                            for (let k = i; k >= 0; k--) {
+                                if (segments[k].dist >= 0.5) {
+                                    stableSeg = segments[k];
+                                    foundStable = true;
+                                    break;
+                                }
+                            }
+                            // If no backward stable, look forward (start of path case)
+                            if (!foundStable) {
+                                for (let k = i + 1; k < segments.length; k++) {
+                                    if (segments[k].dist >= 0.5) {
+                                        stableSeg = segments[k];
+                                        foundStable = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        yawForRotation = stableSeg.yawDiff;
+                        pitchForRotation = stableSeg.pitchDiff;
+                        break;
+                    }
+                    covered += seg.dist;
+
+                    // Handle Overshoot (End of path)
+                    if (i === segments.length - 1) {
+                        pCurrentPitch = seg.p2.pitch;
+                        pCurrentYaw = seg.p2.yaw;
+
+                        // Same robust search for the very end
+                        let stableSeg = seg;
+                        // Look strictly backwards from end
+                        for (let k = segments.length - 1; k >= 0; k--) {
+                            if (segments[k].dist >= 0.5) {
+                                stableSeg = segments[k];
+                                break;
+                            }
+                        }
+                        yawForRotation = stableSeg.yawDiff;
+                        pitchForRotation = stableSeg.pitchDiff;
+                    }
+                }
             }
         }
 
         // 4. PROJECT TO SCREEN
         const start = this.getScreenCoords(viewer, pCurrentPitch, pCurrentYaw, rect);
 
-        // For rotation: Project a point slightly ahead
+        // For rotation: Calculate the direction the arrow should point
+        let end;
+
+        if (progress >= 1.0) {
+            // AT ENDPOINT: Look backward along the path to determine arrow direction
+            // This prevents the arrow from appearing to "recoil" at the end
+            const lookBackRatio = 0.5; // Look back along the path
+            const pLookBackPitch = pCurrentPitch - pitchForRotation * lookBackRatio;
+            const pLookBackYaw = pCurrentYaw - yawForRotation * lookBackRatio;
+
+            // Calculate angle from lookback point TO current position (forward direction)
+            const backPoint = this.getScreenCoords(viewer, pLookBackPitch, pLookBackYaw, rect);
+
+            if (backPoint && start) {
+                // Use the vector FROM backPoint TO start for rotation
+                end = start; // We'll calculate angle differently below
+                const angle = Math.atan2(start.y - backPoint.y, start.x - backPoint.x) * (180 / Math.PI);
+
+                // Move arrow forward by 10px so the tip reaches the endpoint
+                const forwardOffset = 10;
+                const angleRad = angle * Math.PI / 180;
+                const x = start.x + forwardOffset * Math.cos(angleRad);
+                const y = start.y + forwardOffset * Math.sin(angleRad);
+
+                // Color selection: Use override if provided, otherwise alternating Yellow/Green
+                let color;
+                if (colorOverride) {
+                    // Map color names to hex values
+                    const colorMap = {
+                        'red': '#ef4444',
+                        'green': '#10b981',
+                        'yellow': '#fbbf24'
+                    };
+                    color = colorMap[colorOverride] || colorOverride;
+                } else {
+                    // Alternating Color (Yellow/Green)
+                    color = (Math.floor(Date.now() / 200) % 2 === 0) ? "#fbbf24" : "#10b981";
+                }
+
+                const arrow = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                arrow.setAttribute("d", "M -10,-7 L 6,0 L -10,7 Z");
+                arrow.setAttribute("fill", color);
+                arrow.setAttribute("stroke", "#000");
+                arrow.setAttribute("stroke-width", "1");
+                arrow.setAttribute("transform", `translate(${x}, ${y}) rotate(${angle})`);
+
+                if (opacity < 1.0) {
+                    arrow.setAttribute("opacity", opacity.toFixed(2));
+                }
+
+                svg.appendChild(arrow);
+                return; // Early return for endpoint case
+            }
+        }
+
+        // NORMAL CASE: Project a point slightly ahead for rotation
         const lookAheadRatio = 0.5; // Larger lookahead for smoother rotation on spline segments
         const pLookAheadPitch = pCurrentPitch + pitchForRotation * lookAheadRatio;
         const pLookAheadYaw = pCurrentYaw + yawForRotation * lookAheadRatio;
 
-        const end = this.getScreenCoords(viewer, pLookAheadPitch, pLookAheadYaw, rect);
+        end = this.getScreenCoords(viewer, pLookAheadPitch, pLookAheadYaw, rect);
 
         if (!start || !end) return;
 
@@ -221,8 +421,21 @@ export class HotspotLineSystem {
         // Rotation angle
         const angle = Math.atan2(end.y - start.y, end.x - start.x) * (180 / Math.PI);
 
-        // Alternating Color (Yellow/Green)
-        const color = (Math.floor(Date.now() / 200) % 2 === 0) ? "#fbbf24" : "#10b981";
+        // Color selection: Use override if provided, otherwise alternating Yellow/Green
+        let color;
+        if (colorOverride) {
+            // Map color names to hex values
+            const colorMap = {
+                'red': '#ef4444',
+                'green': '#10b981',
+                'yellow': '#fbbf24'
+            };
+            color = colorMap[colorOverride] || colorOverride;
+            console.log(`[HotspotLineSystem] Color override: ${colorOverride} -> ${color}, opacity: ${opacity}`);
+        } else {
+            // Alternating Color (Yellow/Green)
+            color = (Math.floor(Date.now() / 200) % 2 === 0) ? "#fbbf24" : "#10b981";
+        }
 
         const arrow = document.createElementNS("http://www.w3.org/2000/svg", "path");
         arrow.setAttribute("d", "M -10,-7 L 6,0 L -10,7 Z");

@@ -23,6 +23,7 @@ rayon = "1.11.0"
 img-parts = "0.3"
 little_exif = "0.4"
 bytes = "1.0"
+actix-governor = "0.5"
 
 
 

@@ -284,6 +284,50 @@ export function initViewer() {
   // --- 2. LASER POINTER / CURSOR GUIDE ---
   guide = document.getElementById("cursor-guide");
   if (viewerStage && guide) {
+    // CLICK LISTENER FOR PREVIEW ARROW
+    viewerStage.addEventListener("click", (e) => {
+      // Check for preview arrow click
+      const previewArrow = e.target.closest(".preview-arrow");
+      if (previewArrow) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        const hsIndex = parseInt(previewArrow.getAttribute("data-hs-index"));
+        const state = store.state;
+        const currentScene = state.scenes[state.activeIndex];
+
+        if (currentScene && currentScene.hotspots && currentScene.hotspots[hsIndex]) {
+          const h = currentScene.hotspots[hsIndex];
+          const targetIndex = state.scenes.findIndex(s => s.name === h.target);
+
+          if (targetIndex !== -1) {
+            let navYaw = 0;
+            let navPitch = 0;
+            let navHfov = 90;
+
+            if (h.isReturnLink && h.returnViewFrame) {
+              navYaw = h.returnViewFrame.yaw !== undefined ? h.returnViewFrame.yaw : 0;
+              navPitch = h.returnViewFrame.pitch !== undefined ? h.returnViewFrame.pitch : 0;
+              navHfov = h.returnViewFrame.hfov !== undefined ? h.returnViewFrame.hfov : 90;
+            } else {
+              if (h.targetYaw !== undefined) {
+                navYaw = h.targetYaw;
+                navPitch = h.targetPitch !== undefined ? h.targetPitch : 0;
+                navHfov = h.targetHfov !== undefined ? h.targetHfov : 90;
+              } else if (h.viewFrame) {
+                navYaw = h.viewFrame.yaw !== undefined ? h.viewFrame.yaw : 0;
+                navPitch = h.viewFrame.pitch !== undefined ? h.viewFrame.pitch : 0;
+                navHfov = h.viewFrame.hfov !== undefined ? h.viewFrame.hfov : 90;
+              }
+            }
+
+            Debug.info('Viewer', `Preview Arrow Clicked: Simulating journey to ${h.target}`);
+            navigateToScene(targetIndex, state.activeIndex, hsIndex, navYaw, navPitch, navHfov, null, true); // previewOnly=true
+          }
+        }
+      }
+    });
+
     viewerStage.addEventListener("mousemove", (e) => {
       lastMouseEvent = e;
       const state = store.state;

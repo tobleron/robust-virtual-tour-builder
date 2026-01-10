@@ -18,6 +18,9 @@ let autoForwardChain = []; // Track visited scenes to prevent infinite loops
 let pendingReturnSceneName = null;
 let currentJourneyId = 0;
 let isNavigating = false; // Guard to prevent concurrent navigations
+let previewingLink = null; // { sceneIndex, hotspotIndex } used to hide static arrow during preview
+
+export function getPreviewingLink() { return previewingLink; }
 
 /**
  * Initialize Navigation System
@@ -165,8 +168,8 @@ export function calculateSmartArrivalTarget(state, targetIndex) {
  * @param {number} targetPitch - Target pitch orientation
  * @param {object} overrideViewer - Optional: Use this viewer instead of window.pannellumViewer
  */
-export function navigateToScene(targetIndex, sourceSceneIndex, sourceHotspotIndex, targetYaw = 0, targetPitch = 0, targetHfov = 90, overrideViewer = null) {
-    console.log(`[Navigation] attempt: target=${targetIndex}, source=${sourceSceneIndex}, isNavigating=${isNavigating}`);
+export function navigateToScene(targetIndex, sourceSceneIndex, sourceHotspotIndex, targetYaw = 0, targetPitch = 0, targetHfov = 90, overrideViewer = null, previewOnly = false) {
+    console.log(`[Navigation] attempt: target=${targetIndex}, source=${sourceSceneIndex}, isNavigating=${isNavigating}, previewOnly=${previewOnly}`);
     // GUARD: Prevent concurrent navigations
     if (isNavigating) {
         Debug.warn('Navigation', 'BLOCKED: Navigation already in progress');
@@ -185,30 +188,55 @@ export function navigateToScene(targetIndex, sourceSceneIndex, sourceHotspotInde
 
     // PRE-CALCULATE SMART ARRIVAL (for the TARGET scene): 
     // We determine the final landing perspective in Scene B's coordinate system.
-    let { arrivalYaw, arrivalPitch, arrivalHfov } = isSimulationMode
+    let { arrivalYaw, arrivalPitch, arrivalHfov } = (isSimulationMode || previewOnly)
         ? calculateSmartArrivalTarget(state, targetIndex)
         : { arrivalYaw: cleanYaw, arrivalPitch: cleanPitch, arrivalHfov: cleanHfov };
 
     // PAN TARGET (for the SOURCE scene):
     // The pan occurs in the current scene's coordinate system.
     // We must target the original viewFrame recorded for this link in Scene A.
-    const targetPitchForPan = (isSimulationMode && hotspot.viewFrame) ? hotspot.viewFrame.pitch : cleanPitch;
-    const targetYawForPan = (isSimulationMode && hotspot.viewFrame) ? hotspot.viewFrame.yaw : cleanYaw;
-    const targetHfovForPan = (isSimulationMode && hotspot.viewFrame) ? (hotspot.viewFrame.hfov || cleanHfov) : cleanHfov;
+    // NOTE: In previewOnly mode, we definitely use the viewFrame to show the intended path.
+    const usePathLogic = (isSimulationMode || previewOnly) && hotspot && hotspot.viewFrame;
+
+    const targetPitchForPan = usePathLogic ? hotspot.viewFrame.pitch : cleanPitch;
+    const targetYawForPan = usePathLogic ? hotspot.viewFrame.yaw : cleanYaw;
+    const targetHfovForPan = usePathLogic ? (hotspot.viewFrame.hfov || cleanHfov) : cleanHfov;
 
     const journeyId = ++currentJourneyId;
     isNavigating = true; // Set guard
 
-    Debug.info('Navigation', `Journey ${journeyId}: Scene ${sourceSceneIndex} -> ${targetIndex} (HFOV: ${arrivalHfov})`);
+    if (previewOnly) {
+        previewingLink = { sceneIndex: sourceSceneIndex, hotspotIndex: sourceHotspotIndex };
+    }
+
+    Debug.info('Navigation', `Journey ${journeyId}: Scene ${sourceSceneIndex} -> ${targetIndex} (HFOV: ${arrivalHfov}) ${previewOnly ? '[PREVIEW]' : ''}`);
 
     const finalize = () => {
         if (journeyId !== currentJourneyId) {
             Debug.debug('Navigation', `Journey ${journeyId} cancelled (current: ${currentJourneyId})`);
             isNavigating = false; // Release guard
+            if (previewOnly && previewingLink && previewingLink.hotspotIndex === sourceHotspotIndex) {
+                previewingLink = null;
+            }
             return;
         }
 
         console.log(`[Navigation] Journey ${journeyId} reaching finalize()`);
+
+        // PREVIEW MODE EXIT
+        if (previewOnly) {
+            Debug.info('Navigation', `Preview Journey ${journeyId} complete. Staying in current scene.`);
+            isNavigating = false;
+            previewingLink = null; // Clear state so static arrow can be drawn again
+
+            // Re-draw lines immediately to show the static arrow again
+            // This will clear the SVG and redraw all static elements (red lines + green arrows)
+            if (viewer) HotspotLineSystem.updateLines(viewer, store.state);
+
+            if (window.notify) window.notify("Preview complete", "success");
+            return;
+        }
+
         incomingLink = { sceneIndex: sourceSceneIndex, hotspotIndex: sourceHotspotIndex };
         Debug.info('Navigation', `Finalizing journey ${journeyId} to Scene ${targetIndex}`);
 
@@ -228,9 +256,10 @@ export function navigateToScene(targetIndex, sourceSceneIndex, sourceHotspotInde
         }
     };
 
-    // SIMULATION MODE: Sequential panning (no crossfade overlap)
-    if (isSimulationMode && hotspot && viewer) {
-        console.log(`[Navigation] Simulation Mode Active - Journey ${journeyId}`);
+    // SIMULATION / PREVIEW MODE: Sequential panning (no crossfade overlap)
+    // We enable the animation loop if we are in Sim Mode OR Preview Mode, and have hotspot/viewer.
+    if ((isSimulationMode || previewOnly) && hotspot && viewer) {
+        console.log(`[Navigation] Animation Active (Sim: ${isSimulationMode}, Preview: ${previewOnly}) - Journey ${journeyId}`);
 
         // Get current viewer position as fallback
         const currentViewerPitch = viewer.getPitch();
@@ -325,6 +354,7 @@ export function navigateToScene(targetIndex, sourceSceneIndex, sourceHotspotInde
 
             const startTime = Date.now();
             let crossfadeTriggered = false;
+            let blinkStartTime = null; // Track when blink sequence starts
 
             // TELEMETRY
             Debug.info('Navigation', `JOURNEY_START`, {
@@ -333,7 +363,8 @@ export function navigateToScene(targetIndex, sourceSceneIndex, sourceHotspotInde
                 to: state.scenes[targetIndex]?.name,
                 panDuration: Math.round(panDuration),
                 distance: totalPathDistance.toFixed(1),
-                waypointCount: waypoints.length
+                waypointCount: waypoints.length,
+                previewOnly
             });
 
             // Arrow reference points:
@@ -356,14 +387,54 @@ export function navigateToScene(targetIndex, sourceSceneIndex, sourceHotspotInde
                 const elapsed = Date.now() - startTime;
                 const progress = Math.min(elapsed / panDuration, 1.0);
 
+                // BLINK FINISH SEQUENCE
+                // Instead of immediately finishing at 1.0, we pause and blink
                 if (progress >= 1.0) {
-                    crossfadeTriggered = true;
-                    // Set final position exactly
+                    // Start Blink Sequence if not already started
+                    if (!blinkStartTime) {
+                        blinkStartTime = Date.now();
+                    }
+
+                    const blinkElapsed = Date.now() - blinkStartTime;
+
+                    // PREVIEW MODE: Blink red twice (slower, more visible)
+                    // SIMULATION MODE: 600ms blink with opacity toggle (yellow/green)
+                    const isPreview = previewOnly;
+                    const blinkDuration = isPreview ? 1200 : 600; // 1200ms for preview (2 slow red blinks), 600ms for simulation
+                    const blinkRate = isPreview ? 300 : 150; // 300ms per blink state for preview (on-off-on-off = 4 states = 1200ms)
+
+                    // Set final position exactly at the END of the waypoint path
                     viewer.setPitch(targetPitchForPan, false);
                     viewer.setYaw(targetYawForPan, false);
                     viewer.setHfov(targetHfovForPan, false);
+
+                    if (blinkElapsed < blinkDuration) {
+                        // Calculate blink state (for 2 blinks: on-off-on-off pattern)
+                        const blinkState = Math.floor(blinkElapsed / blinkRate) % 2;
+                        const opacity = blinkState === 0 ? 1.0 : 0.0;
+                        const colorOverride = isPreview ? 'red' : null;
+
+                        HotspotLineSystem.updateLines(viewer, state);
+                        // For preview mode, pass special flag to draw RED blink
+                        HotspotLineSystem.drawSimulationArrow(
+                            viewer,
+                            arrowStartPitch,
+                            arrowStartYaw,
+                            targetPitchForPan,
+                            targetYawForPan,
+                            1.0, // Force progress to exact end
+                            opacity, // Blink opacity
+                            waypoints,
+                            colorOverride // Color override for preview mode
+                        );
+                        requestAnimationFrame(animLoop);
+                        return;
+                    }
+
+                    // COMPLETE: Cleanup and finalize
+                    crossfadeTriggered = true;
+                    blinkStartTime = null; // Reset for next time
                     finalize();
-                    clearSimulationUI();
                     return;
                 }
 
@@ -423,7 +494,7 @@ export function navigateToScene(targetIndex, sourceSceneIndex, sourceHotspotInde
         }
     } else {
         // MANUAL MODE: No animation, just swap
-        if (isSimulationMode) {
+        if (isSimulationMode && !previewOnly) {
             Debug.warn('Navigation', 'Simulation skipped - missing hotspot data');
         }
         finalize();

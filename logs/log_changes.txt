@@ -1,3 +1,10 @@
+[2026-01-10 16:10] Version 4.1.0 [System Stability]
+- Security: Implemented Content Security Policy (CSP) in index.html to protect against XSS and unauthorized resource loading.
+- Security: Added blob: and specific backend origins to connect-src CSP directive.
+- Backend: Configured CORS in Rust backend to allow requests from the frontend (port 9999).
+- Feature: Comprehensive project-wide cleanup (cargo clean) to remove build artifacts.
+- Feature: Telemetry log rotation and clearing.
+
 [2026-01-10 15:29] Version 4.0.9 [Security Hardening]
 - Security: Implemented upload size limits (100MB max) to prevent DoS attacks via memory exhaustion
 - Security: Added path traversal protection with comprehensive filename sanitization

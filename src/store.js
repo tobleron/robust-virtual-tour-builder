@@ -1,5 +1,30 @@
 import { Debug } from "./utils/Debug.js";
 
+/**
+ * Sanitize scene/tour names to prevent filesystem issues and ensure cross-platform compatibility
+ * @param {string} name - Raw name input
+ * @param {number} maxLength - Maximum allowed length (default: 255)
+ * @returns {string} Sanitized name
+ */
+function sanitizeName(name, maxLength = 255) {
+  if (!name || typeof name !== 'string') {
+    return 'Untitled';
+  }
+
+  return name
+    .trim()
+    // Remove control characters and invalid filesystem characters
+    .replace(/[\x00-\x1F\x7F<>:"\/\\|?*]/g, '_')
+    // Replace multiple spaces/underscores with single underscore
+    .replace(/[_\s]+/g, '_')
+    // Remove leading/trailing underscores
+    .replace(/^_+|_+$/g, '')
+    // Limit length
+    .substring(0, maxLength)
+    // Fallback if empty after sanitization
+    || 'Untitled';
+}
+
 export const store = {
   state: {
     tourName: "",
@@ -52,9 +77,12 @@ export const store = {
   },
 
   setTourName(name) {
-    if (this.state.tourName !== name) {
-      console.log(`📦 [Store] setTourName changed from "${this.state.tourName}" to "${name}"`);
-      this.state.tourName = name;
+    // Sanitize tour name for filesystem safety
+    const sanitized = sanitizeName(name, 100);
+
+    if (this.state.tourName !== sanitized) {
+      console.log(`📦 [Store] setTourName changed from "${this.state.tourName}" to "${sanitized}"`);
+      this.state.tourName = sanitized;
       this.notify();
     }
   },
@@ -229,7 +257,10 @@ export const store = {
       if (scene.label) {
         const oldName = scene.name;
         const prefix = (index + 1).toString().padStart(2, '0');
-        let baseSlug = scene.label.trim().replace(/[\s-]+/g, "_").replace(/[^a-z0-9_]/gi, "").toLowerCase();
+
+        // Sanitize label before creating filename
+        const sanitizedLabel = sanitizeName(scene.label, 200);
+        let baseSlug = sanitizedLabel.replace(/[\s-]+/g, "_").replace(/[^a-z0-9_]/gi, "").toLowerCase();
         const newName = `${prefix}_${baseSlug}.webp`;
 
         if (newName !== oldName) {
