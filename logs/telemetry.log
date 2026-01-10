@@ -1396,3 +1396,217 @@
 [2026-01-10T09:42:27.764Z] [INFO] [Navigation] Navigation system initialized - None
 [2026-01-10T09:43:40.759Z] [INFO] [Console] Application initialized. - None
 [2026-01-10T09:43:40.763Z] [INFO] [Navigation] Navigation system initialized - None
+[2026-01-10T09:49:38.752Z] [INFO] [Console] Application initialized. - None
+[2026-01-10T09:49:38.756Z] [INFO] [Navigation] Navigation system initialized - None
+[2026-01-10T09:49:40.738Z] [INFO] [Console] Application initialized. - None
+[2026-01-10T09:49:40.742Z] [INFO] [Navigation] Navigation system initialized - None
+[2026-01-10T09:54:59.771Z] [INFO] [Console] Application initialized. - None
+[2026-01-10T09:54:59.775Z] [INFO] [Navigation] Navigation system initialized - None
+[2026-01-10T09:55:45.762Z] [INFO] [Console] Application initialized. - None
+[2026-01-10T09:55:45.765Z] [INFO] [Navigation] Navigation system initialized - None
+[2026-01-10T09:56:04.780Z] [INFO] [Navigation] Navigation system initialized - None
+[2026-01-10T09:56:04.776Z] [INFO] [Console] Application initialized. - None
+[2026-01-10T09:57:14.873Z] [INFO] [Navigation] Navigation system initialized - None
+[2026-01-10T09:57:14.860Z] [INFO] [Console] Application initialized. - None
+[2026-01-10T09:57:27.994Z] [INFO] [Store] Auto-Orientation (Entry): Looking at Link Arrow @ -7.1° - None
+[2026-01-10T09:57:28.001Z] [INFO] [Store] Auto-Orientation (Entry): Looking at Link Arrow @ -7.1° - None
+[2026-01-10T09:57:28.435Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"activeViewer": String("A"), "isSimulation": Bool(false), "scene": String("154407_002.webp")})
+[2026-01-10T09:57:28.436Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"cssTransitionDuration": String("300ms"), "newViewerCamera": Object {"pitch": Number(7.744379463171301), "yaw": Number(-7.131343587387278)}, "preAnimationDelay": Number(0), "scene": String("154407_002.webp"), "totalSwapTime": Number(1), "type": String("CROSSFADE"), "visual": Object {"fadeDirection": String("panorama-a → panorama-b"), "panoramaA": Object {"nowActive": Bool(false), "opacity": Number(1)}, "panoramaB": Object {"nowActive": Bool(true), "opacity": Number(0)}}})
+[2026-01-10T09:57:29.757Z] [INFO] [Navigation] Navigation manually cancelled - None
+[2026-01-10T09:57:31.469Z] [INFO] [Navigation] Navigation manually cancelled - None
+[2026-01-10T09:57:34.170Z] [INFO] [Navigation] Navigation manually cancelled - None
+[2026-01-10T09:57:34.271Z] [INFO] [Simulation] Auto-pilot starting - None
+[2026-01-10T09:57:34.271Z] [INFO] [Navigation] Simulation mode: ON - None
+[2026-01-10T09:57:34.275Z] [INFO] [UI] Notification: Auto-pilot started - None
+[2026-01-10T09:57:35.077Z] [INFO] [Navigation] Journey 5: Scene 0 -> 1 (HFOV: 90) - None
+[2026-01-10T09:57:35.077Z] [INFO] [Simulation] Advancing to 154618_004.webp - Some(Object {"isReturn": Bool(false), "visited": Number(1)})
+[2026-01-10T09:57:35.078Z] [INFO] [Navigation] JOURNEY_START - Some(Object {"distance": String("178.7"), "from": String("154407_002.webp"), "journeyId": Number(5), "panDuration": Number(6000), "to": String("154618_004.webp"), "waypointCount": Number(6)})
+[2026-01-10T09:57:41.089Z] [INFO] [Navigation] Finalizing journey 5 to Scene 1 - None
+[2026-01-10T09:57:41.372Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"activeViewer": String("B"), "isSimulation": Bool(true), "scene": String("154618_004.webp")})
+[2026-01-10T09:57:41.373Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"cssTransitionDuration": String("300ms"), "newViewerCamera": Object {"pitch": Number(-31.286921901102943), "yaw": Number(9.412290770721029)}, "preAnimationDelay": Number(0), "scene": String("154618_004.webp"), "totalSwapTime": Number(1), "type": String("CROSSFADE"), "visual": Object {"fadeDirection": String("panorama-b → panorama-a"), "panoramaA": Object {"nowActive": Bool(true), "opacity": Number(0)}, "panoramaB": Object {"nowActive": Bool(false), "opacity": Number(1)}}})
+[2026-01-10T09:57:41.597Z] [INFO] [Simulation] Advancing to 154744_005.webp - Some(Object {"isReturn": Bool(false), "visited": Number(2)})
+[2026-01-10T09:57:41.597Z] [INFO] [Navigation] Journey 6: Scene 1 -> 2 (HFOV: 90) - None
+[2026-01-10T09:57:41.597Z] [INFO] [Navigation] JOURNEY_START - Some(Object {"distance": String("136.1"), "from": String("154618_004.webp"), "journeyId": Number(6), "panDuration": Number(6000), "to": String("154744_005.webp"), "waypointCount": Number(3)})
+[2026-01-10T09:57:47.606Z] [INFO] [Navigation] Finalizing journey 6 to Scene 2 - None
+[2026-01-10T09:57:47.871Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"activeViewer": String("A"), "isSimulation": Bool(true), "scene": String("154744_005.webp")})
+[2026-01-10T09:57:47.872Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"cssTransitionDuration": String("300ms"), "newViewerCamera": Object {"pitch": Number(65.73467734263131), "yaw": Number(17.201886227355317)}, "preAnimationDelay": Number(0), "scene": String("154744_005.webp"), "totalSwapTime": Number(1), "type": String("CROSSFADE"), "visual": Object {"fadeDirection": String("panorama-a → panorama-b"), "panoramaA": Object {"nowActive": Bool(false), "opacity": Number(1)}, "panoramaB": Object {"nowActive": Bool(true), "opacity": Number(0)}}})
+[2026-01-10T09:57:48.133Z] [INFO] [Navigation] Journey 7: Scene 2 -> 3 (HFOV: 90) - None
+[2026-01-10T09:57:48.132Z] [INFO] [Simulation] Advancing to 154859_006.webp - Some(Object {"isReturn": Bool(false), "visited": Number(3)})
+[2026-01-10T09:57:48.133Z] [INFO] [Navigation] JOURNEY_START - Some(Object {"distance": String("102.7"), "from": String("154744_005.webp"), "journeyId": Number(7), "panDuration": Number(6000), "to": String("154859_006.webp"), "waypointCount": Number(3)})
+[2026-01-10T09:57:54.140Z] [INFO] [Navigation] Finalizing journey 7 to Scene 3 - None
+[2026-01-10T09:57:54.422Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"activeViewer": String("B"), "isSimulation": Bool(true), "scene": String("154859_006.webp")})
+[2026-01-10T09:57:54.423Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"cssTransitionDuration": String("300ms"), "newViewerCamera": Object {"pitch": Number(0), "yaw": Number(0)}, "preAnimationDelay": Number(0), "scene": String("154859_006.webp"), "totalSwapTime": Number(1), "type": String("CROSSFADE"), "visual": Object {"fadeDirection": String("panorama-b → panorama-a"), "panoramaA": Object {"nowActive": Bool(true), "opacity": Number(0)}, "panoramaB": Object {"nowActive": Bool(false), "opacity": Number(1)}}})
+[2026-01-10T09:57:54.667Z] [INFO] [Simulation] Auto-pilot complete: No hotspots in current scene - None
+[2026-01-10T09:57:54.667Z] [INFO] [Simulation] Auto-pilot journey complete - Some(Object {"scenesVisited": Number(4), "totalScenes": Number(6)})
+[2026-01-10T09:57:54.667Z] [INFO] [UI] Notification: Simulation complete! Visited 4 scenes. - None
+[2026-01-10T09:57:55.471Z] [INFO] [Navigation] Simulation mode: OFF - None
+[2026-01-10T09:57:55.470Z] [INFO] [Simulation] Auto-pilot stopping - Some(Object {"returnToStart": Bool(true), "visitedCount": Number(4)})
+[2026-01-10T09:57:55.490Z] [INFO] [UI] Notification: Simulation stopped - None
+[2026-01-10T09:57:55.727Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"activeViewer": String("A"), "isSimulation": Bool(false), "scene": String("154407_002.webp")})
+[2026-01-10T09:57:55.728Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"cssTransitionDuration": String("300ms"), "newViewerCamera": Object {"pitch": Number(0), "yaw": Number(0)}, "preAnimationDelay": Number(0), "scene": String("154407_002.webp"), "totalSwapTime": Number(1), "type": String("CROSSFADE"), "visual": Object {"fadeDirection": String("panorama-a → panorama-b"), "panoramaA": Object {"nowActive": Bool(false), "opacity": Number(1)}, "panoramaB": Object {"nowActive": Bool(true), "opacity": Number(0)}}})
+[2026-01-10T09:57:59.630Z] [INFO] [Simulation] Auto-pilot starting - None
+[2026-01-10T09:57:59.629Z] [INFO] [Teaser] Cinematic recording started - running simulation - None
+[2026-01-10T09:57:59.630Z] [INFO] [Navigation] Simulation mode: ON - None
+[2026-01-10T09:57:59.637Z] [INFO] [UI] Notification: Auto-pilot started - None
+[2026-01-10T09:58:00.438Z] [INFO] [Simulation] Advancing to 154618_004.webp - Some(Object {"isReturn": Bool(false), "visited": Number(1)})
+[2026-01-10T09:58:00.438Z] [INFO] [Navigation] Journey 10: Scene 0 -> 1 (HFOV: 90) - None
+[2026-01-10T09:58:00.438Z] [INFO] [Navigation] JOURNEY_START - Some(Object {"distance": String("178.7"), "from": String("154407_002.webp"), "journeyId": Number(10), "panDuration": Number(6000), "to": String("154618_004.webp"), "waypointCount": Number(6)})
+[2026-01-10T09:58:06.439Z] [INFO] [Navigation] Finalizing journey 10 to Scene 1 - None
+[2026-01-10T09:58:06.605Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"activeViewer": String("B"), "isSimulation": Bool(true), "scene": String("154618_004.webp")})
+[2026-01-10T09:58:06.606Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"cssTransitionDuration": String("300ms"), "newViewerCamera": Object {"pitch": Number(-31.286921901102943), "yaw": Number(9.412290770721029)}, "preAnimationDelay": Number(0), "scene": String("154618_004.webp"), "totalSwapTime": Number(1), "type": String("CROSSFADE"), "visual": Object {"fadeDirection": String("panorama-b → panorama-a"), "panoramaA": Object {"nowActive": Bool(true), "opacity": Number(0)}, "panoramaB": Object {"nowActive": Bool(false), "opacity": Number(1)}}})
+[2026-01-10T09:58:06.943Z] [INFO] [Navigation] Journey 11: Scene 1 -> 2 (HFOV: 90) - None
+[2026-01-10T09:58:06.943Z] [INFO] [Simulation] Advancing to 154744_005.webp - Some(Object {"isReturn": Bool(false), "visited": Number(2)})
+[2026-01-10T09:58:06.943Z] [INFO] [Navigation] JOURNEY_START - Some(Object {"distance": String("136.1"), "from": String("154618_004.webp"), "journeyId": Number(11), "panDuration": Number(6000), "to": String("154744_005.webp"), "waypointCount": Number(3)})
+[2026-01-10T09:58:12.956Z] [INFO] [Navigation] Finalizing journey 11 to Scene 2 - None
+[2026-01-10T09:58:13.206Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"activeViewer": String("A"), "isSimulation": Bool(true), "scene": String("154744_005.webp")})
+[2026-01-10T09:58:13.207Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"cssTransitionDuration": String("300ms"), "newViewerCamera": Object {"pitch": Number(65.73467734263131), "yaw": Number(17.201886227355317)}, "preAnimationDelay": Number(0), "scene": String("154744_005.webp"), "totalSwapTime": Number(1), "type": String("CROSSFADE"), "visual": Object {"fadeDirection": String("panorama-a → panorama-b"), "panoramaA": Object {"nowActive": Bool(false), "opacity": Number(1)}, "panoramaB": Object {"nowActive": Bool(true), "opacity": Number(0)}}})
+[2026-01-10T09:58:13.472Z] [INFO] [Navigation] Journey 12: Scene 2 -> 3 (HFOV: 90) - None
+[2026-01-10T09:58:13.472Z] [INFO] [Simulation] Advancing to 154859_006.webp - Some(Object {"isReturn": Bool(false), "visited": Number(3)})
+[2026-01-10T09:58:13.472Z] [INFO] [Navigation] JOURNEY_START - Some(Object {"distance": String("102.7"), "from": String("154744_005.webp"), "journeyId": Number(12), "panDuration": Number(6000), "to": String("154859_006.webp"), "waypointCount": Number(3)})
+[2026-01-10T09:58:19.473Z] [INFO] [Navigation] Finalizing journey 12 to Scene 3 - None
+[2026-01-10T09:58:19.723Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"activeViewer": String("B"), "isSimulation": Bool(true), "scene": String("154859_006.webp")})
+[2026-01-10T09:58:19.723Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"cssTransitionDuration": String("300ms"), "newViewerCamera": Object {"pitch": Number(0), "yaw": Number(0)}, "preAnimationDelay": Number(0), "scene": String("154859_006.webp"), "totalSwapTime": Number(0), "type": String("CROSSFADE"), "visual": Object {"fadeDirection": String("panorama-b → panorama-a"), "panoramaA": Object {"nowActive": Bool(true), "opacity": Number(0)}, "panoramaB": Object {"nowActive": Bool(false), "opacity": Number(1)}}})
+[2026-01-10T09:58:19.986Z] [INFO] [Simulation] Auto-pilot complete: No hotspots in current scene - None
+[2026-01-10T09:58:19.986Z] [INFO] [Simulation] Auto-pilot journey complete - Some(Object {"scenesVisited": Number(4), "totalScenes": Number(6)})
+[2026-01-10T09:58:19.986Z] [INFO] [UI] Notification: Simulation complete! Visited 4 scenes. - None
+[2026-01-10T09:58:20.789Z] [INFO] [Navigation] Simulation mode: OFF - None
+[2026-01-10T09:58:20.789Z] [INFO] [Simulation] Auto-pilot stopping - Some(Object {"returnToStart": Bool(true), "visitedCount": Number(4)})
+[2026-01-10T09:58:20.798Z] [INFO] [UI] Notification: Simulation stopped - None
+[2026-01-10T09:58:21.038Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"activeViewer": String("A"), "isSimulation": Bool(false), "scene": String("154407_002.webp")})
+[2026-01-10T09:58:21.039Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"cssTransitionDuration": String("300ms"), "newViewerCamera": Object {"pitch": Number(0), "yaw": Number(0)}, "preAnimationDelay": Number(0), "scene": String("154407_002.webp"), "totalSwapTime": Number(1), "type": String("CROSSFADE"), "visual": Object {"fadeDirection": String("panorama-a → panorama-b"), "panoramaA": Object {"nowActive": Bool(false), "opacity": Number(1)}, "panoramaB": Object {"nowActive": Bool(true), "opacity": Number(0)}}})
+[2026-01-10T09:58:21.220Z] [INFO] [Teaser] Simulation complete - stopping recording - None
+[2026-01-10T10:00:32.120Z] [INFO] [Navigation] Navigation manually cancelled - None
+[2026-01-10T10:00:32.170Z] [INFO] [Simulation] Auto-pilot starting - None
+[2026-01-10T10:00:32.170Z] [INFO] [Navigation] Simulation mode: ON - None
+[2026-01-10T10:00:32.174Z] [INFO] [UI] Notification: Auto-pilot started - None
+[2026-01-10T10:00:32.976Z] [INFO] [Navigation] Journey 16: Scene 0 -> 1 (HFOV: 90) - None
+[2026-01-10T10:00:32.976Z] [INFO] [Simulation] Advancing to 154618_004.webp - Some(Object {"isReturn": Bool(false), "visited": Number(1)})
+[2026-01-10T10:00:32.977Z] [INFO] [Navigation] JOURNEY_START - Some(Object {"distance": String("178.7"), "from": String("154407_002.webp"), "journeyId": Number(16), "panDuration": Number(6000), "to": String("154618_004.webp"), "waypointCount": Number(6)})
+[2026-01-10T10:00:38.990Z] [INFO] [Navigation] Finalizing journey 16 to Scene 1 - None
+[2026-01-10T10:00:39.255Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"activeViewer": String("B"), "isSimulation": Bool(true), "scene": String("154618_004.webp")})
+[2026-01-10T10:00:39.256Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"cssTransitionDuration": String("300ms"), "newViewerCamera": Object {"pitch": Number(-31.286921901102943), "yaw": Number(9.412290770721029)}, "preAnimationDelay": Number(1), "scene": String("154618_004.webp"), "totalSwapTime": Number(1), "type": String("CROSSFADE"), "visual": Object {"fadeDirection": String("panorama-b → panorama-a"), "panoramaA": Object {"nowActive": Bool(true), "opacity": Number(0)}, "panoramaB": Object {"nowActive": Bool(false), "opacity": Number(1)}}})
+[2026-01-10T10:00:39.497Z] [INFO] [Navigation] Journey 17: Scene 1 -> 2 (HFOV: 90) - None
+[2026-01-10T10:00:39.497Z] [INFO] [Simulation] Advancing to 154744_005.webp - Some(Object {"isReturn": Bool(false), "visited": Number(2)})
+[2026-01-10T10:00:39.497Z] [INFO] [Navigation] JOURNEY_START - Some(Object {"distance": String("136.1"), "from": String("154618_004.webp"), "journeyId": Number(17), "panDuration": Number(6000), "to": String("154744_005.webp"), "waypointCount": Number(3)})
+[2026-01-10T10:00:45.507Z] [INFO] [Navigation] Finalizing journey 17 to Scene 2 - None
+[2026-01-10T10:00:45.790Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"activeViewer": String("A"), "isSimulation": Bool(true), "scene": String("154744_005.webp")})
+[2026-01-10T10:00:45.790Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"cssTransitionDuration": String("300ms"), "newViewerCamera": Object {"pitch": Number(65.73467734263131), "yaw": Number(17.201886227355317)}, "preAnimationDelay": Number(0), "scene": String("154744_005.webp"), "totalSwapTime": Number(0), "type": String("CROSSFADE"), "visual": Object {"fadeDirection": String("panorama-a → panorama-b"), "panoramaA": Object {"nowActive": Bool(false), "opacity": Number(1)}, "panoramaB": Object {"nowActive": Bool(true), "opacity": Number(0)}}})
+[2026-01-10T10:00:46.033Z] [INFO] [Simulation] Advancing to 154859_006.webp - Some(Object {"isReturn": Bool(false), "visited": Number(3)})
+[2026-01-10T10:00:46.033Z] [INFO] [Navigation] Journey 18: Scene 2 -> 3 (HFOV: 90) - None
+[2026-01-10T10:00:46.034Z] [INFO] [Navigation] JOURNEY_START - Some(Object {"distance": String("102.7"), "from": String("154744_005.webp"), "journeyId": Number(18), "panDuration": Number(6000), "to": String("154859_006.webp"), "waypointCount": Number(3)})
+[2026-01-10T10:00:52.041Z] [INFO] [Navigation] Finalizing journey 18 to Scene 3 - None
+[2026-01-10T10:00:52.306Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"activeViewer": String("B"), "isSimulation": Bool(true), "scene": String("154859_006.webp")})
+[2026-01-10T10:00:52.307Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"cssTransitionDuration": String("300ms"), "newViewerCamera": Object {"pitch": Number(0), "yaw": Number(0)}, "preAnimationDelay": Number(0), "scene": String("154859_006.webp"), "totalSwapTime": Number(1), "type": String("CROSSFADE"), "visual": Object {"fadeDirection": String("panorama-b → panorama-a"), "panoramaA": Object {"nowActive": Bool(true), "opacity": Number(0)}, "panoramaB": Object {"nowActive": Bool(false), "opacity": Number(1)}}})
+[2026-01-10T10:00:52.564Z] [INFO] [Simulation] Auto-pilot complete: No hotspots in current scene - None
+[2026-01-10T10:00:52.564Z] [INFO] [Simulation] Auto-pilot journey complete - Some(Object {"scenesVisited": Number(4), "totalScenes": Number(6)})
+[2026-01-10T10:00:52.564Z] [INFO] [UI] Notification: Simulation complete! Visited 4 scenes. - None
+[2026-01-10T10:00:53.366Z] [INFO] [Navigation] Simulation mode: OFF - None
+[2026-01-10T10:00:53.365Z] [INFO] [Simulation] Auto-pilot stopping - Some(Object {"returnToStart": Bool(true), "visitedCount": Number(4)})
+[2026-01-10T10:00:53.384Z] [INFO] [UI] Notification: Simulation stopped - None
+[2026-01-10T10:00:53.723Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"activeViewer": String("A"), "isSimulation": Bool(false), "scene": String("154407_002.webp")})
+[2026-01-10T10:00:53.724Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"cssTransitionDuration": String("300ms"), "newViewerCamera": Object {"pitch": Number(0), "yaw": Number(0)}, "preAnimationDelay": Number(0), "scene": String("154407_002.webp"), "totalSwapTime": Number(1), "type": String("CROSSFADE"), "visual": Object {"fadeDirection": String("panorama-a → panorama-b"), "panoramaA": Object {"nowActive": Bool(false), "opacity": Number(1)}, "panoramaB": Object {"nowActive": Bool(true), "opacity": Number(0)}}})
+[2026-01-10T10:00:56.605Z] [INFO] [Navigation] Navigation manually cancelled - None
+[2026-01-10T10:00:56.763Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"activeViewer": String("B"), "isSimulation": Bool(false), "scene": String("154859_006.webp")})
+[2026-01-10T10:00:56.763Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"cssTransitionDuration": String("300ms"), "newViewerCamera": Object {"pitch": Number(0), "yaw": Number(0)}, "preAnimationDelay": Number(0), "scene": String("154859_006.webp"), "totalSwapTime": Number(0), "type": String("CUT"), "visual": Object {"fadeDirection": String("panorama-b → panorama-a"), "panoramaA": Object {"nowActive": Bool(true), "opacity": Number(1)}, "panoramaB": Object {"nowActive": Bool(false), "opacity": Number(0)}}})
+[2026-01-10T10:00:57.469Z] [INFO] [Navigation] Navigation manually cancelled - None
+[2026-01-10T10:00:58.287Z] [INFO] [Navigation] Navigation manually cancelled - None
+[2026-01-10T10:00:59.103Z] [INFO] [Navigation] Navigation manually cancelled - None
+[2026-01-10T10:01:00.804Z] [INFO] [Navigation] Navigation manually cancelled - None
+[2026-01-10T10:01:00.915Z] [INFO] [UI] Notification: Link Mode: ACTIVE - None
+[2026-01-10T10:01:01.707Z] [INFO] [UI] Notification: Start Point Set. Click to add path points. ENTER to finish. - None
+[2026-01-10T10:01:01.707Z] [INFO] [Navigation] Navigation manually cancelled - None
+[2026-01-10T10:01:03.505Z] [INFO] [UI] Notification: Point Added (1). Press ENTER to finish. - None
+[2026-01-10T10:01:03.505Z] [INFO] [Navigation] Navigation manually cancelled - None
+[2026-01-10T10:01:07.372Z] [INFO] [UI] Notification: Point Added (2). Press ENTER to finish. - None
+[2026-01-10T10:01:07.372Z] [INFO] [Navigation] Navigation manually cancelled - None
+[2026-01-10T10:01:11.105Z] [INFO] [UI] Notification: Point Added (3). Press ENTER to finish. - None
+[2026-01-10T10:01:11.105Z] [INFO] [Navigation] Navigation manually cancelled - None
+[2026-01-10T10:01:14.670Z] [INFO] [UI] Notification: Point Added (4). Press ENTER to finish. - None
+[2026-01-10T10:01:14.671Z] [INFO] [Navigation] Navigation manually cancelled - None
+[2026-01-10T10:01:17.588Z] [INFO] [Navigation] Navigation manually cancelled - None
+[2026-01-10T10:01:17.588Z] [INFO] [UI] Notification: Point Added (5). Press ENTER to finish. - None
+[2026-01-10T10:01:27.263Z] [INFO] [Teaser] Cinematic recording started - running simulation - None
+[2026-01-10T10:01:27.263Z] [INFO] [Navigation] Simulation mode: ON - None
+[2026-01-10T10:01:27.263Z] [INFO] [Simulation] Auto-pilot starting - None
+[2026-01-10T10:01:27.275Z] [INFO] [UI] Notification: Auto-pilot started - None
+[2026-01-10T10:01:27.540Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"activeViewer": String("A"), "isSimulation": Bool(true), "scene": String("154407_002.webp")})
+[2026-01-10T10:01:27.541Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"cssTransitionDuration": String("300ms"), "newViewerCamera": Object {"pitch": Number(0), "yaw": Number(0)}, "preAnimationDelay": Number(0), "scene": String("154407_002.webp"), "totalSwapTime": Number(1), "type": String("CROSSFADE"), "visual": Object {"fadeDirection": String("panorama-a → panorama-b"), "panoramaA": Object {"nowActive": Bool(false), "opacity": Number(1)}, "panoramaB": Object {"nowActive": Bool(true), "opacity": Number(0)}}})
+[2026-01-10T10:01:28.076Z] [INFO] [Simulation] Advancing to 154618_004.webp - Some(Object {"isReturn": Bool(false), "visited": Number(1)})
+[2026-01-10T10:01:28.076Z] [INFO] [Navigation] Journey 32: Scene 0 -> 1 (HFOV: 90) - None
+[2026-01-10T10:01:28.076Z] [INFO] [Navigation] JOURNEY_START - Some(Object {"distance": String("178.7"), "from": String("154407_002.webp"), "journeyId": Number(32), "panDuration": Number(6000), "to": String("154618_004.webp"), "waypointCount": Number(6)})
+[2026-01-10T10:01:34.089Z] [INFO] [Navigation] Finalizing journey 32 to Scene 1 - None
+[2026-01-10T10:01:34.340Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"activeViewer": String("B"), "isSimulation": Bool(true), "scene": String("154618_004.webp")})
+[2026-01-10T10:01:34.341Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"cssTransitionDuration": String("300ms"), "newViewerCamera": Object {"pitch": Number(-31.286921901102943), "yaw": Number(9.412290770721029)}, "preAnimationDelay": Number(0), "scene": String("154618_004.webp"), "totalSwapTime": Number(1), "type": String("CROSSFADE"), "visual": Object {"fadeDirection": String("panorama-b → panorama-a"), "panoramaA": Object {"nowActive": Bool(true), "opacity": Number(0)}, "panoramaB": Object {"nowActive": Bool(false), "opacity": Number(1)}}})
+[2026-01-10T10:01:34.604Z] [INFO] [Navigation] Journey 33: Scene 1 -> 2 (HFOV: 90) - None
+[2026-01-10T10:01:34.604Z] [INFO] [Simulation] Advancing to 154744_005.webp - Some(Object {"isReturn": Bool(false), "visited": Number(2)})
+[2026-01-10T10:01:34.604Z] [INFO] [Navigation] JOURNEY_START - Some(Object {"distance": String("136.1"), "from": String("154618_004.webp"), "journeyId": Number(33), "panDuration": Number(6000), "to": String("154744_005.webp"), "waypointCount": Number(3)})
+[2026-01-10T10:01:40.607Z] [INFO] [Navigation] Finalizing journey 33 to Scene 2 - None
+[2026-01-10T10:01:40.857Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"activeViewer": String("A"), "isSimulation": Bool(true), "scene": String("154744_005.webp")})
+[2026-01-10T10:01:40.858Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"cssTransitionDuration": String("300ms"), "newViewerCamera": Object {"pitch": Number(65.73467734263131), "yaw": Number(17.201886227355317)}, "preAnimationDelay": Number(0), "scene": String("154744_005.webp"), "totalSwapTime": Number(0), "type": String("CROSSFADE"), "visual": Object {"fadeDirection": String("panorama-a → panorama-b"), "panoramaA": Object {"nowActive": Bool(false), "opacity": Number(1)}, "panoramaB": Object {"nowActive": Bool(true), "opacity": Number(0)}}})
+[2026-01-10T10:01:41.124Z] [INFO] [Navigation] Journey 34: Scene 2 -> 3 (HFOV: 90) - None
+[2026-01-10T10:01:41.123Z] [INFO] [Simulation] Advancing to 154859_006.webp - Some(Object {"isReturn": Bool(false), "visited": Number(3)})
+[2026-01-10T10:01:41.124Z] [INFO] [Navigation] JOURNEY_START - Some(Object {"distance": String("102.7"), "from": String("154744_005.webp"), "journeyId": Number(34), "panDuration": Number(6000), "to": String("154859_006.webp"), "waypointCount": Number(3)})
+[2026-01-10T10:01:47.124Z] [INFO] [Navigation] Finalizing journey 34 to Scene 3 - None
+[2026-01-10T10:01:47.373Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"activeViewer": String("B"), "isSimulation": Bool(true), "scene": String("154859_006.webp")})
+[2026-01-10T10:01:47.374Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"cssTransitionDuration": String("300ms"), "newViewerCamera": Object {"pitch": Number(-7.312248259116448), "yaw": Number(129.7993199573881)}, "preAnimationDelay": Number(0), "scene": String("154859_006.webp"), "totalSwapTime": Number(1), "type": String("CROSSFADE"), "visual": Object {"fadeDirection": String("panorama-b → panorama-a"), "panoramaA": Object {"nowActive": Bool(true), "opacity": Number(0)}, "panoramaB": Object {"nowActive": Bool(false), "opacity": Number(1)}}})
+[2026-01-10T10:01:47.637Z] [INFO] [Navigation] Journey 35: Scene 3 -> 4 (HFOV: 90) - None
+[2026-01-10T10:01:47.637Z] [INFO] [Simulation] Advancing to 155038_007.webp - Some(Object {"isReturn": Bool(false), "visited": Number(4)})
+[2026-01-10T10:01:47.637Z] [INFO] [Navigation] JOURNEY_START - Some(Object {"distance": String("209.5"), "from": String("154859_006.webp"), "journeyId": Number(35), "panDuration": Number(6000), "to": String("155038_007.webp"), "waypointCount": Number(5)})
+[2026-01-10T10:01:53.641Z] [INFO] [Navigation] Finalizing journey 35 to Scene 4 - None
+[2026-01-10T10:01:53.890Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"activeViewer": String("A"), "isSimulation": Bool(true), "scene": String("155038_007.webp")})
+[2026-01-10T10:01:53.890Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"cssTransitionDuration": String("300ms"), "newViewerCamera": Object {"pitch": Number(0), "yaw": Number(0)}, "preAnimationDelay": Number(0), "scene": String("155038_007.webp"), "totalSwapTime": Number(0), "type": String("CROSSFADE"), "visual": Object {"fadeDirection": String("panorama-a → panorama-b"), "panoramaA": Object {"nowActive": Bool(false), "opacity": Number(1)}, "panoramaB": Object {"nowActive": Bool(true), "opacity": Number(0)}}})
+[2026-01-10T10:01:54.154Z] [INFO] [Simulation] Auto-pilot complete: No hotspots in current scene - None
+[2026-01-10T10:01:54.154Z] [INFO] [Simulation] Auto-pilot journey complete - Some(Object {"scenesVisited": Number(5), "totalScenes": Number(6)})
+[2026-01-10T10:01:54.154Z] [INFO] [UI] Notification: Simulation complete! Visited 5 scenes. - None
+[2026-01-10T10:01:54.956Z] [INFO] [Navigation] Simulation mode: OFF - None
+[2026-01-10T10:01:54.956Z] [INFO] [Simulation] Auto-pilot stopping - Some(Object {"returnToStart": Bool(true), "visitedCount": Number(5)})
+[2026-01-10T10:01:54.962Z] [INFO] [UI] Notification: Simulation stopped - None
+[2026-01-10T10:01:55.206Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"activeViewer": String("B"), "isSimulation": Bool(false), "scene": String("154407_002.webp")})
+[2026-01-10T10:01:55.207Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"cssTransitionDuration": String("300ms"), "newViewerCamera": Object {"pitch": Number(0), "yaw": Number(0)}, "preAnimationDelay": Number(0), "scene": String("154407_002.webp"), "totalSwapTime": Number(1), "type": String("CROSSFADE"), "visual": Object {"fadeDirection": String("panorama-b → panorama-a"), "panoramaA": Object {"nowActive": Bool(true), "opacity": Number(0)}, "panoramaB": Object {"nowActive": Bool(false), "opacity": Number(1)}}})
+[2026-01-10T10:01:55.395Z] [INFO] [Teaser] Simulation complete - stopping recording - None
+[2026-01-10T10:02:55.820Z] [INFO] [Store] Auto-Orientation (Entry): Looking at Link Arrow @ -7.1° - None
+[2026-01-10T10:02:55.818Z] [INFO] [Store] Auto-Orientation (Entry): Looking at Link Arrow @ -7.1° - None
+[2026-01-10T10:02:57.853Z] [INFO] [Navigation] Navigation manually cancelled - None
+[2026-01-10T10:02:59.488Z] [INFO] [Navigation] Navigation manually cancelled - None
+[2026-01-10T10:03:01.288Z] [INFO] [Navigation] Navigation manually cancelled - None
+[2026-01-10T10:03:01.371Z] [INFO] [Simulation] Auto-pilot starting - None
+[2026-01-10T10:03:01.372Z] [INFO] [Navigation] Simulation mode: ON - None
+[2026-01-10T10:03:01.377Z] [INFO] [UI] Notification: Auto-pilot started - None
+[2026-01-10T10:03:02.179Z] [INFO] [Simulation] Advancing to 154618_004.webp - Some(Object {"isReturn": Bool(false), "visited": Number(1)})
+[2026-01-10T10:03:02.179Z] [INFO] [Navigation] Journey 41: Scene 0 -> 1 (HFOV: 90) - None
+[2026-01-10T10:03:02.179Z] [INFO] [Navigation] JOURNEY_START - Some(Object {"distance": String("178.7"), "from": String("154407_002.webp"), "journeyId": Number(41), "panDuration": Number(6000), "to": String("154618_004.webp"), "waypointCount": Number(6)})
+[2026-01-10T10:03:08.191Z] [INFO] [Navigation] Finalizing journey 41 to Scene 1 - None
+[2026-01-10T10:03:08.606Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"activeViewer": String("A"), "isSimulation": Bool(true), "scene": String("154618_004.webp")})
+[2026-01-10T10:03:08.607Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"cssTransitionDuration": String("300ms"), "newViewerCamera": Object {"pitch": Number(-31.286921901102943), "yaw": Number(9.412290770721029)}, "preAnimationDelay": Number(0), "scene": String("154618_004.webp"), "totalSwapTime": Number(1), "type": String("CROSSFADE"), "visual": Object {"fadeDirection": String("panorama-a → panorama-b"), "panoramaA": Object {"nowActive": Bool(false), "opacity": Number(1)}, "panoramaB": Object {"nowActive": Bool(true), "opacity": Number(0)}}})
+[2026-01-10T10:03:08.698Z] [INFO] [Navigation] Journey 42: Scene 1 -> 2 (HFOV: 90) - None
+[2026-01-10T10:03:08.698Z] [INFO] [Simulation] Advancing to 154744_005.webp - Some(Object {"isReturn": Bool(false), "visited": Number(2)})
+[2026-01-10T10:03:08.698Z] [INFO] [Navigation] JOURNEY_START - Some(Object {"distance": String("136.1"), "from": String("154618_004.webp"), "journeyId": Number(42), "panDuration": Number(6000), "to": String("154744_005.webp"), "waypointCount": Number(3)})
+[2026-01-10T10:03:14.708Z] [INFO] [Navigation] Finalizing journey 42 to Scene 2 - None
+[2026-01-10T10:03:14.973Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"activeViewer": String("B"), "isSimulation": Bool(true), "scene": String("154744_005.webp")})
+[2026-01-10T10:03:14.973Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"cssTransitionDuration": String("300ms"), "newViewerCamera": Object {"pitch": Number(65.73467734263131), "yaw": Number(17.201886227355317)}, "preAnimationDelay": Number(0), "scene": String("154744_005.webp"), "totalSwapTime": Number(0), "type": String("CROSSFADE"), "visual": Object {"fadeDirection": String("panorama-b → panorama-a"), "panoramaA": Object {"nowActive": Bool(true), "opacity": Number(0)}, "panoramaB": Object {"nowActive": Bool(false), "opacity": Number(1)}}})
+[2026-01-10T10:03:15.230Z] [INFO] [Navigation] Journey 43: Scene 2 -> 3 (HFOV: 90) - None
+[2026-01-10T10:03:15.230Z] [INFO] [Simulation] Advancing to 154859_006.webp - Some(Object {"isReturn": Bool(false), "visited": Number(3)})
+[2026-01-10T10:03:15.230Z] [INFO] [Navigation] JOURNEY_START - Some(Object {"distance": String("102.7"), "from": String("154744_005.webp"), "journeyId": Number(43), "panDuration": Number(6000), "to": String("154859_006.webp"), "waypointCount": Number(3)})
+[2026-01-10T10:03:21.241Z] [INFO] [Navigation] Finalizing journey 43 to Scene 3 - None
+[2026-01-10T10:03:21.523Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"activeViewer": String("A"), "isSimulation": Bool(true), "scene": String("154859_006.webp")})
+[2026-01-10T10:03:21.523Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"cssTransitionDuration": String("300ms"), "newViewerCamera": Object {"pitch": Number(-7.312248259116448), "yaw": Number(129.7993199573881)}, "preAnimationDelay": Number(0), "scene": String("154859_006.webp"), "totalSwapTime": Number(0), "type": String("CROSSFADE"), "visual": Object {"fadeDirection": String("panorama-a → panorama-b"), "panoramaA": Object {"nowActive": Bool(false), "opacity": Number(1)}, "panoramaB": Object {"nowActive": Bool(true), "opacity": Number(0)}}})
+[2026-01-10T10:03:21.767Z] [INFO] [Simulation] Advancing to 155038_007.webp - Some(Object {"isReturn": Bool(false), "visited": Number(4)})
+[2026-01-10T10:03:21.767Z] [INFO] [Navigation] Journey 44: Scene 3 -> 4 (HFOV: 90) - None
+[2026-01-10T10:03:21.768Z] [INFO] [Navigation] JOURNEY_START - Some(Object {"distance": String("209.5"), "from": String("154859_006.webp"), "journeyId": Number(44), "panDuration": Number(6000), "to": String("155038_007.webp"), "waypointCount": Number(5)})
+[2026-01-10T10:03:27.775Z] [INFO] [Navigation] Finalizing journey 44 to Scene 4 - None
+[2026-01-10T10:03:28.040Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"activeViewer": String("B"), "isSimulation": Bool(true), "scene": String("155038_007.webp")})
+[2026-01-10T10:03:28.041Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"cssTransitionDuration": String("300ms"), "newViewerCamera": Object {"pitch": Number(0), "yaw": Number(0)}, "preAnimationDelay": Number(0), "scene": String("155038_007.webp"), "totalSwapTime": Number(1), "type": String("CROSSFADE"), "visual": Object {"fadeDirection": String("panorama-b → panorama-a"), "panoramaA": Object {"nowActive": Bool(true), "opacity": Number(0)}, "panoramaB": Object {"nowActive": Bool(false), "opacity": Number(1)}}})
+[2026-01-10T10:03:28.296Z] [INFO] [Simulation] Auto-pilot complete: No hotspots in current scene - None
+[2026-01-10T10:03:28.297Z] [INFO] [Simulation] Auto-pilot journey complete - Some(Object {"scenesVisited": Number(5), "totalScenes": Number(6)})
+[2026-01-10T10:03:28.297Z] [INFO] [UI] Notification: Simulation complete! Visited 5 scenes. - None
+[2026-01-10T10:03:29.100Z] [INFO] [Navigation] Simulation mode: OFF - None
+[2026-01-10T10:03:29.099Z] [INFO] [Simulation] Auto-pilot stopping - Some(Object {"returnToStart": Bool(true), "visitedCount": Number(5)})
+[2026-01-10T10:03:29.115Z] [INFO] [UI] Notification: Simulation stopped - None
+[2026-01-10T10:03:29.359Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"activeViewer": String("A"), "isSimulation": Bool(false), "scene": String("154407_002.webp")})
+[2026-01-10T10:03:29.359Z] [INFO] [Viewer] SWAP_INITIATED - Some(Object {"cssTransitionDuration": String("300ms"), "newViewerCamera": Object {"pitch": Number(0), "yaw": Number(0)}, "preAnimationDelay": Number(0), "scene": String("154407_002.webp"), "totalSwapTime": Number(0), "type": String("CROSSFADE"), "visual": Object {"fadeDirection": String("panorama-a → panorama-b"), "panoramaA": Object {"nowActive": Bool(false), "opacity": Number(1)}, "panoramaB": Object {"nowActive": Bool(true), "opacity": Number(0)}}})
+[2026-01-10T10:04:42.801Z] [INFO] [Console] Application initialized. - None
+[2026-01-10T10:04:42.805Z] [INFO] [Navigation] Navigation system initialized - None
+[2026-01-10T10:04:44.768Z] [INFO] [Console] Application initialized. - None
+[2026-01-10T10:04:44.772Z] [INFO] [Navigation] Navigation system initialized - None
+[2026-01-10T10:04:52.762Z] [INFO] [Navigation] Navigation system initialized - None
+[2026-01-10T10:04:52.759Z] [INFO] [Console] Application initialized. - None

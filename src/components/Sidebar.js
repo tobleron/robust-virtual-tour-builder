@@ -222,6 +222,13 @@ export function initSidebar() {
                 .modal-btn-premium.btn-orange:hover {
                     background: #f97316; /* Bright Orange */
                 }
+                .modal-btn-premium.btn-purple {
+                    background: #7e22ce; /* Purple 700 */
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                }
+                .modal-btn-premium.btn-purple:hover {
+                    background: #a855f7; /* Purple 500 - Brighter */
+                }
                 .modal-btn-premium.btn-secondary {
                     background: transparent;
                     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -351,7 +358,7 @@ export function initSidebar() {
                         <span style="font-size: 12px; opacity: 0.6; text-transform: none; font-weight: 500;">Fast, dynamic cuts focused on links</span>
                     </button>
                     
-                    <button id="btn-style-cinematic" class="modal-btn-premium btn-blue" style="width: 100%; flex-direction: column; padding: 12px;">
+                    <button id="btn-style-cinematic" class="modal-btn-premium btn-purple" style="width: 100%; flex-direction: column; padding: 12px;">
                         <span style="font-size: 13px;">Cinematic Scenes</span>
                         <span style="font-size: 12px; opacity: 0.6; text-transform: none; font-weight: 500;">Exact recording of simulation path</span>
                     </button>

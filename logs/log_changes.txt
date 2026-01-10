@@ -715,3 +715,9 @@
 - Improvement: Navigation System. Fixed arrow alignment and movement for complex paths; added PANNING_VELOCITY constants.
 - UI: Redesigned link creation indicators. Yellow dashed lines for drafting, permanent red lines for active paths.
 - Cleanup: Executed project-wide cleanup (cargo clean, log rotation) and promoted to stable main branch.
+
+[2026-01-10 12:04] Version 4.0.8
+- Implemented Centripetal Catmull-Rom Spline for smooth waypoint paths
+- Updated Cinematic and Simulation modes to follow curved paths
+- Updated Teaser "Cinematic Scenes" button to purple styling
+- Refined visual path rendering (Red/Yellow dashed lines) to be curved

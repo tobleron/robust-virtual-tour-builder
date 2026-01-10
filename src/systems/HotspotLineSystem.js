@@ -5,6 +5,7 @@
  * and hotspots.
  */
 import { getIsSimulationMode, calculateSmartArrivalTarget, getAutoForwardChain } from "./NavigationSystem.js";
+import { getCatmullRomSpline } from "../utils/PathInterpolation.js";
 
 export class HotspotLineSystem {
     /**
@@ -47,44 +48,14 @@ export class HotspotLineSystem {
                 let endPitch = h.viewFrame.pitch;
                 let endYaw = h.viewFrame.yaw;
 
-                const isSim = getIsSimulationMode();
-
-                // REMOVED MOMENTUM LOGIC: The visual line should always start exactly at the hotspot
-                // to match the blinking arrow path and provide accurate feedback.
-                /*
-                if (isSim) {
-                    const chain = getAutoForwardChain();
-                    if (chain.length > 0) {
-                        const momentum = 0.10;
-                        let yawDiff = endYaw - startYaw;
-                        while (yawDiff > 180) yawDiff -= 360;
-                        while (yawDiff < -180) yawDiff += 360;
-
-                        // If we have waypoints, momentum should apply to the first segment
-                        if (!h.waypoints || h.waypoints.length === 0) {
-                            startPitch = startPitch + (endPitch - startPitch) * momentum;
-                            startYaw = startYaw + yawDiff * momentum;
-                        }
-                    }
-                }
-                */
-
                 // DRAW MULTI-POINT PATH (Red Dashed)
+                // Use Spline if waypoints exist
                 if (h.waypoints && h.waypoints.length > 0) {
-                    let prevP = { pitch: startPitch, yaw: startYaw };
+                    const controlPoints = [{ yaw: startYaw, pitch: startPitch }, ...h.waypoints, { yaw: endYaw, pitch: endPitch }];
+                    const splinePath = getCatmullRomSpline(controlPoints, 60); // 60 segments for smooth curve
 
-                    // Draw Start -> W1 -> W2 ... -> End
-                    const allPoints = [...h.waypoints, { pitch: endPitch, yaw: endYaw }];
+                    this.drawPolyLine(svg, viewer, splinePath, rect, "#ef4444", 3.0, 0.8, "4,4");
 
-                    allPoints.forEach(p => {
-                        const pStart = this.getScreenCoords(viewer, prevP.pitch, prevP.yaw, rect);
-                        const pEnd = this.getScreenCoords(viewer, p.pitch, p.yaw, rect);
-
-                        if (pStart && pEnd) {
-                            this.drawLine(svg, pStart.x, pStart.y, pEnd.x, pEnd.y, "#ef4444", 3.0, 0.8, "4,4");
-                        }
-                        prevP = p;
-                    });
                 } else {
                     // Standard straight line
                     const startCoords = this.getScreenCoords(viewer, startPitch, startYaw, rect);
@@ -102,49 +73,56 @@ export class HotspotLineSystem {
             const draft = state.linkDraft;
 
             // --- A. RED DASHED LINES (CAMERA PATH) ---
-            // Connecting camera centers at each click
-            let prevCam = { pitch: draft.camPitch, yaw: draft.camYaw };
+            // Draw spline from Start -> Waypoints -> Current Camera
+            const camStart = { yaw: draft.camYaw, pitch: draft.camPitch };
+            const currentCam = { yaw: viewer.getYaw(), pitch: viewer.getPitch() };
 
-            if (draft.intermediatePoints && draft.intermediatePoints.length > 0) {
-                draft.intermediatePoints.forEach(p => {
-                    const startCoords = this.getScreenCoords(viewer, prevCam.pitch, prevCam.yaw, rect);
-                    const endCoords = this.getScreenCoords(viewer, p.camPitch, p.camYaw, rect);
-                    if (startCoords && endCoords) {
-                        this.drawLine(svg, startCoords.x, startCoords.y, endCoords.x, endCoords.y, "#ef4444", 3.0, 0.9, "5,5");
-                    }
-                    prevCam = { pitch: p.camPitch, yaw: p.camYaw };
-                });
+            // Build control points
+            const camControlPoints = [camStart];
+            if (draft.intermediatePoints) {
+                draft.intermediatePoints.forEach(p => camControlPoints.push({ yaw: p.camYaw, pitch: p.camPitch }));
+            }
+            camControlPoints.push(currentCam);
+
+            if (camControlPoints.length > 2) {
+                const splinePath = getCatmullRomSpline(camControlPoints, 60);
+                this.drawPolyLine(svg, viewer, splinePath, rect, "#ef4444", 3.0, 0.9, "5,5");
+            } else {
+                // Straight line fallback
+                const startCoords = this.getScreenCoords(viewer, camStart.pitch, camStart.yaw, rect);
+                const endCoords = this.getScreenCoords(viewer, currentCam.pitch, currentCam.yaw, rect);
+                if (startCoords && endCoords) {
+                    this.drawLine(svg, startCoords.x, startCoords.y, endCoords.x, endCoords.y, "#ef4444", 3.0, 0.9, "5,5"); // Fixed: removed opacity from color args
+                }
             }
 
-            // Camera Path Rubber Band: from last waypoint camera center to CURRENT camera center
-            const redStart = this.getScreenCoords(viewer, prevCam.pitch, prevCam.yaw, rect);
-            const redEnd = this.getScreenCoords(viewer, viewer.getPitch(), viewer.getYaw(), rect);
-            if (redStart && redEnd) {
-                this.drawLine(svg, redStart.x, redStart.y, redEnd.x, redEnd.y, "#ef4444", 3.0, 0.8, "4,4");
-            }
 
             // --- B. YELLOW DASHED LINES (FLOOR PATH / VISUAL INDICATOR) ---
             // Only visible during drafting to show where your clicks are
-            let prevFloor = { pitch: draft.pitch, yaw: draft.yaw };
+            const floorStart = { yaw: draft.yaw, pitch: draft.pitch };
 
-            if (draft.intermediatePoints && draft.intermediatePoints.length > 0) {
-                draft.intermediatePoints.forEach(p => {
-                    const startCoords = this.getScreenCoords(viewer, prevFloor.pitch, prevFloor.yaw, rect);
-                    const endCoords = this.getScreenCoords(viewer, p.pitch, p.yaw, rect);
-                    if (startCoords && endCoords) {
-                        this.drawLine(svg, startCoords.x, startCoords.y, endCoords.x, endCoords.y, "#fbbf24", 3.0, 0.8, "3,3"); // Subtle path indicator
-                    }
-                    prevFloor = { pitch: p.pitch, yaw: p.yaw };
-                });
+            const floorControlPoints = [floorStart];
+            if (draft.intermediatePoints) {
+                draft.intermediatePoints.forEach(p => floorControlPoints.push({ yaw: p.yaw, pitch: p.pitch }));
             }
 
-            // Floor Path Rubber Band (to Mouse)
+            // Add mouse position if valid
             if (mouseEvent) {
                 const mouseCoords = viewer.mouseEventToCoords(mouseEvent);
-                const yellowStart = this.getScreenCoords(viewer, prevFloor.pitch, prevFloor.yaw, rect);
-                const yellowEnd = this.getScreenCoords(viewer, mouseCoords[0], mouseCoords[1], rect);
-                if (yellowStart && yellowEnd) {
-                    this.drawLine(svg, yellowStart.x, yellowStart.y, yellowEnd.x, yellowEnd.y, "#fbbf24", 3.0, 0.8, "3,3");
+                floorControlPoints.push({ yaw: mouseCoords[1], pitch: mouseCoords[0] });
+            }
+
+            if (floorControlPoints.length > 2) {
+                // Floor path is also curved now for consistency
+                const floorSpline = getCatmullRomSpline(floorControlPoints, 60);
+                this.drawPolyLine(svg, viewer, floorSpline, rect, "#fbbf24", 3.0, 0.8, "3,3");
+            } else if (floorControlPoints.length === 2) {
+                const p1 = floorControlPoints[0];
+                const p2 = floorControlPoints[1];
+                const startCoords = this.getScreenCoords(viewer, p1.pitch, p1.yaw, rect);
+                const endCoords = this.getScreenCoords(viewer, p2.pitch, p2.yaw, rect);
+                if (startCoords && endCoords) {
+                    this.drawLine(svg, startCoords.x, startCoords.y, endCoords.x, endCoords.y, "#fbbf24", 3.0, 0.8, "3,3");
                 }
             }
         }
@@ -159,14 +137,17 @@ export class HotspotLineSystem {
 
         const rect = svg.getBoundingClientRect();
 
-        // 1. CONSTRUCT POINTS LIST (Start -> Waypoints -> End)
-        const path = [{ pitch: startPitch, yaw: startYaw }];
+        // 1. GENERATE SPLINE PATH
+        // If waypoints exist, we use the spline. If not, straight line (2 points acts as straight in Catmull-Rom usually if handled, or we just fallback)
+        let path = [];
         if (waypoints && waypoints.length > 0) {
-            path.push(...waypoints);
+            const controlPoints = [{ yaw: startYaw, pitch: startPitch }, ...waypoints, { yaw: endYaw, pitch: endPitch }];
+            path = getCatmullRomSpline(controlPoints, 100);
+        } else {
+            path = [{ pitch: startPitch, yaw: startYaw }, { pitch: endPitch, yaw: endYaw }];
         }
-        path.push({ pitch: endPitch, yaw: endYaw });
 
-        // 2. CALCULATE SEGMENT DISTANCES
+        // 2. CALCULATE SEGMENT DISTANCES from the dense path
         let totalDistance = 0;
         const segments = [];
 
@@ -180,7 +161,6 @@ export class HotspotLineSystem {
             while (yawDiff < -180) yawDiff += 360;
 
             const pitchDiff = p2.pitch - p1.pitch;
-            // Euclidean distance in degree-space (approximation)
             const dist = Math.sqrt(yawDiff * yawDiff + pitchDiff * pitchDiff);
 
             segments.push({
@@ -197,20 +177,15 @@ export class HotspotLineSystem {
         const targetDist = progress * totalDistance;
         let pCurrentPitch = startPitch;
         let pCurrentYaw = startYaw;
-        let pNextYaw = endYaw;
 
-        // Default Rotation in case of 0 distance
-        // Use the first segment direction if available
         let yawForRotation = (segments.length > 0) ? segments[0].yawDiff : (endYaw - startYaw);
         let pitchForRotation = (segments.length > 0) ? segments[0].pitchDiff : (endPitch - startPitch);
 
         if (totalDistance > 0 && segments.length > 0) {
             let covered = 0;
-            let currentSegment = segments[0];
 
             for (let seg of segments) {
                 if (targetDist <= covered + seg.dist) {
-                    currentSegment = seg;
                     const segmentProgress = (seg.dist > 0) ? (targetDist - covered) / seg.dist : 0;
                     pCurrentPitch = seg.p1.pitch + seg.pitchDiff * segmentProgress;
                     pCurrentYaw = seg.p1.yaw + seg.yawDiff * segmentProgress;
@@ -220,8 +195,7 @@ export class HotspotLineSystem {
                     break;
                 }
                 covered += seg.dist;
-                // If we overshoot (floating point), stick to last segment
-                currentSegment = seg;
+                // If overshoot or end
                 pCurrentPitch = seg.p2.pitch;
                 pCurrentYaw = seg.p2.yaw;
                 yawForRotation = seg.yawDiff;
@@ -232,9 +206,8 @@ export class HotspotLineSystem {
         // 4. PROJECT TO SCREEN
         const start = this.getScreenCoords(viewer, pCurrentPitch, pCurrentYaw, rect);
 
-        // For rotation: Project a point slightly ahead along the CURRENT SEGMENT vector
-        // This is smoother than looking at the next waypoint
-        const lookAheadRatio = 0.01;
+        // For rotation: Project a point slightly ahead
+        const lookAheadRatio = 0.5; // Larger lookahead for smoother rotation on spline segments
         const pLookAheadPitch = pCurrentPitch + pitchForRotation * lookAheadRatio;
         const pLookAheadYaw = pCurrentYaw + yawForRotation * lookAheadRatio;
 
@@ -258,12 +231,43 @@ export class HotspotLineSystem {
         arrow.setAttribute("stroke-width", "1");
         arrow.setAttribute("transform", `translate(${x}, ${y}) rotate(${angle})`);
 
-        // Apply Opacity
         if (opacity < 1.0) {
             arrow.setAttribute("opacity", opacity.toFixed(2));
         }
 
         svg.appendChild(arrow);
+    }
+
+    /**
+     * Helper to draw a polyline from a path array
+     */
+    static drawPolyLine(svg, viewer, path, rect, color, width, opacity, dashArray) {
+        if (!path || path.length < 2) return;
+
+        // Convert all points to screen coords first
+        // Optimization: We could use <polyline> but for wrapping/clipping individual lines might be safer
+        // Actually since we check 'getScreenCoords' return for each point, segments are better.
+
+        let prevPoint = path[0];
+
+        for (let i = 1; i < path.length; i++) {
+            const currPoint = path[i];
+            const startCoords = this.getScreenCoords(viewer, prevPoint.pitch, prevPoint.yaw, rect);
+            const endCoords = this.getScreenCoords(viewer, currPoint.pitch, currPoint.yaw, rect);
+
+            // Only draw segment if BOTH points are visible (or handle clipping?)
+            // Simple visibility check
+            if (startCoords && endCoords) {
+                // Optimization: Skip very short segments
+                if (Math.abs(startCoords.x - endCoords.x) < 1 && Math.abs(startCoords.y - endCoords.y) < 1) {
+                    prevPoint = currPoint;
+                    continue;
+                }
+                this.drawLine(svg, startCoords.x, startCoords.y, endCoords.x, endCoords.y, color, width, opacity, dashArray);
+            }
+
+            prevPoint = currPoint;
+        }
     }
 
     /**
@@ -306,7 +310,11 @@ export class HotspotLineSystem {
             const x = Math.tan(yawRad) / Math.tan(hfovRad / 2);
             const y = Math.tan(pitchRad) / (Math.tan(vfovRad / 2) * Math.cos(yawRad));
 
+            // Check if behind camera
             if (Math.cos(yawRad) < 0) return null;
+
+            // Bounds check (optional, but good)
+            // if (Math.abs(x) > 2 || Math.abs(y) > 2) return null;
 
             return {
                 x: (rect.width / 2) * (1 + x),
@@ -317,3 +325,5 @@ export class HotspotLineSystem {
         }
     }
 }
+
+

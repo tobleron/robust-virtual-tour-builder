@@ -1,6 +1,7 @@
 import { store } from "../store.js";
 import { HotspotLineSystem } from "./HotspotLineSystem.js";
 import { Debug } from "../utils/Debug.js";
+import { getCatmullRomSpline } from "../utils/PathInterpolation.js";
 import {
     PANNING_VELOCITY,
     PANNING_MIN_DURATION,
@@ -269,19 +270,30 @@ export function navigateToScene(targetIndex, sourceSceneIndex, sourceHotspotInde
             // BUILD WAYPOINT PATH for camera interpolation
             // Path: Start -> Waypoints -> End
             const waypoints = hotspot.waypoints || [];
-            const cameraPath = [{ pitch: startPitch, yaw: startYaw }];
 
-            // Add waypoints (they store camera orientation as pitch/yaw)
+            // 1. Define Control Points
+            const controlPoints = [{ pitch: startPitch, yaw: startYaw }];
+
             waypoints.forEach(wp => {
                 const wpPitch = wp.pitch !== undefined ? wp.pitch : (wp.camPitch !== undefined ? wp.camPitch : 0);
                 const wpYaw = wp.yaw !== undefined ? wp.yaw : (wp.camYaw !== undefined ? wp.camYaw : 0);
-                cameraPath.push({ pitch: wpPitch, yaw: wpYaw });
+                controlPoints.push({ pitch: wpPitch, yaw: wpYaw });
             });
 
-            // Add final destination
-            cameraPath.push({ pitch: targetPitchForPan, yaw: targetYawForPan });
+            controlPoints.push({ pitch: targetPitchForPan, yaw: targetYawForPan });
+
+            // 2. Generate Spline Path (Dense points)
+            // Use same resolution (approx) as lines to match visual
+            let cameraPath = [];
+            if (controlPoints.length > 2) {
+                cameraPath = getCatmullRomSpline(controlPoints, 100);
+            } else {
+                // Fallback for straight lines (only 2 points)
+                cameraPath = controlPoints;
+            }
 
             // CALCULATE SEGMENT DISTANCES for proper interpolation
+            // The logic below now iterates over the DENSE path segments (linear interp between spline points)
             let totalPathDistance = 0;
             const segments = [];
 
