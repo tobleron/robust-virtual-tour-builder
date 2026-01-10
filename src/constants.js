@@ -292,3 +292,37 @@ export const ROOM_LABEL_PRESETS = {
  * URL of the Rust backend server
  */
 export const BACKEND_URL = "http://localhost:8080";
+
+// ============================================
+// NAVIGATION & SIMULATION
+// ============================================
+
+/**
+ * Blink duration for preview mode (milliseconds)
+ */
+export const BLINK_DURATION_PREVIEW = 1200;
+
+/**
+ * Blink duration for simulation mode (milliseconds)
+ */
+export const BLINK_DURATION_SIMULATION = 600;
+
+/**
+ * Rate of blinking for preview mode (milliseconds per state)
+ */
+export const BLINK_RATE_PREVIEW = 300;
+
+/**
+ * Rate of blinking for simulation mode (milliseconds per state)
+ */
+export const BLINK_RATE_SIMULATION = 150;
+
+/**
+ * Timeout for idle snapshot capture (milliseconds)
+ */
+export const IDLE_SNAPSHOT_DELAY = 2000;
+
+/**
+ * Safety timeout for scene loading (milliseconds)
+ */
+export const SCENE_LOAD_TIMEOUT = 10000;

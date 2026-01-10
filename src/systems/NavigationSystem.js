@@ -5,7 +5,11 @@ import { getCatmullRomSpline } from "../utils/PathInterpolation.js";
 import {
     PANNING_VELOCITY,
     PANNING_MIN_DURATION,
-    PANNING_MAX_DURATION
+    PANNING_MAX_DURATION,
+    BLINK_DURATION_PREVIEW,
+    BLINK_DURATION_SIMULATION,
+    BLINK_RATE_PREVIEW,
+    BLINK_RATE_SIMULATION
 } from "../constants.js";
 
 // Callback for scene arrival (set by SimulationSystem to avoid circular import)
@@ -128,15 +132,8 @@ export function calculateSmartArrivalTarget(state, targetIndex) {
     if (state.scenes[targetIndex]) {
         const nextScene = state.scenes[targetIndex];
 
-        // ALIGNED LOGIC: Find the target hotspot that handleAutoForward will likely pick.
-        // We prioritize the next sequential scene in the project list.
-        const nextTargetIndex = targetIndex + 1;
-        const sequentialTargetName = (nextTargetIndex < state.scenes.length) ? state.scenes[nextTargetIndex].name : null;
-
+        // PRIORITY: Use creation sequence (Oldest first)
         let nextHotspot = null;
-        if (sequentialTargetName) {
-            nextHotspot = nextScene.hotspots.find(h => h.target === sequentialTargetName);
-        }
 
         // Fallback: Use the same logic as handleAutoForward (first unvisited or first existing)
         if (!nextHotspot && nextScene.hotspots?.length > 0) {
@@ -298,7 +295,13 @@ export function navigateToScene(targetIndex, sourceSceneIndex, sourceHotspotInde
 
             // BUILD WAYPOINT PATH for camera interpolation
             // Path: Start -> Waypoints -> End
-            const waypoints = hotspot.waypoints || [];
+            const waypointsRaw = hotspot.waypoints || [];
+
+            // SECURITY: Validate waypoint structure
+            const waypoints = Array.isArray(waypointsRaw) ? waypointsRaw.filter(wp =>
+                wp && typeof wp === 'object' &&
+                (typeof wp.pitch === 'number' || typeof wp.camPitch === 'number')
+            ) : [];
 
             // 1. Define Control Points
             const controlPoints = [{ pitch: startPitch, yaw: startYaw }];
@@ -400,8 +403,10 @@ export function navigateToScene(targetIndex, sourceSceneIndex, sourceHotspotInde
                     // PREVIEW MODE: Blink red twice (slower, more visible)
                     // SIMULATION MODE: 600ms blink with opacity toggle (yellow/green)
                     const isPreview = previewOnly;
-                    const blinkDuration = isPreview ? 1200 : 600; // 1200ms for preview (2 slow red blinks), 600ms for simulation
-                    const blinkRate = isPreview ? 300 : 150; // 300ms per blink state for preview (on-off-on-off = 4 states = 1200ms)
+
+                    // Use centralized constants
+                    const blinkDuration = isPreview ? BLINK_DURATION_PREVIEW : BLINK_DURATION_SIMULATION;
+                    const blinkRate = isPreview ? BLINK_RATE_PREVIEW : BLINK_RATE_SIMULATION;
 
                     // Set final position exactly at the END of the waypoint path
                     viewer.setPitch(targetPitchForPan, false);
@@ -576,15 +581,8 @@ export function handleAutoForward(currentScene, state, viewer) {
 
         const visitedSceneNames = autoForwardChain.map(idx => state.scenes[idx]?.name).filter(Boolean);
 
-        // SEQUENTIAL ACCURACY: 
-        // 1. Try to find a hotspot targeting the NEXT scene in the project sequence (e.g. 01 -> 02)
-        const nextInSequenceIndex = state.activeIndex + 1;
-        const nextInSequenceName = (nextInSequenceIndex < state.scenes.length) ? state.scenes[nextInSequenceIndex].name : null;
-
+        // PRIORITY: Use creation sequence (Oldest first)
         let bestHotspot = null;
-        if (nextInSequenceName) {
-            bestHotspot = currentScene.hotspots.find(h => h.target === nextInSequenceName);
-        }
 
         // 2. Fallback: Find any hotspot that hasn't been visited yet
         if (!bestHotspot) {

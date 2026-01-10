@@ -17,6 +17,16 @@ import {
     registerOnSceneArrival
 } from "./NavigationSystem.js";
 
+/**
+ * CIRCULAR DEPENDENCY NOTES:
+ * SimulationSystem depends on NavigationSystem for movement commands.
+ * NavigationSystem depends on SimulationSystem for onSceneArrival callbacks.
+ * 
+ * To resolve this, NavigationSystem exposes `registerOnSceneArrival` which 
+ * SimulationSystem calls at initialization. This avoids direct cyclic imports 
+ * at the top level while maintaining tight integration.
+ */
+
 // ============================================================================
 // State
 // ============================================================================
@@ -290,47 +300,47 @@ function findBestNextLink(currentScene, state, explicitVisitedScenes = null) {
         };
     }).filter(Boolean);
 
-    // PRIORITY 1: UNVISITED Forward Bridge (Newest first)
+    // PRIORITY 1: UNVISITED Forward Bridge (Creation Sequence)
     // Bridge scenes are hallways/stairs - we want to traverse them as much as possible
-    const unvisitedForwardBridge = [...allLinks].reverse().find(l => !l.isVisited && !l.isReturn && l.isBridge);
+    const unvisitedForwardBridge = allLinks.find(l => !l.isVisited && !l.isReturn && l.isBridge);
     if (unvisitedForwardBridge) {
-        Debug.debug('Simulation', 'Target: Unvisited Forward Bridge (Newest)');
+        Debug.debug('Simulation', 'Target: Unvisited Forward Bridge (Oldest)');
         return unvisitedForwardBridge;
     }
 
-    // PRIORITY 2: UNVISITED Forward Room (Newest first)
-    const unvisitedForwardRoom = [...allLinks].reverse().find(l => !l.isVisited && !l.isReturn);
+    // PRIORITY 2: UNVISITED Forward Room (Creation Sequence)
+    const unvisitedForwardRoom = allLinks.find(l => !l.isVisited && !l.isReturn);
     if (unvisitedForwardRoom) {
-        Debug.debug('Simulation', 'Target: Unvisited Forward Room (Newest)');
+        Debug.debug('Simulation', 'Target: Unvisited Forward Room (Oldest)');
         return unvisitedForwardRoom;
     }
 
-    // PRIORITY 3: UNVISITED Return Bridge (Newest first)
-    const unvisitedReturnBridge = [...allLinks].reverse().find(l => !l.isVisited && l.isReturn && l.isBridge);
+    // PRIORITY 3: UNVISITED Return Bridge (Creation Sequence)
+    const unvisitedReturnBridge = allLinks.find(l => !l.isVisited && l.isReturn && l.isBridge);
     if (unvisitedReturnBridge) {
-        Debug.debug('Simulation', 'Target: Unvisited Return Bridge (Newest)');
+        Debug.debug('Simulation', 'Target: Unvisited Return Bridge (Oldest)');
         return unvisitedReturnBridge;
     }
 
-    // PRIORITY 4: UNVISITED Return Room (Newest first)
-    const unvisitedReturnRoom = [...allLinks].reverse().find(l => !l.isVisited && l.isReturn);
+    // PRIORITY 4: UNVISITED Return Room (Creation Sequence)
+    const unvisitedReturnRoom = allLinks.find(l => !l.isVisited && l.isReturn);
     if (unvisitedReturnRoom) {
-        Debug.debug('Simulation', 'Target: Unvisited Return Room (Newest)');
+        Debug.debug('Simulation', 'Target: Unvisited Return Room (Oldest)');
         return unvisitedReturnRoom;
     }
 
     // --- FALLBACK (ALL REACHABLE ALREADY VISITED) ---
     // Instead of stopping, we follow visited links to find new branches elsewhere.
 
-    // PRIORITY 5: NEWEST Forward (visited)
-    const visitedForward = [...allLinks].reverse().find(l => !l.isReturn);
+    // PRIORITY 5: OLDest Forward (visited)
+    const visitedForward = allLinks.find(l => !l.isReturn);
     if (visitedForward) {
         Debug.debug('Simulation', 'Target: Visited Forward (Loop/Breadth Search)');
         return visitedForward;
     }
 
-    // PRIORITY 6: NEWEST Return (visited)
-    const visitedReturn = [...allLinks].reverse().find(l => l.isReturn);
+    // PRIORITY 6: OLDest Return (visited)
+    const visitedReturn = allLinks.find(l => l.isReturn);
     if (visitedReturn) {
         Debug.debug('Simulation', 'Target: Visited Return (Backtrack Search)');
         return visitedReturn;
@@ -448,6 +458,10 @@ export function getSimulationPath() {
     const pathSet = new Set(); // To detect actual path cycles
     path.push(currentPathObj);
 
+    // Track state (current -> link -> target) to prevent infinite loops
+    // Some tours might be naturally cyclic (circles), so we detection specific repeating transitions
+    const visitedStateSet = new Set();
+
     while (loopCount < MAX_STEPS) {
         const currentScene = state.scenes[currentIdx];
         if (!currentScene) break;
@@ -459,8 +473,15 @@ export function getSimulationPath() {
 
         // CYCLE DETECTION: If we have traversed this EXACT link before, we are in a loop.
         const stateKey = `${currentIdx}->${targetIndex}`;
+
+        if (visitedStateSet.has(stateKey)) {
+            Debug.warn('Simulation', 'Detected infinite loop in path generation, terminating safely.');
+            break;
+        }
+        visitedStateSet.add(stateKey);
+
         if (pathSet.has(stateKey)) {
-            Debug.warn('Simulation', 'Detected cycle in path generation, terminating');
+            Debug.warn('Simulation', 'Detected cycle in path generation (pathSet), terminating');
             break;
         }
         pathSet.add(stateKey);

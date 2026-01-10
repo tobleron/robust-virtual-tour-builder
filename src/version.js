@@ -1,2 +1,2 @@
-export const VERSION = "4.1.1";
-export const BUILD_INFO = "[GPS Fix]";
+export const VERSION = "4.1.3-beta";
+export const BUILD_INFO = "[Sim Link Order]";

@@ -1,3 +1,14 @@
+[2026-01-10 19:25] Version 4.1.3-beta [Sim Link Order]
+- Feature: Simulation mode now follows link creation sequence (Oldest First) instead of newest first.
+- Optimization: Removed sequential scene prioritization in navigation logic to ensure user-defined path integrity.
+
+2026-01-10 - v4.1.2-beta - Security & Stability Fixes
+- [Bugfix] Fixed link deletion logic (Regression). Justification: Our existing "Link Stability" system (`syncSceneNames`) successfully handles renaming and re-indexing when scenes are moved or deleted, ensuring links still point to their original targets. However, it had an oversight: it didn't explicitly remove links when their target scene was deleted entirely. Because our filenames are index-based (`01_...`), these links would 'hijack' whatever scene moved into the deleted scene's index. This update ensures links are explicitly pruned during `deleteScene()`.
+- [Security] Added strict MIME type validation for uploads (UploadProcessor.js).
+- [Stability] Added infinite loop detection for simulation path generation (SimulationSystem.js).
+- [Stability] Added waypoint data validation to prevent crashes (NavigationSystem.js).
+- [Code Quality] Centralized navigation constants and magic numbers (constants.js).
+- [Bugfix] Fixed error swallowing in teaser asset preloading (TeaserSystem.js).
 [2026-01-10 18:15] Version 4.1.1 [GPS Fix]
 - Fix: Added nominatim.openstreetmap.org to connect-src CSP in index.html to allow reverse geocoding.
 - Fix: Removed forbidden User-Agent header from ExifParser.js to prevent browser request rejection.

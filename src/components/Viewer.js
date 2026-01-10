@@ -19,9 +19,8 @@ import {
 import { setupViewerUI } from "./ViewerUI.js";
 import { HotspotLineSystem } from "../systems/HotspotLineSystem.js";
 import { Debug } from "../utils/Debug.js";
-import { HOTSPOT_VISUAL_OFFSET_DEGREES } from "../constants.js";
+import { HOTSPOT_VISUAL_OFFSET_DEGREES, GLOBAL_HFOV, IDLE_SNAPSHOT_DELAY, SCENE_LOAD_TIMEOUT } from "../constants.js";
 
-const GLOBAL_HFOV = 90;
 let viewerA = null;
 let viewerB = null;
 let activeViewerKey = 'A'; // 'A' or 'B'
@@ -183,7 +182,7 @@ function requestIdleSnapshot() {
       console.warn("[Viewer] Idle snapshot capture failed:", e);
     }
     idleSnapshotTimeout = null;
-  }, 2000); // Capture after 2 seconds of idleness
+  }, IDLE_SNAPSHOT_DELAY); // Capture after delay
 }
 
 /**
@@ -731,7 +730,7 @@ export function initViewer() {
           isSceneLoading = false;
           loadingSceneId = null;
         }
-      }, 10000);
+      }, SCENE_LOAD_TIMEOUT);
 
 
       // Use pre-calculated snapshot if available for the PREVIOUS scene

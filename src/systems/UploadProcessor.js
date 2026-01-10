@@ -24,6 +24,22 @@ export const UploadProcessor = {
         const totalFiles = files.length;
         if (totalFiles === 0) return { qualityResults: [] };
 
+        // SECURITY: Validate MIME types
+        const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+        const validFiles = files.filter(f => {
+            if (!ALLOWED_TYPES.includes(f.type)) {
+                console.warn(`[UploadProcessor] Skipping non-image file: ${f.name} (${f.type})`);
+                notify(`Skipped invalid file: ${f.name}`, "warning");
+                return false;
+            }
+            return true;
+        });
+
+        if (validFiles.length === 0) {
+            notify("No valid image files selected!", "error");
+            return { qualityResults: [] };
+        }
+
         const updateProgress = (pct, msg, isProc = true, phase = "") => {
             if (progressCallback) progressCallback(pct, msg, isProc, phase);
         };
@@ -73,7 +89,7 @@ export const UploadProcessor = {
 
         // --- Phase 1: Fingerprinting (Checking duplicates) ---
         updateProgress(0, "Scanning files...", true, "Fingerprinting");
-        
+
         const fingerprintResults = await runConcurrent(files, async (file) => {
             const id = await getChecksum(file);
             return { id, original: file };
@@ -94,7 +110,7 @@ export const UploadProcessor = {
         // --- Phase 2: Combined Optimization & Analysis ---
         updateProgress(20, "Processing images...", true, "Processing");
         const uniqueToProcess = sceneDataList.length;
-        
+
         const processingResults = await runConcurrent(sceneDataList, async (item) => {
             try {
                 const { preview, tiny, metadata } = await processAndAnalyzeImage(item.original);
@@ -104,7 +120,7 @@ export const UploadProcessor = {
                 item.originalName = item.original.name;
                 item.quality = metadata.quality;
                 item.metadata = metadata; // Keep full metadata (EXIF)
-                
+
                 return {
                     originalName: item.originalName,
                     newName: item.name,
@@ -197,7 +213,7 @@ export const UploadProcessor = {
         // 3. Commit to store
         console.log("[UploadProcessor] Finalizing Store Update...");
         updateProgress(98, "Updating Sidebar...", true, "Finalizing");
-        
+
         // Final yield to ensure progress text is visible
         await new Promise(resolve => setTimeout(resolve, 100));
 
@@ -208,7 +224,7 @@ export const UploadProcessor = {
             console.error("[UploadProcessor] CRITICAL: Store update failed:", err);
             notify("Store Update Error! Check console.", "error");
         }
-        
+
         updateProgress(100, `Completed in ${duration}s`, false);
 
 

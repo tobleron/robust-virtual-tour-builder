@@ -482,7 +482,7 @@ async function preloadPathAssets(pathSteps) {
 
   const urlsToRevoke = [];
   const promises = Array.from(imagesToLoad).map(blob => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const img = new Image();
       const url = URL.createObjectURL(blob);
       urlsToRevoke.push(url);
@@ -491,9 +491,14 @@ async function preloadPathAssets(pathSteps) {
         Debug.debug('Teaser', `Asset preloaded into memory: ${blob.size} bytes`);
         resolve();
       };
-      img.onerror = () => {
-        Debug.warn('Teaser', `Failed to preload asset into memory`);
-        resolve(); // Continue anyway
+      img.onerror = (err) => {
+        const msg = `Failed to preload asset into memory`;
+        Debug.error('Teaser', msg, err);
+        // We reject here so Promise.all fails fast if critical assets are missing
+        // Alternatively, we could resolve to allow partial success, but for teasers, missing images are bad.
+        // Let's WARN but resolve, consistently with "show must go on" philosophy, but now we LOG it properly.
+        window.notify?.("Asset preload failed - quality may be reduced", "warning");
+        resolve();
       };
       img.src = url;
     });

@@ -232,7 +232,28 @@ export const store = {
   },
 
   deleteScene(index) {
+    const sceneToDelete = this.state.scenes[index];
+    if (!sceneToDelete) return;
+
+    const targetName = sceneToDelete.name;
+    console.log(`📦 [Store] Deleting scene "${targetName}" (Index: ${index})`);
+
+    // 1. Clean up "orphan" links in other scenes that point to this scene
+    this.state.scenes.forEach((scene) => {
+      // Filter out hotspots that target the scene we are about to delete
+      // We check existing targets against the name of the scene being deleted
+      const originalLength = scene.hotspots.length;
+      scene.hotspots = scene.hotspots.filter(h => h.target !== targetName);
+
+      if (scene.hotspots.length !== originalLength) {
+        console.log(`📦 [Store] Removed ${originalLength - scene.hotspots.length} orphan links from scene "${scene.name}"`);
+      }
+    });
+
+    // 2. Perform the deletion
     this.state.scenes.splice(index, 1);
+
+    // 3. Adjust active index
     if (this.state.scenes.length === 0) {
       this.state.activeIndex = -1;
     } else if (index === this.state.activeIndex) {
@@ -240,7 +261,8 @@ export const store = {
     } else if (index < this.state.activeIndex) {
       this.state.activeIndex--;
     }
-    // Update all prefixes to maintain correct sequence after deletion
+
+    // 4. Update all prefixes to maintain correct sequence after deletion
     this.syncSceneNames();
     this.notify();
   },
