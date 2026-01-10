@@ -803,3 +803,9 @@
 - Fix: Reverted 'Hide static arrow during preview' feature because it caused a crash (ReferenceError: NavigationSystem is not defined in HotspotLineSystem).
 - State: App is back to stable state (v4.0.14) but kept the code cleanup from v4.0.15.
 
+
+[2026-01-10 21:08] Version 4.1.4
+- Fix: Robust Simulation Transitions. Added viewer readiness validation in SimulationSystem.js to prevent race conditions during cinematic teaser generation.
+- Fix: Prevent Infinite Loops. Added Scene 0 return detection to stop simulation when no unvisited paths remain.
+- Improvement: Error Handling. Added blob size check and better backend error parsing in VideoEncoder.js.
+- Feature: Deleted History. Added deletedSceneIds tracking to prevent re-importing fingerprint-identical scenes that were intentionally removed.

@@ -49,7 +49,9 @@ export const store = {
     // Track the first phase of 2-click linking
     linkDraft: null, // { pitch, yaw, camPitch, camYaw, camHfov }
     preloadingSceneIndex: -1, // Anticipatory loading for smooth transitions
-    isTeasing: false // High-quality rendering mode for teaser recording
+    isTeasing: false, // High-quality rendering mode for teaser recording
+    // PERSISTENCE FIX: Track IDs of scenes removed by the user to prevent accidental re-adding
+    deletedSceneIds: []
   },
 
   listeners: [],
@@ -250,6 +252,14 @@ export const store = {
       }
     });
 
+    // 1.5. Record deletion in fingerprint history to prevent accidental re-adding
+    if (sceneToDelete.id) {
+      if (!this.state.deletedSceneIds) this.state.deletedSceneIds = [];
+      if (!this.state.deletedSceneIds.includes(sceneToDelete.id)) {
+        this.state.deletedSceneIds.push(sceneToDelete.id);
+      }
+    }
+
     // 2. Perform the deletion
     this.state.scenes.splice(index, 1);
 
@@ -257,7 +267,11 @@ export const store = {
     if (this.state.scenes.length === 0) {
       this.state.activeIndex = -1;
     } else if (index === this.state.activeIndex) {
-      this.state.activeIndex = 0;
+      // Stay at the same index (which is now the next scene), 
+      // or move to the new last item if we just deleted the former end.
+      const nextIndex = Math.min(index, this.state.scenes.length - 1);
+      // Use setActiveScene to trigger orientation logic and notification
+      this.setActiveScene(nextIndex, 0, 0);
     } else if (index < this.state.activeIndex) {
       this.state.activeIndex--;
     }
@@ -408,6 +422,10 @@ export const store = {
       labelSet: scene.labelSet || !!scene.label,
       _metadataSource: scene._metadataSource || "user"
     }));
+
+    // Restore deletion history
+    this.state.deletedSceneIds = projectData.deletedSceneIds || [];
+
     const targetIdx = projectData.activeIndex >= 0 && projectData.activeIndex < this.state.scenes.length
       ? projectData.activeIndex
       : (this.state.scenes.length > 0 ? 0 : -1);

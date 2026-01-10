@@ -98,12 +98,17 @@ export const UploadProcessor = {
             updateProgress(progress, `Fingerprinting: ${completed}/${total}`);
         });
 
-        // Filter duplicates while preserving order
-        const seenIds = new Set(store.state.scenes.map(s => s.id));
+        // Filter duplicates AND previously deleted scenes while preserving order
+        const currentIds = new Set(store.state.scenes.map(s => s.id));
+        const deletedIds = new Set(store.state.deletedSceneIds || []);
+
         for (const res of fingerprintResults) {
-            if (!seenIds.has(res.id)) {
+            // Only add if NOT in current scenes AND NOT in deleted history
+            if (!currentIds.has(res.id) && !deletedIds.has(res.id)) {
                 sceneDataList.push(res);
-                seenIds.add(res.id);
+                currentIds.add(res.id); // Also prevent duplicates within the same batch
+            } else if (deletedIds.has(res.id)) {
+                console.log(`[UploadProcessor] Skipping previously deleted scene: ${res.original.name} (ID: ${res.id})`);
             }
         }
 

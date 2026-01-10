@@ -1,2 +1,2 @@
-export const VERSION = "4.1.3-beta";
-export const BUILD_INFO = "[Sim Link Order]";
+export const VERSION = "4.1.4";
+export const BUILD_INFO = "[Teaser Fix]";

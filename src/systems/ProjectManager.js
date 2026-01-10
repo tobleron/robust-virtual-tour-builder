@@ -85,6 +85,7 @@ export async function saveProject(state, onProgress) {
         projectName: state.tourName,
         savedAt: new Date().toISOString(),
         activeIndex: state.activeIndex,
+        deletedSceneIds: state.deletedSceneIds || [],
         scenes: state.scenes.map(scene => ({
             id: scene.id,
             name: scene.name,
@@ -207,6 +208,7 @@ export async function loadProject(zipFile, onProgress) {
         const loadedProject = {
             tourName: projectData.projectName || "Imported Tour",
             scenes: scenes,
+            deletedSceneIds: projectData.deletedSceneIds || [],
             activeIndex: 0
         };
 

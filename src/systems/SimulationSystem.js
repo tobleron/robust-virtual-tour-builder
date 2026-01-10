@@ -36,6 +36,7 @@ let visitedScenes = [];
 let autoPilotJourneyId = 0;
 let pendingAdvance = null; // Timeout ID for delayed advance
 let lastAdvanceTime = 0; // Debounce protection against rapid calls
+let stoppingOnArrival = false; // Flag to stop simulation upon next arrival
 
 // ============================================================================
 // Public API
@@ -65,6 +66,7 @@ export function startAutoPilot() {
     // Reset state
     isAutoPilot = true;
     visitedScenes = [];
+    stoppingOnArrival = false;
     autoPilotJourneyId++;
 
     // Enable simulation mode (this sets up the visual style)
@@ -129,6 +131,7 @@ export function stopAutoPilot(returnToStart = true) {
     // Reset state
     isAutoPilot = false;
     visitedScenes = [];
+    stoppingOnArrival = false;
 
     // Disable simulation mode
     setSimulationMode(false);
@@ -168,6 +171,12 @@ export function onSceneArrival(sceneIndex, isChainEnd = false) {
         visitedCount: visitedScenes.length
     });
 
+    if (stoppingOnArrival) {
+        stoppingOnArrival = false;
+        completeAutoPilot();
+        return;
+    }
+
     // Clear any pending advance from previous scenes or startAutoPilot
     if (pendingAdvance) {
         clearTimeout(pendingAdvance);
@@ -201,10 +210,49 @@ export function onSceneArrival(sceneIndex, isChainEnd = false) {
     }
     */
 
-    // Schedule next advance
-    pendingAdvance = setTimeout(() => {
-        advanceToNextScene();
+    // Schedule next advance with robustness check
+    pendingAdvance = setTimeout(async () => {
+        try {
+            // Wait for viewer to be truly ready for this scene
+            // This prevents advancing before the Viewer.js swap has completed
+            await waitForViewerScene(sceneIndex);
+
+            // Re-check auto-pilot state as it might have been stopped during the wait
+            if (!isAutoPilot || stoppingOnArrival) return;
+
+            advanceToNextScene();
+        } catch (e) {
+            // If simulation was intentionally stopped, ignore errors
+            if (!isAutoPilot) return;
+
+            Debug.error('Simulation', 'Failed to arrive at scene properly, stopping', e);
+            completeAutoPilot();
+        }
     }, 500); // Balanced pacing
+}
+
+/**
+ * Robustly wait for the global viewer to be ready for a specific scene index.
+ * This ensures that when we advance, we are looking at the correct viewer instance.
+ */
+async function waitForViewerScene(sceneIndex) {
+    const expectedScene = store.state.scenes[sceneIndex];
+    if (!expectedScene) return;
+
+    const timeout = 8000;
+    const start = Date.now();
+
+    while (Date.now() - start < timeout) {
+        // Stop waiting if simulation was cancelled
+        if (!isAutoPilot) return;
+
+        const v = window.pannellumViewer;
+        if (v && v._sceneId === expectedScene.id && typeof v.isLoaded === 'function' && v.isLoaded()) {
+            return;
+        }
+        await new Promise(r => setTimeout(r, 100));
+    }
+    throw new Error(`Timeout waiting for viewer to load scene ${expectedScene.name}`);
 }
 
 // ============================================================================
@@ -236,6 +284,24 @@ function advanceToNextScene() {
     }
 
     const { hotspot, hotspotIndex, targetIndex } = nextLink;
+
+    // Stop simulation if returning to the start scene (Scene 0) and there are no direct unvisited paths from it.
+    // This prevents infinite loops where the simulation endlessly cycles through visited scenes.
+    if (targetIndex === 0) {
+        const startScene = state.scenes[0];
+        const hasNewPaths = startScene?.hotspots?.some(h => {
+            const tIdx = state.scenes.findIndex(s => s.name === h.target);
+            return tIdx !== -1 && !visitedScenes.includes(tIdx);
+        });
+
+        if (!hasNewPaths) {
+            Debug.info('Simulation', 'Simulation ending: Final leg to start scene (stopping on arrival)', {
+                visitedCount: visitedScenes.length
+            });
+            stoppingOnArrival = true;
+            // Fall through to navigateToScene to play the final transition
+        }
+    }
 
     Debug.info('Simulation', `Advancing to ${hotspot.target}`, {
         isReturn: hotspot.isReturnLink,
