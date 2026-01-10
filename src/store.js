@@ -23,7 +23,8 @@ export const store = {
     exifReport: null,
     // Track the first phase of 2-click linking
     linkDraft: null, // { pitch, yaw, camPitch, camYaw, camHfov }
-    preloadingSceneIndex: -1 // Anticipatory loading for smooth transitions
+    preloadingSceneIndex: -1, // Anticipatory loading for smooth transitions
+    isTeasing: false // High-quality rendering mode for teaser recording
   },
 
   listeners: [],
@@ -41,6 +42,13 @@ export const store = {
   setLinkDraft(draft) {
     this.state.linkDraft = draft;
     this.notify();
+  },
+
+  setIsTeasing(val) {
+    if (this.state.isTeasing !== val) {
+      this.state.isTeasing = val;
+      // No notify needed if we're just setting a flag for the next reload
+    }
   },
 
   setTourName(name) {

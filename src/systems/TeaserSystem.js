@@ -38,6 +38,7 @@ let isTeasing = false;
 let ghostCanvas = null;
 let ghostCtx = null;
 let mediaRecorder = null;
+let activeRecorder = null; // Track the active recorder for pause/resume during transitions
 let recordedChunks = [];
 let streamLoopId = null;
 
@@ -303,11 +304,20 @@ export async function startAutoTeaser(style = "fast", includeLogo = true, format
     // 1. Initial Setup
     initGhost();
     isTeasing = true;
+    store.setIsTeasing(true); // Flag store for high-quality single-phase loading
     const overlay = document.getElementById("teaser-overlay");
     const label = document.getElementById("teaser-text");
     if (overlay) overlay.style.display = "flex";
 
     const pathSteps = getWalkPath();
+
+    // 1b. Preload all involved assets to ensure they are in memory
+    if (label) label.innerText = "Preloading Scenes...";
+    if (window.updateProgressBar) {
+      window.updateProgressBar(0, "Preloading Scenes...", true, "Buffering Memory");
+    }
+    await preloadPathAssets(pathSteps);
+
     const timestamp = Date.now();
     const config = getTeaserConfig(style, timestamp);
 
@@ -331,6 +341,7 @@ export async function startAutoTeaser(style = "fast", includeLogo = true, format
 
     // 5. Preparation & Record
     await prepareFirstScene(pathSteps[0], label, style, config);
+    activeRecorder = recorder; // Store for pause/resume access
     recorder.start();
 
     // 6. Execute Path
@@ -343,11 +354,13 @@ export async function startAutoTeaser(style = "fast", includeLogo = true, format
     }
 
     // 7. Finalize
+    activeRecorder = null;
     recorder.stop();
     recorder.onstop = () => finalizeTeaser(recordedChunks, format, config.baseName, overlay);
   } catch (err) {
     console.error("Teaser Production Failed:", err);
     isTeasing = false;
+    store.setIsTeasing(false);
     const overlay = document.getElementById("teaser-overlay");
     if (overlay) overlay.style.display = "none";
     if (window.notify) window.notify("Teaser Production Failed", "error");
@@ -366,10 +379,19 @@ async function startCinematicTeaser(includeLogo = true, format = "webm") {
     // 1. Initial Setup
     initGhost();
     isTeasing = true;
+    store.setIsTeasing(true); // Flag store for high-quality single-phase loading
     const overlay = document.getElementById("teaser-overlay");
     const label = document.getElementById("teaser-text");
     if (overlay) overlay.style.display = "flex";
     if (label) label.innerText = "Recording Simulation...";
+
+    // 1b. Preload ALL scenes for the entire project in cinematic mode
+    if (label) label.innerText = "Preloading All Scenes...";
+    if (window.updateProgressBar) {
+      window.updateProgressBar(0, "Preloading All Scenes...", true, "Buffering Memory");
+    }
+    const allSteps = store.state.scenes.map((_, i) => ({ idx: i }));
+    await preloadPathAssets(allSteps);
 
     const tourName = store.state.tourName || "Virtual_Tour";
     const safeName = tourName.replace(/[^a-z0-9]/gi, "_").toLowerCase();
@@ -432,6 +454,7 @@ async function startCinematicTeaser(includeLogo = true, format = "webm") {
   } catch (err) {
     console.error("Cinematic Teaser Failed:", err);
     isTeasing = false;
+    store.setIsTeasing(false);
 
     // Make sure simulation is stopped if it was running
     if (isAutoPilotActive()) {
@@ -443,6 +466,46 @@ async function startCinematicTeaser(includeLogo = true, format = "webm") {
     if (window.notify) window.notify("Cinematic Teaser Failed", "error");
     if (window.updateProgressBar) window.updateProgressBar(0, "Error", false);
   }
+}
+
+
+/**
+ * Ensures all scene images are loaded into browser memory before recording begins.
+ * This prevents the recording from starting with blurred or missing textures.
+ */
+async function preloadPathAssets(pathSteps) {
+  const imagesToLoad = new Set();
+  pathSteps.forEach(step => {
+    const scene = store.state.scenes[step.idx];
+    if (scene && scene.file) imagesToLoad.add(scene.file);
+  });
+
+  const urlsToRevoke = [];
+  const promises = Array.from(imagesToLoad).map(blob => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      const url = URL.createObjectURL(blob);
+      urlsToRevoke.push(url);
+
+      img.onload = () => {
+        Debug.debug('Teaser', `Asset preloaded into memory: ${blob.size} bytes`);
+        resolve();
+      };
+      img.onerror = () => {
+        Debug.warn('Teaser', `Failed to preload asset into memory`);
+        resolve(); // Continue anyway
+      };
+      img.src = url;
+    });
+  });
+
+  await Promise.all(promises);
+
+  // Briefly wait for GPU upload
+  await new Promise(r => setTimeout(r, 500));
+
+  // Revoke URLs to free memory
+  urlsToRevoke.forEach(url => URL.revokeObjectURL(url));
 }
 
 // --- MODULAR SUB-FUNCTIONS ---
@@ -669,14 +732,15 @@ async function prepareFirstScene(step, label, style, config) {
     computedPitch: initialPitch
   });
 
+  const targetScene = store.state.scenes[step.idx];
   store.setActiveScene(step.idx, initialYaw, initialPitch);
-  if (label) label.innerText = `Preparing: ${store.state.scenes[step.idx].name}...`;
+  if (label) label.innerText = `Preparing: ${targetScene.name}...`;
   if (window.updateProgressBar) {
     window.updateProgressBar(0, "Preparing...", true, "Creating property teaser");
   }
 
   await new Promise(r => setTimeout(r, SCENE_STABILIZATION_DELAY));
-  await waitForViewerReady();
+  await waitForViewerReady(targetScene.id);
 
   const viewer = window.pannellumViewer;
 
@@ -848,13 +912,28 @@ async function recordShot(i, pathSteps, style, config, label, snapCtx) {
 }
 
 async function transitionToNextShot(i, pathSteps, style, config, snapCanvas) {
-  // 1. Snapshot (for dissolve overlay)
+  // 1. Snapshot the current frame (for dissolve overlay)
   const snapCtx = snapCanvas.getContext('2d');
+  // Draw the current state of ghostCanvas (which holds the previous scene)
   snapCtx.drawImage(ghostCanvas, 0, 0);
-  fadeOpacity = 1;
+  fadeOpacity = 1; // Show snapshot overlay - this hides all loading activity
 
-  // 2. Determine orientation based on style
+  // CRITICAL: Force one frame render so the snapshot is DEFINITELY on the ghostCanvas
+  // before we pause. This ensures the "last frame" timestamped before pause is clean.
+  await new Promise(r => requestAnimationFrame(r));
+  await new Promise(r => requestAnimationFrame(r));
+
+  // 2. PAUSE RECORDING during the dangerous load/swap window
+  // The snapshot overlay is now showing the last clean frame from the previous scene.
+  // We pause recording so absolutely no transitional/loading frames are captured.
+  if (activeRecorder && activeRecorder.state === 'recording') {
+    activeRecorder.pause();
+    Debug.info('Teaser', 'Recorder PAUSED for scene transition');
+  }
+
+  // 3. Determine orientation based on style
   const nextStep = pathSteps[i + 1];
+  const nextStepScene = store.state.scenes[nextStep.idx];
   let nextYaw = 0;
   let nextPitch = 0;
 
@@ -889,14 +968,14 @@ async function transitionToNextShot(i, pathSteps, style, config, snapCanvas) {
     computedPitch: nextPitch
   });
 
-  // 3. Switch scene with correct orientation from the start
+  // 4. Switch scene with correct orientation from the start
   store.setActiveScene(nextStep.idx, nextYaw, nextPitch);
 
-  // 4. Wait for viewer to be ready
-  await waitForViewerReady();
+  // 5. Wait for viewer to be ready - must match the scene we just requested
+  await waitForViewerReady(nextStepScene.id);
   const viewer = window.pannellumViewer;
 
-  // 5. Ensure orientation is set (backup) - use 0 duration to prevent animation
+  // 6. Ensure orientation is set (backup) - use 0 duration to prevent animation
   if (viewer) {
     viewer.setYaw(nextYaw, 0);
     viewer.setPitch(nextPitch, 0);
@@ -908,28 +987,62 @@ async function transitionToNextShot(i, pathSteps, style, config, snapCanvas) {
     });
   }
 
-  // 6. Stabilization delay
+  // 7. Stabilization delay - scene is now fully loaded and rendered
   await new Promise(r => setTimeout(r, SCENE_STABILIZATION_DELAY));
 
-  // 7. Reveal
-  if (style === "punchy") {
-    fadeOpacity = 0; // Instant cut
-  } else {
-    await doCrossDissolve(config.transitionDuration);
+  // 8. RESUME RECORDING now that the new scene is confirmed ready
+  // From this point, every frame captured will be clean.
+  if (activeRecorder && activeRecorder.state === 'paused') {
+    activeRecorder.resume();
+    Debug.info('Teaser', 'Recorder RESUMED after scene ready');
+
+    // CRITICAL: Wait for recorder to actually start capturing frames
+    // MediaRecorder can take a moment to "warm up" after resume.
+    // We add a longer buffer here to ensure the recording has definitely resumed
+    // before we start changing the pixels (dissolving).
+    // The viewer sees a static frame (snapshot) during this buffer, which is fine.
+    await new Promise(r => setTimeout(r, 200));
+    await new Promise(r => requestAnimationFrame(r));
+    await new Promise(r => requestAnimationFrame(r));
   }
+
+  // 9. Reveal with cross-dissolve (all styles get a smooth transition now)
+  // Punchy uses 500ms dissolve for a snappy but clearly visible transition
+  // Dissolve/Cinematic use the configured longer transition (1000ms)
+  const dissolveDuration = (style === "punchy") ? 500 : config.transitionDuration;
+  Debug.info('Teaser', `Starting cross-dissolve: ${dissolveDuration}ms, fadeOpacity=${fadeOpacity}, recorderState=${activeRecorder?.state}`);
+
+  // Extra hold to guarantee continuity
+  await new Promise(r => setTimeout(r, 100));
+
+  await doCrossDissolve(dissolveDuration);
+  Debug.info('Teaser', `Cross-dissolve complete, fadeOpacity now ${fadeOpacity}`);
 }
+
 
 /**
  * Robust helper to wait for the global pannellumViewer to be initialized and loaded.
  * Handles recreations during scene transitions.
+ * 
+ * @param {string} expectedSceneId - The ID of the scene we are waiting for
  */
-async function waitForViewerReady() {
-  const timeout = 8000; // Increased timeout for 4K loads
+async function waitForViewerReady(expectedSceneId = null) {
+  const timeout = 12000; // Increased timeout for 4K loads
   const start = Date.now();
 
   while (Date.now() - start < timeout) {
     const v = window.pannellumViewer;
+
+    // Check if viewer exists and is loaded
     if (v && typeof v.isLoaded === 'function' && v.isLoaded()) {
+
+      // If we're waiting for a specific scene, ensure it's the one currently active in window.pannellumViewer
+      // This prevents returning true while the OLD viewer instance is still active during a swap.
+      if (expectedSceneId && v._sceneId !== expectedSceneId) {
+        await new Promise(r => setTimeout(r, VIEWER_LOAD_CHECK_INTERVAL));
+        continue;
+      }
+
       // ADDITIONAL CHECK: If we are using progressive loading (scenes: preview, master)
       // we MUST wait until the 'master' scene is actually the active one.
       const currentScene = v.getScene();
@@ -938,18 +1051,66 @@ async function waitForViewerReady() {
       // If the viewer has multiple scenes (progressive mode), wait for 'master'
       if (config.scenes && config.scenes.master && config.scenes.preview) {
         if (currentScene === 'master') {
+          // Final step: Wait for actual GPU render to complete
+          await waitForCanvasRendered();
           return true;
         }
         // If still on preview, continue waiting for the swap
       } else {
-        // Standard single-scene mode
+        // Standard single-scene mode - wait for GPU render
+        await waitForCanvasRendered();
         return true;
       }
     }
     await new Promise(r => setTimeout(r, VIEWER_LOAD_CHECK_INTERVAL));
   }
-  throw new Error("Viewer master texture ready timeout");
+  throw new Error(`Viewer reach/load timeout for scene: ${expectedSceneId || 'unknown'}`);
 }
+
+/**
+ * Waits until the Pannellum canvas has actually rendered non-black content.
+ * This guarantees the GPU has finished uploading and painting the texture.
+ * Protects against the edge case where isLoaded() is true but the first frame hasn't rendered yet.
+ */
+async function waitForCanvasRendered() {
+  const maxWait = 3000; // 3 second max wait for GPU render
+  const start = Date.now();
+
+  while (Date.now() - start < maxWait) {
+    const canvas = document.querySelector('.pnlm-render-container canvas');
+    if (canvas && canvas.width > 0 && canvas.height > 0) {
+      try {
+        // Sample a few pixels from the center of the canvas
+        const ctx = canvas.getContext('webgl') || canvas.getContext('webgl2');
+        if (ctx) {
+          const pixels = new Uint8Array(4);
+          const centerX = Math.floor(canvas.width / 2);
+          const centerY = Math.floor(canvas.height / 2);
+          ctx.readPixels(centerX, centerY, 1, 1, ctx.RGBA, ctx.UNSIGNED_BYTE, pixels);
+
+          // Check if we have any non-black content (R, G, or B > 0)
+          if (pixels[0] > 5 || pixels[1] > 5 || pixels[2] > 5) {
+            Debug.debug('Teaser', 'Canvas confirmed rendered with content');
+            // Give GPU one more frame to stabilize
+            await new Promise(r => requestAnimationFrame(r));
+            await new Promise(r => requestAnimationFrame(r));
+            return;
+          }
+        }
+      } catch (e) {
+        // WebGL context access failed, fall back to time-based wait
+        Debug.warn('Teaser', 'Canvas pixel check failed, using fallback delay');
+        await new Promise(r => setTimeout(r, 500));
+        return;
+      }
+    }
+    await new Promise(r => requestAnimationFrame(r));
+  }
+
+  // Timeout fallback - proceed anyway but log warning
+  Debug.warn('Teaser', 'Canvas render check timed out, proceeding with recording');
+}
+
 
 async function doCrossDissolve(duration) {
   const start = Date.now();
@@ -963,6 +1124,9 @@ async function doCrossDissolve(duration) {
 async function finalizeTeaser(recordedChunks, format, baseName, overlay) {
   cancelAnimationFrame(streamLoopId);
   fadeOpacity = 0;
+  isTeasing = false;
+  store.setIsTeasing(false);
+
   if (overlay) overlay.style.display = "none";
 
   if (recordedChunks.length === 0) {

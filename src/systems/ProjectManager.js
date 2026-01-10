@@ -108,8 +108,11 @@ export async function saveProject(state, onProgress) {
                 returnViewFrame: h.returnViewFrame || null,
                 isReturnLink: h.isReturnLink || false,
                 targetYaw: h.targetYaw,
-                targetPitch: h.targetPitch
+                targetPitch: h.targetPitch,
+                // MULTI-POINT LINKS: Save ALL intermediate waypoints
+                waypoints: h.waypoints || []
             }))
+
         }))
     };
 
@@ -175,7 +178,9 @@ export async function loadProject(zipFile, onProgress) {
                 startYaw: h.startYaw,
                 startHfov: h.startHfov,
                 returnViewFrame: h.returnViewFrame || null,
-                isReturnLink: h.isReturnLink || false
+                isReturnLink: h.isReturnLink || false,
+                // MULTI-POINT LINKS: Restore ALL intermediate waypoints
+                waypoints: h.waypoints || []
             }))
         }));
 

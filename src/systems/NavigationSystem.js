@@ -251,15 +251,15 @@ export function navigateToScene(targetIndex, sourceSceneIndex, sourceHotspotInde
             while (initialYawDiff < -180) initialYawDiff += 360;
 
             // MOMENTUM LOGIC:
-            // 1. First Link (Manual Click): Start exactly at Point A (0% offset) to match the user's defined "Start View".
-            // 2. Continuous Chain (Auto-Forward) OR Simulation Mode: Start at 10% offset ("Moving Handover") to preserve motion flow.
-            const momentum = (autoForwardChain.length > 0 || isSimulationMode) ? 0.10 : 0.0;
+            // REMOVED to force exact alignment with the visual path lines (red dashed lines).
+            // The arrow must start exactly where the line starts.
+            const momentum = 0.0;
 
             const startPitch = actualStartPitch + (targetPitchForPan - actualStartPitch) * momentum;
             const startYaw = actualStartYaw + initialYawDiff * momentum;
             const startHfov = actualStartHfov + (targetHfovForPan - actualStartHfov) * momentum;
 
-            Debug.debug('Navigation', `Moving Handover: Starting at ${(momentum * 100).toFixed(0)}% (Yaw: ${startYaw.toFixed(1)}°, Pitch: ${startPitch.toFixed(1)}°, HFOV: ${startHfov.toFixed(1)})`);
+            Debug.debug('Navigation', `Start Position: Yaw: ${startYaw.toFixed(1)}°, Pitch: ${startPitch.toFixed(1)}°, HFOV: ${startHfov.toFixed(1)}`);
 
             // CRITICAL: Always set camera position before animation to ensure consistent starting point
             viewer.setPitch(startPitch, false);

@@ -49,8 +49,9 @@ export class HotspotLineSystem {
 
                 const isSim = getIsSimulationMode();
 
-                // SYNC FIX: If we are in a continuous chain, the camera (and arrow)
-                // actually starts at a 10% offset from the literal start point.
+                // REMOVED MOMENTUM LOGIC: The visual line should always start exactly at the hotspot
+                // to match the blinking arrow path and provide accurate feedback.
+                /*
                 if (isSim) {
                     const chain = getAutoForwardChain();
                     if (chain.length > 0) {
@@ -66,6 +67,7 @@ export class HotspotLineSystem {
                         }
                     }
                 }
+                */
 
                 // DRAW MULTI-POINT PATH (Red Dashed)
                 if (h.waypoints && h.waypoints.length > 0) {
@@ -79,7 +81,7 @@ export class HotspotLineSystem {
                         const pEnd = this.getScreenCoords(viewer, p.pitch, p.yaw, rect);
 
                         if (pStart && pEnd) {
-                            this.drawLine(svg, pStart.x, pStart.y, pEnd.x, pEnd.y, "#ef4444", 1.5, 0.6, "4,4");
+                            this.drawLine(svg, pStart.x, pStart.y, pEnd.x, pEnd.y, "#ef4444", 3.0, 0.8, "4,4");
                         }
                         prevP = p;
                     });
@@ -89,7 +91,7 @@ export class HotspotLineSystem {
                     const endCoords = this.getScreenCoords(viewer, endPitch, endYaw, rect);
 
                     if (startCoords && endCoords) {
-                        this.drawLine(svg, startCoords.x, startCoords.y, endCoords.x, endCoords.y, "#ef4444", 1.5, 0.6, "4,4");
+                        this.drawLine(svg, startCoords.x, startCoords.y, endCoords.x, endCoords.y, "#ef4444", 3.0, 0.8, "4,4");
                     }
                 }
             }
@@ -108,7 +110,7 @@ export class HotspotLineSystem {
                     const startCoords = this.getScreenCoords(viewer, prevCam.pitch, prevCam.yaw, rect);
                     const endCoords = this.getScreenCoords(viewer, p.camPitch, p.camYaw, rect);
                     if (startCoords && endCoords) {
-                        this.drawLine(svg, startCoords.x, startCoords.y, endCoords.x, endCoords.y, "#ef4444", 2, 0.8, "5,5");
+                        this.drawLine(svg, startCoords.x, startCoords.y, endCoords.x, endCoords.y, "#ef4444", 3.0, 0.9, "5,5");
                     }
                     prevCam = { pitch: p.camPitch, yaw: p.camYaw };
                 });
@@ -118,7 +120,7 @@ export class HotspotLineSystem {
             const redStart = this.getScreenCoords(viewer, prevCam.pitch, prevCam.yaw, rect);
             const redEnd = this.getScreenCoords(viewer, viewer.getPitch(), viewer.getYaw(), rect);
             if (redStart && redEnd) {
-                this.drawLine(svg, redStart.x, redStart.y, redEnd.x, redEnd.y, "#ef4444", 1.5, 0.6, "4,4");
+                this.drawLine(svg, redStart.x, redStart.y, redEnd.x, redEnd.y, "#ef4444", 3.0, 0.8, "4,4");
             }
 
             // --- B. YELLOW DASHED LINES (FLOOR PATH / VISUAL INDICATOR) ---
@@ -130,7 +132,7 @@ export class HotspotLineSystem {
                     const startCoords = this.getScreenCoords(viewer, prevFloor.pitch, prevFloor.yaw, rect);
                     const endCoords = this.getScreenCoords(viewer, p.pitch, p.yaw, rect);
                     if (startCoords && endCoords) {
-                        this.drawLine(svg, startCoords.x, startCoords.y, endCoords.x, endCoords.y, "#fbbf24", 0.5, 0.4, "2,2"); // Subtle path indicator
+                        this.drawLine(svg, startCoords.x, startCoords.y, endCoords.x, endCoords.y, "#fbbf24", 3.0, 0.8, "3,3"); // Subtle path indicator
                     }
                     prevFloor = { pitch: p.pitch, yaw: p.yaw };
                 });
@@ -142,7 +144,7 @@ export class HotspotLineSystem {
                 const yellowStart = this.getScreenCoords(viewer, prevFloor.pitch, prevFloor.yaw, rect);
                 const yellowEnd = this.getScreenCoords(viewer, mouseCoords[0], mouseCoords[1], rect);
                 if (yellowStart && yellowEnd) {
-                    this.drawLine(svg, yellowStart.x, yellowStart.y, yellowEnd.x, yellowEnd.y, "#fbbf24", 1.5, 0.7, "3,3");
+                    this.drawLine(svg, yellowStart.x, yellowStart.y, yellowEnd.x, yellowEnd.y, "#fbbf24", 3.0, 0.8, "3,3");
                 }
             }
         }

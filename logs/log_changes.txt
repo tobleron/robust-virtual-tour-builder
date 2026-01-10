@@ -1,3 +1,9 @@
+[2026-01-10 11:42] Version 4.0.7 [Fix Sim & Teaser]
+- Fix: Removed momentum offset in NavigationSystem to ensure simulation path starts exactly at the visual line origin.
+- Fix: Teaser Recorder specific cross-dissolve stabilization to prevent dropped frames and rough cuts.
+- UI: Increased stroke width of hotspot lines (Red and Yellow) to 3.0px for better visibility.
+- Stability: Added frame-waits before pausing recorder during teaser transitions.
+
 [2026-01-09 00:37] Version 4.0.5 [Multi-Point Links]
 - Feature: Multi-point link creation. Users can now define complex navigation paths by clicking multiple points on the floor.
 - UX: Red dashed lines now accurately represent the camera voyage connecting recorded view centers for each waypoint.

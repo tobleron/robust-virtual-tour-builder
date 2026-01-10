@@ -733,10 +733,10 @@ export function initViewer() {
       }
 
       const panoramaUrl = URL.createObjectURL(targetScene.file);
-      // OPTIMIZATION: In Simulation Mode or Pre-loading, we prioritize QUALITY over latency.
+      // OPTIMIZATION: In Simulation Mode, Teaser Mode, or Pre-loading, we prioritize QUALITY over latency.
       // We disable progressive loading to ensure we don't swap textures (pop) during the cinematic transition.
       // We want the scene to be 100% ready (Master 4K) before the cross-dissolve starts.
-      const useProgressive = !!targetScene.tinyFile && !getIsSimulationMode() && !isAnticipatory;
+      const useProgressive = !!targetScene.tinyFile && !getIsSimulationMode() && !state.isTeasing && !isAnticipatory;
       const tinyUrl = useProgressive ? URL.createObjectURL(targetScene.tinyFile) : null;
 
       // SANITIZATION: Ensure yaw and pitch are never NaN
