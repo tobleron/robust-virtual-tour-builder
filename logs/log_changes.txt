@@ -1,3 +1,7 @@
+[2026-01-10 18:15] Version 4.1.1 [GPS Fix]
+- Fix: Added nominatim.openstreetmap.org to connect-src CSP in index.html to allow reverse geocoding.
+- Fix: Removed forbidden User-Agent header from ExifParser.js to prevent browser request rejection.
+
 [2026-01-10 16:10] Version 4.1.0 [System Stability]
 - Security: Implemented Content Security Policy (CSP) in index.html to protect against XSS and unauthorized resource loading.
 - Security: Added blob: and specific backend origins to connect-src CSP directive.

@@ -151,9 +151,7 @@ function haversineDistance(lat1, lon1, lat2, lon2) {
 export async function reverseGeocode(lat, lon) {
     try {
         const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`;
-        const response = await fetch(url, {
-            headers: { "User-Agent": "VirtualTourBuilder/1.0" }
-        });
+        const response = await fetch(url);
 
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);

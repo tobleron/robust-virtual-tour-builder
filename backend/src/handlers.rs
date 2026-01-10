@@ -648,6 +648,8 @@ pub async fn create_tour_package(mut payload: Multipart) -> Result<HttpResponse,
     let mut fields: HashMap<String, String> = HashMap::new();
     let mut image_files: Vec<(String, Vec<u8>)> = Vec::new();
 
+    let mut current_total_size = 0;
+
     // 1. Parse Multipart into Memory
     while let Some(mut field) = payload.try_next().await? {
         let content_disposition = field.content_disposition().unwrap().clone();
@@ -656,6 +658,12 @@ pub async fn create_tour_package(mut payload: Multipart) -> Result<HttpResponse,
 
         let mut data = Vec::new();
         while let Some(chunk) = field.try_next().await? {
+            current_total_size += chunk.len();
+            if current_total_size > MAX_UPLOAD_SIZE {
+                return Err(AppError::ImageError(
+                    format!("Total upload size exceeds maximum of {}MB", MAX_UPLOAD_SIZE / (1024 * 1024))
+                ));
+            }
             data.extend_from_slice(&chunk);
         }
 
@@ -857,11 +865,25 @@ pub async fn extract_metadata(mut payload: Multipart) -> Result<HttpResponse, Ap
 pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, AppError> {
     let input_path = get_temp_path("webm");
     
+    let mut total_size = 0;
+
     // Save upload to disk
     while let Some(mut field) = payload.try_next().await? {
-        let mut f = fs::File::create(&input_path)?;
-        while let Some(chunk) = field.try_next().await? {
-            f.write_all(&chunk)?;
+        let content_disposition = field.content_disposition().ok_or_else(|| AppError::InternalError("Missing content disposition".to_string()))?;
+        
+        // Only process the 'file' field as video
+        if content_disposition.get_name() == Some("file") {
+            let mut f = fs::File::create(&input_path)?;
+            while let Some(chunk) = field.try_next().await? {
+                total_size += chunk.len();
+                if total_size > MAX_UPLOAD_SIZE {
+                    let _ = fs::remove_file(&input_path);
+                    return Err(AppError::ImageError(
+                        format!("Video upload exceeds maximum size of {}MB", MAX_UPLOAD_SIZE / (1024 * 1024))
+                    ));
+                }
+                f.write_all(&chunk)?;
+            }
         }
     }
 

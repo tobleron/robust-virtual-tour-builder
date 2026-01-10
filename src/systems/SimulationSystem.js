@@ -445,22 +445,25 @@ export function getSimulationPath() {
         }
     }
 
+    const pathSet = new Set(); // To detect actual path cycles
     path.push(currentPathObj);
 
     while (loopCount < MAX_STEPS) {
         const currentScene = state.scenes[currentIdx];
         if (!currentScene) break;
 
-        // Use the internal logic but with our local visited set
-        // We need to mock the global 'visitedScenes' for the helper function
-        // or refactor the helper to accept visited list.
-        // Refactoring findBestNextLink to accept visited list is cleaner.
-
         const nextLink = findBestNextLink(currentScene, state, localVisited);
-
         if (!nextLink) break;
 
         const { hotspot, targetIndex } = nextLink;
+
+        // CYCLE DETECTION: If we have traversed this EXACT link before, we are in a loop.
+        const stateKey = `${currentIdx}->${targetIndex}`;
+        if (pathSet.has(stateKey)) {
+            Debug.warn('Simulation', 'Detected cycle in path generation, terminating');
+            break;
+        }
+        pathSet.add(stateKey);
 
         // 1. Update current path object with transition info (WE ARE LEAVING CURRENT SCENE VIA THIS LINK)
         let transYaw = hotspot.yaw;

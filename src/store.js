@@ -332,26 +332,26 @@ export const store = {
    * Update the arrival view for a normal link hotspot.
    * yaw and pitch are saved live as the user pans in the destination scene.
    */
-  updateHotspotTargetView(sceneIndex, hotspotIndex, yaw, pitch, hfov) {
+  updateHotspotTargetView(sceneIndex, hotspotIndex, yaw, pitch, hfov, silent = true) {
     const hotspot = this.state.scenes[sceneIndex]?.hotspots[hotspotIndex];
     if (hotspot) {
       hotspot.targetYaw = yaw;
       hotspot.targetPitch = pitch;
       hotspot.targetHfov = hfov;
-      // Do NOT notify to prevent viewer reload. Silent update.
+      if (!silent) this.notify();
     }
   },
 
   /**
    * Update the arrival view for a return link hotspot.
    */
-  updateHotspotReturnView(sceneIndex, hotspotIndex, yaw, pitch, hfov) {
+  updateHotspotReturnView(sceneIndex, hotspotIndex, yaw, pitch, hfov, silent = true) {
     const hotspot = this.state.scenes[sceneIndex]?.hotspots[hotspotIndex];
     if (hotspot && hotspot.returnViewFrame) {
       hotspot.returnViewFrame.yaw = yaw;
       hotspot.returnViewFrame.pitch = pitch;
       hotspot.returnViewFrame.hfov = hfov;
-      // Do NOT notify to prevent viewer reload. Silent update.
+      if (!silent) this.notify();
     }
   },
 
