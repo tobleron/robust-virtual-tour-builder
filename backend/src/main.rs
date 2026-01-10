@@ -19,7 +19,26 @@ async fn main() -> io::Result<()> {
     tracing::info!("Starting server at http://localhost:8080");
 
     HttpServer::new(|| {
-        let cors = Cors::permissive(); // For development, allow all origins
+        // CORS Configuration: Permissive in debug, restricted in release
+        let cors = if cfg!(debug_assertions) {
+            // Development: Allow all origins for testing
+            Cors::permissive()
+        } else {
+            // Production: Restrict to localhost and file protocol (for desktop app)
+            Cors::default()
+                .allowed_origin("http://localhost:5173")  // Vite dev server
+                .allowed_origin("http://127.0.0.1:5173")
+                .allowed_origin_fn(|origin, _req_head| {
+                    // Allow file:// protocol for Electron/desktop apps
+                    origin.as_bytes().starts_with(b"file://")
+                })
+                .allowed_methods(vec!["GET", "POST"])
+                .allowed_headers(vec![
+                    actix_web::http::header::CONTENT_TYPE,
+                    actix_web::http::header::ACCEPT,
+                ])
+                .max_age(3600)
+        };
 
         App::new()
             .wrap(TracingLogger::default()) // Structured request logging

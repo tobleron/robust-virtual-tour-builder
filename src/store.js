@@ -117,6 +117,22 @@ export const store = {
       return;
     }
 
+    // GUARD: Validate yaw and pitch are numbers within valid ranges
+    if (typeof startYaw !== 'number' || !isFinite(startYaw)) {
+      console.warn(`[Store] setActiveScene: Invalid startYaw ${startYaw}, defaulting to 0`);
+      startYaw = 0;
+    }
+    if (typeof startPitch !== 'number' || !isFinite(startPitch)) {
+      console.warn(`[Store] setActiveScene: Invalid startPitch ${startPitch}, defaulting to 0`);
+      startPitch = 0;
+    }
+
+    // Normalize yaw to [0, 360) range
+    startYaw = ((startYaw % 360) + 360) % 360;
+
+    // Clamp pitch to [-90, 90] range
+    startPitch = Math.max(-90, Math.min(90, startPitch));
+
     const targetScene = this.state.scenes[index];
     let finalYaw = startYaw;
     let finalPitch = startPitch;

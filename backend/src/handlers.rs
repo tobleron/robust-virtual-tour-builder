@@ -18,6 +18,7 @@ use bytes::Bytes;
 // Configs
 const PROCESSED_IMAGE_WIDTH: u32 = 4096;
 const TEMP_DIR: &str = "/tmp/remax_backend";
+const MAX_UPLOAD_SIZE: usize = 100 * 1024 * 1024; // 100MB limit to prevent DoS
 
 // --- Error Handling ---
 
@@ -91,6 +92,46 @@ fn get_temp_path(extension: &str) -> PathBuf {
     }
     path.push(format!("{}.{}", Uuid::new_v4(), extension));
     path
+}
+
+/// Sanitize filename to prevent path traversal attacks
+/// Returns only the filename component, rejecting any directory traversal attempts
+fn sanitize_filename(fname: &str) -> Result<String, String> {
+    use std::path::{Path, Component};
+    
+    // Reject empty filenames
+    if fname.is_empty() {
+        return Err("Empty filename not allowed".to_string());
+    }
+    
+    let path = Path::new(fname);
+    
+    // Reject absolute paths
+    if path.is_absolute() {
+        return Err("Absolute paths not allowed".to_string());
+    }
+    
+    // Check for parent directory components (..)
+    for component in path.components() {
+        match component {
+            Component::ParentDir => {
+                return Err("Parent directory traversal not allowed".to_string());
+            }
+            Component::RootDir => {
+                return Err("Root directory access not allowed".to_string());
+            }
+            _ => {}
+        }
+    }
+    
+    // Extract only the filename (no directory structure)
+    path.file_name()
+        .and_then(|s| s.to_str())
+        .map(|s| {
+            // Additional sanitization: remove any remaining dangerous characters
+            s.replace(['/', '\\', '\0'], "_")
+        })
+        .ok_or_else(|| "Invalid filename".to_string())
 }
 
 // --- Metadata Structs ---
@@ -272,7 +313,10 @@ fn perform_metadata_extraction(img: &image::DynamicImage, input_data: &[u8]) -> 
 
         // OPTIMIZATION: Use fixed-point integer math for luminance (faster than float)
         // (R*54 + G*183 + B*19) >> 8
-        let lum = ((pixel[0] as u32 * 54 + pixel[1] as u32 * 183 + pixel[2] as u32 * 19) >> 8) as u8;
+        // Use saturating arithmetic to prevent overflow (defensive programming)
+        let lum = ((pixel[0] as u32 * 54)
+            .saturating_add(pixel[1] as u32 * 183)
+            .saturating_add(pixel[2] as u32 * 19) >> 8) as u8;
         hist_gray[lum as usize] += 1;
         total_lum += lum as u64;
         gray_pixels.push(lum);
@@ -386,18 +430,27 @@ fn inject_remx_chunk(webp_data: Vec<u8>, metadata: &MetadataResponse) -> Result<
 pub async fn process_image_full(mut payload: Multipart) -> Result<HttpResponse, AppError> {
     // PERFORMANCE: Pre-allocate buffer for typical 30MB panoramic images
     let mut data = Vec::with_capacity(32 * 1024 * 1024);
+    let mut total_size = 0;
+    
     while let Some(mut field) = payload.try_next().await? {
         while let Some(chunk) = field.try_next().await? {
+            total_size += chunk.len();
+            if total_size > MAX_UPLOAD_SIZE {
+                return Err(AppError::ImageError(
+                    format!("Upload exceeds maximum size of {}MB", MAX_UPLOAD_SIZE / (1024 * 1024))
+                ));
+            }
             data.extend_from_slice(&chunk);
         }
     }
 
     let result_zip = web::block(move || -> Result<Vec<u8>, String> {
+        let data_size = data.len();
         let img = image::ImageReader::new(Cursor::new(&data))
             .with_guessed_format()
-            .map_err(|e| format!("Failed to guess format: {}", e))?
+            .map_err(|e| format!("Failed to guess image format (size: {} bytes): {}", data_size, e))?
             .decode()
-            .map_err(|e| format!("Failed to decode image: {}", e))?;
+            .map_err(|e| format!("Failed to decode image (size: {} bytes): {}", data_size, e))?;
 
         // 1. Metadata Extraction
         let metadata = perform_metadata_extraction(&img, &data)?;
@@ -465,8 +518,16 @@ pub async fn process_image_full(mut payload: Multipart) -> Result<HttpResponse, 
 pub async fn optimize_image(mut payload: Multipart) -> Result<HttpResponse, AppError> {
     // PERFORMANCE: Pre-allocate buffer for typical 30MB panoramic images
     let mut data = Vec::with_capacity(32 * 1024 * 1024);
+    let mut total_size = 0;
+    
     while let Some(mut field) = payload.try_next().await? {
         while let Some(chunk) = field.try_next().await? {
+            total_size += chunk.len();
+            if total_size > MAX_UPLOAD_SIZE {
+                return Err(AppError::ImageError(
+                    format!("Upload exceeds maximum size of {}MB", MAX_UPLOAD_SIZE / (1024 * 1024))
+                ));
+            }
             data.extend_from_slice(&chunk);
         }
     }
@@ -513,8 +574,16 @@ pub async fn optimize_image(mut payload: Multipart) -> Result<HttpResponse, AppE
 pub async fn resize_image_batch(mut payload: Multipart) -> Result<HttpResponse, AppError> {
     // PERFORMANCE: Pre-allocate buffer for typical 30MB panoramic images
     let mut data = Vec::with_capacity(32 * 1024 * 1024);
+    let mut total_size = 0;
+    
     while let Some(mut field) = payload.try_next().await? {
         while let Some(chunk) = field.try_next().await? {
+            total_size += chunk.len();
+            if total_size > MAX_UPLOAD_SIZE {
+                return Err(AppError::ImageError(
+                    format!("Upload exceeds maximum size of {}MB", MAX_UPLOAD_SIZE / (1024 * 1024))
+                ));
+            }
             data.extend_from_slice(&chunk);
         }
     }
@@ -591,7 +660,9 @@ pub async fn create_tour_package(mut payload: Multipart) -> Result<HttpResponse,
         }
 
         if let Some(fname) = filename {
-            let sanitized_name: String = fname.replace("..", "").replace("/", "_");
+            // Use secure sanitization to prevent path traversal
+            let sanitized_name = sanitize_filename(&fname)
+                .map_err(|e| AppError::InternalError(format!("Invalid filename '{}': {}", fname, e)))?;
             image_files.push((sanitized_name, data));
         } else {
             let value_str = String::from_utf8_lossy(&data).to_string();
@@ -720,7 +791,10 @@ pub struct TelemetryPayload {
 
 #[tracing::instrument(skip(payload), name = "log_telemetry")]
 pub async fn log_telemetry(payload: web::Json<TelemetryPayload>) -> Result<HttpResponse, AppError> {
-    let log_dir = std::path::Path::new("../logs");
+    // Support configurable log directory via environment variable
+    let log_dir_str = std::env::var("LOG_DIR").unwrap_or_else(|_| "../logs".to_string());
+    let log_dir = std::path::Path::new(&log_dir_str);
+    
     if !log_dir.exists() {
         fs::create_dir_all(log_dir).ok();
     }
@@ -749,8 +823,16 @@ pub async fn log_telemetry(payload: web::Json<TelemetryPayload>) -> Result<HttpR
 pub async fn extract_metadata(mut payload: Multipart) -> Result<HttpResponse, AppError> {
     // PERFORMANCE: Pre-allocate buffer for typical 30MB panoramic images
     let mut data = Vec::with_capacity(32 * 1024 * 1024);
+    let mut total_size = 0;
+    
     while let Some(mut field) = payload.try_next().await? {
         while let Some(chunk) = field.try_next().await? {
+            total_size += chunk.len();
+            if total_size > MAX_UPLOAD_SIZE {
+                return Err(AppError::ImageError(
+                    format!("Upload exceeds maximum size of {}MB", MAX_UPLOAD_SIZE / (1024 * 1024))
+                ));
+            }
             data.extend_from_slice(&chunk);
         }
     }

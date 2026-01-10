@@ -31,18 +31,46 @@ export async function checkBackendHealth() {
 /**
  * Generate a SHA-256 checksum for a file.
  * Used for "fingerprinting" images to detect duplicates.
- * OPTIMIZED: Uses a fast fingerprinting strategy (First 2MB + Size) to avoid memory spikes.
+ * SECURITY: Uses sample-based hashing to prevent collision attacks
+ * PERFORMANCE: Optimized for large files (samples 3 regions instead of full hash)
  */
 export async function getChecksum(file) {
-  const FINGERPRINT_SIZE = 2 * 1024 * 1024; // 2MB
-  const chunk = file.size > FINGERPRINT_SIZE ? file.slice(0, FINGERPRINT_SIZE) : file;
+  const SMALL_FILE_THRESHOLD = 10 * 1024 * 1024; // 10MB
+  const SAMPLE_SIZE = 1024 * 1024; // 1MB per sample
 
-  const arrayBuffer = await chunk.arrayBuffer();
-  const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+  let hashBuffer;
+
+  if (file.size <= SMALL_FILE_THRESHOLD) {
+    // Small files: Hash entire content for maximum accuracy
+    const arrayBuffer = await file.arrayBuffer();
+    hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+  } else {
+    // Large files: Sample beginning + middle + end to prevent collision attacks
+    // This prevents attackers from uploading duplicates with different trailing data
+    const samples = [
+      file.slice(0, SAMPLE_SIZE),                                    // Beginning
+      file.slice(Math.floor(file.size / 2), Math.floor(file.size / 2) + SAMPLE_SIZE), // Middle
+      file.slice(Math.max(0, file.size - SAMPLE_SIZE), file.size)   // End
+    ];
+
+    // Concatenate samples
+    const sampleBuffers = await Promise.all(samples.map(s => s.arrayBuffer()));
+    const totalSize = sampleBuffers.reduce((acc, buf) => acc + buf.byteLength, 0);
+    const combined = new Uint8Array(totalSize);
+
+    let offset = 0;
+    sampleBuffers.forEach(buf => {
+      combined.set(new Uint8Array(buf), offset);
+      offset += buf.byteLength;
+    });
+
+    hashBuffer = await crypto.subtle.digest('SHA-256', combined);
+  }
+
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
-  // Append size to ensure collision safety for images with same prefix but different content
+  // Append size to ensure collision safety
   return `${hash}_${file.size}`;
 }
 

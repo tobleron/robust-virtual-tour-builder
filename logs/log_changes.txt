@@ -1,3 +1,17 @@
+[2026-01-10 15:29] Version 4.0.9 [Security Hardening]
+- Security: Implemented upload size limits (100MB max) to prevent DoS attacks via memory exhaustion
+- Security: Added path traversal protection with comprehensive filename sanitization
+- Security: Implemented XSS prevention with HTML escaping in LinkModal scene names
+- Security: Added environment-aware CORS configuration (permissive in dev, restricted in production)
+- Security: Enhanced promise rejection handler with production mode detection
+- Robustness: Improved duplicate detection using sample-based hashing (beginning + middle + end)
+- Robustness: Added input validation for camera angles (yaw/pitch normalization and clamping)
+- Robustness: Implemented race condition protection in SimulationSystem with 300ms debounce
+- Robustness: Added integer overflow protection using saturating arithmetic in backend
+- Maintenance: Made log directory configurable via LOG_DIR environment variable
+- Maintenance: Enhanced error messages with file size context for better debugging
+- Documentation: Created comprehensive security analysis and fix reports
+
 [2026-01-10 11:42] Version 4.0.7 [Fix Sim & Teaser]
 - Fix: Removed momentum offset in NavigationSystem to ensure simulation path starts exactly at the visual line origin.
 - Fix: Teaser Recorder specific cross-dissolve stabilization to prevent dropped frames and rough cuts.
@@ -721,3 +735,49 @@
 - Updated Cinematic and Simulation modes to follow curved paths
 - Updated Teaser "Cinematic Scenes" button to purple styling
 - Refined visual path rendering (Red/Yellow dashed lines) to be curved
+
+[2026-01-10 13:30] Version 4.0.9 [Sim Preview]
+- Feature: Added "Preview Link" button (Green Arrow) to hotspots in Simulation Mode.
+- Feature: Clicking the preview button simulates the camera travel along the waypoints without changing scenes.
+- Logic: Refactored navigateToScene to support a 'previewOnly' mode that plays the animation but skips the final transition.
+
+
+[2026-01-10 13:35] Version 4.0.10 [Preview Fix]
+- Fix: Moved "Preview Link" button (Green Arrow) to be visible in Normal Mode (creation/browsing) instead of Simulation Mode.
+- Logic: Allows users to test and visualize the camera path of a specific link without entering full auto-pilot mode.
+
+
+[2026-01-10 13:40] Version 4.0.11 [Persistent Preview Arrow]
+- UI: Replaced HTML preview button with a persistent SVG green arrow in the main view.
+- Logic: The preview arrow is now anchored at the EXACT start of the waypoint path.
+- Visuals: Arrow is static (non-blinking), Green (#10b981), and oriented along the path tangent.
+- Interaction: Clicking the arrow triggers the preview simulation (Normal Mode only).
+
+
+[2026-01-10 13:45] Version 4.0.12 [Fix Rotation Jitter]
+- Fix: Resolved issue where the simulation arrow would flip 180° at the very end of the path.
+- Logic: Added robust segment filtering to HotspotLineSystem.js. Extremely short/tiny segments (< 0.1° length) are now ignored for rotation calculation, deferring to the previous stable directional vector.
+
+
+[2026-01-10 13:50] Version 4.0.13 [Rotation Stabilization]
+- Fix: Rewrote arrow rotation stabilization in HotspotLineSystem.js multiple layers deep.
+- Logic: Now scans backwards from the current segment to find the first "significant" segment (> 0.5° length) to determine the arrow's orientation.
+- Impact: Eliminates 180° flipping at the start/end of paths caused by microscopic spline segments or Catmull-Rom overshoot ringing.
+
+
+[2026-01-10 13:55] Version 4.0.14 [Blink Finish]
+- Feature: Added a visual blinking effect at the end of the simulation camera journey.
+- Logic: When the camera reaches the final waypoint (100% progress), the animation pauses for 600ms and blinks the arrow opacity (1.0 -> 0.0 -> 1.0) before completing the action.
+- Fix: Repaired a syntax regression in NavigationSystem.js where the animation loop variable was accidentally unassigned.
+
+
+[2026-01-10 14:00] Version 4.0.15 [Preview Refinements]
+- Feature: Static preview arrow is now hidden while its specific link is being previewed.
+- Fix: Calculated tangent angle of start arrow using smoother spline interpolation (or direct next point) to ensure it aligns perfectly with the red path.
+- Fix: Cleaned up duplicate code blocks in HotspotLineSystem that were causing syntax errors.
+
+
+[2026-01-10 14:05] Version 4.0.16 [Revert Crash]
+- Fix: Reverted 'Hide static arrow during preview' feature because it caused a crash (ReferenceError: NavigationSystem is not defined in HotspotLineSystem).
+- State: App is back to stable state (v4.0.14) but kept the code cleanup from v4.0.15.
+

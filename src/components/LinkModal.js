@@ -16,6 +16,21 @@ import {
 } from "../constants.js";
 
 /**
+ * Escape HTML special characters to prevent XSS attacks
+ * @param {string} unsafe - Potentially unsafe user input
+ * @returns {string} Sanitized string safe for HTML injection
+ */
+function escapeHtml(unsafe) {
+  if (!unsafe) return '';
+  return String(unsafe)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+/**
  * Display the link creation modal
  * 
  * This modal allows users to:
@@ -73,16 +88,21 @@ export function showLinkModal(pitch, yaw, camPitch, camYaw, camHfov, pendingRetu
                     <option value="" style="background: #1e293b;">-- Select Room --</option>
                     ${state.scenes
       .map((s, i) => {
+        // Sanitize scene name to prevent XSS
+        const safeName = escapeHtml(s.name);
+
         // AUTO-SELECT LOGIC: 
         // 1. Pending Return Scene (High Priority)
-        if (pendingReturnSceneName && s.name === pendingReturnSceneName) return `<option value="${s.name}" selected style="background: #1e293b;">${s.name}</option>`;
+        if (pendingReturnSceneName && s.name === pendingReturnSceneName) {
+          return `<option value="${safeName}" selected style="background: #1e293b;">${safeName}</option>`;
+        }
 
         // 2. Next Sequential Scene (Low Priority)
         const isNext = (!pendingReturnSceneName && i === nextIndex) ? "selected" : "";
 
         // Don't allow linking to self (would create infinite loop)
         if (i === state.activeIndex) return "";
-        return `<option value="${s.name}" ${isNext} style="background: #1e293b;">${s.name}</option>`;
+        return `<option value="${safeName}" ${isNext} style="background: #1e293b;">${safeName}</option>`;
       })
       .join("")}
                 </select>

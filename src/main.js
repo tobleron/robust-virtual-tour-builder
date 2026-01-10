@@ -32,6 +32,12 @@ window.onunhandledrejection = (event) => {
     stack: reason instanceof Error ? reason.stack : null,
     promise: event.promise
   });
+
+  // Prevent default browser console error in production to avoid noise
+  // (Debug system already logs to backend)
+  if (!window.location.hostname.includes('localhost')) {
+    event.preventDefault();
+  }
 };
 
 // Initialize utilities first (they attach to window object)

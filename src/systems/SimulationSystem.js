@@ -25,6 +25,7 @@ let isAutoPilot = false;
 let visitedScenes = [];
 let autoPilotJourneyId = 0;
 let pendingAdvance = null; // Timeout ID for delayed advance
+let lastAdvanceTime = 0; // Debounce protection against rapid calls
 
 // ============================================================================
 // Public API
@@ -162,6 +163,14 @@ export function onSceneArrival(sceneIndex, isChainEnd = false) {
         clearTimeout(pendingAdvance);
         pendingAdvance = null;
     }
+
+    // DEBOUNCE: Prevent rapid successive calls from creating race conditions
+    const now = Date.now();
+    if (now - lastAdvanceTime < 300) {
+        Debug.warn('Simulation', 'onSceneArrival called too quickly, debouncing');
+        return;
+    }
+    lastAdvanceTime = now;
 
     // Mark as visited
     if (!visitedScenes.includes(sceneIndex)) {
