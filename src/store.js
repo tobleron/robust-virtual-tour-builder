@@ -1,29 +1,10 @@
 import { Debug } from "./utils/Debug.js";
-
-/**
- * Sanitize scene/tour names to prevent filesystem issues and ensure cross-platform compatibility
- * @param {string} name - Raw name input
- * @param {number} maxLength - Maximum allowed length (default: 255)
- * @returns {string} Sanitized name
- */
-function sanitizeName(name, maxLength = 255) {
-  if (!name || typeof name !== 'string') {
-    return 'Untitled';
-  }
-
-  return name
-    .trim()
-    // Remove control characters and invalid filesystem characters
-    .replace(/[\x00-\x1F\x7F<>:"\/\\|?*]/g, '_')
-    // Replace multiple spaces/underscores with single underscore
-    .replace(/[_\s]+/g, '_')
-    // Remove leading/trailing underscores
-    .replace(/^_+|_+$/g, '')
-    // Limit length
-    .substring(0, maxLength)
-    // Fallback if empty after sanitization
-    || 'Untitled';
-}
+import {
+  sanitizeName,
+  generateLinkId,
+  computeSceneFilename,
+  validateTourIntegrity
+} from "./utils/TourLogic.js";
 
 export const store = {
   state: {
@@ -51,7 +32,10 @@ export const store = {
     preloadingSceneIndex: -1, // Anticipatory loading for smooth transitions
     isTeasing: false, // High-quality rendering mode for teaser recording
     // PERSISTENCE FIX: Track IDs of scenes removed by the user to prevent accidental re-adding
-    deletedSceneIds: []
+    deletedSceneIds: [],
+    // VISUAL PIPELINE: Ordered list of timeline steps
+    timeline: [],
+    activeTimelineStepId: null // Track exactly which step in the pipeline is active
   },
 
   listeners: [],
@@ -196,14 +180,50 @@ export const store = {
 
   addHotspot(sceneIndex, hotspotData, skipNotify = false) {
     if (this.state.scenes[sceneIndex]) {
+      // 1. Generate Unique Link ID if missing
+      if (!hotspotData.linkId) {
+        // Collect all existing IDs to avoid collision
+        const usedIds = new Set();
+        this.state.scenes.forEach(s => s.hotspots.forEach(h => {
+          if (h.linkId) usedIds.add(h.linkId);
+        }));
+
+        hotspotData.linkId = generateLinkId(usedIds);
+      }
+
+      // 2. Add to Scene
       this.state.scenes[sceneIndex].hotspots.push(hotspotData);
+
+      // 3. Auto-add to Timeline (Default behavior: Append to end)
+      const sceneName = this.state.scenes[sceneIndex].name;
+      this.addToTimeline({
+        linkId: hotspotData.linkId,
+        sceneId: this.state.scenes[sceneIndex].id,
+        targetScene: hotspotData.target,
+        transition: "dissolve",
+        duration: 3000 // Default viewing duration
+      }, true); // Silent add, let the final notify handle it if skipNotify is false
+
       if (!skipNotify) this.notify();
     }
   },
 
   removeHotspot(sceneIndex, hotspotIndex) {
     if (this.state.scenes[sceneIndex]) {
-      this.state.scenes[sceneIndex].hotspots.splice(hotspotIndex, 1);
+      const scene = this.state.scenes[sceneIndex];
+      const hotspot = scene.hotspots[hotspotIndex];
+      const linkIdToRemove = hotspot?.linkId;
+
+      // 1. Remove the hotspot from the scene
+      scene.hotspots.splice(hotspotIndex, 1);
+
+      // 2. Remove any corresponding items from the timeline
+      if (linkIdToRemove) {
+        this.state.timeline = this.state.timeline.filter(item =>
+          !(item.sceneId === scene.id && item.linkId === linkIdToRemove)
+        );
+      }
+
       this.notify();
     }
   },
@@ -258,6 +278,13 @@ export const store = {
       if (!this.state.deletedSceneIds.includes(sceneToDelete.id)) {
         this.state.deletedSceneIds.push(sceneToDelete.id);
       }
+
+      // 1.6. Clean up Timeline items belonging to this scene (either as source or sequence point)
+      const originalTimelineLength = this.state.timeline.length;
+      this.state.timeline = this.state.timeline.filter(item => item.sceneId !== sceneToDelete.id);
+      if (this.state.timeline.length !== originalTimelineLength) {
+        console.log(`📦 [Store] Removed ${originalTimelineLength - this.state.timeline.length} items from timeline for deleted scene "${targetName}"`);
+      }
     }
 
     // 2. Perform the deletion
@@ -282,6 +309,20 @@ export const store = {
   },
 
   /**
+   * Remove a scene ID from the deleted history.
+   * Used when a user explicitly re-uploads a previously deleted image.
+   */
+  removeDeletedSceneId(id) {
+    if (this.state.deletedSceneIds) {
+      const index = this.state.deletedSceneIds.indexOf(id);
+      if (index > -1) {
+        console.log(`📦 [Store] Removing ID ${id} from deleted history (Re-upload detected)`);
+        this.state.deletedSceneIds.splice(index, 1);
+      }
+    }
+  },
+
+  /**
    * Helper to ensure all filenames (with labels) match their current index.
    * This preserves the sequence (01, 02, 03...) regardless of moves or deletes.
    */
@@ -292,12 +333,7 @@ export const store = {
     this.state.scenes.forEach((scene, index) => {
       if (scene.label) {
         const oldName = scene.name;
-        const prefix = (index + 1).toString().padStart(2, '0');
-
-        // Sanitize label before creating filename
-        const sanitizedLabel = sanitizeName(scene.label, 200);
-        let baseSlug = sanitizedLabel.replace(/[\s-]+/g, "_").replace(/[^a-z0-9_]/gi, "").toLowerCase();
-        const newName = `${prefix}_${baseSlug}.webp`;
+        const newName = computeSceneFilename(index, scene.label);
 
         if (newName !== oldName) {
           renameMap.set(oldName, newName);
@@ -391,6 +427,50 @@ export const store = {
     }
   },
 
+  // --- TIMELINE ACTIONS ---
+
+  addToTimeline(item, silent = false) {
+    // Generate a unique ID for the *timeline item* itself (separate from linkId)
+    // This allows the same link to be used multiple times in the timeline
+    const timelineItem = {
+      ...item,
+      id: `seq_${Date.now()}_${Math.floor(Math.random() * 1000)}`
+    };
+    this.state.timeline.push(timelineItem);
+    if (!silent) this.notify();
+  },
+
+  setActiveTimelineStep(id) {
+    if (this.state.activeTimelineStepId !== id) {
+      this.state.activeTimelineStepId = id;
+      this.notify();
+    }
+  },
+
+  removeFromTimeline(timelineItemId) {
+    const idx = this.state.timeline.findIndex(item => item.id === timelineItemId);
+    if (idx !== -1) {
+      this.state.timeline.splice(idx, 1);
+      this.notify();
+    }
+  },
+
+  reorderTimeline(fromIndex, toIndex) {
+    if (fromIndex === toIndex) return;
+    const list = this.state.timeline;
+    const [moved] = list.splice(fromIndex, 1);
+    list.splice(toIndex, 0, moved);
+    this.notify();
+  },
+
+  updateTimelineStep(id, changes) {
+    const item = this.state.timeline.find(i => i.id === id);
+    if (item) {
+      Object.assign(item, changes);
+      this.notify();
+    }
+  },
+
   getScenesByFloor() {
     const grouped = {};
     this.state.scenes.forEach((scene, index) => {
@@ -410,6 +490,9 @@ export const store = {
   },
 
   loadProject(projectData) {
+    // 0. ENSURE CLEAN SLATE (Fulfills requirement for same reset behavior as New Project)
+    this.reset();
+
     this.state.tourName = projectData.tourName || "Imported Tour";
     this.state.scenes = (projectData.scenes || []).map(scene => ({
       ...scene,
@@ -424,25 +507,17 @@ export const store = {
     }));
 
     // TELEMETRY: Project Integrity Check
-    const sceneNames = new Set(this.state.scenes.map(s => s.name));
-    let totalHotspots = 0;
-    let orphanedLinks = 0;
+    const integrity = validateTourIntegrity(this.state);
 
-    this.state.scenes.forEach(scene => {
-      scene.hotspots.forEach(hs => {
-        totalHotspots++;
-        if (!sceneNames.has(hs.target)) {
-          orphanedLinks++;
-          Debug.warn('Store', `Orphaned link found in scene "${scene.name}": target "${hs.target}" does not exist.`);
-        }
-      });
+    integrity.details.forEach(d => {
+      Debug.warn('Store', `Orphaned link found in scene "${d.sourceScene}": target "${d.targetMissing}" does not exist.`);
     });
 
     Debug.info('Store', 'LOAD_PROJECT', {
       tourName: this.state.tourName,
       sceneCount: this.state.scenes.length,
-      totalHotspots,
-      orphanedLinks,
+      totalHotspots: integrity.totalHotspots,
+      orphanedLinks: integrity.orphanedLinks,
       version: projectData.version || 'unknown'
     });
 
@@ -453,6 +528,84 @@ export const store = {
       ? projectData.activeIndex
       : (this.state.scenes.length > 0 ? 0 : -1);
 
+    // 1. Restore Timeline if present
+    if (Array.isArray(projectData.timeline)) {
+      this.state.timeline = projectData.timeline;
+    } else {
+      this.state.timeline = [];
+    }
+
+    // 2. Backfill Link IDs for legacy projects
+    const usedIds = new Set();
+    // First pass: Collect existing IDs
+    this.state.scenes.forEach(s => s.hotspots.forEach(h => {
+      if (h.linkId) usedIds.add(h.linkId);
+    }));
+
+    // Second pass: Assign IDs where missing
+    // We also populate the timeline if it was empty (Backward Compatibility)
+    this.state.scenes.forEach(s => {
+      s.hotspots.forEach(h => {
+        if (!h.linkId) {
+          h.linkId = generateLinkId(usedIds);
+          usedIds.add(h.linkId);
+        }
+
+        // ENSURE SYNC: If this link is not currently in the timeline, add it.
+        // This guarantees "all links are represented in the pipeline and visible".
+        const existsInTimeline = this.state.timeline.some(item =>
+          item.sceneId === s.id && item.linkId === h.linkId
+        );
+
+        if (!existsInTimeline) {
+          this.addToTimeline({
+            linkId: h.linkId,
+            sceneId: s.id,
+            targetScene: h.target,
+            transition: h.transition || "dissolve",
+            duration: h.duration || 3000
+          }, true);
+        }
+      });
+    });
+
     this.setActiveScene(targetIdx, 0, 0);
+  },
+
+  /**
+   * Deep reset of the store state to defaults.
+   * Ensures no residue from previous projects (linking drafts, teaser flags, etc.)
+   */
+  reset() {
+    const freshState = {
+      tourName: "",
+      scenes: [],
+      activeIndex: -1,
+      activeYaw: 0,
+      activePitch: 0,
+      isLinking: false,
+      transition: {
+        type: null,
+        targetHotspotIndex: -1,
+        fromSceneName: null
+      },
+      lastUploadReport: {
+        success: [],
+        skipped: []
+      },
+      exifReport: null,
+      linkDraft: null,
+      preloadingSceneIndex: -1,
+      isTeasing: false,
+      deletedSceneIds: [],
+      timeline: []
+    };
+
+    Debug.info('Store', 'RESET_STATE', { previousSceneCount: this.state.scenes.length });
+
+    // Perform object assign to maintain memory references or replace state?
+    // Replacement is cleaner for "Deep Reset"
+    this.state = freshState;
+    this.notify();
   },
 };

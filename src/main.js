@@ -1,3 +1,5 @@
+import { updateProgressBar } from "./utils/ProgressBar.js";
+import { notify } from "./utils/NotificationSystem.js";
 import { initSidebar } from "./components/Sidebar.js";
 import { initViewer } from "./components/Viewer.js";
 import { showLinkModal } from "./components/LinkModal.js";
@@ -7,10 +9,9 @@ import { initSimulationKeyHandler } from "./systems/SimulationSystem.js";
 
 // Utility modules (initialized first to ensure global availability)
 import { initLogger } from "./utils/Logger.js";
-import { initNotificationSystem } from "./utils/NotificationSystem.js";
-import { initProgressBar } from "./utils/ProgressBar.js";
 
 import { Debug } from "./utils/Debug.js";
+import { initInputSystem } from "./systems/InputSystem.js";
 
 console.log("Initializing Remax Builder...");
 
@@ -66,16 +67,19 @@ window.onunhandledrejection = (event) => {
 
 // Initialize utilities first (they attach to window object)
 initLogger();
-initNotificationSystem();
-initProgressBar();
 
 // Initialize components
 initSidebar();
 initViewer();
 setupGlobalClickSounds();
 
+// Initialize Visual Pipeline
+import { VisualPipelineComponent } from "./components/VisualPipelineComponent.js";
+new VisualPipelineComponent("visual-pipeline-container");
+
 // Initialize simulation ESC key handler
 initSimulationKeyHandler();
+initInputSystem();
 
 // Global Event Listener
 document.addEventListener("viewer-click", (e) => {

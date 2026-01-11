@@ -1,3 +1,4 @@
+import { notify } from "../utils/NotificationSystem.js";
 /**
  * SimulationSystem.js
  * Auto-pilot orchestration for simulation mode
@@ -59,7 +60,7 @@ export function startAutoPilot(skipAutoForward = false) {
     const state = store.state;
 
     if (state.scenes.length === 0) {
-        window.notify?.("No scenes to simulate", "warning");
+        notify("No scenes to simulate", "warning");
         return;
     }
 
@@ -103,11 +104,18 @@ export function startAutoPilot(skipAutoForward = false) {
     // Begin traversal after brief delay for scene to load
     // This is a safety fallback; usually onSceneArrival or syncUI will trigger first move
     if (pendingAdvance) clearTimeout(pendingAdvance);
-    pendingAdvance = setTimeout(() => {
-        advanceToNextScene();
-    }, 800);
 
-    window.notify?.("Auto-pilot started", "success");
+    // If starting scene is a bridge and skipping is on, advance immediately
+    const startScene = state.scenes[state.activeIndex];
+    if (skipAutoForwardGlobal && startScene && startScene.isAutoForward) {
+        advanceToNextScene();
+    } else {
+        pendingAdvance = setTimeout(() => {
+            advanceToNextScene();
+        }, 800);
+    }
+
+    notify("Auto-pilot started", "success");
 }
 
 /**
@@ -159,7 +167,7 @@ export function stopAutoPilot(returnToStart = true) {
         store.setActiveScene(0, 0, 0, { type: "auto-pilot-end" });
     }
 
-    window.notify?.("Simulation stopped", "info");
+    notify("Simulation stopped", "info");
 }
 
 /**
@@ -214,24 +222,25 @@ export function onSceneArrival(sceneIndex, isChainEnd = false) {
     */
 
     // Schedule next advance with robustness check
+    // Determine delay: skip instantly if this is a bridge and we are in skip mode
+    const isBridge = currentScene && currentScene.isAutoForward;
+    const delay = (skipAutoForwardGlobal && isBridge) ? 0 : 500;
+
     pendingAdvance = setTimeout(async () => {
         try {
             // Wait for viewer to be truly ready for this scene
-            // This prevents advancing before the Viewer.js swap has completed
             await waitForViewerScene(sceneIndex);
 
-            // Re-check auto-pilot state as it might have been stopped during the wait
+            // Re-check auto-pilot state
             if (!isAutoPilot || stoppingOnArrival) return;
 
             advanceToNextScene();
         } catch (e) {
-            // If simulation was intentionally stopped, ignore errors
             if (!isAutoPilot) return;
-
             Debug.error('Simulation', 'Failed to arrive at scene properly, stopping', e);
             completeAutoPilot();
         }
-    }, 500); // Balanced pacing
+    }, delay);
 }
 
 /**
@@ -307,7 +316,13 @@ function advanceToNextScene() {
             }
         }
         // Reassign nextLink, but preserve the original hotspotIndex from the starting scene
-        nextLink = { ...tempNextLink, hotspotIndex: originalHotspotIndex };
+        // CRITICAL: We also update the hotspot object to be the original one so NavigationSystem
+        // pans toward the correct visual anchor in the current scene.
+        nextLink = {
+            ...tempNextLink,
+            hotspotIndex: originalHotspotIndex,
+            hotspot: nextLink.hotspot
+        };
     }
 
     if (!nextLink) {
@@ -317,6 +332,17 @@ function advanceToNextScene() {
     }
 
     const { hotspot, hotspotIndex, targetIndex } = nextLink;
+
+    // SYNC VISUAL PIPELINE: If this link exists in the timeline, highlight it
+    const timelineItem = state.timeline.find(item =>
+        item.sceneId === currentScene.id && item.linkId === hotspot.linkId
+    );
+    if (timelineItem) {
+        store.setActiveTimelineStep(timelineItem.id);
+    } else {
+        // Clear if we are navigating to a link not in the timeline
+        store.setActiveTimelineStep(null);
+    }
 
     // Stop simulation if returning to the start scene (Scene 0) and there are no direct unvisited paths from it.
     // This prevents infinite loops where the simulation endlessly cycles through visited scenes.
@@ -457,7 +483,7 @@ function completeAutoPilot() {
         totalScenes: store.state.scenes.length
     });
 
-    window.notify?.(`Simulation complete! Visited ${visitedScenes.length} scenes.`, "success");
+    notify(`Simulation complete! Visited ${visitedScenes.length} scenes.`, "success");
 
     // Small delay before returning to start for user to see final scene
     setTimeout(() => {
@@ -477,14 +503,6 @@ function completeAutoPilot() {
 export function initSimulationKeyHandler() {
     // Register our callback with NavigationSystem
     registerOnSceneArrival(onSceneArrival);
-
-    // ESC key to stop auto-pilot
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && isAutoPilot) {
-            e.preventDefault();
-            stopAutoPilot(true);
-        }
-    });
 }
 
 // ============================================================================

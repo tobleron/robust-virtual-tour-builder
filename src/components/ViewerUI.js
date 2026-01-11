@@ -1,3 +1,4 @@
+import { notify } from "../utils/NotificationSystem.js";
 /**
  * ViewerUI Component
  * Handles the creation and management of UI overlays for the panorama viewer
@@ -48,7 +49,7 @@ export function setupViewerUI(viewerStage, viewer) {
         e.stopPropagation();
         store.state.isLinking = !store.state.isLinking;
         store.notify();
-        window.notify(store.state.isLinking ? "Link Mode: ACTIVE" : "Link Mode: OFF", store.state.isLinking ? "success" : "warning");
+        notify(store.state.isLinking ? "Link Mode: ACTIVE" : "Link Mode: OFF", store.state.isLinking ? "success" : "warning");
     };
     utilityBar.appendChild(fab);
 
@@ -94,7 +95,7 @@ export function setupViewerUI(viewerStage, viewer) {
         const current = store.state.scenes[activeIdx].category || "indoor";
         const newCat = current === "indoor" ? "outdoor" : "indoor";
         store.updateSceneMetadata(activeIdx, { category: newCat });
-        window.notify(newCat === "indoor" ? "Category: INDOOR" : "Category: OUTDOOR", newCat === "indoor" ? "warning" : "success");
+        notify(newCat === "indoor" ? "Category: INDOOR" : "Category: OUTDOOR", newCat === "indoor" ? "warning" : "success");
     };
     utilityBar.appendChild(catToggle);
 
@@ -167,6 +168,11 @@ export function setupViewerUI(viewerStage, viewer) {
     // Floor Navigation
     const floorNav = document.createElement("div");
     floorNav.id = "viewer-floor-nav";
+    /* Align bottom roughly with the logo (bottom-6). Logo is max-h-[60px]. 
+       Sidebar buttons are left-5. 
+       Let's keep it at left-5, bottom-6 to be symmetrical with logo at right-6, bottom-6.
+       This confirms that left: 100px (approx 20px + 37px + padding) is correct for pipeline margin.
+    */
     floorNav.className = "absolute bottom-6 left-5 z-[5002] flex flex-col-reverse gap-2.5 items-center";
     FLOOR_LEVELS.forEach(f => {
         const c = document.createElement("div");
@@ -183,7 +189,7 @@ export function setupViewerUI(viewerStage, viewer) {
             const activeIdx = store.state.activeIndex;
             if (activeIdx < 0) return;
             store.updateSceneMetadata(activeIdx, { floor: f.id });
-            window.notify(`Floor: ${f.label || f.id}`, "success");
+            notify(`Floor: ${f.label || f.id}`, "success");
         };
         floorNav.appendChild(c);
     });
@@ -207,7 +213,7 @@ export function setupViewerUI(viewerStage, viewer) {
                 const currentYaw = v.getYaw();
                 v.setYaw(currentYaw + 180, 1000);
                 setPendingReturnSceneName(prevScene.name);
-                window.notify("Turned around! NOW click '+' to place the link.", "success");
+                notify("Turned around! NOW click '+' to place the link.", "success");
                 returnPrompt.classList.remove("visible");
             }
         }
@@ -272,7 +278,7 @@ export function setupViewerUI(viewerStage, viewer) {
         if (window.DEBUG) {
             const isNowEnabled = window.DEBUG.toggle();
             debugToggle.style.backgroundColor = isNowEnabled ? "#4d614d" : "#6b7a6b";
-            window.notify(isNowEnabled ? "Debug Mode: ON" : "Debug Mode: OFF", isNowEnabled ? "success" : "warning");
+            notify(isNowEnabled ? "Debug Mode: ON" : "Debug Mode: OFF", isNowEnabled ? "success" : "warning");
         }
     };
     debugBar.appendChild(debugToggle);
@@ -291,10 +297,10 @@ export function setupViewerUI(viewerStage, viewer) {
         if (window.DEBUG) {
             const count = window.DEBUG.entries.length;
             if (count === 0) {
-                window.notify("No debug logs to download", "warning");
+                notify("No debug logs to download", "warning");
             } else {
                 window.DEBUG.downloadLog();
-                window.notify(`Downloaded ${count} log entries`, "success");
+                notify(`Downloaded ${count} log entries`, "success");
             }
         }
     };

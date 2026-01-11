@@ -86,11 +86,3 @@ export function updateProgressBar(percent, text, visible = true, title = null) {
         }, PROGRESS_BAR_AUTO_HIDE_DELAY);
     }
 }
-
-/**
- * Initialize progress bar system by attaching to window
- * Should be called once at app startup
- */
-export function initProgressBar() {
-    window.updateProgressBar = updateProgressBar;
-}

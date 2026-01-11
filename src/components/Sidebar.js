@@ -1,4 +1,7 @@
+import { updateProgressBar } from "../utils/ProgressBar.js";
+import { notify } from "../utils/NotificationSystem.js";
 import { store } from "../store.js";
+import { ModalManager } from "../utils/ModalManager.js";
 import { exportTour } from "../systems/Exporter.js";
 import { startAutoTeaser } from "../systems/TeaserSystem.js";
 import { saveProject, loadProject } from "../systems/ProjectManager.js";
@@ -13,6 +16,80 @@ export function initSidebar() {
     const container = document.getElementById("sidebar");
     const topBar = document.getElementById("top-bar");
     if (!container || !topBar) return;
+
+    // Inject Sidebar Styles
+    const style = document.createElement('style');
+    style.innerHTML = `
+        .sidebar-action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            color: white;
+            padding: 8px 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            height: 54px;
+        }
+        .sidebar-action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .sidebar-action-btn:active {
+            transform: translateY(0);
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .sidebar-action-btn .material-icons {
+            font-size: 20px;
+            margin-bottom: 2px;
+            opacity: 0.9;
+        }
+        .sidebar-action-btn span:last-child {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            opacity: 0.9;
+        }
+
+        .sidebar-action-btn-wide {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            color: white;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            gap: 8px;
+            height: 38px;
+        }
+        .sidebar-action-btn-wide:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+        .sidebar-action-btn-wide:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .sidebar-action-btn-wide .material-icons {
+            font-size: 18px;
+        }
+        .sidebar-action-btn-wide span:last-child {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+    `;
+    document.head.appendChild(style);
 
     // 1. Deactivate Top Bar (Migrated to Sidebar)
     topBar.style.display = "none";
@@ -39,207 +116,6 @@ export function initSidebar() {
             </div>
             
             <!-- Direct Action Buttons Grid -->
-            <style>
-                .sidebar-action-btn {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 2px;
-                    padding: 10px 4px;
-                    background: rgba(255,255,255,0.08);
-                    border: none;
-                    border-radius: 10px;
-                    color: white;
-                    cursor: pointer;
-                    transition: all 0.15s ease;
-                    box-shadow: 
-                        0 2px 4px rgba(0,0,0,0.3),
-                        inset 0 1px 0 rgba(255,255,255,0.08);
-                }
-                .sidebar-action-btn:hover {
-                    background: rgba(255,255,255,0.15);
-                    transform: translateY(-2px);
-                    box-shadow: 
-                        0 4px 12px rgba(0,0,0,0.4),
-                        inset 0 1px 0 rgba(255,255,255,0.12);
-                }
-                .sidebar-action-btn:active {
-                    transform: translateY(1px);
-                    background: rgba(255,255,255,0.05);
-                    box-shadow: 
-                        inset 0 2px 6px rgba(0,0,0,0.3);
-                }
-                .sidebar-action-btn:disabled {
-                    cursor: not-allowed;
-                    filter: grayscale(100%);
-                    opacity: 0.3 !important;
-                }
-                .sidebar-action-btn .material-icons {
-                    font-size: 22px;
-                    opacity: 0.95;
-                }
-                .sidebar-action-btn span:last-child {
-                    font-size: 9px;
-                    font-weight: 700;
-                    text-transform: uppercase;
-                    letter-spacing: 0.04em;
-                    opacity: 0.7;
-                }
-                .sidebar-action-btn-wide {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 8px;
-                    padding: 10px 12px;
-                    background: rgba(255,255,255,0.08);
-                    border: none;
-                    border-radius: 10px;
-                    color: white;
-                    cursor: pointer;
-                    transition: all 0.15s ease;
-                    box-shadow: 
-                        0 2px 4px rgba(0,0,0,0.3),
-                        inset 0 1px 0 rgba(255,255,255,0.08);
-                }
-                .sidebar-action-btn-wide:hover:not(:disabled) {
-                    background: rgba(255,255,255,0.15);
-                    transform: translateY(-2px);
-                    box-shadow: 
-                        0 4px 12px rgba(0,0,0,0.4),
-                        inset 0 1px 0 rgba(255,255,255,0.12);
-                }
-                .sidebar-action-btn-wide:active:not(:disabled) {
-                    transform: translateY(1px);
-                    background: rgba(255,255,255,0.05);
-                    box-shadow: 
-                        inset 0 2px 6px rgba(0,0,0,0.3);
-                }
-                .sidebar-action-btn-wide .material-icons {
-                    font-size: 18px;
-                    opacity: 0.95;
-                }
-                .sidebar-action-btn-wide span:last-child {
-                    font-size: 11px;
-                    font-weight: 700;
-                    text-transform: uppercase;
-                    letter-spacing: 0.04em;
-                }
-                .sidebar-action-btn-wide:disabled {
-                    cursor: not-allowed;
-                    filter: grayscale(100%);
-                    opacity: 0.4 !important;
-                }
-
-                /* Premium Modal Styling */
-                .modal-box-premium {
-                    background: linear-gradient(to bottom, #001a38 0%, #002a70 50%, #003da5 100%) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-                    color: white !important;
-                    padding: 24px 24px !important;
-                    border-radius: 20px !important;
-                    text-align: center;
-                    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6) !important;
-                    width: 100%;
-                    max-width: 340px;
-                }
-                .modal-box-premium h2, .modal-box-premium h3 {
-                    color: white !important;
-                    font-family: var(--font-heading) !important;
-                    margin-bottom: 8px !important;
-                }
-                .modal-box-premium p {
-                    color: rgba(255, 255, 255, 0.7) !important;
-                    font-size: 13px !important;
-                    line-height: 1.5 !important;
-                    margin-bottom: 24px !important;
-                }
-                .modal-btn-premium {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 10px;
-                    padding: 14px 16px;
-                    background: rgba(255, 255, 255, 0.08);
-                    border: none;
-                    border-radius: 12px;
-                    color: white;
-                    cursor: pointer;
-                    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-                    font-family: var(--font-ui);
-                    font-weight: 700;
-                    font-size: 12px;
-                    text-transform: uppercase;
-                    letter-spacing: 0.04em;
-                    box-shadow: 
-                        0 4px 6px rgba(0, 0, 0, 0.2),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-                }
-                .modal-btn-premium:hover {
-                    background: rgba(255, 255, 255, 0.15);
-                    transform: translateY(-2px);
-                    box-shadow: 
-                        0 8px 15px rgba(0, 0, 0, 0.3),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.15);
-                }
-                .modal-btn-premium:active {
-                    transform: translateY(1px);
-                    background: rgba(255, 255, 255, 0.05);
-                    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
-                }
-                .modal-btn-premium.btn-blue {
-                    background: #1e40af; /* Darker Blue */
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                }
-                .modal-btn-premium.btn-blue:hover {
-                    background: #3b82f6; /* Lightens up */
-                }
-                .modal-btn-premium.btn-teal {
-                    background: #0d9488; /* Teal 600 */
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                }
-                .modal-btn-premium.btn-teal:hover {
-                    background: #14b8a6; /* Teal 500 - Brighter */
-                }
-                .modal-btn-premium.btn-red {
-                    background: #9b1c2e; /* Darker RE/MAX Red */
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                }
-                .modal-btn-premium.btn-red:hover {
-                    background: #dc3545; /* True RE/MAX Red */
-                }
-                .modal-btn-premium.btn-green {
-                    background: #065f46; /* Darker Green */
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                }
-                .modal-btn-premium.btn-green:hover {
-                    background: #10b981; /* Lightens up */
-                }
-                .modal-btn-premium.btn-orange {
-                    background: #c2410c; /* Darker Orange */
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                }
-                .modal-btn-premium.btn-orange:hover {
-                    background: #f97316; /* Bright Orange */
-                }
-                .modal-btn-premium.btn-purple {
-                    background: #7e22ce; /* Purple 700 */
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                }
-                .modal-btn-premium.btn-purple:hover {
-                    background: #a855f7; /* Purple 500 - Brighter */
-                }
-                .modal-btn-premium.btn-secondary {
-                    background: transparent;
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    opacity: 0.7;
-                    box-shadow: none;
-                }
-                .modal-btn-premium.btn-secondary:hover {
-                    opacity: 1;
-                    background: rgba(255, 255, 255, 0.05);
-                }
-            </style>
             <div style="padding: 0 16px 14px 16px;">
                 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
                     <button id="btn-new-project" class="sidebar-action-btn" title="New Project">
@@ -321,137 +197,6 @@ export function initSidebar() {
 
             <div id="scene-list-container" class="p-3 pt-4 flex-1"></div>
         </div>
-
-
-
-        <!-- TEASER STYLE MODAL -->
-        <div id="style-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); backdrop-filter:blur(12px); z-index:11000; justify-content:center; align-items:center; padding:16px; transition:opacity 0.3s ease-in-out; opacity:0;">
-            <div class="modal-box-premium" style="transform:scale(0.95); transition:all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
-                <div style="margin-bottom: 12px;">
-                    <span class="material-icons" style="font-size: 40px; color: #f97316; filter: drop-shadow(0 0 12px rgba(249, 115, 22, 0.4));">movie</span>
-                </div>
-                <h3 style="margin-top:0; font-size: 20px; font-weight: 800; letter-spacing: -0.02em;">Select Teaser Style</h3>
-                <p>Choose how the video should be recorded.</p>
-                
-                <label style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:12px; font-size:12px; font-weight:600; color:rgba(255,255,255,0.8); cursor:pointer;">
-                    <input type="checkbox" id="chk-teaser-watermark" checked style="width:16px; height:16px; border-radius:4px; accent-color: #3b82f6;">
-                    Include logo watermark
-                </label>
-                
-                <div style="margin-bottom:16px; padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); text-align:left;">
-                    <div style="font-size:10px; font-weight:800; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:8px;">Choose Video Format:</div>
-                    <select id="sel-teaser-format" style="width:100%; height: 36px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:0 12px; font-weight:700; color:white; font-size:11px; outline:none; cursor:pointer;">
-                        <option value="webm">WebM (Standard - Faster)</option>
-                        <option value="mp4">MP4 (Experimental - High Quality)</option>
-                    </select>
-                    <p style="font-size:9px; color:rgba(255,255,255,0.4); margin-top: 8px; margin-bottom: 0; line-height:1.2;">Note: MP4 encoding happens in-browser and is hardware intensive.</p>
-                </div>
-
-                <label style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:12px; font-size:12px; font-weight:600; color:rgba(255,255,255,0.8); cursor:pointer;">
-                    <input type="checkbox" id="chk-teaser-skip-auto" checked style="width:16px; height:16px; border-radius:4px; accent-color: #3b82f6;">
-                    Skip Auto-Forward Scenes
-                </label>
-
-                
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <button id="btn-style-dissolve" class="modal-btn-premium btn-teal" style="width: 100%; flex-direction: column; padding: 12px;">
-                        <span style="font-size: 13px;">Cross Dissolve Scenes</span>
-                        <span style="font-size: 12px; opacity: 0.6; text-transform: none; font-weight: 500;">Micro-panning with smooth transitions</span>
-                    </button>
-                    
-                    <button id="btn-style-punchy" class="modal-btn-premium btn-orange" style="width: 100%; flex-direction: column; padding: 12px;">
-                        <span style="font-size: 13px;">Fast Cut Scenes</span>
-                        <span style="font-size: 12px; opacity: 0.6; text-transform: none; font-weight: 500;">Fast, dynamic cuts focused on links</span>
-                    </button>
-                    
-                    <button id="btn-style-cinematic" class="modal-btn-premium btn-purple" style="width: 100%; flex-direction: column; padding: 12px;">
-                        <span style="font-size: 13px;">Cinematic Scenes</span>
-                        <span style="font-size: 12px; opacity: 0.6; text-transform: none; font-weight: 500;">Exact recording of simulation path</span>
-                    </button>
-                </div>
-                
-                <button id="btn-close-style" class="modal-btn-premium btn-secondary" style="width:100%; margin-top: 16px;">
-                    Dismiss
-                </button>
-            </div>
-        </div>
-
-        <!-- NEW PROJECT MODAL -->
-        <div id="new-project-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); backdrop-filter:blur(12px); z-index:11000; justify-content:center; align-items:center; padding:16px; transition:opacity 0.3s ease-in-out; opacity:0;">
-            <div class="modal-box-premium" style="transform:scale(0.95); transition:all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
-                <div style="margin-bottom: 20px;">
-                    <span class="material-icons" style="font-size: 48px; color: #3b82f6; filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.4));">construction</span>
-                </div>
-                <h2 style="margin-top:0; font-size: 22px; font-weight: 800; letter-spacing: -0.02em;">Start New Project?</h2>
-                <p>Your current virtual tour will be cleared. Do you want to save it first or start fresh?</p>
-                
-                <div style="display:grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px;">
-                    <button id="btn-new-save" class="modal-btn-premium btn-green">
-                        <span class="material-icons" style="font-size: 18px;">save</span>
-                        <span>Save & Start New</span>
-                    </button>
-                    <button id="btn-new-discard" class="modal-btn-premium btn-red">
-                        <span class="material-icons" style="font-size: 18px;">delete_forever</span>
-                        <span>Discard All Changes</span>
-                    </button>
-                    <button id="btn-new-cancel" class="modal-btn-premium btn-blue">
-                        <span class="material-icons" style="font-size: 18px;">edit</span>
-                        <span>Continue Editing</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ABOUT MODAL -->
-        <div id="about-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); backdrop-filter:blur(12px); z-index:11000; justify-content:center; align-items:center; padding:16px; transition:opacity 0.3s ease-in-out; opacity:0;">
-            <div class="modal-box-premium" style="transform:scale(0.95); transition:all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); max-width: 320px;">
-                <div style="margin-bottom: 20px;">
-                    <span class="material-icons" style="font-size: 56px; color: #3b82f6; filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.5));">home</span>
-                </div>
-                <h2 style="margin-top:0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em;">Tour Builder</h2>
-                
-                <div style="margin: 24px 0; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); text-align: left;">
-                    <div style="margin-bottom: 16px;">
-                        <span style="font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.05em; display: block;">Developer</span>
-                        <span style="font-size: 15px; font-weight: 700; color: white;">Arto Kalishian</span>
-                    </div>
-                    <div style="margin-bottom: 16px;">
-                        <span style="font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.05em; display: block;">Release Date</span>
-                        <span style="font-size: 15px; font-weight: 700; color: white;">December 30, 2025</span>
-                    </div>
-                    <div>
-                        <span style="font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.05em; display: block;">Current Version</span>
-                        <span style="font-size: 15px; font-weight: 700; color: white;">v${VERSION}</span>
-                        <span style="font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.6); display: block; margin-top: 4px;">${BUILD_INFO}</span>
-                    </div>
-                </div>
-                
-                <button id="btn-close-about" class="modal-btn-premium btn-blue" style="width:100%;">
-                    <span>Close</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- LOAD CONFIRMATION MODAL -->
-        <div id="load-confirm-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); backdrop-filter:blur(12px); z-index:11000; justify-content:center; align-items:center; padding:16px; transition:opacity 0.3s ease-in-out; opacity:0;">
-            <div class="modal-box-premium" style="transform:scale(0.95); transition:all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
-                <div style="margin-bottom: 20px;">
-                    <span class="material-icons" style="font-size: 48px; color: #f97316; filter: drop-shadow(0 0 12px rgba(249, 115, 22, 0.4));">folder_open</span>
-                </div>
-                <h2 style="margin-top:0; font-size: 22px; font-weight: 800; letter-spacing: -0.02em;">Load Project?</h2>
-                <p>Loading will replace your current work. Any unsaved changes will be lost.</p>
-                
-                <div style="display:grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px;">
-                    <button id="btn-load-continue" class="modal-btn-premium btn-orange">
-                        <span class="material-icons" style="font-size: 18px;">check</span>
-                        <span>Continue</span>
-                    </button>
-                    <button id="btn-load-cancel" class="modal-btn-premium btn-secondary">
-                        <span>Cancel</span>
-                    </button>
-                </div>
-            </div>
-        </div>
     `;
 
     // Action buttons are now directly visible - no menu toggle needed
@@ -511,68 +256,66 @@ export function initSidebar() {
     SceneList.init(list, contextMenu);
 
     // --- MODAL HELPERS ---
-    const styleModal = document.getElementById("style-modal");
-    const btnStyleDissolve = document.getElementById("btn-style-dissolve");
-    const btnStylePunchy = document.getElementById("btn-style-punchy");
-    const btnStyleCinematic = document.getElementById("btn-style-cinematic");
-    const btnCloseStyle = document.getElementById("btn-close-style");
-    const chkTeaserWatermark = document.getElementById("chk-teaser-watermark");
-    const chkTeaserSkipAuto = document.getElementById("chk-teaser-skip-auto");
-    const selTeaserFormat = document.getElementById("sel-teaser-format");
-
-    const newProjectModal = document.getElementById("new-project-modal");
-    const btnNewSave = document.getElementById("btn-new-save");
-    const btnNewDiscard = document.getElementById("btn-new-discard");
-    const btnNewCancel = document.getElementById("btn-new-cancel");
-
-    const aboutModal = document.getElementById("about-modal");
-    const btnCloseAbout = document.getElementById("btn-close-about");
-
-    const loadConfirmModal = document.getElementById("load-confirm-modal");
-    const btnLoadContinue = document.getElementById("btn-load-continue");
-    const btnLoadCancel = document.getElementById("btn-load-cancel");
-
-    const showModal = (el) => {
-        el.style.display = "flex";
-        setTimeout(() => { el.style.opacity = "1"; }, 10);
-    };
-    const hideModal = (el) => {
-        el.style.opacity = "0";
-        setTimeout(() => { el.style.display = "none"; }, 300);
-    };
-
     if (btnTeaser) {
-        btnTeaser.addEventListener("click", () => showModal(styleModal));
-    }
-    if (btnCloseStyle) {
-        btnCloseStyle.addEventListener("click", () => hideModal(styleModal));
-    }
-    if (btnStyleDissolve) {
-        btnStyleDissolve.addEventListener("click", () => {
-            hideModal(styleModal);
-            const includeLogo = chkTeaserWatermark ? chkTeaserWatermark.checked : true;
-            const skipAuto = chkTeaserSkipAuto ? chkTeaserSkipAuto.checked : true;
-            const format = selTeaserFormat ? selTeaserFormat.value : "webm";
-            startAutoTeaser("dissolve", includeLogo, format, skipAuto);
-        });
-    }
-    if (btnStylePunchy) {
-        btnStylePunchy.addEventListener("click", () => {
-            hideModal(styleModal);
-            const includeLogo = chkTeaserWatermark ? chkTeaserWatermark.checked : true;
-            const skipAuto = chkTeaserSkipAuto ? chkTeaserSkipAuto.checked : true;
-            const format = selTeaserFormat ? selTeaserFormat.value : "webm";
-            startAutoTeaser("punchy", includeLogo, format, skipAuto);
-        });
-    }
+        btnTeaser.addEventListener("click", () => {
+            ModalManager.show({
+                title: "Select Teaser Style",
+                description: "Choose how the video should be recorded.",
+                icon: "movie",
+                contentHtml: `
+                    <label style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:12px; font-size:12px; font-weight:600; color:rgba(255,255,255,0.8); cursor:pointer;">
+                        <input type="checkbox" id="chk-teaser-watermark" checked style="width:16px; height:16px; border-radius:4px; accent-color: #3b82f6;">
+                        Include logo watermark
+                    </label>
+                    
+                    <div style="margin-bottom:16px; padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); text-align:left;">
+                        <div style="font-size:10px; font-weight:800; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:8px;">Choose Video Format:</div>
+                        <select id="sel-teaser-format" style="width:100%; height: 36px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:0 12px; font-weight:700; color:white; font-size:11px; outline:none; cursor:pointer;">
+                            <option value="webm">WebM (Standard - Faster)</option>
+                            <option value="mp4">MP4 (Experimental - High Quality)</option>
+                        </select>
+                        <p style="font-size:9px; color:rgba(255,255,255,0.4); margin-top: 8px; margin-bottom: 0; line-height:1.2;">Note: MP4 encoding happens in-browser and is hardware intensive.</p>
+                    </div>
 
-    if (btnStyleCinematic) {
-        btnStyleCinematic.addEventListener("click", () => {
-            hideModal(styleModal);
-            const includeLogo = chkTeaserWatermark ? chkTeaserWatermark.checked : true;
-            const skipAuto = chkTeaserSkipAuto ? chkTeaserSkipAuto.checked : true;
-            const format = selTeaserFormat ? selTeaserFormat.value : "webm";
-            startAutoTeaser("cinematic", includeLogo, format, skipAuto); // Note: Cinematic might ignore this if it follows simulation exactly, but passing for consistency
+                    <label style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:12px; font-size:12px; font-weight:600; color:rgba(255,255,255,0.8); cursor:pointer;">
+                        <input type="checkbox" id="chk-teaser-skip-auto" checked style="width:16px; height:16px; border-radius:4px; accent-color: #3b82f6;">
+                        Skip Auto-Forward Scenes
+                    </label>
+                `,
+                buttons: [
+                    {
+                        label: "Cross Dissolve Scenes",
+                        class: "btn-teal",
+                        onClick: () => {
+                            const includeLogo = document.getElementById("chk-teaser-watermark").checked;
+                            const skipAuto = document.getElementById("chk-teaser-skip-auto").checked;
+                            const format = document.getElementById("sel-teaser-format").value;
+                            startAutoTeaser("dissolve", includeLogo, format, skipAuto);
+                        }
+                    },
+                    {
+                        label: "Fast Cut Scenes",
+                        class: "btn-orange",
+                        onClick: () => {
+                            const includeLogo = document.getElementById("chk-teaser-watermark").checked;
+                            const skipAuto = document.getElementById("chk-teaser-skip-auto").checked;
+                            const format = document.getElementById("sel-teaser-format").value;
+                            startAutoTeaser("punchy", includeLogo, format, skipAuto);
+                        }
+                    },
+                    {
+                        label: "Cinematic Scenes",
+                        class: "btn-purple",
+                        onClick: () => {
+                            const includeLogo = document.getElementById("chk-teaser-watermark").checked;
+                            const skipAuto = document.getElementById("chk-teaser-skip-auto").checked;
+                            const format = document.getElementById("sel-teaser-format").value;
+                            startAutoTeaser("cinematic", includeLogo, format, skipAuto);
+                        }
+                    },
+                    { label: "Dismiss", class: "btn-secondary", autoClose: true }
+                ]
+            });
         });
     }
 
@@ -626,14 +369,23 @@ export function initSidebar() {
         const files = Array.from(e.target.files);
         if (files.length === 0) return;
 
-        const result = await UploadProcessor.processUploads(files, (pct, msg, isProc, phase) => {
-            window.updateProgressBar(pct, msg, isProc, phase);
-        });
+        try {
+            const result = await UploadProcessor.processUploads(files, (pct, msg, isProc, phase) => {
+                updateProgressBar(pct, msg, isProc, phase);
+            });
 
-        fileInput.value = "";
-
-        // Show Report Dialog
-        UploadReport.show(store.state.lastUploadReport, result.qualityResults);
+            // Show Report Dialog
+            if (result && result.qualityResults) {
+                UploadReport.show(store.state.lastUploadReport, result.qualityResults);
+            }
+        } catch (err) {
+            console.error("[Sidebar] Upload process failed:", err);
+            notify(`Upload process failed: ${err.message}`, "error");
+            // Reset progress bar on fatal error
+            updateProgressBar(0, "Error: " + err.message, false);
+        } finally {
+            fileInput.value = "";
+        }
     });
 
 
@@ -641,68 +393,105 @@ export function initSidebar() {
 
     btnExport.addEventListener("click", async () => {
         btnExport.disabled = true;
-        window.updateProgressBar(0, "Initializing Export...", true, "Exporting...");
+        updateProgressBar(0, "Initializing Export...", true, "Exporting...");
         await exportTour(store.state.scenes, (done, total, message) => {
-            window.updateProgressBar(Math.round((done / total) * 100), message);
+            updateProgressBar(Math.round((done / total) * 100), message);
         });
-        window.updateProgressBar(100, "Export Complete!", true);
+        updateProgressBar(100, "Export Complete!", true);
         btnExport.disabled = false;
     });
 
+    const handleNewProjectPrompt = (nextActionType) => {
+        ModalManager.show({
+            title: "Start New Project?",
+            description: "Your current virtual tour will be cleared. Do you want to save it first or start fresh?",
+            icon: "construction",
+            buttons: [
+                {
+                    label: "Save & Continue",
+                    class: "btn-green",
+                    onClick: async () => {
+                        try {
+                            await saveProject(store.state, (pct, total, message) => updateProgressBar(pct, message, true, "Saving Project..."));
+                            notify("Project saved!", "success");
+                            if (nextActionType === 'load') {
+                                notify("Starting load process...", "info");
+                                setTimeout(() => projectFileInput.click(), 1000);
+                            } else {
+                                notify("Starting new project...", "info");
+                                setTimeout(() => location.reload(), 1500);
+                            }
+                        } catch (err) {
+                            if (err.message === 'USER_CANCELLED') notify("Save cancelled.", "info");
+                            else notify("Save failed.", "error");
+                            updateProgressBar(0, "", false);
+                        }
+                    }
+                },
+                {
+                    label: "Discard All Changes",
+                    class: "btn-red",
+                    onClick: () => {
+                        if (nextActionType === 'load') {
+                            store.reset();
+                            projectFileInput.click();
+                        } else {
+                            location.reload();
+                        }
+                    }
+                },
+                { label: "Continue Editing", class: "btn-blue", autoClose: true }
+            ]
+        });
+    };
+
     btnNewProject.addEventListener("click", () => {
         if (store.state.scenes.length === 0) { location.reload(); return; }
-        showModal(newProjectModal);
+        handleNewProjectPrompt('new');
     });
-
-    btnNewSave.addEventListener("click", async () => {
-        hideModal(newProjectModal);
-        try {
-            await saveProject(store.state, (pct, total, message) => window.updateProgressBar(pct, message, true, "Saving Project..."));
-            window.notify("Project saved! Starting new project...", "success");
-            setTimeout(() => location.reload(), 1500);
-        } catch (err) {
-            if (err.message === 'USER_CANCELLED') window.notify("Save cancelled.", "info");
-            else window.notify("Save failed.", "error");
-            window.updateProgressBar(0, "", false);
-        }
-    });
-
-    btnNewDiscard.addEventListener("click", () => { hideModal(newProjectModal); location.reload(); });
-    btnNewCancel.addEventListener("click", () => hideModal(newProjectModal));
 
     btnSaveProject.addEventListener("click", async () => {
-        if (store.state.scenes.length === 0) { window.notify("Nothing to save.", "warning"); return; }
+        if (store.state.scenes.length === 0) { notify("Nothing to save.", "warning"); return; }
         try {
             btnSaveProject.disabled = true;
-            await saveProject(store.state, (pct, total, message) => window.updateProgressBar(pct, message, true, "Saving Project..."));
+            await saveProject(store.state, (pct, total, message) => updateProgressBar(pct, message, true, "Saving Project..."));
         } catch (error) {
-            if (error.message === 'USER_CANCELLED') window.notify("Save cancelled.", "info");
-            else window.notify("Failed to save: " + error.message, "error");
+            if (error.message === 'USER_CANCELLED') notify("Save cancelled.", "info");
+            else notify("Failed to save: " + error.message, "error");
         }
-        finally { window.updateProgressBar(0, "", false); btnSaveProject.disabled = false; }
+        finally { updateProgressBar(0, "", false); btnSaveProject.disabled = false; }
     });
 
     if (btnAbout) {
-        btnAbout.addEventListener("click", () => showModal(aboutModal));
-    }
-    if (btnCloseAbout) {
-        btnCloseAbout.addEventListener("click", () => hideModal(aboutModal));
-    }
-
-    // Load confirmation modal handlers
-    if (btnLoadContinue) {
-        btnLoadContinue.addEventListener("click", () => {
-            hideModal(loadConfirmModal);
-            projectFileInput.click();
+        btnAbout.addEventListener("click", () => {
+            ModalManager.show({
+                title: "Tour Builder",
+                icon: "home",
+                contentHtml: `
+                    <div style="margin: 24px 0; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); text-align: left;">
+                        <div style="margin-bottom: 16px;">
+                            <span style="font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.05em; display: block;">Developer</span>
+                            <span style="font-size: 15px; font-weight: 700; color: white;">Arto Kalishian</span>
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                            <span style="font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.05em; display: block;">Release Date</span>
+                            <span style="font-size: 15px; font-weight: 700; color: white;">December 30, 2025</span>
+                        </div>
+                        <div>
+                            <span style="font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.05em; display: block;">Current Version</span>
+                            <span style="font-size: 15px; font-weight: 700; color: white;">v${VERSION}</span>
+                            <span style="font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.6); display: block; margin-top: 4px;">${BUILD_INFO}</span>
+                        </div>
+                    </div>
+                `,
+                buttons: [{ label: "Close", class: "btn-blue", autoClose: true }]
+            });
         });
-    }
-    if (btnLoadCancel) {
-        btnLoadCancel.addEventListener("click", () => hideModal(loadConfirmModal));
     }
 
     btnLoadProject.addEventListener("click", () => {
         if (store.state.scenes.length > 0) {
-            showModal(loadConfirmModal);
+            handleNewProjectPrompt('load');
             return;
         }
         projectFileInput.click();
@@ -713,12 +502,12 @@ export function initSidebar() {
         if (!file) return;
         try {
             btnLoadProject.disabled = true;
-            const loadedData = await loadProject(file, (pct, total, message) => window.updateProgressBar(pct, message, true, "Loading Project..."));
+            const loadedData = await loadProject(file, (pct, total, message) => updateProgressBar(pct, message, true, "Loading Project..."));
             store.loadProject(loadedData);
             if (loadedData.scenes.length > 0) store.setActiveScene(store.state.activeIndex, 0, 0);
-            window.updateProgressBar(100, `✅ Loaded!`, true, "Project Ready");
-        } catch (err) { window.notify("Load failed: " + err.message, "error"); }
-        finally { window.updateProgressBar(0, "", false); btnLoadProject.disabled = false; }
+            updateProgressBar(100, `✅ Loaded!`, true, "Project Ready");
+        } catch (err) { notify("Load failed: " + err.message, "error"); }
+        finally { updateProgressBar(0, "", false); btnLoadProject.disabled = false; }
         projectFileInput.value = "";
     });
 

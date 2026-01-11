@@ -1,6 +1,8 @@
+import { notify } from "../utils/NotificationSystem.js";
 import { store } from "../store.js";
 import { calculateSimilarity } from "../systems/ExifParser.js";
 import { cancelNavigation } from "../systems/NavigationSystem.js";
+import { getGroupColor } from "../utils/ColorPalette.js";
 
 /**
  * SceneList Component
@@ -44,7 +46,7 @@ export const SceneList = {
                 e.stopPropagation();
                 if (this.targetContextIndex > -1) {
                     store.deleteScene(this.targetContextIndex);
-                    if (window.notify) window.notify("Image deleted", "info");
+                    notify("Image deleted", "info");
                 }
                 this.hideContextMenu();
             });
@@ -55,7 +57,7 @@ export const SceneList = {
                 e.stopPropagation();
                 if (this.targetContextIndex > -1) {
                     store.clearHotspots(this.targetContextIndex);
-                    if (window.notify) window.notify("All links cleared", "info");
+                    notify("All links cleared", "info");
                 }
                 this.hideContextMenu();
             });
@@ -188,6 +190,7 @@ export const SceneList = {
             }
 
             // Perform selection with CUT transition (instant, no crossfade)
+            store.setActiveTimelineStep(null);
             store.setActiveScene(index, 0, 0, { type: 'cut' });
         };
     },
@@ -198,21 +201,6 @@ export const SceneList = {
         const isLowQuality = qualityScore < 6.5;
         const isActive = index === activeIndex;
 
-        // Color Grouping Logic (Clustering)
-        const getGroupColor = (groupId) => {
-            if (!groupId) return "#f1f5f9"; // Slate 100 (Default)
-            const colors = [
-                "#3b82f6", // Blue 500
-                "#ef4444", // Red 500
-                "#10b981", // Emerald 500
-                "#f59e0b", // Amber 500
-                "#8b5cf6", // Violet 500
-                "#ec4899", // Pink 500
-                "#06b6d4", // Cyan 500
-                "#84cc16", // Lime 500
-            ];
-            return colors[(groupId - 1) % colors.length];
-        };
 
         item.className = `scene-item group relative flex items-stretch bg-white border rounded-xl mb-3 overflow-hidden transition-all duration-200 select-none touch-pan-y shadow-sm hover:shadow-md ${isActive ? "border-remax-blue ring-1 ring-remax-blue shadow-remax-blue/5 scale-[1.02] z-10" : "border-slate-200"}`;
         item.draggable = true;

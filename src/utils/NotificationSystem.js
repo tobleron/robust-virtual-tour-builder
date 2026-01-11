@@ -52,11 +52,3 @@ export function notify(message, type = "info") {
         setTimeout(() => toast.remove(), TOAST_ANIMATION_DURATION);
     }, TOAST_DISPLAY_DURATION);
 }
-
-/**
- * Initialize notification system by attaching to window
- * Should be called once at app startup
- */
-export function initNotificationSystem() {
-    window.notify = notify;
-}

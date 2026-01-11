@@ -1,4 +1,14 @@
+[2026-01-11 21:05] Version 4.1.7-beta [Sidebar Style Fix]
+- Fix: Restored missing styling for sidebar header buttons (New, Save, Load, etc.).
+- UI: Re-injected CSS for premium glassmorphism visuals on sidebar actions.
+
+[2026-01-11 10:55] Version 4.1.6-beta [Load Reset]
+- Feature: Unified project reset logic. The "Load" button now follows the same "Save / Discard / Cancel" flow as "New Project."
+- Reliability: Integrated store.reset() into the load process to ensure a 100% clean state, erasing all residues (linking drafts, teaser flags, etc.) from previous projects.
+- UI: Replaced the basic load confirmation with the premium "Start New Project?" modal for better consistency and features (e.g., Save before Load).
+
 [2026-01-11 09:40] Version 4.1.5-beta [Telemetry Logs]
+
 - Feature: Comprehensive Telemetry System. Added metric logging for TTI, FPS, memory pressure, and upload results.
 - Stability: Added orphaned link detection and project integrity validation during project load.
 - Reliability: Implemented scene load safety timeouts and QuotaExceededError detection for storage.

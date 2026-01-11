@@ -1,8 +1,9 @@
+import { notify } from "../utils/NotificationSystem.js";
 import { store } from "../store.js";
 import { getChecksum, processAndAnalyzeImage, checkBackendHealth } from "./Resizer.js";
 import { calculateSimilarity } from "./ExifParser.js";
 import { generateExifReport } from "./ExifReportGenerator.js";
-import { notify } from "../utils/NotificationSystem.js";
+import { Debug } from "../utils/Debug.js";
 
 /**
  * UploadProcessor System
@@ -31,10 +32,14 @@ export const UploadProcessor = {
         });
 
         // SECURITY: Validate MIME types
-        const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+        const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
         const validFiles = files.filter(f => {
-            if (!ALLOWED_TYPES.includes(f.type)) {
-                const msg = `Skipping non-image file: ${f.name} (${f.type})`;
+            const type = f.type.toLowerCase();
+            const extension = f.name.split('.').pop().toLowerCase();
+            const isImage = type.startsWith('image/') || ['jpg', 'jpeg', 'png', 'webp', 'heic', 'heif'].includes(extension);
+
+            if (!isImage) {
+                const msg = `Skipping non-image file: ${f.name} (${f.type || 'unknown type'})`;
                 console.warn(`[UploadProcessor] ${msg}`);
                 Debug.warn('UploadProcessor', 'UPLOAD_SKIP_INVALID_TYPE', { fileName: f.name, type: f.type });
                 notify(`Skipped invalid file: ${f.name}`, "warning");
@@ -98,9 +103,14 @@ export const UploadProcessor = {
         // --- Phase 1: Fingerprinting (Checking duplicates) ---
         updateProgress(0, "Scanning files...", true, "Fingerprinting");
 
-        const fingerprintResults = await runConcurrent(files, async (file) => {
-            const id = await getChecksum(file);
-            return { id, original: file };
+        const fingerprintResults = await runConcurrent(validFiles, async (file) => {
+            try {
+                const id = await getChecksum(file);
+                return { id, original: file };
+            } catch (err) {
+                console.error(`[UploadProcessor] Fingerprinting failed for ${file.name}:`, err);
+                return { id: null, original: file, error: err.message };
+            }
         }, fingerprintConcurrency, (completed, total) => {
             const progress = Math.round((completed / total) * 20);
             updateProgress(progress, `Fingerprinting: ${completed}/${total}`);
@@ -109,18 +119,32 @@ export const UploadProcessor = {
         // Filter duplicates AND previously deleted scenes while preserving order
         const currentIds = new Set(store.state.scenes.map(s => s.id));
         const deletedIds = new Set(store.state.deletedSceneIds || []);
+        let duplicatesCount = 0;
+        let deletedCount = 0;
 
         for (const res of fingerprintResults) {
-            // Only add if NOT in current scenes AND NOT in deleted history
-            if (!currentIds.has(res.id) && !deletedIds.has(res.id)) {
-                sceneDataList.push(res);
-                currentIds.add(res.id); // Also prevent duplicates within the same batch
-            } else if (deletedIds.has(res.id)) {
-                console.log(`[UploadProcessor] Skipping previously deleted scene: ${res.original.name} (ID: ${res.id})`);
-                Debug.info('UploadProcessor', 'UPLOAD_SKIP_DELETED', { fileName: res.original.name, id: res.id });
-            } else {
+            if (!res.id) continue; // Skip files that failed fingerprinting
+
+            // If it's a current duplicate, we ALWAYS skip it to prevent UX mess
+            if (currentIds.has(res.id)) {
+                duplicatesCount++;
                 Debug.info('UploadProcessor', 'UPLOAD_SKIP_DUPLICATE', { fileName: res.original.name, id: res.id });
+                continue;
             }
+
+            // If it was DELETED before, but EXPLICITLY re-uploaded now, we allow it
+            // This fixes the "Disabled" feeling where re-uploading fails silently
+            if (deletedIds.has(res.id)) {
+                console.log(`[UploadProcessor] Re-allowing previously deleted scene: ${res.original.name}`);
+                store.removeDeletedSceneId(res.id);
+            }
+
+            sceneDataList.push(res);
+            currentIds.add(res.id); // Prevent duplicates within same batch
+        }
+
+        if (duplicatesCount > 0) {
+            notify(`Skipped ${duplicatesCount} duplicates already in project.`, "info");
         }
 
         // --- Phase 2: Combined Optimization & Analysis ---

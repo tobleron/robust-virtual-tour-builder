@@ -1,3 +1,4 @@
+import { notify } from "../utils/NotificationSystem.js";
 import { showLinkModal } from "./LinkModal.js";
 import { store } from "../store.js";
 import { syncLabelMenu } from "./LabelMenu.js";
@@ -18,6 +19,7 @@ import {
 } from "../systems/NavigationSystem.js";
 import { setupViewerUI } from "./ViewerUI.js";
 import { HotspotLineSystem } from "../systems/HotspotLineSystem.js";
+import { NavigationRenderer } from "../systems/NavigationRenderer.js";
 import { Debug } from "../utils/Debug.js";
 import { HOTSPOT_VISUAL_OFFSET_DEGREES, GLOBAL_HFOV, IDLE_SNAPSHOT_DELAY, SCENE_LOAD_TIMEOUT } from "../constants.js";
 
@@ -199,8 +201,9 @@ export function initViewer() {
   const viewerStage = document.getElementById("viewer-stage");
   if (!viewerStage) return;
 
-  // Initialize Navigation State
+  // Initialize Navigation State & Renderer
   initNavigation();
+  NavigationRenderer.init(getActiveViewer);
 
   // Setup UI elements only once
   if (!document.getElementById("btn-add-link-fab")) {
@@ -217,7 +220,7 @@ export function initViewer() {
           store.state.isLinking = false;
           store.setLinkDraft(null);
           store.notify();
-          window.notify("Link Cancelled", "info");
+          notify("Link Cancelled", "info");
         }
       }
 
@@ -912,7 +915,7 @@ export function initViewer() {
         console.error('[Viewer] Panorama load error:', err);
         console.error('[Viewer] Failed URL:', newViewer.getConfig().panorama);
         console.error('[Viewer] targetScene:', targetScene.name, { id: targetScene.id, hasTiny: !!targetScene.tinyFile });
-        if (window.notify) window.notify(`Load Error: ${err}`, "error");
+        notify(`Load Error: ${err}`, "error");
         // Clear stuck snapshot on error
         const snapshotEl = document.getElementById("viewer-snapshot-overlay");
         if (snapshotEl) snapshotEl.classList.remove("snapshot-visible");
@@ -950,7 +953,7 @@ export function initViewer() {
             camHfov,
             intermediatePoints: [] // Initialize path array
           });
-          if (window.notify) window.notify("Start Point Set. Click to add path points. ENTER to finish.", "success");
+          notify("Start Point Set. Click to add path points. ENTER to finish.", "success");
         } else {
           // --- CLICK 2+: INTERMEDIATE POINTS ---
           console.log("[Viewer] Adding intermediate point", { clickPitch, clickYaw });
@@ -970,7 +973,7 @@ export function initViewer() {
           // We trigger an update to ensure reactivity if needed, or just rely on the object ref
           store.notify();
 
-          if (window.notify) window.notify(`Point Added (${currentDraft.intermediatePoints.length}). Press ENTER to finish.`, "success");
+          notify(`Point Added (${currentDraft.intermediatePoints.length}). Press ENTER to finish.`, "success");
         }
       });
 

@@ -1,3 +1,4 @@
+import { notify } from "../utils/NotificationSystem.js";
 /**
  * HotspotManager Component
  * Handles hotspot configuration and synchronization for the panorama viewer
@@ -81,7 +82,7 @@ export function createHotspotConfig(h, i, state, scene, incomingLink, isSimulati
                 if (deleteBtn) {
                     e.stopPropagation(); e.preventDefault();
                     store.removeHotspot(state.activeIndex, i);
-                    if (window.notify) window.notify("Link deleted", "info");
+                    notify("Link deleted", "info");
                     return;
                 }
 
@@ -92,7 +93,7 @@ export function createHotspotConfig(h, i, state, scene, incomingLink, isSimulati
                         const targetIndex = state.scenes.findIndex(s => s.name === h.target);
                         const currentVal = !!targetScene.isAutoForward;
                         store.updateSceneMetadata(targetIndex, { isAutoForward: !currentVal });
-                        if (window.notify) window.notify(!currentVal ? "Auto-forward: ENABLED" : "Auto-forward: DISABLED", "success");
+                        notify(!currentVal ? "Auto-forward: ENABLED" : "Auto-forward: DISABLED", "success");
                     }
                     return;
                 }
@@ -110,7 +111,7 @@ export function createHotspotConfig(h, i, state, scene, incomingLink, isSimulati
                         };
                     }
                     store.notify(); // Re-sync UI
-                    if (window.notify) window.notify(h.isReturnLink ? "Return Link: ENABLED" : "Return Link: DISABLED", "success");
+                    notify(h.isReturnLink ? "Return Link: ENABLED" : "Return Link: DISABLED", "success");
                     return;
                 }
 

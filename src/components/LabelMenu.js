@@ -1,3 +1,4 @@
+import { notify } from "../utils/NotificationSystem.js";
 /**
  * LabelMenu Component
  * Premium pill/chip grid selector for room labels
@@ -108,7 +109,7 @@ export function createLabelMenu(viewerStage, labelButton) {
             chip.onclick = (e) => {
                 e.stopPropagation();
                 store.updateSceneMetadata(store.state.activeIndex, { label: label });
-                window.notify(`Label Set: ${label}`, "success");
+                notify(`Label Set: ${label}`, "success");
 
                 // 1.9s Delay before auto-closing
                 scheduleMenuClose();
@@ -154,7 +155,7 @@ export function createLabelMenu(viewerStage, labelButton) {
         const val = inp.value.trim();
         if (val) {
             store.updateSceneMetadata(store.state.activeIndex, { label: val });
-            window.notify(`Label Set: ${val}`, "success");
+            notify(`Label Set: ${val}`, "success");
             scheduleMenuClose();
         }
     };
@@ -162,7 +163,7 @@ export function createLabelMenu(viewerStage, labelButton) {
     const clearLabel = () => {
         store.updateSceneMetadata(store.state.activeIndex, { label: "" });
         inp.value = "";
-        window.notify("Label Cleared", "warning");
+        notify("Label Cleared", "warning");
         scheduleMenuClose();
     };
 

@@ -1,3 +1,5 @@
+import { updateProgressBar } from "../utils/ProgressBar.js";
+import { notify } from "../utils/NotificationSystem.js";
 /**
  * Teaser System
  * 
@@ -111,6 +113,12 @@ function startGhostLoop() {
 function getWalkPath(skipAutoForward = false) {
   const scenes = store.state.scenes;
   if (scenes.length === 0) return [];
+
+  // 0. PRIORITY: TIMELINE
+  // If the user has defined a visual timeline, use it as the source of truth.
+  if (store.state.timeline && store.state.timeline.length > 0) {
+    return getTimelinePath(store.state.timeline, scenes, skipAutoForward);
+  }
 
   let path = [];
   let visitedScenes = new Set();
@@ -325,21 +333,203 @@ function getWalkPath(skipAutoForward = false) {
 
       // Stop if we've returned to the starting scene
       if (nextIdx === 0) break;
+
+      // SKIP AUTO-FORWARD LOGIC FOR RETURN TRAVERSAL
+      if (skipAutoForward) {
+        let chainSafeCounter = 0;
+        let visitedInChain = new Set();
+        visitedInChain.add(nextIdx);
+
+        while (chainSafeCounter < 10) {
+          const nextScene = scenes[nextIdx];
+          if (!nextScene || !nextScene.isAutoForward) break;
+
+          // Find a return link from this auto-forward scene
+          const jumpLink = nextScene.hotspots.find(h => h.isReturnLink === true);
+          if (jumpLink) {
+            const jumpIdx = scenes.findIndex(s => s.name === jumpLink.target);
+            if (jumpIdx === -1 || visitedInChain.has(jumpIdx)) break;
+
+            nextIdx = jumpIdx;
+            visitedInChain.add(nextIdx);
+            // Arrival view for jumps defaults to 0,0
+            arrivalYaw = 0;
+            arrivalPitch = 0;
+          } else {
+            break;
+          }
+          chainSafeCounter++;
+        }
+      }
+
+      path.push({
+        idx: nextIdx,
+        transitionTarget: null,
+        arrivalView: { yaw: arrivalYaw, pitch: arrivalPitch }
+      });
+
+      currentIdx = nextIdx;
+
+      // Stop if we've returned to the starting scene (re-check after skip)
+      if (nextIdx === 0) break;
     } else {
       break; // No return link found, end Phase 2
     }
   }
 
-  // Final Pass if skipAutoForward: Ensure NO auto-forward scenes are in the final path
-  // (Security measure against complex chains or phase 2 leftovers)
+  // --- FINAL CLEANUP PASS ---
   if (skipAutoForward) {
+    // 1. Filter out any remaining auto-forward scenes (catch-all)
     path = path.filter(step => {
       const scene = scenes[step.idx];
       return scene && !scene.isAutoForward;
     });
   }
 
+  // 2. Deduplicate: Remove adjacent identical scenes
+  // This can happen if multiple transitions skip to the same destination
+  path = path.filter((step, i) => i === 0 || step.idx !== path[i - 1].idx);
+
   return path;
+}
+
+/**
+ * Converts the visual timeline into a renderable path for the teaser system.
+ * Handles merging steps for continuous paths and explicit jumps for discontinuities.
+ */
+function getTimelinePath(timeline, scenes, skipAutoForward) {
+  const path = [];
+
+  timeline.forEach((item, index) => {
+    // START SCENE
+    const startSceneIdx = scenes.findIndex(s => s.id === item.sceneId);
+    if (startSceneIdx === -1) return; // broken link or deleted scene
+
+    const startScene = scenes[startSceneIdx];
+
+    // SKIP AUTO-FORWARD LOGIC (START)
+    // If skipping is enabled and this item starts from an auto-forward scene,
+    // we skip it entirely because the PREVIOUS item would have already jumped over it.
+    if (skipAutoForward && startScene.isAutoForward) {
+      return;
+    }
+
+    // Find the actual hotspot to get camera angles
+    let hotspot = null;
+    if (item.linkId) {
+      hotspot = startScene.hotspots.find(h => h.linkId === item.linkId);
+    } else {
+      // Fallback by target name matching if linkId missing (legacy)
+      hotspot = startScene.hotspots.find(h => h.target === item.targetScene);
+    }
+
+    // Determine look angles for the transition
+    let transYaw = 0, transPitch = 0;
+    if (hotspot) {
+      transYaw = hotspot.yaw;
+      transPitch = hotspot.pitch;
+      if (hotspot.viewFrame) {
+        transYaw = hotspot.viewFrame.yaw;
+        transPitch = hotspot.viewFrame.pitch;
+      }
+    }
+
+    // Logic to merge with previous step if continuous
+    const lastStep = path[path.length - 1];
+    let currentStep;
+
+    // We can merge if:
+    // 1. We have a previous step
+    // 2. The previous step arrived at THIS scene (startSceneIdx)
+    // 3. The previous step doesn't already have an outgoing transition
+    if (lastStep && lastStep.idx === startSceneIdx && !lastStep.transitionTarget) {
+      currentStep = lastStep;
+    } else {
+      // Discontinuity or first step. Add new step.
+      currentStep = {
+        idx: startSceneIdx,
+        transitionTarget: null,
+        arrivalView: { yaw: 0, pitch: 0 } // Default arrival for jump
+      };
+      path.push(currentStep);
+    }
+
+    // Set Transition Target for this step
+    currentStep.transitionTarget = {
+      yaw: transYaw,
+      pitch: transPitch,
+      targetName: item.targetScene,
+      timelineItemId: item.id // TRACKING: Link this step back to the visual pipeline
+    };
+
+    // END SCENE (Arrival)
+    // Calculate the destination scene logic, including auto-forward skipping
+    let targetIdx = scenes.findIndex(s => s.name === item.targetScene);
+    let arrivalYaw = 0;
+    let arrivalPitch = 0;
+
+    if (targetIdx !== -1) {
+      // Get initial arrival view from link target info
+      if (hotspot) {
+        if (hotspot.targetYaw !== undefined) {
+          arrivalYaw = hotspot.targetYaw;
+          arrivalPitch = hotspot.targetPitch;
+        }
+      }
+
+      // SKIP AUTO-FORWARD LOGIC (END)
+      if (skipAutoForward) {
+        let chainSafeCounter = 0;
+        let visitedInChain = new Set();
+        visitedInChain.add(targetIdx);
+
+        while (chainSafeCounter < 10) {
+          const nextScene = scenes[targetIdx];
+          if (!nextScene || !nextScene.isAutoForward) break;
+
+          // Find the next logical link to jump to
+          const jumpLink = nextScene.hotspots.find(h => {
+            const tIdx = scenes.findIndex(s => s.name === h.target);
+            return tIdx !== -1 && !visitedInChain.has(tIdx);
+          });
+
+          if (jumpLink) {
+            const jumpIdx = scenes.findIndex(s => s.name === jumpLink.target);
+            targetIdx = jumpIdx;
+            visitedInChain.add(targetIdx);
+            // Reset arrival view for jump (as we lose the direct link context)
+            arrivalYaw = 0;
+            arrivalPitch = 0;
+          } else {
+            break; // Dead end
+          }
+          chainSafeCounter++;
+        }
+      }
+
+      // Push the arrival step
+      const nextStep = {
+        idx: targetIdx,
+        transitionTarget: null, // Will be filled by next timeline item if continuous
+        arrivalView: { yaw: arrivalYaw, pitch: arrivalPitch }
+      };
+      path.push(nextStep);
+    }
+  });
+
+  // --- FINAL CLEANUP ---
+  let finalPath = path;
+  if (skipAutoForward) {
+    finalPath = finalPath.filter(step => {
+      const scene = scenes[step.idx];
+      return scene && !scene.isAutoForward;
+    });
+  }
+
+  // Deduplication: Remove adjacent identical scenes
+  finalPath = finalPath.filter((step, i) => i === 0 || step.idx !== finalPath[i - 1].idx);
+
+  return finalPath;
 }
 
 
@@ -375,32 +565,8 @@ export async function startAutoTeaser(style = "fast", includeLogo = true, format
 
     // 1b. Preload all involved assets to ensure they are in memory
     if (label) label.innerText = "Preloading Scenes...";
-    if (window.updateProgressBar) {
-      window.updateProgressBar(0, "Preloading Scenes...", true, "Buffering Memory");
-    }
-    await preloadPathAssets(pathSteps);
 
-    const timestamp = Date.now();
-    const config = getTeaserConfig(style, timestamp);
-
-    // 2. Prepare Recorder
-    startGhostLoop();
-    frameCount = 0;
-    fpsBuffer = [];
-    recordingStartTime = Date.now();
-    lastFrameTime = performance.now();
-
-    const stream = ghostCanvas.captureStream(TEASER_FRAME_RATE);
-    const recorder = setupMediaRecorder(stream);
-    if (!recorder) {
-      if (overlay) overlay.style.display = "none";
-      isTeasing = false;
-      return;
-    }
-
-    // 3. Setup rendering state
-    const logoState = await loadLogo();
-    const snapState = createSnapshotState();
+    updateProgressBar(0, "Preloading Scenes...", true, "Buffering Memory");
 
     // 4. Override Ghost Loop with Animation Rendering
     cancelAnimationFrame(streamLoopId);
@@ -430,8 +596,8 @@ export async function startAutoTeaser(style = "fast", includeLogo = true, format
     store.setIsTeasing(false);
     const overlay = document.getElementById("teaser-overlay");
     if (overlay) overlay.style.display = "none";
-    if (window.notify) window.notify("Teaser Production Failed", "error");
-    if (window.updateProgressBar) window.updateProgressBar(0, "Error", false);
+    notify("Teaser Production Failed", "error");
+    updateProgressBar(0, "Error", false);
   }
 }
 
@@ -454,42 +620,9 @@ async function startCinematicTeaser(includeLogo = true, format = "webm", skipAut
 
     // 1b. Preload ALL scenes for the entire project in cinematic mode
     if (label) label.innerText = "Preloading All Scenes...";
-    if (window.updateProgressBar) {
-      window.updateProgressBar(0, "Preloading All Scenes...", true, "Buffering Memory");
-    }
+
+    updateProgressBar(0, "Preloading All Scenes...", true, "Buffering Memory");
     const allSteps = store.state.scenes.map((_, i) => ({ idx: i }));
-    await preloadPathAssets(allSteps);
-
-    const tourName = store.state.tourName || "Virtual_Tour";
-    const safeName = tourName.replace(/[^a-z0-9]/gi, "_").toLowerCase();
-    const baseName = `Teaser_RMX_${safeName}_v${VERSION}_Cinematic`;
-
-    if (window.updateProgressBar) {
-      window.updateProgressBar(0, "Starting Cinematic Recording...", true, "Recording Simulation");
-    }
-
-    // 2. Setup Ghost Canvas and Recorder
-    startGhostLoop();
-    const stream = ghostCanvas.captureStream(TEASER_FRAME_RATE);
-    const recorder = setupMediaRecorder(stream);
-    if (!recorder) {
-      if (overlay) overlay.style.display = "none";
-      isTeasing = false;
-      return;
-    }
-
-    // 3. Load logo for watermark
-    const logoState = await loadLogo();
-    const snapState = createSnapshotState();
-
-    // 4. Setup rendering loop (captures viewer output + logo)
-    cancelAnimationFrame(streamLoopId);
-    updateAnimationLoop("cinematic", includeLogo, logoState, snapState);
-
-    // 5. Start recording
-    frameCount = 0;
-    fpsBuffer = [];
-    recordingStartTime = Date.now();
     lastFrameTime = performance.now();
 
     recorder.start();
@@ -535,8 +668,8 @@ async function startCinematicTeaser(includeLogo = true, format = "webm", skipAut
 
     const overlay = document.getElementById("teaser-overlay");
     if (overlay) overlay.style.display = "none";
-    if (window.notify) window.notify("Cinematic Teaser Failed", "error");
-    if (window.updateProgressBar) window.updateProgressBar(0, "Error", false);
+    notify("Cinematic Teaser Failed", "error");
+    updateProgressBar(0, "Error", false);
   }
 }
 
@@ -569,7 +702,7 @@ async function preloadPathAssets(pathSteps) {
         // We reject here so Promise.all fails fast if critical assets are missing
         // Alternatively, we could resolve to allow partial success, but for teasers, missing images are bad.
         // Let's WARN but resolve, consistently with "show must go on" philosophy, but now we LOG it properly.
-        window.notify?.("Asset preload failed - quality may be reduced", "warning");
+        notify("Asset preload failed - quality may be reduced", "warning");
         resolve();
       };
       img.src = url;
@@ -824,9 +957,8 @@ async function prepareFirstScene(step, label, style, config) {
   const targetScene = store.state.scenes[step.idx];
   store.setActiveScene(step.idx, initialYaw, initialPitch);
   if (label) label.innerText = `Preparing: ${targetScene.name}...`;
-  if (window.updateProgressBar) {
-    window.updateProgressBar(0, "Preparing...", true, "Creating property teaser");
-  }
+
+  updateProgressBar(0, "Preparing...", true, "Creating property teaser");
 
   await new Promise(r => setTimeout(r, SCENE_STABILIZATION_DELAY));
   await waitForViewerReady(targetScene.id);
@@ -850,13 +982,21 @@ async function prepareFirstScene(step, label, style, config) {
 
 async function recordShot(i, pathSteps, style, config, label, snapCtx) {
   const step = pathSteps[i];
-  const currentScene = store.state.scenes[step.idx];
+  const scene = store.state.scenes[step.idx];
 
-  if (window.updateProgressBar) {
-    const pct = ((i / pathSteps.length) * 100);
-    window.updateProgressBar(pct, `Recording Shot ${i + 1}/${pathSteps.length}: ${currentScene.name}`);
+  // SYNC VISUAL PIPELINE: Update highlight if this step belongs to a timeline item
+  if (step.transitionTarget && step.transitionTarget.timelineItemId) {
+    store.setActiveTimelineStep(step.transitionTarget.timelineItemId);
+  } else if (i > 0 && pathSteps[i - 1].transitionTarget && pathSteps[i - 1].transitionTarget.timelineItemId) {
+    // If we are on the ARRIVAL step of a transition, we might still want to highlight the source step
+    // or maybe the NEXT step. For now, matching the source step is often what users expect to see
+    // while that scene is being filmed.
   }
-  if (label) label.innerText = `Shot ${i + 1}: ${currentScene.name}`;
+
+
+  const pct = ((i / pathSteps.length) * 100);
+  updateProgressBar(pct, `Recording Shot ${i + 1}/${pathSteps.length}: ${scene.name}`);
+  if (label) label.innerText = `Shot ${i + 1}: ${scene.name}`;
 
   const viewer = window.pannellumViewer;
   if (!viewer) {
@@ -1241,28 +1381,24 @@ async function finalizeTeaser(recordedChunks, format, baseName, overlay) {
 
   if (format === "webm") {
     DownloadSystem.saveBlob(webmBlob, `${baseName}.webm`);
-    if (window.updateProgressBar) {
-      window.updateProgressBar(100, "Teaser Complete!", true);
-    }
+
+    updateProgressBar(100, "Teaser Complete!", true);
     isTeasing = false;
     store.setIsTeasing(false);
   } else if (format === "mp4") {
     try {
       await VideoEncoder.transcodeWebMToMP4(webmBlob, baseName, (pct) => {
-        if (window.updateProgressBar) {
-          window.updateProgressBar(pct, "Converting WebM to MP4...", true, "AI Encoder");
-        }
+
+        updateProgressBar(pct, "Converting WebM to MP4...", true, "AI Encoder");
       });
-      if (window.updateProgressBar) {
-        window.updateProgressBar(100, "Teaser Complete!", true);
-      }
+
+      updateProgressBar(100, "Teaser Complete!", true);
     } catch (err) {
       console.error("MP4 Finalization Failed", err);
       // Fallback: save webm anyway
       DownloadSystem.saveBlob(webmBlob, `${baseName}.webm`);
-      if (window.updateProgressBar) {
-        window.updateProgressBar(0, "MP4 Conversion Failed - WebM Saved", true, "Error");
-      }
+
+      updateProgressBar(0, "MP4 Conversion Failed - WebM Saved", true, "Error");
     } finally {
       isTeasing = false;
       store.setIsTeasing(false);

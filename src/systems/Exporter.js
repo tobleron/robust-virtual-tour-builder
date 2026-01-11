@@ -1,3 +1,4 @@
+import { notify } from "../utils/NotificationSystem.js";
 import { DownloadSystem } from "./DownloadSystem.js";
 import { generateTourHTML, generateEmbedCodes, generateExportIndex } from "./TourHTMLTemplate.js";
 import { BACKEND_URL } from "../constants.js";
@@ -142,7 +143,7 @@ export async function exportTour(scenes, onProgress) {
     } catch (err) {
         console.error("Export failed:", err);
         Debug.error("Exporter", "Tour Export Failed", { error: err.message });
-        if (window.notify) window.notify(`Export Failed: ${err.message}`, "error");
+        notify(`Export Failed: ${err.message}`, "error");
 
         if (onProgress) onProgress(0, 0, "Failed");
     }
