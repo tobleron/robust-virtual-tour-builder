@@ -17,3 +17,5 @@ logs/debug_log_*.json
 # Build
 dist/
 css/output.css
+bin/
+backend_log.txt

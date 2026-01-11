@@ -67,7 +67,7 @@ export const store = {
     const sanitized = sanitizeName(name, 100);
 
     if (this.state.tourName !== sanitized) {
-      console.log(`📦 [Store] setTourName changed from "${this.state.tourName}" to "${sanitized}"`);
+      Debug.info('Store', `setTourName changed from "${this.state.tourName}" to "${sanitized}"`);
       this.state.tourName = sanitized;
       this.notify();
     }
@@ -112,7 +112,7 @@ export const store = {
 
     // CRITICAL: Ensure an active scene is selected if we just added the first ones
     if ((this.state.activeIndex === -1 || !this.state.scenes[this.state.activeIndex]) && this.state.scenes.length > 0) {
-      console.log("📦 [Store] Initializing activeIndex to 0");
+      Debug.info('Store', "Initializing activeIndex to 0");
       this.state.activeIndex = 0;
       this.state.activeYaw = 0;
       this.state.activePitch = 0;
@@ -127,17 +127,17 @@ export const store = {
   setActiveScene(index, startYaw = 0, startPitch = 0, transition = null) {
     // GUARD: Validate index is a valid integer within bounds
     if (!Number.isInteger(index) || index < 0 || index >= this.state.scenes.length) {
-      console.warn(`[Store] setActiveScene: Invalid index ${index} (scenes: ${this.state.scenes.length})`);
+      Debug.warn('Store', `setActiveScene: Invalid index ${index} (scenes: ${this.state.scenes.length})`);
       return;
     }
 
     // GUARD: Validate yaw and pitch are numbers within valid ranges
     if (typeof startYaw !== 'number' || !isFinite(startYaw)) {
-      console.warn(`[Store] setActiveScene: Invalid startYaw ${startYaw}, defaulting to 0`);
+      Debug.warn('Store', `setActiveScene: Invalid startYaw ${startYaw}, defaulting to 0`);
       startYaw = 0;
     }
     if (typeof startPitch !== 'number' || !isFinite(startPitch)) {
-      console.warn(`[Store] setActiveScene: Invalid startPitch ${startPitch}, defaulting to 0`);
+      Debug.warn('Store', `setActiveScene: Invalid startPitch ${startPitch}, defaulting to 0`);
       startPitch = 0;
     }
 
@@ -258,7 +258,7 @@ export const store = {
     if (!sceneToDelete) return;
 
     const targetName = sceneToDelete.name;
-    console.log(`📦 [Store] Deleting scene "${targetName}" (Index: ${index})`);
+    Debug.info('Store', `Deleting scene "${targetName}" (Index: ${index})`);
 
     // 1. Clean up "orphan" links in other scenes that point to this scene
     this.state.scenes.forEach((scene) => {
@@ -268,7 +268,7 @@ export const store = {
       scene.hotspots = scene.hotspots.filter(h => h.target !== targetName);
 
       if (scene.hotspots.length !== originalLength) {
-        console.log(`📦 [Store] Removed ${originalLength - scene.hotspots.length} orphan links from scene "${scene.name}"`);
+        Debug.info('Store', `Removed ${originalLength - scene.hotspots.length} orphan links from scene "${scene.name}"`);
       }
     });
 
@@ -283,7 +283,7 @@ export const store = {
       const originalTimelineLength = this.state.timeline.length;
       this.state.timeline = this.state.timeline.filter(item => item.sceneId !== sceneToDelete.id);
       if (this.state.timeline.length !== originalTimelineLength) {
-        console.log(`📦 [Store] Removed ${originalTimelineLength - this.state.timeline.length} items from timeline for deleted scene "${targetName}"`);
+        Debug.info('Store', `Removed ${originalTimelineLength - this.state.timeline.length} items from timeline for deleted scene "${targetName}"`);
       }
     }
 
@@ -316,7 +316,7 @@ export const store = {
     if (this.state.deletedSceneIds) {
       const index = this.state.deletedSceneIds.indexOf(id);
       if (index > -1) {
-        console.log(`📦 [Store] Removing ID ${id} from deleted history (Re-upload detected)`);
+        Debug.info('Store', `Removing ID ${id} from deleted history (Re-upload detected)`);
         this.state.deletedSceneIds.splice(index, 1);
       }
     }
@@ -344,7 +344,7 @@ export const store = {
 
     // 2. Perform ONE cascade update for all hotspots if renames occurred
     if (renameMap.size > 0) {
-      console.log(`📦 [Store] Batch updating links for ${renameMap.size} renamed scenes...`);
+      Debug.info('Store', `Batch updating links for ${renameMap.size} renamed scenes...`);
       this.state.scenes.forEach(s => {
         s.hotspots.forEach(h => {
           if (renameMap.has(h.target)) {

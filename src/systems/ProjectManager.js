@@ -1,51 +1,10 @@
 import { notify } from "../utils/NotificationSystem.js";
 import { DownloadSystem } from "./DownloadSystem.js";
-import { Debug } from "../utils/Debug.js";
+// import { Debug } from "../utils/Debug.js"; // Unused in this file
+import { BACKEND_URL } from "../constants.js";
 
 /**
- * Helper to run worker tasks
- */
-async function runZipTask(type, payload, onProgress) {
-    // PRE-CHECK: If payload is large or needs raw binary access, handle it here
-    let transfer = [];
-    if (type === 'LOAD_PROJECT' && (payload instanceof File || payload instanceof Blob)) {
-        if (payload.size === 0) {
-            throw new Error("Cannot load empty file (0 bytes).");
-        }
-        // Read file as ArrayBuffer for reliable worker transmission
-        const buffer = await payload.arrayBuffer();
-        payload = buffer;
-        transfer = [buffer];
-    }
-
-    return new Promise((resolve, reject) => {
-        // Vite-compatible worker instantiation - using classic type to support importScripts
-        const worker = new Worker(new URL('../workers/ZipWorker.js', import.meta.url), { type: 'classic' });
-
-        worker.onmessage = (e) => {
-            const { type: resType, payload: resPayload } = e.data;
-            if (resType === 'PROGRESS' && onProgress) {
-                onProgress(resPayload.pct, 100, resPayload.message);
-            } else if (resType === 'SAVE_COMPLETE' || resType === 'LOAD_COMPLETE') {
-                worker.terminate();
-                resolve(resPayload);
-            } else if (resType === 'ERROR') {
-                worker.terminate();
-                reject(new Error(resPayload));
-            }
-        };
-
-        worker.onerror = (err) => {
-            worker.terminate();
-            reject(err);
-        };
-
-        worker.postMessage({ type, payload }, transfer);
-    });
-}
-
-/**
- * Save the current project as a ZIP file
+ * Save the current project as a ZIP file (using Backend)
  */
 export async function saveProject(state, onProgress) {
     const { VERSION } = await import("../version.js");
@@ -70,7 +29,7 @@ export async function saveProject(state, onProgress) {
             fileHandle = await DownloadSystem.getFileHandle(filename, 'application/zip');
         } catch (err) {
             if (err.name === 'AbortError') {
-                console.log("Project save cancelled by user.");
+                Debug.info('Project', "Project save cancelled by user.");
                 if (onProgress) onProgress(0, 0, "Cancelled");
                 throw new Error('USER_CANCELLED');
             }
@@ -118,21 +77,45 @@ export async function saveProject(state, onProgress) {
         }))
     };
 
-    // Prepare files for worker (must be plain objects/blobs)
-    const files = state.scenes.map(s => ({
-        name: s.name,
-        blob: s.file // Blobs are transferable
-    }));
-
     try {
-        // 2. Heavy Lifting (Zip Generation) - takes time
-        const zipBlob = await runZipTask('SAVE_PROJECT', {
-            projectData,
-            files,
-            exifReport: state.exifReport
-        }, onProgress);
+        // 2. Upload to Backend for Zipping
+        if (onProgress) onProgress(10, 100, "Uploading to backend...");
 
-        if (onProgress) onProgress(100, 100, "Saving...");
+        const formData = new FormData();
+        formData.append('project_data', JSON.stringify(projectData));
+
+        // Append each scene's file blob
+        // Todo: Optimisation - if files are already on backend (session), maybe we don't need to re-upload?
+        // But for now, we assume pure frontend state is the source of truth.
+        state.scenes.forEach((scene, index) => {
+            if (scene.file) {
+                formData.append('files', scene.file, scene.name);
+            } else {
+                console.warn(`[ProjectManager] Scene ${scene.name} (index ${index}) is missing its file blob.`);
+            }
+        });
+
+        const response = await fetch(`${BACKEND_URL}/save-project`, {
+            method: "POST",
+            body: formData,
+        });
+
+        if (!response.ok) {
+            let errorDetails = "Unknown Backend Error";
+            try {
+                const errorJson = await response.json();
+                errorDetails = errorJson.details || errorJson.error || errorDetails;
+            } catch (e) {
+                errorDetails = await response.text();
+            }
+            throw new Error(`Backend save failed: ${response.status} - ${errorDetails}`);
+        }
+
+        if (onProgress) onProgress(80, 100, "Downloading ZIP...");
+
+        const zipBlob = await response.blob();
+
+        if (onProgress) onProgress(100, 100, "Saving to disk...");
 
         // 3. Write to File (using handle acquired in step 1, or legacy fallback)
         if (useFileHandle && fileHandle) {
@@ -152,45 +135,90 @@ export async function saveProject(state, onProgress) {
 }
 
 /**
- * Load a project from a ZIP file
+ * Load a project from a ZIP file (using Backend)
  */
 export async function loadProject(zipFile, onProgress) {
-    if (onProgress) onProgress(0, 100, "Initializing Worker...");
+    if (onProgress) onProgress(0, 100, "Uploading project...");
 
     try {
-        const { projectData, sceneDataList } = await runZipTask('LOAD_PROJECT', zipFile, onProgress);
+        const formData = new FormData();
+        formData.append('file', zipFile);
 
-        if (onProgress) onProgress(90, 100, "Reconstructing scenes...");
+        // 1. Send ZIP to Backend
+        const response = await fetch(`${BACKEND_URL}/load-project`, {
+            method: "POST",
+            body: formData
+        });
 
-        const scenes = sceneDataList.map(item => ({
-            id: item.metadata.id || `legacy_${item.name}`,
-            name: item.name,
-            label: item.metadata.label || "",
-            category: item.metadata.category || "indoor",
-            floor: item.metadata.floor || "ground",
-            isAutoForward: item.metadata.isAutoForward || false,
-            quality: item.metadata.quality || null,
-            colorGroup: item.metadata.colorGroup || null,
-            file: new File([item.blob], item.name, { type: "image/webp" }),
-            originalFile: new File([item.blob], item.name, { type: "image/webp" }),
-            hotspots: (item.metadata.hotspots || []).map(h => ({
-                ...h,
-                // ENSURE START COORDS ARE RESTORED
-                startPitch: h.startPitch,
-                startYaw: h.startYaw,
-                startHfov: h.startHfov,
-                returnViewFrame: h.returnViewFrame || null,
-                isReturnLink: h.isReturnLink || false,
-                // MULTI-POINT LINKS: Restore ALL intermediate waypoints
-                waypoints: h.waypoints || []
-            }))
+        if (!response.ok) {
+            throw new Error(`Backend load failed: ${response.status} ${response.statusText}`);
+        }
+
+        const { session_id, project_data } = await response.json();
+
+        if (onProgress) onProgress(20, 100, "Downloading scenes...");
+
+        // 2. Reconstruct Scenes by fetching images from backend session
+        const rawScenes = project_data.scenes || [];
+        const totalScenes = rawScenes.length;
+        let loadedCount = 0;
+
+        // Fetch concurrently with limit? Or just Promise.all
+        // Browsers limit concurrent connections (usually 6).
+        // For large projects, Promise.all might timeout or error.
+        // Let's do huge Promise.all for now, expecting backend to be fast.
+
+        const scenes = await Promise.all(rawScenes.map(async (item) => {
+            try {
+                const imageUrl = (`${BACKEND_URL}/session/${session_id}/${encodeURIComponent(item.name)}`);
+                const imgRes = await fetch(imageUrl);
+                if (!imgRes.ok) throw new Error(`Failed to fetch image: ${item.name}`);
+
+                const blob = await imgRes.blob();
+
+                loadedCount++;
+                if (onProgress) onProgress(20 + Math.round((loadedCount / totalScenes) * 70), 100, `Loading ${item.name}...`);
+
+                // Reconstruct File object
+                const file = new File([blob], item.name, { type: "image/webp" });
+
+                return {
+                    id: item.id || `legacy_${item.name}`,
+                    name: item.name,
+                    label: item.label || "",
+                    category: item.category || "indoor",
+                    floor: item.floor || "ground",
+                    isAutoForward: item.isAutoForward || false,
+                    quality: item.quality || null,
+                    colorGroup: item.colorGroup || null,
+                    file: file,
+                    originalFile: file,
+                    hotspots: (item.hotspots || []).map(h => ({
+                        ...h,
+                        startPitch: h.startPitch,
+                        startYaw: h.startYaw,
+                        startHfov: h.startHfov,
+                        returnViewFrame: h.returnViewFrame || null,
+                        isReturnLink: h.isReturnLink || false,
+                        waypoints: h.waypoints || []
+                    }))
+                };
+            } catch (e) {
+                console.error(`Failed to load scene ${item.name}`, e);
+                // Return null or partial?
+                // Returning null and filtering might be safer.
+                return null;
+            }
         }));
 
+        // Filter out failed loads
+        const validScenes = scenes.filter(s => s !== null);
+
         // --- VALIDATION: Filter out links to non-existent scenes ---
-        const validSceneNames = new Set(scenes.map(s => s.name));
+        const validSceneNames = new Set(validScenes.map(s => s.name));
         let brokenLinksRemoved = 0;
 
-        scenes.forEach(scene => {
+        validScenes.forEach(scene => {
             const originalCount = scene.hotspots.length;
             scene.hotspots = scene.hotspots.filter(h => {
                 const isValid = validSceneNames.has(h.target);
@@ -207,9 +235,9 @@ export async function loadProject(zipFile, onProgress) {
         }
 
         const loadedProject = {
-            tourName: projectData.projectName || "Imported Tour",
-            scenes: scenes,
-            deletedSceneIds: projectData.deletedSceneIds || [],
+            tourName: project_data.projectName || "Imported Tour",
+            scenes: validScenes,
+            deletedSceneIds: project_data.deletedSceneIds || [],
             activeIndex: 0
         };
 
@@ -218,8 +246,10 @@ export async function loadProject(zipFile, onProgress) {
 
     } catch (error) {
         console.error("Project load error:", error);
-        if (onProgress) onProgress(0, 100, "", false);
+        if (onProgress) onProgress(0, 100, "Load Failed", false);
         throw error;
     }
 }
+
+
 

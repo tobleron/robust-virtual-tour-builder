@@ -24,6 +24,10 @@ img-parts = "0.3"
 little_exif = "0.4"
 bytes = "1.0"
 actix-governor = "0.5"
+headless_chrome = "1.0"
+base64 = "0.21"
+fast_image_resize = "5.1.0"
+actix-files = "0.6"
 
 
 

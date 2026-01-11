@@ -12,13 +12,17 @@ use zip::write::FileOptions;
 use std::collections::HashMap;
 use rayon::prelude::*;
 use img_parts::webp::WebP;
+use headless_chrome::{Browser, LaunchOptions};
+use std::time::Duration;
 
 use img_parts::riff::{RiffContent, RiffChunk};
 use bytes::Bytes;
+use fast_image_resize::{Resizer, ResizeOptions, FilterType, ResizeAlg, PixelType, images::Image as FrImage};
 // Configs
 const PROCESSED_IMAGE_WIDTH: u32 = 4096;
 const TEMP_DIR: &str = "/tmp/remax_backend";
-const MAX_UPLOAD_SIZE: usize = 500 * 1024 * 1024; // 500MB limit to prevent DoS
+const SESSIONS_DIR: &str = "/tmp/remax_sessions";
+const MAX_UPLOAD_SIZE: usize = 2048 * 1024 * 1024; // 2GB limit (increased for full projects)
 
 // --- Error Handling ---
 
@@ -82,6 +86,9 @@ impl From<actix_multipart::MultipartError> for AppError {
 impl From<zip::result::ZipError> for AppError {
     fn from(err: zip::result::ZipError) -> Self { AppError::ZipError(err.to_string()) }
 }
+impl From<String> for AppError {
+    fn from(err: String) -> Self { AppError::InternalError(err) }
+}
 
 // --- Helpers ---
 
@@ -91,6 +98,12 @@ fn get_temp_path(extension: &str) -> PathBuf {
         fs::create_dir_all(&path).unwrap_or_default();
     }
     path.push(format!("{}.{}", Uuid::new_v4(), extension));
+    path
+}
+
+fn get_session_path(session_id: &str) -> PathBuf {
+    let mut path = PathBuf::from(SESSIONS_DIR);
+    path.push(session_id);
     path
 }
 
@@ -196,6 +209,42 @@ pub struct MetadataResponse {
 
 // --- Internal Processing Logic (Extracted for reuse) ---
 
+// --- OPTIMIZED HELPER ---
+fn resize_fast(img: &image::DynamicImage, target_width: u32, target_height: u32) -> Result<image::DynamicImage, String> {
+    if target_width == 0 || target_height == 0 {
+        return Err("Invalid dimensions: width and height must be greater than 0".to_string());
+    }
+
+    // Convert to RGBA8 for consistent processing (fast_image_resize works best with known pixel types)
+    let rgba_img = img.to_rgba8();
+    
+    let src_image = FrImage::from_vec_u8(
+        img.width(),
+        img.height(),
+        rgba_img.into_raw(),
+        PixelType::U8x4,
+    ).map_err(|e| format!("FastResize Init Error: {:?}", e))?;
+
+    let mut dst_image = FrImage::new(
+        target_width,
+        target_height,
+        src_image.pixel_type(),
+    );
+
+    let mut resizer = Resizer::new();
+    let options = ResizeOptions::new().resize_alg(ResizeAlg::Convolution(FilterType::Lanczos3));
+    
+    resizer.resize(&src_image, &mut dst_image, &options)
+        .map_err(|e| format!("FastResize Error: {:?}", e))?;
+
+    let data = dst_image.into_vec();
+    
+    image::RgbaImage::from_raw(target_width, target_height, data)
+        .map(image::DynamicImage::ImageRgba8)
+        .ok_or_else(|| "Failed to reconstruct image from buffer".to_string())
+}
+
+// --- Internal Processing Logic (Extracted for reuse) ---
 fn perform_metadata_extraction(img: &image::DynamicImage, input_data: &[u8]) -> Result<MetadataResponse, String> {
     // 0. Check for existing "reMX" specific metadata (PREVENTION of Re-optimization)
     // We parse the input bytes as WebP to see if our custom chunk exists.
@@ -290,8 +339,9 @@ fn perform_metadata_extraction(img: &image::DynamicImage, input_data: &[u8]) -> 
     // 2. Quality Analysis
     let (orig_w, orig_h) = (img.width(), img.height());
     
-    // OPTIMIZATION: Use thumbnail() - it's faster than resize() for large downscales
-    let analyzed_img = img.thumbnail(400, 400);
+    
+    // OPTIMIZATION: Use fast resize for analysis thumbnail
+    let analyzed_img = resize_fast(img, 400, 400).unwrap_or_else(|_| img.thumbnail(400, 400));
     let rgb = analyzed_img.into_rgb8(); // consumes analyzed_img, avoids a copy
     let (w, h) = rgb.dimensions();
     let pixel_count = (w * h) as f32;
@@ -464,7 +514,10 @@ pub async fn process_image_full(mut payload: Multipart) -> Result<HttpResponse, 
              // data is the raw input bytes.
              data.clone()
         } else {
-            let resized = img.resize(PROCESSED_IMAGE_WIDTH, PROCESSED_IMAGE_WIDTH, image::imageops::FilterType::Lanczos3);
+            // OPTIMIZATION: Use fast_image_resize
+            let resized = resize_fast(&img, PROCESSED_IMAGE_WIDTH, PROCESSED_IMAGE_WIDTH)
+                .map_err(|e| format!("Resize failed: {}", e))?;
+            
             let mut buf = Cursor::new(Vec::new());
             resized.write_to(&mut buf, image::ImageFormat::WebP)
                 .map_err(|e| format!("Failed to encode WebP: {}", e))?;
@@ -475,7 +528,8 @@ pub async fn process_image_full(mut payload: Multipart) -> Result<HttpResponse, 
 
         let webp_buffer = Cursor::new(webp_buffer_vec);
 
-        let tiny = img.thumbnail(512, 512);
+        // OPTIMIZATION: Parallelize Tiny generation? (Left sequential for now but using fast resize)
+        let tiny = resize_fast(&img, 512, 512).unwrap_or_else(|_| img.thumbnail(512, 512));
         let mut tiny_buffer = Cursor::new(Vec::new());
         tiny.write_to(&mut tiny_buffer, image::ImageFormat::WebP)
             .map_err(|e| format!("Failed to encode Tiny WebP: {}", e))?;
@@ -539,8 +593,9 @@ pub async fn optimize_image(mut payload: Multipart) -> Result<HttpResponse, AppE
             .decode()
             .map_err(|e| format!("Failed to decode image: {}", e))?;
         
-        // Use Lanczos3 for absolute sharpness in editor previews
-        let resized = img.resize(PROCESSED_IMAGE_WIDTH, PROCESSED_IMAGE_WIDTH, image::imageops::FilterType::Lanczos3);
+        // Use Lanczos3 for absolute sharpness in editor previews (via fast_image_resize)
+        let resized = resize_fast(&img, PROCESSED_IMAGE_WIDTH, PROCESSED_IMAGE_WIDTH)
+             .map_err(|e| format!("Resize failed: {}", e))?;
         
         let mut webp_buffer = Cursor::new(Vec::new());
         resized.write_to(&mut webp_buffer, image::ImageFormat::WebP)
@@ -610,7 +665,8 @@ pub async fn resize_image_batch(mut payload: Multipart) -> Result<HttpResponse, 
 
             let results: Vec<Result<(String, Vec<u8>), String>> = targets.par_iter()
                 .map(|(filename, width)| {
-                    let resized = img.resize(*width, *width, image::imageops::FilterType::Lanczos3);
+                    let resized = resize_fast(&img, *width, *width)
+                        .map_err(|e| format!("Resize failed: {}", e))?;
                     
                     let mut webp_buffer = Cursor::new(Vec::new());
                     resized.write_to(&mut webp_buffer, image::ImageFormat::WebP)
@@ -748,7 +804,8 @@ pub async fn create_tour_package(mut payload: Multipart) -> Result<HttpResponse,
 
                     let mut artifacts = Vec::new();
                     for (folder, width) in targets {
-                        let resized = img.resize(width, width, image::imageops::FilterType::Lanczos3);
+                        let resized = resize_fast(&img, width, width)
+                            .map_err(|e| format!("Resize failed: {}", e))?;
                         let webp_name = std::path::Path::new(name).with_extension("webp");
                         let fname = webp_name.file_name().ok_or("Invalid filename")?.to_str().ok_or("Invalid filename")?;
                         let zip_path = format!("{}/assets/images/{}", folder, fname);
@@ -795,6 +852,171 @@ pub struct TelemetryPayload {
     pub message: String,
     pub data: Option<serde_json::Value>,
     pub timestamp: String,
+}
+
+#[derive(Serialize)]
+pub struct LoadProjectResponse {
+    pub session_id: String,
+    pub project_data: serde_json::Value,
+}
+
+#[tracing::instrument(skip(payload), name = "save_project")]
+pub async fn save_project(mut payload: Multipart) -> Result<HttpResponse, AppError> {
+    // 1. Prepare Zip Writer
+    // We stream directly to a file in TEMP_DIR to avoid memory issues with huge projects
+    // let zip_filename = format!("save_{}.zip", Uuid::new_v4()); // Unused
+    let zip_path = get_temp_path("zip"); // returns full path with .zip extension
+    
+    // Create file (This was redundant and causing unused variable warning)
+    // let file = fs::File::create(&zip_path).map_err(AppError::IoError)?; 
+    
+    // We use a block to scope the ZipWriter
+    let mut project_json: Option<String> = None;
+    let mut temp_images: Vec<(String, PathBuf)> = Vec::new(); // (filename, temp_path)
+    
+    // 2. Iterate Multipart Stream
+    while let Some(mut field) = payload.try_next().await? {
+        let content_disposition = field.content_disposition().unwrap().clone();
+        let name = content_disposition.get_name().unwrap_or("unknown").to_string();
+        
+        if name == "project_data" {
+            // Read JSON into memory (it's small)
+            let mut bytes = Vec::new();
+            while let Some(chunk) = field.try_next().await? {
+                bytes.extend_from_slice(&chunk);
+            }
+            project_json = Some(String::from_utf8_lossy(&bytes).to_string());
+        } else if name == "files" {
+            // This is an image file. Stream it to a temp file first to keep RAM low.
+            let filename = content_disposition.get_filename().map(|f| f.to_string()).unwrap_or_else(|| format!("img_{}.webp", Uuid::new_v4()));
+            let sanitized_name = sanitize_filename(&filename).unwrap_or_else(|_| format!("img_{}.webp", Uuid::new_v4()));
+            
+            let temp_img_path = get_temp_path("tmp");
+            let mut f = fs::File::create(&temp_img_path).map_err(AppError::IoError)?;
+            
+            while let Some(chunk) = field.try_next().await? {
+                f.write_all(&chunk).map_err(AppError::IoError)?;
+            }
+            temp_images.push((sanitized_name, temp_img_path));
+        }
+    }
+    
+    // 3. Create ZIP
+    // We do this in a blocking thread to avoid blocking async runtime
+    let final_zip_path = zip_path.clone();
+    let json_content = project_json.ok_or_else(|| AppError::MultipartError(actix_multipart::MultipartError::Incomplete))?;
+    
+    let _ = web::block(move || -> Result<(), std::io::Error> {
+        let file = fs::File::create(&final_zip_path)?;
+        let mut zip = zip::ZipWriter::new(file);
+        let options = FileOptions::default()
+            .compression_method(zip::CompressionMethod::Stored) // Already compressed WebPs
+            .unix_permissions(0o755);
+            
+        // Write JSON
+        zip.start_file("project.json", options)?;
+        zip.write_all(json_content.as_bytes())?;
+        
+        // Write Images
+        for (filename, path) in temp_images {
+            zip.start_file(format!("images/{}", filename), options)?;
+            let mut f = fs::File::open(&path)?;
+            std::io::copy(&mut f, &mut zip)?;
+            
+            // Allow OS to clean up temp file (best effort)
+            let _ = fs::remove_file(path);
+        }
+        
+        zip.finish()?;
+        Ok(())
+    }).await.map_err(|e| AppError::InternalError(e.to_string()))??;
+    
+    // 4. Stream Back the ZIP
+    let zip_file = fs::File::open(&zip_path).map_err(AppError::IoError)?;
+    let metadata = zip_file.metadata().map_err(AppError::IoError)?;
+    
+    let mut buffer = Vec::with_capacity(metadata.len() as usize);
+    let mut reader = std::io::BufReader::new(zip_file);
+    std::io::copy(&mut reader, &mut buffer).map_err(AppError::IoError)?;
+    
+    // Clean up
+    let _ = fs::remove_file(zip_path);
+
+    Ok(HttpResponse::Ok()
+        .content_type("application/zip")
+        .body(buffer))
+}
+
+#[tracing::instrument(skip(payload), name = "load_project")]
+pub async fn load_project(mut payload: Multipart) -> Result<HttpResponse, AppError> {
+    let mut zip_data = Vec::new();
+    
+    // 1. Read ZIP Upload (Stream to memory if fits, else file? Let's buffer in memory for load)
+    while let Some(mut field) = payload.try_next().await? {
+        while let Some(chunk) = field.try_next().await? {
+            zip_data.extend_from_slice(&chunk);
+             if zip_data.len() > MAX_UPLOAD_SIZE {
+                return Err(AppError::ImageError("Project too large".into()));
+            }
+        }
+    }
+    
+    let session_id = Uuid::new_v4().to_string();
+    let session_path = get_session_path(&session_id);
+    
+    // 2. Unzip and Process
+    let project_data = web::block(move || -> Result<serde_json::Value, String> {
+        // Create Session Dir
+        fs::create_dir_all(&session_path).map_err(|e| e.to_string())?;
+        
+        let reader = Cursor::new(zip_data);
+        let mut zip = zip::ZipArchive::new(reader).map_err(|e| e.to_string())?;
+        
+        // Extract Everything
+        zip.extract(&session_path).map_err(|e| e.to_string())?;
+        
+        // Read project.json
+        let json_path = session_path.join("project.json");
+        let json_str = fs::read_to_string(json_path).map_err(|e| e.to_string())?;
+        let json: serde_json::Value = serde_json::from_str(&json_str).map_err(|e| e.to_string())?;
+        
+        Ok(json)
+    }).await.map_err(|e| AppError::InternalError(e.to_string()))??;
+    
+    Ok(HttpResponse::Ok().json(LoadProjectResponse {
+        session_id,
+        project_data
+    }))
+}
+
+// Handler for serving session files
+pub async fn serve_session_file(path: web::Path<(String, String)>) -> Result<HttpResponse, AppError> {
+    let (session_id, filename) = path.into_inner();
+    
+    // Security Check: Sanitize
+    let safe_filename = sanitize_filename(&filename).map_err(|_| AppError::InternalError("Invalid filename".into()))?;
+    
+    let session_path = get_session_path(&session_id);
+    // Images are inside "images" subdir based on our save structure
+    let file_path = session_path.join("images").join(&safe_filename);
+    
+    if !file_path.exists() {
+        // Try root
+        let root_path = session_path.join(&safe_filename);
+        if root_path.exists() {
+             let data = fs::read(root_path).map_err(AppError::IoError)?;
+             let mime = mime_guess::from_path(&safe_filename).first_or_octet_stream();
+             return Ok(HttpResponse::Ok().content_type(mime.as_ref()).body(data));
+        }
+        return Ok(HttpResponse::NotFound().body("File not found"));
+    }
+    
+    let data = fs::read(file_path).map_err(AppError::IoError)?;
+    let mime = mime_guess::from_path(&safe_filename).first_or_octet_stream();
+    
+    Ok(HttpResponse::Ok()
+        .content_type(mime.as_ref())
+        .body(data))
 }
 
 #[tracing::instrument(skip(payload), name = "log_telemetry")]
@@ -938,6 +1160,256 @@ pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, App
         Err(e) => {
             let _ = fs::remove_file(&input_path);
             Err(AppError::FFmpegError(e))
+        },
+    }
+}
+
+
+
+#[tracing::instrument(skip(payload), name = "generate_teaser")]
+pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, AppError> {
+    // 1. Create a transient session ID for this generation request
+    let session_id = Uuid::new_v4().to_string();
+    let session_path = get_session_path(&session_id);
+    fs::create_dir_all(&session_path).map_err(AppError::IoError)?;
+    
+    tracing::info!("Starting teaser generation session: {}", session_id);
+
+    let mut project_data_value: Option<serde_json::Value> = None;
+    let mut width = 1920;
+    let mut height = 1080;
+    let duration_limit = 120; // Default limit
+
+    // 2. Parse Multipart
+    while let Some(mut field) = payload.try_next().await? {
+        let content_disposition = field.content_disposition().unwrap().clone();
+        let name = content_disposition.get_name().unwrap_or("").to_string();
+
+        if name == "project_data" {
+            let mut bytes = Vec::new();
+            while let Some(chunk) = field.try_next().await? { bytes.extend_from_slice(&chunk); }
+            project_data_value = serde_json::from_slice(&bytes).ok();
+        } else if name == "width" {
+            let mut bytes = Vec::new();
+            while let Some(chunk) = field.try_next().await? { bytes.extend_from_slice(&chunk); }
+            if let Ok(s) = String::from_utf8(bytes) {
+                if let Ok(val) = s.parse::<u32>() { width = val; }
+            }
+        } else if name == "height" {
+            let mut bytes = Vec::new();
+            while let Some(chunk) = field.try_next().await? { bytes.extend_from_slice(&chunk); }
+             if let Ok(s) = String::from_utf8(bytes) {
+                if let Ok(val) = s.parse::<u32>() { height = val; }
+            }
+        } else if name == "files" {
+            let filename = content_disposition.get_filename().map(|f| f.to_string()).unwrap_or_else(|| format!("img_{}.webp", Uuid::new_v4()));
+            let sanitized = sanitize_filename(&filename).unwrap_or(filename);
+            let file_path = session_path.join(&sanitized);
+            let mut f = fs::File::create(file_path).map_err(AppError::IoError)?;
+             while let Some(chunk) = field.try_next().await? { f.write_all(&chunk).map_err(AppError::IoError)?; }
+        }
+    }
+
+    let project_data = project_data_value.ok_or_else(|| AppError::InternalError("Missing project_data JSON".into()))?;
+
+    let output_path = get_temp_path("mp4");
+    let output_str = output_path.to_str().unwrap().to_string();
+    
+    // session_id must be moved into the closure
+    let session_id_clone = session_id.clone();
+    let _session_path_clone = session_path.clone();
+
+    // Run blocking browser automation
+    let result = web::block(move || -> Result<(), String> {
+        // 1. Launch Browser
+        let browser = Browser::new(LaunchOptions {
+            headless: true,
+            window_size: Some((width, height)),
+            args: vec![
+                std::ffi::OsStr::new("--force-device-scale-factor=1.0"), 
+                std::ffi::OsStr::new("--enable-webgl"), 
+                std::ffi::OsStr::new("--ignore-gpu-blacklist")
+            ], 
+            ..LaunchOptions::default()
+        }).map_err(|e| format!("Failed to launch browser: {}", e))?;
+
+        let tab = browser.new_tab().map_err(|e| format!("Failed to create tab: {}", e))?;
+
+        // 2. Navigate to Frontend
+        // Ensure this URL is reachable from the backend process
+        // Note: Make sure the frontend is running!
+        tab.navigate_to("http://localhost:5173").map_err(|e| format!("Nav failed: {}", e))?;
+        tab.wait_until_navigated().map_err(|e| format!("Nav timeout: {}", e))?;
+
+        // 3. Inject Project Data & Loader Script
+        let json_str = serde_json::to_string(&project_data).unwrap();
+        // Script: Fetch images from session, create blobs, then load project
+        let script = format!(r#"
+            (async function() {{
+                try {{
+                    // Data from backend
+                    const data = {};
+                    const sessionId = "{}";
+                    
+                    console.log("Headless: Starting resource hydration for session " + sessionId);
+
+                    if (!window.store) {{
+                        console.error("Store not found!");
+                        window.HEADLESS_ERROR = "Store not found";
+                        return;
+                    }}
+
+                    // Hydrate scenes with Blobs
+                    // We need to mutate the scene objects in 'data.scenes' to add 'file' property (Blob)
+                    // But JSON parsing makes them plain objects.
+                    // We must fetch blobs.
+                    
+                    if (data.scenes && Array.isArray(data.scenes)) {{
+                        await Promise.all(data.scenes.map(async (scene) => {{
+                            try {{
+                                // Filename in project match filename stored
+                                const url = `/session/${{sessionId}}/${{encodeURIComponent(scene.name)}}`;
+                                const resp = await fetch(url);
+                                if (!resp.ok) throw new Error("Fetch failed: " + resp.status);
+                                const blob = await resp.blob();
+                                // Create File object
+                                // Note: Pannellum needs .file property on scene object if it uses it.
+                                // Or store.loadProject handles it? store.loadProject DOES NOT handle fetching.
+                                // So we attach it here.
+                                scene.file = new File([blob], scene.name, {{ type: 'image/webp' }});
+                                scene.originalFile = scene.file;
+                                scene.tinyFile = scene.file; 
+                            }} catch (e) {{
+                                console.error("Failed to hydrate scene: " + scene.name, e);
+                            }}
+                        }}));
+                    }}
+
+                    // Load Project
+                    await Promise.resolve(window.store.loadProject(data)); // This sets store.state.scenes = data.scenes (with blobs!)
+                    
+                    console.log("Project loaded in headless mode");
+                    
+                    // Allow UI to settle (Pannellum init)
+                    setTimeout(() => {{ window.HEADLESS_READY = true; }}, 2000);
+
+                }} catch (e) {{
+                    console.error("Headless initialization failed:", e);
+                    window.HEADLESS_ERROR = e.toString();
+                }}
+            }})();
+        "#, json_str, session_id_clone);
+        
+        tab.evaluate(&script, false).map_err(|e| format!("Injection failed: {}", e))?;
+
+        // Wait for ready
+        let start_wait = std::time::Instant::now();
+        loop {
+            if std::time::Instant::now() - start_wait > Duration::from_secs(60) { // Increased timeout for fetch
+                return Err("Timeout waiting for project load".to_string());
+            }
+            
+            // Check success
+            let val = tab.evaluate("window.HEADLESS_READY", false);
+            if let Ok(v) = val {
+                if v.value.and_then(|x| x.as_bool()).unwrap_or(false) {
+                    break;
+                }
+            }
+            
+            // Check error
+            let err_val = tab.evaluate("window.HEADLESS_ERROR", false);
+             if let Ok(v) = err_val {
+                if let Some(msg) = v.value.and_then(|x| x.as_str().map(|s| s.to_string())) {
+                     return Err(format!("Headless Client Error: {}", msg));
+                }
+            }
+            
+            std::thread::sleep(Duration::from_millis(500));
+        }
+
+        // 4. Start FFmpeg Process
+        let local_ffmpeg = PathBuf::from("./bin/ffmpeg");
+        let ffmpeg_cmd = if local_ffmpeg.exists() {
+            local_ffmpeg.to_str().unwrap().to_string()
+        } else {
+            "ffmpeg".to_string()
+        };
+
+        let mut child = Command::new(&ffmpeg_cmd)
+            .args(&[
+                "-y",
+                "-f", "image2pipe",
+                "-vcodec", "png",
+                "-r", "30",
+                "-i", "-",
+                "-c:v", "libx264",
+                "-preset", "ultrafast",
+                "-pix_fmt", "yuv420p",
+                "-movflags", "+faststart",
+                &output_str
+            ])
+            .stdin(std::process::Stdio::piped())
+            .stderr(std::process::Stdio::inherit()) // Log ffmpeg error to stderr
+            .spawn()
+            .map_err(|e| format!("Failed to spawn ffmpeg: {}", e))?;
+
+        let mut stdin = child.stdin.take().ok_or("Failed to open ffmpeg stdin")?;
+
+        // 5. Trigger Cinematic Teaser via Frontend (MP4 mode, autoPilot)
+        tab.evaluate("window.startCinematicTeaser(true, 'mp4', true)", false)
+            .map_err(|e| format!("Failed to start teaser: {}", e))?;
+
+        // 6. Capture Loop
+        let start_sim = std::time::Instant::now();
+        let max_dur = Duration::from_secs(duration_limit);
+        
+        loop {
+            if std::time::Instant::now() - start_sim > max_dur {
+                break;
+            }
+
+            // Check if simulation finished
+            let active = tab.evaluate("window.isAutoPilotActive()", false);
+            if let Ok(v) = active {
+                if !v.value.and_then(|x| x.as_bool()).unwrap_or(true) {
+                    break;
+                }
+            }
+
+            // Capture Screenshot
+            let png_data = tab.capture_screenshot(headless_chrome::protocol::cdp::Page::CaptureScreenshotFormatOption::Png, None, None, true)
+                .map_err(|e| format!("Screenshot failed: {}", e))?;
+
+            if let Err(_e) = stdin.write_all(&png_data) {
+                // EPIPE means ffmpeg closed (maybe finished or errored)
+                break; 
+            }
+            
+            std::thread::sleep(Duration::from_millis(10));
+        }
+
+        drop(stdin); // Close stdin to signal EOF
+        child.wait().map_err(|e| format!("FFmpeg failed: {}", e))?;
+
+        Ok(())
+    }).await.map_err(|e| AppError::InternalError(e.to_string()))?;
+
+    // Clean up session files
+    let _ = fs::remove_dir_all(&session_path);
+
+    match result {
+        Ok(_) => {
+            tracing::info!("Teaser generation successful");
+            let file_bytes = fs::read(&output_path).map_err(AppError::IoError)?;
+            let _ = fs::remove_file(output_path); // Cleanup result file
+            Ok(HttpResponse::Ok()
+                .content_type("video/mp4")
+                .body(file_bytes))
+        },
+        Err(e) => {
+            let _ = fs::remove_file(&output_path); // Cleanup on error
+            Err(AppError::InternalError(e))
         },
     }
 }

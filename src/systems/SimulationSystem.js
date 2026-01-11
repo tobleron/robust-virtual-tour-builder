@@ -50,6 +50,7 @@ let skipAutoForwardGlobal = false; // Flag to skip bridge scenes during simulati
 export function isAutoPilotActive() {
     return isAutoPilot;
 }
+window.isAutoPilotActive = isAutoPilotActive;
 
 /**
  * Start auto-pilot simulation

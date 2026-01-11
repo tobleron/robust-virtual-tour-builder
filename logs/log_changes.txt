@@ -1,3 +1,24 @@
+[2026-01-11 23:22] Version 4.2.0 [Stable Release]
+- Milestone: Major Stable Release 4.2.0.
+- Summary: Consolidated all beta features into a production-ready build.
+    - Server-Side Teaser Generation (High Performance).
+    - Visual Pipeline Overhaul (Premium UI/UX).
+    - Modal System Refactoring (Unified Manager).
+- Maintenance: Promoted to stable release [main].
+
+[2026-01-11 23:20] Version 4.1.8-beta [Pipeline & Teaser Refactor]
+- Refactor: Completed Modal Refactoring using `ModalManager` for consistent UI/UX.
+- Feature: Server-side Teaser generation integration. Removed client-side recording in favor of `/generate-teaser` endpoint.
+- Fix: Resolved Backend connection issues and verified `start_dev.sh` integrity.
+- Fix: Pipeline UI stabilization (eliminated blinking during reorder, fixed drag-and-drop).
+- UI: Visual Pipeline overhaul:
+    - Added shadows and refined premium styling.
+    - Implemented "Cut Node Border" effect for active nodes.
+    - Distinct visual cue for Auto-Forward links.
+    - Corrected link highlighting logic.
+- Logic: Fixed Teaser auto-forward skipping compliance in SimulationSystem.
+- Bugfix: Restored Sidebar header button styling.
+
 [2026-01-11 21:05] Version 4.1.7-beta [Sidebar Style Fix]
 - Fix: Restored missing styling for sidebar header buttons (New, Save, Load, etc.).
 - UI: Re-injected CSS for premium glassmorphism visuals on sidebar actions.

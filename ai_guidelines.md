@@ -194,14 +194,14 @@ project/
 
 ---
 
-## 🔧 Workflows
+## 🔧 Project Rules
 
-For step-by-step procedures, see **`.agent/workflows/`**:
-- **commit-process.md**: How to commit changes properly
-- **pre-push-checklist.md**: Required cleanup before GitHub push
-- **security-review.md**: Security checks for commits
+For step-by-step procedures and mandatory rules, see **`.cursorrules`** in the project root. This file includes:
+- **Commit Process**: How to commit changes properly
+- **Pre-Push Checklist**: Required cleanup before GitHub push
+- **Security Review**: Security checks for commits
 
-> Use slash commands to invoke workflows: `/commit-process`, `/pre-push-checklist`, etc.
+> The AI agent will automatically follow these rules.
 
 ---
 

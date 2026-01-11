@@ -4,6 +4,7 @@ import { initSidebar } from "./components/Sidebar.js";
 import { initViewer } from "./components/Viewer.js";
 import { showLinkModal } from "./components/LinkModal.js";
 import { store } from "./store.js";
+window.store = store; // Expose for headless automation
 import { setupGlobalClickSounds } from "./systems/AudioManager.js";
 import { initSimulationKeyHandler } from "./systems/SimulationSystem.js";
 
@@ -13,7 +14,7 @@ import { initLogger } from "./utils/Logger.js";
 import { Debug } from "./utils/Debug.js";
 import { initInputSystem } from "./systems/InputSystem.js";
 
-console.log("Initializing Remax Builder...");
+Debug.info('System', "Initializing Remax Builder...");
 
 // --- SYSTEM TELEMETRY ---
 (async () => {

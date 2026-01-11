@@ -21,16 +21,30 @@ echo "[1/3] Starting Rust Backend (Release Mode for Speed)..."
 export PATH="$PWD/backend/bin:$PATH"
 cd backend
 # Using --release is critical for image processing performance in Rust
-RUST_LOG=info cargo run --release &
+RUST_LOG=info cargo run --release > ../backend_log.txt 2>&1 &
 BACKEND_PID=$!
 cd ..
 
-# 2. Start Tailwind CSS Watcher
-echo "[2/3] Starting Tailwind CSS Watcher..."
-npm run css:watch &
-
 # Wait for backend to be ready
-sleep 2
+echo "Waiting for backend to compile and start..."
+MAX_RETRIES=60
+COUNT=0
+while ! curl -s http://localhost:8080/health > /dev/null; do
+    sleep 2
+    COUNT=$((COUNT + 1))
+    if [ $COUNT -ge $MAX_RETRIES ]; then
+        echo "❌ Backend failed to start after 2 minutes. Check backend_log.txt"
+        kill $BACKEND_PID 2>/dev/null
+        exit 1
+    fi
+    printf "."
+done
+echo " ✅ Backend is UP!"
+
+# 2. Start Tailwind CSS Watcher (Standalone Rust Binary)
+echo "[2/3] Starting Tailwind CSS Watcher..."
+./bin/tailwindcss -i ./css/tailwind.css -o ./css/output.css --watch &
+
 
 # 3. Start Frontend with Vite (Hot Reload)
 echo "[3/3] Starting Frontend with Vite on port 9999..."

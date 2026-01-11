@@ -11,10 +11,10 @@
     script-src 'self' 'unsafe-inline' blob:;
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     font-src 'self' https://fonts.gstatic.com;
-    img-src 'self' blob: data:;
-    connect-src 'self' blob: http://localhost:8080 http://127.0.0.1:8080 https://nominatim.openstreetmap.org;
+    img-src 'self' blob: data: http://localhost:8080 http://127.0.0.1:8080 http://[::1]:8080 http://0.0.0.0:8080;
+    connect-src 'self' blob: http://localhost:8080 http://127.0.0.1:8080 http://[::1]:8080 http://0.0.0.0:8080 https://nominatim.openstreetmap.org;
     worker-src 'self' blob:;
-    media-src 'self' blob:;
+    media-src 'self' blob: http://localhost:8080 http://127.0.0.1:8080 http://[::1]:8080 http://0.0.0.0:8080;
     object-src 'none';
     base-uri 'self';
     form-action 'self';
@@ -54,9 +54,9 @@
     rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-  <link rel="stylesheet" href="css/output.css?v=4.1.7-beta" />
+  <link rel="stylesheet" href="css/output.css?v=4.2.0" />
   <!-- Custom Overrides -->
-  <link rel="stylesheet" href="css/style.css?v=4.1.7-beta" />
+  <link rel="stylesheet" href="css/style.css?v=4.2.0" />
   <style>
     /* Modern Toast Notifications */
     #notification-container {
@@ -175,7 +175,7 @@
   <!-- <script src="src/libs/ffmpeg.js"></script> -->
   <!-- <script src="src/libs/ffmpeg-util.js"></script> -->
 
-  <script type="module" src="src/main.js?v=4.1.7-beta"></script>
+  <script type="module" src="src/main.js?v=4.2.0"></script>
 </body>
 
 </html>

@@ -521,7 +521,7 @@ export function initSidebar() {
     const updateSidebar = (state) => {
         // 1. Sync Project Name (Always do this first, even if no scenes)
         if (tourNameInput && state.tourName !== tourNameInput.value) {
-            console.log(`🔄 [Sidebar] Syncing input value to: "${state.tourName}"`);
+            Debug.debug('Sidebar', `Syncing input value to: "${state.tourName}"`);
             tourNameInput.value = state.tourName || "";
             if (typeof adjustInputFontSize === 'function') adjustInputFontSize();
         }

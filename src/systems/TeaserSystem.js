@@ -18,6 +18,7 @@ import { getSimulationPath, startAutoPilot, stopAutoPilot, isAutoPilotActive } f
 import { CacheSystem } from "./CacheSystem.js";
 import { VideoEncoder } from "./VideoEncoder.js";
 import { Debug } from "../utils/Debug.js";
+import { BACKEND_URL } from "../constants.js";
 import {
   TEASER_CANVAS_WIDTH,
   TEASER_CANVAS_HEIGHT,
@@ -548,7 +549,25 @@ export async function startAutoTeaser(style = "fast", includeLogo = true, format
 
   // CINEMATIC MODE: Run actual simulation and record it
   if (style === "cinematic") {
-    await startCinematicTeaser(includeLogo, format, skipAutoForward);
+    if (format === 'mp4') {
+      const overlay = document.getElementById("teaser-overlay");
+      if (overlay) overlay.style.display = "flex";
+      isTeasing = true;
+      store.setIsTeasing(true);
+      try {
+        const blob = await generateServerTeaser((pct, msg) => updateProgressBar(pct, msg, true, "Server Generating..."));
+        DownloadSystem.saveBlob(blob, `Cinematic_${store.state.tourName}.mp4`);
+      } catch (e) {
+        notify("Server Generation Failed", "error");
+      } finally {
+        isTeasing = false;
+        store.setIsTeasing(false);
+        if (overlay) overlay.style.display = "none";
+        updateProgressBar(0, "", false);
+      }
+    } else {
+      await startCinematicTeaser(includeLogo, format, skipAutoForward);
+    }
     return;
   }
 
@@ -625,7 +644,7 @@ async function startCinematicTeaser(includeLogo = true, format = "webm", skipAut
     const allSteps = store.state.scenes.map((_, i) => ({ idx: i }));
     lastFrameTime = performance.now();
 
-    recorder.start();
+    if (!window.HEADLESS_READY) recorder.start();
     Debug.info('Teaser', 'Cinematic recording started - running simulation');
 
     // 6. Start the ACTUAL simulation
@@ -653,8 +672,13 @@ async function startCinematicTeaser(includeLogo = true, format = "webm", skipAut
     await new Promise(r => setTimeout(r, 500));
 
     // 9. Stop recording and finalize
-    recorder.stop();
-    recorder.onstop = () => finalizeTeaser(recordedChunks, format, baseName, overlay);
+    if (!window.HEADLESS_READY) {
+      recorder.stop();
+      recorder.onstop = () => finalizeTeaser(recordedChunks, format, baseName, overlay);
+    } else {
+      isTeasing = false;
+      store.setIsTeasing(false);
+    }
 
   } catch (err) {
     console.error("Cinematic Teaser Failed:", err);
@@ -1406,5 +1430,86 @@ async function finalizeTeaser(recordedChunks, format, baseName, overlay) {
   } else {
     isTeasing = false;
     store.setIsTeasing(false);
+  }
+}
+
+window.startCinematicTeaser = startCinematicTeaser;
+
+// --- SERVER SIDE GENERATION ---
+
+/**
+ * Trigger server-side teaser generation
+ * @param {Function} onProgress - Callback (pct, msg)
+ */
+export async function generateServerTeaser(onProgress) {
+  if (onProgress) onProgress(0, "Preparing Project Data...");
+
+  // 1. Prepare Project Data
+  const state = store.state;
+  // Dynamic import version if needed, or assume global? 
+  // imports should be top level usually, but here fine.
+  let VERSION = "1.0.0";
+  try {
+    const v = await import("../version.js");
+    VERSION = v.VERSION;
+  } catch (e) { }
+
+  const projectData = {
+    version: VERSION,
+    projectName: state.tourName,
+    scenes: state.scenes.map(scene => ({
+      id: scene.id,
+      name: scene.name,
+      label: scene.label,
+      category: scene.category,
+      floor: scene.floor,
+      isAutoForward: scene.isAutoForward,
+      hotspots: scene.hotspots.map(h => ({
+        pitch: h.pitch, yaw: h.yaw, target: h.target,
+        targetYaw: h.targetYaw, targetPitch: h.targetPitch, targetHfov: h.targetHfov,
+        viewFrame: h.viewFrame, returnViewFrame: h.returnViewFrame, isReturnLink: h.isReturnLink,
+        waypoints: h.waypoints
+      }))
+    })),
+    timeline: state.timeline
+  };
+
+  // 2. Prepare FormData
+  const formData = new FormData();
+  formData.append('project_data', JSON.stringify(projectData));
+  formData.append('width', '1920');
+  formData.append('height', '1080');
+
+  // Append Images
+  let addedCount = 0;
+  state.scenes.forEach(scene => {
+    if (scene.file) {
+      formData.append('files', scene.file, scene.name);
+      addedCount++;
+    }
+  });
+
+  if (onProgress) onProgress(10, `Uploading ${addedCount} scenes...`);
+
+  try {
+    const response = await fetch(`${BACKEND_URL}/generate-teaser`, {
+      method: "POST",
+      body: formData
+    });
+
+    if (!response.ok) {
+      throw new Error(`Server Error: ${response.status}`);
+    }
+
+    if (onProgress) onProgress(50, "Rendering on Server...");
+
+    const videoBlob = await response.blob();
+
+    if (onProgress) onProgress(100, "Done!");
+    return videoBlob;
+
+  } catch (err) {
+    console.error("Server Teaser Failed:", err);
+    throw err;
   }
 }

@@ -1,0 +1,95 @@
+# Project Rules
+
+## Commit Process Rules
+When committing changes, strictly follow this protocol:
+
+### 1. Update Version
+- **File**: `src/version.js`
+- **Action**: Increment version (patch, minor, or major).
+- **File**: `index.html`
+- **Action**: Update cache busting query string (e.g., `?v=4.0.0`).
+
+### 2. Log Changes
+- **File**: `logs/log_changes.txt`
+- **Action**: Append summary of changes.
+- **Format**: `[YYYY-MM-DD HH:MM] vCurrent - Summary of changes`
+
+### 3. Code Cleanup
+- Remove `console.log` used for debugging (keep `console.error`/`warn`).
+- Remove commented-out code blocks unless they serve as documentation.
+
+### 4. Build & Verification
+- Run `npm run dev` to verify the build.
+- Check browser console for errors.
+
+### 5. Git Commit Protocol
+- **Message format**: `vX.Y.Z [System/Feature] Description`
+- **Example**: `v4.1.5-beta [Simulation Loop] Fix stuttering issue`
+- **Checklist**:
+    - [ ] `src/version.js` updated
+    - [ ] `index.html` cache busting updated
+    - [ ] `/logs/log_changes.txt` updated
+
+## Pre-Push Rules
+Before pushing to GitHub (especially for major updates), ensure the following:
+
+### 1. Cleanup Artifacts
+- **Backend**: Run `cd backend && cargo clean && cd ..` to remove `target/`.
+- **Logs**: Clear `logs/telemetry.log`. Check `logs/log_changes.txt` size.
+- **Tests**: Remove `test/*.zip` and `test/*.webp`.
+
+### 2. Git Status Check
+- Ensure `node_modules/` and `backend/target/` are ignored.
+- No large binaries (>1MB) unless specified.
+
+### 3. Version Consistency
+- Verify `src/version.js`, `index.html`, `logs/log_changes.txt`, and git commit message all align on the same version number.
+
+## Security Review Guidelines
+Apply these rules whenever modifying code involving user input, files, or external APIs:
+
+### 1. Input Validation
+- **Rule**: Sanitize all user inputs.
+- **Rule**: Use `textContent` instead of `innerHTML` to prevent XSS.
+- **Rule**: Enforce input length limits.
+
+### 2. File Uploads
+- **Rule**: Validate MIME types (allow only specific types like images).
+- **Rule**: Enforce file size limits.
+- **Rule**: Use `BlobManager` or equivalent to track and revoke Blob URLs.
+
+### 3. Path & API Security
+- **Rule**: Sanitize file paths (prevent `../` traversal).
+- **Rule**: Do not expose stack traces in UI error messages.
+- **Rule**: Avoid `eval()` and `new Function()`.
+
+## Coding Standards
+
+### 1. Logging & Debugging
+- **Rule**: Use `Debug.error('Module', 'Message')` or `Debug.log(...)` from `src/utils/Debug.js`.
+- **Rule**: Do **NOT** use `console.log` in production code. Only `console.warn` or `console.error` are acceptable if `Debug` is unavailable.
+- **Rule**: Remove temporary debugging logs before committing.
+
+### 2. Error Handling & UI Feedback
+- **Rule**: Never use blocking `alert()` dialogs.
+- **Rule**: Use `showToast(message, type)` for notifications.
+- **Rule**: Operations longer than 500ms must show a progress bar/spinner.
+
+### 3. State & Architecture
+- **Rule**: Use `store.js` for shared application state. Do not create isolated state silos.
+- **Rule**: Put large binary assets or long strings in `src/constants.js`.
+- **Rule**: Separation of Concerns: Keep UI logic in `components/` or `systems/`, business logic in `systems/`.
+
+## Design & UX Guidelines
+
+### 1. CSS & Styling
+- **Rule**: Use **Vanilla CSS**. Do not use frameworks like Tailwind unless explicitly requested.
+- **Rule**: Use CSS Variables for consistency:
+    - Headings: `var(--font-heading)` (Outfit)
+    - Body/UI: `var(--font-ui)` (Inter)
+    - Colors: Use project-defined color variables (e.g., `--color-primary`, `--bg-dark`).
+
+### 2. Aesthetics
+- **Rule**: Design for "Premium" feel. Avoid generic colors (plain red/blue).
+- **Rule**: Use glassmorphism and subtle gradients where appropriate.
+- **Rule**: Interactive elements must have hover/active states.

@@ -1,5 +1,6 @@
 use actix_cors::Cors;
 use actix_web::{web, App, HttpServer, HttpResponse, Responder, middleware::DefaultHeaders};
+use actix_files as fs;
 use actix_governor::{Governor, GovernorConfigBuilder};
 use std::io;
 use tracing_actix_web::TracingLogger;
@@ -27,9 +28,12 @@ async fn main() -> io::Result<()> {
         } else {
             // Production: Restrict to localhost and file protocol (for desktop app)
             Cors::default()
-                .allowed_origin("http://localhost:5173")  // Vite dev server
+                .allowed_origin("http://localhost:5173")
                 .allowed_origin("http://127.0.0.1:5173")
                 .allowed_origin("http://localhost:9999")
+                .allowed_origin("http://127.0.0.1:9999")
+                .allowed_origin("http://localhost:8080")
+                .allowed_origin("http://127.0.0.1:8080")
                 .allowed_origin_fn(|origin, _req_head| {
                     // Allow file:// protocol for Electron/desktop apps
                     origin.as_bytes().starts_with(b"file://")
@@ -50,6 +54,8 @@ async fn main() -> io::Result<()> {
             .unwrap();
 
         App::new()
+            // Increase max payload size to 2GB
+            .app_data(web::PayloadConfig::new(2 * 1024 * 1024 * 1024))
             .wrap(TracingLogger::default()) // Structured request logging
             
             // Security Headers: Protect against common web vulnerabilities
@@ -85,8 +91,20 @@ async fn main() -> io::Result<()> {
             .route("/extract-metadata", web::post().to(handlers::extract_metadata))
             .route("/resize-image-batch", web::post().to(handlers::resize_image_batch))
             .route("/create-tour-package", web::post().to(handlers::create_tour_package))
+            .route("/save-project", web::post().to(handlers::save_project))
+            .route("/load-project", web::post().to(handlers::load_project))
+            .route("/generate-teaser", web::post().to(handlers::generate_teaser))
+            .route("/session/{session_id}/{filename:.*}", web::get().to(handlers::serve_session_file))
+
+            // --- STATIC FILES (Serve Frontend directly) ---
+            // Allows running without Node.js/Vite
+            .service(fs::Files::new("/css", "../css"))
+            .service(fs::Files::new("/src", "../src"))
+            .service(fs::Files::new("/images", "../images")) // Optional, if you have an images folder
+            .route("/", web::get().to(|| async { fs::NamedFile::open("../index.html") }))
+            .route("/index.html", web::get().to(|| async { fs::NamedFile::open("../index.html") }))
     })
-    .bind(("127.0.0.1", 8080))?
+            .bind(("0.0.0.0", 8080))?
     .run()
     .await
 }

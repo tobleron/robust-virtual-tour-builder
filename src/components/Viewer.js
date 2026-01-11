@@ -176,12 +176,12 @@ function requestIdleSnapshot() {
               URL.revokeObjectURL(currentScene._preCalculatedSnapshot);
             }
             currentScene._preCalculatedSnapshot = snapshotUrl;
-            console.log(`[Viewer] Pre-calculated snapshot for: ${currentScene.name}`);
+            Debug.debug('Viewer', `Pre-calculated snapshot for: ${currentScene.name}`);
           }
         }
       }, "image/webp", 0.7);
     } catch (e) {
-      console.warn("[Viewer] Idle snapshot capture failed:", e);
+      Debug.warn('Viewer', "Idle snapshot capture failed:", e);
     }
     idleSnapshotTimeout = null;
   }, IDLE_SNAPSHOT_DELAY); // Capture after delay
@@ -228,7 +228,7 @@ export function initViewer() {
         const state = store.state;
         if (state.isLinking && state.linkDraft) {
           // FINISH LINKING
-          console.log("[Viewer] Enter pressed. Finishing link creation.");
+          Debug.info('Viewer', "Enter pressed. Finishing link creation.");
 
           // STOP movement
           followLoopActive = false;
@@ -459,6 +459,15 @@ export function initViewer() {
       document.getElementById('panorama-a').classList.add('active');
       document.getElementById('panorama-b').classList.remove('active');
       activeViewerKey = 'A';
+
+      // RESET LOADING STATE: Critical to prevent race conditions during project reloads
+      isSceneLoading = false;
+      loadingSceneId = null;
+      if (loadSafetyTimeout) {
+        clearTimeout(loadSafetyTimeout);
+        loadSafetyTimeout = null;
+      }
+
       // Also clear any stuck snapshot
       const snapshot = document.getElementById("viewer-snapshot-overlay");
       if (snapshot) {
@@ -483,7 +492,7 @@ export function initViewer() {
     // --- ANTICIPATORY PRE-LOADING ---
     const preIndex = state.preloadingSceneIndex;
     if (preIndex !== -1 && preIndex !== lastPreloadingIndex && preIndex !== state.activeIndex) {
-      console.log(`[Viewer] Detected anticipatory pre-load signal for Scene ${preIndex}`);
+      Debug.info('Viewer', `Detected anticipatory pre-load signal for Scene ${preIndex}`);
       lastPreloadingIndex = preIndex;
       // Trigger load on inactive viewer, but don't swap yet
       loadNewScene(lastSceneId, preIndex);
@@ -513,7 +522,7 @@ export function initViewer() {
       if (currentScene.category !== lastCategory) { updates.category = lastCategory; changed = true; }
       if (currentScene.floor !== lastFloor) { updates.floor = lastFloor; changed = true; }
       if (changed) {
-        console.log(`Inheriting settings for virgin scene: cat=${lastCategory}, floor=${lastFloor}`);
+        Debug.info('Viewer', `Inheriting settings for virgin scene: cat=${lastCategory}, floor=${lastFloor}`);
         store.updateSceneMetadata(state.activeIndex, updates);
       }
     }
@@ -529,7 +538,7 @@ export function initViewer() {
 
       // AUTO-FOCUS REDIRECTION: If view coordinates in state changed (manual jump), re-orient
       if (viewer && (state.activeYaw !== lastAppliedYaw || state.activePitch !== lastAppliedPitch)) {
-        console.log(`[Viewer] Scene same, but view changed (${state.activeYaw}, ${state.activePitch}). Re-orienting.`);
+        Debug.info('Viewer', `Scene same, but view changed (${state.activeYaw}, ${state.activePitch}). Re-orienting.`);
         viewer.setYaw(state.activeYaw, false);
         viewer.setPitch(state.activePitch, false);
         lastAppliedYaw = state.activeYaw;
@@ -676,7 +685,7 @@ export function initViewer() {
         const latestState = store.state;
         const latestActiveScene = latestState.scenes[latestState.activeIndex];
         if (latestActiveScene && latestActiveScene.id !== loadedScene.id) {
-          console.log(`[Viewer] Scene changed during load (${loadedScene.name} -> ${latestActiveScene.name}). Triggering recovery load.`);
+          Debug.info('Viewer', `Scene changed during load (${loadedScene.name} -> ${latestActiveScene.name}). Triggering recovery load.`);
           // lastAppliedSceneId is already set to the latest one by the subscriber, 
           // but we need to call loadNewScene to catch up
           loadNewScene(loadedScene.id);
@@ -703,12 +712,12 @@ export function initViewer() {
         // Since we use blob URLs, we might need a better way. 
         // Let's attach the scene ID to the viewer object for reliable checking.
         if (inactiveViewer._sceneId === targetScene.id) {
-          console.log(`[Viewer] Inactive viewer already has Scene ${targetScene.name}. Reusing.`);
+          Debug.info('Viewer', `Inactive viewer already has Scene ${targetScene.name}. Reusing.`);
           // If it was already loaded, it might be waiting for activeIndex to match.
           // Trigger the check manually.
           if (inactiveViewer._isLoaded) {
             if (store.state.activeIndex === targetIndex) {
-              console.log("[Viewer] Reused viewer is ready. Swapping.");
+              Debug.info('Viewer', "Reused viewer is ready. Swapping.");
               performSwap(targetScene);
             }
           }
@@ -719,7 +728,7 @@ export function initViewer() {
       if (isSceneLoading) {
         // If we are already loading a DIFFERENT scene, we let it finish, 
         // the performSwap() hook above will catch the discrepancy and start the correct load.
-        console.warn(`[Viewer] Load in progress. Queueing Scene ${targetScene.name} via next sync cycle.`);
+        Debug.warn('Viewer', `Load in progress. Queueing Scene ${targetScene.name} via next sync cycle.`);
         return;
       }
       isSceneLoading = true;
@@ -730,7 +739,7 @@ export function initViewer() {
       loadSafetyTimeout = setTimeout(() => {
         if (isSceneLoading && loadingSceneId === targetScene.id) {
           const msg = `Scene load timed out for ${targetScene.name} after ${SCENE_LOAD_TIMEOUT}ms`;
-          console.error(`[Viewer] ${msg}. Force clearing guard.`);
+          Debug.error('Viewer', `${msg}. Force clearing guard.`);
           Debug.error('Viewer', 'LOAD_TIMEOUT', {
             scene: targetScene.name,
             timeout: SCENE_LOAD_TIMEOUT,
@@ -780,7 +789,7 @@ export function initViewer() {
             }
           }
         } catch (e) {
-          console.warn("Snapshot capture failed:", e);
+          Debug.warn('Viewer', "Snapshot capture failed:", e);
         }
       }
 
@@ -843,18 +852,18 @@ export function initViewer() {
         const isMasterLoaded = loadedScene === 'master';
 
         if (useProgressive && isTinyLoaded) {
-          console.log("[Viewer] Low-res preview loaded, background loading 4K master...");
+          Debug.info('Viewer', "Low-res preview loaded, background loading 4K master...");
           const img = new Image();
           img.onload = () => {
-            console.log("[Viewer] 4K master pre-loaded, swapping texture...");
+            Debug.info('Viewer', "4K master pre-loaded, swapping texture...");
             if (newViewer && newViewer.getScene() === 'preview') {
               newViewer.loadScene('master', newViewer.getPitch(), newViewer.getYaw(), newViewer.getHfov());
             } else {
-              console.warn("[Viewer] Swap cancelled: Viewer changed or master already set");
+              Debug.warn('Viewer', "Swap cancelled: Viewer changed or master already set");
             }
           };
           img.onerror = (e) => {
-            console.error("[Viewer] Failed to background-load 4K panorama", e);
+            Debug.error('Viewer', "Failed to background-load 4K panorama", e);
             isSceneLoading = false; // Allow recovery
           };
           img.src = panoramaUrl;
@@ -865,7 +874,7 @@ export function initViewer() {
         if (!useProgressive || isMasterLoaded) {
           newViewer._isLoaded = true;
           const ttiMs = Date.now() - loadStartTime;
-          console.log(`[Viewer] Final texture for ${targetScene.name} loaded successfully (TTI: ${ttiMs}ms).`);
+          Debug.info('Viewer', `Final texture for ${targetScene.name} loaded successfully (TTI: ${ttiMs}ms).`);
 
           // TELEMETRY
           Debug.info('Viewer', 'SCENE_READY', {
@@ -878,11 +887,11 @@ export function initViewer() {
           const checkReadyAndSwap = () => {
             // Only swap if this scene is actually the store's active scene now
             if (store.state.activeIndex === targetIndex && !isAnticipatory) {
-              console.log("[Viewer] Active index matches loaded scene. Swapping now.");
+              Debug.info('Viewer', "Active index matches loaded scene. Swapping now.");
               performSwap(targetScene);
             } else {
               // Scene is loaded but journey isn't at 80% yet. We wait.
-              console.log("[Viewer] Anticipatory load complete. Waiting for active index to match...");
+              Debug.info('Viewer', "Anticipatory load complete. Waiting for active index to match...");
               isSceneLoading = false;
 
               // We'll be triggered again by the store subscriber when activeIndex changes
@@ -912,9 +921,9 @@ export function initViewer() {
       newViewer.on('error', (err) => {
         isSceneLoading = false;
         loadingSceneId = null;
-        console.error('[Viewer] Panorama load error:', err);
-        console.error('[Viewer] Failed URL:', newViewer.getConfig().panorama);
-        console.error('[Viewer] targetScene:', targetScene.name, { id: targetScene.id, hasTiny: !!targetScene.tinyFile });
+        Debug.error('Viewer', 'Panorama load error:', err);
+        Debug.error('Viewer', 'Failed URL:', newViewer.getConfig().panorama);
+        Debug.error('Viewer', 'targetScene:', targetScene.name, { id: targetScene.id, hasTiny: !!targetScene.tinyFile });
         notify(`Load Error: ${err}`, "error");
         // Clear stuck snapshot on error
         const snapshotEl = document.getElementById("viewer-snapshot-overlay");
@@ -944,7 +953,7 @@ export function initViewer() {
 
         if (!state.linkDraft) {
           // --- CLICK 1: START LOCATION ---
-          console.log("[Viewer] Click 1: Saving start position", { clickPitch, clickYaw });
+          Debug.info('Viewer', "Click 1: Saving start position", { clickPitch, clickYaw });
           store.setLinkDraft({
             pitch: clickPitch,
             yaw: clickYaw,
@@ -956,7 +965,7 @@ export function initViewer() {
           notify("Start Point Set. Click to add path points. ENTER to finish.", "success");
         } else {
           // --- CLICK 2+: INTERMEDIATE POINTS ---
-          console.log("[Viewer] Adding intermediate point", { clickPitch, clickYaw });
+          Debug.info('Viewer', "Adding intermediate point", { clickPitch, clickYaw });
 
           // Add this point to the draft
           const currentDraft = state.linkDraft;
