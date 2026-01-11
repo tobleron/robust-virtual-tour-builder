@@ -139,6 +139,19 @@ export async function processAndAnalyzeImage(file) {
     const formData = new FormData();
     formData.append("file", file);
 
+    // TELEMETRY: Memory Pressure Check
+    const mem = performance.memory ? {
+      used: Math.round(performance.memory.usedJSHeapSize / 1024 / 1024) + 'MB',
+      total: Math.round(performance.memory.totalJSHeapSize / 1024 / 1024) + 'MB',
+      limit: Math.round(performance.memory.jsHeapSizeLimit / 1024 / 1024) + 'MB'
+    } : 'unavailable';
+
+    Debug.info('Resizer', 'BACKEND_PROCESS_FULL_START', {
+      file: file.name,
+      size: file.size,
+      memory: mem
+    });
+
     const response = await fetch(`${BACKEND_URL}/process-image-full`, {
       method: "POST",
       body: formData,

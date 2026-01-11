@@ -24,6 +24,7 @@ export const VideoEncoder = {
             if (window.appLog) window.appLog.push("[Native Encoder] " + entry);
         };
 
+        const startTime = Date.now();
         log("Starting Backend Transcode...");
 
         try {
@@ -64,17 +65,32 @@ export const VideoEncoder = {
             log("Downloading processed MP4...");
             const mp4Blob = await response.blob();
 
+            const durationMs = Date.now() - startTime;
             if (progressCallback) progressCallback(100);
 
             const filename = `${baseName}.mp4`;
             log(`Success. Saving as ${filename} (${(mp4Blob.size / 1024 / 1024).toFixed(2)} MB)`);
 
+            // TELEMETRY
+            Debug.info('VideoEncoder', 'TRANSCODE_SUCCESS', {
+                durationMs,
+                inputSize: webmBlob.size,
+                outputSize: mp4Blob.size,
+                ratio: (mp4Blob.size / webmBlob.size).toFixed(2),
+                fileName: filename
+            });
+
             DownloadSystem.saveBlob(mp4Blob, filename);
 
             return mp4Blob;
         } catch (err) {
+            const durationMs = Date.now() - startTime;
             console.error("[VideoEncoder] MP4 Conversion Failed", err);
-            Debug.error("VideoEncoder", "MP4 Conversion Failed", { error: err.message });
+            Debug.error("VideoEncoder", "TRANSCODE_FAILED", {
+                error: err.message,
+                durationMs,
+                inputSize: webmBlob.size
+            });
             log("MP4 Conversion Failed: " + err.message);
             throw err;
         }

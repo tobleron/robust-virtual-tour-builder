@@ -346,6 +346,12 @@ export function initSidebar() {
                     </select>
                     <p style="font-size:9px; color:rgba(255,255,255,0.4); margin-top: 8px; margin-bottom: 0; line-height:1.2;">Note: MP4 encoding happens in-browser and is hardware intensive.</p>
                 </div>
+
+                <label style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:12px; font-size:12px; font-weight:600; color:rgba(255,255,255,0.8); cursor:pointer;">
+                    <input type="checkbox" id="chk-teaser-skip-auto" checked style="width:16px; height:16px; border-radius:4px; accent-color: #3b82f6;">
+                    Skip Auto-Forward Scenes
+                </label>
+
                 
                 <div style="display: flex; flex-direction: column; gap: 8px;">
                     <button id="btn-style-dissolve" class="modal-btn-premium btn-teal" style="width: 100%; flex-direction: column; padding: 12px;">
@@ -511,6 +517,7 @@ export function initSidebar() {
     const btnStyleCinematic = document.getElementById("btn-style-cinematic");
     const btnCloseStyle = document.getElementById("btn-close-style");
     const chkTeaserWatermark = document.getElementById("chk-teaser-watermark");
+    const chkTeaserSkipAuto = document.getElementById("chk-teaser-skip-auto");
     const selTeaserFormat = document.getElementById("sel-teaser-format");
 
     const newProjectModal = document.getElementById("new-project-modal");
@@ -544,16 +551,18 @@ export function initSidebar() {
         btnStyleDissolve.addEventListener("click", () => {
             hideModal(styleModal);
             const includeLogo = chkTeaserWatermark ? chkTeaserWatermark.checked : true;
+            const skipAuto = chkTeaserSkipAuto ? chkTeaserSkipAuto.checked : true;
             const format = selTeaserFormat ? selTeaserFormat.value : "webm";
-            startAutoTeaser("dissolve", includeLogo, format);
+            startAutoTeaser("dissolve", includeLogo, format, skipAuto);
         });
     }
     if (btnStylePunchy) {
         btnStylePunchy.addEventListener("click", () => {
             hideModal(styleModal);
             const includeLogo = chkTeaserWatermark ? chkTeaserWatermark.checked : true;
+            const skipAuto = chkTeaserSkipAuto ? chkTeaserSkipAuto.checked : true;
             const format = selTeaserFormat ? selTeaserFormat.value : "webm";
-            startAutoTeaser("punchy", includeLogo, format);
+            startAutoTeaser("punchy", includeLogo, format, skipAuto);
         });
     }
 
@@ -561,8 +570,9 @@ export function initSidebar() {
         btnStyleCinematic.addEventListener("click", () => {
             hideModal(styleModal);
             const includeLogo = chkTeaserWatermark ? chkTeaserWatermark.checked : true;
+            const skipAuto = chkTeaserSkipAuto ? chkTeaserSkipAuto.checked : true;
             const format = selTeaserFormat ? selTeaserFormat.value : "webm";
-            startAutoTeaser("cinematic", includeLogo, format);
+            startAutoTeaser("cinematic", includeLogo, format, skipAuto); // Note: Cinematic might ignore this if it follows simulation exactly, but passing for consistency
         });
     }
 

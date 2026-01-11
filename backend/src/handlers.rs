@@ -18,7 +18,7 @@ use bytes::Bytes;
 // Configs
 const PROCESSED_IMAGE_WIDTH: u32 = 4096;
 const TEMP_DIR: &str = "/tmp/remax_backend";
-const MAX_UPLOAD_SIZE: usize = 100 * 1024 * 1024; // 100MB limit to prevent DoS
+const MAX_UPLOAD_SIZE: usize = 500 * 1024 * 1024; // 500MB limit to prevent DoS
 
 // --- Error Handling ---
 

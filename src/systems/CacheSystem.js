@@ -114,8 +114,19 @@ export class CacheSystem {
                 };
 
                 request.onerror = (event) => {
-                    console.error(`[CacheSystem] Failed to cache ${key}:`, event.target.error);
-                    reject(event.target.error);
+                    const error = event.target.error;
+                    console.error(`[CacheSystem] Failed to cache ${key}:`, error);
+
+                    if (error.name === 'QuotaExceededError') {
+                        import('../utils/Debug.js').then(({ Debug }) => {
+                            Debug.error('CacheSystem', 'QUOTA_EXCEEDED', {
+                                key,
+                                size: cacheEntry.metadata.size
+                            });
+                        });
+                    }
+
+                    reject(error);
                 };
             });
         } catch (error) {

@@ -206,7 +206,15 @@ export function navigateToScene(targetIndex, sourceSceneIndex, sourceHotspotInde
         previewingLink = { sceneIndex: sourceSceneIndex, hotspotIndex: sourceHotspotIndex };
     }
 
-    Debug.info('Navigation', `Journey ${journeyId}: Scene ${sourceSceneIndex} -> ${targetIndex} (HFOV: ${arrivalHfov}) ${previewOnly ? '[PREVIEW]' : ''}`);
+    Debug.info('Navigation', `NAV_START`, {
+        journeyId,
+        source: sourceSceneIndex,
+        target: targetIndex,
+        hotspot: sourceHotspotIndex,
+        previewOnly,
+        isSimulationMode,
+        targetView: { yaw: cleanYaw, pitch: cleanPitch, hfov: cleanHfov }
+    });
 
     const finalize = () => {
         if (journeyId !== currentJourneyId) {

@@ -24,11 +24,19 @@ export const UploadProcessor = {
         const totalFiles = files.length;
         if (totalFiles === 0) return { qualityResults: [] };
 
+        const totalBatchSize = files.reduce((acc, f) => acc + f.size, 0);
+        Debug.info('UploadProcessor', 'UPLOAD_BATCH_START', {
+            fileCount: totalFiles,
+            totalSize: totalBatchSize
+        });
+
         // SECURITY: Validate MIME types
         const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
         const validFiles = files.filter(f => {
             if (!ALLOWED_TYPES.includes(f.type)) {
-                console.warn(`[UploadProcessor] Skipping non-image file: ${f.name} (${f.type})`);
+                const msg = `Skipping non-image file: ${f.name} (${f.type})`;
+                console.warn(`[UploadProcessor] ${msg}`);
+                Debug.warn('UploadProcessor', 'UPLOAD_SKIP_INVALID_TYPE', { fileName: f.name, type: f.type });
                 notify(`Skipped invalid file: ${f.name}`, "warning");
                 return false;
             }
@@ -109,6 +117,9 @@ export const UploadProcessor = {
                 currentIds.add(res.id); // Also prevent duplicates within the same batch
             } else if (deletedIds.has(res.id)) {
                 console.log(`[UploadProcessor] Skipping previously deleted scene: ${res.original.name} (ID: ${res.id})`);
+                Debug.info('UploadProcessor', 'UPLOAD_SKIP_DELETED', { fileName: res.original.name, id: res.id });
+            } else {
+                Debug.info('UploadProcessor', 'UPLOAD_SKIP_DUPLICATE', { fileName: res.original.name, id: res.id });
             }
         }
 
@@ -133,6 +144,11 @@ export const UploadProcessor = {
                 };
             } catch (err) {
                 console.error(`[UploadProcessor] Processing failed for ${item.original.name}:`, err);
+                Debug.error('UploadProcessor', 'UPLOAD_ITEM_FAILED', {
+                    fileName: item.original.name,
+                    error: err.message,
+                    size: item.original.size
+                });
                 item.error = err.message;
                 item.skipped = true;
                 return null;
@@ -151,10 +167,23 @@ export const UploadProcessor = {
             console.error("[UploadProcessor] All images failed to process:", lastError);
             updateProgress(100, "Processing Failed", false);
             notify(`Upload Failed! Reason: ${lastError}`, "error");
+
+            Debug.error('UploadProcessor', 'UPLOAD_BATCH_FAILED', {
+                totalFiles: uniqueToProcess,
+                duration: ((Date.now() - startTime) / 1000).toFixed(1)
+            });
+
             return { qualityResults: [], duration: ((Date.now() - startTime) / 1000).toFixed(1) };
         }
 
         const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+
+        Debug.info('UploadProcessor', 'UPLOAD_BATCH_COMPLETE', {
+            successCount: validItems.length,
+            totalFiles: uniqueToProcess,
+            durationSec: duration,
+            avgDurationPerItem: (duration / validItems.length).toFixed(2)
+        });
 
         // --- Phase 3: Sequential Scene Grouping ---
         updateProgress(95, "Syncing scene blocks...", true, "Clustering");

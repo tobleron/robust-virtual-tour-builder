@@ -208,7 +208,7 @@ font-family: var(--font-body);
 
 ### Consistency: ✅
 - Clear font usage strategy
-- Documented in AI instructions
+- Documented in ai_guidelines.md
 - CSS variables enforce standards
 
 ### Performance: ✅

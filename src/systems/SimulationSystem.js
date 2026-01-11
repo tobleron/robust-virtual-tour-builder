@@ -37,6 +37,7 @@ let autoPilotJourneyId = 0;
 let pendingAdvance = null; // Timeout ID for delayed advance
 let lastAdvanceTime = 0; // Debounce protection against rapid calls
 let stoppingOnArrival = false; // Flag to stop simulation upon next arrival
+let skipAutoForwardGlobal = false; // Flag to skip bridge scenes during simulation
 
 // ============================================================================
 // Public API
@@ -52,8 +53,9 @@ export function isAutoPilotActive() {
 /**
  * Start auto-pilot simulation
  * Jumps to scene 1 and begins automatic traversal
+ * @param {boolean} skipAutoForward - Whether to skip bridge/auto-forward scenes
  */
-export function startAutoPilot() {
+export function startAutoPilot(skipAutoForward = false) {
     const state = store.state;
 
     if (state.scenes.length === 0) {
@@ -67,6 +69,7 @@ export function startAutoPilot() {
     isAutoPilot = true;
     visitedScenes = [];
     stoppingOnArrival = false;
+    skipAutoForwardGlobal = skipAutoForward;
     autoPilotJourneyId++;
 
     // Enable simulation mode (this sets up the visual style)
@@ -127,11 +130,11 @@ export function stopAutoPilot(returnToStart = true) {
 
     // Increment journey ID to cancel any in-progress navigation
     autoPilotJourneyId++;
-
     // Reset state
     isAutoPilot = false;
     visitedScenes = [];
     stoppingOnArrival = false;
+    skipAutoForwardGlobal = false;
 
     // Disable simulation mode
     setSimulationMode(false);
@@ -275,7 +278,37 @@ function advanceToNextScene() {
     }
 
     // Find best next link
-    const nextLink = findBestNextLink(currentScene, state);
+    let nextLink = findBestNextLink(currentScene, state);
+
+    // SKIP AUTO-FORWARD LOGIC
+    if (skipAutoForwardGlobal && nextLink) {
+        let chainCounter = 0;
+        let tempNextLink = nextLink;
+        const originalHotspotIndex = nextLink.hotspotIndex; // Store original hotspot index
+
+        while (chainCounter < 10) {
+            const targetScene = state.scenes[tempNextLink.targetIndex];
+            if (!targetScene || !targetScene.isAutoForward) break;
+
+            // It's a bridge, we want to skip it.
+            // Mark it as visited so we don't return to it unnecessarily
+            if (!visitedScenes.includes(tempNextLink.targetIndex)) {
+                visitedScenes.push(tempNextLink.targetIndex);
+            }
+
+            // Find the next link from this bridge
+            const jumpLink = findBestNextLink(targetScene, state);
+            if (jumpLink) {
+                tempNextLink = jumpLink;
+                chainCounter++;
+            } else {
+                // Dead end in bridge chain, just stop here (render this bridge)
+                break;
+            }
+        }
+        // Reassign nextLink, but preserve the original hotspotIndex from the starting scene
+        nextLink = { ...tempNextLink, hotspotIndex: originalHotspotIndex };
+    }
 
     if (!nextLink) {
         Debug.info('Simulation', 'Auto-pilot complete: No unvisited scenes reachable');
@@ -366,33 +399,33 @@ function findBestNextLink(currentScene, state, explicitVisitedScenes = null) {
         };
     }).filter(Boolean);
 
-    // PRIORITY 1: UNVISITED Forward Bridge (Creation Sequence)
-    // Bridge scenes are hallways/stairs - we want to traverse them as much as possible
+    // PRIORITY 1: UNVISITED Forward Room (Creation Sequence)
+    const unvisitedForwardRoom = allLinks.find(l => !l.isVisited && !l.isReturn && !l.isBridge);
+    if (unvisitedForwardRoom) {
+        Debug.debug('Simulation', 'Target: Unvisited Forward Room (Oldest)');
+        return unvisitedForwardRoom;
+    }
+
+    // PRIORITY 2: UNVISITED Forward Bridge (Creation Sequence)
+    // Bridge scenes are hallways/stairs - we visit them if no local rooms are left
     const unvisitedForwardBridge = allLinks.find(l => !l.isVisited && !l.isReturn && l.isBridge);
     if (unvisitedForwardBridge) {
         Debug.debug('Simulation', 'Target: Unvisited Forward Bridge (Oldest)');
         return unvisitedForwardBridge;
     }
 
-    // PRIORITY 2: UNVISITED Forward Room (Creation Sequence)
-    const unvisitedForwardRoom = allLinks.find(l => !l.isVisited && !l.isReturn);
-    if (unvisitedForwardRoom) {
-        Debug.debug('Simulation', 'Target: Unvisited Forward Room (Oldest)');
-        return unvisitedForwardRoom;
+    // PRIORITY 3: UNVISITED Return Room (Creation Sequence)
+    const unvisitedReturnRoom = allLinks.find(l => !l.isVisited && l.isReturn && !l.isBridge);
+    if (unvisitedReturnRoom) {
+        Debug.debug('Simulation', 'Target: Unvisited Return Room (Oldest)');
+        return unvisitedReturnRoom;
     }
 
-    // PRIORITY 3: UNVISITED Return Bridge (Creation Sequence)
+    // PRIORITY 4: UNVISITED Return Bridge (Creation Sequence)
     const unvisitedReturnBridge = allLinks.find(l => !l.isVisited && l.isReturn && l.isBridge);
     if (unvisitedReturnBridge) {
         Debug.debug('Simulation', 'Target: Unvisited Return Bridge (Oldest)');
         return unvisitedReturnBridge;
-    }
-
-    // PRIORITY 4: UNVISITED Return Room (Creation Sequence)
-    const unvisitedReturnRoom = allLinks.find(l => !l.isVisited && l.isReturn);
-    if (unvisitedReturnRoom) {
-        Debug.debug('Simulation', 'Target: Unvisited Return Room (Oldest)');
-        return unvisitedReturnRoom;
     }
 
     // --- FALLBACK (ALL REACHABLE ALREADY VISITED) ---
@@ -462,8 +495,9 @@ export function initSimulationKeyHandler() {
  * Generates the full path that the simulation would take.
  * Used by TeaserSystem to create "Cinematic Scenes" mode.
  * Returns an array of steps compatible with TeaserSystem.
+ * @param {boolean} skipAutoForward - Whether to skip bridge/auto-forward scenes
  */
-export function getSimulationPath() {
+export function getSimulationPath(skipAutoForward = false) {
     const state = store.state;
     if (state.scenes.length === 0) return [];
 
@@ -528,12 +562,45 @@ export function getSimulationPath() {
     // Some tours might be naturally cyclic (circles), so we detection specific repeating transitions
     const visitedStateSet = new Set();
 
+    let terminationReason = 'complete';
     while (loopCount < MAX_STEPS) {
         const currentScene = state.scenes[currentIdx];
-        if (!currentScene) break;
+        if (!currentScene) {
+            terminationReason = 'invalid_scene';
+            break;
+        }
 
-        const nextLink = findBestNextLink(currentScene, state, localVisited);
-        if (!nextLink) break;
+        let nextLink = findBestNextLink(currentScene, state, localVisited);
+
+        // SKIP AUTO-FORWARD LOGIC FOR PATH GENERATION
+        if (skipAutoForward && nextLink) {
+            let chainCounter = 0;
+            let tempNextLink = nextLink;
+            while (chainCounter < 10) {
+                const targetScene = state.scenes[tempNextLink.targetIndex];
+                if (!targetScene || !targetScene.isAutoForward) break;
+
+                // Note: We DO NOT mark bridges as visited here, or do we?
+                // For path generation, we just want to jump through them.
+                if (!localVisited.includes(tempNextLink.targetIndex)) {
+                    localVisited.push(tempNextLink.targetIndex);
+                }
+
+                const jumpLink = findBestNextLink(targetScene, state, localVisited);
+                if (jumpLink) {
+                    tempNextLink = jumpLink;
+                    chainCounter++;
+                } else {
+                    break;
+                }
+            }
+            nextLink = tempNextLink;
+        }
+
+        if (!nextLink) {
+            terminationReason = 'no_more_links';
+            break;
+        }
 
         const { hotspot, targetIndex } = nextLink;
 
@@ -542,12 +609,14 @@ export function getSimulationPath() {
 
         if (visitedStateSet.has(stateKey)) {
             Debug.warn('Simulation', 'Detected infinite loop in path generation, terminating safely.');
+            terminationReason = 'infinite_loop_detected';
             break;
         }
         visitedStateSet.add(stateKey);
 
         if (pathSet.has(stateKey)) {
             Debug.warn('Simulation', 'Detected cycle in path generation (pathSet), terminating');
+            terminationReason = 'cycle_detected';
             break;
         }
         pathSet.add(stateKey);
@@ -582,11 +651,6 @@ export function getSimulationPath() {
             arrivalYaw = hotspot.returnViewFrame.yaw ?? 0;
             arrivalPitch = hotspot.returnViewFrame.pitch ?? 0;
         } else if (hotspot.viewFrame) {
-            // Standard forward link arrival often looks "straight ahead" or uses viewFrame if treated as source
-            // SimulationSystem uses:
-            // } else if (hotspot.viewFrame) { ... }
-            // Wait, advanceToNextScene uses viewFrame of the HOTSPOT as the arrival view? 
-            // That's usually the "Director's View" of the generated link, which is reasonable.
             arrivalYaw = hotspot.viewFrame.yaw ?? 0;
             arrivalPitch = hotspot.viewFrame.pitch ?? 0;
         } else if (hotspot.targetYaw !== undefined) {
@@ -609,12 +673,23 @@ export function getSimulationPath() {
         loopCount++;
 
         // Stop if we returned to start (optional, but standard for teasers)
-        // Simulation usually stops when no unvisited, or eventually returns to start.
-        // If we hit Scene 0 again, and we have visited a bunch of stuff, we can probably stop.
         if (targetIndex === 0 && localVisited.length > 2) {
+            terminationReason = 'returned_to_start';
             break;
         }
     }
+
+    if (loopCount >= MAX_STEPS) terminationReason = 'max_steps_reached';
+
+    // TELEMETRY
+    Debug.info('Simulation', 'PATH_GENERATED', {
+        steps: path.length,
+        visitedCount: localVisited.length,
+        uniqueVisited: new Set(localVisited).size,
+        totalScenes: state.scenes.length,
+        terminationReason,
+        skipAutoForward
+    });
 
     return path;
 }

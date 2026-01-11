@@ -262,4 +262,4 @@ cargo build --release
 
 ---
 
-*This release follows the AI Instructions guidelines for stable releases (main branch) with comprehensive security improvements.*
+*This release follows the ai_guidelines.md protocols for stable releases (main branch) with comprehensive security improvements.*

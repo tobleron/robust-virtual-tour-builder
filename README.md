@@ -75,9 +75,10 @@ Remax VTB is a comprehensive suite for building, editing, and exporting interact
     - `components/`: UI modules (Viewer, Sidebar, HotspotManager).
     - `systems/`: Business logic (VideoEncoder, Exporter, NavigationSystem).
     - `utils/`: Diagnostic and helper utilities (Logger, Debug, NotificationSystem).
-- `docs/`: In-depth documentation on typography, accessibility, and features.
+- `docs/`: All project documentation (features, security, releases, guides).
 - `css/`: Tailwind and custom style overrides.
-- `AI_Instructions.md`: Mandatory development protocols for AI agents.
+- `ai_guidelines.md`: High-level AI development rules and project philosophy.
+- `.agent/workflows/`: Step-by-step procedures for AI agents (commits, pre-push, security).
 
 ## ⚖️ License
 

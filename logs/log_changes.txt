@@ -1,3 +1,9 @@
+[2026-01-11 09:40] Version 4.1.5-beta [Telemetry Logs]
+- Feature: Comprehensive Telemetry System. Added metric logging for TTI, FPS, memory pressure, and upload results.
+- Stability: Added orphaned link detection and project integrity validation during project load.
+- Reliability: Implemented scene load safety timeouts and QuotaExceededError detection for storage.
+- Diagnostics: Added system environment capture (GPU, Memory, Platform) on application startup.
+
 [2026-01-10 19:25] Version 4.1.3-beta [Sim Link Order]
 - Feature: Simulation mode now follows link creation sequence (Oldest First) instead of newest first.
 - Optimization: Removed sequential scene prioritization in navigation logic to ensure user-defined path integrity.

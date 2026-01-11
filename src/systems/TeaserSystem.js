@@ -44,6 +44,12 @@ let streamLoopId = null;
 
 let fadeOpacity = 0;
 
+// TELEMETRY STATE
+let frameCount = 0;
+let recordingStartTime = 0;
+let lastFrameTime = 0;
+let fpsBuffer = [];
+
 /**
  * Initialize the ghost canvas for off-screen rendering
  * This canvas captures the panorama viewer for teaser recording
@@ -102,7 +108,7 @@ function startGhostLoop() {
 // --- HELPER: Find a logical path through the tour ---
 // Phase 1: Forward traversal via non-return links
 // Phase 2: Return traversal via return links back to start
-function getWalkPath() {
+function getWalkPath(skipAutoForward = false) {
   const scenes = store.state.scenes;
   if (scenes.length === 0) return [];
 
@@ -151,17 +157,16 @@ function getWalkPath() {
     const currentScene = scenes[currentIdx];
 
     // Find a FORWARD link (not a return link) that goes to an unvisited scene
-    const forwardLink = currentScene.hotspots.find(h => {
+    let forwardLink = currentScene.hotspots.find(h => {
       if (h.isReturnLink) return false; // Skip return links in forward phase
       const targetIdx = scenes.findIndex(s => s.name === h.target);
       return targetIdx !== -1 && !visitedScenes.has(targetIdx);
     });
 
     if (forwardLink) {
-      const nextIdx = scenes.findIndex(s => s.name === forwardLink.target);
+      let nextIdx = scenes.findIndex(s => s.name === forwardLink.target);
 
       // Update the PREVIOUS step to know where it's going (for Dissolve lookAt)
-      // Use viewFrame (Camera View of Last Click) if available, otherwise fallback to hotspot location
       let transYaw = forwardLink.yaw;
       let transPitch = forwardLink.pitch || 0;
 
@@ -170,33 +175,82 @@ function getWalkPath() {
         transPitch = forwardLink.viewFrame.pitch;
       }
 
+      // Record where the camera SHOULD look (at the physical link)
       path[path.length - 1].transitionTarget = {
         yaw: transYaw,
         pitch: transPitch,
         targetName: forwardLink.target
       };
 
-      // Use targetYaw (Live View) if available, otherwise viewFrame (Director's View)
+      // SKIP AUTO-FORWARD LOGIC
+      // If the immediate target is an auto-forward scene, and we are skipping them,
+      // we traverse the chain until we find a stable scene.
+      if (skipAutoForward) {
+        let chainSafeCounter = 0;
+        while (chainSafeCounter < 10) {
+          const nextScene = scenes[nextIdx];
+          if (!nextScene || !nextScene.isAutoForward) break;
+
+          // It is an auto-forward scene, so we mark it as visited (effectively skipping it)
+          visitedScenes.add(nextIdx);
+
+          // Find the next link from THIS auto-forward scene
+          // (Same priority: unvisited, non-return)
+          const jumpLink = nextScene.hotspots.find(h => {
+            const tIdx = scenes.findIndex(s => s.name === h.target);
+            return tIdx !== -1 && !visitedScenes.has(tIdx);
+          });
+
+          if (jumpLink) {
+            // Found a valid jump, update nextIdx and continue loop
+            const jumpIdx = scenes.findIndex(s => s.name === jumpLink.target);
+            nextIdx = jumpIdx;
+            // Note: We DO NOT update transitionTarget of the original start scene.
+            // We still want the camera to look at the FIRST link (the door),
+            // even if we eventually cut to a room 3 hops away.
+          } else {
+            // Dead end in auto-chain, just stop here (render this auto scene)
+            break;
+          }
+          chainSafeCounter++;
+        }
+      }
+
+      // We have our final destination (either the direct link, or the end of a skip chain)
+      const effectiveNextScene = scenes[nextIdx];
+      // Note: We might have changed nextIdx, but we rely on the original forwardLink data
+      // for the arrivalView IF it was a direct jump. 
+      // If we skipped scenes, we effectively arrive at the new scene. 
+      // Ideally, the "arrival view" should be the DEFAULT view of that new scene,
+      // because we don't have a specific "incoming link" viewFrame for a jump.
+
+      // Let's try to find if there was a direct link to this final scene (unlikely if skipped)
+      // Fallback: Use the scene's initial view if we skipped, OR use the link data if direct.
+
       let arrivalYaw = 0;
       let arrivalPitch = 0;
-      Debug.debug('Teaser', 'Forward link found:', {
-        target: forwardLink.target,
-        viewFrame: forwardLink.viewFrame,
-        targetYaw: forwardLink.targetYaw,
-        targetPitch: forwardLink.targetPitch,
-        linkYaw: forwardLink.yaw,
-        linkPitch: forwardLink.pitch
-      });
 
-      // Priority: viewFrame (creation camera view) > targetYaw (manually set arrival)
-      if (forwardLink.viewFrame) {
-        arrivalYaw = forwardLink.viewFrame.yaw !== undefined ? forwardLink.viewFrame.yaw : 0;
-        arrivalPitch = forwardLink.viewFrame.pitch !== undefined ? forwardLink.viewFrame.pitch : 0;
-      } else if (forwardLink.targetYaw !== undefined) {
-        arrivalYaw = forwardLink.targetYaw;
-        arrivalPitch = forwardLink.targetPitch !== undefined ? forwardLink.targetPitch : 0;
+      // If we skipped (nextIdx != original target index), we default to 0,0 or scene default
+      // If we didn't skip, use the link's target info.
+      const originalTargetIdx = scenes.findIndex(s => s.name === forwardLink.target);
+
+      if (nextIdx === originalTargetIdx) {
+        // Direct link logic (preserved)
+        if (forwardLink.viewFrame) {
+          arrivalYaw = forwardLink.viewFrame.yaw !== undefined ? forwardLink.viewFrame.yaw : 0;
+          arrivalPitch = forwardLink.viewFrame.pitch !== undefined ? forwardLink.viewFrame.pitch : 0;
+        } else if (forwardLink.targetYaw !== undefined) {
+          arrivalYaw = forwardLink.targetYaw;
+          arrivalPitch = forwardLink.targetPitch !== undefined ? forwardLink.targetPitch : 0;
+        }
+      } else {
+        // We arrived via a skip. Use partial smart logic or default 0,0
+        // Optimization: Check if the skipped scene had a link with specific target info? 
+        // Too complex. Defaulting to 0,0 is safe for now.
+        // Better: Check if the effectiveNextScene has a 'default' view (not currently stored, usually 0,0)
       }
-      Debug.debug('Teaser', `Scene ${nextIdx} arrivalView:`, { yaw: arrivalYaw, pitch: arrivalPitch });
+
+      Debug.debug('Teaser', `Scene ${nextIdx} arrivalView (Skipped=${nextIdx !== originalTargetIdx}):`, { yaw: arrivalYaw, pitch: arrivalPitch });
 
       path.push({
         idx: nextIdx,
@@ -276,6 +330,14 @@ function getWalkPath() {
     }
   }
 
+  // Final Pass if skipAutoForward: Ensure NO auto-forward scenes are in the final path
+  // (Security measure against complex chains or phase 2 leftovers)
+  if (skipAutoForward) {
+    path = path.filter(step => {
+      const scene = scenes[step.idx];
+      return scene && !scene.isAutoForward;
+    });
+  }
 
   return path;
 }
@@ -285,7 +347,7 @@ function getWalkPath() {
  * Main entry point for starting an automated teaser recording.
  * Now modularized into smaller sub-steps.
  */
-export async function startAutoTeaser(style = "fast", includeLogo = true, format = "webm") {
+export async function startAutoTeaser(style = "fast", includeLogo = true, format = "webm", skipAutoForward = false) {
   if (isTeasing) return;
 
   const scenes = store.state.scenes;
@@ -296,7 +358,7 @@ export async function startAutoTeaser(style = "fast", includeLogo = true, format
 
   // CINEMATIC MODE: Run actual simulation and record it
   if (style === "cinematic") {
-    await startCinematicTeaser(includeLogo, format);
+    await startCinematicTeaser(includeLogo, format, skipAutoForward);
     return;
   }
 
@@ -309,7 +371,7 @@ export async function startAutoTeaser(style = "fast", includeLogo = true, format
     const label = document.getElementById("teaser-text");
     if (overlay) overlay.style.display = "flex";
 
-    const pathSteps = getWalkPath();
+    const pathSteps = getWalkPath(skipAutoForward);
 
     // 1b. Preload all involved assets to ensure they are in memory
     if (label) label.innerText = "Preloading Scenes...";
@@ -323,6 +385,11 @@ export async function startAutoTeaser(style = "fast", includeLogo = true, format
 
     // 2. Prepare Recorder
     startGhostLoop();
+    frameCount = 0;
+    fpsBuffer = [];
+    recordingStartTime = Date.now();
+    lastFrameTime = performance.now();
+
     const stream = ghostCanvas.captureStream(TEASER_FRAME_RATE);
     const recorder = setupMediaRecorder(stream);
     if (!recorder) {
@@ -372,7 +439,7 @@ export async function startAutoTeaser(style = "fast", includeLogo = true, format
  * CINEMATIC MODE: Record the actual simulation as it runs
  * This captures EXACTLY what the user sees during simulation mode
  */
-async function startCinematicTeaser(includeLogo = true, format = "webm") {
+async function startCinematicTeaser(includeLogo = true, format = "webm", skipAutoForward = false) {
   if (isTeasing) return;
 
   try {
@@ -420,12 +487,17 @@ async function startCinematicTeaser(includeLogo = true, format = "webm") {
     updateAnimationLoop("cinematic", includeLogo, logoState, snapState);
 
     // 5. Start recording
+    frameCount = 0;
+    fpsBuffer = [];
+    recordingStartTime = Date.now();
+    lastFrameTime = performance.now();
+
     recorder.start();
     Debug.info('Teaser', 'Cinematic recording started - running simulation');
 
     // 6. Start the ACTUAL simulation
     // This will run the auto-pilot which handles all camera movements, waypoints, timing, etc.
-    startAutoPilot();
+    startAutoPilot(skipAutoForward);
 
     // 7. Wait for simulation to complete
     // Poll until isAutoPilotActive() returns false
@@ -604,6 +676,18 @@ function updateAnimationLoop(style, includeLogo, logoState, snapState) {
         renderWatermark(logoState.img);
       }
     }
+
+    // FPS TRACKING
+    const now = performance.now();
+    const delta = now - lastFrameTime;
+    lastFrameTime = now;
+    if (delta > 0) {
+      const fps = 1000 / delta;
+      fpsBuffer.push(fps);
+      if (fpsBuffer.length > 100) fpsBuffer.shift();
+    }
+    frameCount++;
+
     streamLoopId = requestAnimationFrame(draw);
   };
   draw();
@@ -1129,17 +1213,31 @@ async function doCrossDissolve(duration) {
 async function finalizeTeaser(recordedChunks, format, baseName, overlay) {
   cancelAnimationFrame(streamLoopId);
   fadeOpacity = 0;
-  isTeasing = false;
-  store.setIsTeasing(false);
 
   if (overlay) overlay.style.display = "none";
 
   if (recordedChunks.length === 0) {
     isTeasing = false;
+    store.setIsTeasing(false);
     return;
   }
 
   const webmBlob = new Blob(recordedChunks, { type: "video/webm" });
+  const durationMs = Date.now() - recordingStartTime;
+
+  // Calculate average FPS
+  const avgFps = fpsBuffer.length > 0
+    ? fpsBuffer.reduce((a, b) => a + b, 0) / fpsBuffer.length
+    : 0;
+
+  Debug.info('Teaser', 'RECORDING_COMPLETE', {
+    durationMs,
+    frameCount,
+    avgFps: Math.round(avgFps * 100) / 100,
+    sizeBytes: webmBlob.size,
+    format,
+    baseName
+  });
 
   if (format === "webm") {
     DownloadSystem.saveBlob(webmBlob, `${baseName}.webm`);
@@ -1147,6 +1245,7 @@ async function finalizeTeaser(recordedChunks, format, baseName, overlay) {
       window.updateProgressBar(100, "Teaser Complete!", true);
     }
     isTeasing = false;
+    store.setIsTeasing(false);
   } else if (format === "mp4") {
     try {
       await VideoEncoder.transcodeWebMToMP4(webmBlob, baseName, (pct) => {
@@ -1158,13 +1257,18 @@ async function finalizeTeaser(recordedChunks, format, baseName, overlay) {
         window.updateProgressBar(100, "Teaser Complete!", true);
       }
     } catch (err) {
+      console.error("MP4 Finalization Failed", err);
+      // Fallback: save webm anyway
+      DownloadSystem.saveBlob(webmBlob, `${baseName}.webm`);
       if (window.updateProgressBar) {
-        window.updateProgressBar(0, "MP4 Conversion Failed", true, "Error");
+        window.updateProgressBar(0, "MP4 Conversion Failed - WebM Saved", true, "Error");
       }
     } finally {
       isTeasing = false;
+      store.setIsTeasing(false);
     }
   } else {
     isTeasing = false;
+    store.setIsTeasing(false);
   }
 }

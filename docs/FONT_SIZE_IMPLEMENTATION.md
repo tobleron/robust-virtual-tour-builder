@@ -236,7 +236,7 @@ Fine Print           --text-xs     12px  ██████
 - ✅ 15+ unique sizes → 7 standardized sizes
 - ✅ All sizes use CSS variables
 - ✅ Clear visual hierarchy
-- ✅ Documented in AI instructions
+- ✅ Documented in ai_guidelines.md
 
 ### **Cross-Screen Visibility:**
 - ✅ Readable on all devices (desktop to 4K)

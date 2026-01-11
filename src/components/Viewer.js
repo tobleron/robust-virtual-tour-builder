@@ -726,7 +726,13 @@ export function initViewer() {
       if (loadSafetyTimeout) clearTimeout(loadSafetyTimeout);
       loadSafetyTimeout = setTimeout(() => {
         if (isSceneLoading && loadingSceneId === targetScene.id) {
-          console.error(`[Viewer] Scene load timed out for ${targetScene.name}. Force clearing guard.`);
+          const msg = `Scene load timed out for ${targetScene.name} after ${SCENE_LOAD_TIMEOUT}ms`;
+          console.error(`[Viewer] ${msg}. Force clearing guard.`);
+          Debug.error('Viewer', 'LOAD_TIMEOUT', {
+            scene: targetScene.name,
+            timeout: SCENE_LOAD_TIMEOUT,
+            isAnticipatory
+          });
           isSceneLoading = false;
           loadingSceneId = null;
         }
@@ -822,6 +828,7 @@ export function initViewer() {
       };
       if (!useProgressive) { delete viewerConfig.scenes.preview; viewerConfig.default.firstScene = 'master'; }
 
+      const loadStartTime = Date.now();
       const newViewer = pannellum.viewer(containerId, viewerConfig);
       newViewer._sceneId = targetScene.id;
       newViewer._isLoaded = false;
@@ -854,7 +861,16 @@ export function initViewer() {
         // Scene is fully ready
         if (!useProgressive || isMasterLoaded) {
           newViewer._isLoaded = true;
-          console.log(`[Viewer] Final texture for ${targetScene.name} loaded successfully.`);
+          const ttiMs = Date.now() - loadStartTime;
+          console.log(`[Viewer] Final texture for ${targetScene.name} loaded successfully (TTI: ${ttiMs}ms).`);
+
+          // TELEMETRY
+          Debug.info('Viewer', 'SCENE_READY', {
+            scene: targetScene.name,
+            ttiMs,
+            fileSize: targetScene.file.size,
+            isAnticipatory
+          });
 
           const checkReadyAndSwap = () => {
             // Only swap if this scene is actually the store's active scene now

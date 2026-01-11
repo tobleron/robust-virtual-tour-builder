@@ -5,6 +5,17 @@ trap "kill 0" EXIT
 
 echo "--- Remax VTB Dev Environment (Hot Reload Enabled) ---"
 
+# Pre-flight: Clean up existing processes on dev ports
+echo "Checking for stale processes on ports 8080 and 9999..."
+for port in 8080 9999; do
+    PID=$(lsof -ti :$port)
+    if [ ! -z "$PID" ]; then
+        echo "Cleaning up process $PID on port $port..."
+        kill -9 $PID 2>/dev/null
+    fi
+done
+sleep 1
+
 # 1. Start Backend
 echo "[1/3] Starting Rust Backend (Release Mode for Speed)..."
 export PATH="$PWD/backend/bin:$PATH"

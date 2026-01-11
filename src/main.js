@@ -14,6 +14,30 @@ import { Debug } from "./utils/Debug.js";
 
 console.log("Initializing Remax Builder...");
 
+// --- SYSTEM TELEMETRY ---
+(async () => {
+  try {
+    const canvas = document.createElement('canvas');
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    const debugInfo = gl ? gl.getExtension('WEBGL_debug_renderer_info') : null;
+    const renderer = debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : 'unknown';
+    const vendor = debugInfo ? gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) : 'unknown';
+
+    Debug.info('System', 'Application Startup', {
+      userAgent: navigator.userAgent,
+      platform: navigator.platform,
+      cores: navigator.hardwareConcurrency,
+      memory: navigator.deviceMemory ? `${navigator.deviceMemory}GB` : 'unknown',
+      screen: `${window.screen.width}x${window.screen.height} (${window.devicePixelRatio}x)`,
+      gpu: { renderer, vendor },
+      url: window.location.href,
+      version: typeof window.APP_VERSION !== 'undefined' ? window.APP_VERSION : 'unknown'
+    });
+  } catch (e) {
+    console.warn("Failed to collect system telemetry", e);
+  }
+})();
+
 // Global Error Handler for Telemetry
 window.onerror = (message, source, lineno, colno, error) => {
   Debug.error("Global", `Uncaught Error: ${message}`, {

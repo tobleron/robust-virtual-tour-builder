@@ -423,6 +423,29 @@ export const store = {
       _metadataSource: scene._metadataSource || "user"
     }));
 
+    // TELEMETRY: Project Integrity Check
+    const sceneNames = new Set(this.state.scenes.map(s => s.name));
+    let totalHotspots = 0;
+    let orphanedLinks = 0;
+
+    this.state.scenes.forEach(scene => {
+      scene.hotspots.forEach(hs => {
+        totalHotspots++;
+        if (!sceneNames.has(hs.target)) {
+          orphanedLinks++;
+          Debug.warn('Store', `Orphaned link found in scene "${scene.name}": target "${hs.target}" does not exist.`);
+        }
+      });
+    });
+
+    Debug.info('Store', 'LOAD_PROJECT', {
+      tourName: this.state.tourName,
+      sceneCount: this.state.scenes.length,
+      totalHotspots,
+      orphanedLinks,
+      version: projectData.version || 'unknown'
+    });
+
     // Restore deletion history
     this.state.deletedSceneIds = projectData.deletedSceneIds || [];
 
