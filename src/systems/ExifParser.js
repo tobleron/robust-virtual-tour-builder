@@ -1,5 +1,6 @@
 import { BACKEND_URL } from "../constants.js";
 import { Debug } from "../utils/Debug.js";
+import { calculateAverageLocation as resCalculateAverageLocation } from "../utils/GeoUtils.bs.js";
 
 /**
  * Metadata & Quality System (Backend Connected)
@@ -94,51 +95,8 @@ export async function analyzeImageQuality(file) {
  */
 export function calculateAverageLocation(gpsPoints, maxDistanceKm = 0.5) {
     if (!gpsPoints || !gpsPoints.length) return null;
-
-    // First pass: simple average
-    let sumLat = 0, sumLon = 0;
-    gpsPoints.forEach(p => { sumLat += p.lat; sumLon += p.lon; });
-    const roughCentroid = { lat: sumLat / gpsPoints.length, lon: sumLon / gpsPoints.length };
-
-    // Identify outliers
-    const validPoints = [];
-    const outliers = [];
-
-    gpsPoints.forEach((p, i) => {
-        const dist = haversineDistance(roughCentroid.lat, roughCentroid.lon, p.lat, p.lon);
-        if (dist > maxDistanceKm) {
-            outliers.push({ index: i, distance: dist, point: p });
-        } else {
-            validPoints.push(p);
-        }
-    });
-
-    // Recalculate centroid without outliers
-    if (validPoints.length === 0) {
-        return { centroid: roughCentroid, outliers, validCount: 0 };
-    }
-
-    sumLat = 0; sumLon = 0;
-    validPoints.forEach(p => { sumLat += p.lat; sumLon += p.lon; });
-
-    return {
-        centroid: { lat: sumLat / validPoints.length, lon: sumLon / validPoints.length },
-        outliers,
-        validCount: validPoints.length
-    };
-}
-
-/**
- * Haversine formula for distance between two GPS points
- */
-function haversineDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; // Earth's radius in km
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = Math.sin(dLat / 2) ** 2 +
-        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-        Math.sin(dLon / 2) ** 2;
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const result = resCalculateAverageLocation(gpsPoints, maxDistanceKm);
+    return result === undefined ? null : result;
 }
 
 /**

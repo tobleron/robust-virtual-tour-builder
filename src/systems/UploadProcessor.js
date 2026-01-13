@@ -22,10 +22,11 @@ export const UploadProcessor = {
      * @returns {Promise<Object>} - Quality results for reporting.
      */
     async processUploads(files, progressCallback = null) {
-        const totalFiles = files.length;
+        const filesArray = Array.from(files);
+        const totalFiles = filesArray.length;
         if (totalFiles === 0) return { qualityResults: [] };
 
-        const totalBatchSize = files.reduce((acc, f) => acc + f.size, 0);
+        const totalBatchSize = filesArray.reduce((acc, f) => acc + f.size, 0);
         Debug.info('UploadProcessor', 'UPLOAD_BATCH_START', {
             fileCount: totalFiles,
             totalSize: totalBatchSize
@@ -33,7 +34,7 @@ export const UploadProcessor = {
 
         // SECURITY: Validate MIME types
         const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
-        const validFiles = files.filter(f => {
+        const validFiles = filesArray.filter(f => {
             const type = f.type.toLowerCase();
             const extension = f.name.split('.').pop().toLowerCase();
             const isImage = type.startsWith('image/') || ['jpg', 'jpeg', 'png', 'webp', 'heic', 'heif'].includes(extension);
@@ -58,8 +59,10 @@ export const UploadProcessor = {
         };
 
         // --- Phase 0: Health Check ---
+        const healthStart = performance.now();
         updateProgress(0, "Checking backend...", true, "Health Check");
         const isBackendUp = await checkBackendHealth();
+        Debug.info('UploadProcessor', 'PHASE_HEALTH_CHECK', { duration: (performance.now() - healthStart).toFixed(2) });
         if (!isBackendUp) {
             console.error("[UploadProcessor] Backend is offline.");
             updateProgress(100, "Error: Backend Offline", false);
@@ -101,11 +104,17 @@ export const UploadProcessor = {
         };
 
         // --- Phase 1: Fingerprinting (Checking duplicates) ---
+        const fingerprintStart = performance.now();
         updateProgress(0, "Scanning files...", true, "Fingerprinting");
 
         const fingerprintResults = await runConcurrent(validFiles, async (file) => {
+            const itemStart = performance.now();
             try {
                 const id = await getChecksum(file);
+                const duration = performance.now() - itemStart;
+                if (duration > 1000) {
+                    console.log(`[UploadProcessor] Slow Fingerprint: ${file.name} took ${duration.toFixed(0)}ms`);
+                }
                 return { id, original: file };
             } catch (err) {
                 console.error(`[UploadProcessor] Fingerprinting failed for ${file.name}:`, err);
@@ -115,6 +124,9 @@ export const UploadProcessor = {
             const progress = Math.round((completed / total) * 20);
             updateProgress(progress, `Fingerprinting: ${completed}/${total}`);
         });
+        updateProgress(18, `Cleaning up scanning...`, true, "Fingerprinting");
+        await new Promise(resolve => setTimeout(resolve, 80)); // Perceptual yield
+        Debug.info('UploadProcessor', 'PHASE_FINGERPRINT_COMPLETE', { duration: (performance.now() - fingerprintStart).toFixed(2) });
 
         // Filter duplicates AND previously deleted scenes while preserving order
         const currentIds = new Set(store.state.scenes.map(s => s.id));
@@ -148,12 +160,22 @@ export const UploadProcessor = {
         }
 
         // --- Phase 2: Combined Optimization & Analysis ---
+        const optPhaseStart = performance.now();
         updateProgress(20, "Processing images...", true, "Processing");
         const uniqueToProcess = sceneDataList.length;
 
         const processingResults = await runConcurrent(sceneDataList, async (item) => {
+            const itemStart = performance.now();
             try {
                 const { preview, tiny, metadata } = await processAndAnalyzeImage(item.original);
+                const itemDuration = performance.now() - itemStart;
+
+                Debug.info('UploadProcessor', 'OPTIMIZE_ITEM', {
+                    fileName: item.original.name,
+                    size: item.original.size,
+                    durationMs: itemDuration.toFixed(2)
+                });
+
                 item.preview = preview;
                 item.tiny = tiny; // Store the low-res progressive preview
                 item.name = preview.name;
@@ -181,6 +203,9 @@ export const UploadProcessor = {
             const progress = 20 + Math.round((completed / total) * 75);
             updateProgress(progress, `Processing: ${completed}/${total}`);
         });
+        updateProgress(90, "Optimizing metadata...", true, "Finalizing");
+        await new Promise(resolve => setTimeout(resolve, 80)); // Perceptual yield
+        Debug.info('UploadProcessor', 'PHASE_OPTIMIZATION_COMPLETE', { duration: (performance.now() - optPhaseStart).toFixed(2) });
 
         // Filter out failed items and collect quality results
         let validItems = sceneDataList.filter(item => !item.skipped);
@@ -210,6 +235,7 @@ export const UploadProcessor = {
         });
 
         // --- Phase 3: Sequential Scene Grouping ---
+        const clusterStart = performance.now();
         updateProgress(95, "Syncing scene blocks...", true, "Clustering");
 
         // Small yield to let UI update progress bar to 95%
@@ -267,6 +293,7 @@ export const UploadProcessor = {
                 current.colorGroup = ++lastKnownGroup;
             }
         }
+        Debug.info('UploadProcessor', 'PHASE_CLUSTERING_COMPLETE', { duration: (performance.now() - clusterStart).toFixed(2) });
 
         // 3. Commit to store
         console.log("[UploadProcessor] Finalizing Store Update...");

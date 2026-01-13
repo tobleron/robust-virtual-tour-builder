@@ -46,9 +46,20 @@
     --font-ui: "Inter", system-ui, sans-serif;
 
     /* Animations */
+    --animate-shimmer: shimmer 2s linear infinite;
     --animate-glow-sequence: glow-sequence 1.8s infinite;
     --animate-glow-fast: glow-sequence 1.0s infinite;
     --animate-fade-in: fade-in 0.3s ease-out;
+
+    @keyframes shimmer {
+        from {
+            background-position: 200% 0;
+        }
+
+        to {
+            background-position: -200% 0;
+        }
+    }
 
     @keyframes glow-sequence {
 

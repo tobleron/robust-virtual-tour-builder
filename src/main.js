@@ -1,12 +1,15 @@
 import { updateProgressBar } from "./utils/ProgressBar.js";
 import { notify } from "./utils/NotificationSystem.js";
-import { initSidebar } from "./components/Sidebar.js";
+import React from "react";
+import { createRoot } from "react-dom/client";
+import { make as Sidebar } from "./components/Sidebar.bs.js";
+import { make as ViewerUI } from "./components/ViewerUI.bs.js";
 import { initViewer } from "./components/Viewer.js";
 import { showLinkModal } from "./components/LinkModal.js";
 import { store } from "./store.js";
 window.store = store; // Expose for headless automation
 import { setupGlobalClickSounds } from "./systems/AudioManager.js";
-import { initSimulationKeyHandler } from "./systems/SimulationSystem.js";
+import { initSimulationKeyHandler } from "./systems/SimulationSystem.bs.js";
 
 // Utility modules (initialized first to ensure global availability)
 import { initLogger } from "./utils/Logger.js";
@@ -70,7 +73,18 @@ window.onunhandledrejection = (event) => {
 initLogger();
 
 // Initialize components
-initSidebar();
+const sidebarRoot = createRoot(document.getElementById("sidebar"));
+sidebarRoot.render(React.createElement(Sidebar, {}));
+// Mount ViewerUI
+const viewerStage = document.getElementById("viewer-stage");
+const uiLayer = document.createElement("div");
+uiLayer.id = "viewer-ui-layer";
+uiLayer.className = "absolute inset-0 w-full h-full pointer-events-none";
+viewerStage.appendChild(uiLayer);
+
+const viewerUiRoot = createRoot(uiLayer);
+viewerUiRoot.render(React.createElement(ViewerUI, {}));
+
 initViewer();
 setupGlobalClickSounds();
 

@@ -806,3 +806,152 @@ body.auto-pilot-active #v-scene-sim-toggle {
 .pnlm-hotspot.flat-arrow {
   overflow: visible !important;
 }
+/* RESTORED UTILITIES */
+.sidebar-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.375rem;
+  border-radius: 0.5rem;
+  color: #334155;
+  background-color: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+.sidebar-action-btn:hover {
+  background-color: #f8fafc;
+  border-color: #e2e8f0;
+  color: #0f172a;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.sidebar-action-btn:active {
+    transform: translateY(0);
+}
+
+.sidebar-action-btn .material-icons {
+  font-size: 1.25rem;
+  color: #64748b;
+  transition: color 0.2s;
+}
+
+.sidebar-action-btn:hover .material-icons {
+  color: var(--primary);
+}
+
+/* Disabled state */
+.sidebar-action-btn:disabled, .sidebar-action-btn.opacity-50 {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    background-color: transparent;
+    border-color: transparent;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* RESTORED OLD SIDEBAR STYLES */
+
+/* Grid container for top buttons */
+.sidebar-btn-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.sidebar-btn-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+}
+
+/* The square buttons (New, Save, Load, About) */
+.sidebar-action-btn-square {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    color: white;
+    padding: 8px 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    height: 54px;
+    width: 100%;
+}
+.sidebar-action-btn-square:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+.sidebar-action-btn-square .material-icons {
+    font-size: 20px;
+    margin-bottom: 2px;
+    opacity: 0.9;
+}
+.sidebar-action-btn-square span:last-child {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.9;
+}
+
+/* The wide buttons (Export, Teaser) */
+.sidebar-action-btn-wide {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    color: white;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    gap: 8px;
+    height: 38px;
+    width: 100%;
+}
+.sidebar-action-btn-wide:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+.sidebar-action-btn-wide:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: rgba(255, 255, 255, 0.05);
+}
+.sidebar-action-btn-wide .material-icons {
+    font-size: 18px;
+}
+.sidebar-action-btn-wide span:last-child {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* RESTORED UTILITIES - Grayscale */
+.grayscale {
+  filter: grayscale(100%);
+  -webkit-filter: grayscale(100%);
+}

@@ -1,5 +1,10 @@
 # Node
 node_modules/
+lib/
+*.bs.js
+
+*.bs.mjs
+
 npm-debug.log*
 package-lock.json
 

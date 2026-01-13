@@ -8,24 +8,71 @@
   <!-- Content Security Policy: Prevents XSS and unauthorized resource loading -->
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
-    script-src 'self' 'unsafe-inline' blob:;
+    script-src 'self' 'unsafe-inline' blob: https://esm.sh;
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     font-src 'self' https://fonts.gstatic.com;
-    img-src 'self' blob: data: http://localhost:8080 http://127.0.0.1:8080 http://[::1]:8080 http://0.0.0.0:8080;
-    connect-src 'self' blob: http://localhost:8080 http://127.0.0.1:8080 http://[::1]:8080 http://0.0.0.0:8080 https://nominatim.openstreetmap.org;
+    img-src 'self' blob: data: http://localhost:8080 http://127.0.0.1:8080 http://0.0.0.0:8080;
+    connect-src 'self' blob: http://localhost:8080 http://127.0.0.1:8080 http://0.0.0.0:8080 https://nominatim.openstreetmap.org https://esm.sh;
     worker-src 'self' blob:;
-    media-src 'self' blob: http://localhost:8080 http://127.0.0.1:8080 http://[::1]:8080 http://0.0.0.0:8080;
+    media-src 'self' blob: http://localhost:8080 http://127.0.0.1:8080 http://0.0.0.0:8080;
     object-src 'none';
     base-uri 'self';
     form-action 'self';
-    frame-ancestors 'none';
   ">
+
+  <script type="importmap">
+    {
+      "imports": {
+        "@rescript/runtime/": "/node_modules/@rescript/runtime/",
+        "react": "https://esm.sh/react@18.2.0",
+        "react/jsx-runtime": "https://esm.sh/react@18.2.0/jsx-runtime",
+        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+        "react-dom": "https://esm.sh/react-dom@18.2.0"
+      }
+    }
+  </script>
 
   <title>Remax Virtual Tour Builder</title>
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='%23003da5'/><path d='M50 10 A40 40 0 0 1 50 90' fill='%23dc3545'/><path d='M40 10 L40 90 M60 10 L60 90' stroke='white' stroke-width='2'/></svg>">
 
   <script>
+    /**
+     * EMERGENCY TELEMETRY
+     * Catch errors that happen BEFORE main application modules load.
+     */
+    const logEmergency = (level, message, data) => {
+      fetch('http://localhost:8080/log-telemetry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          level: level,
+          module: 'EarlyBoot',
+          message: message,
+          data: data,
+          timestamp: new Date().toISOString()
+        })
+      }).catch(() => { }); // Silent fail
+    };
+
+    window.onerror = (message, source, lineno, colno, error) => {
+      console.error("[EarlyBoot] Uncaught Error:", message);
+      logEmergency('error', `Early Uncaught Error: ${message}`, {
+        source, lineno, colno,
+        stack: error?.stack,
+        type: error?.name || 'Error'
+      });
+    };
+
+    window.onunhandledrejection = (event) => {
+      const reason = event.reason;
+      console.error("[EarlyBoot] Unhandled Rejection:", reason);
+      logEmergency('error', "Early Unhandled Promise Rejection", {
+        reason: reason instanceof Error ? reason.message : reason,
+        stack: reason instanceof Error ? reason.stack : null
+      });
+    };
+
     // Force WebGL to keep the image buffer available for recording
     const oldGetContext = HTMLCanvasElement.prototype.getContext;
     HTMLCanvasElement.prototype.getContext = function (type, attributes) {
@@ -54,9 +101,9 @@
     rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-  <link rel="stylesheet" href="css/output.css?v=4.2.0" />
+  <link rel="stylesheet" href="css/output.css?v=4.2.1" />
   <!-- Custom Overrides -->
-  <link rel="stylesheet" href="css/style.css?v=4.2.0" />
+  <link rel="stylesheet" href="css/style.css?v=4.2.1" />
   <style>
     /* Modern Toast Notifications */
     #notification-container {
@@ -175,7 +222,7 @@
   <!-- <script src="src/libs/ffmpeg.js"></script> -->
   <!-- <script src="src/libs/ffmpeg-util.js"></script> -->
 
-  <script type="module" src="src/main.js?v=4.2.0"></script>
+  <script type="module" src="src/main.js?v=4.2.1"></script>
 </body>
 
 </html>

@@ -1,6 +1,7 @@
 import { notify } from "../utils/NotificationSystem.js";
 import { DownloadSystem } from "./DownloadSystem.js";
-// import { Debug } from "../utils/Debug.js"; // Unused in this file
+import { Debug } from "../utils/Debug.js";
+
 import { BACKEND_URL } from "../constants.js";
 
 /**
@@ -74,7 +75,8 @@ export async function saveProject(state, onProgress) {
                 waypoints: h.waypoints || []
             }))
 
-        }))
+        })),
+        timeline: state.timeline || []
     };
 
     try {
@@ -238,6 +240,7 @@ export async function loadProject(zipFile, onProgress) {
             tourName: project_data.projectName || "Imported Tour",
             scenes: validScenes,
             deletedSceneIds: project_data.deletedSceneIds || [],
+            timeline: project_data.timeline || [],
             activeIndex: 0
         };
 

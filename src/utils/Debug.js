@@ -158,8 +158,8 @@ export const Debug = {
      */
     async sendTelemetry(entry) {
         // Only send crucial logs to backend to save bandwidth and noise
-        // Respect minLevel threshold for backend transmission
-        if (LOG_LEVELS[entry.level] < LOG_LEVELS[this.minLevel]) return;
+        // Respect minLevel threshold for backend transmission, but ALWAYS send errors
+        if (entry.level !== 'error' && LOG_LEVELS[entry.level] < LOG_LEVELS[this.minLevel]) return;
 
         try {
             // Import constant dynamically to avoid circular dependencies

@@ -152,15 +152,23 @@ export async function processAndAnalyzeImage(file) {
       memory: mem
     });
 
+    const fetchStart = performance.now();
     const response = await fetch(`${BACKEND_URL}/process-image-full`, {
       method: "POST",
       body: formData,
     });
+    const fetchDuration = performance.now() - fetchStart;
 
     if (!response.ok) {
       const errorJson = await response.json().catch(() => ({ error: "Combined Processing Failed" }));
       throw new Error(errorJson.details || errorJson.error);
     }
+
+    Debug.info("Resizer", "BACKEND_FETCH_COMPLETE", {
+      fileName: file.name,
+      durationMs: fetchDuration.toFixed(2),
+      size: file.size
+    });
 
     const zipBlob = await response.blob();
     const zip = await JSZip.loadAsync(zipBlob);

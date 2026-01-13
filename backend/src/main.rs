@@ -100,7 +100,10 @@ async fn main() -> io::Result<()> {
             // Allows running without Node.js/Vite
             .service(fs::Files::new("/css", "../css"))
             .service(fs::Files::new("/src", "../src"))
+            .service(fs::Files::new("/node_modules", "../node_modules"))
             .service(fs::Files::new("/images", "../images")) // Optional, if you have an images folder
+            .service(fs::Files::new("/sounds", "../sounds"))
+
             .route("/", web::get().to(|| async { fs::NamedFile::open("../index.html") }))
             .route("/index.html", web::get().to(|| async { fs::NamedFile::open("../index.html") }))
     })

@@ -14,7 +14,10 @@ export const DEBUG_ENABLED_DEFAULT = false;
 
 /**
  * Minimum log level to display: 'debug' | 'info' | 'warn' | 'error'
- * Production should use 'info' to filter out verbose debug logs
+ * Standard Baseline:
+ * - 'debug': Intensive development (timing, math, frames)
+ * - 'info': Architectural events (batch starts, transitions)
+ * - 'warn/error': Critical failures
  */
 export const DEBUG_LOG_LEVEL = 'info';
 

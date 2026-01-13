@@ -13,6 +13,7 @@ When committing changes, strictly follow this protocol:
 - **File**: `logs/log_changes.txt`
 - **Action**: Append summary of changes.
 - **Format**: `[YYYY-MM-DD HH:MM] vCurrent - Summary of changes`
+- **Goal**: Maintain a clear history of modifications for troubleshooting regressions.
 
 ### 3. Code Cleanup
 - Remove `console.log` used for debugging (keep `console.error`/`warn`).
@@ -65,17 +66,39 @@ Apply these rules whenever modifying code involving user input, files, or extern
 
 ## Coding Standards
 
-### 1. Logging & Debugging
-- **Rule**: Use `Debug.error('Module', 'Message')` or `Debug.log(...)` from `src/utils/Debug.js`.
-- **Rule**: Do **NOT** use `console.log` in production code. Only `console.warn` or `console.error` are acceptable if `Debug` is unavailable.
-- **Rule**: Remove temporary debugging logs before committing.
+### 1. Frontend Language & Architecture
+- **Language**: Use **ReScript v12** for all frontend development.
+- **Documentation**: Refer to the official ReScript v12 documentation online if uncertain about syntax or standard library usage.
+- **Philosophy**: Adhere to functional programming best practices (immutability, pattern matching, type safety).
+- **Architecture**: Design systems that respect ReScript's functional nature. Avoid OOP patterns unless interacting with specific JS APIs that require it.
 
-### 2. Error Handling & UI Feedback
+
+
+### 2. Logging, Debugging & Observability
+- **Primary Goal**: Enable easy troubleshooting and performance auditing.
+- **Rule**: All critical **UI and Backend errors** MUST be persisted to the `logs/` directory (e.g., `logs/error.log` or `logs/telemetry.log`).
+- **Rule**: Use `Debug.log` (or `Debug.info`, `Debug.error`, etc.) for all architectural events.
+- **Rule**: **Debug Level Control**: `DEBUG_LOG_LEVEL` in `src/constants.js` is the master switch.
+    - `debug`: Verbose development details (stalls, granular timings).
+    - `info`: Architectural transitions (batch starts/ends, project loads).
+    - `warn`/`error`: Production-only issues.
+- **Rule**: **Progress Bar Visibility**: Any process longer than 250ms MUST use the Progress Bar.
+- **Rule**: **Phase Labeling**: Multi-phase processes (like Upload) must update the progress message at each transition (e.g., "Fingerprinting", "Optimizing", "Clustering") to maintain user orientation even if the process is fast.
+- **Rule**: Do **NOT** use `console.log` in production. Use the `Debug` utility to ensure logs are filterable and persistent.
+
+### 3. Stability & Performance
+- **Stability First**: The application should never crash completely due to a minor UI error. Implement error boundaries.
+- **ReScript Safety**: standard: Handle `Option` and `Result` types explicitly. Avoid unsafe unwrapping (`.getExn`) unless strictly guaranteed.
+- **Performance**: Maintain 60fps. Avoid blocking the main thread.
+- **Optimization**: Be mindful of file I/O and large array manipulations. Profile if in doubt.
+- **Compilation Verification**: ALWAYS verify ReScript changes with a full build (`npm run res:build`). Never declare a task complete if there are compiler errors or warnings in modified files.
+
+### 4. Error Handling & UI Feedback
 - **Rule**: Never use blocking `alert()` dialogs.
 - **Rule**: Use `showToast(message, type)` for notifications.
 - **Rule**: Operations longer than 500ms must show a progress bar/spinner.
 
-### 3. State & Architecture
+### 5. State & Architecture
 - **Rule**: Use `store.js` for shared application state. Do not create isolated state silos.
 - **Rule**: Put large binary assets or long strings in `src/constants.js`.
 - **Rule**: Separation of Concerns: Keep UI logic in `components/` or `systems/`, business logic in `systems/`.

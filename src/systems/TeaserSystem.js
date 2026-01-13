@@ -14,7 +14,7 @@ import { notify } from "../utils/NotificationSystem.js";
 
 import { store } from "../store.js";
 import { DownloadSystem } from "./DownloadSystem.js";
-import { getSimulationPath, startAutoPilot, stopAutoPilot, isAutoPilotActive } from "./SimulationSystem.js";
+import { getSimulationPath, startAutoPilot, stopAutoPilot, isAutoPilotActive } from "./SimulationSystem.bs.js";
 import { CacheSystem } from "./CacheSystem.js";
 import { VideoEncoder } from "./VideoEncoder.js";
 import { Debug } from "../utils/Debug.js";

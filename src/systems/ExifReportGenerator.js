@@ -197,15 +197,15 @@ function generateProjectName(address, dateTime) {
         }
     }
 
-    // 2. Generate compact timestamp DDMMYYHH
+    // 2. Generate compact timestamp DDMMYY_HHMM
     let timestampPart;
     if (dateTime) {
         // EXIF format is typically "YYYY:MM:DD HH:MM:SS"
-        const match = dateTime.match(/(\d{4}):(\d{2}):(\d{2})\s+(\d{2})/);
+        const match = dateTime.match(/(\d{4}):(\d{2}):(\d{2})\s+(\d{2}):(\d{2})/);
         if (match) {
-            const [, year, month, day, hour] = match;
+            const [, year, month, day, hour, minute] = match;
             const shortYear = year.slice(2);
-            timestampPart = `${day}${month}${shortYear}${hour}`;
+            timestampPart = `${day}${month}${shortYear}_${hour}${minute}`;
         }
     }
     if (!timestampPart) {
@@ -215,13 +215,11 @@ function generateProjectName(address, dateTime) {
         const month = (now.getMonth() + 1).toString().padStart(2, '0');
         const year = now.getFullYear().toString().slice(2);
         const hour = now.getHours().toString().padStart(2, '0');
-        timestampPart = `${day}${month}${year}${hour}`;
+        const minute = now.getMinutes().toString().padStart(2, '0');
+        timestampPart = `${day}${month}${year}_${hour}${minute}`;
     }
 
-    // 3. Generate random serial (5 digits)
-    const serialPart = Math.floor(10000 + Math.random() * 90000).toString();
-
-    return `${locationPart}_${timestampPart}_${serialPart}`;
+    return `${locationPart}_${timestampPart}`;
 }
 
 /**

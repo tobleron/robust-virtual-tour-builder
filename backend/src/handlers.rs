@@ -13,13 +13,14 @@ use std::collections::HashMap;
 use rayon::prelude::*;
 use img_parts::webp::WebP;
 use headless_chrome::{Browser, LaunchOptions};
-use std::time::Duration;
-
+use std::time::{Duration, Instant};
 use img_parts::riff::{RiffContent, RiffChunk};
 use bytes::Bytes;
+use image::DynamicImage;
 use fast_image_resize::{Resizer, ResizeOptions, FilterType, ResizeAlg, PixelType, images::Image as FrImage};
 // Configs
 const PROCESSED_IMAGE_WIDTH: u32 = 4096;
+const WEBP_QUALITY: f32 = 92.0;
 const TEMP_DIR: &str = "/tmp/remax_backend";
 const SESSIONS_DIR: &str = "/tmp/remax_sessions";
 const MAX_UPLOAD_SIZE: usize = 2048 * 1024 * 1024; // 2GB limit (increased for full projects)
@@ -209,45 +210,52 @@ pub struct MetadataResponse {
 
 // --- Internal Processing Logic (Extracted for reuse) ---
 
-// --- OPTIMIZED HELPER ---
-fn resize_fast(img: &image::DynamicImage, target_width: u32, target_height: u32) -> Result<image::DynamicImage, String> {
+// --- OPTIMIZED HELPERS ---
+
+fn encode_webp(img: &DynamicImage, quality: f32) -> Result<Vec<u8>, String> {
+    let (w, h) = (img.width(), img.height());
+    let rgba = img.to_rgba8();
+    let encoder = webp::Encoder::from_rgba(&rgba, w, h);
+    let webp = encoder.encode(quality);
+    Ok(webp.to_vec())
+}
+
+fn resize_fast_rgba(src_rgba: &[u8], src_w: u32, src_h: u32, target_width: u32, target_height: u32) -> Result<Vec<u8>, String> {
     if target_width == 0 || target_height == 0 {
-        return Err("Invalid dimensions: width and height must be greater than 0".to_string());
+        return Err("Invalid dimensions".to_string());
     }
 
-    // Convert to RGBA8 for consistent processing (fast_image_resize works best with known pixel types)
-    let rgba_img = img.to_rgba8();
-    
     let src_image = FrImage::from_vec_u8(
-        img.width(),
-        img.height(),
-        rgba_img.into_raw(),
+        src_w,
+        src_h,
+        src_rgba.to_vec(),
         PixelType::U8x4,
     ).map_err(|e| format!("FastResize Init Error: {:?}", e))?;
 
-    let mut dst_image = FrImage::new(
-        target_width,
-        target_height,
-        src_image.pixel_type(),
-    );
-
+    let mut dst_image = FrImage::new(target_width, target_height, PixelType::U8x4);
     let mut resizer = Resizer::new();
-    let options = ResizeOptions::new().resize_alg(ResizeAlg::Convolution(FilterType::Lanczos3));
+    
+    let mut options = ResizeOptions::default();
+    options.algorithm = ResizeAlg::Convolution(FilterType::Lanczos3);
     
     resizer.resize(&src_image, &mut dst_image, &options)
         .map_err(|e| format!("FastResize Error: {:?}", e))?;
+    
+    Ok(dst_image.into_vec())
+}
 
-    let data = dst_image.into_vec();
+fn resize_fast(img: &image::DynamicImage, target_width: u32, target_height: u32) -> Result<image::DynamicImage, String> {
+    let rgba = img.to_rgba8();
+    let data = resize_fast_rgba(&rgba, img.width(), img.height(), target_width, target_height)?;
     
     image::RgbaImage::from_raw(target_width, target_height, data)
         .map(image::DynamicImage::ImageRgba8)
-        .ok_or_else(|| "Failed to reconstruct image from buffer".to_string())
+        .ok_or_else(|| "Failed to create RgbaImage from resized data".to_string())
 }
 
 // --- Internal Processing Logic (Extracted for reuse) ---
-fn perform_metadata_extraction(img: &image::DynamicImage, input_data: &[u8]) -> Result<MetadataResponse, String> {
+fn perform_metadata_extraction_rgba(src_rgba: &[u8], src_w: u32, src_h: u32, input_data: &[u8]) -> Result<MetadataResponse, String> {
     // 0. Check for existing "reMX" specific metadata (PREVENTION of Re-optimization)
-    // We parse the input bytes as WebP to see if our custom chunk exists.
     if let Ok(webp) = WebP::from_bytes(Bytes::copy_from_slice(input_data)) {
         if let Some(chunk) = webp.chunk_by_id(*b"reMX") {
             let data_ref = chunk.content();
@@ -256,24 +264,21 @@ fn perform_metadata_extraction(img: &image::DynamicImage, input_data: &[u8]) -> 
                 _ => &[] as &[u8],
             };
             
-            // Try to deserialize as full MetadataResponse first (new format)
             if let Ok(mut full_meta) = serde_json::from_slice::<MetadataResponse>(slice) {
                 full_meta.is_optimized = true;
                 return Ok(full_meta);
             }
 
-            // Fallback for older "QualityAnalysis" only chunks
             if let Ok(prev_analysis) = serde_json::from_slice::<QualityAnalysis>(slice) {
-                 let (w, h) = (img.width(), img.height());
-                 return Ok(MetadataResponse {
-                     exif: ExifMetadata {
+                  return Ok(MetadataResponse {
+                      exif: ExifMetadata {
                         make: None, model: None, date_time: None, gps: None,
-                        width: w, height: h,
+                        width: src_w, height: src_h,
                         focal_length: None, aperture: None, iso: None,
-                     }, 
-                     quality: prev_analysis,
-                     is_optimized: true
-                 });
+                      }, 
+                      quality: prev_analysis,
+                      is_optimized: true
+                  });
             }
         }
     }
@@ -337,13 +342,11 @@ fn perform_metadata_extraction(img: &image::DynamicImage, input_data: &[u8]) -> 
     }
 
     // 2. Quality Analysis
-    let (orig_w, orig_h) = (img.width(), img.height());
-    
-    
     // OPTIMIZATION: Use fast resize for analysis thumbnail
-    let analyzed_img = resize_fast(img, 400, 400).unwrap_or_else(|_| img.thumbnail(400, 400));
-    let rgb = analyzed_img.into_rgb8(); // consumes analyzed_img, avoids a copy
-    let (w, h) = rgb.dimensions();
+    let thumb_rgba = resize_fast_rgba(src_rgba, src_w, src_h, 400, 400).map_err(|e| format!("Analysis resize failed: {}", e))?;
+    
+    let w = 400u32;
+    let h = 400u32;
     let pixel_count = (w * h) as f32;
 
     let mut hist_r = vec![0u32; 256];
@@ -353,20 +356,16 @@ fn perform_metadata_extraction(img: &image::DynamicImage, input_data: &[u8]) -> 
     let mut total_lum = 0u64;
     let mut gray_pixels = Vec::with_capacity((w * h) as usize);
 
-    for pixel in rgb.pixels() {
-        let r = pixel[0] as usize;
-        let g = pixel[1] as usize;
-        let b = pixel[2] as usize;
+    for chunk in thumb_rgba.chunks(4) {
+        if chunk.len() < 3 { continue; }
+        let r = chunk[0] as usize;
+        let g = chunk[1] as usize;
+        let b = chunk[2] as usize;
         hist_r[r] += 1;
         hist_g[g] += 1;
         hist_b[b] += 1;
 
-        // OPTIMIZATION: Use fixed-point integer math for luminance (faster than float)
-        // (R*54 + G*183 + B*19) >> 8
-        // Use saturating arithmetic to prevent overflow (defensive programming)
-        let lum = ((pixel[0] as u32 * 54)
-            .saturating_add(pixel[1] as u32 * 183)
-            .saturating_add(pixel[2] as u32 * 19) >> 8) as u8;
+        let lum = ((chunk[0] as u32 * 54).saturating_add(chunk[1] as u32 * 183).saturating_add(chunk[2] as u32 * 19) >> 8) as u8;
         hist_gray[lum as usize] += 1;
         total_lum += lum as u64;
         gray_pixels.push(lum);
@@ -385,6 +384,7 @@ fn perform_metadata_extraction(img: &image::DynamicImage, input_data: &[u8]) -> 
     for y in (y_start + 1)..(y_end - 1) {
         for x in 1..(w - 1) {
             let idx = (y * w + x) as usize;
+            if idx >= gray_pixels.len() { continue; }
             let center = gray_pixels[idx] as i32;
             let lap = gray_pixels[idx - w as usize] as i32 +
                       gray_pixels[idx - 1] as i32 +
@@ -437,7 +437,7 @@ fn perform_metadata_extraction(img: &image::DynamicImage, input_data: &[u8]) -> 
     Ok(MetadataResponse {
         exif: ExifMetadata {
             make, model, date_time, gps,
-            width: orig_w, height: orig_h,
+            width: src_w, height: src_h,
             focal_length, aperture, iso,
         },
         quality: QualityAnalysis {
@@ -457,6 +457,11 @@ fn perform_metadata_extraction(img: &image::DynamicImage, input_data: &[u8]) -> 
         },
         is_optimized: false
     })
+}
+
+fn perform_metadata_extraction(img: &image::DynamicImage, input_data: &[u8]) -> Result<MetadataResponse, String> {
+    let rgba = img.to_rgba8();
+    perform_metadata_extraction_rgba(&rgba, img.width(), img.height(), input_data)
 }
 
 // INJECTION HELPER
@@ -494,47 +499,58 @@ pub async fn process_image_full(mut payload: Multipart) -> Result<HttpResponse, 
         }
     }
 
+    let total_start = Instant::now();
     let result_zip = web::block(move || -> Result<Vec<u8>, String> {
+        let decode_start = Instant::now();
         let data_size = data.len();
         let img = image::ImageReader::new(Cursor::new(&data))
             .with_guessed_format()
             .map_err(|e| format!("Failed to guess image format (size: {} bytes): {}", data_size, e))?
             .decode()
             .map_err(|e| format!("Failed to decode image (size: {} bytes): {}", data_size, e))?;
+        let decode_time = decode_start.elapsed();
+
+        // 0. Initial RGBA conversion
+        let rgba_start = Instant::now();
+        let (src_w, src_h) = (img.width(), img.height());
+        let src_rgba = img.to_rgba8();
+        let rgba_time = rgba_start.elapsed();
 
         // 1. Metadata Extraction
-        let metadata = perform_metadata_extraction(&img, &data)?;
+        let meta_start = Instant::now();
+        let metadata = perform_metadata_extraction_rgba(&src_rgba, src_w, src_h, &data)?;
+        let meta_time = meta_start.elapsed();
         
-        // 2. Image Optimization (4K WebP + Tiny 512px Progressive Preview)
-        
-        let webp_buffer_vec = if metadata.is_optimized && img.width() == PROCESSED_IMAGE_WIDTH {
-             // Skip Re-optimization!
+        // 2. Image Optimization (4K WebP)
+        let opt_start = Instant::now();
+        let webp_buffer_vec = if metadata.is_optimized && src_w == PROCESSED_IMAGE_WIDTH {
              tracing::info!("Image already optimized. Skipping resize and encode.");
-             // If input was WebP (which it likely is if is_optimized is true), use it.
-             // data is the raw input bytes.
              data.clone()
         } else {
-            // OPTIMIZATION: Use fast_image_resize
-            let resized = resize_fast(&img, PROCESSED_IMAGE_WIDTH, PROCESSED_IMAGE_WIDTH)
+            let resized_rgba = resize_fast_rgba(&src_rgba, src_w, src_h, PROCESSED_IMAGE_WIDTH, PROCESSED_IMAGE_WIDTH)
                 .map_err(|e| format!("Resize failed: {}", e))?;
             
-            let mut buf = Cursor::new(Vec::new());
-            resized.write_to(&mut buf, image::ImageFormat::WebP)
-                .map_err(|e| format!("Failed to encode WebP: {}", e))?;
+            let encoder = webp::Encoder::from_rgba(&resized_rgba, PROCESSED_IMAGE_WIDTH, PROCESSED_IMAGE_WIDTH);
+            let webp = encoder.encode(WEBP_QUALITY);
+            let buf = webp.to_vec();
             
-            // INJECT METADATA
-            inject_remx_chunk(buf.into_inner(), &metadata)?
+            inject_remx_chunk(buf, &metadata)?
         };
+        let opt_time = opt_start.elapsed();
 
         let webp_buffer = Cursor::new(webp_buffer_vec);
 
-        // OPTIMIZATION: Parallelize Tiny generation? (Left sequential for now but using fast resize)
-        let tiny = resize_fast(&img, 512, 512).unwrap_or_else(|_| img.thumbnail(512, 512));
-        let mut tiny_buffer = Cursor::new(Vec::new());
-        tiny.write_to(&mut tiny_buffer, image::ImageFormat::WebP)
-            .map_err(|e| format!("Failed to encode Tiny WebP: {}", e))?;
+        // 3. Tiny Preview
+        let tiny_start = Instant::now();
+        let tiny_rgba = resize_fast_rgba(&src_rgba, src_w, src_h, 512, 512)
+            .map_err(|e| format!("Tiny resize failed: {}", e))?;
+        let tiny_encoder = webp::Encoder::from_rgba(&tiny_rgba, 512, 512);
+        let tiny_bytes = tiny_encoder.encode(60.0).to_vec();
+        let tiny_buffer = Cursor::new(tiny_bytes);
+        let tiny_time = tiny_start.elapsed();
 
         // 3. Package as ZIP
+        let zip_start = Instant::now();
         let mut zip_buffer = Cursor::new(Vec::new());
         {
             let mut zip = zip::ZipWriter::new(&mut zip_buffer);
@@ -554,9 +570,17 @@ pub async fn process_image_full(mut payload: Multipart) -> Result<HttpResponse, 
 
             zip.finish().map_err(|e| e.to_string())?;
         }
+        let zip_time = zip_start.elapsed();
         
+        tracing::info!(
+            "Backend Processing Timings: Decode: {:?}, RGBA: {:?}, Meta: {:?}, 4K: {:?}, Tiny: {:?}, Zip: {:?}",
+            decode_time, rgba_time, meta_time, opt_time, tiny_time, zip_time
+        );
+
         Ok(zip_buffer.into_inner())
     }).await.map_err(|e| AppError::InternalError(e.to_string()))?;
+
+    tracing::info!("Full process-image-full completed in: {:?}", total_start.elapsed());
 
     match result_zip {
         Ok(zip_bytes) => {
@@ -597,9 +621,7 @@ pub async fn optimize_image(mut payload: Multipart) -> Result<HttpResponse, AppE
         let resized = resize_fast(&img, PROCESSED_IMAGE_WIDTH, PROCESSED_IMAGE_WIDTH)
              .map_err(|e| format!("Resize failed: {}", e))?;
         
-        let mut webp_buffer = Cursor::new(Vec::new());
-        resized.write_to(&mut webp_buffer, image::ImageFormat::WebP)
-            .map_err(|e| format!("Failed to encode WebP: {}", e))?;
+        let webp_bytes = encode_webp(&resized, WEBP_QUALITY)?;
         
         // Optimize Image also needs to inject metadata maybe?
         // User said "prevent re-optimization".
@@ -612,7 +634,7 @@ pub async fn optimize_image(mut payload: Multipart) -> Result<HttpResponse, AppE
         // So we leave it as is, or we verify if `optimize_image` should also gain analysis capabilities.
         // Given the prompt "when an image is uploaded ... processed by the tool", it likely refers to `process_image_full` which does the heavy lifting.
         
-        Ok(webp_buffer.into_inner())
+        Ok(webp_bytes)
     }).await.map_err(|e| AppError::InternalError(e.to_string()))?;
 
     match result_bytes {
@@ -668,11 +690,9 @@ pub async fn resize_image_batch(mut payload: Multipart) -> Result<HttpResponse, 
                     let resized = resize_fast(&img, *width, *width)
                         .map_err(|e| format!("Resize failed: {}", e))?;
                     
-                    let mut webp_buffer = Cursor::new(Vec::new());
-                    resized.write_to(&mut webp_buffer, image::ImageFormat::WebP)
-                        .map_err(|e| format!("Failed to encode WebP {}: {}", filename, e))?;
+                    let webp_bytes = encode_webp(&resized, WEBP_QUALITY)?;
                     
-                    Ok((filename.to_string(), webp_buffer.into_inner()))
+                    Ok((filename.to_string(), webp_bytes))
                 })
                 .collect();
 
@@ -810,11 +830,9 @@ pub async fn create_tour_package(mut payload: Multipart) -> Result<HttpResponse,
                         let fname = webp_name.file_name().ok_or("Invalid filename")?.to_str().ok_or("Invalid filename")?;
                         let zip_path = format!("{}/assets/images/{}", folder, fname);
                         
-                        let mut webp_buffer = Cursor::new(Vec::new());
-                        resized.write_to(&mut webp_buffer, image::ImageFormat::WebP)
-                            .map_err(|e| format!("Failed to encode WebP for {}: {}", name, e))?;
+                        let webp_bytes = encode_webp(&resized, WEBP_QUALITY)?;
                         
-                        artifacts.push((zip_path, webp_buffer.into_inner()));
+                        artifacts.push((zip_path, webp_bytes));
                     }
                     Ok(artifacts)
                 })
@@ -1029,12 +1047,6 @@ pub async fn log_telemetry(payload: web::Json<TelemetryPayload>) -> Result<HttpR
         fs::create_dir_all(log_dir).ok();
     }
 
-    let log_file_path = log_dir.join("telemetry.log");
-    let mut file = fs::OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open(log_file_path)?;
-
     let log_entry = format!(
         "[{}] [{}] [{}] {} - {:?}\n",
         payload.timestamp,
@@ -1044,7 +1056,23 @@ pub async fn log_telemetry(payload: web::Json<TelemetryPayload>) -> Result<HttpR
         payload.data
     );
 
+    // 1. Write to general telemetry log (everything)
+    let log_file_path = log_dir.join("telemetry.log");
+    let mut file = fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(log_file_path)?;
     file.write_all(log_entry.as_bytes())?;
+
+    // 2. Write to dedicated error log (errors only)
+    if payload.level.to_uppercase() == "ERROR" {
+        let error_file_path = log_dir.join("error.log");
+        let mut error_file = fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(error_file_path)?;
+        error_file.write_all(log_entry.as_bytes())?;
+    }
     
     Ok(HttpResponse::Ok().finish())
 }

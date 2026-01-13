@@ -34,7 +34,10 @@ export const NavigationRenderer = {
 
         // Listen for cancellation
         PubSub.subscribe(EVENTS.NAV_CANCELLED, (data) => {
-            if (data.journeyId === activeJourneyId) {
+            if (data && data.journeyId === activeJourneyId) {
+                activeJourneyId = null;
+            } else if (!data) {
+                // Global cancellation
                 activeJourneyId = null;
             }
         });

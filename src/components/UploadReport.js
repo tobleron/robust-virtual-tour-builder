@@ -89,6 +89,22 @@ export const UploadReport = {
       iconHtml: `<div style="font-size: 48px; margin-bottom: 8px;">✨</div>`,
       contentHtml: contentHtml,
       buttons: [
+        {
+          label: "Download Data Report",
+          class: "bg-slate-100 text-slate-700 hover:bg-slate-200",
+          onClick: () => {
+            // Access report from store if available
+            const exifReport = window.store.state.exifReport;
+            if (exifReport) {
+              import("../systems/ExifReportGenerator.js").then(module => {
+                module.downloadExifReport(exifReport);
+              });
+            } else {
+              alert("Report is still generating... please wait a moment.");
+            }
+          },
+          autoClose: false
+        },
         { label: "Start Building", class: "btn-blue", autoClose: true }
       ]
     });

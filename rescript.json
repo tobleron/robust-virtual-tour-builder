@@ -1,0 +1,22 @@
+{
+    "name": "robust-virtual-tour-builder",
+    "sources": {
+        "dir": "src",
+        "subdirs": true
+    },
+    "package-specs": {
+        "module": "es6",
+        "in-source": true
+    },
+    "suffix": ".bs.js",
+    "jsx": {
+        "version": 4,
+        "mode": "automatic"
+    },
+    "dependencies": [
+        "@rescript/react"
+    ],
+    "warnings": {
+        "error": "+101"
+    }
+}

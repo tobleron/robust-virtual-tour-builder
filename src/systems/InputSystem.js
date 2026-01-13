@@ -9,7 +9,7 @@ import { notify } from "../utils/NotificationSystem.js";
 
 import { store } from "../store.js";
 import { cancelNavigation } from "./NavigationSystem.js";
-import { isAutoPilotActive, stopAutoPilot } from "./SimulationSystem.js";
+import { isAutoPilotActive, stopAutoPilot } from "./SimulationSystem.bs.js";
 import { Debug } from "../utils/Debug.js";
 
 /**

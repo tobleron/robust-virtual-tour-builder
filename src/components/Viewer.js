@@ -2,7 +2,7 @@ import { notify } from "../utils/NotificationSystem.js";
 import { showLinkModal } from "./LinkModal.js";
 import { store } from "../store.js";
 import { syncLabelMenu } from "./LabelMenu.js";
-import { syncHotspots, createHotspotConfig } from "./HotspotManager.js";
+import { syncHotspots, createHotspotConfig } from "./HotspotManager.bs.js";
 import {
   getIsSimulationMode,
   getIncomingLink,
@@ -17,7 +17,7 @@ import {
   initNavigation,
   cancelNavigation
 } from "../systems/NavigationSystem.js";
-import { setupViewerUI } from "./ViewerUI.js";
+// import { setupViewerUI } from "./ViewerUI.js";
 import { HotspotLineSystem } from "../systems/HotspotLineSystem.js";
 import { NavigationRenderer } from "../systems/NavigationRenderer.js";
 import { Debug } from "../utils/Debug.js";
@@ -207,7 +207,7 @@ export function initViewer() {
 
   // Setup UI elements only once
   if (!document.getElementById("btn-add-link-fab")) {
-    setupViewerUI(viewerStage, null); // Pass null for now, we'll sync viewer in syncHotspots
+    // setupViewerUI(viewerStage, null); // Pass null for now, we'll sync viewer in syncHotspots
     // Cache floor circles after UI is built (one-time query)
     cachedFloorCircles = document.querySelectorAll(".floor-circle");
     // Initial Dimming State Check
@@ -463,6 +463,7 @@ export function initViewer() {
       // RESET LOADING STATE: Critical to prevent race conditions during project reloads
       isSceneLoading = false;
       loadingSceneId = null;
+      lastSceneId = null; // Reset this so the next scene is always treated as "changed"
       if (loadSafetyTimeout) {
         clearTimeout(loadSafetyTimeout);
         loadSafetyTimeout = null;
@@ -534,7 +535,9 @@ export function initViewer() {
     // If only linking state or hotspots changed, don't reload entire viewer
     if (!hasSceneChanged) {
       const viewer = getActiveViewer();
-      syncHotspots(viewer, state, currentScene, getIncomingLink(), getIsSimulationMode(), navigateToScene);
+      if (viewer) {
+        syncHotspots(viewer, state, currentScene, getIncomingLink(), getIsSimulationMode(), navigateToScene);
+      }
 
       // AUTO-FOCUS REDIRECTION: If view coordinates in state changed (manual jump), re-orient
       if (viewer && (state.activeYaw !== lastAppliedYaw || state.activePitch !== lastAppliedPitch)) {
@@ -820,7 +823,9 @@ export function initViewer() {
             mouseZoom: false,
             doubleClickZoom: false,
             friction: 0.05,
-            hotSpots: targetScene.hotspots.map((h, i) => createHotspotConfig(h, i, state, targetScene, getIncomingLink(), getIsSimulationMode(), navigateToScene)),
+            hotSpots: targetScene.hotspots.map((h, i) => {
+              return createHotspotConfig(h, i, state, targetScene, getIncomingLink() || undefined, getIsSimulationMode());
+            }),
           },
           master: {
             type: "equirectangular",
@@ -834,7 +839,19 @@ export function initViewer() {
             mouseZoom: false,
             doubleClickZoom: false,
             friction: 0.05,
-            hotSpots: targetScene.hotspots.map((h, i) => createHotspotConfig(h, i, state, targetScene, getIncomingLink(), getIsSimulationMode(), navigateToScene)),
+            hotSpots: targetScene.hotspots.map((h, i) => {
+              // We need to use createHotspotConfig from ReScript?
+              // But viewerConfig uses basic object.
+              // Actually, pannellum config "hotSpots" is an ARRAY of objects.
+              // createHotspotConfig in JS returned that object.
+              // HotspotManager.bs.js exports createHotspotConfig too, but it expects arguments.
+              // The original code mapped: createHotspotConfig(h, i, state, targetScene, getIncomingLink(), getIsSimulationMode(), navigateToScene)
+
+              // Reuse syncHotspots logic? 
+              // Pannellum `scenes` config expects the array.
+              // I should import createHotspotConfig from bs.js as well.
+              return createHotspotConfig(h, i, state, targetScene, getIncomingLink() || undefined, getIsSimulationMode());
+            }),
           }
         }
       };
@@ -885,17 +902,34 @@ export function initViewer() {
           });
 
           const checkReadyAndSwap = () => {
-            // Only swap if this scene is actually the store's active scene now
-            if (store.state.activeIndex === targetIndex && !isAnticipatory) {
+            const currentActive = store.state.activeIndex;
+            const matchesIndex = currentActive === targetIndex;
+            const shouldSwap = matchesIndex && !isAnticipatory;
+
+            // COMPREHENSIVE DEBUG
+            console.log(`[ViewerCheck] Scene: ${targetScene.name}`);
+            console.log(`[ViewerCheck] Active: ${currentActive}, Target: ${targetIndex}, Match: ${matchesIndex}`);
+            console.log(`[ViewerCheck] IsAnticipatory: ${isAnticipatory}, ShouldSwap: ${shouldSwap}`);
+
+            if (shouldSwap) {
               Debug.info('Viewer', "Active index matches loaded scene. Swapping now.");
               performSwap(targetScene);
             } else {
               // Scene is loaded but journey isn't at 80% yet. We wait.
               Debug.info('Viewer', "Anticipatory load complete. Waiting for active index to match...");
               isSceneLoading = false;
+              loadingSceneId = null;
 
-              // We'll be triggered again by the store subscriber when activeIndex changes
-              // AND we hit the reuse check.
+              // RECOVERY CHECK: Did the user change the scene while we were background loading?
+              const latestState = store.state;
+              const latestActiveScene = latestState.scenes[latestState.activeIndex];
+
+              // If the current active scene is DIFFERENT from what we just loaded (and we aren't swap-ready),
+              // it means the user clicked something else. We must prioritize that.
+              if (latestActiveScene && latestActiveScene.id !== targetScene.id) {
+                Debug.warn('Viewer', `Scene mismatch detected after background load (${targetScene.name} loaded, but ${latestActiveScene.name} active). Triggering recovery.`);
+                loadNewScene(targetScene.id);
+              }
             }
           };
 
@@ -1089,45 +1123,51 @@ export function syncUI(state, scene) {
   // Sync FAB and Cancel Hint (shared with no-scenes case)
   syncLinkingModeUI(state);
 
-  // Note: simToggle (Auto-Pilot) state is now managed exclusively by SimulationSystem.js
+  // Note: simToggle (Auto-Pilot) state is now managed exclusively by SimulationSystem.bs.js
   // to avoid conflicts with the auto-pilot lifecycle and reactive UI updates.
 
-  if (catToggle) {
-    const isOutdoor = scene.category === "outdoor";
-    catToggle.innerHTML = isOutdoor ? '<span class="material-icons text-[21px]">park</span>' : '<span class="material-icons text-[21px]">home</span>';
-    catToggle.title = isOutdoor ? "Outdoor Scene Selected" : "Indoor Scene Selected";
-
-    if (scene.categorySet) {
-      catToggle.style.background = isOutdoor ? "#15803d" : "#c2410c"; // Green-700 or Dark Orange
-    } else {
-      catToggle.style.background = "#dc3545";
-    }
-  }
-
-  if (lblBtn) {
-    if (scene.labelSet) {
-      lblBtn.style.background = "#2563eb";
-    } else {
-      lblBtn.style.background = "#dc3545";
-    }
-  }
-
-  if (circles.length > 0) {
-    circles.forEach(c => {
-      const fid = c.dataset.id;
-      c.style.display = "flex";
-      const currentFloor = scene.floor || "ground";
-      c.classList.remove("bg-floor-active", "border-floor-border-active");
-      c.classList.add("bg-floor-default", "border-transparent");
-      if (fid === currentFloor) {
-        c.classList.remove("bg-floor-default", "border-transparent");
-        c.classList.add("bg-floor-active", "border-floor-border-active");
+  /*
+    if (catToggle) {
+      const isOutdoor = scene.category === "outdoor";
+      catToggle.innerHTML = isOutdoor ? '<span class="material-icons text-[21px]">park</span>' : '<span class="material-icons text-[21px]">home</span>';
+      catToggle.title = isOutdoor ? "Outdoor Scene Selected" : "Indoor Scene Selected";
+  
+      if (scene.categorySet) {
+        catToggle.style.background = isOutdoor ? "#15803d" : "#c2410c"; // Green-700 or Dark Orange
+      } else {
+        catToggle.style.background = "#dc3545";
       }
-    });
-  }
+    }
+  */
+
+  /*
+    if (lblBtn) {
+      if (scene.labelSet) {
+        lblBtn.style.background = "#2563eb";
+      } else {
+        lblBtn.style.background = "#dc3545";
+      }
+    }
+  */
+
+  /*
+    if (circles.length > 0) {
+      circles.forEach(c => {
+        const fid = c.dataset.id;
+        c.style.display = "flex";
+        const currentFloor = scene.floor || "ground";
+        c.classList.remove("bg-floor-active", "border-floor-border-active");
+        c.classList.add("bg-floor-default", "border-transparent");
+        if (fid === currentFloor) {
+          c.classList.remove("bg-floor-default", "border-transparent");
+          c.classList.add("bg-floor-active", "border-floor-border-active");
+        }
+      });
+    }
+  */
 
   syncLabelMenu(scene);
-  updateReturnPrompt(state, scene);
+  // updateReturnPrompt(state, scene);
 
   const pLabel = document.getElementById("v-scene-persistent-label");
   if (pLabel) {
@@ -1193,7 +1233,7 @@ function syncViewControls(state) {
   const hasScenes = state.scenes.length > 0;
 
   if (utilityBar) {
-    utilityBar.classList.toggle("viewer-utility-dimmed", !hasScenes);
+    // utilityBar.classList.toggle("viewer-utility-dimmed", !hasScenes);
 
     // SYNC SIMULATION BUTTON (Robustness fix)
     const simToggle = document.getElementById("v-scene-sim-toggle");
@@ -1208,7 +1248,9 @@ function syncViewControls(state) {
       }
     }
   }
-  if (floorNav) {
-    floorNav.classList.toggle("viewer-utility-dimmed", !hasScenes);
-  }
+  /*
+    if (floorNav) {
+      floorNav.classList.toggle("viewer-utility-dimmed", !hasScenes);
+    }
+  */
 }
