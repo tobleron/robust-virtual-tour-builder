@@ -243,6 +243,9 @@ export class VisualPipelineComponent {
         padding-bottom: 2px;
         padding-left: 1px;
       }
+      .drop-zone.is-endpoint::before {
+        display: none;
+      }
     `;
     document.head.appendChild(style);
   }
@@ -322,7 +325,9 @@ export class VisualPipelineComponent {
     const track = this.wrapper.querySelector('.pipeline-track');
     const fragment = document.createDocumentFragment();
 
-    fragment.appendChild(this.createDropZone(0));
+    const firstZone = this.createDropZone(0);
+    firstZone.classList.add('is-endpoint');
+    fragment.appendChild(firstZone);
 
     state.timeline.forEach((item, index) => {
       const node = document.createElement('div');
@@ -338,8 +343,8 @@ export class VisualPipelineComponent {
       }
 
       if (index === 0) {
-        const firstZone = fragment.querySelector('.drop-zone');
-        if (firstZone) firstZone.style.setProperty('--pipe-color', color);
+        const firstZoneInTrack = fragment.querySelector('.drop-zone');
+        if (firstZoneInTrack) firstZoneInTrack.style.setProperty('--pipe-color', color);
       }
 
       if (state.activeTimelineStepId === item.id) {
@@ -408,6 +413,9 @@ export class VisualPipelineComponent {
       fragment.appendChild(node);
 
       const nextZone = this.createDropZone(index + 1);
+      if (index === state.timeline.length - 1) {
+        nextZone.classList.add('is-endpoint');
+      }
       nextZone.style.setProperty('--pipe-color', color);
       fragment.appendChild(nextZone);
     });

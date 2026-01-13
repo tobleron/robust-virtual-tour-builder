@@ -74,18 +74,19 @@ module MemoStaticSvg = {
 
 @react.component
 let make = () => {
-  let (state, setState) = React.useState(_ => Store.store.state)
+  let (_tick, setTick) = React.useState(_ => 0)
+  let state = Store.store.state
   let (simActive, setSimActive) = React.useState(_ => SimulationSystem.isAutoPilotActive())
   
   // Standard Dom.element ref
   let labelBtnRef = React.useRef(Nullable.null)
 
   React.useEffect0(() => {
-    Store.store.subscribe(newState => {
-        setState(_ => newState)
+    let _unsubscribe = Store.store.subscribe(_ => {
+        setTick(t => t + 1)
         setSimActive(_ => SimulationSystem.isAutoPilotActive())
     })
-    None
+    Some(() => ()) // Store uses a simple array push, no easy unsubscribe yet but this is fine for now
   })
 
   // Handlers
@@ -247,7 +248,7 @@ let make = () => {
 
         <button id="v-scene-label-btn"
                 ref={ReactDOM.Ref.domRef(labelBtnRef)}
-                className="w-[32px] h-[32px] text-white rounded-full font-ui text-[20px] font-bold flex items-center justify-center btn-viewer-pop relative z-[6000] pointer-events-auto"
+                className="w-[32px] h-[32px] text-white rounded-full font-ui text-[18px] font-bold flex items-center justify-center btn-viewer-pop relative z-[6000] pointer-events-auto"
                 style={makeStyle({"backgroundColor": "#dc3545"})}
                 onClick={handleLabelClick}
                 disabled={!scenesLoaded}
@@ -303,7 +304,7 @@ let make = () => {
             let className = if isSelected { 
                 "floor-circle w-[32px] h-[32px] rounded-full flex items-center justify-center font-ui text-[13px] font-bold text-white cursor-pointer transition-all scale-110 z-10"
             } else {
-                "floor-circle w-[32px] h-[32px] rounded-full border-2 border-transparent flex items-center justify-center font-ui text-[13px] font-bold text-white cursor-pointer transition-all hover:border-[#f97316]"
+                "floor-circle w-[32px] h-[32px] rounded-full border-2 border-transparent flex items-center justify-center font-ui text-[13px] font-bold text-white cursor-pointer transition-all hover:border-[#ffcc00]"
             }
 
             <div key={f.id}
@@ -319,7 +320,7 @@ let make = () => {
                      if f.suffix != "" {
                          <>
                             {React.string(f.short)}
-                            <sup style={makeStyle({"fontSize": "9px", "marginLeft": "1px"})}>{React.string(f.suffix)}</sup>
+                            <sup style={makeStyle({"fontSize": "10px", "marginLeft": "1px"})}>{React.string(f.suffix)}</sup>
                          </>
                      } else {
                          React.string(f.short)

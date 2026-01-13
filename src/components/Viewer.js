@@ -1,7 +1,7 @@
 import { notify } from "../utils/NotificationSystem.js";
 import { showLinkModal } from "./LinkModal.js";
 import { store } from "../store.js";
-import { syncLabelMenu } from "./LabelMenu.js";
+import { syncLabelMenu, createLabelMenu } from "./LabelMenu.js";
 import { syncHotspots, createHotspotConfig } from "./HotspotManager.bs.js";
 import {
   getIsSimulationMode,
@@ -210,6 +210,17 @@ export function initViewer() {
     // setupViewerUI(viewerStage, null); // Pass null for now, we'll sync viewer in syncHotspots
     // Cache floor circles after UI is built (one-time query)
     cachedFloorCircles = document.querySelectorAll(".floor-circle");
+
+    // CRITICAL: Initialize LabelMenu after ViewerUI has rendered its button (if present)
+    const labelButton = document.getElementById("v-scene-label-btn");
+    if (labelButton && viewerStage) {
+      createLabelMenu(viewerStage, labelButton);
+    } else {
+      // If it doesn't exist yet, we might rely on ViewerUI to mount it later, 
+      // but assuming ViewerUI runs before initViewer or promptly after.
+      // We can also retry if needed, but for now we follow the imperative fix.
+    }
+
     // Initial Dimming State Check
     syncViewControls(store.state);
 
@@ -1236,6 +1247,8 @@ function syncViewControls(state) {
     // utilityBar.classList.toggle("viewer-utility-dimmed", !hasScenes);
 
     // SYNC SIMULATION BUTTON (Robustness fix)
+    // SYNC SIMULATION BUTTON (Robustness fix) - Removed as SimulationSystem now manages this state
+    /*
     const simToggle = document.getElementById("v-scene-sim-toggle");
     if (simToggle) {
       const isSim = getIsSimulationMode(); // This is the source of truth for UI display
@@ -1247,6 +1260,7 @@ function syncViewControls(state) {
         simToggle.style.setProperty('background-color', '#10b981', 'important');
       }
     }
+    */
   }
   /*
     if (floorNav) {

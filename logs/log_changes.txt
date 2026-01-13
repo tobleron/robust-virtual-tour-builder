@@ -1,1 +1,2 @@
 [2026-01-13 11:40] v4.2.1 - Stable Release: Complete migration to ReScript v12 Core. Fixed "Load Failed" issues with robust persistence, improved error logging (error.log), and resolved viewer state desync causing getConfig crashes.
+[2026-01-13] FIXED: Reverted viewer utility buttons to proper 32px size and adjusted icon scales.
