@@ -2,17 +2,18 @@ open ReBindings
 open Types
 
 // --- STATE ---
+// --- STATE ---
 type simulationState = {
-  mutable isAutoPilot: bool,
-  mutable visitedScenes: array<int>,
-  mutable stoppingOnArrival: bool,
-  mutable skipAutoForwardGlobal: bool,
-  mutable lastAdvanceTime: float,
-  mutable pendingAdvanceId: option<int>,
-  mutable autoPilotJourneyId: int,
+  isAutoPilot: bool,
+  visitedScenes: array<int>,
+  stoppingOnArrival: bool,
+  skipAutoForwardGlobal: bool,
+  lastAdvanceTime: float,
+  pendingAdvanceId: option<int>,
+  autoPilotJourneyId: int,
 }
 
-let simState = {
+let makeInitialState = (): simulationState => {
   isAutoPilot: false,
   visitedScenes: [],
   stoppingOnArrival: false,
@@ -20,6 +21,88 @@ let simState = {
   lastAdvanceTime: 0.0,
   pendingAdvanceId: None,
   autoPilotJourneyId: 0,
+}
+
+type simulationAction =
+  | StartAutoPilot(int, bool) // journeyId, skipAutoForward
+  | StopAutoPilot
+  | AddVisitedScene(int)
+  | ClearVisitedScenes
+  | SetStoppingOnArrival(bool)
+  | SetSkipAutoForward(bool)
+  | UpdateAdvanceTime(float)
+  | SetPendingAdvance(option<int>)
+  | IncrementJourneyId
+
+let reduceSimulation = (state: simulationState, action: simulationAction): simulationState => {
+  Logger.debug(
+    ~module_="Simulation",
+    ~message="STATE_TRANSITION",
+    ~data=Some(Obj.magic({"action": action, "prevState": state})),
+    ()
+  )
+
+  let newState = switch action {
+  | StartAutoPilot(journeyId, skip) => {
+      ...state,
+      isAutoPilot: true,
+      autoPilotJourneyId: journeyId,
+      visitedScenes: [],
+      skipAutoForwardGlobal: skip,
+      stoppingOnArrival: false,
+    }
+  | StopAutoPilot => {
+      ...state,
+      isAutoPilot: false,
+      pendingAdvanceId: None,
+      visitedScenes: [],
+      stoppingOnArrival: false,
+      skipAutoForwardGlobal: false,
+    }
+  | AddVisitedScene(sceneIdx) => {
+      ...state,
+      visitedScenes: Belt.Array.concat(state.visitedScenes, [sceneIdx]),
+    }
+  | ClearVisitedScenes => {
+      ...state,
+      visitedScenes: [],
+    }
+  | SetStoppingOnArrival(value) => {
+      ...state,
+      stoppingOnArrival: value,
+    }
+  | SetSkipAutoForward(value) => {
+      ...state,
+      skipAutoForwardGlobal: value,
+    }
+  | UpdateAdvanceTime(time) => {
+      ...state,
+      lastAdvanceTime: time,
+    }
+  | SetPendingAdvance(id) => {
+      ...state,
+      pendingAdvanceId: id,
+    }
+  | IncrementJourneyId => {
+      ...state,
+      autoPilotJourneyId: state.autoPilotJourneyId + 1,
+    }
+  }
+
+  Logger.debug(
+    ~module_="Simulation",
+    ~message="STATE_UPDATED",
+    ~data=Some(Obj.magic({"newState": newState})),
+    ()
+  )
+
+  newState
+}
+
+let simStore = ref(makeInitialState())
+
+let dispatch = (action: simulationAction): unit => {
+  simStore := reduceSimulation(simStore.contents, action)
 }
 
 // --- BINDINGS ---
@@ -42,11 +125,15 @@ module LocalViewerBindings = {
 
 
 
-let isAutoPilotActive = () => simState.isAutoPilot
-ignore(Obj.magic(window)["isAutoPilotActive"] = isAutoPilotActive)
+let isAutoPilotActive = () => simStore.contents.isAutoPilot
+try {
+  ignore(Obj.magic(window)["isAutoPilotActive"] = isAutoPilotActive)
+} catch {
+| _ => ()
+}
 
 let stopAutoPilotLogic = returnToStart => {
-  if simState.isAutoPilot {
+  if simStore.contents.isAutoPilot {
     Logger.info(
       ~module_="Simulation",
       ~message="AUTOPILOT_STOP",
@@ -54,17 +141,13 @@ let stopAutoPilotLogic = returnToStart => {
       (),
     )
 
-    switch simState.pendingAdvanceId {
+    switch simStore.contents.pendingAdvanceId {
     | Some(id) => clearTimeout(id)
     | None => ()
     }
-    simState.pendingAdvanceId = None
-
-    simState.autoPilotJourneyId = simState.autoPilotJourneyId + 1
-    simState.isAutoPilot = false
-    simState.visitedScenes = []
-    simState.stoppingOnArrival = false
-    simState.skipAutoForwardGlobal = false
+    
+    dispatch(IncrementJourneyId)
+    dispatch(StopAutoPilot)
 
     Navigation.setSimulationMode(GlobalStateBridge.dispatch, GlobalStateBridge.getState(), false)
 
@@ -75,8 +158,15 @@ let stopAutoPilotLogic = returnToStart => {
     let simToggle = Obj.magic(document)["getElementById"]("v-scene-sim-toggle")
     if Obj.magic(simToggle) != Nullable.null {
       ignore(
-        simToggle["innerHTML"] = "<span class='material-icons' style='font-size: 22px; color: white;'>play_arrow</span>",
+        simToggle["textContent"] = "",
       )
+      
+      let span = document["createElement"]("span")
+      ignore(span["className"] = "material-icons")
+      ignore(span["style"]["fontSize"] = "22px")
+      ignore(span["style"]["color"] = "white")
+      ignore(span["textContent"] = "play_arrow")
+      ignore(simToggle["appendChild"](span))
       ignore(simToggle["style"]["removeProperty"]("background-color"))
       ignore(simToggle["style"]["setProperty"]("background-color", "#10b981", "important"))
       ignore(simToggle["title"] = "Start Auto-Pilot Simulation")
@@ -110,14 +200,14 @@ let completeAutoPilot = () => {
     ~module_="Simulation",
     ~operation="AUTOPILOT",
     ~data=Some({
-        "scenesVisited": Array.length(simState.visitedScenes),
+        "scenesVisited": Array.length(simStore.contents.visitedScenes),
         "reason": "completed"
     }),
     (),
   )
   EventBus.dispatch(ShowNotification(
     "Simulation complete! Visited " ++
-    Belt.Int.toString(Array.length(simState.visitedScenes)) ++ " scenes.",
+    Belt.Int.toString(Array.length(simStore.contents.visitedScenes)) ++ " scenes.",
     #Success,
   ))
 
@@ -135,7 +225,7 @@ let waitForViewerScene = async sceneIndex => {
     let loop = ref(true)
 
     while loop.contents {
-      if !simState.isAutoPilot {
+      if !simStore.contents.isAutoPilot {
         loop := false
       } else if Date.now() -. start > timeout {
         loop := false
@@ -179,7 +269,7 @@ let findBestNextLink = (
 ) => {
   let visited = switch explicitVisitedOpt {
   | Some(v) => v
-  | None => simState.visitedScenes
+  | None => simStore.contents.visitedScenes
   }
 
   let hotspots = currentScene.hotspots
@@ -245,7 +335,7 @@ let findBestNextLink = (
 }
 
 let advanceToNextScene = () => {
-  if simState.isAutoPilot {
+  if simStore.contents.isAutoPilot {
     let state = GlobalStateBridge.getState()
     let currentSceneOpt = Belt.Array.get(state.scenes, state.activeIndex)
 
@@ -258,7 +348,7 @@ let advanceToNextScene = () => {
         let nextLink = ref(link)
 
         // SKIP AUTO-FORWARD LOGIC
-        if simState.skipAutoForwardGlobal {
+        if simStore.contents.skipAutoForwardGlobal {
           let chainCounter = ref(0)
           let originalHotspotIndex = nextLink.contents.hotspotIndex
           let originalHotspot = nextLink.contents.hotspot
@@ -271,8 +361,8 @@ let advanceToNextScene = () => {
               if !isAuto {
                 loop := false
               } else {
-                if !Js.Array.includes(nextLink.contents.targetIndex, simState.visitedScenes) {
-                  let _ = Js.Array.push(nextLink.contents.targetIndex, simState.visitedScenes)
+                if !Js.Array.includes(nextLink.contents.targetIndex, simStore.contents.visitedScenes) {
+                  dispatch(AddVisitedScene(nextLink.contents.targetIndex))
                 }
 
                 switch findBestNextLink(targetScene, state, None) {
@@ -311,14 +401,14 @@ let advanceToNextScene = () => {
             let hasNewPaths = Belt.Array.some(startScene.hotspots, h => {
               let tIdx = Belt.Array.getIndexBy(state.scenes, s => s.name == h.target)
               switch tIdx {
-              | Some(i) => !Js.Array.includes(i, simState.visitedScenes)
+              | Some(i) => !Js.Array.includes(i, simStore.contents.visitedScenes)
               | None => false
               }
             })
 
             if !hasNewPaths {
               Logger.info(~module_="Simulation", ~message="SIM_COMPLETE", ~data=Some({"reason": "returned_to_start"}), ())
-              simState.stoppingOnArrival = true
+              dispatch(SetStoppingOnArrival(true))
             }
           | None => ()
           }
@@ -330,7 +420,7 @@ let advanceToNextScene = () => {
           ~data=Some({
             "currentScene": currentScene.name,
             "nextScene": hotspot.target, 
-            "visitedCount": Array.length(simState.visitedScenes)
+            "visitedCount": Array.length(simStore.contents.visitedScenes)
           }), 
           ()
         )
@@ -377,7 +467,7 @@ let advanceToNextScene = () => {
         Logger.endOperation(
           ~module_="Simulation", 
           ~operation="AUTOPILOT", 
-          ~data=Some({"reason": "no_reachable_scenes", "scenesVisited": Array.length(simState.visitedScenes)}), 
+          ~data=Some({"reason": "no_reachable_scenes", "scenesVisited": Array.length(simStore.contents.visitedScenes)}), 
           ()
         )
         completeAutoPilot()
@@ -389,27 +479,27 @@ let advanceToNextScene = () => {
 }
 
 let onSceneArrival = (sceneIndex, _isChainEnd) => {
-  if simState.isAutoPilot {
+  if simStore.contents.isAutoPilot {
     Logger.debug(~module_="Simulation", ~message="SCENE_ARRIVED", ~data=Some({"sceneIndex": sceneIndex}), ())
 
-    if simState.stoppingOnArrival {
-      simState.stoppingOnArrival = false
+    if simStore.contents.stoppingOnArrival {
+      dispatch(SetStoppingOnArrival(false))
       completeAutoPilot()
     } else {
-      switch simState.pendingAdvanceId {
+      switch simStore.contents.pendingAdvanceId {
       | Some(id) => clearTimeout(id)
       | None => ()
       }
-      simState.pendingAdvanceId = None
+      dispatch(SetPendingAdvance(None))
 
       let now = Date.now()
-      if now -. simState.lastAdvanceTime < 300.0 {
+      if now -. simStore.contents.lastAdvanceTime < 300.0 {
         Logger.warn(~module_="Simulation", ~message="ARRIVAL_DEBOUNCED", ())
       } else {
-        simState.lastAdvanceTime = now
+        dispatch(UpdateAdvanceTime(now))
 
-        if !Js.Array.includes(sceneIndex, simState.visitedScenes) {
-          let _ = Js.Array.push(sceneIndex, simState.visitedScenes)
+        if !Js.Array.includes(sceneIndex, simStore.contents.visitedScenes) {
+          dispatch(AddVisitedScene(sceneIndex))
         }
 
         let state = GlobalStateBridge.getState()
@@ -417,21 +507,22 @@ let onSceneArrival = (sceneIndex, _isChainEnd) => {
         | Some(currentScene) =>
           let isBridge = currentScene.isAutoForward
 
-          let delay = if simState.skipAutoForwardGlobal && isBridge {
+          let delay = if simStore.contents.skipAutoForwardGlobal && isBridge {
             0
           } else {
             500
           }
 
-          simState.pendingAdvanceId = Some(setTimeout(async () => {
+          dispatch(SetPendingAdvance(Some(setTimeout(async () => {
               try {
                 let _ = await waitForViewerScene(sceneIndex)
-                if simState.isAutoPilot && !simState.stoppingOnArrival {
+                // Accessing ref in closure is safe
+                if simStore.contents.isAutoPilot && !simStore.contents.stoppingOnArrival {
                   advanceToNextScene()
                 }
               } catch {
               | e =>
-                if simState.isAutoPilot {
+                if simStore.contents.isAutoPilot {
                   Logger.error(
                     ~module_="Simulation",
                     ~message="SCENE_ARRIVAL_FAILED",
@@ -441,7 +532,7 @@ let onSceneArrival = (sceneIndex, _isChainEnd) => {
                   completeAutoPilot()
                 }
               }
-            }, delay))
+            }, delay))))
         | None => ()
         }
       }
@@ -467,14 +558,13 @@ let startAutoPilot = skipAutoForward => {
         ()
     )
 
-    simState.isAutoPilot = true
-    simState.visitedScenes = []
-    simState.stoppingOnArrival = false
-    simState.skipAutoForwardGlobal = switch skipAutoForward {
+
+
+    dispatch(IncrementJourneyId)
+    dispatch(StartAutoPilot(simStore.contents.autoPilotJourneyId, switch skipAutoForward {
     | Some(b) => b
     | None => false
-    }
-    simState.autoPilotJourneyId = simState.autoPilotJourneyId + 1
+    }))
 
     Navigation.setSimulationMode(GlobalStateBridge.dispatch, state, true)
 
@@ -484,8 +574,15 @@ let startAutoPilot = skipAutoForward => {
     let simToggle = Obj.magic(document)["getElementById"]("v-scene-sim-toggle")
     if Obj.magic(simToggle) != Nullable.null {
       ignore(
-        simToggle["innerHTML"] = "<span class='material-icons' style='font-size: 22px; color: white;'>stop</span>",
+        simToggle["textContent"] = "",
       )
+
+      let span = document["createElement"]("span")
+      ignore(span["className"] = "material-icons")
+      ignore(span["style"]["fontSize"] = "22px")
+      ignore(span["style"]["color"] = "white")
+      ignore(span["textContent"] = "stop")
+      ignore(simToggle["appendChild"](span))
       ignore(simToggle["style"]["removeProperty"]("background-color"))
       ignore(simToggle["style"]["setProperty"]("background-color", "#dc3545", "important"))
       ignore(simToggle["title"] = "Click to Stop Simulation")
@@ -507,16 +604,16 @@ let startAutoPilot = skipAutoForward => {
       )
     }
 
-    let _ = Js.Array.push(0, simState.visitedScenes)
+    dispatch(AddVisitedScene(0))
 
-    switch simState.pendingAdvanceId {
+    switch simStore.contents.pendingAdvanceId {
     | Some(id) => clearTimeout(id)
     | None => ()
     }
 
-    simState.pendingAdvanceId = Some(setTimeout(() => {
+    dispatch(SetPendingAdvance(Some(setTimeout(() => {
         advanceToNextScene()
-      }, 800))
+      }, 800))))
 
     EventBus.dispatch(ShowNotification("Auto-pilot started", #Success))
   }
@@ -529,6 +626,8 @@ let initSimulationKeyHandler = () => {
 
 // --- TEASER PATH GENERATION ---
 
+// Note: transitionState and arrivalView use mutable fields for animation performance
+// This is acceptable as it's scoped to animation frames and not app state
 type arrivalView = {
   mutable yaw: float,
   mutable pitch: float,
