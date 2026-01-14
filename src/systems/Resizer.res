@@ -129,20 +129,25 @@ let processAndAnalyzeImage = (file: File.t): Promise.t<processResult> => {
   let fetchStart = now()
 
   BackendApi.processImageFull(file)
-  ->Promise.then(zipBlob => {
-    let fetchDuration = now() -. fetchStart
-    Logger.info(
-      ~module_="Resizer",
-      ~message="BACKEND_FETCH_COMPLETE",
-      ~data={
-        "fileName": File.name(file),
-        "durationMs": Float.toFixed(fetchDuration, ~digits=2),
-        "size": File.size(file),
-      },
-      (),
-    )
+  ->Promise.then(result => {
+    switch result {
+    | Ok(zipBlob) => {
+        let fetchDuration = now() -. fetchStart
+        Logger.info(
+          ~module_="Resizer",
+          ~message="BACKEND_FETCH_COMPLETE",
+          ~data={
+            "fileName": File.name(file),
+            "durationMs": Float.toFixed(fetchDuration, ~digits=2),
+            "size": File.size(file),
+          },
+          (),
+        )
 
-    JSZip.loadAsync(zipBlob)
+        JSZip.loadAsync(zipBlob)
+      }
+    | Error(msg) => Promise.reject(JsError.throwWithMessage(msg))
+    }
   })
   ->Promise.then(zip => {
     // 1. Extract Preview

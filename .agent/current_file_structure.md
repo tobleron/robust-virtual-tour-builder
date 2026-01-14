@@ -982,10 +982,10 @@
 │   │   ├── 75_Fix_IndexHTML_Critical_Bugs_REPORT.md
 │   │   ├── 76_Fix_ReScript_Shadowing_Warnings_REPORT.md
 │   │   ├── 77_Eliminate_ObjMagic_BackendApi_REPORT.md
+│   │   ├── 78_Improve_Error_Handling_BackendApi_REPORT.md
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   ├── pending
-│   │   ├── 78_Improve_Error_Handling_BackendApi.md
 │   │   ├── 79_Remove_Unused_Backend_Import.md
 │   │   ├── 80_Add_Frontend_Unit_Tests.md
 │   │   ├── 81_Expand_Backend_Test_Coverage.md

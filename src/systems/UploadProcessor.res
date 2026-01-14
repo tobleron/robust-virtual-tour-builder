@@ -316,10 +316,16 @@ let processUploads = (
                   let similarityPromise = if Belt.Array.length(pairs) > 0 {
                     BackendApi.batchCalculateSimilarity(pairs)
                   } else {
-                    Promise.resolve([])
+                    Promise.resolve(Ok([]))
                   }
 
-                  similarityPromise->Promise.then(similarities => {
+                  similarityPromise->Promise.then(result => {
+                    let similarities = switch result {
+                    | Ok(s) => s
+                    | Error(msg) => 
+                        notify("Grouping failed: " ++ msg, "warning")
+                        []
+                    }
                     // Build lookup map
                     let simMap = Dict.make()
                     Belt.Array.forEach(similarities, (result: BackendApi.similarityResult) => {
