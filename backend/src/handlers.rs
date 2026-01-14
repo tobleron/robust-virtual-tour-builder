@@ -279,11 +279,13 @@ impl ValidationReport {
 }
 
 /// Validate and clean project data
-/// Returns a validation report with warnings and errors
+/// Returns a tuple of (cleaned_project, validation_report)
+/// This function takes ownership of the project and returns a new cleaned version
 fn validate_and_clean_project(
-    project: &mut serde_json::Value,
+    project: serde_json::Value,
     available_files: &HashSet<String>
-) -> Result<ValidationReport, String> {
+) -> Result<(serde_json::Value, ValidationReport), String> {
+    let mut project = project; // Take ownership, now we can mutate locally
     let mut report = ValidationReport::new();
     
     // Extract scenes array
@@ -292,7 +294,7 @@ fn validate_and_clean_project(
     
     if scenes.is_empty() {
         report.errors.push("Project has no scenes".to_string());
-        return Ok(report);
+        return Ok((project, report));
     }
     
     // Build scene name set for validation
@@ -422,7 +424,7 @@ fn validate_and_clean_project(
         tracing::info!("Validation complete: No issues found");
     }
     
-    Ok(report)
+    Ok((project, report))
 }
 
 // --- OPTIMIZED HELPERS ---
@@ -1196,7 +1198,7 @@ pub async fn save_project(mut payload: Multipart) -> Result<HttpResponse, AppErr
     // Run validation before saving
     let temp_images_for_validation = temp_images.clone();
     let (validated_json, _report) = web::block(move || -> Result<(String, ValidationReport), String> {
-        let mut project_data: serde_json::Value = serde_json::from_str(&json_content)
+        let project_data: serde_json::Value = serde_json::from_str(&json_content)
             .map_err(|e| format!("Invalid project JSON: {}", e))?;
         
         // For save-project, available files are the ones being uploaded
@@ -1205,13 +1207,13 @@ pub async fn save_project(mut payload: Multipart) -> Result<HttpResponse, AppErr
             available_files.insert(name.clone());
         }
         
-        let report = validate_and_clean_project(&mut project_data, &available_files)?;
+        let (mut validated_project, report) = validate_and_clean_project(project_data, &available_files)?;
         
         // Embed report
-        project_data["validationReport"] = serde_json::to_value(&report)
+        validated_project["validationReport"] = serde_json::to_value(&report)
             .map_err(|e| format!("Failed to serialize report: {}", e))?;
             
-        let updated_json = serde_json::to_string_pretty(&project_data)
+        let updated_json = serde_json::to_string_pretty(&validated_project)
             .map_err(|e| e.to_string())?;
             
         Ok((updated_json, report))
@@ -1309,10 +1311,11 @@ pub async fn validate_project(mut payload: Multipart) -> Result<HttpResponse, Ap
             .map_err(|e| format!("Failed to read project.json: {}", e))?;
         drop(project_file);
         
-        let mut project_data: serde_json::Value = serde_json::from_str(&project_json)
+        let project_data: serde_json::Value = serde_json::from_str(&project_json)
             .map_err(|e| format!("Invalid project.json: {}", e))?;
         
-        validate_and_clean_project(&mut project_data, &available_files)
+        let (_validated_project, report) = validate_and_clean_project(project_data, &available_files)?;
+        Ok(report)
     }).await.map_err(|e| AppError::InternalError(e.to_string()))?;
     
     let duration = start.elapsed().as_millis();
@@ -1371,11 +1374,11 @@ pub async fn load_project(mut payload: Multipart) -> Result<HttpResponse, AppErr
             .map_err(|e| format!("Failed to read project.json: {}", e))?;
         drop(project_file);
         
-        let mut project_data: serde_json::Value = serde_json::from_str(&project_json)
+        let project_data: serde_json::Value = serde_json::from_str(&project_json)
             .map_err(|e| format!("Invalid project.json: {}", e))?;
         
         // 3. Validate and clean project
-        let validation_report = validate_and_clean_project(&mut project_data, &available_files)?;
+        let (mut validated_project, validation_report) = validate_and_clean_project(project_data, &available_files)?;
         
         // Log validation results
         if validation_report.has_issues() {
@@ -1384,7 +1387,7 @@ pub async fn load_project(mut payload: Multipart) -> Result<HttpResponse, AppErr
         }
         
         // Add validation report to project data
-        project_data["validationReport"] = serde_json::to_value(&validation_report)
+        validated_project["validationReport"] = serde_json::to_value(&validation_report)
             .map_err(|e| format!("Failed to serialize validation report: {}", e))?;
         
         // 4. Create response ZIP containing validated project.json + all images normalized in images/
@@ -1398,7 +1401,7 @@ pub async fn load_project(mut payload: Multipart) -> Result<HttpResponse, AppErr
             // Add validated project.json
             zip_writer.start_file("project.json", options)
                 .map_err(|e| e.to_string())?;
-            let updated_json = serde_json::to_string_pretty(&project_data)
+            let updated_json = serde_json::to_string_pretty(&validated_project)
                 .map_err(|e| e.to_string())?;
             zip_writer.write_all(updated_json.as_bytes())
                 .map_err(|e| e.to_string())?;

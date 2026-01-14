@@ -86,15 +86,15 @@ let (validated_project, report) = validate_and_clean_project(project_data, &avai
 
 ## Testing Checklist
 
-- [ ] `save_project` endpoint works correctly
-- [ ] `load_project` endpoint works correctly
-- [ ] `validate_project` endpoint works correctly
-- [ ] Validation report is still embedded in response
-- [ ] No compilation errors or warnings
+- [x] `save_project` endpoint works correctly
+- [x] `load_project` endpoint works correctly
+- [x] `validate_project` endpoint works correctly
+- [x] Validation report is still embedded in response
+- [x] No compilation errors or warnings
 
 ## Definition of Done
 
-- Function takes ownership instead of mutable reference
-- Returns tuple of (cleaned_data, report)
-- All callers updated
-- Clearer data flow in handlers
+- [x] Function takes ownership instead of mutable reference
+- [x] Returns tuple of (cleaned_data, report)
+- [x] All callers updated
+- [x] Clearer data flow in handlers
