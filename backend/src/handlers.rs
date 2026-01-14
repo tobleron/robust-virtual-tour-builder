@@ -76,8 +76,14 @@ impl ResponseError for AppError {
             AppError::InternalError(e) => (actix_web::http::StatusCode::INTERNAL_SERVER_ERROR, "Internal Server Error", Some(e.clone())),
         };
 
-        // Log the error on the backend
-        tracing::error!(error = ?self, "Request failed");
+        // Structured error logging
+        tracing::error!(
+            module = "ErrorHandler",
+            error_type = msg,
+            details = %self,
+            status_code = status.as_u16(),
+            "REQUEST_FAILED"
+        );
 
         HttpResponse::build(status).json(ErrorResponse {
             error: msg.to_string(),
@@ -303,7 +309,7 @@ fn validate_and_clean_project(
         .map(|s| s.to_string())
         .collect();
     
-    tracing::info!("Validating project with {} scenes", scene_names.len());
+    tracing::info!(module = "Validator", scene_count = scene_names.len(), "VALIDATION_START");
 
     let mut incoming_links = HashSet::new();
     // The first scene is the entry point
@@ -767,7 +773,7 @@ pub async fn process_image_full(mut payload: Multipart) -> Result<HttpResponse, 
         // 2. Image Optimization (4K WebP)
         let opt_start = Instant::now();
         let webp_buffer_vec = if metadata.is_optimized && src_w == PROCESSED_IMAGE_WIDTH {
-             tracing::info!("Image already optimized. Skipping resize and encode.");
+             tracing::info!(module = "Processor", "IMAGE_ALREADY_OPTIMIZED");
              data.clone()
         } else {
             let resized_rgba = resize_fast_rgba(&src_rgba, src_w, src_h, PROCESSED_IMAGE_WIDTH, PROCESSED_IMAGE_WIDTH)
@@ -823,7 +829,7 @@ pub async fn process_image_full(mut payload: Multipart) -> Result<HttpResponse, 
         Ok(zip_buffer.into_inner())
     }).await.map_err(|e| AppError::InternalError(e.to_string()))?;
 
-    tracing::info!("Full process-image-full completed in: {:?}", total_start.elapsed());
+    tracing::info!(module = "Processor", duration_ms = total_start.elapsed().as_millis(), "PROCESS_IMAGE_FULL_TIMING");
 
     match result_zip {
         Ok(zip_bytes) => {
@@ -1347,7 +1353,7 @@ pub async fn load_project(mut payload: Multipart) -> Result<HttpResponse, AppErr
         }
     }
 
-    tracing::info!("Received project ZIP: {} bytes", zip_data.len());
+    tracing::info!(module = "ProjectManager", size_bytes = zip_data.len(), "PROJECT_ZIP_RECEIVED");
     
     // 2. Process in blocking thread - create response ZIP with project.json + all images
     let result_zip = web::block(move || -> Result<Vec<u8>, String> {
@@ -1706,7 +1712,7 @@ pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, App
     let input_str = input_path.to_str().unwrap().to_string();
     let output_str = output_path.to_str().unwrap().to_string();
 
-    tracing::info!(input = %input_str, output = %output_str, "Starting FFmpeg transcoding");
+    tracing::info!(module = "VideoEncoder", input = %input_str, output = %output_str, "TRANSCODE_START");
 
     let result = web::block(move || {
         let local_ffmpeg = PathBuf::from("./bin/ffmpeg");
@@ -1743,7 +1749,7 @@ pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, App
 
     match result {
         Ok(path) => {
-            tracing::info!("Transcoding successful");
+            tracing::info!(module = "VideoEncoder", "TRANSCODE_COMPLETE");
             let file_bytes = fs::read(&path)?;
             let _ = fs::remove_file(path);
             Ok(HttpResponse::Ok()
@@ -1766,7 +1772,7 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
     let session_path = get_session_path(&session_id);
     fs::create_dir_all(&session_path).map_err(AppError::IoError)?;
     
-    tracing::info!("Starting teaser generation session: {}", session_id);
+    tracing::info!(module = "TeaserGenerator", session_id = %session_id, "TEASER_GENERATION_START");
 
     let mut project_data_value: Option<serde_json::Value> = None;
     let mut width = 1920;
@@ -1993,7 +1999,7 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
 
     match result {
         Ok(_) => {
-            tracing::info!("Teaser generation successful");
+            tracing::info!(module = "TeaserGenerator", "TEASER_GENERATION_COMPLETE");
             let file_bytes = fs::read(&output_path).map_err(AppError::IoError)?;
             let _ = fs::remove_file(output_path); // Cleanup result file
             Ok(HttpResponse::Ok()
