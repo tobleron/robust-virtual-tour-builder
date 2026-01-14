@@ -12,7 +12,6 @@ lazy_static::lazy_static! {
         Arc::new(RwLock::new(CacheStats::default()));
 }
 
-const CACHE_FILE_PATH: &str = "../logs/geocode_cache.json";
 pub const MAX_CACHE_SIZE: usize = 5000;
 
 pub struct GeocoderInfo {
@@ -70,9 +69,18 @@ async fn evict_lru_entry() {
 ///
 /// # Returns
 /// `std::io::Result<()>` indicating success or failure.
-pub async fn save_cache_to_disk() -> std::io::Result<()> {
+pub async fn save_cache_to_disk() -> Result<(), String> {
     let cache = GEOCODE_CACHE.read().await;
     let mut stats = CACHE_STATS.write().await;
+    
+    let cache_file = std::env::var("GEOCODING_CACHE_FILE")
+        .unwrap_or_else(|_| "../cache/geocoding.json".to_string());
+        
+    // Ensure cache directory exists
+    if let Some(parent) = std::path::Path::new(&cache_file).parent() {
+        std::fs::create_dir_all(parent)
+            .map_err(|e| format!("Failed to create cache directory: {}", e))?;
+    }
     
     let current_time = get_current_timestamp();
     
@@ -82,14 +90,18 @@ pub async fn save_cache_to_disk() -> std::io::Result<()> {
         "saved_at": current_time
     });
     
-    let json = serde_json::to_string_pretty(&data)?;
-    tokio::fs::write(CACHE_FILE_PATH, json).await?;
+    let json = serde_json::to_string_pretty(&data)
+        .map_err(|e| format!("Failed to serialize cache: {}", e))?;
+    
+    std::fs::write(&cache_file, json)
+        .map_err(|e| format!("Failed to write cache file: {}", e))?;
     
     stats.last_save = Some(current_time);
     
     tracing::info!(
         module = "Geocoder",
         entries = cache.len(),
+        file = %cache_file,
         "CACHE_SAVED_TO_DISK"
     );
     
@@ -103,7 +115,10 @@ pub async fn save_cache_to_disk() -> std::io::Result<()> {
 /// # Returns
 /// `std::io::Result<()>` indicating success or failure.
 pub async fn load_cache_from_disk() -> std::io::Result<()> {
-    match tokio::fs::read_to_string(CACHE_FILE_PATH).await {
+    let cache_file = std::env::var("GEOCODING_CACHE_FILE")
+        .unwrap_or_else(|_| "../cache/geocoding.json".to_string());
+
+    match tokio::fs::read_to_string(&cache_file).await {
         Ok(contents) => {
             let data: serde_json::Value = serde_json::from_str(&contents)?;
             

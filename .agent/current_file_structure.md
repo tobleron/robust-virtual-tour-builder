@@ -5,29 +5,36 @@
 │   │   └── ffmpeg
 │   ├── Cargo.lock
 │   ├── Cargo.toml
-│   └── src
-│       ├── api
-│       │   ├── geocoding.rs
-│       │   ├── media
-│       │   │   ├── image.rs
-│       │   │   ├── mod.rs
-│       │   │   ├── serve.rs
-│       │   │   ├── similarity.rs
-│       │   │   └── video.rs
-│       │   ├── mod.rs
-│       │   ├── project.rs
-│       │   ├── telemetry.rs
-│       │   └── utils.rs
-│       ├── main.rs
-│       ├── models
-│       │   ├── errors.rs
-│       │   └── mod.rs
-│       ├── pathfinder.rs
-│       └── services
-│           ├── geocoding.rs
-│           ├── media.rs
-│           ├── mod.rs
-│           └── project.rs
+│   ├── src
+│   │   ├── api
+│   │   │   ├── geocoding.rs
+│   │   │   ├── media
+│   │   │   │   ├── image.rs
+│   │   │   │   ├── mod.rs
+│   │   │   │   ├── serve.rs
+│   │   │   │   ├── similarity.rs
+│   │   │   │   └── video.rs
+│   │   │   ├── mod.rs
+│   │   │   ├── project.rs
+│   │   │   ├── telemetry.rs
+│   │   │   └── utils.rs
+│   │   ├── lib.rs
+│   │   ├── main.rs
+│   │   ├── middleware
+│   │   │   ├── mod.rs
+│   │   │   └── request_tracker.rs
+│   │   ├── models
+│   │   │   ├── errors.rs
+│   │   │   └── mod.rs
+│   │   ├── pathfinder.rs
+│   │   └── services
+│   │       ├── geocoding.rs
+│   │       ├── media.rs
+│   │       ├── mod.rs
+│   │       ├── project.rs
+│   │       └── shutdown.rs
+│   └── tests
+│       └── shutdown_test.rs
 ├── bin
 │   └── tailwindcss
 ├── css
@@ -1168,9 +1175,15 @@
 │   │   ├── 86_Refactor_Reducer_Module.md
 │   │   ├── 87_Centralized_Version_Management_REPORT.md
 │   │   ├── 88_Eliminate_ObjMagic_Reducer_REPORT.md
+│   │   ├── 93_Backend_Graceful_Shutdown_REPORT.md
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   ├── pending
+│   │   ├── 89_Eliminate_ObjMagic_Main.md
+│   │   ├── 90_Secure_GlobalStateBridge.md
+│   │   ├── 91_Implement_Reducer_Slicing.md
+│   │   ├── 92_Backend_Upload_Quota_System.md
+│   │   └── TASK_SUMMARY.md
 │   └── README.md
 └── tests
     ├── integration
@@ -1190,4 +1203,4 @@
         ├── TourLogicTest.bs.js
         └── TourLogicTest.res
 
-39 directories, 1152 files
+41 directories, 1163 files

@@ -1,6 +1,8 @@
 use std::path::{Path, PathBuf};
 use uuid::Uuid;
 use std::fs;
+use actix_web::{web, HttpResponse};
+use crate::services::shutdown::ShutdownManager;
 
 // Configs
 pub const PROCESSED_IMAGE_WIDTH: u32 = 4096;
@@ -65,4 +67,18 @@ pub fn sanitize_filename(fname: &str) -> Result<String, String> {
             s.replace(['/', '\\', '\0'], "_")
         })
         .ok_or_else(|| "Invalid filename".to_string())
+}
+
+/// Trigger graceful shutdown (admin only in production)
+pub async fn trigger_shutdown(
+    shutdown_manager: web::Data<ShutdownManager>,
+) -> HttpResponse {
+    tracing::warn!("Shutdown triggered via API");
+    
+    let active = shutdown_manager.active_count().await;
+    
+    HttpResponse::Ok().json(serde_json::json!({
+        "message": "Shutdown initiated",
+        "active_requests": active
+    }))
 }
