@@ -132,216 +132,127 @@ let make = () => {
 
   // Render
   <div
-    className="relative w-[320px] min-w-[320px] bg-white flex flex-col z-[15000] shrink-0 h-full overflow-hidden font-ui shadow-2xl"
+    className="relative w-[340px] min-w-[340px] bg-slate-50 flex flex-col z-[15000] shrink-0 h-full overflow-hidden font-ui shadow-2xl border-r border-slate-200"
   >
     /* Branding Header */
     <div
-      className="relative w-full flex flex-col z-30 text-white shrink-0"
+      className="relative w-full flex flex-col z-30 text-white shrink-0 border-t-2 border-danger bg-slate-900"
       style={makeStyle({
-        "borderTop": "2px solid #dc3545",
-        "background": "linear-gradient(to bottom, #001a38 0%, #002a70 50%, #003da5 100%)",
+        "background": "linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%)",
       })}
     >
       <div
-        className="flex flex-col items-center px-5 pb-4" style={makeStyle({"paddingTop": "23px"})}
+        className="flex flex-col items-center px-6 pt-8 pb-6" 
       >
-        <span
-          className="material-icons text-white drop-shadow-lg mb-0.5 mt-1"
-          style={makeStyle({"fontSize": "36px"})}
-        >
-          {React.string("home")}
-        </span>
+        <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center mb-4 border border-white/10 shadow-xl backdrop-blur-sm">
+          <span
+            className="material-icons text-white drop-shadow-lg"
+            style={makeStyle({"fontSize": "32px"})}
+          >
+            {React.string("home")}
+          </span>
+        </div>
         <h1
-          className="font-black text-white tracking-tight drop-shadow-sm text-center"
-          style={makeStyle({"fontSize": "24px"})}
+          className="font-heading font-black text-white tracking-widest text-center uppercase"
+          style={makeStyle({"fontSize": "16px", "letterSpacing": "0.15em"})}
         >
           {React.string("Virtual Tour Builder")}
         </h1>
-        <div className="flex items-center gap-2 text-white/50">
-          <span className="text-[11px] font-bold"> {React.string("v" ++ version)} </span>
-          <span className="text-[11px]"> {React.string("•")} </span>
-          <span className="text-[11px] font-medium"> {React.string(buildInfo)} </span>
+        <div className="flex items-center gap-2 text-white/40 mt-2">
+          <span className="text-[10px] font-bold tracking-widest"> {React.string("V " ++ version)} </span>
+          <span className="text-[10px]"> {React.string("•")} </span>
+          <span className="text-[10px] font-medium opacity-60"> {React.string(buildInfo)} </span>
         </div>
       </div>
 
-      <div style={makeStyle({"padding": "0 16px 14px 16px"})}>
+      <div className="px-5 pb-6">
         // Grid 4x1 for main actions
-        <div className="sidebar-btn-grid-4">
-          <button
-            className="sidebar-action-btn-square"
-            title="New Project"
-            onClick={_ => {
+        <div className="grid grid-cols-4 gap-2 mb-3">
+          {[
+            ("note_add", "New", () => {
               if Array.length(state.scenes) > 0 {
                 EventBus.dispatch(ShowModal({
                   title: "Create New Project?",
-                  description: Some(
-                    "Are you sure you want to discard the current project? All unsaved progress will be lost.",
-                  ),
+                  description: Some("Are you sure you want to discard the current project? All progress will be lost."),
                   icon: Some("warning"),
                   contentHtml: None,
                   onClose: None,
                   allowClose: Some(true),
                   buttons: [
-                    {
-                      label: "Cancel",
-                      class_: "bg-slate-100 text-slate-700 hover:bg-slate-200",
-                      onClick: () => (),
-                      autoClose: Some(true),
-                    },
-                    {
-                      label: "Discard & New",
-                      class_: "bg-red-500 text-white hover:bg-red-600",
-                      onClick: () => reload(),
-                      autoClose: Some(true),
-                    },
+                    {label: "Cancel", class_: "bg-slate-100 text-slate-700", onClick: () => (), autoClose: Some(true)},
+                    {label: "Discard & New", class_: "bg-danger text-white", onClick: () => reload(), autoClose: Some(true)}
                   ],
                 }))
-              } else {
-                Logger.info(~module_="Sidebar", ~message="PROJECT_NEW", ())
-                reload()
-              }
-            }}
-          >
-            <span className="material-icons"> {React.string("note_add")} </span>
-            <span> {React.string("New")} </span>
-          </button>
-
-          <button
-            className="sidebar-action-btn-square"
-            title="Save Project"
-            onClick={_ => {
-              let _ = (
-                async () => {
-                  updateProgress(0.0, "Saving Project...", true, "Saving")
-                  Logger.info(~module_="Sidebar", ~message="PROJECT_SAVE", ~data={
-                    "sceneCount": Array.length(state.scenes),
-                    "tourName": state.tourName
-                  }, ())
-                  try {
-                    let _ = await ProjectManager.saveProject(state, (pct, _total, msg) => {
-                      updateProgress(pct, msg, true, "Saving")
-                    })
-                    EventBus.dispatch(ShowNotification("Project saved successfully", #Success))
-                    updateProgress(100.0, "Saved", false, "")
-                  } catch {
-                  | _ =>
-                    Logger.error(~module_="Sidebar", ~message="PROJECT_SAVE_FAILED", ())
-                    EventBus.dispatch(ShowNotification("Save failed", #Error))
-                    updateProgress(0.0, "Error", false, "")
-                  }
-                }
-              )()
-            }}
-          >
-            <span className="material-icons"> {React.string("save")} </span>
-            <span> {React.string("Save")} </span>
-          </button>
-
-          <button
-            className="sidebar-action-btn-square"
-            title="Load Project"
-            onClick={_ => {
-              // Trigger hidden file input
-              let input = projectFileInputRef.current
-              switch Nullable.toOption(input) {
-              | Some(el) =>
-                let domEl = (Obj.magic(el): {"click": unit => unit})
-                domEl["click"]()
+              } else { reload() }
+            }),
+            ("save", "Save", () => {
+              let _ = (async () => {
+                updateProgress(0.0, "Saving...", true, "Saving")
+                try {
+                  await ProjectManager.saveProject(state, (pct, _, msg) => updateProgress(pct, msg, true, "Saving"))
+                  EventBus.dispatch(ShowNotification("Project saved", #Success))
+                  updateProgress(100.0, "Saved", false, "")
+                } catch { | _ => updateProgress(0.0, "Error", false, "") }
+              })()
+            }),
+            ("folder_open", "Load", () => {
+              switch Nullable.toOption(projectFileInputRef.current) {
+              | Some(el) => Obj.magic(el)["click"]()
               | None => ()
               }
-            }}
-          >
-            <span className="material-icons"> {React.string("folder_open")} </span>
-            <span> {React.string("Load")} </span>
-          </button>
-
-          <button
-            className="sidebar-action-btn-square group"
-            title="About"
-            onClick={_ => {
+            }),
+            ("info", "About", () => {
               EventBus.dispatch(ShowModal({
-                title: "About Virtual Tour Builder",
+                title: "About Builder",
                 description: Some(`Version: ${version}<br>Build: ${buildInfo}`),
                 icon: Some("info"),
                 contentHtml: None,
                 onClose: None,
                 allowClose: Some(true),
-                buttons: [
-                  {
-                    label: "Close",
-                    class_: "bg-slate-100 text-slate-700",
-                    onClick: () => (),
-                    autoClose: Some(true),
-                  },
-                ],
+                buttons: [{label: "Close", class_: "bg-slate-100 text-slate-700", onClick: () => (), autoClose: Some(true)}],
               }))
-            }}
-          >
-            <span className="material-icons group-hover:scale-110 transition-transform">
-              {React.string("info")}
-            </span>
-            <span> {React.string("About")} </span>
-          </button>
+            })
+          ]
+          ->Belt.Array.mapWithIndex((i, (icon, label, onClick)) => (
+            <button
+              key={Int.toString(i)}
+              className="flex flex-col items-center justify-center bg-white/5 border border-white/10 rounded-xl py-3 px-1 transition-all hover:bg-white/15 hover:-translate-y-0.5 active:translate-y-0 shadow-sm group"
+              onClick={_ => onClick()}
+            >
+              <span className="material-icons text-xl mb-1 text-white/70 group-hover:text-white transition-colors"> {React.string(icon)} </span>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-white/60 group-hover:text-white/90"> {React.string(label)} </span>
+            </button>
+          ))
+          ->React.array}
         </div>
 
         // Grid 2x1 for secondary actions
-        <div className="sidebar-btn-grid-2">
+        <div className="grid grid-cols-2 gap-2">
           <button
-            className="sidebar-action-btn-wide"
+            className="flex items-center justify-center gap-2 bg-white/5 border border-white/10 rounded-xl py-2.5 transition-all hover:bg-white/15 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-30 disabled:pointer-events-none group"
             disabled={!exportReady}
-            title="Export Tour"
-            style={if !exportReady {
-              makeStyle({"opacity": "0.4"})
-            } else {
-              makeStyle(Object.make())
-            }}
             onClick={_ => {
-              let _ = (
-                async () => {
-                  updateProgress(0.0, "Initializing Export...", true, "Exporting")
-                  try {
-                    let _ = await Exporter.exportTour(
-                      state.scenes,
-                      Some((pct, _total, msg) => updateProgress(pct, msg, true, "Exporting")),
-                    )
-                    EventBus.dispatch(ShowNotification("Export complete!", #Success))
-                    updateProgress(100.0, "Done", false, "")
-                  } catch {
-                  | _ =>
-                    EventBus.dispatch(ShowNotification("Export failed", #Error))
-                    updateProgress(0.0, "Error", false, "")
-                  }
-                }
-              )()
+              let _ = (async () => {
+                updateProgress(0.0, "Exporting...", true, "Export")
+                try {
+                  await Exporter.exportTour(state.scenes, Some((pct, _, msg) => updateProgress(pct, msg, true, "Export")))
+                  EventBus.dispatch(ShowNotification("Export complete", #Success))
+                  updateProgress(100.0, "Done", false, "")
+                } catch { | _ => updateProgress(0.0, "Error", false, "") }
+              })()
             }}
           >
-            <span className="material-icons" style={makeStyle({"color": "#10b981"})}>
-              {React.string("ios_share")}
-            </span>
-            <span> {React.string("Export")} </span>
+            <span className="material-icons text-lg text-success group-hover:scale-110 transition-transform"> {React.string("ios_share")} </span>
+            <span className="text-[11px] font-bold uppercase tracking-widest"> {React.string("Export")} </span>
           </button>
 
           <button
-            className="sidebar-action-btn-wide"
+            className="flex items-center justify-center gap-2 bg-white/5 border border-white/10 rounded-xl py-2.5 transition-all hover:bg-white/15 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-30 disabled:pointer-events-none group"
             disabled={!teaserReady}
-            title={if teaserReady {
-              "Auto-generate teaser video"
-            } else {
-              "Need at least 3 scenes"
-            }}
-            style={if !teaserReady {
-              makeStyle({"opacity": "0.4"})
-            } else {
-              makeStyle(Object.make())
-            }}
-            onClick={_ => {
-              TeaserSystem.startAutoTeaser(state.tourName, false, "mp4", false)
-            }}
+            onClick={_ => TeaserSystem.startAutoTeaser(state.tourName, false, "mp4", false)}
           >
-            <span className="material-icons" style={makeStyle({"color": "#f97316"})}>
-              {React.string("movie_creation")}
-            </span>
-            <span> {React.string("Teaser")} </span>
+            <span className="material-icons text-lg text-warning group-hover:scale-110 transition-transform"> {React.string("movie_creation")} </span>
+            <span className="text-[11px] font-bold uppercase tracking-widest"> {React.string("Teaser")} </span>
           </button>
         </div>
       </div>
@@ -415,118 +326,80 @@ let make = () => {
       />
     </div>
 
-    /* Project Name & Upload Section - FIXED at top, outside scrollable area */
-    <div className="flex flex-col bg-slate-50 border-b border-slate-200 shadow-sm shrink-0 z-20">
-      <div className="p-4 pt-5 pb-3">
-        <div className="flex items-center justify-between mb-1.5 px-1">
+    /* Project Name & Upload Section */
+    <div className="flex flex-col bg-white border-b border-slate-200 shadow-sm shrink-0 z-20">
+      <div className="p-6 pb-4">
+        <div className="flex items-center justify-between mb-2 px-1">
           <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
             {React.string("Project Name")}
           </label>
-          <span className="text-[9px] font-bold text-remax-blue/60 uppercase">
-            {React.string("Draft Mode")}
-          </span>
+          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200">
+             <div className="w-1 h-1 rounded-full bg-blue-500 animate-pulse" />
+             <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tight"> {React.string("Draft")} </span>
+          </div>
         </div>
         <input
           type_="text"
-          id="tour-name-input"
-          className="w-full px-3 h-10 bg-white border border-slate-200 rounded-lg font-ui font-medium text-[14px] text-slate-700 focus:outline-none focus:ring-2 focus:ring-remax-blue/10 focus:border-remax-blue transition-all truncate shadow-sm placeholder:text-slate-300"
-          placeholder="Tour Name..."
+          className="w-full px-4 h-11 bg-slate-50 border border-slate-200 rounded-xl font-ui font-bold text-[14px] text-slate-800 focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all truncate placeholder:text-slate-300"
+          placeholder="New Tour..."
           value={state.tourName}
-          onChange={e => {
-            let val = JsxEvent.Form.target(e)["value"]
-            dispatch(Actions.SetTourName(val))
-          }}
+          onChange={e => dispatch(Actions.SetTourName(JsxEvent.Form.target(e)["value"]))}
         />
       </div>
 
-      <div
-        className="px-4 pb-4"
-        style={makeStyle({
-          "display": if procState["active"] {
-            "none"
-          } else {
-            "block"
-          },
-        })}
-      >
-        <label
-          id="upload-label"
-          className="w-full h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center gap-2.5 cursor-pointer transition-all hover:bg-remax-blue hover:text-white hover:border-remax-blue hover:shadow-lg hover:shadow-remax-blue/20 group active:scale-95 shadow-sm overflow-hidden"
+      <div className="px-6 pb-6" style={makeStyle({"display": if procState["active"] { "none" } else { "block" }})}>
+        <button
+          className="w-full h-12 bg-primary text-white rounded-xl flex items-center justify-center gap-3 transition-all hover:bg-primary-light hover:shadow-xl hover:shadow-primary/20 active:scale-95 group overflow-hidden relative"
           onClick={_ => {
-            let input = fileInputRef.current
-            switch Nullable.toOption(input) {
+            switch Nullable.toOption(fileInputRef.current) {
             | Some(el) => Obj.magic(el)["click"]()
             | None => ()
             }
           }}
         >
-          <div
-            className="w-6 h-6 rounded-full bg-remax-blue/10 flex items-center justify-center group-hover:bg-white/20 transition-colors"
-          >
-            <span
-              className="material-icons text-[15px] text-remax-blue group-hover:text-white transition-colors"
-            >
-              {React.string("cloud_upload")}
-            </span>
-          </div>
-          <strong
-            className="text-[11px] font-bold tracking-tight text-slate-600 group-hover:text-white"
-          >
-            {React.string("Upload 360 Images")}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+          <span className="material-icons text-[20px]"> {React.string("cloud_upload")} </span>
+          <strong className="text-[12px] font-bold tracking-widest uppercase">
+            {React.string("Add 360 Scenes")}
           </strong>
-        </label>
+        </button>
       </div>
     </div>
 
     /* Sidebar Content Area - Scrollable */
-    <div
-      className="sidebar-content flex-1 overflow-y-auto overflow-x-hidden hide-scrollbar flex flex-col bg-white"
-    >
-      /* Processing UI Card - Inside scrollable area */
-
+    <div className="sidebar-content flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar flex flex-col bg-slate-50/50">
       {if procState["active"] {
-        <div
-          className="m-4 bg-white border border-slate-100 rounded-xl p-4 shadow-xl ring-1 ring-remax-blue/5 animate-fade-in shrink-0"
-        >
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <div
-                className="w-3 h-3 border-2 border-slate-100 border-t-remax-blue rounded-full animate-spin"
-              >
-              </div>
-              <div className="font-bold text-remax-blue text-[10px] uppercase tracking-wide">
+        <div className="m-6 bg-white border border-slate-200 rounded-2xl p-5 shadow-xl animate-fade-in shrink-0">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-4 h-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
+              <div className="font-bold text-slate-700 text-[11px] uppercase tracking-widest">
                 {React.string(procState["phase"] == "" ? "Processing" : procState["phase"])}
               </div>
             </div>
-            <div className="font-black text-remax-blue text-xs font-heading">
+            <div className="font-heading font-black text-primary text-sm">
               {React.string(Float.toString(procState["progress"]) ++ "%")}
             </div>
           </div>
-          <div className="bg-slate-100 h-1.5 rounded-full overflow-hidden relative">
+          <div className="bg-slate-100 h-2 rounded-full overflow-hidden relative">
             <div
-              className="h-full bg-remax-blue transition-all duration-300 rounded-full relative"
+              className="h-full bg-primary transition-all duration-300 rounded-full relative"
               style={makeStyle({"width": Float.toString(procState["progress"]) ++ "%"})}
             >
-              <div
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer bg-[length:200%_auto]"
-              >
-              </div>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer bg-[length:200%_auto]" />
             </div>
           </div>
-          <div
-            className="text-[9px] text-slate-400 mt-2 font-bold uppercase tracking-tighter flex items-center gap-1.5"
-          >
-            <span className="w-1 h-1 bg-success rounded-full animate-pulse"></span>
+          <div className="text-[10px] text-slate-400 mt-3 font-bold uppercase tracking-tight flex items-center gap-2">
+            <span className="w-1.5 h-1.5 bg-success rounded-full animate-pulse" />
             <span className="truncate"> {React.string(procState["message"])} </span>
           </div>
         </div>
-      } else {
-        React.null
-      }}
+      } else { React.null }}
 
-      <div id="scene-list-container" className="p-3 pt-4 flex-1">
+      <div className="p-1 flex-1">
         <SceneList />
       </div>
     </div>
   </div>
 }
+

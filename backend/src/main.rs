@@ -92,6 +92,7 @@ async fn main() -> io::Result<()> {
             .route("/log-telemetry", web::post().to(handlers::log_telemetry))
             .route("/log-error", web::post().to(handlers::log_error))
             .route("/cleanup-logs", web::post().to(handlers::cleanup_logs))
+            .route("/reverse-geocode", web::post().to(handlers::reverse_geocode))
             .route("/optimize-image", web::post().to(handlers::optimize_image))
             .route("/process-image-full", web::post().to(handlers::process_image_full))
             .route("/transcode-video", web::post().to(handlers::transcode_video))
