@@ -5,7 +5,8 @@ use actix_governor::{Governor, GovernorConfigBuilder};
 use std::io;
 use tracing_actix_web::TracingLogger;
 
-mod handlers;
+// mod handlers; // Deleted
+mod api;
 mod models;
 mod services;
 
@@ -51,7 +52,7 @@ async fn main() -> io::Result<()> {
                     // Allow file:// protocol for Electron/desktop apps
                     origin.as_bytes().starts_with(b"file://")
                 })
-                .allowed_methods(vec!["GET", "POST"])
+                .allowed_methods(vec!["GET", "POST", "DELETE"])
                 .allowed_headers(vec![
                     actix_web::http::header::CONTENT_TYPE,
                     actix_web::http::header::ACCEPT,
@@ -97,26 +98,40 @@ async fn main() -> io::Result<()> {
             
             .wrap(cors)
             .route("/health", web::get().to(health_check))
-            .route("/log-telemetry", web::post().to(handlers::log_telemetry))
-            .route("/log-error", web::post().to(handlers::log_error))
-            .route("/cleanup-logs", web::post().to(handlers::cleanup_logs))
-            .route("/reverse-geocode", web::post().to(handlers::reverse_geocode))
-            .route("/geocode-stats", web::get().to(handlers::geocode_stats))
-            .route("/geocode-cache", web::delete().to(handlers::clear_geocode_cache))
-            .route("/optimize-image", web::post().to(handlers::optimize_image))
-            .route("/process-image-full", web::post().to(handlers::process_image_full))
-            .route("/transcode-video", web::post().to(handlers::transcode_video))
-            .route("/extract-metadata", web::post().to(handlers::extract_metadata))
-            .route("/batch-calculate-similarity", web::post().to(handlers::batch_calculate_similarity))
-            .route("/resize-image-batch", web::post().to(handlers::resize_image_batch))
-            .route("/create-tour-package", web::post().to(handlers::create_tour_package))
-            .route("/save-project", web::post().to(handlers::save_project))
-            .route("/load-project", web::post().to(handlers::load_project))
-            .route("/validate-project", web::post().to(handlers::validate_project))
-            .route("/import-project", web::post().to(handlers::import_project))
-            .route("/calculate-path", web::post().to(handlers::calculate_path))
-            .route("/generate-teaser", web::post().to(handlers::generate_teaser))
-            .route("/session/{session_id}/{filename:.*}", web::get().to(handlers::serve_session_file))
+
+            // API Scopes
+            .service(web::scope("/api")
+                .service(web::scope("/telemetry")
+                    .route("/log", web::post().to(api::telemetry::log_telemetry))
+                    .route("/error", web::post().to(api::telemetry::log_error))
+                    .route("/cleanup", web::post().to(api::telemetry::cleanup_logs))
+                )
+                .service(web::scope("/geocoding")
+                    .route("/reverse", web::post().to(api::geocoding::reverse_geocode))
+                    .route("/stats", web::get().to(api::geocoding::geocode_stats))
+                    .route("/cache", web::delete().to(api::geocoding::clear_geocode_cache))
+                )
+                .service(web::scope("/media")
+                    .route("/optimize", web::post().to(api::media::optimize_image))
+                    .route("/process-full", web::post().to(api::media::process_image_full))
+                    .route("/transcode-video", web::post().to(api::media::transcode_video))
+                    .route("/extract-metadata", web::post().to(api::media::extract_metadata))
+                    .route("/similarity", web::post().to(api::media::batch_calculate_similarity))
+                    .route("/resize-batch", web::post().to(api::media::resize_image_batch))
+                    .route("/generate-teaser", web::post().to(api::media::generate_teaser))
+                )
+                .service(web::scope("/project")
+                    .route("/save", web::post().to(api::project::save_project))
+                    .route("/load", web::post().to(api::project::load_project))
+                    .route("/create-tour-package", web::post().to(api::project::create_tour_package))
+                    .route("/validate", web::post().to(api::project::validate_project))
+                    .route("/import", web::post().to(api::project::import_project))
+                    .route("/calculate-path", web::post().to(api::project::calculate_path))
+                )
+                .service(web::scope("/session")
+                     .route("/{session_id}/{filename:.*}", web::get().to(api::media::serve_session_file))
+                )
+            )
 
             // --- STATIC FILES (Serve Frontend directly) ---
             // Allows running without Node.js/Vite

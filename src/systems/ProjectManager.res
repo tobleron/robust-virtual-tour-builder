@@ -135,7 +135,7 @@ let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promi
       let scene: {..} = Obj.magic(item)
       let name: string = scene["name"]
       
-      let fileUrl = Constants.backendUrl ++ "/session/" ++ sessionId ++ "/" ++ encodeURIComponent(name)
+      let fileUrl = Constants.backendUrl ++ "/api/session/" ++ sessionId ++ "/" ++ encodeURIComponent(name)
       
       // Clone scene object (shallow copy)
       let newScene = Object.assign(Object.make(), scene)

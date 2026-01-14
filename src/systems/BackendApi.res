@@ -107,7 +107,7 @@ let importProject = (file: File.t): Promise.t<importResponse> => {
   FormData.append(formData, "file", file)
 
   Fetch.fetch(
-    Constants.backendUrl ++ "/import-project",
+    Constants.backendUrl ++ "/api/project/import",
     {
       method: "POST",
       body: formData,
@@ -127,7 +127,7 @@ let validateProject = (file: File.t): Promise.t<validationReport> => {
   FormData.append(formData, "file", file)
 
   Fetch.fetch(
-    Constants.backendUrl ++ "/validate-project",
+    Constants.backendUrl ++ "/api/project/validate",
     {
       method: "POST",
       body: formData,
@@ -147,7 +147,7 @@ let loadProject = (file: File.t): Promise.t<Blob.t> => {
   FormData.append(formData, "file", file)
 
   Fetch.fetch(
-    Constants.backendUrl ++ "/load-project",
+    Constants.backendUrl ++ "/api/project/load",
     {
       method: "POST",
       body: formData,
@@ -166,7 +166,7 @@ let extractMetadata = (file: File.t): Promise.t<metadataResponse> => {
   FormData.append(formData, "file", file)
 
   Fetch.fetch(
-    Constants.backendUrl ++ "/extract-metadata",
+    Constants.backendUrl ++ "/api/media/extract-metadata",
     {
       method: "POST",
       body: formData,
@@ -186,7 +186,7 @@ let processImageFull = (file: File.t): Promise.t<Blob.t> => {
   FormData.append(formData, "file", file)
 
   Fetch.fetch(
-    Constants.backendUrl ++ "/process-image-full",
+    Constants.backendUrl ++ "/api/media/process-full",
     {
       method: "POST",
       body: formData,
@@ -206,7 +206,7 @@ let saveProject = (projectData: 'a): Promise.t<Blob.t> => {
   FormData.append(formData, "project_data", projectData)
 
   Fetch.fetch(
-    Constants.backendUrl ++ "/save-project",
+    Constants.backendUrl ++ "/api/project/save",
     {
       method: "POST",
       body: formData,
@@ -245,7 +245,7 @@ let calculatePath = (payload: 'a): Promise.t<array<step>> => {
   Dict.set(headers, "Content-Type", "application/json")
 
   Fetch.fetch(
-    Constants.backendUrl ++ "/calculate-path",
+    Constants.backendUrl ++ "/api/project/calculate-path",
     {
       method: "POST",
       body: JSON.stringify(Obj.magic(payload)),
@@ -266,7 +266,7 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<string> => {
   Dict.set(headers, "Content-Type", "application/json")
 
   Fetch.fetch(
-    Constants.backendUrl ++ "/reverse-geocode",
+    Constants.backendUrl ++ "/api/geocoding/reverse",
     {
       method: "POST",
       headers: Nullable.make(headers),
@@ -319,7 +319,7 @@ let batchCalculateSimilarity = (pairs: array<similarityPair>): Promise.t<array<s
   Dict.set(headers, "Content-Type", "application/json")
 
   Fetch.fetch(
-    Constants.backendUrl ++ "/batch-calculate-similarity",
+    Constants.backendUrl ++ "/api/media/similarity",
     {
       method: "POST",
       headers: Nullable.make(headers),
