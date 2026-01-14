@@ -329,7 +329,15 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn test_cache_hit_increments_counter() {
+    async fn test_geocoder_suite_sequential() {
+        // Run all tests that touch global state sequentially
+        test_coordinate_rounding_internal();
+        test_cache_hit_increments_counter_internal().await;
+        test_clear_cache_internal().await;
+        test_lru_eviction_internal().await;
+    }
+
+    async fn test_cache_hit_increments_counter_internal() {
         clear_cache().await;
         let lat = 37.7749;
         let lon = -122.4194;
@@ -360,8 +368,7 @@ mod tests {
         assert_eq!(entry.access_count, 2);
     }
     
-    #[tokio::test]
-    async fn test_lru_eviction() {
+    async fn test_lru_eviction_internal() {
         clear_cache().await;
         
         // Fill cache up to MAX_CACHE_SIZE
@@ -390,8 +397,7 @@ mod tests {
         assert_eq!(stats.evictions, 1);
     }
     
-    #[test]
-    fn test_coordinate_rounding() {
+    fn test_coordinate_rounding_internal() {
         let k1 = round_coords(37.77491, -122.41941);
         let k2 = round_coords(37.77494, -122.41944);
         let k3 = round_coords(37.7750, -122.4200);
@@ -399,8 +405,8 @@ mod tests {
         assert_eq!(k1, k2);
         assert_ne!(k1, k3);
     }
-    #[tokio::test]
-    async fn test_clear_cache() {
+
+    async fn test_clear_cache_internal() {
         // Insert something
         {
             let mut cache = GEOCODE_CACHE.write().await;

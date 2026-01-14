@@ -6,14 +6,15 @@ description: Cleanup and consistency checks before pushing to GitHub.
 
 Follow these steps before pushing major updates to the remote repository.
 
-## 1. Cleanup Artifacts
+## 1. Quality Verification
 // turbo
-1. **Backend Verification**: If backend changes were made, run `cd backend && cargo test && cd ..` to ensure build integrity without clearing the cache.
-2. **Log File Cleanup**: 
+1. **Full Test Suite**: Run `npm test` to ensure both frontend and backend tests pass.
+2. **Backend Verification**: If backend changes were made, run `cd backend && cargo test && cd ..` for deep verification.
+3. **Log File Cleanup**: 
    - Clear `logs/telemetry.log` (development logs shouldn't be pushed).
    - Clear `logs/error.log` if it contains only test errors.
    - Keep `logs/log_changes.txt` (this is the changelog).
-3. **Test Data**: Remove temporary test files from `test/` folder (e.g., `.zip`, `.webp`).
+4. **Test Data**: Remove temporary test files from `test/` folder (e.g., `.zip`, `.webp`).
 
 ## 2. Consistency Audit
 1. **Version Sync**: Verify that `src/version.js`, `index.html`, `logs/log_changes.txt`, and the latest git commit message all use the EXACT SAME version number.

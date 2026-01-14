@@ -73,7 +73,9 @@
 │   ├── SECURITY_UPGRADES_ADDITIONAL.md
 │   ├── SIMULATION_MODE_IMPLEMENTATION.md
 │   ├── SIMULATION_TELEMETRY.md
-│   └── TYPOGRAPHY.md
+│   ├── TESTING_QUICK_REFERENCE.md
+│   ├── TYPOGRAPHY.md
+│   └── UNIT_TESTING_INTEGRATION.md
 ├── GEMINI.md
 ├── images
 │   ├── icon-192.png
@@ -928,6 +930,8 @@
 ├── scripts
 │   ├── cleanup_logs.sh
 │   ├── commit.sh
+│   ├── complete-task.sh
+│   ├── detect-missing-tests.js
 │   ├── dev-mode.sh
 │   ├── ensure-watcher.sh
 │   ├── restore-snapshot.sh
@@ -1175,11 +1179,11 @@
 │   │   ├── 86_Refactor_Reducer_Module.md
 │   │   ├── 87_Centralized_Version_Management_REPORT.md
 │   │   ├── 88_Eliminate_ObjMagic_Reducer_REPORT.md
+│   │   ├── 89_Eliminate_ObjMagic_Main.md
 │   │   ├── 93_Backend_Graceful_Shutdown_REPORT.md
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   ├── pending
-│   │   ├── 89_Eliminate_ObjMagic_Main.md
 │   │   ├── 90_Secure_GlobalStateBridge.md
 │   │   ├── 91_Implement_Reducer_Slicing.md
 │   │   ├── 92_Backend_Upload_Quota_System.md
@@ -1203,4 +1207,4 @@
         ├── TourLogicTest.bs.js
         └── TourLogicTest.res
 
-41 directories, 1163 files
+41 directories, 1167 files

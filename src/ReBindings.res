@@ -252,3 +252,13 @@ module FormData = {
   @send external append: (t, string, 'a) => unit = "append"
   @send external appendWithFilename: (t, string, 'a, string) => unit = "append"
 }
+
+module ReactDOMClient = {
+  type root
+  @module("react-dom/client") @scope("default")
+  external createRoot: Dom.element => root = "createRoot"
+  
+  module Root = {
+    @send external render: (root, React.element) => unit = "render"
+  }
+}
