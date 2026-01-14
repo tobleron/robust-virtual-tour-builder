@@ -477,7 +477,13 @@
 │   │   │       ├── TourLogic.cmi
 │   │   │       ├── TourLogic.cmj
 │   │   │       ├── TourLogic.cmt
-│   │   │       └── TourLogic.res
+│   │   │       ├── TourLogic.res
+│   │   │       ├── Version.ast
+│   │   │       ├── Version.bs.js
+│   │   │       ├── Version.cmi
+│   │   │       ├── Version.cmj
+│   │   │       ├── Version.cmt
+│   │   │       └── Version.res
 │   │   └── tests
 │   │       ├── TestRunner.ast
 │   │       ├── TestRunner.bs.js
@@ -829,6 +835,11 @@
 │   │   ├── UploadReport.cmj
 │   │   ├── UploadReport.cmt
 │   │   ├── UploadReport.res
+│   │   ├── Version.ast
+│   │   ├── Version.cmi
+│   │   ├── Version.cmj
+│   │   ├── Version.cmt
+│   │   ├── Version.res
 │   │   ├── VideoEncoder.ast
 │   │   ├── VideoEncoder.cmi
 │   │   ├── VideoEncoder.cmj
@@ -894,6 +905,7 @@
 │   ├── restore-snapshot.sh
 │   ├── setup.sh
 │   ├── test-logging.js
+│   ├── update-version.js
 │   └── watch-file-limits.sh
 ├── service-worker.js
 ├── sounds
@@ -1039,7 +1051,9 @@
 │   │   ├── ProgressBar.bs.js
 │   │   ├── ProgressBar.res
 │   │   ├── TourLogic.bs.js
-│   │   └── TourLogic.res
+│   │   ├── TourLogic.res
+│   │   ├── Version.bs.js
+│   │   └── Version.res
 │   └── version.js
 ├── start_dev.sh
 ├── start_prod.sh
@@ -1151,4 +1165,4 @@
         ├── TourLogicTest.bs.js
         └── TourLogicTest.res
 
-39 directories, 1113 files
+39 directories, 1127 files
