@@ -113,182 +113,123 @@ let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promi
     (),
   )
 
-  BackendApi.loadProject(zipFile)
-  ->Promise.then(zipBlob => {
-    progress(20, 100, "Processing response...")
-    JSZip.loadAsync(zipBlob)
-  })
-  ->Promise.then(zip => {
-    progress(30, 100, "Extracting project data...")
-
-    let projectJsonFile = JSZip.file(zip, "project.json")
-
-    switch Nullable.toOption(projectJsonFile) {
-    | None => Promise.reject(JsError.throwWithMessage("Missing project.json in response ZIP"))
-    | Some(f) => JSZip.async(f, "text")->Promise.then(text => Promise.resolve((zip, text)))
-    }
-  })
-  ->Promise.then(((zip, jsonText)) => {
-    let projectData = JSON.parseOrThrow(jsonText)
+  BackendApi.importProject(zipFile)
+  ->Promise.then(response => {
+    progress(50, 100, "Processing response...")
+    let sessionId = response.sessionId
+    let projectData = response.projectData
 
     // Basic Validation
     switch validateProjectStructure(projectData) {
     | Error(e) => Promise.reject(JsError.throwWithMessage(e))
-    | Ok(_) => Promise.resolve((zip, projectData))
+    | Ok(_) => Promise.resolve((sessionId, projectData))
     }
   })
-  ->Promise.then(((zip, projectData)) => {
-    progress(40, 100, "Loading scenes from ZIP...")
+  ->Promise.then(((sessionId, projectData)) => {
+    progress(70, 100, "Resolving scenes...")
     let pd: {..} = Obj.magic(projectData)
     let scenesArray: array<JSON.t> = pd["scenes"]
 
-    let rawScenes = ProjectData.sanitizeLoadedScenes(scenesArray)
-    let totalScenes = Array.length(rawScenes)
-    let loadedCount = ref(0)
-
-    let scenePromises = Belt.Array.map(rawScenes, item => {
-      let itemObj: {..} = Obj.magic(item)
-      let name = itemObj["name"]
-
-      let imageFile = JSZip.file(zip, "images/" ++ name)
-      let imageFile = if Nullable.toOption(imageFile) == None {
-        JSZip.file(zip, name)
-      } else {
-        imageFile
-      }
-
-      switch Nullable.toOption(imageFile) {
-      | None =>
-        Logger.warn(~module_="ProjectManager", ~message="IMAGE_MISSING_IN_ZIP", ~data=Some({"image": name}), ())
-        Promise.resolve(None)
-      | Some(f) =>
-        JSZip.async(f, "arraybuffer")
-        ->Promise.then(
-          buf => {
-            let blob = Blob.newBlob([buf], {"type": "image/webp"})
-
-            loadedCount := loadedCount.contents + 1
-            let pct =
-              40 +
-              Float.toInt(
-                Math.round(
-                  Belt.Int.toFloat(loadedCount.contents) /. Belt.Int.toFloat(totalScenes) *. 50.0,
-                ),
-              )
-            progress(pct, 100, "Loading " ++ name ++ "...")
-
-            let file = File.newFile([blob], name, {"type": "image/webp"})
-
-            // Construct a scene-like object that includes the file blob
-            // We treat 'item' as base and extend it.
-            let scene: {..} = Obj.magic(item)
-            let newScene = Object.assign(Object.make(), scene)
-            let newScene: {..} = Obj.magic(newScene)
-
-            newScene["file"] = file
-            newScene["originalFile"] = file
-
-            Promise.resolve(Some(newScene))
-          },
-        )
-        ->Promise.catch(
-          err => {
-            Logger.error(~module_="ProjectManager", ~message="SCENE_EXTRACTION_FAILED", ~data=Some({"scene": name, "error": err}), ())
-            Promise.resolve(None)
-          },
-        )
-      }
+    // Map scenes to point to backend URL
+    let validScenes = Belt.Array.map(scenesArray, item => {
+      let scene: {..} = Obj.magic(item)
+      let name: string = scene["name"]
+      
+      let fileUrl = Constants.backendUrl ++ "/session/" ++ sessionId ++ "/" ++ Js.Global.encodeURIComponent(name)
+      
+      // Clone scene object (shallow copy)
+      let newScene = Object.assign(Object.make(), scene)
+      let newSceneDict: {..} = Obj.magic(newScene)
+      
+      newSceneDict["file"] = fileUrl
+      newSceneDict["originalFile"] = fileUrl
+      
+      // Note: tinyFile handling could be added here if backend generates it
+      
+      newSceneDict
     })
 
-    Promise.all(scenePromises)->Promise.then(scenes => {
-      let validScenes = Belt.Array.keepMap(scenes, x => x)
+    // Extract validation report if present
+    let validationReport: option<BackendApi.validationReport> = switch Nullable.toOption(
+      pd["validationReport"],
+    ) {
+    | Some(report) => Some(Obj.magic(report))
+    | None => None
+    }
 
-      // Extract validation report if present
-      let validationReport: option<BackendApi.validationReport> = switch Nullable.toOption(
-        pd["validationReport"],
-      ) {
-      | Some(report) => Some(Obj.magic(report))
-      | None => None
-      }
-
-      // Display validation notifications
-      switch validationReport {
-      | Some(report) => {
-          if report.brokenLinksRemoved > 0 {
-            EventBus.dispatch(ShowNotification(
-              "Project loaded. " ++
-              Belt.Int.toString(
-                report.brokenLinksRemoved,
-              ) ++ " broken link(s) were automatically removed.",
-              #Warning,
-            ))
-          }
-
-          if Array.length(report.orphanedScenes) > 0 {
-            EventBus.dispatch(ShowNotification(
-              "Warning: " ++
-              Belt.Int.toString(
-                Array.length(report.orphanedScenes),
-              ) ++ " orphaned scene(s) detected (no incoming links).",
-              #Warning,
-            ))
-          }
-
-          if Array.length(report.unusedFiles) > 0 {
-            Logger.warn(
-              ~module_="ProjectManager",
-              ~message="UNUSED_FILES_DETECTED",
-              ~data=Some({"count": Array.length(report.unusedFiles)}),
-              (),
-            )
-          }
-
-          if Array.length(report.errors) > 0 {
-            Belt.Array.forEach(
-              report.errors,
-              error => {
-                EventBus.dispatch(ShowNotification("Error: " ++ error, #Error))
-              },
-            )
-          }
+    // Display validation notifications
+    switch validationReport {
+    | Some(report) => {
+        if report.brokenLinksRemoved > 0 {
+          EventBus.dispatch(ShowNotification(
+            "Project loaded. " ++
+            Belt.Int.toString(
+              report.brokenLinksRemoved,
+            ) ++ " broken link(s) were automatically removed.",
+            #Warning,
+          ))
         }
-      | None => ()
+
+        if Array.length(report.orphanedScenes) > 0 {
+          EventBus.dispatch(ShowNotification(
+            "Warning: " ++
+            Belt.Int.toString(
+              Array.length(report.orphanedScenes),
+            ) ++ " orphaned scene(s) detected (no incoming links).",
+            #Warning,
+          ))
+        }
+
+        if Array.length(report.unusedFiles) > 0 {
+          Logger.warn(
+            ~module_="ProjectManager",
+            ~message="UNUSED_FILES_DETECTED",
+            ~data=Some({"count": Array.length(report.unusedFiles)}),
+            (),
+          )
+        }
+
+        if Array.length(report.errors) > 0 {
+          Belt.Array.forEach(
+            report.errors,
+            error => {
+              EventBus.dispatch(ShowNotification("Error: " ++ error, #Error))
+            },
+          )
+        }
       }
+    | None => ()
+    }
 
-      // Reconstruct the full project data object with valid scenes
-      // We can't easily mutate 'projectData' (JSON.t) effectively in ReScript cleanly without magic.
-      // So we build a new object.
+    // Reconstruct the full project data object
+    let loadedProject = {
+      "tourName": switch Nullable.toOption(pd["tourName"]) {
+      | Some(n) => n
+      | None => "Imported Tour"
+      },
+      "scenes": validScenes,
+      "deletedSceneIds": switch Nullable.toOption(pd["deletedSceneIds"]) {
+      | Some(a) => a
+      | None => []
+      },
+      "timeline": switch Nullable.toOption(pd["timeline"]) {
+      | Some(t) => t
+      | None => []
+      },
+      "activeIndex": 0,
+    }
 
-      let loadedProject = {
-        "tourName": switch Nullable.toOption(pd["tourName"]) {
-        | Some(n) => n
-        | None => "Imported Tour"
-        },
-        "scenes": validScenes,
-        "deletedSceneIds": switch Nullable.toOption(pd["deletedSceneIds"]) {
-        | Some(a) => a
-        | None => []
-        },
-        "timeline": switch Nullable.toOption(pd["timeline"]) {
-        | Some(t) => t
-        | None => []
-        },
-        "activeIndex": 0,
-        // Add other fields if necessary
-      }
-
-      progress(100, 100, "Project Loaded!")
-      Logger.endOperation(
-        ~module_="ProjectManager",
-        ~operation="PROJECT_LOAD",
-        ~data=Some({
-          "sceneCount": Array.length(validScenes), 
-          "durationMs": Date.now() -. loadStartTime
-        }),
-        (),
-      )
-      Promise.resolve(Ok((Obj.magic(loadedProject): JSON.t)))
-    })
+    progress(100, 100, "Project Loaded!")
+    Logger.endOperation(
+      ~module_="ProjectManager",
+      ~operation="PROJECT_LOAD",
+      ~data=Some({
+        "sceneCount": Array.length(validScenes), 
+        "durationMs": Date.now() -. loadStartTime
+      }),
+      (),
+    )
+    Promise.resolve(Ok((Obj.magic(loadedProject): JSON.t)))
   })
   ->Promise.catch(err => {
     Logger.error(~module_="ProjectManager", ~message="PROJECT_LOAD_FAILED", ~data=Some({"error": err}), ())

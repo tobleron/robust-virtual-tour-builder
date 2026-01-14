@@ -7,6 +7,20 @@ let getComputedOpacity = el => {
   Float.parseFloat(style["opacity"])
 }
 
+let getPanoramaUrl = (file: Types.file): string => {
+  let isString: bool = %raw("typeof file === 'string'")
+  if isString {
+    (Obj.magic(file): string)
+  } else {
+    let isFile: bool = %raw("file instanceof File || file instanceof Blob")
+    if isFile {
+      URL.createObjectURL(Obj.magic(file))
+    } else {
+      ""
+    }
+  }
+}
+
 module Loader = {
   let loadStartTime = ref(0.0)
 
@@ -262,7 +276,7 @@ module Loader = {
           | _ => ()
           }
 
-          let panoramaUrl = URL.createObjectURL(targetScene.file)
+          let panoramaUrl = getPanoramaUrl(targetScene.file)
           let currentGlobalState = GlobalStateBridge.getState()
           let useProgressive =
             Belt.Option.isSome(targetScene.tinyFile) &&
@@ -272,7 +286,7 @@ module Loader = {
 
           let tinyUrl = if useProgressive {
             switch targetScene.tinyFile {
-            | Some(f) => URL.createObjectURL(f)
+            | Some(f) => getPanoramaUrl(f)
             | None => ""
             }
           } else {

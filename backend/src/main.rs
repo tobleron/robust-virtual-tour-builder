@@ -100,6 +100,7 @@ async fn main() -> io::Result<()> {
             .route("/save-project", web::post().to(handlers::save_project))
             .route("/load-project", web::post().to(handlers::load_project))
             .route("/validate-project", web::post().to(handlers::validate_project))
+            .route("/import-project", web::post().to(handlers::import_project))
             .route("/generate-teaser", web::post().to(handlers::generate_teaser))
             .route("/session/{session_id}/{filename:.*}", web::get().to(handlers::serve_session_file))
 

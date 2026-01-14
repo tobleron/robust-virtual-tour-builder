@@ -534,7 +534,6 @@
 │   │   ├── ProjectData.cmj
 │   │   ├── ProjectData.cmt
 │   │   ├── ProjectData.res
-│   │   ├── ProjectManager.ast
 │   │   ├── ProjectManager.cmi
 │   │   ├── ProjectManager.cmj
 │   │   ├── ProjectManager.cmt
@@ -869,14 +868,14 @@
     │   ├── 53_Migrate_Logging_System.md
     │   ├── 54_Migrate_EventBus_REPORT.md
     │   ├── 54_Migrate_EventBus.md
-    │   └── 55_Migrate_UI_Contexts.md
+    │   ├── 55_Migrate_UI_Contexts.md
+    │   └── 56_Backend_Project_Loading.md
     ├── pending
     │   ├── 00_LOGGING_OVERVIEW.md
-    │   ├── 56_Backend_Project_Loading.md
     │   ├── 57_Backend_Pathfinding.md
     │   └── 58_Migrate_Entry_Point.md
     ├── README.md
     ├── SESSION_SUMMARY.md
     └── TASKS_24-27_STATUS.md
 
-30 directories, 850 files
+30 directories, 849 files
