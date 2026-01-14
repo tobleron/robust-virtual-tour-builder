@@ -75,377 +75,409 @@
 │   ├── bs
 │   │   ├── build.ninja
 │   │   ├── compiler-info.json
-│   │   └── src
-│   │       ├── App.ast
-│   │       ├── App.bs.js
-│   │       ├── App.cmi
-│   │       ├── App.cmj
-│   │       ├── App.cmt
-│   │       ├── App.res
-│   │       ├── components
-│   │       │   ├── HotspotManager.ast
-│   │       │   ├── HotspotManager.bs.js
-│   │       │   ├── HotspotManager.cmi
-│   │       │   ├── HotspotManager.cmj
-│   │       │   ├── HotspotManager.cmt
-│   │       │   ├── HotspotManager.res
-│   │       │   ├── LabelMenu.ast
-│   │       │   ├── LabelMenu.bs.js
-│   │       │   ├── LabelMenu.cmi
-│   │       │   ├── LabelMenu.cmj
-│   │       │   ├── LabelMenu.cmt
-│   │       │   ├── LabelMenu.res
-│   │       │   ├── LinkModal.ast
-│   │       │   ├── LinkModal.bs.js
-│   │       │   ├── LinkModal.cmi
-│   │       │   ├── LinkModal.cmj
-│   │       │   ├── LinkModal.cmt
-│   │       │   ├── LinkModal.res
-│   │       │   ├── ModalContext.ast
-│   │       │   ├── ModalContext.bs.js
-│   │       │   ├── ModalContext.cmi
-│   │       │   ├── ModalContext.cmj
-│   │       │   ├── ModalContext.cmt
-│   │       │   ├── ModalContext.res
-│   │       │   ├── NotificationContext.ast
-│   │       │   ├── NotificationContext.bs.js
-│   │       │   ├── NotificationContext.cmi
-│   │       │   ├── NotificationContext.cmj
-│   │       │   ├── NotificationContext.cmt
-│   │       │   ├── NotificationContext.res
-│   │       │   ├── SceneList.ast
-│   │       │   ├── SceneList.bs.js
-│   │       │   ├── SceneList.cmi
-│   │       │   ├── SceneList.cmj
-│   │       │   ├── SceneList.cmt
-│   │       │   ├── SceneList.res
-│   │       │   ├── Sidebar.ast
-│   │       │   ├── Sidebar.bs.js
-│   │       │   ├── Sidebar.cmi
-│   │       │   ├── Sidebar.cmj
-│   │       │   ├── Sidebar.cmt
-│   │       │   ├── Sidebar.res
-│   │       │   ├── UploadReport.ast
-│   │       │   ├── UploadReport.bs.js
-│   │       │   ├── UploadReport.cmi
-│   │       │   ├── UploadReport.cmj
-│   │       │   ├── UploadReport.cmt
-│   │       │   ├── UploadReport.res
-│   │       │   ├── ViewerFollow.ast
-│   │       │   ├── ViewerFollow.bs.js
-│   │       │   ├── ViewerFollow.cmi
-│   │       │   ├── ViewerFollow.cmj
-│   │       │   ├── ViewerFollow.cmt
-│   │       │   ├── ViewerFollow.res
-│   │       │   ├── ViewerLoader.ast
-│   │       │   ├── ViewerLoader.bs.js
-│   │       │   ├── ViewerLoader.cmi
-│   │       │   ├── ViewerLoader.cmj
-│   │       │   ├── ViewerLoader.cmt
-│   │       │   ├── ViewerLoader.res
-│   │       │   ├── ViewerManager.ast
-│   │       │   ├── ViewerManager.bs.js
-│   │       │   ├── ViewerManager.cmi
-│   │       │   ├── ViewerManager.cmj
-│   │       │   ├── ViewerManager.cmt
-│   │       │   ├── ViewerManager.res
-│   │       │   ├── ViewerSnapshot.ast
-│   │       │   ├── ViewerSnapshot.bs.js
-│   │       │   ├── ViewerSnapshot.cmi
-│   │       │   ├── ViewerSnapshot.cmj
-│   │       │   ├── ViewerSnapshot.cmt
-│   │       │   ├── ViewerSnapshot.res
-│   │       │   ├── ViewerState.ast
-│   │       │   ├── ViewerState.bs.js
-│   │       │   ├── ViewerState.cmi
-│   │       │   ├── ViewerState.cmj
-│   │       │   ├── ViewerState.cmt
-│   │       │   ├── ViewerState.res
-│   │       │   ├── ViewerTypes.ast
-│   │       │   ├── ViewerTypes.bs.js
-│   │       │   ├── ViewerTypes.cmi
-│   │       │   ├── ViewerTypes.cmj
-│   │       │   ├── ViewerTypes.cmt
-│   │       │   ├── ViewerTypes.res
-│   │       │   ├── ViewerUI.ast
-│   │       │   ├── ViewerUI.bs.js
-│   │       │   ├── ViewerUI.cmi
-│   │       │   ├── ViewerUI.cmj
-│   │       │   ├── ViewerUI.cmt
-│   │       │   ├── ViewerUI.res
-│   │       │   ├── VisualPipeline.ast
-│   │       │   ├── VisualPipeline.bs.js
-│   │       │   ├── VisualPipeline.cmi
-│   │       │   ├── VisualPipeline.cmj
-│   │       │   ├── VisualPipeline.cmt
-│   │       │   └── VisualPipeline.res
-│   │       ├── core
-│   │       │   ├── Actions.ast
-│   │       │   ├── Actions.bs.js
-│   │       │   ├── Actions.cmi
-│   │       │   ├── Actions.cmj
-│   │       │   ├── Actions.cmt
-│   │       │   ├── Actions.res
-│   │       │   ├── AppContext.ast
-│   │       │   ├── AppContext.bs.js
-│   │       │   ├── AppContext.cmi
-│   │       │   ├── AppContext.cmj
-│   │       │   ├── AppContext.cmt
-│   │       │   ├── AppContext.res
-│   │       │   ├── GlobalStateBridge.ast
-│   │       │   ├── GlobalStateBridge.bs.js
-│   │       │   ├── GlobalStateBridge.cmi
-│   │       │   ├── GlobalStateBridge.cmj
-│   │       │   ├── GlobalStateBridge.cmt
-│   │       │   ├── GlobalStateBridge.res
-│   │       │   ├── Reducer.ast
-│   │       │   ├── Reducer.bs.js
-│   │       │   ├── Reducer.cmi
-│   │       │   ├── Reducer.cmj
-│   │       │   ├── Reducer.cmt
-│   │       │   ├── Reducer.res
-│   │       │   ├── State.ast
-│   │       │   ├── State.bs.js
-│   │       │   ├── State.cmi
-│   │       │   ├── State.cmj
-│   │       │   ├── State.cmt
-│   │       │   ├── State.res
-│   │       │   ├── Types.ast
-│   │       │   ├── Types.bs.js
-│   │       │   ├── Types.cmi
-│   │       │   ├── Types.cmj
-│   │       │   ├── Types.cmt
-│   │       │   └── Types.res
-│   │       ├── Main.ast
-│   │       ├── Main.bs.js
-│   │       ├── Main.cmi
-│   │       ├── Main.cmj
-│   │       ├── Main.cmt
-│   │       ├── Main.res
-│   │       ├── ReBindings.ast
-│   │       ├── ReBindings.bs.js
-│   │       ├── ReBindings.cmi
-│   │       ├── ReBindings.cmj
-│   │       ├── ReBindings.cmt
-│   │       ├── ReBindings.res
-│   │       ├── systems
-│   │       │   ├── AudioManager.ast
-│   │       │   ├── AudioManager.bs.js
-│   │       │   ├── AudioManager.cmi
-│   │       │   ├── AudioManager.cmj
-│   │       │   ├── AudioManager.cmt
-│   │       │   ├── AudioManager.res
-│   │       │   ├── BackendApi.ast
-│   │       │   ├── BackendApi.bs.js
-│   │       │   ├── BackendApi.cmi
-│   │       │   ├── BackendApi.cmj
-│   │       │   ├── BackendApi.cmt
-│   │       │   ├── BackendApi.res
-│   │       │   ├── DownloadSystem.ast
-│   │       │   ├── DownloadSystem.bs.js
-│   │       │   ├── DownloadSystem.cmi
-│   │       │   ├── DownloadSystem.cmj
-│   │       │   ├── DownloadSystem.cmt
-│   │       │   ├── DownloadSystem.res
-│   │       │   ├── EventBus.ast
-│   │       │   ├── EventBus.bs.js
-│   │       │   ├── EventBus.cmi
-│   │       │   ├── EventBus.cmj
-│   │       │   ├── EventBus.cmt
-│   │       │   ├── EventBus.res
-│   │       │   ├── ExifParser.ast
-│   │       │   ├── ExifParser.bs.js
-│   │       │   ├── ExifParser.cmi
-│   │       │   ├── ExifParser.cmj
-│   │       │   ├── ExifParser.cmt
-│   │       │   ├── ExifParser.res
-│   │       │   ├── ExifReportGenerator.ast
-│   │       │   ├── ExifReportGenerator.bs.js
-│   │       │   ├── ExifReportGenerator.cmi
-│   │       │   ├── ExifReportGenerator.cmj
-│   │       │   ├── ExifReportGenerator.cmt
-│   │       │   ├── ExifReportGenerator.res
-│   │       │   ├── Exporter.ast
-│   │       │   ├── Exporter.bs.js
-│   │       │   ├── Exporter.cmi
-│   │       │   ├── Exporter.cmj
-│   │       │   ├── Exporter.cmt
-│   │       │   ├── Exporter.res
-│   │       │   ├── HotspotLine.ast
-│   │       │   ├── HotspotLine.bs.js
-│   │       │   ├── HotspotLine.cmi
-│   │       │   ├── HotspotLine.cmj
-│   │       │   ├── HotspotLine.cmt
-│   │       │   ├── HotspotLine.res
-│   │       │   ├── ImageAnalysis.ast
-│   │       │   ├── ImageAnalysis.bs.js
-│   │       │   ├── ImageAnalysis.cmi
-│   │       │   ├── ImageAnalysis.cmj
-│   │       │   ├── ImageAnalysis.cmt
-│   │       │   ├── ImageAnalysis.res
-│   │       │   ├── InputSystem.ast
-│   │       │   ├── InputSystem.bs.js
-│   │       │   ├── InputSystem.cmi
-│   │       │   ├── InputSystem.cmj
-│   │       │   ├── InputSystem.cmt
-│   │       │   ├── InputSystem.res
-│   │       │   ├── Navigation.ast
-│   │       │   ├── Navigation.bs.js
-│   │       │   ├── Navigation.cmi
-│   │       │   ├── Navigation.cmj
-│   │       │   ├── Navigation.cmt
-│   │       │   ├── Navigation.res
-│   │       │   ├── NavigationController.ast
-│   │       │   ├── NavigationController.bs.js
-│   │       │   ├── NavigationController.cmi
-│   │       │   ├── NavigationController.cmj
-│   │       │   ├── NavigationController.cmt
-│   │       │   ├── NavigationController.res
-│   │       │   ├── NavigationRenderer.ast
-│   │       │   ├── NavigationRenderer.bs.js
-│   │       │   ├── NavigationRenderer.cmi
-│   │       │   ├── NavigationRenderer.cmj
-│   │       │   ├── NavigationRenderer.cmt
-│   │       │   ├── NavigationRenderer.res
-│   │       │   ├── NavigationUI.ast
-│   │       │   ├── NavigationUI.bs.js
-│   │       │   ├── NavigationUI.cmi
-│   │       │   ├── NavigationUI.cmj
-│   │       │   ├── NavigationUI.cmt
-│   │       │   ├── NavigationUI.res
-│   │       │   ├── ProjectData.ast
-│   │       │   ├── ProjectData.bs.js
-│   │       │   ├── ProjectData.cmi
-│   │       │   ├── ProjectData.cmj
-│   │       │   ├── ProjectData.cmt
-│   │       │   ├── ProjectData.res
-│   │       │   ├── ProjectManager.ast
-│   │       │   ├── ProjectManager.bs.js
-│   │       │   ├── ProjectManager.cmi
-│   │       │   ├── ProjectManager.cmj
-│   │       │   ├── ProjectManager.cmt
-│   │       │   ├── ProjectManager.res
-│   │       │   ├── Resizer.ast
-│   │       │   ├── Resizer.bs.js
-│   │       │   ├── Resizer.cmi
-│   │       │   ├── Resizer.cmj
-│   │       │   ├── Resizer.cmt
-│   │       │   ├── Resizer.res
-│   │       │   ├── ServerTeaser.ast
-│   │       │   ├── ServerTeaser.bs.js
-│   │       │   ├── ServerTeaser.cmi
-│   │       │   ├── ServerTeaser.cmj
-│   │       │   ├── ServerTeaser.cmt
-│   │       │   ├── ServerTeaser.res
-│   │       │   ├── SimulationChainSkipper.ast
-│   │       │   ├── SimulationChainSkipper.bs.js
-│   │       │   ├── SimulationChainSkipper.cmi
-│   │       │   ├── SimulationChainSkipper.cmj
-│   │       │   ├── SimulationChainSkipper.cmt
-│   │       │   ├── SimulationChainSkipper.res
-│   │       │   ├── SimulationNavigation.ast
-│   │       │   ├── SimulationNavigation.bs.js
-│   │       │   ├── SimulationNavigation.cmi
-│   │       │   ├── SimulationNavigation.cmj
-│   │       │   ├── SimulationNavigation.cmt
-│   │       │   ├── SimulationNavigation.res
-│   │       │   ├── SimulationPathGenerator.ast
-│   │       │   ├── SimulationPathGenerator.bs.js
-│   │       │   ├── SimulationPathGenerator.cmi
-│   │       │   ├── SimulationPathGenerator.cmj
-│   │       │   ├── SimulationPathGenerator.cmt
-│   │       │   ├── SimulationPathGenerator.res
-│   │       │   ├── SimulationSystem.ast
-│   │       │   ├── SimulationSystem.bs.js
-│   │       │   ├── SimulationSystem.cmi
-│   │       │   ├── SimulationSystem.cmj
-│   │       │   ├── SimulationSystem.cmt
-│   │       │   ├── SimulationSystem.res
-│   │       │   ├── TeaserManager.ast
-│   │       │   ├── TeaserManager.bs.js
-│   │       │   ├── TeaserManager.cmi
-│   │       │   ├── TeaserManager.cmj
-│   │       │   ├── TeaserManager.cmt
-│   │       │   ├── TeaserManager.res
-│   │       │   ├── TeaserPathfinder.ast
-│   │       │   ├── TeaserPathfinder.bs.js
-│   │       │   ├── TeaserPathfinder.cmi
-│   │       │   ├── TeaserPathfinder.cmj
-│   │       │   ├── TeaserPathfinder.cmt
-│   │       │   ├── TeaserPathfinder.res
-│   │       │   ├── TeaserRecorder.ast
-│   │       │   ├── TeaserRecorder.bs.js
-│   │       │   ├── TeaserRecorder.cmi
-│   │       │   ├── TeaserRecorder.cmj
-│   │       │   ├── TeaserRecorder.cmt
-│   │       │   ├── TeaserRecorder.res
-│   │       │   ├── TourTemplates.ast
-│   │       │   ├── TourTemplates.bs.js
-│   │       │   ├── TourTemplates.cmi
-│   │       │   ├── TourTemplates.cmj
-│   │       │   ├── TourTemplates.cmt
-│   │       │   ├── TourTemplates.res
-│   │       │   ├── UploadProcessor.ast
-│   │       │   ├── UploadProcessor.bs.js
-│   │       │   ├── UploadProcessor.cmi
-│   │       │   ├── UploadProcessor.cmj
-│   │       │   ├── UploadProcessor.cmt
-│   │       │   ├── UploadProcessor.res
-│   │       │   ├── VideoEncoder.ast
-│   │       │   ├── VideoEncoder.bs.js
-│   │       │   ├── VideoEncoder.cmi
-│   │       │   ├── VideoEncoder.cmj
-│   │       │   ├── VideoEncoder.cmt
-│   │       │   └── VideoEncoder.res
-│   │       ├── TestSimulation.ast
-│   │       ├── TestSimulation.bs.js
-│   │       ├── TestSimulation.cmi
-│   │       ├── TestSimulation.cmj
-│   │       ├── TestSimulation.cmt
-│   │       ├── TestSimulation.res
-│   │       └── utils
-│   │           ├── ColorPalette.ast
-│   │           ├── ColorPalette.bs.js
-│   │           ├── ColorPalette.cmi
-│   │           ├── ColorPalette.cmj
-│   │           ├── ColorPalette.cmt
-│   │           ├── ColorPalette.res
-│   │           ├── Constants.ast
-│   │           ├── Constants.bs.js
-│   │           ├── Constants.cmi
-│   │           ├── Constants.cmj
-│   │           ├── Constants.cmt
-│   │           ├── Constants.res
-│   │           ├── GeoUtils.ast
-│   │           ├── GeoUtils.bs.js
-│   │           ├── GeoUtils.cmi
-│   │           ├── GeoUtils.cmj
-│   │           ├── GeoUtils.cmt
-│   │           ├── GeoUtils.res
-│   │           ├── Logger.ast
-│   │           ├── Logger.bs.js
-│   │           ├── Logger.cmi
-│   │           ├── Logger.cmj
-│   │           ├── Logger.cmt
-│   │           ├── Logger.res
-│   │           ├── PathInterpolation.ast
-│   │           ├── PathInterpolation.bs.js
-│   │           ├── PathInterpolation.cmi
-│   │           ├── PathInterpolation.cmj
-│   │           ├── PathInterpolation.cmt
-│   │           ├── PathInterpolation.res
-│   │           ├── ProgressBar.ast
-│   │           ├── ProgressBar.bs.js
-│   │           ├── ProgressBar.cmi
-│   │           ├── ProgressBar.cmj
-│   │           ├── ProgressBar.cmt
-│   │           ├── ProgressBar.res
-│   │           ├── TourLogic.ast
-│   │           ├── TourLogic.bs.js
-│   │           ├── TourLogic.cmi
-│   │           ├── TourLogic.cmj
-│   │           ├── TourLogic.cmt
-│   │           └── TourLogic.res
+│   │   ├── src
+│   │   │   ├── App.ast
+│   │   │   ├── App.bs.js
+│   │   │   ├── App.cmi
+│   │   │   ├── App.cmj
+│   │   │   ├── App.cmt
+│   │   │   ├── App.res
+│   │   │   ├── components
+│   │   │   │   ├── HotspotManager.ast
+│   │   │   │   ├── HotspotManager.bs.js
+│   │   │   │   ├── HotspotManager.cmi
+│   │   │   │   ├── HotspotManager.cmj
+│   │   │   │   ├── HotspotManager.cmt
+│   │   │   │   ├── HotspotManager.res
+│   │   │   │   ├── LabelMenu.ast
+│   │   │   │   ├── LabelMenu.bs.js
+│   │   │   │   ├── LabelMenu.cmi
+│   │   │   │   ├── LabelMenu.cmj
+│   │   │   │   ├── LabelMenu.cmt
+│   │   │   │   ├── LabelMenu.res
+│   │   │   │   ├── LinkModal.ast
+│   │   │   │   ├── LinkModal.bs.js
+│   │   │   │   ├── LinkModal.cmi
+│   │   │   │   ├── LinkModal.cmj
+│   │   │   │   ├── LinkModal.cmt
+│   │   │   │   ├── LinkModal.res
+│   │   │   │   ├── ModalContext.ast
+│   │   │   │   ├── ModalContext.bs.js
+│   │   │   │   ├── ModalContext.cmi
+│   │   │   │   ├── ModalContext.cmj
+│   │   │   │   ├── ModalContext.cmt
+│   │   │   │   ├── ModalContext.res
+│   │   │   │   ├── NotificationContext.ast
+│   │   │   │   ├── NotificationContext.bs.js
+│   │   │   │   ├── NotificationContext.cmi
+│   │   │   │   ├── NotificationContext.cmj
+│   │   │   │   ├── NotificationContext.cmt
+│   │   │   │   ├── NotificationContext.res
+│   │   │   │   ├── SceneList.ast
+│   │   │   │   ├── SceneList.bs.js
+│   │   │   │   ├── SceneList.cmi
+│   │   │   │   ├── SceneList.cmj
+│   │   │   │   ├── SceneList.cmt
+│   │   │   │   ├── SceneList.res
+│   │   │   │   ├── Sidebar.ast
+│   │   │   │   ├── Sidebar.bs.js
+│   │   │   │   ├── Sidebar.cmi
+│   │   │   │   ├── Sidebar.cmj
+│   │   │   │   ├── Sidebar.cmt
+│   │   │   │   ├── Sidebar.res
+│   │   │   │   ├── UploadReport.ast
+│   │   │   │   ├── UploadReport.bs.js
+│   │   │   │   ├── UploadReport.cmi
+│   │   │   │   ├── UploadReport.cmj
+│   │   │   │   ├── UploadReport.cmt
+│   │   │   │   ├── UploadReport.res
+│   │   │   │   ├── ViewerFollow.ast
+│   │   │   │   ├── ViewerFollow.bs.js
+│   │   │   │   ├── ViewerFollow.cmi
+│   │   │   │   ├── ViewerFollow.cmj
+│   │   │   │   ├── ViewerFollow.cmt
+│   │   │   │   ├── ViewerFollow.res
+│   │   │   │   ├── ViewerLoader.ast
+│   │   │   │   ├── ViewerLoader.bs.js
+│   │   │   │   ├── ViewerLoader.cmi
+│   │   │   │   ├── ViewerLoader.cmj
+│   │   │   │   ├── ViewerLoader.cmt
+│   │   │   │   ├── ViewerLoader.res
+│   │   │   │   ├── ViewerManager.ast
+│   │   │   │   ├── ViewerManager.bs.js
+│   │   │   │   ├── ViewerManager.cmi
+│   │   │   │   ├── ViewerManager.cmj
+│   │   │   │   ├── ViewerManager.cmt
+│   │   │   │   ├── ViewerManager.res
+│   │   │   │   ├── ViewerSnapshot.ast
+│   │   │   │   ├── ViewerSnapshot.bs.js
+│   │   │   │   ├── ViewerSnapshot.cmi
+│   │   │   │   ├── ViewerSnapshot.cmj
+│   │   │   │   ├── ViewerSnapshot.cmt
+│   │   │   │   ├── ViewerSnapshot.res
+│   │   │   │   ├── ViewerState.ast
+│   │   │   │   ├── ViewerState.bs.js
+│   │   │   │   ├── ViewerState.cmi
+│   │   │   │   ├── ViewerState.cmj
+│   │   │   │   ├── ViewerState.cmt
+│   │   │   │   ├── ViewerState.res
+│   │   │   │   ├── ViewerTypes.ast
+│   │   │   │   ├── ViewerTypes.bs.js
+│   │   │   │   ├── ViewerTypes.cmi
+│   │   │   │   ├── ViewerTypes.cmj
+│   │   │   │   ├── ViewerTypes.cmt
+│   │   │   │   ├── ViewerTypes.res
+│   │   │   │   ├── ViewerUI.ast
+│   │   │   │   ├── ViewerUI.bs.js
+│   │   │   │   ├── ViewerUI.cmi
+│   │   │   │   ├── ViewerUI.cmj
+│   │   │   │   ├── ViewerUI.cmt
+│   │   │   │   ├── ViewerUI.res
+│   │   │   │   ├── VisualPipeline.ast
+│   │   │   │   ├── VisualPipeline.bs.js
+│   │   │   │   ├── VisualPipeline.cmi
+│   │   │   │   ├── VisualPipeline.cmj
+│   │   │   │   ├── VisualPipeline.cmt
+│   │   │   │   └── VisualPipeline.res
+│   │   │   ├── core
+│   │   │   │   ├── Actions.ast
+│   │   │   │   ├── Actions.bs.js
+│   │   │   │   ├── Actions.cmi
+│   │   │   │   ├── Actions.cmj
+│   │   │   │   ├── Actions.cmt
+│   │   │   │   ├── Actions.res
+│   │   │   │   ├── AppContext.ast
+│   │   │   │   ├── AppContext.bs.js
+│   │   │   │   ├── AppContext.cmi
+│   │   │   │   ├── AppContext.cmj
+│   │   │   │   ├── AppContext.cmt
+│   │   │   │   ├── AppContext.res
+│   │   │   │   ├── GlobalStateBridge.ast
+│   │   │   │   ├── GlobalStateBridge.bs.js
+│   │   │   │   ├── GlobalStateBridge.cmi
+│   │   │   │   ├── GlobalStateBridge.cmj
+│   │   │   │   ├── GlobalStateBridge.cmt
+│   │   │   │   ├── GlobalStateBridge.res
+│   │   │   │   ├── Reducer.ast
+│   │   │   │   ├── Reducer.bs.js
+│   │   │   │   ├── Reducer.cmi
+│   │   │   │   ├── Reducer.cmj
+│   │   │   │   ├── Reducer.cmt
+│   │   │   │   ├── Reducer.res
+│   │   │   │   ├── State.ast
+│   │   │   │   ├── State.bs.js
+│   │   │   │   ├── State.cmi
+│   │   │   │   ├── State.cmj
+│   │   │   │   ├── State.cmt
+│   │   │   │   ├── State.res
+│   │   │   │   ├── Types.ast
+│   │   │   │   ├── Types.bs.js
+│   │   │   │   ├── Types.cmi
+│   │   │   │   ├── Types.cmj
+│   │   │   │   ├── Types.cmt
+│   │   │   │   └── Types.res
+│   │   │   ├── Main.ast
+│   │   │   ├── Main.bs.js
+│   │   │   ├── Main.cmi
+│   │   │   ├── Main.cmj
+│   │   │   ├── Main.cmt
+│   │   │   ├── Main.res
+│   │   │   ├── ReBindings.ast
+│   │   │   ├── ReBindings.bs.js
+│   │   │   ├── ReBindings.cmi
+│   │   │   ├── ReBindings.cmj
+│   │   │   ├── ReBindings.cmt
+│   │   │   ├── ReBindings.res
+│   │   │   ├── systems
+│   │   │   │   ├── AudioManager.ast
+│   │   │   │   ├── AudioManager.bs.js
+│   │   │   │   ├── AudioManager.cmi
+│   │   │   │   ├── AudioManager.cmj
+│   │   │   │   ├── AudioManager.cmt
+│   │   │   │   ├── AudioManager.res
+│   │   │   │   ├── BackendApi.ast
+│   │   │   │   ├── BackendApi.bs.js
+│   │   │   │   ├── BackendApi.cmi
+│   │   │   │   ├── BackendApi.cmj
+│   │   │   │   ├── BackendApi.cmt
+│   │   │   │   ├── BackendApi.res
+│   │   │   │   ├── DownloadSystem.ast
+│   │   │   │   ├── DownloadSystem.bs.js
+│   │   │   │   ├── DownloadSystem.cmi
+│   │   │   │   ├── DownloadSystem.cmj
+│   │   │   │   ├── DownloadSystem.cmt
+│   │   │   │   ├── DownloadSystem.res
+│   │   │   │   ├── EventBus.ast
+│   │   │   │   ├── EventBus.bs.js
+│   │   │   │   ├── EventBus.cmi
+│   │   │   │   ├── EventBus.cmj
+│   │   │   │   ├── EventBus.cmt
+│   │   │   │   ├── EventBus.res
+│   │   │   │   ├── ExifParser.ast
+│   │   │   │   ├── ExifParser.bs.js
+│   │   │   │   ├── ExifParser.cmi
+│   │   │   │   ├── ExifParser.cmj
+│   │   │   │   ├── ExifParser.cmt
+│   │   │   │   ├── ExifParser.res
+│   │   │   │   ├── ExifReportGenerator.ast
+│   │   │   │   ├── ExifReportGenerator.bs.js
+│   │   │   │   ├── ExifReportGenerator.cmi
+│   │   │   │   ├── ExifReportGenerator.cmj
+│   │   │   │   ├── ExifReportGenerator.cmt
+│   │   │   │   ├── ExifReportGenerator.res
+│   │   │   │   ├── Exporter.ast
+│   │   │   │   ├── Exporter.bs.js
+│   │   │   │   ├── Exporter.cmi
+│   │   │   │   ├── Exporter.cmj
+│   │   │   │   ├── Exporter.cmt
+│   │   │   │   ├── Exporter.res
+│   │   │   │   ├── HotspotLine.ast
+│   │   │   │   ├── HotspotLine.bs.js
+│   │   │   │   ├── HotspotLine.cmi
+│   │   │   │   ├── HotspotLine.cmj
+│   │   │   │   ├── HotspotLine.cmt
+│   │   │   │   ├── HotspotLine.res
+│   │   │   │   ├── ImageAnalysis.ast
+│   │   │   │   ├── ImageAnalysis.bs.js
+│   │   │   │   ├── ImageAnalysis.cmi
+│   │   │   │   ├── ImageAnalysis.cmj
+│   │   │   │   ├── ImageAnalysis.cmt
+│   │   │   │   ├── ImageAnalysis.res
+│   │   │   │   ├── InputSystem.ast
+│   │   │   │   ├── InputSystem.bs.js
+│   │   │   │   ├── InputSystem.cmi
+│   │   │   │   ├── InputSystem.cmj
+│   │   │   │   ├── InputSystem.cmt
+│   │   │   │   ├── InputSystem.res
+│   │   │   │   ├── Navigation.ast
+│   │   │   │   ├── Navigation.bs.js
+│   │   │   │   ├── Navigation.cmi
+│   │   │   │   ├── Navigation.cmj
+│   │   │   │   ├── Navigation.cmt
+│   │   │   │   ├── Navigation.res
+│   │   │   │   ├── NavigationController.ast
+│   │   │   │   ├── NavigationController.bs.js
+│   │   │   │   ├── NavigationController.cmi
+│   │   │   │   ├── NavigationController.cmj
+│   │   │   │   ├── NavigationController.cmt
+│   │   │   │   ├── NavigationController.res
+│   │   │   │   ├── NavigationRenderer.ast
+│   │   │   │   ├── NavigationRenderer.bs.js
+│   │   │   │   ├── NavigationRenderer.cmi
+│   │   │   │   ├── NavigationRenderer.cmj
+│   │   │   │   ├── NavigationRenderer.cmt
+│   │   │   │   ├── NavigationRenderer.res
+│   │   │   │   ├── NavigationUI.ast
+│   │   │   │   ├── NavigationUI.bs.js
+│   │   │   │   ├── NavigationUI.cmi
+│   │   │   │   ├── NavigationUI.cmj
+│   │   │   │   ├── NavigationUI.cmt
+│   │   │   │   ├── NavigationUI.res
+│   │   │   │   ├── ProjectData.ast
+│   │   │   │   ├── ProjectData.bs.js
+│   │   │   │   ├── ProjectData.cmi
+│   │   │   │   ├── ProjectData.cmj
+│   │   │   │   ├── ProjectData.cmt
+│   │   │   │   ├── ProjectData.res
+│   │   │   │   ├── ProjectManager.ast
+│   │   │   │   ├── ProjectManager.bs.js
+│   │   │   │   ├── ProjectManager.cmi
+│   │   │   │   ├── ProjectManager.cmj
+│   │   │   │   ├── ProjectManager.cmt
+│   │   │   │   ├── ProjectManager.res
+│   │   │   │   ├── Resizer.ast
+│   │   │   │   ├── Resizer.bs.js
+│   │   │   │   ├── Resizer.cmi
+│   │   │   │   ├── Resizer.cmj
+│   │   │   │   ├── Resizer.cmt
+│   │   │   │   ├── Resizer.res
+│   │   │   │   ├── ServerTeaser.ast
+│   │   │   │   ├── ServerTeaser.bs.js
+│   │   │   │   ├── ServerTeaser.cmi
+│   │   │   │   ├── ServerTeaser.cmj
+│   │   │   │   ├── ServerTeaser.cmt
+│   │   │   │   ├── ServerTeaser.res
+│   │   │   │   ├── SimulationChainSkipper.ast
+│   │   │   │   ├── SimulationChainSkipper.bs.js
+│   │   │   │   ├── SimulationChainSkipper.cmi
+│   │   │   │   ├── SimulationChainSkipper.cmj
+│   │   │   │   ├── SimulationChainSkipper.cmt
+│   │   │   │   ├── SimulationChainSkipper.res
+│   │   │   │   ├── SimulationNavigation.ast
+│   │   │   │   ├── SimulationNavigation.bs.js
+│   │   │   │   ├── SimulationNavigation.cmi
+│   │   │   │   ├── SimulationNavigation.cmj
+│   │   │   │   ├── SimulationNavigation.cmt
+│   │   │   │   ├── SimulationNavigation.res
+│   │   │   │   ├── SimulationPathGenerator.ast
+│   │   │   │   ├── SimulationPathGenerator.bs.js
+│   │   │   │   ├── SimulationPathGenerator.cmi
+│   │   │   │   ├── SimulationPathGenerator.cmj
+│   │   │   │   ├── SimulationPathGenerator.cmt
+│   │   │   │   ├── SimulationPathGenerator.res
+│   │   │   │   ├── SimulationSystem.ast
+│   │   │   │   ├── SimulationSystem.bs.js
+│   │   │   │   ├── SimulationSystem.cmi
+│   │   │   │   ├── SimulationSystem.cmj
+│   │   │   │   ├── SimulationSystem.cmt
+│   │   │   │   ├── SimulationSystem.res
+│   │   │   │   ├── TeaserManager.ast
+│   │   │   │   ├── TeaserManager.bs.js
+│   │   │   │   ├── TeaserManager.cmi
+│   │   │   │   ├── TeaserManager.cmj
+│   │   │   │   ├── TeaserManager.cmt
+│   │   │   │   ├── TeaserManager.res
+│   │   │   │   ├── TeaserPathfinder.ast
+│   │   │   │   ├── TeaserPathfinder.bs.js
+│   │   │   │   ├── TeaserPathfinder.cmi
+│   │   │   │   ├── TeaserPathfinder.cmj
+│   │   │   │   ├── TeaserPathfinder.cmt
+│   │   │   │   ├── TeaserPathfinder.res
+│   │   │   │   ├── TeaserRecorder.ast
+│   │   │   │   ├── TeaserRecorder.bs.js
+│   │   │   │   ├── TeaserRecorder.cmi
+│   │   │   │   ├── TeaserRecorder.cmj
+│   │   │   │   ├── TeaserRecorder.cmt
+│   │   │   │   ├── TeaserRecorder.res
+│   │   │   │   ├── TourTemplates.ast
+│   │   │   │   ├── TourTemplates.bs.js
+│   │   │   │   ├── TourTemplates.cmi
+│   │   │   │   ├── TourTemplates.cmj
+│   │   │   │   ├── TourTemplates.cmt
+│   │   │   │   ├── TourTemplates.res
+│   │   │   │   ├── UploadProcessor.ast
+│   │   │   │   ├── UploadProcessor.bs.js
+│   │   │   │   ├── UploadProcessor.cmi
+│   │   │   │   ├── UploadProcessor.cmj
+│   │   │   │   ├── UploadProcessor.cmt
+│   │   │   │   ├── UploadProcessor.res
+│   │   │   │   ├── VideoEncoder.ast
+│   │   │   │   ├── VideoEncoder.bs.js
+│   │   │   │   ├── VideoEncoder.cmi
+│   │   │   │   ├── VideoEncoder.cmj
+│   │   │   │   ├── VideoEncoder.cmt
+│   │   │   │   └── VideoEncoder.res
+│   │   │   └── utils
+│   │   │       ├── ColorPalette.ast
+│   │   │       ├── ColorPalette.bs.js
+│   │   │       ├── ColorPalette.cmi
+│   │   │       ├── ColorPalette.cmj
+│   │   │       ├── ColorPalette.cmt
+│   │   │       ├── ColorPalette.res
+│   │   │       ├── Constants.ast
+│   │   │       ├── Constants.bs.js
+│   │   │       ├── Constants.cmi
+│   │   │       ├── Constants.cmj
+│   │   │       ├── Constants.cmt
+│   │   │       ├── Constants.res
+│   │   │       ├── GeoUtils.ast
+│   │   │       ├── GeoUtils.bs.js
+│   │   │       ├── GeoUtils.cmi
+│   │   │       ├── GeoUtils.cmj
+│   │   │       ├── GeoUtils.cmt
+│   │   │       ├── GeoUtils.res
+│   │   │       ├── Logger.ast
+│   │   │       ├── Logger.bs.js
+│   │   │       ├── Logger.cmi
+│   │   │       ├── Logger.cmj
+│   │   │       ├── Logger.cmt
+│   │   │       ├── Logger.res
+│   │   │       ├── PathInterpolation.ast
+│   │   │       ├── PathInterpolation.bs.js
+│   │   │       ├── PathInterpolation.cmi
+│   │   │       ├── PathInterpolation.cmj
+│   │   │       ├── PathInterpolation.cmt
+│   │   │       ├── PathInterpolation.res
+│   │   │       ├── ProgressBar.ast
+│   │   │       ├── ProgressBar.bs.js
+│   │   │       ├── ProgressBar.cmi
+│   │   │       ├── ProgressBar.cmj
+│   │   │       ├── ProgressBar.cmt
+│   │   │       ├── ProgressBar.res
+│   │   │       ├── TourLogic.ast
+│   │   │       ├── TourLogic.bs.js
+│   │   │       ├── TourLogic.cmi
+│   │   │       ├── TourLogic.cmj
+│   │   │       ├── TourLogic.cmt
+│   │   │       └── TourLogic.res
+│   │   └── tests
+│   │       ├── TestRunner.ast
+│   │       ├── TestRunner.bs.js
+│   │       ├── TestRunner.cmi
+│   │       ├── TestRunner.cmj
+│   │       ├── TestRunner.cmt
+│   │       ├── TestRunner.res
+│   │       └── unit
+│   │           ├── GeoUtilsTest.ast
+│   │           ├── GeoUtilsTest.bs.js
+│   │           ├── GeoUtilsTest.cmi
+│   │           ├── GeoUtilsTest.cmj
+│   │           ├── GeoUtilsTest.cmt
+│   │           ├── GeoUtilsTest.res
+│   │           ├── PathInterpolationTest.ast
+│   │           ├── PathInterpolationTest.bs.js
+│   │           ├── PathInterpolationTest.cmi
+│   │           ├── PathInterpolationTest.cmj
+│   │           ├── PathInterpolationTest.cmt
+│   │           ├── PathInterpolationTest.res
+│   │           ├── ReducerTest.ast
+│   │           ├── ReducerTest.bs.js
+│   │           ├── ReducerTest.cmi
+│   │           ├── ReducerTest.cmj
+│   │           ├── ReducerTest.cmt
+│   │           ├── ReducerTest.res
+│   │           ├── SimulationSystemTest.ast
+│   │           ├── SimulationSystemTest.bs.js
+│   │           ├── SimulationSystemTest.cmi
+│   │           ├── SimulationSystemTest.cmj
+│   │           ├── SimulationSystemTest.cmt
+│   │           ├── SimulationSystemTest.res
+│   │           ├── TourLogicTest.ast
+│   │           ├── TourLogicTest.bs.js
+│   │           ├── TourLogicTest.cmi
+│   │           ├── TourLogicTest.cmj
+│   │           ├── TourLogicTest.cmt
+│   │           └── TourLogicTest.res
 │   ├── ocaml
 │   │   ├── Actions.ast
 │   │   ├── Actions.cmi
@@ -512,6 +544,11 @@
 │   │   ├── GeoUtils.cmj
 │   │   ├── GeoUtils.cmt
 │   │   ├── GeoUtils.res
+│   │   ├── GeoUtilsTest.ast
+│   │   ├── GeoUtilsTest.cmi
+│   │   ├── GeoUtilsTest.cmj
+│   │   ├── GeoUtilsTest.cmt
+│   │   ├── GeoUtilsTest.res
 │   │   ├── GlobalStateBridge.ast
 │   │   ├── GlobalStateBridge.cmi
 │   │   ├── GlobalStateBridge.cmj
@@ -592,6 +629,11 @@
 │   │   ├── PathInterpolation.cmj
 │   │   ├── PathInterpolation.cmt
 │   │   ├── PathInterpolation.res
+│   │   ├── PathInterpolationTest.ast
+│   │   ├── PathInterpolationTest.cmi
+│   │   ├── PathInterpolationTest.cmj
+│   │   ├── PathInterpolationTest.cmt
+│   │   ├── PathInterpolationTest.res
 │   │   ├── ProgressBar.ast
 │   │   ├── ProgressBar.cmi
 │   │   ├── ProgressBar.cmj
@@ -617,6 +659,11 @@
 │   │   ├── Reducer.cmj
 │   │   ├── Reducer.cmt
 │   │   ├── Reducer.res
+│   │   ├── ReducerTest.ast
+│   │   ├── ReducerTest.cmi
+│   │   ├── ReducerTest.cmj
+│   │   ├── ReducerTest.cmt
+│   │   ├── ReducerTest.res
 │   │   ├── Resizer.ast
 │   │   ├── Resizer.cmi
 │   │   ├── Resizer.cmj
@@ -657,6 +704,11 @@
 │   │   ├── SimulationSystem.cmj
 │   │   ├── SimulationSystem.cmt
 │   │   ├── SimulationSystem.res
+│   │   ├── SimulationSystemTest.ast
+│   │   ├── SimulationSystemTest.cmi
+│   │   ├── SimulationSystemTest.cmj
+│   │   ├── SimulationSystemTest.cmt
+│   │   ├── SimulationSystemTest.res
 │   │   ├── State.ast
 │   │   ├── State.cmi
 │   │   ├── State.cmj
@@ -677,15 +729,21 @@
 │   │   ├── TeaserRecorder.cmj
 │   │   ├── TeaserRecorder.cmt
 │   │   ├── TeaserRecorder.res
-│   │   ├── TestSimulation.cmi
-│   │   ├── TestSimulation.cmj
-│   │   ├── TestSimulation.cmt
-│   │   ├── TestSimulation.res
+│   │   ├── TestRunner.ast
+│   │   ├── TestRunner.cmi
+│   │   ├── TestRunner.cmj
+│   │   ├── TestRunner.cmt
+│   │   ├── TestRunner.res
 │   │   ├── TourLogic.ast
 │   │   ├── TourLogic.cmi
 │   │   ├── TourLogic.cmj
 │   │   ├── TourLogic.cmt
 │   │   ├── TourLogic.res
+│   │   ├── TourLogicTest.ast
+│   │   ├── TourLogicTest.cmi
+│   │   ├── TourLogicTest.cmj
+│   │   ├── TourLogicTest.cmt
+│   │   ├── TourLogicTest.res
 │   │   ├── TourTemplates.cmi
 │   │   ├── TourTemplates.cmj
 │   │   ├── TourTemplates.cmt
@@ -984,10 +1042,10 @@
 │   │   ├── 77_Eliminate_ObjMagic_BackendApi_REPORT.md
 │   │   ├── 78_Improve_Error_Handling_BackendApi_REPORT.md
 │   │   ├── 79_Remove_Unused_Backend_Import_REPORT.md
+│   │   ├── 80_Add_Frontend_Unit_Tests_REPORT.md
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   ├── pending
-│   │   ├── 80_Add_Frontend_Unit_Tests.md
 │   │   ├── 81_Expand_Backend_Test_Coverage.md
 │   │   ├── 82_Add_Rust_Documentation_Comments.md
 │   │   ├── 83_Implement_Code_Splitting.md
@@ -998,6 +1056,19 @@
 │   │   └── 88_Eliminate_ObjMagic_Reducer.md
 │   └── README.md
 └── tests
-    └── SimulationSystem_test.res
+    ├── integration
+    ├── TestRunner.bs.js
+    ├── TestRunner.res
+    └── unit
+        ├── GeoUtilsTest.bs.js
+        ├── GeoUtilsTest.res
+        ├── PathInterpolationTest.bs.js
+        ├── PathInterpolationTest.res
+        ├── ReducerTest.bs.js
+        ├── ReducerTest.res
+        ├── SimulationSystemTest.bs.js
+        ├── SimulationSystemTest.res
+        ├── TourLogicTest.bs.js
+        └── TourLogicTest.res
 
-35 directories, 966 files
+39 directories, 1033 files

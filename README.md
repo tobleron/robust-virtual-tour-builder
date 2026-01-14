@@ -71,6 +71,15 @@ Remax VTB is a comprehensive suite for building, editing, and exporting interact
    ```bash
    npm run css:watch
    ```
+### Testing
+
+The project includes both frontend and backend tests:
+
+- **Run all tests**: `npm test`
+- **Frontend only**: `npm run test:frontend`
+- **Backend only**: `cd backend && cargo test`
+
+Frontend tests are written in ReScript and run in Node.js. They cover critical business logic in `Reducer`, `TourLogic`, `GeoUtils`, and `Simulation` systems.
 
 ## 📁 Project Structure
 
