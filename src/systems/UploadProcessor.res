@@ -243,82 +243,144 @@ let processUploads = (
                   updateProgress(95.0, "Syncing scene blocks...", true, "Clustering")
                   Logger.debug(~module_="Upload", ~message="PHASE_CLUSTERING", ())
 
-                  let _ = Array.sort(
-                    validProcessed,
-                    (a, b) => {
-                      String.localeCompare(File.name(a.original), File.name(b.original))
-                    },
-                  )
+                  let _ = Array.sort(validProcessed, (a, b) => {
+                    String.localeCompare(File.name(a.original), File.name(b.original))
+                  })
 
                   let existingScenes = GlobalStateBridge.getState().scenes
                   let existingCount = Belt.Array.length(existingScenes)
+                  let lastExistingScene = if existingCount > 0 {
+                    Belt.Array.get(existingScenes, existingCount - 1)
+                  } else {
+                    None
+                  }
 
-                  let lastGroupRef = ref(0)
-                  if existingCount > 0 {
-                    switch Belt.Array.get(existingScenes, existingCount - 1) {
-                    | Some(lastS) =>
-                      switch lastS.colorGroup {
-                      | Some(gStr) =>
-                        switch Belt.Int.fromString(gStr) {
-                        | Some(g) => lastGroupRef := g
+                  // Build pairs for batch similarity
+                  let pairs = []
+                  Belt.Array.forEachWithIndex(validProcessed, (i, current) => {
+                    let currentId =
+                      Nullable.toOption(current.id)->Option.getOr(File.name(current.original))
+                    let currentQ = current.quality
+
+                    switch currentQ {
+                    | Some(q) =>
+                      // Compare with last 3 in batch
+                      for j in 1 to 3 {
+                        let prevIdx = i - j
+                        if prevIdx >= 0 {
+                          switch Belt.Array.get(validProcessed, prevIdx) {
+                          | Some(prev) =>
+                            switch prev.quality {
+                            | Some(pq) =>
+                              let prevId =
+                                Nullable.toOption(prev.id)->Option.getOr(File.name(prev.original))
+                              let _ = Array.push(
+                                pairs,
+                                {
+                                  "idA": currentId,
+                                  "idB": prevId,
+                                  "histogramA": q,
+                                  "histogramB": pq,
+                                },
+                              )
+                            | None => ()
+                            }
+                          | None => ()
+                          }
+                        }
+                      }
+
+                      // Compare with last existing
+                      switch lastExistingScene {
+                      | Some(lastS) =>
+                        switch lastS.quality {
+                        | Some(lq) =>
+                          let lastId = lastS.id
+                          let _ = Array.push(
+                            pairs,
+                            {
+                              "idA": currentId,
+                              "idB": lastId,
+                              "histogramA": q,
+                              "histogramB": lq,
+                            },
+                          )
                         | None => ()
                         }
                       | None => ()
                       }
                     | None => ()
                     }
+                  })
+
+                  let similarityPromise = if Belt.Array.length(pairs) > 0 {
+                    BackendApi.batchCalculateSimilarity(pairs)
+                  } else {
+                    Promise.resolve([])
                   }
 
-                  Belt.Array.forEachWithIndex(
-                    validProcessed,
-                    (i, current) => {
-                      let foundMatch = ref(None)
-                      let currentQ = current.quality
+                  similarityPromise->Promise.then(similarities => {
+                    // Build lookup map
+                    let simMap = Dict.make()
+                    Belt.Array.forEach(similarities, (result: BackendApi.similarityResult) => {
+                      let key = result["idA"] ++ "_" ++ result["idB"]
+                      Dict.set(simMap, key, result["similarity"])
+                    })
 
-                      switch currentQ {
-                      | Some(q) =>
-                        for j in 1 to 3 {
-                          if foundMatch.contents == None {
-                            let prevIdx = i - j
-                            if prevIdx >= 0 {
-                              switch Belt.Array.get(validProcessed, prevIdx) {
-                              | Some(prev) =>
-                                switch (prev.quality, prev.colorGroup) {
-                                | (Some(pq), Some(pg)) =>
-                                  let score = ImageAnalysis.calculateSimilarity(
-                                    Obj.magic(q),
-                                    Obj.magic(pq),
-                                  )
-                                  if score > 0.65 {
-                                    foundMatch := Some(pg)
-                                  }
-                                | _ => ()
-                                }
-                              | None => ()
-                              }
-                            }
+                    let getSimilarity = (idA, idB) => {
+                      Dict.get(simMap, idA ++ "_" ++ idB)->Option.getOr(0.0)
+                    }
+
+                    let lastGroupRef = ref(0)
+                    if existingCount > 0 {
+                      switch lastExistingScene {
+                      | Some(lastS) =>
+                        switch lastS.colorGroup {
+                        | Some(gStr) =>
+                          switch Belt.Int.fromString(gStr) {
+                          | Some(g) => lastGroupRef := g
+                          | None => ()
                           }
+                        | None => ()
                         }
+                      | None => ()
+                      }
+                    }
 
-                        if foundMatch.contents == None && existingCount > 0 {
-                          /* Check match with last existing */
-                          switch Belt.Array.get(existingScenes, existingCount - 1) {
-                          | Some(lastS) =>
-                            switch lastS.quality {
-                            | Some(lq) =>
-                              let score = ImageAnalysis.calculateSimilarity(
-                                Obj.magic(q),
-                                Obj.magic(lq),
-                              )
+                    Belt.Array.forEachWithIndex(validProcessed, (i, current) => {
+                      let foundMatch = ref(None)
+                      let currentId =
+                        Nullable.toOption(current.id)->Option.getOr(File.name(current.original))
+
+                      for j in 1 to 3 {
+                        if foundMatch.contents == None {
+                          let prevIdx = i - j
+                          if prevIdx >= 0 {
+                            switch Belt.Array.get(validProcessed, prevIdx) {
+                            | Some(prev) =>
+                              let prevId =
+                                Nullable.toOption(prev.id)->Option.getOr(File.name(prev.original))
+                              let score = getSimilarity(currentId, prevId)
                               if score > 0.65 {
-                                foundMatch := lastS.colorGroup
+                                foundMatch := prev.colorGroup
                               }
                             | None => ()
                             }
-                          | None => ()
                           }
                         }
-                      | None => ()
+                      }
+
+                      if foundMatch.contents == None && existingCount > 0 {
+                        /* Check match with last existing */
+                        switch lastExistingScene {
+                        | Some(lastS) =>
+                          let lastId = lastS.id
+                          let score = getSimilarity(currentId, lastId)
+                          if score > 0.65 {
+                            foundMatch := lastS.colorGroup
+                          }
+                        | None => ()
+                        }
                       }
 
                       switch foundMatch.contents {
@@ -327,14 +389,11 @@ let processUploads = (
                         lastGroupRef := lastGroupRef.contents + 1
                         current.colorGroup = Some(Belt.Int.toString(lastGroupRef.contents))
                       }
-                    },
-                  )
+                    })
 
-                  updateProgress(98.0, "Updating Sidebar...", true, "Finalizing")
+                    updateProgress(98.0, "Updating Sidebar...", true, "Finalizing")
 
-                  let jsonPayload = Belt.Array.map(
-                    validProcessed,
-                    item => {
+                    let jsonPayload = Belt.Array.map(validProcessed, item => {
                       let preview = Option.getOr(item.preview, item.original)
                       let tiny = Option.getOr(item.tiny, preview)
 
@@ -372,29 +431,24 @@ let processUploads = (
                       Obj.magic(unsafeObj)["colorGroup"] = Option.getOr(item.colorGroup, "0")
 
                       (Obj.magic(unsafeObj): JSON.t)
-                    },
-                  )
+                    })
 
-                  GlobalStateBridge.dispatch(AddScenes(jsonPayload))
+                    GlobalStateBridge.dispatch(AddScenes(jsonPayload))
 
-                  updateProgress(100.0, "Completed", false, "Done")
+                    updateProgress(100.0, "Completed", false, "Done")
 
-                  let reportData = Belt.Array.map(
-                    validProcessed,
-                    i => {
+                    let reportData = Belt.Array.map(validProcessed, i => {
                       let item: ExifReportGenerator.sceneDataItem = {
                         original: Obj.magic(i.original),
                         metadata: i.metadata,
                         quality: i.quality,
                       }
                       item
-                    },
-                  )
+                    })
 
-                  ExifReportGenerator.generateExifReport(reportData)
-                  ->Promise.then(res => res)
-                  ->Promise.then(
-                    res => {
+                    ExifReportGenerator.generateExifReport(reportData)
+                    ->Promise.then(res => res)
+                    ->Promise.then(res => {
                       GlobalStateBridge.dispatch(SetExifReport(JSON.Encode.string(res.report)))
 
                       if res.suggestedName != "" {
@@ -404,22 +458,29 @@ let processUploads = (
                         }
                       }
                       Promise.resolve()
-                    },
-                  )
-                  ->ignore
+                    })
+                    ->ignore
 
-                  let durationStr = ((Date.now() -. startTime) /. 1000.0)->Float.toFixed(~digits=1)
+                    let durationStr =
+                      ((Date.now() -. startTime) /. 1000.0)->Float.toFixed(~digits=1)
 
-                  Promise.resolve({
-                    "qualityResults": [],
-                    "duration": durationStr,
-                  })->Promise.then(res => {
-                    Logger.endOperation(~module_="Upload", ~operation="BATCH", ~data=Some({
-                      "successful": Belt.Array.length(validProcessed),
-                      "failed": Belt.Array.length(uniqueItems) - Belt.Array.length(validProcessed),
-                      "totalDurationMs": Date.now() -. startTime
-                    }), ())
-                    Promise.resolve(res)
+                    Promise.resolve({
+                      "qualityResults": [],
+                      "duration": durationStr,
+                    })->Promise.then(res => {
+                      Logger.endOperation(
+                        ~module_="Upload",
+                        ~operation="BATCH",
+                        ~data=Some({
+                          "successful": Belt.Array.length(validProcessed),
+                          "failed": Belt.Array.length(uniqueItems) -
+                          Belt.Array.length(validProcessed),
+                          "totalDurationMs": Date.now() -. startTime,
+                        }),
+                        (),
+                      )
+                      Promise.resolve(res)
+                    })
                   })
                 }
               },

@@ -104,6 +104,7 @@ async fn main() -> io::Result<()> {
             .route("/process-image-full", web::post().to(handlers::process_image_full))
             .route("/transcode-video", web::post().to(handlers::transcode_video))
             .route("/extract-metadata", web::post().to(handlers::extract_metadata))
+            .route("/batch-calculate-similarity", web::post().to(handlers::batch_calculate_similarity))
             .route("/resize-image-batch", web::post().to(handlers::resize_image_batch))
             .route("/create-tour-package", web::post().to(handlers::create_tour_package))
             .route("/save-project", web::post().to(handlers::save_project))

@@ -292,3 +292,53 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<string> => {
     Promise.resolve("[Geocoding failed]")
   })
 }
+
+type similarityPair = {
+  "idA": string,
+  "idB": string,
+  "histogramA": JSON.t,
+  "histogramB": JSON.t,
+}
+
+type similarityResult = {
+  "idA": string,
+  "idB": string,
+  "similarity": float,
+}
+
+type similarityResponse = {
+  "results": array<similarityResult>,
+  "durationMs": float,
+}
+
+/**
+ * Calculates similarity for multiple pairs in parallel on the backend
+ */
+let batchCalculateSimilarity = (pairs: array<similarityPair>): Promise.t<array<similarityResult>> => {
+  let headers = Dict.make()
+  Dict.set(headers, "Content-Type", "application/json")
+
+  Fetch.fetch(
+    Constants.backendUrl ++ "/batch-calculate-similarity",
+    {
+      method: "POST",
+      headers: Nullable.make(headers),
+      body: JSON.stringify(Obj.magic({"pairs": pairs})),
+    },
+  )
+  ->Promise.then(handleResponse)
+  ->Promise.then(Fetch.json)
+  ->Promise.then(json => {
+    let data: similarityResponse = Obj.magic(json)
+    Promise.resolve(data["results"])
+  })
+  ->Promise.catch(e => {
+    Logger.error(
+      ~module_="BackendApi",
+      ~message="SIMILARITY_BATCH_ERROR",
+      ~data=Obj.magic({"error": e}),
+      (),
+    )
+    Promise.resolve([])
+  })
+}
