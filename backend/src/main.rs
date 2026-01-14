@@ -6,6 +6,7 @@ use std::io;
 use tracing_actix_web::TracingLogger;
 
 mod handlers;
+mod models;
 mod pathfinder;
 
 async fn health_check() -> impl Responder {

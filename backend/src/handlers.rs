@@ -1,13 +1,13 @@
 use actix_multipart::Multipart;
-use actix_web::{web, HttpResponse, ResponseError};
+use actix_web::{web, HttpResponse};
 use futures_util::TryStreamExt as _;
 use std::fs;
 use std::io::{Write, Cursor};
 use std::process::Command;
 use std::path::PathBuf;
 use uuid::Uuid;
-use serde::{Serialize, Deserialize};
-use std::fmt;
+use serde::Serialize;
+
 use zip::write::FileOptions;
 use std::collections::{HashMap, HashSet};
 use rayon::prelude::*;
@@ -21,6 +21,7 @@ use fast_image_resize::{Resizer, ResizeOptions, FilterType, ResizeAlg, PixelType
 use sha2::{Sha256, Digest};
 use once_cell::sync::Lazy;
 use regex::Regex;
+use crate::models::*;
 // flate2 and SystemTime removed as compression is not yet implemented
 
 
@@ -38,75 +39,7 @@ const LOG_RETENTION_DAYS: u64 = 7;
 
 // --- Error Handling ---
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ErrorResponse {
-    pub error: String,
-    pub details: Option<String>,
-}
 
-#[derive(Debug)]
-pub enum AppError {
-    IoError(std::io::Error),
-    MultipartError(actix_multipart::MultipartError),
-    ImageError(String),
-    FFmpegError(String),
-    ZipError(String),
-    InternalError(String),
-}
-
-impl fmt::Display for AppError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            AppError::IoError(e) => write!(f, "IO Error: {}", e),
-            AppError::MultipartError(e) => write!(f, "Multipart Error: {}", e),
-            AppError::ImageError(e) => write!(f, "Image Processing Error: {}", e),
-            AppError::FFmpegError(e) => write!(f, "FFmpeg Error: {}", e),
-            AppError::ZipError(e) => write!(f, "Zip Error: {}", e),
-            AppError::InternalError(e) => write!(f, "Internal Error: {}", e),
-        }
-    }
-}
-
-impl ResponseError for AppError {
-    fn error_response(&self) -> HttpResponse {
-        let (status, msg, details) = match self {
-            AppError::IoError(e) => (actix_web::http::StatusCode::INTERNAL_SERVER_ERROR, "File System Error", Some(e.to_string())),
-            AppError::MultipartError(e) => (actix_web::http::StatusCode::BAD_REQUEST, "Upload Error", Some(e.to_string())),
-            AppError::ImageError(e) => (actix_web::http::StatusCode::BAD_REQUEST, "Image Processing Failed", Some(e.clone())),
-            AppError::FFmpegError(e) => (actix_web::http::StatusCode::INTERNAL_SERVER_ERROR, "Video Encoding Failed", Some(e.clone())),
-            AppError::ZipError(e) => (actix_web::http::StatusCode::INTERNAL_SERVER_ERROR, "Zip Compression Failed", Some(e.clone())),
-            AppError::InternalError(e) => (actix_web::http::StatusCode::INTERNAL_SERVER_ERROR, "Internal Server Error", Some(e.clone())),
-        };
-
-        // Structured error logging
-        tracing::error!(
-            module = "ErrorHandler",
-            error_type = msg,
-            details = %self,
-            status_code = status.as_u16(),
-            "REQUEST_FAILED"
-        );
-
-        HttpResponse::build(status).json(ErrorResponse {
-            error: msg.to_string(),
-            details,
-        })
-    }
-}
-
-// Implement From traits for easy conversion
-impl From<std::io::Error> for AppError {
-    fn from(err: std::io::Error) -> Self { AppError::IoError(err) }
-}
-impl From<actix_multipart::MultipartError> for AppError {
-    fn from(err: actix_multipart::MultipartError) -> Self { AppError::MultipartError(err) }
-}
-impl From<zip::result::ZipError> for AppError {
-    fn from(err: zip::result::ZipError) -> Self { AppError::ZipError(err.to_string()) }
-}
-impl From<String> for AppError {
-    fn from(err: String) -> Self { AppError::InternalError(err) }
-}
 
 // --- Helpers ---
 
@@ -167,93 +100,11 @@ fn sanitize_filename(fname: &str) -> Result<String, String> {
 
 // --- Metadata Structs ---
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct GpsData {
-    pub lat: f64,
-    pub lon: f64,
-}
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct ExifMetadata {
-    pub make: Option<String>,
-    pub model: Option<String>,
-    pub date_time: Option<String>,
-    pub gps: Option<GpsData>,
-    pub width: u32,
-    pub height: u32,
-    pub focal_length: Option<f32>,
-    pub aperture: Option<f32>,
-    pub iso: Option<u32>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct QualityStats {
-    pub avg_luminance: u32,
-    pub black_clipping: f32,
-    pub white_clipping: f32,
-    pub sharpness_variance: u32,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ColorHist {
-    pub r: Vec<u32>,
-    pub g: Vec<u32>,
-    pub b: Vec<u32>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct QualityAnalysis {
-    pub score: f32,
-    pub histogram: Vec<u32>,
-    pub color_hist: ColorHist,
-    pub stats: QualityStats,
-    pub is_blurry: bool,
-    pub is_soft: bool,
-    pub is_severely_dark: bool,
-    pub is_dim: bool,
-    pub has_black_clipping: bool,
-    pub has_white_clipping: bool,
-    pub issues: u32,
-    pub warnings: u32,
-    pub analysis: Option<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct MetadataResponse {
-    pub exif: ExifMetadata,
-    pub quality: QualityAnalysis,
-    pub is_optimized: bool,
-    pub checksum: String, // SHA-256 hash in format: {hex}_{filesize}
-    pub suggested_name: Option<String>, // Logic moved from frontend
-}
 
 // --- GEOCODING SYSTEM ---
 
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct GeocodeRequest {
-    pub lat: f64,
-    pub lon: f64,
-}
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct GeocodeResponse {
-    pub address: String,
-}
-
-// Cache key: rounded coordinates for ~11m precision
-type GeocodeKey = (i32, i32);
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-struct CachedGeocode {
-    address: String,
-    last_accessed: u64, // Unix timestamp
-    access_count: u32,
-}
 
 lazy_static::lazy_static! {
     static ref GEOCODE_CACHE: std::sync::Arc<tokio::sync::RwLock<HashMap<GeocodeKey, CachedGeocode>>> = 
@@ -263,13 +114,7 @@ lazy_static::lazy_static! {
         std::sync::Arc::new(tokio::sync::RwLock::new(CacheStats::default()));
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
-struct CacheStats {
-    hits: u64,
-    misses: u64,
-    evictions: u64,
-    last_save: Option<u64>,
-}
+
 
 const CACHE_FILE_PATH: &str = "../logs/geocode_cache.json";
 const MAX_CACHE_SIZE: usize = 5000;
@@ -465,50 +310,7 @@ async fn evict_lru_entry() {
 
 // --- SIMILARITY SYSTEM ---
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct ColorHistogram {
-    pub r: Vec<f32>,
-    pub g: Vec<f32>,
-    pub b: Vec<f32>,
-}
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct HistogramData {
-    pub histogram: Option<Vec<f32>>,          // Luminance histogram
-    pub color_hist: Option<ColorHistogram>,   // RGB histograms
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct SimilarityPair {
-    pub id_a: String,        // Scene ID for tracking
-    pub id_b: String,
-    pub histogram_a: HistogramData,
-    pub histogram_b: HistogramData,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct SimilarityRequest {
-    pub pairs: Vec<SimilarityPair>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct SimilarityResult {
-    pub id_a: String,
-    pub id_b: String,
-    pub similarity: f32,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct SimilarityResponse {
-    pub results: Vec<SimilarityResult>,
-    pub duration_ms: u128,
-}
 
 /// Bin a 256-element histogram into fewer bins for faster comparison
 fn bin_histogram(hist: &[f32], num_bins: usize) -> Vec<f32> {
@@ -675,34 +477,7 @@ fn get_suggested_name(original: &str) -> String {
 
 // --- VALIDATION SYSTEM ---
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct ValidationReport {
-    pub broken_links_removed: u32,
-    pub orphaned_scenes: Vec<String>, // Scenes with no incoming links
-    pub unused_files: Vec<String>,    // Files in ZIP not used by project
-    pub warnings: Vec<String>,
-    pub errors: Vec<String>,
-}
 
-impl ValidationReport {
-    fn new() -> Self {
-        ValidationReport {
-            broken_links_removed: 0,
-            orphaned_scenes: Vec::new(),
-            unused_files: Vec::new(),
-            warnings: Vec::new(),
-            errors: Vec::new(),
-        }
-    }
-    
-    fn has_issues(&self) -> bool {
-        self.broken_links_removed > 0 
-            || !self.orphaned_scenes.is_empty() 
-            || !self.unused_files.is_empty()
-            || !self.errors.is_empty()
-    }
-}
 
 /// Validate and clean project data
 /// Returns a tuple of (cleaned_project, validation_report)
@@ -1554,14 +1329,7 @@ pub async fn create_tour_package(mut payload: Multipart) -> Result<HttpResponse,
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct TelemetryEntry {
-    pub level: String,
-    pub module: String,
-    pub message: String,
-    pub data: Option<serde_json::Value>,
-    pub timestamp: String,
-}
+
 
 
 #[tracing::instrument(skip(payload), name = "save_project")]
