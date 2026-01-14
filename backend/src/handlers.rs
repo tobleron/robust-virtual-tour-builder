@@ -15,6 +15,7 @@ use headless_chrome::{Browser, LaunchOptions};
 use std::time::{Duration, Instant};
 use crate::services::media;
 use crate::services::project;
+use crate::services::geocoding;
 use crate::models::*;
 // flate2 and SystemTime removed as compression is not yet implemented
 
@@ -96,210 +97,7 @@ fn sanitize_filename(fname: &str) -> Result<String, String> {
 
 
 
-// --- GEOCODING SYSTEM ---
 
-
-
-lazy_static::lazy_static! {
-    static ref GEOCODE_CACHE: std::sync::Arc<tokio::sync::RwLock<HashMap<GeocodeKey, CachedGeocode>>> = 
-        std::sync::Arc::new(tokio::sync::RwLock::new(HashMap::new()));
-    
-    static ref CACHE_STATS: std::sync::Arc<tokio::sync::RwLock<CacheStats>> = 
-        std::sync::Arc::new(tokio::sync::RwLock::new(CacheStats::default()));
-}
-
-
-
-const CACHE_FILE_PATH: &str = "../logs/geocode_cache.json";
-const MAX_CACHE_SIZE: usize = 5000;
-const CACHE_SAVE_INTERVAL_MS: u64 = 5000; // 5 seconds
-
-fn round_coords(lat: f64, lon: f64) -> GeocodeKey {
-    // Round to 4 decimal places (~11 meter precision)
-    let lat_rounded = (lat * 10000.0).round() as i32;
-    let lon_rounded = (lon * 10000.0).round() as i32;
-    (lat_rounded, lon_rounded)
-}
-
-async fn call_osm_nominatim(lat: f64, lon: f64) -> Result<String, String> {
-    let url = format!(
-        "https://nominatim.openstreetmap.org/reverse?format=json&lat={}&lon={}&zoom=18&addressdetails=1",
-        lat, lon
-    );
-    
-    let client = reqwest::Client::builder()
-        .user_agent("RobustVirtualTourBuilder/1.0")
-        .timeout(std::time::Duration::from_secs(10))
-        .build()
-        .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
-    
-    let response = client.get(&url)
-        .send()
-        .await
-        .map_err(|e| format!("Geocoding request failed: {}", e))?;
-    
-    if !response.status().is_success() {
-        return Err(format!("OSM API returned status: {}", response.status()));
-    }
-    
-    let json: serde_json::Value = response.json()
-        .await
-        .map_err(|e| format!("Failed to parse OSM response: {}", e))?;
-    
-    // Check for error in response
-    if let Some(error) = json.get("error") {
-        return Err(format!("OSM API error: {}", error));
-    }
-    
-    // Extract and format address
-    if let Some(address_obj) = json.get("address") {
-        let mut parts = Vec::new();
-        
-        // Extract address components
-        if let Some(road) = address_obj.get("road").and_then(|v| v.as_str()) {
-            if !road.is_empty() {
-                parts.push(road.to_string());
-            }
-        }
-        
-        // Suburb/neighborhood
-        let suburb = address_obj.get("suburb")
-            .or_else(|| address_obj.get("neighbourhood"))
-            .and_then(|v| v.as_str());
-        if let Some(s) = suburb {
-            if !s.is_empty() {
-                parts.push(s.to_string());
-            }
-        }
-        
-        // City/town/village
-        let city = address_obj.get("city")
-            .or_else(|| address_obj.get("town"))
-            .or_else(|| address_obj.get("village"))
-            .and_then(|v| v.as_str());
-        if let Some(c) = city {
-            if !c.is_empty() {
-                parts.push(c.to_string());
-            }
-        }
-        
-        // State/province
-        let state = address_obj.get("state")
-            .or_else(|| address_obj.get("province"))
-            .and_then(|v| v.as_str());
-        if let Some(s) = state {
-            if !s.is_empty() {
-                parts.push(s.to_string());
-            }
-        }
-        
-        // Country
-        if let Some(country) = address_obj.get("country").and_then(|v| v.as_str()) {
-            if !country.is_empty() {
-                parts.push(country.to_string());
-            }
-        }
-        
-        if !parts.is_empty() {
-            return Ok(parts.join(", "));
-        }
-    }
-    
-    // Fallback to display_name
-    json.get("display_name")
-        .and_then(|v| v.as_str())
-        .map(|s| s.to_string())
-        .ok_or_else(|| "No address found in response".to_string())
-}
-
-async fn save_cache_to_disk() -> std::io::Result<()> {
-    let cache = GEOCODE_CACHE.read().await;
-    let mut stats = CACHE_STATS.write().await;
-    
-    let current_time = get_current_timestamp();
-    
-    let data = serde_json::json!({
-        "cache": *cache,
-        "stats": *stats,
-        "saved_at": current_time
-    });
-    
-    let json = serde_json::to_string_pretty(&data)?;
-    tokio::fs::write(CACHE_FILE_PATH, json).await?;
-    
-    stats.last_save = Some(current_time);
-    
-    tracing::info!(
-        module = "Geocoder",
-        entries = cache.len(),
-        "CACHE_SAVED_TO_DISK"
-    );
-    
-    Ok(())
-}
-
-pub async fn load_cache_from_disk() -> std::io::Result<()> {
-    match tokio::fs::read_to_string(CACHE_FILE_PATH).await {
-        Ok(contents) => {
-            let data: serde_json::Value = serde_json::from_str(&contents)?;
-            
-            if let Some(cache_obj) = data.get("cache") {
-                let loaded_cache: HashMap<GeocodeKey, CachedGeocode> = 
-                    serde_json::from_value(cache_obj.clone())?;
-                
-                let mut cache = GEOCODE_CACHE.write().await;
-                *cache = loaded_cache;
-                
-                tracing::info!(
-                    module = "Geocoder",
-                    entries = cache.len(),
-                    "CACHE_LOADED_FROM_DISK"
-                );
-            }
-            
-            if let Some(stats_obj) = data.get("stats") {
-                let loaded_stats: CacheStats = 
-                    serde_json::from_value(stats_obj.clone())?;
-                
-                let mut stats = CACHE_STATS.write().await;
-                *stats = loaded_stats;
-            }
-            
-            Ok(())
-        },
-        Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
-            tracing::info!(module = "Geocoder", "No cache file found - starting fresh");
-            Ok(())
-        },
-        Err(e) => {
-            tracing::warn!(module = "Geocoder", error = %e, "Failed to load cache");
-            Ok(()) // Non-fatal - start with empty cache
-        }
-    }
-}
-
-fn get_current_timestamp() -> u64 {
-    std::time::SystemTime::now()
-        .duration_since(std::time::SystemTime::UNIX_EPOCH)
-        .unwrap()
-        .as_secs()
-}
-
-async fn evict_lru_entry() {
-    let mut cache = GEOCODE_CACHE.write().await;
-    
-    // Find oldest entry by last_accessed
-    if let Some((&key, _)) = cache.iter()
-        .min_by_key(|(_, v)| v.last_accessed) {
-        
-        cache.remove(&key);
-        
-        let mut stats = CACHE_STATS.write().await;
-        stats.evictions += 1;
-        
-        tracing::debug!(module = "Geocoder", "LRU_EVICTION");
-    }
-}
 
 
 // --- SIMILARITY SYSTEM ---
@@ -1157,8 +955,6 @@ pub async fn log_error(entry: web::Json<TelemetryEntry>) -> Result<HttpResponse,
 pub async fn reverse_geocode(req: web::Json<GeocodeRequest>) -> Result<HttpResponse, AppError> {
     let lat = req.lat;
     let lon = req.lon;
-    let cache_key = round_coords(lat, lon);
-    let current_time = get_current_timestamp();
     
     tracing::info!(
         module = "Geocoder", 
@@ -1167,64 +963,8 @@ pub async fn reverse_geocode(req: web::Json<GeocodeRequest>) -> Result<HttpRespo
         "REVERSE_GEOCODE_START"
     );
     
-    // Check cache first
-    {
-        let mut cache = GEOCODE_CACHE.write().await;
-        if let Some(entry) = cache.get_mut(&cache_key) {
-            // Update access time and count
-            entry.last_accessed = current_time;
-            entry.access_count += 1;
-            
-            let mut stats = CACHE_STATS.write().await;
-            stats.hits += 1;
-            
-            tracing::info!(
-                module = "Geocoder",
-                access_count = entry.access_count,
-                "CACHE_HIT"
-            );
-            
-            return Ok(HttpResponse::Ok().json(GeocodeResponse {
-                address: entry.address.clone(),
-            }));
-        }
-    }
-    
-    // Cache miss
-    {
-        let mut stats = CACHE_STATS.write().await;
-        stats.misses += 1;
-    }
-    
-    tracing::debug!(module = "Geocoder", "CACHE_MISS - calling OSM API");
-    
-    // Call OSM API
-    match call_osm_nominatim(lat, lon).await {
+    match geocoding::reverse_geocode(lat, lon).await {
         Ok(address) => {
-            // Store in cache with timestamp
-            {
-                let mut cache = GEOCODE_CACHE.write().await;
-                
-                // Evict if at capacity
-                if cache.len() >= MAX_CACHE_SIZE {
-                    drop(cache); // Release lock before evicting
-                    evict_lru_entry().await;
-                    cache = GEOCODE_CACHE.write().await; // Re-acquire
-                }
-                
-                cache.insert(cache_key, CachedGeocode {
-                    address: address.clone(),
-                    last_accessed: current_time,
-                    access_count: 1,
-                });
-            }
-            
-            // Trigger async save (debounced)
-            tokio::spawn(async move {
-                tokio::time::sleep(tokio::time::Duration::from_millis(CACHE_SAVE_INTERVAL_MS)).await;
-                let _ = save_cache_to_disk().await;
-            });
-            
             tracing::info!(module = "Geocoder", "REVERSE_GEOCODE_COMPLETE");
             Ok(HttpResponse::Ok().json(GeocodeResponse { address }))
         },
@@ -1253,8 +993,8 @@ struct GeocodeStatsResponse {
 
 #[tracing::instrument(name = "geocode_stats")]
 pub async fn geocode_stats() -> impl actix_web::Responder {
-    let cache = GEOCODE_CACHE.read().await;
-    let stats = CACHE_STATS.read().await;
+    let info = geocoding::get_info().await;
+    let stats = info.stats;
     
     let total_requests = stats.hits + stats.misses;
     let hit_rate = if total_requests > 0 {
@@ -1270,8 +1010,8 @@ pub async fn geocode_stats() -> impl actix_web::Responder {
     });
     
     HttpResponse::Ok().json(GeocodeStatsResponse {
-        cache_size: cache.len(),
-        max_cache_size: MAX_CACHE_SIZE,
+        cache_size: info.cache_size,
+        max_cache_size: geocoding::MAX_CACHE_SIZE,
         hit_rate,
         total_requests,
         hits: stats.hits,
@@ -1283,26 +1023,10 @@ pub async fn geocode_stats() -> impl actix_web::Responder {
 
 #[tracing::instrument(name = "clear_geocode_cache")]
 pub async fn clear_geocode_cache() -> impl actix_web::Responder {
-    {
-        let mut cache = GEOCODE_CACHE.write().await;
-        let size = cache.len();
-        cache.clear();
-        
-        tracing::info!(
-            module = "Geocoder",
-            entries_cleared = size,
-            "CACHE_CLEARED"
-        );
-    }
-    
-    // Reset stats
-    {
-        let mut stats = CACHE_STATS.write().await;
-        *stats = CacheStats::default();
-    }
+    geocoding::clear_cache().await;
     
     // Save empty cache
-    let _ = save_cache_to_disk().await;
+    let _ = geocoding::save_cache_to_disk().await;
     
     HttpResponse::Ok().json(serde_json::json!({
         "success": true,

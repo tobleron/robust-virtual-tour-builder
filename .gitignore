@@ -26,3 +26,7 @@ dist/
 css/output.css
 bin/
 backend_log.txt
+
+# Ensure tasks are always tracked
+!tasks/
+

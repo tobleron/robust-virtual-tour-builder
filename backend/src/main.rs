@@ -29,7 +29,7 @@ async fn main() -> io::Result<()> {
     std::fs::create_dir_all(log_dir).ok();
     
     // Load geocoding cache from disk
-    if let Err(e) = handlers::load_cache_from_disk().await {
+    if let Err(e) = services::geocoding::load_cache_from_disk().await {
         tracing::warn!("Failed to load geocoding cache: {}", e);
     }
 
