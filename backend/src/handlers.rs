@@ -617,26 +617,23 @@ fn perform_metadata_extraction_rgba(src_rgba: &[u8], src_w: u32, src_h: u32, inp
 
     let y_start = (h as f32 * 0.2) as u32;
     let y_end = (h as f32 * 0.8) as u32;
-    let mut laplace_sum = 0.0f64;
-    let mut laplace_sq_sum = 0.0f64;
-    let mut sampled_count = 0u64;
-
-    for y in (y_start + 1)..(y_end - 1) {
-        for x in 1..(w - 1) {
+    let (laplace_sum, laplace_sq_sum, sampled_count) = ((y_start + 1)..(y_end - 1))
+        .flat_map(|y| (1..(w - 1)).map(move |x| (y, x)))
+        .filter_map(|(y, x)| {
             let idx = (y * w + x) as usize;
-            if idx >= gray_pixels.len() { continue; }
+            if idx >= gray_pixels.len() { return None; }
+            
             let center = gray_pixels[idx] as i32;
             let lap = gray_pixels[idx - w as usize] as i32 +
                       gray_pixels[idx - 1] as i32 +
                       gray_pixels[idx + 1] as i32 +
                       gray_pixels[idx + w as usize] as i32 - 4 * center;
             
-            let lap_f = lap as f64;
-            laplace_sum += lap_f;
-            laplace_sq_sum += lap_f * lap_f;
-            sampled_count += 1;
-        }
-    }
+            Some(lap as f64)
+        })
+        .fold((0.0f64, 0.0f64, 0u64), |(sum, sq_sum, count), lap| {
+            (sum + lap, sq_sum + lap * lap, count + 1)
+        });
 
     let laplace_var = if sampled_count > 0 {
         let mean = laplace_sum / sampled_count as f64;
