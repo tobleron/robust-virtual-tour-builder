@@ -940,16 +940,14 @@
 │   │   ├── 67_Extract_Media_Service.md
 │   │   ├── 68_Extract_Project_Service.md
 │   │   ├── 69_Extract_Geocoding_Service_REPORT.md
-│   │   └── 69_Extract_Geocoding_Service.md
-│   ├── pending
+│   │   ├── 69_Extract_Geocoding_Service.md
 │   │   ├── 71_Pathfinder_Hardening.md
+│   │   └── CONSOLIDATED_TASK_SUMMARIES.md
+│   ├── pending
 │   │   ├── 72_Refactor_handlers.md
 │   │   └── 73_Refactor_media.md
-│   ├── README.md
-│   ├── SESSION_SUMMARY.md
-│   ├── TASK_EXECUTION_SUMMARY.md
-│   └── TASKS_24-27_STATUS.md
+│   └── README.md
 └── tests
     └── SimulationSystem_test.res
 
-34 directories, 919 files
+34 directories, 917 files
