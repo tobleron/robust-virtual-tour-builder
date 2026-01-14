@@ -1,6 +1,7 @@
 /* src/systems/InputSystem.res */
 
 open ReBindings
+open EventBus
 
 @module("./SimulationSystem.bs.js") external isAutoPilotActive: unit => bool = "isAutoPilotActive"
 @module("./SimulationSystem.bs.js") external stopAutoPilot: bool => unit = "stopAutoPilot"
@@ -97,7 +98,7 @@ let handleGlobalEscape = (e: Dom.event) => {
       Logger.info(~module_="InputSystem", ~message="LINKING_CANCELLED", ())
       GlobalStateBridge.dispatch(Actions.SetLinkDraft(None))
       GlobalStateBridge.dispatch(Actions.SetIsLinking(false))
-      Notification.notify("Linking cancelled", "info")
+      EventBus.dispatch(ShowNotification("Linking cancelled", #Info))
       Dom.preventDefault(e)
     } /* Priority 4: Simulation */
     else if isAutoPilotActive() {
@@ -129,20 +130,20 @@ let initInputSystem = () => {
         ~data=Some({"newState": newStateResult ? "enabled" : "disabled"}),
         (),
       )
-      Notification.notify(newStateResult ? "Debug mode: ON" : "Debug mode: OFF", "info")
+      EventBus.dispatch(ShowNotification(newStateResult ? "Debug mode: ON" : "Debug mode: OFF", #Info))
     } else if ctrlKey && shiftKey {
       switch key {
       | "1" => {
           Logger.setLevel(Logger.Trace)
-          Notification.notify("Level: TRACE", "info")
+          EventBus.dispatch(ShowNotification("Level: TRACE", #Info))
         }
       | "2" => {
           Logger.setLevel(Logger.Debug)
-          Notification.notify("Level: DEBUG", "info")
+          EventBus.dispatch(ShowNotification("Level: DEBUG", #Info))
         }
       | "3" => {
           Logger.setLevel(Logger.Info)
-          Notification.notify("Level: INFO", "info")
+          EventBus.dispatch(ShowNotification("Level: INFO", #Info))
         }
       | _ => ()
       }

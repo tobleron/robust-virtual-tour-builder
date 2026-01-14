@@ -80,6 +80,18 @@
 │   │       │   ├── LinkModal.cmj
 │   │       │   ├── LinkModal.cmt
 │   │       │   ├── LinkModal.res
+│   │       │   ├── ModalContext.ast
+│   │       │   ├── ModalContext.bs.js
+│   │       │   ├── ModalContext.cmi
+│   │       │   ├── ModalContext.cmj
+│   │       │   ├── ModalContext.cmt
+│   │       │   ├── ModalContext.res
+│   │       │   ├── NotificationContext.ast
+│   │       │   ├── NotificationContext.bs.js
+│   │       │   ├── NotificationContext.cmi
+│   │       │   ├── NotificationContext.cmj
+│   │       │   ├── NotificationContext.cmt
+│   │       │   ├── NotificationContext.res
 │   │       │   ├── SceneList.ast
 │   │       │   ├── SceneList.bs.js
 │   │       │   ├── SceneList.cmi
@@ -468,7 +480,6 @@
 │   │   ├── LabelMenu.cmj
 │   │   ├── LabelMenu.cmt
 │   │   ├── LabelMenu.res
-│   │   ├── LinkModal.ast
 │   │   ├── LinkModal.cmi
 │   │   ├── LinkModal.cmj
 │   │   ├── LinkModal.cmt
@@ -478,6 +489,11 @@
 │   │   ├── Logger.cmj
 │   │   ├── Logger.cmt
 │   │   ├── Logger.res
+│   │   ├── ModalContext.ast
+│   │   ├── ModalContext.cmi
+│   │   ├── ModalContext.cmj
+│   │   ├── ModalContext.cmt
+│   │   ├── ModalContext.res
 │   │   ├── Navigation.ast
 │   │   ├── Navigation.cmi
 │   │   ├── Navigation.cmj
@@ -498,6 +514,11 @@
 │   │   ├── NavigationUI.cmj
 │   │   ├── NavigationUI.cmt
 │   │   ├── NavigationUI.res
+│   │   ├── NotificationContext.ast
+│   │   ├── NotificationContext.cmi
+│   │   ├── NotificationContext.cmj
+│   │   ├── NotificationContext.cmt
+│   │   ├── NotificationContext.res
 │   │   ├── PathInterpolation.ast
 │   │   ├── PathInterpolation.cmi
 │   │   ├── PathInterpolation.cmj
@@ -672,6 +693,10 @@
 │   │   ├── LabelMenu.res
 │   │   ├── LinkModal.bs.js
 │   │   ├── LinkModal.res
+│   │   ├── ModalContext.bs.js
+│   │   ├── ModalContext.res
+│   │   ├── NotificationContext.bs.js
+│   │   ├── NotificationContext.res
 │   │   ├── SceneList.bs.js
 │   │   ├── SceneList.res
 │   │   ├── Sidebar.bs.js
@@ -775,8 +800,6 @@
 │   │   ├── GeoUtils.res
 │   │   ├── Logger.bs.js
 │   │   ├── Logger.res
-│   │   ├── ModalManager.js
-│   │   ├── NotificationSystem.js
 │   │   ├── PathInterpolation.bs.js
 │   │   ├── PathInterpolation.res
 │   │   ├── ProgressBar.bs.js
@@ -845,10 +868,10 @@
     │   ├── 52_Backend_Functional_Iterators.md
     │   ├── 53_Migrate_Logging_System.md
     │   ├── 54_Migrate_EventBus_REPORT.md
-    │   └── 54_Migrate_EventBus.md
+    │   ├── 54_Migrate_EventBus.md
+    │   └── 55_Migrate_UI_Contexts.md
     ├── pending
     │   ├── 00_LOGGING_OVERVIEW.md
-    │   ├── 55_Migrate_UI_Contexts.md
     │   ├── 56_Backend_Project_Loading.md
     │   ├── 57_Backend_Pathfinding.md
     │   └── 58_Migrate_Entry_Point.md
@@ -856,4 +879,4 @@
     ├── SESSION_SUMMARY.md
     └── TASKS_24-27_STATUS.md
 
-30 directories, 827 files
+30 directories, 850 files

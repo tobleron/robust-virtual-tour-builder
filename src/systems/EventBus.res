@@ -9,6 +9,23 @@ type navStartPayload = {
   pathData: pathData,
 }
 
+type button = {
+  label: string,
+  class_: string,
+  onClick: unit => unit,
+  autoClose: option<bool>,
+}
+
+type modalConfig = {
+  title: string,
+  description: option<string>,
+  contentHtml: option<string>,
+  buttons: array<button>,
+  icon: option<string>,
+  allowClose: option<bool>,
+  onClose: option<unit => unit>,
+}
+
 type event =
   | NavStart(navStartPayload)
   | NavCompleted(journeyData)
@@ -18,6 +35,9 @@ type event =
   | ClearSimUi
   | LinkPreviewStart(string)
   | LinkPreviewEnd
+  | ShowNotification(string, [#Info | #Success | #Error | #Warning])
+  | ShowModal(modalConfig)
+  | CloseModal
 
 type subscription = unit => unit
 

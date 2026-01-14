@@ -2,6 +2,7 @@
 
 open ReBindings
 open Types
+open EventBus
 
 module Version = {
   @module("../version.js") external version: string = "VERSION"
@@ -215,7 +216,7 @@ let exportTour = async (
         ~data=Some({"error": msg, "phase": currentPhase.contents}),
         (),
       )
-      Notification.notify(`Export Failed: ${msg}`, "error")
+      EventBus.dispatch(ShowNotification(`Export Failed: ${msg}`, #Error))
       progress(0.0, 0.0, "Failed")
     }
   | _ => {
@@ -225,7 +226,7 @@ let exportTour = async (
         ~data=Some({"error": "Unknown", "phase": currentPhase.contents}),
         (),
       )
-      Notification.notify("Export Failed: Unknown Error", "error")
+      EventBus.dispatch(ShowNotification("Export Failed: Unknown Error", #Error))
       progress(0.0, 0.0, "Failed")
     }
   }

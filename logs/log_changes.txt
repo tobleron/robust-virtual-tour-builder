@@ -57,3 +57,4 @@ compile-time constants.
 - Deleted legacy src/utils/PubSub.js
 - Removed PubSub bindings from ReBindings.res
 - Completed Task 54: Migrate EventBus
+[2026-01-14 14:03] v4.2.13 - Refactor Modal and Notification systems to EventBus

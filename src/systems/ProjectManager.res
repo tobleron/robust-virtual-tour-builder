@@ -2,6 +2,7 @@
 
 open ReBindings
 open Types
+open EventBus
 
 @module("../version.js") external version: string = "VERSION"
 
@@ -214,23 +215,23 @@ let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promi
       switch validationReport {
       | Some(report) => {
           if report.brokenLinksRemoved > 0 {
-            Notification.notify(
+            EventBus.dispatch(ShowNotification(
               "Project loaded. " ++
               Belt.Int.toString(
                 report.brokenLinksRemoved,
               ) ++ " broken link(s) were automatically removed.",
-              "warning",
-            )
+              #Warning,
+            ))
           }
 
           if Array.length(report.orphanedScenes) > 0 {
-            Notification.notify(
+            EventBus.dispatch(ShowNotification(
               "Warning: " ++
               Belt.Int.toString(
                 Array.length(report.orphanedScenes),
               ) ++ " orphaned scene(s) detected (no incoming links).",
-              "warning",
-            )
+              #Warning,
+            ))
           }
 
           if Array.length(report.unusedFiles) > 0 {
@@ -246,7 +247,7 @@ let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promi
             Belt.Array.forEach(
               report.errors,
               error => {
-                Notification.notify("Error: " ++ error, "error")
+                EventBus.dispatch(ShowNotification("Error: " ++ error, #Error))
               },
             )
           }

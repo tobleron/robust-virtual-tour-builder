@@ -372,7 +372,7 @@ let handleAutoForward = (dispatch: Actions.action => unit, state: state, current
           (),
         )
         dispatch(ResetAutoForwardChain)
-        ReBindings.Notification.notify("Loop detected", "warning")
+        EventBus.dispatch(ShowNotification("Loop detected", #Warning))
       } else {
         dispatch(AddToAutoForwardChain(state.activeIndex))
 

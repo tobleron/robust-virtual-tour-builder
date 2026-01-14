@@ -4,6 +4,8 @@ let make = () => {
   let viewerUiRoot = ReactDOM.querySelector("#viewer-ui-layer")
 
   <AppContext.Provider>
+    <NotificationContext />
+    <ModalContext />
     <NavigationController />
     <ViewerManager />
     {switch sidebarRoot {

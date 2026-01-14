@@ -4,6 +4,7 @@ open ReBindings
 open ViewerTypes
 open ViewerState
 open ViewerLoader
+open EventBus
 
 @react.component
 let make = () => {
@@ -20,7 +21,7 @@ let make = () => {
         if state.isLinking {
           dispatch(Actions.SetIsLinking(false))
           dispatch(Actions.SetLinkDraft(None))
-          Notification.notify("Link Cancelled", "info")
+          EventBus.dispatch(ShowNotification("Link Cancelled", #Info))
         }
       }
     }

@@ -116,7 +116,7 @@ let make = () => {
         | Some(m) => m
         | None => "Unknown error"
         }
-        ReBindings.Notification.notify("Upload failed: " ++ msg, "error")
+        EventBus.dispatch(ShowNotification("Upload failed: " ++ msg, #Error))
         updateProgress(0.0, "Error: " ++ msg, false, "")
       | _ => ()
       }
@@ -172,30 +172,30 @@ let make = () => {
             title="New Project"
             onClick={_ => {
               if Array.length(state.scenes) > 0 {
-                ReBindings.ModalManager.show({
+                EventBus.dispatch(ShowModal({
                   title: "Create New Project?",
                   description: Some(
                     "Are you sure you want to discard the current project? All unsaved progress will be lost.",
                   ),
                   icon: Some("warning"),
-                  iconHtml: None,
                   contentHtml: None,
                   onClose: None,
+                  allowClose: Some(true),
                   buttons: [
                     {
                       label: "Cancel",
                       class_: "bg-slate-100 text-slate-700 hover:bg-slate-200",
                       onClick: () => (),
-                      autoClose: Nullable.make(true),
+                      autoClose: Some(true),
                     },
                     {
                       label: "Discard & New",
                       class_: "bg-red-500 text-white hover:bg-red-600",
                       onClick: () => reload(),
-                      autoClose: Nullable.make(true),
+                      autoClose: Some(true),
                     },
                   ],
-                })
+                }))
               } else {
                 Logger.info(~module_="Sidebar", ~message="PROJECT_NEW", ())
                 reload()
@@ -221,12 +221,12 @@ let make = () => {
                     let _ = await ProjectManager.saveProject(state, (pct, _total, msg) => {
                       updateProgress(pct, msg, true, "Saving")
                     })
-                    ReBindings.Notification.notify("Project saved successfully", "success")
+                    EventBus.dispatch(ShowNotification("Project saved successfully", #Success))
                     updateProgress(100.0, "Saved", false, "")
                   } catch {
                   | _ =>
                     Logger.error(~module_="Sidebar", ~message="PROJECT_SAVE_FAILED", ())
-                    ReBindings.Notification.notify("Save failed", "error")
+                    EventBus.dispatch(ShowNotification("Save failed", #Error))
                     updateProgress(0.0, "Error", false, "")
                   }
                 }
@@ -259,22 +259,22 @@ let make = () => {
             className="sidebar-action-btn-square group"
             title="About"
             onClick={_ => {
-              ReBindings.ModalManager.show({
+              EventBus.dispatch(ShowModal({
                 title: "About Virtual Tour Builder",
                 description: Some(`Version: ${version}<br>Build: ${buildInfo}`),
                 icon: Some("info"),
-                iconHtml: None,
                 contentHtml: None,
                 onClose: None,
+                allowClose: Some(true),
                 buttons: [
                   {
                     label: "Close",
                     class_: "bg-slate-100 text-slate-700",
                     onClick: () => (),
-                    autoClose: Nullable.make(true),
+                    autoClose: Some(true),
                   },
                 ],
-              })
+              }))
             }}
           >
             <span className="material-icons group-hover:scale-110 transition-transform">
@@ -304,11 +304,11 @@ let make = () => {
                       state.scenes,
                       Some((pct, _total, msg) => updateProgress(pct, msg, true, "Exporting")),
                     )
-                    ReBindings.Notification.notify("Export complete!", "success")
+                    EventBus.dispatch(ShowNotification("Export complete!", #Success))
                     updateProgress(100.0, "Done", false, "")
                   } catch {
                   | _ =>
-                    ReBindings.Notification.notify("Export failed", "error")
+                    EventBus.dispatch(ShowNotification("Export failed", #Error))
                     updateProgress(0.0, "Error", false, "")
                   }
                 }
@@ -390,7 +390,7 @@ let make = () => {
                     "sceneCount": Array.length(state.scenes)
                   }, ())
 
-                  ReBindings.Notification.notify("Project loaded", "success")
+                  EventBus.dispatch(ShowNotification("Project loaded", #Success))
                   updateProgress(100.0, "Loaded", false, "")
                 } catch {
                 | JsExn(obj) =>
@@ -399,11 +399,11 @@ let make = () => {
                   | None => "Unknown error"
                   }
                   Logger.error(~module_="Sidebar", ~message="PROJECT_LOAD_FAILED", ~data={"error": msg}, ())
-                  ReBindings.Notification.notify("Load failed: " ++ msg, "error")
+                  EventBus.dispatch(ShowNotification("Load failed: " ++ msg, #Error))
                   updateProgress(0.0, "Error", false, "")
                 | _ =>
                   Logger.error(~module_="Sidebar", ~message="PROJECT_LOAD_FAILED", ~data={"error": "Unknown"}, ())
-                  ReBindings.Notification.notify("Load failed", "error")
+                  EventBus.dispatch(ShowNotification("Load failed", #Error))
                   updateProgress(0.0, "Error", false, "")
                 }
                 // Reset input

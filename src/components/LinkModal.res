@@ -2,6 +2,7 @@
 
 open Types
 open ReBindings
+open EventBus
 
 // Constants
 let hotspotVisualOffsetDegrees = 15.0
@@ -9,11 +10,11 @@ let hotspotVisualOffsetDegrees = 15.0
 // Helper to escape HTML
 let escapeHtml = unsafe => {
   unsafe
-  ->String.replaceRegExp(/&/g, "&amp;")
-  ->String.replaceRegExp(/</g, "&lt;")
-  ->String.replaceRegExp(/>/g, "&gt;")
-  ->String.replaceRegExp(/\"/g, "&quot;")
-  ->String.replaceRegExp(/'/g, "&#039;")
+  ->String.replaceRegExp(%re("/&/g"), "&amp;")
+  ->String.replaceRegExp(%re("/</g"), "&lt;")
+  ->String.replaceRegExp(%re("/>/g"), "&gt;")
+  ->String.replaceRegExp(%re("/\"/g"), "&quot;")
+  ->String.replaceRegExp(%re("/'/g"), "&#039;")
 }
 
 let showLinkModal = (
@@ -60,7 +61,7 @@ let showLinkModal = (
         `<option value="${safeName}" ${selectedStr} style="${style}">${safeName}</option>`
       }
     })
-    ->Array.joinUnsafe("")
+    ->Js.Array.joinWith("", _)
 
   let contentHtml = `
         <label for="link-target" class="sr-only">Select destination room</label>
@@ -80,7 +81,7 @@ let showLinkModal = (
     | Some(el) =>
       let targetName = Dom.getValue(el)
       if targetName == "" {
-        Notification.notify("Please select a destination room", "warning")
+        EventBus.dispatch(ShowNotification("Please select a destination room", #Warning))
       } else {
         // Check for existing link to same target
         let currentScene = Belt.Array.get(state.scenes, state.activeIndex)
@@ -90,7 +91,7 @@ let showLinkModal = (
         }
 
         if exists {
-          Notification.notify("A link to this room already exists here!", "warning")
+           EventBus.dispatch(ShowNotification("A link to this room already exists here!", #Warning))
         } else {
           let isReturnLink = Belt.Option.isSome(Nullable.toOption(pendingReturnSceneName))
           let displayPitch = pitch -. hotspotVisualOffsetDegrees
@@ -151,40 +152,40 @@ let showLinkModal = (
           }
 
           GlobalStateBridge.dispatch(AddHotspot(state.activeIndex, newHotspot))
-          ModalManager.close()
+          EventBus.dispatch(CloseModal)
         }
       }
     | None => ()
     }
   }
 
-  ModalManager.show({
+  EventBus.dispatch(ShowModal({
     title: "Link Destination",
     description: Some("Saving current view as \"Target\""),
     icon: Some("add_link"),
-    iconHtml: None,
+    contentHtml: Some(contentHtml),
+    allowClose: Some(true),
     onClose: Some(
       () => {
         GlobalStateBridge.dispatch(Actions.SetIsLinking(false))
         GlobalStateBridge.dispatch(Actions.SetLinkDraft(None))
       },
     ),
-    contentHtml: Some(contentHtml),
     buttons: [
       {
         label: "Save Link",
         class_: "btn-blue",
         onClick: onSave,
-        autoClose: Nullable.fromOption(Some(false)),
+        autoClose: Some(false),
       },
       {
         label: "Cancel",
         class_: "btn-secondary",
-        onClick: () => {ModalManager.close()},
-        autoClose: Nullable.fromOption(Some(false)),
+        onClick: () => {EventBus.dispatch(CloseModal)},
+        autoClose: Some(false),
       },
     ],
-  })
+  }))
 
   let _ = setTimeout(() => {
     switch Nullable.toOption(Dom.getElementById("link-target")) {
