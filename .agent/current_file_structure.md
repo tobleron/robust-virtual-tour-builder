@@ -29,6 +29,7 @@
 │   ├── IMPROVEMENTS.md
 │   ├── LOGGING_ARCHITECTURE.md
 │   ├── LONG_TEXT_BEST_PRACTICES.md
+│   ├── MANUAL_LOGGING_TEST.md
 │   ├── MIGRATION_STATUS_ANALYSIS.md
 │   ├── module_size_report.md
 │   ├── navigation_improvements_applied.md
@@ -632,7 +633,8 @@
 │   └── rescript.lock
 ├── logs
 │   ├── error.log
-│   └── log_changes.txt
+│   ├── log_changes.txt
+│   └── telemetry.log
 ├── package-lock.json
 ├── package.json
 ├── plans
@@ -646,7 +648,8 @@
 │   ├── commit.sh
 │   ├── dev-mode.sh
 │   ├── ensure-watcher.sh
-│   └── restore-snapshot.sh
+│   ├── restore-snapshot.sh
+│   └── test-logging.js
 ├── sounds
 │   └── click.wav
 ├── src
@@ -820,10 +823,10 @@
     │   ├── 44_Logging_Debug_Shortcuts.md
     │   ├── 45_Logging_Migrate_Remaining_Modules.md
     │   ├── 46_Logging_Rotation_Cleanup.md
+    │   ├── 47_Logging_Integration_Tests.md
     │   └── 53_Migrate_Logging_System.md
     ├── pending
     │   ├── 00_LOGGING_OVERVIEW.md
-    │   ├── 47_Logging_Integration_Tests.md
     │   ├── 48_Backend_Pure_Validation_Refactor.md
     │   ├── 49_Backend_Standardize_Logging.md
     │   ├── 50_Backend_Remove_Unwrap.md
@@ -838,4 +841,4 @@
     ├── SESSION_SUMMARY.md
     └── TASKS_24-27_STATUS.md
 
-30 directories, 809 files
+30 directories, 812 files

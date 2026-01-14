@@ -184,17 +184,17 @@ DEBUG.downloadLog('test_export');
 
 ## Testing Checklist
 
-- [ ] Backend endpoints respond with 200
-- [ ] Telemetry entries appear in telemetry.log
-- [ ] Error entries appear in both logs
-- [ ] Browser Debug module functions work
-- [ ] Log export/download works
-- [ ] Performance logging works
-- [ ] Log levels filter correctly
+- [x] Backend endpoints respond with 200
+- [x] Telemetry entries appear in telemetry.log
+- [x] Error entries appear in both logs
+- [x] Browser Debug module functions work
+- [x] Log export/download works
+- [x] Performance logging works
+- [x] Log levels filter correctly
 
 ## Definition of Done
 
-- Integration test script created
-- Manual browser test documented
-- All tests pass
-- Can be run as part of CI/CD
+- [x] Integration test script created
+- [x] Manual browser test documented
+- [x] All tests pass
+- [x] Can be run as part of CI/CD
