@@ -56,7 +56,7 @@ async fn main() -> io::Result<()> {
             .per_second(30)      // 30 requests per second (generous for image uploads)
             .burst_size(50)      // Allow bursts up to 50 requests
             .finish()
-            .unwrap();
+            .expect("Failed to initialize rate limiter configuration. This should never fail with valid parameters.");
 
         App::new()
             // Increase max payload size to 2GB
