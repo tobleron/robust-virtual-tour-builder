@@ -196,6 +196,12 @@
 │   │       │   ├── Types.cmj
 │   │       │   ├── Types.cmt
 │   │       │   └── Types.res
+│   │       ├── Main.ast
+│   │       ├── Main.bs.js
+│   │       ├── Main.cmi
+│   │       ├── Main.cmj
+│   │       ├── Main.cmt
+│   │       ├── Main.res
 │   │       ├── ReBindings.ast
 │   │       ├── ReBindings.bs.js
 │   │       ├── ReBindings.cmi
@@ -490,6 +496,11 @@
 │   │   ├── Logger.cmj
 │   │   ├── Logger.cmt
 │   │   ├── Logger.res
+│   │   ├── Main.ast
+│   │   ├── Main.cmi
+│   │   ├── Main.cmj
+│   │   ├── Main.cmt
+│   │   ├── Main.res
 │   │   ├── ModalContext.ast
 │   │   ├── ModalContext.cmi
 │   │   ├── ModalContext.cmj
@@ -738,7 +749,8 @@
 │   │   ├── jszip.min.js
 │   │   ├── pannellum.css
 │   │   └── pannellum.js
-│   ├── main.js
+│   ├── Main.bs.js
+│   ├── Main.res
 │   ├── ReBindings.bs.js
 │   ├── ReBindings.res
 │   ├── systems
@@ -871,12 +883,12 @@
     │   ├── 54_Migrate_EventBus.md
     │   ├── 55_Migrate_UI_Contexts.md
     │   ├── 56_Backend_Project_Loading.md
-    │   └── 57_Backend_Pathfinding.md
-    ├── pending
-    │   ├── 00_LOGGING_OVERVIEW.md
+    │   ├── 57_Backend_Pathfinding.md
     │   └── 58_Migrate_Entry_Point.md
+    ├── pending
+    │   └── 00_LOGGING_OVERVIEW.md
     ├── README.md
     ├── SESSION_SUMMARY.md
     └── TASKS_24-27_STATUS.md
 
-30 directories, 850 files
+30 directories, 862 files
