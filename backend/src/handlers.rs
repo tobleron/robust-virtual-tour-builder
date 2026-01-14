@@ -2066,3 +2066,77 @@ mod tests {
         assert!(json.contains("\"score\":9.0"));
     }
 }
+#[derive(Serialize)]
+pub struct ImportResponse {
+    pub sessionId: String,
+    pub projectData: serde_json::Value,
+}
+
+pub async fn import_project(mut payload: Multipart) -> Result<HttpResponse, AppError> {
+    // 1. Generate Session ID
+    let session_id = Uuid::new_v4().to_string();
+    let session_dir = PathBuf::from(format!("{}/{}", SESSIONS_DIR, session_id));
+    fs::create_dir_all(&session_dir).map_err(AppError::IoError)?;
+    
+    tracing::info!(module = "ProjectManager", session_id = %session_id, "IMPORT_PROJECT_START");
+
+    while let Ok(Some(mut field)) = payload.try_next().await {
+        
+        let name = field.content_disposition().and_then(|cd| cd.get_name()).unwrap_or("unknown");
+
+        if name == "file" {
+            let tmp_path = format!("{}/{}_upload.zip", TEMP_DIR, session_id);
+             fs::create_dir_all(TEMP_DIR).map_err(AppError::IoError)?; // Ensure temp dir exists
+             
+             let mut f = fs::File::create(&tmp_path).map_err(AppError::IoError)?;
+             while let Ok(Some(chunk)) = field.try_next().await {
+                 f.write_all(&chunk).map_err(AppError::IoError)?;
+             }
+             
+             // Unzip
+             let file = fs::File::open(&tmp_path).map_err(AppError::IoError)?;
+             let mut archive = zip::ZipArchive::new(file).map_err(|e| AppError::ZipError(e.to_string()))?;
+             
+             for i in 0..archive.len() {
+                 let mut file = archive.by_index(i).map_err(|e| AppError::ZipError(e.to_string()))?;
+                 let outpath = match file.enclosed_name() {
+                    Some(path) => session_dir.join(path),
+                    None => continue,
+                 };
+                 
+                 if file.name().ends_with('/') {
+                    fs::create_dir_all(&outpath).map_err(AppError::IoError)?;
+                 } else {
+                    if let Some(p) = outpath.parent() {
+                        if !p.exists() {
+                            fs::create_dir_all(&p).map_err(AppError::IoError)?;
+                        }
+                    }
+                    let mut outfile = fs::File::create(&outpath).map_err(AppError::IoError)?;
+                    std::io::copy(&mut file, &mut outfile).map_err(AppError::IoError)?;
+                 }
+             }
+
+             // Clean temp zip
+             let _ = fs::remove_file(&tmp_path);
+             
+             // Read project.json
+             let project_json_path = session_dir.join("project.json");
+             if !project_json_path.exists() {
+                  return Err(AppError::InternalError("project.json not found in archive".into()));
+             }
+             
+             let json_str = fs::read_to_string(project_json_path).map_err(AppError::IoError)?;
+             let project_data: serde_json::Value = serde_json::from_str(&json_str).map_err(|e| AppError::InternalError(e.to_string()))?;
+             
+             tracing::info!(module = "ProjectManager", session_id = %session_id, "IMPORT_PROJECT_SUCCESS");
+
+             return Ok(HttpResponse::Ok().json(ImportResponse {
+                 sessionId: session_id,
+                 projectData: project_data
+             }));
+        }
+    }
+    
+    Err(AppError::MultipartError(actix_multipart::MultipartError::Incomplete)) // Using existing error variant if applicable or just Incomplete
+}

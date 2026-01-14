@@ -53,6 +53,11 @@ type metadataResponse = {
   suggestedName: Nullable.t<string>,
 }
 
+type importResponse = {
+  sessionId: string,
+  projectData: JSON.t,
+}
+
 /* --- API ERROR TYPE --- */
 
 type apiError = {
@@ -92,6 +97,27 @@ let handleResponse = (response: Fetch.response) => {
 }
 
 /* --- API CALLS --- */
+
+/**
+ * Imports a project ZIP via backend
+ * Returns sessionId and projectData JSON
+ */
+let importProject = (file: File.t): Promise.t<importResponse> => {
+  let formData = FormData.newFormData()
+  FormData.append(formData, "file", file)
+
+  Fetch.fetch(
+    Constants.backendUrl ++ "/import-project",
+    {
+      method: "POST",
+      body: formData,
+      headers: Nullable.null,
+    },
+  )
+  ->Promise.then(handleResponse)
+  ->Promise.then(Fetch.json)
+  ->Promise.then(json => Promise.resolve((Obj.magic(json): importResponse)))
+}
 
 /**
  * Validates a project ZIP and returns a validation report
