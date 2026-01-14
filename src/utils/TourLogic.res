@@ -25,9 +25,9 @@ let sanitizeName = (name, ~maxLength=255) => {
       name
       ->String.trim
       // Remove control characters and invalid filesystem characters
-      ->String.replaceRegExp(/[\\x00-\\x1F\\x7F<>:\"\\/\\\\|?*]/g, "_")
+      ->String.replaceRegExp(/[\x00-\x1F\x7F<>:\"\/\\|?*]/g, "_")
       // Replace multiple spaces/underscores with single underscore
-      ->String.replaceRegExp(/[\\s_]+/g, "_")
+      ->String.replaceRegExp(/[\s_]+/g, "_")
       // Remove leading/trailing underscores
       ->String.replaceRegExp(/^_+|_+$/g, "")
       ->String.substring(~start=0, ~end=maxLength)
