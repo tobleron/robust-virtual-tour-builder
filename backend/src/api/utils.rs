@@ -3,6 +3,8 @@ use uuid::Uuid;
 use std::fs;
 use actix_web::{web, HttpResponse};
 use crate::services::shutdown::ShutdownManager;
+use crate::services::upload_quota::UploadQuotaManager;
+use crate::models::AppError;
 
 // Configs
 pub const PROCESSED_IMAGE_WIDTH: u32 = 4096;
@@ -81,4 +83,29 @@ pub async fn trigger_shutdown(
         "message": "Shutdown initiated",
         "active_requests": active
     }))
+}
+
+/// Get current upload quota statistics
+pub async fn quota_stats(
+    quota_manager: web::Data<UploadQuotaManager>,
+) -> Result<HttpResponse, AppError> {
+    let stats = quota_manager.get_stats().await;
+    Ok(HttpResponse::Ok().json(stats))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::services::upload_quota::QuotaStats;
+
+    #[test]
+    fn test_quota_stats_struct() {
+        let stats = QuotaStats {
+            active_uploads: 5,
+            total_active_size: 1000,
+            max_total_size: 5000,
+            utilization_percent: 20,
+        };
+        assert_eq!(stats.active_uploads, 5);
+    }
 }

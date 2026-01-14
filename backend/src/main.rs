@@ -15,7 +15,9 @@ mod middleware;
 mod pathfinder;
 
 use services::shutdown::{ShutdownManager, perform_shutdown_cleanup};
+use services::upload_quota::{UploadQuotaManager, QuotaConfig};
 use middleware::request_tracker::RequestTracker;
+use middleware::quota_check::QuotaCheck;
 
 async fn health_check() -> impl Responder {
     HttpResponse::Ok().body("Remax VTB Backend is running!")
@@ -53,6 +55,17 @@ async fn main() -> io::Result<()> {
         "Shutdown manager initialized"
     );
 
+    // Initialize upload quota manager
+    let quota_config = QuotaConfig::from_env();
+    let quota_manager = web::Data::new(UploadQuotaManager::new(quota_config.clone()));
+    
+    tracing::info!(
+        "Upload quotas: max_payload={} MB, max_concurrent_per_ip={}, max_total={} GB",
+        quota_config.max_payload_size / (1024 * 1024),
+        quota_config.max_concurrent_per_ip,
+        quota_config.max_total_concurrent_size / (1024 * 1024 * 1024)
+    );
+
     let shutdown_manager_server = shutdown_manager.clone();
     let server = HttpServer::new(move || {
         // CORS Configuration: Permissive in debug, restricted in release
@@ -88,9 +101,11 @@ async fn main() -> io::Result<()> {
             .expect("Failed to initialize rate limiter configuration. This should never fail with valid parameters.");
 
         App::new()
-            // Increase max payload size to 2GB
-            .app_data(web::PayloadConfig::new(2 * 1024 * 1024 * 1024))
+            // Increase max payload size to configured limit
+            .app_data(web::PayloadConfig::new(quota_config.max_payload_size))
+            .app_data(quota_manager.clone())
             .app_data(shutdown_manager_server.clone())
+            .wrap(QuotaCheck) // Check upload quotas
             .wrap(RequestTracker) // Track active requests
             .wrap(TracingLogger::default()) // Structured request logging
             
@@ -156,6 +171,7 @@ async fn main() -> io::Result<()> {
                 .service(web::scope("/session")
                      .route("/{session_id}/{filename:.*}", web::get().to(api::media::serve_session_file))
                 )
+                .route("/quota/stats", web::get().to(api::utils::quota_stats))
             )
 
             // --- STATIC FILES (Serve Frontend directly) ---

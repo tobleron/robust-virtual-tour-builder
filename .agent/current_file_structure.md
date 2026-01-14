@@ -22,6 +22,7 @@
 │   │   ├── main.rs
 │   │   ├── middleware
 │   │   │   ├── mod.rs
+│   │   │   ├── quota_check.rs
 │   │   │   └── request_tracker.rs
 │   │   ├── models
 │   │   │   ├── errors.rs
@@ -32,7 +33,9 @@
 │   │       ├── media.rs
 │   │       ├── mod.rs
 │   │       ├── project.rs
-│   │       └── shutdown.rs
+│   │       ├── shutdown.rs
+│   │       ├── upload_quota_tests.rs
+│   │       └── upload_quota.rs
 │   └── tests
 │       └── shutdown_test.rs
 ├── bin
@@ -1055,6 +1058,7 @@
 │   ├── detect-missing-tests.js
 │   ├── dev-mode.sh
 │   ├── ensure-watcher.sh
+│   ├── prune-snapshots.sh
 │   ├── restore-snapshot.sh
 │   ├── setup.sh
 │   ├── test-logging.js
@@ -1323,11 +1327,16 @@
 │   │   ├── 89_Eliminate_ObjMagic_Main.md
 │   │   ├── 90_Secure_GlobalStateBridge_REPORT.md
 │   │   ├── 91_Implement_Reducer_Slicing_REPORT.md
+│   │   ├── 92_Backend_Upload_Quota_System.md
 │   │   ├── 93_Backend_Graceful_Shutdown_REPORT.md
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   ├── pending
-│   │   ├── 92_Backend_Upload_Quota_System.md
+│   │   ├── 94_Add_Tests_for_utils.md
+│   │   ├── 95_Add_Tests_for_main.md
+│   │   ├── 96_Add_Tests_for_quota_check.md
+│   │   ├── 97_Add_Tests_for_upload_quota.md
+│   │   ├── 98_Add_Tests_for_upload_quota_tests.md
 │   │   └── TASK_SUMMARY.md
 │   └── README.md
 └── tests
@@ -1352,4 +1361,4 @@
         ├── TourLogicTest.bs.js
         └── TourLogicTest.res
 
-44 directories, 1309 files
+44 directories, 1318 files

@@ -32,14 +32,10 @@ if ! npm run res:build; then echo "❌ Build failed."; exit 1; fi
 
 # 7. Test Gap Detection
 if ! node scripts/detect-missing-tests.js; then
-    echo ""
-    read -p "⚠️  Are you sure you want to commit without these tests? (y/N) " -n 1 -r
-    echo ""
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo "❌ Commit aborted. Please add tests."
-        exit 1
-    fi
-    echo "⚠️  Proceeding despite missing tests..."
+    echo "❌ Commit blocked: Missing unit tests detected."
+    echo "   ► Tasks have been auto-generated in tasks/pending/"
+    echo "   ► Please complete these tasks before committing."
+    exit 1
 fi
 
 # 8. Test Verification
