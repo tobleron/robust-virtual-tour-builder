@@ -637,6 +637,7 @@
 │   │   ├── Sidebar.cmj
 │   │   ├── Sidebar.cmt
 │   │   ├── Sidebar.res
+│   │   ├── SimulationChainSkipper.ast
 │   │   ├── SimulationChainSkipper.cmi
 │   │   ├── SimulationChainSkipper.cmj
 │   │   ├── SimulationChainSkipper.cmt
@@ -646,10 +647,12 @@
 │   │   ├── SimulationNavigation.cmj
 │   │   ├── SimulationNavigation.cmt
 │   │   ├── SimulationNavigation.res
+│   │   ├── SimulationPathGenerator.ast
 │   │   ├── SimulationPathGenerator.cmi
 │   │   ├── SimulationPathGenerator.cmj
 │   │   ├── SimulationPathGenerator.cmt
 │   │   ├── SimulationPathGenerator.res
+│   │   ├── SimulationSystem.ast
 │   │   ├── SimulationSystem.cmi
 │   │   ├── SimulationSystem.cmj
 │   │   ├── SimulationSystem.cmt
@@ -976,10 +979,10 @@
 │   │   ├── 71_Pathfinder_Hardening_REPORT.md
 │   │   ├── 73_Refactor_media_REPORT.md
 │   │   ├── 74_Refactor_SimulationSystem_REPORT.md
+│   │   ├── 75_Fix_IndexHTML_Critical_Bugs_REPORT.md
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   ├── pending
-│   │   ├── 75_Fix_IndexHTML_Critical_Bugs.md
 │   │   ├── 76_Fix_ReScript_Shadowing_Warnings.md
 │   │   ├── 77_Eliminate_ObjMagic_BackendApi.md
 │   │   ├── 78_Improve_Error_Handling_BackendApi.md
@@ -997,4 +1000,4 @@
 └── tests
     └── SimulationSystem_test.res
 
-35 directories, 963 files
+35 directories, 966 files

@@ -1,5 +1,5 @@
 open Types
-open SimulationNavigation
+module Nav = SimulationNavigation
 open SimulationChainSkipper
 
 // --- STATE ---
@@ -218,7 +218,7 @@ let advanceToNextScene = () => {
 
     switch currentSceneOpt {
     | Some(currentScene) =>
-      let nextLinkFound = findBestNextLink(currentScene, state, simStore.contents.visitedScenes)
+      let nextLinkFound = Nav.findBestNextLink(currentScene, state, simStore.contents.visitedScenes)
 
       switch nextLinkFound {
       | Some(link) =>
@@ -369,7 +369,7 @@ let onSceneArrival = (sceneIndex, _isChainEnd) => {
 
           dispatch(SetPendingAdvance(Some(setTimeout(async () => {
               try {
-                let _ = await waitForViewerScene(sceneIndex, () => simStore.contents.isAutoPilot)
+                let _ = await Nav.waitForViewerScene(sceneIndex, () => simStore.contents.isAutoPilot)
                 // Accessing ref in closure is safe
                 if simStore.contents.isAutoPilot && !simStore.contents.stoppingOnArrival {
                   advanceToNextScene()

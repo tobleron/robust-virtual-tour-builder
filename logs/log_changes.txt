@@ -169,3 +169,4 @@ Resolves Task 74.
   * File now comfortably below 700-line threshold
 [2026-01-14 20:32] v4.2.40 - Add 14 pending tasks from project analysis (75-88)
 [2026-01-14 20:34] v4.2.41 - Fix critical index.html bugs: malformed CSP and duplicate tags
+[2026-01-14 20:36] v4.2.42 - Fix ReScript shadowing warnings (W45) in Simulation modules
