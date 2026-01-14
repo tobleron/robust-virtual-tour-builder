@@ -126,3 +126,4 @@ Task 60 complete ✓
 [2026-01-14 15:53] v4.2.27 - Cleanup dead code and comments, fix non-snake-case and TODOs
 [2026-01-14 16:01] v4.2.28 - Refactor: Extract backend domain types to models module (Task 66)
 [2026-01-14 16:09] v4.2.29 - Task 67: Extract media processing logic to MediaService
+[2026-01-14 16:20] v4.2.30 - Refactor: Extract ProjectService logic from handlers
