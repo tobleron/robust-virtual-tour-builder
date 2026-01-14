@@ -1109,6 +1109,7 @@
 │   ├── logical_inconsistencies_analysis.md
 │   └── step1_cleanup_notes.md
 ├── rescript.json
+├── rsbuild.config.mjs
 ├── scripts
 │   ├── cleanup_logs.sh
 │   ├── commit.sh
@@ -1304,6 +1305,16 @@
 │   │   ├── 05_Purify_Navigation_REPORT.md
 │   │   ├── 06_Final_Cleanup_REPORT.md
 │   │   ├── 100_Add_Tests_for_SharedTypes.md
+│   │   ├── 101_Add_Tests_for_BackendApi.md
+│   │   ├── 101_Add_Tests_for_BackendApi_REPORT.md
+│   │   ├── 102_Add_Tests_for_ProjectManager.md
+│   │   ├── 102_Add_Tests_for_ProjectManager_REPORT.md
+│   │   ├── 103_Add_Tests_for_Resizer.md
+│   │   ├── 103_Add_Tests_for_Resizer_REPORT.md
+│   │   ├── 104_Add_Tests_for_UploadProcessor.md
+│   │   ├── 104_Add_Tests_for_UploadProcessor_REPORT.md
+│   │   ├── 105_Install_Rsbuild.md
+│   │   ├── 105_Install_Rsbuild_REPORT.md
 │   │   ├── 10_ReScript_Migrate_Resizer_REPORT.md
 │   │   ├── 11_ReScript_Migrate_ProjectManager_REPORT.md
 │   │   ├── 12_ReScript_Migrate_UI_Components_REPORT.md
@@ -1403,11 +1414,6 @@
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   └── pending
-│       ├── 101_Add_Tests_for_BackendApi.md
-│       ├── 102_Add_Tests_for_ProjectManager.md
-│       ├── 103_Add_Tests_for_Resizer.md
-│       ├── 104_Add_Tests_for_UploadProcessor.md
-│       ├── 105_Install_Rsbuild.md
 │       ├── 106_Configure_Rsbuild_Entry.md
 │       ├── 107_Integrate_Tailwind_Rsbuild.md
 │       ├── 108_Finalize_Rsbuild_Prod.md
@@ -1446,4 +1452,4 @@
         ├── UploadProcessorTest.bs.js
         └── UploadProcessorTest.res
 
-44 directories, 1403 files
+44 directories, 1409 files
