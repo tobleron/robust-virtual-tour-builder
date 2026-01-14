@@ -208,6 +208,12 @@
 │   │       │   ├── DownloadSystem.cmj
 │   │       │   ├── DownloadSystem.cmt
 │   │       │   ├── DownloadSystem.res
+│   │       │   ├── EventBus.ast
+│   │       │   ├── EventBus.bs.js
+│   │       │   ├── EventBus.cmi
+│   │       │   ├── EventBus.cmj
+│   │       │   ├── EventBus.cmt
+│   │       │   ├── EventBus.res
 │   │       │   ├── ExifParser.ast
 │   │       │   ├── ExifParser.bs.js
 │   │       │   ├── ExifParser.cmi
@@ -407,6 +413,11 @@
 │   │   ├── DownloadSystem.cmj
 │   │   ├── DownloadSystem.cmt
 │   │   ├── DownloadSystem.res
+│   │   ├── EventBus.ast
+│   │   ├── EventBus.cmi
+│   │   ├── EventBus.cmj
+│   │   ├── EventBus.cmt
+│   │   ├── EventBus.res
 │   │   ├── ExifParser.ast
 │   │   ├── ExifParser.cmi
 │   │   ├── ExifParser.cmj
@@ -712,6 +723,8 @@
 │   │   ├── BackendApi.res
 │   │   ├── DownloadSystem.bs.js
 │   │   ├── DownloadSystem.res
+│   │   ├── EventBus.bs.js
+│   │   ├── EventBus.res
 │   │   ├── ExifParser.bs.js
 │   │   ├── ExifParser.res
 │   │   ├── ExifReportGenerator.bs.js
@@ -768,7 +781,6 @@
 │   │   ├── PathInterpolation.res
 │   │   ├── ProgressBar.bs.js
 │   │   ├── ProgressBar.res
-│   │   ├── PubSub.js
 │   │   ├── TourLogic.bs.js
 │   │   └── TourLogic.res
 │   └── version.js
@@ -831,10 +843,11 @@
     │   ├── 51_Backend_LogError_Endpoint.md
     │   ├── 52_Backend_Functional_Iterators_REPORT.md
     │   ├── 52_Backend_Functional_Iterators.md
-    │   └── 53_Migrate_Logging_System.md
+    │   ├── 53_Migrate_Logging_System.md
+    │   ├── 54_Migrate_EventBus_REPORT.md
+    │   └── 54_Migrate_EventBus.md
     ├── pending
     │   ├── 00_LOGGING_OVERVIEW.md
-    │   ├── 54_Migrate_EventBus.md
     │   ├── 55_Migrate_UI_Contexts.md
     │   ├── 56_Backend_Project_Loading.md
     │   ├── 57_Backend_Pathfinding.md
@@ -843,4 +856,4 @@
     ├── SESSION_SUMMARY.md
     └── TASKS_24-27_STATUS.md
 
-30 directories, 814 files
+30 directories, 827 files
