@@ -8,6 +8,9 @@
 │   └── src
 │       ├── handlers.rs
 │       ├── main.rs
+│       ├── models
+│       │   ├── errors.rs
+│       │   └── mod.rs
 │       └── pathfinder.rs
 ├── bin
 │   └── tailwindcss
@@ -917,10 +920,11 @@
 │   │   ├── 62_Backend_Batch_Similarity_Endpoint.md
 │   │   ├── 63_Refactor_SimulationSystem_State.md
 │   │   ├── 64_Migrate_Constants_To_ReScript_REPORT.md
-│   │   └── 64_Migrate_Constants_To_ReScript.md
-│   ├── pending
+│   │   ├── 64_Migrate_Constants_To_ReScript.md
+│   │   ├── 65_Cleanup_Dead_Code_REPORT.md
 │   │   ├── 65_Cleanup_Dead_Code.md
-│   │   ├── 66_Extract_Backend_Domain_Types.md
+│   │   └── 66_Extract_Backend_Domain_Types.md
+│   ├── pending
 │   │   ├── 67_Extract_Media_Service.md
 │   │   ├── 68_Extract_Project_Service.md
 │   │   ├── 69_Extract_Geocoding_Service.md
@@ -933,4 +937,4 @@
 └── tests
     └── SimulationSystem_test.res
 
-31 directories, 903 files
+32 directories, 906 files
