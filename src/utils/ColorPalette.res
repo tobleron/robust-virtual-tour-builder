@@ -16,23 +16,24 @@ let colors = [
 @val @scope("Math") external max: (float, float) => float = "max"
 @val @scope("Math") external min: (float, float) => float = "min"
 
-let getGroupColor = (groupIdString: Nullable.t<string>) => {
-  switch Nullable.toOption(groupIdString) {
+let getGroupColor = (groupIdString: option<string>) => {
+  switch groupIdString {
   | None => "#f1f5f9"
   | Some(idStr) =>
-     switch Belt.Int.fromString(idStr) {
-     | Some(id) =>
-       if id <= 0 { "#f1f5f9" }
-       else {
-         let idx = mod(id - 1, Array.length(colors))
-         // Handle negative mod result in case id is 0 (though unlikely here)
-         switch colors[idx] {
-    | Some(c) => c
+    switch Belt.Int.fromString(idStr) {
+    | Some(id) =>
+      if id <= 0 {
+        "#f1f5f9"
+      } else {
+        let idx = mod(id - 1, Array.length(colors))
+        // Handle negative mod result in case id is 0 (though unlikely here)
+        switch colors[idx] {
+        | Some(c) => c
+        | None => "#f1f5f9"
+        }
+      }
     | None => "#f1f5f9"
     }
-       }
-     | None => "#f1f5f9"
-     }
   }
 }
 
@@ -44,27 +45,31 @@ let darkenColor = (hex: string, percent: float) => {
   } else {
     hex
   }
-  
+
   let rStr = String.substring(hexClean, ~start=0, ~end=2)
   let gStr = String.substring(hexClean, ~start=2, ~end=4)
   let bStr = String.substring(hexClean, ~start=4, ~end=6)
-  
+
   let r = parseInt(rStr, 16)->Float.fromInt
   let g = parseInt(gStr, 16)->Float.fromInt
   let b = parseInt(bStr, 16)->Float.fromInt
-  
+
   let rNew = floor(r *. (1.0 -. percent))
   let gNew = floor(g *. (1.0 -. percent))
   let bNew = floor(b *. (1.0 -. percent))
-  
+
   let rClamped = max(0.0, min(255.0, rNew))->Int.fromFloat
   let gClamped = max(0.0, min(255.0, gNew))->Int.fromFloat
   let bClamped = max(0.0, min(255.0, bNew))->Int.fromFloat
-  
-  let toHex = (c) => {
+
+  let toHex = c => {
     let s = Int.toString(c, ~radix=16)
-    if String.length(s) == 1 { "0" ++ s } else { s }
+    if String.length(s) == 1 {
+      "0" ++ s
+    } else {
+      s
+    }
   }
-  
+
   "#" ++ toHex(rClamped) ++ toHex(gClamped) ++ toHex(bClamped)
 }

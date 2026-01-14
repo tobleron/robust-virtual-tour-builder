@@ -41,63 +41,67 @@ let getCatmullRomSpline = (points: array<point>, totalSegments: int) => {
     // 1. Prepare Points: Duplicate start and end
     let first = Belt.Array.getExn(points, 0)
     let last = Belt.Array.getExn(points, Array.length(points) - 1)
-    
+
     let prefix = Belt.Array.concat([first], points)
     let rawPoints = Belt.Array.concat(prefix, [last])
-    
+
     // 2. Unroll Points
     let unrolledPoints = []
-    
+
     if Array.length(rawPoints) > 0 {
       let prevYaw = ref(Belt.Array.getExn(rawPoints, 0).yaw)
-      
+
       Belt.Array.forEach(rawPoints, p => {
         let currentYaw = p.yaw
         let diff = ref(currentYaw -. prevYaw.contents)
-        
-        while diff.contents > 180.0 { diff := diff.contents -. 360.0 }
-        while diff.contents < -180.0 { diff := diff.contents +. 360.0 }
-        
+
+        while diff.contents > 180.0 {
+          diff := diff.contents -. 360.0
+        }
+        while diff.contents < -180.0 {
+          diff := diff.contents +. 360.0
+        }
+
         let absoluteYaw = prevYaw.contents +. diff.contents
         let _ = Array.push(unrolledPoints, {yaw: absoluteYaw, pitch: p.pitch})
-        
+
         prevYaw := absoluteYaw
       })
     }
-    
+
     // 3. Generate Spline Points
     let splinePoints = []
     let numSections = Array.length(unrolledPoints) - 3
-    
+
     if numSections < 1 {
       points
     } else {
       let segmentsPerSection = ceil(Int.toFloat(totalSegments) /. Int.toFloat(numSections))
-      
+
       for i in 0 to numSections - 1 {
         let p0 = Belt.Array.getExn(unrolledPoints, i)
         let p1 = Belt.Array.getExn(unrolledPoints, i + 1)
         let p2 = Belt.Array.getExn(unrolledPoints, i + 2)
         let p3 = Belt.Array.getExn(unrolledPoints, i + 3)
-        
+
         for j in 0 to Float.toInt(segmentsPerSection) - 1 {
           let t = Int.toFloat(j) /. segmentsPerSection
           let pt = interpolateCatmullRom(p0, p1, p2, p3, t)
           let _ = Array.push(splinePoints, pt)
         }
       }
-      
+
       // Add very last point
       let unrolledLen = Array.length(unrolledPoints)
       if unrolledLen >= 2 {
         let _ = Array.push(splinePoints, Belt.Array.getExn(unrolledPoints, unrolledLen - 2))
       }
-      
+
       // 4. Normalize
       Belt.Array.map(splinePoints, p => {
         {
           yaw: normalizeYaw(p.yaw),
-          pitch: p.pitch
+          pitch: p.pitch,
         }
       })
     }

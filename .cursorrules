@@ -1,44 +1,31 @@
-# Agent Rules & Standards
+# Robust Virtual Tour Builder - Agent Rules
 
-## 🚨 CRITICAL CORE RULES (Priority 1)
-1. **Version EVERYTHING**: Every user-facing change MUST bump the version. Follow `/commit-workflow`.
-2. **ReScript v12 Only**: All frontend code MUST be in ReScript v12. Compile verification is MANDATORY.
-3. **No Console Logs**: Use the `Debug` module for all logging. `console.log` is strictly forbidden in committed code. Follow `/debug-standards`.
-4. **Stability First**: Never break the build. Handle `Option` and `Result` types explicitly.
-5. **No Alerts**: Never use `alert()`. Use `showToast()` or modals.
-
----
-
-## 🏎️ DEVELOPMENT WORKFLOWS
-Use these workflows for specific procedures to avoid cluttering rules:
-- **Committing Changes**: When ready to save work, follow [`/commit-workflow`](.agent/workflows/commit-workflow.md).
-- **Pushing to GitHub**: Before pushing major updates, follow [`/pre-push-workflow`](.agent/workflows/pre-push-workflow.md).
-- **Debugging & Logging**: For observability standards, follow [`/debug-standards`](.agent/workflows/debug-standards.md).
+## 🚨 CRITICAL VITALS (Priority 0)
+1. **ReScript v12 Only**: All frontend code MUST be in ReScript v12.
+2. **Version Everything**: Follow `/commit-workflow` for every user-facing change.
+3. **No Console Logs**: Use `Logger` module. `console.log` is strictly forbidden.
+4. **Stability First**: Handle `Option`/`Result` explicitly. No `unwrap()` or `panic!`.
+5. **No Alerts**: Use `showToast()` or modals.
 
 ---
 
-## 🛠️ CODING STANDARDS
+## 🚦 WORKFLOW DISPATCHER
+Trigger these workflows based on the current task:
 
-### Frontend Architecture
-- **State**: Use `src/store.js` for shared state. No silos.
-- **Modularity**: UI in `src/components/`, Logic in `src/systems/`.
-- **Constants**: Extract magic numbers to `src/constants.js`.
-
-### Performance & UX
-- **Feedback**: Operations > 250ms MUST show a progress bar.
-- **Phasing**: Long operations must update phase labels (e.g., "Optimizing...").
-- **Frame Rate**: Maintain 60fps. Avoid blocking the main thread.
+- **Creating Modules**: Follow [`/new-module-standards`](.agent/workflows/new-module-standards.md).
+- **Committing**: Follow [`/commit-workflow`](.agent/workflows/commit-workflow.md).
+- **Debugging**: Follow [`/debug-standards`](.agent/workflows/debug-standards.md).
+- **Pushing**: Follow [`/pre-push-workflow`](.agent/workflows/pre-push-workflow.md).
+- **Dev Preferences**: Follow [`/save-dev-pref`](.agent/workflows/save-dev-pref.md).
 
 ---
 
-## 🔐 SECURITY & SAFETY
-- **Sanitize Input**: Use `textContent` instead of `innerHTML`. Prevent `../` in paths.
-- **File Handling**: Use `BlobManager` for URL cleanup. Validate MIME types.
-- **Fail Gracefully**: Use Error Boundaries. Do not expose stack traces in the UI.
+## 📖 KNOWLEDGE BASE & STANDARDS
+For deep architectural, design, or security context, consult:
+👉 **[`docs/PROJECT_STANDARDS_AND_WORKFLOWS.md`](docs/PROJECT_STANDARDS_AND_WORKFLOWS.md)**
 
----
-
-## 🎨 DESIGN & AESTHETICS
-- **Styling**: Vanilla CSS only. Use Outfit (headings) and Inter (UI).
-- **Feel**: "Premium" design—use glassmorphism, subtle gradients, and interactive hover states.
-- **Design Tokens**: Always use CSS variables from `index.css`.
+### Core Tenets:
+- **Architecture**: UI in `src/components/`, Logic in `src/systems/`.
+- **Styling**: Vanilla CSS variables. Premium aesthetics (Outfit/Inter).
+- **Functional**: Pure functions, immutability, central state (`src/store.js`).
+- **Security**: Sanitization, BlobManager cleanup, path safety.

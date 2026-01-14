@@ -9,7 +9,7 @@ use uuid::Uuid;
 use serde::{Serialize, Deserialize};
 use std::fmt;
 use zip::write::FileOptions;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use rayon::prelude::*;
 use img_parts::webp::WebP;
 use headless_chrome::{Browser, LaunchOptions};
@@ -18,12 +18,21 @@ use img_parts::riff::{RiffContent, RiffChunk};
 use bytes::Bytes;
 use image::DynamicImage;
 use fast_image_resize::{Resizer, ResizeOptions, FilterType, ResizeAlg, PixelType, images::Image as FrImage};
+use sha2::{Sha256, Digest};
+// flate2 and SystemTime removed as compression is not yet implemented
+
+
 // Configs
 const PROCESSED_IMAGE_WIDTH: u32 = 4096;
 const WEBP_QUALITY: f32 = 92.0;
 const TEMP_DIR: &str = "/tmp/remax_backend";
 const SESSIONS_DIR: &str = "/tmp/remax_sessions";
 const MAX_UPLOAD_SIZE: usize = 2048 * 1024 * 1024; // 2GB limit (increased for full projects)
+
+// Log Rotation Configs
+const MAX_LOG_SIZE: u64 = 10 * 1024 * 1024; // 10 MB
+const MAX_LOG_FILES: usize = 5;
+const LOG_RETENTION_DAYS: u64 = 7;
 
 // --- Error Handling ---
 
@@ -157,6 +166,7 @@ pub struct GpsData {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct ExifMetadata {
     pub make: Option<String>,
     pub model: Option<String>,
@@ -170,6 +180,7 @@ pub struct ExifMetadata {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct QualityStats {
     pub avg_luminance: u32,
     pub black_clipping: f32,
@@ -185,6 +196,7 @@ pub struct ColorHist {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct QualityAnalysis {
     pub score: f32,
     pub histogram: Vec<u32>,
@@ -202,13 +214,216 @@ pub struct QualityAnalysis {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct MetadataResponse {
     pub exif: ExifMetadata,
     pub quality: QualityAnalysis,
     pub is_optimized: bool,
+    pub checksum: String, // SHA-256 hash in format: {hex}_{filesize}
+    pub suggested_name: Option<String>, // Logic moved from frontend
 }
 
 // --- Internal Processing Logic (Extracted for reuse) ---
+
+/// Extract a smart filename from the original filename
+/// Logic: _YYMMDD_XX_NNN -> YYMMDD_NNN
+fn get_suggested_name(original: &str) -> String {
+    use regex::Regex;
+    // Remove extension
+    let base_name = std::path::Path::new(original)
+        .file_stem()
+        .and_then(|s| s.to_str())
+        .unwrap_or(original);
+
+    // Try to match the pattern _(\d{6})_\d{2}_(\d{3})
+    // We'll use a lazy static or just create it here for now
+    let re = Regex::new(r"_(\d{6})_\d{2}_(\d{3})").unwrap();
+    if let Some(caps) = re.captures(base_name) {
+        if caps.len() >= 3 {
+            return format!("{}_{}", &caps[1], &caps[2]);
+        }
+    }
+
+    base_name.to_string()
+}
+
+// --- VALIDATION SYSTEM ---
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ValidationReport {
+    pub broken_links_removed: u32,
+    pub orphaned_scenes: Vec<String>, // Scenes with no incoming links
+    pub unused_files: Vec<String>,    // Files in ZIP not used by project
+    pub warnings: Vec<String>,
+    pub errors: Vec<String>,
+}
+
+impl ValidationReport {
+    fn new() -> Self {
+        ValidationReport {
+            broken_links_removed: 0,
+            orphaned_scenes: Vec::new(),
+            unused_files: Vec::new(),
+            warnings: Vec::new(),
+            errors: Vec::new(),
+        }
+    }
+    
+    fn has_issues(&self) -> bool {
+        self.broken_links_removed > 0 
+            || !self.orphaned_scenes.is_empty() 
+            || !self.unused_files.is_empty()
+            || !self.errors.is_empty()
+    }
+}
+
+/// Validate and clean project data
+/// Returns a validation report with warnings and errors
+fn validate_and_clean_project(
+    project: &mut serde_json::Value,
+    available_files: &HashSet<String>
+) -> Result<ValidationReport, String> {
+    let mut report = ValidationReport::new();
+    
+    // Extract scenes array
+    let scenes = project["scenes"].as_array_mut()
+        .ok_or("Invalid project structure: missing 'scenes' array")?;
+    
+    if scenes.is_empty() {
+        report.errors.push("Project has no scenes".to_string());
+        return Ok(report);
+    }
+    
+    // Build scene name set for validation
+    let scene_names: HashSet<String> = scenes.iter()
+        .filter_map(|s| s["name"].as_str())
+        .map(|s| s.to_string())
+        .collect();
+    
+    tracing::info!("Validating project with {} scenes", scene_names.len());
+
+    let mut incoming_links = HashSet::new();
+    // The first scene is the entry point
+    if let Some(first_scene_name) = scenes.first().and_then(|s| s["name"].as_str()) {
+        incoming_links.insert(first_scene_name.to_string());
+    }
+    
+    // Validate and clean each scene
+    for scene in scenes.iter_mut() {
+        let scene_name = scene["name"].as_str().unwrap_or("unknown").to_string();
+        let mut seen_link_ids = HashSet::new();
+
+        // 1. Check if image file exists in ZIP (check root and images/ folder)
+        let mut image_found = false;
+        if available_files.contains(&scene_name) || available_files.contains(&format!("images/{}", scene_name)) {
+            image_found = true;
+        }
+        
+        if !image_found {
+            report.warnings.push(format!("Scene '{}': Image file not found in ZIP", scene_name));
+        }
+
+        // 2. Validate hotspots
+        if let Some(hotspots) = scene["hotspots"].as_array_mut() {
+            let original_count = hotspots.len();
+            
+            // Remove broken links
+            hotspots.retain(|h| {
+                if let Some(target) = h["target"].as_str() {
+                    let is_valid = scene_names.contains(target);
+                    if !is_valid {
+                        tracing::warn!("Scene '{}': Removing broken link to '{}'", scene_name, target);
+                    } else {
+                        incoming_links.insert(target.to_string());
+                    }
+                    is_valid
+                } else {
+                    // Hotspot missing target field
+                    tracing::warn!("Scene '{}': Removing hotspot with missing target", scene_name);
+                    false
+                }
+            });
+            
+            let removed = original_count - hotspots.len();
+            if removed > 0 {
+                report.broken_links_removed += removed as u32;
+                report.warnings.push(format!(
+                    "Scene '{}': Removed {} broken link(s)",
+                    scene_name, removed
+                ));
+            }
+
+            // Check for duplicate link IDs
+            for hotspot in hotspots.iter() {
+                if let Some(link_id) = hotspot["linkId"].as_str() {
+                    if !seen_link_ids.insert(link_id.to_string()) {
+                        report.warnings.push(format!("Scene '{}': Duplicate linkId detected: '{}'", scene_name, link_id));
+                    }
+                }
+            }
+        }
+        
+        // 3. Validate required fields and set defaults
+        if scene["id"].is_null() {
+            report.warnings.push(format!(
+                "Scene '{}': Missing ID, will be auto-generated",
+                scene_name
+            ));
+        }
+        
+        if scene["category"].is_null() {
+            report.warnings.push(format!("Scene '{}': Missing category metadata", scene_name));
+            scene["category"] = serde_json::json!("indoor");
+        }
+        
+        if scene["floor"].is_null() {
+            report.warnings.push(format!("Scene '{}': Missing floor metadata", scene_name));
+            scene["floor"] = serde_json::json!("ground");
+        }
+    }
+
+    // 4. Check for orphaned scenes (scenes with no incoming links)
+    for scene_name in &scene_names {
+        if !incoming_links.contains(scene_name) {
+             report.orphaned_scenes.push(scene_name.clone());
+             report.warnings.push(format!("Orphaned scene detected (no incoming links): '{}'", scene_name));
+        }
+    }
+
+    // 5. Check for orphaned image files in the ZIP (files not used in project)
+    for file in available_files {
+        if (file.ends_with(".webp") || file.ends_with(".jpg") || file.ends_with(".jpeg") || file.ends_with(".png")) 
+           && !file.starts_with("project.json") {
+            
+            let base_name = if file.starts_with("images/") {
+                file.strip_prefix("images/").unwrap_or(file)
+            } else {
+                file
+            };
+            
+            if !scene_names.contains(base_name) {
+                report.unused_files.push(file.clone());
+            }
+        }
+    }
+    
+    // Summary logging
+    if report.has_issues() {
+        tracing::info!(
+            "Validation complete: {} broken links removed, {} warnings, {} errors, {} orphaned scenes, {} unused files",
+            report.broken_links_removed,
+            report.warnings.len(),
+            report.errors.len(),
+            report.orphaned_scenes.len(),
+            report.unused_files.len()
+        );
+    } else {
+        tracing::info!("Validation complete: No issues found");
+    }
+    
+    Ok(report)
+}
 
 // --- OPTIMIZED HELPERS ---
 
@@ -254,7 +469,16 @@ fn resize_fast(img: &image::DynamicImage, target_width: u32, target_height: u32)
 }
 
 // --- Internal Processing Logic (Extracted for reuse) ---
-fn perform_metadata_extraction_rgba(src_rgba: &[u8], src_w: u32, src_h: u32, input_data: &[u8]) -> Result<MetadataResponse, String> {
+fn perform_metadata_extraction_rgba(src_rgba: &[u8], src_w: u32, src_h: u32, input_data: &[u8], original_filename: Option<&str>) -> Result<MetadataResponse, String> {
+    // Calculate SHA-256 checksum first (fast in Rust, ~10x faster than JS)
+    let checksum_start = std::time::Instant::now();
+    let mut hasher = Sha256::new();
+    hasher.update(input_data);
+    let hash_result = hasher.finalize();
+    let checksum = format!("{:x}_{}", hash_result, input_data.len());
+    let checksum_time = checksum_start.elapsed();
+    tracing::debug!("Checksum calculated in {:?}: {}...", checksum_time, &checksum[..16.min(checksum.len())]);
+
     // 0. Check for existing "reMX" specific metadata (PREVENTION of Re-optimization)
     if let Ok(webp) = WebP::from_bytes(Bytes::copy_from_slice(input_data)) {
         if let Some(chunk) = webp.chunk_by_id(*b"reMX") {
@@ -266,6 +490,8 @@ fn perform_metadata_extraction_rgba(src_rgba: &[u8], src_w: u32, src_h: u32, inp
             
             if let Ok(mut full_meta) = serde_json::from_slice::<MetadataResponse>(slice) {
                 full_meta.is_optimized = true;
+                full_meta.checksum = checksum.clone(); // Update with fresh checksum
+                full_meta.suggested_name = original_filename.map(get_suggested_name);
                 return Ok(full_meta);
             }
 
@@ -277,7 +503,9 @@ fn perform_metadata_extraction_rgba(src_rgba: &[u8], src_w: u32, src_h: u32, inp
                         focal_length: None, aperture: None, iso: None,
                       }, 
                       quality: prev_analysis,
-                      is_optimized: true
+                      is_optimized: true,
+                      checksum: checksum.clone(),
+                      suggested_name: original_filename.map(get_suggested_name),
                   });
             }
         }
@@ -455,13 +683,15 @@ fn perform_metadata_extraction_rgba(src_rgba: &[u8], src_w: u32, src_h: u32, inp
             issues, warnings,
             analysis: if analysis.is_empty() { None } else { Some(analysis.join(" ")) },
         },
-        is_optimized: false
+        is_optimized: false,
+        checksum,
+        suggested_name: original_filename.map(get_suggested_name),
     })
 }
 
-fn perform_metadata_extraction(img: &image::DynamicImage, input_data: &[u8]) -> Result<MetadataResponse, String> {
+fn perform_metadata_extraction(img: &image::DynamicImage, input_data: &[u8], original_filename: Option<&str>) -> Result<MetadataResponse, String> {
     let rgba = img.to_rgba8();
-    perform_metadata_extraction_rgba(&rgba, img.width(), img.height(), input_data)
+    perform_metadata_extraction_rgba(&rgba, img.width(), img.height(), input_data, original_filename)
 }
 
 // INJECTION HELPER
@@ -486,8 +716,18 @@ pub async fn process_image_full(mut payload: Multipart) -> Result<HttpResponse, 
     // PERFORMANCE: Pre-allocate buffer for typical 30MB panoramic images
     let mut data = Vec::with_capacity(32 * 1024 * 1024);
     let mut total_size = 0;
+    let mut original_filename: Option<String> = None;
     
     while let Some(mut field) = payload.try_next().await? {
+        // Capture filename if available
+        if original_filename.is_none() {
+            if let Some(content_disposition) = field.content_disposition() {
+                if let Some(filename) = content_disposition.get_filename() {
+                    original_filename = Some(filename.to_string());
+                }
+            }
+        }
+
         while let Some(chunk) = field.try_next().await? {
             total_size += chunk.len();
             if total_size > MAX_UPLOAD_SIZE {
@@ -508,7 +748,8 @@ pub async fn process_image_full(mut payload: Multipart) -> Result<HttpResponse, 
             .map_err(|e| format!("Failed to guess image format (size: {} bytes): {}", data_size, e))?
             .decode()
             .map_err(|e| format!("Failed to decode image (size: {} bytes): {}", data_size, e))?;
-        let decode_time = decode_start.elapsed();
+        let decode_time = decode_start.elapsed().as_millis();
+        tracing::info!(module = "Processor", duration_ms = decode_time, "IMAGE_DECODE_COMPLETE");
 
         // 0. Initial RGBA conversion
         let rgba_start = Instant::now();
@@ -518,7 +759,7 @@ pub async fn process_image_full(mut payload: Multipart) -> Result<HttpResponse, 
 
         // 1. Metadata Extraction
         let meta_start = Instant::now();
-        let metadata = perform_metadata_extraction_rgba(&src_rgba, src_w, src_h, &data)?;
+        let metadata = perform_metadata_extraction_rgba(&src_rgba, src_w, src_h, &data, original_filename.as_deref())?;
         let meta_time = meta_start.elapsed();
         
         // 2. Image Optimization (4K WebP)
@@ -584,6 +825,8 @@ pub async fn process_image_full(mut payload: Multipart) -> Result<HttpResponse, 
 
     match result_zip {
         Ok(zip_bytes) => {
+            let duration = total_start.elapsed().as_millis();
+            tracing::info!(module = "Processor", duration_ms = duration, "PROCESS_IMAGE_FULL_COMPLETE");
             Ok(HttpResponse::Ok()
                 .content_type("application/zip")
                 .body(zip_bytes))
@@ -594,6 +837,7 @@ pub async fn process_image_full(mut payload: Multipart) -> Result<HttpResponse, 
 
 #[tracing::instrument(skip(payload), name = "optimize_image")]
 pub async fn optimize_image(mut payload: Multipart) -> Result<HttpResponse, AppError> {
+    let start = Instant::now();
     // PERFORMANCE: Pre-allocate buffer for typical 30MB panoramic images
     let mut data = Vec::with_capacity(32 * 1024 * 1024);
     let mut total_size = 0;
@@ -611,11 +855,14 @@ pub async fn optimize_image(mut payload: Multipart) -> Result<HttpResponse, AppE
     }
 
     let result_bytes = web::block(move || -> Result<Vec<u8>, String> {
+        let start = Instant::now();
         let img = image::ImageReader::new(Cursor::new(data))
             .with_guessed_format()
             .map_err(|e| format!("Failed to guess format: {}", e))?
             .decode()
             .map_err(|e| format!("Failed to decode image: {}", e))?;
+        let duration = start.elapsed().as_millis();
+        tracing::info!(module = "Optimizer", duration_ms = duration, "IMAGE_DECODE_COMPLETE");
         
         // Use Lanczos3 for absolute sharpness in editor previews (via fast_image_resize)
         let resized = resize_fast(&img, PROCESSED_IMAGE_WIDTH, PROCESSED_IMAGE_WIDTH)
@@ -637,18 +884,25 @@ pub async fn optimize_image(mut payload: Multipart) -> Result<HttpResponse, AppE
         Ok(webp_bytes)
     }).await.map_err(|e| AppError::InternalError(e.to_string()))?;
 
+    let duration = start.elapsed().as_millis();
     match result_bytes {
         Ok(bytes) => {
+            tracing::info!(module = "Optimizer", duration_ms = duration, "OPTIMIZE_IMAGE_COMPLETE");
             Ok(HttpResponse::Ok()
                 .content_type("image/webp")
                 .body(bytes))
         },
-        Err(e) => Err(AppError::ImageError(e)),
+        Err(e) => {
+            tracing::error!(module = "Optimizer", duration_ms = duration, error = %e, "OPTIMIZE_IMAGE_FAILED");
+            Err(AppError::ImageError(e))
+        },
     }
 }
 
 #[tracing::instrument(skip(payload), name = "resize_image_batch")]
 pub async fn resize_image_batch(mut payload: Multipart) -> Result<HttpResponse, AppError> {
+    tracing::info!(module = "Resizer", "RESIZE_BATCH_START");
+    let start = Instant::now();
     // PERFORMANCE: Pre-allocate buffer for typical 30MB panoramic images
     let mut data = Vec::with_capacity(32 * 1024 * 1024);
     let mut total_size = 0;
@@ -708,19 +962,25 @@ pub async fn resize_image_batch(mut payload: Multipart) -> Result<HttpResponse, 
         Ok(zip_buffer.into_inner())
     }).await.map_err(|e| AppError::InternalError(e.to_string()))?;
 
+    let duration = start.elapsed().as_millis();
     match result_zip {
         Ok(zip_bytes) => {
-            tracing::info!("Batch resize successful, returning {} bytes", zip_bytes.len());
+            tracing::info!(module = "Resizer", duration_ms = duration, "RESIZE_BATCH_COMPLETE");
             Ok(HttpResponse::Ok()
                 .content_type("application/zip")
                 .body(zip_bytes))
         },
-        Err(e) => Err(AppError::ImageError(e))
+        Err(e) => {
+            tracing::error!(module = "Resizer", duration_ms = duration, error = %e, "RESIZE_BATCH_FAILED");
+            Err(AppError::ImageError(e))
+        }
     }
 }
 
 #[tracing::instrument(skip(payload), name = "create_tour_package")]
 pub async fn create_tour_package(mut payload: Multipart) -> Result<HttpResponse, AppError> {
+    tracing::info!(module = "Exporter", "EXPORT_START");
+    let start = Instant::now();
     let mut fields: HashMap<String, String> = HashMap::new();
     let mut image_files: Vec<(String, Vec<u8>)> = Vec::new();
 
@@ -852,19 +1112,23 @@ pub async fn create_tour_package(mut payload: Multipart) -> Result<HttpResponse,
         Ok(zip_buffer.into_inner())
     }).await.map_err(|e| AppError::InternalError(e.to_string()))?;
 
+    let duration = start.elapsed().as_millis();
     match result_zip {
         Ok(zip_bytes) => {
-            tracing::info!("Tour package created successfully, size: {} bytes", zip_bytes.len());
+            tracing::info!(module = "Exporter", duration_ms = duration, size = zip_bytes.len(), "EXPORT_COMPLETE");
             Ok(HttpResponse::Ok()
                 .content_type("application/zip")
                 .body(zip_bytes))
         },
-        Err(e) => Err(AppError::ZipError(e)),
+        Err(e) => {
+            tracing::error!(module = "Exporter", duration_ms = duration, error = %e, "EXPORT_FAILED");
+            Err(AppError::ZipError(e))
+        },
     }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct TelemetryPayload {
+pub struct TelemetryEntry {
     pub level: String,
     pub module: String,
     pub message: String,
@@ -872,14 +1136,19 @@ pub struct TelemetryPayload {
     pub timestamp: String,
 }
 
-#[derive(Serialize)]
-pub struct LoadProjectResponse {
-    pub session_id: String,
-    pub project_data: serde_json::Value,
-}
+// NOTE: LoadProjectResponse is no longer used - we now return ZIP directly
+// Keeping for reference during transition period
+// #[derive(Serialize)]
+// #[serde(rename_all = "camelCase")]
+// pub struct LoadProjectResponse {
+//     pub session_id: String,
+//     pub project_data: serde_json::Value,
+// }
 
 #[tracing::instrument(skip(payload), name = "save_project")]
 pub async fn save_project(mut payload: Multipart) -> Result<HttpResponse, AppError> {
+    tracing::info!(module = "ProjectManager", "SAVE_PROJECT_START");
+    let start = Instant::now();
     // 1. Prepare Zip Writer
     // We stream directly to a file in TEMP_DIR to avoid memory issues with huge projects
     // let zip_filename = format!("save_{}.zip", Uuid::new_v4()); // Unused
@@ -924,7 +1193,31 @@ pub async fn save_project(mut payload: Multipart) -> Result<HttpResponse, AppErr
     let final_zip_path = zip_path.clone();
     let json_content = project_json.ok_or_else(|| AppError::MultipartError(actix_multipart::MultipartError::Incomplete))?;
     
-    let _ = web::block(move || -> Result<(), std::io::Error> {
+    // Run validation before saving
+    let temp_images_for_validation = temp_images.clone();
+    let (validated_json, _report) = web::block(move || -> Result<(String, ValidationReport), String> {
+        let mut project_data: serde_json::Value = serde_json::from_str(&json_content)
+            .map_err(|e| format!("Invalid project JSON: {}", e))?;
+        
+        // For save-project, available files are the ones being uploaded
+        let mut available_files = HashSet::new();
+        for (name, _) in &temp_images_for_validation {
+            available_files.insert(name.clone());
+        }
+        
+        let report = validate_and_clean_project(&mut project_data, &available_files)?;
+        
+        // Embed report
+        project_data["validationReport"] = serde_json::to_value(&report)
+            .map_err(|e| format!("Failed to serialize report: {}", e))?;
+            
+        let updated_json = serde_json::to_string_pretty(&project_data)
+            .map_err(|e| e.to_string())?;
+            
+        Ok((updated_json, report))
+    }).await.map_err(|e| AppError::InternalError(e.to_string()))??;
+
+    let zip_creation_result = web::block(move || -> Result<(), std::io::Error> {
         let file = fs::File::create(&final_zip_path)?;
         let mut zip = zip::ZipWriter::new(file);
         let options = FileOptions::default()
@@ -933,7 +1226,7 @@ pub async fn save_project(mut payload: Multipart) -> Result<HttpResponse, AppErr
             
         // Write JSON
         zip.start_file("project.json", options)?;
-        zip.write_all(json_content.as_bytes())?;
+        zip.write_all(validated_json.as_bytes())?;
         
         // Write Images
         for (filename, path) in temp_images {
@@ -947,64 +1240,227 @@ pub async fn save_project(mut payload: Multipart) -> Result<HttpResponse, AppErr
         
         zip.finish()?;
         Ok(())
-    }).await.map_err(|e| AppError::InternalError(e.to_string()))??;
+    }).await.map_err(|e| AppError::InternalError(e.to_string()))?;
     
     // 4. Stream Back the ZIP
-    let zip_file = fs::File::open(&zip_path).map_err(AppError::IoError)?;
-    let metadata = zip_file.metadata().map_err(AppError::IoError)?;
-    
-    let mut buffer = Vec::with_capacity(metadata.len() as usize);
-    let mut reader = std::io::BufReader::new(zip_file);
-    std::io::copy(&mut reader, &mut buffer).map_err(AppError::IoError)?;
-    
-    // Clean up
-    let _ = fs::remove_file(zip_path);
+    let duration = start.elapsed().as_millis();
+    match zip_creation_result {
+        Ok(_) => {
+            let zip_file = fs::File::open(&zip_path).map_err(AppError::IoError)?;
+            let metadata = zip_file.metadata().map_err(AppError::IoError)?;
+            
+            let mut buffer = Vec::with_capacity(metadata.len() as usize);
+            let mut reader = std::io::BufReader::new(zip_file);
+            std::io::copy(&mut reader, &mut buffer).map_err(AppError::IoError)?;
+            
+            // Clean up
+            let _ = fs::remove_file(&zip_path);
 
-    Ok(HttpResponse::Ok()
-        .content_type("application/zip")
-        .body(buffer))
+            tracing::info!(module = "ProjectManager", duration_ms = duration, "SAVE_PROJECT_COMPLETE");
+
+            Ok(HttpResponse::Ok()
+                .content_type("application/zip")
+                .body(buffer))
+        },
+        Err(e) => {
+            let _ = fs::remove_file(&zip_path); // Clean up on error too
+            tracing::error!(module = "ProjectManager", duration_ms = duration, error = %e, "SAVE_PROJECT_FAILED");
+            Err(e.into())
+        }
+    }
 }
 
-#[tracing::instrument(skip(payload), name = "load_project")]
-pub async fn load_project(mut payload: Multipart) -> Result<HttpResponse, AppError> {
+/// Validate a project ZIP without loading it
+/// Returns a ValidationReport JSON with warnings and errors
+#[tracing::instrument(skip(payload), name = "validate_project")]
+pub async fn validate_project(mut payload: Multipart) -> Result<HttpResponse, AppError> {
+    tracing::info!(module = "Validator", "VALIDATE_PROJECT_START");
+    let start = Instant::now();
     let mut zip_data = Vec::new();
     
-    // 1. Read ZIP Upload (Stream to memory if fits, else file? Let's buffer in memory for load)
     while let Some(mut field) = payload.try_next().await? {
         while let Some(chunk) = field.try_next().await? {
             zip_data.extend_from_slice(&chunk);
-             if zip_data.len() > MAX_UPLOAD_SIZE {
+            if zip_data.len() > MAX_UPLOAD_SIZE {
                 return Err(AppError::ImageError("Project too large".into()));
             }
         }
     }
     
-    let session_id = Uuid::new_v4().to_string();
-    let session_path = get_session_path(&session_id);
+    let report = web::block(move || -> Result<ValidationReport, String> {
+        use std::io::Read;
+        
+        let cursor = Cursor::new(&zip_data);
+        let mut archive = zip::ZipArchive::new(cursor)
+            .map_err(|e| format!("Failed to read ZIP: {}", e))?;
+        
+        // Collect list of files in ZIP for validation
+        let mut available_files = HashSet::new();
+        for i in 0..archive.len() {
+            if let Ok(file) = archive.by_index(i) {
+                available_files.insert(file.name().to_string());
+            }
+        }
+
+        let mut project_file = archive.by_name("project.json")
+            .map_err(|e| format!("Missing project.json: {}", e))?;
+        let mut project_json = String::new();
+        project_file.read_to_string(&mut project_json)
+            .map_err(|e| format!("Failed to read project.json: {}", e))?;
+        drop(project_file);
+        
+        let mut project_data: serde_json::Value = serde_json::from_str(&project_json)
+            .map_err(|e| format!("Invalid project.json: {}", e))?;
+        
+        validate_and_clean_project(&mut project_data, &available_files)
+    }).await.map_err(|e| AppError::InternalError(e.to_string()))?;
     
-    // 2. Unzip and Process
-    let project_data = web::block(move || -> Result<serde_json::Value, String> {
-        // Create Session Dir
-        fs::create_dir_all(&session_path).map_err(|e| e.to_string())?;
-        
-        let reader = Cursor::new(zip_data);
-        let mut zip = zip::ZipArchive::new(reader).map_err(|e| e.to_string())?;
-        
-        // Extract Everything
-        zip.extract(&session_path).map_err(|e| e.to_string())?;
-        
-        // Read project.json
-        let json_path = session_path.join("project.json");
-        let json_str = fs::read_to_string(json_path).map_err(|e| e.to_string())?;
-        let json: serde_json::Value = serde_json::from_str(&json_str).map_err(|e| e.to_string())?;
-        
-        Ok(json)
-    }).await.map_err(|e| AppError::InternalError(e.to_string()))??;
+    let duration = start.elapsed().as_millis();
+    match report {
+        Ok(validation_report) => {
+            tracing::info!(module = "Validator", duration_ms = duration, "VALIDATE_PROJECT_COMPLETE");
+            Ok(HttpResponse::Ok().json(validation_report))
+        },
+        Err(e) => {
+            tracing::error!(module = "Validator", duration_ms = duration, error = %e, "VALIDATE_PROJECT_FAILED");
+            Err(AppError::InternalError(e))
+        },
+    }
+}
+
+#[tracing::instrument(skip(payload), name = "load_project")]
+pub async fn load_project(mut payload: Multipart) -> Result<HttpResponse, AppError> {
+    tracing::info!(module = "ProjectManager", "LOAD_PROJECT_START");
+    let start = Instant::now();
+    let mut zip_data = Vec::new();
     
-    Ok(HttpResponse::Ok().json(LoadProjectResponse {
-        session_id,
-        project_data
-    }))
+    // 1. Read ZIP Upload into memory
+    while let Some(mut field) = payload.try_next().await? {
+        while let Some(chunk) = field.try_next().await? {
+            zip_data.extend_from_slice(&chunk);
+            if zip_data.len() > MAX_UPLOAD_SIZE {
+                return Err(AppError::ImageError("Project too large".into()));
+            }
+        }
+    }
+
+    tracing::info!("Received project ZIP: {} bytes", zip_data.len());
+    
+    // 2. Process in blocking thread - create response ZIP with project.json + all images
+    let result_zip = web::block(move || -> Result<Vec<u8>, String> {
+        use std::io::Read;
+        
+        // Open uploaded ZIP archive
+        let cursor = Cursor::new(&zip_data);
+        let mut archive = zip::ZipArchive::new(cursor)
+            .map_err(|e| format!("Failed to read ZIP: {}", e))?;
+        
+        // 1. Collect list of files in ZIP for validation
+        let mut available_files = HashSet::new();
+        for i in 0..archive.len() {
+            if let Ok(file) = archive.by_index(i) {
+                available_files.insert(file.name().to_string());
+            }
+        }
+        
+        // 2. Extract project.json
+        let mut project_file = archive.by_name("project.json")
+            .map_err(|e| format!("Missing project.json: {}", e))?;
+        let mut project_json = String::new();
+        project_file.read_to_string(&mut project_json)
+            .map_err(|e| format!("Failed to read project.json: {}", e))?;
+        drop(project_file);
+        
+        let mut project_data: serde_json::Value = serde_json::from_str(&project_json)
+            .map_err(|e| format!("Invalid project.json: {}", e))?;
+        
+        // 3. Validate and clean project
+        let validation_report = validate_and_clean_project(&mut project_data, &available_files)?;
+        
+        // Log validation results
+        if validation_report.has_issues() {
+            tracing::warn!("Project validation found issues: {} broken links removed", 
+                validation_report.broken_links_removed);
+        }
+        
+        // Add validation report to project data
+        project_data["validationReport"] = serde_json::to_value(&validation_report)
+            .map_err(|e| format!("Failed to serialize validation report: {}", e))?;
+        
+        // 4. Create response ZIP containing validated project.json + all images normalized in images/
+        let mut response_zip_buffer = Cursor::new(Vec::new());
+        {
+            let mut zip_writer = zip::ZipWriter::new(&mut response_zip_buffer);
+            let options = FileOptions::default()
+                .compression_method(zip::CompressionMethod::Stored)
+                .unix_permissions(0o755);
+            
+            // Add validated project.json
+            zip_writer.start_file("project.json", options)
+                .map_err(|e| e.to_string())?;
+            let updated_json = serde_json::to_string_pretty(&project_data)
+                .map_err(|e| e.to_string())?;
+            zip_writer.write_all(updated_json.as_bytes())
+                .map_err(|e| e.to_string())?;
+            
+            // Copy all image files, normalizing to images/ folder
+            for i in 0..archive.len() {
+                let mut file = archive.by_index(i)
+                    .map_err(|e| format!("Failed to read file {}: {}", i, e))?;
+                
+                let filename = file.name().to_string();
+                
+                // Skip project.json
+                if filename == "project.json" {
+                    continue;
+                }
+                
+                // Include files in images/ directory or root-level image files
+                if filename.starts_with("images/") || 
+                   filename.ends_with(".webp") || 
+                   filename.ends_with(".jpg") || 
+                   filename.ends_with(".jpeg") || 
+                   filename.ends_with(".png") {
+                    
+                    let mut zip_path = filename.clone();
+                    // Normalize images into images/ folder if not already there
+                    if (filename.ends_with(".webp") || filename.ends_with(".jpg") || filename.ends_with(".jpeg") || filename.ends_with(".png")) 
+                       && !filename.starts_with("images/") {
+                        zip_path = format!("images/{}", filename);
+                    }
+                    
+                    zip_writer.start_file(&zip_path, options)
+                        .map_err(|e| e.to_string())?;
+                    
+                    let mut buffer = Vec::new();
+                    file.read_to_end(&mut buffer)
+                        .map_err(|e| e.to_string())?;
+                    
+                    zip_writer.write_all(&buffer)
+                        .map_err(|e| e.to_string())?;
+                }
+            }
+            
+            zip_writer.finish()
+                .map_err(|e| e.to_string())?;
+        }
+        
+        Ok(response_zip_buffer.into_inner())
+    }).await.map_err(|e| AppError::InternalError(e.to_string()))?;
+    
+    let duration = start.elapsed().as_millis();
+    match result_zip {
+        Ok(zip_bytes) => {
+            tracing::info!(module = "ProjectManager", duration_ms = duration, "LOAD_PROJECT_COMPLETE");
+            Ok(HttpResponse::Ok()
+                .content_type("application/zip")
+                .body(zip_bytes))
+        },
+        Err(e) => {
+            tracing::error!(module = "ProjectManager", duration_ms = duration, error = %e, "LOAD_PROJECT_FAILED");
+            Err(e.into())
+        },
+    }
 }
 
 // Handler for serving session files
@@ -1037,42 +1493,131 @@ pub async fn serve_session_file(path: web::Path<(String, String)>) -> Result<Htt
         .body(data))
 }
 
-#[tracing::instrument(skip(payload), name = "log_telemetry")]
-pub async fn log_telemetry(payload: web::Json<TelemetryPayload>) -> Result<HttpResponse, AppError> {
+async fn rotate_log_file(path: &std::path::Path) -> std::io::Result<()> {
+    let stem = path.file_stem().unwrap().to_str().unwrap();
+    let ext = path.extension().map(|e| e.to_str().unwrap()).unwrap_or("log");
+    let dir = path.parent().unwrap();
+    
+    // Shift existing rotated files
+    for i in (1..MAX_LOG_FILES).rev() {
+        let old = dir.join(format!("{}.{}.{}", stem, i, ext));
+        let new = dir.join(format!("{}.{}.{}", stem, i + 1, ext));
+        if let Ok(exists) = tokio::fs::try_exists(&old).await {
+            if exists {
+                tokio::fs::rename(&old, &new).await?;
+            }
+        }
+    }
+    
+    // Rotate current file to .1
+    let rotated = dir.join(format!("{}.1.{}", stem, ext));
+    tokio::fs::rename(path, &rotated).await?;
+    
+    // Delete oldest if over limit
+    let oldest = dir.join(format!("{}.{}.{}", stem, MAX_LOG_FILES, ext));
+    if let Ok(exists) = tokio::fs::try_exists(&oldest).await {
+        if exists {
+            tokio::fs::remove_file(oldest).await?;
+        }
+    }
+    
+    Ok(())
+}
+
+#[allow(dead_code)] // Helper for rotation
+async fn append_to_log(path: &str, content: &str) -> std::io::Result<()> {
+    use tokio::fs::OpenOptions;
+    use tokio::io::AsyncWriteExt;
+    
     // Support configurable log directory via environment variable
     let log_dir_str = std::env::var("LOG_DIR").unwrap_or_else(|_| "../logs".to_string());
-    let log_dir = std::path::Path::new(&log_dir_str);
-    
-    if !log_dir.exists() {
-        fs::create_dir_all(log_dir).ok();
+    let log_file_path = std::path::Path::new(&log_dir_str).join(path);
+
+    // Check if rotation is needed
+    if let Ok(metadata) = tokio::fs::metadata(&log_file_path).await {
+        if metadata.len() > MAX_LOG_SIZE {
+             if let Err(e) = rotate_log_file(&log_file_path).await {
+                 tracing::error!("Failed to rotate log file: {}", e);
+             }
+        }
     }
 
-    let log_entry = format!(
-        "[{}] [{}] [{}] {} - {:?}\n",
-        payload.timestamp,
-        payload.level.to_uppercase(),
-        payload.module,
-        payload.message,
-        payload.data
-    );
-
-    // 1. Write to general telemetry log (everything)
-    let log_file_path = log_dir.join("telemetry.log");
-    let mut file = fs::OpenOptions::new()
+    let mut file = OpenOptions::new()
         .create(true)
         .append(true)
-        .open(log_file_path)?;
-    file.write_all(log_entry.as_bytes())?;
+        .open(log_file_path)
+        .await?;
+    
+    file.write_all(content.as_bytes()).await?;
+    file.flush().await?;
+    
+    Ok(())
+}
 
-    // 2. Write to dedicated error log (errors only)
-    if payload.level.to_uppercase() == "ERROR" {
-        let error_file_path = log_dir.join("error.log");
-        let mut error_file = fs::OpenOptions::new()
-            .create(true)
-            .append(true)
-            .open(error_file_path)?;
-        error_file.write_all(log_entry.as_bytes())?;
+#[tracing::instrument(name = "cleanup_logs")]
+pub async fn cleanup_logs() -> impl actix_web::Responder {
+    let log_dir_str = std::env::var("LOG_DIR").unwrap_or_else(|_| "../logs".to_string());
+    
+    // Use spawn_blocking for fs traversal as it's sync
+    let result = web::block(move || -> std::io::Result<i32> {
+        let logs_dir = std::path::Path::new(&log_dir_str);
+        if !logs_dir.exists() {
+             return Ok(0);
+        }
+        
+        let mut count = 0;
+        if let Ok(entries) = fs::read_dir(logs_dir) {
+            for entry in entries {
+                 if let Ok(entry) = entry {
+                     if let Ok(metadata) = entry.metadata() {
+                         if let Ok(modified) = metadata.modified() {
+                             if let Ok(age) = modified.elapsed() {
+                                 if age > Duration::from_secs(LOG_RETENTION_DAYS * 24 * 60 * 60) {
+                                      fs::remove_file(entry.path()).ok();
+                                      count += 1;
+                                 }
+                             }
+                         }
+                     }
+                 }
+            }
+        }
+        Ok(count)
+    }).await;
+
+    match result {
+         Ok(Ok(count)) => HttpResponse::Ok().json(serde_json::json!({ "deleted": count })),
+         _ => HttpResponse::InternalServerError().finish()
     }
+}
+
+#[tracing::instrument(skip(entry), name = "log_telemetry")]
+pub async fn log_telemetry(entry: web::Json<TelemetryEntry>) -> Result<HttpResponse, AppError> {
+    // Append to telemetry.log as JSON line
+    let line = serde_json::to_string(&entry.into_inner()).unwrap_or_default() + "\n";
+    
+    if let Err(e) = append_to_log("telemetry.log", &line).await {
+        tracing::error!("Failed to write telemetry: {}", e);
+    }
+    
+    Ok(HttpResponse::Ok().finish())
+}
+
+#[tracing::instrument(skip(entry), name = "log_error")]
+pub async fn log_error(entry: web::Json<TelemetryEntry>) -> Result<HttpResponse, AppError> {
+    let entry_inner = entry.into_inner();
+    
+    // Append to error.log as plaintext
+    let line = format!("[{}] [{}] {} - {:?}\n", 
+        entry_inner.timestamp, entry_inner.module, entry_inner.message, entry_inner.data);
+    
+    if let Err(e) = append_to_log("error.log", &line).await {
+        tracing::error!("Failed to write error log: {}", e);
+    }
+    
+    // Also append to telemetry for completeness
+    let json_line = serde_json::to_string(&entry_inner).unwrap_or_default() + "\n";
+    let _ = append_to_log("telemetry.log", &json_line).await;
     
     Ok(HttpResponse::Ok().finish())
 }
@@ -1082,8 +1627,17 @@ pub async fn extract_metadata(mut payload: Multipart) -> Result<HttpResponse, Ap
     // PERFORMANCE: Pre-allocate buffer for typical 30MB panoramic images
     let mut data = Vec::with_capacity(32 * 1024 * 1024);
     let mut total_size = 0;
+    let mut original_filename: Option<String> = None;
     
     while let Some(mut field) = payload.try_next().await? {
+        if original_filename.is_none() {
+            if let Some(content_disposition) = field.content_disposition() {
+                if let Some(filename) = content_disposition.get_filename() {
+                    original_filename = Some(filename.to_string());
+                }
+            }
+        }
+
         while let Some(chunk) = field.try_next().await? {
             total_size += chunk.len();
             if total_size > MAX_UPLOAD_SIZE {
@@ -1095,6 +1649,7 @@ pub async fn extract_metadata(mut payload: Multipart) -> Result<HttpResponse, Ap
         }
     }
 
+    let start = Instant::now();
     let result = web::block(move || -> Result<MetadataResponse, String> {
         let img = image::ImageReader::new(Cursor::new(&data))
             .with_guessed_format()
@@ -1102,12 +1657,19 @@ pub async fn extract_metadata(mut payload: Multipart) -> Result<HttpResponse, Ap
             .decode()
             .map_err(|e| format!("Failed to decode: {}", e))?;
 
-        perform_metadata_extraction(&img, &data)
+        perform_metadata_extraction(&img, &data, original_filename.as_deref())
     }).await.map_err(|e| AppError::InternalError(e.to_string()))?;
 
+    let duration = start.elapsed().as_millis();
     match result {
-        Ok(data) => Ok(HttpResponse::Ok().json(data)),
-        Err(e) => Err(AppError::ImageError(e)),
+        Ok(data) => {
+            tracing::info!(module = "Extractor", duration_ms = duration, "EXTRACT_METADATA_COMPLETE");
+            Ok(HttpResponse::Ok().json(data))
+        },
+        Err(e) => {
+            tracing::error!(module = "Extractor", duration_ms = duration, error = %e, "EXTRACT_METADATA_FAILED");
+            Err(AppError::ImageError(e))
+        },
     }
 }
 
@@ -1266,7 +1828,7 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
         // 2. Navigate to Frontend
         // Ensure this URL is reachable from the backend process
         // Note: Make sure the frontend is running!
-        tab.navigate_to("http://localhost:5173").map_err(|e| format!("Nav failed: {}", e))?;
+        tab.navigate_to("http://localhost:8080").map_err(|e| format!("Nav failed: {}", e))?;
         tab.wait_until_navigated().map_err(|e| format!("Nav timeout: {}", e))?;
 
         // 3. Inject Project Data & Loader Script
@@ -1449,6 +2011,13 @@ mod tests {
 
         // Probe removed
     
+    #[test]
+    fn test_suggested_name() {
+        assert_eq!(get_suggested_name("_260113_01_005.jpg"), "260113_005");
+        assert_eq!(get_suggested_name("DSC_001.JPG"), "DSC_001");
+        assert_eq!(get_suggested_name("plain_file"), "plain_file");
+    }
+
     #[test]
     fn test_quality_analysis_serialization() {
        let analysis = QualityAnalysis {

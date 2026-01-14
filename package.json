@@ -1,16 +1,18 @@
 {
   "name": "robust-virtual-tour-builder",
-  "version": "4.2.1",
+  "version": "4.2.2",
   "description": "A high-performance, professional-grade virtual tour creation platform designed for real estate and immersive space documentation. This application combines a fluid web-based frontend with a powerful Rust-driven backend to deliver seamless panoramic processing and tour management.",
   "main": "index.js",
   "directories": {
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm run res:build && cd backend && cargo test",
     "res:build": "rescript",
     "res:watch": "rescript watch",
-    "res:clean": "rescript clean"
+    "res:clean": "rescript clean",
+    "css:build": "tailwindcss -i ./css/input.css -o ./css/output.css",
+    "build": "npm run css:build && npm run res:build"
   },
   "repository": {
     "type": "git",
@@ -32,6 +34,8 @@
   },
   "dependencies": {
     "@rescript/react": "^0.14.0",
+    "exifreader": "^4.36.0",
+    "jszip": "^3.10.1",
     "react": "^19.2.3",
     "react-dom": "^19.2.3"
   }

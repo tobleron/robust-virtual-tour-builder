@@ -25,11 +25,11 @@ let sanitizeName = (name, ~maxLength=255) => {
       name
       ->String.trim
       // Remove control characters and invalid filesystem characters
-      ->String.replaceRegExp(%re("/[\\x00-\\x1F\\x7F<>:\"\\/\\\\|?*]/g"), "_")
+      ->String.replaceRegExp(/[\\x00-\\x1F\\x7F<>:\"\\/\\\\|?*]/g, "_")
       // Replace multiple spaces/underscores with single underscore
-      ->String.replaceRegExp(%re("/[\\s_]+/g"), "_")
+      ->String.replaceRegExp(/[\\s_]+/g, "_")
       // Remove leading/trailing underscores
-      ->String.replaceRegExp(%re("/^_+|_+$/g"), "")
+      ->String.replaceRegExp(/^_+|_+$/g, "")
       ->String.substring(~start=0, ~end=maxLength)
 
     if sanitized == "" {
@@ -79,8 +79,8 @@ let computeSceneFilename = (index, label) => {
     let sanitizedLabel = sanitizeName(label, ~maxLength=200)
     let baseSlug =
       sanitizedLabel
-      ->String.replaceRegExp(%re("/[\\s-]+/g"), "_")
-      ->String.replaceRegExp(%re("/[^a-z0-9_]/gi"), "")
+      ->String.replaceRegExp(/[\\s-]+/g, "_")
+      ->String.replaceRegExp(/[^a-z0-9_]/gi, "")
       ->String.toLowerCase
 
     prefix ++ "_" ++ baseSlug ++ ".webp"
@@ -115,10 +115,7 @@ let validateTourIntegrity = (state: state) => {
       totalHotspots.contents = totalHotspots.contents + 1
       if !Belt.Set.String.has(sceneNames, hs.target) {
         orphanedLinks.contents = orphanedLinks.contents + 1
-        let _ = Array.push(
-          details,
-          {"sourceScene": scene.name, "targetMissing": hs.target},
-        )
+        let _ = Array.push(details, {"sourceScene": scene.name, "targetMissing": hs.target})
       }
     })
   })
@@ -126,6 +123,6 @@ let validateTourIntegrity = (state: state) => {
   {
     totalHotspots: totalHotspots.contents,
     orphanedLinks: orphanedLinks.contents,
-    details: details,
+    details,
   }
 }
