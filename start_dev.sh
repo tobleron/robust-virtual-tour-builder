@@ -5,8 +5,15 @@ trap "kill 0" EXIT
 
 echo "--- Remax VTB Pure Rust Dev Environment ---"
 
+# Pre-flight: Basic dependency check
+if [ ! -d "node_modules" ]; then
+    echo "⚠️  node_modules not found. Running initial setup..."
+    ./scripts/setup.sh
+fi
+
 # Pre-flight: Clean up existing processes on dev ports
 echo "Checking for stale processes on port 8080..."
+
 for port in 8080; do
     PID=$(lsof -ti :$port)
     if [ ! -z "$PID" ]; then
@@ -21,12 +28,16 @@ echo "[0/2] Initializing AntiGravity Safety Net..."
 ./scripts/ensure-watcher.sh
 
 # 1. Start Tailwind CSS Watcher
-if [ -f "./bin/tailwindcss" ]; then
-    echo "[1/2] Starting Tailwind CSS Watcher..."
+echo "[1/2] Starting Tailwind CSS Watcher..."
+if npm list tailwindcss > /dev/null 2>&1 || [ -f "node_modules/.bin/tailwindcss" ]; then
+    npm run css:watch &
+elif [ -f "./bin/tailwindcss" ]; then
+    echo "ℹ️  Using local tailwind binary fallback."
     ./bin/tailwindcss -i ./css/tailwind.css -o ./css/output.css --watch &
 else
-    echo "⚠️  Tailwind binary not found. Skipping."
+    echo "⚠️  Tailwind not found. Please run './scripts/setup.sh'."
 fi
+
 
 # 1.5. Start ReScript Watcher
 echo "[1.5/2] Starting ReScript Watcher..."

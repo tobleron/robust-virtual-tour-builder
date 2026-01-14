@@ -46,18 +46,22 @@ Remax VTB is a comprehensive suite for building, editing, and exporting interact
 
 ### Development Environment
 
-**Recommended (All-in-one):**
+**Recommended (One-step setup):**
 ```bash
-# Start backend, Tailwind watcher, and frontend (port 9999)
+# Install dependencies, build ReScript, and prepare environment
+./scripts/setup.sh
+
+# Start backend, compilers, and safety net
 ./start_dev.sh
 ```
 
 **Manual Setup:**
-1. **Frontend**:
+1. **Frontend (ReScript + React)**:
    ```bash
    npm install
-   npm run dev
+   npm run res:build
    ```
+
 2. **Backend**:
    ```bash
    cd backend

@@ -723,6 +723,7 @@
 │   ├── dev-mode.sh
 │   ├── ensure-watcher.sh
 │   ├── restore-snapshot.sh
+│   ├── setup.sh
 │   ├── test-logging.js
 │   └── watch-file-limits.sh
 ├── sounds
@@ -931,9 +932,10 @@
 │   │   ├── 65_Cleanup_Dead_Code.md
 │   │   ├── 66_Extract_Backend_Domain_Types.md
 │   │   ├── 67_Extract_Media_Service.md
-│   │   └── 68_Extract_Project_Service.md
+│   │   ├── 68_Extract_Project_Service.md
+│   │   ├── 69_Extract_Geocoding_Service_REPORT.md
+│   │   └── 69_Extract_Geocoding_Service.md
 │   ├── pending
-│   │   ├── 69_Extract_Geocoding_Service.md
 │   │   ├── 70_Modularize_Handlers_And_Routing.md
 │   │   ├── 71_Pathfinder_Hardening.md
 │   │   └── 72_Refactor_handlers.md
@@ -944,4 +946,4 @@
 └── tests
     └── SimulationSystem_test.res
 
-33 directories, 912 files
+33 directories, 914 files
