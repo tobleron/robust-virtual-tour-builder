@@ -186,7 +186,6 @@ let parseTimelineItem = (json: JSON.t): timelineItem => {
 
 let reducer = (state: state, action: action): state => {
   switch action {
-  // ... existing cases ...
   | SetPreloadingScene(index) => {...state, preloadingSceneIndex: index}
   | SetLinkDraft(draft) => {...state, linkDraft: draft}
   | SetIsLinking(val) => {...state, isLinking: val}

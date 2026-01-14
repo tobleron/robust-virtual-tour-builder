@@ -2,7 +2,7 @@
 
 open Types
 open ReBindings
-open EventBus
+open! EventBus
 
 // Constants
 let hotspotVisualOffsetDegrees = 15.0

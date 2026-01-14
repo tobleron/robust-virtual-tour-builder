@@ -232,6 +232,7 @@ module Fetch = {
     method: string,
     body: 'body,
     headers: Nullable.t<dict<string>>,
+    signal?: AbortController.signal,
   }
 
   @val external fetch: (string, requestInit<'body>) => Promise.t<response> = "fetch"

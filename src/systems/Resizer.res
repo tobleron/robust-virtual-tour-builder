@@ -96,7 +96,7 @@ let checkBackendHealth = () => {
       method: "GET",
       body: Nullable.null,
       headers: Nullable.null,
-      //   signal: Some(signal) -> TODO: need to add signal to requestInit binding
+      signal: _signal,
     },
   )
   ->Promise.then(res => {
