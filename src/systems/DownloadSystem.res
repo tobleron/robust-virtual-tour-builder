@@ -2,7 +2,7 @@
 
 open ReBindings
 
-@module("../constants.js") external cleanupDelay: int = "BLOB_URL_CLEANUP_DELAY"
+let cleanupDelay = Constants.blobUrlCleanupDelay
 
 /* File System Access API Types */
 type fileHandle

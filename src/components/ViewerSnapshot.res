@@ -63,5 +63,5 @@ let requestIdleSnapshot = () => {
       | None => ()
       }
       state.idleSnapshotTimeout = Nullable.null
-    }, ReBindings.Constants.idleSnapshotDelay))
+    }, Constants.idleSnapshotDelay))
 }

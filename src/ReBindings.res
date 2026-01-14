@@ -37,17 +37,7 @@ module JSZip = {
 /* 3. Rest of the bindings */
 
 
-module Constants = {
-  @module("./constants.js") external panningVelocity: float = "PANNING_VELOCITY"
-  @module("./constants.js") external panningMinDuration: float = "PANNING_MIN_DURATION"
-  @module("./constants.js") external panningMaxDuration: float = "PANNING_MAX_DURATION"
-  @module("./constants.js") external backendUrl: string = "BACKEND_URL"
-  @module("./constants.js") external roomLabelPresets: dict<array<string>> = "ROOM_LABEL_PRESETS"
-  @module("./constants.js") external idleSnapshotDelay: int = "IDLE_SNAPSHOT_DELAY"
-  @module("./constants.js") external sceneLoadTimeout: int = "SCENE_LOAD_TIMEOUT"
-  @module("./constants.js") external blobUrlCleanupDelay: int = "BLOB_URL_CLEANUP_DELAY"
-  @module("./constants.js") external progressBarAutoHideDelay: int = "PROGRESS_BAR_AUTO_HIDE_DELAY"
-}
+
 
 
 
