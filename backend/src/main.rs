@@ -7,6 +7,8 @@ use tracing_actix_web::TracingLogger;
 
 mod handlers;
 mod models;
+mod services;
+
 mod pathfinder;
 
 async fn health_check() -> impl Responder {

@@ -11,7 +11,10 @@
 │       ├── models
 │       │   ├── errors.rs
 │       │   └── mod.rs
-│       └── pathfinder.rs
+│       ├── pathfinder.rs
+│       └── services
+│           ├── media.rs
+│           └── mod.rs
 ├── bin
 │   └── tailwindcss
 ├── css
@@ -923,9 +926,9 @@
 │   │   ├── 64_Migrate_Constants_To_ReScript.md
 │   │   ├── 65_Cleanup_Dead_Code_REPORT.md
 │   │   ├── 65_Cleanup_Dead_Code.md
-│   │   └── 66_Extract_Backend_Domain_Types.md
+│   │   ├── 66_Extract_Backend_Domain_Types.md
+│   │   └── 67_Extract_Media_Service.md
 │   ├── pending
-│   │   ├── 67_Extract_Media_Service.md
 │   │   ├── 68_Extract_Project_Service.md
 │   │   ├── 69_Extract_Geocoding_Service.md
 │   │   ├── 70_Modularize_Handlers_And_Routing.md
@@ -937,4 +940,4 @@
 └── tests
     └── SimulationSystem_test.res
 
-32 directories, 906 files
+33 directories, 908 files
