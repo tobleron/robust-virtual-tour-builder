@@ -165,6 +165,7 @@ module Loader = {
     capturedPrevSceneId: option<string>,
     anticipatoryTargetIndex: option<int>,
   ) => {
+    let _ = LazyLoad.loadPannellum()->Promise.then(() => {
     let isAnticipatory = Belt.Option.isSome(anticipatoryTargetIndex)
     let targetIndex = switch anticipatoryTargetIndex {
     | Some(i) => i
@@ -210,6 +211,7 @@ module Loader = {
         }
       | None => false
       }
+
 
       if !shouldReuse {
         if state.isSceneLoading && !isAnticipatory {
@@ -508,5 +510,7 @@ module Loader = {
       }
     | None => ()
     }
+    Promise.resolve()
+    })
   }
 }
