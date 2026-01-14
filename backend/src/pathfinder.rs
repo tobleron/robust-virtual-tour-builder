@@ -111,9 +111,49 @@ fn get_default_view() -> ArrivalView {
     ArrivalView { yaw: 0.0, pitch: 0.0 }
 }
 
-pub fn calculate_walk_path(scenes: Vec<Scene>, skip_auto_forward: bool) -> Vec<Step> {
+fn follow_auto_forward_chain(
+    scenes: &[Scene],
+    start_idx: usize,
+    visited: &mut HashSet<usize>,
+    require_return_link: bool,
+) -> Result<usize, String> {
+    let mut current_idx = start_idx;
+    let mut chain_counter = 0;
+
+    while chain_counter < 10 {
+        let scene = scenes.get(current_idx)
+            .ok_or_else(|| format!("Pathfinding error: Scene index {} out of bounds", current_idx))?;
+            
+        if !scene.is_auto_forward {
+            break;
+        }
+
+        visited.insert(current_idx);
+
+        let jump_link = scene.hotspots.iter().find(|h| {
+            if require_return_link && !h.is_return_link.unwrap_or(false) {
+                return false;
+            }
+            match find_scene_index(scenes, &h.target) {
+                Some(idx) => !visited.contains(&idx),
+                None => false,
+            }
+        });
+
+        if let Some(link) = jump_link {
+            current_idx = find_scene_index(scenes, &link.target)
+                .ok_or_else(|| format!("Pathfinding error: Junction scene '{}' not found", link.target))?;
+        } else {
+            break;
+        }
+        chain_counter += 1;
+    }
+    Ok(current_idx)
+}
+
+pub fn calculate_walk_path(scenes: Vec<Scene>, skip_auto_forward: bool) -> Result<Vec<Step>, String> {
     if scenes.is_empty() {
-        return Vec::new();
+        return Ok(Vec::new());
     }
 
     let mut visited = HashSet::new();
@@ -157,7 +197,7 @@ pub fn calculate_walk_path(scenes: Vec<Scene>, skip_auto_forward: bool) -> Vec<S
 
         if let Some(link) = forward_link {
             let mut next_idx = find_scene_index(&scenes, &link.target)
-                .expect(&format!("Pathfinding error: Scene '{}' not found", link.target));
+                .ok_or_else(|| format!("Pathfinding error: Scene '{}' not found", link.target))?;
             
             // Update previous step transition target
             if let Some(last_step) = path.last_mut() {
@@ -174,29 +214,7 @@ pub fn calculate_walk_path(scenes: Vec<Scene>, skip_auto_forward: bool) -> Vec<S
 
             // Skip Auto Forward
             if skip_auto_forward {
-                let mut chain_counter = 0;
-                while chain_counter < 10 {
-                    let next_scene = &scenes[next_idx];
-                    if next_scene.is_auto_forward {
-                        visited.insert(next_idx);
-                        let jump_link = next_scene.hotspots.iter().find(|h| {
-                            match find_scene_index(&scenes, &h.target) {
-                                Some(idx) => !visited.contains(&idx),
-                                None => false,
-                            }
-                        });
-
-                        if let Some(j_link) = jump_link {
-                           next_idx = find_scene_index(&scenes, &j_link.target)
-                               .expect(&format!("Pathfinding error: Junction scene '{}' not found", j_link.target));
-                        } else {
-                            break;
-                        }
-                    } else {
-                        break;
-                    }
-                    chain_counter += 1;
-                }
+                next_idx = follow_auto_forward_chain(&scenes, next_idx, &mut visited, false)?;
             }
 
             let arr_view = if next_idx == original_target_idx {
@@ -243,39 +261,8 @@ pub fn calculate_walk_path(scenes: Vec<Scene>, skip_auto_forward: bool) -> Vec<S
             let original_target_idx = next_idx;
 
             if skip_auto_forward {
-                let mut chain_counter = 0;
-                let mut visited_in_chain = HashSet::new();
-                visited_in_chain.insert(next_idx);
-
-                while chain_counter < 10 {
-                    let next_scene = &scenes[next_idx];
-                    if next_scene.is_auto_forward {
-                        let jump_link = next_scene.hotspots.iter().find(|h| {
-                            if h.is_return_link.unwrap_or(false) {
-                                match find_scene_index(&scenes, &h.target) {
-                                    Some(idx) => !visited_in_chain.contains(&idx),
-                                    None => false,
-                                }
-                            } else {
-                                false
-                            }
-                        });
-
-                        if let Some(j_link) = jump_link {
-                            if let Some(j_idx) = find_scene_index(&scenes, &j_link.target) {
-                                next_idx = j_idx;
-                                visited_in_chain.insert(next_idx);
-                            } else {
-                                break;
-                            }
-                        } else {
-                            break;
-                        }
-                    } else {
-                        break;
-                    }
-                    chain_counter += 1;
-                }
+                let mut local_visited = HashSet::new();
+                next_idx = follow_auto_forward_chain(&scenes, next_idx, &mut local_visited, true)?;
             }
 
             let arr_view = if next_idx == original_target_idx {
@@ -307,7 +294,7 @@ pub fn calculate_walk_path(scenes: Vec<Scene>, skip_auto_forward: bool) -> Vec<S
     };
 
     // Dedupe adjacent
-    if final_path.is_empty() { return Vec::new(); }
+    if final_path.is_empty() { return Ok(Vec::new()); }
     let mut deduped = Vec::with_capacity(final_path.len());
     let mut last_idx = None;
     for step in final_path {
@@ -317,10 +304,10 @@ pub fn calculate_walk_path(scenes: Vec<Scene>, skip_auto_forward: bool) -> Vec<S
         }
     }
 
-    deduped
+    Ok(deduped)
 }
 
-pub fn calculate_timeline_path(scenes: Vec<Scene>, timeline: Vec<TimelineItem>, skip_auto_forward: bool) -> Vec<Step> {
+pub fn calculate_timeline_path(scenes: Vec<Scene>, timeline: Vec<TimelineItem>, skip_auto_forward: bool) -> Result<Vec<Step>, String> {
     let mut path: Vec<Step> = Vec::new();
 
     for item in timeline {
@@ -378,35 +365,12 @@ pub fn calculate_timeline_path(scenes: Vec<Scene>, timeline: Vec<TimelineItem>, 
                     }
 
                     if skip_auto_forward {
-                        let mut chain_counter = 0;
-                        let mut visited_in_chain = HashSet::new();
-                        visited_in_chain.insert(target_idx);
-
-                        while chain_counter < 10 {
-                            let next_scene = &scenes[target_idx];
-                            if next_scene.is_auto_forward {
-                                let jump_link = next_scene.hotspots.iter().find(|h| {
-                                    match find_scene_index(&scenes, &h.target) {
-                                        Some(idx) => !visited_in_chain.contains(&idx),
-                                        None => false,
-                                    }
-                                });
-
-                                if let Some(j_link) = jump_link {
-                                    if let Some(j_idx) = find_scene_index(&scenes, &j_link.target) {
-                                        target_idx = j_idx;
-                                        visited_in_chain.insert(target_idx);
-                                        arrival_view = get_default_view();
-                                    } else {
-                                        break;
-                                    }
-                                } else {
-                                    break;
-                                }
-                            } else {
-                                break;
-                            }
-                            chain_counter += 1;
+                        let mut local_visited = HashSet::new(); // Local visited for this chain only
+                        let original_target = target_idx;
+                        target_idx = follow_auto_forward_chain(&scenes, target_idx, &mut local_visited, false)?;
+                        
+                        if target_idx != original_target {
+                            arrival_view = get_default_view();
                         }
                     }
 
@@ -428,7 +392,7 @@ pub fn calculate_timeline_path(scenes: Vec<Scene>, timeline: Vec<TimelineItem>, 
     };
 
     // Dedupe
-    if final_path.is_empty() { return Vec::new(); }
+    if final_path.is_empty() { return Ok(Vec::new()); }
     let mut deduped = Vec::with_capacity(final_path.len());
     let mut last_idx = None;
     for step in final_path {
@@ -438,5 +402,72 @@ pub fn calculate_timeline_path(scenes: Vec<Scene>, timeline: Vec<TimelineItem>, 
         }
     }
 
-    deduped
+    Ok(deduped)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn create_scene(name: &str, auto_forward: bool, targets: Vec<(&str, bool)>) -> Scene {
+        Scene {
+            id: name.to_string(),
+            name: name.to_string(),
+            is_auto_forward: auto_forward,
+            hotspots: targets.into_iter().map(|(t, is_return)| Hotspot {
+                link_id: None,
+                yaw: 0.0,
+                pitch: 0.0,
+                target: t.to_string(),
+                target_yaw: None,
+                target_pitch: None,
+                is_return_link: Some(is_return),
+                view_frame: None,
+            }).collect(),
+        }
+    }
+
+    #[test]
+    fn test_auto_forward_chain() {
+        let scenes = vec![
+            create_scene("A", false, vec![("B", false)]),
+            create_scene("B", true, vec![("C", false)]),
+            create_scene("C", true, vec![("D", false)]),
+            create_scene("D", false, vec![]),
+        ];
+
+        let mut visited = HashSet::new();
+        // Start at B
+        let start_idx = 1;
+        let result = follow_auto_forward_chain(&scenes, start_idx, &mut visited, false);
+        assert!(result.is_ok());
+        assert_eq!(scenes[result.unwrap()].name, "D");
+    }
+
+    #[test]
+    fn test_auto_forward_loop() {
+        let scenes = vec![
+            create_scene("A", true, vec![("B", false)]),
+            create_scene("B", true, vec![("A", false)]),
+        ];
+
+        let mut visited = HashSet::new();
+        let result = follow_auto_forward_chain(&scenes, 0, &mut visited, false);
+        // Loop detected: 0 visited->jump to 1. 1 visited->jump to 0. 0 visited. stop.
+        assert!(result.is_ok());
+        assert_eq!(scenes[result.unwrap()].name, "B");
+    }
+    
+    #[test]
+    fn test_broken_link_stops_chain() {
+        let scenes = vec![
+            create_scene("A", true, vec![("B", false)]),
+        ]; 
+        
+        let mut visited = HashSet::new();
+        let result = follow_auto_forward_chain(&scenes, 0, &mut visited, false);
+        // Should stop at A (0) because B is missing
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), 0);
+    }
 }

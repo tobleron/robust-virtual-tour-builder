@@ -352,6 +352,6 @@ pub async fn calculate_path(
         crate::pathfinder::PathRequest::Timeline { scenes, timeline, skip_auto_forward } => {
             crate::pathfinder::calculate_timeline_path(scenes, timeline, skip_auto_forward)
         }
-    };
+    }.map_err(AppError::ValidationError)?;
     Ok(HttpResponse::Ok().json(result))
 }
