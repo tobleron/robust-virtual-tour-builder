@@ -8,6 +8,9 @@ SENTINEL_PID=$!
 # Kill sentinel when this script exits
 trap "kill $SENTINEL_PID" EXIT
 
+# Prune/Rotate old snapshots on startup
+./scripts/prune-snapshots.sh
+
 CURRENT_BRANCH=$(git branch --show-current)
 SNAPSHOT_BRANCH="local-snapshots/$CURRENT_BRANCH"
 
