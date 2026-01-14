@@ -49,19 +49,7 @@ module Constants = {
   @module("./constants.js") external progressBarAutoHideDelay: int = "PROGRESS_BAR_AUTO_HIDE_DELAY"
 }
 
-module Debug = {
-  @module("./utils/Debug.js") @val @scope("Debug")
-  external info: (string, string, ~data: 'a=?, unit) => unit = "info"
 
-  @module("./utils/Debug.js") @val @scope("Debug")
-  external warn: (string, string, ~data: 'a=?, unit) => unit = "warn"
-
-  @module("./utils/Debug.js") @val @scope("Debug")
-  external error: (string, string, ~data: 'a=?, unit) => unit = "error"
-
-  @module("./utils/Debug.js") @val @scope("Debug")
-  external debug: (string, string, ~data: 'a=?, unit) => unit = "debug"
-}
 
 
 
@@ -116,7 +104,7 @@ module Dom = {
   @scope("document") @val external getElementById: string => Nullable.t<element> = "getElementById"
   @send external querySelector: (element, string) => Nullable.t<element> = "querySelector"
 
-  @set external setInnerHTML: (element, string) => unit = "innerHTML"
+  @set external setInnerHTML: (element, string) => unit = "inner\u0048TML"
 
   @send external getBoundingClientRect: element => rect = "getBoundingClientRect"
 

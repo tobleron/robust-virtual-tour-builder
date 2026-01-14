@@ -360,6 +360,12 @@
 │   │       │   ├── VideoEncoder.cmj
 │   │       │   ├── VideoEncoder.cmt
 │   │       │   └── VideoEncoder.res
+│   │       ├── TestSimulation.ast
+│   │       ├── TestSimulation.bs.js
+│   │       ├── TestSimulation.cmi
+│   │       ├── TestSimulation.cmj
+│   │       ├── TestSimulation.cmt
+│   │       ├── TestSimulation.res
 │   │       └── utils
 │   │           ├── ColorPalette.ast
 │   │           ├── ColorPalette.bs.js
@@ -606,6 +612,10 @@
 │   │   ├── TeaserRecorder.cmj
 │   │   ├── TeaserRecorder.cmt
 │   │   ├── TeaserRecorder.res
+│   │   ├── TestSimulation.cmi
+│   │   ├── TestSimulation.cmj
+│   │   ├── TestSimulation.cmt
+│   │   ├── TestSimulation.res
 │   │   ├── TourLogic.ast
 │   │   ├── TourLogic.cmi
 │   │   ├── TourLogic.cmj
@@ -823,82 +833,90 @@
 ├── start_dev.sh
 ├── start_prod.sh
 ├── tailwind.config.js
-└── tasks
-    ├── completed
-    │   ├── 01_Architecture_Functional_State.md
-    │   ├── 02_Implement_App_Context.md
-    │   ├── 03_Refactor_Components.md
-    │   ├── 04_Functional_ProjectManager.md
-    │   ├── 05_Purify_Navigation_completed.md
-    │   ├── 06_Final_Cleanup.md
-    │   ├── 10_ReScript_Migrate_Resizer_completed.md
-    │   ├── 11_ReScript_Migrate_ProjectManager_completed.md
-    │   ├── 12_ReScript_Migrate_UI_Components_completed.md
-    │   ├── 14_ReScript_Migrate_Viewer.md
-    │   ├── 15_Backend_SingleZIP_Load.md
-    │   ├── 16_Backend_Project_Validation.md
-    │   ├── 17_Backend_Filename_Suggestion.md
-    │   ├── 18_Frontend_SingleZIP_Integration.md
-    │   ├── 19_Cleanup_Duplicate_Utilities.md
-    │   ├── 20_Cleanup_Legacy_CSS_and_Backups.md
-    │   ├── 21_Migrate_Viewer_Snapshot_System.md
-    │   ├── 22_Migrate_Viewer_Dual_Pannellum.md
-    │   ├── 23_Migrate_Visual_Pipeline.md
-    │   ├── 24_Migrate_Exporter_Systems.md
-    │   ├── 25_Migrate_Exif_Report_Generator.md
-    │   ├── 26_Unified_Backend_API_Module.md
-    │   ├── 27_Migrate_Supporting_Systems.md
-    │   ├── 28_Migrate_Cache_Video_Systems.md
-    │   ├── 29_Refactor_Teaser_Logic.md
-    │   ├── 30_Eliminate_JS_Adapters.md
-    │   ├── 30_Logging_Backend_Endpoints.md
-    │   ├── 31_Final_Polish_And_Cleanup.md
-    │   ├── 31_Logging_Rust_Internal_Tracing.md
-    │   ├── 32_Logging_Migrate_Navigation.md
-    │   ├── 33_Logging_Migrate_ViewerLoader.md
-    │   ├── 34_Logging_Migrate_HotspotManager.md
-    │   ├── 34_Logging_Project_Persistence.md
-    │   ├── 35_Logging_Migrate_SimulationSystem.md
-    │   ├── 36_Logging_Migrate_Exporter.md
-    │   ├── 37_Logging_Migrate_UploadProcessor.md
-    │   ├── 38_Logging_Migrate_InputSystem.md
-    │   ├── 39_Logging_Migrate_NavigationRenderer.md
-    │   ├── 40_Logging_Migrate_VideoEncoder.md
-    │   ├── 41_Logging_Migrate_Store.md
-    │   ├── 42_Logging_Migrate_TeaserSystem.md
-    │   ├── 43_Logging_Migrate_Sidebar.md
-    │   ├── 44_Logging_Debug_Shortcuts.md
-    │   ├── 45_Logging_Migrate_Remaining_Modules.md
-    │   ├── 46_Logging_Rotation_Cleanup.md
-    │   ├── 47_Logging_Integration_Tests.md
-    │   ├── 48_Backend_Pure_Validation_Refactor.md
-    │   ├── 49_Backend_Standardize_Logging.md
-    │   ├── 50_Backend_Remove_Unwrap_REPORT.md
-    │   ├── 50_Backend_Remove_Unwrap.md
-    │   ├── 51_Backend_LogError_Endpoint_REPORT.md
-    │   ├── 51_Backend_LogError_Endpoint.md
-    │   ├── 52_Backend_Functional_Iterators_REPORT.md
-    │   ├── 52_Backend_Functional_Iterators.md
-    │   ├── 53_Migrate_Logging_System.md
-    │   ├── 54_Migrate_EventBus_REPORT.md
-    │   ├── 54_Migrate_EventBus.md
-    │   ├── 55_Migrate_UI_Contexts.md
-    │   ├── 56_Backend_Project_Loading.md
-    │   ├── 57_Backend_Pathfinding.md
-    │   ├── 58_Migrate_Entry_Point.md
-    │   ├── 59_Backend_Reverse_Geocoding_Endpoint.md
-    │   ├── 60_Backend_Remove_Unwrap_Calls.md
-    │   ├── 61_Backend_Geocoding_Cache_Layer_REPORT.md
-    │   ├── 61_Backend_Geocoding_Cache_Layer_TESTING.md
-    │   └── 61_Backend_Geocoding_Cache_Layer.md
-    ├── pending
-    │   ├── 62_Backend_Batch_Similarity_Endpoint.md
-    │   ├── 63_Refactor_SimulationSystem_State.md
-    │   ├── 64_Migrate_Constants_To_ReScript.md
-    │   └── 65_Cleanup_Dead_Code.md
-    ├── README.md
-    ├── SESSION_SUMMARY.md
-    ├── TASK_EXECUTION_SUMMARY.md
-    └── TASKS_24-27_STATUS.md
+├── tasks
+│   ├── completed
+│   │   ├── 01_Architecture_Functional_State.md
+│   │   ├── 02_Implement_App_Context.md
+│   │   ├── 03_Refactor_Components.md
+│   │   ├── 04_Functional_ProjectManager.md
+│   │   ├── 05_Purify_Navigation_completed.md
+│   │   ├── 06_Final_Cleanup.md
+│   │   ├── 10_ReScript_Migrate_Resizer_completed.md
+│   │   ├── 11_ReScript_Migrate_ProjectManager_completed.md
+│   │   ├── 12_ReScript_Migrate_UI_Components_completed.md
+│   │   ├── 14_ReScript_Migrate_Viewer.md
+│   │   ├── 15_Backend_SingleZIP_Load.md
+│   │   ├── 16_Backend_Project_Validation.md
+│   │   ├── 17_Backend_Filename_Suggestion.md
+│   │   ├── 18_Frontend_SingleZIP_Integration.md
+│   │   ├── 19_Cleanup_Duplicate_Utilities.md
+│   │   ├── 20_Cleanup_Legacy_CSS_and_Backups.md
+│   │   ├── 21_Migrate_Viewer_Snapshot_System.md
+│   │   ├── 22_Migrate_Viewer_Dual_Pannellum.md
+│   │   ├── 23_Migrate_Visual_Pipeline.md
+│   │   ├── 24_Migrate_Exporter_Systems.md
+│   │   ├── 25_Migrate_Exif_Report_Generator.md
+│   │   ├── 26_Unified_Backend_API_Module.md
+│   │   ├── 27_Migrate_Supporting_Systems.md
+│   │   ├── 28_Migrate_Cache_Video_Systems.md
+│   │   ├── 29_Refactor_Teaser_Logic.md
+│   │   ├── 30_Eliminate_JS_Adapters.md
+│   │   ├── 30_Logging_Backend_Endpoints.md
+│   │   ├── 31_Final_Polish_And_Cleanup.md
+│   │   ├── 31_Logging_Rust_Internal_Tracing.md
+│   │   ├── 32_Logging_Migrate_Navigation.md
+│   │   ├── 33_Logging_Migrate_ViewerLoader.md
+│   │   ├── 34_Logging_Migrate_HotspotManager.md
+│   │   ├── 34_Logging_Project_Persistence.md
+│   │   ├── 35_Logging_Migrate_SimulationSystem.md
+│   │   ├── 36_Logging_Migrate_Exporter.md
+│   │   ├── 37_Logging_Migrate_UploadProcessor.md
+│   │   ├── 38_Logging_Migrate_InputSystem.md
+│   │   ├── 39_Logging_Migrate_NavigationRenderer.md
+│   │   ├── 40_Logging_Migrate_VideoEncoder.md
+│   │   ├── 41_Logging_Migrate_Store.md
+│   │   ├── 42_Logging_Migrate_TeaserSystem.md
+│   │   ├── 43_Logging_Migrate_Sidebar.md
+│   │   ├── 44_Logging_Debug_Shortcuts.md
+│   │   ├── 45_Logging_Migrate_Remaining_Modules.md
+│   │   ├── 46_Logging_Rotation_Cleanup.md
+│   │   ├── 47_Logging_Integration_Tests.md
+│   │   ├── 48_Backend_Pure_Validation_Refactor.md
+│   │   ├── 49_Backend_Standardize_Logging.md
+│   │   ├── 50_Backend_Remove_Unwrap_REPORT.md
+│   │   ├── 50_Backend_Remove_Unwrap.md
+│   │   ├── 51_Backend_LogError_Endpoint_REPORT.md
+│   │   ├── 51_Backend_LogError_Endpoint.md
+│   │   ├── 52_Backend_Functional_Iterators_REPORT.md
+│   │   ├── 52_Backend_Functional_Iterators.md
+│   │   ├── 53_Migrate_Logging_System.md
+│   │   ├── 54_Migrate_EventBus_REPORT.md
+│   │   ├── 54_Migrate_EventBus.md
+│   │   ├── 55_Migrate_UI_Contexts.md
+│   │   ├── 56_Backend_Project_Loading.md
+│   │   ├── 57_Backend_Pathfinding.md
+│   │   ├── 58_Migrate_Entry_Point.md
+│   │   ├── 59_Backend_Reverse_Geocoding_Endpoint.md
+│   │   ├── 60_Backend_Remove_Unwrap_Calls.md
+│   │   ├── 61_Backend_Geocoding_Cache_Layer_REPORT.md
+│   │   ├── 61_Backend_Geocoding_Cache_Layer_TESTING.md
+│   │   ├── 61_Backend_Geocoding_Cache_Layer.md
+│   │   ├── 62_Backend_Batch_Similarity_Endpoint.md
+│   │   └── 63_Refactor_SimulationSystem_State.md
+│   ├── pending
+│   │   ├── 64_Migrate_Constants_To_ReScript.md
+│   │   ├── 65_Cleanup_Dead_Code.md
+│   │   ├── 66_Extract_Backend_Domain_Types.md
+│   │   ├── 67_Extract_Media_Service.md
+│   │   ├── 68_Extract_Project_Service.md
+│   │   ├── 69_Extract_Geocoding_Service.md
+│   │   ├── 70_Modularize_Handlers_And_Routing.md
+│   │   └── 71_Pathfinder_Hardening.md
+│   ├── README.md
+│   ├── SESSION_SUMMARY.md
+│   ├── TASK_EXECUTION_SUMMARY.md
+│   └── TASKS_24-27_STATUS.md
+└── tests
+    └── SimulationSystem_test.res
 
-30 directories, 872 files
+31 directories, 889 files
