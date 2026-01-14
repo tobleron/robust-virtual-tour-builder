@@ -144,10 +144,12 @@ let processAndAnalyzeImage = (file: File.t): Promise.t<processResult> => {
           (),
         )
 
-        JSZip.loadAsync(zipBlob)
+        LazyLoad.loadJSZip()
+        ->Promise.then(() => JSZip.loadAsync(zipBlob))
       }
     | Error(msg) => Promise.reject(JsError.throwWithMessage(msg))
     }
+
   })
   ->Promise.then(zip => {
     // 1. Extract Preview
@@ -251,7 +253,10 @@ let generateResolutions = (file: File.t): Promise.t<dict<Blob.t>> => {
   )
   ->Promise.then(BackendApi.handleResponse)
   ->Promise.then(Fetch.blob)
-  ->Promise.then(zipBlob => JSZip.loadAsync(zipBlob))
+  ->Promise.then(zipBlob => {
+    LazyLoad.loadJSZip()
+    ->Promise.then(() => JSZip.loadAsync(zipBlob))
+  })
   ->Promise.then(zip => {
     let files = [("4k", "4k.webp"), ("2k", "2k.webp"), ("hd", "hd.webp")]
 
