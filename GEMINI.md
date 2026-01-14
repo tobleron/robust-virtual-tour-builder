@@ -3,6 +3,7 @@
 1. **Workflow Enforcement**: 
    - **STEP 0 (CRITICAL)**: Before performing ANY task (coding, file creation, or analysis), YOU MUST run `./scripts/ensure-watcher.sh` to guarantee the safety snapshotter is active.
    - **Commits**: You MUST use `./scripts/commit.sh` for all commits.
+   - **Quality Gates**: A background sentinel monitors file sizes. If a source file exceeds 700 lines, a task is auto-generated in `tasks/pending`. YOU MUST prioritize these tasks.
 
 2. **Safety**: 
    - Never use `git commit` directly.
