@@ -128,3 +128,4 @@ Task 60 complete ✓
 [2026-01-14 16:09] v4.2.29 - Task 67: Extract media processing logic to MediaService
 [2026-01-14 16:20] v4.2.30 - Refactor: Extract ProjectService logic from handlers
 [2026-01-14 16:27] v4.2.31 - chore: ensure tasks/ directory is not ignored in .gitignore
+[2026-01-14 16:27] v4.2.32 - Refactor: Extract GeocodeService from handlers
