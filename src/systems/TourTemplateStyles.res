@@ -2,7 +2,7 @@
 
 /* CSS template for exported tours */
 
-let cssTemplate = %raw(`\`
+let cssTemplate = `
     /* BASE RESET */
     body { 
       margin: 0; padding: 0; 
@@ -136,7 +136,7 @@ let cssTemplate = %raw(`\`
       50% { transform: scale(1.1); }
       100% { transform: scale(1); }
     }
-\``)
+`
 
 let generateCSS = (firstSceneName, isMobile, exportType, baseSize, logoSize) => {
   let mediaQuery = if isMobile {

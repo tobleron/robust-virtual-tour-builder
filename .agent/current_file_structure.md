@@ -639,12 +639,42 @@
 │   │           ├── SimulationSystemTest.cmj
 │   │           ├── SimulationSystemTest.cmt
 │   │           ├── SimulationSystemTest.res
+│   │           ├── StateInspectorTest.ast
+│   │           ├── StateInspectorTest.bs.js
+│   │           ├── StateInspectorTest.cmi
+│   │           ├── StateInspectorTest.cmj
+│   │           ├── StateInspectorTest.cmt
+│   │           ├── StateInspectorTest.res
+│   │           ├── TeaserManagerTest.ast
+│   │           ├── TeaserManagerTest.bs.js
+│   │           ├── TeaserManagerTest.cmi
+│   │           ├── TeaserManagerTest.cmj
+│   │           ├── TeaserManagerTest.cmt
+│   │           ├── TeaserManagerTest.res
 │   │           ├── TourLogicTest.ast
 │   │           ├── TourLogicTest.bs.js
 │   │           ├── TourLogicTest.cmi
 │   │           ├── TourLogicTest.cmj
 │   │           ├── TourLogicTest.cmt
 │   │           ├── TourLogicTest.res
+│   │           ├── TourTemplateAssetsTest.ast
+│   │           ├── TourTemplateAssetsTest.bs.js
+│   │           ├── TourTemplateAssetsTest.cmi
+│   │           ├── TourTemplateAssetsTest.cmj
+│   │           ├── TourTemplateAssetsTest.cmt
+│   │           ├── TourTemplateAssetsTest.res
+│   │           ├── TourTemplateScriptsTest.ast
+│   │           ├── TourTemplateScriptsTest.bs.js
+│   │           ├── TourTemplateScriptsTest.cmi
+│   │           ├── TourTemplateScriptsTest.cmj
+│   │           ├── TourTemplateScriptsTest.cmt
+│   │           ├── TourTemplateScriptsTest.res
+│   │           ├── TourTemplateStylesTest.ast
+│   │           ├── TourTemplateStylesTest.bs.js
+│   │           ├── TourTemplateStylesTest.cmi
+│   │           ├── TourTemplateStylesTest.cmj
+│   │           ├── TourTemplateStylesTest.cmt
+│   │           ├── TourTemplateStylesTest.res
 │   │           ├── UploadProcessorTest.ast
 │   │           ├── UploadProcessorTest.bs.js
 │   │           ├── UploadProcessorTest.cmi
@@ -964,15 +994,24 @@
 │   │   ├── State.cmj
 │   │   ├── State.cmt
 │   │   ├── State.res
+│   │   ├── StateInspector.ast
 │   │   ├── StateInspector.cmi
 │   │   ├── StateInspector.cmj
 │   │   ├── StateInspector.cmt
 │   │   ├── StateInspector.res
+│   │   ├── StateInspectorTest.cmi
+│   │   ├── StateInspectorTest.cmj
+│   │   ├── StateInspectorTest.cmt
+│   │   ├── StateInspectorTest.res
 │   │   ├── TeaserManager.ast
 │   │   ├── TeaserManager.cmi
 │   │   ├── TeaserManager.cmj
 │   │   ├── TeaserManager.cmt
 │   │   ├── TeaserManager.res
+│   │   ├── TeaserManagerTest.cmi
+│   │   ├── TeaserManagerTest.cmj
+│   │   ├── TeaserManagerTest.cmt
+│   │   ├── TeaserManagerTest.res
 │   │   ├── TeaserPathfinder.ast
 │   │   ├── TeaserPathfinder.cmi
 │   │   ├── TeaserPathfinder.cmj
@@ -1003,18 +1042,33 @@
 │   │   ├── TourLogicTest.cmj
 │   │   ├── TourLogicTest.cmt
 │   │   ├── TourLogicTest.res
+│   │   ├── TourTemplateAssets.ast
 │   │   ├── TourTemplateAssets.cmi
 │   │   ├── TourTemplateAssets.cmj
 │   │   ├── TourTemplateAssets.cmt
 │   │   ├── TourTemplateAssets.res
+│   │   ├── TourTemplateAssetsTest.cmi
+│   │   ├── TourTemplateAssetsTest.cmj
+│   │   ├── TourTemplateAssetsTest.cmt
+│   │   ├── TourTemplateAssetsTest.res
+│   │   ├── TourTemplateScripts.ast
 │   │   ├── TourTemplateScripts.cmi
 │   │   ├── TourTemplateScripts.cmj
 │   │   ├── TourTemplateScripts.cmt
 │   │   ├── TourTemplateScripts.res
+│   │   ├── TourTemplateScriptsTest.cmi
+│   │   ├── TourTemplateScriptsTest.cmj
+│   │   ├── TourTemplateScriptsTest.cmt
+│   │   ├── TourTemplateScriptsTest.res
+│   │   ├── TourTemplateStyles.ast
 │   │   ├── TourTemplateStyles.cmi
 │   │   ├── TourTemplateStyles.cmj
 │   │   ├── TourTemplateStyles.cmt
 │   │   ├── TourTemplateStyles.res
+│   │   ├── TourTemplateStylesTest.cmi
+│   │   ├── TourTemplateStylesTest.cmj
+│   │   ├── TourTemplateStylesTest.cmt
+│   │   ├── TourTemplateStylesTest.res
 │   │   ├── TourTemplates.ast
 │   │   ├── TourTemplates.cmi
 │   │   ├── TourTemplates.cmj
@@ -1315,6 +1369,8 @@
 │   │   ├── 104_Add_Tests_for_UploadProcessor_REPORT.md
 │   │   ├── 105_Install_Rsbuild.md
 │   │   ├── 105_Install_Rsbuild_REPORT.md
+│   │   ├── 106_Configure_Rsbuild_Entry.md
+│   │   ├── 106_Configure_Rsbuild_Entry_REPORT.md
 │   │   ├── 10_ReScript_Migrate_Resizer_REPORT.md
 │   │   ├── 11_ReScript_Migrate_ProjectManager_REPORT.md
 │   │   ├── 12_ReScript_Migrate_UI_Components_REPORT.md
@@ -1414,10 +1470,14 @@
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   └── pending
-│       ├── 106_Configure_Rsbuild_Entry.md
 │       ├── 107_Integrate_Tailwind_Rsbuild.md
 │       ├── 108_Finalize_Rsbuild_Prod.md
-│       └── 109_Cleanup_Legacy_Scripts.md
+│       ├── 109_Cleanup_Legacy_Scripts.md
+│       ├── 110_Add_Tests_for_TeaserManager.md
+│       ├── 111_Add_Tests_for_TourTemplateAssets.md
+│       ├── 112_Add_Tests_for_TourTemplateScripts.md
+│       ├── 113_Add_Tests_for_TourTemplateStyles.md
+│       └── 114_Add_Tests_for_StateInspector.md
 └── tests
     ├── TestRunner.bs.js
     ├── TestRunner.res
@@ -1447,9 +1507,19 @@
         ├── SharedTypesTest.res
         ├── SimulationSystemTest.bs.js
         ├── SimulationSystemTest.res
+        ├── StateInspectorTest.bs.js
+        ├── StateInspectorTest.res
+        ├── TeaserManagerTest.bs.js
+        ├── TeaserManagerTest.res
         ├── TourLogicTest.bs.js
         ├── TourLogicTest.res
+        ├── TourTemplateAssetsTest.bs.js
+        ├── TourTemplateAssetsTest.res
+        ├── TourTemplateScriptsTest.bs.js
+        ├── TourTemplateScriptsTest.res
+        ├── TourTemplateStylesTest.bs.js
+        ├── TourTemplateStylesTest.res
         ├── UploadProcessorTest.bs.js
         └── UploadProcessorTest.res
 
-44 directories, 1409 files
+44 directories, 1479 files

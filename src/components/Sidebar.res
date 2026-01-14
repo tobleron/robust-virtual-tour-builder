@@ -6,20 +6,6 @@
 let autoHideDelay = Constants.progressBarAutoHideDelay
 @scope(("window", "location")) @val external reload: unit => unit = "reload"
 
-module ProjectManager = {
-  @module("../systems/ProjectManager.js")
-  external saveProject: (Types.state, (float, float, string) => unit) => promise<unit> =
-    "saveProject"
-  @module("../systems/ProjectManager.js")
-  external loadProject: ('file, (float, float, string, bool) => unit) => promise<JSON.t> =
-    "loadProject"
-}
-
-module TeaserSystem = {
-  @module("../systems/TeaserSystem.js")
-  external startAutoTeaser: (string, bool, string, bool) => unit = "startAutoTeaser"
-}
-
 // Local helper for style objects
 external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 
@@ -188,7 +174,7 @@ let make = () => {
               let _ = (async () => {
                 updateProgress(0.0, "Saving...", true, "Saving")
                 try {
-                  await ProjectManager.saveProject(state, (pct, _, msg) => updateProgress(pct, msg, true, "Saving"))
+                  let _ = await ProjectManager.saveProject(state, ~onProgress=(pct, _, msg) => updateProgress(pct->Int.toFloat, msg, true, "Saving"))
                   EventBus.dispatch(ShowNotification("Project saved", #Success))
                   updateProgress(100.0, "Saved", false, "")
                 } catch { | _ => updateProgress(0.0, "Error", false, "") }
@@ -248,7 +234,9 @@ let make = () => {
           <button
             className="flex items-center justify-center gap-2 bg-white/5 border border-white/10 rounded-xl py-2.5 transition-all hover:bg-white/15 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-30 disabled:pointer-events-none group"
             disabled={!teaserReady}
-            onClick={_ => TeaserSystem.startAutoTeaser(state.tourName, false, "mp4", false)}
+            onClick={_ => {
+              let _ = TeaserManager.startAutoTeaser(state.tourName, false, "mp4", false)
+            }}
           >
             <span className="material-icons text-lg text-warning group-hover:scale-110 transition-transform"> {React.string("movie_creation")} </span>
             <span className="text-[11px] font-bold uppercase tracking-widest"> {React.string("Teaser")} </span>
@@ -285,13 +273,12 @@ let make = () => {
                     "filename": Obj.magic(file)["name"],
                     "size": Obj.magic(file)["size"]
                   }, ())
-                  let projectData = await ProjectManager.loadProject(file, (
+                  let projectData = await ProjectManager.loadProject(file, ~onProgress=(
                     pct,
                     _t,
                     msg,
-                    active,
                   ) => {
-                    updateProgress(pct, msg, active, "Loading")
+                    updateProgress(pct->Int.toFloat, msg, true, "Loading")
                   })
 
                   dispatch(Actions.LoadProject(projectData))

@@ -2,7 +2,7 @@
 
 /* Index page template for exported tour packages */
 
-let indexTemplate = %raw(`\`<!DOCTYPE html>
+let indexTemplate = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -111,7 +111,7 @@ let indexTemplate = %raw(`\`<!DOCTYPE html>
         <div class="footer">&copy; __YEAR__ RE/MAX Virtual Tour Platform.</div>
     </div>
 </body>
-</html>\``)
+</html>`
 
 let generateExportIndex = (tourName, version) => {
   let prettyName = String.replaceRegExp(tourName, /_/g, " ")
