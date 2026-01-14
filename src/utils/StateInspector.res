@@ -88,10 +88,11 @@ let exposeToWindow = () => {
  */
 let removeFromWindow = () => {
   let _ = %raw(`
-    if (typeof window !== 'undefined' && window.store) {
-      delete window.store;
-      console.info('🔒 State Inspector removed');
-    }
+    (function() {
+      if (typeof window !== 'undefined' && window.store) {
+        delete window.store;
+        console.info('🔒 State Inspector removed');
+      }
+    })()
   `)
-  ()
 }

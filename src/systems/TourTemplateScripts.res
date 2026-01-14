@@ -2,7 +2,7 @@
 
 /* JavaScript templates for exported tours */
 
-let renderScriptTemplate = %raw(`\`
+let renderScriptTemplate = `
     function renderGoldArrow(hotSpotDiv, args) {
       const currentSceneId = window.viewer.getScene();
       const currentSceneData = scenesData[currentSceneId];
@@ -77,9 +77,9 @@ let renderScriptTemplate = %raw(`\`
         }, 450);
       };
     }
-\``)
+`
 
-let loadEventScript = %raw(`\`
+let loadEventScript = `
     window.viewer.on('load', function() {
       const currentSceneId = window.viewer.getScene();
       const currentSceneData = scenesData[currentSceneId];
@@ -109,7 +109,7 @@ let loadEventScript = %raw(`\`
       transitionFrom = null;
       isFirstLoad = false;
     });
-\``)
+`
 
 let generateRenderScript = baseSize => {
   renderScriptTemplate->String.replaceRegExp(/__BASE_SIZE__/g, Belt.Int.toString(baseSize))

@@ -16,31 +16,19 @@
   <link rel="apple-touch-icon" href="/images/icon-192.png" />
 
   <!-- Content Security Policy: Prevents XSS and unauthorized resource loading -->
-  <meta http-equiv=4.2.82"Content-Security-Policy" content="
+  <meta http-equiv=4.2.84"Content-Security-Policy" content="
     default-src 'self';
-    script-src 'self' 'unsafe-inline' blob: https://esm.sh;
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://esm.sh;
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     font-src 'self' https://fonts.gstatic.com;
     img-src 'self' blob: data: http://localhost:8080 http://127.0.0.1:8080 http://0.0.0.0:8080;
-    connect-src 'self' blob: http://localhost:8080 http://127.0.0.1:8080 http://0.0.0.0:8080 https://nominatim.openstreetmap.org https://esm.sh;
+    connect-src 'self' blob: ws: http://localhost:8080 http://127.0.0.1:8080 http://0.0.0.0:8080 https://nominatim.openstreetmap.org https://esm.sh;
     worker-src 'self' blob:;
     media-src 'self' blob: http://localhost:8080 http://127.0.0.1:8080 http://0.0.0.0:8080;
     object-src 'none';
     base-uri 'self';
     form-action 'self';
   ">
-
-  <script type="importmap">
-    {
-      "imports": {
-        "@rescript/runtime/": "/node_modules/@rescript/runtime/",
-        "react": "https://esm.sh/react@18.2.0",
-        "react/jsx-runtime": "https://esm.sh/react@18.2.0/jsx-runtime",
-        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
-        "react-dom": "https://esm.sh/react-dom@18.2.0"
-      }
-    }
-  </script>
 
   <title>Remax Virtual Tour Builder</title>
   <link rel="icon"
@@ -111,16 +99,14 @@
     rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-  <link rel="stylesheet" href="css/output.css?v=4.2.82" />
+  <link rel="stylesheet" href="css/output.css?v=4.2.84" />
   <!-- Custom Overrides -->
-  <link rel="stylesheet" href="css/style.css?v=4.2.82" />
+  <link rel="stylesheet" href="css/style.css?v=4.2.84" />
 
 </head>
 
 <body>
   <div id="app"></div>
-
-  <script type="module" src="src/Main.bs.js?v=4.2.82"></script>
 
   <!-- LIBRARIES (currently unused) -->
   <!-- <script src="src/libs/gif.js"></script> -->

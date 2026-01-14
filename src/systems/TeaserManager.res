@@ -295,8 +295,6 @@ let transitionToNextShot = async (
 }
 
 /* Bindings for Finalization */
-@module("./DownloadSystem.js") @scope("DownloadSystem")
-external saveBlob: (TeaserRecorder.blob, string) => unit = "saveBlob"
 /* VideoEncoder now used directly from module */
 
 let finalizeTeaser = async (format: string, baseName: string) => {
@@ -305,7 +303,7 @@ let finalizeTeaser = async (format: string, baseName: string) => {
     let blob = ReBindings.Blob.newBlob(chunks, {"type": "video/webm"})
 
     if format == "webm" {
-      saveBlob(blob, baseName ++ ".webm")
+      DownloadSystem.saveBlob(blob, baseName ++ ".webm")
     } else if format == "mp4" {
       try {
         await VideoEncoder.transcodeWebMToMP4(Obj.magic(blob), baseName, Some((_pct, _msg) => ()))
@@ -314,11 +312,11 @@ let finalizeTeaser = async (format: string, baseName: string) => {
       | JsExn(e) => {
           let msg = e->JsExn.message->Option.getOr("Unknown")
           Logger.error(~module_="Teaser", ~message="TRANSCODE_FAILED", ~data=Some({"error": msg}), ())
-          saveBlob(blob, baseName ++ ".webm") /* Fallback */
+          DownloadSystem.saveBlob(blob, baseName ++ ".webm") /* Fallback */
         }
       | _ => {
           Logger.error(~module_="Teaser", ~message="TRANSCODE_FAILED", ~data=Some({"error": "Unknown"}), ())
-          saveBlob(blob, baseName ++ ".webm") /* Fallback */
+          DownloadSystem.saveBlob(blob, baseName ++ ".webm") /* Fallback */
         }
       }
     }
@@ -370,7 +368,13 @@ let startCinematicTeaser = async (includeLogo: bool, format: string, skipAutoFor
 }
 
 /* Expose to Window */
-let _ = Obj.magic(ReBindings.Window.window)["startCinematicTeaser"] = startCinematicTeaser
+let _ = %raw(`
+  (function() {
+    if (typeof window !== 'undefined') {
+      window.startCinematicTeaser = startCinematicTeaser;
+    }
+  })()
+`)
 
 /* Main Auto Teaser Flow (Updated for Finalize) */
 let startAutoTeaser = async (
