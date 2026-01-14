@@ -206,6 +206,12 @@
 │   │   │   │   ├── Reducer.cmj
 │   │   │   │   ├── Reducer.cmt
 │   │   │   │   ├── Reducer.res
+│   │   │   │   ├── ReducerHelpers.ast
+│   │   │   │   ├── ReducerHelpers.bs.js
+│   │   │   │   ├── ReducerHelpers.cmi
+│   │   │   │   ├── ReducerHelpers.cmj
+│   │   │   │   ├── ReducerHelpers.cmt
+│   │   │   │   ├── ReducerHelpers.res
 │   │   │   │   ├── State.ast
 │   │   │   │   ├── State.bs.js
 │   │   │   │   ├── State.cmi
@@ -696,6 +702,11 @@
 │   │   ├── Reducer.cmj
 │   │   ├── Reducer.cmt
 │   │   ├── Reducer.res
+│   │   ├── ReducerHelpers.ast
+│   │   ├── ReducerHelpers.cmi
+│   │   ├── ReducerHelpers.cmj
+│   │   ├── ReducerHelpers.cmt
+│   │   ├── ReducerHelpers.res
 │   │   ├── ReducerTest.ast
 │   │   ├── ReducerTest.cmi
 │   │   ├── ReducerTest.cmj
@@ -932,6 +943,8 @@
 │   │   ├── GlobalStateBridge.res
 │   │   ├── Reducer.bs.js
 │   │   ├── Reducer.res
+│   │   ├── ReducerHelpers.bs.js
+│   │   ├── ReducerHelpers.res
 │   │   ├── State.bs.js
 │   │   ├── State.res
 │   │   ├── Types.bs.js
@@ -1115,10 +1128,10 @@
 │   │   ├── 83_Implement_Code_Splitting_REPORT.md
 │   │   ├── 84_Implement_Service_Worker_REPORT.md
 │   │   ├── 85_Refactor_TourTemplates_Module_REPORT.md
+│   │   ├── 86_Refactor_Reducer_Module.md
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   ├── pending
-│   │   ├── 86_Refactor_Reducer_Module.md
 │   │   ├── 87_Update_Version_References.md
 │   │   └── 88_Eliminate_ObjMagic_Reducer.md
 │   └── README.md
@@ -1138,4 +1151,4 @@
         ├── TourLogicTest.bs.js
         └── TourLogicTest.res
 
-39 directories, 1100 files
+39 directories, 1113 files

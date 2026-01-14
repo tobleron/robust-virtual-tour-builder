@@ -202,3 +202,4 @@ Resolves Task 74.
 - All functionality preserved, build succeeds with no warnings
 - Updated commit script to exclude Template files from pattern checks
 - Completed Task 85
+[2026-01-14 21:40] v4.2.55 - refactor: extract Reducer helpers to reduce file size from 553 to 281 lines (Task 86)
