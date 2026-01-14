@@ -44,8 +44,17 @@ fn histogram_intersection(hist_a: &[f32], hist_b: &[f32]) -> f32 {
     }
 }
 
-/// Calculate similarity between two images based on histograms
-/// Prefers color histograms if available, falls back to luminance
+/// Calculates the similarity between two images based on their histograms.
+///
+/// This function prefers color histograms (RGB) for higher accuracy but
+/// falls back to luminance histograms if color data is unavailable.
+///
+/// # Arguments
+/// * `hist_a` - Histogram data for the first image.
+/// * `hist_b` - Histogram data for the second image.
+///
+/// # Returns
+/// A similarity score between 0.0 (totally different) and 1.0 (identical).
 fn calculate_similarity(
     hist_a: &HistogramData,
     hist_b: &HistogramData,
@@ -79,6 +88,20 @@ fn calculate_similarity(
     0.0
 }
 
+/// Calculates similarity scores for a batch of image pairs.
+///
+/// This handler processes multiple pairs in parallel using Rayon, which
+/// significantly improves performance when identifying near-duplicate images
+/// in large virtual tours.
+///
+/// # Arguments
+/// * `req` - A JSON payload containing a list of image histogram pairs.
+///
+/// # Returns
+/// A `SimilarityResponse` containing the similarity scores for all pairs.
+///
+/// # Errors
+/// * `InternalError` if the batch size exceeds 10,000 pairs.
 #[tracing::instrument(skip(req), name = "batch_calculate_similarity")]
 pub async fn batch_calculate_similarity(
     req: web::Json<SimilarityRequest>,

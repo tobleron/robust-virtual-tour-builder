@@ -11,6 +11,29 @@ use crate::models::{AppError, MetadataResponse};
 // Use crate::api::utils or super::super::utils
 use crate::api::utils::{PROCESSED_IMAGE_WIDTH, WEBP_QUALITY, MAX_UPLOAD_SIZE};
 
+/// Processes an uploaded panorama image through the full optimization pipeline.
+///
+/// The pipeline performs the following steps:
+/// 1. Decode the source image (JPEG, PNG, WebP, HEIC)
+/// 2. Extract EXIF metadata (camera info, GPS, timestamp)
+/// 3. Analyze image quality (luminance, sharpness, clipping)
+/// 4. Generate multi-resolution outputs:
+///    - `preview.webp` (2048px width, quality 80)
+///    - `tiny.webp` (512px width, quality 60)
+/// 5. Compute SHA-256 checksum for duplicate detection
+///
+/// # Arguments
+/// * `payload` - Multipart form data containing a single image file.
+///
+/// # Returns
+/// A ZIP file containing:
+/// - `preview.webp`: Optimized preview image.
+/// - `tiny.webp`: Thumbnail for sidebar.
+/// - `metadata.json`: EXIF data, quality analysis, and checksum.
+///
+/// # Errors
+/// * `ImageError` if no file provided or file exceeds `MAX_UPLOAD_SIZE`.
+/// * `InternalError` if image decoding or processing fails.
 #[tracing::instrument(skip(payload), name = "process_image_full")]
 pub async fn process_image_full(mut payload: Multipart) -> Result<HttpResponse, AppError> {
     // PERFORMANCE: Pre-allocate buffer for typical 30MB panoramic images
@@ -139,6 +162,19 @@ pub async fn process_image_full(mut payload: Multipart) -> Result<HttpResponse, 
     }
 }
 
+/// Optimizes a single image for preview without full metadata extraction.
+///
+/// This is a lighter alternative to `process_image_full` used for quick previews
+/// where full quality analysis is not required.
+///
+/// # Arguments
+/// * `payload` - Multipart form data containing an image file.
+///
+/// # Returns
+/// A single WebP image file as binary data.
+///
+/// # Errors
+/// * `ImageError` if the image size exceeds limits or decoding fails.
 #[tracing::instrument(skip(payload), name = "optimize_image")]
 pub async fn optimize_image(mut payload: Multipart) -> Result<HttpResponse, AppError> {
     let start = Instant::now();
@@ -192,6 +228,20 @@ pub async fn optimize_image(mut payload: Multipart) -> Result<HttpResponse, AppE
     }
 }
 
+/// Generates a batch of images at different resolutions in parallel.
+///
+/// Produces a ZIP containing 4K, 2K, and HD versions of the uploaded image
+/// to support responsive viewing across different device types.
+///
+/// # Arguments
+/// * `payload` - Multipart form data containing an image file.
+///
+/// # Returns
+/// A ZIP file containing `4k.webp`, `2k.webp`, and `hd.webp`.
+///
+/// # Errors
+/// * `ImageError` if the image cannot be processed.
+/// * `InternalError` if parallel execution fails.
 #[tracing::instrument(skip(payload), name = "resize_image_batch")]
 pub async fn resize_image_batch(mut payload: Multipart) -> Result<HttpResponse, AppError> {
     tracing::info!(module = "Resizer", "RESIZE_BATCH_START");
@@ -269,6 +319,19 @@ pub async fn resize_image_batch(mut payload: Multipart) -> Result<HttpResponse, 
     }
 }
 
+/// Extracts EXIF metadata and performs quality analysis on an image.
+///
+/// This handler does not save or optimize the image; it only returns the
+/// technical details and quality metrics.
+///
+/// # Arguments
+/// * `payload` - Multipart form data containing an image file.
+///
+/// # Returns
+/// A `MetadataResponse` JSON object.
+///
+/// # Errors
+/// * `ImageError` if the metadata cannot be parsed.
 #[tracing::instrument(skip(payload), name = "extract_metadata")]
 pub async fn extract_metadata(mut payload: Multipart) -> Result<HttpResponse, AppError> {
     let mut data = Vec::with_capacity(32 * 1024 * 1024);

@@ -17,8 +17,16 @@ static FILENAME_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"_(\d{6})_\d{2}_(\d{3})").expect("Invalid regex pattern in source code")
 });
 
-/// Extract a smart filename from the original filename
-/// Logic: _YYMMDD_XX_NNN -> YYMMDD_NNN
+/// Extracts a suggested human-readable name from a camera-generated filename.
+///
+/// Handles naming conventions like `_YYMMDD_XX_NNN` and converts them to
+/// `YYMMDD_NNN` for better UX in the editor.
+///
+/// # Arguments
+/// * `original` - The original filename string.
+///
+/// # Returns
+/// A simplified filename string.
 pub fn get_suggested_name(original: &str) -> String {
     // Remove extension
     let base_name = std::path::Path::new(original)
@@ -36,6 +44,14 @@ pub fn get_suggested_name(original: &str) -> String {
     base_name.to_string()
 }
 
+/// Encodes a dynamic image to WebP format.
+///
+/// # Arguments
+/// * `img` - The source image to encode.
+/// * `quality` - The WebP quality setting (0.0 to 100.0).
+///
+/// # Returns
+/// A vector of bytes representing the encoded WebP image.
 pub fn encode_webp(img: &DynamicImage, quality: f32) -> Result<Vec<u8>, String> {
     let (w, h) = (img.width(), img.height());
     let rgba = img.to_rgba8();
@@ -44,6 +60,18 @@ pub fn encode_webp(img: &DynamicImage, quality: f32) -> Result<Vec<u8>, String> 
     Ok(webp.to_vec())
 }
 
+/// Fast-resizes an RGBA buffer using Lanczos3 convolution.
+///
+/// This provides a significantly faster alternative to the standard `image`
+/// crate's resize function for large panoramic images.
+///
+/// # Arguments
+/// * `src_rgba` - The source pixel data.
+/// * `src_w`/`src_h` - Source dimensions.
+/// * `target_width`/`target_height` - Destination dimensions.
+///
+/// # Returns
+/// A vector of bytes containing the resized RGBA data.
 pub fn resize_fast_rgba(src_rgba: &[u8], src_w: u32, src_h: u32, target_width: u32, target_height: u32) -> Result<Vec<u8>, String> {
     if target_width == 0 || target_height == 0 {
         return Err("Invalid dimensions".to_string());
@@ -77,6 +105,22 @@ pub fn resize_fast(img: &image::DynamicImage, target_width: u32, target_height: 
         .ok_or_else(|| "Failed to create RgbaImage from resized data".to_string())
 }
 
+/// Performs complete technical analysis and metadata extraction on an image.
+///
+/// This is the core service function for image processing. It:
+/// 1. Computes a SHA-256 checksum for deduplication.
+/// 2. Extracts EXIF data (GPS, camera make/model, etc.).
+/// 3. Analyzes image quality (blur, exposure, shadows).
+/// 4. Checks for existing reMX metadata to avoid re-processing.
+///
+/// # Arguments
+/// * `src_rgba` - Raw RGBA pixels for analysis.
+/// * `src_w`/`src_h` - Dimensions.
+/// * `input_data` - The original encoded image data (for EXIF and checksum).
+/// * `original_filename` - Optional filename for name suggestion.
+///
+/// # Returns
+/// A `MetadataResponse` containing all extracted information and analysis results.
 pub fn perform_metadata_extraction_rgba(src_rgba: &[u8], src_w: u32, src_h: u32, input_data: &[u8], original_filename: Option<&str>) -> Result<MetadataResponse, String> {
     // Calculate SHA-256 checksum first (fast in Rust, ~10x faster than JS)
     let checksum_start = Instant::now();
@@ -299,7 +343,18 @@ pub fn perform_metadata_extraction(img: &image::DynamicImage, input_data: &[u8],
     perform_metadata_extraction_rgba(&rgba, img.width(), img.height(), input_data, original_filename)
 }
 
-// INJECTION HELPER
+/// Injects a custom `reMX` chunk into a WebP file containing metadata JSON.
+///
+/// This chunk is used to cache processing results directly within the image
+/// file, which can be read back by `perform_metadata_extraction_rgba`
+/// to prevent redundant computation.
+///
+/// # Arguments
+/// * `webp_data` - The binary content of a WebP file.
+/// * `metadata` - The metadata structure to inject.
+///
+/// # Returns
+/// The modified WebP file as binary data.
 pub fn inject_remx_chunk(webp_data: Vec<u8>, metadata: &MetadataResponse) -> Result<Vec<u8>, String> {
     let mut webp = WebP::from_bytes(Bytes::from(webp_data)).map_err(|e| e.to_string())?;
     let json = serde_json::to_string(metadata).map_err(|e| e.to_string())?;
