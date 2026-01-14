@@ -19,6 +19,8 @@ use bytes::Bytes;
 use image::DynamicImage;
 use fast_image_resize::{Resizer, ResizeOptions, FilterType, ResizeAlg, PixelType, images::Image as FrImage};
 use sha2::{Sha256, Digest};
+use once_cell::sync::Lazy;
+use regex::Regex;
 // flate2 and SystemTime removed as compression is not yet implemented
 
 
@@ -231,10 +233,14 @@ pub struct MetadataResponse {
 
 // --- Internal Processing Logic (Extracted for reuse) ---
 
+// Compile regex once at startup using lazy static
+static FILENAME_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"_(\d{6})_\d{2}_(\d{3})").expect("Invalid regex pattern in source code")
+});
+
 /// Extract a smart filename from the original filename
 /// Logic: _YYMMDD_XX_NNN -> YYMMDD_NNN
 fn get_suggested_name(original: &str) -> String {
-    use regex::Regex;
     // Remove extension
     let base_name = std::path::Path::new(original)
         .file_stem()
@@ -242,9 +248,7 @@ fn get_suggested_name(original: &str) -> String {
         .unwrap_or(original);
 
     // Try to match the pattern _(\d{6})_\d{2}_(\d{3})
-    // We'll use a lazy static or just create it here for now
-    let re = Regex::new(r"_(\d{6})_\d{2}_(\d{3})").unwrap();
-    if let Some(caps) = re.captures(base_name) {
+    if let Some(caps) = FILENAME_REGEX.captures(base_name) {
         if caps.len() >= 3 {
             return format!("{}_{}", &caps[1], &caps[2]);
         }
@@ -996,7 +1000,9 @@ pub async fn create_tour_package(mut payload: Multipart) -> Result<HttpResponse,
 
     // 1. Parse Multipart into Memory
     while let Some(mut field) = payload.try_next().await? {
-        let content_disposition = field.content_disposition().unwrap().clone();
+        let content_disposition = field.content_disposition()
+            .cloned()
+            .ok_or(AppError::InternalError("Missing content disposition".into()))?;
         let name = content_disposition.get_name().unwrap_or("unknown").to_string();
         let filename = content_disposition.get_filename().map(|f| f.to_string());
 
@@ -1171,7 +1177,9 @@ pub async fn save_project(mut payload: Multipart) -> Result<HttpResponse, AppErr
     
     // 2. Iterate Multipart Stream
     while let Some(mut field) = payload.try_next().await? {
-        let content_disposition = field.content_disposition().unwrap().clone();
+        let content_disposition = field.content_disposition()
+            .cloned()
+            .ok_or(AppError::InternalError("Missing content disposition".into()))?;
         let name = content_disposition.get_name().unwrap_or("unknown").to_string();
         
         if name == "project_data" {
@@ -1503,9 +1511,14 @@ pub async fn serve_session_file(path: web::Path<(String, String)>) -> Result<Htt
 }
 
 async fn rotate_log_file(path: &std::path::Path) -> std::io::Result<()> {
-    let stem = path.file_stem().unwrap().to_str().unwrap();
-    let ext = path.extension().map(|e| e.to_str().unwrap()).unwrap_or("log");
-    let dir = path.parent().unwrap();
+    let stem = path.file_stem()
+        .and_then(|s| s.to_str())
+        .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::InvalidInput, "Invalid log file stem"))?;
+    let ext = path.extension()
+        .and_then(|e| e.to_str())
+        .unwrap_or("log");
+    let dir = path.parent()
+        .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::InvalidInput, "Log file has no parent directory"))?;
     
     // Shift existing rotated files
     for i in (1..MAX_LOG_FILES).rev() {
@@ -1709,15 +1722,21 @@ pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, App
     }
 
     let output_path = get_temp_path("mp4");
-    let input_str = input_path.to_str().unwrap().to_string();
-    let output_str = output_path.to_str().unwrap().to_string();
+    let input_str = input_path.to_str()
+        .ok_or(AppError::InternalError("Invalid input path encoding".into()))?
+        .to_string();
+    let output_str = output_path.to_str()
+        .ok_or(AppError::InternalError("Invalid output path encoding".into()))?
+        .to_string();
 
     tracing::info!(module = "VideoEncoder", input = %input_str, output = %output_str, "TRANSCODE_START");
 
-    let result = web::block(move || {
+    let result = web::block(move || -> Result<PathBuf, String> {
         let local_ffmpeg = PathBuf::from("./bin/ffmpeg");
         let ffmpeg_cmd = if local_ffmpeg.exists() {
-            local_ffmpeg.to_str().unwrap().to_string()
+            local_ffmpeg.to_str()
+                .ok_or("Invalid ffmpeg path encoding".to_string())?
+                .to_string()
         } else {
             "ffmpeg".to_string()
         };
@@ -1781,7 +1800,9 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
 
     // 2. Parse Multipart
     while let Some(mut field) = payload.try_next().await? {
-        let content_disposition = field.content_disposition().unwrap().clone();
+        let content_disposition = field.content_disposition()
+            .cloned()
+            .ok_or(AppError::InternalError("Missing content disposition".into()))?;
         let name = content_disposition.get_name().unwrap_or("").to_string();
 
         if name == "project_data" {
@@ -1812,7 +1833,9 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
     let project_data = project_data_value.ok_or_else(|| AppError::InternalError("Missing project_data JSON".into()))?;
 
     let output_path = get_temp_path("mp4");
-    let output_str = output_path.to_str().unwrap().to_string();
+    let output_str = output_path.to_str()
+        .ok_or(AppError::InternalError("Invalid output path encoding".into()))?
+        .to_string();
     
     // session_id must be moved into the closure
     let session_id_clone = session_id.clone();
@@ -1841,7 +1864,8 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
         tab.wait_until_navigated().map_err(|e| format!("Nav timeout: {}", e))?;
 
         // 3. Inject Project Data & Loader Script
-        let json_str = serde_json::to_string(&project_data).unwrap();
+        let json_str = serde_json::to_string(&project_data)
+            .map_err(|e| format!("Failed to serialize project data: {}", e))?;
         // Script: Fetch images from session, create blobs, then load project
         let script = format!(r#"
             (async function() {{
@@ -1930,7 +1954,9 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
         // 4. Start FFmpeg Process
         let local_ffmpeg = PathBuf::from("./bin/ffmpeg");
         let ffmpeg_cmd = if local_ffmpeg.exists() {
-            local_ffmpeg.to_str().unwrap().to_string()
+            local_ffmpeg.to_str()
+                .ok_or("Invalid ffmpeg path encoding".to_string())?
+                .to_string()
         } else {
             "ffmpeg".to_string()
         };
@@ -2038,7 +2064,8 @@ mod tests {
             has_black_clipping: false, has_white_clipping: false,
             issues: 0, warnings: 0, analysis: None
         };
-        let json = serde_json::to_string(&analysis).unwrap();
+        let json = serde_json::to_string(&analysis)
+            .expect("Test serialization should not fail");
         assert!(json.contains("\"score\":9.0"));
     }
 }
