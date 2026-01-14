@@ -126,10 +126,7 @@ let analyzeImageQuality = file => {
   })
 }
 
-/* calculateSimilarity - Wrapper for ImageAnalysis */
-let calculateSimilarity = (resultA, resultB) => {
-  ImageAnalysis.calculateSimilarity(Obj.magic(resultA), Obj.magic(resultB))
-}
+
 
 /* getCameraSignature - Utility function */
 let getCameraSignature = (exif: JSON.t) => {

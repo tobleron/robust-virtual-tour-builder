@@ -9,5 +9,6 @@ ReducerTest.run()
 ReducerJsonTest.run()
 SceneReducerTest.run()
 HotspotReducerTest.run()
+ExifParserTest.run()
 
 Console.log("All frontend tests passed successfully! 🎉")

@@ -10,8 +10,11 @@ const stagedFiles = execSync('git diff --name-only --cached').toString().split('
 // Filter for logic files: ReScript (.res) or Rust (.rs)
 // Exclude: UI components, types, bindings, test runners, and mod.rs
 const sourceFiles = stagedFiles.filter(file => {
+    // 1. Ignore deleted files
+    if (!fs.existsSync(file)) return false;
+
     return (
-        (file.endsWith('.res') && !file.includes('/components/') && !file.includes('/types/') && !file.includes('TestRunner')) ||
+        (file.endsWith('.res') && !file.endsWith('Test.res') && !file.includes('/components/') && !file.includes('/types/') && !file.includes('TestRunner')) ||
         (file.endsWith('.rs') && !file.includes('mod.rs') && !file.includes('main.rs') && !file.endsWith('_test.rs') && !file.endsWith('_tests.rs'))
     );
 });
