@@ -19,3 +19,4 @@
 - Added Step 0: ensure-watcher.sh call after pre-flight cleanup
 - Snapshot watcher now auto-launches before compilers start
 - Development environment is now fully autonomous
+[2026-01-14 13:13] v4.2.6 - Refactor validate_and_clean_project to follow pure functional principles
