@@ -1,57 +1,15 @@
 /* src/systems/BackendApi.res */
 
 open ReBindings
+open SharedTypes
 
 /* --- API TYPES (Matching Rust Structs) --- */
 
-type validationReport = {
-  brokenLinksRemoved: int,
-  orphanedScenes: array<string>,
-  unusedFiles: array<string>,
-  warnings: array<string>,
-  errors: array<string>,
-}
-
-type exifMetadata = {
-  make: Nullable.t<string>,
-  model: Nullable.t<string>,
-  dateTime: Nullable.t<string>,
-  width: int,
-  height: int,
-  focalLength: Nullable.t<float>,
-  aperture: Nullable.t<float>,
-  iso: Nullable.t<int>,
-}
-
-type qualityStats = {
-  avgLuminance: int,
-  blackClipping: float,
-  whiteClipping: float,
-  sharpnessVariance: int,
-}
-
-type qualityAnalysis = {
-  score: float,
-  histogram: array<int>,
-  stats: qualityStats,
-  isBlurry: bool,
-  isSoft: bool,
-  isSeverelyDark: bool,
-  isDim: bool,
-  hasBlackClipping: bool,
-  hasWhiteClipping: bool,
-  issues: int,
-  warnings: int,
-  analysis: Nullable.t<string>,
-}
-
-type metadataResponse = {
-  exif: exifMetadata,
-  quality: qualityAnalysis,
-  isOptimized: bool,
-  checksum: string,
-  suggestedName: Nullable.t<string>,
-}
+// Types imported from SharedTypes:
+// - validationReport
+// - exifMetadata
+// - qualityAnalysis
+// - metadataResponse
 
 type importResponse = {
   sessionId: string,
@@ -71,23 +29,7 @@ type geocodeResponse = {
 
 /* --- SIMILARITY TYPES --- */
 
-type similarityPair = {
-  idA: string,
-  idB: string,
-  histogramA: JSON.t,
-  histogramB: JSON.t,
-}
-
-type similarityResult = {
-  idA: string,
-  idB: string,
-  similarity: float,
-}
-
-type similarityResponse = {
-  results: array<similarityResult>,
-  durationMs: float,
-}
+// Moved to SharedTypes
 
 /* --- PATHFINDER TYPES --- */
 

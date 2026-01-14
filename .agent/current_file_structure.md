@@ -250,6 +250,12 @@
 │   │   │   │   ├── ReducerHelpers.cmj
 │   │   │   │   ├── ReducerHelpers.cmt
 │   │   │   │   ├── ReducerHelpers.res
+│   │   │   │   ├── SharedTypes.ast
+│   │   │   │   ├── SharedTypes.bs.js
+│   │   │   │   ├── SharedTypes.cmi
+│   │   │   │   ├── SharedTypes.cmj
+│   │   │   │   ├── SharedTypes.cmt
+│   │   │   │   ├── SharedTypes.res
 │   │   │   │   ├── State.ast
 │   │   │   │   ├── State.bs.js
 │   │   │   │   ├── State.cmi
@@ -360,12 +366,6 @@
 │   │   │   │   ├── HotspotLine.cmj
 │   │   │   │   ├── HotspotLine.cmt
 │   │   │   │   ├── HotspotLine.res
-│   │   │   │   ├── ImageAnalysis.ast
-│   │   │   │   ├── ImageAnalysis.bs.js
-│   │   │   │   ├── ImageAnalysis.cmi
-│   │   │   │   ├── ImageAnalysis.cmj
-│   │   │   │   ├── ImageAnalysis.cmt
-│   │   │   │   ├── ImageAnalysis.res
 │   │   │   │   ├── InputSystem.ast
 │   │   │   │   ├── InputSystem.bs.js
 │   │   │   │   ├── InputSystem.cmi
@@ -567,6 +567,12 @@
 │   │       ├── TestRunner.cmt
 │   │       ├── TestRunner.res
 │   │       └── unit
+│   │           ├── BackendApiTest.ast
+│   │           ├── BackendApiTest.bs.js
+│   │           ├── BackendApiTest.cmi
+│   │           ├── BackendApiTest.cmj
+│   │           ├── BackendApiTest.cmt
+│   │           ├── BackendApiTest.res
 │   │           ├── ExifParserTest.ast
 │   │           ├── ExifParserTest.bs.js
 │   │           ├── ExifParserTest.cmi
@@ -591,6 +597,12 @@
 │   │           ├── PathInterpolationTest.cmj
 │   │           ├── PathInterpolationTest.cmt
 │   │           ├── PathInterpolationTest.res
+│   │           ├── ProjectManagerTest.ast
+│   │           ├── ProjectManagerTest.bs.js
+│   │           ├── ProjectManagerTest.cmi
+│   │           ├── ProjectManagerTest.cmj
+│   │           ├── ProjectManagerTest.cmt
+│   │           ├── ProjectManagerTest.res
 │   │           ├── ReducerJsonTest.ast
 │   │           ├── ReducerJsonTest.bs.js
 │   │           ├── ReducerJsonTest.cmi
@@ -603,12 +615,24 @@
 │   │           ├── ReducerTest.cmj
 │   │           ├── ReducerTest.cmt
 │   │           ├── ReducerTest.res
+│   │           ├── ResizerTest.ast
+│   │           ├── ResizerTest.bs.js
+│   │           ├── ResizerTest.cmi
+│   │           ├── ResizerTest.cmj
+│   │           ├── ResizerTest.cmt
+│   │           ├── ResizerTest.res
 │   │           ├── SceneReducerTest.ast
 │   │           ├── SceneReducerTest.bs.js
 │   │           ├── SceneReducerTest.cmi
 │   │           ├── SceneReducerTest.cmj
 │   │           ├── SceneReducerTest.cmt
 │   │           ├── SceneReducerTest.res
+│   │           ├── SharedTypesTest.ast
+│   │           ├── SharedTypesTest.bs.js
+│   │           ├── SharedTypesTest.cmi
+│   │           ├── SharedTypesTest.cmj
+│   │           ├── SharedTypesTest.cmt
+│   │           ├── SharedTypesTest.res
 │   │           ├── SimulationSystemTest.ast
 │   │           ├── SimulationSystemTest.bs.js
 │   │           ├── SimulationSystemTest.cmi
@@ -620,7 +644,13 @@
 │   │           ├── TourLogicTest.cmi
 │   │           ├── TourLogicTest.cmj
 │   │           ├── TourLogicTest.cmt
-│   │           └── TourLogicTest.res
+│   │           ├── TourLogicTest.res
+│   │           ├── UploadProcessorTest.ast
+│   │           ├── UploadProcessorTest.bs.js
+│   │           ├── UploadProcessorTest.cmi
+│   │           ├── UploadProcessorTest.cmj
+│   │           ├── UploadProcessorTest.cmt
+│   │           └── UploadProcessorTest.res
 │   ├── ocaml
 │   │   ├── Actions.ast
 │   │   ├── Actions.cmi
@@ -647,6 +677,10 @@
 │   │   ├── BackendApi.cmj
 │   │   ├── BackendApi.cmt
 │   │   ├── BackendApi.res
+│   │   ├── BackendApiTest.cmi
+│   │   ├── BackendApiTest.cmj
+│   │   ├── BackendApiTest.cmt
+│   │   ├── BackendApiTest.res
 │   │   ├── ColorPalette.ast
 │   │   ├── ColorPalette.cmi
 │   │   ├── ColorPalette.cmj
@@ -721,7 +755,6 @@
 │   │   ├── HotspotReducerTest.cmj
 │   │   ├── HotspotReducerTest.cmt
 │   │   ├── HotspotReducerTest.res
-│   │   ├── ImageAnalysis.res
 │   │   ├── InputSystem.ast
 │   │   ├── InputSystem.cmi
 │   │   ├── InputSystem.cmj
@@ -817,6 +850,10 @@
 │   │   ├── ProjectManager.cmj
 │   │   ├── ProjectManager.cmt
 │   │   ├── ProjectManager.res
+│   │   ├── ProjectManagerTest.cmi
+│   │   ├── ProjectManagerTest.cmj
+│   │   ├── ProjectManagerTest.cmt
+│   │   ├── ProjectManagerTest.res
 │   │   ├── ProjectReducer.ast
 │   │   ├── ProjectReducer.cmi
 │   │   ├── ProjectReducer.cmj
@@ -846,11 +883,14 @@
 │   │   ├── ReducerTest.cmj
 │   │   ├── ReducerTest.cmt
 │   │   ├── ReducerTest.res
-│   │   ├── Resizer.ast
 │   │   ├── Resizer.cmi
 │   │   ├── Resizer.cmj
 │   │   ├── Resizer.cmt
 │   │   ├── Resizer.res
+│   │   ├── ResizerTest.cmi
+│   │   ├── ResizerTest.cmj
+│   │   ├── ResizerTest.cmt
+│   │   ├── ResizerTest.res
 │   │   ├── RootReducer.ast
 │   │   ├── RootReducer.cmi
 │   │   ├── RootReducer.cmj
@@ -881,6 +921,14 @@
 │   │   ├── ServiceWorker.cmj
 │   │   ├── ServiceWorker.cmt
 │   │   ├── ServiceWorker.res
+│   │   ├── SharedTypes.cmi
+│   │   ├── SharedTypes.cmj
+│   │   ├── SharedTypes.cmt
+│   │   ├── SharedTypes.res
+│   │   ├── SharedTypesTest.cmi
+│   │   ├── SharedTypesTest.cmj
+│   │   ├── SharedTypesTest.cmt
+│   │   ├── SharedTypesTest.res
 │   │   ├── Sidebar.ast
 │   │   ├── Sidebar.cmi
 │   │   ├── Sidebar.cmj
@@ -982,11 +1030,14 @@
 │   │   ├── UiReducer.cmj
 │   │   ├── UiReducer.cmt
 │   │   ├── UiReducer.res
-│   │   ├── UploadProcessor.ast
 │   │   ├── UploadProcessor.cmi
 │   │   ├── UploadProcessor.cmj
 │   │   ├── UploadProcessor.cmt
 │   │   ├── UploadProcessor.res
+│   │   ├── UploadProcessorTest.cmi
+│   │   ├── UploadProcessorTest.cmj
+│   │   ├── UploadProcessorTest.cmt
+│   │   ├── UploadProcessorTest.res
 │   │   ├── UploadReport.ast
 │   │   ├── UploadReport.cmi
 │   │   ├── UploadReport.cmj
@@ -1128,6 +1179,8 @@
 │   │   ├── Reducer.res
 │   │   ├── ReducerHelpers.bs.js
 │   │   ├── ReducerHelpers.res
+│   │   ├── SharedTypes.bs.js
+│   │   ├── SharedTypes.res
 │   │   ├── State.bs.js
 │   │   ├── State.res
 │   │   ├── Types.bs.js
@@ -1342,16 +1395,24 @@
 │   │   ├── 96_Migrate_Constants_To_Rescript_REPORT.md
 │   │   ├── 98_Backend_Safety_Audit.md
 │   │   ├── 98_Backend_Safety_Audit_REPORT.md
+│   │   ├── 99_Unify_Types.md
+│   │   ├── 99_Unify_Types_REPORT.md
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   └── pending
-│       ├── 97_Migrate_To_Vite.md
-│       └── 99_Unify_Types.md
+│       ├── 100_Add_Tests_for_SharedTypes.md
+│       ├── 101_Add_Tests_for_BackendApi.md
+│       ├── 102_Add_Tests_for_ProjectManager.md
+│       ├── 103_Add_Tests_for_Resizer.md
+│       ├── 104_Add_Tests_for_UploadProcessor.md
+│       └── 97_Migrate_To_Vite.md
 └── tests
     ├── TestRunner.bs.js
     ├── TestRunner.res
     ├── integration
     └── unit
+        ├── BackendApiTest.bs.js
+        ├── BackendApiTest.res
         ├── ExifParserTest.bs.js
         ├── ExifParserTest.res
         ├── GeoUtilsTest.bs.js
@@ -1360,15 +1421,23 @@
         ├── HotspotReducerTest.res
         ├── PathInterpolationTest.bs.js
         ├── PathInterpolationTest.res
+        ├── ProjectManagerTest.bs.js
+        ├── ProjectManagerTest.res
         ├── ReducerJsonTest.bs.js
         ├── ReducerJsonTest.res
         ├── ReducerTest.bs.js
         ├── ReducerTest.res
+        ├── ResizerTest.bs.js
+        ├── ResizerTest.res
         ├── SceneReducerTest.bs.js
         ├── SceneReducerTest.res
+        ├── SharedTypesTest.bs.js
+        ├── SharedTypesTest.res
         ├── SimulationSystemTest.bs.js
         ├── SimulationSystemTest.res
         ├── TourLogicTest.bs.js
-        └── TourLogicTest.res
+        ├── TourLogicTest.res
+        ├── UploadProcessorTest.bs.js
+        └── UploadProcessorTest.res
 
-44 directories, 1328 files
+44 directories, 1397 files

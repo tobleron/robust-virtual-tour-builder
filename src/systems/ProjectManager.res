@@ -154,10 +154,9 @@ let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promi
     })
 
     // Extract validation report if present
-    let validationReport: option<BackendApi.validationReport> = switch Nullable.toOption(
+    let validationReport: option<SharedTypes.validationReport> = switch Nullable.toOption(
       pd["validationReport"],
-    ) {
-    | Some(report) => Some(Obj.magic(report))
+    ) {    | Some(report) => Some(Obj.magic(report))
     | None => None
     }
 

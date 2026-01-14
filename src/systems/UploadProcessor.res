@@ -1,6 +1,6 @@
-open Types
-open Actions
 open ReBindings
+open SharedTypes
+open Types
 
 /* Bindings for File API */
 /* Using ReBindings.File directly */
@@ -256,7 +256,7 @@ let processUploads = (
                   }
 
                   // Build pairs for batch similarity
-                  let pairs: array<BackendApi.similarityPair> = []
+                  let pairs: array<similarityPair> = []
                   Belt.Array.forEachWithIndex(validProcessed, (i, current) => {
                     let currentId =
                       Nullable.toOption(current.id)->Option.getOr(File.name(current.original))
@@ -328,7 +328,7 @@ let processUploads = (
                     }
                     // Build lookup map
                     let simMap = Dict.make()
-                    Belt.Array.forEach(similarities, (result: BackendApi.similarityResult) => {
+                    Belt.Array.forEach(similarities, (result: similarityResult) => {
                       let key = result.idA ++ "_" ++ result.idB
                       Dict.set(simMap, key, result.similarity)
                     })
