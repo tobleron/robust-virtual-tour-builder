@@ -177,10 +177,10 @@ let calculatePathData = (
 
       let panDuration = Math.min(
         Math.max(
-          totalDistance.contents /. ReBindings.Constants.panningVelocity,
-          ReBindings.Constants.panningMinDuration,
+          totalDistance.contents /. Constants.panningVelocity,
+          Constants.panningMinDuration,
         ),
-        ReBindings.Constants.panningMaxDuration,
+        Constants.panningMaxDuration,
       )
 
       Some({

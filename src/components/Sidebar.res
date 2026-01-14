@@ -3,7 +3,7 @@
 // Bindings
 @module("../version.js") external version: string = "VERSION"
 @module("../version.js") external buildInfo: string = "BUILD_INFO"
-@module("../constants.js") external autoHideDelay: int = "PROGRESS_BAR_AUTO_HIDE_DELAY"
+let autoHideDelay = Constants.progressBarAutoHideDelay
 @scope(("window", "location")) @val external reload: unit => unit = "reload"
 
 module ProjectManager = {

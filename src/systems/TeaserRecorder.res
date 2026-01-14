@@ -1,10 +1,8 @@
 /* src/systems/TeaserRecorder.res */
 
 /* Bindings & Imports */
-module Constants = {
-  @module("../constants.js") external width: int = "TEASER_CANVAS_WIDTH"
-  @module("../constants.js") external height: int = "TEASER_CANVAS_HEIGHT"
-}
+let canvasWidth = Constants.Teaser.canvasWidth
+let canvasHeight = Constants.Teaser.canvasHeight
 
 /* Local Types */
 type stream
@@ -116,8 +114,8 @@ let initGhost = () => {
   | Some(_) => ()
   | None =>
     let c = ReBindings.Dom.createElement("canvas")
-    ReBindings.Dom.setWidth(c, Constants.width)
-    ReBindings.Dom.setHeight(c, Constants.height)
+    ReBindings.Dom.setWidth(c, canvasWidth)
+    ReBindings.Dom.setHeight(c, canvasHeight)
     internalState.ghostCanvas = Some(c)
 
     let ctx = ReBindings.Canvas.getContext2d(c, "2d", {"alpha": false})
@@ -143,8 +141,8 @@ let renderWatermark = (ctx: ReBindings.Canvas.context2d, logoImg: ReBindings.Dom
   let boxWidth = logoWidth +. padding *. 2.0
   let boxHeight = logoHeight +. padding *. 2.0
 
-  let ghostW = Constants.width->Belt.Int.toFloat
-  let ghostH = Constants.height->Belt.Int.toFloat
+  let ghostW = canvasWidth->Belt.Int.toFloat
+  let ghostH = canvasHeight->Belt.Int.toFloat
 
   let boxX = ghostW -. boxWidth -. margin
   let boxY = ghostH -. boxHeight -. margin
@@ -201,8 +199,8 @@ let renderFrame = (
     let sh = ReBindings.Dom.getHeight(sourceCanvas)->Belt.Int.toFloat
 
     if sw > 0.0 {
-      let dw = Constants.width->Belt.Int.toFloat
-      let dh = Constants.height->Belt.Int.toFloat
+      let dw = canvasWidth->Belt.Int.toFloat
+      let dh = canvasHeight->Belt.Int.toFloat
 
       let sourceAspect = sw /. sh
       let destAspect = dw /. dh
@@ -312,8 +310,8 @@ let startRecording = () => {
         ~module_="TeaserRecorder",
         ~message="RECORDING_START",
         ~data={
-          "width": Constants.width,
-          "height": Constants.height,
+          "width": canvasWidth,
+          "height": canvasHeight,
           "mimeType": mimeType,
         },
         (),

@@ -373,6 +373,12 @@
 │   │           ├── ColorPalette.cmj
 │   │           ├── ColorPalette.cmt
 │   │           ├── ColorPalette.res
+│   │           ├── Constants.ast
+│   │           ├── Constants.bs.js
+│   │           ├── Constants.cmi
+│   │           ├── Constants.cmj
+│   │           ├── Constants.cmt
+│   │           ├── Constants.res
 │   │           ├── GeoUtils.ast
 │   │           ├── GeoUtils.bs.js
 │   │           ├── GeoUtils.cmi
@@ -434,6 +440,11 @@
 │   │   ├── ColorPalette.cmj
 │   │   ├── ColorPalette.cmt
 │   │   ├── ColorPalette.res
+│   │   ├── Constants.ast
+│   │   ├── Constants.cmi
+│   │   ├── Constants.cmj
+│   │   ├── Constants.cmt
+│   │   ├── Constants.res
 │   │   ├── DownloadSystem.ast
 │   │   ├── DownloadSystem.cmi
 │   │   ├── DownloadSystem.cmj
@@ -741,7 +752,6 @@
 │   │   ├── ViewerUI.res
 │   │   ├── VisualPipeline.bs.js
 │   │   └── VisualPipeline.res
-│   ├── constants.js
 │   ├── core
 │   │   ├── Actions.bs.js
 │   │   ├── Actions.res
@@ -819,6 +829,8 @@
 │   ├── utils
 │   │   ├── ColorPalette.bs.js
 │   │   ├── ColorPalette.res
+│   │   ├── Constants.bs.js
+│   │   ├── Constants.res
 │   │   ├── GeoUtils.bs.js
 │   │   ├── GeoUtils.res
 │   │   ├── Logger.bs.js
@@ -919,4 +931,4 @@
 └── tests
     └── SimulationSystem_test.res
 
-31 directories, 889 files
+31 directories, 901 files

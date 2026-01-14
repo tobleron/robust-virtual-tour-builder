@@ -239,14 +239,14 @@ module Loader = {
                   ~message="SCENE_LOAD_TIMEOUT",
                   ~data=Some({
                     "sceneName": targetScene.name,
-                    "timeoutMs": ReBindings.Constants.sceneLoadTimeout,
+                    "timeoutMs": Constants.sceneLoadTimeout,
                   }),
                   (),
                 )
                 state.isSceneLoading = false
                 state.loadingSceneId = Nullable.null
               }
-            }, ReBindings.Constants.sceneLoadTimeout))
+            }, Constants.sceneLoadTimeout))
 
           /* Pre-calc snapshot check */
           let snapshot = Dom.getElementById("viewer-snapshot-overlay")
@@ -304,7 +304,7 @@ module Loader = {
           } else {
             0.0
           }
-          let initialHfov = ReBindings.Constants.backendUrl == "" ? 90.0 : 90.0
+          let initialHfov = Constants.backendUrl == "" ? Constants.globalHfov : Constants.globalHfov
 
           let hotspotsArr = Belt.Array.mapWithIndex(targetScene.hotspots, (i, h) => {
             HotspotManager.createHotspotConfig(

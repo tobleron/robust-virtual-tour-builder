@@ -23,7 +23,7 @@ module ExifReader = {
 }
 
 /* Constants */
-@module("../constants.js") external backendUrl: string = "BACKEND_URL"
+let backendUrl = Constants.backendUrl
 
 /* Bindings for Fetch */
 @val external fetch: (string, 'a) => promise<JSON.t> = "fetch"
