@@ -4,6 +4,10 @@
    - **STEP 0 (CRITICAL)**: Before performing ANY task (coding, file creation, or analysis), YOU MUST run `./scripts/ensure-watcher.sh` to guarantee the safety snapshotter is active.
    - **Commits**: You MUST use `./scripts/commit.sh` for all commits.
    - **Quality Gates**: A background sentinel monitors file sizes. If a source file exceeds 700 lines, a task is auto-generated in `tasks/pending`. YOU MUST prioritize these tasks.
+   - **Mandatory Testing**: `npm test` MUST pass before ANY commit. `commit.sh` will auto-detect missing tests for new modules.
+   - **Code Standards**: Follow `/functional-standards` and `/debug-standards` for all code changes.
+   - **New Modules**: When creating new ReScript modules, follow `/new-module-standards`.
+   - **Pre-Push**: You MUST complete `/pre-push-workflow` before pushing to remote.
 
 2. **Safety**: 
    - Never use `git commit` directly.

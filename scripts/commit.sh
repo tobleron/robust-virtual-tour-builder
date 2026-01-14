@@ -22,11 +22,31 @@ NEW_VER=$(node -p "require('./package.json').version")
 # 4. Cache Busting
 sed -i '' "s/v=[0-9.]*/v=$NEW_VER/g" index.html
 
-# 5. Build Verification
+# 5. Auto-Format
+echo "🎨 Formatting Code..."
+npm run format
+
+# 6. Build Verification
 echo "🔨 Verifying Build..."
 if ! npm run res:build; then echo "❌ Build failed."; exit 1; fi
 
-# 6. Log & Commit
+# 7. Test Gap Detection
+if ! node scripts/detect-missing-tests.js; then
+    echo ""
+    read -p "⚠️  Are you sure you want to commit without these tests? (y/N) " -n 1 -r
+    echo ""
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "❌ Commit aborted. Please add tests."
+        exit 1
+    fi
+    echo "⚠️  Proceeding despite missing tests..."
+fi
+
+# 8. Test Verification
+echo "🧪 Running Tests..."
+if ! npm test; then echo "❌ Tests failed."; exit 1; fi
+
+# 9. Log & Commit
 echo "[$(date '+%Y-%m-%d %H:%M')] v$NEW_VER - $MSG" >> logs/log_changes.txt
 rm -f logs/telemetry.log
 git add .

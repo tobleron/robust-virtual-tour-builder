@@ -34,8 +34,9 @@ Follow these steps when you are ready to commit your changes.
 ## 3. Verification
 // turbo
 1. **Build Check**: Run `npm run res:build` (for ReScript) and `npm run dev` to ensure everything compiles and works.
-2. **Console Check**: Verify there are no errors in the browser console.
-3. **Logger Check**: Temporarily enable debug mode (`DEBUG.enable()`) and verify logs appear correctly for modified modules.
+2. **Test Check**: Run `npm test` to ensure all unit tests pass before committing.
+3. **Console Check**: Verify there are no errors in the browser console.
+4. **Logger Check**: Temporarily enable debug mode (`DEBUG.enable()`) and verify logs appear correctly for modified modules.
 
 ## 4. Git Commit
 1. **Stage Changes**: `git add .`

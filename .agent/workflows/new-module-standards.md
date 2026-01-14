@@ -129,4 +129,6 @@ Always include relevant context in log data:
 - [ ] Performance-critical sections use `Logger.timed`
 - [ ] No `Console.log` or `console.log` calls
 - [ ] Error logs include relevant context data
-- [ ] Log messages follow UPPER_SNAKE_CASE convention
+- [ ] Message naming follows UPPER_SNAKE_CASE
+- [ ] New module has corresponding unit tests (see `/testing-standards`)
+- [ ] `npm test` passes

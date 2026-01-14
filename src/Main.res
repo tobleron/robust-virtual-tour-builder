@@ -17,22 +17,63 @@ module Screen = {
   @val @scope("window") external devicePixelRatio: float = "devicePixelRatio"
 }
 
+module WebGLDebugInfo = {
+  type t
+  @get external unmaskedRendererWebgl: t => int = "UNMASKED_RENDERER_WEBGL"
+  @get external unmaskedVendorWebgl: t => int = "UNMASKED_VENDOR_WEBGL"
+}
+
 module WebGL = {
   type t
   @send external getContext: (Dom.element, string) => Nullable.t<t> = "getContext"
-  @send external getExtension: (t, string) => Nullable.t<{..}> = "getExtension"
-  @send external getParameter: (t, 'a) => 'b = "getParameter"
+  @send external getExtension: (t, string) => Nullable.t<WebGLDebugInfo.t> = "getExtension"
+  @send external getParameter: (t, int) => string = "getParameter"
+}
+
+module JsError = {
+  type t
+  @get external message: t => string = "message"
+  @get external stack: t => Nullable.t<string> = "stack"
+  @get external name: t => string = "name"
+}
+
+module UnhandledRejectionEvent = {
+  type t
+  type reason
+  @get external getReason: t => reason = "reason"
+  @get external getPromise: t => Promise.t<'a> = "promise"
+  @send external preventDefault: t => unit = "preventDefault"
+  
+  external reasonToError: reason => JsError.t = "%identity"
+  external reasonToString: reason => string = "%identity"
+  let isError: reason => bool = %raw(`function(r) { return r instanceof Error }`)
+}
+
+module ViewerClickEvent = {
+  type detail = {
+    pitch: float,
+    yaw: float,
+    camPitch: float,
+    camYaw: float,
+    camHfov: float,
+  }
+  
+  type t
+  @get external detail: t => detail = "detail"
+  external fromEvent: Dom.event => t = "%identity"
 }
 
 @val @scope("window") external setOnerror: (
-  (string, string, int, int, Nullable.t<JsExn.t>) => bool
+  (string, string, int, int, Nullable.t<JsError.t>) => bool
 ) => unit = "onerror"
 
 @val @scope("window") external setOnunhandledrejection: (
-  {..} => unit
+  UnhandledRejectionEvent.t => unit
 ) => unit = "onunhandledrejection"
 
 @val @scope(("window", "location")) external getHref: unit => string = "toString"
+
+external docToEl: {..} => Dom.element = "%identity"
 
 // --- INITIALIZATION ---
 
@@ -60,8 +101,8 @@ let init = async () => {
       switch debugInfo->Nullable.toOption {
       | Some(ext) =>
         (
-          gl->WebGL.getParameter(Obj.magic(ext)["UNMASKED_RENDERER_WEBGL"]),
-          gl->WebGL.getParameter(Obj.magic(ext)["UNMASKED_VENDOR_WEBGL"])
+          gl->WebGL.getParameter(WebGLDebugInfo.unmaskedRendererWebgl(ext)),
+          gl->WebGL.getParameter(WebGLDebugInfo.unmaskedVendorWebgl(ext))
         )
       | None => ("unknown", "unknown")
       }
@@ -97,13 +138,13 @@ let init = async () => {
         "lineno": lineno,
         "colno": colno,
         "stack": switch error->Nullable.toOption {
-                 | Some(e) => (Obj.magic(e): {..})["stack"]
-                 | None => ""
-                 },
+        | Some(e) => JsError.stack(e)->Nullable.toOption->Option.getOr("")
+        | None => ""
+        },
         "type": switch error->Nullable.toOption {
-                | Some(e) => (Obj.magic(e): {..})["name"]
-                | None => "Error"
-                }
+        | Some(e) => JsError.name(e)
+        | None => "Error"
+        }
       }),
       ()
     )
@@ -111,30 +152,34 @@ let init = async () => {
   })
 
   setOnunhandledrejection(event => {
-    let reason = event["reason"]
-    let isError = %raw(`reason instanceof Error`)
+    let reason = UnhandledRejectionEvent.getReason(event)
+    let isError = UnhandledRejectionEvent.isError(reason)
     
     Logger.error(
       ~module_="Global",
       ~message="Unhandled Promise Rejection",
       ~data=Some({
-        "reason": isError ? reason["message"] : reason,
-        "stack": isError ? reason["stack"] : Nullable.null,
-        "promise": event["promise"]
+        "reason": isError 
+          ? JsError.message(UnhandledRejectionEvent.reasonToError(reason))
+          : UnhandledRejectionEvent.reasonToString(reason),
+        "stack": isError 
+          ? JsError.stack(UnhandledRejectionEvent.reasonToError(reason))
+          : Nullable.null,
+        "promise": UnhandledRejectionEvent.getPromise(event)
       }),
       ()
     )
 
     if !Js.String.includes("localhost", Window.window["location"]["hostname"]) {
-       event["preventDefault"]()
+      UnhandledRejectionEvent.preventDefault(event)
     }
   })
 
   // 5. Dom Setup & Mount
   switch Dom.getElementById("app")->Nullable.toOption {
   | Some(appRoot) =>
-    let root = ReactDOM.Client.createRoot(Obj.magic(appRoot))
-    ReactDOM.Client.Root.render(root, <App />)
+    let root = ReactDOMClient.createRoot(appRoot)
+    ReactDOMClient.Root.render(root, <App />)
   | None => Console.error("Root element #app not found")
   }
 
@@ -149,15 +194,17 @@ let init = async () => {
   ServiceWorker.registerServiceWorker()
   
   // 8. Global click handler
-  Dom.addEventListener(Obj.magic(Dom.document), "viewer-click", (e: Dom.event) => {
+  // 8. Global click handler
+  Dom.addEventListener(docToEl(Dom.document), "viewer-click", (e: Dom.event) => {
     if GlobalStateBridge.getState().isLinking {
-      let detail = (Obj.magic(e): {..})["detail"]
+      let customEvent = ViewerClickEvent.fromEvent(e)
+      let detail = ViewerClickEvent.detail(customEvent)
       LinkModal.showLinkModal(
-        ~pitch=detail["pitch"],
-        ~yaw=detail["yaw"],
-        ~camPitch=detail["camPitch"],
-        ~camYaw=detail["camYaw"],
-        ~camHfov=detail["camHfov"],
+        ~pitch=detail.pitch,
+        ~yaw=detail.yaw,
+        ~camPitch=detail.camPitch,
+        ~camYaw=detail.camYaw,
+        ~camHfov=detail.camHfov,
         ()
       )
     }
