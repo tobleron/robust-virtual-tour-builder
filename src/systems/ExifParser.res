@@ -1,20 +1,9 @@
 /* src/systems/ExifParser.res */
 
+open SharedTypes
+
 // GPano XMP Tags
-type gPano = {
-  mutable usePanoramaViewer: bool,
-  mutable projectionType: string,
-  mutable poseHeadingDegrees: float,
-  mutable posePitchDegrees: float,
-  mutable poseRollDegrees: float,
-  mutable croppedAreaImageWidthPixels: int,
-  mutable croppedAreaImageHeightPixels: int,
-  mutable fullPanoWidthPixels: int,
-  mutable fullPanoHeightPixels: int,
-  mutable croppedAreaLeftPixels: int,
-  mutable croppedAreaTopPixels: int,
-  mutable initialViewHeadingDegrees: int,
-}
+// type gPano = SharedTypes.gPanoMetadata
 
 /* Bindings for ExifReader */
 module ExifReader = {
@@ -66,7 +55,7 @@ let extractExifTags = async file => {
     // GPano Extraction
     let usePano = getValue("UsePanoramaViewer") == "True"
 
-    let pano: gPano = {
+    let pano: gPanoMetadata = {
       usePanoramaViewer: usePano,
       projectionType: getValue("ProjectionType"),
       poseHeadingDegrees: getFloat("PoseHeadingDegrees"),

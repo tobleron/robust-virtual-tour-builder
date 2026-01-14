@@ -3,7 +3,7 @@
 open Types
 
 type qualityItem = {
-  quality: BackendApi.qualityAnalysis,
+  quality: SharedTypes.qualityAnalysis,
   newName: string,
 }
 
@@ -123,7 +123,7 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
             let _ = ExifReportGenerator.downloadExifReport(content)
           | None => ()
           }
-        | None => ReBindings.Window.alert("Report is still generating... please wait a moment.")
+        | None => EventBus.dispatch(ShowNotification("Report is still generating... please wait a moment.", #Info))
         }
       },
       autoClose: Some(false),

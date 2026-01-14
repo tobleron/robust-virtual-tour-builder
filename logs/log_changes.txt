@@ -216,3 +216,4 @@ Resolves Task 74.
 [2026-01-14 23:41] v4.2.72 - chore: verify backend similarity wiring
 [2026-01-14 23:43] v4.2.73 - chore: verify constants migration
 [2026-01-14 23:45] v4.2.74 - chore: fix potential panic in geocoding service
+[2026-01-14 23:56] v4.2.80 - refactor: unify frontend and backend types

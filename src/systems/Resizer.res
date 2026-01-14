@@ -2,6 +2,7 @@
 
 open ReBindings
 open BackendApi
+open SharedTypes
 
 type processResult = {
   preview: File.t,
@@ -172,7 +173,7 @@ let processAndAnalyzeImage = (file: File.t): Promise.t<processResult> => {
     }
   })
   ->Promise.then(((previewBlob, metaText, tinyBlobOpt)) => {
-    let metadata: BackendApi.metadataResponse = Obj.magic(JSON.parseOrThrow(metaText))
+    let metadata: metadataResponse = Obj.magic(JSON.parseOrThrow(metaText))
 
     // Smart filename logic
     let suggestedName = Nullable.toOption(metadata.suggestedName)
