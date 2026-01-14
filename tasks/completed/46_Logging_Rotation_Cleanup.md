@@ -158,12 +158,12 @@ const LOG_RETENTION_DAYS: u64 = 7;
 
 ## Testing Checklist
 
-- [ ] Log files rotate when exceeding 10MB
-- [ ] Maximum 5 rotated files kept
-- [ ] Old rotated files deleted
-- [ ] Compression works (if implemented)
-- [ ] No data loss during rotation
-- [ ] Concurrent writes handled safely
+- [x] Log files rotate when exceeding 10MB
+- [x] Maximum 5 rotated files kept
+- [x] Old rotated files deleted
+- [ ] Compression works (if implemented) - Skipped for now
+- [x] No data loss during rotation
+- [x] Concurrent writes handled safely
 
 ## Definition of Done
 
