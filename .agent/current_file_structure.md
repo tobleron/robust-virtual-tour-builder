@@ -50,6 +50,7 @@
 │   ├── BACKEND_OPTIMIZATION_OPPORTUNITIES.md
 │   ├── BACKEND_OPTIMIZATION_SUMMARY.md
 │   ├── CONTAINER_BASED_FONT_SIZING.md
+│   ├── DEBUGGING_GUIDE.md
 │   ├── FONT_ANALYSIS.md
 │   ├── FONT_IMPLEMENTATION.md
 │   ├── FONT_SIZE_ANALYSIS.md
@@ -487,6 +488,12 @@
 │   │   │       ├── ProgressBar.cmj
 │   │   │       ├── ProgressBar.cmt
 │   │   │       ├── ProgressBar.res
+│   │   │       ├── StateInspector.ast
+│   │   │       ├── StateInspector.bs.js
+│   │   │       ├── StateInspector.cmi
+│   │   │       ├── StateInspector.cmj
+│   │   │       ├── StateInspector.cmt
+│   │   │       ├── StateInspector.res
 │   │   │       ├── TourLogic.ast
 │   │   │       ├── TourLogic.bs.js
 │   │   │       ├── TourLogic.cmi
@@ -803,6 +810,10 @@
 │   │   ├── State.cmj
 │   │   ├── State.cmt
 │   │   ├── State.res
+│   │   ├── StateInspector.cmi
+│   │   ├── StateInspector.cmj
+│   │   ├── StateInspector.cmt
+│   │   ├── StateInspector.res
 │   │   ├── TeaserManager.ast
 │   │   ├── TeaserManager.cmi
 │   │   ├── TeaserManager.cmj
@@ -930,7 +941,6 @@
 ├── scripts
 │   ├── cleanup_logs.sh
 │   ├── commit.sh
-│   ├── complete-task.sh
 │   ├── detect-missing-tests.js
 │   ├── dev-mode.sh
 │   ├── ensure-watcher.sh
@@ -1084,6 +1094,8 @@
 │   │   ├── PathInterpolation.res
 │   │   ├── ProgressBar.bs.js
 │   │   ├── ProgressBar.res
+│   │   ├── StateInspector.bs.js
+│   │   ├── StateInspector.res
 │   │   ├── TourLogic.bs.js
 │   │   ├── TourLogic.res
 │   │   ├── Version.bs.js
@@ -1093,6 +1105,7 @@
 ├── start_prod.sh
 ├── tailwind.config.js
 ├── tasks
+│   ├── active
 │   ├── completed
 │   │   ├── 01_Architecture_Functional_State_REPORT.md
 │   │   ├── 02_Implement_App_Context_REPORT.md
@@ -1180,11 +1193,11 @@
 │   │   ├── 87_Centralized_Version_Management_REPORT.md
 │   │   ├── 88_Eliminate_ObjMagic_Reducer_REPORT.md
 │   │   ├── 89_Eliminate_ObjMagic_Main.md
+│   │   ├── 90_Secure_GlobalStateBridge_REPORT.md
 │   │   ├── 93_Backend_Graceful_Shutdown_REPORT.md
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   ├── pending
-│   │   ├── 90_Secure_GlobalStateBridge.md
 │   │   ├── 91_Implement_Reducer_Slicing.md
 │   │   ├── 92_Backend_Upload_Quota_System.md
 │   │   └── TASK_SUMMARY.md
@@ -1207,4 +1220,4 @@
         ├── TourLogicTest.bs.js
         └── TourLogicTest.res
 
-41 directories, 1167 files
+42 directories, 1179 files

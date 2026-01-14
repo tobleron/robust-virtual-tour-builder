@@ -216,3 +216,26 @@ let blinkRatePreview = 300
 let blinkRateSimulation = 150
 let idleSnapshotDelay = 2000
 let sceneLoadTimeout = 10000
+
+// ============================================
+// SYSTEM UTILITIES
+// ============================================
+
+@val @scope("import.meta.env") external mode: string = "MODE"
+@val @scope("import.meta.env") external isDev: bool = "DEV"
+
+let isDebugBuild = () => {
+  try {
+    mode === "development" || isDev
+  } catch {
+  | _ => false
+  }
+}
+
+let enableStateInspector = () => {
+  try {
+    %raw(`typeof process !== 'undefined' && process.env.ENABLE_STATE_INSPECTOR === 'true'`) || isDebugBuild()
+  } catch {
+  | _ => isDebugBuild()
+  }
+}
