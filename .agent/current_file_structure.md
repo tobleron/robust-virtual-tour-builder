@@ -228,6 +228,55 @@
 │   │   │   │   ├── ReducerHelpers.cmj
 │   │   │   │   ├── ReducerHelpers.cmt
 │   │   │   │   ├── ReducerHelpers.res
+│   │   │   │   ├── reducers
+│   │   │   │   │   ├── HotspotReducer.ast
+│   │   │   │   │   ├── HotspotReducer.bs.js
+│   │   │   │   │   ├── HotspotReducer.cmi
+│   │   │   │   │   ├── HotspotReducer.cmj
+│   │   │   │   │   ├── HotspotReducer.cmt
+│   │   │   │   │   ├── HotspotReducer.res
+│   │   │   │   │   ├── mod.ast
+│   │   │   │   │   ├── mod.bs.js
+│   │   │   │   │   ├── mod.cmi
+│   │   │   │   │   ├── mod.cmj
+│   │   │   │   │   ├── mod.cmt
+│   │   │   │   │   ├── mod.res
+│   │   │   │   │   ├── NavigationReducer.ast
+│   │   │   │   │   ├── NavigationReducer.bs.js
+│   │   │   │   │   ├── NavigationReducer.cmi
+│   │   │   │   │   ├── NavigationReducer.cmj
+│   │   │   │   │   ├── NavigationReducer.cmt
+│   │   │   │   │   ├── NavigationReducer.res
+│   │   │   │   │   ├── ProjectReducer.ast
+│   │   │   │   │   ├── ProjectReducer.bs.js
+│   │   │   │   │   ├── ProjectReducer.cmi
+│   │   │   │   │   ├── ProjectReducer.cmj
+│   │   │   │   │   ├── ProjectReducer.cmt
+│   │   │   │   │   ├── ProjectReducer.res
+│   │   │   │   │   ├── RootReducer.ast
+│   │   │   │   │   ├── RootReducer.bs.js
+│   │   │   │   │   ├── RootReducer.cmi
+│   │   │   │   │   ├── RootReducer.cmj
+│   │   │   │   │   ├── RootReducer.cmt
+│   │   │   │   │   ├── RootReducer.res
+│   │   │   │   │   ├── SceneReducer.ast
+│   │   │   │   │   ├── SceneReducer.bs.js
+│   │   │   │   │   ├── SceneReducer.cmi
+│   │   │   │   │   ├── SceneReducer.cmj
+│   │   │   │   │   ├── SceneReducer.cmt
+│   │   │   │   │   ├── SceneReducer.res
+│   │   │   │   │   ├── TimelineReducer.ast
+│   │   │   │   │   ├── TimelineReducer.bs.js
+│   │   │   │   │   ├── TimelineReducer.cmi
+│   │   │   │   │   ├── TimelineReducer.cmj
+│   │   │   │   │   ├── TimelineReducer.cmt
+│   │   │   │   │   ├── TimelineReducer.res
+│   │   │   │   │   ├── UiReducer.ast
+│   │   │   │   │   ├── UiReducer.bs.js
+│   │   │   │   │   ├── UiReducer.cmi
+│   │   │   │   │   ├── UiReducer.cmj
+│   │   │   │   │   ├── UiReducer.cmt
+│   │   │   │   │   └── UiReducer.res
 │   │   │   │   ├── State.ast
 │   │   │   │   ├── State.bs.js
 │   │   │   │   ├── State.cmi
@@ -520,6 +569,12 @@
 │   │           ├── GeoUtilsTest.cmj
 │   │           ├── GeoUtilsTest.cmt
 │   │           ├── GeoUtilsTest.res
+│   │           ├── HotspotReducerTest.ast
+│   │           ├── HotspotReducerTest.bs.js
+│   │           ├── HotspotReducerTest.cmi
+│   │           ├── HotspotReducerTest.cmj
+│   │           ├── HotspotReducerTest.cmt
+│   │           ├── HotspotReducerTest.res
 │   │           ├── PathInterpolationTest.ast
 │   │           ├── PathInterpolationTest.bs.js
 │   │           ├── PathInterpolationTest.cmi
@@ -538,6 +593,12 @@
 │   │           ├── ReducerTest.cmj
 │   │           ├── ReducerTest.cmt
 │   │           ├── ReducerTest.res
+│   │           ├── SceneReducerTest.ast
+│   │           ├── SceneReducerTest.bs.js
+│   │           ├── SceneReducerTest.cmi
+│   │           ├── SceneReducerTest.cmj
+│   │           ├── SceneReducerTest.cmt
+│   │           ├── SceneReducerTest.res
 │   │           ├── SimulationSystemTest.ast
 │   │           ├── SimulationSystemTest.bs.js
 │   │           ├── SimulationSystemTest.cmi
@@ -636,6 +697,16 @@
 │   │   ├── HotspotManager.cmj
 │   │   ├── HotspotManager.cmt
 │   │   ├── HotspotManager.res
+│   │   ├── HotspotReducer.ast
+│   │   ├── HotspotReducer.cmi
+│   │   ├── HotspotReducer.cmj
+│   │   ├── HotspotReducer.cmt
+│   │   ├── HotspotReducer.res
+│   │   ├── HotspotReducerTest.ast
+│   │   ├── HotspotReducerTest.cmi
+│   │   ├── HotspotReducerTest.cmj
+│   │   ├── HotspotReducerTest.cmt
+│   │   ├── HotspotReducerTest.res
 │   │   ├── ImageAnalysis.ast
 │   │   ├── ImageAnalysis.cmi
 │   │   ├── ImageAnalysis.cmj
@@ -676,6 +747,11 @@
 │   │   ├── Main.cmj
 │   │   ├── Main.cmt
 │   │   ├── Main.res
+│   │   ├── mod.ast
+│   │   ├── mod.cmi
+│   │   ├── mod.cmj
+│   │   ├── mod.cmt
+│   │   ├── mod.res
 │   │   ├── ModalContext.ast
 │   │   ├── ModalContext.cmi
 │   │   ├── ModalContext.cmj
@@ -691,6 +767,11 @@
 │   │   ├── NavigationController.cmj
 │   │   ├── NavigationController.cmt
 │   │   ├── NavigationController.res
+│   │   ├── NavigationReducer.ast
+│   │   ├── NavigationReducer.cmi
+│   │   ├── NavigationReducer.cmj
+│   │   ├── NavigationReducer.cmt
+│   │   ├── NavigationReducer.res
 │   │   ├── NavigationRenderer.ast
 │   │   ├── NavigationRenderer.cmi
 │   │   ├── NavigationRenderer.cmj
@@ -731,6 +812,11 @@
 │   │   ├── ProjectManager.cmj
 │   │   ├── ProjectManager.cmt
 │   │   ├── ProjectManager.res
+│   │   ├── ProjectReducer.ast
+│   │   ├── ProjectReducer.cmi
+│   │   ├── ProjectReducer.cmj
+│   │   ├── ProjectReducer.cmt
+│   │   ├── ProjectReducer.res
 │   │   ├── ReBindings.ast
 │   │   ├── ReBindings.cmi
 │   │   ├── ReBindings.cmj
@@ -760,11 +846,26 @@
 │   │   ├── Resizer.cmj
 │   │   ├── Resizer.cmt
 │   │   ├── Resizer.res
+│   │   ├── RootReducer.ast
+│   │   ├── RootReducer.cmi
+│   │   ├── RootReducer.cmj
+│   │   ├── RootReducer.cmt
+│   │   ├── RootReducer.res
 │   │   ├── SceneList.ast
 │   │   ├── SceneList.cmi
 │   │   ├── SceneList.cmj
 │   │   ├── SceneList.cmt
 │   │   ├── SceneList.res
+│   │   ├── SceneReducer.ast
+│   │   ├── SceneReducer.cmi
+│   │   ├── SceneReducer.cmj
+│   │   ├── SceneReducer.cmt
+│   │   ├── SceneReducer.res
+│   │   ├── SceneReducerTest.ast
+│   │   ├── SceneReducerTest.cmi
+│   │   ├── SceneReducerTest.cmj
+│   │   ├── SceneReducerTest.cmt
+│   │   ├── SceneReducerTest.res
 │   │   ├── ServerTeaser.ast
 │   │   ├── ServerTeaser.cmi
 │   │   ├── ServerTeaser.cmj
@@ -834,6 +935,11 @@
 │   │   ├── TestRunner.cmj
 │   │   ├── TestRunner.cmt
 │   │   ├── TestRunner.res
+│   │   ├── TimelineReducer.ast
+│   │   ├── TimelineReducer.cmi
+│   │   ├── TimelineReducer.cmj
+│   │   ├── TimelineReducer.cmt
+│   │   ├── TimelineReducer.res
 │   │   ├── TourLogic.ast
 │   │   ├── TourLogic.cmi
 │   │   ├── TourLogic.cmj
@@ -866,6 +972,11 @@
 │   │   ├── Types.cmj
 │   │   ├── Types.cmt
 │   │   ├── Types.res
+│   │   ├── UiReducer.ast
+│   │   ├── UiReducer.cmi
+│   │   ├── UiReducer.cmj
+│   │   ├── UiReducer.cmt
+│   │   ├── UiReducer.res
 │   │   ├── UploadProcessor.ast
 │   │   ├── UploadProcessor.cmi
 │   │   ├── UploadProcessor.cmj
@@ -1001,6 +1112,23 @@
 │   │   ├── Reducer.res
 │   │   ├── ReducerHelpers.bs.js
 │   │   ├── ReducerHelpers.res
+│   │   ├── reducers
+│   │   │   ├── HotspotReducer.bs.js
+│   │   │   ├── HotspotReducer.res
+│   │   │   ├── mod.bs.js
+│   │   │   ├── mod.res
+│   │   │   ├── NavigationReducer.bs.js
+│   │   │   ├── NavigationReducer.res
+│   │   │   ├── ProjectReducer.bs.js
+│   │   │   ├── ProjectReducer.res
+│   │   │   ├── RootReducer.bs.js
+│   │   │   ├── RootReducer.res
+│   │   │   ├── SceneReducer.bs.js
+│   │   │   ├── SceneReducer.res
+│   │   │   ├── TimelineReducer.bs.js
+│   │   │   ├── TimelineReducer.res
+│   │   │   ├── UiReducer.bs.js
+│   │   │   └── UiReducer.res
 │   │   ├── State.bs.js
 │   │   ├── State.res
 │   │   ├── Types.bs.js
@@ -1194,11 +1322,11 @@
 │   │   ├── 88_Eliminate_ObjMagic_Reducer_REPORT.md
 │   │   ├── 89_Eliminate_ObjMagic_Main.md
 │   │   ├── 90_Secure_GlobalStateBridge_REPORT.md
+│   │   ├── 91_Implement_Reducer_Slicing_REPORT.md
 │   │   ├── 93_Backend_Graceful_Shutdown_REPORT.md
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   ├── pending
-│   │   ├── 91_Implement_Reducer_Slicing.md
 │   │   ├── 92_Backend_Upload_Quota_System.md
 │   │   └── TASK_SUMMARY.md
 │   └── README.md
@@ -1209,15 +1337,19 @@
     └── unit
         ├── GeoUtilsTest.bs.js
         ├── GeoUtilsTest.res
+        ├── HotspotReducerTest.bs.js
+        ├── HotspotReducerTest.res
         ├── PathInterpolationTest.bs.js
         ├── PathInterpolationTest.res
         ├── ReducerJsonTest.bs.js
         ├── ReducerJsonTest.res
         ├── ReducerTest.bs.js
         ├── ReducerTest.res
+        ├── SceneReducerTest.bs.js
+        ├── SceneReducerTest.res
         ├── SimulationSystemTest.bs.js
         ├── SimulationSystemTest.res
         ├── TourLogicTest.bs.js
         └── TourLogicTest.res
 
-42 directories, 1179 files
+44 directories, 1309 files

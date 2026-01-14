@@ -1,6 +1,13 @@
 open JsonTypes
 open Types
 
+// Helper for array insertion
+let insertAt = (arr, index, item) => {
+  let before = Belt.Array.slice(arr, ~offset=0, ~len=index)
+  let after = Belt.Array.slice(arr, ~offset=index, ~len=Belt.Array.length(arr) - index)
+  Belt.Array.concatMany([before, [item], after])
+}
+
 // ============================================================================
 // PARSING FUNCTIONS
 // ============================================================================
