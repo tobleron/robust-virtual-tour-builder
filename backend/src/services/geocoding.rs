@@ -277,3 +277,99 @@ async fn call_osm_nominatim(lat: f64, lon: f64) -> Result<String, String> {
         .map(|s| s.to_string())
         .ok_or_else(|| "No address found in response".to_string())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_cache_hit_increments_counter() {
+        clear_cache().await;
+        let lat = 37.7749;
+        let lon = -122.4194;
+        let address = "San Francisco, CA".to_string();
+        
+        // Manually insert into cache
+        let key = round_coords(lat, lon);
+        {
+            let mut cache = GEOCODE_CACHE.write().await;
+            cache.insert(key, CachedGeocode {
+                address: address.clone(),
+                last_accessed: get_current_timestamp(),
+                access_count: 1,
+            });
+        }
+        
+        // Access it via reverse_geocode (should hit cache)
+        let result = reverse_geocode(lat, lon).await.unwrap();
+        assert_eq!(result, address);
+        
+        // Verify stats
+        let info = get_info().await;
+        assert_eq!(info.stats.hits, 1);
+        
+        // Verify access count
+        let cache = GEOCODE_CACHE.read().await;
+        let entry = cache.get(&key).unwrap();
+        assert_eq!(entry.access_count, 2);
+    }
+    
+    #[tokio::test]
+    async fn test_lru_eviction() {
+        clear_cache().await;
+        
+        // Fill cache up to MAX_CACHE_SIZE
+        {
+            let mut cache = GEOCODE_CACHE.write().await;
+            for i in 0..MAX_CACHE_SIZE {
+                let key = (i as i32, 0);
+                cache.insert(key, CachedGeocode {
+                    address: format!("Address {}", i),
+                    last_accessed: i as u64, // Oldest first
+                    access_count: 1,
+                });
+            }
+        }
+        
+        // Evict one
+        evict_lru_entry().await;
+        
+        // Verify oldest (i=0) was evicted
+        let cache = GEOCODE_CACHE.read().await;
+        assert_eq!(cache.len(), MAX_CACHE_SIZE - 1);
+        assert!(!cache.contains_key(&(0, 0)));
+        assert!(cache.contains_key(&(1, 0)));
+        
+        let stats = CACHE_STATS.read().await;
+        assert_eq!(stats.evictions, 1);
+    }
+    
+    #[test]
+    fn test_coordinate_rounding() {
+        let k1 = round_coords(37.77491, -122.41941);
+        let k2 = round_coords(37.77494, -122.41944);
+        let k3 = round_coords(37.7750, -122.4200);
+        
+        assert_eq!(k1, k2);
+        assert_ne!(k1, k3);
+    }
+    #[tokio::test]
+    async fn test_clear_cache() {
+        // Insert something
+        {
+            let mut cache = GEOCODE_CACHE.write().await;
+            cache.insert((1,1), CachedGeocode {
+                address: "foo".to_string(),
+                last_accessed: 0,
+                access_count: 0
+            });
+        }
+        
+        clear_cache().await;
+        
+        let cache = GEOCODE_CACHE.read().await;
+        assert!(cache.is_empty());
+        let stats = CACHE_STATS.read().await;
+        assert_eq!(stats.hits, 0);
+    }
+}

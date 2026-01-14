@@ -340,6 +340,7 @@ mod tests {
             is_blurry: false,
             is_soft: false,
             is_severely_dark: false,
+            is_severely_bright: false,
             is_dim: false,
             has_black_clipping: false,
             has_white_clipping: false,

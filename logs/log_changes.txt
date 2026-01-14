@@ -176,3 +176,4 @@ Resolves Task 74.
 [2026-01-14 20:57] v4.2.46 - Task 79: Remove unused backend import in image.rs
 [2026-01-14 20:58] v4.2.46 - v4.2.46 [Backend] Remove unused import in image.rs and fix index.html CSP
 [2026-01-14 21:06] v4.2.47 - Add frontend unit tests and fix sanitizeName bug
+[2026-01-14 21:11] v4.2.48 - Expand backend test coverage (Task 81)
