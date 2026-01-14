@@ -259,7 +259,7 @@ let processImageFull = (file: File.t): Promise.t<Blob.t> => {
  * Saves a project by sending the project JSON to the backend
  * The backend bundles it into a ZIP and returns it
  */
-let saveProject = (projectData: 'a): Promise.t<Blob.t> => {
+let saveProject = (projectData: JSON.t): Promise.t<Blob.t> => {
   let formData = FormData.newFormData()
   FormData.append(formData, "project_data", projectData)
 
