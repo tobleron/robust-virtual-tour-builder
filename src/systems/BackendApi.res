@@ -58,6 +58,64 @@ type importResponse = {
   projectData: JSON.t,
 }
 
+/* --- GEOCoding TYPES --- */
+
+type geocodeRequest = {
+  lat: float,
+  lon: float,
+}
+
+type geocodeResponse = {
+  address: string,
+}
+
+/* --- SIMILARITY TYPES --- */
+
+type similarityPair = {
+  idA: string,
+  idB: string,
+  histogramA: JSON.t,
+  histogramB: JSON.t,
+}
+
+type similarityResult = {
+  idA: string,
+  idB: string,
+  similarity: float,
+}
+
+type similarityResponse = {
+  results: array<similarityResult>,
+  durationMs: float,
+}
+
+/* --- PATHFINDER TYPES --- */
+
+type transitionTarget = {
+  yaw: float,
+  pitch: float,
+  targetName: string,
+  timelineItemId: option<string>,
+}
+
+type arrivalView = {
+  yaw: float,
+  pitch: float,
+}
+
+type step = {
+  idx: int,
+  transitionTarget: option<transitionTarget>,
+  arrivalView: arrivalView,
+}
+
+type pathRequest = {
+  @as("type") type_: string,
+  scenes: array<Types.scene>,
+  skipAutoForward: bool,
+  timeline?: array<Types.timelineItem>,
+}
+
 /* --- API ERROR TYPE --- */
 
 type apiError = {
@@ -217,30 +275,11 @@ let saveProject = (projectData: 'a): Promise.t<Blob.t> => {
   ->Promise.then(Fetch.blob)
 }
 
-/* --- PATHFINDER TYPES --- */
-
-type transitionTarget = {
-  yaw: float,
-  pitch: float,
-  targetName: string,
-  timelineItemId: option<string>,
-}
-
-type arrivalView = {
-  yaw: float,
-  pitch: float,
-}
-
-type step = {
-  idx: int,
-  transitionTarget: option<transitionTarget>,
-  arrivalView: arrivalView,
-}
 
 /**
  * Calculates a navigation path (Teaser/Timeline) via Backend
  */
-let calculatePath = (payload: 'a): Promise.t<array<step>> => {
+let calculatePath = (payload: pathRequest): Promise.t<array<step>> => {
   let headers = Dict.make()
   Dict.set(headers, "Content-Type", "application/json")
 
@@ -270,12 +309,10 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<string> => {
     {
       method: "POST",
       headers: Nullable.make(headers),
-      body: JSON.stringify(
-        Obj.magic({
-          "lat": lat,
-          "lon": lon,
-        }),
-      ),
+      body: JSON.stringify(Obj.magic({
+        lat: lat,
+        lon: lon,
+      })),
     },
   )
   ->Promise.then(response => {
@@ -283,8 +320,8 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<string> => {
       Promise.resolve("[Geocoding service unavailable]")
     } else {
       Fetch.json(response)->Promise.then(json => {
-        let data: {"address": string} = Obj.magic(json)
-        Promise.resolve(data["address"])
+        let data: geocodeResponse = Obj.magic(json)
+        Promise.resolve(data.address)
       })
     }
   })
@@ -293,23 +330,6 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<string> => {
   })
 }
 
-type similarityPair = {
-  "idA": string,
-  "idB": string,
-  "histogramA": JSON.t,
-  "histogramB": JSON.t,
-}
-
-type similarityResult = {
-  "idA": string,
-  "idB": string,
-  "similarity": float,
-}
-
-type similarityResponse = {
-  "results": array<similarityResult>,
-  "durationMs": float,
-}
 
 /**
  * Calculates similarity for multiple pairs in parallel on the backend
@@ -323,14 +343,16 @@ let batchCalculateSimilarity = (pairs: array<similarityPair>): Promise.t<array<s
     {
       method: "POST",
       headers: Nullable.make(headers),
-      body: JSON.stringify(Obj.magic({"pairs": pairs})),
+      body: JSON.stringify(Obj.magic({
+        "pairs": pairs,
+      })),
     },
   )
   ->Promise.then(handleResponse)
   ->Promise.then(Fetch.json)
   ->Promise.then(json => {
     let data: similarityResponse = Obj.magic(json)
-    Promise.resolve(data["results"])
+    Promise.resolve(data.results)
   })
   ->Promise.catch(e => {
     Logger.error(
