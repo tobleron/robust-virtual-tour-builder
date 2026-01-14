@@ -567,6 +567,12 @@
 │   │       ├── TestRunner.cmt
 │   │       ├── TestRunner.res
 │   │       └── unit
+│   │           ├── ExifParserTest.ast
+│   │           ├── ExifParserTest.bs.js
+│   │           ├── ExifParserTest.cmi
+│   │           ├── ExifParserTest.cmj
+│   │           ├── ExifParserTest.cmt
+│   │           ├── ExifParserTest.res
 │   │           ├── GeoUtilsTest.ast
 │   │           ├── GeoUtilsTest.bs.js
 │   │           ├── GeoUtilsTest.cmi
@@ -666,6 +672,10 @@
 │   │   ├── ExifParser.cmj
 │   │   ├── ExifParser.cmt
 │   │   ├── ExifParser.res
+│   │   ├── ExifParserTest.cmi
+│   │   ├── ExifParserTest.cmj
+│   │   ├── ExifParserTest.cmt
+│   │   ├── ExifParserTest.res
 │   │   ├── ExifReportGenerator.ast
 │   │   ├── ExifReportGenerator.cmi
 │   │   ├── ExifReportGenerator.cmj
@@ -711,10 +721,6 @@
 │   │   ├── HotspotReducerTest.cmj
 │   │   ├── HotspotReducerTest.cmt
 │   │   ├── HotspotReducerTest.res
-│   │   ├── ImageAnalysis.ast
-│   │   ├── ImageAnalysis.cmi
-│   │   ├── ImageAnalysis.cmj
-│   │   ├── ImageAnalysis.cmt
 │   │   ├── ImageAnalysis.res
 │   │   ├── InputSystem.ast
 │   │   ├── InputSystem.cmi
@@ -1165,8 +1171,6 @@
 │   │   ├── Exporter.res
 │   │   ├── HotspotLine.bs.js
 │   │   ├── HotspotLine.res
-│   │   ├── ImageAnalysis.bs.js
-│   │   ├── ImageAnalysis.res
 │   │   ├── InputSystem.bs.js
 │   │   ├── InputSystem.res
 │   │   ├── Navigation.bs.js
@@ -1330,15 +1334,23 @@
 │   │   ├── 91_Implement_Reducer_Slicing_REPORT.md
 │   │   ├── 92_Backend_Upload_Quota_System.md
 │   │   ├── 93_Backend_Graceful_Shutdown_REPORT.md
+│   │   ├── 94_Remove_Dead_ImageAnalysis.md
+│   │   ├── 94_Remove_Dead_ImageAnalysis_REPORT.md
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   └── pending
-│       └── TASK_SUMMARY.md
+│       ├── 95_Wire_Backend_Similarity.md
+│       ├── 96_Migrate_Constants_To_Rescript.md
+│       ├── 97_Migrate_To_Vite.md
+│       ├── 98_Backend_Safety_Audit.md
+│       └── 99_Unify_Types.md
 └── tests
     ├── TestRunner.bs.js
     ├── TestRunner.res
     ├── integration
     └── unit
+        ├── ExifParserTest.bs.js
+        ├── ExifParserTest.res
         ├── GeoUtilsTest.bs.js
         ├── GeoUtilsTest.res
         ├── HotspotReducerTest.bs.js
@@ -1356,4 +1368,4 @@
         ├── TourLogicTest.bs.js
         └── TourLogicTest.res
 
-44 directories, 1313 files
+44 directories, 1325 files
