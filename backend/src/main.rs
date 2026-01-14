@@ -24,6 +24,11 @@ async fn main() -> io::Result<()> {
     // Ensure logs directory exists
     let log_dir = std::env::var("LOG_DIR").unwrap_or_else(|_| "../logs".to_string());
     std::fs::create_dir_all(log_dir).ok();
+    
+    // Load geocoding cache from disk
+    if let Err(e) = handlers::load_cache_from_disk().await {
+        tracing::warn!("Failed to load geocoding cache: {}", e);
+    }
 
     HttpServer::new(|| {
         // CORS Configuration: Permissive in debug, restricted in release
@@ -93,6 +98,8 @@ async fn main() -> io::Result<()> {
             .route("/log-error", web::post().to(handlers::log_error))
             .route("/cleanup-logs", web::post().to(handlers::cleanup_logs))
             .route("/reverse-geocode", web::post().to(handlers::reverse_geocode))
+            .route("/geocode-stats", web::get().to(handlers::geocode_stats))
+            .route("/geocode-cache", web::delete().to(handlers::clear_geocode_cache))
             .route("/optimize-image", web::post().to(handlers::optimize_image))
             .route("/process-image-full", web::post().to(handlers::process_image_full))
             .route("/transcode-video", web::post().to(handlers::transcode_video))
