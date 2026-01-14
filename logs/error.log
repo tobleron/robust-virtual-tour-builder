@@ -2,3 +2,4 @@
 [2026-01-14T10:00:01Z] [test] Error from curl - Some(Object {"reason": String("test")})
 [2026-01-14T09:46:54.254Z] [TestModule] TEST_ERROR_ENTRY - Some(Object {"error": String("Test error message")})
 [2026-01-14T09:47:24.013Z] [TestModule] TEST_ERROR_ENTRY - Some(Object {"error": String("Test error message")})
+[2026-01-14T13:30:00Z] [Test] Manual test error - Some(Object {"test": Bool(true)})

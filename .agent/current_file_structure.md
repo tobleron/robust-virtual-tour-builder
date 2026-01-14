@@ -634,7 +634,8 @@
 │   └── rescript.lock
 ├── logs
 │   ├── error.log
-│   └── log_changes.txt
+│   ├── log_changes.txt
+│   └── telemetry.log
 ├── package-lock.json
 ├── package.json
 ├── plans
@@ -828,10 +829,11 @@
     │   ├── 49_Backend_Standardize_Logging.md
     │   ├── 50_Backend_Remove_Unwrap_REPORT.md
     │   ├── 50_Backend_Remove_Unwrap.md
+    │   ├── 51_Backend_LogError_Endpoint_REPORT.md
+    │   ├── 51_Backend_LogError_Endpoint.md
     │   └── 53_Migrate_Logging_System.md
     ├── pending
     │   ├── 00_LOGGING_OVERVIEW.md
-    │   ├── 51_Backend_LogError_Endpoint.md
     │   ├── 52_Backend_Functional_Iterators.md
     │   ├── 54_Migrate_EventBus.md
     │   ├── 55_Migrate_UI_Contexts.md
@@ -842,4 +844,4 @@
     ├── SESSION_SUMMARY.md
     └── TASKS_24-27_STATUS.md
 
-30 directories, 813 files
+30 directories, 815 files

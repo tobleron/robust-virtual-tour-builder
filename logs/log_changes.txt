@@ -37,3 +37,10 @@ All unwrap() calls have been eliminated from production code paths.
 Only acceptable uses remain: unwrap_or_default() and expect() on
 compile-time constants.
 [2026-01-14 13:35] v4.2.9 - docs: Add Task 50 completion report
+[2026-01-14 13:38] v4.2.10 - feat(backend): Implement /log-error endpoint
+
+- Added /log-error route to backend main.rs
+- Implemented log_error handler in handlers.rs for persistent error logging
+- Modified frontend Logger.res to route error logs to new endpoint
+- Added logs/error.log and logs/telemetry.log to .gitignore
+- Completed Task 51: Backend LogError Endpoint

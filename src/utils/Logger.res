@@ -137,9 +137,10 @@ let hideDebugBadge = () => {
 let sendTelemetry = async entry => {
   /* Only send errors or logs >= minLevel to backend */
   if entry.level == "error" || levelPriority(stringToLevel(entry.level)) >= levelPriority(minLevel.contents) {
+    let endpoint = if entry.level == "error" { "/log-error" } else { "/log-telemetry" }
     try {
       let _ = await Fetch.fetch(
-        Constants.backendUrl ++ "/log-telemetry",
+        Constants.backendUrl ++ endpoint,
         {
           method: "POST",
           headers: Nullable.make(Dict.fromArray([("Content-Type", "application/json")])),
