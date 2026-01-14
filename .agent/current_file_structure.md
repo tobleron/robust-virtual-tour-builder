@@ -387,12 +387,30 @@
 │   │   │   │   ├── TeaserRecorder.cmj
 │   │   │   │   ├── TeaserRecorder.cmt
 │   │   │   │   ├── TeaserRecorder.res
+│   │   │   │   ├── TourTemplateAssets.ast
+│   │   │   │   ├── TourTemplateAssets.bs.js
+│   │   │   │   ├── TourTemplateAssets.cmi
+│   │   │   │   ├── TourTemplateAssets.cmj
+│   │   │   │   ├── TourTemplateAssets.cmt
+│   │   │   │   ├── TourTemplateAssets.res
 │   │   │   │   ├── TourTemplates.ast
 │   │   │   │   ├── TourTemplates.bs.js
 │   │   │   │   ├── TourTemplates.cmi
 │   │   │   │   ├── TourTemplates.cmj
 │   │   │   │   ├── TourTemplates.cmt
 │   │   │   │   ├── TourTemplates.res
+│   │   │   │   ├── TourTemplateScripts.ast
+│   │   │   │   ├── TourTemplateScripts.bs.js
+│   │   │   │   ├── TourTemplateScripts.cmi
+│   │   │   │   ├── TourTemplateScripts.cmj
+│   │   │   │   ├── TourTemplateScripts.cmt
+│   │   │   │   ├── TourTemplateScripts.res
+│   │   │   │   ├── TourTemplateStyles.ast
+│   │   │   │   ├── TourTemplateStyles.bs.js
+│   │   │   │   ├── TourTemplateStyles.cmi
+│   │   │   │   ├── TourTemplateStyles.cmj
+│   │   │   │   ├── TourTemplateStyles.cmt
+│   │   │   │   ├── TourTemplateStyles.res
 │   │   │   │   ├── UploadProcessor.ast
 │   │   │   │   ├── UploadProcessor.bs.js
 │   │   │   │   ├── UploadProcessor.cmi
@@ -768,10 +786,23 @@
 │   │   ├── TourLogicTest.cmj
 │   │   ├── TourLogicTest.cmt
 │   │   ├── TourLogicTest.res
+│   │   ├── TourTemplateAssets.cmi
+│   │   ├── TourTemplateAssets.cmj
+│   │   ├── TourTemplateAssets.cmt
+│   │   ├── TourTemplateAssets.res
+│   │   ├── TourTemplates.ast
 │   │   ├── TourTemplates.cmi
 │   │   ├── TourTemplates.cmj
 │   │   ├── TourTemplates.cmt
 │   │   ├── TourTemplates.res
+│   │   ├── TourTemplateScripts.cmi
+│   │   ├── TourTemplateScripts.cmj
+│   │   ├── TourTemplateScripts.cmt
+│   │   ├── TourTemplateScripts.res
+│   │   ├── TourTemplateStyles.cmi
+│   │   ├── TourTemplateStyles.cmj
+│   │   ├── TourTemplateStyles.cmt
+│   │   ├── TourTemplateStyles.res
 │   │   ├── Types.ast
 │   │   ├── Types.cmi
 │   │   ├── Types.cmj
@@ -967,8 +998,14 @@
 │   │   ├── TeaserPathfinder.res
 │   │   ├── TeaserRecorder.bs.js
 │   │   ├── TeaserRecorder.res
+│   │   ├── TourTemplateAssets.bs.js
+│   │   ├── TourTemplateAssets.res
 │   │   ├── TourTemplates.bs.js
 │   │   ├── TourTemplates.res
+│   │   ├── TourTemplateScripts.bs.js
+│   │   ├── TourTemplateScripts.res
+│   │   ├── TourTemplateStyles.bs.js
+│   │   ├── TourTemplateStyles.res
 │   │   ├── UploadProcessor.bs.js
 │   │   ├── UploadProcessor.res
 │   │   ├── VideoEncoder.bs.js
@@ -1077,10 +1114,10 @@
 │   │   ├── 82_Add_Rust_Documentation_Comments_REPORT.md
 │   │   ├── 83_Implement_Code_Splitting_REPORT.md
 │   │   ├── 84_Implement_Service_Worker_REPORT.md
+│   │   ├── 85_Refactor_TourTemplates_Module_REPORT.md
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   ├── pending
-│   │   ├── 85_Refactor_TourTemplates_Module.md
 │   │   ├── 86_Refactor_Reducer_Module.md
 │   │   ├── 87_Update_Version_References.md
 │   │   └── 88_Eliminate_ObjMagic_Reducer.md
@@ -1101,4 +1138,4 @@
         ├── TourLogicTest.bs.js
         └── TourLogicTest.res
 
-39 directories, 1063 files
+39 directories, 1100 files
