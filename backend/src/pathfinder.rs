@@ -157,7 +157,8 @@ pub fn calculate_walk_path(scenes: Vec<Scene>, skip_auto_forward: bool) -> Vec<S
         });
 
         if let Some(link) = forward_link {
-            let mut next_idx = find_scene_index(&scenes, &link.target).unwrap();
+            let mut next_idx = find_scene_index(&scenes, &link.target)
+                .expect(&format!("Pathfinding error: Scene '{}' not found", link.target));
             
             // Update previous step transition target
             if let Some(last_step) = path.last_mut() {
@@ -187,7 +188,8 @@ pub fn calculate_walk_path(scenes: Vec<Scene>, skip_auto_forward: bool) -> Vec<S
                         });
 
                         if let Some(j_link) = jump_link {
-                           next_idx = find_scene_index(&scenes, &j_link.target).unwrap();
+                           next_idx = find_scene_index(&scenes, &j_link.target)
+                               .expect(&format!("Pathfinding error: Junction scene '{}' not found", j_link.target));
                         } else {
                             break;
                         }
