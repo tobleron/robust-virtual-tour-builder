@@ -1336,10 +1336,11 @@
 │   │   ├── 93_Backend_Graceful_Shutdown_REPORT.md
 │   │   ├── 94_Remove_Dead_ImageAnalysis.md
 │   │   ├── 94_Remove_Dead_ImageAnalysis_REPORT.md
+│   │   ├── 95_Wire_Backend_Similarity.md
+│   │   ├── 95_Wire_Backend_Similarity_REPORT.md
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   └── pending
-│       ├── 95_Wire_Backend_Similarity.md
 │       ├── 96_Migrate_Constants_To_Rescript.md
 │       ├── 97_Migrate_To_Vite.md
 │       ├── 98_Backend_Safety_Audit.md
@@ -1368,4 +1369,4 @@
         ├── TourLogicTest.bs.js
         └── TourLogicTest.res
 
-44 directories, 1325 files
+44 directories, 1326 files
