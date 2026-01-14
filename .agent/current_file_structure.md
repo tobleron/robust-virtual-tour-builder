@@ -633,8 +633,7 @@
 │   └── rescript.lock
 ├── logs
 │   ├── error.log
-│   ├── log_changes.txt
-│   └── telemetry.log
+│   └── log_changes.txt
 ├── package-lock.json
 ├── package.json
 ├── plans
@@ -841,4 +840,4 @@
     ├── SESSION_SUMMARY.md
     └── TASKS_24-27_STATUS.md
 
-30 directories, 812 files
+30 directories, 811 files

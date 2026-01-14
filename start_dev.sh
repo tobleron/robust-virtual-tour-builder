@@ -16,14 +16,16 @@ for port in 8080; do
 done
 sleep 1
 
-# 1. Start Tailwind CSS Watcher (Standalone Binary)
+# [NEW] 0. Start Safety Net (Snapshot Watcher)
+echo "[0/2] Initializing AntiGravity Safety Net..."
+./scripts/ensure-watcher.sh
+
+# 1. Start Tailwind CSS Watcher
 if [ -f "./bin/tailwindcss" ]; then
-    echo "[1/2] Starting Tailwind CSS Watcher (Standalone)..."
-    chmod +x ./bin/tailwindcss
+    echo "[1/2] Starting Tailwind CSS Watcher..."
     ./bin/tailwindcss -i ./css/tailwind.css -o ./css/output.css --watch &
 else
-    echo "⚠️  Tailwind binary not found in ./bin/tailwindcss. CSS watching disabled."
-    echo "Please download the standalone Tailwind CSS v4 CLI and place it at ./bin/tailwindcss"
+    echo "⚠️  Tailwind binary not found. Skipping."
 fi
 
 # 1.5. Start ReScript Watcher
@@ -31,23 +33,15 @@ echo "[1.5/2] Starting ReScript Watcher..."
 if npm list rescript > /dev/null 2>&1 || [ -f "node_modules/.bin/rescript" ]; then
     npm run res:watch &
 else
-    echo "⚠️  ReScript not found. Please run 'npm install'."
+    echo "⚠️  ReScript not found. Run 'npm install'."
 fi
 
-
-# 2. Start Backend with Cargo Watch
-echo "[2/2] Starting Rust Backend (Watcher Mode)..."
+# 2. Start Backend
+echo "[2/2] Starting Rust Backend..."
 export PATH="$PWD/backend/bin:$PATH"
 cd backend
-
 if command -v cargo-watch &> /dev/null; then
-    echo "✅ cargo-watch found. Starting backend in RELEASE mode..."
-    # cargo watch will restart the server whenever rust files change.
-    # --release is critical for image processing performance
     RUST_LOG=info cargo watch -x "run --release"
 else
-    echo "❌ cargo-watch NOT found."
-    echo "Please install it using: cargo install cargo-watch"
-    echo "Falling back to standard release run (no auto-restart)."
     RUST_LOG=info cargo run --release
 fi
