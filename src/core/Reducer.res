@@ -254,27 +254,7 @@ let reducer = (state: state, action: action): state => {
     }
 
   | UpdateTimelineStep(id, dataJson) =>
-    let data = (Obj.magic(dataJson): {..})
-    let newTimeline = Belt.Array.map(state.timeline, t => {
-      if t.id == id {
-        {
-          ...t,
-          transition: if Nullable.isNullable(data["transition"]) {
-            t.transition
-          } else {
-            data["transition"]
-          },
-          duration: if Nullable.isNullable(data["duration"]) {
-            t.duration
-          } else {
-            data["duration"]
-          },
-        }
-      } else {
-        t
-      }
-    })
-    {...state, timeline: newTimeline}
+    ReducerHelpers.handleUpdateTimelineStep(state, id, dataJson)
 
   | SetExifReport(report) => {...state, exifReport: Some(report)}
   }
