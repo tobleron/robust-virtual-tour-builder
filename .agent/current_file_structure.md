@@ -1,10 +1,12 @@
 .
+├── GEMINI.md
+├── README.md
 ├── backend
+│   ├── Cargo.lock
+│   ├── Cargo.toml
 │   ├── backend.log
 │   ├── bin
 │   │   └── ffmpeg
-│   ├── Cargo.lock
-│   ├── Cargo.toml
 │   ├── src
 │   │   ├── api
 │   │   │   ├── geocoding.rs
@@ -34,8 +36,8 @@
 │   │       ├── mod.rs
 │   │       ├── project.rs
 │   │       ├── shutdown.rs
-│   │       ├── upload_quota_tests.rs
-│   │       └── upload_quota.rs
+│   │       ├── upload_quota.rs
+│   │       └── upload_quota_tests.rs
 │   └── tests
 │       └── shutdown_test.rs
 ├── bin
@@ -48,8 +50,8 @@
 │   └── logging_debugging_system.md
 ├── docs
 │   ├── ACCESSIBILITY_GUIDE.md
-│   ├── AntiGravity Workflow Manual.md
 │   ├── ARCHITECTURE_DIAGRAM.md
+│   ├── AntiGravity Workflow Manual.md
 │   ├── BACKEND_OPTIMIZATION_OPPORTUNITIES.md
 │   ├── BACKEND_OPTIMIZATION_SUMMARY.md
 │   ├── CONTAINER_BASED_FONT_SIZING.md
@@ -63,8 +65,6 @@
 │   ├── LONG_TEXT_BEST_PRACTICES.md
 │   ├── MANUAL_LOGGING_TEST.md
 │   ├── MIGRATION_STATUS_ANALYSIS.md
-│   ├── module_size_report.md
-│   ├── navigation_improvements_applied.md
 │   ├── PERFORMANCE_ANALYSIS_FRONTEND_VS_BACKEND.md
 │   ├── PERFORMANCE_OPTIMIZATIONS.md
 │   ├── PROJECT_ANALYSIS_REPORT.md
@@ -79,8 +79,9 @@
 │   ├── SIMULATION_TELEMETRY.md
 │   ├── TESTING_QUICK_REFERENCE.md
 │   ├── TYPOGRAPHY.md
-│   └── UNIT_TESTING_INTEGRATION.md
-├── GEMINI.md
+│   ├── UNIT_TESTING_INTEGRATION.md
+│   ├── module_size_report.md
+│   └── navigation_improvements_applied.md
 ├── images
 │   ├── icon-192.png
 │   ├── icon-512.png
@@ -97,6 +98,24 @@
 │   │   │   ├── App.cmj
 │   │   │   ├── App.cmt
 │   │   │   ├── App.res
+│   │   │   ├── Main.ast
+│   │   │   ├── Main.bs.js
+│   │   │   ├── Main.cmi
+│   │   │   ├── Main.cmj
+│   │   │   ├── Main.cmt
+│   │   │   ├── Main.res
+│   │   │   ├── ReBindings.ast
+│   │   │   ├── ReBindings.bs.js
+│   │   │   ├── ReBindings.cmi
+│   │   │   ├── ReBindings.cmj
+│   │   │   ├── ReBindings.cmt
+│   │   │   ├── ReBindings.res
+│   │   │   ├── ServiceWorker.ast
+│   │   │   ├── ServiceWorker.bs.js
+│   │   │   ├── ServiceWorker.cmi
+│   │   │   ├── ServiceWorker.cmj
+│   │   │   ├── ServiceWorker.cmt
+│   │   │   ├── ServiceWorker.res
 │   │   │   ├── components
 │   │   │   │   ├── HotspotManager.ast
 │   │   │   │   ├── HotspotManager.bs.js
@@ -231,55 +250,6 @@
 │   │   │   │   ├── ReducerHelpers.cmj
 │   │   │   │   ├── ReducerHelpers.cmt
 │   │   │   │   ├── ReducerHelpers.res
-│   │   │   │   ├── reducers
-│   │   │   │   │   ├── HotspotReducer.ast
-│   │   │   │   │   ├── HotspotReducer.bs.js
-│   │   │   │   │   ├── HotspotReducer.cmi
-│   │   │   │   │   ├── HotspotReducer.cmj
-│   │   │   │   │   ├── HotspotReducer.cmt
-│   │   │   │   │   ├── HotspotReducer.res
-│   │   │   │   │   ├── mod.ast
-│   │   │   │   │   ├── mod.bs.js
-│   │   │   │   │   ├── mod.cmi
-│   │   │   │   │   ├── mod.cmj
-│   │   │   │   │   ├── mod.cmt
-│   │   │   │   │   ├── mod.res
-│   │   │   │   │   ├── NavigationReducer.ast
-│   │   │   │   │   ├── NavigationReducer.bs.js
-│   │   │   │   │   ├── NavigationReducer.cmi
-│   │   │   │   │   ├── NavigationReducer.cmj
-│   │   │   │   │   ├── NavigationReducer.cmt
-│   │   │   │   │   ├── NavigationReducer.res
-│   │   │   │   │   ├── ProjectReducer.ast
-│   │   │   │   │   ├── ProjectReducer.bs.js
-│   │   │   │   │   ├── ProjectReducer.cmi
-│   │   │   │   │   ├── ProjectReducer.cmj
-│   │   │   │   │   ├── ProjectReducer.cmt
-│   │   │   │   │   ├── ProjectReducer.res
-│   │   │   │   │   ├── RootReducer.ast
-│   │   │   │   │   ├── RootReducer.bs.js
-│   │   │   │   │   ├── RootReducer.cmi
-│   │   │   │   │   ├── RootReducer.cmj
-│   │   │   │   │   ├── RootReducer.cmt
-│   │   │   │   │   ├── RootReducer.res
-│   │   │   │   │   ├── SceneReducer.ast
-│   │   │   │   │   ├── SceneReducer.bs.js
-│   │   │   │   │   ├── SceneReducer.cmi
-│   │   │   │   │   ├── SceneReducer.cmj
-│   │   │   │   │   ├── SceneReducer.cmt
-│   │   │   │   │   ├── SceneReducer.res
-│   │   │   │   │   ├── TimelineReducer.ast
-│   │   │   │   │   ├── TimelineReducer.bs.js
-│   │   │   │   │   ├── TimelineReducer.cmi
-│   │   │   │   │   ├── TimelineReducer.cmj
-│   │   │   │   │   ├── TimelineReducer.cmt
-│   │   │   │   │   ├── TimelineReducer.res
-│   │   │   │   │   ├── UiReducer.ast
-│   │   │   │   │   ├── UiReducer.bs.js
-│   │   │   │   │   ├── UiReducer.cmi
-│   │   │   │   │   ├── UiReducer.cmj
-│   │   │   │   │   ├── UiReducer.cmt
-│   │   │   │   │   └── UiReducer.res
 │   │   │   │   ├── State.ast
 │   │   │   │   ├── State.bs.js
 │   │   │   │   ├── State.cmi
@@ -291,25 +261,56 @@
 │   │   │   │   ├── Types.cmi
 │   │   │   │   ├── Types.cmj
 │   │   │   │   ├── Types.cmt
-│   │   │   │   └── Types.res
-│   │   │   ├── Main.ast
-│   │   │   ├── Main.bs.js
-│   │   │   ├── Main.cmi
-│   │   │   ├── Main.cmj
-│   │   │   ├── Main.cmt
-│   │   │   ├── Main.res
-│   │   │   ├── ReBindings.ast
-│   │   │   ├── ReBindings.bs.js
-│   │   │   ├── ReBindings.cmi
-│   │   │   ├── ReBindings.cmj
-│   │   │   ├── ReBindings.cmt
-│   │   │   ├── ReBindings.res
-│   │   │   ├── ServiceWorker.ast
-│   │   │   ├── ServiceWorker.bs.js
-│   │   │   ├── ServiceWorker.cmi
-│   │   │   ├── ServiceWorker.cmj
-│   │   │   ├── ServiceWorker.cmt
-│   │   │   ├── ServiceWorker.res
+│   │   │   │   ├── Types.res
+│   │   │   │   └── reducers
+│   │   │   │       ├── HotspotReducer.ast
+│   │   │   │       ├── HotspotReducer.bs.js
+│   │   │   │       ├── HotspotReducer.cmi
+│   │   │   │       ├── HotspotReducer.cmj
+│   │   │   │       ├── HotspotReducer.cmt
+│   │   │   │       ├── HotspotReducer.res
+│   │   │   │       ├── NavigationReducer.ast
+│   │   │   │       ├── NavigationReducer.bs.js
+│   │   │   │       ├── NavigationReducer.cmi
+│   │   │   │       ├── NavigationReducer.cmj
+│   │   │   │       ├── NavigationReducer.cmt
+│   │   │   │       ├── NavigationReducer.res
+│   │   │   │       ├── ProjectReducer.ast
+│   │   │   │       ├── ProjectReducer.bs.js
+│   │   │   │       ├── ProjectReducer.cmi
+│   │   │   │       ├── ProjectReducer.cmj
+│   │   │   │       ├── ProjectReducer.cmt
+│   │   │   │       ├── ProjectReducer.res
+│   │   │   │       ├── RootReducer.ast
+│   │   │   │       ├── RootReducer.bs.js
+│   │   │   │       ├── RootReducer.cmi
+│   │   │   │       ├── RootReducer.cmj
+│   │   │   │       ├── RootReducer.cmt
+│   │   │   │       ├── RootReducer.res
+│   │   │   │       ├── SceneReducer.ast
+│   │   │   │       ├── SceneReducer.bs.js
+│   │   │   │       ├── SceneReducer.cmi
+│   │   │   │       ├── SceneReducer.cmj
+│   │   │   │       ├── SceneReducer.cmt
+│   │   │   │       ├── SceneReducer.res
+│   │   │   │       ├── TimelineReducer.ast
+│   │   │   │       ├── TimelineReducer.bs.js
+│   │   │   │       ├── TimelineReducer.cmi
+│   │   │   │       ├── TimelineReducer.cmj
+│   │   │   │       ├── TimelineReducer.cmt
+│   │   │   │       ├── TimelineReducer.res
+│   │   │   │       ├── UiReducer.ast
+│   │   │   │       ├── UiReducer.bs.js
+│   │   │   │       ├── UiReducer.cmi
+│   │   │   │       ├── UiReducer.cmj
+│   │   │   │       ├── UiReducer.cmt
+│   │   │   │       ├── UiReducer.res
+│   │   │   │       ├── mod.ast
+│   │   │   │       ├── mod.bs.js
+│   │   │   │       ├── mod.cmi
+│   │   │   │       ├── mod.cmj
+│   │   │   │       ├── mod.cmt
+│   │   │   │       └── mod.res
 │   │   │   ├── systems
 │   │   │   │   ├── AudioManager.ast
 │   │   │   │   ├── AudioManager.bs.js
@@ -467,12 +468,6 @@
 │   │   │   │   ├── TourTemplateAssets.cmj
 │   │   │   │   ├── TourTemplateAssets.cmt
 │   │   │   │   ├── TourTemplateAssets.res
-│   │   │   │   ├── TourTemplates.ast
-│   │   │   │   ├── TourTemplates.bs.js
-│   │   │   │   ├── TourTemplates.cmi
-│   │   │   │   ├── TourTemplates.cmj
-│   │   │   │   ├── TourTemplates.cmt
-│   │   │   │   ├── TourTemplates.res
 │   │   │   │   ├── TourTemplateScripts.ast
 │   │   │   │   ├── TourTemplateScripts.bs.js
 │   │   │   │   ├── TourTemplateScripts.cmi
@@ -485,6 +480,12 @@
 │   │   │   │   ├── TourTemplateStyles.cmj
 │   │   │   │   ├── TourTemplateStyles.cmt
 │   │   │   │   ├── TourTemplateStyles.res
+│   │   │   │   ├── TourTemplates.ast
+│   │   │   │   ├── TourTemplates.bs.js
+│   │   │   │   ├── TourTemplates.cmi
+│   │   │   │   ├── TourTemplates.cmj
+│   │   │   │   ├── TourTemplates.cmt
+│   │   │   │   ├── TourTemplates.res
 │   │   │   │   ├── UploadProcessor.ast
 │   │   │   │   ├── UploadProcessor.bs.js
 │   │   │   │   ├── UploadProcessor.cmi
@@ -750,11 +751,6 @@
 │   │   ├── Main.cmj
 │   │   ├── Main.cmt
 │   │   ├── Main.res
-│   │   ├── mod.ast
-│   │   ├── mod.cmi
-│   │   ├── mod.cmj
-│   │   ├── mod.cmt
-│   │   ├── mod.res
 │   │   ├── ModalContext.ast
 │   │   ├── ModalContext.cmi
 │   │   ├── ModalContext.cmj
@@ -957,11 +953,6 @@
 │   │   ├── TourTemplateAssets.cmj
 │   │   ├── TourTemplateAssets.cmt
 │   │   ├── TourTemplateAssets.res
-│   │   ├── TourTemplates.ast
-│   │   ├── TourTemplates.cmi
-│   │   ├── TourTemplates.cmj
-│   │   ├── TourTemplates.cmt
-│   │   ├── TourTemplates.res
 │   │   ├── TourTemplateScripts.cmi
 │   │   ├── TourTemplateScripts.cmj
 │   │   ├── TourTemplateScripts.cmt
@@ -970,6 +961,11 @@
 │   │   ├── TourTemplateStyles.cmj
 │   │   ├── TourTemplateStyles.cmt
 │   │   ├── TourTemplateStyles.res
+│   │   ├── TourTemplates.ast
+│   │   ├── TourTemplates.cmi
+│   │   ├── TourTemplates.cmj
+│   │   ├── TourTemplates.cmt
+│   │   ├── TourTemplates.res
 │   │   ├── Types.ast
 │   │   ├── Types.cmi
 │   │   ├── Types.cmj
@@ -1039,7 +1035,12 @@
 │   │   ├── VisualPipeline.cmi
 │   │   ├── VisualPipeline.cmj
 │   │   ├── VisualPipeline.cmt
-│   │   └── VisualPipeline.res
+│   │   ├── VisualPipeline.res
+│   │   ├── mod.ast
+│   │   ├── mod.cmi
+│   │   ├── mod.cmj
+│   │   ├── mod.cmt
+│   │   └── mod.res
 │   └── rescript.lock
 ├── logs
 │   └── log_changes.txt
@@ -1050,7 +1051,6 @@
 │   ├── debug_telemetry_fix_plan.md
 │   ├── logical_inconsistencies_analysis.md
 │   └── step1_cleanup_notes.md
-├── README.md
 ├── rescript.json
 ├── scripts
 │   ├── cleanup_logs.sh
@@ -1070,6 +1070,12 @@
 ├── src
 │   ├── App.bs.js
 │   ├── App.res
+│   ├── Main.bs.js
+│   ├── Main.res
+│   ├── ReBindings.bs.js
+│   ├── ReBindings.res
+│   ├── ServiceWorker.bs.js
+│   ├── ServiceWorker.res
 │   ├── components
 │   │   ├── HotspotManager.bs.js
 │   │   ├── HotspotManager.res
@@ -1116,38 +1122,32 @@
 │   │   ├── Reducer.res
 │   │   ├── ReducerHelpers.bs.js
 │   │   ├── ReducerHelpers.res
-│   │   ├── reducers
-│   │   │   ├── HotspotReducer.bs.js
-│   │   │   ├── HotspotReducer.res
-│   │   │   ├── mod.bs.js
-│   │   │   ├── mod.res
-│   │   │   ├── NavigationReducer.bs.js
-│   │   │   ├── NavigationReducer.res
-│   │   │   ├── ProjectReducer.bs.js
-│   │   │   ├── ProjectReducer.res
-│   │   │   ├── RootReducer.bs.js
-│   │   │   ├── RootReducer.res
-│   │   │   ├── SceneReducer.bs.js
-│   │   │   ├── SceneReducer.res
-│   │   │   ├── TimelineReducer.bs.js
-│   │   │   ├── TimelineReducer.res
-│   │   │   ├── UiReducer.bs.js
-│   │   │   └── UiReducer.res
 │   │   ├── State.bs.js
 │   │   ├── State.res
 │   │   ├── Types.bs.js
-│   │   └── Types.res
+│   │   ├── Types.res
+│   │   └── reducers
+│   │       ├── HotspotReducer.bs.js
+│   │       ├── HotspotReducer.res
+│   │       ├── NavigationReducer.bs.js
+│   │       ├── NavigationReducer.res
+│   │       ├── ProjectReducer.bs.js
+│   │       ├── ProjectReducer.res
+│   │       ├── RootReducer.bs.js
+│   │       ├── RootReducer.res
+│   │       ├── SceneReducer.bs.js
+│   │       ├── SceneReducer.res
+│   │       ├── TimelineReducer.bs.js
+│   │       ├── TimelineReducer.res
+│   │       ├── UiReducer.bs.js
+│   │       ├── UiReducer.res
+│   │       ├── mod.bs.js
+│   │       └── mod.res
 │   ├── libs
 │   │   ├── FileSaver.min.js
 │   │   ├── jszip.min.js
 │   │   ├── pannellum.css
 │   │   └── pannellum.js
-│   ├── Main.bs.js
-│   ├── Main.res
-│   ├── ReBindings.bs.js
-│   ├── ReBindings.res
-│   ├── ServiceWorker.bs.js
-│   ├── ServiceWorker.res
 │   ├── systems
 │   │   ├── AudioManager.bs.js
 │   │   ├── AudioManager.res
@@ -1201,12 +1201,12 @@
 │   │   ├── TeaserRecorder.res
 │   │   ├── TourTemplateAssets.bs.js
 │   │   ├── TourTemplateAssets.res
-│   │   ├── TourTemplates.bs.js
-│   │   ├── TourTemplates.res
 │   │   ├── TourTemplateScripts.bs.js
 │   │   ├── TourTemplateScripts.res
 │   │   ├── TourTemplateStyles.bs.js
 │   │   ├── TourTemplateStyles.res
+│   │   ├── TourTemplates.bs.js
+│   │   ├── TourTemplates.res
 │   │   ├── UploadProcessor.bs.js
 │   │   ├── UploadProcessor.res
 │   │   ├── VideoEncoder.bs.js
@@ -1237,6 +1237,7 @@
 ├── start_prod.sh
 ├── tailwind.config.js
 ├── tasks
+│   ├── README.md
 │   ├── active
 │   ├── completed
 │   │   ├── 01_Architecture_Functional_State_REPORT.md
@@ -1331,13 +1332,12 @@
 │   │   ├── 93_Backend_Graceful_Shutdown_REPORT.md
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
-│   ├── pending
-│   │   └── TASK_SUMMARY.md
-│   └── README.md
+│   └── pending
+│       └── TASK_SUMMARY.md
 └── tests
-    ├── integration
     ├── TestRunner.bs.js
     ├── TestRunner.res
+    ├── integration
     └── unit
         ├── GeoUtilsTest.bs.js
         ├── GeoUtilsTest.res
