@@ -11,9 +11,9 @@ type step = BackendApi.step
  */
 let getWalkPath = (scenes: array<Types.scene>, skipAutoForward: bool): Promise.t<array<step>> => {
   BackendApi.calculatePath({
-    "type": "walk",
-    "scenes": scenes,
-    "skipAutoForward": skipAutoForward,
+    type_: "walk",
+    scenes: scenes,
+    skipAutoForward: skipAutoForward,
   })
 }
 
@@ -26,9 +26,9 @@ let getTimelinePath = (
   skipAutoForward: bool,
 ): Promise.t<array<step>> => {
   BackendApi.calculatePath({
-    "type": "timeline",
-    "timeline": timeline,
-    "scenes": scenes,
-    "skipAutoForward": skipAutoForward,
+    type_: "timeline",
+    timeline: timeline,
+    scenes: scenes,
+    skipAutoForward: skipAutoForward,
   })
 }

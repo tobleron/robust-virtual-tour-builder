@@ -256,7 +256,7 @@ let processUploads = (
                   }
 
                   // Build pairs for batch similarity
-                  let pairs = []
+                  let pairs: array<BackendApi.similarityPair> = []
                   Belt.Array.forEachWithIndex(validProcessed, (i, current) => {
                     let currentId =
                       Nullable.toOption(current.id)->Option.getOr(File.name(current.original))
@@ -277,10 +277,10 @@ let processUploads = (
                               let _ = Array.push(
                                 pairs,
                                 {
-                                  "idA": currentId,
-                                  "idB": prevId,
-                                  "histogramA": q,
-                                  "histogramB": pq,
+                                  idA: currentId,
+                                  idB: prevId,
+                                  histogramA: q,
+                                  histogramB: pq,
                                 },
                               )
                             | None => ()
@@ -299,10 +299,10 @@ let processUploads = (
                           let _ = Array.push(
                             pairs,
                             {
-                              "idA": currentId,
-                              "idB": lastId,
-                              "histogramA": q,
-                              "histogramB": lq,
+                              idA: currentId,
+                              idB: lastId,
+                              histogramA: q,
+                              histogramB: lq,
                             },
                           )
                         | None => ()
@@ -323,8 +323,8 @@ let processUploads = (
                     // Build lookup map
                     let simMap = Dict.make()
                     Belt.Array.forEach(similarities, (result: BackendApi.similarityResult) => {
-                      let key = result["idA"] ++ "_" ++ result["idB"]
-                      Dict.set(simMap, key, result["similarity"])
+                      let key = result.idA ++ "_" ++ result.idB
+                      Dict.set(simMap, key, result.similarity)
                     })
 
                     let getSimilarity = (idA, idB) => {
