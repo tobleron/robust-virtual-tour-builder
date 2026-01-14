@@ -69,6 +69,8 @@
 │   └── TYPOGRAPHY.md
 ├── GEMINI.md
 ├── images
+│   ├── icon-192.png
+│   ├── icon-512.png
 │   └── logo.png
 ├── index.html
 ├── lib
@@ -228,6 +230,12 @@
 │   │   │   ├── ReBindings.cmj
 │   │   │   ├── ReBindings.cmt
 │   │   │   ├── ReBindings.res
+│   │   │   ├── ServiceWorker.ast
+│   │   │   ├── ServiceWorker.bs.js
+│   │   │   ├── ServiceWorker.cmi
+│   │   │   ├── ServiceWorker.cmj
+│   │   │   ├── ServiceWorker.cmt
+│   │   │   ├── ServiceWorker.res
 │   │   │   ├── systems
 │   │   │   │   ├── AudioManager.ast
 │   │   │   │   ├── AudioManager.bs.js
@@ -690,6 +698,11 @@
 │   │   ├── ServerTeaser.cmj
 │   │   ├── ServerTeaser.cmt
 │   │   ├── ServerTeaser.res
+│   │   ├── ServiceWorker.ast
+│   │   ├── ServiceWorker.cmi
+│   │   ├── ServiceWorker.cmj
+│   │   ├── ServiceWorker.cmt
+│   │   ├── ServiceWorker.res
 │   │   ├── Sidebar.ast
 │   │   ├── Sidebar.cmi
 │   │   ├── Sidebar.cmj
@@ -822,6 +835,7 @@
 │   └── rescript.lock
 ├── logs
 │   └── log_changes.txt
+├── manifest.json
 ├── package-lock.json
 ├── package.json
 ├── plans
@@ -839,6 +853,7 @@
 │   ├── setup.sh
 │   ├── test-logging.js
 │   └── watch-file-limits.sh
+├── service-worker.js
 ├── sounds
 │   └── click.wav
 ├── src
@@ -899,6 +914,8 @@
 │   ├── Main.res
 │   ├── ReBindings.bs.js
 │   ├── ReBindings.res
+│   ├── ServiceWorker.bs.js
+│   ├── ServiceWorker.res
 │   ├── systems
 │   │   ├── AudioManager.bs.js
 │   │   ├── AudioManager.res
@@ -1058,11 +1075,11 @@
 │   │   ├── 80_Add_Frontend_Unit_Tests_REPORT.md
 │   │   ├── 81_Expand_Backend_Test_Coverage_REPORT.md
 │   │   ├── 82_Add_Rust_Documentation_Comments_REPORT.md
+│   │   ├── 83_Implement_Code_Splitting_REPORT.md
+│   │   ├── 84_Implement_Service_Worker_REPORT.md
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   ├── pending
-│   │   ├── 83_Implement_Code_Splitting.md
-│   │   ├── 84_Implement_Service_Worker.md
 │   │   ├── 85_Refactor_TourTemplates_Module.md
 │   │   ├── 86_Refactor_Reducer_Module.md
 │   │   ├── 87_Update_Version_References.md
@@ -1084,4 +1101,4 @@
         ├── TourLogicTest.bs.js
         └── TourLogicTest.res
 
-39 directories, 1046 files
+39 directories, 1063 files

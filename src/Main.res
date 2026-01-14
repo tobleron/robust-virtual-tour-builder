@@ -145,6 +145,9 @@ let init = async () => {
   SimulationSystem.initSimulationKeyHandler()
   InputSystem.initInputSystem()
   
+  // 8. Service Worker (for offline capability and caching)
+  ServiceWorker.registerServiceWorker()
+  
   // 8. Global click handler
   Dom.addEventListener(Obj.magic(Dom.document), "viewer-click", (e: Dom.event) => {
     if GlobalStateBridge.getState().isLinking {
