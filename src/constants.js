@@ -13,11 +13,13 @@
 export const DEBUG_ENABLED_DEFAULT = false;
 
 /**
- * Minimum log level to display: 'debug' | 'info' | 'warn' | 'error'
- * Standard Baseline:
- * - 'debug': Intensive development (timing, math, frames)
- * - 'info': Architectural events (batch starts, transitions)
- * - 'warn/error': Critical failures
+ * Minimum log level to display: 'trace' | 'debug' | 'info' | 'warn' | 'error'
+ * Recommended:
+ * - 'trace': Frame-by-frame, animation ticks (deep debug)
+ * - 'debug': Step-by-step function flow (development)
+ * - 'info': Major lifecycle events (default)
+ * - 'warn': Only warnings and errors
+ * - 'error': Only critical failures
  */
 export const DEBUG_LOG_LEVEL = 'info';
 
@@ -25,6 +27,19 @@ export const DEBUG_LOG_LEVEL = 'info';
  * Maximum number of debug entries to keep in buffer
  */
 export const DEBUG_MAX_ENTRIES = 500;
+
+/**
+ * Performance warning threshold (milliseconds)
+ * Operations slower than this will be logged as warnings
+ */
+export const PERF_WARN_THRESHOLD = 500;
+
+/**
+ * Performance info threshold (milliseconds)
+ * Operations slower than this (but faster than PERF_WARN_THRESHOLD) 
+ * will be logged as info
+ */
+export const PERF_INFO_THRESHOLD = 100;
 
 // ============================================
 // HOTSPOT CONFIGURATION

@@ -1,442 +1,505 @@
 /* src/systems/Navigation.res */
 
-open ReBindings
-open LegacyStore
+open Types
 
-/* --- MODULE STATE --- */
-type linkInfo = {
-  sceneIndex: int,
-  hotspotIndex: int,
-}
-
-let onSceneArrivalCallback: ref<option<(int, bool) => unit>> = ref(None)
-let incomingLink: ref<option<linkInfo>> = ref(None)
-let isSimulationMode = ref(false)
-let autoForwardChain: ref<array<int>> = ref([])
-let pendingReturnSceneName: ref<option<string>> = ref(None)
-let currentJourneyId = ref(0)
-let isNavigating = ref(false)
-let previewingLink: ref<option<linkInfo>> = ref(None)
-
-/* --- GETTERS / SETTERS --- */
-let getIsSimulationMode = () => isSimulationMode.contents
-
-let getIncomingLink = () => incomingLink.contents
-let setIncomingLink = (val) => incomingLink := val
-
-let getAutoForwardChain = () => autoForwardChain.contents
-let resetAutoForwardChain = () => autoForwardChain := []
-
-let getPendingReturnSceneName = () => pendingReturnSceneName.contents
-let setPendingReturnSceneName = (val) => pendingReturnSceneName := val
-
-let getPreviewingLink = () => previewingLink.contents
-
-let registerOnSceneArrival = (cb) => {
-  onSceneArrivalCallback := Some(cb)
-}
-
-let clearSimulationUI = () => {
-    PubSub.publish(PubSub.clearSimUi, ())
-}
-
-/* --- LOGIC HELPERS --- */
+/* --- HELPERS --- */
 
 /* Calculate the intended arrival orientation for a scene */
-let calculateSmartArrivalTarget = (state: LegacyStore.state, targetIndex: int) => {
+let calculateSmartArrivalTarget = (scenes: array<scene>, targetIndex: int) => {
   let arrivalYaw = ref(0.0)
   let arrivalPitch = ref(0.0)
   let arrivalHfov = ref(90.0)
-  
-  if targetIndex >= 0 && targetIndex < Belt.Array.length(state.scenes) {
-    let nextSceneOpt = Belt.Array.get(state.scenes, targetIndex)
-    
+
+  if targetIndex >= 0 && targetIndex < Belt.Array.length(scenes) {
+    let nextSceneOpt = Belt.Array.get(scenes, targetIndex)
+
     switch nextSceneOpt {
     | Some(nextScene) =>
-        /* PRIORITY: Use creation sequence (Oldest first) logic from JS is:
+      /* PRIORITY: Use creation sequence (Oldest first) logic from JS is:
            let nextHotspot = null
            if (!nextHotspot && nextScene.hotspots.length > 0) ...
-           Use find explicitly. 
-        */
-        let nextHotspot = Js.Array.find(h => {
-          /* !h.isReturnLink */
-          switch h.isReturnLink {
-          | Nullable.Value(true) => false
-          | _ => true
-          }
-        }, nextScene.hotspots)
-        
-        let target = switch nextHotspot {
-        | Some(h) => Some(h)
-        | None => 
-          if Belt.Array.length(nextScene.hotspots) > 0 {
-            Belt.Array.get(nextScene.hotspots, 0)
-          } else {
-            None
-          }
+           Use find explicitly.
+ */
+      let nextHotspot = Js.Array.find(h => {
+        /* !h.isReturnLink */
+        switch h.isReturnLink {
+        | Some(true) => false
+        | _ => true
         }
-        
-        switch target {
-        | Some(h) =>
-          /* Check startYaw/Pitch definition */
-          switch (h.startYaw, h.startPitch) {
-          | (Nullable.Value(sy), Nullable.Value(sp)) =>
-            arrivalYaw := sy
-            arrivalPitch := sp
-            switch h.startHfov {
-            | Nullable.Value(sh) => arrivalHfov := sh
-            | _ => ()
-            }
-          | _ =>
-            arrivalYaw := h.yaw -. 35.0
-            arrivalPitch := 0.0
-          }
-        | None => ()
+      }, nextScene.hotspots)
+
+      let target = switch nextHotspot {
+      | Some(h) => Some(h)
+      | None =>
+        if Belt.Array.length(nextScene.hotspots) > 0 {
+          Belt.Array.get(nextScene.hotspots, 0)
+        } else {
+          None
         }
+      }
+
+      switch target {
+      | Some(h) =>
+        /* Check startYaw/Pitch definition */
+        switch (h.startYaw, h.startPitch) {
+        | (Some(sy), Some(sp)) =>
+          arrivalYaw := sy
+          arrivalPitch := sp
+          switch h.startHfov {
+          | Some(sh) => arrivalHfov := sh
+          | _ => ()
+          }
+        | _ =>
+          arrivalYaw := h.yaw -. 35.0
+          arrivalPitch := 0.0
+        }
+      | None => ()
+      }
     | None => ()
     }
   }
-  
+
   (arrivalYaw.contents, arrivalPitch.contents, arrivalHfov.contents)
 }
 
 /* Helper to get current view safely */
-let getCurrentView = (overrideViewer) => {
-  let vOpt = switch overrideViewer {
-  | Some(v) => Some(v)
-  | None => Nullable.toOption(Viewer.instance)
-  }
-  
-  switch vOpt {
+let getCurrentView = () => {
+  switch Nullable.toOption(ReBindings.Viewer.instance) {
   | Some(v) =>
-     /* Paranoid check: if somehow it's still null in JS land */
-     if (Obj.magic(v) == Nullable.null) {
-        (0.0, 0.0, 90.0)
-     } else {
-        (Viewer.getYaw(v), Viewer.getPitch(v), Viewer.getHfov(v))
-     }
+    /* Paranoid check: if somehow it's still null in JS land */
+    if (Obj.magic(v): Nullable.t<unit>) == Nullable.null {
+      (0.0, 0.0, 90.0)
+    } else {
+      (ReBindings.Viewer.getYaw(v), ReBindings.Viewer.getPitch(v), ReBindings.Viewer.getHfov(v))
+    }
   | None => (0.0, 0.0, 90.0)
   }
 }
 
-/* --- NAVIGATION CORE --- */
+/* --- PURE PATH CALCULATION --- */
 
-/* We define a type for journey data to pass around */
-type journeyData = {
-  journeyId: int,
-  targetIndex: int,
-  sourceIndex: int,
-  hotspotIndex: int,
-  arrivalYaw: float,
-  arrivalPitch: float, 
-  arrivalHfov: float,
-  previewOnly: bool,
-}
-
-let handleJourneyFinalize = (data: journeyData) => {
-  if data.journeyId == currentJourneyId.contents {
-    Debug.info("Navigation", "Journey finalized", ~data=Some(data), ())
-    
-    if data.previewOnly {
-      Debug.info("Navigation", "Preview complete", ())
-      isNavigating := false
-      previewingLink := None
-      Notification.notify("Preview complete", "success")
-    } else {
-      let _state = (store.state : LegacyStore.state)
-      
-      /* Set incoming link */
-      incomingLink := Some({
-        sceneIndex: data.sourceIndex,
-        hotspotIndex: data.hotspotIndex
-      })
-      
-      /* Sync Visual Pipeline (Timeline) */
-      /* Logic omitted for brevity, strictly UI sync */
-      
-      isNavigating := false
-      
-      /* Set Active Scene */
-      let transition = {
-        type_: Nullable.make("link"),
-        targetHotspotIndex: -1,
-        fromSceneName: Nullable.null
-      }
-      
-      LegacyStore.setActiveScene(
-        ~index=data.targetIndex,
-        ~startYaw=data.arrivalYaw,
-        ~startPitch=data.arrivalPitch,
-        ~transition=Nullable.make(transition)
-      )
-      
-      clearSimulationUI()
-      
-      /* Notify SimulationSystem */
-      if isSimulationMode.contents {
-         switch onSceneArrivalCallback.contents {
-         | Some(cb) => cb(data.targetIndex, false)
-         | None => ()
-         }
-      }
-    }
-  }
-}
-
-/* Calculate path info and publish event */
-let startNavigationAnimation = (
-  journeyId: int, 
-  targetIndex: int, 
-  sourceSceneIndex: int, 
+let calculatePathData = (
+  state: state,
+  sourceSceneIndex: int,
   sourceHotspotIndex: int,
+  targetIndex: int,
   targetYaw: float,
   targetPitch: float,
   targetHfov: float,
   currentView: (float, float, float),
-  previewOnly: bool
 ) => {
-    let state = (store.state : LegacyStore.state)
-    
-    let sourceSceneOpt = Belt.Array.get(state.scenes, sourceSceneIndex)
-    switch sourceSceneOpt {
-    | Some(sourceScene) =>
-        let hotspotOpt = Belt.Array.get(sourceScene.hotspots, sourceHotspotIndex)
-        switch hotspotOpt {
-        | Some(hotspot) =>
-            let (curYaw, curPitch, curHfov) = currentView
-            
-            let (arrYaw, arrPitch, arrHfov) = if isSimulationMode.contents {
-                calculateSmartArrivalTarget(state, targetIndex)
-            } else {
-                (targetYaw, targetPitch, targetHfov)
-            }
-            
-            /* Path Calculation Logic */
-            /* Determine start params */
-            let startPitch = switch hotspot.startPitch { | Nullable.Value(p) => p | _ => curPitch }
-            let startYaw = switch hotspot.startYaw { | Nullable.Value(y) => y | _ => curYaw }
-            
-            /* Determine target pan params */
-            let (tYawPan, tPitchPan) = switch hotspot.viewFrame {
-            | Nullable.Value(vf) => (vf.yaw, vf.pitch)
-            | _ => (targetYaw, targetPitch)
-            }
-            
-            /* Generate Control Points */
-            let p0: PathInterpolation.point = {yaw: startYaw, pitch: startPitch}
-            let pEnd: PathInterpolation.point = {yaw: tYawPan, pitch: tPitchPan}
-            
-            let waypointsRaw = switch Nullable.toOption(hotspot.waypoints) { | Some(w) => w | None => [] }
-            let waypoints: array<PathInterpolation.point> = Belt.Array.map(waypointsRaw, w => ({PathInterpolation.yaw: w.yaw, pitch: w.pitch}))
+  let sourceSceneOpt = Belt.Array.get(state.scenes, sourceSceneIndex)
+  switch sourceSceneOpt {
+  | Some(sourceScene) =>
+    let hotspotOpt = Belt.Array.get(sourceScene.hotspots, sourceHotspotIndex)
+    switch hotspotOpt {
+    | Some(hotspot) =>
+      let (curYaw, curPitch, curHfov) = currentView
 
-            let controlPoints = if Array.length(waypoints) > 0 {
-                Belt.Array.concat([p0], Belt.Array.concat(waypoints, [pEnd]))
-            } else {
-                [p0, pEnd]
-            }
+      let (arrYaw, arrPitch, arrHfov) = if state.isSimulationMode {
+        calculateSmartArrivalTarget(state.scenes, targetIndex)
+      } else {
+        (targetYaw, targetPitch, targetHfov)
+      }
 
-            /* Spline generation */
-            let path = PathInterpolation.getCatmullRomSpline(controlPoints, 100)
-            
-            /* Calculate segments and total distance */
-            let totalDistance = ref(0.0)
-            let segments = []
-            
-            if Array.length(path) >= 2 {
-                for i in 0 to Array.length(path) - 2 {
-                    let p1 = Belt.Array.getExn(path, i)
-                    let p2 = Belt.Array.getExn(path, i+1)
-                    let yawDiff = ref(p2.yaw -. p1.yaw)
-                    while yawDiff.contents > 180.0 { yawDiff := yawDiff.contents -. 360.0 }
-                    while yawDiff.contents < -180.0 { yawDiff := yawDiff.contents +. 360.0 }
-                    
-                    let pitchDiff = p2.pitch -. p1.pitch
-                    let dist = Math.sqrt(yawDiff.contents *. yawDiff.contents +. pitchDiff *. pitchDiff)
-                    
-                    let segment = {
-                        "dist": dist,
-                        "yawDiff": yawDiff.contents,
-                        "pitchDiff": pitchDiff,
-                        "p1": p1,
-                        "p2": p2
-                    }
-                    let _ = Js.Array.push(segment, segments)
-                    totalDistance := totalDistance.contents +. dist
-                }
-            }
+      /* Determine start params */
+      let startPitch = switch hotspot.startPitch {
+      | Some(p) => p
+      | _ => curPitch
+      }
+      let startYaw = switch hotspot.startYaw {
+      | Some(y) => y
+      | _ => curYaw
+      }
 
-            let panDuration = Math.min(
-                Math.max(totalDistance.contents /. Constants.panningVelocity, Constants.panningMinDuration),
-                Constants.panningMaxDuration
-            )
+      /* Determine target pan params */
+      let (tYawPan, tPitchPan) = switch hotspot.viewFrame {
+      | Some(vf) => (vf.yaw, vf.pitch)
+      | _ => (targetYaw, targetPitch)
+      }
 
-            /* Publish Event */
-            let payload = {
-                "journeyId": journeyId,
-                "sourceIndex": sourceSceneIndex,
-                "targetIndex": targetIndex,
-                "hotspotIndex": sourceHotspotIndex,
-                "previewOnly": previewOnly,
-                "pathData": {
-                    "startPitch": startPitch,
-                    "startYaw": startYaw,
-                    "startHfov": curHfov,
-                    "targetPitchForPan": tPitchPan,
-                    "targetYawForPan": tYawPan,
-                    "targetHfovForPan": arrHfov,
-                    "totalPathDistance": totalDistance.contents,
-                    "segments": segments, 
-                    "waypoints": waypoints,
-                    "panDuration": panDuration,
-                    "arrivalYaw": arrYaw,
-                    "arrivalPitch": arrPitch,
-                    "arrivalHfov": arrHfov
-                } 
-            }
-            
-            PubSub.publish(PubSub.navStart, payload)
-        | None => ()
+      /* Generate Control Points */
+      let p0: PathInterpolation.point = {yaw: startYaw, pitch: startPitch}
+      let pEnd: PathInterpolation.point = {yaw: tYawPan, pitch: tPitchPan}
+
+      let waypointsRaw = switch hotspot.waypoints {
+      | Some(w) => w
+      | None => []
+      }
+      let waypoints: array<PathInterpolation.point> = Belt.Array.map(waypointsRaw, w => {
+        PathInterpolation.yaw: w.yaw,
+        pitch: w.pitch,
+      })
+
+      let controlPoints = if Array.length(waypoints) > 0 {
+        Belt.Array.concat([p0], Belt.Array.concat(waypoints, [pEnd]))
+      } else {
+        [p0, pEnd]
+      }
+
+      /* Spline generation */
+      let path = PathInterpolation.getCatmullRomSpline(controlPoints, 100)
+
+      /* Calculate segments and total distance */
+      let totalDistance = ref(0.0)
+      let segments = []
+
+      if Array.length(path) >= 2 {
+        for i in 0 to Array.length(path) - 2 {
+          let p1_orig = Belt.Array.getExn(path, i)
+          let p2_orig = Belt.Array.getExn(path, i + 1)
+
+          let p1: pathPoint = {yaw: p1_orig.yaw, pitch: p1_orig.pitch}
+          let p2: pathPoint = {yaw: p2_orig.yaw, pitch: p2_orig.pitch}
+
+          let yawDiff = ref(p2.yaw -. p1.yaw)
+          while yawDiff.contents > 180.0 {
+            yawDiff := yawDiff.contents -. 360.0
+          }
+          while yawDiff.contents < -180.0 {
+            yawDiff := yawDiff.contents +. 360.0
+          }
+
+          let pitchDiff = p2.pitch -. p1.pitch
+          let dist = Math.sqrt(yawDiff.contents *. yawDiff.contents +. pitchDiff *. pitchDiff)
+
+          let segment: pathSegment = {
+            dist,
+            yawDiff: yawDiff.contents,
+            pitchDiff,
+            p1,
+            p2,
+          }
+          let _ = Js.Array.push(segment, segments)
+          totalDistance := totalDistance.contents +. dist
         }
-    | None => ()
+      }
+
+      let panDuration = Math.min(
+        Math.max(
+          totalDistance.contents /. ReBindings.Constants.panningVelocity,
+          ReBindings.Constants.panningMinDuration,
+        ),
+        ReBindings.Constants.panningMaxDuration,
+      )
+
+      Some({
+        startPitch,
+        startYaw,
+        startHfov: curHfov,
+        targetPitchForPan: tPitchPan,
+        targetYawForPan: tYawPan,
+        targetHfovForPan: arrHfov,
+        totalPathDistance: totalDistance.contents,
+        segments,
+        waypoints: Belt.Array.map(waypoints, p => {yaw: p.yaw, pitch: p.pitch}),
+        panDuration,
+        arrivalYaw: arrYaw,
+        arrivalPitch: arrPitch,
+        arrivalHfov: arrHfov,
+      })
+    | None => None
     }
+  | None => None
+  }
 }
 
+/* --- ORCHESTRATION --- */
+
+let navStartTime = ref(0.0)
+
 let navigateToScene = (
-  targetIndex: int, 
-  sourceSceneIndex: int, 
+  dispatch: Actions.action => unit,
+  state: state,
+  targetIndex: int,
+  sourceSceneIndex: int,
   sourceHotspotIndex: int,
-  ~targetYaw: float=0.0, 
-  ~targetPitch: float=0.0, 
+  ~targetYaw: float=0.0,
+  ~targetPitch: float=0.0,
   ~targetHfov: float=90.0,
-  ~overrideViewer: option<Viewer.t>=?, 
   ~previewOnly: bool=false,
-  ()
+  (),
 ) => {
-  if isNavigating.contents {
-    Debug.warn("Navigation", "BLOCKED: Navigation already in progress", ())
-  } else {
-    currentJourneyId := currentJourneyId.contents + 1
-    let jId = currentJourneyId.contents
-    isNavigating := true
-    
-    let state = (store.state : LegacyStore.state)
-    
-    /* Just use unsafe access here or check, strict Belt.Array.get is better */
-    /* If sourceScene is valid, proceed */
-    
-    let currentView = getCurrentView(overrideViewer)
-    
-    if previewOnly {
-       previewingLink := Some({sceneIndex: sourceSceneIndex, hotspotIndex: sourceHotspotIndex})
+  navStartTime := Date.now()
+  Logger.startOperation(
+    ~module_="Navigation",
+    ~operation="NAV",
+    ~data={
+      "targetIndex": targetIndex,
+      "previewOnly": previewOnly,
+    },
+    (),
+  )
+  if (
+    switch state.navigation {
+    | Navigating(_) => true
+    | _ => false
     }
-    
-    let shouldAnimate = (isSimulationMode.contents || previewOnly) 
-    
+  ) {
+    Logger.warn(
+      ~module_="Navigation",
+      ~message="NAV_BLOCKED",
+      ~data={"reason": "Navigation already in progress"},
+      (),
+    )
+  } else {
+    let newJourneyId = state.currentJourneyId + 1
+    dispatch(IncrementJourneyId)
+
+    let currentView = getCurrentView()
+
+    if previewOnly {
+      dispatch(
+        SetNavigationStatus(
+          Previewing({sceneIndex: sourceSceneIndex, hotspotIndex: sourceHotspotIndex}),
+        ),
+      )
+    }
+
+    let shouldAnimate = state.isSimulationMode || previewOnly
+
     if shouldAnimate {
-       startNavigationAnimation(
-         jId, targetIndex, sourceSceneIndex, sourceHotspotIndex,
-         targetYaw, targetPitch, targetHfov, currentView, previewOnly
-       )
+      let pathData = calculatePathData(
+        state,
+        sourceSceneIndex,
+        sourceHotspotIndex,
+        targetIndex,
+        targetYaw,
+        targetPitch,
+        targetHfov,
+        currentView,
+      )
+
+      let journey: journeyData = {
+        journeyId: newJourneyId,
+        targetIndex,
+        sourceIndex: sourceSceneIndex,
+        hotspotIndex: sourceHotspotIndex,
+        arrivalYaw: targetYaw, // Default if pathData None
+        arrivalPitch: targetPitch,
+        arrivalHfov: targetHfov,
+        previewOnly,
+        pathData,
+      }
+
+      // If pathData is some, adjust arrival from pathData
+      let finalJourney = switch pathData {
+      | Some(pd) => {
+          ...journey,
+          arrivalYaw: pd.arrivalYaw,
+          arrivalPitch: pd.arrivalPitch,
+          arrivalHfov: pd.arrivalHfov,
+        }
+      | None => journey
+      }
+
+      dispatch(SetNavigationStatus(Navigating(finalJourney)))
+
+      // Legacy PubSub for Renderer compatibility until it's also refactored
+      // We wrap pathData in a JS-like object for ReBindings
+      switch pathData {
+      | Some(pd) =>
+        let payload = {
+          "journeyId": newJourneyId,
+          "sourceIndex": sourceSceneIndex,
+          "targetIndex": targetIndex,
+          "hotspotIndex": sourceHotspotIndex,
+          "previewOnly": previewOnly,
+          "pathData": Obj.magic(pd),
+        }
+        ReBindings.PubSub.publish(ReBindings.PubSub.navStart, payload)
+      | None => ()
+      }
     } else {
-       /* Manual Jump */
-       let (arrYaw, arrPitch, arrHfov) = calculateSmartArrivalTarget(state, targetIndex)
-       
-       let data: journeyData = {
-           journeyId: jId,
-           targetIndex: targetIndex,
-           sourceIndex: sourceSceneIndex,
-           hotspotIndex: sourceHotspotIndex,
-           arrivalYaw: arrYaw,
-           arrivalPitch: arrPitch,
-           arrivalHfov: arrHfov,
-           previewOnly: false
-       }
-       handleJourneyFinalize(data)
+      /* Manual Jump */
+      let (arrYaw, arrPitch, _arrHfov) = calculateSmartArrivalTarget(state.scenes, targetIndex)
+
+      dispatch(
+        SetIncomingLink(Some({sceneIndex: sourceSceneIndex, hotspotIndex: sourceHotspotIndex})),
+      )
+
+      let transition: transition = {
+        type_: Some("link"),
+        targetHotspotIndex: -1,
+        fromSceneName: None,
+      }
+
+      dispatch(SetActiveScene(targetIndex, arrYaw, arrPitch, Some(transition)))
+
+      Logger.endOperation(
+        ~module_="Navigation",
+        ~operation="NAV",
+        ~data={
+          "targetIndex": targetIndex,
+          "type": "manual_jump",
+          "durationMs": Date.now() -. navStartTime.contents,
+        },
+        (),
+      )
+      // In simulation mode, we might need to trigger arrival callback
+      // For now, dispathing SetActiveScene should handle it in components
     }
   }
 }
 
-let cancelNavigation = () => {
-  currentJourneyId := currentJourneyId.contents + 1
-  isNavigating := false
-  PubSub.publish(PubSub.navCancelled, ())
-}
+let handleAutoForward = (dispatch: Actions.action => unit, state: state, currentScene: scene) => {
+  /* Recursion / Logic port from JS */
+  if state.isSimulationMode {
+    /* Skipped in Sim Mode */
+    ()
+  } else if currentScene.isAutoForward {
+    if !state.isLinking {
+      Logger.debug(
+        ~module_="Navigation",
+        ~message="AUTO_FORWARD_CHECK",
+        ~data={"sceneName": currentScene.name},
+        (),
+      )
 
-let handleAutoForward = (currentScene: LegacyStore.scene, state: LegacyStore.state, _viewer: option<Viewer.t>) => {
-    /* Recursion / Logic port from JS */
-    if isSimulationMode.contents {
-        /* Skipped in Sim Mode */
-        ()
-    } else {
-       switch currentScene.isAutoForward {
-       | Nullable.Value(true) => 
-         if !state.isLinking {
-             Debug.info("Navigation", "AutoForward Processing: " ++ currentScene.name, ())
-             
-             /* Chain Logic */
-             let chain = autoForwardChain.contents
-             if Belt.Array.length(chain) == 0 {
-                 switch incomingLink.contents {
-                 | Some(l) => ignore(Js.Array.push(l.sceneIndex, chain))
-                 | None => ()
-                 }
-             }
-             
-             if Js.Array.includes(state.activeIndex, chain) {
-                 Debug.warn("Navigation", "Loop detected", ())
-                 autoForwardChain := []
-                 Notification.notify("Loop detected", "warning")
-             } else {
-                 ignore(Js.Array.push(state.activeIndex, chain))
-                 /* Heuristic Logic skipped for V1 port */
-             }
-         }
-       | _ => ()  
-       }
-    }
-}
-
-let setSimulationMode = (val) => {
-    isSimulationMode := val
-    Debug.info("Navigation", "Simulation mode: " ++ (if val {"ON"} else {"OFF"}), ())
-    
-    autoForwardChain := []
-    incomingLink := None
-    currentJourneyId := currentJourneyId.contents + 1
-    clearSimulationUI()
-    isNavigating := false
-    
-    if val {
-        let state = (store.state : LegacyStore.state)
-        if state.activeIndex >= 0 {
-            /* Timeout 100ms logic */
-            let _ = setTimeout(() => {
-                switch Belt.Array.get(state.scenes, state.activeIndex) {
-                | Some(scene) =>
-                   handleAutoForward(scene, state, Nullable.toOption(Viewer.instance))
-                | None => ()
-                }
-            }, 100)
+      /* Chain Logic */
+      let chain = state.autoForwardChain
+      if Array.length(chain) == 0 {
+        switch state.incomingLink {
+        | Some(l) => dispatch(AddToAutoForwardChain(l.sceneIndex))
+        | None => ()
         }
+      }
+
+      if Js.Array.includes(state.activeIndex, chain) {
+        Logger.warn(
+          ~module_="Navigation",
+          ~message="LOOP_DETECTED",
+          ~data={"sceneName": currentScene.name},
+          (),
+        )
+        dispatch(ResetAutoForwardChain)
+        ReBindings.Notification.notify("Loop detected", "warning")
+      } else {
+        dispatch(AddToAutoForwardChain(state.activeIndex))
+
+        /* Find best forward link */
+        let nextLink = Belt.Array.getBy(currentScene.hotspots, h => {
+          switch h.isReturnLink {
+          | Some(true) => false
+          | _ => true
+          }
+        })
+
+        switch nextLink {
+        | Some(h) =>
+          switch Belt.Array.getIndexBy(state.scenes, s => s.name == h.target) {
+          | Some(targetIdx) =>
+            let hIdx =
+              Belt.Array.getIndexBy(currentScene.hotspots, hh =>
+                hh.linkId == h.linkId
+              )->Belt.Option.getWithDefault(0)
+
+            Logger.info(
+              ~module_="Navigation",
+              ~message="AUTO_FORWARD_JUMP",
+              ~data={"from": currentScene.name, "to": h.target},
+              (),
+            )
+
+            // Wait a small delay to allow viewer to stabilize if needed, but JS was immediate
+            navigateToScene(dispatch, state, targetIdx, state.activeIndex, hIdx, ())
+          | None =>
+            Logger.error(
+              ~module_="Navigation",
+              ~message="AUTO_FORWARD_FAILED",
+              ~data={"reason": "Target not found", "target": h.target},
+              (),
+            )
+          }
+        | None =>
+          Logger.warn(~module_="Navigation", ~message="AUTO_FORWARD_FAILED", ~data={"reason": "No forward link found"}, ())
+        }
+      }
     }
+  }
+}
+
+let setSimulationMode = (dispatch: Actions.action => unit, state: state, val: bool) => {
+  dispatch(SetSimulationMode(val))
+  Logger.info(
+    ~module_="Navigation",
+    ~message="SIMULATION_MODE_CHANGED",
+    ~data={"enabled": val},
+    (),
+  )
+
+  dispatch(ResetAutoForwardChain)
+  dispatch(SetIncomingLink(None))
+  dispatch(IncrementJourneyId)
+  ReBindings.PubSub.publish(ReBindings.PubSub.clearSimUi, ())
+  dispatch(SetNavigationStatus(Idle))
+
+  if val {
+    if state.activeIndex >= 0 {
+      /* Timeout 100ms logic */
+      let _ = ReBindings.Window.setTimeout(() => {
+        switch Belt.Array.get(state.scenes, state.activeIndex) {
+        | Some(scene) => handleAutoForward(dispatch, state, scene)
+        | None => ()
+        }
+      }, 100)
+    }
+  }
 }
 
 /* Initialization */
-let initNavigation = () => {
-    isSimulationMode := false
-    currentJourneyId := 0
-    isNavigating := false
-    incomingLink := None
-    autoForwardChain := []
-    
-    /* Subscribe */
-    let _ = PubSub.subscribe(PubSub.navCompleted, (data) => {
-        handleJourneyFinalize(data)
-    })
-    
-    let _ = PubSub.subscribe(PubSub.navCancelled, (_data) => {
-        isNavigating := false
-    })
-    
-    Debug.info("Navigation", "Navigation system initialized (ReScript)", ())
+
+let cancelNavigation = () => {
+  Logger.info(~module_="Navigation", ~message="NAV_CANCELLED", ())
+  ReBindings.PubSub.publish(ReBindings.PubSub.navCancelled, ())
+}
+
+let initNavigation = (dispatch: Actions.action => unit) => {
+  dispatch(SetSimulationMode(false))
+  dispatch(SetCurrentJourneyId(0))
+  dispatch(SetNavigationStatus(Idle))
+  dispatch(SetIncomingLink(None))
+  dispatch(ResetAutoForwardChain)
+
+  /* Subscribe */
+  let _ = ReBindings.PubSub.subscribe(ReBindings.PubSub.navCompleted, data => {
+    let journeyId = data["journeyId"]->Obj.magic
+    let targetIndex = data["targetIndex"]->Obj.magic
+    let sourceIndex = data["sourceIndex"]->Obj.magic
+    let hotspotIndex = data["hotspotIndex"]->Obj.magic
+    let arrivalYaw = data["arrivalYaw"]->Obj.magic
+    let arrivalPitch = data["arrivalPitch"]->Obj.magic
+    let arrivalHfov = data["arrivalHfov"]->Obj.magic
+    let previewOnly = data["previewOnly"]->Obj.magic
+
+    let journey: journeyData = {
+      journeyId,
+      targetIndex,
+      sourceIndex,
+      hotspotIndex,
+      arrivalYaw,
+      arrivalPitch,
+      arrivalHfov,
+      previewOnly,
+      pathData: None, // Path data is not passed back in navCompleted
+    }
+    dispatch(NavigationCompleted(journey))
+    Logger.endOperation(
+      ~module_="Navigation",
+      ~operation="NAV",
+      ~data={
+        "targetIndex": targetIndex,
+        "journeyId": journeyId,
+        "durationMs": Date.now() -. navStartTime.contents,
+      },
+      (),
+    )
+  })
+
+  let _ = ReBindings.PubSub.subscribe(ReBindings.PubSub.navCancelled, _data => {
+    dispatch(SetNavigationStatus(Idle))
+    Logger.info(~module_="Navigation", ~message="NAV_CANCELLED_CLEANUP", ())
+  })
+
+  Logger.initialized(~module_="Navigation")
 }

@@ -1,0 +1,345 @@
+/**
+ * Logger.res - Type-Safe Unified Logging System
+ * 
+ * Replaces Debug.js and Logger.js with a single, strictly-typed module.
+ */
+
+open ReBindings
+
+// =============================================================================
+// TYPES
+// =============================================================================
+
+type level =
+  | Trace
+  | Debug
+  | Info
+  | Warn
+  | Error
+  | Perf
+
+type logEntry = {
+  timestamp: float,
+  time: string,
+  module_: string,
+  level: string,
+  message: string,
+  data: option<JSON.t>,
+}
+
+type timedResult<'a> = {
+  result: 'a,
+  durationMs: float,
+}
+
+type operationResult<'a> = result<'a, string>
+
+let optToNullable = (opt: option<'a>): Nullable.t<'a> =>
+  switch opt {
+  | Some(v) => Nullable.make(v)
+  | None => Nullable.null
+  }
+
+// =============================================================================
+// STATE & CONSTANTS
+// =============================================================================
+
+let entries: array<logEntry> = []
+let maxEntries = 2000
+let appLog: array<string> = []
+let maxAppLogEntries = 1000
+
+let enabled = ref(true)
+let minLevel = ref(Info)
+let enabledModules = ref(Belt.Set.String.empty)
+
+let levelPriority = (level: level): int =>
+  switch level {
+  | Trace => 0
+  | Debug => 1
+  | Info => 2
+  | Perf => 2
+  | Warn => 3
+  | Error => 4
+  }
+
+let levelToString = (level: level): string =>
+  switch level {
+  | Trace => "trace"
+  | Debug => "debug"
+  | Info => "info"
+  | Warn => "warn"
+  | Error => "error"
+  | Perf => "perf"
+  }
+
+let stringToLevel = (s: string): level =>
+  switch s {
+  | "trace" => Trace
+  | "debug" => Debug
+  | "info" => Info
+  | "warn" => Warn
+  | "error" => Error
+  | "perf" => Perf
+  | _ => Info
+  }
+
+let moduleColors = Dict.fromArray([
+  ("Teaser", "#f97316"),
+  ("Navigation", "#3b82f6"),
+  ("Store", "#10b981"),
+  ("Viewer", "#8b5cf6"),
+  ("Hotspot", "#ec4899"),
+  ("Export", "#14b8a6"),
+  ("Default", "#64748b"),
+])
+
+// =============================================================================
+// VISUAL BADGE
+// =============================================================================
+
+let showDebugBadge = () => {
+  let doc = Dom.documentBody
+  let existing = Dom.getElementById("debug-badge")->Nullable.toOption
+  if Option.isNone(existing) {
+    let badge = Dom.createElement("div")
+    Dom.setId(badge, "debug-badge")
+    let _ = (Obj.magic(badge): {..})["textContent"] = "🐛 DEBUG"
+    let style = "position: fixed; bottom: 20px; right: 20px; background: #1e293b; color: #10b981; padding: 6px 12px; border-radius: 8px; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 11px; letter-spacing: 0.05em; z-index: 99999; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 1px solid rgba(16, 185, 129, 0.2); animation: debug-fade-in 0.3s ease-out;"
+    Dom.setAttribute(badge, "style", style)
+
+    if Option.isNone(Dom.getElementById("debug-styles")->Nullable.toOption) {
+      let s = Dom.createElement("style")
+      Dom.setId(s, "debug-styles")
+      let _ = (Obj.magic(s): {..})["textContent"] = "
+                @keyframes debug-fade-in {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+            "
+      Dom.appendChild(Dom.documentBody, s)
+    }
+    Dom.appendChild(doc, badge)
+  }
+}
+
+let hideDebugBadge = () => {
+  switch Dom.getElementById("debug-badge")->Nullable.toOption {
+  | Some(b) => (Obj.magic(b): {..})["remove"]()
+  | None => ()
+  }
+}
+
+// =============================================================================
+// INTERNAL LOGGING CORE
+// =============================================================================
+
+let sendTelemetry = async entry => {
+  /* Only send errors or logs >= minLevel to backend */
+  if entry.level == "error" || levelPriority(stringToLevel(entry.level)) >= levelPriority(minLevel.contents) {
+    try {
+      let _ = await Fetch.fetch(
+        Constants.backendUrl ++ "/log-telemetry",
+        {
+          method: "POST",
+          headers: Nullable.make(Dict.fromArray([("Content-Type", "application/json")])),
+          body: Nullable.make(JSON.stringify(Obj.magic(entry))),
+        },
+      )
+    } catch {
+    | _ => ()
+    }
+  }
+}
+
+let log = (~module_: string, ~level: level, ~message: string, ~data: 'a=?, ()): unit => {
+  let timestamp = Date.now()
+  let timeStr = Date.toISOString(Date.make())
+  
+  let entry = {
+    timestamp,
+    time: timeStr,
+    module_,
+    level: levelToString(level),
+    message,
+    data: (Obj.magic(data): option<JSON.t>),
+  }
+
+  let _ = Js.Array.push(entry, entries)
+  if Array.length(entries) > maxEntries {
+    let _ = Array.shift(entries)
+  }
+
+  /* App Log Buffer (for UI) */
+  let appLogMsg = `[${timeStr}][${levelToString(level)->String.toUpperCase}] [${module_}] ${message}`
+  let _ = Js.Array.push(appLogMsg, appLog)
+  if Array.length(appLog) > maxAppLogEntries {
+    let _ = Array.shift(appLog)
+  }
+
+  /* Backend Telemetry */
+  let _ = sendTelemetry(entry)
+
+  /* Console Output */
+  if enabled.contents && levelPriority(level) >= levelPriority(minLevel.contents) {
+    let hasFilter = Belt.Set.String.size(enabledModules.contents) > 0
+    if !hasFilter || Belt.Set.String.has(enabledModules.contents, module_) {
+      let color = Dict.get(moduleColors, module_)->Option.getOr(Dict.get(moduleColors, "Default")->Option.getOr("#64748b"))
+      let prefix = `%c[${module_}]%c`
+      let prefixStyle = `color: ${color}; font-weight: bold;`
+      let resetStyle = "color: inherit;"
+
+      let consoleMethod = switch level {
+      | Trace | Debug | Perf => "log"
+      | Info => "info"
+      | Warn => "warn"
+      | Error => "error"
+      }
+
+      let callConsole: (string, string, string, string, string, Nullable.t<JSON.t>) => unit = %raw(`
+        function(method, p1, p2, p3, msg, data) {
+          if (data !== null && data !== undefined) {
+            console[method](p1, p2, p3, msg, data);
+          } else {
+            console[method](p1, p2, p3, msg);
+          }
+        }
+      `)
+
+      callConsole(consoleMethod, prefix, prefixStyle, resetStyle, message, data->optToNullable->Obj.magic)
+    }
+  }
+}
+
+// =============================================================================
+// PUBLIC API
+// =============================================================================
+
+let trace = (~module_, ~message, ~data: 'a=?, ()) => log(~module_, ~level=Trace, ~message, ~data?, ())
+let debug = (~module_, ~message, ~data: 'a=?, ()) => log(~module_, ~level=Debug, ~message, ~data?, ())
+let info = (~module_, ~message, ~data: 'a=?, ()) => log(~module_, ~level=Info, ~message, ~data?, ())
+let warn = (~module_, ~message, ~data: 'a=?, ()) => log(~module_, ~level=Warn, ~message, ~data?, ())
+let error = (~module_, ~message, ~data: 'a=?, ()) => log(~module_, ~level=Error, ~message, ~data?, ())
+
+let perf = (~module_, ~message, ~durationMs, ~data: 'a=?, ()) => {
+  let threshold = if durationMs > 500.0 { "VERY_SLOW" } else if durationMs > 100.0 { "SLOW" } else { "OK" }
+  let emoji = if durationMs > 500.0 { "🐢" } else if durationMs > 100.0 { "⏱️" } else { "⚡" }
+  let level = if durationMs > 500.0 { Warn } else if durationMs > 100.0 { Info } else { Debug }
+  
+  let perfData = switch data {
+  | Some(d) => Some(Object.assign(Object.make(), Obj.magic(d)))
+  | None => Some(Object.make())
+  }
+  let pd: {..} = Obj.magic(perfData->Option.getOr(Object.make()))
+  pd["durationMs"] = durationMs
+  pd["threshold"] = threshold
+
+  log(~module_, ~level, ~message=`${emoji} ${message} (${Float.toFixed(durationMs, ~digits=2)}ms)`, ~data=?Some(Obj.magic(pd)), ())
+}
+
+let timed = (~module_: string, ~operation: string, fn: unit => 'a): timedResult<'a> => {
+  let start = Date.now()
+  let result = fn()
+  let durationMs = Date.now() -. start
+  perf(~module_, ~message=operation, ~durationMs, ())
+  {result, durationMs}
+}
+
+let timedAsync = async (~module_: string, ~operation: string, fn: unit => promise<'a>): timedResult<'a> => {
+  let start = Date.now()
+  let result = await fn()
+  let durationMs = Date.now() -. start
+  perf(~module_, ~message=operation, ~durationMs, ())
+  {result, durationMs}
+}
+
+let attempt = (~module_: string, ~operation: string, fn: unit => 'a): operationResult<'a> => {
+  try { Ok(fn()) } catch {
+  | JsExn(e) => {
+      let msg = e->JsExn.message->Option.getOr("Unknown error")
+      error(~module_, ~message=`${operation}_FAILED`, ~data=Obj.magic({"error": msg, "stack": e->JsExn.stack}), ())
+      Error(msg)
+    }
+  | _ => {
+      error(~module_, ~message=`${operation}_FAILED`, ~data=Obj.magic({"error": "Unknown exception"}), ())
+      Error("Unknown exception")
+    }
+  }
+}
+
+let attemptAsync = async (~module_: string, ~operation: string, fn: unit => promise<'a>): operationResult<'a> => {
+  try { Ok(await fn()) } catch {
+  | JsExn(e) => {
+      let msg = e->JsExn.message->Option.getOr("Unknown error")
+      error(~module_, ~message=`${operation}_FAILED`, ~data=Obj.magic({"error": msg, "stack": e->JsExn.stack}), ())
+      Error(msg)
+    }
+  | _ => {
+      error(~module_, ~message=`${operation}_FAILED`, ~data=Obj.magic({"error": "Unknown exception"}), ())
+      Error("Unknown exception")
+    }
+  }
+}
+
+let startOperation = (~module_, ~operation, ~data=?, ()) => info(~module_, ~message=`${operation}_START`, ~data?, ())
+let endOperation = (~module_, ~operation, ~data=?, ()) => info(~module_, ~message=`${operation}_COMPLETE`, ~data?, ())
+let initialized = (~module_) => info(~module_, ~message=`${module_} initialized`, ())
+
+let setLevel = lvl => {
+  minLevel := lvl
+  info(~module_="Logger", ~message=`Log level set to ${levelToString(lvl)}`, ())
+}
+
+let enable = () => {
+  enabled := true
+  enabledModules := Belt.Set.String.empty
+  showDebugBadge()
+  info(~module_="Logger", ~message="Debug mode ENABLED", ())
+}
+
+let disable = () => {
+  enabled := false
+  hideDebugBadge()
+  info(~module_="Logger", ~message="Debug mode DISABLED", ())
+}
+
+let toggle = () => {
+  if enabled.contents { disable() } else { enable() }
+  enabled.contents
+}
+
+// =============================================================================
+// GLOBAL BINDINGS (INIT)
+// =============================================================================
+
+let init = () => {
+  /* Expose to Window */
+  let debugObj = {
+    "enable": enable,
+    "disable": disable,
+    "toggle": toggle,
+    "setLevel": (s) => setLevel(stringToLevel(s)),
+    "getLog": () => entries,
+    "clear": () => { %raw(`entries.length = 0`) },
+    "isEnabled": () => enabled.contents,
+  }
+  (Obj.magic(Window.window))["DEBUG"] = debugObj
+  (Obj.magic(Window.window))["appLog"] = appLog
+
+  /* Intercept Global Errors */
+  (Obj.magic(Window.window))["onerror"] = (msg, url, line, col, _error) => {
+    error(~module_="Window", ~message="UNCAUGHT_ERROR", ~data=Obj.magic({
+      "message": msg, "url": url, "line": line, "col": col
+    }), ())
+    false
+  }
+
+  (Obj.magic(Window.window))["onunhandledrejection"] = (event) => {
+    error(~module_="Window", ~message="UNHANDLED_REJECTION", ~data=Obj.magic({
+      "reason": event["reason"]
+    }), ())
+  }
+
+  initialized(~module_="Logger")
+  if enabled.contents { showDebugBadge() }
+}

@@ -1,21 +1,22 @@
-import { updateProgressBar } from "./utils/ProgressBar.js";
+import { updateProgressBar } from "./utils/ProgressBar.bs.js";
 import { notify } from "./utils/NotificationSystem.js";
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { make as Sidebar } from "./components/Sidebar.bs.js";
-import { make as ViewerUI } from "./components/ViewerUI.bs.js";
-import { initViewer } from "./components/Viewer.js";
-import { showLinkModal } from "./components/LinkModal.js";
-import { store } from "./store.js";
-window.store = store; // Expose for headless automation
-import { setupGlobalClickSounds } from "./systems/AudioManager.js";
+
+
+import { showLinkModal } from "./components/LinkModal.bs.js";
+import { getState } from "./core/GlobalStateBridge.bs.js";
+window.store = {
+  get state() { return getState(); }
+};
+import { setupGlobalClickSounds } from "./systems/AudioManager.bs.js";
 import { initSimulationKeyHandler } from "./systems/SimulationSystem.bs.js";
 
 // Utility modules (initialized first to ensure global availability)
 import { initLogger } from "./utils/Logger.js";
 
 import { Debug } from "./utils/Debug.js";
-import { initInputSystem } from "./systems/InputSystem.js";
+import { initInputSystem } from "./systems/InputSystem.bs.js";
 
 Debug.info('System', "Initializing Remax Builder...");
 
@@ -73,24 +74,31 @@ window.onunhandledrejection = (event) => {
 initLogger();
 
 // Initialize components
-const sidebarRoot = createRoot(document.getElementById("sidebar"));
-sidebarRoot.render(React.createElement(Sidebar, {}));
-// Mount ViewerUI
+// Initialize components
+const sidebarContainer = document.getElementById("sidebar"); // Ensure this exists
+
+// Mount ViewerUI Container (for Portal target)
 const viewerStage = document.getElementById("viewer-stage");
 const uiLayer = document.createElement("div");
 uiLayer.id = "viewer-ui-layer";
 uiLayer.className = "absolute inset-0 w-full h-full pointer-events-none";
 viewerStage.appendChild(uiLayer);
 
-const viewerUiRoot = createRoot(uiLayer);
-viewerUiRoot.render(React.createElement(ViewerUI, {}));
+// Create Headless Root for App (since it portals everything)
+const appRootContainer = document.createElement("div");
+appRootContainer.id = "react-app-controller";
+document.body.appendChild(appRootContainer);
 
-initViewer();
+import { make as App } from "./App.bs.js";
+const root = createRoot(appRootContainer);
+root.render(React.createElement(App, {}));
+
+
 setupGlobalClickSounds();
 
 // Initialize Visual Pipeline
-import { VisualPipelineComponent } from "./components/VisualPipelineComponent.js";
-new VisualPipelineComponent("visual-pipeline-container");
+import { init as initVisualPipeline } from "./components/VisualPipeline.bs.js";
+initVisualPipeline("visual-pipeline-container");
 
 // Initialize simulation ESC key handler
 initSimulationKeyHandler();
@@ -98,7 +106,7 @@ initInputSystem();
 
 // Global Event Listener
 document.addEventListener("viewer-click", (e) => {
-  if (store.state.isLinking) {
+  if (getState().isLinking) {
     // Extract All Data (Including Director Camera)
     const { pitch, yaw, camPitch, camYaw, camHfov } = e.detail;
     showLinkModal(pitch, yaw, camPitch, camYaw, camHfov);

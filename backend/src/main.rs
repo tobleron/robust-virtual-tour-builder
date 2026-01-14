@@ -19,6 +19,10 @@ async fn main() -> io::Result<()> {
         .init();
 
     tracing::info!("Starting server at http://localhost:8080");
+    
+    // Ensure logs directory exists
+    let log_dir = std::env::var("LOG_DIR").unwrap_or_else(|_| "../logs".to_string());
+    std::fs::create_dir_all(log_dir).ok();
 
     HttpServer::new(|| {
         // CORS Configuration: Permissive in debug, restricted in release
@@ -85,6 +89,8 @@ async fn main() -> io::Result<()> {
             .wrap(cors)
             .route("/health", web::get().to(health_check))
             .route("/log-telemetry", web::post().to(handlers::log_telemetry))
+            .route("/log-error", web::post().to(handlers::log_error))
+            .route("/cleanup-logs", web::post().to(handlers::cleanup_logs))
             .route("/optimize-image", web::post().to(handlers::optimize_image))
             .route("/process-image-full", web::post().to(handlers::process_image_full))
             .route("/transcode-video", web::post().to(handlers::transcode_video))
@@ -93,6 +99,7 @@ async fn main() -> io::Result<()> {
             .route("/create-tour-package", web::post().to(handlers::create_tour_package))
             .route("/save-project", web::post().to(handlers::save_project))
             .route("/load-project", web::post().to(handlers::load_project))
+            .route("/validate-project", web::post().to(handlers::validate_project))
             .route("/generate-teaser", web::post().to(handlers::generate_teaser))
             .route("/session/{session_id}/{filename:.*}", web::get().to(handlers::serve_session_file))
 
