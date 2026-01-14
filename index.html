@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- Content Security Policy: Prevents XSS and unauthorized resource loading -->
-  <meta http-equiv=4.2.16"Content-Security-Policy" content="
+  <meta http-equiv=4.2.18"Content-Security-Policy" content="
     default-src 'self';
     script-src 'self' 'unsafe-inline' blob: https://esm.sh;
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
@@ -101,128 +101,24 @@
     rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-  <link rel="stylesheet" href="css/output.css?v=4.2.16" />
+  <link rel="stylesheet" href="css/output.css?v=4.2.18" />
   <!-- Custom Overrides -->
-  <link rel="stylesheet" href="css/style.css?v=4.2.16" />
-  <style>
-    /* Modern Toast Notifications */
-    #notification-container {
-      position: fixed;
-      bottom: 25px;
-      right: 25px;
-      z-index: 20000;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      pointer-events: none;
-    }
+  <link rel="stylesheet" href="css/style.css?v=4.2.18" />
 
-    .toast {
-      background: rgba(30, 41, 59, 0.95);
-      backdrop-filter: blur(8px);
-      color: white;
-      padding: 14px 24px;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 500;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      opacity: 0;
-      transform: translateX(30px);
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      pointer-events: auto;
-      border-left: 4px solid #3b82f6;
-      min-width: 280px;
-      max-width: 450px;
-    }
-
-    .toast.show {
-      opacity: 1;
-      transform: translateX(0);
-    }
-
-    .toast.error {
-      border-left-color: #ef4444;
-      background: rgba(69, 10, 10, 0.95);
-    }
-
-    .toast.success {
-      border-left-color: #10b981;
-      background: rgba(6, 78, 59, 0.95);
-    }
-
-    .toast.warning {
-      border-left-color: #f59e0b;
-      background: rgba(69, 26, 3, 0.95);
-    }
-
-    /* Progress Bar Animations */
-    @keyframes spin {
-      from {
-        transform: rotate(0deg);
-      }
-
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    @keyframes shimmer {
-      0% {
-        background-position: 200% center;
-      }
-
-      100% {
-        background-position: -200% center;
-      }
-    }
-
-    @keyframes pulse-dot {
-
-      0%,
-      100% {
-        opacity: 1;
-        transform: scale(1);
-      }
-
-      50% {
-        opacity: 0.5;
-        transform: scale(0.8);
-      }
-    }
-  </style>
 </head>
 
 <body>
-  <div id="notification-container"></div>
-  <div id="top-bar"></div>
-  <div id="app">
-    <div id="sidebar"></div>
-    <div id="viewer-container">
-      <div id="viewer-stage">
-        <div id="panorama-a" class="panorama-layer active"></div>
-        <div id="panorama-b" class="panorama-layer"></div>
-        <div id="viewer-snapshot-overlay"></div>
-        <div id="cursor-guide"></div>
-        <!-- Visual Pipeline UI (Moved inside stage) -->
-        <div id="visual-pipeline-container"></div>
-      </div>
-      <div id="placeholder-text" class="viewer-placeholder">
-        <h3>Ready to Build</h3>
-        <p>Use the sidebar to upload your images.</p>
-      </div>
-    </div>
-    <div id="modal-container"></div>
-  </div>
+  <div id="app"></div>
 
-  <!-- LIBRARIES -->
-  <!-- <script src="src/libs/gif.js"></script> -->
-  <!-- <script src="src/libs/ffmpeg.js"></script> -->
-  <!-- <script src="src/libs/ffmpeg-util.js"></script> -->
+  <script type="module" src="src/Main.bs.js?v=4.2.18"></script>
+</body>
 
-  <script type="module" src="src/Main.bs.js?v=4.2.16"></script>
+<!-- LIBRARIES -->
+<!-- <script src="src/libs/gif.js"></script> -->
+<!-- <script src="src/libs/ffmpeg.js"></script> -->
+<!-- <script src="src/libs/ffmpeg-util.js"></script> -->
+
+<script type="module" src="src/Main.bs.js?v=4.2.18"></script>
 </body>
 
 </html>

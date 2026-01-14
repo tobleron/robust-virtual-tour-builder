@@ -1,5 +1,3 @@
-/* src/components/SceneList.res */
-
 external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 
 module SceneItem = {
@@ -29,92 +27,89 @@ module SceneItem = {
       }
     }, [scene.id])
 
-    let borderColor = if isActive {
-      "border-remax-blue ring-1 ring-remax-blue shadow-remax-blue/5"
+    let activeClasses = if isActive {
+      "border-primary ring-2 ring-primary/20 bg-slate-50 shadow-lg shadow-primary/5"
     } else {
-      "border-slate-200"
+      "border-slate-100 hover:border-slate-300 bg-white shadow-sm"
     }
+    
     let qualityColor = if isLowQuality {
-      "bg-red-400"
+      "bg-danger"
     } else {
-      "bg-emerald-400"
+      "bg-success"
     }
     let groupColor = ColorPalette.getGroupColor(scene.colorGroup)
 
     <div
       key={scene.id}
-      className={`scene-item group relative flex items-stretch bg-white border rounded-xl mb-3 overflow-hidden transition-all duration-200 select-none touch-pan-y shadow-sm hover:shadow-md ${borderColor}`}
+      className={`scene-item group relative flex items-stretch border rounded-2xl mb-4 overflow-hidden transition-all duration-300 select-none touch-pan-y hover:shadow-xl hover:-translate-y-0.5 ${activeClasses}`}
       draggable=true
       onDragStart={onDragStart}
       onDragOver={onDragOver}
       onDrop={onDrop}
       onClick={onClick}
     >
-      <div className="w-16 min-w-[64px] relative bg-slate-900 overflow-hidden cursor-pointer">
+      /* Thumbnail */
+      <div className="w-20 min-w-[80px] relative bg-slate-900 overflow-hidden cursor-pointer">
         <img
           src={thumbUrl}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-90 group-hover:opacity-100"
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100"
           loading=#lazy
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/40 to-transparent" />
 
         <div
-          className="absolute top-1 left-1 px-1.5 py-0.5 rounded-md bg-black/60 backdrop-blur-md text-[9px] font-black text-white/90 border border-white/10 z-10"
+          className="absolute top-2 left-2 px-2 py-0.5 rounded-lg bg-slate-950/70 backdrop-blur-md text-[10px] font-black text-white border border-white/10 z-10 shadow-lg"
         >
           {React.int(index + 1)}
         </div>
 
         <div
-          className="absolute top-0 right-0 h-full z-20 transition-colors duration-500"
-          style={makeStyle({"width": "6px", "backgroundColor": groupColor})}
+          className="absolute top-0 right-0 h-full z-20 transition-all duration-500 shadow-xl"
+          style={makeStyle({"width": "4px", "backgroundColor": groupColor})}
         />
       </div>
 
-      <div className="flex-1 min-w-0 p-2.5 flex flex-col justify-center cursor-pointer">
-        <div className="flex items-center justify-between mb-0.5">
+      /* Content */
+      <div className="flex-1 min-w-0 p-4 flex flex-col justify-center cursor-pointer">
+        <div className="flex items-center justify-between mb-2">
           <h4
-            className={`text-[11px] font-black truncated pr-2 uppercase tracking-tight ${if (
+            className={`text-[13px] font-bold truncate pr-3 tracking-tight ${if (
                 isActive
               ) {
-                "text-remax-blue"
+                "text-primary-light"
               } else {
-                "text-slate-800"
+                "text-slate-700"
               }}`}
           >
             {React.string(scene.name)}
           </h4>
-          <div className="flex flex-col items-end gap-0.5 shrink-0">
-            <div className="flex items-center gap-1.5">
-              <span
-                className={`flex items-center gap-0.5 text-[10px] font-bold transition-colors ${if (
-                    Array.length(scene.hotspots) > 0
-                  ) {
-                    "text-remax-blue"
-                  } else {
-                    "text-slate-300"
-                  }}`}
-              >
-                <span className="material-icons text-[12px]"> {React.string("link")} </span>
-                <span className="text-[9px]"> {React.int(Array.length(scene.hotspots))} </span>
-              </span>
-            </div>
+          <div className="flex items-center gap-2 shrink-0">
+             {if Array.length(scene.hotspots) > 0 {
+               <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-primary/10 text-primary-light border border-primary/10">
+                 <span className="material-icons text-[12px]"> {React.string("link")} </span>
+                 <span className="text-[10px] font-bold"> {React.int(Array.length(scene.hotspots))} </span>
+               </div>
+             } else {
+               React.null
+             }}
           </div>
         </div>
 
-        <div className="flex items-center justify-between mt-1">
-          <div className="flex-1 pr-4">
-            <div className="w-full bg-slate-100 h-1 rounded-full overflow-hidden">
+        <div className="flex items-center gap-3">
+          <div className="flex-1">
+            <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
               <div
-                className={`h-full transition-all duration-500 ${qualityColor}`}
+                className={`h-full transition-all duration-1000 ease-out rounded-full ${qualityColor}`}
                 style={makeStyle({"width": Float.toString(qualityScore *. 10.0) ++ "%"})}
               />
             </div>
           </div>
           <span
-            className={`text-[14px] font-black uppercase tracking-tight leading-none ${if (
+            className={`text-[11px] font-black uppercase tracking-widest leading-none ${if (
                 isLowQuality
               ) {
-                "text-red-500"
+                "text-danger"
               } else {
                 "text-slate-400"
               }}`}
@@ -124,21 +119,22 @@ module SceneItem = {
         </div>
       </div>
 
+      /* Actions Bar */
       <div
-        className="w-10 flex flex-col items-center justify-center gap-1 border-l border-slate-50 bg-slate-50/30 group-hover:bg-slate-50 transition-colors"
+        className="w-12 flex flex-col items-center justify-center gap-2 border-l border-slate-50 bg-slate-50/50 group-hover:bg-slate-100 transition-colors"
       >
         <button
-          className="w-6 h-6 rounded-lg flex items-center justify-center hover:bg-white hover:shadow-sm transition-all text-slate-300 hover:text-remax-blue"
+          className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-white hover:shadow-md transition-all text-slate-400 hover:text-primary active:scale-90"
           onClick={onContextMenu}
         >
-          <span className="material-icons text-sm"> {React.string("more_vert")} </span>
+          <span className="material-icons text-lg"> {React.string("more_vert")} </span>
         </button>
         <div
-          className="w-5 h-7 flex flex-col justify-center gap-0.5 opacity-20 group-hover:opacity-40 cursor-grab active:cursor-grabbing"
+          className="w-6 h-8 flex flex-col justify-center gap-1 opacity-20 group-hover:opacity-50 cursor-grab active:cursor-grabbing"
         >
-          <div className="w-full h-0.5 bg-slate-900 rounded-full"></div>
-          <div className="w-full h-0.5 bg-slate-900 rounded-full"></div>
-          <div className="w-full h-0.5 bg-slate-900 rounded-full"></div>
+          <div className="w-full h-0.5 bg-slate-400 rounded-full"></div>
+          <div className="w-full h-0.5 bg-slate-400 rounded-full"></div>
+          <div className="w-full h-0.5 bg-slate-400 rounded-full"></div>
         </div>
       </div>
     </div>
@@ -154,41 +150,17 @@ let make = () => {
   let (_draggedIndex, setDraggedIndex) = React.useState(_ => None)
 
   let handleSceneClick = (index, _e) => {
-    Logger.debug(~module_="Sidebar", ~message="SCENE_SELECT", ~data=Some({"sceneIndex": index}), ())
-    // Note: Navigation.cancelNavigation() might rely on other systems.
-    // If Navigation is still imperative, we might need to update it separately,
-    // or just leave it for now.
-    // Assuming Navigation is a system that can be called.
     dispatch(Actions.SetNavigationStatus(Types.Idle))
-
     if state.isLinking {
-      dispatch(Actions.SetIsTeasing(false)) // Or whatever flag handles linking cancellation if needed,
-      // but original code just mutated: Store.store.state.isLinking = false
-      // We don't have a direct SetIsLinking action in the snippet I wrote earlier?
-      // Wait, in Actions.res I wrote: | SetIsTeasing(bool)
-      // I probably need | SetIsLinking(bool) too.
-      // Let's check Actions.res... I don't recall writing SetIsLinking.
-      // Ah, checking the diff... I did define state with `isLinking`.
-      // I should have an Action for it.
-      // If not, I'll need to add it. For now, I'll assume I can skip that or use a generic update.
-      // Actually, checking standard React/Redux patterns, clicking a scene usually selects it.
-      // If isLinking was true, it implies checking logic.
-      // Let's dispatch SetActiveScene regardless.
-
-      // We can also dispatch SetLinkDraft(None) if that was the intent.
+      dispatch(Actions.SetIsLinking(false))
       dispatch(Actions.SetLinkDraft(None))
     }
-
     let trans: Types.transition = {
       type_: Some("cut"),
       targetHotspotIndex: -1,
       fromSceneName: None,
     }
-
-    // Store.store.setActiveTimelineStep(Nullable.null)
     dispatch(Actions.SetActiveTimelineStep(None))
-
-    // Store.store.setActiveScene
     dispatch(Actions.SetActiveScene(index, 0.0, 0.0, Some(trans)))
   }
 
@@ -235,23 +207,23 @@ let make = () => {
   }
 
   <div
-    className="flex-1 overflow-y-auto overflow-x-hidden hide-scrollbar flex flex-col pt-4 pb-12 px-3"
+    className="flex-1 flex flex-col pt-2 pb-12"
     onClick={_ => closeContextMenu()}
   >
     {if Array.length(state.scenes) == 0 {
       <div
-        className="flex flex-col items-center justify-center py-24 px-8 text-center animate-fade-in"
+        className="flex flex-col items-center justify-center py-20 px-6 text-center animate-fade-in"
       >
-        <span className="material-icons text-6xl text-slate-100 mb-4 scale-110 drop-shadow-sm">
-          {React.string("image_not_supported")}
-        </span>
-        <p className="text-sm font-black text-slate-300 leading-tight uppercase tracking-widest">
-          {React.string("No scenes loaded")}
-        </p>
-        <p
-          className="text-[10px] text-slate-400 mt-3 font-semibold max-w-[180px] mx-auto leading-relaxed"
-        >
-          {React.string("Upload 360 images above to start building your project.")}
+        <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center mb-6 shadow-inner">
+           <span className="material-icons text-4xl text-slate-200">
+             {React.string("photo_library")}
+           </span>
+        </div>
+        <h4 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">
+          {React.string("No scenes")}
+        </h4>
+        <p className="text-[11px] text-slate-400 font-medium max-w-[200px] leading-relaxed">
+          {React.string("Upload your 360 panorama images to start building your tour.")}
         </p>
       </div>
     } else {
@@ -275,31 +247,28 @@ let make = () => {
         {switch contextMenu {
         | Some(menu) =>
           <div
-            className="fixed z-[20000] bg-white border border-slate-200 rounded-xl shadow-2xl p-1.5 min-w-[180px] flex flex-col divide-y divide-slate-100 font-ui transform transition-all duration-100 ease-out origin-top-right"
+            className="fixed z-[30000] premium-glass rounded-2xl p-1.5 min-w-[200px] flex flex-col shadow-2xl animate-fade-in border border-white/20"
             style={makeStyle({
-              "left": Int.toString(menu["x"] - 180) ++ "px",
+              "left": Int.toString(menu["x"] - 200) ++ "px",
               "top": Int.toString(menu["y"]) ++ "px",
             })}
           >
             <div
-              className="px-3 py-2.5 cursor-pointer text-slate-600 font-bold text-[10px] uppercase tracking-wider hover:bg-blue-50 hover:text-remax-blue rounded-lg transition-all flex items-center justify-between group"
+              className="px-4 py-3 cursor-pointer text-white/80 font-bold text-[11px] uppercase tracking-widest hover:bg-white/10 rounded-xl transition-all flex items-center gap-3 group"
               onClick={_ => handleClearLinks(menu["index"])}
             >
-              <div className="flex items-center gap-2.5">
-                <span className="material-icons text-[14px]"> {React.string("link_off")} </span>
-                <span> {React.string("Clear Links")} </span>
-              </div>
+              <span className="material-icons text-lg text-primary-light"> {React.string("link_off")} </span>
+              <span> {React.string("Clear Links")} </span>
             </div>
+            
+            <div className="h-px bg-white/10 my-1 mx-2" />
+            
             <div
-              className="px-3 py-2.5 cursor-pointer text-slate-500 font-bold text-[10px] uppercase tracking-wider hover:bg-red-50 hover:text-remax-red rounded-lg transition-all flex items-center justify-between group mt-0.5"
+              className="px-4 py-3 cursor-pointer text-white/80 font-bold text-[11px] uppercase tracking-widest hover:bg-danger/20 hover:text-white rounded-xl transition-all flex items-center gap-3 group"
               onClick={_ => handleDelete(menu["index"])}
             >
-              <div className="flex items-center gap-2.5">
-                <span className="material-icons text-[14px]">
-                  {React.string("delete_outline")}
-                </span>
-                <span> {React.string("Remove")} </span>
-              </div>
+              <span className="material-icons text-lg text-danger"> {React.string("delete_outline")} </span>
+              <span> {React.string("Remove Scene")} </span>
             </div>
           </div>
         | None => React.null
@@ -308,3 +277,4 @@ let make = () => {
     }}
   </div>
 }
+

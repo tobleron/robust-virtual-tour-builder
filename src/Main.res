@@ -130,23 +130,14 @@ let init = async () => {
     }
   })
 
-  // 5. Dom Setup
-  switch Dom.getElementById("viewer-stage")->Nullable.toOption {
-  | Some(viewerStage) =>
-    let uiLayer = Dom.createElement("div")
-    Dom.setId(uiLayer, "viewer-ui-layer")
-    Dom.setAttribute(uiLayer, "class", "absolute inset-0 w-full h-full pointer-events-none")
-    Dom.appendChild(viewerStage, uiLayer)
-  | None => Console.error("viewer-stage not found")
+  // 5. Dom Setup & Mount
+  switch Dom.getElementById("app")->Nullable.toOption {
+  | Some(appRoot) =>
+    let root = ReactDOM.Client.createRoot(Obj.magic(appRoot))
+    ReactDOM.Client.Root.render(root, <App />)
+  | None => Console.error("Root element #app not found")
   }
 
-  let appRootContainer = Dom.createElement("div")
-  Dom.setId(appRootContainer, "react-app-controller")
-  Dom.appendChild(Dom.documentBody, appRootContainer)
-
-  // 6. Mount React
-  let root = ReactDOM.Client.createRoot(Obj.magic(appRootContainer))
-  ReactDOM.Client.Root.render(root, <App />)
 
   // 7. Systems
   AudioManager.setupGlobalClickSounds()

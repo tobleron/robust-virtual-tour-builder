@@ -256,3 +256,39 @@ let calculatePath = (payload: 'a): Promise.t<array<step>> => {
   ->Promise.then(Fetch.json)
   ->Promise.then(json => Promise.resolve((Obj.magic(json): array<step>)))
 }
+
+/**
+ * Reverse geocodes coordinates to a human-readable address
+ * Uses backend proxy for privacy and caching
+ */
+let reverseGeocode = (lat: float, lon: float): Promise.t<string> => {
+  let headers = Dict.make()
+  Dict.set(headers, "Content-Type", "application/json")
+
+  Fetch.fetch(
+    Constants.backendUrl ++ "/reverse-geocode",
+    {
+      method: "POST",
+      headers: Nullable.make(headers),
+      body: JSON.stringify(
+        Obj.magic({
+          "lat": lat,
+          "lon": lon,
+        }),
+      ),
+    },
+  )
+  ->Promise.then(response => {
+    if !Fetch.ok(response) {
+      Promise.resolve("[Geocoding service unavailable]")
+    } else {
+      Fetch.json(response)->Promise.then(json => {
+        let data: {"address": string} = Obj.magic(json)
+        Promise.resolve(data["address"])
+      })
+    }
+  })
+  ->Promise.catch(_ => {
+    Promise.resolve("[Geocoding failed]")
+  })
+}
