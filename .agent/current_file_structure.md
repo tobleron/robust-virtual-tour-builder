@@ -8,7 +8,12 @@
 │   └── src
 │       ├── api
 │       │   ├── geocoding.rs
-│       │   ├── media.rs
+│       │   ├── media
+│       │   │   ├── image.rs
+│       │   │   ├── mod.rs
+│       │   │   ├── serve.rs
+│       │   │   ├── similarity.rs
+│       │   │   └── video.rs
 │       │   ├── mod.rs
 │       │   ├── project.rs
 │       │   ├── telemetry.rs
@@ -942,12 +947,12 @@
 │   │   ├── 69_Extract_Geocoding_Service_REPORT.md
 │   │   ├── 69_Extract_Geocoding_Service.md
 │   │   ├── 71_Pathfinder_Hardening.md
+│   │   ├── 73_Refactor_media.md
 │   │   └── CONSOLIDATED_TASK_SUMMARIES.md
 │   ├── pending
-│   │   ├── 72_Refactor_handlers.md
-│   │   └── 73_Refactor_media.md
+│   │   └── 74_Refactor_SimulationSystem.md
 │   └── README.md
 └── tests
     └── SimulationSystem_test.res
 
-34 directories, 917 files
+35 directories, 921 files

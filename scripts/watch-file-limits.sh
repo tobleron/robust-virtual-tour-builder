@@ -11,6 +11,10 @@ check_file() {
     # Ignore directories and non-existent files
     if [[ ! -f "$file" ]]; then return; fi
 
+    # Filter: Only source files, exclude compiled/libs
+    if [[ "$file" == *.bs.js ]] || [[ "$file" == */libs/* ]]; then return; fi
+    if [[ "$file" != *.res ]] && [[ "$file" != *.rs ]] && [[ "$file" != *.js ]]; then return; fi
+
     # Count lines
     local count=$(wc -l < "$file" | xargs)
     
@@ -18,7 +22,7 @@ check_file() {
         local filename=$(basename "$file")
         local file_base="${filename%.*}"
         
-        # Check if active task already exists in pending
+        # Check if active task already exists in pending (case-insensitive check)
         if ls tasks/pending/*Refactor_${file_base}* 1> /dev/null 2>&1; then
             return
         fi
@@ -57,9 +61,15 @@ EOF
     fi
 }
 
-# Watch loop
-# Uses fswatch to pipe changed paths to the loop
+# 1. Initial Scan
+echo "🔍 Performing initial size check..."
+find $WATCH_DIRS -type f | while read -r f; do
+    check_file "$f"
+done
+
+# 2. Watch loop
 if command -v fswatch >/dev/null; then
+    echo "⚡ Watching for changes..."
     fswatch --event Updated --event Created -e ".*\.git.*" $WATCH_DIRS | while read -r event_file; do
         check_file "$event_file"
     done
