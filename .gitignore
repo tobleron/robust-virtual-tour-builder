@@ -18,6 +18,8 @@ Thumbs.db
 
 # Logs
 logs/debug_log_*.json
+logs/error.log
+logs/telemetry.log
 
 # Build
 dist/
