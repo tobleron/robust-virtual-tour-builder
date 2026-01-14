@@ -4,13 +4,18 @@ use actix_files as fs;
 use actix_governor::{Governor, GovernorConfigBuilder};
 use std::io;
 use tracing_actix_web::TracingLogger;
+use tokio::signal;
+use std::time::Duration;
 
 // mod handlers; // Deleted
 mod api;
 mod models;
 mod services;
-
+mod middleware;
 mod pathfinder;
+
+use services::shutdown::{ShutdownManager, perform_shutdown_cleanup};
+use middleware::request_tracker::RequestTracker;
 
 async fn health_check() -> impl Responder {
     HttpResponse::Ok().body("Remax VTB Backend is running!")
@@ -34,7 +39,22 @@ async fn main() -> io::Result<()> {
         tracing::warn!("Failed to load geocoding cache: {}", e);
     }
 
-    HttpServer::new(|| {
+    // Initialize shutdown manager
+    let shutdown_timeout = Duration::from_secs(
+        std::env::var("SHUTDOWN_TIMEOUT_SECS")
+            .ok()
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(30)
+    );
+    let shutdown_manager = web::Data::new(ShutdownManager::new(shutdown_timeout));
+    
+    tracing::info!(
+        timeout_secs = shutdown_timeout.as_secs(),
+        "Shutdown manager initialized"
+    );
+
+    let shutdown_manager_server = shutdown_manager.clone();
+    let server = HttpServer::new(move || {
         // CORS Configuration: Permissive in debug, restricted in release
         let cors = if cfg!(debug_assertions) {
             // Development: Allow all origins for testing
@@ -70,6 +90,8 @@ async fn main() -> io::Result<()> {
         App::new()
             // Increase max payload size to 2GB
             .app_data(web::PayloadConfig::new(2 * 1024 * 1024 * 1024))
+            .app_data(shutdown_manager_server.clone())
+            .wrap(RequestTracker) // Track active requests
             .wrap(TracingLogger::default()) // Structured request logging
             
             // Security Headers: Protect against common web vulnerabilities
@@ -101,6 +123,9 @@ async fn main() -> io::Result<()> {
 
             // API Scopes
             .service(web::scope("/api")
+                .service(web::scope("/admin")
+                    .route("/shutdown", web::post().to(api::utils::trigger_shutdown))
+                )
                 .service(web::scope("/telemetry")
                     .route("/log", web::post().to(api::telemetry::log_telemetry))
                     .route("/error", web::post().to(api::telemetry::log_error))
@@ -144,7 +169,36 @@ async fn main() -> io::Result<()> {
             .route("/", web::get().to(|| async { fs::NamedFile::open("../index.html") }))
             .route("/index.html", web::get().to(|| async { fs::NamedFile::open("../index.html") }))
     })
-            .bind(("0.0.0.0", 8080))?
-    .run()
-    .await
+    .bind(("0.0.0.0", 8080))?
+    .run();
+    
+    // Get server handle for graceful shutdown
+    let server_handle = server.handle();
+    
+    // Spawn server
+    let server_task = tokio::spawn(server);
+    
+    // Wait for shutdown signal
+    let shutdown_manager_clone = shutdown_manager.clone();
+    tokio::spawn(async move {
+        match signal::ctrl_c().await {
+            Ok(()) => {
+                tracing::info!("Received Ctrl+C signal");
+            }
+            Err(err) => {
+                tracing::error!("Failed to listen for Ctrl+C: {}", err);
+            }
+        }
+        
+        // Stop accepting new connections
+        server_handle.stop(true).await;
+        
+        // Perform cleanup
+        perform_shutdown_cleanup(&shutdown_manager_clone).await;
+    });
+    
+    // Wait for server to finish
+    server_task.await.map_err(|e| io::Error::new(io::ErrorKind::Other, e))??;
+    
+    Ok(())
 }
