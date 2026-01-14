@@ -444,7 +444,7 @@ let startAutoTeaser = async (
     )
     
     let pathStartTime = Date.now()
-    let pathSteps = TeaserPathfinder.getWalkPath(scenes, skipAutoForward)
+    let pathSteps = await TeaserPathfinder.getWalkPath(scenes, skipAutoForward)
     Logger.info(
       ~module_="Teaser",
       ~message="PATH_READY",

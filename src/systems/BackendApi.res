@@ -216,3 +216,43 @@ let saveProject = (projectData: 'a): Promise.t<Blob.t> => {
   ->Promise.then(handleResponse)
   ->Promise.then(Fetch.blob)
 }
+
+/* --- PATHFINDER TYPES --- */
+
+type transitionTarget = {
+  yaw: float,
+  pitch: float,
+  targetName: string,
+  timelineItemId: option<string>,
+}
+
+type arrivalView = {
+  yaw: float,
+  pitch: float,
+}
+
+type step = {
+  idx: int,
+  transitionTarget: option<transitionTarget>,
+  arrivalView: arrivalView,
+}
+
+/**
+ * Calculates a navigation path (Teaser/Timeline) via Backend
+ */
+let calculatePath = (payload: 'a): Promise.t<array<step>> => {
+  let headers = Dict.make()
+  Dict.set(headers, "Content-Type", "application/json")
+
+  Fetch.fetch(
+    Constants.backendUrl ++ "/calculate-path",
+    {
+      method: "POST",
+      body: JSON.stringify(Obj.magic(payload)),
+      headers: Nullable.make(headers),
+    },
+  )
+  ->Promise.then(handleResponse)
+  ->Promise.then(Fetch.json)
+  ->Promise.then(json => Promise.resolve((Obj.magic(json): array<step>)))
+}

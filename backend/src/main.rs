@@ -6,6 +6,7 @@ use std::io;
 use tracing_actix_web::TracingLogger;
 
 mod handlers;
+mod pathfinder;
 
 async fn health_check() -> impl Responder {
     HttpResponse::Ok().body("Remax VTB Backend is running!")
@@ -101,6 +102,7 @@ async fn main() -> io::Result<()> {
             .route("/load-project", web::post().to(handlers::load_project))
             .route("/validate-project", web::post().to(handlers::validate_project))
             .route("/import-project", web::post().to(handlers::import_project))
+            .route("/calculate-path", web::post().to(handlers::calculate_path))
             .route("/generate-teaser", web::post().to(handlers::generate_teaser))
             .route("/session/{session_id}/{filename:.*}", web::get().to(handlers::serve_session_file))
 

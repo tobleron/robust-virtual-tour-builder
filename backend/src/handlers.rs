@@ -2140,3 +2140,17 @@ pub async fn import_project(mut payload: Multipart) -> Result<HttpResponse, AppE
     
     Err(AppError::MultipartError(actix_multipart::MultipartError::Incomplete)) // Using existing error variant if applicable or just Incomplete
 }
+
+pub async fn calculate_path(
+    req: web::Json<crate::pathfinder::PathRequest>,
+) -> Result<HttpResponse, AppError> {
+    let result = match req.into_inner() {
+        crate::pathfinder::PathRequest::Walk { scenes, skip_auto_forward } => {
+            crate::pathfinder::calculate_walk_path(scenes, skip_auto_forward)
+        }
+        crate::pathfinder::PathRequest::Timeline { scenes, timeline, skip_auto_forward } => {
+            crate::pathfinder::calculate_timeline_path(scenes, timeline, skip_auto_forward)
+        }
+    };
+    Ok(HttpResponse::Ok().json(result))
+}
