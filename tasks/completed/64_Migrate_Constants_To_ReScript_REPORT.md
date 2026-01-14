@@ -1,6 +1,6 @@
-# Task 64 Completion Report: Migrate Constants to ReScript
+# Report 64 Completion Report: Migrate Constants to ReScript
 
-## Objective
+## Objective (Completed)
 Migrate `src/constants.js` to `src/utils/Constants.res` for full type safety, compile-time checking, and better tree-shaking.
 
 ## Status
