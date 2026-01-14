@@ -1,5 +1,4 @@
 open Types
-open SimulationNavigation
 
 /**
  * Chain Skipping Logic
@@ -13,7 +12,7 @@ open SimulationNavigation
  */
 
 type skipResult = {
-  finalLink: enrichedLink,
+  finalLink: SimulationNavigation.enrichedLink,
   skippedScenes: array<int>,
 }
 
@@ -27,7 +26,7 @@ type skipResult = {
  * @returns skipResult with the final link and array of skipped scene indices
  */
 let skipAutoForwardChain = (
-  initialLink: enrichedLink,
+  initialLink: SimulationNavigation.enrichedLink,
   state: state,
   visitedScenes: array<int>,
   onVisitScene: int => unit,
@@ -54,13 +53,13 @@ let skipAutoForwardChain = (
         }
 
         // Find the next link from this bridge scene
-        switch findBestNextLink(targetScene, state, visitedScenes) {
+        switch SimulationNavigation.findBestNextLink(targetScene, state, visitedScenes) {
         | Some(jumpLink) =>
           // Update to the new target but keep original hotspot for visuals
           currentLink := {
             ...jumpLink,
-            hotspotIndex: originalHotspotIndex,
-            hotspot: originalHotspot,
+            SimulationNavigation.hotspotIndex: originalHotspotIndex,
+            SimulationNavigation.hotspot: originalHotspot,
           }
           chainCounter := chainCounter.contents + 1
         | None => loop := false

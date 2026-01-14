@@ -1,5 +1,4 @@
 open Types
-open SimulationNavigation
 open SimulationChainSkipper
 
 /**
@@ -89,7 +88,7 @@ let getSimulationPath = (skipAutoForward: bool): array<pathStep> => {
         switch Belt.Array.get(state.scenes, currentIdx.contents) {
         | Some(currentScene) =>
           // Find next link
-          let nextLinkOpt = ref(findBestNextLink(currentScene, state, localVisited))
+          let nextLinkOpt = ref(SimulationNavigation.findBestNextLink(currentScene, state, localVisited))
 
           // Skip Auto Forward Logic
           if skipAutoForward {
