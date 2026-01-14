@@ -248,10 +248,32 @@ pub struct GeocodeResponse {
 // Cache key: rounded coordinates for ~11m precision
 type GeocodeKey = (i32, i32);
 
-lazy_static::lazy_static! {
-    static ref GEOCODE_CACHE: std::sync::Arc<tokio::sync::RwLock<HashMap<GeocodeKey, String>>> = 
-        std::sync::Arc::new(tokio::sync::RwLock::new(HashMap::new()));
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct CachedGeocode {
+    address: String,
+    last_accessed: u64, // Unix timestamp
+    access_count: u32,
 }
+
+lazy_static::lazy_static! {
+    static ref GEOCODE_CACHE: std::sync::Arc<tokio::sync::RwLock<HashMap<GeocodeKey, CachedGeocode>>> = 
+        std::sync::Arc::new(tokio::sync::RwLock::new(HashMap::new()));
+    
+    static ref CACHE_STATS: std::sync::Arc<tokio::sync::RwLock<CacheStats>> = 
+        std::sync::Arc::new(tokio::sync::RwLock::new(CacheStats::default()));
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+struct CacheStats {
+    hits: u64,
+    misses: u64,
+    evictions: u64,
+    last_save: Option<u64>,
+}
+
+const CACHE_FILE_PATH: &str = "../logs/geocode_cache.json";
+const MAX_CACHE_SIZE: usize = 5000;
+const CACHE_SAVE_INTERVAL_MS: u64 = 5000; // 5 seconds
 
 fn round_coords(lat: f64, lon: f64) -> GeocodeKey {
     // Round to 4 decimal places (~11 meter precision)
@@ -350,6 +372,96 @@ async fn call_osm_nominatim(lat: f64, lon: f64) -> Result<String, String> {
         .map(|s| s.to_string())
         .ok_or_else(|| "No address found in response".to_string())
 }
+
+async fn save_cache_to_disk() -> std::io::Result<()> {
+    let cache = GEOCODE_CACHE.read().await;
+    let mut stats = CACHE_STATS.write().await;
+    
+    let current_time = get_current_timestamp();
+    
+    let data = serde_json::json!({
+        "cache": *cache,
+        "stats": *stats,
+        "saved_at": current_time
+    });
+    
+    let json = serde_json::to_string_pretty(&data)?;
+    tokio::fs::write(CACHE_FILE_PATH, json).await?;
+    
+    stats.last_save = Some(current_time);
+    
+    tracing::info!(
+        module = "Geocoder",
+        entries = cache.len(),
+        "CACHE_SAVED_TO_DISK"
+    );
+    
+    Ok(())
+}
+
+pub async fn load_cache_from_disk() -> std::io::Result<()> {
+    match tokio::fs::read_to_string(CACHE_FILE_PATH).await {
+        Ok(contents) => {
+            let data: serde_json::Value = serde_json::from_str(&contents)?;
+            
+            if let Some(cache_obj) = data.get("cache") {
+                let loaded_cache: HashMap<GeocodeKey, CachedGeocode> = 
+                    serde_json::from_value(cache_obj.clone())?;
+                
+                let mut cache = GEOCODE_CACHE.write().await;
+                *cache = loaded_cache;
+                
+                tracing::info!(
+                    module = "Geocoder",
+                    entries = cache.len(),
+                    "CACHE_LOADED_FROM_DISK"
+                );
+            }
+            
+            if let Some(stats_obj) = data.get("stats") {
+                let loaded_stats: CacheStats = 
+                    serde_json::from_value(stats_obj.clone())?;
+                
+                let mut stats = CACHE_STATS.write().await;
+                *stats = loaded_stats;
+            }
+            
+            Ok(())
+        },
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
+            tracing::info!(module = "Geocoder", "No cache file found - starting fresh");
+            Ok(())
+        },
+        Err(e) => {
+            tracing::warn!(module = "Geocoder", error = %e, "Failed to load cache");
+            Ok(()) // Non-fatal - start with empty cache
+        }
+    }
+}
+
+fn get_current_timestamp() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::SystemTime::UNIX_EPOCH)
+        .unwrap()
+        .as_secs()
+}
+
+async fn evict_lru_entry() {
+    let mut cache = GEOCODE_CACHE.write().await;
+    
+    // Find oldest entry by last_accessed
+    if let Some((&key, _)) = cache.iter()
+        .min_by_key(|(_, v)| v.last_accessed) {
+        
+        cache.remove(&key);
+        
+        let mut stats = CACHE_STATS.write().await;
+        stats.evictions += 1;
+        
+        tracing::debug!(module = "Geocoder", "LRU_EVICTION");
+    }
+}
+
 
 // --- Internal Processing Logic (Extracted for reuse) ---
 
@@ -1765,6 +1877,8 @@ pub async fn log_error(entry: web::Json<TelemetryEntry>) -> Result<HttpResponse,
 pub async fn reverse_geocode(req: web::Json<GeocodeRequest>) -> Result<HttpResponse, AppError> {
     let lat = req.lat;
     let lon = req.lon;
+    let cache_key = round_coords(lat, lon);
+    let current_time = get_current_timestamp();
     
     tracing::info!(
         module = "Geocoder", 
@@ -1773,40 +1887,63 @@ pub async fn reverse_geocode(req: web::Json<GeocodeRequest>) -> Result<HttpRespo
         "REVERSE_GEOCODE_START"
     );
     
-    let cache_key = round_coords(lat, lon);
-    
     // Check cache first
     {
-        let cache = GEOCODE_CACHE.read().await;
-        if let Some(cached_address) = cache.get(&cache_key) {
+        let mut cache = GEOCODE_CACHE.write().await;
+        if let Some(entry) = cache.get_mut(&cache_key) {
+            // Update access time and count
+            entry.last_accessed = current_time;
+            entry.access_count += 1;
+            
+            let mut stats = CACHE_STATS.write().await;
+            stats.hits += 1;
+            
             tracing::info!(
-                module = "Geocoder", 
+                module = "Geocoder",
+                access_count = entry.access_count,
                 "CACHE_HIT"
             );
+            
             return Ok(HttpResponse::Ok().json(GeocodeResponse {
-                address: cached_address.clone(),
+                address: entry.address.clone(),
             }));
         }
     }
     
-    // Cache miss - call API
+    // Cache miss
+    {
+        let mut stats = CACHE_STATS.write().await;
+        stats.misses += 1;
+    }
+    
     tracing::debug!(module = "Geocoder", "CACHE_MISS - calling OSM API");
     
+    // Call OSM API
     match call_osm_nominatim(lat, lon).await {
         Ok(address) => {
-            // Store in cache
+            // Store in cache with timestamp
             {
                 let mut cache = GEOCODE_CACHE.write().await;
-                cache.insert(cache_key, address.clone());
                 
-                // Limit cache size to 1000 entries
-                if cache.len() > 1000 {
-                    // Remove oldest entry (simple eviction)
-                    if let Some(first_key) = cache.keys().next().cloned() {
-                        cache.remove(&first_key);
-                    }
+                // Evict if at capacity
+                if cache.len() >= MAX_CACHE_SIZE {
+                    drop(cache); // Release lock before evicting
+                    evict_lru_entry().await;
+                    cache = GEOCODE_CACHE.write().await; // Re-acquire
                 }
+                
+                cache.insert(cache_key, CachedGeocode {
+                    address: address.clone(),
+                    last_accessed: current_time,
+                    access_count: 1,
+                });
             }
+            
+            // Trigger async save (debounced)
+            tokio::spawn(async move {
+                tokio::time::sleep(tokio::time::Duration::from_millis(CACHE_SAVE_INTERVAL_MS)).await;
+                let _ = save_cache_to_disk().await;
+            });
             
             tracing::info!(module = "Geocoder", "REVERSE_GEOCODE_COMPLETE");
             Ok(HttpResponse::Ok().json(GeocodeResponse { address }))
@@ -1820,6 +1957,79 @@ pub async fn reverse_geocode(req: web::Json<GeocodeRequest>) -> Result<HttpRespo
         }
     }
 }
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct GeocodeStatsResponse {
+    cache_size: usize,
+    max_cache_size: usize,
+    hit_rate: f64,
+    total_requests: u64,
+    hits: u64,
+    misses: u64,
+    evictions: u64,
+    last_save: Option<String>,
+}
+
+#[tracing::instrument(name = "geocode_stats")]
+pub async fn geocode_stats() -> impl actix_web::Responder {
+    let cache = GEOCODE_CACHE.read().await;
+    let stats = CACHE_STATS.read().await;
+    
+    let total_requests = stats.hits + stats.misses;
+    let hit_rate = if total_requests > 0 {
+        (stats.hits as f64 / total_requests as f64) * 100.0
+    } else {
+        0.0
+    };
+    
+    let last_save_time = stats.last_save.map(|ts| {
+        chrono::DateTime::<chrono::Utc>::from_timestamp(ts as i64, 0)
+            .map(|dt| dt.to_rfc3339())
+            .unwrap_or_else(|| "Unknown".to_string())
+    });
+    
+    HttpResponse::Ok().json(GeocodeStatsResponse {
+        cache_size: cache.len(),
+        max_cache_size: MAX_CACHE_SIZE,
+        hit_rate,
+        total_requests,
+        hits: stats.hits,
+        misses: stats.misses,
+        evictions: stats.evictions,
+        last_save: last_save_time,
+    })
+}
+
+#[tracing::instrument(name = "clear_geocode_cache")]
+pub async fn clear_geocode_cache() -> impl actix_web::Responder {
+    {
+        let mut cache = GEOCODE_CACHE.write().await;
+        let size = cache.len();
+        cache.clear();
+        
+        tracing::info!(
+            module = "Geocoder",
+            entries_cleared = size,
+            "CACHE_CLEARED"
+        );
+    }
+    
+    // Reset stats
+    {
+        let mut stats = CACHE_STATS.write().await;
+        *stats = CacheStats::default();
+    }
+    
+    // Save empty cache
+    let _ = save_cache_to_disk().await;
+    
+    HttpResponse::Ok().json(serde_json::json!({
+        "success": true,
+        "message": "Cache cleared"
+    }))
+}
+
 
 #[tracing::instrument(skip(payload), name = "extract_metadata")]
 pub async fn extract_metadata(mut payload: Multipart) -> Result<HttpResponse, AppError> {

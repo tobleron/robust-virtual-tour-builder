@@ -94,3 +94,16 @@ Benefits:
 
 Verified: 0 .unwrap() calls remaining in backend/src
 Task 60 complete ✓
+[2026-01-14 15:06] v4.2.21 - Task 61: Add geocoding cache persistence layer
+
+- Enhanced geocoding cache with LRU eviction and disk persistence
+- Updated cache structure to track access times and counts  
+- Added save_cache_to_disk/load_cache_from_disk persistence functions
+- Implemented debounced async saves (max 1 write per 5 seconds)
+- Added GET /geocode-stats endpoint for cache metrics
+- Added DELETE /geocode-cache endpoint for manual cache clearing
+- Cache now survives backend restarts
+- Increased cache capacity from 1000 to 5000 entries
+- Added chrono dependency for timestamp formatting
+- Cache persists to logs/geocode_cache.json
+- Non-fatal loading on startup (starts fresh if file missing)
