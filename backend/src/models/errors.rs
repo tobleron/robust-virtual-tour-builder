@@ -16,6 +16,7 @@ pub enum AppError {
     FFmpegError(String),
     ZipError(String),
     InternalError(String),
+    ValidationError(String),
 }
 
 impl fmt::Display for AppError {
@@ -27,6 +28,7 @@ impl fmt::Display for AppError {
             AppError::FFmpegError(e) => write!(f, "FFmpeg Error: {}", e),
             AppError::ZipError(e) => write!(f, "Zip Error: {}", e),
             AppError::InternalError(e) => write!(f, "Internal Error: {}", e),
+            AppError::ValidationError(e) => write!(f, "Validation Error: {}", e),
         }
     }
 }
@@ -40,6 +42,7 @@ impl ResponseError for AppError {
             AppError::FFmpegError(e) => (actix_web::http::StatusCode::INTERNAL_SERVER_ERROR, "Video Encoding Failed", Some(e.clone())),
             AppError::ZipError(e) => (actix_web::http::StatusCode::INTERNAL_SERVER_ERROR, "Zip Compression Failed", Some(e.clone())),
             AppError::InternalError(e) => (actix_web::http::StatusCode::INTERNAL_SERVER_ERROR, "Internal Server Error", Some(e.clone())),
+            AppError::ValidationError(e) => (actix_web::http::StatusCode::BAD_REQUEST, "Validation Error", Some(e.clone())),
         };
 
         // Structured error logging

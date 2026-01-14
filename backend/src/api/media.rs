@@ -876,7 +876,7 @@ mod tests {
        let analysis = QualityAnalysis {
             score: 9.0,
             histogram: vec![0; 256],
-            color_hist: io::Option::Some(ColorHist { r: vec![], g: vec![], b: vec![] }),
+            color_hist: ColorHist { r: vec![], g: vec![], b: vec![] },
             stats: QualityStats { avg_luminance: 100, black_clipping: 0.0, white_clipping: 0.0, sharpness_variance: 50 },
             is_blurry: false, is_soft: false, is_severely_dark: false, is_dim: false,
             has_black_clipping: false, has_white_clipping: false,
