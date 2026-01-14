@@ -43,7 +43,7 @@ fn round_coords(lat: f64, lon: f64) -> GeocodeKey {
 fn get_current_timestamp() -> u64 {
     std::time::SystemTime::now()
         .duration_since(std::time::SystemTime::UNIX_EPOCH)
-        .unwrap()
+        .unwrap_or(std::time::Duration::from_secs(0))
         .as_secs()
 }
 
