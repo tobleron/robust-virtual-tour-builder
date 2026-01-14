@@ -181,3 +181,14 @@ Resolves Task 74.
 [2026-01-14 21:12] v4.2.50 - Expand backend test coverage (Task 81)
 [2026-01-14 21:18] v4.2.51 - Task 82: Add Rust documentation comments to API handlers and services
 [2026-01-14 21:22] v4.2.52 - Implement code splitting for Pannellum and JSZip
+[2026-01-14 21:28] v4.2.53 - feat: Implement Service Worker for offline capability and PWA support
+
+- Created service-worker.js with basic asset caching
+- Added manifest.json for PWA installability
+- Generated app icons (192x192 and 512x512)
+- Created ServiceWorker.res module with type-safe bindings
+- Updated Main.res to register service worker on app init
+- Added PWA meta tags to index.html for iOS support
+- Implements cache-first strategy with network fallback
+- Automatic cache invalidation on version change
+- Completed Task 84
