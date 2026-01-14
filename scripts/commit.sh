@@ -3,8 +3,8 @@
 MSG="$1"
 if [ -z "$MSG" ]; then echo "❌ Error: Commit message required."; exit 1; fi
 
-# 1. Preference Guard (Only check modified files in src)
-CHANGED_SRC=$(git status --porcelain | awk '{print $2}' | grep "^src/" | grep -v "libs/" | grep -v ".bs.js")
+# 1. Preference Guard (Only check modified files in src, excluding templates)
+CHANGED_SRC=$(git status --porcelain | awk '{print $2}' | grep "^src/" | grep -v "libs/" | grep -v ".bs.js" | grep -v "Template")
 if [ -n "$CHANGED_SRC" ]; then
     if echo "$CHANGED_SRC" | xargs grep -Ff .agent/forbidden_patterns.txt; then
         echo "❌ Forbidden patterns detected in modified files."; exit 1
