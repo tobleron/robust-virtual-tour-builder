@@ -218,3 +218,4 @@ Resolves Task 74.
 [2026-01-14 23:45] v4.2.74 - chore: fix potential panic in geocoding service
 [2026-01-14 23:56] v4.2.80 - refactor: unify frontend and backend types
 [2026-01-15 00:26] v4.2.81 - test: comprehensive unit tests for unified shared types
+[2026-01-15 00:30] v4.2.82 - chore: setup rsbuild foundation
