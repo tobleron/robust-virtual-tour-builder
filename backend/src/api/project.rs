@@ -13,6 +13,20 @@ use crate::services::project;
 use crate::models::{AppError, ValidationReport};
 use super::utils::{get_temp_path, sanitize_filename, MAX_UPLOAD_SIZE, SESSIONS_DIR, TEMP_DIR};
 
+/// Creates a final tour package ZIP containing the tour application and all assets.
+///
+/// This function collects images and field data from a multipart request and packages
+/// them into a downloadable ZIP file that can be hosted on any static web server.
+///
+/// # Arguments
+/// * `payload` - Multipart form data containing "project_data" (JSON) and asset files.
+///
+/// # Returns
+/// A response containing the ZIP file as binary data.
+///
+/// # Errors
+/// * `ImageError` if the total upload size exceeds `MAX_UPLOAD_SIZE`.
+/// * `InternalError` for path sanitization or processing failures.
 #[tracing::instrument(skip(payload), name = "create_tour_package")]
 pub async fn create_tour_package(mut payload: Multipart) -> Result<HttpResponse, AppError> {
     tracing::info!(module = "Exporter", "EXPORT_START");
@@ -71,6 +85,22 @@ pub async fn create_tour_package(mut payload: Multipart) -> Result<HttpResponse,
     }
 }
 
+/// Saves the current project state into a ZIP file.
+///
+/// This handler streams uploaded images to temporary storage to minimize memory usage,
+/// validates the project structure, and produces a ZIP containing `project.json`
+/// and the uploaded images.
+///
+/// # Arguments
+/// * `payload` - Multipart form data containing "project_data" and "files".
+///
+/// # Returns
+/// A response containing the project ZIP file.
+///
+/// # Errors
+/// * `IoError` if temporary file creation fails.
+/// * `MultipartError` if the required fields are missing.
+/// * `ValidationError` if the project structure is invalid.
 #[tracing::instrument(skip(payload), name = "save_project")]
 pub async fn save_project(mut payload: Multipart) -> Result<HttpResponse, AppError> {
     tracing::info!(module = "ProjectManager", "SAVE_PROJECT_START");
@@ -194,8 +224,20 @@ pub async fn save_project(mut payload: Multipart) -> Result<HttpResponse, AppErr
     }
 }
 
-/// Validate a project ZIP without loading it
-/// Returns a ValidationReport JSON with warnings and errors
+/// Validates a project ZIP file without fully loading its images.
+///
+/// This handler inspects the `project.json` within the ZIP and cross-references
+/// it with the files present in the archive to find broken links or orphaned scenes.
+///
+/// # Arguments
+/// * `payload` - Multipart form data containing the project ZIP "file".
+///
+/// # Returns
+/// A `ValidationReport` containing errors and warnings.
+///
+/// # Errors
+/// * `ImageError` if the project size exceeds limits.
+/// * `InternalError` if validation fails.
 #[tracing::instrument(skip(payload), name = "validate_project")]
 pub async fn validate_project(mut payload: Multipart) -> Result<HttpResponse, AppError> {
     tracing::info!(module = "Validator", "VALIDATE_PROJECT_START");
@@ -228,6 +270,20 @@ pub async fn validate_project(mut payload: Multipart) -> Result<HttpResponse, Ap
     }
 }
 
+/// Loads a project ZIP file into memory and processes its content.
+///
+/// This handler accepts a previously saved project ZIP, validates it, and returns
+/// a normalized ZIP file that ensures all files are correctly located and structured.
+///
+/// # Arguments
+/// * `payload` - Multipart form data containing the project ZIP "file".
+///
+/// # Returns
+/// A response containing the processed project ZIP file.
+///
+/// # Errors
+/// * `ImageError` if the project size exceeds limits.
+/// * `ProcessingError` if the ZIP cannot be parsed or normalized.
 #[tracing::instrument(skip(payload), name = "load_project")]
 pub async fn load_project(mut payload: Multipart) -> Result<HttpResponse, AppError> {
     tracing::info!(module = "ProjectManager", "LOAD_PROJECT_START");
@@ -273,6 +329,22 @@ pub struct ImportResponse {
     pub project_data: serde_json::Value,
 }
 
+/// Imports a project ZIP and establishes a server-side session.
+///
+/// Unlike `load_project`, this function extracts the project contents into a
+/// dedicated session directory on the server, allowing for subsequent incremental
+/// edits and faster access during the editing session.
+///
+/// # Arguments
+/// * `payload` - Multipart form data containing the project ZIP "file".
+///
+/// # Returns
+/// An `ImportResponse` containing the `session_id` and the `project_data` (JSON).
+///
+/// # Errors
+/// * `IoError` if session directory creation fails.
+/// * `ZipError` if the archive is malformed.
+/// * `InternalError` if `project.json` is missing from the archive.
 pub async fn import_project(mut payload: Multipart) -> Result<HttpResponse, AppError> {
     // 1. Generate Session ID
     let session_id = Uuid::new_v4().to_string();
@@ -342,6 +414,20 @@ pub async fn import_project(mut payload: Multipart) -> Result<HttpResponse, AppE
     Err(AppError::MultipartError(actix_multipart::MultipartError::Incomplete)) 
 }
 
+/// Calculates the optimal navigation path between scenes.
+///
+/// Supports both "Walk" (exploratory) and "Timeline" (guided) navigation modes.
+/// It uses the pathfinder logic to determine camera rotations and transition
+/// targets between multiple spherical panoramas.
+///
+/// # Arguments
+/// * `req` - A JSON payload containing the `PathRequest` (Walk or Timeline).
+///
+/// # Returns
+/// A JSON array of `Step` objects representing the calculated path.
+///
+/// # Errors
+/// * `ValidationError` if the requested path involves non-existent scenes or broken links.
 pub async fn calculate_path(
     req: web::Json<crate::pathfinder::PathRequest>,
 ) -> Result<HttpResponse, AppError> {

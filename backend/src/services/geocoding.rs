@@ -20,6 +20,10 @@ pub struct GeocoderInfo {
     pub cache_size: usize,
 }
 
+/// Retrieves the current status and statistics of the geocoder service.
+///
+/// # Returns
+/// A `GeocoderInfo` struct containing cache stats and current size.
 pub async fn get_info() -> GeocoderInfo {
     let stats = CACHE_STATS.read().await;
     let cache = GEOCODE_CACHE.read().await;
@@ -60,6 +64,12 @@ async fn evict_lru_entry() {
     }
 }
 
+/// Persists the geocoding cache and statistics to a JSON file.
+///
+/// This allows the cache to survive server restarts.
+///
+/// # Returns
+/// `std::io::Result<()>` indicating success or failure.
 pub async fn save_cache_to_disk() -> std::io::Result<()> {
     let cache = GEOCODE_CACHE.read().await;
     let mut stats = CACHE_STATS.write().await;
@@ -86,6 +96,12 @@ pub async fn save_cache_to_disk() -> std::io::Result<()> {
     Ok(())
 }
 
+/// Loads the geocoding cache and statistics from the persistence file.
+///
+/// If the file does not exist, it starts with an empty cache.
+///
+/// # Returns
+/// `std::io::Result<()>` indicating success or failure.
 pub async fn load_cache_from_disk() -> std::io::Result<()> {
     match tokio::fs::read_to_string(CACHE_FILE_PATH).await {
         Ok(contents) => {
@@ -128,6 +144,7 @@ pub async fn load_cache_from_disk() -> std::io::Result<()> {
 
 
 
+/// Clears all entries from the in-memory geocoding cache and resets statistics.
 pub async fn clear_cache() {
     let mut cache = GEOCODE_CACHE.write().await;
     cache.clear();
@@ -136,6 +153,20 @@ pub async fn clear_cache() {
     tracing::info!(module = "Geocoder", "CACHE_CLEARED");
 }
 
+/// Resolves latitude and longitude to a human-readable address.
+///
+/// Implementation details:
+/// 1. Rounds coordinates to 4 decimal places for efficient caching.
+/// 2. Checks the LRU cache for an existing result.
+/// 3. Falls back to the OpenStreetMap Nominatim API if not cached.
+/// 4. Updates the cache with the new result and performs eviction if necessary.
+///
+/// # Arguments
+/// * `lat` - Latitude coordinate.
+/// * `lon` - Longitude coordinate.
+///
+/// # Returns
+/// A result containing the address string or an error message.
 pub async fn reverse_geocode(lat: f64, lon: f64) -> Result<String, String> {
     let key = round_coords(lat, lon);
     let current_time = get_current_timestamp();

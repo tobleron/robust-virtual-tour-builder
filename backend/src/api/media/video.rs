@@ -12,6 +12,20 @@ use uuid::Uuid;
 use crate::models::AppError;
 use crate::api::utils::{get_temp_path, get_session_path, sanitize_filename, MAX_UPLOAD_SIZE};
 
+/// Transcodes an uploaded video file (typically WebM from browser) to MP4.
+///
+/// Uses FFmpeg to convert the input video to H.264/AAC format suitable
+/// for broad device compatibility.
+///
+/// # Arguments
+/// * `payload` - Multipart form data containing the video "file".
+///
+/// # Returns
+/// A response containing the transcoded MP4 video binary data.
+///
+/// # Errors
+/// * `ImageError` if the video size exceeds `MAX_UPLOAD_SIZE`.
+/// * `FFmpegError` if the transcoding process fails.
 #[tracing::instrument(skip(payload), name = "transcode_video")]
 pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, AppError> {
     let input_path = get_temp_path("webm");
@@ -100,6 +114,26 @@ pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, App
     }
 }
 
+/// Generates a cinematic teaser video of the virtual tour.
+///
+/// This handler performs complex orchestration:
+/// 1. Creates a transient session with uploaded assets.
+/// 2. Launches a headless Chrome instance.
+/// 3. Navigates to the tour viewer and loads the project.
+/// 4. Captures frames while the auto-pilot navigates the tour.
+/// 5. Pipes frames into FFmpeg to produce an MP4 video.
+///
+/// # Arguments
+/// * `payload` - Multipart form data containing:
+///   - `project_data`: JSON definition of the tour.
+///   - `files`: Asset images.
+///   - `width`/`height`: Resolution (defaults to 1920x1080).
+///
+/// # Returns
+/// A response containing the generated MP4 teaser binary.
+///
+/// # Errors
+/// * `InternalError` if browser automation, frame capture, or encoding fails.
 #[tracing::instrument(skip(payload), name = "generate_teaser")]
 pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, AppError> {
     // 1. Create a transient session ID for this generation request

@@ -8,9 +8,23 @@ use crate::services::media;
 
 const WEBP_QUALITY: f32 = 92.0;
 
-/// Validate and clean project data
-/// Returns a tuple of (cleaned_project, validation_report)
-/// This function takes ownership of the project and returns a new cleaned version
+/// Validates and sanitizes project metadata against a set of available assets.
+///
+/// This function performs deep validation:
+/// 1. Checks for missing image files.
+/// 2. Removes broken links between scenes.
+/// 3. Identifies orphaned scenes and unused image files.
+/// 4. Ensures required metadata (ID, category, floor) is present.
+///
+/// # Arguments
+/// * `project` - The raw project JSON data.
+/// * `available_files` - A set of filenames currently present in the project archive.
+///
+/// # Returns
+/// A tuple containing the cleaned project JSON and a detailed `ValidationReport`.
+///
+/// # Errors
+/// * Returns a `String` error if the root project structure is invalid.
 pub fn validate_and_clean_project(
     project: serde_json::Value,
     available_files: &HashSet<String>
@@ -157,7 +171,22 @@ pub fn validate_and_clean_project(
     Ok((project, report))
 }
 
-/// Create a tour package ZIP containing the tour application and assets
+/// Creates a production-ready tour package ZIP.
+///
+/// This function performs the heavy lifting for tour export:
+/// 1. Resizes all uploaded panoramas into 4K, 2K, and HD WebP versions.
+/// 2. Injects the appropriate HTML templates for each resolution.
+/// 3. Bundles external dependencies (Pannellum) and branding assets.
+///
+/// # Arguments
+/// * `image_files` - A vector of (filename, bytes) for the tour assets.
+/// * `fields` - A map containing HTML templates and other metadata.
+///
+/// # Returns
+/// The binary data of the generated ZIP package.
+///
+/// # Errors
+/// * Returns a `String` error if image processing or ZIP creation fails.
 pub fn create_tour_package(
     image_files: Vec<(String, Vec<u8>)>,
     fields: HashMap<String, String>,
@@ -259,7 +288,19 @@ pub fn create_tour_package(
     Ok(zip_buffer.into_inner())
 }
 
-/// Process an uploaded project ZIP: validate using project.json and normalize structure
+/// Processes an uploaded project ZIP and returns a normalized version.
+///
+/// It extract the `project.json`, validates it, ensures all image paths are
+/// consistent (moving them to the `images/` directory), and repacks it.
+///
+/// # Arguments
+/// * `zip_data` - The binary content of the uploaded ZIP file.
+///
+/// # Returns
+/// The binary content of the normalized ZIP file.
+///
+/// # Errors
+/// * Returns a `String` error if the ZIP is malformed or missing `project.json`.
 pub fn process_uploaded_project_zip(zip_data: Vec<u8>) -> Result<Vec<u8>, String> {
     use std::io::Read;
     
@@ -361,7 +402,16 @@ pub fn process_uploaded_project_zip(zip_data: Vec<u8>) -> Result<Vec<u8>, String
     Ok(response_zip_buffer.into_inner())
 }
 
-/// Validate a project ZIP content without modifying it
+/// Validates a project ZIP's internal consistency without modifying its content.
+///
+/// # Arguments
+/// * `zip_data` - The binary content of the ZIP file to validate.
+///
+/// # Returns
+/// A `ValidationReport` detailing any issues found.
+///
+/// # Errors
+/// * Returns a `String` error if the ZIP cannot be read or is missing `project.json`.
 pub fn validate_project_zip(zip_data: Vec<u8>) -> Result<ValidationReport, String> {
     use std::io::Read;
     

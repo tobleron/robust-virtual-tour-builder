@@ -3,6 +3,17 @@ use serde::Serialize;
 use crate::models::{AppError, GeocodeRequest, GeocodeResponse};
 use crate::services::geocoding;
 
+/// Performs reverse geocoding to find a human-readable address for coordinates.
+///
+/// This handler uses the geocoding service which implements LRU caching and
+/// OpenStreetMap Nominatim API. It returns a fallback message instead of
+/// an error if the service is unavailable.
+///
+/// # Arguments
+/// * `req` - A JSON payload containing `lat` and `lon`.
+///
+/// # Returns
+/// A `GeocodeResponse` containing the address string.
 #[tracing::instrument(skip(req), name = "reverse_geocode")]
 pub async fn reverse_geocode(req: web::Json<GeocodeRequest>) -> Result<HttpResponse, AppError> {
     let lat = req.lat;
@@ -43,6 +54,13 @@ struct GeocodeStatsResponse {
     last_save: Option<String>,
 }
 
+/// Returns diagnostic statistics about the geocoding cache.
+///
+/// Provides information such as hit rate, cache size, total requests,
+/// and the last time the cache was persisted to disk.
+///
+/// # Returns
+/// A JSON object containing cache performance metrics.
 #[tracing::instrument(name = "geocode_stats")]
 pub async fn geocode_stats() -> impl actix_web::Responder {
     let info = geocoding::get_info().await;
@@ -73,6 +91,12 @@ pub async fn geocode_stats() -> impl actix_web::Responder {
     })
 }
 
+/// Wipes the in-memory geocoding cache and persists the empty state to disk.
+///
+/// This is typically used for maintenance or if the cache contains stale data.
+///
+/// # Returns
+/// A success message JSON.
 #[tracing::instrument(name = "clear_geocode_cache")]
 pub async fn clear_geocode_cache() -> impl actix_web::Responder {
     geocoding::clear_cache().await;

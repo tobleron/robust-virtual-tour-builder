@@ -111,6 +111,19 @@ fn get_default_view() -> ArrivalView {
     ArrivalView { yaw: 0.0, pitch: 0.0 }
 }
 
+/// Follows a chain of "auto-forward" scenes until a non-auto-forward scene is reached.
+///
+/// This is used to skip transition-only scenes (like hallways or elevators)
+/// when the user or auto-pilot wants to land on a primary viewpoint.
+///
+/// # Arguments
+/// * `scenes` - The full list of tour scenes.
+/// * `start_idx` - The index to start following the chain from.
+/// * `visited` - A set to track visited scenes and prevent infinite loops.
+/// * `require_return_link` - If true, only follows links marked as `is_return_link`.
+///
+/// # Returns
+/// The index of the final destination scene in the chain.
 fn follow_auto_forward_chain(
     scenes: &[Scene],
     start_idx: usize,
@@ -151,6 +164,18 @@ fn follow_auto_forward_chain(
     Ok(current_idx)
 }
 
+/// Calculates an exploratory "walk" path through the tour.
+///
+/// This algorithm attempts to move forward through the tour by following
+/// primary links (non-return links) and then backtracks to the start
+/// by following return links.
+///
+/// # Arguments
+/// * `scenes` - The list of scenes in the project.
+/// * `skip_auto_forward` - If true, compresses the path by skipping auto-forward scenes.
+///
+/// # Returns
+/// A vector of `Step` objects representing the path.
 pub fn calculate_walk_path(scenes: Vec<Scene>, skip_auto_forward: bool) -> Result<Vec<Step>, String> {
     if scenes.is_empty() {
         return Ok(Vec::new());
@@ -307,6 +332,18 @@ pub fn calculate_walk_path(scenes: Vec<Scene>, skip_auto_forward: bool) -> Resul
     Ok(deduped)
 }
 
+/// Calculates a guided "timeline" path based on a predefined sequence.
+///
+/// This algorithm translates a user-defined sequence of hotspots and scenes
+/// into a series of camera rotations and navigation steps.
+///
+/// # Arguments
+/// * `scenes` - The list of scenes in the project.
+/// * `timeline` - The ordered list of timeline items defining the sequence.
+/// * `skip_auto_forward` - If true, compresses the path by skipping auto-forward scenes.
+///
+/// # Returns
+/// A vector of `Step` objects representing the path.
 pub fn calculate_timeline_path(scenes: Vec<Scene>, timeline: Vec<TimelineItem>, skip_auto_forward: bool) -> Result<Vec<Step>, String> {
     let mut path: Vec<Step> = Vec::new();
 
