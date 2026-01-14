@@ -21,3 +21,18 @@
 - Development environment is now fully autonomous
 [2026-01-14 13:13] v4.2.6 - Refactor validate_and_clean_project to follow pure functional principles
 [2026-01-14 13:15] v4.2.7 - Standardize backend logging with structured fields
+[2026-01-14 13:34] v4.2.8 - feat(backend): Remove all unwrap() calls from handlers
+
+- Added once_cell dependency for lazy static regex compilation
+- Replaced regex unwrap() with compile-time expect() in FILENAME_REGEX
+- Fixed all content_disposition unwrap() calls with .ok_or() error handling
+- Fixed path unwrap() calls in rotate_log_file with proper error propagation
+- Fixed ffmpeg path unwrap() calls with .ok_or() error handling
+- Fixed serde_json unwrap() calls with proper error handling
+- All handler code now uses ? operator or .ok_or() for graceful errors
+- Server will no longer panic on malformed requests
+- Completed Task 50: Backend Remove Unwrap
+
+All unwrap() calls have been eliminated from production code paths.
+Only acceptable uses remain: unwrap_or_default() and expect() on
+compile-time constants.

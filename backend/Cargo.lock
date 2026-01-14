@@ -453,6 +453,7 @@ dependencies = [
  "kamadak-exif",
  "little_exif",
  "mime_guess",
+ "once_cell",
  "rayon",
  "regex",
  "serde",
