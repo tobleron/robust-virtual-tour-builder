@@ -84,11 +84,7 @@ let init = async () => {
   Logger.info(~module_="System", ~message="Initializing Remax Builder...", ())
 
   // 2. Global JSON store access (for legacy scripts/console)
-  let _ = %raw(`
-    window.store = {
-      get state() { return GlobalStateBridge.getState(); }
-    }
-  `)
+  StateInspector.exposeToWindow()
 
   // 3. Telemetry
   try {
