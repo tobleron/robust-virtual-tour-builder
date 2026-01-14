@@ -321,7 +321,6 @@ pub async fn extract_metadata(mut payload: Multipart) -> Result<HttpResponse, Ap
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::models::{QualityAnalysis, ColorHist, QualityStats};
 
     #[test]
