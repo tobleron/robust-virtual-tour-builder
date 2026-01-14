@@ -114,15 +114,19 @@ let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promi
   )
 
   BackendApi.importProject(zipFile)
-  ->Promise.then(response => {
-    progress(50, 100, "Processing response...")
-    let sessionId = response.sessionId
-    let projectData = response.projectData
+  ->Promise.then(result => {
+    switch result {
+    | Ok(response) =>
+        progress(50, 100, "Processing response...")
+        let sessionId = response.sessionId
+        let projectData = response.projectData
 
-    // Basic Validation
-    switch validateProjectStructure(projectData) {
-    | Error(e) => Promise.reject(JsError.throwWithMessage(e))
-    | Ok(_) => Promise.resolve((sessionId, projectData))
+        // Basic Validation
+        switch validateProjectStructure(projectData) {
+        | Error(e) => Promise.reject(JsError.throwWithMessage(e))
+        | Ok(_) => Promise.resolve((sessionId, projectData))
+        }
+    | Error(msg) => Promise.reject(JsError.throwWithMessage(msg))
     }
   })
   ->Promise.then(((sessionId, projectData)) => {

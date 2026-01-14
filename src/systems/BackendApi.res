@@ -123,6 +123,8 @@ type apiError = {
   details: Nullable.t<string>,
 }
 
+type apiResult<'a> = result<'a, string>
+
 /* --- HELPER: Handle Response --- */
 
 let handleResponse = (response: Fetch.response) => {
@@ -160,7 +162,7 @@ let handleResponse = (response: Fetch.response) => {
  * Imports a project ZIP via backend
  * Returns sessionId and projectData JSON
  */
-let importProject = (file: File.t): Promise.t<importResponse> => {
+let importProject = (file: File.t): Promise.t<apiResult<importResponse>> => {
   let formData = FormData.newFormData()
   FormData.append(formData, "file", file)
 
@@ -174,13 +176,22 @@ let importProject = (file: File.t): Promise.t<importResponse> => {
   )
   ->Promise.then(handleResponse)
   ->Promise.then(Fetch.json)
-  ->Promise.then(json => Promise.resolve((Obj.magic(json): importResponse)))
+  ->Promise.then(json => Promise.resolve(Ok((Obj.magic(json): importResponse))))
+  ->Promise.catch(e => {
+    Logger.error(
+      ~module_="BackendApi",
+      ~message="IMPORT_ERROR",
+      ~data=Obj.magic({"error": e}),
+      (),
+    )
+    Promise.resolve(Error("Project import failed"))
+  })
 }
 
 /**
  * Validates a project ZIP and returns a validation report
  */
-let validateProject = (file: File.t): Promise.t<validationReport> => {
+let validateProject = (file: File.t): Promise.t<apiResult<validationReport>> => {
   let formData = FormData.newFormData()
   FormData.append(formData, "file", file)
 
@@ -194,13 +205,23 @@ let validateProject = (file: File.t): Promise.t<validationReport> => {
   )
   ->Promise.then(handleResponse)
   ->Promise.then(Fetch.json)
+  ->Promise.then(json => Promise.resolve(Ok((Obj.magic(json): validationReport))))
+  ->Promise.catch(e => {
+    Logger.error(
+      ~module_="BackendApi",
+      ~message="VALIDATION_ERROR",
+      ~data=Obj.magic({"error": e}),
+      (),
+    )
+    Promise.resolve(Error("Project validation failed"))
+  })
 }
 
 /**
  * Loads a project ZIP and returns it as a Blob
  * This ZIP contains project.json and all scene images
  */
-let loadProject = (file: File.t): Promise.t<Blob.t> => {
+let loadProject = (file: File.t): Promise.t<apiResult<Blob.t>> => {
   let formData = FormData.newFormData()
   FormData.append(formData, "file", file)
 
@@ -214,12 +235,22 @@ let loadProject = (file: File.t): Promise.t<Blob.t> => {
   )
   ->Promise.then(handleResponse)
   ->Promise.then(Fetch.blob)
+  ->Promise.then(blob => Promise.resolve(Ok(blob)))
+  ->Promise.catch(e => {
+    Logger.error(
+      ~module_="BackendApi",
+      ~message="LOAD_ERROR",
+      ~data=Obj.magic({"error": e}),
+      (),
+    )
+    Promise.resolve(Error("Project load failed"))
+  })
 }
 
 /**
  * Extracts metadata and quality analysis for an image
  */
-let extractMetadata = (file: File.t): Promise.t<metadataResponse> => {
+let extractMetadata = (file: File.t): Promise.t<apiResult<metadataResponse>> => {
   let formData = FormData.newFormData()
   FormData.append(formData, "file", file)
 
@@ -233,13 +264,23 @@ let extractMetadata = (file: File.t): Promise.t<metadataResponse> => {
   )
   ->Promise.then(handleResponse)
   ->Promise.then(Fetch.json)
+  ->Promise.then(json => Promise.resolve(Ok((Obj.magic(json): metadataResponse))))
+  ->Promise.catch(e => {
+    Logger.error(
+      ~module_="BackendApi",
+      ~message="METADATA_ERROR",
+      ~data=Obj.magic({"error": e}),
+      (),
+    )
+    Promise.resolve(Error("Metadata extraction failed"))
+  })
 }
 
 /**
  * Processes an image (resizes, optimizes) and returns a ZIP blob
  * ZIP contains preview.webp, tiny.webp, and metadata.json
  */
-let processImageFull = (file: File.t): Promise.t<Blob.t> => {
+let processImageFull = (file: File.t): Promise.t<apiResult<Blob.t>> => {
   let formData = FormData.newFormData()
   FormData.append(formData, "file", file)
 
@@ -253,13 +294,23 @@ let processImageFull = (file: File.t): Promise.t<Blob.t> => {
   )
   ->Promise.then(handleResponse)
   ->Promise.then(Fetch.blob)
+  ->Promise.then(blob => Promise.resolve(Ok(blob)))
+  ->Promise.catch(e => {
+    Logger.error(
+      ~module_="BackendApi",
+      ~message="PROCESSING_ERROR",
+      ~data=Obj.magic({"error": e}),
+      (),
+    )
+    Promise.resolve(Error("Image processing failed"))
+  })
 }
 
 /**
  * Saves a project by sending the project JSON to the backend
  * The backend bundles it into a ZIP and returns it
  */
-let saveProject = (projectData: JSON.t): Promise.t<Blob.t> => {
+let saveProject = (projectData: JSON.t): Promise.t<apiResult<Blob.t>> => {
   let formData = FormData.newFormData()
   FormData.append(formData, "project_data", projectData)
 
@@ -273,13 +324,23 @@ let saveProject = (projectData: JSON.t): Promise.t<Blob.t> => {
   )
   ->Promise.then(handleResponse)
   ->Promise.then(Fetch.blob)
+  ->Promise.then(blob => Promise.resolve(Ok(blob)))
+  ->Promise.catch(e => {
+    Logger.error(
+      ~module_="BackendApi",
+      ~message="SAVE_ERROR",
+      ~data=Obj.magic({"error": e}),
+      (),
+    )
+    Promise.resolve(Error("Project save failed"))
+  })
 }
 
 
 /**
  * Calculates a navigation path (Teaser/Timeline) via Backend
  */
-let calculatePath = (payload: pathRequest): Promise.t<array<step>> => {
+let calculatePath = (payload: pathRequest): Promise.t<apiResult<array<step>>> => {
   let headers = Dict.make()
   Dict.set(headers, "Content-Type", "application/json")
 
@@ -293,7 +354,16 @@ let calculatePath = (payload: pathRequest): Promise.t<array<step>> => {
   )
   ->Promise.then(handleResponse)
   ->Promise.then(Fetch.json)
-  ->Promise.then(json => Promise.resolve((Obj.magic(json): array<step>)))
+  ->Promise.then(json => Promise.resolve(Ok((Obj.magic(json): array<step>))))
+  ->Promise.catch(e => {
+    Logger.error(
+      ~module_="BackendApi",
+      ~message="CALCULATE_PATH_ERROR",
+      ~data=Obj.magic({"error": e}),
+      (),
+    )
+    Promise.resolve(Error("Path calculation failed"))
+  })
 }
 
 /**
@@ -317,6 +387,12 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<string> => {
   )
   ->Promise.then(response => {
     if !Fetch.ok(response) {
+      Logger.warn(
+        ~module_="BackendApi",
+        ~message="GEOCODE_SERVICE_UNAVAILABLE",
+        ~data=Obj.magic({"status": Fetch.status(response)}),
+        (),
+      )
       Promise.resolve("[Geocoding service unavailable]")
     } else {
       Fetch.json(response)->Promise.then(json => {
@@ -325,7 +401,13 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<string> => {
       })
     }
   })
-  ->Promise.catch(_ => {
+  ->Promise.catch(e => {
+    Logger.error(
+      ~module_="BackendApi",
+      ~message="GEOCODE_FAILED",
+      ~data=Obj.magic({"error": e}),
+      (),
+    )
     Promise.resolve("[Geocoding failed]")
   })
 }
@@ -334,7 +416,9 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<string> => {
 /**
  * Calculates similarity for multiple pairs in parallel on the backend
  */
-let batchCalculateSimilarity = (pairs: array<similarityPair>): Promise.t<array<similarityResult>> => {
+let batchCalculateSimilarity = (
+  pairs: array<similarityPair>,
+): Promise.t<apiResult<array<similarityResult>>> => {
   let headers = Dict.make()
   Dict.set(headers, "Content-Type", "application/json")
 
@@ -343,16 +427,18 @@ let batchCalculateSimilarity = (pairs: array<similarityPair>): Promise.t<array<s
     {
       method: "POST",
       headers: Nullable.make(headers),
-      body: JSON.stringify(Obj.magic({
-        "pairs": pairs,
-      })),
+      body: JSON.stringify(
+        Obj.magic({
+          "pairs": pairs,
+        }),
+      ),
     },
   )
   ->Promise.then(handleResponse)
   ->Promise.then(Fetch.json)
   ->Promise.then(json => {
     let data: similarityResponse = Obj.magic(json)
-    Promise.resolve(data.results)
+    Promise.resolve(Ok(data.results))
   })
   ->Promise.catch(e => {
     Logger.error(
@@ -361,6 +447,6 @@ let batchCalculateSimilarity = (pairs: array<similarityPair>): Promise.t<array<s
       ~data=Obj.magic({"error": e}),
       (),
     )
-    Promise.resolve([])
+    Promise.resolve(Error("Similarity calculation failed"))
   })
 }
