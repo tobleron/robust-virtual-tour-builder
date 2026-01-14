@@ -35,23 +35,7 @@ module JSZip = {
 }
 
 /* 3. Rest of the bindings */
-module PubSub = {
-  type unsubscribe = unit => unit
 
-  @module("./utils/PubSub.js") @scope("PubSub")
-  external subscribe: (string, 'a => unit) => unsubscribe = "subscribe"
-
-  @module("./utils/PubSub.js") @scope("PubSub")
-  external publish: (string, 'a) => unit = "publish"
-
-  /* Events */
-  @module("./utils/PubSub.js") @scope("EVENTS") external navStart: string = "NAV_START"
-  @module("./utils/PubSub.js") @scope("EVENTS") external navProgress: string = "NAV_PROGRESS"
-  @module("./utils/PubSub.js") @scope("EVENTS") external navCompleted: string = "NAV_COMPLETED"
-  @module("./utils/PubSub.js") @scope("EVENTS") external navCancelled: string = "NAV_CANCELLED"
-  @module("./utils/PubSub.js") @scope("EVENTS") external sceneArrived: string = "SCENE_ARRIVED"
-  @module("./utils/PubSub.js") @scope("EVENTS") external clearSimUi: string = "CLEAR_SIM_UI"
-}
 
 module Constants = {
   @module("./constants.js") external panningVelocity: float = "PANNING_VELOCITY"

@@ -295,19 +295,18 @@ let navigateToScene = (
 
       dispatch(SetNavigationStatus(Navigating(finalJourney)))
 
-      // Legacy PubSub for Renderer compatibility until it's also refactored
-      // We wrap pathData in a JS-like object for ReBindings
+      // Dispatch via typed EventBus
       switch pathData {
       | Some(pd) =>
-        let payload = {
-          "journeyId": newJourneyId,
-          "sourceIndex": sourceSceneIndex,
-          "targetIndex": targetIndex,
-          "hotspotIndex": sourceHotspotIndex,
-          "previewOnly": previewOnly,
-          "pathData": Obj.magic(pd),
+        let payload: EventBus.navStartPayload = {
+          journeyId: newJourneyId,
+          targetIndex,
+          sourceIndex: sourceSceneIndex,
+          hotspotIndex: sourceHotspotIndex,
+          previewOnly,
+          pathData: pd,
         }
-        ReBindings.PubSub.publish(ReBindings.PubSub.navStart, payload)
+        EventBus.dispatch(NavStart(payload))
       | None => ()
       }
     } else {
@@ -431,7 +430,7 @@ let setSimulationMode = (dispatch: Actions.action => unit, state: state, val: bo
   dispatch(ResetAutoForwardChain)
   dispatch(SetIncomingLink(None))
   dispatch(IncrementJourneyId)
-  ReBindings.PubSub.publish(ReBindings.PubSub.clearSimUi, ())
+  EventBus.dispatch(ClearSimUi)
   dispatch(SetNavigationStatus(Idle))
 
   if val {
@@ -451,7 +450,7 @@ let setSimulationMode = (dispatch: Actions.action => unit, state: state, val: bo
 
 let cancelNavigation = () => {
   Logger.info(~module_="Navigation", ~message="NAV_CANCELLED", ())
-  ReBindings.PubSub.publish(ReBindings.PubSub.navCancelled, ())
+  EventBus.dispatch(NavCancelled)
 }
 
 let initNavigation = (dispatch: Actions.action => unit) => {
@@ -462,43 +461,26 @@ let initNavigation = (dispatch: Actions.action => unit) => {
   dispatch(ResetAutoForwardChain)
 
   /* Subscribe */
-  let _ = ReBindings.PubSub.subscribe(ReBindings.PubSub.navCompleted, data => {
-    let journeyId = data["journeyId"]->Obj.magic
-    let targetIndex = data["targetIndex"]->Obj.magic
-    let sourceIndex = data["sourceIndex"]->Obj.magic
-    let hotspotIndex = data["hotspotIndex"]->Obj.magic
-    let arrivalYaw = data["arrivalYaw"]->Obj.magic
-    let arrivalPitch = data["arrivalPitch"]->Obj.magic
-    let arrivalHfov = data["arrivalHfov"]->Obj.magic
-    let previewOnly = data["previewOnly"]->Obj.magic
-
-    let journey: journeyData = {
-      journeyId,
-      targetIndex,
-      sourceIndex,
-      hotspotIndex,
-      arrivalYaw,
-      arrivalPitch,
-      arrivalHfov,
-      previewOnly,
-      pathData: None, // Path data is not passed back in navCompleted
+  /* Subscribe via EventBus */
+  let _ = EventBus.subscribe(event => {
+    switch event {
+    | NavCompleted(journey) =>
+      dispatch(NavigationCompleted(journey))
+      Logger.endOperation(
+        ~module_="Navigation",
+        ~operation="NAV",
+        ~data={
+          "targetIndex": journey.targetIndex,
+          "journeyId": journey.journeyId,
+          "durationMs": Date.now() -. navStartTime.contents,
+        },
+        (),
+      )
+    | NavCancelled =>
+      dispatch(SetNavigationStatus(Idle))
+      Logger.info(~module_="Navigation", ~message="NAV_CANCELLED_CLEANUP", ())
+    | _ => ()
     }
-    dispatch(NavigationCompleted(journey))
-    Logger.endOperation(
-      ~module_="Navigation",
-      ~operation="NAV",
-      ~data={
-        "targetIndex": targetIndex,
-        "journeyId": journeyId,
-        "durationMs": Date.now() -. navStartTime.contents,
-      },
-      (),
-    )
-  })
-
-  let _ = ReBindings.PubSub.subscribe(ReBindings.PubSub.navCancelled, _data => {
-    dispatch(SetNavigationStatus(Idle))
-    Logger.info(~module_="Navigation", ~message="NAV_CANCELLED_CLEANUP", ())
   })
 
   Logger.initialized(~module_="Navigation")
