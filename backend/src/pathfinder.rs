@@ -12,7 +12,6 @@ pub struct Hotspot {
     pub target_pitch: Option<f32>,
     pub is_return_link: Option<bool>,
     pub view_frame: Option<ViewFrame>,
-    pub waypoints: Option<Vec<ViewFrame>>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]

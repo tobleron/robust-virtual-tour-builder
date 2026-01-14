@@ -123,7 +123,6 @@ let make = () => {
     }
   }
 
-  // ... other handlers (Teaser, Export, etc.) mostly open modals via ModalManager
 
   // Computed
   let totalHotspots = state.scenes->Belt.Array.reduce(0, (acc, s) => acc + Array.length(s.hotspots))

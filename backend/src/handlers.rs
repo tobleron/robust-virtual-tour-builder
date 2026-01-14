@@ -1563,14 +1563,6 @@ pub struct TelemetryEntry {
     pub timestamp: String,
 }
 
-// NOTE: LoadProjectResponse is no longer used - we now return ZIP directly
-// Keeping for reference during transition period
-// #[derive(Serialize)]
-// #[serde(rename_all = "camelCase")]
-// pub struct LoadProjectResponse {
-//     pub session_id: String,
-//     pub project_data: serde_json::Value,
-// }
 
 #[tracing::instrument(skip(payload), name = "save_project")]
 pub async fn save_project(mut payload: Multipart) -> Result<HttpResponse, AppError> {
@@ -2665,9 +2657,10 @@ mod tests {
     }
 }
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ImportResponse {
-    pub sessionId: String,
-    pub projectData: serde_json::Value,
+    pub session_id: String,
+    pub project_data: serde_json::Value,
 }
 
 pub async fn import_project(mut payload: Multipart) -> Result<HttpResponse, AppError> {
@@ -2730,8 +2723,8 @@ pub async fn import_project(mut payload: Multipart) -> Result<HttpResponse, AppE
              tracing::info!(module = "ProjectManager", session_id = %session_id, "IMPORT_PROJECT_SUCCESS");
 
              return Ok(HttpResponse::Ok().json(ImportResponse {
-                 sessionId: session_id,
-                 projectData: project_data
+                 session_id: session_id,
+                 project_data: project_data
              }));
         }
     }
