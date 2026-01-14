@@ -74,3 +74,28 @@ impl From<zip::result::ZipError> for AppError {
 impl From<String> for AppError {
     fn from(err: String) -> Self { AppError::InternalError(err) }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use actix_web::ResponseError;
+
+    #[test]
+    fn test_app_error_response_format() {
+        let err = AppError::ValidationError("test message".to_string());
+        let resp = err.error_response();
+        
+        assert_eq!(resp.status(), actix_web::http::StatusCode::BAD_REQUEST);
+        
+        assert!(err.to_string().contains("Validation Error"));
+        assert!(err.to_string().contains("test message"));
+    }
+
+    #[test]
+    fn test_internal_error_status() {
+        let err = AppError::InternalError("boom".to_string());
+        let resp = err.error_response();
+        assert_eq!(resp.status(), actix_web::http::StatusCode::INTERNAL_SERVER_ERROR);
+    }
+}
+

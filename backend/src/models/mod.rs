@@ -51,6 +51,7 @@ pub struct QualityAnalysis {
     pub is_blurry: bool,
     pub is_soft: bool,
     pub is_severely_dark: bool,
+    pub is_severely_bright: bool,
     pub is_dim: bool,
     pub has_black_clipping: bool,
     pub has_white_clipping: bool,
