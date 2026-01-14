@@ -1,56 +1,63 @@
+open JsonTypes
 open Types
 
 // ============================================================================
 // PARSING FUNCTIONS
 // ============================================================================
 
-let parseHotspots = (json: JSON.t): array<hotspot> => {
-  if Array.isArray(json) {
-    let hss = (Obj.magic(json): array<JSON.t>)
-    Belt.Array.map(hss, hJson => {
-      let hs = (Obj.magic(hJson): {..})
-      {
-        linkId: switch Nullable.toOption(hs["linkId"]) {
-        | Some(id) => id
-        | None => ""
-        },
-        yaw: hs["yaw"],
-        pitch: hs["pitch"],
-        target: hs["target"],
-        targetYaw: Nullable.toOption(hs["targetYaw"]),
-        targetPitch: Nullable.toOption(hs["targetPitch"]),
-        targetHfov: Nullable.toOption(hs["targetHfov"]),
-        startYaw: Nullable.toOption(hs["startYaw"]),
-        startPitch: Nullable.toOption(hs["startPitch"]),
-        startHfov: Nullable.toOption(hs["startHfov"]),
-        isReturnLink: Nullable.toOption(hs["isReturnLink"]),
-        viewFrame: Nullable.toOption(hs["viewFrame"]),
-        returnViewFrame: Nullable.toOption(hs["returnViewFrame"]),
-        waypoints: Nullable.toOption(hs["waypoints"]),
-        displayPitch: Nullable.toOption(hs["displayPitch"]),
-        transition: Nullable.toOption(hs["transition"]),
-        duration: Nullable.toOption(hs["duration"]),
-      }
-    })
-  } else {
-    []
-  }
+let parseHotspots = (hss: array<hotspotJson>): array<hotspot> => {
+  Belt.Array.map(hss, hs => {
+    {
+      linkId: switch Nullable.toOption(hs.linkId) {
+      | Some(id) => id
+      | None => ""
+      },
+      yaw: hs.yaw,
+      pitch: hs.pitch,
+      target: hs.target,
+      targetYaw: Nullable.toOption(hs.targetYaw),
+      targetPitch: Nullable.toOption(hs.targetPitch),
+      targetHfov: Nullable.toOption(hs.targetHfov),
+      startYaw: Nullable.toOption(hs.startYaw),
+      startPitch: Nullable.toOption(hs.startPitch),
+      startHfov: Nullable.toOption(hs.startHfov),
+      isReturnLink: Nullable.toOption(hs.isReturnLink),
+      viewFrame: switch Nullable.toOption(hs.viewFrame) {
+      | Some(vf) => Some({yaw: vf.yaw, pitch: vf.pitch, hfov: vf.hfov})
+      | None => None
+      },
+      returnViewFrame: switch Nullable.toOption(hs.returnViewFrame) {
+      | Some(vf) => Some({yaw: vf.yaw, pitch: vf.pitch, hfov: vf.hfov})
+      | None => None
+      },
+      waypoints: switch Nullable.toOption(hs.waypoints) {
+      | Some(wps) => Some(Belt.Array.map(wps, wp => {yaw: wp.yaw, pitch: wp.pitch, hfov: wp.hfov}))
+      | None => None
+      },
+      displayPitch: Nullable.toOption(hs.displayPitch),
+      transition: Nullable.toOption(hs.transition),
+      duration: switch Nullable.toOption(hs.duration) {
+      | Some(d) => Some(Belt.Float.toInt(d))
+      | None => None
+      },
+    }
+  })
 }
 
 let parseScene = (dataJson: JSON.t): scene => {
-  let data = (Obj.magic(dataJson): {..})
+  let data: importSceneJson = Obj.magic(dataJson)
   {
-    id: data["id"],
-    name: data["name"],
-    file: data["preview"],
-    tinyFile: Nullable.toOption(data["tiny"]),
-    originalFile: Nullable.toOption(data["original"]),
+    id: data.id,
+    name: data.name,
+    file: data.preview,
+    tinyFile: Nullable.toOption(data.tiny),
+    originalFile: Nullable.toOption(data.original),
     hotspots: [],
     category: "indoor",
     floor: "ground",
     label: "",
-    quality: Nullable.toOption(data["quality"]),
-    colorGroup: Nullable.toOption(data["colorGroup"]),
+    quality: Nullable.toOption(data.quality),
+    colorGroup: Nullable.toOption(data.colorGroup),
     _metadataSource: "default",
     categorySet: false,
     labelSet: false,
@@ -60,66 +67,59 @@ let parseScene = (dataJson: JSON.t): scene => {
 }
 
 let parseProject = (projectDataJson: JSON.t): state => {
-  let pd = (Obj.magic(projectDataJson): {..})
-  let tourName = switch Nullable.toOption(pd["tourName"]) {
+  let pd: projectJson = Obj.magic(projectDataJson)
+  let tourName = switch Nullable.toOption(pd.tourName) {
   | Some(tn) => tn
   | None => "Imported Tour"
   }
 
-  let scenesArrJson = (pd["scenes"]: JSON.t)
-  let scenes = if Array.isArray(scenesArrJson) {
-    let scenesArr = (Obj.magic(scenesArrJson): array<JSON.t>)
-    Belt.Array.map(scenesArr, sJson => {
-      let sc = (Obj.magic(sJson): {..})
+  let scenes = Belt.Array.map(pd.scenes, sc => {
       {
-        id: switch Nullable.toOption(sc["id"]) {
+        id: switch Nullable.toOption(sc.id) {
         | Some(id) => id
-        | None => "legacy_" ++ sc["name"]
+        | None => "legacy_" ++ sc.name
         },
-        name: sc["name"],
-        file: sc["file"],
-        tinyFile: Nullable.toOption(sc["tinyFile"]),
-        originalFile: Nullable.toOption(sc["originalFile"]),
-        hotspots: switch Nullable.toOption(sc["hotspots"]) {
-        | Some(hssJson) => parseHotspots(hssJson)
+        name: sc.name,
+        file: sc.file,
+        tinyFile: Nullable.toOption(sc.tinyFile),
+        originalFile: Nullable.toOption(sc.originalFile),
+        hotspots: switch Nullable.toOption(sc.hotspots) {
+        | Some(hss) => parseHotspots(hss)
         | None => []
         },
-        category: switch Nullable.toOption(sc["category"]) {
+        category: switch Nullable.toOption(sc.category) {
         | Some(c) => c
         | None => "indoor"
         },
-        floor: switch Nullable.toOption(sc["floor"]) {
+        floor: switch Nullable.toOption(sc.floor) {
         | Some(f) => f
         | None => "ground"
         },
-        label: switch Nullable.toOption(sc["label"]) {
+        label: switch Nullable.toOption(sc.label) {
         | Some(l) => l
         | None => ""
         },
-        quality: Nullable.toOption(sc["quality"]),
-        colorGroup: Nullable.toOption(sc["colorGroup"]),
-        _metadataSource: switch Nullable.toOption(sc["_metadataSource"]) {
+        quality: Nullable.toOption(sc.quality),
+        colorGroup: Nullable.toOption(sc.colorGroup),
+        _metadataSource: switch Nullable.toOption(sc.metadataSource) {
         | Some(m) => m
         | None => "user"
         },
-        categorySet: switch Nullable.toOption(sc["categorySet"]) {
+        categorySet: switch Nullable.toOption(sc.categorySet) {
         | Some(cs) => cs
         | None => false
         },
-        labelSet: switch Nullable.toOption(sc["labelSet"]) {
+        labelSet: switch Nullable.toOption(sc.labelSet) {
         | Some(ls) => ls
         | None => false
         },
-        isAutoForward: switch Nullable.toOption(sc["isAutoForward"]) {
+        isAutoForward: switch Nullable.toOption(sc.isAutoForward) {
         | Some(af) => af
         | None => false
         },
         preCalculatedSnapshot: None,
       }
     })
-  } else {
-    []
-  }
 
   {
     ...State.initialState,
@@ -134,14 +134,14 @@ let parseProject = (projectDataJson: JSON.t): state => {
 }
 
 let parseTimelineItem = (json: JSON.t): timelineItem => {
-  let item = (Obj.magic(json): {..})
+  let item: timelineItemJson = Obj.magic(json)
   {
-    id: item["id"],
-    linkId: item["linkId"],
-    sceneId: item["sceneId"],
-    targetScene: item["targetScene"],
-    transition: item["transition"],
-    duration: item["duration"],
+    id: item.id,
+    linkId: item.linkId,
+    sceneId: item.sceneId,
+    targetScene: item.targetScene,
+    transition: item.transition,
+    duration: item.duration,
   }
 }
 
@@ -240,8 +240,8 @@ let handleDeleteScene = (state: state, index: int): state => {
 
 let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
   let newScenes = Belt.Array.reduce(scenesData, state.scenes, (acc, dataJson) => {
-    let data = (Obj.magic(dataJson): {..})
-    let id = data["id"]
+    let data: importSceneJson = Obj.magic(dataJson)
+    let id = data.id
     if Belt.Array.some(acc, s => s.id == id) {
       acc
     } else {
@@ -270,16 +270,16 @@ let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
 
 let handleUpdateSceneMetadata = (state: state, index: int, metaJson: JSON.t): state => {
   let scenes = state.scenes
-  let metaObj: {..} = Obj.magic(metaJson)
+  let metaObj: updateMetadataJson = Obj.magic(metaJson)
 
   let newScenes = Belt.Array.mapWithIndex(scenes, (i, s) => {
     if i == index {
-      let newCategory = switch Nullable.toOption(metaObj["category"]) {
-      | Some(c) => (Obj.magic(c): string)
+      let newCategory = switch Nullable.toOption(metaObj.category) {
+      | Some(c) => c
       | None => s.category
       }
-      let newFloor = switch Nullable.toOption(metaObj["floor"]) {
-      | Some(f) => (Obj.magic(f): string)
+      let newFloor = switch Nullable.toOption(metaObj.floor) {
+      | Some(f) => f
       | None => s.floor
       }
       {...s, category: newCategory, floor: newFloor}
@@ -288,4 +288,26 @@ let handleUpdateSceneMetadata = (state: state, index: int, metaJson: JSON.t): st
     }
   })
   {...state, scenes: newScenes}
+}
+
+let handleUpdateTimelineStep = (state: state, id: string, dataJson: JSON.t): state => {
+  let data: timelineUpdateJson = Obj.magic(dataJson)
+  let newTimeline = Belt.Array.map(state.timeline, t => {
+    if t.id == id {
+      {
+        ...t,
+        transition: switch Nullable.toOption(data.transition) {
+        | Some(tr) => tr
+        | None => t.transition
+        },
+        duration: switch Nullable.toOption(data.duration) {
+        | Some(d) => d
+        | None => t.duration
+        },
+      }
+    } else {
+      t
+    }
+  })
+  {...state, timeline: newTimeline}
 }

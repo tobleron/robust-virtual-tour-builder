@@ -200,6 +200,12 @@
 │   │   │   │   ├── GlobalStateBridge.cmj
 │   │   │   │   ├── GlobalStateBridge.cmt
 │   │   │   │   ├── GlobalStateBridge.res
+│   │   │   │   ├── JsonTypes.ast
+│   │   │   │   ├── JsonTypes.bs.js
+│   │   │   │   ├── JsonTypes.cmi
+│   │   │   │   ├── JsonTypes.cmj
+│   │   │   │   ├── JsonTypes.cmt
+│   │   │   │   ├── JsonTypes.res
 │   │   │   │   ├── Reducer.ast
 │   │   │   │   ├── Reducer.bs.js
 │   │   │   │   ├── Reducer.cmi
@@ -504,6 +510,12 @@
 │   │           ├── PathInterpolationTest.cmj
 │   │           ├── PathInterpolationTest.cmt
 │   │           ├── PathInterpolationTest.res
+│   │           ├── ReducerJsonTest.ast
+│   │           ├── ReducerJsonTest.bs.js
+│   │           ├── ReducerJsonTest.cmi
+│   │           ├── ReducerJsonTest.cmj
+│   │           ├── ReducerJsonTest.cmt
+│   │           ├── ReducerJsonTest.res
 │   │           ├── ReducerTest.ast
 │   │           ├── ReducerTest.bs.js
 │   │           ├── ReducerTest.cmi
@@ -618,6 +630,11 @@
 │   │   ├── InputSystem.cmj
 │   │   ├── InputSystem.cmt
 │   │   ├── InputSystem.res
+│   │   ├── JsonTypes.ast
+│   │   ├── JsonTypes.cmi
+│   │   ├── JsonTypes.cmj
+│   │   ├── JsonTypes.cmt
+│   │   ├── JsonTypes.res
 │   │   ├── LabelMenu.ast
 │   │   ├── LabelMenu.cmi
 │   │   ├── LabelMenu.cmj
@@ -708,11 +725,15 @@
 │   │   ├── Reducer.cmj
 │   │   ├── Reducer.cmt
 │   │   ├── Reducer.res
-│   │   ├── ReducerHelpers.ast
 │   │   ├── ReducerHelpers.cmi
 │   │   ├── ReducerHelpers.cmj
 │   │   ├── ReducerHelpers.cmt
 │   │   ├── ReducerHelpers.res
+│   │   ├── ReducerJsonTest.ast
+│   │   ├── ReducerJsonTest.cmi
+│   │   ├── ReducerJsonTest.cmj
+│   │   ├── ReducerJsonTest.cmt
+│   │   ├── ReducerJsonTest.res
 │   │   ├── ReducerTest.ast
 │   │   ├── ReducerTest.cmi
 │   │   ├── ReducerTest.cmj
@@ -953,6 +974,8 @@
 │   │   ├── AppContext.res
 │   │   ├── GlobalStateBridge.bs.js
 │   │   ├── GlobalStateBridge.res
+│   │   ├── JsonTypes.bs.js
+│   │   ├── JsonTypes.res
 │   │   ├── Reducer.bs.js
 │   │   ├── Reducer.res
 │   │   ├── ReducerHelpers.bs.js
@@ -1143,11 +1166,11 @@
 │   │   ├── 84_Implement_Service_Worker_REPORT.md
 │   │   ├── 85_Refactor_TourTemplates_Module_REPORT.md
 │   │   ├── 86_Refactor_Reducer_Module.md
+│   │   ├── 87_Centralized_Version_Management_REPORT.md
+│   │   ├── 88_Eliminate_ObjMagic_Reducer_REPORT.md
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   ├── pending
-│   │   ├── 87_Update_Version_References.md
-│   │   └── 88_Eliminate_ObjMagic_Reducer.md
 │   └── README.md
 └── tests
     ├── integration
@@ -1158,6 +1181,8 @@
         ├── GeoUtilsTest.res
         ├── PathInterpolationTest.bs.js
         ├── PathInterpolationTest.res
+        ├── ReducerJsonTest.bs.js
+        ├── ReducerJsonTest.res
         ├── ReducerTest.bs.js
         ├── ReducerTest.res
         ├── SimulationSystemTest.bs.js
@@ -1165,4 +1190,4 @@
         ├── TourLogicTest.bs.js
         └── TourLogicTest.res
 
-39 directories, 1127 files
+39 directories, 1152 files

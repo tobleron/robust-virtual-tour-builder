@@ -6,5 +6,6 @@ SimulationSystemTest.run()
 TourLogicTest.run()
 PathInterpolationTest.run()
 ReducerTest.run()
+ReducerJsonTest.run()
 
 Console.log("All frontend tests passed successfully! 🎉")
