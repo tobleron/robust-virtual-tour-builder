@@ -235,7 +235,7 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
           UpdateSceneMetadata(state.activeIndex, Obj.magic({"label": label})),
         )
         Logger.info(~module_="LabelMenu", ~message="LABEL_SET", ~data=Some({"label": label}), ())
-        Notification.notify("Label Set: " ++ label, "success")
+        EventBus.dispatch(ShowNotification("Label Set: " ++ label, #Success))
         scheduleMenuClose()
       }
       Dom.appendChild(grid, chip)
@@ -292,7 +292,7 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
       let state = GlobalStateBridge.getState()
       GlobalStateBridge.dispatch(UpdateSceneMetadata(state.activeIndex, Obj.magic({"label": val})))
       Logger.info(~module_="LabelMenu", ~message="LABEL_SET_CUSTOM", ~data=Some({"label": val}), ())
-      Notification.notify("Label Set: " ++ val, "success")
+      EventBus.dispatch(ShowNotification("Label Set: " ++ val, #Success))
       scheduleMenuClose()
     }
   }
@@ -301,7 +301,7 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
     let state = GlobalStateBridge.getState()
     GlobalStateBridge.dispatch(UpdateSceneMetadata(state.activeIndex, Obj.magic({"label": ""})))
     let _ = (Obj.magic(inp): {..})["value"] = ""
-    Notification.notify("Label Cleared", "warning")
+    EventBus.dispatch(ShowNotification("Label Cleared", #Warning))
     scheduleMenuClose()
   }
 

@@ -2,8 +2,6 @@
 
 open Types
 
-module ModalManager = ReBindings.ModalManager
-
 type qualityItem = {
   quality: BackendApi.qualityAnalysis,
   newName: string,
@@ -84,7 +82,7 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
               </div>
               ${analysis}
             </div>`
-      })->Array.join("")
+      })->Js.Array.joinWith("", _)
 
       `<div style="margin-bottom: 16px; text-align: left;">
         <div style="font-weight: 800; color: #991b1b; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; display: flex; align-items: center; gap: 4px;">
@@ -113,7 +111,7 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
     let contentHtml = htmlStart ++ htmlAction ++ htmlSkipped
 
 
-    let btnDownload: ModalManager.button = {
+    let btnDownload: EventBus.button = {
       label: "Download Data Report",
       class_: "bg-slate-100 text-slate-700 hover:bg-slate-200",
       onClick: () => {
@@ -128,25 +126,31 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
         | None => ReBindings.Window.alert("Report is still generating... please wait a moment.")
         }
       },
-      autoClose: Nullable.fromOption(Some(false)),
+      autoClose: Some(false),
     }
 
-    let btnStart: ModalManager.button = {
+    let btnStart: EventBus.button = {
       label: "Start Building",
       class_: "btn-blue",
       onClick: () => (),
-      autoClose: Nullable.fromOption(Some(true)),
+      autoClose: Some(true),
     }
 
-    let options: ModalManager.options = {
+    /* iconHtml support removed from typed ModalConfig, merging into contentHtml or ignoring */
+    let finalHtml = switch Some(`<div style="font-size: 48px; margin-bottom: 8px;">✨</div>`) {
+    | Some(icon) => icon ++ contentHtml
+    | None => contentHtml
+    }
+
+    let options: EventBus.modalConfig = {
       title: "Upload Summary",
       description: Some("Intelligent quality evaluation"),
       icon: None,
-      iconHtml: Some(`<div style="font-size: 48px; margin-bottom: 8px;">✨</div>`),
-      contentHtml: Some(contentHtml),
+      contentHtml: Some(finalHtml),
       buttons: [btnDownload, btnStart],
       onClose: None,
+      allowClose: Some(true),
     }
-    ModalManager.show(options)
+    EventBus.dispatch(ShowModal(options))
   }
 }

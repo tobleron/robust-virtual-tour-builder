@@ -63,10 +63,7 @@ module Debug = {
   external debug: (string, string, ~data: 'a=?, unit) => unit = "debug"
 }
 
-module Notification = {
-  @module("./utils/NotificationSystem.js")
-  external notify: (string, string) => unit = "notify"
-}
+
 
 module Viewer = {
   type t
@@ -249,30 +246,7 @@ module Window = {
   @val external getComputedStyle: Dom.element => {..} = "getComputedStyle"
 }
 
-module ModalManager = {
-  type button = {
-    label: string,
-    @as("class") class_: string,
-    onClick: unit => unit,
-    autoClose: Nullable.t<bool>,
-  }
 
-  type options = {
-    title: string,
-    description: option<string>,
-    icon: option<string>,
-    iconHtml: option<string>,
-    onClose: option<unit => unit>,
-    contentHtml: option<string>,
-    buttons: array<button>,
-  }
-
-  @module("./utils/ModalManager.js") @scope("ModalManager")
-  external show: options => unit = "show"
-
-  @module("./utils/ModalManager.js") @scope("ModalManager")
-  external close: unit => unit = "close"
-}
 
 module Fetch = {
   type response

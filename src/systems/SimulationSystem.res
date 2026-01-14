@@ -40,7 +40,7 @@ module LocalViewerBindings = {
 
 // --- LOGIC ---
 
-let notify = Notification.notify
+
 
 let isAutoPilotActive = () => simState.isAutoPilot
 ignore(Obj.magic(window)["isAutoPilotActive"] = isAutoPilotActive)
@@ -99,7 +99,7 @@ let stopAutoPilotLogic = returnToStart => {
       )
     }
 
-    notify("Simulation stopped", "info")
+    EventBus.dispatch(ShowNotification("Simulation stopped", #Info))
   }
 }
 
@@ -115,11 +115,11 @@ let completeAutoPilot = () => {
     }),
     (),
   )
-  notify(
+  EventBus.dispatch(ShowNotification(
     "Simulation complete! Visited " ++
     Belt.Int.toString(Array.length(simState.visitedScenes)) ++ " scenes.",
-    "success",
-  )
+    #Success,
+  ))
 
   let _ = setTimeout(() => {
     stopAutoPilot(true)
@@ -452,7 +452,7 @@ let onSceneArrival = (sceneIndex, _isChainEnd) => {
 let startAutoPilot = skipAutoForward => {
   let state = GlobalStateBridge.getState()
   if Array.length(state.scenes) == 0 {
-    notify("No scenes to simulate", "warning")
+    EventBus.dispatch(ShowNotification("No scenes to simulate", #Warning))
   } else {
     Logger.startOperation(
         ~module_="Simulation", 
@@ -518,7 +518,7 @@ let startAutoPilot = skipAutoForward => {
         advanceToNextScene()
       }, 800))
 
-    notify("Auto-pilot started", "success")
+    EventBus.dispatch(ShowNotification("Auto-pilot started", #Success))
   }
 }
 

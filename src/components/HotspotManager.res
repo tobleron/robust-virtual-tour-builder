@@ -2,6 +2,7 @@
 
 open ReBindings
 open Types
+open EventBus
 
 module Event = {
   type t
@@ -138,7 +139,7 @@ let createHotspotConfig = (
             (),
           )
           dispatch(Actions.RemoveHotspot(state.activeIndex, index))
-          Notification.notify("Link deleted", "info")
+          EventBus.dispatch(ShowNotification("Link deleted", #Info))
         } // 2. Forward
         else if !Nullable.isNullable(forwardBtn) {
           Event.stopPropagation(e)
@@ -150,14 +151,14 @@ let createHotspotConfig = (
             | Some(idx) =>
               let currentVal = ts.isAutoForward
               dispatch(Actions.UpdateSceneMetadata(idx, Obj.magic({"isAutoForward": !currentVal})))
-              Notification.notify(
+              EventBus.dispatch(ShowNotification(
                 if !currentVal {
                   "Auto-forward: ENABLED"
                 } else {
                   "Auto-forward: DISABLED"
                 },
-                "success",
-              )
+                #Success,
+              ))
             | None => ()
             }
           | None => ()
@@ -169,7 +170,7 @@ let createHotspotConfig = (
 
           dispatch(Actions.ToggleHotspotReturnLink(state.activeIndex, index))
 
-          Notification.notify("Return link status updated", "success")
+          EventBus.dispatch(ShowNotification("Return link status updated", #Success))
         } else {
           // 4. Navigation
 

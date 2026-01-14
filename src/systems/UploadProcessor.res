@@ -13,8 +13,14 @@ type file = ReBindings.File.t
 
 // Store bindings removed. Using GlobalStateBridge.
 
-module Notification = {
-  @module("../utils/NotificationSystem.js") external notify: (string, string) => unit = "notify"
+let notify = (msg, typeStr) => {
+  let type_ = switch typeStr {
+  | "error" => #Error
+  | "warning" => #Warning
+  | "success" => #Success
+  | _ => #Info
+  }
+  EventBus.dispatch(ShowNotification(msg, type_))
 }
 
 // Debug module removed. Using Logger.res
@@ -51,7 +57,7 @@ let processUploads = (
     if !isUp {
       Logger.error(~module_="Upload", ~message="BACKEND_OFFLINE", ())
       updateProgress(100.0, "Error: Backend Offline", false, "Error")
-      Notification.notify(
+      notify(
         "Backend Server Not Connected! Please ensure the Rust backend is running on port 8080.",
         "error",
       )
@@ -91,13 +97,13 @@ let processUploads = (
           let isImage = String.startsWith(type_, "image/") || Array.includes(allowedExtensions, ext)
 
           if !isImage {
-            Notification.notify("Skipped invalid file: " ++ name, "warning")
+            notify("Skipped invalid file: " ++ name, "warning")
           }
           isImage
         })
 
         if Belt.Array.length(validFiles) == 0 {
-          Notification.notify("No valid image files selected!", "error")
+          notify("No valid image files selected!", "error")
           Promise.resolve({"qualityResults": [], "duration": "0.0"})
         } else {
           /* Phase 1: Fingerprinting */
@@ -167,7 +173,7 @@ let processUploads = (
             )
 
             if skippedCount.contents > 0 {
-              Notification.notify(
+              notify(
                 "Skipped " ++ Belt.Int.toString(skippedCount.contents) ++ " duplicates.",
                 "info",
               )
@@ -230,7 +236,7 @@ let processUploads = (
                 let validProcessed = Belt.Array.keep(processedItems, i => i.error == None)
 
                 if Belt.Array.length(validProcessed) == 0 && Belt.Array.length(uniqueItems) > 0 {
-                  Notification.notify("All uploads failed.", "error")
+                  notify("All uploads failed.", "error")
                   Promise.resolve({"qualityResults": [], "duration": "0.0"})
                 } else {
                   /* Phase 3: Clustering */

@@ -2,6 +2,7 @@
 
 open ReBindings
 open Types
+open EventBus
 module Recorder = TeaserRecorder
 module Server = ServerTeaser
 
@@ -419,7 +420,7 @@ let startAutoTeaser = async (
     ->Promise.catch(_ => {
       GlobalStateBridge.dispatch(SetIsTeasing(false))
       ProgressBar.updateProgressBar(0.0, "Generation Failed", ~visible=false, ~title="Error", ())
-      Notification.notify("Server Generation Failed", "error")
+      EventBus.dispatch(ShowNotification("Server Generation Failed", #Error))
       Promise.resolve()
     })
     ->ignore

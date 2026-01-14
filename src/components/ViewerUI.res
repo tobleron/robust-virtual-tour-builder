@@ -2,6 +2,7 @@
 
 // Do not open ReBindings globally to avoid Dom conflict
 // open ReBindings
+open EventBus
 
 module SimulationSystem = {
   @module("../systems/SimulationSystem.bs.js")
@@ -133,18 +134,18 @@ let make = () => {
     let newLinking = !state.isLinking
     dispatch(Actions.SetIsLinking(newLinking))
 
-    ReBindings.Notification.notify(
+    EventBus.dispatch(ShowNotification(
       if newLinking {
         "Link Mode: ACTIVE"
       } else {
         "Link Mode: OFF"
       },
       if newLinking {
-        "success"
+        #Success
       } else {
-        "warning"
+        #Warning
       },
-    )
+    ))
   }
 
   let handleSimClick = e => {
@@ -179,18 +180,18 @@ let make = () => {
       // Store.store.updateSceneMetadata(activeIdx, Obj.magic({"category": newCat}))
       dispatch(Actions.UpdateSceneMetadata(activeIdx, Obj.magic({"category": newCat})))
 
-      ReBindings.Notification.notify(
+      EventBus.dispatch(ShowNotification(
         if newCat == "indoor" {
           "Category: INDOOR"
         } else {
           "Category: OUTDOOR"
         },
         if newCat == "indoor" {
-          "warning"
+          #Warning
         } else {
-          "success"
+          #Success
         },
-      )
+      ))
     }
   }
 
@@ -207,7 +208,7 @@ let make = () => {
         let currentYaw = ReBindings.Viewer.getYaw(viewer)
         ReBindings.Viewer.setYawWithDuration(viewer, currentYaw +. 180.0, 1000)
         dispatch(Actions.SetPendingReturnSceneName(Some(scene.name)))
-        ReBindings.Notification.notify("Turned around! NOW click '+' to place the link.", "success")
+        EventBus.dispatch(ShowNotification("Turned around! NOW click '+' to place the link.", #Success))
 
         // Use ReBindings.Dom for manipulation
         switch ReBindings.Dom.getElementById("return-link-prompt") {
@@ -225,7 +226,7 @@ let make = () => {
     let activeIdx = state.activeIndex
     if activeIdx >= 0 {
       dispatch(Actions.UpdateSceneMetadata(activeIdx, Obj.magic({"floor": fid})))
-      ReBindings.Notification.notify("Floor: " ++ label, "success")
+      EventBus.dispatch(ShowNotification("Floor: " ++ label, #Success))
     }
   }
 
