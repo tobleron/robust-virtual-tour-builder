@@ -1,12 +1,12 @@
-# Task: Migrate Exif Report Generator
+# Report: Migrate Exif Report Generator
 
-## Objective
+## Objective (Completed)
 Port the `ExifReportGenerator.js` logic to ReScript to handle the detailed formatting of EXIF data into user-friendly reports.
 
 ## Context
 This module takes raw EXIF JSON and produces a human-readable summary.
 
-## Implementation Steps
+## Implementation Details
 
 1. **Create `ExifReportGenerator.res`**:
    - [x] Port the formatting functions for exposure, focal length, and GPS data.
