@@ -181,6 +181,11 @@ async fn main() -> io::Result<()> {
             .service(fs::Files::new("/sounds", "../sounds"))
             .service(fs::Files::new("/src/libs", "../src/libs")) // Pannellum and other lazy-loaded libs
 
+            // PWA and Service Worker files
+            .route("/service-worker.js", web::get().to(|| async { fs::NamedFile::open("../service-worker.js") }))
+            .route("/manifest.json", web::get().to(|| async { fs::NamedFile::open("../manifest.json") }))
+            .route("/asset-manifest.json", web::get().to(|| async { fs::NamedFile::open("../dist/asset-manifest.json") }))
+
             // Serve index.html for root and handle SPA routing
             .route("/", web::get().to(|| async { fs::NamedFile::open("../dist/index.html") }))
             .default_service(web::get().to(|| async { 

@@ -26,6 +26,8 @@ export default defineConfig({
     filenameHash: true,
     // Clean dist folder before each build
     cleanDistPath: true,
+    // Generate asset manifest for service worker
+    manifest: 'asset-manifest.json',
     // Source maps for production debugging
     sourceMap: {
       js: 'source-map',
