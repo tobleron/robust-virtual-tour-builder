@@ -4,6 +4,10 @@ open EventBus
 // Helper for styles
 external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 
+module ElementExt = {
+  @send external closest: (Dom.element, string) => Nullable.t<Dom.element> = "closest"
+}
+
 @react.component
 let make = () => {
   let (activeConfig, setActiveConfig) = React.useState(_ => None)
@@ -19,10 +23,11 @@ let make = () => {
     Some(unsubscribe)
   })
   
-  // Escape key handler
+  // Escape key handler & Focus Trap
   React.useEffect1(() => {
     let handleKey = e => {
-       if (Obj.magic(e)["key"] == "Escape") {
+       let key = (Obj.magic(e))["key"]
+       if (key == "Escape") {
          switch activeConfig {
          | Some(config) => 
             if (Belt.Option.getWithDefault(config.allowClose, true)) {
@@ -31,8 +36,65 @@ let make = () => {
          | None => ()
          }
        }
+       
+       // Focus Trap logic
+       if (activeConfig != None && key == "Tab") {
+         let modalEl = Dom.getElementById("modal-title")
+         switch Nullable.toOption(modalEl) {
+         | Some(el) =>
+           let root = ElementExt.closest(el, ".modal-box-premium")
+           switch Nullable.toOption(root) {
+           | Some(modal) =>
+             let focusables = (Obj.magic(modal): {..})["querySelectorAll"]("button, input, select, textarea, [tabindex]:not([tabindex=\"-1\"])")
+             let focusablesArray: array<Dom.element> = Obj.magic(focusables)
+             if (Array.length(focusablesArray) > 0) {
+               let first = Belt.Array.getExn(focusablesArray, 0)
+               let last = Belt.Array.getExn(focusablesArray, Array.length(focusablesArray) - 1)
+               
+               let isShift = (Obj.magic(e): {..})["shiftKey"]
+               if (isShift) {
+                 if (Dom.document["activeElement"] === first) {
+                   Dom.preventDefault(e)
+                   Dom.focus(last)
+                 }
+               } else {
+                 if (Dom.document["activeElement"] === last) {
+                   Dom.preventDefault(e)
+                   Dom.focus(first)
+                 }
+               }
+             }
+           | None => ()
+           }
+         | None => ()
+         }
+       }
     }
     let _ = Window.addEventListener("keydown", handleKey)
+
+    // Initial focus
+    if (activeConfig != None) {
+       let _ = Window.setTimeout(() => {
+         let modalEl = Dom.getElementById("modal-title")
+         switch Nullable.toOption(modalEl) {
+         | Some(el) =>
+           let root = ElementExt.closest(el, ".modal-box-premium")
+           switch Nullable.toOption(root) {
+           | Some(modal) =>
+             let focusables = (Obj.magic(modal): {..})["querySelectorAll"]("button, [tabindex]:not([tabindex=\"-1\"])")
+             let focusablesArray: array<Dom.element> = Obj.magic(focusables)
+             if (Array.length(focusablesArray) > 0) {
+               Dom.focus(Belt.Array.getExn(focusablesArray, 0))
+             } else {
+               Dom.focus(el)
+             }
+           | None => ()
+           }
+         | None => ()
+         }
+       }, 50)
+    }
+
     Some(() => Window.removeEventListener("keydown", handleKey))
   }, [activeConfig])
 
@@ -42,7 +104,13 @@ let make = () => {
   | (Some(target), Some(config)) =>
     ReactDOM.createPortal(
       <div className="modal-overlay" style={makeStyle({"display": "flex", "position": "fixed", "top": "0", "left": "0", "width": "100%", "height": "100%", "background": "rgba(0,0,0,0.7)", "backdropFilter": "blur(12px)", "zIndex": "20000", "justifyContent": "center", "alignItems": "center", "padding": "16px", "transition": "opacity 0.3s ease-in-out", "opacity": "1"})}>
-         <div className="modal-box-premium" style={makeStyle({"transform": "scale(1)", "transition": "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)", "width": "100%", "maxWidth": "340px"})}>
+         <div
+           className="modal-box-premium"
+           style={makeStyle({"transform": "scale(1)", "transition": "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)", "width": "100%", "maxWidth": "340px"})}
+           role="dialog"
+           ariaModal=true
+           ariaLabelledby="modal-title"
+         >
              // Icon
              {switch config.icon {
               | Some(icon) =>
@@ -52,7 +120,12 @@ let make = () => {
               | None => React.null
              }}
              // Title
-             <h3 style={makeStyle({"margin": "0 0 4px 0", "fontSize": "20px", "fontWeight": "800", "letterSpacing": "-0.02em", "textAlign": "center", "color": "white"})}>{React.string(config.title)}</h3>
+             <h3
+               id="modal-title"
+               style={makeStyle({"margin": "0 0 4px 0", "fontSize": "20px", "fontWeight": "800", "letterSpacing": "-0.02em", "textAlign": "center", "color": "white"})}
+             >
+               {React.string(config.title)}
+             </h3>
              // Description
              {switch config.description {
              | Some(desc) => <p style={makeStyle({"fontSize": "13px", "color": "rgba(255,255,255,0.6)", "marginBottom": "20px", "textAlign": "center"})}>{React.string(desc)}</p>
