@@ -1539,7 +1539,6 @@
 ├── tasks
 │   ├── README.md
 │   ├── active
-│   │   └── 131_Security_And_SW_Hardening.md
 │   ├── completed
 │   │   ├── 01_Architecture_Functional_State_REPORT.md
 │   │   ├── 02_Implement_App_Context_REPORT.md
@@ -1589,7 +1588,12 @@
 │   │   ├── 129_Accessibility_And_SEO_Improvements.md
 │   │   ├── 12_ReScript_Migrate_UI_Components_REPORT.md
 │   │   ├── 130_Reduce_Obj_Magic_Usage.md
+│   │   ├── 131_Security_And_SW_Hardening.md
+│   │   ├── 131_Security_And_SW_Hardening_REPORT.md
 │   │   ├── 133_Add_Tests_for_JsonTypes.md
+│   │   ├── 134_Add_Tests_for_ReducerHelpers.md
+│   │   ├── 140_Add_Tests_for_LazyLoad.md
+│   │   ├── 142_Add_Tests_for_Exporter.md
 │   │   ├── 14_ReScript_Migrate_Viewer_REPORT.md
 │   │   ├── 15_Backend_SingleZIP_Load_REPORT.md
 │   │   ├── 16_Backend_Project_Validation_REPORT.md
@@ -1687,15 +1691,12 @@
 │   │   └── README.md
 │   └── pending
 │       ├── 132_Comprehensive_Project_Analysis.md
-│       ├── 134_Add_Tests_for_ReducerHelpers.md
 │       ├── 135_Add_Tests_for_AudioManager.md
 │       ├── 136_Add_Tests_for_DownloadSystem.md
 │       ├── 137_Add_Tests_for_InputSystem.md
 │       ├── 138_Add_Tests_for_ProjectData.md
 │       ├── 139_Add_Tests_for_VideoEncoder.md
-│       ├── 140_Add_Tests_for_LazyLoad.md
-│       ├── 141_Add_Tests_for_ProgressBar.md
-│       └── 142_Add_Tests_for_Exporter.md
+│       └── 141_Add_Tests_for_ProgressBar.md
 └── tests
     ├── TestRunner.bs.js
     ├── TestRunner.res
@@ -1770,4 +1771,4 @@
         ├── ViewerLoaderTest.bs.js
         └── ViewerLoaderTest.res
 
-48 directories, 1723 files
+48 directories, 1724 files
