@@ -613,6 +613,12 @@
 │   │           ├── HotspotReducerTest.cmj
 │   │           ├── HotspotReducerTest.cmt
 │   │           ├── HotspotReducerTest.res
+│   │           ├── LoggerTest.ast
+│   │           ├── LoggerTest.bs.js
+│   │           ├── LoggerTest.cmi
+│   │           ├── LoggerTest.cmj
+│   │           ├── LoggerTest.cmt
+│   │           ├── LoggerTest.res
 │   │           ├── NavigationTest.ast
 │   │           ├── NavigationTest.bs.js
 │   │           ├── NavigationTest.cmi
@@ -685,6 +691,12 @@
 │   │           ├── TeaserManagerTest.cmj
 │   │           ├── TeaserManagerTest.cmt
 │   │           ├── TeaserManagerTest.res
+│   │           ├── TeaserRecorderTest.ast
+│   │           ├── TeaserRecorderTest.bs.js
+│   │           ├── TeaserRecorderTest.cmi
+│   │           ├── TeaserRecorderTest.cmj
+│   │           ├── TeaserRecorderTest.cmt
+│   │           ├── TeaserRecorderTest.res
 │   │           ├── TourLogicTest.ast
 │   │           ├── TourLogicTest.bs.js
 │   │           ├── TourLogicTest.cmi
@@ -857,6 +869,10 @@
 │   │   ├── Logger.cmj
 │   │   ├── Logger.cmt
 │   │   ├── Logger.res
+│   │   ├── LoggerTest.cmi
+│   │   ├── LoggerTest.cmj
+│   │   ├── LoggerTest.cmt
+│   │   ├── LoggerTest.res
 │   │   ├── Main.ast
 │   │   ├── Main.cmi
 │   │   ├── Main.cmj
@@ -1074,6 +1090,11 @@
 │   │   ├── TeaserRecorder.cmj
 │   │   ├── TeaserRecorder.cmt
 │   │   ├── TeaserRecorder.res
+│   │   ├── TeaserRecorderTest.ast
+│   │   ├── TeaserRecorderTest.cmi
+│   │   ├── TeaserRecorderTest.cmj
+│   │   ├── TeaserRecorderTest.cmt
+│   │   ├── TeaserRecorderTest.res
 │   │   ├── TestRunner.ast
 │   │   ├── TestRunner.cmi
 │   │   ├── TestRunner.cmj
@@ -1203,10 +1224,6 @@
 │   │   ├── VisualPipeline.cmj
 │   │   ├── VisualPipeline.cmt
 │   │   ├── VisualPipeline.res
-│   │   ├── debug_regex.ast
-│   │   ├── debug_regex.cmi
-│   │   ├── debug_regex.cmj
-│   │   ├── debug_regex.cmt
 │   │   ├── debug_regex.res
 │   │   ├── mod.ast
 │   │   ├── mod.cmi
@@ -1463,6 +1480,7 @@
 │   │   ├── 123_Add_GitHub_Actions_CI.md
 │   │   ├── 124_Add_Tests_for_ReBindings.md
 │   │   ├── 125_Add_Tests_for_ExifReportGenerator.md
+│   │   ├── 127_Add_Tests_for_Logger.md
 │   │   ├── 12_ReScript_Migrate_UI_Components_REPORT.md
 │   │   ├── 14_ReScript_Migrate_Viewer_REPORT.md
 │   │   ├── 15_Backend_SingleZIP_Load_REPORT.md
@@ -1560,8 +1578,7 @@
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   └── pending
-│       ├── 126_Add_Tests_for_TeaserRecorder.md
-│       └── 127_Add_Tests_for_Logger.md
+│       └── 126_Add_Tests_for_TeaserRecorder.md
 └── tests
     ├── TestRunner.bs.js
     ├── TestRunner.res
@@ -1577,6 +1594,8 @@
         ├── GeoUtilsTest.res
         ├── HotspotReducerTest.bs.js
         ├── HotspotReducerTest.res
+        ├── LoggerTest.bs.js
+        ├── LoggerTest.res
         ├── NavigationTest.bs.js
         ├── NavigationTest.res
         ├── PathInterpolationTest.bs.js
@@ -1601,6 +1620,8 @@
         ├── StateInspectorTest.res
         ├── TeaserManagerTest.bs.js
         ├── TeaserManagerTest.res
+        ├── TeaserRecorderTest.bs.js
+        ├── TeaserRecorderTest.res
         ├── TourLogicTest.bs.js
         ├── TourLogicTest.res
         ├── TourTemplateAssetsTest.bs.js
@@ -1614,4 +1635,4 @@
         ├── ViewerLoaderTest.bs.js
         └── ViewerLoaderTest.res
 
-48 directories, 1567 files
+48 directories, 1588 files
