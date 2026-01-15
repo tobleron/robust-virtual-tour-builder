@@ -20,5 +20,7 @@ TourTemplateAssetsTest.run()
 TourTemplateScriptsTest.run()
 TourTemplateStylesTest.run()
 StateInspectorTest.run()
+NavigationTest.run()
+ViewerLoaderTest.run()
 
 Console.log("All frontend tests passed successfully! 🎉")

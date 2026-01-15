@@ -67,6 +67,7 @@
 │   ├── navigation_improvements_applied.md
 │   ├── PERFORMANCE_ANALYSIS_FRONTEND_VS_BACKEND.md
 │   ├── PERFORMANCE_OPTIMIZATIONS.md
+│   ├── PROFESSIONAL_METRICS_REPORT.md
 │   ├── PROJECT_ANALYSIS_REPORT.md
 │   ├── PROJECT_STANDARDS_AND_WORKFLOWS.md
 │   ├── RELEASE_v4.0.9.md
@@ -590,6 +591,12 @@
 │   │           ├── HotspotReducerTest.cmj
 │   │           ├── HotspotReducerTest.cmt
 │   │           ├── HotspotReducerTest.res
+│   │           ├── NavigationTest.ast
+│   │           ├── NavigationTest.bs.js
+│   │           ├── NavigationTest.cmi
+│   │           ├── NavigationTest.cmj
+│   │           ├── NavigationTest.cmt
+│   │           ├── NavigationTest.res
 │   │           ├── PathInterpolationTest.ast
 │   │           ├── PathInterpolationTest.bs.js
 │   │           ├── PathInterpolationTest.cmi
@@ -679,7 +686,13 @@
 │   │           ├── UploadProcessorTest.cmi
 │   │           ├── UploadProcessorTest.cmj
 │   │           ├── UploadProcessorTest.cmt
-│   │           └── UploadProcessorTest.res
+│   │           ├── UploadProcessorTest.res
+│   │           ├── ViewerLoaderTest.ast
+│   │           ├── ViewerLoaderTest.bs.js
+│   │           ├── ViewerLoaderTest.cmi
+│   │           ├── ViewerLoaderTest.cmj
+│   │           ├── ViewerLoaderTest.cmt
+│   │           └── ViewerLoaderTest.res
 │   ├── ocaml
 │   │   ├── Actions.ast
 │   │   ├── Actions.cmi
@@ -849,6 +862,11 @@
 │   │   ├── NavigationRenderer.cmj
 │   │   ├── NavigationRenderer.cmt
 │   │   ├── NavigationRenderer.res
+│   │   ├── NavigationTest.ast
+│   │   ├── NavigationTest.cmi
+│   │   ├── NavigationTest.cmj
+│   │   ├── NavigationTest.cmt
+│   │   ├── NavigationTest.res
 │   │   ├── NavigationUI.ast
 │   │   ├── NavigationUI.cmi
 │   │   ├── NavigationUI.cmj
@@ -1121,6 +1139,10 @@
 │   │   ├── ViewerLoader.cmj
 │   │   ├── ViewerLoader.cmt
 │   │   ├── ViewerLoader.res
+│   │   ├── ViewerLoaderTest.cmi
+│   │   ├── ViewerLoaderTest.cmj
+│   │   ├── ViewerLoaderTest.cmt
+│   │   ├── ViewerLoaderTest.res
 │   │   ├── ViewerManager.ast
 │   │   ├── ViewerManager.cmi
 │   │   ├── ViewerManager.cmj
@@ -1480,6 +1502,15 @@
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   ├── pending
+│   │   ├── 115_Add_Tests_ViewerLoader_Navigation.md
+│   │   ├── 116_Update_ServiceWorker_Cache_Paths.md
+│   │   ├── 117_Add_OpenAPI_Documentation.md
+│   │   ├── 118_Run_Accessibility_Audit.md
+│   │   ├── 119_Eliminate_ObjMagic_Patterns.md
+│   │   ├── 120_Add_Meta_Description_OG_Tags.md
+│   │   ├── 121_Add_Prometheus_Metrics.md
+│   │   ├── 122_Split_Large_Backend_Modules.md
+│   │   └── 123_Add_GitHub_Actions_CI.md
 │   └── README.md
 └── tests
     ├── integration
@@ -1494,6 +1525,8 @@
         ├── GeoUtilsTest.res
         ├── HotspotReducerTest.bs.js
         ├── HotspotReducerTest.res
+        ├── NavigationTest.bs.js
+        ├── NavigationTest.res
         ├── PathInterpolationTest.bs.js
         ├── PathInterpolationTest.res
         ├── ProjectManagerTest.bs.js
@@ -1523,6 +1556,8 @@
         ├── TourTemplateStylesTest.bs.js
         ├── TourTemplateStylesTest.res
         ├── UploadProcessorTest.bs.js
-        └── UploadProcessorTest.res
+        ├── UploadProcessorTest.res
+        ├── ViewerLoaderTest.bs.js
+        └── ViewerLoaderTest.res
 
-44 directories, 1482 files
+44 directories, 1517 files

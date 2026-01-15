@@ -76,6 +76,37 @@ let getCurrentView = () => {
   }
 }
 
+/**
+ * Finds a scene by its name in the given array of scenes.
+ */
+let findSceneByName = (scenes: array<Types.scene>, name: string) => {
+  Belt.Array.getBy(scenes, s => s.name == name)
+}
+
+/**
+ * Returns the index of the next scene in the array, wrapping around to the start.
+ */
+let getNextScene = (scenes: array<Types.scene>, currentIndex: int) => {
+  let len = Array.length(scenes)
+  if len == 0 {
+    None
+  } else {
+    Some(mod(currentIndex + 1, len))
+  }
+}
+
+/**
+ * Returns the index of the previous scene in the array, wrapping around to the end.
+ */
+let getPreviousScene = (scenes: array<Types.scene>, currentIndex: int) => {
+  let len = Array.length(scenes)
+  if len == 0 {
+    None
+  } else {
+    Some(mod(currentIndex - 1 + len, len))
+  }
+}
+
 /* --- PURE PATH CALCULATION --- */
 
 let calculatePathData = (
