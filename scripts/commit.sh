@@ -20,7 +20,7 @@ npm version patch --no-git-tag-version
 NEW_VER=$(node -p "require('./package.json').version")
 
 # 4. Cache Busting
-sed -i '' "s/v=[0-9.]*/v=$NEW_VER/g" index.html
+# 4. Cache Busting handled by postversion script
 
 # 5. Auto-Format
 echo "🎨 Formatting Code..."
