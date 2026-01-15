@@ -26,6 +26,9 @@ let max_int = (a, b) =>
     b
   }
 
+external castToDict: JSON.t => Js.Dict.t<JSON.t> = "%identity"
+external castToJson: 'a => JSON.t = "%identity"
+
 /**
  * Generate a smart project identification name
  * Format: Word1_Word2_Word3_DDMMYYHH_SSSSS
@@ -168,9 +171,9 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
       let quality = switch item.quality {
       | Some(q) => Promise.resolve(q)
       | None => {
-          let metaObj = (Obj.magic(exifData): {..})
-          switch Nullable.toOption(metaObj["quality"]) {
-          | Some(q) => Promise.resolve(q)
+          let metaObj = castToDict(exifData)
+          switch Js.Dict.get(metaObj, "quality") {
+          | Some(q) => Promise.resolve(castToJson(q))
           | None => ExifParser.analyzeImageQuality(file)
           }
         }
@@ -187,23 +190,34 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
       let _ = Js.Array.push(result, exifResults)
 
       // Check for GPS data
-      let exifObj = (Obj.magic(exifData): {..})
-      switch Nullable.toOption(exifObj["gps"]) {
-      | Some(gps) => {
-          let gpsObj = (Obj.magic(gps): {..})
-          let lat: float = gpsObj["lat"]
-          let lon: float = gpsObj["lon"]
-          let gpsPoint: GeoUtils.point = {lat, lon}
-          let _ = Js.Array.push(gpsPoint, gpsPoints)
-          let _ = Js.Array.push(File.name(file), gpsFilenames)
+      let exifObj = castToDict(exifData)
+      let gpsOpt = Js.Dict.get(exifObj, "gps")
+      
+      switch gpsOpt {
+      | Some(gpsVal) => {
+          switch Js.Json.decodeObject(castToJson(gpsVal)) {
+          | Some(gpsDict) =>
+             let lat = Js.Dict.get(gpsDict, "lat")->Option.flatMap(Js.Json.decodeNumber)->Option.getWithDefault(0.0)
+             let lon = Js.Dict.get(gpsDict, "lon")->Option.flatMap(Js.Json.decodeNumber)->Option.getWithDefault(0.0)
+             let gpsPoint: GeoUtils.point = {lat, lon}
+             let _ = Js.Array.push(gpsPoint, gpsPoints)
+             let _ = Js.Array.push(File.name(file), gpsFilenames)
+          | None => ()
+          }
         }
       | None => ()
       }
 
       // Capture first valid dateTime
       if captureDateTime.contents == None {
-        switch Nullable.toOption(exifObj["dateTime"]) {
-        | Some(dt) => captureDateTime := Some(dt)
+        let dateOpt = Js.Dict.get(exifObj, "dateTime")
+        switch dateOpt {
+        | Some(dtVal) => {
+            let dt = castToJson(dtVal)->Js.Json.decodeString->Option.getWithDefault("")
+            if dt != "" {
+              captureDateTime := Some(dt)
+            }
+          }
         | None => ()
         }
       }
@@ -246,9 +260,9 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
     let _ = Js.Array.push("", lines)
 
     // Check for outliers
-    let analysisObj = (Obj.magic(locationAnalysis): {..})
-    let outliers = switch Nullable.toOption(analysisObj["outliers"]) {
-    | Some(o) => Obj.magic(o)
+    // locationAnalysis is option<GeoUtils.scanResult>
+    let outliers = switch locationAnalysis {
+    | Some(analysis) => analysis.outliers
     | None => []
     }
 
@@ -258,9 +272,8 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
         lines,
       )
       Belt.Array.forEach(outliers, outlier => {
-        let o = (Obj.magic(outlier): {..})
-        let index: int = o["index"]
-        let distance: float = o["distance"]
+        let index = outlier.index
+        let distance = outlier.distance
         let filename = Belt.Array.get(gpsFilenames, index)->Belt.Option.getWithDefault("Unknown")
         let distanceM = Belt.Int.toString(Float.toInt(distance *. 1000.0))
         let _ = Js.Array.push(`      • ${filename} - ${distanceM}m from cluster center`, lines)
@@ -269,11 +282,12 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
     }
 
     // Centroid
-    switch Nullable.toOption(analysisObj["centroid"]) {
-    | Some(c) => {
-        let centroid = (Obj.magic(c): {..})
-        let lat: float = centroid["lat"]
-        let lon: float = centroid["lon"]
+    // Centroid
+    switch locationAnalysis {
+    | Some(analysis) => {
+        let centroid = analysis.centroid
+        let lat = centroid.lat
+        let lon = centroid.lon
 
         let _ = Js.Array.push(`  📍 Estimated Property Location:`, lines)
         let _ = Js.Array.push(`     Latitude:  ${Float.toFixed(lat, ~digits=6)}`, lines)
@@ -329,55 +343,57 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
     let sig = ExifParser.getCameraSignature(r.exif)
     switch Dict.get(groups, sig) {
     | Some(group) => {
-        let g = (Obj.magic(group): {..})
-        let files: array<string> = g["files"]
-        let _ = Js.Array.push(r.filename, files)
+        let files = Js.Dict.get(group, "files")->Option.flatMap(Js.Json.decodeArray)
+        switch files {
+        | Some(fArray) => let _ = Js.Array.push(castToJson(r.filename), fArray)
+        | None => ()
+        }
       }
     | None => {
-        let group = {
-          "exif": r.exif,
-          "files": [r.filename],
-        }
-        Dict.set(groups, sig, group)
+        let newGroup = Dict.make()
+        Dict.set(newGroup, "exif", r.exif)
+        Dict.set(newGroup, "files", castToJson([r.filename]))
+        
+        Dict.set(groups, sig, newGroup)
       }
     }
   })
 
   Belt.Array.forEach(Dict.toArray(groups), ((signature, data)) => {
-    let d = (Obj.magic(data): {..})
-    let files: array<string> = d["files"]
-    let exif = (Obj.magic(d["exif"]): {..})
+    let files = Js.Dict.get(data, "files")->Option.flatMap(Js.Json.decodeArray)->Option.getWithDefault([])->Belt.Array.map(j => Js.Json.decodeString(j)->Option.getWithDefault("Unknown"))
+    let exif = Js.Dict.get(data, "exif")->Option.flatMap(Js.Json.decodeObject)->Option.getWithDefault(Dict.make())
 
     let dashCount = max_int(0, 60 - String.length(signature))
     let dashes = String.repeat("─", dashCount)
     let _ = Js.Array.push(`  ┌─ ${signature} ─${dashes}`, lines)
     let _ = Js.Array.push(`  │  Images: ${Belt.Int.toString(Array.length(files))}`, lines)
 
-    switch Nullable.toOption(exif["focalLength"]) {
+    let getExifStr = (dict, key) => Js.Dict.get(dict, key)
+    let getExifNum = (dict, key) => Js.Dict.get(dict, key)->Option.flatMap(Js.Json.decodeNumber)
+    let getExifString = (dict, key) => Js.Dict.get(dict, key)->Option.flatMap(Js.Json.decodeString)
+
+    switch getExifNum(exif, "focalLength") {
     | Some(fl) => {
-        let focal: float = fl
-        let _ = Js.Array.push(`  │  Focal Length: ${Float.toFixed(focal, ~digits=1)}mm`, lines)
+        let _ = Js.Array.push(`  │  Focal Length: ${Float.toFixed(fl, ~digits=1)}mm`, lines)
       }
     | None => ()
     }
 
-    switch Nullable.toOption(exif["aperture"]) {
+    switch getExifNum(exif, "aperture") {
     | Some(ap) => {
-        let aperture: float = ap
-        let _ = Js.Array.push(`  │  Aperture: f/${Float.toFixed(aperture, ~digits=1)}`, lines)
+        let _ = Js.Array.push(`  │  Aperture: f/${Float.toFixed(ap, ~digits=1)}`, lines)
       }
     | None => ()
     }
 
-    switch Nullable.toOption(exif["iso"]) {
-    | Some(i) => {
-        let iso: int = i
-        let _ = Js.Array.push(`  │  ISO: ${Belt.Int.toString(iso)}`, lines)
+    switch getExifNum(exif, "iso") {
+    | Some(iso) => {
+        let _ = Js.Array.push(`  │  ISO: ${Belt.Int.toString(Belt.Int.fromFloat(iso))}`, lines)
       }
     | None => ()
     }
 
-    switch Nullable.toOption(exif["dateTime"]) {
+    switch getExifString(exif, "dateTime") {
     | Some(dt) => {
         let _ = Js.Array.push(`  │  Capture Period: ${dt}`, lines)
       }
@@ -411,20 +427,20 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
   let _ = Js.Array.push("", lines)
 
   Belt.Array.forEach(exifResults, r => {
-    let exifObj = (Obj.magic(r.exif): {..})
-    let qualityObj = (Obj.magic(r.quality): {..})
+    let exifObj = Js.Json.decodeObject(r.exif)->Option.getWithDefault(Dict.make())
+    let qualityObj = Js.Json.decodeObject(r.quality)->Option.getWithDefault(Dict.make())
 
-    let hasGPS = switch Nullable.toOption(exifObj["gps"]) {
+    let hasGPS = switch Js.Dict.get(exifObj, "gps") {
     | Some(_) => "✓ GPS"
     | None => "✗ No GPS"
     }
 
     let hasCamera = {
-      let make = switch Nullable.toOption(exifObj["make"]) {
+      let make = switch Js.Dict.get(exifObj, "make")->Option.flatMap(Js.Json.decodeString) {
       | Some(m) => m
       | None => ""
       }
-      let model = switch Nullable.toOption(exifObj["model"]) {
+      let model = switch Js.Dict.get(exifObj, "model")->Option.flatMap(Js.Json.decodeString) {
       | Some(m) => m
       | None => ""
       }
@@ -436,10 +452,9 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
       }
     }
 
-    let qScore = switch Nullable.toOption(qualityObj["score"]) {
+    let qScore = switch Js.Dict.get(qualityObj, "score")->Option.flatMap(Js.Json.decodeNumber) {
     | Some(s) => {
-        let score: float = s
-        `| Quality: ${Float.toFixed(score, ~digits=1)}/10`
+        `| Quality: ${Float.toFixed(s, ~digits=1)}/10`
       }
     | None => ""
     }
@@ -447,7 +462,7 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
     let _ = Js.Array.push(`  ${r.filename}`, lines)
     let _ = Js.Array.push(`    └─ ${hasCamera} | ${hasGPS} ${qScore}`, lines)
 
-    switch Nullable.toOption(qualityObj["analysis"]) {
+    switch Js.Dict.get(qualityObj, "analysis")->Option.flatMap(Js.Json.decodeString) {
     | Some(analysis) => {
         let _ = Js.Array.push(`       Note: ${analysis}`, lines)
       }
@@ -484,16 +499,11 @@ let downloadExifReport = (content: string): string => {
   let url = URL.createObjectURL(blob)
 
   let a = Dom.createElement("a")
-  let _ = (Obj.magic(a): {..})["href"] = url
-  let _ = (Obj.magic(a): {..})["download"] = filename
+  Dom.setAttribute(a, "href", url)
+  Dom.setAttribute(a, "download", filename)
   Dom.appendChild(Dom.documentBody, a)
-  let _ = (Obj.magic(a): {..})["click"]()
-  Dom.documentBody
-  ->Obj.magic
-  ->Dict.get("removeChild")
-  ->Belt.Option.forEach(fn => {
-    let _ = (Obj.magic(fn): Dom.element => unit)(a)
-  })
+  Dom.click(a)
+  Dom.removeElement(a)
 
   let _ = Window.setTimeout(() => URL.revokeObjectURL(url), 10000)
 

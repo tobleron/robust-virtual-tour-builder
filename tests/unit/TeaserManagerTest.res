@@ -1,4 +1,3 @@
-open ReBindings
 open TeaserManager
 
 let run = () => {

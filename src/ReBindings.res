@@ -8,6 +8,11 @@ module Blob = {
   @get external type_: t => string = "type"
 }
 
+module JsHelpers = {
+  @scope("Array") @val external from: 'a => array<'b> = "from"
+}
+
+
 module BrowserArrayBuffer = {
   type t = Js.Typed_array.ArrayBuffer.t
 }
@@ -77,8 +82,17 @@ module Pannellum = {
 module Dom = {
   type element
   type event
+  type nodeList
+  type dataTransfer
+  type style
   @send external preventDefault: event => unit = "preventDefault"
   @send external stopPropagation: event => unit = "stopPropagation"
+  @get external target: event => element = "target"
+  @get external key: event => string = "key"
+  @get external dataTransfer: event => dataTransfer = "dataTransfer"
+  @set external setEffectAllowed: (dataTransfer, string) => unit = "effectAllowed"
+  @set external setDropEffect: (dataTransfer, string) => unit = "dropEffect"
+  @send external setData: (dataTransfer, string, string) => unit = "setData"
   @val @scope("window") external document: {..} = "document"
   type rect = {
     x: float,
@@ -135,11 +149,40 @@ module Dom = {
   @get external getHeight: element => int = "height"
   @set external setHeight: (element, int) => unit = "height"
 
+  @get external getComputedStyle: element => {..} = "getComputedStyle" // moved scope to element for better usage? No, it's window method.
+  
+  @send @scope("style") external setProperty: (element, string, string) => unit = "setProperty"
+  @get external getStyle: element => style = "style" 
+  
   @get external getValue: element => string = "value"
+  @set external setValue: (element, string) => unit = "value"
   @send external focus: element => unit = "focus"
+  @send external click: element => unit = "click"
   @send external closest: (element, string) => Nullable.t<element> = "closest"
   @send
   external addEventListenerCapture: (element, string, 'a => unit, bool) => unit = "addEventListener"
+  
+  /* Added bindings */
+  @send external removeElement: element => unit = "remove"
+  @get external dataset: element => Js.Dict.t<string> = "dataset"
+  @set external setClassName: (element, string) => unit = "className"
+  @get external getClassName: element => string = "className"
+  @set external setTextContent: (element, string) => unit = "textContent"
+  @get external getTextContent: element => string = "textContent"
+  @set external setOnClick: (element, event => unit) => unit = "onclick"
+  @set external setOnScroll: (element, unit => unit) => unit = "onscroll"
+  @set external setOnKeyDown: (element, event => unit) => unit = "onkeydown"
+  @get external getScrollHeight: element => int = "scrollHeight"
+  @get external getScrollTop: element => int = "scrollTop"
+  @get external getClientHeight: element => int = "clientHeight"
+
+  @send external querySelectorAll: (element, string) => nodeList = "querySelectorAll"
+  @scope("document") @val external querySelectorAllDoc: string => nodeList = "querySelectorAll"
+  
+  @set external setDraggable: (element, bool) => unit = "draggable"
+  @send @scope("document") external createDocumentFragment: unit => element = "createDocumentFragment"
+  @val @scope("document") external head: element = "head"
+
 }
 
 module Canvas = {
@@ -222,6 +265,10 @@ module Window = {
   @val external window: {..} = "window"
   @val external alert: string => unit = "alert"
   @val external getComputedStyle: Dom.element => {..} = "getComputedStyle"
+  @val @scope("window") external innerHeight: int = "innerHeight"
+  @val @scope("window") external confirm: string => bool = "confirm"
+  @set external setOnError: ({..}, (string, string, int, int, {..}) => bool) => unit = "onerror"
+  @set external setOnUnhandledRejection: ({..}, {..} => unit) => unit = "onunhandledrejection"
 }
 
 

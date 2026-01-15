@@ -2,6 +2,11 @@ open ReBindings
 open ViewerTypes
 open ViewerState
 
+external castToString: 'a => string = "%identity"
+external castToBlob: 'a => Blob.t = "%identity"
+external castToDict: 'a => Js.Dict.t<'b> = "%identity"
+external asDynamic: 'a => {..} = "%identity"
+
 let getComputedOpacity = el => {
   let isNull: bool = %raw("el === null || el === undefined")
   if isNull {
@@ -15,11 +20,11 @@ let getComputedOpacity = el => {
 let getPanoramaUrl = (file: Types.file): string => {
   let isString: bool = %raw("typeof file === 'string'")
   if isString {
-    (Obj.magic(file): string)
+    castToString(file)
   } else {
     let isFile: bool = %raw("file instanceof File || file instanceof Blob")
     if isFile {
-      URL.createObjectURL(Obj.magic(file))
+      URL.createObjectURL(castToBlob(file))
     } else {
       ""
     }
@@ -209,9 +214,10 @@ module Loader = {
       /* Reuse Check */
       let shouldReuse = switch Nullable.toOption(inactiveViewer) {
       | Some(v) =>
-        let vid: string = Obj.magic(v)["_sceneId"]
+        let vDyn = asDynamic(v)
+        let vid: string = vDyn["_sceneId"]
         if vid == targetScene.id {
-          if Obj.magic(v)["_isLoaded"] {
+          if vDyn["_isLoaded"] {
             if GlobalStateBridge.getState().activeIndex == targetIndex && !isAnticipatory {
               performSwap(targetScene)
               true
@@ -372,15 +378,26 @@ module Loader = {
           }
 
           if !useProgressive {
-            let scenes = Obj.magic(viewerConfig)["scenes"]
-            Dict.set(Obj.magic(scenes), "preview", Nullable.toOption(Nullable.undefined))
-            Obj.magic(viewerConfig)["default"]["firstScene"] = "master"
+            let configDict = castToDict(viewerConfig)
+            switch Js.Dict.get(configDict, "scenes") {
+            | Some(scenes) => 
+                let scenesDict = castToDict(scenes)
+                Js.Dict.set(scenesDict, "preview", Nullable.toOption(Nullable.undefined)->Obj.magic) // Removing key essentially or setting undefined
+            | None => ()
+            }
+            
+             switch Js.Dict.get(configDict, "default") {
+            | Some(def) => 
+                let defDyn = asDynamic(def)
+                defDyn["firstScene"] = "master"
+            | None => ()
+            }
           }
 
           let _startLoadTime = Date.now()
           let newViewer = initializeViewer(containerId, viewerConfig)
-          Obj.magic(newViewer)["_sceneId"] = targetScene.id
-          Obj.magic(newViewer)["_isLoaded"] = false
+          asDynamic(newViewer)["_sceneId"] = targetScene.id
+          asDynamic(newViewer)["_isLoaded"] = false
 
           switch state.activeViewerKey {
           | A => state.viewerB = Nullable.make(newViewer)
@@ -421,7 +438,7 @@ module Loader = {
                 }
               })
             } else if !useProgressive || isMaster {
-              Obj.magic(newViewer)["_isLoaded"] = true
+              asDynamic(newViewer)["_isLoaded"] = true
               Logger.info(
                 ~module_="Viewer",
                 ~message="TEXTURE_LOADED",

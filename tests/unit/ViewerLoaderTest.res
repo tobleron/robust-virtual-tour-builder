@@ -1,6 +1,5 @@
 /* tests/unit/ViewerLoaderTest.res */
 open ViewerLoader
-open ReBindings
 
 // Mock for Pannellum
 %%raw(`
