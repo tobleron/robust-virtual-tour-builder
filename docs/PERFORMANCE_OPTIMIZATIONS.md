@@ -48,13 +48,13 @@ This document outlines potential performance bottlenecks and recommended optimiz
 
 ## 🛠️ Infrastructure & Build
 
-### 1. Modern Bundling (Vite)
-**Current State**: The project uses `npx live-server` and unbundled ES modules.
-**Optimization**: Migrate to **Vite**. 
+### 1. Modern Bundling (Rsbuild)
+**Status**: COMPLETED.
 **Benefits**:
 - Highly optimized production builds (tree-shaking, CSS minification).
-- Faster HMR (Hot Module Replacement) for development.
+- Faster HMR (Hot Module Replacement) for development via Rsbuild.
 - Built-in support for asset hashing (cache busting).
+- Proxying to backend for seamless development.
 
 ### 2. Web Worker Offloading
 **Optimization**: Move `JSZip` operations (which are currently blocking the main thread during exports) into a **Web Worker**.

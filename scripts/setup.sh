@@ -30,10 +30,10 @@ npm install
 echo "🏗️ Building ReScript modules..."
 npm run res:build
 
-# 4. Check for Cargo-Watch (used in start_dev.sh)
+# 4. Check for Cargo-Watch (Optional but recommended)
 if ! command -v cargo-watch &> /dev/null; then
-    echo "⚠️  cargo-watch is not installed. Technical: 'start_dev.sh' will fall back to 'cargo run'."
-    echo "💡 Run 'cargo install cargo-watch' for a better dev experience."
+    echo "⚠️  cargo-watch is not installed."
+    echo "💡 Run 'cargo install cargo-watch' for a better backend dev experience."
 fi
 
 # 5. Ensure logs directory exists and is writable
@@ -44,4 +44,4 @@ touch logs/.gitkeep
 # 6. Ensure bin directory exists for local binaries
 mkdir -p bin
 
-echo "✅ Setup complete! You can now run './start_dev.sh' to begin development."
+echo "✅ Setup complete! You can now run 'npm run dev' to begin development (remember to start the backend too)."
