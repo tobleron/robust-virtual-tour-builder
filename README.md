@@ -1,5 +1,7 @@
 # Remax Virtual Tour Builder (VTB)
 
+![CI](https://github.com/tobleron/robust-virtual-tour-builder/actions/workflows/ci.yml/badge.svg)
+
 A high-performance, professional-grade virtual tour creation platform designed for real estate and immersive space documentation. This application combines a fluid web-based frontend with a powerful Rust-driven backend to deliver seamless panoramic processing and tour management.
 
 **Directing Developer:** Arto Kalishian  
