@@ -235,3 +235,32 @@ Benefits:
 - HMR works for both CSS and ReScript changes
 - Automatic CSS injection with cache-busting
 - Fewer terminal windows required during development
+[2026-01-15 09:48] v4.2.86 - feat: finalize production build configuration
+
+- Enhanced rsbuild.config.mjs with production optimizations
+  • Output organized into dist/ with structured subdirectories
+  • Content-based hashing for cache busting
+  • Auto-clean dist folder before builds
+  • Source maps for production debugging
+  • Chunk splitting (split-by-experience strategy)
+  • Console.log removal in production
+  
+- Updated backend (main.rs) to serve from dist/
+  • Serves bundled assets from /static path
+  • Maintains /src/libs for lazy-loaded Pannellum
+  • Added SPA fallback route for client-side routing
+  • Preserves /images and /sounds for original assets
+  
+- Verified production build output
+  • Total bundle: 538.6 kB (156.2 kB gzipped)
+  • 71% size reduction via gzip compression
+  • Automatic vendor code splitting (React: 189.6 kB)
+  • All tests pass (Frontend: 49, Backend: 24, Integration: 2)
+  
+- Completed Task 108
+
+Benefits:
+- Ready for production deployment
+- Optimized bundles with minification
+- Efficient cache invalidation
+- SPA routing support
