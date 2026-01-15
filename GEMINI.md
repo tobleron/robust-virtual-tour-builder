@@ -5,7 +5,12 @@
    - **Commits**: You MUST use `./scripts/commit.sh` for all commits.
    - **Quality Gates**: A background sentinel monitors file sizes. If a source file exceeds 700 lines, a task is auto-generated in `tasks/pending`. YOU MUST prioritize these tasks.
    - **Mandatory Testing**: `npm test` MUST pass before ANY commit. `commit.sh` will auto-detect missing tests for new modules.
-   - **Code Standards**: Follow `/functional-standards` and `/debug-standards` for all code changes.
+   - **Code Standards (Routed)**:
+     - **ALWAYS READ FIRST**: `/functional-standards` (Universal Principles apply to ALL code).
+     - **THEN**, based on file type:
+       - For **ReScript** (`.res`, `.resi`): ALSO follow `/rescript-standards`.
+       - For **Rust** (`.rs`): ALSO follow `/rust-standards`.
+     - **ALWAYS**: Follow `/debug-standards` for logging.
    - **New Modules**: When creating new ReScript modules, follow `/new-module-standards`.
    - **Pre-Push**: You MUST complete `/pre-push-workflow` before pushing to remote.
 

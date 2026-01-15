@@ -28,12 +28,20 @@
 │   │   ├── models
 │   │   │   ├── errors.rs
 │   │   │   └── mod.rs
-│   │   ├── pathfinder.rs
+│   │   ├── pathfinder
+│   │   │   ├── algorithms.rs
+│   │   │   ├── graph.rs
+│   │   │   ├── mod.rs
+│   │   │   └── utils.rs
 │   │   └── services
 │   │       ├── geocoding.rs
 │   │       ├── media.rs
 │   │       ├── mod.rs
-│   │       ├── project.rs
+│   │       ├── project
+│   │       │   ├── load.rs
+│   │       │   ├── mod.rs
+│   │       │   ├── package.rs
+│   │       │   └── validate.rs
 │   │       ├── shutdown.rs
 │   │       ├── upload_quota_tests.rs
 │   │       └── upload_quota.rs
@@ -1420,6 +1428,7 @@
 │   │   ├── 12_ReScript_Migrate_UI_Components_REPORT.md
 │   │   ├── 120_Add_Meta_Description_OG_Tags.md
 │   │   ├── 121_Add_Prometheus_Metrics_REPORT.md
+│   │   ├── 122_Split_Large_Backend_Modules.md
 │   │   ├── 14_ReScript_Migrate_Viewer_REPORT.md
 │   │   ├── 15_Backend_SingleZIP_Load_REPORT.md
 │   │   ├── 16_Backend_Project_Validation_REPORT.md
@@ -1516,7 +1525,6 @@
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   ├── pending
-│   │   ├── 122_Split_Large_Backend_Modules.md
 │   │   ├── 123_Add_GitHub_Actions_CI.md
 │   │   ├── 124_Add_Tests_for_ReBindings.md
 │   │   ├── 125_Add_Tests_for_ExifReportGenerator.md
@@ -1571,4 +1579,4 @@
         ├── ViewerLoaderTest.bs.js
         └── ViewerLoaderTest.res
 
-46 directories, 1526 files
+48 directories, 1532 files

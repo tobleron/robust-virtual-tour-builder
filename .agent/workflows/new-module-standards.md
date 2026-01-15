@@ -131,4 +131,6 @@ Always include relevant context in log data:
 - [ ] Error logs include relevant context data
 - [ ] Message naming follows UPPER_SNAKE_CASE
 - [ ] New module has corresponding unit tests (see `/testing-standards`)
+- [ ] No `Obj.magic` except at API boundaries (see `/rescript-standards` Part 1)
+- [ ] All external APIs have proper bindings (see `/rescript-standards` Part 1)
 - [ ] `npm test` passes

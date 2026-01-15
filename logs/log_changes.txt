@@ -276,3 +276,23 @@ Benefits:
 [2026-01-15 11:49] v4.2.98 - Task 120: Add Meta Description, OG Tags, and fix public assets structure
 [2026-01-15 12:11] v4.2.100 - feat(backend): add Prometheus metrics endpoint (Task 121)
 [2026-01-15 12:12] v4.2.101 - feat(backend): add Prometheus metrics endpoint (Task 121)
+[2026-01-15 12:41] v4.2.103 - refactor: split large backend modules into focused sub-modules
+
+Split services/project.rs (535 lines) into:
+- validate.rs (165 lines): Project validation logic
+- load.rs (154 lines): Project loading and ZIP processing
+- package.rs (124 lines): Tour package creation
+- mod.rs (102 lines): Re-exports and tests
+
+Split pathfinder.rs (510 lines) into:
+- algorithms.rs (284 lines): Path calculation algorithms
+- utils.rs (86 lines): Helper functions
+- graph.rs (80 lines): Data structures
+- mod.rs (76 lines): Re-exports and tests
+
+All modules now under 300 lines for better maintainability.
+All tests pass. No breaking changes to public API.
+
+Also updated test detection script to recognize tests in parent mod.rs files.
+
+Closes #122
