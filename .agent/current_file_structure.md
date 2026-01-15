@@ -1375,6 +1375,8 @@
 │   │   ├── 106_Configure_Rsbuild_Entry.md
 │   │   ├── 107_Integrate_Tailwind_Rsbuild_REPORT.md
 │   │   ├── 107_Integrate_Tailwind_Rsbuild.md
+│   │   ├── 108_Finalize_Rsbuild_Prod_REPORT.md
+│   │   ├── 108_Finalize_Rsbuild_Prod.md
 │   │   ├── 11_ReScript_Migrate_ProjectManager_REPORT.md
 │   │   ├── 12_ReScript_Migrate_UI_Components_REPORT.md
 │   │   ├── 14_ReScript_Migrate_Viewer_REPORT.md
@@ -1473,7 +1475,6 @@
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   ├── pending
-│   │   ├── 108_Finalize_Rsbuild_Prod.md
 │   │   ├── 109_Cleanup_Legacy_Scripts.md
 │   │   ├── 110_Add_Tests_for_TeaserManager.md
 │   │   ├── 111_Add_Tests_for_TourTemplateAssets.md
@@ -1525,4 +1526,4 @@
         ├── UploadProcessorTest.bs.js
         └── UploadProcessorTest.res
 
-44 directories, 1482 files
+44 directories, 1483 files

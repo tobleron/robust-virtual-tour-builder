@@ -174,16 +174,19 @@ async fn main() -> io::Result<()> {
                 .route("/quota/stats", web::get().to(api::utils::quota_stats))
             )
 
-            // --- STATIC FILES (Serve Frontend directly) ---
-            // Allows running without Node.js/Vite
-            .service(fs::Files::new("/css", "../css"))
-            .service(fs::Files::new("/src", "../src"))
-            .service(fs::Files::new("/node_modules", "../node_modules"))
-            .service(fs::Files::new("/images", "../images")) // Optional, if you have an images folder
+            // --- STATIC FILES (Serve Production Build from dist/) ---
+            // Serve bundled assets from Rsbuild output
+            .service(fs::Files::new("/static", "../dist/static"))
+            .service(fs::Files::new("/images", "../images")) // Keep original assets
             .service(fs::Files::new("/sounds", "../sounds"))
+            .service(fs::Files::new("/src/libs", "../src/libs")) // Pannellum and other lazy-loaded libs
 
-            .route("/", web::get().to(|| async { fs::NamedFile::open("../index.html") }))
-            .route("/index.html", web::get().to(|| async { fs::NamedFile::open("../index.html") }))
+            // Serve index.html for root and handle SPA routing
+            .route("/", web::get().to(|| async { fs::NamedFile::open("../dist/index.html") }))
+            .default_service(web::get().to(|| async { 
+                // Fallback for SPA routing - serve index.html for all unmatched routes
+                fs::NamedFile::open("../dist/index.html") 
+            }))
     })
     .bind(("0.0.0.0", 8080))?
     .run();
