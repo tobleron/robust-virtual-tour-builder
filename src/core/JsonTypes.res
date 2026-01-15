@@ -75,3 +75,35 @@ type timelineUpdateJson = {
   transition: Nullable.t<string>,
   duration: Nullable.t<int>,
 }
+
+/* --- DECODERS (Middle ground: Type-checked casts) --- */
+
+external castToHotspots: JSON.t => array<hotspotJson> = "%identity"
+external castToProject: JSON.t => projectJson = "%identity"
+external castToProjectScene: JSON.t => projectSceneJson = "%identity"
+external castToImportScene: JSON.t => importSceneJson = "%identity"
+external castToTimelineItem: JSON.t => timelineItemJson = "%identity"
+external castToUpdateMetadata: JSON.t => updateMetadataJson = "%identity"
+external castToTimelineUpdate: JSON.t => timelineUpdateJson = "%identity"
+
+let decodeProject = (json: JSON.t): result<projectJson, string> => {
+  switch json {
+  | Object(_) => Ok(castToProject(json))
+  | _ => Error("Invalid project JSON")
+  }
+}
+
+let decodeImportScene = (json: JSON.t): result<importSceneJson, string> => {
+  switch json {
+  | Object(_) => Ok(castToImportScene(json))
+  | _ => Error("Invalid import scene JSON")
+  }
+}
+
+let decodeTimelineItem = (json: JSON.t): result<timelineItemJson, string> => {
+  switch json {
+  | Object(_) => Ok(castToTimelineItem(json))
+  | _ => Error("Invalid timeline item JSON")
+  }
+}
+

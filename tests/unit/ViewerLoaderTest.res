@@ -62,7 +62,10 @@ open ViewerLoader
   globalThis.window = {
     setTimeout: (cb, ms) => setTimeout(cb, ms),
     clearTimeout: (id) => clearTimeout(id),
-    getComputedStyle: () => ({ opacity: "1" }),
+    getComputedStyle: () => ({ 
+      opacity: "1",
+      getPropertyValue: function(prop) { return this[prop] || ""; }
+    }),
     pannellumViewer: null
   };
   globalThis.getComputedStyle = globalThis.window.getComputedStyle;

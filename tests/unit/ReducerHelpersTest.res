@@ -3,7 +3,7 @@ open Types
 open ReducerHelpers
 
 let run = () => {
-  Console.log("Running ReducerJson tests (Obj.magic elimination verification)...")
+  Console.log("Running ReducerHelpers tests (Obj.magic elimination verification)...")
 
   // Test 1: Full structure with hotspots and duration
   let json = JSON.parseOrThrow(`{

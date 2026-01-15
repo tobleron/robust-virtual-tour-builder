@@ -52,7 +52,20 @@ let parseHotspots = (hss: array<hotspotJson>): array<hotspot> => {
 }
 
 let parseScene = (dataJson: JSON.t): scene => {
-  let data: importSceneJson = Obj.magic(dataJson)
+  let data = switch decodeImportScene(dataJson) {
+  | Ok(d) => d
+  | Error(_) => 
+      // Fallback/Default for invalid data
+      {
+        id: "error_" ++ Float.toString(Date.now()),
+        name: "invalid.webp",
+        preview: JSON.Encode.null,
+        tiny: Nullable.null,
+        original: Nullable.null,
+        quality: Nullable.null,
+        colorGroup: Nullable.null,
+      }
+  }
   {
     id: data.id,
     name: data.name,
@@ -74,7 +87,10 @@ let parseScene = (dataJson: JSON.t): scene => {
 }
 
 let parseProject = (projectDataJson: JSON.t): state => {
-  let pd: projectJson = Obj.magic(projectDataJson)
+  let pd = switch decodeProject(projectDataJson) {
+  | Ok(p) => p
+  | Error(_) => {tourName: Nullable.null, scenes: []}
+  }
   let tourName = switch Nullable.toOption(pd.tourName) {
   | Some(tn) => tn
   | None => "Imported Tour"
@@ -141,7 +157,18 @@ let parseProject = (projectDataJson: JSON.t): state => {
 }
 
 let parseTimelineItem = (json: JSON.t): timelineItem => {
-  let item: timelineItemJson = Obj.magic(json)
+  let item = switch decodeTimelineItem(json) {
+  | Ok(i) => i
+  | Error(_) => 
+      {
+        id: "",
+        linkId: "",
+        sceneId: "",
+        targetScene: "",
+        transition: "fade",
+        duration: 1000,
+      }
+  }
   {
     id: item.id,
     linkId: item.linkId,
@@ -247,8 +274,10 @@ let handleDeleteScene = (state: state, index: int): state => {
 
 let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
   let newScenes = Belt.Array.reduce(scenesData, state.scenes, (acc, dataJson) => {
-    let data: importSceneJson = Obj.magic(dataJson)
-    let id = data.id
+    let id = switch decodeImportScene(dataJson) {
+    | Ok(data) => data.id
+    | Error(_) => "error_" ++ Float.toString(Date.now())
+    }
     if Belt.Array.some(acc, s => s.id == id) {
       acc
     } else {
@@ -277,7 +306,7 @@ let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
 
 let handleUpdateSceneMetadata = (state: state, index: int, metaJson: JSON.t): state => {
   let scenes = state.scenes
-  let metaObj: updateMetadataJson = Obj.magic(metaJson)
+  let metaObj = castToUpdateMetadata(metaJson)
 
   let newScenes = Belt.Array.mapWithIndex(scenes, (i, s) => {
     if i == index {
@@ -298,7 +327,7 @@ let handleUpdateSceneMetadata = (state: state, index: int, metaJson: JSON.t): st
 }
 
 let handleUpdateTimelineStep = (state: state, id: string, dataJson: JSON.t): state => {
-  let data: timelineUpdateJson = Obj.magic(dataJson)
+  let data = castToTimelineUpdate(dataJson)
   let newTimeline = Belt.Array.map(state.timeline, t => {
     if t.id == id {
       {

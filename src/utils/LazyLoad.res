@@ -9,8 +9,8 @@ let fileSaverLoaded: ref<bool> = ref(false)
 let loadScript = (src: string) => {
   Promise.make((resolve, _reject) => {
     /* Check if script is already in document to be safe */
-    let scripts = (Obj.magic(Dom.document)["querySelectorAll"]("script[src=\"" ++ src ++ "\"]"))
-    let scriptsCount: int = Obj.magic(scripts)["length"]
+    let scripts = Dom.querySelectorAllDoc("script[src=\"" ++ src ++ "\"]")
+    let scriptsCount = Dom.nodeListLength(scripts)
     if scriptsCount > 0 {
 
        resolve()

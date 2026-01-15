@@ -66,12 +66,7 @@ let calculateSmartArrivalTarget = (scenes: array<scene>, targetIndex: int) => {
 let getCurrentView = () => {
   switch Nullable.toOption(ReBindings.Viewer.instance) {
   | Some(v) =>
-    /* Paranoid check: if somehow it's still null in JS land */
-    if (Obj.magic(v): Nullable.t<unit>) == Nullable.null {
-      (0.0, 0.0, 90.0)
-    } else {
-      (ReBindings.Viewer.getYaw(v), ReBindings.Viewer.getPitch(v), ReBindings.Viewer.getHfov(v))
-    }
+    (ReBindings.Viewer.getYaw(v), ReBindings.Viewer.getPitch(v), ReBindings.Viewer.getHfov(v))
   | None => (0.0, 0.0, 90.0)
   }
 }

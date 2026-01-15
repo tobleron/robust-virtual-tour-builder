@@ -34,13 +34,14 @@ type timedResult<'a> = {
 
 type operationResult<'a> = result<'a, string>
 
+external castToJson: 'a => JSON.t = "%identity"
+external asDynamic: 'a => {..} = "%identity"
+
 let optToNullable = (opt: option<'a>): Nullable.t<'a> =>
   switch opt {
   | Some(v) => Nullable.make(v)
   | None => Nullable.null
   }
-
-external castToJson: 'a => JSON.t = "%identity"
 
 // =============================================================================
 // STATE & CONSTANTS
@@ -230,11 +231,12 @@ let perf = (~module_, ~message, ~durationMs, ~data: 'a=?, ()) => {
   let emoji = if durationMs > 500.0 { "🐢" } else if durationMs > 100.0 { "⏱️" } else { "⚡" }
   let level = if durationMs > 500.0 { Warn } else if durationMs > 100.0 { Info } else { Debug }
   
-  let perfData = switch data {
-  | Some(d) => Some(Object.assign(Object.make(), Obj.magic(d)))
-  | None => Some(Object.make())
+  let pd = switch data {
+  | Some(d) => 
+      let obj = Object.assign(Object.make(), asDynamic(d))
+      asDynamic(obj)
+  | None => asDynamic(Object.make())
   }
-  let pd: {..} = Obj.magic(perfData->Option.getOr(Object.make()))
   pd["durationMs"] = durationMs
   pd["threshold"] = threshold
 
@@ -312,6 +314,8 @@ let toggle = () => {
   enabled.contents
 }
 
+external asDynamic: 'a => {..} = "%identity"
+
 // =============================================================================
 // GLOBAL BINDINGS (INIT)
 // =============================================================================
@@ -327,8 +331,8 @@ let init = () => {
     "clear": () => { %raw(`entries.length = 0`) },
     "isEnabled": () => enabled.contents,
   }
-  (Obj.magic(Window.window))["DEBUG"] = debugObj
-  (Obj.magic(Window.window))["appLog"] = appLog
+  Window.setDebug(Window.window, asDynamic(debugObj))
+  Window.setAppLog(Window.window, appLog)
 
   /* Intercept Global Errors */
   Window.setOnError(Window.window, (msg, url, line, col, _error) => {

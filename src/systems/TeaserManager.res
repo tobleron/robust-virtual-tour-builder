@@ -56,8 +56,8 @@ let waitForViewerReady = async (sceneId: string) => {
         let _cfg = Viewer.getConfig(v)
         /* Rough check: if we can access config, it's likely initialized */
         /* Real check: if (v.isLoaded() && v.getScene() == sceneId) */
-        let isLoaded: bool = Obj.magic(v)["isLoaded"]()
-        let currentScene: string = Obj.magic(v)["getScene"]()
+        let isLoaded = Viewer.isLoaded(v)
+        let currentScene = Viewer.getScene(v)
 
         if isLoaded && currentScene == sceneId {
           /* Wait for canvas render - rough heuristic */
@@ -306,7 +306,7 @@ let finalizeTeaser = async (format: string, baseName: string) => {
       DownloadSystem.saveBlob(blob, baseName ++ ".webm")
     } else if format == "mp4" {
       try {
-        await VideoEncoder.transcodeWebMToMP4(Obj.magic(blob), baseName, Some((_pct, _msg) => ()))
+        await VideoEncoder.transcodeWebMToMP4(blob, baseName, Some((_pct, _msg) => ()))
         /* Success notification? */
       } catch {
       | JsExn(e) => {
