@@ -1177,7 +1177,9 @@
 │   │   └── VisualPipeline.res
 │   └── rescript.lock
 ├── logs
-│   └── log_changes.txt
+│   ├── error.log
+│   ├── log_changes.txt
+│   └── telemetry.log
 ├── manifest.json
 ├── package-lock.json
 ├── package.json
@@ -1410,6 +1412,7 @@
 │   │   ├── 115_Add_Tests_ViewerLoader_Navigation.md
 │   │   ├── 116_Update_ServiceWorker_Cache_Paths.md
 │   │   ├── 117_Add_OpenAPI_Documentation.md
+│   │   ├── 118_Run_Accessibility_Audit.md
 │   │   ├── 12_ReScript_Migrate_UI_Components_REPORT.md
 │   │   ├── 14_ReScript_Migrate_Viewer_REPORT.md
 │   │   ├── 15_Backend_SingleZIP_Load_REPORT.md
@@ -1507,7 +1510,6 @@
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   ├── pending
-│   │   ├── 118_Run_Accessibility_Audit.md
 │   │   ├── 119_Eliminate_ObjMagic_Patterns.md
 │   │   ├── 120_Add_Meta_Description_OG_Tags.md
 │   │   ├── 121_Add_Prometheus_Metrics.md
@@ -1562,4 +1564,4 @@
         ├── ViewerLoaderTest.bs.js
         └── ViewerLoaderTest.res
 
-44 directories, 1519 files
+44 directories, 1521 files
