@@ -80,11 +80,11 @@ module Pannellum = {
 
 /* DOM Bindings needed for some UI updates */
 module Dom = {
-  type element
-  type event
-  type nodeList
-  type dataTransfer
-  type style
+  type element = Dom.element
+  type event = Dom.event
+  type nodeList = Dom.nodeList
+  type dataTransfer = Dom.dataTransfer
+  type style = Dom.cssStyleDeclaration
   @send external preventDefault: event => unit = "preventDefault"
   @send external stopPropagation: event => unit = "stopPropagation"
   @get external target: event => element = "target"
@@ -131,8 +131,8 @@ module Dom = {
   @set @scope("style") external setDisplay: (element, string) => unit = "display"
   @set @scope("style") external setMaxHeight: (element, string) => unit = "maxHeight"
   @set @scope("style") external setBackgroundColor: (element, string) => unit = "backgroundColor"
-  @set @scope("style") external setTransition: (element, string) => unit = "transition"
-  @set @scope("style") external setBackgroundImage: (element, string) => unit = "backgroundImage"
+  @set external setTransition: (element, string) => unit = "transition"
+  @set external setBackgroundImage: (element, string) => unit = "backgroundImage"
 
   @get external classList: element => {..} = "classList"
 
@@ -142,6 +142,7 @@ module Dom = {
   @send external appendChild: (element, element) => unit = "appendChild"
   @send external addEventListener: (element, string, event => unit) => unit = "addEventListener"
   @send external addEventListenerNoEv: (element, string, unit => unit) => unit = "addEventListener"
+  @send external removeEventListener: (element, string, event => unit) => unit = "removeEventListener"
   @scope("document") @val external documentBody: element = "body"
 
   @get external getWidth: element => int = "width"
@@ -149,7 +150,7 @@ module Dom = {
   @get external getHeight: element => int = "height"
   @set external setHeight: (element, int) => unit = "height"
 
-  @get external getComputedStyle: element => {..} = "getComputedStyle" // moved scope to element for better usage? No, it's window method.
+  @get external getComputedStyle: element => {..} = "getComputedStyle" 
   
   @send @scope("style") external setProperty: (element, string, string) => unit = "setProperty"
   @get external getStyle: element => style = "style" 
@@ -175,6 +176,8 @@ module Dom = {
   @get external getScrollHeight: element => int = "scrollHeight"
   @get external getScrollTop: element => int = "scrollTop"
   @get external getClientHeight: element => int = "clientHeight"
+  @get external getClientWidth: element => int = "clientWidth"
+  @get external getOffsetTop: element => int = "offsetTop"
 
   @send external querySelectorAll: (element, string) => nodeList = "querySelectorAll"
   @scope("document") @val external querySelectorAllDoc: string => nodeList = "querySelectorAll"
@@ -183,6 +186,18 @@ module Dom = {
   @send @scope("document") external createDocumentFragment: unit => element = "createDocumentFragment"
   @val @scope("document") external head: element = "head"
 
+}
+
+module ResizeObserver = {
+  type t
+  type entry = {
+    target: Dom.element,
+    contentRect: Dom.rect,
+  }
+  @new external make: (array<entry> => unit) => t = "ResizeObserver"
+  @send external observe: (t, Dom.element) => unit = "observe"
+  @send external unobserve: (t, Dom.element) => unit = "unobserve"
+  @send external disconnect: t => unit = "disconnect"
 }
 
 module Canvas = {
