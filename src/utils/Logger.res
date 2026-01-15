@@ -40,6 +40,8 @@ let optToNullable = (opt: option<'a>): Nullable.t<'a> =>
   | None => Nullable.null
   }
 
+external castToJson: 'a => JSON.t = "%identity"
+
 // =============================================================================
 // STATE & CONSTANTS
 // =============================================================================
@@ -104,19 +106,19 @@ let showDebugBadge = () => {
   if Option.isNone(existing) {
     let badge = Dom.createElement("div")
     Dom.setId(badge, "debug-badge")
-    let _ = (Obj.magic(badge): {..})["textContent"] = "🐛 DEBUG"
+    Dom.setTextContent(badge, "🐛 DEBUG")
     let style = "position: fixed; bottom: 20px; right: 20px; background: #1e293b; color: #10b981; padding: 6px 12px; border-radius: 8px; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 11px; letter-spacing: 0.05em; z-index: 99999; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 1px solid rgba(16, 185, 129, 0.2); animation: debug-fade-in 0.3s ease-out;"
     Dom.setAttribute(badge, "style", style)
 
     if Option.isNone(Dom.getElementById("debug-styles")->Nullable.toOption) {
       let s = Dom.createElement("style")
       Dom.setId(s, "debug-styles")
-      let _ = (Obj.magic(s): {..})["textContent"] = "
+      Dom.setTextContent(s, "
                 @keyframes debug-fade-in {
                     from { opacity: 0; transform: translateY(10px); }
                     to { opacity: 1; transform: translateY(0); }
                 }
-            "
+            ")
       Dom.appendChild(Dom.documentBody, s)
     }
     Dom.appendChild(doc, badge)
@@ -125,7 +127,7 @@ let showDebugBadge = () => {
 
 let hideDebugBadge = () => {
   switch Dom.getElementById("debug-badge")->Nullable.toOption {
-  | Some(b) => (Obj.magic(b): {..})["remove"]()
+  | Some(b) => Dom.removeElement(b)
   | None => ()
   }
 }
@@ -143,8 +145,9 @@ let sendTelemetry = async entry => {
         Constants.backendUrl ++ endpoint,
         {
           method: "POST",
+
           headers: Nullable.make(Dict.fromArray([("Content-Type", "application/json")])),
-          body: Nullable.make(JSON.stringify(Obj.magic(entry))),
+          body: Nullable.make(JSON.stringify(castToJson(entry))),
         },
       )
     } catch {
@@ -163,7 +166,7 @@ let log = (~module_: string, ~level: level, ~message: string, ~data: 'a=?, ()): 
     module_,
     level: levelToString(level),
     message,
-    data: (Obj.magic(data): option<JSON.t>),
+    data: data->Option.map(castToJson),
   }
 
   let _ = Js.Array.push(entry, entries)
@@ -207,7 +210,7 @@ let log = (~module_: string, ~level: level, ~message: string, ~data: 'a=?, ()): 
         }
       `)
 
-      callConsole(consoleMethod, prefix, prefixStyle, resetStyle, message, data->optToNullable->Obj.magic)
+      callConsole(consoleMethod, prefix, prefixStyle, resetStyle, message, data->Option.map(castToJson)->optToNullable)
     }
   }
 }
@@ -235,7 +238,7 @@ let perf = (~module_, ~message, ~durationMs, ~data: 'a=?, ()) => {
   pd["durationMs"] = durationMs
   pd["threshold"] = threshold
 
-  log(~module_, ~level, ~message=`${emoji} ${message} (${Float.toFixed(durationMs, ~digits=2)}ms)`, ~data=?Some(Obj.magic(pd)), ())
+  log(~module_, ~level, ~message=`${emoji} ${message} (${Float.toFixed(durationMs, ~digits=2)}ms)`, ~data=?Some(castToJson(pd)), ())
 }
 
 let timed = (~module_: string, ~operation: string, fn: unit => 'a): timedResult<'a> => {
@@ -258,11 +261,11 @@ let attempt = (~module_: string, ~operation: string, fn: unit => 'a): operationR
   try { Ok(fn()) } catch {
   | JsExn(e) => {
       let msg = e->JsExn.message->Option.getOr("Unknown error")
-      error(~module_, ~message=`${operation}_FAILED`, ~data=Obj.magic({"error": msg, "stack": e->JsExn.stack}), ())
+      error(~module_, ~message=`${operation}_FAILED`, ~data=castToJson({"error": msg, "stack": e->JsExn.stack}), ())
       Error(msg)
     }
   | _ => {
-      error(~module_, ~message=`${operation}_FAILED`, ~data=Obj.magic({"error": "Unknown exception"}), ())
+      error(~module_, ~message=`${operation}_FAILED`, ~data=castToJson({"error": "Unknown exception"}), ())
       Error("Unknown exception")
     }
   }
@@ -272,11 +275,11 @@ let attemptAsync = async (~module_: string, ~operation: string, fn: unit => prom
   try { Ok(await fn()) } catch {
   | JsExn(e) => {
       let msg = e->JsExn.message->Option.getOr("Unknown error")
-      error(~module_, ~message=`${operation}_FAILED`, ~data=Obj.magic({"error": msg, "stack": e->JsExn.stack}), ())
+      error(~module_, ~message=`${operation}_FAILED`, ~data=castToJson({"error": msg, "stack": e->JsExn.stack}), ())
       Error(msg)
     }
   | _ => {
-      error(~module_, ~message=`${operation}_FAILED`, ~data=Obj.magic({"error": "Unknown exception"}), ())
+      error(~module_, ~message=`${operation}_FAILED`, ~data=castToJson({"error": "Unknown exception"}), ())
       Error("Unknown exception")
     }
   }
@@ -328,18 +331,18 @@ let init = () => {
   (Obj.magic(Window.window))["appLog"] = appLog
 
   /* Intercept Global Errors */
-  (Obj.magic(Window.window))["onerror"] = (msg, url, line, col, _error) => {
-    error(~module_="Window", ~message="UNCAUGHT_ERROR", ~data=Obj.magic({
+  Window.setOnError(Window.window, (msg, url, line, col, _error) => {
+    error(~module_="Window", ~message="UNCAUGHT_ERROR", ~data=castToJson({
       "message": msg, "url": url, "line": line, "col": col
     }), ())
     false
-  }
+  })
 
-  (Obj.magic(Window.window))["onunhandledrejection"] = (event) => {
-    error(~module_="Window", ~message="UNHANDLED_REJECTION", ~data=Obj.magic({
+  Window.setOnUnhandledRejection(Window.window, (event) => {
+    error(~module_="Window", ~message="UNHANDLED_REJECTION", ~data=castToJson({
       "reason": event["reason"]
     }), ())
-  }
+  })
 
   initialized(~module_="Logger")
   if enabled.contents { showDebugBadge() }

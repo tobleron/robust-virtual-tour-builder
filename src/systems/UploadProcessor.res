@@ -6,6 +6,9 @@ open Types
 /* Using ReBindings.File directly */
 type file = ReBindings.File.t
 
+external castToJson: 'a => JSON.t = "%identity"
+external castToDict: JSON.t => Js.Dict.t<JSON.t> = "%identity"
+
 /* Bindings for External Systems */
 /* Bindings for External Systems */
 /* Direct usage of Resizer module which is now native ReScript */
@@ -197,8 +200,8 @@ let processUploads = (
                   res => {
                     item.preview = Some(res.preview)
                     item.tiny = res.tiny
-                    item.metadata = Some(Obj.magic(res.metadata))
-                    item.quality = Some(Obj.magic(res.quality))
+                    item.metadata = Some(castToJson(res.metadata))
+                    item.quality = Some(castToJson(res.quality))
                     
                     let qObj = res.quality
                     Logger.debug(~module_="Upload", ~message="QUALITY_ANALYSIS", ~data=Some({
@@ -411,32 +414,16 @@ let processUploads = (
                       )
                       Dict.set(obj, "originalName", File.name(item.original)->JSON.Encode.string)
                       Dict.set(obj, "name", File.name(preview)->JSON.Encode.string)
+                      
+                      // Using unsafe cast to mix types in dict for JSON payload - essentially treated as {..} by consumer
+                      Js.Dict.set(obj, "original", castToJson(item.original))
+                      Js.Dict.set(obj, "preview", castToJson(preview))
+                      Js.Dict.set(obj, "tiny", castToJson(tiny))
+                      Js.Dict.set(obj, "quality", Option.getOr(item.quality, JSON.Encode.null))
+                      Js.Dict.set(obj, "metadata", Option.getOr(item.metadata, JSON.Encode.null))
+                      Js.Dict.set(obj, "colorGroup", JSON.Encode.string(Option.getOr(item.colorGroup, "0")))
 
-                      let unsafeObj = (
-                        Obj.magic(obj): {
-                          "id": string,
-                          "originalName": string,
-                          "name": string,
-                          "original": file,
-                          "preview": file,
-                          "tiny": file,
-                          "quality": JSON.t,
-                          "metadata": JSON.t,
-                          "colorGroup": string,
-                        }
-                      )
-
-                      Obj.magic(unsafeObj)["original"] = item.original
-                      Obj.magic(unsafeObj)["preview"] = preview
-                      Obj.magic(unsafeObj)["tiny"] = tiny
-                      Obj.magic(unsafeObj)["quality"] = Option.getOr(item.quality, JSON.Encode.null)
-                      Obj.magic(unsafeObj)["metadata"] = Option.getOr(
-                        item.metadata,
-                        JSON.Encode.null,
-                      )
-                      Obj.magic(unsafeObj)["colorGroup"] = Option.getOr(item.colorGroup, "0")
-
-                      (Obj.magic(unsafeObj): JSON.t)
+                      castToJson(obj)
                     })
 
                     GlobalStateBridge.dispatch(AddScenes(jsonPayload))
@@ -445,7 +432,7 @@ let processUploads = (
 
                     let reportData = Belt.Array.map(validProcessed, i => {
                       let item: ExifReportGenerator.sceneDataItem = {
-                        original: Obj.magic(i.original),
+                        original: i.original,
                         metadata: i.metadata,
                         quality: i.quality,
                       }

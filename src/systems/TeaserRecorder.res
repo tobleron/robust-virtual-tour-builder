@@ -22,6 +22,17 @@ type blob = ReBindings.Blob.t
 @get external state: mediaRecorder => string = "state"
 @set external ondataavailable: (mediaRecorder, {..} => unit) => unit = "ondataavailable"
 @set external onstop: (mediaRecorder, unit => unit) => unit = "onstop"
+@send external pause: mediaRecorder => unit = "pause"
+@send external resume: mediaRecorder => unit = "resume"
+
+/* Canvas Context Extension */
+@send external drawImageScaled: (ReBindings.Canvas.context2d, ReBindings.Dom.element, float, float, float, float) => unit = "drawImage"
+@send external drawImagePos: (ReBindings.Canvas.context2d, ReBindings.Dom.element, float, float) => unit = "drawImage"
+@send external drawImageFull: (ReBindings.Canvas.context2d, ReBindings.Dom.element, float, float, float, float, float, float, float, float) => unit = "drawImage"
+
+external asDynamic: 'a => {..} = "%identity"
+external castToBlob: 'a => blob = "%identity"
+
 
 /* Image Loading Helper */
 type logoResult = {
@@ -38,11 +49,11 @@ let loadLogo = () => {
     let onError = () => resolve({img: None, loaded: false})
 
     /* Quick hack for events on img element which are not bound in ReBindings generic */
-    let setOnLoad: (ReBindings.Dom.element, unit => unit) => unit = (e, f) => {
-      Obj.magic(e)["onload"] = f
+    let setOnLoad = (e, f) => {
+      asDynamic(e)["onload"] = f
     }
-    let setOnError: (ReBindings.Dom.element, unit => unit) => unit = (e, f) => {
-      Obj.magic(e)["onerror"] = f
+    let setOnError = (e, f) => {
+      asDynamic(e)["onerror"] = f
     }
 
     setOnLoad(img, onLoad)
@@ -158,8 +169,9 @@ let renderWatermark = (ctx: ReBindings.Canvas.context2d, logoImg: ReBindings.Dom
   ReBindings.Canvas.setFillStyle(ctx, "#ffffff")
   ReBindings.Canvas.beginPath(ctx)
   let checkRoundRect: 'a => bool = %raw("function(x) { return typeof x === 'function'; }")
-  if checkRoundRect(Obj.magic(ctx)["roundRect"]) {
-    ReBindings.Canvas.roundRect(ctx, boxX, boxY, boxWidth, boxHeight, borderRadius)
+  if checkRoundRect(asDynamic(ctx)["roundRect"]) {
+    let roundRect: (ReBindings.Canvas.context2d, float, float, float, float, float) => unit = %raw("(ctx, x, y, w, h, r) => ctx.roundRect(x,y,w,h,r)")
+    roundRect(ctx, boxX, boxY, boxWidth, boxHeight, borderRadius)
   } else {
     ReBindings.Canvas.rect(ctx, boxX, boxY, boxWidth, boxHeight)
   }
@@ -174,16 +186,7 @@ let renderWatermark = (ctx: ReBindings.Canvas.context2d, logoImg: ReBindings.Dom
   let imgX = boxX +. padding
   let imgY = boxY +. padding
 
-  /* drawImage with 5 args */
-  let drawImage5: (
-    ReBindings.Canvas.context2d,
-    ReBindings.Dom.element,
-    float,
-    float,
-    float,
-    float,
-  ) => unit = Obj.magic(ReBindings.Canvas.drawImage)
-  drawImage5(ctx, logoImg, imgX, imgY, logoWidth, logoHeight)
+  drawImageScaled(ctx, logoImg, imgX, imgY, logoWidth, logoHeight)
 
   ReBindings.Canvas.restore(ctx)
 }
@@ -220,15 +223,7 @@ let renderFrame = (
       ReBindings.Canvas.setFillStyle(ctx, "#000")
       ReBindings.Canvas.fillRect(ctx, 0.0, 0.0, dw, dh)
 
-      let drawImage5: (
-        ReBindings.Canvas.context2d,
-        ReBindings.Dom.element,
-        float,
-        float,
-        float,
-        float,
-      ) => unit = Obj.magic(ReBindings.Canvas.drawImage)
-      drawImage5(ctx, sourceCanvas, rx, ry, rw, rh)
+      drawImageScaled(ctx, sourceCanvas, rx, ry, rw, rh)
 
       /* Snapshot Overlay */
       if internalState.fadeOpacity > 0.01 {
@@ -236,13 +231,9 @@ let renderFrame = (
         | Some(snap) =>
           ReBindings.Canvas.save(ctx)
           ReBindings.Canvas.setGlobalAlpha(ctx, internalState.fadeOpacity)
-          let drawImage3: (
-            ReBindings.Canvas.context2d,
-            ReBindings.Dom.element,
-            float,
-            float,
-          ) => unit = Obj.magic(ReBindings.Canvas.drawImage)
-          drawImage3(ctx, snap, 0.0, 0.0)
+          ReBindings.Canvas.save(ctx)
+          ReBindings.Canvas.setGlobalAlpha(ctx, internalState.fadeOpacity)
+          drawImagePos(ctx, snap, 0.0, 0.0)
           ReBindings.Canvas.restore(ctx)
         | None => ()
         }
@@ -329,7 +320,7 @@ let startRecording = () => {
 
         recorder->ondataavailable(event => {
           if event["data"]["size"] > 0 {
-            let b = (Obj.magic(event["data"]): blob)
+            let b = castToBlob(event["data"])
             Logger.trace(
               ~module_="TeaserRecorder",
               ~message="DATA_AVAILABLE",
@@ -362,7 +353,7 @@ let pauseRecording = () => {
   | Some(r) =>
     let state = state(r)
     if state == "recording" {
-      Obj.magic(r)["pause"]()
+      pause(r)
     }
   | None => ()
   }
@@ -373,7 +364,7 @@ let resumeRecording = () => {
   | Some(r) =>
     let state = state(r)
     if state == "paused" {
-      Obj.magic(r)["resume"]()
+      resume(r)
     }
   | None => ()
   }

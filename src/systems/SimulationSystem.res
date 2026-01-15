@@ -2,6 +2,9 @@ open Types
 module Nav = SimulationNavigation
 open SimulationChainSkipper
 
+external castToJson: 'a => JSON.t = "%identity"
+external asDynamic: 'a => {..} = "%identity"
+
 // --- STATE ---
 // --- STATE ---
 type simulationState = {
@@ -39,7 +42,7 @@ let reduceSimulation = (state: simulationState, action: simulationAction): simul
   Logger.debug(
     ~module_="Simulation",
     ~message="STATE_TRANSITION",
-    ~data=Some(Obj.magic({"action": action, "prevState": state})),
+    ~data=Some(castToJson({"action": action, "prevState": state})),
     ()
   )
 
@@ -93,7 +96,8 @@ let reduceSimulation = (state: simulationState, action: simulationAction): simul
   Logger.debug(
     ~module_="Simulation",
     ~message="STATE_UPDATED",
-    ~data=Some(Obj.magic({"newState": newState})),
+
+    ~data=Some(castToJson({"newState": newState})),
     ()
   )
 
@@ -116,13 +120,14 @@ module Date = {
   @val @scope("Date") external now: unit => float = "now"
 }
 
+
+
 // --- LOGIC ---
-
-
 
 let isAutoPilotActive = () => simStore.contents.isAutoPilot
 try {
-  ignore(Obj.magic(window)["isAutoPilotActive"] = isAutoPilotActive)
+  let w = asDynamic(window)
+  w["isAutoPilotActive"] = isAutoPilotActive
 } catch {
 | _ => ()
 }
@@ -147,24 +152,34 @@ let stopAutoPilotLogic = returnToStart => {
     Navigation.setSimulationMode(GlobalStateBridge.dispatch, GlobalStateBridge.getState(), false)
 
     // Remove class from body
-    ignore(Obj.magic(document)["body"]["classList"]["remove"]("auto-pilot-active"))
+    // Using ReBindings.Dom.classList on document body if available, or dynamic access
+    // ReBindings doesn't expose document.body directly as element without casting usually, or maybe it does
+    // ReBindings: @val @scope("document") external documentBody: element = "body"
+    
+    ReBindings.Dom.remove(ReBindings.Dom.documentBody, "auto-pilot-active")
 
     // Reset toggle button appearance
-    let simToggle = Obj.magic(document)["getElementById"]("v-scene-sim-toggle")
-    if Obj.magic(simToggle) != Nullable.null {
-      ignore(
-        simToggle["textContent"] = "",
-      )
-      
-      let span = document["createElement"]("span")
-      ignore(span["className"] = "material-icons")
-      ignore(span["style"]["fontSize"] = "22px")
-      ignore(span["style"]["color"] = "white")
-      ignore(span["textContent"] = "play_arrow")
-      ignore(simToggle["appendChild"](span))
-      ignore(simToggle["style"]["removeProperty"]("background-color"))
-      ignore(simToggle["style"]["setProperty"]("background-color", "#10b981", "important"))
-      ignore(simToggle["title"] = "Start Auto-Pilot Simulation")
+    let simToggle = ReBindings.Dom.getElementById("v-scene-sim-toggle")
+    switch Nullable.toOption(simToggle) {
+    | Some(el) => 
+        ReBindings.Dom.setTextContent(el, "")
+        
+        // ReBindings.Dom.style is not easily exposed for removeProperty/setProperty without casting to dynamic style object usually?
+        // ReBindings has setStyleProperty? No.
+        // Let's use asDynamic for style operations for now or generic bindings
+        let style = asDynamic(el)["style"]
+        
+        let span = ReBindings.Dom.createElement("span")
+        ReBindings.Dom.setClassName(span, "material-icons")
+        asDynamic(span)["style"]["fontSize"] = "22px"
+        asDynamic(span)["style"]["color"] = "white"
+        ReBindings.Dom.setTextContent(span, "play_arrow")
+        ReBindings.Dom.appendChild(el, span)
+        
+        style["removeProperty"]("background-color")
+        style["setProperty"]("background-color", "#10b981", "important")
+        asDynamic(el)["title"] = "Start Auto-Pilot Simulation"
+    | None => ()
     }
 
     // Return to start scene if requested
@@ -422,25 +437,27 @@ let startAutoPilot = skipAutoForward => {
 
     Navigation.setSimulationMode(GlobalStateBridge.dispatch, state, true)
 
-    ignore(Obj.magic(document)["body"]["classList"]["add"]("auto-pilot-active"))
+    ReBindings.Dom.add(ReBindings.Dom.documentBody, "auto-pilot-active")
 
     // Update toggle button appearance
-    let simToggle = Obj.magic(document)["getElementById"]("v-scene-sim-toggle")
-    if Obj.magic(simToggle) != Nullable.null {
-      ignore(
-        simToggle["textContent"] = "",
-      )
+    let simToggle = ReBindings.Dom.getElementById("v-scene-sim-toggle")
+    switch Nullable.toOption(simToggle) {
+    | Some(el) =>
+      ReBindings.Dom.setTextContent(el, "")
+      let style = asDynamic(el)["style"]
 
-      let span = document["createElement"]("span")
-      ignore(span["className"] = "material-icons")
-      ignore(span["style"]["fontSize"] = "22px")
-      ignore(span["style"]["color"] = "white")
-      ignore(span["textContent"] = "stop")
-      ignore(simToggle["appendChild"](span))
-      ignore(simToggle["style"]["removeProperty"]("background-color"))
-      ignore(simToggle["style"]["setProperty"]("background-color", "#dc3545", "important"))
-      ignore(simToggle["title"] = "Click to Stop Simulation")
-      ignore(simToggle["offsetHeight"])
+      let span = ReBindings.Dom.createElement("span")
+      ReBindings.Dom.setClassName(span, "material-icons")
+      asDynamic(span)["style"]["fontSize"] = "22px"
+      asDynamic(span)["style"]["color"] = "white"
+      ReBindings.Dom.setTextContent(span, "stop")
+      ReBindings.Dom.appendChild(el, span)
+      
+      style["removeProperty"]("background-color")
+      style["setProperty"]("background-color", "#dc3545", "important")
+      asDynamic(el)["title"] = "Click to Stop Simulation"
+      ignore(asDynamic(el)["offsetHeight"]) // Trigget reflow
+    | None => ()
     }
 
     if state.activeIndex != 0 {

@@ -84,10 +84,6 @@
 │   ├── TYPOGRAPHY.md
 │   └── UNIT_TESTING_INTEGRATION.md
 ├── GEMINI.md
-├── images
-│   ├── icon-192.png
-│   ├── icon-512.png
-│   └── logo.png
 ├── index.html
 ├── lib
 │   ├── bs
@@ -754,7 +750,6 @@
 │   │   ├── ExifParserTest.cmj
 │   │   ├── ExifParserTest.cmt
 │   │   ├── ExifParserTest.res
-│   │   ├── ExifReportGenerator.ast
 │   │   ├── ExifReportGenerator.cmi
 │   │   ├── ExifReportGenerator.cmj
 │   │   ├── ExifReportGenerator.cmt
@@ -809,7 +804,6 @@
 │   │   ├── JsonTypes.cmj
 │   │   ├── JsonTypes.cmt
 │   │   ├── JsonTypes.res
-│   │   ├── LabelMenu.ast
 │   │   ├── LabelMenu.cmi
 │   │   ├── LabelMenu.cmj
 │   │   ├── LabelMenu.cmt
@@ -899,7 +893,6 @@
 │   │   ├── ProjectData.cmj
 │   │   ├── ProjectData.cmt
 │   │   ├── ProjectData.res
-│   │   ├── ProjectManager.ast
 │   │   ├── ProjectManager.cmi
 │   │   ├── ProjectManager.cmj
 │   │   ├── ProjectManager.cmt
@@ -913,7 +906,6 @@
 │   │   ├── ProjectReducer.cmj
 │   │   ├── ProjectReducer.cmt
 │   │   ├── ProjectReducer.res
-│   │   ├── ReBindings.ast
 │   │   ├── ReBindings.cmi
 │   │   ├── ReBindings.cmj
 │   │   ├── ReBindings.cmt
@@ -941,6 +933,7 @@
 │   │   ├── Resizer.cmj
 │   │   ├── Resizer.cmt
 │   │   ├── Resizer.res
+│   │   ├── ResizerTest.ast
 │   │   ├── ResizerTest.cmi
 │   │   ├── ResizerTest.cmj
 │   │   ├── ResizerTest.cmt
@@ -979,6 +972,7 @@
 │   │   ├── SharedTypes.cmj
 │   │   ├── SharedTypes.cmt
 │   │   ├── SharedTypes.res
+│   │   ├── SharedTypesTest.ast
 │   │   ├── SharedTypesTest.cmi
 │   │   ├── SharedTypesTest.cmj
 │   │   ├── SharedTypesTest.cmt
@@ -1003,7 +997,6 @@
 │   │   ├── SimulationPathGenerator.cmj
 │   │   ├── SimulationPathGenerator.cmt
 │   │   ├── SimulationPathGenerator.res
-│   │   ├── SimulationSystem.ast
 │   │   ├── SimulationSystem.cmi
 │   │   ├── SimulationSystem.cmj
 │   │   ├── SimulationSystem.cmt
@@ -1023,6 +1016,7 @@
 │   │   ├── StateInspector.cmj
 │   │   ├── StateInspector.cmt
 │   │   ├── StateInspector.res
+│   │   ├── StateInspectorTest.ast
 │   │   ├── StateInspectorTest.cmi
 │   │   ├── StateInspectorTest.cmj
 │   │   ├── StateInspectorTest.cmt
@@ -1032,6 +1026,7 @@
 │   │   ├── TeaserManager.cmj
 │   │   ├── TeaserManager.cmt
 │   │   ├── TeaserManager.res
+│   │   ├── TeaserManagerTest.ast
 │   │   ├── TeaserManagerTest.cmi
 │   │   ├── TeaserManagerTest.cmj
 │   │   ├── TeaserManagerTest.cmt
@@ -1112,6 +1107,7 @@
 │   │   ├── UploadProcessor.cmj
 │   │   ├── UploadProcessor.cmt
 │   │   ├── UploadProcessor.res
+│   │   ├── UploadProcessorTest.ast
 │   │   ├── UploadProcessorTest.cmi
 │   │   ├── UploadProcessorTest.cmj
 │   │   ├── UploadProcessorTest.cmt
@@ -1136,11 +1132,11 @@
 │   │   ├── ViewerFollow.cmj
 │   │   ├── ViewerFollow.cmt
 │   │   ├── ViewerFollow.res
-│   │   ├── ViewerLoader.ast
 │   │   ├── ViewerLoader.cmi
 │   │   ├── ViewerLoader.cmj
 │   │   ├── ViewerLoader.cmt
 │   │   ├── ViewerLoader.res
+│   │   ├── ViewerLoaderTest.ast
 │   │   ├── ViewerLoaderTest.cmi
 │   │   ├── ViewerLoaderTest.cmj
 │   │   ├── ViewerLoaderTest.cmt
@@ -1170,7 +1166,6 @@
 │   │   ├── ViewerUI.cmj
 │   │   ├── ViewerUI.cmt
 │   │   ├── ViewerUI.res
-│   │   ├── VisualPipeline.ast
 │   │   ├── VisualPipeline.cmi
 │   │   ├── VisualPipeline.cmj
 │   │   ├── VisualPipeline.cmt
@@ -1179,7 +1174,6 @@
 ├── logs
 │   ├── error.log
 │   └── log_changes.txt
-├── manifest.json
 ├── package-lock.json
 ├── package.json
 ├── plans
@@ -1187,6 +1181,13 @@
 │   ├── logical_inconsistencies_analysis.md
 │   └── step1_cleanup_notes.md
 ├── postcss.config.js
+├── public
+│   ├── images
+│   │   ├── icon-192.png
+│   │   ├── icon-512.png
+│   │   ├── logo.png
+│   │   └── og-preview.png
+│   └── manifest.json
 ├── README.md
 ├── rescript.json
 ├── rsbuild.config.mjs
@@ -1412,7 +1413,9 @@
 │   │   ├── 116_Update_ServiceWorker_Cache_Paths.md
 │   │   ├── 117_Add_OpenAPI_Documentation.md
 │   │   ├── 118_Run_Accessibility_Audit.md
+│   │   ├── 119_Eliminate_ObjMagic_Patterns_REPORT.md
 │   │   ├── 12_ReScript_Migrate_UI_Components_REPORT.md
+│   │   ├── 120_Add_Meta_Description_OG_Tags.md
 │   │   ├── 14_ReScript_Migrate_Viewer_REPORT.md
 │   │   ├── 15_Backend_SingleZIP_Load_REPORT.md
 │   │   ├── 16_Backend_Project_Validation_REPORT.md
@@ -1509,11 +1512,13 @@
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   ├── pending
-│   │   ├── 119_Eliminate_ObjMagic_Patterns.md
-│   │   ├── 120_Add_Meta_Description_OG_Tags.md
 │   │   ├── 121_Add_Prometheus_Metrics.md
 │   │   ├── 122_Split_Large_Backend_Modules.md
-│   │   └── 123_Add_GitHub_Actions_CI.md
+│   │   ├── 123_Add_GitHub_Actions_CI.md
+│   │   ├── 124_Add_Tests_for_ReBindings.md
+│   │   ├── 125_Add_Tests_for_ExifReportGenerator.md
+│   │   ├── 126_Add_Tests_for_TeaserRecorder.md
+│   │   └── 127_Add_Tests_for_Logger.md
 │   └── README.md
 └── tests
     ├── integration
@@ -1563,4 +1568,4 @@
         ├── ViewerLoaderTest.bs.js
         └── ViewerLoaderTest.res
 
-44 directories, 1520 files
+45 directories, 1524 files

@@ -9,19 +9,18 @@ open EventBus
 type onProgress = (int, int, string) => unit
 type apiError = string
 
+external castToDict: JSON.t => Js.Dict.t<JSON.t> = "%identity"
+external castToJson: 'a => JSON.t = "%identity"
+
 /* --- PURE TRANSFORMATIONS --- */
 
 let validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {
-  let obj = (Obj.magic(data): {..})
+  let obj = castToDict(data)
 
   // Basic validation check
-  if (
-    Obj.magic(obj["scenes"]) == Nullable.undefined ||
-      Obj.magic(obj["tourName"]) == Nullable.undefined
-  ) {
-    Error("Invalid project structure: missing scenes or tourName")
-  } else {
-    Ok(data)
+  switch (Js.Dict.get(obj, "scenes"), Js.Dict.get(obj, "tourName")) {
+  | (Some(_), Some(_)) => Ok(data)
+  | _ => Error("Invalid project structure: missing scenes or tourName")
   }
 }
 
@@ -43,15 +42,15 @@ let createSavePackage = (state: state, ~onProgress: option<onProgress>=?): Promi
   let formData = FormData.newFormData()
 
   // Create project_data JSON string
-  let jsonStr = JSON.stringify(Obj.magic(projectData))
+  let jsonStr = JSON.stringify(castToJson(projectData))
   FormData.append(formData, "project_data", jsonStr)
 
   // Append files
   Belt.Array.forEachWithIndex(state.scenes, (_index, scene) => {
-    let sceneObj: {..} = Obj.magic(scene)
-    let file = sceneObj["file"]
+    // scene is of type Types.scene
+    let file = scene.file
 
-    // Check if file is actually a Blob/File object
+    // Check if file is actually a Blob/File object (runtime check needed as ReScript type is File.t but could be string during dev)
     if Nullable.make(file) != Nullable.null {
       let fileType: string = %raw("typeof file")
       if fileType != "string" {
@@ -85,7 +84,7 @@ let createSavePackage = (state: state, ~onProgress: option<onProgress>=?): Promi
     Promise.resolve(Ok(blob))
   })
   ->Promise.catch(err => {
-    let msg = switch (Obj.magic(err): {..})["message"] {
+     let msg = switch Js.Exn.message(Obj.magic(err)) {
     | Some(m) => m
     | None => "Unknown error creating save package"
     }
@@ -131,32 +130,31 @@ let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promi
   })
   ->Promise.then(((sessionId, projectData)) => {
     progress(70, 100, "Resolving scenes...")
-    let pd: {..} = Obj.magic(projectData)
-    let scenesArray: array<JSON.t> = pd["scenes"]
+    let pd = castToDict(projectData)
+    let scenesArray = Js.Dict.get(pd, "scenes")->Option.flatMap(Js.Json.decodeArray)->Option.getWithDefault([])
 
     // Map scenes to point to backend URL
     let validScenes = Belt.Array.map(scenesArray, item => {
-      let scene: {..} = Obj.magic(item)
-      let name: string = scene["name"]
+      let sceneDict = castToDict(item)
+      let name = Js.Dict.get(sceneDict, "name")->Option.flatMap(Js.Json.decodeString)->Option.getWithDefault("unknown")
       
       let fileUrl = Constants.backendUrl ++ "/api/session/" ++ sessionId ++ "/" ++ encodeURIComponent(name)
       
       // Clone scene object (shallow copy)
-      let newScene = Object.assign(Object.make(), scene)
-      let newSceneDict: {..} = Obj.magic(newScene)
+      let newScene = Object.assign(Object.make(), Obj.magic(sceneDict))
+      let newSceneDict = castToDict(castToJson(newScene))
       
-      newSceneDict["file"] = fileUrl
-      newSceneDict["originalFile"] = fileUrl
+      Js.Dict.set(newSceneDict, "file", castToJson(fileUrl))
+      Js.Dict.set(newSceneDict, "originalFile", castToJson(fileUrl))
       
       // Note: tinyFile handling could be added here if backend generates it
       
-      newSceneDict
+      castToJson(newSceneDict)
     })
 
     // Extract validation report if present
-    let validationReport: option<SharedTypes.validationReport> = switch Nullable.toOption(
-      pd["validationReport"],
-    ) {    | Some(report) => Some(Obj.magic(report))
+    let validationReport: option<SharedTypes.validationReport> = switch Js.Dict.get(pd, "validationReport") {
+    | Some(report) => Some(Obj.magic(report)) // Keep one magic here as strict typing large structs is hard or need decoder
     | None => None
     }
 
@@ -205,22 +203,12 @@ let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promi
     }
 
     // Reconstruct the full project data object
-    let loadedProject = {
-      "tourName": switch Nullable.toOption(pd["tourName"]) {
-      | Some(n) => n
-      | None => "Imported Tour"
-      },
-      "scenes": validScenes,
-      "deletedSceneIds": switch Nullable.toOption(pd["deletedSceneIds"]) {
-      | Some(a) => a
-      | None => []
-      },
-      "timeline": switch Nullable.toOption(pd["timeline"]) {
-      | Some(t) => t
-      | None => []
-      },
-      "activeIndex": 0,
-    }
+    let loadedProject = Dict.make()
+    Dict.set(loadedProject, "tourName", Js.Dict.get(pd, "tourName")->Option.getWithDefault(castToJson("Imported Tour")))
+    Dict.set(loadedProject, "scenes", castToJson(validScenes))
+    Dict.set(loadedProject, "deletedSceneIds", Js.Dict.get(pd, "deletedSceneIds")->Option.getWithDefault(castToJson([])))
+    Dict.set(loadedProject, "timeline", Js.Dict.get(pd, "timeline")->Option.getWithDefault(castToJson([])))
+    Dict.set(loadedProject, "activeIndex", castToJson(0))
 
     progress(100, 100, "Project Loaded!")
     Logger.endOperation(
@@ -232,13 +220,13 @@ let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promi
       }),
       (),
     )
-    Promise.resolve(Ok((Obj.magic(loadedProject): JSON.t)))
+    Promise.resolve(Ok(castToJson(loadedProject)))
   })
   ->Promise.catch(err => {
     Logger.error(~module_="ProjectManager", ~message="PROJECT_LOAD_FAILED", ~data=Some({"error": err}), ())
     progress(0, 100, "Load Failed")
 
-    let msg = switch (Obj.magic(err): {..})["message"] {
+    let msg = switch Js.Exn.message(Obj.magic(err)) {
     | Some(m) => m
     | None => "Unknown load error"
     }

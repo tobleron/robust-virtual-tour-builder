@@ -60,7 +60,8 @@ let toggleLabelMenu = (labelButton: Dom.element) => {
     if isHidden {
       let rect = Dom.getBoundingClientRect(labelButton)
       let menuHeight = 500.0
-      let spaceBelow = Belt.Int.toFloat(Obj.magic(Window.window)["innerHeight"]) -. rect.top
+      let menuHeight = 500.0
+      let spaceBelow = Belt.Int.toFloat(Window.innerHeight) -. rect.top
 
       Dom.setPointerEvents(m, "auto")
       let top = if spaceBelow < menuHeight {
@@ -89,9 +90,8 @@ let toggleLabelMenu = (labelButton: Dom.element) => {
 }
 
 let syncLabelMenu = (scene: Types.scene) => {
-  let doc = Obj.magic(Window.window)["document"]
-  let labelPills: array<Dom.element> = Obj.magic(doc["querySelectorAll"](".label-pill"))
-  let labelSections: array<Dom.element> = Obj.magic(doc["querySelectorAll"](".label-section"))
+  let labelPills = JsHelpers.from(Dom.querySelectorAllDoc(".label-pill"))
+  let labelSections = JsHelpers.from(Dom.querySelectorAllDoc(".label-section"))
   let inp = Dom.getElementById("v-scene-label-custom")
 
   let currentLabel = scene.label
@@ -99,8 +99,8 @@ let syncLabelMenu = (scene: Types.scene) => {
 
   // Filter Sections
   Belt.Array.forEach(labelSections, section => {
-    let s: {..} = Obj.magic(section)
-    if s["dataset"]["category"] == currentCategory {
+    let cat = Js.Dict.get(Dom.dataset(section), "category")
+    if cat == Some(currentCategory) {
       Dom.setDisplay(section, "flex")
     } else {
       Dom.setDisplay(section, "none")
@@ -109,8 +109,8 @@ let syncLabelMenu = (scene: Types.scene) => {
 
   // Update Pills
   Belt.Array.forEach(labelPills, pill => {
-    let p: {..} = Obj.magic(pill)
-    let isActive = p["dataset"]["val"] == currentLabel
+    let val = Js.Dict.get(Dom.dataset(pill), "val")
+    let isActive = val == Some(currentLabel)
     if isActive {
       Dom.add(pill, "bg-remax-blue")
       Dom.add(pill, "text-white")
@@ -130,7 +130,7 @@ let syncLabelMenu = (scene: Types.scene) => {
 
   // Update Input
   switch Nullable.toOption(inp) {
-  | Some(i) => (Obj.magic(i): {..})["value"] = currentLabel
+  | Some(i) => Dom.setValue(i, currentLabel)
   | None => ()
   }
 }
@@ -139,16 +139,14 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
   // Remove existing
   let existing = Dom.getElementById("v-scene-label-menu")
   switch Nullable.toOption(existing) {
-  | Some(e) => (Obj.magic(e): {..})["remove"]()
+  | Some(e) => Dom.removeElement(e)
   | None => ()
   }
 
   let lblMenu = Dom.createElement("div")
   Dom.setId(lblMenu, "v-scene-label-menu")
 
-  let _ = (
-    Obj.magic(lblMenu): {..}
-  )["className"] = "hidden fixed flex flex-col gap-4 z-[9999] pointer-events-auto transition-all duration-300 ease-out scale-95 opacity-0 overflow-hidden modal-box"
+  Dom.setClassName(lblMenu, "hidden fixed flex flex-col gap-4 z-[9999] pointer-events-auto transition-all duration-300 ease-out scale-95 opacity-0 overflow-hidden modal-box")
   Dom.setPosition(lblMenu, "fixed")
   Dom.setMargin(lblMenu, "0")
   Dom.setStyleWidth(lblMenu, "95%")
@@ -158,7 +156,7 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
 
   // Cross-browser scrollbar nuclear option
   let styleEl = Dom.createElement("style")
-  let _ = (Obj.magic(styleEl): {..})["textContent"] = "
+  Dom.setTextContent(styleEl, "
     #v-scene-label-menu ::-webkit-scrollbar { width: 4px; }
     #v-scene-label-menu ::-webkit-scrollbar-track { background: transparent; }
     #v-scene-label-menu ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
@@ -168,25 +166,22 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
       background: linear-gradient(to top, rgba(255,255,255,0.95), transparent);
       pointer-events: none; z-index: 10; transition: opacity 0.3s;
     }
-  "
+  ")
   Dom.appendChild(lblMenu, styleEl)
 
   // Scroll Fade
   let scrollFade = Dom.createElement("div")
-  let _ = (Obj.magic(scrollFade): {..})["className"] = "scroll-indicator-bottom"
+  Dom.setClassName(scrollFade, "scroll-indicator-bottom")
   Dom.appendChild(lblMenu, scrollFade)
 
   // Presets Wrapper
   let presetsWrapper = Dom.createElement("div")
   Dom.setId(presetsWrapper, "label-presets-scroll")
-  let _ = (
-    Obj.magic(presetsWrapper): {..}
-  )["className"] = "flex-1 flex flex-col gap-4 overflow-y-auto pr-1 relative"
+  Dom.setClassName(presetsWrapper, "flex-1 flex flex-col gap-4 overflow-y-auto pr-1 relative")
   Dom.setMaxHeight(presetsWrapper, "360px")
 
-  let _ = (Obj.magic(presetsWrapper): {..})["onscroll"] = () => {
-    let p = (Obj.magic(presetsWrapper): {..})
-    let remaining = p["scrollHeight"] - p["scrollTop"] - p["clientHeight"]
+  Dom.setOnScroll(presetsWrapper, () => {
+    let remaining = Dom.getScrollHeight(presetsWrapper) - Dom.getScrollTop(presetsWrapper) - Dom.getClientHeight(presetsWrapper)
     Dom.setOpacity(
       scrollFade,
       if remaining > 10 {
@@ -195,17 +190,17 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
         "0"
       },
     )
-  }
+  })
 
   // Categories
   let categories = Dict.toArray(Constants.roomLabelPresets)
   Belt.Array.forEach(categories, ((category, labels)) => {
     let section = Dom.createElement("div")
-    let _ = (Obj.magic(section): {..})["className"] = "label-section flex flex-col gap-2.5"
-    let _ = (Obj.magic(section): {..})["dataset"]["category"] = category
+    Dom.setClassName(section, "label-section flex flex-col gap-2.5")
+    Js.Dict.set(Dom.dataset(section), "category", category)
 
     let header = Dom.createElement("div")
-    let _ = (Obj.magic(header): {..})["className"] = "flex items-center gap-2"
+    Dom.setClassName(header, "flex items-center gap-2")
     Dom.setInnerHTML(
       header,
       "
@@ -217,19 +212,17 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
     Dom.appendChild(section, header)
 
     let grid = Dom.createElement("div")
-    let _ = (Obj.magic(grid): {..})["className"] = "grid grid-cols-2 gap-1.5"
+    Dom.setClassName(grid, "grid grid-cols-2 gap-1.5")
 
     Belt.Array.forEach(labels, label => {
       let chip = Dom.createElement("button")
-      let _ = (
-        Obj.magic(chip): {..}
-      )["className"] = "label-pill px-3 py-2 font-ui text-[10px] font-bold uppercase text-slate-600 bg-slate-50 border border-slate-100 rounded-lg cursor-pointer transition-all hover:bg-remax-blue hover:text-white hover:border-remax-blue hover:shadow-md active:scale-95 text-left"
-      let _ = (Obj.magic(chip): {..})["textContent"] = label
-      let _ = (Obj.magic(chip): {..})["dataset"]["val"] = label
-      let _ = (Obj.magic(chip): {..})["dataset"]["category"] = category
+      Dom.setClassName(chip, "label-pill px-3 py-2 font-ui text-[10px] font-bold uppercase text-slate-600 bg-slate-50 border border-slate-100 rounded-lg cursor-pointer transition-all hover:bg-remax-blue hover:text-white hover:border-remax-blue hover:shadow-md active:scale-95 text-left")
+      Dom.setTextContent(chip, label)
+      Js.Dict.set(Dom.dataset(chip), "val", label)
+      Js.Dict.set(Dom.dataset(chip), "category", category)
 
-      let _ = (Obj.magic(chip): {..})["onclick"] = e => {
-        (e: {..})["stopPropagation"]()
+      Dom.setOnClick(chip, e => {
+        Dom.stopPropagation(e)
         let state = GlobalStateBridge.getState()
         GlobalStateBridge.dispatch(
           UpdateSceneMetadata(state.activeIndex, Obj.magic({"label": label})),
@@ -237,7 +230,7 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
         Logger.info(~module_="LabelMenu", ~message="LABEL_SET", ~data=Some({"label": label}), ())
         EventBus.dispatch(ShowNotification("Label Set: " ++ label, #Success))
         scheduleMenuClose()
-      }
+      })
       Dom.appendChild(grid, chip)
     })
 
@@ -249,45 +242,35 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
 
   // Custom Section
   let customSection = Dom.createElement("div")
-  let _ = (
-    Obj.magic(customSection): {..}
-  )["className"] = "flex flex-col gap-2 pt-4 mt-1 border-t border-slate-100 bg-white/50 backdrop-blur-sm sticky bottom-0"
+  Dom.setClassName(customSection, "flex flex-col gap-2 pt-4 mt-1 border-t border-slate-100 bg-white/50 backdrop-blur-sm sticky bottom-0")
   Dom.setBackgroundColor(customSection, "white") // approximate sticky background
 
   let customTitle = Dom.createElement("div")
-  let _ = (
-    Obj.magic(customTitle): {..}
-  )["className"] = "text-[9px] font-black text-slate-300 uppercase tracking-[1px]"
-  let _ = (Obj.magic(customTitle): {..})["textContent"] = "Custom Label Entry"
+  Dom.setClassName(customTitle, "text-[9px] font-black text-slate-300 uppercase tracking-[1px]")
+  Dom.setTextContent(customTitle, "Custom Label Entry")
   Dom.appendChild(customSection, customTitle)
 
   let inputWrapper = Dom.createElement("div")
-  let _ = (Obj.magic(inputWrapper): {..})["className"] = "flex gap-2 items-center"
+  Dom.setClassName(inputWrapper, "flex gap-2 items-center")
 
   let inp = Dom.createElement("input")
   Dom.setId(inp, "v-scene-label-custom")
-  let _ = (Obj.magic(inp): {..})["type"] = "text"
-  let _ = (Obj.magic(inp): {..})["placeholder"] = "Enter custom name..."
-  let _ = (
-    Obj.magic(inp): {..}
-  )["className"] = "flex-1 px-4 py-2 bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold outline-none focus:ring-4 focus:ring-remax-blue/5 focus:border-remax-blue placeholder:text-slate-300 transition-all"
-  let _ = (Obj.magic(inp): {..})["onclick"] = e => (e: {..})["stopPropagation"]()
+  Dom.setAttribute(inp, "type", "text")
+  Dom.setAttribute(inp, "placeholder", "Enter custom name...")
+  Dom.setClassName(inp, "flex-1 px-4 py-2 bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold outline-none focus:ring-4 focus:ring-remax-blue/5 focus:border-remax-blue placeholder:text-slate-300 transition-all")
+  Dom.setOnClick(inp, e => Dom.stopPropagation(e))
 
   let setBtn = Dom.createElement("button")
   Dom.setInnerHTML(setBtn, "SET")
-  let _ = (
-    Obj.magic(setBtn): {..}
-  )["className"] = "shrink-0 px-3 py-2 text-white text-[10px] font-black rounded-xl transition-all active:scale-95 shadow-sm"
+  Dom.setClassName(setBtn, "shrink-0 px-3 py-2 text-white text-[10px] font-black rounded-xl transition-all active:scale-95 shadow-sm")
   Dom.setBackgroundColor(setBtn, "#007BA7")
 
   let clearBtn = Dom.createElement("button")
   Dom.setInnerHTML(clearBtn, "CLEAR")
-  let _ = (
-    Obj.magic(clearBtn): {..}
-  )["className"] = "shrink-0 px-3 py-2 bg-slate-200 text-slate-600 text-[10px] font-black rounded-xl hover:bg-slate-300 transition-all active:scale-95"
+  Dom.setClassName(clearBtn, "shrink-0 px-3 py-2 bg-slate-200 text-slate-600 text-[10px] font-black rounded-xl hover:bg-slate-300 transition-all active:scale-95")
 
   let applyCustom = () => {
-    let val = (Obj.magic(inp): {..})["value"]->String.trim
+    let val = Dom.getValue(inp)->String.trim
     if val != "" {
       let state = GlobalStateBridge.getState()
       GlobalStateBridge.dispatch(UpdateSceneMetadata(state.activeIndex, Obj.magic({"label": val})))
@@ -300,27 +283,27 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
   let clearLabel = () => {
     let state = GlobalStateBridge.getState()
     GlobalStateBridge.dispatch(UpdateSceneMetadata(state.activeIndex, Obj.magic({"label": ""})))
-    let _ = (Obj.magic(inp): {..})["value"] = ""
+    Dom.setValue(inp, "")
     EventBus.dispatch(ShowNotification("Label Cleared", #Warning))
     scheduleMenuClose()
   }
 
-  let _ = (Obj.magic(setBtn): {..})["onclick"] = e => {
-    (e: {..})["stopPropagation"]()
+  Dom.setOnClick(setBtn, e => {
+    Dom.stopPropagation(e)
     applyCustom()
-  }
+  })
 
-  let _ = (Obj.magic(clearBtn): {..})["onclick"] = e => {
-    (e: {..})["stopPropagation"]()
+  Dom.setOnClick(clearBtn, e => {
+    Dom.stopPropagation(e)
     clearLabel()
-  }
+  })
 
-  let _ = (Obj.magic(inp): {..})["onkeydown"] = e => {
-    if (e: {..})["key"] == "Enter" {
-      (e: {..})["stopPropagation"]()
+  Dom.setOnKeyDown(inp, e => {
+    if Dom.key(e) == "Enter" {
+      Dom.stopPropagation(e)
       applyCustom()
     }
-  }
+  })
 
   Dom.appendChild(inputWrapper, inp)
   Dom.appendChild(inputWrapper, setBtn)
@@ -330,15 +313,15 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
 
   Dom.appendChild(Dom.documentBody, lblMenu)
 
-  let _ = (Obj.magic(labelButton): {..})["onclick"] = e => {
-    (e: {..})["stopPropagation"]()
+  Dom.setOnClick(labelButton, e => {
+    Dom.stopPropagation(e)
     toggleLabelMenu(labelButton)
-  }
+  })
 
-  let _ = (Obj.magic(Window.window)["document"]: {..})["addEventListener"]("click", e => {
-    let target = (e: {..})["target"]
-    let closestMenu = (target: {..})["closest"]("#v-scene-label-menu")
-    let closestBtn = (target: {..})["closest"]("#v-scene-label-btn")
+  Dom.addEventListener(Dom.documentBody, "click", e => {
+    let target = Dom.target(e)
+    let closestMenu = Dom.closest(target, "#v-scene-label-menu")
+    let closestBtn = Dom.closest(target, "#v-scene-label-btn")
 
     if Nullable.make(closestMenu) == Nullable.null && Nullable.make(closestBtn) == Nullable.null {
       closeLabelMenu()

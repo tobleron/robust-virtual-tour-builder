@@ -1,5 +1,3 @@
-open ReBindings
-open Resizer
 
 let run = () => {
   Console.log("Running Resizer tests...")
