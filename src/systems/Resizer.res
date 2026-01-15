@@ -45,7 +45,6 @@ let getMemoryUsage = () => {
  * Used for "fingerprinting" images to detect duplicates before upload.
  */
 let getChecksum = (file: File.t): Promise.t<string> => {
-
   /* Partial implementation of sample logic using Slice and ArrayBuffer */
   /* Since this is complex to port 1:1 with bindings instantly, let's keep it simple or binding-heavy. */
   /* Actually, let's just use a simple binding to a raw JS function inside Resizer.res for this specific crypto logic to save time/risk. */
@@ -145,12 +144,10 @@ let processAndAnalyzeImage = (file: File.t): Promise.t<processResult> => {
           (),
         )
 
-        LazyLoad.loadJSZip()
-        ->Promise.then(() => JSZip.loadAsync(zipBlob))
+        LazyLoad.loadJSZip()->Promise.then(() => JSZip.loadAsync(zipBlob))
       }
     | Error(msg) => Promise.reject(JsError.throwWithMessage(msg))
     }
-
   })
   ->Promise.then(zip => {
     // 1. Extract Preview
@@ -255,8 +252,7 @@ let generateResolutions = (file: File.t): Promise.t<dict<Blob.t>> => {
   ->Promise.then(BackendApi.handleResponse)
   ->Promise.then(Fetch.blob)
   ->Promise.then(zipBlob => {
-    LazyLoad.loadJSZip()
-    ->Promise.then(() => JSZip.loadAsync(zipBlob))
+    LazyLoad.loadJSZip()->Promise.then(() => JSZip.loadAsync(zipBlob))
   })
   ->Promise.then(zip => {
     let files = [("4k", "4k.webp"), ("2k", "2k.webp"), ("hd", "hd.webp")]

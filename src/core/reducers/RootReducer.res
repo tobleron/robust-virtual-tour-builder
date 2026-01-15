@@ -8,11 +8,10 @@ open Actions
  * reducer handles its own slice of actions and returns None for
  * actions it doesn't handle.
  */
-
 let reducer = (state: state, action: action): state => {
   // Try each domain reducer in sequence
   // First one to return Some(newState) wins
-  
+
   switch SceneReducer.reduce(state, action) {
   | Some(newState) => newState
   | None =>
@@ -37,7 +36,7 @@ let reducer = (state: state, action: action): state => {
                 ~module_="RootReducer",
                 ~message="Unhandled action",
                 ~data=Some({"action": Actions.actionToString(action)}),
-                ()
+                (),
               )
               state
             }

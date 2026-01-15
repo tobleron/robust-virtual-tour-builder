@@ -3,7 +3,8 @@ open Actions
 
 let reduce = (state: state, action: action): option<state> => {
   switch action {
-  | SetSimulationMode(val) => Some({
+  | SetSimulationMode(val) =>
+    Some({
       ...state,
       isSimulationMode: val,
       autoForwardChain: [],
@@ -14,7 +15,7 @@ let reduce = (state: state, action: action): option<state> => {
   | SetNavigationStatus(status) => Some({...state, navigation: status})
   | SetIncomingLink(link) => Some({...state, incomingLink: link})
   | ResetAutoForwardChain => Some({...state, autoForwardChain: []})
-  | AddToAutoForwardChain(idx) => 
+  | AddToAutoForwardChain(idx) =>
     let chain = state.autoForwardChain
     if !Js.Array.includes(idx, chain) {
       Some({...state, autoForwardChain: Belt.Array.concat(chain, [idx])})
@@ -24,7 +25,7 @@ let reduce = (state: state, action: action): option<state> => {
   | SetPendingReturnSceneName(name) => Some({...state, pendingReturnSceneName: name})
   | IncrementJourneyId => Some({...state, currentJourneyId: state.currentJourneyId + 1})
   | SetCurrentJourneyId(id) => Some({...state, currentJourneyId: id})
-  | NavigationCompleted(journey) => 
+  | NavigationCompleted(journey) =>
     if journey.journeyId == state.currentJourneyId {
       if journey.previewOnly {
         Some({...state, navigation: Idle})
@@ -33,7 +34,7 @@ let reduce = (state: state, action: action): option<state> => {
           sceneIndex: journey.sourceIndex,
           hotspotIndex: journey.hotspotIndex,
         }
-        
+
         let transition = {
           type_: Some("link"),
           targetHotspotIndex: -1,

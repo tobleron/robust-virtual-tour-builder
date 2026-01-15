@@ -31,7 +31,12 @@ let handleGlobalEscape = (e: Dom.event) => {
           Dom.querySelector(modal, ".modal-overlay")->Nullable.toOption->Belt.Option.isSome
 
         if display == "flex" || hasOverlay {
-          Logger.debug(~module_="InputSystem", ~message="MODAL_CLOSE", ~data=Some({"modalId": modalId}), ())
+          Logger.debug(
+            ~module_="InputSystem",
+            ~message="MODAL_CLOSE",
+            ~data=Some({"modalId": modalId}),
+            (),
+          )
 
           if modalId == "modal-container" {
             switch Dom.querySelector(modal, "#cancel-link")->Nullable.toOption {
@@ -130,7 +135,9 @@ let initInputSystem = () => {
         ~data=Some({"newState": newStateResult ? "enabled" : "disabled"}),
         (),
       )
-      EventBus.dispatch(ShowNotification(newStateResult ? "Debug mode: ON" : "Debug mode: OFF", #Info))
+      EventBus.dispatch(
+        ShowNotification(newStateResult ? "Debug mode: ON" : "Debug mode: OFF", #Info),
+      )
     } else if ctrlKey && shiftKey {
       switch key {
       | "1" => {

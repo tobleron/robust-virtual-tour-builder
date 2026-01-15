@@ -1,4 +1,3 @@
-
 let run = () => {
   Console.log("Running UploadProcessor tests...")
   // Placeholder

@@ -61,14 +61,14 @@ let run = () => {
   }`
 
   let parsed: metadataResponse = Obj.magic(JSON.parseOrThrow(jsonStr))
-  
+
   assert(parsed.exif.make == Nullable.make("Insta360"))
   assert(parsed.exif.dateTime == Nullable.make("2026:01:14 12:00:00"))
   assert(parsed.quality.colorHist.r == [10])
   assert(parsed.quality.stats.avgLuminance == 128)
   assert(parsed.isOptimized == true)
   assert(parsed.suggestedName == Nullable.make("living_room"))
-  
+
   Console.log("✓ metadataResponse JSON mapping verified (@as checks)")
 
   // Test 3: ValidationReport mapping
@@ -82,6 +82,6 @@ let run = () => {
   let report: validationReport = Obj.magic(JSON.parseOrThrow(reportJson))
   assert(report.brokenLinksRemoved == 5)
   assert(Array.length(report.orphanedScenes) == 1)
-  
+
   Console.log("✓ validationReport JSON mapping verified")
 }

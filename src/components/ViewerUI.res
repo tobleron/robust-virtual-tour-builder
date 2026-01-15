@@ -132,18 +132,20 @@ let make = () => {
     let newLinking = !state.isLinking
     dispatch(Actions.SetIsLinking(newLinking))
 
-    EventBus.dispatch(ShowNotification(
-      if newLinking {
-        "Link Mode: ACTIVE"
-      } else {
-        "Link Mode: OFF"
-      },
-      if newLinking {
-        #Success
-      } else {
-        #Warning
-      },
-    ))
+    EventBus.dispatch(
+      ShowNotification(
+        if newLinking {
+          "Link Mode: ACTIVE"
+        } else {
+          "Link Mode: OFF"
+        },
+        if newLinking {
+          #Success
+        } else {
+          #Warning
+        },
+      ),
+    )
   }
 
   let handleSimClick = e => {
@@ -178,18 +180,20 @@ let make = () => {
       // Store.store.updateSceneMetadata(activeIdx, Obj.magic({"category": newCat}))
       dispatch(Actions.UpdateSceneMetadata(activeIdx, Logger.castToJson({"category": newCat})))
 
-      EventBus.dispatch(ShowNotification(
-        if newCat == "indoor" {
-          "Category: INDOOR"
-        } else {
-          "Category: OUTDOOR"
-        },
-        if newCat == "indoor" {
-          #Warning
-        } else {
-          #Success
-        },
-      ))
+      EventBus.dispatch(
+        ShowNotification(
+          if newCat == "indoor" {
+            "Category: INDOOR"
+          } else {
+            "Category: OUTDOOR"
+          },
+          if newCat == "indoor" {
+            #Warning
+          } else {
+            #Success
+          },
+        ),
+      )
     }
   }
 
@@ -205,11 +209,14 @@ let make = () => {
         let currentYaw = ReBindings.Viewer.getYaw(viewer)
         ReBindings.Viewer.setYawWithDuration(viewer, currentYaw +. 180.0, 1000)
         dispatch(Actions.SetPendingReturnSceneName(Some(scene.name)))
-        EventBus.dispatch(ShowNotification("Turned around! NOW click '+' to place the link.", #Success))
+        EventBus.dispatch(
+          ShowNotification("Turned around! NOW click '+' to place the link.", #Success),
+        )
 
         // Use ReBindings.Dom for manipulation
         switch ReBindings.Dom.getElementById("return-link-prompt") {
-        | Nullable.Value(el) => ReBindings.Dom.classList(el)->ReBindings.Dom.ClassList.remove("visible")
+        | Nullable.Value(el) =>
+          ReBindings.Dom.classList(el)->ReBindings.Dom.ClassList.remove("visible")
         | _ => ()
         }
       | None => ()
@@ -289,33 +296,53 @@ let make = () => {
 
       <div id="viewer-utility-bar" className={viewerBarClass}>
         /* Main Action Strip */
-        <div className="flex flex-col gap-3 p-1.5 premium-glass rounded-2xl border border-white/10 shadow-2xl backdrop-blur-xl">
+        <div
+          className="flex flex-col gap-3 p-1.5 premium-glass rounded-2xl border border-white/10 shadow-2xl backdrop-blur-xl"
+        >
           <button
             id="btn-add-link-fab"
-            className={"app-btn-icon w-10 h-10 rounded-xl flex items-center justify-center transition-all active:scale-95 group relative focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none " ++ (
-              if state.isLinking { "bg-warning text-slate-900 shadow-lg shadow-warning/20" } else { "bg-primary text-white hover:bg-primary-light" }
-            )}
+            className={"app-btn-icon w-10 h-10 rounded-xl flex items-center justify-center transition-all active:scale-95 group relative focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none " ++ if (
+              state.isLinking
+            ) {
+              "bg-warning text-slate-900 shadow-lg shadow-warning/20"
+            } else {
+              "bg-primary text-white hover:bg-primary-light"
+            }}
             onClick={handleFabClick}
             ariaLabel="Add Link"
           >
-            <span className="material-icons text-xl" ariaHidden=true> 
-              {React.string(state.isLinking ? "close" : "add")} 
+            <span className="material-icons text-xl" ariaHidden=true>
+              {React.string(state.isLinking ? "close" : "add")}
             </span>
             {if state.isLinking {
-              <div className="absolute -right-1 -top-1 w-3 h-3 bg-white rounded-full animate-ping" />
-            } else { React.null }}
+              <div
+                className="absolute -right-1 -top-1 w-3 h-3 bg-white rounded-full animate-ping"
+              />
+            } else {
+              React.null
+            }}
           </button>
 
           <button
             id="v-scene-sim-toggle"
-            className={"app-btn-icon w-10 h-10 rounded-xl flex items-center justify-center transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none " ++ (
-              if simActive { "bg-danger text-white hover:bg-danger-light" } else { "bg-slate-800/50 text-white/70 hover:bg-slate-700 hover:text-white" }
-            )}
+            className={"app-btn-icon w-10 h-10 rounded-xl flex items-center justify-center transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none " ++ if (
+              simActive
+            ) {
+              "bg-danger text-white hover:bg-danger-light"
+            } else {
+              "bg-slate-800/50 text-white/70 hover:bg-slate-700 hover:text-white"
+            }}
             onClick={handleSimClick}
             ariaLabel="Auto-Pilot"
           >
             <span className="material-icons text-xl" ariaHidden=true>
-              {React.string(if simActive { "stop" } else { "play_arrow" })}
+              {React.string(
+                if simActive {
+                  "stop"
+                } else {
+                  "play_arrow"
+                },
+              )}
             </span>
           </button>
 
@@ -328,7 +355,13 @@ let make = () => {
             ariaLabel="Toggle Category"
           >
             <span className="material-icons text-xl" ariaHidden=true>
-              {React.string(if currentCategory == "indoor" { "home" } else { "park" })}
+              {React.string(
+                if currentCategory == "indoor" {
+                  "home"
+                } else {
+                  "park"
+                },
+              )}
             </span>
           </button>
 
@@ -338,7 +371,9 @@ let make = () => {
             className="app-btn-icon w-10 h-10 rounded-xl bg-slate-800/50 text-white/70 hover:bg-slate-700 hover:text-white flex items-center justify-center transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
             ariaLabel="Scene Label"
           >
-            <span className="material-icons text-xl" ariaHidden=true> {React.string("label_important")} </span>
+            <span className="material-icons text-xl" ariaHidden=true>
+              {React.string("label_important")}
+            </span>
           </button>
         </div>
       </div>
@@ -362,28 +397,46 @@ let make = () => {
       id="viewer-logo"
       className="absolute bottom-6 right-6 z-[5002] premium-glass rounded-2xl p-2 flex items-center justify-center max-w-[140px] border border-white/10 shadow-2xl hover:scale-105 transition-transform duration-300"
     >
-      <img src="images/logo.png" alt="Remax Virtual Tour Builder Logo" className="w-full h-auto object-contain block opacity-90" />
+      <img
+        src="images/logo.png"
+        alt="Remax Virtual Tour Builder Logo"
+        className="w-full h-auto object-contain block opacity-90"
+      />
     </div>
 
     /* Linking Hint */
     <div
       id="linking-cancel-hint"
-      className={"absolute bottom-32 left-1/2 -translate-x-1/2 z-[6010] flex flex-col items-center gap-2 transition-all duration-500 " ++ (
-        if state.isLinking { "opacity-100 translate-y-0" } else { "opacity-0 translate-y-4" }
-      )}
+      className={"absolute bottom-32 left-1/2 -translate-x-1/2 z-[6010] flex flex-col items-center gap-2 transition-all duration-500 " ++ if (
+        state.isLinking
+      ) {
+        "opacity-100 translate-y-0"
+      } else {
+        "opacity-0 translate-y-4"
+      }}
     >
-      <div className="px-6 py-2 premium-glass rounded-full border border-warning/30 shadow-xl shadow-warning/10">
-        <span className="text-[11px] font-black text-warning uppercase tracking-[0.2em] animate-pulse">
+      <div
+        className="px-6 py-2 premium-glass rounded-full border border-warning/30 shadow-xl shadow-warning/10"
+      >
+        <span
+          className="text-[11px] font-black text-warning uppercase tracking-[0.2em] animate-pulse"
+        >
           {React.string("Linking Active")}
         </span>
       </div>
-      <div className="flex gap-4 text-[9px] font-bold text-white/40 uppercase tracking-widest bg-slate-950/40 backdrop-blur-sm px-4 py-1.5 rounded-full border border-white/5">
+      <div
+        className="flex gap-4 text-[9px] font-bold text-white/40 uppercase tracking-widest bg-slate-950/40 backdrop-blur-sm px-4 py-1.5 rounded-full border border-white/5"
+      >
         <span className="flex items-center gap-1.5">
-          <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white/80"> {React.string("ESC")} </kbd>
+          <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white/80">
+            {React.string("ESC")}
+          </kbd>
           {React.string("Cancel")}
         </span>
         <span className="flex items-center gap-1.5">
-          <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white/80"> {React.string("ENTER")} </kbd>
+          <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white/80">
+            {React.string("ENTER")}
+          </kbd>
           {React.string("Finish")}
         </span>
       </div>
@@ -402,20 +455,22 @@ let make = () => {
         }
 
       <div id="viewer-floor-nav" className={floorNavClass}>
-        <div className="flex flex-col-reverse gap-2 p-1.5 premium-glass rounded-2xl border border-white/10 shadow-2xl">
+        <div
+          className="flex flex-col-reverse gap-2 p-1.5 premium-glass rounded-2xl border border-white/10 shadow-2xl"
+        >
           {floorLevels
           ->Belt.Array.map(f => {
             let isSelected = f.id == currentFloor
-            
+
             <button
               key={f.id}
-              className={"w-10 h-10 rounded-xl flex flex-col items-center justify-center transition-all hover:scale-105 active:scale-90 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none " ++ (
-                if isSelected {
-                  "bg-primary text-white shadow-lg shadow-primary/20 scale-110 z-10 border border-white/20"
-                } else {
-                  "hover:bg-white/10 text-white/60 hover:text-white"
-                }
-              )}
+              className={"w-10 h-10 rounded-xl flex flex-col items-center justify-center transition-all hover:scale-105 active:scale-90 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none " ++ if (
+                isSelected
+              ) {
+                "bg-primary text-white shadow-lg shadow-primary/20 scale-110 z-10 border border-white/20"
+              } else {
+                "hover:bg-white/10 text-white/60 hover:text-white"
+              }}
               onClick={e => handleFloorClick(f.id, f.label, e)}
               ariaLabel={f.label}
             >
@@ -423,7 +478,9 @@ let make = () => {
                 {React.string(f.short)}
                 {if f.suffix != "" {
                   <sup className="text-[8px] opacity-70 ml-0.5"> {React.string(f.suffix)} </sup>
-                } else { React.null }}
+                } else {
+                  React.null
+                }}
               </span>
             </button>
           })
@@ -441,14 +498,18 @@ let make = () => {
       tabIndex=0
       onKeyDown={handleReturnPromptKeyDown}
     >
-      <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white shadow-lg shadow-primary/20 group-hover:rotate-[-45deg] transition-transform duration-500">
+      <div
+        className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white shadow-lg shadow-primary/20 group-hover:rotate-[-45deg] transition-transform duration-500"
+      >
         <span className="material-icons text-xl"> {React.string("reply")} </span>
       </div>
       <div className="flex flex-col">
         <span className="text-[12px] font-black text-white uppercase tracking-widest">
           {React.string("Add Return Link")}
         </span>
-        <span className="text-[9px] font-bold text-primary-light uppercase tracking-tighter opacity-70">
+        <span
+          className="text-[9px] font-bold text-primary-light uppercase tracking-tighter opacity-70"
+        >
           {React.string("Quick link back to previous scene")}
         </span>
       </div>

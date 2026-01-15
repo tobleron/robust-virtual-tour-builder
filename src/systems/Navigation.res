@@ -65,8 +65,11 @@ let calculateSmartArrivalTarget = (scenes: array<scene>, targetIndex: int) => {
 /* Helper to get current view safely */
 let getCurrentView = () => {
   switch Nullable.toOption(ReBindings.Viewer.instance) {
-  | Some(v) =>
-    (ReBindings.Viewer.getYaw(v), ReBindings.Viewer.getPitch(v), ReBindings.Viewer.getHfov(v))
+  | Some(v) => (
+      ReBindings.Viewer.getYaw(v),
+      ReBindings.Viewer.getPitch(v),
+      ReBindings.Viewer.getHfov(v),
+    )
   | None => (0.0, 0.0, 90.0)
   }
 }
@@ -202,10 +205,7 @@ let calculatePathData = (
       }
 
       let panDuration = Math.min(
-        Math.max(
-          totalDistance.contents /. Constants.panningVelocity,
-          Constants.panningMinDuration,
-        ),
+        Math.max(totalDistance.contents /. Constants.panningVelocity, Constants.panningMinDuration),
         Constants.panningMaxDuration,
       )
 
@@ -437,7 +437,12 @@ let handleAutoForward = (dispatch: Actions.action => unit, state: state, current
             )
           }
         | None =>
-          Logger.warn(~module_="Navigation", ~message="AUTO_FORWARD_FAILED", ~data={"reason": "No forward link found"}, ())
+          Logger.warn(
+            ~module_="Navigation",
+            ~message="AUTO_FORWARD_FAILED",
+            ~data={"reason": "No forward link found"},
+            (),
+          )
         }
       }
     }
@@ -446,12 +451,7 @@ let handleAutoForward = (dispatch: Actions.action => unit, state: state, current
 
 let setSimulationMode = (dispatch: Actions.action => unit, state: state, val: bool) => {
   dispatch(SetSimulationMode(val))
-  Logger.info(
-    ~module_="Navigation",
-    ~message="SIMULATION_MODE_CHANGED",
-    ~data={"enabled": val},
-    (),
-  )
+  Logger.info(~module_="Navigation", ~message="SIMULATION_MODE_CHANGED", ~data={"enabled": val}, ())
 
   dispatch(ResetAutoForwardChain)
   dispatch(SetIncomingLink(None))

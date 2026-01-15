@@ -80,7 +80,12 @@ let init = () => {
         Promise.resolve()
       })
       ->Promise.catch(e => {
-        Logger.warn(~module_="Audio", ~message="AUDIO_INIT_FAILED", ~data=Logger.castToJson({"error": e}), ())
+        Logger.warn(
+          ~module_="Audio",
+          ~message="AUDIO_INIT_FAILED",
+          ~data=Logger.castToJson({"error": e}),
+          (),
+        )
         Promise.resolve()
       })
   }

@@ -10,11 +10,11 @@ let hotspotVisualOffsetDegrees = 15.0
 // Helper to escape HTML
 let escapeHtml = unsafe => {
   unsafe
-  ->String.replaceRegExp(%re("/&/g"), "&amp;")
-  ->String.replaceRegExp(%re("/</g"), "&lt;")
-  ->String.replaceRegExp(%re("/>/g"), "&gt;")
-  ->String.replaceRegExp(%re("/\"/g"), "&quot;")
-  ->String.replaceRegExp(%re("/'/g"), "&#039;")
+  ->String.replaceRegExp(/&/g, "&amp;")
+  ->String.replaceRegExp(/</g, "&lt;")
+  ->String.replaceRegExp(/>/g, "&gt;")
+  ->String.replaceRegExp(/\"/g, "&quot;")
+  ->String.replaceRegExp(/'/g, "&#039;")
 }
 
 let showLinkModal = (
@@ -91,7 +91,7 @@ let showLinkModal = (
         }
 
         if exists {
-           EventBus.dispatch(ShowNotification("A link to this room already exists here!", #Warning))
+          EventBus.dispatch(ShowNotification("A link to this room already exists here!", #Warning))
         } else {
           let isReturnLink = Belt.Option.isSome(Nullable.toOption(pendingReturnSceneName))
           let displayPitch = pitch -. hotspotVisualOffsetDegrees
@@ -159,33 +159,35 @@ let showLinkModal = (
     }
   }
 
-  EventBus.dispatch(ShowModal({
-    title: "Link Destination",
-    description: Some("Saving current view as \"Target\""),
-    icon: Some("add_link"),
-    contentHtml: Some(contentHtml),
-    allowClose: Some(true),
-    onClose: Some(
-      () => {
-        GlobalStateBridge.dispatch(Actions.SetIsLinking(false))
-        GlobalStateBridge.dispatch(Actions.SetLinkDraft(None))
-      },
-    ),
-    buttons: [
-      {
-        label: "Save Link",
-        class_: "btn-blue",
-        onClick: onSave,
-        autoClose: Some(false),
-      },
-      {
-        label: "Cancel",
-        class_: "btn-secondary",
-        onClick: () => {EventBus.dispatch(CloseModal)},
-        autoClose: Some(false),
-      },
-    ],
-  }))
+  EventBus.dispatch(
+    ShowModal({
+      title: "Link Destination",
+      description: Some("Saving current view as \"Target\""),
+      icon: Some("add_link"),
+      contentHtml: Some(contentHtml),
+      allowClose: Some(true),
+      onClose: Some(
+        () => {
+          GlobalStateBridge.dispatch(Actions.SetIsLinking(false))
+          GlobalStateBridge.dispatch(Actions.SetLinkDraft(None))
+        },
+      ),
+      buttons: [
+        {
+          label: "Save Link",
+          class_: "btn-blue",
+          onClick: onSave,
+          autoClose: Some(false),
+        },
+        {
+          label: "Cancel",
+          class_: "btn-secondary",
+          onClick: () => {EventBus.dispatch(CloseModal)},
+          autoClose: Some(false),
+        },
+      ],
+    }),
+  )
 
   let _ = setTimeout(() => {
     switch Nullable.toOption(Dom.getElementById("link-target")) {

@@ -178,12 +178,12 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
 
       // Check for GPS data
       let gpsOpt = exifData.exif.gps
-      
+
       switch gpsOpt->Nullable.toOption {
       | Some(gpsDict) => {
-             let gpsPoint: GeoUtils.point = {lat: gpsDict.lat, lon: gpsDict.lon}
-             let _ = Js.Array.push(gpsPoint, gpsPoints)
-             let _ = Js.Array.push(File.name(file), gpsFilenames)
+          let gpsPoint: GeoUtils.point = {lat: gpsDict.lat, lon: gpsDict.lon}
+          let _ = Js.Array.push(gpsPoint, gpsPoints)
+          let _ = Js.Array.push(File.name(file), gpsFilenames)
         }
       | None => ()
       }
@@ -192,10 +192,8 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
       if captureDateTime.contents == None {
         let dateOpt = exifData.exif.dateTime
         switch dateOpt->Nullable.toOption {
-        | Some(dt) => {
-            if dt != "" {
-              captureDateTime := Some(dt)
-            }
+        | Some(dt) => if dt != "" {
+            captureDateTime := Some(dt)
           }
         | None => ()
         }
@@ -324,9 +322,7 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
     | Some(files) => {
         let _ = Js.Array.push(r, files)
       }
-    | None => {
-        Dict.set(groups, sig, [r])
-      }
+    | None => Dict.set(groups, sig, [r])
     }
   })
 

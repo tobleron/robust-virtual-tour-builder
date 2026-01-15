@@ -5,7 +5,7 @@ let run = () => {
 
   /* Mocks Setup - Runtime Extension */
   /* We extend the existing environment (likely set up by ViewerLoaderTest or others)
-     to support what DownloadSystem needs (click, remove on elements, Blob with properties). */
+   to support what DownloadSystem needs (click, remove on elements, Blob with properties). */
   let _ = %raw(`
     (function() {
       // Ensure global objects exist
@@ -63,7 +63,7 @@ let run = () => {
 
   /* Test: saveBlob */
   let blob = %raw(`new Blob(["test content"], {type: "text/plain"})`)
-  
+
   /* We verify it doesn't throw */
   try {
     saveBlob(blob, "test_save.txt")
@@ -75,7 +75,7 @@ let run = () => {
   /* Test: saveBlobWithConfirmation (fallback path) */
   /* Ensure showSaveFilePicker is missing */
   let _ = %raw(`delete global.window.showSaveFilePicker`)
-  
+
   let _ = saveBlobWithConfirmation(blob, "fallback_test.txt")
   Console.log("  saveBlobWithConfirmation (fallback) executed")
 
@@ -97,7 +97,7 @@ let run = () => {
   /* Execute native path */
   let _ = saveBlobWithConfirmation(blob, "native_test.txt")
   Console.log("  saveBlobWithConfirmation (native) initiated")
-  */
+ */
 
   Console.log("✓ DownloadSystem tests passed")
 }

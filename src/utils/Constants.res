@@ -2,12 +2,11 @@
  * Application-wide constants
  * Centralizing magic numbers for better maintainability
  */
-
-// ============================================
+let // ============================================
 // DEBUG CONFIGURATION
 // ============================================
 
-let debugEnabledDefault = false
+debugEnabledDefault = false
 let debugLogLevel = "info"
 let debugMaxEntries = 500
 let perfWarnThreshold = 500.0 // ms
@@ -234,7 +233,8 @@ let isDebugBuild = () => {
 
 let enableStateInspector = () => {
   try {
-    %raw(`typeof process !== 'undefined' && process.env.ENABLE_STATE_INSPECTOR === 'true'`) || isDebugBuild()
+    %raw(`typeof process !== 'undefined' && process.env.ENABLE_STATE_INSPECTOR === 'true'`) ||
+    isDebugBuild()
   } catch {
   | _ => isDebugBuild()
   }

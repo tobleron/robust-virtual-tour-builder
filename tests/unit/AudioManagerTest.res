@@ -3,7 +3,7 @@ open AudioManager
 
 let run = () => {
   Console.log("Running AudioManager tests...")
-  
+
   // 1. Test: clickSoundUrl is correct
   assert(clickSoundUrl == "sounds/click.wav")
 
@@ -63,7 +63,7 @@ let run = () => {
       closest: () => null
     };
   })()`)
-  
+
   // 2. Test: init() sets isInitialized
   init()
   assert(isInitialized.contents == true)

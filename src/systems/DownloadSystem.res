@@ -37,10 +37,15 @@ let getExtension = (filename: string) => {
 }
 
 let saveBlob = (blob: Blob.t, filename: string) => {
-  Logger.info(~module_="Download", ~message="SAVING_FILE", ~data={
-    "filename": filename,
-    "size": Blob.size(blob)
-  }, ())
+  Logger.info(
+    ~module_="Download",
+    ~message="SAVING_FILE",
+    ~data={
+      "filename": filename,
+      "size": Blob.size(blob),
+    },
+    (),
+  )
 
   /* Ensure MIME type */
   let blob = if Blob.type_(blob) == "" {
@@ -92,10 +97,15 @@ let writeFileToHandle = async (handle: fileHandle, blob: Blob.t) => {
 }
 
 let saveBlobWithConfirmation = async (blob: Blob.t, filename: string) => {
-  Logger.info(~module_="Download", ~message="SAVING_FILE_CONFIRMATION", ~data={
-    "filename": filename,
-    "size": Blob.size(blob)
-  }, ())
+  Logger.info(
+    ~module_="Download",
+    ~message="SAVING_FILE_CONFIRMATION",
+    ~data={
+      "filename": filename,
+      "size": Blob.size(blob),
+    },
+    (),
+  )
 
   let hasShowSaveFilePicker = %raw(`typeof window.showSaveFilePicker !== 'undefined'`)
 

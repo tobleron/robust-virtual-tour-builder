@@ -3,7 +3,6 @@
  * 
  * Replaces Debug.js and Logger.js with a single, strictly-typed module.
  */
-
 open ReBindings
 
 // =============================================================================
@@ -114,12 +113,15 @@ let showDebugBadge = () => {
     if Option.isNone(Dom.getElementById("debug-styles")->Nullable.toOption) {
       let s = Dom.createElement("style")
       Dom.setId(s, "debug-styles")
-      Dom.setTextContent(s, "
+      Dom.setTextContent(
+        s,
+        "
                 @keyframes debug-fade-in {
                     from { opacity: 0; transform: translateY(10px); }
                     to { opacity: 1; transform: translateY(0); }
                 }
-            ")
+            ",
+      )
       Dom.appendChild(Dom.documentBody, s)
     }
     Dom.appendChild(doc, badge)
@@ -139,14 +141,20 @@ let hideDebugBadge = () => {
 
 let sendTelemetry = async entry => {
   /* Only send errors or logs >= minLevel to backend */
-  if entry.level == "error" || levelPriority(stringToLevel(entry.level)) >= levelPriority(minLevel.contents) {
-    let endpoint = if entry.level == "error" { "/log-error" } else { "/log-telemetry" }
+  if (
+    entry.level == "error" ||
+      levelPriority(stringToLevel(entry.level)) >= levelPriority(minLevel.contents)
+  ) {
+    let endpoint = if entry.level == "error" {
+      "/log-error"
+    } else {
+      "/log-telemetry"
+    }
     try {
       let _ = await Fetch.fetch(
         Constants.backendUrl ++ endpoint,
         {
           method: "POST",
-
           headers: Nullable.make(Dict.fromArray([("Content-Type", "application/json")])),
           body: Nullable.make(JSON.stringify(castToJson(entry))),
         },
@@ -160,7 +168,7 @@ let sendTelemetry = async entry => {
 let log = (~module_: string, ~level: level, ~message: string, ~data: 'a=?, ()): unit => {
   let timestamp = Date.now()
   let timeStr = Date.toISOString(Date.make())
-  
+
   let entry = {
     timestamp,
     time: timeStr,
@@ -176,7 +184,9 @@ let log = (~module_: string, ~level: level, ~message: string, ~data: 'a=?, ()): 
   }
 
   /* App Log Buffer (for UI) */
-  let appLogMsg = `[${timeStr}][${levelToString(level)->String.toUpperCase}] [${module_}] ${message}`
+  let appLogMsg = `[${timeStr}][${levelToString(
+      level,
+    )->String.toUpperCase}] [${module_}] ${message}`
   let _ = Js.Array.push(appLogMsg, appLog)
   if Array.length(appLog) > maxAppLogEntries {
     let _ = Array.shift(appLog)
@@ -189,7 +199,10 @@ let log = (~module_: string, ~level: level, ~message: string, ~data: 'a=?, ()): 
   if enabled.contents && levelPriority(level) >= levelPriority(minLevel.contents) {
     let hasFilter = Belt.Set.String.size(enabledModules.contents) > 0
     if !hasFilter || Belt.Set.String.has(enabledModules.contents, module_) {
-      let color = Dict.get(moduleColors, module_)->Option.getOr(Dict.get(moduleColors, "Default")->Option.getOr("#64748b"))
+      let color =
+        Dict.get(moduleColors, module_)->Option.getOr(
+          Dict.get(moduleColors, "Default")->Option.getOr("#64748b"),
+        )
       let prefix = `%c[${module_}]%c`
       let prefixStyle = `color: ${color}; font-weight: bold;`
       let resetStyle = "color: inherit;"
@@ -211,7 +224,14 @@ let log = (~module_: string, ~level: level, ~message: string, ~data: 'a=?, ()): 
         }
       `)
 
-      callConsole(consoleMethod, prefix, prefixStyle, resetStyle, message, data->Option.map(castToJson)->optToNullable)
+      callConsole(
+        consoleMethod,
+        prefix,
+        prefixStyle,
+        resetStyle,
+        message,
+        data->Option.map(castToJson)->optToNullable,
+      )
     }
   }
 }
@@ -220,27 +240,54 @@ let log = (~module_: string, ~level: level, ~message: string, ~data: 'a=?, ()): 
 // PUBLIC API
 // =============================================================================
 
-let trace = (~module_, ~message, ~data: 'a=?, ()) => log(~module_, ~level=Trace, ~message, ~data?, ())
-let debug = (~module_, ~message, ~data: 'a=?, ()) => log(~module_, ~level=Debug, ~message, ~data?, ())
+let trace = (~module_, ~message, ~data: 'a=?, ()) =>
+  log(~module_, ~level=Trace, ~message, ~data?, ())
+let debug = (~module_, ~message, ~data: 'a=?, ()) =>
+  log(~module_, ~level=Debug, ~message, ~data?, ())
 let info = (~module_, ~message, ~data: 'a=?, ()) => log(~module_, ~level=Info, ~message, ~data?, ())
 let warn = (~module_, ~message, ~data: 'a=?, ()) => log(~module_, ~level=Warn, ~message, ~data?, ())
-let error = (~module_, ~message, ~data: 'a=?, ()) => log(~module_, ~level=Error, ~message, ~data?, ())
+let error = (~module_, ~message, ~data: 'a=?, ()) =>
+  log(~module_, ~level=Error, ~message, ~data?, ())
 
 let perf = (~module_, ~message, ~durationMs, ~data: 'a=?, ()) => {
-  let threshold = if durationMs > 500.0 { "VERY_SLOW" } else if durationMs > 100.0 { "SLOW" } else { "OK" }
-  let emoji = if durationMs > 500.0 { "🐢" } else if durationMs > 100.0 { "⏱️" } else { "⚡" }
-  let level = if durationMs > 500.0 { Warn } else if durationMs > 100.0 { Info } else { Debug }
-  
+  let threshold = if durationMs > 500.0 {
+    "VERY_SLOW"
+  } else if durationMs > 100.0 {
+    "SLOW"
+  } else {
+    "OK"
+  }
+  let emoji = if durationMs > 500.0 {
+    "🐢"
+  } else if durationMs > 100.0 {
+    "⏱️"
+  } else {
+    "⚡"
+  }
+  let level = if durationMs > 500.0 {
+    Warn
+  } else if durationMs > 100.0 {
+    Info
+  } else {
+    Debug
+  }
+
   let pd = switch data {
-  | Some(d) => 
-      let obj = Object.assign(Object.make(), asDynamic(d))
-      asDynamic(obj)
+  | Some(d) =>
+    let obj = Object.assign(Object.make(), asDynamic(d))
+    asDynamic(obj)
   | None => asDynamic(Object.make())
   }
   pd["durationMs"] = durationMs
   pd["threshold"] = threshold
 
-  log(~module_, ~level, ~message=`${emoji} ${message} (${Float.toFixed(durationMs, ~digits=2)}ms)`, ~data=?Some(castToJson(pd)), ())
+  log(
+    ~module_,
+    ~level,
+    ~message=`${emoji} ${message} (${Float.toFixed(durationMs, ~digits=2)}ms)`,
+    ~data=?Some(castToJson(pd)),
+    (),
+  )
 }
 
 let timed = (~module_: string, ~operation: string, fn: unit => 'a): timedResult<'a> => {
@@ -251,7 +298,9 @@ let timed = (~module_: string, ~operation: string, fn: unit => 'a): timedResult<
   {result, durationMs}
 }
 
-let timedAsync = async (~module_: string, ~operation: string, fn: unit => promise<'a>): timedResult<'a> => {
+let timedAsync = async (~module_: string, ~operation: string, fn: unit => promise<'a>): timedResult<
+  'a,
+> => {
   let start = Date.now()
   let result = await fn()
   let durationMs = Date.now() -. start
@@ -260,35 +309,61 @@ let timedAsync = async (~module_: string, ~operation: string, fn: unit => promis
 }
 
 let attempt = (~module_: string, ~operation: string, fn: unit => 'a): operationResult<'a> => {
-  try { Ok(fn()) } catch {
+  try {Ok(fn())} catch {
   | JsExn(e) => {
       let msg = e->JsExn.message->Option.getOr("Unknown error")
-      error(~module_, ~message=`${operation}_FAILED`, ~data=castToJson({"error": msg, "stack": e->JsExn.stack}), ())
+      error(
+        ~module_,
+        ~message=`${operation}_FAILED`,
+        ~data=castToJson({"error": msg, "stack": e->JsExn.stack}),
+        (),
+      )
       Error(msg)
     }
   | _ => {
-      error(~module_, ~message=`${operation}_FAILED`, ~data=castToJson({"error": "Unknown exception"}), ())
+      error(
+        ~module_,
+        ~message=`${operation}_FAILED`,
+        ~data=castToJson({"error": "Unknown exception"}),
+        (),
+      )
       Error("Unknown exception")
     }
   }
 }
 
-let attemptAsync = async (~module_: string, ~operation: string, fn: unit => promise<'a>): operationResult<'a> => {
-  try { Ok(await fn()) } catch {
+let attemptAsync = async (
+  ~module_: string,
+  ~operation: string,
+  fn: unit => promise<'a>,
+): operationResult<'a> => {
+  try {Ok(await fn())} catch {
   | JsExn(e) => {
       let msg = e->JsExn.message->Option.getOr("Unknown error")
-      error(~module_, ~message=`${operation}_FAILED`, ~data=castToJson({"error": msg, "stack": e->JsExn.stack}), ())
+      error(
+        ~module_,
+        ~message=`${operation}_FAILED`,
+        ~data=castToJson({"error": msg, "stack": e->JsExn.stack}),
+        (),
+      )
       Error(msg)
     }
   | _ => {
-      error(~module_, ~message=`${operation}_FAILED`, ~data=castToJson({"error": "Unknown exception"}), ())
+      error(
+        ~module_,
+        ~message=`${operation}_FAILED`,
+        ~data=castToJson({"error": "Unknown exception"}),
+        (),
+      )
       Error("Unknown exception")
     }
   }
 }
 
-let startOperation = (~module_, ~operation, ~data=?, ()) => info(~module_, ~message=`${operation}_START`, ~data?, ())
-let endOperation = (~module_, ~operation, ~data=?, ()) => info(~module_, ~message=`${operation}_COMPLETE`, ~data?, ())
+let startOperation = (~module_, ~operation, ~data=?, ()) =>
+  info(~module_, ~message=`${operation}_START`, ~data?, ())
+let endOperation = (~module_, ~operation, ~data=?, ()) =>
+  info(~module_, ~message=`${operation}_COMPLETE`, ~data?, ())
 let initialized = (~module_) => info(~module_, ~message=`${module_} initialized`, ())
 
 let setLevel = lvl => {
@@ -310,7 +385,11 @@ let disable = () => {
 }
 
 let toggle = () => {
-  if enabled.contents { disable() } else { enable() }
+  if enabled.contents {
+    disable()
+  } else {
+    enable()
+  }
   enabled.contents
 }
 
@@ -326,9 +405,9 @@ let init = () => {
     "enable": enable,
     "disable": disable,
     "toggle": toggle,
-    "setLevel": (s) => setLevel(stringToLevel(s)),
+    "setLevel": s => setLevel(stringToLevel(s)),
     "getLog": () => entries,
-    "clear": () => { %raw(`entries.length = 0`) },
+    "clear": () => {%raw(`entries.length = 0`)},
     "isEnabled": () => enabled.contents,
   }
   Window.setDebug(Window.window, asDynamic(debugObj))
@@ -336,18 +415,33 @@ let init = () => {
 
   /* Intercept Global Errors */
   Window.setOnError(Window.window, (msg, url, line, col, _error) => {
-    error(~module_="Window", ~message="UNCAUGHT_ERROR", ~data=castToJson({
-      "message": msg, "url": url, "line": line, "col": col
-    }), ())
+    error(
+      ~module_="Window",
+      ~message="UNCAUGHT_ERROR",
+      ~data=castToJson({
+        "message": msg,
+        "url": url,
+        "line": line,
+        "col": col,
+      }),
+      (),
+    )
     false
   })
 
-  Window.setOnUnhandledRejection(Window.window, (event) => {
-    error(~module_="Window", ~message="UNHANDLED_REJECTION", ~data=castToJson({
-      "reason": event["reason"]
-    }), ())
+  Window.setOnUnhandledRejection(Window.window, event => {
+    error(
+      ~module_="Window",
+      ~message="UNHANDLED_REJECTION",
+      ~data=castToJson({
+        "reason": event["reason"],
+      }),
+      (),
+    )
   })
 
   initialized(~module_="Logger")
-  if enabled.contents { showDebugBadge() }
+  if enabled.contents {
+    showDebugBadge()
+  }
 }

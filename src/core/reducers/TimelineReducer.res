@@ -9,7 +9,8 @@ let reduce = (state: state, action: action): option<state> => {
 
   | SetActiveTimelineStep(idOpt) => Some({...state, activeTimelineStepId: idOpt})
 
-  | RemoveFromTimeline(id) => Some({...state, timeline: Belt.Array.keep(state.timeline, t => t.id != id)})
+  | RemoveFromTimeline(id) =>
+    Some({...state, timeline: Belt.Array.keep(state.timeline, t => t.id != id)})
 
   | ReorderTimeline(fromIdx, toIdx) =>
     if fromIdx != toIdx {

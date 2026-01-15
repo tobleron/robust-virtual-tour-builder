@@ -75,7 +75,12 @@ let generateServerTeaser = (state: state, onProgress: option<(int, string) => un
       let getText: Fetch.response => Promise.t<string> = %raw("(res) => res.text()")
       getText(res)->Promise.then(text => {
         let msg = "Server Teaser Failed: " ++ text
-        Logger.error(~module_="ServerTeaser", ~message="GENERATION_FAILED", ~data={"error": text}, ())
+        Logger.error(
+          ~module_="ServerTeaser",
+          ~message="GENERATION_FAILED",
+          ~data={"error": text},
+          (),
+        )
         Promise.reject(JsError.throwWithMessage(msg))
       })
     } else {

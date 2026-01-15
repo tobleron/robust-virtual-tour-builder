@@ -43,7 +43,7 @@ module UnhandledRejectionEvent = {
   @get external getReason: t => reason = "reason"
   @get external getPromise: t => Promise.t<'a> = "promise"
   @send external preventDefault: t => unit = "preventDefault"
-  
+
   external reasonToError: reason => JsError.t = "%identity"
   external reasonToString: reason => string = "%identity"
   let isError: reason => bool = %raw(`function(r) { return r instanceof Error }`)
@@ -57,19 +57,18 @@ module ViewerClickEvent = {
     camYaw: float,
     camHfov: float,
   }
-  
+
   type t
   @get external detail: t => detail = "detail"
   external fromEvent: Dom.event => t = "%identity"
 }
 
-@val @scope("window") external setOnerror: (
-  (string, string, int, int, Nullable.t<JsError.t>) => bool
-) => unit = "onerror"
+@val @scope("window")
+external setOnerror: ((string, string, int, int, Nullable.t<JsError.t>) => bool) => unit = "onerror"
 
-@val @scope("window") external setOnunhandledrejection: (
-  UnhandledRejectionEvent.t => unit
-) => unit = "onunhandledrejection"
+@val @scope("window")
+external setOnunhandledrejection: (UnhandledRejectionEvent.t => unit) => unit =
+  "onunhandledrejection"
 
 @val @scope(("window", "location")) external getHref: unit => string = "toString"
 
@@ -80,7 +79,7 @@ external docToEl: {..} => Dom.element = "%identity"
 let init = async () => {
   // 1. Logger
   Logger.init()
-  
+
   Logger.info(~module_="System", ~message="Initializing Remax Builder...", ())
 
   // 2. Global JSON store access (for legacy scripts/console)
@@ -90,15 +89,14 @@ let init = async () => {
   try {
     let canvas = Dom.createElement("canvas")
     let glOpt = WebGL.getContext(canvas, "webgl")
-    
+
     let (renderer, vendor) = switch glOpt->Nullable.toOption {
     | Some(gl) =>
       let debugInfo = WebGL.getExtension(gl, "WEBGL_debug_renderer_info")
       switch debugInfo->Nullable.toOption {
-      | Some(ext) =>
-        (
+      | Some(ext) => (
           gl->WebGL.getParameter(WebGLDebugInfo.unmaskedRendererWebgl(ext)),
-          gl->WebGL.getParameter(WebGLDebugInfo.unmaskedVendorWebgl(ext))
+          gl->WebGL.getParameter(WebGLDebugInfo.unmaskedVendorWebgl(ext)),
         )
       | None => ("unknown", "unknown")
       }
@@ -113,12 +111,16 @@ let init = async () => {
         "platform": Navigator.platform,
         "cores": Navigator.hardwareConcurrency,
         "memory": Navigator.deviceMemory,
-        "screen": Belt.Int.toString(Screen.width) ++ "x" ++ Belt.Int.toString(Screen.height) ++ " (" ++ Float.toString(Screen.devicePixelRatio) ++ "x)",
+        "screen": Belt.Int.toString(Screen.width) ++
+        "x" ++
+        Belt.Int.toString(Screen.height) ++
+        " (" ++
+        Float.toString(Screen.devicePixelRatio) ++ "x)",
         "gpu": {"renderer": renderer, "vendor": vendor},
         "url": getHref(),
-        "version": %raw(`typeof window.APP_VERSION !== 'undefined' ? window.APP_VERSION : 'unknown'`)
+        "version": %raw(`typeof window.APP_VERSION !== 'undefined' ? window.APP_VERSION : 'unknown'`),
       }),
-      ()
+      (),
     )
   } catch {
   | _ => Console.warn("Failed to collect system telemetry")
@@ -140,9 +142,9 @@ let init = async () => {
         "type": switch error->Nullable.toOption {
         | Some(e) => JsError.name(e)
         | None => "Error"
-        }
+        },
       }),
-      ()
+      (),
     )
     false
   })
@@ -150,20 +152,20 @@ let init = async () => {
   setOnunhandledrejection(event => {
     let reason = UnhandledRejectionEvent.getReason(event)
     let isError = UnhandledRejectionEvent.isError(reason)
-    
+
     Logger.error(
       ~module_="Global",
       ~message="Unhandled Promise Rejection",
       ~data=Some({
-        "reason": isError 
+        "reason": isError
           ? JsError.message(UnhandledRejectionEvent.reasonToError(reason))
           : UnhandledRejectionEvent.reasonToString(reason),
-        "stack": isError 
+        "stack": isError
           ? JsError.stack(UnhandledRejectionEvent.reasonToError(reason))
           : Nullable.null,
-        "promise": UnhandledRejectionEvent.getPromise(event)
+        "promise": UnhandledRejectionEvent.getPromise(event),
       }),
-      ()
+      (),
     )
 
     if !Js.String.includes("localhost", Window.window["location"]["hostname"]) {
@@ -179,16 +181,15 @@ let init = async () => {
   | None => Console.error("Root element #app not found")
   }
 
-
   // 7. Systems
   AudioManager.setupGlobalClickSounds()
   VisualPipeline.init("visual-pipeline-container")->ignore
   SimulationSystem.initSimulationKeyHandler()
   InputSystem.initInputSystem()
-  
+
   // 8. Service Worker (for offline capability and caching)
   ServiceWorker.registerServiceWorker()
-  
+
   // 8. Global click handler
   // 8. Global click handler
   Dom.addEventListener(docToEl(Dom.document), "viewer-click", (e: Dom.event) => {
@@ -201,7 +202,7 @@ let init = async () => {
         ~camPitch=detail.camPitch,
         ~camYaw=detail.camYaw,
         ~camHfov=detail.camHfov,
-        ()
+        (),
       )
     }
   })

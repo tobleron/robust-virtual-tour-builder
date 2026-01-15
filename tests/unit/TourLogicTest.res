@@ -16,7 +16,7 @@ let run = () => {
   let used = Belt.Set.String.fromArray(["A01", "A02"])
   let id1 = generateLinkId(used)
   assert(id1 == "A00") // Loop starts from 00
-  
+
   let used2 = Belt.Set.String.fromArray(["A00", "A01"])
   let id2 = generateLinkId(used2)
   assert(id2 == "A02")

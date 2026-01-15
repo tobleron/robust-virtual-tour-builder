@@ -103,8 +103,15 @@ let analyzeImageQuality = (file: File.t): Promise.t<qualityAnalysis> => {
   extractExifData(file)
   ->Promise.then(data => Promise.resolve(data.quality))
   ->Promise.catch(err => {
-    Logger.error(~module_="ExifParser", ~message="QUALITY_ANALYSIS_FAILED", ~data=Logger.castToJson({"error": err}), ())
-    Promise.resolve(Obj.magic({"score": 7.5, "issues": 0, "analysis": Nullable.null, "error": "Analysis failed"}))
+    Logger.error(
+      ~module_="ExifParser",
+      ~message="QUALITY_ANALYSIS_FAILED",
+      ~data=Logger.castToJson({"error": err}),
+      (),
+    )
+    Promise.resolve(
+      Obj.magic({"score": 7.5, "issues": 0, "analysis": Nullable.null, "error": "Analysis failed"}),
+    )
   })
 }
 

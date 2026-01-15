@@ -41,9 +41,9 @@ type event =
 
 type subscription = unit => unit
 
-let listeners: ref<array<(event) => unit>> = ref([])
+let listeners: ref<array<event => unit>> = ref([])
 
-let subscribe = (callback: (event) => unit): subscription => {
+let subscribe = (callback: event => unit): subscription => {
   listeners := Belt.Array.concat(listeners.contents, [callback])
   () => {
     listeners := Belt.Array.keep(listeners.contents, cb => cb !== callback)

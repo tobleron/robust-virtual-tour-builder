@@ -61,7 +61,12 @@ let startJourney = (data: EventBus.navStartPayload) => {
       }
 
       if !shouldContinue {
-        Logger.warn(~module_="NavRenderer", ~message="JOURNEY_CANCELLED", ~data=Some({"journeyId": data.journeyId}), ())
+        Logger.warn(
+          ~module_="NavRenderer",
+          ~message="JOURNEY_CANCELLED",
+          ~data=Some({"journeyId": data.journeyId}),
+          (),
+        )
       } else if crossfadeTriggered.contents {
         // Clear UI and stop
         let svgOpt = Dom.getElementById("viewer-hotspot-lines")
@@ -126,7 +131,7 @@ let startJourney = (data: EventBus.navStartPayload) => {
               arrivalPitch: pathData.arrivalPitch,
               arrivalHfov: pathData.arrivalHfov,
               previewOnly: data.previewOnly,
-              pathData: None
+              pathData: None,
             }
             EventBus.dispatch(NavCompleted(payload))
             Logger.info(
@@ -176,8 +181,7 @@ let startJourney = (data: EventBus.navStartPayload) => {
           Viewer.setPitch(v, camPitch.contents, false)
           Viewer.setYaw(v, camYaw.contents, false)
           let hfovProgress =
-            pathData.startHfov +.
-            (pathData.targetHfovForPan -. pathData.startHfov) *. progress
+            pathData.startHfov +. (pathData.targetHfovForPan -. pathData.startHfov) *. progress
           Viewer.setHfov(v, hfovProgress, false)
 
           Logger.trace(

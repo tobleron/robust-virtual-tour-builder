@@ -84,7 +84,7 @@ let createSavePackage = (state: state, ~onProgress: option<onProgress>=?): Promi
     Promise.resolve(Ok(blob))
   })
   ->Promise.catch(err => {
-     let msg = switch Js.Exn.asJsExn(err) {
+    let msg = switch Js.Exn.asJsExn(err) {
     | Some(e) => Js.Exn.message(e)->Option.getOr("Unknown error creating save package")
     | None => "Unknown error creating save package"
     }
@@ -103,7 +103,7 @@ let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promi
   }
 
   progress(0, 100, "Uploading project...")
-  
+
   let loadStartTime = Date.now()
   Logger.startOperation(
     ~module_="ProjectManager",
@@ -116,43 +116,51 @@ let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promi
   ->Promise.then(result => {
     switch result {
     | Ok(response) =>
-        progress(50, 100, "Processing response...")
-        let sessionId = response.sessionId
-        let projectData = response.projectData
+      progress(50, 100, "Processing response...")
+      let sessionId = response.sessionId
+      let projectData = response.projectData
 
-        // Basic Validation
-        switch validateProjectStructure(projectData) {
-        | Error(e) => Promise.reject(JsError.throwWithMessage(e))
-        | Ok(_) => Promise.resolve((sessionId, projectData))
-        }
+      // Basic Validation
+      switch validateProjectStructure(projectData) {
+      | Error(e) => Promise.reject(JsError.throwWithMessage(e))
+      | Ok(_) => Promise.resolve((sessionId, projectData))
+      }
     | Error(msg) => Promise.reject(JsError.throwWithMessage(msg))
     }
   })
   ->Promise.then(((sessionId, projectData)) => {
     progress(70, 100, "Resolving scenes...")
     let pd = castToDict(projectData)
-    let scenesArray = Js.Dict.get(pd, "scenes")->Option.flatMap(Js.Json.decodeArray)->Option.getWithDefault([])
+    let scenesArray =
+      Js.Dict.get(pd, "scenes")->Option.flatMap(Js.Json.decodeArray)->Option.getWithDefault([])
 
     // Map scenes to point to backend URL
     let validScenes = Belt.Array.map(scenesArray, item => {
       let sceneDict = castToDict(item)
-      let name = Js.Dict.get(sceneDict, "name")->Option.flatMap(Js.Json.decodeString)->Option.getWithDefault("unknown")
-      
-      let fileUrl = Constants.backendUrl ++ "/api/session/" ++ sessionId ++ "/" ++ encodeURIComponent(name)
-      
+      let name =
+        Js.Dict.get(sceneDict, "name")
+        ->Option.flatMap(Js.Json.decodeString)
+        ->Option.getWithDefault("unknown")
+
+      let fileUrl =
+        Constants.backendUrl ++ "/api/session/" ++ sessionId ++ "/" ++ encodeURIComponent(name)
+
       // Clone scene object (shallow copy)
       let newSceneDict = Js.Dict.fromArray(Js.Dict.entries(sceneDict))
-      
+
       Js.Dict.set(newSceneDict, "file", castToJson(fileUrl))
       Js.Dict.set(newSceneDict, "originalFile", castToJson(fileUrl))
-      
+
       // Note: tinyFile handling could be added here if backend generates it
-      
+
       castToJson(newSceneDict)
     })
 
     // Extract validation report if present
-    let validationReport: option<SharedTypes.validationReport> = switch Js.Dict.get(pd, "validationReport") {
+    let validationReport: option<SharedTypes.validationReport> = switch Js.Dict.get(
+      pd,
+      "validationReport",
+    ) {
     | Some(report) => Some(Obj.magic(report)) // Keep one magic here as strict typing large structs is hard or need decoder
     | None => None
     }
@@ -161,23 +169,27 @@ let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promi
     switch validationReport {
     | Some(report) => {
         if report.brokenLinksRemoved > 0 {
-          EventBus.dispatch(ShowNotification(
-            "Project loaded. " ++
-            Belt.Int.toString(
-              report.brokenLinksRemoved,
-            ) ++ " broken link(s) were automatically removed.",
-            #Warning,
-          ))
+          EventBus.dispatch(
+            ShowNotification(
+              "Project loaded. " ++
+              Belt.Int.toString(
+                report.brokenLinksRemoved,
+              ) ++ " broken link(s) were automatically removed.",
+              #Warning,
+            ),
+          )
         }
 
         if Array.length(report.orphanedScenes) > 0 {
-          EventBus.dispatch(ShowNotification(
-            "Warning: " ++
-            Belt.Int.toString(
-              Array.length(report.orphanedScenes),
-            ) ++ " orphaned scene(s) detected (no incoming links).",
-            #Warning,
-          ))
+          EventBus.dispatch(
+            ShowNotification(
+              "Warning: " ++
+              Belt.Int.toString(
+                Array.length(report.orphanedScenes),
+              ) ++ " orphaned scene(s) detected (no incoming links).",
+              #Warning,
+            ),
+          )
         }
 
         if Array.length(report.unusedFiles) > 0 {
@@ -190,12 +202,9 @@ let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promi
         }
 
         if Array.length(report.errors) > 0 {
-          Belt.Array.forEach(
-            report.errors,
-            error => {
-              EventBus.dispatch(ShowNotification("Error: " ++ error, #Error))
-            },
-          )
+          Belt.Array.forEach(report.errors, error => {
+            EventBus.dispatch(ShowNotification("Error: " ++ error, #Error))
+          })
         }
       }
     | None => ()
@@ -203,10 +212,22 @@ let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promi
 
     // Reconstruct the full project data object
     let loadedProject = Dict.make()
-    Dict.set(loadedProject, "tourName", Js.Dict.get(pd, "tourName")->Option.getWithDefault(castToJson("Imported Tour")))
+    Dict.set(
+      loadedProject,
+      "tourName",
+      Js.Dict.get(pd, "tourName")->Option.getWithDefault(castToJson("Imported Tour")),
+    )
     Dict.set(loadedProject, "scenes", castToJson(validScenes))
-    Dict.set(loadedProject, "deletedSceneIds", Js.Dict.get(pd, "deletedSceneIds")->Option.getWithDefault(castToJson([])))
-    Dict.set(loadedProject, "timeline", Js.Dict.get(pd, "timeline")->Option.getWithDefault(castToJson([])))
+    Dict.set(
+      loadedProject,
+      "deletedSceneIds",
+      Js.Dict.get(pd, "deletedSceneIds")->Option.getWithDefault(castToJson([])),
+    )
+    Dict.set(
+      loadedProject,
+      "timeline",
+      Js.Dict.get(pd, "timeline")->Option.getWithDefault(castToJson([])),
+    )
     Dict.set(loadedProject, "activeIndex", castToJson(0))
 
     progress(100, 100, "Project Loaded!")
@@ -214,15 +235,20 @@ let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promi
       ~module_="ProjectManager",
       ~operation="PROJECT_LOAD",
       ~data=Some({
-        "sceneCount": Array.length(validScenes), 
-        "durationMs": Date.now() -. loadStartTime
+        "sceneCount": Array.length(validScenes),
+        "durationMs": Date.now() -. loadStartTime,
       }),
       (),
     )
     Promise.resolve(Ok(castToJson(loadedProject)))
   })
   ->Promise.catch(err => {
-    Logger.error(~module_="ProjectManager", ~message="PROJECT_LOAD_FAILED", ~data=Some({"error": err}), ())
+    Logger.error(
+      ~module_="ProjectManager",
+      ~message="PROJECT_LOAD_FAILED",
+      ~data=Some({"error": err}),
+      (),
+    )
     progress(0, 100, "Load Failed")
 
     let msg = switch Js.Exn.asJsExn(err) {
@@ -237,7 +263,12 @@ let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promi
 
 let saveProject = (state: state, ~onProgress: option<onProgress>=?) => {
   if Array.length(state.scenes) == 0 {
-    Logger.warn(~module_="ProjectManager", ~message="SAVE_ABORTED", ~data=Some({"reason": "No scenes"}), ())
+    Logger.warn(
+      ~module_="ProjectManager",
+      ~message="SAVE_ABORTED",
+      ~data=Some({"reason": "No scenes"}),
+      (),
+    )
     Promise.resolve(false)
   } else {
     let tourName = if state.tourName == "" {
@@ -274,8 +305,13 @@ let saveProject = (state: state, ~onProgress: option<onProgress>=?) => {
       createSavePackage(state, ~onProgress?)->Promise.then(result => {
         switch result {
         | Ok(blob) =>
-          Logger.info(~module_="ProjectManager", ~message="PACKAGE_CREATED", ~data=Some({"size": Blob.size(blob)}), ())
-          
+          Logger.info(
+            ~module_="ProjectManager",
+            ~message="PACKAGE_CREATED",
+            ~data=Some({"size": Blob.size(blob)}),
+            (),
+          )
+
           // Save to disk
           if useFileHandle {
             switch fileHandle {
@@ -288,20 +324,26 @@ let saveProject = (state: state, ~onProgress: option<onProgress>=?) => {
           } else {
             DownloadSystem.saveBlob(blob, filename)
             Promise.resolve(true)
-          }
-          ->Promise.then(success => {
-            if success {
-               Logger.endOperation(
-                ~module_="ProjectManager",
-                ~operation="PROJECT_SAVE",
-                ~data=Some({"durationMs": Date.now() -. saveStartTime}),
-                (),
-              )
-            }
-            Promise.resolve(success)
-          })
+          }->Promise.then(
+            success => {
+              if success {
+                Logger.endOperation(
+                  ~module_="ProjectManager",
+                  ~operation="PROJECT_SAVE",
+                  ~data=Some({"durationMs": Date.now() -. saveStartTime}),
+                  (),
+                )
+              }
+              Promise.resolve(success)
+            },
+          )
         | Error(msg) =>
-          Logger.error(~module_="ProjectManager", ~message="PROJECT_SAVE_FAILED", ~data=Some({"error": msg}), ())
+          Logger.error(
+            ~module_="ProjectManager",
+            ~message="PROJECT_SAVE_FAILED",
+            ~data=Some({"error": msg}),
+            (),
+          )
           Promise.resolve(false)
         }
       })

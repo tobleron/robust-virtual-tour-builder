@@ -168,7 +168,7 @@ module Loader = {
       }
     | None => ()
     }
-    
+
     Logger.endOperation(
       ~module_="Viewer",
       ~operation="SCENE_LOAD",
@@ -185,363 +185,377 @@ module Loader = {
     anticipatoryTargetIndex: option<int>,
   ) => {
     let _ = LazyLoad.loadPannellum()->Promise.then(() => {
-    let isAnticipatory = Belt.Option.isSome(anticipatoryTargetIndex)
-    let targetIndex = switch anticipatoryTargetIndex {
-    | Some(i) => i
-    | None => GlobalStateBridge.getState().activeIndex
-    }
-
-    switch Belt.Array.get(GlobalStateBridge.getState().scenes, targetIndex) {
-    | Some(targetScene) =>
-      Logger.debug(
-        ~module_="Viewer",
-        ~message="SCENE_LOAD_START",
-        ~data=Some({
-          "sceneName": targetScene.name,
-          "sceneIndex": targetIndex,
-          "isAnticipatory": isAnticipatory,
-        }),
-        (),
-      )
-      let _inactiveKey = switch state.activeViewerKey {
-      | A => B
-      | B => A
+      let isAnticipatory = Belt.Option.isSome(anticipatoryTargetIndex)
+      let targetIndex = switch anticipatoryTargetIndex {
+      | Some(i) => i
+      | None => GlobalStateBridge.getState().activeIndex
       }
-      let inactiveViewer = getInactiveViewer()
-      let containerId = getInactiveContainerId()
 
-      /* Reuse Check */
-      let shouldReuse = switch Nullable.toOption(inactiveViewer) {
-      | Some(v) =>
-        let vDyn = asDynamic(v)
-        let vid: string = vDyn["_sceneId"]
-        if vid == targetScene.id {
-          if vDyn["_isLoaded"] {
-            if GlobalStateBridge.getState().activeIndex == targetIndex && !isAnticipatory {
-              performSwap(targetScene)
-              true
+      switch Belt.Array.get(GlobalStateBridge.getState().scenes, targetIndex) {
+      | Some(targetScene) =>
+        Logger.debug(
+          ~module_="Viewer",
+          ~message="SCENE_LOAD_START",
+          ~data=Some({
+            "sceneName": targetScene.name,
+            "sceneIndex": targetIndex,
+            "isAnticipatory": isAnticipatory,
+          }),
+          (),
+        )
+        let _inactiveKey = switch state.activeViewerKey {
+        | A => B
+        | B => A
+        }
+        let inactiveViewer = getInactiveViewer()
+        let containerId = getInactiveContainerId()
+
+        /* Reuse Check */
+        let shouldReuse = switch Nullable.toOption(inactiveViewer) {
+        | Some(v) =>
+          let vDyn = asDynamic(v)
+          let vid: string = vDyn["_sceneId"]
+          if vid == targetScene.id {
+            if vDyn["_isLoaded"] {
+              if GlobalStateBridge.getState().activeIndex == targetIndex && !isAnticipatory {
+                performSwap(targetScene)
+                true
+              } else {
+                true /* Loaded but waiting */
+              }
             } else {
-              true /* Loaded but waiting */
+              true /* Already loading this scene */
             }
           } else {
-            true /* Already loading this scene */
+            false
           }
-        } else {
-          false
+        | None => false
         }
-      | None => false
-      }
 
-
-      if !shouldReuse {
-        if state.isSceneLoading && !isAnticipatory {
-          Logger.debug(
-            ~module_="Viewer",
-            ~message="LOAD_QUEUED",
-            ~data=Some({"sceneName": targetScene.name}),
-            (),
-          )
-        } else {
-          loadStartTime := Date.now()
-          state.isSceneLoading = true
-          state.loadingSceneId = Nullable.make(targetScene.id)
-
-          /* Safety Timeout */
-          switch Nullable.toOption(state.loadSafetyTimeout) {
-          | Some(t) => Window.clearTimeout(t)
-          | None => ()
-          }
-          state.loadSafetyTimeout = Nullable.make(Window.setTimeout(() => {
-              if (
-                state.isSceneLoading &&
-                Nullable.toOption(state.loadingSceneId) == Some(targetScene.id)
-              ) {
-                Logger.error(
-                  ~module_="Viewer",
-                  ~message="SCENE_LOAD_TIMEOUT",
-                  ~data=Some({
-                    "sceneName": targetScene.name,
-                    "timeoutMs": Constants.sceneLoadTimeout,
-                  }),
-                  (),
-                )
-                state.isSceneLoading = false
-                state.loadingSceneId = Nullable.null
-              }
-            }, Constants.sceneLoadTimeout))
-
-          /* Pre-calc snapshot check */
-          let snapshot = Dom.getElementById("viewer-snapshot-overlay")
-          switch (capturedPrevSceneId, Nullable.toOption(snapshot)) {
-          | (Some(prevId), Some(snapEl)) =>
-            let prevScene = Belt.Array.getBy(GlobalStateBridge.getState().scenes, s =>
-              s.id == prevId
+        if !shouldReuse {
+          if state.isSceneLoading && !isAnticipatory {
+            Logger.debug(
+              ~module_="Viewer",
+              ~message="LOAD_QUEUED",
+              ~data=Some({"sceneName": targetScene.name}),
+              (),
             )
-            switch prevScene {
-            | Some(ps) =>
-              switch ps.preCalculatedSnapshot {
-              | Some(url) =>
-                let isCut = switch GlobalStateBridge.getState().transition.type_ {
-                | Some("cut") => true
-                | _ => false
+          } else {
+            loadStartTime := Date.now()
+            state.isSceneLoading = true
+            state.loadingSceneId = Nullable.make(targetScene.id)
+
+            /* Safety Timeout */
+            switch Nullable.toOption(state.loadSafetyTimeout) {
+            | Some(t) => Window.clearTimeout(t)
+            | None => ()
+            }
+            state.loadSafetyTimeout = Nullable.make(Window.setTimeout(() => {
+                if (
+                  state.isSceneLoading &&
+                  Nullable.toOption(state.loadingSceneId) == Some(targetScene.id)
+                ) {
+                  Logger.error(
+                    ~module_="Viewer",
+                    ~message="SCENE_LOAD_TIMEOUT",
+                    ~data=Some({
+                      "sceneName": targetScene.name,
+                      "timeoutMs": Constants.sceneLoadTimeout,
+                    }),
+                    (),
+                  )
+                  state.isSceneLoading = false
+                  state.loadingSceneId = Nullable.null
                 }
-                if !isCut {
-                  Dom.setBackgroundImage(snapEl, "url(" ++ url ++ ")")
-                  Dom.add(snapEl, "snapshot-visible")
+              }, Constants.sceneLoadTimeout))
+
+            /* Pre-calc snapshot check */
+            let snapshot = Dom.getElementById("viewer-snapshot-overlay")
+            switch (capturedPrevSceneId, Nullable.toOption(snapshot)) {
+            | (Some(prevId), Some(snapEl)) =>
+              let prevScene = Belt.Array.getBy(GlobalStateBridge.getState().scenes, s =>
+                s.id == prevId
+              )
+              switch prevScene {
+              | Some(ps) =>
+                switch ps.preCalculatedSnapshot {
+                | Some(url) =>
+                  let isCut = switch GlobalStateBridge.getState().transition.type_ {
+                  | Some("cut") => true
+                  | _ => false
+                  }
+                  if !isCut {
+                    Dom.setBackgroundImage(snapEl, "url(" ++ url ++ ")")
+                    Dom.add(snapEl, "snapshot-visible")
+                  }
+                  ps.preCalculatedSnapshot = None
+                  let _ = Window.setTimeout(() => URL.revokeObjectURL(url), 1000)
+                | None => ()
                 }
-                ps.preCalculatedSnapshot = None
-                let _ = Window.setTimeout(() => URL.revokeObjectURL(url), 1000)
               | None => ()
               }
-            | None => ()
+            | _ => ()
             }
-          | _ => ()
-          }
 
-          let panoramaUrl = getPanoramaUrl(targetScene.file)
-          let currentGlobalState = GlobalStateBridge.getState()
-          let useProgressive =
-            Belt.Option.isSome(targetScene.tinyFile) &&
-            !currentGlobalState.isSimulationMode &&
-            !currentGlobalState.isTeasing &&
-            !isAnticipatory
+            let panoramaUrl = getPanoramaUrl(targetScene.file)
+            let currentGlobalState = GlobalStateBridge.getState()
+            let useProgressive =
+              Belt.Option.isSome(targetScene.tinyFile) &&
+              !currentGlobalState.isSimulationMode &&
+              !currentGlobalState.isTeasing &&
+              !isAnticipatory
 
-          let tinyUrl = if useProgressive {
-            switch targetScene.tinyFile {
-            | Some(f) => getPanoramaUrl(f)
-            | None => ""
+            let tinyUrl = if useProgressive {
+              switch targetScene.tinyFile {
+              | Some(f) => getPanoramaUrl(f)
+              | None => ""
+              }
+            } else {
+              ""
             }
-          } else {
-            ""
-          }
 
-          let storeState = GlobalStateBridge.getState()
-          let initialPitch = if Float.isFinite(storeState.activePitch) {
-            storeState.activePitch
-          } else {
-            0.0
-          }
-          let initialYaw = if Float.isFinite(storeState.activeYaw) {
-            storeState.activeYaw
-          } else {
-            0.0
-          }
-          let initialHfov = Constants.backendUrl == "" ? Constants.globalHfov : Constants.globalHfov
+            let storeState = GlobalStateBridge.getState()
+            let initialPitch = if Float.isFinite(storeState.activePitch) {
+              storeState.activePitch
+            } else {
+              0.0
+            }
+            let initialYaw = if Float.isFinite(storeState.activeYaw) {
+              storeState.activeYaw
+            } else {
+              0.0
+            }
+            let initialHfov =
+              Constants.backendUrl == "" ? Constants.globalHfov : Constants.globalHfov
 
-          let hotspotsArr = Belt.Array.mapWithIndex(targetScene.hotspots, (i, h) => {
-            HotspotManager.createHotspotConfig(
-              ~hotspot=h,
-              ~index=i,
-              ~state=currentGlobalState,
-              ~scene=targetScene,
-              ~dispatch=GlobalStateBridge.dispatch,
-            )
-          })
+            let hotspotsArr = Belt.Array.mapWithIndex(targetScene.hotspots, (i, h) => {
+              HotspotManager.createHotspotConfig(
+                ~hotspot=h,
+                ~index=i,
+                ~state=currentGlobalState,
+                ~scene=targetScene,
+                ~dispatch=GlobalStateBridge.dispatch,
+              )
+            })
 
-          let viewerConfig = {
-            "default": {
-              "firstScene": if useProgressive {
-                "preview"
-              } else {
-                "master"
+            let viewerConfig = {
+              "default": {
+                "firstScene": if useProgressive {
+                  "preview"
+                } else {
+                  "master"
+                },
               },
-            },
-            "scenes": {
-              "preview": {
-                "type": "equirectangular",
-                "panorama": tinyUrl,
-                "autoLoad": true,
-                "pitch": initialPitch,
-                "yaw": initialYaw,
-                "hfov": initialHfov,
-                "minHfov": 90.0,
-                "maxHfov": 90.0,
-                "mouseZoom": false,
-                "friction": 0.05,
-                "hotSpots": hotspotsArr,
+              "scenes": {
+                "preview": {
+                  "type": "equirectangular",
+                  "panorama": tinyUrl,
+                  "autoLoad": true,
+                  "pitch": initialPitch,
+                  "yaw": initialYaw,
+                  "hfov": initialHfov,
+                  "minHfov": 90.0,
+                  "maxHfov": 90.0,
+                  "mouseZoom": false,
+                  "friction": 0.05,
+                  "hotSpots": hotspotsArr,
+                },
+                "master": {
+                  "type": "equirectangular",
+                  "panorama": panoramaUrl,
+                  "autoLoad": true,
+                  "pitch": initialPitch,
+                  "yaw": initialYaw,
+                  "hfov": initialHfov,
+                  "minHfov": 90.0,
+                  "maxHfov": 90.0,
+                  "mouseZoom": false,
+                  "friction": 0.05,
+                  "hotSpots": hotspotsArr,
+                },
               },
-              "master": {
-                "type": "equirectangular",
-                "panorama": panoramaUrl,
-                "autoLoad": true,
-                "pitch": initialPitch,
-                "yaw": initialYaw,
-                "hfov": initialHfov,
-                "minHfov": 90.0,
-                "maxHfov": 90.0,
-                "mouseZoom": false,
-                "friction": 0.05,
-                "hotSpots": hotspotsArr,
-              },
-            },
-          }
+            }
 
-          if !useProgressive {
-            let configDict = castToDict(viewerConfig)
-            switch Js.Dict.get(configDict, "scenes") {
-            | Some(scenes) => 
+            if !useProgressive {
+              let configDict = castToDict(viewerConfig)
+              switch Js.Dict.get(configDict, "scenes") {
+              | Some(scenes) =>
                 let scenesDict = castToDict(scenes)
                 let _ = %raw("delete scenesDict['preview']")
-            | None => ()
-            }
-            
-             switch Js.Dict.get(configDict, "default") {
-            | Some(def) => 
+              | None => ()
+              }
+
+              switch Js.Dict.get(configDict, "default") {
+              | Some(def) =>
                 let defDyn = asDynamic(def)
                 defDyn["firstScene"] = "master"
-            | None => ()
+              | None => ()
+              }
             }
-          }
 
-          let _startLoadTime = Date.now()
-          let newViewer = initializeViewer(containerId, viewerConfig)
-          asDynamic(newViewer)["_sceneId"] = targetScene.id
-          asDynamic(newViewer)["_isLoaded"] = false
+            let _startLoadTime = Date.now()
+            let newViewer = initializeViewer(containerId, viewerConfig)
+            asDynamic(newViewer)["_sceneId"] = targetScene.id
+            asDynamic(newViewer)["_isLoaded"] = false
 
-          switch state.activeViewerKey {
-          | A => state.viewerB = Nullable.make(newViewer)
-          | B => state.viewerA = Nullable.make(newViewer)
-          }
+            switch state.activeViewerKey {
+            | A => state.viewerB = Nullable.make(newViewer)
+            | B => state.viewerA = Nullable.make(newViewer)
+            }
 
-          /* Event Listeners */
-          Viewer.on(newViewer, "load", _ => {
-            let loadedSceneId = Viewer.getScene(
-              newViewer,
-            ) /* returns scene ID string e.g 'master' */
-            let isTiny = loadedSceneId == "preview"
-            let isMaster = loadedSceneId == "master"
+            /* Event Listeners */
+            Viewer.on(newViewer, "load", _ => {
+              let loadedSceneId = Viewer.getScene(
+                newViewer,
+              ) /* returns scene ID string e.g 'master' */
+              let isTiny = loadedSceneId == "preview"
+              let isMaster = loadedSceneId == "master"
 
-            if useProgressive && isTiny {
-              Logger.debug(~module_="Viewer", ~message="PREVIEW_LOADED", ~data=Some({"sceneName": targetScene.name}), ())
-              /* Preload master logic - simplified for migration: rely on pannellum loading master next if implicit?
-               No, JS code manually preloads Image and then calls loadScene. */
+              if useProgressive && isTiny {
+                Logger.debug(
+                  ~module_="Viewer",
+                  ~message="PREVIEW_LOADED",
+                  ~data=Some({"sceneName": targetScene.name}),
+                  (),
+                )
+                /* Preload master logic - simplified for migration: rely on pannellum loading master next if implicit?
+                 No, JS code manually preloads Image and then calls loadScene. */
 
-              /* Simplified: just load master immediately or implement Image preload */
-              /* Implementing Image preload using %raw or bindings is tricky quickly. */
-              /* I'll trigger loadScene directly which handles it internally in Pannellum usually? 
+                /* Simplified: just load master immediately or implement Image preload */
+                /* Implementing Image preload using %raw or bindings is tricky quickly. */
+                /* I'll trigger loadScene directly which handles it internally in Pannellum usually? 
                       No, Pannellum doesn't auto upgrade.
                       User JS code: new Image(), onload -> newViewer.loadScene('master', ...) */
 
-              let img = Dom.document["createElement"]("img")
-              Dom.setAttribute(img, "src", panoramaUrl)
-              Dom.addEventListenerNoEv(img, "load", () => {
-                Logger.debug(~module_="Viewer", ~message="MASTER_PRELOADED", ~data=Some({"sceneName": targetScene.name}), ())
-                if Viewer.getScene(newViewer) == "preview" {
-                  Viewer.loadScene(
-                    newViewer,
-                    "master",
-                    Viewer.getPitch(newViewer),
-                    Viewer.getYaw(newViewer),
-                    Viewer.getHfov(newViewer),
-                  )
+                let img = Dom.document["createElement"]("img")
+                Dom.setAttribute(img, "src", panoramaUrl)
+                Dom.addEventListenerNoEv(
+                  img,
+                  "load",
+                  () => {
+                    Logger.debug(
+                      ~module_="Viewer",
+                      ~message="MASTER_PRELOADED",
+                      ~data=Some({"sceneName": targetScene.name}),
+                      (),
+                    )
+                    if Viewer.getScene(newViewer) == "preview" {
+                      Viewer.loadScene(
+                        newViewer,
+                        "master",
+                        Viewer.getPitch(newViewer),
+                        Viewer.getYaw(newViewer),
+                        Viewer.getHfov(newViewer),
+                      )
+                    }
+                  },
+                )
+              } else if !useProgressive || isMaster {
+                asDynamic(newViewer)["_isLoaded"] = true
+                Logger.info(
+                  ~module_="Viewer",
+                  ~message="TEXTURE_LOADED",
+                  ~data=Some({
+                    "sceneName": targetScene.name,
+                    "quality": isMaster ? "4k" : "standard",
+                  }),
+                  (),
+                )
+
+                let checkReadyAndSwap = () => {
+                  let currentActive = GlobalStateBridge.getState().activeIndex
+                  let matchesIndex = currentActive == targetIndex
+
+                  if matchesIndex && !isAnticipatory {
+                    performSwap(targetScene)
+                  } else {
+                    state.isSceneLoading = false
+                    state.loadingSceneId = Nullable.null
+
+                    let latest = GlobalStateBridge.getState()
+                    switch Belt.Array.get(latest.scenes, latest.activeIndex) {
+                    | Some(latSc) =>
+                      if latSc.id != targetScene.id {
+                        loadNewScene(Some(targetScene.id), None)
+                      }
+                    | None => ()
+                    }
+                  }
                 }
-              })
-            } else if !useProgressive || isMaster {
-              asDynamic(newViewer)["_isLoaded"] = true
-              Logger.info(
+
+                if GlobalStateBridge.getState().isSimulationMode {
+                  let frameCount = ref(0)
+                  let rec waitForDeepRender = () => {
+                    frameCount := frameCount.contents + 1
+                    if frameCount.contents < 3 {
+                      let _ = Window.requestAnimationFrame(waitForDeepRender)
+                    } else {
+                      checkReadyAndSwap()
+                    }
+                  }
+                  let _ = Window.requestAnimationFrame(waitForDeepRender)
+                } else {
+                  checkReadyAndSwap()
+                }
+              }
+            })
+
+            Viewer.on(newViewer, "error", err => {
+              state.isSceneLoading = false
+              state.loadingSceneId = Nullable.null
+              Logger.error(
                 ~module_="Viewer",
-                ~message="TEXTURE_LOADED",
-                ~data=Some({
-                  "sceneName": targetScene.name,
-                  "quality": isMaster ? "4k" : "standard",
-                }),
+                ~message="LOAD_ERROR",
+                ~data=Some({"sceneName": targetScene.name, "error": err}),
                 (),
               )
+            })
 
-              let checkReadyAndSwap = () => {
-                let currentActive = GlobalStateBridge.getState().activeIndex
-                let matchesIndex = currentActive == targetIndex
+            Viewer.on(newViewer, "mousedown", e => {
+              let s = GlobalStateBridge.getState()
+              if !s.isSimulationMode && s.isLinking {
+                let coords = Viewer.mouseEventToCoords(newViewer, e)
+                let _pitch = Belt.Array.get(coords, 0)
+                let _yaw = Belt.Array.get(coords, 1)
 
-                if matchesIndex && !isAnticipatory {
-                  performSwap(targetScene)
-                } else {
-                  state.isSceneLoading = false
-                  state.loadingSceneId = Nullable.null
-
-                  let latest = GlobalStateBridge.getState()
-                  switch Belt.Array.get(latest.scenes, latest.activeIndex) {
-                  | Some(latSc) =>
-                    if latSc.id != targetScene.id {
-                      loadNewScene(Some(targetScene.id), None)
-                    }
-                  | None => ()
-                  }
-                }
+                // Linking logic click 1/2 is handled in LinkingSystem or equivalent
               }
+            })
 
-              if GlobalStateBridge.getState().isSimulationMode {
-                let frameCount = ref(0)
-                let rec waitForDeepRender = () => {
-                  frameCount := frameCount.contents + 1
-                  if frameCount.contents < 3 {
-                    let _ = Window.requestAnimationFrame(waitForDeepRender)
-                  } else {
-                    checkReadyAndSwap()
-                  }
-                }
-                let _ = Window.requestAnimationFrame(waitForDeepRender)
-              } else {
-                checkReadyAndSwap()
+            /* More events: animatefinished, viewchange */
+            Viewer.on(newViewer, "viewchange", _ => {
+              let _inactive = switch state.activeViewerKey {
+              | A => B
+              | B => A
               }
-            }
-          })
-
-          Viewer.on(newViewer, "error", err => {
-            state.isSceneLoading = false
-            state.loadingSceneId = Nullable.null
-            Logger.error(
-              ~module_="Viewer",
-              ~message="LOAD_ERROR",
-              ~data=Some({"sceneName": targetScene.name, "error": err}),
-              (),
-            )
-          })
-
-          Viewer.on(newViewer, "mousedown", e => {
-            let s = GlobalStateBridge.getState()
-            if !s.isSimulationMode && s.isLinking {
-              let coords = Viewer.mouseEventToCoords(newViewer, e)
-              let _pitch = Belt.Array.get(coords, 0)
-              let _yaw = Belt.Array.get(coords, 1)
-
-              // Linking logic click 1/2 is handled in LinkingSystem or equivalent
-            }
-          })
-
-          /* More events: animatefinished, viewchange */
-          Viewer.on(newViewer, "viewchange", _ => {
-            let _inactive = switch state.activeViewerKey {
-            | A => B
-            | B => A
-            }
-            /* If this new viewer is NOT the active one yet (loading background), don't update lines? 
+              /* If this new viewer is NOT the active one yet (loading background), don't update lines? 
                    Wait, this event runs. 
                    JS: "Only update lines for the currently active viewer" (checking logic)
                    Actually `newViewer` is definitely the one we setup.
                    If it becomes active key, we update.
  */
-            let myKey = switch state.activeViewerKey {
-            | A => B
-            | B => A
-            }
-            if myKey == state.activeViewerKey {
-              let mouseEv = switch Nullable.toOption(state.lastMouseEvent) {
-              | Some(e) => Some(e)
-              | None => None
+              let myKey = switch state.activeViewerKey {
+              | A => B
+              | B => A
               }
-              HotspotLine.updateLines(
-                newViewer,
-                GlobalStateBridge.getState(),
-                ~mouseEvent=?mouseEv,
-                (),
-              )
-            }
-          })
+              if myKey == state.activeViewerKey {
+                let mouseEv = switch Nullable.toOption(state.lastMouseEvent) {
+                | Some(e) => Some(e)
+                | None => None
+                }
+                HotspotLine.updateLines(
+                  newViewer,
+                  GlobalStateBridge.getState(),
+                  ~mouseEvent=?mouseEv,
+                  (),
+                )
+              }
+            })
+          }
         }
+      | None => ()
       }
-    | None => ()
-    }
-    Promise.resolve()
+      Promise.resolve()
     })
   }
 }

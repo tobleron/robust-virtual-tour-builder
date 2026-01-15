@@ -43,7 +43,7 @@ let reduceSimulation = (state: simulationState, action: simulationAction): simul
     ~module_="Simulation",
     ~message="STATE_TRANSITION",
     ~data=Some(castToJson({"action": action, "prevState": state})),
-    ()
+    (),
   )
 
   let newState = switch action {
@@ -96,9 +96,8 @@ let reduceSimulation = (state: simulationState, action: simulationAction): simul
   Logger.debug(
     ~module_="Simulation",
     ~message="STATE_UPDATED",
-
     ~data=Some(castToJson({"newState": newState})),
-    ()
+    (),
   )
 
   newState
@@ -119,8 +118,6 @@ let dispatch = (action: simulationAction): unit => {
 module Date = {
   @val @scope("Date") external now: unit => float = "now"
 }
-
-
 
 // --- LOGIC ---
 
@@ -145,7 +142,7 @@ let stopAutoPilotLogic = returnToStart => {
     | Some(id) => clearTimeout(id)
     | None => ()
     }
-    
+
     dispatch(IncrementJourneyId)
     dispatch(StopAutoPilot)
 
@@ -155,30 +152,30 @@ let stopAutoPilotLogic = returnToStart => {
     // Using ReBindings.Dom.classList on document body if available, or dynamic access
     // ReBindings doesn't expose document.body directly as element without casting usually, or maybe it does
     // ReBindings: @val @scope("document") external documentBody: element = "body"
-    
+
     ReBindings.Dom.remove(ReBindings.Dom.documentBody, "auto-pilot-active")
 
     // Reset toggle button appearance
     let simToggle = ReBindings.Dom.getElementById("v-scene-sim-toggle")
     switch Nullable.toOption(simToggle) {
-    | Some(el) => 
-        ReBindings.Dom.setTextContent(el, "")
-        
-        // ReBindings.Dom.style is not easily exposed for removeProperty/setProperty without casting to dynamic style object usually?
-        // ReBindings has setStyleProperty? No.
-        // Let's use asDynamic for style operations for now or generic bindings
-        let style = asDynamic(el)["style"]
-        
-        let span = ReBindings.Dom.createElement("span")
-        ReBindings.Dom.setClassName(span, "material-icons")
-        asDynamic(span)["style"]["fontSize"] = "22px"
-        asDynamic(span)["style"]["color"] = "white"
-        ReBindings.Dom.setTextContent(span, "play_arrow")
-        ReBindings.Dom.appendChild(el, span)
-        
-        style["removeProperty"]("background-color")
-        style["setProperty"]("background-color", "#10b981", "important")
-        asDynamic(el)["title"] = "Start Auto-Pilot Simulation"
+    | Some(el) =>
+      ReBindings.Dom.setTextContent(el, "")
+
+      // ReBindings.Dom.style is not easily exposed for removeProperty/setProperty without casting to dynamic style object usually?
+      // ReBindings has setStyleProperty? No.
+      // Let's use asDynamic for style operations for now or generic bindings
+      let style = asDynamic(el)["style"]
+
+      let span = ReBindings.Dom.createElement("span")
+      ReBindings.Dom.setClassName(span, "material-icons")
+      asDynamic(span)["style"]["fontSize"] = "22px"
+      asDynamic(span)["style"]["color"] = "white"
+      ReBindings.Dom.setTextContent(span, "play_arrow")
+      ReBindings.Dom.appendChild(el, span)
+
+      style["removeProperty"]("background-color")
+      style["setProperty"]("background-color", "#10b981", "important")
+      asDynamic(el)["title"] = "Start Auto-Pilot Simulation"
     | None => ()
     }
 
@@ -210,16 +207,18 @@ let completeAutoPilot = () => {
     ~module_="Simulation",
     ~operation="AUTOPILOT",
     ~data=Some({
-        "scenesVisited": Array.length(simStore.contents.visitedScenes),
-        "reason": "completed"
+      "scenesVisited": Array.length(simStore.contents.visitedScenes),
+      "reason": "completed",
     }),
     (),
   )
-  EventBus.dispatch(ShowNotification(
-    "Simulation complete! Visited " ++
-    Belt.Int.toString(Array.length(simStore.contents.visitedScenes)) ++ " scenes.",
-    #Success,
-  ))
+  EventBus.dispatch(
+    ShowNotification(
+      "Simulation complete! Visited " ++
+      Belt.Int.toString(Array.length(simStore.contents.visitedScenes)) ++ " scenes.",
+      #Success,
+    ),
+  )
 
   let _ = setTimeout(() => {
     stopAutoPilot(true)
@@ -243,7 +242,7 @@ let advanceToNextScene = () => {
             link,
             state,
             simStore.contents.visitedScenes,
-            sceneIdx => dispatch(AddVisitedScene(sceneIdx))
+            sceneIdx => dispatch(AddVisitedScene(sceneIdx)),
           )
           skipResult.finalLink
         } else {
@@ -276,7 +275,12 @@ let advanceToNextScene = () => {
             })
 
             if !hasNewPaths {
-              Logger.info(~module_="Simulation", ~message="SIM_COMPLETE", ~data=Some({"reason": "returned_to_start"}), ())
+              Logger.info(
+                ~module_="Simulation",
+                ~message="SIM_COMPLETE",
+                ~data=Some({"reason": "returned_to_start"}),
+                (),
+              )
               dispatch(SetStoppingOnArrival(true))
             }
           | None => ()
@@ -284,14 +288,14 @@ let advanceToNextScene = () => {
         }
 
         Logger.debug(
-          ~module_="Simulation", 
-          ~message="SIM_STEP", 
+          ~module_="Simulation",
+          ~message="SIM_STEP",
           ~data=Some({
             "currentScene": currentScene.name,
-            "nextScene": hotspot.target, 
-            "visitedCount": Array.length(simStore.contents.visitedScenes)
-          }), 
-          ()
+            "nextScene": hotspot.target,
+            "visitedCount": Array.length(simStore.contents.visitedScenes),
+          }),
+          (),
         )
 
         let (tYaw, tPitch, tHfov) = if nextLink.isReturn {
@@ -334,10 +338,13 @@ let advanceToNextScene = () => {
 
       | None =>
         Logger.endOperation(
-          ~module_="Simulation", 
-          ~operation="AUTOPILOT", 
-          ~data=Some({"reason": "no_reachable_scenes", "scenesVisited": Array.length(simStore.contents.visitedScenes)}), 
-          ()
+          ~module_="Simulation",
+          ~operation="AUTOPILOT",
+          ~data=Some({
+            "reason": "no_reachable_scenes",
+            "scenesVisited": Array.length(simStore.contents.visitedScenes),
+          }),
+          (),
         )
         completeAutoPilot()
       }
@@ -349,7 +356,12 @@ let advanceToNextScene = () => {
 
 let onSceneArrival = (sceneIndex, _isChainEnd) => {
   if simStore.contents.isAutoPilot {
-    Logger.debug(~module_="Simulation", ~message="SCENE_ARRIVED", ~data=Some({"sceneIndex": sceneIndex}), ())
+    Logger.debug(
+      ~module_="Simulation",
+      ~message="SCENE_ARRIVED",
+      ~data=Some({"sceneIndex": sceneIndex}),
+      (),
+    )
 
     if simStore.contents.stoppingOnArrival {
       dispatch(SetStoppingOnArrival(false))
@@ -383,25 +395,28 @@ let onSceneArrival = (sceneIndex, _isChainEnd) => {
           }
 
           dispatch(SetPendingAdvance(Some(setTimeout(async () => {
-              try {
-                let _ = await Nav.waitForViewerScene(sceneIndex, () => simStore.contents.isAutoPilot)
-                // Accessing ref in closure is safe
-                if simStore.contents.isAutoPilot && !simStore.contents.stoppingOnArrival {
-                  advanceToNextScene()
-                }
-              } catch {
-              | e =>
-                if simStore.contents.isAutoPilot {
-                  Logger.error(
-                    ~module_="Simulation",
-                    ~message="SCENE_ARRIVAL_FAILED",
-                    ~data=Some({"error": e}),
-                    (),
-                  )
-                  completeAutoPilot()
-                }
-              }
-            }, delay))))
+                  try {
+                    let _ = await Nav.waitForViewerScene(sceneIndex, () =>
+                      simStore.contents.isAutoPilot
+                    )
+
+                    // Accessing ref in closure is safe
+                    if simStore.contents.isAutoPilot && !simStore.contents.stoppingOnArrival {
+                      advanceToNextScene()
+                    }
+                  } catch {
+                  | e =>
+                    if simStore.contents.isAutoPilot {
+                      Logger.error(
+                        ~module_="Simulation",
+                        ~message="SCENE_ARRIVAL_FAILED",
+                        ~data=Some({"error": e}),
+                        (),
+                      )
+                      completeAutoPilot()
+                    }
+                  }
+                }, delay))))
         | None => ()
         }
       }
@@ -415,25 +430,28 @@ let startAutoPilot = skipAutoForward => {
     EventBus.dispatch(ShowNotification("No scenes to simulate", #Warning))
   } else {
     Logger.startOperation(
-        ~module_="Simulation", 
-        ~operation="AUTOPILOT", 
-        ~data=Some({
-            "startScene": switch Belt.Array.get(state.scenes, state.activeIndex) {
-                | Some(s) => s.name
-                | None => "unknown"
-            }, 
-            "mode": "auto"
-        }), 
-        ()
+      ~module_="Simulation",
+      ~operation="AUTOPILOT",
+      ~data=Some({
+        "startScene": switch Belt.Array.get(state.scenes, state.activeIndex) {
+        | Some(s) => s.name
+        | None => "unknown"
+        },
+        "mode": "auto",
+      }),
+      (),
     )
 
-
-
     dispatch(IncrementJourneyId)
-    dispatch(StartAutoPilot(simStore.contents.autoPilotJourneyId, switch skipAutoForward {
-    | Some(b) => b
-    | None => false
-    }))
+    dispatch(
+      StartAutoPilot(
+        simStore.contents.autoPilotJourneyId,
+        switch skipAutoForward {
+        | Some(b) => b
+        | None => false
+        },
+      ),
+    )
 
     Navigation.setSimulationMode(GlobalStateBridge.dispatch, state, true)
 
@@ -452,7 +470,7 @@ let startAutoPilot = skipAutoForward => {
       asDynamic(span)["style"]["color"] = "white"
       ReBindings.Dom.setTextContent(span, "stop")
       ReBindings.Dom.appendChild(el, span)
-      
+
       style["removeProperty"]("background-color")
       style["setProperty"]("background-color", "#dc3545", "important")
       asDynamic(el)["title"] = "Click to Stop Simulation"
@@ -483,8 +501,8 @@ let startAutoPilot = skipAutoForward => {
     }
 
     dispatch(SetPendingAdvance(Some(setTimeout(() => {
-        advanceToNextScene()
-      }, 800))))
+            advanceToNextScene()
+          }, 800))))
 
     EventBus.dispatch(ShowNotification("Auto-pilot started", #Success))
   }

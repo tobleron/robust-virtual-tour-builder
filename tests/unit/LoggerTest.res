@@ -11,7 +11,11 @@ let run = () => {
   }
 
   // Test 2: Level String conversions
-  if levelToString(Debug) == "debug" && stringToLevel("error") == Error && stringToLevel("unknown") == Info {
+  if (
+    levelToString(Debug) == "debug" &&
+    stringToLevel("error") == Error &&
+    stringToLevel("unknown") == Info
+  ) {
     Console.log("✓ Level string conversions passed")
   } else {
     Console.error("✗ Level string conversions failed")

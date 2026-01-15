@@ -75,16 +75,7 @@ let run = () => {
   Console.log("✓ getPreviousScene")
 
   // Test calculatePathData
-  let pathData = calculatePathData(
-    state,
-    0, // sourceSceneIndex
-    0, // sourceHotspotIndex
-    1, // targetIndex
-    45.0, // targetYaw
-    15.0, // targetPitch
-    90.0, // targetHfov
-    (0.0, 0.0, 90.0) // currentView
-  )
+  let pathData = calculatePathData(state, 0, 0, 1, 45.0, 15.0, 90.0, (0.0, 0.0, 90.0)) // sourceSceneIndex // sourceHotspotIndex // targetIndex // targetYaw // targetPitch // targetHfov // currentView
 
   assert(Belt.Option.isSome(pathData))
   let pd = Belt.Option.getExn(pathData)
@@ -105,11 +96,9 @@ let run = () => {
   // Since navigateToScene is mostly orchestrating, and it calls getCurrentView
   // we might need to mock Viewer.instance if we want to test it meaningfully
   // but let's at least test that calculating without valid scenes returns None
-  
+
   let emptyState = {...State.initialState, scenes: []}
-  let invalidPathData = calculatePathData(
-    emptyState, 0, 0, 1, 0.0, 0.0, 90.0, (0.0, 0.0, 90.0)
-  )
+  let invalidPathData = calculatePathData(emptyState, 0, 0, 1, 0.0, 0.0, 90.0, (0.0, 0.0, 90.0))
   assert(Belt.Option.isNone(invalidPathData))
   Console.log("✓ calculatePathData with empty state")
 

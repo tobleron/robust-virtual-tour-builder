@@ -92,10 +92,13 @@ let updateProgressBar = (
       /* Scroll sidebar */
       switch Dom.querySelector(Dom.documentBody, ".sidebar-content")->Nullable.toOption {
       | Some(sidebar) =>
-        Dom.scrollTo(sidebar, {
-          "top": 0,
-          "behavior": "smooth",
-        })
+        Dom.scrollTo(
+          sidebar,
+          {
+            "top": 0,
+            "behavior": "smooth",
+          },
+        )
       | None => ()
       }
 
