@@ -38,14 +38,13 @@ let generateProjectName = (address: option<string>, dateTime: option<string>): s
   let locationPart = switch address {
   | Some(addr) => {
       let words =
-        Js.String.splitByRe(/[\\s,]+/, addr)
-        ->Belt.Array.keepMap(x => x)
-        ->Belt.Array.keep(w => String.length(w) > 0)
+        String.split(addr, " ")
+        ->Belt.Array.flatMap(w => String.split(w, ","))
+        ->Belt.Array.keep(w => String.length(String.trim(w)) > 0)
 
       let selectedWords =
         Belt.Array.slice(words, ~offset=0, ~len=3)
         ->Belt.Array.map(w => {
-          // Remove non-alphanumeric
           let clean = Js.String.replaceByRe(/[^a-zA-Z0-9]/g, "", w)
           if String.length(clean) == 0 {
             ""
@@ -69,7 +68,7 @@ let generateProjectName = (address: option<string>, dateTime: option<string>): s
   // 2. Generate compact timestamp DDMMYY_HHMM
   let timestampPart = switch dateTime {
   | Some(dt) => {
-      let regex = /(\\d{4}):(\\d{2}):(\\d{2})\\s+(\\d{2}):(\\d{2})/
+      let regex = RegExp.fromString("(\\d{4}):(\\d{2}):(\\d{2})\\s+(\\d{2}):(\\d{2})")
       switch RegExp.exec(regex, dt) {
       | Some(result) => {
           let captures = RegExp.Result.matches(result)
@@ -79,12 +78,12 @@ let generateProjectName = (address: option<string>, dateTime: option<string>): s
             | None => ""
             }
           }
-          if Array.length(captures) >= 6 {
-            let year = get(1)
-            let month = get(2)
-            let day = get(3)
-            let hour = get(4)
-            let minute = get(5)
+          if Array.length(captures) >= 5 {
+            let year = get(0)
+            let month = get(1)
+            let day = get(2)
+            let hour = get(3)
+            let minute = get(4)
             let shortYear = String.slice(year, ~start=2, ~end=4)
             Some(`${day}${month}${shortYear}_${hour}${minute}`)
           } else {

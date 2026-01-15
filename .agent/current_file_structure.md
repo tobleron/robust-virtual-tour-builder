@@ -568,7 +568,13 @@
 │   │   │       ├── Version.cmi
 │   │   │       ├── Version.cmj
 │   │   │       ├── Version.cmt
-│   │   │       └── Version.res
+│   │   │       ├── Version.res
+│   │   │       ├── debug_regex.ast
+│   │   │       ├── debug_regex.bs.js
+│   │   │       ├── debug_regex.cmi
+│   │   │       ├── debug_regex.cmj
+│   │   │       ├── debug_regex.cmt
+│   │   │       └── debug_regex.res
 │   │   └── tests
 │   │       ├── TestRunner.ast
 │   │       ├── TestRunner.bs.js
@@ -589,6 +595,12 @@
 │   │           ├── ExifParserTest.cmj
 │   │           ├── ExifParserTest.cmt
 │   │           ├── ExifParserTest.res
+│   │           ├── ExifReportGeneratorTest.ast
+│   │           ├── ExifReportGeneratorTest.bs.js
+│   │           ├── ExifReportGeneratorTest.cmi
+│   │           ├── ExifReportGeneratorTest.cmj
+│   │           ├── ExifReportGeneratorTest.cmt
+│   │           ├── ExifReportGeneratorTest.res
 │   │           ├── GeoUtilsTest.ast
 │   │           ├── GeoUtilsTest.bs.js
 │   │           ├── GeoUtilsTest.cmi
@@ -772,6 +784,10 @@
 │   │   ├── ExifReportGenerator.cmj
 │   │   ├── ExifReportGenerator.cmt
 │   │   ├── ExifReportGenerator.res
+│   │   ├── ExifReportGeneratorTest.cmi
+│   │   ├── ExifReportGeneratorTest.cmj
+│   │   ├── ExifReportGeneratorTest.cmt
+│   │   ├── ExifReportGeneratorTest.res
 │   │   ├── Exporter.ast
 │   │   ├── Exporter.cmi
 │   │   ├── Exporter.cmj
@@ -1187,6 +1203,11 @@
 │   │   ├── VisualPipeline.cmj
 │   │   ├── VisualPipeline.cmt
 │   │   ├── VisualPipeline.res
+│   │   ├── debug_regex.ast
+│   │   ├── debug_regex.cmi
+│   │   ├── debug_regex.cmj
+│   │   ├── debug_regex.cmt
+│   │   ├── debug_regex.res
 │   │   ├── mod.ast
 │   │   ├── mod.cmi
 │   │   ├── mod.cmj
@@ -1441,6 +1462,7 @@
 │   │   ├── 122_Split_Large_Backend_Modules.md
 │   │   ├── 123_Add_GitHub_Actions_CI.md
 │   │   ├── 124_Add_Tests_for_ReBindings.md
+│   │   ├── 125_Add_Tests_for_ExifReportGenerator.md
 │   │   ├── 12_ReScript_Migrate_UI_Components_REPORT.md
 │   │   ├── 14_ReScript_Migrate_Viewer_REPORT.md
 │   │   ├── 15_Backend_SingleZIP_Load_REPORT.md
@@ -1538,7 +1560,6 @@
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   └── pending
-│       ├── 125_Add_Tests_for_ExifReportGenerator.md
 │       ├── 126_Add_Tests_for_TeaserRecorder.md
 │       └── 127_Add_Tests_for_Logger.md
 └── tests
@@ -1550,6 +1571,8 @@
         ├── BackendApiTest.res
         ├── ExifParserTest.bs.js
         ├── ExifParserTest.res
+        ├── ExifReportGeneratorTest.bs.js
+        ├── ExifReportGeneratorTest.res
         ├── GeoUtilsTest.bs.js
         ├── GeoUtilsTest.res
         ├── HotspotReducerTest.bs.js
@@ -1591,4 +1614,4 @@
         ├── ViewerLoaderTest.bs.js
         └── ViewerLoaderTest.res
 
-48 directories, 1544 files
+48 directories, 1567 files
