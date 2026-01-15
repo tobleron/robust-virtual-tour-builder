@@ -619,6 +619,12 @@
 │   │           ├── ProjectManagerTest.cmj
 │   │           ├── ProjectManagerTest.cmt
 │   │           ├── ProjectManagerTest.res
+│   │           ├── ReBindingsTest.ast
+│   │           ├── ReBindingsTest.bs.js
+│   │           ├── ReBindingsTest.cmi
+│   │           ├── ReBindingsTest.cmj
+│   │           ├── ReBindingsTest.cmt
+│   │           ├── ReBindingsTest.res
 │   │           ├── ReducerJsonTest.ast
 │   │           ├── ReducerJsonTest.bs.js
 │   │           ├── ReducerJsonTest.cmi
@@ -917,6 +923,10 @@
 │   │   ├── ReBindings.cmj
 │   │   ├── ReBindings.cmt
 │   │   ├── ReBindings.res
+│   │   ├── ReBindingsTest.cmi
+│   │   ├── ReBindingsTest.cmj
+│   │   ├── ReBindingsTest.cmt
+│   │   ├── ReBindingsTest.res
 │   │   ├── Reducer.ast
 │   │   ├── Reducer.cmi
 │   │   ├── Reducer.cmj
@@ -1430,6 +1440,7 @@
 │   │   ├── 121_Add_Prometheus_Metrics_REPORT.md
 │   │   ├── 122_Split_Large_Backend_Modules.md
 │   │   ├── 123_Add_GitHub_Actions_CI.md
+│   │   ├── 124_Add_Tests_for_ReBindings.md
 │   │   ├── 12_ReScript_Migrate_UI_Components_REPORT.md
 │   │   ├── 14_ReScript_Migrate_Viewer_REPORT.md
 │   │   ├── 15_Backend_SingleZIP_Load_REPORT.md
@@ -1527,7 +1538,6 @@
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   └── pending
-│       ├── 124_Add_Tests_for_ReBindings.md
 │       ├── 125_Add_Tests_for_ExifReportGenerator.md
 │       ├── 126_Add_Tests_for_TeaserRecorder.md
 │       └── 127_Add_Tests_for_Logger.md
@@ -1550,6 +1560,8 @@
         ├── PathInterpolationTest.res
         ├── ProjectManagerTest.bs.js
         ├── ProjectManagerTest.res
+        ├── ReBindingsTest.bs.js
+        ├── ReBindingsTest.res
         ├── ReducerJsonTest.bs.js
         ├── ReducerJsonTest.res
         ├── ReducerTest.bs.js
@@ -1579,4 +1591,4 @@
         ├── ViewerLoaderTest.bs.js
         └── ViewerLoaderTest.res
 
-48 directories, 1532 files
+48 directories, 1544 files
