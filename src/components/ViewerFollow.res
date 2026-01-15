@@ -5,7 +5,7 @@ open ViewerState
 let rec updateFollowLoop = () => {
   let progressUi = Dom.getElementById("processing-ui")
   let isBusy = switch Nullable.toOption(progressUi) {
-  | Some(el) => !Dom.classList(el)["contains"]("hidden")
+  | Some(el) => !(Dom.classList(el)->Dom.ClassList.contains("hidden"))
   | None => false
   }
 

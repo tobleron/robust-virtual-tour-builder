@@ -67,6 +67,62 @@ type apiError = {
 
 type apiResult<'a> = result<'a, string>
 
+/* --- DECODERS (Manual implementation for type safety) --- */
+
+let decodeImportResponse = (json: JSON.t): result<importResponse, string> => {
+  switch json {
+  | Object(dict) =>
+    let sessionId = dict->Dict.get("sessionId")->Option.flatMap(JSON.Decode.string)
+    let projectData = dict->Dict.get("projectData")
+    switch (sessionId, projectData) {
+    | (Some(s), Some(p)) => Ok({sessionId: s, projectData: p})
+    | _ => Error("Invalid import response")
+    }
+  | _ => Error("Expected object for import response")
+  }
+}
+
+let decodeValidationReport = (json: JSON.t): result<validationReport, string> => {
+  // Using unsafe cast for complex nested structure but wrapped in a decoder function
+  // This is a middle ground when manual decoding of 20+ fields is too verbose
+  switch json {
+  | Object(_) => Ok((Obj.magic(json): validationReport))
+  | _ => Error("Invalid validation report")
+  }
+}
+
+let decodeMetadataResponse = (json: JSON.t): result<metadataResponse, string> => {
+  switch json {
+  | Object(_) => Ok((Obj.magic(json): metadataResponse))
+  | _ => Error("Invalid metadata response")
+  }
+}
+
+let decodeSteps = (json: JSON.t): result<array<step>, string> => {
+  switch json {
+  | Array(_) => Ok((Obj.magic(json): array<step>))
+  | _ => Error("Invalid path steps response")
+  }
+}
+
+let decodeGeocodeResponse = (json: JSON.t): result<geocodeResponse, string> => {
+  switch json {
+  | Object(dict) =>
+    switch dict->Dict.get("address")->Option.flatMap(JSON.Decode.string) {
+    | Some(address) => Ok({address: address})
+    | None => Error("Missing address in geocode response")
+    }
+  | _ => Error("Invalid geocode response")
+  }
+}
+
+let decodeSimilarityResponse = (json: JSON.t): result<similarityResponse, string> => {
+  switch json {
+  | Object(_) => Ok((Obj.magic(json): similarityResponse))
+  | _ => Error("Invalid similarity response")
+  }
+}
+
 /* --- HELPER: Handle Response --- */
 
 let handleResponse = (response: Fetch.response) => {
@@ -118,12 +174,17 @@ let importProject = (file: File.t): Promise.t<apiResult<importResponse>> => {
   )
   ->Promise.then(handleResponse)
   ->Promise.then(Fetch.json)
-  ->Promise.then(json => Promise.resolve(Ok((Obj.magic(json): importResponse))))
+  ->Promise.then(json => {
+    switch decodeImportResponse(json) {
+    | Ok(data) => Promise.resolve(Ok(data))
+    | Error(msg) => Promise.resolve(Error(msg))
+    }
+  })
   ->Promise.catch(e => {
     Logger.error(
       ~module_="BackendApi",
       ~message="IMPORT_ERROR",
-      ~data=Obj.magic({"error": e}),
+      ~data=Logger.castToJson({"error": e}),
       (),
     )
     Promise.resolve(Error("Project import failed"))
@@ -147,12 +208,17 @@ let validateProject = (file: File.t): Promise.t<apiResult<validationReport>> => 
   )
   ->Promise.then(handleResponse)
   ->Promise.then(Fetch.json)
-  ->Promise.then(json => Promise.resolve(Ok((Obj.magic(json): validationReport))))
+  ->Promise.then(json => {
+    switch decodeValidationReport(json) {
+    | Ok(data) => Promise.resolve(Ok(data))
+    | Error(msg) => Promise.resolve(Error(msg))
+    }
+  })
   ->Promise.catch(e => {
     Logger.error(
       ~module_="BackendApi",
       ~message="VALIDATION_ERROR",
-      ~data=Obj.magic({"error": e}),
+      ~data=Logger.castToJson({"error": e}),
       (),
     )
     Promise.resolve(Error("Project validation failed"))
@@ -182,7 +248,7 @@ let loadProject = (file: File.t): Promise.t<apiResult<Blob.t>> => {
     Logger.error(
       ~module_="BackendApi",
       ~message="LOAD_ERROR",
-      ~data=Obj.magic({"error": e}),
+      ~data=Logger.castToJson({"error": e}),
       (),
     )
     Promise.resolve(Error("Project load failed"))
@@ -206,12 +272,17 @@ let extractMetadata = (file: File.t): Promise.t<apiResult<metadataResponse>> => 
   )
   ->Promise.then(handleResponse)
   ->Promise.then(Fetch.json)
-  ->Promise.then(json => Promise.resolve(Ok((Obj.magic(json): metadataResponse))))
+  ->Promise.then(json => {
+    switch decodeMetadataResponse(json) {
+    | Ok(data) => Promise.resolve(Ok(data))
+    | Error(msg) => Promise.resolve(Error(msg))
+    }
+  })
   ->Promise.catch(e => {
     Logger.error(
       ~module_="BackendApi",
       ~message="METADATA_ERROR",
-      ~data=Obj.magic({"error": e}),
+      ~data=Logger.castToJson({"error": e}),
       (),
     )
     Promise.resolve(Error("Metadata extraction failed"))
@@ -241,7 +312,7 @@ let processImageFull = (file: File.t): Promise.t<apiResult<Blob.t>> => {
     Logger.error(
       ~module_="BackendApi",
       ~message="PROCESSING_ERROR",
-      ~data=Obj.magic({"error": e}),
+      ~data=Logger.castToJson({"error": e}),
       (),
     )
     Promise.resolve(Error("Image processing failed"))
@@ -271,7 +342,7 @@ let saveProject = (projectData: JSON.t): Promise.t<apiResult<Blob.t>> => {
     Logger.error(
       ~module_="BackendApi",
       ~message="SAVE_ERROR",
-      ~data=Obj.magic({"error": e}),
+      ~data=Logger.castToJson({"error": e}),
       (),
     )
     Promise.resolve(Error("Project save failed"))
@@ -290,18 +361,23 @@ let calculatePath = (payload: pathRequest): Promise.t<apiResult<array<step>>> =>
     Constants.backendUrl ++ "/api/project/calculate-path",
     {
       method: "POST",
-      body: JSON.stringify(Obj.magic(payload)),
+      body: JSON.stringify(Logger.castToJson(payload)),
       headers: Nullable.make(headers),
     },
   )
   ->Promise.then(handleResponse)
   ->Promise.then(Fetch.json)
-  ->Promise.then(json => Promise.resolve(Ok((Obj.magic(json): array<step>))))
+  ->Promise.then(json => {
+    switch decodeSteps(json) {
+    | Ok(data) => Promise.resolve(Ok(data))
+    | Error(msg) => Promise.resolve(Error(msg))
+    }
+  })
   ->Promise.catch(e => {
     Logger.error(
       ~module_="BackendApi",
       ~message="CALCULATE_PATH_ERROR",
-      ~data=Obj.magic({"error": e}),
+      ~data=Logger.castToJson({"error": e}),
       (),
     )
     Promise.resolve(Error("Path calculation failed"))
@@ -321,7 +397,7 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<string> => {
     {
       method: "POST",
       headers: Nullable.make(headers),
-      body: JSON.stringify(Obj.magic({
+      body: JSON.stringify(Logger.castToJson({
         lat: lat,
         lon: lon,
       })),
@@ -332,14 +408,18 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<string> => {
       Logger.warn(
         ~module_="BackendApi",
         ~message="GEOCODE_SERVICE_UNAVAILABLE",
-        ~data=Obj.magic({"status": Fetch.status(response)}),
+        ~data=Logger.castToJson({"status": Fetch.status(response)}),
         (),
       )
       Promise.resolve("[Geocoding service unavailable]")
     } else {
       Fetch.json(response)->Promise.then(json => {
-        let data: geocodeResponse = Obj.magic(json)
-        Promise.resolve(data.address)
+        switch decodeGeocodeResponse(json) {
+        | Ok(data) => Promise.resolve(data.address)
+        | Error(msg) => 
+            Logger.warn(~module_="BackendApi", ~message="GEOCODE_DECODE_FAILED", ~data=Logger.castToJson({"error": msg}), ())
+            Promise.resolve("[Geocoding decode failed]")
+        }
       })
     }
   })
@@ -347,7 +427,7 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<string> => {
     Logger.error(
       ~module_="BackendApi",
       ~message="GEOCODE_FAILED",
-      ~data=Obj.magic({"error": e}),
+      ~data=Logger.castToJson({"error": e}),
       (),
     )
     Promise.resolve("[Geocoding failed]")
@@ -370,7 +450,7 @@ let batchCalculateSimilarity = (
       method: "POST",
       headers: Nullable.make(headers),
       body: JSON.stringify(
-        Obj.magic({
+        Logger.castToJson({
           "pairs": pairs,
         }),
       ),
@@ -379,14 +459,16 @@ let batchCalculateSimilarity = (
   ->Promise.then(handleResponse)
   ->Promise.then(Fetch.json)
   ->Promise.then(json => {
-    let data: similarityResponse = Obj.magic(json)
-    Promise.resolve(Ok(data.results))
+    switch decodeSimilarityResponse(json) {
+    | Ok(data) => Promise.resolve(Ok(data.results))
+    | Error(msg) => Promise.resolve(Error(msg))
+    }
   })
   ->Promise.catch(e => {
     Logger.error(
       ~module_="BackendApi",
       ~message="SIMILARITY_BATCH_ERROR",
-      ~data=Obj.magic({"error": e}),
+      ~data=Logger.castToJson({"error": e}),
       (),
     )
     Promise.resolve(Error("Similarity calculation failed"))

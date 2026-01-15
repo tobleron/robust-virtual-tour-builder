@@ -8,12 +8,11 @@ external castToDict: 'a => Js.Dict.t<'b> = "%identity"
 external asDynamic: 'a => {..} = "%identity"
 
 let getComputedOpacity = el => {
-  let isNull: bool = %raw("el === null || el === undefined")
-  if isNull {
-    1.0
-  } else {
-    let style = Window.getComputedStyle(el)
-    Float.parseFloat(style["opacity"])
+  switch Nullable.toOption(el) {
+  | Some(e) =>
+    let style = Window.getComputedStyle(e)
+    Float.parseFloat(Dom.getPropertyValue(style, "opacity"))
+  | None => 1.0
   }
 }
 
@@ -132,7 +131,7 @@ module Loader = {
       if !isSim {
         Dom.remove(s, "snapshot-visible")
         let _ = Window.setTimeout(() => {
-          if !Dom.classList(s)["contains"]("snapshot-visible") {
+          if !(Dom.classList(s)->Dom.ClassList.contains("snapshot-visible")) {
             Dom.setBackgroundImage(s, "none")
           }
         }, 450)
@@ -382,7 +381,7 @@ module Loader = {
             switch Js.Dict.get(configDict, "scenes") {
             | Some(scenes) => 
                 let scenesDict = castToDict(scenes)
-                Js.Dict.set(scenesDict, "preview", Nullable.toOption(Nullable.undefined)->Obj.magic) // Removing key essentially or setting undefined
+                let _ = %raw("delete scenesDict['preview']")
             | None => ()
             }
             

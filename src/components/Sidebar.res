@@ -1,5 +1,8 @@
 /* src/components/Sidebar.res */
 
+open ReBindings
+open SharedTypes
+
 // Bindings
 @module("../version.js") external version: string = "VERSION"
 @module("../version.js") external buildInfo: string = "BUILD_INFO"
@@ -68,15 +71,7 @@ let make = () => {
     let target = JsxEvent.Form.target(e)
     let files = target["files"]
     if files["length"] > 0 {
-      // Conversion from FileList to Array needed?
-      // External binding expects array. `Array.from(files)` in JS.
-      // We can assume strict binding or do `Array.from` via binding.
-      // Let's assume files is array-like and binding handles it or we bind Array.from
-      // `UploadProcessor.processUploads` takes array.
-      // Quick hack: Use `Array.from` binding
-
-      // Legacy binding removed, using ReScript module directly
-      let fileArray = (Obj.magic(files): array<UploadProcessor.file>)
+      let fileArray = JsHelpers.from(files)
 
       try {
         let result = await UploadProcessor.processUploads(
@@ -88,13 +83,10 @@ let make = () => {
           ),
         )
 
-        let resObj = (Obj.magic(result): {"qualityResults": JSON.t})
+        let qualityResults: array<UploadReport.qualityItem> = (Obj.magic(result): {
+          "qualityResults": array<UploadReport.qualityItem>,
+        })["qualityResults"]
 
-        // Dispatch the result to the store
-        // Assuming result structure matches what AddScenes expects (array of scene data)
-        // Scenes are dispatched by UploadProcessor
-        // UploadReport.showExpects array<qualityItem>
-        let qualityResults = (Obj.magic(resObj)["qualityResults"]: array<UploadReport.qualityItem>)
         UploadReport.show(state.lastUploadReport, qualityResults)
       } catch {
       | JsExn(obj) =>
@@ -182,7 +174,7 @@ let make = () => {
             }),
             ("folder_open", "Load", () => {
               switch Nullable.toOption(projectFileInputRef.current) {
-              | Some(el) => Obj.magic(el)["click"]()
+              | Some(el) => Dom.click(el)
               | None => ()
               }
             }),
@@ -273,8 +265,8 @@ let make = () => {
                 try {
                   let file = files["0"]
                   Logger.startOperation(~module_="Sidebar", ~operation="PROJECT_LOAD", ~data={
-                    "filename": Obj.magic(file)["name"],
-                    "size": Obj.magic(file)["size"]
+                    "filename": File.name(file),
+                    "size": File.size(file)
                   }, ())
                   let projectData = await ProjectManager.loadProject(file, ~onProgress=(
                     pct,
@@ -342,7 +334,7 @@ let make = () => {
           className="w-full h-12 bg-primary text-white rounded-xl flex items-center justify-center gap-3 transition-all hover:bg-primary-light hover:shadow-xl hover:shadow-primary/20 active:scale-95 group overflow-hidden relative focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none"
           onClick={_ => {
             switch Nullable.toOption(fileInputRef.current) {
-            | Some(el) => Obj.magic(el)["click"]()
+            | Some(el) => Dom.click(el)
             | None => ()
             }
           }}

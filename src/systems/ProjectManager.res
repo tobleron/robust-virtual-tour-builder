@@ -84,8 +84,8 @@ let createSavePackage = (state: state, ~onProgress: option<onProgress>=?): Promi
     Promise.resolve(Ok(blob))
   })
   ->Promise.catch(err => {
-     let msg = switch Js.Exn.message(Obj.magic(err)) {
-    | Some(m) => m
+     let msg = switch Js.Exn.asJsExn(err) {
+    | Some(e) => Js.Exn.message(e)->Option.getOr("Unknown error creating save package")
     | None => "Unknown error creating save package"
     }
     Promise.resolve(Error(msg))
@@ -141,8 +141,7 @@ let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promi
       let fileUrl = Constants.backendUrl ++ "/api/session/" ++ sessionId ++ "/" ++ encodeURIComponent(name)
       
       // Clone scene object (shallow copy)
-      let newScene = Object.assign(Object.make(), Obj.magic(sceneDict))
-      let newSceneDict = castToDict(castToJson(newScene))
+      let newSceneDict = Js.Dict.fromArray(Js.Dict.entries(sceneDict))
       
       Js.Dict.set(newSceneDict, "file", castToJson(fileUrl))
       Js.Dict.set(newSceneDict, "originalFile", castToJson(fileUrl))
@@ -226,8 +225,8 @@ let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promi
     Logger.error(~module_="ProjectManager", ~message="PROJECT_LOAD_FAILED", ~data=Some({"error": err}), ())
     progress(0, 100, "Load Failed")
 
-    let msg = switch Js.Exn.message(Obj.magic(err)) {
-    | Some(m) => m
+    let msg = switch Js.Exn.asJsExn(err) {
+    | Some(e) => Js.Exn.message(e)->Option.getOr("Unknown load error")
     | None => "Unknown load error"
     }
     Promise.resolve(Error(msg))
@@ -252,7 +251,7 @@ let saveProject = (state: state, ~onProgress: option<onProgress>=?) => {
     let dateStr = Belt.Array.get(dateParts, 0)->Belt.Option.getWithDefault("unknown_date")
     let filename = "Saved_RMX_" ++ safeName ++ "_v" ++ version ++ "_" ++ dateStr ++ ".vt.zip"
 
-    let useFileHandle = Obj.magic(Window.window)["showSaveFilePicker"] != undefined
+    let useFileHandle = %raw(`typeof window.showSaveFilePicker !== 'undefined'`)
 
     // Acquire Handle
     let handlePromise = if useFileHandle {

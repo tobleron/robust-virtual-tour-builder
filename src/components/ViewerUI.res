@@ -87,8 +87,7 @@ let make = () => {
     if state.activeIndex >= 0 {
       switch Belt.Array.get(state.scenes, state.activeIndex) {
       | Some(s) =>
-        let jsScene = Obj.magic({"label": s.label, "category": s.category})
-        LabelMenu.syncLabelMenu(jsScene)
+        LabelMenu.syncLabelMenu(Logger.castToJson({"label": s.label, "category": s.category}))
       | None => ()
       }
     }
@@ -118,8 +117,7 @@ let make = () => {
       if state.activeIndex >= 0 {
         switch Belt.Array.get(state.scenes, state.activeIndex) {
         | Some(s) =>
-          let jsScene = Obj.magic({"label": s.label, "category": s.category})
-          LabelMenu.syncLabelMenu(jsScene)
+          LabelMenu.syncLabelMenu(Logger.castToJson({"label": s.label, "category": s.category}))
         | None => ()
         }
       }
@@ -178,7 +176,7 @@ let make = () => {
         "indoor"
       }
       // Store.store.updateSceneMetadata(activeIdx, Obj.magic({"category": newCat}))
-      dispatch(Actions.UpdateSceneMetadata(activeIdx, Obj.magic({"category": newCat})))
+      dispatch(Actions.UpdateSceneMetadata(activeIdx, Logger.castToJson({"category": newCat})))
 
       EventBus.dispatch(ShowNotification(
         if newCat == "indoor" {
@@ -195,8 +193,7 @@ let make = () => {
     }
   }
 
-  let handleReturnPromptClick = e => {
-    JsxEvent.Mouse.stopPropagation(e)
+  let processReturnPrompt = () => {
     let v = Nullable.toOption(ReBindings.Viewer.instance)
     let incoming = state.incomingLink
 
@@ -212,7 +209,7 @@ let make = () => {
 
         // Use ReBindings.Dom for manipulation
         switch ReBindings.Dom.getElementById("return-link-prompt") {
-        | Nullable.Value(el) => ReBindings.Dom.classList(el)["remove"]("visible")
+        | Nullable.Value(el) => ReBindings.Dom.classList(el)->ReBindings.Dom.ClassList.remove("visible")
         | _ => ()
         }
       | None => ()
@@ -221,11 +218,23 @@ let make = () => {
     }
   }
 
+  let handleReturnPromptClick = e => {
+    JsxEvent.Mouse.stopPropagation(e)
+    processReturnPrompt()
+  }
+
+  let handleReturnPromptKeyDown = e => {
+    if JsxEvent.Keyboard.key(e) == "Enter" {
+      JsxEvent.Keyboard.stopPropagation(e)
+      processReturnPrompt()
+    }
+  }
+
   let handleFloorClick = (fid, label, e) => {
     JsxEvent.Mouse.stopPropagation(e)
     let activeIdx = state.activeIndex
     if activeIdx >= 0 {
-      dispatch(Actions.UpdateSceneMetadata(activeIdx, Obj.magic({"floor": fid})))
+      dispatch(Actions.UpdateSceneMetadata(activeIdx, Logger.castToJson({"floor": fid})))
       EventBus.dispatch(ShowNotification("Floor: " ++ label, #Success))
     }
   }
@@ -430,11 +439,7 @@ let make = () => {
       onClick={handleReturnPromptClick}
       role="button"
       tabIndex=0
-      onKeyDown={e => {
-        if JsxEvent.Keyboard.key(e) == "Enter" {
-          handleReturnPromptClick(Obj.magic(e))
-        }
-      }}
+      onKeyDown={handleReturnPromptKeyDown}
     >
       <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white shadow-lg shadow-primary/20 group-hover:rotate-[-45deg] transition-transform duration-500">
         <span className="material-icons text-xl"> {React.string("reply")} </span>

@@ -1,16 +1,20 @@
-const CACHE_NAME = 'vtb-cache-v2';
+const CACHE_NAME = 'vtb-cache-v4.2.109';
 
 // Assets that aren't managed by Rsbuild but should still be cached
 const MANUAL_ASSETS = [
-    '/',
-    '/index.html',
-    '/manifest.json',
-    '/src/libs/pannellum.js',
-    '/src/libs/pannellum.css',
-    '/src/libs/jszip.min.js',
-    '/images/logo.png',
-    '/images/icon-192.png',
-    '/images/icon-512.png',
+    "/",
+    "/index.html",
+    "/early-boot.js",
+    "/images/icon-192.png",
+    "/images/icon-512.png",
+    "/images/logo.png",
+    "/images/og-preview.png",
+    "/manifest.json",
+    "/service-worker.js",
+    "/src/libs/FileSaver.min.js",
+    "/src/libs/jszip.min.js",
+    "/src/libs/pannellum.css",
+    "/src/libs/pannellum.js"
 ];
 
 // Install event - cache static assets using manifest + manual list

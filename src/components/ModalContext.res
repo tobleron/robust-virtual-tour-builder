@@ -25,8 +25,8 @@ let make = () => {
   
   // Escape key handler & Focus Trap
   React.useEffect1(() => {
-    let handleKey = e => {
-       let key = (Obj.magic(e))["key"]
+    let handleKey = (e: Dom.event) => {
+       let key = Dom.key(e)
        if (key == "Escape") {
          switch activeConfig {
          | Some(config) => 
@@ -45,13 +45,13 @@ let make = () => {
            let root = ElementExt.closest(el, ".modal-box-premium")
            switch Nullable.toOption(root) {
            | Some(modal) =>
-             let focusables = (Obj.magic(modal): {..})["querySelectorAll"]("button, input, select, textarea, [tabindex]:not([tabindex=\"-1\"])")
-             let focusablesArray: array<Dom.element> = Obj.magic(focusables)
+             let focusables = Dom.querySelectorAll(modal, "button, input, select, textarea, [tabindex]:not([tabindex=\"-1\"])")
+             let focusablesArray = JsHelpers.from(focusables)
              if (Array.length(focusablesArray) > 0) {
                let first = Belt.Array.getExn(focusablesArray, 0)
                let last = Belt.Array.getExn(focusablesArray, Array.length(focusablesArray) - 1)
                
-               let isShift = (Obj.magic(e): {..})["shiftKey"]
+               let isShift = Dom.shiftKey(e)
                if (isShift) {
                  if (Dom.document["activeElement"] === first) {
                    Dom.preventDefault(e)
@@ -81,8 +81,8 @@ let make = () => {
            let root = ElementExt.closest(el, ".modal-box-premium")
            switch Nullable.toOption(root) {
            | Some(modal) =>
-             let focusables = (Obj.magic(modal): {..})["querySelectorAll"]("button, [tabindex]:not([tabindex=\"-1\"])")
-             let focusablesArray: array<Dom.element> = Obj.magic(focusables)
+             let focusables = Dom.querySelectorAll(modal, "button, [tabindex]:not([tabindex=\"-1\"])")
+             let focusablesArray = JsHelpers.from(focusables)
              if (Array.length(focusablesArray) > 0) {
                Dom.focus(Belt.Array.getExn(focusablesArray, 0))
              } else {
@@ -151,7 +151,7 @@ let make = () => {
              </div>
          </div>
       </div>,
-      (Obj.magic(target))
+      target
     )
   | _ => React.null
   }

@@ -14,8 +14,9 @@ module SceneItem = {
   ) => {
     let qualityScore = switch scene.quality {
     | Some(q) =>
-      let qObj = (Obj.magic(q): {"score": float})
-      qObj["score"]
+      // Middle ground: typed cast for nested JSON
+      let qObj = (Obj.magic(q): SharedTypes.qualityAnalysis)
+      qObj.score
     | None => 10.0
     }
     let isLowQuality = qualityScore < 6.5
@@ -52,7 +53,9 @@ module SceneItem = {
       onKeyDown={e => {
         if JsxEvent.Keyboard.key(e) == "Enter" || JsxEvent.Keyboard.key(e) == " " {
           JsxEvent.Keyboard.preventDefault(e)
-          onClick(Obj.magic(e))
+          // For keyboard, we don't pass the event if it's strictly Mouse event
+          // but handleSceneClick doesn't use the event anyway
+          onClick(Obj.magic(e)) // Keeping one magic here as fixing onClick type across components is large
         }
       }}
       role="button"
@@ -152,6 +155,8 @@ module SceneItem = {
   }
 }
 
+type contextMenuInfo = {x: int, y: int, index: int}
+
 @react.component
 let make = () => {
   let state = AppContext.useAppState()
@@ -233,7 +238,7 @@ let make = () => {
     JsxEvent.Mouse.stopPropagation(e)
     let x = JsxEvent.Mouse.clientX(e)
     let y = JsxEvent.Mouse.clientY(e)
-    setContextMenu(_ => Some({"x": x, "y": y, "index": index}))
+    setContextMenu(_ => Some({x: x, y: y, index: index}))
   }
 
   let closeContextMenu = () => setContextMenu(_ => None)
@@ -331,18 +336,18 @@ let make = () => {
             className="fixed z-[30000] premium-glass rounded-2xl p-1.5 min-w-[200px] flex flex-col shadow-2xl animate-fade-in border border-white/20"
             role="menu"
             style={makeStyle({
-              "left": Int.toString(menu["x"] - 200) ++ "px",
-              "top": Int.toString(menu["y"]) ++ "px",
+              "left": Int.toString(menu.x - 200) ++ "px",
+              "top": Int.toString(menu.y) ++ "px",
             })}
           >
             <div
               className="px-4 py-3 cursor-pointer text-white/80 font-bold text-[11px] uppercase tracking-widest hover:bg-white/10 rounded-xl transition-all flex items-center gap-3 group"
-              onClick={_ => handleClearLinks(menu["index"])}
+              onClick={_ => handleClearLinks(menu.index)}
               role="menuitem"
               tabIndex=0
               onKeyDown={e => {
                 if JsxEvent.Keyboard.key(e) == "Enter" {
-                  handleClearLinks(menu["index"])
+                  handleClearLinks(menu.index)
                 }
               }}
             >
@@ -354,12 +359,12 @@ let make = () => {
             
             <div
               className="px-4 py-3 cursor-pointer text-white/80 font-bold text-[11px] uppercase tracking-widest hover:bg-danger/20 hover:text-white rounded-xl transition-all flex items-center gap-3 group"
-              onClick={_ => handleDelete(menu["index"])}
+              onClick={_ => handleDelete(menu.index)}
               role="menuitem"
               tabIndex=0
               onKeyDown={e => {
                 if JsxEvent.Keyboard.key(e) == "Enter" {
-                  handleDelete(menu["index"])
+                  handleDelete(menu.index)
                 }
               }}
             >

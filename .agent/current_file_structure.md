@@ -1,5 +1,6 @@
 .
 ├── GEMINI.md
+├── GEMINI_.md
 ├── README.md
 ├── backend
 │   ├── Cargo.lock
@@ -583,12 +584,24 @@
 │   │       ├── TestRunner.cmt
 │   │       ├── TestRunner.res
 │   │       └── unit
+│   │           ├── AudioManagerTest.ast
+│   │           ├── AudioManagerTest.bs.js
+│   │           ├── AudioManagerTest.cmi
+│   │           ├── AudioManagerTest.cmj
+│   │           ├── AudioManagerTest.cmt
+│   │           ├── AudioManagerTest.res
 │   │           ├── BackendApiTest.ast
 │   │           ├── BackendApiTest.bs.js
 │   │           ├── BackendApiTest.cmi
 │   │           ├── BackendApiTest.cmj
 │   │           ├── BackendApiTest.cmt
 │   │           ├── BackendApiTest.res
+│   │           ├── DownloadSystemTest.ast
+│   │           ├── DownloadSystemTest.bs.js
+│   │           ├── DownloadSystemTest.cmi
+│   │           ├── DownloadSystemTest.cmj
+│   │           ├── DownloadSystemTest.cmt
+│   │           ├── DownloadSystemTest.res
 │   │           ├── ExifParserTest.ast
 │   │           ├── ExifParserTest.bs.js
 │   │           ├── ExifParserTest.cmi
@@ -613,6 +626,24 @@
 │   │           ├── HotspotReducerTest.cmj
 │   │           ├── HotspotReducerTest.cmt
 │   │           ├── HotspotReducerTest.res
+│   │           ├── InputSystemTest.ast
+│   │           ├── InputSystemTest.bs.js
+│   │           ├── InputSystemTest.cmi
+│   │           ├── InputSystemTest.cmj
+│   │           ├── InputSystemTest.cmt
+│   │           ├── InputSystemTest.res
+│   │           ├── JsonTypesTest.ast
+│   │           ├── JsonTypesTest.bs.js
+│   │           ├── JsonTypesTest.cmi
+│   │           ├── JsonTypesTest.cmj
+│   │           ├── JsonTypesTest.cmt
+│   │           ├── JsonTypesTest.res
+│   │           ├── LazyLoadTest.ast
+│   │           ├── LazyLoadTest.bs.js
+│   │           ├── LazyLoadTest.cmi
+│   │           ├── LazyLoadTest.cmj
+│   │           ├── LazyLoadTest.cmt
+│   │           ├── LazyLoadTest.res
 │   │           ├── LoggerTest.ast
 │   │           ├── LoggerTest.bs.js
 │   │           ├── LoggerTest.cmi
@@ -631,6 +662,18 @@
 │   │           ├── PathInterpolationTest.cmj
 │   │           ├── PathInterpolationTest.cmt
 │   │           ├── PathInterpolationTest.res
+│   │           ├── ProgressBarTest.ast
+│   │           ├── ProgressBarTest.bs.js
+│   │           ├── ProgressBarTest.cmi
+│   │           ├── ProgressBarTest.cmj
+│   │           ├── ProgressBarTest.cmt
+│   │           ├── ProgressBarTest.res
+│   │           ├── ProjectDataTest.ast
+│   │           ├── ProjectDataTest.bs.js
+│   │           ├── ProjectDataTest.cmi
+│   │           ├── ProjectDataTest.cmj
+│   │           ├── ProjectDataTest.cmt
+│   │           ├── ProjectDataTest.res
 │   │           ├── ProjectManagerTest.ast
 │   │           ├── ProjectManagerTest.bs.js
 │   │           ├── ProjectManagerTest.cmi
@@ -643,6 +686,12 @@
 │   │           ├── ReBindingsTest.cmj
 │   │           ├── ReBindingsTest.cmt
 │   │           ├── ReBindingsTest.res
+│   │           ├── ReducerHelpersTest.ast
+│   │           ├── ReducerHelpersTest.bs.js
+│   │           ├── ReducerHelpersTest.cmi
+│   │           ├── ReducerHelpersTest.cmj
+│   │           ├── ReducerHelpersTest.cmt
+│   │           ├── ReducerHelpersTest.res
 │   │           ├── ReducerJsonTest.ast
 │   │           ├── ReducerJsonTest.bs.js
 │   │           ├── ReducerJsonTest.cmi
@@ -727,6 +776,12 @@
 │   │           ├── UploadProcessorTest.cmj
 │   │           ├── UploadProcessorTest.cmt
 │   │           ├── UploadProcessorTest.res
+│   │           ├── VideoEncoderTest.ast
+│   │           ├── VideoEncoderTest.bs.js
+│   │           ├── VideoEncoderTest.cmi
+│   │           ├── VideoEncoderTest.cmj
+│   │           ├── VideoEncoderTest.cmt
+│   │           ├── VideoEncoderTest.res
 │   │           ├── ViewerLoaderTest.ast
 │   │           ├── ViewerLoaderTest.bs.js
 │   │           ├── ViewerLoaderTest.cmi
@@ -754,6 +809,11 @@
 │   │   ├── AudioManager.cmj
 │   │   ├── AudioManager.cmt
 │   │   ├── AudioManager.res
+│   │   ├── AudioManagerTest.ast
+│   │   ├── AudioManagerTest.cmi
+│   │   ├── AudioManagerTest.cmj
+│   │   ├── AudioManagerTest.cmt
+│   │   ├── AudioManagerTest.res
 │   │   ├── BackendApi.ast
 │   │   ├── BackendApi.cmi
 │   │   ├── BackendApi.cmj
@@ -773,11 +833,15 @@
 │   │   ├── Constants.cmj
 │   │   ├── Constants.cmt
 │   │   ├── Constants.res
-│   │   ├── DownloadSystem.ast
 │   │   ├── DownloadSystem.cmi
 │   │   ├── DownloadSystem.cmj
 │   │   ├── DownloadSystem.cmt
 │   │   ├── DownloadSystem.res
+│   │   ├── DownloadSystemTest.ast
+│   │   ├── DownloadSystemTest.cmi
+│   │   ├── DownloadSystemTest.cmj
+│   │   ├── DownloadSystemTest.cmt
+│   │   ├── DownloadSystemTest.res
 │   │   ├── EventBus.ast
 │   │   ├── EventBus.cmi
 │   │   ├── EventBus.cmj
@@ -845,11 +909,20 @@
 │   │   ├── InputSystem.cmj
 │   │   ├── InputSystem.cmt
 │   │   ├── InputSystem.res
+│   │   ├── InputSystemTest.cmi
+│   │   ├── InputSystemTest.cmj
+│   │   ├── InputSystemTest.cmt
+│   │   ├── InputSystemTest.res
 │   │   ├── JsonTypes.ast
 │   │   ├── JsonTypes.cmi
 │   │   ├── JsonTypes.cmj
 │   │   ├── JsonTypes.cmt
 │   │   ├── JsonTypes.res
+│   │   ├── JsonTypesTest.ast
+│   │   ├── JsonTypesTest.cmi
+│   │   ├── JsonTypesTest.cmj
+│   │   ├── JsonTypesTest.cmt
+│   │   ├── JsonTypesTest.res
 │   │   ├── LabelMenu.cmi
 │   │   ├── LabelMenu.cmj
 │   │   ├── LabelMenu.cmt
@@ -859,6 +932,10 @@
 │   │   ├── LazyLoad.cmj
 │   │   ├── LazyLoad.cmt
 │   │   ├── LazyLoad.res
+│   │   ├── LazyLoadTest.cmi
+│   │   ├── LazyLoadTest.cmj
+│   │   ├── LazyLoadTest.cmt
+│   │   ├── LazyLoadTest.res
 │   │   ├── LinkModal.ast
 │   │   ├── LinkModal.cmi
 │   │   ├── LinkModal.cmj
@@ -933,11 +1010,20 @@
 │   │   ├── ProgressBar.cmj
 │   │   ├── ProgressBar.cmt
 │   │   ├── ProgressBar.res
+│   │   ├── ProgressBarTest.cmi
+│   │   ├── ProgressBarTest.cmj
+│   │   ├── ProgressBarTest.cmt
+│   │   ├── ProgressBarTest.res
 │   │   ├── ProjectData.ast
 │   │   ├── ProjectData.cmi
 │   │   ├── ProjectData.cmj
 │   │   ├── ProjectData.cmt
 │   │   ├── ProjectData.res
+│   │   ├── ProjectDataTest.ast
+│   │   ├── ProjectDataTest.cmi
+│   │   ├── ProjectDataTest.cmj
+│   │   ├── ProjectDataTest.cmt
+│   │   ├── ProjectDataTest.res
 │   │   ├── ProjectManager.cmi
 │   │   ├── ProjectManager.cmj
 │   │   ├── ProjectManager.cmt
@@ -968,10 +1054,11 @@
 │   │   ├── ReducerHelpers.cmj
 │   │   ├── ReducerHelpers.cmt
 │   │   ├── ReducerHelpers.res
-│   │   ├── ReducerJsonTest.ast
-│   │   ├── ReducerJsonTest.cmi
-│   │   ├── ReducerJsonTest.cmj
-│   │   ├── ReducerJsonTest.cmt
+│   │   ├── ReducerHelpersTest.ast
+│   │   ├── ReducerHelpersTest.cmi
+│   │   ├── ReducerHelpersTest.cmj
+│   │   ├── ReducerHelpersTest.cmt
+│   │   ├── ReducerHelpersTest.res
 │   │   ├── ReducerJsonTest.res
 │   │   ├── ReducerTest.ast
 │   │   ├── ReducerTest.cmi
@@ -1025,7 +1112,6 @@
 │   │   ├── SharedTypesTest.cmj
 │   │   ├── SharedTypesTest.cmt
 │   │   ├── SharedTypesTest.res
-│   │   ├── Sidebar.ast
 │   │   ├── Sidebar.cmi
 │   │   ├── Sidebar.cmj
 │   │   ├── Sidebar.cmt
@@ -1180,6 +1266,10 @@
 │   │   ├── VideoEncoder.cmj
 │   │   ├── VideoEncoder.cmt
 │   │   ├── VideoEncoder.res
+│   │   ├── VideoEncoderTest.cmi
+│   │   ├── VideoEncoderTest.cmj
+│   │   ├── VideoEncoderTest.cmt
+│   │   ├── VideoEncoderTest.res
 │   │   ├── ViewerFollow.ast
 │   │   ├── ViewerFollow.cmi
 │   │   ├── ViewerFollow.cmj
@@ -1241,12 +1331,14 @@
 │   └── step1_cleanup_notes.md
 ├── postcss.config.js
 ├── public
+│   ├── early-boot.js
 │   ├── images
 │   │   ├── icon-192.png
 │   │   ├── icon-512.png
 │   │   ├── logo.png
 │   │   └── og-preview.png
-│   └── manifest.json
+│   ├── manifest.json
+│   └── service-worker.js
 ├── rescript.json
 ├── rsbuild.config.mjs
 ├── scripts
@@ -1258,10 +1350,10 @@
 │   ├── prune-snapshots.sh
 │   ├── restore-snapshot.sh
 │   ├── setup.sh
+│   ├── sync-sw.cjs
 │   ├── test-logging.js
 │   ├── update-version.js
 │   └── watch-file-limits.sh
-├── service-worker.js
 ├── sounds
 │   └── click.wav
 ├── src
@@ -1436,6 +1528,8 @@
 ├── tasks
 │   ├── README.md
 │   ├── active
+│   │   ├── 130_Reduce_Obj_Magic_Usage.md
+│   │   └── 131_Security_And_SW_Hardening.md
 │   ├── completed
 │   │   ├── 01_Architecture_Functional_State_REPORT.md
 │   │   ├── 02_Implement_App_Context_REPORT.md
@@ -1580,16 +1674,27 @@
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   └── pending
-│       ├── 130_Reduce_Obj_Magic_Usage.md
-│       ├── 131_Security_And_SW_Hardening.md
-│       └── 132_Comprehensive_Project_Analysis.md
+│       ├── 132_Comprehensive_Project_Analysis.md
+│       ├── 133_Add_Tests_for_JsonTypes.md
+│       ├── 134_Add_Tests_for_ReducerHelpers.md
+│       ├── 135_Add_Tests_for_AudioManager.md
+│       ├── 136_Add_Tests_for_DownloadSystem.md
+│       ├── 137_Add_Tests_for_InputSystem.md
+│       ├── 138_Add_Tests_for_ProjectData.md
+│       ├── 139_Add_Tests_for_VideoEncoder.md
+│       ├── 140_Add_Tests_for_LazyLoad.md
+│       └── 141_Add_Tests_for_ProgressBar.md
 └── tests
     ├── TestRunner.bs.js
     ├── TestRunner.res
     ├── integration
     └── unit
+        ├── AudioManagerTest.bs.js
+        ├── AudioManagerTest.res
         ├── BackendApiTest.bs.js
         ├── BackendApiTest.res
+        ├── DownloadSystemTest.bs.js
+        ├── DownloadSystemTest.res
         ├── ExifParserTest.bs.js
         ├── ExifParserTest.res
         ├── ExifReportGeneratorTest.bs.js
@@ -1598,18 +1703,28 @@
         ├── GeoUtilsTest.res
         ├── HotspotReducerTest.bs.js
         ├── HotspotReducerTest.res
+        ├── InputSystemTest.bs.js
+        ├── InputSystemTest.res
+        ├── JsonTypesTest.bs.js
+        ├── JsonTypesTest.res
+        ├── LazyLoadTest.bs.js
+        ├── LazyLoadTest.res
         ├── LoggerTest.bs.js
         ├── LoggerTest.res
         ├── NavigationTest.bs.js
         ├── NavigationTest.res
         ├── PathInterpolationTest.bs.js
         ├── PathInterpolationTest.res
+        ├── ProgressBarTest.bs.js
+        ├── ProgressBarTest.res
+        ├── ProjectDataTest.bs.js
+        ├── ProjectDataTest.res
         ├── ProjectManagerTest.bs.js
         ├── ProjectManagerTest.res
         ├── ReBindingsTest.bs.js
         ├── ReBindingsTest.res
-        ├── ReducerJsonTest.bs.js
-        ├── ReducerJsonTest.res
+        ├── ReducerHelpersTest.bs.js
+        ├── ReducerHelpersTest.res
         ├── ReducerTest.bs.js
         ├── ReducerTest.res
         ├── ResizerTest.bs.js
@@ -1636,7 +1751,9 @@
         ├── TourTemplateStylesTest.res
         ├── UploadProcessorTest.bs.js
         ├── UploadProcessorTest.res
+        ├── VideoEncoderTest.bs.js
+        ├── VideoEncoderTest.res
         ├── ViewerLoaderTest.bs.js
         └── ViewerLoaderTest.res
 
-48 directories, 1592 files
+48 directories, 1709 files

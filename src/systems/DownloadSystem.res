@@ -25,9 +25,14 @@ external showSaveFilePicker: savePickerOptions => Promise.t<fileHandle> = "showS
 /* Internal Helpers */
 let getExtension = (filename: string) => {
   let parts = String.split(filename, ".")
-  switch Belt.Array.get(parts, Belt.Array.length(parts) - 1) {
-  | Some(ext) => "." ++ String.toLowerCase(ext)
-  | None => ".dat"
+  let len = Array.length(parts)
+  if len > 1 {
+    switch Belt.Array.get(parts, len - 1) {
+    | Some(ext) => "." ++ String.toLowerCase(ext)
+    | None => ".dat"
+    }
+  } else {
+    ".dat"
   }
 }
 
@@ -39,7 +44,7 @@ let saveBlob = (blob: Blob.t, filename: string) => {
 
   /* Ensure MIME type */
   let blob = if Blob.type_(blob) == "" {
-    Blob.newBlob([Obj.magic(blob)], {"type": "application/octet-stream"})
+    Blob.newBlob([blob], {"type": "application/octet-stream"})
   } else {
     blob
   }
@@ -54,15 +59,10 @@ let saveBlob = (blob: Blob.t, filename: string) => {
   Dom.setAttribute(a, "aria-hidden", "true")
 
   Dom.appendChild(Dom.documentBody, a)
-  let _ = (Obj.magic(a): {..})["click"]()
+  Dom.click(a)
 
   let _ = Window.setTimeout(() => {
-    Dom.documentBody
-    ->Obj.magic
-    ->Dict.get("removeChild")
-    ->Belt.Option.forEach(fn => {
-      let _ = (Obj.magic(fn): Dom.element => unit)(a)
-    })
+    Dom.removeElement(a)
     URL.revokeObjectURL(url)
   }, cleanupDelay)
 }
@@ -97,7 +97,9 @@ let saveBlobWithConfirmation = async (blob: Blob.t, filename: string) => {
     "size": Blob.size(blob)
   }, ())
 
-  if Obj.magic(Window.window)["showSaveFilePicker"] !== %raw("undefined") {
+  let hasShowSaveFilePicker = %raw(`typeof window.showSaveFilePicker !== 'undefined'`)
+
+  if hasShowSaveFilePicker {
     try {
       let mimeType = if Blob.type_(blob) == "" {
         "application/octet-stream"
@@ -109,14 +111,14 @@ let saveBlobWithConfirmation = async (blob: Blob.t, filename: string) => {
       Logger.info(~module_="Download", ~message="SAVE_SUCCESS", ~data={"filename": filename}, ())
       true
     } catch {
-    | JsExn(e) => {
-        let name: string = Obj.magic(e)["name"]
+    | Js.Exn.Error(e) => {
+        let name = Js.Exn.name(e)->Option.getOr("UnknownError")
         if name == "AbortError" {
           Logger.info(~module_="Download", ~message="SAVE_CANCELLED", ())
           JsError.throwWithMessage("USER_CANCELLED")
         } else {
           Logger.error(~module_="Download", ~message="SAVE_ERROR", ~data={"error": e}, ())
-          JsError.throwWithMessage(Option.getOr(JsExn.message(e), "Save Failed"))
+          JsError.throwWithMessage(Option.getOr(Js.Exn.message(e), "Save Failed"))
         }
       }
     | e => throw(e)
@@ -129,7 +131,8 @@ let saveBlobWithConfirmation = async (blob: Blob.t, filename: string) => {
 }
 
 let downloadZip = (zip: JSZip.t, filename: string) => {
-  if Obj.magic(zip) == Nullable.null {
+  let zipNullable: Nullable.t<JSZip.t> = Obj.magic(zip)
+  if zipNullable == Nullable.null {
     Logger.error(~module_="Download", ~message="ZIP_MISSING", ())
   } else {
     let _ = JSZip.generateAsync(zip, {"type": "blob"})->Promise.then(content => {

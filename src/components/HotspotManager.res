@@ -117,13 +117,12 @@ let createHotspotConfig = (
 
       // Keyboard support
       let handleKey = (e: Dom.event) => {
-        let key = (Obj.magic(e))["key"]
+        let key = Dom.key(e)
         if (key == "Enter" || key == " ") {
-          Event.preventDefault(Obj.magic(e))
-          Event.stopPropagation(Obj.magic(e))
+          Dom.preventDefault(e)
+          Dom.stopPropagation(e)
           // Trigger the click logic by manually calling the click handler or dispatching a click
-          // Since we already have the onclick logic bound to 'div', we can just call it.
-          (Obj.magic(div))["onclick"](e)
+          Dom.click(div)
         }
       }
       Dom.addEventListener(div, "keydown", handleKey)
@@ -168,7 +167,7 @@ let createHotspotConfig = (
             switch targetIdx {
             | Some(idx) =>
               let currentVal = ts.isAutoForward
-              dispatch(Actions.UpdateSceneMetadata(idx, Obj.magic({"isAutoForward": !currentVal})))
+              dispatch(Actions.UpdateSceneMetadata(idx, Logger.castToJson({"isAutoForward": !currentVal})))
               EventBus.dispatch(ShowNotification(
                 if !currentVal {
                   "Auto-forward: ENABLED"
@@ -282,19 +281,12 @@ let createHotspotConfig = (
 
 let syncHotspots = (v: Viewer.t, state: state, scene: scene, dispatch: Actions.action => unit) => {
   let config = Viewer.getConfig(v)
-  let hs = try {
-    (Obj.magic(config)["hotSpots"]: array<{..}>)
-  } catch {
-  | _ => []
-  }
+  let hs = config["hotSpots"]
 
   // Remove existing
   Belt.Array.forEach(hs, h => {
-    let idVal = Obj.magic(h)["id"]
+    let id = h["id"]
 
-    // Handle if ID is string or other; JS binding usually gives string
-    // We need to cast carefully.
-    let id: string = Obj.magic(idVal)
     if id != "" {
       Viewer.removeHotSpot(v, id)
     }

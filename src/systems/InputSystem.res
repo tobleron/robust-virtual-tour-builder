@@ -26,7 +26,7 @@ let handleGlobalEscape = (e: Dom.event) => {
       switch Dom.getElementById(modalId)->Nullable.toOption {
       | Some(modal) =>
         let style = Window.getComputedStyle(modal)
-        let display = (Obj.magic(style): {"display": string})["display"]
+        let display = Dom.getPropertyValue(style, "display")
         let hasOverlay =
           Dom.querySelector(modal, ".modal-overlay")->Nullable.toOption->Belt.Option.isSome
 
@@ -36,7 +36,7 @@ let handleGlobalEscape = (e: Dom.event) => {
           if modalId == "modal-container" {
             switch Dom.querySelector(modal, "#cancel-link")->Nullable.toOption {
             | Some(btn) =>
-              let _ = (Obj.magic(btn): {"click": unit => unit})["click"]()
+              Dom.click(btn)
               Dom.preventDefault(e)
               handled := true
             | None => ()
@@ -48,7 +48,7 @@ let handleGlobalEscape = (e: Dom.event) => {
             let selector = "#btn-close-style, #btn-new-cancel, #btn-close-about"
             switch Dom.querySelector(modal, selector)->Nullable.toOption {
             | Some(btn) =>
-              let _ = (Obj.magic(btn): {"click": unit => unit})["click"]()
+              Dom.click(btn)
               Dom.preventDefault(e)
               handled := true
             | None =>
@@ -61,7 +61,7 @@ let handleGlobalEscape = (e: Dom.event) => {
                 )
                 switch anyCancel->Nullable.toOption {
                 | Some(btn) =>
-                  let _ = (Obj.magic(btn): {"click": unit => unit})["click"]()
+                  Dom.click(btn)
                   Dom.preventDefault(e)
                   handled := true
                 | None => ()
@@ -116,14 +116,14 @@ let handleGlobalEscape = (e: Dom.event) => {
 let initInputSystem = () => {
   Logger.initialized(~module_="InputSystem")
   Dom.addEventListener(Dom.documentBody, "keydown", e => {
-    let key = (Obj.magic(e): {"key": string})["key"]
-    let ctrlKey = (Obj.magic(e): {"ctrlKey": bool})["ctrlKey"]
-    let shiftKey = (Obj.magic(e): {"shiftKey": bool})["shiftKey"]
+    let key = Dom.key(e)
+    let ctrlKey = Dom.ctrlKey(e)
+    let shiftKey = Dom.shiftKey(e)
 
     if key == "Escape" {
       handleGlobalEscape(e)
     } else if ctrlKey && shiftKey && (key == "D" || key == "d") {
-      let newStateResult = (Obj.magic(Window.window)["DEBUG"]["toggle"]())
+      let newStateResult = %raw(`(window.DEBUG && window.DEBUG.toggle) ? window.DEBUG.toggle() : false`)
       Logger.info(
         ~module_="InputSystem",
         ~message="DEBUG_TOGGLE",

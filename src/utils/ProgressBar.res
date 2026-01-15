@@ -4,14 +4,12 @@ open ReBindings
 
 let progressAutoHideTimeout = ref(None)
 
-type domElementWithText = {mutable textContent: string}
 let setTextContent = (el: Dom.element, text: string) => {
-  (Obj.magic(el): domElementWithText).textContent = text
+  Dom.setTextContent(el, text)
 }
 
 let setStyleProperty = (el: Dom.element, prop: string, val: string) => {
-  let style = (Obj.magic(el): {"style": {..}})["style"]
-  Dict.set(Obj.magic(style), prop, val)
+  Dom.setProperty(el, prop, val)
 }
 
 let updateProgressBar = (
@@ -61,7 +59,7 @@ let updateProgressBar = (
       Logger.trace(
         ~module_="ProgressBar",
         ~message="PROGRESS_UPDATE",
-        ~data={"percent": clampedPercent, "text": text},
+        ~data=Logger.castToJson({"percent": clampedPercent, "text": text}),
         (),
       )
 
@@ -94,7 +92,7 @@ let updateProgressBar = (
       /* Scroll sidebar */
       switch Dom.querySelector(Dom.documentBody, ".sidebar-content")->Nullable.toOption {
       | Some(sidebar) =>
-        let _ = (Obj.magic(sidebar): {"scrollTo": {..} => unit})["scrollTo"]({
+        Dom.scrollTo(sidebar, {
           "top": 0,
           "behavior": "smooth",
         })

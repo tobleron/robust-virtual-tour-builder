@@ -1,5 +1,6 @@
 /* src/systems/ExifParser.res */
 
+open ReBindings
 open SharedTypes
 
 // GPano XMP Tags
@@ -7,30 +8,22 @@ open SharedTypes
 
 /* Bindings for ExifReader */
 module ExifReader = {
-  type t
-  @module("exifreader") external load: 'a => promise<t> = "load"
+  type tag = {description: string}
+  type tags = Dict.t<tag>
+  @module("exifreader") external load: 'a => promise<tags> = "load"
 }
 
 /* Constants */
 let backendUrl = Constants.backendUrl
-
-/* Bindings for Fetch */
-@val external fetch: (string, 'a) => promise<JSON.t> = "fetch"
 
 /* extractExifTags - IMPLEMENTED per task requirement using ExifReader */
 let extractExifTags = async file => {
   try {
     let _tags = await ExifReader.load(file)
 
-    let getValue = _key => {
-      let tag = %raw(`_tags[_key]`)
-      switch Nullable.toOption(tag) {
-      | Some(t) =>
-        let desc = (Obj.magic(t): {..})["description"]
-        switch Nullable.toOption(desc) {
-        | Some(d) => d
-        | None => ""
-        }
+    let getValue = key => {
+      switch Dict.get(_tags, key) {
+      | Some(t) => t.description
       | None => ""
       }
     }
@@ -83,59 +76,50 @@ let parseFile = async file => {
 }
 
 /* extractExifData - Calls the Rust Backend */
-let extractExifData = _file => {
-  let formData = %raw(`new FormData()`)
-  let _ = %raw(`formData.append("file", _file)`)
+let extractExifData = (file: File.t): Promise.t<metadataResponse> => {
+  let formData = FormData.newFormData()
+  FormData.append(formData, "file", file)
 
-  fetch(
+  Fetch.fetch(
     `${backendUrl}/extract-metadata`,
     {
-      "method": "POST",
-      "body": formData,
+      method: "POST",
+      body: formData,
+      headers: Nullable.null,
     },
-  )->Promise.then(res => {
-    let response = (Obj.magic(res): {..})
-    if !response["ok"] {
+  )
+  ->Promise.then(res => {
+    if !Fetch.ok(res) {
       JsError.throwWithMessage("Backend Metadata Extraction Failed")
     } else {
-      response["json"]()
+      Fetch.json(res)
     }
   })
+  ->Promise.then(json => Promise.resolve(Obj.magic(json)))
 }
 
 /* analyzeImageQuality wrapper */
-let analyzeImageQuality = file => {
-  extractExifData(file)->Promise.then(data => {
-    let d = (Obj.magic(data): {..})
-    switch Nullable.toOption(d["error"]) {
-    | Some(err) =>
-      Promise.resolve(Obj.magic({"score": 7.5, "issues": 0, "analysis": null, "error": err}))
-    | None => Promise.resolve(d["quality"])
-    }
+let analyzeImageQuality = (file: File.t): Promise.t<qualityAnalysis> => {
+  extractExifData(file)
+  ->Promise.then(data => Promise.resolve(data.quality))
+  ->Promise.catch(err => {
+    Logger.error(~module_="ExifParser", ~message="QUALITY_ANALYSIS_FAILED", ~data=Logger.castToJson({"error": err}), ())
+    Promise.resolve(Obj.magic({"score": 7.5, "issues": 0, "analysis": Nullable.null, "error": "Analysis failed"}))
   })
 }
 
-
-
 /* getCameraSignature - Utility function */
-let getCameraSignature = (exif: JSON.t) => {
-  let e = (Obj.magic(exif): {..})
-  let make = switch Nullable.toOption(e["make"]) {
+let getCameraSignature = (exif: exifMetadata) => {
+  let make = switch Nullable.toOption(exif.make) {
   | Some(m) => m
   | None => "Unknown"
   }
-  let model = switch Nullable.toOption(e["model"]) {
+  let model = switch Nullable.toOption(exif.model) {
   | Some(m) => m
   | None => "Unknown"
   }
-  let width = switch Nullable.toOption(e["width"]) {
-  | Some(w) => String.make(w)
-  | None => "Unknown"
-  }
-  let height = switch Nullable.toOption(e["height"]) {
-  | Some(h) => String.make(h)
-  | None => "Unknown"
-  }
+  let width = String.make(exif.width)
+  let height = String.make(exif.height)
 
   make ++ " " ++ model ++ " @ " ++ width ++ "x" ++ height
 }

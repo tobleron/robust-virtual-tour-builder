@@ -53,6 +53,17 @@ module Viewer = {
   /* The viewer is attached to window.pannellumViewer */
   @scope("window") @val external instance: Nullable.t<t> = "pannellumViewer"
 
+  type hotspotConfig = {
+    "id": string,
+    "pitch": float,
+    "yaw": float,
+    "type": string,
+  }
+
+  type config = {
+    "hotSpots": array<hotspotConfig>
+  }
+
   @send external getPitch: t => float = "getPitch"
   @send external getYaw: t => float = "getYaw"
   @send external getHfov: t => float = "getHfov"
@@ -64,7 +75,7 @@ module Viewer = {
   @send external mouseEventToCoords: (t, 'event) => array<float> = "mouseEventToCoords"
   @send external setYawWithDuration: (t, float, int) => unit = "setYaw"
 
-  @send external getConfig: t => {..} = "getConfig"
+  @send external getConfig: t => config = "getConfig"
   @send external removeHotSpot: (t, string) => unit = "removeHotSpot"
   @send external addHotSpot: (t, {..}) => unit = "addHotSpot"
 
@@ -72,6 +83,7 @@ module Viewer = {
   @send external on: (t, string, 'event => unit) => unit = "on"
   @send external getScene: t => string = "getScene"
   @send external loadScene: (t, string, float, float, float) => unit = "loadScene"
+  @send external isLoaded: t => bool = "isLoaded"
 }
 
 module Pannellum = {
@@ -89,6 +101,8 @@ module Dom = {
   @send external stopPropagation: event => unit = "stopPropagation"
   @get external target: event => element = "target"
   @get external key: event => string = "key"
+  @get external ctrlKey: event => bool = "ctrlKey"
+  @get external shiftKey: event => bool = "shiftKey"
   @get external dataTransfer: event => dataTransfer = "dataTransfer"
   @set external setEffectAllowed: (dataTransfer, string) => unit = "effectAllowed"
   @set external setDropEffect: (dataTransfer, string) => unit = "dropEffect"
@@ -134,7 +148,14 @@ module Dom = {
   @set external setTransition: (element, string) => unit = "transition"
   @set external setBackgroundImage: (element, string) => unit = "backgroundImage"
 
-  @get external classList: element => {..} = "classList"
+  module ClassList = {
+    type t
+    @send external contains: (t, string) => bool = "contains"
+    @send external add: (t, string) => unit = "add"
+    @send external remove: (t, string) => unit = "remove"
+    @send external toggle: (t, string) => unit = "toggle"
+  }
+  @get external classList: element => ClassList.t = "classList"
 
   @scope("document") @val external createElement: string => element = "createElement"
   @set external setId: (element, string) => unit = "id"
@@ -150,15 +171,17 @@ module Dom = {
   @get external getHeight: element => int = "height"
   @set external setHeight: (element, int) => unit = "height"
 
-  @get external getComputedStyle: element => {..} = "getComputedStyle" 
+  @get external getComputedStyle: element => style = "getComputedStyle" 
   
   @send @scope("style") external setProperty: (element, string, string) => unit = "setProperty"
+  @send external getPropertyValue: (style, string) => string = "getPropertyValue"
   @get external getStyle: element => style = "style" 
   
   @get external getValue: element => string = "value"
   @set external setValue: (element, string) => unit = "value"
   @send external focus: element => unit = "focus"
   @send external click: element => unit = "click"
+  @send external scrollTo: (element, {..}) => unit = "scrollTo"
   @send external closest: (element, string) => Nullable.t<element> = "closest"
   @send
   external addEventListenerCapture: (element, string, 'a => unit, bool) => unit = "addEventListener"
@@ -181,6 +204,7 @@ module Dom = {
 
   @send external querySelectorAll: (element, string) => nodeList = "querySelectorAll"
   @scope("document") @val external querySelectorAllDoc: string => nodeList = "querySelectorAll"
+  @get external nodeListLength: nodeList => int = "length"
   
   @set external setDraggable: (element, bool) => unit = "draggable"
   @send @scope("document") external createDocumentFragment: unit => element = "createDocumentFragment"
@@ -279,9 +303,11 @@ module Window = {
   @scope("navigator") @val external navigatorUserAgent: string = "userAgent"
   @val external window: {..} = "window"
   @val external alert: string => unit = "alert"
-  @val external getComputedStyle: Dom.element => {..} = "getComputedStyle"
+  @val external getComputedStyle: Dom.element => Dom.style = "getComputedStyle"
   @val @scope("window") external innerHeight: int = "innerHeight"
   @val @scope("window") external confirm: string => bool = "confirm"
+  @set external setDebug: ({..}, {..}) => unit = "DEBUG"
+  @set external setAppLog: ({..}, array<string>) => unit = "appLog"
   @set external setOnError: ({..}, (string, string, int, int, {..}) => bool) => unit = "onerror"
   @set external setOnUnhandledRejection: ({..}, {..} => unit) => unit = "onunhandledrejection"
 }

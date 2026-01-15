@@ -35,13 +35,13 @@ let transcodeWebMToMP4 = (
     Promise.reject(JsError.throwWithMessage(msg))
   } else {
     let formData = FormData.newFormData()
-    FormData.appendWithFilename(formData, "file", Obj.magic(webmBlob), "input.webm")
+    FormData.appendWithFilename(formData, "file", webmBlob, "input.webm")
 
     Fetch.fetch(
       Constants.backendUrl ++ "/transcode-video",
       {
         method: "POST",
-        body: Obj.magic(formData),
+        body: formData,
         headers: Nullable.null,
       },
     )

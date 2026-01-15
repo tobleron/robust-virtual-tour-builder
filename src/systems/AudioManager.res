@@ -6,6 +6,7 @@ open ReBindings
 type audioContext
 type audioBuffer
 type audioNode
+type audioParam = {mutable value: float}
 type gainNode
 type audioBufferSourceNode
 
@@ -19,18 +20,20 @@ external decodeAudioData: (audioContext, BrowserArrayBuffer.t) => Promise.t<audi
 @get external state: audioContext => string = "state"
 @get external destination: audioContext => audioNode = "destination"
 
-type audioParam = {mutable value: float}
-
 @send external createBufferSource: audioContext => audioBufferSourceNode = "createBufferSource"
 @send external createGain: audioContext => gainNode = "createGain"
 
 @set external setBuffer: (audioBufferSourceNode, audioBuffer) => unit = "buffer"
 @send external start: (audioBufferSourceNode, float) => unit = "start"
+
+/* Subtyping via identity casts */
+external asAudioNode: 'a => audioNode = "%identity"
+
 @send external connect: (audioNode, audioNode) => unit = "connect"
-@send external connectParam: (audioNode, {..}) => unit = "connect" /* For gain param? */
+@send external connectParam: (audioNode, audioParam) => unit = "connect"
 
 /* GainNode specific */
-@get external getGain: gainNode => {..} = "gain"
+@get external getGain: gainNode => audioParam = "gain"
 
 /* HTML Audio Element */
 type audioElement
@@ -43,10 +46,19 @@ let clickSoundUrl = "sounds/click.wav"
 let audioContext: ref<option<audioContext>> = ref(None)
 let clickBuffer: ref<option<audioBuffer>> = ref(None)
 let isInitialized = ref(false)
-let clickAudio = newAudio(clickSoundUrl)
+let clickAudioRef: ref<option<audioElement>> = ref(None)
 
-/* Set volume */
-let _ = setVolume(clickAudio, 0.4)
+let getClickAudio = () => {
+  switch clickAudioRef.contents {
+  | Some(a) => a
+  | None => {
+      let a = newAudio(clickSoundUrl)
+      setVolume(a, 0.4)
+      clickAudioRef := Some(a)
+      a
+    }
+  }
+}
 
 let init = () => {
   if !isInitialized.contents {
@@ -68,7 +80,7 @@ let init = () => {
         Promise.resolve()
       })
       ->Promise.catch(e => {
-        Logger.warn(~module_="Audio", ~message="AUDIO_INIT_FAILED", ~data={"error": e}, ())
+        Logger.warn(~module_="Audio", ~message="AUDIO_INIT_FAILED", ~data=Logger.castToJson({"error": e}), ())
         Promise.resolve()
       })
   }
@@ -76,8 +88,9 @@ let init = () => {
 
 let playTick = () => {
   if !isInitialized.contents {
-    setCurrentTime(clickAudio, 0.0)
-    let _ = play(clickAudio)->Promise.catch(_ => Promise.resolve())
+    let a = getClickAudio()
+    setCurrentTime(a, 0.0)
+    let _ = play(a)->Promise.catch(_ => Promise.resolve())
   } else {
     switch (audioContext.contents, clickBuffer.contents) {
     | (Some(ctx), Some(buffer)) =>
@@ -89,22 +102,23 @@ let playTick = () => {
       let gainNode = createGain(ctx)
 
       let gainVal = getGain(gainNode)
-      (Obj.magic(gainVal): audioParam).value = 0.4
+      gainVal.value = 0.4
 
-      connect(Obj.magic(source), Obj.magic(gainNode))
-      connect(Obj.magic(gainNode), destination(ctx))
+      connect(asAudioNode(source), asAudioNode(gainNode))
+      connect(asAudioNode(gainNode), destination(ctx))
       start(source, 0.0)
 
     | _ =>
-      setCurrentTime(clickAudio, 0.0)
-      let _ = play(clickAudio)->Promise.catch(_ => Promise.resolve())
+      let a = getClickAudio()
+      setCurrentTime(a, 0.0)
+      let _ = play(a)->Promise.catch(_ => Promise.resolve())
     }
   }
 }
 
 let setupGlobalClickSounds = () => {
   let handleMouseDown = (e: Dom.event) => {
-    let target = (Obj.magic(e): {"target": Dom.element})["target"]
+    let target = Dom.target(e)
     let selector = "button, .floor-circle, .label-menu-item, .header-menu-btn"
 
     switch Dom.closest(target, selector)->Nullable.toOption {
