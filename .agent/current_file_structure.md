@@ -1,6 +1,5 @@
 .
 ├── GEMINI.md
-├── GEMINI_.md.zip
 ├── README.md
 ├── backend
 │   ├── Cargo.lock
@@ -843,7 +842,6 @@
 │   │   ├── DownloadSystem.cmj
 │   │   ├── DownloadSystem.cmt
 │   │   ├── DownloadSystem.res
-│   │   ├── DownloadSystemTest.ast
 │   │   ├── DownloadSystemTest.cmi
 │   │   ├── DownloadSystemTest.cmj
 │   │   ├── DownloadSystemTest.cmt
@@ -1537,8 +1535,9 @@
 ├── start_prod.sh
 ├── tailwind.config.js
 ├── tasks
-│   ├── README.md
+│   ├── TASKS.md
 │   ├── active
+│   │   └── 137_Add_Tests_for_InputSystem.md
 │   ├── completed
 │   │   ├── 01_Architecture_Functional_State_REPORT.md
 │   │   ├── 02_Implement_App_Context_REPORT.md
@@ -1593,6 +1592,7 @@
 │   │   ├── 133_Add_Tests_for_JsonTypes.md
 │   │   ├── 134_Add_Tests_for_ReducerHelpers.md
 │   │   ├── 135_Add_Tests_for_AudioManager.md
+│   │   ├── 136_Add_Tests_for_DownloadSystem_REPORT.md
 │   │   ├── 140_Add_Tests_for_LazyLoad.md
 │   │   ├── 142_Add_Tests_for_Exporter.md
 │   │   ├── 14_ReScript_Migrate_Viewer_REPORT.md
@@ -1692,8 +1692,6 @@
 │   │   └── README.md
 │   └── pending
 │       ├── 132_Comprehensive_Project_Analysis.md
-│       ├── 136_Add_Tests_for_DownloadSystem.md
-│       ├── 137_Add_Tests_for_InputSystem.md
 │       ├── 138_Add_Tests_for_ProjectData.md
 │       ├── 139_Add_Tests_for_VideoEncoder.md
 │       └── 141_Add_Tests_for_ProgressBar.md
@@ -1771,4 +1769,4 @@
         ├── ViewerLoaderTest.bs.js
         └── ViewerLoaderTest.res
 
-48 directories, 1724 files
+48 directories, 1722 files
