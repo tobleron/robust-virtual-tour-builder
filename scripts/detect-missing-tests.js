@@ -43,6 +43,16 @@ sourceFiles.forEach(file => {
             if (content.includes('#[cfg(test)]')) testExists = true;
             else if (fs.existsSync(file.replace('.rs', '_test.rs'))) testExists = true;
             else if (fs.existsSync(file.replace('.rs', '_tests.rs'))) testExists = true;
+            else {
+                // Check if this is a sub-module file (e.g., backend/src/foo/bar.rs)
+                // If so, check if parent mod.rs has tests
+                const dirName = path.dirname(file);
+                const modPath = path.join(dirName, 'mod.rs');
+                if (fs.existsSync(modPath)) {
+                    const modContent = fs.readFileSync(modPath, 'utf8');
+                    if (modContent.includes('#[cfg(test)]')) testExists = true;
+                }
+            }
         } catch (e) { }
     }
 
