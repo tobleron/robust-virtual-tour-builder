@@ -15,9 +15,11 @@ fi
 echo "🗺️  Refreshing file structure map..."
 tree -I "node_modules|target|.git|dist|.agent/workflows" > .agent/current_file_structure.md
 
-# 3. Versioning (Auto-increment Patch)
-npm version patch --no-git-tag-version
+# 3. Versioning (Increment Build Number)
+node scripts/increment-build.js
 NEW_VER=$(node -p "require('./package.json').version")
+BUILD_NUM=$(node -p "require('./package.json').buildNumber")
+FULL_VER="${NEW_VER}+${BUILD_NUM}"
 
 # 4. Cache Busting
 # 4. Cache Busting handled by postversion script
@@ -46,5 +48,5 @@ if ! npm test; then echo "❌ Tests failed."; exit 1; fi
 echo "[$(date '+%Y-%m-%d %H:%M')] v$NEW_VER - $MSG" >> logs/log_changes.txt
 rm -f logs/telemetry.log
 git add .
-git commit -m "v$NEW_VER: $MSG"
-echo "✅ Committed v$NEW_VER"
+git commit -m "v$FULL_VER: $MSG"
+echo "✅ Committed v$FULL_VER"

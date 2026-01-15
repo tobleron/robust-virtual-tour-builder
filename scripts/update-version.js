@@ -20,7 +20,9 @@ try {
     html = html.replace(/http-equiv=[\d.]+"Content-Security-Policy"/, 'http-equiv="Content-Security-Policy"');
 
     // Update legitimate cache busters: ?v=1.2.3
-    html = html.replace(/\?v=[\d.]+/g, `?v=${version}`);
+    const buildNumber = pkg.buildNumber || 0;
+    const fullVersion = `${version}+${buildNumber}`;
+    html = html.replace(/\?v=[\d.+]+/g, `?v=${fullVersion}`);
 
     if (html !== originalHtml) {
         writeFileSync(htmlPath, html);
@@ -30,7 +32,7 @@ try {
     }
 
     // 2. Update src/version.js
-    const versionJsContent = `export const VERSION = "${version}";\nexport const BUILD_INFO = "[Stable Release]";\n`;
+    const versionJsContent = `export const VERSION = "${version}";\nexport const BUILD_NUMBER = ${buildNumber};\nexport const BUILD_INFO = "[Stable Release]";\n`;
     writeFileSync(versionJsPath, versionJsContent);
     console.log('✅ Updated src/version.js');
 
