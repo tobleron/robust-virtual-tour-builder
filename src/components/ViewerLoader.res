@@ -3,8 +3,13 @@ open ViewerTypes
 open ViewerState
 
 let getComputedOpacity = el => {
-  let style = Window.getComputedStyle(el)
-  Float.parseFloat(style["opacity"])
+  let isNull: bool = %raw("el === null || el === undefined")
+  if isNull {
+    1.0
+  } else {
+    let style = Window.getComputedStyle(el)
+    Float.parseFloat(style["opacity"])
+  }
 }
 
 let getPanoramaUrl = (file: Types.file): string => {
