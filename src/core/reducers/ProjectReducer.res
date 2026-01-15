@@ -13,7 +13,8 @@ let reduce = (state: state, action: action): option<state> => {
 
   | SetExifReport(report) => Some({...state, exifReport: Some(report)})
 
-  | RemoveDeletedSceneId(id) => Some({
+  | RemoveDeletedSceneId(id) =>
+    Some({
       ...state,
       deletedSceneIds: Belt.Array.keep(state.deletedSceneIds, i => i != id),
     })

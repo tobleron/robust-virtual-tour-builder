@@ -26,13 +26,34 @@ type blob = ReBindings.Blob.t
 @send external resume: mediaRecorder => unit = "resume"
 
 /* Canvas Context Extension */
-@send external drawImageScaled: (ReBindings.Canvas.context2d, ReBindings.Dom.element, float, float, float, float) => unit = "drawImage"
-@send external drawImagePos: (ReBindings.Canvas.context2d, ReBindings.Dom.element, float, float) => unit = "drawImage"
-@send external drawImageFull: (ReBindings.Canvas.context2d, ReBindings.Dom.element, float, float, float, float, float, float, float, float) => unit = "drawImage"
+@send
+external drawImageScaled: (
+  ReBindings.Canvas.context2d,
+  ReBindings.Dom.element,
+  float,
+  float,
+  float,
+  float,
+) => unit = "drawImage"
+@send
+external drawImagePos: (ReBindings.Canvas.context2d, ReBindings.Dom.element, float, float) => unit =
+  "drawImage"
+@send
+external drawImageFull: (
+  ReBindings.Canvas.context2d,
+  ReBindings.Dom.element,
+  float,
+  float,
+  float,
+  float,
+  float,
+  float,
+  float,
+  float,
+) => unit = "drawImage"
 
 external asDynamic: 'a => {..} = "%identity"
 external castToBlob: 'a => blob = "%identity"
-
 
 /* Image Loading Helper */
 type logoResult = {
@@ -170,7 +191,9 @@ let renderWatermark = (ctx: ReBindings.Canvas.context2d, logoImg: ReBindings.Dom
   ReBindings.Canvas.beginPath(ctx)
   let checkRoundRect: 'a => bool = %raw("function(x) { return typeof x === 'function'; }")
   if checkRoundRect(asDynamic(ctx)["roundRect"]) {
-    let roundRect: (ReBindings.Canvas.context2d, float, float, float, float, float) => unit = %raw("(ctx, x, y, w, h, r) => ctx.roundRect(x,y,w,h,r)")
+    let roundRect: (ReBindings.Canvas.context2d, float, float, float, float, float) => unit = %raw(
+      "(ctx, x, y, w, h, r) => ctx.roundRect(x,y,w,h,r)"
+    )
     roundRect(ctx, boxX, boxY, boxWidth, boxHeight, borderRadius)
   } else {
     ReBindings.Canvas.rect(ctx, boxX, boxY, boxWidth, boxHeight)
@@ -336,11 +359,21 @@ let startRecording = () => {
       } catch {
       | JsExn(e) => {
           let msg = e->JsExn.message->Option.getOr("Unknown")
-          Logger.error(~module_="TeaserRecorder", ~message="RECORDING_FAILED", ~data={"error": msg}, ())
+          Logger.error(
+            ~module_="TeaserRecorder",
+            ~message="RECORDING_FAILED",
+            ~data={"error": msg},
+            (),
+          )
           false
         }
       | _ => {
-          Logger.error(~module_="TeaserRecorder", ~message="RECORDING_FAILED", ~data={"error": "Unknown"}, ())
+          Logger.error(
+            ~module_="TeaserRecorder",
+            ~message="RECORDING_FAILED",
+            ~data={"error": "Unknown"},
+            (),
+          )
           false
         }
       }
@@ -376,7 +409,12 @@ let stopRecording = () => {
   | Some(recorderInst) =>
     if state(recorderInst) != "inactive" {
       stop(recorderInst)
-      Logger.info(~module_="TeaserRecorder", ~message="RECORDING_STOP", ~data={"chunkCount": Array.length(internalState.chunks)}, ())
+      Logger.info(
+        ~module_="TeaserRecorder",
+        ~message="RECORDING_STOP",
+        ~data={"chunkCount": Array.length(internalState.chunks)},
+        (),
+      )
     }
   | None => ()
   }

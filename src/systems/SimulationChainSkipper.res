@@ -10,7 +10,6 @@ open Types
  * The logic maintains the original hotspot for visual transitions but updates
  * the target to the final non-bridge scene.
  */
-
 type skipResult = {
   finalLink: SimulationNavigation.enrichedLink,
   skippedScenes: array<int>,
@@ -57,10 +56,10 @@ let skipAutoForwardChain = (
         | Some(jumpLink) =>
           // Update to the new target but keep original hotspot for visuals
           currentLink := {
-            ...jumpLink,
-            SimulationNavigation.hotspotIndex: originalHotspotIndex,
-            SimulationNavigation.hotspot: originalHotspot,
-          }
+              ...jumpLink,
+              SimulationNavigation.hotspotIndex: originalHotspotIndex,
+              SimulationNavigation.hotspot: originalHotspot,
+            }
           chainCounter := chainCounter.contents + 1
         | None => loop := false
         }

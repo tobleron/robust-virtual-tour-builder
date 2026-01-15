@@ -106,4 +106,3 @@ let decodeTimelineItem = (json: JSON.t): result<timelineItemJson, string> => {
   | _ => Error("Invalid timeline item JSON")
   }
 }
-

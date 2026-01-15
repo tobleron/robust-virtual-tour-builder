@@ -110,7 +110,6 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
 
     let contentHtml = htmlStart ++ htmlAction ++ htmlSkipped
 
-
     let btnDownload: EventBus.button = {
       label: "Download Data Report",
       class_: "bg-slate-100 text-slate-700 hover:bg-slate-200",
@@ -123,7 +122,10 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
             let _ = ExifReportGenerator.downloadExifReport(content)
           | None => ()
           }
-        | None => EventBus.dispatch(ShowNotification("Report is still generating... please wait a moment.", #Info))
+        | None =>
+          EventBus.dispatch(
+            ShowNotification("Report is still generating... please wait a moment.", #Info),
+          )
         }
       },
       autoClose: Some(false),

@@ -7,9 +7,9 @@ let run = () => {
   let initialState = State.initialState
 
   // Helper to create basic scene
-  let createScene = (name) => {
+  let createScene = name => {
     id: name,
-    name: name,
+    name,
     file: Obj.magic(name),
     tinyFile: None,
     originalFile: None,
@@ -27,10 +27,14 @@ let run = () => {
   }
 
   // Helper to create basic state
-  let createStateWithScenes = (scenes) => {
+  let createStateWithScenes = scenes => {
     ...initialState,
-    scenes: scenes,
-    activeIndex: if Array.length(scenes) > 0 { 0 } else { -1 }
+    scenes,
+    activeIndex: if Array.length(scenes) > 0 {
+      0
+    } else {
+      -1
+    },
   }
 
   // --- Test AddScenes ---
@@ -39,14 +43,14 @@ let run = () => {
   // or use minimal valid JSON if possible.
   // Actually SceneReducer.reduce(AddScenes) calls ReducerHelpers.handleAddScenes.
   // We can test behavior if we can mock JSON.
-  
+
   // --- Test SetActiveScene ---
   let scenes = [createScene("s1"), createScene("s2")]
   let state = createStateWithScenes(scenes)
-  
+
   let action = SetActiveScene(1, 90.0, 0.0, None)
   let result = SceneReducer.reduce(state, action)
-  
+
   switch result {
   | Some(newState) =>
     assert(newState.activeIndex == 1)
@@ -58,7 +62,7 @@ let run = () => {
   // --- Test DeleteScene ---
   let actionDelete = DeleteScene(0)
   let resultDelete = SceneReducer.reduce(state, actionDelete)
-  
+
   switch resultDelete {
   | Some(newState) =>
     assert(Array.length(newState.scenes) == 1)
@@ -70,7 +74,7 @@ let run = () => {
   // --- Test Unhandled Action ---
   let unhandled = SetIsLinking(true)
   let resultUnhandled = SceneReducer.reduce(state, unhandled)
-  
+
   switch resultUnhandled {
   | Some(_) => Console.error("✗ Unhandled action failed: returned Some")
   | None => Console.log("✓ Unhandled action ignored correctly")

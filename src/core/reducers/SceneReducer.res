@@ -40,7 +40,7 @@ let handleSetActiveScene = (
   index: int,
   yaw: float,
   pitch: float,
-  transition: option<transition>
+  transition: option<transition>,
 ): state => {
   if index >= 0 && index < Belt.Array.length(state.scenes) {
     let newTransition = switch transition {
@@ -77,8 +77,8 @@ let reduce = (state: state, action: action): option<state> => {
   | AddScenes(scenesData) => Some(handleAddScenes(state, scenesData))
   | DeleteScene(index) => Some(handleDeleteScene(state, index))
   | ReorderScenes(fromIndex, toIndex) => Some(handleReorderScenes(state, fromIndex, toIndex))
-  | SetActiveScene(index, yaw, pitch, transition) => 
-      Some(handleSetActiveScene(state, index, yaw, pitch, transition))
+  | SetActiveScene(index, yaw, pitch, transition) =>
+    Some(handleSetActiveScene(state, index, yaw, pitch, transition))
   | UpdateSceneMetadata(index, metaJson) => Some(handleUpdateSceneMetadata(state, index, metaJson))
   | SyncSceneNames => Some(handleSyncSceneNames(state))
   | ApplyLazyRename(index, name) => Some(handleApplyLazyRename(state, index, name))

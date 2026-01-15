@@ -12,21 +12,20 @@ let loadScript = (src: string) => {
     let scripts = Dom.querySelectorAllDoc("script[src=\"" ++ src ++ "\"]")
     let scriptsCount = Dom.nodeListLength(scripts)
     if scriptsCount > 0 {
-
-       resolve()
+      resolve()
     } else {
       let script = Dom.createElement("script")
       Dom.setAttribute(script, "src", src)
-      
+
       Dom.addEventListenerNoEv(script, "load", () => {
         resolve()
       })
-      
+
       Dom.addEventListenerNoEv(script, "error", () => {
         Logger.error(~module_="LazyLoad", ~message="FAILED_TO_LOAD_SCRIPT", ~data={"src": src}, ())
         resolve() /* Resolve anyway to not block app, but functionality will fail */
       })
-      
+
       Dom.appendChild(Dom.documentBody, script)
     }
   })
@@ -36,8 +35,7 @@ let loadPannellum = () => {
   if pannellumLoaded.contents {
     Promise.resolve()
   } else {
-    loadScript("/libs/pannellum.js")
-    ->Promise.then(() => {
+    loadScript("/libs/pannellum.js")->Promise.then(() => {
       pannellumLoaded := true
       Promise.resolve()
     })
@@ -48,8 +46,7 @@ let loadJSZip = () => {
   if jszipLoaded.contents {
     Promise.resolve()
   } else {
-    loadScript("/libs/jszip.min.js")
-    ->Promise.then(() => {
+    loadScript("/libs/jszip.min.js")->Promise.then(() => {
       jszipLoaded := true
       Promise.resolve()
     })
@@ -60,8 +57,7 @@ let loadFileSaver = () => {
   if fileSaverLoaded.contents {
     Promise.resolve()
   } else {
-    loadScript("/libs/FileSaver.min.js")
-    ->Promise.then(() => {
+    loadScript("/libs/FileSaver.min.js")->Promise.then(() => {
       fileSaverLoaded := true
       Promise.resolve()
     })

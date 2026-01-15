@@ -26,17 +26,17 @@ let run = () => {
       }
     ]
   }`)
-  
+
   let state = parseProject(json)
   assert(state.tourName == "Full Project")
-  
+
   let s1 = Belt.Array.getExn(state.scenes, 0)
   assert(s1.id == "s1")
-  
+
   let h1 = Belt.Array.getExn(s1.hotspots, 0)
   assert(h1.linkId == "h1")
   assert(h1.yaw == 10.0)
-  
+
   // Verify duration int conversion
   switch h1.duration {
   | Some(d) => assert(d == 500)
@@ -45,10 +45,10 @@ let run = () => {
 
   // Verify viewFrame
   switch h1.viewFrame {
-  | Some(vf) => 
-      // types: vf is viewFrame
-      assert(vf.yaw == 1.0)
-      assert(vf.pitch == 2.0)
+  | Some(vf) =>
+    // types: vf is viewFrame
+    assert(vf.yaw == 1.0)
+    assert(vf.pitch == 2.0)
   | None => Console.error("Expected viewFrame")
   }
 
@@ -63,7 +63,7 @@ let run = () => {
       }
     ]
   }`)
-  
+
   let state2 = parseProject(json2)
   assert(state2.tourName == "Imported Tour") // Default
   let s2 = Belt.Array.getExn(state2.scenes, 0)
@@ -81,11 +81,11 @@ let run = () => {
     "transition": "fade",
     "duration": 1000
   }`)
-  
+
   let item = parseTimelineItem(timelineJson)
   assert(item.id == "t1")
   assert(item.duration == 1000)
-  
+
   Console.log("✓ Parse timeline item")
 
   // Test 4: insertAt helper
@@ -148,27 +148,22 @@ let run = () => {
     ~name="old_a.webp",
     ~label="Living Room",
     ~hotspots=[makeDummyHotspot(~target="old_b.webp", ())],
-    ()
+    (),
   )
-  let sceneB = makeDummyScene(
-    ~id="b",
-    ~name="old_b.webp",
-    ~label="Kitchen",
-    ()
-  )
+  let sceneB = makeDummyScene(~id="b", ~name="old_b.webp", ~label="Kitchen", ())
 
   let scenes = [sceneA, sceneB]
   let synced = syncSceneNames(scenes)
-  
+
   let expectedNameA = TourLogic.computeSceneFilename(0, "Living Room")
   let expectedNameB = TourLogic.computeSceneFilename(1, "Kitchen")
-  
+
   let syncedA = Belt.Array.getExn(synced, 0)
   let syncedB = Belt.Array.getExn(synced, 1)
-  
+
   assert(syncedA.name == expectedNameA)
   assert(syncedB.name == expectedNameB)
-  
+
   // Check hotspot target update in A
   let hs = Belt.Array.getExn(syncedA.hotspots, 0)
   assert(hs.target == expectedNameB)
@@ -179,11 +174,16 @@ let run = () => {
   let stateWithScenes = {
     ...State.initialState,
     scenes: [
-      makeDummyScene(~id="s1", ~name="s1.webp", ~hotspots=[makeDummyHotspot(~target="s2.webp", ())], ()),
+      makeDummyScene(
+        ~id="s1",
+        ~name="s1.webp",
+        ~hotspots=[makeDummyHotspot(~target="s2.webp", ())],
+        (),
+      ),
       makeDummyScene(~id="s2", ~name="s2.webp", ()),
-      makeDummyScene(~id="s3", ~name="s3.webp", ())
+      makeDummyScene(~id="s3", ~name="s3.webp", ()),
     ],
-    activeIndex: 1
+    activeIndex: 1,
   }
 
   // Delete s2 (index 1)
@@ -191,14 +191,14 @@ let run = () => {
   assert(Belt.Array.length(stateAfterDelete.scenes) == 2)
   assert(Belt.Array.getExn(stateAfterDelete.scenes, 0).id == "s1")
   assert(Belt.Array.getExn(stateAfterDelete.scenes, 1).id == "s3")
-  
+
   // Check that hotspot in s1 pointing to s2 was removed
   let s1After = Belt.Array.getExn(stateAfterDelete.scenes, 0)
   assert(Belt.Array.length(s1After.hotspots) == 0)
-  
+
   // Check deletedSceneIds
   assert(Belt.Array.some(stateAfterDelete.deletedSceneIds, id => id == "s2"))
-  
+
   // Check activeIndex adjustment
   assert(stateAfterDelete.activeIndex == 1) // Should now point to s3 which was at 2
 
@@ -207,18 +207,18 @@ let run = () => {
   // Test 7: handleAddScenes
   let stateBeforeAdd = {
     ...State.initialState,
-    scenes: [makeDummyScene(~id="existing", ~name="a.webp", ())]
+    scenes: [makeDummyScene(~id="existing", ~name="a.webp", ())],
   }
   let newSceneJson = JSON.parseOrThrow(`{
     "id": "new",
     "name": "b.webp",
     "preview": "file_b"
   }`)
-  
+
   let stateAfterAdd = handleAddScenes(stateBeforeAdd, [newSceneJson])
   assert(Belt.Array.length(stateAfterAdd.scenes) == 2)
   assert(Belt.Array.some(stateAfterAdd.scenes, s => s.id == "new"))
-  
+
   Console.log("✓ handleAddScenes logic")
 
   // Test 8: handleUpdateSceneMetadata
@@ -230,20 +230,22 @@ let run = () => {
   let updatedS1 = Belt.Array.getExn(stateAfterMeta.scenes, 0)
   assert(updatedS1.category == "outdoor")
   assert(updatedS1.floor == "roof")
-  
+
   Console.log("✓ handleUpdateSceneMetadata logic")
 
   // Test 9: handleUpdateTimelineStep
   let stateWithTimeline = {
     ...State.initialState,
-    timeline: [{
-      id: "step1",
-      linkId: "l1",
-      sceneId: "s1",
-      targetScene: "s2",
-      transition: "fade",
-      duration: 1000
-    }]
+    timeline: [
+      {
+        id: "step1",
+        linkId: "l1",
+        sceneId: "s1",
+        targetScene: "s2",
+        transition: "fade",
+        duration: 1000,
+      },
+    ],
   }
   let stepUpdateJson = JSON.parseOrThrow(`{
     "transition": "zoom",
@@ -253,6 +255,6 @@ let run = () => {
   let updatedStep = Belt.Array.getExn(stateAfterStepUpdate.timeline, 0)
   assert(updatedStep.transition == "zoom")
   assert(updatedStep.duration == 2000)
-  
+
   Console.log("✓ handleUpdateTimelineStep logic")
 }

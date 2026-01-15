@@ -45,17 +45,17 @@ let run = () => {
     transition: None,
     duration: None,
   }
-  
+
   let actionAdd = AddHotspot(0, hotspot)
   let resultAdd = HotspotReducer.reduce(state, actionAdd)
-  
+
   let stateWithHotspot = switch resultAdd {
-  | Some(ns) => 
+  | Some(ns) =>
     let s = Array.getUnsafe(ns.scenes, 0)
     assert(Array.length(s.hotspots) == 1)
     Console.log("✓ AddHotspot passed")
     ns
-  | None => 
+  | None =>
     Console.error("✗ AddHotspot failed: returned None")
     state
   }

@@ -78,11 +78,9 @@ let waitForViewerScene = async (sceneIndex: int, isAutoPilotActive: unit => bool
  * 5. Any non-return scene (revisit)
  * 6. Any return scene (revisit)
  */
-let findBestNextLink = (
-  currentScene: scene,
-  state: state,
-  visited: array<int>,
-): option<enrichedLink> => {
+let findBestNextLink = (currentScene: scene, state: state, visited: array<int>): option<
+  enrichedLink,
+> => {
   let hotspots = currentScene.hotspots
   if Array.length(hotspots) == 0 {
     None

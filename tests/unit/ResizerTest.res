@@ -1,4 +1,3 @@
-
 let run = () => {
   Console.log("Running Resizer tests...")
   // Placeholder

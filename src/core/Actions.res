@@ -48,7 +48,8 @@ let actionToString = (action: action): string =>
   | AddScenes(arr) => `AddScenes(${Belt.Int.toString(Belt.Array.length(arr))})`
   | SetActiveScene(idx, _, _, _) => `SetActiveScene(${Belt.Int.toString(idx)})`
   | AddHotspot(idx, _) => `AddHotspot(${Belt.Int.toString(idx)})`
-  | RemoveHotspot(sIdx, hIdx) => `RemoveHotspot(${Belt.Int.toString(sIdx)}, ${Belt.Int.toString(hIdx)})`
+  | RemoveHotspot(sIdx, hIdx) =>
+    `RemoveHotspot(${Belt.Int.toString(sIdx)}, ${Belt.Int.toString(hIdx)})`
   | ReorderScenes(i1, i2) => `ReorderScenes(${Belt.Int.toString(i1)}, ${Belt.Int.toString(i2)})`
   | ClearHotspots(idx) => `ClearHotspots(${Belt.Int.toString(idx)})`
   | DeleteScene(idx) => `DeleteScene(${Belt.Int.toString(idx)})`
@@ -56,9 +57,12 @@ let actionToString = (action: action): string =>
   | SyncSceneNames => "SyncSceneNames"
   | ApplyLazyRename(idx, name) => `ApplyLazyRename(${Belt.Int.toString(idx)}, ${name})`
   | UpdateSceneMetadata(idx, _) => `UpdateSceneMetadata(${Belt.Int.toString(idx)})`
-  | UpdateHotspotTargetView(sIdx, hIdx, _, _, _) => `UpdateHotspotTargetView(${Belt.Int.toString(sIdx)}, ${Belt.Int.toString(hIdx)})`
-  | UpdateHotspotReturnView(sIdx, hIdx, _, _, _) => `UpdateHotspotReturnView(${Belt.Int.toString(sIdx)}, ${Belt.Int.toString(hIdx)})`
-  | ToggleHotspotReturnLink(sIdx, hIdx) => `ToggleHotspotReturnLink(${Belt.Int.toString(sIdx)}, ${Belt.Int.toString(hIdx)})`
+  | UpdateHotspotTargetView(sIdx, hIdx, _, _, _) =>
+    `UpdateHotspotTargetView(${Belt.Int.toString(sIdx)}, ${Belt.Int.toString(hIdx)})`
+  | UpdateHotspotReturnView(sIdx, hIdx, _, _, _) =>
+    `UpdateHotspotReturnView(${Belt.Int.toString(sIdx)}, ${Belt.Int.toString(hIdx)})`
+  | ToggleHotspotReturnLink(sIdx, hIdx) =>
+    `ToggleHotspotReturnLink(${Belt.Int.toString(sIdx)}, ${Belt.Int.toString(hIdx)})`
   | AddToTimeline(_) => "AddToTimeline"
   | SetActiveTimelineStep(opt) => `SetActiveTimelineStep(${opt->Option.getOr("None")})`
   | RemoveFromTimeline(id) => `RemoveFromTimeline(${id})`

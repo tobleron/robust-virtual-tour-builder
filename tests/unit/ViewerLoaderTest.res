@@ -105,7 +105,7 @@ let run = () => {
   let mockEl = %raw(`{}`)
   let opacity = getComputedOpacity(Obj.magic(mockEl))
   assert(opacity == 1.0)
-  
+
   let opacityNull = getComputedOpacity(Obj.magic(Nullable.null))
   assert(opacityNull == 1.0)
   Console.log("✓ getComputedOpacity (including null)")
@@ -113,7 +113,7 @@ let run = () => {
   // Test: Error handling for missing container
   // initializeViewer itself doesn't check container exists (Pannellum does internally in JS)
   // but we can verify that getElementById is called.
-  
+
   // Test: invalid panorama URL logic in getPanoramaUrl
   let url3 = getPanoramaUrl(Obj.magic(123)) // Invalid type
   assert(url3 == "")

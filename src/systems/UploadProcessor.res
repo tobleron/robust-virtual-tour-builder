@@ -68,9 +68,9 @@ let processUploads = (
     } else {
       let startTime = Date.now()
       let totalFilesValue = Belt.Array.length(files)
-      
+
       let totalSize = Belt.Array.reduce(files, 0.0, (acc, f) => acc +. File.size(f))
-      
+
       Logger.startOperation(
         ~module_="Upload",
         ~operation="BATCH",
@@ -130,7 +130,12 @@ let processUploads = (
             )
             ->Promise.catch(
               _err => {
-                Logger.error(~module_="Upload", ~message="FINGERPRINT_FAILED", ~data=Some({"filename": File.name(f)}), ())
+                Logger.error(
+                  ~module_="Upload",
+                  ~message="FINGERPRINT_FAILED",
+                  ~data=Some({"filename": File.name(f)}),
+                  (),
+                )
                 Promise.resolve({
                   id: Nullable.null,
                   original: f,
@@ -189,12 +194,17 @@ let processUploads = (
             let processPromises = Belt.Array.mapWithIndex(
               uniqueItems,
               (i, item) => {
-                Logger.debug(~module_="Upload", ~message="FILE_START", ~data=Some({
-                  "filename": File.name(item.original),
-                  "index": i,
-                  "size": File.size(item.original)
-                }), ())
-                
+                Logger.debug(
+                  ~module_="Upload",
+                  ~message="FILE_START",
+                  ~data=Some({
+                    "filename": File.name(item.original),
+                    "index": i,
+                    "size": File.size(item.original),
+                  }),
+                  (),
+                )
+
                 Resizer.processAndAnalyzeImage(item.original)
                 ->Promise.then(
                   res => {
@@ -202,20 +212,30 @@ let processUploads = (
                     item.tiny = res.tiny
                     item.metadata = Some(castToJson(res.metadata))
                     item.quality = Some(castToJson(res.quality))
-                    
+
                     let qObj = res.quality
-                    Logger.debug(~module_="Upload", ~message="QUALITY_ANALYSIS", ~data=Some({
-                      "filename": File.name(item.original),
-                      "avgLuminance": qObj.stats.avgLuminance,
-                      "sharpnessVariance": qObj.stats.sharpnessVariance,
-                      "isBlurry": qObj.isBlurry
-                    }), ())
-                    
-                    if qObj.isSeverelyDark || qObj.isDim {
-                      Logger.warn(~module_="Upload", ~message="LOW_BRIGHTNESS", ~data=Some({
+                    Logger.debug(
+                      ~module_="Upload",
+                      ~message="QUALITY_ANALYSIS",
+                      ~data=Some({
                         "filename": File.name(item.original),
-                        "avgLuminance": qObj.stats.avgLuminance
-                      }), ())
+                        "avgLuminance": qObj.stats.avgLuminance,
+                        "sharpnessVariance": qObj.stats.sharpnessVariance,
+                        "isBlurry": qObj.isBlurry,
+                      }),
+                      (),
+                    )
+
+                    if qObj.isSeverelyDark || qObj.isDim {
+                      Logger.warn(
+                        ~module_="Upload",
+                        ~message="LOW_BRIGHTNESS",
+                        ~data=Some({
+                          "filename": File.name(item.original),
+                          "avgLuminance": qObj.stats.avgLuminance,
+                        }),
+                        (),
+                      )
                     }
 
                     Promise.resolve(item)
@@ -223,10 +243,15 @@ let processUploads = (
                 )
                 ->Promise.catch(
                   err => {
-                    Logger.error(~module_="Upload", ~message="FILE_FAILED", ~data=Some({
-                      "filename": File.name(item.original),
-                      "error": err
-                    }), ())
+                    Logger.error(
+                      ~module_="Upload",
+                      ~message="FILE_FAILED",
+                      ~data=Some({
+                        "filename": File.name(item.original),
+                        "error": err,
+                      }),
+                      (),
+                    )
                     item.error = Some("Processing failed")
                     Promise.resolve(item)
                   },
@@ -246,9 +271,12 @@ let processUploads = (
                   updateProgress(95.0, "Syncing scene blocks...", true, "Clustering")
                   Logger.debug(~module_="Upload", ~message="PHASE_CLUSTERING", ())
 
-                  let _ = Array.sort(validProcessed, (a, b) => {
-                    String.localeCompare(File.name(a.original), File.name(b.original))
-                  })
+                  let _ = Array.sort(
+                    validProcessed,
+                    (a, b) => {
+                      String.localeCompare(File.name(a.original), File.name(b.original))
+                    },
+                  )
 
                   let existingScenes = GlobalStateBridge.getState().scenes
                   let existingCount = Belt.Array.length(existingScenes)
@@ -260,61 +288,64 @@ let processUploads = (
 
                   // Build pairs for batch similarity
                   let pairs: array<similarityPair> = []
-                  Belt.Array.forEachWithIndex(validProcessed, (i, current) => {
-                    let currentId =
-                      Nullable.toOption(current.id)->Option.getOr(File.name(current.original))
-                    let currentQ = current.quality
+                  Belt.Array.forEachWithIndex(
+                    validProcessed,
+                    (i, current) => {
+                      let currentId =
+                        Nullable.toOption(current.id)->Option.getOr(File.name(current.original))
+                      let currentQ = current.quality
 
-                    switch currentQ {
-                    | Some(q) =>
-                      // Compare with last 3 in batch
-                      for j in 1 to 3 {
-                        let prevIdx = i - j
-                        if prevIdx >= 0 {
-                          switch Belt.Array.get(validProcessed, prevIdx) {
-                          | Some(prev) =>
-                            switch prev.quality {
-                            | Some(pq) =>
-                              let prevId =
-                                Nullable.toOption(prev.id)->Option.getOr(File.name(prev.original))
-                              let _ = Array.push(
-                                pairs,
-                                {
-                                  idA: currentId,
-                                  idB: prevId,
-                                  histogramA: q,
-                                  histogramB: pq,
-                                },
-                              )
+                      switch currentQ {
+                      | Some(q) =>
+                        // Compare with last 3 in batch
+                        for j in 1 to 3 {
+                          let prevIdx = i - j
+                          if prevIdx >= 0 {
+                            switch Belt.Array.get(validProcessed, prevIdx) {
+                            | Some(prev) =>
+                              switch prev.quality {
+                              | Some(pq) =>
+                                let prevId =
+                                  Nullable.toOption(prev.id)->Option.getOr(File.name(prev.original))
+                                let _ = Array.push(
+                                  pairs,
+                                  {
+                                    idA: currentId,
+                                    idB: prevId,
+                                    histogramA: q,
+                                    histogramB: pq,
+                                  },
+                                )
+                              | None => ()
+                              }
                             | None => ()
                             }
-                          | None => ()
                           }
                         }
-                      }
 
-                      // Compare with last existing
-                      switch lastExistingScene {
-                      | Some(lastS) =>
-                        switch lastS.quality {
-                        | Some(lq) =>
-                          let lastId = lastS.id
-                          let _ = Array.push(
-                            pairs,
-                            {
-                              idA: currentId,
-                              idB: lastId,
-                              histogramA: q,
-                              histogramB: lq,
-                            },
-                          )
+                        // Compare with last existing
+                        switch lastExistingScene {
+                        | Some(lastS) =>
+                          switch lastS.quality {
+                          | Some(lq) =>
+                            let lastId = lastS.id
+                            let _ = Array.push(
+                              pairs,
+                              {
+                                idA: currentId,
+                                idB: lastId,
+                                histogramA: q,
+                                histogramB: lq,
+                              },
+                            )
+                          | None => ()
+                          }
                         | None => ()
                         }
                       | None => ()
                       }
-                    | None => ()
-                    }
-                  })
+                    },
+                  )
 
                   let similarityPromise = if Belt.Array.length(pairs) > 0 {
                     BackendApi.batchCalculateSimilarity(pairs)
@@ -322,159 +353,191 @@ let processUploads = (
                     Promise.resolve(Ok([]))
                   }
 
-                  similarityPromise->Promise.then(result => {
-                    let similarities = switch result {
-                    | Ok(s) => s
-                    | Error(msg) => 
+                  similarityPromise->Promise.then(
+                    result => {
+                      let similarities = switch result {
+                      | Ok(s) => s
+                      | Error(msg) =>
                         notify("Grouping failed: " ++ msg, "warning")
                         []
-                    }
-                    // Build lookup map
-                    let simMap = Dict.make()
-                    Belt.Array.forEach(similarities, (result: similarityResult) => {
-                      let key = result.idA ++ "_" ++ result.idB
-                      Dict.set(simMap, key, result.similarity)
-                    })
+                      }
+                      // Build lookup map
+                      let simMap = Dict.make()
+                      Belt.Array.forEach(
+                        similarities,
+                        (result: similarityResult) => {
+                          let key = result.idA ++ "_" ++ result.idB
+                          Dict.set(simMap, key, result.similarity)
+                        },
+                      )
 
-                    let getSimilarity = (idA, idB) => {
-                      Dict.get(simMap, idA ++ "_" ++ idB)->Option.getOr(0.0)
-                    }
+                      let getSimilarity = (idA, idB) => {
+                        Dict.get(simMap, idA ++ "_" ++ idB)->Option.getOr(0.0)
+                      }
 
-                    let lastGroupRef = ref(0)
-                    if existingCount > 0 {
-                      switch lastExistingScene {
-                      | Some(lastS) =>
-                        switch lastS.colorGroup {
-                        | Some(gStr) =>
-                          switch Belt.Int.fromString(gStr) {
-                          | Some(g) => lastGroupRef := g
+                      let lastGroupRef = ref(0)
+                      if existingCount > 0 {
+                        switch lastExistingScene {
+                        | Some(lastS) =>
+                          switch lastS.colorGroup {
+                          | Some(gStr) =>
+                            switch Belt.Int.fromString(gStr) {
+                            | Some(g) => lastGroupRef := g
+                            | None => ()
+                            }
                           | None => ()
                           }
                         | None => ()
                         }
-                      | None => ()
                       }
-                    }
 
-                    Belt.Array.forEachWithIndex(validProcessed, (i, current) => {
-                      let foundMatch = ref(None)
-                      let currentId =
-                        Nullable.toOption(current.id)->Option.getOr(File.name(current.original))
+                      Belt.Array.forEachWithIndex(
+                        validProcessed,
+                        (i, current) => {
+                          let foundMatch = ref(None)
+                          let currentId =
+                            Nullable.toOption(current.id)->Option.getOr(File.name(current.original))
 
-                      for j in 1 to 3 {
-                        if foundMatch.contents == None {
-                          let prevIdx = i - j
-                          if prevIdx >= 0 {
-                            switch Belt.Array.get(validProcessed, prevIdx) {
-                            | Some(prev) =>
-                              let prevId =
-                                Nullable.toOption(prev.id)->Option.getOr(File.name(prev.original))
-                              let score = getSimilarity(currentId, prevId)
+                          for j in 1 to 3 {
+                            if foundMatch.contents == None {
+                              let prevIdx = i - j
+                              if prevIdx >= 0 {
+                                switch Belt.Array.get(validProcessed, prevIdx) {
+                                | Some(prev) =>
+                                  let prevId =
+                                    Nullable.toOption(prev.id)->Option.getOr(
+                                      File.name(prev.original),
+                                    )
+                                  let score = getSimilarity(currentId, prevId)
+                                  if score > 0.65 {
+                                    foundMatch := prev.colorGroup
+                                  }
+                                | None => ()
+                                }
+                              }
+                            }
+                          }
+
+                          if foundMatch.contents == None && existingCount > 0 {
+                            /* Check match with last existing */
+                            switch lastExistingScene {
+                            | Some(lastS) =>
+                              let lastId = lastS.id
+                              let score = getSimilarity(currentId, lastId)
                               if score > 0.65 {
-                                foundMatch := prev.colorGroup
+                                foundMatch := lastS.colorGroup
                               }
                             | None => ()
                             }
                           }
-                        }
-                      }
 
-                      if foundMatch.contents == None && existingCount > 0 {
-                        /* Check match with last existing */
-                        switch lastExistingScene {
-                        | Some(lastS) =>
-                          let lastId = lastS.id
-                          let score = getSimilarity(currentId, lastId)
-                          if score > 0.65 {
-                            foundMatch := lastS.colorGroup
+                          switch foundMatch.contents {
+                          | Some(g) => current.colorGroup = Some(g)
+                          | None =>
+                            lastGroupRef := lastGroupRef.contents + 1
+                            current.colorGroup = Some(Belt.Int.toString(lastGroupRef.contents))
                           }
-                        | None => ()
-                        }
-                      }
-
-                      switch foundMatch.contents {
-                      | Some(g) => current.colorGroup = Some(g)
-                      | None =>
-                        lastGroupRef := lastGroupRef.contents + 1
-                        current.colorGroup = Some(Belt.Int.toString(lastGroupRef.contents))
-                      }
-                    })
-
-                    updateProgress(98.0, "Updating Sidebar...", true, "Finalizing")
-
-                    let jsonPayload = Belt.Array.map(validProcessed, item => {
-                      let preview = Option.getOr(item.preview, item.original)
-                      let tiny = Option.getOr(item.tiny, preview)
-
-                      let obj = Dict.make()
-                      Dict.set(
-                        obj,
-                        "id",
-                        Nullable.toOption(item.id)->Option.getOr("")->JSON.Encode.string,
+                        },
                       )
-                      Dict.set(obj, "originalName", File.name(item.original)->JSON.Encode.string)
-                      Dict.set(obj, "name", File.name(preview)->JSON.Encode.string)
-                      
-                      // Using unsafe cast to mix types in dict for JSON payload - essentially treated as {..} by consumer
-                      Js.Dict.set(obj, "original", castToJson(item.original))
-                      Js.Dict.set(obj, "preview", castToJson(preview))
-                      Js.Dict.set(obj, "tiny", castToJson(tiny))
-                      Js.Dict.set(obj, "quality", Option.getOr(item.quality, JSON.Encode.null))
-                      Js.Dict.set(obj, "metadata", Option.getOr(item.metadata, JSON.Encode.null))
-                      Js.Dict.set(obj, "colorGroup", JSON.Encode.string(Option.getOr(item.colorGroup, "0")))
 
-                      castToJson(obj)
-                    })
+                      updateProgress(98.0, "Updating Sidebar...", true, "Finalizing")
 
-                    GlobalStateBridge.dispatch(AddScenes(jsonPayload))
+                      let jsonPayload = Belt.Array.map(
+                        validProcessed,
+                        item => {
+                          let preview = Option.getOr(item.preview, item.original)
+                          let tiny = Option.getOr(item.tiny, preview)
 
-                    updateProgress(100.0, "Completed", false, "Done")
+                          let obj = Dict.make()
+                          Dict.set(
+                            obj,
+                            "id",
+                            Nullable.toOption(item.id)->Option.getOr("")->JSON.Encode.string,
+                          )
+                          Dict.set(
+                            obj,
+                            "originalName",
+                            File.name(item.original)->JSON.Encode.string,
+                          )
+                          Dict.set(obj, "name", File.name(preview)->JSON.Encode.string)
 
-                    let reportData = Belt.Array.map(validProcessed, i => {
-                      let item: ExifReportGenerator.sceneDataItem = {
-                        original: i.original,
-                        metadata: i.metadata,
-                        quality: i.quality,
-                      }
-                      item
-                    })
+                          // Using unsafe cast to mix types in dict for JSON payload - essentially treated as {..} by consumer
+                          Js.Dict.set(obj, "original", castToJson(item.original))
+                          Js.Dict.set(obj, "preview", castToJson(preview))
+                          Js.Dict.set(obj, "tiny", castToJson(tiny))
+                          Js.Dict.set(obj, "quality", Option.getOr(item.quality, JSON.Encode.null))
+                          Js.Dict.set(
+                            obj,
+                            "metadata",
+                            Option.getOr(item.metadata, JSON.Encode.null),
+                          )
+                          Js.Dict.set(
+                            obj,
+                            "colorGroup",
+                            JSON.Encode.string(Option.getOr(item.colorGroup, "0")),
+                          )
 
-                    ExifReportGenerator.generateExifReport(reportData)
-                    ->Promise.then(res => res)
-                    ->Promise.then(res => {
-                      GlobalStateBridge.dispatch(SetExifReport(JSON.Encode.string(res.report)))
-
-                      if res.suggestedName != "" {
-                        let currentName = GlobalStateBridge.getState().tourName
-                        if currentName == "" {
-                          GlobalStateBridge.dispatch(SetTourName(res.suggestedName))
-                        }
-                      }
-                      Promise.resolve()
-                    })
-                    ->ignore
-
-                    let durationStr =
-                      ((Date.now() -. startTime) /. 1000.0)->Float.toFixed(~digits=1)
-
-                    Promise.resolve({
-                      "qualityResults": [],
-                      "duration": durationStr,
-                    })->Promise.then(res => {
-                      Logger.endOperation(
-                        ~module_="Upload",
-                        ~operation="BATCH",
-                        ~data=Some({
-                          "successful": Belt.Array.length(validProcessed),
-                          "failed": Belt.Array.length(uniqueItems) -
-                          Belt.Array.length(validProcessed),
-                          "totalDurationMs": Date.now() -. startTime,
-                        }),
-                        (),
+                          castToJson(obj)
+                        },
                       )
-                      Promise.resolve(res)
-                    })
-                  })
+
+                      GlobalStateBridge.dispatch(AddScenes(jsonPayload))
+
+                      updateProgress(100.0, "Completed", false, "Done")
+
+                      let reportData = Belt.Array.map(
+                        validProcessed,
+                        i => {
+                          let item: ExifReportGenerator.sceneDataItem = {
+                            original: i.original,
+                            metadata: i.metadata,
+                            quality: i.quality,
+                          }
+                          item
+                        },
+                      )
+
+                      ExifReportGenerator.generateExifReport(reportData)
+                      ->Promise.then(res => res)
+                      ->Promise.then(
+                        res => {
+                          GlobalStateBridge.dispatch(SetExifReport(JSON.Encode.string(res.report)))
+
+                          if res.suggestedName != "" {
+                            let currentName = GlobalStateBridge.getState().tourName
+                            if currentName == "" {
+                              GlobalStateBridge.dispatch(SetTourName(res.suggestedName))
+                            }
+                          }
+                          Promise.resolve()
+                        },
+                      )
+                      ->ignore
+
+                      let durationStr =
+                        ((Date.now() -. startTime) /. 1000.0)->Float.toFixed(~digits=1)
+
+                      Promise.resolve({
+                        "qualityResults": [],
+                        "duration": durationStr,
+                      })->Promise.then(
+                        res => {
+                          Logger.endOperation(
+                            ~module_="Upload",
+                            ~operation="BATCH",
+                            ~data=Some({
+                              "successful": Belt.Array.length(validProcessed),
+                              "failed": Belt.Array.length(uniqueItems) -
+                              Belt.Array.length(validProcessed),
+                              "totalDurationMs": Date.now() -. startTime,
+                            }),
+                            (),
+                          )
+                          Promise.resolve(res)
+                        },
+                      )
+                    },
+                  )
                 }
               },
             )

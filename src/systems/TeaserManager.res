@@ -153,7 +153,12 @@ let prepareFirstScene = async (
 
     await wait(500)
     let _ = await waitForViewerReady(scene.id)
-    Logger.debug(~module_="Teaser", ~message="SCENE_LOADED", ~data=Some({"sceneName": scene.id}), ())
+    Logger.debug(
+      ~module_="Teaser",
+      ~message="SCENE_LOADED",
+      ~data=Some({"sceneName": scene.id}),
+      (),
+    )
 
     /* Force orientation */
     switch ReBindings.Viewer.instance->Nullable.toOption {
@@ -260,7 +265,12 @@ let transitionToNextShot = async (
 
     await wait(500)
     let _ = await waitForViewerReady(scene.id)
-    Logger.debug(~module_="Teaser", ~message="SCENE_LOADED", ~data=Some({"sceneName": scene.id}), ())
+    Logger.debug(
+      ~module_="Teaser",
+      ~message="SCENE_LOADED",
+      ~data=Some({"sceneName": scene.id}),
+      (),
+    )
 
     /* Force Orientation */
     switch ReBindings.Viewer.instance->Nullable.toOption {
@@ -311,11 +321,21 @@ let finalizeTeaser = async (format: string, baseName: string) => {
       } catch {
       | JsExn(e) => {
           let msg = e->JsExn.message->Option.getOr("Unknown")
-          Logger.error(~module_="Teaser", ~message="TRANSCODE_FAILED", ~data=Some({"error": msg}), ())
+          Logger.error(
+            ~module_="Teaser",
+            ~message="TRANSCODE_FAILED",
+            ~data=Some({"error": msg}),
+            (),
+          )
           DownloadSystem.saveBlob(blob, baseName ++ ".webm") /* Fallback */
         }
       | _ => {
-          Logger.error(~module_="Teaser", ~message="TRANSCODE_FAILED", ~data=Some({"error": "Unknown"}), ())
+          Logger.error(
+            ~module_="Teaser",
+            ~message="TRANSCODE_FAILED",
+            ~data=Some({"error": "Unknown"}),
+            (),
+          )
           DownloadSystem.saveBlob(blob, baseName ++ ".webm") /* Fallback */
         }
       }
@@ -325,14 +345,14 @@ let finalizeTeaser = async (format: string, baseName: string) => {
 
 let startCinematicTeaser = async (includeLogo: bool, format: string, skipAutoForward: bool) => {
   let logoState = await Recorder.loadLogo()
-  
+
   Logger.startOperation(
     ~module_="Teaser",
     ~operation="GENERATE_CINEMATIC",
     ~data=Some({"format": format}),
     (),
   )
-  
+
   let startTime = Date.now()
   Recorder.startAnimationLoop(includeLogo, logoState)
 
@@ -439,14 +459,14 @@ let startAutoTeaser = async (
     }
 
     let logoState = await Recorder.loadLogo()
-    
+
     Logger.startOperation(
       ~module_="Teaser",
       ~operation="GENERATE",
       ~data=Some({"style": style, "sceneCount": Belt.Array.length(scenes)}),
       (),
     )
-    
+
     let pathStartTime = Date.now()
     let pathResult = await TeaserPathfinder.getWalkPath(scenes, skipAutoForward)
 
@@ -520,7 +540,12 @@ let startAutoTeaser = async (
         } catch {
         | JsExn(e) => {
             let msg = e->JsExn.message->Option.getOr("Unknown")
-            Logger.error(~module_="Teaser", ~message="GENERATE_FAILED", ~data=Some({"error": msg}), ())
+            Logger.error(
+              ~module_="Teaser",
+              ~message="GENERATE_FAILED",
+              ~data=Some({"error": msg}),
+              (),
+            )
             Recorder.stopRecording()
           }
         | _ => {

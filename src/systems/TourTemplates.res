@@ -58,7 +58,13 @@ let generateTourHTML = (
   })
 
   let isMobile = exportType == "hd"
-  let customCSS = TourTemplateStyles.generateCSS(firstSceneName, isMobile, exportType, baseSize, logoSize)
+  let customCSS = TourTemplateStyles.generateCSS(
+    firstSceneName,
+    isMobile,
+    exportType,
+    baseSize,
+    logoSize,
+  )
   let renderScript = TourTemplateScripts.generateRenderScript(baseSize)
   let logoDiv = hasLogo ? `<div class="watermark"><img src="assets/logo.png"></div>` : ""
 
@@ -147,4 +153,3 @@ let generateTourHTML = (
 
 let generateEmbedCodes = TourTemplateAssets.generateEmbedCodes
 let generateExportIndex = TourTemplateAssets.generateExportIndex
-

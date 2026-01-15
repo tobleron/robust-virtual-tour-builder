@@ -3,7 +3,6 @@
  * This module provides access to the application version, which is
  * synchronized from package.json by the scripts/update-version.js script.
  */
-
 @module("../version.js") external version: string = "VERSION"
 @module("../version.js") external buildInfo: string = "BUILD_INFO"
 

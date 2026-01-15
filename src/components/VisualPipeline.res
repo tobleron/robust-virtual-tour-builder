@@ -20,7 +20,8 @@ let injectStyles = () => {
   | None =>
     let style = Dom.createElement("style")
     Dom.setId(style, "visual-pipeline-styles")
-    Dom.setTextContent(style,
+    Dom.setTextContent(
+      style,
       "
           #visual-pipeline-container {
             position: absolute; bottom: 0; left: 0; width: 100%; height: 0; z-index: 1000;
@@ -108,7 +109,7 @@ let injectStyles = () => {
             padding-left: 1px;
           }
           .drop-zone.is-endpoint::before { display: none; }
-        "
+        ",
     )
     Dom.appendChild(Dom.head, style)
   }
@@ -144,7 +145,6 @@ let handleDragEnd = (pipeline: t, e: Dom.event) => {
   pipeline.dragSourceId = Nullable.null
 }
 
-
 let handleDragOver = (e: Dom.event) => {
   Dom.preventDefault(e)
   Dom.setDropEffect(Dom.dataTransfer(e), "move")
@@ -179,7 +179,10 @@ let handleDrop = (pipeline: t, e: Dom.event) => {
   let zone = Dom.closest(Dom.target(e), ".drop-zone")
   switch (Nullable.toOption(zone), Nullable.toOption(pipeline.dragSourceId)) {
   | (Some(z), Some(sourceId)) =>
-    let dropIndex = Belt.Int.fromString(Js.Dict.get(Dom.dataset(z), "index")->Option.getWithDefault(""))->Belt.Option.getWithDefault(0)
+    let dropIndex =
+      Belt.Int.fromString(
+        Js.Dict.get(Dom.dataset(z), "index")->Option.getWithDefault(""),
+      )->Belt.Option.getWithDefault(0)
     let state = GlobalStateBridge.getState()
     let sourceIndex =
       state.timeline->Belt.Array.getIndexBy(t => t.id == sourceId)->Belt.Option.getWithDefault(-1)
@@ -198,7 +201,6 @@ let handleDrop = (pipeline: t, e: Dom.event) => {
   }
   handleDragEnd(pipeline, e)
 }
-
 
 let createDropZone = (pipeline: t, index: int) => {
   let zone = Dom.createElement("div")
@@ -222,159 +224,163 @@ let render = (pipeline: t, state: Types.state) => {
 
     let track = Dom.querySelector(pipeline.wrapper, ".pipeline-track")
     switch Nullable.toOption(track) {
-      | Some(t) => 
-        let fragment = Dom.createDocumentFragment()
+    | Some(t) =>
+      let fragment = Dom.createDocumentFragment()
 
-        let firstZone = createDropZone(pipeline, 0)
-        Dom.add(firstZone, "is-endpoint")
-        Dom.appendChild(fragment, firstZone)
+      let firstZone = createDropZone(pipeline, 0)
+      Dom.add(firstZone, "is-endpoint")
+      Dom.appendChild(fragment, firstZone)
 
-        Belt.Array.forEachWithIndex(state.timeline, (index, item) => {
-          let node = Dom.createElement("div")
-          Dom.setClassName(node, "pipeline-node")
-          Js.Dict.set(Dom.dataset(node), "id", item.id)
-          Dom.setDraggable(node, true)
-          Dom.setAttribute(node, "role", "button")
-          Dom.setAttribute(node, "tabindex", "0")
-          Dom.setAttribute(node, "aria-label", "Timeline step: " ++ item.targetScene)
+      Belt.Array.forEachWithIndex(state.timeline, (index, item) => {
+        let node = Dom.createElement("div")
+        Dom.setClassName(node, "pipeline-node")
+        Js.Dict.set(Dom.dataset(node), "id", item.id)
+        Dom.setDraggable(node, true)
+        Dom.setAttribute(node, "role", "button")
+        Dom.setAttribute(node, "tabindex", "0")
+        Dom.setAttribute(node, "aria-label", "Timeline step: " ++ item.targetScene)
 
-          let activateNode = () => {
-            GlobalStateBridge.dispatch(SetActiveTimelineStep(Some(item.id)))
-            let sceneIdx =
-              state.scenes
-              ->Belt.Array.getIndexBy(s => s.id == item.sceneId)
+        let activateNode = () => {
+          GlobalStateBridge.dispatch(SetActiveTimelineStep(Some(item.id)))
+          let sceneIdx =
+            state.scenes
+            ->Belt.Array.getIndexBy(s => s.id == item.sceneId)
+            ->Belt.Option.getWithDefault(-1)
+          if sceneIdx != -1 {
+            switch Belt.Array.get(state.scenes, sceneIdx) {
+            | Some(s) =>
+              let hotspot = s.hotspots->Belt.Array.getBy(h => h.linkId == item.linkId)
+              switch hotspot {
+              | Some(h) =>
+                GlobalStateBridge.dispatch(SetActiveScene(sceneIdx, h.yaw, h.pitch, None))
+              | None => GlobalStateBridge.dispatch(SetActiveScene(sceneIdx, 0.0, 0.0, None))
+              }
+            | None => ()
+            }
+          }
+        }
+
+        let scene = state.scenes->Belt.Array.getBy(s => s.id == item.sceneId)
+        let color = ref("#0a7a56")
+        switch scene {
+        | Some(s) =>
+          color := ColorPalette.getGroupColor(s.colorGroup)
+          Dom.setProperty(node, "--node-color", color.contents)
+        | None => ()
+        }
+
+        if index == 0 {
+          Dom.setPointerEvents(firstZone, "auto") // dummy style call to ensure it's themed
+          Dom.setProperty(firstZone, "--pipe-color", color.contents)
+        }
+
+        // Active check
+        let isActive = switch state.activeTimelineStepId {
+        | Some(id) => id == item.id
+        | None =>
+          switch Belt.Array.get(state.scenes, state.activeIndex) {
+          | Some(currentScene) =>
+            let firstMatchIdx =
+              state.timeline
+              ->Belt.Array.getIndexBy(t => t.sceneId == currentScene.id)
               ->Belt.Option.getWithDefault(-1)
-            if sceneIdx != -1 {
-              switch Belt.Array.get(state.scenes, sceneIdx) {
-              | Some(s) =>
-                let hotspot = s.hotspots->Belt.Array.getBy(h => h.linkId == item.linkId)
-                switch hotspot {
-                | Some(h) => GlobalStateBridge.dispatch(SetActiveScene(sceneIdx, h.yaw, h.pitch, None))
-                | None => GlobalStateBridge.dispatch(SetActiveScene(sceneIdx, 0.0, 0.0, None))
-                }
-              | None => ()
-              }
-            }
-          }
-
-          let scene = state.scenes->Belt.Array.getBy(s => s.id == item.sceneId)
-          let color = ref("#0a7a56")
-          switch scene {
-          | Some(s) =>
-            color := ColorPalette.getGroupColor(s.colorGroup)
-            Dom.setProperty(node, "--node-color", color.contents)
-          | None => ()
-          }
-
-          if index == 0 {
-            Dom.setPointerEvents(firstZone, "auto") // dummy style call to ensure it's themed
-            Dom.setProperty(firstZone, "--pipe-color", color.contents)
-          }
-
-          // Active check
-          let isActive = switch state.activeTimelineStepId {
-          | Some(id) => id == item.id
-          | None =>
-            switch Belt.Array.get(state.scenes, state.activeIndex) {
-            | Some(currentScene) =>
-              let firstMatchIdx =
-                state.timeline
-                ->Belt.Array.getIndexBy(t => t.sceneId == currentScene.id)
-                ->Belt.Option.getWithDefault(-1)
-              item.sceneId == currentScene.id && firstMatchIdx == index
-            | None => false
-            }
-          }
-
-          if isActive {
-            Dom.add(node, "active")
-          }
-
-          Dom.addEventListenerNoEv(node, "click", activateNode)
-          Dom.addEventListener(node, "keydown", (e: Dom.event) => {
-            let key = Dom.key(e)
-            if (key == "Enter" || key == " ") {
-              Dom.preventDefault(e)
-              activateNode()
-            }
-          })
-
-          Dom.addEventListener(node, "dragstart", e => handleDragStart(pipeline, e))
-          Dom.addEventListener(node, "dragend", e => handleDragEnd(pipeline, e))
-
-          Dom.addEventListener(node, "contextmenu", (e: Dom.event) => {
-            Dom.preventDefault(e)
-            if Window.confirm("Remove this step from the timeline?") {
-              GlobalStateBridge.dispatch(RemoveFromTimeline(item.id))
-            }
-          })
-
-          // Thumbnail
-          let thumbUrl = ref("")
-          let thumbName = ref("Unknown Scene")
-          switch scene {
-          | Some(sc) =>
-            thumbName := sc.name
-            switch Dict.get(pipeline.thumbCache, sc.id) {
-            | Some(url) => thumbUrl := url
-            | None =>
-              let file = switch sc.tinyFile {
-              | Some(tf) => tf
-              | None => sc.file
-              }
-              let url = URL.createObjectURL(file)
-              Dict.set(pipeline.thumbCache, sc.id, url)
-              thumbUrl := url
-            }
-          | None => ()
-          }
-
-          let targetScene = state.scenes->Belt.Array.getBy(s => s.name == item.targetScene)
-          let isAutoForward = switch targetScene {
-          | Some(ts) => ts.isAutoForward
+            item.sceneId == currentScene.id && firstMatchIdx == index
           | None => false
           }
+        }
 
-          Dom.setInnerHTML(
-            node,
-            "
-                  <div class=\"node-tooltip\">
-                     <span class=\"tooltip-link-id\">Link: " ++
-            item.linkId ++
-            "</span>
-                     " ++
-            if thumbUrl.contents != "" {
-              "<img src=\"" ++ thumbUrl.contents ++ "\" class=\"tooltip-thumb\" alt=\"" ++ thumbName.contents ++ " preview\">"
-            } else {
-              ""
-            } ++
-            "
-                     <span class=\"tooltip-text\">" ++
-            thumbName.contents ++
-            "</span>
-                  </div>
-                  " ++
-            if isAutoForward {
-              "<span class=\"auto-forward-indicator\">»</span>"
-            } else {
-              ""
-            } ++ "
-                ",
-          )
+        if isActive {
+          Dom.add(node, "active")
+        }
 
-          Dom.appendChild(fragment, node)
-
-          let nextZone = createDropZone(pipeline, index + 1)
-          if index == Belt.Array.length(state.timeline) - 1 {
-            Dom.add(nextZone, "is-endpoint")
+        Dom.addEventListenerNoEv(node, "click", activateNode)
+        Dom.addEventListener(node, "keydown", (e: Dom.event) => {
+          let key = Dom.key(e)
+          if key == "Enter" || key == " " {
+            Dom.preventDefault(e)
+            activateNode()
           }
-          Dom.setProperty(nextZone, "--pipe-color", color.contents)
-          Dom.appendChild(fragment, nextZone)
         })
 
-        Dom.setTextContent(t, "")
-        Dom.appendChild(t, fragment)
-      | None => ()
+        Dom.addEventListener(node, "dragstart", e => handleDragStart(pipeline, e))
+        Dom.addEventListener(node, "dragend", e => handleDragEnd(pipeline, e))
+
+        Dom.addEventListener(node, "contextmenu", (e: Dom.event) => {
+          Dom.preventDefault(e)
+          if Window.confirm("Remove this step from the timeline?") {
+            GlobalStateBridge.dispatch(RemoveFromTimeline(item.id))
+          }
+        })
+
+        // Thumbnail
+        let thumbUrl = ref("")
+        let thumbName = ref("Unknown Scene")
+        switch scene {
+        | Some(sc) =>
+          thumbName := sc.name
+          switch Dict.get(pipeline.thumbCache, sc.id) {
+          | Some(url) => thumbUrl := url
+          | None =>
+            let file = switch sc.tinyFile {
+            | Some(tf) => tf
+            | None => sc.file
+            }
+            let url = URL.createObjectURL(file)
+            Dict.set(pipeline.thumbCache, sc.id, url)
+            thumbUrl := url
+          }
+        | None => ()
+        }
+
+        let targetScene = state.scenes->Belt.Array.getBy(s => s.name == item.targetScene)
+        let isAutoForward = switch targetScene {
+        | Some(ts) => ts.isAutoForward
+        | None => false
+        }
+
+        Dom.setInnerHTML(
+          node,
+          "
+                  <div class=\"node-tooltip\">
+                     <span class=\"tooltip-link-id\">Link: " ++
+          item.linkId ++
+          "</span>
+                     " ++
+          if thumbUrl.contents != "" {
+            "<img src=\"" ++
+            thumbUrl.contents ++
+            "\" class=\"tooltip-thumb\" alt=\"" ++
+            thumbName.contents ++ " preview\">"
+          } else {
+            ""
+          } ++
+          "
+                     <span class=\"tooltip-text\">" ++
+          thumbName.contents ++
+          "</span>
+                  </div>
+                  " ++
+          if isAutoForward {
+            "<span class=\"auto-forward-indicator\">»</span>"
+          } else {
+            ""
+          } ++ "
+                ",
+        )
+
+        Dom.appendChild(fragment, node)
+
+        let nextZone = createDropZone(pipeline, index + 1)
+        if index == Belt.Array.length(state.timeline) - 1 {
+          Dom.add(nextZone, "is-endpoint")
+        }
+        Dom.setProperty(nextZone, "--pipe-color", color.contents)
+        Dom.appendChild(fragment, nextZone)
+      })
+
+      Dom.setTextContent(t, "")
+      Dom.appendChild(t, fragment)
+    | None => ()
     }
   }
 }

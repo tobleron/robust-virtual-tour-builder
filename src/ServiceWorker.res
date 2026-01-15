@@ -1,11 +1,10 @@
+// External bindings for Service Worker API
 /**
  * ServiceWorker.res
  * 
  * Type-safe bindings for Service Worker registration.
  * Enables offline capability and asset caching for faster repeat loads.
  */
-
-// External bindings for Service Worker API
 type serviceWorkerContainer
 type serviceWorkerRegistration
 
@@ -17,7 +16,10 @@ external register: (serviceWorkerContainer, string) => Promise.t<serviceWorkerRe
   "register"
 
 @send
-external getRegistration: (serviceWorkerContainer, unit) => Promise.t<Nullable.t<serviceWorkerRegistration>> = "getRegistration"
+external getRegistration: (
+  serviceWorkerContainer,
+  unit,
+) => Promise.t<Nullable.t<serviceWorkerRegistration>> = "getRegistration"
 
 @send
 external unregister: (serviceWorkerRegistration, unit) => Promise.t<bool> = "unregister"
@@ -36,7 +38,7 @@ let registerServiceWorker = () => {
         ~module_="ServiceWorker",
         ~message="Service Worker registered successfully",
         ~data=Some({"scope": registration->Obj.magic}),
-        ()
+        (),
       )
       Promise.resolve()
     })
@@ -45,7 +47,7 @@ let registerServiceWorker = () => {
         ~module_="ServiceWorker",
         ~message="Service Worker registration failed",
         ~data=Some({"error": error->Obj.magic}),
-        ()
+        (),
       )
       Promise.resolve()
     })
@@ -54,7 +56,7 @@ let registerServiceWorker = () => {
     Logger.warn(
       ~module_="ServiceWorker",
       ~message="Service Workers not supported in this browser",
-      ()
+      (),
     )
   }
 }
@@ -78,7 +80,7 @@ let unregisterServiceWorker = () => {
             Logger.info(
               ~module_="ServiceWorker",
               ~message="Service Worker unregistered successfully",
-              ()
+              (),
             )
           }
           Promise.resolve()

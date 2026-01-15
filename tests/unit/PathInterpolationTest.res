@@ -17,11 +17,11 @@ let run = () => {
   let p1 = {yaw: 10.0, pitch: 10.0}
   let p2 = {yaw: 20.0, pitch: 20.0}
   let p3 = {yaw: 30.0, pitch: 30.0}
-  
+
   let t0 = interpolateCatmullRom(p0, p1, p2, p3, 0.0)
   assert(t0.yaw == 10.0)
   assert(t0.pitch == 10.0)
-  
+
   // Catmull-Rom at t=1 should be p2
   let t1 = interpolateCatmullRom(p0, p1, p2, p3, 1.0)
   assert(t1.yaw == 20.0)
@@ -29,10 +29,7 @@ let run = () => {
   Console.log("✓ interpolateCatmullRom boundaries")
 
   // Test getCatmullRomSpline with wrap around
-  let points = [
-    {yaw: 350.0, pitch: 0.0},
-    {yaw: 10.0, pitch: 0.0},
-  ]
+  let points = [{yaw: 350.0, pitch: 0.0}, {yaw: 10.0, pitch: 0.0}]
   let spline = getCatmullRomSpline(points, 10)
   // Check if it correctly interpolated through 360/0 boundary
   // If it didn't, it would go 350 -> 340 ... -> 0 -> 10 which is long way around.

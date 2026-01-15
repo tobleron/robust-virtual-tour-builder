@@ -146,7 +146,10 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
   let lblMenu = Dom.createElement("div")
   Dom.setId(lblMenu, "v-scene-label-menu")
 
-  Dom.setClassName(lblMenu, "hidden fixed flex flex-col gap-4 z-[9999] pointer-events-auto transition-all duration-300 ease-out scale-95 opacity-0 overflow-hidden modal-box")
+  Dom.setClassName(
+    lblMenu,
+    "hidden fixed flex flex-col gap-4 z-[9999] pointer-events-auto transition-all duration-300 ease-out scale-95 opacity-0 overflow-hidden modal-box",
+  )
   Dom.setPosition(lblMenu, "fixed")
   Dom.setMargin(lblMenu, "0")
   Dom.setStyleWidth(lblMenu, "95%")
@@ -156,7 +159,9 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
 
   // Cross-browser scrollbar nuclear option
   let styleEl = Dom.createElement("style")
-  Dom.setTextContent(styleEl, "
+  Dom.setTextContent(
+    styleEl,
+    "
     #v-scene-label-menu ::-webkit-scrollbar { width: 4px; }
     #v-scene-label-menu ::-webkit-scrollbar-track { background: transparent; }
     #v-scene-label-menu ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
@@ -166,7 +171,8 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
       background: linear-gradient(to top, rgba(255,255,255,0.95), transparent);
       pointer-events: none; z-index: 10; transition: opacity 0.3s;
     }
-  ")
+  ",
+  )
   Dom.appendChild(lblMenu, styleEl)
 
   // Scroll Fade
@@ -181,7 +187,10 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
   Dom.setMaxHeight(presetsWrapper, "360px")
 
   Dom.setOnScroll(presetsWrapper, () => {
-    let remaining = Dom.getScrollHeight(presetsWrapper) - Dom.getScrollTop(presetsWrapper) - Dom.getClientHeight(presetsWrapper)
+    let remaining =
+      Dom.getScrollHeight(presetsWrapper) -
+      Dom.getScrollTop(presetsWrapper) -
+      Dom.getClientHeight(presetsWrapper)
     Dom.setOpacity(
       scrollFade,
       if remaining > 10 {
@@ -216,22 +225,28 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
 
     Belt.Array.forEach(labels, label => {
       let chip = Dom.createElement("button")
-      Dom.setClassName(chip, "label-pill px-3 py-2 font-ui text-[10px] font-bold uppercase text-slate-600 bg-slate-50 border border-slate-100 rounded-lg cursor-pointer transition-all hover:bg-remax-blue hover:text-white hover:border-remax-blue hover:shadow-md active:scale-95 text-left focus-visible:ring-2 focus-visible:ring-remax-blue focus-visible:outline-none")
+      Dom.setClassName(
+        chip,
+        "label-pill px-3 py-2 font-ui text-[10px] font-bold uppercase text-slate-600 bg-slate-50 border border-slate-100 rounded-lg cursor-pointer transition-all hover:bg-remax-blue hover:text-white hover:border-remax-blue hover:shadow-md active:scale-95 text-left focus-visible:ring-2 focus-visible:ring-remax-blue focus-visible:outline-none",
+      )
       Dom.setTextContent(chip, label)
       Dom.setAttribute(chip, "aria-label", "Set label to " ++ label)
       Js.Dict.set(Dom.dataset(chip), "val", label)
       Js.Dict.set(Dom.dataset(chip), "category", category)
 
-      Dom.setOnClick(chip, e => {
-        Dom.stopPropagation(e)
-        let state = GlobalStateBridge.getState()
-        GlobalStateBridge.dispatch(
-          UpdateSceneMetadata(state.activeIndex, Obj.magic({"label": label})),
-        )
-        Logger.info(~module_="LabelMenu", ~message="LABEL_SET", ~data=Some({"label": label}), ())
-        EventBus.dispatch(ShowNotification("Label Set: " ++ label, #Success))
-        scheduleMenuClose()
-      })
+      Dom.setOnClick(
+        chip,
+        e => {
+          Dom.stopPropagation(e)
+          let state = GlobalStateBridge.getState()
+          GlobalStateBridge.dispatch(
+            UpdateSceneMetadata(state.activeIndex, Obj.magic({"label": label})),
+          )
+          Logger.info(~module_="LabelMenu", ~message="LABEL_SET", ~data=Some({"label": label}), ())
+          EventBus.dispatch(ShowNotification("Label Set: " ++ label, #Success))
+          scheduleMenuClose()
+        },
+      )
       Dom.appendChild(grid, chip)
     })
 
@@ -243,7 +258,10 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
 
   // Custom Section
   let customSection = Dom.createElement("div")
-  Dom.setClassName(customSection, "flex flex-col gap-2 pt-4 mt-1 border-t border-slate-100 bg-white/50 backdrop-blur-sm sticky bottom-0")
+  Dom.setClassName(
+    customSection,
+    "flex flex-col gap-2 pt-4 mt-1 border-t border-slate-100 bg-white/50 backdrop-blur-sm sticky bottom-0",
+  )
   Dom.setBackgroundColor(customSection, "white") // approximate sticky background
 
   let customTitle = Dom.createElement("div")
@@ -258,18 +276,27 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
   Dom.setId(inp, "v-scene-label-custom")
   Dom.setAttribute(inp, "type", "text")
   Dom.setAttribute(inp, "placeholder", "Enter custom name...")
-  Dom.setClassName(inp, "flex-1 px-4 py-2 bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold outline-none focus:ring-4 focus:ring-remax-blue/5 focus:border-remax-blue placeholder:text-slate-400 transition-all focus-visible:ring-remax-blue")
+  Dom.setClassName(
+    inp,
+    "flex-1 px-4 py-2 bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold outline-none focus:ring-4 focus:ring-remax-blue/5 focus:border-remax-blue placeholder:text-slate-400 transition-all focus-visible:ring-remax-blue",
+  )
   Dom.setOnClick(inp, e => Dom.stopPropagation(e))
 
   let setBtn = Dom.createElement("button")
   Dom.setInnerHTML(setBtn, "SET")
-  Dom.setClassName(setBtn, "shrink-0 px-3 py-2 text-white text-[10px] font-black rounded-xl transition-all active:scale-95 shadow-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none")
+  Dom.setClassName(
+    setBtn,
+    "shrink-0 px-3 py-2 text-white text-[10px] font-black rounded-xl transition-all active:scale-95 shadow-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none",
+  )
   Dom.setBackgroundColor(setBtn, "#007BA7")
   Dom.setAttribute(setBtn, "aria-label", "Apply custom label")
 
   let clearBtn = Dom.createElement("button")
   Dom.setInnerHTML(clearBtn, "CLEAR")
-  Dom.setClassName(clearBtn, "shrink-0 px-3 py-2 bg-slate-200 text-slate-600 text-[10px] font-black rounded-xl hover:bg-slate-300 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:outline-none")
+  Dom.setClassName(
+    clearBtn,
+    "shrink-0 px-3 py-2 bg-slate-200 text-slate-600 text-[10px] font-black rounded-xl hover:bg-slate-300 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:outline-none",
+  )
   Dom.setAttribute(clearBtn, "aria-label", "Clear current label")
 
   let applyCustom = () => {

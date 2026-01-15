@@ -109,7 +109,7 @@ let createHotspotConfig = (
       Dom.setInnerHTML(div, html)
       Dom.setPointerEvents(div, "auto")
       Dom.setCursor(div, "default")
-      
+
       // Accessibility for the main hotspot container
       Dom.setAttribute(div, "role", "button")
       Dom.setAttribute(div, "tabindex", "0")
@@ -118,7 +118,7 @@ let createHotspotConfig = (
       // Keyboard support
       let handleKey = (e: Dom.event) => {
         let key = Dom.key(e)
-        if (key == "Enter" || key == " ") {
+        if key == "Enter" || key == " " {
           Dom.preventDefault(e)
           Dom.stopPropagation(e)
           // Trigger the click logic by manually calling the click handler or dispatching a click
@@ -167,15 +167,19 @@ let createHotspotConfig = (
             switch targetIdx {
             | Some(idx) =>
               let currentVal = ts.isAutoForward
-              dispatch(Actions.UpdateSceneMetadata(idx, Logger.castToJson({"isAutoForward": !currentVal})))
-              EventBus.dispatch(ShowNotification(
-                if !currentVal {
-                  "Auto-forward: ENABLED"
-                } else {
-                  "Auto-forward: DISABLED"
-                },
-                #Success,
-              ))
+              dispatch(
+                Actions.UpdateSceneMetadata(idx, Logger.castToJson({"isAutoForward": !currentVal})),
+              )
+              EventBus.dispatch(
+                ShowNotification(
+                  if !currentVal {
+                    "Auto-forward: ENABLED"
+                  } else {
+                    "Auto-forward: DISABLED"
+                  },
+                  #Success,
+                ),
+              )
             | None => ()
             }
           | None => ()
@@ -261,7 +265,9 @@ let createHotspotConfig = (
               Logger.warn(
                 ~module_="Hotspot",
                 ~message="TARGET_INDEX_NOT_FOUND",
-                ~data=Some({"targetScene": targetSceneOpt->Belt.Option.mapWithDefault("unknown", s => s.name)}),
+                ~data=Some({
+                  "targetScene": targetSceneOpt->Belt.Option.mapWithDefault("unknown", s => s.name),
+                }),
                 (),
               )
             }

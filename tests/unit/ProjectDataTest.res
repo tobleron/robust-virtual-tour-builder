@@ -3,10 +3,10 @@ open ProjectData
 
 let run = () => {
   Console.log("Running ProjectData tests...")
-  
+
   // Test: version exists
   assert(version != "")
-  
+
   // Test: sanitizeLoadedScenes handles empty array
   let empty = sanitizeLoadedScenes([])
   assert(Belt.Array.length(empty) == 0)
@@ -18,11 +18,11 @@ let run = () => {
       {
         "pitch": 10.0,
         "yaw": 20.0,
-        "target": "other-scene"
-      }
-    ]
+        "target": "other-scene",
+      },
+    ],
   }
-  
+
   let sanitized = sanitizeLoadedScenes([Obj.magic(mockRawScene)])
   assert(Belt.Array.length(sanitized) == 1)
   let s = (Obj.magic(Belt.Array.getExn(sanitized, 0)): {..})
@@ -30,11 +30,11 @@ let run = () => {
   assert(s["id"] == "legacy_Test Scene")
   assert(s["category"] == "indoor") // Default
   assert(Belt.Array.length(s["hotspots"]) == 1)
-  
+
   let h = (Obj.magic(Belt.Array.getExn(s["hotspots"], 0)): {..})
   assert(h["target"] == "other-scene")
   assert(h["linkId"] == "") // Default
-  
+
   // Test: toJSON
   let mockState: Types.state = {
     tourName: "Test Tour",
@@ -64,7 +64,7 @@ let run = () => {
             displayPitch: None,
             transition: None,
             duration: None,
-          }
+          },
         ],
         category: "cat",
         floor: "1",
@@ -76,7 +76,7 @@ let run = () => {
         labelSet: true,
         isAutoForward: false,
         preCalculatedSnapshot: None,
-      }
+      },
     ],
     activeIndex: 0,
     activeYaw: 0.0,
@@ -106,14 +106,14 @@ let run = () => {
   let json = toJSON(mockState)
   let jsonDyn = (Obj.magic(json): {..})
   assert(jsonDyn["tourName"] == "Test Tour")
-  
+
   let scenesDyn = (Obj.magic(jsonDyn["scenes"]): array<{..}>)
   assert(Belt.Array.length(scenesDyn) == 1)
   assert(Belt.Array.getExn(scenesDyn, 0)["id"] == "scene-1")
-  
+
   let hotspotsDyn = (Obj.magic(Belt.Array.getExn(scenesDyn, 0)["hotspots"]): array<{..}>)
   assert(Belt.Array.length(hotspotsDyn) == 1)
   assert(Belt.Array.getExn(hotspotsDyn, 0)["linkId"] == "link-1")
-  
+
   Console.log("✓ ProjectData tests passed")
 }

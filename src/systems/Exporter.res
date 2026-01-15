@@ -205,7 +205,12 @@ let exportTour = async (
       ~data=Some({"filename": filename, "durationMs": Date.now() -. exportStartTime}),
       (),
     )
-    Logger.info(~module_="Exporter", ~message="DOWNLOAD_TRIGGERED", ~data=Some({"filename": filename}), ())
+    Logger.info(
+      ~module_="Exporter",
+      ~message="DOWNLOAD_TRIGGERED",
+      ~data=Some({"filename": filename}),
+      (),
+    )
     DownloadSystem.saveBlob(zipBlob, filename)
   } catch {
   | JsExn(e) => {

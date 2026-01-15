@@ -69,30 +69,30 @@ let sanitizeLoadedScenes = (rawScenes: array<JSON.t>) => {
 
     let hotspots = switch Nullable.toOption(i.hotspots) {
     | Some(arr) =>
-        let hArr = JsonTypes.castToHotspots(Obj.magic(arr)) // arr is already hotspotJson array
-        Belt.Array.map(hArr, h => {
-          /* Ensure structured data is preserved */
-          {
-            "linkId": switch Nullable.toOption(h.linkId) {
-            | Some(l) => l
-            | None => ""
-            },
-            "pitch": h.pitch,
-            "yaw": h.yaw,
-            "target": h.target,
-            "startPitch": h.startPitch,
-            "startYaw": h.startYaw,
-            "startHfov": h.startHfov,
-            "viewFrame": h.viewFrame,
-            "returnViewFrame": h.returnViewFrame,
-            "isReturnLink": h.isReturnLink,
-            "targetYaw": h.targetYaw,
-            "targetPitch": h.targetPitch,
-            "waypoints": h.waypoints,
-            "transition": h.transition,
-            "duration": h.duration,
-          }
-        })
+      let hArr = JsonTypes.castToHotspots(Obj.magic(arr)) // arr is already hotspotJson array
+      Belt.Array.map(hArr, h => {
+        /* Ensure structured data is preserved */
+        {
+          "linkId": switch Nullable.toOption(h.linkId) {
+          | Some(l) => l
+          | None => ""
+          },
+          "pitch": h.pitch,
+          "yaw": h.yaw,
+          "target": h.target,
+          "startPitch": h.startPitch,
+          "startYaw": h.startYaw,
+          "startHfov": h.startHfov,
+          "viewFrame": h.viewFrame,
+          "returnViewFrame": h.returnViewFrame,
+          "isReturnLink": h.isReturnLink,
+          "targetYaw": h.targetYaw,
+          "targetPitch": h.targetPitch,
+          "waypoints": h.waypoints,
+          "transition": h.transition,
+          "duration": h.duration,
+        }
+      })
     | None => []
     }
 

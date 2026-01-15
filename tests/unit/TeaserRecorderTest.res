@@ -14,7 +14,7 @@ let run = () => {
   // Test 2: setFadeOpacity updates internal state (informational test)
   try {
     setFadeOpacity(0.5)
-    // We can't easily check internalState since it's not exported, 
+    // We can't easily check internalState since it's not exported,
     // but we verify it doesn't crash even if DOM is missing (via catch)
     Console.log("✓ setFadeOpacity passed (execution check)")
   } catch {

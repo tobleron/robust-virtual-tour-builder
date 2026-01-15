@@ -4,8 +4,6 @@
  * This module provides controlled access to application state for debugging purposes.
  * It is automatically disabled in production builds.
  */
-
-
 type stateSnapshot = {
   tourName: string,
   sceneCount: int,
@@ -37,7 +35,7 @@ let createSnapshot = (state: Types.state): stateSnapshot => {
 let exposeToWindow = () => {
   if Constants.enableStateInspector() {
     let getState = GlobalStateBridge.getState
-    
+
     let setupStore = %raw(`
       function(getState) {
         window.store = {
@@ -75,7 +73,7 @@ let exposeToWindow = () => {
         console.info('🔍 State Inspector enabled. Access via window.store.state');
       }
     `)
-    
+
     setupStore(getState)
   } else {
     // Production: No state exposure

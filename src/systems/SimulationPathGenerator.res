@@ -1,6 +1,8 @@
 open Types
 open SimulationChainSkipper
 
+// Note: transitionState and arrivalView use mutable fields for animation performance
+// This is acceptable as it's scoped to animation frames and not app state
 /**
  * Path Generation for Simulation Teaser/Preview
  * 
@@ -8,9 +10,6 @@ open SimulationChainSkipper
  * simulation teaser feature. It simulates the autopilot logic to generate
  * a sequence of scene transitions that can be used for preview or animation.
  */
-
-// Note: transitionState and arrivalView use mutable fields for animation performance
-// This is acceptable as it's scoped to animation frames and not app state
 type arrivalView = {
   mutable yaw: float,
   mutable pitch: float,
@@ -82,27 +81,29 @@ let getSimulationPath = (skipAutoForward: bool): array<pathStep> => {
 
     while loop.contents {
       if loopCount.contents >= maxSteps {
-        Logger.warn(~module_="Simulation", ~message="MAX_STEPS_REACHED", ~data=Some({"maxSteps": maxSteps}), ())
+        Logger.warn(
+          ~module_="Simulation",
+          ~message="MAX_STEPS_REACHED",
+          ~data=Some({"maxSteps": maxSteps}),
+          (),
+        )
         loop := false
       } else {
         switch Belt.Array.get(state.scenes, currentIdx.contents) {
         | Some(currentScene) =>
           // Find next link
-          let nextLinkOpt = ref(SimulationNavigation.findBestNextLink(currentScene, state, localVisited))
+          let nextLinkOpt = ref(
+            SimulationNavigation.findBestNextLink(currentScene, state, localVisited),
+          )
 
           // Skip Auto Forward Logic
           if skipAutoForward {
             switch nextLinkOpt.contents {
             | Some(link) =>
-              let skipResult = skipAutoForwardChain(
-                link,
-                state,
-                localVisited,
-                sceneIdx => {
-                  let _ = Js.Array.push(sceneIdx, localVisited)
-                }
-              )
-              
+              let skipResult = skipAutoForwardChain(link, state, localVisited, sceneIdx => {
+                let _ = Js.Array.push(sceneIdx, localVisited)
+              })
+
               // Use the final target but keep original hotspot for visuals
               nextLinkOpt := Some(skipResult.finalLink)
 
@@ -120,13 +121,13 @@ let getSimulationPath = (skipAutoForward: bool): array<pathStep> => {
               Belt.Int.toString(currentIdx.contents) ++ "->" ++ Belt.Int.toString(targetIdx)
             if Js.Array.includes(stateKey, visitedStateSet) {
               Logger.warn(
-                ~module_="Simulation", 
-                ~message="INFINITE_LOOP_DETECTED", 
+                ~module_="Simulation",
+                ~message="INFINITE_LOOP_DETECTED",
                 ~data=Some({
-                    "stateKey": stateKey, 
-                    "visitedScenes": visitedStateSet
-                }), 
-                ()
+                  "stateKey": stateKey,
+                  "visitedScenes": visitedStateSet,
+                }),
+                (),
               )
               loop := false
             } else {

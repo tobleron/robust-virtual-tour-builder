@@ -12,7 +12,6 @@ module JsHelpers = {
   @scope("Array") @val external from: 'a => array<'b> = "from"
 }
 
-
 module BrowserArrayBuffer = {
   type t = Js.Typed_array.ArrayBuffer.t
 }
@@ -41,28 +40,14 @@ module JSZip = {
 
 /* 3. Rest of the bindings */
 
-
-
-
-
-
-
-
 module Viewer = {
   type t
   /* The viewer is attached to window.pannellumViewer */
   @scope("window") @val external instance: Nullable.t<t> = "pannellumViewer"
 
-  type hotspotConfig = {
-    "id": string,
-    "pitch": float,
-    "yaw": float,
-    "type": string,
-  }
+  type hotspotConfig = {"id": string, "pitch": float, "yaw": float, "type": string}
 
-  type config = {
-    "hotSpots": array<hotspotConfig>
-  }
+  type config = {"hotSpots": array<hotspotConfig>}
 
   @send external getPitch: t => float = "getPitch"
   @send external getYaw: t => float = "getYaw"
@@ -163,7 +148,8 @@ module Dom = {
   @send external appendChild: (element, element) => unit = "appendChild"
   @send external addEventListener: (element, string, event => unit) => unit = "addEventListener"
   @send external addEventListenerNoEv: (element, string, unit => unit) => unit = "addEventListener"
-  @send external removeEventListener: (element, string, event => unit) => unit = "removeEventListener"
+  @send
+  external removeEventListener: (element, string, event => unit) => unit = "removeEventListener"
   @scope("document") @val external documentBody: element = "body"
 
   @get external getWidth: element => int = "width"
@@ -171,12 +157,12 @@ module Dom = {
   @get external getHeight: element => int = "height"
   @set external setHeight: (element, int) => unit = "height"
 
-  @get external getComputedStyle: element => style = "getComputedStyle" 
-  
+  @get external getComputedStyle: element => style = "getComputedStyle"
+
   @send @scope("style") external setProperty: (element, string, string) => unit = "setProperty"
   @send external getPropertyValue: (style, string) => string = "getPropertyValue"
-  @get external getStyle: element => style = "style" 
-  
+  @get external getStyle: element => style = "style"
+
   @get external getValue: element => string = "value"
   @set external setValue: (element, string) => unit = "value"
   @send external focus: element => unit = "focus"
@@ -185,7 +171,7 @@ module Dom = {
   @send external closest: (element, string) => Nullable.t<element> = "closest"
   @send
   external addEventListenerCapture: (element, string, 'a => unit, bool) => unit = "addEventListener"
-  
+
   /* Added bindings */
   @send external removeElement: element => unit = "remove"
   @get external dataset: element => Js.Dict.t<string> = "dataset"
@@ -205,11 +191,11 @@ module Dom = {
   @send external querySelectorAll: (element, string) => nodeList = "querySelectorAll"
   @scope("document") @val external querySelectorAllDoc: string => nodeList = "querySelectorAll"
   @get external nodeListLength: nodeList => int = "length"
-  
-  @set external setDraggable: (element, bool) => unit = "draggable"
-  @send @scope("document") external createDocumentFragment: unit => element = "createDocumentFragment"
-  @val @scope("document") external head: element = "head"
 
+  @set external setDraggable: (element, bool) => unit = "draggable"
+  @send @scope("document")
+  external createDocumentFragment: unit => element = "createDocumentFragment"
+  @val @scope("document") external head: element = "head"
 }
 
 module ResizeObserver = {
@@ -312,8 +298,6 @@ module Window = {
   @set external setOnUnhandledRejection: ({..}, {..} => unit) => unit = "onunhandledrejection"
 }
 
-
-
 module Fetch = {
   type response
   type requestInit<'body> = {
@@ -345,7 +329,7 @@ module ReactDOMClient = {
   type root
   @module("react-dom/client") @scope("default")
   external createRoot: Dom.element => root = "createRoot"
-  
+
   module Root = {
     @send external render: (root, React.element) => unit = "render"
   }

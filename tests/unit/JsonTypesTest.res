@@ -10,10 +10,10 @@ let run = () => {
     "scenes": []
   }`)
   switch decodeProject(projectJson) {
-  | Ok(p) => 
-      assert(Nullable.toOption(p.tourName) == Some("Test Tour"))
-      assert(Array.length(p.scenes) == 0)
-      Console.log("✓ decodeProject with valid data")
+  | Ok(p) =>
+    assert(Nullable.toOption(p.tourName) == Some("Test Tour"))
+    assert(Array.length(p.scenes) == 0)
+    Console.log("✓ decodeProject with valid data")
   | Error(msg) => Console.error("decodeProject failed: " ++ msg)
   }
 

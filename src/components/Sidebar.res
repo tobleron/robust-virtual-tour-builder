@@ -83,9 +83,9 @@ let make = () => {
           ),
         )
 
-        let qualityResults: array<UploadReport.qualityItem> = (Obj.magic(result): {
-          "qualityResults": array<UploadReport.qualityItem>,
-        })["qualityResults"]
+        let qualityResults: array<UploadReport.qualityItem> = (
+          Obj.magic(result): {"qualityResults": array<UploadReport.qualityItem>}
+        )["qualityResults"]
 
         UploadReport.show(state.lastUploadReport, qualityResults)
       } catch {
@@ -100,7 +100,6 @@ let make = () => {
       }
     }
   }
-
 
   // Computed
   let totalHotspots = state.scenes->Belt.Array.reduce(0, (acc, s) => acc + Array.length(s.hotspots))
@@ -118,10 +117,10 @@ let make = () => {
         "background": "linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%)",
       })}
     >
-      <div
-        className="flex flex-col items-center px-6 pt-8 pb-6" 
-      >
-        <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center mb-4 border border-white/10 shadow-xl backdrop-blur-sm">
+      <div className="flex flex-col items-center px-6 pt-8 pb-6">
+        <div
+          className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center mb-4 border border-white/10 shadow-xl backdrop-blur-sm"
+        >
           <span
             className="material-icons text-white drop-shadow-lg"
             style={makeStyle({"fontSize": "32px"})}
@@ -136,7 +135,9 @@ let make = () => {
           {React.string("Virtual Tour Builder")}
         </h1>
         <div className="flex items-center gap-2 text-white/40 mt-2">
-          <span className="text-[10px] font-bold tracking-widest"> {React.string("V " ++ version)} </span>
+          <span className="text-[10px] font-bold tracking-widest">
+            {React.string("V " ++ version)}
+          </span>
           <span className="text-[10px]"> {React.string("•")} </span>
           <span className="text-[10px] font-medium opacity-60"> {React.string(buildInfo)} </span>
         </div>
@@ -146,61 +147,117 @@ let make = () => {
         // Grid 4x1 for main actions
         <div className="grid grid-cols-4 gap-2 mb-3">
           {[
-            ("note_add", "New", () => {
-              if Array.length(state.scenes) > 0 {
-                EventBus.dispatch(ShowModal({
-                  title: "Create New Project?",
-                  description: Some("Are you sure you want to discard the current project? All progress will be lost."),
-                  icon: Some("warning"),
-                  contentHtml: None,
-                  onClose: None,
-                  allowClose: Some(true),
-                  buttons: [
-                    {label: "Cancel", class_: "bg-slate-100 text-slate-700", onClick: () => (), autoClose: Some(true)},
-                    {label: "Discard & New", class_: "bg-danger text-white", onClick: () => reload(), autoClose: Some(true)}
-                  ],
-                }))
-              } else { reload() }
-            }),
-            ("save", "Save", () => {
-              let _ = (async () => {
-                updateProgress(0.0, "Saving...", true, "Saving")
-                try {
-                  let _ = await ProjectManager.saveProject(state, ~onProgress=(pct, _, msg) => updateProgress(pct->Int.toFloat, msg, true, "Saving"))
-                  EventBus.dispatch(ShowNotification("Project saved", #Success))
-                  updateProgress(100.0, "Saved", false, "")
-                } catch { | _ => updateProgress(0.0, "Error", false, "") }
-              })()
-            }),
-            ("folder_open", "Load", () => {
-              switch Nullable.toOption(projectFileInputRef.current) {
-              | Some(el) => Dom.click(el)
-              | None => ()
-              }
-            }),
-            ("info", "About", () => {
-              EventBus.dispatch(ShowModal({
-                title: "About Builder",
-                description: Some(`Version: ${version}<br>Build: ${buildInfo}`),
-                icon: Some("info"),
-                contentHtml: None,
-                onClose: None,
-                allowClose: Some(true),
-                buttons: [{label: "Close", class_: "bg-slate-100 text-slate-700", onClick: () => (), autoClose: Some(true)}],
-              }))
-            })
+            (
+              "note_add",
+              "New",
+              () => {
+                if Array.length(state.scenes) > 0 {
+                  EventBus.dispatch(
+                    ShowModal({
+                      title: "Create New Project?",
+                      description: Some(
+                        "Are you sure you want to discard the current project? All progress will be lost.",
+                      ),
+                      icon: Some("warning"),
+                      contentHtml: None,
+                      onClose: None,
+                      allowClose: Some(true),
+                      buttons: [
+                        {
+                          label: "Cancel",
+                          class_: "bg-slate-100 text-slate-700",
+                          onClick: () => (),
+                          autoClose: Some(true),
+                        },
+                        {
+                          label: "Discard & New",
+                          class_: "bg-danger text-white",
+                          onClick: () => reload(),
+                          autoClose: Some(true),
+                        },
+                      ],
+                    }),
+                  )
+                } else {
+                  reload()
+                }
+              },
+            ),
+            (
+              "save",
+              "Save",
+              () => {
+                let _ = (
+                  async () => {
+                    updateProgress(0.0, "Saving...", true, "Saving")
+                    try {
+                      let _ = await ProjectManager.saveProject(state, ~onProgress=(pct, _, msg) =>
+                        updateProgress(pct->Int.toFloat, msg, true, "Saving")
+                      )
+                      EventBus.dispatch(ShowNotification("Project saved", #Success))
+                      updateProgress(100.0, "Saved", false, "")
+                    } catch {
+                    | _ => updateProgress(0.0, "Error", false, "")
+                    }
+                  }
+                )()
+              },
+            ),
+            (
+              "folder_open",
+              "Load",
+              () => {
+                switch Nullable.toOption(projectFileInputRef.current) {
+                | Some(el) => Dom.click(el)
+                | None => ()
+                }
+              },
+            ),
+            (
+              "info",
+              "About",
+              () => {
+                EventBus.dispatch(
+                  ShowModal({
+                    title: "About Builder",
+                    description: Some(`Version: ${version}<br>Build: ${buildInfo}`),
+                    icon: Some("info"),
+                    contentHtml: None,
+                    onClose: None,
+                    allowClose: Some(true),
+                    buttons: [
+                      {
+                        label: "Close",
+                        class_: "bg-slate-100 text-slate-700",
+                        onClick: () => (),
+                        autoClose: Some(true),
+                      },
+                    ],
+                  }),
+                )
+              },
+            ),
           ]
-          ->Belt.Array.mapWithIndex((i, (icon, label, onClick)) => (
+          ->Belt.Array.mapWithIndex((i, (icon, label, onClick)) =>
             <button
               key={Int.toString(i)}
               className="flex flex-col items-center justify-center bg-white/5 border border-white/10 rounded-xl py-3 px-1 transition-all hover:bg-white/15 hover:-translate-y-0.5 active:translate-y-0 shadow-sm group focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
               onClick={_ => onClick()}
               ariaLabel={label}
             >
-              <span className="material-icons text-xl mb-1 text-white/70 group-hover:text-white transition-colors" ariaHidden=true> {React.string(icon)} </span>
-              <span className="text-[9px] font-bold uppercase tracking-widest text-white/60 group-hover:text-white/90"> {React.string(label)} </span>
+              <span
+                className="material-icons text-xl mb-1 text-white/70 group-hover:text-white transition-colors"
+                ariaHidden=true
+              >
+                {React.string(icon)}
+              </span>
+              <span
+                className="text-[9px] font-bold uppercase tracking-widest text-white/60 group-hover:text-white/90"
+              >
+                {React.string(label)}
+              </span>
             </button>
-          ))
+          )
           ->React.array}
         </div>
 
@@ -210,19 +267,33 @@ let make = () => {
             className="flex items-center justify-center gap-2 bg-white/5 border border-white/10 rounded-xl py-2.5 transition-all hover:bg-white/15 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-30 disabled:pointer-events-none group focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
             disabled={!exportReady}
             onClick={_ => {
-              let _ = (async () => {
-                updateProgress(0.0, "Exporting...", true, "Export")
-                try {
-                  await Exporter.exportTour(state.scenes, Some((pct, _, msg) => updateProgress(pct, msg, true, "Export")))
-                  EventBus.dispatch(ShowNotification("Export complete", #Success))
-                  updateProgress(100.0, "Done", false, "")
-                } catch { | _ => updateProgress(0.0, "Error", false, "") }
-              })()
+              let _ = (
+                async () => {
+                  updateProgress(0.0, "Exporting...", true, "Export")
+                  try {
+                    await Exporter.exportTour(
+                      state.scenes,
+                      Some((pct, _, msg) => updateProgress(pct, msg, true, "Export")),
+                    )
+                    EventBus.dispatch(ShowNotification("Export complete", #Success))
+                    updateProgress(100.0, "Done", false, "")
+                  } catch {
+                  | _ => updateProgress(0.0, "Error", false, "")
+                  }
+                }
+              )()
             }}
             ariaLabel="Export Tour"
           >
-            <span className="material-icons text-lg text-success-dark group-hover:scale-110 transition-transform" ariaHidden=true> {React.string("ios_share")} </span>
-            <span className="text-[11px] font-bold uppercase tracking-widest"> {React.string("Export")} </span>
+            <span
+              className="material-icons text-lg text-success-dark group-hover:scale-110 transition-transform"
+              ariaHidden=true
+            >
+              {React.string("ios_share")}
+            </span>
+            <span className="text-[11px] font-bold uppercase tracking-widest">
+              {React.string("Export")}
+            </span>
           </button>
 
           <button
@@ -233,8 +304,15 @@ let make = () => {
             }}
             ariaLabel="Create Teaser"
           >
-            <span className="material-icons text-lg text-warning group-hover:scale-110 transition-transform" ariaHidden=true> {React.string("movie_creation")} </span>
-            <span className="text-[11px] font-bold uppercase tracking-widest"> {React.string("Teaser")} </span>
+            <span
+              className="material-icons text-lg text-warning group-hover:scale-110 transition-transform"
+              ariaHidden=true
+            >
+              {React.string("movie_creation")}
+            </span>
+            <span className="text-[11px] font-bold uppercase tracking-widest">
+              {React.string("Teaser")}
+            </span>
           </button>
         </div>
       </div>
@@ -264,10 +342,15 @@ let make = () => {
                 updateProgress(0.0, "Loading Project...", true, "Loading")
                 try {
                   let file = files["0"]
-                  Logger.startOperation(~module_="Sidebar", ~operation="PROJECT_LOAD", ~data={
-                    "filename": File.name(file),
-                    "size": File.size(file)
-                  }, ())
+                  Logger.startOperation(
+                    ~module_="Sidebar",
+                    ~operation="PROJECT_LOAD",
+                    ~data={
+                      "filename": File.name(file),
+                      "size": File.size(file),
+                    },
+                    (),
+                  )
                   let projectData = await ProjectManager.loadProject(file, ~onProgress=(
                     pct,
                     _t,
@@ -277,10 +360,15 @@ let make = () => {
                   })
 
                   dispatch(Actions.LoadProject(projectData))
-                  
-                  Logger.endOperation(~module_="Sidebar", ~operation="PROJECT_LOAD", ~data={
-                    "sceneCount": Array.length(state.scenes)
-                  }, ())
+
+                  Logger.endOperation(
+                    ~module_="Sidebar",
+                    ~operation="PROJECT_LOAD",
+                    ~data={
+                      "sceneCount": Array.length(state.scenes),
+                    },
+                    (),
+                  )
 
                   EventBus.dispatch(ShowNotification("Project loaded", #Success))
                   updateProgress(100.0, "Loaded", false, "")
@@ -290,11 +378,21 @@ let make = () => {
                   | Some(m) => m
                   | None => "Unknown error"
                   }
-                  Logger.error(~module_="Sidebar", ~message="PROJECT_LOAD_FAILED", ~data={"error": msg}, ())
+                  Logger.error(
+                    ~module_="Sidebar",
+                    ~message="PROJECT_LOAD_FAILED",
+                    ~data={"error": msg},
+                    (),
+                  )
                   EventBus.dispatch(ShowNotification("Load failed: " ++ msg, #Error))
                   updateProgress(0.0, "Error", false, "")
                 | _ =>
-                  Logger.error(~module_="Sidebar", ~message="PROJECT_LOAD_FAILED", ~data={"error": "Unknown"}, ())
+                  Logger.error(
+                    ~module_="Sidebar",
+                    ~message="PROJECT_LOAD_FAILED",
+                    ~data={"error": "Unknown"},
+                    (),
+                  )
                   EventBus.dispatch(ShowNotification("Load failed", #Error))
                   updateProgress(0.0, "Error", false, "")
                 }
@@ -311,12 +409,19 @@ let make = () => {
     <div className="flex flex-col bg-white border-b border-slate-200 shadow-sm shrink-0 z-20">
       <div className="p-6 pb-4">
         <div className="flex items-center justify-between mb-2 px-1">
-          <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest" htmlFor="project-name-input">
+          <label
+            className="text-[10px] font-black text-slate-600 uppercase tracking-widest"
+            htmlFor="project-name-input"
+          >
             {React.string("Project Name")}
           </label>
-          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200">
-             <div className="w-1 h-1 rounded-full bg-blue-500 animate-pulse" />
-             <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tight"> {React.string("Draft")} </span>
+          <div
+            className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200"
+          >
+            <div className="w-1 h-1 rounded-full bg-blue-500 animate-pulse" />
+            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tight">
+              {React.string("Draft")}
+            </span>
           </div>
         </div>
         <input
@@ -329,7 +434,16 @@ let make = () => {
         />
       </div>
 
-      <div className="px-6 pb-6" style={makeStyle({"display": if procState["active"] { "none" } else { "block" }})}>
+      <div
+        className="px-6 pb-6"
+        style={makeStyle({
+          "display": if procState["active"] {
+            "none"
+          } else {
+            "block"
+          },
+        })}
+      >
         <button
           className="w-full h-12 bg-primary text-white rounded-xl flex items-center justify-center gap-3 transition-all hover:bg-primary-light hover:shadow-xl hover:shadow-primary/20 active:scale-95 group overflow-hidden relative focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none"
           onClick={_ => {
@@ -339,7 +453,9 @@ let make = () => {
             }
           }}
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+          <div
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"
+          />
           <span className="material-icons text-[20px]"> {React.string("cloud_upload")} </span>
           <strong className="text-[12px] font-bold tracking-widest uppercase">
             {React.string("Add 360 Scenes")}
@@ -349,12 +465,20 @@ let make = () => {
     </div>
 
     /* Sidebar Content Area - Scrollable */
-    <div className="sidebar-content flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar flex flex-col bg-slate-50/50">
+    <div
+      className="sidebar-content flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar flex flex-col bg-slate-50/50"
+    >
       {if procState["active"] {
-        <div className="m-6 bg-white border border-slate-200 rounded-2xl p-5 shadow-xl animate-fade-in shrink-0" role="status" ariaLive=#polite>
+        <div
+          className="m-6 bg-white border border-slate-200 rounded-2xl p-5 shadow-xl animate-fade-in shrink-0"
+          role="status"
+          ariaLive=#polite
+        >
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="w-4 h-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
+              <div
+                className="w-4 h-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin"
+              />
               <div className="font-bold text-slate-700 text-[11px] uppercase tracking-widest">
                 {React.string(procState["phase"] == "" ? "Processing" : procState["phase"])}
               </div>
@@ -368,15 +492,21 @@ let make = () => {
               className="h-full bg-primary transition-all duration-300 rounded-full relative"
               style={makeStyle({"width": Float.toString(procState["progress"]) ++ "%"})}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer bg-[length:200%_auto]" />
+              <div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer bg-[length:200%_auto]"
+              />
             </div>
           </div>
-          <div className="text-[10px] text-slate-600 mt-3 font-bold uppercase tracking-tight flex items-center gap-2">
+          <div
+            className="text-[10px] text-slate-600 mt-3 font-bold uppercase tracking-tight flex items-center gap-2"
+          >
             <span className="w-1.5 h-1.5 bg-success rounded-full animate-pulse" />
             <span className="truncate"> {React.string(procState["message"])} </span>
           </div>
         </div>
-      } else { React.null }}
+      } else {
+        React.null
+      }}
 
       <div className="p-1 flex-1">
         <SceneList />
@@ -384,4 +514,3 @@ let make = () => {
     </div>
   </div>
 }
-

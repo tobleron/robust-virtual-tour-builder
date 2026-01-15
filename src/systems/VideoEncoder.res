@@ -2,11 +2,7 @@
 
 open ReBindings
 
-
 type transcodeProgressCallback = (float, string) => unit
-
-
-
 
 let transcodeWebMToMP4 = (
   webmBlob: Blob.t,
@@ -24,14 +20,24 @@ let transcodeWebMToMP4 = (
   switch progressCallback {
   | Some(cb) => {
       cb(10.0, "Uploading...")
-      Logger.debug(~module_="VideoEncoder", ~message="TRANSCODE_PROGRESS", ~data=Some({"percent": 10.0}), ())
+      Logger.debug(
+        ~module_="VideoEncoder",
+        ~message="TRANSCODE_PROGRESS",
+        ~data=Some({"percent": 10.0}),
+        (),
+      )
     }
   | None => ()
   }
 
   if Blob.size(webmBlob) < 1024.0 {
     let msg = "Video file is too small. Recording likely failed."
-    Logger.error(~module_="VideoEncoder", ~message="TRANSCODE_INPUT_TOO_SMALL", ~data=Some({"size": Blob.size(webmBlob)}), ())
+    Logger.error(
+      ~module_="VideoEncoder",
+      ~message="TRANSCODE_INPUT_TOO_SMALL",
+      ~data=Some({"size": Blob.size(webmBlob)}),
+      (),
+    )
     Promise.reject(JsError.throwWithMessage(msg))
   } else {
     let formData = FormData.newFormData()
@@ -49,7 +55,12 @@ let transcodeWebMToMP4 = (
       switch progressCallback {
       | Some(cb) => {
           cb(50.0, "Processing...")
-          Logger.debug(~module_="VideoEncoder", ~message="TRANSCODE_PROGRESS", ~data=Some({"percent": 50.0}), ())
+          Logger.debug(
+            ~module_="VideoEncoder",
+            ~message="TRANSCODE_PROGRESS",
+            ~data=Some({"percent": 50.0}),
+            (),
+          )
         }
       | None => ()
       }
@@ -58,7 +69,12 @@ let transcodeWebMToMP4 = (
         let getText: Fetch.response => Promise.t<string> = %raw("(res) => res.text()")
         getText(res)->Promise.then(text => {
           let errorDetails = "Backend Transcode Failed: " ++ text
-          Logger.error(~module_="VideoEncoder", ~message="TRANSCODE_FAILED", ~data=Some({"error": text}), ())
+          Logger.error(
+            ~module_="VideoEncoder",
+            ~message="TRANSCODE_FAILED",
+            ~data=Some({"error": text}),
+            (),
+          )
           /* throwWithMessage returns exn compatible with Promise.reject if defined properly,
            or we use Js.Exn.raiseError directly via raw to be safe */
           let err = JsError.throwWithMessage(errorDetails)

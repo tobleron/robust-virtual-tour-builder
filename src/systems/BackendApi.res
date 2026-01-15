@@ -23,9 +23,7 @@ type geocodeRequest = {
   lon: float,
 }
 
-type geocodeResponse = {
-  address: string,
-}
+type geocodeResponse = {address: string}
 
 /* --- SIMILARITY TYPES --- */
 
@@ -349,7 +347,6 @@ let saveProject = (projectData: JSON.t): Promise.t<apiResult<Blob.t>> => {
   })
 }
 
-
 /**
  * Calculates a navigation path (Teaser/Timeline) via Backend
  */
@@ -397,10 +394,12 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<string> => {
     {
       method: "POST",
       headers: Nullable.make(headers),
-      body: JSON.stringify(Logger.castToJson({
-        lat: lat,
-        lon: lon,
-      })),
+      body: JSON.stringify(
+        Logger.castToJson({
+          lat,
+          lon,
+        }),
+      ),
     },
   )
   ->Promise.then(response => {
@@ -416,9 +415,14 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<string> => {
       Fetch.json(response)->Promise.then(json => {
         switch decodeGeocodeResponse(json) {
         | Ok(data) => Promise.resolve(data.address)
-        | Error(msg) => 
-            Logger.warn(~module_="BackendApi", ~message="GEOCODE_DECODE_FAILED", ~data=Logger.castToJson({"error": msg}), ())
-            Promise.resolve("[Geocoding decode failed]")
+        | Error(msg) =>
+          Logger.warn(
+            ~module_="BackendApi",
+            ~message="GEOCODE_DECODE_FAILED",
+            ~data=Logger.castToJson({"error": msg}),
+            (),
+          )
+          Promise.resolve("[Geocoding decode failed]")
         }
       })
     }
@@ -434,13 +438,12 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<string> => {
   })
 }
 
-
 /**
  * Calculates similarity for multiple pairs in parallel on the backend
  */
-let batchCalculateSimilarity = (
-  pairs: array<similarityPair>,
-): Promise.t<apiResult<array<similarityResult>>> => {
+let batchCalculateSimilarity = (pairs: array<similarityPair>): Promise.t<
+  apiResult<array<similarityResult>>,
+> => {
   let headers = Dict.make()
   Dict.set(headers, "Content-Type", "application/json")
 

@@ -54,17 +54,16 @@ let parseHotspots = (hss: array<hotspotJson>): array<hotspot> => {
 let parseScene = (dataJson: JSON.t): scene => {
   let data = switch decodeImportScene(dataJson) {
   | Ok(d) => d
-  | Error(_) => 
-      // Fallback/Default for invalid data
-      {
-        id: "error_" ++ Float.toString(Date.now()),
-        name: "invalid.webp",
-        preview: JSON.Encode.null,
-        tiny: Nullable.null,
-        original: Nullable.null,
-        quality: Nullable.null,
-        colorGroup: Nullable.null,
-      }
+  | Error(_) => // Fallback/Default for invalid data
+    {
+      id: "error_" ++ Float.toString(Date.now()),
+      name: "invalid.webp",
+      preview: JSON.Encode.null,
+      tiny: Nullable.null,
+      original: Nullable.null,
+      quality: Nullable.null,
+      colorGroup: Nullable.null,
+    }
   }
   {
     id: data.id,
@@ -97,52 +96,52 @@ let parseProject = (projectDataJson: JSON.t): state => {
   }
 
   let scenes = Belt.Array.map(pd.scenes, sc => {
-      {
-        id: switch Nullable.toOption(sc.id) {
-        | Some(id) => id
-        | None => "legacy_" ++ sc.name
-        },
-        name: sc.name,
-        file: sc.file,
-        tinyFile: Nullable.toOption(sc.tinyFile),
-        originalFile: Nullable.toOption(sc.originalFile),
-        hotspots: switch Nullable.toOption(sc.hotspots) {
-        | Some(hss) => parseHotspots(hss)
-        | None => []
-        },
-        category: switch Nullable.toOption(sc.category) {
-        | Some(c) => c
-        | None => "indoor"
-        },
-        floor: switch Nullable.toOption(sc.floor) {
-        | Some(f) => f
-        | None => "ground"
-        },
-        label: switch Nullable.toOption(sc.label) {
-        | Some(l) => l
-        | None => ""
-        },
-        quality: Nullable.toOption(sc.quality),
-        colorGroup: Nullable.toOption(sc.colorGroup),
-        _metadataSource: switch Nullable.toOption(sc.metadataSource) {
-        | Some(m) => m
-        | None => "user"
-        },
-        categorySet: switch Nullable.toOption(sc.categorySet) {
-        | Some(cs) => cs
-        | None => false
-        },
-        labelSet: switch Nullable.toOption(sc.labelSet) {
-        | Some(ls) => ls
-        | None => false
-        },
-        isAutoForward: switch Nullable.toOption(sc.isAutoForward) {
-        | Some(af) => af
-        | None => false
-        },
-        preCalculatedSnapshot: None,
-      }
-    })
+    {
+      id: switch Nullable.toOption(sc.id) {
+      | Some(id) => id
+      | None => "legacy_" ++ sc.name
+      },
+      name: sc.name,
+      file: sc.file,
+      tinyFile: Nullable.toOption(sc.tinyFile),
+      originalFile: Nullable.toOption(sc.originalFile),
+      hotspots: switch Nullable.toOption(sc.hotspots) {
+      | Some(hss) => parseHotspots(hss)
+      | None => []
+      },
+      category: switch Nullable.toOption(sc.category) {
+      | Some(c) => c
+      | None => "indoor"
+      },
+      floor: switch Nullable.toOption(sc.floor) {
+      | Some(f) => f
+      | None => "ground"
+      },
+      label: switch Nullable.toOption(sc.label) {
+      | Some(l) => l
+      | None => ""
+      },
+      quality: Nullable.toOption(sc.quality),
+      colorGroup: Nullable.toOption(sc.colorGroup),
+      _metadataSource: switch Nullable.toOption(sc.metadataSource) {
+      | Some(m) => m
+      | None => "user"
+      },
+      categorySet: switch Nullable.toOption(sc.categorySet) {
+      | Some(cs) => cs
+      | None => false
+      },
+      labelSet: switch Nullable.toOption(sc.labelSet) {
+      | Some(ls) => ls
+      | None => false
+      },
+      isAutoForward: switch Nullable.toOption(sc.isAutoForward) {
+      | Some(af) => af
+      | None => false
+      },
+      preCalculatedSnapshot: None,
+    }
+  })
 
   {
     ...State.initialState,
@@ -159,15 +158,14 @@ let parseProject = (projectDataJson: JSON.t): state => {
 let parseTimelineItem = (json: JSON.t): timelineItem => {
   let item = switch decodeTimelineItem(json) {
   | Ok(i) => i
-  | Error(_) => 
-      {
-        id: "",
-        linkId: "",
-        sceneId: "",
-        targetScene: "",
-        transition: "fade",
-        duration: 1000,
-      }
+  | Error(_) => {
+      id: "",
+      linkId: "",
+      sceneId: "",
+      targetScene: "",
+      transition: "fade",
+      duration: 1000,
+    }
   }
   {
     id: item.id,

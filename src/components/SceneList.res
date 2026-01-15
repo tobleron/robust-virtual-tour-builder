@@ -33,7 +33,7 @@ module SceneItem = {
     } else {
       "border-slate-100 hover:border-slate-300 bg-white shadow-sm"
     }
-    
+
     let qualityColor = if isLowQuality {
       "bg-danger"
     } else {
@@ -87,9 +87,7 @@ module SceneItem = {
       <div className="flex-1 min-w-0 p-4 flex flex-col justify-center cursor-pointer">
         <div className="flex items-center justify-between mb-2">
           <h4
-            className={`text-[13px] font-bold truncate pr-3 tracking-tight ${if (
-                isActive
-              ) {
+            className={`text-[13px] font-bold truncate pr-3 tracking-tight ${if isActive {
                 "text-primary-light"
               } else {
                 "text-slate-700"
@@ -98,14 +96,18 @@ module SceneItem = {
             {React.string(scene.name)}
           </h4>
           <div className="flex items-center gap-2 shrink-0">
-             {if Array.length(scene.hotspots) > 0 {
-               <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-primary/10 text-primary-light border border-primary/10">
-                 <span className="material-icons text-[12px]"> {React.string("link")} </span>
-                 <span className="text-[10px] font-bold"> {React.int(Array.length(scene.hotspots))} </span>
-               </div>
-             } else {
-               React.null
-             }}
+            {if Array.length(scene.hotspots) > 0 {
+              <div
+                className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-primary/10 text-primary-light border border-primary/10"
+              >
+                <span className="material-icons text-[12px]"> {React.string("link")} </span>
+                <span className="text-[10px] font-bold">
+                  {React.int(Array.length(scene.hotspots))}
+                </span>
+              </div>
+            } else {
+              React.null
+            }}
           </div>
         </div>
 
@@ -141,7 +143,9 @@ module SceneItem = {
           onClick={onContextMenu}
           ariaLabel={`Actions for ${scene.name}`}
         >
-          <span className="material-icons text-lg" ariaHidden=true> {React.string("more_vert")} </span>
+          <span className="material-icons text-lg" ariaHidden=true>
+            {React.string("more_vert")}
+          </span>
         </button>
         <div
           className="w-6 h-8 flex flex-col justify-center gap-1 opacity-20 group-hover:opacity-50 cursor-grab active:cursor-grabbing"
@@ -174,9 +178,9 @@ let make = () => {
 
   React.useEffect0(() => {
     let scrollContainer = switch Nullable.toOption(containerRef.current) {
-    | Some(el) => 
-        let sc = ReBindings.Dom.closest(el, ".sidebar-content")
-        Nullable.toOption(sc)
+    | Some(el) =>
+      let sc = ReBindings.Dom.closest(el, ".sidebar-content")
+      Nullable.toOption(sc)
     | None => None
     }
 
@@ -188,22 +192,24 @@ let make = () => {
           ReBindings.Dom.getClientHeight(sc)->Int.toFloat,
         ))
       }
-      
+
       let handleScroll = _ => updateScroll()
       ReBindings.Dom.addEventListener(sc, "scroll", handleScroll)
-      
+
       // Initial update
       updateScroll()
-      
+
       let resizeObserver = ReBindings.ResizeObserver.make(_entries => {
         updateScroll()
       })
       ReBindings.ResizeObserver.observe(resizeObserver, sc)
 
-      Some(() => {
-        ReBindings.Dom.removeEventListener(sc, "scroll", handleScroll)
-        ReBindings.ResizeObserver.disconnect(resizeObserver)
-      })
+      Some(
+        () => {
+          ReBindings.Dom.removeEventListener(sc, "scroll", handleScroll)
+          ReBindings.ResizeObserver.disconnect(resizeObserver)
+        },
+      )
     | None => None
     }
   })
@@ -238,7 +244,7 @@ let make = () => {
     JsxEvent.Mouse.stopPropagation(e)
     let x = JsxEvent.Mouse.clientX(e)
     let y = JsxEvent.Mouse.clientY(e)
-    setContextMenu(_ => Some({x: x, y: y, index: index}))
+    setContextMenu(_ => Some({x, y, index}))
   }
 
   let closeContextMenu = () => setContextMenu(_ => None)
@@ -279,20 +285,24 @@ let make = () => {
     className="flex-1 flex flex-col pt-2 pb-12 relative"
     onClick={_ => closeContextMenu()}
     ref={ReactDOM.Ref.domRef(containerRef)}
-    style={makeStyle({"height": if Array.length(state.scenes) > 0 {
-      totalHeight->Float.toString ++ "px"
-    } else {
-      "auto"
-    }})}
+    style={makeStyle({
+      "height": if Array.length(state.scenes) > 0 {
+        totalHeight->Float.toString ++ "px"
+      } else {
+        "auto"
+      },
+    })}
   >
     {if Array.length(state.scenes) == 0 {
       <div
         className="flex flex-col items-center justify-center py-20 px-6 text-center animate-fade-in"
       >
-        <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center mb-6 shadow-inner">
-           <span className="material-icons text-4xl text-slate-200">
-             {React.string("photo_library")}
-           </span>
+        <div
+          className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center mb-6 shadow-inner"
+        >
+          <span className="material-icons text-4xl text-slate-200">
+            {React.string("photo_library")}
+          </span>
         </div>
         <h4 className="text-sm font-bold text-slate-600 uppercase tracking-widest mb-2">
           {React.string("No scenes")}
@@ -351,12 +361,14 @@ let make = () => {
                 }
               }}
             >
-              <span className="material-icons text-lg text-primary-light" ariaHidden=true> {React.string("link_off")} </span>
+              <span className="material-icons text-lg text-primary-light" ariaHidden=true>
+                {React.string("link_off")}
+              </span>
               <span> {React.string("Clear Links")} </span>
             </div>
-            
+
             <div className="h-px bg-white/10 my-1 mx-2" />
-            
+
             <div
               className="px-4 py-3 cursor-pointer text-white/80 font-bold text-[11px] uppercase tracking-widest hover:bg-danger/20 hover:text-white rounded-xl transition-all flex items-center gap-3 group"
               onClick={_ => handleDelete(menu.index)}
@@ -368,7 +380,9 @@ let make = () => {
                 }
               }}
             >
-              <span className="material-icons text-lg text-danger" ariaHidden=true> {React.string("delete_outline")} </span>
+              <span className="material-icons text-lg text-danger" ariaHidden=true>
+                {React.string("delete_outline")}
+              </span>
               <span> {React.string("Remove Scene")} </span>
             </div>
           </div>
@@ -378,4 +392,3 @@ let make = () => {
     }}
   </div>
 }
-
