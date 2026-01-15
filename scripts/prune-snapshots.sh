@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MAX_SNAPSHOTS=300
+MAX_SNAPSHOTS=600
 CURRENT_BRANCH=$(git branch --show-current)
 SNAPSHOT_BRANCH="local-snapshots/$CURRENT_BRANCH"
 ARCHIVE_PREFIX="local-snapshots/archive/${CURRENT_BRANCH}"

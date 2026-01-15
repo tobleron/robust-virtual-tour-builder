@@ -24,6 +24,18 @@ let getPanoramaUrl = (file: Types.file): string => {
 module Loader = {
   let loadStartTime = ref(0.0)
 
+  let initializeViewer = (containerId: string, config: {..}) => {
+    Pannellum.viewer(containerId, config)
+  }
+
+  let destroyViewer = (v: ReBindings.Viewer.t) => {
+    try {
+      Viewer.destroy(v)
+    } catch {
+    | _ => ()
+    }
+  }
+
   let rec performSwap = (loadedScene: Types.scene) => {
     let _swapStartTime = Date.now()
     let inactiveKey = switch state.activeViewerKey {
@@ -92,9 +104,7 @@ module Loader = {
     let _ = Window.setTimeout(() => {
       switch Nullable.toOption(oldViewer) {
       | Some(v) =>
-        try {Viewer.destroy(v)} catch {
-        | _ => ()
-        }
+        destroyViewer(v)
         switch state.activeViewerKey {
         | B => state.viewerA = Nullable.null
         | A => state.viewerB = Nullable.null
@@ -363,7 +373,7 @@ module Loader = {
           }
 
           let _startLoadTime = Date.now()
-          let newViewer = Pannellum.viewer(containerId, viewerConfig)
+          let newViewer = initializeViewer(containerId, viewerConfig)
           Obj.magic(newViewer)["_sceneId"] = targetScene.id
           Obj.magic(newViewer)["_isLoaded"] = false
 
