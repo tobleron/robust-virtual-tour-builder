@@ -220,3 +220,18 @@ Resolves Task 74.
 [2026-01-15 00:26] v4.2.81 - test: comprehensive unit tests for unified shared types
 [2026-01-15 00:30] v4.2.82 - chore: setup rsbuild foundation
 [2026-01-15 00:45] v4.2.84 - chore: finalize rsbuild entry and verify tests
+[2026-01-15 09:43] v4.2.85 - feat: integrate Tailwind CSS with Rsbuild pipeline
+
+- Created PostCSS config with @tailwindcss/postcss plugin
+- Created src/index.js entry point wrapper for CSS imports
+- Updated Rsbuild config to use new entry point
+- Removed manual CSS link tags from index.html (auto-injected now)
+- Cleaned up package.json scripts (removed css:build/css:watch)
+- Unified dev workflow: single 'rsbuild:dev' command handles all
+- Completed Task 107
+
+Benefits:
+- Unified build pipeline (CSS + JS)
+- HMR works for both CSS and ReScript changes
+- Automatic CSS injection with cache-busting
+- Fewer terminal windows required during development
