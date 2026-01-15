@@ -1,2 +1,2 @@
-export const VERSION = "4.2.93";
+export const VERSION = "4.2.94";
 export const BUILD_INFO = "[Stable Release]";
