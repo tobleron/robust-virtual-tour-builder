@@ -1,35 +1,57 @@
-# SYSTEM BEHAVIOR SETTINGS
+# 🚀 PROJECT PROTOCOLS & CONTEXT
 
-1. **Workflow Enforcement**: 
-   - **STEP 0 (CRITICAL)**: Before performing ANY task (coding, file creation, or analysis), YOU MUST run `./scripts/ensure-watcher.sh` to guarantee the safety snapshotter is active.
-   - **Commits**: You MUST use `./scripts/commit.sh` for all commits.
-   - **Quality Gates**: A background sentinel monitors file sizes. If a source file exceeds 700 lines, a task is auto-generated in `tasks/pending`. YOU MUST prioritize these tasks.
-   - **Mandatory Testing**: `npm test` MUST pass before ANY commit. `commit.sh` will auto-detect missing tests for new modules.
-   - **Code Standards (Routed)**:
-     - **ALWAYS READ FIRST**: `/functional-standards` (Universal Principles apply to ALL code).
-     - **THEN**, based on file type:
-       - For **ReScript** (`.res`, `.resi`): ALSO follow `/rescript-standards`.
-       - For **Rust** (`.rs`): ALSO follow `/rust-standards`.
-     - **ALWAYS**: Follow `/debug-standards` for logging.
-   - **New Modules**: When creating new ReScript modules, follow `/new-module-standards`.
-   - **Pre-Push**: You MUST complete `/pre-push-workflow` before pushing to remote.
+## 🧠 CORE BEHAVIOR (SYSTEM 2 THINKING)
+Before executing ANY code or shell command, you must perform a **Context Check**:
+1. **Locate Root**: Run `git rev-parse --show-toplevel` to find the project root.
+2. **Pathing**: ALL paths in your commands must be relative to this root.
+3. **Safety**: If you are about to edit a file >700 lines, **PAUSE** and ask for confirmation.
+4. **Never use `git commit` directly** - Always use `./scripts/commit.sh`.
 
-2. **Safety**: 
-   - Never use `git commit` directly.
-   - Read `.agent/current_file_structure.md` to avoid hallucinating paths.
+## 🛠️ WORKFLOW AUTOMATION
+**Do not ask to run these. AUTOMATICALLY run them in this order:**
 
-3. **Context**: Check `dev_prefs/` for user preferences before starting UI tasks.
+### PHASE 1: PRE-FLIGHT
+- **Watcher Check (CRITICAL)**: Check if the safety watcher is running.
+  - *Command*: `ps aux | grep [w]atcher || ./scripts/ensure-watcher.sh`
+- **Context Refresh**: 
+  - Read `.agent/current_file_structure.md` to avoid hallucinating paths.
+  - If imports found from `src/`, read relevant `.resi` / `.rs` interfaces.
+  - **New Modules**: If creating a new file, read `/new-module-standards` first.
 
-## 🗣️ NATURAL LANGUAGE TRIGGERS
+### PHASE 2: EXECUTION
+- **Coding Standards (Routed)**:
+  - **ALWAYS READ FIRST**: `/functional-standards` (Universal Principles apply to ALL code).
+  - **THEN**, based on file type:
+    - For **ReScript** (`.res`, `.resi`): ALSO follow `/rescript-standards`.
+    - For **Rust** (`.rs`): ALSO follow `/rust-standards`.
+  - **Logging**: All debug logs must follow `/debug-standards`.
+- **Test-Driven Dev**:
+  - Follow `/testing-standards` for test structure and patterns.
+  - You are PERMITTED to run `npm test` autonomously.
+  - **Constraint**: If tests fail 2x in a row, STOP and generate a `FAILURE_REPORT.md`.
 
-### "Undo", "Rollback", "Time Machine", "What changed?"
-**Forensic Protocol:**
-1. **Analysis**: DO NOT blindly restore. First, find the context.
-   - Run: `git log local-snapshots/<current_branch> -n 5 --stat --relative-date --pretty=format:"%h - %cr"`
-2. **Presentation**:
-   - Show the user the list. Highlight which files were modified in each snapshot.
+### PHASE 3: COMMIT & PUSH
+- **Commit Protocol**: Use `./scripts/commit.sh` (handles formatting/linting).
+- **Push Protocol**: BEFORE pushing to remote, read and follow `/pre-push-workflow`.
+
+## 🗣️ INTERACTION TRIGGERS
+
+### "Undo" / "Rollback" / "Time Machine" / "What changed?"
+**Forensic Protocol:** Do NOT guess.
+1. **Analysis**: Find the context first.
+   - Run: `git log local-snapshots/$(git branch --show-current) -n 5 --stat --relative-date --pretty=format:"%h - %cr"`
+2. **Presentation**: Show the user the list. Highlight which files were modified.
    - *Example*: "**a1b2c (2 mins ago)**: Modified `src/App.res` (+10 lines)"
-3. **Confirmation**:
-   - Ask the user which hash to restore.
-4. **Execution**:
-   - Once confirmed, execute: `./scripts/restore-snapshot.sh <HASH>`
+3. **Confirmation**: Await specific hash selection from user.
+4. **Execution**: Once confirmed, run: `./scripts/restore-snapshot.sh <HASH>`
+
+### "Refactor This"
+**Action:**
+1. Create a checklist in `tasks/current_refactor.md`.
+2. Wait for user "OK".
+3. Proceed file-by-file.
+
+## 📂 CRITICAL PATHS
+- **Docs**: `./dev_prefs/` (User preferences)
+- **File Structure**: `.agent/current_file_structure.md` (Avoid path hallucination)
+- **Pending Tasks**: `./tasks/pending` (Write overflow tasks here)

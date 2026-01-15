@@ -1,6 +1,6 @@
 .
 ├── GEMINI.md
-├── GEMINI_.md
+├── GEMINI_.md.zip
 ├── README.md
 ├── backend
 │   ├── Cargo.lock
@@ -614,6 +614,12 @@
 │   │           ├── ExifReportGeneratorTest.cmj
 │   │           ├── ExifReportGeneratorTest.cmt
 │   │           ├── ExifReportGeneratorTest.res
+│   │           ├── ExporterTest.ast
+│   │           ├── ExporterTest.bs.js
+│   │           ├── ExporterTest.cmi
+│   │           ├── ExporterTest.cmj
+│   │           ├── ExporterTest.cmt
+│   │           ├── ExporterTest.res
 │   │           ├── GeoUtilsTest.ast
 │   │           ├── GeoUtilsTest.bs.js
 │   │           ├── GeoUtilsTest.cmi
@@ -869,6 +875,11 @@
 │   │   ├── Exporter.cmj
 │   │   ├── Exporter.cmt
 │   │   ├── Exporter.res
+│   │   ├── ExporterTest.ast
+│   │   ├── ExporterTest.cmi
+│   │   ├── ExporterTest.cmj
+│   │   ├── ExporterTest.cmt
+│   │   ├── ExporterTest.res
 │   │   ├── GeoUtils.ast
 │   │   ├── GeoUtils.cmi
 │   │   ├── GeoUtils.cmj
@@ -1337,6 +1348,11 @@
 │   │   ├── icon-512.png
 │   │   ├── logo.png
 │   │   └── og-preview.png
+│   ├── libs
+│   │   ├── FileSaver.min.js
+│   │   ├── jszip.min.js
+│   │   ├── pannellum.css
+│   │   └── pannellum.js
 │   ├── manifest.json
 │   └── service-worker.js
 ├── rescript.json
@@ -1435,11 +1451,6 @@
 │   │       ├── mod.bs.js
 │   │       └── mod.res
 │   ├── index.js
-│   ├── libs
-│   │   ├── FileSaver.min.js
-│   │   ├── jszip.min.js
-│   │   ├── pannellum.css
-│   │   └── pannellum.js
 │   ├── systems
 │   │   ├── AudioManager.bs.js
 │   │   ├── AudioManager.res
@@ -1528,7 +1539,6 @@
 ├── tasks
 │   ├── README.md
 │   ├── active
-│   │   ├── 130_Reduce_Obj_Magic_Usage.md
 │   │   └── 131_Security_And_SW_Hardening.md
 │   ├── completed
 │   │   ├── 01_Architecture_Functional_State_REPORT.md
@@ -1578,6 +1588,8 @@
 │   │   ├── 128_Implement_SceneList_Virtualization.md
 │   │   ├── 129_Accessibility_And_SEO_Improvements.md
 │   │   ├── 12_ReScript_Migrate_UI_Components_REPORT.md
+│   │   ├── 130_Reduce_Obj_Magic_Usage.md
+│   │   ├── 133_Add_Tests_for_JsonTypes.md
 │   │   ├── 14_ReScript_Migrate_Viewer_REPORT.md
 │   │   ├── 15_Backend_SingleZIP_Load_REPORT.md
 │   │   ├── 16_Backend_Project_Validation_REPORT.md
@@ -1675,7 +1687,6 @@
 │   │   └── README.md
 │   └── pending
 │       ├── 132_Comprehensive_Project_Analysis.md
-│       ├── 133_Add_Tests_for_JsonTypes.md
 │       ├── 134_Add_Tests_for_ReducerHelpers.md
 │       ├── 135_Add_Tests_for_AudioManager.md
 │       ├── 136_Add_Tests_for_DownloadSystem.md
@@ -1683,7 +1694,8 @@
 │       ├── 138_Add_Tests_for_ProjectData.md
 │       ├── 139_Add_Tests_for_VideoEncoder.md
 │       ├── 140_Add_Tests_for_LazyLoad.md
-│       └── 141_Add_Tests_for_ProgressBar.md
+│       ├── 141_Add_Tests_for_ProgressBar.md
+│       └── 142_Add_Tests_for_Exporter.md
 └── tests
     ├── TestRunner.bs.js
     ├── TestRunner.res
@@ -1699,6 +1711,8 @@
         ├── ExifParserTest.res
         ├── ExifReportGeneratorTest.bs.js
         ├── ExifReportGeneratorTest.res
+        ├── ExporterTest.bs.js
+        ├── ExporterTest.res
         ├── GeoUtilsTest.bs.js
         ├── GeoUtilsTest.res
         ├── HotspotReducerTest.bs.js
@@ -1756,4 +1770,4 @@
         ├── ViewerLoaderTest.bs.js
         └── ViewerLoaderTest.res
 
-48 directories, 1709 files
+48 directories, 1723 files

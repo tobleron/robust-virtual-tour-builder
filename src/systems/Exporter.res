@@ -15,7 +15,7 @@ let fetchLib = async filename => {
     ~operation=`FETCH_LIB:${filename}`,
     async () => {
       let response = await Fetch.fetch(
-        "src/libs/" ++ filename,
+        "/libs/" ++ filename,
         {
           method: "GET",
           body: Obj.magic(Nullable.null),

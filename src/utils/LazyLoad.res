@@ -36,7 +36,7 @@ let loadPannellum = () => {
   if pannellumLoaded.contents {
     Promise.resolve()
   } else {
-    loadScript("src/libs/pannellum.js")
+    loadScript("/libs/pannellum.js")
     ->Promise.then(() => {
       pannellumLoaded := true
       Promise.resolve()
@@ -48,7 +48,7 @@ let loadJSZip = () => {
   if jszipLoaded.contents {
     Promise.resolve()
   } else {
-    loadScript("src/libs/jszip.min.js")
+    loadScript("/libs/jszip.min.js")
     ->Promise.then(() => {
       jszipLoaded := true
       Promise.resolve()
@@ -60,7 +60,7 @@ let loadFileSaver = () => {
   if fileSaverLoaded.contents {
     Promise.resolve()
   } else {
-    loadScript("src/libs/FileSaver.min.js")
+    loadScript("/libs/FileSaver.min.js")
     ->Promise.then(() => {
       fileSaverLoaded := true
       Promise.resolve()
