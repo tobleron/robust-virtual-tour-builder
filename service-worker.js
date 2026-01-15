@@ -1,10 +1,10 @@
-const CACHE_NAME = 'vtb-cache-v1';
-const STATIC_ASSETS = [
+const CACHE_NAME = 'vtb-cache-v2';
+
+// Assets that aren't managed by Rsbuild but should still be cached
+const MANUAL_ASSETS = [
     '/',
     '/index.html',
-    '/css/output.css',
-    '/css/style.css',
-    '/src/Main.bs.js',
+    '/manifest.json',
     '/src/libs/pannellum.js',
     '/src/libs/pannellum.css',
     '/src/libs/jszip.min.js',
@@ -13,14 +13,29 @@ const STATIC_ASSETS = [
     '/images/icon-512.png',
 ];
 
-// Install event - cache static assets
+// Install event - cache static assets using manifest + manual list
 self.addEventListener('install', event => {
     console.log('[Service Worker] Installing...');
     event.waitUntil(
         caches.open(CACHE_NAME)
-            .then(cache => {
-                console.log('[Service Worker] Caching static assets');
-                return cache.addAll(STATIC_ASSETS);
+            .then(async cache => {
+                console.log('[Service Worker] Fetching asset manifest...');
+                let manifestUrls = [];
+                try {
+                    const response = await fetch('/asset-manifest.json');
+                    const manifest = await response.json();
+
+                    // Filter out source maps and handle potential missing allFiles
+                    if (manifest.allFiles) {
+                        manifestUrls = manifest.allFiles.filter(file => !file.endsWith('.map'));
+                    }
+                } catch (err) {
+                    console.warn('[Service Worker] Could not load asset-manifest.json, falling back to manual assets only', err);
+                }
+
+                const allAssets = [...new Set([...MANUAL_ASSETS, ...manifestUrls])];
+                console.log('[Service Worker] Caching assets:', allAssets);
+                return cache.addAll(allAssets);
             })
             .then(() => self.skipWaiting())
     );
@@ -50,8 +65,10 @@ self.addEventListener('fetch', event => {
         return;
     }
 
-    // Skip API requests (let them go to network)
-    if (event.request.url.includes('/api/')) {
+    const url = new URL(event.request.url);
+
+    // Skip API requests, health check, and session files (let them go to network)
+    if (url.pathname.startsWith('/api/') || url.pathname === '/health') {
         return;
     }
 
@@ -59,14 +76,13 @@ self.addEventListener('fetch', event => {
         caches.match(event.request)
             .then(cached => {
                 if (cached) {
-                    console.log('[Service Worker] Serving from cache:', event.request.url);
+                    // console.log('[Service Worker] Serving from cache:', event.request.url);
                     return cached;
                 }
 
-                console.log('[Service Worker] Fetching from network:', event.request.url);
                 return fetch(event.request).then(response => {
-                    // Cache successful responses
-                    if (response && response.status === 200) {
+                    // Cache successful responses for GET requests that aren't API calls
+                    if (response && response.status === 200 && response.type === 'basic') {
                         const responseToCache = response.clone();
                         caches.open(CACHE_NAME).then(cache => {
                             cache.put(event.request, responseToCache);
@@ -77,7 +93,6 @@ self.addEventListener('fetch', event => {
             })
             .catch(error => {
                 console.error('[Service Worker] Fetch failed:', error);
-                // Could return a custom offline page here
                 throw error;
             })
     );
