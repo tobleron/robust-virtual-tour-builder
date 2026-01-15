@@ -26,11 +26,11 @@ This mismatch means the service worker **fails silently** during installation an
 Update the service worker to correctly cache Rsbuild production output.
 
 ## Acceptance Criteria
-- [ ] Service worker caches files from `dist/static/` directory
-- [ ] Dynamic filename handling for hashed assets (or use manifest)
-- [ ] Cache version bumped to invalidate old caches
-- [ ] PWA still installable and works offline
-- [ ] `/api/*` routes are NOT cached (remain network-only)
+- [x] Service worker caches files from `dist/static/` directory
+- [x] Dynamic filename handling for hashed assets (or use manifest)
+- [x] Cache version bumped to invalidate old caches
+- [x] PWA still installable and works offline
+- [x] `/api/*` routes are NOT cached (remain network-only)
 
 ## Implementation Options
 

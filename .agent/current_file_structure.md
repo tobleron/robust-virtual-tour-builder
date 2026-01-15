@@ -65,6 +65,7 @@
 │   ├── MIGRATION_STATUS_ANALYSIS.md
 │   ├── module_size_report.md
 │   ├── navigation_improvements_applied.md
+│   ├── openapi.yaml
 │   ├── PERFORMANCE_ANALYSIS_FRONTEND_VS_BACKEND.md
 │   ├── PERFORMANCE_OPTIMIZATIONS.md
 │   ├── PROFESSIONAL_METRICS_REPORT.md
@@ -1406,6 +1407,8 @@
 │   │   ├── 113_Add_Tests_for_TourTemplateStyles_REPORT.md
 │   │   ├── 114_Add_Tests_for_StateInspector_REPORT.md
 │   │   ├── 115_Add_Tests_ViewerLoader_Navigation.md
+│   │   ├── 116_Update_ServiceWorker_Cache_Paths.md
+│   │   ├── 117_Add_OpenAPI_Documentation.md
 │   │   ├── 12_ReScript_Migrate_UI_Components_REPORT.md
 │   │   ├── 14_ReScript_Migrate_Viewer_REPORT.md
 │   │   ├── 15_Backend_SingleZIP_Load_REPORT.md
@@ -1503,8 +1506,6 @@
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   ├── pending
-│   │   ├── 116_Update_ServiceWorker_Cache_Paths.md
-│   │   ├── 117_Add_OpenAPI_Documentation.md
 │   │   ├── 118_Run_Accessibility_Audit.md
 │   │   ├── 119_Eliminate_ObjMagic_Patterns.md
 │   │   ├── 120_Add_Meta_Description_OG_Tags.md
@@ -1560,4 +1561,4 @@
         ├── ViewerLoaderTest.bs.js
         └── ViewerLoaderTest.res
 
-44 directories, 1517 files
+44 directories, 1518 files
