@@ -7,6 +7,7 @@ use std::future::{ready, Ready};
 use actix_web::web;
 
 use crate::services::shutdown::ShutdownManager;
+use crate::metrics::ACTIVE_SESSIONS;
 
 pub struct RequestTracker;
 
@@ -51,12 +52,37 @@ where
         Box::pin(async move {
             if let Some(manager) = shutdown_manager {
                 manager.register_request().await;
+                ACTIVE_SESSIONS.inc();
                 let res = fut.await;
+                ACTIVE_SESSIONS.dec();
                 manager.unregister_request().await;
                 res
             } else {
-                fut.await
+                ACTIVE_SESSIONS.inc();
+                let res = fut.await;
+                ACTIVE_SESSIONS.dec();
+                res
             }
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use actix_web::{test, web, App, HttpResponse};
+    
+    #[actix_web::test]
+    async fn test_request_tracker_middleware() {
+        let app = test::init_service(
+            App::new()
+                .wrap(RequestTracker)
+                .route("/", web::get().to(HttpResponse::Ok))
+        ).await;
+        
+        let req = test::TestRequest::get().uri("/").to_request();
+        let resp = test::call_service(&app, req).await;
+        
+        assert!(resp.status().is_success());
     }
 }

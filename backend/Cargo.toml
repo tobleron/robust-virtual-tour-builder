@@ -39,7 +39,8 @@ chrono = "0.4"
 fs2 = "0.4"
 
 
-
+actix-web-prom = "0.7"
+prometheus = "0.13"
 # PERFORMANCE: Release build optimizations
 [profile.release]
 lto = true           # Link-Time Optimization for smaller, faster binaries

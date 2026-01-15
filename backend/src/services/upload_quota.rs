@@ -2,6 +2,7 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 use std::collections::HashMap;
 use std::time::{Duration, Instant};
+use crate::metrics::{QUOTA_CURRENT_UPLOADS, QUOTA_CURRENT_SIZE_BYTES};
 
 
 /// Configuration for upload quotas
@@ -215,6 +216,10 @@ impl UploadQuotaManager {
             "Upload registered"
         );
         
+        // Metrics
+        QUOTA_CURRENT_UPLOADS.inc();
+        QUOTA_CURRENT_SIZE_BYTES.add(size as f64);
+
         upload_id
     }
     
@@ -225,6 +230,10 @@ impl UploadQuotaManager {
             if let Some(pos) = uploads.iter().position(|t| t.size == size) {
                 uploads.remove(pos);
                 tracing::info!(ip = ip, size = size, "Upload completed");
+                
+                // Metrics
+                QUOTA_CURRENT_UPLOADS.dec();
+                QUOTA_CURRENT_SIZE_BYTES.sub(size as f64);
             }
             
             if uploads.is_empty() {

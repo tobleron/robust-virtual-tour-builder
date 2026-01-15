@@ -1,5 +1,6 @@
 use actix_cors::Cors;
 use actix_web::{web, App, HttpServer, HttpResponse, Responder, middleware::DefaultHeaders};
+use actix_web_prom::PrometheusMetricsBuilder;
 use actix_files as fs;
 use actix_governor::{Governor, GovernorConfigBuilder};
 use std::io;
@@ -13,6 +14,7 @@ mod models;
 mod services;
 mod middleware;
 mod pathfinder;
+mod metrics;
 
 use services::shutdown::{ShutdownManager, perform_shutdown_cleanup};
 use services::upload_quota::{UploadQuotaManager, QuotaConfig};
@@ -65,6 +67,12 @@ async fn main() -> io::Result<()> {
         quota_config.max_concurrent_per_ip,
         quota_config.max_total_concurrent_size / (1024 * 1024 * 1024)
     );
+
+    let prometheus = PrometheusMetricsBuilder::new("vtb_api")
+        .endpoint("/metrics")
+        .registry(prometheus::default_registry().clone())
+        .build()
+        .unwrap();
 
     let shutdown_manager_server = shutdown_manager.clone();
     let server = HttpServer::new(move || {
@@ -134,6 +142,7 @@ async fn main() -> io::Result<()> {
             .wrap(Governor::new(&governor_conf))
             
             .wrap(cors)
+            .wrap(prometheus.clone()) // Prometheus metrics (Execute first)
             .route("/health", web::get().to(health_check))
 
             // API Scopes
