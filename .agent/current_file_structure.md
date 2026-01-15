@@ -992,7 +992,6 @@
 │   │   ├── RootReducer.cmj
 │   │   ├── RootReducer.cmt
 │   │   ├── RootReducer.res
-│   │   ├── SceneList.ast
 │   │   ├── SceneList.cmi
 │   │   ├── SceneList.cmj
 │   │   ├── SceneList.cmt
@@ -1480,7 +1479,9 @@
 │   │   ├── 123_Add_GitHub_Actions_CI.md
 │   │   ├── 124_Add_Tests_for_ReBindings.md
 │   │   ├── 125_Add_Tests_for_ExifReportGenerator.md
+│   │   ├── 126_Add_Tests_for_TeaserRecorder.md
 │   │   ├── 127_Add_Tests_for_Logger.md
+│   │   ├── 128_Implement_SceneList_Virtualization.md
 │   │   ├── 12_ReScript_Migrate_UI_Components_REPORT.md
 │   │   ├── 14_ReScript_Migrate_Viewer_REPORT.md
 │   │   ├── 15_Backend_SingleZIP_Load_REPORT.md
@@ -1578,7 +1579,10 @@
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   └── pending
-│       └── 126_Add_Tests_for_TeaserRecorder.md
+│       ├── 129_Accessibility_And_SEO_Improvements.md
+│       ├── 130_Reduce_Obj_Magic_Usage.md
+│       ├── 131_Security_And_SW_Hardening.md
+│       └── 132_Comprehensive_Project_Analysis.md
 └── tests
     ├── TestRunner.bs.js
     ├── TestRunner.res
@@ -1635,4 +1639,4 @@
         ├── ViewerLoaderTest.bs.js
         └── ViewerLoaderTest.res
 
-48 directories, 1588 files
+48 directories, 1592 files

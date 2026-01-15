@@ -42,7 +42,7 @@ module SceneItem = {
 
     <div
       key={scene.id}
-      className={`scene-item group relative flex items-stretch border rounded-2xl mb-4 overflow-hidden transition-all duration-300 select-none touch-pan-y hover:shadow-xl hover:-translate-y-0.5 ${activeClasses}`}
+      className={`scene-item group relative flex items-stretch border rounded-2xl mb-4 overflow-hidden transition-all duration-300 select-none touch-pan-y hover:shadow-xl hover:-translate-y-0.5 h-24 ${activeClasses}`}
       draggable=true
       onDragStart={onDragStart}
       onDragOver={onDragOver}
@@ -151,6 +151,59 @@ let make = () => {
   let (contextMenu, setContextMenu) = React.useState(_ => None)
   let (_draggedIndex, setDraggedIndex) = React.useState(_ => None)
 
+  // Virtualization constants
+  let itemHeight = 112.0 // 96px (h-24) + 16px (mb-4)
+  let buffer = 3
+
+  let containerRef = React.useRef(Nullable.null)
+  let (scrollState, setScrollState) = React.useState(_ => (0.0, 800.0)) // (scrollTop, viewportHeight)
+
+  React.useEffect0(() => {
+    let scrollContainer = switch Nullable.toOption(containerRef.current) {
+    | Some(el) => 
+        let sc = ReBindings.Dom.closest(el, ".sidebar-content")
+        Nullable.toOption(sc)
+    | None => None
+    }
+
+    switch scrollContainer {
+    | Some(sc) =>
+      let updateScroll = () => {
+        setScrollState(_ => (
+          ReBindings.Dom.getScrollTop(sc)->Int.toFloat,
+          ReBindings.Dom.getClientHeight(sc)->Int.toFloat,
+        ))
+      }
+      
+      let handleScroll = _ => updateScroll()
+      ReBindings.Dom.addEventListener(sc, "scroll", handleScroll)
+      
+      // Initial update
+      updateScroll()
+      
+      let resizeObserver = ReBindings.ResizeObserver.make(_entries => {
+        updateScroll()
+      })
+      ReBindings.ResizeObserver.observe(resizeObserver, sc)
+
+      Some(() => {
+        ReBindings.Dom.removeEventListener(sc, "scroll", handleScroll)
+        ReBindings.ResizeObserver.disconnect(resizeObserver)
+      })
+    | None => None
+    }
+  })
+
+  let (scrollTop, viewportHeight) = scrollState
+  let totalHeight = Array.length(state.scenes)->Int.toFloat *. itemHeight
+
+  let startIndex = Js.Math.floor_float(scrollTop /. itemHeight) -. buffer->Int.toFloat
+  let startIndex = Js.Math.max_float(0.0, startIndex)->Float.toInt
+
+  let visibleCount = Js.Math.ceil_float(viewportHeight /. itemHeight)
+  let endIndex = startIndex + visibleCount->Float.toInt + buffer * 2
+  let endIndex = Js.Math.min_int(Array.length(state.scenes) - 1, endIndex)
+
   let handleSceneClick = (index, _e) => {
     dispatch(Actions.SetNavigationStatus(Types.Idle))
     if state.isLinking {
@@ -209,8 +262,14 @@ let make = () => {
   }
 
   <div
-    className="flex-1 flex flex-col pt-2 pb-12"
+    className="flex-1 flex flex-col pt-2 pb-12 relative"
     onClick={_ => closeContextMenu()}
+    ref={ReactDOM.Ref.domRef(containerRef)}
+    style={makeStyle({"height": if Array.length(state.scenes) > 0 {
+      totalHeight->Float.toString ++ "px"
+    } else {
+      "auto"
+    }})}
   >
     {if Array.length(state.scenes) == 0 {
       <div
@@ -231,18 +290,29 @@ let make = () => {
     } else {
       <>
         {state.scenes
-        ->Belt.Array.mapWithIndex((index, scene) => {
-          <SceneItem
+        ->Belt.Array.slice(~offset=startIndex, ~len=endIndex - startIndex + 1)
+        ->Belt.Array.mapWithIndex((i, scene) => {
+          let actualIndex = startIndex + i
+          <div
             key={scene.id}
-            scene={scene}
-            index={index}
-            isActive={index == state.activeIndex}
-            onClick={e => handleSceneClick(index, e)}
-            onDragStart={e => onDragStart(index, e)}
-            onDragOver={e => onDragOver(index, e)}
-            onDrop={e => onDrop(index, e)}
-            onContextMenu={e => openContextMenu(index, e)}
-          />
+            style={makeStyle({
+              "position": "absolute",
+              "top": (actualIndex->Int.toFloat *. itemHeight)->Float.toString ++ "px",
+              "width": "100%",
+            })}
+          >
+            <SceneItem
+              key={scene.id}
+              scene={scene}
+              index={actualIndex}
+              isActive={actualIndex == state.activeIndex}
+              onClick={e => handleSceneClick(actualIndex, e)}
+              onDragStart={e => onDragStart(actualIndex, e)}
+              onDragOver={e => onDragOver(actualIndex, e)}
+              onDrop={e => onDrop(actualIndex, e)}
+              onContextMenu={e => openContextMenu(actualIndex, e)}
+            />
+          </div>
         })
         ->React.array}
 
