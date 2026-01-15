@@ -12,7 +12,10 @@ Before executing ANY code or shell command, you must perform a **Context Check**
 
 ### PHASE 1: PRE-FLIGHT
 - **Watcher Check (CRITICAL)**: Check if the safety watcher is running.
-  - *Command*: `ps aux | grep [w]atcher || ./scripts/ensure-watcher.sh`
+  - *Command*: `./scripts/ensure-watcher.sh`
+- **Task Workflow (CRITICAL)**: Before performing ANY task from `tasks/pending` or `tasks/active`:
+  - Read `tasks/TASKS.md` first to understand the proper workflow.
+  - Follow the instructions in exact sequential order.
 - **Context Refresh**: 
   - Read `.agent/current_file_structure.md` to avoid hallucinating paths.
   - If imports found from `src/`, read relevant `.resi` / `.rs` interfaces.
