@@ -186,13 +186,13 @@ async fn main() -> io::Result<()> {
             // --- STATIC FILES (Serve Production Build from dist/) ---
             // Serve bundled assets from Rsbuild output
             .service(fs::Files::new("/static", "../dist/static"))
-            .service(fs::Files::new("/images", "../images")) // Keep original assets
+            .service(fs::Files::new("/images", "../dist/images")) 
             .service(fs::Files::new("/sounds", "../sounds"))
-            .service(fs::Files::new("/src/libs", "../src/libs")) // Pannellum and other lazy-loaded libs
+            .service(fs::Files::new("/libs", "../public/libs")) // Pannellum and other lazy-loaded libs
 
             // PWA and Service Worker files
-            .route("/service-worker.js", web::get().to(|| async { fs::NamedFile::open("../service-worker.js") }))
-            .route("/manifest.json", web::get().to(|| async { fs::NamedFile::open("../manifest.json") }))
+            .route("/service-worker.js", web::get().to(|| async { fs::NamedFile::open("../dist/service-worker.js") }))
+            .route("/manifest.json", web::get().to(|| async { fs::NamedFile::open("../dist/manifest.json") }))
             .route("/asset-manifest.json", web::get().to(|| async { fs::NamedFile::open("../dist/asset-manifest.json") }))
 
             // Serve index.html for root and handle SPA routing
