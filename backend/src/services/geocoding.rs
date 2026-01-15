@@ -3,6 +3,7 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 use serde_json::json;
 use crate::models::{GeocodeKey, CachedGeocode, CacheStats};
+use crate::metrics::{GEOCODING_CACHE_HITS_TOTAL, GEOCODING_CACHE_MISSES_TOTAL};
 
 lazy_static::lazy_static! {
     static ref GEOCODE_CACHE: Arc<RwLock<HashMap<GeocodeKey, CachedGeocode>>> = 
@@ -196,11 +197,17 @@ pub async fn reverse_geocode(lat: f64, lon: f64) -> Result<String, String> {
             let mut stats = CACHE_STATS.write().await;
             stats.hits += 1;
             
+            // Metrics
+            GEOCODING_CACHE_HITS_TOTAL.inc();
+
             return Ok(entry.address.clone());
         }
         
         let mut stats = CACHE_STATS.write().await;
         stats.misses += 1;
+        
+        // Metrics
+        GEOCODING_CACHE_MISSES_TOTAL.inc();
     } // Drop locks
 
     // 2. Call OSM

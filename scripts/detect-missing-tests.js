@@ -13,6 +13,14 @@ const sourceFiles = stagedFiles.filter(file => {
     // 1. Ignore deleted files
     if (!fs.existsSync(file)) return false;
 
+    // 2. Ignore whitespace-only changes (Formatting)
+    try {
+        const diff = execSync(`git diff -w --cached "${file}"`).toString();
+        if (diff.trim().length === 0) return false;
+    } catch (e) {
+        return true; // If diff fails, assume it changed
+    }
+
     return (
         (file.endsWith('.res') && !file.endsWith('Test.res') && !file.includes('/components/') && !file.includes('/types/') && !file.includes('TestRunner')) ||
         (file.endsWith('.rs') && !file.includes('mod.rs') && !file.includes('main.rs') && !file.endsWith('_test.rs') && !file.endsWith('_tests.rs'))

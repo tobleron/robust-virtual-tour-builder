@@ -10,6 +10,7 @@ use crate::services::media;
 use crate::models::{AppError, MetadataResponse};
 // Use crate::api::utils or super::super::utils
 use crate::api::utils::{PROCESSED_IMAGE_WIDTH, WEBP_QUALITY, MAX_UPLOAD_SIZE};
+use crate::metrics::{IMAGE_PROCESSING_TOTAL, IMAGE_PROCESSING_DURATION, UPLOAD_BYTES_TOTAL};
 
 /// Processes an uploaded panorama image through the full optimization pipeline.
 ///
@@ -61,6 +62,9 @@ pub async fn process_image_full(mut payload: Multipart) -> Result<HttpResponse, 
             data.extend_from_slice(&chunk);
         }
     }
+    
+    // Metrics: Record upload size
+    UPLOAD_BYTES_TOTAL.inc_by(total_size as f64);
 
     let total_start = Instant::now();
     let result_zip = web::block(move || -> Result<Vec<u8>, String> {
@@ -154,6 +158,11 @@ pub async fn process_image_full(mut payload: Multipart) -> Result<HttpResponse, 
         Ok(zip_bytes) => {
             let duration = total_start.elapsed().as_millis();
             tracing::info!(module = "Processor", duration_ms = duration, "PROCESS_IMAGE_FULL_COMPLETE");
+            
+            // Metrics: Record success
+            IMAGE_PROCESSING_TOTAL.with_label_values(&["process_full"]).inc();
+            IMAGE_PROCESSING_DURATION.observe(total_start.elapsed().as_secs_f64());
+
             Ok(HttpResponse::Ok()
                 .content_type("application/zip")
                 .body(zip_bytes))
@@ -194,6 +203,9 @@ pub async fn optimize_image(mut payload: Multipart) -> Result<HttpResponse, AppE
         }
     }
 
+    // Metrics
+    UPLOAD_BYTES_TOTAL.inc_by(total_size as f64);
+
     let result_bytes = web::block(move || -> Result<Vec<u8>, String> {
         let start = Instant::now();
         let img = image::ImageReader::new(Cursor::new(data))
@@ -217,6 +229,11 @@ pub async fn optimize_image(mut payload: Multipart) -> Result<HttpResponse, AppE
     match result_bytes {
         Ok(bytes) => {
             tracing::info!(module = "Optimizer", duration_ms = duration, "OPTIMIZE_IMAGE_COMPLETE");
+            
+            // Metrics
+            IMAGE_PROCESSING_TOTAL.with_label_values(&["optimize"]).inc();
+            IMAGE_PROCESSING_DURATION.observe(start.elapsed().as_secs_f64());
+
             Ok(HttpResponse::Ok()
                 .content_type("image/webp")
                 .body(bytes))
@@ -260,6 +277,9 @@ pub async fn resize_image_batch(mut payload: Multipart) -> Result<HttpResponse, 
             data.extend_from_slice(&chunk);
         }
     }
+    
+    // Metrics
+    UPLOAD_BYTES_TOTAL.inc_by(total_size as f64);
 
     let result_zip = web::block(move || -> Result<Vec<u8>, String> {
         // 2. Decode Image
@@ -308,6 +328,11 @@ pub async fn resize_image_batch(mut payload: Multipart) -> Result<HttpResponse, 
     match result_zip {
         Ok(zip_bytes) => {
             tracing::info!(module = "Resizer", duration_ms = duration, "RESIZE_BATCH_COMPLETE");
+            
+            // Metrics
+            IMAGE_PROCESSING_TOTAL.with_label_values(&["resize_batch"]).inc();
+            IMAGE_PROCESSING_DURATION.observe(start.elapsed().as_secs_f64());
+
             Ok(HttpResponse::Ok()
                 .content_type("application/zip")
                 .body(zip_bytes))
@@ -358,6 +383,9 @@ pub async fn extract_metadata(mut payload: Multipart) -> Result<HttpResponse, Ap
         }
     }
 
+    // Metrics
+    UPLOAD_BYTES_TOTAL.inc_by(total_size as f64);
+
     let start = Instant::now();
     let result = web::block(move || -> Result<MetadataResponse, String> {
         let img = image::ImageReader::new(Cursor::new(&data))
@@ -373,6 +401,11 @@ pub async fn extract_metadata(mut payload: Multipart) -> Result<HttpResponse, Ap
     match result {
         Ok(data) => {
             tracing::info!(module = "Extractor", duration_ms = duration, "EXTRACT_METADATA_COMPLETE");
+            
+            // Metrics
+            IMAGE_PROCESSING_TOTAL.with_label_values(&["extract_metadata"]).inc();
+            IMAGE_PROCESSING_DURATION.observe(start.elapsed().as_secs_f64());
+
             Ok(HttpResponse::Ok().json(data))
         },
         Err(e) => {

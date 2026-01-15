@@ -20,6 +20,7 @@
 │   │   │   └── utils.rs
 │   │   ├── lib.rs
 │   │   ├── main.rs
+│   │   ├── metrics.rs
 │   │   ├── middleware
 │   │   │   ├── mod.rs
 │   │   │   ├── quota_check.rs
@@ -40,6 +41,8 @@
 │       └── shutdown_test.rs
 ├── bin
 │   └── tailwindcss
+├── cache
+│   └── geocoding.json
 ├── css
 │   ├── output.css
 │   ├── style.css
@@ -1416,6 +1419,7 @@
 │   │   ├── 119_Eliminate_ObjMagic_Patterns_REPORT.md
 │   │   ├── 12_ReScript_Migrate_UI_Components_REPORT.md
 │   │   ├── 120_Add_Meta_Description_OG_Tags.md
+│   │   ├── 121_Add_Prometheus_Metrics_REPORT.md
 │   │   ├── 14_ReScript_Migrate_Viewer_REPORT.md
 │   │   ├── 15_Backend_SingleZIP_Load_REPORT.md
 │   │   ├── 16_Backend_Project_Validation_REPORT.md
@@ -1512,7 +1516,6 @@
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   ├── pending
-│   │   ├── 121_Add_Prometheus_Metrics.md
 │   │   ├── 122_Split_Large_Backend_Modules.md
 │   │   ├── 123_Add_GitHub_Actions_CI.md
 │   │   ├── 124_Add_Tests_for_ReBindings.md
@@ -1568,4 +1571,4 @@
         ├── ViewerLoaderTest.bs.js
         └── ViewerLoaderTest.res
 
-45 directories, 1524 files
+46 directories, 1526 files
