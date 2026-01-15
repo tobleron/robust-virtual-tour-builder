@@ -16,7 +16,7 @@
   <link rel="apple-touch-icon" href="/images/icon-192.png" />
 
   <!-- Content Security Policy: Prevents XSS and unauthorized resource loading -->
-  <meta http-equiv=4.2.92"Content-Security-Policy" content="
+  <meta http-equiv=4.2.93"Content-Security-Policy" content="
     default-src 'self';
     script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://esm.sh;
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
@@ -104,7 +104,26 @@
 </head>
 
 <body>
-  <div id="app"></div>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div id="app">
+    <div id="sidebar" role="complementary" aria-label="Editor Sidebar"></div>
+    <main id="main-content" class="viewer-container">
+      <div id="viewer-stage">
+        <div id="panorama-a" class="panorama-layer active" role="img" aria-label="Primary Panorama Viewer"></div>
+        <div id="panorama-b" class="panorama-layer" role="img" aria-label="Secondary Panorama Viewer"></div>
+        <div id="viewer-snapshot-overlay" aria-hidden="true"></div>
+        <div id="cursor-guide" aria-hidden="true"></div>
+        <div id="viewer-ui-layer"></div>
+      </div>
+      <div id="visual-pipeline-container" role="region" aria-label="Visual Pipeline"></div>
+      <div id="placeholder-text" class="viewer-placeholder" aria-live="polite">
+        <h3>Ready to Build</h3>
+        <p>Use the sidebar to upload your images.</p>
+      </div>
+    </main>
+    <div id="modal-container"></div>
+    <div id="notification-container"></div>
+  </div>
 
   <!-- LIBRARIES (currently unused) -->
   <!-- <script src="src/libs/gif.js"></script> -->

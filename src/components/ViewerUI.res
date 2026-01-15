@@ -287,9 +287,9 @@ let make = () => {
               if state.isLinking { "bg-warning text-slate-900 shadow-lg shadow-warning/20" } else { "bg-primary text-white hover:bg-primary-light" }
             )}
             onClick={handleFabClick}
-            title="Add Link"
+            ariaLabel="Add Link"
           >
-            <span className="material-icons text-xl"> 
+            <span className="material-icons text-xl" ariaHidden=true> 
               {React.string(state.isLinking ? "close" : "add")} 
             </span>
             {if state.isLinking {
@@ -303,9 +303,9 @@ let make = () => {
               if simActive { "bg-danger text-white hover:bg-danger-light" } else { "bg-slate-800/50 text-white/70 hover:bg-slate-700 hover:text-white" }
             )}
             onClick={handleSimClick}
-            title="Auto-Pilot"
+            ariaLabel="Auto-Pilot"
           >
-            <span className="material-icons text-xl">
+            <span className="material-icons text-xl" ariaHidden=true>
               {React.string(if simActive { "stop" } else { "play_arrow" })}
             </span>
           </button>
@@ -316,9 +316,9 @@ let make = () => {
             id="v-scene-cat-toggle"
             className={"app-btn-icon w-10 h-10 rounded-xl flex items-center justify-center transition-all active:scale-95 bg-slate-800/50 text-white/70 hover:bg-slate-700 hover:text-white"}
             onClick={handleCatClick}
-            title="Toggle Category"
+            ariaLabel="Toggle Category"
           >
-            <span className="material-icons text-xl">
+            <span className="material-icons text-xl" ariaHidden=true>
               {React.string(if currentCategory == "indoor" { "home" } else { "park" })}
             </span>
           </button>
@@ -327,9 +327,9 @@ let make = () => {
             id="v-scene-label-btn"
             ref={ReactDOM.Ref.domRef(labelBtnRef)}
             className="app-btn-icon w-10 h-10 rounded-xl bg-slate-800/50 text-white/70 hover:bg-slate-700 hover:text-white flex items-center justify-center transition-all active:scale-95"
-            title="Scene Label"
+            ariaLabel="Scene Label"
           >
-            <span className="material-icons text-xl"> {React.string("label_important")} </span>
+            <span className="material-icons text-xl" ariaHidden=true> {React.string("label_important")} </span>
           </button>
         </div>
       </div>
@@ -353,7 +353,7 @@ let make = () => {
       id="viewer-logo"
       className="absolute bottom-6 right-6 z-[5002] premium-glass rounded-2xl p-2 flex items-center justify-center max-w-[140px] border border-white/10 shadow-2xl hover:scale-105 transition-transform duration-300"
     >
-      <img src="images/logo.png" alt="Logo" className="w-full h-auto object-contain block opacity-90" />
+      <img src="images/logo.png" alt="Remax Virtual Tour Builder Logo" className="w-full h-auto object-contain block opacity-90" />
     </div>
 
     /* Linking Hint */
@@ -408,7 +408,7 @@ let make = () => {
                 }
               )}
               onClick={e => handleFloorClick(f.id, f.label, e)}
-              title={f.label}
+              ariaLabel={f.label}
             >
               <span className="text-[13px] font-black tracking-tighter relative">
                 {React.string(f.short)}
@@ -428,6 +428,13 @@ let make = () => {
       id="return-link-prompt"
       className="hidden absolute bottom-32 left-1/2 -translate-x-1/2 premium-glass rounded-full pl-2 pr-6 py-2 items-center gap-4 shadow-2xl z-[4000] border border-primary/30 cursor-pointer transition-all hover:scale-105 active:scale-95 animate-fade-in group"
       onClick={handleReturnPromptClick}
+      role="button"
+      tabIndex=0
+      onKeyDown={e => {
+        if JsxEvent.Keyboard.key(e) == "Enter" {
+          handleReturnPromptClick(Obj.magic(e))
+        }
+      }}
     >
       <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white shadow-lg shadow-primary/20 group-hover:rotate-[-45deg] transition-transform duration-500">
         <span className="material-icons text-xl"> {React.string("reply")} </span>

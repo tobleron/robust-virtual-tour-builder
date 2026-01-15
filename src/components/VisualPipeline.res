@@ -226,6 +226,28 @@ let render = (pipeline: t, state: Types.state) => {
       let _ = (Obj.magic(node): {..})["className"] = "pipeline-node"
       let _ = (Obj.magic(node): {..})["dataset"]["id"] = item.id
       let _ = (Obj.magic(node): {..})["draggable"] = true
+      Dom.setAttribute(node, "role", "button")
+      Dom.setAttribute(node, "tabindex", "0")
+      Dom.setAttribute(node, "aria-label", "Timeline step: " ++ item.targetScene)
+
+      let activateNode = () => {
+        GlobalStateBridge.dispatch(SetActiveTimelineStep(Some(item.id)))
+        let sceneIdx =
+          state.scenes
+          ->Belt.Array.getIndexBy(s => s.id == item.sceneId)
+          ->Belt.Option.getWithDefault(-1)
+        if sceneIdx != -1 {
+          switch Belt.Array.get(state.scenes, sceneIdx) {
+          | Some(s) =>
+            let hotspot = s.hotspots->Belt.Array.getBy(h => h.linkId == item.linkId)
+            switch hotspot {
+            | Some(h) => GlobalStateBridge.dispatch(SetActiveScene(sceneIdx, h.yaw, h.pitch, None))
+            | None => GlobalStateBridge.dispatch(SetActiveScene(sceneIdx, 0.0, 0.0, None))
+            }
+          | None => ()
+          }
+        }
+      }
 
       let scene = state.scenes->Belt.Array.getBy(s => s.id == item.sceneId)
       let color = ref("#0a7a56")
@@ -260,22 +282,12 @@ let render = (pipeline: t, state: Types.state) => {
         Dom.add(node, "active")
       }
 
-      Dom.addEventListenerNoEv(node, "click", () => {
-        GlobalStateBridge.dispatch(SetActiveTimelineStep(Some(item.id)))
-        let sceneIdx =
-          state.scenes
-          ->Belt.Array.getIndexBy(s => s.id == item.sceneId)
-          ->Belt.Option.getWithDefault(-1)
-        if sceneIdx != -1 {
-          switch Belt.Array.get(state.scenes, sceneIdx) {
-          | Some(s) =>
-            let hotspot = s.hotspots->Belt.Array.getBy(h => h.linkId == item.linkId)
-            switch hotspot {
-            | Some(h) => GlobalStateBridge.dispatch(SetActiveScene(sceneIdx, h.yaw, h.pitch, None))
-            | None => GlobalStateBridge.dispatch(SetActiveScene(sceneIdx, 0.0, 0.0, None))
-            }
-          | None => ()
-          }
+      Dom.addEventListenerNoEv(node, "click", activateNode)
+      Dom.addEventListener(node, "keydown", (e: Dom.event) => {
+        let key = (Obj.magic(e))["key"]
+        if (key == "Enter" || key == " ") {
+          Dom.preventDefault(e)
+          activateNode()
         }
       })
 
@@ -324,7 +336,7 @@ let render = (pipeline: t, state: Types.state) => {
         "</span>
                  " ++
         if thumbUrl.contents != "" {
-          "<img src=\"" ++ thumbUrl.contents ++ "\" class=\"tooltip-thumb\" alt=\"preview\">"
+          "<img src=\"" ++ thumbUrl.contents ++ "\" class=\"tooltip-thumb\" alt=\"" ++ thumbName.contents ++ " preview\">"
         } else {
           ""
         } ++
@@ -352,7 +364,7 @@ let render = (pipeline: t, state: Types.state) => {
       let _ = fragment["appendChild"](nextZone)
     })
 
-    let _ = (Obj.magic(track): {..})["innerHTML"] = ""
+    Dom.setInnerHTML(track, "")
     let _ = (Obj.magic(track): {..})["appendChild"](fragment)
   }
 }

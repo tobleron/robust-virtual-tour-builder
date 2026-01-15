@@ -203,8 +203,9 @@ let make = () => {
               key={Int.toString(i)}
               className="flex flex-col items-center justify-center bg-white/5 border border-white/10 rounded-xl py-3 px-1 transition-all hover:bg-white/15 hover:-translate-y-0.5 active:translate-y-0 shadow-sm group"
               onClick={_ => onClick()}
+              ariaLabel={label}
             >
-              <span className="material-icons text-xl mb-1 text-white/70 group-hover:text-white transition-colors"> {React.string(icon)} </span>
+              <span className="material-icons text-xl mb-1 text-white/70 group-hover:text-white transition-colors" ariaHidden=true> {React.string(icon)} </span>
               <span className="text-[9px] font-bold uppercase tracking-widest text-white/60 group-hover:text-white/90"> {React.string(label)} </span>
             </button>
           ))
@@ -226,8 +227,9 @@ let make = () => {
                 } catch { | _ => updateProgress(0.0, "Error", false, "") }
               })()
             }}
+            ariaLabel="Export Tour"
           >
-            <span className="material-icons text-lg text-success group-hover:scale-110 transition-transform"> {React.string("ios_share")} </span>
+            <span className="material-icons text-lg text-success group-hover:scale-110 transition-transform" ariaHidden=true> {React.string("ios_share")} </span>
             <span className="text-[11px] font-bold uppercase tracking-widest"> {React.string("Export")} </span>
           </button>
 
@@ -237,8 +239,9 @@ let make = () => {
             onClick={_ => {
               let _ = TeaserManager.startAutoTeaser(state.tourName, false, "mp4", false)
             }}
+            ariaLabel="Create Teaser"
           >
-            <span className="material-icons text-lg text-warning group-hover:scale-110 transition-transform"> {React.string("movie_creation")} </span>
+            <span className="material-icons text-lg text-warning group-hover:scale-110 transition-transform" ariaHidden=true> {React.string("movie_creation")} </span>
             <span className="text-[11px] font-bold uppercase tracking-widest"> {React.string("Teaser")} </span>
           </button>
         </div>
@@ -316,7 +319,7 @@ let make = () => {
     <div className="flex flex-col bg-white border-b border-slate-200 shadow-sm shrink-0 z-20">
       <div className="p-6 pb-4">
         <div className="flex items-center justify-between mb-2 px-1">
-          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest" htmlFor="project-name-input">
             {React.string("Project Name")}
           </label>
           <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200">
@@ -325,6 +328,7 @@ let make = () => {
           </div>
         </div>
         <input
+          id="project-name-input"
           type_="text"
           className="w-full px-4 h-11 bg-slate-50 border border-slate-200 rounded-xl font-ui font-bold text-[14px] text-slate-800 focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all truncate placeholder:text-slate-300"
           placeholder="New Tour..."
@@ -355,7 +359,7 @@ let make = () => {
     /* Sidebar Content Area - Scrollable */
     <div className="sidebar-content flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar flex flex-col bg-slate-50/50">
       {if procState["active"] {
-        <div className="m-6 bg-white border border-slate-200 rounded-2xl p-5 shadow-xl animate-fade-in shrink-0">
+        <div className="m-6 bg-white border border-slate-200 rounded-2xl p-5 shadow-xl animate-fade-in shrink-0" role="status" ariaLive=#polite>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="w-4 h-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />

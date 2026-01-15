@@ -83,8 +83,8 @@ let createHotspotConfig = (
       }
 
       let html = `
-        <div class="hotspot-delete-btn" title="Delete Link">✕</div>
-        <svg class="custom-arrow-svg" viewBox="0 0 100 100">
+        <div class="hotspot-delete-btn" title="Delete Link" role="button" tabindex="0" aria-label="Delete Link">✕</div>
+        <svg class="custom-arrow-svg" viewBox="0 0 100 100" aria-hidden="true">
           <defs>
             <linearGradient id="hsG_${iStr}" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#FFD700"/><stop offset="100%" style="stop-color:#FDB931"/></linearGradient>
             <linearGradient id="autoForwardGradient" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#0d9488"/><stop offset="100%" style="stop-color:#0f766e"/></linearGradient>
@@ -98,17 +98,35 @@ let createHotspotConfig = (
           "active"
         } else {
           ""
-        }}" title="Toggle Auto-Forward">A</div>
+        }}" title="Toggle Auto-Forward" role="button" tabindex="0" aria-label="Toggle Auto-Forward">A</div>
           <div class="hotspot-return-btn ${if isReturn {
           "active"
         } else {
           ""
-        }}" title="Toggle Return Link">R</div>
+        }}" title="Toggle Return Link" role="button" tabindex="0" aria-label="Toggle Return Link">R</div>
         </div>
       `
       Dom.setInnerHTML(div, html)
       Dom.setPointerEvents(div, "auto")
       Dom.setCursor(div, "default")
+      
+      // Accessibility for the main hotspot container
+      Dom.setAttribute(div, "role", "button")
+      Dom.setAttribute(div, "tabindex", "0")
+      Dom.setAttribute(div, "aria-label", "Navigate to " ++ hotspot.target)
+
+      // Keyboard support
+      let handleKey = (e: Dom.event) => {
+        let key = (Obj.magic(e))["key"]
+        if (key == "Enter" || key == " ") {
+          Event.preventDefault(Obj.magic(e))
+          Event.stopPropagation(Obj.magic(e))
+          // Trigger the click logic by manually calling the click handler or dispatching a click
+          // Since we already have the onclick logic bound to 'div', we can just call it.
+          (Obj.magic(div))["onclick"](e)
+        }
+      }
+      Dom.addEventListener(div, "keydown", handleKey)
 
       // Logic for click
       ElementExt.setOnClick(div, e => {

@@ -53,6 +53,7 @@ module SceneItem = {
       <div className="w-20 min-w-[80px] relative bg-slate-900 overflow-hidden cursor-pointer">
         <img
           src={thumbUrl}
+          alt={`Thumbnail of ${scene.name}`}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100"
           loading=#lazy
         />
@@ -126,8 +127,9 @@ module SceneItem = {
         <button
           className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-white hover:shadow-md transition-all text-slate-400 hover:text-primary active:scale-90"
           onClick={onContextMenu}
+          ariaLabel={`Actions for ${scene.name}`}
         >
-          <span className="material-icons text-lg"> {React.string("more_vert")} </span>
+          <span className="material-icons text-lg" ariaHidden=true> {React.string("more_vert")} </span>
         </button>
         <div
           className="w-6 h-8 flex flex-col justify-center gap-1 opacity-20 group-hover:opacity-50 cursor-grab active:cursor-grabbing"
@@ -248,6 +250,7 @@ let make = () => {
         | Some(menu) =>
           <div
             className="fixed z-[30000] premium-glass rounded-2xl p-1.5 min-w-[200px] flex flex-col shadow-2xl animate-fade-in border border-white/20"
+            role="menu"
             style={makeStyle({
               "left": Int.toString(menu["x"] - 200) ++ "px",
               "top": Int.toString(menu["y"]) ++ "px",
@@ -256,8 +259,15 @@ let make = () => {
             <div
               className="px-4 py-3 cursor-pointer text-white/80 font-bold text-[11px] uppercase tracking-widest hover:bg-white/10 rounded-xl transition-all flex items-center gap-3 group"
               onClick={_ => handleClearLinks(menu["index"])}
+              role="menuitem"
+              tabIndex=0
+              onKeyDown={e => {
+                if JsxEvent.Keyboard.key(e) == "Enter" {
+                  handleClearLinks(menu["index"])
+                }
+              }}
             >
-              <span className="material-icons text-lg text-primary-light"> {React.string("link_off")} </span>
+              <span className="material-icons text-lg text-primary-light" ariaHidden=true> {React.string("link_off")} </span>
               <span> {React.string("Clear Links")} </span>
             </div>
             
@@ -266,8 +276,15 @@ let make = () => {
             <div
               className="px-4 py-3 cursor-pointer text-white/80 font-bold text-[11px] uppercase tracking-widest hover:bg-danger/20 hover:text-white rounded-xl transition-all flex items-center gap-3 group"
               onClick={_ => handleDelete(menu["index"])}
+              role="menuitem"
+              tabIndex=0
+              onKeyDown={e => {
+                if JsxEvent.Keyboard.key(e) == "Enter" {
+                  handleDelete(menu["index"])
+                }
+              }}
             >
-              <span className="material-icons text-lg text-danger"> {React.string("delete_outline")} </span>
+              <span className="material-icons text-lg text-danger" ariaHidden=true> {React.string("delete_outline")} </span>
               <span> {React.string("Remove Scene")} </span>
             </div>
           </div>

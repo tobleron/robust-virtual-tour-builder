@@ -1,6 +1,6 @@
 {
   "name": "robust-virtual-tour-builder",
-  "version": "4.2.92",
+  "version": "4.2.93",
   "description": "A high-performance, professional-grade virtual tour creation platform designed for real estate and immersive space documentation. This application combines a fluid web-based frontend with a powerful Rust-driven backend to deliver seamless panoramic processing and tour management.",
   "main": "index.js",
   "directories": {
@@ -34,6 +34,7 @@
   },
   "homepage": "https://github.com/tobleron/robust-virtual-tour-builder#readme",
   "devDependencies": {
+    "@axe-core/cli": "^4.11.0",
     "@rsbuild/core": "^1.7.2",
     "@rsbuild/plugin-react": "^1.4.2",
     "@tailwindcss/postcss": "^4.1.18",
