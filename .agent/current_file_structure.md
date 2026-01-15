@@ -1178,8 +1178,7 @@
 │   └── rescript.lock
 ├── logs
 │   ├── error.log
-│   ├── log_changes.txt
-│   └── telemetry.log
+│   └── log_changes.txt
 ├── manifest.json
 ├── package-lock.json
 ├── package.json
@@ -1564,4 +1563,4 @@
         ├── ViewerLoaderTest.bs.js
         └── ViewerLoaderTest.res
 
-44 directories, 1521 files
+44 directories, 1520 files
