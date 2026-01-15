@@ -81,6 +81,9 @@ let injectStyles = () => {
             content: ''; position: absolute; inset: -3px; border: 3px solid white;
             border-radius: 50%; z-index: 5; transform: scale(1.2); box-shadow: none;
           }
+          .pipeline-node:focus-visible {
+            outline: 2px solid white; outline-offset: 4px; z-index: 100;
+          }
           .node-tooltip {
             position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%) translateY(10px);
             background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 4px;

@@ -201,7 +201,7 @@ let make = () => {
           ->Belt.Array.mapWithIndex((i, (icon, label, onClick)) => (
             <button
               key={Int.toString(i)}
-              className="flex flex-col items-center justify-center bg-white/5 border border-white/10 rounded-xl py-3 px-1 transition-all hover:bg-white/15 hover:-translate-y-0.5 active:translate-y-0 shadow-sm group"
+              className="flex flex-col items-center justify-center bg-white/5 border border-white/10 rounded-xl py-3 px-1 transition-all hover:bg-white/15 hover:-translate-y-0.5 active:translate-y-0 shadow-sm group focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
               onClick={_ => onClick()}
               ariaLabel={label}
             >
@@ -215,7 +215,7 @@ let make = () => {
         // Grid 2x1 for secondary actions
         <div className="grid grid-cols-2 gap-2">
           <button
-            className="flex items-center justify-center gap-2 bg-white/5 border border-white/10 rounded-xl py-2.5 transition-all hover:bg-white/15 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-30 disabled:pointer-events-none group"
+            className="flex items-center justify-center gap-2 bg-white/5 border border-white/10 rounded-xl py-2.5 transition-all hover:bg-white/15 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-30 disabled:pointer-events-none group focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
             disabled={!exportReady}
             onClick={_ => {
               let _ = (async () => {
@@ -229,12 +229,12 @@ let make = () => {
             }}
             ariaLabel="Export Tour"
           >
-            <span className="material-icons text-lg text-success group-hover:scale-110 transition-transform" ariaHidden=true> {React.string("ios_share")} </span>
+            <span className="material-icons text-lg text-success-dark group-hover:scale-110 transition-transform" ariaHidden=true> {React.string("ios_share")} </span>
             <span className="text-[11px] font-bold uppercase tracking-widest"> {React.string("Export")} </span>
           </button>
 
           <button
-            className="flex items-center justify-center gap-2 bg-white/5 border border-white/10 rounded-xl py-2.5 transition-all hover:bg-white/15 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-30 disabled:pointer-events-none group"
+            className="flex items-center justify-center gap-2 bg-white/5 border border-white/10 rounded-xl py-2.5 transition-all hover:bg-white/15 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-30 disabled:pointer-events-none group focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
             disabled={!teaserReady}
             onClick={_ => {
               let _ = TeaserManager.startAutoTeaser(state.tourName, false, "mp4", false)
@@ -319,7 +319,7 @@ let make = () => {
     <div className="flex flex-col bg-white border-b border-slate-200 shadow-sm shrink-0 z-20">
       <div className="p-6 pb-4">
         <div className="flex items-center justify-between mb-2 px-1">
-          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest" htmlFor="project-name-input">
+          <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest" htmlFor="project-name-input">
             {React.string("Project Name")}
           </label>
           <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200">
@@ -330,7 +330,7 @@ let make = () => {
         <input
           id="project-name-input"
           type_="text"
-          className="w-full px-4 h-11 bg-slate-50 border border-slate-200 rounded-xl font-ui font-bold text-[14px] text-slate-800 focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all truncate placeholder:text-slate-300"
+          className="w-full px-4 h-11 bg-slate-50 border border-slate-200 rounded-xl font-ui font-bold text-[14px] text-slate-800 focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary focus-visible:ring-primary transition-all truncate placeholder:text-slate-300"
           placeholder="New Tour..."
           value={state.tourName}
           onChange={e => dispatch(Actions.SetTourName(JsxEvent.Form.target(e)["value"]))}
@@ -339,7 +339,7 @@ let make = () => {
 
       <div className="px-6 pb-6" style={makeStyle({"display": if procState["active"] { "none" } else { "block" }})}>
         <button
-          className="w-full h-12 bg-primary text-white rounded-xl flex items-center justify-center gap-3 transition-all hover:bg-primary-light hover:shadow-xl hover:shadow-primary/20 active:scale-95 group overflow-hidden relative"
+          className="w-full h-12 bg-primary text-white rounded-xl flex items-center justify-center gap-3 transition-all hover:bg-primary-light hover:shadow-xl hover:shadow-primary/20 active:scale-95 group overflow-hidden relative focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none"
           onClick={_ => {
             switch Nullable.toOption(fileInputRef.current) {
             | Some(el) => Obj.magic(el)["click"]()
@@ -379,7 +379,7 @@ let make = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer bg-[length:200%_auto]" />
             </div>
           </div>
-          <div className="text-[10px] text-slate-400 mt-3 font-bold uppercase tracking-tight flex items-center gap-2">
+          <div className="text-[10px] text-slate-600 mt-3 font-bold uppercase tracking-tight flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-success rounded-full animate-pulse" />
             <span className="truncate"> {React.string(procState["message"])} </span>
           </div>

@@ -283,7 +283,7 @@ let make = () => {
         <div className="flex flex-col gap-3 p-1.5 premium-glass rounded-2xl border border-white/10 shadow-2xl backdrop-blur-xl">
           <button
             id="btn-add-link-fab"
-            className={"app-btn-icon w-10 h-10 rounded-xl flex items-center justify-center transition-all active:scale-95 group relative " ++ (
+            className={"app-btn-icon w-10 h-10 rounded-xl flex items-center justify-center transition-all active:scale-95 group relative focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none " ++ (
               if state.isLinking { "bg-warning text-slate-900 shadow-lg shadow-warning/20" } else { "bg-primary text-white hover:bg-primary-light" }
             )}
             onClick={handleFabClick}
@@ -299,7 +299,7 @@ let make = () => {
 
           <button
             id="v-scene-sim-toggle"
-            className={"app-btn-icon w-10 h-10 rounded-xl flex items-center justify-center transition-all active:scale-95 " ++ (
+            className={"app-btn-icon w-10 h-10 rounded-xl flex items-center justify-center transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none " ++ (
               if simActive { "bg-danger text-white hover:bg-danger-light" } else { "bg-slate-800/50 text-white/70 hover:bg-slate-700 hover:text-white" }
             )}
             onClick={handleSimClick}
@@ -314,7 +314,7 @@ let make = () => {
 
           <button
             id="v-scene-cat-toggle"
-            className={"app-btn-icon w-10 h-10 rounded-xl flex items-center justify-center transition-all active:scale-95 bg-slate-800/50 text-white/70 hover:bg-slate-700 hover:text-white"}
+            className={"app-btn-icon w-10 h-10 rounded-xl flex items-center justify-center transition-all active:scale-95 bg-slate-800/50 text-white/70 hover:bg-slate-700 hover:text-white focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"}
             onClick={handleCatClick}
             ariaLabel="Toggle Category"
           >
@@ -326,7 +326,7 @@ let make = () => {
           <button
             id="v-scene-label-btn"
             ref={ReactDOM.Ref.domRef(labelBtnRef)}
-            className="app-btn-icon w-10 h-10 rounded-xl bg-slate-800/50 text-white/70 hover:bg-slate-700 hover:text-white flex items-center justify-center transition-all active:scale-95"
+            className="app-btn-icon w-10 h-10 rounded-xl bg-slate-800/50 text-white/70 hover:bg-slate-700 hover:text-white flex items-center justify-center transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
             ariaLabel="Scene Label"
           >
             <span className="material-icons text-xl" ariaHidden=true> {React.string("label_important")} </span>
@@ -400,7 +400,7 @@ let make = () => {
             
             <button
               key={f.id}
-              className={"w-10 h-10 rounded-xl flex flex-col items-center justify-center transition-all hover:scale-105 active:scale-90 " ++ (
+              className={"w-10 h-10 rounded-xl flex flex-col items-center justify-center transition-all hover:scale-105 active:scale-90 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none " ++ (
                 if isSelected {
                   "bg-primary text-white shadow-lg shadow-primary/20 scale-110 z-10 border border-white/20"
                 } else {

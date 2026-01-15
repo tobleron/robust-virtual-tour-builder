@@ -1482,6 +1482,7 @@
 │   │   ├── 126_Add_Tests_for_TeaserRecorder.md
 │   │   ├── 127_Add_Tests_for_Logger.md
 │   │   ├── 128_Implement_SceneList_Virtualization.md
+│   │   ├── 129_Accessibility_And_SEO_Improvements.md
 │   │   ├── 12_ReScript_Migrate_UI_Components_REPORT.md
 │   │   ├── 14_ReScript_Migrate_Viewer_REPORT.md
 │   │   ├── 15_Backend_SingleZIP_Load_REPORT.md
@@ -1579,7 +1580,6 @@
 │   │   ├── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   │   └── README.md
 │   └── pending
-│       ├── 129_Accessibility_And_SEO_Improvements.md
 │       ├── 130_Reduce_Obj_Magic_Usage.md
 │       ├── 131_Security_And_SW_Hardening.md
 │       └── 132_Comprehensive_Project_Analysis.md

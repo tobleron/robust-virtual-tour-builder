@@ -42,12 +42,21 @@ module SceneItem = {
 
     <div
       key={scene.id}
-      className={`scene-item group relative flex items-stretch border rounded-2xl mb-4 overflow-hidden transition-all duration-300 select-none touch-pan-y hover:shadow-xl hover:-translate-y-0.5 h-24 ${activeClasses}`}
+      className={`scene-item group relative flex items-stretch border rounded-2xl mb-4 overflow-hidden transition-all duration-300 select-none touch-pan-y hover:shadow-xl hover:-translate-y-0.5 h-24 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none ${activeClasses}`}
       draggable=true
       onDragStart={onDragStart}
       onDragOver={onDragOver}
       onDrop={onDrop}
       onClick={onClick}
+      tabIndex=0
+      onKeyDown={e => {
+        if JsxEvent.Keyboard.key(e) == "Enter" || JsxEvent.Keyboard.key(e) == " " {
+          JsxEvent.Keyboard.preventDefault(e)
+          onClick(Obj.magic(e))
+        }
+      }}
+      role="button"
+      ariaLabel={`Select scene ${scene.name}`}
     >
       /* Thumbnail */
       <div className="w-20 min-w-[80px] relative bg-slate-900 overflow-hidden cursor-pointer">
@@ -112,7 +121,7 @@ module SceneItem = {
               ) {
                 "text-danger"
               } else {
-                "text-slate-400"
+                "text-slate-600"
               }}`}
           >
             {React.string(Float.toFixed(qualityScore, ~digits=1))}
@@ -125,7 +134,7 @@ module SceneItem = {
         className="w-12 flex flex-col items-center justify-center gap-2 border-l border-slate-50 bg-slate-50/50 group-hover:bg-slate-100 transition-colors"
       >
         <button
-          className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-white hover:shadow-md transition-all text-slate-400 hover:text-primary active:scale-90"
+          className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-white hover:shadow-md transition-all text-slate-600 hover:text-primary active:scale-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
           onClick={onContextMenu}
           ariaLabel={`Actions for ${scene.name}`}
         >
@@ -280,10 +289,10 @@ let make = () => {
              {React.string("photo_library")}
            </span>
         </div>
-        <h4 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">
+        <h4 className="text-sm font-bold text-slate-600 uppercase tracking-widest mb-2">
           {React.string("No scenes")}
         </h4>
-        <p className="text-[11px] text-slate-400 font-medium max-w-[200px] leading-relaxed">
+        <p className="text-[11px] text-slate-600 font-medium max-w-[200px] leading-relaxed">
           {React.string("Upload your 360 panorama images to start building your tour.")}
         </p>
       </div>
