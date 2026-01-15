@@ -204,7 +204,7 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
     Dom.setInnerHTML(
       header,
       "
-      <span class=\"text-[9px] font-black text-slate-400 uppercase tracking-[2px]\">" ++
+      <span class=\"text-[9px] font-black text-slate-600 uppercase tracking-[2px]\">" ++
       category ++ "</span>
       <div class=\"h-[1px] flex-1 bg-slate-100\"></div>
     ",
@@ -216,8 +216,9 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
 
     Belt.Array.forEach(labels, label => {
       let chip = Dom.createElement("button")
-      Dom.setClassName(chip, "label-pill px-3 py-2 font-ui text-[10px] font-bold uppercase text-slate-600 bg-slate-50 border border-slate-100 rounded-lg cursor-pointer transition-all hover:bg-remax-blue hover:text-white hover:border-remax-blue hover:shadow-md active:scale-95 text-left")
+      Dom.setClassName(chip, "label-pill px-3 py-2 font-ui text-[10px] font-bold uppercase text-slate-600 bg-slate-50 border border-slate-100 rounded-lg cursor-pointer transition-all hover:bg-remax-blue hover:text-white hover:border-remax-blue hover:shadow-md active:scale-95 text-left focus-visible:ring-2 focus-visible:ring-remax-blue focus-visible:outline-none")
       Dom.setTextContent(chip, label)
+      Dom.setAttribute(chip, "aria-label", "Set label to " ++ label)
       Js.Dict.set(Dom.dataset(chip), "val", label)
       Js.Dict.set(Dom.dataset(chip), "category", category)
 
@@ -246,7 +247,7 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
   Dom.setBackgroundColor(customSection, "white") // approximate sticky background
 
   let customTitle = Dom.createElement("div")
-  Dom.setClassName(customTitle, "text-[9px] font-black text-slate-300 uppercase tracking-[1px]")
+  Dom.setClassName(customTitle, "text-[9px] font-black text-slate-500 uppercase tracking-[1px]")
   Dom.setTextContent(customTitle, "Custom Label Entry")
   Dom.appendChild(customSection, customTitle)
 
@@ -257,17 +258,19 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
   Dom.setId(inp, "v-scene-label-custom")
   Dom.setAttribute(inp, "type", "text")
   Dom.setAttribute(inp, "placeholder", "Enter custom name...")
-  Dom.setClassName(inp, "flex-1 px-4 py-2 bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold outline-none focus:ring-4 focus:ring-remax-blue/5 focus:border-remax-blue placeholder:text-slate-300 transition-all")
+  Dom.setClassName(inp, "flex-1 px-4 py-2 bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold outline-none focus:ring-4 focus:ring-remax-blue/5 focus:border-remax-blue placeholder:text-slate-400 transition-all focus-visible:ring-remax-blue")
   Dom.setOnClick(inp, e => Dom.stopPropagation(e))
 
   let setBtn = Dom.createElement("button")
   Dom.setInnerHTML(setBtn, "SET")
-  Dom.setClassName(setBtn, "shrink-0 px-3 py-2 text-white text-[10px] font-black rounded-xl transition-all active:scale-95 shadow-sm")
+  Dom.setClassName(setBtn, "shrink-0 px-3 py-2 text-white text-[10px] font-black rounded-xl transition-all active:scale-95 shadow-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none")
   Dom.setBackgroundColor(setBtn, "#007BA7")
+  Dom.setAttribute(setBtn, "aria-label", "Apply custom label")
 
   let clearBtn = Dom.createElement("button")
   Dom.setInnerHTML(clearBtn, "CLEAR")
-  Dom.setClassName(clearBtn, "shrink-0 px-3 py-2 bg-slate-200 text-slate-600 text-[10px] font-black rounded-xl hover:bg-slate-300 transition-all active:scale-95")
+  Dom.setClassName(clearBtn, "shrink-0 px-3 py-2 bg-slate-200 text-slate-600 text-[10px] font-black rounded-xl hover:bg-slate-300 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:outline-none")
+  Dom.setAttribute(clearBtn, "aria-label", "Clear current label")
 
   let applyCustom = () => {
     let val = Dom.getValue(inp)->String.trim

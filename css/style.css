@@ -11,6 +11,8 @@
   /* Remax Red */
   --success: #10b981;
   /* Emerald 500 */
+  --success-dark: #065f46;
+  /* Emerald 800 for high contrast text */
   --warning: #f59e0b;
   /* Amber 500 */
 
@@ -66,6 +68,19 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+}
+
+/* Global focus-visible style for a consistent accessibility experience */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Override for elements on dark backgrounds */
+.premium-glass :focus-visible,
+#viewer-utility-bar :focus-visible,
+#viewer-floor-nav :focus-visible {
+  outline-color: rgba(255, 255, 255, 0.8);
 }
 
 /* Accessibility Utilities */
@@ -363,6 +378,11 @@ html {
   transform: translateY(1px);
   background: rgba(255, 255, 255, 0.05);
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.modal-btn-premium:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 2px;
 }
 
 .modal-btn-premium:disabled {
@@ -859,6 +879,20 @@ body.auto-pilot-active #v-scene-sim-toggle {
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   pointer-events: auto;
 }
+
+.hotspot-delete-btn:focus-visible,
+.hotspot-forward-btn:focus-visible,
+.hotspot-return-btn:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 2px;
+  opacity: 1;
+}
+
+.hotspot-delete-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
 
 /* Hotspot Controls Container - at bottom of arrow */
 .hotspot-controls {

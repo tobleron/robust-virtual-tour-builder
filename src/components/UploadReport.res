@@ -56,13 +56,13 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
           <div style="font-size: 18px; font-weight: 900; color: #0f172a;">${Float.toFixed(
         avgScore.contents,
         ~digits=1,
-      )} <span style="font-size: 10px; color: #94a3b8; font-weight: 500;">/ 10</span></div>
+      )} <span style="font-size: 10px; color: #475569; font-weight: 500;">/ 10</span></div>
        </div>
        
        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
-          ${renderGroup("Excellent", Array.length(groups.ex), "#10b981", "🌟")}
-          ${renderGroup("Moderate", Array.length(groups.md), "#f59e0b", "📈")}
-          ${renderGroup("Review", Array.length(groups.pr), "#ef4444", "⚠️")}
+          ${renderGroup("Excellent", Array.length(groups.ex), "#047857", "🌟")}
+          ${renderGroup("Moderate", Array.length(groups.md), "#b45309", "📈")}
+          ${renderGroup("Review", Array.length(groups.pr), "#dc2626", "⚠️")}
        </div>
     </div>`
 
