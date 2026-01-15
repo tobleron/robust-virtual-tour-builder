@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [pluginReact()],
   source: {
     entry: {
-      index: './src/Main.bs.js',
+      index: './src/index.js',
     },
   },
   html: {
