@@ -32,3 +32,12 @@ Currently, the project uses a manual `TestRunner.res` which is fragile (manual r
 - [ ] `npm run test:watch` runs and passes the smoke test.
 - [ ] `npm run test:frontend` still passes all legacy tests.
 - [ ] CI pipeline (if exists) or local workflows are updated to mention the new test command (optional for now).
+
+## Completion Report
+- **Date**: 2026-01-16
+- **Summary**: Successfully integrated Vitest with ReScript.
+  - Installed `vitest`, `rescript-vitest`, `jsdom`, `@testing-library/react`.
+  - Configured `vitest.config.mjs` with `tests/**/*.test.bs.js` pattern.
+  - Added `tests/unit/VitestSmoke.test.res` which compiles to `.bs.js` and passes.
+  - Verified `npm run test:watch` (via `npx vitest run`) works.
+  - Verified `npm run test:frontend` (legacy) still works.
