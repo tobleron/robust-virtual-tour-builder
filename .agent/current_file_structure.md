@@ -49,14 +49,6 @@
 │       └── shutdown_test.rs
 ├── bin
 │   └── tailwindcss
-├── build_output_2.log
-├── build_output_3.log
-├── build_output_4.log
-├── build_output_5.log
-├── build_output_6.log
-├── build_output_7.log
-├── build_output_8.log
-├── build_output.log
 ├── cache
 │   └── geocoding.json
 ├── css
@@ -1980,9 +1972,6 @@
 │   ├── pending
 │   │   └── 165_Implement_Dynamic_SEO.md
 │   └── TASKS.md
-├── test_output_2.log
-├── test_output_3.log
-├── test_output.log
 ├── tests
 │   ├── integration
 │   ├── node-setup.js
@@ -2099,4 +2088,4 @@
 │       └── VitestSmoke.test.res
 └── vitest.config.mjs
 
-48 directories, 2052 files
+48 directories, 2041 files
