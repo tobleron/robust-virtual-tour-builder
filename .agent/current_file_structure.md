@@ -1757,7 +1757,7 @@
 ├── tailwind.config.js
 ├── tasks
 │   ├── active
-│   │   └── 166_Add_Tests_for_App.md
+│   │   └── 163_Secure_Production_Logging.md
 │   ├── completed
 │   │   ├── 01_Architecture_Functional_State_REPORT.md
 │   │   ├── 02_Implement_App_Context_REPORT.md
@@ -1844,6 +1844,7 @@
 │   │   ├── 160_Add_Tests_for_Version_REPORT.md
 │   │   ├── 161_Setup_Vitest_Infrastructure.md
 │   │   ├── 162_Add_React_Error_Boundary_REPORT.md
+│   │   ├── 166_Add_Tests_for_App_REPORT.md
 │   │   ├── 17_Backend_Filename_Suggestion_REPORT.md
 │   │   ├── 18_Frontend_SingleZIP_Integration_REPORT.md
 │   │   ├── 19_Cleanup_Duplicate_Utilities_REPORT.md
@@ -1936,7 +1937,6 @@
 │   │   ├── 99_Unify_Types.md
 │   │   └── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   ├── pending
-│   │   ├── 163_Secure_Production_Logging.md
 │   │   ├── 164_Fix_ReScript_Deprecations.md
 │   │   └── 165_Implement_Dynamic_SEO.md
 │   └── TASKS.md

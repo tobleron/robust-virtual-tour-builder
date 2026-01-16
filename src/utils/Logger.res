@@ -51,7 +51,7 @@ let maxEntries = 2000
 let appLog: array<string> = []
 let maxAppLogEntries = 1000
 
-let enabled = ref(true)
+let enabled = ref(Constants.isDebugBuild())
 let minLevel = ref(Info)
 let enabledModules = ref(Belt.Set.String.empty)
 
