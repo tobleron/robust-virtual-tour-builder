@@ -34,10 +34,17 @@ let run = () => {
   let dt3 = Some("invalid-date")
   let name3 = generateProjectName(addr, dt3)
 
-  // Today is Jan 15, 2026.
-  if String.startsWith(name3, "123_Main_St_150126_") {
+  // Calculate today's expected prefix: DDMMYY
+  let now = Date.make()
+  let pad = n => n < 10 ? "0" ++ Int.toString(n) : Int.toString(n)
+  let day = now->Date.getDate->pad
+  let month = (now->Date.getMonth + 1)->pad
+  let year = (now->Date.getFullYear - 2000)->pad
+  let expectedTodayPrefix = day ++ month ++ year
+
+  if String.startsWith(name3, "123_Main_St_" ++ expectedTodayPrefix ++ "_") {
     Console.log("✓ generateProjectName passed (invalid date prefix)")
   } else {
-    Console.error(`✗ generateProjectName failed (invalid date): got ${name3}`)
+    Console.error(`✗ generateProjectName failed (invalid date): got ${name3}, expected prefix matching ${expectedTodayPrefix}`)
   }
 }
