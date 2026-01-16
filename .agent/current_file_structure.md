@@ -110,6 +110,12 @@
 │   │   │   ├── App.cmt
 │   │   │   ├── App.res
 │   │   │   ├── components
+│   │   │   │   ├── ErrorBoundary.ast
+│   │   │   │   ├── ErrorBoundary.bs.js
+│   │   │   │   ├── ErrorBoundary.cmi
+│   │   │   │   ├── ErrorBoundary.cmj
+│   │   │   │   ├── ErrorBoundary.cmt
+│   │   │   │   ├── ErrorBoundary.res
 │   │   │   │   ├── HotspotManager.ast
 │   │   │   │   ├── HotspotManager.bs.js
 │   │   │   │   ├── HotspotManager.cmi
@@ -584,6 +590,14 @@
 │   │           ├── ActionsTest.cmj
 │   │           ├── ActionsTest.cmt
 │   │           ├── ActionsTest.res
+│   │           ├── App.test.ast
+│   │           ├── App.test.cmt
+│   │           ├── AppTest.ast
+│   │           ├── AppTest.bs.js
+│   │           ├── AppTest.cmi
+│   │           ├── AppTest.cmj
+│   │           ├── AppTest.cmt
+│   │           ├── AppTest.res
 │   │           ├── AudioManagerTest.ast
 │   │           ├── AudioManagerTest.bs.js
 │   │           ├── AudioManagerTest.cmi
@@ -917,6 +931,11 @@
 │   │   ├── AppContext.cmj
 │   │   ├── AppContext.cmt
 │   │   ├── AppContext.res
+│   │   ├── AppTest.ast
+│   │   ├── AppTest.cmi
+│   │   ├── AppTest.cmj
+│   │   ├── AppTest.cmt
+│   │   ├── AppTest.res
 │   │   ├── AudioManager.ast
 │   │   ├── AudioManager.cmi
 │   │   ├── AudioManager.cmj
@@ -959,6 +978,11 @@
 │   │   ├── DownloadSystemTest.cmj
 │   │   ├── DownloadSystemTest.cmt
 │   │   ├── DownloadSystemTest.res
+│   │   ├── ErrorBoundary.ast
+│   │   ├── ErrorBoundary.cmi
+│   │   ├── ErrorBoundary.cmj
+│   │   ├── ErrorBoundary.cmt
+│   │   ├── ErrorBoundary.res
 │   │   ├── EventBus.ast
 │   │   ├── EventBus.cmi
 │   │   ├── EventBus.cmj
@@ -1568,6 +1592,9 @@
 │   ├── App.bs.js
 │   ├── App.res
 │   ├── components
+│   │   ├── ErrorBoundary.bs.js
+│   │   ├── ErrorBoundary.js
+│   │   ├── ErrorBoundary.res
 │   │   ├── HotspotManager.bs.js
 │   │   ├── HotspotManager.res
 │   │   ├── LabelMenu.bs.js
@@ -1730,6 +1757,7 @@
 ├── tailwind.config.js
 ├── tasks
 │   ├── active
+│   │   └── 166_Add_Tests_for_App.md
 │   ├── completed
 │   │   ├── 01_Architecture_Functional_State_REPORT.md
 │   │   ├── 02_Implement_App_Context_REPORT.md
@@ -1815,6 +1843,7 @@
 │   │   ├── 16_Backend_Project_Validation_REPORT.md
 │   │   ├── 160_Add_Tests_for_Version_REPORT.md
 │   │   ├── 161_Setup_Vitest_Infrastructure.md
+│   │   ├── 162_Add_React_Error_Boundary_REPORT.md
 │   │   ├── 17_Backend_Filename_Suggestion_REPORT.md
 │   │   ├── 18_Frontend_SingleZIP_Integration_REPORT.md
 │   │   ├── 19_Cleanup_Duplicate_Utilities_REPORT.md
@@ -1907,7 +1936,6 @@
 │   │   ├── 99_Unify_Types.md
 │   │   └── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   ├── pending
-│   │   ├── 162_Add_React_Error_Boundary.md
 │   │   ├── 163_Secure_Production_Logging.md
 │   │   ├── 164_Fix_ReScript_Deprecations.md
 │   │   └── 165_Implement_Dynamic_SEO.md
@@ -1920,6 +1948,8 @@
 │   └── unit
 │       ├── ActionsTest.bs.js
 │       ├── ActionsTest.res
+│       ├── AppTest.bs.js
+│       ├── AppTest.res
 │       ├── AudioManagerTest.bs.js
 │       ├── AudioManagerTest.res
 │       ├── BackendApiTest.bs.js
@@ -2026,4 +2056,4 @@
 │       └── VitestSmoke.test.res
 └── vitest.config.mjs
 
-48 directories, 1979 files
+48 directories, 2009 files
