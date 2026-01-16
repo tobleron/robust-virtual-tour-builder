@@ -174,7 +174,7 @@ module Dom = {
 
   /* Added bindings */
   @send external removeElement: element => unit = "remove"
-  @get external dataset: element => Js.Dict.t<string> = "dataset"
+  @get external dataset: element => dict<string> = "dataset"
   @set external setClassName: (element, string) => unit = "className"
   @get external getClassName: element => string = "className"
   @set external setTextContent: (element, string) => unit = "textContent"

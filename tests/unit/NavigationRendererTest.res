@@ -1,7 +1,7 @@
 /* tests/unit/NavigationRendererTest.res */
 open NavigationRenderer
 open Types
-open EventBus
+// open EventBus removed to avoid shadowing
 
 let run = () => {
   Console.log("Running NavigationRenderer tests...")
@@ -117,7 +117,7 @@ let run = () => {
       waypoints: [],
     }
 
-    let payload: navStartPayload = {
+    let payload: EventBus.navStartPayload = {
       journeyId: 1,
       pathData,
       sourceIndex: 0,
@@ -171,7 +171,7 @@ let run = () => {
       waypoints: [],
     }
 
-    let payload: navStartPayload = {
+    let payload: EventBus.navStartPayload = {
       journeyId: 2,
       pathData,
       sourceIndex: 0,
@@ -186,7 +186,7 @@ let run = () => {
     tick(500.0)
 
     let yaw = getViewerYaw()
-    if Js.Math.abs_float(yaw -. 50.0) > 1.0 {
+    if Math.abs(yaw -. 50.0) > 1.0 {
       Console.log(
         "    FAILED: Interpolation 50% incorrect. Expected ~50, got " ++ Float.toString(yaw),
       )
@@ -198,7 +198,7 @@ let run = () => {
     tick(501.0)
 
     let yawEnd = getViewerYaw()
-    if Js.Math.abs_float(yawEnd -. 100.0) > 0.1 {
+    if Math.abs(yawEnd -. 100.0) > 0.1 {
       Console.log(
         "    FAILED: End position incorrect. Expected 100, got " ++ Float.toString(yawEnd),
       )

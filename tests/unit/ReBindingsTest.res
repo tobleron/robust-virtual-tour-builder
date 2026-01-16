@@ -1,5 +1,3 @@
-open ReBindings
-
 let run = () => {
   Console.log("Running ReBindings tests...")
 

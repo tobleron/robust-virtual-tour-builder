@@ -4,7 +4,7 @@ open ViewerState
 
 external castToString: 'a => string = "%identity"
 external castToBlob: 'a => Blob.t = "%identity"
-external castToDict: 'a => Js.Dict.t<'b> = "%identity"
+external castToDict: 'a => dict<'b> = "%identity"
 external asDynamic: 'a => {..} = "%identity"
 
 let getComputedOpacity = el => {
@@ -378,14 +378,14 @@ module Loader = {
 
             if !useProgressive {
               let configDict = castToDict(viewerConfig)
-              switch Js.Dict.get(configDict, "scenes") {
+              switch Dict.get(configDict, "scenes") {
               | Some(scenes) =>
-                let scenesDict = castToDict(scenes)
-                let _ = %raw("delete scenesDict['preview']")
+                let _scenesDict = castToDict(scenes)
+                let _ = %raw("delete _scenesDict['preview']")
               | None => ()
               }
 
-              switch Js.Dict.get(configDict, "default") {
+              switch Dict.get(configDict, "default") {
               | Some(def) =>
                 let defDyn = asDynamic(def)
                 defDyn["firstScene"] = "master"

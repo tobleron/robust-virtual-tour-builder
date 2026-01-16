@@ -6,7 +6,7 @@ let run = () => {
   Console.log("Running GlobalStateBridge tests...")
 
   // 1. Initial State
-  let initial = GlobalStateBridge.getState()
+  let _initial = GlobalStateBridge.getState()
   // Note: Since this is a singleton, previous tests might have modified it.
   // But for a clean run, it should be initial.
   // We can force it back to initial for predictably.

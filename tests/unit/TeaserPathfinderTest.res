@@ -1,6 +1,4 @@
-/* tests/unit/TeaserPathfinderTest.res */
 open TeaserPathfinder
-open ReBindings
 
 type mockObj = {
   "reset": unit => unit,
@@ -54,7 +52,7 @@ let run = () => {
   let _ = getWalkPath([], false)
   assert(mock["getCallCount"]() == 1)
   let p1 = mock["getLastPayload"]()
-  let p1Dict = p1->JSON.Decode.object->Option.getExn
+  let p1Dict = p1->JSON.Decode.object->Option.getOrThrow
   assert(p1Dict->Dict.get("type")->Option.flatMap(JSON.Decode.string) == Some("walk"))
   assert(p1Dict->Dict.get("scenes")->Option.flatMap(JSON.Decode.array)->Option.map(Array.length) ==
     Some(0))
@@ -66,7 +64,7 @@ let run = () => {
   let _ = getTimelinePath([], [], true)
   assert(mock["getCallCount"]() == 1)
   let p2 = mock["getLastPayload"]()
-  let p2Dict = p2->JSON.Decode.object->Option.getExn
+  let p2Dict = p2->JSON.Decode.object->Option.getOrThrow
   assert(p2Dict->Dict.get("type")->Option.flatMap(JSON.Decode.string) == Some("timeline"))
   assert(p2Dict
   ->Dict.get("timeline")

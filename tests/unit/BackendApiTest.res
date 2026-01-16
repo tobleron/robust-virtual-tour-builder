@@ -1,6 +1,3 @@
-open ReBindings
-open BackendApi
-
 let run = () => {
   Console.log("Running BackendApi tests...")
   // Since this contains bindings, we mostly verify compilation and module availability.

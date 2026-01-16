@@ -173,8 +173,8 @@ let stopAutoPilotLogic = returnToStart => {
       ReBindings.Dom.setTextContent(span, "play_arrow")
       ReBindings.Dom.appendChild(el, span)
 
-      style["removeProperty"]("background-color")
-      style["setProperty"]("background-color", "#10b981", "important")
+      ignore(style["removeProperty"]("background-color"))
+      ignore(style["setProperty"]("background-color", "#10b981", "important"))
       asDynamic(el)["title"] = "Start Auto-Pilot Simulation"
     | None => ()
     }
@@ -471,8 +471,8 @@ let startAutoPilot = skipAutoForward => {
       ReBindings.Dom.setTextContent(span, "stop")
       ReBindings.Dom.appendChild(el, span)
 
-      style["removeProperty"]("background-color")
-      style["setProperty"]("background-color", "#dc3545", "important")
+      ignore(style["removeProperty"]("background-color"))
+      ignore(style["setProperty"]("background-color", "#dc3545", "important"))
       asDynamic(el)["title"] = "Click to Stop Simulation"
       ignore(asDynamic(el)["offsetHeight"]) // Trigget reflow
     | None => ()

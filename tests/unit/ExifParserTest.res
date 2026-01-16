@@ -1,4 +1,3 @@
-open ReBindings
 open SharedTypes
 open ExifParser
 
@@ -44,10 +43,9 @@ let run = () => {
     assert(sig_ == "Unknown Unknown @ 0x0")
     Console.log("✓ getCameraSignature passed (missing data)")
   } catch {
-  | Js.Exn.Error(e) =>
+  | JsExn(e) =>
     Console.error(
-      "✗ getCameraSignature failed (missing data): " ++
-      Option.getOr(Js.Exn.message(e), "Unknown"),
+      "✗ getCameraSignature failed (missing data): " ++ Option.getOr(JsExn.message(e), "Unknown"),
     )
   | _ => Console.error("✗ getCameraSignature failed (missing data) with unknown error")
   }

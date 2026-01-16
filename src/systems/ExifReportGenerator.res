@@ -27,7 +27,7 @@ let max_int = (a, b) =>
     b
   }
 
-external castToDict: JSON.t => Js.Dict.t<JSON.t> = "%identity"
+external castToDict: JSON.t => dict<JSON.t> = "%identity"
 external castToJson: 'a => JSON.t = "%identity"
 
 /**
@@ -46,7 +46,7 @@ let generateProjectName = (address: option<string>, dateTime: option<string>): s
       let selectedWords =
         Belt.Array.slice(words, ~offset=0, ~len=3)
         ->Belt.Array.map(w => {
-          let clean = Js.String.replaceByRe(/[^a-zA-Z0-9]/g, "", w)
+          let clean = String.replaceRegExp(w, /[^a-zA-Z0-9]/g, "")
           if String.length(clean) == 0 {
             ""
           } else {

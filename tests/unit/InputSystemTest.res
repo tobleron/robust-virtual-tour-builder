@@ -92,16 +92,16 @@ let run = () => {
 
   // Verify close button selector pattern
   let closeButtonSelector = "#btn-close-style, #btn-new-cancel, #btn-close-about"
-  assert(Js.String2.includes(closeButtonSelector, "#btn-close-style"))
-  assert(Js.String2.includes(closeButtonSelector, "#btn-new-cancel"))
-  assert(Js.String2.includes(closeButtonSelector, "#btn-close-about"))
+  assert(String.includes(closeButtonSelector, "#btn-close-style"))
+  assert(String.includes(closeButtonSelector, "#btn-new-cancel"))
+  assert(String.includes(closeButtonSelector, "#btn-close-about"))
   Console.log("✓ Close button selector pattern")
 
   // Verify fallback cancel button selector
   let fallbackSelector = "button[id*='cancel'], button[id*='close'], .btn-secondary"
-  assert(Js.String2.includes(fallbackSelector, "cancel"))
-  assert(Js.String2.includes(fallbackSelector, "close"))
-  assert(Js.String2.includes(fallbackSelector, ".btn-secondary"))
+  assert(String.includes(fallbackSelector, "cancel"))
+  assert(String.includes(fallbackSelector, "close"))
+  assert(String.includes(fallbackSelector, ".btn-secondary"))
   Console.log("✓ Fallback cancel button selector pattern")
 
   // ========================================

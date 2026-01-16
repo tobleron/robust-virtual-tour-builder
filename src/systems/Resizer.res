@@ -1,7 +1,7 @@
 /* src/systems/Resizer.res */
 
 open ReBindings
-open BackendApi
+
 open SharedTypes
 
 type processResult = {

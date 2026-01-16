@@ -2,7 +2,7 @@ open Types
 open TourTemplates
 
 let run = () => {
-  Js.Console.log("Running TourTemplates tests...")
+  Console.log("Running TourTemplates tests...")
 
   let mockViewFrame: viewFrame = {
     yaw: 0.0,
@@ -69,15 +69,15 @@ let run = () => {
   }
 
   let assertContains = (str, substr) => {
-    if !Js.String2.includes(str, substr) {
-      Js.Console.error(`Expected string to contain "${substr}", but it didn't.`)
+    if !String.includes(str, substr) {
+      Console.error(`Expected string to contain "${substr}", but it didn't.`)
       // Don't log full string if it's huge, but here it's fine for debugging
-      // Js.Console.log(`String content: ${str}`)
+      // Console.log(`String content: ${str}`)
       assert(false)
     }
   }
 
-  Js.Console.log("Test: generateTourHTML basic structure")
+  Console.log("Test: generateTourHTML basic structure")
   let tourName = "My Awesome Tour"
   let hasLogo = true
   let exportType = "4k"
@@ -110,7 +110,7 @@ let run = () => {
   assertContains(html, "\"pitch\":5")
   assertContains(html, "\"target\":\"scene2\"")
 
-  Js.Console.log("Test: generateTourHTML with no logo")
+  Console.log("Test: generateTourHTML with no logo")
   let htmlNoLogo = generateTourHTML(
     [mockScene1],
     tourName,
@@ -122,10 +122,10 @@ let run = () => {
   )
 
   assertContains(html, "assets/logo.png") // Original had it
-  if Js.String2.includes(htmlNoLogo, "assets/logo.png") {
-    Js.Console.error("Expected htmlNoLogo to NOT contain logo, but it did.")
+  if String.includes(htmlNoLogo, "assets/logo.png") {
+    Console.error("Expected htmlNoLogo to NOT contain logo, but it did.")
     assert(false)
   }
 
-  Js.Console.log("✓ TourTemplates tests pass")
+  Console.log("✓ TourTemplates tests pass")
 }

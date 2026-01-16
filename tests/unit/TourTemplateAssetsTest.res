@@ -1,4 +1,3 @@
-open ReBindings
 open TourTemplateAssets
 
 let run = () => {

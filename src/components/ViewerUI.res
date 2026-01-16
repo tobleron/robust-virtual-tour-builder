@@ -46,7 +46,7 @@ external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 module StaticDiv = {
   @react.component
   let make = (~id, ~className=?, ~style=?, ~children=?) => {
-    <div id ?className ?style> {children->Belt.Option.getWithDefault(React.null)} </div>
+    <div id ?className ?style> {children->Option.getOr(React.null)} </div>
   }
 }
 
@@ -65,7 +65,7 @@ module MemoStaticDiv = {
 module StaticSvg = {
   @react.component
   let make = (~id, ~className=?, ~style=?, ~children=?) => {
-    <svg id ?className ?style> {children->Belt.Option.getWithDefault(React.null)} </svg>
+    <svg id ?className ?style> {children->Option.getOr(React.null)} </svg>
   }
 }
 let staticSvgComp = memoCustom(StaticSvg.make, (_, _) => true)

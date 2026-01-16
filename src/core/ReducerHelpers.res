@@ -1,5 +1,5 @@
-open JsonTypes
 open Types
+// JsonTypes is NOT opened to avoid shadowing common record labels
 
 // Helper for array insertion
 let insertAt = (arr, index, item) => {
@@ -12,7 +12,7 @@ let insertAt = (arr, index, item) => {
 // PARSING FUNCTIONS
 // ============================================================================
 
-let parseHotspots = (hss: array<hotspotJson>): array<hotspot> => {
+let parseHotspots = (hss: array<JsonTypes.hotspotJson>): array<hotspot> => {
   Belt.Array.map(hss, hs => {
     {
       linkId: switch Nullable.toOption(hs.linkId) {
@@ -30,15 +30,16 @@ let parseHotspots = (hss: array<hotspotJson>): array<hotspot> => {
       startHfov: Nullable.toOption(hs.startHfov),
       isReturnLink: Nullable.toOption(hs.isReturnLink),
       viewFrame: switch Nullable.toOption(hs.viewFrame) {
-      | Some(vf) => Some({yaw: vf.yaw, pitch: vf.pitch, hfov: vf.hfov})
+      | Some(vf) => Some(({yaw: vf.yaw, pitch: vf.pitch, hfov: vf.hfov}: viewFrame))
       | None => None
       },
       returnViewFrame: switch Nullable.toOption(hs.returnViewFrame) {
-      | Some(vf) => Some({yaw: vf.yaw, pitch: vf.pitch, hfov: vf.hfov})
+      | Some(vf) => Some(({yaw: vf.yaw, pitch: vf.pitch, hfov: vf.hfov}: viewFrame))
       | None => None
       },
       waypoints: switch Nullable.toOption(hs.waypoints) {
-      | Some(wps) => Some(Belt.Array.map(wps, wp => {yaw: wp.yaw, pitch: wp.pitch, hfov: wp.hfov}))
+      | Some(wps) =>
+        Some(Belt.Array.map(wps, (wp): viewFrame => {yaw: wp.yaw, pitch: wp.pitch, hfov: wp.hfov}))
       | None => None
       },
       displayPitch: Nullable.toOption(hs.displayPitch),
@@ -52,18 +53,21 @@ let parseHotspots = (hss: array<hotspotJson>): array<hotspot> => {
 }
 
 let parseScene = (dataJson: JSON.t): scene => {
-  let data = switch decodeImportScene(dataJson) {
+  let data = switch JsonTypes.decodeImportScene(dataJson) {
   | Ok(d) => d
-  | Error(_) => // Fallback/Default for invalid data
-    {
-      id: "error_" ++ Float.toString(Date.now()),
-      name: "invalid.webp",
-      preview: JSON.Encode.null,
-      tiny: Nullable.null,
-      original: Nullable.null,
-      quality: Nullable.null,
-      colorGroup: Nullable.null,
-    }
+  | Error(_) =>
+    (
+      // Fallback/Default for invalid data
+      {
+        id: "error_" ++ Float.toString(Date.now()),
+        name: "invalid.webp",
+        preview: JSON.Encode.null,
+        tiny: Nullable.null,
+        original: Nullable.null,
+        quality: Nullable.null,
+        colorGroup: Nullable.null,
+      }: JsonTypes.importSceneJson
+    )
   }
   {
     id: data.id,
@@ -86,9 +90,9 @@ let parseScene = (dataJson: JSON.t): scene => {
 }
 
 let parseProject = (projectDataJson: JSON.t): state => {
-  let pd = switch decodeProject(projectDataJson) {
+  let pd = switch JsonTypes.decodeProject(projectDataJson) {
   | Ok(p) => p
-  | Error(_) => {tourName: Nullable.null, scenes: []}
+  | Error(_) => ({tourName: Nullable.null, scenes: []}: JsonTypes.projectJson)
   }
   let tourName = switch Nullable.toOption(pd.tourName) {
   | Some(tn) => tn
@@ -156,16 +160,19 @@ let parseProject = (projectDataJson: JSON.t): state => {
 }
 
 let parseTimelineItem = (json: JSON.t): timelineItem => {
-  let item = switch decodeTimelineItem(json) {
+  let item = switch JsonTypes.decodeTimelineItem(json) {
   | Ok(i) => i
-  | Error(_) => {
-      id: "",
-      linkId: "",
-      sceneId: "",
-      targetScene: "",
-      transition: "fade",
-      duration: 1000,
-    }
+  | Error(_) =>
+    (
+      {
+        id: "",
+        linkId: "",
+        sceneId: "",
+        targetScene: "",
+        transition: "fade",
+        duration: 1000,
+      }: JsonTypes.timelineItemJson
+    )
   }
   {
     id: item.id,
@@ -272,7 +279,7 @@ let handleDeleteScene = (state: state, index: int): state => {
 
 let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
   let newScenes = Belt.Array.reduce(scenesData, state.scenes, (acc, dataJson) => {
-    let id = switch decodeImportScene(dataJson) {
+    let id = switch JsonTypes.decodeImportScene(dataJson) {
     | Ok(data) => data.id
     | Error(_) => "error_" ++ Float.toString(Date.now())
     }
@@ -304,7 +311,7 @@ let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
 
 let handleUpdateSceneMetadata = (state: state, index: int, metaJson: JSON.t): state => {
   let scenes = state.scenes
-  let metaObj = castToUpdateMetadata(metaJson)
+  let metaObj = JsonTypes.castToUpdateMetadata(metaJson)
 
   let newScenes = Belt.Array.mapWithIndex(scenes, (i, s) => {
     if i == index {
@@ -325,7 +332,7 @@ let handleUpdateSceneMetadata = (state: state, index: int, metaJson: JSON.t): st
 }
 
 let handleUpdateTimelineStep = (state: state, id: string, dataJson: JSON.t): state => {
-  let data = castToTimelineUpdate(dataJson)
+  let data = JsonTypes.castToTimelineUpdate(dataJson)
   let newTimeline = Belt.Array.map(state.timeline, t => {
     if t.id == id {
       {
