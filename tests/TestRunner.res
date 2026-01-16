@@ -38,6 +38,7 @@ NavigationTest.run()
 MainTest.run()
 ViewerLoaderTest.run()
 ActionsTest.run()
+GlobalStateBridgeTest.run()
 
 Console.log("All frontend tests passed successfully! 🎉")
 %%raw(`process.exit(0)`)

@@ -631,6 +631,12 @@
 │   │           ├── GeoUtilsTest.cmj
 │   │           ├── GeoUtilsTest.cmt
 │   │           ├── GeoUtilsTest.res
+│   │           ├── GlobalStateBridgeTest.ast
+│   │           ├── GlobalStateBridgeTest.bs.js
+│   │           ├── GlobalStateBridgeTest.cmi
+│   │           ├── GlobalStateBridgeTest.cmj
+│   │           ├── GlobalStateBridgeTest.cmt
+│   │           ├── GlobalStateBridgeTest.res
 │   │           ├── HotspotReducerTest.ast
 │   │           ├── HotspotReducerTest.bs.js
 │   │           ├── HotspotReducerTest.cmi
@@ -917,6 +923,10 @@
 │   │   ├── GlobalStateBridge.cmj
 │   │   ├── GlobalStateBridge.cmt
 │   │   ├── GlobalStateBridge.res
+│   │   ├── GlobalStateBridgeTest.cmi
+│   │   ├── GlobalStateBridgeTest.cmj
+│   │   ├── GlobalStateBridgeTest.cmt
+│   │   ├── GlobalStateBridgeTest.res
 │   │   ├── HotspotLine.ast
 │   │   ├── HotspotLine.cmi
 │   │   ├── HotspotLine.cmj
@@ -1639,6 +1649,7 @@
 │   │   ├── 142_Add_Tests_for_Exporter.md
 │   │   ├── 143_Add_Tests_for_Main_REPORT.md
 │   │   ├── 144_Add_Tests_for_ServiceWorker_REPORT.md
+│   │   ├── 146_Add_Tests_for_GlobalStateBridge_REPORT.md
 │   │   ├── 15_Backend_SingleZIP_Load_REPORT.md
 │   │   ├── 16_Backend_Project_Validation_REPORT.md
 │   │   ├── 17_Backend_Filename_Suggestion_REPORT.md
@@ -1733,7 +1744,6 @@
 │   │   ├── 99_Unify_Types.md
 │   │   └── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   ├── pending
-│   │   ├── 146_Add_Tests_for_GlobalStateBridge.md
 │   │   ├── 147_Add_Tests_for_NavigationReducer.md
 │   │   ├── 148_Add_Tests_for_ProjectReducer.md
 │   │   ├── 149_Add_Tests_for_RootReducer.md
@@ -1771,6 +1781,8 @@
         ├── ExporterTest.res
         ├── GeoUtilsTest.bs.js
         ├── GeoUtilsTest.res
+        ├── GlobalStateBridgeTest.bs.js
+        ├── GlobalStateBridgeTest.res
         ├── HotspotReducerTest.bs.js
         ├── HotspotReducerTest.res
         ├── InputSystemTest.bs.js
@@ -1830,4 +1842,4 @@
         ├── ViewerLoaderTest.bs.js
         └── ViewerLoaderTest.res
 
-48 directories, 1783 files
+48 directories, 1795 files
