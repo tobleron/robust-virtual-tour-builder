@@ -860,6 +860,12 @@
 │   │           ├── TourTemplateScriptsTest.cmj
 │   │           ├── TourTemplateScriptsTest.cmt
 │   │           ├── TourTemplateScriptsTest.res
+│   │           ├── TourTemplatesTest.ast
+│   │           ├── TourTemplatesTest.bs.js
+│   │           ├── TourTemplatesTest.cmi
+│   │           ├── TourTemplatesTest.cmj
+│   │           ├── TourTemplatesTest.cmt
+│   │           ├── TourTemplatesTest.res
 │   │           ├── TourTemplateStylesTest.ast
 │   │           ├── TourTemplateStylesTest.bs.js
 │   │           ├── TourTemplateStylesTest.cmi
@@ -1401,6 +1407,10 @@
 │   │   ├── TourTemplateScriptsTest.cmj
 │   │   ├── TourTemplateScriptsTest.cmt
 │   │   ├── TourTemplateScriptsTest.res
+│   │   ├── TourTemplatesTest.cmi
+│   │   ├── TourTemplatesTest.cmj
+│   │   ├── TourTemplatesTest.cmt
+│   │   ├── TourTemplatesTest.res
 │   │   ├── TourTemplateStyles.ast
 │   │   ├── TourTemplateStyles.cmi
 │   │   ├── TourTemplateStyles.cmj
@@ -1781,6 +1791,7 @@
 │   │   ├── 155_Add_Tests_for_TeaserPathfinder_REPORT.md
 │   │   ├── 156_Add_Tests_for_SimulationChainSkipper_REPORT.md
 │   │   ├── 157_Add_Tests_for_ServerTeaser_REPORT.md
+│   │   ├── 158_Add_Tests_for_TourTemplates_REPORT.md
 │   │   ├── 16_Backend_Project_Validation_REPORT.md
 │   │   ├── 17_Backend_Filename_Suggestion_REPORT.md
 │   │   ├── 18_Frontend_SingleZIP_Integration_REPORT.md
@@ -1874,7 +1885,6 @@
 │   │   ├── 99_Unify_Types.md
 │   │   └── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   ├── pending
-│   │   ├── 158_Add_Tests_for_TourTemplates.md
 │   │   ├── 159_Add_Tests_for_Constants.md
 │   │   └── 160_Add_Tests_for_Version.md
 │   └── TASKS.md
@@ -1974,6 +1984,8 @@
         ├── TourTemplateAssetsTest.res
         ├── TourTemplateScriptsTest.bs.js
         ├── TourTemplateScriptsTest.res
+        ├── TourTemplatesTest.bs.js
+        ├── TourTemplatesTest.res
         ├── TourTemplateStylesTest.bs.js
         ├── TourTemplateStylesTest.res
         ├── UploadProcessorTest.bs.js
@@ -1983,4 +1995,4 @@
         ├── ViewerLoaderTest.bs.js
         └── ViewerLoaderTest.res
 
-48 directories, 1936 files
+48 directories, 1948 files
