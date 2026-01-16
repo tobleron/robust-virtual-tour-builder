@@ -733,6 +733,12 @@
 │   │           ├── ResizerTest.cmj
 │   │           ├── ResizerTest.cmt
 │   │           ├── ResizerTest.res
+│   │           ├── RootReducerTest.ast
+│   │           ├── RootReducerTest.bs.js
+│   │           ├── RootReducerTest.cmi
+│   │           ├── RootReducerTest.cmj
+│   │           ├── RootReducerTest.cmt
+│   │           ├── RootReducerTest.res
 │   │           ├── SceneReducerTest.ast
 │   │           ├── SceneReducerTest.bs.js
 │   │           ├── SceneReducerTest.cmi
@@ -1132,6 +1138,11 @@
 │   │   ├── RootReducer.cmj
 │   │   ├── RootReducer.cmt
 │   │   ├── RootReducer.res
+│   │   ├── RootReducerTest.ast
+│   │   ├── RootReducerTest.cmi
+│   │   ├── RootReducerTest.cmj
+│   │   ├── RootReducerTest.cmt
+│   │   ├── RootReducerTest.res
 │   │   ├── SceneList.cmi
 │   │   ├── SceneList.cmj
 │   │   ├── SceneList.cmt
@@ -1583,7 +1594,8 @@
 ├── tailwind.config.js
 ├── tasks
 │   ├── active
-│   │   └── 145_Add_Tests_for_Actions_REPORT.md
+│   │   ├── 145_Add_Tests_for_Actions_REPORT.md
+│   │   └── 147_Add_Tests_for_RootReducer_REPORT.md
 │   ├── completed
 │   │   ├── 01_Architecture_Functional_State_REPORT.md
 │   │   ├── 02_Implement_App_Context_REPORT.md
@@ -1744,20 +1756,20 @@
 │   │   ├── 99_Unify_Types.md
 │   │   └── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   ├── pending
-│   │   ├── 147_Add_Tests_for_NavigationReducer.md
-│   │   ├── 148_Add_Tests_for_ProjectReducer.md
-│   │   ├── 149_Add_Tests_for_RootReducer.md
-│   │   ├── 150_Add_Tests_for_TimelineReducer.md
-│   │   ├── 151_Add_Tests_for_EventBus.md
+│   │   ├── 148_Add_Tests_for_EventBus.md
+│   │   ├── 149_Add_Tests_for_NavigationReducer.md
+│   │   ├── 150_Add_Tests_for_ProjectReducer.md
+│   │   ├── 151_Add_Tests_for_TimelineReducer.md
 │   │   ├── 152_Add_Tests_for_NavigationRenderer.md
-│   │   ├── 153_Add_Tests_for_ServerTeaser.md
-│   │   ├── 154_Add_Tests_for_SimulationChainSkipper.md
-│   │   ├── 155_Add_Tests_for_SimulationNavigation.md
-│   │   ├── 156_Add_Tests_for_SimulationPathGenerator.md
-│   │   ├── 157_Add_Tests_for_TeaserPathfinder.md
+│   │   ├── 153_Add_Tests_for_SimulationNavigation.md
+│   │   ├── 154_Add_Tests_for_SimulationPathGenerator.md
+│   │   ├── 155_Add_Tests_for_TeaserPathfinder.md
+│   │   ├── 156_Add_Tests_for_SimulationChainSkipper.md
+│   │   ├── 157_Add_Tests_for_ServerTeaser.md
 │   │   ├── 158_Add_Tests_for_TourTemplates.md
 │   │   ├── 159_Add_Tests_for_Constants.md
-│   │   └── 160_Add_Tests_for_Version.md
+│   │   ├── 160_Add_Tests_for_Version.md
+│   │   └── PRIORITY_RATIONALE.md
 │   └── TASKS.md
 └── tests
     ├── integration
@@ -1813,6 +1825,8 @@
         ├── ReducerTest.res
         ├── ResizerTest.bs.js
         ├── ResizerTest.res
+        ├── RootReducerTest.bs.js
+        ├── RootReducerTest.res
         ├── SceneReducerTest.bs.js
         ├── SceneReducerTest.res
         ├── ServiceWorkerTest.bs.js
@@ -1842,4 +1856,4 @@
         ├── ViewerLoaderTest.bs.js
         └── ViewerLoaderTest.res
 
-48 directories, 1795 files
+48 directories, 1809 files
