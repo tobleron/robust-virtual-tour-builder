@@ -522,12 +522,6 @@
 │   │   │       ├── Constants.cmj
 │   │   │       ├── Constants.cmt
 │   │   │       ├── Constants.res
-│   │   │       ├── debug_regex.ast
-│   │   │       ├── debug_regex.bs.js
-│   │   │       ├── debug_regex.cmi
-│   │   │       ├── debug_regex.cmj
-│   │   │       ├── debug_regex.cmt
-│   │   │       ├── debug_regex.res
 │   │   │       ├── GeoUtils.ast
 │   │   │       ├── GeoUtils.bs.js
 │   │   │       ├── GeoUtils.cmi
@@ -746,12 +740,6 @@
 │   │           ├── ReducerHelpersTest.cmj
 │   │           ├── ReducerHelpersTest.cmt
 │   │           ├── ReducerHelpersTest.res
-│   │           ├── ReducerJsonTest.ast
-│   │           ├── ReducerJsonTest.bs.js
-│   │           ├── ReducerJsonTest.cmi
-│   │           ├── ReducerJsonTest.cmj
-│   │           ├── ReducerJsonTest.cmt
-│   │           ├── ReducerJsonTest.res
 │   │           ├── ReducerTest.ast
 │   │           ├── ReducerTest.bs.js
 │   │           ├── ReducerTest.cmi
@@ -901,7 +889,13 @@
 │   │           ├── ViewerLoaderTest.cmi
 │   │           ├── ViewerLoaderTest.cmj
 │   │           ├── ViewerLoaderTest.cmt
-│   │           └── ViewerLoaderTest.res
+│   │           ├── ViewerLoaderTest.res
+│   │           ├── VitestSmoke.test.ast
+│   │           ├── VitestSmoke.test.bs.js
+│   │           ├── VitestSmoke.test.cmi
+│   │           ├── VitestSmoke.test.cmj
+│   │           ├── VitestSmoke.test.cmt
+│   │           └── VitestSmoke.test.res
 │   ├── ocaml
 │   │   ├── Actions.ast
 │   │   ├── Actions.cmi
@@ -957,7 +951,6 @@
 │   │   ├── ConstantsTest.cmj
 │   │   ├── ConstantsTest.cmt
 │   │   ├── ConstantsTest.res
-│   │   ├── debug_regex.res
 │   │   ├── DownloadSystem.cmi
 │   │   ├── DownloadSystem.cmj
 │   │   ├── DownloadSystem.cmt
@@ -1221,7 +1214,6 @@
 │   │   ├── ReducerHelpersTest.cmj
 │   │   ├── ReducerHelpersTest.cmt
 │   │   ├── ReducerHelpersTest.res
-│   │   ├── ReducerJsonTest.res
 │   │   ├── ReducerTest.ast
 │   │   ├── ReducerTest.cmi
 │   │   ├── ReducerTest.cmj
@@ -1522,7 +1514,12 @@
 │   │   ├── VisualPipeline.cmi
 │   │   ├── VisualPipeline.cmj
 │   │   ├── VisualPipeline.cmt
-│   │   └── VisualPipeline.res
+│   │   ├── VisualPipeline.res
+│   │   ├── VitestSmoke.test.ast
+│   │   ├── VitestSmoke.test.cmi
+│   │   ├── VitestSmoke.test.cmj
+│   │   ├── VitestSmoke.test.cmt
+│   │   └── VitestSmoke.test.res
 │   └── rescript.lock
 ├── logs
 │   ├── error.log
@@ -1733,6 +1730,7 @@
 ├── tailwind.config.js
 ├── tasks
 │   ├── active
+│   │   └── 161_Setup_Vitest_Infrastructure.md
 │   ├── completed
 │   │   ├── 01_Architecture_Functional_State_REPORT.md
 │   │   ├── 02_Implement_App_Context_REPORT.md
@@ -1909,116 +1907,123 @@
 │   │   ├── 99_Unify_Types.md
 │   │   └── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   ├── pending
+│   │   ├── 162_Add_React_Error_Boundary.md
+│   │   ├── 163_Secure_Production_Logging.md
+│   │   ├── 164_Fix_ReScript_Deprecations.md
+│   │   └── 165_Implement_Dynamic_SEO.md
 │   └── TASKS.md
-└── tests
-    ├── integration
-    ├── node-setup.js
-    ├── TestRunner.bs.js
-    ├── TestRunner.res
-    └── unit
-        ├── ActionsTest.bs.js
-        ├── ActionsTest.res
-        ├── AudioManagerTest.bs.js
-        ├── AudioManagerTest.res
-        ├── BackendApiTest.bs.js
-        ├── BackendApiTest.res
-        ├── ConstantsTest.bs.js
-        ├── ConstantsTest.res
-        ├── DownloadSystemTest.bs.js
-        ├── DownloadSystemTest.res
-        ├── EventBusTest.bs.js
-        ├── EventBusTest.res
-        ├── ExifParserTest.bs.js
-        ├── ExifParserTest.res
-        ├── ExifReportGeneratorTest.bs.js
-        ├── ExifReportGeneratorTest.res
-        ├── ExporterTest.bs.js
-        ├── ExporterTest.res
-        ├── GeoUtilsTest.bs.js
-        ├── GeoUtilsTest.res
-        ├── GlobalStateBridgeTest.bs.js
-        ├── GlobalStateBridgeTest.res
-        ├── HotspotReducerTest.bs.js
-        ├── HotspotReducerTest.res
-        ├── InputSystemTest.bs.js
-        ├── InputSystemTest.res
-        ├── JsonTypesTest.bs.js
-        ├── JsonTypesTest.res
-        ├── LazyLoadTest.bs.js
-        ├── LazyLoadTest.res
-        ├── LoggerTest.bs.js
-        ├── LoggerTest.res
-        ├── MainTest.bs.js
-        ├── MainTest.res
-        ├── NavigationReducerTest.bs.js
-        ├── NavigationReducerTest.res
-        ├── NavigationRendererTest.bs.js
-        ├── NavigationRendererTest.res
-        ├── NavigationTest.bs.js
-        ├── NavigationTest.res
-        ├── PathInterpolationTest.bs.js
-        ├── PathInterpolationTest.res
-        ├── ProgressBarTest.bs.js
-        ├── ProgressBarTest.res
-        ├── ProjectDataTest.bs.js
-        ├── ProjectDataTest.res
-        ├── ProjectManagerTest.bs.js
-        ├── ProjectManagerTest.res
-        ├── ProjectReducerTest.bs.js
-        ├── ProjectReducerTest.res
-        ├── ReBindingsTest.bs.js
-        ├── ReBindingsTest.res
-        ├── ReducerHelpersTest.bs.js
-        ├── ReducerHelpersTest.res
-        ├── ReducerTest.bs.js
-        ├── ReducerTest.res
-        ├── ResizerTest.bs.js
-        ├── ResizerTest.res
-        ├── RootReducerTest.bs.js
-        ├── RootReducerTest.res
-        ├── SceneReducerTest.bs.js
-        ├── SceneReducerTest.res
-        ├── ServerTeaserTest.bs.js
-        ├── ServerTeaserTest.res
-        ├── ServiceWorkerTest.bs.js
-        ├── ServiceWorkerTest.res
-        ├── SharedTypesTest.bs.js
-        ├── SharedTypesTest.res
-        ├── SimulationChainSkipperTest.bs.js
-        ├── SimulationChainSkipperTest.res
-        ├── SimulationNavigationTest.bs.js
-        ├── SimulationNavigationTest.res
-        ├── SimulationPathGeneratorTest.bs.js
-        ├── SimulationPathGeneratorTest.res
-        ├── SimulationSystemTest.bs.js
-        ├── SimulationSystemTest.res
-        ├── StateInspectorTest.bs.js
-        ├── StateInspectorTest.res
-        ├── TeaserManagerTest.bs.js
-        ├── TeaserManagerTest.res
-        ├── TeaserPathfinderTest.bs.js
-        ├── TeaserPathfinderTest.res
-        ├── TeaserRecorderTest.bs.js
-        ├── TeaserRecorderTest.res
-        ├── TimelineReducerTest.bs.js
-        ├── TimelineReducerTest.res
-        ├── TourLogicTest.bs.js
-        ├── TourLogicTest.res
-        ├── TourTemplateAssetsTest.bs.js
-        ├── TourTemplateAssetsTest.res
-        ├── TourTemplateScriptsTest.bs.js
-        ├── TourTemplateScriptsTest.res
-        ├── TourTemplatesTest.bs.js
-        ├── TourTemplatesTest.res
-        ├── TourTemplateStylesTest.bs.js
-        ├── TourTemplateStylesTest.res
-        ├── UploadProcessorTest.bs.js
-        ├── UploadProcessorTest.res
-        ├── VersionTest.bs.js
-        ├── VersionTest.res
-        ├── VideoEncoderTest.bs.js
-        ├── VideoEncoderTest.res
-        ├── ViewerLoaderTest.bs.js
-        └── ViewerLoaderTest.res
+├── tests
+│   ├── integration
+│   ├── node-setup.js
+│   ├── TestRunner.bs.js
+│   ├── TestRunner.res
+│   └── unit
+│       ├── ActionsTest.bs.js
+│       ├── ActionsTest.res
+│       ├── AudioManagerTest.bs.js
+│       ├── AudioManagerTest.res
+│       ├── BackendApiTest.bs.js
+│       ├── BackendApiTest.res
+│       ├── ConstantsTest.bs.js
+│       ├── ConstantsTest.res
+│       ├── DownloadSystemTest.bs.js
+│       ├── DownloadSystemTest.res
+│       ├── EventBusTest.bs.js
+│       ├── EventBusTest.res
+│       ├── ExifParserTest.bs.js
+│       ├── ExifParserTest.res
+│       ├── ExifReportGeneratorTest.bs.js
+│       ├── ExifReportGeneratorTest.res
+│       ├── ExporterTest.bs.js
+│       ├── ExporterTest.res
+│       ├── GeoUtilsTest.bs.js
+│       ├── GeoUtilsTest.res
+│       ├── GlobalStateBridgeTest.bs.js
+│       ├── GlobalStateBridgeTest.res
+│       ├── HotspotReducerTest.bs.js
+│       ├── HotspotReducerTest.res
+│       ├── InputSystemTest.bs.js
+│       ├── InputSystemTest.res
+│       ├── JsonTypesTest.bs.js
+│       ├── JsonTypesTest.res
+│       ├── LazyLoadTest.bs.js
+│       ├── LazyLoadTest.res
+│       ├── LoggerTest.bs.js
+│       ├── LoggerTest.res
+│       ├── MainTest.bs.js
+│       ├── MainTest.res
+│       ├── NavigationReducerTest.bs.js
+│       ├── NavigationReducerTest.res
+│       ├── NavigationRendererTest.bs.js
+│       ├── NavigationRendererTest.res
+│       ├── NavigationTest.bs.js
+│       ├── NavigationTest.res
+│       ├── PathInterpolationTest.bs.js
+│       ├── PathInterpolationTest.res
+│       ├── ProgressBarTest.bs.js
+│       ├── ProgressBarTest.res
+│       ├── ProjectDataTest.bs.js
+│       ├── ProjectDataTest.res
+│       ├── ProjectManagerTest.bs.js
+│       ├── ProjectManagerTest.res
+│       ├── ProjectReducerTest.bs.js
+│       ├── ProjectReducerTest.res
+│       ├── ReBindingsTest.bs.js
+│       ├── ReBindingsTest.res
+│       ├── ReducerHelpersTest.bs.js
+│       ├── ReducerHelpersTest.res
+│       ├── ReducerTest.bs.js
+│       ├── ReducerTest.res
+│       ├── ResizerTest.bs.js
+│       ├── ResizerTest.res
+│       ├── RootReducerTest.bs.js
+│       ├── RootReducerTest.res
+│       ├── SceneReducerTest.bs.js
+│       ├── SceneReducerTest.res
+│       ├── ServerTeaserTest.bs.js
+│       ├── ServerTeaserTest.res
+│       ├── ServiceWorkerTest.bs.js
+│       ├── ServiceWorkerTest.res
+│       ├── SharedTypesTest.bs.js
+│       ├── SharedTypesTest.res
+│       ├── SimulationChainSkipperTest.bs.js
+│       ├── SimulationChainSkipperTest.res
+│       ├── SimulationNavigationTest.bs.js
+│       ├── SimulationNavigationTest.res
+│       ├── SimulationPathGeneratorTest.bs.js
+│       ├── SimulationPathGeneratorTest.res
+│       ├── SimulationSystemTest.bs.js
+│       ├── SimulationSystemTest.res
+│       ├── StateInspectorTest.bs.js
+│       ├── StateInspectorTest.res
+│       ├── TeaserManagerTest.bs.js
+│       ├── TeaserManagerTest.res
+│       ├── TeaserPathfinderTest.bs.js
+│       ├── TeaserPathfinderTest.res
+│       ├── TeaserRecorderTest.bs.js
+│       ├── TeaserRecorderTest.res
+│       ├── TimelineReducerTest.bs.js
+│       ├── TimelineReducerTest.res
+│       ├── TourLogicTest.bs.js
+│       ├── TourLogicTest.res
+│       ├── TourTemplateAssetsTest.bs.js
+│       ├── TourTemplateAssetsTest.res
+│       ├── TourTemplateScriptsTest.bs.js
+│       ├── TourTemplateScriptsTest.res
+│       ├── TourTemplatesTest.bs.js
+│       ├── TourTemplatesTest.res
+│       ├── TourTemplateStylesTest.bs.js
+│       ├── TourTemplateStylesTest.res
+│       ├── UploadProcessorTest.bs.js
+│       ├── UploadProcessorTest.res
+│       ├── VersionTest.bs.js
+│       ├── VersionTest.res
+│       ├── VideoEncoderTest.bs.js
+│       ├── VideoEncoderTest.res
+│       ├── ViewerLoaderTest.bs.js
+│       ├── ViewerLoaderTest.res
+│       ├── VitestSmoke.test.bs.js
+│       └── VitestSmoke.test.res
+└── vitest.config.mjs
 
-48 directories, 1974 files
+48 directories, 1979 files
