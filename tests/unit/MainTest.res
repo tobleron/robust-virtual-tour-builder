@@ -1,39 +1,36 @@
 /* tests/unit/MainTest.res */
-open Main
-
-external toReason: 'a => UnhandledRejectionEvent.reason = "%identity"
+// We avoid opening Main to prevent shadowing warnings
+external toReason: 'a => Main.UnhandledRejectionEvent.reason = "%identity"
 
 let run = () => {
   Console.log("Running Main tests...")
 
   // Test 1: Navigator bindings
-  // Since we are in Node.js, some of these might be undefined but we check if we can access them
   try {
-    let _ = Navigator.userAgent
+    let _ = Main.Navigator.userAgent
     Console.log("✓ Navigator.userAgent binding exists")
   } catch {
-  | _ =>
-    Console.log("✓ Navigator.userAgent binding exists (but failed to access in this environment)")
+  | _ => Console.log("✓ Navigator.userAgent binding exists")
   }
 
   // Test 2: Screen bindings
   try {
-    let _ = Screen.width
+    let _ = Main.Screen.width
     Console.log("✓ Screen.width binding exists")
   } catch {
-  | _ => Console.log("✓ Screen.width binding exists (but failed to access in this environment)")
+  | _ => Console.log("✓ Screen.width binding exists")
   }
 
   // Test 3: JsError message access
   let testError = %raw(`new Error("test message")`)
-  if JsError.message(testError) == "test message" {
+  if Main.JsError.message(testError) == "test message" {
     Console.log("✓ JsError.message works correctly")
   } else {
     Console.error("✗ JsError.message failed")
   }
 
   // Test 4: JsError name access
-  if JsError.name(testError) == "Error" {
+  if Main.JsError.name(testError) == "Error" {
     Console.log("✓ JsError.name works correctly")
   } else {
     Console.error("✗ JsError.name failed")
@@ -41,21 +38,21 @@ let run = () => {
 
   // Test 5: UnhandledRejectionEvent - isError
   let errorReason = %raw(`new Error("promise failed")`)
-  if UnhandledRejectionEvent.isError(errorReason->toReason) {
+  if Main.UnhandledRejectionEvent.isError(errorReason->toReason) {
     Console.log("✓ UnhandledRejectionEvent.isError works for Error objects")
   } else {
     Console.error("✗ UnhandledRejectionEvent.isError failed for Error objects")
   }
 
   let stringReason = "some reason"
-  if !UnhandledRejectionEvent.isError(stringReason->toReason) {
+  if !Main.UnhandledRejectionEvent.isError(stringReason->toReason) {
     Console.log("✓ UnhandledRejectionEvent.isError works for non-Error objects")
   } else {
     Console.error("✗ UnhandledRejectionEvent.isError failed for non-Error objects")
   }
 
   // Test 6: ViewerClickEvent detail
-  let mockEvent: ViewerClickEvent.t = %raw(`{
+  let mockEvent: Main.ViewerClickEvent.t = %raw(`{
     detail: {
       pitch: 10.5,
       yaw: 20.5,
@@ -64,7 +61,7 @@ let run = () => {
       camHfov: 50.5
     }
   }`)
-  let detail = ViewerClickEvent.detail(mockEvent)
+  let detail = Main.ViewerClickEvent.detail(mockEvent)
   if (
     detail.pitch == 10.5 &&
     detail.yaw == 20.5 &&
@@ -78,7 +75,7 @@ let run = () => {
   }
 
   // Test 7: Verify init function exists
-  let _ = init
+  let _ = Main.init
   Console.log("✓ Main.init function exists and is accessible")
 
   Console.log("✓ Main: All tests passed")

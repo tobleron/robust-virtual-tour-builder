@@ -1,7 +1,6 @@
 /* src/components/Sidebar.res */
 
 open ReBindings
-open SharedTypes
 
 // Bindings
 @module("../version.js") external version: string = "VERSION"

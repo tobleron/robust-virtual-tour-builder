@@ -727,6 +727,12 @@
 │   │           ├── SceneReducerTest.cmj
 │   │           ├── SceneReducerTest.cmt
 │   │           ├── SceneReducerTest.res
+│   │           ├── ServiceWorkerTest.ast
+│   │           ├── ServiceWorkerTest.bs.js
+│   │           ├── ServiceWorkerTest.cmi
+│   │           ├── ServiceWorkerTest.cmj
+│   │           ├── ServiceWorkerTest.cmt
+│   │           ├── ServiceWorkerTest.res
 │   │           ├── SharedTypesTest.ast
 │   │           ├── SharedTypesTest.bs.js
 │   │           ├── SharedTypesTest.cmi
@@ -971,6 +977,7 @@
 │   │   ├── Main.cmj
 │   │   ├── Main.cmt
 │   │   ├── Main.res
+│   │   ├── MainTest.ast
 │   │   ├── MainTest.cmi
 │   │   ├── MainTest.cmj
 │   │   ├── MainTest.cmt
@@ -1128,6 +1135,11 @@
 │   │   ├── ServiceWorker.cmj
 │   │   ├── ServiceWorker.cmt
 │   │   ├── ServiceWorker.res
+│   │   ├── ServiceWorkerTest.ast
+│   │   ├── ServiceWorkerTest.cmi
+│   │   ├── ServiceWorkerTest.cmj
+│   │   ├── ServiceWorkerTest.cmt
+│   │   ├── ServiceWorkerTest.res
 │   │   ├── SharedTypes.cmi
 │   │   ├── SharedTypes.cmj
 │   │   ├── SharedTypes.cmt
@@ -1550,7 +1562,7 @@
 ├── tasks
 │   ├── active
 │   │   ├── 143_Add_Tests_for_Main_REPORT.md
-│   │   └── 144_Add_Tests_for_ServiceWorker.md
+│   │   └── 144_Add_Tests_for_ServiceWorker_REPORT.md
 │   ├── completed
 │   │   ├── 01_Architecture_Functional_State_REPORT.md
 │   │   ├── 02_Implement_App_Context_REPORT.md
@@ -1727,6 +1739,7 @@
 │   └── TASKS.md
 └── tests
     ├── integration
+    ├── node-setup.js
     ├── TestRunner.bs.js
     ├── TestRunner.res
     └── unit
@@ -1776,6 +1789,8 @@
         ├── ResizerTest.res
         ├── SceneReducerTest.bs.js
         ├── SceneReducerTest.res
+        ├── ServiceWorkerTest.bs.js
+        ├── ServiceWorkerTest.res
         ├── SharedTypesTest.bs.js
         ├── SharedTypesTest.res
         ├── SimulationSystemTest.bs.js
@@ -1801,4 +1816,4 @@
         ├── ViewerLoaderTest.bs.js
         └── ViewerLoaderTest.res
 
-48 directories, 1754 files
+48 directories, 1769 files
