@@ -45,6 +45,8 @@ let run = () => {
   if String.startsWith(name3, "123_Main_St_" ++ expectedTodayPrefix ++ "_") {
     Console.log("✓ generateProjectName passed (invalid date prefix)")
   } else {
-    Console.error(`✗ generateProjectName failed (invalid date): got ${name3}, expected prefix matching ${expectedTodayPrefix}`)
+    Console.error(
+      `✗ generateProjectName failed (invalid date): got ${name3}, expected prefix matching ${expectedTodayPrefix}`,
+    )
   }
 }
