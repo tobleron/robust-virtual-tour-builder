@@ -317,3 +317,4 @@ Closes #122
 [2026-01-16 15:25] v4.3.0 - test: Add unit tests for Main and ServiceWorker modules
 [2026-01-16 15:28] v4.3.0 - Add unit tests for Actions module
 [2026-01-16 15:29] v4.3.0 - Add unit tests for GlobalStateBridge
+[2026-01-16 15:30] v4.3.0 - chore: Sync version strings
