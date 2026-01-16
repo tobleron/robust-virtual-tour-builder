@@ -680,6 +680,12 @@
 │   │           ├── MainTest.cmj
 │   │           ├── MainTest.cmt
 │   │           ├── MainTest.res
+│   │           ├── NavigationReducerTest.ast
+│   │           ├── NavigationReducerTest.bs.js
+│   │           ├── NavigationReducerTest.cmi
+│   │           ├── NavigationReducerTest.cmj
+│   │           ├── NavigationReducerTest.cmt
+│   │           ├── NavigationReducerTest.res
 │   │           ├── NavigationTest.ast
 │   │           ├── NavigationTest.bs.js
 │   │           ├── NavigationTest.cmi
@@ -1046,6 +1052,11 @@
 │   │   ├── NavigationReducer.cmj
 │   │   ├── NavigationReducer.cmt
 │   │   ├── NavigationReducer.res
+│   │   ├── NavigationReducerTest.ast
+│   │   ├── NavigationReducerTest.cmi
+│   │   ├── NavigationReducerTest.cmj
+│   │   ├── NavigationReducerTest.cmt
+│   │   ├── NavigationReducerTest.res
 │   │   ├── NavigationRenderer.ast
 │   │   ├── NavigationRenderer.cmi
 │   │   ├── NavigationRenderer.cmj
@@ -1608,7 +1619,8 @@
 │   ├── active
 │   │   ├── 145_Add_Tests_for_Actions_REPORT.md
 │   │   ├── 147_Add_Tests_for_RootReducer_REPORT.md
-│   │   └── 148_Add_Tests_for_EventBus_REPORT.md
+│   │   ├── 148_Add_Tests_for_EventBus_REPORT.md
+│   │   └── 149_Add_Tests_for_NavigationReducer_REPORT.md
 │   ├── completed
 │   │   ├── 01_Architecture_Functional_State_REPORT.md
 │   │   ├── 02_Implement_App_Context_REPORT.md
@@ -1769,7 +1781,6 @@
 │   │   ├── 99_Unify_Types.md
 │   │   └── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   ├── pending
-│   │   ├── 149_Add_Tests_for_NavigationReducer.md
 │   │   ├── 150_Add_Tests_for_ProjectReducer.md
 │   │   ├── 151_Add_Tests_for_TimelineReducer.md
 │   │   ├── 152_Add_Tests_for_NavigationRenderer.md
@@ -1820,6 +1831,8 @@
         ├── LoggerTest.res
         ├── MainTest.bs.js
         ├── MainTest.res
+        ├── NavigationReducerTest.bs.js
+        ├── NavigationReducerTest.res
         ├── NavigationTest.bs.js
         ├── NavigationTest.res
         ├── PathInterpolationTest.bs.js
@@ -1869,4 +1882,4 @@
         ├── ViewerLoaderTest.bs.js
         └── ViewerLoaderTest.res
 
-48 directories, 1822 files
+48 directories, 1835 files
