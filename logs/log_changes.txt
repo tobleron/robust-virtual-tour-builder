@@ -316,3 +316,4 @@ Closes #122
 [2026-01-16 15:23] v4.3.0 - Add unit tests for Main module and implement robust Node.js mocking
 [2026-01-16 15:25] v4.3.0 - test: Add unit tests for Main and ServiceWorker modules
 [2026-01-16 15:28] v4.3.0 - Add unit tests for Actions module
+[2026-01-16 15:29] v4.3.0 - Add unit tests for GlobalStateBridge
