@@ -48,6 +48,7 @@ EventBusTest.run()
 TimelineReducerTest.run()
 SimulationNavigationTest.run()
 SimulationPathGeneratorTest.run()
+TeaserPathfinderTest.run()
 
 Console.log("All frontend tests passed successfully! 🎉")
 %%raw(`process.exit(0)`)

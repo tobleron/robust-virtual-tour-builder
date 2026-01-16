@@ -812,6 +812,12 @@
 │   │           ├── TeaserManagerTest.cmj
 │   │           ├── TeaserManagerTest.cmt
 │   │           ├── TeaserManagerTest.res
+│   │           ├── TeaserPathfinderTest.ast
+│   │           ├── TeaserPathfinderTest.bs.js
+│   │           ├── TeaserPathfinderTest.cmi
+│   │           ├── TeaserPathfinderTest.cmj
+│   │           ├── TeaserPathfinderTest.cmt
+│   │           ├── TeaserPathfinderTest.res
 │   │           ├── TeaserRecorderTest.ast
 │   │           ├── TeaserRecorderTest.bs.js
 │   │           ├── TeaserRecorderTest.cmi
@@ -1312,6 +1318,10 @@
 │   │   ├── TeaserPathfinder.cmj
 │   │   ├── TeaserPathfinder.cmt
 │   │   ├── TeaserPathfinder.res
+│   │   ├── TeaserPathfinderTest.cmi
+│   │   ├── TeaserPathfinderTest.cmj
+│   │   ├── TeaserPathfinderTest.cmt
+│   │   ├── TeaserPathfinderTest.res
 │   │   ├── TeaserRecorder.ast
 │   │   ├── TeaserRecorder.cmi
 │   │   ├── TeaserRecorder.cmj
@@ -1747,6 +1757,7 @@
 │   │   ├── 152_Add_Tests_for_NavigationRenderer_REPORT.md
 │   │   ├── 153_Add_Tests_for_SimulationNavigation_REPORT.md
 │   │   ├── 154_Add_Tests_for_SimulationPathGenerator_REPORT.md
+│   │   ├── 155_Add_Tests_for_TeaserPathfinder_REPORT.md
 │   │   ├── 16_Backend_Project_Validation_REPORT.md
 │   │   ├── 17_Backend_Filename_Suggestion_REPORT.md
 │   │   ├── 18_Frontend_SingleZIP_Integration_REPORT.md
@@ -1840,7 +1851,6 @@
 │   │   ├── 99_Unify_Types.md
 │   │   └── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   ├── pending
-│   │   ├── 155_Add_Tests_for_TeaserPathfinder.md
 │   │   ├── 156_Add_Tests_for_SimulationChainSkipper.md
 │   │   ├── 157_Add_Tests_for_ServerTeaser.md
 │   │   ├── 158_Add_Tests_for_TourTemplates.md
@@ -1927,6 +1937,8 @@
         ├── StateInspectorTest.res
         ├── TeaserManagerTest.bs.js
         ├── TeaserManagerTest.res
+        ├── TeaserPathfinderTest.bs.js
+        ├── TeaserPathfinderTest.res
         ├── TeaserRecorderTest.bs.js
         ├── TeaserRecorderTest.res
         ├── TimelineReducerTest.bs.js
@@ -1946,4 +1958,4 @@
         ├── ViewerLoaderTest.bs.js
         └── ViewerLoaderTest.res
 
-48 directories, 1899 files
+48 directories, 1911 files
