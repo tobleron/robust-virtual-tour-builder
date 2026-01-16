@@ -2,10 +2,9 @@
 
 ## 🧠 CORE BEHAVIOR (SYSTEM 2 THINKING)
 Before executing ANY code or shell command, you must perform a **Context Check**:
-1. **Locate Root**: Run `git rev-parse --show-toplevel` to find the project root.
-2. **Pathing**: ALL paths in your commands must be relative to this root.
-3. **Safety**: If you are about to edit a file >700 lines, **PAUSE** and ask for confirmation.
-4. **Never use `git commit` directly** - Always use `./scripts/commit.sh`.
+1. **Pathing**: ALL paths in your commands must be relative to project root.
+2. **Safety**: If you are about to edit a file >700 lines, **PAUSE** and ask for confirmation.
+3. **Never use `git commit` directly** - Always use `./scripts/commit.sh`.
 
 ## 🛠️ WORKFLOW AUTOMATION
 **Do not ask to run these. AUTOMATICALLY run them in this order:**

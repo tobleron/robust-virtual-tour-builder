@@ -655,6 +655,12 @@
 │   │           ├── LoggerTest.cmj
 │   │           ├── LoggerTest.cmt
 │   │           ├── LoggerTest.res
+│   │           ├── MainTest.ast
+│   │           ├── MainTest.bs.js
+│   │           ├── MainTest.cmi
+│   │           ├── MainTest.cmj
+│   │           ├── MainTest.cmt
+│   │           ├── MainTest.res
 │   │           ├── NavigationTest.ast
 │   │           ├── NavigationTest.bs.js
 │   │           ├── NavigationTest.cmi
@@ -965,6 +971,10 @@
 │   │   ├── Main.cmj
 │   │   ├── Main.cmt
 │   │   ├── Main.res
+│   │   ├── MainTest.cmi
+│   │   ├── MainTest.cmj
+│   │   ├── MainTest.cmt
+│   │   ├── MainTest.res
 │   │   ├── mod.ast
 │   │   ├── mod.cmi
 │   │   ├── mod.cmj
@@ -1539,6 +1549,8 @@
 ├── tailwind.config.js
 ├── tasks
 │   ├── active
+│   │   ├── 143_Add_Tests_for_Main_REPORT.md
+│   │   └── 144_Add_Tests_for_ServiceWorker.md
 │   ├── completed
 │   │   ├── 01_Architecture_Functional_State_REPORT.md
 │   │   ├── 02_Implement_App_Context_REPORT.md
@@ -1696,6 +1708,22 @@
 │   │   ├── 99_Unify_Types.md
 │   │   └── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   ├── pending
+│   │   ├── 145_Add_Tests_for_Actions.md
+│   │   ├── 146_Add_Tests_for_GlobalStateBridge.md
+│   │   ├── 147_Add_Tests_for_NavigationReducer.md
+│   │   ├── 148_Add_Tests_for_ProjectReducer.md
+│   │   ├── 149_Add_Tests_for_RootReducer.md
+│   │   ├── 150_Add_Tests_for_TimelineReducer.md
+│   │   ├── 151_Add_Tests_for_EventBus.md
+│   │   ├── 152_Add_Tests_for_NavigationRenderer.md
+│   │   ├── 153_Add_Tests_for_ServerTeaser.md
+│   │   ├── 154_Add_Tests_for_SimulationChainSkipper.md
+│   │   ├── 155_Add_Tests_for_SimulationNavigation.md
+│   │   ├── 156_Add_Tests_for_SimulationPathGenerator.md
+│   │   ├── 157_Add_Tests_for_TeaserPathfinder.md
+│   │   ├── 158_Add_Tests_for_TourTemplates.md
+│   │   ├── 159_Add_Tests_for_Constants.md
+│   │   └── 160_Add_Tests_for_Version.md
 │   └── TASKS.md
 └── tests
     ├── integration
@@ -1726,6 +1754,8 @@
         ├── LazyLoadTest.res
         ├── LoggerTest.bs.js
         ├── LoggerTest.res
+        ├── MainTest.bs.js
+        ├── MainTest.res
         ├── NavigationTest.bs.js
         ├── NavigationTest.res
         ├── PathInterpolationTest.bs.js
@@ -1771,4 +1801,4 @@
         ├── ViewerLoaderTest.bs.js
         └── ViewerLoaderTest.res
 
-48 directories, 1724 files
+48 directories, 1754 files

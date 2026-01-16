@@ -34,6 +34,7 @@ LazyLoadTest.run()
 ProgressBarTest.run()
 StateInspectorTest.run()
 NavigationTest.run()
+MainTest.run()
 ViewerLoaderTest.run()
 
 Console.log("All frontend tests passed successfully! 🎉")
