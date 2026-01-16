@@ -51,6 +51,7 @@ SimulationChainSkipperTest.run()
 SimulationPathGeneratorTest.run()
 TeaserPathfinderTest.run()
 ServerTeaserTest.run()
+ConstantsTest.run()
 
 Console.log("All frontend tests passed successfully! 🎉")
 %%raw(`process.exit(0)`)
