@@ -346,3 +346,4 @@ Task: 147
 [2026-01-16 17:16] v4.3.0 - Add unit tests for TeaserPathfinder
 [2026-01-16 17:46] v4.3.0 - Task 156: Add Tests for SimulationChainSkipper
 [2026-01-16 17:56] v4.3.0 - Add ServerTeaser unit tests
+[2026-01-16 18:04] v4.3.0 - feat: add unit tests for TourTemplates
