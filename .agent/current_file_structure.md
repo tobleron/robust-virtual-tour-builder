@@ -1789,7 +1789,6 @@
 ├── tailwind.config.js
 ├── tasks
 │   ├── active
-│   │   └── 164_Fix_ReScript_Deprecations.md
 │   ├── completed
 │   │   ├── 01_Architecture_Functional_State_REPORT.md
 │   │   ├── 02_Implement_App_Context_REPORT.md
@@ -1877,6 +1876,8 @@
 │   │   ├── 161_Setup_Vitest_Infrastructure.md
 │   │   ├── 162_Add_React_Error_Boundary_REPORT.md
 │   │   ├── 163_Secure_Production_Logging_REPORT.md
+│   │   ├── 164_Fix_ReScript_Deprecations_REPORT.md
+│   │   ├── 164_Fix_ReScript_Deprecations.md
 │   │   ├── 166_Add_Tests_for_App_REPORT.md
 │   │   ├── 17_Backend_Filename_Suggestion_REPORT.md
 │   │   ├── 18_Frontend_SingleZIP_Integration_REPORT.md
@@ -2088,4 +2089,4 @@
 │       └── VitestSmoke.test.res
 └── vitest.config.mjs
 
-48 directories, 2041 files
+48 directories, 2042 files
