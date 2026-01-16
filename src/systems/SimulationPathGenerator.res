@@ -149,10 +149,15 @@ let getSimulationPath = (skipAutoForward: bool): array<pathStep> => {
               | None => []
               }
 
+              let targetSceneName = switch Belt.Array.get(state.scenes, targetIdx) {
+              | Some(s) => s.name
+              | None => hotspot.target
+              }
+
               activePathObj.contents.transitionTarget = Some({
                 yaw: transYaw,
                 pitch: transPitch,
-                targetName: hotspot.target,
+                targetName: targetSceneName,
                 startYaw: switch hotspot.startYaw {
                 | Some(y) => y
                 | None => 0.0
