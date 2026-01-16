@@ -583,6 +583,12 @@
 │   │       ├── TestRunner.cmt
 │   │       ├── TestRunner.res
 │   │       └── unit
+│   │           ├── ActionsTest.ast
+│   │           ├── ActionsTest.bs.js
+│   │           ├── ActionsTest.cmi
+│   │           ├── ActionsTest.cmj
+│   │           ├── ActionsTest.cmt
+│   │           ├── ActionsTest.res
 │   │           ├── AudioManagerTest.ast
 │   │           ├── AudioManagerTest.bs.js
 │   │           ├── AudioManagerTest.cmi
@@ -811,6 +817,11 @@
 │   │   ├── Actions.cmj
 │   │   ├── Actions.cmt
 │   │   ├── Actions.res
+│   │   ├── ActionsTest.ast
+│   │   ├── ActionsTest.cmi
+│   │   ├── ActionsTest.cmj
+│   │   ├── ActionsTest.cmt
+│   │   ├── ActionsTest.res
 │   │   ├── App.ast
 │   │   ├── App.cmi
 │   │   ├── App.cmj
@@ -1562,6 +1573,7 @@
 ├── tailwind.config.js
 ├── tasks
 │   ├── active
+│   │   └── 145_Add_Tests_for_Actions_REPORT.md
 │   ├── completed
 │   │   ├── 01_Architecture_Functional_State_REPORT.md
 │   │   ├── 02_Implement_App_Context_REPORT.md
@@ -1721,7 +1733,6 @@
 │   │   ├── 99_Unify_Types.md
 │   │   └── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   ├── pending
-│   │   ├── 145_Add_Tests_for_Actions.md
 │   │   ├── 146_Add_Tests_for_GlobalStateBridge.md
 │   │   ├── 147_Add_Tests_for_NavigationReducer.md
 │   │   ├── 148_Add_Tests_for_ProjectReducer.md
@@ -1744,6 +1755,8 @@
     ├── TestRunner.bs.js
     ├── TestRunner.res
     └── unit
+        ├── ActionsTest.bs.js
+        ├── ActionsTest.res
         ├── AudioManagerTest.bs.js
         ├── AudioManagerTest.res
         ├── BackendApiTest.bs.js
@@ -1817,4 +1830,4 @@
         ├── ViewerLoaderTest.bs.js
         └── ViewerLoaderTest.res
 
-48 directories, 1770 files
+48 directories, 1783 files
