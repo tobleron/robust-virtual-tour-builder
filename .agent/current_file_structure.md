@@ -1149,6 +1149,7 @@
 │   │   ├── SharedTypesTest.cmj
 │   │   ├── SharedTypesTest.cmt
 │   │   ├── SharedTypesTest.res
+│   │   ├── Sidebar.ast
 │   │   ├── Sidebar.cmi
 │   │   ├── Sidebar.cmj
 │   │   ├── Sidebar.cmt
@@ -1561,8 +1562,6 @@
 ├── tailwind.config.js
 ├── tasks
 │   ├── active
-│   │   ├── 143_Add_Tests_for_Main_REPORT.md
-│   │   └── 144_Add_Tests_for_ServiceWorker_REPORT.md
 │   ├── completed
 │   │   ├── 01_Architecture_Functional_State_REPORT.md
 │   │   ├── 02_Implement_App_Context_REPORT.md
@@ -1626,6 +1625,8 @@
 │   │   ├── 140_Add_Tests_for_LazyLoad.md
 │   │   ├── 141_Add_Tests_for_ProgressBar_REPORT.md
 │   │   ├── 142_Add_Tests_for_Exporter.md
+│   │   ├── 143_Add_Tests_for_Main_REPORT.md
+│   │   ├── 144_Add_Tests_for_ServiceWorker_REPORT.md
 │   │   ├── 15_Backend_SingleZIP_Load_REPORT.md
 │   │   ├── 16_Backend_Project_Validation_REPORT.md
 │   │   ├── 17_Backend_Filename_Suggestion_REPORT.md
@@ -1816,4 +1817,4 @@
         ├── ViewerLoaderTest.bs.js
         └── ViewerLoaderTest.res
 
-48 directories, 1769 files
+48 directories, 1770 files
