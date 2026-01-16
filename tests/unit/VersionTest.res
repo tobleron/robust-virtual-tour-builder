@@ -9,7 +9,7 @@ let run = () => {
   Console.log("Version: " ++ v)
   if v == "" {
     Console.error("VersionTest Failed: getVersion() returned empty string")
-    Js.Exn.raiseError("VersionTest Failed")
+    JsError.throwWithMessage("VersionTest Failed")
   }
 
   /* Test getBuildInfo */
@@ -17,9 +17,9 @@ let run = () => {
   Console.log("Build Info: " ++ info)
 
   // Ensure it's a string, even if empty, though usually it has content
-  if Js.typeof(info) != "string" {
+  if typeof(info) != #string {
     Console.error("VersionTest Failed: getBuildInfo() did not return a string")
-    Js.Exn.raiseError("VersionTest Failed")
+    JsError.throwWithMessage("VersionTest Failed")
   }
 
   /* Test getFullVersion */
@@ -35,7 +35,7 @@ let run = () => {
       ", Got: " ++
       full,
     )
-    Js.Exn.raiseError("VersionTest Failed")
+    JsError.throwWithMessage("VersionTest Failed")
   }
 
   Console.log("VersionTest Passed")

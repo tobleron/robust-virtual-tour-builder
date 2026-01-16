@@ -1,8 +1,6 @@
 /* src/core/SharedTypes.res */
 /* Unified Type Definitions mirroring Backend Structs */
 
-open ReBindings
-
 /* --- XMP / GPano Types --- */
 type gPanoMetadata = {
   mutable usePanoramaViewer: bool,

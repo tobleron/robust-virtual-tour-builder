@@ -1,10 +1,7 @@
-/* tests/unit/ServerTeaserTest.res */
-
-open ReBindings
 open Types
 
 let run = () => {
-  Js.Console.log("Running ServerTeaserTest...")
+  Console.log("Running ServerTeaserTest...")
 
   /* Mock global FormData */
   let _ = %raw(`(function(){
@@ -95,8 +92,8 @@ let run = () => {
   /* Verify Fetch called */
   let calls: array<array<string>> = %raw("global.fetch.mock.calls")
   let relevantCall = calls->Belt.Array.getBy(call => {
-    let url: string = %raw("call[0]")
-    Js.String2.includes(url, "/generate-teaser")
+    let url = call->Belt.Array.getExn(0)
+    String.includes(url, "/generate-teaser")
   })
 
   switch relevantCall {
@@ -128,7 +125,7 @@ let run = () => {
     switch projectEntry {
     | Some(p) =>
       let val = p["value"]
-      if Js.String2.includes(val, "Test Tour") {
+      if String.includes(val, "Test Tour") {
         Console.log("  Pass: FormData project_data contains tour name")
       } else {
         Console.log("  Fail: FormData project_data missing tour name")

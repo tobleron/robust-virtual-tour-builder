@@ -1,6 +1,3 @@
-/* tests/unit/LazyLoadTest.res */
-open LazyLoad
-
 let run = () => {
   Console.log("Running LazyLoad tests...")
 

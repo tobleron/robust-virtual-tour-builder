@@ -1,10 +1,13 @@
-open Logger
+// open Logger removed to avoid shadowing
 
 let run = () => {
   Console.log("Running Logger tests...")
 
   // Test 1: Level Priority
-  if levelPriority(Trace) < levelPriority(Info) && levelPriority(Error) > levelPriority(Info) {
+  if (
+    Logger.levelPriority(Trace) < Logger.levelPriority(Info) &&
+      Logger.levelPriority(Error) > Logger.levelPriority(Info)
+  ) {
     Console.log("✓ levelPriority passed")
   } else {
     Console.error("✗ levelPriority failed")
@@ -12,9 +15,9 @@ let run = () => {
 
   // Test 2: Level String conversions
   if (
-    levelToString(Debug) == "debug" &&
-    stringToLevel("error") == Error &&
-    stringToLevel("unknown") == Info
+    Logger.levelToString(Debug) == "debug" &&
+    Logger.stringToLevel("error") == Error &&
+    Logger.stringToLevel("unknown") == Info
   ) {
     Console.log("✓ Level string conversions passed")
   } else {
@@ -22,7 +25,7 @@ let run = () => {
   }
 
   // Test 3: timed operation
-  let timedResult = timed(~module_="Test", ~operation="test_op", () => {
+  let timedResult = Logger.timed(~module_="Test", ~operation="test_op", () => {
     let _ = 1 + 1
     "done"
   })
@@ -33,14 +36,14 @@ let run = () => {
   }
 
   // Test 4: attempt operation (Success)
-  let successResult = attempt(~module_="Test", ~operation="success_op", () => "ok")
+  let successResult = Logger.attempt(~module_="Test", ~operation="success_op", () => "ok")
   switch successResult {
   | Ok("ok") => Console.log("✓ attempt success path passed")
   | _ => Console.error("✗ attempt success path failed")
   }
 
   // Test 5: attempt operation (Failure)
-  let failResult = attempt(~module_="Test", ~operation="fail_op", () => {
+  let failResult = Logger.attempt(~module_="Test", ~operation="fail_op", () => {
     %raw(`(function(){ throw new Error("test error") })()`)
   })
   switch failResult {

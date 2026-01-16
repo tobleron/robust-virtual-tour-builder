@@ -9,7 +9,7 @@ open EventBus
 type onProgress = (int, int, string) => unit
 type apiError = string
 
-external castToDict: JSON.t => Js.Dict.t<JSON.t> = "%identity"
+external castToDict: JSON.t => dict<JSON.t> = "%identity"
 external castToJson: 'a => JSON.t = "%identity"
 
 /* --- PURE TRANSFORMATIONS --- */
@@ -18,7 +18,7 @@ let validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {
   let obj = castToDict(data)
 
   // Basic validation check
-  switch (Js.Dict.get(obj, "scenes"), Js.Dict.get(obj, "tourName")) {
+  switch (Dict.get(obj, "scenes"), Dict.get(obj, "tourName")) {
   | (Some(_), Some(_)) => Ok(data)
   | _ => Error("Invalid project structure: missing scenes or tourName")
   }
@@ -84,8 +84,8 @@ let createSavePackage = (state: state, ~onProgress: option<onProgress>=?): Promi
     Promise.resolve(Ok(blob))
   })
   ->Promise.catch(err => {
-    let msg = switch Js.Exn.asJsExn(err) {
-    | Some(e) => Js.Exn.message(e)->Option.getOr("Unknown error creating save package")
+    let msg = switch JsExn.fromException(err) {
+    | Some(e) => JsExn.message(e)->Option.getOr("Unknown error creating save package")
     | None => "Unknown error creating save package"
     }
     Promise.resolve(Error(msg))
@@ -131,25 +131,24 @@ let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promi
   ->Promise.then(((sessionId, projectData)) => {
     progress(70, 100, "Resolving scenes...")
     let pd = castToDict(projectData)
-    let scenesArray =
-      Js.Dict.get(pd, "scenes")->Option.flatMap(Js.Json.decodeArray)->Option.getWithDefault([])
+    let scenesArray = Dict.get(pd, "scenes")->Option.flatMap(JSON.Decode.array)->Option.getOr([])
 
     // Map scenes to point to backend URL
     let validScenes = Belt.Array.map(scenesArray, item => {
       let sceneDict = castToDict(item)
       let name =
-        Js.Dict.get(sceneDict, "name")
-        ->Option.flatMap(Js.Json.decodeString)
-        ->Option.getWithDefault("unknown")
+        Dict.get(sceneDict, "name")
+        ->Option.flatMap(JSON.Decode.string)
+        ->Option.getOr("unknown")
 
       let fileUrl =
         Constants.backendUrl ++ "/api/session/" ++ sessionId ++ "/" ++ encodeURIComponent(name)
 
       // Clone scene object (shallow copy)
-      let newSceneDict = Js.Dict.fromArray(Js.Dict.entries(sceneDict))
+      let newSceneDict = Dict.fromArray(Dict.toArray(sceneDict))
 
-      Js.Dict.set(newSceneDict, "file", castToJson(fileUrl))
-      Js.Dict.set(newSceneDict, "originalFile", castToJson(fileUrl))
+      Dict.set(newSceneDict, "file", castToJson(fileUrl))
+      Dict.set(newSceneDict, "originalFile", castToJson(fileUrl))
 
       // Note: tinyFile handling could be added here if backend generates it
 
@@ -157,7 +156,7 @@ let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promi
     })
 
     // Extract validation report if present
-    let validationReport: option<SharedTypes.validationReport> = switch Js.Dict.get(
+    let validationReport: option<SharedTypes.validationReport> = switch Dict.get(
       pd,
       "validationReport",
     ) {
@@ -215,19 +214,15 @@ let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promi
     Dict.set(
       loadedProject,
       "tourName",
-      Js.Dict.get(pd, "tourName")->Option.getWithDefault(castToJson("Imported Tour")),
+      Dict.get(pd, "tourName")->Option.getOr(castToJson("Imported Tour")),
     )
     Dict.set(loadedProject, "scenes", castToJson(validScenes))
     Dict.set(
       loadedProject,
       "deletedSceneIds",
-      Js.Dict.get(pd, "deletedSceneIds")->Option.getWithDefault(castToJson([])),
+      Dict.get(pd, "deletedSceneIds")->Option.getOr(castToJson([])),
     )
-    Dict.set(
-      loadedProject,
-      "timeline",
-      Js.Dict.get(pd, "timeline")->Option.getWithDefault(castToJson([])),
-    )
+    Dict.set(loadedProject, "timeline", Dict.get(pd, "timeline")->Option.getOr(castToJson([])))
     Dict.set(loadedProject, "activeIndex", castToJson(0))
 
     progress(100, 100, "Project Loaded!")
@@ -251,8 +246,8 @@ let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promi
     )
     progress(0, 100, "Load Failed")
 
-    let msg = switch Js.Exn.asJsExn(err) {
-    | Some(e) => Js.Exn.message(e)->Option.getOr("Unknown load error")
+    let msg = switch JsExn.fromException(err) {
+    | Some(e) => JsExn.message(e)->Option.getOr("Unknown load error")
     | None => "Unknown load error"
     }
     Promise.resolve(Error(msg))
@@ -279,7 +274,7 @@ let saveProject = (state: state, ~onProgress: option<onProgress>=?) => {
     let safeName = String.replaceRegExp(tourName, /[^a-z0-9]/gi, "_")
     let safeName = String.toLowerCase(safeName)
     let dateParts = String.split(Date.toISOString(Date.make()), "T")
-    let dateStr = Belt.Array.get(dateParts, 0)->Belt.Option.getWithDefault("unknown_date")
+    let dateStr = Belt.Array.get(dateParts, 0)->Option.getOr("unknown_date")
     let filename = "Saved_RMX_" ++ safeName ++ "_v" ++ version ++ "_" ++ dateStr ++ ".vt.zip"
 
     let useFileHandle = %raw(`typeof window.showSaveFilePicker !== 'undefined'`)

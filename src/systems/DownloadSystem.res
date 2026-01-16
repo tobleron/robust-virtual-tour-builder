@@ -121,14 +121,14 @@ let saveBlobWithConfirmation = async (blob: Blob.t, filename: string) => {
       Logger.info(~module_="Download", ~message="SAVE_SUCCESS", ~data={"filename": filename}, ())
       true
     } catch {
-    | Js.Exn.Error(e) => {
-        let name = Js.Exn.name(e)->Option.getOr("UnknownError")
+    | JsExn(e) => {
+        let name = JsExn.name(e)->Option.getOr("UnknownError")
         if name == "AbortError" {
           Logger.info(~module_="Download", ~message="SAVE_CANCELLED", ())
           JsError.throwWithMessage("USER_CANCELLED")
         } else {
           Logger.error(~module_="Download", ~message="SAVE_ERROR", ~data={"error": e}, ())
-          JsError.throwWithMessage(Option.getOr(Js.Exn.message(e), "Save Failed"))
+          JsError.throwWithMessage(Option.getOr(JsExn.message(e), "Save Failed"))
         }
       }
     | e => throw(e)

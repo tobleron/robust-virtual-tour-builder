@@ -49,6 +49,14 @@
 │       └── shutdown_test.rs
 ├── bin
 │   └── tailwindcss
+├── build_output_2.log
+├── build_output_3.log
+├── build_output_4.log
+├── build_output_5.log
+├── build_output_6.log
+├── build_output_7.log
+├── build_output_8.log
+├── build_output.log
 ├── cache
 │   └── geocoding.json
 ├── css
@@ -951,6 +959,7 @@
 │   │   ├── BackendApi.cmj
 │   │   ├── BackendApi.cmt
 │   │   ├── BackendApi.res
+│   │   ├── BackendApiTest.ast
 │   │   ├── BackendApiTest.cmi
 │   │   ├── BackendApiTest.cmj
 │   │   ├── BackendApiTest.cmt
@@ -970,10 +979,12 @@
 │   │   ├── ConstantsTest.cmj
 │   │   ├── ConstantsTest.cmt
 │   │   ├── ConstantsTest.res
+│   │   ├── DownloadSystem.ast
 │   │   ├── DownloadSystem.cmi
 │   │   ├── DownloadSystem.cmj
 │   │   ├── DownloadSystem.cmt
 │   │   ├── DownloadSystem.res
+│   │   ├── DownloadSystemTest.ast
 │   │   ├── DownloadSystemTest.cmi
 │   │   ├── DownloadSystemTest.cmj
 │   │   ├── DownloadSystemTest.cmt
@@ -998,14 +1009,17 @@
 │   │   ├── ExifParser.cmj
 │   │   ├── ExifParser.cmt
 │   │   ├── ExifParser.res
+│   │   ├── ExifParserTest.ast
 │   │   ├── ExifParserTest.cmi
 │   │   ├── ExifParserTest.cmj
 │   │   ├── ExifParserTest.cmt
 │   │   ├── ExifParserTest.res
+│   │   ├── ExifReportGenerator.ast
 │   │   ├── ExifReportGenerator.cmi
 │   │   ├── ExifReportGenerator.cmj
 │   │   ├── ExifReportGenerator.cmt
 │   │   ├── ExifReportGenerator.res
+│   │   ├── ExifReportGeneratorTest.ast
 │   │   ├── ExifReportGeneratorTest.cmi
 │   │   ├── ExifReportGeneratorTest.cmj
 │   │   ├── ExifReportGeneratorTest.cmt
@@ -1035,6 +1049,7 @@
 │   │   ├── GlobalStateBridge.cmj
 │   │   ├── GlobalStateBridge.cmt
 │   │   ├── GlobalStateBridge.res
+│   │   ├── GlobalStateBridgeTest.ast
 │   │   ├── GlobalStateBridgeTest.cmi
 │   │   ├── GlobalStateBridgeTest.cmj
 │   │   ├── GlobalStateBridgeTest.cmt
@@ -1064,6 +1079,7 @@
 │   │   ├── InputSystem.cmj
 │   │   ├── InputSystem.cmt
 │   │   ├── InputSystem.res
+│   │   ├── InputSystemTest.ast
 │   │   ├── InputSystemTest.cmi
 │   │   ├── InputSystemTest.cmj
 │   │   ├── InputSystemTest.cmt
@@ -1078,6 +1094,7 @@
 │   │   ├── JsonTypesTest.cmj
 │   │   ├── JsonTypesTest.cmt
 │   │   ├── JsonTypesTest.res
+│   │   ├── LabelMenu.ast
 │   │   ├── LabelMenu.cmi
 │   │   ├── LabelMenu.cmj
 │   │   ├── LabelMenu.cmt
@@ -1087,6 +1104,7 @@
 │   │   ├── LazyLoad.cmj
 │   │   ├── LazyLoad.cmt
 │   │   ├── LazyLoad.res
+│   │   ├── LazyLoadTest.ast
 │   │   ├── LazyLoadTest.cmi
 │   │   ├── LazyLoadTest.cmj
 │   │   ├── LazyLoadTest.cmt
@@ -1101,6 +1119,7 @@
 │   │   ├── Logger.cmj
 │   │   ├── Logger.cmt
 │   │   ├── Logger.res
+│   │   ├── LoggerTest.ast
 │   │   ├── LoggerTest.cmi
 │   │   ├── LoggerTest.cmj
 │   │   ├── LoggerTest.cmt
@@ -1150,6 +1169,7 @@
 │   │   ├── NavigationRenderer.cmj
 │   │   ├── NavigationRenderer.cmt
 │   │   ├── NavigationRenderer.res
+│   │   ├── NavigationRendererTest.ast
 │   │   ├── NavigationRendererTest.cmi
 │   │   ├── NavigationRendererTest.cmj
 │   │   ├── NavigationRendererTest.cmt
@@ -1184,6 +1204,7 @@
 │   │   ├── ProgressBar.cmj
 │   │   ├── ProgressBar.cmt
 │   │   ├── ProgressBar.res
+│   │   ├── ProgressBarTest.ast
 │   │   ├── ProgressBarTest.cmi
 │   │   ├── ProgressBarTest.cmj
 │   │   ├── ProgressBarTest.cmt
@@ -1198,10 +1219,12 @@
 │   │   ├── ProjectDataTest.cmj
 │   │   ├── ProjectDataTest.cmt
 │   │   ├── ProjectDataTest.res
+│   │   ├── ProjectManager.ast
 │   │   ├── ProjectManager.cmi
 │   │   ├── ProjectManager.cmj
 │   │   ├── ProjectManager.cmt
 │   │   ├── ProjectManager.res
+│   │   ├── ProjectManagerTest.ast
 │   │   ├── ProjectManagerTest.cmi
 │   │   ├── ProjectManagerTest.cmj
 │   │   ├── ProjectManagerTest.cmt
@@ -1216,10 +1239,12 @@
 │   │   ├── ProjectReducerTest.cmj
 │   │   ├── ProjectReducerTest.cmt
 │   │   ├── ProjectReducerTest.res
+│   │   ├── ReBindings.ast
 │   │   ├── ReBindings.cmi
 │   │   ├── ReBindings.cmj
 │   │   ├── ReBindings.cmt
 │   │   ├── ReBindings.res
+│   │   ├── ReBindingsTest.ast
 │   │   ├── ReBindingsTest.cmi
 │   │   ├── ReBindingsTest.cmj
 │   │   ├── ReBindingsTest.cmt
@@ -1229,6 +1254,7 @@
 │   │   ├── Reducer.cmj
 │   │   ├── Reducer.cmt
 │   │   ├── Reducer.res
+│   │   ├── ReducerHelpers.ast
 │   │   ├── ReducerHelpers.cmi
 │   │   ├── ReducerHelpers.cmj
 │   │   ├── ReducerHelpers.cmt
@@ -1243,6 +1269,7 @@
 │   │   ├── ReducerTest.cmj
 │   │   ├── ReducerTest.cmt
 │   │   ├── ReducerTest.res
+│   │   ├── Resizer.ast
 │   │   ├── Resizer.cmi
 │   │   ├── Resizer.cmj
 │   │   ├── Resizer.cmt
@@ -1262,6 +1289,7 @@
 │   │   ├── RootReducerTest.cmj
 │   │   ├── RootReducerTest.cmt
 │   │   ├── RootReducerTest.res
+│   │   ├── SceneList.ast
 │   │   ├── SceneList.cmi
 │   │   ├── SceneList.cmj
 │   │   ├── SceneList.cmt
@@ -1281,6 +1309,7 @@
 │   │   ├── ServerTeaser.cmj
 │   │   ├── ServerTeaser.cmt
 │   │   ├── ServerTeaser.res
+│   │   ├── ServerTeaserTest.ast
 │   │   ├── ServerTeaserTest.cmi
 │   │   ├── ServerTeaserTest.cmj
 │   │   ├── ServerTeaserTest.cmt
@@ -1295,6 +1324,7 @@
 │   │   ├── ServiceWorkerTest.cmj
 │   │   ├── ServiceWorkerTest.cmt
 │   │   ├── ServiceWorkerTest.res
+│   │   ├── SharedTypes.ast
 │   │   ├── SharedTypes.cmi
 │   │   ├── SharedTypes.cmj
 │   │   ├── SharedTypes.cmt
@@ -1339,6 +1369,7 @@
 │   │   ├── SimulationPathGeneratorTest.cmj
 │   │   ├── SimulationPathGeneratorTest.cmt
 │   │   ├── SimulationPathGeneratorTest.res
+│   │   ├── SimulationSystem.ast
 │   │   ├── SimulationSystem.cmi
 │   │   ├── SimulationSystem.cmj
 │   │   ├── SimulationSystem.cmt
@@ -1378,6 +1409,7 @@
 │   │   ├── TeaserPathfinder.cmj
 │   │   ├── TeaserPathfinder.cmt
 │   │   ├── TeaserPathfinder.res
+│   │   ├── TeaserPathfinderTest.ast
 │   │   ├── TeaserPathfinderTest.cmi
 │   │   ├── TeaserPathfinderTest.cmj
 │   │   ├── TeaserPathfinderTest.cmt
@@ -1422,6 +1454,7 @@
 │   │   ├── TourTemplateAssets.cmj
 │   │   ├── TourTemplateAssets.cmt
 │   │   ├── TourTemplateAssets.res
+│   │   ├── TourTemplateAssetsTest.ast
 │   │   ├── TourTemplateAssetsTest.cmi
 │   │   ├── TourTemplateAssetsTest.cmj
 │   │   ├── TourTemplateAssetsTest.cmt
@@ -1436,10 +1469,12 @@
 │   │   ├── TourTemplateScripts.cmj
 │   │   ├── TourTemplateScripts.cmt
 │   │   ├── TourTemplateScripts.res
+│   │   ├── TourTemplateScriptsTest.ast
 │   │   ├── TourTemplateScriptsTest.cmi
 │   │   ├── TourTemplateScriptsTest.cmj
 │   │   ├── TourTemplateScriptsTest.cmt
 │   │   ├── TourTemplateScriptsTest.res
+│   │   ├── TourTemplatesTest.ast
 │   │   ├── TourTemplatesTest.cmi
 │   │   ├── TourTemplatesTest.cmj
 │   │   ├── TourTemplatesTest.cmt
@@ -1449,6 +1484,7 @@
 │   │   ├── TourTemplateStyles.cmj
 │   │   ├── TourTemplateStyles.cmt
 │   │   ├── TourTemplateStyles.res
+│   │   ├── TourTemplateStylesTest.ast
 │   │   ├── TourTemplateStylesTest.cmi
 │   │   ├── TourTemplateStylesTest.cmj
 │   │   ├── TourTemplateStylesTest.cmt
@@ -1463,6 +1499,7 @@
 │   │   ├── UiReducer.cmj
 │   │   ├── UiReducer.cmt
 │   │   ├── UiReducer.res
+│   │   ├── UploadProcessor.ast
 │   │   ├── UploadProcessor.cmi
 │   │   ├── UploadProcessor.cmj
 │   │   ├── UploadProcessor.cmt
@@ -1482,6 +1519,7 @@
 │   │   ├── Version.cmj
 │   │   ├── Version.cmt
 │   │   ├── Version.res
+│   │   ├── VersionTest.ast
 │   │   ├── VersionTest.cmi
 │   │   ├── VersionTest.cmj
 │   │   ├── VersionTest.cmt
@@ -1501,6 +1539,7 @@
 │   │   ├── ViewerFollow.cmj
 │   │   ├── ViewerFollow.cmt
 │   │   ├── ViewerFollow.res
+│   │   ├── ViewerLoader.ast
 │   │   ├── ViewerLoader.cmi
 │   │   ├── ViewerLoader.cmj
 │   │   ├── ViewerLoader.cmt
@@ -1535,6 +1574,7 @@
 │   │   ├── ViewerUI.cmj
 │   │   ├── ViewerUI.cmt
 │   │   ├── ViewerUI.res
+│   │   ├── VisualPipeline.ast
 │   │   ├── VisualPipeline.cmi
 │   │   ├── VisualPipeline.cmj
 │   │   ├── VisualPipeline.cmt
@@ -1757,6 +1797,7 @@
 ├── tailwind.config.js
 ├── tasks
 │   ├── active
+│   │   └── 164_Fix_ReScript_Deprecations.md
 │   ├── completed
 │   │   ├── 01_Architecture_Functional_State_REPORT.md
 │   │   ├── 02_Implement_App_Context_REPORT.md
@@ -1937,9 +1978,11 @@
 │   │   ├── 99_Unify_Types.md
 │   │   └── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   ├── pending
-│   │   ├── 164_Fix_ReScript_Deprecations.md
 │   │   └── 165_Implement_Dynamic_SEO.md
 │   └── TASKS.md
+├── test_output_2.log
+├── test_output_3.log
+├── test_output.log
 ├── tests
 │   ├── integration
 │   ├── node-setup.js
@@ -2056,4 +2099,4 @@
 │       └── VitestSmoke.test.res
 └── vitest.config.mjs
 
-48 directories, 2009 files
+48 directories, 2052 files

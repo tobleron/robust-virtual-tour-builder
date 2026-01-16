@@ -1,13 +1,13 @@
 open ReBindings
 open SharedTypes
-open Types
+// open Types removed to avoid shadowing common record labels like 'quality'
 
 /* Bindings for File API */
 /* Using ReBindings.File directly */
 type file = ReBindings.File.t
 
 external castToJson: 'a => JSON.t = "%identity"
-external castToDict: JSON.t => Js.Dict.t<JSON.t> = "%identity"
+external castToDict: JSON.t => dict<JSON.t> = "%identity"
 
 /* Bindings for External Systems */
 /* Bindings for External Systems */
@@ -462,16 +462,12 @@ let processUploads = (
                           Dict.set(obj, "name", File.name(preview)->JSON.Encode.string)
 
                           // Using unsafe cast to mix types in dict for JSON payload - essentially treated as {..} by consumer
-                          Js.Dict.set(obj, "original", castToJson(item.original))
-                          Js.Dict.set(obj, "preview", castToJson(preview))
-                          Js.Dict.set(obj, "tiny", castToJson(tiny))
-                          Js.Dict.set(obj, "quality", Option.getOr(item.quality, JSON.Encode.null))
-                          Js.Dict.set(
-                            obj,
-                            "metadata",
-                            Option.getOr(item.metadata, JSON.Encode.null),
-                          )
-                          Js.Dict.set(
+                          Dict.set(obj, "original", castToJson(item.original))
+                          Dict.set(obj, "preview", castToJson(preview))
+                          Dict.set(obj, "tiny", castToJson(tiny))
+                          Dict.set(obj, "quality", Option.getOr(item.quality, JSON.Encode.null))
+                          Dict.set(obj, "metadata", Option.getOr(item.metadata, JSON.Encode.null))
+                          Dict.set(
                             obj,
                             "colorGroup",
                             JSON.Encode.string(Option.getOr(item.colorGroup, "0")),

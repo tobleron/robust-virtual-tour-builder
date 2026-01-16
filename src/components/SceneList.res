@@ -217,12 +217,12 @@ let make = () => {
   let (scrollTop, viewportHeight) = scrollState
   let totalHeight = Array.length(state.scenes)->Int.toFloat *. itemHeight
 
-  let startIndex = Js.Math.floor_float(scrollTop /. itemHeight) -. buffer->Int.toFloat
-  let startIndex = Js.Math.max_float(0.0, startIndex)->Float.toInt
+  let startIndex = Math.floor(scrollTop /. itemHeight) -. buffer->Int.toFloat
+  let startIndex = Math.max(0.0, startIndex)->Float.toInt
 
-  let visibleCount = Js.Math.ceil_float(viewportHeight /. itemHeight)
+  let visibleCount = Math.ceil(viewportHeight /. itemHeight)
   let endIndex = startIndex + visibleCount->Float.toInt + buffer * 2
-  let endIndex = Js.Math.min_int(Array.length(state.scenes) - 1, endIndex)
+  let endIndex = Math.Int.min(Array.length(state.scenes) - 1, endIndex)
 
   let handleSceneClick = (index, _e) => {
     dispatch(Actions.SetNavigationStatus(Types.Idle))

@@ -1,4 +1,3 @@
-open ReBindings
 open TourTemplateStyles
 
 let run = () => {

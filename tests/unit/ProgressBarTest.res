@@ -117,8 +117,8 @@ let run = () => {
     )
     Console.log("✓ updateProgressBar: updates title when provided")
   } catch {
-  | Js.Exn.Error(e) =>
-    let msg = Js.Exn.message(e)->Belt.Option.getWithDefault("Unknown error")
+  | JsExn(e) =>
+    let msg = JsExn.message(e)->Option.getOr("Unknown error")
     Console.error("✗ ProgressBar tests failed: " ++ msg)
     assert(false)
   | _ =>

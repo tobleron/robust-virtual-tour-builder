@@ -60,7 +60,6 @@ let toggleLabelMenu = (labelButton: Dom.element) => {
     if isHidden {
       let rect = Dom.getBoundingClientRect(labelButton)
       let menuHeight = 500.0
-      let menuHeight = 500.0
       let spaceBelow = Belt.Int.toFloat(Window.innerHeight) -. rect.top
 
       Dom.setPointerEvents(m, "auto")
@@ -99,7 +98,7 @@ let syncLabelMenu = (scene: Types.scene) => {
 
   // Filter Sections
   Belt.Array.forEach(labelSections, section => {
-    let cat = Js.Dict.get(Dom.dataset(section), "category")
+    let cat = Dict.get(Dom.dataset(section), "category")
     if cat == Some(currentCategory) {
       Dom.setDisplay(section, "flex")
     } else {
@@ -109,7 +108,7 @@ let syncLabelMenu = (scene: Types.scene) => {
 
   // Update Pills
   Belt.Array.forEach(labelPills, pill => {
-    let val = Js.Dict.get(Dom.dataset(pill), "val")
+    let val = Dict.get(Dom.dataset(pill), "val")
     let isActive = val == Some(currentLabel)
     if isActive {
       Dom.add(pill, "bg-remax-blue")
@@ -206,7 +205,7 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
   Belt.Array.forEach(categories, ((category, labels)) => {
     let section = Dom.createElement("div")
     Dom.setClassName(section, "label-section flex flex-col gap-2.5")
-    Js.Dict.set(Dom.dataset(section), "category", category)
+    Dict.set(Dom.dataset(section), "category", category)
 
     let header = Dom.createElement("div")
     Dom.setClassName(header, "flex items-center gap-2")
@@ -231,8 +230,8 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
       )
       Dom.setTextContent(chip, label)
       Dom.setAttribute(chip, "aria-label", "Set label to " ++ label)
-      Js.Dict.set(Dom.dataset(chip), "val", label)
-      Js.Dict.set(Dom.dataset(chip), "category", category)
+      Dict.set(Dom.dataset(chip), "val", label)
+      Dict.set(Dom.dataset(chip), "category", category)
 
       Dom.setOnClick(
         chip,

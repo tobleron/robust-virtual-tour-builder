@@ -5,7 +5,7 @@ let run = () => {
 
   // Debug regex
   let dt = "2025:01:15 14:30"
-  let regex = /\\d{4}:\\d{2}:\\d{2}\\s+\\d{2}:\\d{2}/
+  let _regex = /\\d{4}:\\d{2}:\\d{2}\\s+\\d{2}:\\d{2}/
   // In ReScript, if we use %re("/.../"), backslashes MUST be escaped if we want them in the final JS string?
   // Actually, %re("/") uses the same escaping as JS /.../
 

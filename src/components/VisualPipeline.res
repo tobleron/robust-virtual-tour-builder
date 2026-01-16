@@ -119,7 +119,7 @@ let handleDragStart = (pipeline: t, e: Dom.event) => {
   let node = Dom.closest(Dom.target(e), ".pipeline-node")
   switch Nullable.toOption(node) {
   | Some(n) =>
-    let id = Js.Dict.get(Dom.dataset(n), "id")->Belt.Option.getWithDefault("")
+    let id = Dict.get(Dom.dataset(n), "id")->Option.getOr("")
     pipeline.dragSourceId = Nullable.make(id)
     Dom.add(n, "is-dragging")
     Dom.add(pipeline.wrapper, "dragging-active")
@@ -180,12 +180,9 @@ let handleDrop = (pipeline: t, e: Dom.event) => {
   switch (Nullable.toOption(zone), Nullable.toOption(pipeline.dragSourceId)) {
   | (Some(z), Some(sourceId)) =>
     let dropIndex =
-      Belt.Int.fromString(
-        Js.Dict.get(Dom.dataset(z), "index")->Option.getWithDefault(""),
-      )->Belt.Option.getWithDefault(0)
+      Belt.Int.fromString(Dict.get(Dom.dataset(z), "index")->Option.getOr(""))->Option.getOr(0)
     let state = GlobalStateBridge.getState()
-    let sourceIndex =
-      state.timeline->Belt.Array.getIndexBy(t => t.id == sourceId)->Belt.Option.getWithDefault(-1)
+    let sourceIndex = state.timeline->Belt.Array.getIndexBy(t => t.id == sourceId)->Option.getOr(-1)
 
     if sourceIndex != -1 {
       let finalIndex = if dropIndex > sourceIndex {
@@ -205,7 +202,7 @@ let handleDrop = (pipeline: t, e: Dom.event) => {
 let createDropZone = (pipeline: t, index: int) => {
   let zone = Dom.createElement("div")
   Dom.setClassName(zone, "drop-zone")
-  Js.Dict.set(Dom.dataset(zone), "index", Belt.Int.toString(index))
+  Dict.set(Dom.dataset(zone), "index", Belt.Int.toString(index))
 
   Dom.addEventListener(zone, "dragover", e => {
     let _ = handleDragOver(e)
@@ -234,7 +231,7 @@ let render = (pipeline: t, state: Types.state) => {
       Belt.Array.forEachWithIndex(state.timeline, (index, item) => {
         let node = Dom.createElement("div")
         Dom.setClassName(node, "pipeline-node")
-        Js.Dict.set(Dom.dataset(node), "id", item.id)
+        Dict.set(Dom.dataset(node), "id", item.id)
         Dom.setDraggable(node, true)
         Dom.setAttribute(node, "role", "button")
         Dom.setAttribute(node, "tabindex", "0")
@@ -245,7 +242,7 @@ let render = (pipeline: t, state: Types.state) => {
           let sceneIdx =
             state.scenes
             ->Belt.Array.getIndexBy(s => s.id == item.sceneId)
-            ->Belt.Option.getWithDefault(-1)
+            ->Option.getOr(-1)
           if sceneIdx != -1 {
             switch Belt.Array.get(state.scenes, sceneIdx) {
             | Some(s) =>
@@ -283,7 +280,7 @@ let render = (pipeline: t, state: Types.state) => {
             let firstMatchIdx =
               state.timeline
               ->Belt.Array.getIndexBy(t => t.sceneId == currentScene.id)
-              ->Belt.Option.getWithDefault(-1)
+              ->Option.getOr(-1)
             item.sceneId == currentScene.id && firstMatchIdx == index
           | None => false
           }

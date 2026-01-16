@@ -69,7 +69,7 @@ let run = () => {
     saveBlob(blob, "test_save.txt")
     Console.log("  saveBlob executed without error")
   } catch {
-  | e => Console.log("  saveBlob failed: " ++ Js.String.make(e))
+  | e => Console.log("  saveBlob failed: " ++ String.make(e))
   }
 
   /* Test: saveBlobWithConfirmation (fallback path) */
