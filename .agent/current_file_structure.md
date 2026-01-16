@@ -686,6 +686,12 @@
 │   │           ├── NavigationReducerTest.cmj
 │   │           ├── NavigationReducerTest.cmt
 │   │           ├── NavigationReducerTest.res
+│   │           ├── NavigationRendererTest.ast
+│   │           ├── NavigationRendererTest.bs.js
+│   │           ├── NavigationRendererTest.cmi
+│   │           ├── NavigationRendererTest.cmj
+│   │           ├── NavigationRendererTest.cmt
+│   │           ├── NavigationRendererTest.res
 │   │           ├── NavigationTest.ast
 │   │           ├── NavigationTest.bs.js
 │   │           ├── NavigationTest.cmi
@@ -776,6 +782,12 @@
 │   │           ├── SharedTypesTest.cmj
 │   │           ├── SharedTypesTest.cmt
 │   │           ├── SharedTypesTest.res
+│   │           ├── SimulationNavigationTest.ast
+│   │           ├── SimulationNavigationTest.bs.js
+│   │           ├── SimulationNavigationTest.cmi
+│   │           ├── SimulationNavigationTest.cmj
+│   │           ├── SimulationNavigationTest.cmt
+│   │           ├── SimulationNavigationTest.res
 │   │           ├── SimulationSystemTest.ast
 │   │           ├── SimulationSystemTest.bs.js
 │   │           ├── SimulationSystemTest.cmi
@@ -1074,6 +1086,10 @@
 │   │   ├── NavigationRenderer.cmj
 │   │   ├── NavigationRenderer.cmt
 │   │   ├── NavigationRenderer.res
+│   │   ├── NavigationRendererTest.cmi
+│   │   ├── NavigationRendererTest.cmj
+│   │   ├── NavigationRendererTest.cmt
+│   │   ├── NavigationRendererTest.res
 │   │   ├── NavigationTest.ast
 │   │   ├── NavigationTest.cmi
 │   │   ├── NavigationTest.cmj
@@ -1236,6 +1252,11 @@
 │   │   ├── SimulationNavigation.cmj
 │   │   ├── SimulationNavigation.cmt
 │   │   ├── SimulationNavigation.res
+│   │   ├── SimulationNavigationTest.ast
+│   │   ├── SimulationNavigationTest.cmi
+│   │   ├── SimulationNavigationTest.cmj
+│   │   ├── SimulationNavigationTest.cmt
+│   │   ├── SimulationNavigationTest.res
 │   │   ├── SimulationPathGenerator.ast
 │   │   ├── SimulationPathGenerator.cmi
 │   │   ├── SimulationPathGenerator.cmj
@@ -1639,12 +1660,6 @@
 ├── tailwind.config.js
 ├── tasks
 │   ├── active
-│   │   ├── 145_Add_Tests_for_Actions_REPORT.md
-│   │   ├── 147_Add_Tests_for_RootReducer_REPORT.md
-│   │   ├── 148_Add_Tests_for_EventBus_REPORT.md
-│   │   ├── 149_Add_Tests_for_NavigationReducer_REPORT.md
-│   │   ├── 150_Add_Tests_for_ProjectReducer_REPORT.md
-│   │   └── 151_Add_Tests_for_TimelineReducer_REPORT.md
 │   ├── completed
 │   │   ├── 01_Architecture_Functional_State_REPORT.md
 │   │   ├── 02_Implement_App_Context_REPORT.md
@@ -1710,8 +1725,16 @@
 │   │   ├── 142_Add_Tests_for_Exporter.md
 │   │   ├── 143_Add_Tests_for_Main_REPORT.md
 │   │   ├── 144_Add_Tests_for_ServiceWorker_REPORT.md
+│   │   ├── 145_Add_Tests_for_Actions_REPORT.md
 │   │   ├── 146_Add_Tests_for_GlobalStateBridge_REPORT.md
+│   │   ├── 147_Add_Tests_for_RootReducer_REPORT.md
+│   │   ├── 148_Add_Tests_for_EventBus_REPORT.md
+│   │   ├── 149_Add_Tests_for_NavigationReducer_REPORT.md
 │   │   ├── 15_Backend_SingleZIP_Load_REPORT.md
+│   │   ├── 150_Add_Tests_for_ProjectReducer_REPORT.md
+│   │   ├── 151_Add_Tests_for_TimelineReducer_REPORT.md
+│   │   ├── 152_Add_Tests_for_NavigationRenderer_REPORT.md
+│   │   ├── 153_Add_Tests_for_SimulationNavigation_REPORT.md
 │   │   ├── 16_Backend_Project_Validation_REPORT.md
 │   │   ├── 17_Backend_Filename_Suggestion_REPORT.md
 │   │   ├── 18_Frontend_SingleZIP_Integration_REPORT.md
@@ -1805,8 +1828,6 @@
 │   │   ├── 99_Unify_Types.md
 │   │   └── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   ├── pending
-│   │   ├── 152_Add_Tests_for_NavigationRenderer.md
-│   │   ├── 153_Add_Tests_for_SimulationNavigation.md
 │   │   ├── 154_Add_Tests_for_SimulationPathGenerator.md
 │   │   ├── 155_Add_Tests_for_TeaserPathfinder.md
 │   │   ├── 156_Add_Tests_for_SimulationChainSkipper.md
@@ -1855,6 +1876,8 @@
         ├── MainTest.res
         ├── NavigationReducerTest.bs.js
         ├── NavigationReducerTest.res
+        ├── NavigationRendererTest.bs.js
+        ├── NavigationRendererTest.res
         ├── NavigationTest.bs.js
         ├── NavigationTest.res
         ├── PathInterpolationTest.bs.js
@@ -1883,6 +1906,8 @@
         ├── ServiceWorkerTest.res
         ├── SharedTypesTest.bs.js
         ├── SharedTypesTest.res
+        ├── SimulationNavigationTest.bs.js
+        ├── SimulationNavigationTest.res
         ├── SimulationSystemTest.bs.js
         ├── SimulationSystemTest.res
         ├── StateInspectorTest.bs.js
@@ -1908,4 +1933,4 @@
         ├── ViewerLoaderTest.bs.js
         └── ViewerLoaderTest.res
 
-48 directories, 1861 files
+48 directories, 1886 files

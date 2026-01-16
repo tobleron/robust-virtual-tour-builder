@@ -7,3 +7,5 @@
 2. **Read and implement the task**: Start reading the task file and working on its implementation to completion.
 
 3. **Complete the task**: After finishing the task, rename the task file by adding the postfix `_REPORT` and change its content to state what the objective was and how it was fulfilled and realized technically and concisely.
+
+4. **Archive the task**: Move the renamed `_REPORT` file from `active/` to the `completed/` folder.
