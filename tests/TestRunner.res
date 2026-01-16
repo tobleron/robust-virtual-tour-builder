@@ -40,6 +40,7 @@ ViewerLoaderTest.run()
 ActionsTest.run()
 GlobalStateBridgeTest.run()
 RootReducerTest.run()
+NavigationReducerTest.run()
 EventBusTest.run()
 
 Console.log("All frontend tests passed successfully! 🎉")
