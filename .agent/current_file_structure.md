@@ -80,6 +80,7 @@
 │   ├── openapi.yaml
 │   ├── PERFORMANCE_ANALYSIS_FRONTEND_VS_BACKEND.md
 │   ├── PERFORMANCE_OPTIMIZATIONS.md
+│   ├── PRIORITY_RATIONALE.md
 │   ├── PROFESSIONAL_METRICS_REPORT.md
 │   ├── PROJECT_ANALYSIS_REPORT.md
 │   ├── PROJECT_EVALUATION_2026.md
@@ -607,6 +608,12 @@
 │   │           ├── DownloadSystemTest.cmj
 │   │           ├── DownloadSystemTest.cmt
 │   │           ├── DownloadSystemTest.res
+│   │           ├── EventBusTest.ast
+│   │           ├── EventBusTest.bs.js
+│   │           ├── EventBusTest.cmi
+│   │           ├── EventBusTest.cmj
+│   │           ├── EventBusTest.cmt
+│   │           ├── EventBusTest.res
 │   │           ├── ExifParserTest.ast
 │   │           ├── ExifParserTest.bs.js
 │   │           ├── ExifParserTest.cmi
@@ -887,6 +894,11 @@
 │   │   ├── EventBus.cmj
 │   │   ├── EventBus.cmt
 │   │   ├── EventBus.res
+│   │   ├── EventBusTest.ast
+│   │   ├── EventBusTest.cmi
+│   │   ├── EventBusTest.cmj
+│   │   ├── EventBusTest.cmt
+│   │   ├── EventBusTest.res
 │   │   ├── ExifParser.ast
 │   │   ├── ExifParser.cmi
 │   │   ├── ExifParser.cmj
@@ -1595,7 +1607,8 @@
 ├── tasks
 │   ├── active
 │   │   ├── 145_Add_Tests_for_Actions_REPORT.md
-│   │   └── 147_Add_Tests_for_RootReducer_REPORT.md
+│   │   ├── 147_Add_Tests_for_RootReducer_REPORT.md
+│   │   └── 148_Add_Tests_for_EventBus_REPORT.md
 │   ├── completed
 │   │   ├── 01_Architecture_Functional_State_REPORT.md
 │   │   ├── 02_Implement_App_Context_REPORT.md
@@ -1756,7 +1769,6 @@
 │   │   ├── 99_Unify_Types.md
 │   │   └── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   ├── pending
-│   │   ├── 148_Add_Tests_for_EventBus.md
 │   │   ├── 149_Add_Tests_for_NavigationReducer.md
 │   │   ├── 150_Add_Tests_for_ProjectReducer.md
 │   │   ├── 151_Add_Tests_for_TimelineReducer.md
@@ -1768,8 +1780,7 @@
 │   │   ├── 157_Add_Tests_for_ServerTeaser.md
 │   │   ├── 158_Add_Tests_for_TourTemplates.md
 │   │   ├── 159_Add_Tests_for_Constants.md
-│   │   ├── 160_Add_Tests_for_Version.md
-│   │   └── PRIORITY_RATIONALE.md
+│   │   └── 160_Add_Tests_for_Version.md
 │   └── TASKS.md
 └── tests
     ├── integration
@@ -1785,6 +1796,8 @@
         ├── BackendApiTest.res
         ├── DownloadSystemTest.bs.js
         ├── DownloadSystemTest.res
+        ├── EventBusTest.bs.js
+        ├── EventBusTest.res
         ├── ExifParserTest.bs.js
         ├── ExifParserTest.res
         ├── ExifReportGeneratorTest.bs.js
@@ -1856,4 +1869,4 @@
         ├── ViewerLoaderTest.bs.js
         └── ViewerLoaderTest.res
 
-48 directories, 1809 files
+48 directories, 1822 files

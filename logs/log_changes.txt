@@ -327,3 +327,12 @@ Closes #122
 - All tests passing (frontend + backend)
 
 Task: 147
+[2026-01-16 15:44] v4.3.0 - feat: Add comprehensive unit tests for EventBus module (Task 148)
+
+- Created tests/unit/EventBusTest.res with 14 comprehensive test cases
+- Registered EventBusTest in tests/TestRunner.res
+- Tests cover subscription, unsubscription, event dispatching, error handling
+- Tests verify all event types and their payloads
+- All tests pass successfully (npm test)
+- Used modern ReScript APIs (JsError.throwWithMessage)
+- Ensured proper type safety with fully qualified type names
