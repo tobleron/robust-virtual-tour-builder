@@ -716,6 +716,12 @@
 │   │           ├── ProjectManagerTest.cmj
 │   │           ├── ProjectManagerTest.cmt
 │   │           ├── ProjectManagerTest.res
+│   │           ├── ProjectReducerTest.ast
+│   │           ├── ProjectReducerTest.bs.js
+│   │           ├── ProjectReducerTest.cmi
+│   │           ├── ProjectReducerTest.cmj
+│   │           ├── ProjectReducerTest.cmt
+│   │           ├── ProjectReducerTest.res
 │   │           ├── ReBindingsTest.ast
 │   │           ├── ReBindingsTest.bs.js
 │   │           ├── ReBindingsTest.cmi
@@ -794,6 +800,12 @@
 │   │           ├── TeaserRecorderTest.cmj
 │   │           ├── TeaserRecorderTest.cmt
 │   │           ├── TeaserRecorderTest.res
+│   │           ├── TimelineReducerTest.ast
+│   │           ├── TimelineReducerTest.bs.js
+│   │           ├── TimelineReducerTest.cmi
+│   │           ├── TimelineReducerTest.cmj
+│   │           ├── TimelineReducerTest.cmt
+│   │           ├── TimelineReducerTest.res
 │   │           ├── TourLogicTest.ast
 │   │           ├── TourLogicTest.bs.js
 │   │           ├── TourLogicTest.cmi
@@ -1119,6 +1131,11 @@
 │   │   ├── ProjectReducer.cmj
 │   │   ├── ProjectReducer.cmt
 │   │   ├── ProjectReducer.res
+│   │   ├── ProjectReducerTest.ast
+│   │   ├── ProjectReducerTest.cmi
+│   │   ├── ProjectReducerTest.cmj
+│   │   ├── ProjectReducerTest.cmt
+│   │   ├── ProjectReducerTest.res
 │   │   ├── ReBindings.cmi
 │   │   ├── ReBindings.cmj
 │   │   ├── ReBindings.cmt
@@ -1283,6 +1300,11 @@
 │   │   ├── TimelineReducer.cmj
 │   │   ├── TimelineReducer.cmt
 │   │   ├── TimelineReducer.res
+│   │   ├── TimelineReducerTest.ast
+│   │   ├── TimelineReducerTest.cmi
+│   │   ├── TimelineReducerTest.cmj
+│   │   ├── TimelineReducerTest.cmt
+│   │   ├── TimelineReducerTest.res
 │   │   ├── TourLogic.ast
 │   │   ├── TourLogic.cmi
 │   │   ├── TourLogic.cmj
@@ -1620,7 +1642,10 @@
 │   │   ├── 145_Add_Tests_for_Actions_REPORT.md
 │   │   ├── 147_Add_Tests_for_RootReducer_REPORT.md
 │   │   ├── 148_Add_Tests_for_EventBus_REPORT.md
-│   │   └── 149_Add_Tests_for_NavigationReducer_REPORT.md
+│   │   ├── 149_Add_Tests_for_NavigationReducer_REPORT.md
+│   │   ├── 150_Add_Tests_for_ProjectReducer_REPORT.md
+│   │   ├── 150_Add_Tests_for_ProjectReducer.md
+│   │   └── 151_Add_Tests_for_TimelineReducer.md
 │   ├── completed
 │   │   ├── 01_Architecture_Functional_State_REPORT.md
 │   │   ├── 02_Implement_App_Context_REPORT.md
@@ -1781,8 +1806,6 @@
 │   │   ├── 99_Unify_Types.md
 │   │   └── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   ├── pending
-│   │   ├── 150_Add_Tests_for_ProjectReducer.md
-│   │   ├── 151_Add_Tests_for_TimelineReducer.md
 │   │   ├── 152_Add_Tests_for_NavigationRenderer.md
 │   │   ├── 153_Add_Tests_for_SimulationNavigation.md
 │   │   ├── 154_Add_Tests_for_SimulationPathGenerator.md
@@ -1843,6 +1866,8 @@
         ├── ProjectDataTest.res
         ├── ProjectManagerTest.bs.js
         ├── ProjectManagerTest.res
+        ├── ProjectReducerTest.bs.js
+        ├── ProjectReducerTest.res
         ├── ReBindingsTest.bs.js
         ├── ReBindingsTest.res
         ├── ReducerHelpersTest.bs.js
@@ -1867,6 +1892,8 @@
         ├── TeaserManagerTest.res
         ├── TeaserRecorderTest.bs.js
         ├── TeaserRecorderTest.res
+        ├── TimelineReducerTest.bs.js
+        ├── TimelineReducerTest.res
         ├── TourLogicTest.bs.js
         ├── TourLogicTest.res
         ├── TourTemplateAssetsTest.bs.js
@@ -1882,4 +1909,4 @@
         ├── ViewerLoaderTest.bs.js
         └── ViewerLoaderTest.res
 
-48 directories, 1835 files
+48 directories, 1862 files
