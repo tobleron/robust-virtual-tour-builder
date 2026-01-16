@@ -22,7 +22,7 @@ const sourceFiles = stagedFiles.filter(file => {
     }
 
     return (
-        (file.endsWith('.res') && !file.endsWith('Test.res') && !file.includes('/components/') && !file.includes('/types/') && !file.includes('TestRunner')) ||
+        (file.endsWith('.res') && !file.startsWith('tests/') && !file.endsWith('Test.res') && !file.includes('/components/') && !file.includes('/types/') && !file.includes('TestRunner')) ||
         (file.endsWith('.rs') && !file.includes('mod.rs') && !file.includes('main.rs') && !file.endsWith('_test.rs') && !file.endsWith('_tests.rs'))
     );
 });

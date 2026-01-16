@@ -21,7 +21,8 @@
         "mode": "automatic"
     },
     "dependencies": [
-        "@rescript/react"
+        "@rescript/react",
+        "rescript-vitest"
     ],
     "warnings": {
         "error": "+101"
