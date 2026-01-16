@@ -344,3 +344,4 @@ Task: 147
 [2026-01-16 16:42] v4.3.0 - Task 152: Add tests for NavigationRenderer
 [2026-01-16 16:52] v4.3.0 - Add unit tests for SimulationPathGenerator and fix targetName logic
 [2026-01-16 17:16] v4.3.0 - Add unit tests for TeaserPathfinder
+[2026-01-16 17:46] v4.3.0 - Task 156: Add Tests for SimulationChainSkipper

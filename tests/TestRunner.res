@@ -47,6 +47,7 @@ NavigationRendererTest.run()
 EventBusTest.run()
 TimelineReducerTest.run()
 SimulationNavigationTest.run()
+SimulationChainSkipperTest.run()
 SimulationPathGeneratorTest.run()
 TeaserPathfinderTest.run()
 
