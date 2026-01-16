@@ -64,7 +64,8 @@ let run = () => {
   let resultNav = NavigationReducer.reduce(initialState, actionNav)
 
   switch resultNav {
-  | Some(state) => switch state.navigation {
+  | Some(state) =>
+    switch state.navigation {
     | Navigating(j) => {
         assert(j.journeyId == 1)
         assert(j.targetIndex == 2)
@@ -96,7 +97,8 @@ let run = () => {
   let resultLink = NavigationReducer.reduce(initialState, actionLink)
 
   switch resultLink {
-  | Some(state) => switch state.incomingLink {
+  | Some(state) =>
+    switch state.incomingLink {
     | Some(link) => {
         assert(link.sceneIndex == 3)
         assert(link.hotspotIndex == 1)
