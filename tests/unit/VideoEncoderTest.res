@@ -84,7 +84,8 @@ let run = () => {
       Console.log("✓ FormData.appendWithFilename binding exists (browser-only feature)")
     }
   } catch {
-  | _ => // Expected in Node.js environment - FormData doesn't recognize browser Blob
+  | _ =>
+    // Expected in Node.js environment - FormData doesn't recognize browser Blob
     Console.log("✓ FormData.appendWithFilename binding exists (browser-only feature)")
   }
 

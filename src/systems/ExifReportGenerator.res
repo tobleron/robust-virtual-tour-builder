@@ -192,7 +192,8 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
       if captureDateTime.contents == None {
         let dateOpt = exifData.exif.dateTime
         switch dateOpt->Nullable.toOption {
-        | Some(dt) => if dt != "" {
+        | Some(dt) =>
+          if dt != "" {
             captureDateTime := Some(dt)
           }
         | None => ()
