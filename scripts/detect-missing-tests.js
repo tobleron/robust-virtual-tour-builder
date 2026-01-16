@@ -35,8 +35,9 @@ sourceFiles.forEach(file => {
     let testExists = false;
 
     if (file.endsWith('.res')) {
-        const expectedTestPath = `tests/unit/${nameWithoutExt}Test.res`;
-        if (fs.existsSync(expectedTestPath)) testExists = true;
+        const legacyTestPath = `tests/unit/${nameWithoutExt}Test.res`;
+        const vitestTestPath = `tests/unit/${nameWithoutExt}.test.res`;
+        if (fs.existsSync(legacyTestPath) || fs.existsSync(vitestTestPath)) testExists = true;
     } else if (file.endsWith('.rs')) {
         try {
             const content = fs.readFileSync(file, 'utf8');
@@ -102,7 +103,7 @@ if (missingTests.length > 0) {
                 `Create a unit test file to verify the logic in \`${item.file}\`.\n\n` +
                 `## 🛠Implementation Specs\n` +
                 (item.type === 'ReScript'
-                    ? `- Create \`tests/unit/${item.name}Test.res\`\n- Register it in \`tests/TestRunner.res\``
+                    ? `- Create \`tests/unit/${item.name}.test.res\` using the \`Vitest\` framework.`
                     : `- Add \`#[cfg(test)]\` module to the bottom of \`${item.file}\``) +
                 `\n- Ensure all tests pass with \`npm test\`.\n`;
 
