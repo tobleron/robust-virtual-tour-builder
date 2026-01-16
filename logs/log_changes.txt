@@ -318,3 +318,12 @@ Closes #122
 [2026-01-16 15:28] v4.3.0 - Add unit tests for Actions module
 [2026-01-16 15:29] v4.3.0 - Add unit tests for GlobalStateBridge
 [2026-01-16 15:30] v4.3.0 - chore: Sync version strings
+[2026-01-16 15:39] v4.3.0 - Add comprehensive unit tests for RootReducer
+
+- Created tests/unit/RootReducerTest.res with 12 comprehensive tests
+- Tests cover all domain reducers (Scene, Hotspot, UI, Navigation, Timeline, Project)
+- Verified reducer composition order and state immutability
+- Registered test in TestRunner.res
+- All tests passing (frontend + backend)
+
+Task: 147
