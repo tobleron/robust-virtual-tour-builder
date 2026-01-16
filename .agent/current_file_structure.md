@@ -770,6 +770,12 @@
 │   │           ├── SceneReducerTest.cmj
 │   │           ├── SceneReducerTest.cmt
 │   │           ├── SceneReducerTest.res
+│   │           ├── ServerTeaserTest.ast
+│   │           ├── ServerTeaserTest.bs.js
+│   │           ├── ServerTeaserTest.cmi
+│   │           ├── ServerTeaserTest.cmj
+│   │           ├── ServerTeaserTest.cmt
+│   │           ├── ServerTeaserTest.res
 │   │           ├── ServiceWorkerTest.ast
 │   │           ├── ServiceWorkerTest.bs.js
 │   │           ├── ServiceWorkerTest.cmi
@@ -1236,6 +1242,10 @@
 │   │   ├── ServerTeaser.cmj
 │   │   ├── ServerTeaser.cmt
 │   │   ├── ServerTeaser.res
+│   │   ├── ServerTeaserTest.cmi
+│   │   ├── ServerTeaserTest.cmj
+│   │   ├── ServerTeaserTest.cmt
+│   │   ├── ServerTeaserTest.res
 │   │   ├── ServiceWorker.ast
 │   │   ├── ServiceWorker.cmi
 │   │   ├── ServiceWorker.cmj
@@ -1770,6 +1780,7 @@
 │   │   ├── 154_Add_Tests_for_SimulationPathGenerator_REPORT.md
 │   │   ├── 155_Add_Tests_for_TeaserPathfinder_REPORT.md
 │   │   ├── 156_Add_Tests_for_SimulationChainSkipper_REPORT.md
+│   │   ├── 157_Add_Tests_for_ServerTeaser_REPORT.md
 │   │   ├── 16_Backend_Project_Validation_REPORT.md
 │   │   ├── 17_Backend_Filename_Suggestion_REPORT.md
 │   │   ├── 18_Frontend_SingleZIP_Integration_REPORT.md
@@ -1863,7 +1874,6 @@
 │   │   ├── 99_Unify_Types.md
 │   │   └── CONSOLIDATED_TASK_SUMMARIES_REPORT.md
 │   ├── pending
-│   │   ├── 157_Add_Tests_for_ServerTeaser.md
 │   │   ├── 158_Add_Tests_for_TourTemplates.md
 │   │   ├── 159_Add_Tests_for_Constants.md
 │   │   └── 160_Add_Tests_for_Version.md
@@ -1934,6 +1944,8 @@
         ├── RootReducerTest.res
         ├── SceneReducerTest.bs.js
         ├── SceneReducerTest.res
+        ├── ServerTeaserTest.bs.js
+        ├── ServerTeaserTest.res
         ├── ServiceWorkerTest.bs.js
         ├── ServiceWorkerTest.res
         ├── SharedTypesTest.bs.js
@@ -1971,4 +1983,4 @@
         ├── ViewerLoaderTest.bs.js
         └── ViewerLoaderTest.res
 
-48 directories, 1924 files
+48 directories, 1936 files
