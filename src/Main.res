@@ -30,25 +30,6 @@ module WebGL = {
   @send external getParameter: (t, int) => string = "getParameter"
 }
 
-module JsError = {
-  type t
-  @get external message: t => string = "message"
-  @get external stack: t => Nullable.t<string> = "stack"
-  @get external name: t => string = "name"
-}
-
-module UnhandledRejectionEvent = {
-  type t
-  type reason
-  @get external getReason: t => reason = "reason"
-  @get external getPromise: t => Promise.t<'a> = "promise"
-  @send external preventDefault: t => unit = "preventDefault"
-
-  external reasonToError: reason => JsError.t = "%identity"
-  external reasonToString: reason => string = "%identity"
-  let isError: reason => bool = %raw(`function(r) { return r instanceof Error }`)
-}
-
 module ViewerClickEvent = {
   type detail = {
     pitch: float,
@@ -63,13 +44,6 @@ module ViewerClickEvent = {
   external fromEvent: Dom.event => t = "%identity"
 }
 
-@val @scope("window")
-external setOnerror: ((string, string, int, int, Nullable.t<JsError.t>) => bool) => unit = "onerror"
-
-@val @scope("window")
-external setOnunhandledrejection: (UnhandledRejectionEvent.t => unit) => unit =
-  "onunhandledrejection"
-
 @val @scope(("window", "location")) external getHref: unit => string = "toString"
 
 external docToEl: {..} => Dom.element = "%identity"
@@ -78,7 +52,7 @@ external docToEl: {..} => Dom.element = "%identity"
 
 let init = async () => {
   try {
-    // 1. Logger
+    // 1. Logger (Now handles all global error trapping)
     Logger.init()
 
     Logger.info(~module_="System", ~message="Initializing Remax Builder...", ())
@@ -138,54 +112,8 @@ let init = async () => {
     | _ => Console.warn("Failed to collect system telemetry")
     }
 
-    // 4. Error Handlers
-    setOnerror((message, source, lineno, colno, error) => {
-      Logger.error(
-        ~module_="Global",
-        ~message="Uncaught Error: " ++ message,
-        ~data=Some({
-          "source": source,
-          "lineno": lineno,
-          "colno": colno,
-          "stack": switch error->Nullable.toOption {
-          | Some(e) => JsError.stack(e)->Nullable.toOption->Option.getOr("")
-          | None => ""
-          },
-          "type": switch error->Nullable.toOption {
-          | Some(e) => JsError.name(e)
-          | None => "Error"
-          },
-        }),
-        (),
-      )
-      false
-    })
+    // 4. Dom Setup & Mount
 
-    setOnunhandledrejection(event => {
-      let reason = UnhandledRejectionEvent.getReason(event)
-      let isError = UnhandledRejectionEvent.isError(reason)
-
-      Logger.error(
-        ~module_="Global",
-        ~message="Unhandled Promise Rejection",
-        ~data=Some({
-          "reason": isError
-            ? JsError.message(UnhandledRejectionEvent.reasonToError(reason))
-            : UnhandledRejectionEvent.reasonToString(reason),
-          "stack": isError
-            ? JsError.stack(UnhandledRejectionEvent.reasonToError(reason))
-            : Nullable.null,
-          "promise": UnhandledRejectionEvent.getPromise(event),
-        }),
-        (),
-      )
-
-      if !Js.String.includes("localhost", Window.window["location"]["hostname"]) {
-        UnhandledRejectionEvent.preventDefault(event)
-      }
-    })
-
-    // 5. Dom Setup & Mount
     Console.log("Mounting App...")
     switch Dom.getElementById("app")->Nullable.toOption {
     | Some(appRoot) =>

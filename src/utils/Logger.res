@@ -161,7 +161,11 @@ let sendTelemetry = async entry => {
         ),
       )
     } catch {
-    | _ => ()
+    | JsExn(e) =>
+      Console.error(
+        `[Logger] Failed to send telemetry: ${e->JsExn.message->Option.getOr("Unknown")}`,
+      )
+    | _ => Console.error("[Logger] Failed to send telemetry (Unknown error)")
     }
   }
 }
@@ -400,6 +404,33 @@ external asDynamic: 'a => {..} = "%identity"
 // GLOBAL BINDINGS (INIT)
 // =============================================================================
 
+// =============================================================================
+// HELPER MODULES (Error Extraction)
+// =============================================================================
+
+module JsError = {
+  type t
+  @get external message: t => string = "message"
+  @get external stack: t => Nullable.t<string> = "stack"
+  @get external name: t => string = "name"
+}
+
+module UnhandledRejectionEvent = {
+  type t
+  type reason
+  @get external getReason: t => reason = "reason"
+  @get external getPromise: t => Promise.t<'a> = "promise"
+  @send external preventDefault: t => unit = "preventDefault"
+
+  external reasonToError: reason => JsError.t = "%identity"
+  external reasonToString: reason => string = "%identity"
+  let isError: reason => bool = %raw(`function(r) { return r instanceof Error }`)
+}
+
+// =============================================================================
+// GLOBAL BINDINGS (INIT)
+// =============================================================================
+
 let init = () => {
   /* Expose to Window */
   let debugObj = {
@@ -410,20 +441,31 @@ let init = () => {
     "getLog": () => entries,
     "clear": () => {%raw(`entries.length = 0`)},
     "isEnabled": () => enabled.contents,
+    "testError": () => {
+      Js.Exn.raiseError("Test Error from Console")
+    },
   }
   Window.setDebug(Window.window, asDynamic(debugObj))
   Window.setAppLog(Window.window, appLog)
 
-  /* Intercept Global Errors */
-  Window.setOnError(Window.window, (msg, url, line, col, _error) => {
+  /* Intercept Global Errors with Stack Traces */
+  Window.setOnError(Window.window, (msg, source, line, col, errObj) => {
+    ignore(errObj)
+    let errNullable: Nullable.t<{..}> = %raw("errObj")
+    let stack = switch errNullable->Nullable.toOption {
+    | Some(e) => e["stack"]
+    | None => ""
+    }
+
     error(
-      ~module_="Window",
+      ~module_="Global",
       ~message="UNCAUGHT_ERROR",
       ~data=castToJson({
         "message": msg,
-        "url": url,
+        "source": source,
         "line": line,
         "col": col,
+        "stack": stack,
       }),
       (),
     )
@@ -431,14 +473,36 @@ let init = () => {
   })
 
   Window.setOnUnhandledRejection(Window.window, event => {
+    ignore(event)
+    let evt: UnhandledRejectionEvent.t = %raw("event")
+    let reason = UnhandledRejectionEvent.getReason(evt)
+    let isError = UnhandledRejectionEvent.isError(reason)
+
+    let reasonStr = isError
+      ? JsError.message(UnhandledRejectionEvent.reasonToError(reason))
+      : UnhandledRejectionEvent.reasonToString(reason)
+
+    let stack = isError
+      ? JsError.stack(UnhandledRejectionEvent.reasonToError(reason))
+        ->Nullable.toOption
+        ->Option.getOr("")
+      : ""
+
     error(
-      ~module_="Window",
+      ~module_="Global",
       ~message="UNHANDLED_REJECTION",
       ~data=castToJson({
-        "reason": event["reason"],
+        "reason": reasonStr,
+        "stack": stack,
       }),
       (),
     )
+
+    // Prevent default logging in production to avoid console noise + double logging
+    // But allow in localhost for dev convenience
+    if !Js.String.includes("localhost", Window.window["location"]["hostname"]) {
+      UnhandledRejectionEvent.preventDefault(evt)
+    }
   })
 
   initialized(~module_="Logger")

@@ -1135,7 +1135,6 @@
 |   |   |-- LinkModal.cmj
 |   |   |-- LinkModal.cmt
 |   |   |-- LinkModal.res
-|   |   |-- Logger.ast
 |   |   |-- Logger.cmi
 |   |   |-- Logger.cmj
 |   |   |-- Logger.cmt
@@ -2134,4 +2133,4 @@
 |       `-- VitestSmoke.test.res
 `-- vitest.config.mjs
 
-48 directories, 2087 files
+48 directories, 2086 files
