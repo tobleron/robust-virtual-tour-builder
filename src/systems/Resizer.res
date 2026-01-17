@@ -88,23 +88,42 @@ let getChecksum = (file: File.t): Promise.t<string> => {
 let checkBackendHealth = () => {
   let controller = AbortController.newAbortController()
   let _signal = AbortController.signal(controller)
-  let timeoutId = Window.setTimeout(() => AbortController.abort(controller), 2000)
+  let timeoutId = Window.setTimeout(() => AbortController.abort(controller), 5000)
+
+  let timestamp = Date.now()->Float.toString
+  Console.log("CHECKING HEALTH URL: " ++ Constants.backendUrl ++ "/health?t=" ++ timestamp)
 
   Fetch.fetch(
-    Constants.backendUrl ++ "/health",
-    {
-      method: "GET",
-      body: Nullable.null,
-      headers: Nullable.null,
-      signal: _signal,
-    },
+    Constants.backendUrl ++ "/health?t=" ++ timestamp,
+    Fetch.requestInit(~method="GET", ~signal=_signal, ()),
   )
   ->Promise.then(res => {
     Window.clearTimeout(timeoutId)
+
+    // /health returns text/plain "Remax VTB Backend is running!"
+    if !Fetch.ok(res) {
+      Console.warn("Backend Health Check Failed: " ++ Fetch.statusText(res))
+      Logger.warn(
+        ~module_="Resizer",
+        ~message="HEALTH_CHECK_FAILED",
+        ~data={
+          "status": Fetch.status(res),
+          "statusText": Fetch.statusText(res),
+          "url": Constants.backendUrl ++ "/health",
+        },
+        (),
+      )
+    }
     Promise.resolve(Fetch.ok(res))
   })
-  ->Promise.catch(_ => {
+  ->Promise.catch(err => {
     Window.clearTimeout(timeoutId)
+    Logger.warn(
+      ~module_="Resizer",
+      ~message="HEALTH_CHECK_ERROR",
+      ~data={"error": err, "url": Constants.backendUrl ++ "/health"},
+      (),
+    )
     Promise.resolve(false)
   })
 }
@@ -242,12 +261,8 @@ let generateResolutions = (file: File.t): Promise.t<dict<Blob.t>> => {
   FormData.append(formData, "file", file)
 
   Fetch.fetch(
-    Constants.backendUrl ++ "/resize-image-batch",
-    {
-      method: "POST",
-      body: formData,
-      headers: Nullable.null,
-    },
+    Constants.backendUrl ++ "/api/media/resize-batch",
+    Fetch.requestInit(~method="POST", ~body=formData, ()),
   )
   ->Promise.then(BackendApi.handleResponse)
   ->Promise.then(Fetch.blob)

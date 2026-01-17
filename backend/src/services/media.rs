@@ -1,14 +1,16 @@
+use bytes::Bytes;
+use exif;
+use fast_image_resize::{
+    FilterType, PixelType, ResizeAlg, ResizeOptions, Resizer, images::Image as FrImage,
+};
+use image::DynamicImage;
+use img_parts::riff::{RiffChunk, RiffContent};
+use img_parts::webp::WebP;
+use once_cell::sync::Lazy;
+use regex::Regex;
+use sha2::{Digest, Sha256};
 use std::io::Cursor;
 use std::time::Instant;
-use regex::Regex;
-use image::DynamicImage;
-use img_parts::webp::WebP;
-use img_parts::riff::{RiffContent, RiffChunk};
-use bytes::Bytes;
-use fast_image_resize::{Resizer, ResizeOptions, FilterType, ResizeAlg, PixelType, images::Image as FrImage};
-use sha2::{Sha256, Digest};
-use once_cell::sync::Lazy;
-use exif;
 
 use crate::models::*;
 
@@ -72,34 +74,47 @@ pub fn encode_webp(img: &DynamicImage, quality: f32) -> Result<Vec<u8>, String> 
 ///
 /// # Returns
 /// A vector of bytes containing the resized RGBA data.
-pub fn resize_fast_rgba(src_rgba: &[u8], src_w: u32, src_h: u32, target_width: u32, target_height: u32) -> Result<Vec<u8>, String> {
+pub fn resize_fast_rgba(
+    src_rgba: &[u8],
+    src_w: u32,
+    src_h: u32,
+    target_width: u32,
+    target_height: u32,
+) -> Result<Vec<u8>, String> {
     if target_width == 0 || target_height == 0 {
         return Err("Invalid dimensions".to_string());
     }
 
-    let src_image = FrImage::from_vec_u8(
-        src_w,
-        src_h,
-        src_rgba.to_vec(),
-        PixelType::U8x4,
-    ).map_err(|e| format!("FastResize Init Error: {:?}", e))?;
+    let src_image = FrImage::from_vec_u8(src_w, src_h, src_rgba.to_vec(), PixelType::U8x4)
+        .map_err(|e| format!("FastResize Init Error: {:?}", e))?;
 
     let mut dst_image = FrImage::new(target_width, target_height, PixelType::U8x4);
     let mut resizer = Resizer::new();
-    
+
     let mut options = ResizeOptions::default();
     options.algorithm = ResizeAlg::Convolution(FilterType::Lanczos3);
-    
-    resizer.resize(&src_image, &mut dst_image, &options)
+
+    resizer
+        .resize(&src_image, &mut dst_image, &options)
         .map_err(|e| format!("FastResize Error: {:?}", e))?;
-    
+
     Ok(dst_image.into_vec())
 }
 
-pub fn resize_fast(img: &image::DynamicImage, target_width: u32, target_height: u32) -> Result<image::DynamicImage, String> {
+pub fn resize_fast(
+    img: &image::DynamicImage,
+    target_width: u32,
+    target_height: u32,
+) -> Result<image::DynamicImage, String> {
     let rgba = img.to_rgba8();
-    let data = resize_fast_rgba(&rgba, img.width(), img.height(), target_width, target_height)?;
-    
+    let data = resize_fast_rgba(
+        &rgba,
+        img.width(),
+        img.height(),
+        target_width,
+        target_height,
+    )?;
+
     image::RgbaImage::from_raw(target_width, target_height, data)
         .map(image::DynamicImage::ImageRgba8)
         .ok_or_else(|| "Failed to create RgbaImage from resized data".to_string())
@@ -121,7 +136,13 @@ pub fn resize_fast(img: &image::DynamicImage, target_width: u32, target_height: 
 ///
 /// # Returns
 /// A `MetadataResponse` containing all extracted information and analysis results.
-pub fn perform_metadata_extraction_rgba(src_rgba: &[u8], src_w: u32, src_h: u32, input_data: &[u8], original_filename: Option<&str>) -> Result<MetadataResponse, String> {
+pub fn perform_metadata_extraction_rgba(
+    src_rgba: &[u8],
+    src_w: u32,
+    src_h: u32,
+    input_data: &[u8],
+    original_filename: Option<&str>,
+) -> Result<MetadataResponse, String> {
     // Calculate SHA-256 checksum first (fast in Rust, ~10x faster than JS)
     let checksum_start = Instant::now();
     let mut hasher = Sha256::new();
@@ -129,7 +150,11 @@ pub fn perform_metadata_extraction_rgba(src_rgba: &[u8], src_w: u32, src_h: u32,
     let hash_result = hasher.finalize();
     let checksum = format!("{:x}_{}", hash_result, input_data.len());
     let checksum_time = checksum_start.elapsed();
-    tracing::debug!("Checksum calculated in {:?}: {}...", checksum_time, &checksum[..16.min(checksum.len())]);
+    tracing::debug!(
+        "Checksum calculated in {:?}: {}...",
+        checksum_time,
+        &checksum[..16.min(checksum.len())]
+    );
 
     // 0. Check for existing "reMX" specific metadata (PREVENTION of Re-optimization)
     if let Ok(webp) = WebP::from_bytes(Bytes::copy_from_slice(input_data)) {
@@ -139,7 +164,7 @@ pub fn perform_metadata_extraction_rgba(src_rgba: &[u8], src_w: u32, src_h: u32,
                 RiffContent::Data(data) => data.as_ref(),
                 _ => &[] as &[u8],
             };
-            
+
             if let Ok(mut full_meta) = serde_json::from_slice::<MetadataResponse>(slice) {
                 full_meta.is_optimized = true;
                 full_meta.checksum = checksum.clone(); // Update with fresh checksum
@@ -148,17 +173,23 @@ pub fn perform_metadata_extraction_rgba(src_rgba: &[u8], src_w: u32, src_h: u32,
             }
 
             if let Ok(prev_analysis) = serde_json::from_slice::<QualityAnalysis>(slice) {
-                  return Ok(MetadataResponse {
-                      exif: ExifMetadata {
-                        make: None, model: None, date_time: None, gps: None,
-                        width: src_w, height: src_h,
-                        focal_length: None, aperture: None, iso: None,
-                      }, 
-                      quality: prev_analysis,
-                      is_optimized: true,
-                      checksum: checksum.clone(),
-                      suggested_name: original_filename.map(get_suggested_name),
-                  });
+                return Ok(MetadataResponse {
+                    exif: ExifMetadata {
+                        make: None,
+                        model: None,
+                        date_time: None,
+                        gps: None,
+                        width: src_w,
+                        height: src_h,
+                        focal_length: None,
+                        aperture: None,
+                        iso: None,
+                    },
+                    quality: prev_analysis,
+                    is_optimized: true,
+                    checksum: checksum.clone(),
+                    suggested_name: original_filename.map(get_suggested_name),
+                });
             }
         }
     }
@@ -177,30 +208,46 @@ pub fn perform_metadata_extraction_rgba(src_rgba: &[u8], src_w: u32, src_h: u32,
     let mut iso = None;
 
     if let Some(exif) = exif_data {
-        make = exif.get_field(exif::Tag::Make, exif::In::PRIMARY).map(|f| f.display_value().to_string().replace("\"", ""));
-        model = exif.get_field(exif::Tag::Model, exif::In::PRIMARY).map(|f| f.display_value().to_string().replace("\"", ""));
-        date_time = exif.get_field(exif::Tag::DateTimeOriginal, exif::In::PRIMARY).map(|f| f.display_value().to_string());
+        make = exif
+            .get_field(exif::Tag::Make, exif::In::PRIMARY)
+            .map(|f| f.display_value().to_string().replace("\"", ""));
+        model = exif
+            .get_field(exif::Tag::Model, exif::In::PRIMARY)
+            .map(|f| f.display_value().to_string().replace("\"", ""));
+        date_time = exif
+            .get_field(exif::Tag::DateTimeOriginal, exif::In::PRIMARY)
+            .map(|f| f.display_value().to_string());
 
-        focal_length = exif.get_field(exif::Tag::FocalLength, exif::In::PRIMARY).and_then(|f| {
-            if let exif::Value::Rational(ref v) = f.value {
-                v.get(0).map(|r| r.to_f64() as f32)
-            } else { None }
-        });
-        aperture = exif.get_field(exif::Tag::FNumber, exif::In::PRIMARY).and_then(|f| {
-            if let exif::Value::Rational(ref v) = f.value {
-                v.get(0).map(|r| r.to_f64() as f32)
-            } else { None }
-        });
-        iso = exif.get_field(exif::Tag::PhotographicSensitivity, exif::In::PRIMARY).and_then(|f| {
-            f.value.get_uint(0)
-        });
+        focal_length = exif
+            .get_field(exif::Tag::FocalLength, exif::In::PRIMARY)
+            .and_then(|f| {
+                if let exif::Value::Rational(ref v) = f.value {
+                    v.get(0).map(|r| r.to_f64() as f32)
+                } else {
+                    None
+                }
+            });
+        aperture = exif
+            .get_field(exif::Tag::FNumber, exif::In::PRIMARY)
+            .and_then(|f| {
+                if let exif::Value::Rational(ref v) = f.value {
+                    v.get(0).map(|r| r.to_f64() as f32)
+                } else {
+                    None
+                }
+            });
+        iso = exif
+            .get_field(exif::Tag::PhotographicSensitivity, exif::In::PRIMARY)
+            .and_then(|f| f.value.get_uint(0));
 
         let lat_field = exif.get_field(exif::Tag::GPSLatitude, exif::In::PRIMARY);
         let lat_ref_field = exif.get_field(exif::Tag::GPSLatitudeRef, exif::In::PRIMARY);
         let lon_field = exif.get_field(exif::Tag::GPSLongitude, exif::In::PRIMARY);
         let lon_ref_field = exif.get_field(exif::Tag::GPSLongitudeRef, exif::In::PRIMARY);
 
-        if let (Some(lat), Some(lat_ref), Some(lon), Some(lon_ref)) = (lat_field, lat_ref_field, lon_field, lon_ref_field) {
+        if let (Some(lat), Some(lat_ref), Some(lon), Some(lon_ref)) =
+            (lat_field, lat_ref_field, lon_field, lon_ref_field)
+        {
             let parse_gps = |f: &exif::Field| -> Option<f64> {
                 if let exif::Value::Rational(ref dms) = f.value {
                     if dms.len() >= 3 {
@@ -214,17 +261,25 @@ pub fn perform_metadata_extraction_rgba(src_rgba: &[u8], src_w: u32, src_h: u32,
             };
 
             if let (Some(mut lat_val), Some(mut lon_val)) = (parse_gps(lat), parse_gps(lon)) {
-                if lat_ref.display_value().to_string().contains('S') { lat_val = -lat_val; }
-                if lon_ref.display_value().to_string().contains('W') { lon_val = -lon_val; }
-                gps = Some(GpsData { lat: lat_val, lon: lon_val });
+                if lat_ref.display_value().to_string().contains('S') {
+                    lat_val = -lat_val;
+                }
+                if lon_ref.display_value().to_string().contains('W') {
+                    lon_val = -lon_val;
+                }
+                gps = Some(GpsData {
+                    lat: lat_val,
+                    lon: lon_val,
+                });
             }
         }
     }
 
     // 2. Quality Analysis
     // OPTIMIZATION: Use fast resize for analysis thumbnail
-    let thumb_rgba = resize_fast_rgba(src_rgba, src_w, src_h, 400, 400).map_err(|e| format!("Analysis resize failed: {}", e))?;
-    
+    let thumb_rgba = resize_fast_rgba(src_rgba, src_w, src_h, 400, 400)
+        .map_err(|e| format!("Analysis resize failed: {}", e))?;
+
     let w = 400u32;
     let h = 400u32;
     let pixel_count = (w * h) as f32;
@@ -237,7 +292,9 @@ pub fn perform_metadata_extraction_rgba(src_rgba: &[u8], src_w: u32, src_h: u32,
     let mut gray_pixels = Vec::with_capacity((w * h) as usize);
 
     for chunk in thumb_rgba.chunks(4) {
-        if chunk.len() < 3 { continue; }
+        if chunk.len() < 3 {
+            continue;
+        }
         let r = chunk[0] as usize;
         let g = chunk[1] as usize;
         let b = chunk[2] as usize;
@@ -245,7 +302,10 @@ pub fn perform_metadata_extraction_rgba(src_rgba: &[u8], src_w: u32, src_h: u32,
         hist_g[g] += 1;
         hist_b[b] += 1;
 
-        let lum = ((chunk[0] as u32 * 54).saturating_add(chunk[1] as u32 * 183).saturating_add(chunk[2] as u32 * 19) >> 8) as u8;
+        let lum = ((chunk[0] as u32 * 54)
+            .saturating_add(chunk[1] as u32 * 183)
+            .saturating_add(chunk[2] as u32 * 19)
+            >> 8) as u8;
         hist_gray[lum as usize] += 1;
         total_lum += lum as u64;
         gray_pixels.push(lum);
@@ -261,14 +321,17 @@ pub fn perform_metadata_extraction_rgba(src_rgba: &[u8], src_w: u32, src_h: u32,
         .flat_map(|y| (1..(w - 1)).map(move |x| (y, x)))
         .filter_map(|(y, x)| {
             let idx = (y * w + x) as usize;
-            if idx >= gray_pixels.len() { return None; }
-            
+            if idx >= gray_pixels.len() {
+                return None;
+            }
+
             let center = gray_pixels[idx] as i32;
-            let lap = gray_pixels[idx - w as usize] as i32 +
-                      gray_pixels[idx - 1] as i32 +
-                      gray_pixels[idx + 1] as i32 +
-                      gray_pixels[idx + w as usize] as i32 - 4 * center;
-            
+            let lap = gray_pixels[idx - w as usize] as i32
+                + gray_pixels[idx - 1] as i32
+                + gray_pixels[idx + 1] as i32
+                + gray_pixels[idx + w as usize] as i32
+                - 4 * center;
+
             Some(lap as f64)
         })
         .fold((0.0f64, 0.0f64, 0u64), |(sum, sq_sum, count), lap| {
@@ -278,7 +341,9 @@ pub fn perform_metadata_extraction_rgba(src_rgba: &[u8], src_w: u32, src_h: u32,
     let laplace_var = if sampled_count > 0 {
         let mean = laplace_sum / sampled_count as f64;
         (laplace_sq_sum / sampled_count as f64) - (mean * mean)
-    } else { 0.0 };
+    } else {
+        0.0
+    };
 
     let is_blurry = laplace_var < 100.0;
     let is_soft = !is_blurry && laplace_var < 120.0;
@@ -292,45 +357,102 @@ pub fn perform_metadata_extraction_rgba(src_rgba: &[u8], src_w: u32, src_h: u32,
     let mut issues = 0u32;
     let mut warnings = 0u32;
 
-    if has_black_clipping { score -= 2.0; issues += 1; }
-    if has_white_clipping { score -= 2.0; issues += 1; }
-    if is_severely_dark { score -= 2.5; issues += 1; }
-    if is_severely_bright { score -= 1.5; issues += 1; }
-    if is_blurry { score -= 2.0; issues += 1; }
-    if is_dim { score -= 1.0; warnings += 1; }
-    if is_soft { score -= 1.0; warnings += 1; }
-    if issues == 0 && warnings == 0 { score += 1.5; }
+    if has_black_clipping {
+        score -= 2.0;
+        issues += 1;
+    }
+    if has_white_clipping {
+        score -= 2.0;
+        issues += 1;
+    }
+    if is_severely_dark {
+        score -= 2.5;
+        issues += 1;
+    }
+    if is_severely_bright {
+        score -= 1.5;
+        issues += 1;
+    }
+    if is_blurry {
+        score -= 2.0;
+        issues += 1;
+    }
+    if is_dim {
+        score -= 1.0;
+        warnings += 1;
+    }
+    if is_soft {
+        score -= 1.0;
+        warnings += 1;
+    }
+    if issues == 0 && warnings == 0 {
+        score += 1.5;
+    }
     score = score.clamp(1.0, 10.0);
 
     let mut analysis = Vec::new();
-    if is_severely_dark { analysis.push("Very dark image."); }
-    if is_severely_bright { analysis.push("Very bright image."); }
-    if has_black_clipping { analysis.push("Lost shadow detail."); }
-    if has_white_clipping { analysis.push("Lost highlight detail."); }
-    if is_blurry { analysis.push("Possible blur detected."); }
-    if is_dim { analysis.push("Image appears dim; brighter exposure recommended."); }
-    if is_soft { analysis.push("Slight softness detected; check focus."); }
+    if is_severely_dark {
+        analysis.push("Very dark image.");
+    }
+    if is_severely_bright {
+        analysis.push("Very bright image.");
+    }
+    if has_black_clipping {
+        analysis.push("Lost shadow detail.");
+    }
+    if has_white_clipping {
+        analysis.push("Lost highlight detail.");
+    }
+    if is_blurry {
+        analysis.push("Possible blur detected.");
+    }
+    if is_dim {
+        analysis.push("Image appears dim; brighter exposure recommended.");
+    }
+    if is_soft {
+        analysis.push("Slight softness detected; check focus.");
+    }
 
     Ok(MetadataResponse {
         exif: ExifMetadata {
-            make, model, date_time, gps,
-            width: src_w, height: src_h,
-            focal_length, aperture, iso,
+            make,
+            model,
+            date_time,
+            gps,
+            width: src_w,
+            height: src_h,
+            focal_length,
+            aperture,
+            iso,
         },
         quality: QualityAnalysis {
             score,
             histogram: hist_gray,
-            color_hist: ColorHist { r: hist_r, g: hist_g, b: hist_b },
+            color_hist: ColorHist {
+                r: hist_r,
+                g: hist_g,
+                b: hist_b,
+            },
             stats: QualityStats {
                 avg_luminance: avg_lum,
                 black_clipping,
                 white_clipping,
                 sharpness_variance: laplace_var as u32,
             },
-            is_blurry, is_soft, is_severely_dark, is_severely_bright, is_dim,
-            has_black_clipping, has_white_clipping,
-            issues, warnings,
-            analysis: if analysis.is_empty() { None } else { Some(analysis.join(" ")) },
+            is_blurry,
+            is_soft,
+            is_severely_dark,
+            is_severely_bright,
+            is_dim,
+            has_black_clipping,
+            has_white_clipping,
+            issues,
+            warnings,
+            analysis: if analysis.is_empty() {
+                None
+            } else {
+                Some(analysis.join(" "))
+            },
         },
         is_optimized: false,
         checksum,
@@ -338,9 +460,19 @@ pub fn perform_metadata_extraction_rgba(src_rgba: &[u8], src_w: u32, src_h: u32,
     })
 }
 
-pub fn perform_metadata_extraction(img: &image::DynamicImage, input_data: &[u8], original_filename: Option<&str>) -> Result<MetadataResponse, String> {
+pub fn perform_metadata_extraction(
+    img: &image::DynamicImage,
+    input_data: &[u8],
+    original_filename: Option<&str>,
+) -> Result<MetadataResponse, String> {
     let rgba = img.to_rgba8();
-    perform_metadata_extraction_rgba(&rgba, img.width(), img.height(), input_data, original_filename)
+    perform_metadata_extraction_rgba(
+        &rgba,
+        img.width(),
+        img.height(),
+        input_data,
+        original_filename,
+    )
 }
 
 /// Injects a custom `reMX` chunk into a WebP file containing metadata JSON.
@@ -355,17 +487,22 @@ pub fn perform_metadata_extraction(img: &image::DynamicImage, input_data: &[u8],
 ///
 /// # Returns
 /// The modified WebP file as binary data.
-pub fn inject_remx_chunk(webp_data: Vec<u8>, metadata: &MetadataResponse) -> Result<Vec<u8>, String> {
+pub fn inject_remx_chunk(
+    webp_data: Vec<u8>,
+    metadata: &MetadataResponse,
+) -> Result<Vec<u8>, String> {
     let mut webp = WebP::from_bytes(Bytes::from(webp_data)).map_err(|e| e.to_string())?;
     let json = serde_json::to_string(metadata).map_err(|e| e.to_string())?;
-    
+
     // Create custom chunk "reMX"
     let chunk = RiffChunk::new(*b"reMX", RiffContent::Data(Bytes::from(json)));
     webp.chunks_mut().push(chunk);
-    
+
     // Encode back to bytes
     let mut writer = Cursor::new(Vec::new());
-    webp.encoder().write_to(&mut writer).map_err(|e: std::io::Error| e.to_string())?;
+    webp.encoder()
+        .write_to(&mut writer)
+        .map_err(|e: std::io::Error| e.to_string())?;
     Ok(writer.into_inner())
 }
 
@@ -378,7 +515,10 @@ mod tests {
         assert_eq!(get_suggested_name("_240114_00_001.jpg"), "240114_001");
         assert_eq!(get_suggested_name("random_file.png"), "random_file");
         // get_suggested_name takes the filename, not the path, but let's see how it handles it
-        assert_eq!(get_suggested_name("images/_240114_00_001.jpg"), "240114_001");
+        assert_eq!(
+            get_suggested_name("images/_240114_00_001.jpg"),
+            "240114_001"
+        );
     }
 
     #[test]
@@ -387,7 +527,7 @@ mod tests {
         // We need a valid-ish RGBA buffer for the quality analysis part
         let rgba = vec![0u8; 400 * 400 * 4];
         let res = perform_metadata_extraction_rgba(&rgba, 400, 400, data, None).unwrap();
-        
+
         // sha256 of "hello world" is b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9
         assert!(res.checksum.starts_with("b94d27b9934d3e08"));
         assert!(res.checksum.ends_with("_11")); // "hello world" is 11 bytes
@@ -400,37 +540,38 @@ mod tests {
         let h = 400;
         let rgba = vec![128u8; (w * h * 4) as usize];
         let data = vec![0u8; 100]; // Dummy input data
-        
+
         let res = perform_metadata_extraction_rgba(&rgba, w, h, &data, None).unwrap();
         assert!(res.quality.is_blurry);
         assert_eq!(res.quality.stats.sharpness_variance, 0);
     }
-    
+
     #[test]
     fn test_brightness_detection() {
         let w = 400;
         let h = 400;
-        
+
         // Very dark image
         let mut dark_rgba = vec![0u8; (w * h * 4) as usize];
-        for i in 0..(w*h) {
-            dark_rgba[(i*4) as usize] = 10;
-            dark_rgba[(i*4+1) as usize] = 10;
-            dark_rgba[(i*4+2) as usize] = 10;
-            dark_rgba[(i*4+3) as usize] = 255;
+        for i in 0..(w * h) {
+            dark_rgba[(i * 4) as usize] = 10;
+            dark_rgba[(i * 4 + 1) as usize] = 10;
+            dark_rgba[(i * 4 + 2) as usize] = 10;
+            dark_rgba[(i * 4 + 3) as usize] = 255;
         }
         let res_dark = perform_metadata_extraction_rgba(&dark_rgba, w, h, &vec![0], None).unwrap();
         assert!(res_dark.quality.is_severely_dark);
-        
+
         // Very bright image
         let mut bright_rgba = vec![0u8; (w * h * 4) as usize];
-        for i in 0..(w*h) {
-            bright_rgba[(i*4) as usize] = 250;
-            bright_rgba[(i*4+1) as usize] = 250;
-            bright_rgba[(i*4+2) as usize] = 250;
-            bright_rgba[(i*4+3) as usize] = 255;
+        for i in 0..(w * h) {
+            bright_rgba[(i * 4) as usize] = 250;
+            bright_rgba[(i * 4 + 1) as usize] = 250;
+            bright_rgba[(i * 4 + 2) as usize] = 250;
+            bright_rgba[(i * 4 + 3) as usize] = 255;
         }
-        let res_bright = perform_metadata_extraction_rgba(&bright_rgba, w, h, &vec![0], None).unwrap();
+        let res_bright =
+            perform_metadata_extraction_rgba(&bright_rgba, w, h, &vec![0], None).unwrap();
         assert!(res_bright.quality.analysis.unwrap().contains("Very bright"));
     }
     #[test]

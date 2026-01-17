@@ -69,6 +69,7 @@ type timelineItemJson = {
 type updateMetadataJson = {
   category: Nullable.t<string>,
   floor: Nullable.t<string>,
+  label: Nullable.t<string>,
 }
 
 type timelineUpdateJson = {

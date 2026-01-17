@@ -1,5 +1,3 @@
-open ReBindings
-
 // Helper for styles
 external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 
@@ -35,43 +33,33 @@ let make = () => {
     Some(unsubscribe)
   })
 
-  let portalTarget = Dom.getElementById("notification-container")
+  // Render
+  <>
+    {notifications
+    ->Belt.Array.map(n => {
+      let typeClass = switch n.type_ {
+      | #Info => ""
+      | #Success => "success"
+      | #Error => "error"
+      | #Warning => "warning"
+      }
 
-  switch Nullable.toOption(portalTarget) {
-  | Some(target) =>
-    ReactDOM.createPortal(
-      <>
-        {notifications
-        ->Belt.Array.map(n => {
-          let typeClass = switch n.type_ {
-          | #Info => ""
-          | #Success => "success"
-          | #Error => "error"
-          | #Warning => "warning"
-          }
-
-          <div key={n.id} className={`toast show ${typeClass}`} role="status" ariaLive=#polite>
-            <span
-              className="material-icons" style={makeStyle({"fontSize": "20px"})} ariaHidden=true
-            >
-              {React.string(
-                switch n.type_ {
-                | #Error => "error_outline"
-                | #Success => "check_circle"
-                | #Warning => "warning_amber"
-                | _ => "info_outline"
-                },
-              )}
-            </span>
-            <span> {React.string(n.msg)} </span>
-          </div>
-        })
-        ->React.array}
-      </>,
-      Obj.magic(target),
-    )
-  | None => React.null
-  }
+      <div key={n.id} className={`toast show ${typeClass}`} role="status" ariaLive=#polite>
+        <span className="material-icons" style={makeStyle({"fontSize": "20px"})} ariaHidden=true>
+          {React.string(
+            switch n.type_ {
+            | #Error => "error_outline"
+            | #Success => "check_circle"
+            | #Warning => "warning_amber"
+            | _ => "info_outline"
+            },
+          )}
+        </span>
+        <span> {React.string(n.msg)} </span>
+      </div>
+    })
+    ->React.array}
+  </>
 }
 
 let notify = (msg, type_) => {

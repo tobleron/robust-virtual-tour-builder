@@ -61,7 +61,7 @@ let processUploads = (
       Logger.error(~module_="Upload", ~message="BACKEND_OFFLINE", ())
       updateProgress(100.0, "Error: Backend Offline", false, "Error")
       notify(
-        "Backend Server Not Connected! Please ensure the Rust backend is running on port 8080.",
+        "Backend Server Not Connected! Check console/logs. Ensure port 8080 is running.",
         "error",
       )
       Promise.resolve({"qualityResults": [], "duration": "0.0"})

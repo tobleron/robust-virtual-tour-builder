@@ -1,5 +1,5 @@
+use super::graph::{ArrivalView, Hotspot, Scene};
 use std::collections::HashSet;
-use super::graph::{Scene, Hotspot, ArrivalView};
 
 /* Helper Functions */
 
@@ -20,7 +20,10 @@ pub fn get_hotspot_view(hotspot: &Hotspot) -> (f32, f32) {
 
 pub fn get_arrival_view(hotspot: &Hotspot) -> ArrivalView {
     match &hotspot.view_frame {
-        Some(vf) => ArrivalView { yaw: vf.yaw, pitch: vf.pitch },
+        Some(vf) => ArrivalView {
+            yaw: vf.yaw,
+            pitch: vf.pitch,
+        },
         None => ArrivalView {
             yaw: hotspot.target_yaw.unwrap_or(0.0),
             pitch: hotspot.target_pitch.unwrap_or(0.0),
@@ -29,7 +32,10 @@ pub fn get_arrival_view(hotspot: &Hotspot) -> ArrivalView {
 }
 
 pub fn get_default_view() -> ArrivalView {
-    ArrivalView { yaw: 0.0, pitch: 0.0 }
+    ArrivalView {
+        yaw: 0.0,
+        pitch: 0.0,
+    }
 }
 
 /// Follows a chain of "auto-forward" scenes until a non-auto-forward scene is reached.
@@ -55,9 +61,13 @@ pub fn follow_auto_forward_chain(
     let mut chain_counter = 0;
 
     while chain_counter < 10 {
-        let scene = scenes.get(current_idx)
-            .ok_or_else(|| format!("Pathfinding error: Scene index {} out of bounds", current_idx))?;
-            
+        let scene = scenes.get(current_idx).ok_or_else(|| {
+            format!(
+                "Pathfinding error: Scene index {} out of bounds",
+                current_idx
+            )
+        })?;
+
         if !scene.is_auto_forward {
             break;
         }
@@ -75,8 +85,12 @@ pub fn follow_auto_forward_chain(
         });
 
         if let Some(link) = jump_link {
-            current_idx = find_scene_index(scenes, &link.target)
-                .ok_or_else(|| format!("Pathfinding error: Junction scene '{}' not found", link.target))?;
+            current_idx = find_scene_index(scenes, &link.target).ok_or_else(|| {
+                format!(
+                    "Pathfinding error: Junction scene '{}' not found",
+                    link.target
+                )
+            })?;
         } else {
             break;
         }

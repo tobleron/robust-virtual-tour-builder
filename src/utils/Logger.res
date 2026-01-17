@@ -146,18 +146,19 @@ let sendTelemetry = async entry => {
       levelPriority(stringToLevel(entry.level)) >= levelPriority(minLevel.contents)
   ) {
     let endpoint = if entry.level == "error" {
-      "/log-error"
+      "/api/telemetry/error"
     } else {
-      "/log-telemetry"
+      "/api/telemetry/log"
     }
     try {
       let _ = await Fetch.fetch(
         Constants.backendUrl ++ endpoint,
-        {
-          method: "POST",
-          headers: Nullable.make(Dict.fromArray([("Content-Type", "application/json")])),
-          body: Nullable.make(JSON.stringify(castToJson(entry))),
-        },
+        Fetch.requestInit(
+          ~method="POST",
+          ~headers=Dict.fromArray([("Content-Type", "application/json")]),
+          ~body=JSON.stringify(castToJson(entry)),
+          (),
+        ),
       )
     } catch {
     | _ => ()

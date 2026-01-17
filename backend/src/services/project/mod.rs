@@ -1,11 +1,11 @@
-mod validate;
-mod package;
 mod load;
+mod package;
+mod validate;
 
 // Re-export public API
-pub use validate::validate_and_clean_project;
-pub use package::create_tour_package;
 pub use load::{process_uploaded_project_zip, validate_project_zip};
+pub use package::create_tour_package;
+pub use validate::validate_and_clean_project;
 
 #[cfg(test)]
 mod tests {
@@ -26,15 +26,25 @@ mod tests {
             ]
         });
         let available_files = HashSet::from(["A".to_string()]);
-        
+
         let (cleaned, report) = validate_and_clean_project(project, &available_files).unwrap();
-        
+
         assert_eq!(report.broken_links_removed, 1);
-        assert!(report.warnings.iter().any(|w| w.contains("Removed 1 broken link")));
+        assert!(
+            report
+                .warnings
+                .iter()
+                .any(|w| w.contains("Removed 1 broken link"))
+        );
         // Check that the link was actually removed
-        assert!(cleaned["scenes"][0]["hotspots"].as_array().unwrap().is_empty());
+        assert!(
+            cleaned["scenes"][0]["hotspots"]
+                .as_array()
+                .unwrap()
+                .is_empty()
+        );
     }
-    
+
     #[test]
     fn test_validate_project_finds_orphaned_scenes() {
         let project = json!({
@@ -45,13 +55,13 @@ mod tests {
         });
         // B is orphaned because there's no link to it (and it's not the first scene)
         let available_files = HashSet::from(["A".to_string(), "B".to_string()]);
-        
+
         let (_, report) = validate_and_clean_project(project, &available_files).unwrap();
-        
+
         assert!(report.orphaned_scenes.contains(&"B".to_string()));
         assert!(!report.orphaned_scenes.contains(&"A".to_string())); // first scene is not orphaned
     }
-    
+
     #[test]
     fn test_validate_project_clean_project() {
         let project = json!({
@@ -75,9 +85,9 @@ mod tests {
             ]
         });
         let available_files = HashSet::from(["A".to_string(), "B".to_string()]);
-        
+
         let (_, report) = validate_and_clean_project(project, &available_files).unwrap();
-        
+
         assert!(!report.has_issues());
         assert_eq!(report.errors.len(), 0);
         assert_eq!(report.warnings.len(), 0);
@@ -93,9 +103,9 @@ mod tests {
             ]
         });
         let available_files = HashSet::from(["A".to_string()]);
-        
+
         let (cleaned, report) = validate_and_clean_project(project, &available_files).unwrap();
-        
+
         assert!(!report.has_issues());
         assert_eq!(cleaned["scenes"][0]["name"], "A");
     }

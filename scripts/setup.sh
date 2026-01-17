@@ -21,27 +21,40 @@ check_cmd node
 check_cmd npm
 check_cmd cargo
 check_cmd ffmpeg
+check_cmd fswatch
 
 # 2. Install Node Dependencies
 echo "📦 Installing Node.js dependencies..."
 npm install
 
-# 3. Build ReScript
-echo "🏗️ Building ReScript modules..."
-npm run res:build
+# 3. Build ReScript (if not already watching)
+if ! pgrep -f "rescript watch" > /dev/null; then
+    echo "🏗️ Building ReScript modules..."
+    npm run res:build
+else
+    echo "✅ ReScript watcher already running, skipping build."
+fi
 
-# 4. Check for Cargo-Watch (Optional but recommended)
+# 4. Check for Optional Tools
 if ! command -v cargo-watch &> /dev/null; then
     echo "⚠️  cargo-watch is not installed."
     echo "💡 Run 'cargo install cargo-watch' for a better backend dev experience."
 fi
 
-# 5. Ensure logs directory exists and is writable
-echo "📁 Preparing log directory..."
-mkdir -p logs
-touch logs/.gitkeep
+# 5. Ensure directories exist
+echo "📁 Preparing directory structure..."
+mkdir -p logs bin dist/static dist/images
+touch logs/.gitkeep dist/index.html dist/service-worker.js dist/manifest.json dist/asset-manifest.json
 
-# 6. Ensure bin directory exists for local binaries
-mkdir -p bin
+# 6. Cleanup stale ports (8080 for backend, 3000 for frontend)
+echo "🧹 Cleaning up stale ports..."
+lsof -ti:8080,3000 | xargs kill -9 2>/dev/null || true
 
-echo "✅ Setup complete! You can now run 'npm run dev' to begin development (remember to start the backend too)."
+# 7. Start Snapshot Watcher
+echo "👁️  Initializing Snapshot Watcher..."
+./scripts/ensure-watcher.sh
+
+echo ""
+echo "✨ Environment Ready!"
+echo "🚀 Run 'npm run dev' to start development"
+echo ""

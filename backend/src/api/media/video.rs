@@ -1,16 +1,16 @@
 use actix_multipart::Multipart;
-use actix_web::{web, HttpResponse};
+use actix_web::{HttpResponse, web};
 use futures_util::TryStreamExt as _;
 use headless_chrome::{Browser, LaunchOptions};
 use std::fs;
 use std::io::Write;
-use std::process::Command;
 use std::path::PathBuf;
+use std::process::Command;
 use std::time::Duration;
 use uuid::Uuid;
 
+use crate::api::utils::{MAX_UPLOAD_SIZE, get_session_path, get_temp_path, sanitize_filename};
 use crate::models::AppError;
-use crate::api::utils::{get_temp_path, get_session_path, sanitize_filename, MAX_UPLOAD_SIZE};
 
 /// Transcodes an uploaded video file (typically WebM from browser) to MP4.
 ///
@@ -29,13 +29,15 @@ use crate::api::utils::{get_temp_path, get_session_path, sanitize_filename, MAX_
 #[tracing::instrument(skip(payload), name = "transcode_video")]
 pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, AppError> {
     let input_path = get_temp_path("webm");
-    
+
     let mut total_size = 0;
 
     // Save upload to disk
     while let Some(mut field) = payload.try_next().await? {
-        let content_disposition = field.content_disposition().ok_or_else(|| AppError::InternalError("Missing content disposition".to_string()))?;
-        
+        let content_disposition = field
+            .content_disposition()
+            .ok_or_else(|| AppError::InternalError("Missing content disposition".to_string()))?;
+
         // Only process the 'file' field as video
         if content_disposition.get_name() == Some("file") {
             let mut f = fs::File::create(&input_path)?;
@@ -43,9 +45,10 @@ pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, App
                 total_size += chunk.len();
                 if total_size > MAX_UPLOAD_SIZE {
                     let _ = fs::remove_file(&input_path);
-                    return Err(AppError::ImageError(
-                        format!("Video upload exceeds maximum size of {}MB", MAX_UPLOAD_SIZE / (1024 * 1024))
-                    ));
+                    return Err(AppError::ImageError(format!(
+                        "Video upload exceeds maximum size of {}MB",
+                        MAX_UPLOAD_SIZE / (1024 * 1024)
+                    )));
                 }
                 f.write_all(&chunk)?;
             }
@@ -53,11 +56,17 @@ pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, App
     }
 
     let output_path = get_temp_path("mp4");
-    let input_str = input_path.to_str()
-        .ok_or(AppError::InternalError("Invalid input path encoding".into()))?
+    let input_str = input_path
+        .to_str()
+        .ok_or(AppError::InternalError(
+            "Invalid input path encoding".into(),
+        ))?
         .to_string();
-    let output_str = output_path.to_str()
-        .ok_or(AppError::InternalError("Invalid output path encoding".into()))?
+    let output_str = output_path
+        .to_str()
+        .ok_or(AppError::InternalError(
+            "Invalid output path encoding".into(),
+        ))?
         .to_string();
 
     tracing::info!(module = "VideoEncoder", input = %input_str, output = %output_str, "TRANSCODE_START");
@@ -65,10 +74,10 @@ pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, App
     let result = web::block(move || -> Result<PathBuf, String> {
         let local_ffmpeg = PathBuf::from("./bin/ffmpeg");
         let ffmpeg_cmd = if local_ffmpeg.exists() {
-            local_ffmpeg.to_str()
+            local_ffmpeg
+                .to_str()
                 .ok_or("Invalid ffmpeg path encoding".to_string())?
                 .to_string()
-            
         } else {
             "ffmpeg".to_string()
         };
@@ -76,27 +85,35 @@ pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, App
         let output = Command::new(&ffmpeg_cmd)
             .args(&[
                 "-y",
-                "-i", &input_str,
-                "-c:v", "libx264",
-                "-preset", "medium",
-                "-crf", "23",
-                "-c:a", "aac",
-                &output_str
+                "-i",
+                &input_str,
+                "-c:v",
+                "libx264",
+                "-preset",
+                "medium",
+                "-crf",
+                "23",
+                "-c:a",
+                "aac",
+                &output_str,
             ])
             .output()
             .map_err(|e| format!("Failed to spawn ffmpeg (path: {}): {}", ffmpeg_cmd, e))?;
 
         if !output.status.success() {
             let stderr = String::from_utf8_lossy(&output.stderr);
-            return Err(format!("FFmpeg exited with code {}: {}", 
-                output.status.code().unwrap_or(-1), 
+            return Err(format!(
+                "FFmpeg exited with code {}: {}",
+                output.status.code().unwrap_or(-1),
                 stderr
             ));
         }
 
         let _ = fs::remove_file(&input_str);
         Ok::<PathBuf, String>(PathBuf::from(output_str))
-    }).await.map_err(|e| AppError::InternalError(e.to_string()))?;
+    })
+    .await
+    .map_err(|e| AppError::InternalError(e.to_string()))?;
 
     match result {
         Ok(path) => {
@@ -106,11 +123,11 @@ pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, App
             Ok(HttpResponse::Ok()
                 .content_type("video/mp4")
                 .body(file_bytes))
-        },
+        }
         Err(e) => {
             let _ = fs::remove_file(&input_path);
             Err(AppError::FFmpegError(e))
-        },
+        }
     }
 }
 
@@ -140,7 +157,7 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
     let session_id = Uuid::new_v4().to_string();
     let session_path = get_session_path(&session_id);
     fs::create_dir_all(&session_path).map_err(AppError::IoError)?;
-    
+
     tracing::info!(module = "TeaserGenerator", session_id = %session_id, "TEASER_GENERATION_START");
 
     let mut project_data_value: Option<serde_json::Value> = None;
@@ -150,43 +167,66 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
 
     // 2. Parse Multipart
     while let Some(mut field) = payload.try_next().await? {
-        let content_disposition = field.content_disposition()
-            .cloned()
-            .ok_or(AppError::InternalError("Missing content disposition".into()))?;
+        let content_disposition =
+            field
+                .content_disposition()
+                .cloned()
+                .ok_or(AppError::InternalError(
+                    "Missing content disposition".into(),
+                ))?;
         let name = content_disposition.get_name().unwrap_or("").to_string();
 
         if name == "project_data" {
             let mut bytes = Vec::new();
-            while let Some(chunk) = field.try_next().await? { bytes.extend_from_slice(&chunk); }
+            while let Some(chunk) = field.try_next().await? {
+                bytes.extend_from_slice(&chunk);
+            }
             project_data_value = serde_json::from_slice(&bytes).ok();
         } else if name == "width" {
             let mut bytes = Vec::new();
-            while let Some(chunk) = field.try_next().await? { bytes.extend_from_slice(&chunk); }
+            while let Some(chunk) = field.try_next().await? {
+                bytes.extend_from_slice(&chunk);
+            }
             if let Ok(s) = String::from_utf8(bytes) {
-                if let Ok(val) = s.parse::<u32>() { width = val; }
+                if let Ok(val) = s.parse::<u32>() {
+                    width = val;
+                }
             }
         } else if name == "height" {
             let mut bytes = Vec::new();
-            while let Some(chunk) = field.try_next().await? { bytes.extend_from_slice(&chunk); }
-             if let Ok(s) = String::from_utf8(bytes) {
-                if let Ok(val) = s.parse::<u32>() { height = val; }
+            while let Some(chunk) = field.try_next().await? {
+                bytes.extend_from_slice(&chunk);
+            }
+            if let Ok(s) = String::from_utf8(bytes) {
+                if let Ok(val) = s.parse::<u32>() {
+                    height = val;
+                }
             }
         } else if name == "files" {
-            let filename = content_disposition.get_filename().map(|f| f.to_string()).unwrap_or_else(|| format!("img_{}.webp", Uuid::new_v4()));
+            let filename = content_disposition
+                .get_filename()
+                .map(|f| f.to_string())
+                .unwrap_or_else(|| format!("img_{}.webp", Uuid::new_v4()));
             let sanitized = sanitize_filename(&filename).unwrap_or(filename);
             let file_path = session_path.join(&sanitized);
             let mut f = fs::File::create(file_path).map_err(AppError::IoError)?;
-             while let Some(chunk) = field.try_next().await? { f.write_all(&chunk).map_err(AppError::IoError)?; }
+            while let Some(chunk) = field.try_next().await? {
+                f.write_all(&chunk).map_err(AppError::IoError)?;
+            }
         }
     }
 
-    let project_data = project_data_value.ok_or_else(|| AppError::InternalError("Missing project_data JSON".into()))?;
+    let project_data = project_data_value
+        .ok_or_else(|| AppError::InternalError("Missing project_data JSON".into()))?;
 
     let output_path = get_temp_path("mp4");
-    let output_str = output_path.to_str()
-        .ok_or(AppError::InternalError("Invalid output path encoding".into()))?
+    let output_str = output_path
+        .to_str()
+        .ok_or(AppError::InternalError(
+            "Invalid output path encoding".into(),
+        ))?
         .to_string();
-    
+
     // session_id must be moved into the closure
     let session_id_clone = session_id.clone();
     let _session_path_clone = session_path.clone();
@@ -380,10 +420,16 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
             Ok(HttpResponse::Ok()
                 .content_type("video/mp4")
                 .body(file_bytes))
-        },
+        }
         Err(e) => {
             let _ = fs::remove_file(&output_path); // Cleanup on error
             Err(AppError::InternalError(e))
-        },
+        }
     }
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn placeholder() {}
 }

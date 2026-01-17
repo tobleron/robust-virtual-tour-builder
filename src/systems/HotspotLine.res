@@ -53,7 +53,7 @@ let getScreenCoords = (viewer, pitch, yaw, rect: Dom.rect) => {
 
 /* --- SVG DRAWING --- */
 
-let drawLine = (svg, x1, y1, x2, y2, color, width, opacity, ~dashArray=?, ()) => {
+let drawLine = (svg, x1, y1, x2, y2, color, width, opacity, ~dashArray=?, ~className=?, ()) => {
   let line = Svg.createElementNS(Svg.namespace, "line")
   Svg.setAttribute(line, "x1", Float.toString(x1))
   Svg.setAttribute(line, "y1", Float.toString(y1))
@@ -65,6 +65,11 @@ let drawLine = (svg, x1, y1, x2, y2, color, width, opacity, ~dashArray=?, ()) =>
 
   switch dashArray {
   | Some(d) => Svg.setAttribute(line, "stroke-dasharray", d)
+  | None => ()
+  }
+
+  switch className {
+  | Some(c) => Svg.setAttribute(line, "class", c)
   | None => ()
   }
 
@@ -80,6 +85,7 @@ let drawPolyLine = (
   width,
   opacity,
   ~dashArray=?,
+  ~className=?,
   (),
 ) => {
   if Array.length(path) >= 2 {
@@ -99,7 +105,7 @@ let drawPolyLine = (
       | (Some(s), Some(e)) =>
         // Skip very short segments
         if Math.abs(s.x -. e.x) >= 1.0 || Math.abs(s.y -. e.y) >= 1.0 {
-          drawLine(svg, s.x, s.y, e.x, e.y, color, width, opacity, ~dashArray?, ())
+          drawLine(svg, s.x, s.y, e.x, e.y, color, width, opacity, ~dashArray?, ~className?, ())
         }
       | _ => ()
       }
@@ -265,7 +271,8 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
   let svgOpt = Dom.getElementById("viewer-hotspot-lines")
   switch (Nullable.toOption(svgOpt), viewer) {
   | (Some(svg), v) =>
-    Dom.setInnerHTML(svg, "")
+    // Clear SVG content using textContent which is often more reliable for SVG than innerHTML
+    Dom.setTextContent(svg, "")
     let rect = Dom.getBoundingClientRect(svg)
 
     if (
@@ -295,13 +302,34 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
             ]
             let controlPoints = Belt.Array.concat(startPt, Belt.Array.concat(waypoints, endPt))
             let splinePath = PathInterpolation.getCatmullRomSpline(controlPoints, 60)
-            drawPolyLine(svg, v, splinePath, rect, "#ef4444", 3.0, 0.8, ~dashArray="4,4", ())
+            drawPolyLine(
+              svg,
+              v,
+              splinePath,
+              rect,
+              "#ef4444",
+              3.0,
+              0.8,
+              ~className="line-marching-ants",
+              (),
+            )
           } else {
             let startCoords = getScreenCoords(v, sp, sy, rect)
             let endCoords = getScreenCoords(v, vf.pitch, vf.yaw, rect)
             switch (startCoords, endCoords) {
             | (Some(s), Some(e)) =>
-              drawLine(svg, s.x, s.y, e.x, e.y, "#ef4444", 3.0, 0.8, ~dashArray="4,4", ())
+              drawLine(
+                svg,
+                s.x,
+                s.y,
+                e.x,
+                e.y,
+                "#ef4444",
+                3.0,
+                0.8,
+                ~className="line-marching-ants",
+                (),
+              )
             | _ => ()
             }
           }
@@ -327,7 +355,8 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
           | None => []
           }
 
-          // Red Dashed Spline for Camera Path
+          // --- RED CRITICAL PATH (Camera Director Curve) ---
+          // v4.2.0 point 55: Red dashed line appearing on first click
           let camPoints = Belt.Array.concat(
             [camStart],
             Belt.Array.concat(
@@ -339,20 +368,23 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
             ),
           )
 
-          if Array.length(camPoints) > 2 {
-            let spline = PathInterpolation.getCatmullRomSpline(camPoints, 60)
-            drawPolyLine(svg, v, spline, rect, "#ef4444", 3.0, 0.9, ~dashArray="5,5", ())
-          } else {
-            let s = getScreenCoords(v, camStart.pitch, camStart.yaw, rect)
-            let e = getScreenCoords(v, currentCam.pitch, currentCam.yaw, rect)
-            switch (s, e) {
-            | (Some(s), Some(e)) =>
-              drawLine(svg, s.x, s.y, e.x, e.y, "#ef4444", 3.0, 0.9, ~dashArray="5,5", ())
-            | _ => ()
-            }
+          if Array.length(camPoints) >= 2 {
+            let redSpline = PathInterpolation.getCatmullRomSpline(camPoints, 60)
+            drawPolyLine(
+              svg,
+              v,
+              redSpline,
+              rect,
+              "#ef4444",
+              3.0,
+              1.0,
+              ~className="line-marching-ants",
+              (),
+            )
           }
 
-          // Yellow Floor Path
+          // --- YELLOW TARGET PATH (The Rod) ---
+          // v4.2.0 point 54: Dashed yellow line from last click to mouse
           let floorPoints: array<PathInterpolation.point> = Belt.Array.concat(
             [{PathInterpolation.yaw: draft.yaw, pitch: draft.pitch}],
             Belt.Array.map(intermediate, (p): PathInterpolation.point => {
@@ -361,29 +393,51 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
             }),
           )
 
-          let finalFloorPoints = switch mouseEvent {
-          | Some(ev) =>
-            let mc = Viewer.mouseEventToCoords(v, ev)
-            Belt.Array.concat(
-              floorPoints,
-              [{PathInterpolation.yaw: Belt.Array.getExn(mc, 1), pitch: Belt.Array.getExn(mc, 0)}],
+          // 1. Draw confirmed segments (Spline if multiple joints)
+          if Array.length(floorPoints) >= 2 {
+            let yellowSpline = PathInterpolation.getCatmullRomSpline(floorPoints, 60)
+            drawPolyLine(
+              svg,
+              v,
+              yellowSpline,
+              rect,
+              "#fbbf24",
+              3.0,
+              0.8,
+              ~className="line-rod-yellow",
+              (),
             )
-          | None => floorPoints
           }
 
-          if Array.length(finalFloorPoints) > 2 {
-            let spline = PathInterpolation.getCatmullRomSpline(finalFloorPoints, 60)
-            drawPolyLine(svg, v, spline, rect, "#fbbf24", 3.0, 0.8, ~dashArray="3,3", ())
-          } else if Array.length(finalFloorPoints) == 2 {
-            let p1 = Belt.Array.getExn(finalFloorPoints, 0)
-            let p2 = Belt.Array.getExn(finalFloorPoints, 1)
-            let s = getScreenCoords(v, p1.pitch, p1.yaw, rect)
-            let e = getScreenCoords(v, p2.pitch, p2.yaw, rect)
-            switch (s, e) {
-            | (Some(s), Some(e)) =>
-              drawLine(svg, s.x, s.y, e.x, e.y, "#fbbf24", 3.0, 0.8, ~dashArray="3,3", ())
-            | _ => ()
+          // 2. Draw pending segment (Floor Projection if looking down)
+          let lastFloorPt = Belt.Array.getExn(floorPoints, Array.length(floorPoints) - 1)
+          switch mouseEvent {
+          | Some(ev) =>
+            let mc = Viewer.mouseEventToCoords(v, ev)
+            let mousePt: PathInterpolation.point = {
+              PathInterpolation.yaw: Belt.Array.getExn(mc, 1),
+              pitch: Belt.Array.getExn(mc, 0),
             }
+
+            let camPitch = Viewer.getPitch(v)
+            let pendingPath = if camPitch < -20.0 {
+              PathInterpolation.getFloorProjectedPath(lastFloorPt, mousePt, 20)
+            } else {
+              [lastFloorPt, mousePt]
+            }
+
+            drawPolyLine(
+              svg,
+              v,
+              pendingPath,
+              rect,
+              "#fbbf24",
+              3.0,
+              0.8,
+              ~className="line-rod-yellow",
+              (),
+            )
+          | None => ()
           }
 
         | None => ()

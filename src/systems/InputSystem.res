@@ -127,6 +127,58 @@ let initInputSystem = () => {
 
     if key == "Escape" {
       handleGlobalEscape(e)
+    } else if key == "Enter" {
+      let state = GlobalStateBridge.getState()
+      if state.isLinking {
+        Dom.preventDefault(e)
+        Dom.stopPropagation(e)
+
+        switch state.linkDraft {
+        | Some(draft) =>
+          let intermediate = switch draft.intermediatePoints {
+          | Some(pts) => pts
+          | None => []
+          }
+
+          let (y, p, cy, cp, ch) = if Array.length(intermediate) > 0 {
+            let last = Belt.Array.getExn(intermediate, Array.length(intermediate) - 1)
+            (last.yaw, last.pitch, last.camYaw, last.camPitch, last.camHfov)
+          } else {
+            (draft.yaw, draft.pitch, draft.camYaw, draft.camPitch, draft.camHfov)
+          }
+
+          let draftNull = Nullable.make(draft)
+
+          LinkModal.showLinkModal(
+            ~pitch=p,
+            ~yaw=y,
+            ~camPitch=cp,
+            ~camYaw=cy,
+            ~camHfov=ch,
+            ~linkDraft=draftNull,
+            (),
+          )
+        | None =>
+          // Use current viewer
+          switch Nullable.toOption(ReBindings.Viewer.instance) {
+          | Some(v) =>
+            let y = ReBindings.Viewer.getYaw(v)
+            let p = ReBindings.Viewer.getPitch(v)
+            let h = ReBindings.Viewer.getHfov(v)
+
+            LinkModal.showLinkModal(
+              ~pitch=p,
+              ~yaw=y,
+              ~camPitch=p,
+              ~camYaw=y,
+              ~camHfov=h,
+              ~linkDraft=Nullable.null,
+              (),
+            )
+          | None => ()
+          }
+        }
+      }
     } else if ctrlKey && shiftKey && (key == "D" || key == "d") {
       let newStateResult = %raw(`(window.DEBUG && window.DEBUG.toggle) ? window.DEBUG.toggle() : false`)
       Logger.info(

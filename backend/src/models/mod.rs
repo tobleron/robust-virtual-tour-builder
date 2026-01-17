@@ -1,7 +1,7 @@
 pub mod errors;
 pub use errors::*;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 // --- Metadata Structs ---
 
@@ -115,14 +115,14 @@ pub struct ColorHistogram {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct HistogramData {
-    pub histogram: Option<Vec<f32>>,          // Luminance histogram
-    pub color_hist: Option<ColorHistogram>,   // RGB histograms
+    pub histogram: Option<Vec<f32>>,        // Luminance histogram
+    pub color_hist: Option<ColorHistogram>, // RGB histograms
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SimilarityPair {
-    pub id_a: String,        // Scene ID for tracking
+    pub id_a: String, // Scene ID for tracking
     pub id_b: String,
     pub histogram_a: HistogramData,
     pub histogram_b: HistogramData,
@@ -171,10 +171,10 @@ impl ValidationReport {
             errors: Vec::new(),
         }
     }
-    
+
     pub fn has_issues(&self) -> bool {
-        self.broken_links_removed > 0 
-            || !self.orphaned_scenes.is_empty() 
+        self.broken_links_removed > 0
+            || !self.orphaned_scenes.is_empty()
             || !self.unused_files.is_empty()
             || !self.errors.is_empty()
     }

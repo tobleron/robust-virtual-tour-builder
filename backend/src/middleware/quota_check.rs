@@ -1,10 +1,11 @@
 use actix_web::{
-    dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
+    Error, HttpResponse,
     body::{BoxBody, EitherBody},
-    Error, HttpResponse, web,
+    dev::{Service, ServiceRequest, ServiceResponse, Transform, forward_ready},
+    web,
 };
 use futures_util::future::LocalBoxFuture;
-use std::future::{ready, Ready};
+use std::future::{Ready, ready};
 use std::rc::Rc;
 
 use crate::services::upload_quota::UploadQuotaManager;
@@ -24,7 +25,9 @@ where
     type Future = Ready<Result<Self::Transform, Self::InitError>>;
 
     fn new_transform(&self, service: S) -> Self::Future {
-        ready(Ok(QuotaCheckMiddleware { service: Rc::new(service) }))
+        ready(Ok(QuotaCheckMiddleware {
+            service: Rc::new(service),
+        }))
     }
 }
 
@@ -47,26 +50,26 @@ where
     fn call(&self, req: ServiceRequest) -> Self::Future {
         // Only check quota for upload endpoints
         let path = req.path().to_string();
-        let should_check = path.contains("/media/") || 
-                          path.contains("/project/save") ||
-                          path.contains("/project/import");
-        
+        let should_check = path.contains("/media/")
+            || path.contains("/project/save")
+            || path.contains("/project/import");
+
         let service = self.service.clone();
-        
+
         // Extract data needed for check
         let ip = req
             .connection_info()
             .realip_remote_addr()
             .unwrap_or("unknown")
             .to_string();
-            
+
         let content_length = req
             .headers()
             .get("content-length")
             .and_then(|v| v.to_str().ok())
             .and_then(|v| v.parse::<usize>().ok())
             .unwrap_or(0);
-            
+
         let quota_manager = req.app_data::<web::Data<UploadQuotaManager>>().cloned();
 
         Box::pin(async move {
@@ -75,35 +78,34 @@ where
                     // Check if upload can proceed
                     if let Err(e) = manager.can_upload(&ip, content_length).await {
                         tracing::warn!(ip = %ip, size = content_length, error = %e, "Upload rejected");
-                        
+
                         // Construct response using req
-                        let res = req.into_response(
-                            HttpResponse::TooManyRequests()
-                                .json(serde_json::json!({
-                                    "error": "Quota exceeded",
-                                    "message": e
-                                }))
-                        );
-                        
+                        let res = req.into_response(HttpResponse::TooManyRequests().json(
+                            serde_json::json!({
+                                "error": "Quota exceeded",
+                                "message": e
+                            }),
+                        ));
+
                         return Ok(res.map_body(|_, b| EitherBody::Right { body: b }));
                     }
-                    
+
                     // Register upload
                     let _upload_id = manager.register_upload(&ip, content_length).await;
-                    
+
                     // Process request via service
                     let res_call = service.call(req).await;
-                    
+
                     // Unregister upload
                     manager.unregister_upload(&ip, content_length).await;
-                    
+
                     match res_call {
                         Ok(res) => return Ok(res.map_body(|_, b| EitherBody::Left { body: b })),
                         Err(e) => return Err(e),
                     }
                 }
             }
-            
+
             // Proceed normally if no check needed or no manager
             match service.call(req).await {
                 Ok(res) => Ok(res.map_body(|_, b| EitherBody::Left { body: b })),

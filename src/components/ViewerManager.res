@@ -28,9 +28,64 @@ let make = () => {
 
     Window.addEventListener("keydown", handleKeyDown)
 
+    // Initialize Guide
+    ViewerState.state.guide = Dom.getElementById("cursor-guide")
+
+    // Mouse Move listener for Stage (to track lastMouseEvent and update cursor logic)
+    let handleMouseMove = e => {
+      ViewerState.state.lastMouseEvent = Nullable.make(e)
+
+      let stage = Dom.getElementById("viewer-stage")
+      switch Nullable.toOption(stage) {
+      | Some(el) =>
+        let rect = Dom.getBoundingClientRect(el)
+        let clientX = Belt.Int.toFloat(Obj.magic(e)["clientX"])
+        let clientY = Belt.Int.toFloat(Obj.magic(e)["clientY"])
+
+        let x = clientX -. rect.left
+        let y = clientY -. rect.top
+
+        ViewerState.state.mouseXNorm = x /. rect.width *. 2.0 -. 1.0
+        ViewerState.state.mouseYNorm = y /. rect.height *. 2.0 -. 1.0
+
+        // Update Rod Position
+        let guide = Dom.getElementById("cursor-guide")
+        switch Nullable.toOption(guide) {
+        | Some(g) =>
+          if state.isLinking {
+            Dom.setDisplay(g, "block")
+            Dom.setLeft(g, Float.toString(Math.round(clientX)) ++ "px")
+            Dom.setTop(g, Float.toString(Math.round(clientY)) ++ "px")
+            Dom.setStyleHeight(g, Float.toString(Math.round(rect.height -. y)) ++ "px")
+          } else {
+            Dom.setDisplay(g, "none")
+          }
+        | None => ()
+        }
+      | None => ()
+      }
+    }
+
+    let stage = Dom.getElementById("viewer-stage")
+    switch Nullable.toOption(stage) {
+    | Some(el) => Dom.addEventListener(el, "mousemove", handleMouseMove)
+    | None => ()
+    }
+
     Some(
       () => {
         Window.removeEventListener("keydown", handleKeyDown)
+        // Ensure guide is hidden on unmount/cleanup
+        let guide = Dom.getElementById("cursor-guide")
+        switch Nullable.toOption(guide) {
+        | Some(g) => Dom.setDisplay(g, "none")
+        | None => ()
+        }
+
+        switch Nullable.toOption(stage) {
+        | Some(el) => Dom.removeEventListener(el, "mousemove", handleMouseMove)
+        | None => ()
+        }
       },
     )
   })
@@ -130,6 +185,17 @@ let make = () => {
     }
     None
   }, (state.activeIndex, state.isSimulationMode))
+
+  // Sync Linking Cursor
+  React.useEffect1(() => {
+    let body = Dom.documentBody
+    if state.isLinking {
+      Dom.classList(body)->Dom.ClassList.add("linking-mode")
+    } else {
+      Dom.classList(body)->Dom.ClassList.remove("linking-mode")
+    }
+    None
+  }, [state.isLinking])
 
   React.null
 }

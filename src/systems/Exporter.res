@@ -14,14 +14,7 @@ let fetchLib = async filename => {
     ~module_="Exporter",
     ~operation=`FETCH_LIB:${filename}`,
     async () => {
-      let response = await Fetch.fetch(
-        "/libs/" ++ filename,
-        {
-          method: "GET",
-          body: Obj.magic(Nullable.null),
-          headers: Nullable.null,
-        },
-      )
+      let response = await Fetch.fetch("/libs/" ++ filename, Fetch.requestInit(~method="GET", ()))
 
       if !Fetch.ok(response) {
         JsError.throwWithMessage("Missing Library: " ++ filename)
@@ -43,7 +36,7 @@ let uploadAndProcessRaw: (
   function(formData, onProgress, backendUrl) {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        xhr.open("POST", backendUrl + "/create-tour-package");
+        xhr.open("POST", backendUrl + "/api/project/create-tour-package");
         xhr.timeout = 300000; // 5 minutes
 
         xhr.upload.onprogress = (e) => {

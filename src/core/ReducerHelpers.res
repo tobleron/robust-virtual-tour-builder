@@ -323,7 +323,11 @@ let handleUpdateSceneMetadata = (state: state, index: int, metaJson: JSON.t): st
       | Some(f) => f
       | None => s.floor
       }
-      {...s, category: newCategory, floor: newFloor}
+      let newLabel = switch Nullable.toOption(metaObj.label) {
+      | Some(l) => l
+      | None => s.label
+      }
+      {...s, category: newCategory, floor: newFloor, label: newLabel}
     } else {
       s
     }

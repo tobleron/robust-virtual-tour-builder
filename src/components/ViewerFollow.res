@@ -111,6 +111,91 @@ let rec updateFollowLoop = () => {
       | None => ()
       }
 
+      // --- PREMIUM CURSOR & INDICATOR LOGIC ---
+      let centerIndicator = Dom.getElementById("viewer-center-indicator")
+      let guide = state.guide
+      let stage = Dom.getElementById("viewer-stage")
+
+      switch (
+        Nullable.toOption(centerIndicator),
+        Nullable.toOption(guide),
+        Nullable.toOption(stage),
+        Nullable.toOption(viewer),
+      ) {
+      | (Some(ci), Some(gd), Some(stg), Some(v)) =>
+        let rect = Dom.getBoundingClientRect(stg)
+        let mouseX = (state.mouseXNorm +. 1.0) /. 2.0 *. rect.width
+        let mouseY = (state.mouseYNorm +. 1.0) /. 2.0 *. rect.height
+
+        if !storeState.isLinking {
+          Dom.setDisplay(ci, "none")
+          Dom.setDisplay(gd, "none")
+        } else {
+          // Rod height calculation helper
+          let updateRodHeight = (v, ev, rect: Dom.rect, gd) => {
+            let pCoords = Viewer.mouseEventToCoords(v, ev)
+            let clickPitch = Belt.Array.getExn(pCoords, 0)
+            let targetPitch = clickPitch -. 15.0
+            let toRad = deg => deg *. Math.Constants.pi /. 180.0
+            let hfov = Viewer.getHfov(v)
+            let camPitch = Viewer.getPitch(v)
+            let aspectRatio = rect.width /. rect.height
+            let tanVfov2 = Math.tan(toRad(hfov /. 2.0)) /. aspectRatio
+            let yClickRel = Math.tan(toRad(clickPitch -. camPitch)) /. tanVfov2
+            let yTargetRel = Math.tan(toRad(targetPitch -. camPitch)) /. tanVfov2
+            let halfHeight = rect.height /. 2.0
+            let yClickScreen = halfHeight *. (1.0 -. yClickRel)
+            let yTargetScreen = halfHeight *. (1.0 -. yTargetRel)
+            let guideHeight = yTargetScreen -. yClickScreen
+            Dom.setStyleHeight(gd, Float.toString(Math.max(0.0, guideHeight)) ++ "px")
+          }
+
+          switch storeState.linkDraft {
+          | None =>
+            // --- PHASE 1: Tracking Cursor before first click ---
+            Dom.setDisplay(ci, "block")
+            Dom.classList(ci)->Dom.ClassList.add("animate-slow-blink")
+            Dom.setLeft(ci, Float.toString(mouseX) ++ "px")
+            Dom.setTop(ci, Float.toString(mouseY) ++ "px")
+
+            // Show yellow crosshair guide immediately for aiming
+            Dom.setDisplay(gd, "block")
+            Dom.setLeft(gd, Float.toString(mouseX) ++ "px")
+            Dom.setTop(gd, Float.toString(mouseY) ++ "px")
+
+            switch mouseEvent {
+            | Some(ev) => updateRodHeight(v, ev, rect, gd)
+            | None => ()
+            }
+          | Some(draft) =>
+            // --- PHASE 2: Anchored Start with Laser Rod following mouse ---
+            Dom.classList(ci)->Dom.ClassList.remove("animate-slow-blink")
+
+            // Anchored Circle represents the CAMERA's starting orientation or first click
+            let coords = HotspotLine.getScreenCoords(v, draft.camPitch, draft.camYaw, rect)
+            switch coords {
+            | Some(c) =>
+              Dom.setDisplay(ci, "block")
+              Dom.setLeft(ci, Float.toString(c.x) ++ "px")
+              Dom.setTop(ci, Float.toString(c.y) ++ "px")
+            | None => Dom.setDisplay(ci, "none")
+            }
+
+            // Yellow Crosshair (Laser Rod Tip) follows mouse
+            Dom.setDisplay(gd, "block")
+            Dom.setLeft(gd, Float.toString(mouseX) ++ "px")
+            Dom.setTop(gd, Float.toString(mouseY) ++ "px")
+
+            // PRECISION PERSPECTIVE LASER ROD (Calculates height based on pitch)
+            switch mouseEvent {
+            | Some(ev) => updateRodHeight(v, ev, rect, gd)
+            | None => ()
+            }
+          }
+        }
+      | _ => ()
+      }
+
       let _ = Window.requestAnimationFrame(updateFollowLoop)
     }
   }

@@ -44,12 +44,8 @@ let transcodeWebMToMP4 = (
     FormData.appendWithFilename(formData, "file", webmBlob, "input.webm")
 
     Fetch.fetch(
-      Constants.backendUrl ++ "/transcode-video",
-      {
-        method: "POST",
-        body: formData,
-        headers: Nullable.null,
-      },
+      Constants.backendUrl ++ "/api/media/transcode-video",
+      Fetch.requestInit(~method="POST", ~body=formData, ()),
     )
     ->Promise.then(res => {
       switch progressCallback {

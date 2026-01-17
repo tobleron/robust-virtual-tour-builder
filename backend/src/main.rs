@@ -1,25 +1,25 @@
 use actix_cors::Cors;
-use actix_web::{web, App, HttpServer, HttpResponse, Responder, middleware::DefaultHeaders};
-use actix_web_prom::PrometheusMetricsBuilder;
 use actix_files as fs;
 use actix_governor::{Governor, GovernorConfigBuilder};
+use actix_web::{App, HttpResponse, HttpServer, Responder, middleware::DefaultHeaders, web};
+use actix_web_prom::PrometheusMetricsBuilder;
 use std::io;
-use tracing_actix_web::TracingLogger;
-use tokio::signal;
 use std::time::Duration;
+use tokio::signal;
+use tracing_actix_web::TracingLogger;
 
 // mod handlers; // Deleted
 mod api;
-mod models;
-mod services;
-mod middleware;
-mod pathfinder;
 mod metrics;
+mod middleware;
+mod models;
+mod pathfinder;
+mod services;
 
-use services::shutdown::{ShutdownManager, perform_shutdown_cleanup};
-use services::upload_quota::{UploadQuotaManager, QuotaConfig};
-use middleware::request_tracker::RequestTracker;
 use middleware::quota_check::QuotaCheck;
+use middleware::request_tracker::RequestTracker;
+use services::shutdown::{ShutdownManager, perform_shutdown_cleanup};
+use services::upload_quota::{QuotaConfig, UploadQuotaManager};
 
 async fn health_check() -> impl Responder {
     HttpResponse::Ok().body("Remax VTB Backend is running!")
@@ -33,11 +33,11 @@ async fn main() -> io::Result<()> {
         .init();
 
     tracing::info!("Starting server at http://localhost:8080");
-    
+
     // Ensure logs directory exists
     let log_dir = std::env::var("LOG_DIR").unwrap_or_else(|_| "../logs".to_string());
     std::fs::create_dir_all(log_dir).ok();
-    
+
     // Load geocoding cache from disk
     if let Err(e) = services::geocoding::load_cache_from_disk().await {
         tracing::warn!("Failed to load geocoding cache: {}", e);
@@ -48,10 +48,10 @@ async fn main() -> io::Result<()> {
         std::env::var("SHUTDOWN_TIMEOUT_SECS")
             .ok()
             .and_then(|s| s.parse().ok())
-            .unwrap_or(30)
+            .unwrap_or(30),
     );
     let shutdown_manager = web::Data::new(ShutdownManager::new(shutdown_timeout));
-    
+
     tracing::info!(
         timeout_secs = shutdown_timeout.as_secs(),
         "Shutdown manager initialized"
@@ -60,7 +60,7 @@ async fn main() -> io::Result<()> {
     // Initialize upload quota manager
     let quota_config = QuotaConfig::from_env();
     let quota_manager = web::Data::new(UploadQuotaManager::new(quota_config.clone()));
-    
+
     tracing::info!(
         "Upload quotas: max_payload={} MB, max_concurrent_per_ip={}, max_total={} GB",
         quota_config.max_payload_size / (1024 * 1024),
@@ -85,6 +85,8 @@ async fn main() -> io::Result<()> {
             Cors::default()
                 .allowed_origin("http://localhost:5173")
                 .allowed_origin("http://127.0.0.1:5173")
+                .allowed_origin("http://localhost:3000")
+                .allowed_origin("http://127.0.0.1:3000")
                 .allowed_origin("http://localhost:9999")
                 .allowed_origin("http://127.0.0.1:9999")
                 .allowed_origin("http://localhost:8080")
@@ -100,7 +102,7 @@ async fn main() -> io::Result<()> {
                 ])
                 .max_age(3600)
         };
-        
+
         // Rate Limiting: Prevent DoS attacks and API abuse
         let governor_conf = GovernorConfigBuilder::default()
             .per_second(30)      // 30 requests per second (generous for image uploads)
@@ -116,31 +118,31 @@ async fn main() -> io::Result<()> {
             .wrap(QuotaCheck) // Check upload quotas
             .wrap(RequestTracker) // Track active requests
             .wrap(TracingLogger::default()) // Structured request logging
-            
+
             // Security Headers: Protect against common web vulnerabilities
             .wrap(DefaultHeaders::new()
                 // Prevent MIME type sniffing
                 .add(("X-Content-Type-Options", "nosniff"))
-                
+
                 // Prevent clickjacking by blocking iframe embedding
                 .add(("X-Frame-Options", "DENY"))
-                
+
                 // Enable browser XSS protection (legacy, but still useful)
                 .add(("X-XSS-Protection", "1; mode=block"))
-                
+
                 // Control referrer information
                 .add(("Referrer-Policy", "strict-origin-when-cross-origin"))
-                
+
                 // Disable unnecessary browser features
                 .add(("Permissions-Policy", "geolocation=(), microphone=(), camera=()"))
-                
+
                 // Prevent DNS prefetching for privacy
                 .add(("X-DNS-Prefetch-Control", "off"))
             )
-            
+
             // Rate Limiting: Apply to all routes
             .wrap(Governor::new(&governor_conf))
-            
+
             .wrap(cors)
             .wrap(prometheus.clone()) // Prometheus metrics (Execute first)
             .route("/health", web::get().to(health_check))
@@ -184,9 +186,14 @@ async fn main() -> io::Result<()> {
             )
 
             // --- STATIC FILES (Serve Production Build from dist/) ---
-            // Serve bundled assets from Rsbuild output
-            .service(fs::Files::new("/static", "../dist/static"))
-            .service(fs::Files::new("/images", "../dist/images")) 
+            .configure(|cfg| {
+                if std::path::Path::new("../dist/static").is_dir() {
+                    cfg.service(fs::Files::new("/static", "../dist/static"));
+                }
+                if std::path::Path::new("../dist/images").is_dir() {
+                    cfg.service(fs::Files::new("/images", "../dist/images"));
+                }
+            })
             .service(fs::Files::new("/sounds", "../sounds"))
             .service(fs::Files::new("/libs", "../public/libs")) // Pannellum and other lazy-loaded libs
 
@@ -197,20 +204,20 @@ async fn main() -> io::Result<()> {
 
             // Serve index.html for root and handle SPA routing
             .route("/", web::get().to(|| async { fs::NamedFile::open("../dist/index.html") }))
-            .default_service(web::get().to(|| async { 
+            .default_service(web::get().to(|| async {
                 // Fallback for SPA routing - serve index.html for all unmatched routes
-                fs::NamedFile::open("../dist/index.html") 
+                fs::NamedFile::open("../dist/index.html")
             }))
     })
     .bind(("0.0.0.0", 8080))?
     .run();
-    
+
     // Get server handle for graceful shutdown
     let server_handle = server.handle();
-    
+
     // Spawn server
     let server_task = tokio::spawn(server);
-    
+
     // Wait for shutdown signal
     let shutdown_manager_clone = shutdown_manager.clone();
     tokio::spawn(async move {
@@ -222,16 +229,18 @@ async fn main() -> io::Result<()> {
                 tracing::error!("Failed to listen for Ctrl+C: {}", err);
             }
         }
-        
+
         // Stop accepting new connections
         server_handle.stop(true).await;
-        
+
         // Perform cleanup
         perform_shutdown_cleanup(&shutdown_manager_clone).await;
     });
-    
+
     // Wait for server to finish
-    server_task.await.map_err(|e| io::Error::new(io::ErrorKind::Other, e))??;
-    
+    server_task
+        .await
+        .map_err(|e| io::Error::new(io::ErrorKind::Other, e))??;
+
     Ok(())
 }
