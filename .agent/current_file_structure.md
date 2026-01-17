@@ -1135,6 +1135,7 @@
 |   |   |-- LinkModal.cmj
 |   |   |-- LinkModal.cmt
 |   |   |-- LinkModal.res
+|   |   |-- Logger.ast
 |   |   |-- Logger.cmi
 |   |   |-- Logger.cmj
 |   |   |-- Logger.cmt
@@ -1612,8 +1613,7 @@
 |   `-- rescript.lock
 |-- logs
 |   |-- error.log
-|   |-- log_changes.txt
-|   `-- telemetry.log
+|   `-- log_changes.txt
 |-- package-lock.json
 |-- package.json
 |-- plans
