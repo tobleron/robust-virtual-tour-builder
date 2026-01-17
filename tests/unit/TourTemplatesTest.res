@@ -33,7 +33,7 @@ let run = () => {
   let mockScene1: scene = {
     id: "sc1",
     name: "scene1",
-    file: JSON.Object(Dict.make()),
+    file: Url(""),
     tinyFile: None,
     originalFile: None,
     hotspots: [mockHotspot],
@@ -52,7 +52,7 @@ let run = () => {
   let mockScene2: scene = {
     id: "sc2",
     name: "scene2",
-    file: JSON.Object(Dict.make()),
+    file: Url(""),
     tinyFile: None,
     originalFile: None,
     hotspots: [],

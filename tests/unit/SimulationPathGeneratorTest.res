@@ -9,7 +9,7 @@ let run = () => {
     {
       id,
       name,
-      file: JSON.Object(Dict.make()),
+      file: Url(""),
       tinyFile: None,
       originalFile: None,
       hotspots: [],

@@ -147,7 +147,35 @@ let processAndAnalyzeImage = (file: File.t): Promise.t<processResult> => {
 
   let fetchStart = now()
 
-  BackendApi.processImageFull(file)
+  // 1. Extract EXIF from original file (Before compression strips it)
+  ExifParser.extractExifTags(file)
+  ->Promise.then(exifResult => {
+    let exifData = switch exifResult {
+    | Some((exif, _pano)) => Some(exif)
+    | None => None
+    }
+
+    // 2. Compress image in parallel (or sequential, Promise handles it)
+    ImageOptimizer.compressToWebP(file, 0.85)->Promise.then(webpBlob => {
+      let compressedFileSize = Blob.size(webpBlob)
+      Logger.info(
+        ~module_="Resizer",
+        ~message="FRONTEND_COMPRESSION_COMPLETE",
+        ~data={
+          "file": File.name(file),
+          "originalSize": File.size(file),
+          "compressedSize": compressedFileSize,
+          "ratio": Float.toFixed(compressedFileSize /. File.size(file), ~digits=2),
+        },
+        (),
+      )
+
+      let webpFile = File.newFile([webpBlob], File.name(file), %raw("{type: 'image/webp'}"))
+
+      // 3. Send optimized image + preserved metadata to backend
+      BackendApi.processImageFull(webpFile, ~isOptimized=true, ~metadata=?exifData)
+    })
+  })
   ->Promise.then(result => {
     switch result {
     | Ok(zipBlob) => {
@@ -189,7 +217,19 @@ let processAndAnalyzeImage = (file: File.t): Promise.t<processResult> => {
     }
   })
   ->Promise.then(((previewBlob, metaText, tinyBlobOpt)) => {
+    Logger.debug(
+      ~module_="Resizer",
+      ~message="PROCESSING_FILES_EXTRACTED",
+      ~data=Some({"metaLength": String.length(metaText)}),
+      (),
+    )
     let metadata: metadataResponse = Obj.magic(JSON.parseOrThrow(metaText))
+    Logger.debug(
+      ~module_="Resizer",
+      ~message="METADATA_PARSED",
+      ~data=Some({"suggestedName": metadata.suggestedName}),
+      (),
+    )
 
     // Smart filename logic
     let suggestedName = Nullable.toOption(metadata.suggestedName)

@@ -35,7 +35,7 @@ let run = () => {
   let baseScene = {
     id: "s1",
     name: "Scene 1",
-    file: JSON.Encode.null,
+    file: Url(""),
     tinyFile: None,
     originalFile: None,
     hotspots: [],

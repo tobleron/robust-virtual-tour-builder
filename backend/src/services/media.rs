@@ -13,6 +13,7 @@ use std::io::Cursor;
 use std::time::Instant;
 
 use crate::models::*;
+use rayon::prelude::*;
 
 // Compile regex once at startup using lazy static
 static FILENAME_REGEX: Lazy<Regex> = Lazy::new(|| {
@@ -284,32 +285,74 @@ pub fn perform_metadata_extraction_rgba(
     let h = 400u32;
     let pixel_count = (w * h) as f32;
 
-    let mut hist_r = vec![0u32; 256];
-    let mut hist_g = vec![0u32; 256];
-    let mut hist_b = vec![0u32; 256];
-    let mut hist_gray = vec![0u32; 256];
-    let mut total_lum = 0u64;
-    let mut gray_pixels = Vec::with_capacity((w * h) as usize);
+    // PARALLEL: Generate Gray Pixels Matrix (Preserves Order)
+    let gray_pixels: Vec<u8> = thumb_rgba
+        .par_chunks(4)
+        .map(|chunk| {
+            if chunk.len() >= 3 {
+                ((chunk[0] as u32 * 54)
+                    .saturating_add(chunk[1] as u32 * 183)
+                    .saturating_add(chunk[2] as u32 * 19)
+                    >> 8) as u8
+            } else {
+                0
+            }
+        })
+        .collect();
 
-    for chunk in thumb_rgba.chunks(4) {
-        if chunk.len() < 3 {
-            continue;
-        }
-        let r = chunk[0] as usize;
-        let g = chunk[1] as usize;
-        let b = chunk[2] as usize;
-        hist_r[r] += 1;
-        hist_g[g] += 1;
-        hist_b[b] += 1;
+    // PARALLEL: Calculate Histograms
+    let (hist_r, hist_g, hist_b, hist_gray, total_lum) = thumb_rgba
+        .par_chunks(4)
+        .fold(
+            || {
+                (
+                    vec![0u32; 256],
+                    vec![0u32; 256],
+                    vec![0u32; 256],
+                    vec![0u32; 256],
+                    0u64,
+                )
+            },
+            |(mut hr, mut hg, mut hb, mut hgray, mut tlum), chunk| {
+                if chunk.len() >= 3 {
+                    let r = chunk[0] as usize;
+                    let g = chunk[1] as usize;
+                    let b = chunk[2] as usize;
+                    hr[r] += 1;
+                    hg[g] += 1;
+                    hb[b] += 1;
 
-        let lum = ((chunk[0] as u32 * 54)
-            .saturating_add(chunk[1] as u32 * 183)
-            .saturating_add(chunk[2] as u32 * 19)
-            >> 8) as u8;
-        hist_gray[lum as usize] += 1;
-        total_lum += lum as u64;
-        gray_pixels.push(lum);
-    }
+                    let lum = ((chunk[0] as u32 * 54)
+                        .saturating_add(chunk[1] as u32 * 183)
+                        .saturating_add(chunk[2] as u32 * 19)
+                        >> 8) as u8;
+                    hgray[lum as usize] += 1;
+                    tlum += lum as u64;
+                }
+                (hr, hg, hb, hgray, tlum)
+            },
+        )
+        .reduce(
+            || {
+                (
+                    vec![0u32; 256],
+                    vec![0u32; 256],
+                    vec![0u32; 256],
+                    vec![0u32; 256],
+                    0u64,
+                )
+            },
+            |mut a, b| {
+                for i in 0..256 {
+                    a.0[i] += b.0[i];
+                    a.1[i] += b.1[i];
+                    a.2[i] += b.2[i];
+                    a.3[i] += b.3[i];
+                }
+                a.4 += b.4;
+                a
+            },
+        );
 
     let avg_lum = (total_lum as f32 / pixel_count) as u32;
     let black_clipping = (hist_gray[0] as f32 / pixel_count) * 100.0;
@@ -317,26 +360,38 @@ pub fn perform_metadata_extraction_rgba(
 
     let y_start = (h as f32 * 0.2) as u32;
     let y_end = (h as f32 * 0.8) as u32;
+
+    // PARALLEL: Laplace Variance Calculation
     let (laplace_sum, laplace_sq_sum, sampled_count) = ((y_start + 1)..(y_end - 1))
-        .flat_map(|y| (1..(w - 1)).map(move |x| (y, x)))
-        .filter_map(|(y, x)| {
-            let idx = (y * w + x) as usize;
-            if idx >= gray_pixels.len() {
-                return None;
+        .into_par_iter()
+        .map(|y| {
+            let mut l_sum = 0.0;
+            let mut l_sq_sum = 0.0;
+            let mut count = 0;
+
+            for x in 1..(w - 1) {
+                let idx = (y * w + x) as usize;
+                if idx >= gray_pixels.len() {
+                    continue;
+                }
+                let center = gray_pixels[idx] as i32;
+                let lap = gray_pixels[idx - w as usize] as i32
+                    + gray_pixels[idx - 1] as i32
+                    + gray_pixels[idx + 1] as i32
+                    + gray_pixels[idx + w as usize] as i32
+                    - 4 * center;
+
+                let lap_val = lap as f64;
+                l_sum += lap_val;
+                l_sq_sum += lap_val * lap_val;
+                count += 1;
             }
-
-            let center = gray_pixels[idx] as i32;
-            let lap = gray_pixels[idx - w as usize] as i32
-                + gray_pixels[idx - 1] as i32
-                + gray_pixels[idx + 1] as i32
-                + gray_pixels[idx + w as usize] as i32
-                - 4 * center;
-
-            Some(lap as f64)
+            (l_sum, l_sq_sum, count)
         })
-        .fold((0.0f64, 0.0f64, 0u64), |(sum, sq_sum, count), lap| {
-            (sum + lap, sq_sum + lap * lap, count + 1)
-        });
+        .reduce(
+            || (0.0, 0.0, 0u64),
+            |a, b| (a.0 + b.0, a.1 + b.1, a.2 + b.2),
+        );
 
     let laplace_var = if sampled_count > 0 {
         let mean = laplace_sum / sampled_count as f64;

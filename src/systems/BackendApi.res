@@ -275,9 +275,20 @@ let extractMetadata = (file: File.t): Promise.t<apiResult<metadataResponse>> => 
  * Processes an image (resizes, optimizes) and returns a ZIP blob
  * ZIP contains preview.webp, tiny.webp, and metadata.json
  */
-let processImageFull = (file: File.t): Promise.t<apiResult<Blob.t>> => {
+let processImageFull = (
+  file: File.t,
+  ~isOptimized: bool=false,
+  ~metadata: option<exifMetadata>=?,
+) => {
   let formData = FormData.newFormData()
   FormData.append(formData, "file", file)
+  if isOptimized {
+    FormData.append(formData, "is_optimized", "true")
+  }
+  switch metadata {
+  | Some(m) => FormData.append(formData, "metadata", JSON.stringify(Logger.castToJson(m)))
+  | None => ()
+  }
 
   Fetch.fetch(
     Constants.backendUrl ++ "/api/media/process-full",

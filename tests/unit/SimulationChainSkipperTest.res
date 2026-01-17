@@ -8,7 +8,7 @@ let run = () => {
     {
       id,
       name,
-      file: JSON.Encode.null,
+      file: Url(""),
       tinyFile: None,
       originalFile: None,
       hotspots: [],

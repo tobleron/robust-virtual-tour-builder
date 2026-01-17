@@ -17,16 +17,26 @@ let getComputedOpacity = el => {
 }
 
 let getPanoramaUrl = (file: Types.file): string => {
-  let isString: bool = %raw("typeof file === 'string'")
-  if isString {
-    castToString(file)
-  } else {
-    let isFile: bool = %raw("file instanceof File || file instanceof Blob")
-    if isFile {
-      URL.createObjectURL(castToBlob(file))
-    } else {
-      ""
-    }
+  switch file {
+  | Url(s) => s
+  | Blob(b) =>
+    let url = URL.createObjectURL(b)
+    Logger.debug(
+      ~module_="Viewer",
+      ~message="GENERATING_BLOB_URL",
+      ~data=Some({"size": Blob.size(b), "type": Blob.type_(b), "url": url}),
+      (),
+    )
+    url
+  | File(b) =>
+    let url = URL.createObjectURL(castToBlob(b))
+    Logger.debug(
+      ~module_="Viewer",
+      ~message="GENERATING_FILE_URL",
+      ~data=Some({"size": File.size(b), "type": File.type_(b), "url": url}),
+      (),
+    )
+    url
   }
 }
 
@@ -380,8 +390,8 @@ module Loader = {
               let configDict = castToDict(viewerConfig)
               switch Dict.get(configDict, "scenes") {
               | Some(scenes) =>
-                let _scenesDict = castToDict(scenes)
-                let _ = %raw("delete _scenesDict['preview']")
+                let scenesDict = castToDict(scenes)
+                Dict.delete(scenesDict, "preview")
               | None => ()
               }
 
@@ -503,89 +513,25 @@ module Loader = {
             Viewer.on(newViewer, "error", err => {
               state.isSceneLoading = false
               state.loadingSceneId = Nullable.null
+              let errMsg = castToString(err)
               Logger.error(
                 ~module_="Viewer",
-                ~message="LOAD_ERROR",
-                ~data=Some({"sceneName": targetScene.name, "error": err}),
+                ~message="PANNELLUM_ERROR",
+                ~data=Some({"sceneName": targetScene.name, "error": errMsg}),
                 (),
               )
             })
 
-            Viewer.on(newViewer, "click", e => {
-              let s = GlobalStateBridge.getState()
-              if !s.isSimulationMode && s.isLinking {
-                let coords = Viewer.mouseEventToCoords(newViewer, e)
-                let pitchOpt = Belt.Array.get(coords, 0)
-                let yawOpt = Belt.Array.get(coords, 1)
-
-                switch (pitchOpt, yawOpt) {
-                | (Some(pitch), Some(yaw)) =>
-                  let draft = s.linkDraft
-
-                  switch draft {
-                  | None =>
-                    let hfov = Viewer.getHfov(newViewer)
-                    let camPitch = Viewer.getPitch(newViewer)
-                    let camYaw = Viewer.getYaw(newViewer)
-
-                    GlobalStateBridge.dispatch(
-                      Actions.SetLinkDraft(
-                        Some({
-                          yaw,
-                          pitch,
-                          camYaw,
-                          camPitch,
-                          camHfov: hfov,
-                          intermediatePoints: None,
-                        }),
-                      ),
-                    )
-                  | Some(d) =>
-                    let currentPoints = switch d.intermediatePoints {
-                    | Some(pts) => pts
-                    | None => []
-                    }
-                    let camPitch = Viewer.getPitch(newViewer)
-                    let camYaw = Viewer.getYaw(newViewer)
-                    let camHfov = Viewer.getHfov(newViewer)
-
-                    let newPoint: Types.linkDraft = {
-                      yaw,
-                      pitch,
-                      camYaw,
-                      camPitch,
-                      camHfov,
-                      intermediatePoints: None,
-                    }
-
-                    let newPoints = Belt.Array.concat(currentPoints, [newPoint])
-
-                    GlobalStateBridge.dispatch(
-                      Actions.SetLinkDraft(Some({...d, intermediatePoints: Some(newPoints)})),
-                    )
-                  }
-                | _ => ()
-                }
-              }
-            })
-
             /* More events: animatefinished, viewchange */
+            /* Capture the assigned key to check against active key later */
+            let assignedKey = switch state.activeViewerKey {
+            | A => B
+            | B => A
+            }
+
             Viewer.on(newViewer, "viewchange", _ => {
-              let _inactive = switch state.activeViewerKey {
-              | A => B
-              | B => A
-              }
-              /* If this new viewer is NOT the active one yet (loading background), don't update lines? 
-                   Wait, this event runs. 
-                   JS: "Only update lines for the currently active viewer" (checking logic)
-                   Actually `newViewer` is definitely the one we setup.
-                   If it becomes active key, we update.
- */
-              let myKey = switch state.activeViewerKey {
-              | A => B
-              | B => A
-              }
-              if myKey == state.activeViewerKey {
+              /* If this viewer corresponds to the currently active key, update lines */
+              if assignedKey == state.activeViewerKey {
                 let mouseEv = switch Nullable.toOption(state.lastMouseEvent) {
                 | Some(e) => Some(e)
                 | None => None

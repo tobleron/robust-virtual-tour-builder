@@ -162,7 +162,18 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
 
       // Use pre-existing metadata if available
       let exif = switch item.metadata {
-      | Some(m) => Promise.resolve((Obj.magic(m): metadataResponse))
+      | Some(m) =>
+        switch item.quality {
+        | Some(q) =>
+          Promise.resolve({
+            exif: (Obj.magic(m): SharedTypes.exifMetadata),
+            quality: (Obj.magic(q): SharedTypes.qualityAnalysis),
+            isOptimized: false,
+            checksum: "",
+            suggestedName: Nullable.null,
+          })
+        | None => ExifParser.extractExifData(file)
+        }
       | None => ExifParser.extractExifData(file)
       }
 

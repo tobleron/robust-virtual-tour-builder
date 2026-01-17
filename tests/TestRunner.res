@@ -53,6 +53,7 @@ TeaserPathfinderTest.run()
 ServerTeaserTest.run()
 ConstantsTest.run()
 VersionTest.run()
+ImageOptimizerTest.run()
 
 Console.log("All frontend tests passed successfully! 🎉")
 %%raw(`process.exit(0)`)

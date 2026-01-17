@@ -1,4 +1,5 @@
 .
+|-- AGENTS.md
 |-- GEMINI.md
 |-- README.md
 |-- backend
@@ -69,6 +70,7 @@
 |   |-- style.css
 |   |-- tailwind.css
 |   `-- variables.css
+|-- dev.log
 |-- dev_prefs
 |   |-- logging_debugging_system.md
 |   `-- ui_preferences.md
@@ -548,6 +550,15 @@
 |   |   |       |-- GeoUtils.cmj
 |   |   |       |-- GeoUtils.cmt
 |   |   |       |-- GeoUtils.res
+|   |   |       |-- ImageOptimizer.ast
+|   |   |       |-- ImageOptimizer.bs.js
+|   |   |       |-- ImageOptimizer.cmi
+|   |   |       |-- ImageOptimizer.cmj
+|   |   |       |-- ImageOptimizer.cmt
+|   |   |       |-- ImageOptimizer.cmti
+|   |   |       |-- ImageOptimizer.iast
+|   |   |       |-- ImageOptimizer.res
+|   |   |       |-- ImageOptimizer.resi
 |   |   |       |-- LazyLoad.ast
 |   |   |       |-- LazyLoad.bs.js
 |   |   |       |-- LazyLoad.cmi
@@ -688,6 +699,12 @@
 |   |           |-- HotspotReducerTest.cmj
 |   |           |-- HotspotReducerTest.cmt
 |   |           |-- HotspotReducerTest.res
+|   |           |-- ImageOptimizerTest.ast
+|   |           |-- ImageOptimizerTest.bs.js
+|   |           |-- ImageOptimizerTest.cmi
+|   |           |-- ImageOptimizerTest.cmj
+|   |           |-- ImageOptimizerTest.cmt
+|   |           |-- ImageOptimizerTest.res
 |   |           |-- InputSystemTest.ast
 |   |           |-- InputSystemTest.bs.js
 |   |           |-- InputSystemTest.cmi
@@ -1095,6 +1112,18 @@
 |   |   |-- HotspotReducerTest.cmj
 |   |   |-- HotspotReducerTest.cmt
 |   |   |-- HotspotReducerTest.res
+|   |   |-- ImageOptimizer.ast
+|   |   |-- ImageOptimizer.cmi
+|   |   |-- ImageOptimizer.cmj
+|   |   |-- ImageOptimizer.cmt
+|   |   |-- ImageOptimizer.cmti
+|   |   |-- ImageOptimizer.iast
+|   |   |-- ImageOptimizer.res
+|   |   |-- ImageOptimizer.resi
+|   |   |-- ImageOptimizerTest.cmi
+|   |   |-- ImageOptimizerTest.cmj
+|   |   |-- ImageOptimizerTest.cmt
+|   |   |-- ImageOptimizerTest.res
 |   |   |-- InputSystem.ast
 |   |   |-- InputSystem.cmi
 |   |   |-- InputSystem.cmj
@@ -1806,6 +1835,9 @@
 |   |   |-- Constants.res
 |   |   |-- GeoUtils.bs.js
 |   |   |-- GeoUtils.res
+|   |   |-- ImageOptimizer.bs.js
+|   |   |-- ImageOptimizer.res
+|   |   |-- ImageOptimizer.resi
 |   |   |-- LazyLoad.bs.js
 |   |   |-- LazyLoad.res
 |   |   |-- Logger.bs.js
@@ -1827,6 +1859,7 @@
 |   |-- TASKS.md
 |   |-- active
 |   |   `-- refactor_styles_css.md
+|   |-- cancelled
 |   |-- completed
 |   |   |-- 01_Architecture_Functional_State_REPORT.md
 |   |   |-- 02_Implement_App_Context_REPORT.md
@@ -2015,7 +2048,12 @@
 |   `-- pending
 |       |-- 175_Restore_v420_Viewer_HUD_Labels_and_Prompts.md
 |       |-- 176_Restore_v420_Visual_Pipeline.md
-|       `-- 177_Restore_v420_Simulation_Advanced_Mechanics.md
+|       |-- 177_Restore_v420_Simulation_Advanced_Mechanics.md
+|       |-- 178_extract_business_logic.md
+|       |-- 179_fix_error_handling.md
+|       |-- 180_expand_test_coverage.md
+|       |-- 181_Add_Tests_for_ImageOptimizer.md
+|       `-- re_evaluate_webp_quality.md
 |-- tests
 |   |-- TestRunner.bs.js
 |   |-- TestRunner.res
@@ -2051,6 +2089,8 @@
 |       |-- HotspotLine_v.test.res
 |       |-- HotspotReducerTest.bs.js
 |       |-- HotspotReducerTest.res
+|       |-- ImageOptimizerTest.bs.js
+|       |-- ImageOptimizerTest.res
 |       |-- InputSystemTest.bs.js
 |       |-- InputSystemTest.res
 |       |-- JsonTypesTest.bs.js
@@ -2135,4 +2175,4 @@
 |       `-- VitestSmoke.test.res
 `-- vitest.config.mjs
 
-48 directories, 2088 files
+49 directories, 2127 files
