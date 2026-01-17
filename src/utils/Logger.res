@@ -20,7 +20,7 @@ type level =
 type logEntry = {
   timestamp: float,
   time: string,
-  module_: string,
+  @as("module") module_: string,
   level: string,
   message: string,
   data: option<JSON.t>,
