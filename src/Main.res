@@ -146,18 +146,46 @@ let init = async () => {
     }
 
     // 8. Global click handler
+    // 8. Global click handler
     Dom.addEventListener(docToEl(Dom.document), "viewer-click", (e: Dom.event) => {
-      if GlobalStateBridge.getState().isLinking {
+      let state = GlobalStateBridge.getState()
+      if state.isLinking {
         let customEvent = ViewerClickEvent.fromEvent(e)
         let detail = ViewerClickEvent.detail(customEvent)
-        LinkModal.showLinkModal(
-          ~pitch=detail.pitch,
-          ~yaw=detail.yaw,
-          ~camPitch=detail.camPitch,
-          ~camYaw=detail.camYaw,
-          ~camHfov=detail.camHfov,
-          (),
-        )
+
+        switch state.linkDraft {
+        | None =>
+          let newDraft: Types.linkDraft = {
+            pitch: detail.pitch,
+            yaw: detail.yaw,
+            camPitch: detail.camPitch,
+            camYaw: detail.camYaw,
+            camHfov: detail.camHfov,
+            intermediatePoints: Some([]),
+          }
+          GlobalStateBridge.dispatch(Actions.SetLinkDraft(Some(newDraft)))
+
+        | Some(current) =>
+          let newPoint: Types.linkDraft = {
+            pitch: detail.pitch,
+            yaw: detail.yaw,
+            camPitch: detail.camPitch,
+            camYaw: detail.camYaw,
+            camHfov: detail.camHfov,
+            intermediatePoints: None,
+          }
+
+          let currentPoints = switch current.intermediatePoints {
+          | Some(pts) => pts
+          | None => []
+          }
+
+          let updatedDraft = {
+            ...current,
+            intermediatePoints: Some(Belt.Array.concat(currentPoints, [newPoint])),
+          }
+          GlobalStateBridge.dispatch(Actions.SetLinkDraft(Some(updatedDraft)))
+        }
       }
     })
   } catch {

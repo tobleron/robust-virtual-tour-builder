@@ -369,3 +369,4 @@ Task: 147
 [2026-01-17 21:03] v4.3.1 - Final Logic Fix: Align Logger JSON timestamp to backend string req.
 [2026-01-17 21:10] v4.3.1 - Final cleanup: Remove %raw logging helpers, fully type-safe.
 [2026-01-17 21:13] v4.3.1 - Final Polish: Clean build, strict types, and production logging security.
+[2026-01-17 21:25] v4.3.1 - Fix Linking Mode: Enable multi-point waypoint creation via click, finalize with Enter.

@@ -1613,7 +1613,8 @@
 |   `-- rescript.lock
 |-- logs
 |   |-- error.log
-|   `-- log_changes.txt
+|   |-- log_changes.txt
+|   `-- telemetry.log
 |-- package-lock.json
 |-- package.json
 |-- plans
@@ -2134,4 +2135,4 @@
 |       `-- VitestSmoke.test.res
 `-- vitest.config.mjs
 
-48 directories, 2087 files
+48 directories, 2088 files
