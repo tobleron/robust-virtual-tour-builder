@@ -88,28 +88,38 @@ let drawPolyLine = (
   ~className=?,
   (),
 ) => {
-  if Array.length(path) >= 2 {
-    let prevPoint = ref(Belt.Array.getExn(path, 0))
+  let len = Array.length(path)
+  if len >= 2 {
+    let prevPoint = ref(Belt.Array.get(path, 0))
 
-    for i in 1 to Array.length(path) - 1 {
-      let currPoint = Belt.Array.getExn(path, i)
-      let startCoords = getScreenCoords(
-        viewer,
-        prevPoint.contents.pitch,
-        prevPoint.contents.yaw,
-        rect,
-      )
-      let endCoords = getScreenCoords(viewer, currPoint.pitch, currPoint.yaw, rect)
+    switch prevPoint.contents {
+    | Some(startPt) =>
+      let currentPrev = ref(startPt)
+      for i in 1 to len - 1 {
+        let currPointOpt = Belt.Array.get(path, i)
+        switch currPointOpt {
+        | Some(currPoint) =>
+          let startCoords = getScreenCoords(
+            viewer,
+            currentPrev.contents.pitch,
+            currentPrev.contents.yaw,
+            rect,
+          )
+          let endCoords = getScreenCoords(viewer, currPoint.pitch, currPoint.yaw, rect)
 
-      switch (startCoords, endCoords) {
-      | (Some(s), Some(e)) =>
-        // Skip very short segments
-        if Math.abs(s.x -. e.x) >= 1.0 || Math.abs(s.y -. e.y) >= 1.0 {
-          drawLine(svg, s.x, s.y, e.x, e.y, color, width, opacity, ~dashArray?, ~className?, ())
+          switch (startCoords, endCoords) {
+          | (Some(s), Some(e)) =>
+            // Skip very short segments
+            if Math.abs(s.x -. e.x) >= 1.0 || Math.abs(s.y -. e.y) >= 1.0 {
+              drawLine(svg, s.x, s.y, e.x, e.y, color, width, opacity, ~dashArray?, ~className?, ())
+            }
+          | _ => ()
+          }
+          currentPrev := currPoint
+        | None => ()
         }
-      | _ => ()
       }
-      prevPoint := currPoint
+    | None => ()
     }
   }
 }
@@ -410,9 +420,10 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
           }
 
           // 2. Draw pending segment (Floor Projection if looking down)
-          let lastFloorPt = Belt.Array.getExn(floorPoints, Array.length(floorPoints) - 1)
-          switch mouseEvent {
-          | Some(ev) =>
+          let lastFloorPtOpt = Belt.Array.get(floorPoints, Array.length(floorPoints) - 1)
+
+          switch (lastFloorPtOpt, mouseEvent) {
+          | (Some(lastFloorPt), Some(ev)) =>
             let mc = Viewer.mouseEventToCoords(v, ev)
             let pitchOpt = Belt.Array.get(mc, 0)
             let yawOpt = Belt.Array.get(mc, 1)
@@ -444,7 +455,7 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
               )
             | _ => ()
             }
-          | None => ()
+          | _ => ()
           }
 
         | None => ()
