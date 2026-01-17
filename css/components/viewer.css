@@ -1,0 +1,194 @@
+.panorama-layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    visibility: hidden;
+    /* SIMPLE MODE: Fast 0.3s transition for sequential pan-then-swap */
+    transition: opacity 0.3s ease-in-out, visibility 0.3s;
+    z-index: 1;
+}
+
+.panorama-layer.active {
+    opacity: 1;
+    visibility: visible;
+    z-index: 2;
+}
+
+#viewer-snapshot-overlay {
+    position: absolute;
+    inset: 0;
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 5000;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.4s ease-in-out, visibility 0.4s;
+    background-color: transparent;
+}
+
+#viewer-snapshot-overlay.snapshot-visible {
+    visibility: visible;
+    opacity: 1 !important;
+}
+
+#cursor-guide {
+    position: absolute;
+    width: 2px;
+    background: #ffcc00;
+    /* Yellow Rod */
+    box-shadow: 0 0 8px rgba(255, 204, 0, 0.6);
+    pointer-events: none;
+    z-index: 1000;
+    display: none;
+    transform-origin: top center;
+}
+
+#cursor-guide::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -3px;
+    width: 8px;
+    height: 8px;
+    background: #ffcc00;
+    /* Yellow Cursor */
+    border-radius: 50%;
+    box-shadow: 0 0 10px #ffcc00;
+}
+
+/* YELLOW CROSSHAIR CURSOR */
+.linking-mode,
+.linking-mode canvas,
+.linking-mode .pnlm-dragfix,
+#viewer-stage.linking-mode {
+    cursor: url("data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M16 4V12M16 20V28M4 16H12M20 16H28' stroke='%23FFFF00' stroke-width='2' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='16' r='4' stroke='%23FFFF00' stroke-width='2'/%3E%3C/svg%3E") 16 16, crosshair !important;
+}
+
+/* Hide Pannellum controls in builder */
+.pnlm-controls-container,
+.pnlm-zoom-controls,
+.pnlm-fullscreen-toggle-button,
+.pnlm-zoom-in,
+.pnlm-zoom-out,
+.pnlm-controls {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+.viewer-placeholder {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #718096;
+    text-align: center;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+}
+
+.viewer-watermark {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10;
+    pointer-events: none;
+    opacity: 0.9;
+}
+
+.viewer-watermark img {
+    height: 50px;
+    width: auto;
+    display: block;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+/* Hotspot Controls */
+.pnlm-hotspot.flat-arrow {
+    overflow: visible !important;
+}
+
+.hotspot-delete-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 24px;
+    height: 24px;
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    z-index: 10000;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: auto;
+}
+
+.hotspot-delete-btn:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.hotspot-controls {
+    position: absolute;
+    bottom: 0px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 3px;
+    z-index: 10000;
+    pointer-events: auto;
+}
+
+.hotspot-forward-btn,
+.hotspot-return-btn {
+    width: 22px;
+    height: 17px;
+    background: #374151;
+    color: white;
+    border-radius: 3px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    transition: all 0.2s ease;
+    pointer-events: auto;
+}
+
+.hotspot-forward-btn:hover,
+.hotspot-return-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.hotspot-forward-btn.active {
+    background: #059669 !important;
+    color: white !important;
+    border-color: #059669 !important;
+}
+
+.hotspot-return-btn.active {
+    background: #ea580c !important;
+    color: white !important;
+    border-color: #ea580c !important;
+}

@@ -1,0 +1,63 @@
+:root {
+    /* Brand Colors - Remax Premium Palette */
+    --primary: #003da5;
+    /* Remax Blue */
+    --primary-light: #2563eb;
+    --primary-dark: #001a38;
+    --accent: #ffcc00;
+    /* Remax Gold */
+    --accent-soft: rgba(255, 204, 0, 0.1);
+    --danger: #dc3545;
+    /* Remax Red */
+    --success: #10b981;
+    /* Emerald 500 */
+    --success-dark: #065f46;
+    /* Emerald 800 for high contrast text */
+    --warning: #f59e0b;
+    /* Amber 500 */
+
+    /* Neutral Palette - Slate Based */
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-300: #cbd5e1;
+    --slate-400: #94a3b8;
+    --slate-500: #64748b;
+    --slate-600: #475569;
+    --slate-700: #334155;
+    --slate-800: #1e293b;
+    --slate-900: #0f172a;
+    --slate-950: #020617;
+
+    /* Design Tokens */
+    --radius-sm: 0.5rem;
+    --radius-md: 0.75rem;
+    --radius-lg: 1rem;
+    --radius-full: 9999px;
+
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --shadow-premium: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+
+    /* Glassmorphism */
+    --glass-bg: rgba(15, 23, 42, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-blur: 12px;
+
+    /* Typography */
+    --font-heading: "Outfit", system-ui, -apple-system, sans-serif;
+    --font-body: "Outfit", system-ui, -apple-system, sans-serif;
+    --font-ui: "Inter", system-ui, -apple-system, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+    /* Font Sizes */
+    --text-xs: 0.75rem;
+    --text-sm: 0.875rem;
+    --text-base: 1rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.25rem;
+    --text-2xl: 1.5rem;
+    --text-3xl: 1.875rem;
+}

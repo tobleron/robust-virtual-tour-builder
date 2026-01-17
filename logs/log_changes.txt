@@ -362,3 +362,4 @@ Task: 147
 [2026-01-16 20:51] v4.3.0 - Implement dynamic SEO and HTML configuration using Rsbuild template parameters
 [2026-01-17 20:12] v4.3.1 - Restore v4.2.0 linking mechanics: rod, director curve, floor projection, and unit tests
 [2026-01-17 20:34] v4.3.1 - Fix Linking Mode visualization: resolve cursor rod conflict, fix CSS dash patterns.
+[2026-01-17 20:41] v4.3.1 - Refactor style.css into modular CSS architecture
