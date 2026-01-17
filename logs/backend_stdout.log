@@ -1,0 +1,3 @@
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.13s
+     Running `target/debug/backend`
+DEBUG: Received telemetry entry: Json(TelemetryEntry { level: "info", module: "Test", message: "Verifying backend logging", data: None, timestamp: "2026-01-17T20:55:00Z" })
