@@ -20,23 +20,47 @@ let getPanoramaUrl = (file: Types.file): string => {
   switch file {
   | Url(s) => s
   | Blob(b) =>
-    let url = URL.createObjectURL(b)
-    Logger.debug(
-      ~module_="Viewer",
-      ~message="GENERATING_BLOB_URL",
-      ~data=Some({"size": Blob.size(b), "type": Blob.type_(b), "url": url}),
-      (),
-    )
-    url
+    let isBlob: bool = %raw("b instanceof Blob")
+    if isBlob {
+      let url = URL.createObjectURL(b)
+      Logger.debug(
+        ~module_="Viewer",
+        ~message="GENERATING_BLOB_URL",
+        ~data=Some({"size": Blob.size(b), "type": Blob.type_(b), "url": url}),
+        (),
+      )
+      url
+    } else {
+      %raw("console.error('[Viewer] INVALID_BLOB_PASSED:', b, 'VARIANT:', file)")
+      Logger.error(
+        ~module_="Viewer",
+        ~message="INVALID_BLOB_TYPE",
+        ~data=Some({"type": %raw("typeof b")}),
+        (),
+      )
+      ""
+    }
   | File(b) =>
-    let url = URL.createObjectURL(castToBlob(b))
-    Logger.debug(
-      ~module_="Viewer",
-      ~message="GENERATING_FILE_URL",
-      ~data=Some({"size": File.size(b), "type": File.type_(b), "url": url}),
-      (),
-    )
-    url
+    let isFile: bool = %raw("b instanceof File || b instanceof Blob")
+    if isFile {
+      let url = URL.createObjectURL(castToBlob(b))
+      Logger.debug(
+        ~module_="Viewer",
+        ~message="GENERATING_FILE_URL",
+        ~data=Some({"size": File.size(b), "type": File.type_(b), "url": url}),
+        (),
+      )
+      url
+    } else {
+      %raw("console.error('[Viewer] INVALID_FILE_PASSED:', b, 'VARIANT:', file)")
+      Logger.error(
+        ~module_="Viewer",
+        ~message="INVALID_FILE_TYPE",
+        ~data=Some({"type": %raw("typeof b")}),
+        (),
+      )
+      ""
+    }
   }
 }
 
