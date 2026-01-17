@@ -445,7 +445,7 @@ let init = () => {
     "clear": () => {%raw(`entries.length = 0`)},
     "isEnabled": () => enabled.contents,
     "testError": () => {
-      Js.Exn.raiseError("Test Error from Console")
+      ignore(%raw(`(function(){ throw new Error("Test Error from Console") })()`))
     },
   }
   Window.setDebug(Window.window, asDynamic(debugObj))
