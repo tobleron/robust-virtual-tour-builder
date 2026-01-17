@@ -1,9 +1,9 @@
-use std::collections::HashSet;
-use super::graph::{Scene, Step, TransitionTarget, ArrivalView};
+use super::graph::{ArrivalView, Scene, Step, TransitionTarget};
 use super::utils::{
-    find_scene_index, find_scene_index_by_id, get_hotspot_view, 
-    get_arrival_view, get_default_view, follow_auto_forward_chain
+    find_scene_index, find_scene_index_by_id, follow_auto_forward_chain, get_arrival_view,
+    get_default_view, get_hotspot_view,
 };
+use std::collections::HashSet;
 
 /// Calculates an exploratory "walk" path through the tour.
 ///
@@ -17,7 +17,10 @@ use super::utils::{
 ///
 /// # Returns
 /// A vector of `Step` objects representing the path.
-pub fn calculate_walk_path(scenes: Vec<Scene>, skip_auto_forward: bool) -> Result<Vec<Step>, String> {
+pub fn calculate_walk_path(
+    scenes: Vec<Scene>,
+    skip_auto_forward: bool,
+) -> Result<Vec<Step>, String> {
     if scenes.is_empty() {
         return Ok(Vec::new());
     }
@@ -30,7 +33,10 @@ pub fn calculate_walk_path(scenes: Vec<Scene>, skip_auto_forward: bool) -> Resul
     // Initial view
     let initial_view = if !scenes[0].hotspots.is_empty() {
         match &scenes[0].hotspots[0].view_frame {
-            Some(vf) => ArrivalView { yaw: vf.yaw, pitch: vf.pitch },
+            Some(vf) => ArrivalView {
+                yaw: vf.yaw,
+                pitch: vf.pitch,
+            },
             None => get_default_view(),
         }
     } else {
@@ -48,7 +54,7 @@ pub fn calculate_walk_path(scenes: Vec<Scene>, skip_auto_forward: bool) -> Resul
     while forward_steps < 12 {
         forward_steps += 1;
         let current_scene = &scenes[current_idx];
-        
+
         // Find forward link
         let forward_link = current_scene.hotspots.iter().find(|h| {
             if h.is_return_link.unwrap_or(false) {
@@ -64,7 +70,7 @@ pub fn calculate_walk_path(scenes: Vec<Scene>, skip_auto_forward: bool) -> Resul
         if let Some(link) = forward_link {
             let mut next_idx = find_scene_index(&scenes, &link.target)
                 .ok_or_else(|| format!("Pathfinding error: Scene '{}' not found", link.target))?;
-            
+
             // Update previous step transition target
             if let Some(last_step) = path.last_mut() {
                 let (trans_yaw, trans_pitch) = get_hotspot_view(link);
@@ -108,11 +114,16 @@ pub fn calculate_walk_path(scenes: Vec<Scene>, skip_auto_forward: bool) -> Resul
         return_steps += 1;
         let current_scene = &scenes[current_idx];
 
-        let return_link = current_scene.hotspots.iter().find(|h| h.is_return_link.unwrap_or(false));
+        let return_link = current_scene
+            .hotspots
+            .iter()
+            .find(|h| h.is_return_link.unwrap_or(false));
 
         if let Some(link) = return_link {
             let mut next_idx = find_scene_index(&scenes, &link.target).unwrap_or(usize::MAX);
-            if next_idx == usize::MAX { break; }
+            if next_idx == usize::MAX {
+                break;
+            }
 
             if let Some(last_step) = path.last_mut() {
                 let (trans_yaw, trans_pitch) = get_hotspot_view(link);
@@ -154,13 +165,17 @@ pub fn calculate_walk_path(scenes: Vec<Scene>, skip_auto_forward: bool) -> Resul
 
     // Cleanup
     let final_path = if skip_auto_forward {
-        path.into_iter().filter(|step| !scenes[step.idx].is_auto_forward).collect()
+        path.into_iter()
+            .filter(|step| !scenes[step.idx].is_auto_forward)
+            .collect()
     } else {
         path
     };
 
     // Dedupe adjacent
-    if final_path.is_empty() { return Ok(Vec::new()); }
+    if final_path.is_empty() {
+        return Ok(Vec::new());
+    }
     let mut deduped = Vec::with_capacity(final_path.len());
     let mut last_idx = None;
     for step in final_path {
@@ -185,7 +200,11 @@ pub fn calculate_walk_path(scenes: Vec<Scene>, skip_auto_forward: bool) -> Resul
 ///
 /// # Returns
 /// A vector of `Step` objects representing the path.
-pub fn calculate_timeline_path(scenes: Vec<Scene>, timeline: Vec<super::graph::TimelineItem>, skip_auto_forward: bool) -> Result<Vec<Step>, String> {
+pub fn calculate_timeline_path(
+    scenes: Vec<Scene>,
+    timeline: Vec<super::graph::TimelineItem>,
+    skip_auto_forward: bool,
+) -> Result<Vec<Step>, String> {
     let mut path: Vec<Step> = Vec::new();
 
     for item in timeline {
@@ -195,9 +214,15 @@ pub fn calculate_timeline_path(scenes: Vec<Scene>, timeline: Vec<super::graph::T
 
             if !(skip_auto_forward && scene.is_auto_forward) {
                 let hotspot = if !item.link_id.is_empty() {
-                    scene.hotspots.iter().find(|h| h.link_id.as_deref() == Some(&item.link_id))
+                    scene
+                        .hotspots
+                        .iter()
+                        .find(|h| h.link_id.as_deref() == Some(&item.link_id))
                 } else {
-                    scene.hotspots.iter().find(|h| h.target == item.target_scene)
+                    scene
+                        .hotspots
+                        .iter()
+                        .find(|h| h.target == item.target_scene)
                 };
 
                 let (trans_yaw, trans_pitch) = match hotspot {
@@ -245,8 +270,13 @@ pub fn calculate_timeline_path(scenes: Vec<Scene>, timeline: Vec<super::graph::T
                     if skip_auto_forward {
                         let mut local_visited = HashSet::new(); // Local visited for this chain only
                         let original_target = target_idx;
-                        target_idx = follow_auto_forward_chain(&scenes, target_idx, &mut local_visited, false)?;
-                        
+                        target_idx = follow_auto_forward_chain(
+                            &scenes,
+                            target_idx,
+                            &mut local_visited,
+                            false,
+                        )?;
+
                         if target_idx != original_target {
                             arrival_view = get_default_view();
                         }
@@ -264,13 +294,17 @@ pub fn calculate_timeline_path(scenes: Vec<Scene>, timeline: Vec<super::graph::T
 
     // Cleanup
     let final_path = if skip_auto_forward {
-        path.into_iter().filter(|step| !scenes[step.idx].is_auto_forward).collect::<Vec<_>>()
+        path.into_iter()
+            .filter(|step| !scenes[step.idx].is_auto_forward)
+            .collect::<Vec<_>>()
     } else {
         path
     };
 
     // Dedupe
-    if final_path.is_empty() { return Ok(Vec::new()); }
+    if final_path.is_empty() {
+        return Ok(Vec::new());
+    }
     let mut deduped = Vec::with_capacity(final_path.len());
     let mut last_idx = None;
     for step in final_path {

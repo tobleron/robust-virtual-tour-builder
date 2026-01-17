@@ -1,10 +1,10 @@
-use std::path::{Path, PathBuf};
-use uuid::Uuid;
-use std::fs;
-use actix_web::{web, HttpResponse};
+use crate::models::AppError;
 use crate::services::shutdown::ShutdownManager;
 use crate::services::upload_quota::UploadQuotaManager;
-use crate::models::AppError;
+use actix_web::{HttpResponse, web};
+use std::fs;
+use std::path::{Path, PathBuf};
+use uuid::Uuid;
 
 // Configs
 pub const PROCESSED_IMAGE_WIDTH: u32 = 4096;
@@ -34,20 +34,20 @@ pub fn get_session_path(session_id: &str) -> PathBuf {
 /// Sanitize filename to prevent path traversal attacks
 /// Returns only the filename component, rejecting any directory traversal attempts
 pub fn sanitize_filename(fname: &str) -> Result<String, String> {
-    use std::path::{Component};
-    
+    use std::path::Component;
+
     // Reject empty filenames
     if fname.is_empty() {
         return Err("Empty filename not allowed".to_string());
     }
-    
+
     let path = Path::new(fname);
-    
+
     // Reject absolute paths
     if path.is_absolute() {
         return Err("Absolute paths not allowed".to_string());
     }
-    
+
     // Check for parent directory components (..)
     for component in path.components() {
         match component {
@@ -60,7 +60,7 @@ pub fn sanitize_filename(fname: &str) -> Result<String, String> {
             _ => {}
         }
     }
-    
+
     // Extract only the filename (no directory structure)
     path.file_name()
         .and_then(|s| s.to_str())
@@ -72,13 +72,11 @@ pub fn sanitize_filename(fname: &str) -> Result<String, String> {
 }
 
 /// Trigger graceful shutdown (admin only in production)
-pub async fn trigger_shutdown(
-    shutdown_manager: web::Data<ShutdownManager>,
-) -> HttpResponse {
+pub async fn trigger_shutdown(shutdown_manager: web::Data<ShutdownManager>) -> HttpResponse {
     tracing::warn!("Shutdown triggered via API");
-    
+
     let active = shutdown_manager.active_count().await;
-    
+
     HttpResponse::Ok().json(serde_json::json!({
         "message": "Shutdown initiated",
         "active_requests": active

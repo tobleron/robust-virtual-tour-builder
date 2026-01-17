@@ -1,7 +1,7 @@
-use actix_web::{web, HttpResponse};
-use serde::Serialize;
 use crate::models::{AppError, GeocodeRequest, GeocodeResponse};
 use crate::services::geocoding;
+use actix_web::{HttpResponse, web};
+use serde::Serialize;
 
 /// Performs reverse geocoding to find a human-readable address for coordinates.
 ///
@@ -18,19 +18,19 @@ use crate::services::geocoding;
 pub async fn reverse_geocode(req: web::Json<GeocodeRequest>) -> Result<HttpResponse, AppError> {
     let lat = req.lat;
     let lon = req.lon;
-    
+
     tracing::info!(
-        module = "Geocoder", 
-        lat = lat, 
-        lon = lon, 
+        module = "Geocoder",
+        lat = lat,
+        lon = lon,
         "REVERSE_GEOCODE_START"
     );
-    
+
     match geocoding::reverse_geocode(lat, lon).await {
         Ok(address) => {
             tracing::info!(module = "Geocoder", "REVERSE_GEOCODE_COMPLETE");
             Ok(HttpResponse::Ok().json(GeocodeResponse { address }))
-        },
+        }
         Err(e) => {
             tracing::error!(module = "Geocoder", error = %e, "REVERSE_GEOCODE_FAILED");
             // Return a graceful fallback message
@@ -65,20 +65,20 @@ struct GeocodeStatsResponse {
 pub async fn geocode_stats() -> impl actix_web::Responder {
     let info = geocoding::get_info().await;
     let stats = info.stats;
-    
+
     let total_requests = stats.hits + stats.misses;
     let hit_rate = if total_requests > 0 {
         (stats.hits as f64 / total_requests as f64) * 100.0
     } else {
         0.0
     };
-    
+
     let last_save_time = stats.last_save.map(|ts| {
         chrono::DateTime::<chrono::Utc>::from_timestamp(ts as i64, 0)
             .map(|dt| dt.to_rfc3339())
             .unwrap_or_else(|| "Unknown".to_string())
     });
-    
+
     HttpResponse::Ok().json(GeocodeStatsResponse {
         cache_size: info.cache_size,
         max_cache_size: geocoding::MAX_CACHE_SIZE,
@@ -100,12 +100,18 @@ pub async fn geocode_stats() -> impl actix_web::Responder {
 #[tracing::instrument(name = "clear_geocode_cache")]
 pub async fn clear_geocode_cache() -> impl actix_web::Responder {
     geocoding::clear_cache().await;
-    
+
     // Save empty cache
     let _ = geocoding::save_cache_to_disk().await;
-    
+
     HttpResponse::Ok().json(serde_json::json!({
         "success": true,
         "message": "Cache cleared"
     }))
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn placeholder() {}
 }

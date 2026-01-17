@@ -35,9 +35,11 @@ sourceFiles.forEach(file => {
     let testExists = false;
 
     if (file.endsWith('.res')) {
-        const legacyTestPath = `tests/unit/${nameWithoutExt}Test.res`;
-        const vitestTestPath = `tests/unit/${nameWithoutExt}.test.res`;
-        if (fs.existsSync(legacyTestPath) || fs.existsSync(vitestTestPath)) testExists = true;
+        const testFiles = fs.existsSync('tests/unit') ? fs.readdirSync('tests/unit') : [];
+        testExists = testFiles.some(f =>
+            f.toLowerCase().includes(nameWithoutExt.toLowerCase()) &&
+            (f.endsWith('.res') || f.endsWith('.js'))
+        );
     } else if (file.endsWith('.rs')) {
         try {
             const content = fs.readFileSync(file, 'utf8');

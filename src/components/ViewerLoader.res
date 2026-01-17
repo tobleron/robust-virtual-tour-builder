@@ -511,14 +511,61 @@ module Loader = {
               )
             })
 
-            Viewer.on(newViewer, "mousedown", e => {
+            Viewer.on(newViewer, "click", e => {
               let s = GlobalStateBridge.getState()
               if !s.isSimulationMode && s.isLinking {
                 let coords = Viewer.mouseEventToCoords(newViewer, e)
-                let _pitch = Belt.Array.get(coords, 0)
-                let _yaw = Belt.Array.get(coords, 1)
+                let pitchOpt = Belt.Array.get(coords, 0)
+                let yawOpt = Belt.Array.get(coords, 1)
 
-                // Linking logic click 1/2 is handled in LinkingSystem or equivalent
+                switch (pitchOpt, yawOpt) {
+                | (Some(pitch), Some(yaw)) =>
+                  let draft = s.linkDraft
+
+                  switch draft {
+                  | None =>
+                    let hfov = Viewer.getHfov(newViewer)
+                    let camPitch = Viewer.getPitch(newViewer)
+                    let camYaw = Viewer.getYaw(newViewer)
+
+                    GlobalStateBridge.dispatch(
+                      Actions.SetLinkDraft(
+                        Some({
+                          yaw,
+                          pitch,
+                          camYaw,
+                          camPitch,
+                          camHfov: hfov,
+                          intermediatePoints: None,
+                        }),
+                      ),
+                    )
+                  | Some(d) =>
+                    let currentPoints = switch d.intermediatePoints {
+                    | Some(pts) => pts
+                    | None => []
+                    }
+                    let camPitch = Viewer.getPitch(newViewer)
+                    let camYaw = Viewer.getYaw(newViewer)
+                    let camHfov = Viewer.getHfov(newViewer)
+
+                    let newPoint: Types.linkDraft = {
+                      yaw,
+                      pitch,
+                      camYaw,
+                      camPitch,
+                      camHfov,
+                      intermediatePoints: None,
+                    }
+
+                    let newPoints = Belt.Array.concat(currentPoints, [newPoint])
+
+                    GlobalStateBridge.dispatch(
+                      Actions.SetLinkDraft(Some({...d, intermediatePoints: Some(newPoints)})),
+                    )
+                  }
+                | _ => ()
+                }
               }
             })
 

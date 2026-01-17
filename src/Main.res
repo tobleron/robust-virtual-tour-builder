@@ -77,135 +77,175 @@ external docToEl: {..} => Dom.element = "%identity"
 // --- INITIALIZATION ---
 
 let init = async () => {
-  // 1. Logger
-  Logger.init()
-
-  Logger.info(~module_="System", ~message="Initializing Remax Builder...", ())
-
-  // 2. Global JSON store access (for legacy scripts/console)
-  StateInspector.exposeToWindow()
-
-  // 3. Telemetry
   try {
-    let canvas = Dom.createElement("canvas")
-    let glOpt = WebGL.getContext(canvas, "webgl")
+    // 1. Logger
+    Logger.init()
 
-    let (renderer, vendor) = switch glOpt->Nullable.toOption {
-    | Some(gl) =>
-      let debugInfo = WebGL.getExtension(gl, "WEBGL_debug_renderer_info")
-      switch debugInfo->Nullable.toOption {
-      | Some(ext) => (
-          gl->WebGL.getParameter(WebGLDebugInfo.unmaskedRendererWebgl(ext)),
-          gl->WebGL.getParameter(WebGLDebugInfo.unmaskedVendorWebgl(ext)),
-        )
+    Logger.info(~module_="System", ~message="Initializing Remax Builder...", ())
+    Console.log("Main Init Started")
+
+    // Verify Global Dependencies
+    let hasPannellum: bool = %raw("typeof window.pannellum !== 'undefined'")
+    if hasPannellum {
+      Logger.info(~module_="System", ~message="Pannellum Global Found", ())
+      Console.log("Pannellum Found")
+    } else {
+      Logger.error(~module_="System", ~message="Pannellum Global MISSING", ())
+      Console.error("Pannellum MISSING")
+    }
+
+    // 2. Global JSON store access (for legacy scripts/console)
+    StateInspector.exposeToWindow()
+
+    // 3. Telemetry
+    try {
+      let canvas = Dom.createElement("canvas")
+      let glOpt = WebGL.getContext(canvas, "webgl")
+
+      let (renderer, vendor) = switch glOpt->Nullable.toOption {
+      | Some(gl) =>
+        let debugInfo = WebGL.getExtension(gl, "WEBGL_debug_renderer_info")
+        switch debugInfo->Nullable.toOption {
+        | Some(ext) => (
+            gl->WebGL.getParameter(WebGLDebugInfo.unmaskedRendererWebgl(ext)),
+            gl->WebGL.getParameter(WebGLDebugInfo.unmaskedVendorWebgl(ext)),
+          )
+        | None => ("unknown", "unknown")
+        }
       | None => ("unknown", "unknown")
       }
-    | None => ("unknown", "unknown")
-    }
 
-    Logger.info(
-      ~module_="System",
-      ~message="Application Startup",
-      ~data=Some({
-        "userAgent": Navigator.userAgent,
-        "platform": Navigator.platform,
-        "cores": Navigator.hardwareConcurrency,
-        "memory": Navigator.deviceMemory,
-        "screen": Belt.Int.toString(Screen.width) ++
-        "x" ++
-        Belt.Int.toString(Screen.height) ++
-        " (" ++
-        Float.toString(Screen.devicePixelRatio) ++ "x)",
-        "gpu": {"renderer": renderer, "vendor": vendor},
-        "url": getHref(),
-        "version": %raw(`typeof window.APP_VERSION !== 'undefined' ? window.APP_VERSION : 'unknown'`),
-      }),
-      (),
-    )
-  } catch {
-  | _ => Console.warn("Failed to collect system telemetry")
-  }
-
-  // 4. Error Handlers
-  setOnerror((message, source, lineno, colno, error) => {
-    Logger.error(
-      ~module_="Global",
-      ~message="Uncaught Error: " ++ message,
-      ~data=Some({
-        "source": source,
-        "lineno": lineno,
-        "colno": colno,
-        "stack": switch error->Nullable.toOption {
-        | Some(e) => JsError.stack(e)->Nullable.toOption->Option.getOr("")
-        | None => ""
-        },
-        "type": switch error->Nullable.toOption {
-        | Some(e) => JsError.name(e)
-        | None => "Error"
-        },
-      }),
-      (),
-    )
-    false
-  })
-
-  setOnunhandledrejection(event => {
-    let reason = UnhandledRejectionEvent.getReason(event)
-    let isError = UnhandledRejectionEvent.isError(reason)
-
-    Logger.error(
-      ~module_="Global",
-      ~message="Unhandled Promise Rejection",
-      ~data=Some({
-        "reason": isError
-          ? JsError.message(UnhandledRejectionEvent.reasonToError(reason))
-          : UnhandledRejectionEvent.reasonToString(reason),
-        "stack": isError
-          ? JsError.stack(UnhandledRejectionEvent.reasonToError(reason))
-          : Nullable.null,
-        "promise": UnhandledRejectionEvent.getPromise(event),
-      }),
-      (),
-    )
-
-    if !Js.String.includes("localhost", Window.window["location"]["hostname"]) {
-      UnhandledRejectionEvent.preventDefault(event)
-    }
-  })
-
-  // 5. Dom Setup & Mount
-  switch Dom.getElementById("app")->Nullable.toOption {
-  | Some(appRoot) =>
-    let root = ReactDOMClient.createRoot(appRoot)
-    ReactDOMClient.Root.render(root, <App />)
-  | None => Console.error("Root element #app not found")
-  }
-
-  // 7. Systems
-  AudioManager.setupGlobalClickSounds()
-  VisualPipeline.init("visual-pipeline-container")->ignore
-  SimulationSystem.initSimulationKeyHandler()
-  InputSystem.initInputSystem()
-
-  // 8. Service Worker (for offline capability and caching)
-  ServiceWorker.registerServiceWorker()
-
-  // 8. Global click handler
-  // 8. Global click handler
-  Dom.addEventListener(docToEl(Dom.document), "viewer-click", (e: Dom.event) => {
-    if GlobalStateBridge.getState().isLinking {
-      let customEvent = ViewerClickEvent.fromEvent(e)
-      let detail = ViewerClickEvent.detail(customEvent)
-      LinkModal.showLinkModal(
-        ~pitch=detail.pitch,
-        ~yaw=detail.yaw,
-        ~camPitch=detail.camPitch,
-        ~camYaw=detail.camYaw,
-        ~camHfov=detail.camHfov,
+      Logger.info(
+        ~module_="System",
+        ~message="Application Startup",
+        ~data=Some({
+          "userAgent": Navigator.userAgent,
+          "platform": Navigator.platform,
+          "cores": Navigator.hardwareConcurrency,
+          "memory": Navigator.deviceMemory,
+          "screen": Belt.Int.toString(Screen.width) ++
+          "x" ++
+          Belt.Int.toString(Screen.height) ++
+          " (" ++
+          Float.toString(Screen.devicePixelRatio) ++ "x)",
+          "gpu": {"renderer": renderer, "vendor": vendor},
+          "url": getHref(),
+          "version": %raw(`typeof window.APP_VERSION !== 'undefined' ? window.APP_VERSION : 'unknown'`),
+        }),
         (),
       )
+    } catch {
+    | _ => Console.warn("Failed to collect system telemetry")
     }
-  })
+
+    // 4. Error Handlers
+    setOnerror((message, source, lineno, colno, error) => {
+      Logger.error(
+        ~module_="Global",
+        ~message="Uncaught Error: " ++ message,
+        ~data=Some({
+          "source": source,
+          "lineno": lineno,
+          "colno": colno,
+          "stack": switch error->Nullable.toOption {
+          | Some(e) => JsError.stack(e)->Nullable.toOption->Option.getOr("")
+          | None => ""
+          },
+          "type": switch error->Nullable.toOption {
+          | Some(e) => JsError.name(e)
+          | None => "Error"
+          },
+        }),
+        (),
+      )
+      false
+    })
+
+    setOnunhandledrejection(event => {
+      let reason = UnhandledRejectionEvent.getReason(event)
+      let isError = UnhandledRejectionEvent.isError(reason)
+
+      Logger.error(
+        ~module_="Global",
+        ~message="Unhandled Promise Rejection",
+        ~data=Some({
+          "reason": isError
+            ? JsError.message(UnhandledRejectionEvent.reasonToError(reason))
+            : UnhandledRejectionEvent.reasonToString(reason),
+          "stack": isError
+            ? JsError.stack(UnhandledRejectionEvent.reasonToError(reason))
+            : Nullable.null,
+          "promise": UnhandledRejectionEvent.getPromise(event),
+        }),
+        (),
+      )
+
+      if !Js.String.includes("localhost", Window.window["location"]["hostname"]) {
+        UnhandledRejectionEvent.preventDefault(event)
+      }
+    })
+
+    // 5. Dom Setup & Mount
+    Console.log("Mounting App...")
+    switch Dom.getElementById("app")->Nullable.toOption {
+    | Some(appRoot) =>
+      let root = ReactDOMClient.createRoot(appRoot)
+      ReactDOMClient.Root.render(root, <App />)
+      Console.log("App Mounted")
+    | None => Console.error("Root element #app not found")
+    }
+
+    // 7. Systems
+    AudioManager.setupGlobalClickSounds()
+    // VisualPipeline.init("visual-pipeline-container")->ignore
+    Console.log("Systems Initialized")
+    SimulationSystem.initSimulationKeyHandler()
+    InputSystem.initInputSystem()
+
+    // 8. Service Worker (for offline capability and caching)
+    try {
+      if Constants.isDebugBuild() {
+        ServiceWorker.unregisterServiceWorker()
+        Console.log("Service Worker Unregistered (Dev Mode)")
+      } else {
+        ServiceWorker.registerServiceWorker()
+      }
+    } catch {
+    | _ =>
+      Console.warn("Failed to configure Service Worker")
+      // Force unregister in case of uncertainty to be safe
+      ServiceWorker.unregisterServiceWorker()
+    }
+
+    // 8. Global click handler
+    Dom.addEventListener(docToEl(Dom.document), "viewer-click", (e: Dom.event) => {
+      if GlobalStateBridge.getState().isLinking {
+        let customEvent = ViewerClickEvent.fromEvent(e)
+        let detail = ViewerClickEvent.detail(customEvent)
+        LinkModal.showLinkModal(
+          ~pitch=detail.pitch,
+          ~yaw=detail.yaw,
+          ~camPitch=detail.camPitch,
+          ~camYaw=detail.camYaw,
+          ~camHfov=detail.camHfov,
+          (),
+        )
+      }
+    })
+  } catch {
+  | JsExn(e) =>
+    Console.error("CRITICAL INIT ERROR")
+    Console.log(e)
+    Logger.error(~module_="System", ~message="CRITICAL_INIT_FAILURE", ~data=e, ())
+  | _ =>
+    Console.error("CRITICAL INIT ERROR (Unknown)")
+    Logger.error(
+      ~module_="System",
+      ~message="CRITICAL_INIT_FAILURE",
+      ~data={"reason": "Unknown"},
+      (),
+    )
+  }
 }
 
 let _ = init()

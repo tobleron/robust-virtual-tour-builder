@@ -97,7 +97,6 @@ let getCatmullRomSpline = (points: array<point>, totalSegments: int) => {
         let _ = Array.push(splinePoints, Belt.Array.getExn(unrolledPoints, unrolledLen - 2))
       }
 
-      // 4. Normalize
       Belt.Array.map(splinePoints, p => {
         {
           yaw: normalizeYaw(p.yaw),
@@ -105,5 +104,46 @@ let getCatmullRomSpline = (points: array<point>, totalSegments: int) => {
         }
       })
     }
+  }
+}
+
+let getFloorProjectedPath = (start: point, end: point, segments: int) => {
+  let toRad = deg => deg *. Math.Constants.pi /. 180.0
+  let toDeg = rad => rad *. 180.0 /. Math.Constants.pi
+
+  let project = (p: point) => {
+    let yRad = p.yaw->toRad
+    let pRad = p.pitch->toRad
+
+    // Small threshold below horizon to avoid division by zero or infinity
+    if pRad >= -0.05 {
+      None
+    } else {
+      let r = -1.0 /. Math.tan(pRad)
+      Some((r *. Math.sin(yRad), r *. Math.cos(yRad)))
+    }
+  }
+
+  let unproject = (x, z) => {
+    let r = Math.sqrt(x *. x +. z *. z)
+    let yaw = Math.atan2(~y=x, ~x=z)->toDeg
+    let pitch = Math.atan(-1.0 /. r)->toDeg
+    {yaw, pitch}
+  }
+
+  let p1 = project(start)
+  let p2 = project(end)
+
+  switch (p1, p2) {
+  | (Some((x1, z1)), Some((x2, z2))) =>
+    let path = []
+    for i in 0 to segments {
+      let t = Int.toFloat(i) /. Int.toFloat(segments)
+      let x = x1 +. (x2 -. x1) *. t
+      let z = z1 +. (z2 -. z1) *. t
+      let _ = Js.Array.push(unproject(x, z), path)
+    }
+    path
+  | _ => [start, end]
   }
 }

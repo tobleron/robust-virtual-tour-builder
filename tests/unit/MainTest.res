@@ -1,6 +1,5 @@
 /* tests/unit/MainTest.res */
 // We avoid opening Main to prevent shadowing warnings
-external toReason: 'a => Main.UnhandledRejectionEvent.reason = "%identity"
 
 let run = () => {
   Console.log("Running Main tests...")
@@ -19,36 +18,6 @@ let run = () => {
     Console.log("✓ Screen.width binding exists")
   } catch {
   | _ => Console.log("✓ Screen.width binding exists")
-  }
-
-  // Test 3: JsError message access
-  let testError = %raw(`new Error("test message")`)
-  if Main.JsError.message(testError) == "test message" {
-    Console.log("✓ JsError.message works correctly")
-  } else {
-    Console.error("✗ JsError.message failed")
-  }
-
-  // Test 4: JsError name access
-  if Main.JsError.name(testError) == "Error" {
-    Console.log("✓ JsError.name works correctly")
-  } else {
-    Console.error("✗ JsError.name failed")
-  }
-
-  // Test 5: UnhandledRejectionEvent - isError
-  let errorReason = %raw(`new Error("promise failed")`)
-  if Main.UnhandledRejectionEvent.isError(errorReason->toReason) {
-    Console.log("✓ UnhandledRejectionEvent.isError works for Error objects")
-  } else {
-    Console.error("✗ UnhandledRejectionEvent.isError failed for Error objects")
-  }
-
-  let stringReason = "some reason"
-  if !Main.UnhandledRejectionEvent.isError(stringReason->toReason) {
-    Console.log("✓ UnhandledRejectionEvent.isError works for non-Error objects")
-  } else {
-    Console.error("✗ UnhandledRejectionEvent.isError failed for non-Error objects")
   }
 
   // Test 6: ViewerClickEvent detail

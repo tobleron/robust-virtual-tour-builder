@@ -20,32 +20,25 @@ These rules enforce a high standard of quality through unit testing across both 
 ## 🛠️ Part 2: ReScript Frontend Standards
 
 ### 1. Test File Structure
-Create tests in `tests/unit/{ModuleName}Test.res`.
+Create tests in `tests/unit/{ModuleName}.test.res`. Note the `.test.res` suffix which is required for Vitest discovery.
 
 ```rescript
-/* tests/unit/MyModuleTest.res */
-open MyModule
+/* tests/unit/MyModule.test.res */
+open Vitest
 
-let run = () => {
-  Console.log("Running MyModule tests...")
-  
-  // 1. Pure Function Test
-  assert(add(1, 2) == 3)
-  Console.log("✓ add function")
-  
-  // 2. Edge Case Test
-  assert(divide(10, 0) == None)
-  Console.log("✓ divide by zero")
-  
-  Console.log("MyModule tests passed!")
-}
+test("MyModule: add function", t => {
+  t->expect(MyModule.add(1, 2))->Expect.toBe(3)
+})
+
+test("MyModule: divide by zero", t => {
+  t->expect(MyModule.divide(10, 0))->Expect.toBe(None)
+})
 ```
 
-### 2. Integration with Runner
-Update `tests/TestRunner.res` to include your new test:
-```rescript
-MyModuleTest.run()
-```
+### 2. Running Tests
+- Use `npm run test:watch` for developer feedback.
+- Use `npm run test:frontend` for CI/manual runs.
+- **Note**: New Vitest tests do NOT need to be registered in `tests/TestRunner.res`. Vitest automatically discovers files matching `*.test.res`.
 
 ---
 
@@ -90,8 +83,8 @@ Separate I/O from business logic to make functions pure and easy to test.
 
 ## ✅ Part 5: Checklist
 
-- [ ] New module has `tests/unit/ModuleNameTest.res`
-- [ ] Test is registered in `TestRunner.res`
+- [ ] New ReScript module has `tests/unit/ModuleName.test.res` (Vitest)
+- [ ] New Rust module has `#[cfg(test)]` block
 - [ ] Happy paths are covered
 - [ ] Edge cases (empty, null, zero) are covered
 - [ ] Error paths (invalid input) are covered

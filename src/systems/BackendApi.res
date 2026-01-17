@@ -164,11 +164,7 @@ let importProject = (file: File.t): Promise.t<apiResult<importResponse>> => {
 
   Fetch.fetch(
     Constants.backendUrl ++ "/api/project/import",
-    {
-      method: "POST",
-      body: formData,
-      headers: Nullable.null,
-    },
+    Fetch.requestInit(~method="POST", ~body=formData, ()),
   )
   ->Promise.then(handleResponse)
   ->Promise.then(Fetch.json)
@@ -198,11 +194,7 @@ let validateProject = (file: File.t): Promise.t<apiResult<validationReport>> => 
 
   Fetch.fetch(
     Constants.backendUrl ++ "/api/project/validate",
-    {
-      method: "POST",
-      body: formData,
-      headers: Nullable.null,
-    },
+    Fetch.requestInit(~method="POST", ~body=formData, ()),
   )
   ->Promise.then(handleResponse)
   ->Promise.then(Fetch.json)
@@ -233,11 +225,7 @@ let loadProject = (file: File.t): Promise.t<apiResult<Blob.t>> => {
 
   Fetch.fetch(
     Constants.backendUrl ++ "/api/project/load",
-    {
-      method: "POST",
-      body: formData,
-      headers: Nullable.null,
-    },
+    Fetch.requestInit(~method="POST", ~body=formData, ()),
   )
   ->Promise.then(handleResponse)
   ->Promise.then(Fetch.blob)
@@ -262,11 +250,7 @@ let extractMetadata = (file: File.t): Promise.t<apiResult<metadataResponse>> => 
 
   Fetch.fetch(
     Constants.backendUrl ++ "/api/media/extract-metadata",
-    {
-      method: "POST",
-      body: formData,
-      headers: Nullable.null,
-    },
+    Fetch.requestInit(~method="POST", ~body=formData, ()),
   )
   ->Promise.then(handleResponse)
   ->Promise.then(Fetch.json)
@@ -297,11 +281,7 @@ let processImageFull = (file: File.t): Promise.t<apiResult<Blob.t>> => {
 
   Fetch.fetch(
     Constants.backendUrl ++ "/api/media/process-full",
-    {
-      method: "POST",
-      body: formData,
-      headers: Nullable.null,
-    },
+    Fetch.requestInit(~method="POST", ~body=formData, ()),
   )
   ->Promise.then(handleResponse)
   ->Promise.then(Fetch.blob)
@@ -327,11 +307,7 @@ let saveProject = (projectData: JSON.t): Promise.t<apiResult<Blob.t>> => {
 
   Fetch.fetch(
     Constants.backendUrl ++ "/api/project/save",
-    {
-      method: "POST",
-      body: formData,
-      headers: Nullable.null,
-    },
+    Fetch.requestInit(~method="POST", ~body=formData, ()),
   )
   ->Promise.then(handleResponse)
   ->Promise.then(Fetch.blob)
@@ -356,11 +332,12 @@ let calculatePath = (payload: pathRequest): Promise.t<apiResult<array<step>>> =>
 
   Fetch.fetch(
     Constants.backendUrl ++ "/api/project/calculate-path",
-    {
-      method: "POST",
-      body: JSON.stringify(Logger.castToJson(payload)),
-      headers: Nullable.make(headers),
-    },
+    Fetch.requestInit(
+      ~method="POST",
+      ~body=JSON.stringify(Logger.castToJson(payload)),
+      ~headers,
+      (),
+    ),
   )
   ->Promise.then(handleResponse)
   ->Promise.then(Fetch.json)
@@ -391,16 +368,17 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<string> => {
 
   Fetch.fetch(
     Constants.backendUrl ++ "/api/geocoding/reverse",
-    {
-      method: "POST",
-      headers: Nullable.make(headers),
-      body: JSON.stringify(
+    Fetch.requestInit(
+      ~method="POST",
+      ~headers,
+      ~body=JSON.stringify(
         Logger.castToJson({
           lat,
           lon,
         }),
       ),
-    },
+      (),
+    ),
   )
   ->Promise.then(response => {
     if !Fetch.ok(response) {
@@ -449,15 +427,16 @@ let batchCalculateSimilarity = (pairs: array<similarityPair>): Promise.t<
 
   Fetch.fetch(
     Constants.backendUrl ++ "/api/media/similarity",
-    {
-      method: "POST",
-      headers: Nullable.make(headers),
-      body: JSON.stringify(
+    Fetch.requestInit(
+      ~method="POST",
+      ~headers,
+      ~body=JSON.stringify(
         Logger.castToJson({
           "pairs": pairs,
         }),
       ),
-    },
+      (),
+    ),
   )
   ->Promise.then(handleResponse)
   ->Promise.then(Fetch.json)

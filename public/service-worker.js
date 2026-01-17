@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vtb-cache-v4.3.0';
+const CACHE_NAME = 'vtb-cache-v4.3.1';
 
 // Assets that aren't managed by Rsbuild but should still be cached
 const MANUAL_ASSETS = [

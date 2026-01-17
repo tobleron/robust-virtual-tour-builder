@@ -1,12 +1,12 @@
+use lazy_static::lazy_static;
 use prometheus::{
     Counter, CounterVec, Gauge, Histogram, register_counter, register_counter_vec, register_gauge,
     register_histogram,
 };
-use lazy_static::lazy_static;
 
 lazy_static! {
-    /* 
-     * Business Metrics 
+    /*
+     * Business Metrics
      */
 
     // Images processed by type (optimize, resize)
@@ -34,8 +34,8 @@ lazy_static! {
         "Currently active sessions"
     ).unwrap();
 
-    /* 
-     * Resource Metrics 
+    /*
+     * Resource Metrics
      */
 
     // Current concurrent uploads
@@ -73,7 +73,7 @@ mod tests {
         IMAGE_PROCESSING_TOTAL.with_label_values(&["test"]).inc();
         ACTIVE_SESSIONS.inc();
         QUOTA_CURRENT_UPLOADS.set(0.0);
-        
+
         // Success if no panic
         assert!(true);
     }

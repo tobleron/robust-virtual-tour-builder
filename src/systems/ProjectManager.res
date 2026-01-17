@@ -70,12 +70,8 @@ let createSavePackage = (state: state, ~onProgress: option<onProgress>=?): Promi
   progress(10, 100, "Uploading to backend...")
 
   Fetch.fetch(
-    Constants.backendUrl ++ "/save-project",
-    {
-      method: "POST",
-      body: formData,
-      headers: Nullable.null,
-    },
+    Constants.backendUrl ++ "/api/project/save",
+    Fetch.requestInit(~method="POST", ~body=formData, ()),
   )
   ->Promise.then(BackendApi.handleResponse)
   ->Promise.then(Fetch.blob)

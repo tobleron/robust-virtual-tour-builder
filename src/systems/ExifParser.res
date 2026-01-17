@@ -81,12 +81,8 @@ let extractExifData = (file: File.t): Promise.t<metadataResponse> => {
   FormData.append(formData, "file", file)
 
   Fetch.fetch(
-    `${backendUrl}/extract-metadata`,
-    {
-      method: "POST",
-      body: formData,
-      headers: Nullable.null,
-    },
+    `${backendUrl}/api/media/extract-metadata`,
+    Fetch.requestInit(~method="POST", ~body=formData, ()),
   )
   ->Promise.then(res => {
     if !Fetch.ok(res) {

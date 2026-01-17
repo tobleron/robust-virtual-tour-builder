@@ -1,13 +1,13 @@
+use actix_web::web;
 use actix_web::{
-    dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
     Error,
+    dev::{Service, ServiceRequest, ServiceResponse, Transform, forward_ready},
 };
 use futures_util::future::LocalBoxFuture;
-use std::future::{ready, Ready};
-use actix_web::web;
+use std::future::{Ready, ready};
 
-use crate::services::shutdown::ShutdownManager;
 use crate::metrics::ACTIVE_SESSIONS;
+use crate::services::shutdown::ShutdownManager;
 
 pub struct RequestTracker;
 
@@ -46,9 +46,9 @@ where
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
         let shutdown_manager = req.app_data::<web::Data<ShutdownManager>>().cloned();
-        
+
         let fut = self.service.call(req);
-        
+
         Box::pin(async move {
             if let Some(manager) = shutdown_manager {
                 manager.register_request().await;
@@ -70,19 +70,20 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use actix_web::{test, web, App, HttpResponse};
-    
+    use actix_web::{App, HttpResponse, test, web};
+
     #[actix_web::test]
     async fn test_request_tracker_middleware() {
         let app = test::init_service(
             App::new()
                 .wrap(RequestTracker)
-                .route("/", web::get().to(HttpResponse::Ok))
-        ).await;
-        
+                .route("/", web::get().to(HttpResponse::Ok)),
+        )
+        .await;
+
         let req = test::TestRequest::get().uri("/").to_request();
         let resp = test::call_service(&app, req).await;
-        
+
         assert!(resp.status().is_success());
     }
 }

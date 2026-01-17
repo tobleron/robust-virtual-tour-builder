@@ -1,9 +1,9 @@
 pub mod api;
-pub mod models;
-pub mod services;
-pub mod middleware;
-pub mod pathfinder;
 pub mod metrics;
+pub mod middleware;
+pub mod models;
+pub mod pathfinder;
+pub mod services;
 
 #[cfg(test)]
 mod tests {

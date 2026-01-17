@@ -63,12 +63,8 @@ let generateServerTeaser = (state: state, onProgress: option<(int, string) => un
   progress(10, "Uploading " ++ Belt.Int.toString(addedCount.contents) ++ " scenes...")
 
   Fetch.fetch(
-    Constants.backendUrl ++ "/generate-teaser",
-    {
-      method: "POST",
-      body: Obj.magic(formData),
-      headers: Nullable.null,
-    },
+    Constants.backendUrl ++ "/api/media/generate-teaser",
+    Fetch.requestInit(~method="POST", ~body=formData, ()),
   )
   ->Promise.then(res => {
     if !Fetch.ok(res) {

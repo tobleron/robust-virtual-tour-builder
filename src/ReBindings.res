@@ -122,6 +122,7 @@ module Dom = {
   @set @scope("style") external setTop: (element, string) => unit = "top"
   @set @scope("style") external setLeft: (element, string) => unit = "left"
   @set @scope("style") external setStyleWidth: (element, string) => unit = "width"
+  @set @scope("style") external setStyleHeight: (element, string) => unit = "height"
   @set @scope("style") external setMaxWidth: (element, string) => unit = "maxWidth"
   @set @scope("style") external setPadding: (element, string) => unit = "padding"
   @set @scope("style") external setMargin: (element, string) => unit = "margin"
@@ -300,17 +301,21 @@ module Window = {
 
 module Fetch = {
   type response
-  type requestInit<'body> = {
-    method: string,
-    body: 'body,
-    headers: Nullable.t<dict<string>>,
-    signal?: AbortController.signal,
-  }
+  type requestInit<'body>
+  @obj
+  external requestInit: (
+    ~method: string,
+    ~body: 'body=?,
+    ~headers: dict<string>=?,
+    ~signal: AbortController.signal=?,
+    unit,
+  ) => requestInit<'body> = ""
 
   @val external fetch: (string, requestInit<'body>) => Promise.t<response> = "fetch"
   @val external fetchSimple: string => Promise.t<response> = "fetch"
 
   @send external json: response => Promise.t<'a> = "json"
+  @send external text: response => Promise.t<string> = "text"
   @send external arrayBuffer: response => Promise.t<BrowserArrayBuffer.t> = "arrayBuffer"
   @send external blob: response => Promise.t<Blob.t> = "blob"
   @get external ok: response => bool = "ok"

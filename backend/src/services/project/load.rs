@@ -1,8 +1,8 @@
-use std::collections::HashSet;
-use std::io::{Write, Read, Cursor};
-use zip::write::FileOptions;
-use crate::models::ValidationReport;
 use super::validate::validate_and_clean_project;
+use crate::models::ValidationReport;
+use std::collections::HashSet;
+use std::io::{Cursor, Read, Write};
+use zip::write::FileOptions;
 
 /// Processes an uploaded project ZIP and returns a normalized version.
 ///
@@ -20,9 +20,9 @@ use super::validate::validate_and_clean_project;
 pub fn process_uploaded_project_zip(zip_data: Vec<u8>) -> Result<Vec<u8>, String> {
     // Open uploaded ZIP archive
     let cursor = Cursor::new(&zip_data);
-    let mut archive = zip::ZipArchive::new(cursor)
-        .map_err(|e| format!("Failed to read ZIP: {}", e))?;
-    
+    let mut archive =
+        zip::ZipArchive::new(cursor).map_err(|e| format!("Failed to read ZIP: {}", e))?;
+
     // 1. Collect list of files in ZIP for validation
     let mut available_files = HashSet::new();
     for i in 0..archive.len() {
@@ -30,31 +30,36 @@ pub fn process_uploaded_project_zip(zip_data: Vec<u8>) -> Result<Vec<u8>, String
             available_files.insert(file.name().to_string());
         }
     }
-    
+
     // 2. Extract project.json
-    let mut project_file = archive.by_name("project.json")
+    let mut project_file = archive
+        .by_name("project.json")
         .map_err(|e| format!("Missing project.json: {}", e))?;
     let mut project_json = String::new();
-    project_file.read_to_string(&mut project_json)
+    project_file
+        .read_to_string(&mut project_json)
         .map_err(|e| format!("Failed to read project.json: {}", e))?;
     drop(project_file);
-    
-    let project_data: serde_json::Value = serde_json::from_str(&project_json)
-        .map_err(|e| format!("Invalid project.json: {}", e))?;
-    
+
+    let project_data: serde_json::Value =
+        serde_json::from_str(&project_json).map_err(|e| format!("Invalid project.json: {}", e))?;
+
     // 3. Validate and clean project
-    let (mut validated_project, validation_report) = validate_and_clean_project(project_data, &available_files)?;
-    
+    let (mut validated_project, validation_report) =
+        validate_and_clean_project(project_data, &available_files)?;
+
     // Log validation results
     if validation_report.has_issues() {
-        tracing::warn!("Project validation found issues: {} broken links removed", 
-            validation_report.broken_links_removed);
+        tracing::warn!(
+            "Project validation found issues: {} broken links removed",
+            validation_report.broken_links_removed
+        );
     }
-    
+
     // Add validation report to project data
     validated_project["validationReport"] = serde_json::to_value(&validation_report)
         .map_err(|e| format!("Failed to serialize validation report: {}", e))?;
-    
+
     // 4. Create response ZIP containing validated project.json + all images normalized in images/
     let mut response_zip_buffer = Cursor::new(Vec::new());
     {
@@ -62,57 +67,62 @@ pub fn process_uploaded_project_zip(zip_data: Vec<u8>) -> Result<Vec<u8>, String
         let options = FileOptions::default()
             .compression_method(zip::CompressionMethod::Stored)
             .unix_permissions(0o755);
-        
+
         // Add validated project.json
-        zip_writer.start_file("project.json", options)
+        zip_writer
+            .start_file("project.json", options)
             .map_err(|e| e.to_string())?;
-        let updated_json = serde_json::to_string_pretty(&validated_project)
+        let updated_json =
+            serde_json::to_string_pretty(&validated_project).map_err(|e| e.to_string())?;
+        zip_writer
+            .write_all(updated_json.as_bytes())
             .map_err(|e| e.to_string())?;
-        zip_writer.write_all(updated_json.as_bytes())
-            .map_err(|e| e.to_string())?;
-        
+
         // Copy all image files, normalizing to images/ folder
         for i in 0..archive.len() {
-            let mut file = archive.by_index(i)
+            let mut file = archive
+                .by_index(i)
                 .map_err(|e| format!("Failed to read file {}: {}", i, e))?;
-            
+
             let filename = file.name().to_string();
-            
+
             // Skip project.json
             if filename == "project.json" {
                 continue;
             }
-            
+
             // Include files in images/ directory or root-level image files
-            if filename.starts_with("images/") || 
-               filename.ends_with(".webp") || 
-               filename.ends_with(".jpg") || 
-               filename.ends_with(".jpeg") || 
-               filename.ends_with(".png") {
-                
+            if filename.starts_with("images/")
+                || filename.ends_with(".webp")
+                || filename.ends_with(".jpg")
+                || filename.ends_with(".jpeg")
+                || filename.ends_with(".png")
+            {
                 let mut zip_path = filename.clone();
                 // Normalize images into images/ folder if not already there
-                if (filename.ends_with(".webp") || filename.ends_with(".jpg") || filename.ends_with(".jpeg") || filename.ends_with(".png")) 
-                   && !filename.starts_with("images/") {
+                if (filename.ends_with(".webp")
+                    || filename.ends_with(".jpg")
+                    || filename.ends_with(".jpeg")
+                    || filename.ends_with(".png"))
+                    && !filename.starts_with("images/")
+                {
                     zip_path = format!("images/{}", filename);
                 }
-                
-                zip_writer.start_file(&zip_path, options)
+
+                zip_writer
+                    .start_file(&zip_path, options)
                     .map_err(|e| e.to_string())?;
-                
+
                 let mut buffer = Vec::new();
-                file.read_to_end(&mut buffer)
-                    .map_err(|e| e.to_string())?;
-                
-                zip_writer.write_all(&buffer)
-                    .map_err(|e| e.to_string())?;
+                file.read_to_end(&mut buffer).map_err(|e| e.to_string())?;
+
+                zip_writer.write_all(&buffer).map_err(|e| e.to_string())?;
             }
         }
-        
-        zip_writer.finish()
-            .map_err(|e| e.to_string())?;
+
+        zip_writer.finish().map_err(|e| e.to_string())?;
     }
-    
+
     Ok(response_zip_buffer.into_inner())
 }
 
@@ -128,9 +138,9 @@ pub fn process_uploaded_project_zip(zip_data: Vec<u8>) -> Result<Vec<u8>, String
 /// * Returns a `String` error if the ZIP cannot be read or is missing `project.json`.
 pub fn validate_project_zip(zip_data: Vec<u8>) -> Result<ValidationReport, String> {
     let cursor = Cursor::new(&zip_data);
-    let mut archive = zip::ZipArchive::new(cursor)
-        .map_err(|e| format!("Failed to read ZIP: {}", e))?;
-    
+    let mut archive =
+        zip::ZipArchive::new(cursor).map_err(|e| format!("Failed to read ZIP: {}", e))?;
+
     // Collect list of files in ZIP for validation
     let mut available_files = HashSet::new();
     for i in 0..archive.len() {
@@ -139,16 +149,18 @@ pub fn validate_project_zip(zip_data: Vec<u8>) -> Result<ValidationReport, Strin
         }
     }
 
-    let mut project_file = archive.by_name("project.json")
+    let mut project_file = archive
+        .by_name("project.json")
         .map_err(|e| format!("Missing project.json: {}", e))?;
     let mut project_json = String::new();
-    project_file.read_to_string(&mut project_json)
+    project_file
+        .read_to_string(&mut project_json)
         .map_err(|e| format!("Failed to read project.json: {}", e))?;
     drop(project_file);
-    
-    let project_data: serde_json::Value = serde_json::from_str(&project_json)
-        .map_err(|e| format!("Invalid project.json: {}", e))?;
-    
+
+    let project_data: serde_json::Value =
+        serde_json::from_str(&project_json).map_err(|e| format!("Invalid project.json: {}", e))?;
+
     let (_validated_project, report) = validate_and_clean_project(project_data, &available_files)?;
     Ok(report)
 }
