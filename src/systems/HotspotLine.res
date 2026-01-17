@@ -414,29 +414,36 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
           switch mouseEvent {
           | Some(ev) =>
             let mc = Viewer.mouseEventToCoords(v, ev)
-            let mousePt: PathInterpolation.point = {
-              PathInterpolation.yaw: Belt.Array.getExn(mc, 1),
-              pitch: Belt.Array.getExn(mc, 0),
-            }
+            let pitchOpt = Belt.Array.get(mc, 0)
+            let yawOpt = Belt.Array.get(mc, 1)
 
-            let camPitch = Viewer.getPitch(v)
-            let pendingPath = if camPitch < -20.0 {
-              PathInterpolation.getFloorProjectedPath(lastFloorPt, mousePt, 20)
-            } else {
-              [lastFloorPt, mousePt]
-            }
+            switch (pitchOpt, yawOpt) {
+            | (Some(p), Some(y)) =>
+              let mousePt: PathInterpolation.point = {
+                PathInterpolation.yaw: y,
+                pitch: p,
+              }
 
-            drawPolyLine(
-              svg,
-              v,
-              pendingPath,
-              rect,
-              "#fbbf24",
-              3.0,
-              0.8,
-              ~className="line-rod-yellow",
-              (),
-            )
+              let camPitch = Viewer.getPitch(v)
+              let pendingPath = if camPitch < -20.0 {
+                PathInterpolation.getFloorProjectedPath(lastFloorPt, mousePt, 20)
+              } else {
+                [lastFloorPt, mousePt]
+              }
+
+              drawPolyLine(
+                svg,
+                v,
+                pendingPath,
+                rect,
+                "#fbbf24",
+                3.0,
+                0.8,
+                ~className="line-rod-yellow",
+                (),
+              )
+            | _ => ()
+            }
           | None => ()
           }
 

@@ -1,0 +1,110 @@
+/* Processing UI */
+#processing-ui {
+    position: absolute;
+    top: 100px;
+    right: 20px;
+    width: 280px;
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    z-index: 10000;
+}
+
+#progress-bar {
+    height: 6px;
+    background: var(--primary);
+    width: 0%;
+    transition: width 0.3s ease;
+    border-radius: 3px;
+}
+
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Toast Notifications */
+#notification-container {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    z-index: 30000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+}
+
+.toast {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    color: white;
+    padding: 16px 24px;
+    border-radius: var(--radius-lg);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    box-shadow: var(--shadow-xl);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    transform: translateX(30px);
+    transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+    pointer-events: auto;
+    border: 1px solid var(--glass-border);
+    border-left: 4px solid var(--primary-light);
+    min-width: 300px;
+    max-width: 450px;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.toast.error {
+    border-left-color: var(--danger);
+    background: rgba(69, 10, 10, 0.8);
+}
+
+.toast.success {
+    border-left-color: var(--success);
+    background: rgba(6, 78, 59, 0.8);
+}
+
+.toast.warning {
+    border-left-color: var(--warning);
+    background: rgba(69, 26, 3, 0.8);
+}
+
+/* System Alerts */
+#error-console,
+#system-alert {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--danger);
+    color: white;
+    padding: 15px;
+    z-index: 10000;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.brand-logo {
+    display: block;
+    margin: 0 auto 10px auto;
+    max-width: 120px;
+    height: auto;
+    background: white;
+    padding: 5px;
+    border-radius: 4px;
+}

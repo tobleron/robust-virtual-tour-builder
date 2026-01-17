@@ -55,9 +55,20 @@
 |-- cache
 |   `-- geocoding.json
 |-- css
+|   |-- animations.css
+|   |-- base.css
+|   |-- components
+|   |   |-- buttons.css
+|   |   |-- floor-nav.css
+|   |   |-- modals.css
+|   |   |-- ui.css
+|   |   `-- viewer.css
+|   |-- layout.css
+|   |-- legacy.css
 |   |-- output.css
 |   |-- style.css
-|   `-- tailwind.css
+|   |-- tailwind.css
+|   `-- variables.css
 |-- dev_prefs
 |   |-- logging_debugging_system.md
 |   `-- ui_preferences.md
@@ -104,9 +115,20 @@
 |-- lib
 |   |-- bs
 |   |   |-- build.ninja
+|   |   |-- compiler-info.json
 |   |   |-- src
 |   |   |   |-- App.ast
+|   |   |   |-- App.bs.js
+|   |   |   |-- App.cmi
+|   |   |   |-- App.cmj
+|   |   |   |-- App.cmt
+|   |   |   |-- App.res
 |   |   |   |-- Main.ast
+|   |   |   |-- Main.bs.js
+|   |   |   |-- Main.cmi
+|   |   |   |-- Main.cmj
+|   |   |   |-- Main.cmt
+|   |   |   |-- Main.res
 |   |   |   |-- ReBindings.ast
 |   |   |   |-- ReBindings.bs.js
 |   |   |   |-- ReBindings.cmi
@@ -157,8 +179,23 @@
 |   |   |   |   |-- RemaxErrorBoundary.cmt
 |   |   |   |   |-- RemaxErrorBoundary.res
 |   |   |   |   |-- SceneList.ast
+|   |   |   |   |-- SceneList.bs.js
+|   |   |   |   |-- SceneList.cmi
+|   |   |   |   |-- SceneList.cmj
+|   |   |   |   |-- SceneList.cmt
+|   |   |   |   |-- SceneList.res
 |   |   |   |   |-- Sidebar.ast
+|   |   |   |   |-- Sidebar.bs.js
+|   |   |   |   |-- Sidebar.cmi
+|   |   |   |   |-- Sidebar.cmj
+|   |   |   |   |-- Sidebar.cmt
+|   |   |   |   |-- Sidebar.res
 |   |   |   |   |-- UploadReport.ast
+|   |   |   |   |-- UploadReport.bs.js
+|   |   |   |   |-- UploadReport.cmi
+|   |   |   |   |-- UploadReport.cmj
+|   |   |   |   |-- UploadReport.cmt
+|   |   |   |   |-- UploadReport.res
 |   |   |   |   |-- ViewerFollow.ast
 |   |   |   |   |-- ViewerFollow.bs.js
 |   |   |   |   |-- ViewerFollow.cmi
@@ -166,7 +203,17 @@
 |   |   |   |   |-- ViewerFollow.cmt
 |   |   |   |   |-- ViewerFollow.res
 |   |   |   |   |-- ViewerLoader.ast
+|   |   |   |   |-- ViewerLoader.bs.js
+|   |   |   |   |-- ViewerLoader.cmi
+|   |   |   |   |-- ViewerLoader.cmj
+|   |   |   |   |-- ViewerLoader.cmt
+|   |   |   |   |-- ViewerLoader.res
 |   |   |   |   |-- ViewerManager.ast
+|   |   |   |   |-- ViewerManager.bs.js
+|   |   |   |   |-- ViewerManager.cmi
+|   |   |   |   |-- ViewerManager.cmj
+|   |   |   |   |-- ViewerManager.cmt
+|   |   |   |   |-- ViewerManager.res
 |   |   |   |   |-- ViewerSnapshot.ast
 |   |   |   |   |-- ViewerSnapshot.bs.js
 |   |   |   |   |-- ViewerSnapshot.cmi
@@ -186,6 +233,11 @@
 |   |   |   |   |-- ViewerTypes.cmt
 |   |   |   |   |-- ViewerTypes.res
 |   |   |   |   |-- ViewerUI.ast
+|   |   |   |   |-- ViewerUI.bs.js
+|   |   |   |   |-- ViewerUI.cmi
+|   |   |   |   |-- ViewerUI.cmj
+|   |   |   |   |-- ViewerUI.cmt
+|   |   |   |   |-- ViewerUI.res
 |   |   |   |   |-- VisualPipeline.ast
 |   |   |   |   |-- VisualPipeline.bs.js
 |   |   |   |   |-- VisualPipeline.cmi
@@ -200,6 +252,11 @@
 |   |   |   |   |-- Actions.cmt
 |   |   |   |   |-- Actions.res
 |   |   |   |   |-- AppContext.ast
+|   |   |   |   |-- AppContext.bs.js
+|   |   |   |   |-- AppContext.cmi
+|   |   |   |   |-- AppContext.cmj
+|   |   |   |   |-- AppContext.cmt
+|   |   |   |   |-- AppContext.res
 |   |   |   |   |-- GlobalStateBridge.ast
 |   |   |   |   |-- GlobalStateBridge.bs.js
 |   |   |   |   |-- GlobalStateBridge.cmi
@@ -213,6 +270,11 @@
 |   |   |   |   |-- JsonTypes.cmt
 |   |   |   |   |-- JsonTypes.res
 |   |   |   |   |-- Reducer.ast
+|   |   |   |   |-- Reducer.bs.js
+|   |   |   |   |-- Reducer.cmi
+|   |   |   |   |-- Reducer.cmj
+|   |   |   |   |-- Reducer.cmt
+|   |   |   |   |-- Reducer.res
 |   |   |   |   |-- ReducerHelpers.ast
 |   |   |   |   |-- ReducerHelpers.bs.js
 |   |   |   |   |-- ReducerHelpers.cmi
@@ -280,7 +342,12 @@
 |   |   |   |       |-- UiReducer.cmj
 |   |   |   |       |-- UiReducer.cmt
 |   |   |   |       |-- UiReducer.res
-|   |   |   |       `-- mod.ast
+|   |   |   |       |-- mod.ast
+|   |   |   |       |-- mod.bs.js
+|   |   |   |       |-- mod.cmi
+|   |   |   |       |-- mod.cmj
+|   |   |   |       |-- mod.cmt
+|   |   |   |       `-- mod.res
 |   |   |   |-- systems
 |   |   |   |   |-- AudioManager.ast
 |   |   |   |   |-- AudioManager.bs.js
@@ -313,6 +380,11 @@
 |   |   |   |   |-- ExifParser.cmt
 |   |   |   |   |-- ExifParser.res
 |   |   |   |   |-- ExifReportGenerator.ast
+|   |   |   |   |-- ExifReportGenerator.bs.js
+|   |   |   |   |-- ExifReportGenerator.cmi
+|   |   |   |   |-- ExifReportGenerator.cmj
+|   |   |   |   |-- ExifReportGenerator.cmt
+|   |   |   |   |-- ExifReportGenerator.res
 |   |   |   |   |-- Exporter.ast
 |   |   |   |   |-- Exporter.bs.js
 |   |   |   |   |-- Exporter.cmi
@@ -326,6 +398,11 @@
 |   |   |   |   |-- HotspotLine.cmt
 |   |   |   |   |-- HotspotLine.res
 |   |   |   |   |-- InputSystem.ast
+|   |   |   |   |-- InputSystem.bs.js
+|   |   |   |   |-- InputSystem.cmi
+|   |   |   |   |-- InputSystem.cmj
+|   |   |   |   |-- InputSystem.cmt
+|   |   |   |   |-- InputSystem.res
 |   |   |   |   |-- Navigation.ast
 |   |   |   |   |-- Navigation.bs.js
 |   |   |   |   |-- Navigation.cmi
@@ -333,6 +410,11 @@
 |   |   |   |   |-- Navigation.cmt
 |   |   |   |   |-- Navigation.res
 |   |   |   |   |-- NavigationController.ast
+|   |   |   |   |-- NavigationController.bs.js
+|   |   |   |   |-- NavigationController.cmi
+|   |   |   |   |-- NavigationController.cmj
+|   |   |   |   |-- NavigationController.cmt
+|   |   |   |   |-- NavigationController.res
 |   |   |   |   |-- NavigationRenderer.ast
 |   |   |   |   |-- NavigationRenderer.bs.js
 |   |   |   |   |-- NavigationRenderer.cmi
@@ -370,6 +452,11 @@
 |   |   |   |   |-- ServerTeaser.cmt
 |   |   |   |   |-- ServerTeaser.res
 |   |   |   |   |-- SimulationChainSkipper.ast
+|   |   |   |   |-- SimulationChainSkipper.bs.js
+|   |   |   |   |-- SimulationChainSkipper.cmi
+|   |   |   |   |-- SimulationChainSkipper.cmj
+|   |   |   |   |-- SimulationChainSkipper.cmt
+|   |   |   |   |-- SimulationChainSkipper.res
 |   |   |   |   |-- SimulationNavigation.ast
 |   |   |   |   |-- SimulationNavigation.bs.js
 |   |   |   |   |-- SimulationNavigation.cmi
@@ -377,8 +464,23 @@
 |   |   |   |   |-- SimulationNavigation.cmt
 |   |   |   |   |-- SimulationNavigation.res
 |   |   |   |   |-- SimulationPathGenerator.ast
+|   |   |   |   |-- SimulationPathGenerator.bs.js
+|   |   |   |   |-- SimulationPathGenerator.cmi
+|   |   |   |   |-- SimulationPathGenerator.cmj
+|   |   |   |   |-- SimulationPathGenerator.cmt
+|   |   |   |   |-- SimulationPathGenerator.res
 |   |   |   |   |-- SimulationSystem.ast
+|   |   |   |   |-- SimulationSystem.bs.js
+|   |   |   |   |-- SimulationSystem.cmi
+|   |   |   |   |-- SimulationSystem.cmj
+|   |   |   |   |-- SimulationSystem.cmt
+|   |   |   |   |-- SimulationSystem.res
 |   |   |   |   |-- TeaserManager.ast
+|   |   |   |   |-- TeaserManager.bs.js
+|   |   |   |   |-- TeaserManager.cmi
+|   |   |   |   |-- TeaserManager.cmj
+|   |   |   |   |-- TeaserManager.cmt
+|   |   |   |   |-- TeaserManager.res
 |   |   |   |   |-- TeaserPathfinder.ast
 |   |   |   |   |-- TeaserPathfinder.bs.js
 |   |   |   |   |-- TeaserPathfinder.cmi
@@ -416,6 +518,11 @@
 |   |   |   |   |-- TourTemplates.cmt
 |   |   |   |   |-- TourTemplates.res
 |   |   |   |   |-- UploadProcessor.ast
+|   |   |   |   |-- UploadProcessor.bs.js
+|   |   |   |   |-- UploadProcessor.cmi
+|   |   |   |   |-- UploadProcessor.cmj
+|   |   |   |   |-- UploadProcessor.cmt
+|   |   |   |   |-- UploadProcessor.res
 |   |   |   |   |-- VideoEncoder.ast
 |   |   |   |   |-- VideoEncoder.bs.js
 |   |   |   |   |-- VideoEncoder.cmi
@@ -485,6 +592,11 @@
 |   |   |       `-- Version.res
 |   |   `-- tests
 |   |       |-- TestRunner.ast
+|   |       |-- TestRunner.bs.js
+|   |       |-- TestRunner.cmi
+|   |       |-- TestRunner.cmj
+|   |       |-- TestRunner.cmt
+|   |       |-- TestRunner.res
 |   |       `-- unit
 |   |           |-- ActionsTest.ast
 |   |           |-- ActionsTest.bs.js
@@ -493,6 +605,11 @@
 |   |           |-- ActionsTest.cmt
 |   |           |-- ActionsTest.res
 |   |           |-- AppTest.ast
+|   |           |-- AppTest.bs.js
+|   |           |-- AppTest.cmi
+|   |           |-- AppTest.cmj
+|   |           |-- AppTest.cmt
+|   |           |-- AppTest.res
 |   |           |-- AudioManagerTest.ast
 |   |           |-- AudioManagerTest.bs.js
 |   |           |-- AudioManagerTest.cmi
@@ -524,8 +641,23 @@
 |   |           |-- EventBusTest.cmt
 |   |           |-- EventBusTest.res
 |   |           |-- ExifParserTest.ast
+|   |           |-- ExifParserTest.bs.js
+|   |           |-- ExifParserTest.cmi
+|   |           |-- ExifParserTest.cmj
+|   |           |-- ExifParserTest.cmt
+|   |           |-- ExifParserTest.res
 |   |           |-- ExifReportGeneratorTest.ast
+|   |           |-- ExifReportGeneratorTest.bs.js
+|   |           |-- ExifReportGeneratorTest.cmi
+|   |           |-- ExifReportGeneratorTest.cmj
+|   |           |-- ExifReportGeneratorTest.cmt
+|   |           |-- ExifReportGeneratorTest.res
 |   |           |-- ExporterTest.ast
+|   |           |-- ExporterTest.bs.js
+|   |           |-- ExporterTest.cmi
+|   |           |-- ExporterTest.cmj
+|   |           |-- ExporterTest.cmt
+|   |           |-- ExporterTest.res
 |   |           |-- GeoUtilsTest.ast
 |   |           |-- GeoUtilsTest.bs.js
 |   |           |-- GeoUtilsTest.cmi
@@ -539,7 +671,11 @@
 |   |           |-- GlobalStateBridgeTest.cmt
 |   |           |-- GlobalStateBridgeTest.res
 |   |           |-- HotspotLine.test.ast
+|   |           |-- HotspotLine.test.bs.js
+|   |           |-- HotspotLine.test.cmi
+|   |           |-- HotspotLine.test.cmj
 |   |           |-- HotspotLine.test.cmt
+|   |           |-- HotspotLine.test.res
 |   |           |-- HotspotLine_v.test.ast
 |   |           |-- HotspotLine_v.test.bs.js
 |   |           |-- HotspotLine_v.test.cmi
@@ -577,6 +713,11 @@
 |   |           |-- LoggerTest.cmt
 |   |           |-- LoggerTest.res
 |   |           |-- MainTest.ast
+|   |           |-- MainTest.bs.js
+|   |           |-- MainTest.cmi
+|   |           |-- MainTest.cmj
+|   |           |-- MainTest.cmt
+|   |           |-- MainTest.res
 |   |           |-- NavigationReducerTest.ast
 |   |           |-- NavigationReducerTest.bs.js
 |   |           |-- NavigationReducerTest.cmi
@@ -584,6 +725,11 @@
 |   |           |-- NavigationReducerTest.cmt
 |   |           |-- NavigationReducerTest.res
 |   |           |-- NavigationRendererTest.ast
+|   |           |-- NavigationRendererTest.bs.js
+|   |           |-- NavigationRendererTest.cmi
+|   |           |-- NavigationRendererTest.cmj
+|   |           |-- NavigationRendererTest.cmt
+|   |           |-- NavigationRendererTest.res
 |   |           |-- NavigationTest.ast
 |   |           |-- NavigationTest.bs.js
 |   |           |-- NavigationTest.cmi
@@ -633,6 +779,11 @@
 |   |           |-- ReducerHelpersTest.cmt
 |   |           |-- ReducerHelpersTest.res
 |   |           |-- ReducerTest.ast
+|   |           |-- ReducerTest.bs.js
+|   |           |-- ReducerTest.cmi
+|   |           |-- ReducerTest.cmj
+|   |           |-- ReducerTest.cmt
+|   |           |-- ReducerTest.res
 |   |           |-- ResizerTest.ast
 |   |           |-- ResizerTest.bs.js
 |   |           |-- ResizerTest.cmi
@@ -640,6 +791,11 @@
 |   |           |-- ResizerTest.cmt
 |   |           |-- ResizerTest.res
 |   |           |-- RootReducerTest.ast
+|   |           |-- RootReducerTest.bs.js
+|   |           |-- RootReducerTest.cmi
+|   |           |-- RootReducerTest.cmj
+|   |           |-- RootReducerTest.cmt
+|   |           |-- RootReducerTest.res
 |   |           |-- SceneReducerTest.ast
 |   |           |-- SceneReducerTest.bs.js
 |   |           |-- SceneReducerTest.cmi
@@ -665,12 +821,47 @@
 |   |           |-- SharedTypesTest.cmt
 |   |           |-- SharedTypesTest.res
 |   |           |-- SimulationChainSkipperTest.ast
+|   |           |-- SimulationChainSkipperTest.bs.js
+|   |           |-- SimulationChainSkipperTest.cmi
+|   |           |-- SimulationChainSkipperTest.cmj
+|   |           |-- SimulationChainSkipperTest.cmt
+|   |           |-- SimulationChainSkipperTest.res
 |   |           |-- SimulationNavigationTest.ast
+|   |           |-- SimulationNavigationTest.bs.js
+|   |           |-- SimulationNavigationTest.cmi
+|   |           |-- SimulationNavigationTest.cmj
+|   |           |-- SimulationNavigationTest.cmt
+|   |           |-- SimulationNavigationTest.res
 |   |           |-- SimulationPathGeneratorTest.ast
+|   |           |-- SimulationPathGeneratorTest.bs.js
+|   |           |-- SimulationPathGeneratorTest.cmi
+|   |           |-- SimulationPathGeneratorTest.cmj
+|   |           |-- SimulationPathGeneratorTest.cmt
+|   |           |-- SimulationPathGeneratorTest.res
 |   |           |-- SimulationSystemTest.ast
+|   |           |-- SimulationSystemTest.bs.js
+|   |           |-- SimulationSystemTest.cmi
+|   |           |-- SimulationSystemTest.cmj
+|   |           |-- SimulationSystemTest.cmt
+|   |           |-- SimulationSystemTest.res
 |   |           |-- StateInspectorTest.ast
+|   |           |-- StateInspectorTest.bs.js
+|   |           |-- StateInspectorTest.cmi
+|   |           |-- StateInspectorTest.cmj
+|   |           |-- StateInspectorTest.cmt
+|   |           |-- StateInspectorTest.res
 |   |           |-- TeaserManagerTest.ast
+|   |           |-- TeaserManagerTest.bs.js
+|   |           |-- TeaserManagerTest.cmi
+|   |           |-- TeaserManagerTest.cmj
+|   |           |-- TeaserManagerTest.cmt
+|   |           |-- TeaserManagerTest.res
 |   |           |-- TeaserPathfinderTest.ast
+|   |           |-- TeaserPathfinderTest.bs.js
+|   |           |-- TeaserPathfinderTest.cmi
+|   |           |-- TeaserPathfinderTest.cmj
+|   |           |-- TeaserPathfinderTest.cmt
+|   |           |-- TeaserPathfinderTest.res
 |   |           |-- TeaserRecorderTest.ast
 |   |           |-- TeaserRecorderTest.bs.js
 |   |           |-- TeaserRecorderTest.cmi
@@ -726,7 +917,17 @@
 |   |           |-- VersionTest.cmt
 |   |           |-- VersionTest.res
 |   |           |-- VideoEncoderTest.ast
+|   |           |-- VideoEncoderTest.bs.js
+|   |           |-- VideoEncoderTest.cmi
+|   |           |-- VideoEncoderTest.cmj
+|   |           |-- VideoEncoderTest.cmt
+|   |           |-- VideoEncoderTest.res
 |   |           |-- ViewerLoaderTest.ast
+|   |           |-- ViewerLoaderTest.bs.js
+|   |           |-- ViewerLoaderTest.cmi
+|   |           |-- ViewerLoaderTest.cmj
+|   |           |-- ViewerLoaderTest.cmt
+|   |           |-- ViewerLoaderTest.res
 |   |           |-- VitestSmoke.test.ast
 |   |           |-- VitestSmoke.test.bs.js
 |   |           |-- VitestSmoke.test.cmi
@@ -745,8 +946,20 @@
 |   |   |-- ActionsTest.cmt
 |   |   |-- ActionsTest.res
 |   |   |-- App.ast
+|   |   |-- App.cmi
+|   |   |-- App.cmj
+|   |   |-- App.cmt
+|   |   |-- App.res
 |   |   |-- AppContext.ast
+|   |   |-- AppContext.cmi
+|   |   |-- AppContext.cmj
+|   |   |-- AppContext.cmt
+|   |   |-- AppContext.res
 |   |   |-- AppTest.ast
+|   |   |-- AppTest.cmi
+|   |   |-- AppTest.cmj
+|   |   |-- AppTest.cmt
+|   |   |-- AppTest.res
 |   |   |-- AudioManager.ast
 |   |   |-- AudioManager.cmi
 |   |   |-- AudioManager.cmj
@@ -808,14 +1021,30 @@
 |   |   |-- ExifParser.cmt
 |   |   |-- ExifParser.res
 |   |   |-- ExifParserTest.ast
+|   |   |-- ExifParserTest.cmi
+|   |   |-- ExifParserTest.cmj
+|   |   |-- ExifParserTest.cmt
+|   |   |-- ExifParserTest.res
 |   |   |-- ExifReportGenerator.ast
+|   |   |-- ExifReportGenerator.cmi
+|   |   |-- ExifReportGenerator.cmj
+|   |   |-- ExifReportGenerator.cmt
+|   |   |-- ExifReportGenerator.res
 |   |   |-- ExifReportGeneratorTest.ast
+|   |   |-- ExifReportGeneratorTest.cmi
+|   |   |-- ExifReportGeneratorTest.cmj
+|   |   |-- ExifReportGeneratorTest.cmt
+|   |   |-- ExifReportGeneratorTest.res
 |   |   |-- Exporter.ast
 |   |   |-- Exporter.cmi
 |   |   |-- Exporter.cmj
 |   |   |-- Exporter.cmt
 |   |   |-- Exporter.res
 |   |   |-- ExporterTest.ast
+|   |   |-- ExporterTest.cmi
+|   |   |-- ExporterTest.cmj
+|   |   |-- ExporterTest.cmt
+|   |   |-- ExporterTest.res
 |   |   |-- GeoUtils.ast
 |   |   |-- GeoUtils.cmi
 |   |   |-- GeoUtils.cmj
@@ -842,6 +1071,10 @@
 |   |   |-- HotspotLine.cmt
 |   |   |-- HotspotLine.res
 |   |   |-- HotspotLine.test.ast
+|   |   |-- HotspotLine.test.cmi
+|   |   |-- HotspotLine.test.cmj
+|   |   |-- HotspotLine.test.cmt
+|   |   |-- HotspotLine.test.res
 |   |   |-- HotspotLine_v.test.ast
 |   |   |-- HotspotLine_v.test.cmi
 |   |   |-- HotspotLine_v.test.cmj
@@ -863,6 +1096,10 @@
 |   |   |-- HotspotReducerTest.cmt
 |   |   |-- HotspotReducerTest.res
 |   |   |-- InputSystem.ast
+|   |   |-- InputSystem.cmi
+|   |   |-- InputSystem.cmj
+|   |   |-- InputSystem.cmt
+|   |   |-- InputSystem.res
 |   |   |-- InputSystemTest.ast
 |   |   |-- InputSystemTest.cmi
 |   |   |-- InputSystemTest.cmj
@@ -909,7 +1146,15 @@
 |   |   |-- LoggerTest.cmt
 |   |   |-- LoggerTest.res
 |   |   |-- Main.ast
+|   |   |-- Main.cmi
+|   |   |-- Main.cmj
+|   |   |-- Main.cmt
+|   |   |-- Main.res
 |   |   |-- MainTest.ast
+|   |   |-- MainTest.cmi
+|   |   |-- MainTest.cmj
+|   |   |-- MainTest.cmt
+|   |   |-- MainTest.res
 |   |   |-- ModalContext.ast
 |   |   |-- ModalContext.cmi
 |   |   |-- ModalContext.cmj
@@ -921,6 +1166,10 @@
 |   |   |-- Navigation.cmt
 |   |   |-- Navigation.res
 |   |   |-- NavigationController.ast
+|   |   |-- NavigationController.cmi
+|   |   |-- NavigationController.cmj
+|   |   |-- NavigationController.cmt
+|   |   |-- NavigationController.res
 |   |   |-- NavigationReducer.ast
 |   |   |-- NavigationReducer.cmi
 |   |   |-- NavigationReducer.cmj
@@ -937,6 +1186,10 @@
 |   |   |-- NavigationRenderer.cmt
 |   |   |-- NavigationRenderer.res
 |   |   |-- NavigationRendererTest.ast
+|   |   |-- NavigationRendererTest.cmi
+|   |   |-- NavigationRendererTest.cmj
+|   |   |-- NavigationRendererTest.cmt
+|   |   |-- NavigationRendererTest.res
 |   |   |-- NavigationTest.ast
 |   |   |-- NavigationTest.cmi
 |   |   |-- NavigationTest.cmj
@@ -1013,6 +1266,10 @@
 |   |   |-- ReBindingsTest.cmt
 |   |   |-- ReBindingsTest.res
 |   |   |-- Reducer.ast
+|   |   |-- Reducer.cmi
+|   |   |-- Reducer.cmj
+|   |   |-- Reducer.cmt
+|   |   |-- Reducer.res
 |   |   |-- ReducerHelpers.ast
 |   |   |-- ReducerHelpers.cmi
 |   |   |-- ReducerHelpers.cmj
@@ -1024,6 +1281,10 @@
 |   |   |-- ReducerHelpersTest.cmt
 |   |   |-- ReducerHelpersTest.res
 |   |   |-- ReducerTest.ast
+|   |   |-- ReducerTest.cmi
+|   |   |-- ReducerTest.cmj
+|   |   |-- ReducerTest.cmt
+|   |   |-- ReducerTest.res
 |   |   |-- RemaxErrorBoundary.ast
 |   |   |-- RemaxErrorBoundary.cmi
 |   |   |-- RemaxErrorBoundary.cmj
@@ -1045,7 +1306,15 @@
 |   |   |-- RootReducer.cmt
 |   |   |-- RootReducer.res
 |   |   |-- RootReducerTest.ast
+|   |   |-- RootReducerTest.cmi
+|   |   |-- RootReducerTest.cmj
+|   |   |-- RootReducerTest.cmt
+|   |   |-- RootReducerTest.res
 |   |   |-- SceneList.ast
+|   |   |-- SceneList.cmi
+|   |   |-- SceneList.cmj
+|   |   |-- SceneList.cmt
+|   |   |-- SceneList.res
 |   |   |-- SceneReducer.ast
 |   |   |-- SceneReducer.cmi
 |   |   |-- SceneReducer.cmj
@@ -1087,18 +1356,50 @@
 |   |   |-- SharedTypesTest.cmt
 |   |   |-- SharedTypesTest.res
 |   |   |-- Sidebar.ast
+|   |   |-- Sidebar.cmi
+|   |   |-- Sidebar.cmj
+|   |   |-- Sidebar.cmt
+|   |   |-- Sidebar.res
 |   |   |-- SimulationChainSkipper.ast
+|   |   |-- SimulationChainSkipper.cmi
+|   |   |-- SimulationChainSkipper.cmj
+|   |   |-- SimulationChainSkipper.cmt
+|   |   |-- SimulationChainSkipper.res
 |   |   |-- SimulationChainSkipperTest.ast
+|   |   |-- SimulationChainSkipperTest.cmi
+|   |   |-- SimulationChainSkipperTest.cmj
+|   |   |-- SimulationChainSkipperTest.cmt
+|   |   |-- SimulationChainSkipperTest.res
 |   |   |-- SimulationNavigation.ast
 |   |   |-- SimulationNavigation.cmi
 |   |   |-- SimulationNavigation.cmj
 |   |   |-- SimulationNavigation.cmt
 |   |   |-- SimulationNavigation.res
 |   |   |-- SimulationNavigationTest.ast
+|   |   |-- SimulationNavigationTest.cmi
+|   |   |-- SimulationNavigationTest.cmj
+|   |   |-- SimulationNavigationTest.cmt
+|   |   |-- SimulationNavigationTest.res
 |   |   |-- SimulationPathGenerator.ast
+|   |   |-- SimulationPathGenerator.cmi
+|   |   |-- SimulationPathGenerator.cmj
+|   |   |-- SimulationPathGenerator.cmt
+|   |   |-- SimulationPathGenerator.res
 |   |   |-- SimulationPathGeneratorTest.ast
+|   |   |-- SimulationPathGeneratorTest.cmi
+|   |   |-- SimulationPathGeneratorTest.cmj
+|   |   |-- SimulationPathGeneratorTest.cmt
+|   |   |-- SimulationPathGeneratorTest.res
 |   |   |-- SimulationSystem.ast
+|   |   |-- SimulationSystem.cmi
+|   |   |-- SimulationSystem.cmj
+|   |   |-- SimulationSystem.cmt
+|   |   |-- SimulationSystem.res
 |   |   |-- SimulationSystemTest.ast
+|   |   |-- SimulationSystemTest.cmi
+|   |   |-- SimulationSystemTest.cmj
+|   |   |-- SimulationSystemTest.cmt
+|   |   |-- SimulationSystemTest.res
 |   |   |-- State.ast
 |   |   |-- State.cmi
 |   |   |-- State.cmj
@@ -1110,14 +1411,30 @@
 |   |   |-- StateInspector.cmt
 |   |   |-- StateInspector.res
 |   |   |-- StateInspectorTest.ast
+|   |   |-- StateInspectorTest.cmi
+|   |   |-- StateInspectorTest.cmj
+|   |   |-- StateInspectorTest.cmt
+|   |   |-- StateInspectorTest.res
 |   |   |-- TeaserManager.ast
+|   |   |-- TeaserManager.cmi
+|   |   |-- TeaserManager.cmj
+|   |   |-- TeaserManager.cmt
+|   |   |-- TeaserManager.res
 |   |   |-- TeaserManagerTest.ast
+|   |   |-- TeaserManagerTest.cmi
+|   |   |-- TeaserManagerTest.cmj
+|   |   |-- TeaserManagerTest.cmt
+|   |   |-- TeaserManagerTest.res
 |   |   |-- TeaserPathfinder.ast
 |   |   |-- TeaserPathfinder.cmi
 |   |   |-- TeaserPathfinder.cmj
 |   |   |-- TeaserPathfinder.cmt
 |   |   |-- TeaserPathfinder.res
 |   |   |-- TeaserPathfinderTest.ast
+|   |   |-- TeaserPathfinderTest.cmi
+|   |   |-- TeaserPathfinderTest.cmj
+|   |   |-- TeaserPathfinderTest.cmt
+|   |   |-- TeaserPathfinderTest.res
 |   |   |-- TeaserRecorder.ast
 |   |   |-- TeaserRecorder.cmi
 |   |   |-- TeaserRecorder.cmj
@@ -1129,6 +1446,10 @@
 |   |   |-- TeaserRecorderTest.cmt
 |   |   |-- TeaserRecorderTest.res
 |   |   |-- TestRunner.ast
+|   |   |-- TestRunner.cmi
+|   |   |-- TestRunner.cmj
+|   |   |-- TestRunner.cmt
+|   |   |-- TestRunner.res
 |   |   |-- TimelineReducer.ast
 |   |   |-- TimelineReducer.cmi
 |   |   |-- TimelineReducer.cmj
@@ -1200,12 +1521,20 @@
 |   |   |-- UiReducer.cmt
 |   |   |-- UiReducer.res
 |   |   |-- UploadProcessor.ast
+|   |   |-- UploadProcessor.cmi
+|   |   |-- UploadProcessor.cmj
+|   |   |-- UploadProcessor.cmt
+|   |   |-- UploadProcessor.res
 |   |   |-- UploadProcessorTest.ast
 |   |   |-- UploadProcessorTest.cmi
 |   |   |-- UploadProcessorTest.cmj
 |   |   |-- UploadProcessorTest.cmt
 |   |   |-- UploadProcessorTest.res
 |   |   |-- UploadReport.ast
+|   |   |-- UploadReport.cmi
+|   |   |-- UploadReport.cmj
+|   |   |-- UploadReport.cmt
+|   |   |-- UploadReport.res
 |   |   |-- Version.ast
 |   |   |-- Version.cmi
 |   |   |-- Version.cmj
@@ -1222,14 +1551,30 @@
 |   |   |-- VideoEncoder.cmt
 |   |   |-- VideoEncoder.res
 |   |   |-- VideoEncoderTest.ast
+|   |   |-- VideoEncoderTest.cmi
+|   |   |-- VideoEncoderTest.cmj
+|   |   |-- VideoEncoderTest.cmt
+|   |   |-- VideoEncoderTest.res
 |   |   |-- ViewerFollow.ast
 |   |   |-- ViewerFollow.cmi
 |   |   |-- ViewerFollow.cmj
 |   |   |-- ViewerFollow.cmt
 |   |   |-- ViewerFollow.res
 |   |   |-- ViewerLoader.ast
+|   |   |-- ViewerLoader.cmi
+|   |   |-- ViewerLoader.cmj
+|   |   |-- ViewerLoader.cmt
+|   |   |-- ViewerLoader.res
 |   |   |-- ViewerLoaderTest.ast
+|   |   |-- ViewerLoaderTest.cmi
+|   |   |-- ViewerLoaderTest.cmj
+|   |   |-- ViewerLoaderTest.cmt
+|   |   |-- ViewerLoaderTest.res
 |   |   |-- ViewerManager.ast
+|   |   |-- ViewerManager.cmi
+|   |   |-- ViewerManager.cmj
+|   |   |-- ViewerManager.cmt
+|   |   |-- ViewerManager.res
 |   |   |-- ViewerSnapshot.ast
 |   |   |-- ViewerSnapshot.cmi
 |   |   |-- ViewerSnapshot.cmj
@@ -1246,6 +1591,10 @@
 |   |   |-- ViewerTypes.cmt
 |   |   |-- ViewerTypes.res
 |   |   |-- ViewerUI.ast
+|   |   |-- ViewerUI.cmi
+|   |   |-- ViewerUI.cmj
+|   |   |-- ViewerUI.cmt
+|   |   |-- ViewerUI.res
 |   |   |-- VisualPipeline.ast
 |   |   |-- VisualPipeline.cmi
 |   |   |-- VisualPipeline.cmj
@@ -1256,7 +1605,11 @@
 |   |   |-- VitestSmoke.test.cmj
 |   |   |-- VitestSmoke.test.cmt
 |   |   |-- VitestSmoke.test.res
-|   |   `-- mod.ast
+|   |   |-- mod.ast
+|   |   |-- mod.cmi
+|   |   |-- mod.cmj
+|   |   |-- mod.cmt
+|   |   `-- mod.res
 |   `-- rescript.lock
 |-- logs
 |   |-- error.log
@@ -1302,8 +1655,10 @@
 |-- sounds
 |   `-- click.wav
 |-- src
+|   |-- App.bs.js
 |   |-- App.res
 |   |-- Dummy.bs.js
+|   |-- Main.bs.js
 |   |-- Main.res
 |   |-- ReBindings.bs.js
 |   |-- ReBindings.res
@@ -1323,12 +1678,17 @@
 |   |   |-- RemaxErrorBoundary.bs.js
 |   |   |-- RemaxErrorBoundary.res
 |   |   |-- SafeErrorBoundary.js
+|   |   |-- SceneList.bs.js
 |   |   |-- SceneList.res
+|   |   |-- Sidebar.bs.js
 |   |   |-- Sidebar.res
+|   |   |-- UploadReport.bs.js
 |   |   |-- UploadReport.res
 |   |   |-- ViewerFollow.bs.js
 |   |   |-- ViewerFollow.res
+|   |   |-- ViewerLoader.bs.js
 |   |   |-- ViewerLoader.res
+|   |   |-- ViewerManager.bs.js
 |   |   |-- ViewerManager.res
 |   |   |-- ViewerSnapshot.bs.js
 |   |   |-- ViewerSnapshot.res
@@ -1336,17 +1696,20 @@
 |   |   |-- ViewerState.res
 |   |   |-- ViewerTypes.bs.js
 |   |   |-- ViewerTypes.res
+|   |   |-- ViewerUI.bs.js
 |   |   |-- ViewerUI.res
 |   |   |-- VisualPipeline.bs.js
 |   |   `-- VisualPipeline.res
 |   |-- core
 |   |   |-- Actions.bs.js
 |   |   |-- Actions.res
+|   |   |-- AppContext.bs.js
 |   |   |-- AppContext.res
 |   |   |-- GlobalStateBridge.bs.js
 |   |   |-- GlobalStateBridge.res
 |   |   |-- JsonTypes.bs.js
 |   |   |-- JsonTypes.res
+|   |   |-- Reducer.bs.js
 |   |   |-- Reducer.res
 |   |   |-- ReducerHelpers.bs.js
 |   |   |-- ReducerHelpers.res
@@ -1371,6 +1734,7 @@
 |   |       |-- TimelineReducer.res
 |   |       |-- UiReducer.bs.js
 |   |       |-- UiReducer.res
+|   |       |-- mod.bs.js
 |   |       `-- mod.res
 |   |-- index.js
 |   |-- systems
@@ -1384,14 +1748,17 @@
 |   |   |-- EventBus.res
 |   |   |-- ExifParser.bs.js
 |   |   |-- ExifParser.res
+|   |   |-- ExifReportGenerator.bs.js
 |   |   |-- ExifReportGenerator.res
 |   |   |-- Exporter.bs.js
 |   |   |-- Exporter.res
 |   |   |-- HotspotLine.bs.js
 |   |   |-- HotspotLine.res
+|   |   |-- InputSystem.bs.js
 |   |   |-- InputSystem.res
 |   |   |-- Navigation.bs.js
 |   |   |-- Navigation.res
+|   |   |-- NavigationController.bs.js
 |   |   |-- NavigationController.res
 |   |   |-- NavigationRenderer.bs.js
 |   |   |-- NavigationRenderer.res
@@ -1405,11 +1772,15 @@
 |   |   |-- Resizer.res
 |   |   |-- ServerTeaser.bs.js
 |   |   |-- ServerTeaser.res
+|   |   |-- SimulationChainSkipper.bs.js
 |   |   |-- SimulationChainSkipper.res
 |   |   |-- SimulationNavigation.bs.js
 |   |   |-- SimulationNavigation.res
+|   |   |-- SimulationPathGenerator.bs.js
 |   |   |-- SimulationPathGenerator.res
+|   |   |-- SimulationSystem.bs.js
 |   |   |-- SimulationSystem.res
+|   |   |-- TeaserManager.bs.js
 |   |   |-- TeaserManager.res
 |   |   |-- TeaserPathfinder.bs.js
 |   |   |-- TeaserPathfinder.res
@@ -1423,6 +1794,7 @@
 |   |   |-- TourTemplateStyles.res
 |   |   |-- TourTemplates.bs.js
 |   |   |-- TourTemplates.res
+|   |   |-- UploadProcessor.bs.js
 |   |   |-- UploadProcessor.res
 |   |   |-- VideoEncoder.bs.js
 |   |   `-- VideoEncoder.res
@@ -1453,6 +1825,7 @@
 |-- tasks
 |   |-- TASKS.md
 |   |-- active
+|   |   `-- refactor_styles_css.md
 |   |-- completed
 |   |   |-- 01_Architecture_Functional_State_REPORT.md
 |   |   |-- 02_Implement_App_Context_REPORT.md
@@ -1637,16 +2010,19 @@
 |   |   |-- 99_Unify_Types.md
 |   |   |-- 99_Unify_Types_REPORT.md
 |   |   `-- CONSOLIDATED_TASK_SUMMARIES_REPORT.md
+|   |-- current_refactor.md
 |   `-- pending
 |       |-- 175_Restore_v420_Viewer_HUD_Labels_and_Prompts.md
 |       |-- 176_Restore_v420_Visual_Pipeline.md
 |       `-- 177_Restore_v420_Simulation_Advanced_Mechanics.md
 |-- tests
+|   |-- TestRunner.bs.js
 |   |-- TestRunner.res
 |   |-- node-setup.js
 |   `-- unit
 |       |-- ActionsTest.bs.js
 |       |-- ActionsTest.res
+|       |-- AppTest.bs.js
 |       |-- AppTest.res
 |       |-- AudioManagerTest.bs.js
 |       |-- AudioManagerTest.res
@@ -1658,13 +2034,17 @@
 |       |-- DownloadSystemTest.res
 |       |-- EventBusTest.bs.js
 |       |-- EventBusTest.res
+|       |-- ExifParserTest.bs.js
 |       |-- ExifParserTest.res
+|       |-- ExifReportGeneratorTest.bs.js
 |       |-- ExifReportGeneratorTest.res
+|       |-- ExporterTest.bs.js
 |       |-- ExporterTest.res
 |       |-- GeoUtilsTest.bs.js
 |       |-- GeoUtilsTest.res
 |       |-- GlobalStateBridgeTest.bs.js
 |       |-- GlobalStateBridgeTest.res
+|       |-- HotspotLine.test.bs.js
 |       |-- HotspotLine.test.res
 |       |-- HotspotLine_v.test.bs.js
 |       |-- HotspotLine_v.test.res
@@ -1678,9 +2058,11 @@
 |       |-- LazyLoadTest.res
 |       |-- LoggerTest.bs.js
 |       |-- LoggerTest.res
+|       |-- MainTest.bs.js
 |       |-- MainTest.res
 |       |-- NavigationReducerTest.bs.js
 |       |-- NavigationReducerTest.res
+|       |-- NavigationRendererTest.bs.js
 |       |-- NavigationRendererTest.res
 |       |-- NavigationTest.bs.js
 |       |-- NavigationTest.res
@@ -1698,9 +2080,11 @@
 |       |-- ReBindingsTest.res
 |       |-- ReducerHelpersTest.bs.js
 |       |-- ReducerHelpersTest.res
+|       |-- ReducerTest.bs.js
 |       |-- ReducerTest.res
 |       |-- ResizerTest.bs.js
 |       |-- ResizerTest.res
+|       |-- RootReducerTest.bs.js
 |       |-- RootReducerTest.res
 |       |-- SceneReducerTest.bs.js
 |       |-- SceneReducerTest.res
@@ -1710,12 +2094,19 @@
 |       |-- ServiceWorkerTest.res
 |       |-- SharedTypesTest.bs.js
 |       |-- SharedTypesTest.res
+|       |-- SimulationChainSkipperTest.bs.js
 |       |-- SimulationChainSkipperTest.res
+|       |-- SimulationNavigationTest.bs.js
 |       |-- SimulationNavigationTest.res
+|       |-- SimulationPathGeneratorTest.bs.js
 |       |-- SimulationPathGeneratorTest.res
+|       |-- SimulationSystemTest.bs.js
 |       |-- SimulationSystemTest.res
+|       |-- StateInspectorTest.bs.js
 |       |-- StateInspectorTest.res
+|       |-- TeaserManagerTest.bs.js
 |       |-- TeaserManagerTest.res
+|       |-- TeaserPathfinderTest.bs.js
 |       |-- TeaserPathfinderTest.res
 |       |-- TeaserRecorderTest.bs.js
 |       |-- TeaserRecorderTest.res
@@ -1735,10 +2126,12 @@
 |       |-- UploadProcessorTest.res
 |       |-- VersionTest.bs.js
 |       |-- VersionTest.res
+|       |-- VideoEncoderTest.bs.js
 |       |-- VideoEncoderTest.res
+|       |-- ViewerLoaderTest.bs.js
 |       |-- ViewerLoaderTest.res
 |       |-- VitestSmoke.test.bs.js
 |       `-- VitestSmoke.test.res
 `-- vitest.config.mjs
 
-47 directories, 1695 files
+48 directories, 2087 files
