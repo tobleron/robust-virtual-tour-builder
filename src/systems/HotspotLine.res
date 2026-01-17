@@ -271,7 +271,7 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
   let svgOpt = Dom.getElementById("viewer-hotspot-lines")
   switch (Nullable.toOption(svgOpt), viewer) {
   | (Some(svg), v) =>
-    // Clear SVG content using textContent which is often more reliable for SVG than innerHTML
+    // Clear SVG content using textContent which is more reliable for SVG
     Dom.setTextContent(svg, "")
     let rect = Dom.getBoundingClientRect(svg)
 

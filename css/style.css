@@ -833,10 +833,7 @@ body.auto-pilot-active #sidebar {
   }
 }
 
-.line-marching-ants {
-  stroke-dasharray: 10, 5;
-  animation: marching-ants 0.8s linear infinite;
-}
+
 
 @keyframes line-pulse {
 
