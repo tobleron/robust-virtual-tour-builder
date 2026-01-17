@@ -153,7 +153,7 @@ pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, App
 /// * `InternalError` if browser automation, frame capture, or encoding fails.
 #[tracing::instrument(skip(payload), name = "generate_teaser")]
 pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, AppError> {
-    // 1. Create a transient session ID for this generation request
+    // 1. Create a transient session ID for this generation reques
     let session_id = Uuid::new_v4().to_string();
     let session_path = get_session_path(&session_id);
     fs::create_dir_all(&session_path).map_err(AppError::IoError)?;
@@ -163,9 +163,9 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
     let mut project_data_value: Option<serde_json::Value> = None;
     let mut width = 1920;
     let mut height = 1080;
-    let duration_limit = 120; // Default limit
+    let duration_limit = 120; // Default limi
 
-    // 2. Parse Multipart
+    // 2. Parse Multipar
     while let Some(mut field) = payload.try_next().await? {
         let content_disposition =
             field
@@ -238,10 +238,10 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
             headless: true,
             window_size: Some((width, height)),
             args: vec![
-                std::ffi::OsStr::new("--force-device-scale-factor=1.0"), 
-                std::ffi::OsStr::new("--enable-webgl"), 
+                std::ffi::OsStr::new("--force-device-scale-factor=1.0"),
+                std::ffi::OsStr::new("--enable-webgl"),
                 std::ffi::OsStr::new("--ignore-gpu-blacklist")
-            ], 
+            ],
             ..LaunchOptions::default()
         }).map_err(|e| format!("Failed to launch browser: {}", e))?;
 
@@ -253,17 +253,17 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
         tab.navigate_to("http://localhost:8080").map_err(|e| format!("Nav failed: {}", e))?;
         tab.wait_until_navigated().map_err(|e| format!("Nav timeout: {}", e))?;
 
-        // 3. Inject Project Data & Loader Script
+        // 3. Inject Project Data & Loader Scrip
         let json_str = serde_json::to_string(&project_data)
             .map_err(|e| format!("Failed to serialize project data: {}", e))?;
-        // Script: Fetch images from session, create blobs, then load project
+        // Script: Fetch images from session, create blobs, then load projec
         let script = format!(r#"
             (async function() {{
                 try {{
                     // Data from backend
                     const data = {};
                     const sessionId = "{}";
-                    
+
                     console.log("Headless: Starting resource hydration for session " + sessionId);
 
                     if (!window.store) {{
@@ -276,7 +276,7 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
                     // We need to mutate the scene objects in 'data.scenes' to add 'file' property (Blob)
                     // But JSON parsing makes them plain objects.
                     // We must fetch blobs.
-                    
+
                     if (data.scenes && Array::isArray(data.scenes)) {{
                         await Promise.all(data.scenes.map(async (scene) => {{
                             try {{
@@ -285,23 +285,23 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
                                 const resp = await fetch(url);
                                 if (!resp.ok) throw new Error("Fetch failed: " + resp.status);
                                 const blob = await resp.blob();
-                                // Create File object
+                                // Create File objec
                                 // Note: Pannellum needs .file property on scene object if it uses it.
                                 // Or store.loadProject handles it? store.loadProject handles blobs if provided.
                                 scene.file = new File([blob], scene.name, {{ type: 'image/webp' }});
                                 scene.originalFile = scene.file;
-                                scene.tinyFile = scene.file; 
+                                scene.tinyFile = scene.file;
                             }} catch (e) {{
                                 console.error("Failed to hydrate scene: " + scene.name, e);
                             }}
                         }}));
                     }}
 
-                    // Load Project
+                    // Load Projec
                     await Promise.resolve(window.store.loadProject(data)); // This sets store.state.scenes = data.scenes (with blobs!)
-                    
+
                     console.log("Project loaded in headless mode");
-                    
+
                     // Allow UI to settle (Pannellum init)
                     setTimeout(() => {{ window.HEADLESS_READY = true; }}, 2000);
 
@@ -311,7 +311,7 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
                 }}
             }})();
         "#, json_str, session_id_clone);
-        
+
         tab.evaluate(&script, false).map_err(|e| format!("Injection failed: {}", e))?;
 
         // Wait for ready
@@ -320,7 +320,7 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
             if std::time::Instant::now() - start_wait > Duration::from_secs(60) { // Increased timeout for fetch
                 return Err("Timeout waiting for project load".to_string());
             }
-            
+
             // Check success
             let val = tab.evaluate("window.HEADLESS_READY", false);
             if let Ok(v) = val {
@@ -328,7 +328,7 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
                     break;
                 }
             }
-            
+
             // Check error
             let err_val = tab.evaluate("window.HEADLESS_ERROR", false);
              if let Ok(v) = err_val {
@@ -336,7 +336,7 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
                      return Err(format!("Headless Client Error: {}", msg));
                 }
             }
-            
+
             std::thread::sleep(Duration::from_millis(500));
         }
 
@@ -377,7 +377,7 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
         // 6. Capture Loop
         let start_sim = std::time::Instant::now();
         let max_dur = Duration::from_secs(duration_limit);
-        
+
         loop {
             if std::time::Instant::now() - start_sim > max_dur {
                 break;
@@ -391,15 +391,15 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
                 }
             }
 
-            // Capture Screenshot
+            // Capture Screensho
             let png_data = tab.capture_screenshot(headless_chrome::protocol::cdp::Page::CaptureScreenshotFormatOption::Png, None, None, true)
                 .map_err(|e| format!("Screenshot failed: {}", e))?;
 
             if let Err(_e) = stdin.write_all(&png_data) {
                 // EPIPE means ffmpeg closed (maybe finished or errored)
-                break; 
+                break;
             }
-            
+
             std::thread::sleep(Duration::from_millis(10));
         }
 

@@ -89,7 +89,7 @@ pub async fn process_image_full(mut payload: Multipart) -> Result<HttpResponse, 
         let meta_start = Instant::now();
         let metadata = media::perform_metadata_extraction_rgba(&src_rgba, src_w, src_h, &data, original_filename.as_deref())?;
         let meta_time = meta_start.elapsed();
-        
+
         // 2. Image Optimization (4K WebP)
         let opt_start = Instant::now();
         let webp_buffer_vec = if metadata.is_optimized && src_w == PROCESSED_IMAGE_WIDTH {
@@ -98,13 +98,13 @@ pub async fn process_image_full(mut payload: Multipart) -> Result<HttpResponse, 
         } else {
             let resized_rgba = media::resize_fast_rgba(&src_rgba, src_w, src_h, PROCESSED_IMAGE_WIDTH, PROCESSED_IMAGE_WIDTH)
                 .map_err(|e| format!("Resize failed: {}", e))?;
-            
+
             let img = image::RgbaImage::from_raw(PROCESSED_IMAGE_WIDTH, PROCESSED_IMAGE_WIDTH, resized_rgba)
                 .ok_or_else(|| "Failed to create image buffer".to_string())
                 .map_err(|e| format!("{}", e))?;
 
             let buf = media::encode_webp(&image::DynamicImage::ImageRgba8(img), WEBP_QUALITY)?;
-            
+
             media::inject_remx_chunk(buf, &metadata)?
         };
         let opt_time = opt_start.elapsed();
@@ -144,7 +144,7 @@ pub async fn process_image_full(mut payload: Multipart) -> Result<HttpResponse, 
             zip.finish().map_err(|e| e.to_string())?;
         }
         let zip_time = zip_start.elapsed();
-        
+
         tracing::info!(
             "Backend Processing Timings: Decode: {:?}, RGBA: {:?}, Meta: {:?}, 4K: {:?}, Tiny: {:?}, Zip: {:?}",
             decode_time, rgba_time, meta_time, opt_time, tiny_time, zip_time
