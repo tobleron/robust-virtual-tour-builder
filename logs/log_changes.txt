@@ -367,3 +367,4 @@ Task: 147
 [2026-01-17 20:58] v4.3.1 - Enhance Logger with robust error capturing (stacks) and serialization.
 [2026-01-17 21:00] v4.3.1 - Refine Logger to match backend JSON strictness and support manual test.
 [2026-01-17 21:03] v4.3.1 - Final Logic Fix: Align Logger JSON timestamp to backend string req.
+[2026-01-17 21:10] v4.3.1 - Final cleanup: Remove %raw logging helpers, fully type-safe.

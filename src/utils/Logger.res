@@ -427,6 +427,9 @@ module UnhandledRejectionEvent = {
   let isError: reason => bool = %raw(`function(r) { return r instanceof Error }`)
 }
 
+external toNullable: 'a => Nullable.t<'a> = "%identity"
+external toUnhandledEvent: 'a => UnhandledRejectionEvent.t = "%identity"
+
 // =============================================================================
 // GLOBAL BINDINGS (INIT)
 // =============================================================================
@@ -450,9 +453,7 @@ let init = () => {
 
   /* Intercept Global Errors with Stack Traces */
   Window.setOnError(Window.window, (msg, source, line, col, errObj) => {
-    ignore(errObj)
-    let errNullable: Nullable.t<{..}> = %raw("errObj")
-    let stack = switch errNullable->Nullable.toOption {
+    let stack = switch toNullable(errObj)->Nullable.toOption {
     | Some(e) => e["stack"]
     | None => ""
     }
@@ -473,8 +474,7 @@ let init = () => {
   })
 
   Window.setOnUnhandledRejection(Window.window, event => {
-    ignore(event)
-    let evt: UnhandledRejectionEvent.t = %raw("event")
+    let evt = toUnhandledEvent(event)
     let reason = UnhandledRejectionEvent.getReason(evt)
     let isError = UnhandledRejectionEvent.isError(reason)
 
