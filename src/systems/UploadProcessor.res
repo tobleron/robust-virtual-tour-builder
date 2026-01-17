@@ -470,9 +470,9 @@ let processUploads = (
                             }
                           }
 
-                          Dict.set(obj, "original", encodeFile(File(item.original)))
-                          Dict.set(obj, "preview", encodeFile(File(preview)))
-                          Dict.set(obj, "tiny", encodeFile(File(tiny)))
+                          Dict.set(obj, "original", encodeFile(Types.File(item.original)))
+                          Dict.set(obj, "preview", encodeFile(Types.File(preview)))
+                          Dict.set(obj, "tiny", encodeFile(Types.File(tiny)))
                           Dict.set(obj, "quality", Option.getOr(item.quality, JSON.Encode.null))
                           Dict.set(obj, "metadata", Option.getOr(item.metadata, JSON.Encode.null))
                           Dict.set(
