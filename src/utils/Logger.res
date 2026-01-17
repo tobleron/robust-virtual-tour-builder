@@ -18,8 +18,8 @@ type level =
   | Perf
 
 type logEntry = {
-  timestamp: float,
-  time: string,
+  timestampMs: float,
+  timestamp: string,
   @as("module") module_: string,
   level: string,
   message: string,
@@ -171,12 +171,12 @@ let sendTelemetry = async entry => {
 }
 
 let log = (~module_: string, ~level: level, ~message: string, ~data: 'a=?, ()): unit => {
-  let timestamp = Date.now()
-  let timeStr = Date.toISOString(Date.make())
+  let timestampMs = Date.now()
+  let timestamp = Date.toISOString(Date.make())
 
   let entry = {
+    timestampMs,
     timestamp,
-    time: timeStr,
     module_,
     level: levelToString(level),
     message,
@@ -189,7 +189,7 @@ let log = (~module_: string, ~level: level, ~message: string, ~data: 'a=?, ()): 
   }
 
   /* App Log Buffer (for UI) */
-  let appLogMsg = `[${timeStr}][${levelToString(
+  let appLogMsg = `[${timestamp}][${levelToString(
       level,
     )->String.toUpperCase}] [${module_}] ${message}`
   let _ = Js.Array.push(appLogMsg, appLog)
