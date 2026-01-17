@@ -461,10 +461,18 @@ let processUploads = (
                           )
                           Dict.set(obj, "name", File.name(preview)->JSON.Encode.string)
 
-                          // Using unsafe cast to mix types in dict for JSON payload - essentially treated as {..} by consumer
-                          Dict.set(obj, "original", castToJson(item.original))
-                          Dict.set(obj, "preview", castToJson(preview))
-                          Dict.set(obj, "tiny", castToJson(tiny))
+                          // Encode file variant as JSON (Internal only)
+                          let encodeFile = (f: Types.file) => {
+                            switch f {
+                            | Url(s) => JSON.Encode.string(s)
+                            | File(file) => castToJson(file)
+                            | Blob(blob) => castToJson(blob)
+                            }
+                          }
+
+                          Dict.set(obj, "original", encodeFile(File(item.original)))
+                          Dict.set(obj, "preview", encodeFile(File(preview)))
+                          Dict.set(obj, "tiny", encodeFile(File(tiny)))
                           Dict.set(obj, "quality", Option.getOr(item.quality, JSON.Encode.null))
                           Dict.set(obj, "metadata", Option.getOr(item.metadata, JSON.Encode.null))
                           Dict.set(

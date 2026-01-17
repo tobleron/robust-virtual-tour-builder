@@ -420,7 +420,16 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
           }
 
           // 2. Draw pending segment (Floor Projection if looking down)
-          let lastFloorPtOpt = Belt.Array.get(floorPoints, Array.length(floorPoints) - 1)
+          // v4.2.18 behavior: connect last confirmed point to mouse
+          // If no intermediate points, connect DRAFT ORIGIN (first "click" location) to mouse.
+
+          let lastPoint = switch Belt.Array.get(floorPoints, Array.length(floorPoints) - 1) {
+          | Some(p) => p
+          // Fallback to draft origin if floorPoints empty (this happens when intermediatePoints is None)
+          | None => {PathInterpolation.yaw: draft.yaw, pitch: draft.pitch}
+          }
+
+          let lastFloorPtOpt = Some(lastPoint)
 
           switch (lastFloorPtOpt, mouseEvent) {
           | (Some(lastFloorPt), Some(ev)) =>
@@ -435,12 +444,18 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
                 pitch: p,
               }
 
-              let camPitch = Viewer.getPitch(v)
-              let pendingPath = if camPitch < -20.0 {
-                PathInterpolation.getFloorProjectedPath(lastFloorPt, mousePt, 20)
-              } else {
-                [lastFloorPt, mousePt]
-              }
+              let _camPitch = Viewer.getPitch(v)
+              // Always draw pending path for visual feedback (rubber banding)
+              // v4.2.18 behavior: Yellow dashed line from last click to mouse
+              let pendingPath = [lastFloorPt, mousePt]
+
+              // Only project if looking steeply down? No, user wants it always visible as feedback.
+              // Logic was:
+              // let pendingPath = if camPitch < -20.0 {
+              //   PathInterpolation.getFloorProjectedPath(lastFloorPt, mousePt, 20)
+              // } else {
+              //   [lastFloorPt, mousePt]
+              // }
 
               drawPolyLine(
                 svg,

@@ -48,22 +48,10 @@ let createSavePackage = (state: state, ~onProgress: option<onProgress>=?): Promi
   // Append files
   Belt.Array.forEachWithIndex(state.scenes, (_index, scene) => {
     // scene is of type Types.scene
-    let file = scene.file
-
-    // Check if file is actually a Blob/File object (runtime check needed as ReScript type is File.t but could be string during dev)
-    if Nullable.make(file) != Nullable.null {
-      let fileType: string = %raw("typeof file")
-      if fileType != "string" {
-        // It's a binary object (File/Blob)
-        FormData.appendWithFilename(formData, "files", file, scene.name)
-      } else {
-        Logger.warn(
-          ~module_="ProjectManager",
-          ~message="INVALID_FILE_TYPE",
-          ~data=Some({"scene": scene.name, "type": fileType}),
-          (),
-        )
-      }
+    switch scene.file {
+    | File(f) => FormData.appendWithFilename(formData, "files", f, scene.name)
+    | Blob(b) => FormData.appendWithFilename(formData, "files", b, scene.name)
+    | Url(_) => () // Skip URLs as they are reconstructed from backend
     }
   })
 

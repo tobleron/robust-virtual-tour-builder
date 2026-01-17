@@ -13,7 +13,7 @@ let rec updateFollowLoop = () => {
     let viewer = getActiveViewer()
     let storeState = GlobalStateBridge.getState()
 
-    let hasDraft = switch storeState.linkDraft {
+    let _hasDraft = switch storeState.linkDraft {
     | Some(_) => true
     | None => false
     }
@@ -23,7 +23,8 @@ let rec updateFollowLoop = () => {
     | None => false
     }
 
-    if !state.followLoopActive || !hasViewer || !hasDraft || !storeState.isLinking {
+    // We want the loop to fun if linking is active, even if no draft yet (to show cursor/rod or prepare)
+    if !state.followLoopActive || !hasViewer || !storeState.isLinking {
       state.followLoopActive = false
     } else {
       // Speed Factor

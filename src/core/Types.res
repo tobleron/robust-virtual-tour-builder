@@ -1,4 +1,7 @@
-type file = JSON.t
+type rec file =
+  | Url(string)
+  | Blob(ReBindings.Blob.t)
+  | File(ReBindings.File.t)
 
 type linkInfo = {
   sceneIndex: int,

@@ -81,11 +81,11 @@ let run = () => {
   Console.log("Running ViewerLoader tests...")
 
   // Test: getPanoramaUrl
-  let url1 = getPanoramaUrl(Obj.magic("test.webp"))
+  let url1 = getPanoramaUrl(Url("test.webp"))
   assert(url1 == "test.webp")
 
   let mockBlob = %raw(`new Blob()`)
-  let url2 = getPanoramaUrl(Obj.magic(mockBlob))
+  let url2 = getPanoramaUrl(Blob(Obj.magic(mockBlob)))
   assert(url2 == "blob:mock")
   Console.log("✓ getPanoramaUrl")
 
@@ -115,7 +115,8 @@ let run = () => {
   // but we can verify that getElementById is called.
 
   // Test: invalid panorama URL logic in getPanoramaUrl
-  let url3 = getPanoramaUrl(Obj.magic(123)) // Invalid type
+  // (Now handled by Types.file variant, so we just test Url(""))
+  let url3 = getPanoramaUrl(Url(""))
   assert(url3 == "")
   Console.log("✓ getPanoramaUrl edge cases")
 

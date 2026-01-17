@@ -8,7 +8,7 @@ use uuid::Uuid;
 
 // Configs
 pub const PROCESSED_IMAGE_WIDTH: u32 = 4096;
-pub const WEBP_QUALITY: f32 = 92.0;
+pub const WEBP_QUALITY: f32 = 85.0;
 pub const TEMP_DIR: &str = "/tmp/remax_backend";
 pub const SESSIONS_DIR: &str = "/tmp/remax_sessions";
 pub const MAX_UPLOAD_SIZE: usize = 2048 * 1024 * 1024; // 2GB limit

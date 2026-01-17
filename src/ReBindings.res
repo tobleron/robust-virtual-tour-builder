@@ -172,6 +172,9 @@ module Dom = {
   @send external closest: (element, string) => Nullable.t<element> = "closest"
   @send
   external addEventListenerCapture: (element, string, 'a => unit, bool) => unit = "addEventListener"
+  @send
+  external removeEventListenerCapture: (element, string, 'a => unit, bool) => unit =
+    "removeEventListener"
 
   /* Added bindings */
   @send external removeElement: element => unit = "remove"

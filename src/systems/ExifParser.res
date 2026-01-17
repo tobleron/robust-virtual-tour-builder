@@ -16,7 +16,7 @@ module ExifReader = {
 /* Constants */
 let backendUrl = Constants.backendUrl
 
-/* extractExifTags - IMPLEMENTED per task requirement using ExifReader */
+/* extractExifTags - Extracts full technical metadata and GPS using ExifReader */
 let extractExifTags = async file => {
   try {
     let _tags = await ExifReader.load(file)
@@ -31,8 +31,8 @@ let extractExifTags = async file => {
     let getFloat = key => {
       let v = getValue(key)
       switch Belt.Float.fromString(v) {
-      | Some(f) => f
-      | None => 0.0
+      | Some(f) => Some(f)
+      | None => None
       }
     }
 
@@ -47,13 +47,12 @@ let extractExifTags = async file => {
 
     // GPano Extraction
     let usePano = getValue("UsePanoramaViewer") == "True"
-
     let pano: gPanoMetadata = {
       usePanoramaViewer: usePano,
       projectionType: getValue("ProjectionType"),
-      poseHeadingDegrees: getFloat("PoseHeadingDegrees"),
-      posePitchDegrees: getFloat("PosePitchDegrees"),
-      poseRollDegrees: getFloat("PoseRollDegrees"),
+      poseHeadingDegrees: getFloat("PoseHeadingDegrees")->Option.getOr(0.0),
+      posePitchDegrees: getFloat("PosePitchDegrees")->Option.getOr(0.0),
+      poseRollDegrees: getFloat("PoseRollDegrees")->Option.getOr(0.0),
       croppedAreaImageWidthPixels: getInt("CroppedAreaImageWidthPixels"),
       croppedAreaImageHeightPixels: getInt("CroppedAreaImageHeightPixels"),
       fullPanoWidthPixels: getInt("FullPanoWidthPixels"),
@@ -63,7 +62,27 @@ let extractExifTags = async file => {
       initialViewHeadingDegrees: getInt("InitialViewHeadingDegrees"),
     }
 
-    Some(pano)
+    // GPS Extraction
+    let lat = getFloat("GPSLatitude")
+    let lon = getFloat("GPSLongitude")
+    let gps = switch (lat, lon) {
+    | (Some(la), Some(lo)) => Nullable.make({lat: la, lon: lo})
+    | _ => Nullable.null
+    }
+
+    let exif: exifMetadata = {
+      make: Nullable.fromOption(Some(getValue("Make"))),
+      model: Nullable.fromOption(Some(getValue("Model"))),
+      dateTime: Nullable.fromOption(Some(getValue("DateTime"))),
+      gps,
+      width: getInt("ImageWidth"),
+      height: getInt("ImageHeight"),
+      focalLength: Nullable.fromOption(getFloat("FocalLength")),
+      aperture: Nullable.fromOption(getFloat("FNumber")),
+      iso: Nullable.fromOption(Some(getInt("ISOSpeedRatings"))),
+    }
+
+    Some((exif, pano))
   } catch {
   | _ => None
   }
@@ -71,8 +90,11 @@ let extractExifTags = async file => {
 
 /* parseFile - Combined extraction */
 let parseFile = async file => {
-  let gpano = await extractExifTags(file)
-  gpano
+  let result = await extractExifTags(file)
+  switch result {
+  | Some((_exif, pano)) => Some(pano)
+  | None => None
+  }
 }
 
 /* extractExifData - Calls the Rust Backend */

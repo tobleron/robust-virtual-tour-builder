@@ -129,23 +129,36 @@ let make = () => {
   // Handlers
   let handleFabClick = e => {
     JsxEvent.Mouse.stopPropagation(e)
+    // Ref: v4.2.18 behavior - Init draft immediately
     let newLinking = !state.isLinking
     dispatch(Actions.SetIsLinking(newLinking))
 
-    EventBus.dispatch(
-      ShowNotification(
-        if newLinking {
-          "Link Mode: ACTIVE"
-        } else {
-          "Link Mode: OFF"
-        },
-        if newLinking {
-          #Success
-        } else {
-          #Warning
-        },
-      ),
-    )
+    if newLinking {
+      // Initialize Draft IMMEDIATELY for v4.2.18 behavior (Rod appears instantly)
+      let v = Nullable.toOption(ReBindings.Viewer.instance)
+      switch v {
+      | Some(viewer) =>
+        let hfov = ReBindings.Viewer.getHfov(viewer)
+        let pitch = ReBindings.Viewer.getPitch(viewer)
+        let yaw = ReBindings.Viewer.getYaw(viewer)
+
+        let initialDraft: Types.linkDraft = {
+          yaw, // Origin Yaw
+          pitch, // Origin Pitch
+          camYaw: yaw,
+          camPitch: pitch,
+          camHfov: hfov,
+          intermediatePoints: None,
+        }
+        dispatch(Actions.SetLinkDraft(Some(initialDraft)))
+      | None => ()
+      }
+
+      EventBus.dispatch(ShowNotification("Link Mode: ACTIVE", #Success))
+    } else {
+      dispatch(Actions.SetLinkDraft(None))
+      EventBus.dispatch(ShowNotification("Link Mode: OFF", #Warning))
+    }
   }
 
   let handleSimClick = e => {

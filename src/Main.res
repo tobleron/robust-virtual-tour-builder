@@ -129,6 +129,7 @@ let init = async () => {
     Console.log("Systems Initialized")
     SimulationSystem.initSimulationKeyHandler()
     InputSystem.initInputSystem()
+    ImageOptimizer.init()
 
     // 8. Service Worker (for offline capability and caching)
     try {

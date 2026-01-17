@@ -8,6 +8,33 @@ let insertAt = (arr, index, item) => {
   Belt.Array.concatMany([before, [item], after])
 }
 
+let decodeFile = (json: JSON.t): Types.file => {
+  let isString = switch json {
+  | String(_) => true
+  | _ => false
+  }
+
+  if isString {
+    switch json {
+    | String(s) => Url(s)
+    | _ => Url("")
+    }
+  } else {
+    // Check if it's a raw File/Blob object from upload via %identity
+    let isBlob: bool = %raw("json instanceof Blob")
+    if isBlob {
+      Blob(Obj.magic(json))
+    } else {
+      let isFile: bool = %raw("json instanceof File")
+      if isFile {
+        File(Obj.magic(json))
+      } else {
+        Url("")
+      }
+    }
+  }
+}
+
 // ============================================================================
 // PARSING FUNCTIONS
 // ============================================================================
@@ -72,9 +99,9 @@ let parseScene = (dataJson: JSON.t): scene => {
   {
     id: data.id,
     name: data.name,
-    file: data.preview,
-    tinyFile: Nullable.toOption(data.tiny),
-    originalFile: Nullable.toOption(data.original),
+    file: decodeFile(data.preview),
+    tinyFile: Nullable.toOption(data.tiny)->Option.map(decodeFile),
+    originalFile: Nullable.toOption(data.original)->Option.map(decodeFile),
     hotspots: [],
     category: "indoor",
     floor: "ground",
@@ -106,9 +133,9 @@ let parseProject = (projectDataJson: JSON.t): state => {
       | None => "legacy_" ++ sc.name
       },
       name: sc.name,
-      file: sc.file,
-      tinyFile: Nullable.toOption(sc.tinyFile),
-      originalFile: Nullable.toOption(sc.originalFile),
+      file: decodeFile(sc.file),
+      tinyFile: Nullable.toOption(sc.tinyFile)->Option.map(decodeFile),
+      originalFile: Nullable.toOption(sc.originalFile)->Option.map(decodeFile),
       hotspots: switch Nullable.toOption(sc.hotspots) {
       | Some(hss) => parseHotspots(hss)
       | None => []

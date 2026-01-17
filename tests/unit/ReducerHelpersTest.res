@@ -126,7 +126,7 @@ let run = () => {
   let makeDummyScene = (~id="id", ~name="name.webp", ~label="", ~hotspots=[], ()) => {
     id,
     name,
-    file: JSON.Encode.string("file"),
+    file: Url("file"),
     tinyFile: None,
     originalFile: None,
     hotspots,
