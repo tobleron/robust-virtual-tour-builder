@@ -43,21 +43,46 @@ let make = () => {
         let clientY = Belt.Int.toFloat(Obj.magic(e)["clientY"])
 
         let x = clientX -. rect.left
+
         let y = clientY -. rect.top
 
+        // DEBUG: Track rod coordinates if it's acting up
+
+        // Logger.debug(~module_="ViewerManager", ~message="ROD_POS", ~data=Some({"x": x, "y": y}), ())
+
         ViewerState.state.mouseXNorm = x /. rect.width *. 2.0 -. 1.0
+
         ViewerState.state.mouseYNorm =
           (y +. Constants.linkingRodHeight) /. rect.height *. 2.0 -. 1.0
 
         // Update Rod Position (Yellow Vertical Guide)
+
         let guide = Dom.getElementById("cursor-guide")
+
         switch Nullable.toOption(guide) {
         | Some(g) =>
           if state.isLinking {
             // Ensure rod is visible and accurately positioned (v4.3.1 fix)
+
             Dom.setProperty(g, "display", "block")
-            Dom.setLeft(g, Float.toString(Math.round(x)) ++ "px")
-            Dom.setTop(g, Float.toString(Math.round(y)) ++ "px")
+
+            // Use transform for more reliable positioning that ignores layout flow
+
+            Dom.setProperty(
+              g,
+              "transform",
+              "translate(" ++
+              Float.toString(Math.round(x)) ++
+              "px, " ++
+              Float.toString(Math.round(y)) ++ "px)",
+            )
+
+            // Reset left/top to avoid conflicts with transform
+
+            Dom.setLeft(g, "0px")
+
+            Dom.setTop(g, "0px")
+
             Dom.setStyleHeight(g, Float.toString(Constants.linkingRodHeight) ++ "px")
 
             Dom.classList(g)->Dom.ClassList.add("cursor-dot-blinking")
@@ -230,7 +255,9 @@ let make = () => {
         // Ensure guide is hidden on unmount/cleanup
         let guide = Dom.getElementById("cursor-guide")
         switch Nullable.toOption(guide) {
-        | Some(g) => Dom.setProperty(g, "display", "none")
+        | Some(g) =>
+          Dom.setProperty(g, "display", "none")
+          Dom.setProperty(g, "transform", "none")
         | None => ()
         }
 
@@ -284,14 +311,27 @@ let make = () => {
       }
     } else {
       /* Check Link Follow Loop */
-      if state.isLinking && !ViewerState.state.followLoopActive {
+      let hasHotspots = if (
+        state.activeIndex >= 0 && state.activeIndex < Array.length(state.scenes)
+      ) {
+        switch Belt.Array.get(state.scenes, state.activeIndex) {
+        | Some(s) => Array.length(s.hotspots) > 0
+        | None => false
+        }
+      } else {
+        false
+      }
+
+      if (state.isLinking || hasHotspots) && !ViewerState.state.followLoopActive {
         // Reset ratchet state to prevent jump from stale mouse position (Stage 2)
-        ViewerState.state.ratchetState.yawOffset = 0.0
-        ViewerState.state.ratchetState.pitchOffset = 0.0
-        ViewerState.state.ratchetState.maxYawOffset = 0.0
-        ViewerState.state.ratchetState.minYawOffset = 0.0
-        ViewerState.state.ratchetState.maxPitchOffset = 0.0
-        ViewerState.state.ratchetState.minPitchOffset = 0.0
+        if state.isLinking {
+          ViewerState.state.ratchetState.yawOffset = 0.0
+          ViewerState.state.ratchetState.pitchOffset = 0.0
+          ViewerState.state.ratchetState.maxYawOffset = 0.0
+          ViewerState.state.ratchetState.minYawOffset = 0.0
+          ViewerState.state.ratchetState.maxPitchOffset = 0.0
+          ViewerState.state.ratchetState.minPitchOffset = 0.0
+        }
 
         ViewerState.state.followLoopActive = true
         ViewerFollow.updateFollowLoop()
@@ -360,6 +400,8 @@ let make = () => {
       | Some(g) =>
         Dom.setProperty(g, "display", "block")
         Dom.setProperty(g, "z-index", "9999")
+        Dom.setLeft(g, "0px")
+        Dom.setTop(g, "0px")
       | None => Logger.error(~module_="ViewerManager", ~message="ROD_NOT_FOUND_IN_EFFECT", ())
       }
     } else {
