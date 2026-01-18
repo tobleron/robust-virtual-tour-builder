@@ -54,7 +54,7 @@ let make = () => {
         switch Nullable.toOption(guide) {
         | Some(g) =>
           if state.isLinking {
-            Dom.setDisplay(g, "block")
+            Dom.setProperty(g, "display", "block !important")
             Dom.classList(g)->Dom.ClassList.add("cursor-dot-blinking")
             // Use relative stage coordinates x/y since guide is a child of the stage
             Dom.setLeft(g, Float.toString(Math.round(x)) ++ "px")
@@ -68,7 +68,7 @@ let make = () => {
               ViewerFollow.updateFollowLoop()
             }
           } else {
-            Dom.setDisplay(g, "none")
+            Dom.setProperty(g, "display", "none !important")
             Dom.classList(g)->Dom.ClassList.remove("cursor-dot-blinking")
           }
         | None => ()
@@ -230,7 +230,7 @@ let make = () => {
         // Ensure guide is hidden on unmount/cleanup
         let guide = Dom.getElementById("cursor-guide")
         switch Nullable.toOption(guide) {
-        | Some(g) => Dom.setDisplay(g, "none")
+        | Some(g) => Dom.setProperty(g, "display", "none !important")
         | None => ()
         }
 
@@ -351,10 +351,20 @@ let make = () => {
   // Sync Linking Cursor & Simulation Class
   React.useEffect2(() => {
     let body = Dom.documentBody
+    let guide = Dom.getElementById("cursor-guide")
+
     if state.isLinking {
       Dom.classList(body)->Dom.ClassList.add("linking-mode")
+      switch Nullable.toOption(guide) {
+      | Some(g) => Dom.setProperty(g, "display", "block !important")
+      | None => ()
+      }
     } else {
       Dom.classList(body)->Dom.ClassList.remove("linking-mode")
+      switch Nullable.toOption(guide) {
+      | Some(g) => Dom.setProperty(g, "display", "none !important")
+      | None => ()
+      }
     }
 
     if state.simulation.status == Running {
