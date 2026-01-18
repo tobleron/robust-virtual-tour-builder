@@ -144,6 +144,7 @@ module Loader = {
 
     state.isSceneLoading = false
     state.loadingSceneId = Nullable.null
+    state.lastSceneId = Nullable.make(loadedScene.id)
 
     /* Recovery Check */
     let latestState = GlobalStateBridge.getState()
