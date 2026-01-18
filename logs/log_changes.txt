@@ -397,3 +397,4 @@ Task: 147
 [2026-01-18 15:25] v4.3.1 - chore: production prep - sync version, set log level to info, and apply premium style refinements
 [2026-01-18 15:48] v4.3.1 - feat: CatMulRom Stable!
 [2026-01-18 16:04] v4.3.1 - feat(viewer): reduce camera return speed in add-link mode
+[2026-01-18 16:10] v4.3.1 - feat(viewer): implement momentum-based camera movement in add-link mode
