@@ -80,7 +80,6 @@
 │   ├── ACCESSIBILITY_SYSTEM.md
 │   ├── AntiGravity Workflow Manual.md
 │   ├── ARCHITECTURE_DIAGRAM.md
-│   ├── css_diff_report.html
 │   ├── DEBUGGING_GUIDE.md
 │   ├── IMPROVEMENTS.md
 │   ├── LOGGING_AND_SIMULATION.md
@@ -91,8 +90,7 @@
 │   ├── SECURITY_AND_STABILITY.md
 │   ├── TESTING_QUICK_REFERENCE.md
 │   ├── TYPOGRAPHY_AND_UI_SYSTEM.md
-│   ├── UNIT_TESTING_INTEGRATION.md
-│   └── v4.1.3_vs_current_CSS_REPORT.md
+│   └── UNIT_TESTING_INTEGRATION.md
 ├── GEMINI.md
 ├── index.html
 ├── lib
@@ -2053,7 +2051,10 @@
 │   │   ├── 224_restore_linking_mode_visuals_REPORT.md
 │   │   ├── 225_restore_simulation_lockdown_REPORT.md
 │   │   ├── 226_restore_premium_hotspots_REPORT.md
-│   │   └── 264_fix_upload_failure_REPORT.md
+│   │   ├── 264_fix_upload_failure_REPORT.md
+│   │   ├── 265_troubleshoot_yellow_rod_REPORT.md
+│   │   ├── 266_refine_linking_visuals_REPORT.md
+│   │   └── 267_update_camera_movement_behavior_REPORT.md
 │   ├── current_refactor.md
 │   ├── pending
 │   │   ├── 176_fix_security_innerhtml.md
@@ -2214,4 +2215,4 @@
 │       └── VitestSmoke.test.res
 └── vitest.config.mjs
 
-49 directories, 2166 files
+49 directories, 2167 files

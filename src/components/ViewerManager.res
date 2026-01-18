@@ -43,27 +43,23 @@ let make = () => {
         let clientY = Belt.Int.toFloat(Obj.magic(e)["clientY"])
 
         let x = clientX -. rect.left
-
         let y = clientY -. rect.top
 
         // DEBUG: Track rod coordinates if it's acting up
-
         // Logger.debug(~module_="ViewerManager", ~message="ROD_POS", ~data=Some({"x": x, "y": y}), ())
 
         ViewerState.state.mouseXNorm = x /. rect.width *. 2.0 -. 1.0
-
         ViewerState.state.mouseYNorm =
           (y +. Constants.linkingRodHeight) /. rect.height *. 2.0 -. 1.0
 
         // Update Rod Position (Yellow Vertical Guide)
-
         let guide = Dom.getElementById("cursor-guide")
+        let currentState = GlobalStateBridge.getState()
 
         switch Nullable.toOption(guide) {
         | Some(g) =>
-          if state.isLinking {
+          if currentState.isLinking {
             // Ensure rod is visible and accurately positioned (v4.3.1 fix)
-
             Dom.setProperty(g, "display", "block")
 
             // Use transform for more reliable positioning that ignores layout flow
@@ -84,8 +80,6 @@ let make = () => {
             Dom.setTop(g, "0px")
 
             Dom.setStyleHeight(g, Float.toString(Constants.linkingRodHeight) ++ "px")
-
-            Dom.classList(g)->Dom.ClassList.add("cursor-dot-blinking")
 
             // Re-enable follow loop for wider waypoints navigation (Stage 2)
             if !ViewerState.state.followLoopActive {

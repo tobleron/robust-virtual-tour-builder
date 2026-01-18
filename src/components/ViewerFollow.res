@@ -47,13 +47,28 @@ let rec updateFollowLoop = () => {
       state.followLoopActive = false
     } else {
       // Speed Factor
-      let yawSpeed = 1.0
-      let pitchSpeed = 0.7
-      let deadzone = 0.1
+      let yawSpeed = 1.2
+      let pitchSpeed = 0.8
+      let deadzone = 0.85
 
-      if Math.abs(state.mouseXNorm) > deadzone || Math.abs(state.mouseYNorm) > deadzone {
-        let yawDelta = Math.pow(state.mouseXNorm, ~exp=3.0) *. yawSpeed
-        let pitchDelta = -.(Math.pow(state.mouseYNorm, ~exp=3.0) *. pitchSpeed)
+      if (
+        storeState.isLinking &&
+        (Math.abs(state.mouseXNorm) > deadzone || Math.abs(state.mouseYNorm) > deadzone)
+      ) {
+        // Calculate normalized distance beyond the deadzone
+        let getEdgePower = (val, dz) => {
+          let absVal = Math.abs(val)
+          if absVal > dz {
+            let sign = val > 0.0 ? 1.0 : -1.0
+            let normalized = (absVal -. dz) /. (1.0 -. dz)
+            sign *. Math.pow(normalized, ~exp=2.0)
+          } else {
+            0.0
+          }
+        }
+
+        let yawDelta = getEdgePower(state.mouseXNorm, deadzone) *. yawSpeed
+        let pitchDelta = -.getEdgePower(state.mouseYNorm, deadzone) *. pitchSpeed
 
         let appliedYawDelta = ref(0.0)
         let appliedPitchDelta = ref(0.0)

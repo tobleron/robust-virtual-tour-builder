@@ -48,24 +48,6 @@
     transform-origin: top center;
 }
 
-#cursor-guide::after {
-    content: '';
-    position: absolute;
-    bottom: -4px;
-    left: -3px;
-    width: 8px;
-    height: 8px;
-    background: inherit;
-    /* Use parent background (which blinks) */
-    border-radius: 50%;
-    box-shadow: 0 0 12px #ffcc00;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-#cursor-guide.cursor-dot-blinking::after {
-    animation: cursor-dot-blink 0.8s ease-in-out infinite;
-}
-
 /* YELLOW CROSSHAIR CURSOR */
 .linking-mode,
 .linking-mode canvas,
