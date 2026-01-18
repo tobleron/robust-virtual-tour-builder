@@ -90,12 +90,22 @@ let createHotspotConfig = (
         <div class="hotspot-delete-btn" title="Delete Link" role="button" tabindex="0" aria-label="Delete Link">✕</div>
         <svg class="custom-arrow-svg" viewBox="0 0 100 100" aria-hidden="true">
           <defs>
-            <linearGradient id="hsG_${iStr}" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#FFD700"/><stop offset="100%" style="stop-color:#FDB931"/></linearGradient>
-            <linearGradient id="autoForwardGradient" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#0d9488"/><stop offset="100%" style="stop-color:#0f766e"/></linearGradient>
+            <linearGradient id="hsG_${iStr}" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style="stop-color:#FFD700"/>
+              <stop offset="50%" style="stop-color:#FDB931"/>
+              <stop offset="100%" style="stop-color:#8B6508"/>
+            </linearGradient>
+            <linearGradient id="autoForwardGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style="stop-color:#10b981"/>
+              <stop offset="50%" style="stop-color:#059669"/>
+              <stop offset="100%" style="stop-color:#047857"/>
+            </linearGradient>
           </defs>
+          <path d="M10 43 L50 13 L90 43 L90 53 L50 23 L10 53 Z M10 73 L50 43 L90 73 L90 83 L50 53 L10 83 Z" fill="#4B3300" opacity="0.4" />
           <path d="M10 40 L50 10 L90 40 L90 60 L50 30 L10 60 Z M10 70 L50 40 L90 70 L90 90 L50 60 L10 90 Z" fill="${fillUrl}" />
           <path class="glow-unit glow-top" d="M10 40 L50 10 L90 40 L90 60 L50 30 L10 60 Z" />
           <path class="glow-unit glow-bottom" d="M10 70 L50 40 L90 70 L90 90 L50 60 L10 90 Z" />
+          <path d="M10 40 L50 10 L90 40 L50 11 Z" fill="#ffffff" fill-opacity="0.3" />
         </svg>
         <div class="hotspot-controls">
           <div class="hotspot-forward-btn ${if isAutoForward {

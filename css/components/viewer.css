@@ -140,60 +140,75 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     z-index: 10000;
     opacity: 0;
+    transform: scale(0.5);
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     pointer-events: auto;
 }
 
-.hotspot-delete-btn:hover {
+.flat-arrow:hover .hotspot-delete-btn {
     opacity: 1;
-    transform: scale(1.1);
+    transform: scale(1);
+}
+
+.hotspot-delete-btn:hover {
+    transform: scale(1.2) !important;
+    background: #ff0000;
 }
 
 .hotspot-controls {
     position: absolute;
-    bottom: 0px;
+    bottom: 5px;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) translateY(10px);
     display: flex;
-    gap: 3px;
+    gap: 4px;
     z-index: 10000;
     pointer-events: auto;
+    opacity: 0;
+    transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.flat-arrow:hover .hotspot-controls {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
 }
 
 .hotspot-forward-btn,
 .hotspot-return-btn {
-    width: 22px;
-    height: 17px;
+    width: 24px;
+    height: 18px;
     background: #374151;
     color: white;
-    border-radius: 3px;
+    border-radius: 4px;
     display: flex !important;
     align-items: center;
     justify-content: center;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 900;
     text-transform: uppercase;
     cursor: pointer;
     border: 1px solid rgba(255, 255, 255, 0.5);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     pointer-events: auto;
 }
 
 .hotspot-forward-btn:hover,
 .hotspot-return-btn:hover {
-    transform: scale(1.1);
+    transform: scale(1.15);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 }
 
 .hotspot-forward-btn.active {
     background: #059669 !important;
     color: white !important;
-    border-color: #059669 !important;
+    border-color: #10b981 !important;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
 }
 
 .hotspot-return-btn.active {
     background: #ea580c !important;
     color: white !important;
-    border-color: #ea580c !important;
+    border-color: #f97316 !important;
+    box-shadow: 0 0 8px rgba(234, 88, 12, 0.6);
 }

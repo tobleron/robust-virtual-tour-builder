@@ -2046,7 +2046,8 @@
 │   │   ├── 222_restore_css_design_tokens_REPORT.md
 │   │   ├── 223_restore_premium_ui_components_REPORT.md
 │   │   ├── 224_restore_linking_mode_visuals_REPORT.md
-│   │   └── 225_restore_simulation_lockdown_REPORT.md
+│   │   ├── 225_restore_simulation_lockdown_REPORT.md
+│   │   └── 226_restore_premium_hotspots_REPORT.md
 │   ├── current_refactor.md
 │   ├── pending
 │   │   ├── 176_fix_security_innerhtml.md
@@ -2066,8 +2067,7 @@
 │   │   ├── 212_Add_Tests_for_NavigationController.md
 │   │   ├── 213_Add_Tests_for_SimulationDriver.md
 │   │   ├── 214_Add_Tests_for_SimulationLogic.md
-│   │   ├── 215_Add_Tests_for_SessionStore.md
-│   │   └── 226_restore_premium_hotspots.md
+│   │   └── 215_Add_Tests_for_SessionStore.md
 │   └── TASKS.md
 ├── tests
 │   ├── node-setup.js
