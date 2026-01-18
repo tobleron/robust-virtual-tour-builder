@@ -382,3 +382,4 @@ Task: 147
 [2026-01-18 12:01] v4.3.1 - Fix waypoint sticking to screen by clearing SVG on loop exit
 [2026-01-18 12:17] v4.3.1 - Fix hotspot disappearance by safe removal loop
 [2026-01-18 12:23] v4.3.1 - Fix hotspot disappearance v2 with diff-based sync
+[2026-01-18 12:30] v4.3.1 - Fix invisible waypoint by forcing hotspot refresh on sync
