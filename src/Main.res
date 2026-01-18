@@ -56,13 +56,13 @@ let init = async () => {
     Logger.init()
 
     Logger.info(~module_="System", ~message="Initializing Remax Builder...", ())
-    Console.log("Main Init Started")
+    Logger.info(~module_="Main", ~message="Main Init Started", ())
 
     // Verify Global Dependencies
     let hasPannellum: bool = %raw("typeof window.pannellum !== 'undefined'")
     if hasPannellum {
       Logger.info(~module_="System", ~message="Pannellum Global Found", ())
-      Console.log("Pannellum Found")
+      Logger.info(~module_="Main", ~message="Pannellum Found", ())
     } else {
       Logger.error(~module_="System", ~message="Pannellum Global MISSING", ())
       Console.error("Pannellum MISSING")
@@ -114,19 +114,19 @@ let init = async () => {
 
     // 4. Dom Setup & Mount
 
-    Console.log("Mounting App...")
+    Logger.info(~module_="Main", ~message="Mounting App...", ())
     switch Dom.getElementById("app")->Nullable.toOption {
     | Some(appRoot) =>
       let root = ReactDOMClient.createRoot(appRoot)
       ReactDOMClient.Root.render(root, <App />)
-      Console.log("App Mounted")
+      Logger.info(~module_="Main", ~message="App Mounted", ())
     | None => Console.error("Root element #app not found")
     }
 
     // 7. Systems
     AudioManager.setupGlobalClickSounds()
     // VisualPipeline.init("visual-pipeline-container")->ignore
-    Console.log("Systems Initialized")
+    Logger.info(~module_="Main", ~message="Systems Initialized", ())
     SimulationSystem.initSimulationKeyHandler()
     InputSystem.initInputSystem()
     ImageOptimizer.init()
