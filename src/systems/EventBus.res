@@ -58,8 +58,15 @@ let dispatch = (evt: event) => {
     try {
       cb(evt)
     } catch {
-    | JsExn(e) => Console.error2("EventBus Error:", e)
-    | _ => Console.error("Unknown EventBus Error")
+    | JsExn(e) =>
+      Logger.error(
+        ~module_="EventBus",
+        ~message=`EventBus Error: ${(Obj.magic(e): JsExn.t)
+          ->JsExn.message
+          ->Option.getOr("Unknown")}`,
+        (),
+      )
+    | _ => Logger.error(~module_="EventBus", ~message="Unknown EventBus Error", ())
     }
   })
 }

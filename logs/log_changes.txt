@@ -407,3 +407,4 @@ Task: 147
 [2026-01-18 20:59] v4.3.2 - fix: capitalized WebkitMaskImage style property to resolve React warning
 [2026-01-18 21:08] v4.3.2 - feat: implement global frontend request queue to prevent rate limiting errors
 [2026-01-18 21:37] v4.3.2 - Eliminate Too Many Requests (429) errors with global RequestQueue and lifecycle-aware concurrency management
+[2026-01-18 21:46] v4.3.2 - Standardize logging by replacing Console.log with Logger in frontend code

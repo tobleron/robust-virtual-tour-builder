@@ -109,7 +109,11 @@ let checkBackendHealth = () => {
 
     // /health returns text/plain "Remax VTB Backend is running!"
     if !Fetch.ok(res) {
-      Console.warn("Backend Health Check Failed: " ++ Fetch.statusText(res))
+      Logger.warn(
+        ~module_="Resizer",
+        ~message="Backend Health Check Failed: " ++ Fetch.statusText(res),
+        (),
+      )
       Logger.warn(
         ~module_="Resizer",
         ~message="HEALTH_CHECK_FAILED",

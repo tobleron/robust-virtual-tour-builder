@@ -65,7 +65,6 @@ let init = async () => {
       Logger.info(~module_="Main", ~message="Pannellum Found", ())
     } else {
       Logger.error(~module_="System", ~message="Pannellum Global MISSING", ())
-      Console.error("Pannellum MISSING")
     }
 
     // 2. Global JSON store access (for legacy scripts/console)
@@ -109,7 +108,7 @@ let init = async () => {
         (),
       )
     } catch {
-    | _ => Console.warn("Failed to collect system telemetry")
+    | _ => Logger.warn(~module_="Main", ~message="Failed to collect system telemetry", ())
     }
 
     // 4. Dom Setup & Mount
@@ -120,7 +119,7 @@ let init = async () => {
       let root = ReactDOMClient.createRoot(appRoot)
       ReactDOMClient.Root.render(root, <App />)
       Logger.info(~module_="Main", ~message="App Mounted", ())
-    | None => Console.error("Root element #app not found")
+    | None => Logger.error(~module_="Main", ~message="Root element #app not found", ())
     }
 
     // 7. Systems
@@ -135,13 +134,13 @@ let init = async () => {
     try {
       if Constants.isDebugBuild() {
         ServiceWorker.unregisterServiceWorker()
-        Console.log("Service Worker Unregistered (Dev Mode)")
+        Logger.info(~module_="Main", ~message="Service Worker Unregistered (Dev Mode)", ())
       } else {
         ServiceWorker.registerServiceWorker()
       }
     } catch {
     | _ =>
-      Console.warn("Failed to configure Service Worker")
+      Logger.warn(~module_="Main", ~message="Failed to configure Service Worker", ())
       // Force unregister in case of uncertainty to be safe
       ServiceWorker.unregisterServiceWorker()
     }
@@ -192,7 +191,6 @@ let init = async () => {
   } catch {
   | exn =>
     let (msg, stack) = Logger.getErrorDetails(exn)
-    Console.error("CRITICAL INIT ERROR: " ++ msg)
     Logger.error(
       ~module_="System",
       ~message="CRITICAL_INIT_FAILURE",
