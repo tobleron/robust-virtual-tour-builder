@@ -37,6 +37,23 @@ let make = () => {
         }
       }
 
+      // Enter key support
+      if activeConfig != None && key == "Enter" {
+        switch activeConfig {
+        | Some(config) =>
+          switch Belt.Array.get(config.buttons, 0) {
+          | Some(primaryBtn) =>
+            Dom.preventDefault(e)
+            primaryBtn.onClick()
+            if Belt.Option.getWithDefault(primaryBtn.autoClose, true) {
+              EventBus.dispatch(CloseModal)
+            }
+          | None => ()
+          }
+        | None => ()
+        }
+      }
+
       // Focus Trap logic
       if activeConfig != None && key == "Tab" {
         let modalEl = Dom.getElementById("modal-title")
