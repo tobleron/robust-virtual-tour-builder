@@ -114,30 +114,66 @@
 .sidebar-action-btn-square,
 .sidebar-action-btn-wide {
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
     color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
 }
 
 .sidebar-action-btn-square {
     flex-direction: column;
-    height: 54px;
+    aspect-ratio: 1/1;
     padding: 8px 4px;
 }
 
 .sidebar-action-btn-wide {
-    height: 38px;
-    padding: 8px;
+    padding: 10px;
     gap: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 11px;
 }
 
 .sidebar-action-btn-square:hover,
 .sidebar-action-btn-wide:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.sidebar-action-btn-square:active,
+.sidebar-action-btn-wide:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.sidebar-action-btn-square .material-icons {
+    font-size: 20px;
+    margin-bottom: 4px;
+    opacity: 0.7;
+    transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.sidebar-action-btn-square:hover .material-icons {
+    opacity: 1;
+}
+
+.sidebar-action-btn-square span:not(.material-icons) {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.6;
+}
+
+.sidebar-action-btn-square:hover span:not(.material-icons) {
+    opacity: 0.9;
 }

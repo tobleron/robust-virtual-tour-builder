@@ -26,8 +26,7 @@
     box-shadow: var(--shadow-premium) !important;
     width: 100%;
     max-width: 340px;
-    transform: scale(0.95);
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: modalPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 .modal-box-premium h2,

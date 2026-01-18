@@ -2043,7 +2043,8 @@
 │   │   ├── 219_Fix_Hotspot_Disappearance_After_Save_REPORT.md
 │   │   ├── 220_Fix_Hotspot_Disappearance_V2_REPORT.md
 │   │   ├── 221_Fix_Invisible_Waypoint_After_Save_REPORT.md
-│   │   └── 222_restore_css_design_tokens_REPORT.md
+│   │   ├── 222_restore_css_design_tokens_REPORT.md
+│   │   └── 223_restore_premium_ui_components_REPORT.md
 │   ├── current_refactor.md
 │   ├── pending
 │   │   ├── 176_fix_security_innerhtml.md
@@ -2064,7 +2065,6 @@
 │   │   ├── 213_Add_Tests_for_SimulationDriver.md
 │   │   ├── 214_Add_Tests_for_SimulationLogic.md
 │   │   ├── 215_Add_Tests_for_SessionStore.md
-│   │   ├── 223_restore_premium_ui_components.md
 │   │   ├── 224_restore_linking_mode_visuals.md
 │   │   ├── 225_restore_simulation_lockdown.md
 │   │   └── 226_restore_premium_hotspots.md

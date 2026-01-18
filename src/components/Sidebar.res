@@ -239,21 +239,12 @@ let make = () => {
           ->Belt.Array.mapWithIndex((i, (icon, label, onClick)) =>
             <button
               key={Int.toString(i)}
-              className="aspect-square flex flex-col items-center justify-center bg-white/[0.08] hover:bg-white/[0.15] border-none rounded-[10px] transition-all hover:-translate-y-0.5 active:translate-y-px shadow-[0_2px_4px_rgba(0,0,0,0.3)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.4)] ring-1 ring-white/[0.08] group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+              className="sidebar-action-btn-square group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
               onClick={_ => onClick()}
               ariaLabel={label}
             >
-              <span
-                className="material-icons text-xl mb-1 text-white/70 group-hover:text-white transition-colors"
-                ariaHidden=true
-              >
-                {React.string(icon)}
-              </span>
-              <span
-                className="text-[9px] font-bold uppercase tracking-widest text-white/60 group-hover:text-white/90"
-              >
-                {React.string(label)}
-              </span>
+              <span className="material-icons" ariaHidden=true> {React.string(icon)} </span>
+              <span> {React.string(label)} </span>
             </button>
           )
           ->React.array}
@@ -261,7 +252,7 @@ let make = () => {
 
         <div className="grid grid-cols-2 gap-2">
           <button
-            className="flex items-center justify-center gap-2 bg-white/[0.08] hover:bg-white/[0.15] border-none rounded-[10px] py-2.5 transition-all hover:-translate-y-0.5 active:translate-y-px disabled:opacity-30 disabled:pointer-events-none shadow-[0_2px_4px_rgba(0,0,0,0.3)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.4)] ring-1 ring-white/[0.08] group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+            className="sidebar-action-btn-wide group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
             disabled={!exportReady}
             onClick={_ => {
               let _ = (
@@ -288,13 +279,11 @@ let make = () => {
             >
               {React.string("ios_share")}
             </span>
-            <span className="text-[11px] font-bold uppercase tracking-widest">
-              {React.string("Export")}
-            </span>
+            <span> {React.string("Export")} </span>
           </button>
 
           <button
-            className="flex items-center justify-center gap-2 bg-white/[0.08] hover:bg-white/[0.15] border-none rounded-[10px] py-2.5 transition-all hover:-translate-y-0.5 active:translate-y-px disabled:opacity-30 disabled:pointer-events-none shadow-[0_2px_4px_rgba(0,0,0,0.3)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.4)] ring-1 ring-white/[0.08] group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+            className="sidebar-action-btn-wide group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
             disabled={!teaserReady}
             onClick={_ => {
               let _ = TeaserManager.startAutoTeaser(state.tourName, false, "mp4", false)
@@ -307,9 +296,7 @@ let make = () => {
             >
               {React.string("movie_creation")}
             </span>
-            <span className="text-[11px] font-bold uppercase tracking-widest">
-              {React.string("Teaser")}
-            </span>
+            <span> {React.string("Teaser")} </span>
           </button>
         </div>
       </div>
