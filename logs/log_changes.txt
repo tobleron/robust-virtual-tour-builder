@@ -376,3 +376,4 @@ Task: 147
 [2026-01-18 07:23] v4.3.1 - fix: resolve critical bugs and add missing unit tests (Tasks 190-196)
 [2026-01-18 11:21] v4.3.1 - fix: replace 28 unsafe getExn calls with safe Belt.Array.get matching across 9 files
 [2026-01-18 11:27] v4.3.1 - Fix image upload not loading in viewer by updating lastSceneId and allowing initial load
+[2026-01-18 11:37] v4.3.1 - fix: defer link draft creation until first scene click

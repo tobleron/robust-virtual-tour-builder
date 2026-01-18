@@ -79,7 +79,7 @@ let run = () => {
     camHfov: 0.0,
     intermediatePoints: None,
   }
-  let actionLinking = StartLinking(dummyDraft)
+  let actionLinking = StartLinking(Some(dummyDraft))
   let resultLinking = RootReducer.reducer(state, actionLinking)
 
   assert(resultLinking.isLinking == true)
@@ -125,7 +125,7 @@ let run = () => {
   // --- Test 8: Multiple reducer types in sequence ---
   Console.log("Test 8: Multiple reducer types in sequence")
   let state1 = RootReducer.reducer(initialState, SetTourName("Test Tour"))
-  let state2 = RootReducer.reducer(state1, StartLinking(dummyDraft))
+  let state2 = RootReducer.reducer(state1, StartLinking(Some(dummyDraft)))
   let state3 = RootReducer.reducer(state2, SetSimulationMode(true))
 
   assert(state3.tourName == "Test_Tour")
