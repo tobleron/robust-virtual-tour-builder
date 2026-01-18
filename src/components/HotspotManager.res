@@ -60,7 +60,11 @@ let createHotspotConfig = (
   }
 
   {
-    "id": "hs_" ++ Belt.Int.toString(index),
+    "id": if hotspot.linkId != "" {
+      hotspot.linkId
+    } else {
+      "hs_" ++ Belt.Int.toString(index)
+    },
     "pitch": switch hotspot.displayPitch {
     | Some(p) => p
     | None => hotspot.pitch
@@ -289,10 +293,28 @@ let syncHotspots = (v: Viewer.t, state: state, scene: scene, dispatch: Actions.a
   let config = Viewer.getConfig(v)
   let hs = config["hotSpots"]
 
-  // Remove existing - iterate over a copy of IDs to avoid modification during iteration issues
-  let idsToRemove = Belt.Array.map(hs, h => h["id"])
-  Belt.Array.forEach(idsToRemove, id => {
-    if id != "" {
+  // Current IDs in Viewer
+  let currentIds = Belt.Array.map(hs, h => h["id"])
+  let currentIdSet = Belt.Set.String.fromArray(currentIds)
+
+  // Target IDs from State
+  // We need to know what ID 'createHotspotConfig' WILL generate.
+  let targetHotspotsWithIds = Belt.Array.mapWithIndex(scene.hotspots, (i, h) => {
+    let id = if h.linkId != "" {
+      h.linkId
+    } else {
+      "hs_" ++ Belt.Int.toString(i)
+    }
+    (id, h, i)
+  })
+
+  let targetIdSet = Belt.Set.String.fromArray(
+    Belt.Array.map(targetHotspotsWithIds, ((id, _, _)) => id),
+  )
+
+  // 1. Remove IDs that are NOT in Target
+  Belt.Array.forEach(currentIds, id => {
+    if !Belt.Set.String.has(targetIdSet, id) && id != "" {
       Viewer.removeHotSpot(v, id)
     }
   })
@@ -300,13 +322,18 @@ let syncHotspots = (v: Viewer.t, state: state, scene: scene, dispatch: Actions.a
   Logger.debug(
     ~module_="HotspotManager",
     ~message="SYNC_HOTSPOTS",
-    ~data=Some({"count": Belt.Array.length(scene.hotspots)}),
+    ~data=Some({
+      "count": Belt.Array.length(scene.hotspots),
+      "existing": Belt.Array.length(currentIds),
+    }),
     (),
   )
 
-  // Add new
-  Belt.Array.forEachWithIndex(scene.hotspots, (i, h) => {
-    let conf = createHotspotConfig(~hotspot=h, ~index=i, ~state, ~scene, ~dispatch)
-    Viewer.addHotSpot(v, conf)
+  // 2. Add IDs that are NOT in Viewer
+  Belt.Array.forEach(targetHotspotsWithIds, ((id, h, i)) => {
+    if !Belt.Set.String.has(currentIdSet, id) {
+      let conf = createHotspotConfig(~hotspot=h, ~index=i, ~state, ~scene, ~dispatch)
+      Viewer.addHotSpot(v, conf)
+    }
   })
 }

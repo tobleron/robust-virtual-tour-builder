@@ -109,9 +109,16 @@ let showLinkModal = (
           | None => camHfov
           }
 
+          // Generate unique Link ID
+          let allLinkIds = state.scenes->Belt.Array.reduce([], (acc, s) => {
+            Belt.Array.concat(acc, s.hotspots->Belt.Array.map(h => h.linkId))
+          })
+          let usedSet = Belt.Set.String.fromArray(allLinkIds)
+          let newLinkId = TourLogic.generateLinkId(usedSet)
+
           // Handle types for Nullable fields
           let newHotspot: Types.hotspot = {
-            linkId: "",
+            linkId: newLinkId,
             yaw,
             pitch,
             target: targetName,
