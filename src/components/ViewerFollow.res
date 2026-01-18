@@ -1,5 +1,4 @@
 open ReBindings
-open ViewerTypes
 open ViewerState
 
 let rec updateFollowLoop = () => {
@@ -47,14 +46,11 @@ let rec updateFollowLoop = () => {
       state.followLoopActive = false
     } else {
       // Speed Factor
-      let yawSpeed = 1.2
-      let pitchSpeed = 0.8
+      let yawMaxSpeed = 1.2
+      let pitchMaxSpeed = 0.8
       let deadzone = 0.85
 
-      if (
-        storeState.isLinking &&
-        (Math.abs(state.mouseXNorm) > deadzone || Math.abs(state.mouseYNorm) > deadzone)
-      ) {
+      if storeState.isLinking {
         // Calculate normalized distance beyond the deadzone
         let getEdgePower = (val, dz) => {
           let absVal = Math.abs(val)
@@ -67,70 +63,75 @@ let rec updateFollowLoop = () => {
           }
         }
 
-        let yawDelta = getEdgePower(state.mouseXNorm, deadzone) *. yawSpeed
-        let pitchDelta = -.getEdgePower(state.mouseYNorm, deadzone) *. pitchSpeed
+        // Target velocity based on input
+        let targetYawDelta = getEdgePower(state.mouseXNorm, deadzone) *. yawMaxSpeed
+        let targetPitchDelta = -.getEdgePower(state.mouseYNorm, deadzone) *. pitchMaxSpeed
 
-        let appliedYawDelta = ref(0.0)
-        let appliedPitchDelta = ref(0.0)
+        // Get current velocity (momentum)
+        let currentYawDelta =
+          Nullable.toOption(state.lastAppliedYaw)->Belt.Option.getWithDefault(0.0)
+        let currentPitchDelta =
+          Nullable.toOption(state.lastAppliedPitch)->Belt.Option.getWithDefault(0.0)
 
-        state.ratchetState.yawOffset = state.ratchetState.yawOffset +. yawDelta
-        state.ratchetState.pitchOffset = state.ratchetState.pitchOffset +. pitchDelta
+        // Physics Constants
+        // accel: Fast response when speeding up
+        // decel: Slow decay (inertia) when slowing down or reversing
+        let accelFactor = 0.20
+        let decelFactor = 0.05
 
-        let edgeThreshold = 0.85
-        // Slower speed when returning/reversing direction (hysteresis)
-        let edgeReluctance = 0.25
-
-        if state.ratchetState.yawOffset > state.ratchetState.maxYawOffset {
-          appliedYawDelta := state.ratchetState.yawOffset -. state.ratchetState.maxYawOffset
-          state.ratchetState.maxYawOffset = state.ratchetState.yawOffset
-          state.ratchetState.minYawOffset = Math.min(
-            state.ratchetState.minYawOffset,
-            state.ratchetState.yawOffset,
-          )
-        } else if state.ratchetState.yawOffset < state.ratchetState.minYawOffset {
-          appliedYawDelta := state.ratchetState.yawOffset -. state.ratchetState.minYawOffset
-          state.ratchetState.minYawOffset = state.ratchetState.yawOffset
-          state.ratchetState.maxYawOffset = Math.max(
-            state.ratchetState.maxYawOffset,
-            state.ratchetState.yawOffset,
-          )
-        } else if Math.abs(state.mouseXNorm) > edgeThreshold {
-          appliedYawDelta := yawDelta *. edgeReluctance
-          state.ratchetState.maxYawOffset =
-            state.ratchetState.maxYawOffset +. appliedYawDelta.contents
-          state.ratchetState.minYawOffset =
-            state.ratchetState.minYawOffset +. appliedYawDelta.contents
+        // Calculate Yaw Factor
+        let yawFactor = if (
+          Math.abs(targetYawDelta) >= Math.abs(currentYawDelta) &&
+            (targetYawDelta == 0.0 ||
+            currentYawDelta == 0.0 ||
+            targetYawDelta > 0.0 == (currentYawDelta > 0.0))
+        ) {
+          accelFactor
+        } else {
+          decelFactor
         }
 
-        if state.ratchetState.pitchOffset > state.ratchetState.maxPitchOffset {
-          appliedPitchDelta := state.ratchetState.pitchOffset -. state.ratchetState.maxPitchOffset
-          state.ratchetState.maxPitchOffset = state.ratchetState.pitchOffset
-          state.ratchetState.minPitchOffset = Math.min(
-            state.ratchetState.minPitchOffset,
-            state.ratchetState.pitchOffset,
-          )
-        } else if state.ratchetState.pitchOffset < state.ratchetState.minPitchOffset {
-          appliedPitchDelta := state.ratchetState.pitchOffset -. state.ratchetState.minPitchOffset
-          state.ratchetState.minPitchOffset = state.ratchetState.pitchOffset
-          state.ratchetState.maxPitchOffset = Math.max(
-            state.ratchetState.maxPitchOffset,
-            state.ratchetState.pitchOffset,
-          )
-        } else if Math.abs(state.mouseYNorm) > edgeThreshold {
-          appliedPitchDelta := pitchDelta *. edgeReluctance
-          state.ratchetState.maxPitchOffset =
-            state.ratchetState.maxPitchOffset +. appliedPitchDelta.contents
-          state.ratchetState.minPitchOffset =
-            state.ratchetState.minPitchOffset +. appliedPitchDelta.contents
+        // Calculate Pitch Factor
+        let pitchFactor = if (
+          Math.abs(targetPitchDelta) >= Math.abs(currentPitchDelta) &&
+            (targetPitchDelta == 0.0 ||
+            currentPitchDelta == 0.0 ||
+            targetPitchDelta > 0.0 == (currentPitchDelta > 0.0))
+        ) {
+          accelFactor
+        } else {
+          decelFactor
         }
 
+        // Apply Smoothing (Lerp)
+        let newYawDelta = currentYawDelta +. (targetYawDelta -. currentYawDelta) *. yawFactor
+        let newPitchDelta =
+          currentPitchDelta +. (targetPitchDelta -. currentPitchDelta) *. pitchFactor
+
+        // Clamp near zero to prevent endless micro-movements
+        let newYawDelta = if Math.abs(newYawDelta) < 0.001 {
+          0.0
+        } else {
+          newYawDelta
+        }
+        let newPitchDelta = if Math.abs(newPitchDelta) < 0.001 {
+          0.0
+        } else {
+          newPitchDelta
+        }
+
+        // Store new velocity
+        state.lastAppliedYaw = Nullable.make(newYawDelta)
+        state.lastAppliedPitch = Nullable.make(newPitchDelta)
+
+        // Apply to Viewer
         switch Nullable.toOption(viewer) {
         | Some(v) =>
-          if appliedYawDelta.contents != 0.0 {
-            Viewer.setYaw(v, Viewer.getYaw(v) +. appliedYawDelta.contents, false)
+          if newYawDelta != 0.0 {
+            Viewer.setYaw(v, Viewer.getYaw(v) +. newYawDelta, false)
           }
-          if appliedPitchDelta.contents != 0.0 {
-            Viewer.setPitch(v, Viewer.getPitch(v) +. appliedPitchDelta.contents, false)
+          if newPitchDelta != 0.0 {
+            Viewer.setPitch(v, Viewer.getPitch(v) +. newPitchDelta, false)
           }
         | None => ()
         }
