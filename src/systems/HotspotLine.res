@@ -413,6 +413,12 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
                 }),
               )
 
+              // DEBUG TRACE
+              // let cy = Viewer.getYaw(v)
+              // if (mod(Belt.Float.toInt(Date.now()), 60) == 0) {
+              //   Console.log("Trace: DraftYaw=" ++ Float.toString(draft.yaw) ++ " CamYaw=" ++ Float.toString(cy))
+              // }
+
               // 1. Draw confirmed segments (Spline if multiple joints)
               if Array.length(floorPoints) >= 2 {
                 let yellowSpline = PathInterpolation.getCatmullRomSpline(floorPoints, 60)
