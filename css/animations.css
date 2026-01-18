@@ -99,6 +99,17 @@
 }
 
 .line-marching-ants {
+
     stroke-dasharray: 10, 5;
+
     animation: marching-ants 1s linear infinite;
+
+}
+
+
+
+.line-rod-yellow {
+
+    stroke-dasharray: 10, 5;
+
 }
