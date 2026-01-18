@@ -151,14 +151,16 @@ let sendTelemetry = async entry => {
       "/api/telemetry/log"
     }
     try {
-      let _ = await Fetch.fetch(
-        Constants.backendUrl ++ endpoint,
-        Fetch.requestInit(
-          ~method="POST",
-          ~headers=Dict.fromArray([("Content-Type", "application/json")]),
-          ~body=JSON.stringify(castToJson(entry)),
-          (),
-        ),
+      let _ = await RequestQueue.schedule(() =>
+        Fetch.fetch(
+          Constants.backendUrl ++ endpoint,
+          Fetch.requestInit(
+            ~method="POST",
+            ~headers=Dict.fromArray([("Content-Type", "application/json")]),
+            ~body=JSON.stringify(castToJson(entry)),
+            (),
+          ),
+        )
       )
     } catch {
     | JsExn(e) =>

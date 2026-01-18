@@ -7,16 +7,15 @@ type mockObj = {
   "restore": unit => unit,
 }
 
-let run = () => {
+let run = async () => {
   Console.log("Running TeaserPathfinder tests...")
 
-  // 1. Module and function existence
+  // ... existence checks ...
   let _ = getWalkPath
   let _ = getTimelinePath
   Console.log("✓ Functions getWalkPath and getTimelinePath exist")
 
-  // 2. Test getWalkPath with global fetch mock
-  // We'll use %raw to mock fetch which BackendApi uses
+  // ... fetch mock ...
   let _ = %raw(`
     (() => {
     const originalFetch = globalThis.fetch;
@@ -25,9 +24,11 @@ let run = () => {
     let lastUrl = null;
 
     globalThis.fetch = (url, options) => {
-      callCount++;
-      lastUrl = url;
-      lastPayload = options && options.body ? JSON.parse(options.body) : null;
+      if (!url.includes("/api/telemetry/")) {
+        callCount++;
+        lastUrl = url;
+        lastPayload = options && options.body ? JSON.parse(options.body) : null;
+      }
       return Promise.resolve({
         ok: true,
         status: 200,
@@ -49,7 +50,7 @@ let run = () => {
 
   // Test getWalkPath
   mock["reset"]()
-  let _ = getWalkPath([], false)
+  let _ = await getWalkPath([], false)
   assert(mock["getCallCount"]() == 1)
   let p1 = mock["getLastPayload"]()
   let p1Dict = p1->JSON.Decode.object->Option.getOrThrow
@@ -61,7 +62,7 @@ let run = () => {
 
   // Test getTimelinePath
   mock["reset"]()
-  let _ = getTimelinePath([], [], true)
+  let _ = await getTimelinePath([], [], true)
   assert(mock["getCallCount"]() == 1)
   let p2 = mock["getLastPayload"]()
   let p2Dict = p2->JSON.Decode.object->Option.getOrThrow

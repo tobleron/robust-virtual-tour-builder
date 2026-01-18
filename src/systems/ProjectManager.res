@@ -57,16 +57,18 @@ let createSavePackage = (state: state, ~onProgress: option<onProgress>=?): Promi
 
   progress(10, 100, "Uploading to backend...")
 
-  Fetch.fetch(
-    Constants.backendUrl ++ "/api/project/save",
-    Fetch.requestInit(~method="POST", ~body=formData, ()),
-  )
-  ->Promise.then(BackendApi.handleResponse)
-  ->Promise.then(result => {
-    switch result {
-    | Ok(res) => Fetch.blob(res)->Promise.then(blob => Promise.resolve(Ok(blob)))
-    | Error(msg) => Promise.resolve(Error(msg))
-    }
+  RequestQueue.schedule(() => {
+    Fetch.fetch(
+      Constants.backendUrl ++ "/api/project/save",
+      Fetch.requestInit(~method="POST", ~body=formData, ()),
+    )
+    ->Promise.then(BackendApi.handleResponse)
+    ->Promise.then(result => {
+      switch result {
+      | Ok(res) => Fetch.blob(res)->Promise.then(blob => Promise.resolve(Ok(blob)))
+      | Error(msg) => Promise.resolve(Error(msg))
+      }
+    })
   })
   ->Promise.then(blobResult => {
     switch blobResult {

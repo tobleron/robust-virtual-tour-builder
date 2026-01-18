@@ -98,10 +98,12 @@ let checkBackendHealth = () => {
     (),
   )
 
-  BackendApi.queuedFetch(
-    Constants.backendUrl ++ "/health?t=" ++ timestamp,
-    Fetch.requestInit(~method="GET", ~signal=_signal, ()),
-  )
+  RequestQueue.schedule(() => {
+    Fetch.fetch(
+      Constants.backendUrl ++ "/health?t=" ++ timestamp,
+      Fetch.requestInit(~method="GET", ~signal=_signal, ()),
+    )
+  })
   ->Promise.then(res => {
     Window.clearTimeout(timeoutId)
 
@@ -325,10 +327,12 @@ let generateResolutions = (file: File.t): Promise.t<result<dict<Blob.t>, string>
   let formData = FormData.newFormData()
   FormData.append(formData, "file", file)
 
-  BackendApi.queuedFetch(
-    Constants.backendUrl ++ "/api/media/resize-batch",
-    Fetch.requestInit(~method="POST", ~body=formData, ()),
-  )
+  RequestQueue.schedule(() => {
+    Fetch.fetch(
+      Constants.backendUrl ++ "/api/media/resize-batch",
+      Fetch.requestInit(~method="POST", ~body=formData, ()),
+    )
+  })
   ->Promise.then(BackendApi.handleResponse)
   ->Promise.then(resultZip => {
     switch resultZip {

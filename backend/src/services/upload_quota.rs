@@ -34,7 +34,7 @@ impl Default for QuotaConfig {
             max_total_concurrent_size: 10 * 1024 * 1024 * 1024, // 10GB total
             min_free_disk_space: 5 * 1024 * 1024 * 1024,        // 5GB free required
             rate_limit_window: Duration::from_secs(3600),       // 1 hour
-            max_uploads_per_window: 500,
+            max_uploads_per_window: 1000,
         }
     }
 }

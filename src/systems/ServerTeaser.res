@@ -62,19 +62,21 @@ let generateServerTeaser = (state: state, onProgress: option<(int, string) => un
 
   progress(10, "Uploading " ++ Belt.Int.toString(addedCount.contents) ++ " scenes...")
 
-  Fetch.fetch(
-    Constants.backendUrl ++ "/api/media/generate-teaser",
-    Fetch.requestInit(~method="POST", ~body=formData, ()),
-  )
-  ->Promise.then(BackendApi.handleResponse)
-  ->Promise.then(result => {
-    switch result {
-    | Ok(res) => {
-        progress(50, "Rendering on Server...")
-        Fetch.blob(res)->Promise.then(blob => Promise.resolve(Ok(blob)))
+  RequestQueue.schedule(() => {
+    Fetch.fetch(
+      Constants.backendUrl ++ "/api/media/generate-teaser",
+      Fetch.requestInit(~method="POST", ~body=formData, ()),
+    )
+    ->Promise.then(BackendApi.handleResponse)
+    ->Promise.then(result => {
+      switch result {
+      | Ok(res) => {
+          progress(50, "Rendering on Server...")
+          Fetch.blob(res)->Promise.then(blob => Promise.resolve(Ok(blob)))
+        }
+      | Error(msg) => Promise.resolve(Error(msg))
       }
-    | Error(msg) => Promise.resolve(Error(msg))
-    }
+    })
   })
   ->Promise.then(blobResult => {
     switch blobResult {
