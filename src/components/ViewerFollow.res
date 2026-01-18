@@ -25,6 +25,12 @@ let rec updateFollowLoop = () => {
 
     // We want the loop to fun if linking is active, even if no draft yet (to show cursor/rod or prepare)
     if !state.followLoopActive || !hasViewer || !storeState.isLinking {
+      // Clear lines to prevent sticking artifacts
+      let svg = Dom.getElementById("viewer-hotspot-lines")
+      switch Nullable.toOption(svg) {
+      | Some(el) => Dom.setTextContent(el, "")
+      | None => ()
+      }
       state.followLoopActive = false
     } else {
       // Speed Factor
