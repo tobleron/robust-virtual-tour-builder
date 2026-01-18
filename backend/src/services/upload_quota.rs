@@ -30,11 +30,11 @@ impl Default for QuotaConfig {
     fn default() -> Self {
         Self {
             max_payload_size: 2 * 1024 * 1024 * 1024, // 2GB
-            max_concurrent_per_ip: 2,
+            max_concurrent_per_ip: 10,
             max_total_concurrent_size: 10 * 1024 * 1024 * 1024, // 10GB total
             min_free_disk_space: 5 * 1024 * 1024 * 1024,        // 5GB free required
             rate_limit_window: Duration::from_secs(3600),       // 1 hour
-            max_uploads_per_window: 10,
+            max_uploads_per_window: 100,
         }
     }
 }
@@ -51,7 +51,7 @@ impl QuotaConfig {
             max_concurrent_per_ip: std::env::var("MAX_CONCURRENT_PER_IP")
                 .ok()
                 .and_then(|s| s.parse().ok())
-                .unwrap_or(2),
+                .unwrap_or(10),
 
             max_total_concurrent_size: std::env::var("MAX_TOTAL_CONCURRENT_SIZE")
                 .ok()
@@ -73,7 +73,7 @@ impl QuotaConfig {
             max_uploads_per_window: std::env::var("MAX_UPLOADS_PER_WINDOW")
                 .ok()
                 .and_then(|s| s.parse().ok())
-                .unwrap_or(10),
+                .unwrap_or(100),
         }
     }
 }
