@@ -367,10 +367,6 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
           if state.isLinking {
             switch state.linkDraft {
             | Some(draft) =>
-              let currentCam: PathInterpolation.point = {
-                PathInterpolation.yaw: Viewer.getYaw(v),
-                pitch: Viewer.getPitch(v),
-              }
               let camStart: PathInterpolation.point = {
                 PathInterpolation.yaw: draft.camYaw,
                 pitch: draft.camPitch,
@@ -383,15 +379,13 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
 
               // --- RED CRITICAL PATH (Camera Director Curve) ---
               // v4.2.0 point 55: Red dashed line appearing on first click
+              // Fixed: Removed [currentCam] to prevent confusing "persistent path" that follows camera
               let camPoints = Belt.Array.concat(
                 [camStart],
-                Belt.Array.concat(
-                  Belt.Array.map(intermediate, (p): PathInterpolation.point => {
-                    PathInterpolation.yaw: p.camYaw,
-                    pitch: p.camPitch,
-                  }),
-                  [currentCam],
-                ),
+                Belt.Array.map(intermediate, (p): PathInterpolation.point => {
+                  PathInterpolation.yaw: p.camYaw,
+                  pitch: p.camPitch,
+                }),
               )
 
               if Array.length(camPoints) >= 2 {
