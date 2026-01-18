@@ -388,3 +388,4 @@ Task: 147
 [2026-01-18 13:08] v4.3.1 - v4.3.1+262: Restore v4.2.18 simulation visual lockdown and pulsing stop button (Task 225)
 [2026-01-18 13:13] v4.3.1 - Restore v4.2.18 premium hotspot SVGs and Arc controls
 [2026-01-18 14:35] v4.3.1 - feat: restore v4.2.18 rod extension for linking mode
+[2026-01-18 14:39] v4.3.1 - fix: ensure yellow rod visibility by resolving ID conflict and increasing z-index

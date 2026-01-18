@@ -98,8 +98,14 @@
 ├── lib
 │   ├── bs
 │   │   ├── build.ninja
+│   │   ├── compiler-info.json
 │   │   ├── src
 │   │   │   ├── App.ast
+│   │   │   ├── App.bs.js
+│   │   │   ├── App.cmi
+│   │   │   ├── App.cmj
+│   │   │   ├── App.cmt
+│   │   │   ├── App.res
 │   │   │   ├── components
 │   │   │   │   ├── ErrorFallbackUI.ast
 │   │   │   │   ├── ErrorFallbackUI.bs.js
@@ -150,6 +156,11 @@
 │   │   │   │   ├── SceneList.cmt
 │   │   │   │   ├── SceneList.res
 │   │   │   │   ├── Sidebar.ast
+│   │   │   │   ├── Sidebar.bs.js
+│   │   │   │   ├── Sidebar.cmi
+│   │   │   │   ├── Sidebar.cmj
+│   │   │   │   ├── Sidebar.cmt
+│   │   │   │   ├── Sidebar.res
 │   │   │   │   ├── UploadReport.ast
 │   │   │   │   ├── UploadReport.bs.js
 │   │   │   │   ├── UploadReport.cmi
@@ -193,8 +204,11 @@
 │   │   │   │   ├── ViewerTypes.cmt
 │   │   │   │   ├── ViewerTypes.res
 │   │   │   │   ├── ViewerUI.ast
+│   │   │   │   ├── ViewerUI.bs.js
 │   │   │   │   ├── ViewerUI.cmi
+│   │   │   │   ├── ViewerUI.cmj
 │   │   │   │   ├── ViewerUI.cmt
+│   │   │   │   ├── ViewerUI.res
 │   │   │   │   ├── VisualPipeline.ast
 │   │   │   │   ├── VisualPipeline.bs.js
 │   │   │   │   ├── VisualPipeline.cmi
@@ -312,6 +326,11 @@
 │   │   │   │   ├── Types.cmt
 │   │   │   │   └── Types.res
 │   │   │   ├── Main.ast
+│   │   │   ├── Main.bs.js
+│   │   │   ├── Main.cmi
+│   │   │   ├── Main.cmj
+│   │   │   ├── Main.cmt
+│   │   │   ├── Main.res
 │   │   │   ├── ReBindings.ast
 │   │   │   ├── ReBindings.bs.js
 │   │   │   ├── ReBindings.cmi
@@ -607,6 +626,11 @@
 │   │   │       └── VersionData.res
 │   │   └── tests
 │   │       ├── TestRunner.ast
+│   │       ├── TestRunner.bs.js
+│   │       ├── TestRunner.cmi
+│   │       ├── TestRunner.cmj
+│   │       ├── TestRunner.cmt
+│   │       ├── TestRunner.res
 │   │       └── unit
 │   │           ├── ActionsTest.ast
 │   │           ├── ActionsTest.bs.js
@@ -621,6 +645,11 @@
 │   │           ├── AppContextTest.cmt
 │   │           ├── AppContextTest.res
 │   │           ├── AppTest.ast
+│   │           ├── AppTest.bs.js
+│   │           ├── AppTest.cmi
+│   │           ├── AppTest.cmj
+│   │           ├── AppTest.cmt
+│   │           ├── AppTest.res
 │   │           ├── AudioManagerTest.ast
 │   │           ├── AudioManagerTest.bs.js
 │   │           ├── AudioManagerTest.cmi
@@ -730,6 +759,11 @@
 │   │           ├── LoggerTest.cmt
 │   │           ├── LoggerTest.res
 │   │           ├── MainTest.ast
+│   │           ├── MainTest.bs.js
+│   │           ├── MainTest.cmi
+│   │           ├── MainTest.cmj
+│   │           ├── MainTest.cmt
+│   │           ├── MainTest.res
 │   │           ├── NavigationControllerTest.ast
 │   │           ├── NavigationControllerTest.bs.js
 │   │           ├── NavigationControllerTest.cmi
@@ -1006,6 +1040,10 @@
 │   │   ├── ActionsTest.cmt
 │   │   ├── ActionsTest.res
 │   │   ├── App.ast
+│   │   ├── App.cmi
+│   │   ├── App.cmj
+│   │   ├── App.cmt
+│   │   ├── App.res
 │   │   ├── AppContext.ast
 │   │   ├── AppContext.cmi
 │   │   ├── AppContext.cmj
@@ -1017,6 +1055,10 @@
 │   │   ├── AppContextTest.cmt
 │   │   ├── AppContextTest.res
 │   │   ├── AppTest.ast
+│   │   ├── AppTest.cmi
+│   │   ├── AppTest.cmj
+│   │   ├── AppTest.cmt
+│   │   ├── AppTest.res
 │   │   ├── AudioManager.ast
 │   │   ├── AudioManager.cmi
 │   │   ├── AudioManager.cmj
@@ -1221,7 +1263,15 @@
 │   │   ├── LoggerTest.cmt
 │   │   ├── LoggerTest.res
 │   │   ├── Main.ast
+│   │   ├── Main.cmi
+│   │   ├── Main.cmj
+│   │   ├── Main.cmt
+│   │   ├── Main.res
 │   │   ├── MainTest.ast
+│   │   ├── MainTest.cmi
+│   │   ├── MainTest.cmj
+│   │   ├── MainTest.cmt
+│   │   ├── MainTest.res
 │   │   ├── mod.ast
 │   │   ├── mod.cmi
 │   │   ├── mod.cmj
@@ -1453,6 +1503,10 @@
 │   │   ├── SharedTypesTest.cmt
 │   │   ├── SharedTypesTest.res
 │   │   ├── Sidebar.ast
+│   │   ├── Sidebar.cmi
+│   │   ├── Sidebar.cmj
+│   │   ├── Sidebar.cmt
+│   │   ├── Sidebar.res
 │   │   ├── SimulationChainSkipper.ast
 │   │   ├── SimulationChainSkipper.cmi
 │   │   ├── SimulationChainSkipper.cmj
@@ -1559,6 +1613,10 @@
 │   │   ├── TeaserRecorderTest.cmt
 │   │   ├── TeaserRecorderTest.res
 │   │   ├── TestRunner.ast
+│   │   ├── TestRunner.cmi
+│   │   ├── TestRunner.cmj
+│   │   ├── TestRunner.cmt
+│   │   ├── TestRunner.res
 │   │   ├── TimelineReducer.ast
 │   │   ├── TimelineReducer.cmi
 │   │   ├── TimelineReducer.cmj
@@ -1725,6 +1783,10 @@
 │   │   ├── ViewerTypes.cmt
 │   │   ├── ViewerTypes.res
 │   │   ├── ViewerUI.ast
+│   │   ├── ViewerUI.cmi
+│   │   ├── ViewerUI.cmj
+│   │   ├── ViewerUI.cmt
+│   │   ├── ViewerUI.res
 │   │   ├── VisualPipeline.ast
 │   │   ├── VisualPipeline.cmi
 │   │   ├── VisualPipeline.cmj
@@ -1782,6 +1844,7 @@
 │   ├── update-version.js
 │   └── watch-file-limits.sh
 ├── src
+│   ├── App.bs.js
 │   ├── App.res
 │   ├── components
 │   │   ├── ErrorFallbackUI.bs.js
@@ -1800,6 +1863,7 @@
 │   │   ├── RemaxErrorBoundary.res
 │   │   ├── SceneList.bs.js
 │   │   ├── SceneList.res
+│   │   ├── Sidebar.bs.js
 │   │   ├── Sidebar.res
 │   │   ├── UploadReport.bs.js
 │   │   ├── UploadReport.res
@@ -1815,6 +1879,7 @@
 │   │   ├── ViewerState.res
 │   │   ├── ViewerTypes.bs.js
 │   │   ├── ViewerTypes.res
+│   │   ├── ViewerUI.bs.js
 │   │   ├── ViewerUI.res
 │   │   ├── VisualPipeline.bs.js
 │   │   └── VisualPipeline.res
@@ -1858,6 +1923,7 @@
 │   │   └── Types.res
 │   ├── Dummy.bs.js
 │   ├── index.js
+│   ├── Main.bs.js
 │   ├── Main.res
 │   ├── ReBindings.bs.js
 │   ├── ReBindings.res
@@ -2011,12 +2077,14 @@
 │   └── TASKS.md
 ├── tests
 │   ├── node-setup.js
+│   ├── TestRunner.bs.js
 │   ├── TestRunner.res
 │   └── unit
 │       ├── ActionsTest.bs.js
 │       ├── ActionsTest.res
 │       ├── AppContextTest.bs.js
 │       ├── AppContextTest.res
+│       ├── AppTest.bs.js
 │       ├── AppTest.res
 │       ├── AudioManagerTest.bs.js
 │       ├── AudioManagerTest.res
@@ -2054,6 +2122,7 @@
 │       ├── LazyLoadTest.res
 │       ├── LoggerTest.bs.js
 │       ├── LoggerTest.res
+│       ├── MainTest.bs.js
 │       ├── MainTest.res
 │       ├── NavigationControllerTest.bs.js
 │       ├── NavigationControllerTest.res
@@ -2145,4 +2214,4 @@
 │       └── VitestSmoke.test.res
 └── vitest.config.mjs
 
-49 directories, 2097 files
+49 directories, 2166 files

@@ -43,7 +43,7 @@
     /* Yellow Rod */
     box-shadow: 0 0 8px rgba(255, 204, 0, 0.6);
     pointer-events: none;
-    z-index: 1000;
+    z-index: 9999;
     display: none;
     transform-origin: top center;
 }
