@@ -7,23 +7,14 @@ let safeCreateObjectURL = (obj: 'a): string => {
   try {
     URL.createObjectURL(obj)
   } catch {
-  | JsExn(e) =>
+  | exn =>
+    let (msg, stack) = Logger.getErrorDetails(exn)
     Logger.error(
       ~module_="UrlUtils",
-      ~message="OBJECT_URL_FAILED",
-      ~data=Some({"error": JsExn.message(e)}),
+      ~message="CREATE_URL_FAILED",
+      ~data={"error": msg, "stack": stack},
       (),
     )
-    Console.error2("Failed to create object URL:", e)
-    ""
-  | _ =>
-    Logger.error(
-      ~module_="UrlUtils",
-      ~message="OBJECT_URL_FAILED",
-      ~data=Some({"error": "Unknown"}),
-      (),
-    )
-    Console.error("Failed to create object URL: Unknown error")
     ""
   }
 }

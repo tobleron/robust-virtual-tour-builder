@@ -402,3 +402,4 @@ Task: 147
 [2026-01-18 16:20] v4.3.2 - Stable Add Link Dynamics.
 [2026-01-18 16:19] v4.3.2 - release: v4.3.2 - Stable Add Link Dynamics
 [2026-01-18 18:07] v4.3.2 - troubleshoot: improve error logging and fix deprecation warnings
+[2026-01-18 18:21] v4.3.2 - refactor: standardize error handling and update documentation

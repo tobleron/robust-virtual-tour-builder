@@ -319,21 +319,12 @@ let finalizeTeaser = async (format: string, baseName: string) => {
         await VideoEncoder.transcodeWebMToMP4(blob, baseName, Some((_pct, _msg) => ()))
         /* Success notification? */
       } catch {
-      | JsExn(e) => {
-          let msg = e->JsExn.message->Option.getOr("Unknown")
+      | exn => {
+          let (msg, stack) = Logger.getErrorDetails(exn)
           Logger.error(
             ~module_="Teaser",
             ~message="TRANSCODE_FAILED",
-            ~data=Some({"error": msg}),
-            (),
-          )
-          DownloadSystem.saveBlob(blob, baseName ++ ".webm") /* Fallback */
-        }
-      | _ => {
-          Logger.error(
-            ~module_="Teaser",
-            ~message="TRANSCODE_FAILED",
-            ~data=Some({"error": "Unknown"}),
+            ~data={"error": msg, "stack": stack},
             (),
           )
           DownloadSystem.saveBlob(blob, baseName ++ ".webm") /* Fallback */
@@ -540,21 +531,12 @@ let startAutoTeaser = async (
 
           await finalizeTeaser(format, baseName)
         } catch {
-        | JsExn(e) => {
-            let msg = e->JsExn.message->Option.getOr("Unknown")
+        | exn => {
+            let (msg, stack) = Logger.getErrorDetails(exn)
             Logger.error(
               ~module_="Teaser",
               ~message="GENERATE_FAILED",
-              ~data=Some({"error": msg}),
-              (),
-            )
-            Recorder.stopRecording()
-          }
-        | _ => {
-            Logger.error(
-              ~module_="Teaser",
-              ~message="GENERATE_FAILED",
-              ~data=Some({"error": "Unknown"}),
+              ~data={"error": msg, "stack": stack},
               (),
             )
             Recorder.stopRecording()

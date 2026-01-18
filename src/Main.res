@@ -190,16 +190,13 @@ let init = async () => {
       }
     })
   } catch {
-  | JsExn(e) =>
-    Console.error("CRITICAL INIT ERROR")
-    Console.log(e)
-    Logger.error(~module_="System", ~message="CRITICAL_INIT_FAILURE", ~data=e, ())
-  | _ =>
-    Console.error("CRITICAL INIT ERROR (Unknown)")
+  | exn =>
+    let (msg, stack) = Logger.getErrorDetails(exn)
+    Console.error("CRITICAL INIT ERROR: " ++ msg)
     Logger.error(
       ~module_="System",
       ~message="CRITICAL_INIT_FAILURE",
-      ~data={"reason": "Unknown"},
+      ~data={"error": msg, "stack": stack},
       (),
     )
   }

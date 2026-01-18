@@ -143,14 +143,14 @@ let exportTour = async (
       FormData.appendWithFilename(formData, "pannellum.js", panJS, "pannellum.js")
       FormData.appendWithFilename(formData, "pannellum.css", panCSS, "pannellum.css")
     } catch {
-    | JsExn(e) =>
+    | exn =>
+      let (msg, stack) = Logger.getErrorDetails(exn)
       Logger.error(
         ~module_="Exporter",
         ~message="FETCH_LIBS_FAILED",
-        ~data=Some({"error": Option.getOr(JsExn.message(e), "Unknown")}),
+        ~data={"error": msg, "stack": stack},
         (),
       )
-    | _ => Logger.error(~module_="Exporter", ~message="FETCH_LIBS_FAILED", ())
     }
 
     /* 3. Append Logo */
@@ -204,25 +204,15 @@ let exportTour = async (
     )
     DownloadSystem.saveBlob(zipBlob, filename)
   } catch {
-  | JsExn(e) => {
-      let msg = Option.getOr(JsExn.message(e), "Unknown Error")
+  | exn => {
+      let (msg, stack) = Logger.getErrorDetails(exn)
       Logger.error(
         ~module_="Exporter",
         ~message="EXPORT_FAILED",
-        ~data=Some({"error": msg, "phase": currentPhase.contents}),
+        ~data={"error": msg, "stack": stack, "phase": currentPhase.contents},
         (),
       )
       EventBus.dispatch(ShowNotification(`Export Failed: ${msg}`, #Error))
-      progress(0.0, 0.0, "Failed")
-    }
-  | _ => {
-      Logger.error(
-        ~module_="Exporter",
-        ~message="EXPORT_FAILED",
-        ~data=Some({"error": "Unknown", "phase": currentPhase.contents}),
-        (),
-      )
-      EventBus.dispatch(ShowNotification("Export Failed: Unknown Error", #Error))
       progress(0.0, 0.0, "Failed")
     }
   }
