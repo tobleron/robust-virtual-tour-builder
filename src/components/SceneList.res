@@ -29,7 +29,7 @@ module SceneItem = {
     }, [scene.id])
 
     let activeClasses = if isActive {
-      "border-primary-light/30 ring-1 ring-primary/20 bg-slate-50 shadow-sm"
+      "border-slate-200 ring-0 bg-slate-50/50"
     } else {
       "border-slate-100 hover:border-slate-200 bg-white"
     }
@@ -166,6 +166,20 @@ let make = () => {
 
   let (contextMenu, setContextMenu) = React.useState(_ => None)
   let (_draggedIndex, setDraggedIndex) = React.useState(_ => None)
+
+  // Close context menu on outside click
+  React.useEffect0(() => {
+    let handleWindowClick = _ => {
+      setContextMenu(prev =>
+        switch prev {
+        | Some(_) => None
+        | None => None
+        }
+      )
+    }
+    ReBindings.Window.addEventListener("click", handleWindowClick)
+    Some(() => ReBindings.Window.removeEventListener("click", handleWindowClick))
+  })
 
   // Virtualization constants
   let itemHeight = 112.0 // 96px (h-24) + 16px (mb-4)
@@ -340,7 +354,7 @@ let make = () => {
         {switch contextMenu {
         | Some(menu) =>
           <div
-            className="fixed z-[30000] premium-glass rounded-2xl p-1.5 min-w-[200px] flex flex-col shadow-2xl animate-fade-in border border-white/20"
+            className="fixed z-[30000] bg-white rounded-2xl p-1.5 min-w-[200px] flex flex-col shadow-2xl animate-fade-in border border-slate-200"
             role="menu"
             style={makeStyle({
               "left": Int.toString(menu.x - 200) ++ "px",
@@ -348,7 +362,7 @@ let make = () => {
             })}
           >
             <div
-              className="px-4 py-3 cursor-pointer text-white/80 font-bold text-[11px] uppercase tracking-widest hover:bg-white/10 rounded-xl transition-all flex items-center gap-3 group"
+              className="px-4 py-3 cursor-pointer text-slate-700 font-bold text-[11px] uppercase tracking-widest hover:bg-slate-50 rounded-xl transition-all flex items-center gap-3 group"
               onClick={_ => handleClearLinks(menu.index)}
               role="menuitem"
               tabIndex=0
@@ -358,16 +372,16 @@ let make = () => {
                 }
               }}
             >
-              <span className="material-icons text-lg text-primary-light" ariaHidden=true>
+              <span className="material-icons text-lg text-primary" ariaHidden=true>
                 {React.string("link_off")}
               </span>
               <span> {React.string("Clear Links")} </span>
             </div>
 
-            <div className="h-px bg-white/10 my-1 mx-2" />
+            <div className="h-px bg-slate-100 my-1 mx-2" />
 
             <div
-              className="px-4 py-3 cursor-pointer text-white/80 font-bold text-[11px] uppercase tracking-widest hover:bg-danger/20 hover:text-white rounded-xl transition-all flex items-center gap-3 group"
+              className="px-4 py-3 cursor-pointer text-slate-700 font-bold text-[11px] uppercase tracking-widest hover:bg-danger/10 hover:text-danger rounded-xl transition-all flex items-center gap-3 group"
               onClick={_ => handleDelete(menu.index)}
               role="menuitem"
               tabIndex=0
