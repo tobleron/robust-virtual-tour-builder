@@ -35,6 +35,8 @@ export default defineConfig({
     cleanDistPath: true,
     // Generate asset manifest for service worker
     manifest: 'asset-manifest.json',
+    // Inject styles into <style> tags in development (avoid HMR loops)
+    injectStyles: true,
     // Source maps for production debugging
     sourceMap: {
       js: 'source-map',

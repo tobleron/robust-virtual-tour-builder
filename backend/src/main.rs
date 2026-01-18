@@ -110,8 +110,8 @@ async fn main() -> io::Result<()> {
 
         // Rate Limiting: Prevent DoS attacks and API abuse
         let governor_conf = GovernorConfigBuilder::default()
-            .per_second(30)      // 30 requests per second (generous for image uploads)
-            .burst_size(50)      // Allow bursts up to 50 requests
+            .per_second(100)      // Increased from 30 to 100 for dev/noisy logging
+            .burst_size(200)      // Increased from 50 to 200
             .finish()
             .expect("Failed to initialize rate limiter configuration. This should never fail with valid parameters.");
 
