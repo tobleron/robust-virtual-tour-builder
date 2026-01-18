@@ -10,9 +10,10 @@ Before executing ANY code or shell command, you must perform a **Context Check**
 **Do not ask to run these. AUTOMATICALLY run them in this order:**
 
 ### PHASE 1: PRE-FLIGHT
-- **Task Workflow (CRITICAL)**: Before performing ANY task from `tasks/pending` or `tasks/active`:
-  - Read `tasks/TASKS.md` first to understand the proper workflow.
-  - Follow the instructions in exact sequential order.
+- **Task Workflow (CRITICAL)**: Before creating OR working on ANY task:
+  - **YOU MUST READ `tasks/TASKS.md` FIRST**.
+  - This file defines the mandatory lifecycle for all tasks.
+  - Follow its instructions in exact sequential order.
 - **Context Refresh**: 
   - Read `.agent/current_file_structure.md` to avoid hallucinating paths.
   - If imports found from `src/`, read relevant `.resi` / `.rs` interfaces.
