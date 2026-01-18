@@ -121,17 +121,23 @@ let saveBlobWithConfirmation = async (blob: Blob.t, filename: string) => {
       Logger.info(~module_="Download", ~message="SAVE_SUCCESS", ~data={"filename": filename}, ())
       true
     } catch {
-    | JsExn(e) => {
-        let name = JsExn.name(e)->Option.getOr("UnknownError")
-        if name == "AbortError" {
+    | exn => {
+        let (msg, stack) = Logger.getErrorDetails(exn)
+
+        // Check for AbortError which occurs when user cancels the save picker
+        if String.includes("AbortError", msg) {
           Logger.info(~module_="Download", ~message="SAVE_CANCELLED", ())
           JsError.throwWithMessage("USER_CANCELLED")
         } else {
-          Logger.error(~module_="Download", ~message="SAVE_ERROR", ~data={"error": e}, ())
-          JsError.throwWithMessage(Option.getOr(JsExn.message(e), "Save Failed"))
+          Logger.error(
+            ~module_="Download",
+            ~message="SAVE_ERROR",
+            ~data={"error": msg, "stack": stack},
+            (),
+          )
+          JsError.throwWithMessage("Save Failed: " ++ msg)
         }
       }
-    | e => throw(e)
     }
   } else {
     Logger.info(~module_="Download", ~message="FALLBACK_SAVE", ())

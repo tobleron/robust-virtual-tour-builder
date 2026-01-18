@@ -175,11 +175,11 @@ let importProject = (file: File.t): Promise.t<apiResult<importResponse>> => {
     }
   })
   ->Promise.catch(e => {
-    let msg = Logger.getErrorMessage(e)
+    let (msg, stack) = Logger.getErrorDetails(e)
     Logger.error(
       ~module_="BackendApi",
       ~message="IMPORT_ERROR",
-      ~data=Logger.castToJson({"error": msg}),
+      ~data=Logger.castToJson({"error": msg, "stack": stack}),
       (),
     )
     Promise.resolve(Error("Project import failed"))
@@ -206,11 +206,11 @@ let validateProject = (file: File.t): Promise.t<apiResult<validationReport>> => 
     }
   })
   ->Promise.catch(e => {
-    let msg = Logger.getErrorMessage(e)
+    let (msg, stack) = Logger.getErrorDetails(e)
     Logger.error(
       ~module_="BackendApi",
       ~message="VALIDATION_ERROR",
-      ~data=Logger.castToJson({"error": msg}),
+      ~data=Logger.castToJson({"error": msg, "stack": stack}),
       (),
     )
     Promise.resolve(Error("Project validation failed"))
@@ -233,11 +233,11 @@ let loadProject = (file: File.t): Promise.t<apiResult<Blob.t>> => {
   ->Promise.then(Fetch.blob)
   ->Promise.then(blob => Promise.resolve(Ok(blob)))
   ->Promise.catch(e => {
-    let msg = Logger.getErrorMessage(e)
+    let (msg, stack) = Logger.getErrorDetails(e)
     Logger.error(
       ~module_="BackendApi",
       ~message="LOAD_ERROR",
-      ~data=Logger.castToJson({"error": msg}),
+      ~data=Logger.castToJson({"error": msg, "stack": stack}),
       (),
     )
     Promise.resolve(Error("Project load failed"))
@@ -264,11 +264,11 @@ let extractMetadata = (file: File.t): Promise.t<apiResult<metadataResponse>> => 
     }
   })
   ->Promise.catch(e => {
-    let msg = Logger.getErrorMessage(e)
+    let (msg, stack) = Logger.getErrorDetails(e)
     Logger.error(
       ~module_="BackendApi",
       ~message="METADATA_ERROR",
-      ~data=Logger.castToJson({"error": msg}),
+      ~data=Logger.castToJson({"error": msg, "stack": stack}),
       (),
     )
     Promise.resolve(Error("Metadata extraction failed"))
@@ -302,11 +302,11 @@ let processImageFull = (
   ->Promise.then(Fetch.blob)
   ->Promise.then(blob => Promise.resolve(Ok(blob)))
   ->Promise.catch(e => {
-    let msg = Logger.getErrorMessage(e)
+    let (msg, stack) = Logger.getErrorDetails(e)
     Logger.error(
       ~module_="BackendApi",
       ~message="PROCESSING_ERROR",
-      ~data=Logger.castToJson({"error": msg}),
+      ~data=Logger.castToJson({"error": msg, "stack": stack}),
       (),
     )
     Promise.resolve(Error("Image processing failed"))
@@ -329,11 +329,11 @@ let saveProject = (projectData: JSON.t): Promise.t<apiResult<Blob.t>> => {
   ->Promise.then(Fetch.blob)
   ->Promise.then(blob => Promise.resolve(Ok(blob)))
   ->Promise.catch(e => {
-    let msg = Logger.getErrorMessage(e)
+    let (msg, stack) = Logger.getErrorDetails(e)
     Logger.error(
       ~module_="BackendApi",
       ~message="SAVE_ERROR",
-      ~data=Logger.castToJson({"error": msg}),
+      ~data=Logger.castToJson({"error": msg, "stack": stack}),
       (),
     )
     Promise.resolve(Error("Project save failed"))
@@ -365,11 +365,11 @@ let calculatePath = (payload: pathRequest): Promise.t<apiResult<array<step>>> =>
     }
   })
   ->Promise.catch(e => {
-    let msg = Logger.getErrorMessage(e)
+    let (msg, stack) = Logger.getErrorDetails(e)
     Logger.error(
       ~module_="BackendApi",
       ~message="CALCULATE_PATH_ERROR",
-      ~data=Logger.castToJson({"error": msg}),
+      ~data=Logger.castToJson({"error": msg, "stack": stack}),
       (),
     )
     Promise.resolve(Error("Path calculation failed"))
@@ -424,11 +424,11 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<string> => {
     }
   })
   ->Promise.catch(e => {
-    let msg = Logger.getErrorMessage(e)
+    let (msg, stack) = Logger.getErrorDetails(e)
     Logger.error(
       ~module_="BackendApi",
       ~message="GEOCODE_FAILED",
-      ~data=Logger.castToJson({"error": msg}),
+      ~data=Logger.castToJson({"error": msg, "stack": stack}),
       (),
     )
     Promise.resolve("[Geocoding failed]")
@@ -466,11 +466,11 @@ let batchCalculateSimilarity = (pairs: array<similarityPair>): Promise.t<
     }
   })
   ->Promise.catch(e => {
-    let msg = Logger.getErrorMessage(e)
+    let (msg, stack) = Logger.getErrorDetails(e)
     Logger.error(
       ~module_="BackendApi",
       ~message="SIMILARITY_BATCH_ERROR",
-      ~data=Logger.castToJson({"error": msg}),
+      ~data=Logger.castToJson({"error": msg, "stack": stack}),
       (),
     )
     Promise.resolve(Error("Similarity calculation failed"))

@@ -415,11 +415,19 @@ module JsError = {
   @get external name: t => string = "name"
 }
 
-let getErrorMessage = (e: exn): string => {
-  switch e {
-  | JsExn(exn) => JsExn.message(exn)->Option.getOr("Unknown error")
-  | _ => "Unknown error"
+let getErrorDetails = (e: exn): (string, string) => {
+  switch JsExn.fromException(e) {
+  | Some(jsExn) => (
+      JsExn.message(jsExn)->Option.getOr("Unknown JS Error"),
+      JsExn.stack(jsExn)->Option.getOr(""),
+    )
+  | None => ("Non-JS ReScript Error", "")
   }
+}
+
+let getErrorMessage = (e: exn): string => {
+  let (msg, _) = getErrorDetails(e)
+  msg
 }
 
 module UnhandledRejectionEvent = {

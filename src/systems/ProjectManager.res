@@ -68,10 +68,13 @@ let createSavePackage = (state: state, ~onProgress: option<onProgress>=?): Promi
     Promise.resolve(Ok(blob))
   })
   ->Promise.catch(err => {
-    let msg = switch JsExn.fromException(err) {
-    | Some(e) => JsExn.message(e)->Option.getOr("Unknown error creating save package")
-    | None => "Unknown error creating save package"
-    }
+    let (msg, stack) = Logger.getErrorDetails(err)
+    Logger.error(
+      ~module_="ProjectManager",
+      ~message="CREATE_SAVE_PACKAGE_FAILED",
+      ~data={"error": msg, "stack": stack},
+      (),
+    )
     Promise.resolve(Error(msg))
   })
 }
@@ -222,18 +225,14 @@ let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promi
     Promise.resolve(Ok(castToJson(loadedProject)))
   })
   ->Promise.catch(err => {
+    let (msg, stack) = Logger.getErrorDetails(err)
     Logger.error(
       ~module_="ProjectManager",
       ~message="PROJECT_LOAD_FAILED",
-      ~data=Some({"error": err}),
+      ~data={"error": msg, "stack": stack},
       (),
     )
     progress(0, 100, "Load Failed")
-
-    let msg = switch JsExn.fromException(err) {
-    | Some(e) => JsExn.message(e)->Option.getOr("Unknown load error")
-    | None => "Unknown load error"
-    }
     Promise.resolve(Error(msg))
   })
 }
@@ -321,7 +320,7 @@ let saveProject = (state: state, ~onProgress: option<onProgress>=?) => {
           Logger.error(
             ~module_="ProjectManager",
             ~message="PROJECT_SAVE_FAILED",
-            ~data=Some({"error": msg}),
+            ~data={"error": msg},
             (),
           )
           Promise.resolve(false)
