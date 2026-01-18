@@ -67,7 +67,8 @@ function updateResFile() {
         });
 
         // 4. Update src/ServiceWorkerMain.res
-        let swResContent = fs.readFileSync(swResPath, 'utf8');
+        const oldContent = fs.readFileSync(swResPath, 'utf8');
+        let swResContent = oldContent;
 
         // Update cacheName
         swResContent = swResContent.replace(
@@ -76,14 +77,18 @@ function updateResFile() {
         );
 
         // Update manualAssets
-        const manualAssetsString = JSON.stringify(manualAssets);
+        const manualAssetsString = JSON.stringify(manualAssets, null, 2);
         swResContent = swResContent.replace(
-            /let manualAssets = \[.*\]/,
+            /let manualAssets = \[[\s\S]*?\]/,
             `let manualAssets = ${manualAssetsString}`
         );
 
-        fs.writeFileSync(swResPath, swResContent, 'utf8');
-        console.log(`[Sync SW] Updated src/ServiceWorkerMain.res with ${manualAssets.length} assets.`);
+        if (swResContent !== oldContent) {
+            fs.writeFileSync(swResPath, swResContent, 'utf8');
+            console.log(`[Sync SW] Updated src/ServiceWorkerMain.res with ${manualAssets.length} assets.`);
+        } else {
+            console.log(`[Sync SW] src/ServiceWorkerMain.res is already up to date.`);
+        }
     } catch (err) {
         console.error('[Sync SW] Error during synchronization:', err);
     }

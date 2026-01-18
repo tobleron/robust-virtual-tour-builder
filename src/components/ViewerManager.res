@@ -266,10 +266,9 @@ let make = () => {
     )
   })
 
-  // State Sync
+  // 1. Cleanup when no scenes
   React.useEffect1(() => {
     if Belt.Array.length(state.scenes) == 0 {
-      /* Cleanup logic */
       let vA = ViewerState.state.viewerA
       let vB = ViewerState.state.viewerB
 
@@ -303,54 +302,33 @@ let make = () => {
       | Some(el) => Dom.remove(el, "active")
       | None => ()
       }
-    } else {
-      /* Check Link Follow Loop */
-      let hasHotspots = if (
-        state.activeIndex >= 0 && state.activeIndex < Array.length(state.scenes)
-      ) {
-        switch Belt.Array.get(state.scenes, state.activeIndex) {
-        | Some(s) => Array.length(s.hotspots) > 0
-        | None => false
-        }
-      } else {
-        false
-      }
+    }
+    None
+  }, [Belt.Array.length(state.scenes)])
 
-      if (state.isLinking || hasHotspots) && !ViewerState.state.followLoopActive {
-        // Reset ratchet state to prevent jump from stale mouse position (Stage 2)
-        if state.isLinking {
-          ViewerState.state.ratchetState.yawOffset = 0.0
-          ViewerState.state.ratchetState.pitchOffset = 0.0
-          ViewerState.state.ratchetState.maxYawOffset = 0.0
-          ViewerState.state.ratchetState.minYawOffset = 0.0
-          ViewerState.state.ratchetState.maxPitchOffset = 0.0
-          ViewerState.state.ratchetState.minPitchOffset = 0.0
-        }
+  // 2. Scene Preloading
+  React.useEffect1(() => {
+    let preIndex = state.preloadingSceneIndex
+    if (
+      preIndex != -1 &&
+      preIndex != ViewerState.state.lastPreloadingIndex &&
+      preIndex != state.activeIndex
+    ) {
+      ViewerState.state.lastPreloadingIndex = preIndex
+      Loader.loadNewScene(Nullable.toOption(ViewerState.state.lastSceneId), Some(preIndex))
+    }
+    None
+  }, [state.preloadingSceneIndex])
 
-        ViewerState.state.followLoopActive = true
-        ViewerFollow.updateFollowLoop()
-      }
-
-      /* Load Scene */
-      let preIndex = state.preloadingSceneIndex
-      let isPre =
-        preIndex != -1 &&
-        preIndex != ViewerState.state.lastPreloadingIndex &&
-        preIndex != state.activeIndex
-
-      if isPre {
-        ViewerState.state.lastPreloadingIndex = preIndex
-        Loader.loadNewScene(Nullable.toOption(ViewerState.state.lastSceneId), Some(preIndex))
-      }
-
-      // Rebuild trigger
+  // 3. Main Scene Loading & Hotspot Sync
+  React.useEffect2(() => {
+    if state.activeIndex != -1 {
       switch Belt.Array.get(state.scenes, state.activeIndex) {
       | Some(scene) =>
-        // Strict ID check for unnecessary reloading
         let lastId = Nullable.toOption(ViewerState.state.lastSceneId)
         let hasSceneChanged = switch lastId {
         | Some(prev) => prev != scene.id
-        | None => true // Allow initial load
+        | None => true
         }
 
         if hasSceneChanged {
@@ -359,7 +337,6 @@ let make = () => {
           let v = ViewerState.getActiveViewer()
           switch Nullable.toOption(v) {
           | Some(viewer) =>
-            // CRITICAL: Block hotspot rebuild and auto-forward during linking (Stage 0-4)
             if !state.isLinking {
               HotspotManager.syncHotspots(viewer, state, scene, dispatch)
               Navigation.handleAutoForward(dispatch, state, scene)
@@ -371,7 +348,43 @@ let make = () => {
       }
     }
     None
-  }, [state])
+  }, (state.activeIndex, state.isLinking))
+
+  // 4. Hotspot Sync for Metadata changes (Return links etc)
+  React.useEffect1(() => {
+    if state.activeIndex != -1 && !state.isLinking {
+      switch Belt.Array.get(state.scenes, state.activeIndex) {
+      | Some(scene) =>
+        let v = ViewerState.getActiveViewer()
+        switch Nullable.toOption(v) {
+        | Some(viewer) =>
+          // We don't trigger auto-forward here, only sync visual hotspots
+          HotspotManager.syncHotspots(viewer, state, scene, dispatch)
+        | None => ()
+        }
+      | None => ()
+      }
+    }
+    None
+  }, [state.scenes])
+
+  // 5. Ratchet State Reset
+  React.useEffect1(() => {
+    if state.isLinking {
+      ViewerState.state.ratchetState.yawOffset = 0.0
+      ViewerState.state.ratchetState.pitchOffset = 0.0
+      ViewerState.state.ratchetState.maxYawOffset = 0.0
+      ViewerState.state.ratchetState.minYawOffset = 0.0
+      ViewerState.state.ratchetState.maxPitchOffset = 0.0
+      ViewerState.state.ratchetState.minPitchOffset = 0.0
+
+      if !ViewerState.state.followLoopActive {
+        ViewerState.state.followLoopActive = true
+        ViewerFollow.updateFollowLoop()
+      }
+    }
+    None
+  }, [state.isLinking])
 
   // Arrival tracking for Simulation
   React.useEffect2(() => {

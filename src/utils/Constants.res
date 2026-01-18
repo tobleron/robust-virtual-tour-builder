@@ -205,7 +205,8 @@ let roomLabelPresets = Dict.fromArray([
 // ============================================
 
 // Helper to safely get environment variables across Vite and Node
-let getEnv = (_name: string, fallback: string): string => {
+let getEnv = (name: string, fallback: string): string => {
+  ignore(name)
   let value = try {
     %raw(`(typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env[name] : (typeof process !== 'undefined' && process.env ? process.env[name] : null))`)
   } catch {
