@@ -54,11 +54,12 @@ let make = () => {
         switch Nullable.toOption(guide) {
         | Some(g) =>
           if state.isLinking {
-            // Ensure rod is visible
+            // Ensure rod is visible and absolute (v4.3.1 fix)
+            // Including essential styles here to prevent them being lost by setAttribute
             Dom.setAttribute(
               g,
               "style",
-              "display: block !important; z-index: 9999; left: " ++
+              "display: block !important; z-index: 9999; position: absolute; width: 2px; background: #ffcc00; box-shadow: 0 0 8px rgba(255, 204, 0, 0.6); pointer-events: none; left: " ++
               Float.toString(Math.round(x)) ++
               "px; top: " ++
               Float.toString(Math.round(y)) ++
@@ -235,7 +236,7 @@ let make = () => {
         // Ensure guide is hidden on unmount/cleanup
         let guide = Dom.getElementById("cursor-guide")
         switch Nullable.toOption(guide) {
-        | Some(g) => Dom.setAttribute(g, "style", "display: none !important;")
+        | Some(g) => Dom.setAttribute(g, "style", "display: none !important; position: absolute;")
         | None => ()
         }
 
@@ -362,13 +363,18 @@ let make = () => {
       Logger.debug(~module_="ViewerManager", ~message="LINKING_MODE_ON", ())
       Dom.classList(body)->Dom.ClassList.add("linking-mode")
       switch Nullable.toOption(guide) {
-      | Some(g) => Dom.setAttribute(g, "style", "display: block !important; z-index: 9999;")
+      | Some(g) =>
+        Dom.setAttribute(
+          g,
+          "style",
+          "display: block !important; z-index: 9999; position: absolute; width: 2px; background: #ffcc00;",
+        )
       | None => Logger.error(~module_="ViewerManager", ~message="ROD_NOT_FOUND_IN_EFFECT", ())
       }
     } else {
       Dom.classList(body)->Dom.ClassList.remove("linking-mode")
       switch Nullable.toOption(guide) {
-      | Some(g) => Dom.setAttribute(g, "style", "display: none !important;")
+      | Some(g) => Dom.setAttribute(g, "style", "display: none !important; position: absolute;")
       | None => ()
       }
     }
