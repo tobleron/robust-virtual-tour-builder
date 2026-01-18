@@ -289,14 +289,20 @@ let syncHotspots = (v: Viewer.t, state: state, scene: scene, dispatch: Actions.a
   let config = Viewer.getConfig(v)
   let hs = config["hotSpots"]
 
-  // Remove existing
-  Belt.Array.forEach(hs, h => {
-    let id = h["id"]
-
+  // Remove existing - iterate over a copy of IDs to avoid modification during iteration issues
+  let idsToRemove = Belt.Array.map(hs, h => h["id"])
+  Belt.Array.forEach(idsToRemove, id => {
     if id != "" {
       Viewer.removeHotSpot(v, id)
     }
   })
+
+  Logger.debug(
+    ~module_="HotspotManager",
+    ~message="SYNC_HOTSPOTS",
+    ~data=Some({"count": Belt.Array.length(scene.hotspots)}),
+    (),
+  )
 
   // Add new
   Belt.Array.forEachWithIndex(scene.hotspots, (i, h) => {
