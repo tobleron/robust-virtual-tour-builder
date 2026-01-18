@@ -4,8 +4,9 @@ open Actions
 let reduce = (state: state, action: action): option<state> => {
   switch action {
   | SetPreloadingScene(index) => Some({...state, preloadingSceneIndex: index})
-  | SetLinkDraft(draft) => Some({...state, linkDraft: draft})
-  | SetIsLinking(val) => Some({...state, isLinking: val})
+  | StartLinking(draft) => Some({...state, isLinking: true, linkDraft: Some(draft)})
+  | StopLinking => Some({...state, isLinking: false, linkDraft: None})
+  | UpdateLinkDraft(draft) => Some({...state, linkDraft: Some(draft)})
   | SetIsTeasing(val) => Some({...state, isTeasing: val})
   | _ => None
   }

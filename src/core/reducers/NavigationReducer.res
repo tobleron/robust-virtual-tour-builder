@@ -3,10 +3,10 @@ open Actions
 
 let reduce = (state: state, action: action): option<state> => {
   switch action {
-  | SetSimulationMode(val) =>
+  | SetSimulationMode(_val) =>
     Some({
       ...state,
-      isSimulationMode: val,
+      // isSimulationMode: val, // DEPRECATED handled by SimulationReducer
       autoForwardChain: [],
       incomingLink: None,
       currentJourneyId: state.currentJourneyId + 1,

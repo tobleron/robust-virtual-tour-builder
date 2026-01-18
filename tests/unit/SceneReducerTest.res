@@ -72,7 +72,7 @@ let run = () => {
   }
 
   // --- Test Unhandled Action ---
-  let unhandled = SetIsLinking(true)
+  let unhandled = StopLinking
   let resultUnhandled = SceneReducer.reduce(state, unhandled)
 
   switch resultUnhandled {

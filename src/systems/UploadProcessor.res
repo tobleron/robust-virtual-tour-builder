@@ -61,7 +61,7 @@ let processUploads = (
       Logger.error(~module_="Upload", ~message="BACKEND_OFFLINE", ())
       updateProgress(100.0, "Error: Backend Offline", false, "Error")
       notify(
-        "Backend Server Not Connected! Check console/logs. Ensure port 8080 is running.",
+        "Backend Server Not Connected! The image processing server (port 8080) is not running. Please start the backend server with 'npm run dev:backend' or 'cargo run' in the backend directory.",
         "error",
       )
       Promise.resolve({"qualityResults": [], "duration": "0.0"})

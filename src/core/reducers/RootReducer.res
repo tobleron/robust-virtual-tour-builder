@@ -22,6 +22,7 @@ let reducer = (state: state, action: action): state => {
   ->apply(action, HotspotReducer.reduce)
   ->apply(action, UiReducer.reduce)
   ->apply(action, NavigationReducer.reduce)
+  ->apply(action, SimulationReducer.reduce)
   ->apply(action, TimelineReducer.reduce)
   ->apply(action, ProjectReducer.reduce)
 }

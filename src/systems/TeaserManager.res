@@ -358,11 +358,13 @@ let startCinematicTeaser = async (includeLogo: bool, format: string, skipAutoFor
 
   let started = Recorder.startRecording()
   if started {
-    SimulationSystem.startAutoPilot(Some(skipAutoForward))
+    // Start AutoPilot
+    let state = GlobalStateBridge.getState()
+    GlobalStateBridge.dispatch(StartAutoPilot(state.currentJourneyId, skipAutoForward))
 
     let rec checkLoop = async () => {
       await wait(1000)
-      if SimulationSystem.isAutoPilotActive() {
+      if GlobalStateBridge.getState().simulation.status == Running {
         await checkLoop()
       }
     }

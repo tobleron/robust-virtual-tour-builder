@@ -6,6 +6,8 @@ const projectRoot = path.join(__dirname, '..');
 const packageJsonPath = path.join(projectRoot, 'package.json');
 const swPath = path.join(projectRoot, 'public', 'service-worker.js');
 const publicDir = path.join(projectRoot, 'public');
+const swResPath = path.join(projectRoot, 'src', 'ServiceWorkerMain.res');
+const swJsCompiledPath = path.join(projectRoot, 'src', 'ServiceWorkerMain.bs.js');
 
 function getFiles(dir, baseDir, fileList = []) {
     if (!fs.existsSync(dir)) return fileList;
@@ -22,12 +24,27 @@ function getFiles(dir, baseDir, fileList = []) {
     return fileList;
 }
 
-const swResPath = path.join(projectRoot, 'src', 'ServiceWorkerMain.res');
-const swJsCompiledPath = path.join(projectRoot, 'src', 'ServiceWorkerMain.bs.js');
+function compile() {
+    console.log('[Sync SW] Compiling ReScript...');
+    execSync('npm run res:build', { stdio: 'inherit' });
+}
 
-function sync() {
+function bundle() {
+    if (!fs.existsSync(swJsCompiledPath)) {
+        console.log('[Sync SW] Compiled file not found, skipping bundle.');
+        return;
+    }
+    console.log('[Sync SW] Bundling Service Worker...');
+    try {
+        execSync(`npx esbuild ${swJsCompiledPath} --bundle --minify --format=iife --outfile=${swPath}`, { stdio: 'inherit' });
+        console.log(`[Sync SW] Successfully bundled to ${swPath}`);
+    } catch (e) {
+        console.error('[Sync SW] Bundling failed:', e.message);
+    }
+}
+
+function updateResFile() {
     console.log('[Sync SW] Starting synchronization...');
-
     try {
         // 1. Get version from package.json
         const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
@@ -67,16 +84,6 @@ function sync() {
 
         fs.writeFileSync(swResPath, swResContent, 'utf8');
         console.log(`[Sync SW] Updated src/ServiceWorkerMain.res with ${manualAssets.length} assets.`);
-
-        // 5. Compile ReScript
-        console.log('[Sync SW] Compiling ReScript...');
-        execSync('npm run res:build', { stdio: 'inherit' });
-
-        // 6. Bundle using esbuild
-        console.log('[Sync SW] Bundling Service Worker...');
-        execSync(`npx esbuild ${swJsCompiledPath} --bundle --minify --format=iife --outfile=${swPath}`, { stdio: 'inherit' });
-
-        console.log(`[Sync SW] Successfully bundled to ${swPath}`);
     } catch (err) {
         console.error('[Sync SW] Error during synchronization:', err);
     }
@@ -87,7 +94,13 @@ const isWatch = process.argv.includes('--watch');
 
 if (isWatch) {
     console.log('[Sync SW] Watching for changes in public/ and src/libs/...');
-    sync(); // Initial sync
+    updateResFile(); // Initial update
+
+    // Do NOT compile here if we assume res:watch is running.
+    // However, we should bundle if possible to ensure we have a SW.
+    if (fs.existsSync(swJsCompiledPath)) {
+        bundle();
+    }
 
     let debounceTimer;
     const watchHandler = (event, filename) => {
@@ -98,14 +111,29 @@ if (isWatch) {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
                 console.log(`[Sync SW] Change detected: ${filename}. Syncing...`);
-                sync();
+                updateResFile();
             }, 500);
         }
     };
 
     fs.watch(publicDir, { recursive: true }, watchHandler);
     fs.watch(packageJsonPath, watchHandler);
-} else {
-    sync();
-}
 
+    // Watch for .bs.js changes to trigger bundle
+    // We use fs.watchFile because simpler file watching is enough and safer against replace events
+    let bundleTimer;
+    console.log(`[Sync SW] Watching ${swJsCompiledPath} for bundling...`);
+    fs.watchFile(swJsCompiledPath, { interval: 1000 }, (curr, prev) => {
+        if (curr.mtime !== prev.mtime) {
+            console.log('[Sync SW] ServiceWorkerMain.bs.js changed. Bundling...');
+            clearTimeout(bundleTimer);
+            bundleTimer = setTimeout(bundle, 200);
+        }
+    });
+
+} else {
+    // One-off sync
+    updateResFile();
+    compile();
+    bundle();
+}

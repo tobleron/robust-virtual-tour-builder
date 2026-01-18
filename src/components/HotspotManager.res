@@ -23,7 +23,7 @@ let createHotspotConfig = (
   ~scene: scene,
   ~dispatch: Actions.action => unit,
 ) => {
-  let isSimulationMode = state.isSimulationMode
+  let isSimulationMode = state.simulation.status == Running
   let incomingLink = state.incomingLink
   let targetSceneOpt = Belt.Array.getBy(state.scenes, s => s.name == hotspot.target)
 

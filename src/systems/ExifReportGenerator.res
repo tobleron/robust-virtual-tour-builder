@@ -157,58 +157,61 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
 
   let processItems = async () => {
     for i in 0 to Array.length(sceneDataList) - 1 {
-      let item = Belt.Array.getExn(sceneDataList, i)
-      let file = item.original
+      switch Belt.Array.get(sceneDataList, i) {
+      | Some(item) =>
+        let file = item.original
 
-      // Use pre-existing metadata if available
-      let exif = switch item.metadata {
-      | Some(m) =>
-        switch item.quality {
-        | Some(q) =>
-          Promise.resolve({
-            exif: (Obj.magic(m): SharedTypes.exifMetadata),
-            quality: (Obj.magic(q): SharedTypes.qualityAnalysis),
-            isOptimized: false,
-            checksum: "",
-            suggestedName: Nullable.null,
-          })
+        // Use pre-existing metadata if available
+        let exif = switch item.metadata {
+        | Some(m) =>
+          switch item.quality {
+          | Some(q) =>
+            Promise.resolve({
+              exif: (Obj.magic(m): SharedTypes.exifMetadata),
+              quality: (Obj.magic(q): SharedTypes.qualityAnalysis),
+              isOptimized: false,
+              checksum: "",
+              suggestedName: Nullable.null,
+            })
+          | None => ExifParser.extractExifData(file)
+          }
         | None => ExifParser.extractExifData(file)
         }
-      | None => ExifParser.extractExifData(file)
-      }
 
-      let exifData = await exif
+        let exifData = await exif
 
-      let result: exifResult = {
-        filename: File.name(file),
-        exif: exifData.exif,
-        quality: exifData.quality,
-      }
-
-      let _ = Js.Array.push(result, exifResults)
-
-      // Check for GPS data
-      let gpsOpt = exifData.exif.gps
-
-      switch gpsOpt->Nullable.toOption {
-      | Some(gpsDict) => {
-          let gpsPoint: GeoUtils.point = {lat: gpsDict.lat, lon: gpsDict.lon}
-          let _ = Js.Array.push(gpsPoint, gpsPoints)
-          let _ = Js.Array.push(File.name(file), gpsFilenames)
+        let result: exifResult = {
+          filename: File.name(file),
+          exif: exifData.exif,
+          quality: exifData.quality,
         }
-      | None => ()
-      }
 
-      // Capture first valid dateTime
-      if captureDateTime.contents == None {
-        let dateOpt = exifData.exif.dateTime
-        switch dateOpt->Nullable.toOption {
-        | Some(dt) =>
-          if dt != "" {
-            captureDateTime := Some(dt)
+        let _ = Js.Array.push(result, exifResults)
+
+        // Check for GPS data
+        let gpsOpt = exifData.exif.gps
+
+        switch gpsOpt->Nullable.toOption {
+        | Some(gpsDict) => {
+            let gpsPoint: GeoUtils.point = {lat: gpsDict.lat, lon: gpsDict.lon}
+            let _ = Js.Array.push(gpsPoint, gpsPoints)
+            let _ = Js.Array.push(File.name(file), gpsFilenames)
           }
         | None => ()
         }
+
+        // Capture first valid dateTime
+        if captureDateTime.contents == None {
+          let dateOpt = exifData.exif.dateTime
+          switch dateOpt->Nullable.toOption {
+          | Some(dt) =>
+            if dt != "" {
+              captureDateTime := Some(dt)
+            }
+          | None => ()
+          }
+        }
+      | None => ()
       }
     }
   }

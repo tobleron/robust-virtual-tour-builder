@@ -2,8 +2,9 @@ open Types
 
 type action =
   | SetPreloadingScene(int)
-  | SetLinkDraft(option<linkDraft>)
-  | SetIsLinking(bool)
+  | StartLinking(linkDraft)
+  | StopLinking
+  | UpdateLinkDraft(linkDraft)
   | SetIsTeasing(bool)
   | SetTourName(string)
   | AddScenes(array<JSON.t>)
@@ -37,12 +38,22 @@ type action =
   | SetCurrentJourneyId(int)
   | NavigationCompleted(journeyData)
   | SetExifReport(JSON.t)
+  // Simulation Actions
+  | StartAutoPilot(int, bool) // journeyId, skipAutoForward
+  | StopAutoPilot
+  | AddVisitedScene(int)
+  | ClearVisitedScenes
+  | SetStoppingOnArrival(bool)
+  | SetSkipAutoForward(bool)
+  | UpdateAdvanceTime(float)
+  | SetPendingAdvance(option<int>)
 
 let actionToString = (action: action): string =>
   switch action {
   | SetPreloadingScene(idx) => `SetPreloadingScene(${Belt.Int.toString(idx)})`
-  | SetLinkDraft(opt) => `SetLinkDraft(${opt->Option.isSome ? "Some" : "None"})`
-  | SetIsLinking(b) => `SetIsLinking(${b ? "true" : "false"})`
+  | StartLinking(_) => "StartLinking"
+  | StopLinking => "StopLinking"
+  | UpdateLinkDraft(_) => "UpdateLinkDraft"
   | SetIsTeasing(b) => `SetIsTeasing(${b ? "true" : "false"})`
   | SetTourName(name) => `SetTourName(${name})`
   | AddScenes(arr) => `AddScenes(${Belt.Int.toString(Belt.Array.length(arr))})`
@@ -80,4 +91,12 @@ let actionToString = (action: action): string =>
   | SetCurrentJourneyId(id) => `SetCurrentJourneyId(${Belt.Int.toString(id)})`
   | NavigationCompleted(_) => "NavigationCompleted"
   | SetExifReport(_) => "SetExifReport"
+  | StartAutoPilot(_, _) => "StartAutoPilot"
+  | StopAutoPilot => "StopAutoPilot"
+  | AddVisitedScene(_) => "AddVisitedScene"
+  | ClearVisitedScenes => "ClearVisitedScenes"
+  | SetStoppingOnArrival(_) => "SetStoppingOnArrival"
+  | SetSkipAutoForward(_) => "SetSkipAutoForward"
+  | UpdateAdvanceTime(_) => "UpdateAdvanceTime"
+  | SetPendingAdvance(_) => "SetPendingAdvance"
   }

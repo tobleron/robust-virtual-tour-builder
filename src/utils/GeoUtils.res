@@ -61,12 +61,15 @@ let calculateAverageLocation = (gpsPoints: array<point>, maxDistanceKm: float) =
     let outliers = []
 
     for i in 0 to Array.length(gpsPoints) - 1 {
-      let p = Belt.Array.getExn(gpsPoints, i)
-      let dist = haversineDistance(roughCentroid.lat, roughCentroid.lon, p.lat, p.lon)
-      if dist > maxDistanceKm {
-        let _ = Array.push(outliers, {index: i, distance: dist, point: p})
-      } else {
-        let _ = Array.push(validPoints, p)
+      switch Belt.Array.get(gpsPoints, i) {
+      | Some(p) =>
+        let dist = haversineDistance(roughCentroid.lat, roughCentroid.lon, p.lat, p.lon)
+        if dist > maxDistanceKm {
+          let _ = Array.push(outliers, {index: i, distance: dist, point: p})
+        } else {
+          let _ = Array.push(validPoints, p)
+        }
+      | None => ()
       }
     }
 

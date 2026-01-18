@@ -4,14 +4,8 @@
 // open ReBindings
 open EventBus
 
-module SimulationSystem = {
-  @module("../systems/SimulationSystem.bs.js")
-  external startAutoPilot: unit => unit = "startAutoPilot"
-  @module("../systems/SimulationSystem.bs.js")
-  external stopAutoPilot: bool => unit = "stopAutoPilot"
-  @module("../systems/SimulationSystem.bs.js")
-  external isAutoPilotActive: unit => bool = "isAutoPilotActive"
-}
+// Removed SimulationSystem direct binding
+// module SimulationSystem = ...
 
 module LabelMenu = {
   @module("./LabelMenu.bs.js")
@@ -77,7 +71,7 @@ module MemoStaticSvg = {
 let make = () => {
   let state = AppContext.useAppState()
   let dispatch = AppContext.useAppDispatch()
-  let (simActive, setSimActive) = React.useState(_ => SimulationSystem.isAutoPilotActive())
+  let simActive = state.simulation.status == Running
 
   // Standard Dom.element ref
   let labelBtnRef = React.useRef(Nullable.null)
@@ -100,12 +94,8 @@ let make = () => {
   // We can use an effect with interval or hook into navigation updates if possible.
   // Original code updated on store subscription. Store had notify() called often?
   // Let's rely on re-renders for now, but simulation state might need polling if it doesn't dispatch.
-  React.useEffect0(() => {
-    let interval = setInterval(() => {
-      setSimActive(_ => SimulationSystem.isAutoPilotActive())
-    }, 500)
-    Some(() => clearInterval(interval))
-  })
+  // Removed simulation polling
+  // Simulation status is now in state.simulation.status
 
   React.useEffect0(() => {
     // Initialize Label Menu if ref exists
@@ -129,12 +119,11 @@ let make = () => {
   // Handlers
   let handleFabClick = e => {
     JsxEvent.Mouse.stopPropagation(e)
-    // Ref: v4.2.18 behavior - Init draft immediately
-    let newLinking = !state.isLinking
-    dispatch(Actions.SetIsLinking(newLinking))
 
-    if newLinking {
-      // Initialize Draft IMMEDIATELY for v4.2.18 behavior (Rod appears instantly)
+    if state.isLinking {
+      dispatch(Actions.StopLinking)
+      EventBus.dispatch(ShowNotification("Link Mode: OFF", #Warning))
+    } else {
       let v = Nullable.toOption(ReBindings.Viewer.instance)
       switch v {
       | Some(viewer) =>
@@ -143,32 +132,28 @@ let make = () => {
         let yaw = ReBindings.Viewer.getYaw(viewer)
 
         let initialDraft: Types.linkDraft = {
-          yaw, // Origin Yaw
-          pitch, // Origin Pitch
+          yaw,
+          pitch,
           camYaw: yaw,
           camPitch: pitch,
           camHfov: hfov,
           intermediatePoints: None,
         }
-        dispatch(Actions.SetLinkDraft(Some(initialDraft)))
-      | None => ()
+        dispatch(Actions.StartLinking(initialDraft))
+        EventBus.dispatch(ShowNotification("Link Mode: ACTIVE", #Success))
+      | None => EventBus.dispatch(ShowNotification("Viewer not initialized", #Error))
       }
-
-      EventBus.dispatch(ShowNotification("Link Mode: ACTIVE", #Success))
-    } else {
-      dispatch(Actions.SetLinkDraft(None))
-      EventBus.dispatch(ShowNotification("Link Mode: OFF", #Warning))
     }
   }
 
   let handleSimClick = e => {
     JsxEvent.Mouse.stopPropagation(e)
-    if SimulationSystem.isAutoPilotActive() {
-      SimulationSystem.stopAutoPilot(true)
+    if simActive {
+      dispatch(Actions.StopAutoPilot)
     } else {
-      SimulationSystem.startAutoPilot()
+      // Start AutoPilot with journeyId from state or new
+      dispatch(Actions.StartAutoPilot(state.currentJourneyId, false))
     }
-    setSimActive(_ => !simActive)
   }
 
   let handleCatClick = e => {

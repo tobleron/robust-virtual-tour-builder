@@ -19,12 +19,39 @@ module DispatchProvider = {
 module Provider = {
   @react.component
   let make = (~children) => {
-    let (state, dispatch) = React.useReducer(Reducer.reducer, initialState)
+    let loadedState = React.useMemo0(() => {
+      switch SessionStore.loadState() {
+      | Some(s) => {
+          ...initialState,
+          tourName: s.tourName == "" ? initialState.tourName : s.tourName,
+          activeIndex: s.activeIndex == -1 ? initialState.activeIndex : s.activeIndex,
+          activeYaw: s.activeYaw,
+          activePitch: s.activePitch,
+          isLinking: s.isLinking,
+          isTeasing: s.isTeasing,
+        }
+      | None => initialState
+      }
+    })
 
-    React.useEffect1(() => {
+    let (state, dispatch) = React.useReducer(Reducer.reducer, loadedState)
+
+    React.useLayoutEffect1(() => {
       GlobalStateBridge.setDispatch(dispatch)
       GlobalStateBridge.setState(state)
       None
+    }, [state])
+
+    React.useEffect1(() => {
+      let timerId = setTimeout(() => {
+        SessionStore.saveState(state)
+      }, 500)
+
+      Some(
+        () => {
+          clearTimeout(timerId)
+        },
+      )
     }, [state])
 
     <DispatchProvider value=dispatch>

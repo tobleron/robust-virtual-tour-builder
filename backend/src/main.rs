@@ -194,7 +194,7 @@ async fn main() -> io::Result<()> {
                     cfg.service(fs::Files::new("/images", "../dist/images"));
                 }
             })
-            .service(fs::Files::new("/sounds", "../sounds"))
+            .service(fs::Files::new("/sounds", "../public/sounds"))
             .service(fs::Files::new("/libs", "../public/libs")) // Pannellum and other lazy-loaded libs
 
             // PWA and Service Worker files

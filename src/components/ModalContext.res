@@ -50,10 +50,11 @@ let make = () => {
               "button, input, select, textarea, [tabindex]:not([tabindex=\"-1\"])",
             )
             let focusablesArray = JsHelpers.from(focusables)
-            if Array.length(focusablesArray) > 0 {
-              let first = Belt.Array.getExn(focusablesArray, 0)
-              let last = Belt.Array.getExn(focusablesArray, Array.length(focusablesArray) - 1)
-
+            switch (
+              Belt.Array.get(focusablesArray, 0),
+              Belt.Array.get(focusablesArray, Array.length(focusablesArray) - 1),
+            ) {
+            | (Some(first), Some(last)) =>
               let isShift = Dom.shiftKey(e)
               if isShift {
                 if Dom.document["activeElement"] === first {
@@ -64,6 +65,7 @@ let make = () => {
                 Dom.preventDefault(e)
                 Dom.focus(first)
               }
+            | _ => ()
             }
           | None => ()
           }
@@ -87,10 +89,9 @@ let make = () => {
               "button, [tabindex]:not([tabindex=\"-1\"])",
             )
             let focusablesArray = JsHelpers.from(focusables)
-            if Array.length(focusablesArray) > 0 {
-              Dom.focus(Belt.Array.getExn(focusablesArray, 0))
-            } else {
-              Dom.focus(el)
+            switch Belt.Array.get(focusablesArray, 0) {
+            | Some(first) => Dom.focus(first)
+            | None => Dom.focus(el)
             }
           | None => ()
           }

@@ -25,7 +25,7 @@ let run = () => {
   let callCount = ref(0)
   let receivedState = ref(State.initialState)
 
-  GlobalStateBridge.subscribe(s => {
+  let unsubscribe = GlobalStateBridge.subscribe(s => {
     callCount := callCount.contents + 1
     receivedState := s
   })
@@ -36,7 +36,13 @@ let run = () => {
   // Note: if other tests subscribed, they would also be called, but we only care about ours.
   assert(callCount.contents >= 1)
   assert(receivedState.contents.tourName == "Notified Tour")
-  Console.log("✓ subscribe and notification work")
+
+  unsubscribe()
+  let countAfterUnsub = callCount.contents
+  GlobalStateBridge.setState({...State.initialState, tourName: "Ignored Update"})
+  assert(callCount.contents == countAfterUnsub)
+
+  Console.log("✓ subscribe and notification work (including unsubscribe)")
 
   // 4. setDispatch and dispatch
   let dispatchedAction = ref(None)

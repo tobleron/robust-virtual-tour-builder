@@ -127,7 +127,7 @@ let init = async () => {
     AudioManager.setupGlobalClickSounds()
     // VisualPipeline.init("visual-pipeline-container")->ignore
     Logger.info(~module_="Main", ~message="Systems Initialized", ())
-    SimulationSystem.initSimulationKeyHandler()
+    // SimulationSystem.initSimulationKeyHandler() - Deprecated
     InputSystem.initInputSystem()
     ImageOptimizer.init()
 
@@ -164,7 +164,7 @@ let init = async () => {
             camHfov: detail.camHfov,
             intermediatePoints: Some([]),
           }
-          GlobalStateBridge.dispatch(Actions.SetLinkDraft(Some(newDraft)))
+          GlobalStateBridge.dispatch(Actions.UpdateLinkDraft(newDraft))
 
         | Some(current) =>
           let newPoint: Types.linkDraft = {
@@ -185,7 +185,7 @@ let init = async () => {
             ...current,
             intermediatePoints: Some(Belt.Array.concat(currentPoints, [newPoint])),
           }
-          GlobalStateBridge.dispatch(Actions.SetLinkDraft(Some(updatedDraft)))
+          GlobalStateBridge.dispatch(Actions.UpdateLinkDraft(updatedDraft))
         }
       }
     })
