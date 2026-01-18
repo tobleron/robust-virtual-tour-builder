@@ -54,18 +54,12 @@ let make = () => {
         switch Nullable.toOption(guide) {
         | Some(g) =>
           if state.isLinking {
-            // Ensure rod is visible and absolute (v4.3.1 fix)
-            // Including essential styles here to prevent them being lost by setAttribute
-            Dom.setAttribute(
-              g,
-              "style",
-              "display: block !important; z-index: 9999; position: absolute; width: 2px; background: #ffcc00; box-shadow: 0 0 8px rgba(255, 204, 0, 0.6); pointer-events: none; left: " ++
-              Float.toString(Math.round(x)) ++
-              "px; top: " ++
-              Float.toString(Math.round(y)) ++
-              "px; height: " ++
-              Float.toString(Constants.linkingRodHeight) ++ "px;",
-            )
+            // Ensure rod is visible and accurately positioned (v4.3.1 fix)
+            Dom.setProperty(g, "display", "block")
+            Dom.setLeft(g, Float.toString(Math.round(x)) ++ "px")
+            Dom.setTop(g, Float.toString(Math.round(y)) ++ "px")
+            Dom.setStyleHeight(g, Float.toString(Constants.linkingRodHeight) ++ "px")
+
             Dom.classList(g)->Dom.ClassList.add("cursor-dot-blinking")
 
             // Re-enable follow loop for wider waypoints navigation (Stage 2)
@@ -236,7 +230,7 @@ let make = () => {
         // Ensure guide is hidden on unmount/cleanup
         let guide = Dom.getElementById("cursor-guide")
         switch Nullable.toOption(guide) {
-        | Some(g) => Dom.setAttribute(g, "style", "display: none !important; position: absolute;")
+        | Some(g) => Dom.setProperty(g, "display", "none")
         | None => ()
         }
 
@@ -364,17 +358,14 @@ let make = () => {
       Dom.classList(body)->Dom.ClassList.add("linking-mode")
       switch Nullable.toOption(guide) {
       | Some(g) =>
-        Dom.setAttribute(
-          g,
-          "style",
-          "display: block !important; z-index: 9999; position: absolute; width: 2px; background: #ffcc00;",
-        )
+        Dom.setProperty(g, "display", "block")
+        Dom.setProperty(g, "z-index", "9999")
       | None => Logger.error(~module_="ViewerManager", ~message="ROD_NOT_FOUND_IN_EFFECT", ())
       }
     } else {
       Dom.classList(body)->Dom.ClassList.remove("linking-mode")
       switch Nullable.toOption(guide) {
-      | Some(g) => Dom.setAttribute(g, "style", "display: none !important; position: absolute;")
+      | Some(g) => Dom.setProperty(g, "display", "none")
       | None => ()
       }
     }
