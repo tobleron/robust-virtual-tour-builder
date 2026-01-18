@@ -38,6 +38,9 @@ type event =
   | ShowNotification(string, [#Info | #Success | #Error | #Warning])
   | ShowModal(modalConfig)
   | CloseModal
+  | UpdateProcessing(
+      {"active": bool, "progress": float, "message": string, "phase": string, "error": bool},
+    )
 
 type subscription = unit => unit
 

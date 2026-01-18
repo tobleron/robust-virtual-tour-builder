@@ -46,7 +46,8 @@ let make = () => {
         let y = clientY -. rect.top
 
         ViewerState.state.mouseXNorm = x /. rect.width *. 2.0 -. 1.0
-        ViewerState.state.mouseYNorm = y /. rect.height *. 2.0 -. 1.0
+        ViewerState.state.mouseYNorm =
+          (y +. Constants.linkingRodHeight) /. rect.height *. 2.0 -. 1.0
 
         // Update Rod Position (Yellow Vertical Guide)
         let guide = Dom.getElementById("cursor-guide")
@@ -58,8 +59,8 @@ let make = () => {
             // Use relative stage coordinates x/y since guide is a child of the stage
             Dom.setLeft(g, Float.toString(Math.round(x)) ++ "px")
             Dom.setTop(g, Float.toString(Math.round(y)) ++ "px")
-            // Rod extends down to baseline
-            Dom.setStyleHeight(g, Float.toString(Math.round(rect.height -. y)) ++ "px")
+            // Rod extension length (v4.2.18 behavior)
+            Dom.setStyleHeight(g, Float.toString(Constants.linkingRodHeight) ++ "px")
 
             // Re-enable follow loop for wider waypoints navigation (Stage 2)
             if !ViewerState.state.followLoopActive {
@@ -98,7 +99,12 @@ let make = () => {
 
         switch Nullable.toOption(viewer) {
         | Some(v) =>
-          let coords = Viewer.mouseEventToCoords(v, e)
+          // Offset click by linkingRodHeight to match visual tip (v4.2.18 behavior)
+          let mockEvent = {
+            "clientX": Belt.Int.toFloat(Obj.magic(e)["clientX"]),
+            "clientY": Belt.Int.toFloat(Obj.magic(e)["clientY"]) +. Constants.linkingRodHeight,
+          }
+          let coords = Viewer.mouseEventToCoords(v, mockEvent)
           let pitchOpt = Belt.Array.get(coords, 0)
           let yawOpt = Belt.Array.get(coords, 1)
 

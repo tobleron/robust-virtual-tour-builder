@@ -15,53 +15,70 @@ let make = () => {
   let state = AppContext.useAppState()
   let dispatch = AppContext.useAppDispatch()
 
+  // Inputs refs
+  let fileInputRef = React.useRef(Nullable.null)
+  let projectFileInputRef = React.useRef(Nullable.null)
+
   // Processing UI state
   let (procState, setProcState) = React.useState(_ =>
     {
       "active": false,
       "progress": 0.0,
-      "message": "System Ready",
+      "message": "",
       "phase": "",
       "error": false,
     }
   )
-
-  // Inputs refs
-  let fileInputRef = React.useRef(Nullable.null)
-  let projectFileInputRef = React.useRef(Nullable.null)
   let hideTimerRef = React.useRef(Nullable.null)
 
-  let updateProgress = (pct, msg, active, phase) => {
-    // Clear any existing hide timer
-    switch Nullable.toOption(hideTimerRef.current) {
-    | Some(timerId) =>
-      clearTimeout(timerId)
-      hideTimerRef.current = Nullable.null
-    | None => ()
-    }
+  // Subscribe to processing updates
+  React.useEffect0(() => {
+    let unsubscribe = EventBus.subscribe(event => {
+      switch event {
+      | UpdateProcessing(payload) =>
+        // Clear any existing hide timer
+        switch Nullable.toOption(hideTimerRef.current) {
+        | Some(timerId) =>
+          clearTimeout(timerId)
+          hideTimerRef.current = Nullable.null
+        | None => ()
+        }
 
-    setProcState(_ =>
-      {
+        setProcState(_ => payload)
+
+        // If progress is complete, start auto-hide timer
+        if payload["progress"] >= 100.0 && payload["active"] {
+          let timerId = setTimeout(
+            () => {
+              setProcState(
+                prev => {
+                  let next = Object.assign(Object.make(), prev)
+                  next["active"] = false
+                  next
+                },
+              )
+              hideTimerRef.current = Nullable.null
+            },
+            3000,
+          )
+          hideTimerRef.current = Nullable.fromOption(Some(timerId))
+        }
+      | _ => ()
+      }
+    })
+    Some(unsubscribe)
+  })
+
+  let updateProgress = (pct, msg, active, phase) => {
+    EventBus.dispatch(
+      UpdateProcessing({
         "active": active,
         "progress": pct,
         "message": msg,
         "phase": phase,
         "error": false,
-      }
+      }),
     )
-
-    // If progress is complete, start auto-hide timer
-    if pct >= 100.0 && active {
-      let timerId = setTimeout(() => {
-        setProcState(prev => {
-          let next = Object.assign(Object.make(), prev)
-          next["active"] = false
-          next
-        })
-        hideTimerRef.current = Nullable.null
-      }, autoHideDelay)
-      hideTimerRef.current = Nullable.fromOption(Some(timerId))
-    }
   }
 
   // Handlers
@@ -239,7 +256,7 @@ let make = () => {
           ->Belt.Array.mapWithIndex((i, (icon, label, onClick)) =>
             <button
               key={Int.toString(i)}
-              className="sidebar-action-btn-square group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+              className="sidebar-action-btn-square hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
               onClick={_ => onClick()}
               ariaLabel={label}
             >
@@ -252,7 +269,7 @@ let make = () => {
 
         <div className="grid grid-cols-2 gap-2">
           <button
-            className="sidebar-action-btn-wide group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+            className="sidebar-action-btn-wide hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
             disabled={!exportReady}
             onClick={_ => {
               let _ = (
@@ -283,7 +300,7 @@ let make = () => {
           </button>
 
           <button
-            className="sidebar-action-btn-wide group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+            className="sidebar-action-btn-wide hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
             disabled={!teaserReady}
             onClick={_ => {
               let _ = TeaserManager.startAutoTeaser(state.tourName, false, "mp4", false)
@@ -411,74 +428,41 @@ let make = () => {
         <input
           id="project-name-input"
           type_="text"
-          className="w-full px-3 h-10 bg-slate-50 border border-slate-200 rounded-lg font-ui font-bold text-[13px] text-slate-800 focus:outline-none focus:ring-1 focus:ring-primary/20 focus:border-primary transition-all truncate placeholder:text-slate-300"
+          className="w-full px-3 h-10 bg-slate-50 border border-slate-200 rounded-lg font-ui font-normal text-[13px] text-slate-800 focus:outline-none focus:ring-1 focus:ring-primary/20 focus:border-primary transition-all truncate placeholder:text-slate-300"
           placeholder="New Tour..."
           value={state.tourName}
           onChange={e => dispatch(Actions.SetTourName(JsxEvent.Form.target(e)["value"]))}
         />
       </div>
 
-      {!procState["active"]
-        ? <div className="px-4 pb-4">
-            <button
-              className="w-full h-12 text-white rounded-xl flex items-center justify-center gap-3 transition-all hover:brightness-110 hover:shadow-xl active:scale-95 group overflow-hidden relative focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
-              style={makeStyle({"backgroundColor": "var(--primary)"})}
-              onClick={_ => {
-                switch Nullable.toOption(fileInputRef.current) {
-                | Some(el) => Dom.click(el)
-                | None => ()
-                }
-              }}
-            >
-              <div
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"
-              />
-              <span className="material-icons text-[20px]"> {React.string("cloud_upload")} </span>
-              <strong className="text-[12px] font-bold tracking-widest uppercase">
-                {React.string("Add 360 Scenes")}
-              </strong>
-            </button>
-          </div>
-        : React.null}
-    </div>
-
-    /* Sidebar Content Area - Scrollable */
-    <div
-      className="sidebar-content flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar flex flex-col bg-slate-50/50"
-    >
+      /* Sidebar Processing UI (Below Project Name) */
       {if procState["active"] {
         <div
-          className="m-6 bg-white border border-slate-200 rounded-2xl p-5 shadow-xl animate-fade-in shrink-0"
+          className="mx-4 mb-4 bg-slate-50 border border-slate-200 rounded-xl p-3 shadow-sm animate-fade-in"
           role="status"
           ariaLive=#polite
         >
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div
-                className="w-4 h-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin"
-              />
-              <div className="font-bold text-slate-700 text-[11px] uppercase tracking-widest">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <div className="spinner !w-3 !h-3 !border-2" />
+              <div className="font-bold text-slate-700 text-[10px] uppercase tracking-widest">
                 {React.string(procState["phase"] == "" ? "Processing" : procState["phase"])}
               </div>
             </div>
-            <div className="font-heading font-black text-primary text-sm">
+            <div className="font-heading font-black text-primary text-[11px]">
               {React.string(Float.toString(procState["progress"]) ++ "%")}
             </div>
           </div>
-          <div className="bg-slate-100 h-2 rounded-full overflow-hidden relative">
+          <div className="bg-slate-200 h-1.5 rounded-full overflow-hidden relative">
             <div
-              className="h-full bg-primary transition-all duration-300 rounded-full relative"
+              className="h-full bg-primary transition-all duration-300 rounded-full"
               style={makeStyle({"width": Float.toString(procState["progress"]) ++ "%"})}
-            >
-              <div
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer bg-[length:200%_auto]"
-              />
-            </div>
+            />
           </div>
           <div
-            className="text-[10px] text-slate-600 mt-3 font-bold uppercase tracking-tight flex items-center gap-2"
+            className="text-[9px] text-slate-500 mt-2 font-bold uppercase tracking-tight flex items-center gap-2"
           >
-            <span className="w-1.5 h-1.5 bg-success rounded-full animate-pulse" />
+            <span className="w-1 h-1 bg-success rounded-full animate-pulse" />
             <span className="truncate"> {React.string(procState["message"])} </span>
           </div>
         </div>
@@ -486,6 +470,32 @@ let make = () => {
         React.null
       }}
 
+      <div className="px-4 pb-4">
+        <button
+          className="w-full h-12 text-white rounded-xl flex items-center justify-center gap-3 transition-all hover:brightness-110 hover:shadow-xl hover-lift active-push group overflow-hidden relative focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+          style={makeStyle({"backgroundColor": "var(--primary)"})}
+          onClick={_ => {
+            switch Nullable.toOption(fileInputRef.current) {
+            | Some(el) => Dom.click(el)
+            | None => ()
+            }
+          }}
+        >
+          <div
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"
+          />
+          <span className="material-icons text-[20px]"> {React.string("cloud_upload")} </span>
+          <strong className="text-[12px] font-bold tracking-widest uppercase">
+            {React.string("Add 360 Scenes")}
+          </strong>
+        </button>
+      </div>
+    </div>
+
+    /* Sidebar Content Area - Scrollable */
+    <div
+      className="sidebar-content flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar flex flex-col bg-slate-50/50"
+    >
       <div className="p-1 flex-1">
         <SceneList />
       </div>

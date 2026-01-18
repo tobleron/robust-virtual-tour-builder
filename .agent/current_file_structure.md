@@ -1,6 +1,7 @@
 .
 ├── AGENTS.md
 ├── backend
+│   ├── backend_run.log
 │   ├── backend.log
 │   ├── bin
 │   │   └── ffmpeg
@@ -46,7 +47,10 @@
 │   │       ├── shutdown.rs
 │   │       ├── upload_quota_tests.rs
 │   │       └── upload_quota.rs
+│   ├── startup_debug_v2.log
+│   ├── startup_debug.log
 │   ├── startup_log.txt
+│   ├── startup.log
 │   └── tests
 │       └── shutdown_test.rs
 ├── bin
@@ -76,6 +80,7 @@
 │   ├── ACCESSIBILITY_SYSTEM.md
 │   ├── AntiGravity Workflow Manual.md
 │   ├── ARCHITECTURE_DIAGRAM.md
+│   ├── css_diff_report.html
 │   ├── DEBUGGING_GUIDE.md
 │   ├── IMPROVEMENTS.md
 │   ├── LOGGING_AND_SIMULATION.md
@@ -87,20 +92,14 @@
 │   ├── TESTING_QUICK_REFERENCE.md
 │   ├── TYPOGRAPHY_AND_UI_SYSTEM.md
 │   ├── UNIT_TESTING_INTEGRATION.md
-│   └── v4.2.18_CSS_STYLING_REPORT.md
+│   └── v4.1.3_vs_current_CSS_REPORT.md
 ├── GEMINI.md
 ├── index.html
 ├── lib
 │   ├── bs
 │   │   ├── build.ninja
-│   │   ├── compiler-info.json
 │   │   ├── src
 │   │   │   ├── App.ast
-│   │   │   ├── App.bs.js
-│   │   │   ├── App.cmi
-│   │   │   ├── App.cmj
-│   │   │   ├── App.cmt
-│   │   │   ├── App.res
 │   │   │   ├── components
 │   │   │   │   ├── ErrorFallbackUI.ast
 │   │   │   │   ├── ErrorFallbackUI.bs.js
@@ -151,11 +150,6 @@
 │   │   │   │   ├── SceneList.cmt
 │   │   │   │   ├── SceneList.res
 │   │   │   │   ├── Sidebar.ast
-│   │   │   │   ├── Sidebar.bs.js
-│   │   │   │   ├── Sidebar.cmi
-│   │   │   │   ├── Sidebar.cmj
-│   │   │   │   ├── Sidebar.cmt
-│   │   │   │   ├── Sidebar.res
 │   │   │   │   ├── UploadReport.ast
 │   │   │   │   ├── UploadReport.bs.js
 │   │   │   │   ├── UploadReport.cmi
@@ -199,11 +193,8 @@
 │   │   │   │   ├── ViewerTypes.cmt
 │   │   │   │   ├── ViewerTypes.res
 │   │   │   │   ├── ViewerUI.ast
-│   │   │   │   ├── ViewerUI.bs.js
 │   │   │   │   ├── ViewerUI.cmi
-│   │   │   │   ├── ViewerUI.cmj
 │   │   │   │   ├── ViewerUI.cmt
-│   │   │   │   ├── ViewerUI.res
 │   │   │   │   ├── VisualPipeline.ast
 │   │   │   │   ├── VisualPipeline.bs.js
 │   │   │   │   ├── VisualPipeline.cmi
@@ -321,11 +312,6 @@
 │   │   │   │   ├── Types.cmt
 │   │   │   │   └── Types.res
 │   │   │   ├── Main.ast
-│   │   │   ├── Main.bs.js
-│   │   │   ├── Main.cmi
-│   │   │   ├── Main.cmj
-│   │   │   ├── Main.cmt
-│   │   │   ├── Main.res
 │   │   │   ├── ReBindings.ast
 │   │   │   ├── ReBindings.bs.js
 │   │   │   ├── ReBindings.cmi
@@ -621,11 +607,6 @@
 │   │   │       └── VersionData.res
 │   │   └── tests
 │   │       ├── TestRunner.ast
-│   │       ├── TestRunner.bs.js
-│   │       ├── TestRunner.cmi
-│   │       ├── TestRunner.cmj
-│   │       ├── TestRunner.cmt
-│   │       ├── TestRunner.res
 │   │       └── unit
 │   │           ├── ActionsTest.ast
 │   │           ├── ActionsTest.bs.js
@@ -640,11 +621,6 @@
 │   │           ├── AppContextTest.cmt
 │   │           ├── AppContextTest.res
 │   │           ├── AppTest.ast
-│   │           ├── AppTest.bs.js
-│   │           ├── AppTest.cmi
-│   │           ├── AppTest.cmj
-│   │           ├── AppTest.cmt
-│   │           ├── AppTest.res
 │   │           ├── AudioManagerTest.ast
 │   │           ├── AudioManagerTest.bs.js
 │   │           ├── AudioManagerTest.cmi
@@ -754,11 +730,6 @@
 │   │           ├── LoggerTest.cmt
 │   │           ├── LoggerTest.res
 │   │           ├── MainTest.ast
-│   │           ├── MainTest.bs.js
-│   │           ├── MainTest.cmi
-│   │           ├── MainTest.cmj
-│   │           ├── MainTest.cmt
-│   │           ├── MainTest.res
 │   │           ├── NavigationControllerTest.ast
 │   │           ├── NavigationControllerTest.bs.js
 │   │           ├── NavigationControllerTest.cmi
@@ -1035,10 +1006,6 @@
 │   │   ├── ActionsTest.cmt
 │   │   ├── ActionsTest.res
 │   │   ├── App.ast
-│   │   ├── App.cmi
-│   │   ├── App.cmj
-│   │   ├── App.cmt
-│   │   ├── App.res
 │   │   ├── AppContext.ast
 │   │   ├── AppContext.cmi
 │   │   ├── AppContext.cmj
@@ -1050,10 +1017,6 @@
 │   │   ├── AppContextTest.cmt
 │   │   ├── AppContextTest.res
 │   │   ├── AppTest.ast
-│   │   ├── AppTest.cmi
-│   │   ├── AppTest.cmj
-│   │   ├── AppTest.cmt
-│   │   ├── AppTest.res
 │   │   ├── AudioManager.ast
 │   │   ├── AudioManager.cmi
 │   │   ├── AudioManager.cmj
@@ -1258,15 +1221,7 @@
 │   │   ├── LoggerTest.cmt
 │   │   ├── LoggerTest.res
 │   │   ├── Main.ast
-│   │   ├── Main.cmi
-│   │   ├── Main.cmj
-│   │   ├── Main.cmt
-│   │   ├── Main.res
 │   │   ├── MainTest.ast
-│   │   ├── MainTest.cmi
-│   │   ├── MainTest.cmj
-│   │   ├── MainTest.cmt
-│   │   ├── MainTest.res
 │   │   ├── mod.ast
 │   │   ├── mod.cmi
 │   │   ├── mod.cmj
@@ -1498,10 +1453,6 @@
 │   │   ├── SharedTypesTest.cmt
 │   │   ├── SharedTypesTest.res
 │   │   ├── Sidebar.ast
-│   │   ├── Sidebar.cmi
-│   │   ├── Sidebar.cmj
-│   │   ├── Sidebar.cmt
-│   │   ├── Sidebar.res
 │   │   ├── SimulationChainSkipper.ast
 │   │   ├── SimulationChainSkipper.cmi
 │   │   ├── SimulationChainSkipper.cmj
@@ -1608,10 +1559,6 @@
 │   │   ├── TeaserRecorderTest.cmt
 │   │   ├── TeaserRecorderTest.res
 │   │   ├── TestRunner.ast
-│   │   ├── TestRunner.cmi
-│   │   ├── TestRunner.cmj
-│   │   ├── TestRunner.cmt
-│   │   ├── TestRunner.res
 │   │   ├── TimelineReducer.ast
 │   │   ├── TimelineReducer.cmi
 │   │   ├── TimelineReducer.cmj
@@ -1778,10 +1725,6 @@
 │   │   ├── ViewerTypes.cmt
 │   │   ├── ViewerTypes.res
 │   │   ├── ViewerUI.ast
-│   │   ├── ViewerUI.cmi
-│   │   ├── ViewerUI.cmj
-│   │   ├── ViewerUI.cmt
-│   │   ├── ViewerUI.res
 │   │   ├── VisualPipeline.ast
 │   │   ├── VisualPipeline.cmi
 │   │   ├── VisualPipeline.cmj
@@ -1839,7 +1782,6 @@
 │   ├── update-version.js
 │   └── watch-file-limits.sh
 ├── src
-│   ├── App.bs.js
 │   ├── App.res
 │   ├── components
 │   │   ├── ErrorFallbackUI.bs.js
@@ -1858,7 +1800,6 @@
 │   │   ├── RemaxErrorBoundary.res
 │   │   ├── SceneList.bs.js
 │   │   ├── SceneList.res
-│   │   ├── Sidebar.bs.js
 │   │   ├── Sidebar.res
 │   │   ├── UploadReport.bs.js
 │   │   ├── UploadReport.res
@@ -1874,7 +1815,6 @@
 │   │   ├── ViewerState.res
 │   │   ├── ViewerTypes.bs.js
 │   │   ├── ViewerTypes.res
-│   │   ├── ViewerUI.bs.js
 │   │   ├── ViewerUI.res
 │   │   ├── VisualPipeline.bs.js
 │   │   └── VisualPipeline.res
@@ -1918,7 +1858,6 @@
 │   │   └── Types.res
 │   ├── Dummy.bs.js
 │   ├── index.js
-│   ├── Main.bs.js
 │   ├── Main.res
 │   ├── ReBindings.bs.js
 │   ├── ReBindings.res
@@ -2023,7 +1962,6 @@
 ├── tailwind.config.js
 ├── tasks
 │   ├── active
-│   │   └── 200_Restore_Optimum_UI_Mechanics.md
 │   ├── cancelled
 │   ├── completed
 │   │   ├── 175_fix_runtime_safety_getexn_REPORT.md
@@ -2033,6 +1971,7 @@
 │   │   ├── 197_Refactor_RootReducer_Pipeline_REPORT.md
 │   │   ├── 198_Implement_Session_Persistence_REPORT.md
 │   │   ├── 199_Enhance_GlobalState_Safety_REPORT.md
+│   │   ├── 200_Detailed_CSS_Styling_Comparison_REPORT.md
 │   │   ├── 206_Comprehensive_Migration_Summary_REPORT.md
 │   │   ├── 207_Comprehensive_Testing_And_QA_Summary_REPORT.md
 │   │   ├── 208_Backend_Systems_And_Optimization_Summary_REPORT.md
@@ -2047,7 +1986,8 @@
 │   │   ├── 223_restore_premium_ui_components_REPORT.md
 │   │   ├── 224_restore_linking_mode_visuals_REPORT.md
 │   │   ├── 225_restore_simulation_lockdown_REPORT.md
-│   │   └── 226_restore_premium_hotspots_REPORT.md
+│   │   ├── 226_restore_premium_hotspots_REPORT.md
+│   │   └── 264_fix_upload_failure_REPORT.md
 │   ├── current_refactor.md
 │   ├── pending
 │   │   ├── 176_fix_security_innerhtml.md
@@ -2071,14 +2011,12 @@
 │   └── TASKS.md
 ├── tests
 │   ├── node-setup.js
-│   ├── TestRunner.bs.js
 │   ├── TestRunner.res
 │   └── unit
 │       ├── ActionsTest.bs.js
 │       ├── ActionsTest.res
 │       ├── AppContextTest.bs.js
 │       ├── AppContextTest.res
-│       ├── AppTest.bs.js
 │       ├── AppTest.res
 │       ├── AudioManagerTest.bs.js
 │       ├── AudioManagerTest.res
@@ -2116,7 +2054,6 @@
 │       ├── LazyLoadTest.res
 │       ├── LoggerTest.bs.js
 │       ├── LoggerTest.res
-│       ├── MainTest.bs.js
 │       ├── MainTest.res
 │       ├── NavigationControllerTest.bs.js
 │       ├── NavigationControllerTest.res
@@ -2208,4 +2145,4 @@
 │       └── VitestSmoke.test.res
 └── vitest.config.mjs
 
-49 directories, 2160 files
+49 directories, 2097 files

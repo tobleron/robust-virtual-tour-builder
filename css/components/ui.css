@@ -45,7 +45,7 @@
     backdrop-filter: blur(var(--glass-blur));
     -webkit-backdrop-filter: blur(var(--glass-blur));
     color: white;
-    padding: 16px 24px;
+    padding: 12px 20px;
     border-radius: var(--radius-lg);
     font-size: var(--text-sm);
     font-weight: 600;
@@ -59,8 +59,8 @@
     pointer-events: auto;
     border: 1px solid var(--glass-border);
     border-left: 4px solid var(--primary-light);
-    min-width: 300px;
-    max-width: 450px;
+    min-width: 240px;
+    max-width: 400px;
 }
 
 .toast.show {

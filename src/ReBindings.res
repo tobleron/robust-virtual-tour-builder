@@ -29,9 +29,9 @@ module JSZip = {
   type t
   type zipObject
 
-  @module("jszip") @new external create: unit => t = "default"
+  @new external create: unit => t = "JSZip"
   /* Now Blob.t is defined */
-  @module("jszip") external loadAsync: Blob.t => Promise.t<t> = "loadAsync"
+  @val @scope("JSZip") external loadAsync: Blob.t => Promise.t<t> = "loadAsync"
 
   @send external file: (t, string) => Nullable.t<zipObject> = "file"
   @send external async: (zipObject, string) => Promise.t<'a> = "async"

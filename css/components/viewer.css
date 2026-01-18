@@ -5,8 +5,8 @@
     height: 100%;
     opacity: 0;
     visibility: hidden;
-    /* SIMPLE MODE: Fast 0.3s transition for sequential pan-then-swap */
-    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    /* v4.2.18 Target: Snappier 0.3s cubic-bezier transition */
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1;
 }
 
@@ -38,6 +38,7 @@
 #cursor-guide {
     position: absolute;
     width: 2px;
+    height: 60px;
     background: #ffcc00;
     /* Yellow Rod */
     box-shadow: 0 0 8px rgba(255, 204, 0, 0.6);
@@ -50,7 +51,7 @@
 #cursor-guide::after {
     content: '';
     position: absolute;
-    top: -4px;
+    bottom: -4px;
     left: -3px;
     width: 8px;
     height: 8px;
