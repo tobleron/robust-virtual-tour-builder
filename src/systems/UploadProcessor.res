@@ -191,76 +191,103 @@ let processUploads = (
             updateProgress(20.0, "Processing images...", true, "Processing")
             Logger.debug(~module_="Upload", ~message="PHASE_PROCESSING", ())
 
-            let processPromises = Belt.Array.mapWithIndex(
-              uniqueItems,
-              (i, item) => {
+            let processItem = (i, item) => {
+              Logger.debug(
+                ~module_="Upload",
+                ~message="FILE_START",
+                ~data=Some({
+                  "filename": File.name(item.original),
+                  "index": i,
+                  "size": File.size(item.original),
+                }),
+                (),
+              )
+
+              Resizer.processAndAnalyzeImage(item.original)
+              ->Promise.then(res => {
+                item.preview = Some(res.preview)
+                item.tiny = res.tiny
+                item.metadata = Some(castToJson(res.metadata))
+                item.quality = Some(castToJson(res.quality))
+
+                let qObj = res.quality
                 Logger.debug(
                   ~module_="Upload",
-                  ~message="FILE_START",
+                  ~message="QUALITY_ANALYSIS",
                   ~data=Some({
                     "filename": File.name(item.original),
-                    "index": i,
-                    "size": File.size(item.original),
+                    "avgLuminance": qObj.stats.avgLuminance,
+                    "sharpnessVariance": qObj.stats.sharpnessVariance,
+                    "isBlurry": qObj.isBlurry,
                   }),
                   (),
                 )
 
-                Resizer.processAndAnalyzeImage(item.original)
-                ->Promise.then(
-                  res => {
-                    item.preview = Some(res.preview)
-                    item.tiny = res.tiny
-                    item.metadata = Some(castToJson(res.metadata))
-                    item.quality = Some(castToJson(res.quality))
+                if qObj.isSeverelyDark || qObj.isDim {
+                  Logger.warn(
+                    ~module_="Upload",
+                    ~message="LOW_BRIGHTNESS",
+                    ~data=Some({
+                      "filename": File.name(item.original),
+                      "avgLuminance": qObj.stats.avgLuminance,
+                    }),
+                    (),
+                  )
+                }
 
-                    let qObj = res.quality
-                    Logger.debug(
-                      ~module_="Upload",
-                      ~message="QUALITY_ANALYSIS",
-                      ~data=Some({
-                        "filename": File.name(item.original),
-                        "avgLuminance": qObj.stats.avgLuminance,
-                        "sharpnessVariance": qObj.stats.sharpnessVariance,
-                        "isBlurry": qObj.isBlurry,
-                      }),
-                      (),
-                    )
-
-                    if qObj.isSeverelyDark || qObj.isDim {
-                      Logger.warn(
-                        ~module_="Upload",
-                        ~message="LOW_BRIGHTNESS",
-                        ~data=Some({
-                          "filename": File.name(item.original),
-                          "avgLuminance": qObj.stats.avgLuminance,
-                        }),
-                        (),
-                      )
-                    }
-
-                    Promise.resolve(item)
-                  },
+                Promise.resolve(item)
+              })
+              ->Promise.catch(err => {
+                Logger.error(
+                  ~module_="Upload",
+                  ~message="FILE_FAILED",
+                  ~data=Some({
+                    "filename": File.name(item.original),
+                    "error": err,
+                  }),
+                  (),
                 )
-                ->Promise.catch(
-                  err => {
-                    Logger.error(
-                      ~module_="Upload",
-                      ~message="FILE_FAILED",
-                      ~data=Some({
-                        "filename": File.name(item.original),
-                        "error": err,
-                      }),
-                      (),
-                    )
-                    item.error = Some("Processing failed")
-                    Promise.resolve(item)
-                  },
-                )
-              },
-            )
+                item.error = Some("Processing failed")
+                Promise.resolve(item)
+              })
+            }
 
-            Promise.all(processPromises)->Promise.then(
-              processedItems => {
+            // Recursive batch processor
+            let rec processBatch = (items, index, results) => {
+              if index >= Array.length(items) {
+                Promise.resolve(results)
+              } else {
+                let batchSize = 3
+                let endIndex = Js.Math.min_int(index + batchSize, Array.length(items))
+                let currentBatch = Array.slice(items, ~start=index, ~end=endIndex)
+
+                let batchPromises = Belt.Array.mapWithIndex(currentBatch, (offset, item) => {
+                  processItem(index + offset, item)
+                })
+
+                Promise.all(batchPromises)->Promise.then(batchResults => {
+                  let newResults = Array.concat(results, batchResults)
+                  // Update progress
+                  let progress =
+                    20.0 +.
+                    75.0 *.
+                    (Float.fromInt(endIndex) /. Float.fromInt(Array.length(items)))
+                  updateProgress(
+                    progress,
+                    "Processing " ++
+                    Belt.Int.toString(endIndex) ++
+                    "/" ++
+                    Belt.Int.toString(Array.length(items)),
+                    true,
+                    "Processing",
+                  )
+
+                  processBatch(items, endIndex, newResults)
+                })
+              }
+            }
+
+            processBatch(uniqueItems, 0, [])->Promise.then(processedItems => {
                 let validProcessed = Belt.Array.keep(processedItems, i => i.error == None)
 
                 if Belt.Array.length(validProcessed) == 0 && Belt.Array.length(uniqueItems) > 0 {

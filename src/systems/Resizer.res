@@ -161,7 +161,7 @@ let processAndAnalyzeImage = (file: File.t): Promise.t<processResult> => {
     }
 
     // 2. Compress image in parallel (or sequential, Promise handles it)
-    ImageOptimizer.compressToWebP(file, 0.85)->Promise.then(webpBlob => {
+    ImageOptimizer.compressToWebP(file, 0.90)->Promise.then(webpBlob => {
       let compressedFileSize = Blob.size(webpBlob)
       Logger.info(
         ~module_="Resizer",
