@@ -22,6 +22,9 @@ function getFiles(dir, baseDir, fileList = []) {
     return fileList;
 }
 
+const swResPath = path.join(projectRoot, 'src', 'ServiceWorkerMain.res');
+const swJsCompiledPath = path.join(projectRoot, 'src', 'ServiceWorkerMain.bs.js');
+
 function sync() {
     console.log('[Sync SW] Starting synchronization...');
 
@@ -33,41 +36,47 @@ function sync() {
 
         // 2. Scan public directory
         const publicFiles = getFiles(publicDir, publicDir);
-        
-        // 4. Combine assets
+
+        // 3. Combine assets
         const manualAssets = [
             '/',
             '/index.html',
             ...publicFiles
         ].filter((asset, index, self) => {
-            // Remove duplicates and ignored files
-            // Don't include the service worker itself in the manual assets to avoid circularity issues 
-            // though it's often fine, some SW implementations prefer it not being in the cache list
-            return self.indexOf(asset) === index && 
-                   !asset.endsWith('.DS_Store') && 
-                   asset !== '/service-worker.js' &&
-                   !asset.endsWith('.map');
+            return self.indexOf(asset) === index &&
+                !asset.endsWith('.DS_Store') &&
+                asset !== '/service-worker.js' &&
+                !asset.endsWith('.map');
         });
 
-        // 5. Update service-worker.js
-        let swContent = fs.readFileSync(swPath, 'utf8');
+        // 4. Update src/ServiceWorkerMain.res
+        let swResContent = fs.readFileSync(swResPath, 'utf8');
 
-        // Update CACHE_NAME
-        swContent = swContent.replace(
-            /const CACHE_NAME = '.*';/,
-            `const CACHE_NAME = '${cacheName}';`
+        // Update cacheName
+        swResContent = swResContent.replace(
+            /let cacheName = ".*"/,
+            `let cacheName = "${cacheName}"`
         );
 
-        // Update MANUAL_ASSETS
-        const manualAssetsString = JSON.stringify(manualAssets, null, 4);
-        swContent = swContent.replace(
-            /const MANUAL_ASSETS = \[[\s\S]*?\];/,
-            `const MANUAL_ASSETS = ${manualAssetsString};`
+        // Update manualAssets
+        const manualAssetsString = JSON.stringify(manualAssets);
+        swResContent = swResContent.replace(
+            /let manualAssets = \[.*\]/,
+            `let manualAssets = ${manualAssetsString}`
         );
 
-        fs.writeFileSync(swPath, swContent, 'utf8');
-        console.log(`[Sync SW] Updated CACHE_NAME to: ${cacheName}`);
-        console.log(`[Sync SW] Updated MANUAL_ASSETS with ${manualAssets.length} items.`);
+        fs.writeFileSync(swResPath, swResContent, 'utf8');
+        console.log(`[Sync SW] Updated src/ServiceWorkerMain.res with ${manualAssets.length} assets.`);
+
+        // 5. Compile ReScript
+        console.log('[Sync SW] Compiling ReScript...');
+        execSync('npm run res:build', { stdio: 'inherit' });
+
+        // 6. Bundle using esbuild
+        console.log('[Sync SW] Bundling Service Worker...');
+        execSync(`npx esbuild ${swJsCompiledPath} --bundle --minify --format=iife --outfile=${swPath}`, { stdio: 'inherit' });
+
+        console.log(`[Sync SW] Successfully bundled to ${swPath}`);
     } catch (err) {
         console.error('[Sync SW] Error during synchronization:', err);
     }

@@ -4,7 +4,7 @@ let run = () => {
   Console.log("Running Constants tests...")
 
   // Debug defaults
-  assert(Constants.debugLogLevel == "info")
+  assert(Constants.debugLogLevel == "debug")
   assert(Constants.debugMaxEntries == 500)
   assert(Constants.perfWarnThreshold == 500.0)
   Console.log("✓ Debug configuration defaults")

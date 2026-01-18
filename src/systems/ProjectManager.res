@@ -4,7 +4,7 @@ open ReBindings
 open Types
 open EventBus
 
-@module("../version.js") external version: string = "VERSION"
+// VersionData is accessed natively
 
 type onProgress = (int, int, string) => unit
 type apiError = string
@@ -259,7 +259,8 @@ let saveProject = (state: state, ~onProgress: option<onProgress>=?) => {
     let safeName = String.toLowerCase(safeName)
     let dateParts = String.split(Date.toISOString(Date.make()), "T")
     let dateStr = Belt.Array.get(dateParts, 0)->Option.getOr("unknown_date")
-    let filename = "Saved_RMX_" ++ safeName ++ "_v" ++ version ++ "_" ++ dateStr ++ ".vt.zip"
+    let filename =
+      "Saved_RMX_" ++ safeName ++ "_v" ++ VersionData.version ++ "_" ++ dateStr ++ ".vt.zip"
 
     let useFileHandle = %raw(`typeof window.showSaveFilePicker !== 'undefined'`)
 

@@ -7,7 +7,7 @@ let // ============================================
 // ============================================
 
 debugEnabledDefault = false
-let debugLogLevel = "info"
+let debugLogLevel = "debug"
 let debugMaxEntries = 500
 let perfWarnThreshold = 500.0 // ms
 let perfInfoThreshold = 100.0 // ms
@@ -203,7 +203,17 @@ let roomLabelPresets = Dict.fromArray([
 // BACKEND CONFIGURATION
 // ============================================
 
-let backendUrl = "http://localhost:8080"
+// Helper to safely get environment variables across Vite and Node
+let getEnv = (_name: string, fallback: string): string => {
+  let value = try {
+    %raw(`(typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env[name] : (typeof process !== 'undefined' && process.env ? process.env[name] : null))`)
+  } catch {
+  | _ => Nullable.null
+  }
+  value->Nullable.toOption->Option.getOr(fallback)
+}
+
+let backendUrl = getEnv("VITE_BACKEND_URL", "http://localhost:8080")
 
 // ============================================
 // NAVIGATION & SIMULATION
@@ -220,15 +230,10 @@ let sceneLoadTimeout = 10000
 // SYSTEM UTILITIES
 // ============================================
 
-@val @scope("import.meta.env") external mode: string = "MODE"
-@val @scope("import.meta.env") external isDev: bool = "DEV"
-
 let isDebugBuild = () => {
-  try {
-    mode === "development" || isDev
-  } catch {
-  | _ => false
-  }
+  let mode = getEnv("MODE", "production")
+  let isDevStr = getEnv("DEV", "false")
+  mode == "development" || isDevStr == "true"
 }
 
 let enableStateInspector = () => {

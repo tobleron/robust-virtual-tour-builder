@@ -3,8 +3,7 @@
 open ReBindings
 
 // Bindings
-@module("../version.js") external version: string = "VERSION"
-@module("../version.js") external buildInfo: string = "BUILD_INFO"
+// VersionData is accessed natively
 let autoHideDelay = Constants.progressBarAutoHideDelay
 @scope(("window", "location")) @val external reload: unit => unit = "reload"
 
@@ -131,10 +130,12 @@ let make = () => {
         </h1>
         <div className="flex items-center gap-2 text-white/40 mt-1">
           <span className="text-[10px] font-bold tracking-widest">
-            {React.string("V " ++ version)}
+            {React.string("V " ++ VersionData.version)}
           </span>
           <span className="text-[10px]"> {React.string("•")} </span>
-          <span className="text-[10px] font-medium opacity-60"> {React.string(buildInfo)} </span>
+          <span className="text-[10px] font-medium opacity-60">
+            {React.string(VersionData.buildInfo)}
+          </span>
         </div>
       </div>
 
@@ -215,7 +216,9 @@ let make = () => {
                 EventBus.dispatch(
                   ShowModal({
                     title: "About Builder",
-                    description: Some(`Version: ${version}<br>Build: ${buildInfo}`),
+                    description: Some(
+                      `Version: ${VersionData.version}<br>Build: ${VersionData.buildInfo}`,
+                    ),
                     icon: Some("info"),
                     contentHtml: None,
                     onClose: None,

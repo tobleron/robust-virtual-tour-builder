@@ -23,8 +23,8 @@ module SceneItem = {
 
     let thumbUrl = React.useMemo1(() => {
       switch scene.tinyFile {
-      | Some(tiny) => ReBindings.URL.createObjectURL(tiny)
-      | None => ReBindings.URL.createObjectURL(scene.file)
+      | Some(tiny) => UrlUtils.fileToUrl(tiny)
+      | None => UrlUtils.fileToUrl(scene.file)
       }
     }, [scene.id])
 

@@ -5,7 +5,7 @@ let run = () => {
   Console.log("Running ProjectData tests...")
 
   // Test: version exists
-  assert(version != "")
+  assert(VersionData.version != "")
 
   // Test: sanitizeLoadedScenes handles empty array
   let empty = sanitizeLoadedScenes([])

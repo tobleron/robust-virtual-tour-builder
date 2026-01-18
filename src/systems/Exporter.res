@@ -4,9 +4,7 @@ open ReBindings
 open Types
 open EventBus
 
-module Version = {
-  @module("../version.js") external version: string = "VERSION"
-}
+// VersionData is accessed natively
 
 /* Helper to fetch library files */
 let fetchLib = async filename => {
@@ -119,7 +117,7 @@ let exportTour = async (
 
   try {
     let formData = FormData.newFormData()
-    let version = Version.version
+    let version = VersionData.version
 
     /* 1. Generate HTML Templates */
     currentPhase := "TEMPLATES"
@@ -128,7 +126,7 @@ let exportTour = async (
     let html2k = TourTemplates.generateTourHTML(scenes, tourName, true, "2k", 90, 50, version)
     let htmlHd = TourTemplates.generateTourHTML(scenes, tourName, true, "hd", 60, 40, version)
     let htmlIndex = TourTemplates.generateExportIndex(tourName, version)
-    let embed = TourTemplates.generateEmbedCodes(tourName, version)
+    let embed = TourTemplates.generateEmbedCodes(tourName, VersionData.version)
 
     FormData.append(formData, "html_4k", html4k)
     FormData.append(formData, "html_2k", html2k)

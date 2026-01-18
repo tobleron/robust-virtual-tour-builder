@@ -3,7 +3,6 @@ import { join } from 'path';
 
 const pkgPath = join(process.cwd(), 'package.json');
 const htmlPath = join(process.cwd(), 'index.html');
-const versionJsPath = join(process.cwd(), 'src', 'version.js');
 
 try {
     const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
@@ -31,10 +30,11 @@ try {
         console.log('ℹ️ No change needed for index.html');
     }
 
-    // 2. Update src/version.js
-    const versionJsContent = `export const VERSION = "${version}";\nexport const BUILD_NUMBER = ${buildNumber};\nexport const BUILD_INFO = "[Stable Release]";\n`;
-    writeFileSync(versionJsPath, versionJsContent);
-    console.log('✅ Updated src/version.js');
+    // 2. Update src/utils/VersionData.res
+    const versionResPath = join(process.cwd(), 'src', 'utils', 'VersionData.res');
+    const versionResContent = `/**\n * GENERATED FILE - DO NOT EDIT MANUALLY\n * This file is updated by scripts/update-version.js\n */\n\nlet version = "${version}"\nlet buildNumber = ${buildNumber}\nlet buildInfo = "[Stable Release]"\n`;
+    writeFileSync(versionResPath, versionResContent);
+    console.log('✅ Updated src/utils/VersionData.res');
 
     console.log(`Successfully updated version to ${version}`);
 } catch (error) {

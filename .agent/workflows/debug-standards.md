@@ -174,3 +174,21 @@ DEBUG.getSummary()              // Count by module
 - ✅ Use `Logger.attempt` for risky operations
 - ✅ Use `Logger.timed` for performance-critical code
 - ✅ Follow UPPER_SNAKE_CASE for message names
+
+---
+
+## 10. 🤖 AI Agent Troubleshooting Protocol
+
+When the AI Agent is troubleshooting issues with the User, it **MUST** adhere to the following sequence:
+
+1.  **Forensic First**: Before writing any new code, check existing evidence.
+    -   Read `logs/error.log` for backend/critical errors.
+    -   Check `src/constants.js` to verify `DEBUG_LOG_LEVEL`.
+2.  **No Console.log**: The AI is **FORBIDDEN** from inserting `console.log` statements.
+    -   *Correction*: If the AI tempted to write `console.log`, it must write `Logger.debug` or `Logger.info` instead.
+3.  **Verify Pipeline**: If logs are missing from files:
+    -   Verify `src/utils/Logger.res` is initialized.
+    -   Verify the backend is reachable (e.g., via `curl` check or verifying previous successful health checks).
+4.  **Structured Debugging**:
+    -   Instead of "adding print statements", the AI should "instrument with Telemetry" using `Logger.timed` or `Logger.attempt`.
+
