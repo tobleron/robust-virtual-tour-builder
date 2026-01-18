@@ -20,10 +20,10 @@ async fn rotate_log_file(path: &std::path::Path) -> std::io::Result<()> {
     for i in (1..MAX_LOG_FILES).rev() {
         let old = dir.join(format!("{}.{}.{}", stem, i, ext));
         let new = dir.join(format!("{}.{}.{}", stem, i + 1, ext));
-        if let Ok(exists) = tokio::fs::try_exists(&old).await {
-            if exists {
-                tokio::fs::rename(&old, &new).await?;
-            }
+        if let Ok(exists) = tokio::fs::try_exists(&old).await
+            && exists
+        {
+            tokio::fs::rename(&old, &new).await?;
         }
     }
 
@@ -33,10 +33,10 @@ async fn rotate_log_file(path: &std::path::Path) -> std::io::Result<()> {
 
     // Delete oldest if over limit
     let oldest = dir.join(format!("{}.{}.{}", stem, MAX_LOG_FILES, ext));
-    if let Ok(exists) = tokio::fs::try_exists(&oldest).await {
-        if exists {
-            tokio::fs::remove_file(oldest).await?;
-        }
+    if let Ok(exists) = tokio::fs::try_exists(&oldest).await
+        && exists
+    {
+        tokio::fs::remove_file(oldest).await?;
     }
 
     Ok(())
@@ -52,12 +52,11 @@ async fn append_to_log(path: &str, content: &str) -> std::io::Result<()> {
     let log_file_path = std::path::Path::new(&log_dir_str).join(path);
 
     // Check if rotation is needed
-    if let Ok(metadata) = tokio::fs::metadata(&log_file_path).await {
-        if metadata.len() > MAX_LOG_SIZE {
-            if let Err(e) = rotate_log_file(&log_file_path).await {
-                tracing::error!("Failed to rotate log file: {}", e);
-            }
-        }
+    if let Ok(metadata) = tokio::fs::metadata(&log_file_path).await
+        && metadata.len() > MAX_LOG_SIZE
+        && let Err(e) = rotate_log_file(&log_file_path).await
+    {
+        tracing::error!("Failed to rotate log file: {}", e);
     }
 
     let mut file = OpenOptions::new()
@@ -86,17 +85,14 @@ pub async fn cleanup_logs() -> impl actix_web::Responder {
         let mut count = 0;
         if let Ok(entries) = fs::read_dir(logs_dir) {
             for entry in entries {
-                if let Ok(entry) = entry {
-                    if let Ok(metadata) = entry.metadata() {
-                        if let Ok(modified) = metadata.modified() {
-                            if let Ok(age) = modified.elapsed() {
-                                if age > Duration::from_secs(LOG_RETENTION_DAYS * 24 * 60 * 60) {
-                                    fs::remove_file(entry.path()).ok();
-                                    count += 1;
-                                }
-                            }
-                        }
-                    }
+                if let Ok(entry) = entry
+                    && let Ok(metadata) = entry.metadata()
+                    && let Ok(modified) = metadata.modified()
+                    && let Ok(age) = modified.elapsed()
+                    && age > Duration::from_secs(LOG_RETENTION_DAYS * 24 * 60 * 60)
+                {
+                    fs::remove_file(entry.path()).ok();
+                    count += 1;
                 }
             }
         }

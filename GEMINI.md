@@ -10,24 +10,23 @@ Before executing ANY code or shell command, you must perform a **Context Check**
 **Do not ask to run these. AUTOMATICALLY run them in this order:**
 
 ### PHASE 1: PRE-FLIGHT
-- **Task Workflow (CRITICAL)**: Before creating OR working on ANY task:
-  - **YOU MUST READ `tasks/TASKS.md` FIRST**.
-  - This file defines the mandatory lifecycle for all tasks.
-  - Follow its instructions in exact sequential order.
+- **Task Workflow (CRITICAL)**: Before performing ANY task from `tasks/pending` or `tasks/active`:
+  - Read `tasks/TASKS.md` first to understand the proper workflow.
+  - Follow the instructions in exact sequential order.
 - **Context Refresh**: 
   - Read `.agent/current_file_structure.md` to avoid hallucinating paths.
   - If imports found from `src/`, read relevant `.resi` / `.rs` interfaces.
-  - **New Modules**: If creating a new file, read `/new-module-standards` first.
+  - **New Modules**: If creating a new file, read `/new-module-standards.md` first.
 
 ### PHASE 2: EXECUTION
 - **Coding Standards (Routed)**:
-  - **ALWAYS READ FIRST**: `/functional-standards` (Universal Principles apply to ALL code).
+  - **ALWAYS READ FIRST**: `/functional-standards.md` (Universal Principles apply to ALL code).
   - **THEN**, based on file type:
-    - For **ReScript** (`.res`, `.resi`): ALSO follow `/rescript-standards`.
-    - For **Rust** (`.rs`): ALSO follow `/rust-standards`.
-  - **Logging**: All debug logs must follow `/debug-standards`.
+    - For **ReScript** (`.res`, `.resi`): ALSO follow `/rescript-standards.md`.
+    - For **Rust** (`.rs`): ALSO follow `/rust-standards.md`.
+  - **Logging**: All debug logs must follow `/debug-standards.md`.
 - **Test-Driven Dev**:
-  - Follow `/testing-standards` for test structure and patterns.
+  - Follow `/testing-standards.md` for test structure and patterns.
   - You are PERMITTED to run `npm test` autonomously.
   - **Constraint**: If tests fail 2x in a row, STOP and generate a `FAILURE_REPORT.md`.
 - **Build Verification**:
@@ -35,7 +34,7 @@ Before executing ANY code or shell command, you must perform a **Context Check**
 
 ### PHASE 3: COMMIT & PUSH
 - **Commit Protocol**: Use `./scripts/commit.sh` (handles formatting/linting).
-- **Push Protocol**: BEFORE pushing to remote, read and follow `/pre-push-workflow`.
+- **Push Protocol**: BEFORE pushing to remote, read and follow `/pre-push-workflow.md`.
 
 ## 🗣️ INTERACTION TRIGGERS
 

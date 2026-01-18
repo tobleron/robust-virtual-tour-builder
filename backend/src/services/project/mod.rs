@@ -27,7 +27,8 @@ mod tests {
         });
         let available_files = HashSet::from(["A".to_string()]);
 
-        let (cleaned, report) = validate_and_clean_project(project, &available_files).unwrap();
+        let (cleaned, report) =
+            validate_and_clean_project(project, &available_files).expect("Validation failed");
 
         assert_eq!(report.broken_links_removed, 1);
         assert!(
@@ -40,7 +41,7 @@ mod tests {
         assert!(
             cleaned["scenes"][0]["hotspots"]
                 .as_array()
-                .unwrap()
+                .expect("Hotspots array missing")
                 .is_empty()
         );
     }
@@ -56,7 +57,8 @@ mod tests {
         // B is orphaned because there's no link to it (and it's not the first scene)
         let available_files = HashSet::from(["A".to_string(), "B".to_string()]);
 
-        let (_, report) = validate_and_clean_project(project, &available_files).unwrap();
+        let (_, report) =
+            validate_and_clean_project(project, &available_files).expect("Validation failed");
 
         assert!(report.orphaned_scenes.contains(&"B".to_string()));
         assert!(!report.orphaned_scenes.contains(&"A".to_string())); // first scene is not orphaned
@@ -86,7 +88,8 @@ mod tests {
         });
         let available_files = HashSet::from(["A".to_string(), "B".to_string()]);
 
-        let (_, report) = validate_and_clean_project(project, &available_files).unwrap();
+        let (_, report) =
+            validate_and_clean_project(project, &available_files).expect("Validation failed");
 
         assert!(!report.has_issues());
         assert_eq!(report.errors.len(), 0);
@@ -104,7 +107,8 @@ mod tests {
         });
         let available_files = HashSet::from(["A".to_string()]);
 
-        let (cleaned, report) = validate_and_clean_project(project, &available_files).unwrap();
+        let (cleaned, report) =
+            validate_and_clean_project(project, &available_files).expect("Validation failed");
 
         assert!(!report.has_issues());
         assert_eq!(cleaned["scenes"][0]["name"], "A");

@@ -14,25 +14,25 @@ lazy_static! {
         "image_processing_total",
         "Total images processed",
         &["type"]
-    ).unwrap();
+    ).expect("Failed to register IMAGE_PROCESSING_TOTAL metric");
 
     // Image processing time
     pub static ref IMAGE_PROCESSING_DURATION: Histogram = register_histogram!(
         "image_processing_duration_seconds",
         "Image processing duration in seconds"
-    ).unwrap();
+    ).expect("Failed to register IMAGE_PROCESSING_DURATION metric");
 
     // Total bytes uploaded
     pub static ref UPLOAD_BYTES_TOTAL: Counter = register_counter!(
         "upload_bytes_total",
         "Total bytes uploaded"
-    ).unwrap();
+    ).expect("Failed to register UPLOAD_BYTES_TOTAL metric");
 
     // Currently active sessions
     pub static ref ACTIVE_SESSIONS: Gauge = register_gauge!(
         "active_sessions",
         "Currently active sessions"
-    ).unwrap();
+    ).expect("Failed to register ACTIVE_SESSIONS metric");
 
     /*
      * Resource Metrics
@@ -42,25 +42,25 @@ lazy_static! {
     pub static ref QUOTA_CURRENT_UPLOADS: Gauge = register_gauge!(
         "quota_current_uploads",
         "Current concurrent uploads"
-    ).unwrap();
+    ).expect("Failed to register QUOTA_CURRENT_UPLOADS metric");
 
     // Current upload size in bytes
     pub static ref QUOTA_CURRENT_SIZE_BYTES: Gauge = register_gauge!(
         "quota_current_size_bytes",
         "Current upload size in bytes"
-    ).unwrap();
+    ).expect("Failed to register QUOTA_CURRENT_SIZE_BYTES metric");
 
     // Cache hits for geocoding
     pub static ref GEOCODING_CACHE_HITS_TOTAL: Counter = register_counter!(
         "geocoding_cache_hits_total",
         "Cache hits for geocoding"
-    ).unwrap();
+    ).expect("Failed to register GEOCODING_CACHE_HITS_TOTAL metric");
 
     // Cache misses for geocoding
     pub static ref GEOCODING_CACHE_MISSES_TOTAL: Counter = register_counter!(
         "geocoding_cache_misses_total",
         "Cache misses for geocoding"
-    ).unwrap();
+    ).expect("Failed to register GEOCODING_CACHE_MISSES_TOTAL metric");
 }
 
 #[cfg(test)]

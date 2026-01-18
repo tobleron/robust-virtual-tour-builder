@@ -19,7 +19,7 @@ let prepareProjectData = (state: state): JSON.t => {
 }
 
 let generateServerTeaser = (state: state, onProgress: option<(int, string) => unit>): Promise.t<
-  Blob.t,
+  result<Blob.t, string>,
 > => {
   let progress = (pct, msg) => {
     switch onProgress {
@@ -66,31 +66,29 @@ let generateServerTeaser = (state: state, onProgress: option<(int, string) => un
     Constants.backendUrl ++ "/api/media/generate-teaser",
     Fetch.requestInit(~method="POST", ~body=formData, ()),
   )
-  ->Promise.then(res => {
-    if !Fetch.ok(res) {
-      let getText: Fetch.response => Promise.t<string> = %raw("(res) => res.text()")
-      getText(res)->Promise.then(text => {
-        let msg = "Server Teaser Failed: " ++ text
-        Logger.error(
-          ~module_="ServerTeaser",
-          ~message="GENERATION_FAILED",
-          ~data={"error": text},
-          (),
-        )
-        Promise.reject(JsError.throwWithMessage(msg))
-      })
-    } else {
-      progress(50, "Rendering on Server...")
-      Fetch.blob(res)
+  ->Promise.then(BackendApi.handleResponse)
+  ->Promise.then(result => {
+    switch result {
+    | Ok(res) => {
+        progress(50, "Rendering on Server...")
+        Fetch.blob(res)->Promise.then(blob => Promise.resolve(Ok(blob)))
+      }
+    | Error(msg) => Promise.resolve(Error(msg))
     }
   })
-  ->Promise.then(blob => {
-    progress(100, "Done!")
-    Logger.endOperation(~module_="ServerTeaser", ~operation="GENERATE_SERVER", ())
-    Promise.resolve(blob)
+  ->Promise.then(blobResult => {
+    switch blobResult {
+    | Ok(blob) => {
+        progress(100, "Done!")
+        Logger.endOperation(~module_="ServerTeaser", ~operation="GENERATE_SERVER", ())
+        Promise.resolve(Ok(blob))
+      }
+    | Error(msg) => Promise.resolve(Error(msg))
+    }
   })
   ->Promise.catch(err => {
-    Logger.error(~module_="ServerTeaser", ~message="SERVER_ERROR", ~data={"error": err}, ())
-    Promise.reject(err)
+    let (msg, _stack) = Logger.getErrorDetails(err)
+    Logger.error(~module_="ServerTeaser", ~message="SERVER_ERROR", ~data={"error": msg}, ())
+    Promise.resolve(Error(msg))
   })
 }

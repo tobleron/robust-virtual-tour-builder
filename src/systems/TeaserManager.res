@@ -315,19 +315,21 @@ let finalizeTeaser = async (format: string, baseName: string) => {
     if format == "webm" {
       DownloadSystem.saveBlob(blob, baseName ++ ".webm")
     } else if format == "mp4" {
-      try {
-        await VideoEncoder.transcodeWebMToMP4(blob, baseName, Some((_pct, _msg) => ()))
-        /* Success notification? */
-      } catch {
-      | exn => {
-          let (msg, stack) = Logger.getErrorDetails(exn)
+      let transcodeResult = await VideoEncoder.transcodeWebMToMP4(
+        blob,
+        baseName,
+        Some((_pct, _msg) => ()),
+      )
+      switch transcodeResult {
+      | Ok() => EventBus.dispatch(ShowNotification("Video transcoded successfully", #Success))
+      | Error(msg) => {
           Logger.error(
             ~module_="Teaser",
             ~message="TRANSCODE_FAILED",
-            ~data={"error": msg, "stack": stack},
+            ~data=Some({"error": msg}),
             (),
           )
-          DownloadSystem.saveBlob(blob, baseName ++ ".webm") /* Fallback */
+          EventBus.dispatch(ShowNotification("Video transcoding failed: " ++ msg, #Error))
         }
       }
     }
@@ -425,19 +427,35 @@ let startAutoTeaser = async (
         },
       ),
     )
-    ->Promise.then(blob => {
-      let safeName = Js.String.replaceByRe(/[^a-z0-9]/gi, "_", state.tourName)
-      let filename = "Cinematic_" ++ safeName ++ ".mp4"
-      DownloadSystem.saveBlob(blob, filename)
+    ->Promise.then(teaserResult => {
+      switch teaserResult {
+      | Ok(blob) => {
+          let safeName = Js.String.replaceByRe(/[^a-z0-9]/gi, "_", state.tourName)
+          let filename = "Cinematic_" ++ safeName ++ ".mp4"
+          DownloadSystem.saveBlob(blob, filename)
 
-      GlobalStateBridge.dispatch(SetIsTeasing(false))
-      ProgressBar.updateProgressBar(0.0, "", ~visible=false, ~title="", ())
+          GlobalStateBridge.dispatch(SetIsTeasing(false))
+          ProgressBar.updateProgressBar(0.0, "", ~visible=false, ~title="", ())
+        }
+      | Error(msg) => {
+          GlobalStateBridge.dispatch(SetIsTeasing(false))
+          ProgressBar.updateProgressBar(
+            0.0,
+            "Generation Failed",
+            ~visible=false,
+            ~title="Error",
+            (),
+          )
+          EventBus.dispatch(ShowNotification("Server Generation Failed: " ++ msg, #Error))
+        }
+      }
       Promise.resolve()
     })
-    ->Promise.catch(_ => {
+    ->Promise.catch(err => {
+      let (msg, _stack) = Logger.getErrorDetails(err)
       GlobalStateBridge.dispatch(SetIsTeasing(false))
       ProgressBar.updateProgressBar(0.0, "Generation Failed", ~visible=false, ~title="Error", ())
-      EventBus.dispatch(ShowNotification("Server Generation Failed", #Error))
+      EventBus.dispatch(ShowNotification("Server Generation Failed: " ++ msg, #Error))
       Promise.resolve()
     })
     ->ignore
@@ -467,79 +485,81 @@ let startAutoTeaser = async (
     | Error(msg) =>
       EventBus.dispatch(ShowNotification("Failed to generate path: " ++ msg, #Error))
       Logger.error(~module_="Teaser", ~message="PATH_FAILED", ~data=Some({"error": msg}), ())
-    | Ok(pathSteps) =>
-      Logger.info(
-        ~module_="Teaser",
-        ~message="PATH_READY",
-        ~data=Some({
-          "steps": Belt.Array.length(pathSteps),
-          "durationMs": Date.now() -. pathStartTime,
-        }),
-        (),
-      )
+    | Ok(pathSteps) => {
+        Logger.info(
+          ~module_="Teaser",
+          ~message="PATH_READY",
+          ~data=Some({
+            "steps": Belt.Array.length(pathSteps),
+            "durationMs": Date.now() -. pathStartTime,
+          }),
+          (),
+        )
 
-      Recorder.startAnimationLoop(includeLogo, logoState)
-      let started = Recorder.startRecording()
+        Recorder.startAnimationLoop(includeLogo, logoState)
+        let started = Recorder.startRecording()
 
-      if started {
-        try {
-          /* 4. Prepare First */
-          switch Belt.Array.get(pathSteps, 0) {
-          | Some(firstStep) => await prepareFirstScene(firstStep, style, config)
-          | None => ()
-          }
-
-          /* 5. Execute Path */
-          let len = Belt.Array.length(pathSteps)
-
-          let rec runSteps = async (i: int) => {
-            if i < len {
-              switch Belt.Array.get(pathSteps, i) {
-              | Some(step) =>
-                await recordShot(i, step, style, config)
-
-                if i < len - 1 {
-                  switch Belt.Array.get(pathSteps, i + 1) {
-                  | Some(nextStep) => await transitionToNextShot(i, nextStep, style, config)
-                  | None => ()
-                  }
-                }
-              | None => ()
-              }
-              await runSteps(i + 1)
+        if started {
+          try {
+            /* 4. Prepare First */
+            switch Belt.Array.get(pathSteps, 0) {
+            | Some(firstStep) => await prepareFirstScene(firstStep, style, config)
+            | None => ()
             }
-          }
 
-          await runSteps(0)
+            /* 5. Execute Path */
+            let len = Belt.Array.length(pathSteps)
 
-          Recorder.stopRecording()
+            let rec runSteps = async (i: int) => {
+              if i < len {
+                switch Belt.Array.get(pathSteps, i) {
+                | Some(step) => {
+                    await recordShot(i, step, style, config)
 
-          let tourName = GlobalStateBridge.getState().tourName
-          let safeName = Js.String.replaceByRe(/[^a-z0-9]/gi, "_", tourName)->String.toLowerCase
-          let baseName = "Teaser_" ++ style ++ "_" ++ safeName
+                    if i < len - 1 {
+                      switch Belt.Array.get(pathSteps, i + 1) {
+                      | Some(nextStep) => await transitionToNextShot(i, nextStep, style, config)
+                      | None => ()
+                      }
+                    }
+                  }
+                | None => ()
+                }
+                await runSteps(i + 1)
+              }
+            }
 
-          Logger.endOperation(
-            ~module_="Teaser",
-            ~operation="GENERATE",
-            ~data=Some({
-              "style": style,
-              "durationMs": Date.now() -. pathStartTime, // Rough total duration
-              "sceneCount": len,
-            }),
-            (),
-          )
+            await runSteps(0)
 
-          await finalizeTeaser(format, baseName)
-        } catch {
-        | exn => {
-            let (msg, stack) = Logger.getErrorDetails(exn)
-            Logger.error(
+            Recorder.stopRecording()
+
+            let tourName = GlobalStateBridge.getState().tourName
+            let safeName = Js.String.replaceByRe(/[^a-z0-9]/gi, "_", tourName)->String.toLowerCase
+            let baseName = "Teaser_" ++ style ++ "_" ++ safeName
+
+            Logger.endOperation(
               ~module_="Teaser",
-              ~message="GENERATE_FAILED",
-              ~data={"error": msg, "stack": stack},
+              ~operation="GENERATE",
+              ~data=Some({
+                "style": style,
+                "durationMs": Date.now() -. pathStartTime, // Rough total duration
+                "sceneCount": len,
+              }),
               (),
             )
-            Recorder.stopRecording()
+
+            await finalizeTeaser(format, baseName)
+          } catch {
+          | exn => {
+              let (msg, stack) = Logger.getErrorDetails(exn)
+              Logger.error(
+                ~module_="Teaser",
+                ~message="GENERATE_FAILED",
+                ~data={"error": msg, "stack": stack},
+                (),
+              )
+              Recorder.stopRecording()
+            }
           }
         }
       }

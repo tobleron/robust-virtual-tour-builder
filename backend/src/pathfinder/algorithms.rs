@@ -120,10 +120,10 @@ pub fn calculate_walk_path(
             .find(|h| h.is_return_link.unwrap_or(false));
 
         if let Some(link) = return_link {
-            let mut next_idx = find_scene_index(&scenes, &link.target).unwrap_or(usize::MAX);
-            if next_idx == usize::MAX {
-                break;
-            }
+            let mut next_idx = match find_scene_index(&scenes, &link.target) {
+                Some(idx) => idx,
+                None => break,
+            };
 
             if let Some(last_step) = path.last_mut() {
                 let (trans_yaw, trans_pitch) = get_hotspot_view(link);
@@ -231,16 +231,17 @@ pub fn calculate_timeline_path(
                 };
 
                 let mut push_new = true;
-                if let Some(last) = path.last_mut() {
-                    if last.idx == start_scene_idx && last.transition_target.is_none() {
-                        last.transition_target = Some(TransitionTarget {
-                            yaw: trans_yaw,
-                            pitch: trans_pitch,
-                            target_name: item.target_scene.clone(),
-                            timeline_item_id: Some(item.id.clone()),
-                        });
-                        push_new = false;
-                    }
+                if let Some(last) = path.last_mut()
+                    && last.idx == start_scene_idx
+                    && last.transition_target.is_none()
+                {
+                    last.transition_target = Some(TransitionTarget {
+                        yaw: trans_yaw,
+                        pitch: trans_pitch,
+                        target_name: item.target_scene.clone(),
+                        timeline_item_id: Some(item.id.clone()),
+                    });
+                    push_new = false;
                 }
 
                 if push_new {
@@ -261,10 +262,10 @@ pub fn calculate_timeline_path(
                 let mut arrival_view = get_default_view();
 
                 if let Some(mut target_idx) = target_idx_opt {
-                    if let Some(h) = hotspot {
-                        if let (Some(ty), Some(tp)) = (h.target_yaw, h.target_pitch) {
-                            arrival_view = ArrivalView { yaw: ty, pitch: tp };
-                        }
+                    if let Some(h) = hotspot
+                        && let (Some(ty), Some(tp)) = (h.target_yaw, h.target_pitch)
+                    {
+                        arrival_view = ArrivalView { yaw: ty, pitch: tp };
                     }
 
                     if skip_auto_forward {

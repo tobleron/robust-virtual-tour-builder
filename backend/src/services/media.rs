@@ -38,10 +38,10 @@ pub fn get_suggested_name(original: &str) -> String {
         .unwrap_or(original);
 
     // Try to match the pattern _(\d{6})_\d{2}_(\d{3})
-    if let Some(caps) = FILENAME_REGEX.captures(base_name) {
-        if caps.len() >= 3 {
-            return format!("{}_{}", &caps[1], &caps[2]);
-        }
+    if let Some(caps) = FILENAME_REGEX.captures(base_name)
+        && caps.len() >= 3
+    {
+        return format!("{}_{}", &caps[1], &caps[2]);
     }
 
     base_name.to_string()
@@ -92,8 +92,10 @@ pub fn resize_fast_rgba(
     let mut dst_image = FrImage::new(target_width, target_height, PixelType::U8x4);
     let mut resizer = Resizer::new();
 
-    let mut options = ResizeOptions::default();
-    options.algorithm = ResizeAlg::Convolution(FilterType::Lanczos3);
+    let options = ResizeOptions {
+        algorithm: ResizeAlg::Convolution(FilterType::Lanczos3),
+        ..Default::default()
+    };
 
     resizer
         .resize(&src_image, &mut dst_image, &options)
@@ -158,40 +160,40 @@ pub fn perform_metadata_extraction_rgba(
     );
 
     // 0. Check for existing "reMX" specific metadata (PREVENTION of Re-optimization)
-    if let Ok(webp) = WebP::from_bytes(Bytes::copy_from_slice(input_data)) {
-        if let Some(chunk) = webp.chunk_by_id(*b"reMX") {
-            let data_ref = chunk.content();
-            let slice = match data_ref {
-                RiffContent::Data(data) => data.as_ref(),
-                _ => &[] as &[u8],
-            };
+    if let Ok(webp) = WebP::from_bytes(Bytes::copy_from_slice(input_data))
+        && let Some(chunk) = webp.chunk_by_id(*b"reMX")
+    {
+        let data_ref = chunk.content();
+        let slice = match data_ref {
+            RiffContent::Data(data) => data.as_ref(),
+            _ => &[] as &[u8],
+        };
 
-            if let Ok(mut full_meta) = serde_json::from_slice::<MetadataResponse>(slice) {
-                full_meta.is_optimized = true;
-                full_meta.checksum = checksum.clone(); // Update with fresh checksum
-                full_meta.suggested_name = original_filename.map(get_suggested_name);
-                return Ok(full_meta);
-            }
+        if let Ok(mut full_meta) = serde_json::from_slice::<MetadataResponse>(slice) {
+            full_meta.is_optimized = true;
+            full_meta.checksum = checksum.clone(); // Update with fresh checksum
+            full_meta.suggested_name = original_filename.map(get_suggested_name);
+            return Ok(full_meta);
+        }
 
-            if let Ok(prev_analysis) = serde_json::from_slice::<QualityAnalysis>(slice) {
-                return Ok(MetadataResponse {
-                    exif: ExifMetadata {
-                        make: None,
-                        model: None,
-                        date_time: None,
-                        gps: None,
-                        width: src_w,
-                        height: src_h,
-                        focal_length: None,
-                        aperture: None,
-                        iso: None,
-                    },
-                    quality: prev_analysis,
-                    is_optimized: true,
-                    checksum: checksum.clone(),
-                    suggested_name: original_filename.map(get_suggested_name),
-                });
-            }
+        if let Ok(prev_analysis) = serde_json::from_slice::<QualityAnalysis>(slice) {
+            return Ok(MetadataResponse {
+                exif: ExifMetadata {
+                    make: None,
+                    model: None,
+                    date_time: None,
+                    gps: None,
+                    width: src_w,
+                    height: src_h,
+                    focal_length: None,
+                    aperture: None,
+                    iso: None,
+                },
+                quality: prev_analysis,
+                is_optimized: true,
+                checksum: checksum.clone(),
+                suggested_name: original_filename.map(get_suggested_name),
+            });
         }
     }
 
@@ -223,7 +225,7 @@ pub fn perform_metadata_extraction_rgba(
             .get_field(exif::Tag::FocalLength, exif::In::PRIMARY)
             .and_then(|f| {
                 if let exif::Value::Rational(ref v) = f.value {
-                    v.get(0).map(|r| r.to_f64() as f32)
+                    v.first().map(|r| r.to_f64() as f32)
                 } else {
                     None
                 }
@@ -232,7 +234,7 @@ pub fn perform_metadata_extraction_rgba(
             .get_field(exif::Tag::FNumber, exif::In::PRIMARY)
             .and_then(|f| {
                 if let exif::Value::Rational(ref v) = f.value {
-                    v.get(0).map(|r| r.to_f64() as f32)
+                    v.first().map(|r| r.to_f64() as f32)
                 } else {
                     None
                 }
@@ -250,13 +252,13 @@ pub fn perform_metadata_extraction_rgba(
             (lat_field, lat_ref_field, lon_field, lon_ref_field)
         {
             let parse_gps = |f: &exif::Field| -> Option<f64> {
-                if let exif::Value::Rational(ref dms) = f.value {
-                    if dms.len() >= 3 {
-                        let d = dms[0].to_f64();
-                        let m = dms[1].to_f64();
-                        let s = dms[2].to_f64();
-                        return Some(d + m / 60.0 + s / 3600.0);
-                    }
+                if let exif::Value::Rational(ref dms) = f.value
+                    && dms.len() >= 3
+                {
+                    let d = dms[0].to_f64();
+                    let m = dms[1].to_f64();
+                    let s = dms[2].to_f64();
+                    return Some(d + m / 60.0 + s / 3600.0);
                 }
                 None
             };
@@ -581,7 +583,8 @@ mod tests {
         let data = b"hello world";
         // We need a valid-ish RGBA buffer for the quality analysis part
         let rgba = vec![0u8; 400 * 400 * 4];
-        let res = perform_metadata_extraction_rgba(&rgba, 400, 400, data, None).unwrap();
+        let res = perform_metadata_extraction_rgba(&rgba, 400, 400, data, None)
+            .expect("Metadata extraction failed");
 
         // sha256 of "hello world" is b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9
         assert!(res.checksum.starts_with("b94d27b9934d3e08"));
@@ -596,7 +599,8 @@ mod tests {
         let rgba = vec![128u8; (w * h * 4) as usize];
         let data = vec![0u8; 100]; // Dummy input data
 
-        let res = perform_metadata_extraction_rgba(&rgba, w, h, &data, None).unwrap();
+        let res = perform_metadata_extraction_rgba(&rgba, w, h, &data, None)
+            .expect("Metadata extraction failed");
         assert!(res.quality.is_blurry);
         assert_eq!(res.quality.stats.sharpness_variance, 0);
     }
@@ -614,7 +618,8 @@ mod tests {
             dark_rgba[(i * 4 + 2) as usize] = 10;
             dark_rgba[(i * 4 + 3) as usize] = 255;
         }
-        let res_dark = perform_metadata_extraction_rgba(&dark_rgba, w, h, &vec![0], None).unwrap();
+        let res_dark = perform_metadata_extraction_rgba(&dark_rgba, w, h, &vec![0], None)
+            .expect("Metadata extraction failed");
         assert!(res_dark.quality.is_severely_dark);
 
         // Very bright image
@@ -625,16 +630,22 @@ mod tests {
             bright_rgba[(i * 4 + 2) as usize] = 250;
             bright_rgba[(i * 4 + 3) as usize] = 255;
         }
-        let res_bright =
-            perform_metadata_extraction_rgba(&bright_rgba, w, h, &vec![0], None).unwrap();
-        assert!(res_bright.quality.analysis.unwrap().contains("Very bright"));
+        let res_bright = perform_metadata_extraction_rgba(&bright_rgba, w, h, &vec![0], None)
+            .expect("Metadata extraction failed");
+        assert!(
+            res_bright
+                .quality
+                .analysis
+                .expect("Analysis missing")
+                .contains("Very bright")
+        );
     }
     #[test]
     fn test_encode_webp_basic() {
         let img = DynamicImage::new_rgba8(100, 100);
         let result = encode_webp(&img, 80.0);
         assert!(result.is_ok());
-        let bytes = result.unwrap();
+        let bytes = result.expect("WebP encoding failed");
         assert!(bytes.len() > 0);
         assert_eq!(&bytes[0..4], b"RIFF");
     }

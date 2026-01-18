@@ -11,15 +11,17 @@ pub const PROCESSED_IMAGE_WIDTH: u32 = 4096;
 pub const WEBP_QUALITY: f32 = 85.0;
 pub const TEMP_DIR: &str = "/tmp/remax_backend";
 pub const SESSIONS_DIR: &str = "/tmp/remax_sessions";
-pub const MAX_UPLOAD_SIZE: usize = 2048 * 1024 * 1024; // 2GB limit
+pub const MAX_UPLOAD_SIZE: usize = 60 * 1024 * 1024; // 60MB limit
 pub const MAX_LOG_SIZE: u64 = 10 * 1024 * 1024; // 10 MB
 pub const MAX_LOG_FILES: usize = 5;
 pub const LOG_RETENTION_DAYS: u64 = 7;
 
 pub fn get_temp_path(extension: &str) -> PathBuf {
     let mut path = PathBuf::from(TEMP_DIR);
-    if !path.exists() {
-        fs::create_dir_all(&path).unwrap_or_default();
+    if !path.exists()
+        && let Err(e) = fs::create_dir_all(&path)
+    {
+        tracing::error!("Failed to create temp directory {:?}: {}", path, e);
     }
     path.push(format!("{}.{}", Uuid::new_v4(), extension));
     path
@@ -93,7 +95,7 @@ pub async fn quota_stats(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+
     use crate::services::upload_quota::QuotaStats;
 
     #[test]
