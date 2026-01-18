@@ -28,7 +28,7 @@ let run = () => {
 
   assertString(UpdateLinkDraft(dummyDraft), "UpdateLinkDraft", "UpdateLinkDraft(Some)")
 
-  assertString(StartLinking(dummyDraft), "StartLinking", "StartLinking")
+  assertString(StartLinking(Some(dummyDraft)), "StartLinking", "StartLinking")
   assertString(StopLinking, "StopLinking", "StopLinking")
 
   assertString(SetIsTeasing(true), "SetIsTeasing(true)", "SetIsTeasing(true)")

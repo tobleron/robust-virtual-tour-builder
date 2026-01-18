@@ -126,20 +126,8 @@ let make = () => {
     } else {
       let v = Nullable.toOption(ReBindings.Viewer.instance)
       switch v {
-      | Some(viewer) =>
-        let hfov = ReBindings.Viewer.getHfov(viewer)
-        let pitch = ReBindings.Viewer.getPitch(viewer)
-        let yaw = ReBindings.Viewer.getYaw(viewer)
-
-        let initialDraft: Types.linkDraft = {
-          yaw,
-          pitch,
-          camYaw: yaw,
-          camPitch: pitch,
-          camHfov: hfov,
-          intermediatePoints: None,
-        }
-        dispatch(Actions.StartLinking(initialDraft))
+      | Some(_viewer) =>
+        dispatch(Actions.StartLinking(None))
         EventBus.dispatch(ShowNotification("Link Mode: ACTIVE", #Success))
       | None => EventBus.dispatch(ShowNotification("Viewer not initialized", #Error))
       }

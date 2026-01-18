@@ -128,7 +128,7 @@ let make = () => {
                 intermediatePoints: None,
               }
 
-              GlobalStateBridge.dispatch(Actions.StartLinking(initialDraft))
+              GlobalStateBridge.dispatch(Actions.StartLinking(Some(initialDraft)))
 
               // Force update lines immediately for the very first click
               switch Nullable.toOption(viewer) {

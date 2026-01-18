@@ -2,7 +2,7 @@ open Types
 
 type action =
   | SetPreloadingScene(int)
-  | StartLinking(linkDraft)
+  | StartLinking(option<linkDraft>)
   | StopLinking
   | UpdateLinkDraft(linkDraft)
   | SetIsTeasing(bool)
