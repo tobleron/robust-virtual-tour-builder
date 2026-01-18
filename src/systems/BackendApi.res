@@ -3,6 +3,55 @@
 open ReBindings
 open SharedTypes
 
+/* --- CONCURRENCY CONTROL --- */
+module RequestQueue = {
+  let maxConcurrent = 6
+  let activeCount = ref(0)
+  let queue: array<unit => unit> = []
+
+  let process = () => {
+    if activeCount.contents < maxConcurrent {
+      switch Array.shift(queue) {
+      | Some(run) =>
+        activeCount := activeCount.contents + 1
+        run()
+      | None => ()
+      }
+    }
+  }
+
+  let schedule = (task: unit => Promise.t<'a>): Promise.t<'a> => {
+    Promise.make((resolve, reject) => {
+      let run = () => {
+        task()
+        ->Promise.then(result => {
+          activeCount := activeCount.contents - 1
+          process()
+          resolve(result)
+          Promise.resolve()
+        })
+        ->Promise.catch(err => {
+          activeCount := activeCount.contents - 1
+          process()
+          reject(err)
+          Promise.resolve()
+        })
+        ->ignore
+      }
+
+      Array.push(queue, run)
+      process()
+    })
+  }
+}
+
+/**
+ * Global queued fetch wrapper to prevent 429 errors
+ */
+let queuedFetch = (url, init) => {
+  RequestQueue.schedule(() => Fetch.fetch(url, init))
+}
+
 /* --- API TYPES (Matching Rust Structs) --- */
 
 // Types imported from SharedTypes:
@@ -160,7 +209,7 @@ let importProject = (file: File.t): Promise.t<apiResult<importResponse>> => {
   let formData = FormData.newFormData()
   FormData.append(formData, "file", file)
 
-  Fetch.fetch(
+  queuedFetch(
     Constants.backendUrl ++ "/api/project/import",
     Fetch.requestInit(~method="POST", ~body=formData, ()),
   )
@@ -207,7 +256,7 @@ let validateProject = (file: File.t): Promise.t<apiResult<validationReport>> => 
   let formData = FormData.newFormData()
   FormData.append(formData, "file", file)
 
-  Fetch.fetch(
+  queuedFetch(
     Constants.backendUrl ++ "/api/project/validate",
     Fetch.requestInit(~method="POST", ~body=formData, ()),
   )
@@ -255,7 +304,7 @@ let loadProject = (file: File.t): Promise.t<apiResult<Blob.t>> => {
   let formData = FormData.newFormData()
   FormData.append(formData, "file", file)
 
-  Fetch.fetch(
+  queuedFetch(
     Constants.backendUrl ++ "/api/project/load",
     Fetch.requestInit(~method="POST", ~body=formData, ()),
   )
@@ -297,7 +346,7 @@ let extractMetadata = (file: File.t): Promise.t<apiResult<metadataResponse>> => 
   let formData = FormData.newFormData()
   FormData.append(formData, "file", file)
 
-  Fetch.fetch(
+  queuedFetch(
     Constants.backendUrl ++ "/api/media/extract-metadata",
     Fetch.requestInit(~method="POST", ~body=formData, ()),
   )
@@ -356,7 +405,7 @@ let processImageFull = (
   | None => ()
   }
 
-  Fetch.fetch(
+  queuedFetch(
     Constants.backendUrl ++ "/api/media/process-full",
     Fetch.requestInit(~method="POST", ~body=formData, ()),
   )
@@ -399,7 +448,7 @@ let saveProject = (projectData: JSON.t): Promise.t<apiResult<Blob.t>> => {
   let formData = FormData.newFormData()
   FormData.append(formData, "project_data", projectData)
 
-  Fetch.fetch(
+  queuedFetch(
     Constants.backendUrl ++ "/api/project/save",
     Fetch.requestInit(~method="POST", ~body=formData, ()),
   )
@@ -441,7 +490,7 @@ let calculatePath = (payload: pathRequest): Promise.t<apiResult<array<step>>> =>
   let headers = Dict.make()
   Dict.set(headers, "Content-Type", "application/json")
 
-  Fetch.fetch(
+  queuedFetch(
     Constants.backendUrl ++ "/api/project/calculate-path",
     Fetch.requestInit(
       ~method="POST",
@@ -494,7 +543,7 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<apiResult<string>> => {
   let headers = Dict.make()
   Dict.set(headers, "Content-Type", "application/json")
 
-  Fetch.fetch(
+  queuedFetch(
     Constants.backendUrl ++ "/api/geocoding/reverse",
     Fetch.requestInit(
       ~method="POST",
@@ -554,7 +603,7 @@ let batchCalculateSimilarity = (pairs: array<similarityPair>): Promise.t<
   let headers = Dict.make()
   Dict.set(headers, "Content-Type", "application/json")
 
-  Fetch.fetch(
+  queuedFetch(
     Constants.backendUrl ++ "/api/media/similarity",
     Fetch.requestInit(
       ~method="POST",

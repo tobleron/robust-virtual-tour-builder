@@ -98,7 +98,7 @@ let checkBackendHealth = () => {
     (),
   )
 
-  Fetch.fetch(
+  BackendApi.queuedFetch(
     Constants.backendUrl ++ "/health?t=" ++ timestamp,
     Fetch.requestInit(~method="GET", ~signal=_signal, ()),
   )
@@ -325,7 +325,7 @@ let generateResolutions = (file: File.t): Promise.t<result<dict<Blob.t>, string>
   let formData = FormData.newFormData()
   FormData.append(formData, "file", file)
 
-  Fetch.fetch(
+  BackendApi.queuedFetch(
     Constants.backendUrl ++ "/api/media/resize-batch",
     Fetch.requestInit(~method="POST", ~body=formData, ()),
   )
