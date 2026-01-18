@@ -238,7 +238,10 @@ let make = () => {
   let startIndex = Math.floor(scrollTop /. itemHeight) -. buffer->Int.toFloat
   let startIndex = Math.max(0.0, startIndex)->Float.toInt
 
-  let visibleCount = Math.ceil(viewportHeight /. itemHeight)
+  // Ensure we render at least a screen's worth even if viewport calculation fails
+  let rawVisibleCount = Math.ceil(viewportHeight /. itemHeight)
+  let visibleCount = Math.max(10.0, rawVisibleCount)
+
   let endIndex = startIndex + visibleCount->Float.toInt + buffer * 2
   let endIndex = Math.Int.min(Array.length(state.scenes) - 1, endIndex)
 
