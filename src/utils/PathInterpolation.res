@@ -131,8 +131,8 @@ let getFloorProjectedPath = (start: point, end: point, segments: int) => {
     let yRad = p.yaw->toRad
     let pRad = p.pitch->toRad
 
-    // Small threshold below horizon to avoid division by zero or infinity
-    if pRad >= -0.05 {
+    // Threshold lowered to -0.001 to allow projection closer to horizon
+    if pRad >= -0.001 {
       None
     } else {
       let r = -1.0 /. Math.tan(pRad)
@@ -161,5 +161,43 @@ let getFloorProjectedPath = (start: point, end: point, segments: int) => {
     }
     path
   | _ => [start, end]
+  }
+}
+
+let getSphericalPath = (start: point, end: point, segments: int) => {
+  let toRad = deg => deg *. Math.Constants.pi /. 180.0
+  let toDeg = rad => rad *. 180.0 /. Math.Constants.pi
+
+  let phi1 = start.pitch->toRad
+  let lam1 = start.yaw->toRad
+  let phi2 = end.pitch->toRad
+  let lam2 = end.yaw->toRad
+
+  // Angular distance between points
+  let deltaLam = lam2 -. lam1
+  let a = Math.sin(phi1) *. Math.sin(phi2) +. Math.cos(phi1) *. Math.cos(phi2) *. Math.cos(deltaLam)
+  // Clamp to avoid NaN from precision issues
+  let d = Math.acos(Math.max(-1.0, Math.min(1.0, a)))
+
+  if d < 0.001 {
+    [start, end]
+  } else {
+    let path = []
+    let sinD = Math.sin(d)
+    for i in 0 to segments {
+      let f = Int.toFloat(i) /. Int.toFloat(segments)
+      let a = Math.sin((1.0 -. f) *. d) /. sinD
+      let b = Math.sin(f *. d) /. sinD
+
+      let x = a *. Math.cos(phi1) *. Math.cos(lam1) +. b *. Math.cos(phi2) *. Math.cos(lam2)
+      let y = a *. Math.cos(phi1) *. Math.sin(lam1) +. b *. Math.cos(phi2) *. Math.sin(lam2)
+      let z = a *. Math.sin(phi1) +. b *. Math.sin(phi2)
+
+      let phi = Math.atan2(~y=z, ~x=Math.sqrt(x *. x +. y *. y))
+      let lam = Math.atan2(~y, ~x)
+
+      let _ = Js.Array.push({yaw: lam->toDeg, pitch: phi->toDeg}, path)
+    }
+    path
   }
 }

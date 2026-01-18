@@ -338,24 +338,23 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
                     (),
                   )
                 } else {
-                  let startCoords = getScreenCoords(v, sp, sy, rect)
-                  let endCoords = getScreenCoords(v, vf.pitch, vf.yaw, rect)
-                  switch (startCoords, endCoords) {
-                  | (Some(s), Some(e)) =>
-                    drawLine(
-                      svg,
-                      s.x,
-                      s.y,
-                      e.x,
-                      e.y,
-                      "#ef4444",
-                      3.0,
-                      0.8,
-                      ~className="line-marching-ants",
-                      (),
-                    )
-                  | _ => ()
+                  let startPt: PathInterpolation.point = {PathInterpolation.yaw: sy, pitch: sp}
+                  let endPt: PathInterpolation.point = {
+                    PathInterpolation.yaw: vf.yaw,
+                    pitch: vf.pitch,
                   }
+                  let curvedPath = PathInterpolation.getFloorProjectedPath(startPt, endPt, 40)
+                  drawPolyLine(
+                    svg,
+                    v,
+                    curvedPath,
+                    rect,
+                    "#ef4444",
+                    3.0,
+                    0.8,
+                    ~className="line-marching-ants",
+                    (),
+                  )
                 }
               | _ => ()
               }
@@ -378,18 +377,40 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
               }
 
               // --- RED CRITICAL PATH (Camera Director Curve) ---
-              // v4.2.0 point 55: Red dashed line appearing on first click
-              // Fixed: Removed [currentCam] to prevent confusing "persistent path" that follows camera
-              let camPoints = Belt.Array.concat(
+              let currentCam: PathInterpolation.point = {
+                PathInterpolation.yaw: Viewer.getYaw(v),
+                pitch: Viewer.getPitch(v),
+              }
+              let redPoints = Belt.Array.concat(
                 [camStart],
                 Belt.Array.map(intermediate, (p): PathInterpolation.point => {
                   PathInterpolation.yaw: p.camYaw,
                   pitch: p.camPitch,
                 }),
               )
+              let allRedPoints = Belt.Array.concat(redPoints, [currentCam])
 
-              if Array.length(camPoints) >= 2 {
-                let redSpline = PathInterpolation.getCatmullRomSpline(camPoints, 60)
+              if Array.length(allRedPoints) == 2 {
+                // Ensure curvature from the very first click using floor projection
+                // Use floor projection for red path too as it gives the desired curved look
+                switch (Belt.Array.get(allRedPoints, 0), Belt.Array.get(allRedPoints, 1)) {
+                | (Some(p1), Some(p2)) =>
+                  let path = PathInterpolation.getFloorProjectedPath(p1, p2, 40)
+                  drawPolyLine(
+                    svg,
+                    v,
+                    path,
+                    rect,
+                    "#ef4444",
+                    3.0,
+                    1.0,
+                    ~className="line-marching-ants",
+                    (),
+                  )
+                | _ => ()
+                }
+              } else if Array.length(allRedPoints) > 2 {
+                let redSpline = PathInterpolation.getCatmullRomSpline(allRedPoints, 60)
                 drawPolyLine(
                   svg,
                   v,
@@ -404,7 +425,6 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
               }
 
               // --- YELLOW TARGET PATH (The Rod) ---
-              // v4.2.0 point 54: Dashed yellow line from last click to mouse
               let floorPoints: array<PathInterpolation.point> = Belt.Array.concat(
                 [{PathInterpolation.yaw: draft.yaw, pitch: draft.pitch}],
                 Belt.Array.map(intermediate, (p): PathInterpolation.point => {
@@ -413,15 +433,48 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
                 }),
               )
 
-              // DEBUG TRACE
-              // let cy = Viewer.getYaw(v)
-              // if (mod(Belt.Float.toInt(Date.now()), 60) == 0) {
-              //   Console.log("Trace: DraftYaw=" ++ Float.toString(draft.yaw) ++ " CamYaw=" ++ Float.toString(cy))
-              // }
+              let mousePtOpt = switch mouseEvent {
+              | Some(ev) =>
+                let mockEvent = {
+                  "clientX": Belt.Int.toFloat(Obj.magic(ev)["clientX"]),
+                  "clientY": Belt.Int.toFloat(Obj.magic(ev)["clientY"]) +.
+                  Constants.linkingRodHeight,
+                }
+                let mc = Viewer.mouseEventToCoords(v, mockEvent)
+                let pitchOpt = Belt.Array.get(mc, 0)
+                let yawOpt = Belt.Array.get(mc, 1)
+                switch (pitchOpt, yawOpt) {
+                | (Some(p), Some(y)) => Some({PathInterpolation.yaw: y, pitch: p})
+                | _ => None
+                }
+              | None => None
+              }
 
-              // 1. Draw confirmed segments (Spline if multiple joints)
-              if Array.length(floorPoints) >= 2 {
-                let yellowSpline = PathInterpolation.getCatmullRomSpline(floorPoints, 60)
+              let allYellowPoints = switch mousePtOpt {
+              | Some(m) => Belt.Array.concat(floorPoints, [m])
+              | None => floorPoints
+              }
+
+              if Array.length(allYellowPoints) == 2 {
+                // Ensure curvature from the very first click using floor projection
+                switch (Belt.Array.get(allYellowPoints, 0), Belt.Array.get(allYellowPoints, 1)) {
+                | (Some(p1), Some(p2)) =>
+                  let path = PathInterpolation.getFloorProjectedPath(p1, p2, 40)
+                  drawPolyLine(
+                    svg,
+                    v,
+                    path,
+                    rect,
+                    "#fbbf24",
+                    3.0,
+                    0.8,
+                    ~className="line-rod-yellow",
+                    (),
+                  )
+                | _ => ()
+                }
+              } else if Array.length(allYellowPoints) > 2 {
+                let yellowSpline = PathInterpolation.getCatmullRomSpline(allYellowPoints, 60)
                 drawPolyLine(
                   svg,
                   v,
@@ -433,66 +486,6 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
                   ~className="line-rod-yellow",
                   (),
                 )
-              }
-
-              // 2. Draw pending segment (Floor Projection if looking down)
-              // v4.2.18 behavior: connect last confirmed point to mouse
-              // If no intermediate points, connect DRAFT ORIGIN (first "click" location) to mouse.
-
-              let lastPoint = switch Belt.Array.get(floorPoints, Array.length(floorPoints) - 1) {
-              | Some(p) => p
-              // Fallback to draft origin if floorPoints empty (this happens when intermediatePoints is None)
-              | None => {PathInterpolation.yaw: draft.yaw, pitch: draft.pitch}
-              }
-
-              let lastFloorPtOpt = Some(lastPoint)
-
-              switch (lastFloorPtOpt, mouseEvent) {
-              | (Some(lastFloorPt), Some(ev)) =>
-                // Offset mouse by linkingRodHeight to match visual tip (v4.2.18 behavior)
-                let mockEvent = {
-                  "clientX": Belt.Int.toFloat(Obj.magic(ev)["clientX"]),
-                  "clientY": Belt.Int.toFloat(Obj.magic(ev)["clientY"]) +.
-                  Constants.linkingRodHeight,
-                }
-                let mc = Viewer.mouseEventToCoords(v, mockEvent)
-                let pitchOpt = Belt.Array.get(mc, 0)
-                let yawOpt = Belt.Array.get(mc, 1)
-
-                switch (pitchOpt, yawOpt) {
-                | (Some(p), Some(y)) =>
-                  let mousePt: PathInterpolation.point = {
-                    PathInterpolation.yaw: y,
-                    pitch: p,
-                  }
-
-                  let _camPitch = Viewer.getPitch(v)
-                  // Always draw pending path for visual feedback (rubber banding)
-                  // v4.2.18 behavior: Yellow dashed line from last click to mouse
-                  let pendingPath = [lastFloorPt, mousePt]
-
-                  // Only project if looking steeply down? No, user wants it always visible as feedback.
-                  // Logic was:
-                  // let pendingPath = if camPitch < -20.0 {
-                  //   PathInterpolation.getFloorProjectedPath(lastFloorPt, mousePt, 20)
-                  // } else {
-                  //   [lastFloorPt, mousePt]
-                  // }
-
-                  drawPolyLine(
-                    svg,
-                    v,
-                    pendingPath,
-                    rect,
-                    "#fbbf24",
-                    3.0,
-                    0.8,
-                    ~className="line-rod-yellow",
-                    (),
-                  )
-                | _ => ()
-                }
-              | _ => ()
               }
 
             | None => ()
