@@ -46,92 +46,38 @@ let rec updateFollowLoop = () => {
       state.followLoopActive = false
     } else {
       // Speed Factor
-      let yawMaxSpeed = 1.2
-      let pitchMaxSpeed = 0.8
-      let deadzone = 0.85
+      let yawMaxSpeed = 1.5
+      let pitchMaxSpeed = 1.0
+      let deadzone = 0.5
 
       if storeState.isLinking {
-        // Calculate normalized distance beyond the deadzone
         let getEdgePower = (val, dz) => {
           let absVal = Math.abs(val)
           if absVal > dz {
             let sign = val > 0.0 ? 1.0 : -1.0
+            // Quadratic ramp: speed increases as we approach edge, slows as we return to center
             let normalized = (absVal -. dz) /. (1.0 -. dz)
-            sign *. Math.pow(normalized, ~exp=2.0)
+            sign *. (normalized *. normalized)
           } else {
             0.0
           }
         }
 
-        // Target velocity based on input
-        let targetYawDelta = getEdgePower(state.mouseXNorm, deadzone) *. yawMaxSpeed
-        let targetPitchDelta = -.getEdgePower(state.mouseYNorm, deadzone) *. pitchMaxSpeed
+        let yawDelta = getEdgePower(state.mouseXNorm, deadzone) *. yawMaxSpeed
+        let pitchDelta = -.getEdgePower(state.mouseYNorm, deadzone) *. pitchMaxSpeed
 
-        // Get current velocity (momentum)
-        let currentYawDelta =
-          Nullable.toOption(state.lastAppliedYaw)->Belt.Option.getWithDefault(0.0)
-        let currentPitchDelta =
-          Nullable.toOption(state.lastAppliedPitch)->Belt.Option.getWithDefault(0.0)
-
-        // Physics Constants
-        // accel: Fast response when speeding up
-        // decel: Slow decay (inertia) when slowing down or reversing
-        let accelFactor = 0.20
-        let decelFactor = 0.05
-
-        // Calculate Yaw Factor
-        let yawFactor = if (
-          Math.abs(targetYawDelta) >= Math.abs(currentYawDelta) &&
-            (targetYawDelta == 0.0 ||
-            currentYawDelta == 0.0 ||
-            targetYawDelta > 0.0 == (currentYawDelta > 0.0))
-        ) {
-          accelFactor
-        } else {
-          decelFactor
-        }
-
-        // Calculate Pitch Factor
-        let pitchFactor = if (
-          Math.abs(targetPitchDelta) >= Math.abs(currentPitchDelta) &&
-            (targetPitchDelta == 0.0 ||
-            currentPitchDelta == 0.0 ||
-            targetPitchDelta > 0.0 == (currentPitchDelta > 0.0))
-        ) {
-          accelFactor
-        } else {
-          decelFactor
-        }
-
-        // Apply Smoothing (Lerp)
-        let newYawDelta = currentYawDelta +. (targetYawDelta -. currentYawDelta) *. yawFactor
-        let newPitchDelta =
-          currentPitchDelta +. (targetPitchDelta -. currentPitchDelta) *. pitchFactor
-
-        // Clamp near zero to prevent endless micro-movements
-        let newYawDelta = if Math.abs(newYawDelta) < 0.001 {
-          0.0
-        } else {
-          newYawDelta
-        }
-        let newPitchDelta = if Math.abs(newPitchDelta) < 0.001 {
-          0.0
-        } else {
-          newPitchDelta
-        }
-
-        // Store new velocity
-        state.lastAppliedYaw = Nullable.make(newYawDelta)
-        state.lastAppliedPitch = Nullable.make(newPitchDelta)
+        // Reset velocity storage as we are now using direct mapping
+        state.lastAppliedYaw = Nullable.null
+        state.lastAppliedPitch = Nullable.null
 
         // Apply to Viewer
         switch Nullable.toOption(viewer) {
         | Some(v) =>
-          if newYawDelta != 0.0 {
-            Viewer.setYaw(v, Viewer.getYaw(v) +. newYawDelta, false)
+          if yawDelta != 0.0 {
+            Viewer.setYaw(v, Viewer.getYaw(v) +. yawDelta, false)
           }
-          if newPitchDelta != 0.0 {
-            Viewer.setPitch(v, Viewer.getPitch(v) +. newPitchDelta, false)
+          if pitchDelta != 0.0 {
+            Viewer.setPitch(v, Viewer.getPitch(v) +. pitchDelta, false)
           }
         | None => ()
         }

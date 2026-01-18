@@ -398,3 +398,4 @@ Task: 147
 [2026-01-18 15:48] v4.3.1 - feat: CatMulRom Stable!
 [2026-01-18 16:04] v4.3.1 - feat(viewer): reduce camera return speed in add-link mode
 [2026-01-18 16:10] v4.3.1 - feat(viewer): implement momentum-based camera movement in add-link mode
+[2026-01-18 16:16] v4.3.1 - feat(viewer): simplify edge-based camera rotation in add-link mode
