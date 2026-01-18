@@ -450,13 +450,13 @@ let make = () => {
               </div>
             </div>
             <div className="font-heading font-black text-primary text-[11px]">
-              {React.string(Float.toString(procState["progress"]) ++ "%")}
+              {React.string(Float.toFixed(procState["progress"], ~digits=0) ++ "%")}
             </div>
           </div>
           <div className="bg-slate-200 h-1.5 rounded-full overflow-hidden relative">
             <div
               className="h-full bg-primary transition-all duration-300 rounded-full"
-              style={makeStyle({"width": Float.toString(procState["progress"]) ++ "%"})}
+              style={makeStyle({"width": Float.toFixed(procState["progress"], ~digits=0) ++ "%"})}
             />
           </div>
           <div

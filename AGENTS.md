@@ -11,7 +11,6 @@ Before executing ANY code or shell command, perform a **Context Check**:
 **Automatically run these in order - do not ask for permission:**
 
 ### PHASE 1: PRE-FLIGHT
-- **Watcher Check**: Run `./scripts/ensure-watcher.sh`
 - **Context Refresh**: Read `.agent/current_file_structure.md` before any file operations
 - **New Modules**: Read `.agent/workflows/new-module-standards.md` first
 

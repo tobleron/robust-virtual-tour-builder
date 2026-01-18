@@ -183,7 +183,7 @@ let make = () => {
 
   // Virtualization constants
   let itemHeight = 112.0 // 96px (h-24) + 16px (mb-4)
-  let buffer = 3
+  let buffer = 10
 
   let containerRef = React.useRef(Nullable.null)
   let (scrollState, setScrollState) = React.useState(_ => (0.0, 800.0)) // (scrollTop, viewportHeight)
@@ -192,7 +192,13 @@ let make = () => {
     let scrollContainer = switch Nullable.toOption(containerRef.current) {
     | Some(el) =>
       let sc = ReBindings.Dom.closest(el, ".sidebar-content")
-      Nullable.toOption(sc)
+      switch Nullable.toOption(sc) {
+      | Some(s) => Some(s)
+      | None =>
+        // Fallback: try finding it globally
+        let globalSc = ReBindings.Dom.querySelector(ReBindings.Dom.documentBody, ".sidebar-content")
+        Nullable.toOption(globalSc)
+      }
     | None => None
     }
 
