@@ -108,7 +108,18 @@ let rec updateFollowLoop = () => {
       }
 
       switch Nullable.toOption(viewer) {
-      | Some(v) => HotspotLine.updateLines(v, storeState, ~mouseEvent?, ())
+      | Some(v) =>
+        try {
+          HotspotLine.updateLines(v, storeState, ~mouseEvent?, ())
+        } catch {
+        | e =>
+          Logger.error(
+            ~module_="ViewerFollow",
+            ~message="UPDATE_LINES_ERROR",
+            ~data=Some(Obj.magic(e)),
+            (),
+          )
+        }
       | None => ()
       }
 

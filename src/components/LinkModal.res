@@ -44,9 +44,8 @@ let showLinkModal = (
         Nullable.toOption(linkDraft),
       ) {
       | (Some(name), _) => s.name == name
-      // Note: linkDraft in Store.res does not have 'target' field, so skipping that check from JS
-      | (None, None) => i == nextIndex
-      | _ => false
+      // Fix: Allow default selection (next index) even if linkDraft exists
+      | (None, _) => i == nextIndex
       }
 
       if i == state.activeIndex {
