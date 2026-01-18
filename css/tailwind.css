@@ -1,166 +1,70 @@
 /* RE/MAX Virtual Tour Builder - Tailwind v4 Source CSS */
 @import "tailwindcss";
 
-/* RE/MAX Brand Colors - Custom Theme */
 @theme {
-    /* Primary Blues */
-    --color-remax-blue: #003da5;
-    --color-remax-blue-dark: #002a70;
-    --color-remax-blue-darker: #001a38;
-    --color-remax-navy: #002147;
+    /* Map CSS Variables to Tailwind Colors */
+    --color-remax-blue: var(--primary);
+    --color-remax-blue-dark: var(--primary-dark);
+    --color-remax-navy: var(--primary-navy);
+    --color-remax-red: var(--danger);
+    --color-remax-gold: var(--accent);
+    
+    --color-primary: var(--primary);
+    --color-success: var(--success);
+    --color-danger: var(--danger);
+    --color-warning: var(--warning);
 
-    /* Accent Colors */
-    --color-remax-red: #dc3545;
-    --color-remax-gold: #ffcc00;
-    --color-remax-gold-light: #fdb931;
+    --color-viewer-bg: var(--viewer-bg);
+    --color-sidebar-bg: var(--sidebar-bg);
 
-    /* Viewer Dimensions (Updated: +14% from 32px) */
-    --spacing-viewer-btn: 37px;
-    --spacing-viewer-icon: 21px;
+    /* Spacing */
+    --spacing-viewer-btn: var(--viewer-btn-size);
+    --spacing-viewer-icon: var(--viewer-icon-size);
 
-    /* UI Colors */
-    --color-viewer-bg: #1a202c;
-    --color-sidebar-bg: #ffffff;
+    /* Fonts */
+    --font-heading: var(--font-heading);
+    --font-body: var(--font-body);
+    --font-ui: var(--font-ui);
 
-    /* Success/Danger */
-    --color-success: #10b981;
-    --color-danger: #dc3545;
-
-    /* Viewer Icon Colors */
-    --color-floor-default: #001a4d;
-    --color-floor-hover: #ea580c;
-    --color-floor-active: #003da5;
-    --color-floor-border-active: #ffcc00;
-
-    /* Transition Speeds */
-    --transition-speed-fast: 0.15s;
-    --transition-speed-normal: 0.3s;
-
-    /* Viewer Dimensions (Updated: +14% from 32px) */
-    --spacing-viewer-btn: 37px;
-    --spacing-viewer-icon: 18px;
-
-    /* Typography */
-    --font-heading: "Outfit", system-ui, sans-serif;
-    --font-body: "Outfit", system-ui, sans-serif;
-    --font-ui: "Inter", system-ui, sans-serif;
-
-    /* Animations */
+    /* Animations (Referencing keyframes in animations.css) */
     --animate-shimmer: shimmer 2s linear infinite;
     --animate-glow-sequence: glow-sequence 1.8s infinite;
     --animate-glow-fast: glow-sequence 1.0s infinite;
     --animate-fade-in: fade-in 0.3s ease-out;
+}
 
-    @keyframes shimmer {
-        from {
-            background-position: 200% 0;
-        }
-
-        to {
-            background-position: -200% 0;
-        }
+/* Base Utility Overrides */
+@layer utilities {
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
     }
 
-    @keyframes glow-sequence {
-
-        0%,
-        100% {
-            fill-opacity: 0;
-            filter: brightness(1);
-        }
-
-        10%,
-        30% {
-            fill-opacity: 0.8;
-            filter: brightness(1.5);
-        }
-
-        40% {
-            fill-opacity: 0;
-            filter: brightness(1);
-        }
+    .btn-viewer-pop {
+        transition: all var(--transition-fast) cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+    }
+    .btn-viewer-pop:hover {
+        transform: translate(-1px, -1px);
+        box-shadow: 2px 2.5px 0 rgba(0, 0, 0, 0.8);
+    }
+    .btn-viewer-pop:active {
+        transform: translate(1px, 1px);
+        box-shadow: 0 0 0 rgba(0, 0, 0, 0.5);
     }
 
-    @keyframes fade-in {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    .glass-panel {
+        background: var(--glass-bg);
+        backdrop-filter: blur(var(--glass-blur));
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--shadow-premium);
     }
 }
 
-/* Preflight Reset - Professional Standardization */
-*,
-*::before,
-*::after {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-}
-
-/* Hide scrollbars globally for a clean app look */
-.hide-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-}
-
-.hide-scrollbar::-webkit-scrollbar {
-    display: none;
-}
-
-/* Tactile Pop Effect Utility */
-.btn-viewer-pop {
-    transition: all 0.12s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
-}
-
-.btn-viewer-pop:hover {
-    transform: translate(-1px, -1px);
-    box-shadow: 2px 2.5px 0 rgba(0, 0, 0, 0.8);
-}
-
-.btn-viewer-pop:active {
-    transform: translate(1px, 1px);
-    box-shadow: 0 0 0 rgba(0, 0, 0, 0.5);
-}
-
-/* Glassmorphism Preset */
-.glass-panel {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-}
-
-/* Disabled/Dimmed State for Utility Bar */
-.viewer-utility-dimmed {
-    opacity: 0.5 !important;
-    pointer-events: none !important;
-    filter: grayscale(1) contrast(0.8);
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-
-/* Simulation Toggle Active State */
-#v-scene-sim-toggle.active {
-    background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%) !important;
-}
-
-/* Floor Circle Active State Override */
-/* Ensure Yellow Border wins over Orange Hover */
-.floor-circle.border-floor-border-active {
-    border-color: var(--color-floor-border-active) !important;
-}
-
-/* Custom Hotspot Arrow Rotation (Legacy Compatibility) */
-.rotate-arrow-x {
-    transform: rotateX(65deg);
-}
+/* Component Specific Styles (Move to components/ if they grow too large) */
 
 /* PANNELLUM ENGINE FIXES & HOTSPOT STYLES */
 .pnlm-hotspot.flat-arrow {
@@ -193,21 +97,11 @@
     fill: #fff4d1;
 }
 
-.glow-bottom {
-    animation: var(--animate-glow-sequence);
-}
-
-.glow-top {
-    animation: var(--animate-glow-sequence);
-    animation-delay: 0.4s;
-}
-
 .pnlm-hotspot.flat-arrow:hover .custom-arrow-svg {
     transform: rotateX(65deg) translateY(-20px) scale(1.1);
     filter: drop-shadow(0 30px 15px rgba(0, 0, 0, 0.3));
 }
 
-/* Hotspot Preview Styling */
 .hotspot-preview {
     position: absolute;
     bottom: 120%;
@@ -216,56 +110,19 @@
     width: 120px;
     height: 80px;
     background: rgba(0, 0, 0, 0.85);
-    border: 2px solid theme('colors.remax-gold');
-    border-radius: 8px;
+    border: 2px solid var(--accent);
+    border-radius: var(--radius-sm);
     overflow: hidden;
     opacity: 0;
     pointer-events: none;
-    transition: all 0.3s ease;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+    transition: all var(--transition-normal) ease;
+    box-shadow: var(--shadow-lg);
     z-index: 3000;
 }
 
 .flat-arrow:hover .hotspot-preview {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
-}
-
-/* Hotspot Visibility & Navigation Logic */
-.pnlm-hotspot.flat-arrow.hidden-in-sim {
-    display: none !important;
-}
-
-/* Return Link - Visual subordination to prioritize flow */
-.pnlm-hotspot.flat-arrow.return-link {
-    opacity: 0.6;
-    filter: saturate(0.5) brightness(0.9);
-}
-
-.pnlm-hotspot.flat-arrow.return-link:hover {
-    opacity: 1;
-    filter: none;
-}
-
-/* Hide return links entirely during simulation to clear the path forward */
-.pnlm-hotspot.flat-arrow.return-link.in-simulation {
-    display: none !important;
-}
-
-/* Auto-Forward Arrow - Teal/Green theme with faster animation */
-.pnlm-hotspot.flat-arrow.auto-forward .glow-unit {
-    fill: #a7f3d0;
-    /* Emerald glow tint */
-}
-
-.pnlm-hotspot.flat-arrow.auto-forward .glow-bottom,
-.pnlm-hotspot.flat-arrow.auto-forward .glow-top {
-    animation: var(--animate-glow-fast);
-}
-
-.pnlm-hotspot.flat-arrow.auto-forward .glow-top {
-    animation-delay: 0.2s;
-    /* Tighter delay for faster rhythm */
 }
 
 .pnlm-load-box,

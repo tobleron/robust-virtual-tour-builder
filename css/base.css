@@ -1,22 +1,9 @@
-/* Global reset and normalization */
-* {
-    box-sizing: border-box;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-}
+/* Global base styles - Augmented with Tailwind Preflight */
 
 /* Global focus-visible style for a consistent accessibility experience */
 :focus-visible {
     outline: 2px solid var(--primary);
     outline-offset: 2px;
-}
-
-/* Override for elements on dark backgrounds */
-.premium-glass :focus-visible,
-#viewer-utility-bar :focus-visible,
-#viewer-floor-nav :focus-visible {
-    outline-color: rgba(255, 255, 255, 0.8);
 }
 
 /* Accessibility Utilities */
@@ -41,10 +28,10 @@
     color: white;
     padding: 12px 24px;
     z-index: 100000;
-    border-radius: 0 0 12px 12px;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
     font-weight: bold;
     text-decoration: none;
-    transition: top 0.3s ease;
+    transition: top var(--transition-normal) ease;
 }
 
 .skip-link:focus {
@@ -53,27 +40,12 @@
 
 body,
 html {
-    margin: 0;
-    padding: 0;
     width: 100%;
     height: 100%;
     height: 100dvh;
-    /* Dynamic viewport height */
     overflow: hidden;
     font-family: var(--font-body);
-    display: flex;
-    flex-direction: column;
-}
-
-.hide-scrollbar {
-    -ms-overflow-style: none;
-    /* IE and Edge */
-    scrollbar-width: none;
-    /* Firefox */
-}
-
-.hide-scrollbar::-webkit-scrollbar {
-    display: none;
+    background: var(--slate-950);
 }
 
 /* Custom Scrollbar for Sidebar */
@@ -96,5 +68,4 @@ html {
 
 .grayscale {
     filter: grayscale(100%);
-    -webkit-filter: grayscale(100%);
 }
