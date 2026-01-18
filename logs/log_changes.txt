@@ -404,3 +404,4 @@ Task: 147
 [2026-01-18 18:07] v4.3.2 - troubleshoot: improve error logging and fix deprecation warnings
 [2026-01-18 18:21] v4.3.2 - refactor: standardize error handling and update documentation
 [2026-01-18 20:33] v4.3.2 - Refactor backend error handling: remove unwraps, fix clippy warnings
+[2026-01-18 20:59] v4.3.2 - fix: capitalized WebkitMaskImage style property to resolve React warning

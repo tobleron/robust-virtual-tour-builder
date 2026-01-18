@@ -108,7 +108,7 @@ pub async fn cleanup_logs() -> impl actix_web::Responder {
 
 #[tracing::instrument(skip(entry), name = "log_telemetry")]
 pub async fn log_telemetry(entry: web::Json<TelemetryEntry>) -> Result<HttpResponse, AppError> {
-    println!("DEBUG: Received telemetry entry: {:?}", entry);
+    tracing::debug!("Received telemetry entry: {:?}", entry);
     // Append to telemetry.log as JSON line
     let line = serde_json::to_string(&entry.into_inner()).unwrap_or_default() + "\n";
 
@@ -121,7 +121,7 @@ pub async fn log_telemetry(entry: web::Json<TelemetryEntry>) -> Result<HttpRespo
 
 #[tracing::instrument(skip(entry), name = "log_error")]
 pub async fn log_error(entry: web::Json<TelemetryEntry>) -> Result<HttpResponse, AppError> {
-    println!("DEBUG: Received error entry: {:?}", entry);
+    tracing::error!("Received error entry: {:?}", entry);
     let entry_inner = entry.into_inner();
 
     // Append to error.log as plaintext

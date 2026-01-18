@@ -549,7 +549,7 @@ let make = () => {
     <div
       id="viewer-logo"
       className="absolute bottom-6 right-6 z-[5002] bg-white rounded-xl shadow-xl p-[4px] flex items-center justify-center max-w-[120px] max-h-[60px] border border-black/5 overflow-hidden"
-      style={makeStyle({"webkitMaskImage": "-webkit-radial-gradient(white, black)"})}
+      style={makeStyle({"WebkitMaskImage": "-webkit-radial-gradient(white, black)"})}
     >
       <img src="images/logo.png" alt="Logo" className="w-full h-auto object-contain block" />
     </div>
