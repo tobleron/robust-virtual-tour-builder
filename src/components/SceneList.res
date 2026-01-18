@@ -356,6 +356,7 @@ let make = () => {
           <div
             className="fixed z-[30000] bg-white rounded-2xl p-1.5 min-w-[200px] flex flex-col shadow-2xl animate-fade-in border border-slate-200"
             role="menu"
+            onClick={e => JsxEvent.Mouse.stopPropagation(e)}
             style={makeStyle({
               "left": Int.toString(menu.x - 200) ++ "px",
               "top": Int.toString(menu.y) ++ "px",
