@@ -4,14 +4,12 @@
 Before executing ANY code or shell command, you must perform a **Context Check**:
 1. **Pathing**: ALL paths in your commands must be relative to project root.
 2. **Safety**: If you are about to edit a file >700 lines, **PAUSE** and ask for confirmation.
-3. **Never use `git commit` directly** - Always use `./scripts/commit.sh`.
+3. **Never use `git commit` directly**.
 
 ## 🛠️ WORKFLOW AUTOMATION
 **Do not ask to run these. AUTOMATICALLY run them in this order:**
 
 ### PHASE 1: PRE-FLIGHT
-- **Watcher Check (CRITICAL)**: Check if the safety watcher is running.
-  - *Command*: `./scripts/ensure-watcher.sh`
 - **Task Workflow (CRITICAL)**: Before performing ANY task from `tasks/pending` or `tasks/active`:
   - Read `tasks/TASKS.md` first to understand the proper workflow.
   - Follow the instructions in exact sequential order.
@@ -31,6 +29,8 @@ Before executing ANY code or shell command, you must perform a **Context Check**
   - Follow `/testing-standards` for test structure and patterns.
   - You are PERMITTED to run `npm test` autonomously.
   - **Constraint**: If tests fail 2x in a row, STOP and generate a `FAILURE_REPORT.md`.
+- **Build Verification**:
+  - ALWAYS run `npm run build` to ensure compilation passes before considering a task complete.
 
 ### PHASE 3: COMMIT & PUSH
 - **Commit Protocol**: Use `./scripts/commit.sh` (handles formatting/linting).
@@ -55,5 +55,5 @@ Before executing ANY code or shell command, you must perform a **Context Check**
 
 ## 📂 CRITICAL PATHS
 - **Docs**: `./dev_prefs/` (User preferences)
-- **File Structure**: `.agent/current_file_structure.md` (Avoid path hallucination)
+- **File Structure**: `.agent/current_file_structure.md`
 - **Pending Tasks**: `./tasks/pending` (Write overflow tasks here)

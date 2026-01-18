@@ -50,10 +50,6 @@ touch logs/.gitkeep dist/index.html dist/service-worker.js dist/manifest.json di
 echo "🧹 Cleaning up stale ports..."
 lsof -ti:8080,3000 | xargs kill -9 2>/dev/null || true
 
-# 7. Start Snapshot Watcher
-echo "👁️  Initializing Snapshot Watcher..."
-./scripts/ensure-watcher.sh
-
 echo ""
 echo "✨ Environment Ready!"
 echo "🚀 Run 'npm run dev' to start development"

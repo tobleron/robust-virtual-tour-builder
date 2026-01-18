@@ -19,9 +19,8 @@ Run the unified development script. This launches your backend, frontend compile
     ./start_dev.sh
 
 **What happens?**
-1.  **Safety Check**: `scripts/ensure-watcher.sh` runs. If the watcher isn't active, it starts it.
-2.  **Snapshots Active**: Every time you save a file (`Ctrl+S`), a silent backup is created in the `local-snapshots/` branch.
-3.  **Dev Servers**: Rust and ReScript compilers start in watch mode.
+1.  **Snapshots Active**: Every time you save a file (`Ctrl+S`), a silent backup is created in the `local-snapshots/` branch.
+2.  **Dev Servers**: Rust and ReScript compilers start in watch mode.
 
 ---
 
