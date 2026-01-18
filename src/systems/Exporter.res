@@ -191,7 +191,9 @@ let exportTour = async (
     currentPhase := "UPLOAD"
     Logger.info(~module_="Exporter", ~message="UPLOAD_START", ())
     let backendUrl = Constants.backendUrl
-    let zipBlob = await uploadAndProcessRaw(formData, progress, backendUrl)
+    let zipBlob = await RequestQueue.schedule(() =>
+      uploadAndProcessRaw(formData, progress, backendUrl)
+    )
 
     progress(100.0, 100.0, "Saving...")
     let filename = `Export_RMX_${safeName}_v${version}.zip`

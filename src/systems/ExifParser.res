@@ -105,16 +105,18 @@ let extractExifData = (file: File.t): Promise.t<BackendApi.apiResult<metadataRes
   let formData = FormData.newFormData()
   FormData.append(formData, "file", file)
 
-  Fetch.fetch(
-    `${backendUrl}/api/media/extract-metadata`,
-    Fetch.requestInit(~method="POST", ~body=formData, ()),
-  )
-  ->Promise.then(BackendApi.handleResponse)
-  ->Promise.then(result => {
-    switch result {
-    | Ok(res) => Fetch.json(res)->Promise.then(json => Promise.resolve(Ok(Obj.magic(json))))
-    | Error(msg) => Promise.resolve(Error(msg))
-    }
+  RequestQueue.schedule(() => {
+    Fetch.fetch(
+      `${backendUrl}/api/media/extract-metadata`,
+      Fetch.requestInit(~method="POST", ~body=formData, ()),
+    )
+    ->Promise.then(BackendApi.handleResponse)
+    ->Promise.then(result => {
+      switch result {
+      | Ok(res) => Fetch.json(res)->Promise.then(json => Promise.resolve(Ok(Obj.magic(json))))
+      | Error(msg) => Promise.resolve(Error(msg))
+      }
+    })
   })
 }
 
