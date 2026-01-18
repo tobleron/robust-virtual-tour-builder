@@ -54,13 +54,18 @@ let make = () => {
         switch Nullable.toOption(guide) {
         | Some(g) =>
           if state.isLinking {
-            Dom.setProperty(g, "display", "block !important")
+            // Ensure rod is visible
+            Dom.setAttribute(
+              g,
+              "style",
+              "display: block !important; z-index: 9999; left: " ++
+              Float.toString(Math.round(x)) ++
+              "px; top: " ++
+              Float.toString(Math.round(y)) ++
+              "px; height: " ++
+              Float.toString(Constants.linkingRodHeight) ++ "px;",
+            )
             Dom.classList(g)->Dom.ClassList.add("cursor-dot-blinking")
-            // Use relative stage coordinates x/y since guide is a child of the stage
-            Dom.setLeft(g, Float.toString(Math.round(x)) ++ "px")
-            Dom.setTop(g, Float.toString(Math.round(y)) ++ "px")
-            // Rod extension length (v4.2.18 behavior)
-            Dom.setStyleHeight(g, Float.toString(Constants.linkingRodHeight) ++ "px")
 
             // Re-enable follow loop for wider waypoints navigation (Stage 2)
             if !ViewerState.state.followLoopActive {
@@ -230,7 +235,7 @@ let make = () => {
         // Ensure guide is hidden on unmount/cleanup
         let guide = Dom.getElementById("cursor-guide")
         switch Nullable.toOption(guide) {
-        | Some(g) => Dom.setProperty(g, "display", "none !important")
+        | Some(g) => Dom.setAttribute(g, "style", "display: none !important;")
         | None => ()
         }
 
@@ -354,15 +359,16 @@ let make = () => {
     let guide = Dom.getElementById("cursor-guide")
 
     if state.isLinking {
+      Logger.debug(~module_="ViewerManager", ~message="LINKING_MODE_ON", ())
       Dom.classList(body)->Dom.ClassList.add("linking-mode")
       switch Nullable.toOption(guide) {
-      | Some(g) => Dom.setProperty(g, "display", "block !important")
-      | None => ()
+      | Some(g) => Dom.setAttribute(g, "style", "display: block !important; z-index: 9999;")
+      | None => Logger.error(~module_="ViewerManager", ~message="ROD_NOT_FOUND_IN_EFFECT", ())
       }
     } else {
       Dom.classList(body)->Dom.ClassList.remove("linking-mode")
       switch Nullable.toOption(guide) {
-      | Some(g) => Dom.setProperty(g, "display", "none !important")
+      | Some(g) => Dom.setAttribute(g, "style", "display: none !important;")
       | None => ()
       }
     }
