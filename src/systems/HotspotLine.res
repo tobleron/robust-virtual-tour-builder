@@ -449,7 +449,13 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
 
               switch (lastFloorPtOpt, mouseEvent) {
               | (Some(lastFloorPt), Some(ev)) =>
-                let mc = Viewer.mouseEventToCoords(v, ev)
+                // Offset mouse by linkingRodHeight to match visual tip (v4.2.18 behavior)
+                let mockEvent = {
+                  "clientX": Belt.Int.toFloat(Obj.magic(ev)["clientX"]),
+                  "clientY": Belt.Int.toFloat(Obj.magic(ev)["clientY"]) +.
+                  Constants.linkingRodHeight,
+                }
+                let mc = Viewer.mouseEventToCoords(v, mockEvent)
                 let pitchOpt = Belt.Array.get(mc, 0)
                 let yawOpt = Belt.Array.get(mc, 1)
 

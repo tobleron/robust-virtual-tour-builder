@@ -19,6 +19,7 @@ let perfInfoThreshold = 100.0 // ms
 let hotspotVisualOffsetDegrees = 15.0
 let returnLinkDefaultPitch = 0.0
 let returnLinkDisplayOffset = -15.0
+let linkingRodHeight = 60.0
 
 // ============================================
 // VIEWER CONFIGURATION

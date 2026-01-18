@@ -29,9 +29,9 @@ module SceneItem = {
     }, [scene.id])
 
     let activeClasses = if isActive {
-      "border-primary ring-2 ring-primary/20 bg-slate-50 shadow-lg shadow-primary/5"
+      "border-primary-light/30 ring-1 ring-primary/20 bg-slate-50 shadow-sm"
     } else {
-      "border-slate-100 hover:border-slate-300 bg-white shadow-sm"
+      "border-slate-100 hover:border-slate-200 bg-white"
     }
 
     let qualityColor = if isLowQuality {
@@ -43,7 +43,7 @@ module SceneItem = {
 
     <div
       key={scene.id}
-      className={`scene-item group relative flex items-stretch border rounded-2xl mb-4 overflow-hidden transition-all duration-300 select-none touch-pan-y hover:shadow-xl hover:-translate-y-0.5 h-24 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none ${activeClasses}`}
+      className={`scene-item group relative flex items-stretch border rounded-xl mb-4 overflow-hidden transition-all duration-200 select-none touch-pan-y active-push h-24 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none ${activeClasses}`}
       draggable=true
       onDragStart={onDragStart}
       onDragOver={onDragOver}
@@ -97,9 +97,7 @@ module SceneItem = {
           </h4>
           <div className="flex items-center gap-2 shrink-0">
             {if Array.length(scene.hotspots) > 0 {
-              <div
-                className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-primary/10 text-primary-light border border-primary/10"
-              >
+              <div className="flex items-center gap-1.5 text-primary-light transition-colors">
                 <span className="material-icons text-[12px]"> {React.string("link")} </span>
                 <span className="text-[10px] font-bold">
                   {React.int(Array.length(scene.hotspots))}
