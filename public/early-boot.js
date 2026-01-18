@@ -3,7 +3,8 @@
  * Catch errors that happen BEFORE main application modules load.
  */
 const logEmergency = (level, message, data) => {
-  fetch('http://localhost:8080/log-telemetry', {
+  const endpoint = level === 'error' ? '/api/telemetry/error' : '/api/telemetry/log';
+  fetch(endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

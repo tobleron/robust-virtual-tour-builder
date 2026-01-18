@@ -2,7 +2,7 @@
 
 open Types
 
-@module("../version.js") external version: string = "VERSION"
+// VersionData is accessed natively
 
 /* Serialize State to JSON */
 let toJSON = (state: Types.state) => {
@@ -46,7 +46,7 @@ let toJSON = (state: Types.state) => {
   })
 
   {
-    "version": version,
+    "version": VersionData.version,
     "tourName": state.tourName,
     "savedAt": Date.toISOString(Date.make()),
     "activeIndex": state.activeIndex,

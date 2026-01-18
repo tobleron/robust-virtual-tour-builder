@@ -322,7 +322,7 @@ let render = (pipeline: t, state: Types.state) => {
             | Some(tf) => tf
             | None => sc.file
             }
-            let url = URL.createObjectURL(file)
+            let url = UrlUtils.fileToUrl(file)
             Dict.set(pipeline.thumbCache, sc.id, url)
             thumbUrl := url
           }

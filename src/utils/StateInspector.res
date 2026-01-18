@@ -35,9 +35,10 @@ let createSnapshot = (state: Types.state): stateSnapshot => {
 let exposeToWindow = () => {
   if Constants.enableStateInspector() {
     let getState = GlobalStateBridge.getState
+    let loadProject = data => GlobalStateBridge.dispatch(Actions.LoadProject(data))
 
     let setupStore = %raw(`
-      function(getState) {
+      function(getState, loadProject) {
         window.store = {
           // Read-only getter for state snapshot
           get state() { 
@@ -64,6 +65,12 @@ let exposeToWindow = () => {
           subscribe(callback) {
             console.warn('State subscription is not implemented. Use React DevTools instead.');
             return () => {};
+          },
+
+          // Payload loader for headless automation
+          loadProject(data) {
+            console.log('⚡ Headless: Loading project data...');
+            loadProject(data);
           }
         };
         
@@ -74,7 +81,7 @@ let exposeToWindow = () => {
       }
     `)
 
-    setupStore(getState)
+    setupStore(getState, loadProject)
   } else {
     // Production: No state exposure
     Logger.info(~module_="StateInspector", ~message="State inspector disabled in production", ())

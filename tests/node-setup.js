@@ -60,9 +60,26 @@ const defineGlobal = (name, value) => {
 };
 
 defineGlobal('window', mockWindow);
+defineGlobal('self', mockWindow);
 defineGlobal('document', mockWindow.document);
 defineGlobal('navigator', mockWindow.navigator);
 defineGlobal('location', mockWindow.location);
 defineGlobal('screen', mockWindow.screen);
+defineGlobal('URL', globalThis.URL);
+globalThis.URL.createObjectURL = (obj) => obj ? `blob:mock-${Math.random()}` : '';
+globalThis.URL.revokeObjectURL = () => { };
 defineGlobal('FormData', class { append() { } });
 defineGlobal('Blob', class { constructor() { this.size = 0; this.type = ''; } });
+defineGlobal('caches', {
+    open: () => Promise.resolve({
+        addAll: () => Promise.resolve(),
+        match: () => Promise.resolve(null),
+        put: () => Promise.resolve()
+    }),
+    keys: () => Promise.resolve([]),
+    match: () => Promise.resolve(null),
+    delete: () => Promise.resolve(true)
+});
+
+
+// End of setup

@@ -31,7 +31,7 @@ let requestIdleSnapshot = () => {
             blob => {
               switch Nullable.toOption(blob) {
               | Some(b) =>
-                let snapshotUrl = URL.createObjectURL(b)
+                let snapshotUrl = UrlUtils.safeCreateObjectURL(b)
                 let storeState = GlobalStateBridge.getState()
                 let activeIndex = storeState.activeIndex
 

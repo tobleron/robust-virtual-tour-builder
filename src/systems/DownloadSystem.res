@@ -54,7 +54,7 @@ let saveBlob = (blob: Blob.t, filename: string) => {
     blob
   }
 
-  let url = URL.createObjectURL(blob)
+  let url = UrlUtils.safeCreateObjectURL(blob)
   let a = Dom.createElement("a")
 
   Dom.setDisplay(a, "none")

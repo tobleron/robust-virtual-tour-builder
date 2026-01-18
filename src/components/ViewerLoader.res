@@ -17,45 +17,17 @@ let getComputedOpacity = el => {
 }
 
 let getPanoramaUrl = (file: Types.file): string => {
-  switch file {
-  | Url(s) => s
-  | Blob(b) =>
-    let isBlob: bool = %raw("b instanceof Blob")
-    if isBlob {
-      let url = URL.createObjectURL(b)
-      Logger.debug(
-        ~module_="Viewer",
-        ~message="GENERATING_BLOB_URL",
-        ~data=Some({"size": Blob.size(b), "type": Blob.type_(b), "url": url}),
-        (),
-      )
-      url
-    } else {
-      let type_ = %raw("typeof b")
-      Logger.error(~module_="Viewer", ~message="INVALID_BLOB_TYPE", ~data=Some({"type": type_}), ())
-      ""
-    }
-  | File(b) =>
-    let isFile: bool = %raw("b instanceof File || b instanceof Blob")
-    if isFile {
-      let url = URL.createObjectURL(castToBlob(b))
-      Logger.debug(
-        ~module_="Viewer",
-        ~message="GENERATING_FILE_URL",
-        ~data=Some({"size": File.size(b), "type": File.type_(b), "url": url}),
-        (),
-      )
-      url
-    } else {
-      let type_ = %raw("typeof b")
-      Logger.error(~module_="Viewer", ~message="INVALID_FILE_TYPE", ~data=Some({"type": type_}), ())
-      ""
-    }
-  }
+  UrlUtils.fileToUrl(file)
 }
 
 module Loader = {
   let loadStartTime = ref(0.0)
+
+  type customViewerProps = {
+    @as("_sceneId") mutable sceneId: string,
+    @as("_isLoaded") mutable isLoaded: bool,
+  }
+  external asCustom: ReBindings.Viewer.t => customViewerProps = "%identity"
 
   let initializeViewer = (containerId: string, config: {..}) => {
     Pannellum.viewer(containerId, config)
@@ -237,10 +209,10 @@ module Loader = {
         /* Reuse Check */
         let shouldReuse = switch Nullable.toOption(inactiveViewer) {
         | Some(v) =>
-          let vDyn = asDynamic(v)
-          let vid: string = vDyn["_sceneId"]
+          let vDyn = asCustom(v)
+          let vid = vDyn.sceneId
           if vid == targetScene.id {
-            if vDyn["_isLoaded"] {
+            if vDyn.isLoaded {
               if GlobalStateBridge.getState().activeIndex == targetIndex && !isAnticipatory {
                 performSwap(targetScene)
                 true
@@ -419,8 +391,8 @@ module Loader = {
 
             let _startLoadTime = Date.now()
             let newViewer = initializeViewer(containerId, viewerConfig)
-            asDynamic(newViewer)["_sceneId"] = targetScene.id
-            asDynamic(newViewer)["_isLoaded"] = false
+            asCustom(newViewer).sceneId = targetScene.id
+            asCustom(newViewer).isLoaded = false
 
             switch state.activeViewerKey {
             | A => state.viewerB = Nullable.make(newViewer)
@@ -475,7 +447,7 @@ module Loader = {
                   },
                 )
               } else if !useProgressive || isMaster {
-                asDynamic(newViewer)["_isLoaded"] = true
+                asCustom(newViewer).isLoaded = true
                 Logger.info(
                   ~module_="Viewer",
                   ~message="TEXTURE_LOADED",

@@ -17,7 +17,10 @@ let compressToWebP = (file: File.t, quality: float): Promise.t<Blob.t> => {
 
   Promise.make((resolve, reject) => {
     let img = Dom.createElement("img")
-    let url = URL.createObjectURL(file)
+    let url = UrlUtils.safeCreateObjectURL(file)
+    if url == "" {
+      reject(JsError.throwWithMessage("Failed to create object URL"))
+    }
 
     let onLoad = () => {
       URL.revokeObjectURL(url)

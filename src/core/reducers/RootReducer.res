@@ -2,47 +2,26 @@ open Types
 open Actions
 
 /**
- * RootReducer - Combines all domain-specific reducers
+ * RootReducer - Combines all domain-specific reducers using a Pipeline Pattern
  * 
- * This follows the "reducer composition" pattern where each domain
- * reducer handles its own slice of actions and returns None for
- * actions it doesn't handle.
+ * Unlike the previous short-circuit pattern, this passes the state through
+ * EVERY reducer sequentially. This allows multiple reducers to react to
+ * the same action (e.g. SetIsLinking updates UI state AND Scene state).
  */
-let reducer = (state: state, action: action): state => {
-  // Try each domain reducer in sequence
-  // First one to return Some(newState) wins
-
-  switch SceneReducer.reduce(state, action) {
+let // Helper to apply a reducer that returns option<state>
+apply = (state: state, action: action, reducerFn: (state, action) => option<state>): state => {
+  switch reducerFn(state, action) {
   | Some(newState) => newState
-  | None =>
-    switch HotspotReducer.reduce(state, action) {
-    | Some(newState) => newState
-    | None =>
-      switch UiReducer.reduce(state, action) {
-      | Some(newState) => newState
-      | None =>
-        switch NavigationReducer.reduce(state, action) {
-        | Some(newState) => newState
-        | None =>
-          switch TimelineReducer.reduce(state, action) {
-          | Some(newState) => newState
-          | None =>
-            switch ProjectReducer.reduce(state, action) {
-            | Some(newState) => newState
-            | None =>
-              // No reducer handled this action - return state unchanged
-              // Only warn if it's not a known no-op or handled elsewhere (which shouldn't happen here)
-              Logger.warn(
-                ~module_="RootReducer",
-                ~message="Unhandled action",
-                ~data=Some({"action": Actions.actionToString(action)}),
-                (),
-              )
-              state
-            }
-          }
-        }
-      }
-    }
+  | None => state
   }
+}
+
+let reducer = (state: state, action: action): state => {
+  state
+  ->apply(action, SceneReducer.reduce)
+  ->apply(action, HotspotReducer.reduce)
+  ->apply(action, UiReducer.reduce)
+  ->apply(action, NavigationReducer.reduce)
+  ->apply(action, TimelineReducer.reduce)
+  ->apply(action, ProjectReducer.reduce)
 }

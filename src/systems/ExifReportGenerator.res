@@ -465,7 +465,7 @@ let downloadExifReport = (content: string): string => {
   let filename = `EXIF_METADATA_${timestamp}.txt`
 
   let blob = Blob.newBlob([content], {"type": "text/plain;charset=utf-8"})
-  let url = URL.createObjectURL(blob)
+  let url = UrlUtils.safeCreateObjectURL(blob)
 
   let a = Dom.createElement("a")
   Dom.setAttribute(a, "href", url)
