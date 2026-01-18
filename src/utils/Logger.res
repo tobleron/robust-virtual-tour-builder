@@ -415,6 +415,13 @@ module JsError = {
   @get external name: t => string = "name"
 }
 
+let getErrorMessage = (e: exn): string => {
+  switch e {
+  | JsExn(exn) => JsExn.message(exn)->Option.getOr("Unknown error")
+  | _ => "Unknown error"
+  }
+}
+
 module UnhandledRejectionEvent = {
   type t
   type reason
