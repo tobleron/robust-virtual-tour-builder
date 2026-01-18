@@ -5,9 +5,9 @@
     right: 20px;
     width: 280px;
     background: white;
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
     padding: 16px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-lg);
     z-index: 10000;
 }
 
@@ -15,7 +15,7 @@
     height: 6px;
     background: var(--primary);
     width: 0%;
-    transition: width 0.3s ease;
+    transition: width var(--transition-normal) ease;
     border-radius: 3px;
 }
 
@@ -81,30 +81,4 @@
 .toast.warning {
     border-left-color: var(--warning);
     background: rgba(69, 26, 3, 0.8);
-}
-
-/* System Alerts */
-#error-console,
-#system-alert {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    background-color: var(--danger);
-    color: white;
-    padding: 15px;
-    z-index: 10000;
-    text-align: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-.brand-logo {
-    display: block;
-    margin: 0 auto 10px auto;
-    max-width: 120px;
-    height: auto;
-    background: white;
-    padding: 5px;
-    border-radius: 4px;
 }

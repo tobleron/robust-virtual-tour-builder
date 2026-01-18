@@ -7,7 +7,7 @@ let // ============================================
 // ============================================
 
 debugEnabledDefault = false
-let debugLogLevel = "debug"
+let debugLogLevel = "info"
 let debugMaxEntries = 500
 let perfWarnThreshold = 500.0 // ms
 let perfInfoThreshold = 100.0 // ms

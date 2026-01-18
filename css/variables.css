@@ -1,20 +1,22 @@
 :root {
-    /* Brand Colors - Remax Premium Palette (Restored v4.2.18) */
-    --primary: #003da5;
-    /* Remax Blue */
+    /* Brand Colors - Remax Premium Palette */
+    --primary: #003da5;          /* Remax Blue */
     --primary-light: #2563eb;
     --primary-dark: #001a38;
-    --accent: #ffcc00;
-    /* Remax Gold */
+    --primary-navy: #002147;
+    
+    --accent: #ffcc00;           /* Remax Gold */
+    --accent-light: #fdb931;
     --accent-soft: rgba(255, 204, 0, 0.1);
-    --danger: #dc3545;
-    /* Remax Red */
-    --success: #10b981;
-    /* Emerald 500 */
-    --success-dark: #065f46;
-    /* Emerald 800 for high contrast text */
-    --warning: #f59e0b;
-    /* Amber 500 */
+    
+    --danger: #dc3545;           /* Remax Red */
+    --danger-dark: #9b1c2e;
+    
+    --success: #10b981;          /* Emerald 500 */
+    --success-dark: #065f46;     /* Emerald 800 */
+    
+    --warning: #f59e0b;          /* Amber 500 */
+    --warning-dark: #c2410c;
 
     /* Neutral Palette - Slate Based */
     --slate-50: #f8fafc;
@@ -29,6 +31,14 @@
     --slate-900: #0f172a;
     --slate-950: #020617;
 
+    /* Viewer Specific Colors */
+    --viewer-bg: #1a202c;
+    --sidebar-bg: #ffffff;
+    --floor-default: #001a4d;
+    --floor-hover: #ea580c;
+    --floor-active: var(--primary);
+    --floor-border-active: var(--accent);
+
     /* Design Tokens */
     --radius-sm: 0.5rem;
     --radius-md: 0.75rem;
@@ -41,7 +51,7 @@
     --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
     --shadow-premium: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 
-    /* Glassmorphism */
+    /* Glassmorphism Defaults */
     --glass-bg: rgba(15, 23, 42, 0.7);
     --glass-border: rgba(255, 255, 255, 0.1);
     --glass-blur: 12px;
@@ -52,12 +62,11 @@
     --font-ui: "Inter", system-ui, -apple-system, sans-serif;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-    /* Font Sizes */
-    --text-xs: 0.75rem;
-    --text-sm: 0.875rem;
-    --text-base: 1rem;
-    --text-lg: 1.125rem;
-    --text-xl: 1.25rem;
-    --text-2xl: 1.5rem;
-    --text-3xl: 1.875rem;
+    /* Spacing */
+    --viewer-btn-size: 37px;
+    --viewer-icon-size: 18px;
+
+    /* Transitions */
+    --transition-fast: 0.15s;
+    --transition-normal: 0.3s;
 }

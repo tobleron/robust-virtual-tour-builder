@@ -6,8 +6,7 @@
  * Main.bs.js module.
  */
 
-// Import Tailwind CSS (Rsbuild will process this through PostCSS)
-import '../css/tailwind.css';
+// Import Main Stylesheet (includes Tailwind and all modules)
 import '../css/style.css';
 
 // Import the ReScript-compiled main module
