@@ -283,7 +283,13 @@ let make = () => {
       <div id="viewer-utility-bar" className={utilBarClass}>
         <button
           id="btn-add-link-fab"
-          className="w-[32px] h-[32px] rounded-full flex items-center justify-center transition-all bg-primary text-white hover:bg-primary-light shadow-md"
+          className={"w-[32px] h-[32px] rounded-full flex items-center justify-center transition-all bg-primary text-white hover:bg-primary-light shadow-md " ++ if (
+            simActive
+          ) {
+            "opacity-40 pointer-events-none"
+          } else {
+            ""
+          }}
           style={makeStyle({
             "backgroundColor": if state.isLinking {
               "#ffcc00"
@@ -313,7 +319,13 @@ let make = () => {
 
         <button
           id="v-scene-sim-toggle"
-          className="w-[32px] h-[32px] text-white rounded-full font-ui flex items-center justify-center shadow-md"
+          className={"w-[32px] h-[32px] text-white rounded-full font-ui flex items-center justify-center shadow-md " ++ if (
+            simActive
+          ) {
+            "animate-pulse-stop"
+          } else {
+            ""
+          }}
           style={makeStyle({
             "backgroundColor": if simActive {
               "#dc3545"
@@ -344,7 +356,13 @@ let make = () => {
 
         <button
           id="v-scene-cat-toggle"
-          className="w-[32px] h-[32px] text-white rounded-full flex items-center justify-center shadow-md"
+          className={"w-[32px] h-[32px] text-white rounded-full flex items-center justify-center shadow-md " ++ if (
+            simActive
+          ) {
+            "pointer-events-none"
+          } else {
+            ""
+          }}
           style={makeStyle({
             "backgroundColor": if state.activeIndex >= 0 {
               switch Belt.Array.get(state.scenes, state.activeIndex) {
@@ -384,7 +402,13 @@ let make = () => {
         <button
           id="v-scene-label-btn"
           ref={ReactDOM.Ref.domRef(labelBtnRef)}
-          className="w-[32px] h-[32px] text-white rounded-full font-ui text-[18px] font-bold flex items-center justify-center relative z-[6000] pointer-events-auto shadow-md"
+          className={"w-[32px] h-[32px] text-white rounded-full font-ui text-[18px] font-bold flex items-center justify-center relative z-[6000] shadow-md " ++ if (
+            simActive
+          ) {
+            "pointer-events-none"
+          } else {
+            "pointer-events-auto"
+          }}
           style={makeStyle({"backgroundColor": "#dc3545"})}
           ariaLabel="Scene Label"
           title="Scene Label"

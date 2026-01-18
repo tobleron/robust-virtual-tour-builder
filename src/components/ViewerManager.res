@@ -54,6 +54,7 @@ let make = () => {
         | Some(g) =>
           if state.isLinking {
             Dom.setDisplay(g, "block")
+            Dom.classList(g)->Dom.ClassList.add("cursor-dot-blinking")
             // Use relative stage coordinates x/y since guide is a child of the stage
             Dom.setLeft(g, Float.toString(Math.round(x)) ++ "px")
             Dom.setTop(g, Float.toString(Math.round(y)) ++ "px")
@@ -67,6 +68,7 @@ let make = () => {
             }
           } else {
             Dom.setDisplay(g, "none")
+            Dom.classList(g)->Dom.ClassList.remove("cursor-dot-blinking")
           }
         | None => ()
         }

@@ -14,7 +14,7 @@
     }
 
     to {
-        stroke-dashoffset: -20;
+        stroke-dashoffset: -30;
     }
 }
 
@@ -83,13 +83,13 @@
 }
 
 .line-marching-ants {
-    stroke-dasharray: 4, 4;
-    animation: marching-ants 0.8s linear infinite;
+    stroke-dasharray: 10, 5;
+    animation: marching-ants 1s linear infinite;
 }
 
 .line-rod-yellow {
-    stroke-dasharray: 3, 3;
-    animation: marching-ants 0.8s linear infinite;
+    stroke-dasharray: 5, 5;
+    animation: marching-ants 1s linear infinite;
 }
 
 .line-pulse {
@@ -110,6 +110,10 @@
 
 .cursor-dot-blinking {
     animation: cursor-dot-blink 0.8s ease-in-out infinite;
+}
+
+.animate-pulse-stop {
+    animation: pulse-stop 0.8s ease-in-out infinite;
 }
 
 @keyframes modalPopIn {
