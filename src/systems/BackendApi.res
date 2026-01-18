@@ -123,9 +123,9 @@ let decodeSimilarityResponse = (json: JSON.t): result<similarityResponse, string
 
 /* --- HELPER: Handle Response --- */
 
-let handleResponse = (response: Fetch.response) => {
+let handleResponse = (response: Fetch.response): Promise.t<apiResult<Fetch.response>> => {
   if Fetch.ok(response) {
-    Promise.resolve(response)
+    Promise.resolve(Ok(response))
   } else {
     Fetch.json(response)
     ->Promise.then((json: apiError) => {
@@ -133,15 +133,13 @@ let handleResponse = (response: Fetch.response) => {
       | Some(d) => d
       | None => json.error
       }
-      Promise.reject(
-        JsError.throwWithMessage(
-          "Backend error: " ++ Belt.Int.toString(Fetch.status(response)) ++ " " ++ msg,
-        ),
+      Promise.resolve(
+        Error("Backend error: " ++ Belt.Int.toString(Fetch.status(response)) ++ " " ++ msg),
       )
     })
     ->Promise.catch(_ => {
-      Promise.reject(
-        JsError.throwWithMessage(
+      Promise.resolve(
+        Error(
           "Backend error: " ++
           Belt.Int.toString(Fetch.status(response)) ++
           " " ++
@@ -167,10 +165,26 @@ let importProject = (file: File.t): Promise.t<apiResult<importResponse>> => {
     Fetch.requestInit(~method="POST", ~body=formData, ()),
   )
   ->Promise.then(handleResponse)
-  ->Promise.then(Fetch.json)
-  ->Promise.then(json => {
-    switch decodeImportResponse(json) {
-    | Ok(data) => Promise.resolve(Ok(data))
+  ->Promise.then(resultResponse => {
+    switch resultResponse {
+    | Ok(response) =>
+      Fetch.json(response)
+      ->Promise.then(json => {
+        switch decodeImportResponse(json) {
+        | Ok(data) => Promise.resolve(Ok(data))
+        | Error(msg) => Promise.resolve(Error(msg))
+        }
+      })
+      ->Promise.catch(e => {
+        let (msg, stack) = Logger.getErrorDetails(e)
+        Logger.error(
+          ~module_="BackendApi",
+          ~message="IMPORT_ERROR_JSON_DECODE",
+          ~data=Logger.castToJson({"error": msg, "stack": stack}),
+          (),
+        )
+        Promise.resolve(Error("Project import failed: JSON parsing or decoding error"))
+      })
     | Error(msg) => Promise.resolve(Error(msg))
     }
   })
@@ -198,10 +212,26 @@ let validateProject = (file: File.t): Promise.t<apiResult<validationReport>> => 
     Fetch.requestInit(~method="POST", ~body=formData, ()),
   )
   ->Promise.then(handleResponse)
-  ->Promise.then(Fetch.json)
-  ->Promise.then(json => {
-    switch decodeValidationReport(json) {
-    | Ok(data) => Promise.resolve(Ok(data))
+  ->Promise.then(resultResponse => {
+    switch resultResponse {
+    | Ok(response) =>
+      Fetch.json(response)
+      ->Promise.then(json => {
+        switch decodeValidationReport(json) {
+        | Ok(data) => Promise.resolve(Ok(data))
+        | Error(msg) => Promise.resolve(Error(msg))
+        }
+      })
+      ->Promise.catch(e => {
+        let (msg, stack) = Logger.getErrorDetails(e)
+        Logger.error(
+          ~module_="BackendApi",
+          ~message="VALIDATION_ERROR_JSON_DECODE",
+          ~data=Logger.castToJson({"error": msg, "stack": stack}),
+          (),
+        )
+        Promise.resolve(Error("Project validation failed: JSON parsing or decoding error"))
+      })
     | Error(msg) => Promise.resolve(Error(msg))
     }
   })
@@ -230,8 +260,24 @@ let loadProject = (file: File.t): Promise.t<apiResult<Blob.t>> => {
     Fetch.requestInit(~method="POST", ~body=formData, ()),
   )
   ->Promise.then(handleResponse)
-  ->Promise.then(Fetch.blob)
-  ->Promise.then(blob => Promise.resolve(Ok(blob)))
+  ->Promise.then(resultResponse => {
+    switch resultResponse {
+    | Ok(response) =>
+      Fetch.blob(response)
+      ->Promise.then(blob => Promise.resolve(Ok(blob)))
+      ->Promise.catch(e => {
+        let (msg, stack) = Logger.getErrorDetails(e)
+        Logger.error(
+          ~module_="BackendApi",
+          ~message="LOAD_ERROR_BLOB_CONVERSION",
+          ~data=Logger.castToJson({"error": msg, "stack": stack}),
+          (),
+        )
+        Promise.resolve(Error("Project load failed: Blob conversion error"))
+      })
+    | Error(msg) => Promise.resolve(Error(msg))
+    }
+  })
   ->Promise.catch(e => {
     let (msg, stack) = Logger.getErrorDetails(e)
     Logger.error(
@@ -256,10 +302,26 @@ let extractMetadata = (file: File.t): Promise.t<apiResult<metadataResponse>> => 
     Fetch.requestInit(~method="POST", ~body=formData, ()),
   )
   ->Promise.then(handleResponse)
-  ->Promise.then(Fetch.json)
-  ->Promise.then(json => {
-    switch decodeMetadataResponse(json) {
-    | Ok(data) => Promise.resolve(Ok(data))
+  ->Promise.then(resultResponse => {
+    switch resultResponse {
+    | Ok(response) =>
+      Fetch.json(response)
+      ->Promise.then(json => {
+        switch decodeMetadataResponse(json) {
+        | Ok(data) => Promise.resolve(Ok(data))
+        | Error(msg) => Promise.resolve(Error(msg))
+        }
+      })
+      ->Promise.catch(e => {
+        let (msg, stack) = Logger.getErrorDetails(e)
+        Logger.error(
+          ~module_="BackendApi",
+          ~message="METADATA_ERROR_JSON_DECODE",
+          ~data=Logger.castToJson({"error": msg, "stack": stack}),
+          (),
+        )
+        Promise.resolve(Error("Metadata extraction failed: JSON parsing or decoding error"))
+      })
     | Error(msg) => Promise.resolve(Error(msg))
     }
   })
@@ -299,8 +361,24 @@ let processImageFull = (
     Fetch.requestInit(~method="POST", ~body=formData, ()),
   )
   ->Promise.then(handleResponse)
-  ->Promise.then(Fetch.blob)
-  ->Promise.then(blob => Promise.resolve(Ok(blob)))
+  ->Promise.then(resultResponse => {
+    switch resultResponse {
+    | Ok(response) =>
+      Fetch.blob(response)
+      ->Promise.then(blob => Promise.resolve(Ok(blob)))
+      ->Promise.catch(e => {
+        let (msg, stack) = Logger.getErrorDetails(e)
+        Logger.error(
+          ~module_="BackendApi",
+          ~message="PROCESSING_ERROR_BLOB_CONVERSION",
+          ~data=Logger.castToJson({"error": msg, "stack": stack}),
+          (),
+        )
+        Promise.resolve(Error("Image processing failed: Blob conversion error"))
+      })
+    | Error(msg) => Promise.resolve(Error(msg))
+    }
+  })
   ->Promise.catch(e => {
     let (msg, stack) = Logger.getErrorDetails(e)
     Logger.error(
@@ -326,8 +404,24 @@ let saveProject = (projectData: JSON.t): Promise.t<apiResult<Blob.t>> => {
     Fetch.requestInit(~method="POST", ~body=formData, ()),
   )
   ->Promise.then(handleResponse)
-  ->Promise.then(Fetch.blob)
-  ->Promise.then(blob => Promise.resolve(Ok(blob)))
+  ->Promise.then(resultResponse => {
+    switch resultResponse {
+    | Ok(response) =>
+      Fetch.blob(response)
+      ->Promise.then(blob => Promise.resolve(Ok(blob)))
+      ->Promise.catch(e => {
+        let (msg, stack) = Logger.getErrorDetails(e)
+        Logger.error(
+          ~module_="BackendApi",
+          ~message="SAVE_ERROR_BLOB_CONVERSION",
+          ~data=Logger.castToJson({"error": msg, "stack": stack}),
+          (),
+        )
+        Promise.resolve(Error("Project save failed: Blob conversion error"))
+      })
+    | Error(msg) => Promise.resolve(Error(msg))
+    }
+  })
   ->Promise.catch(e => {
     let (msg, stack) = Logger.getErrorDetails(e)
     Logger.error(
@@ -357,10 +451,26 @@ let calculatePath = (payload: pathRequest): Promise.t<apiResult<array<step>>> =>
     ),
   )
   ->Promise.then(handleResponse)
-  ->Promise.then(Fetch.json)
-  ->Promise.then(json => {
-    switch decodeSteps(json) {
-    | Ok(data) => Promise.resolve(Ok(data))
+  ->Promise.then(resultResponse => {
+    switch resultResponse {
+    | Ok(response) =>
+      Fetch.json(response)
+      ->Promise.then(json => {
+        switch decodeSteps(json) {
+        | Ok(data) => Promise.resolve(Ok(data))
+        | Error(msg) => Promise.resolve(Error(msg))
+        }
+      })
+      ->Promise.catch(e => {
+        let (msg, stack) = Logger.getErrorDetails(e)
+        Logger.error(
+          ~module_="BackendApi",
+          ~message="CALCULATE_PATH_ERROR_JSON_DECODE",
+          ~data=Logger.castToJson({"error": msg, "stack": stack}),
+          (),
+        )
+        Promise.resolve(Error("Path calculation failed: JSON parsing or decoding error"))
+      })
     | Error(msg) => Promise.resolve(Error(msg))
     }
   })
@@ -380,7 +490,7 @@ let calculatePath = (payload: pathRequest): Promise.t<apiResult<array<step>>> =>
  * Reverse geocodes coordinates to a human-readable address
  * Uses backend proxy for privacy and caching
  */
-let reverseGeocode = (lat: float, lon: float): Promise.t<string> => {
+let reverseGeocode = (lat: float, lon: float): Promise.t<apiResult<string>> => {
   let headers = Dict.make()
   Dict.set(headers, "Content-Type", "application/json")
 
@@ -406,11 +516,11 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<string> => {
         ~data=Logger.castToJson({"status": Fetch.status(response)}),
         (),
       )
-      Promise.resolve("[Geocoding service unavailable]")
+      Promise.resolve(Error("Geocoding service unavailable"))
     } else {
       Fetch.json(response)->Promise.then(json => {
         switch decodeGeocodeResponse(json) {
-        | Ok(data) => Promise.resolve(data.address)
+        | Ok(data) => Promise.resolve(Ok(data.address))
         | Error(msg) =>
           Logger.warn(
             ~module_="BackendApi",
@@ -418,7 +528,7 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<string> => {
             ~data=Logger.castToJson({"error": msg}),
             (),
           )
-          Promise.resolve("[Geocoding decode failed]")
+          Promise.resolve(Error("Geocoding decode failed: " ++ msg))
         }
       })
     }
@@ -431,7 +541,7 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<string> => {
       ~data=Logger.castToJson({"error": msg, "stack": stack}),
       (),
     )
-    Promise.resolve("[Geocoding failed]")
+    Promise.resolve(Error("Geocoding failed: " ++ msg))
   })
 }
 
@@ -458,10 +568,26 @@ let batchCalculateSimilarity = (pairs: array<similarityPair>): Promise.t<
     ),
   )
   ->Promise.then(handleResponse)
-  ->Promise.then(Fetch.json)
-  ->Promise.then(json => {
-    switch decodeSimilarityResponse(json) {
-    | Ok(data) => Promise.resolve(Ok(data.results))
+  ->Promise.then(resultResponse => {
+    switch resultResponse {
+    | Ok(response) =>
+      Fetch.json(response)
+      ->Promise.then(json => {
+        switch decodeSimilarityResponse(json) {
+        | Ok(data) => Promise.resolve(Ok(data.results))
+        | Error(msg) => Promise.resolve(Error(msg))
+        }
+      })
+      ->Promise.catch(e => {
+        let (msg, stack) = Logger.getErrorDetails(e)
+        Logger.error(
+          ~module_="BackendApi",
+          ~message="SIMILARITY_BATCH_ERROR_JSON_DECODE",
+          ~data=Logger.castToJson({"error": msg, "stack": stack}),
+          (),
+        )
+        Promise.resolve(Error("Similarity calculation failed: JSON parsing or decoding error"))
+      })
     | Error(msg) => Promise.resolve(Error(msg))
     }
   })

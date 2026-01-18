@@ -72,7 +72,12 @@ async fn main() -> io::Result<()> {
         .endpoint("/metrics")
         .registry(prometheus::default_registry().clone())
         .build()
-        .unwrap();
+        .map_err(|e| {
+            io::Error::new(
+                io::ErrorKind::Other,
+                format!("Failed to init prometheus: {}", e),
+            )
+        })?;
 
     let shutdown_manager_server = shutdown_manager.clone();
     let server = HttpServer::new(move || {
@@ -186,7 +191,7 @@ async fn main() -> io::Result<()> {
             )
 
             // --- STATIC FILES (Serve Production Build from dist/) ---
-            .configure(|cfg| {
+            .configure(|cfg: &mut web::ServiceConfig| {
                 if std::path::Path::new("../dist/static").is_dir() {
                     cfg.service(fs::Files::new("/static", "../dist/static"));
                 }

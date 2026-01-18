@@ -433,10 +433,10 @@ pub async fn import_project(mut payload: Multipart) -> Result<HttpResponse, AppE
                 if file.name().ends_with('/') {
                     fs::create_dir_all(&outpath).map_err(AppError::IoError)?;
                 } else {
-                    if let Some(p) = outpath.parent() {
-                        if !p.exists() {
-                            fs::create_dir_all(&p).map_err(AppError::IoError)?;
-                        }
+                    if let Some(p) = outpath.parent()
+                        && !p.exists()
+                    {
+                        fs::create_dir_all(p).map_err(AppError::IoError)?;
                     }
                     let mut outfile = fs::File::create(&outpath).map_err(AppError::IoError)?;
                     std::io::copy(&mut file, &mut outfile).map_err(AppError::IoError)?;
@@ -461,8 +461,8 @@ pub async fn import_project(mut payload: Multipart) -> Result<HttpResponse, AppE
             tracing::info!(module = "ProjectManager", session_id = %session_id, "IMPORT_PROJECT_SUCCESS");
 
             return Ok(HttpResponse::Ok().json(ImportResponse {
-                session_id: session_id,
-                project_data: project_data,
+                session_id,
+                project_data,
             }));
         }
     }

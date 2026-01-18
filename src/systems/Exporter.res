@@ -8,21 +8,20 @@ open EventBus
 
 /* Helper to fetch library files */
 let fetchLib = async filename => {
-  let {result, durationMs: _} = await Logger.timedAsync(
-    ~module_="Exporter",
-    ~operation=`FETCH_LIB:${filename}`,
-    async () => {
-      let response = await Fetch.fetch("/libs/" ++ filename, Fetch.requestInit(~method="GET", ()))
+  try {
+    let response = await Fetch.fetch("/libs/" ++ filename, Fetch.requestInit(~method="GET", ()))
 
-      if !Fetch.ok(response) {
-        JsError.throwWithMessage("Missing Library: " ++ filename)
-      }
-
-      await Fetch.blob(response)
-    },
-  )
-
-  result
+    if !Fetch.ok(response) {
+      Error("Missing Library: " ++ filename)
+    } else {
+      let b = await Fetch.blob(response)
+      Ok(b)
+    }
+  } catch {
+  | exn =>
+    let (msg, _stack) = Logger.getErrorDetails(exn)
+    Error(msg)
+  }
 }
 
 /* XHR Upload Logic via Raw JS (for progress events) */
@@ -87,7 +86,7 @@ let uploadAndProcessRaw: (
 let exportTour = async (
   scenes: array<scene>,
   onProgress: option<(float, float, string) => unit>,
-) => {
+): result<unit, string> => {
   let progress = (p, t, m) => {
     switch onProgress {
     | Some(cb) => cb(p, t, m)
@@ -138,10 +137,16 @@ let exportTour = async (
     currentPhase := "LIBRARIES"
     Logger.debug(~module_="Exporter", ~message="PHASE_LIBRARIES", ())
     try {
-      let panJS = await fetchLib("pannellum.js")
-      let panCSS = await fetchLib("pannellum.css")
-      FormData.appendWithFilename(formData, "pannellum.js", panJS, "pannellum.js")
-      FormData.appendWithFilename(formData, "pannellum.css", panCSS, "pannellum.css")
+      let panJSRes: result<Blob.t, string> = await fetchLib("pannellum.js")
+      let panCSSRes: result<Blob.t, string> = await fetchLib("pannellum.css")
+      switch (panJSRes, panCSSRes) {
+      | (Ok(panJS), Ok(panCSS)) => {
+          FormData.appendWithFilename(formData, "pannellum.js", panJS, "pannellum.js")
+          FormData.appendWithFilename(formData, "pannellum.css", panCSS, "pannellum.css")
+        }
+      | (Error(e), _) | (_, Error(e)) =>
+        Logger.error(~module_="Exporter", ~message="FETCH_LIBS_FAILED", ~data={"error": e}, ())
+      }
     } catch {
     | exn =>
       let (msg, stack) = Logger.getErrorDetails(exn)
@@ -203,6 +208,7 @@ let exportTour = async (
       (),
     )
     DownloadSystem.saveBlob(zipBlob, filename)
+    Ok()
   } catch {
   | exn => {
       let (msg, stack) = Logger.getErrorDetails(exn)
@@ -214,6 +220,7 @@ let exportTour = async (
       )
       EventBus.dispatch(ShowNotification(`Export Failed: ${msg}`, #Error))
       progress(0.0, 0.0, "Failed")
+      Error(msg)
     }
   }
 }

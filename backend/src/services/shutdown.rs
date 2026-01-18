@@ -85,16 +85,13 @@ pub async fn cleanup_temp_files() -> std::io::Result<()> {
             let path = entry.path();
 
             // Only remove files older than 1 hour (safety check)
-            if let Ok(metadata) = fs::metadata(&path) {
-                if let Ok(modified) = metadata.modified() {
-                    if let Ok(elapsed) = modified.elapsed() {
-                        if elapsed > Duration::from_secs(3600) {
-                            if fs::remove_file(&path).is_ok() {
-                                removed_count += 1;
-                            }
-                        }
-                    }
-                }
+            if let Ok(metadata) = fs::metadata(&path)
+                && let Ok(modified) = metadata.modified()
+                && let Ok(elapsed) = modified.elapsed()
+                && elapsed > Duration::from_secs(3600)
+                && fs::remove_file(&path).is_ok()
+            {
+                removed_count += 1;
             }
         }
         tracing::info!(removed_files = removed_count, "Temp files cleaned");
@@ -107,18 +104,15 @@ pub async fn cleanup_temp_files() -> std::io::Result<()> {
             let entry = entry?;
             let path = entry.path();
 
-            if path.is_dir() {
-                if let Ok(metadata) = fs::metadata(&path) {
-                    if let Ok(modified) = metadata.modified() {
-                        if let Ok(elapsed) = modified.elapsed() {
-                            if elapsed > Duration::from_secs(86400) {
-                                // 24 hours
-                                if fs::remove_dir_all(&path).is_ok() {
-                                    removed_count += 1;
-                                }
-                            }
-                        }
-                    }
+            if path.is_dir()
+                && let Ok(metadata) = fs::metadata(&path)
+                && let Ok(modified) = metadata.modified()
+                && let Ok(elapsed) = modified.elapsed()
+                && elapsed > Duration::from_secs(86400)
+            {
+                // 24 hours
+                if fs::remove_dir_all(&path).is_ok() {
+                    removed_count += 1;
                 }
             }
         }

@@ -30,11 +30,11 @@ impl Default for QuotaConfig {
     fn default() -> Self {
         Self {
             max_payload_size: 2 * 1024 * 1024 * 1024, // 2GB
-            max_concurrent_per_ip: 10,
+            max_concurrent_per_ip: 12,
             max_total_concurrent_size: 10 * 1024 * 1024 * 1024, // 10GB total
             min_free_disk_space: 5 * 1024 * 1024 * 1024,        // 5GB free required
             rate_limit_window: Duration::from_secs(3600),       // 1 hour
-            max_uploads_per_window: 100,
+            max_uploads_per_window: 500,
         }
     }
 }
@@ -51,7 +51,7 @@ impl QuotaConfig {
             max_concurrent_per_ip: std::env::var("MAX_CONCURRENT_PER_IP")
                 .ok()
                 .and_then(|s| s.parse().ok())
-                .unwrap_or(10),
+                .unwrap_or(12),
 
             max_total_concurrent_size: std::env::var("MAX_TOTAL_CONCURRENT_SIZE")
                 .ok()
@@ -73,7 +73,7 @@ impl QuotaConfig {
             max_uploads_per_window: std::env::var("MAX_UPLOADS_PER_WINDOW")
                 .ok()
                 .and_then(|s| s.parse().ok())
-                .unwrap_or(100),
+                .unwrap_or(500),
         }
     }
 }
@@ -145,29 +145,28 @@ impl UploadQuotaManager {
         }
 
         // Check disk space
-        if let Err(e) = self.check_disk_space().await {
-            return Err(e);
-        }
+        self.check_disk_space().await?;
 
         let active = self.active_uploads.read().await;
 
         // Check per-IP concurrent limit
-        if let Some(uploads) = active.get(ip) {
-            if uploads.len() >= self.config.max_concurrent_per_ip {
-                return Err(format!(
-                    "Too many concurrent uploads from your IP. Maximum: {}",
-                    self.config.max_concurrent_per_ip
-                ));
-            }
+        if let Some(uploads) = active.get(ip)
+            && uploads.len() >= self.config.max_concurrent_per_ip
+        {
+            return Err(format!(
+                "Too many concurrent uploads from your IP. Maximum: {}",
+                self.config.max_concurrent_per_ip
+            ));
         }
 
         // Check global concurrent size
         let total_size: usize = active.values().flat_map(|v| v.iter()).map(|t| t.size).sum();
 
         if total_size + size > self.config.max_total_concurrent_size {
-            return Err(format!(
+            return Err(
                 "Server is currently processing too many uploads. Please try again later."
-            ));
+                    .to_string(),
+            );
         }
 
         drop(active);

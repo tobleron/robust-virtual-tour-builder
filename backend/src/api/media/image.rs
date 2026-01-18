@@ -47,12 +47,11 @@ pub async fn process_image_full(mut payload: Multipart) -> Result<HttpResponse, 
         let name = field.name().unwrap_or("").to_string();
 
         if name == "file" {
-            if original_filename.is_none() {
-                if let Some(content_disposition) = field.content_disposition() {
-                    if let Some(filename) = content_disposition.get_filename() {
-                        original_filename = Some(filename.to_string());
-                    }
-                }
+            if original_filename.is_none()
+                && let Some(content_disposition) = field.content_disposition()
+                && let Some(filename) = content_disposition.get_filename()
+            {
+                original_filename = Some(filename.to_string());
             }
 
             while let Some(chunk) = field.try_next().await? {
@@ -91,16 +90,34 @@ pub async fn process_image_full(mut payload: Multipart) -> Result<HttpResponse, 
     let result_zip = web::block(move || -> Result<Vec<u8>, String> {
         let decode_start = Instant::now();
         let data_size = data.len();
-        let img = image::ImageReader::new(Cursor::new(&data))
+
+        // 1. Guess format and validate
+        let reader = image::ImageReader::new(Cursor::new(&data))
             .with_guessed_format()
             .map_err(|e| {
                 format!(
                     "Failed to guess image format (size: {} bytes): {}",
                     data_size, e
                 )
-            })?
+            })?;
+
+        let format = reader.format().ok_or_else(|| {
+            "Unsupported or invalid image format. Please upload JPEG, PNG, WebP, or HEIC."
+                .to_string()
+        })?;
+
+        tracing::info!(
+            module = "Processor",
+            format = ?format,
+            size = data_size,
+            "IMAGE_FORMAT_IDENTIFIED"
+        );
+
+        // 2. Decode Image
+        let img = reader
             .decode()
             .map_err(|e| format!("Failed to decode image (size: {} bytes): {}", data_size, e))?;
+
         let decode_time = decode_start.elapsed().as_millis();
         tracing::info!(
             module = "Processor",
@@ -149,7 +166,7 @@ pub async fn process_image_full(mut payload: Multipart) -> Result<HttpResponse, 
                             .map_err(|e| format!("Tiny resize failed: {}", e))?;
                         let tiny_img = image::RgbaImage::from_raw(512, 512, tiny_rgba)
                             .ok_or_else(|| "Failed to create tiny image buffer".to_string())
-                            .map_err(|e| format!("{}", e))?;
+                            .map_err(|e| e.to_string())?;
                         media::encode_webp(&image::DynamicImage::ImageRgba8(tiny_img), 60.0)
                     },
                 )
@@ -178,7 +195,7 @@ pub async fn process_image_full(mut payload: Multipart) -> Result<HttpResponse, 
                         resized_rgba,
                     )
                     .ok_or_else(|| "Failed to create image buffer".to_string())
-                    .map_err(|e| format!("{}", e))?;
+                    .map_err(|e| e.to_string())?;
 
                     media::encode_webp(&image::DynamicImage::ImageRgba8(img), WEBP_QUALITY)
                 }
@@ -312,14 +329,22 @@ pub async fn optimize_image(mut payload: Multipart) -> Result<HttpResponse, AppE
 
     let result_bytes = web::block(move || -> Result<Vec<u8>, String> {
         let start = Instant::now();
-        let img = image::ImageReader::new(Cursor::new(data))
+        let reader = image::ImageReader::new(Cursor::new(data))
             .with_guessed_format()
-            .map_err(|e| format!("Failed to guess format: {}", e))?
+            .map_err(|e| format!("Failed to guess format: {}", e))?;
+
+        let format = reader
+            .format()
+            .ok_or_else(|| "Unsupported or invalid image format.".to_string())?;
+
+        let img = reader
             .decode()
             .map_err(|e| format!("Failed to decode image: {}", e))?;
+
         let duration = start.elapsed().as_millis();
         tracing::info!(
             module = "Optimizer",
+            format = ?format,
             duration_ms = duration,
             "IMAGE_DECODE_COMPLETE"
         );
@@ -398,9 +423,15 @@ pub async fn resize_image_batch(mut payload: Multipart) -> Result<HttpResponse, 
 
     let result_zip = web::block(move || -> Result<Vec<u8>, String> {
         // 2. Decode Image
-        let img = image::ImageReader::new(Cursor::new(data))
+        let reader = image::ImageReader::new(Cursor::new(data))
             .with_guessed_format()
-            .map_err(|e| format!("Failed to guess format: {}", e))?
+            .map_err(|e| format!("Failed to guess format: {}", e))?;
+
+        let _format = reader
+            .format()
+            .ok_or_else(|| "Unsupported or invalid image format.".to_string())?;
+
+        let img = reader
             .decode()
             .map_err(|e| format!("Failed to decode image: {}", e))?;
 
@@ -489,12 +520,11 @@ pub async fn extract_metadata(mut payload: Multipart) -> Result<HttpResponse, Ap
     let mut original_filename: Option<String> = None;
 
     while let Some(mut field) = payload.try_next().await? {
-        if original_filename.is_none() {
-            if let Some(content_disposition) = field.content_disposition() {
-                if let Some(filename) = content_disposition.get_filename() {
-                    original_filename = Some(filename.to_string());
-                }
-            }
+        if original_filename.is_none()
+            && let Some(content_disposition) = field.content_disposition()
+            && let Some(filename) = content_disposition.get_filename()
+        {
+            original_filename = Some(filename.to_string());
         }
 
         while let Some(chunk) = field.try_next().await? {
@@ -514,9 +544,15 @@ pub async fn extract_metadata(mut payload: Multipart) -> Result<HttpResponse, Ap
 
     let start = Instant::now();
     let result = web::block(move || -> Result<MetadataResponse, String> {
-        let img = image::ImageReader::new(Cursor::new(&data))
+        let reader = image::ImageReader::new(Cursor::new(&data))
             .with_guessed_format()
-            .map_err(|e| format!("Failed to guess format: {}", e))?
+            .map_err(|e| format!("Failed to guess format: {}", e))?;
+
+        let _format = reader
+            .format()
+            .ok_or_else(|| "Unsupported or invalid image format.".to_string())?;
+
+        let img = reader
             .decode()
             .map_err(|e| format!("Failed to decode: {}", e))?;
 
@@ -583,7 +619,7 @@ mod tests {
             analysis: Some("Good".to_string()),
         };
 
-        let json = serde_json::to_string(&qa).unwrap();
+        let json = serde_json::to_string(&qa).expect("Serialization failed");
         assert!(json.contains("score"));
         assert!(json.contains("stats"));
     }

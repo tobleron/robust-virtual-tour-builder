@@ -273,10 +273,10 @@ async fn call_osm_nominatim(lat: f64, lon: f64) -> Result<String, String> {
         let mut parts = Vec::new();
 
         // Extract address components
-        if let Some(road) = address_obj.get("road").and_then(|v| v.as_str()) {
-            if !road.is_empty() {
-                parts.push(road.to_string());
-            }
+        if let Some(road) = address_obj.get("road").and_then(|v| v.as_str())
+            && !road.is_empty()
+        {
+            parts.push(road.to_string());
         }
 
         // Suburb/neighborhood
@@ -284,10 +284,10 @@ async fn call_osm_nominatim(lat: f64, lon: f64) -> Result<String, String> {
             .get("suburb")
             .or_else(|| address_obj.get("neighbourhood"))
             .and_then(|v| v.as_str());
-        if let Some(s) = suburb {
-            if !s.is_empty() {
-                parts.push(s.to_string());
-            }
+        if let Some(s) = suburb
+            && !s.is_empty()
+        {
+            parts.push(s.to_string());
         }
 
         // City/town/village
@@ -296,10 +296,10 @@ async fn call_osm_nominatim(lat: f64, lon: f64) -> Result<String, String> {
             .or_else(|| address_obj.get("town"))
             .or_else(|| address_obj.get("village"))
             .and_then(|v| v.as_str());
-        if let Some(c) = city {
-            if !c.is_empty() {
-                parts.push(c.to_string());
-            }
+        if let Some(c) = city
+            && !c.is_empty()
+        {
+            parts.push(c.to_string());
         }
 
         // State/province
@@ -307,17 +307,17 @@ async fn call_osm_nominatim(lat: f64, lon: f64) -> Result<String, String> {
             .get("state")
             .or_else(|| address_obj.get("province"))
             .and_then(|v| v.as_str());
-        if let Some(s) = state {
-            if !s.is_empty() {
-                parts.push(s.to_string());
-            }
+        if let Some(s) = state
+            && !s.is_empty()
+        {
+            parts.push(s.to_string());
         }
 
         // Country
-        if let Some(country) = address_obj.get("country").and_then(|v| v.as_str()) {
-            if !country.is_empty() {
-                parts.push(country.to_string());
-            }
+        if let Some(country) = address_obj.get("country").and_then(|v| v.as_str())
+            && !country.is_empty()
+        {
+            parts.push(country.to_string());
         }
 
         if !parts.is_empty() {
@@ -366,7 +366,9 @@ mod tests {
         }
 
         // Access it via reverse_geocode (should hit cache)
-        let result = reverse_geocode(lat, lon).await.unwrap();
+        let result = reverse_geocode(lat, lon)
+            .await
+            .expect("Reverse geocode failed");
         assert_eq!(result, address);
 
         // Verify stats
@@ -375,7 +377,7 @@ mod tests {
 
         // Verify access count
         let cache = GEOCODE_CACHE.read().await;
-        let entry = cache.get(&key).unwrap();
+        let entry = cache.get(&key).expect("Cache entry missing");
         assert_eq!(entry.access_count, 2);
     }
 

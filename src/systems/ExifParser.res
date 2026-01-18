@@ -17,7 +17,7 @@ module ExifReader = {
 let backendUrl = Constants.backendUrl
 
 /* extractExifTags - Extracts full technical metadata and GPS using ExifReader */
-let extractExifTags = async file => {
+let extractExifTags = async (file): result<(exifMetadata, gPanoMetadata), string> => {
   try {
     let _tags = await ExifReader.load(file)
 
@@ -82,9 +82,12 @@ let extractExifTags = async file => {
       iso: Nullable.fromOption(Some(getInt("ISOSpeedRatings"))),
     }
 
-    Some((exif, pano))
+    Ok((exif, pano))
   } catch {
-  | _ => None
+  | exn => {
+      let (msg, _stack) = Logger.getErrorDetails(exn)
+      Error(msg)
+    }
   }
 }
 
@@ -92,13 +95,13 @@ let extractExifTags = async file => {
 let parseFile = async file => {
   let result = await extractExifTags(file)
   switch result {
-  | Some((_exif, pano)) => Some(pano)
-  | None => None
+  | Ok((_exif, pano)) => Ok(pano)
+  | Error(msg) => Error(msg)
   }
 }
 
 /* extractExifData - Calls the Rust Backend */
-let extractExifData = (file: File.t): Promise.t<metadataResponse> => {
+let extractExifData = (file: File.t): Promise.t<BackendApi.apiResult<metadataResponse>> => {
   let formData = FormData.newFormData()
   FormData.append(formData, "file", file)
 
@@ -106,30 +109,33 @@ let extractExifData = (file: File.t): Promise.t<metadataResponse> => {
     `${backendUrl}/api/media/extract-metadata`,
     Fetch.requestInit(~method="POST", ~body=formData, ()),
   )
-  ->Promise.then(res => {
-    if !Fetch.ok(res) {
-      JsError.throwWithMessage("Backend Metadata Extraction Failed")
-    } else {
-      Fetch.json(res)
+  ->Promise.then(BackendApi.handleResponse)
+  ->Promise.then(result => {
+    switch result {
+    | Ok(res) => Fetch.json(res)->Promise.then(json => Promise.resolve(Ok(Obj.magic(json))))
+    | Error(msg) => Promise.resolve(Error(msg))
     }
   })
-  ->Promise.then(json => Promise.resolve(Obj.magic(json)))
 }
 
 /* analyzeImageQuality wrapper */
-let analyzeImageQuality = (file: File.t): Promise.t<qualityAnalysis> => {
+let analyzeImageQuality = (file: File.t): Promise.t<BackendApi.apiResult<qualityAnalysis>> => {
   extractExifData(file)
-  ->Promise.then(data => Promise.resolve(data.quality))
+  ->Promise.then(result => {
+    switch result {
+    | Ok(data) => Promise.resolve(Ok(data.quality))
+    | Error(msg) => Promise.resolve(Error(msg))
+    }
+  })
   ->Promise.catch(err => {
+    let (msg, _stack) = Logger.getErrorDetails(err)
     Logger.error(
       ~module_="ExifParser",
       ~message="QUALITY_ANALYSIS_FAILED",
-      ~data=Logger.castToJson({"error": err}),
+      ~data=Logger.castToJson({"error": msg}),
       (),
     )
-    Promise.resolve(
-      Obj.magic({"score": 7.5, "issues": 0, "analysis": Nullable.null, "error": "Analysis failed"}),
-    )
+    Promise.resolve(Error("Analysis failed: " ++ msg))
   })
 }
 

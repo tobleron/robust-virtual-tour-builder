@@ -113,13 +113,13 @@ pub fn validate_and_clean_project(
 
             // Check for duplicate link IDs
             for hotspot in hotspots.iter() {
-                if let Some(link_id) = hotspot["linkId"].as_str() {
-                    if !seen_link_ids.insert(link_id.to_string()) {
-                        report.warnings.push(format!(
-                            "Scene '{}': Duplicate linkId detected: '{}'",
-                            scene_name, link_id
-                        ));
-                    }
+                if let Some(link_id) = hotspot["linkId"].as_str()
+                    && !seen_link_ids.insert(link_id.to_string())
+                {
+                    report.warnings.push(format!(
+                        "Scene '{}': Duplicate linkId detected: '{}'",
+                        scene_name, link_id
+                    ));
                 }
             }
         }

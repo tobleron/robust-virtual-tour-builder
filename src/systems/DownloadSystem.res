@@ -96,7 +96,7 @@ let writeFileToHandle = async (handle: fileHandle, blob: Blob.t) => {
   await close(writable)
 }
 
-let saveBlobWithConfirmation = async (blob: Blob.t, filename: string) => {
+let saveBlobWithConfirmation = async (blob: Blob.t, filename: string): result<bool, string> => {
   Logger.info(
     ~module_="Download",
     ~message="SAVING_FILE_CONFIRMATION",
@@ -119,7 +119,7 @@ let saveBlobWithConfirmation = async (blob: Blob.t, filename: string) => {
       let handle = await getFileHandle(filename, mimeType)
       await writeFileToHandle(handle, blob)
       Logger.info(~module_="Download", ~message="SAVE_SUCCESS", ~data={"filename": filename}, ())
-      true
+      Ok(true)
     } catch {
     | exn => {
         let (msg, stack) = Logger.getErrorDetails(exn)
@@ -127,7 +127,7 @@ let saveBlobWithConfirmation = async (blob: Blob.t, filename: string) => {
         // Check for AbortError which occurs when user cancels the save picker
         if String.includes("AbortError", msg) {
           Logger.info(~module_="Download", ~message="SAVE_CANCELLED", ())
-          JsError.throwWithMessage("USER_CANCELLED")
+          Error("USER_CANCELLED")
         } else {
           Logger.error(
             ~module_="Download",
@@ -135,14 +135,14 @@ let saveBlobWithConfirmation = async (blob: Blob.t, filename: string) => {
             ~data={"error": msg, "stack": stack},
             (),
           )
-          JsError.throwWithMessage("Save Failed: " ++ msg)
+          Error("Save Failed: " ++ msg)
         }
       }
     }
   } else {
     Logger.info(~module_="Download", ~message="FALLBACK_SAVE", ())
     saveBlob(blob, filename)
-    true
+    Ok(true)
   }
 }
 

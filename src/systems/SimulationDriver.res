@@ -58,52 +58,67 @@ let make = () => {
           ) {
             try {
               // Wait for viewer
-              let _ = await SimulationNavigation.waitForViewerScene(state.activeIndex, () =>
-                !cancel.contents
+              let waitResult = await SimulationNavigation.waitForViewerScene(
+                state.activeIndex,
+                () => !cancel.contents,
               )
 
-              if !cancel.contents && state.simulation.status == Running {
-                // Calculate Next Move
-                let move = SimulationLogic.getNextMove(state)
+              switch waitResult {
+              | Ok() =>
+                if !cancel.contents && state.simulation.status == Running {
+                  // Calculate Next Move
+                  let move = SimulationLogic.getNextMove(state)
 
-                switch move {
-                | Move({targetIndex, hotspotIndex, yaw, pitch, hfov, triggerActions}) =>
-                  // Exec Actions
-                  triggerActions->Belt.Array.forEach(a => dispatch(a))
+                  switch move {
+                  | Move({targetIndex, hotspotIndex, yaw, pitch, hfov, triggerActions}) =>
+                    // Exec Actions
+                    triggerActions->Belt.Array.forEach(a => dispatch(a))
 
-                  // Exec Navigation
-                  Navigation.navigateToScene(
-                    dispatch,
-                    state,
-                    targetIndex,
-                    state.activeIndex,
-                    hotspotIndex,
-                    ~targetYaw=yaw,
-                    ~targetPitch=pitch,
-                    ~targetHfov=hfov,
-                    (),
-                  )
+                    // Exec Navigation
+                    Navigation.navigateToScene(
+                      dispatch,
+                      state,
+                      targetIndex,
+                      state.activeIndex,
+                      hotspotIndex,
+                      ~targetYaw=yaw,
+                      ~targetPitch=pitch,
+                      ~targetHfov=hfov,
+                      (),
+                    )
 
-                | Complete({reason}) =>
-                  Logger.info(
-                    ~module_="Simulation",
-                    ~message="SIM_COMPLETE",
-                    ~data=Some({"reason": reason}),
-                    (),
-                  )
-                  EventBus.dispatch(ShowNotification("Simulation Complete", #Success))
+                  | Complete({reason}) =>
+                    Logger.info(
+                      ~module_="Simulation",
+                      ~message="SIM_COMPLETE",
+                      ~data=Some({"reason": reason}),
+                      (),
+                    )
+                    EventBus.dispatch(ShowNotification("Simulation Complete", #Success))
 
-                  // Wait a bit then stop
-                  let _ = await wait(800)
-                  if !cancel.contents {
+                    // Wait a bit then stop
+                    let _ = await wait(800)
+                    if !cancel.contents {
+                      dispatch(StopAutoPilot)
+                    }
+                  | None =>
+                    Logger.info(
+                      ~module_="Simulation",
+                      ~message="SIM_STOPPED",
+                      ~data=Some({"reason": "No valid move"}),
+                      (),
+                    )
                     dispatch(StopAutoPilot)
-                    // Return to start if requested (implicit in reason?)
-                    // Legacy logic: if returned_to_start, we just stop.
-                    // If no reachable scenes, we complete.
                   }
-
-                | None =>
-                  // Should not happen often
+                }
+              | Error(msg) => {
+                  Logger.error(
+                    ~module_="Simulation",
+                    ~message="VIEWER_WAIT_FAILED",
+                    ~data=Some({"error": msg}),
+                    (),
+                  )
+                  EventBus.dispatch(ShowNotification("Simulation error: " ++ msg, #Error))
                   dispatch(StopAutoPilot)
                 }
               }

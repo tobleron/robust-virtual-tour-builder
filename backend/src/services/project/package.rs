@@ -6,6 +6,8 @@ use zip::write::FileOptions;
 
 const WEBP_QUALITY: f32 = 92.0;
 
+type ProcessedResult = Result<Vec<(String, Vec<u8>)>, String>;
+
 /// Creates a production-ready tour package ZIP.
 ///
 /// This function performs the heavy lifting for tour export:
@@ -87,7 +89,7 @@ pub fn create_tour_package(
             .filter(|(name, _)| !name.starts_with("logo") && !name.starts_with("pannellum"))
             .collect();
 
-        let processed_results: Vec<Result<Vec<(String, Vec<u8>)>, String>> = scene_files
+        let processed_results: Vec<ProcessedResult> = scene_files
             .par_iter()
             .map(|(name, data)| -> Result<Vec<(String, Vec<u8>)>, String> {
                 let img = image::ImageReader::new(Cursor::new(data))

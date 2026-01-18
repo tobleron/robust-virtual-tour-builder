@@ -83,7 +83,7 @@ pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, App
         };
 
         let output = Command::new(&ffmpeg_cmd)
-            .args(&[
+            .args([
                 "-y",
                 "-i",
                 &input_str,
@@ -187,20 +187,20 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
             while let Some(chunk) = field.try_next().await? {
                 bytes.extend_from_slice(&chunk);
             }
-            if let Ok(s) = String::from_utf8(bytes) {
-                if let Ok(val) = s.parse::<u32>() {
-                    width = val;
-                }
+            if let Ok(s) = String::from_utf8(bytes)
+                && let Ok(val) = s.parse::<u32>()
+            {
+                width = val;
             }
         } else if name == "height" {
             let mut bytes = Vec::new();
             while let Some(chunk) = field.try_next().await? {
                 bytes.extend_from_slice(&chunk);
             }
-            if let Ok(s) = String::from_utf8(bytes) {
-                if let Ok(val) = s.parse::<u32>() {
-                    height = val;
-                }
+            if let Ok(s) = String::from_utf8(bytes)
+                && let Ok(val) = s.parse::<u32>()
+            {
+                height = val;
             }
         } else if name == "files" {
             let filename = content_disposition
@@ -323,19 +323,17 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
 
             // Check success
             let val = tab.evaluate("window.HEADLESS_READY", false);
-            if let Ok(v) = val {
-                if v.value.and_then(|x| x.as_bool()).unwrap_or(false) {
+            if let Ok(v) = val
+                && v.value.and_then(|x| x.as_bool()).unwrap_or(false) {
                     break;
                 }
-            }
 
             // Check error
             let err_val = tab.evaluate("window.HEADLESS_ERROR", false);
-             if let Ok(v) = err_val {
-                if let Some(msg) = v.value.and_then(|x| x.as_str().map(|s| s.to_string())) {
+             if let Ok(v) = err_val
+                && let Some(msg) = v.value.and_then(|x| x.as_str().map(|s| s.to_string())) {
                      return Err(format!("Headless Client Error: {}", msg));
                 }
-            }
 
             std::thread::sleep(Duration::from_millis(500));
         }
@@ -351,7 +349,7 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
         };
 
         let mut child = Command::new(&ffmpeg_cmd)
-            .args(&[
+            .args([
                 "-y",
                 "-f", "image2pipe",
                 "-vcodec", "png",
@@ -385,11 +383,10 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
 
             // Check if simulation finished
             let active = tab.evaluate("window.isAutoPilotActive()", false);
-            if let Ok(v) = active {
-                if !v.value.and_then(|x| x.as_bool()).unwrap_or(true) {
+            if let Ok(v) = active
+                && !v.value.and_then(|x| x.as_bool()).unwrap_or(true) {
                     break;
                 }
-            }
 
             // Capture Screensho
             let png_data = tab.capture_screenshot(headless_chrome::protocol::cdp::Page::CaptureScreenshotFormatOption::Png, None, None, true)

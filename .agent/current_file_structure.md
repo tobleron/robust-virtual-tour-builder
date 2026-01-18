@@ -1797,7 +1797,8 @@
 │   └── rescript.lock
 ├── logs
 │   ├── error.log
-│   └── log_changes.txt
+│   ├── log_changes.txt
+│   └── telemetry.log
 ├── package-lock.json
 ├── package.json
 ├── plans
@@ -2026,6 +2027,7 @@
 │   ├── cancelled
 │   ├── completed
 │   │   ├── 175_fix_runtime_safety_getexn_REPORT.md
+│   │   ├── 177_fix_error_handling_REPORT.md
 │   │   ├── 194_Add_Tests_for_ServiceWorkerMain_REPORT.md
 │   │   ├── 195_Add_Tests_for_UrlUtils_REPORT.md
 │   │   ├── 196_Add_Tests_for_VersionData_REPORT.md
@@ -2051,11 +2053,11 @@
 │   │   ├── 264_fix_upload_failure_REPORT.md
 │   │   ├── 265_troubleshoot_yellow_rod_REPORT.md
 │   │   ├── 266_refine_linking_visuals_REPORT.md
-│   │   └── 267_update_camera_movement_behavior_REPORT.md
+│   │   ├── 267_update_camera_movement_behavior_REPORT.md
+│   │   └── 268_verify_scenelist_virtualization_ABORTED.md
 │   ├── current_refactor.md
 │   ├── pending
 │   │   ├── 176_fix_security_innerhtml.md
-│   │   ├── 177_fix_error_handling.md
 │   │   ├── 178_Restore_v420_Viewer_HUD_Labels_and_Prompts.md
 │   │   ├── 179_Restore_v420_Visual_Pipeline.md
 │   │   ├── 180_Restore_v420_Simulation_Advanced_Mechanics.md
@@ -2071,8 +2073,7 @@
 │   │   ├── 212_Add_Tests_for_NavigationController.md
 │   │   ├── 213_Add_Tests_for_SimulationDriver.md
 │   │   ├── 214_Add_Tests_for_SimulationLogic.md
-│   │   ├── 215_Add_Tests_for_SessionStore.md
-│   │   └── 268_verify_scenelist_virtualization.md
+│   │   └── 215_Add_Tests_for_SessionStore.md
 │   └── TASKS.md
 ├── tests
 │   ├── node-setup.js
@@ -2213,4 +2214,4 @@
 │       └── VitestSmoke.test.res
 └── vitest.config.mjs
 
-49 directories, 2165 files
+49 directories, 2166 files

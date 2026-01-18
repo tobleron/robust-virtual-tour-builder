@@ -162,23 +162,50 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
         let file = item.original
 
         // Use pre-existing metadata if available
-        let exif = switch item.metadata {
+        let exifPromise = switch item.metadata {
         | Some(m) =>
           switch item.quality {
           | Some(q) =>
-            Promise.resolve({
-              exif: (Obj.magic(m): SharedTypes.exifMetadata),
-              quality: (Obj.magic(q): SharedTypes.qualityAnalysis),
-              isOptimized: false,
-              checksum: "",
-              suggestedName: Nullable.null,
-            })
+            Promise.resolve(
+              Ok({
+                exif: (Obj.magic(m): SharedTypes.exifMetadata),
+                quality: (Obj.magic(q): SharedTypes.qualityAnalysis),
+                isOptimized: false,
+                checksum: "",
+                suggestedName: Nullable.null,
+              }),
+            )
           | None => ExifParser.extractExifData(file)
           }
         | None => ExifParser.extractExifData(file)
         }
 
-        let exifData = await exif
+        let exifResult = await exifPromise
+
+        let exifData = switch exifResult {
+        | Ok(data) => data
+        | Error(msg) => {
+            Logger.warn(
+              ~module_="ExifReport",
+              ~message="METADATA_EXTRACTION_FAILED",
+              ~data=Some({"file": File.name(file), "error": msg}),
+              (),
+            )
+            // Provide dummy data to avoid crashing the report
+            {
+              exif: (Obj.magic(Nullable.null): SharedTypes.exifMetadata),
+              quality: (
+                Obj.magic({
+                  "score": 0.0,
+                  "analysis": Nullable.make("Metadata extraction failed"),
+                }): SharedTypes.qualityAnalysis
+              ),
+              isOptimized: false,
+              checksum: "error",
+              suggestedName: Nullable.null,
+            }
+          }
+        }
 
         let result: exifResult = {
           filename: File.name(file),
@@ -252,7 +279,6 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
     let _ = Js.Array.push("", lines)
 
     // Check for outliers
-    // locationAnalysis is option<GeoUtils.scanResult>
     let outliers = switch locationAnalysis {
     | Some(analysis) => analysis.outliers
     | None => []
@@ -274,7 +300,6 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
     }
 
     // Centroid
-    // Centroid
     switch locationAnalysis {
     | Some(analysis) => {
         let centroid = analysis.centroid
@@ -294,17 +319,20 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
 
         // Reverse geocode
         let _ = Js.Array.push("  🔍 Address Lookup:", lines)
-        let address = await ExifParser.reverseGeocode(lat, lon)
+        let geocodeResult = await ExifParser.reverseGeocode(lat, lon)
 
-        if String.startsWith(address, "[") {
-          let _ = Js.Array.push(`     ${address}`, lines)
-          let _ = Js.Array.push(
-            "     (This does not affect your virtual tour - geocoding is informational only)",
-            lines,
-          )
-        } else {
-          let _ = Js.Array.push(`     ${address}`, lines)
-          resolvedAddress := Some(address)
+        switch geocodeResult {
+        | Ok(address) => {
+            let _ = Js.Array.push(`     ${address}`, lines)
+            resolvedAddress := Some(address)
+          }
+        | Error(msg) => {
+            let _ = Js.Array.push(`     [Geocoding failed: ${msg}]`, lines)
+            let _ = Js.Array.push(
+              "     (This does not affect your virtual tour - geocoding is informational only)",
+              lines,
+            )
+          }
         }
         let _ = Js.Array.push("", lines)
       }

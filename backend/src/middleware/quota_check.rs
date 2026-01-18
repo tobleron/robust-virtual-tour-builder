@@ -73,36 +73,34 @@ where
         let quota_manager = req.app_data::<web::Data<UploadQuotaManager>>().cloned();
 
         Box::pin(async move {
-            if should_check {
-                if let Some(manager) = quota_manager {
-                    // Check if upload can proceed
-                    if let Err(e) = manager.can_upload(&ip, content_length).await {
-                        tracing::warn!(ip = %ip, size = content_length, error = %e, "Upload rejected");
+            if should_check && let Some(manager) = quota_manager {
+                // Check if upload can proceed
+                if let Err(e) = manager.can_upload(&ip, content_length).await {
+                    tracing::warn!(ip = %ip, size = content_length, error = %e, "Upload rejected");
 
-                        // Construct response using req
-                        let res = req.into_response(HttpResponse::TooManyRequests().json(
-                            serde_json::json!({
-                                "error": "Quota exceeded",
-                                "message": e
-                            }),
-                        ));
+                    // Construct response using req
+                    let res = req.into_response(HttpResponse::TooManyRequests().json(
+                        serde_json::json!({
+                            "error": "Quota exceeded",
+                            "message": e
+                        }),
+                    ));
 
-                        return Ok(res.map_body(|_, b| EitherBody::Right { body: b }));
-                    }
+                    return Ok(res.map_body(|_, b| EitherBody::Right { body: b }));
+                }
 
-                    // Register upload
-                    let _upload_id = manager.register_upload(&ip, content_length).await;
+                // Register upload
+                let _upload_id = manager.register_upload(&ip, content_length).await;
 
-                    // Process request via service
-                    let res_call = service.call(req).await;
+                // Process request via service
+                let res_call = service.call(req).await;
 
-                    // Unregister upload
-                    manager.unregister_upload(&ip, content_length).await;
+                // Unregister upload
+                manager.unregister_upload(&ip, content_length).await;
 
-                    match res_call {
-                        Ok(res) => return Ok(res.map_body(|_, b| EitherBody::Left { body: b })),
-                        Err(e) => return Err(e),
-                    }
+                match res_call {
+                    Ok(res) => return Ok(res.map_body(|_, b| EitherBody::Left { body: b })),
+                    Err(e) => return Err(e),
                 }
             }
 

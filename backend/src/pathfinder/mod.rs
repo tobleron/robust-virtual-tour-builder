@@ -47,7 +47,7 @@ mod tests {
         let start_idx = 1;
         let result = utils::follow_auto_forward_chain(&scenes, start_idx, &mut visited, false);
         assert!(result.is_ok());
-        assert_eq!(scenes[result.unwrap()].name, "D");
+        assert_eq!(scenes[result.expect("Pathfinding failed")].name, "D");
     }
 
     #[test]
@@ -61,7 +61,7 @@ mod tests {
         let result = utils::follow_auto_forward_chain(&scenes, 0, &mut visited, false);
         // Loop detected: 0 visited->jump to 1. 1 visited->jump to 0. 0 visited. stop.
         assert!(result.is_ok());
-        assert_eq!(scenes[result.unwrap()].name, "B");
+        assert_eq!(scenes[result.expect("Pathfinding failed")].name, "B");
     }
 
     #[test]
@@ -72,6 +72,6 @@ mod tests {
         let result = utils::follow_auto_forward_chain(&scenes, 0, &mut visited, false);
         // Should stop at A (0) because B is missing
         assert!(result.is_ok());
-        assert_eq!(result.unwrap(), 0);
+        assert_eq!(result.expect("Pathfinding failed"), 0);
     }
 }

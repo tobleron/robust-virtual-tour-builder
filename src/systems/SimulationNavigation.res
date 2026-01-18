@@ -31,20 +31,24 @@ type enrichedLink = {
  * Waits for the Pannellum viewer to load a specific scene.
  * This is used during autopilot to ensure scene transitions complete before advancing.
  */
-let waitForViewerScene = async (sceneIndex: int, isAutoPilotActive: unit => bool): unit => {
+let waitForViewerScene = async (sceneIndex: int, isAutoPilotActive: unit => bool): result<
+  unit,
+  string,
+> => {
   let state = GlobalStateBridge.getState()
   switch Belt.Array.get(state.scenes, sceneIndex) {
   | Some(expectedScene) =>
     let timeout = 8000.0
     let start = Date.now()
     let loop = ref(true)
+    let result = ref(Ok())
 
     while loop.contents {
       if !isAutoPilotActive() {
         loop := false
       } else if Date.now() -. start > timeout {
         loop := false
-        JsError.throwWithMessage("Timeout waiting for viewer to load scene " ++ expectedScene.name)
+        result := Error("Timeout waiting for viewer to load scene " ++ expectedScene.name)
       } else {
         let v = Nullable.toOption(Viewer.instance)
         switch v {
@@ -64,7 +68,8 @@ let waitForViewerScene = async (sceneIndex: int, isAutoPilotActive: unit => bool
         }
       }
     }
-  | None => ()
+    result.contents
+  | None => Error("Scene index out of bounds")
   }
 }
 
