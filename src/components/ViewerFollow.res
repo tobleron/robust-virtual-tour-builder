@@ -77,7 +77,8 @@ let rec updateFollowLoop = () => {
         state.ratchetState.pitchOffset = state.ratchetState.pitchOffset +. pitchDelta
 
         let edgeThreshold = 0.85
-        let edgeReluctance = 0.4
+        // Slower speed when returning/reversing direction (hysteresis)
+        let edgeReluctance = 0.25
 
         if state.ratchetState.yawOffset > state.ratchetState.maxYawOffset {
           appliedYawDelta := state.ratchetState.yawOffset -. state.ratchetState.maxYawOffset
