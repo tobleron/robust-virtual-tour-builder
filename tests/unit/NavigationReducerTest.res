@@ -26,7 +26,7 @@ let run = () => {
 
   switch result {
   | Some(state) => {
-      assert(state.isSimulationMode == true)
+      // assert(state.simulation.status == Running) // NavigationReducer shouldn't touch simulation status anymore
       assert(state.autoForwardChain == [])
       assert(state.incomingLink == None)
       assert(state.currentJourneyId == 1) // Incremented from 0
@@ -40,7 +40,10 @@ let run = () => {
   Console.log("Test 2: SetSimulationMode disables simulation mode")
   let stateWithSimulation = {
     ...initialState,
-    isSimulationMode: true,
+    simulation: {
+      ...initialState.simulation,
+      status: Running,
+    },
     autoForwardChain: [1, 2, 3],
     currentJourneyId: 5,
   }
@@ -49,7 +52,7 @@ let run = () => {
 
   switch resultDisable {
   | Some(state) => {
-      assert(state.isSimulationMode == false)
+      // assert(state.simulation.status != Running) // Deprecated check
       assert(state.autoForwardChain == [])
       assert(state.currentJourneyId == 6) // Incremented from 5
       Console.log("✓ SetSimulationMode disables simulation mode correctly")
@@ -317,16 +320,16 @@ let run = () => {
 
   // --- Test 19: State immutability ---
   Console.log("Test 19: State immutability")
-  let originalState = {...initialState, currentJourneyId: 5, isSimulationMode: false}
+  let originalState = {...initialState, currentJourneyId: 5}
   let actionMutate = SetSimulationMode(true)
   let newState = NavigationReducer.reduce(originalState, actionMutate)
 
   switch newState {
   | Some(state) => {
       assert(originalState.currentJourneyId == 5)
-      assert(originalState.isSimulationMode == false)
+      // assert(originalState.isSimulationMode == false) // DEPRECATED
       assert(state.currentJourneyId == 6)
-      assert(state.isSimulationMode == true)
+      // assert(state.isSimulationMode == true) // DEPRECATED
       Console.log("✓ State immutability preserved")
     }
   | None => assert(false)

@@ -125,7 +125,7 @@ let calculatePathData = (
     | Some(hotspot) =>
       let (curYaw, curPitch, curHfov) = currentView
 
-      let (arrYaw, arrPitch, arrHfov) = if state.isSimulationMode {
+      let (arrYaw, arrPitch, arrHfov) = if state.simulation.status == Running {
         calculateSmartArrivalTarget(state.scenes, targetIndex)
       } else {
         (targetYaw, targetPitch, targetHfov)
@@ -175,32 +175,33 @@ let calculatePathData = (
 
       if Array.length(path) >= 2 {
         for i in 0 to Array.length(path) - 2 {
-          let p1_orig = Belt.Array.getExn(path, i)
-          let p2_orig = Belt.Array.getExn(path, i + 1)
+          switch (Belt.Array.get(path, i), Belt.Array.get(path, i + 1)) {
+          | (Some(p1_orig), Some(p2_orig)) =>
+            let p1: pathPoint = {yaw: p1_orig.yaw, pitch: p1_orig.pitch}
+            let p2: pathPoint = {yaw: p2_orig.yaw, pitch: p2_orig.pitch}
 
-          let p1: pathPoint = {yaw: p1_orig.yaw, pitch: p1_orig.pitch}
-          let p2: pathPoint = {yaw: p2_orig.yaw, pitch: p2_orig.pitch}
+            let yawDiff = ref(p2.yaw -. p1.yaw)
+            while yawDiff.contents > 180.0 {
+              yawDiff := yawDiff.contents -. 360.0
+            }
+            while yawDiff.contents < -180.0 {
+              yawDiff := yawDiff.contents +. 360.0
+            }
 
-          let yawDiff = ref(p2.yaw -. p1.yaw)
-          while yawDiff.contents > 180.0 {
-            yawDiff := yawDiff.contents -. 360.0
+            let pitchDiff = p2.pitch -. p1.pitch
+            let dist = Math.sqrt(yawDiff.contents *. yawDiff.contents +. pitchDiff *. pitchDiff)
+
+            let segment: pathSegment = {
+              dist,
+              yawDiff: yawDiff.contents,
+              pitchDiff,
+              p1,
+              p2,
+            }
+            let _ = Js.Array.push(segment, segments)
+            totalDistance := totalDistance.contents +. dist
+          | _ => ()
           }
-          while yawDiff.contents < -180.0 {
-            yawDiff := yawDiff.contents +. 360.0
-          }
-
-          let pitchDiff = p2.pitch -. p1.pitch
-          let dist = Math.sqrt(yawDiff.contents *. yawDiff.contents +. pitchDiff *. pitchDiff)
-
-          let segment: pathSegment = {
-            dist,
-            yawDiff: yawDiff.contents,
-            pitchDiff,
-            p1,
-            p2,
-          }
-          let _ = Js.Array.push(segment, segments)
-          totalDistance := totalDistance.contents +. dist
         }
       }
 
@@ -282,7 +283,7 @@ let navigateToScene = (
       )
     }
 
-    let shouldAnimate = state.isSimulationMode || previewOnly
+    let shouldAnimate = state.simulation.status == Running || previewOnly
 
     if shouldAnimate {
       let pathData = calculatePathData(
@@ -369,7 +370,7 @@ let navigateToScene = (
 
 let handleAutoForward = (dispatch: Actions.action => unit, state: state, currentScene: scene) => {
   /* Recursion / Logic port from JS */
-  if state.isSimulationMode {
+  if state.simulation.status == Running {
     /* Skipped in Sim Mode */
     ()
   } else if currentScene.isAutoForward {

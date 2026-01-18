@@ -184,7 +184,7 @@ let run = () => {
 
   // --- Test 11: Unhandled action returns None ---
   Console.log("Test 11: Unhandled action returns None")
-  let actionUnhandled = SetIsLinking(true)
+  let actionUnhandled = StopLinking
   let resultUnhandled = ProjectReducer.reduce(initialState, actionUnhandled)
 
   assert(resultUnhandled == None)

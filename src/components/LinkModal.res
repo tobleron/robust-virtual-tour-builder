@@ -152,8 +152,7 @@ let showLinkModal = (
           }
 
           GlobalStateBridge.dispatch(AddHotspot(state.activeIndex, newHotspot))
-          GlobalStateBridge.dispatch(Actions.SetIsLinking(false))
-          GlobalStateBridge.dispatch(Actions.SetLinkDraft(None))
+          GlobalStateBridge.dispatch(Actions.StopLinking)
           EventBus.dispatch(CloseModal)
         }
       }
@@ -170,8 +169,7 @@ let showLinkModal = (
       allowClose: Some(true),
       onClose: Some(
         () => {
-          GlobalStateBridge.dispatch(Actions.SetIsLinking(false))
-          GlobalStateBridge.dispatch(Actions.SetLinkDraft(None))
+          GlobalStateBridge.dispatch(Actions.StopLinking)
         },
       ),
       buttons: [

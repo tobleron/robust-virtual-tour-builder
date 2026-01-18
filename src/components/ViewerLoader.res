@@ -120,7 +120,7 @@ module Loader = {
 
     /* Snapshot */
     let snapshot = Dom.getElementById("viewer-snapshot-overlay")
-    let isSim = GlobalStateBridge.getState().isSimulationMode
+    let isSim = GlobalStateBridge.getState().simulation.status == Running
 
     switch Nullable.toOption(snapshot) {
     | Some(s) =>
@@ -297,7 +297,7 @@ module Loader = {
             let currentGlobalState = GlobalStateBridge.getState()
             let useProgressive =
               Belt.Option.isSome(targetScene.tinyFile) &&
-              !currentGlobalState.isSimulationMode &&
+              currentGlobalState.simulation.status != Running &&
               !currentGlobalState.isTeasing &&
               !isAnticipatory
 
@@ -479,7 +479,7 @@ module Loader = {
                   }
                 }
 
-                if GlobalStateBridge.getState().isSimulationMode {
+                if GlobalStateBridge.getState().simulation.status == Running {
                   let frameCount = ref(0)
                   let rec waitForDeepRender = () => {
                     frameCount := frameCount.contents + 1

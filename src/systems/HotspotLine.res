@@ -162,22 +162,24 @@ let drawSimulationArrow = (
 
     if Array.length(path) >= 2 {
       for i in 0 to Array.length(path) - 2 {
-        let p1 = Belt.Array.getExn(path, i)
-        let p2 = Belt.Array.getExn(path, i + 1)
-        let yawDiff = ref(p2.yaw -. p1.yaw)
-        while yawDiff.contents > 180.0 {
-          yawDiff := yawDiff.contents -. 360.0
-        }
-        while yawDiff.contents < -180.0 {
-          yawDiff := yawDiff.contents +. 360.0
-        }
+        switch (Belt.Array.get(path, i), Belt.Array.get(path, i + 1)) {
+        | (Some(p1), Some(p2)) =>
+          let yawDiff = ref(p2.yaw -. p1.yaw)
+          while yawDiff.contents > 180.0 {
+            yawDiff := yawDiff.contents -. 360.0
+          }
+          while yawDiff.contents < -180.0 {
+            yawDiff := yawDiff.contents +. 360.0
+          }
 
-        let pitchDiff = p2.pitch -. p1.pitch
-        let dist = Math.sqrt(yawDiff.contents *. yawDiff.contents +. pitchDiff *. pitchDiff)
+          let pitchDiff = p2.pitch -. p1.pitch
+          let dist = Math.sqrt(yawDiff.contents *. yawDiff.contents +. pitchDiff *. pitchDiff)
 
-        let segment = (dist, yawDiff.contents, pitchDiff, p1, p2)
-        let _ = Js.Array.push(segment, segments)
-        totalDistance := totalDistance.contents +. dist
+          let segment = (dist, yawDiff.contents, pitchDiff, p1, p2)
+          let _ = Js.Array.push(segment, segments)
+          totalDistance := totalDistance.contents +. dist
+        | _ => ()
+        }
       }
     }
 
@@ -191,9 +193,12 @@ let drawSimulationArrow = (
       targetPitch := endPitch
       targetYaw := endYaw
       if Array.length(segments) > 0 {
-        let (_, dy, dp, _, _) = Belt.Array.getExn(segments, Array.length(segments) - 1)
-        rotYaw := dy
-        rotPitch := dp
+        switch Belt.Array.get(segments, Array.length(segments) - 1) {
+        | Some((_, dy, dp, _, _)) =>
+          rotYaw := dy
+          rotPitch := dp
+        | None => ()
+        }
       }
     } else {
       let targetDist = progress *. totalDistance.contents
@@ -202,20 +207,23 @@ let drawSimulationArrow = (
 
       for i in 0 to Array.length(segments) - 1 {
         if !found.contents {
-          let (dist, dy, dp, p1, _) = Belt.Array.getExn(segments, i)
-          if targetDist <= covered.contents +. dist {
-            let segProg = if dist > 0.0 {
-              (targetDist -. covered.contents) /. dist
-            } else {
-              0.0
+          switch Belt.Array.get(segments, i) {
+          | Some((dist, dy, dp, p1, _)) =>
+            if targetDist <= covered.contents +. dist {
+              let segProg = if dist > 0.0 {
+                (targetDist -. covered.contents) /. dist
+              } else {
+                0.0
+              }
+              targetPitch := p1.pitch +. dp *. segProg
+              targetYaw := p1.yaw +. dy *. segProg
+              rotYaw := dy
+              rotPitch := dp
+              found := true
             }
-            targetPitch := p1.pitch +. dp *. segProg
-            targetYaw := p1.yaw +. dy *. segProg
-            rotYaw := dy
-            rotPitch := dp
-            found := true
+            covered := covered.contents +. dist
+          | None => ()
           }
-          covered := covered.contents +. dist
         }
       }
     }
@@ -288,265 +296,287 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
     if (
       rect.width > 0.0 && state.activeIndex >= 0 && state.activeIndex < Array.length(state.scenes)
     ) {
-      let currentScene = Belt.Array.getExn(state.scenes, state.activeIndex)
-
-      // 1. Persistent Red Dashed Lines
-      let hotspots = currentScene.hotspots
-      for i in 0 to Array.length(hotspots) - 1 {
-        let h = Belt.Array.getExn(hotspots, i)
-        switch (h.startYaw, h.startPitch, h.viewFrame) {
-        | (Some(sy), Some(sp), Some(vf)) =>
-          let waypointsRaw = switch h.waypoints {
-          | Some(w) => w
-          | None => []
-          }
-          let waypoints: array<PathInterpolation.point> = Belt.Array.map(waypointsRaw, w => {
-            PathInterpolation.yaw: w.yaw,
-            pitch: w.pitch,
-          })
-
-          if Array.length(waypoints) > 0 {
-            let startPt: array<PathInterpolation.point> = [{PathInterpolation.yaw: sy, pitch: sp}]
-            let endPt: array<PathInterpolation.point> = [
-              {PathInterpolation.yaw: vf.yaw, pitch: vf.pitch},
-            ]
-            let controlPoints = Belt.Array.concat(startPt, Belt.Array.concat(waypoints, endPt))
-            let splinePath = PathInterpolation.getCatmullRomSpline(controlPoints, 60)
-            drawPolyLine(
-              svg,
-              v,
-              splinePath,
-              rect,
-              "#ef4444",
-              3.0,
-              0.8,
-              ~className="line-marching-ants",
-              (),
-            )
-          } else {
-            let startCoords = getScreenCoords(v, sp, sy, rect)
-            let endCoords = getScreenCoords(v, vf.pitch, vf.yaw, rect)
-            switch (startCoords, endCoords) {
-            | (Some(s), Some(e)) =>
-              drawLine(
-                svg,
-                s.x,
-                s.y,
-                e.x,
-                e.y,
-                "#ef4444",
-                3.0,
-                0.8,
-                ~className="line-marching-ants",
-                (),
-              )
-            | _ => ()
-            }
-          }
-        | _ => ()
-        }
-      }
-
-      // 2. Linking Mode
-      if state.isLinking {
-        switch state.linkDraft {
-        | Some(draft) =>
-          let currentCam: PathInterpolation.point = {
-            PathInterpolation.yaw: Viewer.getYaw(v),
-            pitch: Viewer.getPitch(v),
-          }
-          let camStart: PathInterpolation.point = {
-            PathInterpolation.yaw: draft.camYaw,
-            pitch: draft.camPitch,
-          }
-
-          let intermediate = switch draft.intermediatePoints {
-          | Some(pts) => pts
-          | None => []
-          }
-
-          // --- RED CRITICAL PATH (Camera Director Curve) ---
-          // v4.2.0 point 55: Red dashed line appearing on first click
-          let camPoints = Belt.Array.concat(
-            [camStart],
-            Belt.Array.concat(
-              Belt.Array.map(intermediate, (p): PathInterpolation.point => {
-                PathInterpolation.yaw: p.camYaw,
-                pitch: p.camPitch,
-              }),
-              [currentCam],
-            ),
-          )
-
-          if Array.length(camPoints) >= 2 {
-            let redSpline = PathInterpolation.getCatmullRomSpline(camPoints, 60)
-            drawPolyLine(
-              svg,
-              v,
-              redSpline,
-              rect,
-              "#ef4444",
-              3.0,
-              1.0,
-              ~className="line-marching-ants",
-              (),
-            )
-          }
-
-          // --- YELLOW TARGET PATH (The Rod) ---
-          // v4.2.0 point 54: Dashed yellow line from last click to mouse
-          let floorPoints: array<PathInterpolation.point> = Belt.Array.concat(
-            [{PathInterpolation.yaw: draft.yaw, pitch: draft.pitch}],
-            Belt.Array.map(intermediate, (p): PathInterpolation.point => {
-              PathInterpolation.yaw: p.yaw,
-              pitch: p.pitch,
-            }),
-          )
-
-          // 1. Draw confirmed segments (Spline if multiple joints)
-          if Array.length(floorPoints) >= 2 {
-            let yellowSpline = PathInterpolation.getCatmullRomSpline(floorPoints, 60)
-            drawPolyLine(
-              svg,
-              v,
-              yellowSpline,
-              rect,
-              "#fbbf24",
-              3.0,
-              0.8,
-              ~className="line-rod-yellow",
-              (),
-            )
-          }
-
-          // 2. Draw pending segment (Floor Projection if looking down)
-          // v4.2.18 behavior: connect last confirmed point to mouse
-          // If no intermediate points, connect DRAFT ORIGIN (first "click" location) to mouse.
-
-          let lastPoint = switch Belt.Array.get(floorPoints, Array.length(floorPoints) - 1) {
-          | Some(p) => p
-          // Fallback to draft origin if floorPoints empty (this happens when intermediatePoints is None)
-          | None => {PathInterpolation.yaw: draft.yaw, pitch: draft.pitch}
-          }
-
-          let lastFloorPtOpt = Some(lastPoint)
-
-          switch (lastFloorPtOpt, mouseEvent) {
-          | (Some(lastFloorPt), Some(ev)) =>
-            let mc = Viewer.mouseEventToCoords(v, ev)
-            let pitchOpt = Belt.Array.get(mc, 0)
-            let yawOpt = Belt.Array.get(mc, 1)
-
-            switch (pitchOpt, yawOpt) {
-            | (Some(p), Some(y)) =>
-              let mousePt: PathInterpolation.point = {
-                PathInterpolation.yaw: y,
-                pitch: p,
-              }
-
-              let _camPitch = Viewer.getPitch(v)
-              // Always draw pending path for visual feedback (rubber banding)
-              // v4.2.18 behavior: Yellow dashed line from last click to mouse
-              let pendingPath = [lastFloorPt, mousePt]
-
-              // Only project if looking steeply down? No, user wants it always visible as feedback.
-              // Logic was:
-              // let pendingPath = if camPitch < -20.0 {
-              //   PathInterpolation.getFloorProjectedPath(lastFloorPt, mousePt, 20)
-              // } else {
-              //   [lastFloorPt, mousePt]
-              // }
-
-              drawPolyLine(
-                svg,
-                v,
-                pendingPath,
-                rect,
-                "#fbbf24",
-                3.0,
-                0.8,
-                ~className="line-rod-yellow",
-                (),
-              )
-            | _ => ()
-            }
-          | _ => ()
-          }
-
-        | None => ()
-        }
-      } else if !state.isSimulationMode {
-        // 3. Preview Arrows
-        let previewing = switch state.navigation {
-        | Previewing(info) => Some(info)
-        | _ => None
-        }
-
-        let hots = currentScene.hotspots
-        for i in 0 to Array.length(hots) - 1 {
-          let h = Belt.Array.getExn(hots, i)
-          let isBeingPreviewed = switch previewing {
-          | Some(p) => p.sceneIndex == state.activeIndex && p.hotspotIndex == i
-          | None => false
-          }
-
-          if !isBeingPreviewed {
-            switch (h.startYaw, h.startPitch, h.viewFrame) {
-            | (Some(sy), Some(sp), Some(vf)) =>
-              let nextPoint = switch h.waypoints {
-              | Some(w) if Array.length(w) > 0 =>
-                Some({
-                  PathInterpolation.yaw: Belt.Array.getExn(w, 0).yaw,
-                  pitch: Belt.Array.getExn(w, 0).pitch,
+      switch Belt.Array.get(state.scenes, state.activeIndex) {
+      | Some(currentScene) => {
+          // 1. Persistent Red Dashed Lines
+          let hotspots = currentScene.hotspots
+          for i in 0 to Array.length(hotspots) - 1 {
+            switch Belt.Array.get(hotspots, i) {
+            | Some(h) =>
+              switch (h.startYaw, h.startPitch, h.viewFrame) {
+              | (Some(sy), Some(sp), Some(vf)) =>
+                let waypointsRaw = switch h.waypoints {
+                | Some(w) => w
+                | None => []
+                }
+                let waypoints: array<PathInterpolation.point> = Belt.Array.map(waypointsRaw, w => {
+                  PathInterpolation.yaw: w.yaw,
+                  pitch: w.pitch,
                 })
-              | _ => Some({PathInterpolation.yaw: vf.yaw, pitch: vf.pitch})
+
+                if Array.length(waypoints) > 0 {
+                  let startPt: array<PathInterpolation.point> = [
+                    {PathInterpolation.yaw: sy, pitch: sp},
+                  ]
+                  let endPt: array<PathInterpolation.point> = [
+                    {PathInterpolation.yaw: vf.yaw, pitch: vf.pitch},
+                  ]
+                  let controlPoints = Belt.Array.concat(
+                    startPt,
+                    Belt.Array.concat(waypoints, endPt),
+                  )
+                  let splinePath = PathInterpolation.getCatmullRomSpline(controlPoints, 60)
+                  drawPolyLine(
+                    svg,
+                    v,
+                    splinePath,
+                    rect,
+                    "#ef4444",
+                    3.0,
+                    0.8,
+                    ~className="line-marching-ants",
+                    (),
+                  )
+                } else {
+                  let startCoords = getScreenCoords(v, sp, sy, rect)
+                  let endCoords = getScreenCoords(v, vf.pitch, vf.yaw, rect)
+                  switch (startCoords, endCoords) {
+                  | (Some(s), Some(e)) =>
+                    drawLine(
+                      svg,
+                      s.x,
+                      s.y,
+                      e.x,
+                      e.y,
+                      "#ef4444",
+                      3.0,
+                      0.8,
+                      ~className="line-marching-ants",
+                      (),
+                    )
+                  | _ => ()
+                  }
+                }
+              | _ => ()
+              }
+            | None => ()
+            }
+          }
+
+          // 2. Linking Mode
+          if state.isLinking {
+            switch state.linkDraft {
+            | Some(draft) =>
+              let currentCam: PathInterpolation.point = {
+                PathInterpolation.yaw: Viewer.getYaw(v),
+                pitch: Viewer.getPitch(v),
+              }
+              let camStart: PathInterpolation.point = {
+                PathInterpolation.yaw: draft.camYaw,
+                pitch: draft.camPitch,
               }
 
-              switch nextPoint {
-              | Some(np) =>
-                let s1Opt = getScreenCoords(v, sp, sy, rect)
-                let s2Opt = getScreenCoords(v, np.pitch, np.yaw, rect)
+              let intermediate = switch draft.intermediatePoints {
+              | Some(pts) => pts
+              | None => []
+              }
 
-                switch (s1Opt, s2Opt) {
-                | (Some(s1), Some(s2)) =>
-                  let angle =
-                    Math.atan2(~y=s2.y -. s1.y, ~x=s2.x -. s1.x) *. (180.0 /. Math.Constants.pi)
+              // --- RED CRITICAL PATH (Camera Director Curve) ---
+              // v4.2.0 point 55: Red dashed line appearing on first click
+              let camPoints = Belt.Array.concat(
+                [camStart],
+                Belt.Array.concat(
+                  Belt.Array.map(intermediate, (p): PathInterpolation.point => {
+                    PathInterpolation.yaw: p.camYaw,
+                    pitch: p.camPitch,
+                  }),
+                  [currentCam],
+                ),
+              )
 
-                  if Float.isFinite(s1.x) && Float.isFinite(s1.y) && Float.isFinite(angle) {
-                    let arrow = Svg.createElementNS(Svg.namespace, "path")
-                    Svg.setAttribute(arrow, "d", "M -10,-7 L 6,0 L -10,7 Z")
-                    Svg.setAttribute(arrow, "fill", "#10b981")
-                    Svg.setAttribute(arrow, "stroke", "#000")
-                    Svg.setAttribute(arrow, "stroke-width", "1")
-                    Svg.setAttribute(
-                      arrow,
-                      "transform",
-                      "translate(" ++
-                      Float.toString(s1.x) ++
-                      ", " ++
-                      Float.toString(s1.y) ++
-                      ") rotate(" ++
-                      Float.toString(angle) ++ ")",
-                    )
-                    Svg.setAttribute(arrow, "class", "preview-arrow")
-                    Svg.setAttribute(arrow, "data-hs-index", Int.toString(i))
+              if Array.length(camPoints) >= 2 {
+                let redSpline = PathInterpolation.getCatmullRomSpline(camPoints, 60)
+                drawPolyLine(
+                  svg,
+                  v,
+                  redSpline,
+                  rect,
+                  "#ef4444",
+                  3.0,
+                  1.0,
+                  ~className="line-marching-ants",
+                  (),
+                )
+              }
 
-                    Dom.setCursor(arrow, "pointer")
-                    Dom.setPointerEvents(arrow, "all")
+              // --- YELLOW TARGET PATH (The Rod) ---
+              // v4.2.0 point 54: Dashed yellow line from last click to mouse
+              let floorPoints: array<PathInterpolation.point> = Belt.Array.concat(
+                [{PathInterpolation.yaw: draft.yaw, pitch: draft.pitch}],
+                Belt.Array.map(intermediate, (p): PathInterpolation.point => {
+                  PathInterpolation.yaw: p.yaw,
+                  pitch: p.pitch,
+                }),
+              )
 
-                    Svg.setOnMouseOver(arrow, () => Svg.setAttribute(arrow, "fill", "#34d399"))
-                    Svg.setOnMouseOut(arrow, () => Svg.setAttribute(arrow, "fill", "#10b981"))
+              // 1. Draw confirmed segments (Spline if multiple joints)
+              if Array.length(floorPoints) >= 2 {
+                let yellowSpline = PathInterpolation.getCatmullRomSpline(floorPoints, 60)
+                drawPolyLine(
+                  svg,
+                  v,
+                  yellowSpline,
+                  rect,
+                  "#fbbf24",
+                  3.0,
+                  0.8,
+                  ~className="line-rod-yellow",
+                  (),
+                )
+              }
 
-                    Svg.appendChild(svg, arrow)
+              // 2. Draw pending segment (Floor Projection if looking down)
+              // v4.2.18 behavior: connect last confirmed point to mouse
+              // If no intermediate points, connect DRAFT ORIGIN (first "click" location) to mouse.
+
+              let lastPoint = switch Belt.Array.get(floorPoints, Array.length(floorPoints) - 1) {
+              | Some(p) => p
+              // Fallback to draft origin if floorPoints empty (this happens when intermediatePoints is None)
+              | None => {PathInterpolation.yaw: draft.yaw, pitch: draft.pitch}
+              }
+
+              let lastFloorPtOpt = Some(lastPoint)
+
+              switch (lastFloorPtOpt, mouseEvent) {
+              | (Some(lastFloorPt), Some(ev)) =>
+                let mc = Viewer.mouseEventToCoords(v, ev)
+                let pitchOpt = Belt.Array.get(mc, 0)
+                let yawOpt = Belt.Array.get(mc, 1)
+
+                switch (pitchOpt, yawOpt) {
+                | (Some(p), Some(y)) =>
+                  let mousePt: PathInterpolation.point = {
+                    PathInterpolation.yaw: y,
+                    pitch: p,
                   }
+
+                  let _camPitch = Viewer.getPitch(v)
+                  // Always draw pending path for visual feedback (rubber banding)
+                  // v4.2.18 behavior: Yellow dashed line from last click to mouse
+                  let pendingPath = [lastFloorPt, mousePt]
+
+                  // Only project if looking steeply down? No, user wants it always visible as feedback.
+                  // Logic was:
+                  // let pendingPath = if camPitch < -20.0 {
+                  //   PathInterpolation.getFloorProjectedPath(lastFloorPt, mousePt, 20)
+                  // } else {
+                  //   [lastFloorPt, mousePt]
+                  // }
+
+                  drawPolyLine(
+                    svg,
+                    v,
+                    pendingPath,
+                    rect,
+                    "#fbbf24",
+                    3.0,
+                    0.8,
+                    ~className="line-rod-yellow",
+                    (),
+                  )
                 | _ => ()
+                }
+              | _ => ()
+              }
+
+            | None => ()
+            }
+          } else if state.simulation.status != Running {
+            // 3. Preview Arrows
+            let previewing = switch state.navigation {
+            | Previewing(info) => Some(info)
+            | _ => None
+            }
+
+            let hots = currentScene.hotspots
+            for i in 0 to Array.length(hots) - 1 {
+              switch Belt.Array.get(hots, i) {
+              | Some(h) =>
+                let isBeingPreviewed = switch previewing {
+                | Some(p) => p.sceneIndex == state.activeIndex && p.hotspotIndex == i
+                | None => false
+                }
+
+                if !isBeingPreviewed {
+                  switch (h.startYaw, h.startPitch, h.viewFrame) {
+                  | (Some(sy), Some(sp), Some(vf)) =>
+                    let nextPoint = switch h.waypoints {
+                    | Some(w) if Array.length(w) > 0 =>
+                      switch Belt.Array.get(w, 0) {
+                      | Some(firstW) =>
+                        Some({
+                          PathInterpolation.yaw: firstW.yaw,
+                          pitch: firstW.pitch,
+                        })
+                      | None => Some({PathInterpolation.yaw: vf.yaw, pitch: vf.pitch})
+                      }
+                    | _ => Some({PathInterpolation.yaw: vf.yaw, pitch: vf.pitch})
+                    }
+
+                    switch nextPoint {
+                    | Some(np) =>
+                      let s1Opt = getScreenCoords(v, sp, sy, rect)
+                      let s2Opt = getScreenCoords(v, np.pitch, np.yaw, rect)
+
+                      switch (s1Opt, s2Opt) {
+                      | (Some(s1), Some(s2)) =>
+                        let angle =
+                          Math.atan2(~y=s2.y -. s1.y, ~x=s2.x -. s1.x) *.
+                          (180.0 /.
+                          Math.Constants.pi)
+
+                        if Float.isFinite(s1.x) && Float.isFinite(s1.y) && Float.isFinite(angle) {
+                          let arrow = Svg.createElementNS(Svg.namespace, "path")
+                          Svg.setAttribute(arrow, "d", "M -10,-7 L 6,0 L -10,7 Z")
+                          Svg.setAttribute(arrow, "fill", "#10b981")
+                          Svg.setAttribute(arrow, "stroke", "#000")
+                          Svg.setAttribute(arrow, "stroke-width", "1")
+                          Svg.setAttribute(
+                            arrow,
+                            "transform",
+                            "translate(" ++
+                            Float.toString(s1.x) ++
+                            ", " ++
+                            Float.toString(s1.y) ++
+                            ") rotate(" ++
+                            Float.toString(angle) ++ ")",
+                          )
+                          Svg.setAttribute(arrow, "class", "preview-arrow")
+                          Svg.setAttribute(arrow, "data-hs-index", Int.toString(i))
+
+                          Dom.setCursor(arrow, "pointer")
+                          Dom.setPointerEvents(arrow, "all")
+
+                          Svg.setOnMouseOver(arrow, () =>
+                            Svg.setAttribute(arrow, "fill", "#34d399")
+                          )
+                          Svg.setOnMouseOut(arrow, () => Svg.setAttribute(arrow, "fill", "#10b981"))
+
+                          Svg.appendChild(svg, arrow)
+                        }
+                      | _ => ()
+                      }
+                    | None => ()
+                    }
+                  | _ => ()
+                  }
                 }
               | None => ()
               }
-            | _ => ()
             }
           }
         }
+      | None => ()
       }
     }
   | _ => ()

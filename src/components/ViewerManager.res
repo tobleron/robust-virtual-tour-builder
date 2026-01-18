@@ -20,8 +20,7 @@ let make = () => {
       let key = Obj.magic(e)["key"]
       if key == "Escape" {
         if state.isLinking {
-          dispatch(Actions.SetIsLinking(false))
-          dispatch(Actions.SetLinkDraft(None))
+          dispatch(Actions.StopLinking)
           EventBus.dispatch(ShowNotification("Link Cancelled", #Info))
         }
       }
@@ -92,7 +91,7 @@ let make = () => {
 
       let currentState = GlobalStateBridge.getState()
 
-      if currentState.isLinking && !currentState.isSimulationMode {
+      if currentState.isLinking && currentState.simulation.status != Running {
         let viewer = getActiveViewer()
 
         switch Nullable.toOption(viewer) {
@@ -120,21 +119,21 @@ let make = () => {
               let camPitch = Viewer.getPitch(v)
               let camYaw = Viewer.getYaw(v)
 
-              let initialDraft = Some({
+              let initialDraft = {
                 yaw,
                 pitch,
                 camYaw,
                 camPitch,
                 camHfov: hfov,
                 intermediatePoints: None,
-              })
+              }
 
-              GlobalStateBridge.dispatch(Actions.SetLinkDraft(initialDraft))
+              GlobalStateBridge.dispatch(Actions.StartLinking(initialDraft))
 
               // Force update lines immediately for the very first click
               switch Nullable.toOption(viewer) {
               | Some(v) =>
-                let mockState = {...currentState, linkDraft: initialDraft}
+                let mockState = {...currentState, linkDraft: Some(initialDraft)}
                 HotspotLine.updateLines(v, mockState, ~mouseEvent=Some(e), ())
               | None => ()
               }
@@ -158,15 +157,15 @@ let make = () => {
 
               let newPoints = Belt.Array.concat(currentPoints, [newPoint])
 
-              let updatedDraft = Some({...d, intermediatePoints: Some(newPoints)})
-              GlobalStateBridge.dispatch(Actions.SetLinkDraft(updatedDraft))
+              let updatedDraft = {...d, intermediatePoints: Some(newPoints)}
+              GlobalStateBridge.dispatch(Actions.UpdateLinkDraft(updatedDraft))
 
               // Force update lines immediately
               switch Nullable.toOption(viewer) {
               | Some(v) =>
                 // We construct a mock state for immediate feedback since the global state
                 // dispatch might take a tick to propagate to the loop
-                let mockState = {...currentState, linkDraft: updatedDraft}
+                let mockState = {...currentState, linkDraft: Some(updatedDraft)}
                 HotspotLine.updateLines(v, mockState, ~mouseEvent=Some(e), ())
               | None => ()
               }
@@ -179,7 +178,10 @@ let make = () => {
         Logger.debug(
           ~module_="ViewerManager",
           ~message="CLICK_IGNORED_STATE",
-          ~data=Some({"isLinking": currentState.isLinking, "isSim": currentState.isSimulationMode}),
+          ~data=Some({
+            "isLinking": currentState.isLinking,
+            "simStatus": currentState.simulation.status,
+          }),
           (),
         )
       }
@@ -187,7 +189,7 @@ let make = () => {
 
     let handleStagePointerDown = e => {
       let currentState = GlobalStateBridge.getState()
-      if currentState.isLinking && !currentState.isSimulationMode {
+      if currentState.isLinking && currentState.simulation.status != Running {
         Logger.debug(
           ~module_="ViewerManager",
           ~message="POINTER_DOWN_CAPTURE",
@@ -332,29 +334,28 @@ let make = () => {
   // Arrival tracking for Simulation
   React.useEffect2(() => {
     // Replaced legacy simulation check with safe one
-    if state.activeIndex != -1 && state.isSimulationMode {
-      // SimulationSystem.onSceneArrival is failing if scenesDict is missing in older legacy modules
-      // Assuming we can skip this or fix it. Let's wrap in safe try/catch in module or just omit if not critical for linking.
-      // It seems strictly for simulation auto-pilot.
-      try {
-        SimulationSystem.onSceneArrival(state.activeIndex, true)
-      } catch {
-      | _ => ()
-      }
+    if state.activeIndex != -1 && state.simulation.status == Running {
+      ()
     }
     None
-  }, (state.activeIndex, state.isSimulationMode))
+  }, (state.activeIndex, state.simulation.status))
 
-  // Sync Linking Cursor
-  React.useEffect1(() => {
+  // Sync Linking Cursor & Simulation Class
+  React.useEffect2(() => {
     let body = Dom.documentBody
     if state.isLinking {
       Dom.classList(body)->Dom.ClassList.add("linking-mode")
     } else {
       Dom.classList(body)->Dom.ClassList.remove("linking-mode")
     }
+
+    if state.simulation.status == Running {
+      Dom.classList(body)->Dom.ClassList.add("auto-pilot-active")
+    } else {
+      Dom.classList(body)->Dom.ClassList.remove("auto-pilot-active")
+    }
     None
-  }, [state.isLinking])
+  }, (state.isLinking, state.simulation.status))
 
   React.null
 }

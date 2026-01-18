@@ -17,24 +17,19 @@ let run = () => {
 
   assertString(SetPreloadingScene(5), "SetPreloadingScene(5)", "SetPreloadingScene")
 
-  assertString(SetLinkDraft(None), "SetLinkDraft(None)", "SetLinkDraft(None)")
-  assertString(
-    SetLinkDraft(
-      Some({
-        pitch: 0.0,
-        yaw: 0.0,
-        camPitch: 0.0,
-        camYaw: 0.0,
-        camHfov: 0.0,
-        intermediatePoints: None,
-      }),
-    ),
-    "SetLinkDraft(Some)",
-    "SetLinkDraft(Some)",
-  )
+  let dummyDraft: linkDraft = {
+    pitch: 0.0,
+    yaw: 0.0,
+    camPitch: 0.0,
+    camYaw: 0.0,
+    camHfov: 0.0,
+    intermediatePoints: None,
+  }
 
-  assertString(SetIsLinking(true), "SetIsLinking(true)", "SetIsLinking(true)")
-  assertString(SetIsLinking(false), "SetIsLinking(false)", "SetIsLinking(false)")
+  assertString(UpdateLinkDraft(dummyDraft), "UpdateLinkDraft", "UpdateLinkDraft(Some)")
+
+  assertString(StartLinking(dummyDraft), "StartLinking", "StartLinking")
+  assertString(StopLinking, "StopLinking", "StopLinking")
 
   assertString(SetIsTeasing(true), "SetIsTeasing(true)", "SetIsTeasing(true)")
 

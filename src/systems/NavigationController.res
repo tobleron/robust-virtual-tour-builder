@@ -104,22 +104,25 @@ let make = () => {
 
                   for i in 0 to Array.length(segments) - 1 {
                     if !found.contents {
-                      let seg = Belt.Array.getExn(segments, i)
-                      if targetDist <= covered.contents +. seg.dist {
-                        let segProgress = if seg.dist > 0.0 {
-                          (targetDist -. covered.contents) /. seg.dist
-                        } else {
-                          0.0
+                      switch Belt.Array.get(segments, i) {
+                      | Some(seg) =>
+                        if targetDist <= covered.contents +. seg.dist {
+                          let segProgress = if seg.dist > 0.0 {
+                            (targetDist -. covered.contents) /. seg.dist
+                          } else {
+                            0.0
+                          }
+                          camPitch := seg.p1.pitch +. seg.pitchDiff *. segProgress
+                          camYaw := seg.p1.yaw +. seg.yawDiff *. segProgress
+                          found := true
                         }
-                        camPitch := seg.p1.pitch +. seg.pitchDiff *. segProgress
-                        camYaw := seg.p1.yaw +. seg.yawDiff *. segProgress
-                        found := true
-                      }
-                      covered := covered.contents +. seg.dist
+                        covered := covered.contents +. seg.dist
 
-                      if !found.contents {
-                        camPitch := seg.p2.pitch
-                        camYaw := seg.p2.yaw
+                        if !found.contents {
+                          camPitch := seg.p2.pitch
+                          camYaw := seg.p2.yaw
+                        }
+                      | None => ()
                       }
                     }
                   }

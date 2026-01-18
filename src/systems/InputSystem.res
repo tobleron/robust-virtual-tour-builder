@@ -3,9 +3,6 @@
 open ReBindings
 open EventBus
 
-@module("./SimulationSystem.bs.js") external isAutoPilotActive: unit => bool = "isAutoPilotActive"
-@module("./SimulationSystem.bs.js") external stopAutoPilot: bool => unit = "stopAutoPilot"
-
 /* Navigation module should be available globally or imported */
 /* We can use the NavigationSystem bindings in ReBindings if needed, but they are limited */
 /* Better to bind to Navigation.res if possible, or assume it's available as module `Navigation` */
@@ -101,16 +98,12 @@ let handleGlobalEscape = (e: Dom.event) => {
     /* Priority 3: Linking Mode */
     if state.isLinking {
       Logger.info(~module_="InputSystem", ~message="LINKING_CANCELLED", ())
-      GlobalStateBridge.dispatch(Actions.SetLinkDraft(None))
-      GlobalStateBridge.dispatch(Actions.SetIsLinking(false))
+      GlobalStateBridge.dispatch(Actions.StopLinking)
       EventBus.dispatch(ShowNotification("Linking cancelled", #Info))
       Dom.preventDefault(e)
-    } /* Priority 4: Simulation */
-    else if isAutoPilotActive() {
-      Logger.info(~module_="InputSystem", ~message="AUTOPILOT_STOPPED", ())
-      stopAutoPilot(true)
-      Dom.preventDefault(e)
     } else {
+      /* Priority 4: Simulation */
+
       /* Priority 5: Navigation */
 
       Navigation.cancelNavigation()
@@ -140,11 +133,12 @@ let initInputSystem = () => {
           | None => []
           }
 
-          let (y, p, cy, cp, ch) = if Array.length(intermediate) > 0 {
-            let last = Belt.Array.getExn(intermediate, Array.length(intermediate) - 1)
-            (last.yaw, last.pitch, last.camYaw, last.camPitch, last.camHfov)
-          } else {
-            (draft.yaw, draft.pitch, draft.camYaw, draft.camPitch, draft.camHfov)
+          let (y, p, cy, cp, ch) = switch Belt.Array.get(
+            intermediate,
+            Array.length(intermediate) - 1,
+          ) {
+          | Some(last) => (last.yaw, last.pitch, last.camYaw, last.camPitch, last.camHfov)
+          | None => (draft.yaw, draft.pitch, draft.camYaw, draft.camPitch, draft.camHfov)
           }
 
           let draftNull = Nullable.make(draft)

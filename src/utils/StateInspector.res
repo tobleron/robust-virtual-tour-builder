@@ -9,7 +9,7 @@ type stateSnapshot = {
   sceneCount: int,
   activeSceneIndex: int,
   isLinking: bool,
-  isSimulationMode: bool,
+  simulationStatus: string,
   timestamp: float,
 }
 
@@ -23,9 +23,18 @@ let createSnapshot = (state: Types.state): stateSnapshot => {
     sceneCount: Belt.Array.length(state.scenes),
     activeSceneIndex: state.activeIndex,
     isLinking: state.isLinking,
-    isSimulationMode: state.isSimulationMode,
+    simulationStatus: switch state.simulation.status {
+    | Running => "Running"
+    | Idle => "Idle"
+    | Paused => "Paused"
+    | Stopping => "Stopping"
+    },
     timestamp: Date.now(),
   }
+}
+
+let getDebugSnapshot = () => {
+  createSnapshot(GlobalStateBridge.getState())
 }
 
 /**
@@ -36,23 +45,14 @@ let exposeToWindow = () => {
   if Constants.enableStateInspector() {
     let getState = GlobalStateBridge.getState
     let loadProject = data => GlobalStateBridge.dispatch(Actions.LoadProject(data))
+    let getSnapshot = getDebugSnapshot
 
     let setupStore = %raw(`
-      function(getState, loadProject) {
+      function(getState, loadProject, getSnapshot) {
         window.store = {
           // Read-only getter for state snapshot
           get state() { 
-            const state = getState();
-            return Object.freeze({
-              tourName: state.tourName,
-              sceneCount: state.scenes.length,
-              activeSceneIndex: state.activeIndex,
-              isLinking: state.isLinking,
-              isSimulationMode: state.isSimulationMode,
-              timestamp: Date.now(),
-              // Add warning
-              __warning: 'This is a read-only snapshot. Direct mutation will not affect app state.'
-            });
+            return getSnapshot();
           },
           
           // Helper to get full state (frozen)
@@ -81,7 +81,7 @@ let exposeToWindow = () => {
       }
     `)
 
-    setupStore(getState, loadProject)
+    setupStore(getState, loadProject, getSnapshot)
   } else {
     // Production: No state exposure
     Logger.info(~module_="StateInspector", ~message="State inspector disabled in production", ())

@@ -51,6 +51,7 @@ let make = () => {
       // Logic Controllers
       <NavigationController />
       <ViewerManager />
+      <SimulationDriver />
     </RemaxErrorBoundary>
   </AppContext.Provider>
 }

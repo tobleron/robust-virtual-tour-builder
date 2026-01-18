@@ -399,7 +399,7 @@ let init = (containerId: string) => {
       thumbCache: Dict.make(),
     }
 
-    GlobalStateBridge.subscribe(state => render(pipeline, state))
+    let _ = GlobalStateBridge.subscribe(state => render(pipeline, state))
     render(pipeline, GlobalStateBridge.getState())
     Some(pipeline)
   | None => None

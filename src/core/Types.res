@@ -60,6 +60,22 @@ type transition = {
   fromSceneName: option<string>,
 }
 
+type simulationStatus =
+  | Idle
+  | Running
+  | Stopping
+  | Paused
+
+type simulationState = {
+  status: simulationStatus,
+  visitedScenes: array<int>,
+  stoppingOnArrival: bool,
+  skipAutoForwardGlobal: bool,
+  lastAdvanceTime: float,
+  pendingAdvanceId: option<int>,
+  autoPilotJourneyId: int,
+}
+
 type viewFrame = {
   yaw: float,
   pitch: float,
@@ -146,7 +162,8 @@ type state = {
   activeTimelineStepId: option<string>,
   // Navigation State
   navigation: navigationStatus,
-  isSimulationMode: bool,
+  // isSimulationMode: bool, // DEPRECATED in favor of simulation.status
+  simulation: simulationState,
   incomingLink: option<linkInfo>,
   autoForwardChain: array<int>,
   pendingReturnSceneName: option<string>,

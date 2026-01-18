@@ -227,8 +227,7 @@ let make = () => {
   let handleSceneClick = (index, _e) => {
     dispatch(Actions.SetNavigationStatus(Types.Idle))
     if state.isLinking {
-      dispatch(Actions.SetIsLinking(false))
-      dispatch(Actions.SetLinkDraft(None))
+      dispatch(Actions.StopLinking)
     }
     let trans: Types.transition = {
       type_: Some("cut"),

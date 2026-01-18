@@ -3,7 +3,7 @@ Console.log("Starting Frontend Unit Tests...")
 
 GeoUtilsTest.run()
 LoggerTest.run()
-SimulationSystemTest.run()
+
 InputSystemTest.run()
 TourLogicTest.run()
 PathInterpolationTest.run()

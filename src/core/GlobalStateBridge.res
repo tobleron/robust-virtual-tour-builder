@@ -33,7 +33,10 @@ let setState = s => {
 }
 
 let subscribe = cb => {
-  let _ = Array.push(listeners.contents, cb)
+  Array.push(listeners.contents, cb)
+  () => {
+    listeners := Array.filter(listeners.contents, l => l !== cb)
+  }
 }
 
 let dispatch = action => {
