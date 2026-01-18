@@ -123,10 +123,11 @@ let checkBackendHealth = () => {
   })
   ->Promise.catch(err => {
     Window.clearTimeout(timeoutId)
+    let msg = Logger.getErrorMessage(err)
     Logger.warn(
       ~module_="Resizer",
       ~message="HEALTH_CHECK_ERROR",
-      ~data={"error": err, "url": Constants.backendUrl ++ "/health"},
+      ~data={"error": msg, "url": Constants.backendUrl ++ "/health"},
       (),
     )
     Promise.resolve(false)
@@ -288,10 +289,11 @@ let processAndAnalyzeImage = (file: File.t): Promise.t<processResult> => {
     })
   })
   ->Promise.catch(err => {
+    let msg = Logger.getErrorMessage(err)
     Logger.error(
       ~module_="Resizer",
       ~message="BACKEND_PROCESS_FULL_FAILED",
-      ~data={"error": err, "file": File.name(file)},
+      ~data={"error": msg, "file": File.name(file)},
       (),
     )
     Promise.reject(err)
@@ -340,10 +342,11 @@ let generateResolutions = (file: File.t): Promise.t<dict<Blob.t>> => {
     Promise.resolve(d)
   })
   ->Promise.catch(err => {
+    let msg = Logger.getErrorMessage(err)
     Logger.error(
       ~module_="Resizer",
       ~message="BATCH_RESIZE_FAILED",
-      ~data={"error": err, "file": File.name(file)},
+      ~data={"error": msg, "file": File.name(file)},
       (),
     )
     Promise.reject(err)
