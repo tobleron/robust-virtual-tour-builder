@@ -9,32 +9,19 @@ let insertAt = (arr, index, item) => {
 }
 
 let decodeFile = (json: JSON.t): Types.file => {
-  // Avoid switching on 'json' directly initially as it might be a raw JS object
-  let isNull = %raw("json === null || json === undefined")
-  if isNull {
-    Url("")
-  } else {
-    let type_ = %raw("typeof json")
-    if type_ === "string" {
-      Url(Obj.magic(json))
+  switch JSON.Decode.string(json) {
+  | Some(s) => Url(s)
+  | None =>
+    // Check if it's a raw File/Blob object from upload via %identity
+    let isFile: bool = %raw("json instanceof File")
+    if isFile {
+      File(Obj.magic(json))
     } else {
-      let tag = %raw("json.TAG")
-      if tag === 1 {
-        // ReScript String(s)
-        Url(%raw("json._0"))
+      let isBlob: bool = %raw("json instanceof Blob")
+      if isBlob {
+        Blob(Obj.magic(json))
       } else {
-        // Check for raw JS Blob/File
-        let isFile: bool = %raw("json instanceof File")
-        if isFile {
-          File(Obj.magic(json))
-        } else {
-          let isBlob: bool = %raw("json instanceof Blob")
-          if isBlob {
-            Blob(Obj.magic(json))
-          } else {
-            Url("")
-          }
-        }
+        Url("")
       }
     }
   }

@@ -28,15 +28,24 @@ FULL_VER="${NEW_VER}+${BUILD_NUM}"
 echo "🎨 Formatting Code..."
 npm run format
 
-# 6. Build Verification
-echo "🔨 Verifying Build..."
-if ! npm run res:build; then echo "❌ Build failed."; exit 1; fi
+# 6. Build Verification (Zero Warning Policy)
+echo "🔨 Verifying Build (Strict Mode)..."
+npm run res:clean > /dev/null
+# Set intent to add so detect-missing-tests sees internal changes
+git add -N .
+if ! ./node_modules/.bin/rescript build --warn-error "+a"; then 
+    echo "❌ Build failed or contains warnings."; 
+    # Cleanup intent to add on failure so we don't leave the repo in a weird state
+    git reset > /dev/null
+    exit 1; 
+fi
 
 # 7. Test Gap Detection
 if ! node scripts/detect-missing-tests.js; then
     echo "❌ Commit blocked: Missing unit tests detected."
     echo "   ► Tasks have been auto-generated in tasks/pending/"
     echo "   ► Please complete these tasks before committing."
+    git reset > /dev/null
     exit 1
 fi
 

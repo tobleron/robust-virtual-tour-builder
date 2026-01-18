@@ -31,13 +31,8 @@ let getPanoramaUrl = (file: Types.file): string => {
       )
       url
     } else {
-      %raw("console.error('[Viewer] INVALID_BLOB_PASSED:', b, 'VARIANT:', file)")
-      Logger.error(
-        ~module_="Viewer",
-        ~message="INVALID_BLOB_TYPE",
-        ~data=Some({"type": %raw("typeof b")}),
-        (),
-      )
+      let type_ = %raw("typeof b")
+      Logger.error(~module_="Viewer", ~message="INVALID_BLOB_TYPE", ~data=Some({"type": type_}), ())
       ""
     }
   | File(b) =>
@@ -52,13 +47,8 @@ let getPanoramaUrl = (file: Types.file): string => {
       )
       url
     } else {
-      %raw("console.error('[Viewer] INVALID_FILE_PASSED:', b, 'VARIANT:', file)")
-      Logger.error(
-        ~module_="Viewer",
-        ~message="INVALID_FILE_TYPE",
-        ~data=Some({"type": %raw("typeof b")}),
-        (),
-      )
+      let type_ = %raw("typeof b")
+      Logger.error(~module_="Viewer", ~message="INVALID_FILE_TYPE", ~data=Some({"type": type_}), ())
       ""
     }
   }

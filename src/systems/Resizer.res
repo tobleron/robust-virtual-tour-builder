@@ -91,7 +91,12 @@ let checkBackendHealth = () => {
   let timeoutId = Window.setTimeout(() => AbortController.abort(controller), 5000)
 
   let timestamp = Date.now()->Float.toString
-  Console.log("CHECKING HEALTH URL: " ++ Constants.backendUrl ++ "/health?t=" ++ timestamp)
+  Logger.debug(
+    ~module_="Resizer",
+    ~message="CHECKING_HEALTH",
+    ~data=Some({"url": Constants.backendUrl ++ "/health?t=" ++ timestamp}),
+    (),
+  )
 
   Fetch.fetch(
     Constants.backendUrl ++ "/health?t=" ++ timestamp,
