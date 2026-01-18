@@ -40,7 +40,7 @@
     height: 640px;
     flex-shrink: 0;
     border-radius: 8px;
-    box-shadow: 0 0 50px rgba(0, 0, 0, 0.4);
+    box-shadow: var(--shadow-premium);
     overflow: hidden;
     background: #1a202c;
     /* Restored softer dark grey */

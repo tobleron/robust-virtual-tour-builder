@@ -383,3 +383,4 @@ Task: 147
 [2026-01-18 12:17] v4.3.1 - Fix hotspot disappearance by safe removal loop
 [2026-01-18 12:23] v4.3.1 - Fix hotspot disappearance v2 with diff-based sync
 [2026-01-18 12:30] v4.3.1 - Fix invisible waypoint by forcing hotspot refresh on sync
+[2026-01-18 12:54] v4.3.1 - style: restore v4.2.18 premium design tokens and base styles

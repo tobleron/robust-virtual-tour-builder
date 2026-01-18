@@ -23,7 +23,7 @@
     padding: 24px !important;
     border-radius: 20px !important;
     text-align: center;
-    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6) !important;
+    box-shadow: var(--shadow-premium) !important;
     width: 100%;
     max-width: 340px;
     transform: scale(0.95);

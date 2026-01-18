@@ -86,7 +86,8 @@
 │   ├── SECURITY_AND_STABILITY.md
 │   ├── TESTING_QUICK_REFERENCE.md
 │   ├── TYPOGRAPHY_AND_UI_SYSTEM.md
-│   └── UNIT_TESTING_INTEGRATION.md
+│   ├── UNIT_TESTING_INTEGRATION.md
+│   └── v4.2.18_CSS_STYLING_REPORT.md
 ├── GEMINI.md
 ├── index.html
 ├── lib
@@ -2041,7 +2042,8 @@
 │   │   ├── 218_Fix_Waypoint_Sticking_To_Screen_REPORT.md
 │   │   ├── 219_Fix_Hotspot_Disappearance_After_Save_REPORT.md
 │   │   ├── 220_Fix_Hotspot_Disappearance_V2_REPORT.md
-│   │   └── 221_Fix_Invisible_Waypoint_After_Save_REPORT.md
+│   │   ├── 221_Fix_Invisible_Waypoint_After_Save_REPORT.md
+│   │   └── 222_restore_css_design_tokens_REPORT.md
 │   ├── current_refactor.md
 │   ├── pending
 │   │   ├── 176_fix_security_innerhtml.md
@@ -2061,7 +2063,11 @@
 │   │   ├── 212_Add_Tests_for_NavigationController.md
 │   │   ├── 213_Add_Tests_for_SimulationDriver.md
 │   │   ├── 214_Add_Tests_for_SimulationLogic.md
-│   │   └── 215_Add_Tests_for_SessionStore.md
+│   │   ├── 215_Add_Tests_for_SessionStore.md
+│   │   ├── 223_restore_premium_ui_components.md
+│   │   ├── 224_restore_linking_mode_visuals.md
+│   │   ├── 225_restore_simulation_lockdown.md
+│   │   └── 226_restore_premium_hotspots.md
 │   └── TASKS.md
 ├── tests
 │   ├── node-setup.js
@@ -2202,4 +2208,4 @@
 │       └── VitestSmoke.test.res
 └── vitest.config.mjs
 
-49 directories, 2154 files
+49 directories, 2160 files
