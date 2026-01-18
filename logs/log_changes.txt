@@ -385,3 +385,4 @@ Task: 147
 [2026-01-18 12:30] v4.3.1 - Fix invisible waypoint by forcing hotspot refresh on sync
 [2026-01-18 12:54] v4.3.1 - style: restore v4.2.18 premium design tokens and base styles
 [2026-01-18 12:58] v4.3.1 - Restore v4.2.18 premium modal and UI component styling
+[2026-01-18 13:08] v4.3.1 - v4.3.1+262: Restore v4.2.18 simulation visual lockdown and pulsing stop button (Task 225)

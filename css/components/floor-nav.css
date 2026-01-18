@@ -34,7 +34,10 @@
 }
 
 /* Utility bar & Floor Nav during auto-pilot */
-body.auto-pilot-active #viewer-utility-bar,
+body.auto-pilot-active #viewer-utility-bar {
+    transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
 body.auto-pilot-active #viewer-floor-nav {
     pointer-events: none;
     transition: opacity 0.3s ease, filter 0.3s ease;
