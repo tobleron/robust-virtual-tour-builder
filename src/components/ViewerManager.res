@@ -308,7 +308,7 @@ let make = () => {
         let lastId = Nullable.toOption(ViewerState.state.lastSceneId)
         let hasSceneChanged = switch lastId {
         | Some(prev) => prev != scene.id
-        | None => false // Guard against transition flickering
+        | None => true // Allow initial load
         }
 
         if hasSceneChanged {

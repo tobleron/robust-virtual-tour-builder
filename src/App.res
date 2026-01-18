@@ -1,7 +1,9 @@
-@react.component
-let make = () => {
-  <AppContext.Provider>
-    <RemaxErrorBoundary>
+module Inner = {
+  @react.component
+  let make = () => {
+    let state = AppContext.useAppState()
+
+    <>
       // Sidebar Region
       <div id="sidebar" role="complementary" ariaLabel="Editor Sidebar">
         <Sidebar />
@@ -34,10 +36,14 @@ let make = () => {
 
         <div id="visual-pipeline-container" role="region" ariaLabel="Visual Pipeline" />
 
-        <div id="placeholder-text" className="viewer-placeholder" ariaLive=#polite>
-          <h3> {React.string("Ready to Build")} </h3>
-          <p> {React.string("Use the sidebar to upload your images.")} </p>
-        </div>
+        {if Belt.Array.length(state.scenes) == 0 {
+          <div id="placeholder-text" className="viewer-placeholder" ariaLive=#polite>
+            <h3> {React.string("Ready to Build")} </h3>
+            <p> {React.string("Use the sidebar to upload your images.")} </p>
+          </div>
+        } else {
+          React.null
+        }}
       </main>
 
       // Modal & Notification Containers
@@ -52,6 +58,15 @@ let make = () => {
       <NavigationController />
       <ViewerManager />
       <SimulationDriver />
+    </>
+  }
+}
+
+@react.component
+let make = () => {
+  <AppContext.Provider>
+    <RemaxErrorBoundary>
+      <Inner />
     </RemaxErrorBoundary>
   </AppContext.Provider>
 }
