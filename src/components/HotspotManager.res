@@ -301,8 +301,7 @@ let createHotspotConfig = (
 
 let syncHotspots = (v: Viewer.t, state: state, scene: scene, dispatch: Actions.action => unit) => {
   let config = Viewer.getConfig(v)
-  let getSafeHotSpots: {..} => array<{..}> = %raw("c => (c && c.hotSpots) ? c.hotSpots : []")
-  let hs = getSafeHotSpots(config)
+  let hs = config["hotSpots"]
 
   // Safe Nuke: Remove ALL existing hotspots to prevent zombie states
   // We iterate a copy of IDs (currentIds) so we don't modify the array we are reading from indirectly

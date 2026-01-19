@@ -412,3 +412,4 @@ Task: 147
 [2026-01-19 08:55] v4.3.2 - Fix waypoint state persistence on scene reload
 [2026-01-19 09:01] v4.3.2 - Fix synchronization of hotspots on scene load
 [2026-01-19 09:08] v4.3.2 - Re-apply sticky waypoint fix with safer hotspot synchronization
+[2026-01-19 09:22] v4.3.2 - Restore v4.2.18 robust image loading logic
