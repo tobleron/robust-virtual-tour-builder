@@ -45,7 +45,7 @@ let createHotspotConfig = (
   }
 
   // CSS Class
-  let cssClass = ref("flat-arrow")
+  let cssClass = ref("pnlm-hotspot flat-arrow")
   if isTargetAutoForward {
     cssClass := cssClass.contents ++ " auto-forward"
   }
