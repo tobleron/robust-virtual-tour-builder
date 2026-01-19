@@ -418,3 +418,4 @@ Task: 147
 [2026-01-19 11:12] v4.3.3 - Minor UI: Remove default floor selection when no scenes are loaded
 [2026-01-19 11:18] v4.3.3 - UI: Apply pop-up hover effect to utility buttons
 [2026-01-19 11:27] v4.3.3 - Maintenance: Update .gitignore and sync assets
+[2026-01-19 11:29] v4.3.3 - Maintenance: Disable automatic CI to stop failure emails
