@@ -1,32 +1,43 @@
-# Node
-node_modules/
-lib/
-*.bs.js
-
-*.bs.mjs
-
-npm-debug.log*
-package-lock.json
-
-# Rust
-backend/target/
-backend/Cargo.lock
-
 # OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
 # Logs
+logs/*.log
 logs/debug_log_*.json
-logs/error.log
-logs/telemetry.log
-
-# Build
-dist/
-css/output.css
-bin/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 backend_log.txt
+
+# Build / Output
+dist/
+build/
+bin/
+backend/target/
+css/output.css
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ReScript artifacts
+lib/
+*.bs.js
+*.bs.mjs
+.rescript/
+
+# Dependencies
+node_modules/
+package-lock.json
+backend/Cargo.lock
 
 # Ensure tasks are always tracked
 !tasks/
-
