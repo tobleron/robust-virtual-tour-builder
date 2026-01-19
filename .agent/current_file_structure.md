@@ -67,7 +67,6 @@
 │   │   ├── ui.css
 │   │   └── viewer.css
 │   ├── layout.css
-│   ├── legacy.css
 │   ├── output.css
 │   ├── style.css
 │   ├── tailwind.css
@@ -2048,7 +2047,6 @@
 ├── tailwind.config.js
 ├── tasks
 │   ├── active
-│   │   └── 270_auto_select_first_scene_on_start.md
 │   ├── cancelled
 │   ├── completed
 │   │   ├── 175_fix_runtime_safety_getexn_REPORT.md
@@ -2080,8 +2078,13 @@
 │   │   ├── 266_refine_linking_visuals_REPORT.md
 │   │   ├── 267_update_camera_movement_behavior_REPORT.md
 │   │   ├── 268_verify_scenelist_virtualization_ABORTED.md
+│   │   ├── 270_auto_select_first_scene_on_start_REPORT.md
 │   │   ├── 271_install_css_similarity_REPORT.md
-│   │   └── 272_install_similarity_css_REPORT.md
+│   │   ├── 272_install_similarity_css_REPORT.md
+│   │   ├── 273_css_refactor_phase_1_REPORT.md
+│   │   ├── 274_css_refactor_phase_2_REPORT.md
+│   │   ├── 275_css_refactor_phase_3_REPORT.md
+│   │   └── 276_hotspot_shine_and_sidebar_fix_REPORT.md
 │   ├── current_refactor.md
 │   ├── pending
 │   │   ├── 176_fix_security_innerhtml.md
@@ -2244,4 +2247,4 @@
 │       └── VitestSmoke.test.res
 └── vitest.config.mjs
 
-49 directories, 2196 files
+49 directories, 2199 files

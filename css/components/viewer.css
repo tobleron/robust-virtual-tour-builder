@@ -39,9 +39,9 @@
     position: absolute;
     width: 2px;
     height: 60px;
-    background: #ffcc00;
+    background: var(--accent);
     /* Yellow Rod */
-    box-shadow: 0 0 8px rgba(255, 204, 0, 0.6);
+    box-shadow: 0 0 8px var(--accent);
     pointer-events: none;
     z-index: 9999;
     display: none;
@@ -74,7 +74,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: #718096;
+    color: var(--slate-500);
     text-align: center;
     pointer-events: none;
     display: flex;
@@ -146,8 +146,57 @@
 
 /* 4. Hover Effect */
 .pnlm-hotspot.flat-arrow:hover::before {
-    transform: rotateX(40deg) translateY(-20px) scale(1.1);
-    filter: drop-shadow(0 30px 15px rgba(0, 0, 0, 0.4));
+    transform: rotateX(60deg) translateY(-25px) scale(0.8);
+    filter: drop-shadow(0 20px 10px rgba(0, 0, 0, 0.3)) brightness(1.15);
+}
+
+.pnlm-hotspot.flat-arrow::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100px;
+    height: 100px;
+    margin-left: -50px;
+    margin-top: -50px;
+    pointer-events: none;
+    z-index: 11;
+    opacity: 0.6;
+    background: linear-gradient(110deg,
+            rgba(255, 255, 255, 0) 20%,
+            rgba(255, 255, 255, 0.7) 50%,
+            rgba(255, 255, 255, 0) 80%);
+    background-size: 200% 100%;
+    transform: rotateX(60deg) scale(0.8);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: hotspot-shine 2s linear infinite;
+}
+
+.pnlm-hotspot.flat-arrow.arrow-gold::after {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M10 40 L50 10 L90 40 L90 60 L50 30 L10 60 Z M10 70 L50 40 L90 70 L90 90 L50 60 L10 90 Z' fill='black' /%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M10 40 L50 10 L90 40 L90 60 L50 30 L10 60 Z M10 70 L50 40 L90 70 L90 90 L50 60 L10 90 Z' fill='black' /%3E%3C/svg%3E");
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+}
+
+.pnlm-hotspot.flat-arrow:hover::after {
+    opacity: 1;
+    transform: rotateX(60deg) translateY(-25px) scale(0.8);
+    animation: hotspot-shine 0.8s linear infinite;
+}
+
+@keyframes hotspot-shine {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
 }
 
 .hotspot-delete-btn {
@@ -156,7 +205,7 @@
     right: 5px;
     width: 24px;
     height: 24px;
-    background: #dc3545;
+    background: var(--danger);
     color: white;
     border-radius: 50%;
     display: flex !important;
@@ -181,7 +230,7 @@
 
 .hotspot-delete-btn:hover {
     transform: scale(1.2) !important;
-    background: #ff0000;
+    background: var(--danger-dark);
 }
 
 .hotspot-controls {
@@ -206,7 +255,7 @@
 .hotspot-return-btn {
     width: 24px;
     height: 18px;
-    background: #374151;
+    background: var(--slate-700);
     color: white;
     border-radius: 4px;
     display: flex !important;
@@ -229,15 +278,15 @@
 }
 
 .hotspot-forward-btn.active {
-    background: #059669 !important;
+    background: var(--success-dark) !important;
     color: white !important;
-    border-color: #10b981 !important;
-    box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+    border-color: var(--success) !important;
+    box-shadow: 0 0 8px var(--success);
 }
 
 .hotspot-return-btn.active {
-    background: #ea580c !important;
+    background: var(--warning-dark) !important;
     color: white !important;
-    border-color: #f97316 !important;
-    box-shadow: 0 0 8px rgba(234, 88, 12, 0.6);
+    border-color: var(--warning) !important;
+    box-shadow: 0 0 8px var(--warning);
 }
