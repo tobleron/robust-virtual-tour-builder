@@ -57,8 +57,6 @@
 │   └── tailwindcss
 ├── cache
 │   └── geocoding.json
-├── conductor
-│   └── setup_state.json
 ├── css
 │   ├── animations.css
 │   ├── base.css
@@ -2244,4 +2242,4 @@
 │       └── VitestSmoke.test.res
 └── vitest.config.mjs
 
-50 directories, 2195 files
+49 directories, 2194 files

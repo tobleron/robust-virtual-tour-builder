@@ -47,7 +47,9 @@ let createHotspotConfig = (
   // CSS Class
   let cssClass = ref("pnlm-hotspot flat-arrow")
   if isTargetAutoForward {
-    cssClass := cssClass.contents ++ " auto-forward"
+    cssClass := cssClass.contents ++ " auto-forward arrow-green"
+  } else {
+    cssClass := cssClass.contents ++ " arrow-gold"
   }
   if isReturnLink {
     cssClass := cssClass.contents ++ " return-link"
@@ -57,12 +59,6 @@ let createHotspotConfig = (
   }
   if isSimulationMode && isCurrentSceneAutoForward {
     cssClass := cssClass.contents ++ " hidden-in-sim"
-  }
-
-  if isTargetAutoForward {
-    cssClass := cssClass.contents ++ " arrow-green"
-  } else {
-    cssClass := cssClass.contents ++ " arrow-gold"
   }
 
   {
@@ -292,11 +288,10 @@ let syncHotspots = (v: Viewer.t, state: state, scene: scene, dispatch: Actions.a
     }
   })
 
-  Logger.info(
+  Logger.debug(
     ~module_="HotspotManager",
-    ~message="SYNC_HOTSPOTS_EXEC",
+    ~message="SYNC_HOTSPOTS_NUKE",
     ~data=Some({
-      "scene": scene.name,
       "removed": Belt.Array.length(currentIds),
       "adding": Belt.Array.length(scene.hotspots),
     }),

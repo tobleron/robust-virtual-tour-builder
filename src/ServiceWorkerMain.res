@@ -76,13 +76,13 @@ let manualAssets = [
 ]
 
 addEventListener("install", (event: ExtendableEvent.t) => {
-  Logger.info(~module_="ServiceWorker", ~message="Installing...", ())
+  Console.log("[Service Worker] Installing...")
 
   let installPromise =
     caches
     ->CacheStorage.open_(cacheName)
     ->Promise.then(async cache => {
-      Logger.info(~module_="ServiceWorker", ~message="Fetching asset manifest...", ())
+      Console.log("[Service Worker] Fetching asset manifest...")
       let manifestUrls = try {
         let response = await fetchUrl("/asset-manifest.json")
         let manifest = await response->Response.json
@@ -105,11 +105,7 @@ addEventListener("install", (event: ExtendableEvent.t) => {
         },
       )
 
-      Logger.info(
-        ~module_="ServiceWorker",
-        ~message="Caching assets count: " ++ Array.length(uniqueAssets)->Int.toString,
-        (),
-      )
+      Console.log2("[Service Worker] Caching assets:", uniqueAssets)
       await cache->Cache.addAll(uniqueAssets)
     })
     ->Promise.then(_ => skipWaiting())
@@ -118,7 +114,7 @@ addEventListener("install", (event: ExtendableEvent.t) => {
 })
 
 addEventListener("activate", (event: ExtendableEvent.t) => {
-  Logger.info(~module_="ServiceWorker", ~message="Activating...", ())
+  Console.log("[Service Worker] Activating...")
 
   let activatePromise =
     caches
@@ -128,7 +124,7 @@ addEventListener("activate", (event: ExtendableEvent.t) => {
       ->Array.filter(name => name != cacheName)
       ->Array.map(
         name => {
-          Logger.info(~module_="ServiceWorker", ~message="Deleting old cache: " ++ name, ())
+          Console.log2("[Service Worker] Deleting old cache:", name)
           caches->CacheStorage.delete(name)
         },
       )
@@ -175,12 +171,7 @@ addEventListener("fetch", (event: FetchEvent.t) => {
           }
         })
         ->Promise.catch(error => {
-          Logger.error(
-            ~module_="ServiceWorker",
-            ~message="Fetch failed",
-            ~data=JSON.Encode.string(Obj.magic(error)["message"]),
-            (),
-          )
+          Console.error2("[Service Worker] Fetch failed:", error)
           Promise.reject(error)
         }),
       )

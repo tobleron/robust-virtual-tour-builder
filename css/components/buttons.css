@@ -110,9 +110,8 @@
 
 /* Viewer Utility Buttons Popper Effect (matches floor-nav) */
 .v-util-btn {
-    box-shadow: 1px 1px 1px #000 !important;
-    border: 2px solid transparent !important;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 1px 1px 1px #000 !important;
 }
 
 .v-util-btn:hover:not(:disabled) {
