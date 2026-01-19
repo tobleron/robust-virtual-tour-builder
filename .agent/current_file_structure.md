@@ -1819,8 +1819,7 @@
 |   |   `-- mod.res
 |   `-- rescript.lock
 |-- logs
-|   |-- log_changes.txt
-|   `-- telemetry.log
+|   `-- log_changes.txt
 |-- package-lock.json
 |-- package.json
 |-- plans
@@ -2241,4 +2240,4 @@
 |       `-- VitestSmoke.test.res
 `-- vitest.config.mjs
 
-49 directories, 2193 files
+49 directories, 2192 files
