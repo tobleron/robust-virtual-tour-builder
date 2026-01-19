@@ -24,6 +24,7 @@ type t = {
   mutable isSceneLoading: bool,
   mutable loadSafetyTimeout: Nullable.t<int>,
   mutable cachedFloorCircles: Nullable.t<Dom.element>, // NodeList proxy
+  mutable lastSwitchTime: float,
 }
 
 let state = {
@@ -57,6 +58,7 @@ let state = {
   isSceneLoading: false,
   loadSafetyTimeout: Nullable.null,
   cachedFloorCircles: Nullable.null,
+  lastSwitchTime: 0.0,
 }
 
 let getActiveViewer = () => {
