@@ -333,7 +333,7 @@ let make = () => {
       <div id="viewer-utility-bar" className={utilBarClass}>
         <button
           id="btn-add-link-fab"
-          className={"w-[32px] h-[32px] rounded-full flex items-center justify-center transition-all bg-primary text-white hover:bg-primary-light shadow-md " ++ if (
+          className={"v-util-btn w-[32px] h-[32px] rounded-full flex items-center justify-center bg-primary text-white hover:bg-primary-light " ++ if (
             simActive
           ) {
             "opacity-40 pointer-events-none"
@@ -371,7 +371,7 @@ let make = () => {
 
         <button
           id="v-scene-sim-toggle"
-          className={"w-[32px] h-[32px] text-white rounded-full font-ui flex items-center justify-center shadow-md " ++ if (
+          className={"v-util-btn w-[32px] h-[32px] text-white rounded-full font-ui flex items-center justify-center " ++ if (
             simActive
           ) {
             "animate-pulse-stop"
@@ -410,7 +410,7 @@ let make = () => {
 
         <button
           id="v-scene-cat-toggle"
-          className={"w-[32px] h-[32px] text-white rounded-full flex items-center justify-center shadow-md " ++ if (
+          className={"v-util-btn w-[32px] h-[32px] text-white rounded-full flex items-center justify-center " ++ if (
             simActive
           ) {
             "pointer-events-none"
@@ -458,7 +458,7 @@ let make = () => {
         <button
           id="v-scene-label-btn"
           ref={ReactDOM.Ref.domRef(labelBtnRef)}
-          className={"w-[32px] h-[32px] text-white rounded-full font-ui text-[18px] font-bold flex items-center justify-center relative z-[6000] shadow-md " ++ if (
+          className={"v-util-btn w-[32px] h-[32px] text-white rounded-full font-ui text-[18px] font-bold flex items-center justify-center relative z-[6000] " ++ if (
             simActive
           ) {
             "pointer-events-none"
