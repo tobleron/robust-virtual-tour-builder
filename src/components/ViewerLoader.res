@@ -325,6 +325,16 @@ module Loader = {
             let initialHfov =
               Constants.backendUrl == "" ? Constants.globalHfov : Constants.globalHfov
 
+            let hotspotsArr = Belt.Array.mapWithIndex(targetScene.hotspots, (i, h) => {
+              HotspotManager.createHotspotConfig(
+                ~hotspot=h,
+                ~index=i,
+                ~state=currentGlobalState,
+                ~scene=targetScene,
+                ~dispatch=GlobalStateBridge.dispatch,
+              )
+            })
+
             let viewerConfig = {
               "default": {
                 "firstScene": if useProgressive {
@@ -345,7 +355,7 @@ module Loader = {
                   "maxHfov": 90.0,
                   "mouseZoom": false,
                   "friction": 0.05,
-                  "hotSpots": [],
+                  "hotSpots": hotspotsArr,
                 },
                 "master": {
                   "type": "equirectangular",
@@ -358,7 +368,7 @@ module Loader = {
                   "maxHfov": 90.0,
                   "mouseZoom": false,
                   "friction": 0.05,
-                  "hotSpots": [],
+                  "hotSpots": hotspotsArr,
                 },
               },
             }
@@ -398,25 +408,6 @@ module Loader = {
               let isTiny = loadedSceneId == "preview"
               let isMaster = loadedSceneId == "master"
 
-              // SYNC HOTSPOTS: Fix for sticky waypoint bug
-              // We manually sync hotspots after load to ensure they are anchored correctly,
-              // consistent with ViewerManager's update logic.
-              try {
-                let latestState = GlobalStateBridge.getState()
-                switch Belt.Array.getBy(latestState.scenes, s => s.id == targetScene.id) {
-                | Some(freshScene) =>
-                  HotspotManager.syncHotspots(
-                    newViewer,
-                    latestState,
-                    freshScene,
-                    GlobalStateBridge.dispatch,
-                  )
-                | None => ()
-                }
-              } catch {
-              | _ => Logger.warn(~module_="Viewer", ~message="HOTSPOT_SYNC_FAILED", ())
-              }
-
               if useProgressive && isTiny {
                 Logger.debug(
                   ~module_="Viewer",
@@ -424,14 +415,6 @@ module Loader = {
                   ~data=Some({"sceneName": targetScene.name}),
                   (),
                 )
-                /* Preload master logic - simplified for migration: rely on pannellum loading master next if implicit?
-                 No, JS code manually preloads Image and then calls loadScene. */
-
-                /* Simplified: just load master immediately or implement Image preload */
-                /* Implementing Image preload using %raw or bindings is tricky quickly. */
-                /* I'll trigger loadScene directly which handles it internally in Pannellum usually? 
-                      No, Pannellum doesn't auto upgrade.
-                      User JS code: new Image(), onload -> newViewer.loadScene('master', ...) */
 
                 let img = Dom.document["createElement"]("img")
                 Dom.setAttribute(img, "src", panoramaUrl)
@@ -518,7 +501,6 @@ module Loader = {
               )
             })
 
-            /* More events: animatefinished, viewchange */
             /* Capture the assigned key to check against active key later */
             let assignedKey = switch state.activeViewerKey {
             | A => B
