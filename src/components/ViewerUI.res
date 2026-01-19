@@ -291,10 +291,10 @@ let make = () => {
       } else {
         s.category
       }
-    | None => "indoor"
+    | None => ""
     }
   } else {
-    "indoor"
+    ""
   }
 
   let currentFloor = if state.activeIndex >= 0 {
@@ -305,7 +305,7 @@ let make = () => {
       } else {
         s.floor
       }
-    | None => "ground"
+    | None => ""
     }
   } else {
     ""
@@ -341,7 +341,9 @@ let make = () => {
             ""
           }}
           style={makeStyle({
-            "backgroundColor": if state.isLinking {
+            "backgroundColor": if !scenesLoaded {
+              "#64748b"
+            } else if state.isLinking {
               "#ffcc00"
             } else {
               "#dc3545"
@@ -377,7 +379,9 @@ let make = () => {
             ""
           }}
           style={makeStyle({
-            "backgroundColor": if simActive {
+            "backgroundColor": if !scenesLoaded {
+              "#64748b"
+            } else if simActive {
               "#dc3545"
             } else {
               "#10b981"
@@ -414,7 +418,7 @@ let make = () => {
             ""
           }}
           style={makeStyle({
-            "backgroundColor": if state.activeIndex >= 0 {
+            "backgroundColor": if scenesLoaded && state.activeIndex >= 0 {
               switch Belt.Array.get(state.scenes, state.activeIndex) {
               | Some(s) =>
                 if s.categorySet {
@@ -429,7 +433,7 @@ let make = () => {
               | None => "#dc3545"
               }
             } else {
-              "#dc3545"
+              "#64748b" // Neutral gray when no scenes
             },
           })}
           onClick={handleCatClick}
@@ -442,8 +446,10 @@ let make = () => {
             {React.string(
               if currentCategory == "indoor" {
                 "home"
-              } else {
+              } else if currentCategory == "outdoor" {
                 "park"
+              } else {
+                "category"
               },
             )}
           </span>
@@ -459,7 +465,13 @@ let make = () => {
           } else {
             "pointer-events-auto"
           }}
-          style={makeStyle({"backgroundColor": "#dc3545"})}
+          style={makeStyle({
+            "backgroundColor": if scenesLoaded {
+              "#dc3545"
+            } else {
+              "#64748b"
+            },
+          })}
           ariaLabel="Scene Label"
           title="Scene Label"
         >
@@ -597,7 +609,7 @@ let make = () => {
       <div id="viewer-floor-nav" className={floorNavClass}>
         {floorLevels
         ->Belt.Array.map(f => {
-          let isSelected = f.id == currentFloor
+          let isSelected = scenesLoaded && f.id == currentFloor
 
           <div
             key={f.id}
