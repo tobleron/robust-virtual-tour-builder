@@ -102,7 +102,11 @@ let make = () => {
           Obj.magic(result): {"qualityResults": array<UploadReport.qualityItem>}
         )["qualityResults"]
 
-        UploadReport.show(state.lastUploadReport, qualityResults)
+        let report: Types.uploadReport = (
+          Obj.magic(result): {"report": Types.uploadReport}
+        )["report"]
+
+        UploadReport.show(report, qualityResults)
       } catch {
       | JsExn(obj) =>
         let msg = switch JsExn.message(obj) {
