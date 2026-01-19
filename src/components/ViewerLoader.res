@@ -325,6 +325,16 @@ module Loader = {
             let initialHfov =
               Constants.backendUrl == "" ? Constants.globalHfov : Constants.globalHfov
 
+            let hotspotsArr = Belt.Array.mapWithIndex(targetScene.hotspots, (i, h) => {
+              HotspotManager.createHotspotConfig(
+                ~hotspot=h,
+                ~index=i,
+                ~state=currentGlobalState,
+                ~scene=targetScene,
+                ~dispatch=GlobalStateBridge.dispatch,
+              )
+            })
+
             let viewerConfig = {
               "default": {
                 "firstScene": if useProgressive {
@@ -345,7 +355,7 @@ module Loader = {
                   "maxHfov": 90.0,
                   "mouseZoom": false,
                   "friction": 0.05,
-                  "hotSpots": [],
+                  "hotSpots": hotspotsArr,
                 },
                 "master": {
                   "type": "equirectangular",
@@ -358,7 +368,7 @@ module Loader = {
                   "maxHfov": 90.0,
                   "mouseZoom": false,
                   "friction": 0.05,
-                  "hotSpots": [],
+                  "hotSpots": hotspotsArr,
                 },
               },
             }
@@ -397,21 +407,6 @@ module Loader = {
               ) /* returns scene ID string e.g 'master' */
               let isTiny = loadedSceneId == "preview"
               let isMaster = loadedSceneId == "master"
-
-              // SYNC HOTSPOTS: Fix for sticky waypoint bug
-              // We manually sync hotspots after load to ensure they are anchored correctly,
-              // consistent with ViewerManager's update logic.
-              let latestState = GlobalStateBridge.getState()
-              switch Belt.Array.getBy(latestState.scenes, s => s.id == targetScene.id) {
-              | Some(freshScene) =>
-                HotspotManager.syncHotspots(
-                  newViewer,
-                  latestState,
-                  freshScene,
-                  GlobalStateBridge.dispatch,
-                )
-              | None => ()
-              }
 
               if useProgressive && isTiny {
                 Logger.debug(
