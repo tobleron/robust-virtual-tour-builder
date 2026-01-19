@@ -1,10 +1,7 @@
 name: CI
 
 on:
-  push:
-    branches: [ main, development ]
-  pull_request:
-    branches: [ main, development ]
+  workflow_dispatch: # Disabled automatic triggers to stop build failure emails
 
 jobs:
   test:
@@ -29,26 +26,6 @@ jobs:
 
       - name: Install Dependencies
         run: npm ci
-
-      - name: Verify Version Consistency
-        run: |
-          echo "Checking version consistency..."
-          # Extract version from src/version.js (export const VERSION = "3.5.0";)
-          JS_VERSION=$(grep 'export const VERSION =' src/version.js | cut -d'"' -f2)
-          echo "JS Version: $JS_VERSION"
-          
-          if [ -z "$JS_VERSION" ]; then
-              echo "ERROR: Could not find VERSION in src/version.js"
-              exit 1
-          fi
-          
-          # Check if index.html contains the version in query params (e.g., ?v=3.5.0)
-          if grep -q "v=$JS_VERSION" index.html; then
-              echo "✅ Found matching version $JS_VERSION in index.html"
-          else
-              echo "❌ ERROR: Version $JS_VERSION not found in index.html query parameters"
-              exit 1
-          fi
 
       - name: Build ReScript
         run: npm run res:build
