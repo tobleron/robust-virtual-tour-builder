@@ -101,36 +101,44 @@ let moduleColors = Dict.fromArray([
 // =============================================================================
 
 let showDebugBadge = () => {
-  let doc = Dom.documentBody
-  let existing = Dom.getElementById("debug-badge")->Nullable.toOption
-  if Option.isNone(existing) {
-    let badge = Dom.createElement("div")
-    Dom.setId(badge, "debug-badge")
-    Dom.setTextContent(badge, "🐛 DEBUG")
-    let style = "position: fixed; bottom: 20px; right: 20px; background: #1e293b; color: #10b981; padding: 6px 12px; border-radius: 8px; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 11px; letter-spacing: 0.05em; z-index: 99999; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 1px solid rgba(16, 185, 129, 0.2); animation: debug-fade-in 0.3s ease-out;"
-    Dom.setAttribute(badge, "style", style)
+  let isDom = %raw(`typeof document !== 'undefined'`)
+  if isDom {
+    let doc = Dom.documentBody
+    let existing = Dom.getElementById("debug-badge")->Nullable.toOption
+    if Option.isNone(existing) {
+      let badge = Dom.createElement("div")
+      Dom.setId(badge, "debug-badge")
+      Dom.setTextContent(badge, "🐛 DEBUG")
+      let style = "position: fixed; bottom: 20px; right: 20px; background: #1e293b; color: #10b981; padding: 6px 12px; border-radius: 8px; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 11px; letter-spacing: 0.05em; z-index: 99999; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 1px solid rgba(16, 185, 129, 0.2); animation: debug-fade-in 0.3s ease-out;"
+      Dom.setAttribute(badge, "style", style)
 
-    if Option.isNone(Dom.getElementById("debug-styles")->Nullable.toOption) {
-      let s = Dom.createElement("style")
-      Dom.setId(s, "debug-styles")
-      Dom.setTextContent(
-        s,
-        "
-                @keyframes debug-fade-in {
-                    from { opacity: 0; transform: translateY(10px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-            ",
-      )
-      Dom.appendChild(Dom.documentBody, s)
+      if Option.isNone(Dom.getElementById("debug-styles")->Nullable.toOption) {
+        let s = Dom.createElement("style")
+        Dom.setId(s, "debug-styles")
+        Dom.setTextContent(
+          s,
+          "
+                  @keyframes debug-fade-in {
+                      from { opacity: 0; transform: translateY(10px); }
+                      to { opacity: 1; transform: translateY(0); }
+                  }
+              ",
+        )
+        Dom.appendChild(doc, s)
+      }
+      Dom.appendChild(doc, badge)
     }
-    Dom.appendChild(doc, badge)
   }
 }
 
 let hideDebugBadge = () => {
   switch Dom.getElementById("debug-badge")->Nullable.toOption {
-  | Some(b) => Dom.removeElement(b)
+  | Some(b) =>
+    try {
+      Dom.removeElement(b)
+    } catch {
+    | _ => ()
+    }
   | None => ()
   }
 }
@@ -452,75 +460,77 @@ external toUnhandledEvent: 'a => UnhandledRejectionEvent.t = "%identity"
 // =============================================================================
 
 let init = () => {
-  /* Expose to Window */
-  let debugObj = {
-    "enable": enable,
-    "disable": disable,
-    "toggle": toggle,
-    "setLevel": s => setLevel(stringToLevel(s)),
-    "getLog": () => entries,
-    "clear": () => {%raw(`entries.length = 0`)},
-    "isEnabled": () => enabled.contents,
-    "testError": () => {
-      ignore(%raw(`(function(){ throw new Error("Test Error from Console") })()`))
-    },
+  /* Expose to Window if available */
+  let win = %raw(`typeof window !== 'undefined' ? window : null`)
+
+  if win !== Nullable.null {
+    let debugObj = {
+      "enable": enable,
+      "disable": disable,
+      "toggle": toggle,
+      "setLevel": s => setLevel(stringToLevel(s)),
+      "getLog": () => entries,
+      "clear": () => {%raw(`entries.length = 0`)},
+      "isEnabled": () => enabled.contents,
+      "testError": () => {
+        ignore(%raw(`(function(){ throw new Error("Test Error from Console") })()`))
+      },
+    }
+    Window.setDebug(Window.window, asDynamic(debugObj))
+    Window.setAppLog(Window.window, appLog)
+
+    /* Intercept Global Errors */
+    Window.setOnError(Window.window, (msg, source, line, col, errObj) => {
+      let stack = switch toNullable(errObj)->Nullable.toOption {
+      | Some(e) => e["stack"]
+      | None => ""
+      }
+
+      error(
+        ~module_="Global",
+        ~message="UNCAUGHT_ERROR",
+        ~data=castToJson({
+          "message": msg,
+          "source": source,
+          "line": line,
+          "col": col,
+          "stack": stack,
+        }),
+        (),
+      )
+      false
+    })
+
+    Window.setOnUnhandledRejection(Window.window, event => {
+      let evt = toUnhandledEvent(event)
+      let reason = UnhandledRejectionEvent.getReason(evt)
+      let isError = UnhandledRejectionEvent.isError(reason)
+
+      let reasonStr = isError
+        ? JsError.message(UnhandledRejectionEvent.reasonToError(reason))
+        : UnhandledRejectionEvent.reasonToString(reason)
+
+      let stack = isError
+        ? JsError.stack(UnhandledRejectionEvent.reasonToError(reason))
+          ->Nullable.toOption
+          ->Option.getOr("")
+        : ""
+
+      error(
+        ~module_="Global",
+        ~message="UNHANDLED_REJECTION",
+        ~data=castToJson({
+          "reason": reasonStr,
+          "stack": stack,
+        }),
+        (),
+      )
+
+      if !Js.String.includes("localhost", Window.window["location"]["hostname"]) {
+        UnhandledRejectionEvent.preventDefault(evt)
+      }
+    })
   }
-  Window.setDebug(Window.window, asDynamic(debugObj))
-  Window.setAppLog(Window.window, appLog)
-
-  /* Intercept Global Errors with Stack Traces */
-  Window.setOnError(Window.window, (msg, source, line, col, errObj) => {
-    let stack = switch toNullable(errObj)->Nullable.toOption {
-    | Some(e) => e["stack"]
-    | None => ""
-    }
-
-    error(
-      ~module_="Global",
-      ~message="UNCAUGHT_ERROR",
-      ~data=castToJson({
-        "message": msg,
-        "source": source,
-        "line": line,
-        "col": col,
-        "stack": stack,
-      }),
-      (),
-    )
-    false
-  })
-
-  Window.setOnUnhandledRejection(Window.window, event => {
-    let evt = toUnhandledEvent(event)
-    let reason = UnhandledRejectionEvent.getReason(evt)
-    let isError = UnhandledRejectionEvent.isError(reason)
-
-    let reasonStr = isError
-      ? JsError.message(UnhandledRejectionEvent.reasonToError(reason))
-      : UnhandledRejectionEvent.reasonToString(reason)
-
-    let stack = isError
-      ? JsError.stack(UnhandledRejectionEvent.reasonToError(reason))
-        ->Nullable.toOption
-        ->Option.getOr("")
-      : ""
-
-    error(
-      ~module_="Global",
-      ~message="UNHANDLED_REJECTION",
-      ~data=castToJson({
-        "reason": reasonStr,
-        "stack": stack,
-      }),
-      (),
-    )
-
-    // Prevent default logging in production to avoid console noise + double logging
-    // But allow in localhost for dev convenience
-    if !Js.String.includes("localhost", Window.window["location"]["hostname"]) {
-      UnhandledRejectionEvent.preventDefault(evt)
-    }
-  })
 
   initialized(~module_="Logger")
   if enabled.contents {
