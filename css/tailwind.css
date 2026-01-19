@@ -8,7 +8,7 @@
     --color-remax-navy: var(--primary-navy);
     --color-remax-red: var(--danger);
     --color-remax-gold: var(--accent);
-    
+
     --color-primary: var(--primary);
     --color-success: var(--success);
     --color-danger: var(--danger);
@@ -39,6 +39,7 @@
         -ms-overflow-style: none;
         scrollbar-width: none;
     }
+
     .hide-scrollbar::-webkit-scrollbar {
         display: none;
     }
@@ -47,10 +48,12 @@
         transition: all var(--transition-fast) cubic-bezier(0.175, 0.885, 0.32, 1.275);
         box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
     }
+
     .btn-viewer-pop:hover {
         transform: translate(-1px, -1px);
         box-shadow: 2px 2.5px 0 rgba(0, 0, 0, 0.8);
     }
+
     .btn-viewer-pop:active {
         transform: translate(1px, 1px);
         box-shadow: 0 0 0 rgba(0, 0, 0, 0.5);
@@ -66,40 +69,9 @@
 
 /* Component Specific Styles (Move to components/ if they grow too large) */
 
-/* PANNELLUM ENGINE FIXES & HOTSPOT STYLES */
-.pnlm-hotspot.flat-arrow {
-    overflow: visible !important;
-    background: rgba(255, 255, 255, 0.02) !important;
-    pointer-events: auto !important;
-    width: 110px !important;
-    height: 110px !important;
-    margin-left: -55px !important;
-    margin-top: -55px !important;
-    cursor: pointer;
-    perspective: 1500px;
-    z-index: 2000 !important;
-    transform-style: preserve-3d;
-}
-
-.custom-arrow-svg {
-    width: 110px !important;
-    height: 110px !important;
-    display: block;
-    pointer-events: none;
-    transform: rotateX(65deg);
-    transform-origin: center center;
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    filter: drop-shadow(0 8px 4px rgba(0, 0, 0, 0.4));
-}
-
 .glow-unit {
     fill-opacity: 0;
     fill: #fff4d1;
-}
-
-.pnlm-hotspot.flat-arrow:hover .custom-arrow-svg {
-    transform: rotateX(65deg) translateY(-20px) scale(1.1);
-    filter: drop-shadow(0 30px 15px rgba(0, 0, 0, 0.3));
 }
 
 .hotspot-preview {
