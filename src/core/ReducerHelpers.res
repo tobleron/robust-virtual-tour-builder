@@ -285,18 +285,25 @@ let handleDeleteScene = (state: state, index: int): state => {
       state.activeIndex
     }
 
-    {
+    let baseState = {
       ...state,
       scenes: syncSceneNames(cleanupScenes),
       deletedSceneIds: newDeletedIds,
       activeIndex: newActiveIndex,
     }
 
+    if newLen == 0 {
+      {...baseState, activeYaw: 0.0, activePitch: 0.0}
+    } else {
+      baseState
+    }
   | None => state
   }
 }
 
 let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
+  let wasEmpty = Belt.Array.length(state.scenes) == 0
+
   let newScenes = Belt.Array.reduce(scenesData, state.scenes, (acc, dataJson) => {
     let id = switch JsonTypes.decodeImportScene(dataJson) {
     | Ok(data) => data.id
@@ -317,7 +324,7 @@ let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
   let finalScenes = syncSceneNames(sortedScenes)
 
   let activeIndex = if (
-    (state.activeIndex == -1 || state.activeIndex >= Belt.Array.length(finalScenes)) &&
+    (wasEmpty || state.activeIndex == -1 || state.activeIndex >= Belt.Array.length(finalScenes)) &&
       Belt.Array.length(finalScenes) > 0
   ) {
     0
@@ -325,7 +332,11 @@ let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
     state.activeIndex
   }
 
-  {...state, scenes: finalScenes, activeIndex}
+  if wasEmpty && activeIndex == 0 {
+    {...state, scenes: finalScenes, activeIndex, activeYaw: 0.0, activePitch: 0.0}
+  } else {
+    {...state, scenes: finalScenes, activeIndex}
+  }
 }
 
 let handleUpdateSceneMetadata = (state: state, index: int, metaJson: JSON.t): state => {

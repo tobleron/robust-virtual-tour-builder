@@ -423,3 +423,4 @@ Task: 147
 [2026-01-19 12:25] v4.3.3 - changed to 900 milliseconds
 [2026-01-19 19:50] v4.3.3 - Re-apply Full Hotspot Visibility Fix
 [2026-01-19 20:14] v4.3.3 - Hotspot Arrow Visible Finally
+[2026-01-19 21:13] v4.3.3 - Task 270 complete: Robust auto-selection of first scene and camera reset
