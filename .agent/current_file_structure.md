@@ -96,20 +96,9 @@
 |-- lib
 |   |-- bs
 |   |   |-- build.ninja
-|   |   |-- compiler-info.json
 |   |   |-- src
 |   |   |   |-- App.ast
-|   |   |   |-- App.bs.js
-|   |   |   |-- App.cmi
-|   |   |   |-- App.cmj
-|   |   |   |-- App.cmt
-|   |   |   |-- App.res
 |   |   |   |-- Main.ast
-|   |   |   |-- Main.bs.js
-|   |   |   |-- Main.cmi
-|   |   |   |-- Main.cmj
-|   |   |   |-- Main.cmt
-|   |   |   |-- Main.res
 |   |   |   |-- ReBindings.ast
 |   |   |   |-- ReBindings.bs.js
 |   |   |   |-- ReBindings.cmi
@@ -172,17 +161,9 @@
 |   |   |   |   |-- RemaxErrorBoundary.cmt
 |   |   |   |   |-- RemaxErrorBoundary.res
 |   |   |   |   |-- SceneList.ast
-|   |   |   |   |-- SceneList.bs.js
 |   |   |   |   |-- SceneList.cmi
-|   |   |   |   |-- SceneList.cmj
 |   |   |   |   |-- SceneList.cmt
-|   |   |   |   |-- SceneList.res
 |   |   |   |   |-- Sidebar.ast
-|   |   |   |   |-- Sidebar.bs.js
-|   |   |   |   |-- Sidebar.cmi
-|   |   |   |   |-- Sidebar.cmj
-|   |   |   |   |-- Sidebar.cmt
-|   |   |   |   |-- Sidebar.res
 |   |   |   |   |-- UploadReport.ast
 |   |   |   |   |-- UploadReport.bs.js
 |   |   |   |   |-- UploadReport.cmi
@@ -630,11 +611,6 @@
 |   |   |       `-- VersionData.res
 |   |   `-- tests
 |   |       |-- TestRunner.ast
-|   |       |-- TestRunner.bs.js
-|   |       |-- TestRunner.cmi
-|   |       |-- TestRunner.cmj
-|   |       |-- TestRunner.cmt
-|   |       |-- TestRunner.res
 |   |       `-- unit
 |   |           |-- ActionsTest.ast
 |   |           |-- ActionsTest.bs.js
@@ -649,11 +625,6 @@
 |   |           |-- AppContextTest.cmt
 |   |           |-- AppContextTest.res
 |   |           |-- AppTest.ast
-|   |           |-- AppTest.bs.js
-|   |           |-- AppTest.cmi
-|   |           |-- AppTest.cmj
-|   |           |-- AppTest.cmt
-|   |           |-- AppTest.res
 |   |           |-- AudioManagerTest.ast
 |   |           |-- AudioManagerTest.bs.js
 |   |           |-- AudioManagerTest.cmi
@@ -763,11 +734,6 @@
 |   |           |-- LoggerTest.cmt
 |   |           |-- LoggerTest.res
 |   |           |-- MainTest.ast
-|   |           |-- MainTest.bs.js
-|   |           |-- MainTest.cmi
-|   |           |-- MainTest.cmj
-|   |           |-- MainTest.cmt
-|   |           |-- MainTest.res
 |   |           |-- NavigationControllerTest.ast
 |   |           |-- NavigationControllerTest.bs.js
 |   |           |-- NavigationControllerTest.cmi
@@ -1050,10 +1016,6 @@
 |   |   |-- ActionsTest.cmt
 |   |   |-- ActionsTest.res
 |   |   |-- App.ast
-|   |   |-- App.cmi
-|   |   |-- App.cmj
-|   |   |-- App.cmt
-|   |   |-- App.res
 |   |   |-- AppContext.ast
 |   |   |-- AppContext.cmi
 |   |   |-- AppContext.cmj
@@ -1065,10 +1027,6 @@
 |   |   |-- AppContextTest.cmt
 |   |   |-- AppContextTest.res
 |   |   |-- AppTest.ast
-|   |   |-- AppTest.cmi
-|   |   |-- AppTest.cmj
-|   |   |-- AppTest.cmt
-|   |   |-- AppTest.res
 |   |   |-- AudioManager.ast
 |   |   |-- AudioManager.cmi
 |   |   |-- AudioManager.cmj
@@ -1273,15 +1231,7 @@
 |   |   |-- LoggerTest.cmt
 |   |   |-- LoggerTest.res
 |   |   |-- Main.ast
-|   |   |-- Main.cmi
-|   |   |-- Main.cmj
-|   |   |-- Main.cmt
-|   |   |-- Main.res
 |   |   |-- MainTest.ast
-|   |   |-- MainTest.cmi
-|   |   |-- MainTest.cmj
-|   |   |-- MainTest.cmt
-|   |   |-- MainTest.res
 |   |   |-- ModalContext.ast
 |   |   |-- ModalContext.cmi
 |   |   |-- ModalContext.cmj
@@ -1453,10 +1403,6 @@
 |   |   |-- RootReducerTest.cmt
 |   |   |-- RootReducerTest.res
 |   |   |-- SceneList.ast
-|   |   |-- SceneList.cmi
-|   |   |-- SceneList.cmj
-|   |   |-- SceneList.cmt
-|   |   |-- SceneList.res
 |   |   |-- SceneReducer.ast
 |   |   |-- SceneReducer.cmi
 |   |   |-- SceneReducer.cmj
@@ -1518,10 +1464,6 @@
 |   |   |-- SharedTypesTest.cmt
 |   |   |-- SharedTypesTest.res
 |   |   |-- Sidebar.ast
-|   |   |-- Sidebar.cmi
-|   |   |-- Sidebar.cmj
-|   |   |-- Sidebar.cmt
-|   |   |-- Sidebar.res
 |   |   |-- SimulationChainSkipper.ast
 |   |   |-- SimulationChainSkipper.cmi
 |   |   |-- SimulationChainSkipper.cmj
@@ -1628,10 +1570,6 @@
 |   |   |-- TeaserRecorderTest.cmt
 |   |   |-- TeaserRecorderTest.res
 |   |   |-- TestRunner.ast
-|   |   |-- TestRunner.cmi
-|   |   |-- TestRunner.cmj
-|   |   |-- TestRunner.cmt
-|   |   |-- TestRunner.res
 |   |   |-- TimelineReducer.ast
 |   |   |-- TimelineReducer.cmi
 |   |   |-- TimelineReducer.cmj
@@ -1819,7 +1757,8 @@
 |   |   `-- mod.res
 |   `-- rescript.lock
 |-- logs
-|   `-- log_changes.txt
+|   |-- log_changes.txt
+|   `-- telemetry.log
 |-- package-lock.json
 |-- package.json
 |-- plans
@@ -1860,10 +1799,8 @@
 |   |-- update-version.js
 |   `-- watch-file-limits.sh
 |-- src
-|   |-- App.bs.js
 |   |-- App.res
 |   |-- Dummy.bs.js
-|   |-- Main.bs.js
 |   |-- Main.res
 |   |-- ReBindings.bs.js
 |   |-- ReBindings.res
@@ -1886,9 +1823,7 @@
 |   |   |-- NotificationContext.res
 |   |   |-- RemaxErrorBoundary.bs.js
 |   |   |-- RemaxErrorBoundary.res
-|   |   |-- SceneList.bs.js
 |   |   |-- SceneList.res
-|   |   |-- Sidebar.bs.js
 |   |   |-- Sidebar.res
 |   |   |-- UploadReport.bs.js
 |   |   |-- UploadReport.res
@@ -2100,7 +2035,6 @@
 |       |-- 215_Add_Tests_for_SessionStore.md
 |       `-- 269_Add_Tests_for_RequestQueue.md
 |-- tests
-|   |-- TestRunner.bs.js
 |   |-- TestRunner.res
 |   |-- node-setup.js
 |   `-- unit
@@ -2108,7 +2042,6 @@
 |       |-- ActionsTest.res
 |       |-- AppContextTest.bs.js
 |       |-- AppContextTest.res
-|       |-- AppTest.bs.js
 |       |-- AppTest.res
 |       |-- AudioManagerTest.bs.js
 |       |-- AudioManagerTest.res
@@ -2146,7 +2079,6 @@
 |       |-- LazyLoadTest.res
 |       |-- LoggerTest.bs.js
 |       |-- LoggerTest.res
-|       |-- MainTest.bs.js
 |       |-- MainTest.res
 |       |-- NavigationControllerTest.bs.js
 |       |-- NavigationControllerTest.res
@@ -2240,4 +2172,4 @@
 |       `-- VitestSmoke.test.res
 `-- vitest.config.mjs
 
-49 directories, 2192 files
+49 directories, 2124 files
