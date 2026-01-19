@@ -427,5 +427,34 @@ let make = () => {
     None
   }, (state.isLinking, state.simulation.status))
 
+  // 7. Render Loop for Hotspot Lines (Fix for sticky waypoints)
+  React.useEffect0(() => {
+    let animationFrameId = ref(None)
+
+    let rec loop = () => {
+      let v = ViewerState.getActiveViewer()
+      switch Nullable.toOption(v) {
+      | Some(viewer) =>
+        // Always update lines to ensure they stick to the scene during ANY movement
+        let currentState = GlobalStateBridge.getState()
+        HotspotLine.updateLines(viewer, currentState, ())
+      | None => ()
+      }
+      animationFrameId := Some(Window.requestAnimationFrame(loop))
+    }
+
+    // Start loop
+    animationFrameId := Some(Window.requestAnimationFrame(loop))
+
+    Some(
+      () => {
+        switch animationFrameId.contents {
+        | Some(id) => Window.cancelAnimationFrame(id)
+        | None => ()
+        }
+      },
+    )
+  })
+
   React.null
 }
