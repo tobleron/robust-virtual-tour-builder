@@ -248,7 +248,7 @@ let make = () => {
   let handleSceneClick = (index, _e) => {
     let now = Date.now()
     let timeDiff = now -. ViewerState.state.lastSwitchTime
-    let throttleLimit = 300.0 // 0.3 seconds
+    let throttleLimit = 900.0
 
     // Check if we are clicking the SAME scene (allow re-click only if needed, but generally throttle navigation)
     // Actually, just throttle any rapid switching.
