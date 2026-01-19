@@ -64,7 +64,11 @@ let processUploads = (
         "Backend Server Not Connected! The image processing server (port 8080) is not running. Please start the backend server with 'npm run dev:backend' or 'cargo run' in the backend directory.",
         "error",
       )
-      Promise.resolve({"qualityResults": [], "duration": "0.0"})
+      Promise.resolve({
+        "qualityResults": [],
+        "duration": "0.0",
+        "report": ({success: [], skipped: []}: Types.uploadReport),
+      })
     } else {
       let startTime = Date.now()
       let totalFilesValue = Belt.Array.length(files)
@@ -79,7 +83,11 @@ let processUploads = (
       )
 
       if totalFilesValue == 0 {
-        Promise.resolve({"qualityResults": [], "duration": "0.0"})
+        Promise.resolve({
+          "qualityResults": [],
+          "duration": "0.0",
+          "report": ({success: [], skipped: []}: Types.uploadReport),
+        })
       } else {
         /* Validate Files */
         let allowedExtensions = ["jpg", "jpeg", "png", "webp", "heic", "heif"]
@@ -107,7 +115,11 @@ let processUploads = (
 
         if Belt.Array.length(validFiles) == 0 {
           notify("No valid image files selected!", "error")
-          Promise.resolve({"qualityResults": [], "duration": "0.0"})
+          Promise.resolve({
+            "qualityResults": [],
+            "duration": "0.0",
+            "report": ({success: [], skipped: []}: Types.uploadReport),
+          })
         } else {
           /* Phase 1: Fingerprinting */
           updateProgress(0.0, "Scanning files...", true, "Fingerprinting")
@@ -341,7 +353,11 @@ let processUploads = (
 
                 if Belt.Array.length(validProcessed) == 0 && Belt.Array.length(uniqueItems) > 0 {
                   notify("All uploads failed.", "error")
-                  Promise.resolve({"qualityResults": [], "duration": "0.0"})
+                  Promise.resolve({
+                    "qualityResults": [],
+                    "duration": "0.0",
+                    "report": ({success: [], skipped: []}: Types.uploadReport),
+                  })
                 } else {
                   /* Phase 3: Clustering */
                   updateProgress(95.0, "Syncing scene blocks...", true, "Clustering")
@@ -561,7 +577,14 @@ let processUploads = (
                         },
                       )
 
+                      // Auto-load first scene if this is the first batch
+                      let wasEmpty = GlobalStateBridge.getState().activeIndex == -1
                       GlobalStateBridge.dispatch(AddScenes(jsonPayload))
+
+                      if wasEmpty {
+                        // Reset preloading index to ensure clean start
+                        GlobalStateBridge.dispatch(SetPreloadingScene(-1))
+                      }
 
                       updateProgress(100.0, "Completed", false, "Done")
 
@@ -576,6 +599,13 @@ let processUploads = (
                           item
                         },
                       )
+
+                      // Report for Dialog (passed back via Promise)
+                      let successNames = Belt.Array.map(validProcessed, i => File.name(i.original))
+                      let report: Types.uploadReport = {
+                        success: successNames,
+                        skipped: [], // Skipped are handled earlier, focused on success here
+                      }
 
                       ExifReportGenerator.generateExifReport(reportData)
                       ->Promise.then(res => res)
@@ -598,8 +628,44 @@ let processUploads = (
                         ((Date.now() -. startTime) /. 1000.0)->Float.toFixed(~digits=1)
 
                       Promise.resolve({
-                        "qualityResults": [],
+                        "qualityResults": [], // We return empty here as qualityResults are calculated in Sidebar or passed differently?
+                        // Wait, previous code returned qualityResults as empty array [] in the resolve at line 601 too.
+                        // Actually, qualityItems are needed for the dialog!
+                        // Let's reconstruct quality items to pass back.
+                        "qualityResults": Belt.Array.map(
+                          validProcessed,
+                          i => {
+                            let qItem: UploadReport.qualityItem = {
+                              quality: i.quality
+                              ->Option.map((q): SharedTypes.qualityAnalysis => Obj.magic(q))
+                              ->Option.getOr({
+                                score: 0.0,
+                                isBlurry: false,
+                                isDim: false,
+                                isSeverelyDark: false,
+                                stats: {
+                                  avgLuminance: 0,
+                                  sharpnessVariance: 0,
+                                  blackClipping: 0.0,
+                                  whiteClipping: 0.0,
+                                },
+                                analysis: Nullable.null,
+                                histogram: [],
+                                colorHist: {r: [], g: [], b: []},
+                                isSoft: false,
+                                isSeverelyBright: false,
+                                hasBlackClipping: false,
+                                hasWhiteClipping: false,
+                                issues: 0,
+                                warnings: 0,
+                              }),
+                              newName: File.name(i.original),
+                            }
+                            qItem
+                          },
+                        ),
                         "duration": durationStr,
+                        "report": report,
                       })->Promise.then(
                         res => {
                           Logger.endOperation(

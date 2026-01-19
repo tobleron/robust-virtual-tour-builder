@@ -321,7 +321,7 @@ let make = () => {
   }, [state.preloadingSceneIndex])
 
   // 3. Main Scene Loading & Hotspot Sync
-  React.useEffect2(() => {
+  React.useEffect3(() => {
     if state.activeIndex != -1 {
       switch Belt.Array.get(state.scenes, state.activeIndex) {
       | Some(scene) =>
@@ -348,7 +348,7 @@ let make = () => {
       }
     }
     None
-  }, (state.activeIndex, state.isLinking))
+  }, (state.activeIndex, state.isLinking, Belt.Array.length(state.scenes)))
 
   // 4. Hotspot Sync for Metadata changes (Return links etc)
   React.useEffect1(() => {

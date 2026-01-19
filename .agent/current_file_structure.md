@@ -2048,6 +2048,7 @@
 |-- tasks
 |   |-- TASKS.md
 |   |-- active
+|   |   `-- 270_auto_select_first_scene_on_start.md
 |   |-- cancelled
 |   |-- completed
 |   |   |-- 175_fix_runtime_safety_getexn_REPORT.md
@@ -2240,4 +2241,4 @@
 |       `-- VitestSmoke.test.res
 `-- vitest.config.mjs
 
-49 directories, 2192 files
+49 directories, 2193 files
