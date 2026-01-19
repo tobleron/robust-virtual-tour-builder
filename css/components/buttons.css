@@ -107,3 +107,14 @@
     box-shadow: var(--shadow-lg);
     border-color: rgba(255, 255, 255, 0.2);
 }
+
+/* Viewer Utility Buttons Popper Effect (matches floor-nav) */
+.v-util-btn {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 1px 1px 1px #000 !important;
+}
+
+.v-util-btn:hover:not(:disabled) {
+    transform: scale(1.05) translateY(-2px) !important;
+    box-shadow: 2px 2px 1px #000 !important;
+}

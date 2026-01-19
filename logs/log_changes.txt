@@ -416,3 +416,4 @@ Task: 147
 [2026-01-19 10:40] v4.3.2 - Stable Scene Loading
 [2026-01-19 11:07] v4.3.3 - Stable Waypoint
 [2026-01-19 11:12] v4.3.3 - Minor UI: Remove default floor selection when no scenes are loaded
+[2026-01-19 11:18] v4.3.3 - UI: Apply pop-up hover effect to utility buttons
