@@ -25,6 +25,12 @@ type t = {
   mutable loadSafetyTimeout: Nullable.t<int>,
   mutable cachedFloorCircles: Nullable.t<Dom.element>, // NodeList proxy
   mutable lastSwitchTime: float,
+  mutable linkingStartPoint: Nullable.t<{"x": float, "y": float}>,
+  mutable lastMoveX: float,
+  mutable lastMoveY: float,
+  mutable lastMoveTime: float,
+  mutable mouseVelocityX: float,
+  mutable mouseVelocityY: float,
 }
 
 let state = {
@@ -59,6 +65,12 @@ let state = {
   loadSafetyTimeout: Nullable.null,
   cachedFloorCircles: Nullable.null,
   lastSwitchTime: 0.0,
+  linkingStartPoint: Nullable.null,
+  lastMoveX: 0.0,
+  lastMoveY: 0.0,
+  lastMoveTime: 0.0,
+  mouseVelocityX: 0.0,
+  mouseVelocityY: 0.0,
 }
 
 let getActiveViewer = () => {

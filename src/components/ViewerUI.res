@@ -171,9 +171,17 @@ let make = () => {
     JsxEvent.Mouse.stopPropagation(e)
 
     if state.isLinking {
+      ViewerState.state.linkingStartPoint = Nullable.null
       dispatch(Actions.StopLinking)
       EventBus.dispatch(ShowNotification("Link Mode: OFF", #Warning))
     } else {
+      let cx = JsxEvent.Mouse.clientX(e)
+      let cy = JsxEvent.Mouse.clientY(e)
+      ViewerState.state.linkingStartPoint = Nullable.make({
+        "x": Belt.Int.toFloat(cx),
+        "y": Belt.Int.toFloat(cy),
+      })
+
       let v = Nullable.toOption(ReBindings.Viewer.instance)
       switch v {
       | Some(_viewer) =>

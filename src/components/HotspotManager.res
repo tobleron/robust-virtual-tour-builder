@@ -44,12 +44,10 @@ let createHotspotConfig = (
   | None => false
   }
 
-  // CSS Class
-  let cssClass = ref("pnlm-hotspot flat-arrow")
+  // CSS Class (Always Gold, only 3rd chevron changes)
+  let cssClass = ref("pnlm-hotspot flat-arrow arrow-gold")
   if isTargetAutoForward {
-    cssClass := cssClass.contents ++ " auto-forward arrow-green"
-  } else {
-    cssClass := cssClass.contents ++ " arrow-gold"
+    cssClass := cssClass.contents ++ " auto-forward"
   }
   if isReturnLink {
     cssClass := cssClass.contents ++ " return-link"
@@ -178,8 +176,7 @@ let createHotspotConfig = (
             }
           | None => ()
           }
-        }
- // 3. Return
+        } // 3. Return
         else if !Nullable.isNullable(returnBtn) {
           Event.stopPropagation(e)
           Event.preventDefault(e)

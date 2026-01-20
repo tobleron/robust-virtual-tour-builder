@@ -296,6 +296,51 @@ let handleDeleteScene = (state: state, index: int): state => {
   }
 }
 
+let handleRemoveHotspot = (state: state, sceneIndex: int, hotspotIndex: int): state => {
+  let scenes = state.scenes
+  switch Belt.Array.get(scenes, sceneIndex) {
+  | Some(sourceScene) =>
+    switch Belt.Array.get(sourceScene.hotspots, hotspotIndex) {
+    | Some(hotspotToDelete) =>
+      let targetName = hotspotToDelete.target
+
+      // 1. Remove the hotspot
+      let newSourceHotspots = Belt.Array.keepWithIndex(sourceScene.hotspots, (_, i) =>
+        i != hotspotIndex
+      )
+      let scenesWithRemovedHotspot = Belt.Array.mapWithIndex(scenes, (i, s) => {
+        if i == sceneIndex {
+          {...s, hotspots: newSourceHotspots}
+        } else {
+          s
+        }
+      })
+
+      // 2. Check if anything else still points to targetName
+      let stillReferenced = Belt.Array.some(scenesWithRemovedHotspot, s => {
+        Belt.Array.some(s.hotspots, h => h.target == targetName)
+      })
+
+      // 3. If no longer referenced, reset target scene's isAutoForward
+      let finalScenes = if !stillReferenced {
+        Belt.Array.map(scenesWithRemovedHotspot, s => {
+          if s.name == targetName {
+            {...s, isAutoForward: false}
+          } else {
+            s
+          }
+        })
+      } else {
+        scenesWithRemovedHotspot
+      }
+
+      {...state, scenes: finalScenes}
+    | None => state
+    }
+  | None => state
+  }
+}
+
 let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
   let newScenes = Belt.Array.reduce(scenesData, state.scenes, (acc, dataJson) => {
     let id = switch JsonTypes.decodeImportScene(dataJson) {
