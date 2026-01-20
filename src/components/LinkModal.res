@@ -5,7 +5,6 @@ open ReBindings
 open! EventBus
 
 // Constants
-let hotspotVisualOffsetDegrees = 15.0
 
 // Helper to escape HTML
 let escapeHtml = unsafe => {
@@ -93,7 +92,7 @@ let showLinkModal = (
           EventBus.dispatch(ShowNotification("A link to this room already exists here!", #Warning))
         } else {
           let isReturnLink = Belt.Option.isSome(Nullable.toOption(pendingReturnSceneName))
-          let displayPitch = pitch -. hotspotVisualOffsetDegrees
+          let displayPitch = pitch -. Constants.hotspotVisualOffsetDegrees
 
           let draftOpt = Nullable.toOption(linkDraft)
           let startPitch = switch draftOpt {

@@ -105,8 +105,10 @@
     background-image: none !important;
     background-color: transparent !important;
     border: none !important;
-    width: 26px !important;
-    height: 26px !important;
+    width: 0px !important;
+    height: 0px !important;
+    margin-left: 0px !important;
+    margin-top: 0px !important;
     overflow: visible !important;
     /* Critical: allows the large arrow to spill out */
     z-index: 10 !important;
@@ -119,15 +121,14 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 100px;
-    height: 100px;
-    margin-left: -50px;
-    margin-top: -50px;
+    width: 70px;
+    height: 70px;
+    /* Center horizontally (-50%) and align top edge to anchor (0%) */
+    transform: translate(-50%, 0);
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    transform: rotateX(60deg) scale(0.8);
-    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all 0.3s ease-in-out;
     filter: drop-shadow(0 20px 10px rgba(0, 0, 0, 0.3));
     pointer-events: none;
     display: block;
@@ -146,8 +147,7 @@
 
 /* 4. Hover Effect */
 .pnlm-hotspot.flat-arrow:hover::before {
-    transform: rotateX(40deg) translateY(-20px) scale(1.1);
-    filter: drop-shadow(0 30px 15px rgba(0, 0, 0, 0.4));
+    filter: brightness(1.2) drop-shadow(0 20px 10px rgba(0, 0, 0, 0.4));
 }
 
 .hotspot-delete-btn {
