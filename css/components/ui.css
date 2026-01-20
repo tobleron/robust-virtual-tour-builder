@@ -116,3 +116,31 @@
 .sidebar-icon-teaser {
     color: var(--purple-brand) !important;
 }
+
+/* Sidebar Project Name Input */
+.sidebar-project-input {
+    width: 100%;
+    padding: 0 0.75rem;
+    height: 2.5rem;
+    background-color: var(--slate-50);
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-md);
+    font-family: var(--font-ui);
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--slate-800);
+    transition: all var(--transition-fast) ease-in-out;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.sidebar-project-input::placeholder {
+    color: var(--slate-300);
+}
+
+.sidebar-project-input:focus {
+    outline: none;
+    border-color: var(--slate-500);
+    background-color: #ffffff;
+}

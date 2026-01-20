@@ -431,3 +431,9 @@ Task: 147
 - Changed version line to monospace font for better technical legibility
 - Added premium purple-brand color (#7c3aed) to design system
 - Updated Teaser button icon to use new purple brand color for better visual distinction
+
+[2026-01-20 22:45] v4.3.6 - Refine project name input styling
+- Replaced utility classes with semantic .sidebar-project-input class
+- Removed blue focus ring in favor of a neutral slate border
+- Eliminated focus shadows for a cleaner, premium minimal aesthetic
+[2026-01-20 22:47] v4.3.6 - [UI] Refine project name input styling

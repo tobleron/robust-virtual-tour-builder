@@ -7,7 +7,7 @@ open EventBus
 // Removed SimulationSystem direct binding
 // module SimulationSystem = ...
 
-  module LabelMenu = {
+module LabelMenu = {
   @module("./LabelMenu.bs.js")
   external toggleLabelMenu: Dom.element => unit = "toggleLabelMenu"
   @module("./LabelMenu.bs.js")
@@ -161,10 +161,7 @@ let make = () => {
       let closestMenu = ReBindings.Dom.closest(target, "#v-scene-label-menu")
       let closestBtn = ReBindings.Dom.closest(target, "#v-scene-label-btn")
 
-      if (
-        Nullable.toOption(closestMenu) == None &&
-        Nullable.toOption(closestBtn) == None
-      ) {
+      if Nullable.toOption(closestMenu) == None && Nullable.toOption(closestBtn) == None {
         LabelMenu.closeLabelMenu()
       }
     }
@@ -182,8 +179,7 @@ let make = () => {
   React.useEffect1(() => {
     if state.activeIndex >= 0 {
       switch Belt.Array.get(state.scenes, state.activeIndex) {
-      | Some(s) =>
-        LabelMenu.syncLabelMenu(s.label, s.category)
+      | Some(s) => LabelMenu.syncLabelMenu(s.label, s.category)
       | None => ()
       }
     }
@@ -208,8 +204,7 @@ let make = () => {
       // Initial Sync
       if state.activeIndex >= 0 {
         switch Belt.Array.get(state.scenes, state.activeIndex) {
-        | Some(s) =>
-          LabelMenu.syncLabelMenu(s.label, s.category)
+        | Some(s) => LabelMenu.syncLabelMenu(s.label, s.category)
         | None => ()
         }
       }
