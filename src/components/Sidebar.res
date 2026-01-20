@@ -131,30 +131,30 @@ let make = () => {
   >
     /* Branding Header */
     <div
-      className="relative w-full flex flex-col z-30 text-white shrink-0 border-t-2 border-danger bg-slate-900"
-      style={makeStyle({
-        "background": "linear-gradient(to bottom, #001a38 0%, #002a70 50%, #003da5 100%)",
-      })}
+      className="relative w-full flex flex-col z-30 text-white shrink-0 border-t-2 border-danger sidebar-branding-header"
     >
-      <div className="flex flex-col items-center px-6 pt-5 pb-5">
-        <span
-          className="material-icons text-white drop-shadow-lg mb-2"
-          style={makeStyle({"fontSize": "32px"})}
-        >
-          {React.string("home")}
-        </span>
-        <h1
-          className="font-heading font-black text-white tracking-widest text-center uppercase"
-          style={makeStyle({"fontSize": "16px", "letterSpacing": "0.15em"})}
+      <div className="flex flex-col items-center px-6 pt-6 pb-6">
+        <div className="flex items-center justify-center gap-3 mb-1">
+          <h1
+            className="font-heading font-black text-white tracking-widest uppercase text-[27px] drop-shadow-lg"
+          >
+            {React.string("ROBUST")}
+          </h1>
+          <span className="material-icons text-white drop-shadow-lg text-[56px]">
+            {React.string("home")}
+          </span>
+        </div>
+        <div
+          className="font-normal text-white tracking-[0.25em] text-[13px] uppercase drop-shadow-sm"
         >
           {React.string("Virtual Tour Builder")}
-        </h1>
-        <div className="flex items-center gap-2 text-white/40 mt-1">
-          <span className="text-[10px] font-bold tracking-widest">
+        </div>
+        <div className="flex items-center gap-2 text-white/60 mt-2">
+          <span className="text-[11px] font-normal tracking-widest">
             {React.string("V " ++ VersionData.version)}
           </span>
-          <span className="text-[10px]"> {React.string("•")} </span>
-          <span className="text-[10px] font-medium opacity-60">
+          <span className="text-[11px]"> {React.string("•")} </span>
+          <span className="text-[11px] font-normal opacity-80">
             {React.string(VersionData.buildInfo)}
           </span>
         </div>
@@ -304,7 +304,7 @@ let make = () => {
             ariaLabel="Export Tour"
           >
             <span
-              className="material-icons text-lg text-success-dark group-hover:scale-110 transition-transform"
+              className="material-icons text-lg text-success group-hover:scale-110 transition-transform"
               ariaHidden=true
             >
               {React.string("ios_share")}
@@ -482,7 +482,7 @@ let make = () => {
           </div>
           <div className="bg-slate-200 h-1.5 rounded-full overflow-hidden relative">
             <div
-              className="h-full bg-primary transition-all duration-300 rounded-full"
+              className="h-full transition-all duration-300 rounded-full sidebar-progress-fill"
               style={makeStyle({"width": Float.toFixed(procState["progress"], ~digits=0) ++ "%"})}
             />
           </div>
@@ -499,8 +499,7 @@ let make = () => {
 
       <div className="px-4 pb-4">
         <button
-          className="w-full h-12 text-white rounded-xl flex items-center justify-center gap-3 transition-all hover:brightness-110 hover:shadow-xl hover-lift active-push group overflow-hidden relative focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
-          style={makeStyle({"backgroundColor": "var(--primary)"})}
+          className="w-full h-10 text-white rounded-xl flex items-center justify-center gap-2 transition-all hover:brightness-110 hover:shadow-xl hover-lift active-push group overflow-hidden relative focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none sidebar-upload-btn"
           onClick={_ => {
             switch Nullable.toOption(fileInputRef.current) {
             | Some(el) => Dom.click(el)
@@ -511,8 +510,8 @@ let make = () => {
           <div
             className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"
           />
-          <span className="material-icons text-[20px]"> {React.string("cloud_upload")} </span>
-          <strong className="text-[12px] font-bold tracking-widest uppercase">
+          <span className="material-icons text-[20px]"> {React.string("photo_camera")} </span>
+          <strong className="text-[11px] font-bold tracking-widest uppercase">
             {React.string("Add 360 Scenes")}
           </strong>
         </button>
