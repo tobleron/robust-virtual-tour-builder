@@ -17,12 +17,13 @@ tree -I "node_modules|target|.git|dist|.agent/workflows" > .agent/current_file_s
 
 # 3. Versioning (Increment Build Number)
 node scripts/increment-build.js
+node scripts/update-version.js
 NEW_VER=$(node -p "require('./package.json').version")
 BUILD_NUM=$(node -p "require('./package.json').buildNumber")
 FULL_VER="${NEW_VER}+${BUILD_NUM}"
 
 # 4. Cache Busting
-# 4. Cache Busting handled by postversion script
+# Already handled by update-version.js above
 
 # 5. Auto-Format
 echo "🎨 Formatting Code..."
