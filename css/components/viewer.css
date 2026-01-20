@@ -572,7 +572,8 @@
 /* --- Persistent Room Label --- */
 .viewer-persistent-label {
     position: absolute;
-    top: 2rem;
+    top: 25px;
+    /* Aligned with utility bar (top-6 = 24px) + half button height diff (32-30)/2 = 1px */
     left: 50%;
     transform: translateX(-50%);
     z-index: 6005;
