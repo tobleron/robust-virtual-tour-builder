@@ -1826,7 +1826,8 @@
 │   └── rescript.lock
 ├── logs
 │   ├── error.log
-│   └── log_changes.txt
+│   ├── log_changes.txt
+│   └── telemetry.log
 ├── package-lock.json
 ├── package.json
 ├── plans
@@ -2093,6 +2094,7 @@
 │   │   ├── 271_refactor_sidebar_inline_styles_REPORT.md
 │   │   ├── 272_refactor_viewerui_inline_styles_REPORT.md
 │   │   ├── 273_centralize_rescript_styling_tokens_REPORT.md
+│   │   ├── 274_fix_hotspot_navigation_click_REPORT.md
 │   │   ├── 274_migrate_conditional_styles_to_classes_REPORT.md
 │   │   ├── 275_complete_css_variable_migration.md
 │   │   ├── 276_refactor_uploadreport_inline_styles.md
@@ -2100,7 +2102,10 @@
 │   │   ├── 278_create_css_gradient_variables.md
 │   │   ├── 279_add_color_accessibility_audit.md
 │   │   ├── 283_implement_remax_centric_theme.md
-│   │   └── 285_autopilot_ui_fixes_REPORT.md
+│   │   ├── 285_autopilot_ui_fixes_REPORT.md
+│   │   ├── 286_refine_hotspot_chevron_click_range_REPORT.md
+│   │   ├── 287_merge_navigation_chevron_hit_area_REPORT.md
+│   │   └── 288_reduce_shine_animation_speed_REPORT.md
 │   ├── current_refactor.md
 │   ├── pending
 │   ├── postponed
@@ -2263,4 +2268,4 @@
 │       └── VitestSmoke.test.res
 └── vitest.config.mjs
 
-51 directories, 2213 files
+51 directories, 2218 files
