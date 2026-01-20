@@ -129,7 +129,12 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
     let btnStart: EventBus.button = {
       label: "Start Building",
       class_: "btn-blue",
-      onClick: () => (),
+      onClick: () => {
+        let state = GlobalStateBridge.getState()
+        if Array.length(state.scenes) > 0 {
+          GlobalStateBridge.dispatch(Actions.SetActiveScene(0, 0.0, 0.0, None))
+        }
+      },
       autoClose: Some(true),
     }
 

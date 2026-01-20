@@ -2053,7 +2053,6 @@
 ├── tailwind.config.js
 ├── tasks
 │   ├── active
-│   │   └── 270_auto_select_first_scene_on_start.md
 │   ├── cancelled
 │   ├── completed
 │   │   ├── 175_fix_runtime_safety_getexn_REPORT.md
@@ -2089,6 +2088,7 @@
 │   │   ├── 266_refine_linking_visuals_REPORT.md
 │   │   ├── 267_update_camera_movement_behavior_REPORT.md
 │   │   ├── 268_verify_scenelist_virtualization_ABORTED.md
+│   │   ├── 270_auto_select_first_scene_on_start.md
 │   │   ├── 271_refactor_sidebar_inline_styles_REPORT.md
 │   │   ├── 272_refactor_viewerui_inline_styles_REPORT.md
 │   │   ├── 273_centralize_rescript_styling_tokens_REPORT.md
