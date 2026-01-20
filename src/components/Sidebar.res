@@ -149,7 +149,7 @@ let make = () => {
         >
           {React.string("Virtual Tour Builder")}
         </div>
-        <div className="flex items-center gap-2 text-white/60 mt-2">
+        <div className="flex items-center gap-2 text-white/60 mt-2 sidebar-version-line">
           <span className="text-[11px] font-normal tracking-widest">
             {React.string("V " ++ VersionData.version)}
           </span>
@@ -321,7 +321,7 @@ let make = () => {
             ariaLabel="Create Teaser"
           >
             <span
-              className="material-icons text-lg text-warning group-hover:scale-110 transition-transform"
+              className="material-icons text-lg sidebar-icon-teaser group-hover:scale-110 transition-transform"
               ariaHidden=true
             >
               {React.string("movie_creation")}

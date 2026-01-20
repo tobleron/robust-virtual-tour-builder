@@ -18,6 +18,7 @@
 @import './components/upload-report.css';
 @import './components/error-fallback.css';
 @import './components/scene-groups.css';
+@import './components/label-menu.css';
 
 /* 4. Legacy Compatibility */
 @import './legacy.css';

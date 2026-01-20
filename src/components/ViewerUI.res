@@ -7,13 +7,15 @@ open EventBus
 // Removed SimulationSystem direct binding
 // module SimulationSystem = ...
 
-module LabelMenu = {
+  module LabelMenu = {
   @module("./LabelMenu.bs.js")
   external toggleLabelMenu: Dom.element => unit = "toggleLabelMenu"
   @module("./LabelMenu.bs.js")
   external createLabelMenu: (Nullable.t<Dom.element>, Dom.element) => unit = "createLabelMenu"
   @module("./LabelMenu.bs.js")
-  external syncLabelMenu: 'a => unit = "syncLabelMenu"
+  external syncLabelMenu: (string, string) => unit = "syncLabelMenu"
+  @module("./LabelMenu.bs.js")
+  external closeLabelMenu: unit => unit = "closeLabelMenu"
 }
 
 // Floor Levels
@@ -152,7 +154,28 @@ let make = () => {
       | _ => ()
       }
     })
-    Some(unsubscribe)
+
+    // Click outside for Label Menu
+    let handleGlobalClick = e => {
+      let target = ReBindings.Dom.target(e)
+      let closestMenu = ReBindings.Dom.closest(target, "#v-scene-label-menu")
+      let closestBtn = ReBindings.Dom.closest(target, "#v-scene-label-btn")
+
+      if (
+        Nullable.toOption(closestMenu) == None &&
+        Nullable.toOption(closestBtn) == None
+      ) {
+        LabelMenu.closeLabelMenu()
+      }
+    }
+    ReBindings.Window.addEventListener("click", handleGlobalClick)
+
+    Some(
+      () => {
+        unsubscribe()
+        ReBindings.Window.removeEventListener("click", handleGlobalClick)
+      },
+    )
   })
 
   // Sync Label Menu when activeIndex changes
@@ -160,7 +183,7 @@ let make = () => {
     if state.activeIndex >= 0 {
       switch Belt.Array.get(state.scenes, state.activeIndex) {
       | Some(s) =>
-        LabelMenu.syncLabelMenu(Logger.castToJson({"label": s.label, "category": s.category}))
+        LabelMenu.syncLabelMenu(s.label, s.category)
       | None => ()
       }
     }
@@ -186,7 +209,7 @@ let make = () => {
       if state.activeIndex >= 0 {
         switch Belt.Array.get(state.scenes, state.activeIndex) {
         | Some(s) =>
-          LabelMenu.syncLabelMenu(Logger.castToJson({"label": s.label, "category": s.category}))
+          LabelMenu.syncLabelMenu(s.label, s.category)
         | None => ()
         }
       }
@@ -242,6 +265,15 @@ let make = () => {
       }
       dispatch(Actions.UpdateSceneMetadata(activeIdx, Logger.castToJson({"category": newCat})))
 
+      // Sync Label Menu immediately if it's already open or for next toggle
+      LabelMenu.syncLabelMenu(
+        switch Belt.Array.get(state.scenes, activeIdx) {
+        | Some(s) => s.label
+        | None => ""
+        },
+        newCat,
+      )
+
       EventBus.dispatch(
         ShowNotification(
           if newCat == "indoor" {
@@ -252,6 +284,22 @@ let make = () => {
           #Warning,
         ),
       )
+    }
+  }
+
+  let handleLabelClick = e => {
+    JsxEvent.Mouse.stopPropagation(e)
+    let activeIdx = state.activeIndex
+    if activeIdx >= 0 {
+      switch Belt.Array.get(state.scenes, activeIdx) {
+      | Some(s) =>
+        LabelMenu.syncLabelMenu(s.label, s.category)
+        switch Nullable.toOption(labelBtnRef.current) {
+        | Some(el) => LabelMenu.toggleLabelMenu(el)
+        | None => ()
+        }
+      | None => ()
+      }
     }
   }
 
@@ -435,6 +483,7 @@ let make = () => {
           } else {
             "state-empty"
           }}
+          onClick={handleLabelClick}
           ariaLabel="Scene Label"
           title="Scene Label"
         >

@@ -17,9 +17,7 @@ let closeLabelMenu = () => {
       | None => ()
       }
 
-      Dom.add(m, "scale-95")
       Dom.add(m, "opacity-0")
-      Dom.remove(m, "scale-100")
       Dom.remove(m, "opacity-100")
 
       let _ = Window.setTimeout(() => {
@@ -40,7 +38,7 @@ let scheduleMenuClose = () => {
   labelMenuTimeout := Some(Window.setTimeout(() => {
         closeLabelMenu()
         labelMenuTimeout := None
-      }, 1900))
+      }, 2400))
 }
 
 let toggleLabelMenu = (labelButton: Dom.element) => {
@@ -69,15 +67,24 @@ let toggleLabelMenu = (labelButton: Dom.element) => {
         rect.top
       }
 
+      let left = if rect.right +. 360.0 > Belt.Int.toFloat(Window.innerWidth) {
+        let l = rect.left -. 350.0
+        if l < 10.0 {
+          10.0
+        } else {
+          l
+        }
+      } else {
+        rect.right +. 12.0
+      }
+
       Dom.setTop(m, Float.toString(top) ++ "px")
-      Dom.setLeft(m, Float.toString(rect.right +. 12.0) ++ "px")
+      Dom.setLeft(m, Float.toString(left) ++ "px")
 
       Dom.remove(m, "hidden")
 
       let _ = Window.setTimeout(() => {
-        Dom.remove(m, "scale-95")
         Dom.remove(m, "opacity-0")
-        Dom.add(m, "scale-100")
         Dom.add(m, "opacity-100")
         Logger.debug(~module_="LabelMenu", ~message="MENU_OPEN", ())
       }, 10)
@@ -88,13 +95,13 @@ let toggleLabelMenu = (labelButton: Dom.element) => {
   }
 }
 
-let syncLabelMenu = (scene: Types.scene) => {
+let syncLabelMenu = (label: string, category: string) => {
   let labelPills = JsHelpers.from(Dom.querySelectorAllDoc(".label-pill"))
   let labelSections = JsHelpers.from(Dom.querySelectorAllDoc(".label-section"))
   let inp = Dom.getElementById("v-scene-label-custom")
 
-  let currentLabel = scene.label
-  let currentCategory = scene.category
+  let currentLabel = label
+  let currentCategory = category
 
   // Filter Sections
   Belt.Array.forEach(labelSections, section => {
@@ -111,19 +118,9 @@ let syncLabelMenu = (scene: Types.scene) => {
     let val = Dict.get(Dom.dataset(pill), "val")
     let isActive = val == Some(currentLabel)
     if isActive {
-      Dom.add(pill, "bg-remax-blue")
-      Dom.add(pill, "text-white")
-      Dom.add(pill, "border-remax-blue")
-      Dom.remove(pill, "bg-slate-50")
-      Dom.remove(pill, "text-slate-600")
-      Dom.remove(pill, "border-slate-100")
+      Dom.add(pill, "state-active")
     } else {
-      Dom.remove(pill, "bg-remax-blue")
-      Dom.remove(pill, "text-white")
-      Dom.remove(pill, "border-remax-blue")
-      Dom.add(pill, "bg-slate-50")
-      Dom.add(pill, "text-slate-600")
-      Dom.add(pill, "border-slate-100")
+      Dom.remove(pill, "state-active")
     }
   })
 
@@ -134,7 +131,7 @@ let syncLabelMenu = (scene: Types.scene) => {
   }
 }
 
-let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
+let createLabelMenu = (_viewerStage: Dom.element, _labelButton: Dom.element) => {
   // Remove existing
   let existing = Dom.getElementById("v-scene-label-menu")
   switch Nullable.toOption(existing) {
@@ -147,43 +144,25 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
 
   Dom.setClassName(
     lblMenu,
-    "hidden fixed flex flex-col gap-4 z-[9999] pointer-events-auto transition-all duration-300 ease-out scale-95 opacity-0 overflow-hidden modal-box",
+    "hidden fixed flex flex-col gap-0 z-[9999] transition-all duration-300 ease-out opacity-0 overflow-hidden label-menu-container",
   )
   Dom.setPosition(lblMenu, "fixed")
   Dom.setMargin(lblMenu, "0")
   Dom.setStyleWidth(lblMenu, "95%")
-  Dom.setMaxWidth(lblMenu, "360px")
-  Dom.setPadding(lblMenu, "24px")
+  Dom.setMaxWidth(lblMenu, "280px")
+  Dom.setPadding(lblMenu, "0")
   Dom.setOverflow(lblMenu, "hidden")
-
-  // Cross-browser scrollbar nuclear option
-  let styleEl = Dom.createElement("style")
-  Dom.setTextContent(
-    styleEl,
-    "
-    #v-scene-label-menu ::-webkit-scrollbar { width: 4px; }
-    #v-scene-label-menu ::-webkit-scrollbar-track { background: transparent; }
-    #v-scene-label-menu ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-    #v-scene-label-menu ::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
-    .scroll-indicator-bottom {
-      content: \"\"; position: absolute; bottom: 84px; left: 24px; right: 24px; height: 30px;
-      background: linear-gradient(to top, rgba(255,255,255,0.95), transparent);
-      pointer-events: none; z-index: 10; transition: opacity 0.3s;
-    }
-  ",
-  )
-  Dom.appendChild(lblMenu, styleEl)
 
   // Scroll Fade
   let scrollFade = Dom.createElement("div")
-  Dom.setClassName(scrollFade, "scroll-indicator-bottom")
+  Dom.setClassName(scrollFade, "scroll-indicator-bottom absolute bottom-[64px] left-0 right-0 h-[40px] pointer-events-none z-10 transition-opacity duration-300 opacity-0")
   Dom.appendChild(lblMenu, scrollFade)
 
   // Presets Wrapper
   let presetsWrapper = Dom.createElement("div")
   Dom.setId(presetsWrapper, "label-presets-scroll")
-  Dom.setClassName(presetsWrapper, "flex-1 flex flex-col gap-4 overflow-y-auto pr-1 relative")
-  Dom.setMaxHeight(presetsWrapper, "360px")
+  Dom.setClassName(presetsWrapper, "flex-1 flex flex-col gap-0 overflow-y-auto relative py-1")
+  Dom.setMaxHeight(presetsWrapper, "400px")
 
   Dom.setOnScroll(presetsWrapper, () => {
     let remaining =
@@ -208,25 +187,22 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
     Dict.set(Dom.dataset(section), "category", category)
 
     let header = Dom.createElement("div")
-    Dom.setClassName(header, "flex items-center gap-2")
+    Dom.setClassName(header, "label-section-header")
     Dom.setInnerHTML(
       header,
-      "
-      <span class=\"text-[9px] font-black text-slate-600 uppercase tracking-[2px]\">" ++
-      category ++ "</span>
-      <div class=\"h-[1px] flex-1 bg-slate-100\"></div>
-    ",
+      "<span class=\"label-section-title\">" ++
+      category ++ "</span><div class=\"label-section-divider\"></div>",
     )
     Dom.appendChild(section, header)
 
     let grid = Dom.createElement("div")
-    Dom.setClassName(grid, "grid grid-cols-2 gap-1.5")
+    Dom.setClassName(grid, "flex flex-col gap-0.5 px-1.5")
 
     Belt.Array.forEach(labels, label => {
       let chip = Dom.createElement("button")
       Dom.setClassName(
         chip,
-        "label-pill px-3 py-2 font-ui text-[10px] font-bold uppercase text-slate-600 bg-slate-50 border border-slate-100 rounded-lg cursor-pointer transition-all hover:bg-remax-blue hover:text-white hover:border-remax-blue hover:shadow-md active:scale-95 text-left focus-visible:ring-2 focus-visible:ring-remax-blue focus-visible:outline-none",
+        "label-pill focus-visible:ring-2 focus-visible:ring-remax-blue focus-visible:outline-none",
       )
       Dom.setTextContent(chip, label)
       Dom.setAttribute(chip, "aria-label", "Set label to " ++ label)
@@ -259,17 +235,16 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
   let customSection = Dom.createElement("div")
   Dom.setClassName(
     customSection,
-    "flex flex-col gap-2 pt-4 mt-1 border-t border-slate-100 bg-white/50 backdrop-blur-sm sticky bottom-0",
+    "label-custom-section sticky bottom-0 z-20",
   )
-  Dom.setBackgroundColor(customSection, "white") // approximate sticky background
 
   let customTitle = Dom.createElement("div")
-  Dom.setClassName(customTitle, "text-[9px] font-black text-slate-500 uppercase tracking-[1px]")
+  Dom.setClassName(customTitle, "label-custom-title")
   Dom.setTextContent(customTitle, "Custom Label Entry")
   Dom.appendChild(customSection, customTitle)
 
   let inputWrapper = Dom.createElement("div")
-  Dom.setClassName(inputWrapper, "flex gap-2 items-center")
+  Dom.setClassName(inputWrapper, "label-custom-input-wrapper")
 
   let inp = Dom.createElement("input")
   Dom.setId(inp, "v-scene-label-custom")
@@ -277,7 +252,7 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
   Dom.setAttribute(inp, "placeholder", "Enter custom name...")
   Dom.setClassName(
     inp,
-    "flex-1 px-4 py-2 bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold outline-none focus:ring-4 focus:ring-remax-blue/5 focus:border-remax-blue placeholder:text-slate-400 transition-all focus-visible:ring-remax-blue",
+    "label-custom-input",
   )
   Dom.setOnClick(inp, e => Dom.stopPropagation(e))
 
@@ -285,16 +260,15 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
   Dom.setInnerHTML(setBtn, "SET")
   Dom.setClassName(
     setBtn,
-    "shrink-0 px-3 py-2 text-white text-[10px] font-black rounded-xl transition-all active:scale-95 shadow-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none",
+    "label-btn-set shrink-0 active:scale-95 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none",
   )
-  Dom.setBackgroundColor(setBtn, "#007BA7")
   Dom.setAttribute(setBtn, "aria-label", "Apply custom label")
 
   let clearBtn = Dom.createElement("button")
   Dom.setInnerHTML(clearBtn, "CLEAR")
   Dom.setClassName(
     clearBtn,
-    "shrink-0 px-3 py-2 bg-slate-200 text-slate-600 text-[10px] font-black rounded-xl hover:bg-slate-300 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:outline-none",
+    "label-btn-clear shrink-0 active:scale-95 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:outline-none",
   )
   Dom.setAttribute(clearBtn, "aria-label", "Clear current label")
 
@@ -341,21 +315,6 @@ let createLabelMenu = (_viewerStage: Dom.element, labelButton: Dom.element) => {
   Dom.appendChild(lblMenu, customSection)
 
   Dom.appendChild(Dom.documentBody, lblMenu)
-
-  Dom.setOnClick(labelButton, e => {
-    Dom.stopPropagation(e)
-    toggleLabelMenu(labelButton)
-  })
-
-  Dom.addEventListener(Dom.documentBody, "click", e => {
-    let target = Dom.target(e)
-    let closestMenu = Dom.closest(target, "#v-scene-label-menu")
-    let closestBtn = Dom.closest(target, "#v-scene-label-btn")
-
-    if Nullable.make(closestMenu) == Nullable.null && Nullable.make(closestBtn) == Nullable.null {
-      closeLabelMenu()
-    }
-  })
 
   lblMenu
 }

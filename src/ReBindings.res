@@ -295,6 +295,7 @@ module Window = {
   @val external alert: string => unit = "alert"
   @val external getComputedStyle: Dom.element => Dom.style = "getComputedStyle"
   @val @scope("window") external innerHeight: int = "innerHeight"
+  @val @scope("window") external innerWidth: int = "innerWidth"
   @val @scope("window") external confirm: string => bool = "confirm"
   @set external setDebug: ({..}, {..}) => unit = "DEBUG"
   @set external setAppLog: ({..}, array<string>) => unit = "appLog"

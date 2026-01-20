@@ -427,3 +427,7 @@ Task: 147
 [2026-01-20 14:34] v4.3.3 - Refine shine animation speed and hide debug badge
 [2026-01-20 14:40] v4.3.4 - UI Relatively Stable
 [2026-01-20 21:01] v4.3.4 - Awesome Sidebar UI
+[2026-01-20 22:38] v4.3.5 - Refine sidebar typography and teaser button iconography
+- Changed version line to monospace font for better technical legibility
+- Added premium purple-brand color (#7c3aed) to design system
+- Updated Teaser button icon to use new purple brand color for better visual distinction
