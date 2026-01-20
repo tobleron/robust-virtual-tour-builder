@@ -380,21 +380,67 @@
     filter: brightness(1.2);
     box-shadow: none;
 }
+
 /* =========================================
    Refactor: ViewerUI Specific Classes
    ========================================= */
 
 /* --- Utility Bar Buttons --- */
 /* Add Link Button */
-.v-util-btn-add-link.state-empty { background-color: #64748b; color: white; }
-.v-util-btn-add-link.state-linking { background-color: #ffcc00; color: black; }
-.v-util-btn-add-link.state-idle { background-color: #dc3545; color: white; }
-.v-util-btn-add-link-icon { font-size: 20px; font-weight: bold; }
+.v-util-btn-add-link.state-empty {
+    background-color: var(--slate-500);
+    color: white;
+}
+
+.v-util-btn-add-link.state-linking {
+    background-color: var(--accent);
+    color: black;
+}
+
+.v-util-btn-add-link.state-idle {
+    background-color: var(--danger);
+    color: white;
+}
+
+.v-util-btn-add-link-icon {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* Semantic Hover States */
+.v-util-btn-add-link.state-idle:hover {
+    background-color: var(--danger-light);
+}
+
+.v-util-btn-add-link.state-linking:hover {
+    background-color: var(--accent-light);
+}
+
+.v-util-btn-add-link.state-empty:hover {
+    background-color: var(--slate-500);
+    cursor: not-allowed;
+}
 
 /* Auto-Pilot Button */
-.v-util-btn-autopilot.state-empty { background-color: #64748b; }
-.v-util-btn-autopilot.state-active { background-color: #dc3545; }
-.v-util-btn-autopilot.state-idle { background-color: #10b981; }
+.v-util-btn-autopilot.state-empty {
+    background-color: var(--slate-500);
+}
+
+.v-util-btn-autopilot.state-active {
+    background-color: var(--danger);
+}
+
+.v-util-btn-autopilot.state-idle {
+    background-color: var(--success);
+}
+
+.v-util-btn-autopilot.state-active:hover {
+    background-color: var(--danger-light);
+}
+
+.v-util-btn-autopilot.state-idle:hover {
+    background-color: var(--success-light);
+}
 
 .v-util-btn-icon {
     font-size: 18px;
@@ -402,14 +448,55 @@
 }
 
 /* Category Button */
-.v-util-btn-category.state-empty { background-color: #64748b; }
-.v-util-btn-category.cat-outdoor { background-color: #15803d; }
-.v-util-btn-category.cat-indoor { background-color: #c2410c; }
-.v-util-btn-category.cat-none { background-color: #dc3545; }
+.v-util-btn-category.state-empty {
+    background-color: var(--slate-500);
+}
+
+.v-util-btn-category.cat-outdoor {
+    background-color: var(--success);
+}
+
+/* Using success (Emerald 500) for outdoor */
+.v-util-btn-category.cat-indoor {
+    background-color: var(--warning-dark);
+}
+
+.v-util-btn-category.cat-none {
+    background-color: var(--danger);
+}
+
+.v-util-btn-category.cat-outdoor:hover {
+    background-color: var(--success-light);
+}
+
+.v-util-btn-category.cat-indoor:hover {
+    background-color: var(--warning);
+}
+
+.v-util-btn-category.cat-none:hover {
+    background-color: var(--danger-light);
+}
 
 /* Label Button */
-.v-util-btn-label.state-empty { background-color: #64748b; }
-.v-util-btn-label.state-loaded { background-color: #dc3545; }
+.v-util-btn-label.state-empty {
+    background-color: var(--slate-500);
+}
+
+.v-util-btn-label.state-loaded {
+    background-color: var(--danger);
+}
+
+.v-util-btn-label.state-loaded:hover {
+    background-color: var(--danger-light);
+}
+
+/* Global Disabled State for Buttons */
+.v-util-btn.state-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: not-allowed;
+    filter: grayscale(0.8);
+}
 
 /* HUD Labels */
 /* Moved dynamic logic to CSS classes if possible, but opacity/transform is best handled by conditional classes already present */
@@ -420,14 +507,28 @@
     font-size: 10px;
     font-weight: bold;
     padding: 2px 8px;
-    border-radius: 4px; /* default rounded */
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* shadow-sm */
+    border-radius: 4px;
+    /* default rounded */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    /* shadow-sm */
     opacity: 0.9;
 }
-.quality-badge.q-blurry { background-color: #dc2626; }
-.quality-badge.q-soft { background-color: #d97706; }
-.quality-badge.q-dark { background-color: #0f172a; }
-.quality-badge.q-dim { background-color: #64748b; }
+
+.quality-badge.q-blurry {
+    background-color: var(--danger);
+}
+
+.quality-badge.q-soft {
+    background-color: var(--warning);
+}
+
+.quality-badge.q-dark {
+    background-color: var(--slate-900);
+}
+
+.quality-badge.q-dim {
+    background-color: var(--slate-500);
+}
 
 
 /* --- Viewer Logo --- */
@@ -447,6 +548,7 @@
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
     color: white;
 }
+
 .linking-hint-subtext {
     font-size: 10px;
     opacity: 0.8;
@@ -457,9 +559,11 @@
 .floor-circle-shadow-selected {
     box-shadow: 0 0 12px rgba(0, 61, 165, 0.5);
 }
+
 .floor-circle-shadow-idle {
     box-shadow: 1px 1px 1px #000;
 }
+
 .floor-suffix {
     font-size: 9px;
     margin-left: 1px;
