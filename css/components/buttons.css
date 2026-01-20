@@ -78,7 +78,7 @@
     justify-content: center;
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
+    border-radius: 8px;
     color: white;
     box-shadow: var(--shadow-sm);
     position: relative;
@@ -87,12 +87,15 @@
 
 .sidebar-action-btn-square {
     flex-direction: column;
-    aspect-ratio: 1/1;
-    padding: 8px 4px;
+    height: 56px;
+    padding: 4px;
+    gap: 2px;
+    font-size: 11px;
 }
 
 .sidebar-action-btn-wide {
-    padding: 10px;
+    height: 40px;
+    padding: 0 12px;
     gap: 8px;
     font-weight: 700;
     text-transform: uppercase;
