@@ -341,29 +341,17 @@ let make = () => {
       <div id="viewer-utility-bar" className={utilBarClass}>
         <button
           id="btn-add-link-fab"
-          className={"v-util-btn w-[32px] h-[32px] rounded-full flex items-center justify-center bg-primary text-white hover:bg-primary-light " ++ if (
+          className={"v-util-btn w-[32px] h-[32px] rounded-full flex items-center justify-center hover:bg-primary-light v-util-btn-add-link v-util-btn-add-link-icon " ++ if (
             simActive
           ) {
             "opacity-40 pointer-events-none"
+          } else if !scenesLoaded {
+            "state-empty"
+          } else if state.isLinking {
+            "state-linking"
           } else {
-            ""
+            "state-idle"
           }}
-          style={makeStyle({
-            "backgroundColor": if !scenesLoaded {
-              "#64748b"
-            } else if state.isLinking {
-              "#ffcc00"
-            } else {
-              "#dc3545"
-            },
-            "color": if state.isLinking {
-              "black"
-            } else {
-              "white"
-            },
-            "fontSize": "20px",
-            "fontWeight": "bold",
-          })}
           onClick={handleFabClick}
           ariaLabel="Add Link"
           title="Add Link"
@@ -379,22 +367,15 @@ let make = () => {
 
         <button
           id="v-scene-sim-toggle"
-          className={"v-util-btn w-[32px] h-[32px] text-white rounded-full font-ui flex items-center justify-center " ++ if (
+          className={"v-util-btn w-[32px] h-[32px] text-white rounded-full font-ui flex items-center justify-center v-util-btn-autopilot " ++ if (
             simActive
           ) {
-            "animate-pulse-stop"
+            "animate-pulse-stop state-active"
+          } else if !scenesLoaded {
+            "state-empty"
           } else {
-            ""
+            "state-idle"
           }}
-          style={makeStyle({
-            "backgroundColor": if !scenesLoaded {
-              "#64748b"
-            } else if simActive {
-              "#dc3545"
-            } else {
-              "#10b981"
-            },
-          })}
           onClick={handleSimClick}
           ariaLabel="Auto-Pilot"
           title={if simActive {
@@ -403,9 +384,7 @@ let make = () => {
             "Start Auto-Pilot"
           }}
         >
-          <span
-            className="material-icons" style={makeStyle({"fontSize": "18px", "color": "white"})}
-          >
+          <span className="material-icons v-util-btn-icon">
             {React.string(
               if simActive {
                 "stop"
@@ -418,39 +397,33 @@ let make = () => {
 
         <button
           id="v-scene-cat-toggle"
-          className={"v-util-btn w-[32px] h-[32px] text-white rounded-full flex items-center justify-center " ++ if (
-            simActive
-          ) {
-            "pointer-events-none"
+          className={"v-util-btn w-[32px] h-[32px] text-white rounded-full flex items-center justify-center v-util-btn-category " ++
+          if simActive {
+            "pointer-events-none "
           } else {
             ""
-          }}
-          style={makeStyle({
-            "backgroundColor": if scenesLoaded && state.activeIndex >= 0 {
-              switch Belt.Array.get(state.scenes, state.activeIndex) {
-              | Some(s) =>
-                if s.categorySet {
-                  if s.category == "outdoor" {
-                    "#15803d"
-                  } else {
-                    "#c2410c"
-                  }
+          } ++ if scenesLoaded && state.activeIndex >= 0 {
+            switch Belt.Array.get(state.scenes, state.activeIndex) {
+            | Some(s) =>
+              if s.categorySet {
+                if s.category == "outdoor" {
+                  "cat-outdoor"
                 } else {
-                  "#dc3545"
+                  "cat-indoor"
                 }
-              | None => "#dc3545"
+              } else {
+                "cat-none"
               }
-            } else {
-              "#64748b" // Neutral gray when no scenes
-            },
-          })}
+            | None => "cat-none"
+            }
+          } else {
+            "state-empty"
+          }}
           onClick={handleCatClick}
           ariaLabel="Toggle Category"
           title="Toggle Category"
         >
-          <span
-            className="material-icons" style={makeStyle({"fontSize": "18px", "color": "white"})}
-          >
+          <span className="material-icons v-util-btn-icon">
             {React.string(
               if currentCategory == "indoor" {
                 "home"
@@ -466,20 +439,16 @@ let make = () => {
         <button
           id="v-scene-label-btn"
           ref={ReactDOM.Ref.domRef(labelBtnRef)}
-          className={"v-util-btn w-[32px] h-[32px] text-white rounded-full font-ui text-[18px] font-bold flex items-center justify-center relative z-[6000] " ++ if (
-            simActive
-          ) {
-            "pointer-events-none"
+          className={"v-util-btn w-[32px] h-[32px] text-white rounded-full font-ui text-[18px] font-bold flex items-center justify-center relative z-[6000] v-util-btn-label " ++
+          if simActive {
+            "pointer-events-none "
           } else {
-            "pointer-events-auto"
+            "pointer-events-auto "
+          } ++ if scenesLoaded {
+            "state-loaded"
+          } else {
+            "state-empty"
           }}
-          style={makeStyle({
-            "backgroundColor": if scenesLoaded {
-              "#dc3545"
-            } else {
-              "#64748b"
-            },
-          })}
           ariaLabel="Scene Label"
           title="Scene Label"
         >
@@ -528,14 +497,14 @@ let make = () => {
         let q: SharedTypes.qualityAnalysis = Obj.magic(qJson)
         let b = []
         if q.isBlurry {
-          let _ = Js.Array.push({"text": "BLURRY", "bg": "#dc2626"}, b)
+          let _ = Js.Array.push({"text": "BLURRY", "cls": "q-blurry"}, b)
         } else if q.isSoft {
-          let _ = Js.Array.push({"text": "SOFT", "bg": "#d97706"}, b)
+          let _ = Js.Array.push({"text": "SOFT", "cls": "q-soft"}, b)
         }
         if q.isSeverelyDark {
-          let _ = Js.Array.push({"text": "DARK", "bg": "#0f172a"}, b)
+          let _ = Js.Array.push({"text": "DARK", "cls": "q-dark"}, b)
         } else if q.isDim {
-          let _ = Js.Array.push({"text": "DIM", "bg": "#64748b"}, b)
+          let _ = Js.Array.push({"text": "DIM", "cls": "q-dim"}, b)
         }
         b
       | None => []
@@ -553,11 +522,7 @@ let make = () => {
       >
         {badges
         ->Belt.Array.map(b => {
-          <span
-            key={b["text"]}
-            className="text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm opacity-90"
-            style={makeStyle({"background": b["bg"]})}
-          >
+          <span key={b["text"]} className={`quality-badge ${b["cls"]}`}>
             {React.string(b["text"])}
           </span>
         })
@@ -568,8 +533,7 @@ let make = () => {
     /* Viewer Logo */
     <div
       id="viewer-logo"
-      className="absolute bottom-6 right-6 z-[5002] bg-white rounded-xl shadow-xl p-[4px] flex items-center justify-center max-w-[120px] max-h-[60px] border border-black/5 overflow-hidden"
-      style={makeStyle({"WebkitMaskImage": "-webkit-radial-gradient(white, black)"})}
+      className="absolute bottom-6 right-6 z-[5002] bg-white rounded-xl shadow-xl p-[4px] flex items-center justify-center max-w-[120px] max-h-[60px] border border-black/5 overflow-hidden viewer-logo-masked"
     >
       <img src="images/logo.png" alt="Logo" className="w-full h-auto object-contain block" />
     </div>
@@ -578,27 +542,16 @@ let make = () => {
     /* Linking Hint */
     <div
       id="linking-cancel-hint"
-      className={"absolute bottom-10 left-1/2 -translate-x-1/2 translate-y-2 z-[9999] flex flex-col items-center gap-1 transition-all duration-400 text-center pointer-events-none " ++ if (
+      className={"absolute bottom-10 left-1/2 -translate-x-1/2 translate-y-2 z-[9999] flex flex-col items-center gap-1 transition-all duration-400 text-center pointer-events-none linking-hint-text " ++ if (
         state.isLinking
       ) {
         "opacity-100 translate-y-2"
       } else {
         "opacity-0 translate-y-4 hidden"
       }}
-      style={makeStyle({
-        "fontFamily": "var(--font-ui, 'Inter', system-ui, sans-serif)",
-        "fontSize": "11px",
-        "fontWeight": "800",
-        "textTransform": "uppercase",
-        "letterSpacing": "0.25em",
-        "textShadow": "0 2px 8px rgba(0, 0, 0, 0.6)",
-        "color": "white",
-      })}
     >
       <span> {React.string("ESC to Cancel")} </span>
-      <span style={makeStyle({"fontSize": "10px", "opacity": "0.8"})}>
-        {React.string("ENTER to Finish")}
-      </span>
+      <span className="linking-hint-subtext"> {React.string("ENTER to Finish")} </span>
     </div>
 
     /* Floor Navigation */
@@ -624,25 +577,16 @@ let make = () => {
             className={"floor-circle w-[32px] h-[32px] rounded-full border-2 border-transparent flex items-center justify-center font-ui text-[13px] font-bold cursor-pointer transition-all " ++ if (
               isSelected
             ) {
-              "bg-floor-active text-white bg-primary scale-110 z-10"
+              "bg-floor-active text-white bg-primary scale-110 z-10 floor-circle-shadow-selected"
             } else {
-              "bg-floor-default text-white hover:text-white"
+              "bg-floor-default text-white hover:text-white floor-circle-shadow-idle"
             }}
-            style={makeStyle({
-              "boxShadow": if isSelected {
-                "0 0 12px rgba(0, 61, 165, 0.5)"
-              } else {
-                "1px 1px 1px #000"
-              },
-            })}
             onClick={e => handleFloorClick(f.id, f.label, e)}
             title={f.label}
           >
             {React.string(f.short)}
             {if f.suffix != "" {
-              <sup style={makeStyle({"fontSize": "9px", "marginLeft": "1px"})}>
-                {React.string(f.suffix)}
-              </sup>
+              <sup className="floor-suffix"> {React.string(f.suffix)} </sup>
             } else {
               React.null
             }}

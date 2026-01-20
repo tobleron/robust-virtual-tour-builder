@@ -87,7 +87,7 @@ module SceneItem = {
       <div className="flex-1 min-w-0 p-4 flex flex-col justify-center cursor-pointer">
         <div className="flex items-center justify-between mb-2">
           <h4
-            className={`text-[13px] font-bold truncate pr-3 tracking-tight ${if isActive {
+            className={`text-[13px] font-medium truncate pr-3 tracking-tight ${if isActive {
                 "text-primary-light"
               } else {
                 "text-slate-700"

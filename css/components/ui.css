@@ -82,3 +82,25 @@
     border-left-color: var(--warning);
     background: rgba(69, 26, 3, 0.8);
 }
+
+/* Sidebar Branding & UI */
+.sidebar-branding-header {
+    background: linear-gradient(to bottom, #001a38 0%, #002a70 50%, #003da5 100%) !important;
+}
+
+.sidebar-branding-icon {
+    font-size: 32px !important;
+}
+
+.sidebar-branding-title {
+    font-size: 16px !important;
+    letter-spacing: 0.15em !important;
+}
+
+.sidebar-upload-btn {
+    background-color: var(--primary) !important;
+}
+
+.sidebar-progress-fill {
+    background-color: var(--primary);
+}
