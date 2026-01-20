@@ -4,6 +4,7 @@
 - **Mandatory Prefix**: Every new task MUST have a sequential number prefix (e.g., `189_task_name.md`).
 - **Sequence Basis**: The sequence number must be the next available number based on the highest existing number across `completed/`, `pending/`, and `active/` folders.
 - **Format**: Use three-digit padding where possible (or two if consistent with history) to ensure proper sorting.
+- **Test Tasks**: Create all test-related tasks inside `tasks/pending/Tests/`. They MUST follow the same sequential numbering rule as other tasks.
 
 ## Workflow Instructions (Must be followed sequentially)
 

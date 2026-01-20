@@ -1,36 +1,36 @@
 /* Floor Navigation States & Animations */
 .floor-circle {
-    box-shadow: 1px 1px 1px #000;
+    box-shadow: 1px 1px 1px black;
     border: 2px solid transparent;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .floor-circle:hover {
-    box-shadow: 2px 2px 1px #000 !important;
+    box-shadow: 2px 2px 1px black !important;
 }
 
 /* Default / Unselected State */
 .bg-floor-default {
-    background-color: #00235d !important;
-    color: #ffffff !important;
-    border: 2px solid rgba(255, 255, 255, 0.1) !important;
+    background-color: var(--floor-default) !important;
+    color: var(--sidebar-bg) !important;
+    border: 2px solid var(--glass-border) !important;
 }
 
 /* Hover on Unselected: Orange Stroke */
 .bg-floor-default:hover {
-    border-color: #f97316 !important;
-    background-color: #163a63 !important;
-    color: white !important;
+    border-color: var(--orange-brand) !important;
+    background-color: var(--floor-bg-hover) !important;
+    color: var(--sidebar-bg) !important;
     transform: scale(1.05) translateY(-2px);
 }
 
 /* Active / Selected State */
 .bg-floor-active {
-    background-color: #0047AB !important;
+    background-color: var(--floor-active-bg) !important;
     transform: scale(1.15);
     box-shadow: 0 0 15px rgba(0, 71, 171, 0.6) !important;
     z-index: 10;
-    border-color: #fbbf24 !important;
+    border-color: var(--warning-light) !important;
 }
 
 /* Utility bar & Floor Nav during auto-pilot */

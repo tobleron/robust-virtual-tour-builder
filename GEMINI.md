@@ -58,4 +58,4 @@ Before executing ANY code or shell command, you must perform a **Context Check**
 ## 📂 CRITICAL PATHS
 - **Docs**: `./dev_prefs/` (User preferences)
 - **File Structure**: `.agent/current_file_structure.md`
-- **Pending Tasks**: `./tasks/pending` (Write overflow tasks here)
+- **Pending Tasks**: `./tasks/pending` (Standard tasks) & `./tasks/pending/Tests` (Test tasks)

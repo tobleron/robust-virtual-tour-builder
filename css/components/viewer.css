@@ -39,9 +39,9 @@
     position: absolute;
     width: 2px;
     height: 60px;
-    background: #ffcc00;
+    background: var(--accent);
     /* Yellow Rod */
-    box-shadow: 0 0 8px rgba(255, 204, 0, 0.6);
+    box-shadow: 0 0 8px var(--accent-soft);
     pointer-events: none;
     z-index: 9999;
     display: none;
@@ -74,7 +74,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: #718096;
+    color: var(--slate-500);
     text-align: center;
     pointer-events: none;
     display: flex;
@@ -236,7 +236,7 @@
     width: 20px;
     /* Smaller size */
     height: 20px;
-    background: #dc3545;
+    background: var(--danger);
     color: white;
     border-radius: 50%;
     display: flex !important;
@@ -272,7 +272,7 @@
 /* Hover State - Button Itself */
 .hotspot-delete-btn:hover {
     transition-delay: 0s;
-    background: #bb2d3b;
+    background: var(--delete-hover);
     /* Just color change, no scale */
 }
 
@@ -297,7 +297,7 @@
 .hotspot-forward-btn {
     width: 70px;
     height: 35px;
-    background: #f97316;
+    background: var(--orange-brand);
     /* Orange-ish (User requested) */
     position: absolute;
     left: 50%;
@@ -366,13 +366,13 @@
 }
 
 .hotspot-forward-btn.active {
-    background: #10b981;
+    background: var(--success);
     /* Emerald Green for active 3rd chevron */
 }
 
 /* Specific overrides if needed */
 .hotspot-return-btn.active {
-    background: #ea580c;
+    background: var(--floor-hover);
 }
 
 .hotspot-forward-btn:hover,
@@ -561,7 +561,7 @@
 }
 
 .floor-circle-shadow-idle {
-    box-shadow: 1px 1px 1px #000;
+    box-shadow: 1px 1px 1px black;
 }
 
 .floor-suffix {
