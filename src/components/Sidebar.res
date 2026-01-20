@@ -133,21 +133,28 @@ let make = () => {
     <div
       className="relative w-full flex flex-col z-30 text-white shrink-0 border-t-2 border-danger sidebar-branding-header"
     >
-      <div className="flex flex-col items-center px-6 pt-5 pb-5">
-        <span className="material-icons text-white drop-shadow-lg mb-2 sidebar-branding-icon">
-          {React.string("home")}
-        </span>
-        <h1
-          className="font-heading font-black text-white tracking-widest text-center uppercase sidebar-branding-title"
+      <div className="flex flex-col items-center px-6 pt-6 pb-6">
+        <div className="flex items-center justify-center gap-3 mb-1">
+          <h1
+            className="font-heading font-black text-white tracking-widest uppercase text-[27px] drop-shadow-lg"
+          >
+            {React.string("ROBUST")}
+          </h1>
+          <span className="material-icons text-white drop-shadow-lg text-[56px]">
+            {React.string("home")}
+          </span>
+        </div>
+        <div
+          className="font-normal text-white tracking-[0.25em] text-[13px] uppercase drop-shadow-sm"
         >
           {React.string("Virtual Tour Builder")}
-        </h1>
-        <div className="flex items-center gap-2 text-white/40 mt-1">
-          <span className="text-[10px] font-bold tracking-widest">
+        </div>
+        <div className="flex items-center gap-2 text-white/60 mt-2">
+          <span className="text-[11px] font-normal tracking-widest">
             {React.string("V " ++ VersionData.version)}
           </span>
-          <span className="text-[10px]"> {React.string("•")} </span>
-          <span className="text-[10px] font-medium opacity-60">
+          <span className="text-[11px]"> {React.string("•")} </span>
+          <span className="text-[11px] font-normal opacity-80">
             {React.string(VersionData.buildInfo)}
           </span>
         </div>
@@ -297,7 +304,7 @@ let make = () => {
             ariaLabel="Export Tour"
           >
             <span
-              className="material-icons text-lg text-success-dark group-hover:scale-110 transition-transform"
+              className="material-icons text-lg text-success group-hover:scale-110 transition-transform"
               ariaHidden=true
             >
               {React.string("ios_share")}
