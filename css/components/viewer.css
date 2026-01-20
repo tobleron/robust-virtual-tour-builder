@@ -490,12 +490,13 @@
     background-color: var(--danger-light);
 }
 
-/* Global Disabled State for Buttons */
+/* Global Disabled State for Buttons (Used during Auto-Pilot for non-active buttons) */
 .v-util-btn.state-disabled {
-    opacity: 0.5;
+    opacity: 0.6;
     pointer-events: none;
     cursor: not-allowed;
-    filter: grayscale(0.8);
+    filter: grayscale(1);
+    transition: all 0.3s ease;
 }
 
 /* HUD Labels */

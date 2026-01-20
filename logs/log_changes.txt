@@ -438,3 +438,4 @@ Task: 147
 [2026-01-20 16:58] v4.3.4 - Task 283: Implement Remax-Centric Theme Unification
 [2026-01-20 17:04] v4.3.4 - Docs: Organize CSS Migration Documentation
 [2026-01-20 17:51] v4.3.4 - ui: make autopilot button red and toggle square icon on click
+[2026-01-20 17:57] v4.3.4 - ui: refine utility buttons during auto-pilot (grayscale and opacity)
