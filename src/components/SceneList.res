@@ -156,7 +156,15 @@ module SceneItem = {
   }
 }
 
-type contextMenuInfo = {x: int, y: int, index: int}
+type contextMenuInfo = {
+  anchorRect: {
+    "top": float,
+    "left": float,
+    "width": float,
+    "height": float,
+  },
+  index: int,
+}
 
 @react.component
 let make = () => {
@@ -165,19 +173,40 @@ let make = () => {
 
   let (contextMenu, setContextMenu) = React.useState(_ => None)
   let (_draggedIndex, setDraggedIndex) = React.useState(_ => None)
+  let contextMenuTimeout = React.useRef(None)
+
+  let closeContextMenu = () => {
+    setContextMenu(_ => None)
+    contextMenuTimeout.current = None
+  }
+
+  let scheduleMenuClose = () => {
+    switch contextMenuTimeout.current {
+    | Some(id) => ReBindings.Window.clearTimeout(id)
+    | None => ()
+    }
+    contextMenuTimeout.current = Some(
+      ReBindings.Window.setTimeout(() => {
+        closeContextMenu()
+      }, 1500),
+    )
+  }
 
   // Close context menu on outside click
   React.useEffect0(() => {
     let handleWindowClick = _ => {
-      setContextMenu(prev =>
-        switch prev {
-        | Some(_) => None
-        | None => None
-        }
-      )
+      closeContextMenu()
     }
     ReBindings.Window.addEventListener("click", handleWindowClick)
-    Some(() => ReBindings.Window.removeEventListener("click", handleWindowClick))
+    Some(
+      () => {
+        ReBindings.Window.removeEventListener("click", handleWindowClick)
+        switch contextMenuTimeout.current {
+        | Some(id) => ReBindings.Window.clearTimeout(id)
+        | None => ()
+        }
+      },
+    )
   })
 
   // Virtualization constants
@@ -274,21 +303,41 @@ let make = () => {
   let openContextMenu = (index, e: JsxEvent.Mouse.t) => {
     JsxEvent.Mouse.preventDefault(e)
     JsxEvent.Mouse.stopPropagation(e)
-    let x = JsxEvent.Mouse.clientX(e)
-    let y = JsxEvent.Mouse.clientY(e)
-    setContextMenu(_ => Some({x, y, index}))
-  }
 
-  let closeContextMenu = () => setContextMenu(_ => None)
+    let target: Dom.element = JsxEvent.Mouse.currentTarget(e)->Obj.magic
+    let rect = ReBindings.Dom.getBoundingClientRect(target)
+
+    switch contextMenuTimeout.current {
+    | Some(id) => ReBindings.Window.clearTimeout(id)
+    | None => ()
+    }
+    contextMenuTimeout.current = None
+
+    setContextMenu(prev => {
+      switch prev {
+      | Some(menu) if menu.index == index => None
+      | _ =>
+        Some({
+          anchorRect: {
+            "top": rect.top,
+            "left": rect.left,
+            "width": rect.width,
+            "height": rect.height,
+          },
+          index,
+        })
+      }
+    })
+  }
 
   let handleDelete = index => {
     dispatch(Actions.DeleteScene(index))
-    closeContextMenu()
+    scheduleMenuClose()
   }
 
   let handleClearLinks = index => {
     dispatch(Actions.ClearHotspots(index))
-    closeContextMenu()
+    scheduleMenuClose()
   }
 
   let onDragStart = (index, _e) => {
@@ -374,13 +423,29 @@ let make = () => {
 
         {switch contextMenu {
         | Some(menu) =>
+          let menuWidth = 200.0
+          let menuHeight = 110.0 // Estimated height of the menu
+          let viewportWidth = ReBindings.Window.innerWidth->Int.toFloat
+          let viewportHeight = ReBindings.Window.innerHeight->Int.toFloat
+
+          // Calculate Dynamic Position
+          // We want the menu to appear to the left of the 3-dot button
+          // with a small gap, aligned slightly below the top of the button.
+          let left = menu.anchorRect["left"] -. menuWidth -. 8.0
+          let top = menu.anchorRect["top"] +. 8.0
+
+          // Boundary Awareness: Keep menu inside the screen
+          let left = Math.max(12.0, Math.min(viewportWidth -. menuWidth -. 12.0, left))
+          let top = Math.max(12.0, Math.min(viewportHeight -. menuHeight -. 12.0, top))
+
           <div
             className="fixed z-[30000] bg-white rounded-2xl p-1.5 min-w-[200px] flex flex-col shadow-2xl animate-fade-in border border-slate-200"
             role="menu"
             onClick={e => JsxEvent.Mouse.stopPropagation(e)}
             style={makeStyle({
-              "left": Int.toString(menu.x - 200) ++ "px",
-              "top": Int.toString(menu.y) ++ "px",
+              "left": left->Float.toString ++ "px",
+              "top": top->Float.toString ++ "px",
+              "width": menuWidth->Float.toString ++ "px",
             })}
           >
             <div

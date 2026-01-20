@@ -28,7 +28,7 @@ let run = () => {
   let s = (Obj.magic(Belt.Array.getExn(sanitized, 0)): {..})
   assert(s["name"] == "Test Scene")
   assert(s["id"] == "legacy_Test Scene")
-  assert(s["category"] == "indoor") // Default
+  assert(s["category"] == "outdoor") // Default
   assert(Belt.Array.length(s["hotspots"]) == 1)
 
   let h = (Obj.magic(Belt.Array.getExn(s["hotspots"], 0)): {..})

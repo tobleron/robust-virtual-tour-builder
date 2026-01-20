@@ -108,3 +108,11 @@
 .sidebar-progress-fill {
     background-color: var(--primary);
 }
+
+.sidebar-version-line {
+    font-family: var(--font-mono);
+}
+
+.sidebar-icon-teaser {
+    color: var(--purple-brand) !important;
+}

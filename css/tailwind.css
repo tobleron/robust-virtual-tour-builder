@@ -8,7 +8,10 @@
     --color-remax-navy: var(--primary-navy);
     --color-remax-red: var(--danger);
     --color-remax-gold: var(--accent);
-    
+    --color-purple: var(--purple-brand);
+
+
+
     --color-primary: var(--primary);
     --color-success: var(--success);
     --color-danger: var(--danger);
@@ -25,6 +28,7 @@
     --font-heading: var(--font-heading);
     --font-body: var(--font-body);
     --font-ui: var(--font-ui);
+    --font-mono: var(--font-mono);
 
     /* Animations (Referencing keyframes in animations.css) */
     --animate-shimmer: shimmer 2s linear infinite;
@@ -39,6 +43,7 @@
         -ms-overflow-style: none;
         scrollbar-width: none;
     }
+
     .hide-scrollbar::-webkit-scrollbar {
         display: none;
     }
@@ -47,10 +52,12 @@
         transition: all var(--transition-fast) cubic-bezier(0.175, 0.885, 0.32, 1.275);
         box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
     }
+
     .btn-viewer-pop:hover {
         transform: translate(-1px, -1px);
         box-shadow: 2px 2.5px 0 rgba(0, 0, 0, 0.8);
     }
+
     .btn-viewer-pop:active {
         transform: translate(1px, 1px);
         box-shadow: 0 0 0 rgba(0, 0, 0, 0.5);
