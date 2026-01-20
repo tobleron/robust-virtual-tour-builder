@@ -38,4 +38,5 @@ let initialState: state = {
   autoForwardChain: [],
   pendingReturnSceneName: None,
   currentJourneyId: 0,
+  lastUsedCategory: "outdoor",
 }

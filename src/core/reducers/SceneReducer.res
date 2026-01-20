@@ -47,7 +47,24 @@ let handleSetActiveScene = (
     | Some(t) => t
     | None => {type_: None, targetHotspotIndex: -1, fromSceneName: None}
     }
-    {...state, activeIndex: index, activeYaw: yaw, activePitch: pitch, transition: newTransition}
+
+    // Applying last used category to the scene if it hasn't been set yet
+    let newScenes = state.scenes->Belt.Array.mapWithIndex((i, s) => {
+      if i == index && !s.categorySet {
+        {...s, category: state.lastUsedCategory}
+      } else {
+        s
+      }
+    })
+
+    {
+      ...state,
+      scenes: newScenes,
+      activeIndex: index,
+      activeYaw: yaw,
+      activePitch: pitch,
+      transition: newTransition,
+    }
   } else {
     state
   }

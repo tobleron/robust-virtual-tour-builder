@@ -109,6 +109,7 @@ let run = () => {
     autoForwardChain: [],
     pendingReturnSceneName: None,
     currentJourneyId: 0,
+    lastUsedCategory: "outdoor",
   }
 
   let json = toJSON(mockState)

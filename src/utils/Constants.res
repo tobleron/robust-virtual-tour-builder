@@ -140,7 +140,7 @@ module Scene = {
   ]
 
   module Defaults = {
-    let category = "indoor"
+    let category = "outdoor"
     let floor = "ground"
     let label = ""
     let description = ""

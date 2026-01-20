@@ -95,7 +95,7 @@ let parseScene = (dataJson: JSON.t): scene => {
     tinyFile: Nullable.toOption(data.tiny)->Option.map(decodeFile),
     originalFile: Nullable.toOption(data.original)->Option.map(decodeFile),
     hotspots: [],
-    category: "indoor",
+    category: "outdoor",
     floor: "ground",
     label: "",
     quality: Nullable.toOption(data.quality),
@@ -111,7 +111,8 @@ let parseScene = (dataJson: JSON.t): scene => {
 let parseProject = (projectDataJson: JSON.t): state => {
   let pd = switch JsonTypes.decodeProject(projectDataJson) {
   | Ok(p) => p
-  | Error(_) => ({tourName: Nullable.null, scenes: []}: JsonTypes.projectJson)
+  | Error(_) =>
+    ({tourName: Nullable.null, scenes: [], lastUsedCategory: Nullable.null}: JsonTypes.projectJson)
   }
   let tourName = switch Nullable.toOption(pd.tourName) {
   | Some(tn) => tn
@@ -134,7 +135,7 @@ let parseProject = (projectDataJson: JSON.t): state => {
       },
       category: switch Nullable.toOption(sc.category) {
       | Some(c) => c
-      | None => "indoor"
+      | None => "outdoor"
       },
       floor: switch Nullable.toOption(sc.floor) {
       | Some(f) => f
@@ -166,6 +167,11 @@ let parseProject = (projectDataJson: JSON.t): state => {
     }
   })
 
+  let lastUsedCategory = switch Nullable.toOption(pd.lastUsedCategory) {
+  | Some(c) => c
+  | None => "outdoor"
+  }
+
   {
     ...State.initialState,
     tourName,
@@ -175,6 +181,7 @@ let parseProject = (projectDataJson: JSON.t): state => {
     } else {
       -1
     },
+    lastUsedCategory,
   }
 }
 
@@ -377,10 +384,14 @@ let handleUpdateSceneMetadata = (state: state, index: int, metaJson: JSON.t): st
   let scenes = state.scenes
   let metaObj = JsonTypes.castToUpdateMetadata(metaJson)
 
+  let updatedLastUsedCategory = ref(state.lastUsedCategory)
+
   let newScenes = Belt.Array.mapWithIndex(scenes, (i, s) => {
     if i == index {
       let newCategory = switch Nullable.toOption(metaObj.category) {
-      | Some(c) => c
+      | Some(c) =>
+        updatedLastUsedCategory.contents = c
+        c
       | None => s.category
       }
       let newFloor = switch Nullable.toOption(metaObj.floor) {
@@ -395,18 +406,23 @@ let handleUpdateSceneMetadata = (state: state, index: int, metaJson: JSON.t): st
       | Some(af) => af
       | None => s.isAutoForward
       }
+      let categorySet = switch Nullable.toOption(metaObj.category) {
+      | Some(_) => true
+      | None => s.categorySet
+      }
       {
         ...s,
         category: newCategory,
         floor: newFloor,
         label: newLabel,
         isAutoForward: newIsAutoForward,
+        categorySet,
       }
     } else {
       s
     }
   })
-  {...state, scenes: newScenes}
+  {...state, scenes: newScenes, lastUsedCategory: updatedLastUsedCategory.contents}
 }
 
 let handleUpdateTimelineStep = (state: state, id: string, dataJson: JSON.t): state => {

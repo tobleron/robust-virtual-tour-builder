@@ -492,7 +492,7 @@ let make = () => {
 
       <div className="px-4 pb-4">
         <button
-          className="w-full h-12 text-white rounded-xl flex items-center justify-center gap-3 transition-all hover:brightness-110 hover:shadow-xl hover-lift active-push group overflow-hidden relative focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none sidebar-upload-btn"
+          className="w-full h-10 text-white rounded-xl flex items-center justify-center gap-2 transition-all hover:brightness-110 hover:shadow-xl hover-lift active-push group overflow-hidden relative focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none sidebar-upload-btn"
           onClick={_ => {
             switch Nullable.toOption(fileInputRef.current) {
             | Some(el) => Dom.click(el)
@@ -503,8 +503,8 @@ let make = () => {
           <div
             className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"
           />
-          <span className="material-icons text-[20px]"> {React.string("cloud_upload")} </span>
-          <strong className="text-[12px] font-bold tracking-widest uppercase">
+          <span className="material-icons text-[20px]"> {React.string("photo_camera")} </span>
+          <strong className="text-[11px] font-bold tracking-widest uppercase">
             {React.string("Add 360 Scenes")}
           </strong>
         </button>

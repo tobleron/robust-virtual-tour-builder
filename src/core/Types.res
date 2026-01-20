@@ -168,4 +168,5 @@ type state = {
   autoForwardChain: array<int>,
   pendingReturnSceneName: option<string>,
   currentJourneyId: int,
+  lastUsedCategory: string,
 }

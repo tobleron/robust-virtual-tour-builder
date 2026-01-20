@@ -113,11 +113,20 @@ npm run res:build            # ReScript compilation check
 3. Wait for hash selection
 4. Run: `./scripts/restore-snapshot.sh <HASH>`
 
-### "Create a task" / "Add a task"
+### Explicit Task Creation Only
+**ONLY create a task when the user explicitly requests it using phrases like:**
+- "Create a task for..."
+- "Add this to tasks..."
+- "Make this a formal task..."
+- Or uses the `/create-task` command
+
+**When explicitly requested:**
 1. Read `tasks/TASKS.md` to understand task creation rules
-2. Determine next sequential task number (scan `completed/`, `pending/`, `active/` folders)
+2. Determine next sequential task number (scan `completed/`, `pending/`, `postponed/`, `postponed/tests/`, `active/` folders)
 3. Create new task file in `tasks/pending/` with proper prefix (e.g., `201_task_name.md`)
 4. Follow format specified in TASKS.md
+
+**For normal requests:** Treat as simple requests and execute directly without creating task files.
 
 ### "Refactor This"
 1. Create checklist in `tasks/current_refactor.md`

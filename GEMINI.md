@@ -10,9 +10,10 @@ Before executing ANY code or shell command, you must perform a **Context Check**
 **Do not ask to run these. AUTOMATICALLY run them in this order:**
 
 ### PHASE 1: PRE-FLIGHT
-- **Task Workflow (CRITICAL)**: Before performing ANY task from `tasks/pending`, `tasks/postponed`, or `tasks/active`:
+- **Task Workflow (CRITICAL)**: ONLY when working with EXISTING tasks from `tasks/pending`, `tasks/postponed`, or `tasks/active`:
   - Read `tasks/TASKS.md` first to understand the proper workflow.
   - Follow the instructions in exact sequential order.
+- **Normal Requests**: For general user requests that don't reference existing tasks, execute directly without creating task files.
 - **Context Refresh**: 
   - Read `.agent/current_file_structure.md` to avoid hallucinating paths.
   - If imports found from `src/`, read relevant `.resi` / `.rs` interfaces.
@@ -32,7 +33,8 @@ Before executing ANY code or shell command, you must perform a **Context Check**
   - You are PERMITTED to run `npm test` autonomously.
   - **Constraint**: If tests fail 2x in a row, STOP and generate a `FAILURE_REPORT.md`.
 - **Build Verification**:
-  - ALWAYS run `npm run build` to ensure compilation passes before considering a task complete.
+  - **For Formal Tasks**: ALWAYS run `npm run build` to ensure compilation passes before considering a task complete.
+  - **For Normal Requests**: Skip `npm run build` (user runs `npm run dev` in background for live compilation).
 
 ### PHASE 3: COMMIT & PUSH
 - **Commit Protocol**: Use `./scripts/commit.sh` (handles formatting/linting).
