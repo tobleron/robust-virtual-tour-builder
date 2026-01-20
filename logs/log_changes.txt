@@ -436,3 +436,4 @@ Task: 147
 [2026-01-20 16:50] v4.3.4 - Task 279: Color Accessibility Audit
 [2026-01-20 16:53] v4.3.4 - Task 270: Auto-select First Scene on Start
 [2026-01-20 16:58] v4.3.4 - Task 283: Implement Remax-Centric Theme Unification
+[2026-01-20 17:04] v4.3.4 - Docs: Organize CSS Migration Documentation
