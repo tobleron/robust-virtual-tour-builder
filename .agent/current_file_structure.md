@@ -62,9 +62,13 @@
 │   ├── base.css
 │   ├── components
 │   │   ├── buttons.css
+│   │   ├── error-fallback.css
 │   │   ├── floor-nav.css
+│   │   ├── label-menu.css
 │   │   ├── modals.css
+│   │   ├── scene-groups.css
 │   │   ├── ui.css
+│   │   ├── upload-report.css
 │   │   └── viewer.css
 │   ├── layout.css
 │   ├── legacy.css
@@ -80,6 +84,11 @@
 │   ├── ACCESSIBILITY_SYSTEM.md
 │   ├── AntiGravity Workflow Manual.md
 │   ├── ARCHITECTURE_DIAGRAM.md
+│   ├── BUILD_VERIFICATION_QUICK_REFERENCE.md
+│   ├── COLOR_PALETTE_REFERENCE.md
+│   ├── CSS_ARCHITECTURE_AND_BEST_PRACTICES.md
+│   ├── CSS_MIGRATION_ANALYSIS.md
+│   ├── CSS_MIGRATION_SUMMARY.md
 │   ├── IMPROVEMENTS.md
 │   ├── OBSERVABILITY_AND_ERROR_HANDLING.md
 │   ├── openapi.yaml
@@ -87,6 +96,7 @@
 │   ├── PROJECT_GOVERNANCE_AND_STATUS.md
 │   ├── RELEASE_v4.0.9.md
 │   ├── SECURITY_AND_STABILITY.md
+│   ├── TASK_CREATION_FIX_SUMMARY.md
 │   ├── TESTING_QUICK_REFERENCE.md
 │   ├── TYPOGRAPHY_AND_UI_SYSTEM.md
 │   └── UNIT_TESTING_INTEGRATION.md
@@ -2048,11 +2058,14 @@
 ├── tailwind.config.js
 ├── tasks
 │   ├── active
-│   │   └── 270_auto_select_first_scene_on_start.md
 │   ├── cancelled
 │   ├── completed
 │   │   ├── 175_fix_runtime_safety_getexn_REPORT.md
 │   │   ├── 177_fix_error_handling_REPORT.md
+│   │   ├── 178_Restore_v420_Viewer_HUD_Labels_and_Prompts_ABORTED.md
+│   │   ├── 179_Restore_v420_Visual_Pipeline_ABORTED.md
+│   │   ├── 180_Restore_v420_Simulation_Advanced_Mechanics_ABORTED.md
+│   │   ├── 181_extract_business_logic_ABORTED.md
 │   │   ├── 194_Add_Tests_for_ServiceWorkerMain_REPORT.md
 │   │   ├── 195_Add_Tests_for_UrlUtils_REPORT.md
 │   │   ├── 196_Add_Tests_for_VersionData_REPORT.md
@@ -2079,32 +2092,44 @@
 │   │   ├── 265_troubleshoot_yellow_rod_REPORT.md
 │   │   ├── 266_refine_linking_visuals_REPORT.md
 │   │   ├── 267_update_camera_movement_behavior_REPORT.md
-│   │   └── 268_verify_scenelist_virtualization_ABORTED.md
+│   │   ├── 268_verify_scenelist_virtualization_ABORTED.md
+│   │   ├── 270_auto_select_first_scene_on_start.md
+│   │   ├── 271_refactor_sidebar_inline_styles_REPORT.md
+│   │   ├── 272_refactor_viewerui_inline_styles_REPORT.md
+│   │   ├── 273_centralize_rescript_styling_tokens_REPORT.md
+│   │   ├── 274_fix_hotspot_navigation_click_REPORT.md
+│   │   ├── 274_migrate_conditional_styles_to_classes_REPORT.md
+│   │   ├── 275_complete_css_variable_migration.md
+│   │   ├── 276_refactor_uploadreport_inline_styles.md
+│   │   ├── 277_design_system_documentation_and_compliance.md
+│   │   ├── 278_create_css_gradient_variables.md
+│   │   ├── 279_add_color_accessibility_audit.md
+│   │   ├── 283_implement_remax_centric_theme.md
+│   │   ├── 285_autopilot_ui_fixes_REPORT.md
+│   │   ├── 286_refine_hotspot_chevron_click_range_REPORT.md
+│   │   ├── 287_merge_navigation_chevron_hit_area_REPORT.md
+│   │   └── 288_reduce_shine_animation_speed_REPORT.md
 │   ├── current_refactor.md
 │   ├── pending
+│   ├── postponed
 │   │   ├── 176_fix_security_innerhtml.md
-│   │   ├── 178_Restore_v420_Viewer_HUD_Labels_and_Prompts.md
-│   │   ├── 179_Restore_v420_Visual_Pipeline.md
-│   │   ├── 180_Restore_v420_Simulation_Advanced_Mechanics.md
-│   │   ├── 181_extract_business_logic.md
 │   │   ├── 186_implement_backend_geocoding_proxy.md
 │   │   ├── 201_implement_backend_geocoding_cache.md
 │   │   ├── 202_offload_image_similarity_to_backend.md
-│   │   ├── 203_expand_test_coverage.md
-│   │   ├── 204_Add_Tests_for_ImageOptimizer.md
 │   │   ├── 205_re_evaluate_webp_quality.md
-│   │   ├── 210_Add_Tests_for_AppContext.md
-│   │   ├── 211_Add_Tests_for_UiReducer.md
-│   │   ├── 212_Add_Tests_for_NavigationController.md
-│   │   ├── 213_Add_Tests_for_SimulationDriver.md
-│   │   ├── 214_Add_Tests_for_SimulationLogic.md
-│   │   ├── 215_Add_Tests_for_SessionStore.md
-│   │   ├── 269_Add_Tests_for_RequestQueue.md
-│   │   ├── 271_refactor_sidebar_inline_styles.md
-│   │   ├── 272_refactor_viewerui_inline_styles.md
-│   │   ├── 273_centralize_rescript_styling_tokens.md
-│   │   └── 274_migrate_conditional_styles_to_classes.md
-│   ├── postponed
+│   │   ├── 284_theme_switching_infrastructure.md
+│   │   ├── 289_refactor_ui_anchor_positioning.md
+│   │   └── tests
+│   │       ├── 203_expand_test_coverage.md
+│   │       ├── 204_Add_Tests_for_ImageOptimizer.md
+│   │       ├── 210_Add_Tests_for_AppContext.md
+│   │       ├── 211_Add_Tests_for_UiReducer.md
+│   │       ├── 212_Add_Tests_for_NavigationController.md
+│   │       ├── 213_Add_Tests_for_SimulationDriver.md
+│   │       ├── 214_Add_Tests_for_SimulationLogic.md
+│   │       ├── 215_Add_Tests_for_SessionStore.md
+│   │       ├── 269_Add_Tests_for_RequestQueue.md
+│   │       └── 280_visual_regression_testing.md
 │   └── TASKS.md
 ├── tests
 │   ├── node-setup.js
@@ -2247,4 +2272,4 @@
 │       └── VitestSmoke.test.res
 └── vitest.config.mjs
 
-50 directories, 2198 files
+51 directories, 2222 files

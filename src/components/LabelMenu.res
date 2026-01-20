@@ -155,7 +155,10 @@ let createLabelMenu = (_viewerStage: Dom.element, _labelButton: Dom.element) => 
 
   // Scroll Fade
   let scrollFade = Dom.createElement("div")
-  Dom.setClassName(scrollFade, "scroll-indicator-bottom absolute bottom-[64px] left-0 right-0 h-[40px] pointer-events-none z-10 transition-opacity duration-300 opacity-0")
+  Dom.setClassName(
+    scrollFade,
+    "scroll-indicator-bottom absolute bottom-[64px] left-0 right-0 h-[40px] pointer-events-none z-10 transition-opacity duration-300 opacity-0",
+  )
   Dom.appendChild(lblMenu, scrollFade)
 
   // Presets Wrapper
@@ -233,10 +236,7 @@ let createLabelMenu = (_viewerStage: Dom.element, _labelButton: Dom.element) => 
 
   // Custom Section
   let customSection = Dom.createElement("div")
-  Dom.setClassName(
-    customSection,
-    "label-custom-section sticky bottom-0 z-20",
-  )
+  Dom.setClassName(customSection, "label-custom-section sticky bottom-0 z-20")
 
   let customTitle = Dom.createElement("div")
   Dom.setClassName(customTitle, "label-custom-title")
@@ -250,10 +250,7 @@ let createLabelMenu = (_viewerStage: Dom.element, _labelButton: Dom.element) => 
   Dom.setId(inp, "v-scene-label-custom")
   Dom.setAttribute(inp, "type", "text")
   Dom.setAttribute(inp, "placeholder", "Enter custom name...")
-  Dom.setClassName(
-    inp,
-    "label-custom-input",
-  )
+  Dom.setClassName(inp, "label-custom-input")
   Dom.setOnClick(inp, e => Dom.stopPropagation(e))
 
   let setBtn = Dom.createElement("button")

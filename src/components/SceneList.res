@@ -157,12 +157,7 @@ module SceneItem = {
 }
 
 type contextMenuInfo = {
-  anchorRect: {
-    "top": float,
-    "left": float,
-    "width": float,
-    "height": float,
-  },
+  anchorRect: {"top": float, "left": float, "width": float, "height": float},
   index: int,
 }
 
@@ -185,11 +180,9 @@ let make = () => {
     | Some(id) => ReBindings.Window.clearTimeout(id)
     | None => ()
     }
-    contextMenuTimeout.current = Some(
-      ReBindings.Window.setTimeout(() => {
+    contextMenuTimeout.current = Some(ReBindings.Window.setTimeout(() => {
         closeContextMenu()
-      }, 1500),
-    )
+      }, 1500))
   }
 
   // Close context menu on outside click

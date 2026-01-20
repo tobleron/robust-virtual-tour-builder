@@ -455,7 +455,7 @@ let make = () => {
         <input
           id="project-name-input"
           type_="text"
-          className="w-full px-3 h-10 bg-slate-50 border border-slate-200 rounded-lg font-ui font-normal text-[13px] text-slate-800 focus:outline-none focus:ring-1 focus:ring-primary/20 focus:border-primary transition-all truncate placeholder:text-slate-300"
+          className="sidebar-project-input"
           placeholder="New Tour..."
           value={state.tourName}
           onChange={e => dispatch(Actions.SetTourName(JsxEvent.Form.target(e)["value"]))}
