@@ -9,6 +9,10 @@
     --primary-cobalt: #0047AB;
     /* New Cobalt */
 
+    /* Brand Gradients */
+    --gradient-brand: linear-gradient(to bottom, var(--primary-dark) 0%, var(--primary-gradient-mid) 50%, var(--primary) 100%);
+    --gradient-brand-subtle: linear-gradient(to bottom, var(--primary-dark) 0%, var(--primary) 100%);
+
     --accent: #ffcc00;
     /* Remax Gold */
     --accent-light: #fdb931;
