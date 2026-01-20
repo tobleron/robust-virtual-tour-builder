@@ -89,7 +89,7 @@
 
 /* Sidebar Branding & UI */
 .sidebar-branding-header {
-    background: linear-gradient(to bottom, var(--primary-dark) 0%, var(--primary-gradient-mid) 50%, var(--primary) 100%) !important;
+    background: var(--gradient-brand) !important;
 }
 
 .sidebar-branding-icon {
