@@ -2082,7 +2082,8 @@
 │   │   ├── 267_update_camera_movement_behavior_REPORT.md
 │   │   ├── 268_verify_scenelist_virtualization_ABORTED.md
 │   │   ├── 271_refactor_sidebar_inline_styles_REPORT.md
-│   │   └── 272_refactor_viewerui_inline_styles_REPORT.md
+│   │   ├── 272_refactor_viewerui_inline_styles_REPORT.md
+│   │   └── 273_centralize_rescript_styling_tokens_REPORT.md
 │   ├── current_refactor.md
 │   ├── pending
 │   │   ├── 176_fix_security_innerhtml.md
@@ -2103,7 +2104,6 @@
 │   │   ├── 214_Add_Tests_for_SimulationLogic.md
 │   │   ├── 215_Add_Tests_for_SessionStore.md
 │   │   ├── 269_Add_Tests_for_RequestQueue.md
-│   │   ├── 273_centralize_rescript_styling_tokens.md
 │   │   └── 274_migrate_conditional_styles_to_classes.md
 │   └── TASKS.md
 ├── tests

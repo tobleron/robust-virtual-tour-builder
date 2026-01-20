@@ -44,7 +44,7 @@ let injectStyles = () => {
           }
           .drop-zone::before {
             content: ''; position: absolute; top: 50%; left: 0; transform: translateY(-50%);
-            width: 100%; height: 6px; background: var(--pipe-color, #1e293b); z-index: 10;
+            width: 100%; height: 6px; background: var(--pipe-color, var(--slate-700)); z-index: 10;
             pointer-events: none;
           }
           .drop-zone::after {
@@ -72,7 +72,7 @@ let injectStyles = () => {
           }
           .pipeline-node.is-dragging { opacity: 0.4; }
           .pipeline-node::after {
-            content: ''; position: absolute; inset: 0; background: var(--node-color, #0a7a56);
+            content: ''; position: absolute; inset: 0; background: var(--node-color, var(--success-dark));
             border-radius: 50%; z-index: 20; transition: transform 0.2s, box-shadow 0.2s;
             box-shadow: 1px 1px 1px #000;
           }
@@ -87,7 +87,7 @@ let injectStyles = () => {
           }
           .node-tooltip {
             position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%) translateY(10px);
-            background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 4px;
+            background: var(--slate-800); border: 1px solid var(--slate-700); border-radius: 8px; padding: 4px;
             opacity: 0; pointer-events: none; transition: all 0.2s ease; display: flex;
             flex-direction: column; align-items: center; width: 120px; z-index: 30;
             box-shadow: 0 8px 16px rgba(0,0,0,0.5);
@@ -95,13 +95,13 @@ let injectStyles = () => {
           .pipeline-node:hover .node-tooltip { opacity: 1; transform: translateX(-50%) translateY(0); }
           .tooltip-thumb { 
             width: 112px; height: 63px; object-fit: cover; border-radius: 4px; 
-            margin-top: 4px; margin-bottom: 4px; background: #0f172a; 
+            margin-top: 4px; margin-bottom: 4px; background: var(--slate-900); 
           }
           .tooltip-text {
             color: white; font-size: 10px; font-weight: 600; text-align: center; 
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
           }
-          .tooltip-link-id { color: #94a3b8; font-size: 9px; font-weight: 700; margin-bottom: 2px; }
+          .tooltip-link-id { color: var(--slate-400); font-size: 9px; font-weight: 700; margin-bottom: 2px; }
           .auto-forward-indicator {
             position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
             z-index: 25; color: white; font-size: 21px; font-weight: 900; line-height: 1;
@@ -258,7 +258,7 @@ let render = (pipeline: t, state: Types.state) => {
         }
 
         let scene = state.scenes->Belt.Array.getBy(s => s.id == item.sceneId)
-        let color = ref("#0a7a56")
+        let color = ref("var(--success-dark)")
         switch scene {
         | Some(s) =>
           color := ColorPalette.getGroupColor(s.colorGroup)

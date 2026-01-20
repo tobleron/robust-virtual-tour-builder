@@ -248,9 +248,9 @@ let drawSimulationArrow = (
         | Some(c) => c
         | None =>
           if mod(Belt.Float.toInt(Date.now() /. 200.0), 2) == 0 {
-            "#fbbf24"
+            "var(--warning-light)"
           } else {
-            "#10b981"
+            "var(--success)"
           }
         }
 
@@ -331,7 +331,7 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
                     v,
                     splinePath,
                     rect,
-                    "#ef4444",
+                    "var(--danger-light)",
                     3.0,
                     0.8,
                     ~className="line-marching-ants",
@@ -349,7 +349,7 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
                     v,
                     curvedPath,
                     rect,
-                    "#ef4444",
+                    "var(--danger-light)",
                     3.0,
                     0.8,
                     ~className="line-marching-ants",
@@ -401,7 +401,7 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
                     v,
                     path,
                     rect,
-                    "#ef4444",
+                    "var(--danger-light)",
                     3.0,
                     1.0,
                     ~className="line-marching-ants",
@@ -416,7 +416,7 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
                   v,
                   redSpline,
                   rect,
-                  "#ef4444",
+                  "var(--danger-light)",
                   3.0,
                   1.0,
                   ~className="line-marching-ants",
@@ -465,7 +465,7 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
                     v,
                     path,
                     rect,
-                    "#fbbf24",
+                    "var(--warning-light)",
                     3.0,
                     0.8,
                     ~className="line-rod-yellow",
@@ -480,7 +480,7 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
                   v,
                   yellowSpline,
                   rect,
-                  "#fbbf24",
+                  "var(--warning-light)",
                   3.0,
                   0.8,
                   ~className="line-rod-yellow",
@@ -537,7 +537,7 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
                         if Float.isFinite(s1.x) && Float.isFinite(s1.y) && Float.isFinite(angle) {
                           let arrow = Svg.createElementNS(Svg.namespace, "path")
                           Svg.setAttribute(arrow, "d", "M -10,-7 L 6,0 L -10,7 Z")
-                          Svg.setAttribute(arrow, "fill", "#10b981")
+                          Svg.setAttribute(arrow, "fill", "var(--success)")
                           Svg.setAttribute(arrow, "stroke", "#000")
                           Svg.setAttribute(arrow, "stroke-width", "1")
                           Svg.setAttribute(
@@ -557,9 +557,11 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
                           Dom.setPointerEvents(arrow, "all")
 
                           Svg.setOnMouseOver(arrow, () =>
-                            Svg.setAttribute(arrow, "fill", "#34d399")
+                            Svg.setAttribute(arrow, "fill", "var(--success-light)")
                           )
-                          Svg.setOnMouseOut(arrow, () => Svg.setAttribute(arrow, "fill", "#10b981"))
+                          Svg.setOnMouseOut(arrow, () =>
+                            Svg.setAttribute(arrow, "fill", "var(--success)")
+                          )
 
                           Svg.appendChild(svg, arrow)
                         }

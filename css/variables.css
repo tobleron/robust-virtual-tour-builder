@@ -1,21 +1,33 @@
 :root {
     /* Brand Colors - Remax Premium Palette */
-    --primary: #003da5;          /* Remax Blue */
+    --primary: #003da5;
+    /* Remax Blue */
     --primary-light: #2563eb;
     --primary-dark: #001a38;
     --primary-navy: #002147;
-    
-    --accent: #ffcc00;           /* Remax Gold */
+
+    --accent: #ffcc00;
+    /* Remax Gold */
     --accent-light: #fdb931;
     --accent-soft: rgba(255, 204, 0, 0.1);
-    
-    --danger: #dc3545;           /* Remax Red */
+
+    --danger: #dc3545;
+    /* Remax Red */
+    --danger-light: #ef4444;
+    /* Red 500 */
     --danger-dark: #9b1c2e;
-    
-    --success: #10b981;          /* Emerald 500 */
-    --success-dark: #065f46;     /* Emerald 800 */
-    
-    --warning: #f59e0b;          /* Amber 500 */
+
+    --success: #10b981;
+    /* Emerald 500 */
+    --success-light: #34d399;
+    /* Emerald 400 */
+    --success-dark: #065f46;
+    /* Emerald 800 */
+
+    --warning: #f59e0b;
+    /* Amber 500 */
+    --warning-light: #fbbf24;
+    /* Amber 400 */
     --warning-dark: #c2410c;
 
     /* Neutral Palette - Slate Based */

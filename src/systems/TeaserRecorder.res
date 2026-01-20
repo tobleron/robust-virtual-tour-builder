@@ -187,7 +187,7 @@ let renderWatermark = (ctx: ReBindings.Canvas.context2d, logoImg: ReBindings.Dom
   ReBindings.Canvas.setShadowOffsetY(ctx, 4.0)
 
   /* Box */
-  ReBindings.Canvas.setFillStyle(ctx, "#ffffff")
+  ReBindings.Canvas.setFillStyle(ctx, "var(--sidebar-bg)")
   ReBindings.Canvas.beginPath(ctx)
   let checkRoundRect: 'a => bool = %raw("function(x) { return typeof x === 'function'; }")
   if checkRoundRect(asDynamic(ctx)["roundRect"]) {

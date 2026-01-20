@@ -427,3 +427,4 @@ Task: 147
 [2026-01-20 14:34] v4.3.3 - Refine shine animation speed and hide debug badge
 [2026-01-20 14:40] v4.3.4 - UI Relatively Stable
 [2026-01-20 15:21] v4.3.4 - Standardize CSS Architecture and Docs
+[2026-01-20 15:42] v4.3.4 - Inline Moved to CSS
