@@ -341,10 +341,10 @@ let make = () => {
       <div id="viewer-utility-bar" className={utilBarClass}>
         <button
           id="btn-add-link-fab"
-          className={"v-util-btn w-[32px] h-[32px] rounded-full flex items-center justify-center hover:bg-primary-light v-util-btn-add-link v-util-btn-add-link-icon " ++ if (
+          className={"v-util-btn w-[32px] h-[32px] rounded-full flex items-center justify-center v-util-btn-add-link v-util-btn-add-link-icon " ++ if (
             simActive
           ) {
-            "opacity-40 pointer-events-none"
+            "state-disabled"
           } else if !scenesLoaded {
             "state-empty"
           } else if state.isLinking {
@@ -399,7 +399,7 @@ let make = () => {
           id="v-scene-cat-toggle"
           className={"v-util-btn w-[32px] h-[32px] text-white rounded-full flex items-center justify-center v-util-btn-category " ++
           if simActive {
-            "pointer-events-none "
+            "state-disabled "
           } else {
             ""
           } ++ if scenesLoaded && state.activeIndex >= 0 {
@@ -441,7 +441,7 @@ let make = () => {
           ref={ReactDOM.Ref.domRef(labelBtnRef)}
           className={"v-util-btn w-[32px] h-[32px] text-white rounded-full font-ui text-[18px] font-bold flex items-center justify-center relative z-[6000] v-util-btn-label " ++
           if simActive {
-            "pointer-events-none "
+            "state-disabled "
           } else {
             "pointer-events-auto "
           } ++ if scenesLoaded {
