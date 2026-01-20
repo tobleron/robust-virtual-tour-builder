@@ -5,6 +5,9 @@
     --primary-light: #2563eb;
     --primary-dark: #001a38;
     --primary-navy: #002147;
+    --primary-gradient-mid: #002a70;
+    --primary-cobalt: #0047AB;
+    /* New Cobalt */
 
     --accent: #ffcc00;
     /* Remax Gold */
@@ -30,6 +33,10 @@
     /* Amber 400 */
     --warning-dark: #c2410c;
 
+    --orange-brand: #f97316;
+    /* 3rd Chevron & Hover Borders */
+    --delete-hover: #bb2d3b;
+
     /* Neutral Palette - Slate Based */
     --slate-50: #f8fafc;
     --slate-100: #f1f5f9;
@@ -46,9 +53,13 @@
     /* Viewer Specific Colors */
     --viewer-bg: #1a202c;
     --sidebar-bg: #ffffff;
-    --floor-default: #001a4d;
+    --floor-default: #00235d;
+    /* Updated to match floor-nav.css */
+    --floor-bg-hover: #163a63;
+    /* New */
     --floor-hover: #ea580c;
     --floor-active: var(--primary);
+    --floor-active-bg: var(--primary-cobalt);
     --floor-border-active: var(--accent);
 
     /* Design Tokens */

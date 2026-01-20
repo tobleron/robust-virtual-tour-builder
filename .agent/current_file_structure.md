@@ -80,7 +80,9 @@
 │   ├── ACCESSIBILITY_SYSTEM.md
 │   ├── AntiGravity Workflow Manual.md
 │   ├── ARCHITECTURE_DIAGRAM.md
+│   ├── COLOR_PALETTE_REFERENCE.md
 │   ├── CSS_ARCHITECTURE_AND_BEST_PRACTICES.md
+│   ├── CSS_MIGRATION_ANALYSIS.md
 │   ├── IMPROVEMENTS.md
 │   ├── OBSERVABILITY_AND_ERROR_HANDLING.md
 │   ├── openapi.yaml
@@ -1820,8 +1822,7 @@
 │   └── rescript.lock
 ├── logs
 │   ├── error.log
-│   ├── log_changes.txt
-│   └── telemetry.log
+│   └── log_changes.txt
 ├── package-lock.json
 ├── package.json
 ├── plans
@@ -2054,6 +2055,10 @@
 │   ├── completed
 │   │   ├── 175_fix_runtime_safety_getexn_REPORT.md
 │   │   ├── 177_fix_error_handling_REPORT.md
+│   │   ├── 178_Restore_v420_Viewer_HUD_Labels_and_Prompts_ABORTED.md
+│   │   ├── 179_Restore_v420_Visual_Pipeline_ABORTED.md
+│   │   ├── 180_Restore_v420_Simulation_Advanced_Mechanics_ABORTED.md
+│   │   ├── 181_extract_business_logic_ABORTED.md
 │   │   ├── 194_Add_Tests_for_ServiceWorkerMain_REPORT.md
 │   │   ├── 195_Add_Tests_for_UrlUtils_REPORT.md
 │   │   ├── 196_Add_Tests_for_VersionData_REPORT.md
@@ -2084,27 +2089,34 @@
 │   │   ├── 271_refactor_sidebar_inline_styles_REPORT.md
 │   │   ├── 272_refactor_viewerui_inline_styles_REPORT.md
 │   │   ├── 273_centralize_rescript_styling_tokens_REPORT.md
-│   │   └── 274_migrate_conditional_styles_to_classes_REPORT.md
+│   │   ├── 274_migrate_conditional_styles_to_classes_REPORT.md
+│   │   └── 275_complete_css_variable_migration.md
 │   ├── current_refactor.md
 │   ├── pending
 │   │   ├── 176_fix_security_innerhtml.md
-│   │   ├── 178_Restore_v420_Viewer_HUD_Labels_and_Prompts.md
-│   │   ├── 179_Restore_v420_Visual_Pipeline.md
-│   │   ├── 180_Restore_v420_Simulation_Advanced_Mechanics.md
-│   │   ├── 181_extract_business_logic.md
 │   │   ├── 186_implement_backend_geocoding_proxy.md
 │   │   ├── 201_implement_backend_geocoding_cache.md
 │   │   ├── 202_offload_image_similarity_to_backend.md
-│   │   ├── 203_expand_test_coverage.md
-│   │   ├── 204_Add_Tests_for_ImageOptimizer.md
 │   │   ├── 205_re_evaluate_webp_quality.md
-│   │   ├── 210_Add_Tests_for_AppContext.md
-│   │   ├── 211_Add_Tests_for_UiReducer.md
-│   │   ├── 212_Add_Tests_for_NavigationController.md
-│   │   ├── 213_Add_Tests_for_SimulationDriver.md
-│   │   ├── 214_Add_Tests_for_SimulationLogic.md
-│   │   ├── 215_Add_Tests_for_SessionStore.md
-│   │   └── 269_Add_Tests_for_RequestQueue.md
+│   │   ├── 276_refactor_uploadreport_inline_styles.md
+│   │   ├── 277_design_system_documentation_and_compliance.md
+│   │   ├── 278_create_css_gradient_variables.md
+│   │   ├── 279_add_color_accessibility_audit.md
+│   │   ├── 283_implement_remax_centric_theme.md
+│   │   ├── 284_theme_switching_infrastructure.md
+│   │   ├── CSS_MIGRATION_TASKS_SUMMARY.md
+│   │   ├── TASK_REORGANIZATION_NOTES.md
+│   │   └── Tests
+│   │       ├── 203_expand_test_coverage.md
+│   │       ├── 204_Add_Tests_for_ImageOptimizer.md
+│   │       ├── 210_Add_Tests_for_AppContext.md
+│   │       ├── 211_Add_Tests_for_UiReducer.md
+│   │       ├── 212_Add_Tests_for_NavigationController.md
+│   │       ├── 213_Add_Tests_for_SimulationDriver.md
+│   │       ├── 214_Add_Tests_for_SimulationLogic.md
+│   │       ├── 215_Add_Tests_for_SessionStore.md
+│   │       ├── 269_Add_Tests_for_RequestQueue.md
+│   │       └── 280_visual_regression_testing.md
 │   └── TASKS.md
 ├── tests
 │   ├── node-setup.js
@@ -2247,4 +2259,4 @@
 │       └── VitestSmoke.test.res
 └── vitest.config.mjs
 
-49 directories, 2199 files
+50 directories, 2210 files
