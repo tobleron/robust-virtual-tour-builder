@@ -39,7 +39,7 @@ module SceneItem = {
     } else {
       "bg-success"
     }
-    let groupColor = ColorPalette.getGroupColor(scene.colorGroup)
+    let groupColorClass = ColorPalette.getGroupClass(scene.colorGroup)
 
     <div
       key={scene.id}
@@ -78,8 +78,7 @@ module SceneItem = {
         </div>
 
         <div
-          className="absolute top-0 right-0 h-full z-20 transition-all duration-500 shadow-xl"
-          style={makeStyle({"width": "4px", "backgroundColor": groupColor})}
+          className={`absolute top-0 right-0 h-full z-20 transition-all duration-500 shadow-xl w-1 ${groupColorClass}`}
         />
       </div>
 

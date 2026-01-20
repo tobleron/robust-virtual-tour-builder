@@ -63,6 +63,10 @@
     max-width: 400px;
 }
 
+.toast-icon {
+    font-size: 20px;
+}
+
 .toast.show {
     opacity: 1;
     transform: translateX(0);

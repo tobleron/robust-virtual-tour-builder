@@ -16,6 +16,8 @@
 @import './components/ui.css';
 @import './components/floor-nav.css';
 @import './components/upload-report.css';
+@import './components/error-fallback.css';
+@import './components/scene-groups.css';
 
 /* 4. Legacy Compatibility */
 @import './legacy.css';

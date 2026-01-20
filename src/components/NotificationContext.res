@@ -45,7 +45,7 @@ let make = () => {
       }
 
       <div key={n.id} className={`toast show ${typeClass}`} role="status" ariaLive=#polite>
-        <span className="material-icons" style={makeStyle({"fontSize": "20px"})} ariaHidden=true>
+        <span className="material-icons toast-icon" ariaHidden=true>
           {React.string(
             switch n.type_ {
             | #Error => "error_outline"
