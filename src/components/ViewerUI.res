@@ -341,11 +341,12 @@ let make = () => {
       <div id="viewer-utility-bar" className={utilBarClass}>
         <button
           id="btn-add-link-fab"
-          className={"v-util-btn w-[32px] h-[32px] rounded-full flex items-center justify-center v-util-btn-add-link v-util-btn-add-link-icon " ++ if (
-            simActive
-          ) {
-            "state-disabled"
-          } else if !scenesLoaded {
+          className={"v-util-btn w-[32px] h-[32px] rounded-full flex items-center justify-center v-util-btn-add-link v-util-btn-add-link-icon " ++
+          if simActive {
+            "state-disabled "
+          } else {
+            ""
+          } ++ if !scenesLoaded {
             "state-empty"
           } else if state.isLinking {
             "state-linking"

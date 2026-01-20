@@ -3,5 +3,5 @@
  * This file is updated by scripts/update-version.js
  */
 let version = "4.3.4"
-let buildNumber = 18
+let buildNumber = 19
 let buildInfo = "[Stable Release]"

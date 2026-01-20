@@ -1826,8 +1826,7 @@
 │   └── rescript.lock
 ├── logs
 │   ├── error.log
-│   ├── log_changes.txt
-│   └── telemetry.log
+│   └── log_changes.txt
 ├── package-lock.json
 ├── package.json
 ├── plans
@@ -2264,4 +2263,4 @@
 │       └── VitestSmoke.test.res
 └── vitest.config.mjs
 
-51 directories, 2214 files
+51 directories, 2213 files
