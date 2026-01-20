@@ -440,3 +440,4 @@ Task: 147
 [2026-01-20 17:51] v4.3.4 - ui: make autopilot button red and toggle square icon on click
 [2026-01-20 17:57] v4.3.4 - ui: refine utility buttons during auto-pilot (grayscale and opacity)
 [2026-01-20 17:58] v4.3.4 - ui: fix add-link button transparency and unify utility bar grayscale during auto-pilot
+[2026-01-20 18:37] v4.3.5 - v4.3.5: UI Neat & Stable

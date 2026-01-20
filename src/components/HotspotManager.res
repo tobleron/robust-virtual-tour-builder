@@ -85,6 +85,13 @@ let createHotspotConfig = (
       Dom.setAttribute(deleteBtn, "aria-label", "Delete Link")
       Dom.setTextContent(deleteBtn, "✕")
 
+      /* Navigation Arrow (Double Chevron) */
+      let navBtn = Dom.createElement("div")
+      Dom.setAttribute(navBtn, "class", "hotspot-nav-btn")
+      Dom.setAttribute(navBtn, "title", "Navigate to " ++ hotspot.target)
+      Dom.setAttribute(navBtn, "role", "button")
+      Dom.setAttribute(navBtn, "tabindex", "0")
+
       let controls = Dom.createElement("div")
       Dom.setAttribute(controls, "class", "hotspot-controls")
 
@@ -93,184 +100,138 @@ let createHotspotConfig = (
       let fwdClass = "hotspot-forward-btn" ++ (isAutoForward ? " active" : "")
       Dom.setAttribute(fwdBtn, "class", fwdClass)
       Dom.setAttribute(fwdBtn, "title", "Toggle Auto-Forward")
-      Dom.appendChild(controls, fwdBtn)
 
       /* Append all to container */
+      Dom.appendChild(controls, navBtn)
+      Dom.appendChild(controls, fwdBtn)
+
       Dom.appendChild(div, deleteBtn)
       Dom.appendChild(div, controls)
 
-      Dom.setPointerEvents(div, "auto")
+      /* v4.4.1: Critical - Disable events on the root div to prevent accidental mis-clicks */
+      Dom.setPointerEvents(div, "none")
       Dom.setCursor(div, "default")
 
       // Accessibility for the main hotspot container
-      Dom.setAttribute(div, "role", "button")
-      Dom.setAttribute(div, "tabindex", "0")
-      Dom.setAttribute(div, "aria-label", "Navigate to " ++ hotspot.target)
+      Dom.setAttribute(div, "role", "presentation")
 
-      // Keyboard support
-      let handleKey = (e: Dom.event) => {
-        let key = Dom.key(e)
-        if key == "Enter" || key == " " {
-          Dom.preventDefault(e)
-          Dom.stopPropagation(e)
-          // Trigger the click logic by manually calling the click handler or dispatching a click
-          Dom.click(div)
-        }
-      }
-      Dom.addEventListener(div, "keydown", handleKey)
-
-      // Logic for click
-      ElementExt.setOnClick(div, e => {
+      // 1. Delete Logic
+      ElementExt.setOnClick(deleteBtn, e => {
+        Event.stopPropagation(e)
+        Event.preventDefault(e)
         Logger.info(
           ~module_="Hotspot",
-          ~message="HOTSPOT_CLICK",
-          ~data=Some({
-            "type": hotspot.target != "" ? "navigation" : "info",
-            "id": "hs_" ++ Belt.Int.toString(index),
-            "target": hotspot.target,
-          }),
+          ~message="LINK_DELETE",
+          ~data=Some({"hotspotId": "hs_" ++ Belt.Int.toString(index)}),
           (),
         )
+        dispatch(Actions.RemoveHotspot(state.activeIndex, index))
+        EventBus.dispatch(ShowNotification("Link deleted", #Info))
+      })
 
-        let target = Event.target(e)
-        let deleteBtn = ElementExt.closest(target, ".hotspot-delete-btn")
-        let forwardBtn = ElementExt.closest(target, ".hotspot-forward-btn")
-        let returnBtn = ElementExt.closest(target, ".hotspot-return-btn")
-
-        // 1. Delete
-        if !Nullable.isNullable(deleteBtn) {
-          Event.stopPropagation(e)
-          Event.preventDefault(e)
-          Logger.info(
-            ~module_="Hotspot",
-            ~message="LINK_DELETE",
-            ~data=Some({"hotspotId": "hs_" ++ Belt.Int.toString(index)}),
-            (),
-          )
-          dispatch(Actions.RemoveHotspot(state.activeIndex, index))
-          EventBus.dispatch(ShowNotification("Link deleted", #Info))
-        } // 2. Forward
-        else if !Nullable.isNullable(forwardBtn) {
-          Event.stopPropagation(e)
-          Event.preventDefault(e)
-          switch targetSceneOpt {
-          | Some(ts) =>
-            let targetIdx = Belt.Array.getIndexBy(state.scenes, s => s.name == hotspot.target)
-            switch targetIdx {
-            | Some(idx) =>
-              let currentVal = ts.isAutoForward
-              dispatch(
-                Actions.UpdateSceneMetadata(idx, Logger.castToJson({"isAutoForward": !currentVal})),
-              )
-              EventBus.dispatch(
-                ShowNotification(
-                  if !currentVal {
-                    "Auto-forward: ENABLED"
-                  } else {
-                    "Auto-forward: DISABLED"
-                  },
-                  #Success,
-                ),
-              )
-            | None => ()
-            }
+      // 2. Forward Logic
+      ElementExt.setOnClick(fwdBtn, e => {
+        Event.stopPropagation(e)
+        Event.preventDefault(e)
+        switch targetSceneOpt {
+        | Some(ts) =>
+          let targetIdx = Belt.Array.getIndexBy(state.scenes, s => s.name == hotspot.target)
+          switch targetIdx {
+          | Some(idx) =>
+            let currentVal = ts.isAutoForward
+            dispatch(
+              Actions.UpdateSceneMetadata(idx, Logger.castToJson({"isAutoForward": !currentVal})),
+            )
+            EventBus.dispatch(
+              ShowNotification(
+                if !currentVal {
+                  "Auto-forward: ENABLED"
+                } else {
+                  "Auto-forward: DISABLED"
+                },
+                #Success,
+              ),
+            )
           | None => ()
           }
-        } // 3. Return
-        else if !Nullable.isNullable(returnBtn) {
-          Event.stopPropagation(e)
-          Event.preventDefault(e)
+        | None => ()
+        }
+      })
 
-          dispatch(Actions.ToggleHotspotReturnLink(state.activeIndex, index))
+      // 3. Navigation Logic
+      ElementExt.setOnClick(navBtn, e => {
+        Event.stopPropagation(e)
+        Event.preventDefault(e)
 
-          EventBus.dispatch(ShowNotification("Return link status updated", #Success))
-        } else {
-          // 4. Navigation
+        switch targetSceneOpt {
+        | Some(_ts) =>
+          let targetIdx = Belt.Array.getIndexBy(state.scenes, s => s.name == hotspot.target)
+          switch targetIdx {
+          | Some(idx) =>
+            let navYaw = ref(0.0)
+            let navPitch = ref(0.0)
+            let navHfov = ref(90.0)
 
-          switch targetSceneOpt {
-          | Some(_ts) =>
-            let targetIdx = Belt.Array.getIndexBy(state.scenes, s => s.name == hotspot.target)
-            switch targetIdx {
-            | Some(idx) =>
-              let navYaw = ref(0.0)
-              let navPitch = ref(0.0)
-              let navHfov = ref(90.0)
+            let isRet = switch hotspot.isReturnLink {
+            | Some(b) => b
+            | None => false
+            }
 
-              let isRet = switch hotspot.isReturnLink {
-              | Some(b) => b
-              | None => false
+            if isRet && hotspot.returnViewFrame != None {
+              let rvf = hotspot.returnViewFrame
+              switch rvf {
+              | Some(r) =>
+                navYaw := r.yaw
+                navPitch := r.pitch
+                navHfov := r.hfov
+              | None => ()
               }
-
-              if isRet && hotspot.returnViewFrame != None {
-                let rvf = hotspot.returnViewFrame
-                switch rvf {
-                | Some(r) =>
-                  navYaw := r.yaw
-                  navPitch := r.pitch
-                  navHfov := r.hfov
+            } else {
+              // Logic for targetYaw vs viewFrame
+              switch hotspot.targetYaw {
+              | Some(ty) =>
+                navYaw := ty
+                navPitch :=
+                  switch hotspot.targetPitch {
+                  | Some(p) => p
+                  | None => 0.0
+                  }
+                navHfov :=
+                  switch hotspot.targetHfov {
+                  | Some(h) => h
+                  | None => 90.0
+                  }
+              | None =>
+                switch hotspot.viewFrame {
+                | Some(vf) =>
+                  navYaw := vf.yaw
+                  navPitch := vf.pitch
+                  navHfov := vf.hfov
                 | None => ()
                 }
-              } else {
-                // Logic for targetYaw vs viewFrame
-                switch hotspot.targetYaw {
-                | Some(ty) =>
-                  navYaw := ty
-                  navPitch :=
-                    switch hotspot.targetPitch {
-                    | Some(p) => p
-                    | None => 0.0
-                    }
-                  navHfov :=
-                    switch hotspot.targetHfov {
-                    | Some(h) => h
-                    | None => 90.0
-                    }
-                | None =>
-                  switch hotspot.viewFrame {
-                  | Some(vf) =>
-                    navYaw := vf.yaw
-                    navPitch := vf.pitch
-                    navHfov := vf.hfov
-                  | None => ()
-                  }
-                }
               }
-
-              Logger.info(
-                ~module_="Hotspot",
-                ~message="NAV_TRIGGERED",
-                ~data=Some({"target": hotspot.target, "fromScene": scene.name}),
-                (),
-              )
-              Navigation.navigateToScene(
-                dispatch,
-                state,
-                idx,
-                state.activeIndex,
-                index,
-                ~targetYaw=navYaw.contents,
-                ~targetPitch=navPitch.contents,
-                ~targetHfov=navHfov.contents,
-                (),
-              )
-            | None =>
-              Logger.warn(
-                ~module_="Hotspot",
-                ~message="TARGET_INDEX_NOT_FOUND",
-                ~data=Some({
-                  "targetScene": targetSceneOpt->Belt.Option.mapWithDefault("unknown", s => s.name),
-                }),
-                (),
-              )
             }
-          | None =>
-            Logger.warn(
+
+            Logger.info(
               ~module_="Hotspot",
-              ~message="TARGET_NOT_FOUND",
-              ~data=Some({"targetId": hotspot.target}),
+              ~message="NAV_TRIGGERED",
+              ~data=Some({"target": hotspot.target, "fromScene": scene.name}),
               (),
             )
+            Navigation.navigateToScene(
+              dispatch,
+              state,
+              idx,
+              state.activeIndex,
+              index,
+              ~targetYaw=navYaw.contents,
+              ~targetPitch=navPitch.contents,
+              ~targetHfov=navHfov.contents,
+              (),
+            )
+          | None => ()
           }
+        | None => ()
         }
       })
     },

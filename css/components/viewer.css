@@ -112,7 +112,8 @@
     overflow: visible !important;
     /* Critical: allows the large arrow to spill out */
     z-index: 10 !important;
-    cursor: pointer;
+    pointer-events: none !important;
+    cursor: default !important;
 }
 
 /* 5. Tooltip Neutralization (Crucial) */
@@ -154,10 +155,9 @@
 
 /* .arrow-green removed - user requested only 3rd chevron to be green */
 
-.pnlm-hotspot.flat-arrow::before {
-    /* ... existing props ... */
+/* New Navigation Button element */
+.hotspot-nav-btn {
     background-image: var(--arrow-svg);
-    /* ... */
     content: "";
     position: absolute;
     top: 50%;
@@ -177,19 +177,17 @@
     display: block;
     visibility: visible !important;
     opacity: 1 !important;
+    z-index: 1;
+
+    /* v4.4.1: Precise hit testing - Unified both chevrons into one hit area */
+    clip-path: polygon(50% 10%, 90% 40%, 90% 90%, 50% 60%, 10% 90%, 10% 40%);
 }
 
-/* Shine Layer */
-.pnlm-hotspot.flat-arrow::after {
+/* Shine Layer for Nav Btn */
+.hotspot-nav-btn::after {
     content: "";
     position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 70px;
-    height: 70px;
-    transform-origin: top center;
-    transform: translate(-50%, 0) rotateX(60deg);
-
+    inset: 0;
     background: linear-gradient(120deg,
             rgba(255, 255, 255, 0) 30%,
             rgba(255, 255, 255, 0.4) 50%,
@@ -209,16 +207,14 @@
     pointer-events: none;
     animation: shine-pass 3s infinite linear;
     z-index: 2;
-    /* Ensure on top of ::before */
 }
 
-/* 4. Hover Effect - Interaction Feedback (No Lift) */
-.pnlm-hotspot.flat-arrow:hover::before {
+/* Hover Effect for Nav Btn */
+.hotspot-nav-btn:hover {
     filter: brightness(1.1) drop-shadow(0 20px 10px rgba(0, 0, 0, 0.4));
 }
 
-.pnlm-hotspot.flat-arrow:hover::after,
-.pnlm-hotspot.flat-arrow:hover .hotspot-forward-btn.active::after {
+.hotspot-nav-btn:hover::after {
     /* Speed up shine on hover (1.0s) */
     animation-duration: 1.0s;
 }
@@ -287,7 +283,7 @@
     z-index: 10005;
     opacity: 1 !important;
     visibility: visible !important;
-    pointer-events: auto;
+    pointer-events: none;
     background: transparent;
     border: none;
     box-shadow: none;
@@ -322,10 +318,14 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    pointer-events: auto;
     transition: all 0.3s ease-in-out;
     filter: drop-shadow(0 20px 10px rgba(0, 0, 0, 0.3));
     border: none;
     border-radius: 0;
+
+    /* v4.4.1: Precise hit testing */
+    clip-path: polygon(10% 60%, 50% 0%, 90% 60%, 90% 100%, 50% 40%, 10% 100%);
 }
 
 /* Shine effect for the 3rd chevron (Conditional) */
@@ -357,8 +357,8 @@
 
 .hotspot-forward-btn.active::after {
     opacity: 1;
-    /* Active shine animation (1.5s) */
-    animation: shine-pass 1.5s infinite linear;
+    /* Active shine animation - Reduced to 4.0s for subtler feel */
+    animation: shine-pass 3.0s infinite ease-in-out;
 }
 
 .hotspot-forward-btn:hover {
