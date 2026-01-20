@@ -19,6 +19,12 @@ let indexTemplate = `<!DOCTYPE html>
             --slate-700: #1e293b;
             --glass: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.08);
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --success: #10b981;
+            --slate-600: #475569;
+            --slate-400: #94a3b8;
+            --slate-200: #e2e8f0;
         }
         * { box-sizing: border-box; }
         body {
@@ -56,7 +62,7 @@ let indexTemplate = `<!DOCTYPE html>
         h1 { font-size: 42px; font-weight: 700; margin: 0 0 16px 0; }
         .version-badge {
             display: inline-flex; align-items: center; gap: 8px; background: var(--glass);
-            padding: 6px 16px; border-radius: 100px; font-size: 13px; font-weight: 600; color: #94a3b8;
+            padding: 6px 16px; border-radius: 100px; font-size: 13px; font-weight: 600; color: var(--slate-400);
         }
         .grid {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px; margin-top: 20px;
@@ -68,15 +74,15 @@ let indexTemplate = `<!DOCTYPE html>
         }
         .card:hover { transform: translateY(-12px); background: var(--slate-700); }
         .icon { font-size: 48px; }
-        .card-4k .icon { color: #f59e0b; } .card-2k .icon { color: #3b82f6; } .card-hd .icon { color: #10b981; }
+        .card-4k .icon { color: var(--warning); } .card-2k .icon { color: var(--info); } .card-hd .icon { color: var(--success); }
         .res-label { font-size: 26px; font-weight: 700; }
-        .description { font-size: 15px; color: #94a3b8; line-height: 1.6; }
+        .description { font-size: 15px; color: var(--slate-400); line-height: 1.6; }
         .btn {
-            margin-top: 10px; background: rgba(255, 255, 255, 0.05); color: #e2e8f0;
+            margin-top: 10px; background: rgba(255, 255, 255, 0.05); color: var(--slate-200);
             padding: 12px 32px; border-radius: 100px; font-size: 14px; font-weight: 600;
         }
         .card:hover .btn { background: white; color: #0f172a; }
-        .footer { margin-top: 80px; font-size: 13px; color: #475569; }
+        .footer { margin-top: 80px; font-size: 13px; color: var(--slate-600); }
     </style>
 </head>
 <body>

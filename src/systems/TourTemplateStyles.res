@@ -4,6 +4,19 @@
 
 let cssTemplate = `
     /* BASE RESET */
+    :root {
+      --viewer-bg: #111;
+      --stage-border: #333;
+      --glow-color: #fff4d1;
+      --font-family: 'Outfit', sans-serif;
+      --gold-1: #FFD700;
+      --gold-2: #FDB931;
+      --gold-3: #B8860B;
+      --gold-text: #4B3300;
+      --gold-border: #8B6508;
+      --arrow-white: rgba(255, 255, 255, 0.5);
+    }
+
     body { 
       margin: 0; padding: 0; 
       width: 100%; 
@@ -12,8 +25,8 @@ let cssTemplate = `
       align-items: center;
       justify-content: center;
       overflow: auto;
-      background-color: #111;
-      font-family: 'Outfit', sans-serif;
+      background-color: var(--viewer-bg);
+      font-family: var(--font-family);
     }
     
     body::before {
@@ -102,7 +115,7 @@ let cssTemplate = `
       filter: drop-shadow(0 8px 4px rgba(0,0,0,0.4));
     }
 
-    .glow-unit { fill-opacity: 0; fill: #fff4d1; }
+    .glow-unit { fill-opacity: 0; fill: var(--glow-color); }
     .glow-bottom { animation: glow-sequence 1.8s infinite; }
     .glow-top { animation: glow-sequence 1.8s infinite; animation-delay: 0.4s; }
 
@@ -148,7 +161,7 @@ let generateCSS = (firstSceneName, isMobile, exportType, baseSize, logoSize) => 
       height: 667px;
       background: #000;
       border-radius: 20px;
-      border: 4px solid #333;
+      border: 4px solid var(--stage-border);
       box-shadow: 0 0 50px rgba(0,0,0,0.6);
       overflow: hidden;
     }

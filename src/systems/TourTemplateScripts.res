@@ -21,29 +21,29 @@ let renderScriptTemplate = `
           <svg class="custom-arrow-svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" style="overflow:visible;">
             <defs>
               <linearGradient id="homeGradExport_\${args.i}" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
-                <stop offset="50%" style="stop-color:#FDB931;stop-opacity:1" />
-                <stop offset="100%" style="stop-color:#B8860B;stop-opacity:1" />
+                <stop offset="0%" style="stop-color:var(--gold-1);stop-opacity:1" />
+                <stop offset="50%" style="stop-color:var(--gold-2);stop-opacity:1" />
+                <stop offset="100%" style="stop-color:var(--gold-3);stop-opacity:1" />
               </linearGradient>
             </defs>
             <rect x="5" y="5" width="90" height="90" rx="8" fill="url(#homeGradExport_\${args.i})" />
-            <text x="50" y="52" text-anchor="middle" dominant-baseline="middle" font-family="Outfit, sans-serif" font-weight="700" font-size="24" fill="#4B3300" style="letter-spacing: 0px;">HOME</text>
+            <text x="50" y="52" text-anchor="middle" dominant-baseline="middle" font-family="Outfit, sans-serif" font-weight="700" font-size="24" fill="var(--gold-text)" style="letter-spacing: 0px;">HOME</text>
           </svg>\`;
       } else {
         hotSpotDiv.innerHTML = \`
           <svg class="custom-arrow-svg" viewBox="0 0 100 100" style="overflow:visible;">
             <defs>
               <linearGradient id="arrowGradExport_\${args.i}" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
-                <stop offset="50%" style="stop-color:#FDB931;stop-opacity:1" />
-                <stop offset="100%" style="stop-color:#B8860B;stop-opacity:1" />
+                <stop offset="0%" style="stop-color:var(--gold-1);stop-opacity:1" />
+                <stop offset="50%" style="stop-color:var(--gold-2);stop-opacity:1" />
+                <stop offset="100%" style="stop-color:var(--gold-3);stop-opacity:1" />
               </linearGradient>
             </defs>
-            <path d="M10 43 L50 13 L90 43 L90 53 L50 23 L10 53 Z M10 73 L50 43 L90 73 L90 83 L50 53 L10 83 Z" fill="#8B6508" />
+            <path d="M10 43 L50 13 L90 43 L90 53 L50 23 L10 53 Z M10 73 L50 43 L90 73 L90 83 L50 53 L10 83 Z" fill="var(--gold-border)" />
             <path d="M10 40 L50 10 L90 40 L90 60 L50 30 L10 60 Z M10 70 L50 40 L90 70 L90 90 L50 60 L10 90 Z" fill="url(#arrowGradExport_\${args.i})" />
             <path class="glow-unit glow-top" d="M10 40 L50 10 L90 40 L90 60 L50 30 L10 60 Z" />
             <path class="glow-unit glow-bottom" d="M10 70 L50 40 L90 70 L90 90 L50 60 L10 90 Z" />
-            <path d="M10 40 L50 10 L90 40 L50 11 Z" fill="#ffffff" fill-opacity="0.5" />
+            <path d="M10 40 L50 10 L90 40 L50 11 Z" fill="var(--arrow-white)" />
           </svg>\`;
       }
       

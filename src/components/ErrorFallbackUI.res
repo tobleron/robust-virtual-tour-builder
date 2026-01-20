@@ -10,8 +10,8 @@ let make = () => {
       "flexDirection": "column",
       "alignItems": "center",
       "justifyContent": "center",
-      "backgroundColor": "#0f172a",
-      "color": "#f8fafc",
+      "backgroundColor": "var(--slate-900)",
+      "color": "var(--slate-50)",
       "padding": "2rem",
       "textAlign": "center",
       "zIndex": "9999",
@@ -25,7 +25,7 @@ let make = () => {
         "borderRadius": "1.5rem",
         "backgroundColor": "rgba(30, 41, 59, 0.5)",
         "backdropFilter": "blur(12px)",
-        "border": "1px solid #334155",
+        "border": "1px solid var(--slate-700)",
         "boxShadow": "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
       })}
     >
@@ -39,7 +39,13 @@ let make = () => {
       >
         {React.string("Application Error")}
       </h1>
-      <p style={makeStyle({"color": "#94a3b8", "marginBottom": "2rem", "lineHeight": "1.6"})}>
+      <p
+        style={makeStyle({
+          "color": "var(--slate-400)",
+          "marginBottom": "2rem",
+          "lineHeight": "1.6",
+        })}
+      >
         {React.string(
           "An unexpected error occurred during rendering. The application has been halted to prevent data corruption.",
         )}
@@ -50,7 +56,7 @@ let make = () => {
         }}
         style={makeStyle({
           "width": "100%",
-          "backgroundColor": "#2563eb",
+          "backgroundColor": "var(--primary-light)",
           "color": "white",
           "fontWeight": "600",
           "padding": "0.875rem 1.5rem",

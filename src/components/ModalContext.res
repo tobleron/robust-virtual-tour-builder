@@ -160,7 +160,7 @@ let make = () => {
               className="material-icons"
               style={makeStyle({
                 "fontSize": "40px",
-                "color": "#fbbf24",
+                "color": "var(--warning-light)",
                 "filter": "drop-shadow(0 0 12px rgba(251, 191, 36, 0.4))",
               })}
             >
