@@ -10,7 +10,7 @@ Before executing ANY code or shell command, you must perform a **Context Check**
 **Do not ask to run these. AUTOMATICALLY run them in this order:**
 
 ### PHASE 1: PRE-FLIGHT
-- **Task Workflow (CRITICAL)**: Before performing ANY task from `tasks/pending` or `tasks/active`:
+- **Task Workflow (CRITICAL)**: Before performing ANY task from `tasks/pending`, `tasks/postponed`, or `tasks/active`:
   - Read `tasks/TASKS.md` first to understand the proper workflow.
   - Follow the instructions in exact sequential order.
 - **Context Refresh**: 
@@ -58,4 +58,5 @@ Before executing ANY code or shell command, you must perform a **Context Check**
 ## 📂 CRITICAL PATHS
 - **Docs**: `./dev_prefs/` (User preferences)
 - **File Structure**: `.agent/current_file_structure.md`
-- **Pending Tasks**: `./tasks/pending` (Standard tasks) & `./tasks/pending/Tests` (Test tasks)
+- **Pending Tasks**: `./tasks/pending` (Standard tasks)
+- **Postponed Tasks**: `./tasks/postponed` (Deferred tasks) & `./tasks/postponed/tests` (Test tasks)

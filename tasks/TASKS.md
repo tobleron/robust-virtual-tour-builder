@@ -2,13 +2,13 @@
 
 ## Task Creation Rule
 - **Mandatory Prefix**: Every new task MUST have a sequential number prefix (e.g., `189_task_name.md`).
-- **Sequence Basis**: The sequence number must be the next available number based on the highest existing number across `completed/`, `pending/`, and `active/` folders.
+- **Sequence Basis**: The sequence number must be the next available number based on the highest existing number across `completed/`, `pending/`, `postponed/`, `postponed/tests/`, and `active/` folders.
 - **Format**: Use three-digit padding where possible (or two if consistent with history) to ensure proper sorting.
-- **Test Tasks**: Create all test-related tasks inside `tasks/pending/Tests/`. They MUST follow the same sequential numbering rule as other tasks.
+- **Test Tasks**: Create all test-related tasks inside `tasks/postponed/tests/`. They MUST follow the same sequential numbering rule as other tasks.
 
 ## Workflow Instructions (Must be followed sequentially)
 
-1. **Move the task to active folder first**: Before starting any work, move the intended task file from `pending/` to the `active/` folder.
+1. **Move the task to active folder first**: Before starting any work, move the intended task file from `pending/` or `postponed/` to the `active/` folder.
 
 2. **Read and implement the task**: Start reading the task file and working on its implementation to completion.
 

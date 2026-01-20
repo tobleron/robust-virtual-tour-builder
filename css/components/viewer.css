@@ -431,7 +431,7 @@
 }
 
 .v-util-btn-autopilot.state-idle {
-    background-color: var(--success);
+    background-color: var(--danger);
 }
 
 .v-util-btn-autopilot.state-active:hover {
@@ -439,7 +439,7 @@
 }
 
 .v-util-btn-autopilot.state-idle:hover {
-    background-color: var(--success-light);
+    background-color: var(--danger-light);
 }
 
 .v-util-btn-icon {
