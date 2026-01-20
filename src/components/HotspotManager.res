@@ -73,30 +73,35 @@ let createHotspotConfig = (
     },
     "yaw": hotspot.yaw,
     "type": "info",
+    "text": " " /* Ensure trigger */,
     "cssClass": cssClass.contents,
     "createTooltipFunc": (div: Dom.element) => {
       let isAutoForward = isTargetAutoForward
-      let isReturn = switch hotspot.isReturnLink {
-      | Some(b) => b
-      | None => false
-      }
 
-      let html = `
-        <div class="hotspot-delete-btn" title="Delete Link" role="button" tabindex="0" aria-label="Delete Link">✕</div>
-        <div class="hotspot-controls">
-          <div class="hotspot-forward-btn ${if isAutoForward {
-          "active"
-        } else {
-          ""
-        }}" title="Toggle Auto-Forward" role="button" tabindex="0" aria-label="Toggle Auto-Forward">A</div>
-          <div class="hotspot-return-btn ${if isReturn {
-          "active"
-        } else {
-          ""
-        }}" title="Toggle Return Link" role="button" tabindex="0" aria-label="Toggle Return Link">R</div>
-        </div>
-      `
-      Dom.setInnerHTML(div, html)
+      /* Manually create elements to ensure they exist in DOM */
+      let deleteBtn = Dom.createElement("div")
+      Dom.setAttribute(deleteBtn, "class", "hotspot-delete-btn")
+      Dom.setAttribute(deleteBtn, "title", "Delete Link")
+      Dom.setAttribute(deleteBtn, "role", "button")
+      Dom.setAttribute(deleteBtn, "tabindex", "0")
+      Dom.setAttribute(deleteBtn, "aria-label", "Delete Link")
+      Dom.setTextContent(deleteBtn, "✕")
+
+      let controls = Dom.createElement("div")
+      Dom.setAttribute(controls, "class", "hotspot-controls")
+
+      /* Forward Btn */
+      let fwdBtn = Dom.createElement("div")
+      let fwdClass = "hotspot-forward-btn" ++ (isAutoForward ? " active" : "")
+      Dom.setAttribute(fwdBtn, "class", fwdClass)
+      Dom.setAttribute(fwdBtn, "title", "Toggle Auto-Forward")
+      Dom.setTextContent(fwdBtn, "A")
+      Dom.appendChild(controls, fwdBtn)
+
+      /* Append all to container */
+      Dom.appendChild(div, deleteBtn)
+      Dom.appendChild(div, controls)
+
       Dom.setPointerEvents(div, "auto")
       Dom.setCursor(div, "default")
 

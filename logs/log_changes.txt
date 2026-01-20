@@ -423,3 +423,4 @@ Task: 147
 [2026-01-19 12:25] v4.3.3 - changed to 900 milliseconds
 [2026-01-19 19:50] v4.3.3 - Re-apply Full Hotspot Visibility Fix
 [2026-01-20 10:40] v4.3.3 - Accurate Bottom Rod Hotspot Arrow
+[2026-01-20 11:56] v4.3.3 - Hotspot Arrow Delete Button Perfected
