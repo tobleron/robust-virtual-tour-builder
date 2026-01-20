@@ -86,6 +86,7 @@
 │   ├── COLOR_PALETTE_REFERENCE.md
 │   ├── CSS_ARCHITECTURE_AND_BEST_PRACTICES.md
 │   ├── CSS_MIGRATION_ANALYSIS.md
+│   ├── CSS_MIGRATION_SUMMARY.md
 │   ├── IMPROVEMENTS.md
 │   ├── OBSERVABILITY_AND_ERROR_HANDLING.md
 │   ├── openapi.yaml
@@ -1825,7 +1826,8 @@
 │   └── rescript.lock
 ├── logs
 │   ├── error.log
-│   └── log_changes.txt
+│   ├── log_changes.txt
+│   └── telemetry.log
 ├── package-lock.json
 ├── package.json
 ├── plans
@@ -2107,8 +2109,6 @@
 │   │   ├── 202_offload_image_similarity_to_backend.md
 │   │   ├── 205_re_evaluate_webp_quality.md
 │   │   ├── 284_theme_switching_infrastructure.md
-│   │   ├── CSS_MIGRATION_TASKS_SUMMARY.md
-│   │   ├── TASK_REORGANIZATION_NOTES.md
 │   │   └── Tests
 │   │       ├── 203_expand_test_coverage.md
 │   │       ├── 204_Add_Tests_for_ImageOptimizer.md
