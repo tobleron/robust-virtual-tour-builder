@@ -73,6 +73,35 @@ let make = () => {
   let dispatch = AppContext.useAppDispatch()
   let simActive = state.simulation.status == Running
 
+  // Derived state for display
+  let currentCategory = if state.activeIndex >= 0 {
+    switch Belt.Array.get(state.scenes, state.activeIndex) {
+    | Some(s) =>
+      if s.category == "" {
+        "outdoor"
+      } else {
+        s.category
+      }
+    | None => "outdoor"
+    }
+  } else {
+    "outdoor"
+  }
+
+  let currentFloor = if state.activeIndex >= 0 {
+    switch Belt.Array.get(state.scenes, state.activeIndex) {
+    | Some(s) =>
+      if s.floor == "" {
+        "ground"
+      } else {
+        s.floor
+      }
+    | None => ""
+    }
+  } else {
+    ""
+  }
+
   // Standard Dom.element ref
   let labelBtnRef = React.useRef(Nullable.null)
 
@@ -206,22 +235,11 @@ let make = () => {
     JsxEvent.Mouse.stopPropagation(e)
     let activeIdx = state.activeIndex
     if activeIdx >= 0 {
-      let scenes = state.scenes
-      let current = switch Belt.Array.get(scenes, activeIdx) {
-      | Some(s) =>
-        if s.category == "" {
-          "indoor"
-        } else {
-          s.category
-        }
-      | None => "indoor"
-      }
-      let newCat = if current == "indoor" {
+      let newCat = if currentCategory == "indoor" {
         "outdoor"
       } else {
         "indoor"
       }
-      // Store.store.updateSceneMetadata(activeIdx, Obj.magic({"category": newCat}))
       dispatch(Actions.UpdateSceneMetadata(activeIdx, Logger.castToJson({"category": newCat})))
 
       EventBus.dispatch(
@@ -231,11 +249,7 @@ let make = () => {
           } else {
             "Category: OUTDOOR"
           },
-          if newCat == "indoor" {
-            #Warning
-          } else {
-            #Success
-          },
+          #Warning,
         ),
       )
     }
@@ -288,35 +302,6 @@ let make = () => {
       dispatch(Actions.UpdateSceneMetadata(activeIdx, Logger.castToJson({"floor": fid})))
       EventBus.dispatch(ShowNotification("Floor: " ++ label, #Success))
     }
-  }
-
-  // Derived state for display
-  let currentCategory = if state.activeIndex >= 0 {
-    switch Belt.Array.get(state.scenes, state.activeIndex) {
-    | Some(s) =>
-      if s.category == "" {
-        "indoor"
-      } else {
-        s.category
-      }
-    | None => ""
-    }
-  } else {
-    ""
-  }
-
-  let currentFloor = if state.activeIndex >= 0 {
-    switch Belt.Array.get(state.scenes, state.activeIndex) {
-    | Some(s) =>
-      if s.floor == "" {
-        "ground"
-      } else {
-        s.floor
-      }
-    | None => ""
-    }
-  } else {
-    ""
   }
 
   // Render
@@ -431,7 +416,7 @@ let make = () => {
               } else if currentCategory == "outdoor" {
                 "park"
               } else {
-                "category"
+                "park"
               },
             )}
           </span>
@@ -471,12 +456,10 @@ let make = () => {
 
       <div
         id="v-scene-persistent-label"
-        className={"absolute top-8 left-1/2 -translate-x-1/2 z-[6005] bg-blue-600/80 backdrop-blur-md text-white px-3 py-1.5 rounded-2xl text-[12px] font-black uppercase shadow-2xl flex items-center justify-center transition-all duration-500 pointer-events-none border border-white/10 tracking-widest " ++ if (
-          currentLabel != ""
-        ) {
-          "opacity-100 translate-y-0 scale-100"
+        className={"viewer-persistent-label " ++ if currentLabel != "" {
+          "state-visible"
         } else {
-          "opacity-0 -translate-y-4 scale-90 hidden"
+          "state-hidden"
         }}
       >
         {React.string("#" ++ currentLabel)}
