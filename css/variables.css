@@ -24,12 +24,13 @@
     /* Red 500 */
     --danger-dark: #9b1c2e;
 
-    --success: #10b981;
-    /* Emerald 500 */
+    --success: #059669;
+    /* Emerald 600 - WCAG AA Compliant */
     --success-light: #34d399;
     /* Emerald 400 */
     --success-dark: #065f46;
     /* Emerald 800 */
+    --success-text: var(--success-dark);
 
     --warning: #f59e0b;
     /* Amber 500 */

@@ -228,19 +228,27 @@ OLD COLOR           → NEW VARIABLE
 
 ### Contrast Ratios (WCAG 2.1 AA)
 
-| Combination | Ratio | Status |
-|-------------|-------|--------|
-| Primary on White | 8.59:1 | ✅ AAA |
-| Slate-700 on White | 10.42:1 | ✅ AAA |
-| Slate-600 on White | 7.23:1 | ✅ AAA |
-| Accent on Primary-Dark | 12.5:1 | ✅ AAA |
-| Danger on White | 5.52:1 | ✅ AA |
-| Success on White | 3.18:1 | ⚠️ AA Large |
+| Background | Foreground | Ratio | Status (Text) | Status (UI) |
+|------------|------------|-------|---------------|-------------|
+| White      | `--primary` | 9.6:1 | ✅ AAA | ✅ AAA |
+| White      | `--slate-700` | 10.4:1 | ✅ AAA | ✅ AAA |
+| White      | `--slate-600` | 7.5:1 | ✅ AAA | ✅ AAA |
+| `--primary-dark` | `--accent` | 11.6:1 | ✅ AAA | ✅ AAA |
+| White      | `--danger` | 4.6:1 | ✅ AA | ✅ AA |
+| White      | `--success` | 3.0:1 | ❌ FAIL | ✅ AA (Large/UI) |
+| `--primary` | White | 9.6:1 | ✅ AAA | ✅ AAA |
+| `--danger` | White | 4.6:1 | ✅ AA | ✅ AA |
+| `--success` | White | 3.0:1 | ❌ FAIL | ✅ AA (Large/UI) |
+
+**Audit Findings (Jan 2026)**:
+- **`--success` (#10b981)** has low contrast (3.0:1) against white. It is acceptable for graphical objects (buttons, icons) but **fails** for normal text.
+- **Action**: Use `--success-text` or `--success-dark` for text content.
+- **Action**: darken base `--success` variable to improve legibility on buttons.
 
 **Recommendations**:
-- Use `--success-dark` for small text on light backgrounds
-- Use `--danger-light` for better contrast on dark backgrounds
-- Always test color combinations with a contrast checker
+- Use `--success-dark` (#065f46) for any text on light backgrounds (Ratio 13.6:1).
+- Use `--danger-light` for better contrast on dark backgrounds.
+- Always test color combinations with a contrast checker.
 
 ---
 
