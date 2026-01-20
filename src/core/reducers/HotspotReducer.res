@@ -14,15 +14,7 @@ let reduce = (state: state, action: action): option<state> => {
     Some({...state, scenes: newScenes})
 
   | RemoveHotspot(sceneIndex, hotspotIndex) =>
-    let newScenes = Belt.Array.mapWithIndex(state.scenes, (i, s) => {
-      if i == sceneIndex {
-        let newHotspots = Belt.Array.keepWithIndex(s.hotspots, (_, hi) => hi != hotspotIndex)
-        {...s, hotspots: newHotspots}
-      } else {
-        s
-      }
-    })
-    Some({...state, scenes: newScenes})
+    Some(ReducerHelpers.handleRemoveHotspot(state, sceneIndex, hotspotIndex))
 
   | ClearHotspots(index) =>
     let newScenes = Belt.Array.mapWithIndex(state.scenes, (i, s) => {

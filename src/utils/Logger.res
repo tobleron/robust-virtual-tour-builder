@@ -101,31 +101,8 @@ let moduleColors = Dict.fromArray([
 // =============================================================================
 
 let showDebugBadge = () => {
-  let doc = Dom.documentBody
-  let existing = Dom.getElementById("debug-badge")->Nullable.toOption
-  if Option.isNone(existing) {
-    let badge = Dom.createElement("div")
-    Dom.setId(badge, "debug-badge")
-    Dom.setTextContent(badge, "🐛 DEBUG")
-    let style = "position: fixed; bottom: 20px; right: 20px; background: #1e293b; color: #10b981; padding: 6px 12px; border-radius: 8px; font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 11px; letter-spacing: 0.05em; z-index: 99999; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 1px solid rgba(16, 185, 129, 0.2); animation: debug-fade-in 0.3s ease-out;"
-    Dom.setAttribute(badge, "style", style)
-
-    if Option.isNone(Dom.getElementById("debug-styles")->Nullable.toOption) {
-      let s = Dom.createElement("style")
-      Dom.setId(s, "debug-styles")
-      Dom.setTextContent(
-        s,
-        "
-                @keyframes debug-fade-in {
-                    from { opacity: 0; transform: translateY(10px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-            ",
-      )
-      Dom.appendChild(Dom.documentBody, s)
-    }
-    Dom.appendChild(doc, badge)
-  }
+  // Visual debug badge disabled as per user request (Invisible for now)
+  ()
 }
 
 let hideDebugBadge = () => {

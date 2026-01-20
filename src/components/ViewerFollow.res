@@ -63,8 +63,54 @@ let rec updateFollowLoop = () => {
           }
         }
 
-        let yawDelta = getEdgePower(state.mouseXNorm, deadzone) *. yawMaxSpeed
-        let pitchDelta = -.getEdgePower(state.mouseYNorm, deadzone) *. pitchMaxSpeed
+        // Check startup deadzone (prevent instant movement when clicking Add Link near edge)
+        let isInsideDeadzone = switch (
+          Nullable.toOption(state.linkingStartPoint),
+          Nullable.toOption(state.lastMouseEvent),
+        ) {
+        | (Some(start), Some(evt)) =>
+          let cx = Belt.Int.toFloat(Obj.magic(evt)["clientX"])
+          let cy = Belt.Int.toFloat(Obj.magic(evt)["clientY"])
+          let dx = cx -. start["x"]
+          let dy = cy -. start["y"]
+          let dist = Math.sqrt(dx *. dx +. dy *. dy)
+          if dist > 150.0 {
+            // Threshold passed, clear the point so we don't check again
+            state.linkingStartPoint = Nullable.null
+            false
+          } else {
+            true
+          }
+        | (Some(_), None) => true // Have start point but no mouse event yet -> safe block
+        | (None, _) => false
+        }
+
+        // Apply velocity boost
+        let getVelocityBoost = vel => {
+          let absVel = Math.abs(vel)
+
+          // Threshold: ignore slow micro-movements, start boost after 500px/s
+          if absVel > 500.0 {
+            let boost = (absVel -. 500.0) /. 3000.0 // Scaled boost
+            Math.min(boost, 1.5) // Cap boost at +150% speed (total 2.5x)
+          } else {
+            0.0
+          }
+        }
+
+        let yawBoost = getVelocityBoost(state.mouseVelocityX)
+        let pitchBoost = getVelocityBoost(state.mouseVelocityY)
+
+        let yawDelta = if isInsideDeadzone {
+          0.0
+        } else {
+          getEdgePower(state.mouseXNorm, deadzone) *. yawMaxSpeed *. (1.0 +. yawBoost)
+        }
+        let pitchDelta = if isInsideDeadzone {
+          0.0
+        } else {
+          -.getEdgePower(state.mouseYNorm, deadzone) *. pitchMaxSpeed *. (1.0 +. pitchBoost)
+        }
 
         // Reset velocity storage as we are now using direct mapping
         state.lastAppliedYaw = Nullable.null
