@@ -23,7 +23,9 @@ Before executing ANY code or shell command, you must perform a **Context Check**
   - **ALWAYS READ FIRST**: `/functional-standards.md` (Universal Principles apply to ALL code).
   - **THEN**, based on file type:
     - For **ReScript** (`.res`, `.resi`): ALSO follow `/rescript-standards.md`.
+    - For **ReScript** (`.res`, `.resi`): ALSO follow `/rescript-standards.md`.
     - For **Rust** (`.rs`): ALSO follow `/rust-standards.md`.
+  - **Styling**: ALL CSS/UI work must follow `/docs/CSS_ARCHITECTURE_AND_BEST_PRACTICES.md`.
   - **Logging**: All debug logs must follow `/debug-standards.md`.
 - **Test-Driven Dev**:
   - Follow `/testing-standards.md` for test structure and patterns.

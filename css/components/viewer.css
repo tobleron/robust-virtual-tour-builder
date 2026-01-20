@@ -380,3 +380,87 @@
     filter: brightness(1.2);
     box-shadow: none;
 }
+/* =========================================
+   Refactor: ViewerUI Specific Classes
+   ========================================= */
+
+/* --- Utility Bar Buttons --- */
+/* Add Link Button */
+.v-util-btn-add-link.state-empty { background-color: #64748b; color: white; }
+.v-util-btn-add-link.state-linking { background-color: #ffcc00; color: black; }
+.v-util-btn-add-link.state-idle { background-color: #dc3545; color: white; }
+.v-util-btn-add-link-icon { font-size: 20px; font-weight: bold; }
+
+/* Auto-Pilot Button */
+.v-util-btn-autopilot.state-empty { background-color: #64748b; }
+.v-util-btn-autopilot.state-active { background-color: #dc3545; }
+.v-util-btn-autopilot.state-idle { background-color: #10b981; }
+
+.v-util-btn-icon {
+    font-size: 18px;
+    color: white;
+}
+
+/* Category Button */
+.v-util-btn-category.state-empty { background-color: #64748b; }
+.v-util-btn-category.cat-outdoor { background-color: #15803d; }
+.v-util-btn-category.cat-indoor { background-color: #c2410c; }
+.v-util-btn-category.cat-none { background-color: #dc3545; }
+
+/* Label Button */
+.v-util-btn-label.state-empty { background-color: #64748b; }
+.v-util-btn-label.state-loaded { background-color: #dc3545; }
+
+/* HUD Labels */
+/* Moved dynamic logic to CSS classes if possible, but opacity/transform is best handled by conditional classes already present */
+
+/* --- Quality Badges --- */
+.quality-badge {
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 4px; /* default rounded */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* shadow-sm */
+    opacity: 0.9;
+}
+.quality-badge.q-blurry { background-color: #dc2626; }
+.quality-badge.q-soft { background-color: #d97706; }
+.quality-badge.q-dark { background-color: #0f172a; }
+.quality-badge.q-dim { background-color: #64748b; }
+
+
+/* --- Viewer Logo --- */
+.viewer-logo-masked {
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+    mask-image: radial-gradient(white, black);
+}
+
+
+/* --- Linking Hint --- */
+.linking-hint-text {
+    font-family: var(--font-ui, 'Inter', system-ui, sans-serif);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    color: white;
+}
+.linking-hint-subtext {
+    font-size: 10px;
+    opacity: 0.8;
+}
+
+
+/* --- Floor Navigation --- */
+.floor-circle-shadow-selected {
+    box-shadow: 0 0 12px rgba(0, 61, 165, 0.5);
+}
+.floor-circle-shadow-idle {
+    box-shadow: 1px 1px 1px #000;
+}
+.floor-suffix {
+    font-size: 9px;
+    margin-left: 1px;
+}

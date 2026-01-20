@@ -131,21 +131,14 @@ let make = () => {
   >
     /* Branding Header */
     <div
-      className="relative w-full flex flex-col z-30 text-white shrink-0 border-t-2 border-danger bg-slate-900"
-      style={makeStyle({
-        "background": "linear-gradient(to bottom, #001a38 0%, #002a70 50%, #003da5 100%)",
-      })}
+      className="relative w-full flex flex-col z-30 text-white shrink-0 border-t-2 border-danger sidebar-branding-header"
     >
       <div className="flex flex-col items-center px-6 pt-5 pb-5">
-        <span
-          className="material-icons text-white drop-shadow-lg mb-2"
-          style={makeStyle({"fontSize": "32px"})}
-        >
+        <span className="material-icons text-white drop-shadow-lg mb-2 sidebar-branding-icon">
           {React.string("home")}
         </span>
         <h1
-          className="font-heading font-black text-white tracking-widest text-center uppercase"
-          style={makeStyle({"fontSize": "16px", "letterSpacing": "0.15em"})}
+          className="font-heading font-black text-white tracking-widest text-center uppercase sidebar-branding-title"
         >
           {React.string("Virtual Tour Builder")}
         </h1>
@@ -482,7 +475,7 @@ let make = () => {
           </div>
           <div className="bg-slate-200 h-1.5 rounded-full overflow-hidden relative">
             <div
-              className="h-full bg-primary transition-all duration-300 rounded-full"
+              className="h-full transition-all duration-300 rounded-full sidebar-progress-fill"
               style={makeStyle({"width": Float.toFixed(procState["progress"], ~digits=0) ++ "%"})}
             />
           </div>
@@ -499,8 +492,7 @@ let make = () => {
 
       <div className="px-4 pb-4">
         <button
-          className="w-full h-12 text-white rounded-xl flex items-center justify-center gap-3 transition-all hover:brightness-110 hover:shadow-xl hover-lift active-push group overflow-hidden relative focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
-          style={makeStyle({"backgroundColor": "var(--primary)"})}
+          className="w-full h-12 text-white rounded-xl flex items-center justify-center gap-3 transition-all hover:brightness-110 hover:shadow-xl hover-lift active-push group overflow-hidden relative focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none sidebar-upload-btn"
           onClick={_ => {
             switch Nullable.toOption(fileInputRef.current) {
             | Some(el) => Dom.click(el)
