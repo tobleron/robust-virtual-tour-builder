@@ -579,9 +579,12 @@
     background-color: rgba(37, 99, 235, 0.8);
     backdrop-filter: blur(var(--glass-blur, 12px));
     color: white;
-    padding: 0.375rem 0.75rem;
+    padding: 0 0.5rem;
+    /* User Request: tighter left/right padding */
+    height: 34px;
+    /* User Request: height as circle button (32px) + 2px */
     border-radius: var(--radius-sm);
-    /* User Request: Less rounded (converted from rounded-2xl to radius-sm) */
+    /* User Request: Less rounded */
     font-size: 12px;
     font-weight: 900;
     text-transform: uppercase;
