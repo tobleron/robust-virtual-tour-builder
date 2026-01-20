@@ -86,6 +86,7 @@ let run = () => {
     autoForwardChain: [],
     pendingReturnSceneName: None,
     currentJourneyId: 0,
+    lastUsedCategory: "outdoor",
   }
 
   /* Test 1: Validate Request Generation */

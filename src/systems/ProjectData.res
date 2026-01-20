@@ -53,6 +53,7 @@ let toJSON = (state: Types.state) => {
     "deletedSceneIds": state.deletedSceneIds,
     "scenes": scenes,
     "timeline": state.timeline,
+    "lastUsedCategory": state.lastUsedCategory,
   }
 }
 
@@ -108,7 +109,7 @@ let sanitizeLoadedScenes = (rawScenes: array<JSON.t>) => {
       },
       "category": switch Nullable.toOption(i.category) {
       | Some(c) => c
-      | None => "indoor"
+      | None => "outdoor"
       },
       "floor": switch Nullable.toOption(i.floor) {
       | Some(f) => f

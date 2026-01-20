@@ -12,9 +12,11 @@
 
 2. **Read and implement the task**: Start reading the task file and working on its implementation to completion.
 
-3. **Complete the task**: After finishing the task, rename the task file by adding the postfix `_REPORT` and change its content to state what the objective was and how it was fulfilled and realized technically and concisely.
+3. **Verify the build**: Run `npm run build` to ensure compilation passes and there are no errors.
 
-4. **Archive the task**: Move the renamed `_REPORT` file from `active/` to the `completed/` folder.
+4. **Complete the task**: After finishing the task, rename the task file by adding the postfix `_REPORT` and change its content to state what the objective was and how it was fulfilled and realized technically and concisely.
 
-5. **Wait**: Do not proceed to the next task until the current one is fully verified.
+5. **Archive the task**: Move the renamed `_REPORT` file from `active/` to the `completed/` folder.
+
+6. **Wait**: Do not proceed to the next task until the current one is fully verified.
 273_centralize_rescript_styling_tokens.md

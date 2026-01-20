@@ -45,6 +45,7 @@ type projectSceneJson = {
 type projectJson = {
   tourName: Nullable.t<string>,
   scenes: array<projectSceneJson>,
+  lastUsedCategory: Nullable.t<string>,
 }
 
 type importSceneJson = {
