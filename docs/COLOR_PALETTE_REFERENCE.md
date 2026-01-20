@@ -14,12 +14,16 @@ This document provides a comprehensive reference for all colors used in the Robu
 | `--primary-light` | `#2563eb` | Hover states, lighter accents | 🔵 Blue 500 |
 | `--primary-dark` | `#001a38` | Dark backgrounds, headers | 🔵 Navy |
 | `--primary-navy` | `#002147` | Alternative dark variant | 🔵 Deep Navy |
+| `--primary-cobalt` | `#0047AB` | Vibrant interactive elements | 🔵 Cobalt |
+| `--primary-gradient-mid` | `#002a70` | Gradient transitions | 🔵 Mid Blue |
 | `--accent` | `#ffcc00` | Gold accents, highlights, CTAs | 🟡 Remax Gold |
 | `--accent-light` | `#fdb931` | Lighter gold for hover states | 🟡 Light Gold |
 | `--accent-soft` | `rgba(255, 204, 0, 0.1)` | Subtle gold backgrounds | 🟡 Gold Tint |
 | `--danger` | `#dc3545` | Error states, delete buttons | 🔴 Remax Red |
 | `--danger-light` | `#ef4444` | Hover states for danger actions | 🔴 Red 500 |
 | `--danger-dark` | `#9b1c2e` | Dark red variant | 🔴 Dark Red |
+| `--delete-hover` | `#bb2d3b` | Darker hover for delete actions | 🔴 Deep Red |
+| `--orange-brand` | `#f97316` | Attention grabbers, 3rd chevron | 🟠 Brand Orange |
 
 ### ✅ Semantic Colors (Functional States)
 
@@ -54,10 +58,12 @@ This document provides a comprehensive reference for all colors used in the Robu
 |----------|-----|-------|-----------|
 | `--viewer-bg` | `#1a202c` | Main viewer background | Panellum Viewer |
 | `--sidebar-bg` | `#ffffff` | Sidebar background | Scene List |
-| `--floor-default` | `#001a4d` | Unselected floor button | Floor Nav |
-| `--floor-hover` | `#ea580c` | Floor button hover | Floor Nav |
+| `--floor-default` | `var(--floor-default)` | Unselected floor button | Floor Nav |
+| `--floor-bg-hover` | `var(--floor-bg-hover)` | Floor button background hover | Floor Nav |
+| `--floor-hover` | `var(--floor-hover)` | Floor button icon hover | Floor Nav |
 | `--floor-active` | `var(--primary)` | Selected floor | Floor Nav |
-| `--floor-border-active` | `var(--accent)` | Active floor border | Floor Nav |
+| `--floor-active-bg` | `var(--primary-cobalt)` | Selected floor background | Floor Nav |
+| `--floor-border-active` | `var(--warning-light)` | Active floor border | Floor Nav |
 
 ### 🎨 Design Tokens
 

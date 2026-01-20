@@ -62,8 +62,10 @@
 │   ├── base.css
 │   ├── components
 │   │   ├── buttons.css
+│   │   ├── error-fallback.css
 │   │   ├── floor-nav.css
 │   │   ├── modals.css
+│   │   ├── scene-groups.css
 │   │   ├── ui.css
 │   │   ├── upload-report.css
 │   │   └── viewer.css
@@ -1823,8 +1825,7 @@
 │   └── rescript.lock
 ├── logs
 │   ├── error.log
-│   ├── log_changes.txt
-│   └── telemetry.log
+│   └── log_changes.txt
 ├── package-lock.json
 ├── package.json
 ├── plans
@@ -2093,7 +2094,8 @@
 │   │   ├── 273_centralize_rescript_styling_tokens_REPORT.md
 │   │   ├── 274_migrate_conditional_styles_to_classes_REPORT.md
 │   │   ├── 275_complete_css_variable_migration.md
-│   │   └── 276_refactor_uploadreport_inline_styles.md
+│   │   ├── 276_refactor_uploadreport_inline_styles.md
+│   │   └── 277_design_system_documentation_and_compliance.md
 │   ├── current_refactor.md
 │   ├── pending
 │   │   ├── 176_fix_security_innerhtml.md
@@ -2101,7 +2103,6 @@
 │   │   ├── 201_implement_backend_geocoding_cache.md
 │   │   ├── 202_offload_image_similarity_to_backend.md
 │   │   ├── 205_re_evaluate_webp_quality.md
-│   │   ├── 277_design_system_documentation_and_compliance.md
 │   │   ├── 278_create_css_gradient_variables.md
 │   │   ├── 279_add_color_accessibility_audit.md
 │   │   ├── 283_implement_remax_centric_theme.md
@@ -2261,4 +2262,4 @@
 │       └── VitestSmoke.test.res
 └── vitest.config.mjs
 
-50 directories, 2212 files
+50 directories, 2213 files

@@ -79,6 +79,8 @@ Place CSS files in `css/` according to their scope:
     - `ui.css` (General UI, Sidebars)
     - `buttons.css` (Button variants)
     - `modals.css` (Dialogs/Overlays)
+    - `floor-nav.css` (Floor navigation controls)
+    - `upload-report.css` (Upload summary report)
 
 ---
 

@@ -123,79 +123,21 @@ let make = () => {
   // Portal logic removed.
   switch activeConfig {
   | Some(config) =>
-    <div
-      className="modal-overlay"
-      style={makeStyle({
-        "display": "flex",
-        "position": "fixed",
-        "top": "0",
-        "left": "0",
-        "width": "100%",
-        "height": "100%",
-        "background": "rgba(0,0,0,0.7)",
-        "backdropFilter": "blur(12px)",
-        "zIndex": "20000",
-        "justifyContent": "center",
-        "alignItems": "center",
-        "padding": "16px",
-        "transition": "opacity 0.3s ease-in-out",
-        "opacity": "1",
-      })}
-    >
-      <div
-        className="modal-box-premium"
-        style={makeStyle({
-          "width": "100%",
-          "maxWidth": "340px",
-        })}
-        role="dialog"
-        ariaModal=true
-        ariaLabelledby="modal-title"
-      >
+    <div className="modal-overlay">
+      <div className="modal-box-premium" role="dialog" ariaModal=true ariaLabelledby="modal-title">
         // Icon
         {switch config.icon {
         | Some(icon) =>
-          <div style={makeStyle({"textAlign": "center", "marginBottom": "16px"})}>
-            <span
-              className="material-icons"
-              style={makeStyle({
-                "fontSize": "40px",
-                "color": "var(--warning-light)",
-                "filter": "drop-shadow(0 0 12px rgba(251, 191, 36, 0.4))",
-              })}
-            >
-              {React.string(icon)}
-            </span>
+          <div className="modal-icon-container">
+            <span className="material-icons modal-icon"> {React.string(icon)} </span>
           </div>
         | None => React.null
         }}
         // Title
-        <h3
-          id="modal-title"
-          style={makeStyle({
-            "margin": "0 0 4px 0",
-            "fontSize": "20px",
-            "fontWeight": "800",
-            "letterSpacing": "-0.02em",
-            "textAlign": "center",
-            "color": "white",
-          })}
-        >
-          {React.string(config.title)}
-        </h3>
+        <h3 id="modal-title" className="modal-title-custom"> {React.string(config.title)} </h3>
         // Description
         {switch config.description {
-        | Some(desc) =>
-          <p
-            style={makeStyle({
-              "fontSize": "13px",
-              "color": "rgba(255,255,255,0.6)",
-              "marginBottom": "20px",
-              "textAlign": "center",
-            })}
-          >
-            {React.string(desc)}
-          </p>
+        | Some(desc) => <p className="modal-description-custom"> {React.string(desc)} </p>
         | None => React.null
         }}
         // Content Html
@@ -205,21 +147,12 @@ let make = () => {
         | None => React.null
         }}
         // Buttons
-        <div
-          className="modal-actions"
-          style={makeStyle({
-            "display": "flex",
-            "flexDirection": "column",
-            "gap": "10px",
-            "marginTop": "20px",
-          })}
-        >
+        <div className="modal-actions">
           {config.buttons
           ->Belt.Array.mapWithIndex((i, btn) => {
             <button
               key={Belt.Int.toString(i)}
-              className={`modal-btn-premium ${btn.class_}`}
-              style={makeStyle({"width": "100%"})}
+              className={`modal-btn-premium modal-btn-full ${btn.class_}`}
               onClick={_ => {
                 btn.onClick()
                 if Belt.Option.getWithDefault(btn.autoClose, true) {

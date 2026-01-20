@@ -42,3 +42,41 @@
     line-height: 1.5 !important;
     margin-bottom: 24px !important;
 }
+
+.modal-icon-container {
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.modal-icon {
+    font-size: 40px;
+    color: var(--warning-light);
+    filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.4));
+}
+
+.modal-title-custom {
+    margin: 0 0 4px 0;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    text-align: center;
+    color: white;
+}
+
+.modal-description-custom {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.modal-btn-full {
+    width: 100%;
+}
