@@ -2097,7 +2097,8 @@
 │   │   ├── 276_refactor_uploadreport_inline_styles.md
 │   │   ├── 277_design_system_documentation_and_compliance.md
 │   │   ├── 278_create_css_gradient_variables.md
-│   │   └── 279_add_color_accessibility_audit.md
+│   │   ├── 279_add_color_accessibility_audit.md
+│   │   └── 283_implement_remax_centric_theme.md
 │   ├── current_refactor.md
 │   ├── pending
 │   │   ├── 176_fix_security_innerhtml.md
@@ -2105,7 +2106,6 @@
 │   │   ├── 201_implement_backend_geocoding_cache.md
 │   │   ├── 202_offload_image_similarity_to_backend.md
 │   │   ├── 205_re_evaluate_webp_quality.md
-│   │   ├── 283_implement_remax_centric_theme.md
 │   │   ├── 284_theme_switching_infrastructure.md
 │   │   ├── CSS_MIGRATION_TASKS_SUMMARY.md
 │   │   ├── TASK_REORGANIZATION_NOTES.md

@@ -16,9 +16,9 @@
     border: 2px solid var(--glass-border) !important;
 }
 
-/* Hover on Unselected: Orange Stroke */
+/* Hover on Unselected: Gold Stroke (Remax Accent) */
 .bg-floor-default:hover {
-    border-color: var(--orange-brand) !important;
+    border-color: var(--accent) !important;
     background-color: var(--floor-bg-hover) !important;
     color: var(--sidebar-bg) !important;
     transform: scale(1.05) translateY(-2px);

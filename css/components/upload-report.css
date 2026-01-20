@@ -113,11 +113,11 @@
 
 .upload-report-item {
     padding: 8px 10px;
-    background: #fff1f2;
-    /* Red 50 */
+    background: rgba(220, 53, 69, 0.05);
+    /* Danger tint */
     border-radius: 8px;
-    border: 1px solid #fecaca;
-    /* Red 200 */
+    border: 1px solid rgba(220, 53, 69, 0.2);
+    /* Danger border */
 }
 
 .upload-report-item-header {
@@ -146,8 +146,7 @@
 
 .upload-report-analysis {
     font-size: 9px;
-    color: #b91c1c;
-    /* Red 700 */
+    color: var(--danger-dark);
     line-height: 1.2;
     margin-top: 2px;
 }
