@@ -58,11 +58,11 @@
     /* Viewer Specific Colors */
     --viewer-bg: #1a202c;
     --sidebar-bg: #ffffff;
-    --floor-default: #00235d;
-    /* Updated to match floor-nav.css */
-    --floor-bg-hover: #163a63;
-    /* New */
-    --floor-hover: #ea580c;
+    --floor-default: var(--primary-navy);
+    /* Unified: Remax Navy */
+    --floor-bg-hover: var(--primary-dark);
+    /* Unified: Darker on hover */
+    --floor-hover: var(--accent);
     --floor-active: var(--primary);
     --floor-active-bg: var(--primary-cobalt);
     --floor-border-active: var(--accent);

@@ -54,16 +54,16 @@ This document provides a comprehensive reference for all colors used in the Robu
 
 ### 🎯 Component-Specific Colors
 
-| Variable | Hex | Usage | Component |
-|----------|-----|-------|-----------|
+| Variable | Value | Usage | Component |
+|----------|-------|-------|-----------|
 | `--viewer-bg` | `#1a202c` | Main viewer background | Panellum Viewer |
 | `--sidebar-bg` | `#ffffff` | Sidebar background | Scene List |
-| `--floor-default` | `var(--floor-default)` | Unselected floor button | Floor Nav |
-| `--floor-bg-hover` | `var(--floor-bg-hover)` | Floor button background hover | Floor Nav |
-| `--floor-hover` | `var(--floor-hover)` | Floor button icon hover | Floor Nav |
+| `--floor-default` | `var(--primary-navy)` | Unselected floor button | Floor Nav |
+| `--floor-bg-hover` | `var(--primary-dark)` | Floor button background hover | Floor Nav |
+| `--floor-hover` | `var(--accent)` | Floor button border hover | Floor Nav |
 | `--floor-active` | `var(--primary)` | Selected floor | Floor Nav |
 | `--floor-active-bg` | `var(--primary-cobalt)` | Selected floor background | Floor Nav |
-| `--floor-border-active` | `var(--warning-light)` | Active floor border | Floor Nav |
+| `--floor-border-active` | `var(--accent)` | Active floor border | Floor Nav |
 
 ### 🎨 Design Tokens
 
