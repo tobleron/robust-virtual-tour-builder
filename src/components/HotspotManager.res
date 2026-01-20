@@ -95,7 +95,6 @@ let createHotspotConfig = (
       let fwdClass = "hotspot-forward-btn" ++ (isAutoForward ? " active" : "")
       Dom.setAttribute(fwdBtn, "class", fwdClass)
       Dom.setAttribute(fwdBtn, "title", "Toggle Auto-Forward")
-      Dom.setTextContent(fwdBtn, "A")
       Dom.appendChild(controls, fwdBtn)
 
       /* Append all to container */
@@ -179,7 +178,8 @@ let createHotspotConfig = (
             }
           | None => ()
           }
-        } // 3. Return
+        }
+ // 3. Return
         else if !Nullable.isNullable(returnBtn) {
           Event.stopPropagation(e)
           Event.preventDefault(e)

@@ -70,6 +70,7 @@ type updateMetadataJson = {
   category: Nullable.t<string>,
   floor: Nullable.t<string>,
   label: Nullable.t<string>,
+  isAutoForward: Nullable.t<bool>,
 }
 
 type timelineUpdateJson = {

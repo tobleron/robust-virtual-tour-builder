@@ -214,17 +214,14 @@
     /* Ensure on top of ::before */
 }
 
-/* 4. Hover Effect */
+/* 4. Hover Effect - Interaction Feedback (No Lift) */
 .pnlm-hotspot.flat-arrow:hover::before {
-    /* Lift slightly (-5px) while maintaining rotation */
-    transform: translate(-50%, -5px) rotateX(60deg);
-    filter: brightness(1.1) drop-shadow(0 40px 20px rgba(0, 0, 0, 0.5));
+    filter: brightness(1.1) drop-shadow(0 20px 10px rgba(0, 0, 0, 0.4));
 }
 
-.pnlm-hotspot.flat-arrow:hover::after {
-    /* Lift shine to match arrow */
-    transform: translate(-50%, -5px) rotateX(60deg);
-    /* Speed up shine */
+.pnlm-hotspot.flat-arrow:hover::after,
+.pnlm-hotspot.flat-arrow:hover .hotspot-forward-btn.active::after {
+    /* Speed up shine on hover */
     animation-duration: 0.8s;
 }
 
@@ -281,11 +278,10 @@
     /* Just color change, no scale */
 }
 
-/* A/R Buttons Container - Always Visible Below Arrow */
+/* A/R Buttons Container - Anchored at origin to support plane-accurate transforms */
 .hotspot-controls {
     position: absolute;
-    /* Position closer to the arrow bottom (moved up from 65px) */
-    top: 45px;
+    top: 0;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -299,41 +295,80 @@
     box-shadow: none;
 }
 
-/* Redesigned Auto-Forward Button: Wide Triangle */
+/* Redesigned 3rd Chevron: Red default, Emerald Active, Perfect Gap */
 .hotspot-forward-btn {
-    width: 50px;
-    /* Wide */
-    height: 20px;
-    background: #374151;
-    /* Default Grey */
-    color: white;
-    font-size: 10px;
-    font-weight: 800;
-    /* Triangle pointing UP (towards arrow) */
-    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    width: 70px;
+    height: 35px;
+    background: #f97316;
+    /* Orange-ish (User requested) */
+    position: absolute;
+    left: 50%;
+    top: 0;
+
+    /* Perfect Chevron Mask */
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'%3E%3Cpath d='M10 30 L50 0 L90 30 L90 50 L50 20 L10 50 Z' /%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'%3E%3Cpath d='M10 30 L50 0 L90 30 L90 50 L50 20 L10 50 Z' /%3E%3C/svg%3E");
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+
+    /* Perspective: Gap increased to ~14px relative (from 7px) -> Y=58px */
+    transform-origin: top center;
+    /* TranslateX centers it -> RotateX tilts the plane -> TranslateY slides down the tilted slope */
+    transform: translate(-50%, 0) rotateX(60deg) translateY(58px);
+
     display: flex;
-    align-items: flex-end;
-    /* Text at bottom */
+    align-items: center;
     justify-content: center;
-    padding-bottom: 2px;
     cursor: pointer;
-    transition: all 0.2s ease;
-    text-transform: uppercase;
-    /* Remove border/radius since clip-path cuts it */
+    transition: all 0.3s ease-in-out;
+    filter: drop-shadow(0 20px 10px rgba(0, 0, 0, 0.3));
     border: none;
     border-radius: 0;
 }
 
+/* Shine effect for the 3rd chevron (Conditional) */
+.hotspot-forward-btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg,
+            rgba(255, 255, 255, 0) 30%,
+            rgba(255, 255, 255, 0.4) 50%,
+            rgba(255, 255, 255, 0) 70%);
+    background-size: 200% 100%;
+
+    /* Matches button mask exactly */
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'%3E%3Cpath d='M10 30 L50 0 L90 30 L90 50 L50 20 L10 50 Z' /%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'%3E%3Cpath d='M10 30 L50 0 L90 30 L90 50 L50 20 L10 50 Z' /%3E%3C/svg%3E");
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.hotspot-forward-btn.active::after {
+    opacity: 1;
+    animation: shine-pass 3s infinite linear;
+}
+
 .hotspot-forward-btn:hover {
-    background: #4b5563;
-    /* Lighter grey on hover */
-    transform: scale(1.1);
+    /* derived from base color (Red or Green) via filter */
 }
 
 .hotspot-forward-btn.active {
-    background: #064e3b;
-    /* Dark Teal Green */
-    color: white;
+    background: #10b981;
+    /* Emerald Green for active 3rd chevron */
 }
 
 /* Specific overrides if needed */
@@ -343,10 +378,6 @@
 
 .hotspot-forward-btn:hover,
 .hotspot-return-btn:hover {
-    transform: scale(1.1);
-    /* Slight interaction feedback */
-    background: #1f2937;
-    /* Darker grey */
+    filter: brightness(1.2);
     box-shadow: none;
-    /* No Shadow */
 }

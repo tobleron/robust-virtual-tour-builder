@@ -346,7 +346,17 @@ let handleUpdateSceneMetadata = (state: state, index: int, metaJson: JSON.t): st
       | Some(l) => l
       | None => s.label
       }
-      {...s, category: newCategory, floor: newFloor, label: newLabel}
+      let newIsAutoForward = switch Nullable.toOption(metaObj.isAutoForward) {
+      | Some(af) => af
+      | None => s.isAutoForward
+      }
+      {
+        ...s,
+        category: newCategory,
+        floor: newFloor,
+        label: newLabel,
+        isAutoForward: newIsAutoForward,
+      }
     } else {
       s
     }
