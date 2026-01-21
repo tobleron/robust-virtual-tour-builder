@@ -336,11 +336,11 @@ let make = () => {
           <Shadcn.Button
             size="icon"
             variant={if !scenesLoaded {
-              "secondary-3d"
+              "secondary"
             } else if state.isLinking {
-              "accent-3d"
+              "accent"
             } else {
-              "destructive-3d"
+              "destructive"
             }}
             className="w-[32px] h-[32px] rounded-full text-[20px] font-bold"
             onClick={handleFabClick}
@@ -366,9 +366,9 @@ let make = () => {
           <Shadcn.Button
             size="icon"
             variant={if !scenesLoaded {
-              "secondary-3d"
+              "secondary"
             } else {
-              "destructive-3d"
+              "destructive"
             }}
             className="w-[32px] h-[32px] rounded-full"
             onClick={handleSimClick}
@@ -389,9 +389,9 @@ let make = () => {
           <Shadcn.Button
             size="icon"
             variant={if !scenesLoaded {
-              "secondary-3d"
+              "secondary"
             } else {
-              "destructive-3d"
+              "destructive"
             }}
             className="w-[32px] h-[32px] rounded-full"
             onClick={handleCatClick}
@@ -418,9 +418,9 @@ let make = () => {
               <Shadcn.Button
                 size="icon"
                 variant={if !scenesLoaded {
-                  "secondary-3d"
+                  "secondary"
                 } else {
-                  "destructive-3d"
+                  "destructive"
                 }}
                 className="w-[32px] h-[32px] rounded-full text-[18px] font-bold"
                 onClick={handleLabelClick}
@@ -572,25 +572,24 @@ let make = () => {
         ->Belt.Array.map(f => {
           let isSelected = scenesLoaded && f.id == currentFloor
 
-          <div
+          <Shadcn.Button
             key={f.id}
-            className={"floor-circle w-[32px] h-[32px] rounded-full border-2 border-transparent flex items-center justify-center font-ui text-[13px] font-bold cursor-pointer transition-all " ++ if (
-              isSelected
-            ) {
-              "bg-floor-active text-white bg-primary scale-110 z-10 floor-circle-shadow-selected"
+            size="icon"
+            variant={if isSelected {
+              "default"
             } else {
-              "bg-floor-default text-white hover:text-white floor-circle-shadow-idle"
+              "secondary"
             }}
+            className="w-[32px] h-[32px] rounded-full text-[13px] font-bold"
             onClick={e => handleFloorClick(f.id, f.label, e)}
-            title={f.label}
           >
             {React.string(f.short)}
             {if f.suffix != "" {
-              <sup className="floor-suffix"> {React.string(f.suffix)} </sup>
+              <sup className="text-[8px]"> {React.string(f.suffix)} </sup>
             } else {
               React.null
             }}
-          </div>
+          </Shadcn.Button>
         })
         ->React.array}
       </div>
