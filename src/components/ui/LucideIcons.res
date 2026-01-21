@@ -88,6 +88,11 @@ module ImageIcon = {
   external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "Image"
 }
 
+module GripVertical = {
+  @module("lucide-react") @react.component
+  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "GripVertical"
+}
+
 // Sidebar icons
 module FilePlus = {
   @module("lucide-react") @react.component
