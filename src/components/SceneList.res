@@ -62,56 +62,37 @@ module SceneItem = {
       role="button"
       ariaLabel={`Select scene ${scene.name}`}
     >
-      /* Thumbnail */
-      <div className="w-24 min-w-[96px] aspect-video relative bg-slate-900 overflow-hidden cursor-pointer rounded-lg">
-        <img
-          src={thumbUrl}
-          alt={`Thumbnail of ${scene.name}`}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100"
-          loading=#lazy
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/40 to-transparent" />
-
-        <div
-          className="absolute top-2 left-2 px-2 py-0.5 rounded-lg bg-slate-950/70 backdrop-blur-md text-[10px] font-black text-white border border-white/10 z-10 shadow-lg"
-        >
-          {React.int(index + 1)}
-        </div>
-
-        <div
-          className={`absolute top-0 right-0 h-full z-20 transition-all duration-500 shadow-xl w-1 ${groupColorClass}`}
-        />
+      // Drag Handle
+      <div className="flex items-center justify-center w-6 text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing transition-colors">
+        <LucideIcons.GripVertical size=16 />
       </div>
 
-      /* Content */
-      <div className="flex-1 min-w-0 p-4 flex flex-col justify-center cursor-pointer">
-        <div className="flex items-center justify-between mb-2">
-          <h4
-            className={`text-[13px] font-normal truncate pr-3 tracking-tight ${if isActive {
-                "text-primary-light"
-              } else {
-                "text-slate-700"
-              }}`}
+      // Thumbnail with Quality Bar
+      <div className="flex flex-col gap-1">
+        <div className="w-28 aspect-video relative bg-slate-900 overflow-hidden cursor-pointer rounded-lg">
+          <img
+            src={thumbUrl}
+            alt={`Thumbnail of ${scene.name}`}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100"
+            loading=#lazy
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/40 to-transparent" />
+
+          <div
+            className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-slate-950/70 backdrop-blur-md text-[9px] font-black text-white border border-white/10 z-10 shadow-lg"
           >
-            {React.string(scene.name)}
-          </h4>
-          <div className="flex items-center gap-2 shrink-0">
-            {if Array.length(scene.hotspots) > 0 {
-              <div className="flex items-center gap-1 text-primary-dark transition-colors">
-                <LucideIcons.Link className="text-[10px]" size=10 />
-                <span className="text-[10px] font-bold">
-                  {React.int(Array.length(scene.hotspots))}
-                </span>
-              </div>
-            } else {
-              React.null
-            }}
+            {React.int(index + 1)}
           </div>
+
+          <div
+            className={`absolute top-0 right-0 h-full z-20 transition-all duration-500 shadow-xl w-1 ${groupColorClass}`}
+          />
         </div>
 
-        <div className="flex items-center gap-3">
+        /* Quality Bar under thumbnail */
+        <div className="flex items-center gap-2">
           <div className="flex-1">
-            <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+            <div className="w-full bg-slate-100 h-1 rounded-full overflow-hidden">
               <div
                 className={`h-full transition-all duration-1000 ease-out rounded-full ${qualityColor}`}
                 // EXCEPTION: Dynamic progress percentage (CSS_ARCHITECTURE.md §3.1)
@@ -121,16 +102,41 @@ module SceneItem = {
             </div>
           </div>
           <span
-            className={`text-[11px] font-black uppercase tracking-widest leading-none ${if (
+            className={`text-[9px] font-black uppercase tracking-wider leading-none ${if (
                 isLowQuality
               ) {
                 "text-danger"
               } else {
-                "text-slate-600"
+                "text-slate-500"
               }}`}
           >
             {React.string(Float.toFixed(qualityScore, ~digits=1))}
           </span>
+        </div>
+      </div>
+
+      /* Content */
+      <div className="flex-1 min-w-0 py-2 px-3 flex flex-col justify-center cursor-pointer">
+        <div className="flex items-center justify-between gap-2">
+          <h4
+            className={`text-[13px] font-normal truncate tracking-tight ${if isActive {
+                "text-primary-light"
+              } else {
+                "text-slate-700"
+              }}`}
+          >
+            {React.string(scene.name)}
+          </h4>
+          {if Array.length(scene.hotspots) > 0 {
+            <div className="flex items-center gap-1.5 text-primary-dark transition-colors shrink-0">
+              <LucideIcons.Link size=14 />
+              <span className="text-[11px] font-bold">
+                {React.int(Array.length(scene.hotspots))}
+              </span>
+            </div>
+          } else {
+            React.null
+          }}
         </div>
       </div>
 
