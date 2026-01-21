@@ -77,3 +77,34 @@ module ImageIcon = {
   @module("lucide-react") @react.component
   external make: (~className: string=?, ~size: int=?) => React.element = "Image"
 }
+
+// Sidebar icons
+module Save = {
+  @module("lucide-react") @react.component
+  external make: (~className: string=?, ~size: int=?) => React.element = "Save"
+}
+
+module FolderOpen = {
+  @module("lucide-react") @react.component
+  external make: (~className: string=?, ~size: int=?) => React.element = "FolderOpen"
+}
+
+module Info = {
+  @module("lucide-react") @react.component
+  external make: (~className: string=?, ~size: int=?) => React.element = "Info"
+}
+
+module Share2 = {
+  @module("lucide-react") @react.component
+  external make: (~className: string=?, ~size: int=?) => React.element = "Share2"
+}
+
+module Film = {
+  @module("lucide-react") @react.component
+  external make: (~className: string=?, ~size: int=?) => React.element = "Film"
+}
+
+module Camera = {
+  @module("lucide-react") @react.component
+  external make: (~className: string=?, ~size: int=?) => React.element = "Camera"
+}

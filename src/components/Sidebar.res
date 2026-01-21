@@ -140,9 +140,7 @@ let make = () => {
           >
             {React.string("ROBUST")}
           </h1>
-          <span className="material-icons text-white drop-shadow-lg text-[56px]">
-            {React.string("home")}
-          </span>
+          <LucideIcons.Home className="text-white drop-shadow-lg text-[56px]" size=56 />
         </div>
         <div
           className="font-normal text-white tracking-[0.25em] text-[13px] uppercase drop-shadow-sm"
@@ -264,7 +262,12 @@ let make = () => {
               onClick={_ => onClick()}
               ariaLabel={label}
             >
-              <span className="material-icons" ariaHidden=true> {React.string(icon)} </span>
+              {switch icon {
+              | "save" => <LucideIcons.Save />
+              | "folder-open" => <LucideIcons.FolderOpen />
+              | "info" => <LucideIcons.Info />
+              | _ => React.null
+              }}
               <span> {React.string(label)} </span>
             </button>
           )
@@ -303,12 +306,9 @@ let make = () => {
             }}
             ariaLabel="Export Tour"
           >
-            <span
-              className="material-icons text-lg text-success group-hover:scale-110 transition-transform"
-              ariaHidden=true
-            >
-              {React.string("ios_share")}
-            </span>
+            <LucideIcons.Share2
+              className="text-lg text-success group-hover:scale-110 transition-transform"
+            />
             <span> {React.string("Export")} </span>
           </button>
 
@@ -320,12 +320,9 @@ let make = () => {
             }}
             ariaLabel="Create Teaser"
           >
-            <span
-              className="material-icons text-lg sidebar-icon-teaser group-hover:scale-110 transition-transform"
-              ariaHidden=true
-            >
-              {React.string("movie_creation")}
-            </span>
+            <LucideIcons.Film
+              className="text-lg sidebar-icon-teaser group-hover:scale-110 transition-transform"
+            />
             <span> {React.string("Teaser")} </span>
           </button>
         </div>
@@ -512,7 +509,7 @@ let make = () => {
           <div
             className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"
           />
-          <span className="material-icons text-[20px]"> {React.string("photo_camera")} </span>
+          <LucideIcons.Camera className="text-[20px]" size=20 />
           <strong className="text-[11px] font-bold tracking-widest uppercase">
             {React.string("Add 360 Scenes")}
           </strong>
