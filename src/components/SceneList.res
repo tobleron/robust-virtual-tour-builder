@@ -1,5 +1,3 @@
-open ReBindings
-
 external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 
 module SceneItem = {
@@ -12,7 +10,8 @@ module SceneItem = {
     ~onDragStart,
     ~onDragOver,
     ~onDrop,
-    ~onContextMenu,
+    ~onDelete,
+    ~onClearLinks,
   ) => {
     let qualityScore = switch scene.quality {
     | Some(q) =>
@@ -139,30 +138,45 @@ module SceneItem = {
       <div
         className="w-12 flex flex-col items-center justify-center gap-2 border-l border-slate-50 bg-slate-50/50 group-hover:bg-slate-100 transition-colors"
       >
-        <button
-          className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-white hover:shadow-md transition-all text-slate-600 hover:text-primary active:scale-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
-          onClick={onContextMenu}
-          ariaLabel={`Actions for ${scene.name}`}
-        >
-          <span className="material-icons text-lg" ariaHidden=true>
-            {React.string("more_vert")}
-          </span>
-        </button>
+        <Shadcn.DropdownMenu>
+          <Shadcn.DropdownMenu.Trigger asChild=true>
+            <button
+              className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-white hover:shadow-md transition-all text-slate-600 hover:text-primary active:scale-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+              ariaLabel={`Actions for ${scene.name}`}
+            >
+              <span className="material-icons text-lg" ariaHidden=true>
+                {React.string("more_vert")}
+              </span>
+            </button>
+          </Shadcn.DropdownMenu.Trigger>
+          <Shadcn.DropdownMenu.Content side="right" sideOffset=10 className="w-56 p-1.5">
+            <Shadcn.DropdownMenu.Item onClick={_ => onClearLinks()}>
+              <span className="material-icons text-lg mr-2 text-primary" ariaHidden=true>
+                {React.string("link_off")}
+              </span>
+              <span> {React.string("Clear Links")} </span>
+            </Shadcn.DropdownMenu.Item>
+            <Shadcn.DropdownMenu.Separator />
+            <Shadcn.DropdownMenu.Item
+              onClick={_ => onDelete()} className="text-danger hover:bg-danger/10"
+            >
+              <span className="material-icons text-lg mr-2 text-danger" ariaHidden=true>
+                {React.string("delete_outline")}
+              </span>
+              <span> {React.string("Remove Scene")} </span>
+            </Shadcn.DropdownMenu.Item>
+          </Shadcn.DropdownMenu.Content>
+        </Shadcn.DropdownMenu>
         <div
           className="w-6 h-8 flex flex-col justify-center gap-1 opacity-20 group-hover:opacity-50 cursor-grab active:cursor-grabbing"
         >
-          <div className="w-full h-0.5 bg-slate-400 rounded-full"></div>
-          <div className="w-full h-0.5 bg-slate-400 rounded-full"></div>
-          <div className="w-full h-0.5 bg-slate-400 rounded-full"></div>
+          <div className="w-full h-0.5 bg-slate-400 rounded-full" />
+          <div className="w-full h-0.5 bg-slate-400 rounded-full" />
+          <div className="w-full h-0.5 bg-slate-400 rounded-full" />
         </div>
       </div>
     </div>
   }
-}
-
-type contextMenuInfo = {
-  anchor: Dom.element,
-  index: int,
 }
 
 @react.component
@@ -170,12 +184,7 @@ let make = () => {
   let state = AppContext.useAppState()
   let dispatch = AppContext.useAppDispatch()
 
-  let (contextMenu, setContextMenu) = React.useState(_ => None)
   let (_draggedIndex, setDraggedIndex) = React.useState(_ => None)
-
-  let closeContextMenu = () => {
-    setContextMenu(_ => None)
-  }
 
   // Virtualization constants
   let itemHeight = 112.0 // 96px (h-24) + 16px (mb-4)
@@ -270,21 +279,14 @@ let make = () => {
     }
   }
 
-  let openContextMenu = (index, e: JsxEvent.Mouse.t) => {
-    JsxEvent.Mouse.stopPropagation(e)
-    Logger.debug(~module_="SceneList", ~message="OPEN_CONTEXT_MENU", ~data={"index": index}, ())
-    let target: Dom.element = JsxEvent.Mouse.currentTarget(e)->Obj.magic
+  let handleDelete = index => {
+    dispatch(Actions.DeleteScene(index))
+    EventBus.dispatch(ShowNotification("Scene Removed", #Info))
+  }
 
-    setContextMenu(prev => {
-      switch prev {
-      | Some(menu) if menu.index == index => None
-      | _ =>
-        Some({
-          anchor: target,
-          index,
-        })
-      }
-    })
+  let handleClearLinks = index => {
+    dispatch(Actions.ClearHotspots(index))
+    EventBus.dispatch(ShowNotification("Links Cleared", #Info))
   }
 
   let onDragStart = (index, _e) => {
@@ -311,7 +313,6 @@ let make = () => {
 
   <div
     className="flex-1 flex flex-col pt-2 pb-12 relative"
-    onClick={_ => closeContextMenu()}
     ref={ReactDOM.Ref.domRef(containerRef)}
     // EXCEPTION: Dynamic container height (CSS_ARCHITECTURE.md §3.1)
     // Required for virtualization to maintain scroll layout
@@ -366,19 +367,12 @@ let make = () => {
               onDragStart={e => onDragStart(actualIndex, e)}
               onDragOver={e => onDragOver(actualIndex, e)}
               onDrop={e => onDrop(actualIndex, e)}
-              onContextMenu={e => openContextMenu(actualIndex, e)}
+              onDelete={() => handleDelete(actualIndex)}
+              onClearLinks={() => handleClearLinks(actualIndex)}
             />
           </div>
         })
         ->React.array}
-
-        {switch contextMenu {
-        | Some(menu) =>
-          <SceneActionMenu
-            anchor={menu.anchor} index={menu.index} onClose={() => setContextMenu(_ => None)}
-          />
-        | None => React.null
-        }}
       </>
     }}
   </div>

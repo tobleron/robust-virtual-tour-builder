@@ -7,6 +7,9 @@ export default defineConfig({
     entry: {
       index: './src/index.js',
     },
+    alias: {
+      '@': './src',
+    },
   },
   html: {
     template: './index.html',

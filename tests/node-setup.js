@@ -82,4 +82,47 @@ defineGlobal('caches', {
 });
 
 
+// Mock React for tests
+defineGlobal('React', {
+    createElement: () => ({}),
+    forwardRef: (fn) => fn,
+    useState: (init) => [typeof init === 'function' ? init() : init, () => { }],
+    useEffect: () => { },
+    useRef: () => ({ current: null }),
+    useMemo: (fn) => fn(),
+    useCallback: (fn) => fn,
+});
+
+// Mock shadcn UI components for tests
+const mockComponent = () => ({});
+const mockModule = {
+    Button: mockComponent,
+    Popover: mockComponent,
+    PopoverTrigger: mockComponent,
+    PopoverContent: mockComponent,
+    PopoverAnchor: mockComponent,
+    Tooltip: mockComponent,
+    TooltipProvider: mockComponent,
+    TooltipTrigger: mockComponent,
+    TooltipContent: mockComponent,
+    DropdownMenu: mockComponent,
+    DropdownMenuTrigger: mockComponent,
+    DropdownMenuContent: mockComponent,
+    DropdownMenuItem: mockComponent,
+    DropdownMenuSeparator: mockComponent,
+    ContextMenu: mockComponent,
+    ContextMenuTrigger: mockComponent,
+    ContextMenuContent: mockComponent,
+    ContextMenuItem: mockComponent,
+    ContextMenuSeparator: mockComponent,
+};
+
+// Create module cache for shadcn components
+const moduleCache = new Map();
+moduleCache.set(new URL('file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/ui/button.jsx').href, mockModule);
+moduleCache.set(new URL('file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/ui/popover.jsx').href, mockModule);
+moduleCache.set(new URL('file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/ui/tooltip.jsx').href, mockModule);
+moduleCache.set(new URL('file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/ui/dropdown-menu.jsx').href, mockModule);
+moduleCache.set(new URL('file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/ui/context-menu.jsx').href, mockModule);
+
 // End of setup

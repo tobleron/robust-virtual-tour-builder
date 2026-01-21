@@ -436,40 +436,56 @@ let make = () => {
           </button>
         </Tooltip>
 
-        <Tooltip content="Scene Label Preset" alignment=#Right>
-          <button
-            id="v-scene-label-btn"
-            ref={ReactDOM.Ref.domRef(labelBtnRef)}
-            className={"v-util-btn w-[32px] h-[32px] text-white rounded-full font-ui text-[18px] font-bold flex items-center justify-center relative z-[6000] v-util-btn-label " ++
-            if simActive {
-              "state-disabled "
-            } else {
-              "pointer-events-auto "
-            } ++ if scenesLoaded {
-              "state-loaded"
-            } else {
-              "state-empty"
-            }}
-            onClick={handleLabelClick}
-            ariaLabel="Scene Label"
+        <Shadcn.Popover
+          open_={labelMenuOpen} onOpenChange={isOpen => setLabelMenuOpen(_ => isOpen)}
+        >
+          <Shadcn.Popover.Trigger asChild=true>
+            <Tooltip content="Scene Label Preset" alignment=#Right>
+              <button
+                id="v-scene-label-btn"
+                ref={ReactDOM.Ref.domRef(labelBtnRef)}
+                className={"v-util-btn w-[32px] h-[32px] text-white rounded-full font-ui text-[18px] font-bold flex items-center justify-center relative z-[6000] v-util-btn-label " ++
+                if simActive {
+                  "state-disabled "
+                } else {
+                  "pointer-events-auto "
+                } ++ if scenesLoaded {
+                  "state-loaded"
+                } else {
+                  "state-empty"
+                }}
+                onClick={handleLabelClick}
+                ariaLabel="Scene Label"
+              >
+                {React.string("#")}
+              </button>
+            </Tooltip>
+          </Shadcn.Popover.Trigger>
+          <Shadcn.Popover.Content
+            side="right" sideOffset=12 className="p-0 border-none shadow-none"
           >
-            {React.string("#")}
-          </button>
-        </Tooltip>
-
-        {switch (labelMenuOpen, Nullable.toOption(labelBtnRef.current)) {
-        | (true, Some(anchor)) => <LabelMenu anchor onClose={() => setLabelMenuOpen(_ => false)} />
-        | _ => React.null
-        }}
+            <LabelMenu onClose={() => setLabelMenuOpen(_ => false)} />
+          </Shadcn.Popover.Content>
+        </Shadcn.Popover>
 
         {switch hotspotMenu {
         | Some(menu) =>
-          <HotspotActionMenu
-            anchor={menu.anchor}
-            hotspot={menu.hotspot}
-            index={menu.index}
-            onClose={() => setHotspotMenu(_ => None)}
-          />
+          <Shadcn.Popover
+            open_={true}
+            onOpenChange={isOpen =>
+              if !isOpen {
+                setHotspotMenu(_ => None)
+              }}
+          >
+            <Shadcn.Popover.Anchor virtualRef={menu.anchor} />
+            <Shadcn.Popover.Content
+              side="top" sideOffset=12 className="p-0 border-none shadow-none"
+            >
+              <HotspotActionMenu
+                hotspot={menu.hotspot} index={menu.index} onClose={() => setHotspotMenu(_ => None)}
+              />
+            </Shadcn.Popover.Content>
+          </Shadcn.Popover>
         | None => React.null
         }}
       </div>

@@ -13,9 +13,35 @@
 
 
     --color-primary: var(--primary);
+    --color-primary-foreground: #ffffff;
     --color-success: var(--success);
     --color-danger: var(--danger);
     --color-warning: var(--warning);
+
+    --color-background: #ffffff;
+    --color-foreground: var(--slate-950);
+
+    --color-card: #ffffff;
+    --color-card-foreground: var(--slate-950);
+
+    --color-popover: #ffffff;
+    --color-popover-foreground: var(--slate-950);
+
+    --color-secondary: var(--slate-100);
+    --color-secondary-foreground: var(--primary-dark);
+
+    --color-muted: var(--slate-100);
+    --color-muted-foreground: var(--slate-500);
+
+    --color-accent: var(--slate-100);
+    --color-accent-foreground: var(--primary-dark);
+
+    --color-destructive: var(--danger);
+    --color-destructive-foreground: #ffffff;
+
+    --color-border: var(--slate-200);
+    --color-input: var(--slate-200);
+    --color-ring: var(--primary);
 
     --color-viewer-bg: var(--viewer-bg);
     --color-sidebar-bg: var(--sidebar-bg);
@@ -29,6 +55,11 @@
     --font-body: var(--font-body);
     --font-ui: var(--font-ui);
     --font-mono: var(--font-mono);
+
+    /* Radius */
+    --radius-lg: 12px;
+    --radius-md: 10px;
+    --radius-sm: 8px;
 
     /* Animations (Referencing keyframes in animations.css) */
     --animate-shimmer: shimmer 2s linear infinite;
