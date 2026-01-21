@@ -61,6 +61,7 @@ let make = () => {
               let waitResult = await SimulationNavigation.waitForViewerScene(
                 state.activeIndex,
                 () => !cancel.contents,
+                (),
               )
 
               switch waitResult {

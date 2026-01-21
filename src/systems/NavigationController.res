@@ -69,21 +69,23 @@ let make = () => {
                   let opacity = blinkState == 0 ? 1.0 : 0.0
                   let colorOverride = isPreview ? Some("red") : None
 
-                  // Use hot reload friendly update
-                  HotspotLine.updateLines(v, state, ())
+                  // Only draw if viewer is valid AND active (prevents stale camera data)
+                  if HotspotLine.isViewerReady(v) {
+                    HotspotLine.updateLines(v, state, ())
 
-                  HotspotLine.drawSimulationArrow(
-                    v,
-                    pd.startPitch,
-                    pd.startYaw,
-                    pd.targetPitchForPan,
-                    pd.targetYawForPan,
-                    1.0,
-                    ~opacity,
-                    ~waypoints=(pd.waypoints :> array<PathInterpolation.point>),
-                    ~colorOverride?,
-                    (),
-                  )
+                    HotspotLine.drawSimulationArrow(
+                      v,
+                      pd.startPitch,
+                      pd.startYaw,
+                      pd.targetPitchForPan,
+                      pd.targetYawForPan,
+                      1.0,
+                      ~opacity,
+                      ~waypoints=(pd.waypoints :> array<PathInterpolation.point>),
+                      ~colorOverride?,
+                      (),
+                    )
+                  }
 
                   requestRef.current = Some(Window.requestAnimationFrame(animLoop))
                 } else {
@@ -133,19 +135,22 @@ let make = () => {
                 let hfovProgress = pd.startHfov +. (pd.targetHfovForPan -. pd.startHfov) *. progress
                 Viewer.setHfov(v, hfovProgress, false)
 
-                HotspotLine.updateLines(v, state, ())
+                // Only draw if viewer is valid AND active (prevents stale camera data)
+                if HotspotLine.isViewerReady(v) {
+                  HotspotLine.updateLines(v, state, ())
 
-                HotspotLine.drawSimulationArrow(
-                  v,
-                  pd.startPitch,
-                  pd.startYaw,
-                  pd.targetPitchForPan,
-                  pd.targetYawForPan,
-                  progress,
-                  ~opacity=1.0,
-                  ~waypoints=(pd.waypoints :> array<PathInterpolation.point>),
-                  (),
-                )
+                  HotspotLine.drawSimulationArrow(
+                    v,
+                    pd.startPitch,
+                    pd.startYaw,
+                    pd.targetPitchForPan,
+                    pd.targetYawForPan,
+                    progress,
+                    ~opacity=1.0,
+                    ~waypoints=(pd.waypoints :> array<PathInterpolation.point>),
+                    (),
+                  )
+                }
 
                 requestRef.current = Some(Window.requestAnimationFrame(animLoop))
               }

@@ -437,3 +437,45 @@ Task: 147
 - Removed blue focus ring in favor of a neutral slate border
 - Eliminated focus shadows for a cleaner, premium minimal aesthetic
 [2026-01-20 22:47] v4.3.6 - [UI] Refine project name input styling
+[2026-01-20 22:58] v4.3.6 - Task 290: Fix AutoPilot Timeout Mismatch
+
+- Unified timeout constants between SimulationNavigation and ViewerLoader
+- Changed hardcoded 8000ms to centralized Constants.sceneLoadTimeout (10000ms)
+- Eliminates 2-second race condition where AutoPilot times out prematurely
+- Added explanatory comments for maintainability
+- Build verified successfully (641.9 kB total, 179.9 kB gzipped)
+
+[2026-01-20 23:02] v4.3.6 - Task 291: Enable Progressive Loading for AutoPilot
+
+- Removed simulation status check that disabled progressive loading during AutoPilot
+- Scenes now load preview (tinyFile) first, then upgrade to full quality
+- 50-70% faster initial scene display (500ms-1s vs 3-5s)
+- Significantly improves AutoPilot performance and user experience
+- Added explanatory comments for maintainability
+- Compiled successfully via ReScript watch mode
+
+[2026-01-20 23:06] v4.3.6 - Task 294: Fix Viewer Instance Race Condition
+
+- Implemented findViewerForScene to check Global, Viewer A, and Viewer B sources
+- Updated SimulationNavigation to match viewer by Scene ID during AutoPilot
+- Reduced polling interval from 100ms to 50ms for faster scene detection
+- Added VIEWER_READY debug logs for better observability
+- Verified compilation via ReScript watch mode
+
+[2026-01-20 23:11] v4.3.6 - Task 295: Add Retry Logic to AutoPilot
+
+- Implemented exponential backoff retry logic (3 attempts: 1s, 2s, 4s)
+- Added ShowNotification for user feedback during retries
+- Updated SimulationDriver call site to match new signature
+- Integrated Logger.warn for failure tracking
+- Verified compilation via ReScript watch mode
+
+[2026-01-20 23:16] v4.3.7 - Final AutoPilot Optimizations
+
+- Restored smooth snapshot overlay fade-outs during simulation (Task #293)
+- Enabled idle snapshot capture during AutoPilot for visual continuity (Task #293)
+- Optimized deep render wait from 3 frames down to 1 for faster jumps (Task #292)
+- Reduced hotspot line render loop from 60fps to 20fps during AutoPilot (Task #296)
+- Verified all ReScript compilations
+
+[2026-01-21 13:15] v4.3.6 - [Fix] Resolve ghost arrow artifact at (0,0) during scene transitions

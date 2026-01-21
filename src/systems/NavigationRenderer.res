@@ -102,21 +102,24 @@ let startJourney = (data: EventBus.navStartPayload) => {
             let opacity = blinkState == 0 ? 1.0 : 0.0
             let colorOverride = isPreview ? Some("red") : None
 
-            let state = GlobalStateBridge.getState()
-            HotspotLine.updateLines(v, state, ())
+            // Only draw if viewer is valid AND active (prevents stale camera data)
+            if HotspotLine.isViewerReady(v) {
+              let state = GlobalStateBridge.getState()
+              HotspotLine.updateLines(v, state, ())
 
-            HotspotLine.drawSimulationArrow(
-              v,
-              arrowStartPitch,
-              arrowStartYaw,
-              pathData.targetPitchForPan,
-              pathData.targetYawForPan,
-              1.0,
-              ~opacity,
-              ~waypoints=Obj.magic(pathData.waypoints),
-              ~colorOverride?,
-              (),
-            )
+              HotspotLine.drawSimulationArrow(
+                v,
+                arrowStartPitch,
+                arrowStartYaw,
+                pathData.targetPitchForPan,
+                pathData.targetYawForPan,
+                1.0,
+                ~opacity,
+                ~waypoints=Obj.magic(pathData.waypoints),
+                ~colorOverride?,
+                (),
+              )
+            }
 
             let _ = Window.requestAnimationFrame(animLoop)
           } else {
@@ -198,20 +201,23 @@ let startJourney = (data: EventBus.navStartPayload) => {
             (),
           )
 
-          let state = GlobalStateBridge.getState()
-          HotspotLine.updateLines(v, state, ())
+          // Only draw if viewer is valid AND active (prevents stale camera data)
+          if HotspotLine.isViewerReady(v) {
+            let state = GlobalStateBridge.getState()
+            HotspotLine.updateLines(v, state, ())
 
-          HotspotLine.drawSimulationArrow(
-            v,
-            arrowStartPitch,
-            arrowStartYaw,
-            pathData.targetPitchForPan,
-            pathData.targetYawForPan,
-            progress,
-            ~opacity=1.0,
-            ~waypoints=Obj.magic(pathData.waypoints),
-            (),
-          )
+            HotspotLine.drawSimulationArrow(
+              v,
+              arrowStartPitch,
+              arrowStartYaw,
+              pathData.targetPitchForPan,
+              pathData.targetYawForPan,
+              progress,
+              ~opacity=1.0,
+              ~waypoints=Obj.magic(pathData.waypoints),
+              (),
+            )
+          }
 
           let _ = Window.requestAnimationFrame(animLoop)
         }
