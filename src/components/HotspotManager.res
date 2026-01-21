@@ -85,12 +85,19 @@ let createHotspotConfig = (
       Dom.setAttribute(actionBtn, "tabindex", "0")
       Dom.setTextContent(actionBtn, "more_vert") // Material icon name
 
+      /* Forward Btn (Third Chevron) */
+      let fwdBtn = Dom.createElement("div")
+      let fwdClass = "hotspot-forward-btn" ++ (isTargetAutoForward ? " active" : "")
+      Dom.setAttribute(fwdBtn, "class", fwdClass)
+      Dom.setAttribute(fwdBtn, "title", "Toggle Auto-Forward")
+
       let controls = Dom.createElement("div")
       Dom.setAttribute(controls, "class", "hotspot-controls")
 
       /* Append to container */
       Dom.appendChild(controls, navBtn)
-      Dom.appendChild(controls, actionBtn)
+      Dom.appendChild(controls, fwdBtn)
+      Dom.appendChild(div, actionBtn)
       Dom.appendChild(div, controls)
 
       /* v4.4.1: Critical - Disable events on the root div to prevent accidental mis-clicks */

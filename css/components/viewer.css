@@ -250,22 +250,20 @@
 /* Hotspot Action Trigger - Three dots menu */
 .hotspot-action-trigger {
     position: absolute;
-    /* Position relative to the 70x70 arrow box */
-    top: 0px;
-    right: -25px;
-    width: 28px;
-    height: 28px;
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    /* Position at top-right, away from arrow center */
+    top: -30px;
+    right: -35px;
+    width: 24px;
+    height: 24px;
+    background: white;
+    border: 2px solid var(--slate-200);
     border-radius: 50%;
     color: var(--primary);
     display: flex !important;
     align-items: center;
     justify-content: center;
     font-family: 'Material Icons';
-    font-size: 18px;
+    font-size: 14px;
     cursor: pointer;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     z-index: 10005;
@@ -281,14 +279,11 @@
 }
 
 .hotspot-action-trigger:hover {
-    background: white;
+    background: var(--primary);
+    color: white;
     transform: scale(1.1);
-    color: var(--primary-light);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
-
-/* RESTORED DELETE BUTTON STYLE */
-/* Cleaned up legacy styles */
 
 /* A/R Buttons Container - Anchored at origin to support plane-accurate transforms */
 .hotspot-controls {
@@ -307,8 +302,42 @@
     box-shadow: none;
 }
 
-/* Redesigned 3rd Chevron: Red default, Emerald Active, Perfect Gap */
-/* Cleaned up legacy styles */
+/* Redesigned 3rd Chevron: Orange default, Emerald Active */
+.hotspot-forward-btn {
+    width: 70px;
+    height: 35px;
+    background: var(--orange-brand);
+    position: absolute;
+    left: 50%;
+    top: 0;
+
+    /* Perfect Chevron Mask */
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'%3E%3Cpath d='M10 30 L50 0 L90 30 L90 50 L50 20 L10 50 Z' /%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'%3E%3Cpath d='M10 30 L50 0 L90 30 L90 50 L50 20 L10 50 Z' /%3E%3C/svg%3E");
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+
+    /* Perspective: Gap increased to ~14px relative */
+    transform-origin: top center;
+    transform: translate(-50%, 0) rotateX(60deg) translateY(58px);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: all 0.3s ease-in-out;
+    filter: drop-shadow(0 20px 10px rgba(0, 0, 0, 0.3));
+    border: none;
+    border-radius: 0;
+
+    /* v4.4.1: Precise hit testing */
+    clip-path: polygon(10% 60%, 50% 0%, 90% 60%, 90% 100%, 50% 40%, 10% 100%);
+}
 
 /* Shine effect for the 3rd chevron (Conditional) */
 .hotspot-forward-btn::after {
