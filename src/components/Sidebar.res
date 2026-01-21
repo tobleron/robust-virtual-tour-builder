@@ -140,7 +140,7 @@ let make = () => {
           >
             {React.string("ROBUST")}
           </h1>
-          <LucideIcons.Home className="text-white drop-shadow-lg text-[56px]" size=56 />
+          <LucideIcons.Home className="text-white drop-shadow-lg text-[49px]" size=49 />
         </div>
         <div
           className="font-normal text-white tracking-[0.25em] text-[13px] uppercase drop-shadow-sm"
@@ -163,7 +163,7 @@ let make = () => {
         <div className="grid grid-cols-4 gap-2 mb-3">
           {[
             (
-              "note_add",
+              "file-plus",
               "New",
               () => {
                 if Array.length(state.scenes) > 0 {
@@ -263,6 +263,7 @@ let make = () => {
               ariaLabel={label}
             >
               {switch icon {
+              | "file-plus" => <LucideIcons.FilePlus />
               | "save" => <LucideIcons.Save />
               | "folder-open" => <LucideIcons.FolderOpen />
               | "info" => <LucideIcons.Info />
