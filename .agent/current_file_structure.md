@@ -1819,7 +1819,8 @@
 │   └── rescript.lock
 ├── logs
 │   ├── error.log
-│   └── log_changes.txt
+│   ├── log_changes.txt
+│   └── telemetry.log
 ├── old_ref
 │   ├── REF.md
 │   └── v4.3.6+7_a34c1dd
@@ -2509,10 +2510,11 @@
 │   │   ├── 297_race_condition_analysis_and_global_solution_REPORT.md
 │   │   ├── 298_resolve_ghost_arrow_artifact_REPORT.md
 │   │   ├── 299_sync_hotspot_visibility_on_simulation_start_REPORT.md
-│   │   └── 300_remove_console_log_usage_REPORT.md
+│   │   ├── 300_remove_console_log_usage_REPORT.md
+│   │   ├── 301_document_inline_style_exceptions_REPORT.md
+│   │   └── 309_complete_pwa_offline_support_ABORTED.md
 │   ├── current_refactor.md
 │   ├── pending
-│   │   └── 301_document_inline_style_exceptions.md
 │   └── postponed
 │       ├── 176_fix_security_innerhtml.md
 │       ├── 186_implement_backend_geocoding_proxy.md
@@ -2528,7 +2530,6 @@
 │       ├── 306_create_changelog.md
 │       ├── 307_enable_dependabot_scanning.md
 │       ├── 308_implement_internationalization.md
-│       ├── 309_complete_pwa_offline_support.md
 │       └── tests
 │           ├── 203_expand_test_coverage.md
 │           ├── 204_Add_Tests_for_ImageOptimizer.md
@@ -2681,4 +2682,4 @@
 │       └── VitestSmoke.test.res
 └── vitest.config.mjs
 
-88 directories, 2594 files
+88 directories, 2595 files
