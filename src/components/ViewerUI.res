@@ -336,11 +336,11 @@ let make = () => {
           <Shadcn.Button
             size="icon"
             variant={if !scenesLoaded {
-              "secondary"
+              "secondary-3d"
             } else if state.isLinking {
-              "default"
+              "accent-3d"
             } else {
-              "destructive"
+              "destructive-3d"
             }}
             className="w-[32px] h-[32px] rounded-full text-[20px] font-bold"
             onClick={handleFabClick}
@@ -366,9 +366,9 @@ let make = () => {
           <Shadcn.Button
             size="icon"
             variant={if !scenesLoaded {
-              "secondary"
+              "secondary-3d"
             } else {
-              "destructive"
+              "destructive-3d"
             }}
             className="w-[32px] h-[32px] rounded-full"
             onClick={handleSimClick}
@@ -389,9 +389,9 @@ let make = () => {
           <Shadcn.Button
             size="icon"
             variant={if !scenesLoaded {
-              "secondary"
+              "secondary-3d"
             } else {
-              "destructive"
+              "destructive-3d"
             }}
             className="w-[32px] h-[32px] rounded-full"
             onClick={handleCatClick}
@@ -418,9 +418,9 @@ let make = () => {
               <Shadcn.Button
                 size="icon"
                 variant={if !scenesLoaded {
-                  "secondary"
+                  "secondary-3d"
                 } else {
-                  "destructive"
+                  "destructive-3d"
                 }}
                 className="w-[32px] h-[32px] rounded-full text-[18px] font-bold"
                 onClick={handleLabelClick}
