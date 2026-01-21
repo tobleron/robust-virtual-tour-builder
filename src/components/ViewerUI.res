@@ -326,6 +326,7 @@ let make = () => {
 
       <div id="viewer-utility-bar" className={utilBarClass}>
         <Tooltip
+          alignment=#Right
           content={if state.isLinking {
             "Close Link Mode"
           } else {
@@ -360,6 +361,7 @@ let make = () => {
         </Tooltip>
 
         <Tooltip
+          alignment=#Right
           content={if simActive {
             "Stop Auto-Pilot"
           } else {
@@ -392,7 +394,7 @@ let make = () => {
           </button>
         </Tooltip>
 
-        <Tooltip content="Toggle Category">
+        <Tooltip content="Toggle Category" alignment=#Right>
           <button
             id="v-scene-cat-toggle"
             className={"v-util-btn w-[32px] h-[32px] text-white rounded-full flex items-center justify-center v-util-btn-category " ++
@@ -434,7 +436,7 @@ let make = () => {
           </button>
         </Tooltip>
 
-        <Tooltip content="Scene Label Preset">
+        <Tooltip content="Scene Label Preset" alignment=#Right>
           <button
             id="v-scene-label-btn"
             ref={ReactDOM.Ref.domRef(labelBtnRef)}

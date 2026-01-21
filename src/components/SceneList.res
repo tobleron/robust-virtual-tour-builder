@@ -271,9 +271,8 @@ let make = () => {
   }
 
   let openContextMenu = (index, e: JsxEvent.Mouse.t) => {
-    JsxEvent.Mouse.preventDefault(e)
     JsxEvent.Mouse.stopPropagation(e)
-
+    Logger.debug(~module_="SceneList", ~message="OPEN_CONTEXT_MENU", ~data={"index": index}, ())
     let target: Dom.element = JsxEvent.Mouse.currentTarget(e)->Obj.magic
 
     setContextMenu(prev => {

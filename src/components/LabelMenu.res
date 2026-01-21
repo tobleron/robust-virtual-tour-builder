@@ -52,12 +52,11 @@ let make = (~anchor: Dom.element, ~onClose: unit => unit) => {
   }
 
   <PopOver anchor onClose offset=12.0 alignment=#Auto>
-    <div className="popover-content flex flex-col w-[280px] max-h-[500px]">
+    <div className="flex flex-col w-[280px]" onClick={JsxEvent.Mouse.stopPropagation}>
       /* Scrollable Presets Section */
       <div
         ref={ReactDOM.Ref.domRef(scrollRef)}
         className="flex-1 overflow-y-auto py-2 custom-scrollbar"
-        style={makeStyle({"maxHeight": "400px"})}
       >
         {Constants.roomLabelPresets
         ->Dict.toArray

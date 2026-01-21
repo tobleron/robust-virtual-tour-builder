@@ -17,9 +17,9 @@ let make = (~children: React.element, ~content: string, ~alignment: PopOver.alig
     children
     {switch (isOpen, Nullable.toOption(triggerRef.current)) {
     | (true, Some(anchor)) =>
-      <PopOver anchor onClose={() => setIsOpen(_ => false)} offset=6.0 alignment isTooltip=true>
+      <PopOver anchor onClose={() => setIsOpen(_ => false)} offset=12.0 alignment isTooltip=true>
         <div
-          className="px-3 py-1.5 bg-slate-900/90 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-xl backdrop-blur-md border border-white/10 pointer-events-none animate-fade-in whitespace-nowrap"
+          className="px-4 py-2 bg-[#001a38] text-white text-[10px] font-black uppercase tracking-[0.1em] rounded-lg shadow-[0_8px_30px_rgb(0,0,0,0.5)] pointer-events-none animate-fade-in whitespace-nowrap border-l-4 border-accent"
         >
           {React.string(content)}
         </div>

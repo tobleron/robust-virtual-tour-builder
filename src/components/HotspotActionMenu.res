@@ -107,7 +107,9 @@ let make = (~anchor: Dom.element, ~hotspot: hotspot, ~index: int, ~onClose: unit
   }
 
   <PopOver anchor onClose offset=12.0 alignment=#Auto>
-    <div className="popover-content flex flex-col p-1.5 gap-1.5 min-w-[160px]">
+    <div
+      className="flex flex-col p-1.5 gap-1.5 min-w-[160px]" onClick={JsxEvent.Mouse.stopPropagation}
+    >
       /* Nav Button */
       <button
         onClick={_ => handleNavigate()}
