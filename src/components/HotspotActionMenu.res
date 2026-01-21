@@ -2,7 +2,7 @@
 open Types
 
 @react.component
-let make = (~anchor: Dom.element, ~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
+let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
   let state = AppContext.useAppState()
   let dispatch = AppContext.useAppDispatch()
 
@@ -40,7 +40,6 @@ let make = (~anchor: Dom.element, ~hotspot: hotspot, ~index: int, ~onClose: unit
       }
     | None => ()
     }
-    // We don't necessarily close the menu here, but user might want to
   }
 
   let handleNavigate = () => {
@@ -106,60 +105,56 @@ let make = (~anchor: Dom.element, ~hotspot: hotspot, ~index: int, ~onClose: unit
     onClose()
   }
 
-  <PopOver anchor onClose offset=12.0 alignment=#Auto>
-    <div
-      className="flex flex-col p-1.5 gap-1.5 min-w-[160px]" onClick={JsxEvent.Mouse.stopPropagation}
+  <div className="flex flex-col p-1.5 gap-1.5 min-w-[160px]">
+    /* Nav Button */
+    <button
+      onClick={_ => handleNavigate()}
+      className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all group"
     >
-      /* Nav Button */
+      <span className="material-icons text-lg"> {React.string("explore")} </span>
+      <span className="text-[11px] font-black uppercase tracking-widest">
+        {React.string("GO")}
+      </span>
+    </button>
+
+    <div className="flex gap-1.5">
+      /* Auto-Forward Toggle */
       <button
-        onClick={_ => handleNavigate()}
-        className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all group"
+        onClick={_ => handleToggleAutoForward()}
+        className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl transition-all border
+          ${isAutoForward
+            ? "bg-accent/10 border-accent/20 text-accent-light"
+            : "bg-white/10 border-white/5 text-slate-400 hover:text-slate-200"}`}
+        title="Toggle Auto-Forward"
       >
-        <span className="material-icons text-lg"> {React.string("explore")} </span>
-        <span className="text-[11px] font-black uppercase tracking-widest">
-          {React.string("GO")}
+        <span className="material-icons text-[16px]">
+          {React.string(
+            if isAutoForward {
+              "fast_forward"
+            } else {
+              "forward"
+            },
+          )}
+        </span>
+        <span className="text-[9px] font-black uppercase tracking-tighter">
+          {React.string(
+            if isAutoForward {
+              "AUTO"
+            } else {
+              "MANUAL"
+            },
+          )}
         </span>
       </button>
 
-      <div className="flex gap-1.5">
-        /* Auto-Forward Toggle */
-        <button
-          onClick={_ => handleToggleAutoForward()}
-          className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl transition-all border
-            ${isAutoForward
-              ? "bg-accent/10 border-accent/20 text-accent-light"
-              : "bg-white/10 border-white/5 text-slate-400 hover:text-slate-200"}`}
-          title="Toggle Auto-Forward"
-        >
-          <span className="material-icons text-[16px]">
-            {React.string(
-              if isAutoForward {
-                "fast_forward"
-              } else {
-                "forward"
-              },
-            )}
-          </span>
-          <span className="text-[9px] font-black uppercase tracking-tighter">
-            {React.string(
-              if isAutoForward {
-                "AUTO"
-              } else {
-                "MANUAL"
-              },
-            )}
-          </span>
-        </button>
-
-        /* Delete Button */
-        <button
-          onClick={_ => handleDelete()}
-          className="w-10 flex items-center justify-center rounded-xl bg-danger/10 text-danger hover:bg-danger hover:text-white transition-all border border-danger/20"
-          title="Delete Link"
-        >
-          <span className="material-icons text-lg"> {React.string("delete_outline")} </span>
-        </button>
-      </div>
+      /* Delete Button */
+      <button
+        onClick={_ => handleDelete()}
+        className="w-10 flex items-center justify-center rounded-xl bg-danger/10 text-danger hover:bg-danger hover:text-white transition-all border border-danger/20"
+        title="Delete Link"
+      >
+        <span className="material-icons text-lg"> {React.string("delete_outline")} </span>
+      </button>
     </div>
-  </PopOver>
+  </div>
 }

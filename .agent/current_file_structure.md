@@ -61,6 +61,7 @@
 │   └── tailwindcss
 ├── cache
 │   └── geocoding.json
+├── components.json
 ├── css
 │   ├── animations.css
 │   ├── base.css
@@ -93,6 +94,7 @@
 │   ├── QUALITY_ASSURANCE_AUDITS.md
 │   └── openapi.yaml
 ├── index.html
+├── jsconfig.json
 ├── lib
 │   ├── bs
 │   │   ├── build.ninja
@@ -195,12 +197,6 @@
 │   │   │   │   ├── RemaxErrorBoundary.cmj
 │   │   │   │   ├── RemaxErrorBoundary.cmt
 │   │   │   │   ├── RemaxErrorBoundary.res
-│   │   │   │   ├── SceneActionMenu.ast
-│   │   │   │   ├── SceneActionMenu.bs.js
-│   │   │   │   ├── SceneActionMenu.cmi
-│   │   │   │   ├── SceneActionMenu.cmj
-│   │   │   │   ├── SceneActionMenu.cmt
-│   │   │   │   ├── SceneActionMenu.res
 │   │   │   │   ├── SceneList.ast
 │   │   │   │   ├── SceneList.bs.js
 │   │   │   │   ├── SceneList.cmi
@@ -272,7 +268,14 @@
 │   │   │   │   ├── VisualPipeline.cmi
 │   │   │   │   ├── VisualPipeline.cmj
 │   │   │   │   ├── VisualPipeline.cmt
-│   │   │   │   └── VisualPipeline.res
+│   │   │   │   ├── VisualPipeline.res
+│   │   │   │   └── ui
+│   │   │   │       ├── Shadcn.ast
+│   │   │   │       ├── Shadcn.bs.js
+│   │   │   │       ├── Shadcn.cmi
+│   │   │   │       ├── Shadcn.cmj
+│   │   │   │       ├── Shadcn.cmt
+│   │   │   │       └── Shadcn.res
 │   │   │   ├── core
 │   │   │   │   ├── Actions.ast
 │   │   │   │   ├── Actions.bs.js
@@ -1508,11 +1511,6 @@
 │   │   ├── RootReducerTest.cmj
 │   │   ├── RootReducerTest.cmt
 │   │   ├── RootReducerTest.res
-│   │   ├── SceneActionMenu.ast
-│   │   ├── SceneActionMenu.cmi
-│   │   ├── SceneActionMenu.cmj
-│   │   ├── SceneActionMenu.cmt
-│   │   ├── SceneActionMenu.res
 │   │   ├── SceneList.ast
 │   │   ├── SceneList.cmi
 │   │   ├── SceneList.cmj
@@ -1568,6 +1566,11 @@
 │   │   ├── SessionStoreTest.cmj
 │   │   ├── SessionStoreTest.cmt
 │   │   ├── SessionStoreTest.res
+│   │   ├── Shadcn.ast
+│   │   ├── Shadcn.cmi
+│   │   ├── Shadcn.cmj
+│   │   ├── Shadcn.cmt
+│   │   ├── Shadcn.res
 │   │   ├── SharedTypes.ast
 │   │   ├── SharedTypes.cmi
 │   │   ├── SharedTypes.cmj
@@ -2349,8 +2352,6 @@
 │   │   ├── Portal.res
 │   │   ├── RemaxErrorBoundary.bs.js
 │   │   ├── RemaxErrorBoundary.res
-│   │   ├── SceneActionMenu.bs.js
-│   │   ├── SceneActionMenu.res
 │   │   ├── SceneList.bs.js
 │   │   ├── SceneList.res
 │   │   ├── Sidebar.bs.js
@@ -2374,7 +2375,15 @@
 │   │   ├── ViewerUI.bs.js
 │   │   ├── ViewerUI.res
 │   │   ├── VisualPipeline.bs.js
-│   │   └── VisualPipeline.res
+│   │   ├── VisualPipeline.res
+│   │   └── ui
+│   │       ├── Shadcn.bs.js
+│   │       ├── Shadcn.res
+│   │       ├── button.jsx
+│   │       ├── context-menu.jsx
+│   │       ├── dropdown-menu.jsx
+│   │       ├── popover.jsx
+│   │       └── tooltip.jsx
 │   ├── core
 │   │   ├── Actions.bs.js
 │   │   ├── Actions.res
@@ -2414,6 +2423,8 @@
 │   │       ├── mod.bs.js
 │   │       └── mod.res
 │   ├── index.js
+│   ├── lib
+│   │   └── utils.js
 │   ├── systems
 │   │   ├── AudioManager.bs.js
 │   │   ├── AudioManager.res
@@ -2762,4 +2773,4 @@
 │       └── VitestSmoke.test.res
 └── vitest.config.mjs
 
-88 directories, 2675 files
+91 directories, 2683 files

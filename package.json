@@ -1,7 +1,7 @@
 {
   "name": "robust-virtual-tour-builder",
   "version": "4.3.8",
-  "buildNumber": 11,
+  "buildNumber": 16,
   "description": "A high-performance, professional-grade virtual tour creation platform designed for real estate and immersive space documentation. This application combines a fluid web-based frontend with a powerful Rust-driven backend to deliver seamless panoramic processing and tour management.",
   "main": "index.js",
   "directories": {
@@ -61,10 +61,20 @@
     "wait-on": "^9.0.3"
   },
   "dependencies": {
+    "@radix-ui/react-context-menu": "^2.2.16",
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-dropdown-menu": "^2.1.16",
+    "@radix-ui/react-popover": "^1.1.15",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@radix-ui/react-tooltip": "^1.2.8",
     "@rescript/react": "^0.14.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "exifreader": "^4.36.0",
     "jszip": "^3.10.1",
+    "lucide-react": "^0.562.0",
     "react": "^19.2.3",
-    "react-dom": "^19.2.3"
+    "react-dom": "^19.2.3",
+    "tailwind-merge": "^3.4.0"
   }
 }
