@@ -93,6 +93,7 @@
 │   ├── CSS_ARCHITECTURE_AND_BEST_PRACTICES.md
 │   ├── CSS_MIGRATION_ANALYSIS.md
 │   ├── CSS_MIGRATION_SUMMARY.md
+│   ├── GHOST_ARROW_FIX_SUMMARY.md
 │   ├── HOTSPOT_ARROW_SWAP_LOCK_FIX.md
 │   ├── IMPROVEMENTS.md
 │   ├── OBSERVABILITY_AND_ERROR_HANDLING.md
@@ -1835,7 +1836,8 @@
 │   └── rescript.lock
 ├── logs
 │   ├── error.log
-│   └── log_changes.txt
+│   ├── log_changes.txt
+│   └── telemetry.log
 ├── old_ref
 │   ├── REF.md
 │   └── v4.3.6+7_a34c1dd
@@ -2516,7 +2518,8 @@
 │   │   ├── 296_optimize_render_loop_during_autopilot.md
 │   │   ├── 296_optimize_render_loop_during_autopilot_REPORT.md
 │   │   ├── 297_race_condition_analysis_and_global_solution_REPORT.md
-│   │   └── 298_resolve_ghost_arrow_artifact_REPORT.md
+│   │   ├── 298_resolve_ghost_arrow_artifact_REPORT.md
+│   │   └── 299_sync_hotspot_visibility_on_simulation_start_REPORT.md
 │   ├── current_refactor.md
 │   ├── pending
 │   └── postponed
@@ -2679,4 +2682,4 @@
 │       └── VitestSmoke.test.res
 └── vitest.config.mjs
 
-88 directories, 2592 files
+88 directories, 2595 files

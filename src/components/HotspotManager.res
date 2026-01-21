@@ -23,7 +23,7 @@ let createHotspotConfig = (
   ~scene: scene,
   ~dispatch: Actions.action => unit,
 ) => {
-  let isSimulationMode = state.simulation.status == Running
+  let isSimulationMode = state.simulation.status != Idle
   let incomingLink = state.incomingLink
   let targetSceneOpt = Belt.Array.getBy(state.scenes, s => s.name == hotspot.target)
 
@@ -36,8 +36,6 @@ let createHotspotConfig = (
     }
   | None => false
   }
-
-  let isCurrentSceneAutoForward = scene.isAutoForward
 
   let isTargetAutoForward = switch targetSceneOpt {
   | Some(ts) => ts.isAutoForward
@@ -54,8 +52,6 @@ let createHotspotConfig = (
   }
   if isSimulationMode {
     cssClass := cssClass.contents ++ " in-simulation"
-  }
-  if isSimulationMode && isCurrentSceneAutoForward {
     cssClass := cssClass.contents ++ " hidden-in-sim"
   }
 

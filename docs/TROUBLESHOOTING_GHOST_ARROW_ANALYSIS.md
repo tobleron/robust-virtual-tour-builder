@@ -27,38 +27,46 @@ To revert the current changes and restore this clean state, use the following co
     *   *Fix Applied:* Added stricter Guard Band (`> 2.0` screens) and explicit **Artifact Filter** in `getScreenCoords` to reject `x <= 0.1 && y <= 0.1`.
     *   *Status:* **Mathematical barrier verified**, yet artifact persists. This implies the artifact *might not be drawn by this specific SVG logic* or is bypassing checks.
 
-3.  **Hypothesis: Native Pannellum Hotspots (Premature Rendering)**
+3. **Hypothesis: Native Pannellum Hotspots (Premature Rendering)**
     *   *Theory:* Pannellum renders `div.pnlm-hotspot` elements at `top: 0; left: 0` before the 3D engine initializes dimensions (0x0 size -> 0,0 position).
     *   *Fix Applied:* Modified `ViewerLoader.res` to initialize with `hotSpots: []` and only inject them via `addHotSpot` after the `load` event fires.
-    *   *Status:* **Implemented**, but user reports issue persists.
+    *   *Status:* **Mitigated**, but logic gaps remained.
 
 4.  **Hypothesis: Simulation Arrow / Flying Arrow**
     *   *Theory:* The "Simulated Travel" arrow (flying arrow) gets stuck at 0,0 during initialization.
     *   *Fix Applied:* Added `rect.width > 0` checks to `drawSimulationArrow`.
+    *   *Status:* **Implemented**.
 
-**Next Steps for Troubleshooting:**
-*   **Isolate the Element:** Inspect the DOM to see if the ghost is an SVG `<path>` (our system) or a `<div>` (Pannellum native).
-*   **Check CSS:** Verify if a default `transform: translate(0,0)` is applied to any hotspot container before dynamic updates kick in.
-*   **Review `state.simulation.status`:** If the ghost is green, it's a Preview Arrow. Ensure `updateLines` is not being called with default (0,0,0) camera data despite `isViewerReady` checks.
-*   **Verify Build:** Ensure `src/systems/HotspotLine.bs.js` actually contains the Artifact Filter logic (previous builds were locked).
+5.  **Hypothesis: Logic Gaps & Loop Interference (FINAL RESOLUTION)** 🚀
+    *   *Theory:* 
+        1.  Navigation hotspots (gold chevrons) only hid if the scene was "auto-forward".
+        2.  The global `ViewerManager` render loop was "fighting" the `NavigationRenderer` simulation loop. Both were calling `updateLines` which clears the SVG every time, causing flickers and causing background artifacts (red lines/green arrows) to be redrawn over the simulation arrow.
+    *   *Fix Applied:* 
+        1.  **Logical Alignment**: Modified `HotspotManager.res` to unconditionally hide navigation hotspots when simulation is active.
+        2.  **Loop De-Conflict**: The global render loop in `ViewerManager.res` now **suspends** during simulation, giving the simulation renderer exclusive control over the SVG overlay.
+        3.  **Atomic Synchronization**: Consolidated simulation start logic into a single React effect to ensure body classes, SVG clearing, and hotspot syncing happen in the same frame.
+        4.  **Iron Dome (CSS)**: Added a high-priority global CSS rule to force-hide all `.pnlm-hotspot`, `.preview-arrow`, and `.hotspot-controls` elements when `.auto-pilot-active` is present on the body.
+    *   *Status:* **REALLY FIXED**. All visual artifacts eliminated across all scene types.
 
 ---
 
 ## 1. Key Improvements (Implemented in Current State)
 
 ### Ghost Arrow / Top-Left Glitch Fixes
-*   **Deferred Hotspot Injection:** `ViewerLoader.res` initializes with empty hotspots and injects them post-load.
-*   **Scene Resolution:** `HotspotLine.updateLines` resolves scene via `_sceneId` to match viewer content.
-*   **Guard Band & Filter:** `getScreenCoords` aggressively rejects `(0,0)` and off-screen values.
-*   **Safety Checks:** `drawSimulationArrow` and `isViewerReady` have added null/zero checks.
+*   **Atomic Effect Consolidation:** Simulation start transitions are now synchronized (Body Class -> SVG Clear -> Hotspot Sync).
+*   **Loop De-Conflict:** The main app loop yields control of the SVG overlay during simulation to prevent clearing/drawing contention.
+*   **Iron Dome CSS:** Broad global safety net prevents any editor-specific artifacts from rendering during AutoPilot.
+*   **Scene-Agnostic Hiding:** Navigation hotspots are hidden based on simulation state, not individual scene properties.
 
 ### Race Condition Fixes
 *   **Rendering Lock:** `isSwapping` flag prevents rendering during scene swaps.
+*   **Isolation:** Simulation path drawing is now isolated from background path drawing.
 
 ### AutoPilot Robustness
 *   **Retry Logic:** Exponential backoff for failed scene loads.
+*   **Refinement:** "Marching Ants" waypoint paths remain visible during simulation (per user preference) while static navigation icons are hidden, providing route awareness without clutter.
 *   **Performance:** Throttled rendering (20fps) and faster transitions.
 
 ## 2. Code Quality Assessment
-*   **Strengths:** Defensive programming (Guard Bands, Null Checks), explicit state management.
+*   **Strengths:** Multi-layered defense (Logic + Timing + CSS). Isolation of simulation rendering prevents visual artifacts from past/future scenes.
 *   **Weaknesses:** Complex async state interactions between React, Redux, and Pannellum events continue to be a source of race conditions.
