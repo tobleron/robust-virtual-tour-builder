@@ -103,7 +103,6 @@ let make = () => {
     ""
   }
 
-  let labelBtnRef = React.useRef(Nullable.null)
   let (labelMenuOpen, setLabelMenuOpen) = React.useState(_ => false)
 
   let (hotspotMenu, setHotspotMenu) = React.useState(_ => None)
@@ -345,13 +344,11 @@ let make = () => {
             className="w-[32px] h-[32px] rounded-full text-[20px] font-bold"
             onClick={handleFabClick}
           >
-            {React.string(
-              if state.isLinking {
-                "×"
-              } else {
-                "+"
-              },
-            )}
+            {if state.isLinking {
+              <LucideIcons.X size=20 />
+            } else {
+              <LucideIcons.Plus size=20 />
+            }}
           </Shadcn.Button>
         </Tooltip>
 
@@ -373,15 +370,11 @@ let make = () => {
             className="w-[32px] h-[32px] rounded-full"
             onClick={handleSimClick}
           >
-            <span className="material-icons text-[18px]">
-              {React.string(
-                if simActive {
-                  "stop"
-                } else {
-                  "play_arrow"
-                },
-              )}
-            </span>
+            {if simActive {
+              <LucideIcons.Square size=18 />
+            } else {
+              <LucideIcons.Play size=18 />
+            }}
           </Shadcn.Button>
         </Tooltip>
 
@@ -396,17 +389,11 @@ let make = () => {
             className="w-[32px] h-[32px] rounded-full"
             onClick={handleCatClick}
           >
-            <span className="material-icons text-[18px]">
-              {React.string(
-                if currentCategory == "indoor" {
-                  "home"
-                } else if currentCategory == "outdoor" {
-                  "park"
-                } else {
-                  "park"
-                },
-              )}
-            </span>
+            {if currentCategory == "indoor" {
+              <LucideIcons.Home size=18 />
+            } else {
+              <LucideIcons.Trees size=18 />
+            }}
           </Shadcn.Button>
         </Tooltip>
 
@@ -425,7 +412,7 @@ let make = () => {
                 className="w-[32px] h-[32px] rounded-full text-[18px] font-bold"
                 onClick={handleLabelClick}
               >
-                {React.string("#")}
+                <LucideIcons.Hash size=18 />
               </Shadcn.Button>
             </Tooltip>
           </Shadcn.Popover.Trigger>

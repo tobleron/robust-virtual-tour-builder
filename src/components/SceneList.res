@@ -98,7 +98,7 @@ module SceneItem = {
           <div className="flex items-center gap-2 shrink-0">
             {if Array.length(scene.hotspots) > 0 {
               <div className="flex items-center gap-1.5 text-primary-light transition-colors">
-                <span className="material-icons text-[12px]"> {React.string("link")} </span>
+                <LucideIcons.Link className="text-[12px]" />
                 <span className="text-[10px] font-bold">
                   {React.int(Array.length(scene.hotspots))}
                 </span>
@@ -144,25 +144,19 @@ module SceneItem = {
               className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-white hover:shadow-md transition-all text-slate-600 hover:text-primary active:scale-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
               ariaLabel={`Actions for ${scene.name}`}
             >
-              <span className="material-icons text-lg" ariaHidden=true>
-                {React.string("more_vert")}
-              </span>
+              <LucideIcons.MoreVertical className="text-lg" />
             </button>
           </Shadcn.DropdownMenu.Trigger>
           <Shadcn.DropdownMenu.Content side="right" sideOffset=10 className="w-56 p-1.5">
             <Shadcn.DropdownMenu.Item onClick={_ => onClearLinks()}>
-              <span className="material-icons text-lg mr-2 text-primary" ariaHidden=true>
-                {React.string("link_off")}
-              </span>
+              <LucideIcons.Unlink className="text-lg mr-2 text-primary" />
               <span> {React.string("Clear Links")} </span>
             </Shadcn.DropdownMenu.Item>
             <Shadcn.DropdownMenu.Separator />
             <Shadcn.DropdownMenu.Item
               onClick={_ => onDelete()} className="text-danger hover:bg-danger/10"
             >
-              <span className="material-icons text-lg mr-2 text-danger" ariaHidden=true>
-                {React.string("delete_outline")}
-              </span>
+              <LucideIcons.Trash2 className="text-lg mr-2 text-danger" />
               <span> {React.string("Remove Scene")} </span>
             </Shadcn.DropdownMenu.Item>
           </Shadcn.DropdownMenu.Content>
@@ -331,9 +325,7 @@ let make = () => {
         <div
           className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center mb-6 shadow-inner"
         >
-          <span className="material-icons text-4xl text-slate-200">
-            {React.string("photo_library")}
-          </span>
+          <LucideIcons.ImageIcon className="text-4xl text-slate-200" />
         </div>
         <h4 className="text-sm font-bold text-slate-600 uppercase tracking-widest mb-2">
           {React.string("No scenes")}
