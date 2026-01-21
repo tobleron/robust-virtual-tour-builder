@@ -110,6 +110,26 @@
     opacity: 0 !important;
 }
 
+/* Hide hotspots during simulation if tagged */
+.pnlm-hotspot.flat-arrow.hidden-in-sim {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Iron Dome: Aggressively hide all editor/navigation artifacts globally when AutoPilot is active.
+ * This prevents 'ghost arrows' from flickering in during scene transitions or at start. */
+.auto-pilot-active .pnlm-hotspot,
+.auto-pilot-active .pnlm-hotspot.flat-arrow,
+.auto-pilot-active .preview-arrow,
+.auto-pilot-active .hotspot-controls {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
 /* 1. Container Styling - attributes are forced !important to override Pannellum defaults */
 .pnlm-hotspot.flat-arrow {
     background-image: none !important;

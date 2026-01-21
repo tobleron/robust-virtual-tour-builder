@@ -414,6 +414,8 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
 
         switch sceneToRender {
         | Some(currentScene) => {
+            let _isSimulationActive = state.simulation.status != Idle
+
             // 1. Persistent Red Dashed Lines
             let hotspots = currentScene.hotspots
             for i in 0 to Array.length(hotspots) - 1 {
@@ -609,7 +611,7 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
 
               | None => ()
               }
-            } else if state.simulation.status != Running {
+            } else if state.simulation.status == Idle {
               // 3. Preview Arrows
               let previewing = switch state.navigation {
               | Previewing(info) => Some(info)
