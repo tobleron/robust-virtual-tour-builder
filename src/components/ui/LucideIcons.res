@@ -79,6 +79,11 @@ module ImageIcon = {
 }
 
 // Sidebar icons
+module FilePlus = {
+  @module("lucide-react") @react.component
+  external make: (~className: string=?, ~size: int=?) => React.element = "FilePlus"
+}
+
 module Save = {
   @module("lucide-react") @react.component
   external make: (~className: string=?, ~size: int=?) => React.element = "Save"
