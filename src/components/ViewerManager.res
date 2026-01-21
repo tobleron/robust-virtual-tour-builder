@@ -441,6 +441,14 @@ let make = () => {
 
     if state.simulation.status == Running {
       Dom.classList(body)->Dom.ClassList.add("auto-pilot-active")
+
+      // CRITICAL: Clear SVG overlay immediately when simulation starts
+      // This prevents any stale arrows from appearing during the initial scene transition
+      let svgOpt = Dom.getElementById("viewer-hotspot-lines")
+      switch Nullable.toOption(svgOpt) {
+      | Some(svg) => Dom.setTextContent(svg, "")
+      | None => ()
+      }
     } else {
       Dom.classList(body)->Dom.ClassList.remove("auto-pilot-active")
     }
