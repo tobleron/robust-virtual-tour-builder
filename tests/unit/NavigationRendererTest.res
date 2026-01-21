@@ -68,6 +68,7 @@ let run = () => {
             getPitch: function() { return this.pitch; },
             getYaw: function() { return this.yaw; },
             getHfov: function() { return this.hfov; },
+            isLoaded: function() { return true; },
             mouseEventToCoords: () => [0.0, 0.0]
         };
 

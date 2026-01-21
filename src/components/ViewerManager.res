@@ -450,14 +450,30 @@ let make = () => {
   // 7. Render Loop for Hotspot Lines (Fix for sticky waypoints)
   React.useEffect0(() => {
     let animationFrameId = ref(None)
+    let frameCounter = ref(0)
 
     let rec loop = () => {
+      frameCounter := frameCounter.contents + 1
       let v = ViewerState.getActiveViewer()
       switch Nullable.toOption(v) {
       | Some(viewer) =>
-        // Always update lines to ensure they stick to the scene during ANY movement
         let currentState = GlobalStateBridge.getState()
-        HotspotLine.updateLines(viewer, currentState, ())
+
+        // CRITICAL: Skip updates during viewer swap to prevent race condition
+        // The swap lock prevents drawing arrows with mismatched viewer/camera data
+        let isSwapping = ViewerState.state.isSwapping
+
+        // Performance optimization: During AutoPilot, update lines every 3rd frame (20fps)
+        // During manual navigation, update every frame (60fps) for maximum smoothness
+        let shouldUpdate = if currentState.simulation.status == Running {
+          mod(frameCounter.contents, 3) == 0
+        } else {
+          true
+        }
+
+        if shouldUpdate && !isSwapping {
+          HotspotLine.updateLines(viewer, currentState, ())
+        }
       | None => ()
       }
       animationFrameId := Some(Window.requestAnimationFrame(loop))

@@ -100,6 +100,16 @@
 }
 
 /* Hotspot Controls */
+/* Ghost Arrow Prevention: Hide hotspots positioned at origin (0,0) before Pannellum positions them correctly.
+ * This selector targets the parent hotspot-base which has top:0 by default before projection math runs.
+ * Uses attribute selector with inline style to catch the transient unpositioned state. */
+.pnlm-hotspot-base[style*="transform: translate(0px, 0px)"],
+.pnlm-hotspot-base[style*="translate3d(0px, 0px, 0px)"],
+.pnlm-hotspot-base:not([style*="translate"]) {
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
 /* 1. Container Styling - attributes are forced !important to override Pannellum defaults */
 .pnlm-hotspot.flat-arrow {
     background-image: none !important;

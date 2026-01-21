@@ -30,6 +30,7 @@ type t = {
   mutable lastMoveTime: float,
   mutable mouseVelocityX: float,
   mutable mouseVelocityY: float,
+  mutable isSwapping: bool, // Lock flag to prevent render updates during viewer swaps
 }
 
 let state = {
@@ -69,6 +70,7 @@ let state = {
   lastMoveTime: 0.0,
   mouseVelocityX: 0.0,
   mouseVelocityY: 0.0,
+  isSwapping: false,
 }
 
 let getActiveViewer = () => {

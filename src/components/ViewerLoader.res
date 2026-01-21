@@ -43,6 +43,11 @@ module Loader = {
 
   let rec performSwap = (loadedScene: Types.scene) => {
     let _swapStartTime = Date.now()
+
+    // CRITICAL: Set swap lock FIRST to prevent render loop from drawing during swap
+    // This prevents race condition where render loop uses mismatched viewer/state
+    state.isSwapping = true
+
     let inactiveKey = switch state.activeViewerKey {
     | A => B
     | B => A
@@ -63,19 +68,36 @@ module Loader = {
     )
     assignGlobal(newViewer)
 
-    let vOpt = getActiveViewer()
-    switch Nullable.toOption(vOpt) {
-    | Some(v) =>
-      let mouseEv = switch Nullable.toOption(state.lastMouseEvent) {
-      | Some(e) => Some(e)
-      | None => None
-      }
-      HotspotLine.updateLines(v, GlobalStateBridge.getState(), ~mouseEvent=?mouseEv, ())
-      let _ = Window.setTimeout(() => {
-        HotspotLine.updateLines(v, GlobalStateBridge.getState(), ())
-      }, 0)
+    // Clear SVG overlay immediately before swap to prevent stale arrows
+    // This prevents arrows calculated from old viewer camera data from appearing
+    let svgOpt = Dom.getElementById("viewer-hotspot-lines")
+    switch Nullable.toOption(svgOpt) {
+    | Some(svg) => Dom.setTextContent(svg, "")
     | None => ()
     }
+
+    // Delay hotspot line update to ensure new viewer is fully stable
+    // This prevents race condition where camera values are read before initialization
+    let _ = Window.setTimeout(() => {
+      let vOpt = getActiveViewer()
+      switch Nullable.toOption(vOpt) {
+      | Some(v) =>
+        // Only update if viewer is valid AND active (proper camera data)
+        if HotspotLine.isViewerReady(v) {
+          let mouseEv = switch Nullable.toOption(state.lastMouseEvent) {
+          | Some(e) => Some(e)
+          | None => None
+          }
+          HotspotLine.updateLines(v, GlobalStateBridge.getState(), ~mouseEvent=?mouseEv, ())
+        }
+
+        // Release swap lock after viewer is ready and lines are updated
+        state.isSwapping = false
+      | None =>
+        // Release lock even if viewer is not available
+        state.isSwapping = false
+      }
+    }, 50)
 
     /* Transition */
     let isCut = switch GlobalStateBridge.getState().transition.type_ {
@@ -120,27 +142,21 @@ module Loader = {
 
     /* Snapshot */
     let snapshot = Dom.getElementById("viewer-snapshot-overlay")
-    let isSim = GlobalStateBridge.getState().simulation.status == Running
 
     switch Nullable.toOption(snapshot) {
     | Some(s) =>
-      if !isSim {
-        Dom.remove(s, "snapshot-visible")
-        let _ = Window.setTimeout(() => {
-          if !(Dom.classList(s)->Dom.ClassList.contains("snapshot-visible")) {
-            Dom.setBackgroundImage(s, "none")
-          }
-        }, 450)
-      } else {
-        Dom.remove(s, "snapshot-visible")
-        Dom.setBackgroundImage(s, "none")
-      }
+      // Unified smooth fade-out for snapshots in all modes
+      Dom.remove(s, "snapshot-visible")
+      let _ = Window.setTimeout(() => {
+        if !(Dom.classList(s)->Dom.ClassList.contains("snapshot-visible")) {
+          Dom.setBackgroundImage(s, "none")
+        }
+      }, 450)
     | None => ()
     }
 
-    if !isSim {
-      ViewerSnapshot.requestIdleSnapshot()
-    }
+    // Enable snapshot capture during simulation to provide visual continuity for subsequent jumps
+    ViewerSnapshot.requestIdleSnapshot()
 
     state.isSceneLoading = false
     state.loadingSceneId = Nullable.null
@@ -296,9 +312,10 @@ module Loader = {
 
             let panoramaUrl = getPanoramaUrl(targetScene.file)
             let currentGlobalState = GlobalStateBridge.getState()
+            // Progressive loading: Load preview (tinyFile) first, then upgrade to full quality
+            // This significantly reduces initial load time and improves AutoPilot performance
             let useProgressive =
               Belt.Option.isSome(targetScene.tinyFile) &&
-              currentGlobalState.simulation.status != Running &&
               !currentGlobalState.isTeasing &&
               !isAnticipatory
 
@@ -325,15 +342,9 @@ module Loader = {
             let initialHfov =
               Constants.backendUrl == "" ? Constants.globalHfov : Constants.globalHfov
 
-            let hotspotsArr = Belt.Array.mapWithIndex(targetScene.hotspots, (i, h) => {
-              HotspotManager.createHotspotConfig(
-                ~hotspot=h,
-                ~index=i,
-                ~state=currentGlobalState,
-                ~scene=targetScene,
-                ~dispatch=GlobalStateBridge.dispatch,
-              )
-            })
+            // Defer hotspot creation until AFTER load to prevent "Ghost Arrow" artifacts at (0,0)
+            // We pass empty array initially, then add them dynamically in the 'load' handler
+            let hotspotsArr = []
 
             let viewerConfig = {
               "default": {
@@ -441,6 +452,27 @@ module Loader = {
                 )
               } else if !useProgressive || isMaster {
                 asCustom(newViewer).isLoaded = true
+
+                // Inject hotspots now that viewer is stable
+                // This prevents them from appearing at (0,0) before the camera is ready
+                Belt.Array.forEachWithIndex(
+                  targetScene.hotspots,
+                  (i, h) => {
+                    let config = HotspotManager.createHotspotConfig(
+                      ~hotspot=h,
+                      ~index=i,
+                      ~state=currentGlobalState,
+                      ~scene=targetScene,
+                      ~dispatch=GlobalStateBridge.dispatch,
+                    )
+                    try {
+                      Viewer.addHotSpot(newViewer, config)
+                    } catch {
+                    | _ => ()
+                    }
+                  },
+                )
+
                 Logger.info(
                   ~module_="Viewer",
                   ~message="TEXTURE_LOADED",
@@ -473,10 +505,12 @@ module Loader = {
                 }
 
                 if GlobalStateBridge.getState().simulation.status == Running {
+                  // Reduced from 3 frames to 1 frame to speed up AutoPilot transitions
+                  // while still allowing a basic pass for texture stabilization
                   let frameCount = ref(0)
                   let rec waitForDeepRender = () => {
                     frameCount := frameCount.contents + 1
-                    if frameCount.contents < 3 {
+                    if frameCount.contents < 1 {
                       let _ = Window.requestAnimationFrame(waitForDeepRender)
                     } else {
                       checkReadyAndSwap()
@@ -508,18 +542,25 @@ module Loader = {
             }
 
             Viewer.on(newViewer, "viewchange", _ => {
-              /* If this viewer corresponds to the currently active key, update lines */
-              if assignedKey == state.activeViewerKey {
-                let mouseEv = switch Nullable.toOption(state.lastMouseEvent) {
-                | Some(e) => Some(e)
-                | None => None
+              /* CRITICAL: Skip updates during swap AND verify viewer is ready
+               * This prevents the "ghost arrow" artifact at (0,0) which occurs when:
+               * 1. viewchange fires before the new viewer's camera is fully initialized
+               * 2. viewchange fires during the swap transition when state is inconsistent
+               */
+              if assignedKey == state.activeViewerKey && !state.isSwapping {
+                // Extra safety: Verify viewer has valid camera data before drawing
+                if HotspotLine.isViewerReady(newViewer) {
+                  let mouseEv = switch Nullable.toOption(state.lastMouseEvent) {
+                  | Some(e) => Some(e)
+                  | None => None
+                  }
+                  HotspotLine.updateLines(
+                    newViewer,
+                    GlobalStateBridge.getState(),
+                    ~mouseEvent=?mouseEv,
+                    (),
+                  )
                 }
-                HotspotLine.updateLines(
-                  newViewer,
-                  GlobalStateBridge.getState(),
-                  ~mouseEvent=?mouseEv,
-                  (),
-                )
               }
             })
           }

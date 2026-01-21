@@ -1,0 +1,658 @@
+/* src/components/ViewerUI.res */
+
+// Do not open ReBindings globally to avoid Dom conflict
+// open ReBindings
+open EventBus
+
+// Removed SimulationSystem direct binding
+// module SimulationSystem = ...
+
+module LabelMenu = {
+  @module("./LabelMenu.bs.js")
+  external toggleLabelMenu: Dom.element => unit = "toggleLabelMenu"
+  @module("./LabelMenu.bs.js")
+  external createLabelMenu: (Nullable.t<Dom.element>, Dom.element) => unit = "createLabelMenu"
+  @module("./LabelMenu.bs.js")
+  external syncLabelMenu: (string, string) => unit = "syncLabelMenu"
+  @module("./LabelMenu.bs.js")
+  external closeLabelMenu: unit => unit = "closeLabelMenu"
+}
+
+// Floor Levels
+type floorLevel = {
+  id: string,
+  label: string,
+  short: string,
+  suffix: string,
+}
+
+let floorLevels = [
+  {id: "b2", label: "Basement 2", short: "B", suffix: "-2"},
+  {id: "b1", label: "Basement 1", short: "B", suffix: "-1"},
+  {id: "ground", label: "Ground Floor", short: "G", suffix: ""},
+  {id: "first", label: "First Floor", short: "+1", suffix: ""},
+  {id: "second", label: "Second Floor", short: "+2", suffix: ""},
+  {id: "third", label: "Third Floor", short: "+3", suffix: ""},
+  {id: "fourth", label: "Fourth Floor", short: "+4", suffix: ""},
+  {id: "roof", label: "Roof Top", short: "R", suffix: ""},
+]
+
+external makeStyle: {..} => ReactDOM.Style.t = "%identity"
+
+module StaticDiv = {
+  @react.component
+  let make = (~id, ~className=?, ~style=?, ~children=?) => {
+    <div id ?className ?style> {children->Option.getOr(React.null)} </div>
+  }
+}
+
+@module("react")
+external memoCustom: (
+  React.component<'props>,
+  ('props, 'props) => bool,
+) => React.component<'props> = "memo"
+
+// Memoize with 'true' to never re-render after mount
+let staticDivComp = memoCustom(StaticDiv.make, (_, _) => true)
+module MemoStaticDiv = {
+  let make = staticDivComp
+}
+
+module StaticSvg = {
+  @react.component
+  let make = (~id, ~className=?, ~style=?, ~children=?) => {
+    <svg id ?className ?style> {children->Option.getOr(React.null)} </svg>
+  }
+}
+let staticSvgComp = memoCustom(StaticSvg.make, (_, _) => true)
+module MemoStaticSvg = {
+  let make = staticSvgComp
+}
+
+@react.component
+let make = () => {
+  let state = AppContext.useAppState()
+  let dispatch = AppContext.useAppDispatch()
+  let simActive = state.simulation.status == Running
+
+  // Derived state for display
+  let currentCategory = if state.activeIndex >= 0 {
+    switch Belt.Array.get(state.scenes, state.activeIndex) {
+    | Some(s) =>
+      if s.category == "" {
+        "outdoor"
+      } else {
+        s.category
+      }
+    | None => "outdoor"
+    }
+  } else {
+    "outdoor"
+  }
+
+  let currentFloor = if state.activeIndex >= 0 {
+    switch Belt.Array.get(state.scenes, state.activeIndex) {
+    | Some(s) =>
+      if s.floor == "" {
+        "ground"
+      } else {
+        s.floor
+      }
+    | None => ""
+    }
+  } else {
+    ""
+  }
+
+  // Standard Dom.element ref
+  let labelBtnRef = React.useRef(Nullable.null)
+
+  // Processing UI state
+  let (_procState, setProcState) = React.useState(_ =>
+    {
+      "active": false,
+      "progress": 0.0,
+      "message": "",
+      "phase": "",
+      "error": false,
+    }
+  )
+  let hideTimerRef = React.useRef(Nullable.null)
+
+  // Subscribe to processing updates
+  React.useEffect0(() => {
+    let unsubscribe = EventBus.subscribe(event => {
+      switch event {
+      | UpdateProcessing(payload) =>
+        // Clear any existing hide timer
+        switch Nullable.toOption(hideTimerRef.current) {
+        | Some(timerId) =>
+          clearTimeout(timerId)
+          hideTimerRef.current = Nullable.null
+        | None => ()
+        }
+
+        setProcState(_ => payload)
+
+        // If progress is complete, start auto-hide timer
+        if payload["progress"] >= 100.0 && payload["active"] {
+          let timerId = setTimeout(
+            () => {
+              setProcState(
+                prev => {
+                  let next = Object.assign(Object.make(), prev)
+                  next["active"] = false
+                  next
+                },
+              )
+              hideTimerRef.current = Nullable.null
+            },
+            3000,
+          ) // 3 seconds delay for floating UI
+          hideTimerRef.current = Nullable.fromOption(Some(timerId))
+        }
+      | _ => ()
+      }
+    })
+
+    // Click outside for Label Menu
+    let handleGlobalClick = e => {
+      let target = ReBindings.Dom.target(e)
+      let closestMenu = ReBindings.Dom.closest(target, "#v-scene-label-menu")
+      let closestBtn = ReBindings.Dom.closest(target, "#v-scene-label-btn")
+
+      if Nullable.toOption(closestMenu) == None && Nullable.toOption(closestBtn) == None {
+        LabelMenu.closeLabelMenu()
+      }
+    }
+    ReBindings.Window.addEventListener("click", handleGlobalClick)
+
+    Some(
+      () => {
+        unsubscribe()
+        ReBindings.Window.removeEventListener("click", handleGlobalClick)
+      },
+    )
+  })
+
+  // Sync Label Menu when activeIndex changes
+  React.useEffect1(() => {
+    if state.activeIndex >= 0 {
+      switch Belt.Array.get(state.scenes, state.activeIndex) {
+      | Some(s) => LabelMenu.syncLabelMenu(s.label, s.category)
+      | None => ()
+      }
+    }
+    None
+  }, [state.activeIndex])
+
+  // Poll for simulation status (or we could dispatch actions when simulation changes, assuming simulation updates store)
+  // For now, keep simple interval check or verify if store triggers.
+  // SimulationSystem is likely external.
+  // We can use an effect with interval or hook into navigation updates if possible.
+  // Original code updated on store subscription. Store had notify() called often?
+  // Let's rely on re-renders for now, but simulation state might need polling if it doesn't dispatch.
+  // Removed simulation polling
+  // Simulation status is now in state.simulation.status
+
+  React.useEffect0(() => {
+    // Initialize Label Menu if ref exists
+    switch Nullable.toOption(labelBtnRef.current) {
+    | Some(el) =>
+      LabelMenu.createLabelMenu(Nullable.null, el)
+
+      // Initial Sync
+      if state.activeIndex >= 0 {
+        switch Belt.Array.get(state.scenes, state.activeIndex) {
+        | Some(s) => LabelMenu.syncLabelMenu(s.label, s.category)
+        | None => ()
+        }
+      }
+    | None => ()
+    }
+    None
+  })
+
+  // Handlers
+  let handleFabClick = e => {
+    JsxEvent.Mouse.stopPropagation(e)
+
+    if state.isLinking {
+      ViewerState.state.linkingStartPoint = Nullable.null
+      dispatch(Actions.StopLinking)
+      EventBus.dispatch(ShowNotification("Link Mode: OFF", #Warning))
+    } else {
+      let cx = JsxEvent.Mouse.clientX(e)
+      let cy = JsxEvent.Mouse.clientY(e)
+      ViewerState.state.linkingStartPoint = Nullable.make({
+        "x": Belt.Int.toFloat(cx),
+        "y": Belt.Int.toFloat(cy),
+      })
+
+      let v = Nullable.toOption(ReBindings.Viewer.instance)
+      switch v {
+      | Some(_viewer) =>
+        dispatch(Actions.StartLinking(None))
+        EventBus.dispatch(ShowNotification("Link Mode: ACTIVE", #Success))
+      | None => EventBus.dispatch(ShowNotification("Viewer not initialized", #Error))
+      }
+    }
+  }
+
+  let handleSimClick = e => {
+    JsxEvent.Mouse.stopPropagation(e)
+    if simActive {
+      dispatch(Actions.StopAutoPilot)
+    } else {
+      // Start AutoPilot with journeyId from state or new
+      dispatch(Actions.StartAutoPilot(state.currentJourneyId, false))
+    }
+  }
+
+  let handleCatClick = e => {
+    JsxEvent.Mouse.stopPropagation(e)
+    let activeIdx = state.activeIndex
+    if activeIdx >= 0 {
+      let newCat = if currentCategory == "indoor" {
+        "outdoor"
+      } else {
+        "indoor"
+      }
+      dispatch(Actions.UpdateSceneMetadata(activeIdx, Logger.castToJson({"category": newCat})))
+
+      // Sync Label Menu immediately if it's already open or for next toggle
+      LabelMenu.syncLabelMenu(
+        switch Belt.Array.get(state.scenes, activeIdx) {
+        | Some(s) => s.label
+        | None => ""
+        },
+        newCat,
+      )
+
+      EventBus.dispatch(
+        ShowNotification(
+          if newCat == "indoor" {
+            "Category: INDOOR"
+          } else {
+            "Category: OUTDOOR"
+          },
+          #Warning,
+        ),
+      )
+    }
+  }
+
+  let handleLabelClick = e => {
+    JsxEvent.Mouse.stopPropagation(e)
+    let activeIdx = state.activeIndex
+    if activeIdx >= 0 {
+      switch Belt.Array.get(state.scenes, activeIdx) {
+      | Some(s) =>
+        LabelMenu.syncLabelMenu(s.label, s.category)
+        switch Nullable.toOption(labelBtnRef.current) {
+        | Some(el) => LabelMenu.toggleLabelMenu(el)
+        | None => ()
+        }
+      | None => ()
+      }
+    }
+  }
+
+  let processReturnPrompt = () => {
+    let v = Nullable.toOption(ReBindings.Viewer.instance)
+    let incoming = state.incomingLink
+
+    switch (v, incoming) {
+    | (Some(viewer), Some(inc)) =>
+      let prevScene = Belt.Array.get(state.scenes, inc.sceneIndex)
+      switch prevScene {
+      | Some(scene) =>
+        let currentYaw = ReBindings.Viewer.getYaw(viewer)
+        ReBindings.Viewer.setYawWithDuration(viewer, currentYaw +. 180.0, 1000)
+        dispatch(Actions.SetPendingReturnSceneName(Some(scene.name)))
+        EventBus.dispatch(
+          ShowNotification("Turned around! NOW click '+' to place the link.", #Success),
+        )
+
+        // Use ReBindings.Dom for manipulation
+        switch ReBindings.Dom.getElementById("return-link-prompt") {
+        | Nullable.Value(el) =>
+          ReBindings.Dom.classList(el)->ReBindings.Dom.ClassList.remove("visible")
+        | _ => ()
+        }
+      | None => ()
+      }
+    | _ => ()
+    }
+  }
+
+  let handleReturnPromptClick = e => {
+    JsxEvent.Mouse.stopPropagation(e)
+    processReturnPrompt()
+  }
+
+  let handleReturnPromptKeyDown = e => {
+    if JsxEvent.Keyboard.key(e) == "Enter" {
+      JsxEvent.Keyboard.stopPropagation(e)
+      processReturnPrompt()
+    }
+  }
+
+  let handleFloorClick = (fid, label, e) => {
+    JsxEvent.Mouse.stopPropagation(e)
+    let activeIdx = state.activeIndex
+    if activeIdx >= 0 {
+      dispatch(Actions.UpdateSceneMetadata(activeIdx, Logger.castToJson({"floor": fid})))
+      EventBus.dispatch(ShowNotification("Floor: " ++ label, #Success))
+    }
+  }
+
+  // Render
+  <>
+    // Static Elements managed by JS
+    <MemoStaticDiv.make
+      id="viewer-snapshot-overlay"
+      className="absolute inset-0 bg-center bg-no-repeat z-[5000] pointer-events-none opacity-0 transition-opacity duration-300 ease-in-out"
+    />
+
+    {
+      let scenesLoaded = Belt.Array.length(state.scenes) > 0
+      let utilBarClass =
+        "absolute top-6 left-6 z-[5002] flex flex-col gap-2 transition-all duration-300 " ++ if (
+          !scenesLoaded
+        ) {
+          "grayscale opacity-60 pointer-events-none"
+        } else {
+          ""
+        }
+
+      <div id="viewer-utility-bar" className={utilBarClass}>
+        <button
+          id="btn-add-link-fab"
+          className={"v-util-btn w-[32px] h-[32px] rounded-full flex items-center justify-center v-util-btn-add-link v-util-btn-add-link-icon " ++
+          if simActive {
+            "state-disabled "
+          } else {
+            ""
+          } ++ if !scenesLoaded {
+            "state-empty"
+          } else if state.isLinking {
+            "state-linking"
+          } else {
+            "state-idle"
+          }}
+          onClick={handleFabClick}
+          ariaLabel="Add Link"
+          title="Add Link"
+        >
+          {React.string(
+            if state.isLinking {
+              "×"
+            } else {
+              "+"
+            },
+          )}
+        </button>
+
+        <button
+          id="v-scene-sim-toggle"
+          className={"v-util-btn w-[32px] h-[32px] text-white rounded-full font-ui flex items-center justify-center v-util-btn-autopilot " ++ if (
+            simActive
+          ) {
+            "animate-pulse-stop state-active"
+          } else if !scenesLoaded {
+            "state-empty"
+          } else {
+            "state-idle"
+          }}
+          onClick={handleSimClick}
+          ariaLabel="Auto-Pilot"
+          title={if simActive {
+            "Stop Auto-Pilot"
+          } else {
+            "Start Auto-Pilot"
+          }}
+        >
+          <span className="material-icons v-util-btn-icon">
+            {React.string(
+              if simActive {
+                "stop"
+              } else {
+                "play_arrow"
+              },
+            )}
+          </span>
+        </button>
+
+        <button
+          id="v-scene-cat-toggle"
+          className={"v-util-btn w-[32px] h-[32px] text-white rounded-full flex items-center justify-center v-util-btn-category " ++
+          if simActive {
+            "state-disabled "
+          } else {
+            ""
+          } ++ if scenesLoaded && state.activeIndex >= 0 {
+            switch Belt.Array.get(state.scenes, state.activeIndex) {
+            | Some(s) =>
+              if s.categorySet {
+                if s.category == "outdoor" {
+                  "cat-outdoor"
+                } else {
+                  "cat-indoor"
+                }
+              } else {
+                "cat-none"
+              }
+            | None => "cat-none"
+            }
+          } else {
+            "state-empty"
+          }}
+          onClick={handleCatClick}
+          ariaLabel="Toggle Category"
+          title="Toggle Category"
+        >
+          <span className="material-icons v-util-btn-icon">
+            {React.string(
+              if currentCategory == "indoor" {
+                "home"
+              } else if currentCategory == "outdoor" {
+                "park"
+              } else {
+                "park"
+              },
+            )}
+          </span>
+        </button>
+
+        <button
+          id="v-scene-label-btn"
+          ref={ReactDOM.Ref.domRef(labelBtnRef)}
+          className={"v-util-btn w-[32px] h-[32px] text-white rounded-full font-ui text-[18px] font-bold flex items-center justify-center relative z-[6000] v-util-btn-label " ++
+          if simActive {
+            "state-disabled "
+          } else {
+            "pointer-events-auto "
+          } ++ if scenesLoaded {
+            "state-loaded"
+          } else {
+            "state-empty"
+          }}
+          onClick={handleLabelClick}
+          ariaLabel="Scene Label"
+          title="Scene Label"
+        >
+          {React.string("#")}
+        </button>
+      </div>
+    }
+
+    /* HUD Labels */
+    {
+      let currentLabel = if state.activeIndex >= 0 {
+        switch Belt.Array.get(state.scenes, state.activeIndex) {
+        | Some(s) => s.label
+        | None => ""
+        }
+      } else {
+        ""
+      }
+
+      <div
+        id="v-scene-persistent-label"
+        className={"viewer-persistent-label " ++ if currentLabel != "" {
+          "state-visible"
+        } else {
+          "state-hidden"
+        }}
+      >
+        {React.string("#" ++ currentLabel)}
+      </div>
+    }
+
+    {
+      let quality = if state.activeIndex >= 0 {
+        switch Belt.Array.get(state.scenes, state.activeIndex) {
+        | Some(s) => s.quality
+        | None => None
+        }
+      } else {
+        None
+      }
+
+      let badges = switch quality {
+      | Some(qJson) =>
+        let q: SharedTypes.qualityAnalysis = Obj.magic(qJson)
+        let b = []
+        if q.isBlurry {
+          let _ = Js.Array.push({"text": "BLURRY", "cls": "q-blurry"}, b)
+        } else if q.isSoft {
+          let _ = Js.Array.push({"text": "SOFT", "cls": "q-soft"}, b)
+        }
+        if q.isSeverelyDark {
+          let _ = Js.Array.push({"text": "DARK", "cls": "q-dark"}, b)
+        } else if q.isDim {
+          let _ = Js.Array.push({"text": "DIM", "cls": "q-dim"}, b)
+        }
+        b
+      | None => []
+      }
+
+      <div
+        id="v-scene-quality-indicator"
+        className={"absolute top-6 right-6 z-[6005] flex items-center gap-2 pointer-events-none transition-all duration-300 " ++ if (
+          Array.length(badges) > 0
+        ) {
+          "opacity-100 translate-x-2 scale-95"
+        } else {
+          "opacity-0 translate-x-4 scale-90 hidden"
+        }}
+      >
+        {badges
+        ->Belt.Array.map(b => {
+          <span key={b["text"]} className={`quality-badge ${b["cls"]}`}>
+            {React.string(b["text"])}
+          </span>
+        })
+        ->React.array}
+      </div>
+    }
+
+    /* Viewer Logo */
+    <div
+      id="viewer-logo"
+      className="absolute bottom-6 right-6 z-[5002] bg-white rounded-xl shadow-xl p-[4px] flex items-center justify-center max-w-[120px] max-h-[60px] border border-black/5 overflow-hidden viewer-logo-masked"
+    >
+      <img src="images/logo.png" alt="Logo" className="w-full h-auto object-contain block" />
+    </div>
+
+    /* Linking Hint */
+    /* Linking Hint */
+    <div
+      id="linking-cancel-hint"
+      className={"absolute bottom-10 left-1/2 -translate-x-1/2 translate-y-2 z-[9999] flex flex-col items-center gap-1 transition-all duration-400 text-center pointer-events-none linking-hint-text " ++ if (
+        state.isLinking
+      ) {
+        "opacity-100 translate-y-2"
+      } else {
+        "opacity-0 translate-y-4 hidden"
+      }}
+    >
+      <span> {React.string("ESC to Cancel")} </span>
+      <span className="linking-hint-subtext"> {React.string("ENTER to Finish")} </span>
+    </div>
+
+    /* Floor Navigation */
+    /* Floor Navigation */
+    {
+      let scenesLoaded = Belt.Array.length(state.scenes) > 0
+      let floorNavClass =
+        "absolute bottom-6 left-5 z-[5002] flex flex-col-reverse gap-2 items-center transition-all duration-500" ++ if (
+          !scenesLoaded
+        ) {
+          " grayscale opacity-60 pointer-events-none"
+        } else {
+          ""
+        }
+
+      <div id="viewer-floor-nav" className={floorNavClass}>
+        {floorLevels
+        ->Belt.Array.map(f => {
+          let isSelected = scenesLoaded && f.id == currentFloor
+
+          <div
+            key={f.id}
+            className={"floor-circle w-[32px] h-[32px] rounded-full border-2 border-transparent flex items-center justify-center font-ui text-[13px] font-bold cursor-pointer transition-all " ++ if (
+              isSelected
+            ) {
+              "bg-floor-active text-white bg-primary scale-110 z-10 floor-circle-shadow-selected"
+            } else {
+              "bg-floor-default text-white hover:text-white floor-circle-shadow-idle"
+            }}
+            onClick={e => handleFloorClick(f.id, f.label, e)}
+            title={f.label}
+          >
+            {React.string(f.short)}
+            {if f.suffix != "" {
+              <sup className="floor-suffix"> {React.string(f.suffix)} </sup>
+            } else {
+              React.null
+            }}
+          </div>
+        })
+        ->React.array}
+      </div>
+    }
+
+    /* Return Link Prompt */
+    /* Return Link Prompt */
+    <div
+      id="return-link-prompt"
+      className="hidden fixed bottom-24 left-1/2 -translate-x-1/2 glass-panel rounded-full px-5 py-2.5 items-center gap-3 shadow-2xl z-[4000] border border-remax-gold/20 cursor-pointer transition-all hover:scale-105 active:scale-95 animate-fade-in-centered"
+      onClick={handleReturnPromptClick}
+      role="button"
+      tabIndex=0
+      onKeyDown={handleReturnPromptKeyDown}
+    >
+      <div
+        className="w-6 h-6 bg-remax-gold rounded-full flex items-center justify-center text-black font-black text-xs shadow-sm"
+      >
+        {React.string("↩")}
+      </div>
+      <div className="return-link-text font-ui text-[13px] font-bold text-white">
+        {React.string("Add Return Link")}
+      </div>
+    </div>
+
+    // Legacy Markers
+    <MemoStaticDiv.make
+      id="viewer-center-indicator"
+      className="absolute top-1/2 left-1/2 w-3 h-3 -translate-x-1/2 -translate-y-1/2 border-2 border-remax-gold rounded-full z-[5001] pointer-events-none hidden"
+    />
+
+    <MemoStaticSvg.make
+      id="viewer-hotspot-lines"
+      className="absolute inset-0 w-full h-full z-[5000] pointer-events-none"
+    />
+  </>
+}

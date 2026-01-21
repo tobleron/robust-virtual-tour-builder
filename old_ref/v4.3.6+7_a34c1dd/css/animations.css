@@ -1,0 +1,145 @@
+/* Core Animations */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInCentered {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+/* Brand/Specialty Animations */
+@keyframes shimmer {
+    from {
+        background-position: 200% 0;
+    }
+
+    to {
+        background-position: -200% 0;
+    }
+}
+
+@keyframes glow-sequence {
+
+    0%,
+    100% {
+        fill-opacity: 0;
+        filter: brightness(1);
+    }
+
+    10%,
+    30% {
+        fill-opacity: 0.8;
+        filter: brightness(1.5);
+    }
+
+    40% {
+        fill-opacity: 0;
+        filter: brightness(1);
+    }
+}
+
+@keyframes marching-ants {
+    from {
+        stroke-dashoffset: 0;
+    }
+
+    to {
+        stroke-dashoffset: -30;
+    }
+}
+
+@keyframes pulse-stop {
+
+    0%,
+    100% {
+        box-shadow: 1px 1px 1px #000, 0 0 0 0 rgba(220, 53, 69, 0.6);
+    }
+
+    50% {
+        box-shadow: 1px 1px 1px #000, 0 0 0 6px rgba(220, 53, 69, 0);
+    }
+}
+
+.animate-pulse-stop {
+    animation: pulse-stop 2s infinite;
+}
+
+/* Animation Classes */
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in-centered {
+    animation: fadeInCentered 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-shimmer {
+    animation: shimmer 2s linear infinite;
+}
+
+.glow-bottom {
+    animation: glow-sequence 1.8s infinite;
+}
+
+.glow-top {
+    animation: glow-sequence 1.8s infinite;
+    animation-delay: 0.4s;
+}
+
+.line-marching-ants {
+
+    stroke-dasharray: 10, 5;
+
+    animation: marching-ants 1s linear infinite;
+
+}
+
+
+
+.line-rod-yellow {
+
+    stroke-dasharray: 10, 5;
+
+}
