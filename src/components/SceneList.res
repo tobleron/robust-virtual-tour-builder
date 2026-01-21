@@ -1,3 +1,5 @@
+open ReBindings
+
 external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 
 module SceneItem = {

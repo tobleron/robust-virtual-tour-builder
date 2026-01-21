@@ -64,11 +64,11 @@ let make = (~anchor: Dom.element, ~onClose: unit => unit) => {
         ->Belt.Array.keep(((cat, _)) => cat == currentCategory)
         ->Belt.Array.map(((category, labels)) => {
           <div key={category} className="flex flex-col">
-            <div className="flex items-center gap-2 px-4 py-2 opacity-50">
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+            <div className="flex items-center gap-2 px-4 py-2">
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">
                 {React.string(category)}
               </span>
-              <div className="flex-1 h-px bg-slate-200/30" />
+              <div className="flex-1 h-px bg-slate-200" />
             </div>
             <div className="grid grid-cols-1 gap-0.5 px-2">
               {labels
@@ -79,8 +79,8 @@ let make = (~anchor: Dom.element, ~onClose: unit => unit) => {
                   onClick={_ => handleSelect(label)}
                   className={`w-full text-left px-3 py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all
                     ${isActive
-                      ? "bg-primary/10 text-primary-light"
-                      : "text-slate-600 hover:bg-white/40 hover:text-primary"}`}
+                      ? "bg-primary text-white"
+                      : "text-slate-700 hover:bg-slate-50 hover:text-primary"}`}
                 >
                   {React.string(label)}
                 </button>
@@ -93,8 +93,8 @@ let make = (~anchor: Dom.element, ~onClose: unit => unit) => {
       </div>
 
       /* Custom Label Section */
-      <div className="p-4 border-t border-slate-200/20 bg-white/10">
-        <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">
+      <div className="p-4 border-t border-slate-200 bg-slate-50">
+        <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">
           {React.string("Custom Label Entry")}
         </h4>
         <div className="flex gap-2">
@@ -111,7 +111,7 @@ let make = (~anchor: Dom.element, ~onClose: unit => unit) => {
                 handleApplyCustom()
               }
             }}
-            className="flex-1 bg-white/50 border border-slate-200/50 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 outline-none focus:border-primary-light focus:ring-4 focus:ring-primary/5 transition-all"
+            className="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 outline-none focus:border-primary-light focus:ring-4 focus:ring-primary/5 transition-all"
           />
           <button
             onClick={_ => handleApplyCustom()}
