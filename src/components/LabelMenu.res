@@ -79,8 +79,8 @@ let make = (~anchor: Dom.element, ~onClose: unit => unit) => {
                   onClick={_ => handleSelect(label)}
                   className={`w-full text-left px-3 py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all
                     ${isActive
-                      ? "bg-primary text-white"
-                      : "text-slate-700 hover:bg-slate-50 hover:text-primary"}`}
+                      ? "bg-slate-100 text-primary-light"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-primary"}`}
                 >
                   {React.string(label)}
                 </button>
@@ -93,7 +93,7 @@ let make = (~anchor: Dom.element, ~onClose: unit => unit) => {
       </div>
 
       /* Custom Label Section */
-      <div className="p-4 border-t border-slate-200 bg-slate-50">
+      <div className="p-4 border-t border-slate-100">
         <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">
           {React.string("Custom Label Entry")}
         </h4>
@@ -111,7 +111,7 @@ let make = (~anchor: Dom.element, ~onClose: unit => unit) => {
                 handleApplyCustom()
               }
             }}
-            className="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 outline-none focus:border-primary-light focus:ring-4 focus:ring-primary/5 transition-all"
+            className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 outline-none focus:border-primary-light focus:ring-4 focus:ring-primary/5 transition-all"
           />
           <button
             onClick={_ => handleApplyCustom()}
