@@ -247,42 +247,46 @@
     animation-duration: 1.0s;
 }
 
-/* Hotspot Action Trigger - Three dots menu */
+/* Hotspot Action Trigger - Matches old delete button style */
 .hotspot-action-trigger {
     position: absolute;
-    /* Position at top-right, away from arrow center */
+    /* Position: Top Right relative to the 70x70 box */
     top: -30px;
     right: -35px;
-    width: 24px;
-    height: 24px;
-    background: white;
-    border: 2px solid var(--slate-200);
+    width: 20px;
+    height: 20px;
+    background: var(--danger);
+    color: white;
     border-radius: 50%;
-    color: var(--primary);
     display: flex !important;
     align-items: center;
     justify-content: center;
     font-family: 'Material Icons';
-    font-size: 14px;
+    font-size: 12px;
+    font-weight: 800;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: 2px solid white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     z-index: 10005;
+
+    /* Default: Invisible */
     opacity: 0;
     visibility: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Logic: 
+       - Opacity: 0.3s fade duration.
+       - HIDING (Exit): Wait 2s before fading out.
+    */
+    transition: opacity 0.3s ease-in-out 2s, visibility 0s linear 2.3s;
     pointer-events: auto;
 }
 
+/* Hover State - Parent */
 .pnlm-hotspot.flat-arrow:hover .hotspot-action-trigger {
     opacity: 1;
     visibility: visible;
-}
-
-.hotspot-action-trigger:hover {
-    background: var(--primary);
-    color: white;
-    transform: scale(1.1);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    /* SHOWING (Enter): Wait 1.5s before fading in */
+    transition-delay: 1.5s;
 }
 
 /* A/R Buttons Container - Anchored at origin to support plane-accurate transforms */
