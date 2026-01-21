@@ -140,7 +140,7 @@ let make = () => {
           >
             {React.string("ROBUST")}
           </h1>
-          <LucideIcons.Home className="text-white drop-shadow-lg text-[49px]" size=49 />
+          <LucideIcons.Home className="text-white drop-shadow-lg text-[45px]" size=45 />
         </div>
         <div
           className="font-normal text-white tracking-[0.25em] text-[13px] uppercase drop-shadow-sm"
@@ -219,7 +219,7 @@ let make = () => {
               },
             ),
             (
-              "folder_open",
+              "folder-open",
               "Load",
               () => {
                 switch Nullable.toOption(projectFileInputRef.current) {
@@ -265,7 +265,7 @@ let make = () => {
               {switch icon {
               | "file-plus" => <LucideIcons.FilePlus />
               | "save" => <LucideIcons.Save />
-              | "folder-open" => <LucideIcons.FolderOpen />
+              | "folder-open" | "folder_open" => <LucideIcons.FolderOpen />
               | "info" => <LucideIcons.Info />
               | _ => React.null
               }}
