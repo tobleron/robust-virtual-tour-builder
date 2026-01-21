@@ -111,7 +111,7 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
       onClick={_ => handleNavigate()}
       className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all group"
     >
-      <span className="material-icons text-lg"> {React.string("explore")} </span>
+      <LucideIcons.Navigation className="text-lg" />
       <span className="text-[11px] font-black uppercase tracking-widest">
         {React.string("GO")}
       </span>
@@ -127,15 +127,11 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
             : "bg-white/10 border-white/5 text-slate-400 hover:text-slate-200"}`}
         title="Toggle Auto-Forward"
       >
-        <span className="material-icons text-[16px]">
-          {React.string(
-            if isAutoForward {
-              "fast_forward"
-            } else {
-              "forward"
-            },
-          )}
-        </span>
+        {if isAutoForward {
+          <LucideIcons.FastForward className="text-[16px]" />
+        } else {
+          <LucideIcons.ChevronRight className="text-[16px]" />
+        }}
         <span className="text-[9px] font-black uppercase tracking-tighter">
           {React.string(
             if isAutoForward {
@@ -153,7 +149,7 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
         className="w-10 flex items-center justify-center rounded-xl bg-danger/10 text-danger hover:bg-danger hover:text-white transition-all border border-danger/20"
         title="Delete Link"
       >
-        <span className="material-icons text-lg"> {React.string("delete_outline")} </span>
+        <LucideIcons.Trash2 className="text-lg" />
       </button>
     </div>
   </div>
