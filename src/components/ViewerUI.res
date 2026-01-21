@@ -335,19 +335,14 @@ let make = () => {
         >
           <Shadcn.Button
             size="icon"
-            variant="ghost"
-            className={"v-util-btn w-[32px] h-[32px] rounded-full v-util-btn-add-link v-util-btn-add-link-icon " ++
-            if simActive {
-              "state-disabled "
-            } else {
-              ""
-            } ++ if !scenesLoaded {
-              "state-empty"
+            variant={if !scenesLoaded {
+              "secondary"
             } else if state.isLinking {
-              "state-linking"
+              "default"
             } else {
-              "state-idle"
+              "destructive"
             }}
+            className="w-[32px] h-[32px] rounded-full text-[20px] font-bold"
             onClick={handleFabClick}
           >
             {React.string(
@@ -370,19 +365,15 @@ let make = () => {
         >
           <Shadcn.Button
             size="icon"
-            variant="ghost"
-            className={"v-util-btn w-[32px] h-[32px] text-white rounded-full font-ui v-util-btn-autopilot " ++ if (
-              simActive
-            ) {
-              "animate-pulse-stop state-active"
-            } else if !scenesLoaded {
-              "state-empty"
+            variant={if !scenesLoaded {
+              "secondary"
             } else {
-              "state-idle"
+              "destructive"
             }}
+            className="w-[32px] h-[32px] rounded-full"
             onClick={handleSimClick}
           >
-            <span className="material-icons v-util-btn-icon">
+            <span className="material-icons text-[18px]">
               {React.string(
                 if simActive {
                   "stop"
@@ -397,32 +388,15 @@ let make = () => {
         <Tooltip content="Toggle Category" alignment=#Right>
           <Shadcn.Button
             size="icon"
-            variant="ghost"
-            className={"v-util-btn w-[32px] h-[32px] text-white rounded-full v-util-btn-category " ++
-            if simActive {
-              "state-disabled "
+            variant={if !scenesLoaded {
+              "secondary"
             } else {
-              ""
-            } ++ if scenesLoaded && state.activeIndex >= 0 {
-              switch Belt.Array.get(state.scenes, state.activeIndex) {
-              | Some(s) =>
-                if s.categorySet {
-                  if s.category == "outdoor" {
-                    "cat-outdoor"
-                  } else {
-                    "cat-indoor"
-                  }
-                } else {
-                  "cat-none"
-                }
-              | None => "cat-none"
-              }
-            } else {
-              "state-empty"
+              "destructive"
             }}
+            className="w-[32px] h-[32px] rounded-full"
             onClick={handleCatClick}
           >
-            <span className="material-icons v-util-btn-icon">
+            <span className="material-icons text-[18px]">
               {React.string(
                 if currentCategory == "indoor" {
                   "home"
@@ -443,17 +417,12 @@ let make = () => {
             <Tooltip content="Scene Label Preset" alignment=#Right>
               <Shadcn.Button
                 size="icon"
-                variant="ghost"
-                className={"v-util-btn w-[32px] h-[32px] text-white rounded-full font-ui text-[18px] font-bold relative z-[6000] v-util-btn-label " ++
-                if simActive {
-                  "state-disabled "
+                variant={if !scenesLoaded {
+                  "secondary"
                 } else {
-                  "pointer-events-auto "
-                } ++ if scenesLoaded {
-                  "state-loaded"
-                } else {
-                  "state-empty"
+                  "destructive"
                 }}
+                className="w-[32px] h-[32px] rounded-full text-[18px] font-bold"
                 onClick={handleLabelClick}
               >
                 {React.string("#")}
