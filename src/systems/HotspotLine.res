@@ -111,36 +111,18 @@ let getScreenCoords = (viewer, pitch, yaw, rect: Dom.rect) => {
         let x = Math.tan(yawRad) /. Math.tan(halfHfovRad)
         let y = Math.tan(pitchRad) /. (Math.tan(halfVfovRad) *. cosYaw)
 
-        // Guard Band: Reject coordinates that are more than 2 screens away
-        // The previous 100.0 was too loose. 2.0 allows for smooth entry/exit
-        // but filters out mathematical singularities and "ghosts" that project
-        // wildly off-screen or wrap around.
-        if Math.abs(x) > 2.0 || Math.abs(y) > 2.0 || !Float.isFinite(x) || !Float.isFinite(y) {
+        // Essential safety check: Reject non-finite values from mathematical edge cases
+        // Note: isViewerReady() already validates camera data, and CSS hides (0,0) artifacts
+        if !Float.isFinite(x) || !Float.isFinite(y) {
           None
         } else {
           let screenX = rect.width /. 2.0 *. (1.0 +. x)
           let screenY = rect.height /. 2.0 *. (1.0 -. y)
 
-          // Strict Bounding Box: If it's wildly off-screen, don't return it.
-          // We allow a margin (-50 to width+50) for partial rendering, but
-          // anything beyond that is likely an artifact or irrelevant.
-          let margin = 50.0
-          if (
-            screenX < -.margin ||
-            screenX > rect.width +. margin ||
-            screenY < -.margin ||
-            screenY > rect.height +. margin
-          ) {
-            None
-          } // Artifact Filter: Reject exact 0,0 (Top-Left) which indicates uninitialized state
-          else if screenX <= 0.1 && screenY <= 0.1 {
-            None
-          } else {
-            Some({
-              x: screenX,
-              y: screenY,
-            })
-          }
+          Some({
+            x: screenX,
+            y: screenY,
+          })
         }
       }
     }

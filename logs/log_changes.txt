@@ -480,3 +480,4 @@ Task: 147
 
 [2026-01-21 13:15] v4.3.6 - [Fix] Resolve ghost arrow artifact at (0,0) during scene transitions
 [2026-01-21 14:13] v4.3.6 - Viewer Guard Checks
+[2026-01-21 14:15] v4.3.6 - [Refactor] Remove redundant defensive checks from HotspotLine
