@@ -417,7 +417,7 @@ let make = () => {
             </Tooltip>
           </Shadcn.Popover.Trigger>
           <Shadcn.Popover.Content
-            side="right" sideOffset=12 className="p-0 border-none shadow-none z-[10000]"
+            side="right" sideOffset=12 className="p-0 bg-white rounded-2xl shadow-2xl border border-slate-200 z-[10000]"
           >
             <LabelMenu onClose={() => setLabelMenuOpen(_ => false)} />
           </Shadcn.Popover.Content>
@@ -559,15 +559,20 @@ let make = () => {
         ->Belt.Array.map(f => {
           let isSelected = scenesLoaded && f.id == currentFloor
 
-          <Tooltip key={f.id} content={f.label} alignment=#Auto>
+          <Tooltip key={f.id} content={f.label} alignment=#Right>
             <Shadcn.Button
               size="icon"
               variant={if isSelected {
-                "default"
+                "outline"
               } else {
                 "secondary"
               }}
-              className="w-[32px] h-[32px] rounded-full text-[15px] font-bold"
+              className={"w-[32px] h-[32px] rounded-full text-[15px] font-medium " ++
+                if isSelected {
+                  "border-2 border-danger bg-danger/10 text-danger hover:bg-danger/20"
+                } else {
+                  "hover:border-2 hover:border-danger hover:bg-transparent"
+                }}
               onClick={e => handleFloorClick(f.id, f.label, e)}
             >
               {React.string(f.short)}
