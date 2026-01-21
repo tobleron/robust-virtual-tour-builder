@@ -18,6 +18,13 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        // Custom 3D variants with box-shadow
+        "destructive-3d":
+          "bg-destructive text-destructive-foreground shadow-[1px_1px_1px_rgba(0,0,0,0.5)] hover:shadow-[2px_2px_1px_rgba(0,0,0,0.8)] hover:translate-y-[-2px] active:shadow-none active:translate-y-[1px] transition-all duration-200",
+        "accent-3d":
+          "bg-[var(--accent)] text-black shadow-[1px_1px_1px_rgba(0,0,0,0.5)] hover:shadow-[2px_2px_1px_rgba(0,0,0,0.8)] hover:translate-y-[-2px] active:shadow-none active:translate-y-[1px] transition-all duration-200",
+        "secondary-3d":
+          "bg-secondary text-secondary-foreground shadow-[1px_1px_1px_rgba(0,0,0,0.3)] hover:shadow-[2px_2px_1px_rgba(0,0,0,0.6)] hover:translate-y-[-2px] active:shadow-none active:translate-y-[1px] transition-all duration-200",
       },
       size: {
         default: "h-10 px-4 py-2",
