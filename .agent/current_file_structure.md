@@ -70,6 +70,7 @@
 │   │   ├── floor-nav.css
 │   │   ├── label-menu.css
 │   │   ├── modals.css
+│   │   ├── popover.css
 │   │   ├── scene-groups.css
 │   │   ├── ui.css
 │   │   ├── upload-report.css
@@ -134,6 +135,12 @@
 │   │   │   │   ├── ErrorFallbackUI.cmj
 │   │   │   │   ├── ErrorFallbackUI.cmt
 │   │   │   │   ├── ErrorFallbackUI.res
+│   │   │   │   ├── HotspotActionMenu.ast
+│   │   │   │   ├── HotspotActionMenu.bs.js
+│   │   │   │   ├── HotspotActionMenu.cmi
+│   │   │   │   ├── HotspotActionMenu.cmj
+│   │   │   │   ├── HotspotActionMenu.cmt
+│   │   │   │   ├── HotspotActionMenu.res
 │   │   │   │   ├── HotspotManager.ast
 │   │   │   │   ├── HotspotManager.bs.js
 │   │   │   │   ├── HotspotManager.cmi
@@ -164,12 +171,36 @@
 │   │   │   │   ├── NotificationContext.cmj
 │   │   │   │   ├── NotificationContext.cmt
 │   │   │   │   ├── NotificationContext.res
+│   │   │   │   ├── PopOver.ast
+│   │   │   │   ├── PopOver.bs.js
+│   │   │   │   ├── PopOver.cmi
+│   │   │   │   ├── PopOver.cmj
+│   │   │   │   ├── PopOver.cmt
+│   │   │   │   ├── PopOver.res
+│   │   │   │   ├── PopOverTest.ast
+│   │   │   │   ├── PopOverTest.bs.js
+│   │   │   │   ├── PopOverTest.cmi
+│   │   │   │   ├── PopOverTest.cmj
+│   │   │   │   ├── PopOverTest.cmt
+│   │   │   │   ├── PopOverTest.res
+│   │   │   │   ├── Portal.ast
+│   │   │   │   ├── Portal.bs.js
+│   │   │   │   ├── Portal.cmi
+│   │   │   │   ├── Portal.cmj
+│   │   │   │   ├── Portal.cmt
+│   │   │   │   ├── Portal.res
 │   │   │   │   ├── RemaxErrorBoundary.ast
 │   │   │   │   ├── RemaxErrorBoundary.bs.js
 │   │   │   │   ├── RemaxErrorBoundary.cmi
 │   │   │   │   ├── RemaxErrorBoundary.cmj
 │   │   │   │   ├── RemaxErrorBoundary.cmt
 │   │   │   │   ├── RemaxErrorBoundary.res
+│   │   │   │   ├── SceneActionMenu.ast
+│   │   │   │   ├── SceneActionMenu.bs.js
+│   │   │   │   ├── SceneActionMenu.cmi
+│   │   │   │   ├── SceneActionMenu.cmj
+│   │   │   │   ├── SceneActionMenu.cmt
+│   │   │   │   ├── SceneActionMenu.res
 │   │   │   │   ├── SceneList.ast
 │   │   │   │   ├── SceneList.bs.js
 │   │   │   │   ├── SceneList.cmi
@@ -182,6 +213,12 @@
 │   │   │   │   ├── Sidebar.cmj
 │   │   │   │   ├── Sidebar.cmt
 │   │   │   │   ├── Sidebar.res
+│   │   │   │   ├── Tooltip.ast
+│   │   │   │   ├── Tooltip.bs.js
+│   │   │   │   ├── Tooltip.cmi
+│   │   │   │   ├── Tooltip.cmj
+│   │   │   │   ├── Tooltip.cmt
+│   │   │   │   ├── Tooltip.res
 │   │   │   │   ├── UploadReport.ast
 │   │   │   │   ├── UploadReport.bs.js
 │   │   │   │   ├── UploadReport.cmi
@@ -1178,6 +1215,11 @@
 │   │   ├── GlobalStateBridgeTest.cmj
 │   │   ├── GlobalStateBridgeTest.cmt
 │   │   ├── GlobalStateBridgeTest.res
+│   │   ├── HotspotActionMenu.ast
+│   │   ├── HotspotActionMenu.cmi
+│   │   ├── HotspotActionMenu.cmj
+│   │   ├── HotspotActionMenu.cmt
+│   │   ├── HotspotActionMenu.res
 │   │   ├── HotspotLine.ast
 │   │   ├── HotspotLine.cmi
 │   │   ├── HotspotLine.cmj
@@ -1346,6 +1388,17 @@
 │   │   ├── PathInterpolationTest.cmj
 │   │   ├── PathInterpolationTest.cmt
 │   │   ├── PathInterpolationTest.res
+│   │   ├── PopOver.ast
+│   │   ├── PopOver.cmi
+│   │   ├── PopOver.cmj
+│   │   ├── PopOver.cmt
+│   │   ├── PopOver.res
+│   │   ├── PopOverTest.res
+│   │   ├── Portal.ast
+│   │   ├── Portal.cmi
+│   │   ├── Portal.cmj
+│   │   ├── Portal.cmt
+│   │   ├── Portal.res
 │   │   ├── ProgressBar.ast
 │   │   ├── ProgressBar.cmi
 │   │   ├── ProgressBar.cmj
@@ -1451,6 +1504,11 @@
 │   │   ├── RootReducerTest.cmj
 │   │   ├── RootReducerTest.cmt
 │   │   ├── RootReducerTest.res
+│   │   ├── SceneActionMenu.ast
+│   │   ├── SceneActionMenu.cmi
+│   │   ├── SceneActionMenu.cmj
+│   │   ├── SceneActionMenu.cmt
+│   │   ├── SceneActionMenu.res
 │   │   ├── SceneList.ast
 │   │   ├── SceneList.cmi
 │   │   ├── SceneList.cmj
@@ -1641,6 +1699,11 @@
 │   │   ├── TimelineReducerTest.cmj
 │   │   ├── TimelineReducerTest.cmt
 │   │   ├── TimelineReducerTest.res
+│   │   ├── Tooltip.ast
+│   │   ├── Tooltip.cmi
+│   │   ├── Tooltip.cmj
+│   │   ├── Tooltip.cmt
+│   │   ├── Tooltip.res
 │   │   ├── TourLogic.ast
 │   │   ├── TourLogic.cmi
 │   │   ├── TourLogic.cmj
@@ -2262,6 +2325,8 @@
 │   ├── components
 │   │   ├── ErrorFallbackUI.bs.js
 │   │   ├── ErrorFallbackUI.res
+│   │   ├── HotspotActionMenu.bs.js
+│   │   ├── HotspotActionMenu.res
 │   │   ├── HotspotManager.bs.js
 │   │   ├── HotspotManager.res
 │   │   ├── LabelMenu.bs.js
@@ -2272,12 +2337,20 @@
 │   │   ├── ModalContext.res
 │   │   ├── NotificationContext.bs.js
 │   │   ├── NotificationContext.res
+│   │   ├── PopOver.bs.js
+│   │   ├── PopOver.res
+│   │   ├── Portal.bs.js
+│   │   ├── Portal.res
 │   │   ├── RemaxErrorBoundary.bs.js
 │   │   ├── RemaxErrorBoundary.res
+│   │   ├── SceneActionMenu.bs.js
+│   │   ├── SceneActionMenu.res
 │   │   ├── SceneList.bs.js
 │   │   ├── SceneList.res
 │   │   ├── Sidebar.bs.js
 │   │   ├── Sidebar.res
+│   │   ├── Tooltip.bs.js
+│   │   ├── Tooltip.res
 │   │   ├── UploadReport.bs.js
 │   │   ├── UploadReport.res
 │   │   ├── ViewerFollow.bs.js
@@ -2435,6 +2508,7 @@
 ├── tasks
 │   ├── TASKS.md
 │   ├── active
+│   │   └── 289_refactor_ui_anchor_positioning.md
 │   ├── cancelled
 │   ├── completed
 │   │   ├── 175_fix_runtime_safety_getexn_REPORT.md
@@ -2522,7 +2596,6 @@
 │       ├── 202_offload_image_similarity_to_backend.md
 │       ├── 205_re_evaluate_webp_quality.md
 │       ├── 284_theme_switching_infrastructure.md
-│       ├── 289_refactor_ui_anchor_positioning.md
 │       ├── 302_create_legal_compliance_documents.md
 │       ├── 303_add_seo_structured_data.md
 │       ├── 304_implement_e2e_testing_playwright.md
@@ -2530,6 +2603,7 @@
 │       ├── 306_create_changelog.md
 │       ├── 307_enable_dependabot_scanning.md
 │       ├── 308_implement_internationalization.md
+│       ├── 310_update_docs_anchor_positioning_standards.md
 │       └── tests
 │           ├── 203_expand_test_coverage.md
 │           ├── 204_Add_Tests_for_ImageOptimizer.md
@@ -2682,4 +2756,4 @@
 │       └── VitestSmoke.test.res
 └── vitest.config.mjs
 
-88 directories, 2595 files
+88 directories, 2669 files

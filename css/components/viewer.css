@@ -183,8 +183,6 @@
     --arrow-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M10 43 L50 13 L90 43 L90 53 L50 23 L10 53 Z M10 73 L50 43 L90 73 L90 83 L50 53 L10 83 Z' fill='%234B3300' opacity='0.4' /%3E%3Cpath d='M10 40 L50 10 L90 40 L90 60 L50 30 L10 60 Z M10 70 L50 40 L90 70 L90 90 L50 60 L10 90 Z' fill='%23FFD700' /%3E%3C/svg%3E");
 }
 
-/* .arrow-green removed - user requested only 3rd chevron to be green */
-
 /* New Navigation Button element */
 .hotspot-nav-btn {
     background-image: var(--arrow-svg);
@@ -249,58 +247,48 @@
     animation-duration: 1.0s;
 }
 
-/* RESTORED DELETE BUTTON STYLE */
-.hotspot-delete-btn {
+/* Hotspot Action Trigger - Three dots menu */
+.hotspot-action-trigger {
     position: absolute;
-    /* Position: Top Right relative to the 70x70 box. Push further right (-35px) to clear centering */
-    top: -30px;
-    /* Moved lower, closer to arrow */
-    right: -35px;
-    left: auto;
-    /* Remove centering */
-    margin-left: 0;
-    width: 20px;
-    /* Smaller size */
-    height: 20px;
-    background: var(--danger);
-    color: white;
+    /* Position relative to the 70x70 arrow box */
+    top: 0px;
+    right: -25px;
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
     border-radius: 50%;
+    color: var(--primary);
     display: flex !important;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
-    font-weight: 800;
+    font-family: 'Material Icons';
+    font-size: 18px;
     cursor: pointer;
-    border: 2px solid white;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     z-index: 10005;
-
-    /* Default: Invisible */
     opacity: 0;
     visibility: hidden;
-
-    /* Logic: 
-       - Opacity: 0.3s fade duration.
-       - HIDING (Exit): Wait 2s before fading out.
-    */
-    transition: opacity 0.3s ease-in-out 2s, visibility 0s linear 2.3s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: auto;
 }
 
-/* Hover State - Parent */
-.pnlm-hotspot.flat-arrow:hover .hotspot-delete-btn {
+.pnlm-hotspot.flat-arrow:hover .hotspot-action-trigger {
     opacity: 1;
     visibility: visible;
-    /* SHOWING (Enter): Wait 1.5s before fading in */
-    transition-delay: 1.5s;
 }
 
-/* Hover State - Button Itself */
-.hotspot-delete-btn:hover {
-    transition-delay: 0s;
-    background: var(--delete-hover);
-    /* Just color change, no scale */
+.hotspot-action-trigger:hover {
+    background: white;
+    transform: scale(1.1);
+    color: var(--primary-light);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
+
+/* RESTORED DELETE BUTTON STYLE */
+/* Cleaned up legacy styles */
 
 /* A/R Buttons Container - Anchored at origin to support plane-accurate transforms */
 .hotspot-controls {
@@ -320,43 +308,7 @@
 }
 
 /* Redesigned 3rd Chevron: Red default, Emerald Active, Perfect Gap */
-.hotspot-forward-btn {
-    width: 70px;
-    height: 35px;
-    background: var(--orange-brand);
-    /* Orange-ish (User requested) */
-    position: absolute;
-    left: 50%;
-    top: 0;
-
-    /* Perfect Chevron Mask */
-    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'%3E%3Cpath d='M10 30 L50 0 L90 30 L90 50 L50 20 L10 50 Z' /%3E%3C/svg%3E");
-    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50'%3E%3Cpath d='M10 30 L50 0 L90 30 L90 50 L50 20 L10 50 Z' /%3E%3C/svg%3E");
-    -webkit-mask-size: contain;
-    mask-size: contain;
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
-    -webkit-mask-position: center;
-    mask-position: center;
-
-    /* Perspective: Gap increased to ~14px relative (from 7px) -> Y=58px */
-    transform-origin: top center;
-    /* TranslateX centers it -> RotateX tilts the plane -> TranslateY slides down the tilted slope */
-    transform: translate(-50%, 0) rotateX(60deg) translateY(58px);
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    pointer-events: auto;
-    transition: all 0.3s ease-in-out;
-    filter: drop-shadow(0 20px 10px rgba(0, 0, 0, 0.3));
-    border: none;
-    border-radius: 0;
-
-    /* v4.4.1: Precise hit testing */
-    clip-path: polygon(10% 60%, 50% 0%, 90% 60%, 90% 100%, 50% 40%, 10% 100%);
-}
+/* Cleaned up legacy styles */
 
 /* Shine effect for the 3rd chevron (Conditional) */
 .hotspot-forward-btn::after {

@@ -19,6 +19,7 @@
 @import './components/error-fallback.css';
 @import './components/scene-groups.css';
 @import './components/label-menu.css';
+@import './components/popover.css';
 
 /* 4. Legacy Compatibility */
 @import './legacy.css';
