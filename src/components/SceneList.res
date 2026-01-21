@@ -267,29 +267,31 @@ let make = () => {
   let endIndex = Math.Int.min(Array.length(state.scenes) - 1, endIndex)
 
   let handleSceneClick = (index, _e) => {
-    let now = Date.now()
-    let timeDiff = now -. ViewerState.state.lastSwitchTime
-    let throttleLimit = 900.0
-
-    // Check if we are clicking the SAME scene (allow re-click only if needed, but generally throttle navigation)
-    // Actually, just throttle any rapid switching.
-
-    if timeDiff < throttleLimit {
-      EventBus.dispatch(ShowNotification("Switching too fast - Please wait...", #Warning))
+    if index == state.activeIndex {
+      // Already selected, do nothing and don't trigger "too fast" warning
+      ()
     } else {
-      ViewerState.state.lastSwitchTime = now
+      let now = Date.now()
+      let timeDiff = now -. ViewerState.state.lastSwitchTime
+      let throttleLimit = 650.0
 
-      dispatch(Actions.SetNavigationStatus(Types.Idle))
-      if state.isLinking {
-        dispatch(Actions.StopLinking)
+      if timeDiff < throttleLimit {
+        EventBus.dispatch(ShowNotification("Switching too fast - Please wait...", #Warning))
+      } else {
+        ViewerState.state.lastSwitchTime = now
+
+        dispatch(Actions.SetNavigationStatus(Types.Idle))
+        if state.isLinking {
+          dispatch(Actions.StopLinking)
+        }
+        let trans: Types.transition = {
+          type_: Some("cut"),
+          targetHotspotIndex: -1,
+          fromSceneName: None,
+        }
+        dispatch(Actions.SetActiveTimelineStep(None))
+        dispatch(Actions.SetActiveScene(index, 0.0, 0.0, Some(trans)))
       }
-      let trans: Types.transition = {
-        type_: Some("cut"),
-        targetHotspotIndex: -1,
-        fromSceneName: None,
-      }
-      dispatch(Actions.SetActiveTimelineStep(None))
-      dispatch(Actions.SetActiveScene(index, 0.0, 0.0, Some(trans)))
     }
   }
 
