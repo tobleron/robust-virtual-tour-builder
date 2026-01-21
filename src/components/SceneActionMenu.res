@@ -15,7 +15,7 @@ let make = (~anchor: Dom.element, ~index: int, ~onClose: unit => unit) => {
   }
 
   <PopOver anchor onClose offset=8.0 alignment=#BottomRight>
-    <div className="popover-content flex flex-col min-w-[200px] p-1.5">
+    <div className="flex flex-col min-w-[200px] p-1.5" onClick={JsxEvent.Mouse.stopPropagation}>
       <button
         className="px-4 py-3 cursor-pointer text-slate-700 font-bold text-[11px] uppercase tracking-widest hover:bg-white/40 rounded-xl transition-all flex items-center gap-3 group outline-none focus:ring-2 focus:ring-primary/20"
         onClick={_ => handleClearLinks()}

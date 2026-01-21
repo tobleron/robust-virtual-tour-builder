@@ -6,7 +6,15 @@ type position = {
   left: float,
 }
 
-type alignment = [#BottomLeft | #BottomRight | #TopLeft | #TopRight | #Auto]
+type alignment = [
+  | #BottomLeft
+  | #BottomRight
+  | #TopLeft
+  | #TopRight
+  | #Right
+  | #Left
+  | #Auto
+]
 
 external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 
@@ -21,6 +29,7 @@ let make = (
 ) => {
   let (pos, setPos) = React.useState(_ => {top: 0.0, left: 0.0})
   let (isVisible, setIsVisible) = React.useState(_ => false)
+  let (maxHeight, setMaxHeight) = React.useState(_ => "none")
   let popoverRef = React.useRef(Nullable.null)
 
   let calculatePosition = React.useCallback2(() => {
@@ -36,16 +45,14 @@ let make = (
         // Determine best alignment based on available space
         let spaceBelow = viewportHeight -. anchorRect.bottom
         let spaceAbove = anchorRect.top
-        let spaceRight = viewportWidth -. anchorRect.left
+        let spaceRight = viewportWidth -. anchorRect.right
 
-        let vertical = spaceBelow < popoverRect.height && spaceAbove > spaceBelow ? #Top : #Bottom
-        let horizontal = spaceRight < popoverRect.width ? #Right : #Left
-
-        switch (vertical, horizontal) {
-        | (#Top, #Left) => #TopLeft
-        | (#Top, #Right) => #TopRight
-        | (#Bottom, #Left) => #BottomLeft
-        | (#Bottom, #Right) => #BottomRight
+        if spaceRight > popoverRect.width +. offset {
+          #Right
+        } else if spaceBelow < popoverRect.height && spaceAbove > spaceBelow {
+          #TopLeft
+        } else {
+          #BottomLeft
         }
       | other => other
       }
@@ -53,19 +60,32 @@ let make = (
       let top = switch targetAlignment {
       | #BottomLeft | #BottomRight => anchorRect.bottom +. offset
       | #TopLeft | #TopRight => anchorRect.top -. popoverRect.height -. offset
-      | #Auto => 0.0 // Should not happen
+      | #Right | #Left => anchorRect.top +. anchorRect.height /. 2.0 -. popoverRect.height /. 2.0
+      | #Auto => 0.0
       }
 
       let left = switch targetAlignment {
       | #BottomLeft | #TopLeft => anchorRect.left
       | #BottomRight | #TopRight => anchorRect.right -. popoverRect.width
-      | #Auto => 0.0 // Should not happen
+      | #Right => anchorRect.right +. offset
+      | #Left => anchorRect.left -. popoverRect.width -. offset
+      | #Auto => 0.0
       }
 
-      // Final clamping to viewport
+      // Clamping to viewport
       let finalTop = Math.max(offset, Math.min(viewportHeight -. popoverRect.height -. offset, top))
       let finalLeft = Math.max(offset, Math.min(viewportWidth -. popoverRect.width -. offset, left))
 
+      // Dynamic max height calculation to prevent cropping
+      let availableHeight = if finalTop < anchorRect.top {
+        // Popover is above or covering anchor from top
+        finalTop +. popoverRect.height
+      } else {
+        // Popover is below anchor
+        viewportHeight -. finalTop -. offset
+      }
+
+      setMaxHeight(_ => availableHeight->Float.toString ++ "px")
       setPos(_ => {top: finalTop, left: finalLeft})
     | _ => ()
     }
@@ -73,23 +93,30 @@ let make = (
 
   // Initial position calculation and visibility trigger
   React.useEffect1(() => {
+    // Immediate calculation if possible
     calculatePosition()
-    let id = Window.setTimeout(() => setIsVisible(_ => true), 10)
+
+    // Slight delay to allow DOM to settle and measure again
+    let id = Window.setTimeout(() => {
+      calculatePosition()
+      setIsVisible(_ => true)
+    }, 30)
     Some(() => Window.clearTimeout(id))
   }, [calculatePosition])
 
   // Handle window resize/scroll to reposition
-  React.useEffect0(() => {
-    let handleReposition = _ => calculatePosition()
-    Window.addEventListener("resize", handleReposition)
-    Window.addEventListener("scroll", handleReposition)
+  React.useEffect2(() => {
+    let handleUpdate = _ => calculatePosition()
+    Window.addEventListener("resize", handleUpdate)
+    Window.addEventListener("scroll", handleUpdate)
+
     Some(
       () => {
-        Window.removeEventListener("resize", handleReposition)
-        Window.removeEventListener("scroll", handleReposition)
+        Window.removeEventListener("resize", handleUpdate)
+        Window.removeEventListener("scroll", handleUpdate)
       },
     )
-  })
+  }, (isVisible, calculatePosition))
 
   // Handle high-frequency repositioning (for moving anchors like hotspots)
   React.useEffect2(() => {
@@ -114,10 +141,10 @@ let make = (
   // Handle outside clicks
   React.useEffect1(() => {
     let handleOutsideClick = (e: Dom.event) => {
-      let target: Dom.element = Dom.target(e)->Obj.magic
       switch Nullable.toOption(popoverRef.current) {
-      | Some(el) =>
-        if !Dom.containsElement(el, target) && !Dom.containsElement(anchor, target) {
+      | Some(popoverEl) =>
+        let target = Dom.target(e)
+        if !Dom.containsElement(popoverEl, target) && !Dom.containsElement(anchor, target) {
           onClose()
         }
       | None => ()
@@ -138,7 +165,17 @@ let make = (
         "left": pos.left->Float.toString ++ "px",
       })}
     >
-      <div className="popover-content"> children </div>
+      <div
+        className="popover-content"
+        style={makeStyle({
+          "maxHeight": maxHeight,
+          "overflowY": "auto",
+          "display": "flex",
+          "flexDirection": "column",
+        })}
+      >
+        children
+      </div>
     </div>
   </Portal>
 }
