@@ -483,6 +483,8 @@ let make = () => {
           <div className="bg-slate-200 h-1.5 rounded-full overflow-hidden relative">
             <div
               className="h-full transition-all duration-300 rounded-full sidebar-progress-fill"
+              // EXCEPTION: Dynamic progress percentage (CSS_ARCHITECTURE.md §3.1)
+              // Value updates continuously during upload/processing
               style={makeStyle({"width": Float.toFixed(procState["progress"], ~digits=0) ++ "%"})}
             />
           </div>

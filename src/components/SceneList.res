@@ -113,6 +113,8 @@ module SceneItem = {
             <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
               <div
                 className={`h-full transition-all duration-1000 ease-out rounded-full ${qualityColor}`}
+                // EXCEPTION: Dynamic progress percentage (CSS_ARCHITECTURE.md §3.1)
+                // Value changes continuously 0-100% based on quality score
                 style={makeStyle({"width": Float.toString(qualityScore *. 10.0) ++ "%"})}
               />
             </div>
@@ -361,6 +363,8 @@ let make = () => {
     className="flex-1 flex flex-col pt-2 pb-12 relative"
     onClick={_ => closeContextMenu()}
     ref={ReactDOM.Ref.domRef(containerRef)}
+    // EXCEPTION: Dynamic container height (CSS_ARCHITECTURE.md §3.1)
+    // Required for virtualization to maintain scroll layout
     style={makeStyle({
       "height": if Array.length(state.scenes) > 0 {
         totalHeight->Float.toString ++ "px"
@@ -395,6 +399,8 @@ let make = () => {
           let actualIndex = startIndex + i
           <div
             key={scene.id}
+            // EXCEPTION: Dynamic item position (CSS_ARCHITECTURE.md §3.1)
+            // Required for virtualization to position elements in scroll window
             style={makeStyle({
               "position": "absolute",
               "top": (actualIndex->Int.toFloat *. itemHeight)->Float.toString ++ "px",
@@ -437,6 +443,8 @@ let make = () => {
             className="fixed z-[30000] bg-white rounded-2xl p-1.5 min-w-[200px] flex flex-col shadow-2xl animate-fade-in border border-slate-200"
             role="menu"
             onClick={e => JsxEvent.Mouse.stopPropagation(e)}
+            // EXCEPTION: Dynamic menu positioning (CSS_ARCHITECTURE.md §3.1)
+            // Required to anchor menu to trigger button across different viewports
             style={makeStyle({
               "left": left->Float.toString ++ "px",
               "top": top->Float.toString ++ "px",
