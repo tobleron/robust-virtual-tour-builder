@@ -333,9 +333,10 @@ let make = () => {
             "Add Link"
           }}
         >
-          <button
-            id="btn-add-link-fab"
-            className={"v-util-btn w-[32px] h-[32px] rounded-full flex items-center justify-center v-util-btn-add-link v-util-btn-add-link-icon " ++
+          <Shadcn.Button
+            size="icon"
+            variant="ghost"
+            className={"v-util-btn w-[32px] h-[32px] rounded-full v-util-btn-add-link v-util-btn-add-link-icon " ++
             if simActive {
               "state-disabled "
             } else {
@@ -348,7 +349,6 @@ let make = () => {
               "state-idle"
             }}
             onClick={handleFabClick}
-            ariaLabel="Add Link"
           >
             {React.string(
               if state.isLinking {
@@ -357,7 +357,7 @@ let make = () => {
                 "+"
               },
             )}
-          </button>
+          </Shadcn.Button>
         </Tooltip>
 
         <Tooltip
@@ -368,9 +368,10 @@ let make = () => {
             "Start Auto-Pilot"
           }}
         >
-          <button
-            id="v-scene-sim-toggle"
-            className={"v-util-btn w-[32px] h-[32px] text-white rounded-full font-ui flex items-center justify-center v-util-btn-autopilot " ++ if (
+          <Shadcn.Button
+            size="icon"
+            variant="ghost"
+            className={"v-util-btn w-[32px] h-[32px] text-white rounded-full font-ui v-util-btn-autopilot " ++ if (
               simActive
             ) {
               "animate-pulse-stop state-active"
@@ -380,7 +381,6 @@ let make = () => {
               "state-idle"
             }}
             onClick={handleSimClick}
-            ariaLabel="Auto-Pilot"
           >
             <span className="material-icons v-util-btn-icon">
               {React.string(
@@ -391,13 +391,14 @@ let make = () => {
                 },
               )}
             </span>
-          </button>
+          </Shadcn.Button>
         </Tooltip>
 
         <Tooltip content="Toggle Category" alignment=#Right>
-          <button
-            id="v-scene-cat-toggle"
-            className={"v-util-btn w-[32px] h-[32px] text-white rounded-full flex items-center justify-center v-util-btn-category " ++
+          <Shadcn.Button
+            size="icon"
+            variant="ghost"
+            className={"v-util-btn w-[32px] h-[32px] text-white rounded-full v-util-btn-category " ++
             if simActive {
               "state-disabled "
             } else {
@@ -420,7 +421,6 @@ let make = () => {
               "state-empty"
             }}
             onClick={handleCatClick}
-            ariaLabel="Toggle Category"
           >
             <span className="material-icons v-util-btn-icon">
               {React.string(
@@ -433,7 +433,7 @@ let make = () => {
                 },
               )}
             </span>
-          </button>
+          </Shadcn.Button>
         </Tooltip>
 
         <Shadcn.Popover
@@ -441,10 +441,10 @@ let make = () => {
         >
           <Shadcn.Popover.Trigger asChild=true>
             <Tooltip content="Scene Label Preset" alignment=#Right>
-              <button
-                id="v-scene-label-btn"
-                ref={ReactDOM.Ref.domRef(labelBtnRef)}
-                className={"v-util-btn w-[32px] h-[32px] text-white rounded-full font-ui text-[18px] font-bold flex items-center justify-center relative z-[6000] v-util-btn-label " ++
+              <Shadcn.Button
+                size="icon"
+                variant="ghost"
+                className={"v-util-btn w-[32px] h-[32px] text-white rounded-full font-ui text-[18px] font-bold relative z-[6000] v-util-btn-label " ++
                 if simActive {
                   "state-disabled "
                 } else {
@@ -455,10 +455,9 @@ let make = () => {
                   "state-empty"
                 }}
                 onClick={handleLabelClick}
-                ariaLabel="Scene Label"
               >
                 {React.string("#")}
-              </button>
+              </Shadcn.Button>
             </Tooltip>
           </Shadcn.Popover.Trigger>
           <Shadcn.Popover.Content
