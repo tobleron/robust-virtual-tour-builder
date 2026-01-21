@@ -20,7 +20,6 @@
 @import './components/scene-groups.css';
 @import './components/label-menu.css';
 @import './components/popover.css';
-@import './components/shadcn-overrides.css';
 
 /* 4. Legacy Compatibility */
 @import './legacy.css';
