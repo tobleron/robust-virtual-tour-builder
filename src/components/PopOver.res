@@ -17,6 +17,7 @@ let make = (
   ~onClose: unit => unit,
   ~alignment: alignment=#Auto,
   ~offset: float=8.0,
+  ~isTooltip: bool=false,
 ) => {
   let (pos, setPos) = React.useState(_ => {top: 0.0, left: 0.0})
   let (isVisible, setIsVisible) = React.useState(_ => false)
@@ -130,7 +131,8 @@ let make = (
   <Portal>
     <div
       ref={ReactDOM.Ref.domRef(popoverRef)}
-      className={"popover-root" ++ (isVisible ? " state-visible" : "")}
+      className={"popover-root" ++
+      (isVisible ? " state-visible" : "") ++ (isTooltip ? " popover-tooltip" : "")}
       style={makeStyle({
         "top": pos.top->Float.toString ++ "px",
         "left": pos.left->Float.toString ++ "px",

@@ -488,3 +488,4 @@ Task: 147
 [2026-01-21 21:25] v4.3.8 - v4.3.8+7: Anchor-Based Positioning Refactor Complete
 [2026-01-21 22:04] v4.3.8 - v4.3.8+8: Fix UI Issues & Create Button Component
 [2026-01-21 22:13] v4.3.8 - v4.3.8+9: Restore Exact v4.3.8+6 Styling
+[2026-01-21 22:21] v4.3.8 - v4.3.8+10: Fix Tooltip Z-Index, Label Menu Cropping, Scene Menu Visibility

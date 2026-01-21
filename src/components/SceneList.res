@@ -177,19 +177,6 @@ let make = () => {
     setContextMenu(_ => None)
   }
 
-  // Close context menu on outside click
-  React.useEffect0(() => {
-    let handleWindowClick = _ => {
-      closeContextMenu()
-    }
-    ReBindings.Window.addEventListener("click", handleWindowClick)
-    Some(
-      () => {
-        ReBindings.Window.removeEventListener("click", handleWindowClick)
-      },
-    )
-  })
-
   // Virtualization constants
   let itemHeight = 112.0 // 96px (h-24) + 16px (mb-4)
   let buffer = 10
