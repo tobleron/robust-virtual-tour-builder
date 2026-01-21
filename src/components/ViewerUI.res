@@ -345,9 +345,9 @@ let make = () => {
             onClick={handleFabClick}
           >
             {if state.isLinking {
-              <LucideIcons.X size=20 />
+              <LucideIcons.X size=20 strokeWidth=3 />
             } else {
-              <LucideIcons.Plus size=20 />
+              <LucideIcons.Plus size=20 strokeWidth=3 />
             }}
           </Shadcn.Button>
         </Tooltip>
@@ -371,9 +371,9 @@ let make = () => {
             onClick={handleSimClick}
           >
             {if simActive {
-              <LucideIcons.Square size=18 />
+              <LucideIcons.Square size=18 strokeWidth=3 />
             } else {
-              <LucideIcons.Play size=18 />
+              <LucideIcons.Play size=18 strokeWidth=3 />
             }}
           </Shadcn.Button>
         </Tooltip>
@@ -390,9 +390,9 @@ let make = () => {
             onClick={handleCatClick}
           >
             {if currentCategory == "indoor" {
-              <LucideIcons.Home size=18 />
+              <LucideIcons.Home size=18 strokeWidth=3 />
             } else {
-              <LucideIcons.Trees size=18 />
+              <LucideIcons.Sprout size=18 strokeWidth=3 />
             }}
           </Shadcn.Button>
         </Tooltip>
@@ -412,7 +412,7 @@ let make = () => {
                 className="w-[32px] h-[32px] rounded-full text-[18px] font-bold"
                 onClick={handleLabelClick}
               >
-                <LucideIcons.Hash size=18 />
+                <LucideIcons.Hash size=18 strokeWidth=3 />
               </Shadcn.Button>
             </Tooltip>
           </Shadcn.Popover.Trigger>
@@ -559,24 +559,25 @@ let make = () => {
         ->Belt.Array.map(f => {
           let isSelected = scenesLoaded && f.id == currentFloor
 
-          <Shadcn.Button
-            key={f.id}
-            size="icon"
-            variant={if isSelected {
-              "default"
-            } else {
-              "secondary"
-            }}
-            className="w-[32px] h-[32px] rounded-full text-[13px] font-bold"
-            onClick={e => handleFloorClick(f.id, f.label, e)}
-          >
-            {React.string(f.short)}
-            {if f.suffix != "" {
-              <sup className="text-[8px]"> {React.string(f.suffix)} </sup>
-            } else {
-              React.null
-            }}
-          </Shadcn.Button>
+          <Tooltip key={f.id} content={f.label} alignment=#Auto>
+            <Shadcn.Button
+              size="icon"
+              variant={if isSelected {
+                "default"
+              } else {
+                "secondary"
+              }}
+              className="w-[32px] h-[32px] rounded-full text-[13px] font-bold"
+              onClick={e => handleFloorClick(f.id, f.label, e)}
+            >
+              {React.string(f.short)}
+              {if f.suffix != "" {
+                <sup className="text-[10px] -ml-0.5"> {React.string(f.suffix)} </sup>
+              } else {
+                React.null
+              }}
+            </Shadcn.Button>
+          </Tooltip>
         })
         ->React.array}
       </div>

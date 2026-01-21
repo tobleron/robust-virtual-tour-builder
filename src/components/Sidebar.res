@@ -308,7 +308,7 @@ let make = () => {
             ariaLabel="Export Tour"
           >
             <LucideIcons.Share2
-              className="text-lg text-success group-hover:scale-110 transition-transform"
+              className="text-lg text-white group-hover:scale-110 transition-transform"
             />
             <span> {React.string("Export")} </span>
           </button>
@@ -322,7 +322,7 @@ let make = () => {
             ariaLabel="Create Teaser"
           >
             <LucideIcons.Film
-              className="text-lg sidebar-icon-teaser group-hover:scale-110 transition-transform"
+              className="text-lg text-white group-hover:scale-110 transition-transform"
             />
             <span> {React.string("Teaser")} </span>
           </button>
