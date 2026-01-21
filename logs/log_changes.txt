@@ -485,3 +485,4 @@ Task: 147
 [2026-01-21 18:06] v4.3.7 - Robust Stable UI No Ghost
 [2026-01-21 20:30] v4.3.7 - Task 300: Remove console.log usage and fix CSS build
 [2026-01-21 21:03] v4.3.8 - Perfect Docs & Stable App Before React Tweak
+[2026-01-21 21:25] v4.3.8 - v4.3.8+7: Anchor-Based Positioning Refactor Complete

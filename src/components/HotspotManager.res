@@ -70,91 +70,47 @@ let createHotspotConfig = (
     "text": " " /* Ensure trigger */,
     "cssClass": cssClass.contents,
     "createTooltipFunc": (div: Dom.element) => {
-      let isAutoForward = isTargetAutoForward
-
-      /* Manually create elements to ensure they exist in DOM */
-      let deleteBtn = Dom.createElement("div")
-      Dom.setAttribute(deleteBtn, "class", "hotspot-delete-btn")
-      Dom.setAttribute(deleteBtn, "title", "Delete Link")
-      Dom.setAttribute(deleteBtn, "role", "button")
-      Dom.setAttribute(deleteBtn, "tabindex", "0")
-      Dom.setAttribute(deleteBtn, "aria-label", "Delete Link")
-      Dom.setTextContent(deleteBtn, "✕")
-
-      /* Navigation Arrow (Double Chevron) */
+      /* Navigation Arrow (Double Chevron) - The visual indicator */
       let navBtn = Dom.createElement("div")
       Dom.setAttribute(navBtn, "class", "hotspot-nav-btn")
       Dom.setAttribute(navBtn, "title", "Navigate to " ++ hotspot.target)
       Dom.setAttribute(navBtn, "role", "button")
       Dom.setAttribute(navBtn, "tabindex", "0")
 
+      /* Action Menu Trigger Button */
+      let actionBtn = Dom.createElement("div")
+      Dom.setAttribute(actionBtn, "class", "hotspot-action-trigger")
+      Dom.setAttribute(actionBtn, "title", "Link Actions")
+      Dom.setAttribute(actionBtn, "role", "button")
+      Dom.setAttribute(actionBtn, "tabindex", "0")
+      Dom.setTextContent(actionBtn, "more_vert") // Material icon name
+
       let controls = Dom.createElement("div")
       Dom.setAttribute(controls, "class", "hotspot-controls")
 
-      /* Forward Btn */
-      let fwdBtn = Dom.createElement("div")
-      let fwdClass = "hotspot-forward-btn" ++ (isAutoForward ? " active" : "")
-      Dom.setAttribute(fwdBtn, "class", fwdClass)
-      Dom.setAttribute(fwdBtn, "title", "Toggle Auto-Forward")
-
-      /* Append all to container */
+      /* Append to container */
       Dom.appendChild(controls, navBtn)
-      Dom.appendChild(controls, fwdBtn)
-
-      Dom.appendChild(div, deleteBtn)
+      Dom.appendChild(controls, actionBtn)
       Dom.appendChild(div, controls)
 
       /* v4.4.1: Critical - Disable events on the root div to prevent accidental mis-clicks */
       Dom.setPointerEvents(div, "none")
       Dom.setCursor(div, "default")
 
-      // Accessibility for the main hotspot container
-      Dom.setAttribute(div, "role", "presentation")
-
-      // 1. Delete Logic
-      ElementExt.setOnClick(deleteBtn, e => {
+      // 1. Action Menu Trigger
+      ElementExt.setOnClick(actionBtn, e => {
         Event.stopPropagation(e)
         Event.preventDefault(e)
-        Logger.info(
-          ~module_="Hotspot",
-          ~message="LINK_DELETE",
-          ~data=Some({"hotspotId": "hs_" ++ Belt.Int.toString(index)}),
-          (),
+        EventBus.dispatch(
+          OpenHotspotMenu({
+            "anchor": actionBtn,
+            "hotspot": hotspot,
+            "index": index,
+          }),
         )
-        dispatch(Actions.RemoveHotspot(state.activeIndex, index))
-        EventBus.dispatch(ShowNotification("Link deleted", #Info))
       })
 
-      // 2. Forward Logic
-      ElementExt.setOnClick(fwdBtn, e => {
-        Event.stopPropagation(e)
-        Event.preventDefault(e)
-        switch targetSceneOpt {
-        | Some(ts) =>
-          let targetIdx = Belt.Array.getIndexBy(state.scenes, s => s.name == hotspot.target)
-          switch targetIdx {
-          | Some(idx) =>
-            let currentVal = ts.isAutoForward
-            dispatch(
-              Actions.UpdateSceneMetadata(idx, Logger.castToJson({"isAutoForward": !currentVal})),
-            )
-            EventBus.dispatch(
-              ShowNotification(
-                if !currentVal {
-                  "Auto-forward: ENABLED"
-                } else {
-                  "Auto-forward: DISABLED"
-                },
-                #Success,
-              ),
-            )
-          | None => ()
-          }
-        | None => ()
-        }
-      })
-
-      // 3. Navigation Logic
+      // 2. Navigation Logic (Quick Nav)
       ElementExt.setOnClick(navBtn, e => {
         Event.stopPropagation(e)
         Event.preventDefault(e)

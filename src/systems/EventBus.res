@@ -41,6 +41,7 @@ type event =
   | UpdateProcessing(
       {"active": bool, "progress": float, "message": string, "phase": string, "error": bool},
     )
+  | OpenHotspotMenu({"anchor": Dom.element, "hotspot": Types.hotspot, "index": int})
 
 type subscription = unit => unit
 

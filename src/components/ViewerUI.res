@@ -7,16 +7,9 @@ open EventBus
 // Removed SimulationSystem direct binding
 // module SimulationSystem = ...
 
-module LabelMenu = {
-  @module("./LabelMenu.bs.js")
-  external toggleLabelMenu: Dom.element => unit = "toggleLabelMenu"
-  @module("./LabelMenu.bs.js")
-  external createLabelMenu: (Nullable.t<Dom.element>, Dom.element) => unit = "createLabelMenu"
-  @module("./LabelMenu.bs.js")
-  external syncLabelMenu: (string, string) => unit = "syncLabelMenu"
-  @module("./LabelMenu.bs.js")
-  external closeLabelMenu: unit => unit = "closeLabelMenu"
-}
+// Obsolete legacy bindings removed
+
+// Floor Levels
 
 // Floor Levels
 type floorLevel = {
@@ -24,6 +17,12 @@ type floorLevel = {
   label: string,
   short: string,
   suffix: string,
+}
+
+type hotspotMenuInfo = {
+  anchor: Dom.element,
+  hotspot: Types.hotspot,
+  index: int,
 }
 
 let floorLevels = [
@@ -104,8 +103,10 @@ let make = () => {
     ""
   }
 
-  // Standard Dom.element ref
   let labelBtnRef = React.useRef(Nullable.null)
+  let (labelMenuOpen, setLabelMenuOpen) = React.useState(_ => false)
+
+  let (hotspotMenu, setHotspotMenu) = React.useState(_ => None)
 
   // Processing UI state
   let (_procState, setProcState) = React.useState(_ =>
@@ -151,38 +152,29 @@ let make = () => {
           ) // 3 seconds delay for floating UI
           hideTimerRef.current = Nullable.fromOption(Some(timerId))
         }
+      | OpenHotspotMenu(payload) =>
+        setHotspotMenu(
+          _ => Some({
+            anchor: payload["anchor"],
+            hotspot: payload["hotspot"],
+            index: payload["index"],
+          }),
+        )
       | _ => ()
       }
     })
 
-    // Click outside for Label Menu
-    let handleGlobalClick = e => {
-      let target = ReBindings.Dom.target(e)
-      let closestMenu = ReBindings.Dom.closest(target, "#v-scene-label-menu")
-      let closestBtn = ReBindings.Dom.closest(target, "#v-scene-label-btn")
-
-      if Nullable.toOption(closestMenu) == None && Nullable.toOption(closestBtn) == None {
-        LabelMenu.closeLabelMenu()
-      }
-    }
-    ReBindings.Window.addEventListener("click", handleGlobalClick)
-
     Some(
       () => {
         unsubscribe()
-        ReBindings.Window.removeEventListener("click", handleGlobalClick)
       },
     )
   })
 
-  // Sync Label Menu when activeIndex changes
+  // Sync Label Menu state when activeIndex changes
   React.useEffect1(() => {
-    if state.activeIndex >= 0 {
-      switch Belt.Array.get(state.scenes, state.activeIndex) {
-      | Some(s) => LabelMenu.syncLabelMenu(s.label, s.category)
-      | None => ()
-      }
-    }
+    // LabelMenu internal state syncs with currentScene label
+    setHotspotMenu(_ => None)
     None
   }, [state.activeIndex])
 
@@ -196,20 +188,6 @@ let make = () => {
   // Simulation status is now in state.simulation.status
 
   React.useEffect0(() => {
-    // Initialize Label Menu if ref exists
-    switch Nullable.toOption(labelBtnRef.current) {
-    | Some(el) =>
-      LabelMenu.createLabelMenu(Nullable.null, el)
-
-      // Initial Sync
-      if state.activeIndex >= 0 {
-        switch Belt.Array.get(state.scenes, state.activeIndex) {
-        | Some(s) => LabelMenu.syncLabelMenu(s.label, s.category)
-        | None => ()
-        }
-      }
-    | None => ()
-    }
     None
   })
 
@@ -260,15 +238,6 @@ let make = () => {
       }
       dispatch(Actions.UpdateSceneMetadata(activeIdx, Logger.castToJson({"category": newCat})))
 
-      // Sync Label Menu immediately if it's already open or for next toggle
-      LabelMenu.syncLabelMenu(
-        switch Belt.Array.get(state.scenes, activeIdx) {
-        | Some(s) => s.label
-        | None => ""
-        },
-        newCat,
-      )
-
       EventBus.dispatch(
         ShowNotification(
           if newCat == "indoor" {
@@ -284,18 +253,7 @@ let make = () => {
 
   let handleLabelClick = e => {
     JsxEvent.Mouse.stopPropagation(e)
-    let activeIdx = state.activeIndex
-    if activeIdx >= 0 {
-      switch Belt.Array.get(state.scenes, activeIdx) {
-      | Some(s) =>
-        LabelMenu.syncLabelMenu(s.label, s.category)
-        switch Nullable.toOption(labelBtnRef.current) {
-        | Some(el) => LabelMenu.toggleLabelMenu(el)
-        | None => ()
-        }
-      | None => ()
-      }
-    }
+    setLabelMenuOpen(prev => !prev)
   }
 
   let processReturnPrompt = () => {
@@ -367,123 +325,151 @@ let make = () => {
         }
 
       <div id="viewer-utility-bar" className={utilBarClass}>
-        <button
-          id="btn-add-link-fab"
-          className={"v-util-btn w-[32px] h-[32px] rounded-full flex items-center justify-center v-util-btn-add-link v-util-btn-add-link-icon " ++
-          if simActive {
-            "state-disabled "
+        <Tooltip
+          content={if state.isLinking {
+            "Close Link Mode"
           } else {
-            ""
-          } ++ if !scenesLoaded {
-            "state-empty"
-          } else if state.isLinking {
-            "state-linking"
-          } else {
-            "state-idle"
+            "Add Link"
           }}
-          onClick={handleFabClick}
-          ariaLabel="Add Link"
-          title="Add Link"
         >
-          {React.string(
-            if state.isLinking {
-              "×"
+          <button
+            id="btn-add-link-fab"
+            className={"v-util-btn w-[32px] h-[32px] rounded-full flex items-center justify-center v-util-btn-add-link v-util-btn-add-link-icon " ++
+            if simActive {
+              "state-disabled "
             } else {
-              "+"
-            },
-          )}
-        </button>
+              ""
+            } ++ if !scenesLoaded {
+              "state-empty"
+            } else if state.isLinking {
+              "state-linking"
+            } else {
+              "state-idle"
+            }}
+            onClick={handleFabClick}
+            ariaLabel="Add Link"
+          >
+            {React.string(
+              if state.isLinking {
+                "×"
+              } else {
+                "+"
+              },
+            )}
+          </button>
+        </Tooltip>
 
-        <button
-          id="v-scene-sim-toggle"
-          className={"v-util-btn w-[32px] h-[32px] text-white rounded-full font-ui flex items-center justify-center v-util-btn-autopilot " ++ if (
-            simActive
-          ) {
-            "animate-pulse-stop state-active"
-          } else if !scenesLoaded {
-            "state-empty"
-          } else {
-            "state-idle"
-          }}
-          onClick={handleSimClick}
-          ariaLabel="Auto-Pilot"
-          title={if simActive {
+        <Tooltip
+          content={if simActive {
             "Stop Auto-Pilot"
           } else {
             "Start Auto-Pilot"
           }}
         >
-          <span className="material-icons v-util-btn-icon">
-            {React.string(
-              if simActive {
-                "stop"
-              } else {
-                "play_arrow"
-              },
-            )}
-          </span>
-        </button>
-
-        <button
-          id="v-scene-cat-toggle"
-          className={"v-util-btn w-[32px] h-[32px] text-white rounded-full flex items-center justify-center v-util-btn-category " ++
-          if simActive {
-            "state-disabled "
-          } else {
-            ""
-          } ++ if scenesLoaded && state.activeIndex >= 0 {
-            switch Belt.Array.get(state.scenes, state.activeIndex) {
-            | Some(s) =>
-              if s.categorySet {
-                if s.category == "outdoor" {
-                  "cat-outdoor"
+          <button
+            id="v-scene-sim-toggle"
+            className={"v-util-btn w-[32px] h-[32px] text-white rounded-full font-ui flex items-center justify-center v-util-btn-autopilot " ++ if (
+              simActive
+            ) {
+              "animate-pulse-stop state-active"
+            } else if !scenesLoaded {
+              "state-empty"
+            } else {
+              "state-idle"
+            }}
+            onClick={handleSimClick}
+            ariaLabel="Auto-Pilot"
+          >
+            <span className="material-icons v-util-btn-icon">
+              {React.string(
+                if simActive {
+                  "stop"
                 } else {
-                  "cat-indoor"
-                }
-              } else {
-                "cat-none"
-              }
-            | None => "cat-none"
-            }
-          } else {
-            "state-empty"
-          }}
-          onClick={handleCatClick}
-          ariaLabel="Toggle Category"
-          title="Toggle Category"
-        >
-          <span className="material-icons v-util-btn-icon">
-            {React.string(
-              if currentCategory == "indoor" {
-                "home"
-              } else if currentCategory == "outdoor" {
-                "park"
-              } else {
-                "park"
-              },
-            )}
-          </span>
-        </button>
+                  "play_arrow"
+                },
+              )}
+            </span>
+          </button>
+        </Tooltip>
 
-        <button
-          id="v-scene-label-btn"
-          ref={ReactDOM.Ref.domRef(labelBtnRef)}
-          className={"v-util-btn w-[32px] h-[32px] text-white rounded-full font-ui text-[18px] font-bold flex items-center justify-center relative z-[6000] v-util-btn-label " ++
-          if simActive {
-            "state-disabled "
-          } else {
-            "pointer-events-auto "
-          } ++ if scenesLoaded {
-            "state-loaded"
-          } else {
-            "state-empty"
-          }}
-          onClick={handleLabelClick}
-          ariaLabel="Scene Label"
-          title="Scene Label"
-        >
-          {React.string("#")}
-        </button>
+        <Tooltip content="Toggle Category">
+          <button
+            id="v-scene-cat-toggle"
+            className={"v-util-btn w-[32px] h-[32px] text-white rounded-full flex items-center justify-center v-util-btn-category " ++
+            if simActive {
+              "state-disabled "
+            } else {
+              ""
+            } ++ if scenesLoaded && state.activeIndex >= 0 {
+              switch Belt.Array.get(state.scenes, state.activeIndex) {
+              | Some(s) =>
+                if s.categorySet {
+                  if s.category == "outdoor" {
+                    "cat-outdoor"
+                  } else {
+                    "cat-indoor"
+                  }
+                } else {
+                  "cat-none"
+                }
+              | None => "cat-none"
+              }
+            } else {
+              "state-empty"
+            }}
+            onClick={handleCatClick}
+            ariaLabel="Toggle Category"
+          >
+            <span className="material-icons v-util-btn-icon">
+              {React.string(
+                if currentCategory == "indoor" {
+                  "home"
+                } else if currentCategory == "outdoor" {
+                  "park"
+                } else {
+                  "park"
+                },
+              )}
+            </span>
+          </button>
+        </Tooltip>
+
+        <Tooltip content="Scene Label Preset">
+          <button
+            id="v-scene-label-btn"
+            ref={ReactDOM.Ref.domRef(labelBtnRef)}
+            className={"v-util-btn w-[32px] h-[32px] text-white rounded-full font-ui text-[18px] font-bold flex items-center justify-center relative z-[6000] v-util-btn-label " ++
+            if simActive {
+              "state-disabled "
+            } else {
+              "pointer-events-auto "
+            } ++ if scenesLoaded {
+              "state-loaded"
+            } else {
+              "state-empty"
+            }}
+            onClick={handleLabelClick}
+            ariaLabel="Scene Label"
+          >
+            {React.string("#")}
+          </button>
+        </Tooltip>
+
+        {switch (labelMenuOpen, Nullable.toOption(labelBtnRef.current)) {
+        | (true, Some(anchor)) => <LabelMenu anchor onClose={() => setLabelMenuOpen(_ => false)} />
+        | _ => React.null
+        }}
+
+        {switch hotspotMenu {
+        | Some(menu) =>
+          <HotspotActionMenu
+            anchor={menu.anchor}
+            hotspot={menu.hotspot}
+            index={menu.index}
+            onClose={() => setHotspotMenu(_ => None)}
+          />
+        | None => React.null
+        }}
       </div>
     }
 
