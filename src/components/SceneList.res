@@ -63,7 +63,7 @@ module SceneItem = {
       ariaLabel={`Select scene ${scene.name}`}
     >
       /* Thumbnail */
-      <div className="w-20 min-w-[80px] relative bg-slate-900 overflow-hidden cursor-pointer">
+      <div className="w-24 min-w-[96px] aspect-video relative bg-slate-900 overflow-hidden cursor-pointer rounded-lg">
         <img
           src={thumbUrl}
           alt={`Thumbnail of ${scene.name}`}
@@ -87,7 +87,7 @@ module SceneItem = {
       <div className="flex-1 min-w-0 p-4 flex flex-col justify-center cursor-pointer">
         <div className="flex items-center justify-between mb-2">
           <h4
-            className={`text-[13px] font-medium truncate pr-3 tracking-tight ${if isActive {
+            className={`text-[13px] font-normal truncate pr-3 tracking-tight ${if isActive {
                 "text-primary-light"
               } else {
                 "text-slate-700"
@@ -97,8 +97,8 @@ module SceneItem = {
           </h4>
           <div className="flex items-center gap-2 shrink-0">
             {if Array.length(scene.hotspots) > 0 {
-              <div className="flex items-center gap-1.5 text-primary-light transition-colors">
-                <LucideIcons.Link className="text-[12px]" />
+              <div className="flex items-center gap-1 text-primary-dark transition-colors">
+                <LucideIcons.Link className="text-[10px]" size=10 />
                 <span className="text-[10px] font-bold">
                   {React.int(Array.length(scene.hotspots))}
                 </span>
@@ -147,7 +147,7 @@ module SceneItem = {
               <LucideIcons.MoreVertical className="text-lg" />
             </button>
           </Shadcn.DropdownMenu.Trigger>
-          <Shadcn.DropdownMenu.Content side="right" sideOffset=10 className="w-56 p-1.5">
+          <Shadcn.DropdownMenu.Content side="right" sideOffset=10 className="w-56 p-1.5 z-[10000]">
             <Shadcn.DropdownMenu.Item onClick={_ => onClearLinks()}>
               <LucideIcons.Unlink className="text-lg mr-2 text-primary" />
               <span> {React.string("Clear Links")} </span>

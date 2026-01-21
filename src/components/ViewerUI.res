@@ -392,7 +392,7 @@ let make = () => {
             {if currentCategory == "indoor" {
               <LucideIcons.Home size=18 strokeWidth=3 />
             } else {
-              <LucideIcons.Sprout size=18 strokeWidth=3 />
+              <LucideIcons.Sun size=18 strokeWidth=3 />
             }}
           </Shadcn.Button>
         </Tooltip>
@@ -417,7 +417,7 @@ let make = () => {
             </Tooltip>
           </Shadcn.Popover.Trigger>
           <Shadcn.Popover.Content
-            side="right" sideOffset=12 className="p-0 border-none shadow-none"
+            side="right" sideOffset=12 className="p-0 border-none shadow-none z-[10000]"
           >
             <LabelMenu onClose={() => setLabelMenuOpen(_ => false)} />
           </Shadcn.Popover.Content>
@@ -567,12 +567,12 @@ let make = () => {
               } else {
                 "secondary"
               }}
-              className="w-[32px] h-[32px] rounded-full text-[13px] font-bold"
+              className="w-[32px] h-[32px] rounded-full text-[15px] font-bold"
               onClick={e => handleFloorClick(f.id, f.label, e)}
             >
               {React.string(f.short)}
               {if f.suffix != "" {
-                <sup className="text-[10px] -ml-0.5"> {React.string(f.suffix)} </sup>
+                <sup className="text-[10px] -ml-1"> {React.string(f.suffix)} </sup>
               } else {
                 React.null
               }}

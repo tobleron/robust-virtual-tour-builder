@@ -18,6 +18,11 @@ module Home = {
   external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "Home"
 }
 
+module Sun = {
+  @module("lucide-react") @react.component
+  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "Sun"
+}
+
 module Trees = {
   @module("lucide-react") @react.component
   external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "Trees"
