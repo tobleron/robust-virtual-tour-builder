@@ -26,7 +26,7 @@ Before executing ANY code or shell command, you must perform a **Context Check**
     - For **ReScript** (`.res`, `.resi`): ALSO follow `/rescript-standards.md`.
     - For **ReScript** (`.res`, `.resi`): ALSO follow `/rescript-standards.md`.
     - For **Rust** (`.rs`): ALSO follow `/rust-standards.md`.
-  - **Styling**: ALL CSS/UI work must follow `/docs/CSS_ARCHITECTURE_AND_BEST_PRACTICES.md`.
+  - **Styling**: ALL CSS/UI work must follow `/docs/DESIGN_SYSTEM.md`.
   - **Logging**: All debug logs must follow `/debug-standards.md`.
 - **Test-Driven Dev**:
   - Follow `/testing-standards.md` for test structure and patterns.

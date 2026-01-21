@@ -85,28 +85,11 @@
 │   ├── logging_debugging_system.md
 │   └── ui_preferences.md
 ├── docs
-│   ├── ACCESSIBILITY_SYSTEM.md
-│   ├── ARCHITECTURE_DIAGRAM.md
-│   ├── AntiGravity Workflow Manual.md
-│   ├── BUILD_VERIFICATION_QUICK_REFERENCE.md
-│   ├── COLOR_PALETTE_REFERENCE.md
-│   ├── CSS_ARCHITECTURE_AND_BEST_PRACTICES.md
-│   ├── CSS_MIGRATION_ANALYSIS.md
-│   ├── CSS_MIGRATION_SUMMARY.md
-│   ├── GHOST_ARROW_FIX_SUMMARY.md
-│   ├── HOTSPOT_ARROW_SWAP_LOCK_FIX.md
-│   ├── IMPROVEMENTS.md
-│   ├── OBSERVABILITY_AND_ERROR_HANDLING.md
-│   ├── PERFORMANCE_AND_METRICS.md
-│   ├── PROJECT_GOVERNANCE_AND_STATUS.md
-│   ├── RACE_CONDITION_AUDIT_REPORT.md
-│   ├── RELEASE_v4.0.9.md
-│   ├── SECURITY_AND_STABILITY.md
-│   ├── TASK_CREATION_FIX_SUMMARY.md
-│   ├── TESTING_QUICK_REFERENCE.md
-│   ├── TROUBLESHOOTING_GHOST_ARROW_ANALYSIS.md
-│   ├── TYPOGRAPHY_AND_UI_SYSTEM.md
-│   ├── UNIT_TESTING_INTEGRATION.md
+│   ├── ARCHITECTURE.md
+│   ├── DESIGN_SYSTEM.md
+│   ├── DEVELOPMENT_GUIDELINES.md
+│   ├── PROJECT_EVOLUTION.md
+│   ├── QUALITY_ASSURANCE_AUDITS.md
 │   └── openapi.yaml
 ├── index.html
 ├── lib
@@ -1836,8 +1819,7 @@
 │   └── rescript.lock
 ├── logs
 │   ├── error.log
-│   ├── log_changes.txt
-│   └── telemetry.log
+│   └── log_changes.txt
 ├── old_ref
 │   ├── REF.md
 │   └── v4.3.6+7_a34c1dd
@@ -2488,12 +2470,19 @@
 │   │   ├── 267_update_camera_movement_behavior_REPORT.md
 │   │   ├── 268_verify_scenelist_virtualization_ABORTED.md
 │   │   ├── 270_auto_select_first_scene_on_start.md
+│   │   ├── 270_auto_select_first_scene_on_start_REPORT.md
+│   │   ├── 271_install_css_similarity_REPORT.md
 │   │   ├── 271_refactor_sidebar_inline_styles_REPORT.md
+│   │   ├── 272_install_similarity_css_REPORT.md
 │   │   ├── 272_refactor_viewerui_inline_styles_REPORT.md
 │   │   ├── 273_centralize_rescript_styling_tokens_REPORT.md
+│   │   ├── 273_css_refactor_phase_1_REPORT.md
+│   │   ├── 274_css_refactor_phase_2_REPORT.md
 │   │   ├── 274_fix_hotspot_navigation_click_REPORT.md
 │   │   ├── 274_migrate_conditional_styles_to_classes_REPORT.md
 │   │   ├── 275_complete_css_variable_migration.md
+│   │   ├── 275_css_refactor_phase_3_REPORT.md
+│   │   ├── 276_hotspot_shine_and_sidebar_fix_REPORT.md
 │   │   ├── 276_refactor_uploadreport_inline_styles.md
 │   │   ├── 277_design_system_documentation_and_compliance.md
 │   │   ├── 278_create_css_gradient_variables.md
@@ -2519,9 +2508,11 @@
 │   │   ├── 296_optimize_render_loop_during_autopilot_REPORT.md
 │   │   ├── 297_race_condition_analysis_and_global_solution_REPORT.md
 │   │   ├── 298_resolve_ghost_arrow_artifact_REPORT.md
-│   │   └── 299_sync_hotspot_visibility_on_simulation_start_REPORT.md
+│   │   ├── 299_sync_hotspot_visibility_on_simulation_start_REPORT.md
+│   │   └── 300_remove_console_log_usage_REPORT.md
 │   ├── current_refactor.md
 │   ├── pending
+│   │   └── 301_document_inline_style_exceptions.md
 │   └── postponed
 │       ├── 176_fix_security_innerhtml.md
 │       ├── 186_implement_backend_geocoding_proxy.md
@@ -2530,6 +2521,14 @@
 │       ├── 205_re_evaluate_webp_quality.md
 │       ├── 284_theme_switching_infrastructure.md
 │       ├── 289_refactor_ui_anchor_positioning.md
+│       ├── 302_create_legal_compliance_documents.md
+│       ├── 303_add_seo_structured_data.md
+│       ├── 304_implement_e2e_testing_playwright.md
+│       ├── 305_document_core_web_vitals.md
+│       ├── 306_create_changelog.md
+│       ├── 307_enable_dependabot_scanning.md
+│       ├── 308_implement_internationalization.md
+│       ├── 309_complete_pwa_offline_support.md
 │       └── tests
 │           ├── 203_expand_test_coverage.md
 │           ├── 204_Add_Tests_for_ImageOptimizer.md
@@ -2682,4 +2681,4 @@
 │       └── VitestSmoke.test.res
 └── vitest.config.mjs
 
-88 directories, 2595 files
+88 directories, 2594 files

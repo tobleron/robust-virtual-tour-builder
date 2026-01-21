@@ -58,7 +58,7 @@ module ExtendableEvent = {
 @new external newURL: string => {..} = "URL"
 
 /* Constants - Updated by scripts/sync-sw.cjs */
-let cacheName = "vtb-cache-v4.3.6"
+let cacheName = "vtb-cache-v4.3.7"
 let manualAssets = [
   "/",
   "/index.html",
@@ -76,13 +76,13 @@ let manualAssets = [
 ]
 
 addEventListener("install", (event: ExtendableEvent.t) => {
-  Console.log("[Service Worker] Installing...")
+  Logger.info(~module_="ServiceWorker", ~message="INSTALL_START", ())
 
   let installPromise =
     caches
     ->CacheStorage.open_(cacheName)
     ->Promise.then(async cache => {
-      Console.log("[Service Worker] Fetching asset manifest...")
+      Logger.info(~module_="ServiceWorker", ~message="FETCH_MANIFEST_START", ())
       let manifestUrls = try {
         let response = await fetchUrl("/asset-manifest.json")
         let manifest = await response->Response.json
@@ -105,7 +105,7 @@ addEventListener("install", (event: ExtendableEvent.t) => {
         },
       )
 
-      Console.log2("[Service Worker] Caching assets:", uniqueAssets)
+      Logger.info(~module_="ServiceWorker", ~message="CACHING_ASSETS", ~data=uniqueAssets, ())
       await cache->Cache.addAll(uniqueAssets)
     })
     ->Promise.then(_ => skipWaiting())
@@ -114,7 +114,7 @@ addEventListener("install", (event: ExtendableEvent.t) => {
 })
 
 addEventListener("activate", (event: ExtendableEvent.t) => {
-  Console.log("[Service Worker] Activating...")
+  Logger.info(~module_="ServiceWorker", ~message="ACTIVATE_START", ())
 
   let activatePromise =
     caches
@@ -124,7 +124,7 @@ addEventListener("activate", (event: ExtendableEvent.t) => {
       ->Array.filter(name => name != cacheName)
       ->Array.map(
         name => {
-          Console.log2("[Service Worker] Deleting old cache:", name)
+          Logger.info(~module_="ServiceWorker", ~message="DELETE_OLD_CACHE", ~data=name, ())
           caches->CacheStorage.delete(name)
         },
       )
@@ -171,7 +171,7 @@ addEventListener("fetch", (event: FetchEvent.t) => {
           }
         })
         ->Promise.catch(error => {
-          Console.error2("[Service Worker] Fetch failed:", error)
+          Logger.error(~module_="ServiceWorker", ~message="FETCH_FAILED", ~data=error, ())
           Promise.reject(error)
         }),
       )

@@ -44,7 +44,10 @@ let getDebugSnapshot = () => {
 let exposeToWindow = () => {
   if Constants.enableStateInspector() {
     let getState = GlobalStateBridge.getState
-    let loadProject = data => GlobalStateBridge.dispatch(Actions.LoadProject(data))
+    let loadProject = data => {
+      Logger.info(~module_="StateInspector", ~message="HEADLESS_LOAD_START", ())
+      GlobalStateBridge.dispatch(Actions.LoadProject(data))
+    }
     let getSnapshot = getDebugSnapshot
 
     let setupStore = %raw(`
@@ -69,7 +72,6 @@ let exposeToWindow = () => {
 
           // Payload loader for headless automation
           loadProject(data) {
-            console.log('⚡ Headless: Loading project data...');
             loadProject(data);
           }
         };
