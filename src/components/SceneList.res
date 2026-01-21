@@ -153,7 +153,7 @@ module SceneItem = {
               <LucideIcons.MoreVertical className="text-lg" />
             </button>
           </Shadcn.DropdownMenu.Trigger>
-          <Shadcn.DropdownMenu.Content side="right" sideOffset=10 className="w-56 p-1.5 z-[10000]">
+          <Shadcn.DropdownMenu.Content side="left" sideOffset=10 className="w-48 p-1.5 z-[10000]">
             <Shadcn.DropdownMenu.Item onClick={_ => onClearLinks()}>
               <LucideIcons.Unlink className="text-lg mr-2 text-primary" />
               <span> {React.string("Clear Links")} </span>

@@ -1,20 +1,6 @@
 /* Floor Navigation - shadcn Button overrides */
 
-/* Floor buttons hover: stroke effect instead of shadow */
-#viewer-floor-nav button[data-variant="secondary"]:hover {
-    box-shadow: none !important;
-    border: 2px solid var(--accent) !important;
-    transform: scale(1.05) !important;
-}
-
-#viewer-floor-nav button[data-variant="default"] {
-    border: 2px solid var(--primary-light) !important;
-    box-shadow: 0 0 12px rgba(0, 71, 171, 0.5) !important;
-}
-
-#viewer-floor-nav button[data-variant="default"]:hover {
-    border-color: var(--accent) !important;
-}
+/* Remove old floor-nav styles, using inline Tailwind classes now */
 
 /* Utility bar & Floor Nav during auto-pilot */
 body.auto-pilot-active #viewer-utility-bar {
@@ -31,7 +17,7 @@ body.auto-pilot-active #viewer-floor-nav button {
     filter: grayscale(100%);
 }
 
-body.auto-pilot-active #viewer-floor-nav button[data-variant="default"] {
+body.auto-pilot-active #viewer-floor-nav button.border-danger {
     opacity: 1 !important;
     filter: none !important;
 }
