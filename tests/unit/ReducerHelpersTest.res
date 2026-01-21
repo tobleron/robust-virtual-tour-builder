@@ -204,6 +204,22 @@ let run = () => {
 
   Console.log("✓ handleDeleteScene logic")
 
+  // Test 6b: handleDeleteScene Last Scene Robustness
+  let stateWithOneScene = {
+    ...State.initialState,
+    scenes: [makeDummyScene(~id="last", ~name="last.webp", ())],
+    activeIndex: 0,
+    activeYaw: 45.0,
+    activePitch: 10.0,
+  }
+  let stateAfterLastDelete = handleDeleteScene(stateWithOneScene, 0)
+  assert(Belt.Array.length(stateAfterLastDelete.scenes) == 0)
+  assert(stateAfterLastDelete.activeIndex == -1)
+  assert(stateAfterLastDelete.activeYaw == 0.0)
+  assert(stateAfterLastDelete.activePitch == 0.0)
+
+  Console.log("✓ handleDeleteScene last scene robustness")
+
   // Test 7: handleAddScenes
   let stateBeforeAdd = {
     ...State.initialState,
@@ -220,6 +236,22 @@ let run = () => {
   assert(Belt.Array.some(stateAfterAdd.scenes, s => s.id == "new"))
 
   Console.log("✓ handleAddScenes logic")
+
+  // Test 7b: handleAddScenes First Load Robustness
+  let stateEmptyWithMuckIndex = {
+    ...State.initialState,
+    scenes: [],
+    activeIndex: 5, // Invalid but let's test robustness
+    activeYaw: 45.0,
+    activePitch: 10.0,
+  }
+  let stateAfterRobustAdd = handleAddScenes(stateEmptyWithMuckIndex, [newSceneJson])
+  assert(Belt.Array.length(stateAfterRobustAdd.scenes) == 1)
+  assert(stateAfterRobustAdd.activeIndex == 0)
+  assert(stateAfterRobustAdd.activeYaw == 0.0)
+  assert(stateAfterRobustAdd.activePitch == 0.0)
+
+  Console.log("✓ handleAddScenes first load robustness")
 
   // Test 8: handleUpdateSceneMetadata
   let metaJson = JSON.parseOrThrow(`{
