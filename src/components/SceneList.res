@@ -339,9 +339,9 @@ let make = () => {
         className="flex flex-col items-center justify-center py-20 px-6 text-center animate-fade-in"
       >
         <div
-          className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center mb-6 shadow-inner"
+          className="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mb-6 shadow-inner"
         >
-          <LucideIcons.ImageIcon className="text-4xl text-slate-200" />
+          <LucideIcons.Images className="text-[#f97316]" size=56 strokeWidth=1.5 />
         </div>
         <h4 className="text-sm font-bold text-slate-600 uppercase tracking-widest mb-2">
           {React.string("No scenes")}

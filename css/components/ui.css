@@ -118,6 +118,16 @@
     color: var(--purple-brand) !important;
 }
 
+/* Sidebar Project Name Label */
+.sidebar-project-label {
+    font-size: 10px;
+    font-weight: 900;
+    color: #0e2d52;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0 0.25rem;
+}
+
 /* Sidebar Project Name Input */
 .sidebar-project-input {
     width: 100%;
@@ -129,7 +139,7 @@
     font-family: var(--font-ui);
     font-weight: 400;
     font-size: 13px;
-    color: var(--slate-800);
+    color: #0e2d52;
     transition: all var(--transition-fast) ease-in-out;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -142,6 +152,7 @@
 
 .sidebar-project-input:focus {
     outline: none;
-    border-color: var(--slate-500);
+    border-color: var(--orange-brand);
+    box-shadow: 0 0 0 1px var(--orange-brand);
     background-color: #ffffff;
 }

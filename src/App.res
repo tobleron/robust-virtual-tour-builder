@@ -38,8 +38,7 @@ module Inner = {
 
         {if Belt.Array.length(state.scenes) == 0 {
           <div id="placeholder-text" className="viewer-placeholder" ariaLive=#polite>
-            <h3> {React.string("Ready to Build")} </h3>
-            <p> {React.string("Use the sidebar to upload your images.")} </p>
+            <h3> {React.string("Ready to build.")} </h3>
           </div>
         } else {
           React.null

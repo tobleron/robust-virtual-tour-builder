@@ -45,16 +45,12 @@ let make = () => {
       }
 
       <div key={n.id} className={`toast show ${typeClass}`} role="status" ariaLive=#polite>
-        <span className="material-icons toast-icon" ariaHidden=true>
-          {React.string(
-            switch n.type_ {
-            | #Error => "error_outline"
-            | #Success => "check_circle"
-            | #Warning => "warning_amber"
-            | _ => "info_outline"
-            },
-          )}
-        </span>
+        {switch n.type_ {
+        | #Success => <LucideIcons.CircleCheck className="toast-icon text-success" size=20 />
+        | #Error => <LucideIcons.CircleAlert className="toast-icon text-danger" size=20 />
+        | #Warning => <LucideIcons.TriangleAlert className="toast-icon text-warning" size=20 />
+        | #Info => <LucideIcons.Info className="toast-icon text-primary" size=20 />
+        }}
         <span> {React.string(n.msg)} </span>
       </div>
     })

@@ -134,7 +134,16 @@ let make = () => {
         {switch config.icon {
         | Some(icon) =>
           <div className="modal-icon-container">
-            <span className="material-icons modal-icon"> {React.string(icon)} </span>
+            {switch icon {
+            | "success" | "check_circle" =>
+              <LucideIcons.CircleCheck className="modal-icon text-success" size=40 />
+            | "error" | "error_outline" =>
+              <LucideIcons.CircleAlert className="modal-icon text-danger" size=40 />
+            | "warning" | "warning_amber" =>
+              <LucideIcons.TriangleAlert className="modal-icon text-warning" size=40 />
+            | "info" | "info_outline" | _ =>
+              <LucideIcons.Info className="modal-icon text-primary" size=40 />
+            }}
           </div>
         | None => React.null
         }}

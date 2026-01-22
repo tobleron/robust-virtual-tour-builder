@@ -341,9 +341,9 @@ let make = () => {
             onClick={handleFabClick}
           >
             {if state.isLinking {
-              <LucideIcons.X size=20 strokeWidth=3 />
+              <LucideIcons.X size=20 strokeWidth=3.0 />
             } else {
-              <LucideIcons.Plus size=20 strokeWidth=3 />
+              <LucideIcons.Plus size=20 strokeWidth=3.0 />
             }}
           </Shadcn.Button>
         </Tooltip>
@@ -369,9 +369,9 @@ let make = () => {
             disabled={state.isLinking}
           >
             {if simActive {
-              <LucideIcons.Square size=18 strokeWidth=3 />
+              <LucideIcons.Square size=18 strokeWidth=3.0 />
             } else {
-              <LucideIcons.Play size=18 strokeWidth=3 />
+              <LucideIcons.Play size=18 strokeWidth=3.0 />
             }}
           </Shadcn.Button>
         </Tooltip>
@@ -389,9 +389,9 @@ let make = () => {
             disabled={state.isLinking}
           >
             {if currentCategory == "indoor" {
-              <LucideIcons.Home size=18 strokeWidth=3 />
+              <LucideIcons.Home size=18 strokeWidth=3.0 />
             } else {
-              <LucideIcons.Sun size=18 strokeWidth=3 />
+              <LucideIcons.Sun size=18 strokeWidth=3.0 />
             }}
           </Shadcn.Button>
         </Tooltip>
@@ -409,7 +409,7 @@ let make = () => {
                 className="w-[32px] h-[32px] rounded-full text-[18px] font-bold border border-transparent hover:border-[#0e2d52]"
                 disabled={state.isLinking}
               >
-                <LucideIcons.Hash size=18 strokeWidth=3 />
+                <LucideIcons.Hash size=18 strokeWidth=3.0 />
               </Shadcn.Button>
             </Shadcn.DropdownMenu.Trigger>
           </Tooltip>
