@@ -141,12 +141,12 @@ let make = () => {
         <div className="font-normal text-white tracking-[0.25em] text-[13px] uppercase">
           {React.string("Virtual Tour Builder")}
         </div>
-        <div className="flex items-center gap-2 text-white mt-1 sidebar-version-line">
-          <span className="text-[9px] font-mono tracking-wider">
+        <div className="flex items-center gap-2 text-white mt-1 sidebar-version-line font-normal font-mono">
+          <span className="text-[9px] tracking-wider">
             {React.string("V " ++ VersionData.version)}
           </span>
           <span className="text-[9px]"> {React.string("\u2022")} </span>
-          <span className="text-[9px] font-mono"> {React.string(VersionData.buildInfo)} </span>
+          <span className="text-[9px]"> {React.string(VersionData.buildInfo)} </span>
         </div>
       </div>
 
