@@ -6,6 +6,7 @@ let make = (
   ~content: string,
   ~alignment: PopOver.alignment=#Auto,
   ~disabled: bool=false,
+  ~delayDuration: option<int>=?,
 ) => {
   if disabled {
     children
@@ -18,7 +19,7 @@ let make = (
     | #Auto => "bottom"
     }
 
-    <Shadcn.Tooltip>
+    <Shadcn.Tooltip ?delayDuration>
       <Shadcn.Tooltip.Trigger asChild=true> children </Shadcn.Tooltip.Trigger>
       <Shadcn.Tooltip.Content side sideOffset=8> {React.string(content)} </Shadcn.Tooltip.Content>
     </Shadcn.Tooltip>

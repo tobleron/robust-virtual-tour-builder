@@ -83,7 +83,7 @@ let createHotspotConfig = (
       Dom.setAttribute(actionBtn, "title", "Link Actions")
       Dom.setAttribute(actionBtn, "role", "button")
       Dom.setAttribute(actionBtn, "tabindex", "0")
-      Dom.setTextContent(actionBtn, "more_vert") // Material icon name
+      Dom.setTextContent(actionBtn, "") // Lucide icon managed by CSS background-image
 
       /* Forward Btn (Third Chevron) */
       let fwdBtn = Dom.createElement("div")

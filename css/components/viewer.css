@@ -74,6 +74,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    font-family: var(--font-ui);
     color: var(--slate-500);
     text-align: center;
     pointer-events: none;
@@ -247,22 +248,27 @@
     animation-duration: 1.0s;
 }
 
-/* Hotspot Action Trigger - Matches old delete button style */
+/* Hotspot Action Trigger - Matches shadcn style */
 .hotspot-action-trigger {
     position: absolute;
     /* Position: Top Right relative to the 70x70 box */
     top: -30px;
     right: -35px;
-    width: 20px;
-    height: 20px;
-    background: var(--danger);
+    width: 22px;
+    height: 22px;
+    background-color: var(--danger);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='1.5'/%3E%3Ccircle cx='12' cy='5' r='1.5'/%3E%3Ccircle cx='12' cy='19' r='1.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 14px;
     color: white;
     border-radius: 50%;
     display: flex !important;
     align-items: center;
     justify-content: center;
-    font-family: 'Material Icons';
-    font-size: 12px;
+    font-family: var(--font-ui);
+    font-size: 0;
+    /* Hide text fallback */
     font-weight: 800;
     cursor: pointer;
     border: 2px solid white;
@@ -601,8 +607,8 @@
     /* User Request: exactly 30px */
     border-radius: var(--radius-sm);
     /* User Request: Less rounded */
-    font-size: 12px;
-    font-weight: 500;
+    font-family: var(--font-ui);
+    font-weight: 600;
     text-transform: uppercase;
     box-shadow: var(--shadow-xl);
     display: flex;

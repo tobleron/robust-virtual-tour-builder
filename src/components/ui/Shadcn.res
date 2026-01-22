@@ -46,11 +46,12 @@ module Popover = {
 module Tooltip = {
   module Provider = {
     @module("./tooltip.jsx") @react.component
-    external make: (~children: React.element) => React.element = "TooltipProvider"
+    external make: (~children: React.element, ~delayDuration: int=?) => React.element =
+      "TooltipProvider"
   }
 
   @module("./tooltip.jsx") @react.component
-  external make: (~children: React.element) => React.element = "Tooltip"
+  external make: (~children: React.element, ~delayDuration: int=?) => React.element = "Tooltip"
 
   module Trigger = {
     @module("./tooltip.jsx") @react.component

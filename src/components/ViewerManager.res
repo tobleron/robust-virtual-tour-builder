@@ -486,10 +486,13 @@ let make = () => {
         // The swap lock prevents drawing arrows with mismatched viewer/camera data
         let isSwapping = ViewerState.state.isSwapping
 
-        // Performance optimization: During AutoPilot, the NavigationRenderer owns the loop.
+        // Performance optimization: During active navigation, the NavigationRenderer owns the loop.
         // We skip the global loop here to prevent fighting over the SVG container.
-        let isSimulationActive = currentState.simulation.status != Idle
-        let shouldUpdate = if isSimulationActive {
+        let isNavigating = switch currentState.navigation {
+        | Navigating(_) | Previewing(_) => true
+        | Idle => false
+        }
+        let shouldUpdate = if isNavigating {
           false // NavigationRenderer handles it
         } else {
           true
