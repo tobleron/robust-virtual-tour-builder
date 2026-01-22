@@ -17,7 +17,7 @@ type exifResult = {
 
 type reportResult = {
   report: string,
-  suggestedName: string,
+  suggestedName: option<string>,
 }
 
 let max_int = (a, b) =>
@@ -34,8 +34,12 @@ external castToJson: 'a => JSON.t = "%identity"
  * Generate a smart project identification name
  * Format: Word1_Word2_Word3_DDMMYYHH_SSSSS
  */
-let generateProjectName = (address: option<string>, dateTime: option<string>): string => {
-  // 1. Extract first 3 words from address
+/**
+ * Generate a smart project identification name
+ * Returns Some(name) with location if known, or timestamp-based fallback if unknown
+ */
+let generateProjectName = (address: option<string>, dateTime: option<string>): option<string> => {
+  // 1. Process location
   let locationPart = switch address {
   | Some(addr) => {
       let words =
@@ -46,10 +50,12 @@ let generateProjectName = (address: option<string>, dateTime: option<string>): s
       let selectedWords =
         Belt.Array.slice(words, ~offset=0, ~len=3)
         ->Belt.Array.map(w => {
-          let clean = String.replaceRegExp(w, /[^a-zA-Z0-9]/g, "")
+          // Remove only punctuation and special symbols, keep all Unicode letters/digits
+          let clean = String.replaceRegExp(w, /[^\p{L}\p{N}]/gu, "")
           if String.length(clean) == 0 {
             ""
           } else {
+            // Capitalize first character (works with Unicode)
             let first = String.charAt(clean, 0)->String.toUpperCase
             let rest = String.slice(clean, ~start=1, ~end=String.length(clean))->String.toLowerCase
             first ++ rest
@@ -58,12 +64,12 @@ let generateProjectName = (address: option<string>, dateTime: option<string>): s
         ->Belt.Array.keep(w => String.length(w) > 0)
 
       if Array.length(selectedWords) > 0 {
-        Js.Array.joinWith("_", selectedWords)
+        Some(Array.join(selectedWords, "_"))
       } else {
-        "Unknown_Location"
+        None
       }
     }
-  | None => "Unknown_Location"
+  | None => None
   }
 
   // 2. Generate compact timestamp DDMMYY_HHMM
@@ -111,44 +117,49 @@ let generateProjectName = (address: option<string>, dateTime: option<string>): s
     }
   }
 
-  `${locationPart}_${timestamp}`
+  let loc = switch locationPart {
+  | Some(l) => l
+  | None => "Tour"
+  }
+
+  Some(`${loc}_${timestamp}`)
 }
 
 /**
  * Generate EXIF metadata report from uploaded files
  */
-let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<reportResult> => {
+let generateExifReport = async (sceneDataList: array<sceneDataItem>) => {
   let lines = []
   let resolvedAddress = ref(None)
   let captureDateTime = ref(None)
 
   // Header
-  let _ = Js.Array.push(
+  let _ = Array.push(
+    lines,
     "╔══════════════════════════════════════════════════════════════════════════════╗",
-    lines,
   )
-  let _ = Js.Array.push(
+  let _ = Array.push(
+    lines,
     "║                          EXIF METADATA ANALYSIS REPORT                       ║",
-    lines,
   )
-  let _ = Js.Array.push(
-    "╠══════════════════════════════════════════════════════════════════════════════╣",
+  let _ = Array.push(
     lines,
+    "╠══════════════════════════════════════════════════════════════════════════════╣",
   )
 
   let now = Date.make()
   let dateStr = Date.toLocaleString(now)
   let padded = String.padEnd(dateStr, 63, " ")
-  let _ = Js.Array.push(`║  Generated: ${padded}║`, lines)
+  let _ = Array.push(lines, `║  Generated: ${padded}║`)
 
   let count = Belt.Int.toString(Array.length(sceneDataList))
   let countPadded = String.padEnd(count, 52, " ")
-  let _ = Js.Array.push(`║  Total Files Analyzed: ${countPadded}║`, lines)
-  let _ = Js.Array.push(
-    "╚══════════════════════════════════════════════════════════════════════════════╝",
+  let _ = Array.push(lines, `║  Total Files Analyzed: ${countPadded}║`)
+  let _ = Array.push(
     lines,
+    "╚══════════════════════════════════════════════════════════════════════════════╝",
   )
-  let _ = Js.Array.push("", lines)
+  let _ = Array.push(lines, "")
 
   // Extract EXIF from all files
   let exifResults = []
@@ -161,43 +172,92 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
       | Some(item) =>
         let file = item.original
 
-        // Use pre-existing metadata if available
-        let exifPromise = switch item.metadata {
-        | Some(m) =>
-          switch item.quality {
-          | Some(q) =>
-            Promise.resolve(
-              Ok({
-                exif: (Obj.magic(m): SharedTypes.exifMetadata),
-                quality: (Obj.magic(q): SharedTypes.qualityAnalysis),
+        // Use pre-existing metadata if available, but FALLBACK to local extraction if GPS is missing
+        let exifData = switch item.metadata {
+        | Some(m) => {
+            let meta = (Obj.magic(m): SharedTypes.exifMetadata)
+            let hasGps = switch meta.gps->Nullable.toOption {
+            | Some(_) => true
+            | None => false
+            }
+
+            if hasGps {
+              let q =
+                item.quality
+                ->Option.map((q): SharedTypes.qualityAnalysis => Obj.magic(q))
+                ->Option.getOr(
+                  Obj.magic({
+                    "score": 0.0,
+                    "analysis": Nullable.make("Cached metadata loaded"),
+                  }),
+                )
+              {
+                exif: meta,
+                quality: q,
                 isOptimized: false,
                 checksum: "",
                 suggestedName: Nullable.null,
-              }),
-            )
-          | None => ExifParser.extractExifData(file)
+              }
+            } else {
+              // Metadata present but NO GPS - try local extraction to see if we can find it
+              let localRes = await ExifParser.extractExifTags(File(file))
+              switch localRes {
+              | Ok((exif, _pano)) => {
+                  exif, // This might have the GPS we missed
+                  quality: (
+                    Obj.magic({
+                      "score": 0.0,
+                      "analysis": Nullable.make("GPS recovered locally"),
+                    }): SharedTypes.qualityAnalysis
+                  ),
+                  isOptimized: false,
+                  checksum: "",
+                  suggestedName: Nullable.null,
+                }
+              | Error(_) => {
+                  // Local failed too, use what we have
+                  let q =
+                    item.quality
+                    ->Option.map((q): SharedTypes.qualityAnalysis => Obj.magic(q))
+                    ->Option.getOr(
+                      Obj.magic({
+                        "score": 0.0,
+                        "analysis": Nullable.make("Cached metadata (no GPS)"),
+                      }),
+                    )
+                  {
+                    exif: meta,
+                    quality: q,
+                    isOptimized: false,
+                    checksum: "",
+                    suggestedName: Nullable.null,
+                  }
+                }
+              }
+            }
           }
-        | None => ExifParser.extractExifData(file)
-        }
-
-        let exifResult = await exifPromise
-
-        let exifData = switch exifResult {
-        | Ok(data) => data
-        | Error(msg) => {
-            Logger.warn(
-              ~module_="ExifReport",
-              ~message="METADATA_EXTRACTION_FAILED",
-              ~data=Some({"file": File.name(file), "error": msg}),
-              (),
-            )
-            // Provide dummy data to avoid crashing the report
-            {
+        | None =>
+          // Extract locally - non-blocking for network
+          let localRes = await ExifParser.extractExifTags(File(file))
+          switch localRes {
+          | Ok((exif, _pano)) => {
+              exif,
+              quality: (
+                Obj.magic({
+                  "score": 0.0,
+                  "analysis": Nullable.make("Extracted locally"),
+                }): SharedTypes.qualityAnalysis
+              ),
+              isOptimized: false,
+              checksum: "",
+              suggestedName: Nullable.null,
+            }
+          | Error(msg) => {
               exif: (Obj.magic(Nullable.null): SharedTypes.exifMetadata),
               quality: (
                 Obj.magic({
                   "score": 0.0,
-                  "analysis": Nullable.make("Metadata extraction failed"),
+                  "analysis": Nullable.make("Local extraction failed: " ++ msg),
                 }): SharedTypes.qualityAnalysis
               ),
               isOptimized: false,
@@ -213,7 +273,7 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
           quality: exifData.quality,
         }
 
-        let _ = Js.Array.push(result, exifResults)
+        let _ = Array.push(exifResults, result)
 
         // Check for GPS data
         let gpsOpt = exifData.exif.gps
@@ -221,8 +281,8 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
         switch gpsOpt->Nullable.toOption {
         | Some(gpsDict) => {
             let gpsPoint: GeoUtils.point = {lat: gpsDict.lat, lon: gpsDict.lon}
-            let _ = Js.Array.push(gpsPoint, gpsPoints)
-            let _ = Js.Array.push(File.name(file), gpsFilenames)
+            let _ = Array.push(gpsPoints, gpsPoint)
+            let _ = Array.push(gpsFilenames, File.name(file))
           }
         | None => ()
         }
@@ -248,19 +308,19 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
   // ─────────────────────────────────────────────────────────────────
   // SECTION 1: LOCATION ANALYSIS
   // ─────────────────────────────────────────────────────────────────
-  let _ = Js.Array.push(
+  let _ = Array.push(
+    lines,
     "┌──────────────────────────────────────────────────────────────────────────────┐",
-    lines,
   )
-  let _ = Js.Array.push(
+  let _ = Array.push(
+    lines,
     "│  📍 LOCATION ANALYSIS                                                        │",
-    lines,
   )
-  let _ = Js.Array.push(
+  let _ = Array.push(
+    lines,
     "└──────────────────────────────────────────────────────────────────────────────┘",
-    lines,
   )
-  let _ = Js.Array.push("", lines)
+  let _ = Array.push(lines, "")
 
   if Array.length(gpsPoints) == 0 {
     Logger.warn(
@@ -272,20 +332,35 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
       }),
       (),
     )
-    let _ = Js.Array.push("  ⚠️  No GPS data found in any uploaded images.", lines)
-    let _ = Js.Array.push(
-      "      Images may have been taken with location services disabled,",
-      lines,
-    )
-    let _ = Js.Array.push("      or GPS metadata was stripped during processing.", lines)
-    let _ = Js.Array.push("", lines)
+    let _ = Array.push(lines, "  ⚠️  No GPS data found in any uploaded images.")
+    let _ = Array.push(lines, "      Images may have been taken with location services disabled,")
+    let _ = Array.push(lines, "      or GPS metadata was stripped during processing.")
+    let _ = Array.push(lines, "")
   } else {
     let locationAnalysis = ExifParser.calculateAverageLocation(gpsPoints, ~maxDistanceKm=0.5, ())
 
     let gpsCount = Belt.Int.toString(Array.length(gpsPoints))
     let totalCount = Belt.Int.toString(Array.length(sceneDataList))
-    let _ = Js.Array.push(`  GPS Data Found: ${gpsCount} of ${totalCount} images`, lines)
-    let _ = Js.Array.push("", lines)
+
+    // DEBUG: Log GPS extraction results with actual coordinates
+    Logger.info(
+      ~module_="ExifReport",
+      ~message="GPS_POINTS_COLLECTED",
+      ~data=Some({
+        "gpsCount": gpsCount,
+        "totalCount": totalCount,
+        "gpsPoints": gpsPoints->Belt.Array.map(p =>
+          {
+            "lat": p.lat,
+            "lon": p.lon,
+          }
+        ),
+      }),
+      (),
+    )
+
+    let _ = Array.push(lines, `  GPS Data Found: ${gpsCount} of ${totalCount} images`)
+    let _ = Array.push(lines, "")
 
     // Check for outliers
     let outliers = switch locationAnalysis {
@@ -294,18 +369,15 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
     }
 
     if Array.length(outliers) > 0 {
-      let _ = Js.Array.push(
-        "  ⚠️  OUTLIERS DETECTED (excluded from average calculation):",
-        lines,
-      )
+      let _ = Array.push(lines, "  ⚠️  OUTLIERS DETECTED (excluded from average calculation):")
       Belt.Array.forEach(outliers, outlier => {
         let index = outlier.index
         let distance = outlier.distance
         let filename = Belt.Array.get(gpsFilenames, index)->Belt.Option.getWithDefault("Unknown")
         let distanceM = Belt.Int.toString(Float.toInt(distance *. 1000.0))
-        let _ = Js.Array.push(`      • ${filename} - ${distanceM}m from cluster center`, lines)
+        let _ = Array.push(lines, `      • ${filename} - ${distanceM}m from cluster center`)
       })
-      let _ = Js.Array.push("", lines)
+      let _ = Array.push(lines, "")
     }
 
     // Centroid
@@ -315,19 +387,27 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
         let lat = centroid.lat
         let lon = centroid.lon
 
-        let _ = Js.Array.push(`  📍 Estimated Property Location:`, lines)
-        let _ = Js.Array.push(`     Latitude:  ${Float.toFixed(lat, ~digits=6)}`, lines)
-        let _ = Js.Array.push(`     Longitude: ${Float.toFixed(lon, ~digits=6)}`, lines)
-        let _ = Js.Array.push(
+        let _ = Array.push(lines, `  📍 Estimated Property Location:`)
+        let _ = Array.push(lines, `     Latitude:  ${Float.toFixed(lat, ~digits=6)}`)
+        let _ = Array.push(lines, `     Longitude: ${Float.toFixed(lon, ~digits=6)}`)
+        let _ = Array.push(
+          lines,
           `     Google Maps: https://maps.google.com/?q=${Float.toString(lat)},${Float.toString(
               lon,
             )}`,
-          lines,
         )
-        let _ = Js.Array.push("", lines)
+        let _ = Array.push(lines, "")
 
         // Reverse geocode
-        let _ = Js.Array.push("  🔍 Address Lookup:", lines)
+        let _ = Array.push(lines, "  🔍 Address Lookup:")
+
+        Logger.info(
+          ~module_="ExifReport",
+          ~message="GEOCODING_REQUEST_SENT",
+          ~data=Some({"lat": lat, "lon": lon}),
+          (),
+        )
+
         let geocodeResult = await ExifParser.reverseGeocode(lat, lon)
 
         switch geocodeResult {
@@ -342,7 +422,7 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
               }),
               (),
             )
-            let _ = Js.Array.push(`     ${address}`, lines)
+            let _ = Array.push(lines, `     ${address}`)
             resolvedAddress := Some(address)
           }
         | Error(msg) => {
@@ -356,14 +436,14 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
               }),
               (),
             )
-            let _ = Js.Array.push(`     [Geocoding failed: ${msg}]`, lines)
-            let _ = Js.Array.push(
-              "     (This does not affect your virtual tour - geocoding is informational only)",
+            let _ = Array.push(lines, `     [Geocoding failed: ${msg}]`)
+            let _ = Array.push(
               lines,
+              "     (This does not affect your virtual tour - geocoding is informational only)",
             )
           }
         }
-        let _ = Js.Array.push("", lines)
+        let _ = Array.push(lines, "")
       }
     | None => ()
     }
@@ -372,19 +452,19 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
   // ─────────────────────────────────────────────────────────────────
   // SECTION 2: CAMERA/DEVICE GROUPING
   // ─────────────────────────────────────────────────────────────────
-  let _ = Js.Array.push(
+  let _ = Array.push(
+    lines,
     "┌──────────────────────────────────────────────────────────────────────────────┐",
-    lines,
   )
-  let _ = Js.Array.push(
+  let _ = Array.push(
+    lines,
     "│  📷 CAMERA & DEVICE ANALYSIS                                                 │",
-    lines,
   )
-  let _ = Js.Array.push(
+  let _ = Array.push(
+    lines,
     "└──────────────────────────────────────────────────────────────────────────────┘",
-    lines,
   )
-  let _ = Js.Array.push("", lines)
+  let _ = Array.push(lines, "")
 
   // Group by camera signature
   let groups = Dict.make()
@@ -392,7 +472,7 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
     let sig = ExifParser.getCameraSignature(r.exif)
     switch Dict.get(groups, sig) {
     | Some(files) => {
-        let _ = Js.Array.push(r, files)
+        let _ = Array.push(files, r)
       }
     | None => Dict.set(groups, sig, [r])
     }
@@ -406,62 +486,62 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
 
     let dashCount = max_int(0, 60 - String.length(signature))
     let dashes = String.repeat("─", dashCount)
-    let _ = Js.Array.push(`  ┌─ ${signature} ─${dashes}`, lines)
-    let _ = Js.Array.push(`  │  Images: ${Belt.Int.toString(Array.length(files))}`, lines)
+    let _ = Array.push(lines, `  ┌─ ${signature} ─${dashes}`)
+    let _ = Array.push(lines, `  │  Images: ${Belt.Int.toString(Array.length(files))}`)
 
     switch firstExif.focalLength->Nullable.toOption {
     | Some(fl) => {
-        let _ = Js.Array.push(`  │  Focal Length: ${Float.toFixed(fl, ~digits=1)}mm`, lines)
+        let _ = Array.push(lines, `  │  Focal Length: ${Float.toFixed(fl, ~digits=1)}mm`)
       }
     | None => ()
     }
 
     switch firstExif.aperture->Nullable.toOption {
     | Some(ap) => {
-        let _ = Js.Array.push(`  │  Aperture: f/${Float.toFixed(ap, ~digits=1)}`, lines)
+        let _ = Array.push(lines, `  │  Aperture: f/${Float.toFixed(ap, ~digits=1)}`)
       }
     | None => ()
     }
 
     switch firstExif.iso->Nullable.toOption {
     | Some(iso) => {
-        let _ = Js.Array.push(`  │  ISO: ${Belt.Int.toString(iso)}`, lines)
+        let _ = Array.push(lines, `  │  ISO: ${Belt.Int.toString(iso)}`)
       }
     | None => ()
     }
 
     switch firstExif.dateTime->Nullable.toOption {
     | Some(dt) => {
-        let _ = Js.Array.push(`  │  Capture Period: ${dt}`, lines)
+        let _ = Array.push(lines, `  │  Capture Period: ${dt}`)
       }
     | None => ()
     }
 
-    let _ = Js.Array.push(`  │`, lines)
-    let _ = Js.Array.push(`  │  Files:`, lines)
+    let _ = Array.push(lines, `  │`)
+    let _ = Array.push(lines, `  │  Files:`)
     Belt.Array.forEach(files, r => {
-      let _ = Js.Array.push(`  │    • ${r.filename}`, lines)
+      let _ = Array.push(lines, `  │    • ${r.filename}`)
     })
-    let _ = Js.Array.push(`  └${String.repeat("─", 76)}`, lines)
-    let _ = Js.Array.push("", lines)
+    let _ = Array.push(lines, `  └${String.repeat("─", 76)}`)
+    let _ = Array.push(lines, "")
   })
 
   // ─────────────────────────────────────────────────────────────────
   // SECTION 3: DETAILED FILE LIST
   // ─────────────────────────────────────────────────────────────────
-  let _ = Js.Array.push(
+  let _ = Array.push(
+    lines,
     "┌──────────────────────────────────────────────────────────────────────────────┐",
-    lines,
   )
-  let _ = Js.Array.push(
+  let _ = Array.push(
+    lines,
     "│  📋 INDIVIDUAL FILE METADATA                                                 │",
-    lines,
   )
-  let _ = Js.Array.push(
+  let _ = Array.push(
+    lines,
     "└──────────────────────────────────────────────────────────────────────────────┘",
-    lines,
   )
-  let _ = Js.Array.push("", lines)
+  let _ = Array.push(lines, "")
 
   Belt.Array.forEach(exifResults, r => {
     let hasGPS = switch r.exif.gps->Nullable.toOption {
@@ -488,21 +568,21 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
 
     let qScore = `| Quality: ${Float.toFixed(r.quality.score, ~digits=1)}/10`
 
-    let _ = Js.Array.push(`  ${r.filename}`, lines)
-    let _ = Js.Array.push(`    └─ ${hasCamera} | ${hasGPS} ${qScore}`, lines)
+    let _ = Array.push(lines, `  ${r.filename}`)
+    let _ = Array.push(lines, `    └─ ${hasCamera} | ${hasGPS} ${qScore}`)
 
     switch r.quality.analysis->Nullable.toOption {
     | Some(analysis) => {
-        let _ = Js.Array.push(`       Note: ${analysis}`, lines)
+        let _ = Array.push(lines, `       Note: ${analysis}`)
       }
     | None => ()
     }
   })
 
-  let _ = Js.Array.push("", lines)
-  let _ = Js.Array.push(String.repeat("═", 80), lines)
-  let _ = Js.Array.push("END OF REPORT", lines)
-  let _ = Js.Array.push(String.repeat("═", 80), lines)
+  let _ = Array.push(lines, "")
+  let _ = Array.push(lines, String.repeat("═", 80))
+  let _ = Array.push(lines, "END OF REPORT")
+  let _ = Array.push(lines, String.repeat("═", 80))
 
   // Generate suggested project name
   let suggestedName = generateProjectName(resolvedAddress.contents, captureDateTime.contents)
@@ -511,7 +591,7 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
     ~module_="ExifReport",
     ~message="PROJECT_NAME_GENERATED_FROM_EXIF",
     ~data=Some({
-      "suggestedName": suggestedName,
+      "suggestedName": suggestedName->Option.getOr("None"),
       "hasAddress": resolvedAddress.contents != None,
       "hasDateTime": captureDateTime.contents != None,
       "address": resolvedAddress.contents->Option.getOr("None"),
@@ -520,10 +600,10 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
     (),
   )
 
-  Promise.resolve({
-    report: Js.Array.joinWith("\n", lines),
+  {
+    report: Array.join(lines, "\n"),
     suggestedName,
-  })
+  }
 }
 
 /**

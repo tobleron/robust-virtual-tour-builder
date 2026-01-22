@@ -159,39 +159,36 @@ let processAndAnalyzeImage = (file: File.t): Promise.t<result<processResult, str
 
   let fetchStart = now()
 
-  // 1. Extract EXIF from original file (Before compression strips it)
-  ExifParser.extractExifTags(file)
-  ->Promise.then(exifResult => {
+  // 1 & 2. Extract EXIF and Compress image in parallel
+  Promise.all2((ExifParser.extractExifTags(File(file)), ImageOptimizer.compressToWebP(file, 0.90)))
+  ->Promise.then(((exifResult, compressionResult)) => {
     let exifData = switch exifResult {
     | Ok((exif, _pano)) => Some(exif)
     | Error(_) => None
     }
 
-    // 2. Compress image in parallel (or sequential, Promise handles it)
-    ImageOptimizer.compressToWebP(file, 0.90)->Promise.then(compressionResult => {
-      switch compressionResult {
-      | Ok(webpBlob) => {
-          let compressedFileSize = Blob.size(webpBlob)
-          Logger.info(
-            ~module_="Resizer",
-            ~message="FRONTEND_COMPRESSION_COMPLETE",
-            ~data={
-              "file": File.name(file),
-              "originalSize": File.size(file),
-              "compressedSize": compressedFileSize,
-              "ratio": Float.toFixed(compressedFileSize /. File.size(file), ~digits=2),
-            },
-            (),
-          )
+    switch compressionResult {
+    | Ok(webpBlob) => {
+        let compressedFileSize = Blob.size(webpBlob)
+        Logger.info(
+          ~module_="Resizer",
+          ~message="FRONTEND_COMPRESSION_COMPLETE",
+          ~data={
+            "file": File.name(file),
+            "originalSize": File.size(file),
+            "compressedSize": compressedFileSize,
+            "ratio": Float.toFixed(compressedFileSize /. File.size(file), ~digits=2),
+          },
+          (),
+        )
 
-          let webpFile = File.newFile([webpBlob], File.name(file), %raw("{type: 'image/webp'}"))
+        let webpFile = File.newFile([webpBlob], File.name(file), %raw("{type: 'image/webp'}"))
 
-          // 3. Send optimized image + preserved metadata to backend
-          BackendApi.processImageFull(webpFile, ~isOptimized=true, ~metadata=?exifData)
-        }
-      | Error(msg) => Promise.resolve(Error(msg))
+        // 3. Send optimized image + preserved metadata to backend
+        BackendApi.processImageFull(webpFile, ~isOptimized=true, ~metadata=?exifData)
       }
-    })
+    | Error(msg) => Promise.resolve(Error(msg))
+    }
   })
   ->Promise.then(result => {
     switch result {

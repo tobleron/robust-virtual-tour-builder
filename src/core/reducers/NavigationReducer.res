@@ -17,7 +17,7 @@ let reduce = (state: state, action: action): option<state> => {
   | ResetAutoForwardChain => Some({...state, autoForwardChain: []})
   | AddToAutoForwardChain(idx) =>
     let chain = state.autoForwardChain
-    if !Js.Array.includes(idx, chain) {
+    if !Array.includes(chain, idx) {
       Some({...state, autoForwardChain: Belt.Array.concat(chain, [idx])})
     } else {
       Some(state)

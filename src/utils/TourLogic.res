@@ -41,6 +41,19 @@ let sanitizeName = (name, ~maxLength=255) => {
 }
 
 /**
+ * Check if a name is a placeholder/unknown name
+ */
+let isUnknownName = name => {
+  let n = String.toLowerCase(name)
+  n == "" ||
+  String.includes(n, "unknown") ||
+  n == "untitled" ||
+  n == "imported tour" ||
+  n == "tour" ||
+  RegExp.test(/^tour_\d{6}_\d{4}$/i, name) // Matches Tour_DDMMYY_HHMM pattern
+}
+
+/**
  * Generate a concise, unique Link ID (e.g., A01, B99)
  */
 let generateLinkId = (usedIds: Belt.Set.String.t) => {

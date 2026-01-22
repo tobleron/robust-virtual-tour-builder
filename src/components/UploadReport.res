@@ -30,11 +30,11 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
 
       Belt.Array.forEach(qualityResults, r => {
         if r.quality.score >= 8.5 {
-          let _ = Js.Array.push(r, groups.ex)
+          Array.push(groups.ex, r)
         } else if r.quality.score >= 6.5 {
-          let _ = Js.Array.push(r, groups.md)
+          Array.push(groups.md, r)
         } else {
-          let _ = Js.Array.push(r, groups.pr)
+          Array.push(groups.pr, r)
         }
       })
     }
@@ -77,7 +77,7 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
               </div>
               ${analysis}
             </div>`
-      })->Js.Array.joinWith("", _)
+      })->Array.join("")
 
       `<div class="upload-report-action-container">
         <div class="upload-report-action-title">

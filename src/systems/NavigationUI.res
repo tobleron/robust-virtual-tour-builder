@@ -30,13 +30,13 @@ let updateReturnPrompt = (state: state, scene: scene) => {
         | None => ()
         | Some(sourceScene) =>
           // Check if return link exists
-          let hasReturnLink = Js.Array.some(h => {
+          let hasReturnLink = Array.some(scene.hotspots, h => {
             h.target == sourceScene.name &&
               switch h.isReturnLink {
               | Some(true) => true
               | _ => false
               }
-          }, scene.hotspots)
+          })
 
           if hasReturnLink {
             Dom.add(prompt, "hidden")

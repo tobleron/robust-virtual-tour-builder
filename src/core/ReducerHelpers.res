@@ -115,8 +115,8 @@ let parseProject = (projectDataJson: JSON.t): state => {
     ({tourName: Nullable.null, scenes: [], lastUsedCategory: Nullable.null}: JsonTypes.projectJson)
   }
   let tourName = switch Nullable.toOption(pd.tourName) {
-  | Some(tn) => tn
-  | None => "Imported Tour"
+  | Some(tn) if !TourLogic.isUnknownName(tn) => tn
+  | _ => "Imported Tour"
   }
 
   let scenes = Belt.Array.map(pd.scenes, sc => {
@@ -369,9 +369,10 @@ let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
     }
   })
 
-  let sortedScenes = Js.Array.sortInPlaceWith((a, b) => {
-    Float.toInt(String.localeCompare(a.name, b.name))
-  }, Array.copy(newScenes))
+  let sortedScenes = Array.copy(newScenes)
+  Array.sort(sortedScenes, (a, b) => {
+    String.localeCompare(a.name, b.name)
+  })
 
   let finalScenes = syncSceneNames(sortedScenes)
 

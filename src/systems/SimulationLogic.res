@@ -73,7 +73,7 @@ let getNextMove = (state: state): nextMove => {
           let hasNewPaths = Belt.Array.some(startScene.hotspots, h => {
             let tIdx = Belt.Array.getIndexBy(state.scenes, s => s.name == h.target)
             switch tIdx {
-            | Some(i) => !Js.Array.includes(i, visitedScenes)
+            | Some(i) => !Array.includes(visitedScenes, i)
             | None => false
             }
           })
@@ -92,19 +92,18 @@ let getNextMove = (state: state): nextMove => {
 
         // Add visited scenes for chain skipping
         extraVisited->Belt.Array.forEach(idx => {
-          let _ = Js.Array.push(AddVisitedScene(idx), actions)
+          let _ = Array.push(actions, AddVisitedScene(idx))
         })
 
         // Sync Timeline (if applicable)
-        let timelineItem = Js.Array.find(
-          item => item.sceneId == currentScene.id && item.linkId == hotspot.linkId,
-          state.timeline,
+        let timelineItem = Array.find(state.timeline, item =>
+          item.sceneId == currentScene.id && item.linkId == hotspot.linkId
         )
         switch timelineItem {
         | Some(item) =>
-          let _ = Js.Array.push(SetActiveTimelineStep(Some(item.id)), actions)
+          let _ = Array.push(actions, SetActiveTimelineStep(Some(item.id)))
         | None =>
-          let _ = Js.Array.push(SetActiveTimelineStep(None), actions)
+          let _ = Array.push(actions, SetActiveTimelineStep(None))
         }
 
         let finalActions = Belt.Array.concat(actions, [AddVisitedScene(targetIndex)])

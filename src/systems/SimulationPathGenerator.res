@@ -71,7 +71,7 @@ let getSimulationPath = (skipAutoForward: bool): array<pathStep> => {
     | None => ()
     }
 
-    let _ = Js.Array.push(currentPathObj, path)
+    let _ = Array.push(path, currentPathObj)
     let activePathObj = ref(currentPathObj)
 
     let visitedStateSet = [] // strings "idx->target"
@@ -101,7 +101,7 @@ let getSimulationPath = (skipAutoForward: bool): array<pathStep> => {
             switch nextLinkOpt.contents {
             | Some(link) =>
               let skipResult = skipAutoForwardChain(link, state, localVisited, sceneIdx => {
-                let _ = Js.Array.push(sceneIdx, localVisited)
+                let _ = Array.push(localVisited, sceneIdx)
               })
 
               // Use the final target but keep original hotspot for visuals
@@ -119,7 +119,7 @@ let getSimulationPath = (skipAutoForward: bool): array<pathStep> => {
 
             let stateKey =
               Belt.Int.toString(currentIdx.contents) ++ "->" ++ Belt.Int.toString(targetIdx)
-            if Js.Array.includes(stateKey, visitedStateSet) {
+            if Array.includes(visitedStateSet, stateKey) {
               Logger.warn(
                 ~module_="Simulation",
                 ~message="INFINITE_LOOP_DETECTED",
@@ -131,8 +131,8 @@ let getSimulationPath = (skipAutoForward: bool): array<pathStep> => {
               )
               loop := false
             } else {
-              let _ = Js.Array.push(stateKey, visitedStateSet)
-              let _ = Js.Array.push(stateKey, pathSet)
+              let _ = Array.push(visitedStateSet, stateKey)
+              let _ = Array.push(pathSet, stateKey)
 
               // 1. Update current path obj (activePathObj)
               let transYaw = switch hotspot.viewFrame {
@@ -206,10 +206,10 @@ let getSimulationPath = (skipAutoForward: bool): array<pathStep> => {
                 arrivalView: {yaw: arrivalYaw.contents, pitch: arrivalPitch.contents},
               }
 
-              let _ = Js.Array.push(nextPathObj, path)
+              let _ = Array.push(path, nextPathObj)
               activePathObj := nextPathObj
 
-              let _ = Js.Array.push(targetIdx, localVisited)
+              let _ = Array.push(localVisited, targetIdx)
               currentIdx := targetIdx
               loopCount := loopCount.contents + 1
 

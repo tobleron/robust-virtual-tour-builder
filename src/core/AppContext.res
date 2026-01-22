@@ -23,7 +23,7 @@ module Provider = {
       switch SessionStore.loadState() {
       | Some(s) => {
           ...initialState,
-          tourName: s.tourName == "" ? initialState.tourName : s.tourName,
+          tourName: TourLogic.isUnknownName(s.tourName) ? initialState.tourName : s.tourName,
           activeIndex: s.activeIndex == -1 ? initialState.activeIndex : s.activeIndex,
           activeYaw: s.activeYaw,
           activePitch: s.activePitch,

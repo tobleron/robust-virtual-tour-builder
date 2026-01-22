@@ -46,9 +46,9 @@ let skipAutoForwardChain = (
         loop := false
       } else {
         // This is an auto-forward scene, mark it as visited and continue
-        if !Js.Array.includes(currentLink.contents.targetIndex, visitedScenes) {
+        if !Array.includes(visitedScenes, currentLink.contents.targetIndex) {
           onVisitScene(currentLink.contents.targetIndex)
-          let _ = Js.Array.push(currentLink.contents.targetIndex, skippedScenes)
+          let _ = Array.push(skippedScenes, currentLink.contents.targetIndex)
         }
 
         // Find the next link from this bridge scene

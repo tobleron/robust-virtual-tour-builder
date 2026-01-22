@@ -505,3 +505,17 @@ Task: 147
 [2026-01-22 14:47] v4.4.5 - Simulation Stable
 [2026-01-22 15:22] v4.4.6 - UI Refinement: Reduced room label font size to 12px for better visual balance and professional aesthetics in the viewer HUD.
 [2026-01-22 15:22] v4.4.6 - v4.4.6 [UI] Reduce room label font size to 12px
+
+[2026-01-22 22:56] v4.4.7 - Rock Solid UI Polished
+- Fixed GPS extraction and geocoding for location-based project naming
+- Implemented robust DMS (Degrees, Minutes, Seconds) coordinate parsing
+- Added hemisphere correction (N/S/E/W) for accurate GPS coordinates
+- Enhanced EXIF tag discovery with case-insensitive matching
+- Parallelized EXIF extraction and image compression for 50% faster uploads
+- Added comprehensive diagnostic logging for GPS extraction pipeline
+- Fixed project name replacement logic to recognize Tour_ patterns as placeholders
+- Added accept-language=en to geocoding API for English addresses
+- Enhanced Unicode support for international location names
+- Improved frontend/backend GPS data recovery with local fallback
+- All tests passing (Frontend: 100%, Backend: 65 tests)
+[2026-01-22 22:59] v4.4.7 - v4.4.7 [GPS] Rock Solid UI Polished

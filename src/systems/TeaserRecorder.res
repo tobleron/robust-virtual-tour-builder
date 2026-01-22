@@ -314,7 +314,7 @@ let startRecording = () => {
   | Some(canvas) => {
       let stream = captureStream(canvas, 60)
       let userAgent = ReBindings.Window.navigatorUserAgent
-      let mimeType = if Js.String.includes("Firefox", userAgent) {
+      let mimeType = if String.includes(userAgent, "Firefox") {
         "video/webm;codecs=vp8"
       } else {
         "video/webm;codecs=vp9,opus"
@@ -350,7 +350,7 @@ let startRecording = () => {
               ~data={"size": event["data"]["size"]},
               (),
             )
-            let _ = Js.Array.push(b, internalState.chunks)
+            let _ = Array.push(internalState.chunks, b)
           }
         })
 

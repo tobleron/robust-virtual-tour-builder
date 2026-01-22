@@ -162,7 +162,7 @@ let log = (~module_: string, ~level: level, ~message: string, ~data: 'a=?, ()): 
     data: data->Option.map(castToJson),
   }
 
-  let _ = Js.Array.push(entry, entries)
+  Array.push(entries, entry)
   if Array.length(entries) > maxEntries {
     let _ = Array.shift(entries)
   }
@@ -171,7 +171,7 @@ let log = (~module_: string, ~level: level, ~message: string, ~data: 'a=?, ()): 
   let appLogMsg = `[${timestamp}][${levelToString(
       level,
     )->String.toUpperCase}] [${module_}] ${message}`
-  let _ = Js.Array.push(appLogMsg, appLog)
+  Array.push(appLog, appLogMsg)
   if Array.length(appLog) > maxAppLogEntries {
     let _ = Array.shift(appLog)
   }
@@ -494,7 +494,7 @@ let init = () => {
 
     // Prevent default logging in production to avoid console noise + double logging
     // But allow in localhost for dev convenience
-    if !Js.String.includes("localhost", Window.window["location"]["hostname"]) {
+    if !(Window.window["location"]["hostname"]->String.includes("localhost")) {
       UnhandledRejectionEvent.preventDefault(evt)
     }
   })

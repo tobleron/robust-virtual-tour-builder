@@ -248,28 +248,59 @@ pub fn perform_metadata_extraction_rgba(
         let lon_field = exif.get_field(exif::Tag::GPSLongitude, exif::In::PRIMARY);
         let lon_ref_field = exif.get_field(exif::Tag::GPSLongitudeRef, exif::In::PRIMARY);
 
-        if let (Some(lat), Some(lat_ref), Some(lon), Some(lon_ref)) =
-            (lat_field, lat_ref_field, lon_field, lon_ref_field)
         {
             let parse_gps = |f: &exif::Field| -> Option<f64> {
-                if let exif::Value::Rational(ref dms) = f.value
-                    && dms.len() >= 3
-                {
-                    let d = dms[0].to_f64();
-                    let m = dms[1].to_f64();
-                    let s = dms[2].to_f64();
-                    return Some(d + m / 60.0 + s / 3600.0);
+                match &f.value {
+                    exif::Value::Rational(dms) if dms.len() >= 3 => {
+                        let d = dms[0].to_f64();
+                        let m = dms[1].to_f64();
+                        let s = dms[2].to_f64();
+                        Some(d + m / 60.0 + s / 3600.0)
+                    }
+                    exif::Value::Ascii(strings) if !strings.is_empty() => {
+                        let s = String::from_utf8_lossy(&strings[0]);
+                        // Parse DMS string: "34, 12, 45.6" or similar
+                        let parts: Vec<f64> = s
+                            .split(|c: char| !c.is_digit(10) && c != '.' && c != '-')
+                            .filter_map(|p| p.parse::<f64>().ok())
+                            .collect();
+                        if parts.len() >= 3 {
+                            Some(parts[0] + parts[1] / 60.0 + parts[2] / 3600.0)
+                        } else if !parts.is_empty() {
+                            Some(parts[0])
+                        } else {
+                            None
+                        }
+                    }
+                    _ => None,
                 }
-                None
             };
 
-            if let (Some(mut lat_val), Some(mut lon_val)) = (parse_gps(lat), parse_gps(lon)) {
-                if lat_ref.display_value().to_string().contains('S') {
-                    lat_val = -lat_val;
+            if let (Some(lat_v), Some(lon_v)) =
+                (lat_field.and_then(parse_gps), lon_field.and_then(parse_gps))
+            {
+                let mut lat_val = lat_v;
+                let mut lon_val = lon_v;
+
+                // Apply reference (N/S, E/W)
+                if let Some(ref_f) = lat_ref_field {
+                    let r = ref_f.display_value().to_string().to_uppercase();
+                    if r.contains('S') {
+                        lat_val = -lat_val;
+                    }
+                } else if lat_val < 0.0 {
+                    // Keep negative
                 }
-                if lon_ref.display_value().to_string().contains('W') {
-                    lon_val = -lon_val;
+
+                if let Some(ref_f) = lon_ref_field {
+                    let r = ref_f.display_value().to_string().to_uppercase();
+                    if r.contains('W') {
+                        lon_val = -lon_val;
+                    }
+                } else if lon_val < 0.0 {
+                    // Keep negative
                 }
+
                 gps = Some(GpsData {
                     lat: lat_val,
                     lon: lon_val,

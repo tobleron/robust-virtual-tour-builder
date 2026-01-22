@@ -264,7 +264,7 @@ let drawSimulationArrow = (
               let dist = Math.sqrt(yawDiff.contents *. yawDiff.contents +. pitchDiff *. pitchDiff)
 
               let segment = (dist, yawDiff.contents, pitchDiff, p1, p2)
-              let _ = Js.Array.push(segment, segments)
+              let _ = Array.push(segments, segment)
               totalDistance := totalDistance.contents +. dist
             | _ => ()
             }
