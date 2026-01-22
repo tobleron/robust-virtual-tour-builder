@@ -817,14 +817,6 @@
 │   │           ├── NavigationController_v.test.cmj
 │   │           ├── NavigationController_v.test.cmt
 │   │           ├── NavigationController_v.test.res
-│   │           ├── NavigationController.test.ast
-│   │           ├── NavigationController.test.cmt
-│   │           ├── NavigationControllerTest.ast
-│   │           ├── NavigationControllerTest.bs.js
-│   │           ├── NavigationControllerTest.cmi
-│   │           ├── NavigationControllerTest.cmj
-│   │           ├── NavigationControllerTest.cmt
-│   │           ├── NavigationControllerTest.res
 │   │           ├── NavigationReducerTest.ast
 │   │           ├── NavigationReducerTest.bs.js
 │   │           ├── NavigationReducerTest.cmi
@@ -951,6 +943,12 @@
 │   │           ├── SimulationChainSkipperTest.cmj
 │   │           ├── SimulationChainSkipperTest.cmt
 │   │           ├── SimulationChainSkipperTest.res
+│   │           ├── SimulationDriver_v.test.ast
+│   │           ├── SimulationDriver_v.test.bs.js
+│   │           ├── SimulationDriver_v.test.cmi
+│   │           ├── SimulationDriver_v.test.cmj
+│   │           ├── SimulationDriver_v.test.cmt
+│   │           ├── SimulationDriver_v.test.res
 │   │           ├── SimulationDriverTest.ast
 │   │           ├── SimulationDriverTest.bs.js
 │   │           ├── SimulationDriverTest.cmi
@@ -1368,7 +1366,6 @@
 │   │   ├── NavigationController.cmj
 │   │   ├── NavigationController.cmt
 │   │   ├── NavigationController.res
-│   │   ├── NavigationControllerTest.res
 │   │   ├── NavigationReducer.ast
 │   │   ├── NavigationReducer.cmi
 │   │   ├── NavigationReducer.cmj
@@ -1614,15 +1611,16 @@
 │   │   ├── SimulationChainSkipperTest.cmj
 │   │   ├── SimulationChainSkipperTest.cmt
 │   │   ├── SimulationChainSkipperTest.res
+│   │   ├── SimulationDriver_v.test.ast
+│   │   ├── SimulationDriver_v.test.cmi
+│   │   ├── SimulationDriver_v.test.cmj
+│   │   ├── SimulationDriver_v.test.cmt
+│   │   ├── SimulationDriver_v.test.res
 │   │   ├── SimulationDriver.ast
 │   │   ├── SimulationDriver.cmi
 │   │   ├── SimulationDriver.cmj
 │   │   ├── SimulationDriver.cmt
 │   │   ├── SimulationDriver.res
-│   │   ├── SimulationDriverTest.ast
-│   │   ├── SimulationDriverTest.cmi
-│   │   ├── SimulationDriverTest.cmj
-│   │   ├── SimulationDriverTest.cmt
 │   │   ├── SimulationDriverTest.res
 │   │   ├── SimulationLogic.ast
 │   │   ├── SimulationLogic.cmi
@@ -2545,11 +2543,11 @@
 │   │   ├── 008_add_tests_appcontext_REPORT.md
 │   │   ├── 009_add_tests_uireducer_REPORT.md
 │   │   ├── 010_add_tests_navigationcontroller_REPORT.md
+│   │   ├── 011_add_tests_simulationdriver_REPORT.md
 │   │   └── CONCISE_SUMMARY.md
 │   ├── COMPLETION_SUMMARY.md
 │   ├── current_refactor.md
 │   ├── pending
-│   │   ├── 011_add_tests_simulationdriver.md
 │   │   ├── 012_add_tests_simulationlogic.md
 │   │   ├── 013_add_tests_sessionstore.md
 │   │   ├── 014_add_tests_requestqueue.md
@@ -2669,8 +2667,8 @@
 │       ├── SharedTypesTest.res
 │       ├── SimulationChainSkipperTest.bs.js
 │       ├── SimulationChainSkipperTest.res
-│       ├── SimulationDriverTest.bs.js
-│       ├── SimulationDriverTest.res
+│       ├── SimulationDriver_v.test.bs.js
+│       ├── SimulationDriver_v.test.res
 │       ├── SimulationLogicTest.bs.js
 │       ├── SimulationLogicTest.res
 │       ├── SimulationNavigationTest.bs.js
@@ -2717,4 +2715,4 @@
 │       └── VitestSmoke.test.res
 └── vitest.config.mjs
 
-91 directories, 2627 files
+91 directories, 2625 files
