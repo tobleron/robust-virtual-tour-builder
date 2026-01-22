@@ -97,27 +97,26 @@
     height: 40px;
     padding: 0 12px;
     gap: 8px;
-    font-weight: 700;
-    text-transform: uppercase;
+    font-weight: 400;
     letter-spacing: 0.05em;
     font-size: 11px;
 }
 
 .sidebar-action-btn-square:hover,
-.sidebar-action-btn-wide:hover:not(:disabled) {
+.sidebar-action-btn-wide:hover {
     background: rgba(255, 255, 255, 0.15);
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
-    border-color: rgba(255, 255, 255, 0.2);
+    border-color: var(--danger) !important;
 }
 
 /* Viewer Utility Buttons Popper Effect (matches floor-nav) */
 .v-util-btn {
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    box-shadow: 1px 1px 1px #000 !important;
+    box-shadow: 1px 1px 1px black !important;
 }
 
 .v-util-btn:hover:not(:disabled) {
     transform: scale(1.05) translateY(-2px) !important;
-    box-shadow: 2px 2px 1px #000 !important;
+    box-shadow: 2px 2px 1px black !important;
 }

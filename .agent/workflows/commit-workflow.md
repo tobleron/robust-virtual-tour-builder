@@ -23,10 +23,12 @@ Follow these steps when you are ready to commit your changes.
 
 ## 2. Versioning & Documentation
 1. **Increment Version**: 
-   - Update `src/version.js`. Increment the patch version.
+   - Update `package.json`. Increment the patch version.
    - *Convention*: When Z reaches 9, increment Y and reset Z (e.g., `v4.9.9` → `v4.10.0`).
+   - Run `node scripts/update-version.js` to sync the version to `src/utils/VersionData.res` and other files.
 2. **Cache Busting**: 
-   - Update `index.html`. Update the version query string (e.g., `style.css?v=4.0.1`) to match the new version.
+   - Rsbuild handles content-based hashing automatically for assets.
+   - For manual cache busting, `scripts/update-version.js` updates `index.html` with the version query string where applicable.
 3. **Log Changes**: 
    - Append a summary to `logs/log_changes.txt`.
    - Format: `[YYYY-MM-DD HH:MM] vX.Y.Z - Summary`
@@ -43,8 +45,8 @@ Follow these steps when you are ready to commit your changes.
 2. **Commit Message**: Use the format `vX.Y.Z [System/Feature] Description`.
    - Example: `git commit -m "v4.1.6 [Navigation] Fix coordinate wrap-around"`
 3. **Verification Checklist**:
-   - [ ] `src/version.js` updated
-   - [ ] `index.html` cache busting updated
+   - [ ] `package.json` updated
+   - [ ] `src/utils/VersionData.res` updated (via `node scripts/update-version.js`)
    - [ ] `logs/log_changes.txt` updated
    - [ ] No raw `console.log` statements
    - [ ] New modules use Logger system

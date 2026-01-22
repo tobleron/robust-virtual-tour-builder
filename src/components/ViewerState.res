@@ -14,7 +14,6 @@ type t = {
   mutable lastSceneId: Nullable.t<string>,
   mutable lastHotspotCount: int,
   mutable lastIsLinking: bool,
-  mutable lastCategory: string,
   mutable lastFloor: string,
   mutable lastAppliedYaw: Nullable.t<float>,
   mutable lastAppliedPitch: Nullable.t<float>,
@@ -31,6 +30,7 @@ type t = {
   mutable lastMoveTime: float,
   mutable mouseVelocityX: float,
   mutable mouseVelocityY: float,
+  mutable isSwapping: bool, // Lock flag to prevent render updates during viewer swaps
 }
 
 let state = {
@@ -54,7 +54,6 @@ let state = {
   lastSceneId: Nullable.null,
   lastHotspotCount: 0,
   lastIsLinking: false,
-  lastCategory: "indoor",
   lastFloor: "ground",
   lastAppliedYaw: Nullable.null,
   lastAppliedPitch: Nullable.null,
@@ -71,6 +70,7 @@ let state = {
   lastMoveTime: 0.0,
   mouseVelocityX: 0.0,
   mouseVelocityY: 0.0,
+  isSwapping: false,
 }
 
 let getActiveViewer = () => {

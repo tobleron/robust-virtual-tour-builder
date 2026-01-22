@@ -55,7 +55,7 @@ let showLinkModal = (
         } else {
           ""
         }
-        let style = "background: #1e293b;"
+        let style = "background: var(--slate-800);"
         `<option value="${safeName}" ${selectedStr} style="${style}">${safeName}</option>`
       }
     })
@@ -68,7 +68,7 @@ let showLinkModal = (
           style="width: 100%; height: 44px; padding: 0 36px 0 12px; margin-bottom: 16px; background-color: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; color: white; font-weight: 600; font-size: 13px; outline: none; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml,%3Csvg fill%3D%22%23ffffff%22 height%3D%2224%22 viewBox%3D%220 0 24 24%22 width%3D%2224%22 xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath d%3D%22M7 10l5 5 5-5z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 10px center; background-size: 20px;"
           aria-label="Select destination room for navigation link"
         >
-            <option value="" style="background: #1e293b;">-- Select Room --</option>
+            <option value="" style="background: var(--slate-800);">-- Select Room --</option>
             ${sceneOptions}
         </select>
   `
@@ -177,6 +177,7 @@ let showLinkModal = (
           GlobalStateBridge.dispatch(Actions.StopLinking)
         },
       ),
+      className: None,
       buttons: [
         {
           label: "Save Link",

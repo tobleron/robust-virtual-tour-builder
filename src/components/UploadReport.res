@@ -40,55 +40,50 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
     }
 
     /* HTML Generation */
-    let renderGroup = (label, count, color, icon) => {
-      `<div style="background: white; border: 1px solid #f1f5f9; padding: 8px 4px; border-radius: 10px; text-align: center;">
-         <div style="font-size: 14px; margin-bottom: 1px;">${icon}</div>
-         <div style="font-size: 14px; font-weight: 800; color: ${color}">${Int.toString(
-          count,
-        )}</div>
-         <div style="font-size: 8px; font-weight: 700; color: #64748b; text-transform: uppercase;">${label}</div>
+    let renderGroup = (label, count, className, icon) => {
+      `<div class="upload-report-group">
+         <div class="upload-report-icon">${icon}</div>
+         <div class="upload-report-count ${className}">${Int.toString(count)}</div>
+         <div class="upload-report-label">${label}</div>
        </div>`
     }
 
-    let htmlStart = `<div style="background: #f8fafc; border-radius: 12px; padding: 14px; border: 1px solid #e2e8f0; margin-bottom: 16px; text-align: left;">
-       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-          <div style="font-weight: 800; color: #1e293b; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em;">Batch Health</div>
-          <div style="font-size: 18px; font-weight: 900; color: #0f172a;">${Float.toFixed(
+    let htmlStart = `<div class="upload-report-card">
+       <div class="upload-report-header">
+          <div class="upload-report-title">Batch Health</div>
+          <div class="upload-report-score">${Float.toFixed(
         avgScore.contents,
         ~digits=1,
-      )} <span style="font-size: 10px; color: #475569; font-weight: 500;">/ 10</span></div>
+      )} <span class="upload-report-score-total">/ 10</span></div>
        </div>
        
-       <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
-          ${renderGroup("Excellent", Array.length(groups.ex), "#047857", "🌟")}
-          ${renderGroup("Moderate", Array.length(groups.md), "#b45309", "📈")}
-          ${renderGroup("Review", Array.length(groups.pr), "#dc2626", "⚠️")}
+       <div class="upload-report-grid">
+          ${renderGroup("Excellent", Array.length(groups.ex), "text-success", "🌟")}
+          ${renderGroup("Moderate", Array.length(groups.md), "text-warning", "📈")}
+          ${renderGroup("Review", Array.length(groups.pr), "text-danger", "⚠️")}
        </div>
     </div>`
 
     let htmlAction = if Array.length(groups.pr) > 0 {
       let itemsHtml = Belt.Array.map(groups.pr, r => {
         let analysis = switch Nullable.toOption(r.quality.analysis) {
-        | Some(a) =>
-          `<div style="font-size: 9px; color: #b91c1c; line-height: 1.2; margin-top: 2px;">${a}</div>`
+        | Some(a) => `<div class="upload-report-analysis">${a}</div>`
         | None => ""
         }
-        `<div style="padding: 8px 10px; background: #fff1f2; border-radius: 8px; border: 1px solid #fecaca;">
-              <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-                <span style="font-family: monospace; font-size: 10px; font-weight: 700; color: #991b1b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${r.newName}</span>
-                <span style="font-weight: 900; color: #ef4444; font-size: 12px; flex-shrink: 0;">${Float.toString(
-            r.quality.score,
-          )}</span>
+        `<div class="upload-report-item">
+              <div class="upload-report-item-header">
+                <span class="upload-report-filename">${r.newName}</span>
+                <span class="upload-report-item-score">${Float.toString(r.quality.score)}</span>
               </div>
               ${analysis}
             </div>`
       })->Js.Array.joinWith("", _)
 
-      `<div style="margin-bottom: 16px; text-align: left;">
-        <div style="font-weight: 800; color: #991b1b; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; display: flex; align-items: center; gap: 4px;">
+      `<div class="upload-report-action-container">
+        <div class="upload-report-action-title">
           🚩 Action Required (${Int.toString(Array.length(groups.pr))})
         </div>
-        <div style="display: flex; flex-direction: column; gap: 5px; max-height: 120px; overflow-y: auto; padding-right: 2px;">
+        <div class="upload-report-action-list">
           ${itemsHtml}
         </div>
       </div>`
@@ -97,9 +92,9 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
     }
 
     let htmlSkipped = if Array.length(report.skipped) > 0 {
-      `<div style="margin-bottom: 20px; text-align: center;">
-           <div style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: #f1f5f9; border-radius: 20px; font-size: 10px; font-weight: 700; color: #64748b; border: 1px solid #e2e8f0;">
-             <span style="font-size: 12px;">📑</span> ${Int.toString(
+      `<div class="upload-report-skipped-container">
+           <div class="upload-report-skipped-badge">
+             <span class="upload-report-skipped-icon">📑</span> ${Int.toString(
           Array.length(report.skipped),
         )} Duplicates Skipped
            </div>
@@ -134,12 +129,17 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
     let btnStart: EventBus.button = {
       label: "Start Building",
       class_: "btn-blue",
-      onClick: () => (),
+      onClick: () => {
+        let state = GlobalStateBridge.getState()
+        if Array.length(state.scenes) > 0 {
+          GlobalStateBridge.dispatch(Actions.SetActiveScene(0, 0.0, 0.0, None))
+        }
+      },
       autoClose: Some(true),
     }
 
     /* iconHtml support removed from typed ModalConfig, merging into contentHtml or ignoring */
-    let finalHtml = switch Some(`<div style="font-size: 48px; margin-bottom: 8px;">✨</div>`) {
+    let finalHtml = switch Some(`<div class="upload-report-main-icon">✨</div>`) {
     | Some(icon) => icon ++ contentHtml
     | None => contentHtml
     }
@@ -152,6 +152,7 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
       buttons: [btnDownload, btnStart],
       onClose: None,
       allowClose: Some(true),
+      className: Some("modal-blue"),
     }
     EventBus.dispatch(ShowModal(options))
   }

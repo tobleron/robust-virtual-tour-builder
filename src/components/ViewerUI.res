@@ -7,14 +7,9 @@ open EventBus
 // Removed SimulationSystem direct binding
 // module SimulationSystem = ...
 
-module LabelMenu = {
-  @module("./LabelMenu.bs.js")
-  external toggleLabelMenu: Dom.element => unit = "toggleLabelMenu"
-  @module("./LabelMenu.bs.js")
-  external createLabelMenu: (Nullable.t<Dom.element>, Dom.element) => unit = "createLabelMenu"
-  @module("./LabelMenu.bs.js")
-  external syncLabelMenu: 'a => unit = "syncLabelMenu"
-}
+// Obsolete legacy bindings removed
+
+// Floor Levels
 
 // Floor Levels
 type floorLevel = {
@@ -22,6 +17,12 @@ type floorLevel = {
   label: string,
   short: string,
   suffix: string,
+}
+
+type hotspotMenuInfo = {
+  anchor: Dom.element,
+  hotspot: Types.hotspot,
+  index: int,
 }
 
 let floorLevels = [
@@ -73,9 +74,36 @@ let make = () => {
   let dispatch = AppContext.useAppDispatch()
   let simActive = state.simulation.status == Running
 
-  // Standard Dom.element ref
-  let labelBtnRef = React.useRef(Nullable.null)
+  // Derived state for display
+  let currentCategory = if state.activeIndex >= 0 {
+    switch Belt.Array.get(state.scenes, state.activeIndex) {
+    | Some(s) =>
+      if s.category == "" {
+        "outdoor"
+      } else {
+        s.category
+      }
+    | None => "outdoor"
+    }
+  } else {
+    "outdoor"
+  }
 
+  let currentFloor = if state.activeIndex >= 0 {
+    switch Belt.Array.get(state.scenes, state.activeIndex) {
+    | Some(s) =>
+      if s.floor == "" {
+        "ground"
+      } else {
+        s.floor
+      }
+    | None => ""
+    }
+  } else {
+    ""
+  }
+
+  let (hotspotMenu, setHotspotMenu) = React.useState(_ => None)
   // Processing UI state
   let (_procState, setProcState) = React.useState(_ =>
     {
@@ -120,21 +148,29 @@ let make = () => {
           ) // 3 seconds delay for floating UI
           hideTimerRef.current = Nullable.fromOption(Some(timerId))
         }
+      | OpenHotspotMenu(payload) =>
+        setHotspotMenu(
+          _ => Some({
+            anchor: payload["anchor"],
+            hotspot: payload["hotspot"],
+            index: payload["index"],
+          }),
+        )
       | _ => ()
       }
     })
-    Some(unsubscribe)
+
+    Some(
+      () => {
+        unsubscribe()
+      },
+    )
   })
 
-  // Sync Label Menu when activeIndex changes
+  // Sync Label Menu state when activeIndex changes
   React.useEffect1(() => {
-    if state.activeIndex >= 0 {
-      switch Belt.Array.get(state.scenes, state.activeIndex) {
-      | Some(s) =>
-        LabelMenu.syncLabelMenu(Logger.castToJson({"label": s.label, "category": s.category}))
-      | None => ()
-      }
-    }
+    // LabelMenu internal state syncs with currentScene label
+    setHotspotMenu(_ => None)
     None
   }, [state.activeIndex])
 
@@ -148,21 +184,6 @@ let make = () => {
   // Simulation status is now in state.simulation.status
 
   React.useEffect0(() => {
-    // Initialize Label Menu if ref exists
-    switch Nullable.toOption(labelBtnRef.current) {
-    | Some(el) =>
-      LabelMenu.createLabelMenu(Nullable.null, el)
-
-      // Initial Sync
-      if state.activeIndex >= 0 {
-        switch Belt.Array.get(state.scenes, state.activeIndex) {
-        | Some(s) =>
-          LabelMenu.syncLabelMenu(Logger.castToJson({"label": s.label, "category": s.category}))
-        | None => ()
-        }
-      }
-    | None => ()
-    }
     None
   })
 
@@ -204,24 +225,16 @@ let make = () => {
 
   let handleCatClick = e => {
     JsxEvent.Mouse.stopPropagation(e)
+
     let activeIdx = state.activeIndex
+
     if activeIdx >= 0 {
-      let scenes = state.scenes
-      let current = switch Belt.Array.get(scenes, activeIdx) {
-      | Some(s) =>
-        if s.category == "" {
-          "indoor"
-        } else {
-          s.category
-        }
-      | None => "indoor"
-      }
-      let newCat = if current == "indoor" {
+      let newCat = if currentCategory == "indoor" {
         "outdoor"
       } else {
         "indoor"
       }
-      // Store.store.updateSceneMetadata(activeIdx, Obj.magic({"category": newCat}))
+
       dispatch(Actions.UpdateSceneMetadata(activeIdx, Logger.castToJson({"category": newCat})))
 
       EventBus.dispatch(
@@ -231,11 +244,7 @@ let make = () => {
           } else {
             "Category: OUTDOOR"
           },
-          if newCat == "indoor" {
-            #Warning
-          } else {
-            #Success
-          },
+          #Warning,
         ),
       )
     }
@@ -290,35 +299,6 @@ let make = () => {
     }
   }
 
-  // Derived state for display
-  let currentCategory = if state.activeIndex >= 0 {
-    switch Belt.Array.get(state.scenes, state.activeIndex) {
-    | Some(s) =>
-      if s.category == "" {
-        "indoor"
-      } else {
-        s.category
-      }
-    | None => ""
-    }
-  } else {
-    ""
-  }
-
-  let currentFloor = if state.activeIndex >= 0 {
-    switch Belt.Array.get(state.scenes, state.activeIndex) {
-    | Some(s) =>
-      if s.floor == "" {
-        "ground"
-      } else {
-        s.floor
-      }
-    | None => ""
-    }
-  } else {
-    ""
-  }
-
   // Render
   <>
     // Static Elements managed by JS
@@ -339,152 +319,130 @@ let make = () => {
         }
 
       <div id="viewer-utility-bar" className={utilBarClass}>
-        <button
-          id="btn-add-link-fab"
-          className={"v-util-btn w-[32px] h-[32px] rounded-full flex items-center justify-center bg-primary text-white hover:bg-primary-light " ++ if (
-            simActive
-          ) {
-            "opacity-40 pointer-events-none"
+        <Tooltip
+          alignment=#Right
+          content={if state.isLinking {
+            "Close Link Mode"
           } else {
-            ""
+            "Add Link"
           }}
-          style={makeStyle({
-            "backgroundColor": if !scenesLoaded {
-              "#64748b"
-            } else if state.isLinking {
-              "#ffcc00"
-            } else {
-              "#dc3545"
-            },
-            "color": if state.isLinking {
-              "black"
-            } else {
-              "white"
-            },
-            "fontSize": "20px",
-            "fontWeight": "bold",
-          })}
-          onClick={handleFabClick}
-          ariaLabel="Add Link"
-          title="Add Link"
+          disabled={state.isLinking}
         >
-          {React.string(
-            if state.isLinking {
-              "×"
+          <Shadcn.Button
+            size="icon"
+            variant={if !scenesLoaded {
+              "secondary"
+            } else if state.isLinking {
+              "accent"
             } else {
-              "+"
-            },
-          )}
-        </button>
+              "destructive"
+            }}
+            className="w-[32px] h-[32px] rounded-full text-[20px] font-bold border border-transparent hover:border-[#0e2d52]"
+            onClick={handleFabClick}
+          >
+            {if state.isLinking {
+              <LucideIcons.X size=20 strokeWidth=3 />
+            } else {
+              <LucideIcons.Plus size=20 strokeWidth=3 />
+            }}
+          </Shadcn.Button>
+        </Tooltip>
 
-        <button
-          id="v-scene-sim-toggle"
-          className={"v-util-btn w-[32px] h-[32px] text-white rounded-full font-ui flex items-center justify-center " ++ if (
-            simActive
-          ) {
-            "animate-pulse-stop"
-          } else {
-            ""
-          }}
-          style={makeStyle({
-            "backgroundColor": if !scenesLoaded {
-              "#64748b"
-            } else if simActive {
-              "#dc3545"
-            } else {
-              "#10b981"
-            },
-          })}
-          onClick={handleSimClick}
-          ariaLabel="Auto-Pilot"
-          title={if simActive {
+        <Tooltip
+          alignment=#Right
+          content={if simActive {
             "Stop Auto-Pilot"
           } else {
             "Start Auto-Pilot"
           }}
+          disabled={state.isLinking}
         >
-          <span
-            className="material-icons" style={makeStyle({"fontSize": "18px", "color": "white"})}
+          <Shadcn.Button
+            size="icon"
+            variant={if !scenesLoaded {
+              "secondary"
+            } else {
+              "destructive"
+            }}
+            className="w-[32px] h-[32px] rounded-full border border-transparent hover:border-[#0e2d52]"
+            onClick={handleSimClick}
+            disabled={state.isLinking}
           >
-            {React.string(
-              if simActive {
-                "stop"
-              } else {
-                "play_arrow"
-              },
-            )}
-          </span>
-        </button>
+            {if simActive {
+              <LucideIcons.Square size=18 strokeWidth=3 />
+            } else {
+              <LucideIcons.Play size=18 strokeWidth=3 />
+            }}
+          </Shadcn.Button>
+        </Tooltip>
 
-        <button
-          id="v-scene-cat-toggle"
-          className={"v-util-btn w-[32px] h-[32px] text-white rounded-full flex items-center justify-center " ++ if (
-            simActive
-          ) {
-            "pointer-events-none"
-          } else {
-            ""
-          }}
-          style={makeStyle({
-            "backgroundColor": if scenesLoaded && state.activeIndex >= 0 {
-              switch Belt.Array.get(state.scenes, state.activeIndex) {
-              | Some(s) =>
-                if s.categorySet {
-                  if s.category == "outdoor" {
-                    "#15803d"
-                  } else {
-                    "#c2410c"
-                  }
+        <Tooltip content="Toggle Category" alignment=#Right disabled={state.isLinking}>
+          <Shadcn.Button
+            size="icon"
+            variant={if !scenesLoaded {
+              "secondary"
+            } else {
+              "destructive"
+            }}
+            className="w-[32px] h-[32px] rounded-full border border-transparent hover:border-[#0e2d52]"
+            onClick={handleCatClick}
+            disabled={state.isLinking}
+          >
+            {if currentCategory == "indoor" {
+              <LucideIcons.Home size=18 strokeWidth=3 />
+            } else {
+              <LucideIcons.Sun size=18 strokeWidth=3 />
+            }}
+          </Shadcn.Button>
+        </Tooltip>
+
+        <Shadcn.DropdownMenu>
+          <Tooltip content="Scene Label Preset" alignment=#Right disabled={state.isLinking}>
+            <Shadcn.DropdownMenu.Trigger asChild=true>
+              <Shadcn.Button
+                size="icon"
+                variant={if !scenesLoaded {
+                  "secondary"
                 } else {
-                  "#dc3545"
-                }
-              | None => "#dc3545"
-              }
-            } else {
-              "#64748b" // Neutral gray when no scenes
-            },
-          })}
-          onClick={handleCatClick}
-          ariaLabel="Toggle Category"
-          title="Toggle Category"
-        >
-          <span
-            className="material-icons" style={makeStyle({"fontSize": "18px", "color": "white"})}
+                  "destructive"
+                }}
+                className="w-[32px] h-[32px] rounded-full text-[18px] font-bold border border-transparent hover:border-[#0e2d52]"
+                disabled={state.isLinking}
+              >
+                <LucideIcons.Hash size=18 strokeWidth=3 />
+              </Shadcn.Button>
+            </Shadcn.DropdownMenu.Trigger>
+          </Tooltip>
+          <Shadcn.DropdownMenu.Content
+            side="right"
+            align="start"
+            sideOffset=12
+            className="p-0 bg-white rounded-2xl shadow-2xl border border-slate-200 z-[30000]"
           >
-            {React.string(
-              if currentCategory == "indoor" {
-                "home"
-              } else if currentCategory == "outdoor" {
-                "park"
-              } else {
-                "category"
-              },
-            )}
-          </span>
-        </button>
+            <LabelMenu onClose={() => ()} />
+          </Shadcn.DropdownMenu.Content>
+        </Shadcn.DropdownMenu>
 
-        <button
-          id="v-scene-label-btn"
-          ref={ReactDOM.Ref.domRef(labelBtnRef)}
-          className={"v-util-btn w-[32px] h-[32px] text-white rounded-full font-ui text-[18px] font-bold flex items-center justify-center relative z-[6000] " ++ if (
-            simActive
-          ) {
-            "pointer-events-none"
-          } else {
-            "pointer-events-auto"
-          }}
-          style={makeStyle({
-            "backgroundColor": if scenesLoaded {
-              "#dc3545"
-            } else {
-              "#64748b"
-            },
-          })}
-          ariaLabel="Scene Label"
-          title="Scene Label"
-        >
-          {React.string("#")}
-        </button>
+        {switch hotspotMenu {
+        | Some(menu) =>
+          <Shadcn.Popover
+            open_={true}
+            onOpenChange={isOpen =>
+              if !isOpen {
+                setHotspotMenu(_ => None)
+              }}
+          >
+            <Shadcn.Popover.Anchor virtualRef={menu.anchor} />
+            <Shadcn.Popover.Content
+              side="top" sideOffset=12 className="p-0 border-none shadow-none z-[30000]"
+            >
+              <HotspotActionMenu
+                hotspot={menu.hotspot} index={menu.index} onClose={() => setHotspotMenu(_ => None)}
+              />
+            </Shadcn.Popover.Content>
+          </Shadcn.Popover>
+        | None => React.null
+        }}
       </div>
     }
 
@@ -501,12 +459,10 @@ let make = () => {
 
       <div
         id="v-scene-persistent-label"
-        className={"absolute top-8 left-1/2 -translate-x-1/2 z-[6005] bg-blue-600/80 backdrop-blur-md text-white px-3 py-1.5 rounded-2xl text-[12px] font-black uppercase shadow-2xl flex items-center justify-center transition-all duration-500 pointer-events-none border border-white/10 tracking-widest " ++ if (
-          currentLabel != ""
-        ) {
-          "opacity-100 translate-y-0 scale-100"
+        className={"viewer-persistent-label " ++ if currentLabel != "" {
+          "state-visible"
         } else {
-          "opacity-0 -translate-y-4 scale-90 hidden"
+          "state-hidden"
         }}
       >
         {React.string("#" ++ currentLabel)}
@@ -528,14 +484,14 @@ let make = () => {
         let q: SharedTypes.qualityAnalysis = Obj.magic(qJson)
         let b = []
         if q.isBlurry {
-          let _ = Js.Array.push({"text": "BLURRY", "bg": "#dc2626"}, b)
+          let _ = Js.Array.push({"text": "BLURRY", "cls": "q-blurry"}, b)
         } else if q.isSoft {
-          let _ = Js.Array.push({"text": "SOFT", "bg": "#d97706"}, b)
+          let _ = Js.Array.push({"text": "SOFT", "cls": "q-soft"}, b)
         }
         if q.isSeverelyDark {
-          let _ = Js.Array.push({"text": "DARK", "bg": "#0f172a"}, b)
+          let _ = Js.Array.push({"text": "DARK", "cls": "q-dark"}, b)
         } else if q.isDim {
-          let _ = Js.Array.push({"text": "DIM", "bg": "#64748b"}, b)
+          let _ = Js.Array.push({"text": "DIM", "cls": "q-dim"}, b)
         }
         b
       | None => []
@@ -553,11 +509,7 @@ let make = () => {
       >
         {badges
         ->Belt.Array.map(b => {
-          <span
-            key={b["text"]}
-            className="text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm opacity-90"
-            style={makeStyle({"background": b["bg"]})}
-          >
+          <span key={b["text"]} className={`quality-badge ${b["cls"]}`}>
             {React.string(b["text"])}
           </span>
         })
@@ -568,8 +520,7 @@ let make = () => {
     /* Viewer Logo */
     <div
       id="viewer-logo"
-      className="absolute bottom-6 right-6 z-[5002] bg-white rounded-xl shadow-xl p-[4px] flex items-center justify-center max-w-[120px] max-h-[60px] border border-black/5 overflow-hidden"
-      style={makeStyle({"WebkitMaskImage": "-webkit-radial-gradient(white, black)"})}
+      className="absolute bottom-6 right-6 z-[5002] bg-white rounded-xl shadow-xl p-[4px] flex items-center justify-center max-w-[120px] max-h-[60px] border border-black/5 overflow-hidden viewer-logo-masked"
     >
       <img src="images/logo.png" alt="Logo" className="w-full h-auto object-contain block" />
     </div>
@@ -578,27 +529,16 @@ let make = () => {
     /* Linking Hint */
     <div
       id="linking-cancel-hint"
-      className={"absolute bottom-10 left-1/2 -translate-x-1/2 translate-y-2 z-[9999] flex flex-col items-center gap-1 transition-all duration-400 text-center pointer-events-none " ++ if (
+      className={"absolute bottom-10 left-1/2 -translate-x-1/2 translate-y-2 z-[9999] flex flex-col items-center gap-1 transition-all duration-400 text-center pointer-events-none linking-hint-text " ++ if (
         state.isLinking
       ) {
         "opacity-100 translate-y-2"
       } else {
         "opacity-0 translate-y-4 hidden"
       }}
-      style={makeStyle({
-        "fontFamily": "var(--font-ui, 'Inter', system-ui, sans-serif)",
-        "fontSize": "11px",
-        "fontWeight": "800",
-        "textTransform": "uppercase",
-        "letterSpacing": "0.25em",
-        "textShadow": "0 2px 8px rgba(0, 0, 0, 0.6)",
-        "color": "white",
-      })}
     >
       <span> {React.string("ESC to Cancel")} </span>
-      <span style={makeStyle({"fontSize": "10px", "opacity": "0.8"})}>
-        {React.string("ENTER to Finish")}
-      </span>
+      <span className="linking-hint-subtext"> {React.string("ENTER to Finish")} </span>
     </div>
 
     /* Floor Navigation */
@@ -619,34 +559,28 @@ let make = () => {
         ->Belt.Array.map(f => {
           let isSelected = scenesLoaded && f.id == currentFloor
 
-          <div
-            key={f.id}
-            className={"floor-circle w-[32px] h-[32px] rounded-full border-2 border-transparent flex items-center justify-center font-ui text-[13px] font-bold cursor-pointer transition-all " ++ if (
-              isSelected
-            ) {
-              "bg-floor-active text-white bg-primary scale-110 z-10"
-            } else {
-              "bg-floor-default text-white hover:text-white"
-            }}
-            style={makeStyle({
-              "boxShadow": if isSelected {
-                "0 0 12px rgba(0, 61, 165, 0.5)"
+          <Tooltip key={f.id} content={f.label} alignment=#Right disabled={state.isLinking}>
+            <Shadcn.Button
+              size="icon"
+              variant="ghost"
+              className={"w-8 h-8 min-w-8 min-h-8 rounded-full text-[15px] font-medium opacity-100 transition-all " ++ if (
+                isSelected
+              ) {
+                "border-2 border-danger bg-[#0e2d52] text-white hover:bg-[#0e2d52] hover:text-white"
               } else {
-                "1px 1px 1px #000"
-              },
-            })}
-            onClick={e => handleFloorClick(f.id, f.label, e)}
-            title={f.label}
-          >
-            {React.string(f.short)}
-            {if f.suffix != "" {
-              <sup style={makeStyle({"fontSize": "9px", "marginLeft": "1px"})}>
-                {React.string(f.suffix)}
-              </sup>
-            } else {
-              React.null
-            }}
-          </div>
+                "border border-white/20 hover:border-danger bg-[#0e2d52]/80 text-white hover:bg-[#0e2d52] hover:text-white"
+              }}
+              onClick={e => handleFloorClick(f.id, f.label, e)}
+              disabled={state.isLinking}
+            >
+              {React.string(f.short)}
+              {if f.suffix != "" {
+                <sup className="text-[10px] -ml-1"> {React.string(f.suffix)} </sup>
+              } else {
+                React.null
+              }}
+            </Shadcn.Button>
+          </Tooltip>
         })
         ->React.array}
       </div>

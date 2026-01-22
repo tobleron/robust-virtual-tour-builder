@@ -70,7 +70,7 @@ let {result, durationMs} = Logger.timed(~module_="Export", ~operation="COMPRESS"
 
 | File | Purpose |
 |------|---------|
-| `docs/LOGGING_ARCHITECTURE.md` | Full architecture documentation |
+| `docs/ARCHITECTURE.md` | Full architecture documentation |
 | `.agent/workflows/debug-standards.md` | Updated workflow |
 | `src/utils/Logger.res` | Type-safe ReScript logger module |
 | `src/utils/Debug.js` | Added `perf()` and `appendToErrorLog()` |

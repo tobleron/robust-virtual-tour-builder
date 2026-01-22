@@ -6,7 +6,7 @@ description: Debugging and Logging Standards
 
 Follow these standards to ensure consistent logging and observational capabilities across the project.
 
-> 📖 **Full Architecture**: See `docs/LOGGING_ARCHITECTURE.md` for complete details.
+> 📖 **Full Architecture**: See `docs/ARCHITECTURE.md` for complete details.
 
 ---
 

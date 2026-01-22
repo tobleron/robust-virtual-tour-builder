@@ -66,7 +66,9 @@ module Inner = {
 let make = () => {
   <AppContext.Provider>
     <RemaxErrorBoundary>
-      <Inner />
+      <Shadcn.Tooltip.Provider>
+        <Inner />
+      </Shadcn.Tooltip.Provider>
     </RemaxErrorBoundary>
   </AppContext.Provider>
 }

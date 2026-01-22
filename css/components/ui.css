@@ -63,6 +63,10 @@
     max-width: 400px;
 }
 
+.toast-icon {
+    font-size: 20px;
+}
+
 .toast.show {
     opacity: 1;
     transform: translateX(0);
@@ -81,4 +85,63 @@
 .toast.warning {
     border-left-color: var(--warning);
     background: rgba(69, 26, 3, 0.8);
+}
+
+/* Sidebar Branding & UI */
+.sidebar-branding-header {
+    background: #0e2d52 !important;
+}
+
+.sidebar-branding-icon {
+    font-size: 32px !important;
+}
+
+.sidebar-branding-title {
+    font-size: 16px !important;
+    letter-spacing: 0.15em !important;
+}
+
+.sidebar-upload-btn {
+    background-color: var(--danger) !important;
+}
+
+.sidebar-progress-fill {
+    background-color: var(--primary);
+}
+
+.sidebar-version-line {
+    font-family: var(--font-mono);
+    font-weight: 400 !important;
+}
+
+.sidebar-icon-teaser {
+    color: var(--purple-brand) !important;
+}
+
+/* Sidebar Project Name Input */
+.sidebar-project-input {
+    width: 100%;
+    padding: 0 0.75rem;
+    height: 2.5rem;
+    background-color: var(--slate-50);
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-md);
+    font-family: var(--font-ui);
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--slate-800);
+    transition: all var(--transition-fast) ease-in-out;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.sidebar-project-input::placeholder {
+    color: var(--slate-300);
+}
+
+.sidebar-project-input:focus {
+    outline: none;
+    border-color: var(--slate-500);
+    background-color: #ffffff;
 }

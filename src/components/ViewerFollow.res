@@ -130,25 +130,28 @@ let rec updateFollowLoop = () => {
       }
 
       // HotspotLine Update
-      let mouseEvent = switch Nullable.toOption(state.lastMouseEvent) {
-      | Some(e) => Some(e)
-      | None => None
-      }
-
-      switch Nullable.toOption(viewer) {
-      | Some(v) =>
-        try {
-          HotspotLine.updateLines(v, storeState, ~mouseEvent?, ())
-        } catch {
-        | e =>
-          Logger.error(
-            ~module_="ViewerFollow",
-            ~message="UPDATE_LINES_ERROR",
-            ~data=Some(Obj.magic(e)),
-            (),
-          )
+      // Skip updates during viewer swap to prevent race condition
+      if !state.isSwapping {
+        let mouseEvent = switch Nullable.toOption(state.lastMouseEvent) {
+        | Some(e) => Some(e)
+        | None => None
         }
-      | None => ()
+
+        switch Nullable.toOption(viewer) {
+        | Some(v) =>
+          try {
+            HotspotLine.updateLines(v, storeState, ~mouseEvent?, ())
+          } catch {
+          | e =>
+            Logger.error(
+              ~module_="ViewerFollow",
+              ~message="UPDATE_LINES_ERROR",
+              ~data=Some(Obj.magic(e)),
+              (),
+            )
+          }
+        | None => ()
+        }
       }
 
       let _ = Window.requestAnimationFrame(updateFollowLoop)

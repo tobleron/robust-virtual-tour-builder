@@ -427,3 +427,77 @@ Task: 147
 [2026-01-20 14:34] v4.3.3 - Refine shine animation speed and hide debug badge
 [2026-01-20 14:40] v4.3.4 - UI Relatively Stable
 [2026-01-20 21:01] v4.3.4 - Awesome Sidebar UI
+[2026-01-20 22:38] v4.3.5 - Refine sidebar typography and teaser button iconography
+- Changed version line to monospace font for better technical legibility
+- Added premium purple-brand color (#7c3aed) to design system
+- Updated Teaser button icon to use new purple brand color for better visual distinction
+
+[2026-01-20 22:45] v4.3.6 - Refine project name input styling
+- Replaced utility classes with semantic .sidebar-project-input class
+- Removed blue focus ring in favor of a neutral slate border
+- Eliminated focus shadows for a cleaner, premium minimal aesthetic
+[2026-01-20 22:47] v4.3.6 - [UI] Refine project name input styling
+[2026-01-20 22:58] v4.3.6 - Task 290: Fix AutoPilot Timeout Mismatch
+
+- Unified timeout constants between SimulationNavigation and ViewerLoader
+- Changed hardcoded 8000ms to centralized Constants.sceneLoadTimeout (10000ms)
+- Eliminates 2-second race condition where AutoPilot times out prematurely
+- Added explanatory comments for maintainability
+- Build verified successfully (641.9 kB total, 179.9 kB gzipped)
+
+[2026-01-20 23:02] v4.3.6 - Task 291: Enable Progressive Loading for AutoPilot
+
+- Removed simulation status check that disabled progressive loading during AutoPilot
+- Scenes now load preview (tinyFile) first, then upgrade to full quality
+- 50-70% faster initial scene display (500ms-1s vs 3-5s)
+- Significantly improves AutoPilot performance and user experience
+- Added explanatory comments for maintainability
+- Compiled successfully via ReScript watch mode
+
+[2026-01-20 23:06] v4.3.6 - Task 294: Fix Viewer Instance Race Condition
+
+- Implemented findViewerForScene to check Global, Viewer A, and Viewer B sources
+- Updated SimulationNavigation to match viewer by Scene ID during AutoPilot
+- Reduced polling interval from 100ms to 50ms for faster scene detection
+- Added VIEWER_READY debug logs for better observability
+- Verified compilation via ReScript watch mode
+
+[2026-01-20 23:11] v4.3.6 - Task 295: Add Retry Logic to AutoPilot
+
+- Implemented exponential backoff retry logic (3 attempts: 1s, 2s, 4s)
+- Added ShowNotification for user feedback during retries
+- Updated SimulationDriver call site to match new signature
+- Integrated Logger.warn for failure tracking
+- Verified compilation via ReScript watch mode
+
+[2026-01-20 23:16] v4.3.7 - Final AutoPilot Optimizations
+
+- Restored smooth snapshot overlay fade-outs during simulation (Task #293)
+- Enabled idle snapshot capture during AutoPilot for visual continuity (Task #293)
+- Optimized deep render wait from 3 frames down to 1 for faster jumps (Task #292)
+- Reduced hotspot line render loop from 60fps to 20fps during AutoPilot (Task #296)
+- Verified all ReScript compilations
+
+[2026-01-21 13:15] v4.3.6 - [Fix] Resolve ghost arrow artifact at (0,0) during scene transitions
+[2026-01-21 14:13] v4.3.6 - Viewer Guard Checks
+[2026-01-21 14:15] v4.3.6 - [Refactor] Remove redundant defensive checks from HotspotLine
+[2026-01-21 18:00] v4.3.7 - Robust Stable UI No Ghost
+[2026-01-21 18:06] v4.3.7 - Robust Stable UI No Ghost
+[2026-01-21 20:30] v4.3.7 - Task 300: Remove console.log usage and fix CSS build
+[2026-01-21 21:03] v4.3.8 - Perfect Docs & Stable App Before React Tweak
+[2026-01-21 21:25] v4.3.8 - v4.3.8+7: Anchor-Based Positioning Refactor Complete
+[2026-01-21 22:04] v4.3.8 - v4.3.8+8: Fix UI Issues & Create Button Component
+[2026-01-21 22:13] v4.3.8 - v4.3.8+9: Restore Exact v4.3.8+6 Styling
+[2026-01-21 22:21] v4.3.8 - v4.3.8+10: Fix Tooltip Z-Index, Label Menu Cropping, Scene Menu Visibility
+[2026-01-21 22:38] v4.3.8 - v4.3.8+11: Final UI Polish: Standardized Tooltips, Fix Menu Cropping, and 3-dot Menu Visibility
+
+[2026-01-22 10:00] v4.3.9 - Super Orange Robust UI
+- Rebranded primary action colors from Remax Red to Super Orange (#ea580c)
+- Updated all UI components (buttons, menus, icons) to use the new orange-based danger/action palette
+- Refined Viewer stage background and UI layering for better contrast
+- Synchronized version 4.3.9 across all systems (Package, SW, VersionData)
+[2026-01-22 02:45] v4.3.9 - v4.3.9 Super Orange Robust UI
+\n[2026-01-22 10:15] v4.4.0 - UI Consistency and UX Polish\n- Sidebar: Updated Teaser button to match Export button styling (removed scale effect, harmonized transitions).\n- Floor Navigation: Updated hover effects to match Sidebar buttons (1px persistent stroke, color change on hover, removed layout shift).\n- Viewer Utilities: Updated 4 upper buttons (Fab, AutoPilot, Category, Label) to match header theme (1px blue stroke on hover).
+[2026-01-22 10:30] v4.4.1 - Modal Theming\n- Updated Modal system to support custom classes.\n- Applied solid header-blue (#0e2d52) background to New, About, and Upload Summary modals.
+[2026-01-22 10:45] v4.4.2 - Infrastructure and Versioning Fixes\n- Fixed synchronization gap where Service Worker was not updated during commits.\n- Updated commit-workflow.md to reflect package.json as single source of truth.\n- Enhanced package.json version-sync script to include Service Worker synchronization.
+[2026-01-22 04:15] v4.4.5 - Maximum UI Polish v1

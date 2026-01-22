@@ -114,6 +114,15 @@ Logger.error(
 
 ---
 
+## 🎨 Part 4: Styling Standards (SoC)
+
+- **Rule**: **NO** inline styles (`makeStyle`) unless value is strictly dynamic (e.g., coordinates, progress %).
+- **Rule**: Use semantic, state-based classes defined in `css/components/`.
+- **Rule**: Do not define colors or layout constants in ReScript; use CSS Variabes.
+- **Reference**: See `/docs/DESIGN_SYSTEM.md`.
+
+---
+
 ## ✅ Checklist for ReScript Files
 
 - [ ] `Obj.magic` used ONLY at boundaries with explicit type?

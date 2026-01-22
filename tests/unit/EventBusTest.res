@@ -330,8 +330,8 @@ let run = () => {
       icon: Some("info"),
       allowClose: Some(true),
       onClose: None,
+      className: None,
     }
-
     dispatch(ShowModal(testModalConfig))
 
     switch receivedModalConfig.contents {

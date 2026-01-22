@@ -1,22 +1,47 @@
 :root {
     /* Brand Colors - Remax Premium Palette */
-    --primary: #003da5;          /* Remax Blue */
+    --primary: #003da5;
+    /* Remax Blue */
     --primary-light: #2563eb;
     --primary-dark: #001a38;
     --primary-navy: #002147;
-    
-    --accent: #ffcc00;           /* Remax Gold */
+    --primary-gradient-mid: #002a70;
+    --primary-cobalt: #0047AB;
+    /* New Cobalt */
+
+    /* Brand Gradients */
+    --gradient-brand: linear-gradient(to bottom, var(--primary-dark) 0%, var(--primary-gradient-mid) 50%, var(--primary) 100%);
+    --gradient-brand-subtle: linear-gradient(to bottom, var(--primary-dark) 0%, var(--primary) 100%);
+
+    --accent: #ffcc00;
+    /* Remax Gold */
     --accent-light: #fdb931;
     --accent-soft: rgba(255, 204, 0, 0.1);
-    
-    --danger: #dc3545;           /* Remax Red */
-    --danger-dark: #9b1c2e;
-    
-    --success: #10b981;          /* Emerald 500 */
-    --success-dark: #065f46;     /* Emerald 800 */
-    
-    --warning: #f59e0b;          /* Amber 500 */
+
+    --danger: #ea580c;
+    /* Dark Orange (was Remax Red) */
+    --danger-light: #f97316;
+    /* Orange 500 */
+    --danger-dark: #c2410c;
+
+    --success: #059669;
+    /* Emerald 600 - WCAG AA Compliant */
+    --success-light: #34d399;
+    /* Emerald 400 */
+    --success-dark: #065f46;
+    /* Emerald 800 */
+    --success-text: var(--success-dark);
+
+    --warning: #f59e0b;
+    /* Amber 500 */
+    --warning-light: #fbbf24;
+    /* Amber 400 */
     --warning-dark: #c2410c;
+
+    --orange-brand: #f97316;
+    --purple-brand: #7c3aed;
+    /* Violet 600 */
+    --delete-hover: #9a3412;
 
     /* Neutral Palette - Slate Based */
     --slate-50: #f8fafc;
@@ -32,11 +57,16 @@
     --slate-950: #020617;
 
     /* Viewer Specific Colors */
-    --viewer-bg: #1a202c;
+    --viewer-bg: #1e1e1e;
+    --viewer-stage-bg: #1a202c;
     --sidebar-bg: #ffffff;
-    --floor-default: #001a4d;
-    --floor-hover: #ea580c;
+    --floor-default: var(--primary-navy);
+    /* Unified: Remax Navy */
+    --floor-bg-hover: var(--primary-dark);
+    /* Unified: Darker on hover */
+    --floor-hover: var(--accent);
     --floor-active: var(--primary);
+    --floor-active-bg: var(--primary-cobalt);
     --floor-border-active: var(--accent);
 
     /* Design Tokens */

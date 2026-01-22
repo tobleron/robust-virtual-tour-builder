@@ -1,37 +1,6 @@
-/* Floor Navigation States & Animations */
-.floor-circle {
-    box-shadow: 1px 1px 1px #000;
-    border: 2px solid transparent;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
+/* Floor Navigation - shadcn Button overrides */
 
-.floor-circle:hover {
-    box-shadow: 2px 2px 1px #000 !important;
-}
-
-/* Default / Unselected State */
-.bg-floor-default {
-    background-color: #00235d !important;
-    color: #ffffff !important;
-    border: 2px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-/* Hover on Unselected: Orange Stroke */
-.bg-floor-default:hover {
-    border-color: #f97316 !important;
-    background-color: #163a63 !important;
-    color: white !important;
-    transform: scale(1.05) translateY(-2px);
-}
-
-/* Active / Selected State */
-.bg-floor-active {
-    background-color: #0047AB !important;
-    transform: scale(1.15);
-    box-shadow: 0 0 15px rgba(0, 71, 171, 0.6) !important;
-    z-index: 10;
-    border-color: #fbbf24 !important;
-}
+/* Remove old floor-nav styles, using inline Tailwind classes now */
 
 /* Utility bar & Floor Nav during auto-pilot */
 body.auto-pilot-active #viewer-utility-bar {
@@ -43,12 +12,12 @@ body.auto-pilot-active #viewer-floor-nav {
     transition: opacity 0.3s ease, filter 0.3s ease;
 }
 
-body.auto-pilot-active #viewer-floor-nav .floor-circle {
+body.auto-pilot-active #viewer-floor-nav button {
     opacity: 0.6;
     filter: grayscale(100%);
 }
 
-body.auto-pilot-active #viewer-floor-nav .floor-circle.bg-floor-active {
+body.auto-pilot-active #viewer-floor-nav button.border-danger {
     opacity: 1 !important;
     filter: none !important;
 }

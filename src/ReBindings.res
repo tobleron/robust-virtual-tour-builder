@@ -142,6 +142,7 @@ module Dom = {
     @send external toggle: (t, string) => unit = "toggle"
   }
   @get external classList: element => ClassList.t = "classList"
+  @send external containsElement: (element, element) => bool = "contains"
 
   @scope("document") @val external createElement: string => element = "createElement"
   @set external setId: (element, string) => unit = "id"
@@ -295,6 +296,7 @@ module Window = {
   @val external alert: string => unit = "alert"
   @val external getComputedStyle: Dom.element => Dom.style = "getComputedStyle"
   @val @scope("window") external innerHeight: int = "innerHeight"
+  @val @scope("window") external innerWidth: int = "innerWidth"
   @val @scope("window") external confirm: string => bool = "confirm"
   @set external setDebug: ({..}, {..}) => unit = "DEBUG"
   @set external setAppLog: ({..}, array<string>) => unit = "appLog"
@@ -331,6 +333,11 @@ module FormData = {
   @new external newFormData: unit => t = "FormData"
   @send external append: (t, string, 'a) => unit = "append"
   @send external appendWithFilename: (t, string, 'a, string) => unit = "append"
+}
+
+module ReactDOMPortal = {
+  @module("react-dom")
+  external createPortal: (React.element, Dom.element) => React.element = "createPortal"
 }
 
 module ReactDOMClient = {

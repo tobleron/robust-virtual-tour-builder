@@ -439,8 +439,31 @@ let make = () => {
       }
     }
 
-    if state.simulation.status == Running {
+    let isSimulationActive = state.simulation.status != Idle
+
+    if isSimulationActive {
       Dom.classList(body)->Dom.ClassList.add("auto-pilot-active")
+
+      // CRITICAL: Clear SVG overlay immediately when simulation starts/active
+      let svgOpt = Dom.getElementById("viewer-hotspot-lines")
+      switch Nullable.toOption(svgOpt) {
+      | Some(svg) => Dom.setTextContent(svg, "")
+      | None => ()
+      }
+
+      // Sync Hotspots immediately to apply hidden-in-sim class
+      let v = ViewerState.getActiveViewer()
+      switch (Nullable.toOption(v), Belt.Array.get(state.scenes, state.activeIndex)) {
+      | (Some(viewer), Some(scene)) =>
+        Logger.debug(
+          ~module_="ViewerManager",
+          ~message="SIMULATION_STATE_SYNC",
+          ~data=Some({"status": state.simulation.status, "sceneId": scene.id}),
+          (),
+        )
+        HotspotManager.syncHotspots(viewer, state, scene, dispatch)
+      | _ => ()
+      }
     } else {
       Dom.classList(body)->Dom.ClassList.remove("auto-pilot-active")
     }
@@ -450,14 +473,31 @@ let make = () => {
   // 7. Render Loop for Hotspot Lines (Fix for sticky waypoints)
   React.useEffect0(() => {
     let animationFrameId = ref(None)
+    let frameCounter = ref(0)
 
     let rec loop = () => {
+      frameCounter := frameCounter.contents + 1
       let v = ViewerState.getActiveViewer()
       switch Nullable.toOption(v) {
       | Some(viewer) =>
-        // Always update lines to ensure they stick to the scene during ANY movement
         let currentState = GlobalStateBridge.getState()
-        HotspotLine.updateLines(viewer, currentState, ())
+
+        // CRITICAL: Skip updates during viewer swap to prevent race condition
+        // The swap lock prevents drawing arrows with mismatched viewer/camera data
+        let isSwapping = ViewerState.state.isSwapping
+
+        // Performance optimization: During AutoPilot, the NavigationRenderer owns the loop.
+        // We skip the global loop here to prevent fighting over the SVG container.
+        let isSimulationActive = currentState.simulation.status != Idle
+        let shouldUpdate = if isSimulationActive {
+          false // NavigationRenderer handles it
+        } else {
+          true
+        }
+
+        if shouldUpdate && !isSwapping {
+          HotspotLine.updateLines(viewer, currentState, ())
+        }
       | None => ()
       }
       animationFrameId := Some(Window.requestAnimationFrame(loop))
