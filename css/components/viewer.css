@@ -608,6 +608,7 @@
     border-radius: var(--radius-sm);
     /* User Request: Less rounded */
     font-family: var(--font-ui);
+    font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
     box-shadow: var(--shadow-xl);

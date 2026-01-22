@@ -613,11 +613,41 @@ let processUploads = (
                         res => {
                           GlobalStateBridge.dispatch(SetExifReport(JSON.Encode.string(res.report)))
 
-                          if res.suggestedName != "" {
+                          Logger.info(
+                            ~module_="Upload",
+                            ~message="PROJECT_NAME_GENERATED",
+                            ~data=Some({
+                              "suggestedName": res.suggestedName,
+                              "currentName": GlobalStateBridge.getState().tourName,
+                            }),
+                            (),
+                          )
+
+                          // Only set project name if it's meaningful (not Unknown_Location)
+                          if (
+                            res.suggestedName != "" &&
+                              !String.includes(res.suggestedName, "Unknown")
+                          ) {
                             let currentName = GlobalStateBridge.getState().tourName
                             if currentName == "" {
+                              Logger.info(
+                                ~module_="Upload",
+                                ~message="SETTING_PROJECT_NAME",
+                                ~data=Some({"name": res.suggestedName}),
+                                (),
+                              )
                               GlobalStateBridge.dispatch(SetTourName(res.suggestedName))
                             }
+                          } else {
+                            Logger.warn(
+                              ~module_="Upload",
+                              ~message="SKIPPING_UNKNOWN_PROJECT_NAME",
+                              ~data=Some({
+                                "suggestedName": res.suggestedName,
+                                "reason": "Contains 'Unknown' or empty",
+                              }),
+                              (),
+                            )
                           }
                           Promise.resolve()
                         },
