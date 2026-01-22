@@ -18,11 +18,11 @@
     --accent-light: #fdb931;
     --accent-soft: rgba(255, 204, 0, 0.1);
 
-    --danger: #dc3545;
-    /* Remax Red */
-    --danger-light: #ef4444;
-    /* Red 500 */
-    --danger-dark: #9b1c2e;
+    --danger: #ea580c;
+    /* Dark Orange (was Remax Red) */
+    --danger-light: #f97316;
+    /* Orange 500 */
+    --danger-dark: #c2410c;
 
     --success: #059669;
     /* Emerald 600 - WCAG AA Compliant */
@@ -41,7 +41,7 @@
     --orange-brand: #f97316;
     --purple-brand: #7c3aed;
     /* Violet 600 */
-    --delete-hover: #bb2d3b;
+    --delete-hover: #9a3412;
 
     /* Neutral Palette - Slate Based */
     --slate-50: #f8fafc;
@@ -57,7 +57,8 @@
     --slate-950: #020617;
 
     /* Viewer Specific Colors */
-    --viewer-bg: #1a202c;
+    --viewer-bg: #1e1e1e;
+    --viewer-stage-bg: #1a202c;
     --sidebar-bg: #ffffff;
     --floor-default: var(--primary-navy);
     /* Unified: Remax Navy */

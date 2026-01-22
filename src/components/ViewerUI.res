@@ -417,7 +417,9 @@ let make = () => {
             </Tooltip>
           </Shadcn.Popover.Trigger>
           <Shadcn.Popover.Content
-            side="right" sideOffset=12 className="p-0 bg-white rounded-2xl shadow-2xl border border-slate-200 z-[10000]"
+            side="right"
+            sideOffset=12
+            className="p-0 bg-white rounded-2xl shadow-2xl border border-slate-200 z-[10000]"
           >
             <LabelMenu onClose={() => setLabelMenuOpen(_ => false)} />
           </Shadcn.Popover.Content>
@@ -562,17 +564,14 @@ let make = () => {
           <Tooltip key={f.id} content={f.label} alignment=#Right>
             <Shadcn.Button
               size="icon"
-              variant={if isSelected {
-                "outline"
+              variant="ghost"
+              className={"w-8 h-8 min-w-8 min-h-8 rounded-full text-[15px] font-medium opacity-100 transition-all " ++ if (
+                isSelected
+              ) {
+                "border-2 border-danger bg-[#0e2d52] text-white hover:bg-[#0e2d52] hover:text-white"
               } else {
-                "secondary"
+                "border border-white/20 hover:border-2 hover:border-danger bg-[#0e2d52]/80 text-white hover:bg-[#0e2d52] hover:text-white"
               }}
-              className={"w-[32px] h-[32px] rounded-full text-[15px] font-medium " ++
-                if isSelected {
-                  "border-2 border-danger bg-danger/10 text-danger hover:bg-danger/20"
-                } else {
-                  "hover:border-2 hover:border-danger hover:bg-transparent"
-                }}
               onClick={e => handleFloorClick(f.id, f.label, e)}
             >
               {React.string(f.short)}

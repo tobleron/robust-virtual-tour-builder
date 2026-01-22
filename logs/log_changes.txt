@@ -490,3 +490,10 @@ Task: 147
 [2026-01-21 22:13] v4.3.8 - v4.3.8+9: Restore Exact v4.3.8+6 Styling
 [2026-01-21 22:21] v4.3.8 - v4.3.8+10: Fix Tooltip Z-Index, Label Menu Cropping, Scene Menu Visibility
 [2026-01-21 22:38] v4.3.8 - v4.3.8+11: Final UI Polish: Standardized Tooltips, Fix Menu Cropping, and 3-dot Menu Visibility
+
+[2026-01-22 10:00] v4.3.9 - Super Orange Robust UI
+- Rebranded primary action colors from Remax Red to Super Orange (#ea580c)
+- Updated all UI components (buttons, menus, icons) to use the new orange-based danger/action palette
+- Refined Viewer stage background and UI layering for better contrast
+- Synchronized version 4.3.9 across all systems (Package, SW, VersionData)
+[2026-01-22 02:45] v4.3.9 - v4.3.9 Super Orange Robust UI

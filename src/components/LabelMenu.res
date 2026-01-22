@@ -115,7 +115,7 @@ let make = (~onClose: unit => unit) => {
         </button>
         <button
           onClick={_ => handleClear()}
-          className="px-3 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-50 hover:text-danger hover:border-danger/30 active:scale-95 transition-all"
+          className="px-3 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-orange-50 hover:text-danger hover:border-danger/30 active:scale-95 transition-all"
         >
           {React.string("CLEAR")}
         </button>

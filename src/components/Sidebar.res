@@ -127,24 +127,18 @@ let make = () => {
 
   // Render
   <div
-    className="relative w-[340px] min-w-[340px] bg-slate-50 flex flex-col z-[15000] shrink-0 h-full overflow-hidden font-ui shadow-2xl"
+    className="relative w-[340px] min-w-[340px] bg-slate-50 flex flex-col z-[15000] shrink-0 h-full overflow-hidden font-ui"
   >
     /* Branding Header */
-    <div
-      className="relative w-full flex flex-col z-30 text-white shrink-0 border-t-2 border-danger sidebar-branding-header"
-    >
+    <div className="relative w-full flex flex-col z-30 text-white shrink-0 sidebar-branding-header">
       <div className="flex flex-col items-center px-6 pt-6 pb-6">
         <div className="flex items-center justify-center gap-3 mb-1">
-          <h1
-            className="font-heading font-black text-white tracking-widest uppercase text-[27px] drop-shadow-lg"
-          >
+          <h1 className="font-heading font-black text-white tracking-widest uppercase text-[27px]">
             {React.string("ROBUST")}
           </h1>
-          <LucideIcons.Home className="text-white drop-shadow-lg text-[45px]" size=45 />
+          <LucideIcons.Home className="text-white text-[45px]" size=45 />
         </div>
-        <div
-          className="font-normal text-white tracking-[0.25em] text-[13px] uppercase drop-shadow-sm"
-        >
+        <div className="font-normal text-white tracking-[0.25em] text-[13px] uppercase">
           {React.string("Virtual Tour Builder")}
         </div>
         <div className="flex items-center gap-2 text-white mt-1 sidebar-version-line">
@@ -152,9 +146,7 @@ let make = () => {
             {React.string("V " ++ VersionData.version)}
           </span>
           <span className="text-[9px]"> {React.string("\u2022")} </span>
-          <span className="text-[9px] font-mono">
-            {React.string(VersionData.buildInfo)}
-          </span>
+          <span className="text-[9px] font-mono"> {React.string(VersionData.buildInfo)} </span>
         </div>
       </div>
 
@@ -263,10 +255,10 @@ let make = () => {
               ariaLabel={label}
             >
               {switch icon {
-              | "file-plus" => <LucideIcons.FilePlus />
-              | "save" => <LucideIcons.Save />
-              | "folder-open" | "folder_open" => <LucideIcons.FolderOpen />
-              | "info" => <LucideIcons.Info />
+              | "file-plus" => <LucideIcons.FilePlus size=20 strokeWidth=1 />
+              | "save" => <LucideIcons.Save size=20 strokeWidth=1 />
+              | "folder-open" | "folder_open" => <LucideIcons.FolderOpen size=20 strokeWidth=1 />
+              | "info" => <LucideIcons.Info size=20 strokeWidth=1 />
               | _ => React.null
               }}
               <span> {React.string(label)} </span>
@@ -307,8 +299,8 @@ let make = () => {
             }}
             ariaLabel="Export Tour"
           >
-            <LucideIcons.Share2
-              className="text-lg text-white group-hover:scale-110 transition-transform"
+            <LucideIcons.Download
+              className="text-white transition-all duration-300" size=20 strokeWidth=1
             />
             <span> {React.string("Export")} </span>
           </button>
@@ -322,7 +314,9 @@ let make = () => {
             ariaLabel="Create Teaser"
           >
             <LucideIcons.Film
-              className="text-lg text-white group-hover:scale-110 transition-transform"
+              className="text-white group-hover:scale-110 transition-transform"
+              size=20
+              strokeWidth=1
             />
             <span> {React.string("Teaser")} </span>
           </button>
@@ -432,38 +426,53 @@ let make = () => {
     </div>
 
     /* Project Name & Upload Section */
-    <div className="flex flex-col bg-white border-b border-slate-200 shadow-sm shrink-0 z-20">
-      <div className="p-4 pb-3">
-        <div className="flex items-center justify-between mb-2 px-1">
+    <div className="flex flex-col bg-white border-b border-slate-200 shrink-0 z-20">
+      <div className="flex items-stretch gap-3 p-4 pb-2">
+        /* Vertical Upload Button */
+        <button
+          className="w-14 flex flex-col items-center justify-center gap-1 rounded-xl transition-all hover:brightness-110 hover:shadow-lg hover-lift active-push group overflow-hidden relative focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none sidebar-upload-btn shrink-0 text-white"
+          onClick={_ => {
+            switch Nullable.toOption(fileInputRef.current) {
+            | Some(el) => Dom.click(el)
+            | None => ()
+            }
+          }}
+          style={makeStyle({"height": "auto", "minHeight": "3.5rem"})}
+        >
+          <div
+            className="absolute inset-0 bg-gradient-to-b from-transparent via-white/10 to-transparent translate-y-[-100%] group-hover:translate-y-[100%] transition-transform duration-700"
+          />
+          <LucideIcons.Camera className="text-white" size=24 strokeWidth=2 />
+          <span
+            className="text-[9px] font-bold tracking-widest uppercase writing-vertical-lr hidden"
+          >
+            {React.string("Add")}
+          </span>
+        </button>
+
+        /* Right Side: Label + Input */
+        <div className="flex-1 flex flex-col justify-center gap-1.5">
           <label
-            className="text-[10px] font-black text-slate-600 uppercase tracking-widest"
+            className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1"
             htmlFor="project-name-input"
           >
             {React.string("Project Name")}
           </label>
-          <div
-            className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200"
-          >
-            <div className="w-1 h-1 rounded-full bg-blue-500 animate-pulse" />
-            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tight">
-              {React.string("Draft")}
-            </span>
-          </div>
+          <input
+            id="project-name-input"
+            type_="text"
+            className="sidebar-project-input"
+            placeholder="New Tour..."
+            value={state.tourName}
+            onChange={e => dispatch(Actions.SetTourName(JsxEvent.Form.target(e)["value"]))}
+          />
         </div>
-        <input
-          id="project-name-input"
-          type_="text"
-          className="sidebar-project-input"
-          placeholder="New Tour..."
-          value={state.tourName}
-          onChange={e => dispatch(Actions.SetTourName(JsxEvent.Form.target(e)["value"]))}
-        />
       </div>
 
       /* Sidebar Processing UI (Below Project Name) */
       {if procState["active"] {
         <div
-          className="mx-4 mb-4 bg-slate-50 border border-slate-200 rounded-xl p-3 shadow-sm animate-fade-in"
+          className="mx-4 mb-3 bg-slate-50 border border-slate-200 rounded-xl p-3 shadow-sm animate-fade-in"
           role="status"
           ariaLive=#polite
         >
@@ -496,26 +505,6 @@ let make = () => {
       } else {
         React.null
       }}
-
-      <div className="px-4 pb-4">
-        <button
-          className="w-full h-10 text-white rounded-xl flex items-center justify-center gap-2 transition-all hover:brightness-110 hover:shadow-xl hover-lift active-push group overflow-hidden relative focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none sidebar-upload-btn"
-          onClick={_ => {
-            switch Nullable.toOption(fileInputRef.current) {
-            | Some(el) => Dom.click(el)
-            | None => ()
-            }
-          }}
-        >
-          <div
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"
-          />
-          <LucideIcons.Camera className="text-[20px]" size=20 />
-          <strong className="text-[11px] font-bold tracking-widest uppercase">
-            {React.string("Add 360 Scenes")}
-          </strong>
-        </button>
-      </div>
     </div>
 
     /* Sidebar Content Area - Scrollable */

@@ -12,8 +12,6 @@ let make = (~children: React.element, ~content: string, ~alignment: PopOver.alig
 
   <Shadcn.Tooltip>
     <Shadcn.Tooltip.Trigger asChild=true> children </Shadcn.Tooltip.Trigger>
-    <Shadcn.Tooltip.Content side sideOffset=8>
-      {React.string(content)}
-    </Shadcn.Tooltip.Content>
+    <Shadcn.Tooltip.Content side sideOffset=8> {React.string(content)} </Shadcn.Tooltip.Content>
   </Shadcn.Tooltip>
 }
