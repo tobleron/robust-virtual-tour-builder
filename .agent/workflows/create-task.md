@@ -58,9 +58,27 @@ This workflow should **ONLY** be triggered when the user **explicitly** requests
    - Example: "Created task #289 in `tasks/pending/289_fix_navigation_bug.md`"
 
 ## Important Notes
-- **Do NOT auto-create tasks** for normal user requests
-- Only create tasks when explicitly requested
-- Always follow sequential numbering
-- Test tasks go in `postponed/tests/`, others in `pending/`
-- **Build verification**: Formal tasks require `npm run build` before completion (see `tasks/TASKS.md`)
+- **Do NOT auto-create tasks** for normal user requests (Exception: See "Automatic Test Task Exception" below).
+- Only create tasks when explicitly requested.
+- Always follow sequential numbering.
+- Test tasks go in `postponed/tests/`, others in `pending/`.
+- **Build verification**: Formal tasks require `npm run build` before completion (see `tasks/TASKS.md`).
+
+## 🤖 Automatic Test Task Exception
+**Rule:** If you modify a logic file (non-UI) or encounter a file without tests during a session, and you cannot write tests immediately (due to time/scope constraints), you **MUST** automatically create a task.
+
+1.  **Trigger**: 
+    - You modified a file but didn't write tests.
+    - You noticed a critical file has no tests.
+2.  **Target Folder**: `tasks/postponed/tests/`
+3.  **Naming**: `{next_number}_add_tests_{filename}.md`
+4.  **Content**:
+    ```markdown
+    # Task: Add Tests for {filename}
+    ## Context
+    File was modified or identified as untested during session.
+    ## Objective
+    Create unit tests to cover logical paths.
+    ```
+5.  **Notification**: Inform the user: "I've created a postponed task #{number} to add tests for {filename}."
 

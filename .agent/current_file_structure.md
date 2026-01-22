@@ -1893,7 +1893,8 @@
 │   └── rescript.lock
 ├── logs
 │   ├── error.log
-│   └── log_changes.txt
+│   ├── log_changes.txt
+│   └── telemetry.log
 ├── old_ref
 │   ├── REF.md
 │   └── v4.3.6+7_a34c1dd
@@ -2311,8 +2312,9 @@
 │   ├── cleanup_logs.sh
 │   ├── commit.sh
 │   ├── debug-connectivity.js
-│   ├── detect-missing-tests.js
+│   ├── detect-missing-tests.cjs
 │   ├── dev-mode.sh
+│   ├── generate-test-tasks.cjs
 │   ├── increment-build.js
 │   ├── prune-snapshots.sh
 │   ├── restore-snapshot.sh
@@ -2528,6 +2530,7 @@
 ├── tailwind.config.js
 ├── tasks
 │   ├── active
+│   │   ├── 023_optimize_telemetry_priority_filtering.md
 │   │   ├── 289_refactor_ui_anchor_positioning_REPORT.md
 │   │   └── 289_refactor_ui_anchor_positioning.md
 │   ├── cancelled
@@ -2547,9 +2550,6 @@
 │   │   ├── COMPLETION_SUMMARY.md
 │   │   └── CONCISE_SUMMARY.md
 │   ├── pending
-│   │   ├── 020_visual_regression_testing.md
-│   │   ├── 022_expand_test_coverage.md
-│   │   └── 023_optimize_telemetry_priority_filtering.md
 │   ├── postponed
 │   │   ├── 002_re_evaluate_webp_quality.md
 │   │   ├── 003_add_seo_structured_data.md
@@ -2557,10 +2557,33 @@
 │   │   ├── 005_create_changelog.md
 │   │   ├── 006_update_docs_anchor_positioning_standards.md
 │   │   ├── 015_create_legal_compliance_documents.md
+│   │   ├── 020_visual_regression_testing.md
 │   │   ├── 021_theme_switching_infrastructure.md
+│   │   ├── 022_expand_test_coverage.md
 │   │   ├── 024_implement_e2e_testing_playwright.md
 │   │   ├── 025_implement_internationalization.md
 │   │   └── tests
+│   │       ├── 026_add_tests_colorpalette.md
+│   │       ├── 027_add_tests_navigationui.md
+│   │       ├── 028_add_tests_viewerstate.md
+│   │       ├── 029_add_tests_sidebar.md
+│   │       ├── 030_add_tests_uploadreport.md
+│   │       ├── 031_add_tests_linkmodal.md
+│   │       ├── 032_add_tests_modalcontext.md
+│   │       ├── 033_add_tests_visualpipeline.md
+│   │       ├── 034_add_tests_hotspotmanager.md
+│   │       ├── 035_add_tests_notificationcontext.md
+│   │       ├── 036_add_tests_errorfallbackui.md
+│   │       ├── 037_add_tests_hotspotactionmenu.md
+│   │       ├── 038_add_tests_labelmenu.md
+│   │       ├── 039_add_tests_scenelist.md
+│   │       ├── 040_add_tests_viewerfollow.md
+│   │       ├── 041_add_tests_viewermanager.md
+│   │       ├── 042_add_tests_viewersnapshot.md
+│   │       ├── 043_add_tests_viewertypes.md
+│   │       ├── 044_add_tests_viewerui.md
+│   │       ├── 045_add_tests_remaxerrorboundary.md
+│   │       └── 046_add_tests_uploadprocessor.md
 │   ├── SESSION_SUMMARY.md
 │   ├── TASK_ANALYSIS_AND_RENUMBERING.md
 │   └── TASKS.md
@@ -2707,4 +2730,4 @@
 │       └── VitestSmoke.test.res
 └── vitest.config.mjs
 
-91 directories, 2617 files
+91 directories, 2640 files

@@ -43,7 +43,7 @@ if ! ./node_modules/.bin/rescript build --warn-error "+a"; then
 fi
 
 # 7. Test Gap Detection
-if ! node scripts/detect-missing-tests.js; then
+if ! node scripts/detect-missing-tests.cjs; then
     echo "❌ Commit blocked: Missing unit tests detected."
     echo "   ► Tasks have been auto-generated in tasks/pending/"
     echo "   ► Please complete these tasks before committing."

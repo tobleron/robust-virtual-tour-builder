@@ -11,6 +11,7 @@ These rules enforce a high standard of quality through unit testing across both 
 ## 🚀 Part 1: Mandatory Testing
 
 1. **New Features**: Every new feature MUST have corresponding unit tests.
+   - *Fallback*: If tests cannot be written immediately, you **MUST** auto-create a task in `tasks/postponed/tests/` (see `create-task.md`).
 2. **Bug Fixes**: Every bug fix MUST include a regression test that reproduces the bug before fixing it.
 3. **Refactoring**: When refactoring modules (especially those > 700 lines), tests MUST be run before and after to ensure behavior preservation.
 4. **Commits**: `npm test` MUST pass before ANY commit via `./scripts/commit.sh`.
