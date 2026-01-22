@@ -84,7 +84,7 @@ let waitForViewerScene = async (
           let v = findViewerForScene(expectedScene.id)
           switch v {
           | Some(viewer) =>
-            if LocalViewerBindings.isLoaded(viewer) {
+            if HotspotLine.isViewerReady(viewer) {
               Logger.debug(
                 ~module_="Simulation",
                 ~message="VIEWER_READY",

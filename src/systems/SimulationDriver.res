@@ -29,13 +29,19 @@ let make = () => {
       // 1. If we just arrived (or started), we wait a delay.
       // 2. Then we wait for viewer to load the current scene.
       // 3. Then we calculate next move.
-      // 4. Then we execute.
+      // 4. Then we execute navigation.
+      // 5. Effect re-runs when activeIndex changes, repeating the loop.
 
       let runTick = async () => {
         if isAdvancing.current {
           () // Already advancing
         } else {
           isAdvancing.current = true
+
+          // Ensure current scene is in visited scenes
+          if !Js.Array.includes(state.activeIndex, state.simulation.visitedScenes) {
+            dispatch(AddVisitedScene(state.activeIndex))
+          }
 
           let delay = if simulation.skipAutoForwardGlobal {
             // Check if current scene is auto-forward (bridge)
@@ -57,16 +63,19 @@ let make = () => {
             !state.simulation.stoppingOnArrival
           ) {
             try {
-              // Wait for viewer
+              // Wait for viewer to load the CURRENT scene
               let waitResult = await SimulationNavigation.waitForViewerScene(
                 state.activeIndex,
-                () => !cancel.contents,
+                () => !cancel.contents && state.simulation.status == Running,
                 (),
               )
 
               switch waitResult {
               | Ok() =>
-                if !cancel.contents && state.simulation.status == Running {
+                // Also wait for any ongoing navigation to complete
+                if (
+                  state.navigation == Idle && !cancel.contents && state.simulation.status == Running
+                ) {
                   // Calculate Next Move
                   let move = SimulationLogic.getNextMove(state)
 
@@ -75,7 +84,8 @@ let make = () => {
                     // Exec Actions
                     triggerActions->Belt.Array.forEach(a => dispatch(a))
 
-                    // Exec Navigation
+                    // Exec Navigation - this triggers the animation and viewer swap
+                    // Don't wait here! Let the effect re-run when activeIndex changes
                     Navigation.navigateToScene(
                       dispatch,
                       state,
@@ -133,9 +143,7 @@ let make = () => {
         }
       }
 
-      // We trigger the tick when activeIndex changes or we just started.
-      // But React effects fire on mount/update.
-      // If we rely on this effect running on `state.activeIndex`, it works.
+      // Trigger the tick
       let _ = runTick()
     } else {
       // Reset advancing flag if stopped

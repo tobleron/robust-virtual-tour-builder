@@ -107,13 +107,15 @@ let getNextMove = (state: state): nextMove => {
           let _ = Js.Array.push(SetActiveTimelineStep(None), actions)
         }
 
+        let finalActions = Belt.Array.concat(actions, [AddVisitedScene(targetIndex)])
+
         Move({
           targetIndex,
           hotspotIndex,
           yaw: tYaw,
           pitch: tPitch,
           hfov: tHfov,
-          triggerActions: actions,
+          triggerActions: finalActions,
         })
       }
 

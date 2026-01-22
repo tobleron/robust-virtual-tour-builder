@@ -61,6 +61,12 @@ let startJourney = (data: EventBus.navStartPayload) => {
       }
 
       if !shouldContinue {
+        // Clear UI on cancellation to prevent stuck waypoints
+        let svgOpt = Dom.getElementById("viewer-hotspot-lines")
+        switch Nullable.toOption(svgOpt) {
+        | Some(svg) => Dom.setInnerHTML(svg, "")
+        | None => ()
+        }
         Logger.warn(
           ~module_="NavRenderer",
           ~message="JOURNEY_CANCELLED",
@@ -117,6 +123,13 @@ let startJourney = (data: EventBus.navStartPayload) => {
                 ~opacity,
                 ~waypoints=Obj.magic(pathData.waypoints),
                 ~colorOverride?,
+                (),
+              )
+            } else {
+              Logger.debug(
+                ~module_="NavRenderer",
+                ~message="BLINK_SKIP_NOT_READY",
+                ~data=Some({"journeyId": data.journeyId}),
                 (),
               )
             }
@@ -215,6 +228,13 @@ let startJourney = (data: EventBus.navStartPayload) => {
               progress,
               ~opacity=1.0,
               ~waypoints=Obj.magic(pathData.waypoints),
+              (),
+            )
+          } else {
+            Logger.debug(
+              ~module_="NavRenderer",
+              ~message="DRAW_SKIP_NOT_READY",
+              ~data=Some({"journeyId": data.journeyId, "progress": progress}),
               (),
             )
           }
