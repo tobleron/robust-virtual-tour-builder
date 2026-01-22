@@ -949,12 +949,12 @@
 │   │           ├── SimulationDriver_v.test.cmj
 │   │           ├── SimulationDriver_v.test.cmt
 │   │           ├── SimulationDriver_v.test.res
-│   │           ├── SimulationDriverTest.ast
-│   │           ├── SimulationDriverTest.bs.js
-│   │           ├── SimulationDriverTest.cmi
-│   │           ├── SimulationDriverTest.cmj
-│   │           ├── SimulationDriverTest.cmt
-│   │           ├── SimulationDriverTest.res
+│   │           ├── SimulationLogic_v.test.ast
+│   │           ├── SimulationLogic_v.test.bs.js
+│   │           ├── SimulationLogic_v.test.cmi
+│   │           ├── SimulationLogic_v.test.cmj
+│   │           ├── SimulationLogic_v.test.cmt
+│   │           ├── SimulationLogic_v.test.res
 │   │           ├── SimulationLogicTest.ast
 │   │           ├── SimulationLogicTest.bs.js
 │   │           ├── SimulationLogicTest.cmi
@@ -1621,16 +1621,16 @@
 │   │   ├── SimulationDriver.cmj
 │   │   ├── SimulationDriver.cmt
 │   │   ├── SimulationDriver.res
-│   │   ├── SimulationDriverTest.res
+│   │   ├── SimulationLogic_v.test.ast
+│   │   ├── SimulationLogic_v.test.cmi
+│   │   ├── SimulationLogic_v.test.cmj
+│   │   ├── SimulationLogic_v.test.cmt
+│   │   ├── SimulationLogic_v.test.res
 │   │   ├── SimulationLogic.ast
 │   │   ├── SimulationLogic.cmi
 │   │   ├── SimulationLogic.cmj
 │   │   ├── SimulationLogic.cmt
 │   │   ├── SimulationLogic.res
-│   │   ├── SimulationLogicTest.ast
-│   │   ├── SimulationLogicTest.cmi
-│   │   ├── SimulationLogicTest.cmj
-│   │   ├── SimulationLogicTest.cmt
 │   │   ├── SimulationLogicTest.res
 │   │   ├── SimulationNavigation.ast
 │   │   ├── SimulationNavigation.cmi
@@ -2544,11 +2544,11 @@
 │   │   ├── 009_add_tests_uireducer_REPORT.md
 │   │   ├── 010_add_tests_navigationcontroller_REPORT.md
 │   │   ├── 011_add_tests_simulationdriver_REPORT.md
+│   │   ├── 012_add_tests_simulationlogic_REPORT.md
 │   │   └── CONCISE_SUMMARY.md
 │   ├── COMPLETION_SUMMARY.md
 │   ├── current_refactor.md
 │   ├── pending
-│   │   ├── 012_add_tests_simulationlogic.md
 │   │   ├── 013_add_tests_sessionstore.md
 │   │   ├── 014_add_tests_requestqueue.md
 │   │   ├── 016_implement_backend_geocoding_cache.md
@@ -2669,8 +2669,8 @@
 │       ├── SimulationChainSkipperTest.res
 │       ├── SimulationDriver_v.test.bs.js
 │       ├── SimulationDriver_v.test.res
-│       ├── SimulationLogicTest.bs.js
-│       ├── SimulationLogicTest.res
+│       ├── SimulationLogic_v.test.bs.js
+│       ├── SimulationLogic_v.test.res
 │       ├── SimulationNavigationTest.bs.js
 │       ├── SimulationNavigationTest.res
 │       ├── SimulationPathGeneratorTest.bs.js
