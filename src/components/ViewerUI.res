@@ -341,7 +341,7 @@ let make = () => {
             } else {
               "destructive"
             }}
-            className="w-[32px] h-[32px] rounded-full text-[20px] font-bold"
+            className="w-[32px] h-[32px] rounded-full text-[20px] font-bold border border-transparent hover:border-[#0e2d52]"
             onClick={handleFabClick}
           >
             {if state.isLinking {
@@ -367,7 +367,7 @@ let make = () => {
             } else {
               "destructive"
             }}
-            className="w-[32px] h-[32px] rounded-full"
+            className="w-[32px] h-[32px] rounded-full border border-transparent hover:border-[#0e2d52]"
             onClick={handleSimClick}
           >
             {if simActive {
@@ -386,7 +386,7 @@ let make = () => {
             } else {
               "destructive"
             }}
-            className="w-[32px] h-[32px] rounded-full"
+            className="w-[32px] h-[32px] rounded-full border border-transparent hover:border-[#0e2d52]"
             onClick={handleCatClick}
           >
             {if currentCategory == "indoor" {
@@ -409,7 +409,7 @@ let make = () => {
                 } else {
                   "destructive"
                 }}
-                className="w-[32px] h-[32px] rounded-full text-[18px] font-bold"
+                className="w-[32px] h-[32px] rounded-full text-[18px] font-bold border border-transparent hover:border-[#0e2d52]"
                 onClick={handleLabelClick}
               >
                 <LucideIcons.Hash size=18 strokeWidth=3 />
@@ -570,7 +570,7 @@ let make = () => {
               ) {
                 "border-2 border-danger bg-[#0e2d52] text-white hover:bg-[#0e2d52] hover:text-white"
               } else {
-                "border border-white/20 hover:border-2 hover:border-danger bg-[#0e2d52]/80 text-white hover:bg-[#0e2d52] hover:text-white"
+                "border border-white/20 hover:border-danger bg-[#0e2d52]/80 text-white hover:bg-[#0e2d52] hover:text-white"
               }}
               onClick={e => handleFloorClick(f.id, f.label, e)}
             >
