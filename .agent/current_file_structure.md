@@ -889,12 +889,6 @@
 │   │           ├── RequestQueue_v.test.cmj
 │   │           ├── RequestQueue_v.test.cmt
 │   │           ├── RequestQueue_v.test.res
-│   │           ├── RequestQueueTest.ast
-│   │           ├── RequestQueueTest.bs.js
-│   │           ├── RequestQueueTest.cmi
-│   │           ├── RequestQueueTest.cmj
-│   │           ├── RequestQueueTest.cmt
-│   │           ├── RequestQueueTest.res
 │   │           ├── ResizerTest.ast
 │   │           ├── ResizerTest.bs.js
 │   │           ├── ResizerTest.cmi
@@ -1506,7 +1500,6 @@
 │   │   ├── RequestQueue.cmj
 │   │   ├── RequestQueue.cmt
 │   │   ├── RequestQueue.res
-│   │   ├── RequestQueueTest.res
 │   │   ├── Resizer.ast
 │   │   ├── Resizer.cmi
 │   │   ├── Resizer.cmj
@@ -2547,11 +2540,11 @@
 │   │   ├── 012_add_tests_simulationlogic_REPORT.md
 │   │   ├── 013_add_tests_sessionstore_REPORT.md
 │   │   ├── 014_add_tests_requestqueue_REPORT.md
+│   │   ├── 016_implement_backend_geocoding_cache_REPORT.md
 │   │   └── CONCISE_SUMMARY.md
 │   ├── COMPLETION_SUMMARY.md
 │   ├── current_refactor.md
 │   ├── pending
-│   │   ├── 016_implement_backend_geocoding_cache.md
 │   │   ├── 017_implement_backend_geocoding_proxy.md
 │   │   ├── 018_offload_image_similarity_to_backend.md
 │   │   ├── 019_fix_security_innerhtml.md
@@ -2715,4 +2708,4 @@
 │       └── VitestSmoke.test.res
 └── vitest.config.mjs
 
-91 directories, 2625 files
+91 directories, 2618 files
