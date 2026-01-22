@@ -15,11 +15,11 @@ Establish a rigorous "Regression Shield" around the stable core systems of the a
 - [x] **SceneReducer**:
     - Test every action type (Add, Remove, Update, Reorder).
     - Test edge cases: Deleting the active scene, reordering invalid indices.
-- [ ] **HotspotReducer**:
+- [x] **HotspotReducer**:
     - Test adding/removing hotspots.
     - Test updating properties (yaw, pitch, target).
     - **Crucial:** Test integrity (e.g., ensuring `linkId` is unique).
-- [ ] **NavigationReducer**:
+- [x] **NavigationReducer**:
     - Test history stack management (if applicable).
     - Test auto-forward chain logic.
 
@@ -27,10 +27,10 @@ Establish a rigorous "Regression Shield" around the stable core systems of the a
 **Target:** `src/systems/Navigation.res` (Logic only)
 **Why:** Users *must* be able to move between scenes reliably.
 
-- [ ] **Pathfinding**:
+- [x] **Pathfinding**:
     - Test `findSceneByName` with various naming conventions.
     - Test `getNextScene` / `getPreviousScene` in both linear and non-linear/filtered lists.
-- [ ] **Auto-Forward Logic**:
+- [x] **Auto-Forward Logic**:
     - Test chain execution (does it stop at the right time?).
     - Test loop prevention (does it detect infinite auto-forward loops?).
 
@@ -38,7 +38,7 @@ Establish a rigorous "Regression Shield" around the stable core systems of the a
 **Target:** `src/systems/ProjectManager.res` (Pure Logic functions only)
 **Why:** Preventing corrupt data from entering the system is cheaper than fixing it later.
 
-- [ ] **Validation**:
+- [x] **Validation**:
     - Exhaustive testing of `validateProjectStructure`.
     - Create a suite of "Corrupt JSON" mock files (missing fields, wrong types) and ensure they are rejected with clear error messages.
     - Test "Version Migration" logic (if old project formats are supported).

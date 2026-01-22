@@ -12,7 +12,8 @@ let runAll = async () => {
   ReducerHelpersTest.run()
   JsonTypesTest.run()
   // SceneReducerTest.run() - Migrated to Vitest
-  HotspotReducerTest.run()
+  // HotspotReducerTest.run() - Migrated to Vitest
+  // NavigationReducerTest.run() - Migrated to Vitest
   ExifParserTest.run()
   AudioManagerTest.run()
   ExifReportGeneratorTest.run()
@@ -36,7 +37,7 @@ let runAll = async () => {
   ProgressBarTest.run()
   StateInspectorTest.run()
   ServiceWorkerTest.run()
-  NavigationTest.run()
+  // NavigationTest.run() - Migrated to Vitest
   NavigationRendererTest.run()
   MainTest.run()
   ViewerLoaderTest.run()
@@ -44,7 +45,7 @@ let runAll = async () => {
   GlobalStateBridgeTest.run()
   RootReducerTest.run()
   ProjectReducerTest.run()
-  NavigationReducerTest.run()
+  // NavigationReducerTest.run() - Migrated to Vitest
   EventBusTest.run()
   TimelineReducerTest.run()
   SimulationNavigationTest.run()
