@@ -527,3 +527,4 @@ Task: 147
 [2026-01-23 00:07] v4.4.7 - test: add unit tests for SessionStore using Vitest
 [2026-01-23 00:11] v4.4.7 - test: add unit tests for RequestQueue using Vitest
 [2026-01-23 00:13] v4.4.7 - feat: verify and document backend geocoding cache implementation
+[2026-01-23 00:15] v4.4.7 - feat: verify and document backend geocoding proxy implementation
