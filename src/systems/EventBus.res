@@ -19,7 +19,7 @@ type button = {
 type modalConfig = {
   title: string,
   description: option<string>,
-  contentHtml: option<string>,
+  content: option<React.element>,
   buttons: array<button>,
   icon: option<string>,
   allowClose: option<bool>,

@@ -30,48 +30,41 @@ let showLinkModal = (
 
   // Determine next sequential index for smart selection
   let nextIndex = state.activeIndex + 1
-
   let scenes = state.scenes
-  let sceneOptions =
-    scenes
-    ->Belt.Array.mapWithIndex((i, s) => {
-      let safeName = escapeHtml(s.name)
 
-      // Auto-select logic
-      let isSelected = switch (
-        Nullable.toOption(pendingReturnSceneName),
-        Nullable.toOption(linkDraft),
-      ) {
-      | (Some(name), _) => s.name == name
-      // Fix: Allow default selection (next index) even if linkDraft exists
-      | (None, _) => i == nextIndex
-      }
+  let content =
+    <div className="flex flex-col gap-4">
+      <label htmlFor="link-target" className="sr-only">
+        {React.string("Select destination room")}
+      </label>
+      <select
+        id="link-target"
+        className="w-full h-11 px-9 pl-3 mb-4 bg-black/30 border border-white/15 rounded-lg text-white font-semibold text-[13px] outline-none cursor-pointer appearance-none bg-[url('data:image/svg+xml,%3Csvg%20fill%3D%22%23ffffff%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20width%3D%2224%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M7%2010l5%205%205-5z%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_10px_center] bg-[length:20px]"
+        ariaLabel="Select destination room for navigation link"
+      >
+        <option value="" className="bg-slate-800"> {React.string("-- Select Room --")} </option>
+        {scenes
+        ->Belt.Array.mapWithIndex((i, s) => {
+          // Auto-select logic
+          let isSelected = switch (
+            Nullable.toOption(pendingReturnSceneName),
+            Nullable.toOption(linkDraft),
+          ) {
+          | (Some(name), _) => s.name == name
+          | (None, _) => i == nextIndex
+          }
 
-      if i == state.activeIndex {
-        ""
-      } else {
-        let selectedStr = if isSelected {
-          "selected"
-        } else {
-          ""
-        }
-        let style = "background: var(--slate-800);"
-        `<option value="${safeName}" ${selectedStr} style="${style}">${safeName}</option>`
-      }
-    })
-    ->Array.join(_, "")
-
-  let contentHtml = `
-        <label for="link-target" class="sr-only">Select destination room</label>
-        <select 
-          id="link-target" 
-          style="width: 100%; height: 44px; padding: 0 36px 0 12px; margin-bottom: 16px; background-color: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; color: white; font-weight: 600; font-size: 13px; outline: none; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml,%3Csvg fill%3D%22%23ffffff%22 height%3D%2224%22 viewBox%3D%220 0 24 24%22 width%3D%2224%22 xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath d%3D%22M7 10l5 5 5-5z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 10px center; background-size: 20px;"
-          aria-label="Select destination room for navigation link"
-        >
-            <option value="" style="background: var(--slate-800);">-- Select Room --</option>
-            ${sceneOptions}
-        </select>
-  `
+          if i == state.activeIndex {
+            React.null
+          } else {
+            <option key={s.name} value={s.name} selected={isSelected} className="bg-slate-800">
+              {React.string(s.name)}
+            </option>
+          }
+        })
+        ->React.array}
+      </select>
+    </div>
 
   let onSave = () => {
     let element = Dom.getElementById("link-target")
@@ -170,7 +163,7 @@ let showLinkModal = (
       title: "Link Destination",
       description: Some("Saving current view as \"Target\""),
       icon: Some("add_link"),
-      contentHtml: Some(contentHtml),
+      content: Some(content),
       allowClose: Some(true),
       onClose: Some(
         () => {

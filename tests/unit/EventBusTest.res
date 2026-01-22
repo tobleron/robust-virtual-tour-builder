@@ -325,7 +325,7 @@ let run = () => {
     let testModalConfig: modalConfig = {
       title: "Test Modal",
       description: Some("This is a test"),
-      contentHtml: None,
+      content: None,
       buttons: [],
       icon: Some("info"),
       allowClose: Some(true),

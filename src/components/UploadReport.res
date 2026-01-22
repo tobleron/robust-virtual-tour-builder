@@ -39,71 +39,72 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
       })
     }
 
-    /* HTML Generation */
+    /* Component Generation */
     let renderGroup = (label, count, className, icon) => {
-      `<div class="upload-report-group">
-         <div class="upload-report-icon">${icon}</div>
-         <div class="upload-report-count ${className}">${Int.toString(count)}</div>
-         <div class="upload-report-label">${label}</div>
-       </div>`
-    }
-
-    let htmlStart = `<div class="upload-report-card">
-       <div class="upload-report-header">
-          <div class="upload-report-title">Batch Health</div>
-          <div class="upload-report-score">${Float.toFixed(
-        avgScore.contents,
-        ~digits=1,
-      )} <span class="upload-report-score-total">/ 10</span></div>
-       </div>
-       
-       <div class="upload-report-grid">
-          ${renderGroup("Excellent", Array.length(groups.ex), "text-success", "🌟")}
-          ${renderGroup("Moderate", Array.length(groups.md), "text-warning", "📈")}
-          ${renderGroup("Review", Array.length(groups.pr), "text-danger", "⚠️")}
-       </div>
-    </div>`
-
-    let htmlAction = if Array.length(groups.pr) > 0 {
-      let itemsHtml = Belt.Array.map(groups.pr, r => {
-        let analysis = switch Nullable.toOption(r.quality.analysis) {
-        | Some(a) => `<div class="upload-report-analysis">${a}</div>`
-        | None => ""
-        }
-        `<div class="upload-report-item">
-              <div class="upload-report-item-header">
-                <span class="upload-report-filename">${r.newName}</span>
-                <span class="upload-report-item-score">${Float.toString(r.quality.score)}</span>
-              </div>
-              ${analysis}
-            </div>`
-      })->Array.join("")
-
-      `<div class="upload-report-action-container">
-        <div class="upload-report-action-title">
-          🚩 Action Required (${Int.toString(Array.length(groups.pr))})
+      <div key=label className="upload-report-group">
+        <div className="upload-report-icon"> {React.string(icon)} </div>
+        <div className={className ++ " upload-report-count"}>
+          {React.string(Int.toString(count))}
         </div>
-        <div class="upload-report-action-list">
-          ${itemsHtml}
+        <div className="upload-report-label"> {React.string(label)} </div>
+      </div>
+    }
+
+    let content =
+      <div className="upload-report-container">
+        <div className="upload-report-main-icon"> {React.string("\u2728")} </div>
+        <div className="upload-report-card">
+          <div className="upload-report-header">
+            <div className="upload-report-title"> {React.string("Batch Health")} </div>
+            <div className="upload-report-score">
+              {React.string(Float.toFixed(avgScore.contents, ~digits=1))}
+              <span className="upload-report-score-total"> {React.string(" / 10")} </span>
+            </div>
+          </div>
+          <div className="upload-report-grid">
+            {renderGroup("Excellent", Array.length(groups.ex), "text-success", "\u{1F31F}")}
+            {renderGroup("Moderate", Array.length(groups.md), "text-warning", "\u{1F4C8}")}
+            {renderGroup("Review", Array.length(groups.pr), "text-danger", "\u26A0\uFE0F")}
+          </div>
         </div>
-      </div>`
-    } else {
-      ""
-    }
-
-    let htmlSkipped = if Array.length(report.skipped) > 0 {
-      `<div class="upload-report-skipped-container">
-           <div class="upload-report-skipped-badge">
-             <span class="upload-report-skipped-icon">📑</span> ${Int.toString(
-          Array.length(report.skipped),
-        )} Duplicates Skipped
-           </div>
-        </div>`
-    } else {
-      ""
-    }
-
-    let contentHtml = htmlStart ++ htmlAction ++ htmlSkipped
+        {if Array.length(groups.pr) > 0 {
+          <div className="upload-report-action-container">
+            <div className="upload-report-action-title">
+              {React.string(`\u{1F6A9} Action Required (${Int.toString(Array.length(groups.pr))})`)}
+            </div>
+            <div className="upload-report-action-list">
+              {groups.pr
+              ->Belt.Array.map(r => {
+                <div key={r.newName} className="upload-report-item">
+                  <div className="upload-report-item-header">
+                    <span className="upload-report-filename"> {React.string(r.newName)} </span>
+                    <span className="upload-report-item-score">
+                      {React.string(Float.toString(r.quality.score))}
+                    </span>
+                  </div>
+                  {switch Nullable.toOption(r.quality.analysis) {
+                  | Some(a) => <div className="upload-report-analysis"> {React.string(a)} </div>
+                  | None => React.null
+                  }}
+                </div>
+              })
+              ->React.array}
+            </div>
+          </div>
+        } else {
+          React.null
+        }}
+        {if Array.length(report.skipped) > 0 {
+          <div className="upload-report-skipped-container">
+            <div className="upload-report-skipped-badge">
+              <span className="upload-report-skipped-icon"> {React.string("\u{1F4D1}")} </span>
+              {React.string(` ${Int.toString(Array.length(report.skipped))} Duplicates Skipped`)}
+            </div>
+          </div>
+        } else {
+          React.null
+        }}
+      </div>
 
     let btnDownload: EventBus.button = {
       label: "Download Data Report",
@@ -138,17 +139,11 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
       autoClose: Some(true),
     }
 
-    /* iconHtml support removed from typed ModalConfig, merging into contentHtml or ignoring */
-    let finalHtml = switch Some(`<div class="upload-report-main-icon">✨</div>`) {
-    | Some(icon) => icon ++ contentHtml
-    | None => contentHtml
-    }
-
     let options: EventBus.modalConfig = {
       title: "Upload Summary",
       description: Some("Intelligent quality evaluation"),
       icon: None,
-      contentHtml: Some(finalHtml),
+      content: Some(content),
       buttons: [btnDownload, btnStart],
       onClose: None,
       allowClose: Some(true),
