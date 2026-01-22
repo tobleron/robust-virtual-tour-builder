@@ -169,6 +169,7 @@ let make = () => {
                       contentHtml: None,
                       onClose: None,
                       allowClose: Some(true),
+                      className: Some("modal-blue"),
                       buttons: [
                         {
                           label: "Cancel",
@@ -234,6 +235,7 @@ let make = () => {
                     contentHtml: None,
                     onClose: None,
                     allowClose: Some(true),
+                    className: Some("modal-blue"),
                     buttons: [
                       {
                         label: "Close",

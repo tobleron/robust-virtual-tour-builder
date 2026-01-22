@@ -124,7 +124,12 @@ let make = () => {
   switch activeConfig {
   | Some(config) =>
     <div className="modal-overlay">
-      <div className="modal-box-premium" role="dialog" ariaModal=true ariaLabelledby="modal-title">
+      <div
+        className={`modal-box-premium ${config.className->Option.getOr("")}`}
+        role="dialog"
+        ariaModal=true
+        ariaLabelledby="modal-title"
+      >
         // Icon
         {switch config.icon {
         | Some(icon) =>
