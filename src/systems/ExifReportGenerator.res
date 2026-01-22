@@ -263,6 +263,15 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
   let _ = Js.Array.push("", lines)
 
   if Array.length(gpsPoints) == 0 {
+    Logger.warn(
+      ~module_="ExifReport",
+      ~message="NO_GPS_DATA_FOUND",
+      ~data=Some({
+        "totalImages": Array.length(sceneDataList),
+        "reason": "No GPS coordinates in EXIF metadata",
+      }),
+      (),
+    )
     let _ = Js.Array.push("  ⚠️  No GPS data found in any uploaded images.", lines)
     let _ = Js.Array.push(
       "      Images may have been taken with location services disabled,",
@@ -323,10 +332,30 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
 
         switch geocodeResult {
         | Ok(address) => {
+            Logger.info(
+              ~module_="ExifReport",
+              ~message="GEOCODING_SUCCESS",
+              ~data=Some({
+                "lat": lat,
+                "lon": lon,
+                "address": address,
+              }),
+              (),
+            )
             let _ = Js.Array.push(`     ${address}`, lines)
             resolvedAddress := Some(address)
           }
         | Error(msg) => {
+            Logger.error(
+              ~module_="ExifReport",
+              ~message="GEOCODING_FAILED",
+              ~data=Some({
+                "lat": lat,
+                "lon": lon,
+                "error": msg,
+              }),
+              (),
+            )
             let _ = Js.Array.push(`     [Geocoding failed: ${msg}]`, lines)
             let _ = Js.Array.push(
               "     (This does not affect your virtual tour - geocoding is informational only)",
@@ -477,6 +506,19 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>): Promise.t<
 
   // Generate suggested project name
   let suggestedName = generateProjectName(resolvedAddress.contents, captureDateTime.contents)
+
+  Logger.info(
+    ~module_="ExifReport",
+    ~message="PROJECT_NAME_GENERATED_FROM_EXIF",
+    ~data=Some({
+      "suggestedName": suggestedName,
+      "hasAddress": resolvedAddress.contents != None,
+      "hasDateTime": captureDateTime.contents != None,
+      "address": resolvedAddress.contents->Option.getOr("None"),
+      "dateTime": captureDateTime.contents->Option.getOr("None"),
+    }),
+    (),
+  )
 
   Promise.resolve({
     report: Js.Array.joinWith("\n", lines),

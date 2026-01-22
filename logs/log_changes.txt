@@ -503,3 +503,5 @@ Task: 147
 [2026-01-22 04:15] v4.4.5 - Maximum UI Polish v1
 [2026-01-22 13:48] v4.4.5 - UI Polish v2 Good
 [2026-01-22 14:47] v4.4.5 - Simulation Stable
+[2026-01-22 15:22] v4.4.6 - UI Refinement: Reduced room label font size to 12px for better visual balance and professional aesthetics in the viewer HUD.
+[2026-01-22 15:22] v4.4.6 - v4.4.6 [UI] Reduce room label font size to 12px
