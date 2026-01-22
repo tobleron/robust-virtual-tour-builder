@@ -28,23 +28,48 @@ const mockWindow = {
     removeEventListener: () => { },
     pannellumViewer: null,
     document: {
-        createElement: (tag) => ({
-            tag: tag,
-            getContext: () => ({
-                getExtension: () => null,
-                getParameter: () => 'mock',
-                fillRect: () => { },
-                beginPath: () => { },
-                stroke: () => { },
-                fill: () => { },
-                save: () => { },
-                restore: () => { },
-            }),
-            style: {},
-            appendChild: () => { },
-            setAttribute: () => { },
-            classList: { add: () => { }, remove: () => { }, contains: () => false, toggle: () => { } }
-        }),
+        createElement: (tag) => {
+            const el = {
+                tag: tag,
+                width: 0,
+                height: 0,
+                src: '',
+                getContext: () => ({
+                    getExtension: () => null,
+                    getParameter: () => 'mock',
+                    fillRect: () => { },
+                    beginPath: () => { },
+                    stroke: () => { },
+                    fill: () => { },
+                    save: () => { },
+                    restore: () => { },
+                    drawImage: () => { },
+                    imageSmoothingQuality: 'high'
+                }),
+                toBlob: (cb, type, quality) => {
+                    setTimeout(() => {
+                        cb({ size: 1024, type: type || 'image/webp' });
+                    }, 0);
+                },
+                style: {},
+                appendChild: () => { },
+                setAttribute: (name, value) => {
+                    el[name] = value;
+                    if (tag === 'img' && name === 'src') {
+                        setTimeout(() => {
+                            if (el.onload) el.onload();
+                        }, 0);
+                    }
+                },
+                classList: { add: () => { }, remove: () => { }, contains: () => false, toggle: () => { } },
+                addEventListener: (event, cb) => {
+                    if (event === 'load') el.onload = cb;
+                    if (event === 'error') el.onerror = cb;
+                },
+                removeEventListener: () => { }
+            };
+            return el;
+        },
         getElementById: () => null,
         querySelector: () => null,
         querySelectorAll: () => [],
@@ -72,6 +97,7 @@ const defineGlobal = (name, value) => {
 defineGlobal('window', mockWindow);
 defineGlobal('self', mockWindow);
 defineGlobal('document', mockWindow.document);
+if (typeof global !== 'undefined') global.document = mockWindow.document;
 defineGlobal('navigator', mockWindow.navigator);
 defineGlobal('location', mockWindow.location);
 defineGlobal('screen', mockWindow.screen);

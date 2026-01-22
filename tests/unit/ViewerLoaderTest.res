@@ -22,6 +22,9 @@ open ViewerLoader
 
 // Mock for Dom and Browser APIs
 %%raw(`
+  // Save existing document.createElement if it exists
+  const existingCreateElement = globalThis.document?.createElement;
+  
   globalThis.document = {
     getElementById: (id) => {
       if (id === "missing") return null;
@@ -38,7 +41,7 @@ open ViewerLoader
         appendChild: () => {}
       };
     },
-    createElement: (tag) => {
+    createElement: existingCreateElement || ((tag) => {
       const el = { 
         tagName: tag.toUpperCase(), 
         setAttribute: (k, v) => { el[k] = v; }, 
@@ -48,7 +51,7 @@ open ViewerLoader
         style: {}
       };
       return el;
-    },
+    }),
     body: { 
       appendChild: (el) => { 
         if (!globalThis.document._scripts) globalThis.document._scripts = [];
