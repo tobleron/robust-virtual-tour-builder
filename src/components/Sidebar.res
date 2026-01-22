@@ -259,10 +259,10 @@ let make = () => {
               ariaLabel={label}
             >
               {switch icon {
-              | "file-plus" => <LucideIcons.FilePlus size=20 strokeWidth=1 />
-              | "save" => <LucideIcons.Save size=20 strokeWidth=1 />
-              | "folder-open" | "folder_open" => <LucideIcons.FolderOpen size=20 strokeWidth=1 />
-              | "info" => <LucideIcons.Info size=20 strokeWidth=1 />
+              | "file-plus" => <LucideIcons.FilePlus size=20 strokeWidth=1.0 />
+              | "save" => <LucideIcons.Save size=20 strokeWidth=1.0 />
+              | "folder-open" | "folder_open" => <LucideIcons.FolderOpen size=20 strokeWidth=1.0 />
+              | "info" => <LucideIcons.Info size=20 strokeWidth=1.0 />
               | _ => React.null
               }}
               <span> {React.string(label)} </span>
@@ -304,7 +304,7 @@ let make = () => {
             ariaLabel="Export Tour"
           >
             <LucideIcons.Download
-              className="text-white transition-all duration-300" size=20 strokeWidth=1
+              className="text-white transition-all duration-300" size=20 strokeWidth=1.0
             />
             <span> {React.string("Export")} </span>
           </button>
@@ -318,7 +318,7 @@ let make = () => {
             ariaLabel="Create Teaser"
           >
             <LucideIcons.Film
-              className="text-white transition-all duration-300" size=20 strokeWidth=1
+              className="text-white transition-all duration-300" size=20 strokeWidth=1.0
             />
             <span> {React.string("Teaser")} </span>
           </button>
@@ -444,7 +444,7 @@ let make = () => {
           <div
             className="absolute inset-0 bg-gradient-to-b from-transparent via-white/10 to-transparent translate-y-[-100%] group-hover:translate-y-[100%] transition-transform duration-700"
           />
-          <LucideIcons.Camera className="text-white" size=24 strokeWidth=2 />
+          <LucideIcons.Camera className="text-white" size=24 strokeWidth=2.0 />
           <span
             className="text-[9px] font-bold tracking-widest uppercase writing-vertical-lr hidden"
           >
@@ -454,10 +454,7 @@ let make = () => {
 
         /* Right Side: Label + Input */
         <div className="flex-1 flex flex-col justify-center gap-1.5">
-          <label
-            className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-1"
-            htmlFor="project-name-input"
-          >
+          <label className="sidebar-project-label" htmlFor="project-name-input">
             {React.string("Project Name")}
           </label>
           <input

@@ -5,147 +5,317 @@
 
 module Play = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "Play"
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "Play"
 }
 
 module Square = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
-    "Square"
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "Square"
 }
 
 module Home = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "Home"
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "Home"
 }
 
 module Sun = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "Sun"
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "Sun"
 }
 
 module Trees = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
-    "Trees"
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "Trees"
 }
 
 module Sprout = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
-    "Sprout"
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "Sprout"
 }
 
 module Navigation = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
-    "Navigation"
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "Navigation"
 }
 
 module Trash2 = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
-    "Trash2"
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "Trash2"
 }
 
 module Unlink = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
-    "Unlink"
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "Unlink"
 }
 
 module FastForward = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
-    "FastForward"
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "FastForward"
 }
 
 module ChevronRight = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
-    "ChevronRight"
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "ChevronRight"
 }
 
 module Plus = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "Plus"
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "Plus"
 }
 
 module X = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "X"
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "X"
+}
+
+module CircleAlert = {
+  @module("lucide-react") @react.component
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+    ~stroke: string=?,
+  ) => React.element = "CircleAlert"
+}
+
+module CircleCheck = {
+  @module("lucide-react") @react.component
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+    ~stroke: string=?,
+  ) => React.element = "CircleCheck"
+}
+
+module TriangleAlert = {
+  @module("lucide-react") @react.component
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+    ~stroke: string=?,
+  ) => React.element = "TriangleAlert"
 }
 
 module Hash = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "Hash"
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "Hash"
 }
 
 module Link = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "Link"
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "Link"
 }
 
 module MoreVertical = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
-    "MoreVertical"
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "MoreVertical"
 }
 
 module ImageIcon = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
-    "Image"
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+    ~stroke: string=?,
+  ) => React.element = "Image"
+}
+
+module FileImage = {
+  @module("lucide-react") @react.component
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+    ~stroke: string=?,
+  ) => React.element = "FileImage"
+}
+
+module Images = {
+  @module("lucide-react") @react.component
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+    ~stroke: string=?,
+  ) => React.element = "Images"
 }
 
 module GripVertical = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
-    "GripVertical"
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "GripVertical"
 }
 
 module Download = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
-    "Download"
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "Download"
 }
 
 // Sidebar icons
 module FilePlus = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
-    "FilePlus"
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "FilePlus"
 }
 
 module Save = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "Save"
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "Save"
 }
 
 module FolderOpen = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
-    "FolderOpen"
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "FolderOpen"
 }
 
 module Info = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "Info"
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "Info"
 }
 
 module Share2 = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
-    "Share2"
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "Share2"
 }
 
 module Film = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "Film"
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "Film"
 }
 
 module Camera = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
-    "Camera"
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "Camera"
 }
