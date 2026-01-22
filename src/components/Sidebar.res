@@ -314,7 +314,7 @@ let make = () => {
             ariaLabel="Create Teaser"
           >
             <LucideIcons.Film
-              className="text-white group-hover:scale-110 transition-transform"
+              className="text-white transition-all duration-300"
               size=20
               strokeWidth=1
             />
