@@ -1,6 +1,4 @@
 .
-├── AUTOPILOT_SIMULATION_ANALYSIS.md
-├── AUTOPILOT_TASKS_SUMMARY.md
 ├── backend
 │   ├── backend_run.log
 │   ├── backend.log
@@ -89,6 +87,8 @@
 ├── dev.log
 ├── docs
 │   ├── ARCHITECTURE.md
+│   ├── AUTOPILOT_SIMULATION_ANALYSIS.md
+│   ├── AUTOPILOT_TASKS_SUMMARY.md
 │   ├── DESIGN_SYSTEM.md
 │   ├── DEVELOPMENT_GUIDELINES.md
 │   ├── openapi.yaml
@@ -925,6 +925,12 @@
 │   │           ├── ServiceWorkerTest.cmj
 │   │           ├── ServiceWorkerTest.cmt
 │   │           ├── ServiceWorkerTest.res
+│   │           ├── SessionStore_v.test.ast
+│   │           ├── SessionStore_v.test.bs.js
+│   │           ├── SessionStore_v.test.cmi
+│   │           ├── SessionStore_v.test.cmj
+│   │           ├── SessionStore_v.test.cmt
+│   │           ├── SessionStore_v.test.res
 │   │           ├── SessionStoreTest.ast
 │   │           ├── SessionStoreTest.bs.js
 │   │           ├── SessionStoreTest.cmi
@@ -955,12 +961,6 @@
 │   │           ├── SimulationLogic_v.test.cmj
 │   │           ├── SimulationLogic_v.test.cmt
 │   │           ├── SimulationLogic_v.test.res
-│   │           ├── SimulationLogicTest.ast
-│   │           ├── SimulationLogicTest.bs.js
-│   │           ├── SimulationLogicTest.cmi
-│   │           ├── SimulationLogicTest.cmj
-│   │           ├── SimulationLogicTest.cmt
-│   │           ├── SimulationLogicTest.res
 │   │           ├── SimulationNavigationTest.ast
 │   │           ├── SimulationNavigationTest.bs.js
 │   │           ├── SimulationNavigationTest.cmi
@@ -1571,15 +1571,16 @@
 │   │   ├── ServiceWorkerTest.cmj
 │   │   ├── ServiceWorkerTest.cmt
 │   │   ├── ServiceWorkerTest.res
+│   │   ├── SessionStore_v.test.ast
+│   │   ├── SessionStore_v.test.cmi
+│   │   ├── SessionStore_v.test.cmj
+│   │   ├── SessionStore_v.test.cmt
+│   │   ├── SessionStore_v.test.res
 │   │   ├── SessionStore.ast
 │   │   ├── SessionStore.cmi
 │   │   ├── SessionStore.cmj
 │   │   ├── SessionStore.cmt
 │   │   ├── SessionStore.res
-│   │   ├── SessionStoreTest.ast
-│   │   ├── SessionStoreTest.cmi
-│   │   ├── SessionStoreTest.cmj
-│   │   ├── SessionStoreTest.cmt
 │   │   ├── SessionStoreTest.res
 │   │   ├── Shadcn.ast
 │   │   ├── Shadcn.cmi
@@ -1631,7 +1632,6 @@
 │   │   ├── SimulationLogic.cmj
 │   │   ├── SimulationLogic.cmt
 │   │   ├── SimulationLogic.res
-│   │   ├── SimulationLogicTest.res
 │   │   ├── SimulationNavigation.ast
 │   │   ├── SimulationNavigation.cmi
 │   │   ├── SimulationNavigation.cmj
@@ -2545,11 +2545,11 @@
 │   │   ├── 010_add_tests_navigationcontroller_REPORT.md
 │   │   ├── 011_add_tests_simulationdriver_REPORT.md
 │   │   ├── 012_add_tests_simulationlogic_REPORT.md
+│   │   ├── 013_add_tests_sessionstore_REPORT.md
 │   │   └── CONCISE_SUMMARY.md
 │   ├── COMPLETION_SUMMARY.md
 │   ├── current_refactor.md
 │   ├── pending
-│   │   ├── 013_add_tests_sessionstore.md
 │   │   ├── 014_add_tests_requestqueue.md
 │   │   ├── 016_implement_backend_geocoding_cache.md
 │   │   ├── 017_implement_backend_geocoding_proxy.md
@@ -2661,8 +2661,8 @@
 │       ├── ServiceWorkerMainTest.res
 │       ├── ServiceWorkerTest.bs.js
 │       ├── ServiceWorkerTest.res
-│       ├── SessionStoreTest.bs.js
-│       ├── SessionStoreTest.res
+│       ├── SessionStore_v.test.bs.js
+│       ├── SessionStore_v.test.res
 │       ├── SharedTypesTest.bs.js
 │       ├── SharedTypesTest.res
 │       ├── SimulationChainSkipperTest.bs.js
