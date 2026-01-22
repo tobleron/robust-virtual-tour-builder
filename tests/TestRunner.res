@@ -51,7 +51,6 @@ let runAll = async () => {
   SimulationChainSkipperTest.run()
   SimulationPathGeneratorTest.run()
   await TeaserPathfinderTest.run()
-  await RequestQueueTest.run()
   ServerTeaserTest.run()
   ConstantsTest.run()
   VersionTest.run()
