@@ -168,7 +168,7 @@ let make = () => {
                         "Are you sure you want to discard the current project? All progress will be lost.",
                       ),
                       icon: Some("warning"),
-                      contentHtml: None,
+                      content: None,
                       onClose: None,
                       allowClose: Some(true),
                       className: Some("modal-blue"),
@@ -230,11 +230,18 @@ let make = () => {
                 EventBus.dispatch(
                   ShowModal({
                     title: "About Builder",
-                    description: Some(
-                      `Version: ${VersionData.version}<br>Build: ${VersionData.buildInfo}`,
-                    ),
+                    description: None,
                     icon: Some("info"),
-                    contentHtml: None,
+                    content: Some(
+                      <div className="flex flex-col gap-1 mt-2">
+                        <p className="text-slate-600 font-semibold">
+                          {React.string(`Version: ${VersionData.version}`)}
+                        </p>
+                        <p className="text-slate-500 text-sm">
+                          {React.string(`Build: ${VersionData.buildInfo}`)}
+                        </p>
+                      </div>,
+                    ),
                     onClose: None,
                     allowClose: Some(true),
                     className: Some("modal-blue"),

@@ -15,37 +15,92 @@ let renderScriptTemplate = `
       hotSpotDiv.style.width = "__BASE_SIZE__px";
       hotSpotDiv.style.height = "__BASE_SIZE__px";
       
+      const ns = "http://www.w3.org/2000/svg";
+      const svg = document.createElementNS(ns, "svg");
+      svg.setAttribute("class", "custom-arrow-svg");
+      svg.setAttribute("viewBox", "0 0 100 100");
+      svg.style.overflow = "visible";
+      
       if (isHome) {
         hotSpotDiv.setAttribute('data-target-home', 'true');
-        hotSpotDiv.innerHTML = \`
-          <svg class="custom-arrow-svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" style="overflow:visible;">
-            <defs>
-              <linearGradient id="homeGradExport_\${args.i}" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" style="stop-color:var(--gold-1);stop-opacity:1" />
-                <stop offset="50%" style="stop-color:var(--gold-2);stop-opacity:1" />
-                <stop offset="100%" style="stop-color:var(--gold-3);stop-opacity:1" />
-              </linearGradient>
-            </defs>
-            <rect x="5" y="5" width="90" height="90" rx="8" fill="url(#homeGradExport_\${args.i})" />
-            <text x="50" y="52" text-anchor="middle" dominant-baseline="middle" font-family="Outfit, sans-serif" font-weight="700" font-size="24" fill="var(--gold-text)" style="letter-spacing: 0px;">HOME</text>
-          </svg>\`;
+        svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+        
+        const defs = document.createElementNS(ns, "defs");
+        const grad = document.createElementNS(ns, "linearGradient");
+        grad.setAttribute("id", "homeGradExport_" + args.i);
+        grad.setAttribute("x1", "0%"); grad.setAttribute("y1", "0%");
+        grad.setAttribute("x2", "0%"); grad.setAttribute("y2", "100%");
+        
+        const s1 = document.createElementNS(ns, "stop");
+        s1.setAttribute("offset", "0%"); s1.style.stopColor = "var(--gold-1)"; s1.style.stopOpacity = "1";
+        const s2 = document.createElementNS(ns, "stop");
+        s2.setAttribute("offset", "50%"); s2.style.stopColor = "var(--gold-2)"; s2.style.stopOpacity = "1";
+        const s3 = document.createElementNS(ns, "stop");
+        s3.setAttribute("offset", "100%"); s3.style.stopColor = "var(--gold-3)"; s3.style.stopOpacity = "1";
+        
+        grad.appendChild(s1); grad.appendChild(s2); grad.appendChild(s3);
+        defs.appendChild(grad);
+        svg.appendChild(defs);
+        
+        const rect = document.createElementNS(ns, "rect");
+        rect.setAttribute("x", "5"); rect.setAttribute("y", "5");
+        rect.setAttribute("width", "90"); rect.setAttribute("height", "90");
+        rect.setAttribute("rx", "8"); rect.setAttribute("fill", "url(#homeGradExport_" + args.i + ")");
+        svg.appendChild(rect);
+        
+        const text = document.createElementNS(ns, "text");
+        text.setAttribute("x", "50"); text.setAttribute("y", "52");
+        text.setAttribute("text-anchor", "middle"); text.setAttribute("dominant-baseline", "middle");
+        text.style.fontFamily = "Outfit, sans-serif"; text.style.fontWeight = "700"; text.style.fontSize = "24px";
+        text.setAttribute("fill", "var(--gold-text)"); text.style.letterSpacing = "0px";
+        text.textContent = "HOME";
+        svg.appendChild(text);
       } else {
-        hotSpotDiv.innerHTML = \`
-          <svg class="custom-arrow-svg" viewBox="0 0 100 100" style="overflow:visible;">
-            <defs>
-              <linearGradient id="arrowGradExport_\${args.i}" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" style="stop-color:var(--gold-1);stop-opacity:1" />
-                <stop offset="50%" style="stop-color:var(--gold-2);stop-opacity:1" />
-                <stop offset="100%" style="stop-color:var(--gold-3);stop-opacity:1" />
-              </linearGradient>
-            </defs>
-            <path d="M10 43 L50 13 L90 43 L90 53 L50 23 L10 53 Z M10 73 L50 43 L90 73 L90 83 L50 53 L10 83 Z" fill="var(--gold-border)" />
-            <path d="M10 40 L50 10 L90 40 L90 60 L50 30 L10 60 Z M10 70 L50 40 L90 70 L90 90 L50 60 L10 90 Z" fill="url(#arrowGradExport_\${args.i})" />
-            <path class="glow-unit glow-top" d="M10 40 L50 10 L90 40 L90 60 L50 30 L10 60 Z" />
-            <path class="glow-unit glow-bottom" d="M10 70 L50 40 L90 70 L90 90 L50 60 L10 90 Z" />
-            <path d="M10 40 L50 10 L90 40 L50 11 Z" fill="var(--arrow-white)" />
-          </svg>\`;
+        const defs = document.createElementNS(ns, "defs");
+        const grad = document.createElementNS(ns, "linearGradient");
+        grad.setAttribute("id", "arrowGradExport_" + args.i);
+        grad.setAttribute("x1", "0%"); grad.setAttribute("y1", "0%");
+        grad.setAttribute("x2", "0%"); grad.setAttribute("y2", "100%");
+        
+        const s1 = document.createElementNS(ns, "stop");
+        s1.setAttribute("offset", "0%"); s1.style.stopColor = "var(--gold-1)"; s1.style.stopOpacity = "1";
+        const s2 = document.createElementNS(ns, "stop");
+        s2.setAttribute("offset", "50%"); s2.style.stopColor = "var(--gold-2)"; s2.style.stopOpacity = "1";
+        const s3 = document.createElementNS(ns, "stop");
+        s3.setAttribute("offset", "100%"); s3.style.stopColor = "var(--gold-3)"; s3.style.stopOpacity = "1";
+        
+        grad.appendChild(s1); grad.appendChild(s2); grad.appendChild(s3);
+        defs.appendChild(grad);
+        svg.appendChild(defs);
+        
+        const p1 = document.createElementNS(ns, "path");
+        p1.setAttribute("d", "M10 43 L50 13 L90 43 L90 53 L50 23 L10 53 Z M10 73 L50 43 L90 73 L90 83 L50 53 L10 83 Z");
+        p1.setAttribute("fill", "var(--gold-border)");
+        svg.appendChild(p1);
+        
+        const p2 = document.createElementNS(ns, "path");
+        p2.setAttribute("d", "M10 40 L50 10 L90 40 L90 60 L50 30 L10 60 Z M10 70 L50 40 L90 70 L90 90 L50 60 L10 90 Z");
+        p2.setAttribute("fill", "url(#arrowGradExport_" + args.i + ")");
+        svg.appendChild(p2);
+        
+        const glow1 = document.createElementNS(ns, "path");
+        glow1.setAttribute("class", "glow-unit glow-top");
+        glow1.setAttribute("d", "M10 40 L50 10 L90 40 L90 60 L50 30 L10 60 Z");
+        svg.appendChild(glow1);
+        
+        const glow2 = document.createElementNS(ns, "path");
+        glow2.setAttribute("class", "glow-unit glow-bottom");
+        glow2.setAttribute("d", "M10 70 L50 40 L90 70 L90 90 L50 60 L10 90 Z");
+        svg.appendChild(glow2);
+        
+        const p3 = document.createElementNS(ns, "path");
+        p3.setAttribute("d", "M10 40 L50 10 L90 40 L50 11 Z");
+        p3.setAttribute("fill", "var(--arrow-white)");
+        svg.appendChild(p3);
       }
+      
+      while (hotSpotDiv.firstChild) hotSpotDiv.removeChild(hotSpotDiv.firstChild);
+      hotSpotDiv.appendChild(svg);
       
       hotSpotDiv.onclick = function() {
         // PRIORITY LOGIC:

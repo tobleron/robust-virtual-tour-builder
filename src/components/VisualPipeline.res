@@ -335,35 +335,36 @@ let render = (pipeline: t, state: Types.state) => {
         | None => false
         }
 
-        Dom.setInnerHTML(
-          node,
-          "
-                  <div class=\"node-tooltip\">
-                     <span class=\"tooltip-link-id\">Link: " ++
-          item.linkId ++
-          "</span>
-                     " ++
-          if thumbUrl.contents != "" {
-            "<img src=\"" ++
-            thumbUrl.contents ++
-            "\" class=\"tooltip-thumb\" alt=\"" ++
-            thumbName.contents ++ " preview\">"
-          } else {
-            ""
-          } ++
-          "
-                     <span class=\"tooltip-text\">" ++
-          thumbName.contents ++
-          "</span>
-                  </div>
-                  " ++
-          if isAutoForward {
-            "<span class=\"auto-forward-indicator\">»</span>"
-          } else {
-            ""
-          } ++ "
-                ",
-        )
+        // Tooltip
+        let tooltip = Dom.createElement("div")
+        Dom.setClassName(tooltip, "node-tooltip")
+
+        let linkIdSpan = Dom.createElement("span")
+        Dom.setClassName(linkIdSpan, "tooltip-link-id")
+        Dom.setTextContent(linkIdSpan, "Link: " ++ item.linkId)
+        Dom.appendChild(tooltip, linkIdSpan)
+
+        if thumbUrl.contents != "" {
+          let img = Dom.createElement("img")
+          Dom.setClassName(img, "tooltip-thumb")
+          Dom.setAttribute(img, "src", thumbUrl.contents)
+          Dom.setAttribute(img, "alt", thumbName.contents ++ " preview")
+          Dom.appendChild(tooltip, img)
+        }
+
+        let textSpan = Dom.createElement("span")
+        Dom.setClassName(textSpan, "tooltip-text")
+        Dom.setTextContent(textSpan, thumbName.contents)
+        Dom.appendChild(tooltip, textSpan)
+
+        Dom.appendChild(node, tooltip)
+
+        if isAutoForward {
+          let indicator = Dom.createElement("span")
+          Dom.setClassName(indicator, "auto-forward-indicator")
+          Dom.setTextContent(indicator, "\u00BB") // >>
+          Dom.appendChild(node, indicator)
+        }
 
         Dom.appendChild(fragment, node)
 
@@ -389,7 +390,11 @@ let init = (containerId: string) => {
     injectStyles()
     let wrapper = Dom.createElement("div")
     Dom.setClassName(wrapper, "visual-pipeline-wrapper")
-    Dom.setInnerHTML(wrapper, "<div class=\"pipeline-track\"></div>")
+
+    let track = Dom.createElement("div")
+    Dom.setClassName(track, "pipeline-track")
+    Dom.appendChild(wrapper, track)
+
     Dom.appendChild(c, wrapper)
 
     let pipeline = {

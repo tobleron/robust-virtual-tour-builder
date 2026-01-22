@@ -154,10 +154,9 @@ let make = () => {
         | Some(desc) => <p className="modal-description-custom"> {React.string(desc)} </p>
         | None => React.null
         }}
-        // Content Html
-        {switch config.contentHtml {
-        | Some(html) =>
-          <div className="modal-content-body" dangerouslySetInnerHTML={"__html": html} />
+        // Content
+        {switch config.content {
+        | Some(element) => <div className="modal-content-body"> element </div>
         | None => React.null
         }}
         // Buttons
