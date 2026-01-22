@@ -2534,11 +2534,11 @@
 │   ├── completed
 │   │   ├── 007_add_tests_imageoptimizer.md
 │   │   ├── 008_add_tests_appcontext_REPORT.md
+│   │   ├── 009_add_tests_uireducer_REPORT.md
 │   │   └── CONCISE_SUMMARY.md
 │   ├── COMPLETION_SUMMARY.md
 │   ├── current_refactor.md
 │   ├── pending
-│   │   ├── 009_add_tests_uireducer.md
 │   │   ├── 010_add_tests_navigationcontroller.md
 │   │   ├── 011_add_tests_simulationdriver.md
 │   │   ├── 012_add_tests_simulationlogic.md
