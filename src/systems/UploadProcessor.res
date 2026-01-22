@@ -340,8 +340,14 @@ let processUploads = (
 
               // Start initial workers
               let initialWorkers = Math.Int.min(maxConcurrency, total)
-              for _ in 1 to initialWorkers {
-                next()
+
+              if total == 0 {
+                // If no items to process (e.g. all duplicates), resolve immediately
+                resolve.contents(results)
+              } else {
+                for _ in 1 to initialWorkers {
+                  next()
+                }
               }
 
               promise
