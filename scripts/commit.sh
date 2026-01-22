@@ -18,6 +18,7 @@ tree -I "node_modules|target|.git|dist|.agent/workflows" > .agent/current_file_s
 # 3. Versioning (Increment Build Number)
 node scripts/increment-build.js
 node scripts/update-version.js
+node scripts/sync-sw.cjs
 NEW_VER=$(node -p "require('./package.json').version")
 BUILD_NUM=$(node -p "require('./package.json').buildNumber")
 FULL_VER="${NEW_VER}+${BUILD_NUM}"
