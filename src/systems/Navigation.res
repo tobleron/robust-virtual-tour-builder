@@ -20,13 +20,13 @@ let calculateSmartArrivalTarget = (scenes: array<scene>, targetIndex: int) => {
            if (!nextHotspot && nextScene.hotspots.length > 0) ...
            Use find explicitly.
  */
-      let nextHotspot = Js.Array.find(h => {
+      let nextHotspot = Array.find(nextScene.hotspots, h => {
         /* !h.isReturnLink */
         switch h.isReturnLink {
         | Some(true) => false
         | _ => true
         }
-      }, nextScene.hotspots)
+      })
 
       let target = switch nextHotspot {
       | Some(h) => Some(h)
@@ -198,7 +198,7 @@ let calculatePathData = (
               p1,
               p2,
             }
-            let _ = Js.Array.push(segment, segments)
+            let _ = Array.push(segments, segment)
             totalDistance := totalDistance.contents +. dist
           | _ => ()
           }
@@ -391,7 +391,7 @@ let handleAutoForward = (dispatch: Actions.action => unit, state: state, current
         }
       }
 
-      if Js.Array.includes(state.activeIndex, chain) {
+      if Array.includes(chain, state.activeIndex) {
         Logger.warn(
           ~module_="Navigation",
           ~message="LOOP_DETECTED",

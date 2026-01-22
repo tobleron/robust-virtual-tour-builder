@@ -61,6 +61,9 @@
 │       └── shutdown_test.rs
 ├── bin
 │   └── tailwindcss
+├── build_output.txt
+├── build_output_clean.txt
+├── build_warnings.txt
 ├── cache
 │   └── geocoding.json
 ├── components.json
@@ -95,6 +98,7 @@
 │   ├── PROJECT_EVOLUTION.md
 │   ├── QUALITY_ASSURANCE_AUDITS.md
 │   └── openapi.yaml
+├── full_build_output.txt
 ├── index.html
 ├── jsconfig.json
 ├── lib
@@ -2635,6 +2639,7 @@
 │           ├── 215_Add_Tests_for_SessionStore.md
 │           ├── 269_Add_Tests_for_RequestQueue.md
 │           └── 280_visual_regression_testing.md
+├── test_output.txt
 ├── tests
 │   ├── TestRunner.bs.js
 │   ├── TestRunner.res
@@ -2777,4 +2782,4 @@
 │       └── VitestSmoke.test.res
 └── vitest.config.mjs
 
-91 directories, 2687 files
+91 directories, 2692 files

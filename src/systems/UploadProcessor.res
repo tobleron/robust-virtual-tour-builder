@@ -586,8 +586,6 @@ let processUploads = (
                         GlobalStateBridge.dispatch(SetPreloadingScene(-1))
                       }
 
-                      updateProgress(100.0, "Completed", false, "Done")
-
                       let reportData = Belt.Array.map(
                         validProcessed,
                         i => {
@@ -608,43 +606,72 @@ let processUploads = (
                       }
 
                       ExifReportGenerator.generateExifReport(reportData)
-                      ->Promise.then(res => res)
                       ->Promise.then(
                         res => {
                           GlobalStateBridge.dispatch(SetExifReport(JSON.Encode.string(res.report)))
+
+                          let suggestedNameResult = res.suggestedName
 
                           Logger.info(
                             ~module_="Upload",
                             ~message="PROJECT_NAME_GENERATED",
                             ~data=Some({
-                              "suggestedName": res.suggestedName,
+                              "suggestedName": suggestedNameResult->Option.getOr("None"),
                               "currentName": GlobalStateBridge.getState().tourName,
                             }),
                             (),
                           )
 
-                          // Only set project name if it's meaningful (not Unknown_Location)
-                          if (
-                            res.suggestedName != "" &&
-                              !String.includes(res.suggestedName, "Unknown")
-                          ) {
-                            let currentName = GlobalStateBridge.getState().tourName
-                            if currentName == "" {
+                          // Only set project name if it's meaningful
+                          switch suggestedNameResult {
+                          | Some(name) if name != "" && !RegExp.test(/Unknown/i, name) => {
+                              let currentName = GlobalStateBridge.getState().tourName
+
+                              // DEBUG: Log decision logic
                               Logger.info(
                                 ~module_="Upload",
-                                ~message="SETTING_PROJECT_NAME",
-                                ~data=Some({"name": res.suggestedName}),
+                                ~message="PROJECT_NAME_DECISION",
+                                ~data=Some({
+                                  "suggested": name,
+                                  "current": currentName,
+                                  "isUnknown": TourLogic.isUnknownName(currentName),
+                                }),
                                 (),
                               )
-                              GlobalStateBridge.dispatch(SetTourName(res.suggestedName))
+
+                              if currentName == "" || TourLogic.isUnknownName(currentName) {
+                                Logger.info(
+                                  ~module_="Upload",
+                                  ~message="SETTING_PROJECT_NAME",
+                                  ~data=Some({"name": name}),
+                                  (),
+                                )
+                                GlobalStateBridge.dispatch(SetTourName(name))
+                              } else {
+                                Logger.warn(
+                                  ~module_="Upload",
+                                  ~message="PROJECT_NAME_SKIPPED_NOT_EMPTY",
+                                  ~data=Some({"current": currentName}),
+                                  (),
+                                )
+                              }
                             }
-                          } else {
+                          | Some(name) =>
                             Logger.warn(
                               ~module_="Upload",
                               ~message="SKIPPING_UNKNOWN_PROJECT_NAME",
                               ~data=Some({
-                                "suggestedName": res.suggestedName,
-                                "reason": "Contains 'Unknown' or empty",
+                                "suggestedName": name,
+                                "reason": "Contains 'Unknown' or invalid",
+                              }),
+                              (),
+                            )
+                          | None =>
+                            Logger.debug(
+                              ~module_="Upload",
+                              ~message="NO_SUGGESTED_PROJECT_NAME",
+                              ~data=Some({
+                                "reason": "No valid location data found in EXIF",
                               }),
                               (),
                             )
@@ -652,51 +679,52 @@ let processUploads = (
                           Promise.resolve()
                         },
                       )
-                      ->ignore
+                      ->Promise.then(
+                        () => {
+                          updateProgress(100.0, "Completed", false, "Done")
 
-                      let durationStr =
-                        ((Date.now() -. startTime) /. 1000.0)->Float.toFixed(~digits=1)
+                          let durationStr =
+                            ((Date.now() -. startTime) /. 1000.0)->Float.toFixed(~digits=1)
 
-                      Promise.resolve({
-                        "qualityResults": [], // We return empty here as qualityResults are calculated in Sidebar or passed differently?
-                        // Wait, previous code returned qualityResults as empty array [] in the resolve at line 601 too.
-                        // Actually, qualityItems are needed for the dialog!
-                        // Let's reconstruct quality items to pass back.
-                        "qualityResults": Belt.Array.map(
-                          validProcessed,
-                          i => {
-                            let qItem: UploadReport.qualityItem = {
-                              quality: i.quality
-                              ->Option.map((q): SharedTypes.qualityAnalysis => Obj.magic(q))
-                              ->Option.getOr({
-                                score: 0.0,
-                                isBlurry: false,
-                                isDim: false,
-                                isSeverelyDark: false,
-                                stats: {
-                                  avgLuminance: 0,
-                                  sharpnessVariance: 0,
-                                  blackClipping: 0.0,
-                                  whiteClipping: 0.0,
-                                },
-                                analysis: Nullable.null,
-                                histogram: [],
-                                colorHist: {r: [], g: [], b: []},
-                                isSoft: false,
-                                isSeverelyBright: false,
-                                hasBlackClipping: false,
-                                hasWhiteClipping: false,
-                                issues: 0,
-                                warnings: 0,
-                              }),
-                              newName: File.name(i.original),
-                            }
-                            qItem
-                          },
-                        ),
-                        "duration": durationStr,
-                        "report": report,
-                      })->Promise.then(
+                          Promise.resolve({
+                            "qualityResults": Belt.Array.map(
+                              validProcessed,
+                              i => {
+                                let qItem: UploadReport.qualityItem = {
+                                  quality: i.quality
+                                  ->Option.map((q): SharedTypes.qualityAnalysis => Obj.magic(q))
+                                  ->Option.getOr({
+                                    score: 0.0,
+                                    isBlurry: false,
+                                    isDim: false,
+                                    isSeverelyDark: false,
+                                    stats: {
+                                      avgLuminance: 0,
+                                      sharpnessVariance: 0,
+                                      blackClipping: 0.0,
+                                      whiteClipping: 0.0,
+                                    },
+                                    analysis: Nullable.null,
+                                    histogram: [],
+                                    colorHist: {r: [], g: [], b: []},
+                                    isSoft: false,
+                                    isSeverelyBright: false,
+                                    hasBlackClipping: false,
+                                    hasWhiteClipping: false,
+                                    issues: 0,
+                                    warnings: 0,
+                                  }),
+                                  newName: File.name(i.original),
+                                }
+                                qItem
+                              },
+                            ),
+                            "duration": durationStr,
+                            "report": report,
+                          })
+                        },
+                      )
+                      ->Promise.then(
                         res => {
                           Logger.endOperation(
                             ~module_="Upload",

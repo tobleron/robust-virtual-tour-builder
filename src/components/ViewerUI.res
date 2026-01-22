@@ -484,14 +484,14 @@ let make = () => {
         let q: SharedTypes.qualityAnalysis = Obj.magic(qJson)
         let b = []
         if q.isBlurry {
-          let _ = Js.Array.push({"text": "BLURRY", "cls": "q-blurry"}, b)
+          let _ = Array.push(b, {"text": "BLURRY", "cls": "q-blurry"})
         } else if q.isSoft {
-          let _ = Js.Array.push({"text": "SOFT", "cls": "q-soft"}, b)
+          let _ = Array.push(b, {"text": "SOFT", "cls": "q-soft"})
         }
         if q.isSeverelyDark {
-          let _ = Js.Array.push({"text": "DARK", "cls": "q-dark"}, b)
+          let _ = Array.push(b, {"text": "DARK", "cls": "q-dark"})
         } else if q.isDim {
-          let _ = Js.Array.push({"text": "DIM", "cls": "q-dim"}, b)
+          let _ = Array.push(b, {"text": "DIM", "cls": "q-dim"})
         }
         b
       | None => []

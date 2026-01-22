@@ -368,7 +368,7 @@ let startCinematicTeaser = async (includeLogo: bool, format: string, skipAutoFor
     Recorder.stopRecording()
 
     let tourName = GlobalStateBridge.getState().tourName
-    let safeName = Js.String.replaceByRe(/[^a-z0-9]/gi, "_", tourName)->String.toLowerCase
+    let safeName = String.replaceRegExp(tourName, /[^a-z0-9]/gi, "_")->String.toLowerCase
     let baseName = "Teaser_Cinematic_" ++ safeName
 
     Logger.endOperation(
@@ -430,7 +430,7 @@ let startAutoTeaser = async (
     ->Promise.then(teaserResult => {
       switch teaserResult {
       | Ok(blob) => {
-          let safeName = Js.String.replaceByRe(/[^a-z0-9]/gi, "_", state.tourName)
+          let safeName = String.replaceRegExp(state.tourName, /[^a-z0-9]/gi, "_")
           let filename = "Cinematic_" ++ safeName ++ ".mp4"
           DownloadSystem.saveBlob(blob, filename)
 
@@ -534,7 +534,7 @@ let startAutoTeaser = async (
             Recorder.stopRecording()
 
             let tourName = GlobalStateBridge.getState().tourName
-            let safeName = Js.String.replaceByRe(/[^a-z0-9]/gi, "_", tourName)->String.toLowerCase
+            let safeName = String.replaceRegExp(tourName, /[^a-z0-9]/gi, "_")->String.toLowerCase
             let baseName = "Teaser_" ++ style ++ "_" ++ safeName
 
             Logger.endOperation(

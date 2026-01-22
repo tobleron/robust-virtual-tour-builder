@@ -181,7 +181,7 @@ let findBestNextLink = (currentScene: scene, state: state, visited: array<int>):
         | Some(idx) =>
           switch Belt.Array.get(state.scenes, idx) {
           | Some(targetScene) =>
-            let isVisited = Js.Array.includes(idx, visited)
+            let isVisited = Array.includes(visited, idx)
             let isReturn = switch hotspot.isReturnLink {
             | Some(b) => b
             | None => false
@@ -203,26 +203,26 @@ let findBestNextLink = (currentScene: scene, state: state, visited: array<int>):
       })
       ->Belt.Array.keepMap(x => x)
 
-    let p1 = Js.Array.find(l => !l.isVisited && !l.isReturn && !l.isBridge, allLinks)
+    let p1 = Array.find(allLinks, l => !l.isVisited && !l.isReturn && !l.isBridge)
     switch p1 {
     | Some(l) => Some(l)
     | None =>
-      let p2 = Js.Array.find(l => !l.isVisited && !l.isReturn && l.isBridge, allLinks)
+      let p2 = Array.find(allLinks, l => !l.isVisited && !l.isReturn && l.isBridge)
       switch p2 {
       | Some(l) => Some(l)
       | None =>
-        let p3 = Js.Array.find(l => !l.isVisited && l.isReturn && !l.isBridge, allLinks)
+        let p3 = Array.find(allLinks, l => !l.isVisited && l.isReturn && !l.isBridge)
         switch p3 {
         | Some(l) => Some(l)
         | None =>
-          let p4 = Js.Array.find(l => !l.isVisited && l.isReturn && l.isBridge, allLinks)
+          let p4 = Array.find(allLinks, l => !l.isVisited && l.isReturn && l.isBridge)
           switch p4 {
           | Some(l) => Some(l)
           | None =>
-            let p5 = Js.Array.find(l => !l.isReturn, allLinks)
+            let p5 = Array.find(allLinks, l => !l.isReturn)
             switch p5 {
             | Some(l) => Some(l)
-            | None => Js.Array.find(l => l.isReturn, allLinks)
+            | None => Array.find(allLinks, l => l.isReturn)
             }
           }
         }

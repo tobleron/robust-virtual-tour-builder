@@ -59,7 +59,7 @@ let showLinkModal = (
         `<option value="${safeName}" ${selectedStr} style="${style}">${safeName}</option>`
       }
     })
-    ->Js.Array.joinWith("", _)
+    ->Array.join(_, "")
 
   let contentHtml = `
         <label for="link-target" class="sr-only">Select destination room</label>

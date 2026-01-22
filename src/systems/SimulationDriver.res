@@ -39,7 +39,7 @@ let make = () => {
           isAdvancing.current = true
 
           // Ensure current scene is in visited scenes
-          if !Js.Array.includes(state.activeIndex, state.simulation.visitedScenes) {
+          if !Array.includes(state.simulation.visitedScenes, state.activeIndex) {
             dispatch(AddVisitedScene(state.activeIndex))
           }
 

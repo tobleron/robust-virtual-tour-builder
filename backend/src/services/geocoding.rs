@@ -177,6 +177,7 @@ pub async fn clear_cache() {
 /// # Returns
 /// A result containing the address string or an error message.
 pub async fn reverse_geocode(lat: f64, lon: f64) -> Result<String, String> {
+    tracing::info!(lat = lat, lon = lon, "REVERSE_GEOCODE_COORD_RECEIVED");
     let key = round_coords(lat, lon);
     let current_time = get_current_timestamp();
 
@@ -230,6 +231,7 @@ pub async fn reverse_geocode(lat: f64, lon: f64) -> Result<String, String> {
             );
 
             // Trigger save to disk might be handled by caller or periodic task
+            tracing::info!(address = %address, "REVERSE_GEOCODE_RESOLVED");
             Ok(address)
         }
         Err(e) => Err(e),
@@ -238,7 +240,7 @@ pub async fn reverse_geocode(lat: f64, lon: f64) -> Result<String, String> {
 
 async fn call_osm_nominatim(lat: f64, lon: f64) -> Result<String, String> {
     let url = format!(
-        "https://nominatim.openstreetmap.org/reverse?format=json&lat={}&lon={}&zoom=18&addressdetails=1",
+        "https://nominatim.openstreetmap.org/reverse?format=json&lat={}&lon={}&zoom=18&addressdetails=1&accept-language=en",
         lat, lon
     );
 

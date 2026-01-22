@@ -11,28 +11,31 @@ let run = () => {
 
   // Let's test generateProjectName
   let addr = Some("123 Main St, Los Angeles, CA")
-  let name = generateProjectName(addr, Some(dt))
-
-  // If it still fails, I will use a regex that I know works in ReScript
+  let nameResult = generateProjectName(addr, Some(dt))
 
   let expectedPrefix = "123_Main_St_150125_1430"
-  if String.startsWith(name, expectedPrefix) {
+  switch nameResult {
+  | Some(name) if String.startsWith(name, expectedPrefix) =>
     Console.log("✓ generateProjectName passed (full info)")
-  } else {
+  | Some(name) =>
     Console.error(`✗ generateProjectName failed: expected prefix ${expectedPrefix}, got ${name}`)
+  | None => Console.error(`✗ generateProjectName failed: got None, expected ${expectedPrefix}`)
   }
 
-  // Test 2: generateProjectName with no info
-  let name2 = generateProjectName(None, None)
-  if String.startsWith(name2, "Unknown_Location_") {
-    Console.log("✓ generateProjectName passed (no info)")
-  } else {
-    Console.error(`✗ generateProjectName failed (no info): got ${name2}`)
+  // Test 2: generateProjectName with no info (should return fallback)
+  let name2Result = generateProjectName(None, None)
+  switch name2Result {
+  | Some(name) if String.startsWith(name, "Tour_") =>
+    Console.log("✓ generateProjectName passed (no info returns Tour fallback)")
+  | Some(name) =>
+    Console.error(`✗ generateProjectName failed (no info): expected Tour fallback, got ${name}`)
+  | None =>
+    Console.error(`✗ generateProjectName failed (no info): expected Tour fallback, got None`)
   }
 
   // Test 3: generateProjectName with invalid date (should use today's date)
   let dt3 = Some("invalid-date")
-  let name3 = generateProjectName(addr, dt3)
+  let name3Result = generateProjectName(addr, dt3)
 
   // Calculate today's expected prefix: DDMMYY
   let now = Date.make()
@@ -42,11 +45,13 @@ let run = () => {
   let year = (now->Date.getFullYear - 2000)->pad
   let expectedTodayPrefix = day ++ month ++ year
 
-  if String.startsWith(name3, "123_Main_St_" ++ expectedTodayPrefix ++ "_") {
+  switch name3Result {
+  | Some(name) if String.startsWith(name, "123_Main_St_" ++ expectedTodayPrefix ++ "_") =>
     Console.log("✓ generateProjectName passed (invalid date prefix)")
-  } else {
+  | Some(name) =>
     Console.error(
-      `✗ generateProjectName failed (invalid date): got ${name3}, expected prefix matching ${expectedTodayPrefix}`,
+      `✗ generateProjectName failed (invalid date): got ${name}, expected prefix matching ${expectedTodayPrefix}`,
     )
+  | None => Console.error(`✗ generateProjectName failed (invalid date): got None`)
   }
 }

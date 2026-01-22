@@ -157,7 +157,7 @@ let getFloorProjectedPath = (start: point, end: point, segments: int) => {
       let t = Int.toFloat(i) /. Int.toFloat(segments)
       let x = x1 +. (x2 -. x1) *. t
       let z = z1 +. (z2 -. z1) *. t
-      let _ = Js.Array.push(unproject(x, z), path)
+      let _ = Array.push(path, unproject(x, z))
     }
     path
   | _ => [start, end]
@@ -196,7 +196,7 @@ let getSphericalPath = (start: point, end: point, segments: int) => {
       let phi = Math.atan2(~y=z, ~x=Math.sqrt(x *. x +. y *. y))
       let lam = Math.atan2(~y, ~x)
 
-      let _ = Js.Array.push({yaw: lam->toDeg, pitch: phi->toDeg}, path)
+      let _ = Array.push(path, {yaw: lam->toDeg, pitch: phi->toDeg})
     }
     path
   }
