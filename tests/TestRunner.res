@@ -55,7 +55,7 @@ let runAll = async () => {
   ServerTeaserTest.run()
   ConstantsTest.run()
   VersionTest.run()
-  ImageOptimizerTest.run()
+  await ImageOptimizerTest.run()
   UrlUtilsTest.run()
   VersionDataTest.run()
   ServiceWorkerMainTest.run()

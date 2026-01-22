@@ -25,16 +25,24 @@ let run = () => {
     });
 
     global.elements = elements; 
-    global.document = {
-      getElementById: function(id) {
-        if (!elements[id]) elements[id] = createMockElement(id);
-        return elements[id];
-      },
-      querySelector: function() { return null; },
-      body: {
-        querySelector: function() { return null; }
-      }
+    
+    // Don't overwrite document - just add our methods to it
+    if (!global.document) global.document = {};
+    
+    // Save original methods
+    const originalGetElementById = global.document.getElementById;
+    const originalQuerySelector = global.document.querySelector;
+    
+    // Add our mock methods
+    global.document.getElementById = function(id) {
+      if (!elements[id]) elements[id] = createMockElement(id);
+      return elements[id];
     };
+    
+    global.document.querySelector = function() { return null; };
+    
+    if (!global.document.body) global.document.body = {};
+    global.document.body.querySelector = function() { return null; };
 
     if (typeof global.window === 'undefined') {
       global.window = global;
