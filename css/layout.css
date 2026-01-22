@@ -5,6 +5,7 @@
     height: 100dvh;
     overflow: hidden;
     background: var(--slate-900);
+    border-top: 1px solid var(--color-danger);
 }
 
 #viewer-container {
@@ -30,9 +31,9 @@
     height: 640px;
     flex-shrink: 0;
     border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-premium);
+    border: 1px solid var(--color-danger);
     overflow: hidden;
-    background: var(--viewer-bg);
+    background: var(--viewer-stage-bg);
     touch-action: none;
 }
 

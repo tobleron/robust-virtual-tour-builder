@@ -1,4 +1,14 @@
 // tests/node-setup.js
+import { register } from 'node:module';
+import { pathToFileURL } from 'node:url';
+
+// Register JSX loader for Node ESM
+try {
+    register('./jsx-loader.mjs', pathToFileURL('./tests/'));
+} catch (e) {
+    // Older Node versions might use --loader instead
+}
+
 const mockWindow = {
     location: { hostname: 'localhost', toString: () => 'http://localhost' },
     screen: { width: 1920, height: 1080 },

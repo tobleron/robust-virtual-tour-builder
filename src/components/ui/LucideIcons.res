@@ -10,7 +10,8 @@ module Play = {
 
 module Square = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "Square"
+  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
+    "Square"
 }
 
 module Home = {
@@ -25,37 +26,44 @@ module Sun = {
 
 module Trees = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "Trees"
+  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
+    "Trees"
 }
 
 module Sprout = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "Sprout"
+  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
+    "Sprout"
 }
 
 module Navigation = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "Navigation"
+  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
+    "Navigation"
 }
 
 module Trash2 = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "Trash2"
+  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
+    "Trash2"
 }
 
 module Unlink = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "Unlink"
+  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
+    "Unlink"
 }
 
 module FastForward = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "FastForward"
+  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
+    "FastForward"
 }
 
 module ChevronRight = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "ChevronRight"
+  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
+    "ChevronRight"
 }
 
 module Plus = {
@@ -80,23 +88,33 @@ module Link = {
 
 module MoreVertical = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "MoreVertical"
+  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
+    "MoreVertical"
 }
 
 module ImageIcon = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "Image"
+  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
+    "Image"
 }
 
 module GripVertical = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "GripVertical"
+  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
+    "GripVertical"
+}
+
+module Download = {
+  @module("lucide-react") @react.component
+  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
+    "Download"
 }
 
 // Sidebar icons
 module FilePlus = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "FilePlus"
+  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
+    "FilePlus"
 }
 
 module Save = {
@@ -106,7 +124,8 @@ module Save = {
 
 module FolderOpen = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "FolderOpen"
+  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
+    "FolderOpen"
 }
 
 module Info = {
@@ -116,7 +135,8 @@ module Info = {
 
 module Share2 = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "Share2"
+  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
+    "Share2"
 }
 
 module Film = {
@@ -126,5 +146,6 @@ module Film = {
 
 module Camera = {
   @module("lucide-react") @react.component
-  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element = "Camera"
+  external make: (~className: string=?, ~size: int=?, ~strokeWidth: int=?) => React.element =
+    "Camera"
 }

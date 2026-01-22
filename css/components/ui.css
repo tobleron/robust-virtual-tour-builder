@@ -89,7 +89,7 @@
 
 /* Sidebar Branding & UI */
 .sidebar-branding-header {
-    background: var(--gradient-brand) !important;
+    background: #0e2d52 !important;
 }
 
 .sidebar-branding-icon {
@@ -102,7 +102,7 @@
 }
 
 .sidebar-upload-btn {
-    background-color: var(--primary) !important;
+    background-color: var(--danger) !important;
 }
 
 .sidebar-progress-fill {

@@ -44,6 +44,7 @@
     --color-ring: var(--primary);
 
     --color-viewer-bg: var(--viewer-bg);
+    --color-viewer-stage-bg: var(--viewer-stage-bg);
     --color-sidebar-bg: var(--sidebar-bg);
 
     /* Spacing */

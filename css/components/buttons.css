@@ -97,8 +97,7 @@
     height: 40px;
     padding: 0 12px;
     gap: 8px;
-    font-weight: 700;
-    text-transform: uppercase;
+    font-weight: 400;
     letter-spacing: 0.05em;
     font-size: 11px;
 }
@@ -108,7 +107,7 @@
     background: rgba(255, 255, 255, 0.15);
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
-    border-color: rgba(255, 255, 255, 0.2);
+    border-color: var(--danger) !important;
 }
 
 /* Viewer Utility Buttons Popper Effect (matches floor-nav) */
