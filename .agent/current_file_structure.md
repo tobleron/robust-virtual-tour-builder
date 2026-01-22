@@ -901,6 +901,12 @@
 │   │           ├── RootReducerTest.cmj
 │   │           ├── RootReducerTest.cmt
 │   │           ├── RootReducerTest.res
+│   │           ├── SceneReducer.test.ast
+│   │           ├── SceneReducer.test.bs.js
+│   │           ├── SceneReducer.test.cmi
+│   │           ├── SceneReducer.test.cmj
+│   │           ├── SceneReducer.test.cmt
+│   │           ├── SceneReducer.test.res
 │   │           ├── SceneReducerTest.ast
 │   │           ├── SceneReducerTest.bs.js
 │   │           ├── SceneReducerTest.cmi
@@ -1051,6 +1057,13 @@
 │   │           ├── UrlUtilsTest.cmj
 │   │           ├── UrlUtilsTest.cmt
 │   │           ├── UrlUtilsTest.res
+│   │           ├── utils
+│   │           │   ├── TestUtils.ast
+│   │           │   ├── TestUtils.bs.js
+│   │           │   ├── TestUtils.cmi
+│   │           │   ├── TestUtils.cmj
+│   │           │   ├── TestUtils.cmt
+│   │           │   └── TestUtils.res
 │   │           ├── VersionDataTest.ast
 │   │           ├── VersionDataTest.bs.js
 │   │           ├── VersionDataTest.cmi
@@ -1530,10 +1543,11 @@
 │   │   ├── SceneReducer.cmj
 │   │   ├── SceneReducer.cmt
 │   │   ├── SceneReducer.res
-│   │   ├── SceneReducerTest.ast
-│   │   ├── SceneReducerTest.cmi
-│   │   ├── SceneReducerTest.cmj
-│   │   ├── SceneReducerTest.cmt
+│   │   ├── SceneReducer.test.ast
+│   │   ├── SceneReducer.test.cmi
+│   │   ├── SceneReducer.test.cmj
+│   │   ├── SceneReducer.test.cmt
+│   │   ├── SceneReducer.test.res
 │   │   ├── SceneReducerTest.res
 │   │   ├── ServerTeaser.ast
 │   │   ├── ServerTeaser.cmi
@@ -1705,6 +1719,11 @@
 │   │   ├── TestRunner.cmj
 │   │   ├── TestRunner.cmt
 │   │   ├── TestRunner.res
+│   │   ├── TestUtils.ast
+│   │   ├── TestUtils.cmi
+│   │   ├── TestUtils.cmj
+│   │   ├── TestUtils.cmt
+│   │   ├── TestUtils.res
 │   │   ├── TimelineReducer.ast
 │   │   ├── TimelineReducer.cmi
 │   │   ├── TimelineReducer.cmj
@@ -1893,8 +1912,7 @@
 │   └── rescript.lock
 ├── logs
 │   ├── error.log
-│   ├── log_changes.txt
-│   └── telemetry.log
+│   └── log_changes.txt
 ├── old_ref
 │   ├── REF.md
 │   └── v4.3.6+7_a34c1dd
@@ -2551,7 +2569,6 @@
 │   │   └── CONCISE_SUMMARY.md
 │   ├── pending
 │   ├── postponed
-│   │   ├── 002_re_evaluate_webp_quality.md
 │   │   ├── 003_add_seo_structured_data.md
 │   │   ├── 004_document_core_web_vitals.md
 │   │   ├── 005_create_changelog.md
@@ -2583,7 +2600,8 @@
 │   │       ├── 043_add_tests_viewertypes.md
 │   │       ├── 044_add_tests_viewerui.md
 │   │       ├── 045_add_tests_remaxerrorboundary.md
-│   │       └── 046_add_tests_uploadprocessor.md
+│   │       ├── 046_add_tests_uploadprocessor.md
+│   │       └── 047_fix_hotspotline_tests.md
 │   ├── SESSION_SUMMARY.md
 │   ├── TASK_ANALYSIS_AND_RENUMBERING.md
 │   └── TASKS.md
@@ -2621,7 +2639,7 @@
 │       ├── GlobalStateBridgeTest.bs.js
 │       ├── GlobalStateBridgeTest.res
 │       ├── HotspotLine_v.test.bs.js
-│       ├── HotspotLine_v.test.res
+│       ├── HotspotLine_v.test.res.disabled
 │       ├── HotspotLine.test.bs.js
 │       ├── HotspotLine.test.res
 │       ├── HotspotReducerTest.bs.js
@@ -2668,8 +2686,8 @@
 │       ├── ResizerTest.res
 │       ├── RootReducerTest.bs.js
 │       ├── RootReducerTest.res
-│       ├── SceneReducerTest.bs.js
-│       ├── SceneReducerTest.res
+│       ├── SceneReducer.test.bs.js
+│       ├── SceneReducer.test.res
 │       ├── ServerTeaserTest.bs.js
 │       ├── ServerTeaserTest.res
 │       ├── ServiceWorkerMainTest.bs.js
@@ -2718,6 +2736,9 @@
 │       ├── UploadProcessorTest.res
 │       ├── UrlUtilsTest.bs.js
 │       ├── UrlUtilsTest.res
+│       ├── utils
+│       │   ├── TestUtils.bs.js
+│       │   └── TestUtils.res
 │       ├── VersionDataTest.bs.js
 │       ├── VersionDataTest.res
 │       ├── VersionTest.bs.js
@@ -2730,4 +2751,4 @@
 │       └── VitestSmoke.test.res
 └── vitest.config.mjs
 
-91 directories, 2640 files
+93 directories, 2659 files

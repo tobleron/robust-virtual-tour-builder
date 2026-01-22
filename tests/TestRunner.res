@@ -11,7 +11,7 @@ let runAll = async () => {
   ReducerTest.run()
   ReducerHelpersTest.run()
   JsonTypesTest.run()
-  SceneReducerTest.run()
+  // SceneReducerTest.run() - Migrated to Vitest
   HotspotReducerTest.run()
   ExifParserTest.run()
   AudioManagerTest.run()

@@ -1,272 +1,52 @@
-# Expand Test Coverage for Critical Functions
+# Task 22: Hardening Core Systems (Regression Shield)
 
-## Overview
-Current test coverage is insufficient, with many critical functions having minimal or placeholder tests. ProjectManager and Exporter have especially poor coverage. This task adds comprehensive tests including error paths, edge cases, and integration scenarios.
+## 🎯 Objective
+Establish a rigorous "Regression Shield" around the stable core systems of the application. The goal is to ensure that adding future features does not break existing fundamental logic (State Management, Navigation, Data Integrity).
 
-## Current Test Gaps
-- ProjectManagerTest.res: Only logs "Module loaded"
-- ExporterTest.res: Only checks function existence via Obj.magic
-- No error path testing for Result-returning functions
-- Missing edge case and integration tests
-- No validation of error message content
+**Note:** Exporter and Teaser systems are currently excluded as they are still under active development.
 
-## Implementation Steps
+## 🛡️ Scope & Implementation
 
-### 1. Enhance ProjectManager Tests
-Update `tests/unit/ProjectManagerTest.res`:
+### 1. State Management (The Brain)
+**Target:** `src/core/reducers/`
+**Goal:** 100% Branch Coverage
+**Why:** This is the highest risk area. A bug here corrupts the entire application state.
 
-```rescript
-let run = () => {
-  Console.log("Running ProjectManager tests...")
+- [x] **SceneReducer**:
+    - Test every action type (Add, Remove, Update, Reorder).
+    - Test edge cases: Deleting the active scene, reordering invalid indices.
+- [ ] **HotspotReducer**:
+    - Test adding/removing hotspots.
+    - Test updating properties (yaw, pitch, target).
+    - **Crucial:** Test integrity (e.g., ensuring `linkId` is unique).
+- [ ] **NavigationReducer**:
+    - Test history stack management (if applicable).
+    - Test auto-forward chain logic.
 
-  // Test validateProjectStructure - Success Path
-  let validProject = {
-    name: "Test Project",
-    scenes: [{
-      id: "scene1",
-      name: "Scene 1",
-      file: {name: "scene1.jpg", size: 1000, type_: "image/jpeg"},
-      hotspots: [],
-      category: "room",
-      floor: "1st",
-      label: "Living Room",
-      isAutoForward: false,
-    }],
-  }
+### 2. Navigation System (The Engine)
+**Target:** `src/systems/Navigation.res` (Logic only)
+**Why:** Users *must* be able to move between scenes reliably.
 
-  switch ProjectManager.validateProjectStructure(validProject) {
-  | Ok(validated) => Console.log("✓ Valid project structure test passed")
-  | Error(msg) => Console.log("✗ Valid project should pass: " ++ msg)
-  }
+- [ ] **Pathfinding**:
+    - Test `findSceneByName` with various naming conventions.
+    - Test `getNextScene` / `getPreviousScene` in both linear and non-linear/filtered lists.
+- [ ] **Auto-Forward Logic**:
+    - Test chain execution (does it stop at the right time?).
+    - Test loop prevention (does it detect infinite auto-forward loops?).
 
-  // Test validateProjectStructure - Missing Scenes
-  let invalidProjectNoScenes = {
-    name: "Test Project",
-    // scenes missing
-  }
+### 3. Data Integrity (The Gatekeeper)
+**Target:** `src/systems/ProjectManager.res` (Pure Logic functions only)
+**Why:** Preventing corrupt data from entering the system is cheaper than fixing it later.
 
-  switch ProjectManager.validateProjectStructure(invalidProjectNoScenes) {
-  | Ok(_) => Console.log("✗ Project without scenes should fail")
-  | Error(msg) => Console.log("✓ Missing scenes correctly rejected: " ++ msg)
-  }
+- [ ] **Validation**:
+    - Exhaustive testing of `validateProjectStructure`.
+    - Create a suite of "Corrupt JSON" mock files (missing fields, wrong types) and ensure they are rejected with clear error messages.
+    - Test "Version Migration" logic (if old project formats are supported).
 
-  // Test validateProjectStructure - Invalid Scene Data
-  let invalidProjectBadScene = {
-    name: "Test Project",
-    scenes: [{
-      // Missing required fields
-      name: "Bad Scene"
-    }],
-  }
+## 🛠️ Technical Approach
+- **Pure Logic First:** Focus on testing functions that take inputs and return outputs, avoiding DOM/Network mocks where possible.
+- **Mock Data Factory:** Create a `TestUtils.res` module to generate valid/invalid `state` and `scene` objects quickly to reduce test boilerplate.
 
-  switch ProjectManager.validateProjectStructure(invalidProjectBadScene) {
-  | Ok(_) => Console.log("✗ Project with invalid scenes should fail")
-  | Error(msg) => Console.log("✓ Invalid scene data correctly rejected: " ++ msg)
-  }
-
-  // Test createSavePackage
-  let testState = {
-    scenes: validProject.scenes,
-    activeIndex: 0,
-    tourName: "Test Tour",
-    // ... other required state fields
-  }
-
-  switch ProjectManager.createSavePackage(testState) {
-  | Ok(package) => Console.log("✓ Save package creation successful")
-  | Error(msg) => Console.log("✗ Save package creation failed: " ++ msg)
-  }
-
-  Console.log("ProjectManager tests completed.")
-}
-```
-
-### 2. Enhance Exporter Tests
-Update `tests/unit/ExporterTest.res`:
-
-```rescript
-let run = () => {
-  Console.log("Running Exporter tests...")
-
-  // Create complete mock state for testing
-  let mockState = {
-    scenes: [{
-      id: "scene1",
-      name: "Test Scene",
-      file: {name: "scene1.jpg", size: 1000, type_: "image/jpeg"},
-      hotspots: [{
-        linkId: "link1",
-        yaw: 0.0,
-        pitch: 0.0,
-        target: "scene2",
-        targetYaw: Some(1.57),
-        targetPitch: Some(0.0),
-      }],
-      category: "room",
-      floor: "ground",
-      label: "Entry",
-      isAutoForward: false,
-    }],
-    activeIndex: 0,
-    tourName: "Test Virtual Tour",
-    // ... other required state fields
-  }
-
-  // Test JSON export
-  switch Exporter.exportTour(mockState, "json") {
-  | Ok(exportData) => {
-      Console.log("✓ JSON export successful")
-      // Verify structure
-      if (Obj.magic(exportData)["scenes"] && Obj.magic(exportData)["name"]) {
-        Console.log("✓ JSON export structure correct")
-      } else {
-        Console.log("✗ JSON export missing required fields")
-      }
-    }
-  | Error(msg) => Console.log("✗ JSON export failed: " ++ msg)
-  }
-
-  // Test HTML export
-  switch Exporter.exportTour(mockState, "html") {
-  | Ok(exportData) => {
-      Console.log("✓ HTML export successful")
-      let htmlString = Obj.magic(exportData)
-      if (String.contains(htmlString, "<!DOCTYPE html>") &&
-          String.contains(htmlString, "Test Virtual Tour")) {
-        Console.log("✓ HTML export contains expected content")
-      } else {
-        Console.log("✗ HTML export missing expected content")
-      }
-    }
-  | Error(msg) => Console.log("✗ HTML export failed: " ++ msg)
-  }
-
-  // Test export with empty state
-  let emptyState = {
-    scenes: [],
-    activeIndex: -1,
-    tourName: "",
-    // ... minimal state
-  }
-
-  switch Exporter.exportTour(emptyState, "json") {
-  | Ok(_) => Console.log("✓ Empty state export handled (should succeed or fail gracefully)")
-  | Error(msg) => Console.log("✓ Empty state correctly rejected: " ++ msg)
-  }
-
-  Console.log("Exporter tests completed.")
-}
-```
-
-### 3. Add Error Path Testing Framework
-Create helper functions for testing error scenarios:
-
-```rescript
-// In test utilities
-module TestHelpers = {
-  let expectError = (result, expectedSubstring) => {
-    switch result {
-    | Ok(_) => false // Should have failed
-    | Error(msg) => String.contains(msg, expectedSubstring)
-    }
-  }
-
-  let expectSuccess = (result) => {
-    switch result {
-    | Ok(_) => true
-    | Error(_) => false
-    }
-  }
-}
-
-// Usage in tests
-if (TestHelpers.expectError(invalidResult, "missing scenes")) {
-  Console.log("✓ Error message contains expected text")
-} else {
-  Console.log("✗ Error message incorrect")
-}
-```
-
-### 4. Add Integration Tests
-Create new integration test files:
-
-**tests/integration/ProjectWorkflowTest.res:**
-```rescript
-let run = () => {
-  Console.log("Running Project Workflow integration tests...")
-
-  // Test complete project lifecycle
-  let initialData = loadTestProjectData()
-
-  // Load -> Validate -> Modify -> Export cycle
-  let workflow = ProjectManager.validateProjectStructure(initialData)
-    ->Result.flatMap(validated => ProjectManager.createSavePackage(validated))
-    ->Result.flatMap(saveData => Exporter.exportTour(saveData, "json"))
-
-  switch workflow {
-  | Ok(finalResult) => Console.log("✓ Complete project workflow successful")
-  | Error(msg) => Console.log("✗ Project workflow failed: " ++ msg)
-  }
-
-  Console.log("Project Workflow integration tests completed.")
-}
-```
-
-### 5. Add Edge Case Tests
-Test boundary conditions and unusual inputs:
-
-```rescript
-// Test with maximum scenes
-let maxScenesProject = {
-  name: "Max Scenes Test",
-  scenes: Array.range(0, 999)->Array.map(i => createTestScene(i)),
-}
-
-// Test with unicode characters
-let unicodeProject = {
-  name: "测试项目 🚀",
-  scenes: [createUnicodeScene()],
-}
-
-// Test with extremely large hotspot arrays
-let largeHotspotsScene = {
-  // ... normal scene data
-  hotspots: Array.range(0, 1000)->Array.map(i => createTestHotspot(i)),
-}
-```
-
-### 6. Update Test Runner
-Enhance TestRunner to verify Result pattern compliance:
-
-```rescript
-// Add to TestRunner.res
-let verifyResultHandling = (testModule) => {
-  // Check that tests properly handle both Ok and Error cases
-  // This could be done by analyzing test code or adding metadata
-}
-
-// Add coverage reporting
-let reportCoverage = () => {
-  let totalFunctions = countTotalFunctions()
-  let testedFunctions = countTestedFunctions()
-  let coverage = (testedFunctions /. totalFunctions) *. 100.0
-  Console.log(\`Test coverage: \${coverage->Float.toString}%\`)
-}
-```
-
-## Testing Requirements
-- All public functions must have tests
-- Error paths must be tested for all Result-returning functions
-- Edge cases (empty inputs, maximum values, unicode) must be covered
-- Integration tests for complete workflows
-- Test utilities for common assertions
-
-## Completion Criteria
-- [ ] ProjectManagerTest.res covers all public functions with success/error paths
-- [ ] ExporterTest.res tests all export formats and edge cases
-- [ ] All systems have comprehensive test coverage
-- [ ] Integration tests added for key workflows
-- [ ] Error message content validation added
-- [ ] Test coverage reporting implemented
-- [ ] All tests pass consistently
-- [ ] No untested public functions remain
+## 📊 Success Metrics
+- **Zero Regressions:** Future refactors of these modules should immediately trigger test failures if behavior changes.
+- **Coverage:** >90% coverage on `reducers/*` and `Navigation.res`.
