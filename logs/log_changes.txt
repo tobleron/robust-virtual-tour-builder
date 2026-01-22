@@ -532,3 +532,4 @@ Task: 147
 [2026-01-23 00:23] v4.4.7 - security: eliminate innerHTML and dangerouslySetInnerHTML vulnerabilities
 [2026-01-23 00:52] v4.4.7 - v4.4.8: fix: resolve upload progress hang on duplicate files and update testing workflows
 [2026-01-23 01:11] v4.4.7 - v4.4.8+41: test: implement SceneReducer regression shield and modernize test runner
+[2026-01-23 01:24] v4.4.7 - v4.4.8+42: test: complete regression shield for core systems (Reducers, Navigation, Validation)
