@@ -141,7 +141,9 @@ let make = () => {
         <div className="font-normal text-white tracking-[0.25em] text-[13px] uppercase">
           {React.string("Virtual Tour Builder")}
         </div>
-        <div className="flex items-center gap-2 text-white mt-1 sidebar-version-line font-normal font-mono">
+        <div
+          className="flex items-center gap-2 text-white mt-1 sidebar-version-line font-normal font-mono"
+        >
           <span className="text-[10px] tracking-wider">
             {React.string("V " ++ VersionData.version)}
           </span>
@@ -316,9 +318,7 @@ let make = () => {
             ariaLabel="Create Teaser"
           >
             <LucideIcons.Film
-              className="text-white transition-all duration-300"
-              size=20
-              strokeWidth=1
+              className="text-white transition-all duration-300" size=20 strokeWidth=1
             />
             <span> {React.string("Teaser")} </span>
           </button>

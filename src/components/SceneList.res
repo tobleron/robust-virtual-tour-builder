@@ -158,14 +158,26 @@ module SceneItem = {
               <LucideIcons.MoreVertical size=14 />
             </button>
           </Shadcn.DropdownMenu.Trigger>
-          <Shadcn.DropdownMenu.Content side="left" sideOffset=10 className="w-48 p-1.5 z-[10000]">
-            <Shadcn.DropdownMenu.Item onClick={_ => onClearLinks()}>
+          <Shadcn.DropdownMenu.Content side="right" sideOffset=10 className="w-48 p-1.5 z-[30000]">
+            <Shadcn.DropdownMenu.Label
+              className="text-[10px] font-black uppercase tracking-widest text-slate-500 py-2 px-3"
+            >
+              {React.string("Scene Actions")}
+            </Shadcn.DropdownMenu.Label>
+
+            <Shadcn.DropdownMenu.Item
+              onClick={_ => onClearLinks()}
+              className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer text-slate-600"
+            >
               <LucideIcons.Unlink className="text-lg mr-2 text-primary" />
               <span> {React.string("Clear Links")} </span>
             </Shadcn.DropdownMenu.Item>
+
             <Shadcn.DropdownMenu.Separator />
+
             <Shadcn.DropdownMenu.Item
-              onClick={_ => onDelete()} className="text-danger hover:bg-danger/10"
+              onClick={_ => onDelete()}
+              className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer text-danger hover:bg-danger/10"
             >
               <LucideIcons.Trash2 className="text-lg mr-2 text-danger" />
               <span> {React.string("Remove Scene")} </span>
