@@ -24,6 +24,7 @@ type modalConfig = {
   icon: option<string>,
   allowClose: option<bool>,
   onClose: option<unit => unit>,
+  className: option<string>,
 }
 
 type event =

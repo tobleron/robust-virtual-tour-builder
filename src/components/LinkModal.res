@@ -177,6 +177,7 @@ let showLinkModal = (
           GlobalStateBridge.dispatch(Actions.StopLinking)
         },
       ),
+      className: None,
       buttons: [
         {
           label: "Save Link",

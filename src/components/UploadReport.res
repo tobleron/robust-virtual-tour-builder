@@ -152,6 +152,7 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
       buttons: [btnDownload, btnStart],
       onClose: None,
       allowClose: Some(true),
+      className: Some("modal-blue"),
     }
     EventBus.dispatch(ShowModal(options))
   }

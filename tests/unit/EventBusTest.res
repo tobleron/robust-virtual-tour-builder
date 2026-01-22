@@ -327,11 +327,11 @@ let run = () => {
       description: Some("This is a test"),
       contentHtml: None,
       buttons: [],
-      icon: Some("info"),
-      allowClose: Some(true),
-      onClose: None,
-    }
-
+        icon: Some("info"),
+        allowClose: Some(true),
+        onClose: None,
+        className: None,
+      }
     dispatch(ShowModal(testModalConfig))
 
     switch receivedModalConfig.contents {
