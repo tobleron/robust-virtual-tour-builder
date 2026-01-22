@@ -103,10 +103,7 @@ let make = () => {
     ""
   }
 
-  let (labelMenuOpen, setLabelMenuOpen) = React.useState(_ => false)
-
   let (hotspotMenu, setHotspotMenu) = React.useState(_ => None)
-
   // Processing UI state
   let (_procState, setProcState) = React.useState(_ =>
     {
@@ -228,13 +225,16 @@ let make = () => {
 
   let handleCatClick = e => {
     JsxEvent.Mouse.stopPropagation(e)
+
     let activeIdx = state.activeIndex
+
     if activeIdx >= 0 {
       let newCat = if currentCategory == "indoor" {
         "outdoor"
       } else {
         "indoor"
       }
+
       dispatch(Actions.UpdateSceneMetadata(activeIdx, Logger.castToJson({"category": newCat})))
 
       EventBus.dispatch(
@@ -248,11 +248,6 @@ let make = () => {
         ),
       )
     }
-  }
-
-  let handleLabelClick = e => {
-    JsxEvent.Mouse.stopPropagation(e)
-    setLabelMenuOpen(prev => !prev)
   }
 
   let processReturnPrompt = () => {
@@ -331,6 +326,7 @@ let make = () => {
           } else {
             "Add Link"
           }}
+          disabled={state.isLinking}
         >
           <Shadcn.Button
             size="icon"
@@ -359,6 +355,7 @@ let make = () => {
           } else {
             "Start Auto-Pilot"
           }}
+          disabled={state.isLinking}
         >
           <Shadcn.Button
             size="icon"
@@ -369,6 +366,7 @@ let make = () => {
             }}
             className="w-[32px] h-[32px] rounded-full border border-transparent hover:border-[#0e2d52]"
             onClick={handleSimClick}
+            disabled={state.isLinking}
           >
             {if simActive {
               <LucideIcons.Square size=18 strokeWidth=3 />
@@ -378,7 +376,7 @@ let make = () => {
           </Shadcn.Button>
         </Tooltip>
 
-        <Tooltip content="Toggle Category" alignment=#Right>
+        <Tooltip content="Toggle Category" alignment=#Right disabled={state.isLinking}>
           <Shadcn.Button
             size="icon"
             variant={if !scenesLoaded {
@@ -388,6 +386,7 @@ let make = () => {
             }}
             className="w-[32px] h-[32px] rounded-full border border-transparent hover:border-[#0e2d52]"
             onClick={handleCatClick}
+            disabled={state.isLinking}
           >
             {if currentCategory == "indoor" {
               <LucideIcons.Home size=18 strokeWidth=3 />
@@ -397,11 +396,9 @@ let make = () => {
           </Shadcn.Button>
         </Tooltip>
 
-        <Shadcn.Popover
-          open_={labelMenuOpen} onOpenChange={isOpen => setLabelMenuOpen(_ => isOpen)}
-        >
-          <Shadcn.Popover.Trigger asChild=true>
-            <Tooltip content="Scene Label Preset" alignment=#Right>
+        <Shadcn.DropdownMenu>
+          <Tooltip content="Scene Label Preset" alignment=#Right disabled={state.isLinking}>
+            <Shadcn.DropdownMenu.Trigger asChild=true>
               <Shadcn.Button
                 size="icon"
                 variant={if !scenesLoaded {
@@ -410,20 +407,21 @@ let make = () => {
                   "destructive"
                 }}
                 className="w-[32px] h-[32px] rounded-full text-[18px] font-bold border border-transparent hover:border-[#0e2d52]"
-                onClick={handleLabelClick}
+                disabled={state.isLinking}
               >
                 <LucideIcons.Hash size=18 strokeWidth=3 />
               </Shadcn.Button>
-            </Tooltip>
-          </Shadcn.Popover.Trigger>
-          <Shadcn.Popover.Content
+            </Shadcn.DropdownMenu.Trigger>
+          </Tooltip>
+          <Shadcn.DropdownMenu.Content
             side="right"
+            align="start"
             sideOffset=12
-            className="p-0 bg-white rounded-2xl shadow-2xl border border-slate-200 z-[10000]"
+            className="p-0 bg-white rounded-2xl shadow-2xl border border-slate-200 z-[30000]"
           >
-            <LabelMenu onClose={() => setLabelMenuOpen(_ => false)} />
-          </Shadcn.Popover.Content>
-        </Shadcn.Popover>
+            <LabelMenu onClose={() => ()} />
+          </Shadcn.DropdownMenu.Content>
+        </Shadcn.DropdownMenu>
 
         {switch hotspotMenu {
         | Some(menu) =>
@@ -436,7 +434,7 @@ let make = () => {
           >
             <Shadcn.Popover.Anchor virtualRef={menu.anchor} />
             <Shadcn.Popover.Content
-              side="top" sideOffset=12 className="p-0 border-none shadow-none"
+              side="top" sideOffset=12 className="p-0 border-none shadow-none z-[30000]"
             >
               <HotspotActionMenu
                 hotspot={menu.hotspot} index={menu.index} onClose={() => setHotspotMenu(_ => None)}
@@ -561,7 +559,7 @@ let make = () => {
         ->Belt.Array.map(f => {
           let isSelected = scenesLoaded && f.id == currentFloor
 
-          <Tooltip key={f.id} content={f.label} alignment=#Right>
+          <Tooltip key={f.id} content={f.label} alignment=#Right disabled={state.isLinking}>
             <Shadcn.Button
               size="icon"
               variant="ghost"
@@ -573,6 +571,7 @@ let make = () => {
                 "border border-white/20 hover:border-danger bg-[#0e2d52]/80 text-white hover:bg-[#0e2d52] hover:text-white"
               }}
               onClick={e => handleFloorClick(f.id, f.label, e)}
+              disabled={state.isLinking}
             >
               {React.string(f.short)}
               {if f.suffix != "" {

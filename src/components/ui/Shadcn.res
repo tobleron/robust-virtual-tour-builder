@@ -8,6 +8,7 @@ module Button = {
     ~size: string=?,
     ~onClick: JsxEvent.Mouse.t => unit=?,
     ~children: React.element=?,
+    ~disabled: bool=?,
   ) => React.element = "Button"
 }
 
@@ -95,12 +96,60 @@ module DropdownMenu = {
       ~children: React.element,
       ~className: string=?,
       ~onClick: JsxEvent.Mouse.t => unit=?,
+      ~disabled: bool=?,
     ) => React.element = "DropdownMenuItem"
+  }
+
+  module Label = {
+    @module("./dropdown-menu.jsx") @react.component
+    external make: (~children: React.element, ~className: string=?) => React.element =
+      "DropdownMenuLabel"
+  }
+
+  module Group = {
+    @module("./dropdown-menu.jsx") @react.component
+    external make: (~children: React.element) => React.element = "DropdownMenuGroup"
+  }
+
+  module RadioGroup = {
+    @module("./dropdown-menu.jsx") @react.component
+    external make: (
+      ~children: React.element,
+      ~value: string=?,
+      ~onValueChange: string => unit=?,
+    ) => React.element = "DropdownMenuRadioGroup"
+  }
+
+  module RadioItem = {
+    @module("./dropdown-menu.jsx") @react.component
+    external make: (
+      ~children: React.element,
+      ~value: string,
+      ~className: string=?,
+      ~onClick: JsxEvent.Mouse.t => unit=?,
+    ) => React.element = "DropdownMenuRadioItem"
   }
 
   module Separator = {
     @module("./dropdown-menu.jsx") @react.component
     external make: unit => React.element = "DropdownMenuSeparator"
+  }
+
+  module Sub = {
+    @module("./dropdown-menu.jsx") @react.component
+    external make: (~children: React.element) => React.element = "DropdownMenuSub"
+  }
+
+  module SubTrigger = {
+    @module("./dropdown-menu.jsx") @react.component
+    external make: (~children: React.element, ~className: string=?) => React.element =
+      "DropdownMenuSubTrigger"
+  }
+
+  module SubContent = {
+    @module("./dropdown-menu.jsx") @react.component
+    external make: (~children: React.element, ~className: string=?) => React.element =
+      "DropdownMenuSubContent"
   }
 }
 
