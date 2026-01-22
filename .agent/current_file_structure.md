@@ -811,6 +811,14 @@
 │   │           ├── MainTest.cmj
 │   │           ├── MainTest.cmt
 │   │           ├── MainTest.res
+│   │           ├── NavigationController_v.test.ast
+│   │           ├── NavigationController_v.test.bs.js
+│   │           ├── NavigationController_v.test.cmi
+│   │           ├── NavigationController_v.test.cmj
+│   │           ├── NavigationController_v.test.cmt
+│   │           ├── NavigationController_v.test.res
+│   │           ├── NavigationController.test.ast
+│   │           ├── NavigationController.test.cmt
 │   │           ├── NavigationControllerTest.ast
 │   │           ├── NavigationControllerTest.bs.js
 │   │           ├── NavigationControllerTest.cmi
@@ -1350,15 +1358,16 @@
 │   │   ├── Navigation.cmj
 │   │   ├── Navigation.cmt
 │   │   ├── Navigation.res
+│   │   ├── NavigationController_v.test.ast
+│   │   ├── NavigationController_v.test.cmi
+│   │   ├── NavigationController_v.test.cmj
+│   │   ├── NavigationController_v.test.cmt
+│   │   ├── NavigationController_v.test.res
 │   │   ├── NavigationController.ast
 │   │   ├── NavigationController.cmi
 │   │   ├── NavigationController.cmj
 │   │   ├── NavigationController.cmt
 │   │   ├── NavigationController.res
-│   │   ├── NavigationControllerTest.ast
-│   │   ├── NavigationControllerTest.cmi
-│   │   ├── NavigationControllerTest.cmj
-│   │   ├── NavigationControllerTest.cmt
 │   │   ├── NavigationControllerTest.res
 │   │   ├── NavigationReducer.ast
 │   │   ├── NavigationReducer.cmi
@@ -2535,11 +2544,11 @@
 │   │   ├── 007_add_tests_imageoptimizer.md
 │   │   ├── 008_add_tests_appcontext_REPORT.md
 │   │   ├── 009_add_tests_uireducer_REPORT.md
+│   │   ├── 010_add_tests_navigationcontroller_REPORT.md
 │   │   └── CONCISE_SUMMARY.md
 │   ├── COMPLETION_SUMMARY.md
 │   ├── current_refactor.md
 │   ├── pending
-│   │   ├── 010_add_tests_navigationcontroller.md
 │   │   ├── 011_add_tests_simulationdriver.md
 │   │   ├── 012_add_tests_simulationlogic.md
 │   │   ├── 013_add_tests_sessionstore.md
@@ -2616,8 +2625,8 @@
 │       ├── LoggerTest.res
 │       ├── MainTest.bs.js
 │       ├── MainTest.res
-│       ├── NavigationControllerTest.bs.js
-│       ├── NavigationControllerTest.res
+│       ├── NavigationController_v.test.bs.js
+│       ├── NavigationController_v.test.res
 │       ├── NavigationReducerTest.bs.js
 │       ├── NavigationReducerTest.res
 │       ├── NavigationRendererTest.bs.js
@@ -2708,4 +2717,4 @@
 │       └── VitestSmoke.test.res
 └── vitest.config.mjs
 
-91 directories, 2618 files
+91 directories, 2627 files
