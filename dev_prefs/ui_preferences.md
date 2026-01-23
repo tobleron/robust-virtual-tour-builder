@@ -1,1 +1,0 @@
-- [x] No button glow/pop interactions (removed 'btn-viewer-pop' and hover borders from ViewerUI)

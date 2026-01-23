@@ -2,6 +2,7 @@
 ├── BUG_ANALYSIS_PROJECT_NAME.md
 ├── FIX_PROJECT_NAME_BUG.md
 ├── GEMINI.md
+├── MAP.md
 ├── README.md
 ├── backend
 │   ├── Cargo.lock
@@ -85,9 +86,6 @@
 │   ├── tailwind.css
 │   └── variables.css
 ├── dev.log
-├── dev_prefs
-│   ├── logging_debugging_system.md
-│   └── ui_preferences.md
 ├── docs
 │   ├── ARCHITECTURE.md
 │   ├── AUTOPILOT_SIMULATION_ANALYSIS.md
@@ -136,9 +134,6 @@
 │   │   │   ├── ServiceWorkerMain.cmj
 │   │   │   ├── ServiceWorkerMain.cmt
 │   │   │   ├── ServiceWorkerMain.res
-│   │   │   ├── TestWeakMap.ast
-│   │   │   ├── TestWeakMap.cmi
-│   │   │   ├── TestWeakMap.cmt
 │   │   │   ├── components
 │   │   │   │   ├── AppErrorBoundary.ast
 │   │   │   │   ├── AppErrorBoundary.bs.js
@@ -200,12 +195,6 @@
 │   │   │   │   ├── Portal.cmj
 │   │   │   │   ├── Portal.cmt
 │   │   │   │   ├── Portal.res
-│   │   │   │   ├── RemaxErrorBoundary.ast
-│   │   │   │   ├── RemaxErrorBoundary.bs.js
-│   │   │   │   ├── RemaxErrorBoundary.cmi
-│   │   │   │   ├── RemaxErrorBoundary.cmj
-│   │   │   │   ├── RemaxErrorBoundary.cmt
-│   │   │   │   ├── RemaxErrorBoundary.res
 │   │   │   │   ├── SceneList.ast
 │   │   │   │   ├── SceneList.bs.js
 │   │   │   │   ├── SceneList.cmi
@@ -954,12 +943,6 @@
 │   │           ├── ReducerTest.cmj
 │   │           ├── ReducerTest.cmt
 │   │           ├── ReducerTest.res
-│   │           ├── RemaxErrorBoundary_v.test.ast
-│   │           ├── RemaxErrorBoundary_v.test.bs.js
-│   │           ├── RemaxErrorBoundary_v.test.cmi
-│   │           ├── RemaxErrorBoundary_v.test.cmj
-│   │           ├── RemaxErrorBoundary_v.test.cmt
-│   │           ├── RemaxErrorBoundary_v.test.res
 │   │           ├── RequestQueue_v.test.ast
 │   │           ├── RequestQueue_v.test.bs.js
 │   │           ├── RequestQueue_v.test.cmi
@@ -1685,8 +1668,6 @@
 │   │   ├── ReducerTest.cmj
 │   │   ├── ReducerTest.cmt
 │   │   ├── ReducerTest.res
-│   │   ├── RemaxErrorBoundary.res
-│   │   ├── RemaxErrorBoundary_v.test.res
 │   │   ├── RequestQueue.ast
 │   │   ├── RequestQueue.cmi
 │   │   ├── RequestQueue.cmj
@@ -2155,8 +2136,7 @@
 │   └── rescript.lock
 ├── logs
 │   ├── error.log
-│   ├── log_changes.txt
-│   └── telemetry.log
+│   └── log_changes.txt
 ├── old_ref
 │   ├── REF.md
 │   └── v4.3.6+7_a34c1dd
@@ -3059,4 +3039,4 @@
 │           └── TestUtils.res
 └── vitest.config.mjs
 
-93 directories, 2967 files
+92 directories, 2948 files
