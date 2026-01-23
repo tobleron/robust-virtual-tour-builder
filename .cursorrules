@@ -1,31 +1,27 @@
 # Robust Virtual Tour Builder - Agent Rules
 
-## 🚨 CRITICAL VITALS (Priority 0)
+## 🎯 Primary Protocol
+👉 **Consensus Rule**: ALWAYS prioritize protocols defined in [GEMINI.md](GEMINI.md).
+
+## 🚨 CODING VITALS (Priority 0)
 1. **ReScript v12 Only**: All frontend code MUST be in ReScript v12.
-2. **Version Everything**: Follow `/commit-workflow` for every user-facing change.
-3. **No Console Logs**: Use `Logger` module. `console.log` is strictly forbidden.
-4. **Stability First**: Handle `Option`/`Result` explicitly. No `unwrap()` or `panic!`.
-5. **No Alerts**: Use `showToast()` or modals.
+2. **Handle Option/Result**: Use explicit pattern matching. No `unwrap()`.
+3. **No Console Logs**: Use the `Logger` module.
+4. **No Alerts**: Use `EventBus.dispatch(ShowNotification(...))`.
+5. **Functional Purity**: UI in `src/components/`, Logic in `src/systems/`, State in `src/core/State.res`.
 
 ---
 
 ## 🚦 WORKFLOW DISPATCHER
 Trigger these workflows based on the current task:
-
 - **Creating Modules**: Follow [`/new-module-standards`](.agent/workflows/new-module-standards.md).
 - **Committing**: Follow [`/commit-workflow`](.agent/workflows/commit-workflow.md).
 - **Debugging**: Follow [`/debug-standards`](.agent/workflows/debug-standards.md).
 - **Pushing**: Follow [`/pre-push-workflow`](.agent/workflows/pre-push-workflow.md).
-- **Dev Preferences**: Follow [`/save-dev-pref`](.agent/workflows/save-dev-pref.md).
 
 ---
 
-## 📖 KNOWLEDGE BASE & STANDARDS
-For deep architectural, design, or security context, consult:
-👉 **[`docs/PROJECT_STANDARDS_AND_WORKFLOWS.md`](docs/PROJECT_STANDARDS_AND_WORKFLOWS.md)**
-
-### Core Tenets:
-- **Architecture**: UI in `src/components/`, Logic in `src/systems/`.
-- **Styling**: Vanilla CSS variables. Premium aesthetics (Outfit/Inter).
-- **Functional**: Pure functions, immutability, central state (`src/store.js`).
-- **Security**: Sanitization, BlobManager cleanup, path safety.
+## 🏛️ ARCHITECTURE & STYLE
+- **Styling**: Vanilla CSS variables. Premium aesthetics (Outfit/Inter). No Tailwind utility bloat.
+- **State**: Centralized reducer architecture in `src/core/Reducer.res`.
+- **Infrastructure**: Use [MAP.md](MAP.md) for semantic file discovery and functionality tags.

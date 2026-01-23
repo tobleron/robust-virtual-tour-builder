@@ -6,7 +6,7 @@ WATCH_DIRS="./src ./backend/src"
 STATE_DIR="/tmp/remax_sentinel"
 mkdir -p "$STATE_DIR"
 
-echo "👀 REMAX Sentinel Active: Monitoring Growth ($LIMIT lines) & Test Coverage..."
+echo "👀 Code Sentinel Active: Monitoring Growth ($LIMIT lines), Tests & Structure..."
 
 # Helper to get next Task ID
 get_next_id() {
@@ -81,6 +81,33 @@ EOF
     fi
 }
 
+check_structure() {
+    local event_file="$1"
+    # Trigger if a new file is created (ignoring temporary files)
+    if [[ "$event_file" == *.res ]] || [[ "$event_file" == *.rs ]] || [[ "$event_file" == *.css ]]; then
+        if ! ls tasks/pending/*Update_Codebase_Map* 1> /dev/null 2>&1; then
+            local next_id=$(get_next_id)
+            local task_path="tasks/pending/${next_id}_Update_Codebase_Map.md"
+            
+            cat <<EOF > "$task_path"
+# Task $next_id: Synchronize Codebase Map (MAP.md)
+
+## 🚨 Trigger
+Directory structure change detected: \`$event_file\`.
+
+## Objective
+Update \`MAP.md\` to reflect the current project architecture. 
+- Ensure the new module is added to its correct semantic group.
+- Assign relevant #tags for pinpoint indexing.
+
+## Verification
+Verify \`MAP.md\` remains concise and accurate for AI context acquisition.
+EOF
+            echo "🗺️  Created Map Update Task: $task_path"
+        fi
+    fi
+}
+
 # 1. Initial Scan
 echo "🔍 Performing initial baseline check..."
 find $WATCH_DIRS -type f | while read -r f; do
@@ -92,8 +119,11 @@ if command -v fswatch >/dev/null; then
     echo "⚡ Sentinel watching for modifications..."
     # fswatch output is absolute or relative based on inputs. 
     # Using relative paths for inputs should give relative outputs.
-    fswatch --event Updated --event Created -e ".*\.git.*" $WATCH_DIRS | while read -r event_file; do
-        check_file "$event_file"
+    fswatch --event Updated --event Created --event Removed -e ".*\.git.*" $WATCH_DIRS | while read -r event_file; do
+        if [[ -f "$event_file" ]]; then
+            check_file "$event_file"
+        fi
+        check_structure "$event_file"
     done
 else
     echo "❌ fswatch not found. Sentinel limited to one-time scan."

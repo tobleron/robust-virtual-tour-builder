@@ -238,6 +238,8 @@ npm run test:ui
 
 ## 📁 Project Structure
 
+For a detailed semantic breakdown of the codebase, see the [MAP.md](file:///Users/r2/Desktop/robust-virtual-tour-builder/MAP.md).
+
 ```
 .
 ├── backend/                    # Rust backend server
