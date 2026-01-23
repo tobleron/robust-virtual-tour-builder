@@ -51,8 +51,9 @@ testAsync("ProjectManager: processLoadedProjectData handles valid response", asy
   let result = await resultPromise
 
   switch result {
-  | Ok(data) => {
-      let dict = data->Obj.magic // JSON to dict
+  | Ok((sessionId, projectData)) => {
+      t->expect(sessionId)->Expect.toBe("session_123")
+      let dict = projectData->Obj.magic // JSON to dict
       t->expect(dict["tourName"])->Expect.toEqual(JSON.Encode.string("Loaded Tour"))
 
       let scenes = dict["scenes"]->JSON.Decode.array->Option.getOrThrow

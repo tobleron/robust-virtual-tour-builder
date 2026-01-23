@@ -22,7 +22,7 @@ use services::shutdown::{ShutdownManager, perform_shutdown_cleanup};
 use services::upload_quota::{QuotaConfig, UploadQuotaManager};
 
 async fn health_check() -> impl Responder {
-    HttpResponse::Ok().body("Remax VTB Backend is running!")
+    HttpResponse::Ok().body("Tour Builder API is running!")
 }
 
 #[actix_web::main]

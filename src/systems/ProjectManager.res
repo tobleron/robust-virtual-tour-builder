@@ -55,6 +55,12 @@ let createSavePackage = (state: state, ~onProgress: option<onProgress>=?): Promi
     }
   })
 
+  // Append session_id if available for backend-side zipping fallback
+  switch state.sessionId {
+  | Some(id) => FormData.append(formData, "session_id", id)
+  | None => ()
+  }
+
   progress(10, 100, "Uploading to backend...")
 
   RequestQueue.schedule(() => {
@@ -95,7 +101,7 @@ let processLoadedProjectData = (
   resultSessionData: result<(string, JSON.t), apiError>,
   ~loadStartTime: float,
   ~onProgress: option<onProgress>=?,
-): Promise.t<BackendApi.apiResult<JSON.t>> => {
+): Promise.t<BackendApi.apiResult<(string, JSON.t)>> => {
   let progress = (curr, total, msg) => {
     switch onProgress {
     | Some(cb) => cb(curr, total, msg)
@@ -210,7 +216,7 @@ let processLoadedProjectData = (
         }),
         (),
       )
-      Promise.resolve(Ok(castToJson(loadedProject)))
+      Promise.resolve(Ok((sessionId, castToJson(loadedProject))))
     }
   | Error(msg) => Promise.resolve(Error(msg))
   }
@@ -352,7 +358,7 @@ let saveProject = (state: state, ~onProgress: option<onProgress>=?) =>
 // New: returns Promise(result)
 // But to keep existing calls working (if they expect promise rejection on fail):
 let loadProject = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promise.t<
-  BackendApi.apiResult<JSON.t>,
+  BackendApi.apiResult<(string, JSON.t)>,
 > => {
   loadProjectZip(zipFile, ~onProgress?)->Promise.then(result => {
     switch result {

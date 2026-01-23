@@ -39,15 +39,15 @@
 }
 
 /* Custom Colors Compatibility */
-.bg-remax-gold {
+.bg-brand-gold {
     background-color: #ffcc00 !important;
 }
 
-.text-remax-gold {
+.text-brand-gold {
     color: #ffcc00 !important;
 }
 
-.border-remax-gold\/20 {
+.border-brand-gold\/20 {
     border-color: rgba(255, 204, 0, 0.3) !important;
 }
 

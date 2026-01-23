@@ -7,7 +7,8 @@ let reduce = (state: state, action: action): option<state> => {
     let sanitized = TourLogic.sanitizeName(name, ~maxLength=100)
     Some({...state, tourName: sanitized})
 
-  | LoadProject(projectDataJson) => Some(ReducerHelpers.parseProject(projectDataJson))
+  | LoadProject(projectDataJson) =>
+    Some({...ReducerHelpers.parseProject(projectDataJson), sessionId: state.sessionId})
 
   | Reset => Some(State.initialState)
 
@@ -19,6 +20,7 @@ let reduce = (state: state, action: action): option<state> => {
       deletedSceneIds: Belt.Array.keep(state.deletedSceneIds, i => i != id),
     })
 
+  | SetSessionId(id) => Some({...state, sessionId: Some(id)})
   | _ => None
   }
 }

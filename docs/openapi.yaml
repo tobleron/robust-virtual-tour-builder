@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Remax VTB API
+  title: Robust VTB API
   version: 4.2.91
   description: Professional-grade Backend API for Virtual Tour Builder. Supports panoramic image processing, computer vision utilities, and project management.
   contact:
@@ -23,7 +23,7 @@ paths:
             text/plain:
               schema:
                 type: string
-                example: Remax VTB Backend is running!
+                example: Tour Builder API is running!
 
   /api/admin/shutdown:
     post:

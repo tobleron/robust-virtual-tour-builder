@@ -24,10 +24,15 @@ Before executing ANY code or shell command, you must perform a **Context Check**
   - **ALWAYS READ FIRST**: `/functional-standards.md` (Universal Principles apply to ALL code).
   - **THEN**, based on file type:
     - For **ReScript** (`.res`, `.resi`): ALSO follow `/rescript-standards.md`.
-    - For **ReScript** (`.res`, `.resi`): ALSO follow `/rescript-standards.md`.
     - For **Rust** (`.rs`): ALSO follow `/rust-standards.md`.
   - **Styling**: ALL CSS/UI work must follow `/docs/DESIGN_SYSTEM.md`.
   - **Logging**: All debug logs must follow `/debug-standards.md`.
+- **Code Sentinel (Automation)**:
+  - A background process (`./scripts/watch-file-limits.sh`) monitors code for growth and coverage.
+  - **Automated Tasks**: It automatically creates tasks in `tasks/pending/` for:
+    - **Refactors**: When a file exceeds 700 lines.
+    - **Tests**: When a logic module is modified but lacks test coverage.
+  - **Token Efficiency**: Do NOT manually create maintenance tasks if the Sentinel can handle them. This offloads routine programmatic checks to the local system, saving AI tokens.
 - **Test-Driven Dev**:
   - Follow `/testing-standards.md` for test structure and patterns.
   - You are PERMITTED to run `npm test` autonomously.

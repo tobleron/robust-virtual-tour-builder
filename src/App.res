@@ -64,10 +64,10 @@ module Inner = {
 @react.component
 let make = () => {
   <AppContext.Provider>
-    <RemaxErrorBoundary>
-      <Shadcn.Tooltip.Provider delayDuration=0>
+    <AppErrorBoundary>
+      <Shadcn.Tooltip.Provider delayDuration=Constants.tooltipDelayDuration>
         <Inner />
       </Shadcn.Tooltip.Provider>
-    </RemaxErrorBoundary>
+    </AppErrorBoundary>
   </AppContext.Provider>
 }

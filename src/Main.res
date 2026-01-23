@@ -59,7 +59,7 @@ let init = async () => {
       // 1. Logger (Now handles all global error trapping)
       Logger.init()
 
-      Logger.info(~module_="System", ~message="Initializing Remax Builder...", ())
+      Logger.info(~module_="System", ~message="Initializing Tour Builder...", ())
       Logger.info(~module_="Main", ~message="Main Init Started", ())
 
       // Verify Global Dependencies

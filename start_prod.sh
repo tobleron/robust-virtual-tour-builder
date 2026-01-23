@@ -3,7 +3,7 @@
 # Kill background processes on exit
 trap "kill 0" EXIT
 
-echo "--- Remax VTB Production Mode (Release Build) ---"
+echo "--- Robust Virtual Tour Builder Production Mode (Release Build) ---"
 
 # Step 1: Build Backend in Release Mode
 echo "[1/2] Building Rust Backend (Release Mode)..."

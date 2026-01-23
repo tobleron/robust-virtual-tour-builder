@@ -87,6 +87,7 @@ let run = () => {
     pendingReturnSceneName: None,
     currentJourneyId: 0,
     lastUsedCategory: "outdoor",
+    sessionId: None,
   }
 
   /* Test 1: Validate Request Generation */

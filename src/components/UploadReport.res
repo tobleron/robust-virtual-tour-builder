@@ -152,3 +152,36 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
     EventBus.dispatch(ShowModal(options))
   }
 }
+
+let showFromProjectData = (projectDataJson: JSON.t) => {
+  let project = JsonTypes.castToProject(projectDataJson)
+  let successNames = Belt.Array.map(project.scenes, s => s.name)
+  let qualityResults = Belt.Array.map(project.scenes, s => {
+    let q = switch Nullable.toOption(s.quality) {
+    | Some(qJson) => Obj.magic(qJson)
+    | None => {
+        SharedTypes.score: 0.0,
+        isBlurry: false,
+        isDim: false,
+        isSeverelyDark: false,
+        stats: {
+          avgLuminance: 0,
+          sharpnessVariance: 0,
+          blackClipping: 0.0,
+          whiteClipping: 0.0,
+        },
+        analysis: Nullable.null,
+        histogram: [],
+        colorHist: {r: [], g: [], b: []},
+        isSoft: false,
+        isSeverelyBright: false,
+        hasBlackClipping: false,
+        hasWhiteClipping: false,
+        issues: 0,
+        warnings: 0,
+      }
+    }
+    {quality: q, newName: s.name}
+  })
+  show({success: successNames, skipped: []}, qualityResults)
+}

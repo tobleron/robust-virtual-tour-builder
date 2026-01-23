@@ -110,6 +110,7 @@ let run = () => {
     pendingReturnSceneName: None,
     currentJourneyId: 0,
     lastUsedCategory: "outdoor",
+    sessionId: None,
   }
 
   let json = toJSON(mockState)

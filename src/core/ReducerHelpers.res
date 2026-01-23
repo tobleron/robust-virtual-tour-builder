@@ -112,7 +112,15 @@ let parseProject = (projectDataJson: JSON.t): state => {
   let pd = switch JsonTypes.decodeProject(projectDataJson) {
   | Ok(p) => p
   | Error(_) =>
-    ({tourName: Nullable.null, scenes: [], lastUsedCategory: Nullable.null}: JsonTypes.projectJson)
+    (
+      {
+        tourName: Nullable.null,
+        scenes: [],
+        lastUsedCategory: Nullable.null,
+        exifReport: Nullable.null,
+        sessionId: Nullable.null,
+      }: JsonTypes.projectJson
+    )
   }
   let tourName = switch Nullable.toOption(pd.tourName) {
   | Some(tn) if !TourLogic.isUnknownName(tn) => tn
@@ -171,6 +179,10 @@ let parseProject = (projectDataJson: JSON.t): state => {
   | Some(c) => c
   | None => "outdoor"
   }
+  let exifReport = switch Nullable.toOption(pd.exifReport) {
+  | Some(er) => Some(er)
+  | None => None
+  }
 
   {
     ...State.initialState,
@@ -182,6 +194,7 @@ let parseProject = (projectDataJson: JSON.t): state => {
       -1
     },
     lastUsedCategory,
+    exifReport,
   }
 }
 

@@ -9,7 +9,10 @@ use std::path::PathBuf;
 use uuid::Uuid;
 use zip::write::FileOptions;
 
-use super::utils::{MAX_UPLOAD_SIZE, SESSIONS_DIR, TEMP_DIR, get_temp_path, sanitize_filename};
+use super::utils::{
+    MAX_UPLOAD_SIZE, PROCESSED_IMAGE_WIDTH, SESSIONS_DIR, TEMP_DIR, WEBP_QUALITY, get_session_path,
+    get_temp_path, sanitize_filename,
+};
 use crate::models::{AppError, ValidationReport};
 use crate::services::project;
 
@@ -125,6 +128,7 @@ pub async fn save_project(mut payload: Multipart) -> Result<HttpResponse, AppErr
 
     // We use a block to scope the ZipWriter
     let mut project_json: Option<String> = None;
+    let mut session_id: Option<String> = None;
     let mut temp_images: Vec<(String, PathBuf)> = Vec::new(); // (filename, temp_path)
 
     // 2. Iterate Multipart Stream
@@ -164,6 +168,12 @@ pub async fn save_project(mut payload: Multipart) -> Result<HttpResponse, AppErr
                 f.write_all(&chunk).map_err(AppError::IoError)?;
             }
             temp_images.push((sanitized_name, temp_img_path));
+        } else if name == "session_id" {
+            let mut bytes = Vec::new();
+            while let Some(chunk) = field.try_next().await? {
+                bytes.extend_from_slice(&chunk);
+            }
+            session_id = Some(String::from_utf8_lossy(&bytes).to_string());
         }
     }
 
@@ -173,17 +183,147 @@ pub async fn save_project(mut payload: Multipart) -> Result<HttpResponse, AppErr
     let json_content = project_json
         .ok_or_else(|| AppError::MultipartError(actix_multipart::MultipartError::Incomplete))?;
 
-    // Run validation before saving
+    // Run validation and summary generation before saving
     let temp_images_for_validation = temp_images.clone();
-    let (validated_json, _report) =
-        web::block(move || -> Result<(String, ValidationReport), String> {
+    let session_id_for_validation = session_id.clone();
+    let (validated_json, _report, summary_content) = web::block(
+        move || -> Result<(String, ValidationReport, String), String> {
             let project_data: serde_json::Value = serde_json::from_str(&json_content)
                 .map_err(|e| format!("Invalid project JSON: {}", e))?;
 
-            // For save-project, available files are the ones being uploaded
+            // 1. Core Metadata
+            let tour_name = project_data["tourName"]
+                .as_str()
+                .unwrap_or("Untitled Tour")
+                .to_string();
+            let scenes = project_data["scenes"]
+                .as_array()
+                .ok_or("Missing 'scenes' array")?;
+            let scene_count = scenes.len();
+
+            // 2. Stats Collection
+            let mut total_hotspots = 0;
+            let mut total_score = 0.0;
+            let mut total_luminance = 0;
+            let mut group_counts: HashMap<String, u32> = HashMap::new();
+            let mut score_count = 0;
+
+            for scene in scenes {
+                if let Some(hss) = scene["hotspots"].as_array() {
+                    total_hotspots += hss.len();
+                }
+                if let Some(group) = scene["colorGroup"].as_str() {
+                    *group_counts.entry(group.to_string()).or_insert(0) += 1;
+                }
+
+                // Extract quality stats if available
+                if let Some(quality) = scene["quality"].as_object() {
+                    if let Some(score) = quality.get("score").and_then(|v| v.as_f64()) {
+                        total_score += score;
+                        score_count += 1;
+                    }
+                    if let Some(stats) = quality.get("stats").and_then(|v| v.as_object()) {
+                        if let Some(lum) = stats.get("avgLuminance").and_then(|v| v.as_u64()) {
+                            total_luminance += lum;
+                        }
+                    }
+                }
+            }
+
+            let mut group_summary = String::new();
+            let mut group_ids: Vec<_> = group_counts.keys().collect();
+            group_ids.sort_by(|a, b| {
+                let a_int = a.parse::<i32>().unwrap_or(-1);
+                let b_int = b.parse::<i32>().unwrap_or(-1);
+                a_int.cmp(&b_int)
+            });
+
+            for id in group_ids {
+                group_summary.push_str(&format!(
+                    "  - Visual Group {}: {} scene(s)\n",
+                    id, group_counts[id]
+                ));
+            }
+
+            let avg_score = if score_count > 0 {
+                total_score / score_count as f64
+            } else {
+                0.0
+            };
+            let avg_lum = if score_count > 0 {
+                total_luminance / score_count as u64
+            } else {
+                0
+            };
+
+            // 3. Generate Human Readable Summary
+            let now = chrono::Local::now();
+            let summary = format!(
+                "====================================================\n\
+                 VIRTUAL TOUR - PROJECT SUMMARY\n\
+                 ====================================================\n\n\
+                 Project Name:      {}\n\
+                 Generated On:      {}\n\
+                 Application:       Robust Virtual Tour Builder v4.4.7\n\n\
+                 --- SCENE ANALYSIS ---\n\
+                 Total Scenes:      {}\n\
+                 Total Hotspots:    {}\n\
+                 Visual Groups:     {} (Identified via similarity clustering)\n\
+{}\n\
+                 --- QUALITY METRICS ---\n\
+                 Avg Quality Score: {:.1}/10.0\n\
+                 Avg Luminance:     {} (Balanced range: 100-180)\n\n\
+                 Technical Checks Performed:\n\
+                 - Luminance Analysis: Ensuring balanced exposure\n\
+                 - Sharpness Variance: Detecting blur or soft focus\n\
+                 - Clipping Detection: Checking for lost detail in highlights/shadows\n\n\
+                 --- IMAGE SPECIFICATIONS ---\n\
+                 Standard Format:   WebP (Lossy)\n\
+                 WebP Quality:      {:.1}%\n\
+                 Max Resolution:    {}x{} px\n\n\
+                 --- VALIDATION ---\n\
+                 Status:            COMPLETED\n\n\
+                 ====================================================\n",
+                tour_name,
+                now.format("%Y-%m-%d %H:%M:%S"),
+                scene_count,
+                total_hotspots,
+                group_counts.len(),
+                group_summary,
+                avg_score * 10.0,
+                avg_lum,
+                WEBP_QUALITY,
+                PROCESSED_IMAGE_WIDTH,
+                PROCESSED_IMAGE_WIDTH,
+            );
+
+            // For save-project, available files are the ones being uploaded + already in session
             let mut available_files = HashSet::new();
             for (name, _) in &temp_images_for_validation {
                 available_files.insert(name.clone());
+            }
+
+            if let Some(sid) = &session_id_for_validation {
+                let session_path = get_session_path(sid);
+
+                // Check "images" subdir
+                let img_dir = session_path.join("images");
+                if let Ok(entries) = fs::read_dir(img_dir) {
+                    for entry in entries.flatten() {
+                        if let Ok(name) = entry.file_name().into_string() {
+                            available_files.insert(name);
+                        }
+                    }
+                }
+
+                // Check root session dir
+                if let Ok(entries) = fs::read_dir(session_path) {
+                    for entry in entries.flatten() {
+                        if let Ok(name) = entry.file_name().into_string() {
+                            available_files.insert(name);
+                        }
+                    }
+                }
             }
 
             let (mut validated_project, report) =
@@ -196,10 +336,11 @@ pub async fn save_project(mut payload: Multipart) -> Result<HttpResponse, AppErr
             let updated_json =
                 serde_json::to_string_pretty(&validated_project).map_err(|e| e.to_string())?;
 
-            Ok((updated_json, report))
-        })
-        .await
-        .map_err(|e| AppError::InternalError(e.to_string()))??;
+            Ok((updated_json, report, summary))
+        },
+    )
+    .await
+    .map_err(|e| AppError::InternalError(e.to_string()))??;
 
     let zip_creation_result = web::block(move || -> Result<(), std::io::Error> {
         let file = fs::File::create(&final_zip_path)?;
@@ -212,14 +353,56 @@ pub async fn save_project(mut payload: Multipart) -> Result<HttpResponse, AppErr
         zip.start_file("project.json", options)?;
         zip.write_all(validated_json.as_bytes())?;
 
-        // Write Images
+        // Write Summary
+        zip.start_file("summary.txt", options)?;
+        zip.write_all(summary_content.as_bytes())?;
+
+        // Track what we've written from temp_images
+        let mut written_files = HashSet::new();
+
+        // 1. Write Images from multipart (newly uploaded)
         for (filename, path) in temp_images {
             zip.start_file(format!("images/{}", filename), options)?;
             let mut f = fs::File::open(&path)?;
             std::io::copy(&mut f, &mut zip)?;
+            written_files.insert(filename);
 
             // Allow OS to clean up temp file (best effort)
             let _ = fs::remove_file(path);
+        }
+
+        // 2. Write remaining images from session (if any scenes need them)
+        if let Some(sid) = session_id {
+            let session_path = get_session_path(&sid);
+            let project_val: serde_json::Value =
+                serde_json::from_str(&validated_json).unwrap_or(serde_json::Value::Null);
+
+            if let Some(scenes) = project_val["scenes"].as_array() {
+                for scene in scenes {
+                    if let Some(name) = scene["name"].as_str() {
+                        if !written_files.contains(name) {
+                            // Try to find in session dir
+                            let img_subdir = session_path.join("images").join(name);
+                            let root_path = session_path.join(name);
+
+                            let source_path = if img_subdir.exists() {
+                                Some(img_subdir)
+                            } else if root_path.exists() {
+                                Some(root_path)
+                            } else {
+                                None
+                            };
+
+                            if let Some(path) = source_path {
+                                zip.start_file(format!("images/{}", name), options)?;
+                                let mut f = fs::File::open(path)?;
+                                std::io::copy(&mut f, &mut zip)?;
+                                written_files.insert(name.to_string());
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         zip.finish()?;

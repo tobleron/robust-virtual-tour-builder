@@ -114,7 +114,7 @@ let indexTemplate = `<!DOCTYPE html>
                 <span class="btn">Launch Tour</span>
             </a>
         </div>
-        <div class="footer">&copy; __YEAR__ RE/MAX Virtual Tour Platform.</div>
+        <div class="footer">&copy; __YEAR__ Virtual Tour Platform.</div>
     </div>
 </body>
 </html>`
@@ -131,7 +131,7 @@ let generateExportIndex = (tourName, version) => {
 }
 
 let generateEmbedCodes = (tourName, version) => {
-  `REMAX VIRTUAL TOUR - EMBED CODES
+  `VIRTUAL TOUR - EMBED CODES
 Version: ${version}
 Property: ${tourName}
 

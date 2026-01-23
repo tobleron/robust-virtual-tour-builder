@@ -541,6 +541,7 @@ module Loader = {
             | B => A
             }
 
+            let isRafPending = ref(false)
             Viewer.on(newViewer, "viewchange", _ => {
               /* CRITICAL: Skip updates during swap AND verify viewer is ready
                * This prevents the "ghost arrow" artifact at (0,0) which occurs when:
@@ -548,17 +549,28 @@ module Loader = {
                * 2. viewchange fires during the swap transition when state is inconsistent
                */
               if assignedKey == state.activeViewerKey && !state.isSwapping {
-                // Extra safety: Verify viewer has valid camera data before drawing
-                if HotspotLine.isViewerReady(newViewer) {
-                  let mouseEv = switch Nullable.toOption(state.lastMouseEvent) {
-                  | Some(e) => Some(e)
-                  | None => None
-                  }
-                  HotspotLine.updateLines(
-                    newViewer,
-                    GlobalStateBridge.getState(),
-                    ~mouseEvent=?mouseEv,
-                    (),
+                if !isRafPending.contents {
+                  isRafPending := true
+                  let _ = Window.requestAnimationFrame(
+                    () => {
+                      isRafPending := false
+
+                      // Verify viewer is still active and swapping hasn't started since RAF was requested
+                      if assignedKey == state.activeViewerKey && !state.isSwapping {
+                        if HotspotLine.isViewerReady(newViewer) {
+                          let mouseEv = switch Nullable.toOption(state.lastMouseEvent) {
+                          | Some(e) => Some(e)
+                          | None => None
+                          }
+                          HotspotLine.updateLines(
+                            newViewer,
+                            GlobalStateBridge.getState(),
+                            ~mouseEvent=?mouseEv,
+                            (),
+                          )
+                        }
+                      }
+                    },
                   )
                 }
               }

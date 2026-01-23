@@ -3,11 +3,11 @@
 
 @theme {
     /* Map CSS Variables to Tailwind Colors */
-    --color-remax-blue: var(--primary);
-    --color-remax-blue-dark: var(--primary-dark);
-    --color-remax-navy: var(--primary-navy);
-    --color-remax-red: var(--danger);
-    --color-remax-gold: var(--accent);
+    --color-brand-blue: var(--primary);
+    --color-brand-blue-dark: var(--primary-dark);
+    --color-brand-navy: var(--primary-navy);
+    --color-brand-red: var(--danger);
+    --color-brand-gold: var(--accent);
     --color-purple: var(--purple-brand);
 
 
