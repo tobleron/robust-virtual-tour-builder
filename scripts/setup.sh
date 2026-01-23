@@ -62,7 +62,7 @@ Before executing ANY code or shell command, you must perform a **Context Check**
 
 ## 🛠️ WORKFLOW AUTOMATION
 1. **Context Refresh**: Read MAP.md and relevant tasks.
-2. **Sentinel Check**: Run `./scripts/watch-file-limits.sh` to ensure health.
+2. **Project Guard**: Run `./scripts/project-guard.sh` to ensure health.
 3. **Build & Test**: Run `npm run build` and `npm test` before completion.
 EOF
 
@@ -261,15 +261,15 @@ echo "✅ Committed: $MSG"
 EOF
     chmod +x scripts/commit.sh
 
-    # Generate scripts/watch-file-limits.sh (The Sentinel)
-    cat <<'EOF' > scripts/watch-file-limits.sh
+    # Generate scripts/project-guard.sh (The Guard)
+    cat <<'EOF' > scripts/project-guard.sh
 #!/bin/bash
 LIMIT=700
 WATCH_DIRS="./src ./backend/src"
-echo "👀 Code Sentinel Active: Monitoring Growth ($LIMIT lines)..."
+echo "👀 Project Guard Active: Monitoring Growth ($LIMIT lines)..."
 fswatch -0 $WATCH_DIRS | xargs -0 -n 1 -I {} wc -l {}
 EOF
-    chmod +x scripts/watch-file-limits.sh
+    chmod +x scripts/project-guard.sh
 
     # Generate .gitignore
     cat <<'EOF' > .gitignore
@@ -294,7 +294,7 @@ EOF
     "dev": "concurrently \"npm run res:watch\" \"rsbuild dev\"",
     "build": "npm run res:build && rsbuild build",
     "test": "vitest",
-    "sentinel": "./scripts/watch-file-limits.sh"
+    "sentinel": "./scripts/project-guard.sh"
   },
   "devDependencies": {
     "rescript": "^12.0.0",

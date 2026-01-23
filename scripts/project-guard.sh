@@ -3,10 +3,10 @@
 # Configuration
 LIMIT=700
 WATCH_DIRS="./src ./backend/src"
-STATE_DIR="/tmp/remax_sentinel"
+STATE_DIR="/tmp/project_guard"
 mkdir -p "$STATE_DIR"
 
-echo "👀 Code Sentinel Active: Monitoring Growth ($LIMIT lines), Tests & Structure..."
+echo "👀 Project Guard Active: Monitoring Growth ($LIMIT lines), Tests & Structure..."
 
 # Helper to get next Task ID
 get_next_id() {
@@ -228,7 +228,7 @@ if [[ "$1" == "--scan-only" ]]; then
 fi
 
 if command -v fswatch >/dev/null; then
-    echo "⚡ Sentinel watching for modifications..."
+    echo "⚡ Project Guard watching for modifications..."
     # fswatch output is absolute or relative based on inputs. 
     # Using relative paths for inputs should give relative outputs.
     fswatch --event Updated --event Created --event Removed -e ".*\.git.*" $WATCH_DIRS | while read -r event_file; do
@@ -239,6 +239,6 @@ if command -v fswatch >/dev/null; then
         check_completed_tasks
     done
 else
-    echo "❌ fswatch not found. Sentinel limited to one-time scan."
+    echo "❌ fswatch not found. Project Guard limited to one-time scan."
     echo "💡 Suggestion: 'brew install fswatch' for real-time monitoring."
 fi

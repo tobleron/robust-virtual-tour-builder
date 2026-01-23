@@ -10,7 +10,7 @@ This project utilizes a high-performance ReScript (Frontend) and Rust (Backend) 
 
 ## ⚙️ System Utilities
 - **ffmpeg**: Required for image and video processing pipeline.
-- **fswatch**: Required for `watch-file-limits.sh` to monitor codebase health in real-time.
+- **fswatch**: Required for `project-guard.sh` to monitor codebase health in real-time.
 - **ripgrep (rg)**: Recommended for high-speed codebase searching.
 - **fd (fd-find)**: Recommended for fast file finding.
 

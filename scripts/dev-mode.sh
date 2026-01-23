@@ -2,8 +2,8 @@
 # USAGE: ./scripts/dev-mode.sh &
 echo "👁️  Starting AntiGravity Snapshot Watcher..."
 
-# Start File Growth Sentinel in background
-./scripts/watch-file-limits.sh &
+# Start Project Guard in background
+./scripts/project-guard.sh &
 SENTINEL_PID=$!
 # Kill sentinel when this script exits
 trap "kill $SENTINEL_PID" EXIT
