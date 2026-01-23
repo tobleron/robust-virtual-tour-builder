@@ -198,7 +198,7 @@ module Dom = {
   @get external nodeListLength: nodeList => int = "length"
 
   @set external setDraggable: (element, bool) => unit = "draggable"
-  @send @scope("document")
+  @val @scope("document")
   external createDocumentFragment: unit => element = "createDocumentFragment"
   @val @scope("document") external head: element = "head"
 }
@@ -289,6 +289,8 @@ module Window = {
   @val external cancelAnimationFrame: int => unit = "cancelAnimationFrame"
   @val external setTimeout: (unit => unit, int) => int = "setTimeout"
   @val external clearTimeout: int => unit = "clearTimeout"
+  @val external setInterval: (unit => unit, int) => int = "setInterval"
+  @val external clearInterval: int => unit = "clearInterval"
   @val external addEventListener: (string, 'a => unit) => unit = "addEventListener"
   @val external removeEventListener: (string, 'a => unit) => unit = "removeEventListener"
   @scope("navigator") @val external navigatorUserAgent: string = "userAgent"

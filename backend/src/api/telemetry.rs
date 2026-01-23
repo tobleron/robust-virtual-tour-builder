@@ -108,37 +108,46 @@ pub async fn cleanup_logs() -> impl actix_web::Responder {
 
 #[tracing::instrument(skip(entry), name = "log_telemetry")]
 pub async fn log_telemetry(entry: web::Json<TelemetryEntry>) -> Result<HttpResponse, AppError> {
-    tracing::debug!("Received telemetry entry: {:?}", entry);
-    // Append to telemetry.log as JSON line
-    let line = serde_json::to_string(&entry.into_inner()).unwrap_or_default() + "\n";
-
-    if let Err(e) = append_to_log("telemetry.log", &line).await {
-        tracing::error!("Failed to write telemetry: {}", e);
-    }
-
+    let entry_inner = entry.into_inner();
+    process_entry(&entry_inner).await;
     Ok(HttpResponse::Ok().finish())
 }
 
 #[tracing::instrument(skip(entry), name = "log_error")]
 pub async fn log_error(entry: web::Json<TelemetryEntry>) -> Result<HttpResponse, AppError> {
-    tracing::error!("Received error entry: {:?}", entry);
     let entry_inner = entry.into_inner();
+    process_entry(&entry_inner).await;
+    Ok(HttpResponse::Ok().finish())
+}
 
-    // Append to error.log as plaintext
-    let line = format!(
-        "[{}] [{}] {} - {:?}\n",
-        entry_inner.timestamp, entry_inner.module, entry_inner.message, entry_inner.data
-    );
+#[tracing::instrument(skip(batch), name = "log_batch")]
+pub async fn log_batch(
+    batch: web::Json<crate::models::TelemetryBatch>,
+) -> Result<HttpResponse, AppError> {
+    let entries = batch.into_inner().entries;
+    for entry in entries {
+        process_entry(&entry).await;
+    }
+    Ok(HttpResponse::Ok().finish())
+}
 
-    if let Err(e) = append_to_log("error.log", &line).await {
-        tracing::error!("Failed to write error log: {}", e);
+async fn process_entry(entry: &TelemetryEntry) {
+    use crate::models::TelemetryPriority;
+
+    // 1. Critical/High logs always go to error.log (plaintext)
+    if entry.priority == TelemetryPriority::Critical || entry.priority == TelemetryPriority::High {
+        let line = format!(
+            "[{}] [{:?}] [{}] {} - {:?}\n",
+            entry.timestamp, entry.priority, entry.module, entry.message, entry.data
+        );
+        let _ = append_to_log("error.log", &line).await;
     }
 
-    // Also append to telemetry for completeness
-    let json_line = serde_json::to_string(&entry_inner).unwrap_or_default() + "\n";
-    let _ = append_to_log("telemetry.log", &json_line).await;
-
-    Ok(HttpResponse::Ok().finish())
+    // 2. All logs except Low go to telemetry.log (JSON)
+    if entry.priority != TelemetryPriority::Low {
+        let line = serde_json::to_string(entry).unwrap_or_default() + "\n";
+        let _ = append_to_log("telemetry.log", &line).await;
+    }
 }
 
 #[cfg(test)]

@@ -17,6 +17,12 @@ type level =
   | Error
   | Perf
 
+type priority =
+  | Critical
+  | High
+  | Medium
+  | Low
+
 type logEntry = {
   timestampMs: float,
   timestamp: string,
@@ -24,7 +30,10 @@ type logEntry = {
   level: string,
   message: string,
   data: option<JSON.t>,
+  priority: string,
 }
+
+type telemetryBatch = {entries: array<logEntry>}
 
 type timedResult<'a> = {
   result: 'a,
@@ -51,6 +60,9 @@ let maxEntries = 2000
 let appLog: array<string> = []
 let maxAppLogEntries = 1000
 
+let telemetryQueue: array<logEntry> = []
+let batchTimer = ref(None)
+
 let enabled = ref(Constants.isDebugBuild())
 let minLevel = ref(Info)
 let enabledModules = ref(Belt.Set.String.empty)
@@ -65,6 +77,14 @@ let levelPriority = (level: level): int =>
   | Error => 4
   }
 
+let levelToTelemetryPriority = (level: level): priority =>
+  switch level {
+  | Error => Critical
+  | Warn => High
+  | Info | Perf => Medium
+  | Trace | Debug => Low
+  }
+
 let levelToString = (level: level): string =>
   switch level {
   | Trace => "trace"
@@ -73,6 +93,14 @@ let levelToString = (level: level): string =>
   | Warn => "warn"
   | Error => "error"
   | Perf => "perf"
+  }
+
+let priorityToString = (p: priority): string =>
+  switch p {
+  | Critical => "critical"
+  | High => "high"
+  | Medium => "medium"
+  | Low => "low"
   }
 
 let stringToLevel = (s: string): level =>
@@ -116,13 +144,69 @@ let hideDebugBadge = () => {
 // INTERNAL LOGGING CORE
 // =============================================================================
 
+let retryCount = ref(0)
+let isFlushing = ref(false)
+
+let flushTelemetry = async () => {
+  if Array.length(telemetryQueue) > 0 && !isFlushing.contents {
+    isFlushing := true
+
+    // Take a batch from the queue
+    let batchLimit = Constants.Telemetry.batchSize
+    let currentQueueLen = Array.length(telemetryQueue)
+    let takeCount = if currentQueueLen > batchLimit {
+      batchLimit
+    } else {
+      currentQueueLen
+    }
+
+    let batch = Belt.Array.slice(telemetryQueue, ~offset=0, ~len=takeCount)
+    // Remove from queue
+    ignore(%raw(`telemetryQueue.splice(0, takeCount)`))
+
+    let payload: telemetryBatch = {entries: batch}
+
+    let rec attemptSend = async retries => {
+      try {
+        let _ = await RequestQueue.schedule(() =>
+          Fetch.fetch(
+            Constants.backendUrl ++ "/api/telemetry/batch",
+            Fetch.requestInit(
+              ~method="POST",
+              ~headers=Dict.fromArray([("Content-Type", "application/json")]),
+              ~body=JSON.stringify(castToJson(payload)),
+              (),
+            ),
+          )
+        )
+        isFlushing := false
+      } catch {
+      | _ if retries < Constants.Telemetry.retryMaxAttempts => {
+          let delay = Belt.Float.toInt(
+            Belt.Int.toFloat(Constants.Telemetry.retryBackoffMs) *.
+            Math.pow(2.0, ~exp=Belt.Int.toFloat(retries)),
+          )
+          let _ = await Promise.make((resolve, _) => {
+            let _ = Window.setTimeout(() => resolve(ignore()), delay)
+          })
+          await attemptSend(retries + 1)
+        }
+      | _ => {
+          Console.error("[Logger] Failed to send telemetry batch after max retries")
+          isFlushing := false
+        }
+      }
+    }
+
+    await attemptSend(0)
+  }
+}
+
 let sendTelemetry = async entry => {
-  /* Only send errors or logs >= minLevel to backend */
-  if (
-    entry.level == "error" ||
-      levelPriority(stringToLevel(entry.level)) >= levelPriority(minLevel.contents)
-  ) {
-    let endpoint = if entry.level == "error" {
+  let p = stringToLevel(entry.level)->levelToTelemetryPriority
+  switch p {
+  | Critical | High =>
+    let endpoint = if p == Critical {
       "/api/telemetry/error"
     } else {
       "/api/telemetry/log"
@@ -142,16 +226,27 @@ let sendTelemetry = async entry => {
     } catch {
     | JsExn(e) =>
       Console.error(
-        `[Logger] Failed to send telemetry: ${e->JsExn.message->Option.getOr("Unknown")}`,
+        `[Logger] Failed to send immediate telemetry: ${e
+          ->JsExn.message
+          ->Option.getOr("Unknown")}`,
       )
-    | _ => Console.error("[Logger] Failed to send telemetry (Unknown error)")
+    | _ => Console.error("[Logger] Failed to send immediate telemetry (Unknown error)")
     }
+  | Medium =>
+    if Array.length(telemetryQueue) < Constants.Telemetry.queueMaxSize {
+      let _ = Array.push(telemetryQueue, entry)
+    }
+    if Array.length(telemetryQueue) >= Constants.Telemetry.batchSize {
+      let _ = flushTelemetry()
+    }
+  | Low => ()
   }
 }
 
 let log = (~module_: string, ~level: level, ~message: string, ~data: 'a=?, ()): unit => {
   let timestampMs = Date.now()
   let timestamp = Date.toISOString(Date.make())
+  let p = levelToTelemetryPriority(level)
 
   let entry = {
     timestampMs,
@@ -160,6 +255,7 @@ let log = (~module_: string, ~level: level, ~message: string, ~data: 'a=?, ()): 
     level: levelToString(level),
     message,
     data: data->Option.map(castToJson),
+    priority: priorityToString(p),
   }
 
   Array.push(entries, entry)
@@ -503,4 +599,9 @@ let init = () => {
   if enabled.contents {
     showDebugBadge()
   }
+
+  /* Start Telemetry Batch Timer */
+  batchTimer := Some(ReBindings.Window.setInterval(() => {
+        let _ = flushTelemetry()
+      }, Constants.Telemetry.batchInterval))
 }

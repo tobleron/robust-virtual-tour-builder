@@ -160,6 +160,7 @@ async fn main() -> io::Result<()> {
                 .service(web::scope("/telemetry")
                     .route("/log", web::post().to(api::telemetry::log_telemetry))
                     .route("/error", web::post().to(api::telemetry::log_error))
+                    .route("/batch", web::post().to(api::telemetry::log_batch))
                     .route("/cleanup", web::post().to(api::telemetry::cleanup_logs))
                 )
                 .service(web::scope("/geocoding")

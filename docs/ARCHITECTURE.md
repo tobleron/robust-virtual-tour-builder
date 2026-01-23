@@ -49,6 +49,14 @@ The project follows a **System 2 Thinking** architecture, partitioned between a 
 
 ## 4. Observability & Metrics
 
+### Intelligent Telemetry
+The system employs a priority-based telemetry engine to balance debugging depth with backend performance:
+
+- **Critical/High (Errors/Warnings)**: Transmitted immediately to the backend for real-time alerting.
+- **Medium (Info/Performance)**: Buffered in a client-side queue and dispatched in batches (default: every 5s or 50 entries) to minimize network overhead.
+- **Low (Debug/Trace)**: Restricted to the browser console to avoid backend congestion in production.
+- **Reliability**: Implements exponential backoff (starting at 1s) for failed batch transmissions to ensure observability even during transient network instability.
+
 ### System Monitoring
 - **Visual Performance**: Throttled rendering (20fps during simulation) minimizes resource contention.
 - **Log Categorization**: Structured logs track the visual pipeline (SCENE_SWAP, CROSSFADE_TRIGGER) to debug race conditions.
