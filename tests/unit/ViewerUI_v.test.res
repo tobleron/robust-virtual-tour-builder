@@ -1,5 +1,46 @@
+/* tests/unit/ViewerUI_v.test.res */
 open Vitest
 open ReBindings
+open Types
+
+let defaultHotspot: hotspot = {
+  linkId: "",
+  yaw: 0.0,
+  pitch: 0.0,
+  target: "",
+  targetYaw: None,
+  targetPitch: None,
+  targetHfov: None,
+  startYaw: None,
+  startPitch: None,
+  startHfov: None,
+  isReturnLink: None,
+  viewFrame: None,
+  returnViewFrame: None,
+  waypoints: None,
+  displayPitch: None,
+  transition: None,
+  duration: None,
+}
+
+let defaultScene: scene = {
+  id: "s1",
+  name: "Scene 1",
+  label: "Living Room",
+  file: Url("test.webp"),
+  tinyFile: None,
+  originalFile: None,
+  hotspots: [],
+  category: "indoor",
+  floor: "ground",
+  quality: None,
+  colorGroup: None,
+  categorySet: false,
+  labelSet: false,
+  _metadataSource: "user",
+  isAutoForward: false,
+  preCalculatedSnapshot: None,
+}
 
 describe("ViewerUI", () => {
   let wait = ms =>
@@ -7,7 +48,7 @@ describe("ViewerUI", () => {
       let _ = Window.setTimeout(() => resolve(), ms)
     })
 
-  testAsync("should render viewer UI with utility bar", async t => {
+  testAsync("should render viewer UI with utility bar and static elements", async t => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
@@ -27,10 +68,200 @@ describe("ViewerUI", () => {
     await wait(150)
 
     let utilBar = Dom.getElementById("viewer-utility-bar")
-    t->expect(Belt.Option.isSome(Nullable.toOption(utilBar)))->Expect.toBe(true)
+    t->expect(Nullable.toOption(utilBar)->Belt.Option.isSome)->Expect.toBe(true)
 
     let logo = Dom.getElementById("viewer-logo")
-    t->expect(Belt.Option.isSome(Nullable.toOption(logo)))->Expect.toBe(true)
+    t->expect(Nullable.toOption(logo)->Belt.Option.isSome)->Expect.toBe(true)
+
+    let snapshotOverlay = Dom.getElementById("viewer-snapshot-overlay")
+    t->expect(Nullable.toOption(snapshotOverlay)->Belt.Option.isSome)->Expect.toBe(true)
+
+    Dom.removeElement(container)
+  })
+
+  testAsync("should display scene label with # prefix", async t => {
+    let container = Dom.createElement("div")
+    Dom.appendChild(Dom.documentBody, container)
+
+    let mockState = {
+      ...State.initialState,
+      scenes: [defaultScene],
+      activeIndex: 0,
+    }
+    let mockDispatch = _ => ()
+
+    let root = ReactDOMClient.createRoot(container)
+    ReactDOMClient.Root.render(
+      root,
+      <AppContext.DispatchProvider value=mockDispatch>
+        <AppContext.StateProvider value=mockState>
+          <ViewerUI />
+        </AppContext.StateProvider>
+      </AppContext.DispatchProvider>,
+    )
+
+    await wait(150)
+
+    let labelEl = Dom.getElementById("v-scene-persistent-label")
+    switch Nullable.toOption(labelEl) {
+    | Some(el) =>
+      t->expect(Dom.getTextContent(el))->Expect.toBe("#Living Room")
+      t->expect(Dom.classList(el)->Dom.ClassList.contains("state-visible"))->Expect.toBe(true)
+    | None => t->expect(false)->Expect.toBe(true)
+    }
+
+    Dom.removeElement(container)
+  })
+
+  testAsync("should show quality badges when applicable", async t => {
+    let container = Dom.createElement("div")
+    Dom.appendChild(Dom.documentBody, container)
+
+    let quality: SharedTypes.qualityAnalysis = {
+      score: 5.0,
+      isBlurry: true,
+      isSoft: false,
+      isSeverelyDark: true,
+      isSeverelyBright: false,
+      isDim: false,
+      hasBlackClipping: true,
+      hasWhiteClipping: false,
+      stats: {
+        avgLuminance: 20,
+        blackClipping: 15.0,
+        whiteClipping: 0.0,
+        sharpnessVariance: 10,
+      },
+      histogram: [],
+      colorHist: {r: [], g: [], b: []},
+      issues: 2,
+      warnings: 1,
+      analysis: Nullable.null,
+    }
+
+    let mockState = {
+      ...State.initialState,
+      scenes: [{...defaultScene, quality: Some(Obj.magic(quality))}],
+      activeIndex: 0,
+    }
+    let mockDispatch = _ => ()
+
+    let root = ReactDOMClient.createRoot(container)
+    ReactDOMClient.Root.render(
+      root,
+      <AppContext.DispatchProvider value=mockDispatch>
+        <AppContext.StateProvider value=mockState>
+          <ViewerUI />
+        </AppContext.StateProvider>
+      </AppContext.DispatchProvider>,
+    )
+
+    await wait(150)
+
+    let indicator = Dom.getElementById("v-scene-quality-indicator")
+    switch Nullable.toOption(indicator) {
+    | Some(el) =>
+      let text = Dom.getTextContent(el)
+      t->expect(String.includes(text, "BLURRY"))->Expect.toBe(true)
+      t->expect(String.includes(text, "DARK"))->Expect.toBe(true)
+    | None => t->expect(false)->Expect.toBe(true)
+    }
+
+    Dom.removeElement(container)
+  })
+
+  testAsync("should handle floor navigation clicks", async t => {
+    let container = Dom.createElement("div")
+    Dom.appendChild(Dom.documentBody, container)
+
+    let mockState = {
+      ...State.initialState,
+      scenes: [defaultScene],
+      activeIndex: 0,
+    }
+    let lastAction = ref(None)
+    let mockDispatch = action => lastAction := Some(action)
+
+    let root = ReactDOMClient.createRoot(container)
+    ReactDOMClient.Root.render(
+      root,
+      <AppContext.DispatchProvider value=mockDispatch>
+        <AppContext.StateProvider value=mockState>
+          <ViewerUI />
+        </AppContext.StateProvider>
+      </AppContext.DispatchProvider>,
+    )
+
+    await wait(150)
+
+    let list = %raw(`Array.from(container.querySelectorAll('button'))`)
+    let firstFloorBtn = ref(None)
+    Belt.Array.forEach(
+      list,
+      b => {
+        if %raw(`b.textContent.includes("+1")`) {
+          firstFloorBtn := Some(b)
+        }
+      },
+    )
+
+    switch firstFloorBtn.contents {
+    | Some(btn) => Dom.click(btn)
+    | None => t->expect(false)->Expect.toBe(true)
+    }
+
+    switch lastAction.contents {
+    | Some(Actions.UpdateSceneMetadata(0, metadata)) =>
+      t->expect(Obj.magic(metadata)["floor"])->Expect.toBe("first")
+    | _ => t->expect(false)->Expect.toBe(true)
+    }
+
+    Dom.removeElement(container)
+  })
+
+  testAsync("should dispatch ShowModal when hotspot menu is opened via EventBus", async t => {
+    let container = Dom.createElement("div")
+    Dom.appendChild(Dom.documentBody, container)
+
+    let mockState = {
+      ...State.initialState,
+      scenes: [defaultScene],
+      activeIndex: 0,
+    }
+    let mockDispatch = _ => ()
+
+    let root = ReactDOMClient.createRoot(container)
+    ReactDOMClient.Root.render(
+      root,
+      <AppContext.DispatchProvider value=mockDispatch>
+        <AppContext.StateProvider value=mockState>
+          <ViewerUI />
+        </AppContext.StateProvider>
+      </AppContext.DispatchProvider>,
+    )
+
+    await wait(150)
+
+    let anchor = Dom.createElement("div")
+    let hotspot: hotspot = {
+      ...defaultHotspot,
+      linkId: "hs1",
+      target: "s2",
+    }
+
+    EventBus.dispatch(
+      OpenHotspotMenu({
+        "anchor": anchor,
+        "hotspot": hotspot,
+        "index": 0,
+      }),
+    )
+
+    await wait(100)
+
+    // Search for GO button specifically
+    let goBtn = Dom.querySelector(Dom.documentBody, "button.bg-primary\\/10")
+    t->expect(Nullable.toOption(goBtn)->Belt.Option.isSome)->Expect.toBe(true)
 
     Dom.removeElement(container)
   })

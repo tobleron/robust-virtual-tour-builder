@@ -70,14 +70,14 @@ let run = () => {
 
   // --- Test 4: SetTourName respects maxLength ---
   Console.log("Test 4: SetTourName respects maxLength")
-  let longName = String.repeat("a", 150)
+  let longName = String.repeat("a", 300)
   let actionLong = SetTourName(longName)
   let resultLong = ProjectReducer.reduce(initialState, actionLong)
 
   switch resultLong {
   | Some(state) => {
-      // Should be truncated to 100 characters
-      assert(String.length(state.tourName) == 100)
+      // Should be truncated to 255 characters (default in TourLogic)
+      assert(String.length(state.tourName) == 255)
       Console.log("✓ SetTourName respects maxLength")
     }
   | None => assert(false)
@@ -112,8 +112,8 @@ let run = () => {
 
   switch resultLoadNoName {
   | Some(state) => {
-      // Should default to "Imported Tour"
-      assert(state.tourName == "Imported Tour")
+      // Should default to "Tour Name" (defined in ReducerHelpers.parseProject)
+      assert(state.tourName == "Tour Name")
       Console.log("✓ LoadProject handles missing tourName")
     }
   | None => assert(false)
@@ -127,7 +127,7 @@ let run = () => {
 
   switch resultReset {
   | Some(state) => {
-      assert(state.tourName == "")
+      assert(state.tourName == "Tour Name")
       assert(state.activeIndex == -1)
       assert(Array.length(state.scenes) == 0)
       Console.log("✓ Reset returns initial state")
@@ -261,12 +261,12 @@ let run = () => {
   // --- Test 17: LoadProject preserves existing sessionId ---
   Console.log("Test 17: LoadProject preserves existing sessionId")
   let stateWithSession = {...initialState, sessionId: Some("preserved_session")}
-  let actionLoadPreserve = LoadProject(Obj.magic({"tourName": "New Tour", "scenes": []}))
+  let actionLoadPreserve = LoadProject(Obj.magic({"tourName": "Real Tour", "scenes": []}))
   let resultLoadPreserve = ProjectReducer.reduce(stateWithSession, actionLoadPreserve)
 
   switch resultLoadPreserve {
   | Some(state) => {
-      assert(state.tourName == "New Tour")
+      assert(state.tourName == "Real Tour")
       assert(state.sessionId == Some("preserved_session"))
       Console.log("✓ LoadProject preserves sessionId")
     }

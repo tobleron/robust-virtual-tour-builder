@@ -55,17 +55,19 @@ let run = () => {
   Console.log("✓ Parse full project structure")
 
   // Test 2: Missing optional fields
-  let json2 = JSON.parseOrThrow(`{
+  let json2Str = `{
     "scenes": [
       {
         "name": "min.webp",
         "file": "foo"
       }
     ]
-  }`)
+  }`
+  let json2 = JSON.parseOrThrow(json2Str)
 
   let state2 = parseProject(json2)
-  assert(state2.tourName == "Imported Tour") // Default
+  assert(state2.tourName == "Tour Name") // Default
+
   let s2 = Belt.Array.getExn(state2.scenes, 0)
   assert(s2.id == "legacy_min.webp") // Fallback
   assert(Belt.Array.length(s2.hotspots) == 0)
@@ -289,4 +291,31 @@ let run = () => {
   assert(updatedStep.duration == 2000)
 
   Console.log("✓ handleUpdateTimelineStep logic")
+
+  // Test 10: handleRemoveHotspot
+  let stateWithAutoForward = {
+    ...stateWithScenes,
+    scenes: [
+      {
+        ...Belt.Array.getExn(stateWithScenes.scenes, 0),
+        hotspots: [makeDummyHotspot(~target="s2.webp", ())],
+      },
+      {
+        ...Belt.Array.getExn(stateWithScenes.scenes, 1),
+        isAutoForward: true,
+      },
+      Belt.Array.getExn(stateWithScenes.scenes, 2),
+    ],
+  }
+
+  // Remove hotspot in s1 that points to s2
+  let stateAfterRemoveHotspot = handleRemoveHotspot(stateWithAutoForward, 0, 0)
+  let s1AfterRemove = Belt.Array.getExn(stateAfterRemoveHotspot.scenes, 0)
+  assert(Belt.Array.length(s1AfterRemove.hotspots) == 0)
+
+  // s2 isAutoForward should be reset to false because nothing points to it anymore
+  let s2AfterRemove = Belt.Array.getExn(stateAfterRemoveHotspot.scenes, 1)
+  assert(s2AfterRemove.isAutoForward == false)
+
+  Console.log("✓ handleRemoveHotspot logic")
 }

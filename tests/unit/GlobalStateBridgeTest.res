@@ -12,7 +12,7 @@ let run = () => {
   // We can force it back to initial for predictably.
   GlobalStateBridge.setState(State.initialState)
   let state1 = GlobalStateBridge.getState()
-  assert(state1.tourName == "")
+  assert(state1.tourName == "Tour Name")
   Console.log("✓ Initial state is correct")
 
   // 2. setState and getState

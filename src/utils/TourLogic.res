@@ -50,7 +50,14 @@ let isUnknownName = name => {
   n == "untitled" ||
   n == "imported tour" ||
   n == "tour" ||
-  RegExp.test(/^tour_\d{6}_\d{4}$/i, name) // Matches Tour_DDMMYY_HHMM pattern
+  n == "tour name" ||
+  n == "virtual_tour" ||
+  n == "virtual tour" ||
+  n == "new tour" ||
+  n == "new tour..." ||
+  RegExp.test(/^tour_\d{6}_\d{4}$/i, name) ||
+  // Matches Tour_DDMMYY_HHMM
+  RegExp.test(/^saved_rmx_/i, name)
 }
 
 /**

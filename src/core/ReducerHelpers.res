@@ -124,7 +124,7 @@ let parseProject = (projectDataJson: JSON.t): state => {
   }
   let tourName = switch Nullable.toOption(pd.tourName) {
   | Some(tn) if !TourLogic.isUnknownName(tn) => tn
-  | _ => "Imported Tour"
+  | _ => "Tour Name"
   }
 
   let scenes = Belt.Array.map(pd.scenes, sc => {

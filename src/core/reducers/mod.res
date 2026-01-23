@@ -5,4 +5,5 @@ module Ui = UiReducer
 module Navigation = NavigationReducer
 module Timeline = TimelineReducer
 module Project = ProjectReducer
+module Simulation = SimulationReducer
 module Root = RootReducer

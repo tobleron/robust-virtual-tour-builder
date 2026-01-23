@@ -10,7 +10,7 @@ echo "👀 Code Sentinel Active: Monitoring Growth ($LIMIT lines), Tests & Struc
 
 # Helper to get next Task ID
 get_next_id() {
-    local last_id=$(ls tasks/pending tasks/completed tasks/postponed 2>/dev/null | grep -E '^[0-9]+_' | sort -V | tail -n 1 | cut -d_ -f1)
+    local last_id=$(find tasks -type f -name "[0-9]*_*.md" -exec basename {} \; | cut -d_ -f1 | sort -n | tail -n 1)
     if [[ -z "$last_id" ]]; then last_id=0; fi
     echo $((last_id + 1))
 }
@@ -33,11 +33,18 @@ check_file() {
         local test_file_dot="tests/unit/${file_base}.test.res"
         local test_file_classic="tests/unit/${file_base}Test.res"
         
-        if [[ ! -f "$test_file_v" ]] && [[ ! -f "$test_file_dot" ]] && [[ ! -f "$test_file_classic" ]]; then
-            # Create Test Task if not already existing
-            if ! ls tasks/pending/*Test_${file_base}* tasks/postponed/tests/*Test_${file_base}* 1> /dev/null 2>&1; then
+        local test_found=false
+        local actual_test_file=""
+
+        if [[ -f "$test_file_v" ]]; then test_found=true; actual_test_file="$test_file_v"; fi
+        if [[ "$test_found" == "false" ]] && [[ -f "$test_file_dot" ]]; then test_found=true; actual_test_file="$test_file_dot"; fi
+        if [[ "$test_found" == "false" ]] && [[ -f "$test_file_classic" ]]; then test_found=true; actual_test_file="$test_file_classic"; fi
+
+        if [[ "$test_found" == "false" ]]; then
+            # Create Test Task if not already existing in any task directory
+            if ! echo "$EXISTING_TASKS_CACHE" | grep -q "Test_${file_base}"; then
                 local next_id=$(get_next_id)
-                local task_path="tasks/pending/${next_id}_Test_${file_base}.md"
+                local task_path="tasks/pending/tests/${next_id}_Add_Tests_${file_base}.md"
                 
                 cat <<EOF > "$task_path"
 # Task $next_id: Add Unit Tests for $filename
@@ -52,7 +59,33 @@ Create a Vitest file \`tests/unit/${file_base}_v.test.res\` to cover logic in th
 - Maintain code coverage for all exported functions.
 - Follow /testing-standards.md.
 EOF
-                echo "📝 Created Test Task: $task_path"
+                echo "📝 Created Add Test Task: $task_path"
+                EXISTING_TASKS_CACHE="$EXISTING_TASKS_CACHE\n$task_path"
+            fi
+        else
+            # Test exists, check if it's STALE (Implementation is newer than Test)
+            if [[ "$file" -nt "$actual_test_file" ]]; then
+                if ! echo "$EXISTING_TASKS_CACHE" | grep -q "Update_Tests_${file_base}"; then
+                    local next_id=$(get_next_id)
+                    local task_path="tasks/pending/tests/${next_id}_Update_Tests_${file_base}.md"
+                    
+                    cat <<EOF > "$task_path"
+# Task $next_id: Update Unit Tests for $filename
+
+## 🚨 Trigger
+Implementation file \`$file\` is newer than its test file \`$actual_test_file\`.
+
+## Objective
+Update \`$actual_test_file\` to ensure it covers recent changes in \`$filename\`.
+
+## Requirements
+- Review recent changes in \`$file\`.
+- Update tests to maintain 100% coverage of new logic.
+- Follow /testing-standards.md.
+EOF
+                    echo "🔄 Created Update Test Task: $task_path"
+                    EXISTING_TASKS_CACHE="$EXISTING_TASKS_CACHE\n$task_path"
+                fi
             fi
         fi
     fi
@@ -60,7 +93,7 @@ EOF
     # 3. Check for File Size (Refactor)
     local count=$(wc -l < "$file" | xargs)
     if [[ "$count" -gt "$LIMIT" ]]; then
-        if ! ls tasks/pending/*Refactor_${file_base}* 1> /dev/null 2>&1; then
+        if ! find tasks -name "*Refactor_${file_base}*" | grep -q .; then
             local next_id=$(get_next_id)
             local task_path="tasks/pending/${next_id}_Refactor_${file_base}.md"
             
@@ -85,7 +118,7 @@ check_structure() {
     local event_file="$1"
     # Trigger if a new file is created (ignoring temporary files)
     if [[ "$event_file" == *.res ]] || [[ "$event_file" == *.rs ]] || [[ "$event_file" == *.css ]]; then
-        if ! ls tasks/pending/*Update_Codebase_Map* 1> /dev/null 2>&1; then
+        if ! find tasks -name "*Update_Codebase_Map*" | grep -q .; then
             local next_id=$(get_next_id)
             local task_path="tasks/pending/${next_id}_Update_Codebase_Map.md"
             
@@ -108,13 +141,92 @@ EOF
     fi
 }
 
+check_completed_tasks() {
+    local completed_count=$(find tasks/completed -maxdepth 1 -name "*.md" | wc -l | xargs)
+    if [[ "$completed_count" -gt 90 ]]; then
+        if ! find tasks -name "*Aggregate_Completed_Tasks*" | grep -q .; then
+            local next_id=$(get_next_id)
+            local task_path="tasks/pending/${next_id}_Aggregate_Completed_Tasks.md"
+            
+            # Prepare the aggregation prompt
+            cat <<EOF > "$task_path"
+# Task $next_id: Aggregate Completed Tasks
+
+## 🚨 Trigger
+Completed tasks count exceeds 90 (Current: $completed_count).
+
+## Objective
+Aggregate the oldest 50 completed tasks into \`tasks/completed/_CONCISE_SUMMARY.md\` and cleanup.
+
+## AI Prompt
+"Please perform the following maintenance on the task system:
+1. Identify the oldest 50 task files in \`tasks/completed/\` (based on their numerical prefix).
+2. Read these 50 files and the existing \`tasks/completed/CONCISE_SUMMARY.md\` (or \`tasks/completed/_CONCISE_SUMMARY.md\`).
+3. If \`tasks/completed/CONCISE_SUMMARY.md\` exists, rename it to \`tasks/completed/_CONCISE_SUMMARY.md\` to ensure it stays at the top.
+4. Integrate the core accomplishments from these 50 tasks into \`tasks/completed/_CONCISE_SUMMARY.md\`, following its established style (categorized, bullet points, extremely concise).
+5. After successful integration and verification, delete the 50 original task files from \`tasks/completed/\`.
+6. Ensure the \`_CONCISE_SUMMARY.md\` remains the definitive high-level history of the project."
+EOF
+            echo "🧹 Created Maintenance Task: $task_path"
+        fi
+    fi
+}
+
 # 1. Initial Scan
 echo "🔍 Performing initial baseline check..."
+check_completed_tasks
+# Cache existing tasks to avoid expensive 'find' calls in a loop
+EXISTING_TASKS_CACHE=$(find tasks -type f)
+
+check_file_fast() {
+    local file="$1"
+    if [[ ! -f "$file" ]]; then return; fi
+    if [[ "$file" == *.bs.js ]] || [[ "$file" == */libs/* ]]; then return; fi
+    if [[ "$file" != *.res ]] && [[ "$file" != *.rs ]] && [[ "$file" != *.js ]]; then return; fi
+
+    local filename=$(basename "$file")
+    local file_base="${filename%.*}"
+    local file_ext="${filename##*.}"
+
+    if [[ "$file_ext" == "res" ]]; then
+        local test_found=false
+        local actual_test_file=""
+        if [[ -f "tests/unit/${file_base}_v.test.res" ]]; then test_found=true; actual_test_file="tests/unit/${file_base}_v.test.res"; fi
+        if [[ "$test_found" == "false" ]] && [[ -f "tests/unit/${file_base}.test.res" ]]; then test_found=true; actual_test_file="tests/unit/${file_base}.test.res"; fi
+        if [[ "$test_found" == "false" ]] && [[ -f "tests/unit/${file_base}Test.res" ]]; then test_found=true; actual_test_file="tests/unit/${file_base}Test.res"; fi
+
+        if [[ "$test_found" == "false" ]]; then
+            if ! echo "$EXISTING_TASKS_CACHE" | grep -q "Test_${file_base}"; then
+                check_file "$file" 
+            fi
+        else
+            # Test exists, check if it's STALE
+            if [[ "$file" -nt "$actual_test_file" ]]; then
+                if ! echo "$EXISTING_TASKS_CACHE" | grep -q "Update_Tests_${file_base}"; then
+                    check_file "$file"
+                fi
+            fi
+        fi
+    fi
+
+    local count=$(wc -l < "$file" | xargs)
+    if [[ "$count" -gt "$LIMIT" ]]; then
+        if ! echo "$EXISTING_TASKS_CACHE" | grep -q "Refactor_${file_base}"; then
+            check_file "$file"
+        fi
+    fi
+}
+
 find $WATCH_DIRS -type f | while read -r f; do
-    check_file "$f"
+    check_file_fast "$f"
 done
 
 # 2. Watch loop
+if [[ "$1" == "--scan-only" ]]; then
+    echo "✅ Scan complete. Exiting."
+    exit 0
+fi
+
 if command -v fswatch >/dev/null; then
     echo "⚡ Sentinel watching for modifications..."
     # fswatch output is absolute or relative based on inputs. 
@@ -124,6 +236,7 @@ if command -v fswatch >/dev/null; then
             check_file "$event_file"
         fi
         check_structure "$event_file"
+        check_completed_tasks
     done
 else
     echo "❌ fswatch not found. Sentinel limited to one-time scan."

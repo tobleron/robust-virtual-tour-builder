@@ -66,6 +66,11 @@ let batchTimer = ref(None)
 let enabled = ref(Constants.isDebugBuild())
 let minLevel = ref(Info)
 let enabledModules = ref(Belt.Set.String.empty)
+let bypassTestEnvCheck = ref(false)
+
+let setBypassTestEnvCheck = (v: bool) => {
+  bypassTestEnvCheck := v
+}
 
 let levelPriority = (level: level): int =>
   switch level {
@@ -144,6 +149,32 @@ let hideDebugBadge = () => {
 // INTERNAL LOGGING CORE
 // =============================================================================
 
+// =============================================================================
+// HELPER MODULES (Error Extraction)
+// =============================================================================
+
+module JsError = {
+  type t
+  @get external message: t => string = "message"
+  @get external stack: t => Nullable.t<string> = "stack"
+  @get external name: t => string = "name"
+}
+
+let getErrorDetails = (e: exn): (string, string) => {
+  switch JsExn.fromException(e) {
+  | Some(jsExn) => (
+      JsExn.message(jsExn)->Option.getOr("Unknown JS Error"),
+      JsExn.stack(jsExn)->Option.getOr(""),
+    )
+  | None => ("Non-JS ReScript Error", "")
+  }
+}
+
+let getErrorMessage = (e: exn): string => {
+  let (msg, _) = getErrorDetails(e)
+  msg
+}
+
 let retryCount = ref(0)
 let isFlushing = ref(false)
 
@@ -203,43 +234,41 @@ let flushTelemetry = async () => {
 }
 
 let sendTelemetry = async entry => {
-  let p = stringToLevel(entry.level)->levelToTelemetryPriority
-  switch p {
-  | Critical | High =>
-    let endpoint = if p == Critical {
-      "/api/telemetry/error"
-    } else {
-      "/api/telemetry/log"
-    }
-    try {
-      let _ = await RequestQueue.schedule(() =>
-        Fetch.fetch(
-          Constants.backendUrl ++ endpoint,
-          Fetch.requestInit(
-            ~method="POST",
-            ~headers=Dict.fromArray([("Content-Type", "application/json")]),
-            ~body=JSON.stringify(castToJson(entry)),
-            (),
-          ),
+  if Constants.isTestEnvironment() && !bypassTestEnvCheck.contents {
+    ()
+  } else {
+    let p = stringToLevel(entry.level)->levelToTelemetryPriority
+    switch p {
+    | Critical | High =>
+      let endpoint = if p == Critical {
+        "/api/telemetry/error"
+      } else {
+        "/api/telemetry/log"
+      }
+      try {
+        let _ = await RequestQueue.schedule(() =>
+          Fetch.fetch(
+            Constants.backendUrl ++ endpoint,
+            Fetch.requestInit(
+              ~method="POST",
+              ~headers=Dict.fromArray([("Content-Type", "application/json")]),
+              ~body=JSON.stringify(castToJson(entry)),
+              (),
+            ),
+          )
         )
-      )
-    } catch {
-    | JsExn(e) =>
-      Console.error(
-        `[Logger] Failed to send immediate telemetry: ${e
-          ->JsExn.message
-          ->Option.getOr("Unknown")}`,
-      )
-    | _ => Console.error("[Logger] Failed to send immediate telemetry (Unknown error)")
+      } catch {
+      | e => Console.error(`[Logger] Failed to send immediate telemetry: ${getErrorMessage(e)}`)
+      }
+    | Medium =>
+      if Array.length(telemetryQueue) < Constants.Telemetry.queueMaxSize {
+        let _ = Array.push(telemetryQueue, entry)
+      }
+      if Array.length(telemetryQueue) >= Constants.Telemetry.batchSize {
+        let _ = flushTelemetry()->Promise.catch(_ => Promise.resolve())
+      }
+    | Low => ()
     }
-  | Medium =>
-    if Array.length(telemetryQueue) < Constants.Telemetry.queueMaxSize {
-      let _ = Array.push(telemetryQueue, entry)
-    }
-    if Array.length(telemetryQueue) >= Constants.Telemetry.batchSize {
-      let _ = flushTelemetry()
-    }
-  | Low => ()
   }
 }
 
@@ -273,7 +302,7 @@ let log = (~module_: string, ~level: level, ~message: string, ~data: 'a=?, ()): 
   }
 
   /* Backend Telemetry */
-  let _ = sendTelemetry(entry)
+  let _ = sendTelemetry(entry)->Promise.catch(_ => Promise.resolve())
 
   /* Console Output */
   if enabled.contents && levelPriority(level) >= levelPriority(minLevel.contents) {
@@ -479,32 +508,6 @@ external asDynamic: 'a => {..} = "%identity"
 // GLOBAL BINDINGS (INIT)
 // =============================================================================
 
-// =============================================================================
-// HELPER MODULES (Error Extraction)
-// =============================================================================
-
-module JsError = {
-  type t
-  @get external message: t => string = "message"
-  @get external stack: t => Nullable.t<string> = "stack"
-  @get external name: t => string = "name"
-}
-
-let getErrorDetails = (e: exn): (string, string) => {
-  switch JsExn.fromException(e) {
-  | Some(jsExn) => (
-      JsExn.message(jsExn)->Option.getOr("Unknown JS Error"),
-      JsExn.stack(jsExn)->Option.getOr(""),
-    )
-  | None => ("Non-JS ReScript Error", "")
-  }
-}
-
-let getErrorMessage = (e: exn): string => {
-  let (msg, _) = getErrorDetails(e)
-  msg
-}
-
 module UnhandledRejectionEvent = {
   type t
   type reason
@@ -602,6 +605,6 @@ let init = () => {
 
   /* Start Telemetry Batch Timer */
   batchTimer := Some(ReBindings.Window.setInterval(() => {
-        let _ = flushTelemetry()
+        let _ = flushTelemetry()->Promise.catch(_ => Promise.resolve())
       }, Constants.Telemetry.batchInterval))
 }

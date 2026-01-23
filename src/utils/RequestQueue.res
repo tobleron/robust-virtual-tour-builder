@@ -9,18 +9,24 @@ let rec process = () => {
     switch Array.shift(queue) {
     | Some(run) =>
       activeCount := activeCount.contents + 1
-      run()
-      ->Promise.then(_ => {
+      try {
+        run()
+        ->Promise.then(_ => {
+          activeCount := activeCount.contents - 1
+          process()
+          Promise.resolve()
+        })
+        ->Promise.catch(_ => {
+          activeCount := activeCount.contents - 1
+          process()
+          Promise.resolve()
+        })
+        ->ignore
+      } catch {
+      | _ =>
         activeCount := activeCount.contents - 1
         process()
-        Promise.resolve()
-      })
-      ->Promise.catch(_ => {
-        activeCount := activeCount.contents - 1
-        process()
-        Promise.resolve()
-      })
-      ->ignore
+      }
 
       /* Try to start another one in parallel if slots remain */
       process()
@@ -32,18 +38,25 @@ let rec process = () => {
 let schedule = (task: unit => Promise.t<'a>): Promise.t<'a> => {
   Promise.make((resolve, reject) => {
     let run = () => {
-      task()
-      ->Promise.then(result => {
-        resolve(result)
-        Promise.resolve()
-      })
-      ->Promise.catch(err => {
-        reject(err)
-        Promise.resolve()
-      })
+      try {
+        task()
+        ->Promise.then(result => {
+          resolve(result)
+          Promise.resolve()
+        })
+        ->Promise.catch(err => {
+          reject(err)
+          Promise.resolve()
+        })
+      } catch {
+      | e => {
+          reject(e)
+          Promise.resolve()
+        }
+      }
     }
 
-    Array.push(queue, run)
+    let _ = Array.push(queue, run)
     process()
   })
 }

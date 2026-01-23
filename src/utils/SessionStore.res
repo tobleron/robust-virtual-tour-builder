@@ -15,6 +15,9 @@ external setItem: (string, string) => unit = "setItem"
 @val @scope("localStorage")
 external getItem: string => Nullable.t<string> = "getItem"
 
+@val @scope("localStorage")
+external removeItem: string => unit = "removeItem"
+
 let storageKey = "vtb_session_store"
 
 let saveState = (state: state) => {
@@ -78,5 +81,12 @@ let loadState = (): option<sessionState> => {
     }
   } catch {
   | _ => None
+  }
+}
+let clearState = () => {
+  try {
+    removeItem(storageKey)
+  } catch {
+  | _ => ()
   }
 }
