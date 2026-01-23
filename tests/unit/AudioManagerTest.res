@@ -45,24 +45,6 @@ let run = () => {
       }
       play() { return Promise.resolve(); }
     };
-    
-    // Mock fetch if not present
-    if (!global.fetch) global.fetch = (url) => Promise.resolve({
-      arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
-      ok: true
-    });
-    
-    // Ensure document and documentBody exist without overwriting
-    global.document = global.document || {};
-    // Preserve createElement if it exists
-    const existingCreateElement = global.document.createElement;
-    global.document.body = global.document.body || { addEventListener: () => {} };
-    if (!global.document.addEventListener) global.document.addEventListener = () => {};
-    if (!global.document.closest) global.document.closest = () => null;
-    // Restore createElement if it was overwritten
-    if (existingCreateElement && !global.document.createElement) {
-      global.document.createElement = existingCreateElement;
-    }
   })()`)
 
   // 2. Test: init() sets isInitialized

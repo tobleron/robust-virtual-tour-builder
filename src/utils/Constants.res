@@ -251,6 +251,14 @@ let isDebugBuild = () => {
   mode == "development" || isDevStr == "true"
 }
 
+let isTestEnvironment = () => {
+  try {
+    %raw(`(typeof process !== 'undefined' && (process.env.NODE_ENV === 'test' || process.env.VITEST === 'true'))`)
+  } catch {
+  | _ => false
+  }
+}
+
 let enableStateInspector = () => {
   try {
     %raw(`typeof process !== 'undefined' && process.env.ENABLE_STATE_INSPECTOR === 'true'`) ||

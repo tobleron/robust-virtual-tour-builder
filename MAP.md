@@ -13,7 +13,10 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/core/AppContext.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/core/AppContext.res): Typed React Context for state and dispatch accessibility. `#react-context` `#hooks`
 
 ### 🌐 System Layer (Business Logic)
-*   [src/systems/UploadProcessor.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/UploadProcessor.res): Complex multi-stage image processing pipeline. `#image-processing` `#upload` `#validation`
+*   [src/systems/UploadProcessor.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/UploadProcessor.res): Lightweight facade for the image processing pipeline. `#upload` `#facade`
+*   [src/systems/UploadProcessorLogic.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/UploadProcessorLogic.res): Core image validation, fingerprinting, and clustering logic. `#image-processing` `#logic`
+*   [src/systems/HotspotLine.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/HotspotLine.res): Facade for visual hotspot connections and simulation arrows. `#hotspots` `#rendering` `#facade`
+*   [src/systems/HotspotLineLogic.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/HotspotLineLogic.res): Coordinate projection math and SVG drawing primitives. `#math` `#rendering` `#logic`
 *   [src/systems/SimulationDriver.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/SimulationDriver.res): Logic for Autopilot and route simulations. `#autopilot` `#simulation` `#navigation`
 *   [src/systems/NavigationController.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/NavigationController.res): Manages movement between scenes. `#navigation` `#scene-switching`
 *   [src/systems/ProjectManager.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/ProjectManager.res): Handles ZIP-based loading and periodic auto-saving. `#persistence` `#save-load` `#zip`
@@ -51,3 +54,4 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [rescript.json](file:///Users/r2/Desktop/robust-virtual-tour-builder/rescript.json): Frontend compiler configuration. `#rescript` `#config`
 *   [rsbuild.config.mjs](file:///Users/r2/Desktop/robust-virtual-tour-builder/rsbuild.config.mjs): Build pipeline and HTML template parameters. `#build` `#bundle`
 *   [css/variables.css](file:///Users/r2/Desktop/robust-virtual-tour-builder/css/variables.css): The "source of truth" for design tokens. `#design-system` `#theme`
+*   [docs/INITIALIZATION_STANDARDS.md](file:///Users/r2/Desktop/robust-virtual-tour-builder/docs/INITIALIZATION_STANDARDS.md): Guidelines for consistent app startup and project resets. `#standards` `#initialization`

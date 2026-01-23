@@ -80,3 +80,29 @@ testAsync("ProjectManager: processLoadedProjectData propagates error", async t =
   let result = await resultPromise
   t->expect(Result.isError(result))->Expect.toBe(true)
 })
+
+testAsync("ProjectManager: processLoadedProjectData handles validation report", async t => {
+  let projectData = JSON.parseOrThrow(`{
+    "tourName": "Validated Tour",
+    "scenes": [],
+    "validationReport": {
+      "brokenLinksRemoved": 5,
+      "orphanedScenes": ["scene-orphaned-1"],
+      "unusedFiles": ["extra-file.jpg"],
+      "errors": ["Some critical error"]
+    }
+  }`)
+
+  let result = await processLoadedProjectData(
+    Ok(("session_val", projectData)),
+    ~loadStartTime=Date.now(),
+  )
+
+  t->expect(Result.isOk(result))->Expect.toBe(true)
+  switch result {
+  | Ok((_, pd)) =>
+    let dict = pd->Obj.magic
+    t->expect(dict["tourName"])->Expect.toEqual(JSON.Encode.string("Validated Tour"))
+  | Error(_) => t->expect(true)->Expect.toBe(false)
+  }
+})

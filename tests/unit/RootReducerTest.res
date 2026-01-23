@@ -170,7 +170,7 @@ let run = () => {
   let actionReset = Reset
   let resultReset = RootReducer.reducer(modifiedState, actionReset)
 
-  assert(resultReset.tourName == "")
+  assert(resultReset.tourName == "Tour Name")
   assert(resultReset.isLinking == false)
   assert(resultReset.activeIndex == -1)
   Console.log("✓ Reset action handled")

@@ -536,3 +536,4 @@ Task: 147
 [2026-01-23 03:19] v4.4.7 - Unit, Smoke, Regression Tests Created
 [2026-01-23 10:11] v4.4.7 - Implement Code Sentinel automation and surgical brand renaming to Robust VTB
 [2026-01-23 10:50] v4.4.7 - GEMINI.md & MAP.md Perfected
+[2026-01-23 19:24] v4.4.7 - chore: update unit tests for HotspotLine, ProjectManager, DownloadSystem, and NavigationRenderer

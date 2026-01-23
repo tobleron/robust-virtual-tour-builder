@@ -166,5 +166,15 @@ let run = () => {
 
   assertString(SetExifReport(JSON.Encode.null), "SetExifReport", "SetExifReport")
 
+  assertString(StartAutoPilot(1, true), "StartAutoPilot", "StartAutoPilot")
+  assertString(StopAutoPilot, "StopAutoPilot", "StopAutoPilot")
+  assertString(AddVisitedScene(3), "AddVisitedScene", "AddVisitedScene")
+  assertString(ClearVisitedScenes, "ClearVisitedScenes", "ClearVisitedScenes")
+  assertString(SetStoppingOnArrival(true), "SetStoppingOnArrival", "SetStoppingOnArrival")
+  assertString(SetSkipAutoForward(true), "SetSkipAutoForward", "SetSkipAutoForward")
+  assertString(UpdateAdvanceTime(5.0), "UpdateAdvanceTime", "UpdateAdvanceTime")
+  assertString(SetPendingAdvance(Some(2)), "SetPendingAdvance", "SetPendingAdvance")
+  assertString(SetSessionId("session-123"), "SetSessionId(session-123)", "SetSessionId")
+
   Console.log("✓ Actions: Module logic verified")
 }

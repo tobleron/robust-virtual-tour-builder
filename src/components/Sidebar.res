@@ -182,13 +182,17 @@ let make = () => {
                         {
                           label: "Discard & New",
                           class_: "bg-danger text-white",
-                          onClick: () => reload(),
+                          onClick: () => {
+                            SessionStore.clearState()
+                            reload()
+                          },
                           autoClose: Some(true),
                         },
                       ],
                     }),
                   )
                 } else {
+                  SessionStore.clearState()
                   reload()
                 }
               },

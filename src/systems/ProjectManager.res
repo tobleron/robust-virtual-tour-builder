@@ -195,7 +195,7 @@ let processLoadedProjectData = (
       Dict.set(
         loadedProject,
         "tourName",
-        Dict.get(pd, "tourName")->Option.getOr(castToJson("Imported Tour")),
+        Dict.get(pd, "tourName")->Option.getOr(castToJson("Tour Name")),
       )
       Dict.set(loadedProject, "scenes", castToJson(validScenes))
       Dict.set(

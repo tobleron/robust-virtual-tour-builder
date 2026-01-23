@@ -1,7 +1,7 @@
 open Types
 
 let initialState: state = {
-  tourName: "",
+  tourName: "Tour Name",
   scenes: [],
   activeIndex: -1,
   activeYaw: 0.0,

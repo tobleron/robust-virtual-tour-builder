@@ -13,6 +13,7 @@ let clearLoggerState = () => {
 
 describe("Logger Priority & Telemetry Logic", () => {
   beforeEach(() => {
+    Logger.setBypassTestEnvCheck(true)
     clearLoggerState()
   })
 
@@ -70,5 +71,62 @@ describe("Logger Priority & Telemetry Logic", () => {
     // and it immediately clears the queue via splice, the queue should be 0.
     let queueLenAfter = %raw(`Logger.telemetryQueue.length`)
     t->expect(queueLenAfter)->Expect.toBe(0)
+  })
+
+  test("perf maps duration to level correctly", t => {
+    // 1. Slow (> 500ms) -> Warn
+    clearLoggerState()
+    Logger.perf(~module_="Test", ~message="Slow op", ~durationMs=600.0, ())
+    let lastEntry = %raw(`Logger.entries[Logger.entries.length - 1]`)
+    t->expect(lastEntry["level"])->Expect.toBe("warn")
+
+    // 2. Medium (> 100ms) -> Info
+    Logger.perf(~module_="Test", ~message="Med op", ~durationMs=200.0, ())
+    let lastEntry2 = %raw(`Logger.entries[Logger.entries.length - 1]`)
+    t->expect(lastEntry2["level"])->Expect.toBe("info")
+
+    // 3. Fast -> Debug
+    Logger.perf(~module_="Test", ~message="Fast op", ~durationMs=50.0, ())
+    let lastEntry3 = %raw(`Logger.entries[Logger.entries.length - 1]`)
+    t->expect(lastEntry3["level"])->Expect.toBe("debug")
+  })
+
+  test("timed measures duration and returns result", t => {
+    let result = Logger.timed(
+      ~module_="Test",
+      ~operation="SyncOp",
+      () => {
+        42
+      },
+    )
+    t->expect(result.result)->Expect.toBe(42)
+    t->expect(result.durationMs >= 0.0)->Expect.toBe(true)
+  })
+
+  testAsync("timedAsync measures duration and returns result", async t => {
+    let result = await Logger.timedAsync(
+      ~module_="Test",
+      ~operation="AsyncOp",
+      async () => {
+        43
+      },
+    )
+    t->expect(result.result)->Expect.toBe(43)
+    t->expect(result.durationMs >= 0.0)->Expect.toBe(true)
+  })
+
+  test("attempt catches errors and logs them", t => {
+    let result = Logger.attempt(
+      ~module_="Test",
+      ~operation="FailOp",
+      () => {
+        %raw(`(function(){ throw new Error("Boom") })()`)
+      },
+    )
+    t->expect(result)->Expect.toEqual(Error("Boom"))
+
+    let lastEntry = %raw(`Logger.entries[Logger.entries.length - 1]`)
+    t->expect(lastEntry["level"])->Expect.toBe("error")
+    t->expect(lastEntry["message"])->Expect.toBe("FailOp_FAILED")
   })
 })

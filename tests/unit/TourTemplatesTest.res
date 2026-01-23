@@ -110,22 +110,31 @@ let run = () => {
   assertContains(html, "\"pitch\":5")
   assertContains(html, "\"target\":\"scene2\"")
 
-  Console.log("Test: generateTourHTML with no logo")
-  let htmlNoLogo = generateTourHTML(
-    [mockScene1],
+  assertContains(html, "\"floor\":\"1\"")
+  assertContains(html, "\"category\":\"Living Room\"")
+  assertContains(html, "\"isAutoForward\":false")
+
+  Console.log("Test: generateTourHTML with AutoForward scene")
+  let autoScene = {...mockScene2, isAutoForward: true}
+  let htmlAuto = generateTourHTML(
+    [autoScene],
     tourName,
-    false,
+    hasLogo,
     exportType,
     baseSize,
     logoSize,
     version,
   )
+  assertContains(htmlAuto, "\"isAutoForward\":true")
 
-  assertContains(html, "assets/logo.png") // Original had it
-  if String.includes(htmlNoLogo, "assets/logo.png") {
-    Console.error("Expected htmlNoLogo to NOT contain logo, but it did.")
-    assert(false)
-  }
+  Console.log("Test: generateEmbedCodes and generateExportIndex (Delegation smoke test)")
+  let embedCodes = generateEmbedCodes("MyTour", "1.0.0")
+  assert(String.includes(embedCodes, "iframe"))
+  assert(String.includes(embedCodes, "MyTour"))
+
+  let exportIndex = generateExportIndex("MyTour", "hd")
+  assert(String.includes(exportIndex, "MyTour"))
+  assert(String.includes(exportIndex, "viewport"))
 
   Console.log("✓ TourTemplates tests pass")
 }

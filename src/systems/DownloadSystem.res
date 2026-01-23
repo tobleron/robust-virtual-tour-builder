@@ -125,7 +125,7 @@ let saveBlobWithConfirmation = async (blob: Blob.t, filename: string): result<bo
         let (msg, stack) = Logger.getErrorDetails(exn)
 
         // Check for AbortError which occurs when user cancels the save picker
-        if String.includes("AbortError", msg) {
+        if String.includes(msg, "AbortError") {
           Logger.info(~module_="Download", ~message="SAVE_CANCELLED", ())
           Error("USER_CANCELLED")
         } else {

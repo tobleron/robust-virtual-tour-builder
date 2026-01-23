@@ -3,9 +3,7 @@ open Actions
 
 let reduce = (state: state, action: action): option<state> => {
   switch action {
-  | SetTourName(name) =>
-    let sanitized = TourLogic.sanitizeName(name, ~maxLength=100)
-    Some({...state, tourName: sanitized})
+  | SetTourName(name) => Some({...state, tourName: TourLogic.sanitizeName(name)})
 
   | LoadProject(projectDataJson) =>
     Some({...ReducerHelpers.parseProject(projectDataJson), sessionId: state.sessionId})

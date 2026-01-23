@@ -114,7 +114,6 @@ module Loader = {
         Dom.setTransition(act, "")
         Dom.setTransition(inact, "")
       }
-
       Dom.remove(act, "active")
       Dom.add(inact, "active")
 
