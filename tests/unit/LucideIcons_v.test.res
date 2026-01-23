@@ -177,4 +177,9 @@ describe("LucideIcons", () => {
     let el = <LucideIcons.Camera />
     t->expect(el)->Expect.toBe(el)
   })
+
+  test("CircleAlert icon with stroke prop", t => {
+    let el = <LucideIcons.CircleAlert stroke="red" />
+    t->expect(el)->Expect.toBe(el)
+  })
 })

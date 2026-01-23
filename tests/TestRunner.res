@@ -20,11 +20,11 @@ let runAll = async () => {
   // ExifReportGeneratorTest.run() - Migrated to Vitest
   SharedTypesTest.run()
   // ReBindingsTest.run() - Migrated to Vitest
-  BackendApiTest.run()
+  // BackendApiTest.run() - Migrated to Vitest
   ProjectManagerTest.run()
   // DownloadSystemTest.run() - Migrated to Vitest
   ProjectDataTest.run()
-  ResizerTest.run()
+  // ResizerTest.run() - Migrated to Vitest
   UploadProcessorTest.run()
   VideoEncoderTest.run()
   TeaserManagerTest.run()

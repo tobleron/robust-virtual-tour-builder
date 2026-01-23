@@ -102,25 +102,15 @@
 │   │   └── TASK_ANALYSIS_AND_RENUMBERING.md
 │   └── openapi.yaml
 ├── full_build_output.txt
+├── icons.txt
 ├── index.html
 ├── jsconfig.json
 ├── lib
 │   ├── bs
 │   │   ├── build.ninja
-│   │   ├── compiler-info.json
 │   │   ├── src
 │   │   │   ├── App.ast
-│   │   │   ├── App.bs.js
-│   │   │   ├── App.cmi
-│   │   │   ├── App.cmj
-│   │   │   ├── App.cmt
-│   │   │   ├── App.res
 │   │   │   ├── Main.ast
-│   │   │   ├── Main.bs.js
-│   │   │   ├── Main.cmi
-│   │   │   ├── Main.cmj
-│   │   │   ├── Main.cmt
-│   │   │   ├── Main.res
 │   │   │   ├── ReBindings.ast
 │   │   │   ├── ReBindings.bs.js
 │   │   │   ├── ReBindings.cmi
@@ -727,23 +717,18 @@
 │   │           ├── AppErrorBoundary_v.test.cmt
 │   │           ├── AppErrorBoundary_v.test.res
 │   │           ├── AppTest.ast
-│   │           ├── AppTest.bs.js
-│   │           ├── AppTest.cmi
-│   │           ├── AppTest.cmj
-│   │           ├── AppTest.cmt
-│   │           ├── AppTest.res
 │   │           ├── AudioManagerTest.ast
 │   │           ├── AudioManagerTest.bs.js
 │   │           ├── AudioManagerTest.cmi
 │   │           ├── AudioManagerTest.cmj
 │   │           ├── AudioManagerTest.cmt
 │   │           ├── AudioManagerTest.res
-│   │           ├── BackendApiTest.ast
-│   │           ├── BackendApiTest.bs.js
-│   │           ├── BackendApiTest.cmi
-│   │           ├── BackendApiTest.cmj
-│   │           ├── BackendApiTest.cmt
-│   │           ├── BackendApiTest.res
+│   │           ├── BackendApi_v.test.ast
+│   │           ├── BackendApi_v.test.bs.js
+│   │           ├── BackendApi_v.test.cmi
+│   │           ├── BackendApi_v.test.cmj
+│   │           ├── BackendApi_v.test.cmt
+│   │           ├── BackendApi_v.test.res
 │   │           ├── ColorPalette_v.test.ast
 │   │           ├── ColorPalette_v.test.bs.js
 │   │           ├── ColorPalette_v.test.cmi
@@ -895,11 +880,6 @@
 │   │           ├── LucideIcons_v.test.cmt
 │   │           ├── LucideIcons_v.test.res
 │   │           ├── Main_v.test.ast
-│   │           ├── Main_v.test.bs.js
-│   │           ├── Main_v.test.cmi
-│   │           ├── Main_v.test.cmj
-│   │           ├── Main_v.test.cmt
-│   │           ├── Main_v.test.res
 │   │           ├── Mod_v.test.ast
 │   │           ├── Mod_v.test.bs.js
 │   │           ├── Mod_v.test.cmi
@@ -1020,12 +1000,12 @@
 │   │           ├── RequestQueue_v.test.cmj
 │   │           ├── RequestQueue_v.test.cmt
 │   │           ├── RequestQueue_v.test.res
-│   │           ├── ResizerTest.ast
-│   │           ├── ResizerTest.bs.js
-│   │           ├── ResizerTest.cmi
-│   │           ├── ResizerTest.cmj
-│   │           ├── ResizerTest.cmt
-│   │           ├── ResizerTest.res
+│   │           ├── Resizer_v.test.ast
+│   │           ├── Resizer_v.test.bs.js
+│   │           ├── Resizer_v.test.cmi
+│   │           ├── Resizer_v.test.cmj
+│   │           ├── Resizer_v.test.cmt
+│   │           ├── Resizer_v.test.res
 │   │           ├── RootReducerTest.ast
 │   │           ├── RootReducerTest.bs.js
 │   │           ├── RootReducerTest.cmi
@@ -1033,11 +1013,8 @@
 │   │           ├── RootReducerTest.cmt
 │   │           ├── RootReducerTest.res
 │   │           ├── SceneList_v.test.ast
-│   │           ├── SceneList_v.test.bs.js
 │   │           ├── SceneList_v.test.cmi
-│   │           ├── SceneList_v.test.cmj
 │   │           ├── SceneList_v.test.cmt
-│   │           ├── SceneList_v.test.res
 │   │           ├── SceneReducer.test.ast
 │   │           ├── SceneReducer.test.bs.js
 │   │           ├── SceneReducer.test.cmi
@@ -1081,11 +1058,6 @@
 │   │           ├── SharedTypesTest.cmt
 │   │           ├── SharedTypesTest.res
 │   │           ├── Sidebar_v.test.ast
-│   │           ├── Sidebar_v.test.bs.js
-│   │           ├── Sidebar_v.test.cmi
-│   │           ├── Sidebar_v.test.cmj
-│   │           ├── Sidebar_v.test.cmt
-│   │           ├── Sidebar_v.test.res
 │   │           ├── SimulationChainSkipperTest.ast
 │   │           ├── SimulationChainSkipperTest.bs.js
 │   │           ├── SimulationChainSkipperTest.cmi
@@ -1297,11 +1269,6 @@
 │   │           ├── ViewerTypes_v.test.cmt
 │   │           ├── ViewerTypes_v.test.res
 │   │           ├── ViewerUI_v.test.ast
-│   │           ├── ViewerUI_v.test.bs.js
-│   │           ├── ViewerUI_v.test.cmi
-│   │           ├── ViewerUI_v.test.cmj
-│   │           ├── ViewerUI_v.test.cmt
-│   │           ├── ViewerUI_v.test.res
 │   │           ├── VisualPipeline_v.test.ast
 │   │           ├── VisualPipeline_v.test.bs.js
 │   │           ├── VisualPipeline_v.test.cmi
@@ -1333,10 +1300,6 @@
 │   │   ├── ActionsTest.cmt
 │   │   ├── ActionsTest.res
 │   │   ├── App.ast
-│   │   ├── App.cmi
-│   │   ├── App.cmj
-│   │   ├── App.cmt
-│   │   ├── App.res
 │   │   ├── AppContext.ast
 │   │   ├── AppContext.cmi
 │   │   ├── AppContext.cmj
@@ -1358,10 +1321,6 @@
 │   │   ├── AppErrorBoundary_v.test.cmt
 │   │   ├── AppErrorBoundary_v.test.res
 │   │   ├── AppTest.ast
-│   │   ├── AppTest.cmi
-│   │   ├── AppTest.cmj
-│   │   ├── AppTest.cmt
-│   │   ├── AppTest.res
 │   │   ├── AudioManager.ast
 │   │   ├── AudioManager.cmi
 │   │   ├── AudioManager.cmj
@@ -1377,11 +1336,11 @@
 │   │   ├── BackendApi.cmj
 │   │   ├── BackendApi.cmt
 │   │   ├── BackendApi.res
-│   │   ├── BackendApiTest.ast
-│   │   ├── BackendApiTest.cmi
-│   │   ├── BackendApiTest.cmj
-│   │   ├── BackendApiTest.cmt
-│   │   ├── BackendApiTest.res
+│   │   ├── BackendApi_v.test.ast
+│   │   ├── BackendApi_v.test.cmi
+│   │   ├── BackendApi_v.test.cmj
+│   │   ├── BackendApi_v.test.cmt
+│   │   ├── BackendApi_v.test.res
 │   │   ├── ColorPalette.ast
 │   │   ├── ColorPalette.cmi
 │   │   ├── ColorPalette.cmj
@@ -1631,15 +1590,7 @@
 │   │   ├── LucideIcons_v.test.cmt
 │   │   ├── LucideIcons_v.test.res
 │   │   ├── Main.ast
-│   │   ├── Main.cmi
-│   │   ├── Main.cmj
-│   │   ├── Main.cmt
-│   │   ├── Main.res
 │   │   ├── Main_v.test.ast
-│   │   ├── Main_v.test.cmi
-│   │   ├── Main_v.test.cmj
-│   │   ├── Main_v.test.cmt
-│   │   ├── Main_v.test.res
 │   │   ├── Mod_v.test.ast
 │   │   ├── Mod_v.test.cmi
 │   │   ├── Mod_v.test.cmj
@@ -1835,11 +1786,11 @@
 │   │   ├── Resizer.cmj
 │   │   ├── Resizer.cmt
 │   │   ├── Resizer.res
-│   │   ├── ResizerTest.ast
-│   │   ├── ResizerTest.cmi
-│   │   ├── ResizerTest.cmj
-│   │   ├── ResizerTest.cmt
-│   │   ├── ResizerTest.res
+│   │   ├── Resizer_v.test.ast
+│   │   ├── Resizer_v.test.cmi
+│   │   ├── Resizer_v.test.cmj
+│   │   ├── Resizer_v.test.cmt
+│   │   ├── Resizer_v.test.res
 │   │   ├── RootReducer.ast
 │   │   ├── RootReducer.cmi
 │   │   ├── RootReducer.cmj
@@ -1856,10 +1807,6 @@
 │   │   ├── SceneList.cmt
 │   │   ├── SceneList.res
 │   │   ├── SceneList_v.test.ast
-│   │   ├── SceneList_v.test.cmi
-│   │   ├── SceneList_v.test.cmj
-│   │   ├── SceneList_v.test.cmt
-│   │   ├── SceneList_v.test.res
 │   │   ├── SceneReducer.ast
 │   │   ├── SceneReducer.cmi
 │   │   ├── SceneReducer.cmj
@@ -1936,10 +1883,6 @@
 │   │   ├── Sidebar.cmt
 │   │   ├── Sidebar.res
 │   │   ├── Sidebar_v.test.ast
-│   │   ├── Sidebar_v.test.cmi
-│   │   ├── Sidebar_v.test.cmj
-│   │   ├── Sidebar_v.test.cmt
-│   │   ├── Sidebar_v.test.res
 │   │   ├── SimulationChainSkipper.ast
 │   │   ├── SimulationChainSkipper.cmi
 │   │   ├── SimulationChainSkipper.cmj
@@ -2301,10 +2244,6 @@
 │   │   ├── ViewerUI.cmt
 │   │   ├── ViewerUI.res
 │   │   ├── ViewerUI_v.test.ast
-│   │   ├── ViewerUI_v.test.cmi
-│   │   ├── ViewerUI_v.test.cmj
-│   │   ├── ViewerUI_v.test.cmt
-│   │   ├── ViewerUI_v.test.res
 │   │   ├── VisualPipeline.ast
 │   │   ├── VisualPipeline.cmi
 │   │   ├── VisualPipeline.cmj
@@ -2760,10 +2699,8 @@
 │   ├── test-logging.js
 │   └── update-version.js
 ├── src
-│   ├── App.bs.js
 │   ├── App.res
 │   ├── Dummy.bs.js
-│   ├── Main.bs.js
 │   ├── Main.res
 │   ├── ReBindings.bs.js
 │   ├── ReBindings.res
@@ -2975,6 +2912,7 @@
 ├── tasks
 │   ├── TASKS.md
 │   ├── active
+│   │   └── 357_Update_Tests_ErrorFallbackUI.md
 │   ├── completed
 │   │   ├── 298_Refactor_UploadProcessor_REPORT.md
 │   │   ├── 299_Refactor_HotspotLine_REPORT.md
@@ -3029,9 +2967,28 @@
 │   │   ├── 348_Update_Tests_DownloadSystem_UPDATED.md
 │   │   ├── 349_Update_Tests_NavigationRenderer_UPDATED.md
 │   │   ├── 350_Aggregate_Completed_Tasks_REPORT.md
+│   │   ├── 351_Update_Tests_SimulationLogic_UPDATED.md
+│   │   ├── 352_Update_Tests_BackendApi_UPDATED.md
+│   │   ├── 353_Update_Tests_LucideIcons_UPDATED.md
+│   │   ├── 354_Update_Tests_Resizer_UPDATED.md
+│   │   ├── 355_Update_Tests_HotspotLineTypes_UPDATED.md
+│   │   ├── 356_Update_Tests_SceneList_UPDATED.md
 │   │   └── _CONCISE_SUMMARY.md
 │   ├── pending
 │   │   └── tests
+│   │       ├── 358_Update_Tests_InputSystem.md
+│   │       ├── 359_Update_Tests_TeaserPathfinder.md
+│   │       ├── 360_Update_Tests_SimulationReducer.md
+│   │       ├── 361_Update_Tests_App.md
+│   │       ├── 362_Update_Tests_JsonTypes.md
+│   │       ├── 363_Update_Tests_ExifParser.md
+│   │       ├── 364_Update_Tests_SimulationChainSkipper.md
+│   │       ├── 365_Update_Tests_SimulationNavigation.md
+│   │       ├── 366_Update_Tests_TeaserManager.md
+│   │       ├── 367_Update_Tests_TeaserRecorder.md
+│   │       ├── 368_Update_Tests_TourTemplateScripts.md
+│   │       ├── 369_Update_Tests_Constants.md
+│   │       └── 370_Update_Tests_PathInterpolation.md
 │   └── postponed
 │       ├── 003_add_seo_structured_data.md
 │       ├── 004_document_core_web_vitals.md
@@ -3046,9 +3003,9 @@
 │       ├── 030_implement_supabase_infrastructure.md
 │       ├── 031_implement_auth_ui_rescript.md
 │       ├── 032_implement_project_dashboard.md
-│       ├── 033_secure_backend_with_jwt.md
-│       └── tests
+│       └── 033_secure_backend_with_jwt.md
 ├── test_output.txt
+├── tested_icons.txt
 ├── tests
 │   ├── TestRunner.bs.js
 │   ├── TestRunner.res
@@ -3061,12 +3018,11 @@
 │       ├── AppContextTest.res
 │       ├── AppErrorBoundary_v.test.bs.js
 │       ├── AppErrorBoundary_v.test.res
-│       ├── AppTest.bs.js
 │       ├── AppTest.res
 │       ├── AudioManagerTest.bs.js
 │       ├── AudioManagerTest.res
-│       ├── BackendApiTest.bs.js
-│       ├── BackendApiTest.res
+│       ├── BackendApi_v.test.bs.js
+│       ├── BackendApi_v.test.res
 │       ├── ColorPalette_v.test.bs.js
 │       ├── ColorPalette_v.test.res
 │       ├── ConstantsTest.bs.js
@@ -3119,7 +3075,6 @@
 │       ├── Logger_v.test.res
 │       ├── LucideIcons_v.test.bs.js
 │       ├── LucideIcons_v.test.res
-│       ├── Main_v.test.bs.js
 │       ├── Main_v.test.res
 │       ├── Mod_v.test.bs.js
 │       ├── Mod_v.test.res
@@ -3161,11 +3116,10 @@
 │       ├── ReducerTest.res
 │       ├── RequestQueue_v.test.bs.js
 │       ├── RequestQueue_v.test.res
-│       ├── ResizerTest.bs.js
-│       ├── ResizerTest.res
+│       ├── Resizer_v.test.bs.js
+│       ├── Resizer_v.test.res
 │       ├── RootReducerTest.bs.js
 │       ├── RootReducerTest.res
-│       ├── SceneList_v.test.bs.js
 │       ├── SceneList_v.test.res
 │       ├── SceneReducer.test.bs.js
 │       ├── SceneReducer.test.res
@@ -3181,7 +3135,6 @@
 │       ├── Shadcn_v.test.res
 │       ├── SharedTypesTest.bs.js
 │       ├── SharedTypesTest.res
-│       ├── Sidebar_v.test.bs.js
 │       ├── Sidebar_v.test.res
 │       ├── SimulationChainSkipperTest.bs.js
 │       ├── SimulationChainSkipperTest.res
@@ -3254,7 +3207,6 @@
 │       ├── ViewerState_v.test.res
 │       ├── ViewerTypes_v.test.bs.js
 │       ├── ViewerTypes_v.test.res
-│       ├── ViewerUI_v.test.bs.js
 │       ├── ViewerUI_v.test.res
 │       ├── VisualPipeline_v.test.bs.js
 │       ├── VisualPipeline_v.test.res
@@ -3265,4 +3217,4 @@
 │           └── TestUtils.res
 └── vitest.config.mjs
 
-93 directories, 3173 files
+92 directories, 3126 files

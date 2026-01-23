@@ -72,7 +72,7 @@ let manualAssets = [
   "/libs/pannellum.css",
   "/libs/pannellum.js",
   "/manifest.json",
-  "/sounds/click.wav"
+  "/sounds/click.wav",
 ]
 
 addEventListener("install", (event: ExtendableEvent.t) => {
