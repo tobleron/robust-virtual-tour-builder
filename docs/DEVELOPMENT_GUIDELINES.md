@@ -36,9 +36,12 @@ We utilize strict automation to maintain quality. **Do not run these manually if
 
 ## 3. Testing Standards
 
+For a detailed breakdown of our methodology, see the [Testing Strategy](./TESTING_STRATEGY.md) document.
+
 ### Frontend (ReScript)
+- **Three-Tier Safety Net**: We utilize **Unit Tests** (logic), **Smoke Tests** (boot/render), and **Smart Regression Tests** (bug prevention).
 - **Unit Tests**: Located in `tests/unit/`.
-- **Test Runner**: Managed via `tests/TestRunner.res`.
+- **Test Runner**: Managed via `tests/TestRunner.res` and Vitest.
 - **Enforcement**: Commits are blocked if the 100% pass rate is not maintained.
 
 ### Backend (Rust)
@@ -65,4 +68,4 @@ We utilize strict automation to maintain quality. **Do not run these manually if
 - **Standardized Constants**: Use `VersionData.res` and `Constants.res` for global values.
 
 ---
-*Last Updated: 2026-01-21*
+*Last Updated: 2026-01-23*

@@ -3,7 +3,7 @@ Console.log("Starting Frontend Unit Tests...")
 
 let runAll = async () => {
   GeoUtilsTest.run()
-  LoggerTest.run()
+  // LoggerTest.run() - Migrated to Vitest
 
   InputSystemTest.run()
   TourLogicTest.run()

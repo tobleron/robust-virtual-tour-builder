@@ -229,6 +229,18 @@ let idleSnapshotDelay = 2000
 let sceneLoadTimeout = 10000
 
 // ============================================
+// TELEMETRY CONFIGURATION
+// ============================================
+
+module Telemetry = {
+  let batchInterval = 5000 // ms
+  let batchSize = 50 // max entries per batch
+  let queueMaxSize = 1000 // total buffered logs
+  let retryMaxAttempts = 3
+  let retryBackoffMs = 1000
+}
+
+// ============================================
 // SYSTEM UTILITIES
 // ============================================
 
