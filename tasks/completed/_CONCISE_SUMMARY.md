@@ -4,6 +4,7 @@ This document provides a consolidated, extremely concise history of all complete
 
 ## 🏗️ Core Architecture & Migration
 - **001 (was 307): Enable Dependabot** — Configured automated security scanning and dependency updates for npm, Cargo, and GitHub Actions.
+- **018: Offload Image Similarity** — Migrated pano similarity calculations to Rust (Rayon) for massive parallel performance gains.
 - **206: Comprehensive Migration Summary** — Consolidated all major JS-to-ReScript, architectural, and build system migration efforts.
 - **208: Backend Systems Summary** — Summarized backend optimizations, media processing refinements, and Rust-based improvements.
 - **209: Refactoring & Security Summary** — Overview of security hardening, refactoring for maintainability, and UX consistency upgrades.
@@ -13,11 +14,19 @@ This document provides a consolidated, extremely concise history of all complete
 - **275: CSS Refactor Phase 3** — Final phase of standardizing the CSS architecture across remaining legacy components.
 - **275: Complete CSS Migration** — Verified and finalized the transition to a modern, variable-driven CSS ecosystem.
 
+## ⚙️ Backend & API
+- **016: Backend Geocoding Cache** — Implemented persistent LRU caching for reverse geocoding to reduce API dependency and improve performance.
+- **017: Backend Geocoding Proxy** — Added a secure proxy endpoint for external geocoding services with rate limiting and logging.
+
 ## 🛡️ Runtime Safety & Error Handling
+- **019: Fix Security (innerHTML)** — Audited and removed unsafe `dangerouslySetInnerHTML` usage, replacing with safe React nodes and text content.
 - **175: Fix Runtime Safety (getExn)** — Replaced 28 unsafe array accesses with safe pattern matching to prevent crashes.
 - **177: Fix Error Handling** — Standardized error reporting across the codebase using the `Result` type and `Logger`.
 - **199: Enhance GlobalState Safety** — Added validation and guards around shared state between ReScript and JavaScript layers.
 - **300: Remove Console.log Usage** — Eliminated raw `console.log` calls in favor of the structured `Logger` system.
+
+## 📶 Telemetry & Monitoring
+- **023: Intelligent Telemetry** — Implemented priority-based log filtering and batching (98% traffic reduction) with exponential backoff.
 
 ## 🎨 UI/UX & Design System
 - **200: CSS Styling Comparison** — Conducted a detailed audit comparing legacy and new CSS implementations for visual parity.
@@ -37,6 +46,7 @@ This document provides a consolidated, extremely concise history of all complete
 - **278: Create CSS Gradient Variables** — Implemented a set of reusable gradient tokens for consistent brand application.
 - **279: Color Accessibility Audit** — Verified color contrast and readability across the UI for WCAG compliance.
 - **283: Implement Remax-Centric Theme** — Applied a tailored color palette and typography reflecting the brand's identity.
+- **289: Anchor-Based Positioning** — Refactored menus, tooltips, and hotspot actions to use Radix UI (Shadcn) for boundary-aware viewport stability.
 - **301: Document Style Exceptions** — Formally documented and justified the remaining valid instances of inline styling.
 
 ## 🤖 Simulation & AutoPilot (AutoPilot 2.0)
@@ -59,10 +69,16 @@ This document provides a consolidated, extremely concise history of all complete
 - **299: Sync Hotspot Visibility** — Ensured all hotspots correctly hide/show when toggling between Edit and Simulation modes.
 
 ## 🧪 Tests & Quality Assurance
+- **007-046: Atomic Unit Test Suite** — Implemented comprehensive Vitest coverage for core logic: `UploadProcessor`, `HotspotLine`, `NavigationController`, and more.
 - **194-196: Atomic Unit Tests** — Added comprehensive coverage for `ServiceWorker`, `UrlUtils`, and `VersionData`.
 - **207: Testing & QA Summary** — Consolidated report of all test coverage gains, unit test passes, and manual QA results.
+- **290-297: UI Component Testing** — Added regression tests for Shadcn primitives, Portals, Tooltips, and LucideIcons integration.
 
 ## 📝 Project Infrastructure
+- **048: Session Persistence** — Integrated session IDs into global state for server-side persistence and efficient auto-saves.
+- **049: Project Manager Session Awareness** — Updated ZIP-based loading to maintain session context across reloads.
+- **050: Backend Session-Aware Save** — Enabled incremental project saves on the backend using unique session identifiers.
+- **051: Human-Readable Summary** — Added automated generation of `summary.txt` in project ZIPs with technical stats and quality analysis.
 - **197: Refactor RootReducer** — Cleaned up the main state management pipeline for better atomicity and readability.
 - **198: Implement Session Persistence** — Enabled local storage caching to preserve project state across page reloads.
 - **271-272: Similarity Tooling** — Installed and configured backend similarity detection tools for automated scene linking.

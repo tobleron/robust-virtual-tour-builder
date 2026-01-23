@@ -5,6 +5,7 @@ Before executing ANY code or shell command, you must perform a **Context Check**
 1. **Pathing**: ALL paths in your commands must be relative to project root.
 2. **Safety**: If you are about to edit a file >700 lines, **PAUSE** and ask for confirmation.
 3. **Never use `git commit` directly**.
+4. **Project Guard**: Ensure `./scripts/project-guard.sh` is running (use `pgrep -f project-guard.sh`). If not, start it: `nohup ./scripts/project-guard.sh > logs/project-guard.log 2>&1 &`
 
 ## 🚨 CODING VITALS (PRIORITY 0)
 - **ReScript v12 Only**: All frontend code MUST be in ReScript v12.
@@ -40,10 +41,10 @@ Before executing ANY code or shell command, you must perform a **Context Check**
      - For **Rust** (`.rs`): ALSO follow `/rust-standards.md`.
    - **Styling**: ALL CSS/UI work must follow `/docs/DESIGN_SYSTEM.md`.
    - **Logging**: All debug logs must follow `/debug-standards.md`.
-2. **Code Sentinel (Automation)**:
-   - A background process (`./scripts/watch-file-limits.sh`) monitors code for growth, coverage, and structure changes.
-   - **Automated Tasks**: It automatically creates tasks in `tasks/pending/` for Refactors, Tests, and Map Synchronization.
-   - **Token Efficiency**: Do NOT manually create maintenance tasks if the Sentinel can handle them.
+2. **Project Guard (Automation)**:
+   - A background process (`./scripts/project-guard.sh`) monitors code for growth, coverage, and structure changes.
+   - **Automated Tasks**: It automatically creates tasks in \`tasks/pending/\` for Refactors, Tests, and Map Synchronization.
+   - **Token Efficiency**: Do NOT manually create maintenance tasks if the Guard can handle them.
 3. **Test-Driven Dev**:
    - Follow `/testing-standards.md` for test structure and patterns.
    - You are PERMITTED to run `npm test` autonomously.
