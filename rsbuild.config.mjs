@@ -16,11 +16,11 @@ export default defineConfig({
   html: {
     template: './index.html',
     templateParameters: {
-      title: process.env.APP_TITLE || 'Remax Virtual Tour Builder',
+      title: process.env.APP_TITLE || 'Robust Virtual Tour Builder',
       description: process.env.APP_DESCRIPTION || 'Professional-grade virtual tour builder for real estate. Create immersive 360° panoramic tours with hotspot navigation, automated path generation, and high-quality exports.',
       publicUrl: process.env.PUBLIC_URL || '',
-      author: 'Remax',
-      siteName: 'Remax Virtual Tour Builder',
+      author: 'App',
+      siteName: 'Robust Virtual Tour Builder',
     },
   },
   output: {

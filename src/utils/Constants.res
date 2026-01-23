@@ -110,6 +110,7 @@ let panningMinDuration = 1500.0
 let panningMaxDuration = 6000.0
 let sceneStabilizationDelay = 1000
 let viewerLoadCheckInterval = 100
+let tooltipDelayDuration = 900
 
 // ============================================
 // SCENE ORGANIZATION

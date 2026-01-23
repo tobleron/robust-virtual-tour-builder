@@ -1,7 +1,7 @@
 :root {
-    /* Brand Colors - Remax Premium Palette */
+    /* Brand Colors - Corporate Premium Palette */
     --primary: #003da5;
-    /* Remax Blue */
+    /* Corporate Blue */
     --primary-light: #2563eb;
     --primary-dark: #001a38;
     --primary-navy: #002147;
@@ -14,12 +14,12 @@
     --gradient-brand-subtle: linear-gradient(to bottom, var(--primary-dark) 0%, var(--primary) 100%);
 
     --accent: #ffcc00;
-    /* Remax Gold */
+    /* Corporate Gold */
     --accent-light: #fdb931;
     --accent-soft: rgba(255, 204, 0, 0.1);
 
     --danger: #ea580c;
-    /* Dark Orange (was Remax Red) */
+    /* Dark Orange */
     --danger-light: #f97316;
     /* Orange 500 */
     --danger-dark: #c2410c;
@@ -61,7 +61,7 @@
     --viewer-stage-bg: #1a202c;
     --sidebar-bg: #ffffff;
     --floor-default: var(--primary-navy);
-    /* Unified: Remax Navy */
+    /* Unified: Brand Navy */
     --floor-bg-hover: var(--primary-dark);
     /* Unified: Darker on hover */
     --floor-hover: var(--accent);

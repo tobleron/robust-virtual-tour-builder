@@ -11,7 +11,7 @@ module Thrower = {
   }
 }
 
-describe("RemaxErrorBoundary", () => {
+describe("AppErrorBoundary", () => {
   let wait = ms =>
     Promise.make((resolve, _) => {
       let _ = Window.setTimeout(() => resolve(), ms)
@@ -24,9 +24,9 @@ describe("RemaxErrorBoundary", () => {
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(
       root,
-      <RemaxErrorBoundary>
+      <AppErrorBoundary>
         <Thrower shouldThrow=false />
-      </RemaxErrorBoundary>,
+      </AppErrorBoundary>,
     )
 
     await wait(50)
@@ -47,9 +47,9 @@ describe("RemaxErrorBoundary", () => {
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(
       root,
-      <RemaxErrorBoundary>
+      <AppErrorBoundary>
         <Thrower shouldThrow=true />
-      </RemaxErrorBoundary>,
+      </AppErrorBoundary>,
     )
 
     await wait(100)

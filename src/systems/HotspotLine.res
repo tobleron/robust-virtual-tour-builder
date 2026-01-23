@@ -6,6 +6,30 @@ open ReBindings
 
 type screenCoords = {x: float, y: float}
 
+/* --- CACHING --- */
+
+let pathCache: JSWeakMap.t<Types.hotspot, array<PathInterpolation.point>> = JSWeakMap.make()
+
+let getCachedSplinePath = (h: Types.hotspot, controlPoints, segments) => {
+  switch Nullable.toOption(JSWeakMap.get(pathCache, h)) {
+  | Some(p) => p
+  | None =>
+    let p = PathInterpolation.getCatmullRomSpline(controlPoints, segments)
+    JSWeakMap.set(pathCache, h, p)
+    p
+  }
+}
+
+let getCachedFloorPath = (h: Types.hotspot, startPt, endPt, segments) => {
+  switch Nullable.toOption(JSWeakMap.get(pathCache, h)) {
+  | Some(p) => p
+  | None =>
+    let p = PathInterpolation.getFloorProjectedPath(startPt, endPt, segments)
+    JSWeakMap.set(pathCache, h, p)
+    p
+  }
+}
+
 /* --- VIEWER VALIDATION --- */
 
 /**
@@ -168,36 +192,53 @@ let drawPolyLine = (
 ) => {
   let len = Array.length(path)
   if len >= 2 {
-    let prevPoint = ref(Belt.Array.get(path, 0))
+    let d = ref("")
+    let first = ref(true)
 
-    switch prevPoint.contents {
-    | Some(startPt) =>
-      let currentPrev = ref(startPt)
-      for i in 1 to len - 1 {
-        let currPointOpt = Belt.Array.get(path, i)
-        switch currPointOpt {
-        | Some(currPoint) =>
-          let startCoords = getScreenCoords(
-            viewer,
-            currentPrev.contents.pitch,
-            currentPrev.contents.yaw,
-            rect,
-          )
-          let endCoords = getScreenCoords(viewer, currPoint.pitch, currPoint.yaw, rect)
-
-          switch (startCoords, endCoords) {
-          | (Some(s), Some(e)) =>
-            // Skip very short segments
-            if Math.abs(s.x -. e.x) >= 1.0 || Math.abs(s.y -. e.y) >= 1.0 {
-              drawLine(svg, s.x, s.y, e.x, e.y, color, width, opacity, ~dashArray?, ~className?, ())
-            }
-          | _ => ()
+    for i in 0 to len - 1 {
+      switch Belt.Array.get(path, i) {
+      | Some(p) =>
+        switch getScreenCoords(viewer, p.pitch, p.yaw, rect) {
+        | Some(coords) =>
+          let prefix = if first.contents {
+            first := false
+            "M "
+          } else {
+            " L "
           }
-          currentPrev := currPoint
+          d :=
+            d.contents ++
+            prefix ++
+            Float.toString(Math.round(coords.x *. 10.0) /. 10.0) ++
+            " " ++
+            Float.toString(Math.round(coords.y *. 10.0) /. 10.0)
         | None => ()
         }
+      | None => ()
       }
-    | None => ()
+    }
+
+    if d.contents != "" {
+      let pathEl = Svg.createElementNS(Svg.namespace, "path")
+      Svg.setAttribute(pathEl, "d", d.contents)
+      Svg.setAttribute(pathEl, "stroke", color)
+      Svg.setAttribute(pathEl, "stroke-width", Float.toString(width))
+      Svg.setAttribute(pathEl, "stroke-opacity", Float.toString(opacity))
+      Svg.setAttribute(pathEl, "fill", "none")
+      Svg.setAttribute(pathEl, "stroke-linecap", "round")
+      Svg.setAttribute(pathEl, "stroke-linejoin", "round")
+
+      switch dashArray {
+      | Some(da) => Svg.setAttribute(pathEl, "stroke-dasharray", da)
+      | None => ()
+      }
+
+      switch className {
+      | Some(c) => Svg.setAttribute(pathEl, "class", c)
+      | None => ()
+      }
+
+      Svg.appendChild(svg, pathEl)
     }
   }
 }
@@ -236,7 +277,7 @@ let drawSimulationArrow = (
             {PathInterpolation.yaw: endYaw, pitch: endPitch},
           ]
           let controlPoints = Belt.Array.concat(startPt, Belt.Array.concat(waypoints, endPt))
-          PathInterpolation.getCatmullRomSpline(controlPoints, 100)
+          PathInterpolation.getCatmullRomSpline(controlPoints, 50)
         } else {
           [
             {PathInterpolation.yaw: startYaw, pitch: startPitch},
@@ -446,7 +487,7 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
                       startPt,
                       Belt.Array.concat(waypoints, endPt),
                     )
-                    let splinePath = PathInterpolation.getCatmullRomSpline(controlPoints, 60)
+                    let splinePath = getCachedSplinePath(h, controlPoints, 30)
                     drawPolyLine(
                       svg,
                       viewer,
@@ -464,7 +505,7 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
                       PathInterpolation.yaw: vf.yaw,
                       pitch: vf.pitch,
                     }
-                    let curvedPath = PathInterpolation.getFloorProjectedPath(startPt, endPt, 40)
+                    let curvedPath = getCachedFloorPath(h, startPt, endPt, 20)
                     drawPolyLine(
                       svg,
                       viewer,

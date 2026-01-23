@@ -245,5 +245,33 @@ let run = () => {
   | None => assert(false)
   }
 
+  // --- Test 16: SetSessionId sets the session ID ---
+  Console.log("Test 16: SetSessionId sets the session ID")
+  let actionSession = SetSessionId("session_123")
+  let resultSession = ProjectReducer.reduce(initialState, actionSession)
+
+  switch resultSession {
+  | Some(state) => {
+      assert(state.sessionId == Some("session_123"))
+      Console.log("✓ SetSessionId sets correctly")
+    }
+  | None => assert(false)
+  }
+
+  // --- Test 17: LoadProject preserves existing sessionId ---
+  Console.log("Test 17: LoadProject preserves existing sessionId")
+  let stateWithSession = {...initialState, sessionId: Some("preserved_session")}
+  let actionLoadPreserve = LoadProject(Obj.magic({"tourName": "New Tour", "scenes": []}))
+  let resultLoadPreserve = ProjectReducer.reduce(stateWithSession, actionLoadPreserve)
+
+  switch resultLoadPreserve {
+  | Some(state) => {
+      assert(state.tourName == "New Tour")
+      assert(state.sessionId == Some("preserved_session"))
+      Console.log("✓ LoadProject preserves sessionId")
+    }
+  | None => assert(false)
+  }
+
   Console.log("ProjectReducer tests completed.")
 }

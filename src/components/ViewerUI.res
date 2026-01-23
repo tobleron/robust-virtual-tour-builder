@@ -590,14 +590,14 @@ let make = () => {
     /* Return Link Prompt */
     <div
       id="return-link-prompt"
-      className="hidden fixed bottom-24 left-1/2 -translate-x-1/2 glass-panel rounded-full px-5 py-2.5 items-center gap-3 shadow-2xl z-[4000] border border-remax-gold/20 cursor-pointer transition-all hover:scale-105 active:scale-95 animate-fade-in-centered"
+      className="hidden fixed bottom-24 left-1/2 -translate-x-1/2 glass-panel rounded-full px-5 py-2.5 items-center gap-3 shadow-2xl z-[4000] border border-brand-gold/20 cursor-pointer transition-all hover:scale-105 active:scale-95 animate-fade-in-centered"
       onClick={handleReturnPromptClick}
       role="button"
       tabIndex=0
       onKeyDown={handleReturnPromptKeyDown}
     >
       <div
-        className="w-6 h-6 bg-remax-gold rounded-full flex items-center justify-center text-black font-black text-xs shadow-sm"
+        className="w-6 h-6 bg-brand-gold rounded-full flex items-center justify-center text-black font-black text-xs shadow-sm"
       >
         {React.string("↩")}
       </div>
@@ -609,7 +609,7 @@ let make = () => {
     // Legacy Markers
     <MemoStaticDiv.make
       id="viewer-center-indicator"
-      className="absolute top-1/2 left-1/2 w-3 h-3 -translate-x-1/2 -translate-y-1/2 border-2 border-remax-gold rounded-full z-[5001] pointer-events-none hidden"
+      className="absolute top-1/2 left-1/2 w-3 h-3 -translate-x-1/2 -translate-y-1/2 border-2 border-brand-gold rounded-full z-[5001] pointer-events-none hidden"
     />
 
     <MemoStaticSvg.make

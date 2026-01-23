@@ -3,7 +3,7 @@
 # Exit on error
 set -e
 
-echo "🚀 Starting Remax VTB Setup..."
+echo "🚀 Starting Robust Virtual Tour Builder Setup..."
 
 # 1. Check for Prerequisites
 echo "🔍 Checking prerequisites..."

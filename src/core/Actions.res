@@ -47,6 +47,7 @@ type action =
   | SetSkipAutoForward(bool)
   | UpdateAdvanceTime(float)
   | SetPendingAdvance(option<int>)
+  | SetSessionId(string)
 
 let actionToString = (action: action): string =>
   switch action {
@@ -99,4 +100,5 @@ let actionToString = (action: action): string =>
   | SetSkipAutoForward(_) => "SetSkipAutoForward"
   | UpdateAdvanceTime(_) => "UpdateAdvanceTime"
   | SetPendingAdvance(_) => "SetPendingAdvance"
+  | SetSessionId(id) => `SetSessionId(${id})`
   }

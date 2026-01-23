@@ -1,6 +1,6 @@
 {
-    "name": "Remax Virtual Tour Builder",
-    "short_name": "VTB",
+    "name": "Robust Virtual Tour Builder",
+    "short_name": "Robust VTB",
     "description": "Professional virtual tour builder with panoramic image support",
     "start_url": "/",
     "display": "standalone",

@@ -169,4 +169,5 @@ type state = {
   pendingReturnSceneName: option<string>,
   currentJourneyId: int,
   lastUsedCategory: string,
+  sessionId: option<string>,
 }

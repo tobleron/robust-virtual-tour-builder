@@ -375,8 +375,10 @@ let make = () => {
                   })
 
                   switch projectDataResult {
-                  | Ok(projectData) => {
+                  | Ok((sessionId, projectData)) => {
+                      dispatch(Actions.SetSessionId(sessionId))
                       dispatch(Actions.LoadProject(projectData))
+                      UploadReport.showFromProjectData(projectData)
 
                       Logger.endOperation(
                         ~module_="Sidebar",

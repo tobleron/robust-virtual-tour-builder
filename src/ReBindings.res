@@ -12,6 +12,13 @@ module JsHelpers = {
   @scope("Array") @val external from: 'a => array<'b> = "from"
 }
 
+module JSWeakMap = {
+  type t<'k, 'v>
+  @new external make: unit => t<'k, 'v> = "WeakMap"
+  @send external get: (t<'k, 'v>, 'k) => Nullable.t<'v> = "get"
+  @send external set: (t<'k, 'v>, 'k, 'v) => unit = "set"
+}
+
 module BrowserArrayBuffer = {
   type t = Js.Typed_array.ArrayBuffer.t
 }

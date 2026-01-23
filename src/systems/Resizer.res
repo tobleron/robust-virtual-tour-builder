@@ -107,7 +107,7 @@ let checkBackendHealth = () => {
   ->Promise.then(res => {
     Window.clearTimeout(timeoutId)
 
-    // /health returns text/plain "Remax VTB Backend is running!"
+    // /health returns text/plain "Tour Builder Backend is running!"
     if !Fetch.ok(res) {
       Logger.warn(
         ~module_="Resizer",
