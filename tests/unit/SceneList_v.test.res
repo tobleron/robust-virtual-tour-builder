@@ -101,4 +101,86 @@ describe("SceneList", () => {
 
     Dom.removeElement(container)
   })
+
+  testAsync("should respect virtualization and only render subset of many scenes", async t => {
+    let container = Dom.createElement("div")
+    Dom.appendChild(Dom.documentBody, container)
+
+    let scenes = Array.fromInitializer(
+      ~length=50,
+      i => createScene(Int.toString(i), "Scene " ++ Int.toString(i)),
+    )
+    let mockState = {
+      ...State.initialState,
+      scenes,
+    }
+    let mockDispatch = _ => ()
+
+    let root = ReactDOMClient.createRoot(container)
+    ReactDOMClient.Root.render(
+      root,
+      <AppContext.DispatchProvider value=mockDispatch>
+        <AppContext.StateProvider value=mockState>
+          <SceneList />
+        </AppContext.StateProvider>
+      </AppContext.DispatchProvider>,
+    )
+
+    await wait(100)
+
+    let items = Dom.querySelectorAll(container, ".scene-item")
+    // Default viewport 800px / 72px = ~11.1 + buffer/visibleCount logic should be around 33
+    t->expect(Dom.nodeListLength(items) < 50)->Expect.toBe(true)
+    t->expect(Dom.nodeListLength(items) > 10)->Expect.toBe(true)
+
+    Dom.removeElement(container)
+  })
+
+  testAsync("should throttle scene switching clicks", async t => {
+    let container = Dom.createElement("div")
+    Dom.appendChild(Dom.documentBody, container)
+
+    let s1 = createScene("1", "S1")
+    let s2 = createScene("2", "S2")
+    let mockState = {...State.initialState, scenes: [s1, s2], activeIndex: 0}
+    let lastAction = ref(None)
+    let mockDispatch = action => lastAction.contents = Some(action)
+
+    let root = ReactDOMClient.createRoot(container)
+    ReactDOMClient.Root.render(
+      root,
+      <AppContext.DispatchProvider value=mockDispatch>
+        <AppContext.StateProvider value=mockState>
+          <SceneList />
+        </AppContext.StateProvider>
+      </AppContext.DispatchProvider>,
+    )
+
+    await wait(50)
+
+    // Mock lastSwitchTime to be recent
+    ViewerState.state.lastSwitchTime = Date.now()
+
+    let clickSecondItem: Dom.element => unit = %raw(`(container) => {
+      const items = container.querySelectorAll(".scene-item");
+      if (items[1]) items[1].click();
+    }`)
+
+    // Attempt to click second item
+    clickSecondItem(container)
+
+    // Should NOT have dispatched SetActiveScene because of throttle
+    t->expect(lastAction.contents)->Expect.toBe(None)
+
+    // Wait for throttle and try again
+    await wait(700)
+    clickSecondItem(container)
+
+    switch lastAction.contents {
+    | Some(Actions.SetActiveScene(idx, _, _, _)) => t->expect(idx)->Expect.toBe(1)
+    | _ => t->expect("SetActiveScene")->Expect.toBe("Dispatched")
+    }
+
+    Dom.removeElement(container)
+  })
 })
