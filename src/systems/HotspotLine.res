@@ -31,8 +31,51 @@ let getCachedFloorPath = (h: Types.hotspot, startPt, endPt, segments) => {
 /* --- FACADE --- */
 
 let isViewerReady = HotspotLineLogic.isViewerReady
-let getScreenCoords = HotspotLineLogic.getScreenCoords
-let drawSimulationArrow = HotspotLineLogic.drawSimulationArrow
+let getScreenCoords = (v, p, y, rect) => {
+  let cam = HotspotLineLogic.getCamState(v, rect)
+  HotspotLineLogic.getScreenCoords(cam, p, y, rect)
+}
+
+let drawSimulationArrow = (
+  v,
+  sp,
+  sy,
+  ep,
+  ey,
+  prog,
+  ~opacity=?,
+  ~waypoints=?,
+  ~colorOverride=?,
+  ~preComputedSegments=?,
+  ~preComputedTotalDistance=?,
+  (),
+) => {
+  let svgOpt = Dom.getElementById("viewer-hotspot-lines")
+  switch Nullable.toOption(svgOpt) {
+  | Some(svg) =>
+    let rect = Dom.getBoundingClientRect(svg)
+    if rect.width > 0.0 && isViewerReady(v) {
+      let cam = HotspotLineLogic.getCamState(v, rect)
+      HotspotLineLogic.drawSimulationArrow(
+        svg,
+        cam,
+        sp,
+        sy,
+        ep,
+        ey,
+        prog,
+        rect,
+        ~opacity?,
+        ~waypoints?,
+        ~colorOverride?,
+        ~preComputedSegments?,
+        ~preComputedTotalDistance?,
+        (),
+      )
+    }
+  | _ => ()
+  }
+}
 
 external asCustom: Viewer.t => customViewerProps = "%identity"
 
@@ -48,6 +91,7 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
       let rect = Dom.getBoundingClientRect(svg)
 
       if rect.width > 0.0 && state.activeIndex >= 0 {
+        let cam = HotspotLineLogic.getCamState(viewer, rect)
         let viewerSceneId = asCustom(viewer).sceneId
 
         let sceneToRender = switch Belt.Array.getBy(state.scenes, s => s.id == viewerSceneId) {
@@ -61,8 +105,6 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
 
         switch sceneToRender {
         | Some(currentScene) => {
-            let _isSimulationActive = state.simulation.status != Idle
-
             // 1. Persistent Red Dashed Lines
             let hotspots = currentScene.hotspots
             for i in 0 to Array.length(hotspots) - 1 {
@@ -96,7 +138,7 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
                     let splinePath = getCachedSplinePath(h, controlPoints, 100)
                     drawPolyLine(
                       svg,
-                      viewer,
+                      cam,
                       splinePath,
                       rect,
                       "var(--danger-light)",
@@ -114,7 +156,7 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
                     let curvedPath = getCachedFloorPath(h, startPt, endPt, 20)
                     drawPolyLine(
                       svg,
-                      viewer,
+                      cam,
                       curvedPath,
                       rect,
                       "var(--danger-light)",
@@ -145,8 +187,8 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
                 }
 
                 let currentCam: PathInterpolation.point = {
-                  PathInterpolation.yaw: Viewer.getYaw(viewer),
-                  pitch: Viewer.getPitch(viewer),
+                  PathInterpolation.yaw: cam.yaw,
+                  pitch: cam.pitch,
                 }
                 let redPoints = Belt.Array.concat(
                   [camStart],
@@ -163,7 +205,7 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
                     let path = PathInterpolation.getFloorProjectedPath(p1, p2, 40)
                     drawPolyLine(
                       svg,
-                      viewer,
+                      cam,
                       path,
                       rect,
                       "var(--danger-light)",
@@ -178,7 +220,7 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
                   let redSpline = PathInterpolation.getCatmullRomSpline(allRedPoints, 60)
                   drawPolyLine(
                     svg,
-                    viewer,
+                    cam,
                     redSpline,
                     rect,
                     "var(--danger-light)",
@@ -225,7 +267,7 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
                     let path = PathInterpolation.getFloorProjectedPath(p1, p2, 40)
                     drawPolyLine(
                       svg,
-                      viewer,
+                      cam,
                       path,
                       rect,
                       "var(--warning-light)",
@@ -240,7 +282,7 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
                   let yellowSpline = PathInterpolation.getCatmullRomSpline(allYellowPoints, 60)
                   drawPolyLine(
                     svg,
-                    viewer,
+                    cam,
                     yellowSpline,
                     rect,
                     "var(--warning-light)",

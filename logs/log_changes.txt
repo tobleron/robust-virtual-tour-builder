@@ -15,3 +15,4 @@
 [2026-01-24 18:49] v4.5.1 - Sim: 2.0s pace, solid orange journey, red blink arrival, fixed arrow flip
 [2026-01-24 18:55] v4.5.1 - Refine Simulation: Set rotation clamp to 0.95 for maximum arrival stability
 [2026-01-24 19:00] v4.5.1 - Sim: 2.0s animation pace, red blink arrival, and Recoil Guard fix
+[2026-01-24 19:12] v4.5.1 - Sim Optimization: Batch camera state, pre-calculated points, and string-join paths (jitter reduced)
