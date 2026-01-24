@@ -257,17 +257,22 @@ let drawSimulationArrow = (
         // This ensures the arrow maintains its stable arrival trajectory and ignores
         // any micro-turns or spline artifacts right at the end of the waypoint.
 
-        let rotationProgressThreshold = 0.80
-        let lookbackAmt = 0.15
+        // ACCURACY FIX: Use a tighter, centered window for rotation.
+        // Instead of looking strictly back, we look slightly ahead and behind (Central Difference).
+        // This keeps the arrow tangent much tighter to the curve during turns.
 
-        let progRotation = if progress >= rotationProgressThreshold {
+        // We still freeze at the very end for stability, but threshold is pushed later
+        let rotationProgressThreshold = 0.95
+        let delta = 0.02
+
+        let center = if progress >= rotationProgressThreshold {
           rotationProgressThreshold
         } else {
           progress
         }
 
-        let progCurrent = Math.min(progRotation, 1.0)
-        let progStable = Math.max(0.0, progCurrent -. lookbackAmt)
+        let progFront = Math.min(center +. delta, 1.0)
+        let progBack = Math.max(0.0, center -. delta)
 
         // Helper to get point at progress
         let getPointAtProgress = p => {
@@ -304,10 +309,10 @@ let drawSimulationArrow = (
           (ptYaw.contents, ptPitch.contents)
         }
 
-        let (yC, pC) = getPointAtProgress(progCurrent)
-        let (yS, pS) = getPointAtProgress(progStable)
+        let (yF, pF) = getPointAtProgress(progFront)
+        let (yB, pB) = getPointAtProgress(progBack)
 
-        let dy = ref(yC -. yS)
+        let dy = ref(yF -. yB)
         while dy.contents > 180.0 {
           dy := dy.contents -. 360.0
         }
@@ -316,7 +321,7 @@ let drawSimulationArrow = (
         }
 
         rotYaw := dy.contents
-        rotPitch := pC -. pS
+        rotPitch := pF -. pB
 
         // 2. Calculate Position (Actual)
         let targetDist = progress *. totalDistance.contents
