@@ -13,3 +13,4 @@
 [2026-01-24 18:40] v4.5.1 - Sim Arrow: 15deg/s velocity & solid journey color, blinking only at end
 [2026-01-24 18:44] v4.5.1 - Sim: 2.7s avg pace (22deg/s) and improved arrow turn accuracy
 [2026-01-24 18:49] v4.5.1 - Sim: 2.0s pace, solid orange journey, red blink arrival, fixed arrow flip
+[2026-01-24 18:55] v4.5.1 - Refine Simulation: Set rotation clamp to 0.95 for maximum arrival stability
