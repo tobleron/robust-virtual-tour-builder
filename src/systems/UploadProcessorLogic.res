@@ -114,7 +114,7 @@ let filterDuplicates = (results: array<UploadProcessorTypes.uploadItem>) => {
   uniqueItems
 }
 
-let processItem = (i, item: UploadProcessorTypes.uploadItem) => {
+let processItem = (i, item: UploadProcessorTypes.uploadItem, onStatus: string => unit) => {
   Logger.debug(
     ~module_="Upload",
     ~message="FILE_START",
@@ -126,7 +126,7 @@ let processItem = (i, item: UploadProcessorTypes.uploadItem) => {
     (),
   )
 
-  Resizer.processAndAnalyzeImage(item.original)
+  Resizer.processAndAnalyzeImage(item.original, ~onStatus=Some(onStatus))
   ->Promise.then(processResult => {
     switch processResult {
     | Ok(res) => {
@@ -201,6 +201,51 @@ let processWithQueue = (
   let currentIndex = ref(0)
   let completedCount = ref(0)
 
+  // Status Tracking
+  let activeStatuses = Dict.make() // Map<int, string>
+
+  let updateStatusMessage = () => {
+    let counts = Dict.make()
+    Dict.toArray(activeStatuses)->Belt.Array.forEach(((_k, status)) => {
+      let current = Dict.get(counts, status)->Option.getOr(0)
+      Dict.set(counts, status, current + 1)
+    })
+
+    let parts = []
+    let optimizing = Dict.get(counts, "Optimizing")->Option.getOr(0)
+    let uploading = Dict.get(counts, "Uploading")->Option.getOr(0)
+    let extracting = Dict.get(counts, "Extracting")->Option.getOr(0)
+
+    if optimizing > 0 {
+      let _ = Array.push(parts, "Optimizing: " ++ Belt.Int.toString(optimizing))
+    }
+    if uploading > 0 {
+      let _ = Array.push(parts, "Uploading: " ++ Belt.Int.toString(uploading))
+    }
+    if extracting > 0 {
+      let _ = Array.push(parts, "Extracting: " ++ Belt.Int.toString(extracting))
+    }
+
+    let queueStatus =
+      "Processing " ++ Belt.Int.toString(completedCount.contents) ++ "/" ++ Belt.Int.toString(total)
+
+    let activityDetails = if Array.length(parts) > 0 {
+      Array.join(parts, " \u2022 ") // Bullet separator
+    } else {
+      ""
+    }
+
+    let statusMsg = if activityDetails != "" {
+      queueStatus ++ "|" ++ activityDetails
+    } else {
+      queueStatus
+    }
+
+    let progress = 20.0 +. 75.0 *. (Float.fromInt(completedCount.contents) /. Float.fromInt(total))
+
+    updateProgress(progress, statusMsg, true, "Processing")
+  }
+
   let (resolve, _reject) = (ref(ignore), ref(ignore))
   let promise = Promise.make((res, rej) => {
     resolve := res
@@ -218,23 +263,29 @@ let processWithQueue = (
       currentIndex := i + 1
       let item = items[i]->Option.getOrThrow
 
-      processItem(i, item)
+      // Initialize status
+      Dict.set(activeStatuses, Belt.Int.toString(i), "Optimizing")
+      updateStatusMessage()
+
+      processItem(i, item, status => {
+        Dict.set(activeStatuses, Belt.Int.toString(i), status)
+        updateStatusMessage()
+      })
       ->Promise.then(res => {
         let _ = Array.push(results, res)
         completedCount := completedCount.contents + 1
 
-        // Update progress
-        let progress =
-          20.0 +. 75.0 *. (Float.fromInt(completedCount.contents) /. Float.fromInt(total))
-        updateProgress(
-          progress,
-          "Processing " ++
-          Belt.Int.toString(completedCount.contents) ++
-          "/" ++
-          Belt.Int.toString(total),
-          true,
-          "Processing",
-        )
+        // Remove from active statuses
+        // We can't actually remove keys easily in ReScript Dict/Js.Dict without Obj.magic or treating as generic object
+        // So we just set it to "Done" or ignore it.
+        // Better: recreate dict or use Map?
+        // For simplicity, let's just mark it 'Done' and filter it out in counts logic if we wanted,
+        // but actually we just want active.
+
+        // Actually, Dict doesn't have a remove. We'll set it to a special value that we ignore.
+        Dict.set(activeStatuses, Belt.Int.toString(i), "__DONE__")
+
+        updateStatusMessage()
 
         next()
         Promise.resolve(res)

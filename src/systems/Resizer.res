@@ -140,12 +140,22 @@ let checkBackendHealth = () => {
   })
 }
 
+type statusCallback = string => unit
+
 /**
  * Combined processing: Optimize image AND extract metadata in one request.
  */
-let processAndAnalyzeImage = (file: File.t): Promise.t<result<processResult, string>> => {
+let processAndAnalyzeImage = (file: File.t, ~onStatus: option<statusCallback>): Promise.t<
+  result<processResult, string>,
+> => {
   let mem = getMemoryUsage()
 
+  let reportStatus = (status: string) => {
+    switch onStatus {
+    | Some(cb) => cb(status)
+    | None => ()
+    }
+  }
   Logger.startOperation(
     ~module_="Resizer",
     ~operation="BACKEND_PROCESS_FULL",
@@ -157,6 +167,7 @@ let processAndAnalyzeImage = (file: File.t): Promise.t<result<processResult, str
     (),
   )
 
+  reportStatus("Optimizing")
   let fetchStart = now()
 
   // 1 & 2. Extract EXIF and Compress image in parallel
@@ -185,6 +196,7 @@ let processAndAnalyzeImage = (file: File.t): Promise.t<result<processResult, str
         let webpFile = File.newFile([webpBlob], File.name(file), %raw("{type: 'image/webp'}"))
 
         // 3. Send optimized image + preserved metadata to backend
+        reportStatus("Uploading")
         BackendApi.processImageFull(webpFile, ~isOptimized=true, ~metadata=?exifData)
       }
     | Error(msg) => Promise.resolve(Error(msg))
@@ -205,6 +217,7 @@ let processAndAnalyzeImage = (file: File.t): Promise.t<result<processResult, str
           (),
         )
 
+        reportStatus("Extracting")
         LazyLoad.loadJSZip()
         ->Promise.then(() => JSZip.loadAsync(zipBlob))
         ->Promise.then(zip => Promise.resolve(Ok(zip)))
