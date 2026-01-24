@@ -566,9 +566,9 @@ let make = () => {
               className={"w-8 h-8 min-w-8 min-h-8 rounded-full text-[15px] font-medium opacity-100 transition-all " ++ if (
                 isSelected
               ) {
-                "border-2 border-danger bg-[#0e2d52] text-white hover:bg-[#0e2d52] hover:text-white"
+                "border-2 border-[#ea580c] bg-[#ea580c] text-white hover:bg-[#ea580c] hover:text-white"
               } else {
-                "border border-white/20 hover:border-danger bg-[#0e2d52]/80 text-white hover:bg-[#0e2d52] hover:text-white"
+                "border border-white/20 hover:border-[#ea580c] bg-[#0e2d52]/80 text-white hover:bg-[#0e2d52] hover:text-white"
               }}
               onClick={e => handleFloorClick(f.id, f.label, e)}
               disabled={state.isLinking}

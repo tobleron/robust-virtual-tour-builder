@@ -302,13 +302,17 @@ let drawSimulationArrow = (
           | Some(e) =>
             let angle = Math.atan2(~y=e.y -. s.y, ~x=e.x -. s.x) *. (180.0 /. Math.Constants.pi)
 
-            let color = switch colorOverride {
-            | Some(c) => c
-            | None =>
-              if mod(Belt.Float.toInt(Date.now() /. 200.0), 2) == 0 {
-                "var(--warning-light)"
-              } else {
-                "var(--success)"
+            let color = if progress >= 0.99 {
+              "#dc2626" // Red 600
+            } else {
+              switch colorOverride {
+              | Some(c) => c
+              | None =>
+                if mod(Belt.Float.toInt(Date.now() /. 200.0), 2) == 0 {
+                  "var(--warning-light)" // Yellow
+                } else {
+                  "var(--orange-brand)" // Orange
+                }
               }
             }
 
