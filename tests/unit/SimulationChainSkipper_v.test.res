@@ -1,9 +1,8 @@
+open Vitest
 open SimulationChainSkipper
 open Types
 
-let run = () => {
-  Console.log("Running SimulationChainSkipper tests...")
-
+describe("SimulationChainSkipper", () => {
   let createMockScene = (id, name, isAutoForward): scene => {
     {
       id,
@@ -62,9 +61,7 @@ let run = () => {
     }
   }
 
-  {
-    // Test 1: No auto-forward
-
+  test("Should return original link if target is not auto-forward", t => {
     let scene1 = createMockScene("1", "scene1", false)
     let scene2 = createMockScene("2", "scene2", false)
 
@@ -83,15 +80,12 @@ let run = () => {
 
     let result = skipAutoForwardChain(initialLink, state, [], onVisit)
 
-    assert(result.finalLink.targetIndex == 1)
-    assert(result.skippedScenes == [])
-    assert(visitedCallbackCount.contents == 0)
-    Console.log("✓ Should return original link if target is not auto-forward")
-  }
+    t->expect(result.finalLink.targetIndex)->Expect.toBe(1)
+    t->expect(result.skippedScenes)->Expect.toEqual([])
+    t->expect(visitedCallbackCount.contents)->Expect.toBe(0)
+  })
 
-  {
-    // Test 2: Skip one scene
-
+  test("Should skip one auto-forward scene", t => {
     let scene0 = createMockScene("0", "scene0", false)
     let scene1 = createMockScene("1", "scene1", true)
     let scene2 = createMockScene("2", "scene2", false)
@@ -102,10 +96,6 @@ let run = () => {
       ...scene1,
       hotspots: [h1_to_2],
     }
-
-    // Setup state needs correct names for findBestNextLink lookup
-    // findBestNextLink uses s.name to find index.
-    // scenes array index matches.
 
     let state = {
       ...State.initialState,
@@ -121,15 +111,12 @@ let run = () => {
 
     let result = skipAutoForwardChain(initialLink, state, [], onVisit)
 
-    assert(result.finalLink.targetIndex == 2)
-    assert(result.skippedScenes == [1])
-    assert(visitedScenesRef.contents == [1])
-    Console.log("✓ Should skip one auto-forward scene")
-  }
+    t->expect(result.finalLink.targetIndex)->Expect.toBe(2)
+    t->expect(result.skippedScenes)->Expect.toEqual([1])
+    t->expect(visitedScenesRef.contents)->Expect.toEqual([1])
+  })
 
-  {
-    // Test 3: Multiple skips
-
+  test("Should skip multiple auto-forward scenes", t => {
     let s0 = createMockScene("0", "s0", false)
     let s1 = createMockScene("1", "s1", true)
     let s2 = createMockScene("2", "s2", true)
@@ -156,29 +143,27 @@ let run = () => {
 
     let result = skipAutoForwardChain(initialLink, state, [], onVisit)
 
-    assert(result.finalLink.targetIndex == 3)
-    assert(result.skippedScenes == [1, 2])
-    Console.log("✓ Should skip multiple auto-forward scenes")
-  }
+    t->expect(result.finalLink.targetIndex)->Expect.toBe(3)
+    t->expect(result.skippedScenes)->Expect.toEqual([1, 2])
+  })
 
-  // Test 4: Dead end
+  test("Should stop at dead end", t => {
+    let s0 = createMockScene("0", "s0", false)
+    let s1 = createMockScene("1", "s1", true)
+    // s1 has no hotspots
 
-  let s0 = createMockScene("0", "s0", false)
-  let s1 = createMockScene("1", "s1", true)
-  // s1 has no hotspots
+    let state = {...State.initialState, scenes: [s0, s1]}
+    let h0_to_1 = createMockHotspot("s1")
+    let initialLink = createMockEnrichedLink(h0_to_1, 1, true)
 
-  let state = {...State.initialState, scenes: [s0, s1]}
-  let h0_to_1 = createMockHotspot("s1")
-  let initialLink = createMockEnrichedLink(h0_to_1, 1, true)
+    let visitedScenesRef = ref([])
+    let onVisit = idx => {
+      let _ = Js.Array.push(idx, visitedScenesRef.contents)
+    }
 
-  let visitedScenesRef = ref([])
-  let onVisit = idx => {
-    let _ = Js.Array.push(idx, visitedScenesRef.contents)
-  }
+    let result = skipAutoForwardChain(initialLink, state, [], onVisit)
 
-  let result = skipAutoForwardChain(initialLink, state, [], onVisit)
-
-  // Should stay at 1 because it can't go anywhere
-  assert(result.finalLink.targetIndex == 1)
-  Console.log("✓ Should stop at dead end")
-}
+    // Should stay at 1 because it can't go anywhere
+    t->expect(result.finalLink.targetIndex)->Expect.toBe(1)
+  })
+})

@@ -1,7 +1,16 @@
 external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 
 @react.component
-let make = () => {
+let make = (~onReload=?) => {
+  let handleReload = _ => {
+    switch onReload {
+    | Some(fn) => fn()
+    | None => {
+        let _ = %raw("window.location.reload()")
+      }
+    }
+  }
+
   <div className="error-fallback-container">
     <div className="error-fallback-card">
       <h1 className="error-fallback-title"> {React.string("Application Error")} </h1>
@@ -10,12 +19,7 @@ let make = () => {
           "An unexpected error occurred during rendering. The application has been halted to prevent data corruption.",
         )}
       </p>
-      <button
-        onClick={_ => {
-          let _ = %raw("window.location.reload()")
-        }}
-        className="error-fallback-btn"
-      >
+      <button onClick={handleReload} className="error-fallback-btn">
         {React.string("Reload Application")}
       </button>
     </div>

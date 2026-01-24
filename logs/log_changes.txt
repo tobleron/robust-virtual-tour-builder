@@ -539,3 +539,4 @@ Task: 147
 [2026-01-23 19:24] v4.4.7 - chore: update unit tests for HotspotLine, ProjectManager, DownloadSystem, and NavigationRenderer
 [2026-01-23 19:48] v4.4.8 - Feeling Ultra Stable
 [2026-01-23 20:19] v4.4.8 - chore: updated unit tests for multiple modules and migrated legacy tests to Vitest
+[2026-01-24 05:14] v4.4.8 - Migrate core reducer tests to Vitest (Task 371)
