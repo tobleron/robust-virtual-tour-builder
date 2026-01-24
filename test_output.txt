@@ -1,21 +1,21 @@
 
-> robust-virtual-tour-builder@4.4.6 test
-> npm run test:all
+> robust-virtual-tour-builder@4.4.8 test
+> npm run test:all tests/unit/App_v.test.res
 
 
-> robust-virtual-tour-builder@4.4.6 test:all
-> npm run res:build && npm run test:frontend && cd backend && cargo test
+> robust-virtual-tour-builder@4.4.8 test:all
+> npm run res:build && npm run test:frontend && cd backend && cargo test tests/unit/App_v.test.res
 
 
-> robust-virtual-tour-builder@4.4.6 res:build
+> robust-virtual-tour-builder@4.4.8 res:build
 > rescript
 
-Cleaned 0/183
+Cleaned 0/223
 Parsed 0 source files
 Compiled 0 modules
 
-> robust-virtual-tour-builder@4.4.6 test:frontend
-> node --import ./tests/node-setup.js tests/TestRunner.bs.js
+> robust-virtual-tour-builder@4.4.8 test:frontend
+> NODE_ENV=test node --import ./tests/node-setup.js tests/TestRunner.bs.js && vitest run
 
 Starting Frontend Unit Tests...
 Running GeoUtils tests...
@@ -24,36 +24,6 @@ Running GeoUtils tests...
 ✓ calculateAverageLocation with outliers
 ✓ calculateAverageLocation empty array
 GeoUtils tests passed!
-Running Logger tests...
-✓ levelPriority passed
-✓ Level string conversions passed
-✓ timed operation passed
-✓ attempt success path passed
-✓ attempt failure path passed
-✓ Logger: Module logic verified
-Running InputSystem tests...
-✓ Escape key detection
-✓ Debug toggle key combination detection
-✓ Debug toggle lowercase key detection
-✓ TRACE level shortcut detection
-✓ DEBUG level shortcut detection
-✓ INFO level shortcut detection
-✓ Modal priority list structure
-✓ Close button selector pattern
-✓ Fallback cancel button selector pattern
-✓ Handled flag pattern
-✓ Early exit pattern with handled flag
-✓ Key combination validation logic
-✓ Context menu ID constant
-✓ Modal container special handling selectors
-✓ Escape handling priority order
-InputSystem tests passed!
-Running TourLogic tests...
-✓ sanitizeName
-✓ generateLinkId
-✓ computeSceneFilename
-✓ validateTourIntegrity
-TourLogic tests passed!
 Running PathInterpolation tests...
 ✓ normalizeYaw
 ✓ interpolateCatmullRom boundaries
@@ -80,6 +50,43 @@ Running ReducerHelpers tests (Obj.magic elimination verification)...
 ✓ handleAddScenes first load robustness
 ✓ handleUpdateSceneMetadata logic
 ✓ handleUpdateTimelineStep logic
+✓ handleRemoveHotspot logic
+Running ProjectReducer tests...
+Test 1: SetTourName sanitizes the name
+✓ SetTourName sanitizes correctly
+Test 2: SetTourName handles empty string
+✓ SetTourName handles empty string
+Test 3: SetTourName handles special characters
+✓ SetTourName handles special characters
+Test 4: SetTourName respects maxLength
+✓ SetTourName respects maxLength
+Test 5: LoadProject parses project data
+✓ LoadProject parses project data
+Test 6: LoadProject handles missing tourName
+✓ LoadProject handles missing tourName
+Test 7: Reset returns initial state
+✓ Reset returns initial state
+Test 8: SetExifReport sets the report
+✓ SetExifReport sets the report
+Test 9: RemoveDeletedSceneId removes the ID
+✓ RemoveDeletedSceneId removes the ID
+Test 10: RemoveDeletedSceneId handles non-existent ID
+✓ RemoveDeletedSceneId handles non-existent ID
+Test 11: Unhandled action returns None
+✓ Unhandled action returns None
+Test 12: State immutability
+✓ State immutability preserved
+Test 13: SetTourName preserves other state fields
+✓ SetTourName preserves other state fields
+Test 14: SetExifReport replaces existing report
+✓ SetExifReport replaces existing report
+Test 15: RemoveDeletedSceneId with empty array
+✓ RemoveDeletedSceneId with empty array
+Test 16: SetSessionId sets the session ID
+✓ SetSessionId sets correctly
+Test 17: LoadProject preserves existing sessionId
+✓ LoadProject preserves sessionId
+ProjectReducer tests completed.
 Running JsonTypes tests...
 ✓ decodeProject with valid data
 ✓ decodeProject rejects non-object
@@ -93,15 +100,6 @@ Running JsonTypes tests...
 ✓ decodeProject with multiple scenes
 ✓ decodeImportScene with optional fields
 ✓ All JsonTypes tests passed
-Running SceneReducer tests...
-✓ SetActiveScene passed
-✓ DeleteScene passed
-✓ Unhandled action ignored correctly
-SceneReducer tests completed.
-Running HotspotReducer tests...
-✓ AddHotspot passed
-✓ RemoveHotspot passed
-HotspotReducer tests completed.
 Running ExifParser tests...
 ✓ getCameraSignature passed (formatted string)
 ✓ getCameraSignature passed (missing data)
@@ -111,28 +109,12 @@ Running AudioManager tests...
 ✓ AudioManager: playTick() verified
 ✓ AudioManager: setupGlobalClickSounds verified
 ✓ AudioManager tests passed
-Running ExifReportGenerator tests...
-✓ generateProjectName passed (full info)
-✓ generateProjectName passed (no info returns None)
-✓ generateProjectName passed (invalid date prefix)
 Running SharedTypes tests...
 ✓ gPanoMetadata structure verified
 ✓ metadataResponse JSON mapping verified (@as checks)
 ✓ validationReport JSON mapping verified
-Running ReBindings tests...
-✓ ReBindings: Module loaded and bindings verified
-Running BackendApi tests...
-✓ BackendApi: Module loaded successfully
 Running ProjectManager tests...
 ✓ ProjectManager: Module loaded
-Running DownloadSystem tests...
-  saveBlob executed without error
-  saveBlobWithConfirmation (fallback) executed
-✓ DownloadSystem tests passed
-Running ProjectData tests...
-✓ ProjectData tests passed
-Running Resizer tests...
-✓ Resizer: Module loaded
 Running UploadProcessor tests...
 ✓ UploadProcessor: Module loaded
 Running VideoEncoder tests...
@@ -141,7 +123,7 @@ Running VideoEncoder tests...
 ✓ Optional callback parameter handling verified
 ✓ Small blob size validation test setup correct
 ✓ Small blob would be rejected (< 1024 bytes)
-✓ Blob type checking works correctly
+✗ Blob type checking failed
 ✓ FormData creation verified
 ✓ FormData.appendWithFilename binding exists (browser-only feature)
 ✓ Constants.backendUrl is accessible
@@ -154,11 +136,8 @@ Running TeaserManager tests...
 ✓ TeaserManager: Configurations verified
 Running TeaserRecorder tests...
 ✓ getRecordedBlobs passed (initial empty)
-ℹ setFadeOpacity skipped (DOM required)
+✓ setFadeOpacity passed (execution check)
 ✓ TeaserRecorder: Module loaded and basic functions verified
-Running TourTemplateAssets tests...
-✓ TourTemplateAssets: generateExportIndex verified
-✓ TourTemplateAssets: generateEmbedCodes verified
 Running TourTemplateScripts tests...
 ✓ TourTemplateScripts: generateRenderScript verified
 Running TourTemplateStyles tests...
@@ -166,12 +145,11 @@ Running TourTemplateStyles tests...
 ✓ TourTemplateStyles: generateCSS Mobile HD verified
 Running TourTemplates tests...
 Test: generateTourHTML basic structure
-Test: generateTourHTML with no logo
+Test: generateTourHTML with AutoForward scene
+Test: generateEmbedCodes and generateExportIndex (Delegation smoke test)
 ✓ TourTemplates tests pass
 Running Exporter tests...
 ✓ Exporter tests passed
-Running LazyLoad tests...
-✓ LazyLoad tests passed
 Running ProgressBar tests...
 ✓ updateProgressBar: updates width, percentage (rounded), and text
 ✓ updateProgressBar: clamps values > 100
@@ -185,38 +163,14 @@ Running ServiceWorker tests...
 ✓ ServiceWorker.registerServiceWorker function exists
 ✓ ServiceWorker.unregisterServiceWorker function exists
 ✓ ServiceWorker external bindings verified
-✓ registerServiceWorker handles environment gracefully
+✓ registerServiceWorker executes without error
 ✓ unregisterServiceWorker handles environment gracefully
 ✓ ServiceWorker: All tests passed
-Running Navigation tests...
-✓ findSceneByName
-✓ getNextScene
-✓ getPreviousScene
-✓ calculatePathData
-✓ calculateSmartArrivalTarget
-✓ calculatePathData with empty state
-Navigation tests passed!
-Running NavigationRenderer tests...
-  Testing Start Journey...
-    Pass: Start position set
-  Testing Interpolation...
-    Pass: Interpolation 50% correct
-    Pass: End position reached
-  Testing Cancellation...
-    Pass: Cancellation handled safely
-✓ NavigationRenderer tests passed
-Running Main tests...
-✓ Navigator.userAgent binding exists
-✓ Screen.width binding exists
-✓ ViewerClickEvent.detail access works correctly
-✓ Main.init function exists and is accessible
-✓ Main: All tests passed
 Running ViewerLoader tests...
 ✓ getPanoramaUrl
 ✓ initializeViewer
 ✓ destroyViewer
-✓ getComputedOpacity (including null)
-✓ getPanoramaUrl edge cases
+✓ getComputedOpacity
 ViewerLoader tests passed!
 Running Actions tests...
 ✓ SetPreloadingScene passed
@@ -258,6 +212,15 @@ Running Actions tests...
 ✓ SetCurrentJourneyId passed
 ✓ NavigationCompleted passed
 ✓ SetExifReport passed
+✓ StartAutoPilot passed
+✓ StopAutoPilot passed
+✓ AddVisitedScene passed
+✓ ClearVisitedScenes passed
+✓ SetStoppingOnArrival passed
+✓ SetSkipAutoForward passed
+✓ UpdateAdvanceTime passed
+✓ SetPendingAdvance passed
+✓ SetSessionId passed
 ✓ Actions: Module logic verified
 Running GlobalStateBridge tests...
 ✓ Initial state is correct
@@ -291,80 +254,6 @@ Test 11: Journey ID increment
 Test 12: Reset action
 ✓ Reset action handled
 RootReducer tests completed.
-Running ProjectReducer tests...
-Test 1: SetTourName sanitizes the name
-✓ SetTourName sanitizes correctly
-Test 2: SetTourName handles empty string
-✓ SetTourName handles empty string
-Test 3: SetTourName handles special characters
-✓ SetTourName handles special characters
-Test 4: SetTourName respects maxLength
-✓ SetTourName respects maxLength
-Test 5: LoadProject parses project data
-✓ LoadProject parses project data
-Test 6: LoadProject handles missing tourName
-✓ LoadProject handles missing tourName
-Test 7: Reset returns initial state
-✓ Reset returns initial state
-Test 8: SetExifReport sets the report
-✓ SetExifReport sets the report
-Test 9: RemoveDeletedSceneId removes the ID
-✓ RemoveDeletedSceneId removes the ID
-Test 10: RemoveDeletedSceneId handles non-existent ID
-✓ RemoveDeletedSceneId handles non-existent ID
-Test 11: Unhandled action returns None
-✓ Unhandled action returns None
-Test 12: State immutability
-✓ State immutability preserved
-Test 13: SetTourName preserves other state fields
-✓ SetTourName preserves other state fields
-Test 14: SetExifReport replaces existing report
-✓ SetExifReport replaces existing report
-Test 15: RemoveDeletedSceneId with empty array
-✓ RemoveDeletedSceneId with empty array
-ProjectReducer tests completed.
-Running NavigationReducer tests...
-Test 1: SetSimulationMode enables simulation mode
-✓ SetSimulationMode enables simulation mode correctly
-Test 2: SetSimulationMode disables simulation mode
-✓ SetSimulationMode disables simulation mode correctly
-Test 3: SetNavigationStatus updates navigation status
-✓ SetNavigationStatus updates to Navigating
-Test 4: SetNavigationStatus to Idle
-✓ SetNavigationStatus updates to Idle
-Test 5: SetIncomingLink sets incoming link
-✓ SetIncomingLink sets incoming link correctly
-Test 6: SetIncomingLink clears incoming link
-✓ SetIncomingLink clears incoming link correctly
-Test 7: ResetAutoForwardChain clears chain
-✓ ResetAutoForwardChain clears chain correctly
-Test 8: AddToAutoForwardChain adds new index
-✓ AddToAutoForwardChain adds new index correctly
-Test 9: AddToAutoForwardChain prevents duplicates
-✓ AddToAutoForwardChain prevents duplicates correctly
-Test 10: AddToAutoForwardChain appends to existing chain
-✓ AddToAutoForwardChain appends correctly
-Test 11: SetPendingReturnSceneName sets scene name
-✓ SetPendingReturnSceneName sets scene name correctly
-Test 12: SetPendingReturnSceneName clears scene name
-✓ SetPendingReturnSceneName clears scene name correctly
-Test 13: IncrementJourneyId increments ID
-✓ IncrementJourneyId increments ID correctly
-Test 14: SetCurrentJourneyId sets specific ID
-✓ SetCurrentJourneyId sets ID correctly
-Test 15: NavigationCompleted with matching journey ID (preview)
-✓ NavigationCompleted with preview mode handled correctly
-Test 16: NavigationCompleted with matching journey ID (non-preview)
-✓ NavigationCompleted with non-preview mode handled correctly
-Test 17: NavigationCompleted with mismatched journey ID
-✓ NavigationCompleted with mismatched journey ID ignored correctly
-Test 18: Unhandled action returns None
-✓ Unhandled action returns None correctly
-Test 19: State immutability
-✓ State immutability preserved
-Test 20: NavigationCompleted transition field
-✓ NavigationCompleted transition field set correctly
-NavigationReducer tests completed.
 Running EventBus tests...
 ✓ Basic subscription and dispatch
 ✓ Unsubscribe prevents further events
@@ -402,28 +291,11 @@ Running SimulationChainSkipper tests...
 ✓ Should skip one auto-forward scene
 ✓ Should skip multiple auto-forward scenes
 ✓ Should stop at dead end
-Running SimulationPathGenerator tests...
-✓ Handles empty state correctly
-✓ Generates simple path
-✓ Handles auto-forward skip logic
-✓ Prevents infinite loops
-SimulationPathGenerator tests passed!
 Running TeaserPathfinder tests...
 ✓ Functions getWalkPath and getTimelinePath exist
-[Logger] Failed to send telemetry: fetch failed
 ✓ getWalkPath calls BackendApi.calculatePath with correct payload
 ✓ getTimelinePath calls BackendApi.calculatePath with correct payload
 TeaserPathfinder tests passed!
-Running RequestQueue tests...
-[Logger] Failed to send telemetry: fetch failed
-[Logger] Failed to send telemetry: fetch failed
-[Logger] Failed to send telemetry: fetch failed
-[Logger] Failed to send telemetry: fetch failed
-[Logger] Failed to send telemetry: fetch failed
-Testing RequestQueue error handling...
-✓ RequestQueue: Caught scheduled task error
-✓ RequestQueue: Basic concurrency and error handling verified
-RequestQueue tests passed!
 Running ServerTeaserTest...
 Test 1: Validate Request Generation
   Pass: Fetch to /generate-teaser called
@@ -440,112 +312,205 @@ Running Constants tests...
 ✓ Environmental Utilities execution
 Constants tests passed!
 Running VersionTest...
-Version: 4.4.6
+Version: 4.4.8
 Build Info: [Stable Release]
-Full Version: 4.4.6 [Stable Release]
+Full Version: 4.4.8 [Stable Release]
 VersionTest Passed
-Running ImageOptimizer tests (minimal)...
-✓ ImageOptimizer initialized
+Running ImageOptimizer tests...
+✓ compressToWebP success path passed
+✓ compressToWebP failure path (empty URL) passed
+ImageOptimizer tests completed.
 Running UrlUtilsTest...
 ✓ fileToUrl(Url) passed
 ✓ safeCreateObjectURL smoke test passed
 ✓ revokeUrl passed
 UrlUtilsTest Passed
-Running VersionDataTest...
-Version: 4.4.6
-Build Number: 24
-✓ VersionData constants verified
-VersionDataTest Passed
-Running ServiceWorkerMain tests...
-✓ ServiceWorkerMain: Side effects verified in mock environment
 All frontend tests passed successfully! 🎉
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.45s
-     Running unittests src/lib.rs (target/debug/deps/backend-06fa9721ef19b031)
 
-running 32 tests
-test api::geocoding::tests::placeholder ... ok
-test api::project::tests::placeholder ... ok
-test api::media::serve::tests::placeholder ... ok
-test api::media::video::tests::placeholder ... ok
-test api::telemetry::tests::placeholder ... ok
-test api::media::similarity::tests::test_histogram_intersection_identical ... ok
-test api::media::similarity::tests::test_histogram_intersection_different ... ok
-test api::utils::tests::test_quota_stats_struct ... ok
-test api::media::similarity::tests::test_histogram_binning ... ok
-test middleware::quota_check::tests::test_quota_check_middleware_exists ... ok
-test api::media::image::tests::test_quality_analysis_serialization ... ok
-test pathfinder::tests::test_broken_link_stops_chain ... ok
-test pathfinder::tests::test_auto_forward_loop ... ok
-test pathfinder::tests::test_auto_forward_chain ... ok
-test models::errors::tests::test_internal_error_status ... ok
-test models::errors::tests::test_app_error_response_format ... ok
-test metrics::tests::test_metrics_initialization ... ok
-test services::project::tests::test_validate_project_finds_broken_links ... ok
-test services::project::tests::test_validate_project_clean_project ... ok
-test services::project::tests::test_validate_project_finds_orphaned_scenes ... ok
-test services::project::tests::test_validate_project_handles_missing_hotspots_array ... ok
-test services::upload_quota_tests::test_quota_rejects_oversized_upload ... ok
-test services::upload_quota_tests::test_quota_allows_small_upload ... ok
-test tests::test_modules_exist ... ok
-test services::upload_quota_tests::test_concurrent_limit_per_ip ... ok
-test middleware::request_tracker::tests::test_request_tracker_middleware ... ok
-test services::geocoding::tests::test_geocoder_suite_sequential ... ok
-test services::media::tests::test_suggested_name_regex ... ok
-test services::media::tests::test_encode_webp_basic ... ok
-test services::media::tests::test_blur_detection ... ok
-test services::media::tests::test_brightness_detection ... ok
-test services::media::tests::test_checksum_format ... ok
+[1m[46m RUN [49m[22m [36mv4.0.17 [39m[90m/Users/r2/Desktop/robust-virtual-tour-builder[39m
 
-test result: ok. 32 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+[90mstderr[2m | tests/unit/SceneList_v.test.bs.js[2m > [22m[2mSceneList[2m > [22m[2mshould render scenes when populated
+[22m[39mAn empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
 
-     Running unittests src/main.rs (target/debug/deps/backend-966a833dd5129761)
+(node:66201) Warning: `--localstorage-file` was provided without a valid path
+(Use `node --trace-warnings ...` to show where the warning was created)
+[90mstderr[2m | tests/unit/SceneList_v.test.bs.js[2m > [22m[2mSceneList[2m > [22m[2mshould respect virtualization and only render subset of many scenes
+[22m[39mAn empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
 
-running 31 tests
-test api::telemetry::tests::placeholder ... ok
-test api::utils::tests::test_quota_stats_struct ... ok
-test api::project::tests::placeholder ... ok
-test api::media::video::tests::placeholder ... ok
-test api::geocoding::tests::placeholder ... ok
-test api::media::serve::tests::placeholder ... ok
-test api::media::similarity::tests::test_histogram_intersection_different ... ok
-test api::media::similarity::tests::test_histogram_intersection_identical ... ok
-test middleware::quota_check::tests::test_quota_check_middleware_exists ... ok
-test api::media::similarity::tests::test_histogram_binning ... ok
-test api::media::image::tests::test_quality_analysis_serialization ... ok
-test models::errors::tests::test_internal_error_status ... ok
-test models::errors::tests::test_app_error_response_format ... ok
-test pathfinder::tests::test_broken_link_stops_chain ... ok
-test pathfinder::tests::test_auto_forward_chain ... ok
-test pathfinder::tests::test_auto_forward_loop ... ok
-test services::project::tests::test_validate_project_finds_broken_links ... ok
-test services::project::tests::test_validate_project_finds_orphaned_scenes ... ok
-test services::project::tests::test_validate_project_handles_missing_hotspots_array ... ok
-test services::project::tests::test_validate_project_clean_project ... ok
-test metrics::tests::test_metrics_initialization ... ok
-test services::upload_quota_tests::test_concurrent_limit_per_ip ... ok
-test services::upload_quota_tests::test_quota_allows_small_upload ... ok
-test services::upload_quota_tests::test_quota_rejects_oversized_upload ... ok
-test middleware::request_tracker::tests::test_request_tracker_middleware ... ok
-test services::geocoding::tests::test_geocoder_suite_sequential ... ok
-test services::media::tests::test_suggested_name_regex ... ok
-test services::media::tests::test_encode_webp_basic ... ok
-test services::media::tests::test_blur_detection ... ok
-test services::media::tests::test_checksum_format ... ok
-test services::media::tests::test_brightness_detection ... ok
+[90mstderr[2m | tests/unit/SceneList_v.test.bs.js[2m > [22m[2mSceneList[2m > [22m[2mshould throttle scene switching clicks
+[22m[39mAn empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
+An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
 
-test result: ok. 31 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+[90mstderr[2m | tests/unit/Sidebar_v.test.bs.js[2m > [22m[2mSidebar[2m > [22m[2mshould handle 'New' button click with confirmation if scenes exist
+[22m[39mAn empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
 
-     Running tests/shutdown_test.rs (target/debug/deps/shutdown_test-f1a7762d0d516f90)
+[90mstdout[2m | tests/unit/App_v.test.bs.js[2m > [22m[2mApp[2m > [22m[2mshould display 'Ready to build' when no scenes exist
+[22m[39mDEBUG HTML: <div aria-label="Editor Sidebar" id="sidebar" role="complementary"><div class="relative w-[340px] min-w-[340px] bg-slate-50 flex flex-col z-[15000] shrink-0 h-full overflow-hidden font-ui"><div class="relative w-full flex flex-col z-30 text-white shrink-0 sidebar-branding-header"><div class="flex flex-col items-center px-6 pt-6 pb-6"><div class="flex items-center justify-center gap-3 mb-1"><h1 class="font-heading font-black text-white tracking-widest uppercase text-[27px]">ROBUST</h1><svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-house text-white text-[45px]" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg></div><div class="font-normal text-white tracking-[0.25em] text-[13px] uppercase">Virtual Tour Builder</div><div class="flex items-center gap-2 text-white mt-1 sidebar-version-line font-normal font-mono"><span class="text-[10px] tracking-wider">V 4.4.7</span><span class="text-[10px]">•</span><span class="text-[10px]">Stable Release</span></div></div><div class="px-5 pb-6"><div class="grid grid-cols-4 gap-2 mb-3"><button aria-label="New" class="sidebar-action-btn-square hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-plus" aria-hidden="true"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"></path><path d="M14 2v5a1 1 0 0 0 1 1h5"></path><path d="M9 15h6"></path><path d="M12 18v-6"></path></svg><span>New</span></button><button aria-label="Save" class="sidebar-action-btn-square hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-save" aria-hidden="true"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"></path><path d="M7 3v4a1 1 0 0 0 1 1h7"></path></svg><span>Save</span></button><button aria-label="Load" class="sidebar-action-btn-square hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder-open" aria-hidden="true"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path></svg><span>Load</span></button><button aria-label="About" class="sidebar-action-btn-square hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg><span>About</span></button></div><div class="grid grid-cols-2 gap-2"><button aria-label="Export Tour" class="sidebar-action-btn-wide hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50" disabled=""><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download text-white transition-all duration-300" aria-hidden="true"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg><span>Export</span></button><button aria-label="Create Teaser" class="sidebar-action-btn-wide hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50" disabled=""><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-film text-white transition-all duration-300" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M7 3v18"></path><path d="M3 7.5h4"></path><path d="M3 12h18"></path><path d="M3 16.5h4"></path><path d="M17 3v18"></path><path d="M17 7.5h4"></path><path d="M17 16.5h4"></path></svg><span>Teaser</span></button></div></div><input class="hidden" accept="image/jpeg,image/png,image/webp" multiple="" type="file"><input class="hidden" accept=".vt.zip,.zip" type="file"></div><div class="flex flex-col bg-white border-b border-slate-200 shrink-0 z-20"><div class="flex items-stretch gap-3 p-4 pb-2"><button class="w-14 flex flex-col items-center justify-center gap-1 rounded-xl transition-all hover:brightness-110 hover:shadow-lg hover-lift active-push group overflow-hidden relative focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none sidebar-upload-btn shrink-0 text-white" style="height: auto; min-height: 3.5rem;"><div class="absolute inset-0 bg-gradient-to-b from-transparent via-white/10 to-transparent translate-y-[-100%] group-hover:translate-y-[100%] transition-transform duration-700"></div><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera text-white" aria-hidden="true"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"></path><circle cx="12" cy="13" r="3"></circle></svg><span class="text-[9px] font-bold tracking-widest uppercase writing-vertical-lr hidden">Add</span></button><div class="flex-1 flex flex-col justify-center gap-1.5"><label class="sidebar-project-label" for="project-name-input">Project Name</label><input class="sidebar-project-input" id="project-name-input" placeholder="New Tour..." type="text" value="Tour Name"></div></div></div><div class="sidebar-content flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar flex flex-col bg-slate-50/50"><div class="p-1 flex-1"><div class="flex-1 flex flex-col pt-2 pb-12 relative" style="height: auto;"><div class="flex flex-col items-center justify-center py-20 px-6 text-center animate-fade-in"><div class="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mb-6 shadow-inner"><svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-images text-[#f97316]" aria-hidden="true"><path d="m22 11-1.296-1.296a2.4 2.4 0 0 0-3.408 0L11 16"></path><path d="M4 8a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2"></path><circle cx="13" cy="7" r="1" fill="currentColor"></circle><rect x="8" y="2" width="14" height="14" rx="2"></rect></svg></div><h4 class="text-sm font-bold text-slate-600 uppercase tracking-widest mb-2">No scenes</h4><p class="text-[11px] text-slate-600 font-medium max-w-[200px] leading-relaxed">Upload your 360 panorama images to start building your tour.</p></div></div></div></div></div></div><main id="viewer-container" role="main"><div id="viewer-stage"><div aria-label="Primary Panorama Viewer" class="panorama-layer active" id="panorama-a" role="img"></div><div aria-label="Secondary Panorama Viewer" class="panorama-layer" id="panorama-b" role="img"></div><div aria-hidden="true" id="cursor-guide"></div><div id="viewer-ui-layer"><div class="absolute inset-0 bg-center bg-no-repeat z-[5000] pointer-events-none opacity-0 transition-opacity duration-300 ease-in-out" id="viewer-snapshot-overlay"></div><div class="absolute top-6 left-6 z-[5002] flex flex-col gap-2 transition-all duration-300 grayscale opacity-60 pointer-events-none" id="viewer-utility-bar"><button class="w-[32px] h-[32px] rounded-full text-[20px] font-bold border border-transparent hover:border-[#0e2d52]"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus" aria-hidden="true"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg></button>Add Link<button class="w-[32px] h-[32px] rounded-full border border-transparent hover:border-[#0e2d52]"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play" aria-hidden="true"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"></path></svg></button>Start Auto-Pilot<button class="w-[32px] h-[32px] rounded-full border border-transparent hover:border-[#0e2d52]"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sun" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg></button>Toggle Category<button class="w-[32px] h-[32px] rounded-full text-[18px] font-bold border border-transparent hover:border-[#0e2d52]"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-hash" aria-hidden="true"><line x1="4" x2="20" y1="9" y2="9"></line><line x1="4" x2="20" y1="15" y2="15"></line><line x1="10" x2="8" y1="3" y2="21"></line><line x1="16" x2="14" y1="3" y2="21"></line></svg></button>Scene Label Preset<div class="flex flex-col w-[200px] max-h-[350px]">Room Presets<div class="flex-1 overflow-y-auto custom-scrollbar"><div class="px-3 py-1 flex items-center gap-2"><span class="text-[8px] font-black text-slate-400 uppercase tracking-tighter">outdoor</span><div class="flex-1 h-px bg-slate-100"></div></div><button class="mx-1 my-0.5 px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer
+                text-slate-600">Zoom Out View</button><button class="mx-1 my-0.5 px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer
+                text-slate-600">Street View</button><button class="mx-1 my-0.5 px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer
+                text-slate-600">Entrance</button><button class="mx-1 my-0.5 px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer
+                text-slate-600">Front Yard</button><button class="mx-1 my-0.5 px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer
+                text-slate-600">Backyard</button><button class="mx-1 my-0.5 px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer
+                text-slate-600">Right Side</button><button class="mx-1 my-0.5 px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer
+                text-slate-600">Left Side</button><button class="mx-1 my-0.5 px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer
+                text-slate-600">Garden</button><button class="mx-1 my-0.5 px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer
+                text-slate-600">Pool Area</button><button class="mx-1 my-0.5 px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer
+                text-slate-600">Gazebo</button><button class="mx-1 my-0.5 px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer
+                text-slate-600">BBQ Area</button><button class="mx-1 my-0.5 px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer
+                text-slate-600">Terrace</button><button class="mx-1 my-0.5 px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer
+                text-slate-600">Driver's Room</button><button class="mx-1 my-0.5 px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer
+                text-slate-600">Garage</button><button class="mx-1 my-0.5 px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer
+                text-slate-600">Carport</button></div><hr><div class="p-3 bg-slate-50/50"><h4 class="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Custom Label</h4><div class="flex gap-1.5"><input class="flex-1 min-w-0 bg-white border border-slate-200 rounded-md px-2 py-1.5 text-[11px] font-bold text-slate-700 outline-none focus:border-primary transition-all" placeholder="Name..." type="text" value=""><button class="px-3 py-1.5 bg-primary text-white rounded-md text-[10px] font-black uppercase tracking-widest hover:bg-primary-light active:scale-95 transition-all shadow-sm">SET</button></div><button class="w-full mt-2 py-1.5 bg-white border border-slate-200 text-slate-400 rounded-md text-[9px] font-black uppercase tracking-widest hover:bg-orange-50 hover:text-danger hover:border-danger/30 active:scale-95 transition-all">CLEAR LABEL</button></div></div></div><div class="viewer-persistent-label state-hidden" id="v-scene-persistent-label">#</div><div class="absolute top-6 right-6 z-[6005] flex items-center gap-2 pointer-events-none transition-all duration-300 opacity-0 translate-x-4 scale-90 hidden" id="v-scene-quality-indicator"></div><div class="absolute bottom-6 right-6 z-[5002] bg-white rounded-xl shadow-xl p-[4px] flex items-center justify-center max-w-[120px] max-h-[60px] border border-black/5 overflow-hidden viewer-logo-masked" id="viewer-logo"><img class="w-full h-auto object-contain block" alt="Logo" src="images/logo.png"></div><div class="absolute bottom-10 left-1/2 -translate-x-1/2 translate-y-2 z-[9999] flex flex-col items-center gap-1 transition-all duration-400 text-center pointer-events-none linking-hint-text opacity-0 translate-y-4 hidden" id="linking-cancel-hint"><span>ESC to Cancel</span><span class="linking-hint-subtext">ENTER to Finish</span></div><div class="absolute bottom-6 left-5 z-[5002] flex flex-col-reverse gap-2 items-center transition-all duration-500 grayscale opacity-60 pointer-events-none" id="viewer-floor-nav"><button class="w-8 h-8 min-w-8 min-h-8 rounded-full text-[15px] font-medium opacity-100 transition-all border border-white/20 hover:border-danger bg-[#0e2d52]/80 text-white hover:bg-[#0e2d52] hover:text-white">B<sup class="text-[10px] -ml-1">-2</sup></button>Basement 2<button class="w-8 h-8 min-w-8 min-h-8 rounded-full text-[15px] font-medium opacity-100 transition-all border border-white/20 hover:border-danger bg-[#0e2d52]/80 text-white hover:bg-[#0e2d52] hover:text-white">B<sup class="text-[10px] -ml-1">-1</sup></button>Basement 1<button class="w-8 h-8 min-w-8 min-h-8 rounded-full text-[15px] font-medium opacity-100 transition-all border border-white/20 hover:border-danger bg-[#0e2d52]/80 text-white hover:bg-[#0e2d52] hover:text-white">G</button>Ground Floor<button class="w-8 h-8 min-w-8 min-h-8 rounded-full text-[15px] font-medium opacity-100 transition-all border border-white/20 hover:border-danger bg-[#0e2d52]/80 text-white hover:bg-[#0e2d52] hover:text-white">+1</button>First Floor<button class="w-8 h-8 min-w-8 min-h-8 rounded-full text-[15px] font-medium opacity-100 transition-all border border-white/20 hover:border-danger bg-[#0e2d52]/80 text-white hover:bg-[#0e2d52] hover:text-white">+2</button>Second Floor<button class="w-8 h-8 min-w-8 min-h-8 rounded-full text-[15px] font-medium opacity-100 transition-all border border-white/20 hover:border-danger bg-[#0e2d52]/80 text-white hover:bg-[#0e2d52] hover:text-white">+3</button>Third Floor<button class="w-8 h-8 min-w-8 min-h-8 rounded-full text-[15px] font-medium opacity-100 transition-all border border-white/20 hover:border-danger bg-[#0e2d52]/80 text-white hover:bg-[#0e2d52] hover:text-white">+4</button>Fourth Floor<button class="w-8 h-8 min-w-8 min-h-8 rounded-full text-[15px] font-medium opacity-100 transition-all border border-white/20 hover:border-danger bg-[#0e2d52]/80 text-white hover:bg-[#0e2d52] hover:text-white">R</button>Roof Top</div><div class="hidden fixed bottom-24 left-1/2 -translate-x-1/2 glass-panel rounded-full px-5 py-2.5 items-center gap-3 shadow-2xl z-[4000] border border-brand-gold/20 cursor-pointer transition-all hover:scale-105 active:scale-95 animate-fade-in-centered" id="return-link-prompt" role="button" tabindex="0"><div class="w-6 h-6 bg-brand-gold rounded-full flex items-center justify-center text-black font-black text-xs shadow-sm">↩</div><div class="return-link-text font-ui text-[13px] font-bold text-white">Add Return Link</div></div><div class="absolute top-1/2 left-1/2 w-3 h-3 -translate-x-1/2 -translate-y-1/2 border-2 border-brand-gold rounded-full z-[5001] pointer-events-none hidden" id="viewer-center-indicator"></div><svg class="absolute inset-0 w-full h-full z-[5000] pointer-events-none" id="viewer-hotspot-lines"></svg></div></div><div aria-label="Visual Pipeline" id="visual-pipeline-container" role="region"></div><div aria-live="polite" class="viewer-placeholder" id="placeholder-text"><h3>Ready to build.</h3></div></main><div id="modal-container"></div><div id="notification-container"></div>
 
-running 2 tests
-test test_graceful_shutdown ... ok
-test test_shutdown_timeout ... ok
+ [31m❯[39m tests/unit/App_v.test.bs.js [2m([22m[2m2 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 210[2mms[22m[39m
+[31m     [31m×[31m should render main application structure[39m[32m 107[2mms[22m[39m
+[31m     [31m×[31m should display 'Ready to build' when no scenes exist[39m[32m 103[2mms[22m[39m
+ [32m✓[39m tests/unit/RequestQueue_v.test.bs.js [2m([22m[2m5 tests[22m[2m)[22m[33m 504[2mms[22m[39m
+     [33m[2m✓[22m[39m tasks are queued and limited by maxConcurrent [33m 501[2mms[22m[39m
+ [32m✓[39m tests/unit/PopOver_v.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[33m 612[2mms[22m[39m
+ [32m✓[39m tests/unit/Sidebar_v.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[33m 464[2mms[22m[39m
+ [32m✓[39m tests/unit/LabelMenu_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[33m 615[2mms[22m[39m
+ [32m✓[39m tests/unit/ModalContext_v.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[33m 673[2mms[22m[39m
+ [32m✓[39m tests/unit/Portal_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 207[2mms[22m[39m
+ [32m✓[39m tests/unit/HotspotActionMenu_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 170[2mms[22m[39m
+ [32m✓[39m tests/unit/ViewerUI_v.test.bs.js [2m([22m[2m5 tests[22m[2m)[22m[33m 870[2mms[22m[39m
+ [32m✓[39m tests/unit/NavigationUI_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 160[2mms[22m[39m
+ [32m✓[39m tests/unit/VisualPipeline_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 54[2mms[22m[39m
+ [32m✓[39m tests/unit/AppErrorBoundary_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 157[2mms[22m[39m
+ [32m✓[39m tests/unit/SceneList_v.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[33m 1017[2mms[22m[39m
+     [33m[2m✓[22m[39m should throttle scene switching clicks [33m 754[2mms[22m[39m
+ [32m✓[39m tests/unit/ErrorFallbackUI_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 126[2mms[22m[39m
+ [32m✓[39m tests/unit/Shadcn_v.test.bs.js [2m([22m[2m7 tests[22m[2m)[22m[32m 112[2mms[22m[39m
+ [32m✓[39m tests/unit/Tooltip_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 106[2mms[22m[39m
+ [32m✓[39m tests/unit/ViewerManager_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 110[2mms[22m[39m
+ [32m✓[39m tests/unit/UploadProcessor_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+Not implemented: navigation to another Document
+Not implemented: navigation to another Document
+ [32m✓[39m tests/unit/DownloadSystem_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m tests/unit/InputSystem_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 103[2mms[22m[39m
+ [32m✓[39m tests/unit/ViewerSnapshot_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 59[2mms[22m[39m
+ [32m✓[39m tests/unit/LucideIcons_v.test.bs.js [2m([22m[2m33 tests[22m[2m)[22m[32m 65[2mms[22m[39m
+ [32m✓[39m tests/unit/ExifReportGenerator_v.test.bs.js [2m([22m[2m5 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m tests/unit/HotspotLineLogic_v.test.bs.js [2m([22m[2m11 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m tests/unit/HotspotManager_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m tests/unit/ViewerFollow_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/LinkModal_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/Types_v.test.bs.js [2m([22m[2m17 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/Navigation_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/UploadProcessorLogic_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/UploadReport_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m tests/unit/HotspotReducer.test.bs.js [2m([22m[2m7 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/BackendApi_v.test.bs.js [2m([22m[2m7 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/UiReducerTest.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/Logger_v.test.bs.js [2m([22m[2m9 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/ProjectManager_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/NavigationReducer.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/Resizer_v.test.bs.js [2m([22m[2m5 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m tests/unit/SimulationPathGenerator_v.test.bs.js [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/HotspotLine_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/SessionStore_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/NavigationRenderer_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/ServiceWorkerMain_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/TourTemplateAssets_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/SceneReducer.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/ViewerTypes_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/SimulationLogic_v.test.bs.js [2m([22m[2m9 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+ [32m✓[39m tests/unit/Main_v.test.bs.js [2m([22m[2m5 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/VersionData_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/LazyLoad_v.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/VitestSmoke.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/SimulationReducer_v.test.bs.js [2m([22m[2m9 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/TourLogic_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/ColorPalette_v.test.bs.js [2m([22m[2m12 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/NotificationContext_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[33m 3915[2mms[22m[39m
+     [33m[2m✓[22m[39m should auto-dismiss notifications after timeout [33m 3702[2mms[22m[39m
+ [32m✓[39m tests/unit/UploadProcessorTypes_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/State_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/ViewerState_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/HotspotLineTypes_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/AppContextTest.bs.js [2m([22m[2m4 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/SimulationDriver_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/NavigationController_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/ReBindings_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/HotspotLine.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/Mod_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 1[2mms[22m[39m
 
-test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.01s
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
 
-   Doc-tests backend
+[41m[1m FAIL [22m[49m tests/unit/App_v.test.bs.js[2m > [22mApp[2m > [22mshould render main application structure
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
 
-running 0 tests
+[32m- Expected[39m
+[31m+ Received[39m
 
-test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/unit/App_v.test.bs.js:[2m99:98[22m[39m
+    [90m 97| [39m    [35mawait[39m [34mwait[39m([34m100[39m)[33m;[39m
+    [90m 98| [39m    [35mlet[39m sidebar [33m=[39m container[33m.[39m[34mquerySelector[39m([32m"[data-testid='sidebar']"[39m)[33m;[39m
+    [90m 99| [39m    t.expect(Belt_Option.isSome((sidebar == null) ? undefined : Primit…
+    [90m   | [39m                                                                                                 [31m^[39m
+    [90m100| [39m    let viewerUI = container.querySelector("[data-testid='viewer-ui']"…
+    [90m101| [39m    t.expect(Belt_Option.isSome((viewerUI == null) ? undefined : Primi…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/unit/App_v.test.bs.js[2m > [22mApp[2m > [22mshould display 'Ready to build' when no scenes exist
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/unit/App_v.test.bs.js:[2m129:106[22m[39m
+    [90m127| [39m      console[33m.[39m[34mlog[39m([32m"DEBUG HTML: "[39m [33m+[39m html)[33m;[39m
+    [90m128| [39m    }
+    [90m129| [39m    t.expect(Belt_Option.isSome((placeholder == null) ? undefined : Pr…
+    [90m   | [39m                                                                                                         [31m^[39m
+    [90m130| [39m    [35mlet[39m text [33m=[39m placeholder[33m.[39mtextContent[33m;[39m
+    [90m131| [39m    t[33m.[39m[34mexpect[39m(text)[33m.[39m[34mtoBe[39m([32m"Ready to build."[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m64 passed[39m[22m[90m (65)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m310 passed[39m[22m[90m (312)[39m
+[2m   Start at [22m 21:42:36
+[2m   Duration [22m 5.37s[2m (transform 1.07s, setup 1.35s, import 3.49s, tests 10.51s, environment 24.71s)[22m
 

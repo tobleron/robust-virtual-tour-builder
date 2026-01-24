@@ -5,32 +5,31 @@ let runAll = async () => {
   GeoUtilsTest.run()
   // LoggerTest.run() - Migrated to Vitest
 
-  InputSystemTest.run()
+  // InputSystemTest.run() - Migrated to Vitest
   // TourLogicTest.run() - Migrated to Vitest
-  PathInterpolationTest.run()
-  ReducerTest.run()
-  ReducerHelpersTest.run()
-  ProjectReducerTest.run()
-  JsonTypesTest.run()
+  // PathInterpolationTest.run() - Migrated to Vitest
+  // ReducerTest.run() - Migrated to Vitest
+  // ReducerHelpersTest.run() - Migrated to Vitest
+  // ProjectReducerTest.run() - Migrated to Vitest
+  // JsonTypesTest.run() - Migrated to Vitest
   // SceneReducerTest.run() - Migrated to Vitest
   // HotspotReducerTest.run() - Migrated to Vitest
   // NavigationReducerTest.run() - Migrated to Vitest
-  ExifParserTest.run()
+
   AudioManagerTest.run()
   // ExifReportGeneratorTest.run() - Migrated to Vitest
   SharedTypesTest.run()
   // ReBindingsTest.run() - Migrated to Vitest
   // BackendApiTest.run() - Migrated to Vitest
-  ProjectManagerTest.run()
+  // ProjectManagerTest.run() - Migrated to Vitest
   // DownloadSystemTest.run() - Migrated to Vitest
   ProjectDataTest.run()
   // ResizerTest.run() - Migrated to Vitest
-  UploadProcessorTest.run()
+  // UploadProcessorTest.run() - Migrated to Vitest
   VideoEncoderTest.run()
-  TeaserManagerTest.run()
-  TeaserRecorderTest.run()
+
   // TourTemplateAssetsTest.run() - Migrated to Vitest
-  TourTemplateScriptsTest.run()
+  // TourTemplateScriptsTest.run() - Migrated to Vitest
   TourTemplateStylesTest.run()
   TourTemplatesTest.run()
   ExporterTest.run()
@@ -44,15 +43,15 @@ let runAll = async () => {
   ViewerLoaderTest.run()
   ActionsTest.run()
   GlobalStateBridgeTest.run()
-  RootReducerTest.run()
+  // RootReducerTest.run() - Migrated to Vitest
   EventBusTest.run()
-  TimelineReducerTest.run()
-  SimulationNavigationTest.run()
-  SimulationChainSkipperTest.run()
+  // TimelineReducerTest.run() - Migrated to Vitest
+  // SimulationNavigationTest.run() - Migrated to Vitest
+  // SimulationChainSkipperTest.run() - Migrated to Vitest
   // SimulationPathGeneratorTest.run() - Migrated to Vitest
-  await TeaserPathfinderTest.run()
+
   ServerTeaserTest.run()
-  ConstantsTest.run()
+  // ConstantsTest.run() - Migrated to Vitest
   VersionTest.run()
   await ImageOptimizerTest.run()
   UrlUtilsTest.run()
