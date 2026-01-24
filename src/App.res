@@ -48,8 +48,6 @@ module Inner = {
       // Modal & Notification Containers
       <div id="modal-container">
         <ModalContext />
-      </div>
-      <div id="notification-container">
         <NotificationContext />
       </div>
 

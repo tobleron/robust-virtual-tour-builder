@@ -100,4 +100,10 @@
     /* Transitions */
     --transition-fast: 0.15s;
     --transition-normal: 0.3s;
+
+    /* Notification System Tokens */
+    --toast-animation-duration: 1000;
+    /* ms */
+    --toast-stack-gap: 8;
+    /* px */
 }
