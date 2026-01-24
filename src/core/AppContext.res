@@ -18,9 +18,12 @@ module DispatchProvider = {
 
 module Provider = {
   @react.component
-  let make = (~children) => {
+  let make = (~children, ~initialState as injectedState=?) => {
     let loadedState = React.useMemo0(() => {
-      switch SessionStore.loadState() {
+      switch injectedState {
+      | Some(s) => s
+      | None =>
+        switch SessionStore.loadState() {
       | Some(s) => {
           ...initialState,
           tourName: TourLogic.isUnknownName(s.tourName) ? initialState.tourName : s.tourName,
@@ -31,6 +34,7 @@ module Provider = {
           isTeasing: s.isTeasing,
         }
       | None => initialState
+      }
       }
     })
 

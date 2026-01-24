@@ -156,7 +156,7 @@ describe("App", () => {
 
   testAsync("should display 'Ready to build' when no scenes exist", async t => {
     let container = Dom.createElement("div")
-    Dom.appendChild(Dom.documentBody, container)
+    ignore(Dom.appendChild(Dom.documentBody, container))
 
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(root, <App />)
@@ -168,6 +168,31 @@ describe("App", () => {
 
     let text = Dom.getTextContent(Nullable.getUnsafe(placeholder))
     t->expect(text)->Expect.toBe("Ready to build.")
+
+    Dom.removeElement(container)
+  })
+
+  testAsync("should NOT display 'Ready to build' when scenes exist", async t => {
+    let container = Dom.createElement("div")
+    ignore(Dom.appendChild(Dom.documentBody, container))
+
+    let dummyState: Types.state = %raw(`{
+       scenes: [{id: "1"}],
+       tourName: "Test",
+       activeIndex: 0,
+       activeYaw: 0,
+       activePitch: 0,
+       isLinking: false,
+       isTeasing: false
+    }`)
+
+    let root = ReactDOMClient.createRoot(container)
+    ReactDOMClient.Root.render(root, <App initialState={dummyState} />)
+
+    await wait(100)
+
+    let placeholder = Dom.querySelector(container, "#placeholder-text")
+    t->expect(Nullable.toOption(placeholder)->Belt.Option.isNone)->Expect.toBe(true)
 
     Dom.removeElement(container)
   })
