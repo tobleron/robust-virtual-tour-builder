@@ -346,13 +346,60 @@ let make = () => {
       switch Belt.Array.get(state.scenes, state.activeIndex) {
       | Some(scene) =>
         let lastId = Nullable.toOption(ViewerState.state.lastSceneId)
-        let hasSceneChanged = switch lastId {
+
+        // SAFETY FIX: If lastSceneId exists but is not in the current project scenes,
+        // it means we switched projects or deleted the scene.
+        // We must reset ViewerState to prevent ID collisions, stale reuse, or stuck loading states.
+        let isLastIdValid = switch lastId {
+        | Some(id) => Belt.Array.some(state.scenes, s => s.id == id)
+        | None => true
+        }
+
+        if !isLastIdValid {
+          Logger.info(~module_="ViewerManager", ~message="PROJECT_CONTEXT_RESET", ())
+          let vA = ViewerState.state.viewerA
+          let vB = ViewerState.state.viewerB
+
+          switch Nullable.toOption(vA) {
+          | Some(v) =>
+            try {Viewer.destroy(v)} catch {
+            | _ => ()
+            }
+          | None => ()
+          }
+          switch Nullable.toOption(vB) {
+          | Some(v) =>
+            try {Viewer.destroy(v)} catch {
+            | _ => ()
+            }
+          | None => ()
+          }
+
+          ViewerState.state.viewerA = Nullable.null
+          ViewerState.state.viewerB = Nullable.null
+          ViewerState.state.activeViewerKey = A
+          ViewerState.resetState()
+
+          let pA = Dom.getElementById("panorama-a")
+          let pB = Dom.getElementById("panorama-b")
+          switch Nullable.toOption(pA) {
+          | Some(el) => Dom.add(el, "active")
+          | None => ()
+          }
+          switch Nullable.toOption(pB) {
+          | Some(el) => Dom.remove(el, "active")
+          | None => ()
+          }
+        }
+
+        let currentLastId = Nullable.toOption(ViewerState.state.lastSceneId)
+        let hasSceneChanged = switch currentLastId {
         | Some(prev) => prev != scene.id
         | None => true
         }
 
         if hasSceneChanged {
-          Loader.loadNewScene(lastId, None)
+          Loader.loadNewScene(currentLastId, None)
         } else {
           let v = ViewerState.getActiveViewer()
           switch Nullable.toOption(v) {
