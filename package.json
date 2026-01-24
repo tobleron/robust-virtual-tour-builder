@@ -46,6 +46,7 @@
   "homepage": "https://github.com/tobleron/robust-virtual-tour-builder#readme",
   "devDependencies": {
     "@axe-core/cli": "^4.11.0",
+    "@playwright/test": "^1.58.0",
     "@rsbuild/core": "^1.7.2",
     "@rsbuild/plugin-react": "^1.4.2",
     "@tailwindcss/postcss": "^4.1.18",
