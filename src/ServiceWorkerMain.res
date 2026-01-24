@@ -58,7 +58,7 @@ module ExtendableEvent = {
 @new external newURL: string => {..} = "URL"
 
 /* Constants - Updated by scripts/sync-sw.cjs */
-let cacheName = "vtb-cache-v4.4.8"
+let cacheName = "vtb-cache-v4.5.0"
 let manualAssets = [
   "/",
   "/index.html",
