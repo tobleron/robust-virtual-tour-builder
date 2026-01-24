@@ -18,9 +18,9 @@ const Toaster = ({ visibleToasts = 3, duration = 4000, ...props }) => {
                         "group-[.toast]:bg-[var(--primary)] group-[.toast]:text-white group-[.toast]:text-[8px] group-[.toast]:px-1.5 group-[.toast]:h-5",
                     cancelButton:
                         "group-[.toast]:bg-slate-700 group-[.toast]:text-slate-300 group-[.toast]:text-[8px] group-[.toast]:px-1.5 group-[.toast]:h-5",
-                    success: "group-[.vtb-toaster-root]:!bg-[#059669]",
+                    success: "group-[.vtb-toaster-root]:!bg-[#008B8B]",
                     error: "group-[.vtb-toaster-root]:!bg-[#ea580c]",
-                    warning: "group-[.vtb-toaster-root]:!bg-[#f59e0b]",
+                    warning: "group-[.vtb-toaster-root]:!bg-[#B8860B]",
                     info: "group-[.vtb-toaster-root]:!bg-[#0e2d52]",
                 },
             }}
