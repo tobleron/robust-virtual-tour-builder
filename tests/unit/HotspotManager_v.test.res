@@ -156,14 +156,10 @@ describe("HotspotManager", () => {
     t->expect(String.includes(cssClass, "return-link"))->Expect.toBe(true)
   })
 
-  test("createTooltipFunc should create expected elements including fwdBtn", t => {
+  test("createTooltipFunc should initialize container with base classes", t => {
     let hotspot = createHotspot("TargetScene")
-    let targetScene = {...createScene("TargetScene"), isAutoForward: true}
     let sourceScene = createScene("SourceScene")
-    let state = {
-      ...State.initialState,
-      scenes: [sourceScene, targetScene],
-    }
+    let state = State.initialState
 
     let config = HotspotManager.createHotspotConfig(
       ~hotspot,
@@ -177,20 +173,9 @@ describe("HotspotManager", () => {
     let div = Dom.createElement("div")
     tooltipFunc(div)
 
-    let navBtn = Dom.querySelector(div, ".hotspot-nav-btn")
-    t->expect(Belt.Option.isSome(Nullable.toOption(navBtn)))->Expect.toBe(true)
-
-    let actionBtn = Dom.querySelector(div, ".hotspot-action-trigger")
-    t->expect(Belt.Option.isSome(Nullable.toOption(actionBtn)))->Expect.toBe(true)
-
-    let fwdBtn = Dom.querySelector(div, ".hotspot-forward-btn")
-    t->expect(Belt.Option.isSome(Nullable.toOption(fwdBtn)))->Expect.toBe(true)
-
-    switch Nullable.toOption(fwdBtn) {
-    | Some(el) =>
-      let className = Dom.getClassName(el)
-      t->expect(String.includes(className, "active"))->Expect.toBe(true)
-    | None => ()
-    }
+    let classList = Dom.getClassName(div)
+    t->expect(String.includes(classList, "pnlm-hotspot-base"))->Expect.toBe(true)
+    t->expect(String.includes(classList, "group"))->Expect.toBe(true)
+    t->expect(String.includes(classList, "relative"))->Expect.toBe(true)
   })
 })

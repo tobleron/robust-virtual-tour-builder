@@ -456,7 +456,7 @@ let make = () => {
           style={makeStyle({"height": "auto", "minHeight": "3.5rem"})}
         >
           <div
-            className="absolute inset-0 bg-gradient-to-b from-transparent via-white/10 to-transparent translate-y-[-100%] group-hover:translate-y-[100%] transition-transform duration-700"
+            className="absolute inset-0 bg-gradient-to-b from-transparent via-white/10 to-transparent translate-x-[-150%] translate-y-[-150%] rotate-45 group-hover:translate-x-[150%] group-hover:translate-y-[150%] transition-transform duration-1000"
           />
           <LucideIcons.Camera className="text-white" size=24 strokeWidth=2.0 />
           <span

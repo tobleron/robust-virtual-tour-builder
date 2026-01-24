@@ -19,10 +19,11 @@
     --accent-soft: rgba(255, 204, 0, 0.1);
 
     --danger: #ea580c;
-    /* Dark Orange */
+    /* Dark Orange (Standardized) */
     --danger-light: #f97316;
     /* Orange 500 */
-    --danger-dark: #c2410c;
+    --danger-dark: #b44409;
+    /* Deeper Orange */
 
     --success: #059669;
     /* Emerald 600 - WCAG AA Compliant */
@@ -38,7 +39,7 @@
     /* Amber 400 */
     --warning-dark: #c2410c;
 
-    --orange-brand: #f97316;
+    --orange-brand: #ea580c;
     --purple-brand: #7c3aed;
     /* Violet 600 */
     --delete-hover: #9a3412;

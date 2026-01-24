@@ -136,7 +136,101 @@
 
 }
 
+@keyframes flicker-red {
 
+    0%,
+    30%,
+    60%,
+    100% {
+        filter: brightness(1);
+    }
+
+    15%,
+    45% {
+        background-color: #ff0000;
+        filter: brightness(2.5) scale(1.1);
+    }
+}
+
+@keyframes flicker-yellow {
+
+    0%,
+    30%,
+    60%,
+    100% {
+        filter: brightness(1);
+    }
+
+    15%,
+    45% {
+        background-color: #fca510;
+        filter: brightness(2.5) scale(1.1);
+    }
+}
+
+@keyframes swap-icon {
+    0% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+
+    40% {
+        transform: scale(0.2) rotate(180deg);
+        opacity: 0;
+    }
+
+    60% {
+        transform: scale(0.2) rotate(180deg);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1) rotate(360deg);
+        opacity: 1;
+    }
+}
+
+.animate-flicker-red {
+    animation: flicker-red 0.4s ease-out 2;
+}
+
+.animate-flicker-yellow {
+    animation: flicker-yellow 0.4s ease-out 2;
+}
+
+@keyframes diagonal-sweep {
+    0% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    }
+
+    20%,
+    100% {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+    }
+}
+
+.animate-diagonal-sweep {
+    animation: diagonal-sweep var(--sweep-duration, 4s) ease-in-out infinite;
+}
+
+@keyframes vertical-sweep {
+    0% {
+        transform: translateY(-100%);
+    }
+
+    15%,
+    100% {
+        transform: translateY(100%);
+    }
+}
+
+.animate-vertical-sweep {
+    animation: vertical-sweep 4s ease-in-out infinite;
+}
+
+.animate-swap-icon {
+    animation: swap-icon 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
 
 .line-rod-yellow {
 
