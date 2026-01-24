@@ -252,11 +252,24 @@ let drawSimulationArrow = (
           targetPitch := endPitch
           targetYaw := endYaw
           if Array.length(segments) > 0 {
-            switch Belt.Array.get(segments, Array.length(segments) - 1) {
-            | Some((_, dy, dp, _, _)) =>
-              rotYaw := dy
-              rotPitch := dp
-            | None => ()
+            // Stability Fix: Iterate backwards to find the first "meaningful" segment.
+            // Some splines have a micro-curl or zero-length segment at the end.
+            // We ignore segments with very small distance to avoid flipping the arrow.
+            let foundValid = ref(false)
+            let idx = ref(Array.length(segments) - 1)
+
+            while !foundValid.contents && idx.contents >= 0 {
+              switch Belt.Array.get(segments, idx.contents) {
+              | Some((dist, dy, dp, _, _)) =>
+                if dist > 0.01 {
+                  // Threshold for meaningful direction
+                  rotYaw := dy
+                  rotPitch := dp
+                  foundValid := true
+                }
+              | None => ()
+              }
+              idx := idx.contents - 1
             }
           }
         } else {
