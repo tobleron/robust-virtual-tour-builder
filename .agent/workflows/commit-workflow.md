@@ -29,9 +29,10 @@ Follow these steps when you are ready to commit your changes.
 2. **Cache Busting**: 
    - Rsbuild handles content-based hashing automatically for assets.
    - For manual cache busting, `scripts/update-version.js` updates `index.html` with the version query string where applicable.
-3. **Log Changes**: 
-   - Append a summary to `logs/log_changes.txt`.
-   - Format: `[YYYY-MM-DD HH:MM] vX.Y.Z - Summary`
+3. **Update Changelog**: 
+   - Add a new entry to `CHANGELOG.md` under `[Unreleased]` or a new version header.
+   - Follow the Keep a Changelog format: `### Added`, `### Changed`, `### Fixed`.
+   - Format: `- Description of change.`
 
 ## 3. Verification
 // turbo
@@ -47,6 +48,6 @@ Follow these steps when you are ready to commit your changes.
 3. **Verification Checklist**:
    - [ ] `package.json` updated
    - [ ] `src/utils/VersionData.res` updated (via `node scripts/update-version.js`)
-   - [ ] `logs/log_changes.txt` updated
+   - [ ] `CHANGELOG.md` updated
    - [ ] No raw `console.log` statements
    - [ ] New modules use Logger system

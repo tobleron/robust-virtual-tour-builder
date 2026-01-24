@@ -358,6 +358,7 @@ let make = () => {
               let target = JsxEvent.Form.target(e)
               let files = target["files"]
               if files["length"] > 0 {
+                SessionStore.clearState()
                 updateProgress(0.0, "Loading Project...", true, "Loading")
                 try {
                   let file = files["0"]

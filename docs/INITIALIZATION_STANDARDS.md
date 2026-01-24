@@ -21,6 +21,7 @@ This document defines the standardized initialization practices for the Robust V
 - Session state must be explicitly cleared when creating new projects
 - Cached state should never "bleed" into fresh sessions
 - State restoration should validate cached values before applying them
+- **No Persistence on First Load**: The `tourName` and `activeIndex` must NEVER be restored from cache on the first load of the application. They should only be set by active user input, image uploads, or project imports. This prevents "ghost" names from previous sessions from appearing when no scenes are present.
 
 ### 3. **Graceful Fallbacks**
 - Loading operations must provide consistent fallback values

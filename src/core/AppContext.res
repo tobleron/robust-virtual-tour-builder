@@ -24,17 +24,17 @@ module Provider = {
       | Some(s) => s
       | None =>
         switch SessionStore.loadState() {
-      | Some(s) => {
-          ...initialState,
-          tourName: TourLogic.isUnknownName(s.tourName) ? initialState.tourName : s.tourName,
-          activeIndex: s.activeIndex == -1 ? initialState.activeIndex : s.activeIndex,
-          activeYaw: s.activeYaw,
-          activePitch: s.activePitch,
-          isLinking: s.isLinking,
-          isTeasing: s.isTeasing,
+        | Some(s) => {
+            ...initialState,
+            // DO NOT restore tourName or activeIndex on first load (requested behavior)
+            // These should only come from a fresh upload or a project import
+            activeYaw: s.activeYaw,
+            activePitch: s.activePitch,
+            isLinking: s.isLinking,
+            isTeasing: s.isTeasing,
+          }
+        | None => initialState
         }
-      | None => initialState
-      }
       }
     })
 
