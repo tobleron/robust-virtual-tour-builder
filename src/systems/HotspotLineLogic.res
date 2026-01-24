@@ -263,9 +263,9 @@ let drawSimulationArrow = (
 
         // STABILITY FIX: We FREEZE the rotation calculation point once we get very close to the end.
         // If we let 'progress' go all the way to 1.0, the 'progFront' calculation can hit the end of the spline
-        // and cause a singularity or flip. By clamping the rotation-calculation-progress to 0.99,
+        // and cause a singularity or flip. By clamping the rotation-calculation-progress to 0.95,
         // we ensure the arrow effectively "coasts" into the dock with its final valid heading.
-        let rotationCalcProgress = Math.min(progress, 0.99)
+        let rotationCalcProgress = Math.min(progress, 0.95)
 
         let delta = 0.02
         let progFront = Math.min(rotationCalcProgress +. delta, 1.0)
