@@ -107,7 +107,7 @@ let uiYieldDelay = 10
 // ============================================
 
 let modalFadeDuration = 100
-let panningVelocity = 4.0
+let panningVelocity = 2.0
 let panningMinDuration = 1500.0
 let panningMaxDuration = 6000.0
 let sceneStabilizationDelay = 1000
@@ -229,6 +229,10 @@ let blinkDurationSimulation = 1200
 let blinkRatePreview = 300
 let blinkRateSimulation = 600
 let idleSnapshotDelay = 2000
+
+module Simulation = {
+  let stepDelay = 800
+}
 let sceneLoadTimeout = 10000
 
 // ============================================

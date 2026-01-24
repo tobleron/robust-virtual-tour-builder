@@ -252,13 +252,20 @@ let drawSimulationArrow = (
         // This avoids "micro-curls" at the very end of the spline and ensures the arrow
         // points in the direction of arrival.
 
-        // 1. Calculate Rotation from entering trajectory (Secant Method)
-        // Instead of using segment tangent (which can be erratic), we calculate two points:
-        // P_stable (at progress - 5%) and P_current (at progress).
-        // The vector P_stable -> P_current gives the robust arrival direction.
+        // STABILITY FIX: Freeze rotation during the final 20% of the journey.
+        // This ensures the arrow maintains its stable arrival trajectory and ignores
+        // any micro-turns or spline artifacts right at the end of the waypoint.
 
-        let lookbackAmt = 0.20
-        let progCurrent = Math.min(progress, 1.0)
+        let rotationProgressThreshold = 0.80
+        let lookbackAmt = 0.15
+
+        let progRotation = if progress >= rotationProgressThreshold {
+          rotationProgressThreshold
+        } else {
+          progress
+        }
+
+        let progCurrent = Math.min(progRotation, 1.0)
         let progStable = Math.max(0.0, progCurrent -. lookbackAmt)
 
         // Helper to get point at progress
