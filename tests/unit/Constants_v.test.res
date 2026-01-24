@@ -69,7 +69,7 @@ describe("Constants", _ => {
 
   test("animation timing configuration", t => {
     t->expect(Constants.modalFadeDuration)->Expect.toBe(100)
-    t->expect(Constants.panningVelocity)->Expect.toBe(9.0)
+    t->expect(Constants.panningVelocity)->Expect.toBe(4.0)
     t->expect(Constants.panningMinDuration)->Expect.toBe(1500.0)
     t->expect(Constants.panningMaxDuration)->Expect.toBe(6000.0)
     t->expect(Constants.sceneStabilizationDelay)->Expect.toBe(1000)
@@ -121,9 +121,9 @@ describe("Constants", _ => {
 
   test("navigation and simulation configuration", t => {
     t->expect(Constants.blinkDurationPreview)->Expect.toBe(1200)
-    t->expect(Constants.blinkDurationSimulation)->Expect.toBe(800)
+    t->expect(Constants.blinkDurationSimulation)->Expect.toBe(1000)
     t->expect(Constants.blinkRatePreview)->Expect.toBe(300)
-    t->expect(Constants.blinkRateSimulation)->Expect.toBe(250)
+    t->expect(Constants.blinkRateSimulation)->Expect.toBe(400)
     t->expect(Constants.idleSnapshotDelay)->Expect.toBe(2000)
     t->expect(Constants.sceneLoadTimeout)->Expect.toBe(10000)
   })
