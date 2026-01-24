@@ -1,4 +1,4 @@
-# Task 463: Add Unit Tests for PreviewArrow.res
+# Task 482: Add Unit Tests for PreviewArrow.res
 
 ## 🚨 Trigger
 Modifications detected in `/Users/r2/Desktop/robust-virtual-tour-builder/src/components/PreviewArrow.res` without established unit tests.

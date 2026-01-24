@@ -2322,7 +2322,6 @@
 │   └── rescript.lock
 ├── logs
 │   ├── error.log
-│   ├── log_changes.txt
 │   ├── project-guard.log
 │   └── telemetry.log
 ├── old_ref
@@ -3070,70 +3069,17 @@
 │   │       ├── 412_Update_Tests_UploadProcessorTypes.md
 │   │       ├── 413_Update_Tests_TimelineReducer.md
 │   │       ├── 414_Update_Tests_PopOver.md
-│   │       ├── 415_Add_Tests_PreviewArrow.md
-│   │       ├── 416_Add_Tests_PreviewArrow.md
-│   │       ├── 417_Add_Tests_PreviewArrow.md
-│   │       ├── 418_Add_Tests_PreviewArrow.md
-│   │       ├── 419_Add_Tests_PreviewArrow.md
-│   │       ├── 420_Add_Tests_PreviewArrow.md
-│   │       ├── 421_Add_Tests_PreviewArrow.md
-│   │       ├── 422_Add_Tests_PreviewArrow.md
-│   │       ├── 423_Add_Tests_PreviewArrow.md
-│   │       ├── 424_Add_Tests_PreviewArrow.md
-│   │       ├── 425_Add_Tests_PreviewArrow.md
-│   │       ├── 426_Add_Tests_PreviewArrow.md
-│   │       ├── 427_Add_Tests_PreviewArrow.md
-│   │       ├── 428_Add_Tests_PreviewArrow.md
-│   │       ├── 429_Add_Tests_PreviewArrow.md
-│   │       ├── 430_Add_Tests_PreviewArrow.md
-│   │       ├── 431_Add_Tests_PreviewArrow.md
-│   │       ├── 432_Add_Tests_PreviewArrow.md
-│   │       ├── 433_Add_Tests_PreviewArrow.md
-│   │       ├── 434_Add_Tests_PreviewArrow.md
-│   │       ├── 435_Add_Tests_PreviewArrow.md
-│   │       ├── 436_Add_Tests_PreviewArrow.md
-│   │       ├── 437_Add_Tests_PreviewArrow.md
-│   │       ├── 438_Add_Tests_PreviewArrow.md
-│   │       ├── 439_Add_Tests_PreviewArrow.md
-│   │       ├── 440_Add_Tests_PreviewArrow.md
-│   │       ├── 441_Add_Tests_PreviewArrow.md
 │   │       ├── 442_Update_Tests_ProgressBar.md
 │   │       ├── 443_Update_Tests_Tooltip.md
 │   │       ├── 444_Update_Tests_HotspotReducer.md
-│   │       ├── 445_Add_Tests_PreviewArrow.md
-│   │       ├── 446_Add_Tests_PreviewArrow.md
-│   │       ├── 447_Add_Tests_PreviewArrow.md
-│   │       ├── 448_Add_Tests_PreviewArrow.md
-│   │       ├── 449_Add_Tests_PreviewArrow.md
-│   │       ├── 450_Add_Tests_PreviewArrow.md
 │   │       ├── 451_Update_Tests_SharedTypes.md
 │   │       ├── 452_Update_Tests_NavigationReducer.md
-│   │       ├── 453_Add_Tests_PreviewArrow.md
-│   │       ├── 454_Add_Tests_PreviewArrow.md
-│   │       ├── 455_Add_Tests_PreviewArrow.md
-│   │       ├── 456_Add_Tests_PreviewArrow.md
-│   │       ├── 457_Add_Tests_PreviewArrow.md
-│   │       ├── 458_Add_Tests_PreviewArrow.md
-│   │       ├── 459_Add_Tests_PreviewArrow.md
 │   │       ├── 460_Update_Tests_VideoEncoder.md
-│   │       ├── 461_Add_Tests_PreviewArrow.md
-│   │       ├── 462_Add_Tests_PreviewArrow.md
-│   │       ├── 463_Add_Tests_PreviewArrow.md
-│   │       ├── 464_Add_Tests_PreviewArrow.md
-│   │       ├── 465_Add_Tests_PreviewArrow.md
-│   │       ├── 466_Add_Tests_PreviewArrow.md
-│   │       ├── 467_Add_Tests_PreviewArrow.md
-│   │       ├── 468_Add_Tests_PreviewArrow.md
 │   │       ├── 469_Update_Tests_EventBus.md
-│   │       ├── 470_Add_Tests_PreviewArrow.md
-│   │       ├── 471_Add_Tests_PreviewArrow.md
-│   │       ├── 472_Add_Tests_PreviewArrow.md
-│   │       ├── 473_Add_Tests_PreviewArrow.md
-│   │       ├── 474_Add_Tests_PreviewArrow.md
-│   │       ├── 475_Add_Tests_PreviewArrow.md
-│   │       ├── 476_Add_Tests_PreviewArrow.md
-│   │       ├── 477_Add_Tests_PreviewArrow.md
-│   │       └── 478_Add_Tests_PreviewArrow.md
+│   │       ├── 479_Add_Tests_PreviewArrow.md
+│   │       ├── 480_Add_Tests_PreviewArrow.md
+│   │       ├── 481_Add_Tests_PreviewArrow.md
+│   │       └── 482_Add_Tests_PreviewArrow.md
 │   └── postponed
 │       ├── 003_add_seo_structured_data.md
 │       ├── 004_document_core_web_vitals.md
@@ -3395,4 +3341,4 @@
 │           └── TestUtils.res
 └── vitest.config.mjs
 
-98 directories, 3298 files
+98 directories, 3244 files
