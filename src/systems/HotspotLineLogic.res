@@ -252,26 +252,55 @@ let drawSimulationArrow = (
         // This avoids "micro-curls" at the very end of the spline and ensures the arrow
         // points in the direction of arrival.
 
-        let rotProgress = Math.min(progress, 0.98)
-        let rotTargetDist = rotProgress *. totalDistance.contents
-        let rotCovered = ref(0.0)
-        let rotFound = ref(false)
+        // 1. Calculate Rotation from entering trajectory (Secant Method)
+        // Instead of using segment tangent (which can be erratic), we calculate two points:
+        // P_stable (at progress - 5%) and P_current (at progress).
+        // The vector P_stable -> P_current gives the robust arrival direction.
 
-        // 1. Calculate Rotation from entering trajectory
-        for i in 0 to Array.length(segments) - 1 {
-          if !rotFound.contents {
-            switch Belt.Array.get(segments, i) {
-            | Some((dist, dy, dp, _p1, _)) =>
-              if rotTargetDist <= rotCovered.contents +. dist {
-                rotYaw := dy
-                rotPitch := dp
-                rotFound := true
+        let lookbackAmt = 0.05
+        let progCurrent = Math.min(progress, 1.0)
+        let progStable = Math.max(0.0, progCurrent -. lookbackAmt)
+
+        // Helper to get point at progress
+        let getPointAtProgress = p => {
+          let tDist = p *. totalDistance.contents
+          let cov = ref(0.0)
+          let ptYaw = ref(startYaw)
+          let ptPitch = ref(startPitch)
+          let fnd = ref(false)
+
+          for i in 0 to Array.length(segments) - 1 {
+            if !fnd.contents {
+              switch Belt.Array.get(segments, i) {
+              | Some((dist, dy, dp, p1, _)) =>
+                if tDist <= cov.contents +. dist {
+                  let sp = if dist > 0.0 {
+                    (tDist -. cov.contents) /. dist
+                  } else {
+                    0.0
+                  }
+                  ptPitch := p1.pitch +. dp *. sp
+                  ptYaw := p1.yaw +. dy *. sp
+                  fnd := true
+                }
+                cov := cov.contents +. dist
+              | None => ()
               }
-              rotCovered := rotCovered.contents +. dist
-            | None => ()
             }
           }
+          if !fnd.contents {
+            // If not found (e.g. 1.0), use end
+            ptPitch := endPitch
+            ptYaw := endYaw
+          }
+          (ptYaw.contents, ptPitch.contents)
         }
+
+        let (yC, pC) = getPointAtProgress(progCurrent)
+        let (yS, pS) = getPointAtProgress(progStable)
+
+        rotYaw := yC -. yS
+        rotPitch := pC -. pS
 
         // 2. Calculate Position (Actual)
         let targetDist = progress *. totalDistance.contents
