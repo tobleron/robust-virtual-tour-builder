@@ -53,7 +53,27 @@ let startJourney = (data: EventBus.navStartPayload) => {
     let arrowStartPitch = pathData.startPitch
     let arrowStartYaw = pathData.startYaw
 
+    // Pre-calculated optimized segments and waypoints
+    let arrowSegments =
+      pathData.segments->Belt.Array.map(seg => (
+        seg.dist,
+        seg.yawDiff,
+        seg.pitchDiff,
+        ({PathInterpolation.yaw: seg.p1.yaw, pitch: seg.p1.pitch}: PathInterpolation.point),
+        ({PathInterpolation.yaw: seg.p2.yaw, pitch: seg.p2.pitch}: PathInterpolation.point),
+      ))
+    let arrowWaypoints: array<PathInterpolation.point> = pathData.waypoints->Belt.Array.map(w => {
+      PathInterpolation.yaw: w.yaw,
+      pitch: w.pitch,
+    })
+
+    // Performance tracking
+    let maxWorkTime = ref(0.0)
+    let frameCount = ref(0)
+    let totalWorkTime = ref(0.0)
+
     let rec animLoop = () => {
+      let frameStart = Date.now()
       // Check cancellation
       let currentActive = activeJourneyId.contents
       let shouldContinue = switch currentActive {
@@ -109,19 +129,9 @@ let startJourney = (data: EventBus.navStartPayload) => {
             let opacity = blinkState == 0 ? 1.0 : 0.0
             let colorOverride = isPreview ? Some("red") : None
 
-            // Only draw if viewer is valid AND active (prevents stale camera data)
             if HotspotLine.isViewerReady(v) {
               let state = GlobalStateBridge.getState()
               HotspotLine.updateLines(v, state, ())
-
-              let preComputedSegments =
-                pathData.segments->Belt.Array.map(seg => (
-                  seg.dist,
-                  seg.yawDiff,
-                  seg.pitchDiff,
-                  {PathInterpolation.yaw: seg.p1.yaw, pitch: seg.p1.pitch},
-                  {PathInterpolation.yaw: seg.p2.yaw, pitch: seg.p2.pitch},
-                ))
 
               HotspotLine.drawSimulationArrow(
                 v,
@@ -131,22 +141,21 @@ let startJourney = (data: EventBus.navStartPayload) => {
                 pathData.targetYawForPan,
                 1.0,
                 ~opacity,
-                ~waypoints=Obj.magic(pathData.waypoints),
+                ~waypoints=arrowWaypoints,
                 ~colorOverride?,
-                ~preComputedSegments,
+                ~preComputedSegments=arrowSegments,
                 ~preComputedTotalDistance=pathData.totalPathDistance,
-                (),
-              )
-            } else {
-              Logger.debug(
-                ~module_="NavRenderer",
-                ~message="BLINK_SKIP_NOT_READY",
-                ~data=Some({"journeyId": data.journeyId}),
                 (),
               )
             }
 
             let _ = Window.requestAnimationFrame(animLoop)
+            let duration = Date.now() -. frameStart
+            totalWorkTime := totalWorkTime.contents +. duration
+            frameCount := frameCount.contents + 1
+            if duration > maxWorkTime.contents {
+              maxWorkTime := duration
+            }
           } else {
             // COMPLETE
             crossfadeTriggered := true
@@ -162,12 +171,21 @@ let startJourney = (data: EventBus.navStartPayload) => {
               pathData: None,
             }
             EventBus.dispatch(NavCompleted(payload))
+            let avgTime =
+              frameCount.contents > 0
+                ? totalWorkTime.contents /. Belt.Int.toFloat(frameCount.contents)
+                : 0.0
             Logger.info(
               ~module_="NavRenderer",
               ~message="JOURNEY_COMPLETE",
               ~data=Some({
                 "journeyId": data.journeyId,
                 "durationMs": Date.now() -. startTime,
+                "perf": {
+                  "maxFrameWorkMs": maxWorkTime.contents,
+                  "avgFrameWorkMs": avgTime,
+                  "frameCount": frameCount.contents,
+                },
               }),
               (),
             )
@@ -215,54 +233,52 @@ let startJourney = (data: EventBus.navStartPayload) => {
             pathData.startHfov +. (pathData.targetHfovForPan -. pathData.startHfov) *. progress
           Viewer.setHfov(v, hfovProgress, false)
 
-          Logger.trace(
-            ~module_="NavRenderer",
-            ~message="FRAME",
-            ~data=Some({
-              "progress": progress,
-              "currentYaw": camYaw.contents,
-              "currentPitch": camPitch.contents,
-            }),
-            (),
-          )
-
-          // Only draw if viewer is valid AND active (prevents stale camera data)
+          // Only draw if viewer is valid
           if HotspotLine.isViewerReady(v) {
-            let state = GlobalStateBridge.getState()
-            HotspotLine.updateLines(v, state, ())
+            // PERFORMANCE: Direct DOM access to bypass Facade overhead
+            // We implement "Cinema Mode" here: We strictly draw ONLY the arrow.
+            // We intentionally skip HotspotLine.updateLines() which draws static markers,
+            // as redrawing them 60fps causes massive layout thrashing.
+            let svgOpt = Dom.getElementById("viewer-hotspot-lines")
+            switch Nullable.toOption(svgOpt) {
+            | Some(svg) =>
+              // 1. Clear previous frame (fastest way)
+              Dom.setInnerHTML(svg, "")
 
-            let preComputedSegments =
-              pathData.segments->Belt.Array.map(seg => (
-                seg.dist,
-                seg.yawDiff,
-                seg.pitchDiff,
-                {PathInterpolation.yaw: seg.p1.yaw, pitch: seg.p1.pitch},
-                {PathInterpolation.yaw: seg.p2.yaw, pitch: seg.p2.pitch},
-              ))
+              // 2. Get Layout ONCE
+              let rect = Dom.getBoundingClientRect(svg)
 
-            HotspotLine.drawSimulationArrow(
-              v,
-              arrowStartPitch,
-              arrowStartYaw,
-              pathData.targetPitchForPan,
-              pathData.targetYawForPan,
-              progress,
-              ~opacity=1.0,
-              ~waypoints=Obj.magic(pathData.waypoints),
-              ~preComputedSegments,
-              ~preComputedTotalDistance=pathData.totalPathDistance,
-              (),
-            )
-          } else {
-            Logger.debug(
-              ~module_="NavRenderer",
-              ~message="DRAW_SKIP_NOT_READY",
-              ~data=Some({"journeyId": data.journeyId, "progress": progress}),
-              (),
-            )
+              if rect.width > 0.0 {
+                // 3. Get Camera State ONCE
+                let cam = HotspotLineLogic.getCamState(v, rect)
+
+                // 4. Draw Arrow directly
+                HotspotLineLogic.drawSimulationArrow(
+                  svg,
+                  cam,
+                  arrowStartPitch,
+                  arrowStartYaw,
+                  pathData.targetPitchForPan,
+                  pathData.targetYawForPan,
+                  progress,
+                  rect,
+                  ~opacity=1.0,
+                  ~waypoints=arrowWaypoints,
+                  ~preComputedSegments=arrowSegments,
+                  ~preComputedTotalDistance=pathData.totalPathDistance,
+                  (),
+                )
+              }
+            | None => ()
+            }
           }
-
           let _ = Window.requestAnimationFrame(animLoop)
+          let duration = Date.now() -. frameStart
+          totalWorkTime := totalWorkTime.contents +. duration
+          frameCount := frameCount.contents + 1
+          if duration > maxWorkTime.contents {
+            maxWorkTime := duration
+          }
         }
       }
     }

@@ -172,6 +172,12 @@ EOF
     fi
 }
 
+# Singleton Check
+if pgrep -f "bash ./scripts/project-guard.sh" | grep -v $$ > /dev/null; then
+    echo "❌ Project Guard is already running."
+    exit 1
+fi
+
 # 1. Initial Scan
 echo "🔍 Performing initial baseline check..."
 check_completed_tasks
@@ -217,9 +223,9 @@ check_file_fast() {
     fi
 }
 
-find $WATCH_DIRS -type f | while read -r f; do
+while read -r f; do
     check_file_fast "$f"
-done
+done < <(find $WATCH_DIRS -type f)
 
 # 2. Watch loop
 if [[ "$1" == "--scan-only" ]]; then
