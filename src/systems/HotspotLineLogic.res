@@ -369,17 +369,18 @@ let drawSimulationArrow = (
           | Some(e) =>
             let angle = Math.atan2(~y=e.y -. s.y, ~x=e.x -. s.x) *. (180.0 /. Math.Constants.pi)
 
-            let color = if progress >= 0.99 {
-              "#dc2626" // Red 600
+            let color = if progress >= 1.0 {
+              // Blink phase (Arrival)
+              if mod(Belt.Float.toInt(Date.now() /. 200.0), 2) == 0 {
+                "#fdba74" // Orange 300 (Brighter premium orange)
+              } else {
+                "var(--orange-brand)" // Orange
+              }
             } else {
+              // Journey phase (Solid)
               switch colorOverride {
               | Some(c) => c
-              | None =>
-                if mod(Belt.Float.toInt(Date.now() /. 200.0), 2) == 0 {
-                  "#fdba74" // Orange 300 (Brighter premium orange)
-                } else {
-                  "var(--orange-brand)" // Orange
-                }
+              | None => "var(--orange-brand)" // Pure Orange
               }
             }
 
