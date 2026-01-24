@@ -2,7 +2,7 @@
 Console.log("Starting Frontend Unit Tests...")
 
 let runAll = async () => {
-  GeoUtilsTest.run()
+  // GeoUtilsTest.run() - Migrated to Vitest
   // LoggerTest.run() - Migrated to Vitest
 
   // InputSystemTest.run() - Migrated to Vitest
@@ -18,33 +18,33 @@ let runAll = async () => {
 
   AudioManagerTest.run()
   // ExifReportGeneratorTest.run() - Migrated to Vitest
-  SharedTypesTest.run()
+  // SharedTypesTest.run() - Migrated to Vitest
   // ReBindingsTest.run() - Migrated to Vitest
   // BackendApiTest.run() - Migrated to Vitest
   // ProjectManagerTest.run() - Migrated to Vitest
   // DownloadSystemTest.run() - Migrated to Vitest
-  ProjectDataTest.run()
+  // ProjectDataTest.run() - Migrated to Vitest
   // ResizerTest.run() - Migrated to Vitest
   // UploadProcessorTest.run() - Migrated to Vitest
   VideoEncoderTest.run()
 
   // TourTemplateAssetsTest.run() - Migrated to Vitest
   // TourTemplateScriptsTest.run() - Migrated to Vitest
-  TourTemplateStylesTest.run()
-  TourTemplatesTest.run()
-  ExporterTest.run()
+  // TourTemplateStylesTest.run() - Migrated to Vitest
+  // TourTemplatesTest.run() - Migrated to Vitest
+  // ExporterTest.run() - Migrated to Vitest
   // LazyLoadTest.run() - Migrated to Vitest
-  ProgressBarTest.run()
-  StateInspectorTest.run()
-  ServiceWorkerTest.run()
+  // ProgressBarTest.run() - Migrated to Vitest
+  // StateInspectorTest.run() - Migrated to Vitest
+  // ServiceWorkerTest.run() - Migrated to Vitest
   // NavigationTest.run() - Migrated to Vitest
   // NavigationRendererTest.run() - Migrated to Vitest
   // MainTest.run() - Migrated to Vitest
-  ViewerLoaderTest.run()
-  ActionsTest.run()
-  GlobalStateBridgeTest.run()
+  // ViewerLoaderTest.run() - Migrated to Vitest
+  // ActionsTest.run() - Migrated to Vitest
+  // GlobalStateBridgeTest.run() - Migrated to Vitest
   // RootReducerTest.run() - Migrated to Vitest
-  EventBusTest.run()
+  // EventBusTest.run() - Migrated to Vitest
   // TimelineReducerTest.run() - Migrated to Vitest
   // SimulationNavigationTest.run() - Migrated to Vitest
   // SimulationChainSkipperTest.run() - Migrated to Vitest
@@ -52,9 +52,9 @@ let runAll = async () => {
 
   ServerTeaserTest.run()
   // ConstantsTest.run() - Migrated to Vitest
-  VersionTest.run()
+  // VersionTest.run() - Migrated to Vitest
   await ImageOptimizerTest.run()
-  UrlUtilsTest.run()
+  // UrlUtilsTest.run() - Migrated to Vitest
   // VersionDataTest.run() - Migrated to Vitest
   // ServiceWorkerMainTest.run() - Migrated to Vitest
 

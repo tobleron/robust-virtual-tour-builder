@@ -37,7 +37,10 @@ reqwest = { version = "0.11", features = ["json"] }
 lazy_static = "1.4"
 chrono = "0.4"
 fs2 = "0.4"
-
+actix-web-httpauth = "0.8"
+sqlx = { version = "0.8", features = ["sqlite", "runtime-tokio", "macros", "chrono", "uuid"] }
+jsonwebtoken = "9.3"
+oauth2 = "4.4"
 
 actix-web-prom = "0.7"
 prometheus = "0.13"
