@@ -55,7 +55,25 @@ fi
 echo "🧪 Running Tests..."
 if ! npm test; then echo "❌ Tests failed."; exit 1; fi
 
-# 9. Log & Commit
+# 9. Changelog Prompt
+read -p "Did you update the CHANGELOG.md? (y/n) " -n 1 -r
+echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]
+then
+    echo "❌ Commit aborted. Please update CHANGELOG.md."
+    exit 1
+fi
+
+# 9. Changelog Prompt
+read -p "Did you update the CHANGELOG.md? (y/n) " -n 1 -r
+echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]
+then
+    echo "❌ Commit aborted. Please update CHANGELOG.md."
+    exit 1
+fi
+
+# 10. Log & Commit
 echo "[$(date '+%Y-%m-%d %H:%M')] v$NEW_VER - $MSG" >> logs/log_changes.txt
 rm -f logs/telemetry.log
 git add .
