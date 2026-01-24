@@ -1,2 +1,3 @@
 [2026-01-24 21:30] v4.5.1 - Sim Optimization V3: Zero layout thrashing, manual SVG clear, bypass Facade
 [2026-01-25 00:03] v4.5.1 - Perfected Notifications
+[2026-01-25 00:14] v4.5.1 - Update notification palette to high contrast colors
