@@ -376,7 +376,7 @@ let drawSimulationArrow = (
               | Some(c) => c
               | None =>
                 if mod(Belt.Float.toInt(Date.now() /. 200.0), 2) == 0 {
-                  "var(--warning-light)" // Yellow
+                  "#fdba74" // Orange 300 (Brighter premium orange)
                 } else {
                   "var(--orange-brand)" // Orange
                 }
