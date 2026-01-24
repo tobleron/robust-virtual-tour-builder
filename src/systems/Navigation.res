@@ -166,8 +166,12 @@ let calculatePathData = (
         [p0, pEnd]
       }
 
-      /* Spline generation */
-      let path = PathInterpolation.getCatmullRomSpline(controlPoints, 100)
+      /* Path generation - match HotspotLine.res logic */
+      let path = if Array.length(waypoints) > 0 {
+        PathInterpolation.getCatmullRomSpline(controlPoints, 100)
+      } else {
+        PathInterpolation.getFloorProjectedPath(p0, pEnd, 100)
+      }
 
       /* Calculate segments and total distance */
       let totalDistance = ref(0.0)
