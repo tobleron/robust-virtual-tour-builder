@@ -28,65 +28,6 @@
     animation: spin 1s linear infinite;
 }
 
-/* Toast Notifications */
-#notification-container {
-    position: fixed;
-    bottom: 25px;
-    right: 25px;
-    z-index: 30000;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    pointer-events: none;
-}
-
-.toast {
-    background: var(--glass-bg);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
-    color: white;
-    padding: 12px 20px;
-    border-radius: var(--radius-lg);
-    font-size: var(--text-sm);
-    font-weight: 600;
-    box-shadow: var(--shadow-premium);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    opacity: 0;
-    transform: translateX(30px);
-    transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
-    pointer-events: auto;
-    border: 1px solid var(--glass-border);
-    border-left: 4px solid var(--primary-light);
-    min-width: 240px;
-    max-width: 400px;
-}
-
-.toast-icon {
-    font-size: 20px;
-}
-
-.toast.show {
-    opacity: 1;
-    transform: translateX(0);
-}
-
-.toast.error {
-    border-left-color: var(--danger);
-    background: rgba(69, 10, 10, 0.8);
-}
-
-.toast.success {
-    border-left-color: var(--success);
-    background: rgba(6, 78, 59, 0.8);
-}
-
-.toast.warning {
-    border-left-color: var(--warning);
-    background: rgba(69, 26, 3, 0.8);
-}
-
 /* Sidebar Branding & UI */
 .sidebar-branding-header {
     background: #0e2d52 !important;
@@ -155,4 +96,84 @@
     border-color: var(--orange-brand);
     box-shadow: 0 0 0 1px var(--orange-brand);
     background-color: #ffffff;
+}
+
+#viewer-ui-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5000;
+}
+
+#viewer-ui-layer>* {
+    pointer-events: auto;
+}
+
+/* NUCLEAR OVERRIDE FOR SONNER */
+
+/* Target by the data attribute directly for absolute victory */
+[data-sonner-toaster] {
+    position: absolute !important;
+    top: 24px !important;
+    right: 24px !important;
+    z-index: 100000 !important;
+}
+
+[data-sonner-toaster]>ol {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+    /* The 5px gap the user wants */
+    position: absolute !important;
+    right: 0 !important;
+    top: 0 !important;
+    align-items: flex-end !important;
+}
+
+[data-sonner-toast] {
+    --toast-width: 360px !important;
+    width: 360px !important;
+    height: 42px !important;
+    background: #0e2d52 !important;
+    /* CORPORATE BLUE AS REQUESTED */
+    color: #ffffff !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 9px !important;
+    position: relative !important;
+    /* Allow normal document flow for gap */
+    inset: auto !important;
+    transform: none !important;
+    margin-bottom: calc(var(--toast-stack-gap, 8) * 1px) !important;
+    /* MATCHING FLOOR BUTTON GAP (gap-2 = 8px) */
+    transition: transform calc(var(--toast-animation-duration, 1000) * 1ms) cubic-bezier(0.4, 0, 0.2, 1), opacity calc(var(--toast-animation-duration, 1000) * 1ms) ease !important;
+}
+
+/* Override Sonner's internal success/error/etc. backgrounds if they exist as attributes */
+[data-sonner-toast][data-type="success"] {
+    background: #059669 !important;
+}
+
+[data-sonner-toast][data-type="error"] {
+    background: #ea580c !important;
+}
+
+[data-sonner-toast][data-type="warning"] {
+    background: #f59e0b !important;
+}
+
+[data-sonner-toast][data-type="info"] {
+    background: #0e2d52 !important;
+}
+
+/* Icon sizing */
+[data-sonner-toast] [data-icon] {
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+}
+
+[data-sonner-toast] [data-content] {
+    font-size: 13px !important;
+    line-height: normal !important;
 }

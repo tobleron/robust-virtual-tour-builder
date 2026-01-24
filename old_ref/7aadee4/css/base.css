@@ -1,0 +1,71 @@
+/* Global base styles - Augmented with Tailwind Preflight */
+
+/* Global focus-visible style for a consistent accessibility experience */
+:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* Accessibility Utilities */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+.skip-link {
+    position: absolute;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary);
+    color: white;
+    padding: 12px 24px;
+    z-index: 100000;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    font-weight: bold;
+    text-decoration: none;
+    transition: top var(--transition-normal) ease;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+body,
+html {
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
+    overflow: hidden;
+    font-family: var(--font-body);
+    background: var(--slate-950);
+}
+
+/* Custom Scrollbar for Sidebar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--slate-300);
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--slate-400);
+}
+
+.grayscale {
+    filter: grayscale(100%);
+}

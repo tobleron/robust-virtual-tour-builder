@@ -49,7 +49,9 @@ describe("Constants", _ => {
 
   test("notification system configuration", t => {
     t->expect(Constants.toastDisplayDuration)->Expect.toBe(4000)
-    t->expect(Constants.toastAnimationDuration)->Expect.toBe(400)
+    t->expect(Constants.toastAnimationDuration)->Expect.toBe(1000)
+    t->expect(Constants.toastVisibleToasts)->Expect.toBe(3)
+    t->expect(Constants.toastStackGap)->Expect.toBe(5)
   })
 
   test("download system configuration", t => {
