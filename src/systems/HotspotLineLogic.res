@@ -211,10 +211,11 @@ let drawSimulationArrow = (
           let controlPoints = Belt.Array.concat(startPt, Belt.Array.concat(waypoints, endPt))
           PathInterpolation.getCatmullRomSpline(controlPoints, 100)
         } else {
-          [
-            {PathInterpolation.yaw: startYaw, pitch: startPitch},
-            {PathInterpolation.yaw: endYaw, pitch: endPitch},
-          ]
+          PathInterpolation.getFloorProjectedPath(
+            {yaw: startYaw, pitch: startPitch},
+            {yaw: endYaw, pitch: endPitch},
+            100,
+          )
         }
 
         let totalDistance = ref(0.0)
