@@ -6,3 +6,4 @@
 [2026-01-24 17:34] v4.5.1 - Refine Simulation: Slow blink & stable arrow rotation fix
 [2026-01-24 17:39] v4.5.1 - Refine Simulation: 20% lookback for arrow stability & slower blink (600ms)
 [2026-01-24 17:46] v4.5.1 - Refine Simulation: Slow down journey & freeze rotation at 80% for stability
+[2026-01-24 17:58] v4.5.1 - Unify spline segments & fix arrow position fallback
