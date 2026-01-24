@@ -107,7 +107,7 @@ let uiYieldDelay = 10
 // ============================================
 
 let modalFadeDuration = 100
-let panningVelocity = 9.0
+let panningVelocity = 4.0
 let panningMinDuration = 1500.0
 let panningMaxDuration = 6000.0
 let sceneStabilizationDelay = 1000
@@ -225,9 +225,9 @@ let backendUrl = getEnv("VITE_BACKEND_URL", "http://localhost:8080")
 // ============================================
 
 let blinkDurationPreview = 1200
-let blinkDurationSimulation = 800
+let blinkDurationSimulation = 1000
 let blinkRatePreview = 300
-let blinkRateSimulation = 250
+let blinkRateSimulation = 400
 let idleSnapshotDelay = 2000
 let sceneLoadTimeout = 10000
 
