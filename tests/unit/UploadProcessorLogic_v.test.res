@@ -272,7 +272,7 @@ describe("UploadProcessorLogic", () => {
 
         setMockProcessResult(Promise.resolve(Ok(mockRes)))
 
-        processItem(0, item)->Promise.then(
+        processItem(0, item, _ => ())->Promise.then(
           res => {
             t->expect(res.preview)->Expect.toBeSome
 
@@ -302,7 +302,7 @@ describe("UploadProcessorLogic", () => {
 
         setMockProcessResult(Promise.resolve(Error("Simulated failure")))
 
-        processItem(0, item)->Promise.then(
+        processItem(0, item, _ => ())->Promise.then(
           res => {
             t->expect(res.error)->Expect.toEqual(Some("Simulated failure"))
 

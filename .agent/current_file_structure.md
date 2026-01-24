@@ -2306,10 +2306,8 @@
 │   │   └── VitestSmoke.test.res
 │   └── rescript.lock
 ├── logs
-│   ├── error.log
 │   ├── log_changes.txt
-│   ├── project-guard.log
-│   └── telemetry.log
+│   └── project-guard.log
 ├── MAP.md
 ├── old_ref
 │   ├── REF.md
@@ -3044,6 +3042,7 @@
 │   │   └── 408_Update_Tests_Utilities_REPORT.md
 │   ├── pending
 │   │   └── tests
+│   │       └── 409_Update_Tests_ViewerManager.md
 │   ├── postponed
 │   │   ├── 003_add_seo_structured_data.md
 │   │   ├── 004_document_core_web_vitals.md
@@ -3307,4 +3306,4 @@
 │       └── VitestSmoke.test.res
 └── vitest.config.mjs
 
-98 directories, 3210 files
+98 directories, 3209 files

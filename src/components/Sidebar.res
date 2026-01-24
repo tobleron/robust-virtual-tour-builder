@@ -507,12 +507,27 @@ let make = () => {
               style={makeStyle({"width": Float.toFixed(procState["progress"], ~digits=0) ++ "%"})}
             />
           </div>
-          <div
-            className="text-[9px] text-slate-500 mt-2 font-bold uppercase tracking-tight flex items-center gap-2"
-          >
-            <span className="w-1 h-1 bg-success rounded-full animate-pulse" />
-            <span className="truncate"> {React.string(procState["message"])} </span>
-          </div>
+          {
+            let parts = String.split(procState["message"], "|")
+            let leftPart = Belt.Array.get(parts, 0)->Option.getOr(procState["message"])
+            let rightPart = Belt.Array.get(parts, 1)->Option.getOr("")
+
+            <div
+              className="text-[9px] text-slate-500 mt-2 font-bold uppercase tracking-tight flex items-center justify-between gap-2"
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="w-1 h-1 bg-success rounded-full animate-pulse shrink-0" />
+                <span className="truncate"> {React.string(leftPart)} </span>
+              </div>
+              {if rightPart != "" {
+                <span className="text-slate-400 truncate max-w-[50%]">
+                  {React.string(rightPart)}
+                </span>
+              } else {
+                React.null
+              }}
+            </div>
+          }
         </div>
       } else {
         React.null
