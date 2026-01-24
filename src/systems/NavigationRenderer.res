@@ -114,6 +114,15 @@ let startJourney = (data: EventBus.navStartPayload) => {
               let state = GlobalStateBridge.getState()
               HotspotLine.updateLines(v, state, ())
 
+              let preComputedSegments =
+                pathData.segments->Belt.Array.map(seg => (
+                  seg.dist,
+                  seg.yawDiff,
+                  seg.pitchDiff,
+                  {PathInterpolation.yaw: seg.p1.yaw, pitch: seg.p1.pitch},
+                  {PathInterpolation.yaw: seg.p2.yaw, pitch: seg.p2.pitch},
+                ))
+
               HotspotLine.drawSimulationArrow(
                 v,
                 arrowStartPitch,
@@ -124,6 +133,8 @@ let startJourney = (data: EventBus.navStartPayload) => {
                 ~opacity,
                 ~waypoints=Obj.magic(pathData.waypoints),
                 ~colorOverride?,
+                ~preComputedSegments,
+                ~preComputedTotalDistance=pathData.totalPathDistance,
                 (),
               )
             } else {
@@ -220,6 +231,15 @@ let startJourney = (data: EventBus.navStartPayload) => {
             let state = GlobalStateBridge.getState()
             HotspotLine.updateLines(v, state, ())
 
+            let preComputedSegments =
+              pathData.segments->Belt.Array.map(seg => (
+                seg.dist,
+                seg.yawDiff,
+                seg.pitchDiff,
+                {PathInterpolation.yaw: seg.p1.yaw, pitch: seg.p1.pitch},
+                {PathInterpolation.yaw: seg.p2.yaw, pitch: seg.p2.pitch},
+              ))
+
             HotspotLine.drawSimulationArrow(
               v,
               arrowStartPitch,
@@ -229,6 +249,8 @@ let startJourney = (data: EventBus.navStartPayload) => {
               progress,
               ~opacity=1.0,
               ~waypoints=Obj.magic(pathData.waypoints),
+              ~preComputedSegments,
+              ~preComputedTotalDistance=pathData.totalPathDistance,
               (),
             )
           } else {

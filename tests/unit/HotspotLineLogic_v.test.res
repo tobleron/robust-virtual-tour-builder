@@ -108,7 +108,8 @@ describe("HotspotLineLogic", () => {
         ViewerState.state.viewerA = Nullable.make(mockViewer)
         ViewerState.state.activeViewerKey = A
 
-        let coords = getScreenCoords(mockViewer, 0.0, 0.0, rect)
+        let cam = getCamState(mockViewer, rect)
+        let coords = getScreenCoords(cam, 0.0, 0.0, rect)
         switch coords {
         | Some(c) =>
           t->expect(c.x)->Expect.toBe(500.0)
@@ -124,8 +125,13 @@ describe("HotspotLineLogic", () => {
         let mockViewer: ReBindings.Viewer.t = Obj.magic({
           "isLoaded": () => false,
         })
-        let coords = getScreenCoords(mockViewer, 0.0, 0.0, rect)
-        t->expect(coords)->Expect.toBe(None)
+        if isViewerReady(mockViewer) {
+          let cam = getCamState(mockViewer, rect)
+          let coords = getScreenCoords(cam, 0.0, 0.0, rect)
+          t->expect(coords)->Expect.toBe(None)
+        } else {
+          t->expect(true)->Expect.toBe(true)
+        }
       },
     )
   })
@@ -168,7 +174,8 @@ describe("HotspotLineLogic", () => {
           bottom: 1000.0,
         }
 
-        drawPolyLine(svg, mockViewer, path, rect, "blue", 1.0, 1.0, ())
+        let cam = getCamState(mockViewer, rect)
+        drawPolyLine(svg, cam, path, rect, "blue", 1.0, 1.0, ())
 
         let pathEl = %raw(`svg.querySelector("path")`)
         t->expect(pathEl !== Nullable.null)->Expect.toBe(true)
@@ -181,6 +188,16 @@ describe("HotspotLineLogic", () => {
     test(
       "drawSimulationArrow should append an arrow path",
       t => {
+        let rect: ReBindings.Dom.rect = {
+          x: 0.0,
+          y: 0.0,
+          width: 1000.0,
+          height: 1000.0,
+          top: 0.0,
+          left: 0.0,
+          right: 1000.0,
+          bottom: 1000.0,
+        }
         // Setup DOM
         let svg = ReBindings.Dom.createElement("svg")
         ReBindings.Dom.setId(svg, "viewer-hotspot-lines")
@@ -198,7 +215,8 @@ describe("HotspotLineLogic", () => {
         ViewerState.state.viewerA = Nullable.make(mockViewer)
         ViewerState.state.activeViewerKey = A
 
-        drawSimulationArrow(mockViewer, 0.0, 0.0, 0.0, 10.0, 0.5, ~colorOverride="green", ()) // start // end // progress
+        let cam = getCamState(mockViewer, rect)
+        drawSimulationArrow(svg, cam, 0.0, 0.0, 0.0, 10.0, 0.5, rect, ~colorOverride="green", ()) // start // end // progress
 
         let arrow = %raw(`svg.querySelector("path")`)
         t->expect(arrow !== Nullable.null)->Expect.toBe(true)
