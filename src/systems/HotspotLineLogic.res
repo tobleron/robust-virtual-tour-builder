@@ -209,7 +209,7 @@ let drawSimulationArrow = (
             {PathInterpolation.yaw: endYaw, pitch: endPitch},
           ]
           let controlPoints = Belt.Array.concat(startPt, Belt.Array.concat(waypoints, endPt))
-          PathInterpolation.getCatmullRomSpline(controlPoints, 50)
+          PathInterpolation.getCatmullRomSpline(controlPoints, 100)
         } else {
           [
             {PathInterpolation.yaw: startYaw, pitch: startPitch},
@@ -346,6 +346,11 @@ let drawSimulationArrow = (
               }
             }
           }
+        }
+
+        if !found.contents {
+          targetPitch := endPitch
+          targetYaw := endYaw
         }
 
         let startCoordsOpt = getScreenCoords(v, targetPitch.contents, targetYaw.contents, rect)

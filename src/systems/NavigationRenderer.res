@@ -8,10 +8,11 @@ open Types
 let activeJourneyId = ref(None)
 
 /* Constants that match JS */
-let blinkDurationPreview = 1000.0
-let blinkDurationSimulation = 2000.0
-let blinkRatePreview = 200.0
-let blinkRateSimulation = 400.0
+/* Use Centralized Constants */
+let blinkDurationPreview = Float.fromInt(Constants.blinkDurationPreview)
+let blinkDurationSimulation = Float.fromInt(Constants.blinkDurationSimulation)
+let blinkRatePreview = Float.fromInt(Constants.blinkRatePreview)
+let blinkRateSimulation = Float.fromInt(Constants.blinkRateSimulation)
 
 /* --- LOGIC --- */
 

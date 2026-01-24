@@ -93,7 +93,7 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
                       startPt,
                       Belt.Array.concat(waypoints, endPt),
                     )
-                    let splinePath = getCachedSplinePath(h, controlPoints, 30)
+                    let splinePath = getCachedSplinePath(h, controlPoints, 100)
                     drawPolyLine(
                       svg,
                       viewer,
