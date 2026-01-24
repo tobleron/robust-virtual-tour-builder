@@ -1,18 +1,1 @@
-[2026-01-24 14:16] v4.5.0 - v4.5.0 [Session] Robust is my name
-[2026-01-24 16:35] v4.5.1 - [UI/UX] Enhanced Hotspot Menu, Animations & Orange Standard
-[2026-01-24 16:47] v4.5.1 - Refine UI: Floor buttons orange & Sim arrow orange/yellow blink + red end
-[2026-01-24 16:55] v4.5.1 - Fix simulation arrow flip at path end
-[2026-01-24 17:04] v4.5.1 - Refine Simulation: Slow down + Fix arrow flip stability
-[2026-01-24 17:34] v4.5.1 - Refine Simulation: Slow blink & stable arrow rotation fix
-[2026-01-24 17:39] v4.5.1 - Refine Simulation: 20% lookback for arrow stability & slower blink (600ms)
-[2026-01-24 17:46] v4.5.1 - Refine Simulation: Slow down journey & freeze rotation at 80% for stability
-[2026-01-24 17:58] v4.5.1 - Unify spline segments & fix arrow position fallback
-[2026-01-24 18:08] v4.5.1 - Loosen panning duration bounds & unify floor path generation
-[2026-01-24 18:12] v4.5.1 - Fix journey duration unit conversion (s -> ms)
-[2026-01-24 18:30] v4.5.1 - Refine Simulation: 12deg/s velocity & Premium Orange Blink
-[2026-01-24 18:40] v4.5.1 - Sim Arrow: 15deg/s velocity & solid journey color, blinking only at end
-[2026-01-24 18:44] v4.5.1 - Sim: 2.7s avg pace (22deg/s) and improved arrow turn accuracy
-[2026-01-24 18:49] v4.5.1 - Sim: 2.0s pace, solid orange journey, red blink arrival, fixed arrow flip
-[2026-01-24 18:55] v4.5.1 - Refine Simulation: Set rotation clamp to 0.95 for maximum arrival stability
-[2026-01-24 19:00] v4.5.1 - Sim: 2.0s animation pace, red blink arrival, and Recoil Guard fix
-[2026-01-24 19:12] v4.5.1 - Sim Optimization: Batch camera state, pre-calculated points, and string-join paths (jitter reduced)
+[2026-01-24 21:30] v4.5.1 - Sim Optimization V3: Zero layout thrashing, manual SVG clear, bypass Facade
