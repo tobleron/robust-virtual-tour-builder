@@ -122,6 +122,111 @@ describe("UploadProcessorLogic", () => {
     )
   })
 
+  describe("fingerprintFiles", () => {
+    testAsync(
+      "should generate upload items with checksums",
+      async t => {
+        let mockFile: ReBindings.File.t = Obj.magic({"name": "test.jpg"})
+
+        let _ = %raw(`globalThis.mockResizer.getChecksum.mockResolvedValue("checksum-123")`)
+
+        let results = await fingerprintFiles([mockFile])
+
+        t->expect(Array.length(results))->Expect.toBe(1)
+        let first = results[0]->Option.getOrThrow
+        t->expect(Nullable.toOption(first.id))->Expect.toEqual(Some("checksum-123"))
+        t->expect(first.original)->Expect.toBe(mockFile)
+      },
+    )
+
+    testAsync(
+      "should handle fingerprint failure gracefully",
+      async t => {
+        let mockFile: ReBindings.File.t = Obj.magic({"name": "fail.jpg"})
+
+        let _ = %raw(`globalThis.mockResizer.getChecksum.mockRejectedValue(new Error("Hash failed"))`)
+
+        let results = await fingerprintFiles([mockFile])
+
+        t->expect(Array.length(results))->Expect.toBe(1)
+        let first = results[0]->Option.getOrThrow
+        t->expect(Nullable.toOption(first.id))->Expect.toBeNone
+        t->expect(first.error)->Expect.toEqual(Some("Fingerprint failed"))
+      },
+    )
+  })
+
+  describe("processWithQueue", () => {
+    testAsync(
+      "should process multiple items with concurrency",
+      async t => {
+        let mockFile1: ReBindings.File.t = Obj.magic({"name": "1.jpg", "size": 100.0})
+        let mockFile2: ReBindings.File.t = Obj.magic({"name": "2.jpg", "size": 200.0})
+
+        let item1: UploadProcessorTypes.uploadItem = {
+          id: Nullable.make("id-1"),
+          original: mockFile1,
+          error: None,
+          preview: None,
+          tiny: None,
+          quality: None,
+          metadata: None,
+          colorGroup: None,
+        }
+        let item2: UploadProcessorTypes.uploadItem = {
+          id: Nullable.make("id-2"),
+          original: mockFile2,
+          error: None,
+          preview: None,
+          tiny: None,
+          quality: None,
+          metadata: None,
+          colorGroup: None,
+        }
+
+        let mockRes = {
+          "preview": Obj.magic({"name": "prev.webp"}),
+          "tiny": None,
+          "metadata": Obj.magic(%raw("{}")),
+          "quality": {
+            "isBlurry": false,
+            "stats": {
+              "avgLuminance": 128,
+              "sharpnessVariance": 100,
+              "blackClipping": 0.0,
+              "whiteClipping": 0.0,
+            },
+            "isSeverelyDark": false,
+            "isDim": false,
+            "score": 0.9,
+            "analysis": Nullable.null,
+            "histogram": [],
+            "colorHist": {"r": [], "g": [], "b": []},
+            "isSoft": false,
+            "isSeverelyBright": false,
+            "hasBlackClipping": false,
+            "hasWhiteClipping": false,
+            "issues": 0,
+            "warnings": 0,
+          },
+        }
+
+        setMockProcessResult(Promise.resolve(Ok(mockRes)))
+
+        let progressCalls = []
+        let onProgress = (p, m, _b, _s) => Array.push(progressCalls, (p, m))->ignore
+
+        let results = await processWithQueue([item1, item2], 2, onProgress)
+
+        t->expect(Array.length(results))->Expect.toBe(2)
+        t->expect(Array.length(progressCalls))->Expect.Int.toBeGreaterThanOrEqual(2)
+        t
+        ->expect(progressCalls[Array.length(progressCalls) - 1]->Option.getOrThrow)
+        ->Expect.toEqual((95.0, "Processing 2/2"))
+      },
+    )
+  })
+
   describe("processItem", () => {
     testAsync(
       "should update item with process results on success",

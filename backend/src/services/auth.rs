@@ -7,6 +7,7 @@ pub struct AuthService {
     pub google_client: BasicClient,
 }
 
+#[allow(dead_code)]
 impl AuthService {
     pub fn new() -> Result<Self, AppError> {
         let client_id = ClientId::new(

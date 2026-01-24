@@ -75,6 +75,8 @@ let _ = describe("ProjectData", () => {
       activeIndex: 5,
       deletedSceneIds: ["del1"],
       scenes: [s1],
+      lastUsedCategory: "custom-cat",
+      exifReport: Some(JSON.Encode.string("mock-exif")),
     }
 
     let json = toJSON(mockState)
@@ -83,9 +85,12 @@ let _ = describe("ProjectData", () => {
     t->expect(d["tourName"])->Expect.toBe("Test Tour")
     t->expect(d["activeIndex"])->Expect.toBe(5)
     t->expect(d["deletedSceneIds"])->Expect.toEqual(["del1"])
+    t->expect(d["lastUsedCategory"])->Expect.toBe("custom-cat")
+    t->expect(Obj.magic(d["exifReport"]))->Expect.toBe("mock-exif")
 
     let scenes = (Obj.magic(d["scenes"]): array<{..}>)
     t->expect(Belt.Array.length(scenes))->Expect.toBe(1)
     t->expect(Belt.Array.getExn(scenes, 0)["id"])->Expect.toBe("s1")
+    t->expect(Belt.Array.getExn(scenes, 0)["_metadataSource"])->Expect.toBe("user")
   })
 })

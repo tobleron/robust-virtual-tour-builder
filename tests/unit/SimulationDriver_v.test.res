@@ -11,4 +11,21 @@ describe("SimulationDriver", () => {
     let _ = <SimulationDriver />
     t->expect(true)->Expect.toBe(true)
   })
+
+  test("should render without crashing with running simulation state", t => {
+    let mockState: Types.state = {
+      ...State.initialState,
+      simulation: {
+        ...State.initialState.simulation,
+        status: Running,
+      },
+    }
+
+    let _ =
+      <AppContext.StateProvider value=mockState>
+        <SimulationDriver />
+      </AppContext.StateProvider>
+
+    t->expect(true)->Expect.toBe(true)
+  })
 })

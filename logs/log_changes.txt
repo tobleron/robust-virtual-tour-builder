@@ -541,3 +541,4 @@ Task: 147
 [2026-01-23 20:19] v4.4.8 - chore: updated unit tests for multiple modules and migrated legacy tests to Vitest
 [2026-01-24 05:14] v4.4.8 - Migrate core reducer tests to Vitest (Task 371)
 [2026-01-24 06:05] v4.4.8 - Migrate Utilities & Services tests to Vitest (Task 374)
+[2026-01-24 08:18] v4.4.8 - refactor: backend cleanup, test migration to Vitest, and general updates

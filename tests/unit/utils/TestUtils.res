@@ -31,7 +31,16 @@ let createMockHotspot = (~id="h1", ~target="scene2", ()) => {
   }
 }
 
-let createMockScene = (~id="scene1", ~name="Scene 1", ~hotspots=[], ~isAutoForward=false, ()) => {
+let createMockScene = (
+  ~id="scene1",
+  ~name="Scene 1",
+  ~hotspots=[],
+  ~isAutoForward=false,
+  ~category="room",
+  ~categorySet=false,
+  ~label="",
+  (),
+) => {
   {
     id,
     name,
@@ -39,25 +48,32 @@ let createMockScene = (~id="scene1", ~name="Scene 1", ~hotspots=[], ~isAutoForwa
     tinyFile: None,
     originalFile: None,
     hotspots,
-    category: "room",
+    category,
     floor: "1",
-    label: name,
+    label: label == "" ? name : label,
     isAutoForward,
     quality: None,
     colorGroup: None,
     _metadataSource: "default",
-    categorySet: false,
-    labelSet: false,
+    categorySet,
+    labelSet: label != "",
     preCalculatedSnapshot: None,
   }
 }
 
-let createMockState = (~scenes=[], ~activeIndex=-1, ~tourName="Test Tour", ()) => {
+let createMockState = (
+  ~scenes=[],
+  ~activeIndex=-1,
+  ~tourName="Test Tour",
+  ~lastUsedCategory="outdoor",
+  (),
+) => {
   {
     ...State.initialState,
     scenes,
     activeIndex,
     tourName,
+    lastUsedCategory,
   }
 }
 

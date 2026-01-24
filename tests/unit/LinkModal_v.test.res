@@ -146,4 +146,102 @@ describe("LinkModal", () => {
     // Cleanup DOM
     let _ = %raw(`(function(){ document.body.innerHTML = "" })()`)
   })
+
+  test("should handle return link and waypoints from linkDraft", t => {
+    let scene1 = createScene("Scene1")
+    let scene2 = createScene("Scene2")
+    let initialState: state = {
+      ...State.initialState,
+      scenes: [scene1, scene2],
+      activeIndex: 0,
+    }
+    GlobalStateBridge.setState(initialState)
+
+    let dispatchedActions = ref([])
+    GlobalStateBridge.setDispatch(action => Array.push(dispatchedActions.contents, action))
+
+    let receivedConfig = ref(None)
+    let unsubscribe = EventBus.subscribe(
+      evt => {
+        switch evt {
+        | ShowModal(config) => receivedConfig := Some(config)
+        | _ => ()
+        }
+      },
+    )
+
+    let draft: linkDraft = {
+      pitch: 0.0,
+      yaw: 0.0,
+      camPitch: 5.0,
+      camYaw: 15.0,
+      camHfov: 80.0,
+      intermediatePoints: Some([
+        {pitch: 0.0, yaw: 0.0, camPitch: 1.0, camYaw: 2.0, camHfov: 90.0, intermediatePoints: None},
+        {pitch: 0.0, yaw: 0.0, camPitch: 3.0, camYaw: 4.0, camHfov: 85.0, intermediatePoints: None},
+      ]),
+    }
+
+    LinkModal.showLinkModal(
+      ~pitch=10.0,
+      ~yaw=20.0,
+      ~camPitch=0.0,
+      ~camYaw=0.0,
+      ~camHfov=90.0,
+      ~pendingReturnSceneName=Nullable.make("Scene1"),
+      ~linkDraft=Nullable.make(draft),
+      (),
+    )
+    unsubscribe()
+
+    // Mock DOM select
+    let _ = %raw(`(function(){
+      const select = document.createElement("select");
+      select.id = "link-target";
+      const option = document.createElement("option");
+      option.value = "Scene1";
+      option.selected = true;
+      select.appendChild(option);
+      document.body.appendChild(select);
+      select.value = "Scene1";
+    })()`)
+
+    switch receivedConfig.contents {
+    | Some(config) =>
+      switch Belt.Array.get(config.buttons, 0) {
+      | Some(saveBtn) =>
+        saveBtn.onClick()
+
+        let found = Belt.Array.getBy(
+          dispatchedActions.contents,
+          a => {
+            switch a {
+            | AddHotspot(_, _) => true
+            | _ => false
+            }
+          },
+        )
+
+        switch found {
+        | Some(AddHotspot(_, hotspot)) => {
+            t->expect(hotspot.isReturnLink)->Expect.toBe(Some(true))
+            // Should use draft values for start*
+            t->expect(hotspot.startPitch)->Expect.toBe(Some(5.0))
+            t->expect(hotspot.startYaw)->Expect.toBe(Some(15.0))
+            t->expect(hotspot.startHfov)->Expect.toBe(Some(80.0))
+            // Waypoints should be mapped
+            switch hotspot.waypoints {
+            | Some(w) => t->expect(Array.length(w))->Expect.toBe(2)
+            | None => t->expect(false)->Expect.toBe(true)
+            }
+          }
+        | _ => t->expect(false)->Expect.toBe(true)
+        }
+      | None => ()
+      }
+    | None => ()
+    }
+
+    let _ = %raw(`(function(){ document.body.innerHTML = "" })()`)
+  })
 })

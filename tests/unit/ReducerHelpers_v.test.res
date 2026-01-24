@@ -276,6 +276,7 @@ describe("ReducerHelpers", () => {
     let updatedS1 = Belt.Array.getExn(stateAfterMeta.scenes, 0)
     t->expect(updatedS1.category)->Expect.toEqual("outdoor")
     t->expect(updatedS1.floor)->Expect.toEqual("roof")
+    t->expect(stateAfterMeta.lastUsedCategory)->Expect.toEqual("outdoor")
   })
 
   test("handleUpdateTimelineStep logic", t => {

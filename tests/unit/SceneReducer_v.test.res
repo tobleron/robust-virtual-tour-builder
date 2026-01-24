@@ -64,3 +64,28 @@ test("SceneReducer: DeleteScene removes scene and cleanup hotspots", t => {
   let remainingScene = result.scenes[0]->Option.getOrThrow
   t->expect(remainingScene.hotspots->Array.length)->Expect.toBe(0) // Hotspot to s2 should be gone
 })
+
+test("SceneReducer: handleSetActiveScene applies lastUsedCategory if not set", t => {
+  let s1 = createMockScene(~id="s1", ~categorySet=false, ~category="default", ())
+  let state = createMockState(~scenes=[s1], ~activeIndex=-1, ~lastUsedCategory="kitchen", ())
+
+  let action = SetActiveScene(0, 0.0, 0.0, None)
+  let result = RootReducer.reducer(state, action)
+
+  let updatedScene = result.scenes[0]->Option.getOrThrow
+  t->expect(updatedScene.category)->Expect.toBe("kitchen")
+})
+
+test("SceneReducer: ApplyLazyRename updates label and syncs name", t => {
+  let s1 = createMockScene(~id="s1", ~name="old_name.webp", ~label="Old Label", ())
+  let state = createMockState(~scenes=[s1], ~activeIndex=0, ())
+
+  let action = ApplyLazyRename(0, "New Label")
+  let result = RootReducer.reducer(state, action)
+
+  let updatedScene = result.scenes[0]->Option.getOrThrow
+  t->expect(updatedScene.label)->Expect.toBe("New Label")
+  // It should also sync the name based on label
+  let expectedName = TourLogic.computeSceneFilename(0, "New Label")
+  t->expect(updatedScene.name)->Expect.toBe(expectedName)
+})

@@ -3,9 +3,11 @@ use sqlx::sqlite::SqlitePool;
 use std::env;
 
 pub struct DatabaseManager {
+    #[allow(dead_code)]
     pub pool: SqlitePool,
 }
 
+#[allow(dead_code)]
 impl DatabaseManager {
     pub async fn new() -> Result<Self, AppError> {
         let database_url =

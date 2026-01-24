@@ -4,12 +4,14 @@ use actix_web::{HttpResponse, web};
 use oauth2::{CsrfToken, PkceCodeChallenge, Scope};
 use serde::Deserialize;
 
+#[allow(dead_code)]
 #[derive(Deserialize)]
 pub struct AuthCallbackParams {
     pub code: String,
     pub state: String,
 }
 
+#[allow(dead_code)]
 pub async fn google_login(auth_service: web::Data<AuthService>) -> Result<HttpResponse, AppError> {
     let (pkce_challenge, _pkce_verifier) = PkceCodeChallenge::new_random_sha256();
 
@@ -31,6 +33,7 @@ pub async fn google_login(auth_service: web::Data<AuthService>) -> Result<HttpRe
         .finish())
 }
 
+#[allow(dead_code)]
 pub async fn google_callback(
     _params: web::Query<AuthCallbackParams>,
     _auth_service: web::Data<AuthService>,

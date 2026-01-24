@@ -1,7 +1,9 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+#[allow(unused_imports)]
 use uuid::Uuid;
 
+#[allow(dead_code)]
 #[derive(Debug, Serialize, Deserialize, Clone, sqlx::FromRow)]
 #[serde(rename_all = "camelCase")]
 pub struct User {
@@ -13,6 +15,7 @@ pub struct User {
     pub created_at: DateTime<Utc>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AuthResponse {
