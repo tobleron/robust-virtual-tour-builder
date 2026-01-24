@@ -1,6 +1,7 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
+#[allow(dead_code)]
 #[derive(Debug, Serialize, Deserialize, Clone, sqlx::Type)]
 #[serde(rename_all = "lowercase")]
 pub enum ProjectStatus {
@@ -19,6 +20,7 @@ impl From<String> for ProjectStatus {
     }
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Serialize, Deserialize, Clone, sqlx::FromRow)]
 #[serde(rename_all = "camelCase")]
 pub struct Project {
@@ -33,6 +35,7 @@ pub struct Project {
     pub updated_at: DateTime<Utc>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ProjectSyncRequest {

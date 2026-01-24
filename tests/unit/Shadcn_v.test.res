@@ -116,4 +116,48 @@ describe("Shadcn", () => {
 
     Dom.removeElement(container)
   })
+
+  testAsync("ContextMenu should render trigger", async t => {
+    let container = Dom.createElement("div")
+    Dom.appendChild(Dom.documentBody, container)
+    let root = ReactDOMClient.createRoot(container)
+
+    ReactDOMClient.Root.render(
+      root,
+      <Shadcn.ContextMenu>
+        <Shadcn.ContextMenu.Trigger asChild=true>
+          <span id="ctx-trigger"> {React.string("Right click me")} </span>
+        </Shadcn.ContextMenu.Trigger>
+      </Shadcn.ContextMenu>,
+    )
+
+    await wait(50)
+
+    let trigger = Dom.getElementById("ctx-trigger")
+    t->expect(Belt.Option.isSome(Nullable.toOption(trigger)))->Expect.toBe(true)
+
+    Dom.removeElement(container)
+  })
+
+  testAsync("Popover should render trigger", async t => {
+    let container = Dom.createElement("div")
+    Dom.appendChild(Dom.documentBody, container)
+    let root = ReactDOMClient.createRoot(container)
+
+    ReactDOMClient.Root.render(
+      root,
+      <Shadcn.Popover>
+        <Shadcn.Popover.Trigger asChild=true>
+          <button id="pop-trigger"> {React.string("Open Popover")} </button>
+        </Shadcn.Popover.Trigger>
+      </Shadcn.Popover>,
+    )
+
+    await wait(50)
+
+    let trigger = Dom.getElementById("pop-trigger")
+    t->expect(Belt.Option.isSome(Nullable.toOption(trigger)))->Expect.toBe(true)
+
+    Dom.removeElement(container)
+  })
 })

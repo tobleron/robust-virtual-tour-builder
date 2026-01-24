@@ -9,98 +9,12 @@ use std::path::PathBuf;
 use uuid::Uuid;
 use zip::write::FileOptions;
 
-use super::utils::{
+use crate::api::utils::{
     MAX_UPLOAD_SIZE, PROCESSED_IMAGE_WIDTH, SESSIONS_DIR, TEMP_DIR, WEBP_QUALITY, get_session_path,
     get_temp_path, sanitize_filename,
 };
 use crate::models::{AppError, ValidationReport};
 use crate::services::project;
-
-/// Creates a final tour package ZIP containing the tour application and all assets.
-///
-/// This function collects images and field data from a multipart request and packages
-/// them into a downloadable ZIP file that can be hosted on any static web server.
-///
-/// # Arguments
-/// * `payload` - Multipart form data containing "project_data" (JSON) and asset files.
-///
-/// # Returns
-/// A response containing the ZIP file as binary data.
-///
-/// # Errors
-/// * `ImageError` if the total upload size exceeds `MAX_UPLOAD_SIZE`.
-/// * `InternalError` for path sanitization or processing failures.
-#[tracing::instrument(skip(payload), name = "create_tour_package")]
-pub async fn create_tour_package(mut payload: Multipart) -> Result<HttpResponse, AppError> {
-    tracing::info!(module = "Exporter", "EXPORT_START");
-    let start = std::time::Instant::now();
-    let mut fields: HashMap<String, String> = HashMap::new();
-    let mut image_files: Vec<(String, Vec<u8>)> = Vec::new();
-
-    let mut current_total_size = 0;
-
-    // 1. Parse Multipart into Memory
-    while let Some(mut field) = payload.try_next().await? {
-        let content_disposition =
-            field
-                .content_disposition()
-                .cloned()
-                .ok_or(AppError::InternalError(
-                    "Missing content disposition".into(),
-                ))?;
-        let name = content_disposition
-            .get_name()
-            .unwrap_or("unknown")
-            .to_string();
-        let filename = content_disposition.get_filename().map(|f| f.to_string());
-
-        let mut data = Vec::new();
-        while let Some(chunk) = field.try_next().await? {
-            current_total_size += chunk.len();
-            if current_total_size > MAX_UPLOAD_SIZE {
-                return Err(AppError::ImageError(format!(
-                    "Total upload size exceeds maximum of {}MB",
-                    MAX_UPLOAD_SIZE / (1024 * 1024)
-                )));
-            }
-            data.extend_from_slice(&chunk);
-        }
-
-        if let Some(fname) = filename {
-            // Use secure sanitization to prevent path traversal
-            let sanitized_name = sanitize_filename(&fname).map_err(|e| {
-                AppError::InternalError(format!("Invalid filename '{}': {}", fname, e))
-            })?;
-            image_files.push((sanitized_name, data));
-        } else {
-            let value_str = String::from_utf8_lossy(&data).to_string();
-            fields.insert(name, value_str);
-        }
-    }
-
-    let result_zip = web::block(move || project::create_tour_package(image_files, fields))
-        .await
-        .map_err(|e| AppError::InternalError(e.to_string()))?;
-
-    let duration = start.elapsed().as_millis();
-    match result_zip {
-        Ok(zip_bytes) => {
-            tracing::info!(
-                module = "Exporter",
-                duration_ms = duration,
-                size = zip_bytes.len(),
-                "EXPORT_COMPLETE"
-            );
-            Ok(HttpResponse::Ok()
-                .content_type("application/zip")
-                .body(zip_bytes))
-        }
-        Err(e) => {
-            tracing::error!(module = "Exporter", duration_ms = duration, error = %e, "EXPORT_FAILED");
-            Err(AppError::ZipError(e))
-        }
-    }
-}
 
 /// Saves the current project state into a ZIP file.
 ///
@@ -133,13 +47,9 @@ pub async fn save_project(mut payload: Multipart) -> Result<HttpResponse, AppErr
 
     // 2. Iterate Multipart Stream
     while let Some(mut field) = payload.try_next().await? {
-        let content_disposition =
-            field
-                .content_disposition()
-                .cloned()
-                .ok_or(AppError::InternalError(
-                    "Missing content disposition".into(),
-                ))?;
+        let content_disposition = field
+            .content_disposition()
+            .ok_or_else(|| AppError::InternalError("Missing content disposition".into()))?;
         let name = content_disposition
             .get_name()
             .unwrap_or("unknown")
@@ -262,27 +172,51 @@ pub async fn save_project(mut payload: Multipart) -> Result<HttpResponse, AppErr
                 "====================================================\n\
                  VIRTUAL TOUR - PROJECT SUMMARY\n\
                  ====================================================\n\n\
-                 Project Name:      {}\n\
-                 Generated On:      {}\n\
+                 Project Name:      {}
+\
+                 Generated On:      {}
+\
                  Application:       Robust Virtual Tour Builder v4.4.7\n\n\
-                 --- SCENE ANALYSIS ---\n\
-                 Total Scenes:      {}\n\
-                 Total Hotspots:    {}\n\
-                 Visual Groups:     {} (Identified via similarity clustering)\n\
-{}\n\
-                 --- QUALITY METRICS ---\n\
-                 Avg Quality Score: {:.1}/10.0\n\
-                 Avg Luminance:     {} (Balanced range: 100-180)\n\n\
-                 Technical Checks Performed:\n\
-                 - Luminance Analysis: Ensuring balanced exposure\n\
-                 - Sharpness Variance: Detecting blur or soft focus\n\
-                 - Clipping Detection: Checking for lost detail in highlights/shadows\n\n\
-                 --- IMAGE SPECIFICATIONS ---\n\
-                 Standard Format:   WebP (Lossy)\n\
-                 WebP Quality:      {:.1}%\n\
-                 Max Resolution:    {}x{} px\n\n\
-                 --- VALIDATION ---\n\
-                 Status:            COMPLETED\n\n\
+                 --- SCENE ANALYSIS ---
+\
+                 Total Scenes:      {}
+\
+                 Total Hotspots:    {}
+\
+                 Visual Groups:     {} (Identified via similarity clustering)
+\
+{}
+\
+                 --- QUALITY METRICS ---
+\
+                 Avg Quality Score: {:.1}/10.0
+\
+                 Avg Luminance:     {} (Balanced range: 100-180)
+\
+\
+                 Technical Checks Performed:
+\
+                 - Luminance Analysis: Ensuring balanced exposure
+\
+                 - Sharpness Variance: Detecting blur or soft focus
+\
+                 - Clipping Detection: Checking for lost detail in highlights/shadows
+\
+\
+                 --- IMAGE SPECIFICATIONS ---
+\
+                 Standard Format:   WebP (Lossy)
+\
+                 WebP Quality:      {:.1}%
+\
+                 Max Resolution:    {}x{} px
+\
+\
+                 --- VALIDATION ---
+\
+                 Status:            COMPLETED
+\
+\
                  ====================================================\n",
                 tour_name,
                 now.format("%Y-%m-%d %H:%M:%S"),
@@ -439,56 +373,6 @@ pub async fn save_project(mut payload: Multipart) -> Result<HttpResponse, AppErr
             let _ = fs::remove_file(&zip_path); // Clean up on error too
             tracing::error!(module = "ProjectManager", duration_ms = duration, error = %e, "SAVE_PROJECT_FAILED");
             Err(e.into())
-        }
-    }
-}
-
-/// Validates a project ZIP file without fully loading its images.
-///
-/// This handler inspects the `project.json` within the ZIP and cross-references
-/// it with the files present in the archive to find broken links or orphaned scenes.
-///
-/// # Arguments
-/// * `payload` - Multipart form data containing the project ZIP "file".
-///
-/// # Returns
-/// A `ValidationReport` containing errors and warnings.
-///
-/// # Errors
-/// * `ImageError` if the project size exceeds limits.
-/// * `InternalError` if validation fails.
-#[tracing::instrument(skip(payload), name = "validate_project")]
-pub async fn validate_project(mut payload: Multipart) -> Result<HttpResponse, AppError> {
-    tracing::info!(module = "Validator", "VALIDATE_PROJECT_START");
-    let start = std::time::Instant::now();
-    let mut zip_data = Vec::new();
-
-    while let Some(mut field) = payload.try_next().await? {
-        while let Some(chunk) = field.try_next().await? {
-            zip_data.extend_from_slice(&chunk);
-            if zip_data.len() > MAX_UPLOAD_SIZE {
-                return Err(AppError::ImageError("Project too large".into()));
-            }
-        }
-    }
-
-    let report = web::block(move || project::validate_project_zip(zip_data))
-        .await
-        .map_err(|e| AppError::InternalError(e.to_string()))?;
-
-    let duration = start.elapsed().as_millis();
-    match report {
-        Ok(validation_report) => {
-            tracing::info!(
-                module = "Validator",
-                duration_ms = duration,
-                "VALIDATE_PROJECT_COMPLETE"
-            );
-            Ok(HttpResponse::Ok().json(validation_report))
-        }
-        Err(e) => {
-            tracing::error!(module = "Validator", duration_ms = duration, error = %e, "VALIDATE_PROJECT_FAILED");
-            Err(AppError::InternalError(e))
         }
     }
 }
@@ -653,42 +537,4 @@ pub async fn import_project(mut payload: Multipart) -> Result<HttpResponse, AppE
     Err(AppError::MultipartError(
         actix_multipart::MultipartError::Incomplete,
     ))
-}
-
-/// Calculates the optimal navigation path between scenes.
-///
-/// Supports both "Walk" (exploratory) and "Timeline" (guided) navigation modes.
-/// It uses the pathfinder logic to determine camera rotations and transition
-/// targets between multiple spherical panoramas.
-///
-/// # Arguments
-/// * `req` - A JSON payload containing the `PathRequest` (Walk or Timeline).
-///
-/// # Returns
-/// A JSON array of `Step` objects representing the calculated path.
-///
-/// # Errors
-/// * `ValidationError` if the requested path involves non-existent scenes or broken links.
-pub async fn calculate_path(
-    req: web::Json<crate::pathfinder::PathRequest>,
-) -> Result<HttpResponse, AppError> {
-    let result = match req.into_inner() {
-        crate::pathfinder::PathRequest::Walk {
-            scenes,
-            skip_auto_forward,
-        } => crate::pathfinder::calculate_walk_path(scenes, skip_auto_forward),
-        crate::pathfinder::PathRequest::Timeline {
-            scenes,
-            timeline,
-            skip_auto_forward,
-        } => crate::pathfinder::calculate_timeline_path(scenes, timeline, skip_auto_forward),
-    }
-    .map_err(AppError::ValidationError)?;
-    Ok(HttpResponse::Ok().json(result))
-}
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn placeholder() {}
 }

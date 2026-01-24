@@ -16,7 +16,7 @@ let runAll = async () => {
   // HotspotReducerTest.run() - Migrated to Vitest
   // NavigationReducerTest.run() - Migrated to Vitest
 
-  AudioManagerTest.run()
+  // AudioManagerTest.run() - Migrated to Vitest
   // ExifReportGeneratorTest.run() - Migrated to Vitest
   // SharedTypesTest.run() - Migrated to Vitest
   // ReBindingsTest.run() - Migrated to Vitest
@@ -26,7 +26,7 @@ let runAll = async () => {
   // ProjectDataTest.run() - Migrated to Vitest
   // ResizerTest.run() - Migrated to Vitest
   // UploadProcessorTest.run() - Migrated to Vitest
-  VideoEncoderTest.run()
+  // VideoEncoderTest.run() - Migrated to Vitest
 
   // TourTemplateAssetsTest.run() - Migrated to Vitest
   // TourTemplateScriptsTest.run() - Migrated to Vitest
@@ -50,10 +50,10 @@ let runAll = async () => {
   // SimulationChainSkipperTest.run() - Migrated to Vitest
   // SimulationPathGeneratorTest.run() - Migrated to Vitest
 
-  ServerTeaserTest.run()
+  // ServerTeaserTest.run() - Migrated to Vitest
   // ConstantsTest.run() - Migrated to Vitest
   // VersionTest.run() - Migrated to Vitest
-  await ImageOptimizerTest.run()
+  // await ImageOptimizerTest.run() - Migrated to Vitest
   // UrlUtilsTest.run() - Migrated to Vitest
   // VersionDataTest.run() - Migrated to Vitest
   // ServiceWorkerMainTest.run() - Migrated to Vitest

@@ -92,4 +92,72 @@ describe("ViewerSnapshot", () => {
     // Restore setTimeout
     let _ = %raw(`window.setTimeout = require('node:timers').setTimeout`)
   })
+
+  testAsync("should revoke old object URL when capturing new snapshot", async t => {
+    // Setup Mock DOM and Timer
+    let _ = %raw(`
+      (function(){
+        document.body.innerHTML = '<div id="panorama-a"><canvas></canvas></div>';
+        HTMLCanvasElement.prototype.toBlob = function(cb, type, q) {
+          cb(new Blob(['new'], {type: 'image/webp'}));
+        };
+        
+        global.revokedUrl = null;
+        window.URL.revokeObjectURL = (url) => {
+          global.revokedUrl = url;
+        };
+
+        const oldSetTimeout = window.setTimeout;
+        global.capturedCallback = null;
+        window.setTimeout = (cb, delay) => {
+          if (delay === require('../../src/utils/Constants.bs.js').idleSnapshotDelay) {
+            global.capturedCallback = cb;
+            return 998;
+          }
+          return oldSetTimeout(cb, delay);
+        };
+      })()
+    `)
+
+    let scene: scene = {
+      id: "s1",
+      name: "Scene 1",
+      file: Url(""),
+      tinyFile: None,
+      originalFile: None,
+      hotspots: [],
+      category: "test",
+      floor: "1",
+      label: "label",
+      quality: None,
+      colorGroup: None,
+      _metadataSource: "manual",
+      categorySet: false,
+      labelSet: false,
+      isAutoForward: false,
+      preCalculatedSnapshot: Some("blob:old-url"),
+    }
+
+    let mockState = {
+      ...State.initialState,
+      scenes: [scene],
+      activeIndex: 0,
+    }
+    GlobalStateBridge.setState(mockState)
+
+    ViewerState.state.viewerA = Obj.magic({"id": "mock_viewer"})
+    ViewerState.state.activeViewerKey = A
+
+    ViewerSnapshot.requestIdleSnapshot()
+    let _ = %raw(`global.capturedCallback()`)
+
+    await wait(50)
+
+    let revoked = %raw(`global.revokedUrl`)
+    t->expect(revoked)->Expect.toBe("blob:old-url")
+
+    // Restore
+    let _ = %raw(`window.setTimeout = require('node:timers').setTimeout`)
+    let _ = %raw(`window.URL.revokeObjectURL = () => {}`) // dummy restore
+  })
 })
