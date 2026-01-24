@@ -11,3 +11,4 @@
 [2026-01-24 18:12] v4.5.1 - Fix journey duration unit conversion (s -> ms)
 [2026-01-24 18:30] v4.5.1 - Refine Simulation: 12deg/s velocity & Premium Orange Blink
 [2026-01-24 18:40] v4.5.1 - Sim Arrow: 15deg/s velocity & solid journey color, blinking only at end
+[2026-01-24 18:44] v4.5.1 - Sim: 2.7s avg pace (22deg/s) and improved arrow turn accuracy
