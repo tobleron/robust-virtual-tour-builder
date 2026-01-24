@@ -9,3 +9,4 @@
 [2026-01-24 17:58] v4.5.1 - Unify spline segments & fix arrow position fallback
 [2026-01-24 18:08] v4.5.1 - Loosen panning duration bounds & unify floor path generation
 [2026-01-24 18:12] v4.5.1 - Fix journey duration unit conversion (s -> ms)
+[2026-01-24 18:30] v4.5.1 - Refine Simulation: 12deg/s velocity & Premium Orange Blink
