@@ -248,35 +248,41 @@ let drawSimulationArrow = (
         let rotYaw = ref(0.0)
         let rotPitch = ref(0.0)
 
-        if progress >= 1.0 {
-          targetPitch := endPitch
-          targetYaw := endYaw
-          if Array.length(segments) > 0 {
-            // Stability Fix: Iterate backwards to find the first "meaningful" segment.
-            // Some splines have a micro-curl or zero-length segment at the end.
-            // We ignore segments with very small distance to avoid flipping the arrow.
-            let foundValid = ref(false)
-            let idx = ref(Array.length(segments) - 1)
+        // STABILITY FIX: Always calculate rotation based on a point slightly before the end.
+        // This avoids "micro-curls" at the very end of the spline and ensures the arrow
+        // points in the direction of arrival.
 
-            while !foundValid.contents && idx.contents >= 0 {
-              switch Belt.Array.get(segments, idx.contents) {
-              | Some((dist, dy, dp, _, _)) =>
-                if dist > 0.01 {
-                  // Threshold for meaningful direction
-                  rotYaw := dy
-                  rotPitch := dp
-                  foundValid := true
-                }
-              | None => ()
+        let rotProgress = Math.min(progress, 0.98)
+        let rotTargetDist = rotProgress *. totalDistance.contents
+        let rotCovered = ref(0.0)
+        let rotFound = ref(false)
+
+        // 1. Calculate Rotation from entering trajectory
+        for i in 0 to Array.length(segments) - 1 {
+          if !rotFound.contents {
+            switch Belt.Array.get(segments, i) {
+            | Some((dist, dy, dp, _p1, _)) =>
+              if rotTargetDist <= rotCovered.contents +. dist {
+                rotYaw := dy
+                rotPitch := dp
+                rotFound := true
               }
-              idx := idx.contents - 1
+              rotCovered := rotCovered.contents +. dist
+            | None => ()
             }
           }
-        } else {
-          let targetDist = progress *. totalDistance.contents
-          let covered = ref(0.0)
-          let found = ref(false)
+        }
 
+        // 2. Calculate Position (Actual)
+        let targetDist = progress *. totalDistance.contents
+        let covered = ref(0.0)
+        let found = ref(false)
+
+        if progress >= 1.0 {
+          // Snap to end
+          targetPitch := endPitch
+          targetYaw := endYaw
+        } else {
           for i in 0 to Array.length(segments) - 1 {
             if !found.contents {
               switch Belt.Array.get(segments, i) {
@@ -289,8 +295,6 @@ let drawSimulationArrow = (
                   }
                   targetPitch := p1.pitch +. dp *. segProg
                   targetYaw := p1.yaw +. dy *. segProg
-                  rotYaw := dy
-                  rotPitch := dp
                   found := true
                 }
                 covered := covered.contents +. dist
