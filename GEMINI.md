@@ -55,6 +55,7 @@ Before executing ANY code or shell command, you must perform a **Context Check**
 
 ### PHASE 3: COMMIT & PUSH
 - **Commit Protocol**: Use `./scripts/commit.sh` (handles formatting/linting).
+- **Update Changelog**: Check for notable changes and update `CHANGELOG.md` before committing.
 - **Push Protocol**: BEFORE pushing to remote, read and follow `/pre-push-workflow.md`.
 
 ## 🗣️ INTERACTION TRIGGERS
