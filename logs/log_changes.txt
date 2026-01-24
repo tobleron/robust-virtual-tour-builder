@@ -2,3 +2,4 @@
 [2026-01-24 16:35] v4.5.1 - [UI/UX] Enhanced Hotspot Menu, Animations & Orange Standard
 [2026-01-24 16:47] v4.5.1 - Refine UI: Floor buttons orange & Sim arrow orange/yellow blink + red end
 [2026-01-24 16:55] v4.5.1 - Fix simulation arrow flip at path end
+[2026-01-24 17:04] v4.5.1 - Refine Simulation: Slow down + Fix arrow flip stability

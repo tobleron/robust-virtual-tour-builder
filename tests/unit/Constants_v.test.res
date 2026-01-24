@@ -121,9 +121,9 @@ describe("Constants", _ => {
 
   test("navigation and simulation configuration", t => {
     t->expect(Constants.blinkDurationPreview)->Expect.toBe(1200)
-    t->expect(Constants.blinkDurationSimulation)->Expect.toBe(600)
+    t->expect(Constants.blinkDurationSimulation)->Expect.toBe(800)
     t->expect(Constants.blinkRatePreview)->Expect.toBe(300)
-    t->expect(Constants.blinkRateSimulation)->Expect.toBe(150)
+    t->expect(Constants.blinkRateSimulation)->Expect.toBe(250)
     t->expect(Constants.idleSnapshotDelay)->Expect.toBe(2000)
     t->expect(Constants.sceneLoadTimeout)->Expect.toBe(10000)
   })

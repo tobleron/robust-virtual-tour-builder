@@ -225,9 +225,9 @@ let backendUrl = getEnv("VITE_BACKEND_URL", "http://localhost:8080")
 // ============================================
 
 let blinkDurationPreview = 1200
-let blinkDurationSimulation = 600
+let blinkDurationSimulation = 800
 let blinkRatePreview = 300
-let blinkRateSimulation = 150
+let blinkRateSimulation = 250
 let idleSnapshotDelay = 2000
 let sceneLoadTimeout = 10000
 
