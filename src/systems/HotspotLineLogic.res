@@ -257,7 +257,7 @@ let drawSimulationArrow = (
         // P_stable (at progress - 5%) and P_current (at progress).
         // The vector P_stable -> P_current gives the robust arrival direction.
 
-        let lookbackAmt = 0.05
+        let lookbackAmt = 0.20
         let progCurrent = Math.min(progress, 1.0)
         let progStable = Math.max(0.0, progCurrent -. lookbackAmt)
 
@@ -299,7 +299,15 @@ let drawSimulationArrow = (
         let (yC, pC) = getPointAtProgress(progCurrent)
         let (yS, pS) = getPointAtProgress(progStable)
 
-        rotYaw := yC -. yS
+        let dy = ref(yC -. yS)
+        while dy.contents > 180.0 {
+          dy := dy.contents -. 360.0
+        }
+        while dy.contents < -180.0 {
+          dy := dy.contents +. 360.0
+        }
+
+        rotYaw := dy.contents
         rotPitch := pC -. pS
 
         // 2. Calculate Position (Actual)

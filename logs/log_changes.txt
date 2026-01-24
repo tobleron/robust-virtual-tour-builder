@@ -4,3 +4,4 @@
 [2026-01-24 16:55] v4.5.1 - Fix simulation arrow flip at path end
 [2026-01-24 17:04] v4.5.1 - Refine Simulation: Slow down + Fix arrow flip stability
 [2026-01-24 17:34] v4.5.1 - Refine Simulation: Slow blink & stable arrow rotation fix
+[2026-01-24 17:39] v4.5.1 - Refine Simulation: 20% lookback for arrow stability & slower blink (600ms)
