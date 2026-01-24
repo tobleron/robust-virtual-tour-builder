@@ -1,0 +1,35 @@
+/* src/systems/TeaserPathfinder.res */
+
+/* Re-export types from BackendApi for backward compatibility */
+type transitionTarget = BackendApi.transitionTarget
+type arrivalView = BackendApi.arrivalView
+type step = BackendApi.step
+
+/**
+ * Calculates the "Walk Path" (Auto-Teaser) via Backend
+ */
+let getWalkPath = (scenes: array<Types.scene>, skipAutoForward: bool): Promise.t<
+  BackendApi.apiResult<array<step>>,
+> => {
+  BackendApi.calculatePath({
+    type_: "walk",
+    scenes,
+    skipAutoForward,
+  })
+}
+
+/**
+ * Calculates the path based on Timeline via Backend
+ */
+let getTimelinePath = (
+  timeline: array<Types.timelineItem>,
+  scenes: array<Types.scene>,
+  skipAutoForward: bool,
+): Promise.t<BackendApi.apiResult<array<step>>> => {
+  BackendApi.calculatePath({
+    type_: "timeline",
+    timeline,
+    scenes,
+    skipAutoForward,
+  })
+}

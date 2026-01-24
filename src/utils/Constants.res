@@ -77,7 +77,9 @@ let progressBarAutoHideDelay = 2400
 // ============================================
 
 let toastDisplayDuration = 4000
-let toastAnimationDuration = 400
+let toastAnimationDuration = 1000 // ms - synced with CSS 1.0s transition
+let toastVisibleToasts = 3
+let toastStackGap = 5 // px
 
 // ============================================
 // DOWNLOAD SYSTEM

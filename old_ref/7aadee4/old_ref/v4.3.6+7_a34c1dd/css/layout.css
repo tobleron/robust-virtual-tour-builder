@@ -1,0 +1,44 @@
+#app {
+    display: flex;
+    flex: 1;
+    width: 100%;
+    height: 100dvh;
+    overflow: hidden;
+    background: var(--slate-900);
+}
+
+#viewer-container {
+    flex-grow: 1;
+    position: relative;
+    background: var(--viewer-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+    padding: 40px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+#viewer-container::-webkit-scrollbar {
+    display: none;
+}
+
+#viewer-stage {
+    position: relative;
+    width: 1024px;
+    height: 640px;
+    flex-shrink: 0;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-premium);
+    overflow: hidden;
+    background: var(--viewer-bg);
+    touch-action: none;
+}
+
+body.auto-pilot-active #sidebar {
+    pointer-events: none;
+    opacity: 0.85;
+    filter: grayscale(100%);
+    transition: all var(--transition-normal) ease;
+}

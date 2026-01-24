@@ -1,0 +1,70 @@
+{
+  "name": "robust-virtual-tour-builder",
+  "version": "4.3.6",
+  "buildNumber": 7,
+  "description": "A high-performance, professional-grade virtual tour creation platform designed for real estate and immersive space documentation. This application combines a fluid web-based frontend with a powerful Rust-driven backend to deliver seamless panoramic processing and tour management.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "npm run test:all",
+    "test:all": "npm run res:build && npm run test:frontend && cd backend && cargo test",
+    "test:frontend": "node --import ./tests/node-setup.js tests/TestRunner.bs.js",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "res:build": "rescript",
+    "res:watch": "rescript watch",
+    "res:clean": "rescript clean",
+    "sw:sync": "node scripts/sync-sw.cjs",
+    "sw:watch": "node scripts/sync-sw.cjs --watch",
+    "build": "npm run sw:sync && npm run res:build && rsbuild build",
+    "version-sync": "node scripts/update-version.js",
+    "postversion": "npm run version-sync",
+    "test:logging": "node scripts/test-logging.js",
+    "rs:fmt": "rescript format",
+    "rust:fmt": "cd backend && cargo fmt",
+    "format": "npm run rs:fmt && npm run rust:fmt",
+    "lint": "npm run format && npm run res:build",
+    "predev": "./scripts/setup.sh",
+    "dev": "npm run dev:all",
+    "dev:all": "concurrently --kill-others -n \"RES,SW,BACK,FRONT\" -c \"yellow,cyan,blue,green\" \"npm run res:watch\" \"npm run sw:watch\" \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "rsbuild dev",
+    "dev:backend": "cd backend && cargo watch -x run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tobleron/robust-virtual-tour-builder.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/tobleron/robust-virtual-tour-builder/issues"
+  },
+  "homepage": "https://github.com/tobleron/robust-virtual-tour-builder#readme",
+  "devDependencies": {
+    "@axe-core/cli": "^4.11.0",
+    "@rsbuild/core": "^1.7.2",
+    "@rsbuild/plugin-react": "^1.4.2",
+    "@tailwindcss/postcss": "^4.1.18",
+    "@testing-library/react": "^16.3.1",
+    "autoprefixer": "^10.4.23",
+    "concurrently": "^9.2.1",
+    "jsdom": "^27.4.0",
+    "postcss": "^8.5.6",
+    "rescript": "^12.0.2",
+    "rescript-vitest": "^2.1.1",
+    "tailwindcss": "^4.1.18",
+    "vitest": "^4.0.17",
+    "wait-on": "^9.0.3"
+  },
+  "dependencies": {
+    "@rescript/react": "^0.14.0",
+    "exifreader": "^4.36.0",
+    "jszip": "^3.10.1",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
+  }
+}

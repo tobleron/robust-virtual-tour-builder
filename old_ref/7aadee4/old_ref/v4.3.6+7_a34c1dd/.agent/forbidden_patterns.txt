@@ -1,0 +1,5 @@
+innerHTML
+console.log
+var 
+debugger
+alert(

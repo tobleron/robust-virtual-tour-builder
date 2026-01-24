@@ -616,5 +616,12 @@ let make = () => {
       id="viewer-hotspot-lines"
       className="absolute inset-0 w-full h-full z-[5000] pointer-events-none"
     />
+
+    <Shadcn.Sonner
+      position="top-right"
+      visibleToasts=Constants.toastVisibleToasts
+      duration=Constants.toastDisplayDuration
+      expand=true
+    />
   </>
 }

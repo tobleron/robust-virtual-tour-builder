@@ -1,0 +1,123 @@
+.btn {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 600;
+    color: white;
+    margin-top: 10px;
+    transition: all var(--transition-fast) ease;
+}
+
+.btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    filter: brightness(1.1);
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+.btn-primary {
+    background: var(--primary);
+}
+
+.btn-yellow {
+    background: var(--accent);
+    color: var(--slate-950);
+}
+
+.btn-danger-red {
+    background: var(--danger);
+}
+
+.btn-success-green {
+    background: var(--success);
+}
+
+.btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    filter: grayscale(100%);
+}
+
+.modal-btn-premium {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    border-radius: var(--radius-md);
+    color: white;
+    cursor: pointer;
+    transition: all var(--transition-fast) cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: var(--font-ui);
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.modal-btn-premium:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+/* Sidebar/Grid Buttons */
+.sidebar-action-btn-square,
+.sidebar-action-btn-wide {
+    cursor: pointer;
+    transition: all var(--transition-fast) cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: white;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar-action-btn-square {
+    flex-direction: column;
+    height: 56px;
+    padding: 4px;
+    gap: 2px;
+    font-size: 11px;
+}
+
+.sidebar-action-btn-wide {
+    height: 40px;
+    padding: 0 12px;
+    gap: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 11px;
+}
+
+.sidebar-action-btn-square:hover,
+.sidebar-action-btn-wide:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Viewer Utility Buttons Popper Effect (matches floor-nav) */
+.v-util-btn {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 1px 1px 1px black !important;
+}
+
+.v-util-btn:hover:not(:disabled) {
+    transform: scale(1.05) translateY(-2px) !important;
+    box-shadow: 2px 2px 1px black !important;
+}

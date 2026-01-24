@@ -1,0 +1,126 @@
+/* RE/MAX Virtual Tour Builder - Tailwind v4 Source CSS */
+@import "tailwindcss";
+
+@theme {
+    /* Map CSS Variables to Tailwind Colors */
+    --color-brand-blue: var(--primary);
+    --color-brand-blue-dark: var(--primary-dark);
+    --color-brand-navy: var(--primary-navy);
+    --color-brand-red: var(--danger);
+    --color-brand-gold: var(--accent);
+    --color-purple: var(--purple-brand);
+
+
+
+    --color-primary: var(--primary);
+    --color-primary-foreground: #ffffff;
+    --color-success: var(--success);
+    --color-danger: var(--danger);
+    --color-warning: var(--warning);
+
+    --color-background: #ffffff;
+    --color-foreground: var(--slate-950);
+
+    --color-card: #ffffff;
+    --color-card-foreground: var(--slate-950);
+
+    --color-popover: #ffffff;
+    --color-popover-foreground: var(--slate-950);
+
+    --color-secondary: var(--slate-100);
+    --color-secondary-foreground: var(--primary-dark);
+
+    --color-muted: var(--slate-100);
+    --color-muted-foreground: var(--slate-500);
+
+    --color-accent: var(--slate-100);
+    --color-accent-foreground: var(--primary-dark);
+
+    --color-destructive: var(--danger);
+    --color-destructive-foreground: #ffffff;
+
+    --color-border: var(--slate-200);
+    --color-input: var(--slate-200);
+    --color-ring: var(--primary);
+
+    --color-viewer-bg: var(--viewer-bg);
+    --color-viewer-stage-bg: var(--viewer-stage-bg);
+    --color-sidebar-bg: var(--sidebar-bg);
+
+    /* Spacing */
+    --spacing-viewer-btn: var(--viewer-btn-size);
+    --spacing-viewer-icon: var(--viewer-icon-size);
+
+    /* Fonts */
+    --font-heading: var(--font-heading);
+    --font-body: var(--font-body);
+    --font-ui: var(--font-ui);
+    --font-mono: var(--font-mono);
+
+    /* Radius */
+    --radius-lg: 12px;
+    --radius-md: 10px;
+    --radius-sm: 8px;
+
+    /* Animations (Referencing keyframes in animations.css) */
+    --animate-shimmer: shimmer 2s linear infinite;
+    --animate-glow-sequence: glow-sequence 1.8s infinite;
+    --animate-glow-fast: glow-sequence 1.0s infinite;
+    --animate-fade-in: fade-in 0.3s ease-out;
+}
+
+/* Base Utility Overrides */
+@layer utilities {
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .btn-viewer-pop {
+        transition: all var(--transition-fast) cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+    }
+
+    .btn-viewer-pop:hover {
+        transform: translate(-1px, -1px);
+        box-shadow: 2px 2.5px 0 rgba(0, 0, 0, 0.8);
+    }
+
+    .btn-viewer-pop:active {
+        transform: translate(1px, 1px);
+        box-shadow: 0 0 0 rgba(0, 0, 0, 0.5);
+    }
+
+    .glass-panel {
+        background: var(--glass-bg);
+        backdrop-filter: blur(var(--glass-blur));
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--shadow-premium);
+    }
+}
+
+/* Component Specific Styles (Move to components/ if they grow too large) */
+
+/* PANNELLUM ENGINE FIXES & HOTSPOT STYLES */
+
+/* Hotspot Styles - Clean Base for React Components */
+.pnlm-hotspot-base {
+    overflow: visible !important;
+    pointer-events: auto !important;
+    z-index: 2000 !important;
+}
+
+/* Ensure tooltips or other defaults don't interfere */
+.pnlm-tooltip span {
+    display: none !important;
+}
+
+
+.pnlm-load-box,
+.pnlm-loading-container {
+    display: none !important;
+}

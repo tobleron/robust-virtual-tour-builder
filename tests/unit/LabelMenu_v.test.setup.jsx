@@ -3,9 +3,9 @@ import React from 'react';
 
 // Polyfill ResizeObserver for JSDOM
 globalThis.ResizeObserver = class ResizeObserver {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
+  observe() { }
+  unobserve() { }
+  disconnect() { }
 };
 
 // Common Shadcn Mocks
@@ -15,19 +15,19 @@ vi.mock('../../src/components/ui/Shadcn.bs.js', () => {
     return props.children || null;
   };
   MockComp.make = MockComp;
-  
+
   const MockButton = (props) => {
     if (props.asChild) {
       return props.children || null;
     }
-    return React.createElement('button', { 
-      onClick: props.onClick, 
+    return React.createElement('button', {
+      onClick: props.onClick,
       className: props.className,
-      disabled: props.disabled 
+      disabled: props.disabled
     }, props.children);
   };
   MockButton.make = MockButton;
-  
+
   const DropdownMenu = {
     make: MockComp,
     Trigger: { make: MockComp },
@@ -65,10 +65,13 @@ vi.mock('../../src/components/ui/Shadcn.bs.js', () => {
     DropdownMenu,
     Tooltip,
     Popover,
-    Button: { 
-      make: MockButton 
+    Button: {
+      make: MockButton
     },
     ContextMenu,
+    Sonner: {
+      make: MockComp
+    },
   };
 });
 
