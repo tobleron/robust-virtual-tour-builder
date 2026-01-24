@@ -263,9 +263,9 @@ let drawSimulationArrow = (
 
         // STABILITY FIX: We FREEZE the rotation calculation point once we get very close to the end.
         // If we let 'progress' go all the way to 1.0, the 'progFront' calculation can hit the end of the spline
-        // and cause a singularity or flip. By clamping the rotation-calculation-progress to 0.95,
+        // and cause a singularity or flip. By clamping the rotation-calculation-progress to 0.90,
         // we ensure the arrow effectively "coasts" into the dock with its final valid heading.
-        let rotationCalcProgress = Math.min(progress, 0.95)
+        let rotationCalcProgress = Math.min(progress, 0.90)
 
         let delta = 0.02
         let progFront = Math.min(rotationCalcProgress +. delta, 1.0)
@@ -325,10 +325,13 @@ let drawSimulationArrow = (
         let covered = ref(0.0)
         let found = ref(false)
 
-        if progress >= 1.0 {
-          // Snap to end
+        if progress >= 0.98 {
+          // RECOIL GUARD: In the final arrival window, we force snapping to the exact end point.
+          // This prevents the arrow from following Catmull-Rom "overshoots" or "swings"
+          // that can happen right at the final control point.
           targetPitch := endPitch
           targetYaw := endYaw
+          found := true
         } else {
           for i in 0 to Array.length(segments) - 1 {
             if !found.contents {
@@ -359,11 +362,10 @@ let drawSimulationArrow = (
         let startCoordsOpt = getScreenCoords(v, targetPitch.contents, targetYaw.contents, rect)
         switch startCoordsOpt {
         | Some(s) =>
-          let lookAhead = 0.5
           let endCoordsOpt = getScreenCoords(
             v,
-            targetPitch.contents +. rotPitch.contents *. lookAhead,
-            targetYaw.contents +. rotYaw.contents *. lookAhead,
+            targetPitch.contents +. rotPitch.contents *. 0.5,
+            targetYaw.contents +. rotYaw.contents *. 0.5,
             rect,
           )
 
