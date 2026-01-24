@@ -48,10 +48,10 @@ let make = () => {
             let currentScene = Belt.Array.get(state.scenes, state.activeIndex)
             switch currentScene {
             | Some(s) if s.isAutoForward => 0
-            | _ => 800
+            | _ => Constants.Simulation.stepDelay
             }
           } else {
-            800
+            Constants.Simulation.stepDelay
           }
 
           // Initial Delay
@@ -108,7 +108,7 @@ let make = () => {
                     EventBus.dispatch(ShowNotification("Simulation Complete", #Success))
 
                     // Wait a bit then stop
-                    let _ = await wait(800)
+                    let _ = await wait(Constants.Simulation.stepDelay)
                     if !cancel.contents {
                       dispatch(StopAutoPilot)
                     }
