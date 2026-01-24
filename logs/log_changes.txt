@@ -1,2 +1,3 @@
 [2026-01-24 14:16] v4.5.0 - v4.5.0 [Session] Robust is my name
 [2026-01-24 16:35] v4.5.1 - [UI/UX] Enhanced Hotspot Menu, Animations & Orange Standard
+[2026-01-24 16:47] v4.5.1 - Refine UI: Floor buttons orange & Sim arrow orange/yellow blink + red end
