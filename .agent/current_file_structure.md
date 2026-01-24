@@ -11,8 +11,11 @@
 │   ├── backend_run.log
 │   ├── bin
 │   │   └── ffmpeg
+│   ├── migrations
+│   │   └── 20260124000000_init.sql
 │   ├── src
 │   │   ├── api
+│   │   │   ├── auth.rs
 │   │   │   ├── geocoding.rs
 │   │   │   ├── media
 │   │   │   │   ├── image.rs
@@ -33,13 +36,17 @@
 │   │   │   └── request_tracker.rs
 │   │   ├── models
 │   │   │   ├── errors.rs
-│   │   │   └── mod.rs
+│   │   │   ├── mod.rs
+│   │   │   ├── project.rs
+│   │   │   └── user.rs
 │   │   ├── pathfinder
 │   │   │   ├── algorithms.rs
 │   │   │   ├── graph.rs
 │   │   │   ├── mod.rs
 │   │   │   └── utils.rs
 │   │   └── services
+│   │       ├── auth.rs
+│   │       ├── database.rs
 │   │       ├── geocoding.rs
 │   │       ├── media.rs
 │   │       ├── mod.rs
@@ -85,6 +92,8 @@
 │   ├── style.css
 │   ├── tailwind.css
 │   └── variables.css
+├── data
+│   └── storage
 ├── dev.log
 ├── docs
 │   ├── ARCHITECTURE.md
@@ -709,12 +718,12 @@
 │   │       ├── TestRunner.cmt
 │   │       ├── TestRunner.res
 │   │       └── unit
-│   │           ├── ActionsTest.ast
-│   │           ├── ActionsTest.bs.js
-│   │           ├── ActionsTest.cmi
-│   │           ├── ActionsTest.cmj
-│   │           ├── ActionsTest.cmt
-│   │           ├── ActionsTest.res
+│   │           ├── Actions_v.test.ast
+│   │           ├── Actions_v.test.bs.js
+│   │           ├── Actions_v.test.cmi
+│   │           ├── Actions_v.test.cmj
+│   │           ├── Actions_v.test.cmt
+│   │           ├── Actions_v.test.res
 │   │           ├── AppContext_v.test.ast
 │   │           ├── AppContext_v.test.bs.js
 │   │           ├── AppContext_v.test.cmi
@@ -769,12 +778,12 @@
 │   │           ├── ErrorFallbackUI_v.test.cmj
 │   │           ├── ErrorFallbackUI_v.test.cmt
 │   │           ├── ErrorFallbackUI_v.test.res
-│   │           ├── EventBusTest.ast
-│   │           ├── EventBusTest.bs.js
-│   │           ├── EventBusTest.cmi
-│   │           ├── EventBusTest.cmj
-│   │           ├── EventBusTest.cmt
-│   │           ├── EventBusTest.res
+│   │           ├── EventBus_v.test.ast
+│   │           ├── EventBus_v.test.bs.js
+│   │           ├── EventBus_v.test.cmi
+│   │           ├── EventBus_v.test.cmj
+│   │           ├── EventBus_v.test.cmt
+│   │           ├── EventBus_v.test.res
 │   │           ├── ExifParser_v.test.ast
 │   │           ├── ExifParser_v.test.bs.js
 │   │           ├── ExifParser_v.test.cmi
@@ -787,24 +796,24 @@
 │   │           ├── ExifReportGenerator_v.test.cmj
 │   │           ├── ExifReportGenerator_v.test.cmt
 │   │           ├── ExifReportGenerator_v.test.res
-│   │           ├── ExporterTest.ast
-│   │           ├── ExporterTest.bs.js
-│   │           ├── ExporterTest.cmi
-│   │           ├── ExporterTest.cmj
-│   │           ├── ExporterTest.cmt
-│   │           ├── ExporterTest.res
-│   │           ├── GeoUtilsTest.ast
-│   │           ├── GeoUtilsTest.bs.js
-│   │           ├── GeoUtilsTest.cmi
-│   │           ├── GeoUtilsTest.cmj
-│   │           ├── GeoUtilsTest.cmt
-│   │           ├── GeoUtilsTest.res
-│   │           ├── GlobalStateBridgeTest.ast
-│   │           ├── GlobalStateBridgeTest.bs.js
-│   │           ├── GlobalStateBridgeTest.cmi
-│   │           ├── GlobalStateBridgeTest.cmj
-│   │           ├── GlobalStateBridgeTest.cmt
-│   │           ├── GlobalStateBridgeTest.res
+│   │           ├── Exporter_v.test.ast
+│   │           ├── Exporter_v.test.bs.js
+│   │           ├── Exporter_v.test.cmi
+│   │           ├── Exporter_v.test.cmj
+│   │           ├── Exporter_v.test.cmt
+│   │           ├── Exporter_v.test.res
+│   │           ├── GeoUtils_v.test.ast
+│   │           ├── GeoUtils_v.test.bs.js
+│   │           ├── GeoUtils_v.test.cmi
+│   │           ├── GeoUtils_v.test.cmj
+│   │           ├── GeoUtils_v.test.cmt
+│   │           ├── GeoUtils_v.test.res
+│   │           ├── GlobalStateBridge_v.test.ast
+│   │           ├── GlobalStateBridge_v.test.bs.js
+│   │           ├── GlobalStateBridge_v.test.cmi
+│   │           ├── GlobalStateBridge_v.test.cmj
+│   │           ├── GlobalStateBridge_v.test.cmt
+│   │           ├── GlobalStateBridge_v.test.res
 │   │           ├── HotspotActionMenu_v.test.ast
 │   │           ├── HotspotActionMenu_v.test.bs.js
 │   │           ├── HotspotActionMenu_v.test.cmi
@@ -961,18 +970,18 @@
 │   │           ├── Portal_v.test.cmj
 │   │           ├── Portal_v.test.cmt
 │   │           ├── Portal_v.test.res
-│   │           ├── ProgressBarTest.ast
-│   │           ├── ProgressBarTest.bs.js
-│   │           ├── ProgressBarTest.cmi
-│   │           ├── ProgressBarTest.cmj
-│   │           ├── ProgressBarTest.cmt
-│   │           ├── ProgressBarTest.res
-│   │           ├── ProjectDataTest.ast
-│   │           ├── ProjectDataTest.bs.js
-│   │           ├── ProjectDataTest.cmi
-│   │           ├── ProjectDataTest.cmj
-│   │           ├── ProjectDataTest.cmt
-│   │           ├── ProjectDataTest.res
+│   │           ├── ProgressBar_v.test.ast
+│   │           ├── ProgressBar_v.test.bs.js
+│   │           ├── ProgressBar_v.test.cmi
+│   │           ├── ProgressBar_v.test.cmj
+│   │           ├── ProgressBar_v.test.cmt
+│   │           ├── ProgressBar_v.test.res
+│   │           ├── ProjectData_v.test.ast
+│   │           ├── ProjectData_v.test.bs.js
+│   │           ├── ProjectData_v.test.cmi
+│   │           ├── ProjectData_v.test.cmj
+│   │           ├── ProjectData_v.test.cmt
+│   │           ├── ProjectData_v.test.res
 │   │           ├── ProjectManager_v.test.ast
 │   │           ├── ProjectManager_v.test.bs.js
 │   │           ├── ProjectManager_v.test.cmi
@@ -1045,12 +1054,12 @@
 │   │           ├── ServiceWorkerMain_v.test.cmj
 │   │           ├── ServiceWorkerMain_v.test.cmt
 │   │           ├── ServiceWorkerMain_v.test.res
-│   │           ├── ServiceWorkerTest.ast
-│   │           ├── ServiceWorkerTest.bs.js
-│   │           ├── ServiceWorkerTest.cmi
-│   │           ├── ServiceWorkerTest.cmj
-│   │           ├── ServiceWorkerTest.cmt
-│   │           ├── ServiceWorkerTest.res
+│   │           ├── ServiceWorker_v.test.ast
+│   │           ├── ServiceWorker_v.test.bs.js
+│   │           ├── ServiceWorker_v.test.cmi
+│   │           ├── ServiceWorker_v.test.cmj
+│   │           ├── ServiceWorker_v.test.cmt
+│   │           ├── ServiceWorker_v.test.res
 │   │           ├── SessionStore_v.test.ast
 │   │           ├── SessionStore_v.test.bs.js
 │   │           ├── SessionStore_v.test.cmi
@@ -1063,12 +1072,12 @@
 │   │           ├── Shadcn_v.test.cmj
 │   │           ├── Shadcn_v.test.cmt
 │   │           ├── Shadcn_v.test.res
-│   │           ├── SharedTypesTest.ast
-│   │           ├── SharedTypesTest.bs.js
-│   │           ├── SharedTypesTest.cmi
-│   │           ├── SharedTypesTest.cmj
-│   │           ├── SharedTypesTest.cmt
-│   │           ├── SharedTypesTest.res
+│   │           ├── SharedTypes_v.test.ast
+│   │           ├── SharedTypes_v.test.bs.js
+│   │           ├── SharedTypes_v.test.cmi
+│   │           ├── SharedTypes_v.test.cmj
+│   │           ├── SharedTypes_v.test.cmt
+│   │           ├── SharedTypes_v.test.res
 │   │           ├── Sidebar_v.test.ast
 │   │           ├── Sidebar_v.test.bs.js
 │   │           ├── Sidebar_v.test.cmi
@@ -1111,12 +1120,12 @@
 │   │           ├── SimulationReducer_v.test.cmj
 │   │           ├── SimulationReducer_v.test.cmt
 │   │           ├── SimulationReducer_v.test.res
-│   │           ├── StateInspectorTest.ast
-│   │           ├── StateInspectorTest.bs.js
-│   │           ├── StateInspectorTest.cmi
-│   │           ├── StateInspectorTest.cmj
-│   │           ├── StateInspectorTest.cmt
-│   │           ├── StateInspectorTest.res
+│   │           ├── StateInspector_v.test.ast
+│   │           ├── StateInspector_v.test.bs.js
+│   │           ├── StateInspector_v.test.cmi
+│   │           ├── StateInspector_v.test.cmj
+│   │           ├── StateInspector_v.test.cmt
+│   │           ├── StateInspector_v.test.res
 │   │           ├── State_v.test.ast
 │   │           ├── State_v.test.bs.js
 │   │           ├── State_v.test.cmi
@@ -1171,18 +1180,18 @@
 │   │           ├── TourTemplateScripts_v.test.cmj
 │   │           ├── TourTemplateScripts_v.test.cmt
 │   │           ├── TourTemplateScripts_v.test.res
-│   │           ├── TourTemplateStylesTest.ast
-│   │           ├── TourTemplateStylesTest.bs.js
-│   │           ├── TourTemplateStylesTest.cmi
-│   │           ├── TourTemplateStylesTest.cmj
-│   │           ├── TourTemplateStylesTest.cmt
-│   │           ├── TourTemplateStylesTest.res
-│   │           ├── TourTemplatesTest.ast
-│   │           ├── TourTemplatesTest.bs.js
-│   │           ├── TourTemplatesTest.cmi
-│   │           ├── TourTemplatesTest.cmj
-│   │           ├── TourTemplatesTest.cmt
-│   │           ├── TourTemplatesTest.res
+│   │           ├── TourTemplateStyles_v.test.ast
+│   │           ├── TourTemplateStyles_v.test.bs.js
+│   │           ├── TourTemplateStyles_v.test.cmi
+│   │           ├── TourTemplateStyles_v.test.cmj
+│   │           ├── TourTemplateStyles_v.test.cmt
+│   │           ├── TourTemplateStyles_v.test.res
+│   │           ├── TourTemplates_v.test.ast
+│   │           ├── TourTemplates_v.test.bs.js
+│   │           ├── TourTemplates_v.test.cmi
+│   │           ├── TourTemplates_v.test.cmj
+│   │           ├── TourTemplates_v.test.cmt
+│   │           ├── TourTemplates_v.test.res
 │   │           ├── Types_v.test.ast
 │   │           ├── Types_v.test.bs.js
 │   │           ├── Types_v.test.cmi
@@ -1219,24 +1228,24 @@
 │   │           ├── UploadReport_v.test.cmj
 │   │           ├── UploadReport_v.test.cmt
 │   │           ├── UploadReport_v.test.res
-│   │           ├── UrlUtilsTest.ast
-│   │           ├── UrlUtilsTest.bs.js
-│   │           ├── UrlUtilsTest.cmi
-│   │           ├── UrlUtilsTest.cmj
-│   │           ├── UrlUtilsTest.cmt
-│   │           ├── UrlUtilsTest.res
+│   │           ├── UrlUtils_v.test.ast
+│   │           ├── UrlUtils_v.test.bs.js
+│   │           ├── UrlUtils_v.test.cmi
+│   │           ├── UrlUtils_v.test.cmj
+│   │           ├── UrlUtils_v.test.cmt
+│   │           ├── UrlUtils_v.test.res
 │   │           ├── VersionData_v.test.ast
 │   │           ├── VersionData_v.test.bs.js
 │   │           ├── VersionData_v.test.cmi
 │   │           ├── VersionData_v.test.cmj
 │   │           ├── VersionData_v.test.cmt
 │   │           ├── VersionData_v.test.res
-│   │           ├── VersionTest.ast
-│   │           ├── VersionTest.bs.js
-│   │           ├── VersionTest.cmi
-│   │           ├── VersionTest.cmj
-│   │           ├── VersionTest.cmt
-│   │           ├── VersionTest.res
+│   │           ├── Version_v.test.ast
+│   │           ├── Version_v.test.bs.js
+│   │           ├── Version_v.test.cmi
+│   │           ├── Version_v.test.cmj
+│   │           ├── Version_v.test.cmt
+│   │           ├── Version_v.test.res
 │   │           ├── VideoEncoderTest.ast
 │   │           ├── VideoEncoderTest.bs.js
 │   │           ├── VideoEncoderTest.cmi
@@ -1249,12 +1258,12 @@
 │   │           ├── ViewerFollow_v.test.cmj
 │   │           ├── ViewerFollow_v.test.cmt
 │   │           ├── ViewerFollow_v.test.res
-│   │           ├── ViewerLoaderTest.ast
-│   │           ├── ViewerLoaderTest.bs.js
-│   │           ├── ViewerLoaderTest.cmi
-│   │           ├── ViewerLoaderTest.cmj
-│   │           ├── ViewerLoaderTest.cmt
-│   │           ├── ViewerLoaderTest.res
+│   │           ├── ViewerLoader_v.test.ast
+│   │           ├── ViewerLoader_v.test.bs.js
+│   │           ├── ViewerLoader_v.test.cmi
+│   │           ├── ViewerLoader_v.test.cmj
+│   │           ├── ViewerLoader_v.test.cmt
+│   │           ├── ViewerLoader_v.test.res
 │   │           ├── ViewerManager_v.test.ast
 │   │           ├── ViewerManager_v.test.bs.js
 │   │           ├── ViewerManager_v.test.cmi
@@ -1310,11 +1319,11 @@
 │   │   ├── Actions.cmj
 │   │   ├── Actions.cmt
 │   │   ├── Actions.res
-│   │   ├── ActionsTest.ast
-│   │   ├── ActionsTest.cmi
-│   │   ├── ActionsTest.cmj
-│   │   ├── ActionsTest.cmt
-│   │   ├── ActionsTest.res
+│   │   ├── Actions_v.test.ast
+│   │   ├── Actions_v.test.cmi
+│   │   ├── Actions_v.test.cmj
+│   │   ├── Actions_v.test.cmt
+│   │   ├── Actions_v.test.res
 │   │   ├── App.ast
 │   │   ├── App.cmi
 │   │   ├── App.cmj
@@ -1410,11 +1419,11 @@
 │   │   ├── EventBus.cmj
 │   │   ├── EventBus.cmt
 │   │   ├── EventBus.res
-│   │   ├── EventBusTest.ast
-│   │   ├── EventBusTest.cmi
-│   │   ├── EventBusTest.cmj
-│   │   ├── EventBusTest.cmt
-│   │   ├── EventBusTest.res
+│   │   ├── EventBus_v.test.ast
+│   │   ├── EventBus_v.test.cmi
+│   │   ├── EventBus_v.test.cmj
+│   │   ├── EventBus_v.test.cmt
+│   │   ├── EventBus_v.test.res
 │   │   ├── ExifParser.ast
 │   │   ├── ExifParser.cmi
 │   │   ├── ExifParser.cmj
@@ -1440,31 +1449,31 @@
 │   │   ├── Exporter.cmj
 │   │   ├── Exporter.cmt
 │   │   ├── Exporter.res
-│   │   ├── ExporterTest.ast
-│   │   ├── ExporterTest.cmi
-│   │   ├── ExporterTest.cmj
-│   │   ├── ExporterTest.cmt
-│   │   ├── ExporterTest.res
+│   │   ├── Exporter_v.test.ast
+│   │   ├── Exporter_v.test.cmi
+│   │   ├── Exporter_v.test.cmj
+│   │   ├── Exporter_v.test.cmt
+│   │   ├── Exporter_v.test.res
 │   │   ├── GeoUtils.ast
 │   │   ├── GeoUtils.cmi
 │   │   ├── GeoUtils.cmj
 │   │   ├── GeoUtils.cmt
 │   │   ├── GeoUtils.res
-│   │   ├── GeoUtilsTest.ast
-│   │   ├── GeoUtilsTest.cmi
-│   │   ├── GeoUtilsTest.cmj
-│   │   ├── GeoUtilsTest.cmt
-│   │   ├── GeoUtilsTest.res
+│   │   ├── GeoUtils_v.test.ast
+│   │   ├── GeoUtils_v.test.cmi
+│   │   ├── GeoUtils_v.test.cmj
+│   │   ├── GeoUtils_v.test.cmt
+│   │   ├── GeoUtils_v.test.res
 │   │   ├── GlobalStateBridge.ast
 │   │   ├── GlobalStateBridge.cmi
 │   │   ├── GlobalStateBridge.cmj
 │   │   ├── GlobalStateBridge.cmt
 │   │   ├── GlobalStateBridge.res
-│   │   ├── GlobalStateBridgeTest.ast
-│   │   ├── GlobalStateBridgeTest.cmi
-│   │   ├── GlobalStateBridgeTest.cmj
-│   │   ├── GlobalStateBridgeTest.cmt
-│   │   ├── GlobalStateBridgeTest.res
+│   │   ├── GlobalStateBridge_v.test.ast
+│   │   ├── GlobalStateBridge_v.test.cmi
+│   │   ├── GlobalStateBridge_v.test.cmj
+│   │   ├── GlobalStateBridge_v.test.cmt
+│   │   ├── GlobalStateBridge_v.test.res
 │   │   ├── HotspotActionMenu.ast
 │   │   ├── HotspotActionMenu.cmi
 │   │   ├── HotspotActionMenu.cmj
@@ -1728,21 +1737,21 @@
 │   │   ├── ProgressBar.cmj
 │   │   ├── ProgressBar.cmt
 │   │   ├── ProgressBar.res
-│   │   ├── ProgressBarTest.ast
-│   │   ├── ProgressBarTest.cmi
-│   │   ├── ProgressBarTest.cmj
-│   │   ├── ProgressBarTest.cmt
-│   │   ├── ProgressBarTest.res
+│   │   ├── ProgressBar_v.test.ast
+│   │   ├── ProgressBar_v.test.cmi
+│   │   ├── ProgressBar_v.test.cmj
+│   │   ├── ProgressBar_v.test.cmt
+│   │   ├── ProgressBar_v.test.res
 │   │   ├── ProjectData.ast
 │   │   ├── ProjectData.cmi
 │   │   ├── ProjectData.cmj
 │   │   ├── ProjectData.cmt
 │   │   ├── ProjectData.res
-│   │   ├── ProjectDataTest.ast
-│   │   ├── ProjectDataTest.cmi
-│   │   ├── ProjectDataTest.cmj
-│   │   ├── ProjectDataTest.cmt
-│   │   ├── ProjectDataTest.res
+│   │   ├── ProjectData_v.test.ast
+│   │   ├── ProjectData_v.test.cmi
+│   │   ├── ProjectData_v.test.cmj
+│   │   ├── ProjectData_v.test.cmt
+│   │   ├── ProjectData_v.test.res
 │   │   ├── ProjectManager.ast
 │   │   ├── ProjectManager.cmi
 │   │   ├── ProjectManager.cmj
@@ -1868,11 +1877,11 @@
 │   │   ├── ServiceWorkerMain_v.test.cmj
 │   │   ├── ServiceWorkerMain_v.test.cmt
 │   │   ├── ServiceWorkerMain_v.test.res
-│   │   ├── ServiceWorkerTest.ast
-│   │   ├── ServiceWorkerTest.cmi
-│   │   ├── ServiceWorkerTest.cmj
-│   │   ├── ServiceWorkerTest.cmt
-│   │   ├── ServiceWorkerTest.res
+│   │   ├── ServiceWorker_v.test.ast
+│   │   ├── ServiceWorker_v.test.cmi
+│   │   ├── ServiceWorker_v.test.cmj
+│   │   ├── ServiceWorker_v.test.cmt
+│   │   ├── ServiceWorker_v.test.res
 │   │   ├── SessionStore.ast
 │   │   ├── SessionStore.cmi
 │   │   ├── SessionStore.cmj
@@ -1898,11 +1907,11 @@
 │   │   ├── SharedTypes.cmj
 │   │   ├── SharedTypes.cmt
 │   │   ├── SharedTypes.res
-│   │   ├── SharedTypesTest.ast
-│   │   ├── SharedTypesTest.cmi
-│   │   ├── SharedTypesTest.cmj
-│   │   ├── SharedTypesTest.cmt
-│   │   ├── SharedTypesTest.res
+│   │   ├── SharedTypes_v.test.ast
+│   │   ├── SharedTypes_v.test.cmi
+│   │   ├── SharedTypes_v.test.cmj
+│   │   ├── SharedTypes_v.test.cmt
+│   │   ├── SharedTypes_v.test.res
 │   │   ├── Sidebar.ast
 │   │   ├── Sidebar.cmi
 │   │   ├── Sidebar.cmj
@@ -1983,11 +1992,11 @@
 │   │   ├── StateInspector.cmj
 │   │   ├── StateInspector.cmt
 │   │   ├── StateInspector.res
-│   │   ├── StateInspectorTest.ast
-│   │   ├── StateInspectorTest.cmi
-│   │   ├── StateInspectorTest.cmj
-│   │   ├── StateInspectorTest.cmt
-│   │   ├── StateInspectorTest.res
+│   │   ├── StateInspector_v.test.ast
+│   │   ├── StateInspector_v.test.cmi
+│   │   ├── StateInspector_v.test.cmj
+│   │   ├── StateInspector_v.test.cmt
+│   │   ├── StateInspector_v.test.res
 │   │   ├── State_v.test.ast
 │   │   ├── State_v.test.cmi
 │   │   ├── State_v.test.cmj
@@ -2088,21 +2097,21 @@
 │   │   ├── TourTemplateStyles.cmj
 │   │   ├── TourTemplateStyles.cmt
 │   │   ├── TourTemplateStyles.res
-│   │   ├── TourTemplateStylesTest.ast
-│   │   ├── TourTemplateStylesTest.cmi
-│   │   ├── TourTemplateStylesTest.cmj
-│   │   ├── TourTemplateStylesTest.cmt
-│   │   ├── TourTemplateStylesTest.res
+│   │   ├── TourTemplateStyles_v.test.ast
+│   │   ├── TourTemplateStyles_v.test.cmi
+│   │   ├── TourTemplateStyles_v.test.cmj
+│   │   ├── TourTemplateStyles_v.test.cmt
+│   │   ├── TourTemplateStyles_v.test.res
 │   │   ├── TourTemplates.ast
 │   │   ├── TourTemplates.cmi
 │   │   ├── TourTemplates.cmj
 │   │   ├── TourTemplates.cmt
 │   │   ├── TourTemplates.res
-│   │   ├── TourTemplatesTest.ast
-│   │   ├── TourTemplatesTest.cmi
-│   │   ├── TourTemplatesTest.cmj
-│   │   ├── TourTemplatesTest.cmt
-│   │   ├── TourTemplatesTest.res
+│   │   ├── TourTemplates_v.test.ast
+│   │   ├── TourTemplates_v.test.cmi
+│   │   ├── TourTemplates_v.test.cmj
+│   │   ├── TourTemplates_v.test.cmt
+│   │   ├── TourTemplates_v.test.res
 │   │   ├── Types.ast
 │   │   ├── Types.cmi
 │   │   ├── Types.cmj
@@ -2168,11 +2177,11 @@
 │   │   ├── UrlUtils.cmj
 │   │   ├── UrlUtils.cmt
 │   │   ├── UrlUtils.res
-│   │   ├── UrlUtilsTest.ast
-│   │   ├── UrlUtilsTest.cmi
-│   │   ├── UrlUtilsTest.cmj
-│   │   ├── UrlUtilsTest.cmt
-│   │   ├── UrlUtilsTest.res
+│   │   ├── UrlUtils_v.test.ast
+│   │   ├── UrlUtils_v.test.cmi
+│   │   ├── UrlUtils_v.test.cmj
+│   │   ├── UrlUtils_v.test.cmt
+│   │   ├── UrlUtils_v.test.res
 │   │   ├── Version.ast
 │   │   ├── Version.cmi
 │   │   ├── Version.cmj
@@ -2188,11 +2197,11 @@
 │   │   ├── VersionData_v.test.cmj
 │   │   ├── VersionData_v.test.cmt
 │   │   ├── VersionData_v.test.res
-│   │   ├── VersionTest.ast
-│   │   ├── VersionTest.cmi
-│   │   ├── VersionTest.cmj
-│   │   ├── VersionTest.cmt
-│   │   ├── VersionTest.res
+│   │   ├── Version_v.test.ast
+│   │   ├── Version_v.test.cmi
+│   │   ├── Version_v.test.cmj
+│   │   ├── Version_v.test.cmt
+│   │   ├── Version_v.test.res
 │   │   ├── VideoEncoder.ast
 │   │   ├── VideoEncoder.cmi
 │   │   ├── VideoEncoder.cmj
@@ -2218,11 +2227,11 @@
 │   │   ├── ViewerLoader.cmj
 │   │   ├── ViewerLoader.cmt
 │   │   ├── ViewerLoader.res
-│   │   ├── ViewerLoaderTest.ast
-│   │   ├── ViewerLoaderTest.cmi
-│   │   ├── ViewerLoaderTest.cmj
-│   │   ├── ViewerLoaderTest.cmt
-│   │   ├── ViewerLoaderTest.res
+│   │   ├── ViewerLoader_v.test.ast
+│   │   ├── ViewerLoader_v.test.cmi
+│   │   ├── ViewerLoader_v.test.cmj
+│   │   ├── ViewerLoader_v.test.cmt
+│   │   ├── ViewerLoader_v.test.res
 │   │   ├── ViewerManager.ast
 │   │   ├── ViewerManager.cmi
 │   │   ├── ViewerManager.cmj
@@ -2297,8 +2306,7 @@
 ├── logs
 │   ├── error.log
 │   ├── log_changes.txt
-│   ├── project-guard.log
-│   └── telemetry.log
+│   └── project-guard.log
 ├── old_ref
 │   ├── REF.md
 │   └── v4.3.6+7_a34c1dd
@@ -3018,13 +3026,43 @@
 │   │   ├── 369_Update_Tests_TeaserManager_UPDATED.md
 │   │   ├── 370_Update_Tests_TeaserRecorder_UPDATED.md
 │   │   ├── 371_Migrate_Tests_Core_Reducers_UPDATED.md
+│   │   ├── 372_Migrate_Tests_Core_Logic_REPORT.md
+│   │   ├── 373_Migrate_Tests_Templates_Exporter_UPDATED.md
+│   │   ├── 374_Migrate_Tests_Utilities_Services.md
+│   │   ├── 374_Migrate_Tests_Utilities_Services_UPDATED.md
 │   │   └── _CONCISE_SUMMARY.md
 │   ├── pending
+│   │   ├── 376_Refactor_project.md
 │   │   └── tests
-│   │       ├── 372_Migrate_Tests_Core_Logic.md
-│   │       ├── 373_Migrate_Tests_Templates_Exporter.md
-│   │       ├── 374_Migrate_Tests_Utilities_Services.md
-│   │       └── 375_Migrate_Tests_Media_Specialized.md
+│   │       ├── 375_Migrate_Tests_Media_Specialized.md
+│   │       ├── 377_Update_Tests_ServerTeaser.md
+│   │       ├── 378_Update_Tests_ProjectData.md
+│   │       ├── 379_Update_Tests_ColorPalette.md
+│   │       ├── 380_Update_Tests_ViewerSnapshot.md
+│   │       ├── 381_Update_Tests_Shadcn.md
+│   │       ├── 382_Update_Tests_NavigationUI.md
+│   │       ├── 383_Update_Tests_RootReducer.md
+│   │       ├── 384_Update_Tests_AppContext.md
+│   │       ├── 385_Update_Tests_AppErrorBoundary.md
+│   │       ├── 386_Update_Tests_GlobalStateBridge.md
+│   │       ├── 387_Update_Tests_UrlUtils.md
+│   │       ├── 388_Update_Tests_UploadProcessorLogic.md
+│   │       ├── 389_Update_Tests_ViewerState.md
+│   │       ├── 390_Update_Tests_Exporter.md
+│   │       ├── 391_Update_Tests_Types.md
+│   │       ├── 392_Update_Tests_HotspotLineLogic.md
+│   │       ├── 393_Update_Tests_AudioManager.md
+│   │       ├── 394_Update_Tests_SimulationDriver.md
+│   │       ├── 395_Update_Tests_ViewerFollow.md
+│   │       ├── 396_Update_Tests_SceneReducer.md
+│   │       ├── 397_Update_Tests_TourTemplateStyles.md
+│   │       ├── 398_Update_Tests_State.md
+│   │       ├── 399_Update_Tests_LinkModal.md
+│   │       ├── 400_Update_Tests_mod.md
+│   │       ├── 401_Update_Tests_NavigationController.md
+│   │       ├── 402_Update_Tests_ImageOptimizer.md
+│   │       ├── 403_Update_Tests_StateInspector.md
+│   │       └── 404_Update_Tests_GeoUtils.md
 │   └── postponed
 │       ├── 003_add_seo_structured_data.md
 │       ├── 004_document_core_web_vitals.md
@@ -3036,7 +3074,7 @@
 │       ├── 022_expand_test_coverage.md
 │       ├── 024_implement_e2e_testing_playwright.md
 │       ├── 025_implement_internationalization.md
-│       ├── 030_implement_supabase_infrastructure.md
+│       ├── 030_implement_sqlite_auth_infrastructure.md
 │       ├── 031_implement_auth_ui_rescript.md
 │       ├── 032_implement_project_dashboard.md
 │       └── 033_secure_backend_with_jwt.md
@@ -3049,7 +3087,8 @@
 │   ├── node-setup.js
 │   └── unit
 │       ├── ActionsTest.bs.js
-│       ├── ActionsTest.res
+│       ├── Actions_v.test.bs.js
+│       ├── Actions_v.test.res
 │       ├── AppContext_v.test.bs.js
 │       ├── AppContext_v.test.res
 │       ├── AppErrorBoundary_v.test.bs.js
@@ -3069,17 +3108,19 @@
 │       ├── ErrorFallbackUI_v.test.bs.js
 │       ├── ErrorFallbackUI_v.test.res
 │       ├── EventBusTest.bs.js
-│       ├── EventBusTest.res
+│       ├── EventBus_v.test.bs.js
+│       ├── EventBus_v.test.res
 │       ├── ExifParser_v.test.bs.js
 │       ├── ExifParser_v.test.res
 │       ├── ExifReportGenerator_v.test.bs.js
 │       ├── ExifReportGenerator_v.test.res
-│       ├── ExporterTest.bs.js
-│       ├── ExporterTest.res
-│       ├── GeoUtilsTest.bs.js
-│       ├── GeoUtilsTest.res
+│       ├── Exporter_v.test.bs.js
+│       ├── Exporter_v.test.res
+│       ├── GeoUtils_v.test.bs.js
+│       ├── GeoUtils_v.test.res
 │       ├── GlobalStateBridgeTest.bs.js
-│       ├── GlobalStateBridgeTest.res
+│       ├── GlobalStateBridge_v.test.bs.js
+│       ├── GlobalStateBridge_v.test.res
 │       ├── HotspotActionMenu_v.test.bs.js
 │       ├── HotspotActionMenu_v.test.res
 │       ├── HotspotLineLogic_v.test.bs.js
@@ -3134,10 +3175,10 @@
 │       ├── PopOver_v.test.res
 │       ├── Portal_v.test.bs.js
 │       ├── Portal_v.test.res
-│       ├── ProgressBarTest.bs.js
-│       ├── ProgressBarTest.res
-│       ├── ProjectDataTest.bs.js
-│       ├── ProjectDataTest.res
+│       ├── ProgressBar_v.test.bs.js
+│       ├── ProgressBar_v.test.res
+│       ├── ProjectData_v.test.bs.js
+│       ├── ProjectData_v.test.res
 │       ├── ProjectManager_v.test.bs.js
 │       ├── ProjectManager_v.test.res
 │       ├── ProjectReducer_v.test.bs.js
@@ -3162,14 +3203,15 @@
 │       ├── ServerTeaserTest.res
 │       ├── ServiceWorkerMain_v.test.bs.js
 │       ├── ServiceWorkerMain_v.test.res
-│       ├── ServiceWorkerTest.bs.js
-│       ├── ServiceWorkerTest.res
+│       ├── ServiceWorker_v.test.bs.js
+│       ├── ServiceWorker_v.test.res
 │       ├── SessionStore_v.test.bs.js
 │       ├── SessionStore_v.test.res
 │       ├── Shadcn_v.test.bs.js
 │       ├── Shadcn_v.test.res
 │       ├── SharedTypesTest.bs.js
-│       ├── SharedTypesTest.res
+│       ├── SharedTypes_v.test.bs.js
+│       ├── SharedTypes_v.test.res
 │       ├── Sidebar_v.test.bs.js
 │       ├── Sidebar_v.test.res
 │       ├── SimulationChainSkipper_v.test.bs.js
@@ -3185,7 +3227,8 @@
 │       ├── SimulationReducer_v.test.bs.js
 │       ├── SimulationReducer_v.test.res
 │       ├── StateInspectorTest.bs.js
-│       ├── StateInspectorTest.res
+│       ├── StateInspector_v.test.bs.js
+│       ├── StateInspector_v.test.res
 │       ├── State_v.test.bs.js
 │       ├── State_v.test.res
 │       ├── TeaserManager_v.test.bs.js
@@ -3204,10 +3247,10 @@
 │       ├── TourTemplateAssets_v.test.res
 │       ├── TourTemplateScripts_v.test.bs.js
 │       ├── TourTemplateScripts_v.test.res
-│       ├── TourTemplateStylesTest.bs.js
-│       ├── TourTemplateStylesTest.res
-│       ├── TourTemplatesTest.bs.js
-│       ├── TourTemplatesTest.res
+│       ├── TourTemplateStyles_v.test.bs.js
+│       ├── TourTemplateStyles_v.test.res
+│       ├── TourTemplates_v.test.bs.js
+│       ├── TourTemplates_v.test.res
 │       ├── Types_v.test.bs.js
 │       ├── Types_v.test.res
 │       ├── UiReducer_v.test.bs.js
@@ -3221,18 +3264,18 @@
 │       ├── UploadProcessor_v.test.setup.js
 │       ├── UploadReport_v.test.bs.js
 │       ├── UploadReport_v.test.res
-│       ├── UrlUtilsTest.bs.js
-│       ├── UrlUtilsTest.res
+│       ├── UrlUtils_v.test.bs.js
+│       ├── UrlUtils_v.test.res
 │       ├── VersionData_v.test.bs.js
 │       ├── VersionData_v.test.res
-│       ├── VersionTest.bs.js
-│       ├── VersionTest.res
+│       ├── Version_v.test.bs.js
+│       ├── Version_v.test.res
 │       ├── VideoEncoderTest.bs.js
 │       ├── VideoEncoderTest.res
 │       ├── ViewerFollow_v.test.bs.js
 │       ├── ViewerFollow_v.test.res
-│       ├── ViewerLoaderTest.bs.js
-│       ├── ViewerLoaderTest.res
+│       ├── ViewerLoader_v.test.bs.js
+│       ├── ViewerLoader_v.test.res
 │       ├── ViewerManager_v.test.bs.js
 │       ├── ViewerManager_v.test.res
 │       ├── ViewerSnapshot_v.test.bs.js
@@ -3252,4 +3295,4 @@
 │           └── TestUtils.res
 └── vitest.config.mjs
 
-92 directories, 3161 files
+95 directories, 3201 files

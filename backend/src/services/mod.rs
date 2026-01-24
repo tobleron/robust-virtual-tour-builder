@@ -1,3 +1,5 @@
+pub mod auth;
+pub mod database;
 pub mod geocoding;
 pub mod media;
 pub mod project;
