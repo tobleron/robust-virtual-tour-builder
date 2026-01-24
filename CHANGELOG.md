@@ -5,16 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [4.5.1] - 2026-01-24
 
 ### Added
-- None.
+- Standardized Hotspot Menu system with configurable delays (`hotspotMenuOpenDelay`, `hotspotMenuExitDelay`).
+- Interactive click feedback: 2 tactical yellow flicks for Toggle, 2 red flicks for Delete.
+- Smooth icon swap animation with 360° spin for Auto-Forward setting.
+- Diagonal glass shimmer effect (45-degree) for Sidebar and Hotspot buttons.
+- Adaptive glass sweep speed: Faster (1.5s) for Auto-Forward, standard (4s) for Normal links.
 
 ### Changed
-- None.
+- Reduced Hotspot button size to 32px with balanced icon scaling (20px/18px/14px).
+- Standardized corporate orange to `#ea580c` across all primary UI and Sidebar actions for superior white icon contrast.
 
 ### Fixed
-- None.
+- Resolved context isolation issue in `PreviewArrow` by passing state and scenes directly as props, fixing broken reactivity in Pannellum hotspots.
+- Fixed instant visual feedback for Auto-Forward toggle using local state coordination.
 
 ## [4.5.0] - 2026-01-24
 

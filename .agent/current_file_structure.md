@@ -216,6 +216,12 @@
 │   │   │   │   ├── Portal.cmj
 │   │   │   │   ├── Portal.cmt
 │   │   │   │   ├── Portal.res
+│   │   │   │   ├── PreviewArrow.ast
+│   │   │   │   ├── PreviewArrow.bs.js
+│   │   │   │   ├── PreviewArrow.cmi
+│   │   │   │   ├── PreviewArrow.cmj
+│   │   │   │   ├── PreviewArrow.cmt
+│   │   │   │   ├── PreviewArrow.res
 │   │   │   │   ├── SceneList.ast
 │   │   │   │   ├── SceneList.bs.js
 │   │   │   │   ├── SceneList.cmi
@@ -1738,6 +1744,11 @@
 │   │   ├── Portal_v.test.cmj
 │   │   ├── Portal_v.test.cmt
 │   │   ├── Portal_v.test.res
+│   │   ├── PreviewArrow.ast
+│   │   ├── PreviewArrow.cmi
+│   │   ├── PreviewArrow.cmj
+│   │   ├── PreviewArrow.cmt
+│   │   ├── PreviewArrow.res
 │   │   ├── ProgressBar.ast
 │   │   ├── ProgressBar.cmi
 │   │   ├── ProgressBar.cmj
@@ -2310,6 +2321,8 @@
 │   │   └── mod.res
 │   └── rescript.lock
 ├── logs
+│   ├── error.log
+│   ├── log_changes.txt
 │   ├── project-guard.log
 │   └── telemetry.log
 ├── old_ref
@@ -2773,6 +2786,8 @@
 │   │   ├── PopOver.res
 │   │   ├── Portal.bs.js
 │   │   ├── Portal.res
+│   │   ├── PreviewArrow.bs.js
+│   │   ├── PreviewArrow.res
 │   │   ├── SceneList.bs.js
 │   │   ├── SceneList.res
 │   │   ├── Sidebar.bs.js
@@ -3050,7 +3065,42 @@
 │   │   ├── 94_Update_Codebase_Map.md
 │   │   ├── 95_Aggregate_Completed_Tasks.md
 │   │   └── tests
-│   │       └── 410_Add_Tests_App.md
+│   │       ├── 410_Add_Tests_App.md
+│   │       ├── 411_Update_Tests_Portal.md
+│   │       ├── 412_Update_Tests_UploadProcessorTypes.md
+│   │       ├── 413_Update_Tests_TimelineReducer.md
+│   │       ├── 414_Update_Tests_PopOver.md
+│   │       ├── 415_Add_Tests_PreviewArrow.md
+│   │       ├── 416_Add_Tests_PreviewArrow.md
+│   │       ├── 417_Add_Tests_PreviewArrow.md
+│   │       ├── 418_Add_Tests_PreviewArrow.md
+│   │       ├── 419_Add_Tests_PreviewArrow.md
+│   │       ├── 420_Add_Tests_PreviewArrow.md
+│   │       ├── 421_Add_Tests_PreviewArrow.md
+│   │       ├── 422_Add_Tests_PreviewArrow.md
+│   │       ├── 423_Add_Tests_PreviewArrow.md
+│   │       ├── 424_Add_Tests_PreviewArrow.md
+│   │       ├── 425_Add_Tests_PreviewArrow.md
+│   │       ├── 426_Add_Tests_PreviewArrow.md
+│   │       ├── 427_Add_Tests_PreviewArrow.md
+│   │       ├── 428_Add_Tests_PreviewArrow.md
+│   │       ├── 429_Add_Tests_PreviewArrow.md
+│   │       ├── 430_Add_Tests_PreviewArrow.md
+│   │       ├── 431_Add_Tests_PreviewArrow.md
+│   │       ├── 432_Add_Tests_PreviewArrow.md
+│   │       ├── 433_Add_Tests_PreviewArrow.md
+│   │       ├── 434_Add_Tests_PreviewArrow.md
+│   │       ├── 435_Add_Tests_PreviewArrow.md
+│   │       ├── 436_Add_Tests_PreviewArrow.md
+│   │       ├── 437_Add_Tests_PreviewArrow.md
+│   │       ├── 438_Add_Tests_PreviewArrow.md
+│   │       ├── 439_Add_Tests_PreviewArrow.md
+│   │       ├── 440_Add_Tests_PreviewArrow.md
+│   │       ├── 441_Add_Tests_PreviewArrow.md
+│   │       ├── 442_Update_Tests_ProgressBar.md
+│   │       ├── 443_Update_Tests_Tooltip.md
+│   │       ├── 444_Update_Tests_HotspotReducer.md
+│   │       └── 445_Add_Tests_PreviewArrow.md
 │   └── postponed
 │       ├── 003_add_seo_structured_data.md
 │       ├── 004_document_core_web_vitals.md
@@ -3312,4 +3362,4 @@
 │           └── TestUtils.res
 └── vitest.config.mjs
 
-98 directories, 3215 files
+98 directories, 3265 files

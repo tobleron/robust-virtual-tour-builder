@@ -2,7 +2,6 @@
 
 open ReBindings
 open Types
-open EventBus
 
 module Event = {
   type t
@@ -20,7 +19,7 @@ let createHotspotConfig = (
   ~hotspot: hotspot,
   ~index: int,
   ~state: state,
-  ~scene: scene,
+  ~scene as _scene: scene,
   ~dispatch: Actions.action => unit,
 ) => {
   let isSimulationMode = state.simulation.status != Idle
@@ -70,129 +69,44 @@ let createHotspotConfig = (
     "text": " " /* Ensure trigger */,
     "cssClass": cssClass.contents,
     "createTooltipFunc": (div: Dom.element) => {
-      /* Navigation Arrow (Double Chevron) - The visual indicator */
-      let navBtn = Dom.createElement("div")
-      Dom.setAttribute(navBtn, "class", "hotspot-nav-btn")
-      Dom.setAttribute(navBtn, "title", "Navigate to " ++ hotspot.target)
-      Dom.setAttribute(navBtn, "role", "button")
-      Dom.setAttribute(navBtn, "tabindex", "0")
-
-      /* Action Menu Trigger Button */
-      let actionBtn = Dom.createElement("div")
-      Dom.setAttribute(actionBtn, "class", "hotspot-action-trigger")
-      Dom.setAttribute(actionBtn, "title", "Link Actions")
-      Dom.setAttribute(actionBtn, "role", "button")
-      Dom.setAttribute(actionBtn, "tabindex", "0")
-      Dom.setTextContent(actionBtn, "") // Lucide icon managed by CSS background-image
-
-      /* Forward Btn (Third Chevron) */
-      let fwdBtn = Dom.createElement("div")
-      let fwdClass = "hotspot-forward-btn" ++ (isTargetAutoForward ? " active" : "")
-      Dom.setAttribute(fwdBtn, "class", fwdClass)
-      Dom.setAttribute(fwdBtn, "title", "Toggle Auto-Forward")
-
-      let controls = Dom.createElement("div")
-      Dom.setAttribute(controls, "class", "hotspot-controls")
-
-      /* Append to container */
-      Dom.appendChild(controls, navBtn)
-      Dom.appendChild(controls, fwdBtn)
-      Dom.appendChild(div, actionBtn)
-      Dom.appendChild(div, controls)
-
-      /* v4.4.1: Critical - Disable events on the root div to prevent accidental mis-clicks */
-      Dom.setPointerEvents(div, "none")
+      // Create Container - APPEND classes, don't overwrite to preserve Pannellum positioning
+      Dom.classList(div)->Dom.ClassList.add("pnlm-hotspot-base")
+      Dom.classList(div)->Dom.ClassList.add("group")
+      Dom.classList(div)->Dom.ClassList.add("relative")
+      Dom.classList(div)->Dom.ClassList.add("flex")
+      Dom.classList(div)->Dom.ClassList.add("items-center")
+      Dom.classList(div)->Dom.ClassList.add("justify-center")
+      // We render it as a 0x0 size anchor, effectively checking center.
+      // But the children are absolute/fixed relative to it?
+      // No, children are absolute. Let's give it w-12 h-12 to match click area if needed
+      // Actually, Pannellum hotspots are usually 0x0 div with visible overflow.
+      // Let's stick to overflow-visible.
+      Dom.setPointerEvents(div, "auto")
       Dom.setCursor(div, "default")
 
-      // 1. Action Menu Trigger
-      ElementExt.setOnClick(actionBtn, e => {
-        Event.stopPropagation(e)
-        Event.preventDefault(e)
-        EventBus.dispatch(
-          OpenHotspotMenu({
-            "anchor": actionBtn,
-            "hotspot": hotspot,
-            "index": index,
-          }),
-        )
-      })
+      // Use React 18 createRoot to render the PreviewArrow component into the div
+      // We rely on Pannellum to manage the DIV lifecycle (removing it when scene changes)
+      // Note: In a perfect world we would unmount the root, but Pannellum just nukes the DOM.
+      // Garbage collection should handle the detached nodes.
 
-      // 2. Navigation Logic (Quick Nav)
-      ElementExt.setOnClick(navBtn, e => {
-        Event.stopPropagation(e)
-        Event.preventDefault(e)
+      let root = ReBindings.ReactDOMClient.createRoot(div)
 
-        switch targetSceneOpt {
-        | Some(_ts) =>
-          let targetIdx = Belt.Array.getIndexBy(state.scenes, s => s.name == hotspot.target)
-          switch targetIdx {
-          | Some(idx) =>
-            let navYaw = ref(0.0)
-            let navPitch = ref(0.0)
-            let navHfov = ref(90.0)
+      // We pass a dummy elementId because we're not using the HotspotLine loop anymore
+      // Pannellum handles the positioning of 'div' automatically.
+      let elementId = "hs-react-" ++ Belt.Int.toString(index)
 
-            let isRet = switch hotspot.isReturnLink {
-            | Some(b) => b
-            | None => false
-            }
-
-            if isRet && hotspot.returnViewFrame != None {
-              let rvf = hotspot.returnViewFrame
-              switch rvf {
-              | Some(r) =>
-                navYaw := r.yaw
-                navPitch := r.pitch
-                navHfov := r.hfov
-              | None => ()
-              }
-            } else {
-              // Logic for targetYaw vs viewFrame
-              switch hotspot.targetYaw {
-              | Some(ty) =>
-                navYaw := ty
-                navPitch :=
-                  switch hotspot.targetPitch {
-                  | Some(p) => p
-                  | None => 0.0
-                  }
-                navHfov :=
-                  switch hotspot.targetHfov {
-                  | Some(h) => h
-                  | None => 90.0
-                  }
-              | None =>
-                switch hotspot.viewFrame {
-                | Some(vf) =>
-                  navYaw := vf.yaw
-                  navPitch := vf.pitch
-                  navHfov := vf.hfov
-                | None => ()
-                }
-              }
-            }
-
-            Logger.info(
-              ~module_="Hotspot",
-              ~message="NAV_TRIGGERED",
-              ~data=Some({"target": hotspot.target, "fromScene": scene.name}),
-              (),
-            )
-            Navigation.navigateToScene(
-              dispatch,
-              state,
-              idx,
-              state.activeIndex,
-              index,
-              ~targetYaw=navYaw.contents,
-              ~targetPitch=navPitch.contents,
-              ~targetHfov=navHfov.contents,
-              (),
-            )
-          | None => ()
-          }
-        | None => ()
-        }
-      })
+      ReBindings.ReactDOMClient.Root.render(
+        root,
+        <PreviewArrow
+          sceneIndex={state.activeIndex}
+          hotspotIndex={index}
+          dispatch={dispatch}
+          elementId={elementId}
+          isTargetAutoForward={isTargetAutoForward}
+          scenes={state.scenes}
+          state={state}
+        />,
+      )
     },
   }
 }
