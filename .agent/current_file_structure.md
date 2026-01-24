@@ -1,4 +1,5 @@
 .
+├── CHANGELOG.md
 ├── FIX_PROJECT_NAME_BUG.md
 ├── GEMINI.md
 ├── MAP.md
@@ -2309,8 +2310,8 @@
 │   │   └── mod.res
 │   └── rescript.lock
 ├── logs
-│   ├── log_changes.txt
-│   └── project-guard.log
+│   ├── project-guard.log
+│   └── telemetry.log
 ├── old_ref
 │   ├── REF.md
 │   └── v4.3.6+7_a34c1dd
@@ -3042,6 +3043,8 @@
 │   │   ├── 406_Update_Tests_UI_and_Viewer_REPORT.md
 │   │   ├── 407_Update_Tests_Business_Systems_UPDATED.md
 │   │   ├── 408_Update_Tests_Utilities_REPORT.md
+│   │   ├── 409_Update_Tests_ViewerManager_UPDATED.md
+│   │   ├── 410_Add_Tests_App.md
 │   │   └── _CONCISE_SUMMARY.md
 │   ├── pending
 │   │   ├── 94_Update_Codebase_Map.md
@@ -3309,4 +3312,4 @@
 │           └── TestUtils.res
 └── vitest.config.mjs
 
-98 directories, 3212 files
+98 directories, 3215 files

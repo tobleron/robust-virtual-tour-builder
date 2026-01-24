@@ -8,16 +8,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Your new feature here.
+- None.
 
 ### Changed
-- Your change here.
+- None.
 
 ### Fixed
-- Your bug fix here.
+- None.
+
+## [4.5.0] - 2026-01-24
+
+### Fixed
+- Implemented "No Persistence on First Load" policy for project metadata (`tourName` and `activeIndex`).
+- Added explicit session clearing before starting project imports in `Sidebar.res` to prevent state "bleeding".
+- Updated `INITIALIZATION_STANDARDS.md` to document session lifecycle and persistence constraints.
 
 ### Security
 - Your security fix here.
+
+## [4.4.9] - 2026-01-24
+
+### Added
+- Added comprehensive unit tests for `App` component properly mocking `AppContext` state injection.
+- Refactored `App.res` and `AppContext.res` to allow `initialState` prop injection for easier testing.
+- Updated `commit-workflow` to use `CHANGELOG.md` as the single source of truth.
 
 ## [4.4.8] - 2026-01-24
 
@@ -128,3 +142,64 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Resolved ghost arrow artifact at (0,0) during scene transitions.
 - Fixed Viewer Instance Race Condition.
 - Fixed AutoPilot Timeout Mismatch.
+
+## [4.3.6] - 2026-01-20
+
+### Changed
+- Refined project name input styling for premium aesthetic.
+- Unified AutoPilot timeouts to prevent race conditions.
+- Enabled progressive loading for AutoPilot previews.
+- Implemented retry logic for AutoPilot scenes.
+
+### Fixed
+- Resolved Viewer Instance race condition during simulation.
+
+## [4.3.5] - 2026-01-20
+
+### Changed
+- Refined sidebar typography and teaser button iconography.
+- Added premium purple-brand color to design system.
+
+## [4.3.4] - 2026-01-20
+
+### Changed
+- UI stabilization and sidebar UI enhancements.
+
+## [4.3.3] - 2026-01-19
+
+### Fixed
+- Fixed hotspot full visibility and arrow delete button.
+- Fixed sticky waypoint persistence and synchronization.
+- Resolved scene switching guard and loading logic.
+
+## [4.3.2] - 2026-01-18
+
+### Added
+- Implemented global RequestQueue to prevent 429 errors.
+- Stable Add Link dynamics with momentum-based camera movement.
+
+### Fixed
+- Standardized logging and error handling.
+- Fixed link dynamics and edge panning restrictions.
+
+## [4.3.1] - 2026-01-17
+
+### Fixed
+- Restored linking mechanics (rod, director curve).
+- Fixed Linking Mode visualization and hotpot line rendering.
+- Enhanced Logger with error capturing.
+
+## [4.3.0] - 2026-01-16
+
+### Added
+- Comprehensive unit tests for RootReducer, EventBus, ProjectReducer, and others.
+- Implemented Secure Production Logging.
+- Dynamic SEO and HTML configuration.
+
+## [4.2.1] - 2026-01-13
+
+### Changed
+- Stable Release: Complete migration to ReScript v12 Core.
+- Implemented single-ZIP project loading.
+- Added backend validation system and checksum metadata.
+- Ported backend API, Resizer, and ProjectManager module to ReScript.
