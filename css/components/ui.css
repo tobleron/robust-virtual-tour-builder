@@ -151,7 +151,7 @@
 
 /* Override Sonner's internal success/error/etc. backgrounds if they exist as attributes */
 [data-sonner-toast][data-type="success"] {
-    background: #059669 !important;
+    background: #008B8B !important;
 }
 
 [data-sonner-toast][data-type="error"] {
@@ -159,7 +159,7 @@
 }
 
 [data-sonner-toast][data-type="warning"] {
-    background: #f59e0b !important;
+    background: #B8860B !important;
 }
 
 [data-sonner-toast][data-type="info"] {
