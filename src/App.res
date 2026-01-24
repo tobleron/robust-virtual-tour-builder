@@ -62,8 +62,8 @@ module Inner = {
 }
 
 @react.component
-let make = () => {
-  <AppContext.Provider>
+let make = (~initialState=?, ()) => {
+  <AppContext.Provider ?initialState>
     <AppErrorBoundary>
       <Shadcn.Tooltip.Provider delayDuration=Constants.tooltipDelayDuration>
         <Inner />

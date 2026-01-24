@@ -544,3 +544,4 @@ Task: 147
 [2026-01-24 08:18] v4.4.8 - refactor: backend cleanup, test migration to Vitest, and general updates
 [2026-01-24 09:18] v4.4.8 - Neat Progress Bar Upgrade
 [2026-01-24 13:02] v4.4.8 - Update unit tests for ViewerManager.res (Task 409)
+[2026-01-24 13:32] v4.4.9 - Add unit tests for App component and allow state injection for easier testing
