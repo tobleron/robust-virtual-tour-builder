@@ -261,18 +261,15 @@ let drawSimulationArrow = (
         // Instead of looking strictly back, we look slightly ahead and behind (Central Difference).
         // This keeps the arrow tangent much tighter to the curve during turns.
 
-        // We still freeze at the very end for stability, but threshold is pushed later
-        let rotationProgressThreshold = 0.95
+        // STABILITY FIX: We FREEZE the rotation calculation point once we get very close to the end.
+        // If we let 'progress' go all the way to 1.0, the 'progFront' calculation can hit the end of the spline
+        // and cause a singularity or flip. By clamping the rotation-calculation-progress to 0.99,
+        // we ensure the arrow effectively "coasts" into the dock with its final valid heading.
+        let rotationCalcProgress = Math.min(progress, 0.99)
+
         let delta = 0.02
-
-        let center = if progress >= rotationProgressThreshold {
-          rotationProgressThreshold
-        } else {
-          progress
-        }
-
-        let progFront = Math.min(center +. delta, 1.0)
-        let progBack = Math.max(0.0, center -. delta)
+        let progFront = Math.min(rotationCalcProgress +. delta, 1.0)
+        let progBack = Math.max(0.0, rotationCalcProgress -. delta)
 
         // Helper to get point at progress
         let getPointAtProgress = p => {
@@ -375,17 +372,17 @@ let drawSimulationArrow = (
             let angle = Math.atan2(~y=e.y -. s.y, ~x=e.x -. s.x) *. (180.0 /. Math.Constants.pi)
 
             let color = if progress >= 1.0 {
-              // Blink phase (Arrival)
+              // Blink phase (Arrival - Red Pulse)
               if mod(Belt.Float.toInt(Date.now() /. 200.0), 2) == 0 {
-                "#fdba74" // Orange 300 (Brighter premium orange)
+                "#dc2626" // Red 600
               } else {
                 "var(--orange-brand)" // Orange
               }
             } else {
-              // Journey phase (Solid)
+              // Journey phase (Solid Orange)
               switch colorOverride {
               | Some(c) => c
-              | None => "var(--orange-brand)" // Pure Orange
+              | None => "var(--orange-brand)"
               }
             }
 
