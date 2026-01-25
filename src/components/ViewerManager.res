@@ -475,7 +475,7 @@ let make = () => {
   }, (state.activeIndex, state.simulation.status))
 
   // Sync Linking Cursor & Simulation Class
-  React.useEffect2(() => {
+  React.useEffect3(() => {
     let body = Dom.documentBody
     let guide = Dom.getElementById("cursor-guide")
 
@@ -503,12 +503,15 @@ let make = () => {
     if isSimulationActive {
       Dom.classList(body)->Dom.ClassList.add("auto-pilot-active")
 
-      // CRITICAL: Clear SVG overlay immediately when simulation starts/active
+      // CRITICAL: We no longer clear the SVG overlay here because SvgManager handles it.
+      // And we want lines to persist if needed.
+      /*
       let svgOpt = Dom.getElementById("viewer-hotspot-lines")
       switch Nullable.toOption(svgOpt) {
       | Some(svg) => Dom.setTextContent(svg, "")
       | None => ()
       }
+ */
 
       // Sync Hotspots immediately to apply hidden-in-sim class
       let v = ViewerState.getActiveViewer()
@@ -527,7 +530,7 @@ let make = () => {
       Dom.classList(body)->Dom.ClassList.remove("auto-pilot-active")
     }
     None
-  }, (state.isLinking, state.simulation.status))
+  }, (state.isLinking, state.simulation.status, state.navigation))
 
   // 7. Render Loop for Hotspot Lines (Fix for sticky waypoints)
   React.useEffect0(() => {
@@ -545,23 +548,20 @@ let make = () => {
         // CRITICAL: Skip updates during viewer swap to prevent race condition
         let isSwapping = ViewerState.state.isSwapping
 
-        // Performance optimization: During active navigation, the NavigationRenderer owns the loop.
-        let isNavigating = switch currentState.navigation {
-        | Navigating(_) | Previewing(_) => true
-        | Idle => false
-        }
+        // Performance optimization: We now ALLOW updates during navigation
+        // because SvgManager handles retained mode and prevents layout thrashing.
+        // We only skip if swapping scenes.
 
-        if !isNavigating && !isSwapping {
+        if !isSwapping {
           let p = Viewer.getPitch(viewer)
           let y = Viewer.getYaw(viewer)
           let h = Viewer.getHfov(viewer)
 
-          if p != lastPitch.contents || y != lastYaw.contents || h != lastHfov.contents {
-            lastPitch := p
-            lastYaw := y
-            lastHfov := h
-            HotspotLine.updateLines(viewer, currentState, ())
-          }
+          // Always update if we are not swapping, to ensure smooth tracking
+          lastPitch := p
+          lastYaw := y
+          lastHfov := h
+          HotspotLine.updateLines(viewer, currentState, ())
         }
       | None => ()
       }

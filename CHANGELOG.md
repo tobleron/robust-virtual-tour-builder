@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.7.0] - 2026-01-25
+
+### Added
+- **Retained-Mode SVG Management**: Introduced `SvgManager` to handle high-performance SVG reconciliation. Replaces expensive "scorched earth" `innerHTML` clearing with optimized DOM element reuse, significantly reducing layout thrashing and CPU overhead during 60fps animation loops.
+
+### Changed
+- **Simulation Visibility Refactor**: Removed aggressive global hiding of hotspot markers during Auto-Pilot. Replaced with an intelligent "Active Target" dimming system that keeps all waypoints visible while highlighting the current destination.
+- **Concurrent Render Loop**: Enabled the main `HotspotLine` update loop to run concurrently with `NavigationRenderer` during simulation. 
+- **Garbage Collection (Set-Based)**: Implemented a robust "Set Subtraction" algorithm for SVG management. The system now tracks IDs drawn in the current frame vs. the last frame to hide only stale elements, preventing "ghost artifacts" or random disappearances.
+
+### Fixed
+- **Stale DOM Cache Bug**: Fixed a race condition where `SvgManager` could hold references to a stale SVG container after a React re-mount. Added `syncContainer` validation to ensure all updates target the currently visible document.
+- **Transitional Flicker**: Resolved waypoint flickering during scene transitions by ensuring the render loop holds the last valid state until the new scene is fully detected.
+- **Event Loop Decoupling**: Decoupled `NavigationRenderer` from `HotspotLine.updateLines` to prevent redundant loop execution and simplify state ownership.
+- **SVG Manager Robustness**: Improved `SvgManager` to handle display toggling via `show/hide` primitives, reducing direct property manipulation in outer logic.
+
 ## [4.6.0] - 2026-01-25
 
 ### Changed

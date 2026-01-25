@@ -137,22 +137,36 @@ describe("HotspotLineLogic", () => {
   })
 
   describe("SVG Drawing", () => {
-    test(
-      "drawLine should append a line element to svg",
-      t => {
-        let svg = ReBindings.Dom.createElement("svg")
-        drawLine(svg, 0.0, 0.0, 100.0, 100.0, "red", 2.0, 1.0, ())
+    let setupSvg = () => {
+      let svg = ReBindings.Dom.createElement("svg")
+      ReBindings.Dom.setId(svg, "viewer-hotspot-lines")
+      ReBindings.Dom.appendChild(ReBindings.Dom.documentBody, svg)
+      svg
+    }
 
-        let line = %raw(`svg.querySelector("line")`)
+    let cleanupSvg = svg => {
+      ReBindings.Dom.removeElement(svg)
+      SvgManager.clearAll()
+    }
+
+    test(
+      "updateLine should create/update a line element",
+      t => {
+        let svg = setupSvg()
+        updateLine("test-line", 0.0, 0.0, 100.0, 100.0, "red", 2.0, 1.0, ())
+
+        let line = %raw(`document.getElementById("test-line")`)
         t->expect(line !== Nullable.null)->Expect.toBe(true)
         t->expect(%raw(`line.getAttribute("stroke")`))->Expect.toBe("red")
+
+        cleanupSvg(svg)
       },
     )
 
     test(
-      "drawPolyLine should append a path element if path has >= 2 points",
+      "updatePolyLine should create/update a path element",
       t => {
-        let svg = ReBindings.Dom.createElement("svg")
+        let svg = setupSvg()
         let mockViewer: ReBindings.Viewer.t = Obj.magic({
           "isLoaded": () => true,
           "getHfov": () => 90.0,
@@ -175,19 +189,22 @@ describe("HotspotLineLogic", () => {
         }
 
         let cam = getCamState(mockViewer, rect)
-        drawPolyLine(svg, cam, path, rect, "blue", 1.0, 1.0, ())
+        updatePolyLine("test-poly", cam, path, rect, "blue", 1.0, 1.0, ())
 
-        let pathEl = %raw(`svg.querySelector("path")`)
+        let pathEl = %raw(`document.getElementById("test-poly")`)
         t->expect(pathEl !== Nullable.null)->Expect.toBe(true)
         t->expect(%raw(`pathEl.getAttribute("stroke")`))->Expect.toBe("blue")
         let d = %raw(`pathEl.getAttribute("d")`)
         t->expect(String.includes(d, "M 500 500"))->Expect.toBe(true)
+
+        cleanupSvg(svg)
       },
     )
 
     test(
-      "drawSimulationArrow should append an arrow path",
+      "updateSimulationArrow should create/update arrow path",
       t => {
+        let svg = setupSvg()
         let rect: ReBindings.Dom.rect = {
           x: 0.0,
           y: 0.0,
@@ -198,13 +215,9 @@ describe("HotspotLineLogic", () => {
           right: 1000.0,
           bottom: 1000.0,
         }
-        // Setup DOM
-        let svg = ReBindings.Dom.createElement("svg")
-        ReBindings.Dom.setId(svg, "viewer-hotspot-lines")
-        ReBindings.Dom.appendChild(ReBindings.Dom.documentBody, svg)
 
-        // Mock getBoundingClientRect
-        let _ = %raw(`svg.getBoundingClientRect = () => ({ width: 1000, height: 500, top: 0, left: 0, right: 1000, bottom: 500 })`)
+        // Mock getBoundingClientRect for optimization check in Logic? (Logic uses provided rect usually)
+        // But NavigationRenderer uses it. Logic uses passed rect.
 
         let mockViewer: ReBindings.Viewer.t = Obj.magic({
           "isLoaded": () => true,
@@ -216,14 +229,14 @@ describe("HotspotLineLogic", () => {
         ViewerState.state.activeViewerKey = A
 
         let cam = getCamState(mockViewer, rect)
-        drawSimulationArrow(svg, cam, 0.0, 0.0, 0.0, 10.0, 0.5, rect, ~colorOverride="green", ()) // start // end // progress
+        updateSimulationArrow(cam, 0.0, 0.0, 0.0, 10.0, 0.5, rect, ~colorOverride="green", ())
 
-        let arrow = %raw(`svg.querySelector("path")`)
+        // logic uses "sim_arrow" id
+        let arrow = %raw(`document.getElementById("sim_arrow")`)
         t->expect(arrow !== Nullable.null)->Expect.toBe(true)
         t->expect(%raw(`arrow.getAttribute("fill")`))->Expect.toBe("green")
 
-        // Cleanup
-        %raw(`document.body.removeChild(svg)`)
+        cleanupSvg(svg)
       },
     )
   })

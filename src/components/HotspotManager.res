@@ -41,6 +41,12 @@ let createHotspotConfig = (
   | None => false
   }
 
+  // Determine if this specific hotspot is the one we are currently navigating towards
+  let isTargetOfActiveNav = switch state.navigation {
+  | Navigating(data) => data.hotspotIndex == index
+  | _ => false
+  }
+
   // CSS Class (Always Gold, only 3rd chevron changes)
   let cssClass = ref("pnlm-hotspot flat-arrow arrow-gold")
   if isTargetAutoForward {
@@ -51,7 +57,9 @@ let createHotspotConfig = (
   }
   if isSimulationMode {
     cssClass := cssClass.contents ++ " in-simulation"
-    cssClass := cssClass.contents ++ " hidden-in-sim"
+  }
+  if isTargetOfActiveNav {
+    cssClass := cssClass.contents ++ " active-sim-target"
   }
 
   {

@@ -73,7 +73,7 @@ let make = () => {
                   if HotspotLine.isViewerReady(v) {
                     HotspotLine.updateLines(v, state, ())
 
-                    HotspotLine.drawSimulationArrow(
+                    HotspotLine.updateSimulationArrow(
                       v,
                       pd.startPitch,
                       pd.startYaw,
@@ -139,7 +139,7 @@ let make = () => {
                 if HotspotLine.isViewerReady(v) {
                   HotspotLine.updateLines(v, state, ())
 
-                  HotspotLine.drawSimulationArrow(
+                  HotspotLine.updateSimulationArrow(
                     v,
                     pd.startPitch,
                     pd.startYaw,
