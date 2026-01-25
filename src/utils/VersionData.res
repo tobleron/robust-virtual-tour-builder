@@ -3,6 +3,6 @@
  * This file is updated by scripts/update-version.js
  */
 
-let version = "4.7.8"
+let version = "4.7.9"
 let buildNumber = 122
 let buildInfo = "[Stable Release]"
