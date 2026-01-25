@@ -1,7 +1,19 @@
 #!/bin/bash
-# USAGE: ./scripts/commit.sh "feat: Description"
+# USAGE: ./scripts/commit.sh "feat: Description" [branch_name]
+# Example: ./scripts/commit.sh "fix: Bug" main
 MSG="$1"
+TARGET_BRANCH="${2:-development}" # Default to development if not specified
+
 if [ -z "$MSG" ]; then echo "❌ Error: Commit message required."; exit 1; fi
+
+CURRENT_BRANCH=$(git branch --show-current)
+
+if [ "$CURRENT_BRANCH" != "$TARGET_BRANCH" ]; then
+    echo "❌ Wrong Branch: You are on '$CURRENT_BRANCH', but tried to commit to '$TARGET_BRANCH'."
+    echo "   ► Switch branches: git checkout $TARGET_BRANCH"
+    echo "   ► Or specify current branch: ./scripts/commit.sh \"$MSG\" $CURRENT_BRANCH"
+    exit 1
+fi
 
 # 1. Preference Guard (Only check modified files in src, excluding templates)
 CHANGED_SRC=$(git status --porcelain | awk '{print $2}' | grep "^src/" | grep -v "libs/" | grep -v ".bs.js" | grep -v "Template")

@@ -31,10 +31,27 @@ try {
     }
 
     // 2. Update src/utils/VersionData.res
+    const { execSync } = require('child_process');
+    let currentBranch = 'unknown';
+    try {
+        currentBranch = execSync('git branch --show-current').toString().trim();
+    } catch (e) {
+        console.warn('⚠️ Could not detect git branch, defaulting to unknown.');
+    }
+
+    let buildInfo = "[Experimental Build]";
+    if (currentBranch === 'main') {
+        buildInfo = "[Stable Release]";
+    } else if (currentBranch === 'Testing') {
+        buildInfo = "[Testing Release]";
+    } else if (currentBranch === 'development') {
+        buildInfo = "[Development Build]";
+    }
+
     const versionResPath = join(process.cwd(), 'src', 'utils', 'VersionData.res');
-    const versionResContent = `/**\n * GENERATED FILE - DO NOT EDIT MANUALLY\n * This file is updated by scripts/update-version.js\n */\n\nlet version = "${version}"\nlet buildNumber = ${buildNumber}\nlet buildInfo = "[Stable Release]"\n`;
+    const versionResContent = `/**\n * GENERATED FILE - DO NOT EDIT MANUALLY\n * This file is updated by scripts/update-version.js\n */\n\nlet version = "${version}"\nlet buildNumber = ${buildNumber}\nlet buildInfo = "${buildInfo}"\n`;
     writeFileSync(versionResPath, versionResContent);
-    console.log('✅ Updated src/utils/VersionData.res');
+    console.log(`✅ Updated src/utils/VersionData.res (Branch: ${currentBranch} -> ${buildInfo})`);
 
     console.log(`Successfully updated version to ${version}`);
 } catch (error) {
