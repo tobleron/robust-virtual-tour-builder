@@ -84,4 +84,38 @@ describe("Resizer", () => {
       },
     )
   })
+
+  describe("getChecksum", () => {
+    testAsync(
+      "generates checksum using crypto.subtle",
+      async t => {
+        // Mock crypto using Object.defineProperty because it's read-only in some environments
+        let _ = %raw(`
+        Object.defineProperty(globalThis, 'crypto', {
+          value: {
+            subtle: {
+              digest: async (algo, data) => {
+                return new Uint8Array(32).fill(0xAA).buffer
+              }
+            }
+          },
+          configurable: true,
+          writable: true
+        })
+      `)
+
+        let mockFile: ReBindings.File.t = %raw(`{
+        size: 1000,
+        arrayBuffer: async () => new ArrayBuffer(1000),
+        slice: (s, e) => ({ arrayBuffer: async () => new ArrayBuffer(e - s) })
+      }`)
+
+        let checksum = await getChecksum(mockFile)
+        // 32 bytes of 0xAA -> "aaaaaaaa..."
+        // Result format: hash + "_" + size
+        t->expect(String.startsWith(checksum, "aa"))->Expect.toBe(true)
+        t->expect(String.endsWith(checksum, "_1000"))->Expect.toBe(true)
+      },
+    )
+  })
 })

@@ -17,7 +17,7 @@ let make = () => {
     NavigationRenderer.init() // Legacy init for now
 
     let handleKeyDown = e => {
-      let key = Obj.magic(e)["key"]
+      let key = Dom.key(e)
       if key == "Escape" {
         if state.isLinking {
           dispatch(Actions.StopLinking)
@@ -39,8 +39,8 @@ let make = () => {
       switch Nullable.toOption(stage) {
       | Some(el) =>
         let rect = Dom.getBoundingClientRect(el)
-        let clientX = Belt.Int.toFloat(Obj.magic(e)["clientX"])
-        let clientY = Belt.Int.toFloat(Obj.magic(e)["clientY"])
+        let clientX = Belt.Int.toFloat(Dom.clientX(e))
+        let clientY = Belt.Int.toFloat(Dom.clientY(e))
 
         let x = clientX -. rect.left
         let y = clientY -. rect.top
@@ -116,13 +116,13 @@ let make = () => {
       }
     }
 
-    let handleStageClick = e => {
+    let handleStageClick = (e: Dom.event) => {
       // Trace log
       Logger.debug(
         ~module_="ViewerManager",
         ~message="CLICK_DETECTED",
         ~data=Some({
-          "eventPhase": if e["eventPhase"] == 1 {
+          "eventPhase": if Dom.eventPhase(e) == 1 {
             "capture"
           } else {
             "target/bubble"
@@ -140,8 +140,8 @@ let make = () => {
         | Some(v) =>
           // Offset click by linkingRodHeight to match visual tip (v4.2.18 behavior)
           let mockEvent = {
-            "clientX": Belt.Int.toFloat(Obj.magic(e)["clientX"]),
-            "clientY": Belt.Int.toFloat(Obj.magic(e)["clientY"]) +. Constants.linkingRodHeight,
+            "clientX": Belt.Int.toFloat(Dom.clientX(e)),
+            "clientY": Belt.Int.toFloat(Dom.clientY(e)) +. Constants.linkingRodHeight,
           }
           let coords = Viewer.mouseEventToCoords(v, mockEvent)
           let pitchOpt = Belt.Array.get(coords, 0)
@@ -181,7 +181,7 @@ let make = () => {
               switch Nullable.toOption(viewer) {
               | Some(v) =>
                 let mockState = {...currentState, linkDraft: Some(initialDraft)}
-                HotspotLine.updateLines(v, mockState, ~mouseEvent=Some(e), ())
+                HotspotLine.updateLines(v, mockState, ~mouseEvent=e, ())
               | None => ()
               }
             | Some(d) =>
@@ -213,7 +213,7 @@ let make = () => {
                 // We construct a mock state for immediate feedback since the global state
                 // dispatch might take a tick to propagate to the loop
                 let mockState = {...currentState, linkDraft: Some(updatedDraft)}
-                HotspotLine.updateLines(v, mockState, ~mouseEvent=Some(e), ())
+                HotspotLine.updateLines(v, mockState, ~mouseEvent=e, ())
               | None => ()
               }
             }

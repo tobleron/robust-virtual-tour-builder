@@ -27,6 +27,9 @@ check_file() {
     local file_base="${filename%.*}"
     local file_ext="${filename##*.}"
 
+    # Exception: Skip Version updates
+    if [[ "$file_base" == "Version" ]]; then return; fi
+
     # 2. Check for Test Coverage (ReScript only for now, Rust has inline tests)
     if [[ "$file_ext" == "res" ]]; then
         local test_file_v="tests/unit/${file_base}_v.test.res"
@@ -42,9 +45,9 @@ check_file() {
 
         if [[ "$test_found" == "false" ]]; then
             # Create Test Task if not already existing in any task directory
-            if ! echo "$EXISTING_TASKS_CACHE" | grep -q "Test_${file_base}"; then
+            if ! echo "$EXISTING_TASKS_CACHE" | grep -q "Test_${file_base}_New"; then
                 local next_id=$(get_next_id)
-                local task_path="tasks/pending/tests/${next_id}_Add_Tests_${file_base}.md"
+                local task_path="tasks/pending/tests/${next_id}_Test_${file_base}_New.md"
                 
                 cat <<EOF > "$task_path"
 # Task $next_id: Add Unit Tests for $filename
@@ -65,9 +68,9 @@ EOF
         else
             # Test exists, check if it's STALE (Implementation is newer than Test)
             if [[ "$file" -nt "$actual_test_file" ]]; then
-                if ! echo "$EXISTING_TASKS_CACHE" | grep -q "Update_Tests_${file_base}"; then
+                if ! echo "$EXISTING_TASKS_CACHE" | grep -q "Test_${file_base}_Update"; then
                     local next_id=$(get_next_id)
-                    local task_path="tasks/pending/tests/${next_id}_Update_Tests_${file_base}.md"
+                    local task_path="tasks/pending/tests/${next_id}_Test_${file_base}_Update.md"
                     
                     cat <<EOF > "$task_path"
 # Task $next_id: Update Unit Tests for $filename
@@ -194,6 +197,9 @@ check_file_fast() {
     local file_base="${filename%.*}"
     local file_ext="${filename##*.}"
 
+    # Exception: Skip Version updates
+    if [[ "$file_base" == "Version" ]]; then return; fi
+
     if [[ "$file_ext" == "res" ]]; then
         local test_found=false
         local actual_test_file=""
@@ -202,13 +208,13 @@ check_file_fast() {
         if [[ "$test_found" == "false" ]] && [[ -f "tests/unit/${file_base}Test.res" ]]; then test_found=true; actual_test_file="tests/unit/${file_base}Test.res"; fi
 
         if [[ "$test_found" == "false" ]]; then
-            if ! echo "$EXISTING_TASKS_CACHE" | grep -q "Test_${file_base}"; then
+            if ! echo "$EXISTING_TASKS_CACHE" | grep -q "Test_${file_base}_New"; then
                 check_file "$file" 
             fi
         else
             # Test exists, check if it's STALE
             if [[ "$file" -nt "$actual_test_file" ]]; then
-                if ! echo "$EXISTING_TASKS_CACHE" | grep -q "Update_Tests_${file_base}"; then
+                if ! echo "$EXISTING_TASKS_CACHE" | grep -q "Test_${file_base}_Update"; then
                     check_file "$file"
                 fi
             fi

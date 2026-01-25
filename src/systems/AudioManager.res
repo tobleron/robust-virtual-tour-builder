@@ -136,11 +136,9 @@ let setupGlobalClickSounds = () => {
 
   /* Use documentBody for capture listener since document type is opaque object */
   let body = Dom.documentBody
-  if (Obj.magic(body): bool) {
-    try {
-      Dom.addEventListenerCapture(body, "mousedown", handleMouseDown, true)
-    } catch {
-    | _ => ()
-    }
+  try {
+    Dom.addEventListenerCapture(body, "mousedown", handleMouseDown, true)
+  } catch {
+  | _ => ()
   }
 }

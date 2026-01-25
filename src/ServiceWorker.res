@@ -37,7 +37,7 @@ let registerServiceWorker = () => {
       Logger.info(
         ~module_="ServiceWorker",
         ~message="Service Worker registered successfully",
-        ~data=Some({"scope": registration->Obj.magic}),
+        ~data=Some(Logger.castToJson({"scope": registration})),
         (),
       )
       Promise.resolve()
@@ -46,7 +46,7 @@ let registerServiceWorker = () => {
       Logger.error(
         ~module_="ServiceWorker",
         ~message="Service Worker registration failed",
-        ~data=Some({"error": error->Obj.magic}),
+        ~data=Some(Logger.castToJson({"error": error})),
         (),
       )
       Promise.resolve()

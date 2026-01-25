@@ -9,13 +9,15 @@ type serverTeaserConfig = {
 }
 
 /* Helper to convert safe structure to JSON compatible with backend */
+external castToJson: {..} => JSON.t = "%identity"
+
 let prepareProjectData = (state: state): JSON.t => {
   /* Use ProjectData.toJSON but ensure it adheres to backend 'ProjectData' struct */
   /* The backend expects snake_case in some places, but ProjectData.toJSON uses camelCase? */
   /* Let's double check backend structs. The user instruction said Align Backend and Frontend in task 26/related. */
   /* Re-using ProjectData.toJSON is safest if backend is aligned. */
   /* Re-using ProjectData.toJSON is safest if backend is aligned. */
-  Obj.magic(ProjectData.toJSON(state))
+  castToJson(ProjectData.toJSON(state))
 }
 
 let generateServerTeaser = (state: state, onProgress: option<(int, string) => unit>): Promise.t<
@@ -49,14 +51,16 @@ let generateServerTeaser = (state: state, onProgress: option<(int, string) => un
   let addedCount = ref(0)
   Belt.Array.forEach(state.scenes, scene => {
     /* We need to append the file blob if it exists */
-    /* Scene type has 'file: file' which is JSON.t in Types.res, but at runtime it is a File object */
-    let fileObj: File.t = Obj.magic(scene.file)
-
-    /* Check if valid blob/file */
-    /* In ReScript we might need runtime check if it's not null */
-    if Obj.magic(fileObj) !== Nullable.null {
-      FormData.appendWithFilename(formData, "files", Obj.magic(fileObj), scene.name)
-      addedCount := addedCount.contents + 1
+    switch scene.file {
+    | File(f) => {
+        FormData.appendWithFilename(formData, "files", f, scene.name)
+        addedCount := addedCount.contents + 1
+      }
+    | Blob(b) => {
+        FormData.appendWithFilename(formData, "files", b, scene.name)
+        addedCount := addedCount.contents + 1
+      }
+    | Url(_) => () // Skip URLs
     }
   })
 

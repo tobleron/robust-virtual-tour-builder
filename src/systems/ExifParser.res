@@ -254,7 +254,10 @@ let extractExifData = (file: File.t): Promise.t<BackendApi.apiResult<metadataRes
     ->Promise.then(BackendApi.handleResponse)
     ->Promise.then(result => {
       switch result {
-      | Ok(res) => Fetch.json(res)->Promise.then(json => Promise.resolve(Ok(Obj.magic(json))))
+      | Ok(res) =>
+        Fetch.json(res)->Promise.then(
+          json => Promise.resolve(Ok(JsonTypes.castToMetadataResponse(json))),
+        )
       | Error(msg) => Promise.resolve(Error(msg))
       }
     })

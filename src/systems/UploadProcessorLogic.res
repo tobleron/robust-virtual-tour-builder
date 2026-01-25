@@ -569,7 +569,7 @@ let finalizeUploads = (
               i => {
                 let qItem: UploadReport.qualityItem = {
                   quality: i.quality
-                  ->Option.map((q): SharedTypes.qualityAnalysis => Obj.magic(q))
+                  ->Option.map(JsonTypes.castToQualityAnalysis)
                   ->Option.getOr({
                     score: 0.0,
                     isBlurry: false,

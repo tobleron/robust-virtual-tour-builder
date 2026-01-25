@@ -8,7 +8,11 @@ let setupMockDom = () => {
     const createMockElement = (id) => ({
       id: id,
       style: {
-        setProperty: function(p, v) { this[p] = v; }
+        setProperty: function(p, v) { this[p] = v; },
+        opacity: "",
+        display: "",
+        transform: "",
+        width: ""
       },
       textContent: "",
       scrollTo: () => {},
@@ -39,7 +43,13 @@ let setupMockDom = () => {
     global.document.querySelector = function() { return null; };
     
     if (!global.document.body) global.document.body = {};
-    global.document.body.querySelector = function() { return null; };
+    global.document.body.querySelector = function(sel) { 
+      if (sel === '.sidebar-content') {
+        if (!elements['sidebar-content']) elements['sidebar-content'] = createMockElement('sidebar-content');
+        return elements['sidebar-content'];
+      }
+      return null; 
+    };
 
     if (typeof global.window === 'undefined') {
       global.window = global;
@@ -84,7 +94,27 @@ describe("ProgressBar", () => {
     setupMockDom()
     updateProgressBar(50.0, "Hiding", ~visible=false, ())
     let opacity: string = %raw(`global.elements["processing-ui"].style.opacity`)
+    let labelDisplay: string = %raw(`global.elements["upload-label"].style.display`)
     t->expect(opacity)->Expect.toBe("0")
+    // When hidden (visible=false), it schedules a timeout to hide, but immediately starts fade out.
+    // The logic also sets uploadLabel to flex immediately after timeout or transition?
+    // Actually looking at code:
+    // if !visible { Dom.setOpacity(ui, "0"); ... uploadLabel->Belt.Option.forEach(l => Dom.setDisplay(l, "flex")) }
+    // So upload-label should be flex.
+    t->expect(labelDisplay)->Expect.toBe("flex")
+  })
+
+  test("updateProgressBar handles visible=true", t => {
+    setupMockDom()
+    updateProgressBar(50.0, "Showing", ~visible=true, ())
+    let opacity: string = %raw(`global.elements["processing-ui"].style.opacity`)
+    let labelDisplay: string = %raw(`global.elements["upload-label"].style.display`)
+    t->expect(opacity)->Expect.toBe("") // Transition is set, but opacity not explicitly set to "1" in the else block immediately?
+    // Wait, code says: Dom.setDisplay(ui, "block"); Dom.setTransition(...); uploadLabel...display none.
+    // It doesn't set opacity to 1 immediately?
+    // It assumes it's already 1 or handled by CSS?
+    // But upload-label should be none.
+    t->expect(labelDisplay)->Expect.toBe("none")
   })
 
   test("updateProgressBar updates title when provided", t => {
@@ -92,5 +122,32 @@ describe("ProgressBar", () => {
     updateProgressBar(10.0, "Subtext", ~title="Major Title", ())
     let title: string = %raw(`global.elements["progress-title"].textContent`)
     t->expect(title)->Expect.toBe("Major Title")
+  })
+
+  test("updateProgressBar handles spinner opacity based on completion", t => {
+    setupMockDom()
+    // Not complete
+    updateProgressBar(99.0, "Almost", ())
+    let spinnerOp: string = %raw(`global.elements["progress-spinner"].style.opacity`)
+    t->expect(spinnerOp)->Expect.toBe("1")
+
+    // Complete
+    updateProgressBar(100.0, "Done", ())
+    let spinnerOpDone: string = %raw(`global.elements["progress-spinner"].style.opacity`)
+    t->expect(spinnerOpDone)->Expect.toBe("0")
+  })
+
+  test("updateProgressBar scrolls sidebar to top", t => {
+    setupMockDom()
+    // We need to spy on scrollTo
+    let _ = %raw(`(function() {
+      global.scrolledToTop = false;
+      global.elements['sidebar-content'] = {
+        scrollTo: () => { global.scrolledToTop = true; }
+      };
+    })()`)
+
+    updateProgressBar(10.0, "Scroll Check", ())
+    t->expect(%raw(`global.scrolledToTop`))->Expect.toBe(true)
   })
 })

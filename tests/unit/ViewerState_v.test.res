@@ -34,6 +34,14 @@ describe("ViewerState", () => {
     t->expect(ViewerState.getActiveContainerId())->Expect.toBe("panorama-b")
   })
 
+  test("getInactiveContainerId returns correct ID", t => {
+    ViewerState.state.activeViewerKey = A
+    t->expect(ViewerState.getInactiveContainerId())->Expect.toBe("panorama-b")
+
+    ViewerState.state.activeViewerKey = B
+    t->expect(ViewerState.getInactiveContainerId())->Expect.toBe("panorama-a")
+  })
+
   test("resetState should reset loading and safety timeout", t => {
     ViewerState.state.isSceneLoading = true
     ViewerState.state.loadingSceneId = Nullable.make("s1")

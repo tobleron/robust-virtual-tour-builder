@@ -63,9 +63,7 @@ let dispatch = (evt: event) => {
     | JsExn(e) =>
       Logger.error(
         ~module_="EventBus",
-        ~message=`EventBus Error: ${(Obj.magic(e): JsExn.t)
-          ->JsExn.message
-          ->Option.getOr("Unknown")}`,
+        ~message=`EventBus Error: ${JsExn.message(e)->Option.getOr("Unknown")}`,
         (),
       )
     | _ => Logger.error(~module_="EventBus", ~message="Unknown EventBus Error", ())

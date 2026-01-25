@@ -25,7 +25,7 @@ describe("ServerTeaser - Remote Rendering", () => {
     {
       id,
       name,
-      file: Obj.magic(%raw(`new Blob(["data"], { type: "image/jpeg" })`)),
+      file: Blob(%raw(`new globalThis.Blob(["data"], { type: "image/jpeg" })`)),
       tinyFile: None,
       originalFile: None,
       hotspots: [],

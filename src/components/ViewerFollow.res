@@ -69,8 +69,8 @@ let rec updateFollowLoop = () => {
           Nullable.toOption(state.lastMouseEvent),
         ) {
         | (Some(start), Some(evt)) =>
-          let cx = Belt.Int.toFloat(Obj.magic(evt)["clientX"])
-          let cy = Belt.Int.toFloat(Obj.magic(evt)["clientY"])
+          let cx = Belt.Int.toFloat(Dom.clientX(evt))
+          let cy = Belt.Int.toFloat(Dom.clientY(evt))
           let dx = cx -. start["x"]
           let dy = cy -. start["y"]
           let dist = Math.sqrt(dx *. dx +. dy *. dy)
@@ -146,7 +146,7 @@ let rec updateFollowLoop = () => {
             Logger.error(
               ~module_="ViewerFollow",
               ~message="UPDATE_LINES_ERROR",
-              ~data=Some(Obj.magic(e)),
+              ~data=Some(Logger.castToJson(e)),
               (),
             )
           }

@@ -81,6 +81,24 @@ type timelineUpdateJson = {
   duration: Nullable.t<int>,
 }
 
+type transitionTargetJson = {
+  yaw: float,
+  pitch: float,
+  targetName: string,
+  timelineItemId: Nullable.t<string>,
+}
+
+type arrivalViewJson = {
+  yaw: float,
+  pitch: float,
+}
+
+type stepJson = {
+  idx: int,
+  transitionTarget: Nullable.t<transitionTargetJson>,
+  arrivalView: arrivalViewJson,
+}
+
 /* --- DECODERS (Middle ground: Type-checked casts) --- */
 
 external castToHotspots: JSON.t => array<hotspotJson> = "%identity"
@@ -90,6 +108,12 @@ external castToImportScene: JSON.t => importSceneJson = "%identity"
 external castToTimelineItem: JSON.t => timelineItemJson = "%identity"
 external castToUpdateMetadata: JSON.t => updateMetadataJson = "%identity"
 external castToTimelineUpdate: JSON.t => timelineUpdateJson = "%identity"
+external castToValidationReport: JSON.t => SharedTypes.validationReport = "%identity"
+external castToMetadataResponse: JSON.t => SharedTypes.metadataResponse = "%identity"
+external castToQualityAnalysis: JSON.t => SharedTypes.qualityAnalysis = "%identity"
+external castToSimilarityResponse: JSON.t => SharedTypes.similarityResponse = "%identity"
+external castToSteps: JSON.t => array<stepJson> = "%identity"
+external castToExifMetadata: JSON.t => SharedTypes.exifMetadata = "%identity"
 
 let decodeProject = (json: JSON.t): result<projectJson, string> => {
   switch json {
