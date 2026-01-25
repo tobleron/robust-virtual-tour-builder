@@ -15,7 +15,11 @@ let getCachedSplinePath = (h: Types.hotspot, controlPoints, segments) => {
   switch Nullable.toOption(JSWeakMap.get(pathCache, h)) {
   | Some(p) => p
   | None =>
-    let p = PathInterpolation.getCatmullRomSpline(controlPoints, segments)
+    let p = if Constants.useBSplineSmoothing {
+      PathInterpolation.getBSplinePath(controlPoints, segments)
+    } else {
+      PathInterpolation.getCatmullRomSpline(controlPoints, segments)
+    }
     JSWeakMap.set(pathCache, h, p)
     p
   }
@@ -273,7 +277,11 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<Dom.event>=?,
                   | _ => ()
                   }
                 } else if Array.length(allRedPoints) > 2 {
-                  let redSpline = PathInterpolation.getCatmullRomSpline(allRedPoints, 40)
+                  let redSpline = if Constants.useBSplineSmoothing {
+                    PathInterpolation.getBSplinePath(allRedPoints, 40)
+                  } else {
+                    PathInterpolation.getCatmullRomSpline(allRedPoints, 40)
+                  }
                   updatePolyLine(
                     draftId,
                     cam,

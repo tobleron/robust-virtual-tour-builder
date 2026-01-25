@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **UI Refinement**: Adjusted the room label height to **27px** and tighter padding to improve the persistent label aesthetics.
 - Simulation stop hang fixed
 - Scene switching race condition fixed
+- Cubic-B-Spline Waypoint Smoothing applied to tour preview
 
 ## [4.7.10] - 2026-01-25
 
