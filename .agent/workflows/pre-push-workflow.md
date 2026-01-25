@@ -1,35 +1,33 @@
 ---
-description: Cleanup and consistency checks before pushing to GitHub.
+description: Environment sanitization and consistency checks before pushing to GitHub.
 ---
 
-# Pre-Push Workflow
+# Pre-Push Workflow (Sanitization)
 
-Follow these steps before pushing major updates to the remote repository.
+This workflow ensures the remote repository remains clean, secure, and production-ready.
 
-## 1. Quality Verification
-// turbo
-1. **Full Test Suite**: Run `npm test` to ensure both frontend and backend tests pass.
-2. **Backend Verification**: If backend changes were made, run `cd backend && cargo test && cd ..` for deep verification.
-3. **Log File Cleanup**: 
-   - Clear `logs/telemetry.log` (development logs shouldn't be pushed).
-   - Clear `logs/error.log` if it contains only test errors.
-   - Keep `logs/log_changes.txt` (this is the changelog).
-4. **Test Data**: Remove temporary test files from `test/` folder (e.g., `.zip`, `.webp`).
+## 1. Automated Sanitization
+**Command**: `./scripts/pre-push.sh`
+This script checks for:
+- **Large Files**: Identifies accidental binaries or massive assets (>1MB).
+- **Production Settings**: Verifies `debugEnabledDefault` is `false` in `Constants.res`.
+- **Test Artifacts**: Finds leftover `.zip` or `.webp` files in test directories.
 
-## 2. Consistency Audit
-1. **Version Sync**: Verify that `src/version.js`, `index.html`, `logs/log_changes.txt`, and the latest git commit message all use the EXACT SAME version number.
-2. **Large Files**: Ensure no files over 1MB (especially binaries) are being pushed unless they are intended assets.
+## 2. Manual Integrity Checks
+Automation cannot catch everything. Perform these final "System 2" checks:
 
-## 3. Logging System Check
-1. **Debug Level**: Ensure `DEBUG_LOG_LEVEL` in `src/constants.js` is set to `'info'` (not `'debug'` or `'trace'`).
-2. **Debug Default**: Ensure `DEBUG_ENABLED_DEFAULT` in `src/constants.js` is `false` for production.
-3. **No Test Logs**: Verify log files don't contain test entries like `TEST_LOG_ENTRY` or `TEST_ERROR_ENTRY`.
+### Environment & Secrets
+- [ ] **No Secrets**: Double-check that no `.env` files or API keys have been accidentally staged (check `git status`).
+- [ ] **Clean Logs**: Verify `logs/` only contains `log_changes.txt` and `.gitkeep`.
 
-## 4. Git Status
-1. **Ignored Files**: Confirm that `node_modules/` and `backend/target/` are correctly ignored by git.
-2. **Log Files**: Confirm `logs/*.log` files are not staged (should be in `.gitignore`).
+### State Consistency
+- [ ] **Build Status**: Ensure your last `commit.sh` run was successful and all tests passed.
+- [ ] **Map Sync**: Verify `MAP.md` is updated if you added/moved files.
+- [ ] **README Sync**: Verify `README.md` reflects the current version and test status.
 
-## 5. Final Verification
-// turbo
-1. **Clean Build**: Run `npm run res:build` to ensure no compilation errors.
-2. **Production Ready**: Verify the app works correctly with debug mode disabled.
+## 3. Final Push
+Once sanitized:
+```bash
+git push origin <your-branch>
+```
+If you find and fix issues during this workflow, **always use `./scripts/commit.sh`** to commit the fixes, as it ensures versioning and documentation stay in sync.

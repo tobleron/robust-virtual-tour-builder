@@ -65,9 +65,19 @@ fi
 
 # 8. Test Verification
 echo "🧪 Running Tests..."
-if ! npm test; then echo "❌ Tests failed."; exit 1; fi
+if ! npm test > test_output.txt 2>&1; then 
+    cat test_output.txt
+    echo "❌ Tests failed."
+    exit 1
+fi
+cat test_output.txt
 
-# 9. Log & Commit
+# 9. Update Documentation
+echo "📝 Updating Documentation (README & Changelog)..."
+node scripts/update-changelog.js "$MSG"
+node scripts/update-readme.js
+
+# 10. Log & Commit
 echo "[$(date '+%Y-%m-%d %H:%M')] v$NEW_VER - $MSG" >> logs/log_changes.txt
 rm -f logs/telemetry.log
 git add .

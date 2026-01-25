@@ -108,6 +108,15 @@ let handleGlobalEscape = (e: Dom.event) => {
         Navigation.cancelNavigation()
         GlobalStateBridge.dispatch(Actions.StopAutoPilot)
         GlobalStateBridge.dispatch(Actions.SetActiveScene(0, 0.0, 0.0, None))
+
+        // Force hide snapshot overlay and release locks for maximum robustness
+        switch Dom.getElementById("viewer-snapshot-overlay")->Nullable.toOption {
+        | Some(el) => Dom.ClassList.remove(Dom.classList(el), "snapshot-visible")
+        | None => ()
+        }
+        ViewerState.state.isSwapping = false
+        ViewerState.state.isSceneLoading = false
+
         EventBus.dispatch(ShowNotification("Simulation Stopped", #Info))
         Dom.preventDefault(e)
         handled := true

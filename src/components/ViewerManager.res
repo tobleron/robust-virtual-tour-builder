@@ -415,6 +415,18 @@ let make = () => {
           switch Nullable.toOption(v) {
           | Some(viewer) =>
             if !state.isLinking {
+              // Orientation Sync: Force view position if state changed but scene didn't (e.g. ESC/Stop)
+              let currentYaw = Viewer.getYaw(viewer)
+              let currentPitch = Viewer.getPitch(viewer)
+
+              if (
+                Math.abs(currentYaw -. state.activeYaw) > 0.01 ||
+                  Math.abs(currentPitch -. state.activePitch) > 0.01
+              ) {
+                Viewer.setYaw(viewer, state.activeYaw, false)
+                Viewer.setPitch(viewer, state.activePitch, false)
+              }
+
               HotspotManager.syncHotspots(viewer, state, scene, dispatch)
               HotspotLine.updateLines(viewer, state, ())
               Navigation.handleAutoForward(dispatch, state, scene)
@@ -426,7 +438,13 @@ let make = () => {
       }
     }
     None
-  }, (state.activeIndex, state.isLinking, Belt.Array.length(state.scenes)))
+  }, (
+    state.activeIndex,
+    state.isLinking,
+    state.activeYaw,
+    state.activePitch,
+    Belt.Array.length(state.scenes),
+  ))
 
   // 4. Hotspot Sync for Metadata changes (Return links etc)
   React.useEffect1(() => {

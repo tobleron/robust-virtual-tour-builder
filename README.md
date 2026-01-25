@@ -2,10 +2,12 @@
 
 ![CI](https://github.com/tobleron/robust-virtual-tour-builder/actions/workflows/ci.yml/badge.svg)
 
-**Version:** 4.4.7 (Build 43)  
+<!-- METADATA_START -->
+**Version:** 4.7.11 (Build 82)  
 **Directing Developer:** Arto Kalishian  
-**Release Date:** January 5, 2026  
+**Release Date:** January 25, 2026  
 **Status:** Commercial Ready
+<!-- METADATA_END -->
 
 ---
 
@@ -204,6 +206,10 @@ npm run res:watch
 
 The project includes comprehensive test coverage across both frontend and backend:
 
+<!-- STATUS_START -->
+✅ **Build:** Passing | 🧪 **Tests:** 40+ Unit Tests (100% pass rate) | 🛡️ **Strict Mode:** Enabled
+<!-- STATUS_END -->
+
 ### Run All Tests
 ```bash
 npm test
@@ -240,6 +246,7 @@ npm run test:ui
 
 For a detailed semantic breakdown of the codebase, see the [MAP.md](file:///Users/r2/Desktop/robust-virtual-tour-builder/MAP.md).
 
+<!-- STRUCTURE_START -->
 ```
 .
 ├── backend/                    # Rust backend server
@@ -279,43 +286,9 @@ For a detailed semantic breakdown of the codebase, see the [MAP.md](file:///User
 │       ├── Logger.res         # Telemetry logging
 │       ├── GeoUtils.res       # Geographic calculations
 │       ├── ImageOptimizer.res # Client-side image optimization
-│       └── TourLogic.res      # Tour validation logic
-│
-├── css/                        # Stylesheets
-│   ├── base.css               # CSS reset and base styles
-│   ├── variables.css          # Design tokens (colors, fonts, spacing)
-│   ├── animations.css         # Keyframe animations
-│   ├── layout.css             # Grid and flexbox layouts
-│   └── components/            # Component-specific styles
-│
-├── docs/                       # Documentation
-│   ├── ARCHITECTURE.md        # System architecture & performance
-│   ├── DESIGN_SYSTEM.md       # UI/UX standards
-│   ├── PROJECT_EVOLUTION.md   # Version history & roadmap
-│   └── QUALITY_ASSURANCE_AUDITS.md # QA reports
-│
-├── .agent/                     # AI agent workflows
-│   └── workflows/             # Step-by-step procedures
-│       ├── commit-workflow.md
-│       ├── functional-standards.md
-│       ├── rescript-standards.md
-│       └── rust-standards.md
-│
-├── scripts/                    # Build and utility scripts
-│   ├── setup.sh               # Initial project setup
-│   ├── commit.sh              # Automated commit with formatting
-│   └── sync-sw.cjs            # Service worker synchronization
-│
-├── tests/                      # Test files
-│   └── unit/                  # Unit tests (ReScript)
-│
-├── index.html                  # Application entry point
-├── package.json                # Node.js dependencies
-├── rsbuild.config.mjs          # Rsbuild configuration
-├── rescript.json               # ReScript compiler config
-├── tailwind.config.js          # Tailwind CSS configuration
-└── GEMINI.md                   # AI agent protocols
+│       └── TourLogic.res      # Tour logic
 ```
+<!-- STRUCTURE_END -->
 
 ---
 
