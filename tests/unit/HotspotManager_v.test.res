@@ -129,7 +129,37 @@ describe("HotspotManager", () => {
 
     let cssClass: string = config["cssClass"]
     t->expect(String.includes(cssClass, "in-simulation"))->Expect.toBe(true)
-    t->expect(String.includes(cssClass, "hidden-in-sim"))->Expect.toBe(true)
+    t->expect(String.includes(cssClass, "hidden-in-sim"))->Expect.toBe(false)
+  })
+
+  test("createHotspotConfig should mark active-sim-target class when navigating", t => {
+    let hotspot = createHotspot("TargetScene")
+    let scene = createScene("SourceScene")
+    let state = {
+      ...State.initialState,
+      navigation: Navigating({
+        journeyId: 1,
+        targetIndex: 1,
+        sourceIndex: 0,
+        hotspotIndex: 0, // matches our index
+        arrivalYaw: 0.0,
+        arrivalPitch: 0.0,
+        arrivalHfov: 0.0,
+        previewOnly: false,
+        pathData: None,
+      }),
+    }
+
+    let config = HotspotManager.createHotspotConfig(
+      ~hotspot,
+      ~index=0,
+      ~state,
+      ~scene,
+      ~dispatch=mockDispatch,
+    )
+
+    let cssClass: string = config["cssClass"]
+    t->expect(String.includes(cssClass, "active-sim-target"))->Expect.toBe(true)
   })
 
   test("createHotspotConfig should mark return-link class", t => {
