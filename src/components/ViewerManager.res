@@ -1,10 +1,8 @@
 /* src/components/ViewerManager.res */
 
 open ReBindings
-open ViewerTypes
 open ViewerState
 open ViewerLoader
-open EventBus
 open Types
 
 @react.component
@@ -14,19 +12,8 @@ let make = () => {
 
   // Initialization (once)
   React.useEffect0(() => {
+    let cleanupInput = InputSystem.initInputSystem()
     NavigationRenderer.init() // Legacy init for now
-
-    let handleKeyDown = e => {
-      let key = Dom.key(e)
-      if key == "Escape" {
-        if state.isLinking {
-          dispatch(Actions.StopLinking)
-          EventBus.dispatch(ShowNotification("Link Cancelled", #Info))
-        }
-      }
-    }
-
-    Window.addEventListener("keydown", handleKeyDown)
 
     let handleResize = _ => {
       let v = getActiveViewer()
@@ -40,223 +27,6 @@ let make = () => {
     // Initialize Guide
     ViewerState.state.guide = Dom.getElementById("cursor-guide")
 
-    // Mouse Move listener for Stage (to track lastMouseEvent and update cursor logic)
-    let handleMouseMove = e => {
-      ViewerState.state.lastMouseEvent = Nullable.make(e)
-
-      let stage = Dom.getElementById("viewer-stage")
-      switch Nullable.toOption(stage) {
-      | Some(el) =>
-        let rect = Dom.getBoundingClientRect(el)
-        let clientX = Belt.Int.toFloat(Dom.clientX(e))
-        let clientY = Belt.Int.toFloat(Dom.clientY(e))
-
-        let x = clientX -. rect.left
-        let y = clientY -. rect.top
-
-        // DEBUG: Track rod coordinates if it's acting up
-        // Logger.debug(~module_="ViewerManager", ~message="ROD_POS", ~data=Some({"x": x, "y": y}), ())
-
-        ViewerState.state.mouseXNorm = x /. rect.width *. 2.0 -. 1.0
-        ViewerState.state.mouseYNorm =
-          (y +. Constants.linkingRodHeight) /. rect.height *. 2.0 -. 1.0
-
-        // Calculate Velocity
-        let now = Date.now()
-        let dt = (now -. ViewerState.state.lastMoveTime) /. 1000.0 // seconds
-        if dt > 0.0 && dt < 0.1 {
-          // Only calculate if the time delta is reasonable (e.g., skip big gaps or 0ms)
-          let velX = (x -. ViewerState.state.lastMoveX) /. dt
-          let velY = (y -. ViewerState.state.lastMoveY) /. dt
-
-          // Apply a bit of smoothing (low-pass filter) to avoid spikes
-          let smoothing = 0.7
-          ViewerState.state.mouseVelocityX =
-            ViewerState.state.mouseVelocityX *. smoothing +. velX *. (1.0 -. smoothing)
-          ViewerState.state.mouseVelocityY =
-            ViewerState.state.mouseVelocityY *. smoothing +. velY *. (1.0 -. smoothing)
-        }
-
-        ViewerState.state.lastMoveX = x
-        ViewerState.state.lastMoveY = y
-        ViewerState.state.lastMoveTime = now
-
-        // Update Rod Position (Yellow Vertical Guide)
-        let guide = Dom.getElementById("cursor-guide")
-        let currentState = GlobalStateBridge.getState()
-
-        switch Nullable.toOption(guide) {
-        | Some(g) =>
-          if currentState.isLinking {
-            // Ensure rod is visible and accurately positioned (v4.3.1 fix)
-            Dom.setProperty(g, "display", "block")
-
-            // Use transform for more reliable positioning that ignores layout flow
-
-            Dom.setProperty(
-              g,
-              "transform",
-              "translate(" ++
-              Float.toString(Math.round(x)) ++
-              "px, " ++
-              Float.toString(Math.round(y)) ++ "px)",
-            )
-
-            // Reset left/top to avoid conflicts with transform
-
-            Dom.setLeft(g, "0px")
-
-            Dom.setTop(g, "0px")
-
-            Dom.setStyleHeight(g, Float.toString(Constants.linkingRodHeight) ++ "px")
-
-            // Re-enable follow loop for wider waypoints navigation (Stage 2)
-            if !ViewerState.state.followLoopActive {
-              ViewerState.state.followLoopActive = true
-              ViewerFollow.updateFollowLoop()
-            }
-          } else {
-            Dom.setProperty(g, "display", "none !important")
-            Dom.classList(g)->Dom.ClassList.remove("cursor-dot-blinking")
-          }
-        | None => ()
-        }
-      | None => ()
-      }
-    }
-
-    let handleStageClick = (e: Dom.event) => {
-      // Trace log
-      Logger.debug(
-        ~module_="ViewerManager",
-        ~message="CLICK_DETECTED",
-        ~data=Some({
-          "eventPhase": if Dom.eventPhase(e) == 1 {
-            "capture"
-          } else {
-            "target/bubble"
-          },
-        }),
-        (),
-      )
-
-      let currentState = GlobalStateBridge.getState()
-
-      if currentState.isLinking && currentState.simulation.status != Running {
-        let viewer = getActiveViewer()
-
-        switch Nullable.toOption(viewer) {
-        | Some(v) =>
-          // Offset click by linkingRodHeight to match visual tip (v4.2.18 behavior)
-          let mockEvent = {
-            "clientX": Belt.Int.toFloat(Dom.clientX(e)),
-            "clientY": Belt.Int.toFloat(Dom.clientY(e)) +. Constants.linkingRodHeight,
-          }
-          let coords = Viewer.mouseEventToCoords(v, mockEvent)
-          let pitchOpt = Belt.Array.get(coords, 0)
-          let yawOpt = Belt.Array.get(coords, 1)
-
-          switch (pitchOpt, yawOpt) {
-          | (Some(pitch), Some(yaw)) =>
-            // Valid coordinates, prevent default path
-
-            Logger.debug(
-              ~module_="ViewerManager",
-              ~message="STAGE_CLICK_LINKING",
-              ~data=Some({"pitch": pitch, "yaw": yaw}),
-              (),
-            )
-
-            let draft = currentState.linkDraft
-
-            switch draft {
-            | None =>
-              let hfov = Viewer.getHfov(v)
-              let camPitch = Viewer.getPitch(v)
-              let camYaw = Viewer.getYaw(v)
-
-              let initialDraft = {
-                yaw,
-                pitch,
-                camYaw,
-                camPitch,
-                camHfov: hfov,
-                intermediatePoints: None,
-              }
-
-              GlobalStateBridge.dispatch(Actions.StartLinking(Some(initialDraft)))
-
-              // Force update lines immediately for the very first click
-              switch Nullable.toOption(viewer) {
-              | Some(v) =>
-                let mockState = {...currentState, linkDraft: Some(initialDraft)}
-                HotspotLine.updateLines(v, mockState, ~mouseEvent=e, ())
-              | None => ()
-              }
-            | Some(d) =>
-              let currentPoints = switch d.intermediatePoints {
-              | Some(pts) => pts
-              | None => []
-              }
-              let camPitch = Viewer.getPitch(v)
-              let camYaw = Viewer.getYaw(v)
-              let camHfov = Viewer.getHfov(v)
-
-              let newPoint: Types.linkDraft = {
-                yaw,
-                pitch,
-                camYaw,
-                camPitch,
-                camHfov,
-                intermediatePoints: None,
-              }
-
-              let newPoints = Belt.Array.concat(currentPoints, [newPoint])
-
-              let updatedDraft = {...d, intermediatePoints: Some(newPoints)}
-              GlobalStateBridge.dispatch(Actions.UpdateLinkDraft(updatedDraft))
-
-              // Force update lines immediately
-              switch Nullable.toOption(viewer) {
-              | Some(v) =>
-                // We construct a mock state for immediate feedback since the global state
-                // dispatch might take a tick to propagate to the loop
-                let mockState = {...currentState, linkDraft: Some(updatedDraft)}
-                HotspotLine.updateLines(v, mockState, ~mouseEvent=e, ())
-              | None => ()
-              }
-            }
-          | _ => Logger.warn(~module_="ViewerManager", ~message="STAGE_CLICK_INVALID_COORDS", ())
-          }
-        | None => Logger.warn(~module_="ViewerManager", ~message="NO_ACTIVE_VIEWER", ())
-        }
-      } else {
-        Logger.debug(
-          ~module_="ViewerManager",
-          ~message="CLICK_IGNORED_STATE",
-          ~data=Some({
-            "isLinking": currentState.isLinking,
-            "simStatus": currentState.simulation.status,
-          }),
-          (),
-        )
-      }
-    }
-
-    let handleStagePointerDown = e => {
-      let currentState = GlobalStateBridge.getState()
-      if currentState.isLinking && currentState.simulation.status != Running {
-        Logger.debug(
-          ~module_="ViewerManager",
-          ~message="POINTER_DOWN_CAPTURE",
-          ~data=Some({"action": "stopPropagation"}),
-          (),
-        )
-        Dom.stopPropagation(e)
-        // We do NOT preventDefault, to allow 'click' to generate
-      }
-    }
-
     let stage = Dom.getElementById("viewer-stage")
     switch Nullable.toOption(stage) {
     | Some(el) =>
@@ -266,15 +36,15 @@ let make = () => {
         ~data=Some({"element": "viewer-stage"}),
         (),
       )
-      Dom.addEventListener(el, "mousemove", handleMouseMove)
-      Dom.addEventListenerCapture(el, "pointerdown", handleStagePointerDown, true)
-      Dom.addEventListenerCapture(el, "click", handleStageClick, true)
+      Dom.addEventListener(el, "mousemove", InputSystem.handleMouseMove)
+      Dom.addEventListenerCapture(el, "pointerdown", LinkEditorLogic.handleStagePointerDown, true)
+      Dom.addEventListenerCapture(el, "click", LinkEditorLogic.handleStageClick, true)
     | None => Logger.error(~module_="ViewerManager", ~message="STAGE_NOT_FOUND", ())
     }
 
     Some(
       () => {
-        Window.removeEventListener("keydown", handleKeyDown)
+        cleanupInput()
         Window.removeEventListener("resize", handleResize)
         // Ensure guide is hidden on unmount/cleanup
         let guide = Dom.getElementById("cursor-guide")
@@ -287,9 +57,14 @@ let make = () => {
 
         switch Nullable.toOption(stage) {
         | Some(el) =>
-          Dom.removeEventListener(el, "mousemove", handleMouseMove)
-          Dom.removeEventListenerCapture(el, "pointerdown", handleStagePointerDown, true)
-          Dom.removeEventListenerCapture(el, "click", handleStageClick, true)
+          Dom.removeEventListener(el, "mousemove", InputSystem.handleMouseMove)
+          Dom.removeEventListenerCapture(
+            el,
+            "pointerdown",
+            LinkEditorLogic.handleStagePointerDown,
+            true,
+          )
+          Dom.removeEventListenerCapture(el, "click", LinkEditorLogic.handleStageClick, true)
         | None => ()
         }
       },
@@ -447,8 +222,15 @@ let make = () => {
   ))
 
   // 4. Hotspot Sync for Metadata changes (Return links etc)
-  React.useEffect1(() => {
+  React.useEffect2(() => {
+    // Only run if we are NOT in linking mode (to avoid wiping the draft lines)
     if state.activeIndex != -1 && !state.isLinking {
+      Logger.debug(
+        ~module_="ViewerManager",
+        ~message="SYNC_EFFECT_TRIGGERED",
+        ~data=Some({"reason": "Scenes or Linking State Changed"}),
+        (),
+      )
       switch Belt.Array.get(state.scenes, state.activeIndex) {
       | Some(scene) =>
         let v = ViewerState.getActiveViewer()
@@ -463,7 +245,7 @@ let make = () => {
       }
     }
     None
-  }, [state.scenes])
+  }, (state.scenes, state.isLinking))
 
   // 5. Ratchet State Reset
   React.useEffect1(() => {

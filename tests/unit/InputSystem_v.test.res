@@ -21,7 +21,7 @@ describe("InputSystem", () => {
   }
 
   beforeAll(() => {
-    InputSystem.initInputSystem()
+    ignore(InputSystem.initInputSystem())
   })
 
   testAsync("should close modal on Escape", async t => {

@@ -1,45 +1,114 @@
+Cleaned previous build due to compiler update
+Cleaned 0/0
+Parsed 230 source files
+Compiled 200 modules
 
-> robust-virtual-tour-builder@4.4.6 build
-> npm run sw:sync && npm run res:build && rsbuild build
+  [1;33mWarning number 33[0m
+  [36m/Users/r2/Desktop/robust-virtual-tour-builder/src/components/SnapshotOverlay.res[0m:[2m2:1-15[0m
+
+  1 [2m│[0m /* src/components/SnapshotOverlay.res */
+  [1;33m2[0m [2m│[0m [1;33mopen ReBindings[0m
+  3 [2m│[0m 
+  4 [2m│[0m module StaticDiv = {
+
+  unused open ReBindings.
 
 
-> robust-virtual-tour-builder@4.4.6 sw:sync
-> node scripts/sync-sw.cjs
+  [1;33mWarning number 33[0m
+  [36m/Users/r2/Desktop/robust-virtual-tour-builder/src/systems/LinkEditorLogic.res[0m:[2m4:1-16[0m
 
-[Sync SW] Starting synchronization...
-[Sync SW] src/ServiceWorkerMain.res is already up to date.
-[Sync SW] Compiling ReScript...
+  2 [2m│[0m 
+  3 [2m│[0m open ReBindings
+  [1;33m4[0m [2m│[0m [1;33mopen ViewerTypes[0m
+  5 [2m│[0m open ViewerState
+  6 [2m│[0m open Types
 
-> robust-virtual-tour-builder@4.4.6 res:build
-> rescript
+  unused open ViewerTypes.
 
-Cleaned 0/183
-Parsed 0 source files
-Compiled 0 modules
-[Sync SW] Bundling Service Worker...
 
-  public/service-worker.js  5.7kb
+  [1;33mWarning number 33[0m
+  [36m/Users/r2/Desktop/robust-virtual-tour-builder/src/systems/LinkEditorLogic.res[0m:[2m7:1-22[0m
 
-⚡ Done in 15ms
-[Sync SW] Successfully bundled to /Users/r2/Desktop/robust-virtual-tour-builder/public/service-worker.js
+  5 [2m│[0m open ViewerState
+  6 [2m│[0m open Types
+  [1;33m7[0m [2m│[0m [1;33mopen GlobalStateBridge[0m
+  8 [2m│[0m open Actions
+  9 [2m│[0m open Constants
 
-> robust-virtual-tour-builder@4.4.6 res:build
-> rescript
+  unused open GlobalStateBridge.
 
-Cleaned 0/183
-Parsed 0 source files
-Compiled 0 modules
-Rsbuild v1.7.2
 
-info    build started...
-ready   built in 0.74 s
+  [1;33mWarning number 33[0m
+  [36m/Users/r2/Desktop/robust-virtual-tour-builder/src/systems/LinkEditorLogic.res[0m:[2m8:1-12[0m
 
-File (web)                             Size       Gzip   
-dist/asset-manifest.json               0.72 kB    0.23 kB
-dist/index.html                        4.2 kB     1.5 kB
-dist/static/js/lib-react.d9a6880c.js   189.6 kB   59.9 kB
-dist/static/js/455.e6afb6e6.js         238.1 kB   74.4 kB
-dist/static/js/index.ad9140ce.js       380.6 kB   92.1 kB
+   6 [2m│[0m open Types
+   7 [2m│[0m open GlobalStateBridge
+   [1;33m8[0m [2m│[0m [1;33mopen Actions[0m
+   9 [2m│[0m open Constants
+  10 [2m│[0m 
 
-                              Total:   813.3 kB   228.1 kB
+  unused open Actions.
 
+
+  [1;33mWarning number 33[0m
+  [36m/Users/r2/Desktop/robust-virtual-tour-builder/src/systems/LinkEditorLogic.res[0m:[2m9:1-14[0m
+
+   7 [2m│[0m open GlobalStateBridge
+   8 [2m│[0m open Actions
+   [1;33m9[0m [2m│[0m [1;33mopen Constants[0m
+  10 [2m│[0m 
+  11 [2m│[0m let handleStageClick = (e: Dom.event) => {
+
+  unused open Constants.
+
+
+  [1;33mWarning number 33[0m
+  [36m/Users/r2/Desktop/robust-virtual-tour-builder/src/systems/CursorPhysics.res[0m:[2m5:1-14[0m
+
+  3 [2m│[0m open ReBindings
+  4 [2m│[0m open ViewerState
+  [1;33m5[0m [2m│[0m [1;33mopen Constants[0m
+  6 [2m│[0m 
+  7 [2m│[0m let calculateVelocity = (x: float, y: float) => {
+
+  unused open Constants.
+
+
+  [1;33mWarning number 33[0m
+  [36m/Users/r2/Desktop/robust-virtual-tour-builder/src/systems/InputSystem.res[0m:[2m5:1-14[0m
+
+  3 [2m│[0m open ReBindings
+  4 [2m│[0m open ViewerState
+  [1;33m5[0m [2m│[0m [1;33mopen Constants[0m
+  6 [2m│[0m open GlobalStateBridge
+  7 [2m│[0m 
+
+  unused open Constants.
+
+
+  [1;33mWarning number 33[0m
+  [36m/Users/r2/Desktop/robust-virtual-tour-builder/src/systems/InputSystem.res[0m:[2m6:1-22[0m
+
+  4 [2m│[0m open ViewerState
+  5 [2m│[0m open Constants
+  [1;33m6[0m [2m│[0m [1;33mopen GlobalStateBridge[0m
+  7 [2m│[0m 
+  8 [2m│[0m let normalizeMouseCoords = (e: Dom.event, element: Dom.element) => {
+
+  unused open GlobalStateBridge.
+
+
+
+  [1;31mWe've found a bug for you![0m
+  [36m/Users/r2/Desktop/robust-virtual-tour-builder/tests/unit/InputSystem_v.test.res[0m:[2m24:5-31[0m
+
+  22 [2m┆[0m 
+  23 [2m┆[0m beforeAll(() => {
+  [1;31m24[0m [2m┆[0m   [1;31mInputSystem.initInputSystem[0m()
+  25 [2m┆[0m })
+  26 [2m┆[0m 
+
+  The value initInputSystem can't be found in InputSystem
+
+
+Incremental build failed. Error: [2K  Failed to Compile. See Errors Above
