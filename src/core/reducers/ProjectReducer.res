@@ -6,7 +6,7 @@ let reduce = (state: state, action: action): option<state> => {
   | SetTourName(name) => Some({...state, tourName: TourLogic.sanitizeName(name)})
 
   | LoadProject(projectDataJson) =>
-    Some({...ReducerHelpers.parseProject(projectDataJson), sessionId: state.sessionId})
+    Some({...SceneHelpers.parseProject(projectDataJson), sessionId: state.sessionId})
 
   | Reset => Some(State.initialState)
 

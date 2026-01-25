@@ -17,6 +17,9 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/core/Reducer.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/core/Reducer.res): Root reducer orchestrating domain updates. `#reducer` `#action-dispatch`
 *   [src/core/Actions.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/core/Actions.res): All supported user and system actions. `#actions` `#events`
 *   [src/core/AppContext.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/core/AppContext.res): Typed React Context for state and dispatch accessibility. `#react-context` `#hooks`
+*   [src/core/SceneHelpers.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/core/SceneHelpers.res): Domain logic for scene parsing, synchronization, and manipulation. `#helpers` `#scene`
+*   [src/core/UiHelpers.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/core/UiHelpers.res): Generic UI utilities, blob/file handling, and array manipulation. `#helpers` `#ui` `#utils`
+*   [src/core/SimHelpers.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/core/SimHelpers.res): Simulation and timeline specific parsers and helpers. `#helpers` `#simulation`
 
 ### 🌐 System Layer (Business Logic)
 *   [src/systems/UploadProcessor.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/UploadProcessor.res): Lightweight facade for the image processing pipeline. `#upload` `#facade`
@@ -28,6 +31,10 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/systems/HotspotLineLogic.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/HotspotLineLogic.res): Coordinate projection math and SVG drawing primitives. `#math` `#rendering` `#logic`
 *   [src/systems/SimulationDriver.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/SimulationDriver.res): Logic for Autopilot and route simulations. `#autopilot` `#simulation` `#navigation`
 *   [src/systems/NavigationController.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/NavigationController.res): Manages movement between scenes. `#navigation` `#scene-switching`
+*   [src/systems/NavigationGraph.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/NavigationGraph.res): Graph data structure and BFS pathfinding for scene navigation. `#navigation` `#graph` `#pathfinding`
+*   [src/systems/SceneSwitcher.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/SceneSwitcher.res): Handles the state transitions and side effects of changing scenes. `#scene-switching` `#transition`
+*   [src/systems/TeaserPlayback.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/TeaserPlayback.res): Orchestrates teaser and autopilot playback logic. `#teaser` `#playback`
+*   [src/systems/TeaserState.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/TeaserState.res): State management for the teaser system. `#teaser` `#state`
 *   [src/systems/ProjectManager.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/ProjectManager.res): Handles ZIP-based loading and periodic auto-saving. `#persistence` `#save-load` `#zip`
 *   [src/systems/Exporter.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/Exporter.res): Generates production-ready tour clusters. `#export` `#deployment`
 

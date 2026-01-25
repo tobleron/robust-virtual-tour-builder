@@ -204,7 +204,7 @@ let make = () => {
 
               HotspotManager.syncHotspots(viewer, state, scene, dispatch)
               HotspotLine.updateLines(viewer, state, ())
-              Navigation.handleAutoForward(dispatch, state, scene)
+              SceneSwitcher.handleAutoForward(dispatch, state, scene)
             }
           | None => ()
           }
