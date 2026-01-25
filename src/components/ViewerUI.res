@@ -322,9 +322,9 @@ let make = () => {
         <Tooltip
           alignment=#Right
           content={if state.isLinking {
-            "Close Link Mode"
+            "Close link mode"
           } else {
-            "Add Link"
+            "Add link to scene"
           }}
           disabled={state.isLinking}
         >
@@ -351,9 +351,9 @@ let make = () => {
         <Tooltip
           alignment=#Right
           content={if simActive {
-            "Stop Auto-Pilot"
+            "Stop tour preview"
           } else {
-            "Start Auto-Pilot"
+            "Tour preview"
           }}
           disabled={state.isLinking}
         >
@@ -376,7 +376,7 @@ let make = () => {
           </Shadcn.Button>
         </Tooltip>
 
-        <Tooltip content="Toggle Category" alignment=#Right disabled={state.isLinking}>
+        <Tooltip content="Set scene indoor / outdoor" alignment=#Right disabled={state.isLinking}>
           <Shadcn.Button
             size="icon"
             variant={if !scenesLoaded {
@@ -397,7 +397,7 @@ let make = () => {
         </Tooltip>
 
         <Shadcn.DropdownMenu>
-          <Tooltip content="Scene Label Preset" alignment=#Right disabled={state.isLinking}>
+          <Tooltip content="Set scene label" alignment=#Right disabled={state.isLinking}>
             <Shadcn.DropdownMenu.Trigger asChild=true>
               <Shadcn.Button
                 size="icon"

@@ -234,6 +234,7 @@ let updateSimulationArrow = (
   ~colorOverride=?,
   ~preComputedSegments=?,
   ~preComputedTotalDistance=?,
+  ~id="sim_arrow",
   (),
 ) => {
   let (totalDist, segments) = switch (preComputedTotalDistance, preComputedSegments) {
@@ -420,7 +421,7 @@ let updateSimulationArrow = (
       }
 
       if Float.isFinite(s.x) && Float.isFinite(s.y) && Float.isFinite(angle) {
-        switch SvgManager.getOrCreate("sim_arrow", "path") {
+        switch SvgManager.getOrCreate(id, "path") {
         | Some(arrow) =>
           Svg.setAttribute(arrow, "d", "M -10,-7 L 6,0 L -10,7 Z")
           Svg.setAttribute(arrow, "fill", color)
@@ -446,10 +447,10 @@ let updateSimulationArrow = (
         | None => ()
         }
       } else {
-        SvgManager.hide("sim_arrow")
+        SvgManager.hide(id)
       }
-    | None => SvgManager.hide("sim_arrow")
+    | None => SvgManager.hide(id)
     }
-  | None => SvgManager.hide("sim_arrow")
+  | None => SvgManager.hide(id)
   }
 }

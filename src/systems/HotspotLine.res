@@ -51,6 +51,7 @@ let updateSimulationArrow = (
   ~colorOverride=?,
   ~preComputedSegments=?,
   ~preComputedTotalDistance=?,
+  ~id="sim_arrow",
   (),
 ) => {
   let svgOpt = Dom.getElementById("viewer-hotspot-lines")
@@ -72,6 +73,7 @@ let updateSimulationArrow = (
         ~colorOverride?,
         ~preComputedSegments?,
         ~preComputedTotalDistance?,
+        ~id,
         (),
       )
     }
@@ -175,6 +177,51 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<Dom.event>=?,
                 | _ => ()
                 }
               | None => ()
+              }
+            }
+
+            // 1b. Persistent Orange Arrow at start of waypoints
+            if state.simulation.status == Idle {
+              for i in 0 to Array.length(hotspots) - 1 {
+                switch Belt.Array.get(hotspots, i) {
+                | Some(h) =>
+                  switch (h.startYaw, h.startPitch, h.viewFrame) {
+                  | (Some(sy), Some(sp), Some(vf)) =>
+                    let arrowId = "arrow_" ++ h.linkId
+                    Belt.MutableSet.String.add(currentFrameIds, arrowId)
+
+                    let waypointsRaw = switch h.waypoints {
+                    | Some(w) => w
+                    | None => []
+                    }
+                    let waypoints: array<PathInterpolation.point> = Belt.Array.map(
+                      waypointsRaw,
+                      w => {
+                        PathInterpolation.yaw: w.yaw,
+                        pitch: w.pitch,
+                      },
+                    )
+
+                    // Render arrow at progress 0.0 (start)
+                    // We reuse the logic but force progress 0.0
+                    HotspotLineLogic.updateSimulationArrow(
+                      cam,
+                      sy, // Start Yaw
+                      sp, // Start Pitch
+                      vf.pitch, // End Pitch (needed for path calc, though we only need start direction)
+                      vf.yaw, // End Yaw
+                      0.0, // Progress 0 starts at the arrow
+                      rect,
+                      ~opacity=0.9,
+                      ~waypoints,
+                      ~colorOverride="var(--orange-brand)",
+                      ~id=arrowId,
+                      (),
+                    )
+                  | _ => ()
+                  }
+                | None => ()
+                }
               }
             }
 
