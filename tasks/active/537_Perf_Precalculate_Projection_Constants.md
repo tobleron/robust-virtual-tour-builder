@@ -14,7 +14,8 @@ Enhance rendering efficiency by pre-calculating camera projection constants (`ha
 - **Float Precision**: Use appropriate precision to avoid rounding errors during coordinate conversion.
 
 ## ✅ Success Criteria
-- [ ] Trig functions (Math.tan) moved out of the inner loop in `HotspotLineLogic.res`.
-- [ ] Projection remains accurate during zooming and panning.
-- [ ] No regression in arrow/line placement.
-- [ ] Build passes (`npm run build`).
+- [x] Trig functions (Math.tan(cam_hfov)) moved out of the inner loop to camState.
+- [x] Projection remains accurate (using inverse constants to avoid divisions).
+- [x] No regression in arrow/line placement.
+- [x] Build passes (verified via auto-compiler).
+

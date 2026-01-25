@@ -2,6 +2,9 @@
 open ReBindings
 open HotspotLineTypes
 
+let degToRad = Math.Constants.pi /. 180.0
+let toRad = deg => deg *. degToRad
+
 let isViewerValid = (viewer: Viewer.t): bool => {
   let loaded = Viewer.isLoaded(viewer)
   if !loaded {
@@ -39,20 +42,43 @@ type camState = {
   aspectRatio: float,
   halfTanHfov: float,
   halfTanVfov: float,
+  invHalfTanHfov: float,
+  invHalfTanVfov: float,
 }
 
 let getCamState = (viewer, rect: Dom.rect) => {
   let yaw = Viewer.getYaw(viewer)
   let pitch = Viewer.getPitch(viewer)
   let hfov = Viewer.getHfov(viewer)
-  let hfovRad = hfov *. Math.Constants.pi /. 180.0
+  let hfovRad = hfov *. degToRad
   let aspectRatio = rect.width /. rect.height
   let halfTanHfov = Math.tan(hfovRad /. 2.0)
 
   // vfov calculation: tan(vfov/2) = tan(hfov/2) / aspects
   let halfTanVfov = halfTanHfov /. aspectRatio
 
-  {yaw, pitch, hfov, aspectRatio, halfTanHfov, halfTanVfov}
+  let invHalfTanHfov = if halfTanHfov != 0.0 {
+    1.0 /. halfTanHfov
+  } else {
+    0.0
+  }
+
+  let invHalfTanVfov = if halfTanVfov != 0.0 {
+    1.0 /. halfTanVfov
+  } else {
+    0.0
+  }
+
+  {
+    yaw,
+    pitch,
+    hfov,
+    aspectRatio,
+    halfTanHfov,
+    halfTanVfov,
+    invHalfTanHfov,
+    invHalfTanVfov,
+  }
 }
 
 let getScreenCoords = (cam: camState, pitch, yaw, rect: Dom.rect) => {
@@ -64,19 +90,16 @@ let getScreenCoords = (cam: camState, pitch, yaw, rect: Dom.rect) => {
     diff := diff.contents +. 360.0
   }
 
-  let toRad = deg => deg *. Math.Constants.pi /. 180.0
-  let yawRad = diff.contents->toRad
-  let pitchRad = (pitch -. cam.pitch)->toRad
+  let yawRad = diff.contents *. degToRad
+  let pitchRad = (pitch -. cam.pitch) *. degToRad
 
   let cosYaw = Math.cos(yawRad)
 
-  if cosYaw < 0.0 || cam.hfov <= 0.0 {
-    None
-  } else if cam.halfTanHfov == 0.0 || cam.halfTanVfov == 0.0 {
+  if cosYaw <= 0.0 || cam.hfov <= 0.0 {
     None
   } else {
-    let x = Math.tan(yawRad) /. cam.halfTanHfov
-    let y = Math.tan(pitchRad) /. (cam.halfTanVfov *. cosYaw)
+    let x = Math.tan(yawRad) *. cam.invHalfTanHfov
+    let y = Math.tan(pitchRad) *. (cam.invHalfTanVfov /. cosYaw)
 
     if !Float.isFinite(x) || !Float.isFinite(y) {
       None
