@@ -66,10 +66,7 @@ describe("SceneList", () => {
     let mockDispatch = _ => ()
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(
-      root,
-      <WrappedSceneList mockState mockDispatch />,
-    )
+    ReactDOMClient.Root.render(root, <WrappedSceneList mockState mockDispatch />)
 
     await wait(50)
 
@@ -99,10 +96,7 @@ describe("SceneList", () => {
     let mockDispatch = _ => ()
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(
-      root,
-      <WrappedSceneList mockState mockDispatch />,
-    )
+    ReactDOMClient.Root.render(root, <WrappedSceneList mockState mockDispatch />)
 
     await wait(100)
 
@@ -135,10 +129,7 @@ describe("SceneList", () => {
     let mockDispatch = _ => ()
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(
-      root,
-      <WrappedSceneList mockState mockDispatch />,
-    )
+    ReactDOMClient.Root.render(root, <WrappedSceneList mockState mockDispatch />)
 
     await wait(100)
 
@@ -161,10 +152,7 @@ describe("SceneList", () => {
     let mockDispatch = action => lastAction.contents = Some(action)
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(
-      root,
-      <WrappedSceneList mockState mockDispatch />,
-    )
+    ReactDOMClient.Root.render(root, <WrappedSceneList mockState mockDispatch />)
 
     await wait(50)
 

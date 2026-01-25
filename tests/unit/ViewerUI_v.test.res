@@ -90,10 +90,7 @@ describe("ViewerUI", () => {
     let mockDispatch = _ => ()
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(
-      root,
-      <WrappedViewerUI mockState mockDispatch />,
-    )
+    ReactDOMClient.Root.render(root, <WrappedViewerUI mockState mockDispatch />)
 
     await wait(150)
 
@@ -121,10 +118,7 @@ describe("ViewerUI", () => {
     let mockDispatch = _ => ()
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(
-      root,
-      <WrappedViewerUI mockState mockDispatch />,
-    )
+    ReactDOMClient.Root.render(root, <WrappedViewerUI mockState mockDispatch />)
 
     await wait(150)
 
@@ -173,10 +167,7 @@ describe("ViewerUI", () => {
     let mockDispatch = _ => ()
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(
-      root,
-      <WrappedViewerUI mockState mockDispatch />,
-    )
+    ReactDOMClient.Root.render(root, <WrappedViewerUI mockState mockDispatch />)
 
     await wait(150)
 
@@ -205,10 +196,7 @@ describe("ViewerUI", () => {
     let mockDispatch = action => lastAction := Some(action)
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(
-      root,
-      <WrappedViewerUI mockState mockDispatch />,
-    )
+    ReactDOMClient.Root.render(root, <WrappedViewerUI mockState mockDispatch />)
 
     await wait(150)
 
@@ -249,10 +237,7 @@ describe("ViewerUI", () => {
     let mockDispatch = _ => ()
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(
-      root,
-      <WrappedViewerUI mockState mockDispatch />,
-    )
+    ReactDOMClient.Root.render(root, <WrappedViewerUI mockState mockDispatch />)
 
     await wait(150)
 

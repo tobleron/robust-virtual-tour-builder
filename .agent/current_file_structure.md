@@ -3977,8 +3977,7 @@
 ├── tasks
 │   ├── TASKS.md
 │   ├── active
-│   │   ├── 005_create_changelog.md
-│   │   └── 537_Perf_Precalculate_Projection_Constants.md
+│   │   └── 005_create_changelog.md
 │   ├── completed
 │   │   ├── 347_Update_Tests_ProjectManager_UPDATED.md
 │   │   ├── 348_Update_Tests_DownloadSystem_UPDATED.md
@@ -4026,11 +4025,15 @@
 │   │   ├── 511_Update_Codebase_Map_REPORT.md
 │   │   ├── 535_Perf_Lower_Spline_Density_REPORT.md
 │   │   ├── 536_Perf_Adjust_Pannellum_Friction_REPORT.md
+│   │   ├── 537_Perf_Precalculate_Projection_Constants_REPORT.md
 │   │   ├── 538_Perf_Loop_Consolidation_REPORT.md
 │   │   ├── 539_REBOOT_SVG_Element_Reuse.md
+│   │   ├── 569_Perf_Split_AppContext_REPORT.md
+│   │   ├── 570_Perf_Implement_Memoization.md
 │   │   ├── 95_Aggregate_Completed_Tasks_REPORT.md
 │   │   └── _CONCISE_SUMMARY.md
 │   ├── pending
+│   │   ├── 571_Perf_Debounce_Input_Updates.md
 │   │   └── tests
 │   │       ├── 512_Test_ViewerManager_Update.md
 │   │       ├── 513_Test_ViewerFollow_Update.md
@@ -4083,7 +4086,8 @@
 │   │       ├── 565_Test_UrlUtils_Update.md
 │   │       ├── 566_Test_NotificationContext_Update.md
 │   │       ├── 567_Test_TourTemplateAssets_Update.md
-│   │       └── 568_Test_ModalContext_Update.md
+│   │       ├── 568_Test_ModalContext_Update.md
+│   │       └── 572_Test_RootReducer_Update.md
 │   └── postponed
 │       ├── 003_add_seo_structured_data.md
 │       ├── 004_document_core_web_vitals.md
@@ -4318,4 +4322,4 @@
 │           └── TestUtils.res
 └── vitest.config.mjs
 
-177 directories, 4142 files
+177 directories, 4146 files
