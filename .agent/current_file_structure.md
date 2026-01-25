@@ -883,6 +883,12 @@
 │   │           ├── InputSystem_v.test.cmj
 │   │           ├── InputSystem_v.test.cmt
 │   │           ├── InputSystem_v.test.res
+│   │           ├── InteractionsRobustness_v.test.ast
+│   │           ├── InteractionsRobustness_v.test.bs.js
+│   │           ├── InteractionsRobustness_v.test.cmi
+│   │           ├── InteractionsRobustness_v.test.cmj
+│   │           ├── InteractionsRobustness_v.test.cmt
+│   │           ├── InteractionsRobustness_v.test.res
 │   │           ├── JsonTypes_v.test.ast
 │   │           ├── JsonTypes_v.test.bs.js
 │   │           ├── JsonTypes_v.test.cmi
@@ -1584,6 +1590,11 @@
 │   │   ├── InputSystem_v.test.cmj
 │   │   ├── InputSystem_v.test.cmt
 │   │   ├── InputSystem_v.test.res
+│   │   ├── InteractionsRobustness_v.test.ast
+│   │   ├── InteractionsRobustness_v.test.cmi
+│   │   ├── InteractionsRobustness_v.test.cmj
+│   │   ├── InteractionsRobustness_v.test.cmt
+│   │   ├── InteractionsRobustness_v.test.res
 │   │   ├── JsonTypes.ast
 │   │   ├── JsonTypes.cmi
 │   │   ├── JsonTypes.cmj
@@ -3747,14 +3758,18 @@
 │   ├── debug-connectivity.js
 │   ├── detect-missing-tests.cjs
 │   ├── dev-mode.sh
+│   ├── fast-commit.sh
 │   ├── generate-test-tasks.cjs
 │   ├── increment-build.js
+│   ├── pre-push.sh
 │   ├── project-guard.sh
 │   ├── prune-snapshots.sh
 │   ├── restore-snapshot.sh
 │   ├── setup.sh
 │   ├── sync-sw.cjs
 │   ├── test-logging.js
+│   ├── update-changelog.js
+│   ├── update-readme.js
 │   └── update-version.js
 ├── src
 │   ├── App.bs.js
@@ -4030,10 +4045,19 @@
 │   │   ├── 539_REBOOT_SVG_Element_Reuse.md
 │   │   ├── 569_Perf_Split_AppContext_REPORT.md
 │   │   ├── 570_Perf_Implement_Memoization.md
+│   │   ├── 571_Perf_Debounce_Input_Updates_REPORT.md
 │   │   ├── 95_Aggregate_Completed_Tasks_REPORT.md
 │   │   └── _CONCISE_SUMMARY.md
 │   ├── pending
-│   │   ├── 571_Perf_Debounce_Input_Updates.md
+│   │   ├── 580_Refactor_ViewerUI.md
+│   │   ├── 581_Refactor_ViewerManager.md
+│   │   ├── 582_Refactor_ViewerLoader.md
+│   │   ├── 583_Refactor_HotspotLineLogic.md
+│   │   ├── 584_Refactor_BackendApi.md
+│   │   ├── 585_Refactor_UploadProcessorLogic.md
+│   │   ├── 586_Refactor_TeaserManager.md
+│   │   ├── 587_Refactor_Navigation.md
+│   │   ├── 588_Refactor_ReducerHelpers.md
 │   │   └── tests
 │   │       ├── 512_Test_ViewerManager_Update.md
 │   │       ├── 513_Test_ViewerFollow_Update.md
@@ -4087,7 +4111,12 @@
 │   │       ├── 566_Test_NotificationContext_Update.md
 │   │       ├── 567_Test_TourTemplateAssets_Update.md
 │   │       ├── 568_Test_ModalContext_Update.md
-│   │       └── 572_Test_RootReducer_Update.md
+│   │       ├── 572_Test_RootReducer_Update.md
+│   │       ├── 589_Test_TourTemplateStyles_Update.md
+│   │       ├── 590_Test_SimulationChainSkipper_Update.md
+│   │       ├── 591_Test_TourLogic_Update.md
+│   │       ├── 592_Test_VisualPipeline_Update.md
+│   │       └── 593_Test_TourTemplateScripts_Update.md
 │   └── postponed
 │       ├── 003_add_seo_structured_data.md
 │       ├── 004_document_core_web_vitals.md
@@ -4163,6 +4192,8 @@
 │       ├── ImageOptimizer_v.test.res
 │       ├── InputSystem_v.test.bs.js
 │       ├── InputSystem_v.test.res
+│       ├── InteractionsRobustness_v.test.bs.js
+│       ├── InteractionsRobustness_v.test.res
 │       ├── JsonTypes_v.test.bs.js
 │       ├── JsonTypes_v.test.res
 │       ├── LabelMenu_v.test.bs.js
@@ -4322,4 +4353,4 @@
 │           └── TestUtils.res
 └── vitest.config.mjs
 
-177 directories, 4146 files
+177 directories, 4177 files

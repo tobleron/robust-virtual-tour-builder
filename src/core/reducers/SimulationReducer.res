@@ -16,6 +16,19 @@ let reduce = (state: state, action: action): option<state> => {
         stoppingOnArrival: false,
       },
     })
+  | StartLinking(_) =>
+    Some({
+      ...state,
+      navigation: Idle,
+      simulation: {
+        ...state.simulation,
+        status: Idle,
+        pendingAdvanceId: None,
+        visitedScenes: [],
+        stoppingOnArrival: false,
+        skipAutoForwardGlobal: false,
+      },
+    })
   | StopAutoPilot =>
     Some({
       ...state,

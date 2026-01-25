@@ -45,13 +45,16 @@ let make = React.memo(() => {
 
   // Debounce dispatch
   React.useEffect1(() => {
-    let timerId = setTimeout(() => {
-      // Only dispatch if truly different to avoid loops
-      if localTourName != sceneSlice.tourName {
-        expectedTourName.current = localTourName
-        dispatch(Actions.SetTourName(localTourName))
-      }
-    }, 300)
+    let timerId = setTimeout(
+      () => {
+        // Only dispatch if truly different to avoid loops
+        if localTourName != sceneSlice.tourName {
+          expectedTourName.current = localTourName
+          dispatch(Actions.SetTourName(localTourName))
+        }
+      },
+      300,
+    )
     Some(() => clearTimeout(timerId))
   }, [localTourName])
   let hideTimerRef = React.useRef(Nullable.null)

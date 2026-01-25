@@ -2,7 +2,7 @@
 
 ## 🧠 CORE BEHAVIOR (SYSTEM 2 THINKING)
 1. **Context First**: ALL paths must be relative to root. READ `MAP.md` before editing code.
-2. **Safety**: Files >700 lines require confirmation before editing.
+2. **Safety**: Files >360 lines require confirmation before editing.
 3. **Commitment Constraint**: NEVER run `commit.sh` or `fast-commit.sh` unless explicitly asked to "save", "checkpoint", or "commit".
 4. **Project Guard**: Ensure `./scripts/project-guard.sh` is running; if not, `nohup ./scripts/project-guard.sh > logs/project-guard.log 2>&1 &`.
 
