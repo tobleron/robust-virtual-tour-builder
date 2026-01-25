@@ -6,3 +6,4 @@
 [2026-01-25 13:11] v4.6.0 - Perf: Precalculate projection constants and optimize HotspotLineLogic inner loop
 [2026-01-25 13:21] v4.6.0 - perf: task 538 - loop consolidation and idle cpu optimization
 [2026-01-25 13:30] v4.6.0 - fix: remove unused variables and finalize waypoint fix
+[2026-01-25 15:11] v4.7.0 - v4.7.0: Rebuilt SVG Management & Simulation Visibility Logic

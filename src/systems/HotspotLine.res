@@ -4,6 +4,9 @@ open ReBindings
 open HotspotLineTypes
 open HotspotLineLogic
 
+/* --- STATE --- */
+let lastFrameIds = ref(Belt.MutableSet.String.make())
+
 /* --- CACHING --- */
 
 let pathCache: JSWeakMap.t<Types.hotspot, array<PathInterpolation.point>> = JSWeakMap.make()
@@ -36,7 +39,7 @@ let getScreenCoords = (v, p, y, rect) => {
   HotspotLineLogic.getScreenCoords(cam, p, y, rect)
 }
 
-let drawSimulationArrow = (
+let updateSimulationArrow = (
   v,
   sp,
   sy,
@@ -56,8 +59,7 @@ let drawSimulationArrow = (
     let rect = Dom.getBoundingClientRect(svg)
     if rect.width > 0.0 && isViewerReady(v) {
       let cam = HotspotLineLogic.getCamState(v, rect)
-      HotspotLineLogic.drawSimulationArrow(
-        svg,
+      HotspotLineLogic.updateSimulationArrow(
         cam,
         sp,
         sy,
@@ -83,10 +85,11 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<Dom.event>=?,
   let svgOpt = Dom.getElementById("viewer-hotspot-lines")
   switch Nullable.toOption(svgOpt) {
   | Some(svg) =>
-    Dom.setTextContent(svg, "")
+    // Garbage Collection: Track what we draw this frame
+    let currentFrameIds = Belt.MutableSet.String.make()
 
     if !isViewerReady(viewer) {
-      ()
+      () // Skip if viewer not ready
     } else {
       let rect = Dom.getBoundingClientRect(svg)
 
@@ -112,6 +115,9 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<Dom.event>=?,
               | Some(h) =>
                 switch (h.startYaw, h.startPitch, h.viewFrame) {
                 | (Some(sy), Some(sp), Some(vf)) =>
+                  let id = "hl_" ++ h.linkId
+                  Belt.MutableSet.String.add(currentFrameIds, id)
+
                   let waypointsRaw = switch h.waypoints {
                   | Some(w) => w
                   | None => []
@@ -136,8 +142,8 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<Dom.event>=?,
                       Belt.Array.concat(waypoints, endPt),
                     )
                     let splinePath = getCachedSplinePath(h, controlPoints, 40)
-                    drawPolyLine(
-                      svg,
+                    updatePolyLine(
+                      id,
                       cam,
                       splinePath,
                       rect,
@@ -154,8 +160,8 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<Dom.event>=?,
                       pitch: vf.pitch,
                     }
                     let curvedPath = getCachedFloorPath(h, startPt, endPt, 40)
-                    drawPolyLine(
-                      svg,
+                    updatePolyLine(
+                      id,
                       cam,
                       curvedPath,
                       rect,
@@ -199,12 +205,15 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<Dom.event>=?,
                 )
                 let allRedPoints = Belt.Array.concat(redPoints, [currentCam])
 
+                let draftId = "link_draft_red"
+                Belt.MutableSet.String.add(currentFrameIds, draftId)
+
                 if Array.length(allRedPoints) == 2 {
                   switch (Belt.Array.get(allRedPoints, 0), Belt.Array.get(allRedPoints, 1)) {
                   | (Some(p1), Some(p2)) =>
                     let path = PathInterpolation.getFloorProjectedPath(p1, p2, 40)
-                    drawPolyLine(
-                      svg,
+                    updatePolyLine(
+                      draftId,
                       cam,
                       path,
                       rect,
@@ -218,8 +227,8 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<Dom.event>=?,
                   }
                 } else if Array.length(allRedPoints) > 2 {
                   let redSpline = PathInterpolation.getCatmullRomSpline(allRedPoints, 40)
-                  drawPolyLine(
-                    svg,
+                  updatePolyLine(
+                    draftId,
                     cam,
                     redSpline,
                     rect,
@@ -260,12 +269,15 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<Dom.event>=?,
                 | None => floorPoints
                 }
 
+                let yellowId = "link_draft_yellow"
+                Belt.MutableSet.String.add(currentFrameIds, yellowId)
+
                 if Array.length(allYellowPoints) == 2 {
                   switch (Belt.Array.get(allYellowPoints, 0), Belt.Array.get(allYellowPoints, 1)) {
                   | (Some(p1), Some(p2)) =>
                     let path = PathInterpolation.getFloorProjectedPath(p1, p2, 40)
-                    drawPolyLine(
-                      svg,
+                    updatePolyLine(
+                      yellowId,
                       cam,
                       path,
                       rect,
@@ -279,8 +291,8 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<Dom.event>=?,
                   }
                 } else if Array.length(allYellowPoints) > 2 {
                   let yellowSpline = PathInterpolation.getCatmullRomSpline(allYellowPoints, 40)
-                  drawPolyLine(
-                    svg,
+                  updatePolyLine(
+                    yellowId,
                     cam,
                     yellowSpline,
                     rect,
@@ -298,8 +310,18 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<Dom.event>=?,
               // 3. Preview Arrows
               ()
             }
+
+            // Cleanup phase: Hide anything that wasn't drawn this frame
+            Belt.MutableSet.String.forEach(lastFrameIds.contents, id => {
+              if !Belt.MutableSet.String.has(currentFrameIds, id) {
+                SvgManager.hide(id)
+              }
+            })
+
+            // Swap / Update lastFrameIds
+            lastFrameIds := currentFrameIds
           }
-        | None => ()
+        | None => () // CRITICAL: If no scene detected, we DO NOTHING.
         }
       }
     }

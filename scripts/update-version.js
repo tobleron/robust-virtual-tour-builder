@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
+import { execSync } from 'child_process';
 
 const pkgPath = join(process.cwd(), 'package.json');
 const htmlPath = join(process.cwd(), 'index.html');
@@ -31,7 +32,6 @@ try {
     }
 
     // 2. Update src/utils/VersionData.res
-    const { execSync } = require('child_process');
     let currentBranch = 'unknown';
     try {
         currentBranch = execSync('git branch --show-current').toString().trim();

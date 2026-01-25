@@ -33,12 +33,20 @@ describe("NavigationRenderer", () => {
         const oldGetElementById = globalThis.document.getElementById;
         globalThis.document.getElementById = (id) => {
           if (id === "viewer-hotspot-lines") {
-            return {
+            const el = {
               id, 
               innerHTML: "", 
-              setInnerHTML: (s) => {},
-              getBoundingClientRect: () => ({ width: 1000, height: 500 })
+              style: {},
+              childNodes: [],
+              appendChild: (c) => { el.childNodes.push(c) },
+              querySelector: (s) => null,
+              contains: (s) => false,
+              getBoundingClientRect: () => ({ width: 1000, height: 500 }),
+              setAttribute: (k, v) => {},
+              removeAttribute: (k) => {},
+              setProperty: (k, v) => { el.style[k] = v }
             };
+            return el;
           }
           return oldGetElementById ? oldGetElementById(id) : null;
         };

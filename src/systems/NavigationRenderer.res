@@ -85,7 +85,7 @@ let startJourney = (data: EventBus.navStartPayload) => {
         // Clear UI on cancellation to prevent stuck waypoints
         let svgOpt = Dom.getElementById("viewer-hotspot-lines")
         switch Nullable.toOption(svgOpt) {
-        | Some(svg) => Dom.setInnerHTML(svg, "")
+        | Some(_) => SvgManager.hide("sim_arrow")
         | None => ()
         }
         Logger.warn(
@@ -98,7 +98,7 @@ let startJourney = (data: EventBus.navStartPayload) => {
         // Clear UI and stop
         let svgOpt = Dom.getElementById("viewer-hotspot-lines")
         switch Nullable.toOption(svgOpt) {
-        | Some(svg) => Dom.setInnerHTML(svg, "")
+        | Some(_) => SvgManager.hide("sim_arrow")
         | None => ()
         }
       } else {
@@ -130,10 +130,7 @@ let startJourney = (data: EventBus.navStartPayload) => {
             let colorOverride = isPreview ? Some("red") : None
 
             if HotspotLine.isViewerReady(v) {
-              let state = GlobalStateBridge.getState()
-              HotspotLine.updateLines(v, state, ())
-
-              HotspotLine.drawSimulationArrow(
+              HotspotLine.updateSimulationArrow(
                 v,
                 arrowStartPitch,
                 arrowStartYaw,
@@ -242,19 +239,15 @@ let startJourney = (data: EventBus.navStartPayload) => {
             let svgOpt = Dom.getElementById("viewer-hotspot-lines")
             switch Nullable.toOption(svgOpt) {
             | Some(svg) =>
-              // 1. Clear previous frame (fastest way)
-              Dom.setInnerHTML(svg, "")
-
-              // 2. Get Layout ONCE
+              // 1. Get Layout (Fast, no DOM clearing)
               let rect = Dom.getBoundingClientRect(svg)
 
               if rect.width > 0.0 {
-                // 3. Get Camera State ONCE
+                // 2. Get Camera State
                 let cam = HotspotLineLogic.getCamState(v, rect)
 
-                // 4. Draw Arrow directly
-                HotspotLineLogic.drawSimulationArrow(
-                  svg,
+                // 3. Update Arrow directly
+                HotspotLineLogic.updateSimulationArrow(
                   cam,
                   arrowStartPitch,
                   arrowStartYaw,
@@ -295,7 +288,7 @@ let init = () => {
     | ClearSimUi =>
       let svgOpt = Dom.getElementById("viewer-hotspot-lines")
       switch Nullable.toOption(svgOpt) {
-      | Some(svg) => Dom.setInnerHTML(svg, "")
+      | Some(_) => SvgManager.hide("sim_arrow")
       | None => ()
       }
     | _ => ()

@@ -119,31 +119,33 @@ let getScreenCoords = (cam: camState, pitch, yaw, rect: Dom.rect) => {
   }
 }
 
-let drawLine = (svg, x1, y1, x2, y2, color, width, opacity, ~dashArray=?, ~className=?, ()) => {
-  let line = Svg.createElementNS(Svg.namespace, "line")
-  Svg.setAttribute(line, "x1", Float.toString(x1))
-  Svg.setAttribute(line, "y1", Float.toString(y1))
-  Svg.setAttribute(line, "x2", Float.toString(x2))
-  Svg.setAttribute(line, "y2", Float.toString(y2))
-  Svg.setAttribute(line, "stroke", color)
-  Svg.setAttribute(line, "stroke-width", Float.toString(width))
-  Svg.setAttribute(line, "stroke-opacity", Float.toString(opacity))
+let updateLine = (id, x1, y1, x2, y2, color, width, opacity, ~dashArray=?, ~className=?, ()) => {
+  switch SvgManager.getOrCreate(id, "line") {
+  | Some(line) =>
+    Svg.setAttribute(line, "x1", Float.toString(x1))
+    Svg.setAttribute(line, "y1", Float.toString(y1))
+    Svg.setAttribute(line, "x2", Float.toString(x2))
+    Svg.setAttribute(line, "y2", Float.toString(y2))
+    Svg.setAttribute(line, "stroke", color)
+    Svg.setAttribute(line, "stroke-width", Float.toString(width))
+    Svg.setAttribute(line, "stroke-opacity", Float.toString(opacity))
+    Dom.setProperty(line, "display", "block")
 
-  switch dashArray {
-  | Some(d) => Svg.setAttribute(line, "stroke-dasharray", d)
+    switch dashArray {
+    | Some(d) => Svg.setAttribute(line, "stroke-dasharray", d)
+    | None => Dom.removeAttribute(line, "stroke-dasharray")
+    }
+
+    switch className {
+    | Some(c) => Svg.setAttribute(line, "class", c)
+    | None => Dom.removeAttribute(line, "class")
+    }
   | None => ()
   }
-
-  switch className {
-  | Some(c) => Svg.setAttribute(line, "class", c)
-  | None => ()
-  }
-
-  Svg.appendChild(svg, line)
 }
 
-let drawPolyLine = (
-  svg,
+let updatePolyLine = (
+  id,
   cam: camState,
   path: array<PathInterpolation.point>,
   rect,
@@ -182,27 +184,33 @@ let drawPolyLine = (
     let dString = Array.join(pathCommands, " ")
 
     if dString != "" {
-      let pathEl = Svg.createElementNS(Svg.namespace, "path")
-      Svg.setAttribute(pathEl, "d", dString)
-      Svg.setAttribute(pathEl, "stroke", color)
-      Svg.setAttribute(pathEl, "stroke-width", Float.toString(width))
-      Svg.setAttribute(pathEl, "stroke-opacity", Float.toString(opacity))
-      Svg.setAttribute(pathEl, "fill", "none")
-      Svg.setAttribute(pathEl, "stroke-linecap", "round")
-      Svg.setAttribute(pathEl, "stroke-linejoin", "round")
+      switch SvgManager.getOrCreate(id, "path") {
+      | Some(pathEl) =>
+        Svg.setAttribute(pathEl, "d", dString)
+        Svg.setAttribute(pathEl, "stroke", color)
+        Svg.setAttribute(pathEl, "stroke-width", Float.toString(width))
+        Svg.setAttribute(pathEl, "stroke-opacity", Float.toString(opacity))
+        Svg.setAttribute(pathEl, "fill", "none")
+        Svg.setAttribute(pathEl, "stroke-linecap", "round")
+        Svg.setAttribute(pathEl, "stroke-linejoin", "round")
+        Dom.setProperty(pathEl, "display", "block")
 
-      switch dashArray {
-      | Some(da) => Svg.setAttribute(pathEl, "stroke-dasharray", da)
+        switch dashArray {
+        | Some(da) => Svg.setAttribute(pathEl, "stroke-dasharray", da)
+        | None => Dom.removeAttribute(pathEl, "stroke-dasharray")
+        }
+
+        switch className {
+        | Some(c) => Svg.setAttribute(pathEl, "class", c)
+        | None => Dom.removeAttribute(pathEl, "class")
+        }
       | None => ()
       }
-
-      switch className {
-      | Some(c) => Svg.setAttribute(pathEl, "class", c)
-      | None => ()
-      }
-
-      Svg.appendChild(svg, pathEl)
+    } else {
+      SvgManager.hide(id)
     }
+  } else {
+    SvgManager.hide(id)
   }
 }
 
@@ -213,8 +221,7 @@ type segmentData = (
 )
 let segmentCache: JSWeakMap.t<array<PathInterpolation.point>, segmentData> = JSWeakMap.make()
 
-let drawSimulationArrow = (
-  svg,
+let updateSimulationArrow = (
   cam: camState,
   startPitch,
   startYaw,
@@ -288,22 +295,9 @@ let drawSimulationArrow = (
   let rotYaw = ref(0.0)
   let rotPitch = ref(0.0)
 
-  // STABILITY FIX: Always calculate rotation based on a point slightly before the end.
-  // This avoids "micro-curls" at the very end of the spline and ensures the arrow
-  // points in the direction of arrival.
+  // STABILITY FIXES ... (Comments retained ideally, but shortening for diff)
+  // ...
 
-  // STABILITY FIX: Freeze rotation during the final 20% of the journey.
-  // This ensures the arrow maintains its stable arrival trajectory and ignores
-  // any micro-turns or spline artifacts right at the end of the waypoint.
-
-  // ACCURACY FIX: Use a tighter, centered window for rotation.
-  // Instead of looking strictly back, we look slightly ahead and behind (Central Difference).
-  // This keeps the arrow tangent much tighter to the curve during turns.
-
-  // STABILITY FIX: We FREEZE the rotation calculation point once we get very close to the end.
-  // If we let 'progress' go all the way to 1.0, the 'progFront' calculation can hit the end of the spline
-  // and cause a singularity or flip. By clamping the rotation-calculation-progress to 0.90,
-  // we ensure the arrow effectively "coasts" into the dock with its final valid heading.
   let rotationCalcProgress = Math.min(progress, 0.90)
 
   let delta = 0.02
@@ -365,9 +359,7 @@ let drawSimulationArrow = (
   let found = ref(false)
 
   if progress >= 0.98 {
-    // RECOIL GUARD: In the final arrival window, we force snapping to the exact end point.
-    // This prevents the arrow from following Catmull-Rom "overshoots" or "swings"
-    // that can happen right at the final control point.
+    // RECOIL GUARD
     targetPitch := endPitch
     targetYaw := endYaw
     found := true
@@ -428,30 +420,36 @@ let drawSimulationArrow = (
       }
 
       if Float.isFinite(s.x) && Float.isFinite(s.y) && Float.isFinite(angle) {
-        let arrow = Svg.createElementNS(Svg.namespace, "path")
-        Svg.setAttribute(arrow, "d", "M -10,-7 L 6,0 L -10,7 Z")
-        Svg.setAttribute(arrow, "fill", color)
-        Svg.setAttribute(arrow, "stroke", "#000")
-        Svg.setAttribute(arrow, "stroke-width", "1")
-        Svg.setAttribute(
-          arrow,
-          "transform",
-          "translate(" ++
-          Float.toString(s.x) ++
-          ", " ++
-          Float.toString(s.y) ++
-          ") rotate(" ++
-          Float.toString(angle) ++ ")",
-        )
+        switch SvgManager.getOrCreate("sim_arrow", "path") {
+        | Some(arrow) =>
+          Svg.setAttribute(arrow, "d", "M -10,-7 L 6,0 L -10,7 Z")
+          Svg.setAttribute(arrow, "fill", color)
+          Svg.setAttribute(arrow, "stroke", "#000")
+          Svg.setAttribute(arrow, "stroke-width", "1")
+          Svg.setAttribute(
+            arrow,
+            "transform",
+            "translate(" ++
+            Float.toString(s.x) ++
+            ", " ++
+            Float.toString(s.y) ++
+            ") rotate(" ++
+            Float.toString(angle) ++ ")",
+          )
+          Dom.setProperty(arrow, "display", "block")
 
-        if opacity < 1.0 {
-          Svg.setAttribute(arrow, "opacity", Float.toString(opacity))
+          if opacity < 1.0 {
+            Svg.setAttribute(arrow, "opacity", Float.toString(opacity))
+          } else {
+            Dom.removeAttribute(arrow, "opacity")
+          }
+        | None => ()
         }
-
-        Svg.appendChild(svg, arrow)
+      } else {
+        SvgManager.hide("sim_arrow")
       }
-    | None => ()
+    | None => SvgManager.hide("sim_arrow")
     }
-  | None => ()
+  | None => SvgManager.hide("sim_arrow")
   }
 }

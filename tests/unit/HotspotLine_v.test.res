@@ -98,7 +98,7 @@ describe("HotspotLine Systems", () => {
       "drawSimulationArrow: execution check",
       t => {
         // Should not crash even if DOM is missing
-        HotspotLine.drawSimulationArrow(mockViewer, 0.0, 0.0, 10.0, 10.0, 0.5, ())
+        HotspotLine.updateSimulationArrow(mockViewer, 0.0, 0.0, 10.0, 10.0, 0.5, ())
         t->expect(true)->Expect.toBe(true)
       },
     )
