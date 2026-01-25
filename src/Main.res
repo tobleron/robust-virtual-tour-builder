@@ -131,7 +131,6 @@ let init = async () => {
       // VisualPipeline.init("visual-pipeline-container")->ignore
       Logger.info(~module_="Main", ~message="Systems Initialized", ())
       // SimulationSystem.initSimulationKeyHandler() - Deprecated
-      InputSystem.initInputSystem()
       ImageOptimizer.init()
 
       // 8. Service Worker (for offline capability and caching)
