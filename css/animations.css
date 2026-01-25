@@ -240,17 +240,17 @@
 
 @keyframes flicker-red-light {
 
-    0%,
-    30%,
-    60%,
-    100% {
-        background-color: transparent;
-    }
-
     15%,
     45% {
         background-color: #fee2e2;
-        /* Tailwind red-100 */
+    }
+}
+
+@keyframes flicker-yellow-flat {
+
+    15%,
+    45% {
+        background-color: #fef9c3;
     }
 }
 
@@ -258,22 +258,6 @@
     animation: flicker-red-light 0.4s ease-out 2;
 }
 
-@keyframes flicker-yellow-light {
-
-    0%,
-    30%,
-    60%,
-    100% {
-        background-color: transparent;
-    }
-
-    15%,
-    45% {
-        background-color: #fef9c3;
-        /* Tailwind yellow-100 */
-    }
-}
-
-.animate-flicker-yellow-light {
-    animation: flicker-yellow-light 0.4s ease-out 2;
+.animate-flicker-yellow-flat {
+    animation: flicker-yellow-flat 0.4s ease-out 2;
 }
