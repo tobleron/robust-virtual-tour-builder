@@ -63,6 +63,22 @@ module Loader = {
 
     state.activeViewerKey = inactiveKey
 
+    // Clear any existing cleanup timeout for the NEWLY ACTIVE key (v4.7.12)
+    switch inactiveKey {
+    | A =>
+      switch Nullable.toOption(state.cleanupTimeoutA) {
+      | Some(t) => Window.clearTimeout(t)
+      | None => ()
+      }
+      state.cleanupTimeoutA = Nullable.null
+    | B =>
+      switch Nullable.toOption(state.cleanupTimeoutB) {
+      | Some(t) => Window.clearTimeout(t)
+      | None => ()
+      }
+      state.cleanupTimeoutB = Nullable.null
+    }
+
     let assignGlobal: Nullable.t<ReBindings.Viewer.t> => unit = %raw(
       "(v) => window.pannellumViewer = v"
     )
@@ -126,18 +142,47 @@ module Loader = {
     | _ => ()
     }
 
-    /* Cleanup old viewer */
-    let _ = Window.setTimeout(() => {
+    /* Cleanup old viewer with tracked timeout to prevent race conditions (v4.7.12) */
+    let cleanupKey = switch state.activeViewerKey {
+    | A => B
+    | B => A
+    }
+
+    // Clear any existing cleanup timeout for this key before starting a new one
+    switch cleanupKey {
+    | A =>
+      switch Nullable.toOption(state.cleanupTimeoutA) {
+      | Some(t) => Window.clearTimeout(t)
+      | None => ()
+      }
+    | B =>
+      switch Nullable.toOption(state.cleanupTimeoutB) {
+      | Some(t) => Window.clearTimeout(t)
+      | None => ()
+      }
+    }
+
+    let cleanup = () => {
       switch Nullable.toOption(oldViewer) {
       | Some(v) =>
         destroyViewer(v)
-        switch state.activeViewerKey {
-        | B => state.viewerA = Nullable.null
-        | A => state.viewerB = Nullable.null
+        switch cleanupKey {
+        | A =>
+          state.viewerA = Nullable.null
+          state.cleanupTimeoutA = Nullable.null
+        | B =>
+          state.viewerB = Nullable.null
+          state.cleanupTimeoutB = Nullable.null
         }
       | None => ()
       }
-    }, 500)
+    }
+
+    let timerId = Window.setTimeout(cleanup, 500)
+    switch cleanupKey {
+    | A => state.cleanupTimeoutA = Nullable.make(timerId)
+    | B => state.cleanupTimeoutB = Nullable.make(timerId)
+    }
 
     /* Snapshot */
     let snapshot = Dom.getElementById("viewer-snapshot-overlay")
@@ -244,16 +289,50 @@ module Loader = {
         | None => false
         }
 
+        let isIncorrectTarget = switch Nullable.toOption(state.loadingSceneId) {
+        | Some(id) => id != targetScene.id
+        | None => true
+        }
+
         if !shouldReuse {
-          if state.isSceneLoading && !isAnticipatory {
+          if state.isSceneLoading && !isIncorrectTarget && !isAnticipatory {
             Logger.debug(
               ~module_="Viewer",
-              ~message="LOAD_QUEUED",
-              ~data=Some({"sceneName": targetScene.name}),
+              ~message="LOAD_SKIPPED",
+              ~data=Some({"reason": "Already loading correct target"}),
               (),
             )
           } else {
-            /* Cleanup existing inactive viewer before creating a new one to prevent DOM clashing */
+            /* Preemptive Load: If target changed while loading, interrupt and restart (v4.7.12) */
+            if state.isSceneLoading && isIncorrectTarget {
+              Logger.info(
+                ~module_="Viewer",
+                ~message="LOAD_INTERRUPTED_PREEMPTIVE",
+                ~data=Some({"newScene": targetScene.name}),
+                (),
+              )
+            }
+
+            /* Cleanup existing inactive viewer and its pending cleanup timeouts */
+            let inactiveKey = switch state.activeViewerKey {
+            | A => B
+            | B => A
+            }
+            switch inactiveKey {
+            | A =>
+              switch Nullable.toOption(state.cleanupTimeoutA) {
+              | Some(t) => Window.clearTimeout(t)
+              | None => ()
+              }
+              state.cleanupTimeoutA = Nullable.null
+            | B =>
+              switch Nullable.toOption(state.cleanupTimeoutB) {
+              | Some(t) => Window.clearTimeout(t)
+              | None => ()
+              }
+              state.cleanupTimeoutB = Nullable.null
+            }
+
             switch Nullable.toOption(inactiveViewer) {
             | Some(v) => destroyViewer(v)
             | None => ()
