@@ -20,6 +20,26 @@ module SceneItem = {
       }
     }, [scene.id])
 
+    let (flickerState, setFlickerState) = React.useState(_ => #None)
+
+    let handleClearClick = e => {
+      JsxEvent.Mouse.preventDefault(e)
+      setFlickerState(_ => #Clear)
+      let _ = ReBindings.Window.setTimeout(() => {
+        setFlickerState(_ => #None)
+        onClearLinks()
+      }, 800)
+    }
+
+    let handleDeleteClick = e => {
+      JsxEvent.Mouse.preventDefault(e)
+      setFlickerState(_ => #Delete)
+      let _ = ReBindings.Window.setTimeout(() => {
+        setFlickerState(_ => #None)
+        onDelete()
+      }, 800)
+    }
+
     let activeClasses = if isActive {
       "border-slate-200 ring-0 bg-slate-50/50"
     } else {
@@ -166,8 +186,10 @@ module SceneItem = {
             </Shadcn.DropdownMenu.Label>
 
             <Shadcn.DropdownMenu.Item
-              onClick={_ => onClearLinks()}
-              className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer text-slate-600"
+              onClick={handleClearClick}
+              className={`px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer text-slate-600 ${
+                flickerState == #Clear ? "animate-flicker-red" : ""
+              }`}
             >
               <LucideIcons.Unlink className="text-lg mr-2 text-primary" />
               <span> {React.string("Clear Links")} </span>
@@ -176,8 +198,10 @@ module SceneItem = {
             <Shadcn.DropdownMenu.Separator />
 
             <Shadcn.DropdownMenu.Item
-              onClick={_ => onDelete()}
-              className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer text-danger hover:bg-danger/10"
+              onClick={handleDeleteClick}
+              className={`px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer text-danger hover:bg-danger/10 ${
+                flickerState == #Delete ? "animate-flicker-red" : ""
+              }`}
             >
               <LucideIcons.Trash2 className="text-lg mr-2 text-danger" />
               <span> {React.string("Remove Scene")} </span>
