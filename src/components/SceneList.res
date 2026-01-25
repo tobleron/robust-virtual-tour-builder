@@ -17,9 +17,9 @@ module SceneItem = {
       switch scene.tinyFile {
       | Some(tiny) => UrlUtils.fileToUrl(tiny)
       | None => UrlUtils.fileToUrl(scene.file)
-      }
     }, [scene.id])
-
+    
+    let (isMenuOpen, setMenuOpen) = React.useState(_ => false)
     let (flickerState, setFlickerState) = React.useState(_ => #None)
 
     let handleClearClick = e => {
@@ -27,6 +27,7 @@ module SceneItem = {
       setFlickerState(_ => #Clear)
       let _ = ReBindings.Window.setTimeout(() => {
         setFlickerState(_ => #None)
+        setMenuOpen(_ => false)
         onClearLinks()
       }, 800)
     }
@@ -36,6 +37,7 @@ module SceneItem = {
       setFlickerState(_ => #Delete)
       let _ = ReBindings.Window.setTimeout(() => {
         setFlickerState(_ => #None)
+        setMenuOpen(_ => false)
         onDelete()
       }, 800)
     }
@@ -169,8 +171,8 @@ module SceneItem = {
       <div
         className="w-8 flex flex-col items-center justify-center gap-0 border-l border-slate-50 bg-slate-50/50 group-hover:bg-slate-100 transition-colors self-stretch"
       >
-        <Shadcn.DropdownMenu>
-          <Shadcn.DropdownMenu.Trigger asChild=true>
+          <Shadcn.DropdownMenu open_={isMenuOpen} onOpenChange={open => setMenuOpen(_ => open)}>
+            <Shadcn.DropdownMenu.Trigger asChild=true>
             <button
               className="w-6 h-6 rounded flex items-center justify-center hover:bg-white hover:shadow-sm transition-all text-slate-400 hover:text-primary active:scale-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
               ariaLabel={`Actions for ${scene.name}`}
@@ -188,7 +190,7 @@ module SceneItem = {
             <Shadcn.DropdownMenu.Item
               onClick={handleClearClick}
               className={`px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer text-slate-600 ${
-                flickerState == #Clear ? "animate-flicker-red" : ""
+                flickerState == #Clear ? "animate-flicker-yellow" : ""
               }`}
             >
               <LucideIcons.Unlink className="text-lg mr-2 text-primary" />
