@@ -6,6 +6,12 @@ This map provides a semantic overview of the project structure to optimize conte
 
 ## 🏗️ Core Architecture
 
+### 🚀 Entry & Foundational Bindings
+*   [src/Main.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/Main.res): Entry point, global initialization, and React root mounting. `#entry-point` `#initialization`
+*   [src/App.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/App.res): Root React component orchestrating the high-level UI layout. `#root-component` `#layout`
+*   [src/ReBindings.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/ReBindings.res): Centralized external bindings for Browser APIs and third-party libraries. `#rescript` `#bindings` `#dom`
+*   [src/utils/Logger.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/utils/Logger.res): Mandatory logging utility for standardized debug output. `#logging` `#debug` `#vitals`
+
 ### 🛡️ State Management & Logic
 *   [src/core/State.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/core/State.res): Central application state definition. `#state` `#immutability`
 *   [src/core/Reducer.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/core/Reducer.res): Root reducer orchestrating domain updates. `#reducer` `#action-dispatch`
@@ -41,9 +47,11 @@ This map provides a semantic overview of the project structure to optimize conte
 
 | Directory | Primary Purpose | Key Tags |
 | :--- | :--- | :--- |
+| `src/` | Root components and foundational bindings. | `#entry` `#bindings` `#app` |
 | `src/core` | Data model, state, and foundational types. | `#state` `#types` `#json` |
 | `src/systems` | Complex business logic and background services. | `#logic` `#processing` `#simulation` |
 | `src/components` | UI building blocks and contextual modules. | `#ui` `#react` `#hud` |
+| `src/utils` | Shared helper functions and utility modules. | `#utils` `#helpers` `#logging` |
 | `backend/src` | High-performance Rust services and APIs. | `#rust` `#backend` `#concurrency` |
 | `css` | Design system, tokens, and animations. | `#styling` `#tailwind` `#tokens` |
 | `scripts` | Automation, setup, and maintenance tools. | `#automation` `#scripts` `#ci` |

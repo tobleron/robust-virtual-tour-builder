@@ -364,7 +364,7 @@ module Loader = {
                   "minHfov": 90.0,
                   "maxHfov": 90.0,
                   "mouseZoom": false,
-                  "friction": 0.05,
+                  "friction": 0.15,
                   "hotSpots": hotspotsArr,
                 },
                 "master": {
@@ -377,7 +377,7 @@ module Loader = {
                   "minHfov": 90.0,
                   "maxHfov": 90.0,
                   "mouseZoom": false,
-                  "friction": 0.05,
+                  "friction": 0.15,
                   "hotSpots": hotspotsArr,
                 },
               },

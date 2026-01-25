@@ -2,3 +2,4 @@
 [2026-01-25 00:03] v4.5.1 - Perfected Notifications
 [2026-01-25 00:14] v4.5.1 - Update notification palette to high contrast colors
 [2026-01-25 10:00] v4.6.0 - v4.6.0: Total Type Safety Restoration & Vitest Stability Fixes
+[2026-01-25 13:00] v4.6.0 - Perf: Increase Pannellum friction to 0.15 for smoother camera movement (Task 536)

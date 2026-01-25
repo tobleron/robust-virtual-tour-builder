@@ -135,3 +135,17 @@ let decodeTimelineItem = (json: JSON.t): result<timelineItemJson, string> => {
   | _ => Error("Invalid timeline item JSON")
   }
 }
+
+let decodeUpdateMetadata = (json: JSON.t): result<updateMetadataJson, string> => {
+  switch json {
+  | Object(_) => Ok(castToUpdateMetadata(json))
+  | _ => Error("Invalid update metadata JSON")
+  }
+}
+
+let decodeTimelineUpdate = (json: JSON.t): result<timelineUpdateJson, string> => {
+  switch json {
+  | Object(_) => Ok(castToTimelineUpdate(json))
+  | _ => Error("Invalid timeline update JSON")
+  }
+}

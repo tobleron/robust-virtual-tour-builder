@@ -427,7 +427,18 @@ let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
 
 let handleUpdateSceneMetadata = (state: state, index: int, metaJson: JSON.t): state => {
   let scenes = state.scenes
-  let metaObj = JsonTypes.castToUpdateMetadata(metaJson)
+  let metaObj = switch JsonTypes.decodeUpdateMetadata(metaJson) {
+  | Ok(m) => m
+  | Error(_) =>
+    (
+      {
+        category: Nullable.null,
+        floor: Nullable.null,
+        label: Nullable.null,
+        isAutoForward: Nullable.null,
+      }: JsonTypes.updateMetadataJson
+    )
+  }
 
   let updatedLastUsedCategory = ref(state.lastUsedCategory)
 
@@ -471,7 +482,10 @@ let handleUpdateSceneMetadata = (state: state, index: int, metaJson: JSON.t): st
 }
 
 let handleUpdateTimelineStep = (state: state, id: string, dataJson: JSON.t): state => {
-  let data = JsonTypes.castToTimelineUpdate(dataJson)
+  let data = switch JsonTypes.decodeTimelineUpdate(dataJson) {
+  | Ok(d) => d
+  | Error(_) => ({transition: Nullable.null, duration: Nullable.null}: JsonTypes.timelineUpdateJson)
+  }
   let newTimeline = Belt.Array.map(state.timeline, t => {
     if t.id == id {
       {

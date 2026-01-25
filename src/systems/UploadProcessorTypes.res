@@ -14,7 +14,7 @@ type uploadItem = {
 }
 
 type processResult = {
-  "qualityResults": array<UploadReport.qualityItem>,
-  "duration": string,
-  "report": Types.uploadReport,
+  qualityResults: array<UploadReport.qualityItem>,
+  duration: string,
+  report: Types.uploadReport,
 }
