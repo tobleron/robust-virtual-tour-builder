@@ -117,9 +117,10 @@
     pointer-events: none !important;
 }
 
-/* Redesigned: Auto-pilot active now only subtly dims non-target hotspots instead of nuking them */
-.auto-pilot-active .pnlm-hotspot:not(.active-sim-target) {
-    opacity: 0.7;
+/* Redesigned: Auto-pilot active now COMPLTELY hides hotspots for a clean view */
+.auto-pilot-active .pnlm-hotspot {
+    opacity: 0 !important;
+    pointer-events: none !important;
 }
 
 /* 1. Container Styling - attributes are forced !important to override Pannellum defaults */
@@ -584,8 +585,8 @@
 /* --- Persistent Room Label --- */
 .viewer-persistent-label {
     position: absolute;
-    top: 25px;
-    /* Aligned with utility bar (top-6 = 24px) + half button height diff (32-30)/2 = 1px */
+    top: 24px;
+    /* Aligned with utility bar (top-6 = 24px) */
     left: 50%;
     transform: translateX(-50%);
     z-index: 6005;
@@ -594,12 +595,12 @@
     color: white;
     padding: 0 0.5rem;
     /* User Request: tighter left/right padding */
-    height: 30px;
-    /* User Request: exactly 30px */
+    height: 32px;
+    /* User Request: exactly 32px */
     border-radius: var(--radius-sm);
     /* User Request: Less rounded */
     font-family: var(--font-ui);
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
     box-shadow: var(--shadow-xl);

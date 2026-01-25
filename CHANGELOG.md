@@ -5,11 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.7.4] - 2026-01-25
+
+### Changed
+- **Sidebar UX**: Deprecated and removed the Indoor/Outdoor toggle button from the primary utility bar.
+- **Tooltip Interaction**: Refined Label Menu tooltip logic to prevent visual overlap when opening context menus.
+
+### Fixed
+- **Simulation Stability**: Enhanced `StopAutoPilot` logic to explicitly cancel navigation and reset state, preventing residual movement or "ghost" travel states.
+
 ## [4.7.3] - 2026-01-25
 
 ### Fixed
-- **UI Performance Optimization Phase 1**: Initiated architectural refactor to resolve re-rendering bottlenecks.
-- **State Subscription Review**: Identified monolithic context subscriptions causing system-wide re-renders on every click.
+- **Auto-Pilot Logic**: Resolved a critical bug where Auto-Pilot would stop working due to stale state snapshots in specialized contexts.
+- **UI Performance Optimization**: Implemented Domain Slices in `AppContext` to surgically provide state updates to `ViewerUI`, `Sidebar`, and `SceneList`, drastically reducing unnecessary re-renders while maintaining data freshness.
+- **Test Integrity**: Updated unit tests to support the new slice-based provider architecture.
 
 ## [4.7.0] - 2026-01-25
 

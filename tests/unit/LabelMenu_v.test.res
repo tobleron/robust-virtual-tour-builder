@@ -36,9 +36,9 @@ describe("LabelMenu", () => {
     ReactDOMClient.Root.render(
       root,
       <AppContext.DispatchProvider value=mockDispatch>
-        <AppContext.StateProvider value=mockState>
+        <AppContext.GlobalProvider value=mockState>
           <LabelMenu onClose={() => ()} />
-        </AppContext.StateProvider>
+        </AppContext.GlobalProvider>
       </AppContext.DispatchProvider>,
     )
 
@@ -81,9 +81,9 @@ describe("LabelMenu", () => {
     ReactDOMClient.Root.render(
       root,
       <AppContext.DispatchProvider value=mockDispatch>
-        <AppContext.StateProvider value=mockState>
+        <AppContext.GlobalProvider value=mockState>
           <LabelMenu onClose={() => ()} />
-        </AppContext.StateProvider>
+        </AppContext.GlobalProvider>
       </AppContext.DispatchProvider>,
     )
 
@@ -109,9 +109,9 @@ describe("LabelMenu", () => {
     ReactDOMClient.Root.render(
       root,
       <AppContext.DispatchProvider value=mockDispatch>
-        <AppContext.StateProvider value=mockState>
+        <AppContext.GlobalProvider value=mockState>
           <LabelMenu onClose={() => ()} />
-        </AppContext.StateProvider>
+        </AppContext.GlobalProvider>
       </AppContext.DispatchProvider>,
     )
 

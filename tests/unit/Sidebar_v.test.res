@@ -11,6 +11,32 @@ open ReBindings
   })
 `)
 
+module WrappedSidebar = {
+  @react.component
+  let make = (~mockState: Types.state, ~mockDispatch: Actions.action => unit) => {
+    let sceneSlice: AppContext.sceneSlice = {
+      scenes: mockState.scenes,
+      activeIndex: mockState.activeIndex,
+      tourName: mockState.tourName,
+    }
+    let uiSlice: AppContext.uiSlice = {
+      isLinking: mockState.isLinking,
+      isTeasing: mockState.isTeasing,
+      linkDraft: mockState.linkDraft,
+    }
+
+    <AppContext.DispatchProvider value=mockDispatch>
+      <AppContext.GlobalProvider value=mockState>
+        <AppContext.SceneSliceProvider value=sceneSlice>
+          <AppContext.UiSliceProvider value=uiSlice>
+            <Sidebar />
+          </AppContext.UiSliceProvider>
+        </AppContext.SceneSliceProvider>
+      </AppContext.GlobalProvider>
+    </AppContext.DispatchProvider>
+  }
+}
+
 describe("Sidebar", () => {
   let wait = ms =>
     Promise.make((resolve, _) => {
@@ -27,11 +53,7 @@ describe("Sidebar", () => {
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(
       root,
-      <AppContext.DispatchProvider value=mockDispatch>
-        <AppContext.StateProvider value=mockState>
-          <Sidebar />
-        </AppContext.StateProvider>
-      </AppContext.DispatchProvider>,
+      <WrappedSidebar mockState mockDispatch />,
     )
 
     await wait(100)
@@ -57,11 +79,7 @@ describe("Sidebar", () => {
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(
       root,
-      <AppContext.DispatchProvider value=mockDispatch>
-        <AppContext.StateProvider value=mockState>
-          <Sidebar />
-        </AppContext.StateProvider>
-      </AppContext.DispatchProvider>,
+      <WrappedSidebar mockState mockDispatch />,
     )
 
     await wait(100)
@@ -117,11 +135,7 @@ describe("Sidebar", () => {
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(
       root,
-      <AppContext.DispatchProvider value=mockDispatch>
-        <AppContext.StateProvider value=mockState>
-          <Sidebar />
-        </AppContext.StateProvider>
-      </AppContext.DispatchProvider>,
+      <WrappedSidebar mockState mockDispatch />,
     )
 
     await wait(100)
@@ -150,11 +164,7 @@ describe("Sidebar", () => {
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(
       root,
-      <AppContext.DispatchProvider value=mockDispatch>
-        <AppContext.StateProvider value=mockState>
-          <Sidebar />
-        </AppContext.StateProvider>
-      </AppContext.DispatchProvider>,
+      <WrappedSidebar mockState mockDispatch />,
     )
 
     await wait(100)

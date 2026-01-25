@@ -103,10 +103,21 @@ let handleGlobalEscape = (e: Dom.event) => {
       Dom.preventDefault(e)
     } else {
       /* Priority 4: Simulation */
+      if state.simulation.status == Running {
+        Logger.info(~module_="InputSystem", ~message="SIMULATION_STOPPED_ESC", ())
+        Navigation.cancelNavigation()
+        GlobalStateBridge.dispatch(Actions.StopAutoPilot)
+        GlobalStateBridge.dispatch(Actions.SetActiveScene(0, 0.0, 0.0, None))
+        EventBus.dispatch(ShowNotification("Simulation Stopped", #Info))
+        Dom.preventDefault(e)
+        handled := true
+      }
 
-      /* Priority 5: Navigation */
+      if !handled.contents {
+        /* Priority 5: Navigation */
 
-      Navigation.cancelNavigation()
+        Navigation.cancelNavigation()
+      }
     }
   }
 }
