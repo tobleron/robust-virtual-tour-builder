@@ -28,6 +28,15 @@ let make = () => {
 
     Window.addEventListener("keydown", handleKeyDown)
 
+    let handleResize = _ => {
+      let v = getActiveViewer()
+      switch Nullable.toOption(v) {
+      | Some(viewer) => HotspotLine.updateLines(viewer, GlobalStateBridge.getState(), ())
+      | None => ()
+      }
+    }
+    Window.addEventListener("resize", handleResize)
+
     // Initialize Guide
     ViewerState.state.guide = Dom.getElementById("cursor-guide")
 
@@ -266,6 +275,7 @@ let make = () => {
     Some(
       () => {
         Window.removeEventListener("keydown", handleKeyDown)
+        Window.removeEventListener("resize", handleResize)
         // Ensure guide is hidden on unmount/cleanup
         let guide = Dom.getElementById("cursor-guide")
         switch Nullable.toOption(guide) {
@@ -406,6 +416,7 @@ let make = () => {
           | Some(viewer) =>
             if !state.isLinking {
               HotspotManager.syncHotspots(viewer, state, scene, dispatch)
+              HotspotLine.updateLines(viewer, state, ())
               Navigation.handleAutoForward(dispatch, state, scene)
             }
           | None => ()
@@ -427,6 +438,7 @@ let make = () => {
         | Some(viewer) =>
           // We don't trigger auto-forward here, only sync visual hotspots
           HotspotManager.syncHotspots(viewer, state, scene, dispatch)
+          HotspotLine.updateLines(viewer, state, ())
         | None => ()
         }
       | None => ()
@@ -516,55 +528,6 @@ let make = () => {
     }
     None
   }, (state.isLinking, state.simulation.status))
-
-  // 7. Render Loop for Hotspot Lines (Fix for sticky waypoints)
-  React.useEffect0(() => {
-    let animationFrameId = ref(None)
-    let frameCounter = ref(0)
-
-    let rec loop = () => {
-      frameCounter := frameCounter.contents + 1
-      let v = ViewerState.getActiveViewer()
-      switch Nullable.toOption(v) {
-      | Some(viewer) =>
-        let currentState = GlobalStateBridge.getState()
-
-        // CRITICAL: Skip updates during viewer swap to prevent race condition
-        // The swap lock prevents drawing arrows with mismatched viewer/camera data
-        let isSwapping = ViewerState.state.isSwapping
-
-        // Performance optimization: During active navigation, the NavigationRenderer owns the loop.
-        // We skip the global loop here to prevent fighting over the SVG container.
-        let isNavigating = switch currentState.navigation {
-        | Navigating(_) | Previewing(_) => true
-        | Idle => false
-        }
-        let shouldUpdate = if isNavigating {
-          false // NavigationRenderer handles it
-        } else {
-          true
-        }
-
-        if shouldUpdate && !isSwapping {
-          HotspotLine.updateLines(viewer, currentState, ())
-        }
-      | None => ()
-      }
-      animationFrameId := Some(Window.requestAnimationFrame(loop))
-    }
-
-    // Start loop
-    animationFrameId := Some(Window.requestAnimationFrame(loop))
-
-    Some(
-      () => {
-        switch animationFrameId.contents {
-        | Some(id) => Window.cancelAnimationFrame(id)
-        | None => ()
-        }
-      },
-    )
-  })
 
   React.null
 }
