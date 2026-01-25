@@ -105,7 +105,7 @@
     z-index: 5000;
 }
 
-#viewer-ui-layer>* {
+#viewer-ui-layer> :not(.pointer-events-none) {
     pointer-events: auto;
 }
 

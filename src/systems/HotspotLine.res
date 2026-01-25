@@ -79,7 +79,7 @@ let drawSimulationArrow = (
 
 external asCustom: Viewer.t => customViewerProps = "%identity"
 
-let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) => {
+let updateLines = (viewer, state: Types.state, ~mouseEvent: option<Dom.event>=?, ()) => {
   let svgOpt = Dom.getElementById("viewer-hotspot-lines")
   switch Nullable.toOption(svgOpt) {
   | Some(svg) =>
@@ -242,9 +242,8 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<'a>=?, ()) =>
                 let mousePtOpt = switch mouseEvent {
                 | Some(ev) =>
                   let mockEvent = {
-                    "clientX": Belt.Int.toFloat(Obj.magic(ev)["clientX"]),
-                    "clientY": Belt.Int.toFloat(Obj.magic(ev)["clientY"]) +.
-                    Constants.linkingRodHeight,
+                    "clientX": Belt.Int.toFloat(Dom.clientX(ev)),
+                    "clientY": Belt.Int.toFloat(Dom.clientY(ev)) +. Constants.linkingRodHeight,
                   }
                   let mc = Viewer.mouseEventToCoords(viewer, mockEvent)
                   let pitchOpt = Belt.Array.get(mc, 0)

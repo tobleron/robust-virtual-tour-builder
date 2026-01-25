@@ -181,8 +181,8 @@ let exportTour = async (
     )
     Belt.Array.forEachWithIndex(scenes, (idx, s) => {
       let file: Blob.t = switch s.originalFile {
-      | Some(f) => Obj.magic(f)
-      | None => Obj.magic(s.file)
+      | Some(f) => ReducerHelpers.fileToBlob(f)
+      | None => ReducerHelpers.fileToBlob(s.file)
       }
       FormData.appendWithFilename(formData, `scene_${Belt.Int.toString(idx)}`, file, s.name)
     })

@@ -30,6 +30,7 @@ This map provides a semantic overview of the project structure to optimize conte
 
 ### ⚙️ Backend API (Rust)
 *   [backend/src/main.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/main.rs): Server entry point, middleware setup, and routing. `#rust` `#api` `#server`
+*   [backend/src/api/auth.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/api/auth.rs): Google OAuth2 authentication endpoints. `#rust` `#auth` `#google-oauth`
 *   [backend/src/api/project.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/api/project.rs): Endpoints for project packaging, imports, and validation. `#backend-logic` `#project-api`
 *   [backend/src/api/media/image.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/api/media/image.rs): High-performance image processing logic. `#rust` `#image-processing` `#performance`
 *   [backend/src/pathfinder/algorithms.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/pathfinder/algorithms.rs): Graph traversal logic for optimal routes. `#algorithms` `#graph-theory`

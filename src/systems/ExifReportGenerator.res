@@ -175,7 +175,7 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>) => {
         // Use pre-existing metadata if available, but FALLBACK to local extraction if GPS is missing
         let exifData = switch item.metadata {
         | Some(m) => {
-            let meta = (Obj.magic(m): SharedTypes.exifMetadata)
+            let meta = JsonTypes.castToExifMetadata(m)
             let hasGps = switch meta.gps->Nullable.toOption {
             | Some(_) => true
             | None => false
@@ -184,13 +184,8 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>) => {
             if hasGps {
               let q =
                 item.quality
-                ->Option.map((q): SharedTypes.qualityAnalysis => Obj.magic(q))
-                ->Option.getOr(
-                  Obj.magic({
-                    "score": 0.0,
-                    "analysis": Nullable.make("Cached metadata loaded"),
-                  }),
-                )
+                ->Option.map(JsonTypes.castToQualityAnalysis)
+                ->Option.getOr(defaultQuality("Cached metadata loaded"))
               {
                 exif: meta,
                 quality: q,
@@ -204,12 +199,7 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>) => {
               switch localRes {
               | Ok((exif, _pano)) => {
                   exif, // This might have the GPS we missed
-                  quality: (
-                    Obj.magic({
-                      "score": 0.0,
-                      "analysis": Nullable.make("GPS recovered locally"),
-                    }): SharedTypes.qualityAnalysis
-                  ),
+                  quality: defaultQuality("GPS recovered locally"),
                   isOptimized: false,
                   checksum: "",
                   suggestedName: Nullable.null,
@@ -218,13 +208,8 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>) => {
                   // Local failed too, use what we have
                   let q =
                     item.quality
-                    ->Option.map((q): SharedTypes.qualityAnalysis => Obj.magic(q))
-                    ->Option.getOr(
-                      Obj.magic({
-                        "score": 0.0,
-                        "analysis": Nullable.make("Cached metadata (no GPS)"),
-                      }),
-                    )
+                    ->Option.map(JsonTypes.castToQualityAnalysis)
+                    ->Option.getOr(defaultQuality("Cached metadata (no GPS)"))
                   {
                     exif: meta,
                     quality: q,
@@ -242,24 +227,14 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>) => {
           switch localRes {
           | Ok((exif, _pano)) => {
               exif,
-              quality: (
-                Obj.magic({
-                  "score": 0.0,
-                  "analysis": Nullable.make("Extracted locally"),
-                }): SharedTypes.qualityAnalysis
-              ),
+              quality: defaultQuality("Extracted locally"),
               isOptimized: false,
               checksum: "",
               suggestedName: Nullable.null,
             }
           | Error(msg) => {
-              exif: (Obj.magic(Nullable.null): SharedTypes.exifMetadata),
-              quality: (
-                Obj.magic({
-                  "score": 0.0,
-                  "analysis": Nullable.make("Local extraction failed: " ++ msg),
-                }): SharedTypes.qualityAnalysis
-              ),
+              exif: defaultExif,
+              quality: defaultQuality("Local extraction failed: " ++ msg),
               isOptimized: false,
               checksum: "error",
               suggestedName: Nullable.null,
@@ -481,7 +456,7 @@ let generateExifReport = async (sceneDataList: array<sceneDataItem>) => {
   Belt.Array.forEach(Dict.toArray(groups), ((signature, files)) => {
     let firstExif = switch Belt.Array.get(files, 0) {
     | Some(r) => r.exif
-    | None => Obj.magic(Nullable.null) // Should not happen
+    | None => defaultExif // Should not happen
     }
 
     let dashCount = max_int(0, 60 - String.length(signature))

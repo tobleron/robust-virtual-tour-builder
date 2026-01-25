@@ -80,24 +80,42 @@ let decodeImportResponse = (json: JSON.t): result<importResponse, string> => {
 }
 
 let decodeValidationReport = (json: JSON.t): result<validationReport, string> => {
-  // Using unsafe cast for complex nested structure but wrapped in a decoder function
-  // This is a middle ground when manual decoding of 20+ fields is too verbose
+  // Using safe cast from JsonTypes
   switch json {
-  | Object(_) => Ok((Obj.magic(json): validationReport))
+  | Object(_) => Ok(JsonTypes.castToValidationReport(json))
   | _ => Error("Invalid validation report")
   }
 }
 
 let decodeMetadataResponse = (json: JSON.t): result<metadataResponse, string> => {
   switch json {
-  | Object(_) => Ok((Obj.magic(json): metadataResponse))
+  | Object(_) => Ok((JsonTypes.castToMetadataResponse(json): metadataResponse))
   | _ => Error("Invalid metadata response")
   }
 }
 
 let decodeSteps = (json: JSON.t): result<array<step>, string> => {
   switch json {
-  | Array(_) => Ok((Obj.magic(json): array<step>))
+  | Array(_) =>
+    let jsonSteps = JsonTypes.castToSteps(json)
+    let steps = Belt.Array.map(jsonSteps, js => {
+      idx: js.idx,
+      arrivalView: {
+        yaw: js.arrivalView.yaw,
+        pitch: js.arrivalView.pitch,
+      },
+      transitionTarget: switch Nullable.toOption(js.transitionTarget) {
+      | Some(tt) =>
+        Some({
+          yaw: tt.yaw,
+          pitch: tt.pitch,
+          targetName: tt.targetName,
+          timelineItemId: Nullable.toOption(tt.timelineItemId),
+        })
+      | None => None
+      },
+    })
+    Ok(steps)
   | _ => Error("Invalid path steps response")
   }
 }
@@ -115,7 +133,7 @@ let decodeGeocodeResponse = (json: JSON.t): result<geocodeResponse, string> => {
 
 let decodeSimilarityResponse = (json: JSON.t): result<similarityResponse, string> => {
   switch json {
-  | Object(_) => Ok((Obj.magic(json): similarityResponse))
+  | Object(_) => Ok((JsonTypes.castToSimilarityResponse(json): similarityResponse))
   | _ => Error("Invalid similarity response")
   }
 }

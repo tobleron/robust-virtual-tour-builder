@@ -4,6 +4,8 @@ open Types
 
 /* Main tour template composition using extracted modules */
 
+external castToJSON: dict<'a> => JSON.t = "%identity"
+
 let generateTourHTML = (
   scenes: array<scene>,
   tourName,
@@ -23,11 +25,11 @@ let generateTourHTML = (
   Belt.Array.forEach(scenes, s => {
     let rawHotspots = Belt.Array.mapWithIndex(s.hotspots, (_idx, h) => {
       let pitch = Option.getOr(h.displayPitch, h.pitch)
-      let viewFrame = Option.getOr(h.viewFrame, Nullable.null->Obj.magic)
-      let rvf = Option.getOr(h.returnViewFrame, Nullable.null->Obj.magic)
+      let viewFrame = h.viewFrame->Nullable.fromOption
+      let rvf = h.returnViewFrame->Nullable.fromOption
       let isRet = Option.getOr(h.isReturnLink, false)
-      let ty = Option.getOr(h.targetYaw, Nullable.undefined->Obj.magic)
-      let tp = Option.getOr(h.targetPitch, Nullable.undefined->Obj.magic)
+      let ty = h.targetYaw->Nullable.fromOption
+      let tp = h.targetPitch->Nullable.fromOption
 
       {
         "pitch": pitch,
@@ -110,7 +112,7 @@ let generateTourHTML = (
       },
       "scenes":{}
     }; 
-    const scenesData = ${JSON.stringify(JSON.Encode.object(Obj.magic(rawScenesData)))}; 
+    const scenesData = ${JSON.stringify(castToJSON(rawScenesData))}; 
     
     for (const [name, data] of Object.entries(scenesData)) { 
       config.scenes[name] = { 

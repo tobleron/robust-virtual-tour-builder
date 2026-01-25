@@ -215,4 +215,37 @@ describe("PopOver", () => {
     Dom.removeElement(container)
     Dom.removeElement(anchor)
   })
+
+  testAsync("should add popover-tooltip class when isTooltip is true", async t => {
+    let anchor = Dom.createElement("div")
+    Dom.setId(anchor, "anchor-element")
+    Dom.appendChild(Dom.documentBody, anchor)
+
+    let container = Dom.createElement("div")
+    Dom.appendChild(Dom.documentBody, container)
+    let root = ReactDOMClient.createRoot(container)
+
+    ReactDOMClient.Root.render(
+      root,
+      <PopOver anchor={anchor} onClose={() => ()} isTooltip=true>
+        <div> {React.string("Tooltip")} </div>
+      </PopOver>,
+    )
+
+    await wait(150)
+
+    let portalRoot = Dom.getElementById("portal-root")
+    switch Nullable.toOption(portalRoot) {
+    | Some(rootEl) =>
+      let popover = Dom.querySelector(rootEl, ".popover-root")
+      switch Nullable.toOption(popover) {
+      | Some(el) => t->expect(Dom.contains(el, "popover-tooltip"))->Expect.toBe(true)
+      | None => ()
+      }
+    | None => ()
+    }
+
+    Dom.removeElement(container)
+    Dom.removeElement(anchor)
+  })
 })

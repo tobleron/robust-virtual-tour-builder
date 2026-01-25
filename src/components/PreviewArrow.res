@@ -1,4 +1,4 @@
-/* src/components/PreviewArrow.res */
+external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 
 @react.component
 let make = (
@@ -159,7 +159,6 @@ let make = (
 
   let baseColor = "bg-[#ea580c]"
   let hoverColor = "hover:bg-[#f97316]"
-  let makeStyle: {..} => ReactDOM.Style.t = externalObj => Obj.magic(externalObj)
 
   let swapClass = isSwapping ? "animate-swap-icon" : ""
 

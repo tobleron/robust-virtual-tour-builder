@@ -110,3 +110,48 @@ test("NavigationReducer: NavigationCompleted handles previewOnly", t => {
   t->expect(result.navigation)->Expect.toEqual(Idle)
   t->expect(result.activeIndex)->Expect.toBe(2) // Unchanged
 })
+
+test("NavigationReducer: SetIncomingLink updates state", t => {
+  let state = createMockState()
+  let link: linkInfo = {sceneIndex: 1, hotspotIndex: 2}
+  let action = SetIncomingLink(Some(link))
+  let result = RootReducer.reducer(state, action)
+
+  switch result.incomingLink {
+  | Some(l) => {
+      t->expect(l.sceneIndex)->Expect.toBe(1)
+      t->expect(l.hotspotIndex)->Expect.toBe(2)
+    }
+  | None => t->expect(true)->Expect.toBe(false)
+  }
+})
+
+test("NavigationReducer: ResetAutoForwardChain clears chain", t => {
+  let state = createMockState()
+  let state = {...state, autoForwardChain: [1, 2, 3]}
+  let action = ResetAutoForwardChain
+  let result = RootReducer.reducer(state, action)
+  t->expect(result.autoForwardChain->Array.length)->Expect.toBe(0)
+})
+
+test("NavigationReducer: SetPendingReturnSceneName updates state", t => {
+  let state = createMockState()
+  let action = SetPendingReturnSceneName(Some("scene_name"))
+  let result = RootReducer.reducer(state, action)
+  t->expect(result.pendingReturnSceneName)->Expect.toEqual(Some("scene_name"))
+})
+
+test("NavigationReducer: IncrementJourneyId increments id", t => {
+  let state = createMockState()
+  let state = {...state, currentJourneyId: 10}
+  let action = IncrementJourneyId
+  let result = RootReducer.reducer(state, action)
+  t->expect(result.currentJourneyId)->Expect.toBe(11)
+})
+
+test("NavigationReducer: SetCurrentJourneyId sets id", t => {
+  let state = createMockState()
+  let action = SetCurrentJourneyId(99)
+  let result = RootReducer.reducer(state, action)
+  t->expect(result.currentJourneyId)->Expect.toBe(99)
+})

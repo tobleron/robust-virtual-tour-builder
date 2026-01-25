@@ -55,10 +55,14 @@ module ExtendableEvent = {
 @val external fetch: Request.t => Promise.t<Response.t> = "fetch"
 @val external fetchUrl: string => Promise.t<Response.t> = "fetch"
 
-@new external newURL: string => {..} = "URL"
+module URL = {
+  type t
+  @new external make: string => t = "URL"
+  @get external pathname: t => string = "pathname"
+}
 
 /* Constants - Updated by scripts/sync-sw.cjs */
-let cacheName = "vtb-cache-v4.5.1"
+let cacheName = "vtb-cache-v4.6.0"
 let manualAssets = [
   "/",
   "/index.html",
@@ -85,11 +89,14 @@ addEventListener("install", (event: ExtendableEvent.t) => {
       Logger.info(~module_="ServiceWorker", ~message="FETCH_MANIFEST_START", ())
       let manifestUrls = try {
         let response = await fetchUrl("/asset-manifest.json")
-        let manifest = await response->Response.json
+        let manifest: {"allFiles": Nullable.t<array<string>>} = await response->Response.json
 
-        let allFiles = (manifest->Obj.magic)["allFiles"]
+        let allFiles = manifest["allFiles"]
         if allFiles->Nullable.toOption->Belt.Option.isSome {
-          allFiles->Array.filter(file => !(file->String.endsWith(".map")))
+          allFiles
+          ->Nullable.toOption
+          ->Option.getOr([])
+          ->Array.filter(file => !(file->String.endsWith(".map")))
         } else {
           []
         }
@@ -139,8 +146,8 @@ addEventListener("fetch", (event: FetchEvent.t) => {
   let request = event->FetchEvent.request
 
   if request->Request.method == "GET" {
-    let url = newURL(request->Request.url)
-    let pathname = (url->Obj.magic)["pathname"]
+    let url = URL.make(request->Request.url)
+    let pathname = URL.pathname(url)
 
     let isApi = pathname->String.startsWith("/api/") || pathname == "/health"
 

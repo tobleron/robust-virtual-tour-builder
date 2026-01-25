@@ -114,3 +114,37 @@ type validationReport = {
   warnings: array<string>,
   errors: array<string>,
 }
+
+let defaultQuality = (msg: string): qualityAnalysis => {
+  score: 0.0,
+  histogram: [],
+  colorHist: {r: [], g: [], b: []},
+  stats: {
+    avgLuminance: 0,
+    blackClipping: 0.0,
+    whiteClipping: 0.0,
+    sharpnessVariance: 0,
+  },
+  isBlurry: false,
+  isSoft: false,
+  isSeverelyDark: false,
+  isSeverelyBright: false,
+  isDim: false,
+  hasBlackClipping: false,
+  hasWhiteClipping: false,
+  issues: 0,
+  warnings: 0,
+  analysis: Nullable.make(msg),
+}
+
+let defaultExif: exifMetadata = {
+  make: Nullable.null,
+  model: Nullable.null,
+  dateTime: Nullable.null,
+  gps: Nullable.null,
+  width: 0,
+  height: 0,
+  focalLength: Nullable.null,
+  aperture: Nullable.null,
+  iso: Nullable.null,
+}
