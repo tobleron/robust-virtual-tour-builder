@@ -8,7 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [4.6.0] - 2026-01-25
 
 ### Changed
+- **Projection Performance Optimization**: Refactored `HotspotLineLogic` to pre-calculate camera inverse constants and move degree-to-radian conversions out of the inner point-projection loop.
 - **Pannellum Friction Optimization**: Increased friction constant from `0.05` to `0.15` in `ViewerLoader` to improve perceived smoothness and mask micro-stuttering during camera movement.
+
 - **Total Type Safety Restoration**: Eliminated all `Obj.magic` calls from `src/` directory (Production Code).
 - **Typed DOM Events**: Standardized access to `clientX`, `clientY`, and `eventPhase` via typed bindings.
 - **Safe API Decoders**: Implemented strict JSON decoders for all backend responses (Metadata, Quality, Similarity).
