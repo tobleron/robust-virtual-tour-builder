@@ -44,11 +44,11 @@ describe("UploadProcessorTypes", () => {
       skipped: [],
     }
     let res: processResult = {
-      "qualityResults": [],
-      "duration": "10s",
-      "report": report,
+      qualityResults: [],
+      duration: "10s",
+      report,
     }
-    t->expect(res["duration"])->Expect.toBe("10s")
-    t->expect(res["report"].success)->Expect.toEqual(["img1.jpg"])
+    t->expect(res.duration)->Expect.toBe("10s")
+    t->expect(res.report.success)->Expect.toEqual(["img1.jpg"])
   })
 })

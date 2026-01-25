@@ -56,6 +56,8 @@ module Viewer = {
 
   type config = {"hotSpots": array<hotspotConfig>}
 
+  type mouseEvent = {"clientX": float, "clientY": float}
+
   @send external getPitch: t => float = "getPitch"
   @send external getYaw: t => float = "getYaw"
   @send external getHfov: t => float = "getHfov"
@@ -64,7 +66,7 @@ module Viewer = {
   @send external setYaw: (t, float, bool) => unit = "setYaw"
   @send external setHfov: (t, float, bool) => unit = "setHfov"
 
-  @send external mouseEventToCoords: (t, 'event) => array<float> = "mouseEventToCoords"
+  @send external mouseEventToCoords: (t, mouseEvent) => array<float> = "mouseEventToCoords"
   @send external setYawWithDuration: (t, float, int) => unit = "setYaw"
 
   @send external getConfig: t => config = "getConfig"

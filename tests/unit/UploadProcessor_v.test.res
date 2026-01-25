@@ -33,7 +33,7 @@ describe("UploadProcessor", () => {
   testAsync("processUploads: should handle empty file array", async t => {
     let result = await UploadProcessor.processUploads([], None)
 
-    let report: uploadReport = result["report"]
+    let report: uploadReport = result.report
     t->expect(Array.length(report.success))->Expect.toBe(0)
     t->expect(Array.length(report.skipped))->Expect.toBe(0)
   })
@@ -52,7 +52,7 @@ describe("UploadProcessor", () => {
     let f1 = mockFile("test.jpg")
     let result = await UploadProcessor.processUploads([f1], None)
 
-    let report: uploadReport = result["report"]
+    let report: uploadReport = result.report
     t->expect(Array.length(report.success))->Expect.toBe(0)
   })
 
