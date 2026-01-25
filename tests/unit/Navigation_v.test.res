@@ -1,7 +1,8 @@
 /* tests/unit/Navigation.test.res */
 open Vitest
 open Types
-open Navigation
+open NavigationGraph
+open SceneSwitcher
 open TestUtils
 
 test("Navigation: findSceneByName locates scene", t => {

@@ -4,7 +4,7 @@ open Actions
 let reduce = (state: state, action: action): option<state> => {
   switch action {
   | AddToTimeline(json) =>
-    let item = ReducerHelpers.parseTimelineItem(json)
+    let item = SimHelpers.parseTimelineItem(json)
     Some({...state, timeline: Belt.Array.concat(state.timeline, [item])})
 
   | SetActiveTimelineStep(idOpt) => Some({...state, activeTimelineStepId: idOpt})
@@ -18,7 +18,7 @@ let reduce = (state: state, action: action): option<state> => {
       switch itemOpt {
       | Some(item) =>
         let rest = Belt.Array.keepWithIndex(state.timeline, (_, i) => i != fromIdx)
-        let newTimeline = ReducerHelpers.insertAt(rest, toIdx, item)
+        let newTimeline = UiHelpers.insertAt(rest, toIdx, item)
         Some({...state, timeline: newTimeline})
       | None => Some(state)
       }
@@ -27,7 +27,7 @@ let reduce = (state: state, action: action): option<state> => {
     }
 
   | UpdateTimelineStep(id, dataJson) =>
-    Some(ReducerHelpers.handleUpdateTimelineStep(state, id, dataJson))
+    Some(SimHelpers.handleUpdateTimelineStep(state, id, dataJson))
 
   | _ => None
   }

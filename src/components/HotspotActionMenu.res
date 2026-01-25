@@ -91,7 +91,7 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
         }
       }
 
-      Navigation.navigateToScene(
+      SceneSwitcher.navigateToScene(
         dispatch,
         state,
         idx,

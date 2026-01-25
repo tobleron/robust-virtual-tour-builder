@@ -2,11 +2,11 @@ open Types
 open Actions
 
 let handleAddScenes = (state: state, scenesData): state => {
-  ReducerHelpers.handleAddScenes(state, scenesData)
+  SceneHelpers.handleAddScenes(state, scenesData)
 }
 
 let handleDeleteScene = (state: state, index: int): state => {
-  ReducerHelpers.handleDeleteScene(state, index)
+  SceneHelpers.handleDeleteScene(state, index)
 }
 
 let handleReorderScenes = (state: state, fromIndex: int, toIndex: int): state => {
@@ -15,7 +15,7 @@ let handleReorderScenes = (state: state, fromIndex: int, toIndex: int): state =>
     switch Belt.Array.get(scenes, fromIndex) {
     | Some(movedItem) =>
       let rest = Belt.Array.keepWithIndex(scenes, (_, i) => i != fromIndex)
-      let newScenes = ReducerHelpers.insertAt(rest, toIndex, movedItem)
+      let newScenes = UiHelpers.insertAt(rest, toIndex, movedItem)
 
       let newActiveIndex = if state.activeIndex == fromIndex {
         toIndex
@@ -27,7 +27,7 @@ let handleReorderScenes = (state: state, fromIndex: int, toIndex: int): state =>
         state.activeIndex
       }
 
-      {...state, scenes: ReducerHelpers.syncSceneNames(newScenes), activeIndex: newActiveIndex}
+      {...state, scenes: SceneHelpers.syncSceneNames(newScenes), activeIndex: newActiveIndex}
     | None => state
     }
   } else {
@@ -71,11 +71,11 @@ let handleSetActiveScene = (
 }
 
 let handleUpdateSceneMetadata = (state: state, index: int, metaJson): state => {
-  ReducerHelpers.handleUpdateSceneMetadata(state, index, metaJson)
+  SceneHelpers.handleUpdateSceneMetadata(state, index, metaJson)
 }
 
 let handleSyncSceneNames = (state: state): state => {
-  {...state, scenes: ReducerHelpers.syncSceneNames(state.scenes)}
+  {...state, scenes: SceneHelpers.syncSceneNames(state.scenes)}
 }
 
 let handleApplyLazyRename = (state: state, index: int, name: string): state => {
@@ -86,7 +86,7 @@ let handleApplyLazyRename = (state: state, index: int, name: string): state => {
       s
     }
   })
-  {...state, scenes: ReducerHelpers.syncSceneNames(newScenes)}
+  {...state, scenes: SceneHelpers.syncSceneNames(newScenes)}
 }
 
 let reduce = (state: state, action: action): option<state> => {

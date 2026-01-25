@@ -86,7 +86,7 @@ let make = () => {
 
                     // Exec Navigation - this triggers the animation and viewer swap
                     // Don't wait here! Let the effect re-run when activeIndex changes
-                    Navigation.navigateToScene(
+                    SceneSwitcher.navigateToScene(
                       dispatch,
                       state,
                       targetIndex,
@@ -110,7 +110,7 @@ let make = () => {
                     // Wait a bit then stop
                     let _ = await wait(Constants.Simulation.stepDelay)
                     if !cancel.contents {
-                      Navigation.cancelNavigation()
+                      SceneSwitcher.cancelNavigation()
                       dispatch(StopAutoPilot)
                       dispatch(Actions.SetActiveScene(0, 0.0, 0.0, None))
                     }
@@ -121,7 +121,7 @@ let make = () => {
                       ~data=Some({"reason": "No valid move"}),
                       (),
                     )
-                    Navigation.cancelNavigation()
+                    SceneSwitcher.cancelNavigation()
                     dispatch(StopAutoPilot)
                   }
                 }
@@ -133,7 +133,7 @@ let make = () => {
                     (),
                   )
                   EventBus.dispatch(ShowNotification("Simulation error: " ++ msg, #Error))
-                  Navigation.cancelNavigation()
+                  SceneSwitcher.cancelNavigation()
                   dispatch(StopAutoPilot)
                 }
               }
