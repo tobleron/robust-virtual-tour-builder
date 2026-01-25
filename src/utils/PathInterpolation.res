@@ -155,7 +155,7 @@ let getBSplinePath = (points: array<point>, totalSegments: int) => {
         let unrolledPoints = []
         if Array.length(rawPoints) > 0 {
           let prevYaw = ref(first.yaw) // Start with known first yaw
-          
+
           Belt.Array.forEach(rawPoints, p => {
             let currentYaw = p.yaw
             let diff = ref(currentYaw -. prevYaw.contents)
@@ -184,14 +184,14 @@ let getBSplinePath = (points: array<point>, totalSegments: int) => {
           let segmentsPerSection = ceil(Int.toFloat(totalSegments) /. Int.toFloat(numSections))
 
           for i in 0 to numSections - 1 {
-             switch (
+            switch (
               Belt.Array.get(unrolledPoints, i),
               Belt.Array.get(unrolledPoints, i + 1),
               Belt.Array.get(unrolledPoints, i + 2),
               Belt.Array.get(unrolledPoints, i + 3),
             ) {
             | (Some(p0), Some(p1), Some(p2), Some(p3)) =>
-               for j in 0 to Float.toInt(segmentsPerSection) - 1 {
+              for j in 0 to Float.toInt(segmentsPerSection) - 1 {
                 let t = Int.toFloat(j) /. segmentsPerSection
                 let pt = interpolateBSpline(p0, p1, p2, p3, t)
                 let _ = Array.push(splinePoints, pt)
@@ -210,7 +210,7 @@ let getBSplinePath = (points: array<point>, totalSegments: int) => {
             }
           })
         }
-    }
+      }
     | _ => points
     }
   }

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Configuration
-LIMIT=700
+LIMIT=360
 WATCH_DIRS="./src ./backend/src"
 STATE_DIR="/tmp/project_guard"
 mkdir -p "$STATE_DIR"
@@ -128,7 +128,7 @@ EOF
 File \`$file\` exceeds **$LIMIT lines** (Current: $count).
 
 ## Objective
-Decompose \`$filename\` into smaller, focused modules. Aim for < 400 lines per module.
+Decompose \`$filename\` into smaller, focused modules. Aim for < 300 lines per module.
 
 ## AI Prompt (Refactor Helper)
 "Please analyze $file. It has $count lines. Extract the core logic into new specialized modules (e.g. ${file_base}Types.res, ${file_base}Logic.res) while keeping the main module as a lightweight facade."
