@@ -237,3 +237,23 @@
     stroke-dasharray: 10, 5;
 
 }
+
+@keyframes flicker-red-light {
+
+    0%,
+    30%,
+    60%,
+    100% {
+        background-color: transparent;
+    }
+
+    15%,
+    45% {
+        background-color: #fee2e2;
+        /* Tailwind red-100 */
+    }
+}
+
+.animate-flicker-red-light {
+    animation: flicker-red-light 0.4s ease-out 2;
+}
