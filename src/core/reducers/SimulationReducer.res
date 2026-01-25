@@ -19,6 +19,8 @@ let reduce = (state: state, action: action): option<state> => {
   | StopAutoPilot =>
     Some({
       ...state,
+      navigation: Idle,
+      currentJourneyId: state.currentJourneyId + 1,
       simulation: {
         ...state.simulation,
         status: Idle,

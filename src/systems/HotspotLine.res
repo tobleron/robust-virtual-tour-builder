@@ -206,8 +206,8 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<Dom.event>=?,
                     // We reuse the logic but force progress 0.0
                     HotspotLineLogic.updateSimulationArrow(
                       cam,
-                      sy, // Start Yaw
                       sp, // Start Pitch
+                      sy, // Start Yaw
                       vf.pitch, // End Pitch (needed for path calc, though we only need start direction)
                       vf.yaw, // End Yaw
                       0.0, // Progress 0 starts at the arrow

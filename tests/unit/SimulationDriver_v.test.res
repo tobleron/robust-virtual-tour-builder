@@ -24,9 +24,9 @@ describe("SimulationDriver", () => {
     }
 
     let _ =
-      <AppContext.StateProvider value=mockState>
+      <AppContext.GlobalProvider value=mockState>
         <SimulationDriver />
-      </AppContext.StateProvider>
+      </AppContext.GlobalProvider>
 
     t->expect(true)->Expect.toBe(true)
   })
@@ -51,9 +51,9 @@ describe("SimulationDriver", () => {
     ReactDOMClient.Root.render(
       root,
       <AppContext.DispatchProvider value=mockDispatch>
-        <AppContext.StateProvider value=mockState>
+        <AppContext.GlobalProvider value=mockState>
           <SimulationDriver />
-        </AppContext.StateProvider>
+        </AppContext.GlobalProvider>
       </AppContext.DispatchProvider>,
     )
 

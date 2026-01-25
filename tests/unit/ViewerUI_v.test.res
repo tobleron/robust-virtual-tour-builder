@@ -42,6 +42,40 @@ let defaultScene: scene = {
   preCalculatedSnapshot: None,
 }
 
+module WrappedViewerUI = {
+  @react.component
+  let make = (~mockState: Types.state, ~mockDispatch: Actions.action => unit) => {
+    let sceneSlice: AppContext.sceneSlice = {
+      scenes: mockState.scenes,
+      activeIndex: mockState.activeIndex,
+      tourName: mockState.tourName,
+    }
+    let uiSlice: AppContext.uiSlice = {
+      isLinking: mockState.isLinking,
+      isTeasing: mockState.isTeasing,
+      linkDraft: mockState.linkDraft,
+    }
+    let simSlice: AppContext.simSlice = {
+      simulation: mockState.simulation,
+      navigation: mockState.navigation,
+      currentJourneyId: mockState.currentJourneyId,
+      incomingLink: mockState.incomingLink,
+    }
+
+    <AppContext.DispatchProvider value=mockDispatch>
+      <AppContext.GlobalProvider value=mockState>
+        <AppContext.SceneSliceProvider value=sceneSlice>
+          <AppContext.UiSliceProvider value=uiSlice>
+            <AppContext.SimSliceProvider value=simSlice>
+              <ViewerUI />
+            </AppContext.SimSliceProvider>
+          </AppContext.UiSliceProvider>
+        </AppContext.SceneSliceProvider>
+      </AppContext.GlobalProvider>
+    </AppContext.DispatchProvider>
+  }
+}
+
 describe("ViewerUI", () => {
   let wait = ms =>
     Promise.make((resolve, _) => {
@@ -58,11 +92,7 @@ describe("ViewerUI", () => {
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(
       root,
-      <AppContext.DispatchProvider value=mockDispatch>
-        <AppContext.StateProvider value=mockState>
-          <ViewerUI />
-        </AppContext.StateProvider>
-      </AppContext.DispatchProvider>,
+      <WrappedViewerUI mockState mockDispatch />,
     )
 
     await wait(150)
@@ -93,11 +123,7 @@ describe("ViewerUI", () => {
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(
       root,
-      <AppContext.DispatchProvider value=mockDispatch>
-        <AppContext.StateProvider value=mockState>
-          <ViewerUI />
-        </AppContext.StateProvider>
-      </AppContext.DispatchProvider>,
+      <WrappedViewerUI mockState mockDispatch />,
     )
 
     await wait(150)
@@ -105,7 +131,7 @@ describe("ViewerUI", () => {
     let labelEl = Dom.getElementById("v-scene-persistent-label")
     switch Nullable.toOption(labelEl) {
     | Some(el) =>
-      t->expect(Dom.getTextContent(el))->Expect.toBe("#Living Room")
+      t->expect(Dom.getTextContent(el))->Expect.toBe("# " ++ defaultScene.label)
       t->expect(Dom.classList(el)->Dom.ClassList.contains("state-visible"))->Expect.toBe(true)
     | None => t->expect(false)->Expect.toBe(true)
     }
@@ -149,11 +175,7 @@ describe("ViewerUI", () => {
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(
       root,
-      <AppContext.DispatchProvider value=mockDispatch>
-        <AppContext.StateProvider value=mockState>
-          <ViewerUI />
-        </AppContext.StateProvider>
-      </AppContext.DispatchProvider>,
+      <WrappedViewerUI mockState mockDispatch />,
     )
 
     await wait(150)
@@ -185,11 +207,7 @@ describe("ViewerUI", () => {
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(
       root,
-      <AppContext.DispatchProvider value=mockDispatch>
-        <AppContext.StateProvider value=mockState>
-          <ViewerUI />
-        </AppContext.StateProvider>
-      </AppContext.DispatchProvider>,
+      <WrappedViewerUI mockState mockDispatch />,
     )
 
     await wait(150)
@@ -233,11 +251,7 @@ describe("ViewerUI", () => {
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(
       root,
-      <AppContext.DispatchProvider value=mockDispatch>
-        <AppContext.StateProvider value=mockState>
-          <ViewerUI />
-        </AppContext.StateProvider>
-      </AppContext.DispatchProvider>,
+      <WrappedViewerUI mockState mockDispatch />,
     )
 
     await wait(150)

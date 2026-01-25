@@ -7,9 +7,19 @@ describe("AppContext", () => {
     t->expect(true)->Expect.toBe(true)
   })
 
-  test("stateContext is initialized", t => {
+  test("sceneContext is initialized", t => {
     // Just verify we can access it
-    let _ = AppContext.stateContext
+    let _ = AppContext.sceneContext
+    t->expect(true)->Expect.toBe(true)
+  })
+
+  test("uiContext is initialized", t => {
+    let _ = AppContext.uiContext
+    t->expect(true)->Expect.toBe(true)
+  })
+
+  test("simContext is initialized", t => {
+    let _ = AppContext.simContext
     t->expect(true)->Expect.toBe(true)
   })
 
@@ -20,7 +30,9 @@ describe("AppContext", () => {
   })
 
   test("Providers are accessible", t => {
-    let _ = AppContext.StateProvider.make
+    let _ = AppContext.SceneSliceProvider.make
+    let _ = AppContext.UiSliceProvider.make
+    let _ = AppContext.SimSliceProvider.make
     let _ = AppContext.DispatchProvider.make
     let _ = AppContext.Provider.make
     t->expect(true)->Expect.toBe(true)

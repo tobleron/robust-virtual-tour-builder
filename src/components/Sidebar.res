@@ -12,7 +12,7 @@ external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 
 @react.component
 let make = () => {
-  let state = AppContext.useAppState()
+  let sceneSlice = AppContext.useSceneSlice()
   let dispatch = AppContext.useAppDispatch()
 
   // Inputs refs
@@ -116,7 +116,7 @@ let make = () => {
   }
 
   // Computed
-  let totalHotspots = state.scenes->Belt.Array.reduce(0, (acc, s) => acc + Array.length(s.hotspots))
+  let totalHotspots = sceneSlice.scenes->Belt.Array.reduce(0, (acc, s) => acc + Array.length(s.hotspots))
   let teaserReady = totalHotspots >= 3
   let exportReady = totalHotspots > 0
 
@@ -155,7 +155,7 @@ let make = () => {
               "file-plus",
               "New",
               () => {
-                if Array.length(state.scenes) > 0 {
+                if Array.length(sceneSlice.scenes) > 0 {
                   EventBus.dispatch(
                     ShowModal({
                       title: "Create New Project?",
@@ -200,7 +200,8 @@ let make = () => {
                   async () => {
                     updateProgress(0.0, "Saving...", true, "Saving")
                     try {
-                      let _ = await ProjectManager.saveProject(state, ~onProgress=(pct, _, msg) =>
+                      let currentState = GlobalStateBridge.getState()
+                      let _ = await ProjectManager.saveProject(currentState, ~onProgress=(pct, _, msg) =>
                         updateProgress(pct->Int.toFloat, msg, true, "Saving")
                       )
                       EventBus.dispatch(ShowNotification("Project saved", #Success))
@@ -287,7 +288,7 @@ let make = () => {
                   updateProgress(0.0, "Exporting...", true, "Export")
                   try {
                     let exportResult = await Exporter.exportTour(
-                      state.scenes,
+                      sceneSlice.scenes,
                       Some((pct, _, msg) => updateProgress(pct, msg, true, "Export")),
                     )
                     switch exportResult {
@@ -319,7 +320,7 @@ let make = () => {
             className="sidebar-action-btn-wide hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
             disabled={!teaserReady}
             onClick={_ => {
-              let _ = TeaserManager.startAutoTeaser(state.tourName, false, "mp4", false)
+              let _ = TeaserManager.startAutoTeaser(sceneSlice.tourName, false, "mp4", false)
             }}
             ariaLabel="Create Teaser"
           >
@@ -384,7 +385,7 @@ let make = () => {
                         ~module_="Sidebar",
                         ~operation="PROJECT_LOAD",
                         ~data={
-                          "sceneCount": Array.length(state.scenes),
+                          "sceneCount": Array.length(sceneSlice.scenes),
                         },
                         (),
                       )
@@ -470,7 +471,7 @@ let make = () => {
             type_="text"
             className="sidebar-project-input"
             placeholder="New Tour..."
-            value={state.tourName}
+            value={sceneSlice.tourName}
             onChange={e => dispatch(Actions.SetTourName(JsxEvent.Form.target(e)["value"]))}
           />
         </div>

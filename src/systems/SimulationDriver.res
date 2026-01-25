@@ -110,7 +110,9 @@ let make = () => {
                     // Wait a bit then stop
                     let _ = await wait(Constants.Simulation.stepDelay)
                     if !cancel.contents {
+                      Navigation.cancelNavigation()
                       dispatch(StopAutoPilot)
+                      dispatch(Actions.SetActiveScene(0, 0.0, 0.0, None))
                     }
                   | None =>
                     Logger.info(
@@ -119,6 +121,7 @@ let make = () => {
                       ~data=Some({"reason": "No valid move"}),
                       (),
                     )
+                    Navigation.cancelNavigation()
                     dispatch(StopAutoPilot)
                   }
                 }
@@ -130,6 +133,7 @@ let make = () => {
                     (),
                   )
                   EventBus.dispatch(ShowNotification("Simulation error: " ++ msg, #Error))
+                  Navigation.cancelNavigation()
                   dispatch(StopAutoPilot)
                 }
               }
