@@ -2,6 +2,7 @@
 open ReBindings
 open UploadProcessorTypes
 open UploadProcessorLogic
+open Actions
 
 let processUploads = (
   files: array<file>,
@@ -50,7 +51,7 @@ let processUploads = (
         })
       } else {
         /* Validate Files */
-        let validFiles = validateFiles(files)
+        let validFiles = ImageValidator.validateFiles(files, msg => notify(msg, "warning"))
 
         if Belt.Array.length(validFiles) == 0 {
           notify("No valid image files selected!", "error")
@@ -64,11 +65,19 @@ let processUploads = (
           updateProgress(0.0, "Scanning files...", true, "Fingerprinting")
           Logger.debug(~module_="Upload", ~message="PHASE_FINGERPRINTING", ())
 
-          fingerprintFiles(validFiles)->Promise.then(results => {
+          FingerprintService.fingerprintFiles(validFiles)->Promise.then(results => {
             updateProgress(18.0, "Cleaning up scanning...", true, "Fingerprinting")
 
             /* Filter duplicates */
-            let uniqueItems = filterDuplicates(results)
+            let state = GlobalStateBridge.getState()
+            let uniqueItems = FingerprintService.filterDuplicates(
+              results,
+              ~existingScenes=state.scenes,
+              ~deletedIds=state.deletedSceneIds,
+              ~onDuplicate=c =>
+                notify("Skipped " ++ Belt.Int.toString(c) ++ " duplicates.", "info"),
+              ~onRestore=id => GlobalStateBridge.dispatch(RemoveDeletedSceneId(id)),
+            )
 
             /* Phase 2: Optimization */
             updateProgress(20.0, "Processing images...", true, "Processing")
