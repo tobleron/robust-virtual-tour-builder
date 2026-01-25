@@ -1,8 +1,54 @@
-/* tests/unit/ReducerHelpers_v.test.res */
 open Vitest
-open ReducerHelpers
+open SceneHelpers
+open Types
 
-describe("ReducerHelpers", () => {
+describe("SceneHelpers", () => {
+  // Helpers for creating dummy data
+  let makeDummyHotspot = (~target="target.webp", ()) => {
+    let hs: Types.hotspot = {
+      linkId: "h1",
+      yaw: 0.0,
+      pitch: 0.0,
+      target,
+      targetYaw: None,
+      targetPitch: None,
+      targetHfov: None,
+      startYaw: None,
+      startPitch: None,
+      startHfov: None,
+      isReturnLink: None,
+      viewFrame: None,
+      returnViewFrame: None,
+      waypoints: None,
+      displayPitch: None,
+      transition: None,
+      duration: None,
+    }
+    hs
+  }
+
+  let makeDummyScene = (~id="id", ~name="name.webp", ~label="", ~hotspots=[], ()) => {
+    let sc: Types.scene = {
+      id,
+      name,
+      file: Url("file"),
+      tinyFile: None,
+      originalFile: None,
+      hotspots,
+      category: "indoor",
+      floor: "ground",
+      label,
+      quality: None,
+      colorGroup: None,
+      _metadataSource: "user",
+      categorySet: false,
+      labelSet: false,
+      isAutoForward: false,
+      preCalculatedSnapshot: None,
+    }
+    sc
+  }
+
   test("Parse full project structure", t => {
     let json = JSON.parseOrThrow(`{
       "tourName": "Full Project",
@@ -65,80 +111,6 @@ describe("ReducerHelpers", () => {
     t->expect(s2.id)->Expect.toEqual("legacy_min.webp") // Fallback
     t->expect(Belt.Array.length(s2.hotspots))->Expect.toEqual(0)
   })
-
-  test("Parse timeline item", t => {
-    let timelineJson = JSON.parseOrThrow(`{
-      "id": "t1",
-      "linkId": "l1",
-      "sceneId": "s1",
-      "targetScene": "s2",
-      "transition": "fade",
-      "duration": 1000
-    }`)
-
-    let item = parseTimelineItem(timelineJson)
-    t->expect(item.id)->Expect.toEqual("t1")
-    t->expect(item.duration)->Expect.toEqual(1000)
-  })
-
-  test("insertAt helper", t => {
-    let originalArr = [1, 2, 3]
-    let inserted = insertAt(originalArr, 1, 99)
-    t->expect(Belt.Array.length(inserted))->Expect.toEqual(4)
-    t->expect(Belt.Array.getExn(inserted, 0))->Expect.toEqual(1)
-    t->expect(Belt.Array.getExn(inserted, 1))->Expect.toEqual(99)
-    t->expect(Belt.Array.getExn(inserted, 2))->Expect.toEqual(2)
-    t->expect(Belt.Array.getExn(inserted, 3))->Expect.toEqual(3)
-
-    let insertedAtStart = insertAt(originalArr, 0, 88)
-    t->expect(Belt.Array.getExn(insertedAtStart, 0))->Expect.toEqual(88)
-  })
-
-  // Helpers for creating dummy data
-  let makeDummyHotspot = (~target="target.webp", ()) => {
-    let hs: Types.hotspot = {
-      linkId: "h1",
-      yaw: 0.0,
-      pitch: 0.0,
-      target,
-      targetYaw: None,
-      targetPitch: None,
-      targetHfov: None,
-      startYaw: None,
-      startPitch: None,
-      startHfov: None,
-      isReturnLink: None,
-      viewFrame: None,
-      returnViewFrame: None,
-      waypoints: None,
-      displayPitch: None,
-      transition: None,
-      duration: None,
-    }
-    hs
-  }
-
-  let makeDummyScene = (~id="id", ~name="name.webp", ~label="", ~hotspots=[], ()) => {
-    let sc: Types.scene = {
-      id,
-      name,
-      file: Url("file"),
-      tinyFile: None,
-      originalFile: None,
-      hotspots,
-      category: "indoor",
-      floor: "ground",
-      label,
-      quality: None,
-      colorGroup: None,
-      _metadataSource: "user",
-      categorySet: false,
-      labelSet: false,
-      isAutoForward: false,
-      preCalculatedSnapshot: None,
-    }
-    sc
-  }
 
   test("syncSceneNames logic", t => {
     let sceneA = makeDummyScene(
@@ -277,30 +249,6 @@ describe("ReducerHelpers", () => {
     t->expect(updatedS1.category)->Expect.toEqual("outdoor")
     t->expect(updatedS1.floor)->Expect.toEqual("roof")
     t->expect(stateAfterMeta.lastUsedCategory)->Expect.toEqual("outdoor")
-  })
-
-  test("handleUpdateTimelineStep logic", t => {
-    let stateWithTimeline = {
-      ...State.initialState,
-      timeline: [
-        {
-          id: "step1",
-          linkId: "l1",
-          sceneId: "s1",
-          targetScene: "s2",
-          transition: "fade",
-          duration: 1000,
-        },
-      ],
-    }
-    let stepUpdateJson = JSON.parseOrThrow(`{
-      "transition": "zoom",
-      "duration": 2000
-    }`)
-    let stateAfterStepUpdate = handleUpdateTimelineStep(stateWithTimeline, "step1", stepUpdateJson)
-    let updatedStep = Belt.Array.getExn(stateAfterStepUpdate.timeline, 0)
-    t->expect(updatedStep.transition)->Expect.toEqual("zoom")
-    t->expect(updatedStep.duration)->Expect.toEqual(2000)
   })
 
   test("handleRemoveHotspot logic", t => {

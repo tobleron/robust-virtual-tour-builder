@@ -1,51 +1,5 @@
 open Types
-// JsonTypes is NOT opened to avoid shadowing common record labels
-
-// Helper for array insertion
-let insertAt = (arr, index, item) => {
-  let before = Belt.Array.slice(arr, ~offset=0, ~len=index)
-  let after = Belt.Array.slice(arr, ~offset=index, ~len=Belt.Array.length(arr) - index)
-  Belt.Array.concatMany([before, [item], after])
-}
-
-external castJsonToFile: JSON.t => ReBindings.File.t = "%identity"
-external castJsonToBlob: JSON.t => ReBindings.Blob.t = "%identity"
-external castStringToBlob: string => ReBindings.Blob.t = "%identity"
-external castFileToBlob: ReBindings.File.t => ReBindings.Blob.t = "%identity"
-
-let decodeFile = (json: JSON.t): Types.file => {
-  switch JSON.Decode.string(json) {
-  | Some(s) => Url(s)
-  | None =>
-    // Check if it's a raw File/Blob object from upload via %identity
-    let isFile: bool = %raw("json instanceof File")
-    if isFile {
-      File(castJsonToFile(json))
-    } else {
-      let isBlob: bool = %raw("json instanceof Blob")
-      if isBlob {
-        Blob(castJsonToBlob(json))
-      } else {
-        Url("")
-      }
-    }
-  }
-}
-
-let fileToBlob = (f: Types.file): ReBindings.Blob.t => {
-  switch f {
-  | Url(s) => castStringToBlob(s)
-  | Blob(b) => b
-  | File(file) => castFileToBlob(file)
-  }
-}
-
-let fileToFile = (f: Types.file): option<ReBindings.File.t> => {
-  switch f {
-  | File(file) => Some(file)
-  | _ => None
-  }
-}
+open UiHelpers
 
 // ============================================================================
 // PARSING FUNCTIONS
@@ -96,7 +50,6 @@ let parseScene = (dataJson: JSON.t): scene => {
   | Ok(d) => d
   | Error(_) =>
     (
-      // Fallback/Default for invalid data
       {
         id: "error_" ++ Float.toString(Date.now()),
         name: "invalid.webp",
@@ -215,31 +168,6 @@ let parseProject = (projectDataJson: JSON.t): state => {
     },
     lastUsedCategory,
     exifReport,
-  }
-}
-
-let parseTimelineItem = (json: JSON.t): timelineItem => {
-  let item = switch JsonTypes.decodeTimelineItem(json) {
-  | Ok(i) => i
-  | Error(_) =>
-    (
-      {
-        id: "",
-        linkId: "",
-        sceneId: "",
-        targetScene: "",
-        transition: "fade",
-        duration: 1000,
-      }: JsonTypes.timelineItemJson
-    )
-  }
-  {
-    id: item.id,
-    linkId: item.linkId,
-    sceneId: item.sceneId,
-    targetScene: item.targetScene,
-    transition: item.transition,
-    duration: item.duration,
   }
 }
 
@@ -479,29 +407,4 @@ let handleUpdateSceneMetadata = (state: state, index: int, metaJson: JSON.t): st
     }
   })
   {...state, scenes: newScenes, lastUsedCategory: updatedLastUsedCategory.contents}
-}
-
-let handleUpdateTimelineStep = (state: state, id: string, dataJson: JSON.t): state => {
-  let data = switch JsonTypes.decodeTimelineUpdate(dataJson) {
-  | Ok(d) => d
-  | Error(_) => ({transition: Nullable.null, duration: Nullable.null}: JsonTypes.timelineUpdateJson)
-  }
-  let newTimeline = Belt.Array.map(state.timeline, t => {
-    if t.id == id {
-      {
-        ...t,
-        transition: switch Nullable.toOption(data.transition) {
-        | Some(tr) => tr
-        | None => t.transition
-        },
-        duration: switch Nullable.toOption(data.duration) {
-        | Some(d) => d
-        | None => t.duration
-        },
-      }
-    } else {
-      t
-    }
-  })
-  {...state, timeline: newTimeline}
 }
