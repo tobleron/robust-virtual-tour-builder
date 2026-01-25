@@ -261,3 +261,16 @@
 .animate-flicker-yellow-flat {
     animation: flicker-yellow-flat 0.4s ease-out 2;
 }
+
+@keyframes flicker-orange-flat {
+
+    15%,
+    45% {
+        background-color: #ffedd5;
+        /* Tailwind orange-100 */
+    }
+}
+
+.animate-flicker-orange-flat {
+    animation: flicker-orange-flat 0.4s ease-out 2;
+}
