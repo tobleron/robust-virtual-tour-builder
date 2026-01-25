@@ -5,12 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.7.9] - 2026-01-25
+
+### Fixed
+- **Animation Conflict**: Resolved background color glitches in `SceneList` animations by using pure additive overrides (`animate-flicker-*-flat`) instead of toggling transparency.
+- **Sync**: Introduced `animate-flicker-yellow-flat` to perfectly match the speed and easing of the red delete flickering, ensuring a unified feel for the "Clear Links" action.
+
 ## [4.7.8] - 2026-01-25
-
-### Changed
-- **Animation Consistency**: Updated "Clear Links" action to use `animate-flicker-yellow-light`. This matches the timing and style (no scale transform) of the "Delete Scene" animation, creating a uniform feel for menu actions.
-
-## [4.7.7] - 2026-01-25
 
 ### Changed
 - **UI Contrast**: Updated "Delete Scene" menu action to use a lighter red flicker (`#fee2e2`) instead of dark red, ensuring text legibility during the confirmation animation.
