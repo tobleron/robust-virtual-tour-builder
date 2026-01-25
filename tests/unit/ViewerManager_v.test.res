@@ -14,6 +14,29 @@ type mockFn
 
 /* Mocks */
 %%raw(`
+  vi.mock('../../src/systems/InputSystem.bs.js', () => ({
+    initInputSystem: vi.fn(),
+    handleMouseMove: vi.fn(),
+  }))
+`)
+
+%%raw(`
+  vi.mock('../../src/systems/LinkEditorLogic.bs.js', () => ({
+    handleStageClick: vi.fn(),
+    handleStagePointerDown: vi.fn(),
+  }))
+`)
+
+@module("../../src/systems/InputSystem.bs.js")
+external mockInitInputSystem: mockFn = "initInputSystem"
+@module("../../src/systems/InputSystem.bs.js")
+external mockHandleMouseMove: mockFn = "handleMouseMove"
+@module("../../src/systems/LinkEditorLogic.bs.js")
+external mockHandleStageClick: mockFn = "handleStageClick"
+@module("../../src/systems/LinkEditorLogic.bs.js")
+external mockHandleStagePointerDown: mockFn = "handleStagePointerDown"
+
+%%raw(`
   vi.mock('../../src/systems/NavigationRenderer.bs.js', () => ({
     init: vi.fn(),
   }))
@@ -221,16 +244,13 @@ describe("ViewerManager", () => {
 
     await wait(50)
 
-    // Simulate Escape key
-    let escEvent = %raw(`new KeyboardEvent('keydown', { key: 'Escape' })`)
-    let _ = Window.dispatchEvent(escEvent)
-
-    expectCall(mockDispatch)->toHaveBeenCalledWith(Actions.StopLinking)
+    // VERIFY: InputSystem was initialized
+    expectCall(mockInitInputSystem)->toHaveBeenCalled()
 
     Dom.removeElement(container)
   })
 
-  testAsync("should update ViewerState on mouse move on stage", async t => {
+  testAsync("should update ViewerState on mouse move on stage", async _t => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
@@ -249,13 +269,14 @@ describe("ViewerManager", () => {
 
     await wait(50)
 
+    await wait(50)
+
     let stage = Dom.getElementById("viewer-stage")->Nullable.getUnsafe
     let moveEvent = %raw(`new MouseEvent('mousemove', { clientX: 500, clientY: 500 })`)
     let _ = %raw(`(stage, ev) => stage.dispatchEvent(ev)`)(stage, moveEvent)
 
-    // Norm coordinates: (500/1000 * 2) - 1 = 0
-    let xNorm = ViewerState.state.mouseXNorm
-    t->expect(xNorm)->Expect.toBe(0.0)
+    // VERIFY: handleMouseMove was called
+    expectCall(mockHandleMouseMove)->toHaveBeenCalled()
 
     Dom.removeElement(container)
   })
@@ -310,7 +331,8 @@ describe("ViewerManager", () => {
     let clickEvent = %raw(`new MouseEvent('click', { clientX: 500, clientY: 500 })`)
     let _ = %raw(`(stage, ev) => stage.dispatchEvent(ev)`)(stage, clickEvent)
 
-    expectCall(mockGlobalDispatch)->toHaveBeenCalled()
+    // VERIFY: LinkEditorLogic.handleStageClick was called
+    expectCall(mockHandleStageClick)->toHaveBeenCalled()
 
     Dom.removeElement(container)
   })

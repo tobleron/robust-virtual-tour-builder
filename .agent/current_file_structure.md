@@ -171,18 +171,36 @@
 │   │   │   │   ├── ErrorFallbackUI.cmj
 │   │   │   │   ├── ErrorFallbackUI.cmt
 │   │   │   │   ├── ErrorFallbackUI.res
+│   │   │   │   ├── FloorNavigation.ast
+│   │   │   │   ├── FloorNavigation.bs.js
+│   │   │   │   ├── FloorNavigation.cmi
+│   │   │   │   ├── FloorNavigation.cmj
+│   │   │   │   ├── FloorNavigation.cmt
+│   │   │   │   ├── FloorNavigation.res
 │   │   │   │   ├── HotspotActionMenu.ast
 │   │   │   │   ├── HotspotActionMenu.bs.js
 │   │   │   │   ├── HotspotActionMenu.cmi
 │   │   │   │   ├── HotspotActionMenu.cmj
 │   │   │   │   ├── HotspotActionMenu.cmt
 │   │   │   │   ├── HotspotActionMenu.res
+│   │   │   │   ├── HotspotLayer.ast
+│   │   │   │   ├── HotspotLayer.bs.js
+│   │   │   │   ├── HotspotLayer.cmi
+│   │   │   │   ├── HotspotLayer.cmj
+│   │   │   │   ├── HotspotLayer.cmt
+│   │   │   │   ├── HotspotLayer.res
 │   │   │   │   ├── HotspotManager.ast
 │   │   │   │   ├── HotspotManager.bs.js
 │   │   │   │   ├── HotspotManager.cmi
 │   │   │   │   ├── HotspotManager.cmj
 │   │   │   │   ├── HotspotManager.cmt
 │   │   │   │   ├── HotspotManager.res
+│   │   │   │   ├── HotspotMenuLayer.ast
+│   │   │   │   ├── HotspotMenuLayer.bs.js
+│   │   │   │   ├── HotspotMenuLayer.cmi
+│   │   │   │   ├── HotspotMenuLayer.cmj
+│   │   │   │   ├── HotspotMenuLayer.cmt
+│   │   │   │   ├── HotspotMenuLayer.res
 │   │   │   │   ├── LabelMenu.ast
 │   │   │   │   ├── LabelMenu.bs.js
 │   │   │   │   ├── LabelMenu.cmi
@@ -207,6 +225,18 @@
 │   │   │   │   ├── NotificationContext.cmj
 │   │   │   │   ├── NotificationContext.cmt
 │   │   │   │   ├── NotificationContext.res
+│   │   │   │   ├── NotificationLayer.ast
+│   │   │   │   ├── NotificationLayer.bs.js
+│   │   │   │   ├── NotificationLayer.cmi
+│   │   │   │   ├── NotificationLayer.cmj
+│   │   │   │   ├── NotificationLayer.cmt
+│   │   │   │   ├── NotificationLayer.res
+│   │   │   │   ├── PersistentLabel.ast
+│   │   │   │   ├── PersistentLabel.bs.js
+│   │   │   │   ├── PersistentLabel.cmi
+│   │   │   │   ├── PersistentLabel.cmj
+│   │   │   │   ├── PersistentLabel.cmt
+│   │   │   │   ├── PersistentLabel.res
 │   │   │   │   ├── PopOver.ast
 │   │   │   │   ├── PopOver.bs.js
 │   │   │   │   ├── PopOver.cmi
@@ -225,6 +255,18 @@
 │   │   │   │   ├── PreviewArrow.cmj
 │   │   │   │   ├── PreviewArrow.cmt
 │   │   │   │   ├── PreviewArrow.res
+│   │   │   │   ├── QualityIndicator.ast
+│   │   │   │   ├── QualityIndicator.bs.js
+│   │   │   │   ├── QualityIndicator.cmi
+│   │   │   │   ├── QualityIndicator.cmj
+│   │   │   │   ├── QualityIndicator.cmt
+│   │   │   │   ├── QualityIndicator.res
+│   │   │   │   ├── ReturnPrompt.ast
+│   │   │   │   ├── ReturnPrompt.bs.js
+│   │   │   │   ├── ReturnPrompt.cmi
+│   │   │   │   ├── ReturnPrompt.cmj
+│   │   │   │   ├── ReturnPrompt.cmt
+│   │   │   │   ├── ReturnPrompt.res
 │   │   │   │   ├── SceneList.ast
 │   │   │   │   ├── SceneList.bs.js
 │   │   │   │   ├── SceneList.cmi
@@ -237,6 +279,12 @@
 │   │   │   │   ├── Sidebar.cmj
 │   │   │   │   ├── Sidebar.cmt
 │   │   │   │   ├── Sidebar.res
+│   │   │   │   ├── SnapshotOverlay.ast
+│   │   │   │   ├── SnapshotOverlay.bs.js
+│   │   │   │   ├── SnapshotOverlay.cmi
+│   │   │   │   ├── SnapshotOverlay.cmj
+│   │   │   │   ├── SnapshotOverlay.cmt
+│   │   │   │   ├── SnapshotOverlay.res
 │   │   │   │   ├── Tooltip.ast
 │   │   │   │   ├── Tooltip.bs.js
 │   │   │   │   ├── Tooltip.cmi
@@ -249,12 +297,24 @@
 │   │   │   │   ├── UploadReport.cmj
 │   │   │   │   ├── UploadReport.cmt
 │   │   │   │   ├── UploadReport.res
-│   │   │   │   ├── ViewerFollow.ast
-│   │   │   │   ├── ViewerFollow.bs.js
-│   │   │   │   ├── ViewerFollow.cmi
-│   │   │   │   ├── ViewerFollow.cmj
-│   │   │   │   ├── ViewerFollow.cmt
-│   │   │   │   ├── ViewerFollow.res
+│   │   │   │   ├── UtilityBar.ast
+│   │   │   │   ├── UtilityBar.bs.js
+│   │   │   │   ├── UtilityBar.cmi
+│   │   │   │   ├── UtilityBar.cmj
+│   │   │   │   ├── UtilityBar.cmt
+│   │   │   │   ├── UtilityBar.res
+│   │   │   │   ├── ViewerHUD.ast
+│   │   │   │   ├── ViewerHUD.bs.js
+│   │   │   │   ├── ViewerHUD.cmi
+│   │   │   │   ├── ViewerHUD.cmj
+│   │   │   │   ├── ViewerHUD.cmt
+│   │   │   │   ├── ViewerHUD.res
+│   │   │   │   ├── ViewerLabelMenu.ast
+│   │   │   │   ├── ViewerLabelMenu.bs.js
+│   │   │   │   ├── ViewerLabelMenu.cmi
+│   │   │   │   ├── ViewerLabelMenu.cmj
+│   │   │   │   ├── ViewerLabelMenu.cmt
+│   │   │   │   ├── ViewerLabelMenu.res
 │   │   │   │   ├── ViewerLoader.ast
 │   │   │   │   ├── ViewerLoader.bs.js
 │   │   │   │   ├── ViewerLoader.cmi
@@ -273,18 +333,6 @@
 │   │   │   │   ├── ViewerSnapshot.cmj
 │   │   │   │   ├── ViewerSnapshot.cmt
 │   │   │   │   ├── ViewerSnapshot.res
-│   │   │   │   ├── ViewerState.ast
-│   │   │   │   ├── ViewerState.bs.js
-│   │   │   │   ├── ViewerState.cmi
-│   │   │   │   ├── ViewerState.cmj
-│   │   │   │   ├── ViewerState.cmt
-│   │   │   │   ├── ViewerState.res
-│   │   │   │   ├── ViewerTypes.ast
-│   │   │   │   ├── ViewerTypes.bs.js
-│   │   │   │   ├── ViewerTypes.cmi
-│   │   │   │   ├── ViewerTypes.cmj
-│   │   │   │   ├── ViewerTypes.cmt
-│   │   │   │   ├── ViewerTypes.res
 │   │   │   │   ├── ViewerUI.ast
 │   │   │   │   ├── ViewerUI.bs.js
 │   │   │   │   ├── ViewerUI.cmi
@@ -365,6 +413,18 @@
 │   │   │   │   ├── Types.cmj
 │   │   │   │   ├── Types.cmt
 │   │   │   │   ├── Types.res
+│   │   │   │   ├── ViewerState.ast
+│   │   │   │   ├── ViewerState.bs.js
+│   │   │   │   ├── ViewerState.cmi
+│   │   │   │   ├── ViewerState.cmj
+│   │   │   │   ├── ViewerState.cmt
+│   │   │   │   ├── ViewerState.res
+│   │   │   │   ├── ViewerTypes.ast
+│   │   │   │   ├── ViewerTypes.bs.js
+│   │   │   │   ├── ViewerTypes.cmi
+│   │   │   │   ├── ViewerTypes.cmj
+│   │   │   │   ├── ViewerTypes.cmt
+│   │   │   │   ├── ViewerTypes.res
 │   │   │   │   └── reducers
 │   │   │   │       ├── HotspotReducer.ast
 │   │   │   │       ├── HotspotReducer.bs.js
@@ -433,6 +493,12 @@
 │   │   │   │   ├── BackendApi.cmj
 │   │   │   │   ├── BackendApi.cmt
 │   │   │   │   ├── BackendApi.res
+│   │   │   │   ├── CursorPhysics.ast
+│   │   │   │   ├── CursorPhysics.bs.js
+│   │   │   │   ├── CursorPhysics.cmi
+│   │   │   │   ├── CursorPhysics.cmj
+│   │   │   │   ├── CursorPhysics.cmt
+│   │   │   │   ├── CursorPhysics.res
 │   │   │   │   ├── DownloadSystem.ast
 │   │   │   │   ├── DownloadSystem.bs.js
 │   │   │   │   ├── DownloadSystem.cmi
@@ -487,6 +553,12 @@
 │   │   │   │   ├── InputSystem.cmj
 │   │   │   │   ├── InputSystem.cmt
 │   │   │   │   ├── InputSystem.res
+│   │   │   │   ├── LinkEditorLogic.ast
+│   │   │   │   ├── LinkEditorLogic.bs.js
+│   │   │   │   ├── LinkEditorLogic.cmi
+│   │   │   │   ├── LinkEditorLogic.cmj
+│   │   │   │   ├── LinkEditorLogic.cmt
+│   │   │   │   ├── LinkEditorLogic.res
 │   │   │   │   ├── Navigation.ast
 │   │   │   │   ├── Navigation.bs.js
 │   │   │   │   ├── Navigation.cmi
@@ -636,7 +708,13 @@
 │   │   │   │   ├── VideoEncoder.cmi
 │   │   │   │   ├── VideoEncoder.cmj
 │   │   │   │   ├── VideoEncoder.cmt
-│   │   │   │   └── VideoEncoder.res
+│   │   │   │   ├── VideoEncoder.res
+│   │   │   │   ├── ViewerFollow.ast
+│   │   │   │   ├── ViewerFollow.bs.js
+│   │   │   │   ├── ViewerFollow.cmi
+│   │   │   │   ├── ViewerFollow.cmj
+│   │   │   │   ├── ViewerFollow.cmt
+│   │   │   │   └── ViewerFollow.res
 │   │   │   └── utils
 │   │   │       ├── ColorPalette.ast
 │   │   │       ├── ColorPalette.bs.js
@@ -1427,6 +1505,11 @@
 │   │   ├── Constants_v.test.cmj
 │   │   ├── Constants_v.test.cmt
 │   │   ├── Constants_v.test.res
+│   │   ├── CursorPhysics.ast
+│   │   ├── CursorPhysics.cmi
+│   │   ├── CursorPhysics.cmj
+│   │   ├── CursorPhysics.cmt
+│   │   ├── CursorPhysics.res
 │   │   ├── DownloadSystem.ast
 │   │   ├── DownloadSystem.cmi
 │   │   ├── DownloadSystem.cmj
@@ -1487,6 +1570,11 @@
 │   │   ├── Exporter_v.test.cmj
 │   │   ├── Exporter_v.test.cmt
 │   │   ├── Exporter_v.test.res
+│   │   ├── FloorNavigation.ast
+│   │   ├── FloorNavigation.cmi
+│   │   ├── FloorNavigation.cmj
+│   │   ├── FloorNavigation.cmt
+│   │   ├── FloorNavigation.res
 │   │   ├── GeoUtils.ast
 │   │   ├── GeoUtils.cmi
 │   │   ├── GeoUtils.cmj
@@ -1517,6 +1605,11 @@
 │   │   ├── HotspotActionMenu_v.test.cmj
 │   │   ├── HotspotActionMenu_v.test.cmt
 │   │   ├── HotspotActionMenu_v.test.res
+│   │   ├── HotspotLayer.ast
+│   │   ├── HotspotLayer.cmi
+│   │   ├── HotspotLayer.cmj
+│   │   ├── HotspotLayer.cmt
+│   │   ├── HotspotLayer.res
 │   │   ├── HotspotLine.ast
 │   │   ├── HotspotLine.cmi
 │   │   ├── HotspotLine.cmj
@@ -1557,6 +1650,11 @@
 │   │   ├── HotspotManager_v.test.cmj
 │   │   ├── HotspotManager_v.test.cmt
 │   │   ├── HotspotManager_v.test.res
+│   │   ├── HotspotMenuLayer.ast
+│   │   ├── HotspotMenuLayer.cmi
+│   │   ├── HotspotMenuLayer.cmj
+│   │   ├── HotspotMenuLayer.cmt
+│   │   ├── HotspotMenuLayer.res
 │   │   ├── HotspotReducer.ast
 │   │   ├── HotspotReducer.cmi
 │   │   ├── HotspotReducer.cmj
@@ -1625,6 +1723,11 @@
 │   │   ├── LazyLoad_v.test.cmj
 │   │   ├── LazyLoad_v.test.cmt
 │   │   ├── LazyLoad_v.test.res
+│   │   ├── LinkEditorLogic.ast
+│   │   ├── LinkEditorLogic.cmi
+│   │   ├── LinkEditorLogic.cmj
+│   │   ├── LinkEditorLogic.cmt
+│   │   ├── LinkEditorLogic.res
 │   │   ├── LinkModal.ast
 │   │   ├── LinkModal.cmi
 │   │   ├── LinkModal.cmj
@@ -1740,6 +1843,11 @@
 │   │   ├── NotificationContext_v.test.cmj
 │   │   ├── NotificationContext_v.test.cmt
 │   │   ├── NotificationContext_v.test.res
+│   │   ├── NotificationLayer.ast
+│   │   ├── NotificationLayer.cmi
+│   │   ├── NotificationLayer.cmj
+│   │   ├── NotificationLayer.cmt
+│   │   ├── NotificationLayer.res
 │   │   ├── PathInterpolation.ast
 │   │   ├── PathInterpolation.cmi
 │   │   ├── PathInterpolation.cmj
@@ -1750,6 +1858,11 @@
 │   │   ├── PathInterpolation_v.test.cmj
 │   │   ├── PathInterpolation_v.test.cmt
 │   │   ├── PathInterpolation_v.test.res
+│   │   ├── PersistentLabel.ast
+│   │   ├── PersistentLabel.cmi
+│   │   ├── PersistentLabel.cmj
+│   │   ├── PersistentLabel.cmt
+│   │   ├── PersistentLabel.res
 │   │   ├── PopOver.ast
 │   │   ├── PopOver.cmi
 │   │   ├── PopOver.cmj
@@ -1820,6 +1933,11 @@
 │   │   ├── ProjectReducer_v.test.cmj
 │   │   ├── ProjectReducer_v.test.cmt
 │   │   ├── ProjectReducer_v.test.res
+│   │   ├── QualityIndicator.ast
+│   │   ├── QualityIndicator.cmi
+│   │   ├── QualityIndicator.cmj
+│   │   ├── QualityIndicator.cmt
+│   │   ├── QualityIndicator.res
 │   │   ├── ReBindings.ast
 │   │   ├── ReBindings.cmi
 │   │   ├── ReBindings.cmj
@@ -1870,6 +1988,11 @@
 │   │   ├── Resizer_v.test.cmj
 │   │   ├── Resizer_v.test.cmt
 │   │   ├── Resizer_v.test.res
+│   │   ├── ReturnPrompt.ast
+│   │   ├── ReturnPrompt.cmi
+│   │   ├── ReturnPrompt.cmj
+│   │   ├── ReturnPrompt.cmt
+│   │   ├── ReturnPrompt.res
 │   │   ├── RootReducer.ast
 │   │   ├── RootReducer.cmi
 │   │   ├── RootReducer.cmj
@@ -2030,6 +2153,11 @@
 │   │   ├── SimulationReducer_v.test.cmj
 │   │   ├── SimulationReducer_v.test.cmt
 │   │   ├── SimulationReducer_v.test.res
+│   │   ├── SnapshotOverlay.ast
+│   │   ├── SnapshotOverlay.cmi
+│   │   ├── SnapshotOverlay.cmj
+│   │   ├── SnapshotOverlay.cmt
+│   │   ├── SnapshotOverlay.res
 │   │   ├── State.ast
 │   │   ├── State.cmi
 │   │   ├── State.cmj
@@ -2235,6 +2363,11 @@
 │   │   ├── UrlUtils_v.test.cmj
 │   │   ├── UrlUtils_v.test.cmt
 │   │   ├── UrlUtils_v.test.res
+│   │   ├── UtilityBar.ast
+│   │   ├── UtilityBar.cmi
+│   │   ├── UtilityBar.cmj
+│   │   ├── UtilityBar.cmt
+│   │   ├── UtilityBar.res
 │   │   ├── Version.ast
 │   │   ├── Version.cmi
 │   │   ├── Version.cmj
@@ -2275,6 +2408,16 @@
 │   │   ├── ViewerFollow_v.test.cmj
 │   │   ├── ViewerFollow_v.test.cmt
 │   │   ├── ViewerFollow_v.test.res
+│   │   ├── ViewerHUD.ast
+│   │   ├── ViewerHUD.cmi
+│   │   ├── ViewerHUD.cmj
+│   │   ├── ViewerHUD.cmt
+│   │   ├── ViewerHUD.res
+│   │   ├── ViewerLabelMenu.ast
+│   │   ├── ViewerLabelMenu.cmi
+│   │   ├── ViewerLabelMenu.cmj
+│   │   ├── ViewerLabelMenu.cmt
+│   │   ├── ViewerLabelMenu.res
 │   │   ├── ViewerLoader.ast
 │   │   ├── ViewerLoader.cmi
 │   │   ├── ViewerLoader.cmj
@@ -3788,10 +3931,16 @@
 │   │   ├── AppErrorBoundary.res
 │   │   ├── ErrorFallbackUI.bs.js
 │   │   ├── ErrorFallbackUI.res
+│   │   ├── FloorNavigation.bs.js
+│   │   ├── FloorNavigation.res
 │   │   ├── HotspotActionMenu.bs.js
 │   │   ├── HotspotActionMenu.res
+│   │   ├── HotspotLayer.bs.js
+│   │   ├── HotspotLayer.res
 │   │   ├── HotspotManager.bs.js
 │   │   ├── HotspotManager.res
+│   │   ├── HotspotMenuLayer.bs.js
+│   │   ├── HotspotMenuLayer.res
 │   │   ├── LabelMenu.bs.js
 │   │   ├── LabelMenu.res
 │   │   ├── LinkModal.bs.js
@@ -3800,32 +3949,42 @@
 │   │   ├── ModalContext.res
 │   │   ├── NotificationContext.bs.js
 │   │   ├── NotificationContext.res
+│   │   ├── NotificationLayer.bs.js
+│   │   ├── NotificationLayer.res
+│   │   ├── PersistentLabel.bs.js
+│   │   ├── PersistentLabel.res
 │   │   ├── PopOver.bs.js
 │   │   ├── PopOver.res
 │   │   ├── Portal.bs.js
 │   │   ├── Portal.res
 │   │   ├── PreviewArrow.bs.js
 │   │   ├── PreviewArrow.res
+│   │   ├── QualityIndicator.bs.js
+│   │   ├── QualityIndicator.res
+│   │   ├── ReturnPrompt.bs.js
+│   │   ├── ReturnPrompt.res
 │   │   ├── SceneList.bs.js
 │   │   ├── SceneList.res
 │   │   ├── Sidebar.bs.js
 │   │   ├── Sidebar.res
+│   │   ├── SnapshotOverlay.bs.js
+│   │   ├── SnapshotOverlay.res
 │   │   ├── Tooltip.bs.js
 │   │   ├── Tooltip.res
 │   │   ├── UploadReport.bs.js
 │   │   ├── UploadReport.res
-│   │   ├── ViewerFollow.bs.js
-│   │   ├── ViewerFollow.res
+│   │   ├── UtilityBar.bs.js
+│   │   ├── UtilityBar.res
+│   │   ├── ViewerHUD.bs.js
+│   │   ├── ViewerHUD.res
+│   │   ├── ViewerLabelMenu.bs.js
+│   │   ├── ViewerLabelMenu.res
 │   │   ├── ViewerLoader.bs.js
 │   │   ├── ViewerLoader.res
 │   │   ├── ViewerManager.bs.js
 │   │   ├── ViewerManager.res
 │   │   ├── ViewerSnapshot.bs.js
 │   │   ├── ViewerSnapshot.res
-│   │   ├── ViewerState.bs.js
-│   │   ├── ViewerState.res
-│   │   ├── ViewerTypes.bs.js
-│   │   ├── ViewerTypes.res
 │   │   ├── ViewerUI.bs.js
 │   │   ├── ViewerUI.res
 │   │   ├── VisualPipeline.bs.js
@@ -3860,6 +4019,10 @@
 │   │   ├── State.res
 │   │   ├── Types.bs.js
 │   │   ├── Types.res
+│   │   ├── ViewerState.bs.js
+│   │   ├── ViewerState.res
+│   │   ├── ViewerTypes.bs.js
+│   │   ├── ViewerTypes.res
 │   │   └── reducers
 │   │       ├── HotspotReducer.bs.js
 │   │       ├── HotspotReducer.res
@@ -3887,6 +4050,8 @@
 │   │   ├── AudioManager.res
 │   │   ├── BackendApi.bs.js
 │   │   ├── BackendApi.res
+│   │   ├── CursorPhysics.bs.js
+│   │   ├── CursorPhysics.res
 │   │   ├── DownloadSystem.bs.js
 │   │   ├── DownloadSystem.res
 │   │   ├── EventBus.bs.js
@@ -3905,6 +4070,8 @@
 │   │   ├── HotspotLineTypes.res
 │   │   ├── InputSystem.bs.js
 │   │   ├── InputSystem.res
+│   │   ├── LinkEditorLogic.bs.js
+│   │   ├── LinkEditorLogic.res
 │   │   ├── Navigation.bs.js
 │   │   ├── Navigation.res
 │   │   ├── NavigationController.bs.js
@@ -3954,7 +4121,9 @@
 │   │   ├── UploadProcessorTypes.bs.js
 │   │   ├── UploadProcessorTypes.res
 │   │   ├── VideoEncoder.bs.js
-│   │   └── VideoEncoder.res
+│   │   ├── VideoEncoder.res
+│   │   ├── ViewerFollow.bs.js
+│   │   └── ViewerFollow.res
 │   └── utils
 │       ├── ColorPalette.bs.js
 │       ├── ColorPalette.res
@@ -3992,8 +4161,9 @@
 ├── tasks
 │   ├── TASKS.md
 │   ├── active
-│   │   └── 005_create_changelog.md
+│   │   └── 580_Refactor_ViewerUI.md
 │   ├── completed
+│   │   ├── 005_create_changelog_REPORT.md
 │   │   ├── 347_Update_Tests_ProjectManager_UPDATED.md
 │   │   ├── 348_Update_Tests_DownloadSystem_UPDATED.md
 │   │   ├── 349_Update_Tests_NavigationRenderer_UPDATED.md
@@ -4046,11 +4216,11 @@
 │   │   ├── 569_Perf_Split_AppContext_REPORT.md
 │   │   ├── 570_Perf_Implement_Memoization.md
 │   │   ├── 571_Perf_Debounce_Input_Updates_REPORT.md
+│   │   ├── 580_Refactor_ViewerUI_REPORT.md
+│   │   ├── 581_Refactor_ViewerManager.md
 │   │   ├── 95_Aggregate_Completed_Tasks_REPORT.md
 │   │   └── _CONCISE_SUMMARY.md
 │   ├── pending
-│   │   ├── 580_Refactor_ViewerUI.md
-│   │   ├── 581_Refactor_ViewerManager.md
 │   │   ├── 582_Refactor_ViewerLoader.md
 │   │   ├── 583_Refactor_HotspotLineLogic.md
 │   │   ├── 584_Refactor_BackendApi.md
@@ -4116,7 +4286,22 @@
 │   │       ├── 590_Test_SimulationChainSkipper_Update.md
 │   │       ├── 591_Test_TourLogic_Update.md
 │   │       ├── 592_Test_VisualPipeline_Update.md
-│   │       └── 593_Test_TourTemplateScripts_Update.md
+│   │       ├── 593_Test_TourTemplateScripts_Update.md
+│   │       ├── 594_Test_SnapshotOverlay_New.md
+│   │       ├── 595_Test_NotificationLayer_New.md
+│   │       ├── 596_Test_ViewerHUD_New.md
+│   │       ├── 597_Test_ViewerLabelMenu_New.md
+│   │       ├── 598_Test_HotspotMenuLayer_New.md
+│   │       ├── 599_Test_HotspotLayer_New.md
+│   │       ├── 600_Test_UtilityBar_New.md
+│   │       ├── 601_Test_FloorNavigation_New.md
+│   │       ├── 602_Test_ReturnPrompt_New.md
+│   │       ├── 603_Test_PersistentLabel_New.md
+│   │       ├── 604_Test_QualityIndicator_New.md
+│   │       ├── 605_Test_CursorPhysics_New.md
+│   │       ├── 606_Test_LinkEditorLogic_New.md
+│   │       ├── 607_Test_Main_Update.md
+│   │       └── 608_Test_State_Update.md
 │   └── postponed
 │       ├── 003_add_seo_structured_data.md
 │       ├── 004_document_core_web_vitals.md
@@ -4353,4 +4538,4 @@
 │           └── TestUtils.res
 └── vitest.config.mjs
 
-177 directories, 4177 files
+177 directories, 4362 files

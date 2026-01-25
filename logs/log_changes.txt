@@ -10,3 +10,4 @@
 [2026-01-25 16:36] v4.7.3 - Perf Refactor Phase 1: Re-render analysis
 [2026-01-25 19:27] v4.7.4 - Perf: Implement React.memo and handler stabilization across UI layers
 [2026-01-25 23:19] v4.8.0 - Before Aggressive Refactoring
+[2026-01-26 00:13] v4.8.0 - Refactor ViewerManager: Separate Input & Physics Logic (Task 581)
