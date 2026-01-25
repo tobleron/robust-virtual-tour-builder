@@ -29,6 +29,31 @@ let make = React.memo(() => {
       "error": false,
     }
   )
+
+  // Task 571: Debounced Project Name State
+  let (localTourName, setLocalTourName) = React.useState(() => sceneSlice.tourName)
+  let expectedTourName = React.useRef(sceneSlice.tourName)
+
+  // Sync from external updates (e.g. Load Project)
+  React.useEffect1(() => {
+    if sceneSlice.tourName != expectedTourName.current {
+      setLocalTourName(_ => sceneSlice.tourName)
+      expectedTourName.current = sceneSlice.tourName
+    }
+    None
+  }, [sceneSlice.tourName])
+
+  // Debounce dispatch
+  React.useEffect1(() => {
+    let timerId = setTimeout(() => {
+      // Only dispatch if truly different to avoid loops
+      if localTourName != sceneSlice.tourName {
+        expectedTourName.current = localTourName
+        dispatch(Actions.SetTourName(localTourName))
+      }
+    }, 300)
+    Some(() => clearTimeout(timerId))
+  }, [localTourName])
   let hideTimerRef = React.useRef(Nullable.null)
 
   // Subscribe to processing updates
@@ -476,8 +501,11 @@ let make = React.memo(() => {
             type_="text"
             className="sidebar-project-input"
             placeholder="New Tour..."
-            value={sceneSlice.tourName}
-            onChange={e => dispatch(Actions.SetTourName(JsxEvent.Form.target(e)["value"]))}
+            value={localTourName}
+            onChange={e => {
+              let val = JsxEvent.Form.target(e)["value"]
+              setLocalTourName(_ => val)
+            }}
           />
         </div>
       </div>

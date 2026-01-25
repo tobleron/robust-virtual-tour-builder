@@ -183,7 +183,7 @@ let make = React.memo(() => {
         switch v {
         | Some(_viewer) =>
           dispatch(Actions.StartLinking(None))
-          EventBus.dispatch(ShowNotification("Link Mode: ACTIVE", #Success))
+          EventBus.dispatch(ShowNotification("ESC to cancel, Enter to save link.", #Info))
         | None => EventBus.dispatch(ShowNotification("Viewer not initialized", #Error))
         }
       }
@@ -197,9 +197,19 @@ let make = React.memo(() => {
         dispatch(Actions.StopAutoPilot)
         Navigation.cancelNavigation()
         dispatch(Actions.SetActiveScene(0, 0.0, 0.0, None))
+
+        // Force hide snapshot overlay and release locks for maximum robustness
+        switch ReBindings.Dom.getElementById("viewer-snapshot-overlay") {
+        | Nullable.Value(el) =>
+          ReBindings.Dom.ClassList.remove(ReBindings.Dom.classList(el), "snapshot-visible")
+        | _ => ()
+        }
+        ViewerState.state.isSwapping = false
+        ViewerState.state.isSceneLoading = false
       } else {
         // Start AutoPilot with journeyId from simSlice
         dispatch(Actions.StartAutoPilot(simSlice.currentJourneyId, false))
+        EventBus.dispatch(ShowNotification("ESC to stop tour preview.", #Info))
       }
     }
   , (simActive, simSlice.currentJourneyId))
@@ -482,21 +492,6 @@ let make = React.memo(() => {
       className="absolute bottom-6 right-6 z-[5002] bg-white rounded-xl shadow-xl p-[4px] flex items-center justify-center max-w-[120px] max-h-[60px] border border-black/5 overflow-hidden viewer-logo-masked"
     >
       <img src="images/logo.png" alt="Logo" className="w-full h-auto object-contain block" />
-    </div>
-
-    /* Linking Hint */
-    <div
-      id="linking-cancel-hint"
-      className={"absolute bottom-10 left-1/2 -translate-x-1/2 translate-y-2 z-[9999] flex flex-col items-center gap-1 transition-all duration-400 text-center pointer-events-none linking-hint-text " ++ if (
-        uiSlice.isLinking
-      ) {
-        "opacity-100 translate-y-2"
-      } else {
-        "opacity-0 translate-y-4 hidden"
-      }}
-    >
-      <span> {React.string("ESC to Cancel")} </span>
-      <span className="linking-hint-subtext"> {React.string("ENTER to Finish")} </span>
     </div>
 
     /* Floor Navigation */

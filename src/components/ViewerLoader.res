@@ -253,6 +253,12 @@ module Loader = {
               (),
             )
           } else {
+            /* Cleanup existing inactive viewer before creating a new one to prevent DOM clashing */
+            switch Nullable.toOption(inactiveViewer) {
+            | Some(v) => destroyViewer(v)
+            | None => ()
+            }
+
             loadStartTime := Date.now()
             state.isSceneLoading = true
             state.loadingSceneId = Nullable.make(targetScene.id)
