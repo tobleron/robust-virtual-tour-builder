@@ -9,10 +9,29 @@ mkdir -p "$STATE_DIR"
 echo "👀 Project Guard Active: Monitoring Growth ($LIMIT lines), Tests & Structure..."
 
 # Helper to get next Task ID
-get_next_id() {
-    local last_id=$(find tasks -type f -name "[0-9]*_*.md" -exec basename {} \; | cut -d_ -f1 | sort -n | tail -n 1)
-    if [[ -z "$last_id" ]]; then last_id=0; fi
-    echo $((last_id + 1))
+get_hints() {
+    local file="$1"
+    local hints=""
+    
+    if grep -q "Pannellum" "$file"; then
+        hints="$hints\n- **Mock Pannellum**: This module interacts with Pannellum. Mock the global \`window.pannellum\` object in \`tests/node-setup.js\` or locally."
+    fi
+    if grep -q "FFmpeg" "$file"; then
+        hints="$hints\n- **Mock FFmpeg**: This module uses FFmpeg. Ensure the FFmpeg core is mocked or its promises are resolved instantly."
+    fi
+    if grep -q "EventBus" "$file"; then
+        hints="$hints\n- **EventBus Integration**: Use \`EventBus.dispatch\` spies to verify that actions are triggered correctly."
+    fi
+    if grep -q "Fetch" "$file" || grep -q "BackendApi" "$file"; then
+        hints="$hints\n- **API Mocks**: Mock \`fetch\` and \`RequestQueue.schedule\`. Jules should verify that the correct endpoints are called with the expected payloads."
+    fi
+    if grep -q "Window" "$file" || grep -q "Dom" "$file"; then
+        hints="$hints\n- **DOM/Window Bindings**: Use \`ReBindings\` to mock browser-specific properties like \`localStorage\`, \`location\`, or \`window.innerWidth\`."
+    fi
+
+    if [[ -n "$hints" ]]; then
+        echo -e "\n## 💡 Implementation Hints for Cloud Agents (Jules)\n$hints"
+    fi
 }
 
 check_file() {
@@ -61,6 +80,7 @@ Create a Vitest file \`tests/unit/${file_base}_v.test.res\` to cover logic in th
 ## Requirements
 - Maintain code coverage for all exported functions.
 - Follow /testing-standards.md.
+$(get_hints "$file")
 EOF
                 echo "📝 Created Add Test Task: $task_path"
                 EXISTING_TASKS_CACHE="$EXISTING_TASKS_CACHE\n$task_path"
@@ -85,6 +105,7 @@ Update \`$actual_test_file\` to ensure it covers recent changes in \`$filename\`
 - Review recent changes in \`$file\`.
 - Update tests to maintain 100% coverage of new logic.
 - Follow /testing-standards.md.
+$(get_hints "$file")
 EOF
                     echo "🔄 Created Update Test Task: $task_path"
                     EXISTING_TASKS_CACHE="$EXISTING_TASKS_CACHE\n$task_path"
