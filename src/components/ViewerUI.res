@@ -62,16 +62,15 @@ module MemoStaticSvg = {
 }
 
 @react.component
-let make = () => {
+let make = React.memo(() => {
   let sceneSlice = AppContext.useSceneSlice()
   let uiSlice = AppContext.useUiSlice()
   let simSlice = AppContext.useSimSlice()
   let dispatch = AppContext.useAppDispatch()
-  
+
   let simActive = simSlice.simulation.status == Running
 
   // Derived state for display
-
 
   let currentFloor = if sceneSlice.activeIndex >= 0 {
     switch Belt.Array.get(sceneSlice.scenes, sceneSlice.activeIndex) {
@@ -90,7 +89,7 @@ let make = () => {
   let (hotspotMenu, setHotspotMenu) = React.useState(_ => None)
   let (isLabelMenuOpen, setIsLabelMenuOpen) = React.useState(_ => false)
   let (tooltipCooldown, setTooltipCooldown) = React.useState(_ => false)
-  
+
   // Processing UI state
   let (_procState, setProcState) = React.useState(_ =>
     {
@@ -105,47 +104,49 @@ let make = () => {
 
   // Subscribe to processing updates
   React.useEffect0(() => {
-    let unsubscribe = EventBus.subscribe(event => {
-      switch event {
-      | UpdateProcessing(payload) =>
-        // Clear any existing hide timer
-        switch Nullable.toOption(hideTimerRef.current) {
-        | Some(timerId) =>
-          clearTimeout(timerId)
-          hideTimerRef.current = Nullable.null
-        | None => ()
-        }
+    let unsubscribe = EventBus.subscribe(
+      event => {
+        switch event {
+        | UpdateProcessing(payload) =>
+          // Clear any existing hide timer
+          switch Nullable.toOption(hideTimerRef.current) {
+          | Some(timerId) =>
+            clearTimeout(timerId)
+            hideTimerRef.current = Nullable.null
+          | None => ()
+          }
 
-        setProcState(_ => payload)
+          setProcState(_ => payload)
 
-        // If progress is complete, start auto-hide timer
-        if payload["progress"] >= 100.0 && payload["active"] {
-          let timerId = setTimeout(
-            () => {
-              setProcState(
-                prev => {
-                  let next = Object.assign(Object.make(), prev)
-                  next["active"] = false
-                  next
-                },
-              )
-              hideTimerRef.current = Nullable.null
-            },
-            3000,
-          ) // 3 seconds delay for floating UI
-          hideTimerRef.current = Nullable.fromOption(Some(timerId))
+          // If progress is complete, start auto-hide timer
+          if payload["progress"] >= 100.0 && payload["active"] {
+            let timerId = setTimeout(
+              () => {
+                setProcState(
+                  prev => {
+                    let next = Object.assign(Object.make(), prev)
+                    next["active"] = false
+                    next
+                  },
+                )
+                hideTimerRef.current = Nullable.null
+              },
+              3000,
+            ) // 3 seconds delay for floating UI
+            hideTimerRef.current = Nullable.fromOption(Some(timerId))
+          }
+        | OpenHotspotMenu(payload) =>
+          setHotspotMenu(
+            _ => Some({
+              anchor: payload["anchor"],
+              hotspot: payload["hotspot"],
+              index: payload["index"],
+            }),
+          )
+        | _ => ()
         }
-      | OpenHotspotMenu(payload) =>
-        setHotspotMenu(
-          _ => Some({
-            anchor: payload["anchor"],
-            hotspot: payload["hotspot"],
-            index: payload["index"],
-          }),
-        )
-      | _ => ()
-      }
-    })
+      },
+    )
 
     Some(
       () => {
@@ -162,52 +163,61 @@ let make = () => {
   }, [sceneSlice.activeIndex])
 
   // Handlers
-  let handleFabClick = e => {
-    JsxEvent.Mouse.stopPropagation(e)
+  let handleFabClick = React.useMemo1(() =>
+    e => {
+      JsxEvent.Mouse.stopPropagation(e)
 
-    if uiSlice.isLinking {
-      ViewerState.state.linkingStartPoint = Nullable.null
-      dispatch(Actions.StopLinking)
-      EventBus.dispatch(ShowNotification("Link Mode: OFF", #Warning))
-    } else {
-      let cx = JsxEvent.Mouse.clientX(e)
-      let cy = JsxEvent.Mouse.clientY(e)
-      ViewerState.state.linkingStartPoint = Nullable.make({
-        "x": Belt.Int.toFloat(cx),
-        "y": Belt.Int.toFloat(cy),
-      })
+      if uiSlice.isLinking {
+        ViewerState.state.linkingStartPoint = Nullable.null
+        dispatch(Actions.StopLinking)
+        EventBus.dispatch(ShowNotification("Link Mode: OFF", #Warning))
+      } else {
+        let cx = JsxEvent.Mouse.clientX(e)
+        let cy = JsxEvent.Mouse.clientY(e)
+        ViewerState.state.linkingStartPoint = Nullable.make({
+          "x": Belt.Int.toFloat(cx),
+          "y": Belt.Int.toFloat(cy),
+        })
 
-      let v = Nullable.toOption(ReBindings.Viewer.instance)
-      switch v {
-      | Some(_viewer) =>
-        dispatch(Actions.StartLinking(None))
-        EventBus.dispatch(ShowNotification("Link Mode: ACTIVE", #Success))
-      | None => EventBus.dispatch(ShowNotification("Viewer not initialized", #Error))
+        let v = Nullable.toOption(ReBindings.Viewer.instance)
+        switch v {
+        | Some(_viewer) =>
+          dispatch(Actions.StartLinking(None))
+          EventBus.dispatch(ShowNotification("Link Mode: ACTIVE", #Success))
+        | None => EventBus.dispatch(ShowNotification("Viewer not initialized", #Error))
+        }
       }
     }
-  }
+  , [uiSlice.isLinking])
 
-  let handleSimClick = e => {
-    JsxEvent.Mouse.stopPropagation(e)
-    if simActive {
-      dispatch(Actions.StopAutoPilot)
-      Navigation.cancelNavigation()
-      dispatch(Actions.SetActiveScene(0, 0.0, 0.0, None))
-    } else {
-      // Start AutoPilot with journeyId from simSlice
-      dispatch(Actions.StartAutoPilot(simSlice.currentJourneyId, false))
+  let handleSimClick = React.useMemo2(() =>
+    e => {
+      JsxEvent.Mouse.stopPropagation(e)
+      if simActive {
+        dispatch(Actions.StopAutoPilot)
+        Navigation.cancelNavigation()
+        dispatch(Actions.SetActiveScene(0, 0.0, 0.0, None))
+      } else {
+        // Start AutoPilot with journeyId from simSlice
+        dispatch(Actions.StartAutoPilot(simSlice.currentJourneyId, false))
+      }
     }
-  }
+  , (simActive, simSlice.currentJourneyId))
 
-  let handleMenuOpenChange = isOpen => {
-    setIsLabelMenuOpen(_ => isOpen)
-    if !isOpen {
-      setTooltipCooldown(_ => true)
-      let _ = setTimeout(() => {
-        setTooltipCooldown(_ => false)
-      }, 500)
+  let handleMenuOpenChange = React.useMemo0(() =>
+    isOpen => {
+      setIsLabelMenuOpen(_ => isOpen)
+      if !isOpen {
+        setTooltipCooldown(_ => true)
+        let _ = setTimeout(
+          () => {
+            setTooltipCooldown(_ => false)
+          },
+          500,
+        )
+      }
     }
-  }
+  )
 
   let processReturnPrompt = () => {
     let v = Nullable.toOption(ReBindings.Viewer.instance)
@@ -237,26 +247,32 @@ let make = () => {
     }
   }
 
-  let handleReturnPromptClick = e => {
-    JsxEvent.Mouse.stopPropagation(e)
-    processReturnPrompt()
-  }
-
-  let handleReturnPromptKeyDown = e => {
-    if JsxEvent.Keyboard.key(e) == "Enter" {
-      JsxEvent.Keyboard.stopPropagation(e)
+  let handleReturnPromptClick = React.useMemo2(() =>
+    e => {
+      JsxEvent.Mouse.stopPropagation(e)
       processReturnPrompt()
     }
-  }
+  , (simSlice.incomingLink, sceneSlice.scenes))
 
-  let handleFloorClick = (fid, label, e) => {
-    JsxEvent.Mouse.stopPropagation(e)
-    let activeIdx = sceneSlice.activeIndex
-    if activeIdx >= 0 {
-      dispatch(Actions.UpdateSceneMetadata(activeIdx, Logger.castToJson({"floor": fid})))
-      EventBus.dispatch(ShowNotification("Floor: " ++ label, #Success))
+  let handleReturnPromptKeyDown = React.useMemo2(() =>
+    e => {
+      if JsxEvent.Keyboard.key(e) == "Enter" {
+        JsxEvent.Keyboard.stopPropagation(e)
+        processReturnPrompt()
+      }
     }
-  }
+  , (simSlice.incomingLink, sceneSlice.scenes))
+
+  let handleFloorClick = React.useMemo1(() =>
+    (fid, label, e) => {
+      JsxEvent.Mouse.stopPropagation(e)
+      let activeIdx = sceneSlice.activeIndex
+      if activeIdx >= 0 {
+        dispatch(Actions.UpdateSceneMetadata(activeIdx, Logger.castToJson({"floor": fid})))
+        EventBus.dispatch(ShowNotification("Floor: " ++ label, #Success))
+      }
+    }
+  , [sceneSlice.activeIndex])
 
   // Render
   <>
@@ -335,10 +351,12 @@ let make = () => {
           </Shadcn.Button>
         </Tooltip>
 
-
-
         <Shadcn.DropdownMenu open_=isLabelMenuOpen onOpenChange={handleMenuOpenChange}>
-          <Tooltip content="Set scene label" alignment=#Right disabled={uiSlice.isLinking || (isLabelMenuOpen || tooltipCooldown)}>
+          <Tooltip
+            content="Set scene label"
+            alignment=#Right
+            disabled={uiSlice.isLinking || (isLabelMenuOpen || tooltipCooldown)}
+          >
             <Shadcn.DropdownMenu.Trigger asChild=true>
               <Shadcn.Button
                 size="icon"
@@ -562,4 +580,4 @@ let make = () => {
       expand=true
     />
   </>
-}
+})

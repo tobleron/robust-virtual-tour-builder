@@ -2,7 +2,7 @@ external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 
 module SceneItem = {
   @react.component
-  let make = (
+  let make = React.memo((
     ~scene: Types.scene,
     ~index,
     ~isActive,
@@ -186,12 +186,13 @@ module SceneItem = {
         </Shadcn.DropdownMenu>
       </div>
     </div>
-  }
+  })
 }
 
 @react.component
-let make = () => {
-  let state = AppContext.useAppState()
+let make = React.memo(() => {
+  let sceneSlice = AppContext.useSceneSlice()
+  let uiSlice = AppContext.useUiSlice()
   let dispatch = AppContext.useAppDispatch()
 
   let (_draggedIndex, setDraggedIndex) = React.useState(_ => None)
@@ -220,10 +221,12 @@ let make = () => {
     switch scrollContainer {
     | Some(sc) =>
       let updateScroll = () => {
-        setScrollState(_ => (
-          ReBindings.Dom.getScrollTop(sc)->Int.toFloat,
-          ReBindings.Dom.getClientHeight(sc)->Int.toFloat,
-        ))
+        setScrollState(
+          _ => (
+            ReBindings.Dom.getScrollTop(sc)->Int.toFloat,
+            ReBindings.Dom.getClientHeight(sc)->Int.toFloat,
+          ),
+        )
       }
 
       let handleScroll = _ => updateScroll()
@@ -232,9 +235,11 @@ let make = () => {
       // Initial update
       updateScroll()
 
-      let resizeObserver = ReBindings.ResizeObserver.make(_entries => {
-        updateScroll()
-      })
+      let resizeObserver = ReBindings.ResizeObserver.make(
+        _entries => {
+          updateScroll()
+        },
+      )
       ReBindings.ResizeObserver.observe(resizeObserver, sc)
 
       Some(
@@ -248,7 +253,7 @@ let make = () => {
   })
 
   let (scrollTop, viewportHeight) = scrollState
-  let totalHeight = Array.length(state.scenes)->Int.toFloat *. itemHeight
+  let totalHeight = Array.length(sceneSlice.scenes)->Int.toFloat *. itemHeight
 
   let startIndex = Math.floor(scrollTop /. itemHeight) -. buffer->Int.toFloat
   let startIndex = Math.max(0.0, startIndex)->Float.toInt
@@ -258,68 +263,82 @@ let make = () => {
   let visibleCount = Math.max(10.0, rawVisibleCount)
 
   let endIndex = startIndex + visibleCount->Float.toInt + buffer * 2
-  let endIndex = Math.Int.min(Array.length(state.scenes) - 1, endIndex)
+  let endIndex = Math.Int.min(Array.length(sceneSlice.scenes) - 1, endIndex)
 
-  let handleSceneClick = index => {
-    if index == state.activeIndex {
-      // Already selected, do nothing and don't trigger "too fast" warning
-      ()
-    } else {
-      let now = Date.now()
-      let timeDiff = now -. ViewerState.state.lastSwitchTime
-      let throttleLimit = 650.0
-
-      if timeDiff < throttleLimit {
-        EventBus.dispatch(ShowNotification("Switching too fast - Please wait...", #Warning))
+  let handleSceneClick = React.useMemo2(() =>
+    index => {
+      if index == sceneSlice.activeIndex {
+        // Already selected, do nothing and don't trigger "too fast" warning
+        ()
       } else {
-        ViewerState.state.lastSwitchTime = now
+        let now = Date.now()
+        let timeDiff = now -. ViewerState.state.lastSwitchTime
+        let throttleLimit = 650.0
 
-        dispatch(Actions.SetNavigationStatus(Types.Idle))
-        if state.isLinking {
-          dispatch(Actions.StopLinking)
+        if timeDiff < throttleLimit {
+          EventBus.dispatch(ShowNotification("Switching too fast - Please wait...", #Warning))
+        } else {
+          ViewerState.state.lastSwitchTime = now
+
+          dispatch(Actions.SetNavigationStatus(Types.Idle))
+          if uiSlice.isLinking {
+            dispatch(Actions.StopLinking)
+          }
+          let trans: Types.transition = {
+            type_: Some("cut"),
+            targetHotspotIndex: -1,
+            fromSceneName: None,
+          }
+          dispatch(Actions.SetActiveTimelineStep(None))
+          dispatch(Actions.SetActiveScene(index, 0.0, 0.0, Some(trans)))
         }
-        let trans: Types.transition = {
-          type_: Some("cut"),
-          targetHotspotIndex: -1,
-          fromSceneName: None,
-        }
-        dispatch(Actions.SetActiveTimelineStep(None))
-        dispatch(Actions.SetActiveScene(index, 0.0, 0.0, Some(trans)))
       }
     }
-  }
+  , (sceneSlice.activeIndex, uiSlice.isLinking))
 
-  let handleDelete = index => {
-    dispatch(Actions.DeleteScene(index))
-    EventBus.dispatch(ShowNotification("Scene Removed", #Info))
-  }
+  let handleDelete = React.useMemo1(() =>
+    index => {
+      dispatch(Actions.DeleteScene(index))
+      EventBus.dispatch(ShowNotification("Scene Removed", #Info))
+    }
+  , [dispatch])
 
-  let handleClearLinks = index => {
-    dispatch(Actions.ClearHotspots(index))
-    EventBus.dispatch(ShowNotification("Links Cleared", #Info))
-  }
+  let handleClearLinks = React.useMemo1(() =>
+    index => {
+      dispatch(Actions.ClearHotspots(index))
+      EventBus.dispatch(ShowNotification("Links Cleared", #Info))
+    }
+  , [dispatch])
 
-  let onDragStart = (index, _e) => {
-    setDraggedIndex(_ => Some(index))
-  }
+  let onDragStart = React.useMemo0(() =>
+    (index, _e) => {
+      setDraggedIndex(_ => Some(index))
+    }
+  )
 
-  let onDragOver = (_index, e) => {
-    JsxEvent.Mouse.preventDefault(e)
-  }
+  let onDragOver = React.useMemo0(() =>
+    (_index, e) => {
+      JsxEvent.Mouse.preventDefault(e)
+    }
+  )
 
-  let onDrop = (targetIndex, e) => {
-    JsxEvent.Mouse.preventDefault(e)
-    setDraggedIndex(current => {
-      switch current {
-      | Some(fromIndex) =>
-        if fromIndex != targetIndex {
-          dispatch(Actions.ReorderScenes(fromIndex, targetIndex))
-        }
-        None
-      | None => None
-      }
-    })
-  }
+  let onDrop = React.useMemo1(() =>
+    (targetIndex, e) => {
+      JsxEvent.Mouse.preventDefault(e)
+      setDraggedIndex(
+        current => {
+          switch current {
+          | Some(fromIndex) =>
+            if fromIndex != targetIndex {
+              dispatch(Actions.ReorderScenes(fromIndex, targetIndex))
+            }
+            None
+          | None => None
+          }
+        },
+      )
+    }
+  , [dispatch])
 
   <div
     className="flex-1 flex flex-col pt-2 pb-12 relative"
@@ -327,14 +346,14 @@ let make = () => {
     // EXCEPTION: Dynamic container height (CSS_ARCHITECTURE.md §3.1)
     // Required for virtualization to maintain scroll layout
     style={makeStyle({
-      "height": if Array.length(state.scenes) > 0 {
+      "height": if Array.length(sceneSlice.scenes) > 0 {
         totalHeight->Float.toString ++ "px"
       } else {
         "auto"
       },
     })}
   >
-    {if Array.length(state.scenes) == 0 {
+    {if Array.length(sceneSlice.scenes) == 0 {
       <div
         className="flex flex-col items-center justify-center py-20 px-6 text-center animate-fade-in"
       >
@@ -352,7 +371,7 @@ let make = () => {
       </div>
     } else {
       <>
-        {state.scenes
+        {sceneSlice.scenes
         ->Belt.Array.slice(~offset=startIndex, ~len=endIndex - startIndex + 1)
         ->Belt.Array.mapWithIndex((i, scene) => {
           let actualIndex = startIndex + i
@@ -370,7 +389,7 @@ let make = () => {
               key={scene.id}
               scene={scene}
               index={actualIndex}
-              isActive={actualIndex == state.activeIndex}
+              isActive={actualIndex == sceneSlice.activeIndex}
               onClick={() => handleSceneClick(actualIndex)}
               onDragStart={e => onDragStart(actualIndex, e)}
               onDragOver={e => onDragOver(actualIndex, e)}
@@ -384,4 +403,4 @@ let make = () => {
       </>
     }}
   </div>
-}
+})

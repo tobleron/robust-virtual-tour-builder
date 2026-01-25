@@ -71,21 +71,25 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
     <div className="px-3 pt-3 pb-2" onClick={e => JsxEvent.Mouse.stopPropagation(e)}>
       <div className="flex bg-slate-100 p-1 rounded-lg">
         <button
-          className={`flex-1 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-md transition-all focus:outline-none border border-transparent ${if currentCategory == "indoor" {
-            "bg-white text-primary shadow-sm border-slate-200"
-          } else {
-            "text-slate-400 hover:text-slate-600"
-          }}`}
+          className={`flex-1 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-md transition-all focus:outline-none border border-transparent ${if (
+              currentCategory == "indoor"
+            ) {
+              "bg-white text-primary shadow-sm border-slate-200"
+            } else {
+              "text-slate-400 hover:text-slate-600"
+            }}`}
           onClick={e => handleSetCategory("indoor", e)}
         >
           {React.string("Indoor")}
         </button>
         <button
-          className={`flex-1 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-md transition-all focus:outline-none border border-transparent ${if currentCategory == "outdoor" {
-            "bg-white text-primary shadow-sm border-slate-200"
-          } else {
-            "text-slate-400 hover:text-slate-600"
-          }}`}
+          className={`flex-1 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-md transition-all focus:outline-none border border-transparent ${if (
+              currentCategory == "outdoor"
+            ) {
+              "bg-white text-primary shadow-sm border-slate-200"
+            } else {
+              "text-slate-400 hover:text-slate-600"
+            }}`}
           onClick={e => handleSetCategory("outdoor", e)}
         >
           {React.string("Outdoor")}

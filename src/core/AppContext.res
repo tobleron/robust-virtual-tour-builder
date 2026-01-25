@@ -144,9 +144,7 @@ module Provider = {
       <GlobalProvider value=state>
         <SceneSliceProvider value=sceneSlice>
           <UiSliceProvider value=uiSlice>
-            <SimSliceProvider value=simSlice>
-              children
-            </SimSliceProvider>
+            <SimSliceProvider value=simSlice> children </SimSliceProvider>
           </UiSliceProvider>
         </SceneSliceProvider>
       </GlobalProvider>
@@ -165,5 +163,5 @@ let useSimSlice = () => React.useContext(simContext)
 
 // Legacy compatibility hooks - return global state but encouraged to use slices
 let useSceneState = () => React.useContext(globalContext) // Temporary fallback
-let useUiState = () => React.useContext(globalContext)    // Temporary fallback
-let useSimState = () => React.useContext(globalContext)   // Temporary fallback
+let useUiState = () => React.useContext(globalContext) // Temporary fallback
+let useSimState = () => React.useContext(globalContext) // Temporary fallback
