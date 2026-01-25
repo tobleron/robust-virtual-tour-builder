@@ -4,13 +4,6 @@
 // open ReBindings
 open EventBus
 
-// Removed SimulationSystem direct binding
-// module SimulationSystem = ...
-
-// Obsolete legacy bindings removed
-
-// Floor Levels
-
 // Floor Levels
 type floorLevel = {
   id: string,
@@ -70,27 +63,18 @@ module MemoStaticSvg = {
 
 @react.component
 let make = () => {
-  let state = AppContext.useAppState()
+  let sceneSlice = AppContext.useSceneSlice()
+  let uiSlice = AppContext.useUiSlice()
+  let simSlice = AppContext.useSimSlice()
   let dispatch = AppContext.useAppDispatch()
-  let simActive = state.simulation.status == Running
+  
+  let simActive = simSlice.simulation.status == Running
 
   // Derived state for display
-  let currentCategory = if state.activeIndex >= 0 {
-    switch Belt.Array.get(state.scenes, state.activeIndex) {
-    | Some(s) =>
-      if s.category == "" {
-        "outdoor"
-      } else {
-        s.category
-      }
-    | None => "outdoor"
-    }
-  } else {
-    "outdoor"
-  }
 
-  let currentFloor = if state.activeIndex >= 0 {
-    switch Belt.Array.get(state.scenes, state.activeIndex) {
+
+  let currentFloor = if sceneSlice.activeIndex >= 0 {
+    switch Belt.Array.get(sceneSlice.scenes, sceneSlice.activeIndex) {
     | Some(s) =>
       if s.floor == "" {
         "ground"
@@ -104,6 +88,9 @@ let make = () => {
   }
 
   let (hotspotMenu, setHotspotMenu) = React.useState(_ => None)
+  let (isLabelMenuOpen, setIsLabelMenuOpen) = React.useState(_ => false)
+  let (tooltipCooldown, setTooltipCooldown) = React.useState(_ => false)
+  
   // Processing UI state
   let (_procState, setProcState) = React.useState(_ =>
     {
@@ -172,26 +159,13 @@ let make = () => {
     // LabelMenu internal state syncs with currentScene label
     setHotspotMenu(_ => None)
     None
-  }, [state.activeIndex])
-
-  // Poll for simulation status (or we could dispatch actions when simulation changes, assuming simulation updates store)
-  // For now, keep simple interval check or verify if store triggers.
-  // SimulationSystem is likely external.
-  // We can use an effect with interval or hook into navigation updates if possible.
-  // Original code updated on store subscription. Store had notify() called often?
-  // Let's rely on re-renders for now, but simulation state might need polling if it doesn't dispatch.
-  // Removed simulation polling
-  // Simulation status is now in state.simulation.status
-
-  React.useEffect0(() => {
-    None
-  })
+  }, [sceneSlice.activeIndex])
 
   // Handlers
   let handleFabClick = e => {
     JsxEvent.Mouse.stopPropagation(e)
 
-    if state.isLinking {
+    if uiSlice.isLinking {
       ViewerState.state.linkingStartPoint = Nullable.null
       dispatch(Actions.StopLinking)
       EventBus.dispatch(ShowNotification("Link Mode: OFF", #Warning))
@@ -217,46 +191,31 @@ let make = () => {
     JsxEvent.Mouse.stopPropagation(e)
     if simActive {
       dispatch(Actions.StopAutoPilot)
+      Navigation.cancelNavigation()
+      dispatch(Actions.SetActiveScene(0, 0.0, 0.0, None))
     } else {
-      // Start AutoPilot with journeyId from state or new
-      dispatch(Actions.StartAutoPilot(state.currentJourneyId, false))
+      // Start AutoPilot with journeyId from simSlice
+      dispatch(Actions.StartAutoPilot(simSlice.currentJourneyId, false))
     }
   }
 
-  let handleCatClick = e => {
-    JsxEvent.Mouse.stopPropagation(e)
-
-    let activeIdx = state.activeIndex
-
-    if activeIdx >= 0 {
-      let newCat = if currentCategory == "indoor" {
-        "outdoor"
-      } else {
-        "indoor"
-      }
-
-      dispatch(Actions.UpdateSceneMetadata(activeIdx, Logger.castToJson({"category": newCat})))
-
-      EventBus.dispatch(
-        ShowNotification(
-          if newCat == "indoor" {
-            "Category: INDOOR"
-          } else {
-            "Category: OUTDOOR"
-          },
-          #Warning,
-        ),
-      )
+  let handleMenuOpenChange = isOpen => {
+    setIsLabelMenuOpen(_ => isOpen)
+    if !isOpen {
+      setTooltipCooldown(_ => true)
+      let _ = setTimeout(() => {
+        setTooltipCooldown(_ => false)
+      }, 500)
     }
   }
 
   let processReturnPrompt = () => {
     let v = Nullable.toOption(ReBindings.Viewer.instance)
-    let incoming = state.incomingLink
+    let incoming = simSlice.incomingLink
 
     switch (v, incoming) {
     | (Some(viewer), Some(inc)) =>
-      let prevScene = Belt.Array.get(state.scenes, inc.sceneIndex)
+      let prevScene = Belt.Array.get(sceneSlice.scenes, inc.sceneIndex)
       switch prevScene {
       | Some(scene) =>
         let currentYaw = ReBindings.Viewer.getYaw(viewer)
@@ -292,7 +251,7 @@ let make = () => {
 
   let handleFloorClick = (fid, label, e) => {
     JsxEvent.Mouse.stopPropagation(e)
-    let activeIdx = state.activeIndex
+    let activeIdx = sceneSlice.activeIndex
     if activeIdx >= 0 {
       dispatch(Actions.UpdateSceneMetadata(activeIdx, Logger.castToJson({"floor": fid})))
       EventBus.dispatch(ShowNotification("Floor: " ++ label, #Success))
@@ -308,7 +267,7 @@ let make = () => {
     />
 
     {
-      let scenesLoaded = Belt.Array.length(state.scenes) > 0
+      let scenesLoaded = Belt.Array.length(sceneSlice.scenes) > 0
       let utilBarClass =
         "absolute top-6 left-6 z-[5002] flex flex-col gap-2 transition-all duration-300 " ++ if (
           !scenesLoaded
@@ -321,18 +280,18 @@ let make = () => {
       <div id="viewer-utility-bar" className={utilBarClass}>
         <Tooltip
           alignment=#Right
-          content={if state.isLinking {
+          content={if uiSlice.isLinking {
             "Close link mode"
           } else {
             "Add link to scene"
           }}
-          disabled={state.isLinking}
+          disabled={uiSlice.isLinking}
         >
           <Shadcn.Button
             size="icon"
             variant={if !scenesLoaded {
               "secondary"
-            } else if state.isLinking {
+            } else if uiSlice.isLinking {
               "accent"
             } else {
               "destructive"
@@ -340,7 +299,7 @@ let make = () => {
             className="w-[32px] h-[32px] rounded-full text-[20px] font-bold border border-transparent hover:border-[#0e2d52]"
             onClick={handleFabClick}
           >
-            {if state.isLinking {
+            {if uiSlice.isLinking {
               <LucideIcons.X size=20 strokeWidth=3.0 />
             } else {
               <LucideIcons.Plus size=20 strokeWidth=3.0 />
@@ -355,7 +314,7 @@ let make = () => {
           } else {
             "Tour preview"
           }}
-          disabled={state.isLinking}
+          disabled={uiSlice.isLinking}
         >
           <Shadcn.Button
             size="icon"
@@ -366,7 +325,7 @@ let make = () => {
             }}
             className="w-[32px] h-[32px] rounded-full border border-transparent hover:border-[#0e2d52]"
             onClick={handleSimClick}
-            disabled={state.isLinking}
+            disabled={uiSlice.isLinking}
           >
             {if simActive {
               <LucideIcons.Square size=18 strokeWidth=3.0 />
@@ -376,28 +335,10 @@ let make = () => {
           </Shadcn.Button>
         </Tooltip>
 
-        <Tooltip content="Set scene indoor / outdoor" alignment=#Right disabled={state.isLinking}>
-          <Shadcn.Button
-            size="icon"
-            variant={if !scenesLoaded {
-              "secondary"
-            } else {
-              "destructive"
-            }}
-            className="w-[32px] h-[32px] rounded-full border border-transparent hover:border-[#0e2d52]"
-            onClick={handleCatClick}
-            disabled={state.isLinking}
-          >
-            {if currentCategory == "indoor" {
-              <LucideIcons.Home size=18 strokeWidth=3.0 />
-            } else {
-              <LucideIcons.Sun size=18 strokeWidth=3.0 />
-            }}
-          </Shadcn.Button>
-        </Tooltip>
 
-        <Shadcn.DropdownMenu>
-          <Tooltip content="Set scene label" alignment=#Right disabled={state.isLinking}>
+
+        <Shadcn.DropdownMenu open_=isLabelMenuOpen onOpenChange={handleMenuOpenChange}>
+          <Tooltip content="Set scene label" alignment=#Right disabled={uiSlice.isLinking || (isLabelMenuOpen || tooltipCooldown)}>
             <Shadcn.DropdownMenu.Trigger asChild=true>
               <Shadcn.Button
                 size="icon"
@@ -407,7 +348,7 @@ let make = () => {
                   "destructive"
                 }}
                 className="w-[32px] h-[32px] rounded-full text-[18px] font-bold border border-transparent hover:border-[#0e2d52]"
-                disabled={state.isLinking}
+                disabled={uiSlice.isLinking}
               >
                 <LucideIcons.Hash size=18 strokeWidth=3.0 />
               </Shadcn.Button>
@@ -419,7 +360,7 @@ let make = () => {
             sideOffset=12
             className="p-0 bg-white rounded-2xl shadow-2xl border border-slate-200 z-[30000]"
           >
-            <LabelMenu onClose={() => ()} />
+            <LabelMenu onClose={() => handleMenuOpenChange(false)} />
           </Shadcn.DropdownMenu.Content>
         </Shadcn.DropdownMenu>
 
@@ -448,8 +389,8 @@ let make = () => {
 
     /* HUD Labels */
     {
-      let currentLabel = if state.activeIndex >= 0 {
-        switch Belt.Array.get(state.scenes, state.activeIndex) {
+      let currentLabel = if sceneSlice.activeIndex >= 0 {
+        switch Belt.Array.get(sceneSlice.scenes, sceneSlice.activeIndex) {
         | Some(s) => s.label
         | None => ""
         }
@@ -465,13 +406,13 @@ let make = () => {
           "state-hidden"
         }}
       >
-        {React.string("#" ++ currentLabel)}
+        {React.string("# " ++ currentLabel)}
       </div>
     }
 
     {
-      let quality = if state.activeIndex >= 0 {
-        switch Belt.Array.get(state.scenes, state.activeIndex) {
+      let quality = if sceneSlice.activeIndex >= 0 {
+        switch Belt.Array.get(sceneSlice.scenes, sceneSlice.activeIndex) {
         | Some(s) => s.quality
         | None => None
         }
@@ -526,11 +467,10 @@ let make = () => {
     </div>
 
     /* Linking Hint */
-    /* Linking Hint */
     <div
       id="linking-cancel-hint"
       className={"absolute bottom-10 left-1/2 -translate-x-1/2 translate-y-2 z-[9999] flex flex-col items-center gap-1 transition-all duration-400 text-center pointer-events-none linking-hint-text " ++ if (
-        state.isLinking
+        uiSlice.isLinking
       ) {
         "opacity-100 translate-y-2"
       } else {
@@ -542,9 +482,8 @@ let make = () => {
     </div>
 
     /* Floor Navigation */
-    /* Floor Navigation */
     {
-      let scenesLoaded = Belt.Array.length(state.scenes) > 0
+      let scenesLoaded = Belt.Array.length(sceneSlice.scenes) > 0
       let floorNavClass =
         "absolute bottom-6 left-5 z-[5002] flex flex-col-reverse gap-2 items-center transition-all duration-500" ++ if (
           !scenesLoaded
@@ -559,7 +498,7 @@ let make = () => {
         ->Belt.Array.map(f => {
           let isSelected = scenesLoaded && f.id == currentFloor
 
-          <Tooltip key={f.id} content={f.label} alignment=#Right disabled={state.isLinking}>
+          <Tooltip key={f.id} content={f.label} alignment=#Right disabled={uiSlice.isLinking}>
             <Shadcn.Button
               size="icon"
               variant="ghost"
@@ -571,7 +510,7 @@ let make = () => {
                 "border border-white/20 hover:border-[#ea580c] bg-[#0e2d52]/80 text-white hover:bg-[#0e2d52] hover:text-white"
               }}
               onClick={e => handleFloorClick(f.id, f.label, e)}
-              disabled={state.isLinking}
+              disabled={uiSlice.isLinking}
             >
               {React.string(f.short)}
               {if f.suffix != "" {
@@ -586,7 +525,6 @@ let make = () => {
       </div>
     }
 
-    /* Return Link Prompt */
     /* Return Link Prompt */
     <div
       id="return-link-prompt"

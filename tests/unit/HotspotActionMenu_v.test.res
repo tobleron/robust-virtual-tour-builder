@@ -78,9 +78,9 @@ describe("HotspotActionMenu", () => {
     ReactDOMClient.Root.render(
       root,
       <AppContext.DispatchProvider value=mockDispatch>
-        <AppContext.StateProvider value=mockState>
+        <AppContext.GlobalProvider value=mockState>
           <HotspotActionMenu hotspot index=0 onClose={() => ()} />
-        </AppContext.StateProvider>
+        </AppContext.GlobalProvider>
       </AppContext.DispatchProvider>,
     )
 
@@ -128,9 +128,9 @@ describe("HotspotActionMenu", () => {
     ReactDOMClient.Root.render(
       root,
       <AppContext.DispatchProvider value=mockDispatch>
-        <AppContext.StateProvider value=mockState>
+        <AppContext.GlobalProvider value=mockState>
           <HotspotActionMenu hotspot index=5 onClose={() => ()} />
-        </AppContext.StateProvider>
+        </AppContext.GlobalProvider>
       </AppContext.DispatchProvider>,
     )
 
@@ -176,9 +176,9 @@ describe("HotspotActionMenu", () => {
     ReactDOMClient.Root.render(
       root,
       <AppContext.DispatchProvider value=mockDispatch>
-        <AppContext.StateProvider value=mockState>
+        <AppContext.GlobalProvider value=mockState>
           <HotspotActionMenu hotspot index=0 onClose={() => ()} />
-        </AppContext.StateProvider>
+        </AppContext.GlobalProvider>
       </AppContext.DispatchProvider>,
     )
 

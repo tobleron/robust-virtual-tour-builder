@@ -177,9 +177,9 @@ describe("ViewerManager", () => {
     ReactDOMClient.Root.render(
       root,
       <AppContext.DispatchProvider value=mockDispatch>
-        <AppContext.StateProvider value=mockState>
+        <AppContext.GlobalProvider value=mockState>
           <ViewerManager />
-        </AppContext.StateProvider>
+        </AppContext.GlobalProvider>
       </AppContext.DispatchProvider>,
     )
 
@@ -213,9 +213,9 @@ describe("ViewerManager", () => {
     ReactDOMClient.Root.render(
       root,
       <AppContext.DispatchProvider value=mockDispatch>
-        <AppContext.StateProvider value=mockState>
+        <AppContext.GlobalProvider value=mockState>
           <ViewerManager />
-        </AppContext.StateProvider>
+        </AppContext.GlobalProvider>
       </AppContext.DispatchProvider>,
     )
 
@@ -241,9 +241,9 @@ describe("ViewerManager", () => {
     ReactDOMClient.Root.render(
       root,
       <AppContext.DispatchProvider value=_mockDispatch>
-        <AppContext.StateProvider value=mockState>
+        <AppContext.GlobalProvider value=mockState>
           <ViewerManager />
-        </AppContext.StateProvider>
+        </AppContext.GlobalProvider>
       </AppContext.DispatchProvider>,
     )
 
@@ -298,9 +298,9 @@ describe("ViewerManager", () => {
     ReactDOMClient.Root.render(
       root,
       <AppContext.DispatchProvider value=mockDispatch>
-        <AppContext.StateProvider value=mockState>
+        <AppContext.GlobalProvider value=mockState>
           <ViewerManager />
-        </AppContext.StateProvider>
+        </AppContext.GlobalProvider>
       </AppContext.DispatchProvider>,
     )
 
@@ -335,9 +335,9 @@ describe("ViewerManager", () => {
     ReactDOMClient.Root.render(
       root,
       <AppContext.DispatchProvider value=mockDispatch>
-        <AppContext.StateProvider value=mockState>
+        <AppContext.GlobalProvider value=mockState>
           <ViewerManager />
-        </AppContext.StateProvider>
+        </AppContext.GlobalProvider>
       </AppContext.DispatchProvider>,
     )
 
@@ -363,9 +363,9 @@ describe("ViewerManager", () => {
     ReactDOMClient.Root.render(
       root,
       <AppContext.DispatchProvider value=mockDispatch>
-        <AppContext.StateProvider value=mockState>
+        <AppContext.GlobalProvider value=mockState>
           <ViewerManager />
-        </AppContext.StateProvider>
+        </AppContext.GlobalProvider>
       </AppContext.DispatchProvider>,
     )
 
@@ -393,9 +393,9 @@ describe("ViewerManager", () => {
     ReactDOMClient.Root.render(
       root,
       <AppContext.DispatchProvider value=mockDispatch>
-        <AppContext.StateProvider value=mockState>
+        <AppContext.GlobalProvider value=mockState>
           <ViewerManager />
-        </AppContext.StateProvider>
+        </AppContext.GlobalProvider>
       </AppContext.DispatchProvider>,
     )
 

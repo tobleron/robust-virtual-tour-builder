@@ -72,7 +72,11 @@ module Tooltip = {
 
 module DropdownMenu = {
   @module("./dropdown-menu.jsx") @react.component
-  external make: (~children: React.element) => React.element = "DropdownMenu"
+  external make: (
+    ~children: React.element,
+    @as("open") ~open_: bool=?,
+    ~onOpenChange: bool => unit=?,
+  ) => React.element = "DropdownMenu"
 
   module Trigger = {
     @module("./dropdown-menu.jsx") @react.component

@@ -36,9 +36,9 @@ describe("NavigationController", () => {
     // Since we don't have a full React testing setup that's easy to use here,
     // we at least verify the type-safety of the component with this state.
     let _ =
-      <AppContext.StateProvider value=mockState>
+      <AppContext.GlobalProvider value=mockState>
         <NavigationController />
-      </AppContext.StateProvider>
+      </AppContext.GlobalProvider>
 
     t->expect(true)->Expect.toBe(true)
   })
