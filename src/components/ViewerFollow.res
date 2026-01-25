@@ -12,29 +12,12 @@ let rec updateFollowLoop = () => {
     let viewer = getActiveViewer()
     let storeState = GlobalStateBridge.getState()
 
-    let _hasDraft = switch storeState.linkDraft {
-    | Some(_) => true
-    | None => false
-    }
-
     let hasViewer = switch Nullable.toOption(viewer) {
     | Some(_) => true
     | None => false
     }
 
-    // We want the loop to run if linking is active OR if the current scene has hotspots to draw (red lines)
-    let hasHotspots = if (
-      storeState.activeIndex >= 0 && storeState.activeIndex < Array.length(storeState.scenes)
-    ) {
-      switch Belt.Array.get(storeState.scenes, storeState.activeIndex) {
-      | Some(s) => Array.length(s.hotspots) > 0
-      | None => false
-      }
-    } else {
-      false
-    }
-
-    if !state.followLoopActive || !hasViewer || (!storeState.isLinking && !hasHotspots) {
+    if !state.followLoopActive || !hasViewer || !storeState.isLinking {
       // Clear lines only if we are truly stopping
       if !state.isSceneLoading {
         let svg = Dom.getElementById("viewer-hotspot-lines")
