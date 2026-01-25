@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.7.6] - 2026-01-25
+
+### Fixed
+- **Menu Interaction**: Fixed `SceneItem` action menu not automatically closing after "Clear Links" or "Delete" actions.
+- **Visual Consistency**: Standardized "Clear Links" feedback to Yellow (matching Label Menu) while keeping "Delete Scene" as Red.
+
 ## [4.7.5] - 2026-01-25
 
 ### Added
