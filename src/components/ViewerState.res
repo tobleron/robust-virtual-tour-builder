@@ -31,6 +31,8 @@ type t = {
   mutable mouseVelocityX: float,
   mutable mouseVelocityY: float,
   mutable isSwapping: bool, // Lock flag to prevent render updates during viewer swaps
+  mutable cleanupTimeoutA: Nullable.t<int>,
+  mutable cleanupTimeoutB: Nullable.t<int>,
 }
 
 let state = {
@@ -71,6 +73,8 @@ let state = {
   mouseVelocityX: 0.0,
   mouseVelocityY: 0.0,
   isSwapping: false,
+  cleanupTimeoutA: Nullable.null,
+  cleanupTimeoutB: Nullable.null,
 }
 
 let getActiveViewer = () => {
@@ -110,4 +114,14 @@ let resetState = () => {
   | None => ()
   }
   state.loadSafetyTimeout = Nullable.null
+  switch Nullable.toOption(state.cleanupTimeoutA) {
+  | Some(t) => Window.clearTimeout(t)
+  | None => ()
+  }
+  state.cleanupTimeoutA = Nullable.null
+  switch Nullable.toOption(state.cleanupTimeoutB) {
+  | Some(t) => Window.clearTimeout(t)
+  | None => ()
+  }
+  state.cleanupTimeoutB = Nullable.null
 }

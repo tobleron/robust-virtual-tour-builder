@@ -4,5 +4,5 @@
  */
 
 let version = "4.7.11"
-let buildNumber = 123
+let buildNumber = 124
 let buildInfo = "[Stable Release]"
