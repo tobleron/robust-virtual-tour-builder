@@ -529,6 +529,12 @@
 │   │   │   │   ├── Exporter.cmj
 │   │   │   │   ├── Exporter.cmt
 │   │   │   │   ├── Exporter.res
+│   │   │   │   ├── FingerprintService.ast
+│   │   │   │   ├── FingerprintService.bs.js
+│   │   │   │   ├── FingerprintService.cmi
+│   │   │   │   ├── FingerprintService.cmj
+│   │   │   │   ├── FingerprintService.cmt
+│   │   │   │   ├── FingerprintService.res
 │   │   │   │   ├── HotspotLine.ast
 │   │   │   │   ├── HotspotLine.bs.js
 │   │   │   │   ├── HotspotLine.cmi
@@ -547,6 +553,12 @@
 │   │   │   │   ├── HotspotLineTypes.cmj
 │   │   │   │   ├── HotspotLineTypes.cmt
 │   │   │   │   ├── HotspotLineTypes.res
+│   │   │   │   ├── ImageValidator.ast
+│   │   │   │   ├── ImageValidator.bs.js
+│   │   │   │   ├── ImageValidator.cmi
+│   │   │   │   ├── ImageValidator.cmj
+│   │   │   │   ├── ImageValidator.cmt
+│   │   │   │   ├── ImageValidator.res
 │   │   │   │   ├── InputSystem.ast
 │   │   │   │   ├── InputSystem.bs.js
 │   │   │   │   ├── InputSystem.cmi
@@ -583,6 +595,18 @@
 │   │   │   │   ├── NavigationUI.cmj
 │   │   │   │   ├── NavigationUI.cmt
 │   │   │   │   ├── NavigationUI.res
+│   │   │   │   ├── PannellumLifecycle.ast
+│   │   │   │   ├── PannellumLifecycle.bs.js
+│   │   │   │   ├── PannellumLifecycle.cmi
+│   │   │   │   ├── PannellumLifecycle.cmj
+│   │   │   │   ├── PannellumLifecycle.cmt
+│   │   │   │   ├── PannellumLifecycle.res
+│   │   │   │   ├── PanoramaClusterer.ast
+│   │   │   │   ├── PanoramaClusterer.bs.js
+│   │   │   │   ├── PanoramaClusterer.cmi
+│   │   │   │   ├── PanoramaClusterer.cmj
+│   │   │   │   ├── PanoramaClusterer.cmt
+│   │   │   │   ├── PanoramaClusterer.res
 │   │   │   │   ├── ProjectData.ast
 │   │   │   │   ├── ProjectData.bs.js
 │   │   │   │   ├── ProjectData.cmi
@@ -601,6 +625,18 @@
 │   │   │   │   ├── Resizer.cmj
 │   │   │   │   ├── Resizer.cmt
 │   │   │   │   ├── Resizer.res
+│   │   │   │   ├── SceneLoader.ast
+│   │   │   │   ├── SceneLoader.bs.js
+│   │   │   │   ├── SceneLoader.cmi
+│   │   │   │   ├── SceneLoader.cmj
+│   │   │   │   ├── SceneLoader.cmt
+│   │   │   │   ├── SceneLoader.res
+│   │   │   │   ├── SceneTransitionManager.ast
+│   │   │   │   ├── SceneTransitionManager.bs.js
+│   │   │   │   ├── SceneTransitionManager.cmi
+│   │   │   │   ├── SceneTransitionManager.cmj
+│   │   │   │   ├── SceneTransitionManager.cmt
+│   │   │   │   ├── SceneTransitionManager.res
 │   │   │   │   ├── ServerTeaser.ast
 │   │   │   │   ├── ServerTeaser.bs.js
 │   │   │   │   ├── ServerTeaser.cmi
@@ -643,6 +679,12 @@
 │   │   │   │   ├── SvgManager.cmj
 │   │   │   │   ├── SvgManager.cmt
 │   │   │   │   ├── SvgManager.res
+│   │   │   │   ├── SvgRenderer.ast
+│   │   │   │   ├── SvgRenderer.bs.js
+│   │   │   │   ├── SvgRenderer.cmi
+│   │   │   │   ├── SvgRenderer.cmj
+│   │   │   │   ├── SvgRenderer.cmt
+│   │   │   │   ├── SvgRenderer.res
 │   │   │   │   ├── TeaserManager.ast
 │   │   │   │   ├── TeaserManager.bs.js
 │   │   │   │   ├── TeaserManager.cmi
@@ -714,7 +756,26 @@
 │   │   │   │   ├── ViewerFollow.cmi
 │   │   │   │   ├── ViewerFollow.cmj
 │   │   │   │   ├── ViewerFollow.cmt
-│   │   │   │   └── ViewerFollow.res
+│   │   │   │   ├── ViewerFollow.res
+│   │   │   │   └── api
+│   │   │   │       ├── ApiTypes.ast
+│   │   │   │       ├── ApiTypes.bs.js
+│   │   │   │       ├── ApiTypes.cmi
+│   │   │   │       ├── ApiTypes.cmj
+│   │   │   │       ├── ApiTypes.cmt
+│   │   │   │       ├── ApiTypes.res
+│   │   │   │       ├── MediaApi.ast
+│   │   │   │       ├── MediaApi.bs.js
+│   │   │   │       ├── MediaApi.cmi
+│   │   │   │       ├── MediaApi.cmj
+│   │   │   │       ├── MediaApi.cmt
+│   │   │   │       ├── MediaApi.res
+│   │   │   │       ├── ProjectApi.ast
+│   │   │   │       ├── ProjectApi.bs.js
+│   │   │   │       ├── ProjectApi.cmi
+│   │   │   │       ├── ProjectApi.cmj
+│   │   │   │       ├── ProjectApi.cmt
+│   │   │   │       └── ProjectApi.res
 │   │   │   └── utils
 │   │   │       ├── ColorPalette.ast
 │   │   │       ├── ColorPalette.bs.js
@@ -767,6 +828,12 @@
 │   │   │       ├── ProgressBar.cmj
 │   │   │       ├── ProgressBar.cmt
 │   │   │       ├── ProgressBar.res
+│   │   │       ├── ProjectionMath.ast
+│   │   │       ├── ProjectionMath.bs.js
+│   │   │       ├── ProjectionMath.cmi
+│   │   │       ├── ProjectionMath.cmj
+│   │   │       ├── ProjectionMath.cmt
+│   │   │       ├── ProjectionMath.res
 │   │   │       ├── RequestQueue.ast
 │   │   │       ├── RequestQueue.bs.js
 │   │   │       ├── RequestQueue.cmi
@@ -1315,12 +1382,6 @@
 │   │           ├── UiReducer_v.test.cmj
 │   │           ├── UiReducer_v.test.cmt
 │   │           ├── UiReducer_v.test.res
-│   │           ├── UploadProcessorLogic_v.test.ast
-│   │           ├── UploadProcessorLogic_v.test.bs.js
-│   │           ├── UploadProcessorLogic_v.test.cmi
-│   │           ├── UploadProcessorLogic_v.test.cmj
-│   │           ├── UploadProcessorLogic_v.test.cmt
-│   │           ├── UploadProcessorLogic_v.test.res
 │   │           ├── UploadProcessorTypes_v.test.ast
 │   │           ├── UploadProcessorTypes_v.test.bs.js
 │   │           ├── UploadProcessorTypes_v.test.cmi
@@ -1435,6 +1496,11 @@
 │   │   ├── Actions_v.test.cmj
 │   │   ├── Actions_v.test.cmt
 │   │   ├── Actions_v.test.res
+│   │   ├── ApiTypes.ast
+│   │   ├── ApiTypes.cmi
+│   │   ├── ApiTypes.cmj
+│   │   ├── ApiTypes.cmt
+│   │   ├── ApiTypes.res
 │   │   ├── App.ast
 │   │   ├── App.cmi
 │   │   ├── App.cmj
@@ -1570,6 +1636,11 @@
 │   │   ├── Exporter_v.test.cmj
 │   │   ├── Exporter_v.test.cmt
 │   │   ├── Exporter_v.test.res
+│   │   ├── FingerprintService.ast
+│   │   ├── FingerprintService.cmi
+│   │   ├── FingerprintService.cmj
+│   │   ├── FingerprintService.cmt
+│   │   ├── FingerprintService.res
 │   │   ├── FloorNavigation.ast
 │   │   ├── FloorNavigation.cmi
 │   │   ├── FloorNavigation.cmj
@@ -1678,6 +1749,11 @@
 │   │   ├── ImageOptimizer_v.test.cmj
 │   │   ├── ImageOptimizer_v.test.cmt
 │   │   ├── ImageOptimizer_v.test.res
+│   │   ├── ImageValidator.ast
+│   │   ├── ImageValidator.cmi
+│   │   ├── ImageValidator.cmj
+│   │   ├── ImageValidator.cmt
+│   │   ├── ImageValidator.res
 │   │   ├── InputSystem.ast
 │   │   ├── InputSystem.cmi
 │   │   ├── InputSystem.cmj
@@ -1768,6 +1844,11 @@
 │   │   ├── Main_v.test.cmj
 │   │   ├── Main_v.test.cmt
 │   │   ├── Main_v.test.res
+│   │   ├── MediaApi.ast
+│   │   ├── MediaApi.cmi
+│   │   ├── MediaApi.cmj
+│   │   ├── MediaApi.cmt
+│   │   ├── MediaApi.res
 │   │   ├── Mod_v.test.ast
 │   │   ├── Mod_v.test.cmi
 │   │   ├── Mod_v.test.cmj
@@ -1848,6 +1929,16 @@
 │   │   ├── NotificationLayer.cmj
 │   │   ├── NotificationLayer.cmt
 │   │   ├── NotificationLayer.res
+│   │   ├── PannellumLifecycle.ast
+│   │   ├── PannellumLifecycle.cmi
+│   │   ├── PannellumLifecycle.cmj
+│   │   ├── PannellumLifecycle.cmt
+│   │   ├── PannellumLifecycle.res
+│   │   ├── PanoramaClusterer.ast
+│   │   ├── PanoramaClusterer.cmi
+│   │   ├── PanoramaClusterer.cmj
+│   │   ├── PanoramaClusterer.cmt
+│   │   ├── PanoramaClusterer.res
 │   │   ├── PathInterpolation.ast
 │   │   ├── PathInterpolation.cmi
 │   │   ├── PathInterpolation.cmj
@@ -1903,6 +1994,11 @@
 │   │   ├── ProgressBar_v.test.cmj
 │   │   ├── ProgressBar_v.test.cmt
 │   │   ├── ProgressBar_v.test.res
+│   │   ├── ProjectApi.ast
+│   │   ├── ProjectApi.cmi
+│   │   ├── ProjectApi.cmj
+│   │   ├── ProjectApi.cmt
+│   │   ├── ProjectApi.res
 │   │   ├── ProjectData.ast
 │   │   ├── ProjectData.cmi
 │   │   ├── ProjectData.cmj
@@ -1933,6 +2029,11 @@
 │   │   ├── ProjectReducer_v.test.cmj
 │   │   ├── ProjectReducer_v.test.cmt
 │   │   ├── ProjectReducer_v.test.res
+│   │   ├── ProjectionMath.ast
+│   │   ├── ProjectionMath.cmi
+│   │   ├── ProjectionMath.cmj
+│   │   ├── ProjectionMath.cmt
+│   │   ├── ProjectionMath.res
 │   │   ├── QualityIndicator.ast
 │   │   ├── QualityIndicator.cmi
 │   │   ├── QualityIndicator.cmj
@@ -2013,6 +2114,11 @@
 │   │   ├── SceneList_v.test.cmj
 │   │   ├── SceneList_v.test.cmt
 │   │   ├── SceneList_v.test.res
+│   │   ├── SceneLoader.ast
+│   │   ├── SceneLoader.cmi
+│   │   ├── SceneLoader.cmj
+│   │   ├── SceneLoader.cmt
+│   │   ├── SceneLoader.res
 │   │   ├── SceneReducer.ast
 │   │   ├── SceneReducer.cmi
 │   │   ├── SceneReducer.cmj
@@ -2023,6 +2129,11 @@
 │   │   ├── SceneReducer_v.test.cmj
 │   │   ├── SceneReducer_v.test.cmt
 │   │   ├── SceneReducer_v.test.res
+│   │   ├── SceneTransitionManager.ast
+│   │   ├── SceneTransitionManager.cmi
+│   │   ├── SceneTransitionManager.cmj
+│   │   ├── SceneTransitionManager.cmt
+│   │   ├── SceneTransitionManager.res
 │   │   ├── ServerTeaser.ast
 │   │   ├── ServerTeaser.cmi
 │   │   ├── ServerTeaser.cmj
@@ -2183,6 +2294,11 @@
 │   │   ├── SvgManager.cmj
 │   │   ├── SvgManager.cmt
 │   │   ├── SvgManager.res
+│   │   ├── SvgRenderer.ast
+│   │   ├── SvgRenderer.cmi
+│   │   ├── SvgRenderer.cmj
+│   │   ├── SvgRenderer.cmt
+│   │   ├── SvgRenderer.res
 │   │   ├── TeaserManager.ast
 │   │   ├── TeaserManager.cmi
 │   │   ├── TeaserManager.cmj
@@ -2323,11 +2439,6 @@
 │   │   ├── UploadProcessorLogic.cmj
 │   │   ├── UploadProcessorLogic.cmt
 │   │   ├── UploadProcessorLogic.res
-│   │   ├── UploadProcessorLogic_v.test.ast
-│   │   ├── UploadProcessorLogic_v.test.cmi
-│   │   ├── UploadProcessorLogic_v.test.cmj
-│   │   ├── UploadProcessorLogic_v.test.cmt
-│   │   ├── UploadProcessorLogic_v.test.res
 │   │   ├── UploadProcessorTypes.ast
 │   │   ├── UploadProcessorTypes.cmi
 │   │   ├── UploadProcessorTypes.cmj
@@ -4062,12 +4173,16 @@
 │   │   ├── ExifReportGenerator.res
 │   │   ├── Exporter.bs.js
 │   │   ├── Exporter.res
+│   │   ├── FingerprintService.bs.js
+│   │   ├── FingerprintService.res
 │   │   ├── HotspotLine.bs.js
 │   │   ├── HotspotLine.res
 │   │   ├── HotspotLineLogic.bs.js
 │   │   ├── HotspotLineLogic.res
 │   │   ├── HotspotLineTypes.bs.js
 │   │   ├── HotspotLineTypes.res
+│   │   ├── ImageValidator.bs.js
+│   │   ├── ImageValidator.res
 │   │   ├── InputSystem.bs.js
 │   │   ├── InputSystem.res
 │   │   ├── LinkEditorLogic.bs.js
@@ -4080,12 +4195,20 @@
 │   │   ├── NavigationRenderer.res
 │   │   ├── NavigationUI.bs.js
 │   │   ├── NavigationUI.res
+│   │   ├── PannellumLifecycle.bs.js
+│   │   ├── PannellumLifecycle.res
+│   │   ├── PanoramaClusterer.bs.js
+│   │   ├── PanoramaClusterer.res
 │   │   ├── ProjectData.bs.js
 │   │   ├── ProjectData.res
 │   │   ├── ProjectManager.bs.js
 │   │   ├── ProjectManager.res
 │   │   ├── Resizer.bs.js
 │   │   ├── Resizer.res
+│   │   ├── SceneLoader.bs.js
+│   │   ├── SceneLoader.res
+│   │   ├── SceneTransitionManager.bs.js
+│   │   ├── SceneTransitionManager.res
 │   │   ├── ServerTeaser.bs.js
 │   │   ├── ServerTeaser.res
 │   │   ├── SimulationChainSkipper.bs.js
@@ -4100,6 +4223,8 @@
 │   │   ├── SimulationPathGenerator.res
 │   │   ├── SvgManager.bs.js
 │   │   ├── SvgManager.res
+│   │   ├── SvgRenderer.bs.js
+│   │   ├── SvgRenderer.res
 │   │   ├── TeaserManager.bs.js
 │   │   ├── TeaserManager.res
 │   │   ├── TeaserPathfinder.bs.js
@@ -4123,7 +4248,14 @@
 │   │   ├── VideoEncoder.bs.js
 │   │   ├── VideoEncoder.res
 │   │   ├── ViewerFollow.bs.js
-│   │   └── ViewerFollow.res
+│   │   ├── ViewerFollow.res
+│   │   └── api
+│   │       ├── ApiTypes.bs.js
+│   │       ├── ApiTypes.res
+│   │       ├── MediaApi.bs.js
+│   │       ├── MediaApi.res
+│   │       ├── ProjectApi.bs.js
+│   │       └── ProjectApi.res
 │   └── utils
 │       ├── ColorPalette.bs.js
 │       ├── ColorPalette.res
@@ -4142,6 +4274,8 @@
 │       ├── PathInterpolation.res
 │       ├── ProgressBar.bs.js
 │       ├── ProgressBar.res
+│       ├── ProjectionMath.bs.js
+│       ├── ProjectionMath.res
 │       ├── RequestQueue.bs.js
 │       ├── RequestQueue.res
 │       ├── SessionStore.bs.js
@@ -4161,7 +4295,6 @@
 ├── tasks
 │   ├── TASKS.md
 │   ├── active
-│   │   └── 580_Refactor_ViewerUI.md
 │   ├── completed
 │   │   ├── 005_create_changelog_REPORT.md
 │   │   ├── 347_Update_Tests_ProjectManager_UPDATED.md
@@ -4216,15 +4349,17 @@
 │   │   ├── 569_Perf_Split_AppContext_REPORT.md
 │   │   ├── 570_Perf_Implement_Memoization.md
 │   │   ├── 571_Perf_Debounce_Input_Updates_REPORT.md
+│   │   ├── 580_Refactor_ViewerUI.md
 │   │   ├── 580_Refactor_ViewerUI_REPORT.md
 │   │   ├── 581_Refactor_ViewerManager.md
+│   │   ├── 582_Refactor_ViewerLoader_REPORT.md
+│   │   ├── 583_Refactor_HotspotLineLogic.md
+│   │   ├── 583_Refactor_HotspotLineLogic_REPORT.md
+│   │   ├── 584_Refactor_BackendApi_REPORT.md
+│   │   ├── 585_Refactor_UploadProcessorLogic_REPORT.md
 │   │   ├── 95_Aggregate_Completed_Tasks_REPORT.md
 │   │   └── _CONCISE_SUMMARY.md
 │   ├── pending
-│   │   ├── 582_Refactor_ViewerLoader.md
-│   │   ├── 583_Refactor_HotspotLineLogic.md
-│   │   ├── 584_Refactor_BackendApi.md
-│   │   ├── 585_Refactor_UploadProcessorLogic.md
 │   │   ├── 586_Refactor_TeaserManager.md
 │   │   ├── 587_Refactor_Navigation.md
 │   │   ├── 588_Refactor_ReducerHelpers.md
@@ -4301,7 +4436,19 @@
 │   │       ├── 605_Test_CursorPhysics_New.md
 │   │       ├── 606_Test_LinkEditorLogic_New.md
 │   │       ├── 607_Test_Main_Update.md
-│   │       └── 608_Test_State_Update.md
+│   │       ├── 608_Test_State_Update.md
+│   │       ├── 609_Test_PannellumLifecycle_New.md
+│   │       ├── 610_Test_SceneTransitionManager_New.md
+│   │       ├── 611_Test_SceneLoader_New.md
+│   │       ├── 612_Test_ProjectionMath_New.md
+│   │       ├── 613_Test_SvgRenderer_New.md
+│   │       ├── 614_Test_ApiTypes_New.md
+│   │       ├── 615_Test_ProjectApi_New.md
+│   │       ├── 616_Test_MediaApi_New.md
+│   │       ├── 617_Test_ImageValidator_New.md
+│   │       ├── 618_Test_FingerprintService_New.md
+│   │       ├── 619_Test_PanoramaClusterer_New.md
+│   │       └── 620_Test_UploadProcessorLogic_New.md
 │   └── postponed
 │       ├── 003_add_seo_structured_data.md
 │       ├── 004_document_core_web_vitals.md
@@ -4498,8 +4645,6 @@
 │       ├── Types_v.test.res
 │       ├── UiReducer_v.test.bs.js
 │       ├── UiReducer_v.test.res
-│       ├── UploadProcessorLogic_v.test.bs.js
-│       ├── UploadProcessorLogic_v.test.res
 │       ├── UploadProcessorTypes_v.test.bs.js
 │       ├── UploadProcessorTypes_v.test.res
 │       ├── UploadProcessor_v.test.bs.js
@@ -4538,4 +4683,4 @@
 │           └── TestUtils.res
 └── vitest.config.mjs
 
-177 directories, 4362 files
+179 directories, 4505 files

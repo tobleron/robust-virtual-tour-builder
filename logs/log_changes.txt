@@ -11,3 +11,4 @@
 [2026-01-25 19:27] v4.7.4 - Perf: Implement React.memo and handler stabilization across UI layers
 [2026-01-25 23:19] v4.8.0 - Before Aggressive Refactoring
 [2026-01-26 00:13] v4.8.0 - Refactor ViewerManager: Separate Input & Physics Logic (Task 581)
+[2026-01-26 00:59] v4.8.0 - Refactor UploadProcessorLogic: Extract ImageValidator, FingerprintService, PanoramaClusterer
