@@ -2,9 +2,6 @@
 open ReBindings
 open HotspotLineTypes
 
-let degToRad = Math.Constants.pi /. 180.0
-let toRad = deg => deg *. degToRad
-
 let isViewerValid = (viewer: Viewer.t): bool => {
   let loaded = Viewer.isLoaded(viewer)
   if !loaded {
@@ -35,142 +32,20 @@ let isViewerReady = (viewer: Viewer.t): bool => {
   }
 }
 
-type projState = {
-  aspectRatio: float,
-  halfTanHfov: float,
-  halfTanVfov: float,
-  invHalfTanHfov: float,
-  invHalfTanVfov: float,
-}
-
-let lastProjState = ref(None)
-
-let getProjState = (hfov, rect: Dom.rect) => {
-  switch lastProjState.contents {
-  | Some((h, w, h_, state)) if h == hfov && w == rect.width && h_ == rect.height => state
-  | _ =>
-    let hfovRad = hfov *. degToRad
-    let aspectRatio = rect.width /. rect.height
-    let halfTanHfov = Math.tan(hfovRad /. 2.0)
-
-    // vfov calculation: tan(vfov/2) = tan(hfov/2) / aspectRatio
-    let halfTanVfov = halfTanHfov /. aspectRatio
-
-    let invHalfTanHfov = if halfTanHfov != 0.0 {
-      1.0 /. halfTanHfov
-    } else {
-      0.0
-    }
-
-    let invHalfTanVfov = if halfTanVfov != 0.0 {
-      1.0 /. halfTanVfov
-    } else {
-      0.0
-    }
-
-    let state = {
-      aspectRatio,
-      halfTanHfov,
-      halfTanVfov,
-      invHalfTanHfov,
-      invHalfTanVfov,
-    }
-    lastProjState := Some((hfov, rect.width, rect.height, state))
-    state
-  }
-}
-
-type camState = {
-  yaw: float,
-  pitch: float,
-  hfov: float,
-  proj: projState,
-}
-
 let getCamState = (viewer, rect: Dom.rect) => {
   let yaw = Viewer.getYaw(viewer)
   let pitch = Viewer.getPitch(viewer)
   let hfov = Viewer.getHfov(viewer)
-
-  let proj = getProjState(hfov, rect)
-
-  {
-    yaw,
-    pitch,
-    hfov,
-    proj,
-  }
+  ProjectionMath.makeCamState(yaw, pitch, hfov, rect)
 }
 
-let getScreenCoords = (cam: camState, pitch, yaw, rect: Dom.rect) => {
-  let diff = ref(yaw -. cam.yaw)
-  while diff.contents > 180.0 {
-    diff := diff.contents -. 360.0
-  }
-  while diff.contents < -180.0 {
-    diff := diff.contents +. 360.0
-  }
+let getScreenCoords = ProjectionMath.getScreenCoords
 
-  let yawRad = diff.contents *. degToRad
-  let pitchRad = (pitch -. cam.pitch) *. degToRad
-
-  let cosYaw = Math.cos(yawRad)
-
-  if cosYaw <= 0.0 || cam.hfov <= 0.0 {
-    None
-  } else {
-    // Optimization: (1 / cosYaw) is used for both X and Y in many projection variants
-    // Here we use it to scale the tangent results.
-    let invCosYaw = 1.0 /. cosYaw
-    let x = Math.tan(yawRad) *. cam.proj.invHalfTanHfov
-    let y = Math.tan(pitchRad) *. (cam.proj.invHalfTanVfov *. invCosYaw)
-
-    if !Float.isFinite(x) || !Float.isFinite(y) {
-      None
-    } else {
-      let screenX = rect.width /. 2.0 *. (1.0 +. x)
-      let screenY = rect.height /. 2.0 *. (1.0 -. y)
-
-      Some(
-        (
-          {
-            x: screenX,
-            y: screenY,
-          }: screenCoords
-        ),
-      )
-    }
-  }
-}
-
-let updateLine = (id, x1, y1, x2, y2, color, width, opacity, ~dashArray=?, ~className=?, ()) => {
-  switch SvgManager.getOrCreate(id, "line") {
-  | Some(line) =>
-    Svg.setAttribute(line, "x1", Float.toString(x1))
-    Svg.setAttribute(line, "y1", Float.toString(y1))
-    Svg.setAttribute(line, "x2", Float.toString(x2))
-    Svg.setAttribute(line, "y2", Float.toString(y2))
-    Svg.setAttribute(line, "stroke", color)
-    Svg.setAttribute(line, "stroke-width", Float.toString(width))
-    Svg.setAttribute(line, "stroke-opacity", Float.toString(opacity))
-    Dom.setProperty(line, "display", "block")
-
-    switch dashArray {
-    | Some(d) => Svg.setAttribute(line, "stroke-dasharray", d)
-    | None => Dom.removeAttribute(line, "stroke-dasharray")
-    }
-
-    switch className {
-    | Some(c) => Svg.setAttribute(line, "class", c)
-    | None => Dom.removeAttribute(line, "class")
-    }
-  | None => ()
-  }
-}
+let updateLine = SvgRenderer.updateLine
 
 let updatePolyLine = (
   id,
-  cam: camState,
+  cam: ProjectionMath.camState,
   path: array<PathInterpolation.point>,
   rect,
   color,
@@ -182,59 +57,36 @@ let updatePolyLine = (
 ) => {
   let len = Array.length(path)
   if len >= 2 {
-    let pathCommands = []
-    let first = ref(true)
+    let screenPoints = []
 
     for i in 0 to len - 1 {
       switch Belt.Array.get(path, i) {
       | Some(p) =>
-        switch getScreenCoords(cam, p.pitch, p.yaw, rect) {
+        switch ProjectionMath.getScreenCoords(cam, p.pitch, p.yaw, rect) {
         | Some(coords) =>
-          let prefix = if first.contents {
-            first := false
-            "M"
-          } else {
-            "L"
-          }
-          let _ = Array.push(pathCommands, prefix)
-          let _ = Array.push(pathCommands, Float.toString(Math.round(coords.x *. 10.0) /. 10.0))
-          let _ = Array.push(pathCommands, Float.toString(Math.round(coords.y *. 10.0) /. 10.0))
+          let _ = Array.push(screenPoints, coords)
         | None => ()
         }
       | None => ()
       }
     }
 
-    let dString = Array.join(pathCommands, " ")
-
-    if dString != "" {
-      switch SvgManager.getOrCreate(id, "path") {
-      | Some(pathEl) =>
-        Svg.setAttribute(pathEl, "d", dString)
-        Svg.setAttribute(pathEl, "stroke", color)
-        Svg.setAttribute(pathEl, "stroke-width", Float.toString(width))
-        Svg.setAttribute(pathEl, "stroke-opacity", Float.toString(opacity))
-        Svg.setAttribute(pathEl, "fill", "none")
-        Svg.setAttribute(pathEl, "stroke-linecap", "round")
-        Svg.setAttribute(pathEl, "stroke-linejoin", "round")
-        Dom.setProperty(pathEl, "display", "block")
-
-        switch dashArray {
-        | Some(da) => Svg.setAttribute(pathEl, "stroke-dasharray", da)
-        | None => Dom.removeAttribute(pathEl, "stroke-dasharray")
-        }
-
-        switch className {
-        | Some(c) => Svg.setAttribute(pathEl, "class", c)
-        | None => Dom.removeAttribute(pathEl, "class")
-        }
-      | None => ()
-      }
+    if Array.length(screenPoints) > 0 {
+      SvgRenderer.drawPolyLine(
+        id,
+        screenPoints,
+        color,
+        width,
+        opacity,
+        ~dashArray?,
+        ~className?,
+        (),
+      )
     } else {
-      SvgManager.hide(id)
+      SvgRenderer.hide(id)
     }
   } else {
-    SvgManager.hide(id)
+    SvgRenderer.hide(id)
   }
 }
 
@@ -246,7 +98,7 @@ type segmentData = (
 let segmentCache: JSWeakMap.t<array<PathInterpolation.point>, segmentData> = JSWeakMap.make()
 
 let updateSimulationArrow = (
-  cam: camState,
+  cam: ProjectionMath.camState,
   startPitch,
   startYaw,
   endPitch,
@@ -323,9 +175,6 @@ let updateSimulationArrow = (
   let targetYaw = ref(startYaw)
   let rotYaw = ref(0.0)
   let rotPitch = ref(0.0)
-
-  // STABILITY FIXES ... (Comments retained ideally, but shortening for diff)
-  // ...
 
   let rotationCalcProgress = Math.min(progress, 0.90)
 
@@ -419,10 +268,15 @@ let updateSimulationArrow = (
     targetYaw := endYaw
   }
 
-  let startCoordsOpt = getScreenCoords(cam, targetPitch.contents, targetYaw.contents, rect)
+  let startCoordsOpt = ProjectionMath.getScreenCoords(
+    cam,
+    targetPitch.contents,
+    targetYaw.contents,
+    rect,
+  )
   switch startCoordsOpt {
   | Some(s) =>
-    let endCoordsOpt = getScreenCoords(
+    let endCoordsOpt = ProjectionMath.getScreenCoords(
       cam,
       targetPitch.contents +. rotPitch.contents *. 0.5,
       targetYaw.contents +. rotYaw.contents *. 0.5,
@@ -448,37 +302,10 @@ let updateSimulationArrow = (
         }
       }
 
-      if Float.isFinite(s.x) && Float.isFinite(s.y) && Float.isFinite(angle) {
-        switch SvgManager.getOrCreate(id, "path") {
-        | Some(arrow) =>
-          Svg.setAttribute(arrow, "d", "M -10,-7 L 6,0 L -10,7 Z")
-          Svg.setAttribute(arrow, "fill", color)
-          Svg.setAttribute(arrow, "stroke", "#000")
-          Svg.setAttribute(arrow, "stroke-width", "1")
-          Svg.setAttribute(
-            arrow,
-            "transform",
-            "translate(" ++
-            Float.toString(s.x) ++
-            ", " ++
-            Float.toString(s.y) ++
-            ") rotate(" ++
-            Float.toString(angle) ++ ")",
-          )
-          Dom.setProperty(arrow, "display", "block")
+      SvgRenderer.drawArrow(id, s.x, s.y, angle, color, opacity)
 
-          if opacity < 1.0 {
-            Svg.setAttribute(arrow, "opacity", Float.toString(opacity))
-          } else {
-            Dom.removeAttribute(arrow, "opacity")
-          }
-        | None => ()
-        }
-      } else {
-        SvgManager.hide(id)
-      }
-    | None => SvgManager.hide(id)
+    | None => SvgRenderer.hide(id)
     }
-  | None => SvgManager.hide(id)
+  | None => SvgRenderer.hide(id)
   }
 }

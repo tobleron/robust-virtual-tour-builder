@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Relocated `ViewerFollow.res` from components to systems.
   - Moved `ViewerState.res` and `ViewerTypes.res` to `src/core` to resolve circular dependencies and establish a clean Directed Acyclic Graph (DAG).
 - Refactor ViewerManager: Separate Input & Physics Logic (Task 581)
+- Refactor UploadProcessorLogic: Extract ImageValidator, FingerprintService, PanoramaClusterer
 
 ## [4.7.11] - 2026-01-25
 

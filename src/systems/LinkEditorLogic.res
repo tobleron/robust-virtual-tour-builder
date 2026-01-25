@@ -115,9 +115,24 @@ let handleEnter = () => {
       let camYaw = Viewer.getYaw(v)
       let camHfov = Viewer.getHfov(v)
 
+      // Use the LAST point in the draft as the hotspot position if available
+      let (finalPitch, finalYaw) = switch d.intermediatePoints {
+      | Some(points) =>
+        let count = Belt.Array.length(points)
+        if count > 0 {
+          switch Belt.Array.get(points, count - 1) {
+          | Some(lastPoint) => (lastPoint.pitch, lastPoint.yaw)
+          | None => (d.pitch, d.yaw)
+          }
+        } else {
+          (d.pitch, d.yaw)
+        }
+      | None => (d.pitch, d.yaw)
+      }
+
       LinkModal.showLinkModal(
-        ~pitch=d.pitch,
-        ~yaw=d.yaw,
+        ~pitch=finalPitch,
+        ~yaw=finalYaw,
         ~camPitch,
         ~camYaw,
         ~camHfov,
