@@ -135,7 +135,7 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<Dom.event>=?,
                       startPt,
                       Belt.Array.concat(waypoints, endPt),
                     )
-                    let splinePath = getCachedSplinePath(h, controlPoints, 100)
+                    let splinePath = getCachedSplinePath(h, controlPoints, 40)
                     drawPolyLine(
                       svg,
                       cam,
@@ -153,7 +153,7 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<Dom.event>=?,
                       PathInterpolation.yaw: vf.yaw,
                       pitch: vf.pitch,
                     }
-                    let curvedPath = getCachedFloorPath(h, startPt, endPt, 20)
+                    let curvedPath = getCachedFloorPath(h, startPt, endPt, 40)
                     drawPolyLine(
                       svg,
                       cam,
@@ -217,7 +217,7 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<Dom.event>=?,
                   | _ => ()
                   }
                 } else if Array.length(allRedPoints) > 2 {
-                  let redSpline = PathInterpolation.getCatmullRomSpline(allRedPoints, 60)
+                  let redSpline = PathInterpolation.getCatmullRomSpline(allRedPoints, 40)
                   drawPolyLine(
                     svg,
                     cam,
@@ -278,7 +278,7 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<Dom.event>=?,
                   | _ => ()
                   }
                 } else if Array.length(allYellowPoints) > 2 {
-                  let yellowSpline = PathInterpolation.getCatmullRomSpline(allYellowPoints, 60)
+                  let yellowSpline = PathInterpolation.getCatmullRomSpline(allYellowPoints, 40)
                   drawPolyLine(
                     svg,
                     cam,

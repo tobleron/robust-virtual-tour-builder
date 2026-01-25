@@ -564,7 +564,7 @@ let finalizeUploads = (
       Promise.resolve(
         (
           {
-            "qualityResults": Belt.Array.map(
+            qualityResults: Belt.Array.map(
               validProcessed,
               i => {
                 let qItem: UploadReport.qualityItem = {
@@ -596,8 +596,8 @@ let finalizeUploads = (
                 qItem
               },
             ),
-            "duration": durationStr,
-            "report": report,
+            duration: durationStr,
+            report,
           }: UploadProcessorTypes.processResult
         ),
       )

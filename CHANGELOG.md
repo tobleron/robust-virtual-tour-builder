@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.6.0] - 2026-01-25
 
-### Added
+### Changed
+- **Pannellum Friction Optimization**: Increased friction constant from `0.05` to `0.15` in `ViewerLoader` to improve perceived smoothness and mask micro-stuttering during camera movement.
 - **Total Type Safety Restoration**: Eliminated all `Obj.magic` calls from `src/` directory (Production Code).
 - **Typed DOM Events**: Standardized access to `clientX`, `clientY`, and `eventPhase` via typed bindings.
 - **Safe API Decoders**: Implemented strict JSON decoders for all backend responses (Metadata, Quality, Similarity).
@@ -17,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Vitest Stability**: Resolved failures in `ProgressBar`, `ServerTeaser`, and `PreviewArrow` unit tests.
 - Fixed `scrollTo` tracking in headless test environments.
 - Corrected type mismatch in `DownloadSystem` zip handling.
+
+### Documentation
+- Updated `MAP.md` to synchronize with current project architecture, adding semantic mappings for `ReBindings`, `Main`, `App`, and `Logger`.
 
 ## [4.5.2] - 2026-01-24
 

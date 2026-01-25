@@ -26,9 +26,9 @@ let processUploads = (
         "error",
       )
       Promise.resolve({
-        "qualityResults": [],
-        "duration": "0.0",
-        "report": ({success: [], skipped: []}: Types.uploadReport),
+        qualityResults: [],
+        duration: "0.0",
+        report: ({success: [], skipped: []}: Types.uploadReport),
       })
     } else {
       let startTime = Date.now()
@@ -44,9 +44,9 @@ let processUploads = (
 
       if totalFilesValue == 0 {
         Promise.resolve({
-          "qualityResults": [],
-          "duration": "0.0",
-          "report": ({success: [], skipped: []}: Types.uploadReport),
+          qualityResults: [],
+          duration: "0.0",
+          report: ({success: [], skipped: []}: Types.uploadReport),
         })
       } else {
         /* Validate Files */
@@ -55,9 +55,9 @@ let processUploads = (
         if Belt.Array.length(validFiles) == 0 {
           notify("No valid image files selected!", "error")
           Promise.resolve({
-            "qualityResults": [],
-            "duration": "0.0",
-            "report": ({success: [], skipped: []}: Types.uploadReport),
+            qualityResults: [],
+            duration: "0.0",
+            report: ({success: [], skipped: []}: Types.uploadReport),
           })
         } else {
           /* Phase 1: Fingerprinting */
@@ -81,9 +81,9 @@ let processUploads = (
                 if Belt.Array.length(validProcessed) == 0 && Belt.Array.length(uniqueItems) > 0 {
                   notify("All uploads failed.", "error")
                   Promise.resolve({
-                    "qualityResults": [],
-                    "duration": "0.0",
-                    "report": ({success: [], skipped: []}: Types.uploadReport),
+                    qualityResults: [],
+                    duration: "0.0",
+                    report: ({success: [], skipped: []}: Types.uploadReport),
                   })
                 } else {
                   /* Phase 3: Clustering & Finalizing */

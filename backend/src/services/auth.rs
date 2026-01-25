@@ -18,17 +18,17 @@ impl AuthService {
             env::var("GOOGLE_CLIENT_SECRET")
                 .map_err(|_| AppError::InternalError("GOOGLE_CLIENT_SECRET not set".into()))?,
         );
-        let auth_url =
-            AuthUrl::new("https://accounts.google.com/o/oauth2/v2/auth".to_string()).unwrap();
-        let token_url =
-            TokenUrl::new("https://www.googleapis.com/oauth2/v3/token".to_string()).unwrap();
+        let auth_url = AuthUrl::new("https://accounts.google.com/o/oauth2/v2/auth".to_string())
+            .map_err(|e| AppError::InternalError(format!("Invalid Auth URL: {}", e)))?;
+        let token_url = TokenUrl::new("https://www.googleapis.com/oauth2/v3/token".to_string())
+            .map_err(|e| AppError::InternalError(format!("Invalid Token URL: {}", e)))?;
 
         let client = BasicClient::new(client_id, Some(client_secret), auth_url, Some(token_url))
             .set_redirect_uri(
                 RedirectUrl::new(env::var("GOOGLE_REDIRECT_URL").unwrap_or_else(|_| {
                     "http://localhost:8080/api/auth/google/callback".to_string()
                 }))
-                .unwrap(),
+                .map_err(|e| AppError::InternalError(format!("Invalid Redirect URL: {}", e)))?,
             );
 
         Ok(Self {

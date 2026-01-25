@@ -215,12 +215,12 @@ let drawSimulationArrow = (
       ]
       let endPt: array<PathInterpolation.point> = [{PathInterpolation.yaw: endYaw, pitch: endPitch}]
       let controlPoints = Belt.Array.concat(startPt, Belt.Array.concat(waypoints, endPt))
-      PathInterpolation.getCatmullRomSpline(controlPoints, 100)
+      PathInterpolation.getCatmullRomSpline(controlPoints, 40)
     } else {
       PathInterpolation.getFloorProjectedPath(
         {yaw: startYaw, pitch: startPitch},
         {yaw: endYaw, pitch: endPitch},
-        100,
+        40,
       )
     }
 
