@@ -34,6 +34,22 @@ let interpolateCatmullRom = (p0, p1, p2, p3, t) => {
   {yaw, pitch}
 }
 
+let interpolateBSpline = (p0, p1, p2, p3, t) => {
+  let t2 = t *. t
+  let t3 = t2 *. t
+
+  // Uniform Cubic B-Spline basis functions
+  let b0 = (1.0 -. t) *. (1.0 -. t) *. (1.0 -. t) /. 6.0
+  let b1 = (3.0 *. t3 -. 6.0 *. t2 +. 4.0) /. 6.0
+  let b2 = (-3.0 *. t3 +. 3.0 *. t2 +. 3.0 *. t +. 1.0) /. 6.0
+  let b3 = t3 /. 6.0
+
+  let yaw = p0.yaw *. b0 +. p1.yaw *. b1 +. p2.yaw *. b2 +. p3.yaw *. b3
+  let pitch = p0.pitch *. b0 +. p1.pitch *. b1 +. p2.pitch *. b2 +. p3.pitch *. b3
+
+  {yaw, pitch}
+}
+
 let getCatmullRomSpline = (points: array<point>, totalSegments: int) => {
   if Array.length(points) < 2 {
     points
@@ -118,6 +134,83 @@ let getCatmullRomSpline = (points: array<point>, totalSegments: int) => {
           })
         }
       }
+    | _ => points
+    }
+  }
+}
+
+let getBSplinePath = (points: array<point>, totalSegments: int) => {
+  if Array.length(points) < 2 {
+    points
+  } else {
+    // 1. Prepare Points: B-Spline requires triplicating endpoints to ensure we start/end exactly at them
+    switch (Belt.Array.get(points, 0), Belt.Array.get(points, Array.length(points) - 1)) {
+    | (Some(first), Some(last)) => {
+        // [S, S] + [S, ...pts..., E] + [E, E] -> ensures curve touches S and E
+        let prefix = [first, first]
+        let suffix = [last, last]
+        let rawPoints = Belt.Array.concat(prefix, Belt.Array.concat(points, suffix))
+
+        // 2. Unroll Points (Yaw normalization)
+        let unrolledPoints = []
+        if Array.length(rawPoints) > 0 {
+          let prevYaw = ref(first.yaw) // Start with known first yaw
+          
+          Belt.Array.forEach(rawPoints, p => {
+            let currentYaw = p.yaw
+            let diff = ref(currentYaw -. prevYaw.contents)
+
+            while diff.contents > 180.0 {
+              diff := diff.contents -. 360.0
+            }
+            while diff.contents < -180.0 {
+              diff := diff.contents +. 360.0
+            }
+
+            let absoluteYaw = prevYaw.contents +. diff.contents
+            let _ = Array.push(unrolledPoints, {yaw: absoluteYaw, pitch: p.pitch})
+            prevYaw := absoluteYaw
+          })
+        }
+
+        // 3. Generate B-Spline Points
+        let splinePoints = []
+        // For N control points, we have N-3 segments in uniform cubic B-spline
+        let numSections = Array.length(unrolledPoints) - 3
+
+        if numSections < 1 {
+          points // Should not happen given the padding
+        } else {
+          let segmentsPerSection = ceil(Int.toFloat(totalSegments) /. Int.toFloat(numSections))
+
+          for i in 0 to numSections - 1 {
+             switch (
+              Belt.Array.get(unrolledPoints, i),
+              Belt.Array.get(unrolledPoints, i + 1),
+              Belt.Array.get(unrolledPoints, i + 2),
+              Belt.Array.get(unrolledPoints, i + 3),
+            ) {
+            | (Some(p0), Some(p1), Some(p2), Some(p3)) =>
+               for j in 0 to Float.toInt(segmentsPerSection) - 1 {
+                let t = Int.toFloat(j) /. segmentsPerSection
+                let pt = interpolateBSpline(p0, p1, p2, p3, t)
+                let _ = Array.push(splinePoints, pt)
+              }
+            | _ => ()
+            }
+          }
+
+          // Force add the very last point to ensure closure
+          let _ = Array.push(splinePoints, last)
+
+          Belt.Array.map(splinePoints, p => {
+            {
+              yaw: normalizeYaw(p.yaw),
+              pitch: p.pitch,
+            }
+          })
+        }
+    }
     | _ => points
     }
   }
