@@ -84,11 +84,14 @@ describe("Sidebar", () => {
       t->expect(Dom.getValue(el))->Expect.toBe("Initial Name")
 
       // Simulate input change
-      %raw(`(inputEl) => {
+      ignore(
+        %raw(`(inputEl) => {
         const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
         nativeInputValueSetter.call(inputEl, 'Updated Name');
         inputEl.dispatchEvent(new Event('input', { bubbles: true }));
-      }`)(el)
+      }`)(el),
+      )
+      await wait(400)
     | None => t->expect(false)->Expect.toBe(true)
     }
 

@@ -439,11 +439,11 @@ let make = () => {
     }
     None
   }, (
-    state.activeIndex,
+    Belt.Int.toString(state.activeIndex) ++
+    "_" ++
+    Belt.Int.toString(Belt.Array.length(state.scenes)),
     state.isLinking,
-    state.activeYaw,
-    state.activePitch,
-    Belt.Array.length(state.scenes),
+    Float.toString(state.activeYaw) ++ "_" ++ Float.toString(state.activePitch),
   ))
 
   // 4. Hotspot Sync for Metadata changes (Return links etc)

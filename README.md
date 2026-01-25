@@ -3,7 +3,7 @@
 ![CI](https://github.com/tobleron/robust-virtual-tour-builder/actions/workflows/ci.yml/badge.svg)
 
 <!-- METADATA_START -->
-**Version:** 4.7.11 (Build 82)  
+**Version:** 4.8.0 (Build 139)  
 **Directing Developer:** Arto Kalishian  
 **Release Date:** January 25, 2026  
 **Status:** Commercial Ready
@@ -207,7 +207,7 @@ npm run res:watch
 The project includes comprehensive test coverage across both frontend and backend:
 
 <!-- STATUS_START -->
-✅ **Build:** Passing | 🧪 **Tests:** 40+ Unit Tests (100% pass rate) | 🛡️ **Strict Mode:** Enabled
+⚠️ **Tests:** Status Unknown
 <!-- STATUS_END -->
 
 ### Run All Tests
@@ -247,47 +247,9 @@ npm run test:ui
 For a detailed semantic breakdown of the codebase, see the [MAP.md](file:///Users/r2/Desktop/robust-virtual-tour-builder/MAP.md).
 
 <!-- STRUCTURE_START -->
-```
-.
-├── backend/                    # Rust backend server
-│   ├── src/
-│   │   ├── api/               # HTTP endpoints (media, project, telemetry, geocoding)
-│   │   ├── services/          # Business logic (upload quota, project validation)
-│   │   ├── middleware/        # Request tracking, quota checks
-│   │   ├── models/            # Error types and data models
-│   │   ├── pathfinder/        # Graph algorithms for simulation
-│   │   └── main.rs            # Server entry point
-│   ├── bin/ffmpeg             # FFmpeg binary
-│   └── Cargo.toml             # Rust dependencies
-│
-├── src/                        # ReScript frontend source
-│   ├── components/            # React components
-│   │   ├── Sidebar.res        # Main sidebar with scene list
-│   │   ├── ViewerManager.res  # Panorama viewer orchestration
-│   │   ├── HotspotManager.res # Hotspot editing interface
-│   │   ├── LinkModal.res      # Scene linking dialog
-│   │   ├── UploadReport.res   # Upload progress UI
-│   │   └── ui/                # Shadcn/UI components
-│   ├── core/                  # State management
-│   │   ├── State.res          # Global state type definitions
-│   │   ├── Actions.res        # Action type definitions
-│   │   ├── Reducer.res        # Root reducer
-│   │   └── reducers/          # Domain-specific reducers
-│   ├── systems/               # Business logic systems
-│   │   ├── BackendApi.res     # API client
-│   │   ├── UploadProcessor.res # Image upload pipeline
-│   │   ├── ExifParser.res     # EXIF metadata extraction
-│   │   ├── SimulationDriver.res # Autopilot simulation
-│   │   ├── TeaserManager.res  # Video teaser generation
-│   │   ├── Navigation.res     # Navigation graph management
-│   │   ├── Exporter.res       # Project export system
-│   │   └── ProjectManager.res # Project load/save
-│   └── utils/                 # Utilities
-│       ├── Logger.res         # Telemetry logging
-│       ├── GeoUtils.res       # Geographic calculations
-│       ├── ImageOptimizer.res # Client-side image optimization
-│       └── TourLogic.res      # Tour logic
-```
+### Directory Index (from MAP.md)
+
+
 <!-- STRUCTURE_END -->
 
 ---

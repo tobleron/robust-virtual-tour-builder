@@ -19,7 +19,7 @@ module SceneItem = {
       | None => UrlUtils.fileToUrl(scene.file)
       }
     }, [scene.id])
-    
+
     let (isMenuOpen, setMenuOpen) = React.useState(_ => false)
     let (flickerState, setFlickerState) = React.useState(_ => #None)
 
@@ -172,8 +172,8 @@ module SceneItem = {
       <div
         className="w-8 flex flex-col items-center justify-center gap-0 border-l border-slate-50 bg-slate-50/50 group-hover:bg-slate-100 transition-colors self-stretch"
       >
-          <Shadcn.DropdownMenu open_={isMenuOpen} onOpenChange={isOpen => setMenuOpen(_ => isOpen)}>
-            <Shadcn.DropdownMenu.Trigger asChild=true>
+        <Shadcn.DropdownMenu open_={isMenuOpen} onOpenChange={isOpen => setMenuOpen(_ => isOpen)}>
+          <Shadcn.DropdownMenu.Trigger asChild=true>
             <button
               className="w-6 h-6 rounded flex items-center justify-center hover:bg-white hover:shadow-sm transition-all text-slate-400 hover:text-primary active:scale-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
               ariaLabel={`Actions for ${scene.name}`}
@@ -190,9 +190,10 @@ module SceneItem = {
 
             <Shadcn.DropdownMenu.Item
               onClick={handleClearClick}
-              className={`px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer text-slate-600 ${
-                flickerState == #Clear ? "animate-flicker-orange-flat" : ""
-              }`}
+              className={`px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer text-slate-600 ${flickerState ==
+                  #Clear
+                  ? "animate-flicker-orange-flat"
+                  : ""}`}
             >
               <LucideIcons.Unlink className="text-lg mr-2 text-primary" />
               <span> {React.string("Clear Links")} </span>
@@ -202,9 +203,10 @@ module SceneItem = {
 
             <Shadcn.DropdownMenu.Item
               onClick={handleDeleteClick}
-              className={`px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer text-danger hover:bg-danger/10 ${
-                flickerState == #Delete ? "animate-flicker-red-light" : ""
-              }`}
+              className={`px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer text-danger hover:bg-danger/10 ${flickerState ==
+                  #Delete
+                  ? "animate-flicker-red-light"
+                  : ""}`}
             >
               <LucideIcons.Trash2 className="text-lg mr-2 text-danger" />
               <span> {React.string("Remove Scene")} </span>
