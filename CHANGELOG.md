@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Sidebar UX**: Deprecated and removed the Indoor/Outdoor toggle button from the primary utility bar.
 - **Tooltip Interaction**: Refined Label Menu tooltip logic to prevent visual overlap when opening context menus.
 
+### Performance
+- **React.memo Implementation**: Applied `React.memo` to `Sidebar`, `SceneList`, and `SceneItem` to block unnecessary re-renders during camera rotation.
+- **Handler Stabilization**: Wrapped principal event handlers in `useMemo` to maintain prop stability, ensuring `React.memo` effectiveness in virtualized UI layers.
+- **ViewerUI Optimization**: Memoized the primary `ViewerUI` HUD and stabilized its handlers to improve UI responsiveness.
+
 ### Fixed
 - **Simulation Stability**: Enhanced `StopAutoPilot` logic to explicitly cancel navigation and reset state, preventing residual movement or "ghost" travel states.
 

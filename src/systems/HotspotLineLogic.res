@@ -35,10 +35,7 @@ let isViewerReady = (viewer: Viewer.t): bool => {
   }
 }
 
-type camState = {
-  yaw: float,
-  pitch: float,
-  hfov: float,
+type projState = {
   aspectRatio: float,
   halfTanHfov: float,
   halfTanVfov: float,
@@ -46,38 +43,62 @@ type camState = {
   invHalfTanVfov: float,
 }
 
+let lastProjState = ref(None)
+
+let getProjState = (hfov, rect: Dom.rect) => {
+  switch lastProjState.contents {
+  | Some((h, w, h_, state)) if h == hfov && w == rect.width && h_ == rect.height => state
+  | _ =>
+    let hfovRad = hfov *. degToRad
+    let aspectRatio = rect.width /. rect.height
+    let halfTanHfov = Math.tan(hfovRad /. 2.0)
+
+    // vfov calculation: tan(vfov/2) = tan(hfov/2) / aspectRatio
+    let halfTanVfov = halfTanHfov /. aspectRatio
+
+    let invHalfTanHfov = if halfTanHfov != 0.0 {
+      1.0 /. halfTanHfov
+    } else {
+      0.0
+    }
+
+    let invHalfTanVfov = if halfTanVfov != 0.0 {
+      1.0 /. halfTanVfov
+    } else {
+      0.0
+    }
+
+    let state = {
+      aspectRatio,
+      halfTanHfov,
+      halfTanVfov,
+      invHalfTanHfov,
+      invHalfTanVfov,
+    }
+    lastProjState := Some((hfov, rect.width, rect.height, state))
+    state
+  }
+}
+
+type camState = {
+  yaw: float,
+  pitch: float,
+  hfov: float,
+  proj: projState,
+}
+
 let getCamState = (viewer, rect: Dom.rect) => {
   let yaw = Viewer.getYaw(viewer)
   let pitch = Viewer.getPitch(viewer)
   let hfov = Viewer.getHfov(viewer)
-  let hfovRad = hfov *. degToRad
-  let aspectRatio = rect.width /. rect.height
-  let halfTanHfov = Math.tan(hfovRad /. 2.0)
 
-  // vfov calculation: tan(vfov/2) = tan(hfov/2) / aspects
-  let halfTanVfov = halfTanHfov /. aspectRatio
-
-  let invHalfTanHfov = if halfTanHfov != 0.0 {
-    1.0 /. halfTanHfov
-  } else {
-    0.0
-  }
-
-  let invHalfTanVfov = if halfTanVfov != 0.0 {
-    1.0 /. halfTanVfov
-  } else {
-    0.0
-  }
+  let proj = getProjState(hfov, rect)
 
   {
     yaw,
     pitch,
     hfov,
-    aspectRatio,
-    halfTanHfov,
-    halfTanVfov,
-    invHalfTanHfov,
-    invHalfTanVfov,
+    proj,
   }
 }
 
@@ -98,8 +119,11 @@ let getScreenCoords = (cam: camState, pitch, yaw, rect: Dom.rect) => {
   if cosYaw <= 0.0 || cam.hfov <= 0.0 {
     None
   } else {
-    let x = Math.tan(yawRad) *. cam.invHalfTanHfov
-    let y = Math.tan(pitchRad) *. (cam.invHalfTanVfov /. cosYaw)
+    // Optimization: (1 / cosYaw) is used for both X and Y in many projection variants
+    // Here we use it to scale the tangent results.
+    let invCosYaw = 1.0 /. cosYaw
+    let x = Math.tan(yawRad) *. cam.proj.invHalfTanHfov
+    let y = Math.tan(pitchRad) *. (cam.proj.invHalfTanVfov *. invCosYaw)
 
     if !Float.isFinite(x) || !Float.isFinite(y) {
       None

@@ -11,7 +11,7 @@ let autoHideDelay = Constants.progressBarAutoHideDelay
 external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 
 @react.component
-let make = () => {
+let make = React.memo(() => {
   let sceneSlice = AppContext.useSceneSlice()
   let dispatch = AppContext.useAppDispatch()
 
@@ -33,39 +33,41 @@ let make = () => {
 
   // Subscribe to processing updates
   React.useEffect0(() => {
-    let unsubscribe = EventBus.subscribe(event => {
-      switch event {
-      | UpdateProcessing(payload) =>
-        // Clear any existing hide timer
-        switch Nullable.toOption(hideTimerRef.current) {
-        | Some(timerId) =>
-          clearTimeout(timerId)
-          hideTimerRef.current = Nullable.null
-        | None => ()
-        }
+    let unsubscribe = EventBus.subscribe(
+      event => {
+        switch event {
+        | UpdateProcessing(payload) =>
+          // Clear any existing hide timer
+          switch Nullable.toOption(hideTimerRef.current) {
+          | Some(timerId) =>
+            clearTimeout(timerId)
+            hideTimerRef.current = Nullable.null
+          | None => ()
+          }
 
-        setProcState(_ => payload)
+          setProcState(_ => payload)
 
-        // If progress is complete, start auto-hide timer
-        if payload["progress"] >= 100.0 && payload["active"] {
-          let timerId = setTimeout(
-            () => {
-              setProcState(
-                prev => {
-                  let next = Object.assign(Object.make(), prev)
-                  next["active"] = false
-                  next
-                },
-              )
-              hideTimerRef.current = Nullable.null
-            },
-            3000,
-          )
-          hideTimerRef.current = Nullable.fromOption(Some(timerId))
+          // If progress is complete, start auto-hide timer
+          if payload["progress"] >= 100.0 && payload["active"] {
+            let timerId = setTimeout(
+              () => {
+                setProcState(
+                  prev => {
+                    let next = Object.assign(Object.make(), prev)
+                    next["active"] = false
+                    next
+                  },
+                )
+                hideTimerRef.current = Nullable.null
+              },
+              3000,
+            )
+            hideTimerRef.current = Nullable.fromOption(Some(timerId))
+          }
+        | _ => ()
         }
-      | _ => ()
-      }
-    })
+      },
+    )
     Some(unsubscribe)
   })
 
@@ -116,7 +118,8 @@ let make = () => {
   }
 
   // Computed
-  let totalHotspots = sceneSlice.scenes->Belt.Array.reduce(0, (acc, s) => acc + Array.length(s.hotspots))
+  let totalHotspots =
+    sceneSlice.scenes->Belt.Array.reduce(0, (acc, s) => acc + Array.length(s.hotspots))
   let teaserReady = totalHotspots >= 3
   let exportReady = totalHotspots > 0
 
@@ -201,9 +204,11 @@ let make = () => {
                     updateProgress(0.0, "Saving...", true, "Saving")
                     try {
                       let currentState = GlobalStateBridge.getState()
-                      let _ = await ProjectManager.saveProject(currentState, ~onProgress=(pct, _, msg) =>
-                        updateProgress(pct->Int.toFloat, msg, true, "Saving")
-                      )
+                      let _ = await ProjectManager.saveProject(currentState, ~onProgress=(
+                        pct,
+                        _,
+                        msg,
+                      ) => updateProgress(pct->Int.toFloat, msg, true, "Saving"))
                       EventBus.dispatch(ShowNotification("Project saved", #Success))
                       updateProgress(100.0, "Saved", false, "")
                     } catch {
@@ -539,4 +544,4 @@ let make = () => {
       </div>
     </div>
   </div>
-}
+})

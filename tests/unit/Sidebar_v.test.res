@@ -51,10 +51,7 @@ describe("Sidebar", () => {
     let mockDispatch = _ => ()
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(
-      root,
-      <WrappedSidebar mockState mockDispatch />,
-    )
+    ReactDOMClient.Root.render(root, <WrappedSidebar mockState mockDispatch />)
 
     await wait(100)
 
@@ -77,10 +74,7 @@ describe("Sidebar", () => {
     let mockDispatch = action => lastAction := Some(action)
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(
-      root,
-      <WrappedSidebar mockState mockDispatch />,
-    )
+    ReactDOMClient.Root.render(root, <WrappedSidebar mockState mockDispatch />)
 
     await wait(100)
 
@@ -133,10 +127,7 @@ describe("Sidebar", () => {
     let _unsubscribe = EventBus.subscribe(ev => dispatchedEvent := Some(ev))
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(
-      root,
-      <WrappedSidebar mockState mockDispatch />,
-    )
+    ReactDOMClient.Root.render(root, <WrappedSidebar mockState mockDispatch />)
 
     await wait(100)
 
@@ -162,10 +153,7 @@ describe("Sidebar", () => {
     let mockDispatch = _ => ()
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(
-      root,
-      <WrappedSidebar mockState mockDispatch />,
-    )
+    ReactDOMClient.Root.render(root, <WrappedSidebar mockState mockDispatch />)
 
     await wait(100)
 
