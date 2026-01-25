@@ -6,6 +6,7 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
   let state = AppContext.useAppState()
   let dispatch = AppContext.useAppDispatch()
   let (customLabel, setCustomLabel) = React.useState(_ => "")
+  let (flickeringLabel, setFlickeringLabel) = React.useState(_ => None)
 
   let targetIndex = sceneIndex->Option.getOr(state.activeIndex)
 
@@ -26,16 +27,22 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
     None
   }, [currentLabel])
 
-  let handleSelect = label => {
-    dispatch(UpdateSceneMetadata(targetIndex, Logger.castToJson({"label": label})))
-    Logger.info(
-      ~module_="LabelMenu",
-      ~message="LABEL_SET",
-      ~data=Some({"label": label, "index": targetIndex}),
-      (),
-    )
-    EventBus.dispatch(ShowNotification("Label Set: " ++ label, #Success))
-    onClose()
+  let handleSelect = (label, e) => {
+    JsxEvent.Mouse.preventDefault(e)
+    setFlickeringLabel(_ => Some(label))
+
+    let _ = ReBindings.Window.setTimeout(() => {
+      setFlickeringLabel(_ => None)
+      dispatch(UpdateSceneMetadata(targetIndex, Logger.castToJson({"label": label})))
+      Logger.info(
+        ~module_="LabelMenu",
+        ~message="LABEL_SET",
+        ~data=Some({"label": label, "index": targetIndex}),
+        (),
+      )
+      EventBus.dispatch(ShowNotification("Label Set: " ++ label, #Success))
+      onClose()
+    }, 800)
   }
 
   let handleApplyCustom = () => {
@@ -119,11 +126,14 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
           {labels
           ->Belt.Array.map(label => {
             let isActive = label == currentLabel
+            let isFlickering = flickeringLabel == Some(label)
             <Shadcn.DropdownMenu.Item
               key={label}
-              onClick={_ => handleSelect(label)}
+              onClick={e => handleSelect(label, e)}
               className={`mx-1 my-0.5 px-2 py-1 text-[10px] font-bold uppercase tracking-wide cursor-pointer
-                ${isActive ? "bg-primary/10 text-primary" : "text-slate-600"}`}
+                ${isActive ? "bg-primary/10 text-primary" : "text-slate-600"}
+                ${isFlickering ? "animate-flicker-yellow" : ""}
+              `}
             >
               {React.string(label)}
             </Shadcn.DropdownMenu.Item>
