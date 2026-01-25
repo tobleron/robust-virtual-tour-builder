@@ -11,8 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Projection Performance Optimization**: Refactored `HotspotLineLogic` to pre-calculate camera inverse constants and move degree-to-radian conversions out of the inner point-projection loop.
 - **Pannellum Friction Optimization**: Increased friction constant from `0.05` to `0.15` in `ViewerLoader` to improve perceived smoothness and mask micro-stuttering during camera movement.
 
-- **Idle CPU Optimization (Loop Consolidation)**: Eliminated the continuous 60fps global render loop in `ViewerManager` during idle periods. Replaced with event-driven updates (via `viewchange`) and a conditional 60fps loop active only during "Linking Mode" or "Simulation", significantly reducing background CPU usage.
-- **Responsive Overlays**: Integrated window resize listeners to ensure SVG hotspot lines maintain visual alignment without requiring a constant rendering loop.
+- **Idle CPU Optimization (Lazy Performance Loop)**: Refactored the global render loop in `ViewerManager` to use a high-performance "Dirty Check" (pitch/yaw/hfov delta). Expensive DOM updates for hotspots now only trigger when the camera actually moves, resolving the "sticky waypoints" regression while maintaining ultra-low idle CPU usage.
+- **Responsive Overlays**: Integrated window resize listeners to ensure SVG hotspot lines maintain visual alignment when the viewer container changes dimensions.
+
 
 - **Typed DOM Events**: Standardized access to `clientX`, `clientY`, and `eventPhase` via typed bindings.
 - **Safe API Decoders**: Implemented strict JSON decoders for all backend responses (Metadata, Quality, Similarity).
