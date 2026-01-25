@@ -191,7 +191,7 @@ module SceneItem = {
             <Shadcn.DropdownMenu.Item
               onClick={handleClearClick}
               className={`px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer text-slate-600 ${
-                flickerState == #Clear ? "animate-flicker-yellow" : ""
+                flickerState == #Clear ? "animate-flicker-yellow-light" : ""
               }`}
             >
               <LucideIcons.Unlink className="text-lg mr-2 text-primary" />
