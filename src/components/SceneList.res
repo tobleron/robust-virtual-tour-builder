@@ -28,7 +28,7 @@ module SceneItem = {
 
     let qualityScore = switch scene.quality {
     | Some(q) =>
-      let qObj = (Obj.magic(q): SharedTypes.qualityAnalysis)
+      let qObj = JsonTypes.castToQualityAnalysis(q)
       qObj.score
     | None => 10.0
     }
@@ -48,14 +48,14 @@ module SceneItem = {
       onDragStart={onDragStart}
       onDragOver={onDragOver}
       onDrop={onDrop}
-      onClick={onClick}
+      onClick={_ => onClick()}
       tabIndex=0
       onKeyDown={e => {
         if JsxEvent.Keyboard.key(e) == "Enter" || JsxEvent.Keyboard.key(e) == " " {
           JsxEvent.Keyboard.preventDefault(e)
           // For keyboard, we don't pass the event if it's strictly Mouse event
           // but handleSceneClick doesn't use the event anyway
-          onClick(Obj.magic(e)) // Keeping one magic here as fixing onClick type across components is large
+          onClick()
         }
       }}
       role="button"
@@ -260,7 +260,7 @@ let make = () => {
   let endIndex = startIndex + visibleCount->Float.toInt + buffer * 2
   let endIndex = Math.Int.min(Array.length(state.scenes) - 1, endIndex)
 
-  let handleSceneClick = (index, _e) => {
+  let handleSceneClick = index => {
     if index == state.activeIndex {
       // Already selected, do nothing and don't trigger "too fast" warning
       ()
@@ -371,7 +371,7 @@ let make = () => {
               scene={scene}
               index={actualIndex}
               isActive={actualIndex == state.activeIndex}
-              onClick={e => handleSceneClick(actualIndex, e)}
+              onClick={() => handleSceneClick(actualIndex)}
               onDragStart={e => onDragStart(actualIndex, e)}
               onDragOver={e => onDragOver(actualIndex, e)}
               onDrop={e => onDrop(actualIndex, e)}

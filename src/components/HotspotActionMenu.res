@@ -25,7 +25,9 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
       switch targetIdx {
       | Some(idx) =>
         let currentVal = ts.isAutoForward
-        dispatch(Actions.UpdateSceneMetadata(idx, Obj.magic({"isAutoForward": !currentVal})))
+        dispatch(
+          Actions.UpdateSceneMetadata(idx, Logger.castToJson({"isAutoForward": !currentVal})),
+        )
         EventBus.dispatch(
           ShowNotification(
             "Auto-forward: " ++ if !currentVal {

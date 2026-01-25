@@ -141,7 +141,7 @@ let processLoadedProjectData = (
         pd,
         "validationReport",
       ) {
-      | Some(report) => Some(Obj.magic(report)) // Keep one magic here as strict typing large structs is hard or need decoder
+      | Some(report) => Some(JsonTypes.castToValidationReport(report))
       | None => None
       }
 

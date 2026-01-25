@@ -68,8 +68,7 @@ describe("DownloadSystem", () => {
   })
 
   test("downloadZip: should handle null zip safely", t => {
-    // Should not crash, just log error
-    downloadZip(Obj.magic(Nullable.null), "empty.zip")
+    downloadZip(Nullable.null, "empty.zip")
     t->expect(true)->Expect.toBe(true)
   })
 })

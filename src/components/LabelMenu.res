@@ -27,7 +27,7 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
   }, [currentLabel])
 
   let handleSelect = label => {
-    dispatch(UpdateSceneMetadata(targetIndex, Obj.magic({"label": label})))
+    dispatch(UpdateSceneMetadata(targetIndex, Logger.castToJson({"label": label})))
     Logger.info(
       ~module_="LabelMenu",
       ~message="LABEL_SET",
@@ -41,7 +41,7 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
   let handleApplyCustom = () => {
     let val = customLabel->String.trim
     if val != "" {
-      dispatch(UpdateSceneMetadata(targetIndex, Obj.magic({"label": val})))
+      dispatch(UpdateSceneMetadata(targetIndex, Logger.castToJson({"label": val})))
       Logger.info(
         ~module_="LabelMenu",
         ~message="LABEL_SET_CUSTOM",
@@ -54,7 +54,7 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
   }
 
   let handleClear = () => {
-    dispatch(UpdateSceneMetadata(targetIndex, Obj.magic({"label": ""})))
+    dispatch(UpdateSceneMetadata(targetIndex, Logger.castToJson({"label": ""})))
     EventBus.dispatch(ShowNotification("Label Cleared", #Warning))
     onClose()
   }

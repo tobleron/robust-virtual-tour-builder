@@ -6,7 +6,7 @@ open UploadProcessorLogic
 let processUploads = (
   files: array<file>,
   progressCallback: option<(float, string, bool, string) => unit>,
-) => {
+): Promise.t<processResult> => {
   let updateProgress = (pct, msg, isProc, phase) => {
     switch progressCallback {
     | Some(cb) => cb(pct, msg, isProc, phase)

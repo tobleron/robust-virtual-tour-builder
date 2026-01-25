@@ -71,7 +71,7 @@ let sanitizeLoadedScenes = (rawScenes: array<JSON.t>) => {
 
     let hotspots = switch Nullable.toOption(i.hotspots) {
     | Some(arr) =>
-      let hArr = JsonTypes.castToHotspots(Obj.magic(arr)) // arr is already hotspotJson array
+      let hArr = arr
       Belt.Array.map(hArr, h => {
         /* Ensure structured data is preserved */
         {

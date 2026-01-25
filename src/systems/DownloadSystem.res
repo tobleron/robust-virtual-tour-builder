@@ -146,12 +146,12 @@ let saveBlobWithConfirmation = async (blob: Blob.t, filename: string): result<bo
   }
 }
 
-let downloadZip = (zip: JSZip.t, filename: string) => {
-  let zipNullable: Nullable.t<JSZip.t> = Obj.magic(zip)
-  if zipNullable == Nullable.null {
+let downloadZip = (zip: Nullable.t<JSZip.t>, filename: string) => {
+  if zip == Nullable.null {
     Logger.error(~module_="Download", ~message="ZIP_MISSING", ())
   } else {
-    let _ = JSZip.generateAsync(zip, {"type": "blob"})->Promise.then(content => {
+    let zipVal = Nullable.getOrThrow(zip)
+    let _ = JSZip.generateAsync(zipVal, {"type": "blob"})->Promise.then(content => {
       saveBlob(content, filename)
       Promise.resolve()
     })

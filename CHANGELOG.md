@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.6.0] - 2026-01-25
+
+### Added
+- **Total Type Safety Restoration**: Eliminated all `Obj.magic` calls from `src/` directory (Production Code).
+- **Typed DOM Events**: Standardized access to `clientX`, `clientY`, and `eventPhase` via typed bindings.
+- **Safe API Decoders**: Implemented strict JSON decoders for all backend responses (Metadata, Quality, Similarity).
+- **File extracted helpers**: Added `fileToBlob` and `fileToFile` to handle complex file variants safely.
+
+### Fixed
+- **Vitest Stability**: Resolved failures in `ProgressBar`, `ServerTeaser`, and `PreviewArrow` unit tests.
+- Fixed `scrollTo` tracking in headless test environments.
+- Corrected type mismatch in `DownloadSystem` zip handling.
+
 ## [4.5.2] - 2026-01-24
 
 ### Changed

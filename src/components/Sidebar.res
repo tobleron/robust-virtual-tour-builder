@@ -89,7 +89,7 @@ let make = () => {
       let fileArray = JsHelpers.from(files)
 
       try {
-        let result = await UploadProcessor.processUploads(
+        let result: UploadProcessorTypes.processResult = await UploadProcessor.processUploads(
           fileArray,
           Some(
             (pct, msg, isProc, phase) => {
@@ -98,13 +98,8 @@ let make = () => {
           ),
         )
 
-        let qualityResults: array<UploadReport.qualityItem> = (
-          Obj.magic(result): {"qualityResults": array<UploadReport.qualityItem>}
-        )["qualityResults"]
-
-        let report: Types.uploadReport = (
-          Obj.magic(result): {"report": Types.uploadReport}
-        )["report"]
+        let qualityResults = result["qualityResults"]
+        let report = result["report"]
 
         UploadReport.show(report, qualityResults)
       } catch {

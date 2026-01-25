@@ -158,7 +158,7 @@ let showFromProjectData = (projectDataJson: JSON.t) => {
   let successNames = Belt.Array.map(project.scenes, s => s.name)
   let qualityResults = Belt.Array.map(project.scenes, s => {
     let q = switch Nullable.toOption(s.quality) {
-    | Some(qJson) => Obj.magic(qJson)
+    | Some(qJson) => JsonTypes.castToQualityAnalysis(qJson)
     | None => {
         SharedTypes.score: 0.0,
         isBlurry: false,

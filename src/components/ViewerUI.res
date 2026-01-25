@@ -481,7 +481,7 @@ let make = () => {
 
       let badges = switch quality {
       | Some(qJson) =>
-        let q: SharedTypes.qualityAnalysis = Obj.magic(qJson)
+        let q = JsonTypes.castToQualityAnalysis(qJson)
         let b = []
         if q.isBlurry {
           let _ = Array.push(b, {"text": "BLURRY", "cls": "q-blurry"})
