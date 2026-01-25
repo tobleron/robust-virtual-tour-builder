@@ -62,7 +62,7 @@ module URL = {
 }
 
 /* Constants - Updated by scripts/sync-sw.cjs */
-let cacheName = "vtb-cache-v4.7.4"
+let cacheName = "vtb-cache-v4.7.5"
 let manualAssets = [
   "/",
   "/index.html",
@@ -76,7 +76,7 @@ let manualAssets = [
   "/libs/pannellum.css",
   "/libs/pannellum.js",
   "/manifest.json",
-  "/sounds/click.wav",
+  "/sounds/click.wav"
 ]
 
 addEventListener("install", (event: ExtendableEvent.t) => {
