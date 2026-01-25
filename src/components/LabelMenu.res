@@ -132,7 +132,7 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
               onClick={e => handleSelect(label, e)}
               className={`mx-1 my-0.5 px-2 py-1 text-[10px] font-bold uppercase tracking-wide cursor-pointer
                 ${isActive ? "bg-primary/10 text-primary" : "text-slate-600"}
-                ${isFlickering ? "animate-flicker-yellow" : ""}
+                ${isFlickering ? "animate-flicker-orange-flat" : ""}
               `}
             >
               {React.string(label)}
