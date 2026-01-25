@@ -595,8 +595,8 @@
     color: white;
     padding: 0 0.5rem;
     /* User Request: tighter left/right padding */
-    height: 32px;
-    /* User Request: exactly 32px */
+    height: 27px;
+    /* User Request: exactly 27px */
     border-radius: var(--radius-sm);
     /* User Request: Less rounded */
     font-family: var(--font-ui);
