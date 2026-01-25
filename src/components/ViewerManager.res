@@ -529,5 +529,57 @@ let make = () => {
     None
   }, (state.isLinking, state.simulation.status))
 
+  // 7. Render Loop for Hotspot Lines (Fix for sticky waypoints)
+  React.useEffect0(() => {
+    let animationFrameId = ref(None)
+    let lastPitch = ref(-999.0)
+    let lastYaw = ref(-999.0)
+    let lastHfov = ref(-999.0)
+
+    let rec loop = () => {
+      let v = ViewerState.getActiveViewer()
+      switch Nullable.toOption(v) {
+      | Some(viewer) =>
+        let currentState = GlobalStateBridge.getState()
+
+        // CRITICAL: Skip updates during viewer swap to prevent race condition
+        let isSwapping = ViewerState.state.isSwapping
+
+        // Performance optimization: During active navigation, the NavigationRenderer owns the loop.
+        let isNavigating = switch currentState.navigation {
+        | Navigating(_) | Previewing(_) => true
+        | Idle => false
+        }
+
+        if !isNavigating && !isSwapping {
+          let p = Viewer.getPitch(viewer)
+          let y = Viewer.getYaw(viewer)
+          let h = Viewer.getHfov(viewer)
+
+          if p != lastPitch.contents || y != lastYaw.contents || h != lastHfov.contents {
+            lastPitch := p
+            lastYaw := y
+            lastHfov := h
+            HotspotLine.updateLines(viewer, currentState, ())
+          }
+        }
+      | None => ()
+      }
+      animationFrameId := Some(Window.requestAnimationFrame(loop))
+    }
+
+    // Start loop
+    animationFrameId := Some(Window.requestAnimationFrame(loop))
+
+    Some(
+      () => {
+        switch animationFrameId.contents {
+        | Some(id) => Window.cancelAnimationFrame(id)
+        | None => ()
+        }
+      },
+    )
+  })
+
   React.null
 }

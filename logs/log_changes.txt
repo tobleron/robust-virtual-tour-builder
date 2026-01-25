@@ -5,3 +5,4 @@
 [2026-01-25 13:00] v4.6.0 - Perf: Increase Pannellum friction to 0.15 for smoother camera movement (Task 536)
 [2026-01-25 13:11] v4.6.0 - Perf: Precalculate projection constants and optimize HotspotLineLogic inner loop
 [2026-01-25 13:21] v4.6.0 - perf: task 538 - loop consolidation and idle cpu optimization
+[2026-01-25 13:30] v4.6.0 - fix: remove unused variables and finalize waypoint fix

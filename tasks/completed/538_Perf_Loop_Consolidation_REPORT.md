@@ -4,14 +4,11 @@
 Reduce background CPU usage by eliminating the constant 60fps `requestAnimationFrame` (RAF) loop in `ViewerManager` during idle periods. Rely on Pannellum's `viewchange` event and specific simulation triggers for more efficient updates.
 
 ## Technical Implementation
-- **Loop Removal**: Removed the unconditional 60fps `useEffect` loop in `ViewerManager.res`. This loop was previously drawing hotspot lines every frame even when nothing was moving.
-- **Event-Driven Updates**:
-    - Leveraged the existing `viewchange` listener in `ViewerLoader.res` to trigger `HotspotLine.updateLines` only when the camera actually moves.
-    - Added explicit `HotspotLine.updateLines` calls in `ViewerManager.res` effects triggered by scene or data changes to ensure visual consistency.
-    - Added a window `resize` listener in `ViewerManager.res` to redraw lines when the container dimensions change.
-- **Conditional Loop Consolidation**:
-    - Modified `ViewerFollow.res` so its loop only runs when `isLinking` is active. This loop handles the "linking rod" and "edge panning" which require high-frequency updates, but it now shuts down correctly when idle.
-    - Verified that `NavigationRenderer` handles its own loop during active simulations, ensuring standard idle periods remain loop-free.
+- **Loop Optimization (Lazy Dirty Check)**: Instead of completely removing the RAF loop (which caused "stuck waypoints" due to unreliable event timing in Pannellum), I implemented an optimized loop in `ViewerManager.res`. It performs a lightweight `ref` check for camera movement (pitch/yaw/hfov) 60 times per second, but ONLY triggers the expensive `HotspotLine.updateLines` call when a change is detected.
+- **Event-Driven Limitations**: Reverted the `viewchange` approach as it was insufficient to handle all "settling" frames after scene loads and programmatic movements, which was the root cause of the "stuck waypoints" regression.
+- **Responsive Overlays**: Maintained the window `resize` listener to ensure alignment is updated when the layout changes.
+- **Loop Consolidation**: Restored the hotspot-aware guard in `ViewerFollow.res` to ensure visual consistency when exiting linking mode.
+
 
 ## Results
 - **CPU Savings**: Background CPU usage during idle periods is significantly reduced by eliminating unnecessary 16.6ms redraws.
