@@ -57,7 +57,6 @@ let createMockScene = (
     _metadataSource: "default",
     categorySet,
     labelSet: label != "",
-    preCalculatedSnapshot: None,
   }
 }
 

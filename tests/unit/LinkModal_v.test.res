@@ -20,7 +20,6 @@ describe("LinkModal", () => {
       categorySet: false,
       labelSet: false,
       isAutoForward: false,
-      preCalculatedSnapshot: None,
     }
   }
 

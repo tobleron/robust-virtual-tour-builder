@@ -20,7 +20,6 @@ describe("SimulationChainSkipper", () => {
       categorySet: false,
       labelSet: false,
       isAutoForward,
-      preCalculatedSnapshot: None,
     }
   }
 

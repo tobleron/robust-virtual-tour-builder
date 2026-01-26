@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Implement comprehensive test suite for viewer components, optimize SvgManager, and resolve build warnings
 
+### Changed
+- **Performance & Safety (Task 595)**: Refactored `SvgManager.res` to eliminate unsafe type casting.
+  - Replaced `Obj.magic(None)` hack with type-safe `Dict.delete`.
+  - Updated `remove` function to explicitly clear the internal element cache, preventing memory leaks and stale references.
+  - Added unit tests for cache invalidation and stale element recovery.
+- Refactor SvgManager for safety and cache integrity (Task 595)
+
 ## [4.8.0] - 2026-01-25
 
 ### Changed

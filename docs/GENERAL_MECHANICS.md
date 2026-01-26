@@ -1,14 +1,79 @@
-# 🚀 Initialization Standards
+# General Mechanics & Standards
+
+This document consolidates the development guidelines, initialization standards, and testing strategies for the Robust Virtual Tour Builder.
+
+---
+
+# Part 1: Development Guidelines & Workflow Manual
+
+This section outlines the protocols, standards, and automated workflows required for contributing to the Robust Virtual Tour Builder.
+
+## 1. Core Development Pillars
+
+### Type Safety & Functional Principles
+- **ReScript/Rust First**: All new logic must be written in ReScript (Frontend) or Rust (Backend).
+- **No Side Effects**: Isolate side effects to React Effects or API handlers. Use pure functions for business logic.
+- **Handling Failure**: Never use `panic!` in Rust or throw exceptions in ReScript. Return `Result` or `Option` types.
+
+### Build & Test Integrity
+- **Mandatory Testing**: `npm test` must pass before any commit.
+- **Build Verification**: Run `npm run build` after major changes to ensure compilation passes across the entire project.
+
+## 2. Automated Workflows (Phase 1-3)
+
+We utilize strict automation to maintain quality. **Do not run these manually if an AI agent is handling the task.**
+
+### Phase 1: Pre-Flight
+1. **Context Check**: Read `.agent/current_file_structure.md` before editing.
+2. **Standards Review**: Read `.agent/workflows/functional-standards.md` for logic and `/docs/PROJECT_SPECS.md` (Design System section) for UI.
+
+### Phase 2: Execution
+- **Commit Workflow**: Use `./scripts/commit.sh` (Auto-increments version, cleans console logs, updates file maps).
+- **Time Machine (Undo)**: Use `./scripts/restore-snapshot.sh <HASH>` to rollback internal development states.
+
+### Phase 3: Push Verification
+- **Pre-Push Workflow**: Read `/pre-push-workflow.md`. This script runs backend tests and verifies version consistency.
+
+## 3. Testing Standards
+
+For a detailed breakdown of our methodology, see **Part 3: Testing Strategy** in this document.
+
+### Frontend (ReScript)
+- **Three-Tier Safety Net**: We utilize **Unit Tests** (logic), **Smoke Tests** (boot/render), and **Smart Regression Tests** (bug prevention).
+- **Unit Tests**: Located in `tests/unit/`.
+- **Test Runner**: Managed via `tests/TestRunner.res` and Vitest.
+- **Enforcement**: Commits are blocked if the 100% pass rate is not maintained.
+
+### Backend (Rust)
+- **Crate Testing**: Use `cargo test` within the `backend/` directory.
+- **Coverage**: Focus on services (Project, Media, Geocoding) and algorithms (Pathfinder).
+
+## 4. ReScript Migration Strategy
+
+**Current Logic Status: ~95% Complete**
+
+### Implementation Rules
+- **Minimize `Obj.magic`**: Avoid type-casting unless interacting with legacy JS libraries that lack bindings.
+- **New Modules**: Follow the standards in `.agent/workflows/new-module-standards.md`, emphasizing structured logging and error boundaries.
+- **Legacy Components**: Incrementally migrate remaining JS functions into ReScript helper modules.
+
+## 5. Metadata & Versioning
+
+### Project Metadata
+- **Version Control**: Managed via `./scripts/commit.sh`.
+- **Standardized Constants**: Use `VersionData.res` and `Constants.res` for global values.
+
+---
+
+# Part 2: Initialization Standards
 
 **Version**: 1.0  
 **Last Updated**: 2026-01-23  
 **Status**: Active Standard
 
----
-
 ## 📋 Overview
 
-This document defines the standardized initialization practices for the Robust Virtual Tour Builder. These standards ensure consistent behavior across application startup, new project creation, and project loading scenarios.
+This section defines the standardized initialization practices for the Robust Virtual Tour Builder. These standards ensure consistent behavior across application startup, new project creation, and project loading scenarios.
 
 ## 🎯 Core Principles
 
@@ -27,8 +92,6 @@ This document defines the standardized initialization practices for the Robust V
 - Loading operations must provide consistent fallback values
 - Unknown or invalid data should degrade to standard defaults
 - Placeholder detection should be centralized and comprehensive
-
----
 
 ## 🔧 Implementation Standards
 
@@ -186,8 +249,6 @@ Dict.set(
 )
 ```
 
----
-
 ## 📁 Critical Files
 
 ### State Initialization
@@ -207,8 +268,6 @@ Dict.set(
 - **`src/systems/ProjectManager.res`**: ZIP loading and backend integration
 - **`src/systems/UploadProcessor.res`**: EXIF-based name generation
 
----
-
 ## ✅ Checklist for New Features
 
 When adding new state fields or initialization logic:
@@ -219,8 +278,6 @@ When adding new state fields or initialization logic:
 - [ ] Register placeholder values in `TourLogic.isUnknownName()` if applicable
 - [ ] Ensure "New Project" workflow clears relevant cached state
 - [ ] Document the initialization behavior in this file
-
----
 
 ## 🐛 Common Pitfalls
 
@@ -280,66 +337,68 @@ let safeName = TourLogic.sanitizeName(state.tourName)
 
 ---
 
-## 🔄 Migration Guide
+# Part 3: Testing Strategy: Unit, Smoke, and Smart Regression
 
-### Updating Existing Code
+This document outlines the formalized testing strategy for the Robust Virtual Tour Builder, established during the v4.4.7 stability sprint. This strategy ensures long-term maintainability and prevents bug regression.
 
-1. **Audit Default Values**
-   ```bash
-   # Find empty string initializations
-   rg 'tourName:\s*""' src/
-   ```
+## 🏛️ The Three-Tier Strategy
 
-2. **Update State Definitions**
-   - Replace empty strings with meaningful placeholders
-   - Ensure consistency with `State.initialState`
+Our testing system is built on three pillars, providing deep logic verification, high-level stability checks, and historical bug protection.
 
-3. **Add Placeholder Recognition**
-   - Register new placeholders in `TourLogic.isUnknownName()`
-   - Test that intelligent replacement works correctly
+### 1. Unit Tests (Logic Guards)
+**Goal:** Verify the mathematical and logical correctness of isolated functions.
+*   **Target**: Pure functions, mathematical utilities, and data transformers.
+*   **Examples**:
+    *   `ColorPalette_v.test.res`: Maps IDs to styling tokens.
+    *   `HotspotLine_v.test.res`: Validates complex 3D-to-2D projection math.
+    *   `ViewerTypes_v.test.res`: Verifies data structure defaults.
+*   **Standard**: Every utility module must have 100% logic coverage.
 
-4. **Implement Session Clearing**
-   - Add `SessionStore.clearState()` calls before `reload()`
-   - Verify no state pollution occurs
+### 2. Smoke Tests (Boot Guards)
+**Goal:** Ensure major UI components can "boot" and render their core elements without crashing.
+*   **Target**: Complex React components and Context Providers.
+*   **Mechanism**: Uses `ReactDOMClient` to mount components into a virtual JSDOM environment.
+*   **Examples**:
+    *   `ViewerUI_v.test.res`: Checks if the utility bar and logo render.
+    *   `Sidebar_v.test.res`: Verifies the main sidebar branding.
+    *   `ModalContext_v.test.res`: Ensures the modal system can open and close.
+*   **Standard**: Key "Main" components must have a smoke test to prevent "white-screen" errors.
 
-5. **Test Scenarios**
-   - [ ] Fresh app load (no cached state)
-   - [ ] App load with cached state
-   - [ ] New project creation (with existing scenes)
-   - [ ] New project creation (empty state)
-   - [ ] Project loading from ZIP
-   - [ ] Image upload with EXIF data
-   - [ ] Image upload without EXIF data
+### 3. Smart Regression Tests (Bug Guards)
+**Goal:** Codify past bugs into permanent tests to ensure they never return.
+*   **Target**: Logic paths that were previously identified as brittle or buggy.
+*   **Mechanism**: Simulate the exact conditions that caused a historical failure.
+*   **Example**:
+    *   `UploadProcessor_v.test.res`: Specifically tests "100% duplicate upload" to ensure the progress bar no longer hangs (fixing a bug from Jan 2026).
+*   **Standard**: Every bug fix MUST be accompanied by a regression test in this category.
 
----
+## 🛠️ Implementation Standards
 
-## 📚 Related Documentation
+### 1. Environmental Setup (JSDOM)
+All frontend tests run in a JSDOM environment. Components that rely on browser-only APIs (like `ResizeObserver`) must be polyfilled in a setup file.
+*   **Setup File**: `tests/unit/LabelMenu_v.test.setup.jsx` (and similar).
+*   **Usage**: Registered in `vitest.config.mjs` under `test.setupFiles`.
 
-- **[Functional Standards](../functional-standards.md)**: Immutability and pure functions
-- **[ReScript Standards](../rescript-standards.md)**: Language-specific patterns
-- **[Testing Standards](../testing-standards.md)**: How to test initialization logic
-- **[Design System](./DESIGN_SYSTEM.md)**: UI placeholder and input patterns
+### 2. Mocking Strategy
+To maintain isolation, we use a tiered mocking approach:
+*   **Global Mocks**: Use `.test.setup.jsx` files for cross-cutting dependencies (e.g., Shadcn UI components, Lucide Icons).
+*   **Partial Mocks**: Use `vi.mock` with `importOriginal` to override specific functions while keeping the rest of the module real.
+*   **Component Mocks**: For integration tests, mock sub-components (like `SceneList` inside `Sidebar`) to focus on the parent's logic.
 
----
+### 3. ReScript Compilation Workflow
+Due to occasional file-locking issues with background watchers, the **Standard Build Workflow** is:
+1.  Stop background watchers if compilation hangs.
+2.  Run `npm run res:build` (Manual Force Build).
+3.  Run `npm run test:frontend`.
 
-## 📝 Version History
+## 🚀 How to Verify
+To verify the entire safety net, run:
+```bash
+npm run test:frontend
+```
+This command executes Vitest against the compiled `.bs.js` files, triggering all Unit, Smoke, and Regression tests in a single pass.
 
-| Version | Date       | Changes                                      |
-|---------|------------|----------------------------------------------|
-| 1.0     | 2026-01-23 | Initial documentation of initialization standards |
-
----
-
-## 🤝 Contributing
-
-When proposing changes to initialization behavior:
-
-1. Update this document with the new standard
-2. Ensure backward compatibility or provide migration path
-3. Add tests covering the new initialization scenario
-4. Update related documentation (MAP.md, ARCHITECTURE.md)
-5. Get review from project maintainers
-
----
-
-**Remember**: Initialization is the first impression. Make it predictable, clean, and user-friendly.
+## 📅 Maintenance
+*   **New Modules**: Must include a `_v.test.res` file.
+*   **Complexity**: If a component is too complex for simple unit tests, implement a **Smoke Test** at minimum.
+*   **Mocks**: Keep mocks updated in `tests/unit/*.setup.jsx` to reflect changes in the UI library.

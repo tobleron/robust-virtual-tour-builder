@@ -19,7 +19,6 @@ describe("HotspotManager", () => {
       categorySet: false,
       labelSet: false,
       isAutoForward: false,
-      preCalculatedSnapshot: None,
     }
   }
 

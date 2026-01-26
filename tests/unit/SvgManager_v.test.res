@@ -91,4 +91,31 @@ describe("SvgManager", () => {
     let displayS = %raw(`(el) => el.style.display`)(elS)
     t->expect(displayS)->Expect.toBe("block")
   })
+
+  test("remove deletes from DOM and cache", t => {
+    let id = "remove-id"
+    let _el = SvgManager.getOrCreate(id, "path")->Option.getOrThrow
+
+    SvgManager.remove(id)
+
+    let container = ReBindings.Dom.getElementById("viewer-hotspot-lines")
+    let found = ReBindings.Dom.querySelector(Nullable.getOrThrow(container), "#" ++ id)
+    t->expect(Nullable.toOption(found))->Expect.toBeNone
+  })
+
+  test("getElement handles stale elements by removing from cache", t => {
+    let id = "stale-id"
+    let el = SvgManager.getOrCreate(id, "path")->Option.getOrThrow
+
+    // Manually remove from DOM without telling SvgManager
+    ReBindings.Dom.removeElement(el)
+
+    // getElement should now return None because el is no longer in container
+    let found = SvgManager.getElement(id)
+    t->expect(found)->Expect.toBeNone
+
+    // And it should have been removed from cache, so next getOrCreate should create a NEW one
+    let elNew = SvgManager.getOrCreate(id, "path")->Option.getOrThrow
+    t->expect(el === elNew)->Expect.toBe(false)
+  })
 })
