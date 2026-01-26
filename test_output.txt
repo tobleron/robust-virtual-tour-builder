@@ -10,7 +10,7 @@
 > robust-virtual-tour-builder@4.8.0 res:build
 > rescript
 
-Cleaned 0/253
+Cleaned 0/281
 Parsed 0 source files
 Compiled 0 modules
 
@@ -22,6 +22,7 @@ All frontend tests passed successfully! 🎉
 
 [1m[46m RUN [49m[22m [36mv4.0.17 [39m[90m/Users/r2/Desktop/robust-virtual-tour-builder[39m
 
+ [32m✓[39m tests/unit/Shadcn_v.test.bs.js [2m([22m[2m9 tests[22m[2m)[22m[32m 218[2mms[22m[39m
 [90mstderr[2m | tests/unit/SceneList_v.test.bs.js[2m > [22m[2mSceneList[2m > [22m[2mshould render scenes when populated
 [22m[39mAn empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
 
@@ -64,72 +65,56 @@ An empty string ("") was passed to the src attribute. This may cause the browser
 [22m[39mAn empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
 An empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
 
- [32m✓[39m tests/unit/RequestQueue_v.test.bs.js [2m([22m[2m5 tests[22m[2m)[22m[33m 503[2mms[22m[39m
+ [32m✓[39m tests/unit/RequestQueue_v.test.bs.js [2m([22m[2m5 tests[22m[2m)[22m[33m 504[2mms[22m[39m
      [33m[2m✓[22m[39m tasks are queued and limited by maxConcurrent [33m 501[2mms[22m[39m
- [32m✓[39m tests/unit/ViewerManager_v.test.bs.js [2m([22m[2m7 tests[22m[2m)[22m[33m 415[2mms[22m[39m
- [32m✓[39m tests/unit/LabelMenu_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[33m 610[2mms[22m[39m
- [32m✓[39m tests/unit/PopOver_v.test.bs.js [2m([22m[2m5 tests[22m[2m)[22m[33m 760[2mms[22m[39m
- [32m✓[39m tests/unit/ModalContext_v.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[33m 670[2mms[22m[39m
+ [32m✓[39m tests/unit/LabelMenu_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[33m 613[2mms[22m[39m
+ [32m✓[39m tests/unit/ModalContext_v.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[33m 671[2mms[22m[39m
+ [32m✓[39m tests/unit/PopOver_v.test.bs.js [2m([22m[2m5 tests[22m[2m)[22m[33m 764[2mms[22m[39m
 [90mstderr[2m | tests/unit/Sidebar_v.test.bs.js[2m > [22m[2mSidebar[2m > [22m[2mshould handle 'New' button click with confirmation if scenes exist
 [22m[39mAn empty string ("") was passed to the src attribute. This may cause the browser to download the whole page again over the network. To fix this, either do not render the element at all or pass null to src instead of an empty string.
 
- [32m✓[39m tests/unit/Shadcn_v.test.bs.js [2m([22m[2m9 tests[22m[2m)[22m[32m 213[2mms[22m[39m
- [32m✓[39m tests/unit/ViewerUI_v.test.bs.js [2m([22m[2m5 tests[22m[2m)[22m[33m 867[2mms[22m[39m
+ [32m✓[39m tests/unit/ViewerManager_v.test.bs.js [2m([22m[2m7 tests[22m[2m)[22m[33m 416[2mms[22m[39m
+ [32m✓[39m tests/unit/ViewerUI_v.test.bs.js [2m([22m[2m5 tests[22m[2m)[22m[33m 874[2mms[22m[39m
  [32m✓[39m tests/unit/App_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[33m 314[2mms[22m[39m
- [32m✓[39m tests/unit/Sidebar_v.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[33m 870[2mms[22m[39m
-     [33m[2m✓[22m[39m should update tour name on input change [33m 507[2mms[22m[39m
+ [32m✓[39m tests/unit/Sidebar_v.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[33m 872[2mms[22m[39m
+     [33m[2m✓[22m[39m should update tour name on input change [33m 505[2mms[22m[39m
  [32m✓[39m tests/unit/SceneList_v.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[33m 1017[2mms[22m[39m
      [33m[2m✓[22m[39m should throttle scene switching clicks [33m 755[2mms[22m[39m
- [32m✓[39m tests/unit/Portal_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 210[2mms[22m[39m
- [32m✓[39m tests/unit/AppErrorBoundary_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 158[2mms[22m[39m
- [32m✓[39m tests/unit/HotspotActionMenu_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 168[2mms[22m[39m
- [32m✓[39m tests/unit/NavigationUI_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 163[2mms[22m[39m
- [32m✓[39m tests/unit/ErrorFallbackUI_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 123[2mms[22m[39m
- [32m✓[39m tests/unit/ViewerSnapshot_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 115[2mms[22m[39m
- [32m✓[39m tests/unit/NotificationContext_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 160[2mms[22m[39m
- [32m✓[39m tests/unit/VisualPipeline_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 52[2mms[22m[39m
- [32m✓[39m tests/unit/Tooltip_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 108[2mms[22m[39m
- [32m✓[39m tests/unit/LucideIcons_v.test.bs.js [2m([22m[2m33 tests[22m[2m)[22m[32m 68[2mms[22m[39m
+ [32m✓[39m tests/unit/Portal_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 207[2mms[22m[39m
+ [32m✓[39m tests/unit/UtilityBar_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 223[2mms[22m[39m
+ [32m✓[39m tests/unit/HotspotActionMenu_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 167[2mms[22m[39m
+ [32m✓[39m tests/unit/NavigationUI_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 167[2mms[22m[39m
+ [32m✓[39m tests/unit/NotificationContext_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 158[2mms[22m[39m
+ [32m✓[39m tests/unit/AppErrorBoundary_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 160[2mms[22m[39m
+ [32m✓[39m tests/unit/ErrorFallbackUI_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 126[2mms[22m[39m
+ [32m✓[39m tests/unit/NotificationLayer_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 161[2mms[22m[39m
+ [32m✓[39m tests/unit/Tooltip_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 106[2mms[22m[39m
+ [32m✓[39m tests/unit/VisualPipeline_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 66[2mms[22m[39m
+ [32m✓[39m tests/unit/HotspotMenuLayer_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 111[2mms[22m[39m
+ [32m✓[39m tests/unit/ViewerSnapshot_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 120[2mms[22m[39m
+ [32m✓[39m tests/unit/PreviewArrow_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[33m 2220[2mms[22m[39m
+     [33m[2m✓[22m[39m should render arrow and handle interactions [33m 1111[2mms[22m[39m
+     [33m[2m✓[22m[39m should handle delete click [33m 1108[2mms[22m[39m
+ [32m✓[39m tests/unit/LucideIcons_v.test.bs.js [2m([22m[2m33 tests[22m[2m)[22m[32m 64[2mms[22m[39m
+ [32m✓[39m tests/unit/FloorNavigation_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 65[2mms[22m[39m
+ [32m✓[39m tests/unit/PersistentLabel_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 55[2mms[22m[39m
+ [32m✓[39m tests/unit/ReturnPrompt_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 60[2mms[22m[39m
+ [32m✓[39m tests/unit/QualityIndicator_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 57[2mms[22m[39m
+ [32m✓[39m tests/unit/ViewerLabelMenu_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 60[2mms[22m[39m
  [32m✓[39m tests/unit/SimulationDriver_v.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[32m 57[2mms[22m[39m
- [32m✓[39m tests/unit/InputSystem_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 44[2mms[22m[39m
- [32m✓[39m tests/unit/DownloadSystem_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m tests/unit/SnapshotOverlay_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 60[2mms[22m[39m
+ [32m✓[39m tests/unit/HotspotLayer_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 54[2mms[22m[39m
+ [32m✓[39m tests/unit/InputSystem_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 48[2mms[22m[39m
+ [32m✓[39m tests/unit/UploadProcessor_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m tests/unit/Logger_v.test.bs.js [2m([22m[2m9 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m tests/unit/ExifReportGenerator_v.test.bs.js [2m([22m[2m5 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m tests/unit/SvgManager_v.test.bs.js [2m([22m[2m5 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m tests/unit/Version_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
 Not implemented: navigation to another Document
 Not implemented: navigation to another Document
- [32m✓[39m tests/unit/HotspotLineLogic_v.test.bs.js [2m([22m[2m11 tests[22m[2m)[22m[32m 17[2mms[22m[39m
- [32m✓[39m tests/unit/ProjectReducer_v.test.bs.js [2m([22m[2m17 tests[22m[2m)[22m[32m 6[2mms[22m[39m
- [32m✓[39m tests/unit/Logger_v.test.bs.js [2m([22m[2m9 tests[22m[2m)[22m[32m 11[2mms[22m[39m
- [32m✓[39m tests/unit/UploadProcessor_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 29[2mms[22m[39m
- [32m✓[39m tests/unit/PreviewArrow_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[33m 2223[2mms[22m[39m
-     [33m[2m✓[22m[39m should render arrow and handle interactions [33m 1112[2mms[22m[39m
-     [33m[2m✓[22m[39m should handle delete click [33m 1105[2mms[22m[39m
- [32m✓[39m tests/unit/BackendApi_v.test.bs.js [2m([22m[2m7 tests[22m[2m)[22m[32m 3[2mms[22m[39m
- [32m✓[39m tests/unit/NavigationController_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
- [32m✓[39m tests/unit/ServiceWorker_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 14[2mms[22m[39m
- [32m✓[39m tests/unit/ExifReportGenerator_v.test.bs.js [2m([22m[2m5 tests[22m[2m)[22m[32m 23[2mms[22m[39m
- [32m✓[39m tests/unit/AudioManager_v.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m tests/unit/DownloadSystem_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 44[2mms[22m[39m
 Not implemented: navigation to another Document
- [32m✓[39m tests/unit/Exporter_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 21[2mms[22m[39m
- [32m✓[39m tests/unit/HotspotManager_v.test.bs.js [2m([22m[2m7 tests[22m[2m)[22m[32m 14[2mms[22m[39m
- [32m✓[39m tests/unit/PathInterpolation_v.test.bs.js [2m([22m[2m10 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m tests/unit/VideoEncoder_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 11[2mms[22m[39m
- [32m✓[39m tests/unit/InteractionsRobustness_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 15[2mms[22m[39m
- [32m✓[39m tests/unit/ViewerFollow_v.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
- [32m✓[39m tests/unit/HotspotLine_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 7[2mms[22m[39m
- [32m✓[39m tests/unit/ImageOptimizer_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
- [32m✓[39m tests/unit/Resizer_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 12[2mms[22m[39m
-[90mstdout[2m | tests/unit/StateInspector_v.test.bs.js[2m > [22m[2mStateInspector[2m > [22m[2mexposeToWindow should attach store to window when enabled
-[22m[39m🔍 State Inspector enabled. Access via window.store.state
-
-[90mstdout[2m | tests/unit/StateInspector_v.test.bs.js[2m > [22m[2mStateInspector[2m > [22m[2mremoveFromWindow should remove store from window
-[22m[39m🔒 State Inspector removed
-
-[90mstdout[2m | tests/unit/StateInspector_v.test.bs.js[2m > [22m[2mStateInspector[2m > [22m[2mwindow.store.getFullState should return frozen state
-[22m[39m🔍 State Inspector enabled. Access via window.store.state
-
-[90mstderr[2m | tests/unit/StateInspector_v.test.bs.js[2m > [22m[2mStateInspector[2m > [22m[2mwindow.store.getFullState should return frozen state
-[22m[39m⚠️ Accessing full state. This is for debugging only.
-
- [32m✓[39m tests/unit/StateInspector_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m tests/unit/Exporter_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 30[2mms[22m[39m
 [90mstdout[2m | tests/unit/ExifParser_v.test.bs.js[2m > [22m[2mExifParser[2m > [22m[2mextractExifTags[2m > [22m[2mreturns error on ExifReader exception
 [22m[39mMock Logger received exn: {
   RE_EXN_ID: [32m'JsExn'[39m,
@@ -146,7 +131,6 @@ Not implemented: navigation to another Document
       at trace [90m(file:///Users/r2/Desktop/robust-virtual-tour-builder/[39mnode_modules/[4mvitest[24m/dist/chunks/test.B8ej_ZHS.js:239:21[90m)[39m
 }
 
- [32m✓[39m tests/unit/SceneHelpers_v.test.bs.js [2m([22m[2m9 tests[22m[2m)[22m[32m 19[2mms[22m[39m
 [90mstdout[2m | tests/unit/ExifParser_v.test.bs.js[2m > [22m[2mExifParser[2m > [22m[2manalyzeImageQuality[2m > [22m[2mhandles backend failure
 [22m[39mMock Logger received exn: {
   RE_EXN_ID: [32m'JsExn'[39m,
@@ -163,71 +147,115 @@ Not implemented: navigation to another Document
       at trace [90m(file:///Users/r2/Desktop/robust-virtual-tour-builder/[39mnode_modules/[4mvitest[24m/dist/chunks/test.B8ej_ZHS.js:239:21[90m)[39m
 }
 
- [32m✓[39m tests/unit/ExifParser_v.test.bs.js [2m([22m[2m12 tests[22m[2m)[22m[32m 13[2mms[22m[39m
- [32m✓[39m tests/unit/UrlUtils_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 7[2mms[22m[39m
- [32m✓[39m tests/unit/Types_v.test.bs.js [2m([22m[2m17 tests[22m[2m)[22m[32m 7[2mms[22m[39m
- [32m✓[39m tests/unit/Actions_v.test.bs.js [2m([22m[2m46 tests[22m[2m)[22m[32m 4[2mms[22m[39m
- [32m✓[39m tests/unit/NavigationReducer_v.test.bs.js [2m([22m[2m11 tests[22m[2m)[22m[32m 6[2mms[22m[39m
- [32m✓[39m tests/unit/SimulationLogic_v.test.bs.js [2m([22m[2m9 tests[22m[2m)[22m[32m 3[2mms[22m[39m
- [32m✓[39m tests/unit/SimulationPathGenerator_v.test.bs.js [2m([22m[2m5 tests[22m[2m)[22m[32m 3[2mms[22m[39m
- [32m✓[39m tests/unit/Constants_v.test.bs.js [2m([22m[2m18 tests[22m[2m)[22m[32m 6[2mms[22m[39m
- [32m✓[39m tests/unit/TeaserRecorder_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
- [32m✓[39m tests/unit/UploadReport_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 6[2mms[22m[39m
- [32m✓[39m tests/unit/LinkModal_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m tests/unit/TeaserPathfinder_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m tests/unit/Reducer_v.test.bs.js [2m([22m[2m7 tests[22m[2m)[22m[32m 4[2mms[22m[39m
- [32m✓[39m tests/unit/ProgressBar_v.test.bs.js [2m([22m[2m8 tests[22m[2m)[22m[32m 58[2mms[22m[39m
- [32m✓[39m tests/unit/TeaserManager_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
- [32m✓[39m tests/unit/NavigationRenderer_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
- [32m✓[39m tests/unit/JsonTypes_v.test.bs.js [2m([22m[2m11 tests[22m[2m)[22m[32m 4[2mms[22m[39m
- [32m✓[39m tests/unit/ProjectData_v.test.bs.js [2m([22m[2m5 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m tests/unit/EventBus_v.test.bs.js [2m([22m[2m14 tests[22m[2m)[22m[32m 6[2mms[22m[39m
- [32m✓[39m tests/unit/ViewerLoader_v.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
- [32m✓[39m tests/unit/ServerTeaser_v.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m tests/unit/SimulationChainSkipper_v.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[32m 8[2mms[22m[39m
- [32m✓[39m tests/unit/GlobalStateBridge_v.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
- [32m✓[39m tests/unit/RootReducer_v.test.bs.js [2m([22m[2m11 tests[22m[2m)[22m[32m 6[2mms[22m[39m
- [32m✓[39m tests/unit/SimulationNavigation_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 3[2mms[22m[39m
- [32m✓[39m tests/unit/ColorPalette_v.test.bs.js [2m([22m[2m12 tests[22m[2m)[22m[32m 4[2mms[22m[39m
- [32m✓[39m tests/unit/UiReducer_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 3[2mms[22m[39m
- [32m✓[39m tests/unit/TourLogic_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 4[2mms[22m[39m
- [32m✓[39m tests/unit/TimelineReducer_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
- [32m✓[39m tests/unit/SessionStore_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
- [32m✓[39m tests/unit/AppContext_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/ExifParser_v.test.bs.js [2m([22m[2m12 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m tests/unit/SceneHelpers_v.test.bs.js [2m([22m[2m9 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m tests/unit/UploadReport_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/AudioManager_v.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m tests/unit/ServiceWorker_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m tests/unit/ProjectApi_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/CursorPhysics_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 60[2mms[22m[39m
+ [32m✓[39m tests/unit/InteractionsRobustness_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 42[2mms[22m[39m
  [32m✓[39m tests/unit/LazyLoad_v.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[32m 3[2mms[22m[39m
- [32m✓[39m tests/unit/State_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
- [32m✓[39m tests/unit/HotspotLineTypes_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
- [32m✓[39m tests/unit/SceneReducer_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 6[2mms[22m[39m
- [32m✓[39m tests/unit/Version_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
- [32m✓[39m tests/unit/TourTemplateScripts_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
- [32m✓[39m tests/unit/HotspotReducer_v.test.bs.js [2m([22m[2m7 tests[22m[2m)[22m[32m 2[2mms[22m[39m
- [32m✓[39m tests/unit/SimulationReducer_v.test.bs.js [2m([22m[2m9 tests[22m[2m)[22m[32m 2[2mms[22m[39m
- [32m✓[39m tests/unit/Navigation_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 6[2mms[22m[39m
- [32m✓[39m tests/unit/ProjectManager_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 4[2mms[22m[39m
- [32m✓[39m tests/unit/TourTemplates_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 4[2mms[22m[39m
- [32m✓[39m tests/unit/TourTemplateStyles_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/HotspotLineLogic_v.test.bs.js [2m([22m[2m11 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m tests/unit/ImageOptimizer_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m tests/unit/VideoEncoder_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m tests/unit/SvgRenderer_v.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m tests/unit/ServerTeaser_v.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/ViewerFollow_v.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m tests/unit/LinkModal_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m tests/unit/ProgressBar_v.test.bs.js [2m([22m[2m8 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/HotspotReducer_v.test.bs.js [2m([22m[2m7 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/TeaserPlayback_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/SimulationLogic_v.test.bs.js [2m([22m[2m9 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/Constants_v.test.bs.js [2m([22m[2m18 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/SceneReducer_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m tests/unit/TeaserPathfinder_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/UrlUtils_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m tests/unit/ProjectReducer_v.test.bs.js [2m([22m[2m17 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m tests/unit/RootReducer_v.test.bs.js [2m([22m[2m11 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/HotspotManager_v.test.bs.js [2m([22m[2m7 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m tests/unit/PathInterpolation_v.test.bs.js [2m([22m[2m10 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/ProjectData_v.test.bs.js [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/HotspotLine_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/TimelineReducer_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/Types_v.test.bs.js [2m([22m[2m17 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/NavigationReducer_v.test.bs.js [2m([22m[2m11 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/SimulationChainSkipper_v.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/NavigationRenderer_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/UiReducer_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/GlobalStateBridge_v.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/ProjectManager_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m tests/unit/PanoramaClusterer_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/TeaserRecorder_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/UiHelpers_v.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[32m 3[2mms[22m[39m
  [32m✓[39m tests/unit/ViewerState_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 4[2mms[22m[39m
- [32m✓[39m tests/unit/VersionData_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
- [32m✓[39m tests/unit/GeoUtils_v.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/Resizer_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/ViewerLoader_v.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/SharedTypes_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/Actions_v.test.bs.js [2m([22m[2m46 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m tests/unit/GeoUtils_v.test.bs.js [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/AppContext_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/ViewerTypes_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m tests/unit/MediaApi_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/SimulationNavigation_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/UploadProcessorTypes_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/BackendApi_v.test.bs.js [2m([22m[2m7 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/JsonTypes_v.test.bs.js [2m([22m[2m11 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/SimulationReducer_v.test.bs.js [2m([22m[2m9 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+[90mstdout[2m | tests/unit/StateInspector_v.test.bs.js[2m > [22m[2mStateInspector[2m > [22m[2mexposeToWindow should attach store to window when enabled
+[22m[39m🔍 State Inspector enabled. Access via window.store.state
+
+[90mstdout[2m | tests/unit/StateInspector_v.test.bs.js[2m > [22m[2mStateInspector[2m > [22m[2mremoveFromWindow should remove store from window
+[22m[39m🔒 State Inspector removed
+
+[90mstdout[2m | tests/unit/StateInspector_v.test.bs.js[2m > [22m[2mStateInspector[2m > [22m[2mwindow.store.getFullState should return frozen state
+[22m[39m🔍 State Inspector enabled. Access via window.store.state
+
+[90mstderr[2m | tests/unit/StateInspector_v.test.bs.js[2m > [22m[2mStateInspector[2m > [22m[2mwindow.store.getFullState should return frozen state
+[22m[39m⚠️ Accessing full state. This is for debugging only.
+
+ [32m✓[39m tests/unit/StateInspector_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/UploadProcessorLogic_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/Reducer_v.test.bs.js [2m([22m[2m7 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/PannellumLifecycle_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/NavigationGraph_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/TourTemplateAssets_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/ApiTypes_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m tests/unit/ImageValidator_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/TourLogic_v.test.bs.js [2m([22m[2m6 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/ReBindings_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/SimulationPathGenerator_v.test.bs.js [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/EventBus_v.test.bs.js [2m([22m[2m14 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/TourTemplateStyles_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/SceneTransitionManager_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/ServiceWorkerMain_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/LinkEditorLogic_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/HotspotLineTypes_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/TeaserManager_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/ColorPalette_v.test.bs.js [2m([22m[2m12 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/TeaserState_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/TourTemplates_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/ProjectionMath_v.test.bs.js [2m([22m[2m7 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/FingerprintService_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/State_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
  [32m✓[39m tests/unit/SimHelpers_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
- [32m✓[39m tests/unit/TourTemplateAssets_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
- [32m✓[39m tests/unit/UploadProcessorTypes_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 2[2mms[22m[39m
- [32m✓[39m tests/unit/SharedTypes_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
- [32m✓[39m tests/unit/ViewerTypes_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
- [32m✓[39m tests/unit/UiHelpers_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
- [32m✓[39m tests/unit/ServiceWorkerMain_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 1[2mms[22m[39m
- [32m✓[39m tests/unit/Mod_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 1[2mms[22m[39m
- [32m✓[39m tests/unit/ReBindings_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/SceneSwitcher_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/NavigationController_v.test.bs.js [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/SessionStore_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/SceneLoader_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/VersionData_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/TourTemplateScripts_v.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
  [32m✓[39m tests/unit/VitestSmoke.test.bs.js [2m([22m[2m2 tests[22m[2m)[22m[32m 1[2mms[22m[39m
+ [32m✓[39m tests/unit/Mod_v.test.bs.js [2m([22m[2m1 test[22m[2m)[22m[32m 1[2mms[22m[39m
 Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
  [32m✓[39m tests/unit/Main_v.test.bs.js [2m([22m[2m5 tests[22m[2m)[22m[32m 1[2mms[22m[39m
 
-[2m Test Files [22m [1m[32m101 passed[39m[22m[90m (101)[39m
-[2m      Tests [22m [1m[32m588 passed[39m[22m[90m (588)[39m
-[2m   Start at [22m 01:28:30
-[2m   Duration [22m 7.79s[2m (transform 1.51s, setup 2.42s, import 5.18s, tests 10.42s, environment 39.89s)[22m
+[2m Test Files [22m [1m[32m129 passed[39m[22m[90m (129)[39m
+[2m      Tests [22m [1m[32m639 passed[39m[22m[90m (639)[39m
+[2m   Start at [22m 10:42:46
+[2m   Duration [22m 10.15s[2m (transform 1.87s, setup 3.82s, import 7.10s, tests 11.56s, environment 52.48s)[22m
 
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.44s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.49s
      Running unittests src/lib.rs (target/debug/deps/backend-2bf253fbddf7b377)
 
 running 32 tests
@@ -238,24 +266,24 @@ test api::utils::tests::test_quota_stats_struct ... ok
 test api::geocoding::tests::placeholder ... ok
 test api::telemetry::tests::placeholder ... ok
 test middleware::quota_check::tests::test_quota_check_middleware_exists ... ok
-test api::media::similarity::tests::test_histogram_intersection_different ... ok
 test api::media::similarity::tests::test_histogram_intersection_identical ... ok
+test api::media::similarity::tests::test_histogram_intersection_different ... ok
 test api::media::similarity::tests::test_histogram_binning ... ok
-test pathfinder::tests::test_auto_forward_loop ... ok
-test pathfinder::tests::test_auto_forward_chain ... ok
 test pathfinder::tests::test_broken_link_stops_chain ... ok
+test pathfinder::tests::test_auto_forward_chain ... ok
+test pathfinder::tests::test_auto_forward_loop ... ok
 test api::media::image::tests::test_quality_analysis_serialization ... ok
 test models::errors::tests::test_internal_error_status ... ok
 test models::errors::tests::test_app_error_response_format ... ok
 test services::project::tests::test_validate_project_clean_project ... ok
 test services::project::tests::test_validate_project_finds_broken_links ... ok
-test services::project::tests::test_validate_project_finds_orphaned_scenes ... ok
+test metrics::tests::test_metrics_initialization ... ok
 test services::project::tests::test_validate_project_handles_missing_hotspots_array ... ok
-test services::upload_quota_tests::test_quota_allows_small_upload ... ok
-test services::upload_quota_tests::test_concurrent_limit_per_ip ... ok
+test services::project::tests::test_validate_project_finds_orphaned_scenes ... ok
 test services::upload_quota_tests::test_quota_rejects_oversized_upload ... ok
 test tests::test_modules_exist ... ok
-test metrics::tests::test_metrics_initialization ... ok
+test services::upload_quota_tests::test_quota_allows_small_upload ... ok
+test services::upload_quota_tests::test_concurrent_limit_per_ip ... ok
 test middleware::request_tracker::tests::test_request_tracker_middleware ... ok
 test services::geocoding::tests::test_geocoder_suite_sequential ... ok
 test services::media::tests::test_suggested_name_regex ... ok
@@ -270,29 +298,29 @@ test result: ok. 32 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fin
 
 running 31 tests
 test api::geocoding::tests::placeholder ... ok
-test api::project::navigation::tests::placeholder ... ok
-test api::media::serve::tests::placeholder ... ok
 test api::utils::tests::test_quota_stats_struct ... ok
+test api::media::serve::tests::placeholder ... ok
+test api::project::navigation::tests::placeholder ... ok
 test api::media::video::tests::placeholder ... ok
 test api::telemetry::tests::placeholder ... ok
-test middleware::quota_check::tests::test_quota_check_middleware_exists ... ok
-test api::media::similarity::tests::test_histogram_intersection_different ... ok
 test api::media::similarity::tests::test_histogram_intersection_identical ... ok
+test api::media::similarity::tests::test_histogram_intersection_different ... ok
+test middleware::quota_check::tests::test_quota_check_middleware_exists ... ok
 test api::media::similarity::tests::test_histogram_binning ... ok
-test pathfinder::tests::test_auto_forward_chain ... ok
 test pathfinder::tests::test_broken_link_stops_chain ... ok
+test pathfinder::tests::test_auto_forward_chain ... ok
 test pathfinder::tests::test_auto_forward_loop ... ok
-test api::media::image::tests::test_quality_analysis_serialization ... ok
 test models::errors::tests::test_internal_error_status ... ok
+test api::media::image::tests::test_quality_analysis_serialization ... ok
 test models::errors::tests::test_app_error_response_format ... ok
 test metrics::tests::test_metrics_initialization ... ok
 test services::project::tests::test_validate_project_finds_orphaned_scenes ... ok
-test services::project::tests::test_validate_project_finds_broken_links ... ok
 test services::project::tests::test_validate_project_clean_project ... ok
+test services::project::tests::test_validate_project_finds_broken_links ... ok
 test services::project::tests::test_validate_project_handles_missing_hotspots_array ... ok
-test services::upload_quota_tests::test_quota_rejects_oversized_upload ... ok
-test services::upload_quota_tests::test_quota_allows_small_upload ... ok
 test services::upload_quota_tests::test_concurrent_limit_per_ip ... ok
+test services::upload_quota_tests::test_quota_allows_small_upload ... ok
+test services::upload_quota_tests::test_quota_rejects_oversized_upload ... ok
 test middleware::request_tracker::tests::test_request_tracker_middleware ... ok
 test services::geocoding::tests::test_geocoder_suite_sequential ... ok
 test services::media::tests::test_suggested_name_regex ... ok
@@ -301,7 +329,7 @@ test services::media::tests::test_blur_detection ... ok
 test services::media::tests::test_checksum_format ... ok
 test services::media::tests::test_brightness_detection ... ok
 
-test result: ok. 31 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+test result: ok. 31 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
 
      Running tests/shutdown_test.rs (target/debug/deps/shutdown_test-ba940c9160188a29)
 

@@ -35,8 +35,16 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/systems/SceneSwitcher.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/SceneSwitcher.res): Handles the state transitions and side effects of changing scenes. `#scene-switching` `#transition`
 *   [src/systems/TeaserPlayback.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/TeaserPlayback.res): Orchestrates teaser and autopilot playback logic. `#teaser` `#playback`
 *   [src/systems/TeaserState.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/TeaserState.res): State management for the teaser system. `#teaser` `#state`
+*   [src/systems/TeaserManager.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/TeaserManager.res): Manager for teaser recording and playback sessions. `#teaser` `#manager`
 *   [src/systems/ProjectManager.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/ProjectManager.res): Handles ZIP-based loading and periodic auto-saving. `#persistence` `#save-load` `#zip`
 *   [src/systems/Exporter.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/Exporter.res): Generates production-ready tour clusters. `#export` `#deployment`
+*   [src/systems/api/ProjectApi.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/api/ProjectApi.res): Frontend API client for project operations. `#api` `#client`
+*   [src/systems/api/MediaApi.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/api/MediaApi.res): Frontend API client for media operations. `#api` `#media`
+*   [src/systems/FingerprintService.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/FingerprintService.res): Image fingerprinting for deduplication. `#image` `#fingerprint`
+*   [src/systems/PanoramaClusterer.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/PanoramaClusterer.res): Logic for grouping and clustering panoramas. `#logic` `#clustering`
+*   [src/systems/SvgManager.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/SvgManager.res): Management of SVG overlays and elements. `#svg` `#rendering`
+*   [src/systems/VideoEncoder.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/VideoEncoder.res): Logic for encoding tour sequences into video. `#video` `#encoding`
+*   [src/systems/DownloadSystem.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/DownloadSystem.res): Management of asset downloading and caching. `#download` `#cache`
 
 ### 🎨 Visual & UI Components
 *   [src/components/ViewerUI.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/ViewerUI.res): High-level orchestrator for the viewer interface. `#ui` `#hud` `#orchestration`
@@ -46,6 +54,16 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/components/Sidebar.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/Sidebar.res): Scene list, drag-and-drop organization, and project controls. `#sidebar` `#scene-management`
 *   [src/components/HotspotManager.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/HotspotManager.res): Visual editor for placement and editing of nav links. `#hotspots` `#editor`
 *   [src/components/AppErrorBoundary.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/AppErrorBoundary.res): Top-level safety net for render failures. `#error-handling` `#stability`
+*   [src/components/FloorNavigation.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/FloorNavigation.res): UI for navigating between floors/levels. `#ui` `#navigation`
+*   [src/components/UtilityBar.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/UtilityBar.res): Toolbar for common actions and tools. `#ui` `#toolbar`
+*   [src/components/VisualPipeline.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/VisualPipeline.res): Visual processing pipeline components. `#ui` `#visuals`
+
+### ⚙️ Utilities & Infrastructure
+*   [src/utils/VersionData.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/utils/VersionData.res): Versioning and build metadata. `#utils` `#version`
+*   [src/utils/SessionStore.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/utils/SessionStore.res): Session-based storage and state persistence. `#utils` `#storage`
+*   [src/utils/RequestQueue.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/utils/RequestQueue.res): Queue management for network requests. `#utils` `#network`
+*   [src/utils/LazyLoad.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/utils/LazyLoad.res): Helpers for lazy loading components and assets. `#utils` `#performance`
+*   [src/utils/ProjectionMath.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/utils/ProjectionMath.res): Mathematical utilities for 3D/2D projection. `#utils` `#math`
 
 ### ⚙️ Backend API (Rust)
 *   [backend/src/main.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/main.rs): Server entry point, middleware setup, and routing. `#rust` `#api` `#server`
@@ -68,12 +86,3 @@ This map provides a semantic overview of the project structure to optimize conte
 | `backend/src` | High-performance Rust services and APIs. | `#rust` `#backend` `#concurrency` |
 | `css` | Design system, tokens, and animations. | `#styling` `#tailwind` `#tokens` |
 | `scripts` | Automation, setup, and maintenance tools. | `#automation` `#scripts` `#ci` |
-
----
-
-## 🛠️ Infrastructure & Config
-*   [GEMINI.md](file:///Users/r2/Desktop/robust-virtual-tour-builder/GEMINI.md): AI interaction protocols and strict behavioral rules. `#protocols`
-*   [rescript.json](file:///Users/r2/Desktop/robust-virtual-tour-builder/rescript.json): Frontend compiler configuration. `#rescript` `#config`
-*   [rsbuild.config.mjs](file:///Users/r2/Desktop/robust-virtual-tour-builder/rsbuild.config.mjs): Build pipeline and HTML template parameters. `#build` `#bundle`
-*   [css/variables.css](file:///Users/r2/Desktop/robust-virtual-tour-builder/css/variables.css): The "source of truth" for design tokens. `#design-system` `#theme`
-*   [docs/INITIALIZATION_STANDARDS.md](file:///Users/r2/Desktop/robust-virtual-tour-builder/docs/INITIALIZATION_STANDARDS.md): Guidelines for consistent app startup and project resets. `#standards` `#initialization`

@@ -3,7 +3,7 @@ import { vi } from 'vitest';
 let currentMockViewer = null;
 globalThis.setMockViewer = (v) => { currentMockViewer = v; };
 
-vi.mock('../../src/components/ViewerState.bs.js', async (importOriginal) => {
+vi.mock('../../src/core/ViewerState.bs.js', async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
