@@ -77,7 +77,6 @@ let parseScene = (dataJson: JSON.t): scene => {
     categorySet: false,
     labelSet: false,
     isAutoForward: false,
-    preCalculatedSnapshot: None,
   }
 }
 
@@ -144,7 +143,6 @@ let parseProject = (projectDataJson: JSON.t): state => {
       | Some(af) => af
       | None => false
       },
-      preCalculatedSnapshot: None,
     }
   })
 

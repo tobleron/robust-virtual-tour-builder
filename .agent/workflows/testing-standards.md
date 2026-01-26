@@ -90,4 +90,4 @@ Separate I/O from business logic to make functions pure and easy to test.
 - [ ] Edge cases (empty, null, zero) are covered
 - [ ] Error paths (invalid input) are covered
 - [ ] `npm test` passes locally
-- [ ] Type coercion patterns follow `/rescript-standards` Part 1
+- [ ] Type coercion patterns follow `.agent/workflows/rescript-standards.md` Part 1

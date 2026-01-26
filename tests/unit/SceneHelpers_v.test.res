@@ -44,7 +44,6 @@ describe("SceneHelpers", () => {
       categorySet: false,
       labelSet: false,
       isAutoForward: false,
-      preCalculatedSnapshot: None,
     }
     sc
   }

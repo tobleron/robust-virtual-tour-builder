@@ -174,7 +174,7 @@ let rec loadNewScene = (
             )
             switch prevScene {
             | Some(ps) =>
-              switch ps.preCalculatedSnapshot {
+              switch SceneCache.getSnapshot(ps.id) {
               | Some(url) =>
                 let isCut = switch GlobalStateBridge.getState().transition.type_ {
                 | Some("cut") => true
@@ -184,7 +184,8 @@ let rec loadNewScene = (
                   Dom.setBackgroundImage(snapEl, "url(" ++ url ++ ")")
                   Dom.add(snapEl, "snapshot-visible")
                 }
-                ps.preCalculatedSnapshot = None
+                // Remove from cache to avoid reusing it, but delay revocation so DOM has time to render
+                SceneCache.removeKeyOnly(ps.id)
                 let _ = Window.setTimeout(() => URL.revokeObjectURL(url), 1000)
               | None => ()
               }

@@ -19,7 +19,6 @@ describe("NavigationGraph", () => {
       categorySet: false,
       labelSet: false,
       isAutoForward: false,
-      preCalculatedSnapshot: None,
     }
     sc
   }

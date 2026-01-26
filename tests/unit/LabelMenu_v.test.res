@@ -27,7 +27,6 @@ describe("LabelMenu", () => {
       categorySet: false,
       labelSet: false,
       isAutoForward: false,
-      preCalculatedSnapshot: None,
     }
     let mockState = {...State.initialState, scenes: [mockScene], activeIndex: 0}
     let mockDispatch = _ => ()
@@ -72,7 +71,6 @@ describe("LabelMenu", () => {
       categorySet: false,
       labelSet: false,
       isAutoForward: false,
-      preCalculatedSnapshot: None,
     }
     let mockState = {...State.initialState, scenes: [mockScene], activeIndex: 0}
     let mockDispatch = _ => ()

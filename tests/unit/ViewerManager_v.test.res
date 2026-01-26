@@ -126,7 +126,6 @@ let makeMockScene = (~id, ~name, ()) => {
   categorySet: false,
   labelSet: false,
   isAutoForward: false,
-  preCalculatedSnapshot: None,
 }
 
 describe("ViewerManager", () => {

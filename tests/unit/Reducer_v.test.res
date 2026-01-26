@@ -22,7 +22,6 @@ describe("Reducer (Root Re-export)", () => {
       categorySet: false,
       labelSet: false,
       isAutoForward: false,
-      preCalculatedSnapshot: None,
     }
     sc
   }

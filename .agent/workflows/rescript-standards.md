@@ -119,7 +119,7 @@ Logger.error(
 - **Rule**: **NO** inline styles (`makeStyle`) unless value is strictly dynamic (e.g., coordinates, progress %).
 - **Rule**: Use semantic, state-based classes defined in `css/components/`.
 - **Rule**: Do not define colors or layout constants in ReScript; use CSS Variabes.
-- **Reference**: See `/docs/DESIGN_SYSTEM.md`.
+- **Reference**: See `/docs/PROJECT_SPECS.md`.
 
 ---
 

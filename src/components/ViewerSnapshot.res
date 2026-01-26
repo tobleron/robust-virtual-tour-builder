@@ -38,11 +38,7 @@ let requestIdleSnapshot = () => {
                 switch Belt.Array.get(storeState.scenes, activeIndex) {
                 | Some(currentScene) =>
                   // cleanup old
-                  switch currentScene.preCalculatedSnapshot {
-                  | Some(oldUrl) => URL.revokeObjectURL(oldUrl)
-                  | None => ()
-                  }
-                  currentScene.preCalculatedSnapshot = Some(snapshotUrl)
+                  SceneCache.setSnapshot(currentScene.id, snapshotUrl)
                   Logger.debug(
                     ~module_="Viewer",
                     ~message="SNAPSHOT_CAPTURED",

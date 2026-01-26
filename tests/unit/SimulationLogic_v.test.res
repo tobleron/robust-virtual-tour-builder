@@ -40,7 +40,6 @@ describe("SimulationLogic", () => {
     categorySet: false,
     labelSet: false,
     isAutoForward: false,
-    preCalculatedSnapshot: None,
   }
 
   test("getNextMove returns Move when a link is found", t => {

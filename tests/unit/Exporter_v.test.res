@@ -21,7 +21,6 @@ let mockScenes: array<scene> = [
     categorySet: true,
     labelSet: true,
     isAutoForward: false,
-    preCalculatedSnapshot: None,
   },
 ]
 

@@ -33,7 +33,6 @@ describe("ReturnPrompt", () => {
     labelSet: false,
     _metadataSource: "user",
     isAutoForward: false,
-    preCalculatedSnapshot: None,
   }
 
   testAsync("should handle click and dispatch action", async t => {

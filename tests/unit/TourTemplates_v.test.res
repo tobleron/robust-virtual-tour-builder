@@ -46,7 +46,6 @@ let _ = describe("TourTemplates", () => {
     categorySet: true,
     labelSet: true,
     isAutoForward: false,
-    preCalculatedSnapshot: None,
   }
 
   let mockScene2: scene = {
@@ -65,7 +64,6 @@ let _ = describe("TourTemplates", () => {
     categorySet: true,
     labelSet: true,
     isAutoForward: false,
-    preCalculatedSnapshot: None,
   }
 
   /* Helper to check containment */

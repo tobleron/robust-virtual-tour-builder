@@ -20,7 +20,6 @@ describe("SimulationPathGenerator", () => {
       categorySet: false,
       labelSet: false,
       isAutoForward,
-      preCalculatedSnapshot: None,
     }
   }
 

@@ -24,7 +24,6 @@ describe("HotspotActionMenu", () => {
     labelSet: false,
     _metadataSource: "user",
     isAutoForward: false,
-    preCalculatedSnapshot: None,
   }
 
   let defaultHotspot: hotspot = {

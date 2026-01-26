@@ -51,7 +51,6 @@ describe("SceneList", () => {
       categorySet: false,
       labelSet: false,
       isAutoForward: false,
-      preCalculatedSnapshot: None,
     }
   }
 

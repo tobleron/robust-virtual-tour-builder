@@ -120,7 +120,6 @@ describe("Sidebar", () => {
       labelSet: false,
       _metadataSource: "user",
       isAutoForward: false,
-      preCalculatedSnapshot: None,
     }
 
     let mockState = {...State.initialState, scenes: [scene]}

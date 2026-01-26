@@ -191,7 +191,6 @@ describe("Types", () => {
       categorySet: true,
       labelSet: true,
       isAutoForward: false,
-      preCalculatedSnapshot: None,
     }
     t->expect(s.name)->Expect.toBe("Scene 1")
     t->expect(s.category)->Expect.toBe("Room")
