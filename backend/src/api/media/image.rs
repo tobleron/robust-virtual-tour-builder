@@ -587,7 +587,11 @@ pub async fn extract_metadata(mut payload: Multipart) -> Result<HttpResponse, Ap
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use crate::models::{ColorHist, QualityAnalysis, QualityStats};
+    use actix_web::{App, http::StatusCode};
+    use image::{ImageFormat, RgbaImage};
+    use std::io::Cursor;
 
     #[test]
     fn test_quality_analysis_serialization() {
@@ -622,5 +626,87 @@ mod tests {
         let json = serde_json::to_string(&qa).expect("Serialization failed");
         assert!(json.contains("score"));
         assert!(json.contains("stats"));
+    }
+
+    fn create_test_image() -> Vec<u8> {
+        let img = RgbaImage::new(100, 100);
+        let mut bytes: Vec<u8> = Vec::new();
+        img.write_to(&mut Cursor::new(&mut bytes), ImageFormat::Png)
+            .unwrap();
+        bytes
+    }
+
+    fn create_multipart_body(
+        boundary: &str,
+        name: &str,
+        filename: &str,
+        content: &[u8],
+    ) -> Vec<u8> {
+        let mut body = Vec::new();
+        body.extend_from_slice(format!("--{}\r\n", boundary).as_bytes());
+        body.extend_from_slice(
+            format!(
+                "Content-Disposition: form-data; name=\"{}\"; filename=\"{}\"\r\n",
+                name, filename
+            )
+            .as_bytes(),
+        );
+        body.extend_from_slice(b"Content-Type: image/png\r\n\r\n");
+        body.extend_from_slice(content);
+        body.extend_from_slice(format!("\r\n--{}--\r\n", boundary).as_bytes());
+        body
+    }
+
+    #[actix_web::test]
+    async fn test_extract_metadata_endpoint() {
+        let app = actix_web::test::init_service(
+            App::new().route("/metadata", web::post().to(extract_metadata)),
+        )
+        .await;
+
+        let boundary = "test_boundary";
+        let image_data = create_test_image();
+        let body = create_multipart_body(boundary, "file", "test.png", &image_data);
+
+        let req = actix_web::test::TestRequest::post()
+            .uri("/metadata")
+            .insert_header((
+                "content-type",
+                format!("multipart/form-data; boundary={}", boundary),
+            ))
+            .set_payload(body)
+            .to_request();
+
+        let resp = actix_web::test::call_service(&app, req).await;
+        assert_eq!(resp.status(), StatusCode::OK);
+
+        let result: MetadataResponse = actix_web::test::read_body_json(resp).await;
+        assert_eq!(result.exif.width, 100);
+        assert_eq!(result.exif.height, 100);
+    }
+
+    #[actix_web::test]
+    async fn test_optimize_image_endpoint() {
+        let app = actix_web::test::init_service(
+            App::new().route("/optimize", web::post().to(optimize_image)),
+        )
+        .await;
+
+        let boundary = "test_boundary";
+        let image_data = create_test_image();
+        let body = create_multipart_body(boundary, "file", "test.png", &image_data);
+
+        let req = actix_web::test::TestRequest::post()
+            .uri("/optimize")
+            .insert_header((
+                "content-type",
+                format!("multipart/form-data; boundary={}", boundary),
+            ))
+            .set_payload(body)
+            .to_request();
+
+        let resp = actix_web::test::call_service(&app, req).await;
+        assert_eq!(resp.status(), StatusCode::OK);
+        assert_eq!(resp.headers().get("content-type").unwrap(), "image/webp");
     }
 }

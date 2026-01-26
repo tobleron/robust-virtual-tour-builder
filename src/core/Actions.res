@@ -48,6 +48,8 @@ type action =
   | UpdateAdvanceTime(float)
   | SetPendingAdvance(option<int>)
   | SetSessionId(string)
+  | SetNavigationFsmState(NavigationFSM.distinctState)
+  | DispatchNavigationFsmEvent(NavigationFSM.event)
 
 let actionToString = (action: action): string =>
   switch action {
@@ -101,4 +103,6 @@ let actionToString = (action: action): string =>
   | UpdateAdvanceTime(_) => "UpdateAdvanceTime"
   | SetPendingAdvance(_) => "SetPendingAdvance"
   | SetSessionId(id) => `SetSessionId(${id})`
+  | SetNavigationFsmState(state) => `SetNavigationFsmState(${NavigationFSM.toString(state)})`
+  | DispatchNavigationFsmEvent(_) => `DispatchNavigationFsmEvent`
   }

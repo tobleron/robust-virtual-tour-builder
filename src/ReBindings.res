@@ -31,6 +31,13 @@ module File = {
   @get external type_: t => string = "type"
 }
 
+module FileList = {
+  type t
+  @get external length: t => int = "length"
+  @send @return(nullable) external item: (t, int) => option<File.t> = "item"
+  @get_index @return(nullable) external item_get: (t, int) => option<File.t> = ""
+}
+
 /* 2. Then Modules dependent on Core Types */
 module JSZip = {
   type t
@@ -181,6 +188,7 @@ module Dom = {
 
   @get external getValue: element => string = "value"
   @set external setValue: (element, string) => unit = "value"
+  @get @return(nullable) external getFiles: element => option<FileList.t> = "files"
   @send external focus: element => unit = "focus"
   @send external click: element => unit = "click"
   @send external scrollTo: (element, {..}) => unit = "scrollTo"
@@ -190,6 +198,8 @@ module Dom = {
   @send
   external removeEventListenerCapture: (element, string, 'a => unit, bool) => unit =
     "removeEventListener"
+
+  external unsafeToElement: 'a => element = "%identity"
 
   /* Added bindings */
   @send external removeElement: element => unit = "remove"
@@ -358,6 +368,8 @@ module ReactDOMPortal = {
   @module("react-dom")
   external createPortal: (React.element, Dom.element) => React.element = "createPortal"
 }
+
+let makeStyle = (props: {..}): ReactDOM.Style.t => Obj.magic(props)
 
 module ReactDOMClient = {
   type root

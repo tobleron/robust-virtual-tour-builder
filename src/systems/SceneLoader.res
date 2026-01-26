@@ -1,5 +1,6 @@
+/* src/systems/SceneLoader.res */
+
 open ReBindings
-open ViewerTypes
 open ViewerState
 
 let loadStartTime = ref(0.0)
@@ -12,39 +13,15 @@ let getPanoramaUrl = (file: Types.file): string => {
   UrlUtils.fileToUrl(file)
 }
 
-let rec loadNewScene = (
+let loadNewScene = (
   capturedPrevSceneId: option<string>,
-  anticipatoryTargetIndex: option<int>,
+  targetIndexOpt: option<int>,
+  ~isAnticipatory: bool=false,
 ) => {
   let _ = LazyLoad.loadPannellum()->Promise.then(() => {
-    let isAnticipatory = Belt.Option.isSome(anticipatoryTargetIndex)
-    let targetIndex = switch anticipatoryTargetIndex {
+    let targetIndex = switch targetIndexOpt {
     | Some(i) => i
     | None => GlobalStateBridge.getState().activeIndex
-    }
-
-    let performSwapAndCheck = targetScene => {
-      SceneTransitionManager.performSwap(targetScene, loadStartTime.contents)
-
-      /* Recovery Check */
-      let latestState = GlobalStateBridge.getState()
-      switch Belt.Array.get(latestState.scenes, latestState.activeIndex) {
-      | Some(latestActiveScene) =>
-        if latestActiveScene.id != targetScene.id {
-          Logger.warn(
-            ~module_="Viewer",
-            ~message="LOAD_INTERRUPTED",
-            ~data=Some({
-              "originalScene": targetScene.name,
-              "currentScene": latestActiveScene.name,
-              "action": "triggering recovery",
-            }),
-            (),
-          )
-          loadNewScene(Some(targetScene.id), None)
-        }
-      | None => ()
-      }
     }
 
     switch Belt.Array.get(GlobalStateBridge.getState().scenes, targetIndex) {
@@ -59,51 +36,55 @@ let rec loadNewScene = (
         }),
         (),
       )
-      let _inactiveKey = switch state.activeViewerKey {
-      | A => B
-      | B => A
-      }
-      let inactiveViewer = getInactiveViewer()
-      let containerId = getInactiveContainerId()
 
-      /* Reuse Check */
-      let shouldReuse = switch Nullable.toOption(inactiveViewer) {
-      | Some(v) =>
-        let vDyn = PannellumLifecycle.asCustom(v)
-        let vid = vDyn.sceneId
-        if vid == targetScene.id {
-          if vDyn.isLoaded {
-            if GlobalStateBridge.getState().activeIndex == targetIndex && !isAnticipatory {
-              performSwapAndCheck(targetScene)
-              true
+      let inactiveViewport = ViewerPool.getInactive()
+      let inactiveViewer = getInactiveViewer()
+
+      switch inactiveViewport {
+      | Some(ivp) =>
+        let containerId = ivp.containerId
+
+        /* Reuse Check */
+        let shouldReuse = switch Nullable.toOption(inactiveViewer) {
+        | Some(v) =>
+          let vDyn = PannellumAdapter.asCustom(v)
+          let vid = vDyn.sceneId
+          if vid == targetScene.id {
+            if vDyn.isLoaded {
+              if GlobalStateBridge.getState().activeIndex == targetIndex && !isAnticipatory {
+                GlobalStateBridge.dispatch(
+                  DispatchNavigationFsmEvent(TextureLoaded({targetSceneId: targetScene.id})),
+                )
+                true
+              } else {
+                true /* Loaded but waiting */
+              }
             } else {
-              true /* Loaded but waiting */
+              true /* Already loading this scene */
             }
           } else {
-            true /* Already loading this scene */
+            false
           }
-        } else {
-          false
+        | None => false
         }
-      | None => false
-      }
 
-      let isIncorrectTarget = switch Nullable.toOption(state.loadingSceneId) {
-      | Some(id) => id != targetScene.id
-      | None => true
-      }
+        let loadingSceneIdFromFsm = switch GlobalStateBridge.getState().navigationFsm {
+        | Preloading({targetSceneId}) => Some(targetSceneId)
+        | _ => None
+        }
+        let isIncorrectTarget = switch loadingSceneIdFromFsm {
+        | Some(id) => id != targetScene.id
+        | None => true
+        }
 
-      if !shouldReuse {
-        if state.isSceneLoading && !isIncorrectTarget && !isAnticipatory {
-          Logger.debug(
-            ~module_="Viewer",
-            ~message="LOAD_SKIPPED",
-            ~data=Some({"reason": "Already loading correct target"}),
-            (),
-          )
-        } else {
-          /* Preemptive Load: If target changed while loading, interrupt and restart (v4.7.12) */
-          if state.isSceneLoading && isIncorrectTarget {
+        let isFsmLoading = switch GlobalStateBridge.getState().navigationFsm {
+        | Preloading(_) => true
+        | _ => false
+        }
+
+        if !shouldReuse {
+          /* Preemptive Load: If target changed while loading, interrupt and restart */
+          if isFsmLoading && isIncorrectTarget {
             Logger.info(
               ~module_="Viewer",
               ~message="LOAD_INTERRUPTED_PREEMPTIVE",
@@ -112,34 +93,18 @@ let rec loadNewScene = (
             )
           }
 
-          /* Cleanup existing inactive viewer and its pending cleanup timeouts */
-          let inactiveKey = switch state.activeViewerKey {
-          | A => B
-          | B => A
-          }
-          switch inactiveKey {
-          | A =>
-            switch Nullable.toOption(state.cleanupTimeoutA) {
-            | Some(t) => Window.clearTimeout(t)
-            | None => ()
-            }
-            state.cleanupTimeoutA = Nullable.null
-          | B =>
-            switch Nullable.toOption(state.cleanupTimeoutB) {
-            | Some(t) => Window.clearTimeout(t)
-            | None => ()
-            }
-            state.cleanupTimeoutB = Nullable.null
-          }
+          /* Cleanup existing inactive viewport and its pending cleanup timeouts */
+          ViewerPool.clearCleanupTimeout(ivp.id)
 
           switch Nullable.toOption(inactiveViewer) {
-          | Some(v) => PannellumLifecycle.destroyViewer(v)
+          | Some(v) => PannellumAdapter.destroy(v)
           | None => ()
           }
 
           loadStartTime := Date.now()
-          state.isSceneLoading = true
-          state.loadingSceneId = Nullable.make(targetScene.id)
+          GlobalStateBridge.dispatch(
+            DispatchNavigationFsmEvent(PreloadStarted({targetSceneId: targetScene.id})),
+          )
 
           /* Safety Timeout */
           switch Nullable.toOption(state.loadSafetyTimeout) {
@@ -147,10 +112,13 @@ let rec loadNewScene = (
           | None => ()
           }
           state.loadSafetyTimeout = Nullable.make(Window.setTimeout(() => {
-              if (
-                state.isSceneLoading &&
-                Nullable.toOption(state.loadingSceneId) == Some(targetScene.id)
-              ) {
+              let fsmState = GlobalStateBridge.getState().navigationFsm
+              let isLoadingCorrect = switch fsmState {
+              | Preloading({targetSceneId}) => targetSceneId == targetScene.id
+              | _ => false
+              }
+
+              if isLoadingCorrect {
                 Logger.error(
                   ~module_="Viewer",
                   ~message="SCENE_LOAD_TIMEOUT",
@@ -160,8 +128,7 @@ let rec loadNewScene = (
                   }),
                   (),
                 )
-                state.isSceneLoading = false
-                state.loadingSceneId = Nullable.null
+                GlobalStateBridge.dispatch(DispatchNavigationFsmEvent(LoadTimeout))
               }
             }, Constants.sceneLoadTimeout))
 
@@ -196,8 +163,6 @@ let rec loadNewScene = (
 
           let panoramaUrl = getPanoramaUrl(targetScene.file)
           let currentGlobalState = GlobalStateBridge.getState()
-          // Progressive loading: Load preview (tinyFile) first, then upgrade to full quality
-          // This significantly reduces initial load time and improves AutoPilot performance
           let useProgressive =
             Belt.Option.isSome(targetScene.tinyFile) &&
             !currentGlobalState.isTeasing &&
@@ -223,10 +188,8 @@ let rec loadNewScene = (
           } else {
             0.0
           }
-          let initialHfov = Constants.backendUrl == "" ? Constants.globalHfov : Constants.globalHfov
+          let initialHfov = Constants.globalHfov
 
-          // Defer hotspot creation until AFTER load to prevent "Ghost Arrow" artifacts at (0,0)
-          // We pass empty array initially, then add them dynamically in the 'load' handler
           let hotspotsArr = []
 
           let viewerConfig = {
@@ -285,139 +248,162 @@ let rec loadNewScene = (
           }
 
           let _startLoadTime = Date.now()
-          let newViewer = PannellumLifecycle.initializeViewer(containerId, viewerConfig)
-          PannellumLifecycle.asCustom(newViewer).sceneId = targetScene.id
-          PannellumLifecycle.asCustom(newViewer).isLoaded = false
 
-          switch state.activeViewerKey {
-          | A => state.viewerB = Nullable.make(newViewer)
-          | B => state.viewerA = Nullable.make(newViewer)
-          }
-
-          /* Event Listeners */
-          Viewer.on(newViewer, "load", _ => {
-            let loadedSceneId = Viewer.getScene(
-              newViewer,
-            ) /* returns scene ID string e.g 'master' */
-            let isTiny = loadedSceneId == "preview"
-            let isMaster = loadedSceneId == "master"
-
-            if useProgressive && isTiny {
+          let el = Dom.getElementById(containerId)
+          switch Nullable.toOption(el) {
+          | Some(_) =>
+            try {
               Logger.debug(
                 ~module_="Viewer",
-                ~message="PREVIEW_LOADED",
-                ~data=Some({"sceneName": targetScene.name}),
-                (),
-              )
-
-              let img = Dom.document["createElement"]("img")
-              Dom.setAttribute(img, "src", panoramaUrl)
-              Dom.addEventListenerNoEv(
-                img,
-                "load",
-                () => {
-                  Logger.debug(
-                    ~module_="Viewer",
-                    ~message="MASTER_PRELOADED",
-                    ~data=Some({"sceneName": targetScene.name}),
-                    (),
-                  )
-                  if Viewer.getScene(newViewer) == "preview" {
-                    Viewer.loadScene(
-                      newViewer,
-                      "master",
-                      Viewer.getPitch(newViewer),
-                      Viewer.getYaw(newViewer),
-                      Viewer.getHfov(newViewer),
-                    )
-                  }
-                },
-              )
-            } else if !useProgressive || isMaster {
-              PannellumLifecycle.asCustom(newViewer).isLoaded = true
-
-              // Inject hotspots now that viewer is stable
-              // This prevents them from appearing at (0,0) before the camera is ready
-              Belt.Array.forEachWithIndex(
-                targetScene.hotspots,
-                (i, h) => {
-                  let config = HotspotManager.createHotspotConfig(
-                    ~hotspot=h,
-                    ~index=i,
-                    ~state=currentGlobalState,
-                    ~scene=targetScene,
-                    ~dispatch=GlobalStateBridge.dispatch,
-                  )
-                  try {
-                    Viewer.addHotSpot(newViewer, config)
-                  } catch {
-                  | _ => ()
-                  }
-                },
-              )
-
-              Logger.info(
-                ~module_="Viewer",
-                ~message="TEXTURE_LOADED",
+                ~message="PANNELLUM_INIT_START",
                 ~data=Some({
-                  "sceneName": targetScene.name,
-                  "quality": isMaster ? "4k" : "standard",
+                  "containerId": containerId,
+                  "url": panoramaUrl,
+                  "sceneId": targetScene.id,
                 }),
                 (),
               )
+              let newViewer = PannellumAdapter.initialize(containerId, viewerConfig)
 
-              let checkReadyAndSwap = () => {
-                let currentActive = GlobalStateBridge.getState().activeIndex
-                let matchesIndex = currentActive == targetIndex
+              PannellumAdapter.asCustom(newViewer).sceneId = targetScene.id
+              PannellumAdapter.asCustom(newViewer).isLoaded = false
 
-                if matchesIndex && !isAnticipatory {
-                  performSwapAndCheck(targetScene)
-                } else {
-                  state.isSceneLoading = false
-                  state.loadingSceneId = Nullable.null
+              ViewerPool.registerInstance(containerId, newViewer)
 
-                  let latest = GlobalStateBridge.getState()
-                  switch Belt.Array.get(latest.scenes, latest.activeIndex) {
-                  | Some(latSc) =>
-                    if latSc.id != targetScene.id {
-                      loadNewScene(Some(targetScene.id), None)
-                    }
-                  | None => ()
-                  }
+              /* Event Listeners */
+              PannellumAdapter.on(newViewer, "load", _ => {
+                Logger.debug(
+                  ~module_="Viewer",
+                  ~message="PANNELLUM_LOAD_EVENT",
+                  ~data=Some({"sceneId": targetScene.id}),
+                  (),
+                )
+                let loadedSceneId = PannellumAdapter.getScene(newViewer)
+                let isTiny = loadedSceneId == "preview"
+                let isMaster = loadedSceneId == "master"
+
+                if useProgressive && isTiny {
+                  Logger.debug(
+                    ~module_="Viewer",
+                    ~message="PREVIEW_LOADED",
+                    ~data=Some({"sceneName": targetScene.name}),
+                    (),
+                  )
+
+                  let img = Dom.document["createElement"]("img")
+                  Dom.setAttribute(img, "src", panoramaUrl)
+                  Dom.addEventListenerNoEv(
+                    img,
+                    "load",
+                    () => {
+                      Logger.debug(
+                        ~module_="Viewer",
+                        ~message="MASTER_PRELOADED",
+                        ~data=Some({"sceneName": targetScene.name}),
+                        (),
+                      )
+                      if PannellumAdapter.getScene(newViewer) == "preview" {
+                        PannellumAdapter.loadScene(
+                          newViewer,
+                          "master",
+                          ~pitch=PannellumAdapter.getPitch(newViewer),
+                          ~yaw=PannellumAdapter.getYaw(newViewer),
+                          ~hfov=PannellumAdapter.getHfov(newViewer),
+                          (),
+                        )
+                      }
+                    },
+                  )
+
+                  Dom.addEventListenerNoEv(
+                    img,
+                    "error",
+                    () => {
+                      Logger.warn(
+                        ~module_="Viewer",
+                        ~message="MASTER_PRELOAD_FAILED",
+                        ~data=Some({"sceneName": targetScene.name}),
+                        (),
+                      )
+                      if PannellumAdapter.getScene(newViewer) == "preview" {
+                        PannellumAdapter.loadScene(
+                          newViewer,
+                          "master",
+                          ~pitch=PannellumAdapter.getPitch(newViewer),
+                          ~yaw=PannellumAdapter.getYaw(newViewer),
+                          ~hfov=PannellumAdapter.getHfov(newViewer),
+                          (),
+                        )
+                      }
+                    },
+                  )
+                } else if !useProgressive || isMaster {
+                  PannellumAdapter.asCustom(newViewer).isLoaded = true
+                  GlobalStateBridge.dispatch(
+                    DispatchNavigationFsmEvent(TextureLoaded({targetSceneId: targetScene.id})),
+                  )
+
+                  // Inject hotspots
+                  Belt.Array.forEachWithIndex(
+                    targetScene.hotspots,
+                    (i, h) => {
+                      let config = HotspotManager.createHotspotConfig(
+                        ~hotspot=h,
+                        ~index=i,
+                        ~state=currentGlobalState,
+                        ~scene=targetScene,
+                        ~dispatch=GlobalStateBridge.dispatch,
+                      )
+                      try {
+                        PannellumAdapter.addHotSpot(newViewer, config)
+                      } catch {
+                      | _ => ()
+                      }
+                    },
+                  )
+
+                  Logger.info(
+                    ~module_="Viewer",
+                    ~message="TEXTURE_LOADED",
+                    ~data=Some({
+                      "sceneName": targetScene.name,
+                      "quality": isMaster ? "4k" : "standard",
+                    }),
+                    (),
+                  )
                 }
-              }
+              })
 
-              if GlobalStateBridge.getState().simulation.status == Running {
-                // Reduced from 3 frames to 1 frame to speed up AutoPilot transitions
-                // while still allowing a basic pass for texture stabilization
-                let frameCount = ref(0)
-                let rec waitForDeepRender = () => {
-                  frameCount := frameCount.contents + 1
-                  if frameCount.contents < 1 {
-                    let _ = Window.requestAnimationFrame(waitForDeepRender)
-                  } else {
-                    checkReadyAndSwap()
-                  }
-                }
-                let _ = Window.requestAnimationFrame(waitForDeepRender)
-              } else {
-                checkReadyAndSwap()
-              }
+              PannellumAdapter.on(newViewer, "error", e => {
+                Logger.error(
+                  ~module_="Viewer",
+                  ~message="PANNELLUM_ERROR",
+                  ~data=Some({"error": e}),
+                  (),
+                )
+                // If critical error, maybe trigger timeout/reset?
+                // specific handling depends on error type, but logging is step 1.
+              })
+            } catch {
+            | JsExn(e) =>
+              Logger.error(
+                ~module_="Viewer",
+                ~message="INIT_CRASH",
+                ~data=Some({"error": JsExn.message(e)}),
+                (),
+              )
+            | _ => ()
             }
-          })
-
-          Viewer.on(newViewer, "error", err => {
-            state.isSceneLoading = false
-            state.loadingSceneId = Nullable.null
-            let errMsg = castToString(err)
+          | None =>
             Logger.error(
               ~module_="Viewer",
-              ~message="PANNELLUM_ERROR",
-              ~data=Some({"sceneName": targetScene.name, "error": errMsg}),
+              ~message="CONTAINER_NOT_FOUND",
+              ~data=Some({"id": containerId}),
               (),
             )
-          })
+          }
         }
+      | None => ()
       }
     | None => ()
     }

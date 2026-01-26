@@ -11,16 +11,62 @@ let make = () => {
   let activeJourneyId = React.useRef(None)
   let requestRef = React.useRef(None)
 
+  // v4.7.12 - Finite State Machine Orchestration
+  React.useEffect1(() => {
+    Logger.debug(
+      ~module_="NavController",
+      ~message="FSM_PROCESS",
+      ~data=Some({"state": NavigationFSM.toString(state.navigationFsm)}),
+      (),
+    )
+    switch state.navigationFsm {
+    | Preloading({targetSceneId, isAnticipatory}) =>
+      let targetIndex = Belt.Array.getIndexBy(state.scenes, s => s.id == targetSceneId)
+      switch targetIndex {
+      | Some(idx) =>
+        let prevId = switch Belt.Array.get(state.scenes, state.activeIndex) {
+        | Some(s) => Some(s.id)
+        | None => None
+        }
+        // Reaction to Preloading: Trigger the imperative loader if it hasn't started
+        SceneLoader.loadNewScene(prevId, Some(idx), ~isAnticipatory)
+      | None => ()
+      }
+    | Transitioning({toSceneId: _toSceneId, progress}) =>
+      // If no animation is active (status == Idle), skip straight to Stabilizing
+      if state.navigation == Idle && progress == 0.0 {
+        dispatch(DispatchNavigationFsmEvent(TransitionComplete))
+      }
+    | Stabilizing({targetSceneId}) =>
+      // FSM standard: Stabilizing ensures texture execution.
+      // We wait for 1 animation frame for "Deep Render" stabilization (v4.7.12)
+      let _ = Window.requestAnimationFrame(() => {
+        let targetScene = Belt.Array.getBy(state.scenes, s => s.id == targetSceneId)
+        switch targetScene {
+        | Some(ts) =>
+          // Perform the actual viewer swap
+          SceneTransitionManager.performSwap(ts, 0.0)
+        | None => dispatch(DispatchNavigationFsmEvent(Reset))
+        }
+      })
+    | Idle =>
+      // Finalize navigation state when FSM reaches Idle
+      switch state.navigation {
+      | Navigating(journey) => dispatch(NavigationCompleted(journey))
+      | _ => ()
+      }
+    | _ => ()
+    }
+    None
+  }, [state.navigationFsm])
+
   React.useEffect1(() => {
     switch state.navigation {
     | Navigating(journey) =>
       if activeJourneyId.current != Some(journey.journeyId) {
         activeJourneyId.current = Some(journey.journeyId)
 
-        let viewer = switch Viewer.instance {
-        | Nullable.Value(v) => Some(v)
-        | _ => None
-        }
+        let viewer = ViewerState.getActiveViewer()->Nullable.toOption
 
         switch (viewer, journey.pathData) {
         | (Some(v), Some(pd)) =>
@@ -91,11 +137,15 @@ let make = () => {
                 } else {
                   // COMPLETE
                   crossfadeTriggered := true
-                  dispatch(Actions.NavigationCompleted(journey))
+                  dispatch(DispatchNavigationFsmEvent(TransitionComplete))
                 }
               } else {
                 // Interpolate phase
                 let targetDist = progress *. pd.totalPathDistance
+
+                // Drive the FSM progress
+                dispatch(DispatchNavigationFsmEvent(AnimationProgress(progress)))
+
                 let camPitch = ref(pd.startPitch)
                 let camYaw = ref(pd.startYaw)
 

@@ -47,7 +47,7 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
         | _ => ()
         }
         ViewerState.state.isSwapping = false
-        ViewerState.state.isSceneLoading = false
+        dispatch(Actions.DispatchNavigationFsmEvent(Reset))
       } else {
         dispatch(Actions.StartAutoPilot(currentJourneyId, false))
         EventBus.dispatch(ShowNotification("ESC to stop tour preview.", #Info))

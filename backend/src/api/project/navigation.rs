@@ -35,6 +35,75 @@ pub async fn calculate_path(
 
 #[cfg(test)]
 mod tests {
-    #[test]
-    fn placeholder() {}
+    use super::*;
+    use crate::pathfinder::{
+        PathRequest,
+        graph::{Hotspot, Scene, TimelineItem},
+    };
+    use actix_web::http::StatusCode;
+
+    fn create_scene(id: &str, targets: Vec<&str>) -> Scene {
+        Scene {
+            id: id.to_string(),
+            name: id.to_string(),
+            is_auto_forward: false,
+            hotspots: targets
+                .into_iter()
+                .map(|t| Hotspot {
+                    link_id: Some(format!("link-to-{}", t)),
+                    yaw: 0.0,
+                    pitch: 0.0,
+                    target: t.to_string(),
+                    target_yaw: None,
+                    target_pitch: None,
+                    is_return_link: Some(false),
+                    view_frame: None,
+                })
+                .collect(),
+        }
+    }
+
+    #[actix_web::test]
+    async fn test_calculate_walk_path() {
+        let scenes = vec![
+            create_scene("A", vec!["B"]),
+            create_scene("B", vec!["C"]),
+            create_scene("C", vec![]),
+        ];
+
+        let req = PathRequest::Walk {
+            scenes,
+            skip_auto_forward: false,
+        };
+
+        let result = calculate_path(web::Json(req)).await;
+        assert!(result.is_ok());
+
+        let resp = result.unwrap();
+        assert_eq!(resp.status(), StatusCode::OK);
+    }
+
+    #[actix_web::test]
+    async fn test_calculate_timeline_path() {
+        let scenes = vec![create_scene("A", vec!["B"]), create_scene("B", vec![])];
+
+        let timeline = vec![TimelineItem {
+            id: "t1".to_string(),
+            link_id: "link-to-B".to_string(),
+            scene_id: "A".to_string(),
+            target_scene: "B".to_string(),
+        }];
+
+        let req = PathRequest::Timeline {
+            scenes,
+            timeline,
+            skip_auto_forward: false,
+        };
+
+        let result = calculate_path(web::Json(req)).await;
+        assert!(result.is_ok());
+
+        let resp = result.unwrap();
+        assert_eq!(resp.status(), StatusCode::OK);
+    }
 }

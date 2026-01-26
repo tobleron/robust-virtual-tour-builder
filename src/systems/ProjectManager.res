@@ -9,18 +9,18 @@ open EventBus
 type onProgress = (int, int, string) => unit
 type apiError = string
 
-external castToDict: JSON.t => dict<JSON.t> = "%identity"
-external castToJson: 'a => JSON.t = "%identity"
+// castToDict and castToJson removed
 
 /* --- PURE TRANSFORMATIONS --- */
 
 let validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {
-  let obj = castToDict(data)
-
-  // Basic validation check
-  switch (Dict.get(obj, "scenes"), Dict.get(obj, "tourName")) {
-  | (Some(_), Some(_)) => Ok(data)
-  | _ => Error("Invalid project structure: missing scenes or tourName")
+  switch JSON.Decode.object(data) {
+  | Some(obj) =>
+    switch (Dict.get(obj, "scenes"), Dict.get(obj, "tourName")) {
+    | (Some(_), Some(_)) => Ok(data)
+    | _ => Error("Invalid project structure: missing scenes or tourName")
+    }
+  | None => Error("Invalid project data: expected object")
   }
 }
 
@@ -42,7 +42,8 @@ let createSavePackage = (state: state, ~onProgress: option<onProgress>=?): Promi
   let formData = FormData.newFormData()
 
   // Create project_data JSON string
-  let jsonStr = JSON.stringify(castToJson(projectData))
+  // Use unsafe cast for projectJson record serialization as it matches structure
+  let jsonStr = JSON.stringify(Obj.magic(projectData))
   FormData.append(formData, "project_data", jsonStr)
 
   // Append files
@@ -111,12 +112,13 @@ let processLoadedProjectData = (
   switch resultSessionData {
   | Ok((sessionId, projectData)) => {
       progress(70, 100, "Resolving scenes...")
-      let pd = castToDict(projectData)
+      let pd = JSON.Decode.object(projectData)->Option.getOr(Dict.make())
       let scenesArray = Dict.get(pd, "scenes")->Option.flatMap(JSON.Decode.array)->Option.getOr([])
 
       // Map scenes to point to backend URL
+      // Map scenes to point to backend URL
       let validScenes = Belt.Array.map(scenesArray, item => {
-        let sceneDict = castToDict(item)
+        let sceneDict = JSON.Decode.object(item)->Option.getOr(Dict.make())
         let name =
           Dict.get(sceneDict, "name")
           ->Option.flatMap(JSON.Decode.string)
@@ -128,12 +130,12 @@ let processLoadedProjectData = (
         // Clone scene object (shallow copy)
         let newSceneDict = Dict.fromArray(Dict.toArray(sceneDict))
 
-        Dict.set(newSceneDict, "file", castToJson(fileUrl))
-        Dict.set(newSceneDict, "originalFile", castToJson(fileUrl))
+        Dict.set(newSceneDict, "file", JSON.Encode.string(fileUrl))
+        Dict.set(newSceneDict, "originalFile", JSON.Encode.string(fileUrl))
 
         // Note: tinyFile handling could be added here if backend generates it
 
-        castToJson(newSceneDict)
+        JSON.Encode.object(newSceneDict)
       })
 
       // Extract validation report if present
@@ -195,16 +197,20 @@ let processLoadedProjectData = (
       Dict.set(
         loadedProject,
         "tourName",
-        Dict.get(pd, "tourName")->Option.getOr(castToJson("Tour Name")),
+        Dict.get(pd, "tourName")->Option.getOr(JSON.Encode.string("Tour Name")),
       )
-      Dict.set(loadedProject, "scenes", castToJson(validScenes))
+      Dict.set(loadedProject, "scenes", JSON.Encode.array(validScenes))
       Dict.set(
         loadedProject,
         "deletedSceneIds",
-        Dict.get(pd, "deletedSceneIds")->Option.getOr(castToJson([])),
+        Dict.get(pd, "deletedSceneIds")->Option.getOr(JSON.Encode.array([])),
       )
-      Dict.set(loadedProject, "timeline", Dict.get(pd, "timeline")->Option.getOr(castToJson([])))
-      Dict.set(loadedProject, "activeIndex", castToJson(0))
+      Dict.set(
+        loadedProject,
+        "timeline",
+        Dict.get(pd, "timeline")->Option.getOr(JSON.Encode.array([])),
+      )
+      Dict.set(loadedProject, "activeIndex", JSON.Encode.float(0.0))
 
       progress(100, 100, "Project Loaded!")
       Logger.endOperation(
@@ -216,7 +222,7 @@ let processLoadedProjectData = (
         }),
         (),
       )
-      Promise.resolve(Ok((sessionId, castToJson(loadedProject))))
+      Promise.resolve(Ok((sessionId, JSON.Encode.object(loadedProject))))
     }
   | Error(msg) => Promise.resolve(Error(msg))
   }

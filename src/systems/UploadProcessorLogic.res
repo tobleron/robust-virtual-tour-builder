@@ -254,6 +254,12 @@ let finalizeUploads = (
 
     // Auto-load first scene if this is the first batch
     let wasEmpty = GlobalStateBridge.getState().activeIndex == -1
+    Logger.info(
+      ~module_="Upload",
+      ~message="DISPATCHING_ADD_SCENES",
+      ~data=Some({"count": Array.length(jsonPayload), "wasEmpty": wasEmpty}),
+      (),
+    )
     GlobalStateBridge.dispatch(AddScenes(jsonPayload))
 
     if wasEmpty {

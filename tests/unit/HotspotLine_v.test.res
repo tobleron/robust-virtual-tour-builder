@@ -11,9 +11,8 @@ describe("HotspotLine Systems", () => {
   })
 
   beforeEach(() => {
-    // Correct way to set active viewer for tests based on HotspotLineLogic
-    ViewerState.state.viewerA = Nullable.make(mockViewer)
-    ViewerState.state.activeViewerKey = A
+    // Correct way to set active viewer for tests
+    ViewerPool.registerInstance("panorama-a", mockViewer)
     GlobalStateBridge.setState(State.initialState)
   })
 
@@ -72,7 +71,7 @@ describe("HotspotLine Systems", () => {
     })
 
     // Temporarily set this as active
-    ViewerState.state.viewerA = Nullable.make(mockViewerNotLoaded)
+    ViewerPool.registerInstance("panorama-a", mockViewerNotLoaded)
     let mockState = State.initialState
 
     HotspotLine.updateLines(mockViewerNotLoaded, mockState, ())

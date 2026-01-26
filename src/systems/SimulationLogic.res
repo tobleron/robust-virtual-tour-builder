@@ -85,10 +85,23 @@ let getNextMove = (state: state): nextMove => {
       }
 
       if isComplete {
+        Logger.info(
+          ~module_="Simulation",
+          ~message="SIM_COMPLETED_AT_START",
+          ~data=Some({"target": targetIndex}),
+          (),
+        )
         Complete({reason: "returned_to_start"})
       } else {
         // Prepare side actions
         let actions = []
+
+        Logger.debug(
+          ~module_="Simulation",
+          ~message="SIM_MOVE_SELECTED",
+          ~data=Some({"from": state.activeIndex, "to": targetIndex}),
+          (),
+        )
 
         // Add visited scenes for chain skipping
         extraVisited->Belt.Array.forEach(idx => {
@@ -118,8 +131,22 @@ let getNextMove = (state: state): nextMove => {
         })
       }
 
-    | None => Complete({reason: "no_reachable_scenes"})
+    | None =>
+      Logger.warn(
+        ~module_="Simulation",
+        ~message="SIM_NO_MOVE_FOUND",
+        ~data=Some({"activeIndex": state.activeIndex}),
+        (),
+      )
+      Complete({reason: "no_reachable_scenes"})
     }
-  | None => Complete({reason: "invalid_current_scene"})
+  | None =>
+    Logger.error(
+      ~module_="Simulation",
+      ~message="SIM_INVALID_STATE",
+      ~data=Some({"activeIndex": state.activeIndex}),
+      (),
+    )
+    Complete({reason: "invalid_current_scene"})
   }
 }

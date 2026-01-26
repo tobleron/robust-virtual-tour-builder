@@ -46,8 +46,7 @@ describe("HotspotLineLogic", () => {
       "should return true if viewer matches active viewer",
       t => {
         let mockViewer: ReBindings.Viewer.t = Obj.magic({"id": "active"})
-        ViewerState.state.viewerA = Nullable.make(mockViewer)
-        ViewerState.state.activeViewerKey = A
+        ViewerPool.registerInstance("panorama-a", mockViewer)
 
         t->expect(isActiveViewer(mockViewer))->Expect.toBe(true)
       },
@@ -58,8 +57,7 @@ describe("HotspotLineLogic", () => {
       t => {
         let mockViewer: ReBindings.Viewer.t = Obj.magic({"id": "inactive"})
         let activeViewer: ReBindings.Viewer.t = Obj.magic({"id": "active"})
-        ViewerState.state.viewerA = Nullable.make(activeViewer)
-        ViewerState.state.activeViewerKey = A
+        ViewerPool.registerInstance("panorama-a", activeViewer)
 
         t->expect(isActiveViewer(mockViewer))->Expect.toBe(false)
       },
@@ -76,8 +74,7 @@ describe("HotspotLineLogic", () => {
           "getYaw": () => 0.0,
           "getPitch": () => 0.0,
         })
-        ViewerState.state.viewerA = Nullable.make(mockViewer)
-        ViewerState.state.activeViewerKey = A
+        ViewerPool.registerInstance("panorama-a", mockViewer)
 
         t->expect(isViewerReady(mockViewer))->Expect.toBe(true)
       },
@@ -105,8 +102,7 @@ describe("HotspotLineLogic", () => {
           "getYaw": () => 0.0,
           "getPitch": () => 0.0,
         })
-        ViewerState.state.viewerA = Nullable.make(mockViewer)
-        ViewerState.state.activeViewerKey = A
+        ViewerPool.registerInstance("panorama-a", mockViewer)
 
         let cam = getCamState(mockViewer, rect)
         let coords = getScreenCoords(cam, 0.0, 0.0, rect)
@@ -173,8 +169,7 @@ describe("HotspotLineLogic", () => {
           "getYaw": () => 0.0,
           "getPitch": () => 0.0,
         })
-        ViewerState.state.viewerA = Nullable.make(mockViewer)
-        ViewerState.state.activeViewerKey = A
+        ViewerPool.registerInstance("panorama-a", mockViewer)
 
         let path: array<PathInterpolation.point> = [{yaw: 0.0, pitch: 0.0}, {yaw: 10.0, pitch: 0.0}]
         let rect: ReBindings.Dom.rect = {
@@ -225,8 +220,7 @@ describe("HotspotLineLogic", () => {
           "getYaw": () => 0.0,
           "getPitch": () => 0.0,
         })
-        ViewerState.state.viewerA = Nullable.make(mockViewer)
-        ViewerState.state.activeViewerKey = A
+        ViewerPool.registerInstance("panorama-a", mockViewer)
 
         let cam = getCamState(mockViewer, rect)
         updateSimulationArrow(cam, 0.0, 0.0, 0.0, 10.0, 0.5, rect, ~colorOverride="green", ())

@@ -1,50 +1,40 @@
 open Vitest
 
-describe("ViewerState", () => {
+describe("ViewerState with ViewerPool", () => {
   beforeEach(() => {
-    // Reset state defaults
-    ViewerState.state.activeViewerKey = A
-    ViewerState.state.viewerA = Nullable.null
-    ViewerState.state.viewerB = Nullable.null
+    // Reset pool defaults
+    ViewerPool.pool->Belt.Array.forEach(
+      v => {
+        v.instance = None
+        v.status = v.id == "primary-a" ? #Active : #Background
+      },
+    )
   })
 
-  test("getActiveViewer returns correct viewer based on key", t => {
-    ViewerState.state.activeViewerKey = A
+  test("getActiveViewer returns correct viewer from pool", t => {
+    let mockViewer = Obj.magic({"id": "mock"})
+    ViewerPool.registerInstance("panorama-a", mockViewer)
+
     let v = ViewerState.getActiveViewer()
-    t->expect(v)->Expect.toBe(ViewerState.state.viewerA)
-
-    ViewerState.state.activeViewerKey = B
-    let v2 = ViewerState.getActiveViewer()
-    t->expect(v2)->Expect.toBe(ViewerState.state.viewerB)
+    t->expect(v)->Expect.toBe(Nullable.make(mockViewer))
   })
 
-  test("getInactiveViewer returns opposite viewer", t => {
-    ViewerState.state.activeViewerKey = A
-    t->expect(ViewerState.getInactiveViewer())->Expect.toBe(ViewerState.state.viewerB)
+  test("getInactiveViewer returns correct viewer from pool", t => {
+    let mockViewer = Obj.magic({"id": "mock-inactive"})
+    ViewerPool.registerInstance("panorama-b", mockViewer)
 
-    ViewerState.state.activeViewerKey = B
-    t->expect(ViewerState.getInactiveViewer())->Expect.toBe(ViewerState.state.viewerA)
+    let v = ViewerState.getInactiveViewer()
+    t->expect(v)->Expect.toBe(Nullable.make(mockViewer))
   })
 
-  test("getActiveContainerId returns correct ID", t => {
-    ViewerState.state.activeViewerKey = A
+  test("getActiveContainerId returns correct ID from pool", t => {
     t->expect(ViewerState.getActiveContainerId())->Expect.toBe("panorama-a")
 
-    ViewerState.state.activeViewerKey = B
+    ViewerPool.swapActive()
     t->expect(ViewerState.getActiveContainerId())->Expect.toBe("panorama-b")
   })
 
-  test("getInactiveContainerId returns correct ID", t => {
-    ViewerState.state.activeViewerKey = A
-    t->expect(ViewerState.getInactiveContainerId())->Expect.toBe("panorama-b")
-
-    ViewerState.state.activeViewerKey = B
-    t->expect(ViewerState.getInactiveContainerId())->Expect.toBe("panorama-a")
-  })
-
-  test("resetState should reset loading and safety timeout", t => {
-    ViewerState.state.isSceneLoading = true
-    ViewerState.state.loadingSceneId = Nullable.make("s1")
+  test("resetState should reset safety timeout and pool timeouts", t => {
     ViewerState.state.lastSceneId = Nullable.make("s0")
 
     let _timeoutCalled = ref(false)
@@ -61,8 +51,6 @@ describe("ViewerState", () => {
 
     ViewerState.resetState()
 
-    t->expect(ViewerState.state.isSceneLoading)->Expect.toBe(false)
-    t->expect(ViewerState.state.loadingSceneId)->Expect.toBe(Nullable.null)
     t->expect(ViewerState.state.lastSceneId)->Expect.toBe(Nullable.null)
     t->expect(ViewerState.state.loadSafetyTimeout)->Expect.toBe(Nullable.null)
 
@@ -73,11 +61,7 @@ describe("ViewerState", () => {
     let _ = %raw(`window.clearTimeout = require('node:timers').clearTimeout`)
   })
 
-  test("initial state should have correct default values for new fields", t => {
+  test("initial state should have correct default values", t => {
     t->expect(ViewerState.state.isSwapping)->Expect.toBe(false)
-    t->expect(ViewerState.state.mouseVelocityX)->Expect.toBe(0.0)
-    t->expect(ViewerState.state.mouseVelocityY)->Expect.toBe(0.0)
-    t->expect(ViewerState.state.lastMoveX)->Expect.toBe(0.0)
-    t->expect(ViewerState.state.lastMoveY)->Expect.toBe(0.0)
   })
 })
