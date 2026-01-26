@@ -86,3 +86,5 @@ This map provides a semantic overview of the project structure to optimize conte
 | `backend/src` | High-performance Rust services and APIs. | `#rust` `#backend` `#concurrency` |
 | `css` | Design system, tokens, and animations. | `#styling` `#tailwind` `#tokens` |
 | `scripts` | Automation, setup, and maintenance tools. | `#automation` `#scripts` `#ci` |
+| `docs/` | Technical specifications and project history. | `#documentation` `#specs` `#history` |
+| `tmp/` | Temporary files and non-integrated documents. | `#temp` `#scratchpad` |

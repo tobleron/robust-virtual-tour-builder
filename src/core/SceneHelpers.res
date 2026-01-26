@@ -166,6 +166,7 @@ let parseProject = (projectDataJson: JSON.t): state => {
     },
     lastUsedCategory,
     exifReport,
+    sessionId: Nullable.toOption(pd.sessionId),
   }
 }
 
