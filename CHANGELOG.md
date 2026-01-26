@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Updated `remove` function to explicitly clear the internal element cache, preventing memory leaks and stale references.
   - Added unit tests for cache invalidation and stale element recovery.
 - Refactor SvgManager for safety and cache integrity (Task 595)
+- Fix React empty src warnings in SceneList (Task 596)
 
 ## [4.8.0] - 2026-01-25
 
