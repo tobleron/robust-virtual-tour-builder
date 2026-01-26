@@ -13,3 +13,4 @@
 [2026-01-26 00:13] v4.8.0 - Refactor ViewerManager: Separate Input & Physics Logic (Task 581)
 [2026-01-26 00:59] v4.8.0 - Refactor UploadProcessorLogic: Extract ImageValidator, FingerprintService, PanoramaClusterer
 [2026-01-26 01:28] v4.8.0 - refactor: Complete tasks 586, 587, 588
+[2026-01-26 10:43] v4.8.0 - feat: implement comprehensive test suite for viewer components, optimize SvgManager, and resolve build warnings

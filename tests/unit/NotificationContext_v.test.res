@@ -1,4 +1,3 @@
-/* tests/unit/NotificationContext_v.test.res */
 open Vitest
 open ReBindings
 
@@ -23,7 +22,7 @@ describe("NotificationContext", () => {
     Dom.removeElement(container)
   })
 
-  testAsync("should bridge different notification types", async t => {
+  testAsync("should bridge different notification types without error", async t => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
@@ -32,14 +31,14 @@ describe("NotificationContext", () => {
 
     await wait(50)
 
-    // These calls now trigger Shadcn.Sonner (mocked)
+    // We verify it doesn't throw when notifications are dispatched
+    NotificationContext.notify("Success", #Success)
     NotificationContext.notify("Error", #Error)
     NotificationContext.notify("Warning", #Warning)
     NotificationContext.notify("Info", #Info)
 
     await wait(50)
 
-    // We just verify it doesn't throw and bridge remains
     let bridge = Dom.querySelector(container, "[data-testid='notification-context']")
     t->expect(Nullable.toOption(bridge)->Belt.Option.isSome)->Expect.toBe(true)
 

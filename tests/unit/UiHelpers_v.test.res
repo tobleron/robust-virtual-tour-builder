@@ -1,5 +1,6 @@
 open Vitest
 open UiHelpers
+open Types
 
 describe("UiHelpers", () => {
   test("insertAt helper", t => {
@@ -13,5 +14,22 @@ describe("UiHelpers", () => {
 
     let insertedAtStart = insertAt(originalArr, 0, 88)
     t->expect(Belt.Array.getExn(insertedAtStart, 0))->Expect.toEqual(88)
+  })
+
+  test("decodeFile from string", t => {
+    let json = JSON.Encode.string("https://example.com/image.jpg")
+    let decoded = decodeFile(json)
+    t->expect(decoded)->Expect.toEqual(Url("https://example.com/image.jpg"))
+  })
+
+  test("decodeFile from invalid json", t => {
+    let json = JSON.Encode.null
+    let decoded = decodeFile(json)
+    t->expect(decoded)->Expect.toEqual(Url(""))
+  })
+
+  test("fileToBlob and fileToFile helpers", t => {
+    let f = Url("some-url")
+    t->expect(fileToFile(f))->Expect.toEqual(None)
   })
 })

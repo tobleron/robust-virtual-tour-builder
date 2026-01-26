@@ -54,7 +54,7 @@ let syncContainer = () => {
 let clearAll = () => {
   switch syncContainer() {
   | Some(svg) =>
-    Dom.setInnerHTML(svg, "")
+    Dom.setTextContent(svg, "")
     globalCache.elementMap = Dict.make()
   | None => ()
   }
