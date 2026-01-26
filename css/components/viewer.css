@@ -261,7 +261,7 @@
     font-family: var(--font-ui);
     font-size: 0;
     /* Hide text fallback */
-    font-weight: 800;
+    font-weight: 600;
     cursor: pointer;
     border: 2px solid white;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
@@ -417,7 +417,7 @@
 
 .v-util-btn-add-link-icon {
     font-size: 20px;
-    font-weight: bold;
+    font-weight: 600;
 }
 
 /* Semantic Hover States */
@@ -518,7 +518,7 @@
 .quality-badge {
     color: white;
     font-size: 10px;
-    font-weight: bold;
+    font-weight: 600;
     padding: 2px 8px;
     border-radius: 4px;
     /* default rounded */
@@ -555,7 +555,7 @@
 .linking-hint-text {
     font-family: var(--font-ui);
     font-size: 11px;
-    font-weight: 800;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.25em;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);

@@ -19,7 +19,7 @@
     display: flex;
     justify-content: space-between;
     gap: 12px;
-    margin-bottom: 20px;
+    margin-bottom: 12px; /* Reduced from 20px */
 }
 
 .upload-report-group {
@@ -43,8 +43,20 @@
 
 .upload-report-count {
     font-size: 16px;
-    font-weight: 900;
+    font-weight: 600; /* Standardized to 600 */
     line-height: 1.2;
+}
+
+.upload-report-count.text-success {
+    color: #4ade80;
+}
+
+.upload-report-count.text-warning {
+    color: #fbbf24;
+}
+
+.upload-report-count.text-danger {
+    color: #f87171;
 }
 
 .upload-report-label {
@@ -61,14 +73,13 @@
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    margin-top: auto;
-    padding-top: 12px;
+    padding-top: 8px; /* Reduced from 12px */
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     width: 100%;
 }
 
 .upload-report-title {
-    font-weight: 800;
+    font-weight: 600; /* Standardized to 600 */
     color: white;
     font-size: 11px;
     text-transform: uppercase;
@@ -78,7 +89,7 @@
 
 .upload-report-score {
     font-size: 14px;
-    font-weight: 800;
+    font-weight: 600; /* Standardized to 600 */
     color: white;
 }
 
@@ -96,7 +107,7 @@
 }
 
 .upload-report-action-title {
-    font-weight: 800;
+    font-weight: 600; /* Standardized to 600 */
     color: #fca5a5;
     font-size: 9px;
     text-transform: uppercase;
@@ -133,7 +144,7 @@
 .upload-report-filename {
     font-family: var(--font-mono);
     font-size: 9px;
-    font-weight: 700;
+    font-weight: 600; /* Standardized to 600 */
     color: white;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -141,7 +152,7 @@
 }
 
 .upload-report-item-score {
-    font-weight: 900;
+    font-weight: 600; /* Standardized to 600 */
     color: #fca5a5;
     font-size: 11px;
     flex-shrink: 0;
@@ -168,7 +179,7 @@
     background: rgba(255, 255, 255, 0.1);
     border-radius: 20px;
     font-size: 9px;
-    font-weight: 700;
+    font-weight: 600; /* Standardized to 600 */
     color: rgba(255, 255, 255, 0.6);
     border: 1px solid rgba(255, 255, 255, 0.1);
 }

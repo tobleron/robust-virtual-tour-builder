@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update SceneHelpers tests and fix sessionId parsing
 - Update ViewerSnapshot unit tests with edge cases
 - Perfected upload summary v1
+- UI Standardization CSS & Icons
 
 ### Fixed
 - Resolve React hook dependency mismatch in SimulationDriver and sync local changes

@@ -101,10 +101,10 @@ let injectStyles = () => {
             color: white; font-size: 10px; font-weight: 600; text-align: center; 
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
           }
-          .tooltip-link-id { color: var(--slate-400); font-size: 9px; font-weight: 700; margin-bottom: 2px; }
+          .tooltip-link-id { color: var(--slate-400); font-size: 9px; font-weight: 600; margin-bottom: 2px; }
           .auto-forward-indicator {
             position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-            z-index: 25; color: white; font-size: 21px; font-weight: 900; line-height: 1;
+            z-index: 25; color: white; font-size: 21px; font-weight: 600; line-height: 1;
             pointer-events: none; text-shadow: 0 1px 2px rgba(0,0,0,0.5); padding-bottom: 2px;
             padding-left: 1px;
           }

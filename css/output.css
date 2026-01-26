@@ -115,7 +115,7 @@
     text-decoration: inherit;
   }
   b, strong {
-    font-weight: bolder;
+    font-weight: 600er;
   }
   code, kbd, samp, pre {
     font-family: var(--default-mono-font-family, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace);
@@ -174,7 +174,7 @@
     opacity: 1;
   }
   :where(select:is([multiple], [size])) optgroup {
-    font-weight: bolder;
+    font-weight: 600er;
   }
   :where(select:is([multiple], [size])) optgroup option {
     padding-inline-start: 20px;
