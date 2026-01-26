@@ -8,8 +8,8 @@ let indexTemplate = `<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>__TOUR_NAME__ - Virtual Tour Hub</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
             --primary: #003da5;
@@ -59,7 +59,7 @@ let indexTemplate = `<!DOCTYPE html>
             max-width: 120px; max-height: 60px; overflow: hidden;
         }
         .logo-container img { width: 100%; height: auto; display: block; object-fit: contain; }
-        h1 { font-size: 42px; font-weight: 700; margin: 0 0 16px 0; }
+        h1 { font-size: 42px; font-weight: 600; margin: 0 0 16px 0; }
         .version-badge {
             display: inline-flex; align-items: center; gap: 8px; background: var(--glass);
             padding: 6px 16px; border-radius: 100px; font-size: 13px; font-weight: 600; color: var(--slate-400);
@@ -73,9 +73,9 @@ let indexTemplate = `<!DOCTYPE html>
             align-items: center; gap: 20px; position: relative; overflow: hidden; transition: all 0.4s;
         }
         .card:hover { transform: translateY(-12px); background: var(--slate-700); }
-        .icon { font-size: 48px; }
+        .icon { width: 48px; height: 48px; }
         .card-4k .icon { color: var(--warning); } .card-2k .icon { color: var(--info); } .card-hd .icon { color: var(--success); }
-        .res-label { font-size: 26px; font-weight: 700; }
+        .res-label { font-size: 26px; font-weight: 600; }
         .description { font-size: 15px; color: var(--slate-400); line-height: 1.6; }
         .btn {
             margin-top: 10px; background: rgba(255, 255, 255, 0.05); color: var(--slate-200);
@@ -96,19 +96,19 @@ let indexTemplate = `<!DOCTYPE html>
         </div>
         <div class="grid">
             <a href="tour_4k/index.html" class="card card-4k">
-                <span class="material-icons icon">high_quality</span>
+                <i data-lucide="sparkles" class="icon"></i>
                 <span class="res-label">4K Ultra HD</span>
                 <span class="description">Best for high-end displays.</span>
                 <span class="btn">Launch Tour</span>
             </a>
             <a href="tour_2k/index.html" class="card card-2k">
-                <span class="material-icons icon">monitor</span>
+                <i data-lucide="monitor" class="icon"></i>
                 <span class="res-label">2K Desktop</span>
                 <span class="description">Optimized for laptops.</span>
                 <span class="btn">Launch Tour</span>
             </a>
             <a href="tour_hd/index.html" class="card card-hd">
-                <span class="material-icons icon">smartphone</span>
+                <i data-lucide="smartphone" class="icon"></i>
                 <span class="res-label">HD Mobile</span>
                 <span class="description">Portrait layout for phones.</span>
                 <span class="btn">Launch Tour</span>
@@ -116,6 +116,9 @@ let indexTemplate = `<!DOCTYPE html>
         </div>
         <div class="footer">&copy; __YEAR__ Virtual Tour Platform.</div>
     </div>
+    <script>
+      lucide.createIcons();
+    </script>
 </body>
 </html>`
 

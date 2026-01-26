@@ -109,7 +109,7 @@ module SceneItem = {
           <div className="absolute inset-0 bg-gradient-to-r from-slate-950/40 to-transparent" />
 
           <div
-            className="absolute top-1 left-1 px-1 py-0.5 rounded bg-slate-950/70 backdrop-blur-md text-[8px] font-black text-white border border-white/10 z-10"
+            className="absolute top-1 left-1 px-1 py-0.5 rounded bg-slate-950/70 backdrop-blur-md text-[8px] font-semibold text-white border border-white/10 z-10"
           >
             {React.int(index + 1)}
           </div>
@@ -138,7 +138,7 @@ module SceneItem = {
                 className="flex items-center gap-1 text-slate-400 group-hover:text-primary transition-colors shrink-0"
               >
                 <LucideIcons.Link size=10 />
-                <span className="text-[9px] font-bold">
+                <span className="text-[9px] font-semibold">
                   {React.int(Array.length(scene.hotspots))}
                 </span>
               </div>
@@ -158,7 +158,7 @@ module SceneItem = {
               </div>
             </div>
             <span
-              className={`text-[8px] font-black uppercase tracking-wide leading-none ${if (
+              className={`text-[8px] font-semibold uppercase tracking-wide leading-none ${if (
                   isLowQuality
                 ) {
                   "text-danger"
@@ -187,14 +187,14 @@ module SceneItem = {
           </Shadcn.DropdownMenu.Trigger>
           <Shadcn.DropdownMenu.Content side="right" sideOffset=10 className="w-48 p-1.5 z-[30000]">
             <Shadcn.DropdownMenu.Label
-              className="text-[10px] font-black uppercase tracking-widest text-slate-500 py-2 px-3"
+              className="text-[10px] font-semibold uppercase tracking-widest text-slate-500 py-2 px-3"
             >
               {React.string("Scene Actions")}
             </Shadcn.DropdownMenu.Label>
 
             <Shadcn.DropdownMenu.Item
               onClick={handleClearClick}
-              className={`px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer text-slate-600 ${flickerState ==
+              className={`px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wide cursor-pointer text-slate-600 ${flickerState ==
                   #Clear
                   ? "animate-flicker-orange-flat"
                   : ""}`}
@@ -207,7 +207,7 @@ module SceneItem = {
 
             <Shadcn.DropdownMenu.Item
               onClick={handleDeleteClick}
-              className={`px-2 py-1.5 text-[10px] font-bold uppercase tracking-wide cursor-pointer text-danger hover:bg-danger/10 ${flickerState ==
+              className={`px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wide cursor-pointer text-danger hover:bg-danger/10 ${flickerState ==
                   #Delete
                   ? "animate-flicker-red-light"
                   : ""}`}
@@ -395,7 +395,7 @@ let make = React.memo(() => {
         >
           <LucideIcons.Images className="text-[#f97316]" size=56 strokeWidth=1.5 />
         </div>
-        <h4 className="text-sm font-bold text-slate-600 uppercase tracking-widest mb-2">
+        <h4 className="text-sm font-semibold text-slate-600 uppercase tracking-widest mb-2">
           {React.string("No scenes")}
         </h4>
         <p className="text-[11px] text-slate-600 font-medium max-w-[200px] leading-relaxed">

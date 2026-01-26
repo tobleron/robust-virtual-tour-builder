@@ -34,7 +34,7 @@ let make = React.memo((~scenesLoaded, ~isLinking) => {
           } else {
             "destructive"
           }}
-          className="w-[32px] h-[32px] rounded-full text-[18px] font-bold border border-transparent hover:border-[#0e2d52]"
+          className="w-[32px] h-[32px] rounded-full text-[18px] font-semibold border border-transparent hover:border-[#0e2d52]"
           disabled={isLinking}
         >
           <LucideIcons.Hash size=18 strokeWidth=3.0 />
