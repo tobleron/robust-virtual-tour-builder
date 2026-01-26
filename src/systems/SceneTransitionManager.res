@@ -78,7 +78,7 @@ let performSwap = (loadedScene: Types.scene, loadStartTime: float) => {
 
   /* Transition */
   let isCut = switch GlobalStateBridge.getState().transition.type_ {
-  | Some("cut") => true
+  | Cut => true
   | _ => false
   }
 

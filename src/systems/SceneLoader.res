@@ -177,7 +177,7 @@ let rec loadNewScene = (
               switch SceneCache.getSnapshot(ps.id) {
               | Some(url) =>
                 let isCut = switch GlobalStateBridge.getState().transition.type_ {
-                | Some("cut") => true
+                | Cut => true
                 | _ => false
                 }
                 if !isCut {

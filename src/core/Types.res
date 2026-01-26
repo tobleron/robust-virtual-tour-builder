@@ -54,8 +54,14 @@ type navigationStatus =
   | Navigating(journeyData)
   | Previewing(linkInfo)
 
+type transitionType =
+  | Cut
+  | Fade
+  | Link
+  | Unknown(string)
+
 type transition = {
-  @as("type") type_: option<string>,
+  @as("type") type_: transitionType,
   targetHotspotIndex: int,
   fromSceneName: option<string>,
 }

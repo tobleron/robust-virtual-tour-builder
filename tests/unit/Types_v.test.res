@@ -99,11 +99,11 @@ describe("Types", () => {
 
   test("should define transition correctly", t => {
     let tr: transition = {
-      type_: Some("fade"),
+      type_: Fade,
       targetHotspotIndex: 1,
       fromSceneName: Some("hallway"),
     }
-    t->expect(tr.type_)->Expect.toEqual(Some("fade"))
+    t->expect(tr.type_)->Expect.toEqual(Fade)
     t->expect(tr.targetHotspotIndex)->Expect.toBe(1)
   })
 
@@ -227,7 +227,7 @@ describe("Types", () => {
       activePitch: 0.0,
       isLinking: false,
       transition: {
-        type_: None,
+        type_: Fade,
         targetHotspotIndex: -1,
         fromSceneName: None,
       },
