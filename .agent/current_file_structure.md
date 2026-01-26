@@ -1327,6 +1327,12 @@
 │   │           ├── RootReducer_v.test.cmj
 │   │           ├── RootReducer_v.test.cmt
 │   │           ├── RootReducer_v.test.res
+│   │           ├── SceneCache_v.test.ast
+│   │           ├── SceneCache_v.test.bs.js
+│   │           ├── SceneCache_v.test.cmi
+│   │           ├── SceneCache_v.test.cmj
+│   │           ├── SceneCache_v.test.cmt
+│   │           ├── SceneCache_v.test.res
 │   │           ├── SceneHelpers_v.test.ast
 │   │           ├── SceneHelpers_v.test.bs.js
 │   │           ├── SceneHelpers_v.test.cmi
@@ -2393,6 +2399,11 @@
 │   │   ├── SceneCache.cmj
 │   │   ├── SceneCache.cmt
 │   │   ├── SceneCache.res
+│   │   ├── SceneCache_v.test.ast
+│   │   ├── SceneCache_v.test.cmi
+│   │   ├── SceneCache_v.test.cmj
+│   │   ├── SceneCache_v.test.cmt
+│   │   ├── SceneCache_v.test.res
 │   │   ├── SceneHelpers.ast
 │   │   ├── SceneHelpers.cmi
 │   │   ├── SceneHelpers.cmj
@@ -4959,6 +4970,8 @@
 │       ├── ReturnPrompt_v.test.res
 │       ├── RootReducer_v.test.bs.js
 │       ├── RootReducer_v.test.res
+│       ├── SceneCache_v.test.bs.js
+│       ├── SceneCache_v.test.res
 │       ├── SceneHelpers_v.test.bs.js
 │       ├── SceneHelpers_v.test.res
 │       ├── SceneList_v.test.bs.js
@@ -5087,4 +5100,4 @@
 │           └── TestUtils.res
 └── vitest.config.mjs
 
-178 directories, 4910 files
+178 directories, 4923 files
