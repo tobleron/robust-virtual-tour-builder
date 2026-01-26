@@ -1,9 +1,6 @@
 open ReBindings
 
 type t = {
-  mutable viewerA: Nullable.t<Viewer.t>,
-  mutable viewerB: Nullable.t<Viewer.t>,
-  mutable activeViewerKey: ViewerTypes.viewerKey,
   mutable lastMouseEvent: Nullable.t<Dom.event>,
   mutable guide: Nullable.t<Dom.element>,
   mutable lastPreloadingIndex: int,
@@ -19,8 +16,6 @@ type t = {
   mutable lastAppliedPitch: Nullable.t<float>,
   mutable viewportSaveTimeout: Nullable.t<int>,
   mutable idleSnapshotTimeout: Nullable.t<int>,
-  mutable loadingSceneId: Nullable.t<string>,
-  mutable isSceneLoading: bool,
   mutable loadSafetyTimeout: Nullable.t<int>,
   mutable cachedFloorCircles: Nullable.t<Dom.element>, // NodeList proxy
   mutable lastSwitchTime: float,
@@ -31,14 +26,9 @@ type t = {
   mutable mouseVelocityX: float,
   mutable mouseVelocityY: float,
   mutable isSwapping: bool, // Lock flag to prevent render updates during viewer swaps
-  mutable cleanupTimeoutA: Nullable.t<int>,
-  mutable cleanupTimeoutB: Nullable.t<int>,
 }
 
 let state = {
-  viewerA: Nullable.null,
-  viewerB: Nullable.null,
-  activeViewerKey: A,
   lastMouseEvent: Nullable.null,
   guide: Nullable.null,
   lastPreloadingIndex: -1,
@@ -61,8 +51,6 @@ let state = {
   lastAppliedPitch: Nullable.null,
   viewportSaveTimeout: Nullable.null,
   idleSnapshotTimeout: Nullable.null,
-  loadingSceneId: Nullable.null,
-  isSceneLoading: false,
   loadSafetyTimeout: Nullable.null,
   cachedFloorCircles: Nullable.null,
   lastSwitchTime: 0.0,
@@ -73,55 +61,39 @@ let state = {
   mouseVelocityX: 0.0,
   mouseVelocityY: 0.0,
   isSwapping: false,
-  cleanupTimeoutA: Nullable.null,
-  cleanupTimeoutB: Nullable.null,
 }
 
 let getActiveViewer = () => {
-  switch state.activeViewerKey {
-  | A => state.viewerA
-  | B => state.viewerB
-  }
+  ViewerPool.getActiveViewer()->Nullable.fromOption
 }
 
 let getInactiveViewer = () => {
-  switch state.activeViewerKey {
-  | A => state.viewerB
-  | B => state.viewerA
-  }
+  ViewerPool.getInactiveViewer()->Nullable.fromOption
 }
 
 let getActiveContainerId = () => {
-  switch state.activeViewerKey {
-  | A => "panorama-a"
-  | B => "panorama-b"
+  switch ViewerPool.getActive() {
+  | Some(v) => v.containerId
+  | None => "panorama-a"
   }
 }
 
 let getInactiveContainerId = () => {
-  switch state.activeViewerKey {
-  | A => "panorama-b"
-  | B => "panorama-a"
+  switch ViewerPool.getInactive() {
+  | Some(v) => v.containerId
+  | None => "panorama-b"
   }
 }
 
 let resetState = () => {
-  state.isSceneLoading = false
-  state.loadingSceneId = Nullable.null
   state.lastSceneId = Nullable.null
   switch Nullable.toOption(state.loadSafetyTimeout) {
   | Some(t) => Window.clearTimeout(t)
   | None => ()
   }
   state.loadSafetyTimeout = Nullable.null
-  switch Nullable.toOption(state.cleanupTimeoutA) {
-  | Some(t) => Window.clearTimeout(t)
-  | None => ()
-  }
-  state.cleanupTimeoutA = Nullable.null
-  switch Nullable.toOption(state.cleanupTimeoutB) {
-  | Some(t) => Window.clearTimeout(t)
-  | None => ()
-  }
-  state.cleanupTimeoutB = Nullable.null
+
+  ViewerPool.pool->Belt.Array.forEach(v => {
+    ViewerPool.clearCleanupTimeout(v.id)
+  })
 }

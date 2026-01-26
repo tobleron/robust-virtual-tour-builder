@@ -104,9 +104,9 @@ describe("UtilityBar", () => {
 
     await wait(50)
     Dom.click(playBtn)
-    // When stopping, it sends multiple actions. Let's check the last one or at least one of them.
-    // In code: dispatch(Actions.StopAutoPilot), dispatch(Actions.SetActiveScene(0, 0.0, 0.0, None))
-    t->expect(lastAction.contents)->Expect.toEqual(Some(Actions.SetActiveScene(0, 0.0, 0.0, None)))
+    // When stopping, it sends multiple actions. Let's check the last one.
+    // In code: dispatch(Actions.StopAutoPilot), dispatch(Actions.SetActiveScene(0, ...)), dispatch(DispatchNavigationFsmEvent(Reset))
+    t->expect(lastAction.contents)->Expect.toEqual(Some(Actions.DispatchNavigationFsmEvent(Reset)))
 
     Dom.removeElement(container)
   })

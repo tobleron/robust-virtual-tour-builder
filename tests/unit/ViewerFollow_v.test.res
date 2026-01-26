@@ -16,8 +16,7 @@ describe("ViewerFollow", () => {
 
   test("updateFollowLoop should stop if no viewer", t => {
     ViewerState.state.followLoopActive = true
-    ViewerState.state.viewerA = Nullable.null
-    ViewerState.state.activeViewerKey = A
+    ViewerPool.clearInstance("panorama-a")
 
     // State with no linking and no hotspots
     let mockState = {
@@ -35,7 +34,6 @@ describe("ViewerFollow", () => {
   testAsync("updateFollowLoop should apply movement when linking", async t => {
     // Setup state for linking
     ViewerState.state.followLoopActive = true
-    ViewerState.state.activeViewerKey = A
     ViewerState.state.mouseXNorm = 0.8 // Outside 0.5 deadzone
     ViewerState.state.mouseYNorm = 0.0 // Inside deadzone
     ViewerState.state.linkingStartPoint = Nullable.null // No deadzone block
@@ -57,7 +55,7 @@ describe("ViewerFollow", () => {
       "setYaw": (v, _rel) => yawValue := v,
       "setPitch": (v, _rel) => pitchValue := v,
     })
-    ViewerState.state.viewerA = Nullable.make(mockViewer)
+    ViewerPool.registerInstance("panorama-a", mockViewer)
 
     // Mock DOM
     let _ = %raw(`
@@ -91,7 +89,6 @@ describe("ViewerFollow", () => {
 
   testAsync("updateFollowLoop should apply velocity boost", async t => {
     ViewerState.state.followLoopActive = true
-    ViewerState.state.activeViewerKey = A
     ViewerState.state.mouseXNorm = 0.8
     ViewerState.state.mouseYNorm = 0.0
     ViewerState.state.mouseVelocityX = 3500.0 // Max boost (1.5)
@@ -109,7 +106,7 @@ describe("ViewerFollow", () => {
       "getYaw": () => yawValue.contents,
       "setYaw": (v, _rel) => yawValue := v,
     })
-    ViewerState.state.viewerA = Nullable.make(mockViewer)
+    ViewerPool.registerInstance("panorama-a", mockViewer)
 
     let _ = %raw(`
       (function() { window.requestAnimationFrame = (cb) => { return 1; }; })()

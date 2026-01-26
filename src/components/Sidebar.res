@@ -8,7 +8,8 @@ let autoHideDelay = Constants.progressBarAutoHideDelay
 @scope(("window", "location")) @val external reload: unit => unit = "reload"
 
 // Local helper for style objects
-external makeStyle: {..} => ReactDOM.Style.t = "%identity"
+// Local helper for style objects
+// Removed makeStyle identity
 
 @react.component
 let make = React.memo(() => {
@@ -113,9 +114,11 @@ let make = React.memo(() => {
 
   // Handlers
   let handleUpload = async e => {
-    let target = JsxEvent.Form.target(e)
-    let files = target["files"]
-    if files["length"] > 0 {
+    let target = JsxEvent.Form.target(e)->Dom.unsafeToElement
+    let filesOpt = Dom.getFiles(target)
+
+    switch filesOpt {
+    | Some(files) if FileList.length(files) > 0 =>
       let fileArray = JsHelpers.from(files)
 
       try {
@@ -142,6 +145,7 @@ let make = React.memo(() => {
         updateProgress(0.0, "Error: " ++ msg, false, "")
       | _ => ()
       }
+    | _ => ()
     }
   }
 
@@ -384,58 +388,64 @@ let make = React.memo(() => {
         onChange={e => {
           let _ = (
             async () => {
-              let target = JsxEvent.Form.target(e)
-              let files = target["files"]
-              if files["length"] > 0 {
+              let target = JsxEvent.Form.target(e)->Dom.unsafeToElement
+              let filesOpt = Dom.getFiles(target)
+
+              switch filesOpt {
+              | Some(files) if FileList.length(files) > 0 =>
                 SessionStore.clearState()
                 updateProgress(0.0, "Loading Project...", true, "Loading")
                 try {
-                  let file = files["0"]
-                  Logger.startOperation(
-                    ~module_="Sidebar",
-                    ~operation="PROJECT_LOAD",
-                    ~data={
-                      "filename": File.name(file),
-                      "size": File.size(file),
-                    },
-                    (),
-                  )
-                  let projectDataResult = await ProjectManager.loadProject(file, ~onProgress=(
-                    pct,
-                    _t,
-                    msg,
-                  ) => {
-                    updateProgress(pct->Int.toFloat, msg, true, "Loading")
-                  })
+                  // Access item 0 safely
+                  switch FileList.item(files, 0) {
+                  | Some(file) =>
+                    Logger.startOperation(
+                      ~module_="Sidebar",
+                      ~operation="PROJECT_LOAD",
+                      ~data={
+                        "filename": File.name(file),
+                        "size": File.size(file),
+                      },
+                      (),
+                    )
+                    let projectDataResult = await ProjectManager.loadProject(file, ~onProgress=(
+                      pct,
+                      _t,
+                      msg,
+                    ) => {
+                      updateProgress(pct->Int.toFloat, msg, true, "Loading")
+                    })
 
-                  switch projectDataResult {
-                  | Ok((sessionId, projectData)) => {
-                      dispatch(Actions.SetSessionId(sessionId))
-                      dispatch(Actions.LoadProject(projectData))
-                      UploadReport.showFromProjectData(projectData)
+                    switch projectDataResult {
+                    | Ok((sessionId, projectData)) => {
+                        dispatch(Actions.SetSessionId(sessionId))
+                        dispatch(Actions.LoadProject(projectData))
+                        UploadReport.showFromProjectData(projectData)
 
-                      Logger.endOperation(
-                        ~module_="Sidebar",
-                        ~operation="PROJECT_LOAD",
-                        ~data={
-                          "sceneCount": Array.length(sceneSlice.scenes),
-                        },
-                        (),
-                      )
+                        Logger.endOperation(
+                          ~module_="Sidebar",
+                          ~operation="PROJECT_LOAD",
+                          ~data={
+                            "sceneCount": Array.length(sceneSlice.scenes),
+                          },
+                          (),
+                        )
 
-                      EventBus.dispatch(ShowNotification("Project loaded", #Success))
-                      updateProgress(100.0, "Loaded", false, "")
+                        EventBus.dispatch(ShowNotification("Project loaded", #Success))
+                        updateProgress(100.0, "Loaded", false, "")
+                      }
+                    | Error(msg) => {
+                        Logger.error(
+                          ~module_="Sidebar",
+                          ~message="PROJECT_LOAD_FAILED",
+                          ~data={"error": msg},
+                          (),
+                        )
+                        EventBus.dispatch(ShowNotification("Load failed: " ++ msg, #Error))
+                        updateProgress(0.0, "Error", false, "")
+                      }
                     }
-                  | Error(msg) => {
-                      Logger.error(
-                        ~module_="Sidebar",
-                        ~message="PROJECT_LOAD_FAILED",
-                        ~data={"error": msg},
-                        (),
-                      )
-                      EventBus.dispatch(ShowNotification("Load failed: " ++ msg, #Error))
-                      updateProgress(0.0, "Error", false, "")
-                    }
+                  | None => ()
                   }
                 } catch {
                 | JsExn(obj) =>
@@ -462,7 +472,8 @@ let make = React.memo(() => {
                   updateProgress(0.0, "Error", false, "")
                 }
                 // Reset input
-                target["value"] = ""
+                target->Dom.setValue("")
+              | _ => ()
               }
             }
           )()

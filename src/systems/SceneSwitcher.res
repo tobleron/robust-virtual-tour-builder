@@ -93,6 +93,12 @@ let navigateToScene = (
 
       dispatch(SetNavigationStatus(Navigating(finalJourney)))
 
+      switch Belt.Array.get(state.scenes, targetIndex) {
+      | Some(targetScene) =>
+        dispatch(DispatchNavigationFsmEvent(UserClickedScene({targetSceneId: targetScene.id})))
+      | None => ()
+      }
+
       // Dispatch via typed EventBus
       switch pathData {
       | Some(pd) =>
@@ -125,6 +131,12 @@ let navigateToScene = (
       }
 
       dispatch(SetActiveScene(targetIndex, arrYaw, arrPitch, Some(transition)))
+
+      switch Belt.Array.get(state.scenes, targetIndex) {
+      | Some(targetScene) =>
+        dispatch(DispatchNavigationFsmEvent(UserClickedScene({targetSceneId: targetScene.id})))
+      | None => ()
+      }
 
       Logger.endOperation(
         ~module_="SceneSwitcher",

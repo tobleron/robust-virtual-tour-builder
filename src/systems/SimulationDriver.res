@@ -17,37 +17,48 @@ let make = () => {
   let dispatch = AppContext.useAppDispatch()
   let simulation = state.simulation
 
+  // Ref to track latest state to avoid stale closures in async ticks
+  let stateRef = React.useRef(state)
+  React.useEffect1(() => {
+    stateRef.current = state
+    None
+  }, [state])
+
   // Ref to track if we are currently executing an async advance to prevent overlapping
-  let isAdvancing = React.useRef(false)
+  // We now also track which index we are advancing for to avoid skipping legit changes
+  let advancingForIndex = React.useRef(-1)
 
   // Simulation Loop
   React.useEffect2(() => {
     let cancel = ref(false)
 
     if simulation.status == Running {
-      // Logic:
-      // 1. If we just arrived (or started), we wait a delay.
-      // 2. Then we wait for viewer to load the current scene.
-      // 3. Then we calculate next move.
-      // 4. Then we execute navigation.
-      // 5. Effect re-runs when activeIndex changes, repeating the loop.
-
       let runTick = async () => {
-        if isAdvancing.current {
-          () // Already advancing
+        let currentIndex = stateRef.current.activeIndex
+
+        if advancingForIndex.current == currentIndex {
+          Logger.debug(
+            ~module_="Simulation",
+            ~message="SIM_TICK_SKIPPED",
+            ~data=Some({"reason": "Already advancing", "index": currentIndex}),
+            (),
+          )
+          ()
         } else {
-          isAdvancing.current = true
+          advancingForIndex.current = currentIndex
+
+          let s = stateRef.current
 
           // Ensure current scene is in visited scenes
-          if !Array.includes(state.simulation.visitedScenes, state.activeIndex) {
-            dispatch(AddVisitedScene(state.activeIndex))
+          if !Array.includes(s.simulation.visitedScenes, s.activeIndex) {
+            dispatch(AddVisitedScene(s.activeIndex))
           }
 
-          let delay = if simulation.skipAutoForwardGlobal {
+          let delay = if s.simulation.skipAutoForwardGlobal {
             // Check if current scene is auto-forward (bridge)
-            let currentScene = Belt.Array.get(state.scenes, state.activeIndex)
+            let currentScene = Belt.Array.get(s.scenes, s.activeIndex)
             switch currentScene {
-            | Some(s) if s.isAutoForward => 0
+            | Some(scene) if scene.isAutoForward => 0
             | _ => Constants.Simulation.stepDelay
             }
           } else {
@@ -59,38 +70,48 @@ let make = () => {
 
           if (
             !cancel.contents &&
-            state.simulation.status == Running &&
-            !state.simulation.stoppingOnArrival
+            stateRef.current.simulation.status == Running &&
+            !stateRef.current.simulation.stoppingOnArrival
           ) {
             try {
               // Wait for viewer to load the CURRENT scene
+              // Use latest state index in case it changed during wait
               let waitResult = await SimulationNavigation.waitForViewerScene(
-                state.activeIndex,
-                () => !cancel.contents && state.simulation.status == Running,
+                stateRef.current.activeIndex,
+                () => !cancel.contents && stateRef.current.simulation.status == Running,
                 (),
               )
 
               switch waitResult {
               | Ok() =>
                 // Also wait for any ongoing navigation to complete
+                // Use latest state to check navigation status
                 if (
-                  state.navigation == Idle && !cancel.contents && state.simulation.status == Running
+                  stateRef.current.navigation == Idle &&
+                  !cancel.contents &&
+                  stateRef.current.simulation.status == Running
                 ) {
-                  // Calculate Next Move
-                  let move = SimulationLogic.getNextMove(state)
+                  // Calculate Next Move using latest state
+                  let move = SimulationLogic.getNextMove(stateRef.current)
 
                   switch move {
                   | Move({targetIndex, hotspotIndex, yaw, pitch, hfov, triggerActions}) =>
                     // Exec Actions
                     triggerActions->Belt.Array.forEach(a => dispatch(a))
 
+                    Logger.info(
+                      ~module_="Simulation",
+                      ~message="SIM_NAVIGATING",
+                      ~data=Some({"from": stateRef.current.activeIndex, "to": targetIndex}),
+                      (),
+                    )
+
                     // Exec Navigation - this triggers the animation and viewer swap
-                    // Don't wait here! Let the effect re-run when activeIndex changes
                     SceneSwitcher.navigateToScene(
                       dispatch,
-                      state,
+                      stateRef.current,
                       targetIndex,
-                      state.activeIndex,
+                      stateRef.current.activeIndex,
                       hotspotIndex,
                       ~targetYaw=yaw,
                       ~targetPitch=pitch,
@@ -112,7 +133,6 @@ let make = () => {
                     if !cancel.contents {
                       SceneSwitcher.cancelNavigation()
                       dispatch(StopAutoPilot)
-                      dispatch(Actions.SetActiveScene(0, 0.0, 0.0, None))
                     }
                   | None =>
                     Logger.info(
@@ -143,15 +163,17 @@ let make = () => {
               dispatch(StopAutoPilot)
             }
           }
-          isAdvancing.current = false
+          if advancingForIndex.current == currentIndex {
+            advancingForIndex.current = -1
+          }
         }
       }
 
       // Trigger the tick
       let _ = runTick()
     } else {
-      // Reset advancing flag if stopped
-      isAdvancing.current = false
+      // Reset advancing ref if stopped
+      advancingForIndex.current = -1
     }
 
     Some(

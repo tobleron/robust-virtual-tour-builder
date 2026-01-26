@@ -243,6 +243,7 @@ describe("Types", () => {
       timeline: [],
       activeTimelineStepId: None,
       navigation: Idle,
+      navigationFsm: Idle,
       simulation: {
         status: Idle,
         visitedScenes: [],

@@ -1,18 +1,20 @@
-module Inner = {
+module InnerApp = {
   @react.component
   let make = () => {
     let state = AppContext.useAppState()
 
-    <>
-      // Sidebar Region
-      <div id="sidebar" role="complementary" ariaLabel="Editor Sidebar">
-        <Sidebar />
-      </div>
+    <div className="flex h-screen w-screen overflow-hidden bg-slate-900">
+      <Sidebar />
 
-      // Main Content Region
-      <main id="viewer-container" role="main">
-        <div id="viewer-stage">
-          // Panorama Layers
+      <main
+        id="viewer-container"
+        role="main"
+        className={`viewer-main-container relative w-full h-full bg-black overflow-hidden select-none touch-none ${state.isLinking
+            ? "linking-mode"
+            : ""}`}
+      >
+        <div id="viewer-stage" className="relative w-full h-full">
+          /* Panorama Layers */
           <div
             id="panorama-a"
             className="panorama-layer active"
@@ -28,7 +30,7 @@ module Inner = {
 
           <div id="cursor-guide" ariaHidden=true />
 
-          // Viewer UI Layer
+          /* Viewer UI Layer */
           <div id="viewer-ui-layer">
             <ViewerUI />
           </div>
@@ -45,17 +47,17 @@ module Inner = {
         }}
       </main>
 
-      // Modal & Notification Containers
+      /* Modal & Notification Containers */
       <div id="modal-container">
         <ModalContext />
         <NotificationContext />
       </div>
 
-      // Logic Controllers
+      /* Logic Controllers */
       <NavigationController />
       <ViewerManager />
       <SimulationDriver />
-    </>
+    </div>
   }
 }
 
@@ -64,7 +66,7 @@ let make = (~initialState=?, ()) => {
   <AppContext.Provider ?initialState>
     <AppErrorBoundary>
       <Shadcn.Tooltip.Provider delayDuration=Constants.tooltipDelayDuration>
-        <Inner />
+        <InnerApp />
       </Shadcn.Tooltip.Provider>
     </AppErrorBoundary>
   </AppContext.Provider>

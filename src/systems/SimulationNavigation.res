@@ -39,18 +39,15 @@ let findViewerForScene = (sceneId: string): option<Viewer.t> => {
   switch globalViewer {
   | Some(v) if LocalViewerBindings.sceneId(v) == sceneId => Some(v)
   | _ =>
-    // 2. Check dual-viewer state (viewerA/viewerB)
-    let viewerA = Nullable.toOption(ViewerState.state.viewerA)
-    let viewerB = Nullable.toOption(ViewerState.state.viewerB)
-
-    switch viewerA {
-    | Some(v) if LocalViewerBindings.sceneId(v) == sceneId => Some(v)
-    | _ =>
-      switch viewerB {
-      | Some(v) if LocalViewerBindings.sceneId(v) == sceneId => Some(v)
-      | _ => None
+    // 2. Check pool instances
+    let found = ref(None)
+    ViewerPool.pool->Belt.Array.forEach(vp => {
+      switch vp.instance {
+      | Some(v) if LocalViewerBindings.sceneId(v) == sceneId => found := Some(v)
+      | _ => ()
       }
-    }
+    })
+    found.contents
   }
 }
 
@@ -84,7 +81,8 @@ let waitForViewerScene = async (
           let v = findViewerForScene(expectedScene.id)
           switch v {
           | Some(viewer) =>
-            if HotspotLine.isViewerReady(viewer) {
+            let ready = HotspotLine.isViewerReady(viewer)
+            if ready {
               Logger.debug(
                 ~module_="Simulation",
                 ~message="VIEWER_READY",
@@ -93,13 +91,25 @@ let waitForViewerScene = async (
               )
               loop := false
             } else {
+              Logger.trace(
+                ~module_="Simulation",
+                ~message="VIEWER_NOT_READY_YET",
+                ~data=Some({"scene": expectedScene.name}),
+                (),
+              )
               let _ = await Promise.make((resolve, _reject) => {
-                let _ = setTimeout(() => resolve(), 50)
+                let _ = setTimeout(() => resolve(), 100)
               })
             }
           | None =>
+            Logger.trace(
+              ~module_="Simulation",
+              ~message="VIEWER_NOT_FOUND_FOR_SCENE",
+              ~data=Some({"scene": expectedScene.name, "id": expectedScene.id}),
+              (),
+            )
             let _ = await Promise.make((resolve, _reject) => {
-              let _ = setTimeout(() => resolve(), 50)
+              let _ = setTimeout(() => resolve(), 100)
             })
           }
         }
