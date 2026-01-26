@@ -114,7 +114,7 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
       className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all group"
     >
       <LucideIcons.Navigation className="text-lg" />
-      <span className="text-[11px] font-black uppercase tracking-widest">
+      <span className="text-[11px] font-semibold uppercase tracking-widest">
         {React.string("GO")}
       </span>
     </button>
@@ -134,7 +134,7 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
         } else {
           <LucideIcons.ChevronRight className="text-[16px]" />
         }}
-        <span className="text-[9px] font-black uppercase tracking-tighter">
+        <span className="text-[9px] font-semibold uppercase tracking-tighter">
           {React.string(
             if isAutoForward {
               "AUTO"

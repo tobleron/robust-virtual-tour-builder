@@ -83,7 +83,7 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
         } else {
           "destructive"
         }}
-        className="w-[32px] h-[32px] rounded-full text-[20px] font-bold border border-transparent hover:border-[#0e2d52]"
+        className="w-[32px] h-[32px] rounded-full text-[20px] font-semibold border border-transparent hover:border-[#0e2d52]"
         onClick={handleFabClick}
       >
         {if isLinking {

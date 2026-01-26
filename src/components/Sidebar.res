@@ -163,7 +163,7 @@ let make = React.memo(() => {
     <div className="relative w-full flex flex-col z-30 text-white shrink-0 sidebar-branding-header">
       <div className="flex flex-col items-center px-6 pt-6 pb-6">
         <div className="flex items-center justify-center gap-3 mb-1">
-          <h1 className="font-heading font-black text-white tracking-widest uppercase text-[27px]">
+          <h1 className="font-heading font-semibold text-white tracking-widest uppercase text-[27px]">
             {React.string("ROBUST")}
           </h1>
           <LucideIcons.Home className="text-white text-[45px]" size=45 />
@@ -499,7 +499,7 @@ let make = React.memo(() => {
           />
           <LucideIcons.Camera className="text-white" size=24 strokeWidth=2.0 />
           <span
-            className="text-[9px] font-bold tracking-widest uppercase writing-vertical-lr hidden"
+            className="text-[9px] font-semibold tracking-widest uppercase writing-vertical-lr hidden"
           >
             {React.string("Add")}
           </span>
@@ -534,11 +534,11 @@ let make = React.memo(() => {
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <div className="spinner !w-3 !h-3 !border-2" />
-              <div className="font-bold text-slate-700 text-[10px] uppercase tracking-widest">
+              <div className="font-semibold text-slate-700 text-[10px] uppercase tracking-widest">
                 {React.string(procState["phase"] == "" ? "Processing" : procState["phase"])}
               </div>
             </div>
-            <div className="font-heading font-black text-primary text-[11px]">
+            <div className="font-heading font-semibold text-primary text-[11px]">
               {React.string(Float.toFixed(procState["progress"], ~digits=0) ++ "%")}
             </div>
           </div>
@@ -556,7 +556,7 @@ let make = React.memo(() => {
             let rightPart = Belt.Array.get(parts, 1)->Option.getOr("")
 
             <div
-              className="text-[9px] text-slate-500 mt-2 font-bold uppercase tracking-tight flex items-center justify-between gap-2"
+              className="text-[9px] text-slate-500 mt-2 font-semibold uppercase tracking-tight flex items-center justify-between gap-2"
             >
               <div className="flex items-center gap-2 min-w-0">
                 <span className="w-1 h-1 bg-success rounded-full animate-pulse shrink-0" />

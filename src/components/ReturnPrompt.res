@@ -58,11 +58,11 @@ let make = React.memo((~incomingLink, ~scenes) => {
     onKeyDown={handleReturnPromptKeyDown}
   >
     <div
-      className="w-6 h-6 bg-brand-gold rounded-full flex items-center justify-center text-black font-black text-xs shadow-sm"
+      className="w-6 h-6 bg-brand-gold rounded-full flex items-center justify-center text-black font-semibold text-xs shadow-sm"
     >
       {React.string("↩")}
     </div>
-    <div className="return-link-text font-ui text-[13px] font-bold text-white">
+    <div className="return-link-text font-ui text-[13px] font-semibold text-white">
       {React.string("Add Return Link")}
     </div>
   </div>
