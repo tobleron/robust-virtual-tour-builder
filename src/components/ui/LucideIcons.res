@@ -339,3 +339,43 @@ module Camera = {
     ~fill: string=?,
   ) => React.element = "Camera"
 }
+
+module Sparkles = {
+  @module("lucide-react") @react.component
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "Sparkles"
+}
+
+module BarChart3 = {
+  @module("lucide-react") @react.component
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "BarChart3"
+}
+
+module Flag = {
+  @module("lucide-react") @react.component
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "Flag"
+}
+
+module Copy = {
+  @module("lucide-react") @react.component
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "Copy"
+}

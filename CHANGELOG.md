@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add unit tests for SceneCache
 - Update SceneHelpers tests and fix sessionId parsing
 - Update ViewerSnapshot unit tests with edge cases
+- Perfected upload summary v1
 
 ### Fixed
 - Resolve React hook dependency mismatch in SimulationDriver and sync local changes
