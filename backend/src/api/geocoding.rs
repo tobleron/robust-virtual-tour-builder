@@ -112,6 +112,45 @@ pub async fn clear_geocode_cache() -> impl actix_web::Responder {
 
 #[cfg(test)]
 mod tests {
-    #[test]
-    fn placeholder() {}
+    use super::*;
+    use crate::services::geocoding;
+    use actix_web::{Responder, http::StatusCode, test, web};
+
+    #[actix_web::test]
+    async fn test_reverse_geocode_structure() {
+        // We can't guarantee network, but we can verify the response structure matches expectations
+        // or fails gracefully.
+
+        // We need to construct the app or call handlers directly.
+        // Calling handler directly is easier if we don't need complex middleware.
+        let resp = reverse_geocode(web::Json(GeocodeRequest { lat: 0.0, lon: 0.0 })).await;
+
+        // It always returns Ok(HttpResponse) unless something catastrophic happens
+        assert!(resp.is_ok());
+        let response = resp.unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+
+        // We could inspect the body, but it requires parsing bytes.
+    }
+
+    #[actix_web::test]
+    async fn test_geocode_stats() {
+        // Ensure stats endpoint returns valid JSON
+        let resp = geocode_stats().await;
+
+        // It's a Responder, so we need to convert it to response
+        let resp = resp.respond_to(&test::TestRequest::default().to_http_request());
+        assert_eq!(resp.status(), StatusCode::OK);
+    }
+
+    #[actix_web::test]
+    async fn test_clear_cache() {
+        let resp = clear_geocode_cache().await;
+        let resp = resp.respond_to(&test::TestRequest::default().to_http_request());
+        assert_eq!(resp.status(), StatusCode::OK);
+
+        // Verify stats are reset
+        let info = geocoding::get_info().await;
+        assert_eq!(info.cache_size, 0);
+    }
 }

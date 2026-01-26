@@ -31,5 +31,6 @@ module Loader = {
     SceneTransitionManager.performSwap(loadedScene, loadStartTime.contents)
   }
 
-  let loadNewScene = SceneLoader.loadNewScene
+  let loadNewScene = (prev, target, ~isAnticipatory=false) =>
+    SceneLoader.loadNewScene(prev, target, ~isAnticipatory)
 }

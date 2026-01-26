@@ -29,9 +29,14 @@ let rec updateFollowLoop = () => {
       false
     }
 
+    let isFsmLoading = switch storeState.navigationFsm {
+    | Preloading(_) | Transitioning(_) | Stabilizing(_) => true
+    | _ => false
+    }
+
     if !state.followLoopActive || !hasViewer || (!storeState.isLinking && !hasHotspots) {
       // Clear lines only if we are truly stopping
-      if !state.isSceneLoading {
+      if !isFsmLoading {
         let svg = Dom.getElementById("viewer-hotspot-lines")
         switch Nullable.toOption(svg) {
         | Some(el) => Dom.setTextContent(el, "")

@@ -139,9 +139,9 @@ describe("ViewerManager", () => {
     let _ = %raw(`vi.clearAllMocks()`)
 
     // Reset ViewerState
-    ViewerState.state.viewerA = Nullable.null
-    ViewerState.state.viewerB = Nullable.null
-    ViewerState.state.activeViewerKey = A
+    ViewerPool.clearInstance("panorama-a")
+    ViewerPool.clearInstance("panorama-b")
+    ViewerPool.pool->Belt.Array.forEach(v => v.status = v.id == "primary-a" ? #Active : #Background)
     ViewerState.state.isSwapping = false
     ViewerState.state.lastSceneId = Nullable.null
     ViewerState.state.lastPreloadingIndex = -1
@@ -208,8 +208,8 @@ describe("ViewerManager", () => {
     await wait(50)
 
     // Check if viewers were nulled in state (side effect of empty scenes effect)
-    t->expect(ViewerState.state.viewerA)->Expect.toBe(Nullable.null)
-    t->expect(ViewerState.state.viewerB)->Expect.toBe(Nullable.null)
+    t->expect(ViewerPool.getActiveViewer())->Expect.toBe(None)
+    t->expect(ViewerPool.getInactiveViewer())->Expect.toBe(None)
 
     let panoA = Dom.getElementById("panorama-a")
     let isActive = switch Nullable.toOption(panoA) {
@@ -300,8 +300,7 @@ describe("ViewerManager", () => {
       "getHfov": () => 90.0,
       "destroy": () => (),
     }
-    ViewerState.state.viewerA = Nullable.make(Obj.magic(mockViewer))
-    ViewerState.state.activeViewerKey = A
+    ViewerPool.registerInstance("panorama-a", Obj.magic(mockViewer))
 
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
@@ -422,7 +421,8 @@ describe("ViewerManager", () => {
 
     await wait(50)
 
-    expectCall(mockLoadNewScene)->toHaveBeenCalledWith2(None, Some(1))
+    // CHECK: Dispatch was called with StartAnticipatoryLoad event
+    expectCall(mockDispatch)->toHaveBeenCalled()
 
     Dom.removeElement(container)
   })

@@ -53,6 +53,14 @@ let reduce = (state: state, action: action): option<state> => {
     } else {
       Some(state)
     }
+  | SetNavigationFsmState(fsmState) => Some({...state, navigationFsm: fsmState})
+  | DispatchNavigationFsmEvent(event) =>
+    let nextFsmState = NavigationFSM.reducer(state.navigationFsm, event)
+    if nextFsmState != state.navigationFsm {
+      Some({...state, navigationFsm: nextFsmState})
+    } else {
+      Some(state)
+    }
   | _ => None
   }
 }

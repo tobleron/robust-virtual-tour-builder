@@ -2,7 +2,6 @@
 
 open ReBindings
 open ViewerState
-open ViewerLoader
 open Types
 
 @react.component
@@ -74,27 +73,14 @@ let make = () => {
   // 1. Cleanup when no scenes
   React.useEffect1(() => {
     if Belt.Array.length(state.scenes) == 0 {
-      let vA = ViewerState.state.viewerA
-      let vB = ViewerState.state.viewerB
-
-      switch Nullable.toOption(vA) {
-      | Some(v) =>
-        try {Viewer.destroy(v)} catch {
-        | _ => ()
+      ViewerPool.pool->Belt.Array.forEach(vVp => {
+        switch vVp.instance {
+        | Some(instance) => PannellumAdapter.destroy(instance)
+        | None => ()
         }
-      | None => ()
-      }
-      switch Nullable.toOption(vB) {
-      | Some(v) =>
-        try {Viewer.destroy(v)} catch {
-        | _ => ()
-        }
-      | None => ()
-      }
+        vVp.instance = None
+      })
 
-      ViewerState.state.viewerA = Nullable.null
-      ViewerState.state.viewerB = Nullable.null
-      ViewerState.state.activeViewerKey = A
       ViewerState.resetState()
 
       let pA = Dom.getElementById("panorama-a")
@@ -120,7 +106,11 @@ let make = () => {
       preIndex != state.activeIndex
     ) {
       ViewerState.state.lastPreloadingIndex = preIndex
-      Loader.loadNewScene(Nullable.toOption(ViewerState.state.lastSceneId), Some(preIndex))
+      switch Belt.Array.get(state.scenes, preIndex) {
+      | Some(s) =>
+        dispatch(DispatchNavigationFsmEvent(StartAnticipatoryLoad({targetSceneId: s.id})))
+      | None => ()
+      }
     }
     None
   }, [state.preloadingSceneIndex])
@@ -132,9 +122,6 @@ let make = () => {
       | Some(scene) =>
         let lastId = Nullable.toOption(ViewerState.state.lastSceneId)
 
-        // SAFETY FIX: If lastSceneId exists but is not in the current project scenes,
-        // it means we switched projects or deleted the scene.
-        // We must reset ViewerState to prevent ID collisions, stale reuse, or stuck loading states.
         let isLastIdValid = switch lastId {
         | Some(id) => Belt.Array.some(state.scenes, s => s.id == id)
         | None => true
@@ -142,27 +129,15 @@ let make = () => {
 
         if !isLastIdValid {
           Logger.info(~module_="ViewerManager", ~message="PROJECT_CONTEXT_RESET", ())
-          let vA = ViewerState.state.viewerA
-          let vB = ViewerState.state.viewerB
 
-          switch Nullable.toOption(vA) {
-          | Some(v) =>
-            try {Viewer.destroy(v)} catch {
-            | _ => ()
+          ViewerPool.pool->Belt.Array.forEach(vVp => {
+            switch vVp.instance {
+            | Some(instance) => PannellumAdapter.destroy(instance)
+            | None => ()
             }
-          | None => ()
-          }
-          switch Nullable.toOption(vB) {
-          | Some(v) =>
-            try {Viewer.destroy(v)} catch {
-            | _ => ()
-            }
-          | None => ()
-          }
+            vVp.instance = None
+          })
 
-          ViewerState.state.viewerA = Nullable.null
-          ViewerState.state.viewerB = Nullable.null
-          ViewerState.state.activeViewerKey = A
           ViewerState.resetState()
 
           let pA = Dom.getElementById("panorama-a")
@@ -184,7 +159,13 @@ let make = () => {
         }
 
         if hasSceneChanged {
-          Loader.loadNewScene(currentLastId, None)
+          Logger.info(
+            ~module_="ViewerManager",
+            ~message="SCENE_CHANGE_DETECTED",
+            ~data=Some({"targetId": scene.id, "prevId": currentLastId}),
+            (),
+          )
+          dispatch(DispatchNavigationFsmEvent(UserClickedScene({targetSceneId: scene.id})))
         } else {
           let v = ViewerState.getActiveViewer()
           switch Nullable.toOption(v) {

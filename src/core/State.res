@@ -24,6 +24,7 @@ let initialState: state = {
   timeline: [],
   activeTimelineStepId: None,
   navigation: Idle,
+  navigationFsm: Idle,
   // isSimulationMode: false,
   simulation: {
     status: Idle,

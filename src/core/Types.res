@@ -167,6 +167,7 @@ type state = {
   activeTimelineStepId: option<string>,
   // Navigation State
   navigation: navigationStatus,
+  navigationFsm: NavigationFSM.distinctState,
   // isSimulationMode: bool, // DEPRECATED in favor of simulation.status
   simulation: simulationState,
   incomingLink: option<linkInfo>,

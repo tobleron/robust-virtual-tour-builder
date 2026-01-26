@@ -101,19 +101,21 @@ type stepJson = {
 
 /* --- DECODERS (Middle ground: Type-checked casts) --- */
 
-external castToHotspots: JSON.t => array<hotspotJson> = "%identity"
-external castToProject: JSON.t => projectJson = "%identity"
-external castToProjectScene: JSON.t => projectSceneJson = "%identity"
-external castToImportScene: JSON.t => importSceneJson = "%identity"
-external castToTimelineItem: JSON.t => timelineItemJson = "%identity"
-external castToUpdateMetadata: JSON.t => updateMetadataJson = "%identity"
-external castToTimelineUpdate: JSON.t => timelineUpdateJson = "%identity"
-external castToValidationReport: JSON.t => SharedTypes.validationReport = "%identity"
-external castToMetadataResponse: JSON.t => SharedTypes.metadataResponse = "%identity"
-external castToQualityAnalysis: JSON.t => SharedTypes.qualityAnalysis = "%identity"
-external castToSimilarityResponse: JSON.t => SharedTypes.similarityResponse = "%identity"
-external castToSteps: JSON.t => array<stepJson> = "%identity"
-external castToExifMetadata: JSON.t => SharedTypes.exifMetadata = "%identity"
+/* --- DECODERS (Middle ground: Type-checked casts) --- */
+
+let castToHotspots = (json: JSON.t): array<hotspotJson> => Obj.magic(json)
+let castToProject = (json: JSON.t): projectJson => Obj.magic(json)
+let castToProjectScene = (json: JSON.t): projectSceneJson => Obj.magic(json)
+let castToImportScene = (json: JSON.t): importSceneJson => Obj.magic(json)
+let castToTimelineItem = (json: JSON.t): timelineItemJson => Obj.magic(json)
+let castToUpdateMetadata = (json: JSON.t): updateMetadataJson => Obj.magic(json)
+let castToTimelineUpdate = (json: JSON.t): timelineUpdateJson => Obj.magic(json)
+let castToValidationReport = (json: JSON.t): SharedTypes.validationReport => Obj.magic(json)
+let castToMetadataResponse = (json: JSON.t): SharedTypes.metadataResponse => Obj.magic(json)
+let castToQualityAnalysis = (json: JSON.t): SharedTypes.qualityAnalysis => Obj.magic(json)
+let castToSimilarityResponse = (json: JSON.t): SharedTypes.similarityResponse => Obj.magic(json)
+let castToSteps = (json: JSON.t): array<stepJson> => Obj.magic(json)
+let castToExifMetadata = (json: JSON.t): SharedTypes.exifMetadata => Obj.magic(json)
 
 let decodeProject = (json: JSON.t): result<projectJson, string> => {
   switch json {
