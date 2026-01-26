@@ -11,7 +11,7 @@
     padding: 2rem;
     text-align: center;
     z-index: 9999;
-    font-family: system-ui, -apple-system, sans-serif;
+    font-family: var(--font-body);
 }
 
 .error-fallback-card {
