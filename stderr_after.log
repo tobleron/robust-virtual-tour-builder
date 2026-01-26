@@ -1,0 +1,12 @@
+Not implemented: navigation to another Document
+Not implemented: navigation to another Document
+Not implemented: navigation to another Document
+[90mstderr[2m | tests/unit/StateInspector_v.test.bs.js[2m > [22m[2mStateInspector[2m > [22m[2mwindow.store.getFullState should return frozen state
+[22m[39m⚠️ Accessing full state. This is for debugging only.
+
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
+     Running unittests src/lib.rs (target/debug/deps/backend-2bf253fbddf7b377)
+     Running unittests src/main.rs (target/debug/deps/backend-530945074c084335)
+     Running tests/shutdown_test.rs (target/debug/deps/shutdown_test-ba940c9160188a29)
+   Doc-tests backend
