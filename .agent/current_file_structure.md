@@ -2950,7 +2950,6 @@
 │   │   ├── ViewerSnapshot.cmj
 │   │   ├── ViewerSnapshot.cmt
 │   │   ├── ViewerSnapshot.res
-│   │   ├── ViewerSnapshot_v.test.ast
 │   │   ├── ViewerSnapshot_v.test.cmi
 │   │   ├── ViewerSnapshot_v.test.cmj
 │   │   ├── ViewerSnapshot_v.test.cmt
@@ -3007,6 +3006,7 @@
 │   │   └── mod.res
 │   └── rescript.lock
 ├── logs
+│   └── log_changes.txt
 ├── old_ref
 │   ├── 7aadee4
 │   │   ├── CHANGELOG.md
@@ -4782,12 +4782,12 @@
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
 │   │       ├── 598_Test_SceneCache_New.md
-│   │       └── 599_Test_SceneHelpers_Update.md
+│   │       ├── 599_Test_SceneHelpers_Update.md
+│   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
 │   │   ├── task_598_reduce_magic.md
 │   │   ├── task_599_backend_tests.md
 │   │   └── tests
-│   │       └── 600_Test_ViewerSnapshot_Update.md
 │   └── postponed
 │       ├── 003_add_seo_structured_data.md
 │       ├── 004_document_core_web_vitals.md
@@ -4803,6 +4803,7 @@
 │       ├── 032_implement_project_dashboard.md
 │       ├── 033_secure_backend_with_jwt.md
 │       └── tests
+├── test_output.txt
 ├── tests
 │   ├── TestRunner.bs.js
 │   ├── TestRunner.res
@@ -5086,4 +5087,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-180 directories, 4907 files
+180 directories, 4908 files
