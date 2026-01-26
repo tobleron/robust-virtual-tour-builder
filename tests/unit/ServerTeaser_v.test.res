@@ -48,7 +48,7 @@ describe("ServerTeaser - Remote Rendering", () => {
     activeYaw: 0.0,
     activePitch: 0.0,
     isLinking: false,
-    transition: {type_: None, targetHotspotIndex: -1, fromSceneName: None},
+    transition: {type_: Fade, targetHotspotIndex: -1, fromSceneName: None},
     lastUploadReport: {success: [], skipped: []},
     exifReport: None,
     linkDraft: None,

@@ -12,7 +12,7 @@ test("SceneReducer: handleSetActiveScene sets active index and transition", t =>
   let state = createMockState(~scenes=[s1, s2], ~activeIndex=0, ())
 
   let transition: Types.transition = {
-    type_: Some("fade"),
+    type_: Fade,
     targetHotspotIndex: 0,
     fromSceneName: Some("s1"),
   }
@@ -24,7 +24,7 @@ test("SceneReducer: handleSetActiveScene sets active index and transition", t =>
   t->expect(result.activeIndex)->Expect.toBe(1)
   t->expect(result.activeYaw)->Expect.toBe(45.0)
   t->expect(result.activePitch)->Expect.toBe(-10.0)
-  t->expect(result.transition.type_)->Expect.toEqual(Some("fade"))
+  t->expect(result.transition.type_)->Expect.toEqual(Fade)
 })
 
 test("SceneReducer: handleSetActiveScene ignores invalid index", t => {

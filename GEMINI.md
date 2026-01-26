@@ -17,7 +17,7 @@
 ### PHASE 1: PRE-FLIGHT
 - **Context Refresh**: Read `MAP.md` to locate core modules via `#tags`. For new files, read `.agent/workflows/new-module-standards.md`.
 - **Task Routing**: If working on a task in `tasks/pending`, follow `tasks/TASKS.md` sequence. Otherwise, execute directly.
-- **Standards**: Read `.agent/workflows/functional-standards.md` + file-specific standards (`rescript`, `rust`) and `docs/PROJECT_SPECS.md` for `design-system`.
+- **Standards**: Read `.agent/workflows/functional-standards.md` (Logic), `docs/PROJECT_SPECS.md` (UI), and `docs/GENERAL_MECHANICS.md` (Init/Testing).
 
 ### PHASE 2: EXECUTION
 - **Test-Driven**: Run `npm test` autonomously. If 2 failures occur, STOP and generate `FAILURE_REPORT.md`.

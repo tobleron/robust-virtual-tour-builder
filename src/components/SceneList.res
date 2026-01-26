@@ -318,7 +318,7 @@ let make = React.memo(() => {
             dispatch(Actions.StopLinking)
           }
           let trans: Types.transition = {
-            type_: Some("cut"),
+            type_: Cut,
             targetHotspotIndex: -1,
             fromSceneName: None,
           }

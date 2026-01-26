@@ -84,7 +84,7 @@ test("NavigationReducer: NavigationCompleted updates state for non-preview", t =
   t->expect(incoming.sceneIndex)->Expect.toBe(3)
   t->expect(incoming.hotspotIndex)->Expect.toBe(2)
 
-  t->expect(result.transition.type_)->Expect.toEqual(Some("link"))
+  t->expect(result.transition.type_)->Expect.toEqual(Link)
 })
 
 test("NavigationReducer: NavigationCompleted ignores mismatched journeyId", t => {
