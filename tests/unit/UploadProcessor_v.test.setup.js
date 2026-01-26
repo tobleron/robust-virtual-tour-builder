@@ -1,19 +1,11 @@
 import { vi } from 'vitest';
 
-vi.mock('../../src/utils/Resizer.bs.js', () => ({
-  checkBackendHealth: () => Promise.resolve(true),
-  getChecksum: () => Promise.resolve('mock_id'),
-  processAndAnalyzeImage: (f) => Promise.resolve({
-    TAG: 'Ok',
-    _0: {
-      preview: f,
-      tiny: [f],
-      quality: { score: 9.0, stats: { avgLuminance: 128 }, isBlurry: false },
-      metadata: { width: 100, height: 100 }
-    }
-  })
-}));
+// We removed the global mocks for Resizer and BackendApi because they 
+// were breaking the unit tests for those specific modules.
+// Tests that need these should mock them locally or use fetch mocking.
 
-vi.mock('../../src/api/BackendApi.bs.js', () => ({
-  batchCalculateSimilarity: () => Promise.resolve({ TAG: 'Ok', _0: [] })
+vi.mock('../../src/utils/VersionData.bs.js', () => ({
+  version: '4.8.0',
+  buildNumber: 147,
+  buildInfo: 'Stable Release',
 }));
