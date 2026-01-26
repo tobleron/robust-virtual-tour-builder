@@ -127,7 +127,6 @@ type scene = {
   categorySet: bool,
   labelSet: bool,
   isAutoForward: bool,
-  mutable preCalculatedSnapshot: option<string>,
 }
 
 type timelineItem = {

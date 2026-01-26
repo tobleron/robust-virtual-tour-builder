@@ -143,7 +143,6 @@ describe("VisualPipeline", () => {
       labelSet: false,
       _metadataSource: "user",
       isAutoForward: true, // AUTO FORWARD
-      preCalculatedSnapshot: None,
     }
 
     let state = {

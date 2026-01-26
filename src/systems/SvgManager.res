@@ -74,7 +74,7 @@ let getElement = (id: string) => {
     | Some(container) if Dom.containsElement(container, el) => Some(el)
     | _ =>
       // Element is stale or container lost it. Remove from cache and try to retrieve from DOM.
-      Dict.set(globalCache.elementMap, id, (Obj.magic(None): Dom.element)) // Effectively clear it
+      Dict.delete(globalCache.elementMap, id)
       None
     }
   | None =>
@@ -150,12 +150,7 @@ let remove = (id: string) => {
   switch getElement(id) {
   | Some(el) =>
     Dom.removeElement(el)
-    // We can't easily remove from Dict without rebuilding it in ReScript/JS standard
-    // But setting it to undefined/removing key is possible in raw JS.
-    // For now, we accept the cache entry might be stale or just keep it.
-    // Actually ReBindings doesn't expose Dict.delete.
-    // We'll manage strictly.
-    ()
+    Dict.delete(globalCache.elementMap, id)
   | None => ()
   }
 }

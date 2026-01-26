@@ -24,7 +24,6 @@ describe("QualityIndicator", () => {
     labelSet: false,
     _metadataSource: "user",
     isAutoForward: false,
-    preCalculatedSnapshot: None,
   }
 
   testAsync("should render quality badges based on analysis", async t => {

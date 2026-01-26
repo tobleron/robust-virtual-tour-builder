@@ -66,7 +66,6 @@ let _ = describe("ProjectData", () => {
       categorySet: false,
       labelSet: false,
       isAutoForward: false,
-      preCalculatedSnapshot: None,
     }
 
     let mockState: Types.state = {

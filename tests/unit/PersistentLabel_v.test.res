@@ -24,7 +24,6 @@ describe("PersistentLabel", () => {
     labelSet: false,
     _metadataSource: "user",
     isAutoForward: false,
-    preCalculatedSnapshot: None,
   }
 
   testAsync("should render label with correctly", async t => {

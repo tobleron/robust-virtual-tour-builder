@@ -39,7 +39,6 @@ let defaultScene: scene = {
   labelSet: false,
   _metadataSource: "user",
   isAutoForward: false,
-  preCalculatedSnapshot: None,
 }
 
 module WrappedViewerUI = {

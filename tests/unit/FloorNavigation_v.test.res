@@ -40,7 +40,6 @@ describe("FloorNavigation", () => {
     labelSet: false,
     _metadataSource: "user",
     isAutoForward: false,
-    preCalculatedSnapshot: None,
   }
 
   testAsync("should handle floor button clicks", async t => {

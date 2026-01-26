@@ -62,7 +62,6 @@ describe("ViewerSnapshot", () => {
       categorySet: false,
       labelSet: false,
       isAutoForward: false,
-      preCalculatedSnapshot: None,
     }
 
     let mockState = {
@@ -85,7 +84,7 @@ describe("ViewerSnapshot", () => {
     await wait(50)
 
     switch Belt.Array.get(GlobalStateBridge.getState().scenes, 0) {
-    | Some(s) => t->expect(Belt.Option.isSome(s.preCalculatedSnapshot))->Expect.toBe(true)
+    | Some(s) => t->expect(Belt.Option.isSome(SceneCache.getSnapshot(s.id)))->Expect.toBe(true)
     | None => t->expect(false)->Expect.toBe(true)
     }
 
@@ -135,7 +134,6 @@ describe("ViewerSnapshot", () => {
       categorySet: false,
       labelSet: false,
       isAutoForward: false,
-      preCalculatedSnapshot: Some("blob:old-url"),
     }
 
     let mockState = {
@@ -148,6 +146,7 @@ describe("ViewerSnapshot", () => {
     ViewerState.state.viewerA = Obj.magic({"id": "mock_viewer"})
     ViewerState.state.activeViewerKey = A
 
+    SceneCache.setSnapshot("s1", "blob:old-url")
     ViewerSnapshot.requestIdleSnapshot()
     let _ = %raw(`global.capturedCallback()`)
 
