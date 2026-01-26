@@ -45,7 +45,7 @@ let handleSetActiveScene = (
   if index >= 0 && index < Belt.Array.length(state.scenes) {
     let newTransition = switch transition {
     | Some(t) => t
-    | None => {type_: None, targetHotspotIndex: -1, fromSceneName: None}
+    | None => {type_: Fade, targetHotspotIndex: -1, fromSceneName: None}
     }
 
     // Applying last used category to the scene if it hasn't been set yet

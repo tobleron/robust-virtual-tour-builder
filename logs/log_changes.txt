@@ -16,3 +16,4 @@
 [2026-01-26 10:43] v4.8.0 - feat: implement comprehensive test suite for viewer components, optimize SvgManager, and resolve build warnings
 [2026-01-26 16:12] v4.8.0 - Refactor SvgManager for safety and cache integrity (Task 595)
 [2026-01-26 17:10] v4.8.0 - Fix React empty src warnings in SceneList (Task 596)
+[2026-01-26 17:33] v4.8.0 - Strictify Transition Types

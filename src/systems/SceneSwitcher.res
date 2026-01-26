@@ -119,7 +119,7 @@ let navigateToScene = (
       )
 
       let transition: transition = {
-        type_: Some("link"),
+        type_: Link,
         targetHotspotIndex: -1,
         fromSceneName: None,
       }

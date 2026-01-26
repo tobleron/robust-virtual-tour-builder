@@ -3007,8 +3007,7 @@
 ├── logs
 │   ├── error.log
 │   ├── log_changes.txt
-│   ├── project-guard.log
-│   └── telemetry.log
+│   └── project-guard.log
 ├── old_ref
 │   ├── 7aadee4
 │   │   ├── CHANGELOG.md
@@ -4787,7 +4786,6 @@
 │   │   ├── 95_Aggregate_Completed_Tasks_REPORT.md
 │   │   └── _CONCISE_SUMMARY.md
 │   ├── pending
-│   │   ├── 597_Strictify_Transition_Types.md
 │   │   └── tests
 │   │       ├── 598_Test_SceneCache_New.md
 │   │       ├── 599_Test_SceneHelpers_Update.md
@@ -5089,4 +5087,4 @@
 │           └── TestUtils.res
 └── vitest.config.mjs
 
-178 directories, 4912 files
+178 directories, 4910 files

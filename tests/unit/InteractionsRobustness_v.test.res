@@ -23,7 +23,7 @@ describe("Interactions Robustness (Chaos Fuzzing)", () => {
     }
 
     // Rule: navigation != Idle implies transition.type_ != None
-    if state.navigation != Idle && state.transition.type_ == None {
+    if state.navigation != Idle && state.transition.type_ == Fade {
       t
       ->expect("Navigation Active")
       ->Expect.toEqual("Transition type should not be None after " ++ lastAction)

@@ -10,7 +10,7 @@ describe("State", () => {
     t->expect(initialState.activeYaw)->Expect.toBe(0.0)
     t->expect(initialState.activePitch)->Expect.toBe(0.0)
     t->expect(initialState.isLinking)->Expect.toBe(false)
-    t->expect(initialState.transition.type_)->Expect.toEqual(None)
+    t->expect(initialState.transition.type_)->Expect.toEqual(Fade)
     t->expect(initialState.lastUploadReport.success)->Expect.toEqual([])
     t->expect(initialState.lastUploadReport.skipped)->Expect.toEqual([])
     t->expect(initialState.exifReport)->Expect.toEqual(None)

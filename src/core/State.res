@@ -8,7 +8,7 @@ let initialState: state = {
   activePitch: 0.0,
   isLinking: false,
   transition: {
-    type_: None,
+    type_: Fade,
     targetHotspotIndex: -1,
     fromSceneName: None,
   },

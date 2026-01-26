@@ -36,7 +36,7 @@ let reduce = (state: state, action: action): option<state> => {
         }
 
         let transition = {
-          type_: Some("link"),
+          type_: Link,
           targetHotspotIndex: -1,
           fromSceneName: None,
         }
