@@ -1,10 +1,8 @@
 .
-├── ANALYSIS_REPORT.md
 ├── CHANGELOG.md
 ├── GEMINI.md
 ├── MAP.md
 ├── README.md
-├── REQUIREMENTS.txt
 ├── backend
 │   ├── Cargo.lock
 │   ├── Cargo.toml
@@ -72,12 +70,8 @@
 │       └── shutdown_test.rs
 ├── bin
 │   └── tailwindcss
-├── build_output.txt
-├── build_output_clean.txt
-├── build_warnings.txt
 ├── cache
 │   └── geocoding.json
-├── components.json
 ├── css
 │   ├── animations.css
 │   ├── base.css
@@ -100,14 +94,11 @@
 │   └── variables.css
 ├── data
 │   └── storage
-├── dev.log
 ├── docs
 │   ├── GENERAL_MECHANICS.md
 │   ├── PROJECT_HISTORY.md
 │   ├── PROJECT_SPECS.md
 │   └── openapi.yaml
-├── full_build_output.txt
-├── icons.txt
 ├── index.html
 ├── jsconfig.json
 ├── lib
@@ -3016,9 +3007,6 @@
 │   │   └── mod.res
 │   └── rescript.lock
 ├── logs
-│   ├── error.log
-│   ├── log_changes.txt
-│   └── project-guard.log
 ├── old_ref
 │   ├── 7aadee4
 │   │   ├── CHANGELOG.md
@@ -4429,8 +4417,6 @@
 │   ├── update-changelog.js
 │   ├── update-readme.js
 │   └── update-version.js
-├── sep1.txt
-├── sep2.txt
 ├── src
 │   ├── App.bs.js
 │   ├── App.res
@@ -4709,8 +4695,6 @@
 │       ├── VersionData.bs.js
 │       └── VersionData.res
 ├── start_prod.sh
-├── stderr.log
-├── stderr_after.log
 ├── tailwind.config.js
 ├── tasks
 │   ├── TASKS.md
@@ -4795,11 +4779,14 @@
 │   │   ├── 595_Refactor_SvgManager_Safety.md
 │   │   ├── 596_Fix_React_Src_Warnings_REPORT.md
 │   │   ├── 95_Aggregate_Completed_Tasks_REPORT.md
-│   │   └── _CONCISE_SUMMARY.md
-│   ├── pending
+│   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
 │   │       ├── 598_Test_SceneCache_New.md
-│   │       ├── 599_Test_SceneHelpers_Update.md
+│   │       └── 599_Test_SceneHelpers_Update.md
+│   ├── pending
+│   │   ├── task_598_reduce_magic.md
+│   │   ├── task_599_backend_tests.md
+│   │   └── tests
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   └── postponed
 │       ├── 003_add_seo_structured_data.md
@@ -4816,8 +4803,6 @@
 │       ├── 032_implement_project_dashboard.md
 │       ├── 033_secure_backend_with_jwt.md
 │       └── tests
-├── test_output.txt
-├── tested_icons.txt
 ├── tests
 │   ├── TestRunner.bs.js
 │   ├── TestRunner.res
@@ -5098,6 +5083,7 @@
 │       └── utils
 │           ├── TestUtils.bs.js
 │           └── TestUtils.res
+├── tmp
 └── vitest.config.mjs
 
-178 directories, 4923 files
+180 directories, 4907 files

@@ -48,14 +48,17 @@ describe("SceneHelpers", () => {
     sc
   }
 
-  test("Parse full project structure", t => {
+  test("Parse full project structure with new fields", t => {
     let json = JSON.parseOrThrow(`{
       "tourName": "Full Project",
+      "sessionId": "test-session",
+      "exifReport": {"summary": "valid"},
       "scenes": [
         {
           "id": "s1",
           "name": "s1.webp",
           "file": {"some": "file"},
+          "isAutoForward": true,
           "hotspots": [
              {
                "linkId": "h1",
@@ -63,18 +66,29 @@ describe("SceneHelpers", () => {
                "pitch": 20.0,
                "target": "s2.webp",
                "duration": 500,
-               "viewFrame": {"yaw": 1.0, "pitch": 2.0, "hfov": 90.0}
+               "viewFrame": {"yaw": 1.0, "pitch": 2.0, "hfov": 90.0},
+               "waypoints": [
+                 {"yaw": 5.0, "pitch": 5.0, "hfov": 95.0}
+               ]
              }
           ]
+        },
+        {
+          "id": "s2",
+          "name": "s2.webp",
+          "file": "foo"
         }
       ]
     }`)
 
     let state = parseProject(json)
     t->expect(state.tourName)->Expect.toEqual("Full Project")
+    t->expect(state.sessionId)->Expect.toEqual(Some("test-session"))
+    t->expect(state.exifReport)->Expect.toEqual(Some(JSON.parseOrThrow(`{"summary": "valid"}`)))
 
     let s1 = Belt.Array.getExn(state.scenes, 0)
     t->expect(s1.id)->Expect.toEqual("s1")
+    t->expect(s1.isAutoForward)->Expect.toEqual(true)
 
     let h1 = Belt.Array.getExn(s1.hotspots, 0)
     t->expect(h1.linkId)->Expect.toEqual("h1")
@@ -89,6 +103,15 @@ describe("SceneHelpers", () => {
       t->expect(vf.yaw)->Expect.toEqual(1.0)
       t->expect(vf.pitch)->Expect.toEqual(2.0)
     | None => failwith("Expected viewFrame")
+    }
+
+    // Verify waypoints
+    switch h1.waypoints {
+    | Some(wps) =>
+      t->expect(Belt.Array.length(wps))->Expect.toEqual(1)
+      let wp = Belt.Array.getExn(wps, 0)
+      t->expect(wp.yaw)->Expect.toEqual(5.0)
+    | None => failwith("Expected waypoints")
     }
   })
 
@@ -204,6 +227,18 @@ describe("SceneHelpers", () => {
     t->expect(Belt.Array.some(stateAfterAdd.scenes, s => s.id == "new"))->Expect.toEqual(true)
   })
 
+  test("parseScene logic", t => {
+    let sceneJson = JSON.parseOrThrow(`{
+      "id": "s-123",
+      "name": "office.webp",
+      "preview": "blob:office"
+    }`)
+    let scene = parseScene(sceneJson)
+    t->expect(scene.id)->Expect.toEqual("s-123")
+    t->expect(scene.name)->Expect.toEqual("office.webp")
+    t->expect(scene.category)->Expect.toEqual("outdoor") // Default
+  })
+
   test("handleAddScenes first load robustness", t => {
     let stateEmptyWithMuckIndex = {
       ...State.initialState,
@@ -241,12 +276,15 @@ describe("SceneHelpers", () => {
     }
     let metaJson = JSON.parseOrThrow(`{
       "category": "outdoor",
-      "floor": "roof"
+      "floor": "roof",
+      "isAutoForward": true
     }`)
     let stateAfterMeta = handleUpdateSceneMetadata(stateWithScenes, 0, metaJson)
     let updatedS1 = Belt.Array.getExn(stateAfterMeta.scenes, 0)
     t->expect(updatedS1.category)->Expect.toEqual("outdoor")
     t->expect(updatedS1.floor)->Expect.toEqual("roof")
+    t->expect(updatedS1.isAutoForward)->Expect.toEqual(true)
+    t->expect(updatedS1.categorySet)->Expect.toEqual(true)
     t->expect(stateAfterMeta.lastUsedCategory)->Expect.toEqual("outdoor")
   })
 
@@ -288,5 +326,35 @@ describe("SceneHelpers", () => {
     // s2 isAutoForward should be reset to false because nothing points to it anymore
     let s2AfterRemove = Belt.Array.getExn(stateAfterRemoveHotspot.scenes, 1)
     t->expect(s2AfterRemove.isAutoForward)->Expect.toEqual(false)
+  })
+
+  test("handleRemoveHotspot logic: does not reset isAutoForward if other references exist", t => {
+    let s1 = makeDummyScene(
+      ~id="s1",
+      ~name="s1.webp",
+      ~hotspots=[makeDummyHotspot(~target="s3.webp", ())],
+      (),
+    )
+    let s2 = makeDummyScene(
+      ~id="s2",
+      ~name="s2.webp",
+      ~hotspots=[makeDummyHotspot(~target="s3.webp", ())],
+      (),
+    )
+    let s3 = {
+      ...makeDummyScene(~id="s3", ~name="s3.webp", ()),
+      isAutoForward: true,
+    }
+
+    let state = {
+      ...State.initialState,
+      scenes: [s1, s2, s3],
+    }
+
+    // Remove hotspot in s1 pointing to s3
+    let result = handleRemoveHotspot(state, 0, 0)
+    let s3Result = Belt.Array.getExn(result.scenes, 2)
+    // Should still be auto-forward because s2 still points to it
+    t->expect(s3Result.isAutoForward)->Expect.toEqual(true)
   })
 })
