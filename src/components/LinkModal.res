@@ -161,7 +161,7 @@ let showLinkModal = (
   EventBus.dispatch(
     ShowModal({
       title: "Link Destination",
-      description: Some("Saving current view as \"Target\""),
+      description: None,
       icon: Some("add_link"),
       content: Some(content),
       allowClose: Some(true),
@@ -170,7 +170,7 @@ let showLinkModal = (
           GlobalStateBridge.dispatch(Actions.StopLinking)
         },
       ),
-      className: None,
+      className: Some("modal-blue"),
       buttons: [
         {
           label: "Save Link",
@@ -180,7 +180,7 @@ let showLinkModal = (
         },
         {
           label: "Cancel",
-          class_: "btn-secondary",
+          class_: "bg-slate-100 text-slate-700",
           onClick: () => {EventBus.dispatch(CloseModal)},
           autoClose: Some(false),
         },

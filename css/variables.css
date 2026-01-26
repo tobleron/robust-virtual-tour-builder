@@ -87,11 +87,11 @@
     --glass-border: rgba(255, 255, 255, 0.1);
     --glass-blur: 12px;
 
-    /* Typography */
+    /* Typography - Unified to Outfit */
     --font-heading: "Outfit", system-ui, -apple-system, sans-serif;
     --font-body: "Outfit", system-ui, -apple-system, sans-serif;
-    --font-ui: "Inter", system-ui, -apple-system, sans-serif;
-    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --font-ui: "Outfit", system-ui, -apple-system, sans-serif;
+    --font-mono: "Outfit", system-ui, -apple-system, sans-serif;
 
     /* Spacing */
     --viewer-btn-size: 37px;
