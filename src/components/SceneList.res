@@ -96,12 +96,16 @@ module SceneItem = {
         <div
           className="w-20 h-full relative bg-slate-900 overflow-hidden cursor-pointer rounded-md"
         >
-          <img
-            src={thumbUrl}
-            alt={`Thumbnail of ${scene.name}`}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100"
-            loading=#lazy
-          />
+          {if thumbUrl != "" {
+            <img
+              src={thumbUrl}
+              alt={`Thumbnail of ${scene.name}`}
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100"
+              loading=#lazy
+            />
+          } else {
+            React.null
+          }}
           <div className="absolute inset-0 bg-gradient-to-r from-slate-950/40 to-transparent" />
 
           <div
