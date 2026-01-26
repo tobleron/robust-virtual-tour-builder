@@ -1,6 +1,5 @@
 open Vitest
 open ReBindings
-open Types
 
 describe("ViewerSnapshot", () => {
   let wait = ms =>
@@ -46,29 +45,8 @@ describe("ViewerSnapshot", () => {
     `)
 
     // Setup State
-    let scene: scene = {
-      id: "s1",
-      name: "Scene 1",
-      file: Url(""),
-      tinyFile: None,
-      originalFile: None,
-      hotspots: [],
-      category: "test",
-      floor: "1",
-      label: "label",
-      quality: None,
-      colorGroup: None,
-      _metadataSource: "manual",
-      categorySet: false,
-      labelSet: false,
-      isAutoForward: false,
-    }
-
-    let mockState = {
-      ...State.initialState,
-      scenes: [scene],
-      activeIndex: 0,
-    }
+    let scene = TestUtils.createMockScene(~id="s1", ~name="Scene 1", ())
+    let mockState = TestUtils.createMockState(~scenes=[scene], ~activeIndex=0, ())
     GlobalStateBridge.setState(mockState)
 
     // Mock Viewer
@@ -83,13 +61,10 @@ describe("ViewerSnapshot", () => {
 
     await wait(50)
 
-    switch Belt.Array.get(GlobalStateBridge.getState().scenes, 0) {
-    | Some(s) => t->expect(Belt.Option.isSome(SceneCache.getSnapshot(s.id)))->Expect.toBe(true)
-    | None => t->expect(false)->Expect.toBe(true)
-    }
+    t->expect(Belt.Option.isSome(SceneCache.getSnapshot("s1")))->Expect.toBe(true)
 
     // Restore setTimeout
-    let _ = %raw(`window.setTimeout = require('node:timers').setTimeout`)
+    let _ = %raw(`window.setTimeout = global.originalSetTimeout || window.setTimeout`)
   })
 
   testAsync("should revoke old object URL when capturing new snapshot", async t => {
@@ -118,29 +93,8 @@ describe("ViewerSnapshot", () => {
       })()
     `)
 
-    let scene: scene = {
-      id: "s1",
-      name: "Scene 1",
-      file: Url(""),
-      tinyFile: None,
-      originalFile: None,
-      hotspots: [],
-      category: "test",
-      floor: "1",
-      label: "label",
-      quality: None,
-      colorGroup: None,
-      _metadataSource: "manual",
-      categorySet: false,
-      labelSet: false,
-      isAutoForward: false,
-    }
-
-    let mockState = {
-      ...State.initialState,
-      scenes: [scene],
-      activeIndex: 0,
-    }
+    let scene = TestUtils.createMockScene(~id="s1", ~name="Scene 1", ())
+    let mockState = TestUtils.createMockState(~scenes=[scene], ~activeIndex=0, ())
     GlobalStateBridge.setState(mockState)
 
     ViewerState.state.viewerA = Obj.magic({"id": "mock_viewer"})
@@ -156,7 +110,51 @@ describe("ViewerSnapshot", () => {
     t->expect(revoked)->Expect.toBe("blob:old-url")
 
     // Restore
-    let _ = %raw(`window.setTimeout = require('node:timers').setTimeout`)
-    let _ = %raw(`window.URL.revokeObjectURL = () => {}`) // dummy restore
+    let _ = %raw(`window.setTimeout = global.originalSetTimeout || window.setTimeout`)
+  })
+
+  testAsync("should skip capture if no viewer is active", async t => {
+    let _ = %raw(`
+      (function(){
+        global.capturedCallback = null;
+        const oldSetTimeout = window.setTimeout;
+        window.setTimeout = (cb, delay) => {
+          if (delay === require('../../src/utils/Constants.bs.js').idleSnapshotDelay) {
+            global.capturedCallback = cb;
+            return 997;
+          }
+          return oldSetTimeout(cb, delay);
+        };
+      })()
+    `)
+
+    ViewerState.state.viewerA = Nullable.null
+    ViewerState.state.viewerB = Nullable.null
+
+    SceneCache.clearAll()
+    ViewerSnapshot.requestIdleSnapshot()
+    let _ = %raw(`global.capturedCallback()`)
+
+    await wait(20)
+    t->expect(SceneCache.getSnapshot("any"))->Expect.toBe(None)
+  })
+
+  testAsync("should skip capture if no canvas is found", async t => {
+    let _ = %raw(`
+      (function(){
+        document.body.innerHTML = '<div id="panorama-a"></div>'; // No canvas
+        global.capturedCallback = null;
+      })()
+    `)
+
+    ViewerState.state.viewerA = Obj.magic({"id": "mock_viewer"})
+    ViewerState.state.activeViewerKey = A
+
+    SceneCache.clearAll()
+    ViewerSnapshot.requestIdleSnapshot()
+    let _ = %raw(`global.capturedCallback()`)
+
+    await wait(20)
+    t->expect(SceneCache.getSnapshot("s1"))->Expect.toBe(None)
   })
 })

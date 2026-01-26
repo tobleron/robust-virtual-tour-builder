@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Strictify Transition Types
 - Add unit tests for SceneCache
 - Update SceneHelpers tests and fix sessionId parsing
+- Update ViewerSnapshot unit tests with edge cases
 
 ## [4.8.0] - 2026-01-25
 
