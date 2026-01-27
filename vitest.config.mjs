@@ -13,7 +13,7 @@ export default defineConfig({
         ],
         server: {
             deps: {
-                inline: ['sonner']
+                inline: ['sonner', 'rescript-schema']
             }
         }
     },
