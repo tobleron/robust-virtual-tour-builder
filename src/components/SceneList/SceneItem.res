@@ -95,9 +95,7 @@ let make = React.memo((
     </div>
 
     <div className="flex flex-col gap-0 h-full p-1">
-      <div
-        className="w-20 h-full relative bg-slate-900 overflow-hidden cursor-pointer rounded-md"
-      >
+      <div className="w-20 h-full relative bg-slate-900 overflow-hidden cursor-pointer rounded-md">
         {if thumbUrl != "" {
           <img
             src={thumbUrl}

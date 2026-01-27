@@ -69,10 +69,15 @@ pub async fn load_cache_from_disk() -> std::io::Result<()> {
         Ok(contents) => {
             let data: serde_json::Value = serde_json::from_str(&contents)?;
             if let Some(cache_obj) = data.get("cache") {
-                let loaded_cache: HashMap<GeocodeKey, CachedGeocode> = serde_json::from_value(cache_obj.clone())?;
+                let loaded_cache: HashMap<GeocodeKey, CachedGeocode> =
+                    serde_json::from_value(cache_obj.clone())?;
                 let mut cache = GEOCODE_CACHE.write().await;
                 *cache = loaded_cache;
-                tracing::info!(module = "Geocoder", entries = cache.len(), "CACHE_LOADED_FROM_DISK");
+                tracing::info!(
+                    module = "Geocoder",
+                    entries = cache.len(),
+                    "CACHE_LOADED_FROM_DISK"
+                );
             }
             if let Some(stats_obj) = data.get("stats") {
                 let loaded_stats: CacheStats = serde_json::from_value(stats_obj.clone())?;
@@ -176,7 +181,9 @@ mod tests {
                 },
             );
         }
-        let result = reverse_geocode(lat, lon).await.expect("Reverse geocode failed");
+        let result = reverse_geocode(lat, lon)
+            .await
+            .expect("Reverse geocode failed");
         assert_eq!(result, address);
         let info = get_info().await;
         assert_eq!(info.stats.hits, 1);
@@ -221,7 +228,14 @@ mod tests {
     async fn test_clear_cache_internal() {
         {
             let mut cache = GEOCODE_CACHE.write().await;
-            cache.insert((1, 1), CachedGeocode { address: "foo".to_string(), last_accessed: 0, access_count: 0 });
+            cache.insert(
+                (1, 1),
+                CachedGeocode {
+                    address: "foo".to_string(),
+                    last_accessed: 0,
+                    access_count: 0,
+                },
+            );
         }
         clear_cache().await;
         let cache = GEOCODE_CACHE.read().await;

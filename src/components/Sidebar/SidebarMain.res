@@ -51,7 +51,7 @@ let make = React.memo(() => {
 
   React.useEffect0(() => {
     Logger.initialized(~module_="SidebarMain")
-    
+
     let unsubscribe = EventBus.subscribe(
       event => {
         switch event {
@@ -204,7 +204,12 @@ let make = React.memo(() => {
         className="hidden"
         onChange={e => {
           let target = JsxEvent.Form.target(e)->Dom.unsafeToElement
-          let _ = handleLoadProject(Dom.getFiles(target), dispatch, Array.length(sceneSlice.scenes), target)
+          let _ = handleLoadProject(
+            Dom.getFiles(target),
+            dispatch,
+            Array.length(sceneSlice.scenes),
+            target,
+          )
         }}
       />
     </div>

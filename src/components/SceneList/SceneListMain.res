@@ -19,7 +19,7 @@ let make = React.memo(() => {
 
   React.useEffect0(() => {
     Logger.initialized(~module_="SceneListMain")
-    
+
     let scrollContainer = switch Nullable.toOption(containerRef.current) {
     | Some(el) =>
       let sc = ReBindings.Dom.closest(el, ".sidebar-content")
@@ -89,7 +89,12 @@ let make = React.memo(() => {
         if timeDiff < throttleLimit {
           EventBus.dispatch(ShowNotification("Switching too fast - Please wait...", #Warning))
         } else {
-          Logger.info(~module_="SceneList", ~message="SCENE_SWITCH_CLICKED", ~data=Some({"index": index}), ())
+          Logger.info(
+            ~module_="SceneList",
+            ~message="SCENE_SWITCH_CLICKED",
+            ~data=Some({"index": index}),
+            (),
+          )
           ViewerState.state.lastSwitchTime = now
 
           dispatch(Actions.SetNavigationStatus(Types.Idle))
@@ -110,7 +115,12 @@ let make = React.memo(() => {
 
   let handleDelete = React.useMemo1(() =>
     index => {
-      Logger.info(~module_="SceneList", ~message="SCENE_DELETE_REQUESTED", ~data=Some({"index": index}), ())
+      Logger.info(
+        ~module_="SceneList",
+        ~message="SCENE_DELETE_REQUESTED",
+        ~data=Some({"index": index}),
+        (),
+      )
       dispatch(Actions.DeleteScene(index))
       EventBus.dispatch(ShowNotification("Scene Removed", #Info))
     }
@@ -118,7 +128,12 @@ let make = React.memo(() => {
 
   let handleClearLinks = React.useMemo1(() =>
     index => {
-      Logger.info(~module_="SceneList", ~message="SCENE_CLEAR_LINKS_REQUESTED", ~data=Some({"index": index}), ())
+      Logger.info(
+        ~module_="SceneList",
+        ~message="SCENE_CLEAR_LINKS_REQUESTED",
+        ~data=Some({"index": index}),
+        (),
+      )
       dispatch(Actions.ClearHotspots(index))
       EventBus.dispatch(ShowNotification("Links Cleared", #Info))
     }
@@ -144,7 +159,12 @@ let make = React.memo(() => {
           switch current {
           | Some(fromIndex) =>
             if fromIndex != targetIndex {
-              Logger.info(~module_="SceneList", ~message="SCENE_REORDER", ~data=Some({"from": fromIndex, "to": targetIndex}), ())
+              Logger.info(
+                ~module_="SceneList",
+                ~message="SCENE_REORDER",
+                ~data=Some({"from": fromIndex, "to": targetIndex}),
+                (),
+              )
               dispatch(Actions.ReorderScenes(fromIndex, targetIndex))
             }
             None

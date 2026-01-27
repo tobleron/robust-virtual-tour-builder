@@ -15,7 +15,8 @@ module Canvas = {
 
   @send external fillRect: (context2d, float, float, float, float) => unit = "fillRect"
   @send
-  external drawImage: (context2d, DomBindings.Dom.element, float, float, float, float) => unit = "drawImage"
+  external drawImage: (context2d, DomBindings.Dom.element, float, float, float, float) => unit =
+    "drawImage"
   @send
   external drawImageCoords: (
     context2d,
@@ -48,7 +49,8 @@ module Svg = {
   @scope("document") @val
   external createElementNS: (string, string) => DomBindings.Dom.element = "createElementNS"
   @send external setAttribute: (DomBindings.Dom.element, string, string) => unit = "setAttribute"
-  @send external appendChild: (DomBindings.Dom.element, DomBindings.Dom.element) => unit = "appendChild"
+  @send
+  external appendChild: (DomBindings.Dom.element, DomBindings.Dom.element) => unit = "appendChild"
 
   @set external setOnMouseOver: (DomBindings.Dom.element, unit => unit) => unit = "onmouseover"
   @set external setOnMouseOut: (DomBindings.Dom.element, unit => unit) => unit = "onmouseout"

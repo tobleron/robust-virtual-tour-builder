@@ -1,9 +1,5 @@
 /* src/systems/ExifReportGeneratorLogicLocation.res */
 
-open ReBindings
-open SharedTypes
-open ExifReportGeneratorTypes
-
 let analyzeLocation = async (gpsPoints, gpsFilenames, totalCount, lines) => {
   let resolvedAddress = ref(None)
 

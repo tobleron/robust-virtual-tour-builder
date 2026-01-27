@@ -19,7 +19,10 @@ mod tests {
     fn test_suggested_name_regex() {
         assert_eq!(get_suggested_name("_240114_00_001.jpg"), "240114_001");
         assert_eq!(get_suggested_name("random_file.png"), "random_file");
-        assert_eq!(get_suggested_name("images/_240114_00_001.jpg"), "240114_001");
+        assert_eq!(
+            get_suggested_name("images/_240114_00_001.jpg"),
+            "240114_001"
+        );
     }
 
     #[test]
@@ -68,7 +71,13 @@ mod tests {
         }
         let res_bright = perform_metadata_extraction_rgba(&bright_rgba, w, h, &vec![0], None)
             .expect("Metadata extraction failed");
-        assert!(res_bright.quality.analysis.expect("Analysis missing").contains("Very bright"));
+        assert!(
+            res_bright
+                .quality
+                .analysis
+                .expect("Analysis missing")
+                .contains("Very bright")
+        );
     }
 
     #[test]

@@ -1,6 +1,5 @@
 /* src/utils/LoggerTypes.res */
 
-
 type level =
   | Trace
   | Debug

@@ -58,26 +58,46 @@ pub async fn call_osm_nominatim(lat: f64, lon: f64) -> Result<String, String> {
         let mut parts = Vec::new();
 
         // Extract address components
-        if let Some(road) = address_obj.get("road").and_then(|v| v.as_str()) && !road.is_empty() {
+        if let Some(road) = address_obj.get("road").and_then(|v| v.as_str())
+            && !road.is_empty()
+        {
             parts.push(road.to_string());
         }
 
-        let suburb = address_obj.get("suburb").or_else(|| address_obj.get("neighbourhood")).and_then(|v| v.as_str());
-        if let Some(s) = suburb && !s.is_empty() {
+        let suburb = address_obj
+            .get("suburb")
+            .or_else(|| address_obj.get("neighbourhood"))
+            .and_then(|v| v.as_str());
+        if let Some(s) = suburb
+            && !s.is_empty()
+        {
             parts.push(s.to_string());
         }
 
-        let city = address_obj.get("city").or_else(|| address_obj.get("town")).or_else(|| address_obj.get("village")).and_then(|v| v.as_str());
-        if let Some(c) = city && !c.is_empty() {
+        let city = address_obj
+            .get("city")
+            .or_else(|| address_obj.get("town"))
+            .or_else(|| address_obj.get("village"))
+            .and_then(|v| v.as_str());
+        if let Some(c) = city
+            && !c.is_empty()
+        {
             parts.push(c.to_string());
         }
 
-        let state = address_obj.get("state").or_else(|| address_obj.get("province")).and_then(|v| v.as_str());
-        if let Some(s) = state && !s.is_empty() {
+        let state = address_obj
+            .get("state")
+            .or_else(|| address_obj.get("province"))
+            .and_then(|v| v.as_str());
+        if let Some(s) = state
+            && !s.is_empty()
+        {
             parts.push(s.to_string());
         }
 
-        if let Some(country) = address_obj.get("country").and_then(|v| v.as_str()) && !country.is_empty() {
+        if let Some(country) = address_obj.get("country").and_then(|v| v.as_str())
+            && !country.is_empty()
+        {
             parts.push(country.to_string());
         }
 

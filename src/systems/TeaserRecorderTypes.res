@@ -1,6 +1,5 @@
 /* src/systems/TeaserRecorderTypes.res */
 
-
 let canvasWidth = Constants.Teaser.canvasWidth
 let canvasHeight = Constants.Teaser.canvasHeight
 

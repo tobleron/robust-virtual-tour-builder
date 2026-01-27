@@ -1,11 +1,7 @@
 /* src/components/Sidebar/SidebarProjectInfo.res */
 
 @react.component
-let make = React.memo((
-  ~localTourName,
-  ~onTourNameChange,
-  ~onUploadClick,
-) => {
+let make = React.memo((~localTourName, ~onTourNameChange, ~onUploadClick) => {
   React.useEffect0(() => {
     Logger.initialized(~module_="SidebarProjectInfo")
     None

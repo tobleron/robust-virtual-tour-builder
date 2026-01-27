@@ -110,6 +110,7 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
         } else {
           React.null
         }}
+
         /* Batch Health moved to bottom */
         <div className="upload-report-footer-score">
           <div className="upload-report-title"> {React.string("Batch Health")} </div>

@@ -10,10 +10,9 @@ use std::path::PathBuf;
 use uuid::Uuid;
 
 use crate::api::utils::{
-    MAX_UPLOAD_SIZE, SESSIONS_DIR, TEMP_DIR,
-    get_temp_path, sanitize_filename,
+    MAX_UPLOAD_SIZE, SESSIONS_DIR, TEMP_DIR, get_temp_path, sanitize_filename,
 };
-use crate::models::{AppError};
+use crate::models::AppError;
 use crate::services::project;
 
 mod storage_logic;
@@ -38,9 +37,13 @@ pub async fn save_project(mut payload: Multipart) -> Result<HttpResponse, AppErr
     let mut temp_images: Vec<(String, PathBuf)> = Vec::new();
 
     while let Some(mut field) = payload.try_next().await? {
-        let content_disposition = field.content_disposition()
+        let content_disposition = field
+            .content_disposition()
             .ok_or_else(|| AppError::InternalError("Missing content disposition".into()))?;
-        let name = content_disposition.get_name().unwrap_or("unknown").to_string();
+        let name = content_disposition
+            .get_name()
+            .unwrap_or("unknown")
+            .to_string();
 
         if name == "project_data" {
             let mut bytes = Vec::new();
@@ -49,7 +52,9 @@ pub async fn save_project(mut payload: Multipart) -> Result<HttpResponse, AppErr
             }
             project_json = Some(String::from_utf8_lossy(&bytes).to_string());
         } else if name == "files" {
-            let filename = content_disposition.get_filename().map(|f| f.to_string())
+            let filename = content_disposition
+                .get_filename()
+                .map(|f| f.to_string())
                 .unwrap_or_else(|| format!("img_{}.webp", Uuid::new_v4()));
             let sanitized_name = sanitize_filename(&filename)
                 .unwrap_or_else(|_| format!("img_{}.webp", Uuid::new_v4()));
@@ -85,7 +90,15 @@ pub async fn save_project(mut payload: Multipart) -> Result<HttpResponse, AppErr
     let zip_creation_result = web::block({
         let validated_json = validated_json.clone();
         let session_id = session_id.clone();
-        move || create_project_zip_sync(final_zip_path, validated_json, summary_content, temp_images, session_id)
+        move || {
+            create_project_zip_sync(
+                final_zip_path,
+                validated_json,
+                summary_content,
+                temp_images,
+                session_id,
+            )
+        }
     })
     .await
     .map_err(|e| AppError::InternalError(e.to_string()))?;
@@ -96,9 +109,15 @@ pub async fn save_project(mut payload: Multipart) -> Result<HttpResponse, AppErr
             let file_bytes = fs::read(&zip_path).map_err(AppError::IoError)?;
             let _ = fs::remove_file(&zip_path);
 
-            tracing::info!(module = "ProjectManager", duration_ms = duration, "SAVE_PROJECT_COMPLETE");
+            tracing::info!(
+                module = "ProjectManager",
+                duration_ms = duration,
+                "SAVE_PROJECT_COMPLETE"
+            );
 
-            Ok(HttpResponse::Ok().content_type("application/zip").body(file_bytes))
+            Ok(HttpResponse::Ok()
+                .content_type("application/zip")
+                .body(file_bytes))
         }
         Err(e) => {
             let _ = fs::remove_file(&zip_path);
@@ -131,8 +150,14 @@ pub async fn load_project(mut payload: Multipart) -> Result<HttpResponse, AppErr
     let duration = start.elapsed().as_millis();
     match result_zip {
         Ok(zip_bytes) => {
-            tracing::info!(module = "ProjectManager", duration_ms = duration, "LOAD_PROJECT_COMPLETE");
-            Ok(HttpResponse::Ok().content_type("application/zip").body(zip_bytes))
+            tracing::info!(
+                module = "ProjectManager",
+                duration_ms = duration,
+                "LOAD_PROJECT_COMPLETE"
+            );
+            Ok(HttpResponse::Ok()
+                .content_type("application/zip")
+                .body(zip_bytes))
         }
         Err(e) => {
             tracing::error!(module = "ProjectManager", duration_ms = duration, error = %e, "LOAD_PROJECT_FAILED");
@@ -150,7 +175,10 @@ pub async fn import_project(mut payload: Multipart) -> Result<HttpResponse, AppE
     tracing::info!(module = "ProjectManager", session_id = %session_id, "IMPORT_PROJECT_START");
 
     while let Ok(Some(mut field)) = payload.try_next().await {
-        let name = field.content_disposition().and_then(|cd| cd.get_name()).unwrap_or("unknown");
+        let name = field
+            .content_disposition()
+            .and_then(|cd| cd.get_name())
+            .unwrap_or("unknown");
 
         if name == "file" {
             let tmp_path = format!("{}/{}_upload.zip", TEMP_DIR, session_id);
@@ -163,10 +191,13 @@ pub async fn import_project(mut payload: Multipart) -> Result<HttpResponse, AppE
 
             // Unzip
             let file = fs::File::open(&tmp_path).map_err(AppError::IoError)?;
-            let mut archive = zip::ZipArchive::new(file).map_err(|e| AppError::ZipError(e.to_string()))?;
+            let mut archive =
+                zip::ZipArchive::new(file).map_err(|e| AppError::ZipError(e.to_string()))?;
 
             for i in 0..archive.len() {
-                let mut file = archive.by_index(i).map_err(|e| AppError::ZipError(e.to_string()))?;
+                let mut file = archive
+                    .by_index(i)
+                    .map_err(|e| AppError::ZipError(e.to_string()))?;
                 let outpath = match file.enclosed_name() {
                     Some(path) => session_dir.join(path),
                     None => continue,
@@ -175,7 +206,9 @@ pub async fn import_project(mut payload: Multipart) -> Result<HttpResponse, AppE
                 if file.name().ends_with('/') {
                     fs::create_dir_all(&outpath).map_err(AppError::IoError)?;
                 } else {
-                    if let Some(p) = outpath.parent() && !p.exists() {
+                    if let Some(p) = outpath.parent()
+                        && !p.exists()
+                    {
                         fs::create_dir_all(p).map_err(AppError::IoError)?;
                     }
                     let mut outfile = fs::File::create(&outpath).map_err(AppError::IoError)?;
@@ -187,7 +220,9 @@ pub async fn import_project(mut payload: Multipart) -> Result<HttpResponse, AppE
 
             let project_json_path = session_dir.join("project.json");
             if !project_json_path.exists() {
-                return Err(AppError::InternalError("project.json not found in archive".into()));
+                return Err(AppError::InternalError(
+                    "project.json not found in archive".into(),
+                ));
             }
 
             let json_str = fs::read_to_string(project_json_path).map_err(AppError::IoError)?;
@@ -196,9 +231,14 @@ pub async fn import_project(mut payload: Multipart) -> Result<HttpResponse, AppE
 
             tracing::info!(module = "ProjectManager", session_id = %session_id, "IMPORT_PROJECT_SUCCESS");
 
-            return Ok(HttpResponse::Ok().json(ImportResponse { session_id, project_data }));
+            return Ok(HttpResponse::Ok().json(ImportResponse {
+                session_id,
+                project_data,
+            }));
         }
     }
 
-    Err(AppError::MultipartError(actix_multipart::MultipartError::Incomplete))
+    Err(AppError::MultipartError(
+        actix_multipart::MultipartError::Incomplete,
+    ))
 }

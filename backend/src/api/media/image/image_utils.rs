@@ -1,9 +1,9 @@
 /* backend/src/api/media/image_utils.rs */
 
+use crate::api::utils::MAX_UPLOAD_SIZE;
+use crate::models::{AppError, ExifMetadata};
 use actix_multipart::Multipart;
 use futures_util::TryStreamExt as _;
-use crate::models::{AppError, ExifMetadata};
-use crate::api::utils::MAX_UPLOAD_SIZE;
 
 pub struct MultipartImageData {
     pub data: Vec<u8>,

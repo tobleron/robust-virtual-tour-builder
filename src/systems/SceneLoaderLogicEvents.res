@@ -1,8 +1,6 @@
 /* src/systems/SceneLoaderLogicEvents.res */
 
 open ReBindings
-open ViewerState
-open SceneLoaderTypes
 
 let setupViewerEvents = (newViewer, targetScene: Types.scene, useProgressive, panoramaUrl) => {
   PannellumAdapter.on(newViewer, "load", _ => {
@@ -26,51 +24,43 @@ let setupViewerEvents = (newViewer, targetScene: Types.scene, useProgressive, pa
 
       let img = Dom.document["createElement"]("img")
       Dom.setAttribute(img, "src", panoramaUrl)
-      Dom.addEventListenerNoEv(
-        img,
-        "load",
-        () => {
-          Logger.debug(
-            ~module_="Viewer",
-            ~message="MASTER_PRELOADED",
-            ~data=Some({"sceneName": targetScene.name}),
+      Dom.addEventListenerNoEv(img, "load", () => {
+        Logger.debug(
+          ~module_="Viewer",
+          ~message="MASTER_PRELOADED",
+          ~data=Some({"sceneName": targetScene.name}),
+          (),
+        )
+        if PannellumAdapter.getScene(newViewer) == "preview" {
+          PannellumAdapter.loadScene(
+            newViewer,
+            "master",
+            ~pitch=PannellumAdapter.getPitch(newViewer),
+            ~yaw=PannellumAdapter.getYaw(newViewer),
+            ~hfov=PannellumAdapter.getHfov(newViewer),
             (),
           )
-          if PannellumAdapter.getScene(newViewer) == "preview" {
-            PannellumAdapter.loadScene(
-              newViewer,
-              "master",
-              ~pitch=PannellumAdapter.getPitch(newViewer),
-              ~yaw=PannellumAdapter.getYaw(newViewer),
-              ~hfov=PannellumAdapter.getHfov(newViewer),
-              (),
-            )
-          }
-        },
-      )
+        }
+      })
 
-      Dom.addEventListenerNoEv(
-        img,
-        "error",
-        () => {
-          Logger.warn(
-            ~module_="Viewer",
-            ~message="MASTER_PRELOAD_FAILED",
-            ~data=Some({"sceneName": targetScene.name}),
+      Dom.addEventListenerNoEv(img, "error", () => {
+        Logger.warn(
+          ~module_="Viewer",
+          ~message="MASTER_PRELOAD_FAILED",
+          ~data=Some({"sceneName": targetScene.name}),
+          (),
+        )
+        if PannellumAdapter.getScene(newViewer) == "preview" {
+          PannellumAdapter.loadScene(
+            newViewer,
+            "master",
+            ~pitch=PannellumAdapter.getPitch(newViewer),
+            ~yaw=PannellumAdapter.getYaw(newViewer),
+            ~hfov=PannellumAdapter.getHfov(newViewer),
             (),
           )
-          if PannellumAdapter.getScene(newViewer) == "preview" {
-            PannellumAdapter.loadScene(
-              newViewer,
-              "master",
-              ~pitch=PannellumAdapter.getPitch(newViewer),
-              ~yaw=PannellumAdapter.getYaw(newViewer),
-              ~hfov=PannellumAdapter.getHfov(newViewer),
-              (),
-            )
-          }
-        },
-      )
+        }
+      })
     } else if !useProgressive || isMaster {
       PannellumAdapter.asCustom(newViewer).isLoaded = true
       GlobalStateBridge.dispatch(
@@ -79,23 +69,20 @@ let setupViewerEvents = (newViewer, targetScene: Types.scene, useProgressive, pa
 
       // Inject hotspots
       let currentGlobalState = GlobalStateBridge.getState()
-      Belt.Array.forEachWithIndex(
-        targetScene.hotspots,
-        (i, h) => {
-          let config = HotspotManager.createHotspotConfig(
-            ~hotspot=h,
-            ~index=i,
-            ~state=currentGlobalState,
-            ~scene=targetScene,
-            ~dispatch=GlobalStateBridge.dispatch,
-          )
-          try {
-            PannellumAdapter.addHotSpot(newViewer, config)
-          } catch {
-          | _ => ()
-          }
-        },
-      )
+      Belt.Array.forEachWithIndex(targetScene.hotspots, (i, h) => {
+        let config = HotspotManager.createHotspotConfig(
+          ~hotspot=h,
+          ~index=i,
+          ~state=currentGlobalState,
+          ~scene=targetScene,
+          ~dispatch=GlobalStateBridge.dispatch,
+        )
+        try {
+          PannellumAdapter.addHotSpot(newViewer, config)
+        } catch {
+        | _ => ()
+        }
+      })
 
       Logger.info(
         ~module_="Viewer",
@@ -110,11 +97,6 @@ let setupViewerEvents = (newViewer, targetScene: Types.scene, useProgressive, pa
   })
 
   PannellumAdapter.on(newViewer, "error", e => {
-    Logger.error(
-      ~module_="Viewer",
-      ~message="PANNELLUM_ERROR",
-      ~data=Some({"error": e}),
-      (),
-    )
+    Logger.error(~module_="Viewer", ~message="PANNELLUM_ERROR", ~data=Some({"error": e}), ())
   })
 }

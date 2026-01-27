@@ -1,6 +1,5 @@
 /* src/systems/SceneLoaderLogicConfig.res */
 
-open ReBindings
 open SceneLoaderTypes
 
 let getPanoramaUrl = (file: Types.file): string => {
@@ -77,6 +76,6 @@ let createViewerConfig = (useProgressive, panoramaUrl, tinyUrl) => {
     | None => ()
     }
   }
-  
+
   viewerConfig
 }

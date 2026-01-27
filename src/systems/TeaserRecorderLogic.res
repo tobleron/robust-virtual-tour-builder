@@ -96,11 +96,7 @@ let renderWatermark = (ctx: Canvas.context2d, logoImg: Dom.element) => {
   Canvas.restore(ctx)
 }
 
-let renderFrame = (
-  sourceCanvas: Dom.element,
-  includeLogo: bool,
-  logoState: logoResult,
-) => {
+let renderFrame = (sourceCanvas: Dom.element, includeLogo: bool, logoState: logoResult) => {
   switch internalState.ghostCtx {
   | Some(ctx) =>
     let sw = Dom.getWidth(sourceCanvas)->Belt.Int.toFloat
@@ -160,10 +156,7 @@ let renderFrame = (
 let startAnimationLoop = (includeLogo: bool, logoState: logoResult) => {
   let rec draw = () => {
     let sourceCanvasOpt =
-      Dom.querySelector(
-        Dom.documentBody,
-        ".pnlm-render-container canvas",
-      )->Nullable.toOption
+      Dom.querySelector(Dom.documentBody, ".pnlm-render-container canvas")->Nullable.toOption
 
     switch sourceCanvasOpt {
     | Some(sc) => renderFrame(sc, includeLogo, logoState)
