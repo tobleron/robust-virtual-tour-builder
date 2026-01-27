@@ -1,11 +1,11 @@
 /* backend/src/api/project/storage/mod.rs - Facade for Project Storage API */
 
 use actix_multipart::Multipart;
-use actix_web::{HttpResponse, web};
+use actix_web::{HttpRequest, HttpResponse, web};
 use futures_util::TryStreamExt as _;
 use serde::Serialize;
 use std::fs;
-use std::io::Write;
+use std::io::{Seek, SeekFrom, Write};
 use std::path::PathBuf;
 use uuid::Uuid;
 
@@ -128,42 +128,48 @@ pub async fn save_project(mut payload: Multipart) -> Result<HttpResponse, AppErr
 }
 
 /// Loads a project ZIP file into memory and processes its content.
-#[tracing::instrument(skip(payload), name = "load_project")]
-pub async fn load_project(mut payload: Multipart) -> Result<HttpResponse, AppError> {
+#[tracing::instrument(skip(payload, req), name = "load_project")]
+pub async fn load_project(
+    req: HttpRequest,
+    mut payload: Multipart,
+) -> Result<HttpResponse, AppError> {
     tracing::info!(module = "ProjectManager", "LOAD_PROJECT_START");
     let start = std::time::Instant::now();
-    let mut zip_data = Vec::new();
+    
+    // Use anonymous temp file for the upload to ensure cleanup on drop
+    let mut temp_upload = tempfile::tempfile().map_err(AppError::IoError)?;
+    let mut uploaded_size = 0;
 
     while let Some(mut field) = payload.try_next().await? {
         while let Some(chunk) = field.try_next().await? {
-            zip_data.extend_from_slice(&chunk);
-            if zip_data.len() > MAX_UPLOAD_SIZE {
+            uploaded_size += chunk.len();
+            if uploaded_size > MAX_UPLOAD_SIZE {
                 return Err(AppError::ImageError("Project too large".into()));
             }
+            temp_upload.write_all(&chunk).map_err(AppError::IoError)?;
         }
     }
+    
+    // Rewind for reading
+    temp_upload.seek(SeekFrom::Start(0)).map_err(AppError::IoError)?;
 
-    let result_zip = web::block(move || project::process_uploaded_project_zip(zip_data))
+    let result_zip_file = web::block(move || project::process_uploaded_project_zip(temp_upload))
         .await
-        .map_err(|e| AppError::InternalError(e.to_string()))?;
+        .map_err(|e| AppError::InternalError(e.to_string()))??;
 
     let duration = start.elapsed().as_millis();
-    match result_zip {
-        Ok(zip_bytes) => {
-            tracing::info!(
-                module = "ProjectManager",
-                duration_ms = duration,
-                "LOAD_PROJECT_COMPLETE"
-            );
-            Ok(HttpResponse::Ok()
-                .content_type("application/zip")
-                .body(zip_bytes))
-        }
-        Err(e) => {
-            tracing::error!(module = "ProjectManager", duration_ms = duration, error = %e, "LOAD_PROJECT_FAILED");
-            Err(e.into())
-        }
-    }
+    tracing::info!(
+        module = "ProjectManager",
+        duration_ms = duration,
+        "LOAD_PROJECT_COMPLETE"
+    );
+
+    // Reopen the file to stream it back (this creates a new independent handle).
+    // Even if NamedTempFile drops and unlinks the file, the open handle remains valid on Unix.
+    let file = result_zip_file.reopen().map_err(AppError::IoError)?;
+    let named_file = actix_files::NamedFile::from_file(file, "project.zip")?;
+
+    Ok(named_file.into_response(&req))
 }
 
 /// Imports a project ZIP and establishes a server-side session.
