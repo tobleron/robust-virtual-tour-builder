@@ -279,3 +279,4 @@ This map provides a semantic overview of the project structure to optimize conte
 * [backend/src/services/upload_quota_tests.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/services/upload_quota_tests.rs): New module detected. Please classify. #new
 * [src/bindings/IdbBindings.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/bindings/IdbBindings.res): New module detected. Please classify. #new
 * [src/utils/PersistenceLayer.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/utils/PersistenceLayer.res): New module detected. Please classify. #new
+* [backend/src/services/media/naming_old.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/services/media/naming_old.rs): New module detected. Please classify. #new

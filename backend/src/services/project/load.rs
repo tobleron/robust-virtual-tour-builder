@@ -83,32 +83,16 @@ pub fn process_uploaded_project_zip(zip_file: std::fs::File) -> Result<tempfile:
             .map_err(|e| format!("Failed to read file {}: {}", i, e))?;
 
         let filename = file.name().to_string();
-
-        // Skip project.json
-        if filename == "project.json" {
-            continue;
-        }
-
-        // Include files in images/ directory or root-level image files
-        if filename.starts_with("images/")
-            || filename.ends_with(".webp")
-            || filename.ends_with(".jpg")
-            || filename.ends_with(".jpeg")
-            || filename.ends_with(".png")
-        {
-            let mut zip_path = filename.clone();
-            // Normalize images into images/ folder if not already there
-            if (filename.ends_with(".webp")
-                || filename.ends_with(".jpg")
-                || filename.ends_with(".jpeg")
-                || filename.ends_with(".png"))
-                && !filename.starts_with("images/")
-            {
-                zip_path = format!("images/{}", filename);
+        
+        // Use hardened sanitization logic
+        if let Some(normalized_path) = crate::services::media::naming::normalize_project_entry_path(&filename) {
+            // We already wrote the fresh project.json manually, so skip the original
+            if normalized_path == "project.json" {
+                continue;
             }
 
             zip_writer
-                .start_file(&zip_path, options)
+                .start_file(&normalized_path, options)
                 .map_err(|e| e.to_string())?;
 
             std::io::copy(&mut file, &mut zip_writer).map_err(|e| e.to_string())?;
