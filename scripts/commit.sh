@@ -1,17 +1,17 @@
 #!/bin/bash
-# USAGE: ./scripts/commit.sh "feat: Description" [branch_name]
-# Example: ./scripts/commit.sh "fix: Bug" main
+# USAGE: ./scripts/commit.sh "feat: Description"
+# RESTRICTION: Only runs on 'development' branch.
+
 MSG="$1"
-TARGET_BRANCH="${2:-development}" # Default to development if not specified
 
 if [ -z "$MSG" ]; then echo "❌ Error: Commit message required."; exit 1; fi
 
 CURRENT_BRANCH=$(git branch --show-current)
 
-if [ "$CURRENT_BRANCH" != "$TARGET_BRANCH" ]; then
-    echo "❌ Wrong Branch: You are on '$CURRENT_BRANCH', but tried to commit to '$TARGET_BRANCH'."
-    echo "   ► Switch branches: git checkout $TARGET_BRANCH"
-    echo "   ► Or specify current branch: ./scripts/commit.sh \"$MSG\" $CURRENT_BRANCH"
+if [ "$CURRENT_BRANCH" != "development" ]; then
+    echo "❌ Wrong Branch: Standard commits are restricted to 'development'."
+    echo "   ► Current branch: $CURRENT_BRANCH"
+    echo "   ► Switch branches: git checkout development"
     exit 1
 fi
 

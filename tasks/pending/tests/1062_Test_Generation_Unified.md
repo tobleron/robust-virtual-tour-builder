@@ -196,3 +196,7 @@ System-generated test requirements for new and modified modules.
 - [ ] Test_ProjectManager_Update (Update)
 - [ ] Test_SceneTransitionManager_Update (Update)
 - [ ] Test_ImageOptimizer_Update (Update)
+- [ ] Test_VisualPipeline_Update (Update)
+- [ ] Test_SceneHelpers_Update (Update)
+- [ ] Test_TeaserManager_Update (Update)
+- [ ] Test_TourTemplateStyles_Update (Update)
