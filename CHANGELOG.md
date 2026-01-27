@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Ready Before Refactoring 360
 - Complete tasks 604-743: Comprehensive refactoring of ReBindings, SceneList, Sidebar, VisualPipeline, SceneHelpers, ProjectManager, SceneLoader, Logger, and Backend modules; synced MAP.md
+- Refactor: Decomposed oversized modules (SidebarMain, ExifReportGeneratorLogic, SceneLoaderLogic) into focused sub-modules; Updated MAP.md
 
 ## [4.8.0] - 2026-01-26
 

@@ -3,7 +3,7 @@
 external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 
 @react.component
-let make = React.memo((~procState: {"active": bool, "progress": float, "message": string, "phase": string, "error": bool}) => {
+let make = React.memo((~procState: SidebarMainTypes.processingPayload) => {
   React.useEffect0(() => {
     Logger.initialized(~module_="SidebarProcessing")
     None
