@@ -79,6 +79,17 @@ let scene = S.object(s => {
   serializer: s => s,
 })
 
+let timelineItem = S.object(s => {
+  {
+    id: s.field("id", S.string),
+    linkId: s.field("linkId", S.string),
+    sceneId: s.field("sceneId", S.string),
+    targetScene: s.field("targetScene", S.string),
+    transition: s.field("transition", S.string),
+    duration: s.field("duration", S.int),
+  }
+})
+
 let project: S.t<Types.project> = S.object(s => {
   {
     tourName: s.field("tourName", S.option(S.string)->S.Option.getOr("Tour Name")),
@@ -86,6 +97,8 @@ let project: S.t<Types.project> = S.object(s => {
     lastUsedCategory: s.field("lastUsedCategory", S.option(S.string)->S.Option.getOr("outdoor")),
     exifReport: s.field("exifReport", S.option(S.json(~validate=false))),
     sessionId: s.field("sessionId", S.option(S.string)),
+    deletedSceneIds: s.field("deletedSceneIds", S.option(S.array(S.string))->S.Option.getOr([])),
+    timeline: s.field("timeline", S.option(S.array(timelineItem))->S.Option.getOr([])),
   }
 })
 
@@ -106,17 +119,6 @@ let importScene = S.object(s => {
     categorySet: false,
     labelSet: false,
     isAutoForward: false,
-  }
-})
-
-let timelineItem = S.object(s => {
-  {
-    id: s.field("id", S.string),
-    linkId: s.field("linkId", S.string),
-    sceneId: s.field("sceneId", S.string),
-    targetScene: s.field("targetScene", S.string),
-    transition: s.field("transition", S.string),
-    duration: s.field("duration", S.int),
   }
 })
 
