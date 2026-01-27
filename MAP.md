@@ -51,7 +51,8 @@ This map provides a semantic overview of the project structure to optimize conte
 
 ### 🌐 System Layer (Business Logic)
 *   [src/systems/UploadProcessor.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/UploadProcessor.res): Lightweight facade for the image processing pipeline. `#upload` `#facade`
-*   [src/systems/UploadProcessorLogic.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/UploadProcessorLogic.res): Core image validation, fingerprinting, and clustering logic. `#image-processing` `#logic`
+*   [src/systems/UploadProcessorLogic.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/UploadProcessorLogic.res): Lightweight facade for the image processing and upload queue logic. `#upload` `#facade`
+    *   [src/systems/UploadProcessorLogicLogic.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/UploadProcessorLogicLogic.res): Core logic for image processing, queue management, and upload finalization. `#logic`
 * [src/systems/SceneLoader.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/SceneLoader.res): Lightweight facade for scene transition and viewer loading orchestration. `#scene-loading` `#lifecycle` `#facade`
     * [src/systems/SceneLoaderLogic.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/SceneLoaderLogic.res): Lightweight facade for scene loading orchestration. `#logic` `#facade`
     * [src/systems/SceneLoaderLogicReuse.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/SceneLoaderLogicReuse.res): Logic for viewer reuse and session persistence. `#logic`
@@ -61,10 +62,12 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/systems/SceneTransitionManager.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/SceneTransitionManager.res): Manages DOM transitions and viewer swapping logic. `#transition` `#dom`
 *   [src/systems/PannellumLifecycle.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/PannellumLifecycle.res): Lifecycle bindings for Pannellum viewer initialization and destruction. `#pannellum` `#bindings`
 *   [src/systems/HotspotLine.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/HotspotLine.res): Facade for visual hotspot connections and simulation arrows. `#hotspots` `#rendering` `#facade`
+*   [src/systems/HotspotLineUtils.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/HotspotLineUtils.res): State and caching for hotspot line rendering. `#utils` `#caching`
 *   [src/core/interfaces/ViewerDriver.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/core/interfaces/ViewerDriver.res): Interface contract for 360 renderer drivers. `#interface` `#abstraction`
 *   [src/systems/PannellumAdapter.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/PannellumAdapter.res): Pannellum-specific implementation of ViewerDriver. `#adapter` `#rendering`
 *   [src/systems/ViewerPool.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/ViewerPool.res): Manager for multiple viewport instances and their lifecycles. `#orchestration` `#efficiency`
 *   [src/systems/HotspotLineLogic.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/HotspotLineLogic.res): Coordinate projection math and SVG drawing primitives. `#math` `#rendering` `#logic`
+*   [src/systems/HotspotLineUtils.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/HotspotLineUtils.res): State and caching for hotspot line rendering. `#utils` `#caching`
 *   [src/systems/SimulationDriver.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/SimulationDriver.res): Logic for Autopilot and route simulations. `#autopilot` `#simulation` `#navigation`
 *   [src/systems/NavigationController.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/NavigationController.res): Manages movement between scenes. `#navigation` `#scene-switching`
 *   [src/systems/NavigationFSM.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/NavigationFSM.res): Pure deterministic Finite State Machine for navigation lifecycle. `#orchestration` `#reliability`
@@ -156,7 +159,8 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/components/UploadReport.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/UploadReport.res): Detailed report UI for batch upload results. `#ui` `#reporting` `#upload`
 *   [src/components/ViewerLabelMenu.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/ViewerLabelMenu.res): Label management interface specialized for the viewer HUD. `#ui` `#hud`
 *   [src/components/ViewerLoader.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/ViewerLoader.res): Loading state and splash screen for the 360 viewer. `#ui` `#loading`
-*   [src/components/ViewerManager.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/ViewerManager.res): Orchestrator for viewer instance lifecycle and state. `#rendering` `#orchestration`
+*   [src/components/ViewerManager.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/ViewerManager.res): Lightweight facade orchestrating viewer logic. `#rendering` `#orchestration` `#facade`
+    *   [src/components/ViewerManagerLogic.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/ViewerManagerLogic.res): Core logic hooks for viewer initialization, scene loading, and sync. `#logic` `#hooks`
 *   [src/components/ViewerSnapshot.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/ViewerSnapshot.res): UI for triggering and managing viewer captures. `#ui` `#snapshot`
 *   [src/components/ui/Shadcn.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/ui/Shadcn.res): Centralized bindings for Shadcn UI primitives. `#ui` `#shadcn` `#bindings`
 
