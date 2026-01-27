@@ -11,6 +11,8 @@
         - `[ModuleName]`: The name of the module being tested.
         - `[Type]`: `New` for new unit tests, `Update` for updating existing tests.
     - Example: `480_Test_PreviewArrow_New.md` or `481_Test_Portal_Update.md`.
+- **Detail Requirement**: Every task MUST be self-documenting. Provide enough technical detail, context, and clear objective so that a rename (e.g., `_DONE`) is sufficient to signify completion without a separate report.
+
 
 ## Workflow Instructions (Must be followed sequentially)
 
@@ -20,22 +22,22 @@
 
 3. **Verify the build**: Run `npm run build` to ensure compilation passes and there are no errors.
 
-4. **Complete or Cancel the task**: 
-    - **Completion**: After finishing the task, rename the task file and change its content to state what the objective was and how it was fulfilled and realized technically and concisely.
-        - **Standard Tasks**: Add the postfix `_REPORT`.
-        - **Test Tasks**: Add the postfix `_DONE`. format: `XXX_Test_[ModuleName]_[Type]_DONE.md`.
-    - **Cancellation**: If a task is cancelled or aborted, rename the task file by adding the postfix `_ABORTED`. You MUST add a section `## Reason for Cancellation` at the end of the file explaining WHY it was cancelled.
+4. **Archive & Finish**: Once implementation is verified:
+    - **Action**: Move the task file from `active/` to the `completed/` folder.
+    - **Renaming**: Append a representative postfix during the move:
+        - `_DONE`, `_UPDATED`, or `_TESTED` for successful completion.
+        - `_ABORTED` if the task is cancelled or abandoned.
+    - **Note**: Do NOT modify the file content; the move/rename is the sole indicator of status.
 
-5. **Archive the task**: Move the renamed (`_REPORT`, `_DONE`, or `_ABORTED`) file from `active/` to the `completed/` folder.
+5. **Wait**: Do not proceed to the next task until the current move is confirmed by the system.
 
-6. **Wait**: Do not proceed to the next task until the current one is fully verified.
 
 ## Documentation Rule
-- **Location**: If you generate an additional technical summary, analysis, session report, or any documentation that is not the task report itself, it MUST be placed in `docs/_pending_integration/`.
+- **Location**: If you generate an additional technical summary, analysis, session report, or any documentation, it MUST be placed in `docs/_pending_integration/`.
 
 ## Folder Structure
 - `pending/`: Tasks waiting to be started.
 - `active/`: The single task currently being worked on.
-- `completed/`: All finished tasks (`_REPORT`, `_DONE`) and cancelled tasks (`_ABORTED`).
+- `completed/`: All finished tasks (`_DONE`, `_UPDATED`, etc.) and cancelled tasks (`_ABORTED`).
 - `postponed/`: Tasks deferred for later.
 

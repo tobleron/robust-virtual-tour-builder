@@ -35,9 +35,9 @@ let processItem = (i, item: UploadProcessorTypes.uploadItem, onStatus: string =>
         item.preview = Some(res.preview)
         item.tiny = res.tiny
         item.metadata = Some(castToJson(res.metadata))
-        item.quality = Some(castToJson(res.quality))
+        item.quality = Some(castToJson(res.qualityData))
 
-        let qObj = res.quality
+        let qObj = res.qualityData
         Logger.debug(
           ~module_="Upload",
           ~message="QUALITY_ANALYSIS",
@@ -270,8 +270,8 @@ let finalizeUploads = (
     let reportData = Belt.Array.map(validProcessed, i => {
       let item: ExifReportGenerator.sceneDataItem = {
         original: i.original,
-        metadata: i.metadata,
-        quality: i.quality,
+        metadataJson: i.metadata,
+        qualityJson: i.quality,
       }
       item
     })
@@ -287,7 +287,7 @@ let finalizeUploads = (
     ->Promise.then(res => {
       GlobalStateBridge.dispatch(SetExifReport(JSON.Encode.string(res.report)))
 
-      let suggestedNameResult = res.suggestedName
+      let suggestedNameResult = res.suggestedProjectName
 
       Logger.info(
         ~module_="Upload",

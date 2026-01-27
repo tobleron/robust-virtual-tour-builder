@@ -1,0 +1,166 @@
+/* backend/src/api/media/video/mod.rs - Facade for Video API */
+
+use actix_multipart::Multipart;
+use actix_web::{HttpResponse, web};
+use futures_util::TryStreamExt as _;
+use std::fs;
+use std::io::Write;
+use uuid::Uuid;
+
+use crate::api::utils::{MAX_UPLOAD_SIZE, get_session_path, get_temp_path, sanitize_filename};
+use crate::models::AppError;
+
+mod video_logic;
+use video_logic::*;
+
+/// Transcodes an uploaded video file (typically WebM from browser) to MP4.
+#[tracing::instrument(skip(payload), name = "transcode_video")]
+pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, AppError> {
+    let input_path = get_temp_path("webm");
+    let mut total_size = 0;
+
+    while let Some(mut field) = payload.try_next().await? {
+        let content_disposition = field
+            .content_disposition()
+            .ok_or_else(|| AppError::InternalError("Missing content disposition".to_string()))?;
+
+        if content_disposition.get_name() == Some("file") {
+            let mut f = fs::File::create(&input_path)?;
+            while let Some(chunk) = field.try_next().await? {
+                total_size += chunk.len();
+                if total_size > MAX_UPLOAD_SIZE {
+                    let _ = fs::remove_file(&input_path);
+                    return Err(AppError::ImageError(format!(
+                        "Video upload exceeds maximum size of {}MB",
+                        MAX_UPLOAD_SIZE / (1024 * 1024)
+                    )));
+                }
+                f.write_all(&chunk)?;
+            }
+        }
+    }
+
+    let output_path = get_temp_path("mp4");
+    let input_str = input_path.to_string_lossy().to_string();
+    let output_str = output_path.to_string_lossy().to_string();
+
+    tracing::info!(module = "VideoEncoder", input = %input_str, output = %output_str, "TRANSCODE_START");
+
+    let result = web::block(move || {
+        transcode_video_sync(input_str, output_str)
+    })
+    .await
+    .map_err(|e| AppError::InternalError(e.to_string()))?;
+
+    match result {
+        Ok(path) => {
+            tracing::info!(module = "VideoEncoder", "TRANSCODE_COMPLETE");
+            let file_bytes = fs::read(&path)?;
+            let _ = fs::remove_file(path);
+            Ok(HttpResponse::Ok()
+                .content_type("video/mp4")
+                .body(file_bytes))
+        }
+        Err(e) => {
+            let _ = fs::remove_file(&input_path);
+            Err(AppError::FFmpegError(e))
+        }
+    }
+}
+
+/// Generates a cinematic teaser video of the virtual tour.
+#[tracing::instrument(skip(payload), name = "generate_teaser")]
+pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, AppError> {
+    let session_id = Uuid::new_v4().to_string();
+    let session_path = get_session_path(&session_id);
+    fs::create_dir_all(&session_path).map_err(AppError::IoError)?;
+
+    tracing::info!(module = "TeaserGenerator", session_id = %session_id, "TEASER_GENERATION_START");
+
+    let mut project_data_value: Option<serde_json::Value> = None;
+    let mut width = 1920;
+    let mut height = 1080;
+    let duration_limit = 120;
+
+    while let Some(mut field) = payload.try_next().await? {
+        let content_disposition = field.content_disposition().cloned()
+            .ok_or(AppError::InternalError("Missing content disposition".into()))?;
+        let name = content_disposition.get_name().unwrap_or("").to_string();
+
+        if name == "project_data" {
+            let mut bytes = Vec::new();
+            while let Some(chunk) = field.try_next().await? {
+                bytes.extend_from_slice(&chunk);
+            }
+            project_data_value = serde_json::from_slice(&bytes).ok();
+        } else if name == "width" {
+            let mut bytes = Vec::new();
+            while let Some(chunk) = field.try_next().await? {
+                bytes.extend_from_slice(&chunk);
+            }
+            if let Ok(s) = String::from_utf8(bytes) && let Ok(val) = s.parse::<u32>() {
+                width = val;
+            }
+        } else if name == "height" {
+            let mut bytes = Vec::new();
+            while let Some(chunk) = field.try_next().await? {
+                bytes.extend_from_slice(&chunk);
+            }
+            if let Ok(s) = String::from_utf8(bytes) && let Ok(val) = s.parse::<u32>() {
+                height = val;
+            }
+        } else if name == "files" {
+            let filename = content_disposition.get_filename().map(|f| f.to_string())
+                .unwrap_or_else(|| format!("img_{}.webp", Uuid::new_v4()));
+            let sanitized = sanitize_filename(&filename).unwrap_or(filename);
+            let file_path = session_path.join(&sanitized);
+            let mut f = fs::File::create(file_path).map_err(AppError::IoError)?;
+            while let Some(chunk) = field.try_next().await? {
+                f.write_all(&chunk).map_err(AppError::IoError)?;
+            }
+        }
+    }
+
+    let project_data = project_data_value
+        .ok_or_else(|| AppError::InternalError("Missing project_data JSON".into()))?;
+
+    let output_path = get_temp_path("mp4");
+    let output_str = output_path.to_string_lossy().to_string();
+    let session_id_clone = session_id.clone();
+
+    let result = web::block(move || {
+        generate_teaser_sync(
+            project_data,
+            session_id_clone,
+            width,
+            height,
+            output_str,
+            duration_limit as u64,
+        )
+    })
+    .await
+    .map_err(|e| AppError::InternalError(e.to_string()))?;
+
+    let _ = fs::remove_dir_all(&session_path);
+
+    match result {
+        Ok(_) => {
+            tracing::info!(module = "TeaserGenerator", "TEASER_GENERATION_COMPLETE");
+            let file_bytes = fs::read(&output_path).map_err(AppError::IoError)?;
+            let _ = fs::remove_file(output_path);
+            Ok(HttpResponse::Ok()
+                .content_type("video/mp4")
+                .body(file_bytes))
+        }
+        Err(e) => {
+            let _ = fs::remove_file(&output_path);
+            Err(AppError::InternalError(e))
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn placeholder() {}
+}
