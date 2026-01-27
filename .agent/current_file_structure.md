@@ -509,12 +509,6 @@
 │   │   │   │   │   ├── ViewerDriver.cmj
 │   │   │   │   │   ├── ViewerDriver.cmt
 │   │   │   │   │   └── ViewerDriver.res
-│   │   │   │   ├── JsonTypes.ast
-│   │   │   │   ├── JsonTypes.bs.js
-│   │   │   │   ├── JsonTypes.cmi
-│   │   │   │   ├── JsonTypes.cmj
-│   │   │   │   ├── JsonTypes.cmt
-│   │   │   │   ├── JsonTypes.res
 │   │   │   │   ├── Reducer.ast
 │   │   │   │   ├── Reducer.bs.js
 │   │   │   │   ├── Reducer.cmi
@@ -1478,12 +1472,6 @@
 │   │           ├── InteractionsRobustness_v.test.cmj
 │   │           ├── InteractionsRobustness_v.test.cmt
 │   │           ├── InteractionsRobustness_v.test.res
-│   │           ├── JsonTypes_v.test.ast
-│   │           ├── JsonTypes_v.test.bs.js
-│   │           ├── JsonTypes_v.test.cmi
-│   │           ├── JsonTypes_v.test.cmj
-│   │           ├── JsonTypes_v.test.cmt
-│   │           ├── JsonTypes_v.test.res
 │   │           ├── LabelMenu_v.test.ast
 │   │           ├── LabelMenu_v.test.bs.js
 │   │           ├── LabelMenu_v.test.cmi
@@ -2503,8 +2491,6 @@
 │   │   ├── InteractionsRobustness_v.test.cmj
 │   │   ├── InteractionsRobustness_v.test.cmt
 │   │   ├── InteractionsRobustness_v.test.res
-│   │   ├── JsonTypes_v.test.res
-│   │   ├── JsonTypes.res
 │   │   ├── LabelMenu_v.test.ast
 │   │   ├── LabelMenu_v.test.cmi
 │   │   ├── LabelMenu_v.test.cmj
@@ -5645,6 +5631,8 @@
 │   ├── pending
 │   │   ├── 1063_Classify_Map_Entries.md
 │   │   ├── 1064_Refactor_Schemas.md
+│   │   ├── 1065_Refactor_ViewerManagerLogic.md
+│   │   ├── 1066_Refactor_UploadProcessorLogicLogic.md
 │   │   └── tests
 │   │       ├── 1062_Test_Generation_Unified.md
 │   │       ├── 802_Test_ExifReport_Pipeline_Unified.md
@@ -5975,4 +5963,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-199 directories, 5777 files
+199 directories, 5765 files

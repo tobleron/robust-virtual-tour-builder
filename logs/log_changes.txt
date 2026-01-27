@@ -3,3 +3,4 @@
 [2026-01-27 11:07] v4.8.0 - chore: Sync branches and fix race conditions in geocoding tests
 [2026-01-27 12:34] v4.8.1 - refactor(backend): Stream ZIP uploads & fix upload panic [TRIPLE]
 [2026-01-27 19:54] v4.8.4 - feat: Implement ReScript Schema validation (Task 600)
+[2026-01-27 19:58] v4.8.5 - fix: Resolve build errors and enforce strict warning level
