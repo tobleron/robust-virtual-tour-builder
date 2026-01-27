@@ -1,4 +1,5 @@
 # Task: 803 - Test: Scene Loader & Transition Orchestration (New + Update)
+**Status**: `Completed`
 
 ## Objective
 Validate the entire scene loading lifecycle, including viewer configuration, asset preloading, and transition events.
