@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Optimize commit workflows to skip tests and auto-push
+- Restrict fast-commit and commit to development branch
 
 ## [4.8.6] - 2026-01-27
 
