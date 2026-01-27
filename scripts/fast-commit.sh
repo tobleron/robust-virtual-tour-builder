@@ -8,7 +8,13 @@ if [ -z "$MSG" ]; then echo "❌ Error: Commit message required."; exit 1; fi
 echo "🛡️  Running Project Guard..."
 node scripts/guard/index.js
 
-# 1. Versioning (Keep the build count accurate)
+# 1. Versioning (Semantic Bump + Build Increment)
+BUMP_TYPE="${2:-none}"
+if [ "$BUMP_TYPE" != "none" ]; then
+    echo "📈 Bumping version: $BUMP_TYPE"
+    node scripts/bump-version.js "$BUMP_TYPE"
+fi
+
 echo "🔢 Incrementing build..."
 node scripts/increment-build.js
 node scripts/update-version.js

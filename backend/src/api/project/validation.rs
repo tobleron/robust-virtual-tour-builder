@@ -37,8 +37,10 @@ pub async fn validate_project(mut payload: Multipart) -> Result<HttpResponse, Ap
             temp_upload.write_all(&chunk).map_err(AppError::IoError)?;
         }
     }
-    
-    temp_upload.seek(SeekFrom::Start(0)).map_err(AppError::IoError)?;
+
+    temp_upload
+        .seek(SeekFrom::Start(0))
+        .map_err(AppError::IoError)?;
 
     let report = web::block(move || project::validate_project_zip(temp_upload))
         .await

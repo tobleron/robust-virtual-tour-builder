@@ -23,7 +23,13 @@ node scripts/guard/index.js
 echo "🗺️  Refreshing file structure map..."
 tree -I "node_modules|target|.git|dist|.agent/workflows" > .agent/current_file_structure.md
 
-# 3. Versioning (Increment Build Number)
+# 3. Versioning (Semantic Bump + Build Increment)
+BUMP_TYPE="${3:-none}"
+if [ "$BUMP_TYPE" != "none" ]; then
+    echo "📈 Bumping version: $BUMP_TYPE"
+    node scripts/bump-version.js "$BUMP_TYPE"
+fi
+
 node scripts/increment-build.js
 node scripts/update-version.js
 node scripts/sync-sw.cjs

@@ -7,15 +7,40 @@ description: High-level quality standards for committing code. Technical verific
 All technical verifications (Linting, Formatting, Build, Tests, Versioning, and Doc-Sync) are automated. **You must use the commit script for all commits.**
 
 ## 1. The Golden Rule
-**Command (Standard)**: `./scripts/commit.sh "prefix: Description"`
+## 1. The Golden Rule
+**Command (Standard)**: `./scripts/commit.sh "prefix: Description" [target-branch] [bump-level]`
 - **Impact**: Full verification (Build, Tests, Docs).
-**Command (Fast)**: `./scripts/fast-commit.sh "prefix: Description"`
+- **Bump Level**: `major` | `minor` | `patch` | `none` (default).
+
+**Command (Fast)**: `./scripts/fast-commit.sh "prefix: Description" [bump-level]`
 - **Impact**: Skips build/tests. Useful for quick snapshots or non-critical progress saves.
 - **Prefixes**: `feat:`, `fix:`, `perf:`, `refactor:`, `chore:`, `docs:`, `style:`, `security:`
 
 ---
 
-## 2. Manual Quality Checklist (System 2 Thinking)
+## 2. Intelligent Versioning Strategy
+You must explicitly decide the Semantic Versioning update level (`x.y.z`) based on the nature of your changes:
+
+| Bump Level | Criteria | Example |
+| :--- | :--- | :--- |
+| **major** (x) | Breaking changes, major refactors, or new architectural eras. | `v4.0.0` -> `v5.0.0` |
+| **minor** (y) | New features, significant improvements (backward compatible). | `v4.8.0` -> `v4.9.0` |
+| **patch** (z) | Bug fixes, small tweaks, non-breaking refactors. | `v4.8.0` -> `v4.8.1` |
+| **none** | Documentation, formatting, WIP snapshots, or invisible changes. | No change (Build # increments) |
+
+**Decision Protocol**:
+1. Analyze your changes: Are they breaking? New features? Or just fixes?
+2. Choose the level.
+3. Append it to the commit command.
+
+*Example*:
+- Strong refactoring? -> `./scripts/commit.sh "refactor: Core logic" development minor`
+- Breaking API change? -> `./scripts/commit.sh "feat: New API" development major`
+- Simple fix? -> `./scripts/commit.sh "fix: Typo" development patch`
+
+---
+
+## 3. Manual Quality Checklist (System 2 Thinking)
 Before running the commit script, perform these checks that automation cannot catch:
 
 ### Architectural Integrity
@@ -34,7 +59,7 @@ Before running the commit script, perform these checks that automation cannot ca
 
 ---
 
-## 3. Automation Safeguards
+## 4. Automation Safeguards
 The `./scripts/commit.sh` will block your commit if:
 1. **Forbidden Patterns**: It detects `console.log`, `var`, `debugger`, or `alert(`.
 2. **Build Warnings**: ReScript compiler emits *any* warnings (Strict Mode).

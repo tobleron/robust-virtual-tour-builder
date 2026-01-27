@@ -25,6 +25,6 @@
 
 ### PHASE 2: COMMIT & PUSH
 - **Explicit Permission**: Only commit when the user provides a message or instruction.
-- **Standard Path**: `./scripts/commit.sh "msg"` (Build + Test + Guard Checks).
-- **Fast Path**: `./scripts/fast-commit.sh "msg"` (Guard Checks only).
+- **Standard Path**: `./scripts/commit.sh "msg" [branch] [major|minor|patch]` (Decide version bump based on changes).
+- **Fast Path**: `./scripts/fast-commit.sh "msg" [major|minor|patch]` (Guard Checks only).
 - **Push**: Run `./scripts/pre-push.sh` before pushing to remote.
