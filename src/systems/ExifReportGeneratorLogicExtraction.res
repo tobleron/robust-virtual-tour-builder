@@ -18,7 +18,7 @@ let extractAllExif = async (sceneDataList: array<sceneDataItem>) => {
         // Use pre-existing metadata if available, but FALLBACK to local extraction if GPS is missing
         let exifData = switch item.metadataJson {
         | Some(m) => {
-            let meta = JsonTypes.castToExifMetadata(m)
+            let meta = Schemas.castToExifMetadata(m)
             let hasGps = switch meta.gps->Nullable.toOption {
             | Some(_) => true
             | None => false
@@ -27,7 +27,7 @@ let extractAllExif = async (sceneDataList: array<sceneDataItem>) => {
             if hasGps {
               let q =
                 item.qualityJson
-                ->Option.map(JsonTypes.castToQualityAnalysis)
+                ->Option.map(Schemas.castToQualityAnalysis)
                 ->Option.getOr(defaultQuality("Cached metadata loaded"))
               {
                 exif: meta,
@@ -51,7 +51,7 @@ let extractAllExif = async (sceneDataList: array<sceneDataItem>) => {
                   // Local failed too, use what we have
                   let q =
                     item.qualityJson
-                    ->Option.map(JsonTypes.castToQualityAnalysis)
+                    ->Option.map(Schemas.castToQualityAnalysis)
                     ->Option.getOr(defaultQuality("Cached metadata (no GPS)"))
                   {
                     exif: meta,

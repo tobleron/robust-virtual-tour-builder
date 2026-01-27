@@ -1,46 +1,35 @@
 open Types
 
 let parseTimelineItem = (json: JSON.t): timelineItem => {
-  let item = switch JsonTypes.decodeTimelineItem(json) {
-  | Ok(i) => i
-  | Error(_) =>
-    (
-      {
-        id: "",
-        linkId: "",
-        sceneId: "",
-        targetScene: "",
-        transition: "fade",
-        duration: 1000,
-      }: JsonTypes.timelineItemJson
-    )
-  }
-  {
-    id: item.id,
-    linkId: item.linkId,
-    sceneId: item.sceneId,
-    targetScene: item.targetScene,
-    transition: item.transition,
-    duration: item.duration,
+  switch Schemas.parse(json, Schemas.Domain.timelineItem) {
+  | Ok(item) => item
+  | Error(_) => {
+      id: "",
+      linkId: "",
+      sceneId: "",
+      targetScene: "",
+      transition: "fade",
+      duration: 1000,
+    }
   }
 }
 
 let handleUpdateTimelineStep = (state: state, id: string, dataJson: JSON.t): state => {
-  let data = switch JsonTypes.decodeTimelineUpdate(dataJson) {
+  let data = switch Schemas.parse(dataJson, Schemas.Domain.timelineUpdate) {
   | Ok(d) => d
-  | Error(_) => ({transition: Nullable.null, duration: Nullable.null}: JsonTypes.timelineUpdateJson)
+  | Error(_) => {transition: None, duration: None}
   }
   let newTimeline = Belt.Array.map(state.timeline, t => {
     if t.id == id {
       {
         ...t,
-        transition: switch Nullable.toOption(data.transition) {
+        transition: switch data.transition {
         | Some(tr) => tr
         | None => t.transition
         },
-        duration: switch Nullable.toOption(data.duration) {
-        | Some(d) => d
-        | None => t.duration
+        duration: switch data.duration {
+        | Some(Some(d)) => d
+        | _ => t.duration
         },
       }
     } else {

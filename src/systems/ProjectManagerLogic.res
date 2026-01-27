@@ -122,7 +122,7 @@ let processLoadedProjectData = (
         pd,
         "validationReport",
       ) {
-      | Some(report) => Some(JsonTypes.castToValidationReport(report))
+      | Some(report) => Some(Schemas.castToValidationReport(report))
       | None => None
       }
 

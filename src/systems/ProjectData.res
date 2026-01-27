@@ -2,8 +2,6 @@
 
 open Types
 
-// VersionData is accessed natively
-
 /* Serialize State to JSON */
 let toJSON = (state: Types.state) => {
   let scenes = Belt.Array.map(state.scenes, scene => {
@@ -62,80 +60,41 @@ let toJSON = (state: Types.state) => {
 /* Receives a raw JS object from the loaded JSON and sanitizes it for the Store */
 let sanitizeLoadedScenes = (rawScenes: array<JSON.t>) => {
   Belt.Array.map(rawScenes, item => {
-    let i = JsonTypes.castToProjectScene(item)
+    let i = Schemas.castToProjectScene(item)
 
-    /* We return a structure compatible with what ProjectManager appends 'file' to */
-    /* Actually ProjectManager maps this, attaches 'file', then passes to Store */
-    /* So we just help cleaner mapping of properties if needed */
-    /* Currently strict pass-through is fine, but we can ensure defaults here */
-
-    let hotspots = switch Nullable.toOption(i.hotspots) {
-    | Some(arr) =>
-      let hArr = arr
-      Belt.Array.map(hArr, h => {
-        /* Ensure structured data is preserved */
-        {
-          "linkId": switch Nullable.toOption(h.linkId) {
-          | Some(l) => l
-          | None => ""
-          },
-          "pitch": h.pitch,
-          "yaw": h.yaw,
-          "target": h.target,
-          "startPitch": h.startPitch,
-          "startYaw": h.startYaw,
-          "startHfov": h.startHfov,
-          "viewFrame": h.viewFrame,
-          "returnViewFrame": h.returnViewFrame,
-          "isReturnLink": h.isReturnLink,
-          "targetYaw": h.targetYaw,
-          "targetPitch": h.targetPitch,
-          "waypoints": h.waypoints,
-          "transition": h.transition,
-          "duration": h.duration,
-        }
-      })
-    | None => []
-    }
+    let hotspots = Belt.Array.map(i.hotspots, h => {
+      {
+        "linkId": h.linkId,
+        "pitch": h.pitch,
+        "yaw": h.yaw,
+        "target": h.target,
+        "startPitch": h.startPitch->Nullable.fromOption,
+        "startYaw": h.startYaw->Nullable.fromOption,
+        "startHfov": h.startHfov->Nullable.fromOption,
+        "viewFrame": h.viewFrame->Nullable.fromOption,
+        "returnViewFrame": h.returnViewFrame->Nullable.fromOption,
+        "isReturnLink": h.isReturnLink->Nullable.fromOption,
+        "targetYaw": h.targetYaw->Nullable.fromOption,
+        "targetPitch": h.targetPitch->Nullable.fromOption,
+        "waypoints": h.waypoints->Nullable.fromOption,
+        "transition": h.transition->Nullable.fromOption,
+        "duration": h.duration->Nullable.fromOption,
+      }
+    })
 
     {
-      "id": switch Nullable.toOption(i.id) {
-      | Some(id) => id
-      | None => "legacy_" ++ i.name
-      },
+      "id": i.id,
       "name": i.name,
-      "label": switch Nullable.toOption(i.label) {
-      | Some(l) => l
-      | None => ""
-      },
-      "category": switch Nullable.toOption(i.category) {
-      | Some(c) => c
-      | None => "outdoor"
-      },
-      "floor": switch Nullable.toOption(i.floor) {
-      | Some(f) => f
-      | None => "ground"
-      },
-      "isAutoForward": switch Nullable.toOption(i.isAutoForward) {
-      | Some(b) => b
-      | None => false
-      },
-      "categorySet": switch Nullable.toOption(i.categorySet) {
-      | Some(b) => b
-      | None => false
-      },
-      "labelSet": switch Nullable.toOption(i.labelSet) {
-      | Some(b) => b
-      | None => false
-      },
-      "_metadataSource": switch Nullable.toOption(i.metadataSource) {
-      | Some(s) => s
-      | None => "user"
-      },
-      "quality": i.quality,
-      "colorGroup": i.colorGroup,
+      "label": i.label,
+      "category": i.category,
+      "floor": i.floor,
+      "isAutoForward": i.isAutoForward,
+      "categorySet": i.categorySet,
+      "labelSet": i.labelSet,
+      "_metadataSource": i._metadataSource,
+      "quality": i.quality->Nullable.fromOption,
+      "colorGroup": i.colorGroup->Nullable.fromOption,
       "hotspots": hotspots,
-      /* ProjectManager will attach fields: file, originalFile */
     }
   })
 }

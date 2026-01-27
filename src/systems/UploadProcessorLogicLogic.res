@@ -20,7 +20,11 @@ let processItem = (i, item: UploadProcessorTypes.uploadItem, onStatus: string =>
   Logger.debug(
     ~module_="UploadLogic",
     ~message="FILE_START",
-    ~data=Some({"filename": File.name(item.original), "index": i, "size": File.size(item.original)}),
+    ~data=Some({
+      "filename": File.name(item.original),
+      "index": i,
+      "size": File.size(item.original),
+    }),
     (),
   )
 
@@ -319,7 +323,7 @@ let finalizeUploads = (
               i => {
                 let qItem: UploadReport.qualityItem = {
                   quality: i.quality
-                  ->Option.map(JsonTypes.castToQualityAnalysis)
+                  ->Option.map(Schemas.castToQualityAnalysis)
                   ->Option.getOr({
                     score: 0.0,
                     isBlurry: false,
