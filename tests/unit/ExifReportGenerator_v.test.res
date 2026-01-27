@@ -75,7 +75,7 @@ describe("ExifReportGenerator", () => {
     t->expect(String.includes(result.report, "Total Files Analyzed: 0"))->Expect.toBe(true)
 
     // Suggested name should be generated even with empty list using current timestamp and "Tour"
-    switch result.suggestedName {
+    switch result.suggestedProjectName {
     | Some(name) => t->expect(String.startsWith(name, "Tour_"))->Expect.toBe(true)
     | None => t->expect(true)->Expect.toBe(false)
     }
