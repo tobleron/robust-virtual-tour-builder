@@ -7,6 +7,7 @@ export default defineConfig({
     entry: {
       index: './src/index.js',
     },
+    include: [/[\\/]node_modules[\\/]rescript-schema[\\/]/],
   },
   resolve: {
     alias: {
