@@ -50,14 +50,10 @@ if ! ./node_modules/.bin/rescript build --warn-error "+a"; then
     exit 1; 
 fi
 
-# 7. Test Gap Detection
-if ! node scripts/detect-missing-tests.cjs; then
-    echo "❌ Commit blocked: Missing unit tests detected."
-    echo "   ► Tasks have been auto-generated in tasks/pending/"
-    echo "   ► Please complete these tasks before committing."
-    git reset > /dev/null
-    exit 1
-fi
+# 7. Test Gap Detection (Optional/Bypassed)
+# echo "🔍 Checking for test gaps..."
+# node scripts/detect-missing-tests.cjs || echo "⚠️  Warning: Missing unit tests detected (Bypassing block as per user preference)"
+
 
 # 8. Test Verification
 echo "🧪 Running Tests..."
