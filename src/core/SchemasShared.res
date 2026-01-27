@@ -1,10 +1,7 @@
 open RescriptSchema
 
 let toNullable = (schema: S.t<option<'a>>): S.t<Nullable.t<'a>> => {
-  schema->S.transform(_ => {
-    parser: (opt: option<'a>) => opt->Nullable.fromOption,
-    serializer: (nul: Nullable.t<'a>) => nul->Nullable.toOption,
-  })
+  schema->(Obj.magic: S.t<option<'a>> => S.t<Nullable.t<'a>>)
 }
 
 let gpsData = S.object(s => {
@@ -107,9 +104,15 @@ let validationReport = S.object(s => {
   }
 })
 
-let importResponse = S.object(s => {
-  (s.field("sessionId", S.string), s.field("projectData", S.json(~validate=false)))
-})->S.setName("import response")
+let importResponse = S.custom("import response", _s => {
+  parser: (json: unknown) => {
+    let dict = json->(Obj.magic: unknown => JSON.t)->JSON.Decode.object->Option.getOr(Dict.make())
+    let sessionId =
+      dict->Dict.get("sessionId")->Option.flatMap(JSON.Decode.string)->Option.getOr("")
+    let projectData = dict->Dict.get("projectData")->Option.getOr(JSON.Encode.null)
+    (sessionId, projectData)
+  },
+})
 
 let geocodeResponse = S.object(s => {
   s.field("address", S.string)

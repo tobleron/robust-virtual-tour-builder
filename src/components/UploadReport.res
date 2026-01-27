@@ -72,7 +72,8 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
             <LucideIcons.TriangleAlert size=16 strokeWidth=2.0 />,
           )}
         </div>
-        {if Array.length(groups.pr) > 0 {
+
+        /* {if Array.length(groups.pr) > 0 {
           <div className="upload-report-action-container">
             <div className="upload-report-action-title">
               <LucideIcons.Flag size=12 className="mr-1" />
@@ -99,7 +100,7 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
           </div>
         } else {
           React.null
-        }}
+        }} */
         {if Array.length(report.skipped) > 0 {
           <div className="upload-report-skipped-container">
             <div className="upload-report-skipped-badge">

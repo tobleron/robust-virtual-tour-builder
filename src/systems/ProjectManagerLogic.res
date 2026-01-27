@@ -118,6 +118,13 @@ let processLoadedProjectData = (
         JSON.Encode.object(newSceneDict)
       })
 
+      Logger.info(
+        ~module_="ProjectManagerLogic",
+        ~message="PROCESSED_SCENES",
+        ~data=Logger.castToJson({"count": Array.length(validScenes)}),
+        (),
+      )
+
       let validationReport: option<SharedTypes.validationReport> = switch Dict.get(
         pd,
         "validationReport",
