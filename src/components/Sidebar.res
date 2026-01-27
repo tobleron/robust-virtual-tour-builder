@@ -205,7 +205,7 @@ let make = React.memo(() => {
                       buttons: [
                         {
                           label: "Cancel",
-                          class_: "bg-slate-100 text-slate-700",
+                          class_: "bg-slate-100/10 text-white hover:bg-white/20",
                           onClick: () => (),
                           autoClose: Some(true),
                         },
@@ -271,10 +271,10 @@ let make = React.memo(() => {
                     icon: Some("info"),
                     content: Some(
                       <div className="flex flex-col gap-1 mt-2">
-                        <p className="text-slate-600 font-semibold">
+                        <p className="text-white font-semibold font-mono text-[11px]">
                           {React.string(`Version: ${VersionData.version}`)}
                         </p>
-                        <p className="text-slate-500 text-sm">
+                        <p className="text-slate-200 font-mono text-[10px]">
                           {React.string(`Build: ${VersionData.buildInfo}`)}
                         </p>
                       </div>,
@@ -285,7 +285,7 @@ let make = React.memo(() => {
                     buttons: [
                       {
                         label: "Close",
-                        class_: "bg-slate-100 text-slate-700",
+                        class_: "bg-slate-100/10 text-white hover:bg-white/20",
                         onClick: () => (),
                         autoClose: Some(true),
                       },
@@ -499,7 +499,7 @@ let make = React.memo(() => {
           />
           <LucideIcons.Camera className="text-white" size=24 strokeWidth=2.0 />
           <span
-            className="text-[9px] font-semibold tracking-widest uppercase writing-vertical-lr hidden"
+            className="text-[10px] font-semibold tracking-widest uppercase writing-vertical-lr hidden"
           >
             {React.string("Add")}
           </span>
@@ -556,7 +556,7 @@ let make = React.memo(() => {
             let rightPart = Belt.Array.get(parts, 1)->Option.getOr("")
 
             <div
-              className="text-[9px] text-slate-500 mt-2 font-semibold uppercase tracking-tight flex items-center justify-between gap-2"
+              className="text-[10px] text-slate-500 mt-2 font-semibold uppercase tracking-tight flex items-center justify-between gap-2"
             >
               <div className="flex items-center gap-2 min-w-0">
                 <span className="w-1 h-1 bg-success rounded-full animate-pulse shrink-0" />

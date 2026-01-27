@@ -15,13 +15,9 @@ if [ "$CURRENT_BRANCH" != "$TARGET_BRANCH" ]; then
     exit 1
 fi
 
-# 1. Preference Guard (Only check modified files in src, excluding templates)
-CHANGED_SRC=$(git status --porcelain | awk '{print $2}' | grep "^src/" | grep -v "libs/" | grep -v ".bs.js" | grep -v "Template")
-if [ -n "$CHANGED_SRC" ]; then
-    if echo "$CHANGED_SRC" | xargs grep -Ff .agent/forbidden_patterns.txt; then
-        echo "❌ Forbidden patterns detected in modified files."; exit 1
-    fi
-fi
+# 1.5 Project Guard (Static Analysis)
+echo "🛡️  Running Project Guard..."
+node scripts/guard/index.js
 
 # 2. Context Refresh (Anti-Hallucination)
 echo "🗺️  Refreshing file structure map..."
