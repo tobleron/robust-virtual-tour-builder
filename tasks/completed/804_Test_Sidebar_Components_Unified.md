@@ -1,4 +1,5 @@
 # Task: 804 - Test: Sidebar & Project HUD Components (New + Update)
+**Status**: `Completed`
 
 ## Objective
 Verify the sidebar UI orchestration, project metadata inputs, and processing status indicators.
