@@ -1,3 +1,4 @@
+open RescriptSchema
 /* src/systems/api/ApiTypes.res */
 
 open ReBindings
@@ -25,25 +26,11 @@ type geocodeRequest = {
 
 type geocodeResponse = {address: string}
 
-/* --- PATHFINDER TYPES --- */
+/* --- PATHFINDER TYPES Re-exported for convenience --- */
 
-type transitionTarget = {
-  yaw: float,
-  pitch: float,
-  targetName: string,
-  timelineItemId: option<string>,
-}
-
-type arrivalView = {
-  yaw: float,
-  pitch: float,
-}
-
-type step = {
-  idx: int,
-  transitionTarget: option<transitionTarget>,
-  arrivalView: arrivalView,
-}
+type transitionTarget = Types.transitionTarget
+type arrivalView = Types.arrivalView
+type step = Types.step
 
 type pathRequest = {
   @as("type") type_: string,
@@ -61,59 +48,35 @@ type apiError = {
 
 type apiResult<'a> = result<'a, string>
 
-let parse = (json: 'any, schema: RescriptSchema.S.t<'a>): result<'a, string> => {
-  try {
-    Ok(RescriptSchema.S.parseOrThrow(json, schema))
-  } catch {
-  | exn => Error(RescriptSchema.S.Error.message(Obj.magic(exn)))
-  }
-}
+/* --- DECODERS (Safe: Schema-backed parsers) --- */
 
 let decodeImportResponse = (json: JSON.t): result<importResponse, string> => {
-  parse(json, Schemas.Shared.importResponse)->Result.map(((sessionId, projectData)) => {
+  Schemas.parse(json, Schemas.Shared.importResponse)->Result.map(((sessionId, projectData)) => {
     sessionId,
     projectData,
   })
 }
 
 let decodeValidationReport = (json: JSON.t): result<validationReport, string> => {
-  parse(json, Schemas.Shared.validationReport)
+  Schemas.parse(json, Schemas.Shared.validationReport)
 }
 
 let decodeMetadataResponse = (json: JSON.t): result<metadataResponse, string> => {
-  parse(json, Schemas.Shared.metadataResponse)
+  Schemas.parse(json, Schemas.Shared.metadataResponse)
 }
 
 let decodeSteps = (json: JSON.t): result<array<step>, string> => {
-  parse(json, RescriptSchema.S.array(JsonTypes.JsonSchemas.step))->Result.map(jsonSteps => {
-    jsonSteps->Belt.Array.map(js => {
-      idx: js.idx,
-      arrivalView: {
-        yaw: js.arrivalView.yaw,
-        pitch: js.arrivalView.pitch,
-      },
-      transitionTarget: switch Nullable.toOption(js.transitionTarget) {
-      | Some(tt) =>
-        Some({
-          yaw: tt.yaw,
-          pitch: tt.pitch,
-          targetName: tt.targetName,
-          timelineItemId: Nullable.toOption(tt.timelineItemId),
-        })
-      | None => None
-      },
-    })
-  })
+  Schemas.parse(json, S.array(Schemas.Domain.step))
 }
 
 let decodeGeocodeResponse = (json: JSON.t): result<geocodeResponse, string> => {
-  parse(json, Schemas.Shared.geocodeResponse)->Result.map(address => {
+  Schemas.parse(json, Schemas.Shared.geocodeResponse)->Result.map(address => {
     address: address,
   })
 }
 
 let decodeSimilarityResponse = (json: JSON.t): result<similarityResponse, string> => {
-  parse(json, Schemas.Shared.similarityResponse)
+  Schemas.parse(json, Schemas.Shared.similarityResponse)
 }
 
 /* --- HELPER: Handle Response --- */

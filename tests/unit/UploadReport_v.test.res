@@ -157,6 +157,9 @@ describe("UploadReport", () => {
             JSON.Encode.object(
               Dict.fromArray([
                 ("name", JSON.Encode.string("Scene1")),
+                ("file", JSON.Encode.string("file1")),
+                ("file", JSON.Encode.string("file1")),
+                ("hotspots", JSON.Encode.array([])),
                 (
                   "quality",
                   JSON.Encode.object(

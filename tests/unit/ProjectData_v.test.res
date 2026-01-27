@@ -16,6 +16,7 @@ let _ = describe("ProjectData", () => {
   test("sanitizeLoadedScenes fills defaults", t => {
     let mockRaw = {
       "name": "Minimal",
+      "file": "dummy.jpg",
     }
     let res = sanitizeLoadedScenes([Obj.magic(mockRaw)])
     t->expect(Belt.Array.length(res))->Expect.toBe(1)
@@ -30,6 +31,7 @@ let _ = describe("ProjectData", () => {
     let mockRaw = {
       "id": "uniq",
       "name": "Full",
+      "file": "full.jpg",
       "category": "indoor",
       "isAutoForward": true,
       "hotspots": [

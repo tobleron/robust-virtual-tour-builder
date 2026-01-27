@@ -120,9 +120,7 @@ let processAndAnalyzeImage = (file: File.t, ~onStatus: option<statusCallback>): 
           ~data=Some({"metaLength": String.length(metaText)}),
           (),
         )
-        let metadata: metadataResponse = JsonTypes.castToMetadataResponse(
-          JSON.parseOrThrow(metaText),
-        )
+        let metadata: metadataResponse = Schemas.castToMetadataResponse(JSON.parseOrThrow(metaText))
         Logger.debug(
           ~module_="Resizer",
           ~message="METADATA_PARSED",

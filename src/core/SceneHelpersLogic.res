@@ -142,7 +142,7 @@ let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
   let wasEmpty = Belt.Array.length(state.scenes) == 0
 
   let newScenes = Belt.Array.reduce(scenesData, state.scenes, (acc, dataJson) => {
-    let id = switch JsonTypes.decodeImportScene(dataJson) {
+    let id = switch Schemas.parse(dataJson, Schemas.Domain.scene) {
     | Ok(data) => data.id
     | Error(_) => "error_" ++ Float.toString(Date.now())
     }
@@ -179,42 +179,39 @@ let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
 
 let handleUpdateSceneMetadata = (state: state, index: int, metaJson: JSON.t): state => {
   let scenes = state.scenes
-  let metaObj = switch JsonTypes.decodeUpdateMetadata(metaJson) {
+  let meta = switch Schemas.parse(metaJson, Schemas.Domain.updateMetadata) {
   | Ok(m) => m
-  | Error(_) =>
-    (
-      {
-        category: Nullable.null,
-        floor: Nullable.null,
-        label: Nullable.null,
-        isAutoForward: Nullable.null,
-      }: JsonTypes.updateMetadataJson
-    )
+  | Error(_) => {
+      category: None,
+      floor: None,
+      label: None,
+      isAutoForward: None,
+    }
   }
 
   let updatedLastUsedCategory = ref(state.lastUsedCategory)
 
   let newScenes = Belt.Array.mapWithIndex(scenes, (i, s) => {
     if i == index {
-      let newCategory = switch Nullable.toOption(metaObj.category) {
+      let newCategory = switch meta.category {
       | Some(c) =>
         updatedLastUsedCategory.contents = c
         c
       | None => s.category
       }
-      let newFloor = switch Nullable.toOption(metaObj.floor) {
+      let newFloor = switch meta.floor {
       | Some(f) => f
       | None => s.floor
       }
-      let newLabel = switch Nullable.toOption(metaObj.label) {
+      let newLabel = switch meta.label {
       | Some(l) => l
       | None => s.label
       }
-      let newIsAutoForward = switch Nullable.toOption(metaObj.isAutoForward) {
+      let newIsAutoForward = switch meta.isAutoForward {
       | Some(af) => af
       | None => s.isAutoForward
       }
-      let categorySet = switch Nullable.toOption(metaObj.category) {
+      let categorySet = switch meta.category {
       | Some(_) => true
       | None => s.categorySet
       }

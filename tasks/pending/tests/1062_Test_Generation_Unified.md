@@ -143,3 +143,8 @@ System-generated test requirements for new and modified modules.
 - [ ] Test_TourLogic_Update (Update)
 - [ ] Test_UrlUtils_Update (Update)
 - [ ] Test_VersionData_Update (Update)
+- [ ] Test_PersistentLabel_Update (Update)
+- [ ] Test_QualityIndicator_Update (Update)
+- [ ] Test_Schemas_Update (Update)
+- [ ] Test_SimHelpers_Update (Update)
+- [ ] Test_Types_Update (Update)

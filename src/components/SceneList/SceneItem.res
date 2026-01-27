@@ -57,7 +57,7 @@ let make = React.memo((
 
   let qualityScore = switch scene.quality {
   | Some(q) =>
-    let qObj = JsonTypes.castToQualityAnalysis(q)
+    let qObj = Schemas.castToQualityAnalysis(q)
     qObj.score
   | None => 10.0
   }

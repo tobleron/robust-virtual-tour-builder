@@ -2,3 +2,4 @@
 [2026-01-26 20:46] v4.8.0 - Update ViewerSnapshot unit tests with edge cases
 [2026-01-27 11:07] v4.8.0 - chore: Sync branches and fix race conditions in geocoding tests
 [2026-01-27 12:34] v4.8.1 - refactor(backend): Stream ZIP uploads & fix upload panic [TRIPLE]
+[2026-01-27 19:54] v4.8.4 - feat: Implement ReScript Schema validation (Task 600)
