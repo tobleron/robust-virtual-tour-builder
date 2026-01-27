@@ -1,4 +1,3 @@
-
 open Vitest
 open PanoramaClusterer
 open UploadProcessorTypes
@@ -13,7 +12,6 @@ open UploadProcessorTypes
 `)
 
 describe("PanoramaClusterer", () => {
-
   testAsync("clusterScenes groups similar items", async t => {
     /* Setup items with quality data so pairs are generated */
     let qualityJson = %raw(`{

@@ -45,7 +45,7 @@ let createMockItem = (~name, ~metadata=?, ()) => {
   {
     original: %raw(`new File([new Blob([""])], name)`),
     metadataJson: metadata,
-    qualityJson: None
+    qualityJson: None,
   }
 }
 
@@ -83,23 +83,23 @@ describe("ExifReportGenerator", () => {
   testAsync("generateExifReport: processes files and generates full report", async t => {
     // Setup mocks
     let meta = {
-        "gps": {"lat": 10.0, "lon": 20.0},
-        "dateTime": "2023:01:01 12:00:00",
-        "make": "TestMake",
-        "model": "TestModel",
-        "width": 1000,
-        "height": 500,
-        "focalLength": Nullable.null,
-        "aperture": Nullable.null,
-        "iso": Nullable.null
+      "gps": {"lat": 10.0, "lon": 20.0},
+      "dateTime": "2023:01:01 12:00:00",
+      "make": "TestMake",
+      "model": "TestModel",
+      "width": 1000,
+      "height": 500,
+      "focalLength": Nullable.null,
+      "aperture": Nullable.null,
+      "iso": Nullable.null,
     }
     let item = createMockItem(~name="img1.jpg", ~metadata=anyToJson(meta), ())
 
     // Mock Location
     let analysis: GeoUtils.scanResult = {
-        centroid: {lat: 10.0, lon: 20.0},
-        outliers: [],
-        validCount: 1
+      centroid: {lat: 10.0, lon: 20.0},
+      outliers: [],
+      validCount: 1,
     }
     mockCalculateAverageLocation->mockReturnValue(Some(analysis))
     mockReverseGeocode->mockResolvedValue(Ok("123 Test St"))

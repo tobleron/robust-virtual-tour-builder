@@ -45,35 +45,46 @@ describe("SceneSwitcher", () => {
   })
 
   test("navigateToScene prevents concurrent navigation", t => {
-     let dispatched = ref([])
-     let dispatch = a => { let _ = Array.push(dispatched.contents, a) }
+    let dispatched = ref([])
+    let dispatch = a => {
+      let _ = Array.push(dispatched.contents, a)
+    }
 
-     let s1 = TestUtils.createMockScene(~id="s1", ~name="s1", ())
-     let journey: journeyData = {
-         journeyId: 1,
-         targetIndex: 1,
-         sourceIndex: 0,
-         hotspotIndex: 0,
-         arrivalYaw: 0.0,
-         arrivalPitch: 0.0,
-         arrivalHfov: 90.0,
-         previewOnly: false,
-         pathData: Some({
-             startPitch: 0.0, startYaw: 0.0, startHfov: 90.0,
-             targetPitchForPan: 0.0, targetYawForPan: 0.0, targetHfovForPan: 90.0,
-             totalPathDistance: 0.0, segments: [], waypoints: [], panDuration: 1000.0,
-             arrivalYaw: 0.0, arrivalPitch: 0.0, arrivalHfov: 90.0
-         })
-     }
+    let s1 = TestUtils.createMockScene(~id="s1", ~name="s1", ())
+    let journey: journeyData = {
+      journeyId: 1,
+      targetIndex: 1,
+      sourceIndex: 0,
+      hotspotIndex: 0,
+      arrivalYaw: 0.0,
+      arrivalPitch: 0.0,
+      arrivalHfov: 90.0,
+      previewOnly: false,
+      pathData: Some({
+        startPitch: 0.0,
+        startYaw: 0.0,
+        startHfov: 90.0,
+        targetPitchForPan: 0.0,
+        targetYawForPan: 0.0,
+        targetHfovForPan: 90.0,
+        totalPathDistance: 0.0,
+        segments: [],
+        waypoints: [],
+        panDuration: 1000.0,
+        arrivalYaw: 0.0,
+        arrivalPitch: 0.0,
+        arrivalHfov: 90.0,
+      }),
+    }
 
-     let state = {
-        ...State.initialState,
-        scenes: [s1],
-        navigation: Navigating(journey)
-     }
+    let state = {
+      ...State.initialState,
+      scenes: [s1],
+      navigation: Navigating(journey),
+    }
 
-     SceneSwitcher.navigateToScene(dispatch, state, 1, 0, -1, ())
+    SceneSwitcher.navigateToScene(dispatch, state, 1, 0, -1, ())
 
-     t->expect(dispatched.contents->Array.length)->Expect.toBe(0)
+    t->expect(dispatched.contents->Array.length)->Expect.toBe(0)
   })
 })

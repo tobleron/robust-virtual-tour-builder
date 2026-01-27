@@ -104,12 +104,24 @@ let _ = describe("ProjectData", () => {
       originalFile: None,
       hotspots: [
         {
-           linkId: "l1", yaw: 0.0, pitch: 0.0, target: "target",
-           targetYaw: None, targetPitch: None, targetHfov: None,
-           startYaw: None, startPitch: None, startHfov: None,
-           isReturnLink: None, viewFrame: None, returnViewFrame: None,
-           waypoints: None, displayPitch: None, transition: None, duration: None
-        }
+          linkId: "l1",
+          yaw: 0.0,
+          pitch: 0.0,
+          target: "target",
+          targetYaw: None,
+          targetPitch: None,
+          targetHfov: None,
+          startYaw: None,
+          startPitch: None,
+          startHfov: None,
+          isReturnLink: None,
+          viewFrame: None,
+          returnViewFrame: None,
+          waypoints: None,
+          displayPitch: None,
+          transition: None,
+          duration: None,
+        },
       ],
       category: "cat1",
       floor: "1",
@@ -137,9 +149,12 @@ let _ = describe("ProjectData", () => {
     // Simulate ProjectManagerLogic enrichment (backend restores file paths)
     let jsonDict = Obj.magic(json)
     let scenes = jsonDict["scenes"]
-    Belt.Array.forEach(scenes, s => {
-      s["file"] = "mock_file_url"
-    })
+    Belt.Array.forEach(
+      scenes,
+      s => {
+        s["file"] = "mock_file_url"
+      },
+    )
 
     // We use SceneHelpers.parseProject to simulate loading the project
     let restoredState = SceneHelpers.parseProject(Obj.magic(json))

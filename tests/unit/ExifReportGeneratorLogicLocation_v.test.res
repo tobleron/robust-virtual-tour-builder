@@ -45,82 +45,94 @@ describe("ExifReportGeneratorLogicLocation", () => {
   })
 
   describe("analyzeLocation", () => {
-    testAsync("warns when no GPS points found", async t => {
-      let lines = []
-      let result = await analyzeLocation([], [], 10, lines)
+    testAsync(
+      "warns when no GPS points found",
+      async t => {
+        let lines = []
+        let result = await analyzeLocation([], [], 10, lines)
 
-      t->expect(result)->Expect.toBe(None)
-      let _ = %raw(`expect(mockWarn).toHaveBeenCalledWith("ExifReport", "NO_GPS_DATA_FOUND", expect.anything(), undefined)`)
-      t->expect(Array.length(lines) > 0)->Expect.toBe(true)
-      let line0 = lines->Belt.Array.get(0)->Belt.Option.getWithDefault("")
-      t->expect(line0)->Expect.String.toContain("No GPS data found")
-    })
+        t->expect(result)->Expect.toBe(None)
+        let _ = %raw(`expect(mockWarn).toHaveBeenCalledWith("ExifReport", "NO_GPS_DATA_FOUND", expect.anything(), undefined)`)
+        t->expect(Array.length(lines) > 0)->Expect.toBe(true)
+        let line0 = lines->Belt.Array.get(0)->Belt.Option.getWithDefault("")
+        t->expect(line0)->Expect.String.toContain("No GPS data found")
+      },
+    )
 
-    testAsync("analyzes location when GPS points exist", async t => {
-      let lines = []
-      let gpsPoints: array<GeoUtils.point> = [{lat: 10.0, lon: 20.0}]
-      let gpsFilenames = ["test.jpg"]
+    testAsync(
+      "analyzes location when GPS points exist",
+      async t => {
+        let lines = []
+        let gpsPoints: array<GeoUtils.point> = [{lat: 10.0, lon: 20.0}]
+        let gpsFilenames = ["test.jpg"]
 
-      // Mock centroid analysis
-      let analysis: GeoUtils.scanResult = {
-        centroid: {lat: 10.0, lon: 20.0},
-        outliers: [],
-        validCount: 1
-      }
-      mockCalculateAverageLocation->mockReturnValue(Some(analysis))
+        // Mock centroid analysis
+        let analysis: GeoUtils.scanResult = {
+          centroid: {lat: 10.0, lon: 20.0},
+          outliers: [],
+          validCount: 1,
+        }
+        mockCalculateAverageLocation->mockReturnValue(Some(analysis))
 
-      // Mock geocoding
-      mockReverseGeocode->mockResolvedValue(Ok("123 Test St"))
+        // Mock geocoding
+        mockReverseGeocode->mockResolvedValue(Ok("123 Test St"))
 
-      let result = await analyzeLocation(gpsPoints, gpsFilenames, 1, lines)
+        let result = await analyzeLocation(gpsPoints, gpsFilenames, 1, lines)
 
-      t->expect(result)->Expect.toBe(Some("123 Test St"))
+        t->expect(result)->Expect.toBe(Some("123 Test St"))
 
-      // Check lines
-      let content = Js.Array.joinWith("\n", lines)
-      t->expect(content)->Expect.String.toContain("GPS Data Found: 1")
-      t->expect(content)->Expect.String.toContain("123 Test St")
-    })
+        // Check lines
+        let content = Js.Array.joinWith("\n", lines)
+        t->expect(content)->Expect.String.toContain("GPS Data Found: 1")
+        t->expect(content)->Expect.String.toContain("123 Test St")
+      },
+    )
 
-    testAsync("handles geocoding failure", async t => {
-      let lines = []
-      let gpsPoints: array<GeoUtils.point> = [{lat: 10.0, lon: 20.0}]
-      let gpsFilenames = ["test.jpg"]
+    testAsync(
+      "handles geocoding failure",
+      async t => {
+        let lines = []
+        let gpsPoints: array<GeoUtils.point> = [{lat: 10.0, lon: 20.0}]
+        let gpsFilenames = ["test.jpg"]
 
-      let analysis: GeoUtils.scanResult = {
-        centroid: {lat: 10.0, lon: 20.0},
-        outliers: [],
-        validCount: 1
-      }
-      mockCalculateAverageLocation->mockReturnValue(Some(analysis))
-      mockReverseGeocode->mockResolvedValue(Error("API Error"))
+        let analysis: GeoUtils.scanResult = {
+          centroid: {lat: 10.0, lon: 20.0},
+          outliers: [],
+          validCount: 1,
+        }
+        mockCalculateAverageLocation->mockReturnValue(Some(analysis))
+        mockReverseGeocode->mockResolvedValue(Error("API Error"))
 
-      let result = await analyzeLocation(gpsPoints, gpsFilenames, 1, lines)
+        let result = await analyzeLocation(gpsPoints, gpsFilenames, 1, lines)
 
-      t->expect(result)->Expect.toBe(None)
+        t->expect(result)->Expect.toBe(None)
 
-      let content = Js.Array.joinWith("\n", lines)
-      t->expect(content)->Expect.String.toContain("Geocoding failed: API Error")
-    })
+        let content = Js.Array.joinWith("\n", lines)
+        t->expect(content)->Expect.String.toContain("Geocoding failed: API Error")
+      },
+    )
 
-    testAsync("reports outliers", async t => {
-       let lines = []
-       let gpsPoints: array<GeoUtils.point> = [{lat: 10.0, lon: 20.0}, {lat: 90.0, lon: 90.0}]
-       let gpsFilenames = ["valid.jpg", "outlier.jpg"]
+    testAsync(
+      "reports outliers",
+      async t => {
+        let lines = []
+        let gpsPoints: array<GeoUtils.point> = [{lat: 10.0, lon: 20.0}, {lat: 90.0, lon: 90.0}]
+        let gpsFilenames = ["valid.jpg", "outlier.jpg"]
 
-       let analysis: GeoUtils.scanResult = {
-        centroid: {lat: 10.0, lon: 20.0},
-        outliers: [{index: 1, distance: 5000.0, point: {lat: 90.0, lon: 90.0}}],
-        validCount: 1
-      }
-      mockCalculateAverageLocation->mockReturnValue(Some(analysis))
-      mockReverseGeocode->mockResolvedValue(Ok("Address"))
+        let analysis: GeoUtils.scanResult = {
+          centroid: {lat: 10.0, lon: 20.0},
+          outliers: [{index: 1, distance: 5000.0, point: {lat: 90.0, lon: 90.0}}],
+          validCount: 1,
+        }
+        mockCalculateAverageLocation->mockReturnValue(Some(analysis))
+        mockReverseGeocode->mockResolvedValue(Ok("Address"))
 
-      let _ = await analyzeLocation(gpsPoints, gpsFilenames, 2, lines)
+        let _ = await analyzeLocation(gpsPoints, gpsFilenames, 2, lines)
 
-      let content = Js.Array.joinWith("\n", lines)
-      t->expect(content)->Expect.String.toContain("OUTLIERS DETECTED")
-      t->expect(content)->Expect.String.toContain("outlier.jpg")
-    })
+        let content = Js.Array.joinWith("\n", lines)
+        t->expect(content)->Expect.String.toContain("OUTLIERS DETECTED")
+        t->expect(content)->Expect.String.toContain("outlier.jpg")
+      },
+    )
   })
 })

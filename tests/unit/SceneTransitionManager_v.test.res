@@ -62,7 +62,6 @@ describe("SceneTransitionManager", () => {
         globalThis.Date.now = () => 1000;
       })()
     `)
-    ()
   })
 
   test("performSwap swaps active class", t => {

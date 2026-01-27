@@ -33,8 +33,8 @@ describe("VisualPipeline", () => {
 
   let createScene = (id: string, name: string): scene => {
     {
-      id: id,
-      name: name,
+      id,
+      name,
       file: Url("placeholder.jpg"),
       tinyFile: None,
       originalFile: None,
@@ -79,7 +79,7 @@ describe("VisualPipeline", () => {
 
     let item1 = createTimelineItem("1", "Living Room")
     let scene1 = {
-      ...(createScene("scene_1", "Living Room")),
+      ...createScene("scene_1", "Living Room"),
       colorGroup: Some("1"), // Should be Blue 500 #3b82f6 (based on logic 1-1=0 -> idx 0)
     }
 
@@ -93,10 +93,10 @@ describe("VisualPipeline", () => {
     let node = Dom.querySelector(container, ".pipeline-node")
     switch Nullable.toOption(node) {
     | Some(n) =>
-       let style = Dom.getStyle(n)
-       let color = Dom.getPropertyValue(style, "--node-color")
-       // ColorPalette logic: id 1 -> idx 0 -> #3b82f6
-       t->expect(color)->Expect.toBe("#3b82f6")
+      let style = Dom.getStyle(n)
+      let color = Dom.getPropertyValue(style, "--node-color")
+      // ColorPalette logic: id 1 -> idx 0 -> #3b82f6
+      t->expect(color)->Expect.toBe("#3b82f6")
     | None => t->expect(false)->Expect.toBe(true)
     }
 
@@ -104,62 +104,66 @@ describe("VisualPipeline", () => {
   })
 
   test("render should create tooltip with correct info", t => {
-     let container = setupDOM()
-     let _ = VisualPipeline.init("pipeline-container")
+    let container = setupDOM()
+    let _ = VisualPipeline.init("pipeline-container")
 
-     let item1 = createTimelineItem("1", "Kitchen")
-     let scene1 = {
-       ...(createScene("scene_1", "Kitchen")),
-       file: Url("thumb.jpg"),
-     }
+    let item1 = createTimelineItem("1", "Kitchen")
+    let scene1 = {
+      ...createScene("scene_1", "Kitchen"),
+      file: Url("thumb.jpg"),
+    }
 
-     let state = {
-       ...State.initialState,
-       timeline: [item1],
-       scenes: [scene1],
-     }
-     GlobalStateBridge.setState(state)
+    let state = {
+      ...State.initialState,
+      timeline: [item1],
+      scenes: [scene1],
+    }
+    GlobalStateBridge.setState(state)
 
-     let tooltip = Dom.querySelector(container, ".node-tooltip")
-     let exists = Nullable.toOption(tooltip)->Belt.Option.isSome
-     t->expect(exists)->Expect.toBe(true)
+    let tooltip = Dom.querySelector(container, ".node-tooltip")
+    let exists = Nullable.toOption(tooltip)->Belt.Option.isSome
+    t->expect(exists)->Expect.toBe(true)
 
-     if exists {
-       let el = Nullable.toOption(tooltip)->Belt.Option.getExn
-       let text = Dom.querySelector(el, ".tooltip-text")
-       t->expect(Dom.getTextContent(Nullable.toOption(text)->Belt.Option.getExn))->Expect.toBe("Kitchen")
+    if exists {
+      let el = Nullable.toOption(tooltip)->Belt.Option.getExn
+      let text = Dom.querySelector(el, ".tooltip-text")
+      t
+      ->expect(Dom.getTextContent(Nullable.toOption(text)->Belt.Option.getExn))
+      ->Expect.toBe("Kitchen")
 
-       let linkId = Dom.querySelector(el, ".tooltip-link-id")
-       t->expect(Dom.getTextContent(Nullable.toOption(linkId)->Belt.Option.getExn))->Expect.toBe("Link: link_1")
-     }
+      let linkId = Dom.querySelector(el, ".tooltip-link-id")
+      t
+      ->expect(Dom.getTextContent(Nullable.toOption(linkId)->Belt.Option.getExn))
+      ->Expect.toBe("Link: link_1")
+    }
 
-     cleanupDOM(container)
+    cleanupDOM(container)
   })
 
   test("node active state should track activeTimelineStepId", t => {
-     let container = setupDOM()
-     let _ = VisualPipeline.init("pipeline-container")
+    let container = setupDOM()
+    let _ = VisualPipeline.init("pipeline-container")
 
-     let item1 = createTimelineItem("1", "Living Room")
-     let state = {
-       ...State.initialState,
-       timeline: [item1],
-       activeTimelineStepId: Some("1")
-     }
-     GlobalStateBridge.setState(state)
+    let item1 = createTimelineItem("1", "Living Room")
+    let state = {
+      ...State.initialState,
+      timeline: [item1],
+      activeTimelineStepId: Some("1"),
+    }
+    GlobalStateBridge.setState(state)
 
-     let node = Dom.querySelector(container, ".pipeline-node")
-     let cl = Dom.classList(Nullable.toOption(node)->Belt.Option.getExn)
-     t->expect(Dom.ClassList.contains(cl, "active"))->Expect.toBe(true)
+    let node = Dom.querySelector(container, ".pipeline-node")
+    let cl = Dom.classList(Nullable.toOption(node)->Belt.Option.getExn)
+    t->expect(Dom.ClassList.contains(cl, "active"))->Expect.toBe(true)
 
-     let stateInactive = { ...state, activeTimelineStepId: Some("other") }
-     GlobalStateBridge.setState(stateInactive)
-     // Node is re-rendered, so we need to query it again
-     let nodeInactive = Dom.querySelector(container, ".pipeline-node")
-     let cl2 = Dom.classList(Nullable.toOption(nodeInactive)->Belt.Option.getExn)
-     t->expect(Dom.ClassList.contains(cl2, "active"))->Expect.toBe(false)
+    let stateInactive = {...state, activeTimelineStepId: Some("other")}
+    GlobalStateBridge.setState(stateInactive)
+    // Node is re-rendered, so we need to query it again
+    let nodeInactive = Dom.querySelector(container, ".pipeline-node")
+    let cl2 = Dom.classList(Nullable.toOption(nodeInactive)->Belt.Option.getExn)
+    t->expect(Dom.ClassList.contains(cl2, "active"))->Expect.toBe(false)
 
-     cleanupDOM(container)
+    cleanupDOM(container)
   })
 
   test("drag interaction should update state and dispatch reorder", t => {
@@ -192,7 +196,10 @@ describe("VisualPipeline", () => {
     }`)
 
     let dragStartEvent = %raw(`new Event('dragstart', {bubbles: true})`)
-    let _ = %raw(`(ev, dt) => Object.defineProperty(ev, 'dataTransfer', { value: dt })`)(dragStartEvent, mockDataTransfer)
+    let _ = %raw(`(ev, dt) => Object.defineProperty(ev, 'dataTransfer', { value: dt })`)(
+      dragStartEvent,
+      mockDataTransfer,
+    )
 
     let _ = %raw(`(node, ev) => node.dispatchEvent(ev)`)(sourceNode, dragStartEvent)
 
@@ -209,7 +216,10 @@ describe("VisualPipeline", () => {
     let targetZone = %raw(`(list) => list[2]`)(zones)
 
     let dragOverEvent = %raw(`new Event('dragover', {bubbles: true})`)
-    let _ = %raw(`(ev, dt) => Object.defineProperty(ev, 'dataTransfer', { value: dt })`)(dragOverEvent, mockDataTransfer)
+    let _ = %raw(`(ev, dt) => Object.defineProperty(ev, 'dataTransfer', { value: dt })`)(
+      dragOverEvent,
+      mockDataTransfer,
+    )
     let _ = %raw(`(node, ev) => node.dispatchEvent(ev)`)(targetZone, dragOverEvent)
 
     // Verify drag-over class
