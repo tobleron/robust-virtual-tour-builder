@@ -1,7 +1,7 @@
 use super::validate::validate_and_clean_project;
 use crate::models::ValidationReport;
 use std::collections::HashSet;
-use std::io::{Cursor, Read, Write};
+use std::io::{Read, Write};
 use zip::write::FileOptions;
 
 /// Processes an uploaded project ZIP and returns a normalized version.
@@ -17,11 +17,10 @@ use zip::write::FileOptions;
 ///
 /// # Errors
 /// * Returns a `String` error if the ZIP is malformed or missing `project.json`.
-pub fn process_uploaded_project_zip(zip_data: Vec<u8>) -> Result<Vec<u8>, String> {
+pub fn process_uploaded_project_zip(zip_file: std::fs::File) -> Result<tempfile::NamedTempFile, String> {
     // Open uploaded ZIP archive
-    let cursor = Cursor::new(&zip_data);
     let mut archive =
-        zip::ZipArchive::new(cursor).map_err(|e| format!("Failed to read ZIP: {}", e))?;
+        zip::ZipArchive::new(zip_file).map_err(|e| format!("Failed to read ZIP: {}", e))?;
 
     // 1. Collect list of files in ZIP for validation
     let mut available_files = HashSet::new();
@@ -61,69 +60,68 @@ pub fn process_uploaded_project_zip(zip_data: Vec<u8>) -> Result<Vec<u8>, String
         .map_err(|e| format!("Failed to serialize validation report: {}", e))?;
 
     // 4. Create response ZIP containing validated project.json + all images normalized in images/
-    let mut response_zip_buffer = Cursor::new(Vec::new());
-    {
-        let mut zip_writer = zip::ZipWriter::new(&mut response_zip_buffer);
-        let options = FileOptions::default()
-            .compression_method(zip::CompressionMethod::Stored)
-            .unix_permissions(0o755);
+    let output_file = tempfile::NamedTempFile::new().map_err(|e| format!("Failed to create temp file: {}", e))?;
+    let mut zip_writer = zip::ZipWriter::new(output_file);
+    let options = FileOptions::default()
+        .compression_method(zip::CompressionMethod::Stored)
+        .unix_permissions(0o755);
 
-        // Add validated project.json
-        zip_writer
-            .start_file("project.json", options)
-            .map_err(|e| e.to_string())?;
-        let updated_json =
-            serde_json::to_string_pretty(&validated_project).map_err(|e| e.to_string())?;
-        zip_writer
-            .write_all(updated_json.as_bytes())
-            .map_err(|e| e.to_string())?;
+    // Add validated project.json
+    zip_writer
+        .start_file("project.json", options)
+        .map_err(|e| e.to_string())?;
+    let updated_json =
+        serde_json::to_string_pretty(&validated_project).map_err(|e| e.to_string())?;
+    zip_writer
+        .write_all(updated_json.as_bytes())
+        .map_err(|e| e.to_string())?;
 
-        // Copy all image files, normalizing to images/ folder
-        for i in 0..archive.len() {
-            let mut file = archive
-                .by_index(i)
-                .map_err(|e| format!("Failed to read file {}: {}", i, e))?;
+    // Copy all image files, normalizing to images/ folder
+    for i in 0..archive.len() {
+        let mut file = archive
+            .by_index(i)
+            .map_err(|e| format!("Failed to read file {}: {}", i, e))?;
 
-            let filename = file.name().to_string();
+        let filename = file.name().to_string();
 
-            // Skip project.json
-            if filename == "project.json" {
-                continue;
-            }
-
-            // Include files in images/ directory or root-level image files
-            if filename.starts_with("images/")
-                || filename.ends_with(".webp")
-                || filename.ends_with(".jpg")
-                || filename.ends_with(".jpeg")
-                || filename.ends_with(".png")
-            {
-                let mut zip_path = filename.clone();
-                // Normalize images into images/ folder if not already there
-                if (filename.ends_with(".webp")
-                    || filename.ends_with(".jpg")
-                    || filename.ends_with(".jpeg")
-                    || filename.ends_with(".png"))
-                    && !filename.starts_with("images/")
-                {
-                    zip_path = format!("images/{}", filename);
-                }
-
-                zip_writer
-                    .start_file(&zip_path, options)
-                    .map_err(|e| e.to_string())?;
-
-                let mut buffer = Vec::new();
-                file.read_to_end(&mut buffer).map_err(|e| e.to_string())?;
-
-                zip_writer.write_all(&buffer).map_err(|e| e.to_string())?;
-            }
+        // Skip project.json
+        if filename == "project.json" {
+            continue;
         }
 
-        zip_writer.finish().map_err(|e| e.to_string())?;
+        // Include files in images/ directory or root-level image files
+        if filename.starts_with("images/")
+            || filename.ends_with(".webp")
+            || filename.ends_with(".jpg")
+            || filename.ends_with(".jpeg")
+            || filename.ends_with(".png")
+        {
+            let mut zip_path = filename.clone();
+            // Normalize images into images/ folder if not already there
+            if (filename.ends_with(".webp")
+                || filename.ends_with(".jpg")
+                || filename.ends_with(".jpeg")
+                || filename.ends_with(".png"))
+                && !filename.starts_with("images/")
+            {
+                zip_path = format!("images/{}", filename);
+            }
+
+            zip_writer
+                .start_file(&zip_path, options)
+                .map_err(|e| e.to_string())?;
+
+            std::io::copy(&mut file, &mut zip_writer).map_err(|e| e.to_string())?;
+        }
     }
 
-    Ok(response_zip_buffer.into_inner())
+    let mut result_file = zip_writer.finish().map_err(|e| e.to_string())?;
+    
+    // Rewind file to beginning for reading by caller
+    use std::io::Seek;
+    result_file.rewind().map_err(|e| format!("Failed to rewind output file: {}", e))?;
+
+    Ok(result_file)
 }
 
 /// Validates a project ZIP's internal consistency without modifying its content.
@@ -136,10 +134,9 @@ pub fn process_uploaded_project_zip(zip_data: Vec<u8>) -> Result<Vec<u8>, String
 ///
 /// # Errors
 /// * Returns a `String` error if the ZIP cannot be read or is missing `project.json`.
-pub fn validate_project_zip(zip_data: Vec<u8>) -> Result<ValidationReport, String> {
-    let cursor = Cursor::new(&zip_data);
+pub fn validate_project_zip(zip_file: std::fs::File) -> Result<ValidationReport, String> {
     let mut archive =
-        zip::ZipArchive::new(cursor).map_err(|e| format!("Failed to read ZIP: {}", e))?;
+        zip::ZipArchive::new(zip_file).map_err(|e| format!("Failed to read ZIP: {}", e))?;
 
     // Collect list of files in ZIP for validation
     let mut available_files = HashSet::new();

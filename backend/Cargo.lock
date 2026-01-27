@@ -521,6 +521,7 @@ dependencies = [
  "serde_json",
  "sha2",
  "sqlx",
+ "tempfile",
  "tokio",
  "tracing",
  "tracing-actix-web",
