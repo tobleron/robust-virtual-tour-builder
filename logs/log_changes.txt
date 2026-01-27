@@ -1,2 +1,3 @@
 [2026-01-26 20:43] v4.8.0 - Update SceneHelpers tests and fix sessionId parsing
 [2026-01-26 20:46] v4.8.0 - Update ViewerSnapshot unit tests with edge cases
+[2026-01-27 11:07] v4.8.0 - chore: Sync branches and fix race conditions in geocoding tests
