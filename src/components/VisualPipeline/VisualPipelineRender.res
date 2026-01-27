@@ -29,7 +29,12 @@ let render = (pipeline: t, state: Types.state) => {
         Dom.setAttribute(node, "aria-label", "Timeline step: " ++ item.targetScene)
 
         let activateNode = () => {
-          Logger.debug(~module_="VisualPipeline", ~message="ACTIVATE_NODE", ~data=Some({"id": item.id}), ())
+          Logger.debug(
+            ~module_="VisualPipeline",
+            ~message="ACTIVATE_NODE",
+            ~data=Some({"id": item.id}),
+            (),
+          )
           GlobalStateBridge.dispatch(SetActiveTimelineStep(Some(item.id)))
           let sceneIdx =
             state.scenes
@@ -96,7 +101,12 @@ let render = (pipeline: t, state: Types.state) => {
         Dom.addEventListener(node, "contextmenu", (e: Dom.event) => {
           Dom.preventDefault(e)
           if Window.confirm("Remove this step from the timeline?") {
-            Logger.info(~module_="VisualPipeline", ~message="REMOVE_STEP", ~data=Some({"id": item.id}), ())
+            Logger.info(
+              ~module_="VisualPipeline",
+              ~message="REMOVE_STEP",
+              ~data=Some({"id": item.id}),
+              (),
+            )
             GlobalStateBridge.dispatch(RemoveFromTimeline(item.id))
           }
         })

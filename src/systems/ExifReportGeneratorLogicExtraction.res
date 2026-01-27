@@ -41,7 +41,7 @@ let extractAllExif = async (sceneDataList: array<sceneDataItem>) => {
               let localRes = await ExifParser.extractExifTags(File(file))
               switch localRes {
               | Ok((exif, _pano)) => {
-                  exif: exif, // This might have the GPS we missed
+                  exif, // This might have the GPS we missed
                   quality: defaultQuality("GPS recovered locally"),
                   isOptimized: false,
                   checksum: "",
@@ -69,7 +69,7 @@ let extractAllExif = async (sceneDataList: array<sceneDataItem>) => {
           let localRes = await ExifParser.extractExifTags(File(file))
           switch localRes {
           | Ok((exif, _pano)) => {
-              exif: exif,
+              exif,
               quality: defaultQuality("Extracted locally"),
               isOptimized: false,
               checksum: "",

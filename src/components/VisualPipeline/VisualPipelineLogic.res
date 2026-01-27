@@ -80,7 +80,12 @@ let handleDrop = (pipeline: t, e: Dom.event) => {
         dropIndex
       }
       if finalIndex != sourceIndex {
-        Logger.info(~module_="VisualPipeline", ~message="REORDER_TIMELINE", ~data=Some({"from": sourceIndex, "to": finalIndex}), ())
+        Logger.info(
+          ~module_="VisualPipeline",
+          ~message="REORDER_TIMELINE",
+          ~data=Some({"from": sourceIndex, "to": finalIndex}),
+          (),
+        )
         GlobalStateBridge.dispatch(ReorderTimeline(sourceIndex, finalIndex))
       }
     }

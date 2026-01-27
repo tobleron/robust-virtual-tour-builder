@@ -14,7 +14,9 @@ pub fn get_suggested_name(original: &str) -> String {
         .and_then(|s| s.to_str())
         .unwrap_or(original);
 
-    if let Some(caps) = FILENAME_REGEX.captures(base_name) && caps.len() >= 3 {
+    if let Some(caps) = FILENAME_REGEX.captures(base_name)
+        && caps.len() >= 3
+    {
         return format!("{}_{}", &caps[1], &caps[2]);
     }
 

@@ -1,12 +1,10 @@
 /* src/systems/SceneLoaderLogicReuse.res */
 
-open ReBindings
 open ViewerState
-open SceneLoaderTypes
 
 let checkShouldReuse = (targetSceneId, targetIndex, isAnticipatory) => {
   let inactiveViewer = getInactiveViewer()
-  
+
   switch Nullable.toOption(inactiveViewer) {
   | Some(v) =>
     let vDyn = PannellumAdapter.asCustom(v)

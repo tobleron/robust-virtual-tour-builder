@@ -45,9 +45,7 @@ let make = React.memo((~procState: SidebarMainTypes.processingPayload) => {
             <span className="truncate"> {React.string(leftPart)} </span>
           </div>
           {if rightPart != "" {
-            <span className="text-slate-400 truncate max-w-[50%]">
-              {React.string(rightPart)}
-            </span>
+            <span className="text-slate-400 truncate max-w-[50%]"> {React.string(rightPart)} </span>
           } else {
             React.null
           }}

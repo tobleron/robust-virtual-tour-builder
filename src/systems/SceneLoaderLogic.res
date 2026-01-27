@@ -126,9 +126,7 @@ let loadNewScene = (
           /* Initialization */
           let panoramaUrl = getPanoramaUrl(targetScene.file)
           let useProgressive =
-            Belt.Option.isSome(targetScene.tinyFile) &&
-            !currentState.isTeasing &&
-            !isAnticipatory
+            Belt.Option.isSome(targetScene.tinyFile) && !currentState.isTeasing && !isAnticipatory
 
           let tinyUrl = if useProgressive {
             switch targetScene.tinyFile {

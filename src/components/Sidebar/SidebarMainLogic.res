@@ -109,12 +109,7 @@ let handleLoadProject = async (filesOpt, dispatch, sceneCount, target) => {
       | Some(m) => m
       | None => "Unknown error"
       }
-      Logger.error(
-        ~module_="Sidebar",
-        ~message="PROJECT_LOAD_FAILED",
-        ~data={"error": msg},
-        (),
-      )
+      Logger.error(~module_="Sidebar", ~message="PROJECT_LOAD_FAILED", ~data={"error": msg}, ())
       EventBus.dispatch(ShowNotification("Load failed: " ++ msg, #Error))
       updateProgress(0.0, "Error", false, "")
     | _ =>
@@ -136,11 +131,9 @@ let handleSave = async () => {
   updateProgress(0.0, "Saving...", true, "Saving")
   try {
     let currentState = GlobalStateBridge.getState()
-    let _ = await ProjectManager.saveProject(currentState, ~onProgress=(
-      pct,
-      _,
-      msg,
-    ) => updateProgress(pct->Int.toFloat, msg, true, "Saving"))
+    let _ = await ProjectManager.saveProject(currentState, ~onProgress=(pct, _, msg) =>
+      updateProgress(pct->Int.toFloat, msg, true, "Saving")
+    )
     EventBus.dispatch(ShowNotification("Project saved", #Success))
     updateProgress(100.0, "Saved", false, "")
   } catch {

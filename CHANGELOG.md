@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Complete tasks 604-743: Comprehensive refactoring of ReBindings, SceneList, Sidebar, VisualPipeline, SceneHelpers, ProjectManager, SceneLoader, Logger, and Backend modules; synced MAP.md
 - Refactor: Decomposed oversized modules (SidebarMain, ExifReportGeneratorLogic, SceneLoaderLogic) into focused sub-modules; Updated MAP.md
 - Fix: Resolved build errors in ExifReportGenerator and SceneLoader; cleaned up unused opens for Zero Warning protocol
+- Fix: Backend panic in media analysis via correct histogram vector sizing; final cleanup of unused opens
 
 ## [4.8.0] - 2026-01-26
 
