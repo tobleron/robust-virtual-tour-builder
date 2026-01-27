@@ -117,5 +117,39 @@ describe("Resizer", () => {
         t->expect(String.endsWith(checksum, "_1000"))->Expect.toBe(true)
       },
     )
+
+    testAsync(
+      "generates checksum for large files (sampled)",
+      async t => {
+        // Reuse mock from previous test or ensure it persists/re-applied.
+        // Since we didn't clear it, it should be there.
+        // But safer to apply again if tests are isolated?
+        // Vitest tests run in same context usually unless configured otherwise.
+
+        let _ = %raw(`
+        Object.defineProperty(globalThis, 'crypto', {
+          value: {
+            subtle: {
+              digest: async (algo, data) => {
+                return new Uint8Array(32).fill(0xAA).buffer
+              }
+            }
+          },
+          configurable: true,
+          writable: true
+        })
+      `)
+
+        let mockFile: ReBindings.File.t = %raw(`{
+        size: 20 * 1024 * 1024,
+        arrayBuffer: async () => new ArrayBuffer(1000),
+        slice: (s, e) => ({ arrayBuffer: async () => new ArrayBuffer(e - s) })
+      }`)
+
+        let checksum = await getChecksum(mockFile)
+        t->expect(String.startsWith(checksum, "aa"))->Expect.toBe(true)
+        t->expect(String.endsWith(checksum, "_20971520"))->Expect.toBe(true)
+      },
+    )
   })
 })

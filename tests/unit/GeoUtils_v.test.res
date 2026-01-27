@@ -31,9 +31,9 @@ describe("GeoUtils - Distance and Clustering Math", () => {
     switch result {
     | Some(res) => {
         t->expect(res.validCount)->Expect.toBe(3)
-        t->expect(Array.length(res.outliers))->Expect.toBe(1)
+        t->expect(Belt.Array.length(res.outliers))->Expect.toBe(1)
 
-        let firstOutlier = Array.getUnsafe(res.outliers, 0)
+        let firstOutlier = Belt.Array.getExn(res.outliers, 0)
         t->expect(firstOutlier.index)->Expect.toBe(3)
         t->expect(firstOutlier.point.lat)->Expect.toBe(48.85)
 
