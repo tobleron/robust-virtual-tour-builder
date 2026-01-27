@@ -53,6 +53,7 @@ let toJSON = (state: Types.state) => {
     "timeline": state.timeline,
     "lastUsedCategory": state.lastUsedCategory,
     "exifReport": state.exifReport->Nullable.fromOption,
+    "sessionId": state.sessionId->Nullable.fromOption,
   }
 }
 
