@@ -109,7 +109,7 @@ describe("VisualPipeline", () => {
     GlobalStateBridge.setState(state)
 
     let lastAction = ref(None)
-    GlobalStateBridge.setDispatch(action => lastAction := Some(action))
+    GlobalStateBridge.setDispatch(action => lastAction.contents = Some(action))
 
     let node = Dom.querySelector(container, ".pipeline-node")
     switch Nullable.toOption(node) {
@@ -170,7 +170,7 @@ describe("VisualPipeline", () => {
     GlobalStateBridge.setState(state)
 
     let lastAction = ref(None)
-    GlobalStateBridge.setDispatch(action => lastAction := Some(action))
+    GlobalStateBridge.setDispatch(action => lastAction.contents = Some(action))
 
     // Mock window.confirm to return true
     let _ = %raw(`globalThis.window.confirm = () => true`)
@@ -184,6 +184,35 @@ describe("VisualPipeline", () => {
     }
 
     t->expect(lastAction.contents)->Expect.toEqual(Some(Actions.RemoveFromTimeline("1")))
+
+    cleanupDOM(container)
+  })
+
+  test("pressing Enter on node should dispatch SetActiveTimelineStep", t => {
+    let container = setupDOM()
+    let _ = VisualPipeline.init("pipeline-container")
+
+    let item1 = createTimelineItem("1", "Living Room")
+    let state = {
+      ...State.initialState,
+      timeline: [item1],
+    }
+    GlobalStateBridge.setState(state)
+
+    let lastAction = ref(None)
+    GlobalStateBridge.setDispatch(action => lastAction.contents = Some(action))
+
+    let node = Dom.querySelector(container, ".pipeline-node")
+    switch Nullable.toOption(node) {
+    | Some(n) =>
+      let event = %raw(`new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })`)
+      %raw(`(node, ev) => node.dispatchEvent(ev)`)(n, event)
+    | None => t->expect(false)->Expect.toBe(true)
+    }
+
+    t
+    ->expect(lastAction.contents)
+    ->Expect.toEqual(Some(Actions.SetActiveTimelineStep(Some("1"))))
 
     cleanupDOM(container)
   })
