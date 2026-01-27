@@ -135,7 +135,7 @@ pub async fn load_project(
 ) -> Result<HttpResponse, AppError> {
     tracing::info!(module = "ProjectManager", "LOAD_PROJECT_START");
     let start = std::time::Instant::now();
-    
+
     // Use anonymous temp file for the upload to ensure cleanup on drop
     let mut temp_upload = tempfile::tempfile().map_err(AppError::IoError)?;
     let mut uploaded_size = 0;
@@ -149,9 +149,11 @@ pub async fn load_project(
             temp_upload.write_all(&chunk).map_err(AppError::IoError)?;
         }
     }
-    
+
     // Rewind for reading
-    temp_upload.seek(SeekFrom::Start(0)).map_err(AppError::IoError)?;
+    temp_upload
+        .seek(SeekFrom::Start(0))
+        .map_err(AppError::IoError)?;
 
     let result_zip_file = web::block(move || project::process_uploaded_project_zip(temp_upload))
         .await

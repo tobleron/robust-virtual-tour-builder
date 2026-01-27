@@ -17,7 +17,9 @@ use zip::write::FileOptions;
 ///
 /// # Errors
 /// * Returns a `String` error if the ZIP is malformed or missing `project.json`.
-pub fn process_uploaded_project_zip(zip_file: std::fs::File) -> Result<tempfile::NamedTempFile, String> {
+pub fn process_uploaded_project_zip(
+    zip_file: std::fs::File,
+) -> Result<tempfile::NamedTempFile, String> {
     // Open uploaded ZIP archive
     let mut archive =
         zip::ZipArchive::new(zip_file).map_err(|e| format!("Failed to read ZIP: {}", e))?;
@@ -60,7 +62,8 @@ pub fn process_uploaded_project_zip(zip_file: std::fs::File) -> Result<tempfile:
         .map_err(|e| format!("Failed to serialize validation report: {}", e))?;
 
     // 4. Create response ZIP containing validated project.json + all images normalized in images/
-    let output_file = tempfile::NamedTempFile::new().map_err(|e| format!("Failed to create temp file: {}", e))?;
+    let output_file =
+        tempfile::NamedTempFile::new().map_err(|e| format!("Failed to create temp file: {}", e))?;
     let mut zip_writer = zip::ZipWriter::new(output_file);
     let options = FileOptions::default()
         .compression_method(zip::CompressionMethod::Stored)
@@ -83,9 +86,11 @@ pub fn process_uploaded_project_zip(zip_file: std::fs::File) -> Result<tempfile:
             .map_err(|e| format!("Failed to read file {}: {}", i, e))?;
 
         let filename = file.name().to_string();
-        
+
         // Use hardened sanitization logic
-        if let Some(normalized_path) = crate::services::media::naming::normalize_project_entry_path(&filename) {
+        if let Some(normalized_path) =
+            crate::services::media::naming::normalize_project_entry_path(&filename)
+        {
             // We already wrote the fresh project.json manually, so skip the original
             if normalized_path == "project.json" {
                 continue;
@@ -100,10 +105,12 @@ pub fn process_uploaded_project_zip(zip_file: std::fs::File) -> Result<tempfile:
     }
 
     let mut result_file = zip_writer.finish().map_err(|e| e.to_string())?;
-    
+
     // Rewind file to beginning for reading by caller
     use std::io::Seek;
-    result_file.rewind().map_err(|e| format!("Failed to rewind output file: {}", e))?;
+    result_file
+        .rewind()
+        .map_err(|e| format!("Failed to rewind output file: {}", e))?;
 
     Ok(result_file)
 }

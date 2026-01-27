@@ -68,6 +68,7 @@
 │   │       │   │   └── quality.rs
 │   │       │   ├── mod.rs
 │   │       │   ├── naming.rs
+│   │       │   ├── naming_old.rs
 │   │       │   ├── resizing.rs
 │   │       │   └── webp.rs
 │   │       ├── mod.rs
@@ -5030,6 +5031,7 @@
 ├── rescript.json
 ├── rsbuild.config.mjs
 ├── scripts
+│   ├── bump-version.js
 │   ├── cleanup_logs.sh
 │   ├── commit.sh
 │   ├── debug-connectivity.js
@@ -5547,8 +5549,185 @@
 │   │   ├── 768_Refactor_ExifReportGeneratorLogic_DONE.md
 │   │   ├── 777_Refactor_SceneLoaderLogic_DONE.md
 │   │   ├── 795_Refactor_analysis_DONE.md
+│   │   ├── 798_Refactor_Backend_Streaming_ZIP_DONE.md
+│   │   ├── 799_Refactor_Backend_Asset_Sanitization_DONE.md
 │   │   ├── 95_Aggregate_Completed_Tasks_REPORT.md
 │   │   ├── _CONCISE_SUMMARY.md
+│   │   ├── merged_tests
+│   │   │   ├── 602_Test_App_Update_MERGED.md
+│   │   │   ├── 603_Test_Main_Update_MERGED.md
+│   │   │   ├── 605_Test_ReBindings_Update_MERGED.md
+│   │   │   ├── 606_Test_ServiceWorker_Update_MERGED.md
+│   │   │   ├── 607_Test_ServiceWorkerMain_Update_MERGED.md
+│   │   │   ├── 608_Test_AppErrorBoundary_Update_MERGED.md
+│   │   │   ├── 609_Test_ErrorFallbackUI_Update_MERGED.md
+│   │   │   ├── 610_Test_FloorNavigation_Update_MERGED.md
+│   │   │   ├── 611_Test_HotspotActionMenu_Update_MERGED.md
+│   │   │   ├── 612_Test_HotspotLayer_Update_MERGED.md
+│   │   │   ├── 613_Test_HotspotManager_Update_MERGED.md
+│   │   │   ├── 614_Test_HotspotMenuLayer_Update_MERGED.md
+│   │   │   ├── 615_Test_LabelMenu_Update_MERGED.md
+│   │   │   ├── 616_Test_LinkModal_Update_MERGED.md
+│   │   │   ├── 617_Test_ModalContext_Update_MERGED.md
+│   │   │   ├── 618_Test_NotificationContext_Update_MERGED.md
+│   │   │   ├── 619_Test_NotificationLayer_Update_MERGED.md
+│   │   │   ├── 620_Test_PersistentLabel_Update_MERGED.md
+│   │   │   ├── 621_Test_PopOver_Update_MERGED.md
+│   │   │   ├── 622_Test_Portal_Update_MERGED.md
+│   │   │   ├── 623_Test_PreviewArrow_Update_MERGED.md
+│   │   │   ├── 624_Test_QualityIndicator_Update_MERGED.md
+│   │   │   ├── 625_Test_ReturnPrompt_Update_MERGED.md
+│   │   │   ├── 627_Test_SceneList_Update_MERGED.md
+│   │   │   ├── 629_Test_Sidebar_Update_MERGED.md
+│   │   │   ├── 630_Test_SnapshotOverlay_Update_MERGED.md
+│   │   │   ├── 631_Test_Tooltip_Update_MERGED.md
+│   │   │   ├── 632_Test_UploadReport_Update_MERGED.md
+│   │   │   ├── 633_Test_UtilityBar_Update_MERGED.md
+│   │   │   ├── 634_Test_ViewerHUD_Update_MERGED.md
+│   │   │   ├── 635_Test_ViewerLabelMenu_Update_MERGED.md
+│   │   │   ├── 636_Test_ViewerLoader_Update_MERGED.md
+│   │   │   ├── 637_Test_ViewerManager_Update_MERGED.md
+│   │   │   ├── 638_Test_ViewerUI_Update_MERGED.md
+│   │   │   ├── 640_Test_VisualPipeline_Update_MERGED.md
+│   │   │   ├── 642_Test_LucideIcons_Update_MERGED.md
+│   │   │   ├── 643_Test_Shadcn_Update_MERGED.md
+│   │   │   ├── 644_Test_Actions_Update_MERGED.md
+│   │   │   ├── 645_Test_AppContext_Update_MERGED.md
+│   │   │   ├── 646_Test_GlobalStateBridge_Update_MERGED.md
+│   │   │   ├── 647_Test_JsonTypes_Update_MERGED.md
+│   │   │   ├── 648_Test_Reducer_Update_MERGED.md
+│   │   │   ├── 649_Test_SceneCache_Update_MERGED.md
+│   │   │   ├── 651_Test_SharedTypes_Update_MERGED.md
+│   │   │   ├── 652_Test_SimHelpers_Update_MERGED.md
+│   │   │   ├── 653_Test_State_Update_MERGED.md
+│   │   │   ├── 654_Test_Types_Update_MERGED.md
+│   │   │   ├── 655_Test_UiHelpers_Update_MERGED.md
+│   │   │   ├── 656_Test_ViewerState_Update_MERGED.md
+│   │   │   ├── 657_Test_ViewerTypes_Update_MERGED.md
+│   │   │   ├── 658_Test_ViewerDriver_New_MERGED.md
+│   │   │   ├── 659_Test_HotspotReducer_Update_MERGED.md
+│   │   │   ├── 660_Test_NavigationReducer_Update_MERGED.md
+│   │   │   ├── 661_Test_ProjectReducer_Update_MERGED.md
+│   │   │   ├── 662_Test_RootReducer_Update_MERGED.md
+│   │   │   ├── 663_Test_SceneReducer_Update_MERGED.md
+│   │   │   ├── 664_Test_SimulationReducer_Update_MERGED.md
+│   │   │   ├── 665_Test_TimelineReducer_Update_MERGED.md
+│   │   │   ├── 666_Test_UiReducer_Update_MERGED.md
+│   │   │   ├── 667_Test_mod_Update_MERGED.md
+│   │   │   ├── 668_Test_AudioManager_Update_MERGED.md
+│   │   │   ├── 669_Test_BackendApi_Update_MERGED.md
+│   │   │   ├── 670_Test_CursorPhysics_Update_MERGED.md
+│   │   │   ├── 671_Test_DownloadSystem_Update_MERGED.md
+│   │   │   ├── 672_Test_EventBus_Update_MERGED.md
+│   │   │   ├── 673_Test_ExifParser_Update_MERGED.md
+│   │   │   ├── 675_Test_ExifReportGenerator_Update_MERGED.md
+│   │   │   ├── 676_Test_Exporter_Update_MERGED.md
+│   │   │   ├── 677_Test_FingerprintService_Update_MERGED.md
+│   │   │   ├── 678_Test_HotspotLine_Update_MERGED.md
+│   │   │   ├── 679_Test_HotspotLineLogic_Update_MERGED.md
+│   │   │   ├── 680_Test_HotspotLineTypes_Update_MERGED.md
+│   │   │   ├── 681_Test_ImageValidator_Update_MERGED.md
+│   │   │   ├── 682_Test_InputSystem_Update_MERGED.md
+│   │   │   ├── 683_Test_NavigationController_Update_MERGED.md
+│   │   │   ├── 684_Test_NavigationFSM_Update_MERGED.md
+│   │   │   ├── 685_Test_NavigationGraph_Update_MERGED.md
+│   │   │   ├── 686_Test_NavigationRenderer_Update_MERGED.md
+│   │   │   ├── 687_Test_NavigationUI_Update_MERGED.md
+│   │   │   ├── 688_Test_PannellumAdapter_New_MERGED.md
+│   │   │   ├── 689_Test_PannellumLifecycle_Update_MERGED.md
+│   │   │   ├── 690_Test_PanoramaClusterer_Update_MERGED.md
+│   │   │   ├── 691_Test_ProjectData_Update_MERGED.md
+│   │   │   ├── 693_Test_ProjectManager_Update_MERGED.md
+│   │   │   ├── 695_Test_Resizer_Update_MERGED.md
+│   │   │   ├── 697_Test_SceneSwitcher_Update_MERGED.md
+│   │   │   ├── 698_Test_SceneTransitionManager_Update_MERGED.md
+│   │   │   ├── 699_Test_ServerTeaser_Update_MERGED.md
+│   │   │   ├── 700_Test_SimulationChainSkipper_Update_MERGED.md
+│   │   │   ├── 701_Test_SimulationDriver_Update_MERGED.md
+│   │   │   ├── 702_Test_SimulationLogic_Update_MERGED.md
+│   │   │   ├── 703_Test_SimulationNavigation_Update_MERGED.md
+│   │   │   ├── 704_Test_SimulationPathGenerator_Update_MERGED.md
+│   │   │   ├── 705_Test_SvgRenderer_Update_MERGED.md
+│   │   │   ├── 706_Test_TeaserManager_Update_MERGED.md
+│   │   │   ├── 707_Test_TeaserPathfinder_Update_MERGED.md
+│   │   │   ├── 709_Test_TeaserRecorder_Update_MERGED.md
+│   │   │   ├── 710_Test_TeaserState_Update_MERGED.md
+│   │   │   ├── 711_Test_TourTemplateAssets_Update_MERGED.md
+│   │   │   ├── 712_Test_TourTemplateScripts_Update_MERGED.md
+│   │   │   ├── 713_Test_TourTemplateStyles_Update_MERGED.md
+│   │   │   ├── 714_Test_TourTemplates_Update_MERGED.md
+│   │   │   ├── 715_Test_UploadProcessor_Update_MERGED.md
+│   │   │   ├── 716_Test_UploadProcessorTypes_Update_MERGED.md
+│   │   │   ├── 717_Test_VideoEncoder_Update_MERGED.md
+│   │   │   ├── 718_Test_ViewerFollow_Update_MERGED.md
+│   │   │   ├── 719_Test_ViewerPool_New_MERGED.md
+│   │   │   ├── 720_Test_ApiTypes_Update_MERGED.md
+│   │   │   ├── 721_Test_MediaApi_Update_MERGED.md
+│   │   │   ├── 722_Test_ColorPalette_Update_MERGED.md
+│   │   │   ├── 723_Test_Constants_Update_MERGED.md
+│   │   │   ├── 724_Test_GeoUtils_Update_MERGED.md
+│   │   │   ├── 725_Test_ImageOptimizer_Update_MERGED.md
+│   │   │   ├── 726_Test_LazyLoad_Update_MERGED.md
+│   │   │   ├── 728_Test_Logger_Update_MERGED.md
+│   │   │   ├── 729_Test_PathInterpolation_Update_MERGED.md
+│   │   │   ├── 730_Test_ProgressBar_Update_MERGED.md
+│   │   │   ├── 731_Test_ProjectionMath_Update_MERGED.md
+│   │   │   ├── 732_Test_RequestQueue_Update_MERGED.md
+│   │   │   ├── 733_Test_SessionStore_Update_MERGED.md
+│   │   │   ├── 734_Test_StateInspector_Update_MERGED.md
+│   │   │   ├── 735_Test_TourLogic_Update_MERGED.md
+│   │   │   ├── 736_Test_UrlUtils_Update_MERGED.md
+│   │   │   ├── 737_Test_VersionData_Update_MERGED.md
+│   │   │   ├── 744_Test_BrowserBindings_New_MERGED.md
+│   │   │   ├── 745_Test_DomBindings_New_MERGED.md
+│   │   │   ├── 746_Test_GraphicsBindings_New_MERGED.md
+│   │   │   ├── 747_Test_ViewerBindings_New_MERGED.md
+│   │   │   ├── 748_Test_WebApiBindings_New_MERGED.md
+│   │   │   ├── 749_Test_SceneItem_New_MERGED.md
+│   │   │   ├── 750_Test_SceneListMain_New_MERGED.md
+│   │   │   ├── 751_Test_SidebarActions_New_MERGED.md
+│   │   │   ├── 752_Test_SidebarBranding_New_MERGED.md
+│   │   │   ├── 754_Test_SidebarMain_New_MERGED.md
+│   │   │   ├── 755_Test_SidebarProcessing_New_MERGED.md
+│   │   │   ├── 756_Test_SidebarProjectInfo_New_MERGED.md
+│   │   │   ├── 757_Test_VisualPipelineLogic_New_MERGED.md
+│   │   │   ├── 758_Test_VisualPipelineMain_New_MERGED.md
+│   │   │   ├── 759_Test_VisualPipelineRender_New_MERGED.md
+│   │   │   ├── 760_Test_VisualPipelineStyles_New_MERGED.md
+│   │   │   ├── 761_Test_VisualPipelineTypes_New_MERGED.md
+│   │   │   ├── 762_Test_LucideActions_New_MERGED.md
+│   │   │   ├── 763_Test_LucideCore_New_MERGED.md
+│   │   │   ├── 764_Test_LucideMedia_New_MERGED.md
+│   │   │   ├── 765_Test_LucideStatus_New_MERGED.md
+│   │   │   ├── 766_Test_SceneHelpersLogic_New_MERGED.md
+│   │   │   ├── 767_Test_SceneHelpersParser_New_MERGED.md
+│   │   │   ├── 769_Test_ExifReportGeneratorLogic_New_MERGED.md
+│   │   │   ├── 770_Test_ExifReportGeneratorTypes_New_MERGED.md
+│   │   │   ├── 771_Test_ExifReportGeneratorUtils_New_MERGED.md
+│   │   │   ├── 772_Test_ProjectManagerLogic_New_MERGED.md
+│   │   │   ├── 773_Test_ProjectManagerTypes_New_MERGED.md
+│   │   │   ├── 774_Test_ResizerLogic_New_MERGED.md
+│   │   │   ├── 775_Test_ResizerTypes_New_MERGED.md
+│   │   │   ├── 776_Test_ResizerUtils_New_MERGED.md
+│   │   │   ├── 778_Test_SceneLoaderLogic_New_MERGED.md
+│   │   │   ├── 779_Test_SceneLoaderTypes_New_MERGED.md
+│   │   │   ├── 780_Test_TeaserRecorderLogic_New_MERGED.md
+│   │   │   ├── 781_Test_TeaserRecorderOverlay_New_MERGED.md
+│   │   │   ├── 782_Test_TeaserRecorderTypes_New_MERGED.md
+│   │   │   ├── 783_Test_LoggerLogic_New_MERGED.md
+│   │   │   ├── 784_Test_LoggerTelemetry_New_MERGED.md
+│   │   │   ├── 785_Test_LoggerTypes_New_MERGED.md
+│   │   │   ├── 786_Test_SidebarMainLogic_New_MERGED.md
+│   │   │   ├── 787_Test_SidebarMainTypes_New_MERGED.md
+│   │   │   ├── 788_Test_ExifReportGeneratorLogicExtraction_New_MERGED.md
+│   │   │   ├── 789_Test_ExifReportGeneratorLogicGroups_New_MERGED.md
+│   │   │   ├── 790_Test_ExifReportGeneratorLogicLocation_New_MERGED.md
+│   │   │   ├── 791_Test_ExifReportGeneratorLogicTypes_New_MERGED.md
+│   │   │   ├── 792_Test_SceneLoaderLogicConfig_New_MERGED.md
+│   │   │   ├── 793_Test_SceneLoaderLogicEvents_New_MERGED.md
+│   │   │   ├── 794_Test_SceneLoaderLogicReuse_New_MERGED.md
+│   │   │   ├── 796_Test_IdbBindings_New_MERGED.md
+│   │   │   └── 797_Test_PersistenceLayer_New_MERGED.md
 │   │   ├── task_598_reduce_magic_REPORT.md
 │   │   ├── task_599_backend_tests_REPORT.md
 │   │   ├── task_602_feature_persistence_layer_DONE.md
@@ -5558,180 +5737,26 @@
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
 │   │   └── tests
-│   │       ├── 602_Test_App_Update.md
-│   │       ├── 603_Test_Main_Update.md
-│   │       ├── 605_Test_ReBindings_Update.md
-│   │       ├── 606_Test_ServiceWorker_Update.md
-│   │       ├── 607_Test_ServiceWorkerMain_Update.md
-│   │       ├── 608_Test_AppErrorBoundary_Update.md
-│   │       ├── 609_Test_ErrorFallbackUI_Update.md
-│   │       ├── 610_Test_FloorNavigation_Update.md
-│   │       ├── 611_Test_HotspotActionMenu_Update.md
-│   │       ├── 612_Test_HotspotLayer_Update.md
-│   │       ├── 613_Test_HotspotManager_Update.md
-│   │       ├── 614_Test_HotspotMenuLayer_Update.md
-│   │       ├── 615_Test_LabelMenu_Update.md
-│   │       ├── 616_Test_LinkModal_Update.md
-│   │       ├── 617_Test_ModalContext_Update.md
-│   │       ├── 618_Test_NotificationContext_Update.md
-│   │       ├── 619_Test_NotificationLayer_Update.md
-│   │       ├── 620_Test_PersistentLabel_Update.md
-│   │       ├── 621_Test_PopOver_Update.md
-│   │       ├── 622_Test_Portal_Update.md
-│   │       ├── 623_Test_PreviewArrow_Update.md
-│   │       ├── 624_Test_QualityIndicator_Update.md
-│   │       ├── 625_Test_ReturnPrompt_Update.md
-│   │       ├── 627_Test_SceneList_Update.md
-│   │       ├── 629_Test_Sidebar_Update.md
-│   │       ├── 630_Test_SnapshotOverlay_Update.md
-│   │       ├── 631_Test_Tooltip_Update.md
-│   │       ├── 632_Test_UploadReport_Update.md
-│   │       ├── 633_Test_UtilityBar_Update.md
-│   │       ├── 634_Test_ViewerHUD_Update.md
-│   │       ├── 635_Test_ViewerLabelMenu_Update.md
-│   │       ├── 636_Test_ViewerLoader_Update.md
-│   │       ├── 637_Test_ViewerManager_Update.md
-│   │       ├── 638_Test_ViewerUI_Update.md
-│   │       ├── 640_Test_VisualPipeline_Update.md
-│   │       ├── 642_Test_LucideIcons_Update.md
-│   │       ├── 643_Test_Shadcn_Update.md
-│   │       ├── 644_Test_Actions_Update.md
-│   │       ├── 645_Test_AppContext_Update.md
-│   │       ├── 646_Test_GlobalStateBridge_Update.md
-│   │       ├── 647_Test_JsonTypes_Update.md
-│   │       ├── 648_Test_Reducer_Update.md
-│   │       ├── 649_Test_SceneCache_Update.md
-│   │       ├── 651_Test_SharedTypes_Update.md
-│   │       ├── 652_Test_SimHelpers_Update.md
-│   │       ├── 653_Test_State_Update.md
-│   │       ├── 654_Test_Types_Update.md
-│   │       ├── 655_Test_UiHelpers_Update.md
-│   │       ├── 656_Test_ViewerState_Update.md
-│   │       ├── 657_Test_ViewerTypes_Update.md
-│   │       ├── 658_Test_ViewerDriver_New.md
-│   │       ├── 659_Test_HotspotReducer_Update.md
-│   │       ├── 660_Test_NavigationReducer_Update.md
-│   │       ├── 661_Test_ProjectReducer_Update.md
-│   │       ├── 662_Test_RootReducer_Update.md
-│   │       ├── 663_Test_SceneReducer_Update.md
-│   │       ├── 664_Test_SimulationReducer_Update.md
-│   │       ├── 665_Test_TimelineReducer_Update.md
-│   │       ├── 666_Test_UiReducer_Update.md
-│   │       ├── 667_Test_mod_Update.md
-│   │       ├── 668_Test_AudioManager_Update.md
-│   │       ├── 669_Test_BackendApi_Update.md
-│   │       ├── 670_Test_CursorPhysics_Update.md
-│   │       ├── 671_Test_DownloadSystem_Update.md
-│   │       ├── 672_Test_EventBus_Update.md
-│   │       ├── 673_Test_ExifParser_Update.md
-│   │       ├── 675_Test_ExifReportGenerator_Update.md
-│   │       ├── 676_Test_Exporter_Update.md
-│   │       ├── 677_Test_FingerprintService_Update.md
-│   │       ├── 678_Test_HotspotLine_Update.md
-│   │       ├── 679_Test_HotspotLineLogic_Update.md
-│   │       ├── 680_Test_HotspotLineTypes_Update.md
-│   │       ├── 681_Test_ImageValidator_Update.md
-│   │       ├── 682_Test_InputSystem_Update.md
-│   │       ├── 683_Test_NavigationController_Update.md
-│   │       ├── 684_Test_NavigationFSM_Update.md
-│   │       ├── 685_Test_NavigationGraph_Update.md
-│   │       ├── 686_Test_NavigationRenderer_Update.md
-│   │       ├── 687_Test_NavigationUI_Update.md
-│   │       ├── 688_Test_PannellumAdapter_New.md
-│   │       ├── 689_Test_PannellumLifecycle_Update.md
-│   │       ├── 690_Test_PanoramaClusterer_Update.md
-│   │       ├── 691_Test_ProjectData_Update.md
-│   │       ├── 693_Test_ProjectManager_Update.md
-│   │       ├── 695_Test_Resizer_Update.md
-│   │       ├── 697_Test_SceneSwitcher_Update.md
-│   │       ├── 698_Test_SceneTransitionManager_Update.md
-│   │       ├── 699_Test_ServerTeaser_Update.md
-│   │       ├── 700_Test_SimulationChainSkipper_Update.md
-│   │       ├── 701_Test_SimulationDriver_Update.md
-│   │       ├── 702_Test_SimulationLogic_Update.md
-│   │       ├── 703_Test_SimulationNavigation_Update.md
-│   │       ├── 704_Test_SimulationPathGenerator_Update.md
-│   │       ├── 705_Test_SvgRenderer_Update.md
-│   │       ├── 706_Test_TeaserManager_Update.md
-│   │       ├── 707_Test_TeaserPathfinder_Update.md
-│   │       ├── 709_Test_TeaserRecorder_Update.md
-│   │       ├── 710_Test_TeaserState_Update.md
-│   │       ├── 711_Test_TourTemplateAssets_Update.md
-│   │       ├── 712_Test_TourTemplateScripts_Update.md
-│   │       ├── 713_Test_TourTemplateStyles_Update.md
-│   │       ├── 714_Test_TourTemplates_Update.md
-│   │       ├── 715_Test_UploadProcessor_Update.md
-│   │       ├── 716_Test_UploadProcessorTypes_Update.md
-│   │       ├── 717_Test_VideoEncoder_Update.md
-│   │       ├── 718_Test_ViewerFollow_Update.md
-│   │       ├── 719_Test_ViewerPool_New.md
-│   │       ├── 720_Test_ApiTypes_Update.md
-│   │       ├── 721_Test_MediaApi_Update.md
-│   │       ├── 722_Test_ColorPalette_Update.md
-│   │       ├── 723_Test_Constants_Update.md
-│   │       ├── 724_Test_GeoUtils_Update.md
-│   │       ├── 725_Test_ImageOptimizer_Update.md
-│   │       ├── 726_Test_LazyLoad_Update.md
-│   │       ├── 728_Test_Logger_Update.md
-│   │       ├── 729_Test_PathInterpolation_Update.md
-│   │       ├── 730_Test_ProgressBar_Update.md
-│   │       ├── 731_Test_ProjectionMath_Update.md
-│   │       ├── 732_Test_RequestQueue_Update.md
-│   │       ├── 733_Test_SessionStore_Update.md
-│   │       ├── 734_Test_StateInspector_Update.md
-│   │       ├── 735_Test_TourLogic_Update.md
-│   │       ├── 736_Test_UrlUtils_Update.md
-│   │       ├── 737_Test_VersionData_Update.md
-│   │       ├── 744_Test_BrowserBindings_New.md
-│   │       ├── 745_Test_DomBindings_New.md
-│   │       ├── 746_Test_GraphicsBindings_New.md
-│   │       ├── 747_Test_ViewerBindings_New.md
-│   │       ├── 748_Test_WebApiBindings_New.md
-│   │       ├── 749_Test_SceneItem_New.md
-│   │       ├── 750_Test_SceneListMain_New.md
-│   │       ├── 751_Test_SidebarActions_New.md
-│   │       ├── 752_Test_SidebarBranding_New.md
-│   │       ├── 754_Test_SidebarMain_New.md
-│   │       ├── 755_Test_SidebarProcessing_New.md
-│   │       ├── 756_Test_SidebarProjectInfo_New.md
-│   │       ├── 757_Test_VisualPipelineLogic_New.md
-│   │       ├── 758_Test_VisualPipelineMain_New.md
-│   │       ├── 759_Test_VisualPipelineRender_New.md
-│   │       ├── 760_Test_VisualPipelineStyles_New.md
-│   │       ├── 761_Test_VisualPipelineTypes_New.md
-│   │       ├── 762_Test_LucideActions_New.md
-│   │       ├── 763_Test_LucideCore_New.md
-│   │       ├── 764_Test_LucideMedia_New.md
-│   │       ├── 765_Test_LucideStatus_New.md
-│   │       ├── 766_Test_SceneHelpersLogic_New.md
-│   │       ├── 767_Test_SceneHelpersParser_New.md
-│   │       ├── 769_Test_ExifReportGeneratorLogic_New.md
-│   │       ├── 770_Test_ExifReportGeneratorTypes_New.md
-│   │       ├── 771_Test_ExifReportGeneratorUtils_New.md
-│   │       ├── 772_Test_ProjectManagerLogic_New.md
-│   │       ├── 773_Test_ProjectManagerTypes_New.md
-│   │       ├── 774_Test_ResizerLogic_New.md
-│   │       ├── 775_Test_ResizerTypes_New.md
-│   │       ├── 776_Test_ResizerUtils_New.md
-│   │       ├── 778_Test_SceneLoaderLogic_New.md
-│   │       ├── 779_Test_SceneLoaderTypes_New.md
-│   │       ├── 780_Test_TeaserRecorderLogic_New.md
-│   │       ├── 781_Test_TeaserRecorderOverlay_New.md
-│   │       ├── 782_Test_TeaserRecorderTypes_New.md
-│   │       ├── 783_Test_LoggerLogic_New.md
-│   │       ├── 784_Test_LoggerTelemetry_New.md
-│   │       ├── 785_Test_LoggerTypes_New.md
-│   │       ├── 786_Test_SidebarMainLogic_New.md
-│   │       ├── 787_Test_SidebarMainTypes_New.md
-│   │       ├── 788_Test_ExifReportGeneratorLogicExtraction_New.md
-│   │       ├── 789_Test_ExifReportGeneratorLogicGroups_New.md
-│   │       ├── 790_Test_ExifReportGeneratorLogicLocation_New.md
-│   │       ├── 791_Test_ExifReportGeneratorLogicTypes_New.md
-│   │       ├── 792_Test_SceneLoaderLogicConfig_New.md
-│   │       ├── 793_Test_SceneLoaderLogicEvents_New.md
-│   │       ├── 794_Test_SceneLoaderLogicReuse_New.md
-│   │       ├── 796_Test_IdbBindings_New.md
-│   │       └── 797_Test_PersistenceLayer_New.md
+│   │       ├── 801_Test_Logger_System_Unified.md
+│   │       ├── 802_Test_ExifReport_Pipeline_Unified.md
+│   │       ├── 803_Test_SceneLoader_Lifecycle_Unified.md
+│   │       ├── 804_Test_Sidebar_Components_Unified.md
+│   │       ├── 805_Test_VisualPipeline_System_Unified.md
+│   │       ├── 806_Test_Bindings_Unified.md
+│   │       ├── 807_Test_Simulation_Autopilot_Unified.md
+│   │       ├── 808_Test_Navigation_Graph_Unified.md
+│   │       ├── 809_Test_Teaser_System_Unified.md
+│   │       ├── 810_Test_Tour_Templates_Unified.md
+│   │       ├── 811_Test_Hotspots_Unified.md
+│   │       ├── 812_Test_Viewer_Core_Unified.md
+│   │       ├── 813_Test_Project_Persistence_Unified.md
+│   │       ├── 814_Test_UI_Components_Unified.md
+│   │       ├── 815_Test_Lucide_Icons_Unified.md
+│   │       ├── 816_Test_Utilities_Unified.md
+│   │       ├── 817_Test_App_Core_Infrastructure_Unified.md
+│   │       ├── 818_Test_Media_Services_Unified.md
+│   │       ├── 819_Test_Core_Reducers_Unified.md
+│   │       └── 820_Test_Visuals_Remaining_Unified.md
 │   └── postponed
 │       ├── 003_add_seo_structured_data.md
 │       ├── 004_document_core_web_vitals.md
@@ -5746,6 +5771,7 @@
 │       ├── 031_implement_auth_ui_rescript.md
 │       ├── 032_implement_project_dashboard.md
 │       ├── 033_secure_backend_with_jwt.md
+│       ├── 800_Refactor_Playwright_E2E_Automation.md
 │       └── tests
 ├── test_output.txt
 ├── tests
@@ -6033,4 +6059,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-199 directories, 5835 files
+200 directories, 5860 files
