@@ -20,11 +20,7 @@ let processItem = (i, item: UploadProcessorTypes.uploadItem, onStatus: string =>
   Logger.debug(
     ~module_="UploadLogic",
     ~message="FILE_START",
-    ~data=Some({
-      "filename": File.name(item.original),
-      "index": i,
-      "size": File.size(item.original),
-    }),
+    ~data=Some({"filename": File.name(item.original), "index": i, "size": File.size(item.original)}),
     (),
   )
 

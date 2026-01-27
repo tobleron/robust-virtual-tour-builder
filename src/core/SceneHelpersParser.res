@@ -46,7 +46,13 @@ let parseHotspots = (hss: array<JsonTypes.hotspotJson>): array<hotspot> => {
 let parseScene = (dataJson: JSON.t): scene => {
   let data = switch JsonTypes.decodeImportScene(dataJson) {
   | Ok(d) => d
-  | Error(_) =>
+  | Error(msg) =>
+    Logger.error(
+      ~module_="SceneHelpersParser",
+      ~message="SCHEMA_PARSE_ERROR_SCENE",
+      ~data=Logger.castToJson({"error": msg, "json": dataJson}),
+      (),
+    )
     (
       {
         id: "error_" ++ Float.toString(Date.now()),
@@ -81,7 +87,13 @@ let parseScene = (dataJson: JSON.t): scene => {
 let parseProject = (projectDataJson: JSON.t): state => {
   let pd = switch JsonTypes.decodeProject(projectDataJson) {
   | Ok(p) => p
-  | Error(_) =>
+  | Error(msg) =>
+    Logger.error(
+      ~module_="SceneHelpersParser",
+      ~message="SCHEMA_PARSE_ERROR_PROJECT",
+      ~data=Logger.castToJson({"error": msg}),
+      (),
+    )
     (
       {
         tourName: Nullable.null,

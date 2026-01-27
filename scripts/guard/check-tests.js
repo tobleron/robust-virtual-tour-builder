@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { getNextId, createTask, taskExists } from './utils.js';
+import { getNextId, createTask, taskExists, appendToUnifiedTask } from './utils.js';
 
 const bt = String.fromCharCode(96);
 
@@ -60,9 +60,14 @@ export default function checkTests(filePath) {
 
     if (!existingTest) {
         // Missing Test
-        if (!taskExists(`Test_${fileBase}_New`)) {
+        const taskName = `Test_${fileBase}_New`;
+        
+        // Try appending to unified file first
+        if (appendToUnifiedTask(taskName, "New")) return;
+
+        if (!taskExists(taskName)) {
             const nextId = getNextId();
-            const taskFilename = `tests/${nextId}_Test_${fileBase}_New.md`;
+            const taskFilename = `tests/${nextId}_${taskName}.md`;
             
             const taskContent = `# Task ${nextId}: Add Unit Tests for ${filename}
 
@@ -85,9 +90,14 @@ ${getHints(content)}
         const testStats = fs.statSync(existingTest);
 
         if (srcStats.mtimeMs > testStats.mtimeMs) {
-            if (!taskExists(`Test_${fileBase}_Update`)) {
+            const taskName = `Test_${fileBase}_Update`;
+            
+            // Try appending to unified file first
+            if (appendToUnifiedTask(taskName, "Update")) return;
+
+            if (!taskExists(taskName)) {
                 const nextId = getNextId();
-                const taskFilename = `tests/${nextId}_Test_${fileBase}_Update.md`;
+                const taskFilename = `tests/${nextId}_${taskName}.md`;
                 
                 const taskContent = `# Task ${nextId}: Update Unit Tests for ${filename}
 
