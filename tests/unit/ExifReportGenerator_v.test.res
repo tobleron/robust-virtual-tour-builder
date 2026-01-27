@@ -80,4 +80,35 @@ describe("ExifReportGenerator", () => {
     | None => t->expect(true)->Expect.toBe(false)
     }
   })
+
+  testAsync("generateExifReport: includes analysis sections for populated list", async t => {
+    // Mock sceneDataItem using Obj.magic
+    let mockItem = {
+      "original": {
+        "name": "test.jpg",
+        "size": 1000,
+        "type": "image/jpeg",
+        "lastModified": 1234567890.0,
+      },
+      "metadataJson": Some({
+        "gps": {
+          "lat": 34.0522,
+          "lon": -118.2437,
+        },
+        "dateTime": "2023:01:01 12:00:00",
+        "make": "Sony",
+        "model": "ILCE-7M3",
+      }),
+      "qualityJson": None,
+    }
+
+    let items = [mockItem->Obj.magic]
+
+    let result = await generateExifReport(items)
+
+    t->expect(String.includes(result.report, "LOCATION ANALYSIS"))->Expect.toBe(true)
+    t->expect(String.includes(result.report, "CAMERA & DEVICE ANALYSIS"))->Expect.toBe(true)
+    t->expect(String.includes(result.report, "INDIVIDUAL FILE METADATA"))->Expect.toBe(true)
+    t->expect(String.includes(result.report, "Total Files Analyzed: 1"))->Expect.toBe(true)
+  })
 })

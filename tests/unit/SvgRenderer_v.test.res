@@ -72,4 +72,67 @@ describe("SvgRenderer", () => {
     let display = %raw(`(el) => el.style.display`)(el)
     t->expect(display)->Expect.toBe("none")
   })
+
+  test("updateLine sets optional attributes correctly", t => {
+    SvgRenderer.updateLine(
+      "line_opt",
+      10.0,
+      10.0,
+      50.0,
+      50.0,
+      "red",
+      2.0,
+      1.0,
+      ~dashArray="5,5",
+      ~className="custom-line",
+      (),
+    )
+
+    let el = Option.getOrThrow(SvgManager.getElement("line_opt"))
+    t->expect(ReBindings.Dom.getAttribute(el, "stroke-dasharray"))->Expect.toBe("5,5")
+    t->expect(ReBindings.Dom.getAttribute(el, "class"))->Expect.toBe("custom-line")
+  })
+
+  test("drawPolyLine handles optional attributes", t => {
+    let points = [{HotspotLineTypes.x: 0.0, y: 0.0}, {x: 100.0, y: 50.0}]
+    SvgRenderer.drawPolyLine(
+      "poly_opt",
+      points,
+      "blue",
+      1.0,
+      1.0,
+      ~dashArray="2,2",
+      ~className="custom-poly",
+      (),
+    )
+
+    let el = Option.getOrThrow(SvgManager.getElement("poly_opt"))
+    t->expect(ReBindings.Dom.getAttribute(el, "stroke-dasharray"))->Expect.toBe("2,2")
+    t->expect(ReBindings.Dom.getAttribute(el, "class"))->Expect.toBe("custom-poly")
+  })
+
+  test("drawPolyLine hides element if less than 2 points", t => {
+    let points = [{HotspotLineTypes.x: 0.0, y: 0.0}]
+    // Create a visible one first
+    let points2 = [{HotspotLineTypes.x: 0.0, y: 0.0}, {x: 10.0, y: 10.0}]
+    SvgRenderer.drawPolyLine("poly_short", points2, "red", 1.0, 1.0, ())
+    let el = Option.getOrThrow(SvgManager.getElement("poly_short"))
+    t->expect(%raw(`(el) => el.style.display`)(el))->Expect.toBe("block")
+
+    // Now update with 1 point
+    SvgRenderer.drawPolyLine("poly_short", points, "red", 1.0, 1.0, ())
+    t->expect(%raw(`(el) => el.style.display`)(el))->Expect.toBe("none")
+  })
+
+  test("drawArrow hides element if coordinates are infinite", t => {
+    // Create visible first
+    SvgRenderer.drawArrow("arrow_inf", 100.0, 100.0, 0.0, "red", 1.0)
+    let el = Option.getOrThrow(SvgManager.getElement("arrow_inf"))
+    t->expect(%raw(`(el) => el.style.display`)(el))->Expect.toBe("block")
+
+    // Update with infinite x
+    let inf = 1.0 /. 0.0
+    SvgRenderer.drawArrow("arrow_inf", inf, 100.0, 0.0, "red", 1.0)
+    t->expect(%raw(`(el) => el.style.display`)(el))->Expect.toBe("none")
+  })
 })
