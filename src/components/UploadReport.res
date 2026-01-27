@@ -169,11 +169,11 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
 }
 
 let showFromProjectData = (projectDataJson: JSON.t) => {
-  let project = JsonTypes.castToProject(projectDataJson)
+  let project = Schemas.castToProject(projectDataJson)
   let successNames = Belt.Array.map(project.scenes, s => s.name)
   let qualityResults = Belt.Array.map(project.scenes, s => {
-    let q = switch Nullable.toOption(s.quality) {
-    | Some(qJson) => JsonTypes.castToQualityAnalysis(qJson)
+    let q = switch s.quality {
+    | Some(qJson) => Schemas.castToQualityAnalysis(qJson)
     | None => {
         SharedTypes.score: 0.0,
         isBlurry: false,

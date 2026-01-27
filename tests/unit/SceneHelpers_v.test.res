@@ -57,7 +57,7 @@ describe("SceneHelpers", () => {
         {
           "id": "s1",
           "name": "s1.webp",
-          "file": {"some": "file"},
+          "file": "some/file/url",
           "isAutoForward": true,
           "hotspots": [
              {
@@ -86,11 +86,11 @@ describe("SceneHelpers", () => {
     t->expect(state.sessionId)->Expect.toEqual(Some("test-session"))
     t->expect(state.exifReport)->Expect.toEqual(Some(JSON.parseOrThrow(`{"summary": "valid"}`)))
 
-    let s1 = Belt.Array.getExn(state.scenes, 0)
+    let s1 = state.scenes[0]->Option.getOrThrow
     t->expect(s1.id)->Expect.toEqual("s1")
     t->expect(s1.isAutoForward)->Expect.toEqual(true)
 
-    let h1 = Belt.Array.getExn(s1.hotspots, 0)
+    let h1 = s1.hotspots[0]->Option.getOrThrow
     t->expect(h1.linkId)->Expect.toEqual("h1")
     t->expect(h1.yaw)->Expect.toEqual(10.0)
 
@@ -109,7 +109,7 @@ describe("SceneHelpers", () => {
     switch h1.waypoints {
     | Some(wps) =>
       t->expect(Belt.Array.length(wps))->Expect.toEqual(1)
-      let wp = Belt.Array.getExn(wps, 0)
+      let wp = wps[0]->Option.getOrThrow
       t->expect(wp.yaw)->Expect.toEqual(5.0)
     | None => failwith("Expected waypoints")
     }
@@ -157,7 +157,7 @@ describe("SceneHelpers", () => {
     t->expect(syncedB.name)->Expect.toEqual(expectedNameB)
 
     // Check hotspot target update in A
-    let hs = Belt.Array.getUnsafe(syncedA.hotspots, 0)
+    let hs = syncedA.hotspots[0]->Option.getOrThrow
     t->expect(hs.target)->Expect.toEqual(expectedNameB)
   })
 
@@ -219,7 +219,7 @@ describe("SceneHelpers", () => {
     let newSceneJson = JSON.parseOrThrow(`{
       "id": "new",
       "name": "b.webp",
-      "preview": "file_b"
+      "file": "file_b"
     }`)
 
     let stateAfterAdd = handleAddScenes(stateBeforeAdd, [newSceneJson])
@@ -231,7 +231,7 @@ describe("SceneHelpers", () => {
     let sceneJson = JSON.parseOrThrow(`{
       "id": "s-123",
       "name": "office.webp",
-      "preview": "blob:office"
+      "file": "blob:office"
     }`)
     let scene = parseScene(sceneJson)
     t->expect(scene.id)->Expect.toEqual("s-123")
@@ -250,7 +250,7 @@ describe("SceneHelpers", () => {
     let newSceneJson = JSON.parseOrThrow(`{
       "id": "new",
       "name": "b.webp",
-      "preview": "file_b"
+      "file": "file_b"
     }`)
     let stateAfterRobustAdd = handleAddScenes(stateEmptyWithMuckIndex, [newSceneJson])
     t->expect(Belt.Array.length(stateAfterRobustAdd.scenes))->Expect.toEqual(1)

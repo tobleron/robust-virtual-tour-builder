@@ -14,7 +14,7 @@ let make = React.memo((~activeIndex, ~scenes) => {
 
   let badges = switch quality {
   | Some(qJson) =>
-    let q = JsonTypes.castToQualityAnalysis(qJson)
+    let q = Schemas.castToQualityAnalysis(qJson)
     let b = []
     if q.isBlurry {
       let _ = Array.push(b, {"text": "BLURRY", "cls": "q-blurry"})

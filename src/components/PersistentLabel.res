@@ -2,7 +2,7 @@
 open Types
 
 @react.component
-let make = React.memo((~activeIndex, ~scenes) => {
+let make = React.memo((~activeIndex: int, ~scenes: array<scene>) => {
   let currentLabel = if activeIndex >= 0 {
     switch Belt.Array.get(scenes, activeIndex) {
     | Some(s) => s.label

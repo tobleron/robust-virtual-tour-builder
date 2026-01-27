@@ -26,7 +26,12 @@ let useInitialization = () => {
     let stage = Dom.getElementById("viewer-stage")
     switch Nullable.toOption(stage) {
     | Some(el) =>
-      Logger.debug(~module_="ViewerManagerLogic", ~message="LISTENER_ATTACHED", ~data=Some({"element": "viewer-stage"}), ())
+      Logger.debug(
+        ~module_="ViewerManagerLogic",
+        ~message="LISTENER_ATTACHED",
+        ~data=Some({"element": "viewer-stage"}),
+        (),
+      )
       Dom.addEventListener(el, "mousemove", InputSystem.handleMouseMove)
       Dom.addEventListenerCapture(el, "pointerdown", LinkEditorLogic.handleStagePointerDown, true)
       Dom.addEventListenerCapture(el, "click", LinkEditorLogic.handleStageClick, true)

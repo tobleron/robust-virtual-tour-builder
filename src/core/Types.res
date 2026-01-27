@@ -149,6 +149,26 @@ type uploadReport = {
   skipped: array<string>,
 }
 
+type updateMetadata = {
+  category: option<string>,
+  floor: option<string>,
+  label: option<string>,
+  isAutoForward: option<bool>,
+}
+
+type timelineUpdate = {
+  transition: option<string>,
+  duration: option<option<int>>, // Double option because duration can be null (meaning no change) or int
+}
+
+type project = {
+  tourName: string,
+  scenes: array<scene>,
+  lastUsedCategory: string,
+  exifReport: option<JSON.t>,
+  sessionId: option<string>,
+}
+
 type state = {
   tourName: string,
   scenes: array<scene>,
@@ -176,4 +196,21 @@ type state = {
   currentJourneyId: int,
   lastUsedCategory: string,
   sessionId: option<string>,
+}
+
+/* --- Pathfinder API Types --- */
+
+type transitionTarget = {
+  yaw: float,
+  pitch: float,
+  targetName: string,
+  timelineItemId: option<string>,
+}
+
+type arrivalView = pathPoint
+
+type step = {
+  idx: int,
+  transitionTarget: option<transitionTarget>,
+  arrivalView: arrivalView,
 }
