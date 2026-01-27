@@ -4,7 +4,16 @@ MSG="$1"
 
 if [ -z "$MSG" ]; then echo "❌ Error: Commit message required."; exit 1; fi
 
-# 0. Project Guard (Quick Check)
+# 0. Branch Guard
+CURRENT_BRANCH=$(git branch --show-current)
+if [ "$CURRENT_BRANCH" != "development" ]; then
+    echo "❌ Error: fast-commit is restricted to the 'development' branch."
+    echo "   ► Current branch: $CURRENT_BRANCH"
+    echo "   ► Switch: git checkout development"
+    exit 1
+fi
+
+# 0.5 Project Guard (Quick Check)
 echo "🛡️  Running Project Guard..."
 node scripts/guard/index.js
 

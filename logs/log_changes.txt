@@ -6,3 +6,4 @@
 [2026-01-27 19:58] v4.8.5 - fix: Resolve build errors and enforce strict warning level
 [2026-01-27 20:04] v4.8.6 - docs: Update project specs with Schema and Zero Warning policies
 [2026-01-27 20:09] v4.8.7 - chore: optimize commit workflows to skip tests and auto-push
+[2026-01-27 20:12] v4.8.7 - chore: restrict fast-commit and commit to development branch [TRIPLE]
