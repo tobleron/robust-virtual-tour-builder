@@ -42,7 +42,7 @@ try {
     let buildInfo = "[Experimental Build]";
     if (currentBranch === 'main') {
         buildInfo = "[Stable Release]";
-    } else if (currentBranch === 'Testing') {
+    } else if (currentBranch === 'testing') {
         buildInfo = "[Testing Release]";
     } else if (currentBranch === 'development') {
         buildInfo = "[Development Build]";
