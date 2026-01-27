@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix: Resolved build errors in ExifReportGenerator and SceneLoader; cleaned up unused opens for Zero Warning protocol
 - Fix: Backend panic in media analysis via correct histogram vector sizing; final cleanup of unused opens
 - Fix: Deadlock in geocoding service by standardizing lock acquisition order
+- Fix: Backend test race conditions by enforcing serial execution in pre-push hook
 
 ## [4.8.0] - 2026-01-26
 
