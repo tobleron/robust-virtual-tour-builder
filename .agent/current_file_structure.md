@@ -600,6 +600,18 @@
 │   │   │   │   ├── Schemas.cmj
 │   │   │   │   ├── Schemas.cmt
 │   │   │   │   ├── Schemas.res
+│   │   │   │   ├── SchemasDomain.ast
+│   │   │   │   ├── SchemasDomain.bs.js
+│   │   │   │   ├── SchemasDomain.cmi
+│   │   │   │   ├── SchemasDomain.cmj
+│   │   │   │   ├── SchemasDomain.cmt
+│   │   │   │   ├── SchemasDomain.res
+│   │   │   │   ├── SchemasShared.ast
+│   │   │   │   ├── SchemasShared.bs.js
+│   │   │   │   ├── SchemasShared.cmi
+│   │   │   │   ├── SchemasShared.cmj
+│   │   │   │   ├── SchemasShared.cmt
+│   │   │   │   ├── SchemasShared.res
 │   │   │   │   ├── SharedTypes.ast
 │   │   │   │   ├── SharedTypes.bs.js
 │   │   │   │   ├── SharedTypes.cmi
@@ -3081,6 +3093,16 @@
 │   │   ├── Schemas.cmj
 │   │   ├── Schemas.cmt
 │   │   ├── Schemas.res
+│   │   ├── SchemasDomain.ast
+│   │   ├── SchemasDomain.cmi
+│   │   ├── SchemasDomain.cmj
+│   │   ├── SchemasDomain.cmt
+│   │   ├── SchemasDomain.res
+│   │   ├── SchemasShared.ast
+│   │   ├── SchemasShared.cmi
+│   │   ├── SchemasShared.cmj
+│   │   ├── SchemasShared.cmt
+│   │   ├── SchemasShared.res
 │   │   ├── ServerTeaser_v.test.ast
 │   │   ├── ServerTeaser_v.test.cmi
 │   │   ├── ServerTeaser_v.test.cmj
@@ -5326,6 +5348,10 @@
 │   │   ├── SceneHelpersParser.res
 │   │   ├── Schemas.bs.js
 │   │   ├── Schemas.res
+│   │   ├── SchemasDomain.bs.js
+│   │   ├── SchemasDomain.res
+│   │   ├── SchemasShared.bs.js
+│   │   ├── SchemasShared.res
 │   │   ├── SharedTypes.bs.js
 │   │   ├── SharedTypes.res
 │   │   ├── SimHelpers.bs.js
@@ -5564,6 +5590,8 @@
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   ├── 1004_Refactor_HotspotLineLogic_DONE.md
 │   │   ├── 1041_Refactor_UploadProcessorLogicLogic_DONE.md
+│   │   ├── 1063_Classify_Map_Entries_DONE.md
+│   │   ├── 1064_Refactor_Schemas_DONE.md
 │   │   ├── 538_Perf_Loop_Consolidation_REPORT.md
 │   │   ├── 539_REBOOT_SVG_Element_Reuse.md
 │   │   ├── 569_Perf_Split_AppContext_REPORT.md
@@ -5629,8 +5657,6 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1063_Classify_Map_Entries.md
-│   │   ├── 1064_Refactor_Schemas.md
 │   │   ├── 1065_Refactor_ViewerManagerLogic.md
 │   │   ├── 1066_Refactor_UploadProcessorLogicLogic.md
 │   │   └── tests
@@ -5963,4 +5989,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-199 directories, 5765 files
+199 directories, 5791 files

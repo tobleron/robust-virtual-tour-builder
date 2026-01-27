@@ -8,3 +8,4 @@
 [2026-01-27 20:09] v4.8.7 - chore: optimize commit workflows to skip tests and auto-push
 [2026-01-27 20:12] v4.8.7 - chore: restrict fast-commit and commit to development branch [TRIPLE]
 [2026-01-27 20:17] v4.8.7 - chore: rename Testing branch to testing [TRIPLE]
+[2026-01-27 20:37] v4.8.8 - chore: update GEMINI.md with MAP.md integrity rule [TRIPLE]

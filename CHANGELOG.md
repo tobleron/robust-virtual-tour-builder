@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Decompose Schemas.res and update MAP.md classifications
+- Update GEMINI.md with MAP.md integrity rule
 
 ## [4.8.7] - 2026-01-27
 

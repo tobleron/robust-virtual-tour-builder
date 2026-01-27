@@ -2,9 +2,10 @@
 
 ## 🧠 CORE BEHAVIOR (SYSTEM 2 THINKING)
 1. **Context First**: ALL paths must be relative to root. **ALWAYS READ `MAP.md` FIRST**.
-2. **Commitment Constraint**: NEVER run `commit.sh` or `fast-commit.sh` unless explicitly asked to "save", "checkpoint", or "commit".
-3. **Task Protocol**: Before handling any task related concerns, read `tasks/TASKS.md`.
-4. **Conditional Context Loading**:
+2. **MAP.md Integrity**: When updating `MAP.md`, ALWAYS use **root-relative paths** (e.g., `[src/Main.res](src/Main.res)`). NEVER use absolute paths or `file:///` URIs.
+3. **Commitment Constraint**: NEVER run `commit.sh` or `fast-commit.sh` unless explicitly asked to "save", "checkpoint", or "commit".
+4. **Task Protocol**: Before handling any task related concerns, read `tasks/TASKS.md`.
+5. **Conditional Context Loading**:
    - **IF** writing `.res` files: Read `.agent/workflows/rescript-standards.md`.
    - **IF** writing `.rs` files: Read `.agent/workflows/rust-standards.md`.
    - **IF** writing Tests: Read `.agent/workflows/testing-standards.md`.
