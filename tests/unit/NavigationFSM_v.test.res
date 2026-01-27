@@ -95,4 +95,59 @@ describe("NavigationFSM", () => {
 
     t->expect(nextState)->Expect.toEqual(NavigationFSM.Idle)
   })
+
+  test("Preloading to Error on LoadTimeout", t => {
+    let state = NavigationFSM.Preloading({
+      targetSceneId: "scene-1",
+      attempt: 1,
+      isAnticipatory: false,
+    })
+    let event = NavigationFSM.LoadTimeout
+    let nextState = NavigationFSM.reducer(state, event)
+
+    switch nextState {
+    | Error({code, recoveryTarget}) =>
+      t->expect(code)->Expect.toBe("TIMEOUT")
+      t->expect(recoveryTarget)->Expect.toEqual(Some("scene-1"))
+    | _ => t->expect(true)->Expect.toBe(false)
+    }
+  })
+
+  test("Error to Preloading (retry) on RecoveryTriggered", t => {
+    let state = NavigationFSM.Error({
+      code: "TIMEOUT",
+      recoveryTarget: Some("scene-1"),
+    })
+    let event = NavigationFSM.RecoveryTriggered({targetSceneId: "scene-1"})
+    let nextState = NavigationFSM.reducer(state, event)
+
+    switch nextState {
+    | Preloading({targetSceneId, attempt}) =>
+      t->expect(targetSceneId)->Expect.toBe("scene-1")
+      t->expect(attempt)->Expect.toBe(2)
+    | _ => t->expect(true)->Expect.toBe(false)
+    }
+  })
+
+  test("Reset event transitions to Idle from any state", t => {
+    let states = [
+      NavigationFSM.Preloading({
+        targetSceneId: "s1",
+        attempt: 1,
+        isAnticipatory: false,
+      }),
+      NavigationFSM.Transitioning({
+        fromSceneId: None,
+        toSceneId: "s1",
+        progress: 0.5,
+      }),
+      NavigationFSM.Stabilizing({targetSceneId: "s1"}),
+      NavigationFSM.Error({code: "ERR", recoveryTarget: None}),
+    ]
+
+    states->Belt.Array.forEach(state => {
+      let nextState = NavigationFSM.reducer(state, NavigationFSM.Reset)
+      t->expect(nextState)->Expect.toEqual(NavigationFSM.Idle)
+    })
+  })
 })
