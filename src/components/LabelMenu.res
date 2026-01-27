@@ -118,7 +118,7 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
       ->Belt.Array.map(((category, labels)) => {
         <Shadcn.DropdownMenu.Group key={category}>
           <div className="px-3 py-1 flex items-center gap-2">
-            <span className="text-[8px] font-semibold text-slate-400 uppercase tracking-tighter">
+            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-tighter">
               {React.string(category)}
             </span>
             <div className="flex-1 h-px bg-slate-100" />
@@ -148,7 +148,7 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
 
     /* Custom Label Section - Wrapped in a non-Item div to prevent auto-close */
     <div className="p-3 bg-slate-50/50" onClick={e => JsxEvent.Mouse.stopPropagation(e)}>
-      <h4 className="text-[9px] font-semibold uppercase tracking-widest text-slate-400 mb-2">
+      <h4 className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-2">
         {React.string("Custom Label")}
       </h4>
       <div className="flex gap-1.5">
@@ -176,7 +176,7 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
       </div>
       <button
         onClick={_ => handleClear()}
-        className="w-full mt-2 py-1 bg-white border border-slate-200 text-slate-400 rounded-md text-[9px] font-semibold uppercase tracking-widest hover:bg-orange-50 hover:text-danger hover:border-danger/30 active:scale-95 transition-all"
+        className="w-full mt-2 py-1 bg-white border border-slate-200 text-slate-400 rounded-md text-[10px] font-semibold uppercase tracking-widest hover:bg-orange-50 hover:text-danger hover:border-danger/30 active:scale-95 transition-all"
       >
         {React.string("CLEAR LABEL")}
       </button>

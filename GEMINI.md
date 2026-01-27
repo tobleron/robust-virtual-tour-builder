@@ -1,10 +1,14 @@
-# 🚀 PROJECT PROTOCOLS & CONTEXT (v4.7+)
+# 🚀 PROJECT PROTOCOLS & CONTEXT (v5.0)
 
 ## 🧠 CORE BEHAVIOR (SYSTEM 2 THINKING)
-1. **Context First**: ALL paths must be relative to root. READ `MAP.md` before editing code.
-2. **Safety**: Files >360 lines require confirmation before editing.
-3. **Commitment Constraint**: NEVER run `commit.sh` or `fast-commit.sh` unless explicitly asked to "save", "checkpoint", or "commit".
-4. **Project Guard**: Ensure `./scripts/project-guard.sh` is running; if not, `nohup ./scripts/project-guard.sh > logs/project-guard.log 2>&1 &`.
+1. **Context First**: ALL paths must be relative to root. **ALWAYS READ `MAP.md` FIRST**.
+2. **Commitment Constraint**: NEVER run `commit.sh` or `fast-commit.sh` unless explicitly asked to "save", "checkpoint", or "commit".
+3. **Conditional Context Loading**:
+   - **IF** writing `.res` files: Read `.agent/workflows/rescript-standards.md`.
+   - **IF** writing `.rs` files: Read `.agent/workflows/rust-standards.md`.
+   - **IF** writing Tests: Read `.agent/workflows/testing-standards.md`.
+   - **IF** debugging/instrumenting: Read `.agent/workflows/debug-standards.md`.
+   - **IF** creating **NEW** modules: Read `.agent/workflows/new-module-standards.md`.
 
 ## 🚨 CODING VITALS (PRIORITY 0)
 - **ReScript v12 Only**: Use `Option`/`Result` explicitly. NO `unwrap()`, `panic!`, or `console.log`.
@@ -14,24 +18,15 @@
 
 ## 🛠️ WORKFLOW AUTOMATION
 
-### PHASE 1: PRE-FLIGHT
-- **Context Refresh**: Read `MAP.md` to locate core modules via `#tags`. For new files, read `.agent/workflows/new-module-standards.md`.
-- **Task Routing**: If working on a task in `tasks/pending`, follow `tasks/TASKS.md` sequence. Otherwise, execute directly.
-- **Standards**: Read `.agent/workflows/functional-standards.md` (Logic), `docs/PROJECT_SPECS.md` (UI), and `docs/GENERAL_MECHANICS.md` (Init/Testing).
-
-### PHASE 2: EXECUTION
+### PHASE 1: EXECUTION
 - **Test-Driven**: Run `npm test` autonomously. If 2 failures occur, STOP and generate `FAILURE_REPORT.md`.
 - **Build**: For formal tasks, run `npm run build`. For normal requests, skip (let dev server handle it).
 
-### PHASE 3: COMMIT & PUSH
+### PHASE 2: COMMIT & PUSH
 - **Explicit Permission**: Only commit when the user provides a message or instruction.
-- **Standard Path**: `./scripts/commit.sh "msg"` (Build + Test + Doc Sync).
-- **Fast Path**: `./scripts/fast-commit.sh "msg"` (Changelog + Snapshot only).
+- **Standard Path**: `./scripts/commit.sh "msg"` (Build + Test + Guard Checks).
+- **Fast Path**: `./scripts/fast-commit.sh "msg"` (Guard Checks only).
 - **Push**: Run `./scripts/pre-push.sh` before pushing to remote.
-
-## 🗣️ INTERACTION TRIGGERS
-- **Undo/Rollback**: Run `git log local-snapshots/$(git branch --show-current) -n 5` to show history.
-- **Refactor This**: Create a checklist in `tasks/current_refactor.md` and await "OK".
 
 ## 📂 CRITICAL PATHS
 - **Codebase Map**: `./MAP.md` (Semantic index - READ FIRST)

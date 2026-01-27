@@ -134,7 +134,7 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
         } else {
           <LucideIcons.ChevronRight className="text-[16px]" />
         }}
-        <span className="text-[9px] font-semibold uppercase tracking-tighter">
+        <span className="text-[10px] font-semibold uppercase tracking-tighter">
           {React.string(
             if isAutoForward {
               "AUTO"

@@ -91,7 +91,7 @@
     --font-heading: "Outfit", system-ui, -apple-system, sans-serif;
     --font-body: "Outfit", system-ui, -apple-system, sans-serif;
     --font-ui: "Outfit", system-ui, -apple-system, sans-serif;
-    --font-mono: "Outfit", system-ui, -apple-system, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
     /* Spacing */
     --viewer-btn-size: 37px;
