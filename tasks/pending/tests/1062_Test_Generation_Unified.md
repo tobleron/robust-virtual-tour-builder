@@ -200,3 +200,6 @@ System-generated test requirements for new and modified modules.
 - [ ] Test_SceneHelpers_Update (Update)
 - [ ] Test_TeaserManager_Update (Update)
 - [ ] Test_TourTemplateStyles_Update (Update)
+- [ ] Test_SchemasDomain_New (New)
+- [ ] Test_SchemasShared_New (New)
+- [ ] Test_SessionStore_Update (Update)
