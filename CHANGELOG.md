@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - UI: Standardize dialog box styles & deactivate startup recovery popup
 - Sync branches and fix race conditions in geocoding tests
 - Refactor backend ZIP processing to use streaming and temp files (Task 798)
+- Implement backend asset path sanitization (Task 799)
 
 ## [4.8.0] - 2026-01-26
 
