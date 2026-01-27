@@ -24,7 +24,7 @@ Establish a rigorous "Regression Shield" around the stable core systems of the a
     - Test auto-forward chain logic.
 
 ### 2. Navigation System (The Engine)
-**Target:** `src/systems/Navigation.res` (Logic only)
+**Target:** `src/helpers/NavigationGraph.res` and `src/helpers/SceneSwitcher.res` (Logic only)
 **Why:** Users *must* be able to move between scenes reliably.
 
 - [x] **Pathfinding**:
@@ -49,4 +49,4 @@ Establish a rigorous "Regression Shield" around the stable core systems of the a
 
 ## 📊 Success Metrics
 - **Zero Regressions:** Future refactors of these modules should immediately trigger test failures if behavior changes.
-- **Coverage:** >90% coverage on `reducers/*` and `Navigation.res`.
+- **Coverage:** >90% coverage on `reducers/*`, `NavigationGraph.res`, and `SceneSwitcher.res`.

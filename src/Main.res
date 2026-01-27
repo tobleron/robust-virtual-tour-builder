@@ -149,6 +149,51 @@ let init = async () => {
       }
 
       // 8. Global click handler
+      // 9. Persistence & Session Recovery
+      PersistenceLayer.initSubscriber()
+      let _recovered = await PersistenceLayer.checkRecovery()
+
+      /*
+      switch recovered {
+      | Some(session) =>
+        let dateStr = Date.fromTime(session.timestamp)->Date.toLocaleString
+        EventBus.dispatch(
+          ShowModal({
+            title: "Unsaved Session Found",
+            description: Some(
+              "We found an unsaved session from " ++ dateStr ++ ". Would you like to restore it?",
+            ),
+            content: None,
+            icon: Some("history"),
+            allowClose: Some(false),
+            onClose: None,
+            className: Some("modal-blue"),
+            buttons: [
+              {
+                label: "Restore",
+                class_: "bg-blue-500/20 text-white hover:bg-blue-500/40",
+                onClick: () => {
+                  GlobalStateBridge.dispatch(LoadProject(session.projectData))
+                  EventBus.dispatch(ShowNotification("Session Restored", #Success))
+                },
+                autoClose: Some(true),
+              },
+              {
+                label: "Discard",
+                class_: "bg-slate-100/10 text-white hover:bg-white/20",
+                onClick: () => {
+                  PersistenceLayer.clearSession()
+                  EventBus.dispatch(ShowNotification("Session Discarded", #Info))
+                },
+                autoClose: Some(true),
+              },
+            ],
+          }),
+        )
+      | None => ()
+      }
+ */
+
       // 8. Global click handler
       Dom.addEventListener(docToEl(Dom.document), "viewer-click", (e: Dom.event) => {
         let state = GlobalStateBridge.getState()

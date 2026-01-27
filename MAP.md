@@ -181,9 +181,9 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [backend/src/main.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/main.rs): Server entry point, middleware setup, and routing. `#rust` `#api` `#server`
 *   [backend/src/api/auth.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/api/auth.rs): Google OAuth2 authentication endpoints. `#rust` `#auth` `#google-oauth`
 *   [backend/src/api/project.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/api/project.rs): Endpoints for project packaging, imports, and validation. `#backend-logic` `#project-api`
-*   [backend/src/api/media/image.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/api/media/image.rs): Facade for image processing endpoints. `#image` `#api` `#facade`
-    *   [backend/src/api/media/image_logic.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/api/media/image_logic.rs): Core image optimization and batch processing logic. `#logic`
-    *   [backend/src/api/media/image_utils.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/api/media/image_utils.rs): Multipart form-data parsing for image uploads. `#utils`
+*   [backend/src/api/media/image/mod.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/api/media/image/mod.rs): Facade for image processing endpoints. `#image` `#api` `#facade`
+    *   [backend/src/api/media/image/image_logic.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/api/media/image/image_logic.rs): Core image optimization and batch processing logic. `#logic`
+    *   [backend/src/api/media/image/image_utils.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/api/media/image/image_utils.rs): Multipart form-data parsing for image uploads. `#utils`
 *   [backend/src/api/media/video/mod.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/api/media/video/mod.rs): Facade for video transcoding and teaser generation. `#video` `#api` `#facade`
     *   [backend/src/api/media/video/video_logic.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/api/media/video/video_logic.rs): Headless browser automation and FFmpeg orchestration logic. `#logic`
 *   [backend/src/api/project/storage/mod.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/api/project/storage/mod.rs): Facade for project persistence, ZIP generation, and imports. `#storage` `#api` `#facade`
@@ -191,7 +191,9 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [backend/src/services/geocoding/mod.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/services/geocoding/mod.rs): Facade for the geocoding service with LRU caching. `#geocoding` `#services` `#facade`
     *   [backend/src/services/geocoding/logic.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/services/geocoding/logic.rs): OSM Nominatim API interaction and coordinate rounding logic. `#logic`
 *   [backend/src/services/media/mod.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/services/media/mod.rs): Facade for core media services (encoding, analysis, resizing). `#media` `#services` `#facade`
-    *   [backend/src/services/media/analysis.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/services/media/analysis.rs): Image quality analysis and metadata extraction. `#logic`
+*   [backend/src/services/media/analysis/mod.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/services/media/analysis/mod.rs): Facade for image quality analysis and metadata extraction. `#media` `#analysis` `#facade`
+    *   [backend/src/services/media/analysis/exif.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/services/media/analysis/exif.rs): EXIF data parsing and normalization logic. `#exif` `#parsing`
+    *   [backend/src/services/media/analysis/quality.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/services/media/analysis/quality.rs): Image quality analysis, histograms, and blur detection. `#image-processing` `#logic`
     *   [backend/src/services/media/webp.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/services/media/webp.rs): WebP encoding and metadata injection. `#encoding`
     *   [backend/src/services/media/resizing.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/services/media/resizing.rs): High-performance image resizing. `#processing`
     *   [backend/src/services/media/naming.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/services/media/naming.rs): Camera filename normalization logic. `#utils`
@@ -275,3 +277,5 @@ This map provides a semantic overview of the project structure to optimize conte
 * [backend/src/api/media/image/image_utils.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/api/media/image/image_utils.rs): New module detected. Please classify. #new
 * [backend/src/api/media/image/mod.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/api/media/image/mod.rs): New module detected. Please classify. #new
 * [backend/src/services/upload_quota_tests.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/services/upload_quota_tests.rs): New module detected. Please classify. #new
+* [src/bindings/IdbBindings.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/bindings/IdbBindings.res): New module detected. Please classify. #new
+* [src/utils/PersistenceLayer.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/utils/PersistenceLayer.res): New module detected. Please classify. #new
