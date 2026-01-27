@@ -30,5 +30,5 @@ These are the building blocks of the UI. Grouping them allows for efficient snap
 3. **Error Handling**: Verify `AppErrorBoundary` catches throw errors and renders `ErrorFallbackUI`.
 
 ## Verification Criteria
-- [ ] UI components render without crashing.
-- [ ] Context consumers receive updates.
+- [x] UI components render without crashing.
+- [x] Context consumers receive updates.
