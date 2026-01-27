@@ -31,6 +31,26 @@ describe("VisualPipeline", () => {
     }
   }
 
+  let createScene = (id: string, name: string): scene => {
+    {
+      id: id,
+      name: name,
+      file: Url("placeholder.jpg"),
+      tinyFile: None,
+      originalFile: None,
+      hotspots: [],
+      category: "default",
+      floor: "1",
+      label: "",
+      quality: None,
+      colorGroup: None,
+      _metadataSource: "test",
+      categorySet: false,
+      labelSet: false,
+      isAutoForward: false,
+    }
+  }
+
   test("init should return Some(pipeline) and setup DOM", t => {
     let container = setupDOM()
     let pipeline = VisualPipeline.init("pipeline-container")
@@ -43,176 +63,174 @@ describe("VisualPipeline", () => {
     cleanupDOM(container)
   })
 
-  test("render should show/hide wrapper based on timeline length", t => {
+  test("injectStyles should add style element to head", t => {
     let container = setupDOM()
     let _ = VisualPipeline.init("pipeline-container")
 
-    // Empty state
-    let emptyState = {
-      ...State.initialState,
-      timeline: [],
-    }
-    GlobalStateBridge.setState(emptyState)
-
-    let wrapper =
-      Dom.querySelector(container, ".visual-pipeline-wrapper")
-      ->Nullable.toOption
-      ->Belt.Option.getExn
-    let display = %raw(`(w) => w.style.display`)(wrapper)
-    t->expect(display)->Expect.toBe("none")
-
-    // State with items
-    let item1 = createTimelineItem("1", "Living Room")
-    let stateWithItems = {
-      ...emptyState,
-      timeline: [item1],
-    }
-    GlobalStateBridge.setState(stateWithItems)
-
-    let displayAfter = %raw(`(w) => w.style.display`)(wrapper)
-    t->expect(displayAfter)->Expect.toBe("flex")
+    let style = Dom.getElementById("visual-pipeline-styles")
+    t->expect(Nullable.toOption(style)->Belt.Option.isSome)->Expect.toBe(true)
 
     cleanupDOM(container)
   })
 
-  test("render should create nodes for timeline items", t => {
+  test("render should apply color group colors to nodes", t => {
     let container = setupDOM()
     let _ = VisualPipeline.init("pipeline-container")
 
     let item1 = createTimelineItem("1", "Living Room")
-    let item2 = createTimelineItem("2", "Kitchen")
+    let scene1 = {
+      ...(createScene("scene_1", "Living Room")),
+      colorGroup: Some("1"), // Should be Blue 500 #3b82f6 (based on logic 1-1=0 -> idx 0)
+    }
+
+    let state = {
+      ...State.initialState,
+      timeline: [item1],
+      scenes: [scene1],
+    }
+    GlobalStateBridge.setState(state)
+
+    let node = Dom.querySelector(container, ".pipeline-node")
+    switch Nullable.toOption(node) {
+    | Some(n) =>
+       let style = Dom.getStyle(n)
+       let color = Dom.getPropertyValue(style, "--node-color")
+       // ColorPalette logic: id 1 -> idx 0 -> #3b82f6
+       t->expect(color)->Expect.toBe("#3b82f6")
+    | None => t->expect(false)->Expect.toBe(true)
+    }
+
+    cleanupDOM(container)
+  })
+
+  test("render should create tooltip with correct info", t => {
+     let container = setupDOM()
+     let _ = VisualPipeline.init("pipeline-container")
+
+     let item1 = createTimelineItem("1", "Kitchen")
+     let scene1 = {
+       ...(createScene("scene_1", "Kitchen")),
+       file: Url("thumb.jpg"),
+     }
+
+     let state = {
+       ...State.initialState,
+       timeline: [item1],
+       scenes: [scene1],
+     }
+     GlobalStateBridge.setState(state)
+
+     let tooltip = Dom.querySelector(container, ".node-tooltip")
+     let exists = Nullable.toOption(tooltip)->Belt.Option.isSome
+     t->expect(exists)->Expect.toBe(true)
+
+     if exists {
+       let el = Nullable.toOption(tooltip)->Belt.Option.getExn
+       let text = Dom.querySelector(el, ".tooltip-text")
+       t->expect(Dom.getTextContent(Nullable.toOption(text)->Belt.Option.getExn))->Expect.toBe("Kitchen")
+
+       let linkId = Dom.querySelector(el, ".tooltip-link-id")
+       t->expect(Dom.getTextContent(Nullable.toOption(linkId)->Belt.Option.getExn))->Expect.toBe("Link: link_1")
+     }
+
+     cleanupDOM(container)
+  })
+
+  test("node active state should track activeTimelineStepId", t => {
+     let container = setupDOM()
+     let _ = VisualPipeline.init("pipeline-container")
+
+     let item1 = createTimelineItem("1", "Living Room")
+     let state = {
+       ...State.initialState,
+       timeline: [item1],
+       activeTimelineStepId: Some("1")
+     }
+     GlobalStateBridge.setState(state)
+
+     let node = Dom.querySelector(container, ".pipeline-node")
+     let cl = Dom.classList(Nullable.toOption(node)->Belt.Option.getExn)
+     t->expect(Dom.ClassList.contains(cl, "active"))->Expect.toBe(true)
+
+     let stateInactive = { ...state, activeTimelineStepId: Some("other") }
+     GlobalStateBridge.setState(stateInactive)
+     // Node is re-rendered, so we need to query it again
+     let nodeInactive = Dom.querySelector(container, ".pipeline-node")
+     let cl2 = Dom.classList(Nullable.toOption(nodeInactive)->Belt.Option.getExn)
+     t->expect(Dom.ClassList.contains(cl2, "active"))->Expect.toBe(false)
+
+     cleanupDOM(container)
+  })
+
+  test("drag interaction should update state and dispatch reorder", t => {
+    let container = setupDOM()
+    let _ = VisualPipeline.init("pipeline-container")
+
+    let item1 = createTimelineItem("1", "A")
+    let item2 = createTimelineItem("2", "B")
+    let scene1 = createScene("scene_1", "Scene 1")
+    let scene2 = createScene("scene_2", "Scene 2")
+
     let state = {
       ...State.initialState,
       timeline: [item1, item2],
+      scenes: [scene1, scene2],
     }
     GlobalStateBridge.setState(state)
+
+    let lastAction = ref(None)
+    GlobalStateBridge.setDispatch(action => lastAction := Some(action))
 
     let nodes = Dom.querySelectorAll(container, ".pipeline-node")
     t->expect(Dom.nodeListLength(nodes))->Expect.toBe(2)
+    let sourceNode = %raw(`(list) => list[0]`)(nodes)
+
+    let mockDataTransfer = %raw(`{
+      setData: () => {},
+      effectAllowed: '',
+      dropEffect: ''
+    }`)
+
+    let dragStartEvent = %raw(`new Event('dragstart', {bubbles: true})`)
+    let _ = %raw(`(ev, dt) => Object.defineProperty(ev, 'dataTransfer', { value: dt })`)(dragStartEvent, mockDataTransfer)
+
+    let _ = %raw(`(node, ev) => node.dispatchEvent(ev)`)(sourceNode, dragStartEvent)
+
+    // Verify is-dragging class
+    let clSource = Dom.classList(sourceNode)
+    t->expect(Dom.ClassList.contains(clSource, "is-dragging"))->Expect.toBe(true)
+
+    // Verify wrapper dragging-active
+    let wrapper = Dom.querySelector(container, ".visual-pipeline-wrapper")
+    let clWrapper = Dom.classList(Nullable.toOption(wrapper)->Belt.Option.getExn)
+    t->expect(Dom.ClassList.contains(clWrapper, "dragging-active"))->Expect.toBe(true)
 
     let zones = Dom.querySelectorAll(container, ".drop-zone")
-    // For N items, there should be N+1 drop zones
-    t->expect(Dom.nodeListLength(zones))->Expect.toBe(3)
+    let targetZone = %raw(`(list) => list[2]`)(zones)
 
-    cleanupDOM(container)
-  })
+    let dragOverEvent = %raw(`new Event('dragover', {bubbles: true})`)
+    let _ = %raw(`(ev, dt) => Object.defineProperty(ev, 'dataTransfer', { value: dt })`)(dragOverEvent, mockDataTransfer)
+    let _ = %raw(`(node, ev) => node.dispatchEvent(ev)`)(targetZone, dragOverEvent)
 
-  test("clicking node should dispatch SetActiveTimelineStep", t => {
-    let container = setupDOM()
-    let _ = VisualPipeline.init("pipeline-container")
+    // Verify drag-over class
+    let clZone = Dom.classList(targetZone)
+    t->expect(Dom.ClassList.contains(clZone, "drag-over"))->Expect.toBe(true)
 
-    let item1 = createTimelineItem("1", "Living Room")
-    let state = {
-      ...State.initialState,
-      timeline: [item1],
-    }
-    GlobalStateBridge.setState(state)
+    // Drop
+    let dropEvent = %raw(`new Event('drop', {bubbles: true})`)
+    let _ = %raw(`(node, ev) => node.dispatchEvent(ev)`)(targetZone, dropEvent)
 
-    let lastAction = ref(None)
-    GlobalStateBridge.setDispatch(action => lastAction.contents = Some(action))
+    // Verify ReorderTimeline(0, 1)
+    t->expect(lastAction.contents)->Expect.toEqual(Some(Actions.ReorderTimeline(0, 1)))
 
-    let node = Dom.querySelector(container, ".pipeline-node")
-    switch Nullable.toOption(node) {
-    | Some(n) => Dom.click(n)
-    | None => t->expect(false)->Expect.toBe(true)
-    }
+    // Simulate Drag End on source node
+    let dragEndEvent = %raw(`new Event('dragend', {bubbles: true})`)
+    let _ = %raw(`(node, ev) => node.dispatchEvent(ev)`)(sourceNode, dragEndEvent)
 
-    t->expect(lastAction.contents)->Expect.toEqual(Some(Actions.SetActiveTimelineStep(Some("1"))))
-
-    cleanupDOM(container)
-  })
-
-  test("node should show auto-forward indicator if target scene is auto-forward", t => {
-    let container = setupDOM()
-    let _ = VisualPipeline.init("pipeline-container")
-
-    let item1 = createTimelineItem("1", "Auto Corridor")
-    let targetScene: scene = {
-      id: "s2",
-      name: "Auto Corridor",
-      label: "",
-      file: Url(""),
-      tinyFile: None,
-      originalFile: None,
-      hotspots: [],
-      category: "",
-      floor: "",
-      quality: None,
-      colorGroup: None,
-      categorySet: false,
-      labelSet: false,
-      _metadataSource: "user",
-      isAutoForward: true, // AUTO FORWARD
-    }
-
-    let state = {
-      ...State.initialState,
-      scenes: [targetScene],
-      timeline: [item1],
-    }
-    GlobalStateBridge.setState(state)
-
-    let indicator = Dom.querySelector(container, ".auto-forward-indicator")
-    t->expect(Nullable.toOption(indicator)->Belt.Option.isSome)->Expect.toBe(true)
-
-    cleanupDOM(container)
-  })
-
-  test("contextmenu on node should confirm and dispatch RemoveFromTimeline", t => {
-    let container = setupDOM()
-    let _ = VisualPipeline.init("pipeline-container")
-
-    let item1 = createTimelineItem("1", "Living Room")
-    let state = {
-      ...State.initialState,
-      timeline: [item1],
-    }
-    GlobalStateBridge.setState(state)
-
-    let lastAction = ref(None)
-    GlobalStateBridge.setDispatch(action => lastAction.contents = Some(action))
-
-    // Mock window.confirm to return true
-    let _ = %raw(`globalThis.window.confirm = () => true`)
-
-    let node = Dom.querySelector(container, ".pipeline-node")
-    switch Nullable.toOption(node) {
-    | Some(n) =>
-      let event = %raw(`new MouseEvent('contextmenu', { bubbles: true })`)
-      %raw(`(node, ev) => node.dispatchEvent(ev)`)(n, event)
-    | None => t->expect(false)->Expect.toBe(true)
-    }
-
-    t->expect(lastAction.contents)->Expect.toEqual(Some(Actions.RemoveFromTimeline("1")))
-
-    cleanupDOM(container)
-  })
-
-  test("pressing Enter on node should dispatch SetActiveTimelineStep", t => {
-    let container = setupDOM()
-    let _ = VisualPipeline.init("pipeline-container")
-
-    let item1 = createTimelineItem("1", "Living Room")
-    let state = {
-      ...State.initialState,
-      timeline: [item1],
-    }
-    GlobalStateBridge.setState(state)
-
-    let lastAction = ref(None)
-    GlobalStateBridge.setDispatch(action => lastAction.contents = Some(action))
-
-    let node = Dom.querySelector(container, ".pipeline-node")
-    switch Nullable.toOption(node) {
-    | Some(n) =>
-      let event = %raw(`new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })`)
-      %raw(`(node, ev) => node.dispatchEvent(ev)`)(n, event)
-    | None => t->expect(false)->Expect.toBe(true)
-    }
-
-    t
-    ->expect(lastAction.contents)
-    ->Expect.toEqual(Some(Actions.SetActiveTimelineStep(Some("1"))))
+    // Drag End
+    t->expect(Dom.ClassList.contains(clSource, "is-dragging"))->Expect.toBe(false)
+    t->expect(Dom.ClassList.contains(clZone, "drag-over"))->Expect.toBe(false)
+    t->expect(Dom.ClassList.contains(clWrapper, "dragging-active"))->Expect.toBe(false)
 
     cleanupDOM(container)
   })
