@@ -1,7 +1,5 @@
 /* src/systems/ExifReportGeneratorLogic.res */
 
-open ReBindings
-open SharedTypes
 open ExifReportGeneratorTypes
 open ExifReportGeneratorUtils
 open ExifReportGeneratorLogicExtraction

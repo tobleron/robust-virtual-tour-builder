@@ -1,7 +1,6 @@
 /* src/components/Sidebar/SidebarMain.res */
 
 open ReBindings
-open SidebarMainTypes
 open SidebarMainLogic
 
 @scope(("window", "location")) @val external reload: unit => unit = "reload"

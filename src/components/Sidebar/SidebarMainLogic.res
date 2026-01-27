@@ -1,7 +1,6 @@
 /* src/components/Sidebar/SidebarMainLogic.res */
 
 open ReBindings
-open SidebarMainTypes
 
 let updateProgress = (pct, msg, active, phase) => {
   EventBus.dispatch(
