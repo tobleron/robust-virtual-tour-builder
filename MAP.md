@@ -62,12 +62,14 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/systems/SceneTransitionManager.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/SceneTransitionManager.res): Manages DOM transitions and viewer swapping logic. `#transition` `#dom`
 *   [src/systems/PannellumLifecycle.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/PannellumLifecycle.res): Lifecycle bindings for Pannellum viewer initialization and destruction. `#pannellum` `#bindings`
 *   [src/systems/HotspotLine.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/HotspotLine.res): Facade for visual hotspot connections and simulation arrows. `#hotspots` `#rendering` `#facade`
-*   [src/systems/HotspotLineUtils.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/HotspotLineUtils.res): State and caching for hotspot line rendering. `#utils` `#caching`
 *   [src/core/interfaces/ViewerDriver.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/core/interfaces/ViewerDriver.res): Interface contract for 360 renderer drivers. `#interface` `#abstraction`
 *   [src/systems/PannellumAdapter.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/PannellumAdapter.res): Pannellum-specific implementation of ViewerDriver. `#adapter` `#rendering`
 *   [src/systems/ViewerPool.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/ViewerPool.res): Manager for multiple viewport instances and their lifecycles. `#orchestration` `#efficiency`
-*   [src/systems/HotspotLineLogic.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/HotspotLineLogic.res): Coordinate projection math and SVG drawing primitives. `#math` `#rendering` `#logic`
-*   [src/systems/HotspotLineUtils.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/HotspotLineUtils.res): State and caching for hotspot line rendering. `#utils` `#caching`
+*   [src/systems/HotspotLineLogic.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/HotspotLineLogic.res): Lightweight facade for coordinate projection and SVG drawing. `#math` `#rendering` `#facade`
+    *   [src/systems/HotspotLineLogicLogic.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/HotspotLineLogicLogic.res): Main logic for persistent lines and linking drafts. `#logic`
+    *   [src/systems/HotspotLineLogicArrow.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/HotspotLineLogicArrow.res): Specialized logic for simulation arrow rendering and animation. `#logic` `#animation`
+    *   [src/systems/HotspotLineLogicTypes.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/HotspotLineLogicTypes.res): Internal types for hotspot line logic and caching. `#types`
+    *   [src/systems/HotspotLineUtils.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/HotspotLineUtils.res): State and caching for hotspot line rendering. `#utils` `#caching`
 *   [src/systems/SimulationDriver.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/SimulationDriver.res): Logic for Autopilot and route simulations. `#autopilot` `#simulation` `#navigation`
 *   [src/systems/NavigationController.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/NavigationController.res): Manages movement between scenes. `#navigation` `#scene-switching`
 *   [src/systems/NavigationFSM.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/NavigationFSM.res): Pure deterministic Finite State Machine for navigation lifecycle. `#orchestration` `#reliability`
@@ -284,3 +286,4 @@ This map provides a semantic overview of the project structure to optimize conte
 * [src/bindings/IdbBindings.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/bindings/IdbBindings.res): New module detected. Please classify. #new
 * [src/utils/PersistenceLayer.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/utils/PersistenceLayer.res): New module detected. Please classify. #new
 * [backend/src/services/media/naming_old.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/services/media/naming_old.rs): New module detected. Please classify. #new
+* [src/core/Schemas.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/core/Schemas.res): New module detected. Please classify. #new

@@ -61,41 +61,32 @@ type apiError = {
 
 type apiResult<'a> = result<'a, string>
 
-/* --- DECODERS (Manual implementation for type safety) --- */
+let parse = (json: 'any, schema: RescriptSchema.S.t<'a>): result<'a, string> => {
+  try {
+    Ok(RescriptSchema.S.parseOrThrow(json, schema))
+  } catch {
+  | exn => Error(RescriptSchema.S.Error.message(Obj.magic(exn)))
+  }
+}
 
 let decodeImportResponse = (json: JSON.t): result<importResponse, string> => {
-  switch json {
-  | Object(dict) =>
-    let sessionId = dict->Dict.get("sessionId")->Option.flatMap(JSON.Decode.string)
-    let projectData = dict->Dict.get("projectData")
-    switch (sessionId, projectData) {
-    | (Some(s), Some(p)) => Ok({sessionId: s, projectData: p})
-    | _ => Error("Invalid import response")
-    }
-  | _ => Error("Expected object for import response")
-  }
+  parse(json, Schemas.Shared.importResponse)->Result.map(((sessionId, projectData)) => {
+    sessionId,
+    projectData,
+  })
 }
 
 let decodeValidationReport = (json: JSON.t): result<validationReport, string> => {
-  // Using safe cast from JsonTypes
-  switch json {
-  | Object(_) => Ok(JsonTypes.castToValidationReport(json))
-  | _ => Error("Invalid validation report")
-  }
+  parse(json, Schemas.Shared.validationReport)
 }
 
 let decodeMetadataResponse = (json: JSON.t): result<metadataResponse, string> => {
-  switch json {
-  | Object(_) => Ok((JsonTypes.castToMetadataResponse(json): metadataResponse))
-  | _ => Error("Invalid metadata response")
-  }
+  parse(json, Schemas.Shared.metadataResponse)
 }
 
 let decodeSteps = (json: JSON.t): result<array<step>, string> => {
-  switch json {
-  | Array(_) =>
-    let jsonSteps = JsonTypes.castToSteps(json)
-    let steps = Belt.Array.map(jsonSteps, js => {
+  parse(json, RescriptSchema.S.array(JsonTypes.JsonSchemas.step))->Result.map(jsonSteps => {
+    jsonSteps->Belt.Array.map(js => {
       idx: js.idx,
       arrivalView: {
         yaw: js.arrivalView.yaw,
@@ -112,27 +103,17 @@ let decodeSteps = (json: JSON.t): result<array<step>, string> => {
       | None => None
       },
     })
-    Ok(steps)
-  | _ => Error("Invalid path steps response")
-  }
+  })
 }
 
 let decodeGeocodeResponse = (json: JSON.t): result<geocodeResponse, string> => {
-  switch json {
-  | Object(dict) =>
-    switch dict->Dict.get("address")->Option.flatMap(JSON.Decode.string) {
-    | Some(address) => Ok({address: address})
-    | None => Error("Missing address in geocode response")
-    }
-  | _ => Error("Invalid geocode response")
-  }
+  parse(json, Schemas.Shared.geocodeResponse)->Result.map(address => {
+    address: address,
+  })
 }
 
 let decodeSimilarityResponse = (json: JSON.t): result<similarityResponse, string> => {
-  switch json {
-  | Object(_) => Ok((JsonTypes.castToSimilarityResponse(json): similarityResponse))
-  | _ => Error("Invalid similarity response")
-  }
+  parse(json, Schemas.Shared.similarityResponse)
 }
 
 /* --- HELPER: Handle Response --- */

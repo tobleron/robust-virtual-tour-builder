@@ -73,3 +73,27 @@ export function taskExists(pattern) {
   scan('tasks');
   return found;
 }
+
+export function appendToUnifiedTask(taskName, description) {
+  const testsDir = path.join(TASKS_DIR, 'tests');
+  if (!fs.existsSync(testsDir)) return false;
+
+  const files = fs.readdirSync(testsDir);
+  const unifiedFile = files.find(f => f.includes('Test_Generation_Unified.md'));
+
+  if (unifiedFile) {
+    const filePath = path.join(testsDir, unifiedFile);
+    let content = fs.readFileSync(filePath, 'utf8');
+
+    if (content.includes(taskName)) {
+      return true; // Already exists, consider handled
+    }
+
+    // Append to the list
+    content += `\n- [ ] ${taskName} ${description ? `(${description})` : ''}`;
+    fs.writeFileSync(filePath, content);
+    console.log(`➕ Appended to Unified Task: ${taskName}`);
+    return true;
+  }
+  return false;
+}
