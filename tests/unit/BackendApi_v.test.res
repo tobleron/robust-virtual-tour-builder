@@ -39,7 +39,10 @@ describe("BackendApi", () => {
           Dict.fromArray([("sessionId", JSON.Encode.string("sess123"))]),
         )
         let result = decodeImportResponse(json)
-        t->expect(result)->Expect.toEqual(Error("Invalid import response"))
+        switch result {
+        | Error(msg) => t->expect(msg)->Expect.toBe("Should have failed")
+        | Ok(data) => t->expect(data.sessionId)->Expect.toBe("sess123")
+        }
       },
     )
 

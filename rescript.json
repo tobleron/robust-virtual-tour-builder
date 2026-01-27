@@ -22,7 +22,8 @@
     },
     "dependencies": [
         "@rescript/react",
-        "rescript-vitest"
+        "rescript-vitest",
+        "rescript-schema"
     ],
     "warnings": {
         "error": "+101"
