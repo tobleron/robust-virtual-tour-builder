@@ -33,6 +33,7 @@ open ReBindings
 describe("AudioManager - Click Sounds & WebAudio", () => {
   beforeEach(() => {
     let _ = %raw(`vi.clearAllMocks()`)
+
     // Reset internal state - normally we'd expose a reset function, but for now we use Obj.magic
     isInitialized.contents = false
     audioContext.contents = None

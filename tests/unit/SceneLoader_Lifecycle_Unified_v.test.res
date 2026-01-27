@@ -31,9 +31,11 @@ describe("SceneLoader Lifecycle Unified", () => {
     mockState := State.initialState
     dispatchedActions := []
 
-    GlobalStateBridge.setDispatch(action => {
-      let _ = Array.push(dispatchedActions.contents, action)
-    })
+    GlobalStateBridge.setDispatch(
+      action => {
+        let _ = Array.push(dispatchedActions.contents, action)
+      },
+    )
     GlobalStateBridge.setState(mockState.contents)
 
     let _ = %raw(`
@@ -96,7 +98,6 @@ describe("SceneLoader Lifecycle Unified", () => {
       globalThis.Date.now = () => 1000000;
       })()
     `)
-    ()
   })
 
   testAsync("loadNewScene orchestration success flow", t => {
@@ -108,15 +109,21 @@ describe("SceneLoader Lifecycle Unified", () => {
 
     SceneLoaderLogic.loadNewScene(None, Some(1), ~isAnticipatory=false)
 
-    Promise.make((resolve, _reject) => {
-      let _ = setTimeout(() => {
-         resolve()
-      }, 50)
-    })
-    ->Promise.then(() => {
+    Promise.make(
+      (resolve, _reject) => {
+        let _ = setTimeout(
+          () => {
+            resolve()
+          },
+          50,
+        )
+      },
+    )->Promise.then(
+      () => {
         t->expect(true)->Expect.toBe(true)
         Promise.resolve()
-    })
+      },
+    )
   })
 
   test("Config creates correct viewer config", t => {

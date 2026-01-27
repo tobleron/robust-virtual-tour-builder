@@ -65,9 +65,7 @@ module WrappedSidebar = {
     <AppContext.DispatchProvider value=mockDispatch>
       <AppContext.GlobalProvider value=mockState>
         <AppContext.SceneSliceProvider value=sceneSlice>
-          <AppContext.UiSliceProvider value=uiSlice>
-            {children}
-          </AppContext.UiSliceProvider>
+          <AppContext.UiSliceProvider value=uiSlice> {children} </AppContext.UiSliceProvider>
         </AppContext.SceneSliceProvider>
       </AppContext.GlobalProvider>
     </AppContext.DispatchProvider>
@@ -94,9 +92,12 @@ describe("Sidebar", () => {
     let sidebarCmp = await loadSidebar()
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(root, <WrappedSidebar mockState mockDispatch>
-      {React.createElement(sidebarCmp, Object.make())}
-    </WrappedSidebar>)
+    ReactDOMClient.Root.render(
+      root,
+      <WrappedSidebar mockState mockDispatch>
+        {React.createElement(sidebarCmp, Object.make())}
+      </WrappedSidebar>,
+    )
 
     await wait(100)
 
@@ -120,9 +121,12 @@ describe("Sidebar", () => {
     let sidebarCmp = await loadSidebar()
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(root, <WrappedSidebar mockState mockDispatch>
-      {React.createElement(sidebarCmp, Object.make())}
-    </WrappedSidebar>)
+    ReactDOMClient.Root.render(
+      root,
+      <WrappedSidebar mockState mockDispatch>
+        {React.createElement(sidebarCmp, Object.make())}
+      </WrappedSidebar>,
+    )
 
     await wait(100)
 
@@ -198,9 +202,12 @@ describe("Sidebar", () => {
     let _unsubscribe = EventBus.subscribe(ev => dispatchedEvent := Some(ev))
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(root, <WrappedSidebar mockState mockDispatch>
-      {React.createElement(sidebarCmp, Object.make())}
-    </WrappedSidebar>)
+    ReactDOMClient.Root.render(
+      root,
+      <WrappedSidebar mockState mockDispatch>
+        {React.createElement(sidebarCmp, Object.make())}
+      </WrappedSidebar>,
+    )
 
     await wait(100)
 
@@ -227,9 +234,12 @@ describe("Sidebar", () => {
     let sidebarCmp = await loadSidebar()
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(root, <WrappedSidebar mockState mockDispatch>
-      {React.createElement(sidebarCmp, Object.make())}
-    </WrappedSidebar>)
+    ReactDOMClient.Root.render(
+      root,
+      <WrappedSidebar mockState mockDispatch>
+        {React.createElement(sidebarCmp, Object.make())}
+      </WrappedSidebar>,
+    )
 
     await wait(100)
 
@@ -269,9 +279,12 @@ describe("Sidebar", () => {
     let sidebarCmp = await loadSidebar()
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(root, <WrappedSidebar mockState mockDispatch>
-      {React.createElement(sidebarCmp, Object.make())}
-    </WrappedSidebar>)
+    ReactDOMClient.Root.render(
+      root,
+      <WrappedSidebar mockState mockDispatch>
+        {React.createElement(sidebarCmp, Object.make())}
+      </WrappedSidebar>,
+    )
 
     await wait(100)
 
@@ -336,9 +349,12 @@ describe("Sidebar", () => {
     let sidebarCmp = await loadSidebar()
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(root, <WrappedSidebar mockState mockDispatch>
-      {React.createElement(sidebarCmp, Object.make())}
-    </WrappedSidebar>)
+    ReactDOMClient.Root.render(
+      root,
+      <WrappedSidebar mockState mockDispatch>
+        {React.createElement(sidebarCmp, Object.make())}
+      </WrappedSidebar>,
+    )
 
     await wait(100)
 
@@ -404,9 +420,12 @@ describe("Sidebar", () => {
     let sidebarCmp = await loadSidebar()
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(root, <WrappedSidebar mockState mockDispatch>
-      {React.createElement(sidebarCmp, Object.make())}
-    </WrappedSidebar>)
+    ReactDOMClient.Root.render(
+      root,
+      <WrappedSidebar mockState mockDispatch>
+        {React.createElement(sidebarCmp, Object.make())}
+      </WrappedSidebar>,
+    )
 
     await wait(100)
 
@@ -433,23 +452,31 @@ describe("Sidebar", () => {
     let sidebarCmp = await loadSidebar()
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(root, <WrappedSidebar mockState mockDispatch>
-      {React.createElement(sidebarCmp, Object.make())}
-    </WrappedSidebar>)
+    ReactDOMClient.Root.render(
+      root,
+      <WrappedSidebar mockState mockDispatch>
+        {React.createElement(sidebarCmp, Object.make())}
+      </WrappedSidebar>,
+    )
 
     await wait(100)
 
-    let input = Dom.querySelector(container, "input[type='file'][accept='image/jpeg,image/png,image/webp']")
+    let input = Dom.querySelector(
+      container,
+      "input[type='file'][accept='image/jpeg,image/png,image/webp']",
+    )
     switch Nullable.toOption(input) {
     | Some(el) =>
       // Mock FileList/File and trigger change
-      ignore(%raw(`(inputEl) => {
+      ignore(
+        %raw(`(inputEl) => {
          const file = new File(['content'], 'test.jpg', { type: 'image/jpeg' });
          Object.defineProperty(inputEl, 'files', {
            value: [file]
          });
          inputEl.dispatchEvent(new Event('change', { bubbles: true }));
-      }`)(el))
+      }`)(el),
+      )
       await wait(100)
     | None => t->expect(false)->Expect.toBe(true)
     }

@@ -145,9 +145,11 @@ describe("NavigationFSM", () => {
       NavigationFSM.Error({code: "ERR", recoveryTarget: None}),
     ]
 
-    states->Belt.Array.forEach(state => {
-      let nextState = NavigationFSM.reducer(state, NavigationFSM.Reset)
-      t->expect(nextState)->Expect.toEqual(NavigationFSM.Idle)
-    })
+    states->Belt.Array.forEach(
+      state => {
+        let nextState = NavigationFSM.reducer(state, NavigationFSM.Reset)
+        t->expect(nextState)->Expect.toEqual(NavigationFSM.Idle)
+      },
+    )
   })
 })

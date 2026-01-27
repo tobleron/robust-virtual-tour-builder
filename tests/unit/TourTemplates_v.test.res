@@ -124,29 +124,13 @@ let _ = describe("TourTemplates", () => {
   })
 
   test("generateTourHTML integrates correct CSS for 4k", t => {
-    let html = generateTourHTML(
-      [mockScene1],
-      "4k Tour",
-      false,
-      "4k",
-      32,
-      40,
-      "1.0",
-    )
+    let html = generateTourHTML([mockScene1], "4k Tour", false, "4k", 32, 40, "1.0")
     // 4k max-width is 1024px
     t->expectToContain(html, "max-width: 1024px")
   })
 
   test("generateTourHTML integrates correct CSS for hd (mobile)", t => {
-    let html = generateTourHTML(
-      [mockScene1],
-      "HD Tour",
-      false,
-      "hd",
-      32,
-      40,
-      "1.0",
-    )
+    let html = generateTourHTML([mockScene1], "HD Tour", false, "hd", 32, 40, "1.0")
     // hd mobile width is 375px
     t->expectToContain(html, "width: 375px")
     t->expectToContain(html, "height: 667px")

@@ -167,8 +167,8 @@ describe("TeaserRecorder", () => {
 
   test("startAnimationLoop requests animation frame", t => {
     let logoState = {
-        TeaserRecorderTypes.img: None,
-        loaded: false
+      TeaserRecorderTypes.img: None,
+      loaded: false,
     }
     startAnimationLoop(false, logoState)
 

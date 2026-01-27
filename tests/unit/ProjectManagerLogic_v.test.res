@@ -1,4 +1,3 @@
-
 open Vitest
 open ProjectManagerLogic
 
@@ -31,7 +30,6 @@ open ProjectManagerLogic
 `)
 
 describe("ProjectManagerLogic", () => {
-
   testAsync("createSavePackage success", async t => {
     let mockBlob = %raw(`new Blob(["zip"], {type: "application/zip"})`)
     let mockResponseObj = {"blob": () => Promise.resolve(mockBlob)}
@@ -47,7 +45,7 @@ describe("ProjectManagerLogic", () => {
     let mockState: Types.state = {
       ...State.initialState,
       tourName: "Test Tour",
-      scenes: []
+      scenes: [],
     }
 
     let result = await createSavePackage(mockState)
@@ -62,7 +60,7 @@ describe("ProjectManagerLogic", () => {
 
     let mockState: Types.state = {
       ...State.initialState,
-      tourName: "Test Tour"
+      tourName: "Test Tour",
     }
 
     let result = await createSavePackage(mockState)
@@ -81,7 +79,7 @@ describe("ProjectManagerLogic", () => {
     }`)
     let mockSuccessData = {
       "sessionId": "sess_1",
-      "projectData": Obj.magic(mockProjectData)
+      "projectData": Obj.magic(mockProjectData),
     }
     let mockSuccessResult = Ok(Obj.magic(mockSuccessData))
 
