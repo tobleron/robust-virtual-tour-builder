@@ -345,7 +345,8 @@ describe("SimulationLogic", () => {
 
     let move = getNextMove(state)
     switch move {
-    | Move(m) => // Should pick Scene 3 (index 2)
+    | Move(m) =>
+      // Should pick Scene 3 (index 2)
       t->expect(m.targetIndex)->Expect.toBe(2)
     | _ => t->expect("Move")->Expect.toBe("Something else")
     }

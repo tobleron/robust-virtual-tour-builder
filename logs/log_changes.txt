@@ -10,3 +10,4 @@
 [2026-01-27 20:17] v4.8.7 - chore: rename Testing branch to testing [TRIPLE]
 [2026-01-27 20:37] v4.8.8 - chore: update GEMINI.md with MAP.md integrity rule [TRIPLE]
 [2026-01-27 23:17] v4.8.8 - Finalized and cleaned up batch of unified test tasks (802-820) [TRIPLE]
+[2026-01-28 01:44] v4.8.8 - fix: resolve project loading and metadata parsing issues in ReScript 12

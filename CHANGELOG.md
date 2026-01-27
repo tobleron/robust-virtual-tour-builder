@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update GEMINI.md with MAP.md integrity rule
 - Finalized and cleaned up batch of unified test tasks (802-820)
 
+### Fixed
+- Resolve project loading and metadata parsing issues in ReScript 12
+
 ## [4.8.7] - 2026-01-27
 
 ### Changed

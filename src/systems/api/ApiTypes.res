@@ -51,10 +51,17 @@ type apiResult<'a> = result<'a, string>
 /* --- DECODERS (Safe: Schema-backed parsers) --- */
 
 let decodeImportResponse = (json: JSON.t): result<importResponse, string> => {
-  Schemas.parse(json, Schemas.Shared.importResponse)->Result.map(((sessionId, projectData)) => {
-    sessionId,
-    projectData,
-  })
+  switch JSON.Decode.object(json) {
+  | Some(dict) =>
+    let sessionId =
+      dict->Dict.get("sessionId")->Option.flatMap(JSON.Decode.string)->Option.getOr("")
+    let projectData = dict->Dict.get("projectData")->Option.getOr(JSON.Encode.null)
+    Ok({
+      sessionId,
+      projectData,
+    })
+  | None => Error("Expected object for import response")
+  }
 }
 
 let decodeValidationReport = (json: JSON.t): result<validationReport, string> => {
