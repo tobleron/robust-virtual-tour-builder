@@ -4,6 +4,10 @@ MSG="$1"
 
 if [ -z "$MSG" ]; then echo "❌ Error: Commit message required."; exit 1; fi
 
+# 0. Project Guard (Quick Check)
+echo "🛡️  Running Project Guard..."
+node scripts/guard/index.js
+
 # 1. Versioning (Keep the build count accurate)
 echo "🔢 Incrementing build..."
 node scripts/increment-build.js

@@ -109,7 +109,7 @@ module SceneItem = {
           <div className="absolute inset-0 bg-gradient-to-r from-slate-950/40 to-transparent" />
 
           <div
-            className="absolute top-1 left-1 px-1 py-0.5 rounded bg-slate-950/70 backdrop-blur-md text-[8px] font-semibold text-white border border-white/10 z-10"
+            className="absolute top-1 left-1 px-1 py-0.5 rounded bg-slate-950/70 backdrop-blur-md text-[10px] font-semibold text-white border border-white/10 z-10"
           >
             {React.int(index + 1)}
           </div>
@@ -138,7 +138,7 @@ module SceneItem = {
                 className="flex items-center gap-1 text-slate-400 group-hover:text-primary transition-colors shrink-0"
               >
                 <LucideIcons.Link size=10 />
-                <span className="text-[9px] font-semibold">
+                <span className="text-[10px] font-semibold">
                   {React.int(Array.length(scene.hotspots))}
                 </span>
               </div>
@@ -158,7 +158,7 @@ module SceneItem = {
               </div>
             </div>
             <span
-              className={`text-[8px] font-semibold uppercase tracking-wide leading-none ${if (
+              className={`text-[10px] font-semibold uppercase tracking-wide leading-none ${if (
                   isLowQuality
                 ) {
                   "text-danger"
