@@ -78,6 +78,16 @@ describe("LucideIcons", () => {
     t->expect(el)->Expect.toBe(el)
   })
 
+  test("ChevronUp icon binding", t => {
+    let el = <LucideIcons.ChevronUp />
+    t->expect(el)->Expect.toBe(el)
+  })
+
+  test("ChevronsUp icon binding", t => {
+    let el = <LucideIcons.ChevronsUp />
+    t->expect(el)->Expect.toBe(el)
+  })
+
   test("Plus icon binding", t => {
     let el = <LucideIcons.Plus />
     t->expect(el)->Expect.toBe(el)
@@ -175,6 +185,26 @@ describe("LucideIcons", () => {
 
   test("Camera icon binding", t => {
     let el = <LucideIcons.Camera />
+    t->expect(el)->Expect.toBe(el)
+  })
+
+  test("Sparkles icon binding", t => {
+    let el = <LucideIcons.Sparkles />
+    t->expect(el)->Expect.toBe(el)
+  })
+
+  test("BarChart3 icon binding", t => {
+    let el = <LucideIcons.BarChart3 />
+    t->expect(el)->Expect.toBe(el)
+  })
+
+  test("Copy icon binding", t => {
+    let el = <LucideIcons.Copy />
+    t->expect(el)->Expect.toBe(el)
+  })
+
+  test("Flag icon binding", t => {
+    let el = <LucideIcons.Flag />
     t->expect(el)->Expect.toBe(el)
   })
 
