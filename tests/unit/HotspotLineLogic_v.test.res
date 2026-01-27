@@ -130,6 +130,24 @@ describe("HotspotLineLogic", () => {
         }
       },
     )
+
+    test(
+      "should return None if point is behind camera (yaw diff > 90)",
+      t => {
+        let mockViewer: ReBindings.Viewer.t = Obj.magic({
+          "isLoaded": () => true,
+          "getHfov": () => 90.0,
+          "getYaw": () => 0.0,
+          "getPitch": () => 0.0,
+        })
+        ViewerPool.registerInstance("panorama-a", mockViewer)
+
+        let cam = getCamState(mockViewer, rect)
+        // Target at 180 degrees yaw (directly behind)
+        let coords = getScreenCoords(cam, 0.0, 180.0, rect)
+        t->expect(coords)->Expect.toBe(None)
+      },
+    )
   })
 
   describe("SVG Drawing", () => {
