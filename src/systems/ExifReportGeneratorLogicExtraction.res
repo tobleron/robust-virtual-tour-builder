@@ -32,6 +32,9 @@ let extractAllExif = async (sceneDataList: array<sceneDataItem>) => {
               {
                 exif: meta,
                 quality: q,
+                isOptimized: false,
+                checksum: "",
+                suggestedName: Nullable.null,
               }
             } else {
               // Metadata present but NO GPS - try local extraction to see if we can find it
@@ -40,6 +43,9 @@ let extractAllExif = async (sceneDataList: array<sceneDataItem>) => {
               | Ok((exif, _pano)) => {
                   exif: exif, // This might have the GPS we missed
                   quality: defaultQuality("GPS recovered locally"),
+                  isOptimized: false,
+                  checksum: "",
+                  suggestedName: Nullable.null,
                 }
               | Error(_) => {
                   // Local failed too, use what we have
@@ -50,6 +56,9 @@ let extractAllExif = async (sceneDataList: array<sceneDataItem>) => {
                   {
                     exif: meta,
                     quality: q,
+                    isOptimized: false,
+                    checksum: "",
+                    suggestedName: Nullable.null,
                   }
                 }
               }
@@ -62,10 +71,16 @@ let extractAllExif = async (sceneDataList: array<sceneDataItem>) => {
           | Ok((exif, _pano)) => {
               exif: exif,
               quality: defaultQuality("Extracted locally"),
+              isOptimized: false,
+              checksum: "",
+              suggestedName: Nullable.null,
             }
           | Error(msg) => {
               exif: defaultExif,
               quality: defaultQuality("Local extraction failed: " ++ msg),
+              isOptimized: false,
+              checksum: "error",
+              suggestedName: Nullable.null,
             }
           }
         }
