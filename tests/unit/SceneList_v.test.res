@@ -180,4 +180,91 @@ describe("SceneList", () => {
 
     Dom.removeElement(container)
   })
+
+  testAsync("should have drag attributes and quality indicator classes", async t => {
+    let container = Dom.createElement("div")
+    Dom.appendChild(Dom.documentBody, container)
+
+    let s1 = {
+      ...createScene("1", "LowQualityScene"),
+      quality: Some(
+        {
+          "score": 5.0,
+          "features": [],
+          "is_panorama": true,
+          "width": 100,
+          "height": 50,
+          "avg_color": "#000000",
+        }->Obj.magic,
+      ),
+    }
+
+    let mockState = {
+      ...State.initialState,
+      scenes: [s1],
+    }
+    let mockDispatch = _ => ()
+
+    let root = ReactDOMClient.createRoot(container)
+    ReactDOMClient.Root.render(root, <WrappedSceneList mockState mockDispatch />)
+
+    await wait(100)
+
+    let item = Dom.querySelector(container, ".scene-item")
+    switch Nullable.toOption(item) {
+    | Some(el) =>
+      t->expect(Dom.getAttribute(el, "draggable"))->Expect.toBe("true")
+
+      let qualityText = Dom.querySelector(el, ".text-danger")
+      // Should be text-danger because score 5.0 < 6.5
+      t->expect(Belt.Option.isSome(Nullable.toOption(qualityText)))->Expect.toBe(true)
+    | None => t->expect(true)->Expect.toBe(false)
+    }
+
+    Dom.removeElement(container)
+  })
+
+  testAsync("menu interactions should trigger correct actions", async t => {
+    let container = Dom.createElement("div")
+    Dom.appendChild(Dom.documentBody, container)
+
+    let s1 = createScene("1", "Scene 1")
+    let mockState = {
+      ...State.initialState,
+      scenes: [s1],
+    }
+    let lastAction = ref(None)
+    let mockDispatch = action => lastAction.contents = Some(action)
+
+    let root = ReactDOMClient.createRoot(container)
+    ReactDOMClient.Root.render(root, <WrappedSceneList mockState mockDispatch />)
+
+    await wait(100)
+
+    // Open menu
+    let menuBtn = Dom.querySelector(container, "[aria-label='Actions for Scene 1']")
+    switch Nullable.toOption(menuBtn) {
+    | Some(btn) => Dom.click(btn)
+    | None => t->expect(false)->Expect.toBe(true)
+    }
+    await wait(50)
+
+    // We need to query the document body for the dropdown content
+    let deleteBtn = %raw(`document.body.querySelector(".text-danger.cursor-pointer")`)
+
+    switch Nullable.toOption(deleteBtn) {
+    | Some(btn) =>
+      Dom.click(btn)
+      // SceneItem has 800ms delay
+      await wait(900)
+
+      switch lastAction.contents {
+      | Some(Actions.DeleteScene(index)) => t->expect(index)->Expect.toBe(0)
+      | _ => t->expect("DeleteScene")->Expect.toBe("Dispatched")
+      }
+    | None => t->expect("Menu Open")->Expect.toBe("Failed")
+    }
+
+    Dom.removeElement(container)
+  })
 })
