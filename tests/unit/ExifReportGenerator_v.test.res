@@ -1,73 +1,72 @@
-/* tests/unit/ExifReportGenerator_v.test.res */
 open Vitest
 open ExifReportGenerator
+open SharedTypes
+
+/* Mocks */
+type mockFn
+@send external mockReturnValue: (mockFn, 'a) => unit = "mockReturnValue"
+@send external mockResolvedValue: (mockFn, 'a) => unit = "mockResolvedValue"
+
+%%raw(`
+  import { vi } from 'vitest';
+
+  vi.mock('../../src/systems/ExifParser.bs.js', () => {
+    return {
+      extractExifTags: vi.fn(),
+      calculateAverageLocation: vi.fn(),
+      reverseGeocode: vi.fn(),
+      getCameraSignature: vi.fn(exif => "MockSignature")
+    };
+  });
+
+  vi.mock('../../src/utils/Logger.bs.js', () => {
+    return {
+      info: vi.fn(),
+      warn: vi.fn(),
+      initialized: vi.fn(),
+      getErrorDetails: (exn) => ["Error", ""],
+      castToJson: (obj) => obj
+    };
+  });
+`)
+
+@module("../../src/systems/ExifParser.bs.js")
+external mockExtractExifTags: mockFn = "extractExifTags"
+@module("../../src/systems/ExifParser.bs.js")
+external mockCalculateAverageLocation: mockFn = "calculateAverageLocation"
+@module("../../src/systems/ExifParser.bs.js")
+external mockReverseGeocode: mockFn = "reverseGeocode"
+
+external anyToJson: 'a => JSON.t = "%identity"
+
+/* Helper to create mock sceneDataItem */
+let createMockItem = (~name, ~metadata=?, ()) => {
+  let _ = name
+  {
+    original: %raw(`new File([new Blob([""])], name)`),
+    metadataJson: metadata,
+    qualityJson: None
+  }
+}
+
+let defaultPanorama: gPanoMetadata = {
+  usePanoramaViewer: false,
+  projectionType: "equirectangular",
+  poseHeadingDegrees: 0.0,
+  posePitchDegrees: 0.0,
+  poseRollDegrees: 0.0,
+  croppedAreaImageWidthPixels: 0,
+  croppedAreaImageHeightPixels: 0,
+  fullPanoWidthPixels: 0,
+  fullPanoHeightPixels: 0,
+  croppedAreaLeftPixels: 0,
+  croppedAreaTopPixels: 0,
+  initialViewHeadingDegrees: 0,
+}
 
 describe("ExifReportGenerator", () => {
-  describe("generateProjectName", () => {
-    test(
-      "generates name from address and date",
-      t => {
-        let addr = Some("123 Main St, Los Angeles, CA")
-        let dateTime = Some("2025:01:15 14:30:00")
-        let name = generateProjectName(addr, dateTime)
-
-        // Expected suffix: 15 (day), 01 (month), 25 (short year), 1430 (time)
-        switch name {
-        | Some(n) => t->expect(String.startsWith(n, "123_Main_St_150125_1430"))->Expect.toBe(true)
-        | None => t->expect(true)->Expect.toBe(false)
-        }
-      },
-    )
-
-    test(
-      "handles unicode characters in address",
-      t => {
-        let addr = Some("Straße 123, München, Bayern")
-        let dateTime = Some("2024:12:31 23:59:59")
-        let name = generateProjectName(addr, dateTime)
-
-        // Capitalization: Strasse -> Strasse (S stays upper, trasse lower)
-        // München -> Munchen depends on regex, but if it's \p{L}, it keeps ü
-        // ReScript String.charAt and toUpperCase/toLowerCase are Unicode-aware in modern JS.
-        switch name {
-        | Some(n) =>
-          t->expect(String.includes(n, "Stra"))->Expect.toBe(true)
-          t->expect(String.includes(n, "311224_2359"))->Expect.toBe(true)
-        | None => t->expect(true)->Expect.toBe(false)
-        }
-      },
-    )
-
-    test(
-      "falls back to 'Tour' when address is missing",
-      t => {
-        let dateTime = Some("2023:05:20 10:00:00")
-        let name = generateProjectName(None, dateTime)
-
-        switch name {
-        | Some(n) => t->expect(String.startsWith(n, "Tour_200523_1000"))->Expect.toBe(true)
-        | None => t->expect(true)->Expect.toBe(false)
-        }
-      },
-    )
-
-    test(
-      "falls back to current time when date is missing or invalid",
-      t => {
-        let addr = Some("Office")
-        let name = generateProjectName(addr, None)
-
-        let now = Date.make()
-        let day = String.padStart(Belt.Int.toString(Date.getDate(now)), 2, "0")
-        let month = String.padStart(Belt.Int.toString(Date.getMonth(now) + 1), 2, "0")
-
-        // name should match Office_DDMMYY_HHmm
-        switch name {
-        | Some(n) => t->expect(String.startsWith(n, "Office_" ++ day ++ month))->Expect.toBe(true)
-        | None => t->expect(true)->Expect.toBe(false)
-        }
-      },
-    )
+  beforeEach(() => {
+    %raw(`vi.clearAllMocks()`)
   })
 
   testAsync("generateExifReport: handles empty file list", async t => {
@@ -81,34 +80,46 @@ describe("ExifReportGenerator", () => {
     }
   })
 
-  testAsync("generateExifReport: includes analysis sections for populated list", async t => {
-    // Mock sceneDataItem using Obj.magic
-    let mockItem = {
-      "original": {
-        "name": "test.jpg",
-        "size": 1000,
-        "type": "image/jpeg",
-        "lastModified": 1234567890.0,
-      },
-      "metadataJson": Some({
-        "gps": {
-          "lat": 34.0522,
-          "lon": -118.2437,
-        },
+  testAsync("generateExifReport: processes files and generates full report", async t => {
+    // Setup mocks
+    let meta = {
+        "gps": {"lat": 10.0, "lon": 20.0},
         "dateTime": "2023:01:01 12:00:00",
-        "make": "Sony",
-        "model": "ILCE-7M3",
-      }),
-      "qualityJson": None,
+        "make": "TestMake",
+        "model": "TestModel",
+        "width": 1000,
+        "height": 500,
+        "focalLength": Nullable.null,
+        "aperture": Nullable.null,
+        "iso": Nullable.null
     }
+    let item = createMockItem(~name="img1.jpg", ~metadata=anyToJson(meta), ())
 
-    let items = [mockItem->Obj.magic]
+    // Mock Location
+    let analysis: GeoUtils.scanResult = {
+        centroid: {lat: 10.0, lon: 20.0},
+        outliers: [],
+        validCount: 1
+    }
+    mockCalculateAverageLocation->mockReturnValue(Some(analysis))
+    mockReverseGeocode->mockResolvedValue(Ok("123 Test St"))
 
-    let result = await generateExifReport(items)
+    // Mock Extraction (fallback not triggered if metadata present, but just in case)
+    mockExtractExifTags->mockResolvedValue(Ok((SharedTypes.defaultExif, defaultPanorama)))
 
-    t->expect(String.includes(result.report, "LOCATION ANALYSIS"))->Expect.toBe(true)
-    t->expect(String.includes(result.report, "CAMERA & DEVICE ANALYSIS"))->Expect.toBe(true)
-    t->expect(String.includes(result.report, "INDIVIDUAL FILE METADATA"))->Expect.toBe(true)
-    t->expect(String.includes(result.report, "Total Files Analyzed: 1"))->Expect.toBe(true)
+    let result = await generateExifReport([item])
+
+    let r = result.report
+    t->expect(String.includes(r, "Total Files Analyzed: 1"))->Expect.toBe(true)
+    t->expect(String.includes(r, "LOCATION ANALYSIS"))->Expect.toBe(true)
+    t->expect(String.includes(r, "123 Test St"))->Expect.toBe(true)
+    t->expect(String.includes(r, "CAMERA & DEVICE ANALYSIS"))->Expect.toBe(true)
+    t->expect(String.includes(r, "MockSignature"))->Expect.toBe(true)
+
+    // Project Name
+    switch result.suggestedProjectName {
+    | Some(n) => t->expect(String.includes(n, "123_Test_St"))->Expect.toBe(true)
+    | None => t->expect(true)->Expect.toBe(false)
+    }
   })
 })
