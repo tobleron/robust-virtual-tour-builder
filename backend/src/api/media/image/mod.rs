@@ -4,8 +4,8 @@ use actix_multipart::Multipart;
 use actix_web::{HttpResponse, web};
 use std::time::Instant;
 
-use crate::models::{AppError, MetadataResponse};
 use crate::metrics::{IMAGE_PROCESSING_DURATION, IMAGE_PROCESSING_TOTAL, UPLOAD_BYTES_TOTAL};
+use crate::models::{AppError, MetadataResponse};
 
 mod image_logic;
 mod image_utils;
@@ -18,7 +18,7 @@ use image_utils::*;
 pub async fn process_image_full(payload: Multipart) -> Result<HttpResponse, AppError> {
     let multipart_data = read_multipart_image(payload).await?;
     let total_size = multipart_data.data.len();
-    
+
     // Metrics: Record upload size
     UPLOAD_BYTES_TOTAL.inc_by(total_size as f64);
 
@@ -67,11 +67,10 @@ pub async fn optimize_image(payload: Multipart) -> Result<HttpResponse, AppError
     // Metrics
     UPLOAD_BYTES_TOTAL.inc_by(total_size as f64);
 
-    let result_bytes = web::block(move || -> Result<Vec<u8>, String> {
-        optimize_image_sync(multipart_data.data)
-    })
-    .await
-    .map_err(|e| AppError::InternalError(e.to_string()))?;
+    let result_bytes =
+        web::block(move || -> Result<Vec<u8>, String> { optimize_image_sync(multipart_data.data) })
+            .await
+            .map_err(|e| AppError::InternalError(e.to_string()))?;
 
     let duration = start.elapsed().as_millis();
     match result_bytes {

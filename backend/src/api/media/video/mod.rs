@@ -46,11 +46,9 @@ pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, App
 
     tracing::info!(module = "VideoEncoder", input = %input_str, output = %output_str, "TRANSCODE_START");
 
-    let result = web::block(move || {
-        transcode_video_sync(input_str, output_str)
-    })
-    .await
-    .map_err(|e| AppError::InternalError(e.to_string()))?;
+    let result = web::block(move || transcode_video_sync(input_str, output_str))
+        .await
+        .map_err(|e| AppError::InternalError(e.to_string()))?;
 
     match result {
         Ok(path) => {
@@ -83,8 +81,13 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
     let duration_limit = 120;
 
     while let Some(mut field) = payload.try_next().await? {
-        let content_disposition = field.content_disposition().cloned()
-            .ok_or(AppError::InternalError("Missing content disposition".into()))?;
+        let content_disposition =
+            field
+                .content_disposition()
+                .cloned()
+                .ok_or(AppError::InternalError(
+                    "Missing content disposition".into(),
+                ))?;
         let name = content_disposition.get_name().unwrap_or("").to_string();
 
         if name == "project_data" {
@@ -98,7 +101,9 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
             while let Some(chunk) = field.try_next().await? {
                 bytes.extend_from_slice(&chunk);
             }
-            if let Ok(s) = String::from_utf8(bytes) && let Ok(val) = s.parse::<u32>() {
+            if let Ok(s) = String::from_utf8(bytes)
+                && let Ok(val) = s.parse::<u32>()
+            {
                 width = val;
             }
         } else if name == "height" {
@@ -106,11 +111,15 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
             while let Some(chunk) = field.try_next().await? {
                 bytes.extend_from_slice(&chunk);
             }
-            if let Ok(s) = String::from_utf8(bytes) && let Ok(val) = s.parse::<u32>() {
+            if let Ok(s) = String::from_utf8(bytes)
+                && let Ok(val) = s.parse::<u32>()
+            {
                 height = val;
             }
         } else if name == "files" {
-            let filename = content_disposition.get_filename().map(|f| f.to_string())
+            let filename = content_disposition
+                .get_filename()
+                .map(|f| f.to_string())
                 .unwrap_or_else(|| format!("img_{}.webp", Uuid::new_v4()));
             let sanitized = sanitize_filename(&filename).unwrap_or(filename);
             let file_path = session_path.join(&sanitized);

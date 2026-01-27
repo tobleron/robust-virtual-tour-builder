@@ -64,21 +64,27 @@ pub fn generate_teaser_sync(
         args: vec![
             std::ffi::OsStr::new("--force-device-scale-factor=1.0"),
             std::ffi::OsStr::new("--enable-webgl"),
-            std::ffi::OsStr::new("--ignore-gpu-blacklist")
+            std::ffi::OsStr::new("--ignore-gpu-blacklist"),
         ],
         ..LaunchOptions::default()
-    }).map_err(|e| format!("Failed to launch browser: {}", e))?;
+    })
+    .map_err(|e| format!("Failed to launch browser: {}", e))?;
 
-    let tab = browser.new_tab().map_err(|e| format!("Failed to create tab: {}", e))?;
+    let tab = browser
+        .new_tab()
+        .map_err(|e| format!("Failed to create tab: {}", e))?;
 
     // 2. Navigate to Frontend
-    tab.navigate_to("http://localhost:8080").map_err(|e| format!("Nav failed: {}", e))?;
-    tab.wait_until_navigated().map_err(|e| format!("Nav timeout: {}", e))?;
+    tab.navigate_to("http://localhost:8080")
+        .map_err(|e| format!("Nav failed: {}", e))?;
+    tab.wait_until_navigated()
+        .map_err(|e| format!("Nav timeout: {}", e))?;
 
     // 3. Inject Project Data & Loader Script
     let json_str = serde_json::to_string(&project_data)
         .map_err(|e| format!("Failed to serialize project data: {}", e))?;
-    let script = format!(r#"
+    let script = format!(
+        r#"
         (async function() {{
             try {{
                 const data = {};
@@ -112,9 +118,12 @@ pub fn generate_teaser_sync(
                 window.HEADLESS_ERROR = e.toString();
             }}
         }})();
-    "#, json_str, session_id);
+    "#,
+        json_str, session_id
+    );
 
-    tab.evaluate(&script, false).map_err(|e| format!("Injection failed: {}", e))?;
+    tab.evaluate(&script, false)
+        .map_err(|e| format!("Injection failed: {}", e))?;
 
     // Wait for ready
     let start_wait = std::time::Instant::now();
@@ -123,11 +132,15 @@ pub fn generate_teaser_sync(
             return Err("Timeout waiting for project load".to_string());
         }
         let val = tab.evaluate("window.HEADLESS_READY", false);
-        if let Ok(v) = val && v.value.and_then(|x| x.as_bool()).unwrap_or(false) {
+        if let Ok(v) = val
+            && v.value.and_then(|x| x.as_bool()).unwrap_or(false)
+        {
             break;
         }
         let err_val = tab.evaluate("window.HEADLESS_ERROR", false);
-        if let Ok(v) = err_val && let Some(msg) = v.value.and_then(|x| x.as_str().map(|s| s.to_string())) {
+        if let Ok(v) = err_val
+            && let Some(msg) = v.value.and_then(|x| x.as_str().map(|s| s.to_string()))
+        {
             return Err(format!("Headless Client Error: {}", msg));
         }
         std::thread::sleep(Duration::from_millis(500));
@@ -136,7 +149,10 @@ pub fn generate_teaser_sync(
     // 4. Start FFmpeg Process
     let local_ffmpeg = PathBuf::from("./bin/ffmpeg");
     let ffmpeg_cmd = if local_ffmpeg.exists() {
-        local_ffmpeg.to_str().ok_or("Invalid ffmpeg path encoding".to_string())?.to_string()
+        local_ffmpeg
+            .to_str()
+            .ok_or("Invalid ffmpeg path encoding".to_string())?
+            .to_string()
     } else {
         "ffmpeg".to_string()
     };
@@ -144,15 +160,23 @@ pub fn generate_teaser_sync(
     let mut child = Command::new(&ffmpeg_cmd)
         .args([
             "-y",
-            "-f", "image2pipe",
-            "-vcodec", "png",
-            "-r", "30",
-            "-i", "-",
-            "-c:v", "libx264",
-            "-preset", "ultrafast",
-            "-pix_fmt", "yuv420p",
-            "-movflags", "+faststart",
-            &output_str
+            "-f",
+            "image2pipe",
+            "-vcodec",
+            "png",
+            "-r",
+            "30",
+            "-i",
+            "-",
+            "-c:v",
+            "libx264",
+            "-preset",
+            "ultrafast",
+            "-pix_fmt",
+            "yuv420p",
+            "-movflags",
+            "+faststart",
+            &output_str,
         ])
         .stdin(std::process::Stdio::piped())
         .stderr(std::process::Stdio::inherit())
@@ -175,11 +199,19 @@ pub fn generate_teaser_sync(
         }
 
         let active = tab.evaluate("window.isAutoPilotActive()", false);
-        if let Ok(v) = active && !v.value.and_then(|x| x.as_bool()).unwrap_or(true) {
+        if let Ok(v) = active
+            && !v.value.and_then(|x| x.as_bool()).unwrap_or(true)
+        {
             break;
         }
 
-        let png_data = tab.capture_screenshot(headless_chrome::protocol::cdp::Page::CaptureScreenshotFormatOption::Png, None, None, true)
+        let png_data = tab
+            .capture_screenshot(
+                headless_chrome::protocol::cdp::Page::CaptureScreenshotFormatOption::Png,
+                None,
+                None,
+                true,
+            )
             .map_err(|e| format!("Screenshot failed: {}", e))?;
 
         if let Err(_) = stdin.write_all(&png_data) {

@@ -5,9 +5,9 @@ use std::io::{Cursor, Write};
 use std::time::Instant;
 use zip::write::FileOptions;
 
+use crate::api::utils::{PROCESSED_IMAGE_WIDTH, WEBP_QUALITY};
 use crate::models::MetadataResponse;
 use crate::services::media;
-use crate::api::utils::{PROCESSED_IMAGE_WIDTH, WEBP_QUALITY};
 
 pub fn process_image_full_sync(
     data: Vec<u8>,
@@ -29,8 +29,7 @@ pub fn process_image_full_sync(
         })?;
 
     let format = reader.format().ok_or_else(|| {
-        "Unsupported or invalid image format. Please upload JPEG, PNG, WebP, or HEIC."
-            .to_string()
+        "Unsupported or invalid image format. Please upload JPEG, PNG, WebP, or HEIC.".to_string()
     })?;
 
     tracing::info!(

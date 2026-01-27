@@ -1,17 +1,15 @@
 /* backend/src/api/project/storage/storage_logic.rs */
 
+use crate::api::utils::{PROCESSED_IMAGE_WIDTH, WEBP_QUALITY, get_session_path};
+use crate::models::ValidationReport;
+use crate::services::project;
 use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::io::Write;
 use std::path::PathBuf;
 use zip::write::FileOptions;
-use crate::models::{ValidationReport};
-use crate::services::project;
-use crate::api::utils::{PROCESSED_IMAGE_WIDTH, WEBP_QUALITY, get_session_path};
 
-pub fn generate_project_summary(
-    project_data: &serde_json::Value,
-) -> Result<String, String> {
+pub fn generate_project_summary(project_data: &serde_json::Value) -> Result<String, String> {
     let tour_name = project_data["tourName"]
         .as_str()
         .unwrap_or("Untitled Tour")
@@ -204,8 +202,8 @@ pub fn validate_project_full_sync(
     temp_images: Vec<(String, PathBuf)>,
     session_id: Option<String>,
 ) -> Result<(String, ValidationReport, String), String> {
-    let project_data: serde_json::Value = serde_json::from_str(&json_content)
-        .map_err(|e| format!("Invalid project JSON: {}", e))?;
+    let project_data: serde_json::Value =
+        serde_json::from_str(&json_content).map_err(|e| format!("Invalid project JSON: {}", e))?;
 
     let summary = generate_project_summary(&project_data)?;
 
@@ -235,8 +233,8 @@ pub fn validate_project_full_sync(
     let (mut validated_project, report) =
         project::validate_and_clean_project(project_data, &available_files)?;
 
-    validated_project["validationReport"] = serde_json::to_value(&report)
-        .map_err(|e| format!("Failed to serialize report: {}", e))?;
+    validated_project["validationReport"] =
+        serde_json::to_value(&report).map_err(|e| format!("Failed to serialize report: {}", e))?;
 
     let updated_json =
         serde_json::to_string_pretty(&validated_project).map_err(|e| e.to_string())?;

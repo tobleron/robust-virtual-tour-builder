@@ -1,11 +1,11 @@
 /* backend/src/services/media/webp.rs */
 
+use crate::models::MetadataResponse;
 use bytes::Bytes;
 use image::DynamicImage;
 use img_parts::riff::{RiffChunk, RiffContent};
 use img_parts::webp::WebP;
 use std::io::Cursor;
-use crate::models::{MetadataResponse};
 
 pub fn encode_webp(img: &DynamicImage, quality: f32) -> Result<Vec<u8>, String> {
     let (w, h) = (img.width(), img.height());

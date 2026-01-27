@@ -22,7 +22,8 @@ module Fetch = {
 
   @send external json: response => Promise.t<'a> = "json"
   @send external text: response => Promise.t<string> = "text"
-  @send external arrayBuffer: response => Promise.t<BrowserBindings.BrowserArrayBuffer.t> = "arrayBuffer"
+  @send
+  external arrayBuffer: response => Promise.t<BrowserBindings.BrowserArrayBuffer.t> = "arrayBuffer"
   @send external blob: response => Promise.t<BrowserBindings.Blob.t> = "blob"
   @get external ok: response => bool = "ok"
   @get external status: response => int = "status"
