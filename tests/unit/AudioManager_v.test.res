@@ -34,10 +34,10 @@ describe("AudioManager - Click Sounds & WebAudio", () => {
   beforeEach(() => {
     let _ = %raw(`vi.clearAllMocks()`)
     // Reset internal state - normally we'd expose a reset function, but for now we use Obj.magic
-    isInitialized := false
-    audioContext := None
-    clickBuffer := None
-    clickAudioRef := None
+    isInitialized.contents = false
+    audioContext.contents = None
+    clickBuffer.contents = None
+    clickAudioRef.contents = None
   })
 
   test("init sets isInitialized and creates context", t => {
@@ -63,7 +63,7 @@ describe("AudioManager - Click Sounds & WebAudio", () => {
 
     // Manually push a buffer as if it succeeded
     let mockBuffer: audioBuffer = Obj.magic({"length": 100})
-    clickBuffer := Some(mockBuffer)
+    clickBuffer.contents = Some(mockBuffer)
 
     playTick()
 
