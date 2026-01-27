@@ -10,15 +10,17 @@ describe("ViewerPool", () => {
   beforeEach(() => {
     // Reset pool state manually since we can't re-initialize the module
     // The pool is hardcoded with 2 items in ViewerPool.res
-    pool->Belt.Array.forEach(v => {
-      v.instance = None
-      v.cleanupTimeout = None
-      if v.id == "primary-a" {
-        v.status = #Active
-      } else {
-        v.status = #Background
-      }
-    })
+    pool->Belt.Array.forEach(
+      v => {
+        v.instance = None
+        v.cleanupTimeout = None
+        if v.id == "primary-a" {
+          v.status = #Active
+        } else {
+          v.status = #Background
+        }
+      },
+    )
   })
 
   test("getViewport should return correct viewport by id", t => {

@@ -328,10 +328,7 @@ describe("SimulationLogic", () => {
       ...baseScene,
       id: "s1",
       name: "Scene 1",
-      hotspots: [
-        createHotspot("Scene 2", false), // Leading to visited scene
-        createHotspot("Scene 3", false), // Leading to unvisited scene
-      ],
+      hotspots: [createHotspot("Scene 2", false), createHotspot("Scene 3", false)], // Leading to visited scene // Leading to unvisited scene
     }
     let scene2: scene = {...baseScene, id: "s2", name: "Scene 2", hotspots: []}
     let scene3: scene = {...baseScene, id: "s3", name: "Scene 3", hotspots: []}
@@ -348,10 +345,8 @@ describe("SimulationLogic", () => {
 
     let move = getNextMove(state)
     switch move {
-    | Move(m) => {
-        // Should pick Scene 3 (index 2)
-        t->expect(m.targetIndex)->Expect.toBe(2)
-      }
+    | Move(m) => // Should pick Scene 3 (index 2)
+      t->expect(m.targetIndex)->Expect.toBe(2)
     | _ => t->expect("Move")->Expect.toBe("Something else")
     }
   })

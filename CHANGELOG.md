@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Decompose Schemas.res and update MAP.md classifications
 - Update GEMINI.md with MAP.md integrity rule
+- Finalized and cleaned up batch of unified test tasks (802-820)
 
 ## [4.8.7] - 2026-01-27
 

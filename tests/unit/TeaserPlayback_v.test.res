@@ -14,12 +14,17 @@ type expectation
 @send external toHaveBeenCalledWith: (expectation, 'a) => unit = "toHaveBeenCalledWith"
 
 /* Mocks */
-@module("../../src/systems/TeaserRecorder.bs.js") external mockStartRecording: mockFn = "startRecording"
-@module("../../src/systems/TeaserRecorder.bs.js") external mockPauseRecording: mockFn = "pauseRecording"
-@module("../../src/systems/TeaserRecorder.bs.js") external mockResumeRecording: mockFn = "resumeRecording"
+@module("../../src/systems/TeaserRecorder.bs.js")
+external mockStartRecording: mockFn = "startRecording"
+@module("../../src/systems/TeaserRecorder.bs.js")
+external mockPauseRecording: mockFn = "pauseRecording"
+@module("../../src/systems/TeaserRecorder.bs.js")
+external mockResumeRecording: mockFn = "resumeRecording"
 @module("../../src/systems/TeaserRecorder.bs.js") external mockSetSnapshot: mockFn = "setSnapshot"
-@module("../../src/systems/TeaserRecorder.bs.js") external mockGetGhostCanvas: mockFn = "getGhostCanvas"
-@module("../../src/systems/TeaserRecorder.bs.js") external mockSetFadeOpacity: mockFn = "setFadeOpacity"
+@module("../../src/systems/TeaserRecorder.bs.js")
+external mockGetGhostCanvas: mockFn = "getGhostCanvas"
+@module("../../src/systems/TeaserRecorder.bs.js")
+external mockSetFadeOpacity: mockFn = "setFadeOpacity"
 
 @module("../../src/core/GlobalStateBridge.bs.js") external mockGetState: mockFn = "getState"
 @module("../../src/core/GlobalStateBridge.bs.js") external mockDispatch: mockFn = "dispatch"
@@ -82,18 +87,18 @@ describe("TeaserPlayback", () => {
 
     // Setup Default State
     mockGetState->mockReturnValue({
-        "scenes": [
-            {
-                "id": "scene1",
-                "name": "Scene 1",
-                "file": null // Simplified
-            },
-            {
-                "id": "scene2",
-                "name": "Scene 2",
-                "file": null
-            }
-        ]
+      "scenes": [
+        {
+          "id": "scene1",
+          "name": "Scene 1",
+          "file": null, // Simplified
+        },
+        {
+          "id": "scene2",
+          "name": "Scene 2",
+          "file": null,
+        },
+      ],
     })
 
     // Setup Viewer
@@ -102,14 +107,14 @@ describe("TeaserPlayback", () => {
 
   testAsync("prepareFirstScene loads scene and sets orientation", async t => {
     let step: TeaserPathfinder.step = {
-        idx: 0,
-        arrivalView: {yaw: 10.0, pitch: 5.0},
-        transitionTarget: Some({
-          yaw: 0.0,
-          pitch: 0.0,
-          targetName: "scene1",
-          timelineItemId: None
-        })
+      idx: 0,
+      arrivalView: {yaw: 10.0, pitch: 5.0},
+      transitionTarget: Some({
+        yaw: 0.0,
+        pitch: 0.0,
+        targetName: "scene1",
+        timelineItemId: None,
+      }),
     }
 
     // Mock getScene to return something else initially so we can test loading wait?
@@ -130,14 +135,14 @@ describe("TeaserPlayback", () => {
 
   testAsync("transitionToNextShot handles recording pause/resume and fade", async t => {
     let step: TeaserPathfinder.step = {
-        idx: 1,
-        arrivalView: {yaw: 20.0, pitch: 0.0},
-        transitionTarget: Some({
-          yaw: 0.0,
-          pitch: 0.0,
-          targetName: "scene2",
-          timelineItemId: None
-        })
+      idx: 1,
+      arrivalView: {yaw: 20.0, pitch: 0.0},
+      transitionTarget: Some({
+        yaw: 0.0,
+        pitch: 0.0,
+        targetName: "scene2",
+        timelineItemId: None,
+      }),
     }
 
     mockGetGhostCanvas->mockReturnValue(Some(%raw(`{}`)))

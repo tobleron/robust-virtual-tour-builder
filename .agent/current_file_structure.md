@@ -1334,6 +1334,12 @@
 │   │           ├── BackendApi_v.test.cmj
 │   │           ├── BackendApi_v.test.cmt
 │   │           ├── BackendApi_v.test.res
+│   │           ├── Bindings_Unified_v.test.ast
+│   │           ├── Bindings_Unified_v.test.bs.js
+│   │           ├── Bindings_Unified_v.test.cmi
+│   │           ├── Bindings_Unified_v.test.cmj
+│   │           ├── Bindings_Unified_v.test.cmt
+│   │           ├── Bindings_Unified_v.test.res
 │   │           ├── ColorPalette_v.test.ast
 │   │           ├── ColorPalette_v.test.bs.js
 │   │           ├── ColorPalette_v.test.cmi
@@ -1382,6 +1388,30 @@
 │   │           ├── ExifReportGenerator_v.test.cmj
 │   │           ├── ExifReportGenerator_v.test.cmt
 │   │           ├── ExifReportGenerator_v.test.res
+│   │           ├── ExifReportGeneratorLogicExtraction_v.test.ast
+│   │           ├── ExifReportGeneratorLogicExtraction_v.test.bs.js
+│   │           ├── ExifReportGeneratorLogicExtraction_v.test.cmi
+│   │           ├── ExifReportGeneratorLogicExtraction_v.test.cmj
+│   │           ├── ExifReportGeneratorLogicExtraction_v.test.cmt
+│   │           ├── ExifReportGeneratorLogicExtraction_v.test.res
+│   │           ├── ExifReportGeneratorLogicGroups_v.test.ast
+│   │           ├── ExifReportGeneratorLogicGroups_v.test.bs.js
+│   │           ├── ExifReportGeneratorLogicGroups_v.test.cmi
+│   │           ├── ExifReportGeneratorLogicGroups_v.test.cmj
+│   │           ├── ExifReportGeneratorLogicGroups_v.test.cmt
+│   │           ├── ExifReportGeneratorLogicGroups_v.test.res
+│   │           ├── ExifReportGeneratorLogicLocation_v.test.ast
+│   │           ├── ExifReportGeneratorLogicLocation_v.test.bs.js
+│   │           ├── ExifReportGeneratorLogicLocation_v.test.cmi
+│   │           ├── ExifReportGeneratorLogicLocation_v.test.cmj
+│   │           ├── ExifReportGeneratorLogicLocation_v.test.cmt
+│   │           ├── ExifReportGeneratorLogicLocation_v.test.res
+│   │           ├── ExifReportGeneratorUtils_v.test.ast
+│   │           ├── ExifReportGeneratorUtils_v.test.bs.js
+│   │           ├── ExifReportGeneratorUtils_v.test.cmi
+│   │           ├── ExifReportGeneratorUtils_v.test.cmj
+│   │           ├── ExifReportGeneratorUtils_v.test.cmt
+│   │           ├── ExifReportGeneratorUtils_v.test.res
 │   │           ├── Exporter_v.test.ast
 │   │           ├── Exporter_v.test.bs.js
 │   │           ├── Exporter_v.test.cmi
@@ -1610,6 +1640,12 @@
 │   │           ├── NotificationLayer_v.test.cmj
 │   │           ├── NotificationLayer_v.test.cmt
 │   │           ├── NotificationLayer_v.test.res
+│   │           ├── PannellumAdapter_v.test.ast
+│   │           ├── PannellumAdapter_v.test.bs.js
+│   │           ├── PannellumAdapter_v.test.cmi
+│   │           ├── PannellumAdapter_v.test.cmj
+│   │           ├── PannellumAdapter_v.test.cmt
+│   │           ├── PannellumAdapter_v.test.res
 │   │           ├── PannellumLifecycle_v.test.ast
 │   │           ├── PannellumLifecycle_v.test.bs.js
 │   │           ├── PannellumLifecycle_v.test.cmi
@@ -1682,6 +1718,12 @@
 │   │           ├── ProjectManager_v.test.cmj
 │   │           ├── ProjectManager_v.test.cmt
 │   │           ├── ProjectManager_v.test.res
+│   │           ├── ProjectManagerLogic_v.test.ast
+│   │           ├── ProjectManagerLogic_v.test.bs.js
+│   │           ├── ProjectManagerLogic_v.test.cmi
+│   │           ├── ProjectManagerLogic_v.test.cmj
+│   │           ├── ProjectManagerLogic_v.test.cmt
+│   │           ├── ProjectManagerLogic_v.test.res
 │   │           ├── ProjectReducer_v.test.ast
 │   │           ├── ProjectReducer_v.test.bs.js
 │   │           ├── ProjectReducer_v.test.cmi
@@ -1748,6 +1790,12 @@
 │   │           ├── SceneList_v.test.cmj
 │   │           ├── SceneList_v.test.cmt
 │   │           ├── SceneList_v.test.res
+│   │           ├── SceneLoader_Lifecycle_Unified_v.test.ast
+│   │           ├── SceneLoader_Lifecycle_Unified_v.test.bs.js
+│   │           ├── SceneLoader_Lifecycle_Unified_v.test.cmi
+│   │           ├── SceneLoader_Lifecycle_Unified_v.test.cmj
+│   │           ├── SceneLoader_Lifecycle_Unified_v.test.cmt
+│   │           ├── SceneLoader_Lifecycle_Unified_v.test.res
 │   │           ├── SceneLoader_v.test.ast
 │   │           ├── SceneLoader_v.test.bs.js
 │   │           ├── SceneLoader_v.test.cmi
@@ -2073,6 +2121,12 @@
 │   │           ├── ViewerManager_v.test.cmj
 │   │           ├── ViewerManager_v.test.cmt
 │   │           ├── ViewerManager_v.test.res
+│   │           ├── ViewerPool_v.test.ast
+│   │           ├── ViewerPool_v.test.bs.js
+│   │           ├── ViewerPool_v.test.cmi
+│   │           ├── ViewerPool_v.test.cmj
+│   │           ├── ViewerPool_v.test.cmt
+│   │           ├── ViewerPool_v.test.res
 │   │           ├── ViewerSnapshot_v.test.ast
 │   │           ├── ViewerSnapshot_v.test.bs.js
 │   │           ├── ViewerSnapshot_v.test.cmi
@@ -2180,6 +2234,11 @@
 │   │   ├── BackendApi.cmj
 │   │   ├── BackendApi.cmt
 │   │   ├── BackendApi.res
+│   │   ├── Bindings_Unified_v.test.ast
+│   │   ├── Bindings_Unified_v.test.cmi
+│   │   ├── Bindings_Unified_v.test.cmj
+│   │   ├── Bindings_Unified_v.test.cmt
+│   │   ├── Bindings_Unified_v.test.res
 │   │   ├── BrowserBindings.ast
 │   │   ├── BrowserBindings.cmi
 │   │   ├── BrowserBindings.cmj
@@ -2275,16 +2334,31 @@
 │   │   ├── ExifReportGeneratorLogic.cmj
 │   │   ├── ExifReportGeneratorLogic.cmt
 │   │   ├── ExifReportGeneratorLogic.res
+│   │   ├── ExifReportGeneratorLogicExtraction_v.test.ast
+│   │   ├── ExifReportGeneratorLogicExtraction_v.test.cmi
+│   │   ├── ExifReportGeneratorLogicExtraction_v.test.cmj
+│   │   ├── ExifReportGeneratorLogicExtraction_v.test.cmt
+│   │   ├── ExifReportGeneratorLogicExtraction_v.test.res
 │   │   ├── ExifReportGeneratorLogicExtraction.ast
 │   │   ├── ExifReportGeneratorLogicExtraction.cmi
 │   │   ├── ExifReportGeneratorLogicExtraction.cmj
 │   │   ├── ExifReportGeneratorLogicExtraction.cmt
 │   │   ├── ExifReportGeneratorLogicExtraction.res
+│   │   ├── ExifReportGeneratorLogicGroups_v.test.ast
+│   │   ├── ExifReportGeneratorLogicGroups_v.test.cmi
+│   │   ├── ExifReportGeneratorLogicGroups_v.test.cmj
+│   │   ├── ExifReportGeneratorLogicGroups_v.test.cmt
+│   │   ├── ExifReportGeneratorLogicGroups_v.test.res
 │   │   ├── ExifReportGeneratorLogicGroups.ast
 │   │   ├── ExifReportGeneratorLogicGroups.cmi
 │   │   ├── ExifReportGeneratorLogicGroups.cmj
 │   │   ├── ExifReportGeneratorLogicGroups.cmt
 │   │   ├── ExifReportGeneratorLogicGroups.res
+│   │   ├── ExifReportGeneratorLogicLocation_v.test.ast
+│   │   ├── ExifReportGeneratorLogicLocation_v.test.cmi
+│   │   ├── ExifReportGeneratorLogicLocation_v.test.cmj
+│   │   ├── ExifReportGeneratorLogicLocation_v.test.cmt
+│   │   ├── ExifReportGeneratorLogicLocation_v.test.res
 │   │   ├── ExifReportGeneratorLogicLocation.ast
 │   │   ├── ExifReportGeneratorLogicLocation.cmi
 │   │   ├── ExifReportGeneratorLogicLocation.cmj
@@ -2300,6 +2374,11 @@
 │   │   ├── ExifReportGeneratorTypes.cmj
 │   │   ├── ExifReportGeneratorTypes.cmt
 │   │   ├── ExifReportGeneratorTypes.res
+│   │   ├── ExifReportGeneratorUtils_v.test.ast
+│   │   ├── ExifReportGeneratorUtils_v.test.cmi
+│   │   ├── ExifReportGeneratorUtils_v.test.cmj
+│   │   ├── ExifReportGeneratorUtils_v.test.cmt
+│   │   ├── ExifReportGeneratorUtils_v.test.res
 │   │   ├── ExifReportGeneratorUtils.ast
 │   │   ├── ExifReportGeneratorUtils.cmi
 │   │   ├── ExifReportGeneratorUtils.cmj
@@ -2733,6 +2812,11 @@
 │   │   ├── NotificationLayer.cmj
 │   │   ├── NotificationLayer.cmt
 │   │   ├── NotificationLayer.res
+│   │   ├── PannellumAdapter_v.test.ast
+│   │   ├── PannellumAdapter_v.test.cmi
+│   │   ├── PannellumAdapter_v.test.cmj
+│   │   ├── PannellumAdapter_v.test.cmt
+│   │   ├── PannellumAdapter_v.test.res
 │   │   ├── PannellumAdapter.ast
 │   │   ├── PannellumAdapter.cmi
 │   │   ├── PannellumAdapter.cmj
@@ -2863,6 +2947,11 @@
 │   │   ├── ProjectManager.cmj
 │   │   ├── ProjectManager.cmt
 │   │   ├── ProjectManager.res
+│   │   ├── ProjectManagerLogic_v.test.ast
+│   │   ├── ProjectManagerLogic_v.test.cmi
+│   │   ├── ProjectManagerLogic_v.test.cmj
+│   │   ├── ProjectManagerLogic_v.test.cmt
+│   │   ├── ProjectManagerLogic_v.test.res
 │   │   ├── ProjectManagerLogic.ast
 │   │   ├── ProjectManagerLogic.cmi
 │   │   ├── ProjectManagerLogic.cmj
@@ -3018,6 +3107,11 @@
 │   │   ├── SceneListMain.cmj
 │   │   ├── SceneListMain.cmt
 │   │   ├── SceneListMain.res
+│   │   ├── SceneLoader_Lifecycle_Unified_v.test.ast
+│   │   ├── SceneLoader_Lifecycle_Unified_v.test.cmi
+│   │   ├── SceneLoader_Lifecycle_Unified_v.test.cmj
+│   │   ├── SceneLoader_Lifecycle_Unified_v.test.cmt
+│   │   ├── SceneLoader_Lifecycle_Unified_v.test.res
 │   │   ├── SceneLoader_v.test.ast
 │   │   ├── SceneLoader_v.test.cmi
 │   │   ├── SceneLoader_v.test.cmj
@@ -3663,6 +3757,11 @@
 │   │   ├── ViewerManagerLogic.cmj
 │   │   ├── ViewerManagerLogic.cmt
 │   │   ├── ViewerManagerLogic.res
+│   │   ├── ViewerPool_v.test.ast
+│   │   ├── ViewerPool_v.test.cmi
+│   │   ├── ViewerPool_v.test.cmj
+│   │   ├── ViewerPool_v.test.cmt
+│   │   ├── ViewerPool_v.test.res
 │   │   ├── ViewerPool.ast
 │   │   ├── ViewerPool.cmi
 │   │   ├── ViewerPool.cmj
@@ -5644,6 +5743,25 @@
 │   │   ├── 798_Refactor_Backend_Streaming_ZIP_DONE.md
 │   │   ├── 799_Refactor_Backend_Asset_Sanitization_DONE.md
 │   │   ├── 801_Test_Logger_System_Unified_TESTED.md
+│   │   ├── 802_Test_ExifReport_Pipeline_Unified.md
+│   │   ├── 803_Test_SceneLoader_Lifecycle_Unified.md
+│   │   ├── 804_Test_Sidebar_Components_Unified.md
+│   │   ├── 805_Test_VisualPipeline_System_Unified.md
+│   │   ├── 806_Test_Bindings_Unified.md
+│   │   ├── 807_Test_Simulation_Autopilot_Unified.md
+│   │   ├── 808_Test_Navigation_Graph_Unified.md
+│   │   ├── 809_Test_Teaser_System_Unified.md
+│   │   ├── 810_Test_Tour_Templates_Unified.md
+│   │   ├── 811_Test_Hotspots_Unified.md
+│   │   ├── 812_Test_Viewer_Core_Unified.md
+│   │   ├── 813_Test_Project_Persistence_Unified.md
+│   │   ├── 814_Test_UI_Components_Unified.md
+│   │   ├── 815_Test_Lucide_Icons_Unified.md
+│   │   ├── 816_Test_Utilities_Unified.md
+│   │   ├── 817_Test_App_Core_Infrastructure_Unified.md
+│   │   ├── 818_Test_Media_Services_Unified.md
+│   │   ├── 819_Test_Core_Reducers_Unified.md
+│   │   ├── 820_Test_Visuals_Remaining_Unified.md
 │   │   ├── 821_Aggregate_Completed_Tasks_DONE.md
 │   │   ├── 856_Refactor_ViewerManager_DONE.md
 │   │   ├── 894_Refactor_HotspotLine_DONE.md
@@ -5660,26 +5778,7 @@
 │   │   ├── 1065_Refactor_ViewerManagerLogic.md
 │   │   ├── 1066_Refactor_UploadProcessorLogicLogic.md
 │   │   └── tests
-│   │       ├── 1062_Test_Generation_Unified.md
-│   │       ├── 802_Test_ExifReport_Pipeline_Unified.md
-│   │       ├── 803_Test_SceneLoader_Lifecycle_Unified.md
-│   │       ├── 804_Test_Sidebar_Components_Unified.md
-│   │       ├── 805_Test_VisualPipeline_System_Unified.md
-│   │       ├── 806_Test_Bindings_Unified.md
-│   │       ├── 807_Test_Simulation_Autopilot_Unified.md
-│   │       ├── 808_Test_Navigation_Graph_Unified.md
-│   │       ├── 809_Test_Teaser_System_Unified.md
-│   │       ├── 810_Test_Tour_Templates_Unified.md
-│   │       ├── 811_Test_Hotspots_Unified.md
-│   │       ├── 812_Test_Viewer_Core_Unified.md
-│   │       ├── 813_Test_Project_Persistence_Unified.md
-│   │       ├── 814_Test_UI_Components_Unified.md
-│   │       ├── 815_Test_Lucide_Icons_Unified.md
-│   │       ├── 816_Test_Utilities_Unified.md
-│   │       ├── 817_Test_App_Core_Infrastructure_Unified.md
-│   │       ├── 818_Test_Media_Services_Unified.md
-│   │       ├── 819_Test_Core_Reducers_Unified.md
-│   │       └── 820_Test_Visuals_Remaining_Unified.md
+│   │       └── 1062_Test_Generation_Unified.md
 │   ├── postponed
 │   │   ├── 003_add_seo_structured_data.md
 │   │   ├── 004_document_core_web_vitals.md
@@ -5719,6 +5818,8 @@
 │       ├── AudioManager_v.test.res
 │       ├── BackendApi_v.test.bs.js
 │       ├── BackendApi_v.test.res
+│       ├── Bindings_Unified_v.test.bs.js
+│       ├── Bindings_Unified_v.test.res
 │       ├── ColorPalette_v.test.bs.js
 │       ├── ColorPalette_v.test.res
 │       ├── Components_v.test.setup.jsx
@@ -5737,6 +5838,14 @@
 │       ├── ExifParser_v.test.res
 │       ├── ExifReportGenerator_v.test.bs.js
 │       ├── ExifReportGenerator_v.test.res
+│       ├── ExifReportGeneratorLogicExtraction_v.test.bs.js
+│       ├── ExifReportGeneratorLogicExtraction_v.test.res
+│       ├── ExifReportGeneratorLogicGroups_v.test.bs.js
+│       ├── ExifReportGeneratorLogicGroups_v.test.res
+│       ├── ExifReportGeneratorLogicLocation_v.test.bs.js
+│       ├── ExifReportGeneratorLogicLocation_v.test.res
+│       ├── ExifReportGeneratorUtils_v.test.bs.js
+│       ├── ExifReportGeneratorUtils_v.test.res
 │       ├── Exporter_v.test.bs.js
 │       ├── Exporter_v.test.res
 │       ├── FingerprintService_v.test.bs.js
@@ -5816,6 +5925,8 @@
 │       ├── NotificationContext_v.test.res
 │       ├── NotificationLayer_v.test.bs.js
 │       ├── NotificationLayer_v.test.res
+│       ├── PannellumAdapter_v.test.bs.js
+│       ├── PannellumAdapter_v.test.res
 │       ├── PannellumLifecycle_v.test.bs.js
 │       ├── PannellumLifecycle_v.test.res
 │       ├── PanoramaClusterer_v.test.bs.js
@@ -5840,6 +5951,8 @@
 │       ├── ProjectionMath_v.test.res
 │       ├── ProjectManager_v.test.bs.js
 │       ├── ProjectManager_v.test.res
+│       ├── ProjectManagerLogic_v.test.bs.js
+│       ├── ProjectManagerLogic_v.test.res
 │       ├── ProjectReducer_v.test.bs.js
 │       ├── ProjectReducer_v.test.res
 │       ├── QualityIndicator_v.test.bs.js
@@ -5862,6 +5975,8 @@
 │       ├── SceneHelpers_v.test.res
 │       ├── SceneList_v.test.bs.js
 │       ├── SceneList_v.test.res
+│       ├── SceneLoader_Lifecycle_Unified_v.test.bs.js
+│       ├── SceneLoader_Lifecycle_Unified_v.test.res
 │       ├── SceneLoader_v.test.bs.js
 │       ├── SceneLoader_v.test.res
 │       ├── SceneReducer_v.test.bs.js
@@ -5974,6 +6089,8 @@
 │       ├── ViewerLoader_v.test.res
 │       ├── ViewerManager_v.test.bs.js
 │       ├── ViewerManager_v.test.res
+│       ├── ViewerPool_v.test.bs.js
+│       ├── ViewerPool_v.test.res
 │       ├── ViewerSnapshot_v.test.bs.js
 │       ├── ViewerSnapshot_v.test.res
 │       ├── ViewerState_v.test.bs.js
@@ -5989,4 +6106,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-199 directories, 5791 files
+199 directories, 5908 files

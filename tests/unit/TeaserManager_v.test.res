@@ -16,13 +16,17 @@ type expectation
 
 /* Mocks */
 @module("../../src/systems/TeaserPathfinder.bs.js") external mockGetWalkPath: mockFn = "getWalkPath"
-@module("../../src/systems/TeaserRecorder.bs.js") external mockStartRecording: mockFn = "startRecording"
-@module("../../src/systems/TeaserRecorder.bs.js") external mockStopRecording: mockFn = "stopRecording"
+@module("../../src/systems/TeaserRecorder.bs.js")
+external mockStartRecording: mockFn = "startRecording"
+@module("../../src/systems/TeaserRecorder.bs.js")
+external mockStopRecording: mockFn = "stopRecording"
 @module("../../src/systems/TeaserRecorder.bs.js") external mockLoadLogo: mockFn = "loadLogo"
-@module("../../src/systems/TeaserRecorder.bs.js") external mockStartAnimationLoop: mockFn = "startAnimationLoop"
+@module("../../src/systems/TeaserRecorder.bs.js")
+external mockStartAnimationLoop: mockFn = "startAnimationLoop"
 @module("../../src/core/GlobalStateBridge.bs.js") external mockGetState: mockFn = "getState"
 @module("../../src/core/GlobalStateBridge.bs.js") external mockDispatch: mockFn = "dispatch"
-@module("../../src/systems/ServerTeaser.bs.js") external mockGenerateServerTeaser: mockFn = "generateServerTeaser"
+@module("../../src/systems/ServerTeaser.bs.js")
+external mockGenerateServerTeaser: mockFn = "generateServerTeaser"
 
 %%raw(`
   import { vi } from 'vitest';
@@ -85,7 +89,7 @@ describe("TeaserManager", () => {
     mockGetState->mockReturnValue({
       "scenes": [{"id": "scene1"}, {"id": "scene2"}],
       "tourName": "TestTour",
-      "simulation": {"status": "Idle"}
+      "simulation": {"status": "Idle"},
     })
     mockLoadLogo->mockResolvedValue(%raw("null"))
     mockGetWalkPath->mockResolvedValue(Ok([])) // Empty path for basic test

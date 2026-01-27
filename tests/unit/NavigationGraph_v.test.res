@@ -205,13 +205,7 @@ describe("NavigationGraph", () => {
       {yaw: 30.0, pitch: 0.0, hfov: 100.0},
       {yaw: 60.0, pitch: 0.0, hfov: 100.0},
     ]
-    let h1 = createHotspot(
-      "s2",
-      ~yaw=0.0,
-      ~pitch=0.0,
-      ~waypoints=Some(waypoints),
-      (),
-    )
+    let h1 = createHotspot("s2", ~yaw=0.0, ~pitch=0.0, ~waypoints=Some(waypoints), ())
     let s1 = createScene("s1", [h1])
     let s2 = createScene("s2", [])
     let scenes = [s1, s2]

@@ -7,7 +7,8 @@ type expectation
 @send external toHaveBeenCalledWith: (expectation, 'a) => unit = "toHaveBeenCalledWith"
 @send external toHaveBeenCalledWith2: (expectation, 'a, 'b) => unit = "toHaveBeenCalledWith"
 @send external toHaveBeenCalledWith4: (expectation, 'a, 'b, 'c, 'd) => unit = "toHaveBeenCalledWith"
-@send external toHaveBeenCalledWith5: (expectation, 'a, 'b, 'c, 'd, 'e) => unit = "toHaveBeenCalledWith"
+@send
+external toHaveBeenCalledWith5: (expectation, 'a, 'b, 'c, 'd, 'e) => unit = "toHaveBeenCalledWith"
 
 type mockFn
 @send external mockReturnValue: (mockFn, 'a) => unit = "mockReturnValue"
@@ -27,7 +28,7 @@ describe("PannellumAdapter", () => {
     "destroy": %raw(`vi.fn()`),
     "on": %raw(`vi.fn()`),
     "_sceneId": "initial-id",
-    "_isLoaded": false
+    "_isLoaded": false,
   })
 
   beforeEach(() => {
