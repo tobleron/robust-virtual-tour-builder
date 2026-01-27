@@ -11,9 +11,6 @@ open Types
     status: 200
   });
 
-  globalThis.RequestQueue = {
-    schedule: (fn) => fn()
-  };
 `)
 
 describe("ServerTeaser - Remote Rendering", () => {
