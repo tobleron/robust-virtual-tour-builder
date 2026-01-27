@@ -1,0 +1,13 @@
+# Task 939: Update Unit Tests for AppErrorBoundary.res
+
+## 🚨 Trigger
+Implementation file `src/components/AppErrorBoundary.res` is newer than its test file `tests/unit/AppErrorBoundary_v.test.res`.
+
+## Objective
+Update `tests/unit/AppErrorBoundary_v.test.res` to ensure it covers recent changes in `AppErrorBoundary.res`.
+
+## Requirements
+- Review recent changes in `src/components/AppErrorBoundary.res`.
+- Update tests to maintain 100% coverage of new logic.
+- Follow /testing-standards.md.
+
