@@ -322,4 +322,37 @@ describe("SimulationLogic", () => {
     | _ => t->expect("Complete")->Expect.toBe("Something else")
     }
   })
+
+  test("getNextMove prioritizes unvisited scenes over visited ones", t => {
+    let scene1: scene = {
+      ...baseScene,
+      id: "s1",
+      name: "Scene 1",
+      hotspots: [
+        createHotspot("Scene 2", false), // Leading to visited scene
+        createHotspot("Scene 3", false), // Leading to unvisited scene
+      ],
+    }
+    let scene2: scene = {...baseScene, id: "s2", name: "Scene 2", hotspots: []}
+    let scene3: scene = {...baseScene, id: "s3", name: "Scene 3", hotspots: []}
+
+    let state: state = {
+      ...State.initialState,
+      scenes: [scene1, scene2, scene3],
+      activeIndex: 0,
+      simulation: {
+        ...State.initialState.simulation,
+        visitedScenes: [0, 1], // Scene 1 and 2 are visited, Scene 3 is not
+      },
+    }
+
+    let move = getNextMove(state)
+    switch move {
+    | Move(m) => {
+        // Should pick Scene 3 (index 2)
+        t->expect(m.targetIndex)->Expect.toBe(2)
+      }
+    | _ => t->expect("Move")->Expect.toBe("Something else")
+    }
+  })
 })
