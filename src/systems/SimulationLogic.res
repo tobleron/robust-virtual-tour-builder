@@ -132,10 +132,10 @@ let getNextMove = (state: state): nextMove => {
       }
 
     | None =>
-      Logger.warn(
+      Logger.info(
         ~module_="Simulation",
         ~message="SIM_NO_MOVE_FOUND",
-        ~data=Some({"activeIndex": state.activeIndex}),
+        ~data=Some({"activeIndex": state.activeIndex, "status": "tour_concluded"}),
         (),
       )
       Complete({reason: "no_reachable_scenes"})

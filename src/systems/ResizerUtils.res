@@ -12,6 +12,20 @@ let getChecksum = (file: File.t): Promise.t<string> => {
         const SMALL_FILE_THRESHOLD = 10 * 1024 * 1024;
         const SAMPLE_SIZE = 1024 * 1024;
         let hashBuffer;
+        
+        if (typeof crypto === 'undefined' || !crypto.subtle) {
+            console.warn('[ResizerUtils] crypto.subtle is unavailable. Using weak fallback for fingerprinting.');
+            // Fallback: Weak but deterministic hash of name, size, and last modified
+            const simpleHash = (s) => {
+                let h = 0;
+                for(let i = 0; i < s.length; i++)
+                    h = Math.imul(31, h) + s.charCodeAt(i) | 0;
+                return Math.abs(h).toString(16);
+            };
+            const meta = file.name + "_" + file.size + "_" + file.lastModified;
+            return "weak_" + simpleHash(meta) + "_" + file.size;
+        }
+
         if (file.size <= SMALL_FILE_THRESHOLD) {
             const arrayBuffer = await file.arrayBuffer();
             hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);

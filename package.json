@@ -1,7 +1,7 @@
 {
   "name": "robust-virtual-tour-builder",
   "version": "4.8.8",
-  "buildNumber": 199,
+  "buildNumber": 201,
   "description": "A high-performance, professional-grade virtual tour creation platform designed for real estate and immersive space documentation. This application combines a fluid web-based frontend with a powerful Rust-driven backend to deliver seamless panoramic processing and tour management.",
   "main": "index.js",
   "directories": {
@@ -80,5 +80,10 @@
     "rescript-schema": "^9.3.4",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.4.0"
+  },
+  "overrides": {
+    "rescript-schema": {
+      "rescript": "$rescript"
+    }
   }
 }

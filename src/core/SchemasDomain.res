@@ -2,14 +2,7 @@ open RescriptSchema
 
 open Types
 
-let file = S.string->S.transform(_ => {
-  parser: s => Url(s),
-  serializer: f =>
-    switch f {
-    | Url(s) => s
-    | Blob(_) | File(_) => "" // Should not happen for API responses
-    },
-})
+let file = S.string->(Obj.magic: S.t<string> => S.t<Types.file>)
 
 let viewFrame = S.object(s => {
   {
@@ -37,16 +30,7 @@ let hotspot = S.object(s => {
     waypoints: s.field("waypoints", S.option(S.array(viewFrame))),
     displayPitch: s.field("displayPitch", S.option(S.float)),
     transition: s.field("transition", S.option(S.string)),
-    duration: s.field(
-      "duration",
-      S.option(S.float)
-      ->S.Option.getOr(0.0)
-      ->S.transform(_ => {
-        parser: d => Belt.Float.toInt(d),
-        serializer: i => Belt.Int.toFloat(i),
-      })
-      ->S.option,
-    ),
+    duration: s.field("duration", S.option(S.int)),
   }
 })
 
@@ -61,22 +45,13 @@ let scene = S.object(s => {
     category: s.field("category", S.option(S.string)->S.Option.getOr("outdoor")),
     floor: s.field("floor", S.option(S.string)->S.Option.getOr("ground")),
     label: s.field("label", S.option(S.string)->S.Option.getOr("")),
-    quality: s.field("quality", S.option(S.json(~validate=false))),
+    quality: s.field("quality", S.option(S.unknown->(Obj.magic: S.t<unknown> => S.t<JSON.t>))),
     colorGroup: s.field("colorGroup", S.option(S.string)),
     _metadataSource: s.field("_metadataSource", S.option(S.string)->S.Option.getOr("user")),
     categorySet: s.field("categorySet", S.option(S.bool)->S.Option.getOr(false)),
     labelSet: s.field("labelSet", S.option(S.bool)->S.Option.getOr(false)),
     isAutoForward: s.field("isAutoForward", S.option(S.bool)->S.Option.getOr(false)),
   }
-})->S.transform(_ => {
-  parser: s => {
-    if s.id == "" {
-      {...s, id: "legacy_" ++ s.name}
-    } else {
-      s
-    }
-  },
-  serializer: s => s,
 })
 
 let timelineItem = S.object(s => {
@@ -95,7 +70,10 @@ let project: S.t<Types.project> = S.object(s => {
     tourName: s.field("tourName", S.option(S.string)->S.Option.getOr("Tour Name")),
     scenes: s.field("scenes", S.array(scene)),
     lastUsedCategory: s.field("lastUsedCategory", S.option(S.string)->S.Option.getOr("outdoor")),
-    exifReport: s.field("exifReport", S.option(S.json(~validate=false))),
+    exifReport: s.field(
+      "exifReport",
+      S.option(S.unknown->(Obj.magic: S.t<unknown> => S.t<JSON.t>)),
+    ),
     sessionId: s.field("sessionId", S.option(S.string)),
     deletedSceneIds: s.field("deletedSceneIds", S.option(S.array(S.string))->S.Option.getOr([])),
     timeline: s.field("timeline", S.option(S.array(timelineItem))->S.Option.getOr([])),
@@ -113,7 +91,7 @@ let importScene = S.object(s => {
     category: "outdoor",
     floor: "ground",
     label: "",
-    quality: s.field("quality", S.option(S.json(~validate=false))),
+    quality: s.field("quality", S.option(S.unknown->(Obj.magic: S.t<unknown> => S.t<JSON.t>))),
     colorGroup: s.field("colorGroup", S.option(S.string)),
     _metadataSource: "default",
     categorySet: false,
