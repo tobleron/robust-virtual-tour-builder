@@ -107,4 +107,37 @@ describe("ImageOptimizer - Browser-side Compression", () => {
 
     let _ = %raw(`globalThis.URL.createObjectURL = (f) => "blob:mock"`)
   })
+
+  testAsync("compressToWebP scales down large images", async t => {
+    let _ = %raw(`(() => {
+      globalThis.originalCreateElement = document.createElement;
+      document.createElement = (tag) => {
+        if (tag === 'img') {
+          const img = new MockImage();
+          img.width = 8192;
+          img.height = 4096;
+          return img;
+        }
+        if (tag === 'canvas') {
+           const c = new MockCanvas();
+           globalThis.testCanvas = c;
+           return c;
+        }
+        return {};
+      }
+    })()`)
+
+    let mockFile: File.t = Obj.magic({"size": 20000000})
+    let _ = await compressToWebP(mockFile, 0.8)
+
+    let w = %raw(`globalThis.testCanvas.width`)
+    let h = %raw(`globalThis.testCanvas.height`)
+
+    // Restore
+    let _ = %raw(`document.createElement = globalThis.originalCreateElement`)
+
+    // Should be scaled to max 4096 width, keeping 2:1 ratio => 4096 x 2048
+    t->expect(w)->Expect.toBe(4096)
+    t->expect(h)->Expect.toBe(2048)
+  })
 })

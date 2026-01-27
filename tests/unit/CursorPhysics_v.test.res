@@ -1,10 +1,11 @@
 open Vitest
 open ReBindings
+open ViewerState
 open CursorPhysics
 
 describe("CursorPhysics", () => {
   test("calculateVelocity updates viewer state", t => {
-    // We need to mock ViewerState or ensure it's in a known state
+    // Reset state
     ViewerState.state.lastMoveX = 100.0
     ViewerState.state.lastMoveY = 100.0
     ViewerState.state.lastMoveTime = Date.now() -. 50.0 // 50ms ago

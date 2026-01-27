@@ -85,4 +85,21 @@ describe("ProjectionMath", () => {
     | None => t->expect(false)->Expect.toBe(true)
     }
   })
+
+  test("getScreenCoords checks 180 degree boundary", t => {
+    let cam = ProjectionMath.makeCamState(0.0, 0.0, 90.0, rect)
+    // Directly behind: should return None
+    let coords = ProjectionMath.getScreenCoords(cam, 0.0, 180.0, rect)
+    t->expect(coords)->Expect.toBeNone
+  })
+
+  test("getScreenCoords checks looking straight up", t => {
+    let cam = ProjectionMath.makeCamState(0.0, 0.0, 90.0, rect)
+    // Looking up at 89 degrees (almost 90)
+    let coords = ProjectionMath.getScreenCoords(cam, 89.0, 0.0, rect)
+    switch coords {
+    | Some(c) => t->expect(c.y)->Expect.Float.toBeLessThan(250.0)
+    | None => t->expect(false)->Expect.toBe(true)
+    }
+  })
 })
