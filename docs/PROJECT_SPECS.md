@@ -15,6 +15,7 @@ The project follows a **System 2 Thinking** architecture, partitioned between a 
 ### Component Breakdown
 - **Frontend (ReScript)**: Handles UI state management, user interactions, and orchestration of complex workflows (Simulation, Teaser Generation).
 - **Backend (Rust)**: Executes CPU-intensive tasks including image processing (WebP encoding), parallel quality analysis, and project packaging (ZIP).
+- **Data Validation Layer**: Uses `rescript-schema` to enforce strict runtime validation at the IO boundary, ensuring 100% type safety for API responses and preventing runtime crashes.
 - **Security Logic**: Memory-safe Rust eliminates common vulnerabilities like buffer overflows.
 
 ## 2. Performance Engineering
@@ -34,6 +35,9 @@ The project follows a **System 2 Thinking** architecture, partitioned between a 
 | UI Responsiveness | 60 FPS | 60 FPS | 🟢 Pass |
 
 ## 3. Security & Stability Systems
+
+### Build Standards
+- **Zero Warnings Policy**: The build pipeline enforces a strict "Zero Warnings" policy (`"error": "+A"`). Any compiler warning is treated as a blocking error, ensuring code quality and preventing technical debt accumulation.
 
 ### Defense-in-Depth Strategy
 - **Rust Sanitization**: Strict `sanitize_filename()` rejects directory traversal and null bytes.
