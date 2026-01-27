@@ -26,6 +26,6 @@
         "rescript-schema"
     ],
     "warnings": {
-        "error": "+101"
+        "error": "+A"
     }
 }
