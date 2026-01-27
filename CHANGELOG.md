@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix: Backend test race conditions by enforcing serial execution in pre-push hook
 - UI: Standardize dialog box styles & deactivate startup recovery popup
 - Sync branches and fix race conditions in geocoding tests
+- Refactor backend ZIP processing to use streaming and temp files (Task 798)
 
 ## [4.8.0] - 2026-01-26
 

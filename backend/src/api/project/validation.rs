@@ -1,6 +1,7 @@
 use actix_multipart::Multipart;
 use actix_web::{HttpResponse, web};
 use futures_util::TryStreamExt as _;
+use std::io::{Seek, SeekFrom, Write};
 
 use crate::api::utils::MAX_UPLOAD_SIZE;
 use crate::models::AppError;
@@ -24,18 +25,22 @@ use crate::services::project;
 pub async fn validate_project(mut payload: Multipart) -> Result<HttpResponse, AppError> {
     tracing::info!(module = "Validator", "VALIDATE_PROJECT_START");
     let start = std::time::Instant::now();
-    let mut zip_data = Vec::new();
+    let mut temp_upload = tempfile::tempfile().map_err(AppError::IoError)?;
+    let mut uploaded_size = 0;
 
     while let Some(mut field) = payload.try_next().await? {
         while let Some(chunk) = field.try_next().await? {
-            zip_data.extend_from_slice(&chunk);
-            if zip_data.len() > MAX_UPLOAD_SIZE {
+            uploaded_size += chunk.len();
+            if uploaded_size > MAX_UPLOAD_SIZE {
                 return Err(AppError::ImageError("Project too large".into()));
             }
+            temp_upload.write_all(&chunk).map_err(AppError::IoError)?;
         }
     }
+    
+    temp_upload.seek(SeekFrom::Start(0)).map_err(AppError::IoError)?;
 
-    let report = web::block(move || project::validate_project_zip(zip_data))
+    let report = web::block(move || project::validate_project_zip(temp_upload))
         .await
         .map_err(|e| AppError::InternalError(e.to_string()))?;
 
