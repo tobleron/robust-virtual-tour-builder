@@ -28,5 +28,5 @@
 - **Explicit Permission**: Only commit when the user provides a message or instruction.
 - **Fast Path (Local Snapshot)**: `./scripts/fast-commit.sh "msg"` (Quick, Local, No Tests/Push).
 - **Standard Path (Push)**: `./scripts/commit.sh "msg" [branch]` (Build Guard, Commit, & Push).
-- **Triple Path (Sync)**: `./scripts/triple-commit.sh "msg"` (Syncs & Pushes to main/Testing/dev).
+- **Triple Path (Sync)**: `./scripts/triple-commit.sh "msg"` (Syncs & Pushes to main/testing/dev).
 - **Manual Push**: `./scripts/pre-push.sh` is available for manual verification if needed.

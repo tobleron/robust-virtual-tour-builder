@@ -1,6 +1,6 @@
 #!/bin/bash
 # USAGE: ./scripts/triple-commit.sh "feat: Description"
-# This script commits to the current branch and force-updates main, Testing, and development branches.
+# This script commits to the current branch and force-updates main, testing, and development branches.
 
 MSG="$1"
 
@@ -77,9 +77,9 @@ rm -f logs/telemetry.log
 git add .
 git commit -m "v$FULL_VER [TRIPLE]: $MSG"
 
-# 10. Sync to main, Testing, and development
+# 10. Sync to main, testing, and development
 CURRENT_BRANCH=$(git branch --show-current)
-TARGET_BRANCHES=("main" "Testing" "development")
+TARGET_BRANCHES=("main" "testing" "development")
 
 echo "🔄 Syncing all core branches locally..."
 for BRANCH in "${TARGET_BRANCHES[@]}"; do
@@ -96,7 +96,7 @@ done
 # 11. Push all 3 branches
 echo "🚀 Pushing all branches to remote..."
 git push origin main
-git push origin Testing
+git push origin testing
 git push origin development
 
-echo "🎉 Triple-Commit & Push Complete: v$FULL_VER is live on main, Testing, and development."
+echo "🎉 Triple-Commit & Push Complete: v$FULL_VER is live on main, testing, and development."
