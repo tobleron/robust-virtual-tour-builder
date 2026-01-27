@@ -24,8 +24,8 @@ pub struct GeocoderInfo {
 }
 
 pub async fn get_info() -> GeocoderInfo {
-    let stats = CACHE_STATS.read().await;
     let cache = GEOCODE_CACHE.read().await;
+    let stats = CACHE_STATS.read().await;
     GeocoderInfo {
         stats: stats.clone(),
         cache_size: cache.len(),
