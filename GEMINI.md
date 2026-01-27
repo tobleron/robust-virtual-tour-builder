@@ -13,6 +13,7 @@
 
 ## 🚨 CODING VITALS (PRIORITY 0)
 - **ReScript v12 Only**: Use `Option`/`Result` explicitly. NO `unwrap()`, `panic!`, or `console.log`.
+- **Schema Validation**: Use `rescript-schema` for all JSON/IO. NO `Obj.magic` or unsafe casts.
 - **Logger Module**: Use `Logger.debug/info/error` for all telemetry.
 - **Immutability**: Maintain functional purity in ReScript; avoid `mutable`.
 - **Zero Warnings**: Production builds MUST have zero compiler warnings.

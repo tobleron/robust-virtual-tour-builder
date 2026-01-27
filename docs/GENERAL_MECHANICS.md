@@ -12,10 +12,12 @@ This section outlines the protocols, standards, and automated workflows required
 
 ### Type Safety & Functional Principles
 - **ReScript/Rust First**: All new logic must be written in ReScript (Frontend) or Rust (Backend).
+- **Schema Validation**: Use `rescript-schema` for all JSON decoding (API/File IO). Manual `Obj.magic` casting for data parsing is strictly forbidden.
 - **No Side Effects**: Isolate side effects to React Effects or API handlers. Use pure functions for business logic.
 - **Handling Failure**: Never use `panic!` in Rust or throw exceptions in ReScript. Return `Result` or `Option` types.
 
 ### Build & Test Integrity
+- **Zero Warnings Policy**: Compiler warnings are treated as errors. The project must compile cleanly with zero warnings.
 - **Mandatory Testing**: `npm test` must pass before any commit.
 - **Build Verification**: Run `npm run build` after major changes to ensure compilation passes across the entire project.
 
