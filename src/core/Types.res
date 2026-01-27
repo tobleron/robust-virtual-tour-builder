@@ -167,6 +167,8 @@ type project = {
   lastUsedCategory: string,
   exifReport: option<JSON.t>,
   sessionId: option<string>,
+  deletedSceneIds: array<string>,
+  timeline: array<timelineItem>,
 }
 
 type state = {

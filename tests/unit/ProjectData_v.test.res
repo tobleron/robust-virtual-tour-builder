@@ -94,4 +94,71 @@ let _ = describe("ProjectData", () => {
     t->expect(Belt.Array.getExn(scenes, 0)["id"])->Expect.toBe("s1")
     t->expect(Belt.Array.getExn(scenes, 0)["_metadataSource"])->Expect.toBe("user")
   })
+
+  test("Round-trip serialization preserves data", t => {
+    let s1: scene = {
+      id: "s1",
+      name: "S1",
+      file: Url("f"),
+      tinyFile: None,
+      originalFile: None,
+      hotspots: [
+        {
+           linkId: "l1", yaw: 0.0, pitch: 0.0, target: "target",
+           targetYaw: None, targetPitch: None, targetHfov: None,
+           startYaw: None, startPitch: None, startHfov: None,
+           isReturnLink: None, viewFrame: None, returnViewFrame: None,
+           waypoints: None, displayPitch: None, transition: None, duration: None
+        }
+      ],
+      category: "cat1",
+      floor: "1",
+      label: "label1",
+      quality: None,
+      colorGroup: Some("red"),
+      _metadataSource: "user",
+      categorySet: true,
+      labelSet: true,
+      isAutoForward: true,
+    }
+
+    let originalState: Types.state = {
+      ...State.initialState,
+      tourName: "Round Trip Tour",
+      activeIndex: 0,
+      scenes: [s1],
+      lastUsedCategory: "custom-cat",
+      sessionId: Some("session_123"),
+      deletedSceneIds: ["del1", "del2"],
+    }
+
+    let json = toJSON(originalState)
+
+    // Simulate ProjectManagerLogic enrichment (backend restores file paths)
+    let jsonDict = Obj.magic(json)
+    let scenes = jsonDict["scenes"]
+    Belt.Array.forEach(scenes, s => {
+      s["file"] = "mock_file_url"
+    })
+
+    // We use SceneHelpers.parseProject to simulate loading the project
+    let restoredState = SceneHelpers.parseProject(Obj.magic(json))
+
+    t->expect(restoredState.tourName)->Expect.toBe(originalState.tourName)
+    t->expect(restoredState.sessionId)->Expect.toBe(originalState.sessionId)
+    t->expect(Array.length(restoredState.scenes))->Expect.toBe(1)
+
+    let rs1 = restoredState.scenes[0]->Option.getOrThrow
+    t->expect(rs1.id)->Expect.toBe(s1.id)
+    t->expect(rs1.name)->Expect.toBe(s1.name)
+    t->expect(rs1.colorGroup)->Expect.toBe(s1.colorGroup)
+    // Check file was restored (from our mock injection)
+    switch rs1.file {
+    | Url(u) => t->expect(u)->Expect.toBe("mock_file_url")
+    | _ => t->expect(false)->Expect.toBe(true)
+    }
+
+    // Check if deletedSceneIds are preserved
+    t->expect(restoredState.deletedSceneIds)->Expect.toEqual(originalState.deletedSceneIds)
+  })
 })
