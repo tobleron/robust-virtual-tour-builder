@@ -1,10 +1,10 @@
 {
   "cache": {},
-  "saved_at": 1769504611,
+  "saved_at": 1769504835,
   "stats": {
     "evictions": 0,
     "hits": 0,
     "last_save": null,
-    "misses": 1
+    "misses": 0
   }
 }

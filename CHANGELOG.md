@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix: Deadlock in geocoding service by standardizing lock acquisition order
 - Fix: Backend test race conditions by enforcing serial execution in pre-push hook
 - UI: Standardize dialog box styles & deactivate startup recovery popup
+- Sync branches and fix race conditions in geocoding tests
 
 ## [4.8.0] - 2026-01-26
 

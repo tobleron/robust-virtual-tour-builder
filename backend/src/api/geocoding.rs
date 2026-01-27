@@ -117,40 +117,37 @@ mod tests {
     use actix_web::{Responder, http::StatusCode, test, web};
 
     #[actix_web::test]
-    async fn test_reverse_geocode_structure() {
-        // We can't guarantee network, but we can verify the response structure matches expectations
-        // or fails gracefully.
+    async fn test_api_suite_sequential() {
+        // Run tests sequentially to avoid race conditions on the global singleton cache
+        test_reverse_geocode_structure_internal().await;
+        test_geocode_stats_internal().await;
+        test_clear_cache_internal().await;
+    }
 
-        // We need to construct the app or call handlers directly.
-        // Calling handler directly is easier if we don't need complex middleware.
+    async fn test_reverse_geocode_structure_internal() {
         let resp = reverse_geocode(web::Json(GeocodeRequest { lat: 0.0, lon: 0.0 })).await;
-
-        // It always returns Ok(HttpResponse) unless something catastrophic happens
         assert!(resp.is_ok());
         let response = resp.unwrap();
         assert_eq!(response.status(), StatusCode::OK);
-
-        // We could inspect the body, but it requires parsing bytes.
     }
 
-    #[actix_web::test]
-    async fn test_geocode_stats() {
-        // Ensure stats endpoint returns valid JSON
+    async fn test_geocode_stats_internal() {
         let resp = geocode_stats().await;
-
-        // It's a Responder, so we need to convert it to response
         let resp = resp.respond_to(&test::TestRequest::default().to_http_request());
         assert_eq!(resp.status(), StatusCode::OK);
     }
 
-    #[actix_web::test]
-    async fn test_clear_cache() {
+    async fn test_clear_cache_internal() {
         let resp = clear_geocode_cache().await;
         let resp = resp.respond_to(&test::TestRequest::default().to_http_request());
         assert_eq!(resp.status(), StatusCode::OK);
 
         // Verify stats are reset
+        // Note: This fragile check on global state is still risky if other test files run in parallel
+        // and touch the cache, but merging these three helps local coordination.
         let info = geocoding::get_info().await;
+        // We relax the assertion slightly or ensure we are the only ones touching it.
+        // For now, we keep it as is since we are reducing local concurrency.
         assert_eq!(info.cache_size, 0);
     }
 }
