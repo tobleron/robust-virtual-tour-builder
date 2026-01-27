@@ -9,7 +9,7 @@ open UploadProcessorTypes
       _0: {
         preview: f,
         tiny: f,
-        quality: { score: 0.9, stats: { avgLuminance: 128, sharpnessVariance: 10, blackClipping: 0, whiteClipping: 0 }, isBlurry: false, issues: 0, warnings: 0, analysis: null, histogram: [], colorHist: {r:[], g:[], b:[]}, isSoft: false, isSeverelyBright: false, isDim: false, isSeverelyDark: false, hasBlackClipping: false, hasWhiteClipping: false },
+        qualityData: { score: 0.9, stats: { avgLuminance: 128, sharpnessVariance: 10, blackClipping: 0, whiteClipping: 0 }, isBlurry: false, issues: 0, warnings: 0, analysis: null, histogram: [], colorHist: {r:[], g:[], b:[]}, isSoft: false, isSeverelyBright: false, isDim: false, isSeverelyDark: false, hasBlackClipping: false, hasWhiteClipping: false },
         metadata: { width: 100, height: 100 }
       }
     })

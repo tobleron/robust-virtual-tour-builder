@@ -144,7 +144,7 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
 
     let btnStart: EventBus.button = {
       label: "Start Building",
-      class_: "btn-blue",
+      class_: "bg-blue-500/20 text-white hover:bg-blue-500/40",
       onClick: () => {
         let state = GlobalStateBridge.getState()
         if Array.length(state.scenes) > 0 {
@@ -155,7 +155,7 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
     }
 
     let options: EventBus.modalConfig = {
-      title: "Uploaded Images Summary",
+      title: "Upload Summary",
       description: None,
       icon: None,
       content: Some(content),

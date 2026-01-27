@@ -174,13 +174,13 @@ let showLinkModal = (
       buttons: [
         {
           label: "Save Link",
-          class_: "btn-blue",
+          class_: "bg-blue-500/20 text-white hover:bg-blue-500/40",
           onClick: onSave,
           autoClose: Some(false),
         },
         {
           label: "Cancel",
-          class_: "bg-slate-100 text-slate-700",
+          class_: "bg-slate-100/10 text-white hover:bg-white/20",
           onClick: () => {EventBus.dispatch(CloseModal)},
           autoClose: Some(false),
         },

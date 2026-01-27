@@ -124,7 +124,7 @@ let make = React.memo(() => {
                   },
                   {
                     label: "Discard & New",
-                    class_: "bg-danger text-white",
+                    class_: "bg-red-500/20 text-white hover:bg-red-500/40",
                     onClick: () => {
                       SessionStore.clearState()
                       reload()
