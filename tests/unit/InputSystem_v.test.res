@@ -73,14 +73,31 @@ describe("InputSystem", () => {
       }
     `)
 
-    // We can spy on EventBus or just rely on console/logger if we could spy on them.
-    // For now, let's assume it logs or dispatches.
-    // We can't easily spy on EventBus.dispatch without modifying EventBus code or Mocking the module.
-    // But we can check side effects if any.
-
     dispatchKey(~key="D", ~ctrlKey=true, ~shiftKey=true, ())
     await wait(10)
 
     t->expect(true)->Expect.toBe(true) // Placeholder until we can verification
+  })
+
+  testAsync("should update ViewerState on mouse move", async t => {
+    // Setup viewer-stage
+    let stage = Dom.createElement("div")
+    Dom.setId(stage, "viewer-stage")
+    // Mock getBoundingClientRect
+    // width: 100, height: 100, top: 0, left: 0
+    let _ = %raw(`stage.getBoundingClientRect = () => ({ left: 0, top: 0, width: 100, height: 100 })`)
+    Dom.appendChild(Dom.documentBody, stage)
+
+    // Trigger mouse move logic directly
+    // clientX: 75 -> x = 75 -> xNorm = 0.5
+    // clientY: 50 -> y = 50 -> yNorm = (50 + Constants.linkingRodHeight)/100 * 2 - 1 = 1.6
+    // Constants.linkingRodHeight is 80.0
+    let mockEvent = %raw(`{ clientX: 75, clientY: 50 }`)
+    InputSystem.handleMouseMove(mockEvent)
+
+    t->expect(ViewerState.state.mouseXNorm)->Expect.toBe(0.5)
+    t->expect(ViewerState.state.mouseYNorm)->Expect.toBe(1.6)
+
+    Dom.removeElement(stage)
   })
 })
