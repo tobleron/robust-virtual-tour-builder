@@ -53,7 +53,10 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/systems/UploadProcessor.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/UploadProcessor.res): Lightweight facade for the image processing pipeline. `#upload` `#facade`
 *   [src/systems/UploadProcessorLogic.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/UploadProcessorLogic.res): Core image validation, fingerprinting, and clustering logic. `#image-processing` `#logic`
 * [src/systems/SceneLoader.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/SceneLoader.res): Lightweight facade for scene transition and viewer loading orchestration. `#scene-loading` `#lifecycle` `#facade`
-    * [src/systems/SceneLoaderLogic.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/SceneLoaderLogic.res): Core logic for Pannellum initialization and progressive loading. `#logic`
+    * [src/systems/SceneLoaderLogic.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/SceneLoaderLogic.res): Lightweight facade for scene loading orchestration. `#logic` `#facade`
+    * [src/systems/SceneLoaderLogicReuse.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/SceneLoaderLogicReuse.res): Logic for viewer reuse and session persistence. `#logic`
+    * [src/systems/SceneLoaderLogicConfig.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/SceneLoaderLogicConfig.res): Pannellum configuration and URL generation. `#logic` `#config`
+    * [src/systems/SceneLoaderLogicEvents.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/SceneLoaderLogicEvents.res): Handler for viewer load events and hotspot injection. `#logic` `#events`
     * [src/systems/SceneLoaderTypes.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/SceneLoaderTypes.res): Shared types and performance tracking for scene loading. `#types`
 *   [src/systems/SceneTransitionManager.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/SceneTransitionManager.res): Manages DOM transitions and viewer swapping logic. `#transition` `#dom`
 *   [src/systems/PannellumLifecycle.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/PannellumLifecycle.res): Lifecycle bindings for Pannellum viewer initialization and destruction. `#pannellum` `#bindings`
@@ -86,6 +89,14 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/systems/InputSystem.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/InputSystem.res): Unified handler for mouse, touch, and keyboard input. `#input` `#gestures`
 *   [src/systems/CursorPhysics.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/CursorPhysics.res): Physics-based cursor and interaction smoothing. `#physics` `#ux`
 *   [src/systems/ExifParser.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/ExifParser.res): Frontend-side EXIF data parsing and normalization. `#exif` `#parsing`
+*   [src/systems/ExifReportGenerator.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/ExifReportGenerator.res): Lightweight facade for EXIF report generation and downloading. `#exif` `#reporting` `#facade`
+    *   [src/systems/ExifReportGeneratorLogic.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/ExifReportGeneratorLogic.res): Main report generation orchestrator. `#logic`
+    *   [src/systems/ExifReportGeneratorLogicExtraction.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/ExifReportGeneratorLogicExtraction.res): EXIF data extraction from file batches. `#logic` `#extraction`
+    *   [src/systems/ExifReportGeneratorLogicLocation.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/ExifReportGeneratorLogicLocation.res): GPS analysis, centroid calculation, and geocoding. `#logic` `#geo`
+    *   [src/systems/ExifReportGeneratorLogicGroups.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/ExifReportGeneratorLogicGroups.res): Camera device grouping and file listing logic. `#logic`
+    *   [src/systems/ExifReportGeneratorLogicTypes.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/ExifReportGeneratorLogicTypes.res): Internal types for EXIF report analysis. `#types`
+    *   [src/systems/ExifReportGeneratorTypes.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/ExifReportGeneratorTypes.res): Shared types for EXIF reporting. `#types`
+    *   [src/systems/ExifReportGeneratorUtils.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/ExifReportGeneratorUtils.res): Project name generation and report downloading utilities. `#utils`
 *   [src/systems/ImageValidator.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/ImageValidator.res): Client-side validation of image formats and dimensions. `#image` `#validation`
 *   [src/systems/NavigationUI.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/NavigationUI.res): UI-driven navigation logic and breadcrumb management. `#navigation` `#ui`
 *   [src/systems/NavigationRenderer.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/NavigationRenderer.res): Specialized renderer for interactive navigation elements. `#rendering` `#navigation`
@@ -114,7 +125,9 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/components/SnapshotOverlay.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/SnapshotOverlay.res): Visual transition "flash" layer. `#ui` `#transition`
 *   [src/components/NotificationLayer.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/NotificationLayer.res): Centralized notification and processing status layer. `#ui` `#notifications`
 *   [src/components/Sidebar.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/Sidebar.res): Lightweight facade for sidebar management. `#sidebar` `#scene-management` `#facade`
-    *   [src/components/Sidebar/SidebarMain.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/Sidebar/SidebarMain.res): Main sidebar logic and state management. `#logic`
+    *   [src/components/Sidebar/SidebarMain.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/Sidebar/SidebarMain.res): Lightweight facade for sidebar orchestration. `#ui` `#facade`
+    *   [src/components/Sidebar/SidebarMainLogic.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/Sidebar/SidebarMainLogic.res): Core project management and upload logic. `#logic`
+    *   [src/components/Sidebar/SidebarMainTypes.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/Sidebar/SidebarMainTypes.res): Types for sidebar processing and state. `#types`
     *   [src/components/Sidebar/SidebarBranding.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/Sidebar/SidebarBranding.res): Sidebar branding and version header. `#ui`
     *   [src/components/Sidebar/SidebarActions.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/Sidebar/SidebarActions.res): Primary action buttons for project management. `#ui` `#actions`
     *   [src/components/Sidebar/SidebarProjectInfo.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/Sidebar/SidebarProjectInfo.res): Project name input and upload triggers. `#ui`
@@ -248,10 +261,7 @@ This map provides a semantic overview of the project structure to optimize conte
 * [src/components/ui/Lucide/LucideMedia.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/ui/Lucide/LucideMedia.res): New module detected. Please classify. #new
 * [src/components/ui/Lucide/LucideStatus.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/ui/Lucide/LucideStatus.res): New module detected. Please classify. #new
 * [src/components/ui/LucideIcons.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/components/ui/LucideIcons.res): New module detected. Please classify. #new
-* [src/systems/ExifReportGenerator.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/ExifReportGenerator.res): New module detected. Please classify. #new
-* [src/systems/ExifReportGeneratorLogic.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/ExifReportGeneratorLogic.res): New module detected. Please classify. #new
-* [src/systems/ExifReportGeneratorTypes.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/ExifReportGeneratorTypes.res): New module detected. Please classify. #new
-* [src/systems/ExifReportGeneratorUtils.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/ExifReportGeneratorUtils.res): New module detected. Please classify. #new
+
 * [src/systems/Resizer.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/Resizer.res): New module detected. Please classify. #new
 * [src/systems/ResizerLogic.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/ResizerLogic.res): New module detected. Please classify. #new
 * [src/systems/ResizerTypes.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/ResizerTypes.res): New module detected. Please classify. #new
