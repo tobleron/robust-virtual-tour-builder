@@ -46,6 +46,8 @@ let parseProject = (projectDataJson: JSON.t): state => {
       lastUsedCategory: pd.lastUsedCategory,
       exifReport: pd.exifReport,
       sessionId: pd.sessionId,
+      deletedSceneIds: pd.deletedSceneIds,
+      timeline: pd.timeline,
     }
   | Error(msg) =>
     Logger.error(
