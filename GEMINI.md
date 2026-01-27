@@ -3,7 +3,8 @@
 ## 🧠 CORE BEHAVIOR (SYSTEM 2 THINKING)
 1. **Context First**: ALL paths must be relative to root. **ALWAYS READ `MAP.md` FIRST**.
 2. **Commitment Constraint**: NEVER run `commit.sh` or `fast-commit.sh` unless explicitly asked to "save", "checkpoint", or "commit".
-3. **Conditional Context Loading**:
+3. **Task Protocol**: Before handling any task related concerns, read `tasks/TASKS.md`.
+4. **Conditional Context Loading**:
    - **IF** writing `.res` files: Read `.agent/workflows/rescript-standards.md`.
    - **IF** writing `.rs` files: Read `.agent/workflows/rust-standards.md`.
    - **IF** writing Tests: Read `.agent/workflows/testing-standards.md`.
@@ -20,15 +21,10 @@
 
 ### PHASE 1: EXECUTION
 - **Test-Driven**: Run `npm test` autonomously. If 2 failures occur, STOP and generate `FAILURE_REPORT.md`.
-- **Build**: For formal tasks, run `npm run build`. For normal requests, skip (let dev server handle it).
+- **Build**: For normal requests, skip (let dev server handle it).
 
 ### PHASE 2: COMMIT & PUSH
 - **Explicit Permission**: Only commit when the user provides a message or instruction.
 - **Standard Path**: `./scripts/commit.sh "msg"` (Build + Test + Guard Checks).
 - **Fast Path**: `./scripts/fast-commit.sh "msg"` (Guard Checks only).
 - **Push**: Run `./scripts/pre-push.sh` before pushing to remote.
-
-## 📂 CRITICAL PATHS
-- **Codebase Map**: `./MAP.md` (Semantic index - READ FIRST)
-- **Pending Tasks**: `./tasks/pending`
-- **Workflows**: `.agent/workflows/`
