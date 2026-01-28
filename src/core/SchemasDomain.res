@@ -1,13 +1,35 @@
 open RescriptSchema
 open Types
 
-let file = S.string->S.transform(_ => {
-  parser: s => Url(s),
-  serializer: f =>
+let toJson: unknown => JSON.t = Obj.magic
+let toUnknown: JSON.t => unknown = Obj.magic
+
+let isUndefinedOrNull = (v: unknown) => {
+  v === %raw("undefined") || v->toJson === JSON.Encode.null
+}
+
+let file = S.custom("file", s => {
+  parser: unknown => {
+    if isUndefinedOrNull(unknown) {
+        // Technically file should be string, but if missing, fail?
+        // Or default to empty url if manual fallback?
+        // The type is `file`, not option<file>.
+        // Let's assume it must be a string.
+        s.fail("Expected string for file")
+    } else {
+        let json = unknown->toJson
+        switch JSON.Decode.string(json) {
+        | Some(str) => Url(str)
+        | None => s.fail("Expected string for file")
+        }
+    }
+  },
+  serializer: f => {
     switch f {
-    | Url(s) => s
-    | Blob(_) | File(_) => ""
-    },
+    | Url(s) => JSON.Encode.string(s)->toUnknown
+    | Blob(_) | File(_) => JSON.Encode.string("")->toUnknown
+    }
+  }
 })
 
 let viewFrame = S.object(s => {
@@ -38,10 +60,25 @@ let hotspot = S.object(s => {
     transition: s.field("transition", S.option(S.string)),
     duration: s.field(
       "duration",
-      S.option(S.float)->S.transform(_ => {
-        parser: o => o->Option.map(Belt.Float.toInt),
-        serializer: o => o->Option.map(Belt.Int.toFloat),
-      }),
+      S.custom("duration", _s => {
+        parser: unknown => {
+           if isUndefinedOrNull(unknown) {
+             None
+           } else {
+             let json = unknown->toJson
+             switch JSON.Decode.float(json) {
+             | Some(f) => Some(Belt.Float.toInt(f))
+             | None => None
+             }
+           }
+        },
+        serializer: o => {
+           switch o {
+           | Some(i) => JSON.Encode.float(Belt.Int.toFloat(i))->toUnknown
+           | None => JSON.Encode.null->toUnknown
+           }
+        }
+      })
     ),
   }
 })
@@ -75,9 +112,19 @@ let timelineItem = S.object(s => {
     transition: s.field("transition", S.option(S.string)->S.Option.getOr("")),
     duration: s.field(
       "duration",
-      S.option(S.float)->S.transform(_ => {
-        parser: o => o->Option.map(Belt.Float.toInt)->Option.getOr(0),
-        serializer: i => Some(Belt.Int.toFloat(i)),
+      S.custom("duration_int", _s => {
+        parser: unknown => {
+           if isUndefinedOrNull(unknown) {
+             0
+           } else {
+             let json = unknown->toJson
+             switch JSON.Decode.float(json) {
+             | Some(f) => Belt.Float.toInt(f)
+             | None => 0
+             }
+           }
+        },
+        serializer: i => JSON.Encode.float(Belt.Int.toFloat(i))->toUnknown
       }),
     ),
   }
@@ -124,9 +171,9 @@ let step: S.t<Types.step> = S.object(s => {
 
 let importScene = S.object(s => {
   {
-    id: s.field("id", S.option(S.string)->S.Option.getOr("")), // Default empty
-    name: s.field("name", S.option(S.string)->S.Option.getOr("unknown")), // Default unknown
-    file: s.field("file", S.option(file)->S.Option.getOr(Types.Url(""))), // Optional file, default empty Url
+    id: s.field("id", S.option(S.string)->S.Option.getOr("")),
+    name: s.field("name", S.option(S.string)->S.Option.getOr("unknown")),
+    file: s.field("file", S.option(file)->S.Option.getOr(Types.Url(""))),
     tinyFile: s.field("tinyFile", S.option(file)),
     originalFile: s.field("originalFile", S.option(file)),
     hotspots: s.field("hotspots", S.option(S.array(hotspot))->S.Option.getOr([])),
@@ -154,12 +201,27 @@ let updateMetadata = S.object(s => {
 let timelineUpdate: S.t<Types.timelineUpdate> = S.object(s => {
   {
     transition: s.field("transition", S.option(S.string)),
-    duration: s.field(
-      "duration",
-      S.option(S.null(S.float))->S.transform(_ => {
-        parser: o => o->Option.map(innerOpt => innerOpt->Option.map(Belt.Float.toInt)),
-        serializer: o => o->Option.map(innerOpt => innerOpt->Option.map(Belt.Int.toFloat)),
-      }),
+    duration: s.field("duration",
+      S.custom("timelineUpdate_duration", _s => {
+        parser: unknown => {
+          if isUndefinedOrNull(unknown) {
+            Some(None)
+          } else {
+            let json = unknown->toJson
+            switch JSON.Decode.float(json) {
+            | Some(f) => Some(Some(Belt.Float.toInt(f)))
+            | None => None
+            }
+          }
+        },
+        serializer: o => {
+          switch o {
+          | Some(Some(i)) => JSON.Encode.float(Belt.Int.toFloat(i))->toUnknown
+          | Some(None) => JSON.Encode.null->toUnknown
+          | None => JSON.Encode.null->toUnknown
+          }
+        }
+      })
     ),
   }
 })
