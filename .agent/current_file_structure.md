@@ -1,9 +1,43 @@
 .
+├── _dev-system
+│   ├── analyzer
+│   │   ├── Cargo.lock
+│   │   ├── Cargo.toml
+│   │   └── src
+│   │       ├── append_part2.pl
+│   │       ├── append_part2.py
+│   │       ├── chunk3b.rs
+│   │       ├── consolidator.rs
+│   │       ├── drivers
+│   │       │   ├── config.rs
+│   │       │   ├── css.rs
+│   │       │   ├── html.rs
+│   │       │   ├── mod.rs
+│   │       │   ├── rescript.rs
+│   │       │   └── rust.rs
+│   │       ├── main.rs
+│   │       └── part2.rs
+│   ├── ARCHITECTURAL_MANIFEST.md
+│   ├── config
+│   │   └── efficiency.json
+│   ├── DASHBOARD.html
+│   ├── pending
+│   │   ├── CONFIG_PLAN.md
+│   │   ├── CSS_PLAN.md
+│   │   ├── metadata.json
+│   │   ├── RESCRIPT_PLAN.md
+│   │   ├── RUST_PLAN.md
+│   │   ├── SYSTEM_PLAN.md
+│   │   └── WEB_PLAN.md
+│   └── README.md
 ├── backend
 │   ├── bin
 │   │   └── ffmpeg
 │   ├── Cargo.lock
 │   ├── Cargo.toml
+│   ├── data
+│   │   ├── database.db
+│   │   └── storage
 │   ├── migrations
 │   │   ├── 20260124000000_init.sql
 │   │   └── 20260128000000_core_schema.sql
@@ -113,8 +147,11 @@
 ├── docs
 │   ├── GENERAL_MECHANICS.md
 │   ├── openapi.yaml
+│   ├── PRIVACY_POLICY.md
 │   ├── PROJECT_HISTORY.md
-│   └── PROJECT_SPECS.md
+│   ├── PROJECT_SPECS.md
+│   ├── TERMS_OF_SERVICE.md
+│   └── tmp
 ├── GEMINI.md
 ├── index.html
 ├── jsconfig.json
@@ -497,6 +534,12 @@
 │   │   │   │   ├── AppContext.cmj
 │   │   │   │   ├── AppContext.cmt
 │   │   │   │   ├── AppContext.res
+│   │   │   │   ├── AuthContext.ast
+│   │   │   │   ├── AuthContext.bs.js
+│   │   │   │   ├── AuthContext.cmi
+│   │   │   │   ├── AuthContext.cmj
+│   │   │   │   ├── AuthContext.cmt
+│   │   │   │   ├── AuthContext.res
 │   │   │   │   ├── GlobalStateBridge.ast
 │   │   │   │   ├── GlobalStateBridge.bs.js
 │   │   │   │   ├── GlobalStateBridge.cmi
@@ -655,6 +698,13 @@
 │   │   │   │   ├── ViewerTypes.cmj
 │   │   │   │   ├── ViewerTypes.cmt
 │   │   │   │   └── ViewerTypes.res
+│   │   │   ├── i18n
+│   │   │   │   ├── I18n.ast
+│   │   │   │   ├── I18n.bs.js
+│   │   │   │   ├── I18n.cmi
+│   │   │   │   ├── I18n.cmj
+│   │   │   │   ├── I18n.cmt
+│   │   │   │   └── I18n.res
 │   │   │   ├── Main.ast
 │   │   │   ├── Main.bs.js
 │   │   │   ├── Main.cmi
@@ -687,6 +737,12 @@
 │   │   │   │   │   ├── ApiTypes.cmj
 │   │   │   │   │   ├── ApiTypes.cmt
 │   │   │   │   │   ├── ApiTypes.res
+│   │   │   │   │   ├── AuthenticatedClient.ast
+│   │   │   │   │   ├── AuthenticatedClient.bs.js
+│   │   │   │   │   ├── AuthenticatedClient.cmi
+│   │   │   │   │   ├── AuthenticatedClient.cmj
+│   │   │   │   │   ├── AuthenticatedClient.cmt
+│   │   │   │   │   ├── AuthenticatedClient.res
 │   │   │   │   │   ├── MediaApi.ast
 │   │   │   │   │   ├── MediaApi.bs.js
 │   │   │   │   │   ├── MediaApi.cmi
@@ -1329,6 +1385,18 @@
 │   │           ├── AudioManager_v.test.cmj
 │   │           ├── AudioManager_v.test.cmt
 │   │           ├── AudioManager_v.test.res
+│   │           ├── AuthContext_v.test.ast
+│   │           ├── AuthContext_v.test.bs.js
+│   │           ├── AuthContext_v.test.cmi
+│   │           ├── AuthContext_v.test.cmj
+│   │           ├── AuthContext_v.test.cmt
+│   │           ├── AuthContext_v.test.res
+│   │           ├── AuthenticatedClient_v.test.ast
+│   │           ├── AuthenticatedClient_v.test.bs.js
+│   │           ├── AuthenticatedClient_v.test.cmi
+│   │           ├── AuthenticatedClient_v.test.cmj
+│   │           ├── AuthenticatedClient_v.test.cmt
+│   │           ├── AuthenticatedClient_v.test.res
 │   │           ├── BackendApi_v.test.ast
 │   │           ├── BackendApi_v.test.bs.js
 │   │           ├── BackendApi_v.test.cmi
@@ -2231,6 +2299,26 @@
 │   │   ├── AudioManager.cmj
 │   │   ├── AudioManager.cmt
 │   │   ├── AudioManager.res
+│   │   ├── AuthContext_v.test.ast
+│   │   ├── AuthContext_v.test.cmi
+│   │   ├── AuthContext_v.test.cmj
+│   │   ├── AuthContext_v.test.cmt
+│   │   ├── AuthContext_v.test.res
+│   │   ├── AuthContext.ast
+│   │   ├── AuthContext.cmi
+│   │   ├── AuthContext.cmj
+│   │   ├── AuthContext.cmt
+│   │   ├── AuthContext.res
+│   │   ├── AuthenticatedClient_v.test.ast
+│   │   ├── AuthenticatedClient_v.test.cmi
+│   │   ├── AuthenticatedClient_v.test.cmj
+│   │   ├── AuthenticatedClient_v.test.cmt
+│   │   ├── AuthenticatedClient_v.test.res
+│   │   ├── AuthenticatedClient.ast
+│   │   ├── AuthenticatedClient.cmi
+│   │   ├── AuthenticatedClient.cmj
+│   │   ├── AuthenticatedClient.cmt
+│   │   ├── AuthenticatedClient.res
 │   │   ├── BackendApi_v.test.ast
 │   │   ├── BackendApi_v.test.cmi
 │   │   ├── BackendApi_v.test.cmj
@@ -2551,6 +2639,11 @@
 │   │   ├── HotspotReducer.cmj
 │   │   ├── HotspotReducer.cmt
 │   │   ├── HotspotReducer.res
+│   │   ├── I18n.ast
+│   │   ├── I18n.cmi
+│   │   ├── I18n.cmj
+│   │   ├── I18n.cmt
+│   │   ├── I18n.res
 │   │   ├── IdbBindings.ast
 │   │   ├── IdbBindings.cmi
 │   │   ├── IdbBindings.cmj
@@ -3865,6 +3958,7 @@
 │   │   ├── WebApiBindings.cmt
 │   │   └── WebApiBindings.res
 │   └── rescript.lock
+├── LICENSE
 ├── logs
 │   ├── error.log
 │   ├── log_changes.txt
@@ -5267,11 +5361,11 @@
 │   ├── cleanup_logs.sh
 │   ├── commit.sh
 │   ├── debug-connectivity.js
+│   ├── dev-system.sh
 │   ├── fast-commit.sh
 │   ├── generate-test-tasks.cjs
 │   ├── guard
 │   │   ├── check-map.js
-│   │   ├── check-size.js
 │   │   ├── check-tasks.js
 │   │   ├── check-tests.js
 │   │   ├── index.js
@@ -5370,8 +5464,11 @@
 │   │   ├── Tooltip.res
 │   │   ├── ui
 │   │   │   ├── button.jsx
+│   │   │   ├── checkbox.jsx
 │   │   │   ├── context-menu.jsx
 │   │   │   ├── dropdown-menu.jsx
+│   │   │   ├── input.jsx
+│   │   │   ├── label.jsx
 │   │   │   ├── Lucide
 │   │   │   │   ├── LucideActions.bs.js
 │   │   │   │   ├── LucideActions.res
@@ -5424,6 +5521,8 @@
 │   │   ├── Actions.res
 │   │   ├── AppContext.bs.js
 │   │   ├── AppContext.res
+│   │   ├── AuthContext.bs.js
+│   │   ├── AuthContext.res
 │   │   ├── GlobalStateBridge.bs.js
 │   │   ├── GlobalStateBridge.res
 │   │   ├── interfaces
@@ -5479,6 +5578,12 @@
 │   │   ├── ViewerTypes.bs.js
 │   │   └── ViewerTypes.res
 │   ├── Dummy.bs.js
+│   ├── i18n
+│   │   ├── I18n.bs.js
+│   │   ├── I18n.res
+│   │   └── locales
+│   │       ├── en.json
+│   │       └── es.json
 │   ├── index.js
 │   ├── lib
 │   │   └── utils.js
@@ -5494,6 +5599,8 @@
 │   │   ├── api
 │   │   │   ├── ApiTypes.bs.js
 │   │   │   ├── ApiTypes.res
+│   │   │   ├── AuthenticatedClient.bs.js
+│   │   │   ├── AuthenticatedClient.res
 │   │   │   ├── MediaApi.bs.js
 │   │   │   ├── MediaApi.res
 │   │   │   ├── ProjectApi.bs.js
@@ -5781,6 +5888,7 @@
 │   │   ├── 901_migration_foundation_DONE.md
 │   │   ├── 902_migration_security_DONE.md
 │   │   ├── 903_migration_storage_DONE.md
+│   │   ├── 904_migration_frontend_auth_DONE.md
 │   │   ├── 929_Refactor_UploadProcessorLogic_DONE.md
 │   │   ├── 965_Refactor_ViewerManagerLogic_DONE.md
 │   │   ├── analysis_1067_schema_fixes.md
@@ -5796,14 +5904,16 @@
 │   │   ├── 1066_Refactor_UploadProcessorLogicLogic.md
 │   │   ├── 1067_Refactor_Schemas.md
 │   │   ├── 1068_Classify_Map_Entries.md
+│   │   ├── 1069_Classify_Ambiguous_Files_Headers.md
+│   │   ├── 1070_Fix_Critical_Violations.md
+│   │   ├── 1071_Surgical_Refactor_Modules.md
+│   │   ├── 1072_Structural_Vertical_Slicing.md
+│   │   ├── 1073_Merge_Fragmented_Folders.md
 │   │   └── tests
 │   │       └── 1062_Test_Generation_Unified.md
 │   ├── postponed
 │   │   ├── 900_COMMERCIAL_MIGRATION_MASTER.md
-│   │   ├── 904_migration_frontend_auth.md
-│   │   ├── 905_migration_dashboard.md
-│   │   ├── 906_migration_telemetry.md
-│   │   └── tests
+│   │   └── 905_migration_telemetry.md
 │   └── TASKS.md
 ├── test_output.txt
 ├── tests
@@ -5827,6 +5937,10 @@
 │       ├── AsyncDebug_v.test.bs.js
 │       ├── AudioManager_v.test.bs.js
 │       ├── AudioManager_v.test.res
+│       ├── AuthContext_v.test.bs.js
+│       ├── AuthContext_v.test.res
+│       ├── AuthenticatedClient_v.test.bs.js
+│       ├── AuthenticatedClient_v.test.res
 │       ├── BackendApi_v.test.bs.js
 │       ├── BackendApi_v.test.res
 │       ├── Bindings_Unified_v.test.bs.js
@@ -6119,4 +6233,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-200 directories, 5920 files
+211 directories, 6023 files

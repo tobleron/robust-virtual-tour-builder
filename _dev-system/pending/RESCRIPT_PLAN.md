@@ -11,9 +11,6 @@
 ## 🚨 CRITICAL VIOLATIONS (12)
 **Action:** Fix these patterns immediately using project standards.
 
-### Pattern: `console.log`
-- [ ] `../../tests/unit/LoggerLogic_v.test.res`
-
 ### Pattern: `mutable `
 - [ ] `../../src/core/ViewerState.res`
 - [ ] `../../src/core/ViewerTypes.res`
@@ -27,9 +24,12 @@
 - [ ] `../../src/systems/SimulationPathGenerator.res`
 - [ ] `../../src/systems/PannellumLifecycle.res`
 
+### Pattern: `console.log`
+- [ ] `../../tests/unit/LoggerLogic_v.test.res`
+
 ---
 
-## 🛠️ SURGICAL REFACTOR TASKS (134)
+## 🛠️ SURGICAL REFACTOR TASKS (135)
 **Action:** Extract logic to new modules to reduce complexity/bloat.
 **Target:** To be determined by AI Agent (Create new modules as needed).
 
@@ -140,6 +140,9 @@
 - [ ] **../../src/core/reducers/HotspotReducer.res**
   - *Reason:* LOC 94 > Limit 30 (Role: domain-logic, Drag: 10.80)
     🔥 Hotspot: Lines 75-79 (AI Context Fog (score 69.4))
+- [ ] **../../src/core/AuthContext.res**
+  - *Reason:* LOC 70 > Limit 30 (Role: domain-logic, Drag: 7.73)
+    🔥 Hotspot: Lines 42-46 (AI Context Fog (score 29.4))
 - [ ] **../../src/core/SceneCache.res**
   - *Reason:* LOC 35 > Limit 30 (Role: domain-logic, Drag: 5.24)
     🔥 Hotspot: Lines 4-8 (AI Context Fog (score 6.0))

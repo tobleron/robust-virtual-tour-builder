@@ -32,3 +32,8 @@ Consolidate folders with high fragmentation tax to reduce cognitive overhead.
 - [ ] Folder: `../../src/core` - *Reason:* Score 1.80 > 1.0
 - [ ] Folder: `../../backend/src/models` - *Reason:* Score 5.00 > 1.0
 - [ ] Folder: `../../backend/src/api/project/storage` - *Reason:* Score 2.00 > 1.0
+- [ ] Folder: `../../tests/unit` - *Reason:* Score 6.70 > 1.0
+- [ ] Folder: `../../src/systems/api` - *Reason:* Score 4.00 > 1.0
+- [ ] Folder: `../../scripts/guard` - *Reason:* Score 5.00 > 1.0
+- [ ] Folder: `../../src/components/ui` - *Reason:* Score 5.50 > 1.0
+- [ ] Folder: `../../src/core` - *Reason:* Score 1.90 > 1.0

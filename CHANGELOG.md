@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Mark task 903 as completed (Asset Persistence & Isolation)
 - Feat(_dev-system): overhaul architectural governor with hotspots, amnesty, and smarter parsing
 - Initialize autonomous classification task 1069
+- Merge frontend auth and deprecate legacy size check
 
 ## [4.8.10] - 2026-01-28
 

@@ -8,7 +8,7 @@
 
 ---
 
-## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (111)
+## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (114)
 **Action:** The AI Agent must analyze these files and update `_dev-system/config/efficiency.json` or add `@efficiency` headers.
 
 - [ ] `../../tests/unit/Logger_v.test.res`
@@ -122,133 +122,67 @@
 - [ ] `../../backend/src/services/media/storage.rs`
 - [ ] `../../rescript.json`
 - [ ] `../../.vscode/settings.json`
+- [ ] `../../src/i18n/locales/en.json`
+- [ ] `../../src/i18n/locales/es.json`
+- [ ] `../../src/i18n/I18n.res`
 
 ---
 
 ## 🏗️ STRUCTURAL REFACTOR TASKS (24)
 **Action:** Implement Vertical Slicing to reduce directory traversal overhead.
 
-- [ ] **utils** (Action: Vertical Slice)
-  - *Reason:* Feature 'utils' spread across 3 folders (Fragmentation Tax)
-- [ ] **Project** (Action: Vertical Slice)
-  - *Reason:* Feature 'Project' spread across 4 folders (Fragmentation Tax)
-- [ ] **Visual** (Action: Vertical Slice)
-  - *Reason:* Feature 'Visual' spread across 2 folders (Fragmentation Tax)
-- [ ] **Scene** (Action: Vertical Slice)
-  - *Reason:* Feature 'Scene' spread across 6 folders (Fragmentation Tax)
-- [ ] **Service** (Action: Vertical Slice)
-  - *Reason:* Feature 'Service' spread across 2 folders (Fragmentation Tax)
-- [ ] **Simulation** (Action: Vertical Slice)
-  - *Reason:* Feature 'Simulation' spread across 3 folders (Fragmentation Tax)
-- [ ] **Link** (Action: Vertical Slice)
-  - *Reason:* Feature 'Link' spread across 3 folders (Fragmentation Tax)
-- [ ] **Viewer** (Action: Vertical Slice)
-  - *Reason:* Feature 'Viewer' spread across 6 folders (Fragmentation Tax)
-- [ ] **App** (Action: Vertical Slice)
-  - *Reason:* Feature 'App' spread across 4 folders (Fragmentation Tax)
 - [ ] **Hotspot** (Action: Vertical Slice)
   - *Reason:* Feature 'Hotspot' spread across 4 folders (Fragmentation Tax)
-- [ ] **Lucide** (Action: Vertical Slice)
-  - *Reason:* Feature 'Lucide' spread across 2 folders (Fragmentation Tax)
-- [ ] **Notification** (Action: Vertical Slice)
-  - *Reason:* Feature 'Notification' spread across 2 folders (Fragmentation Tax)
-- [ ] **Navigation** (Action: Vertical Slice)
-  - *Reason:* Feature 'Navigation' spread across 3 folders (Fragmentation Tax)
-- [ ] **Sidebar** (Action: Vertical Slice)
-  - *Reason:* Feature 'Sidebar' spread across 2 folders (Fragmentation Tax)
+- [ ] **State** (Action: Vertical Slice)
+  - *Reason:* Feature 'State' spread across 3 folders (Fragmentation Tax)
+- [ ] **Logger** (Action: Vertical Slice)
+  - *Reason:* Feature 'Logger' spread across 2 folders (Fragmentation Tax)
 - [ ] **Upload** (Action: Vertical Slice)
   - *Reason:* Feature 'Upload' spread across 3 folders (Fragmentation Tax)
-- [ ] **Svg** (Action: Vertical Slice)
-  - *Reason:* Feature 'Svg' spread across 2 folders (Fragmentation Tax)
+- [ ] **Simulation** (Action: Vertical Slice)
+  - *Reason:* Feature 'Simulation' spread across 3 folders (Fragmentation Tax)
+- [ ] **Service** (Action: Vertical Slice)
+  - *Reason:* Feature 'Service' spread across 2 folders (Fragmentation Tax)
+- [ ] **mod** (Action: Vertical Slice)
+  - *Reason:* Feature 'mod' spread across 16 folders (Fragmentation Tax)
+- [ ] **Project** (Action: Vertical Slice)
+  - *Reason:* Feature 'Project' spread across 4 folders (Fragmentation Tax)
+- [ ] **Sidebar** (Action: Vertical Slice)
+  - *Reason:* Feature 'Sidebar' spread across 2 folders (Fragmentation Tax)
+- [ ] **App** (Action: Vertical Slice)
+  - *Reason:* Feature 'App' spread across 4 folders (Fragmentation Tax)
 - [ ] **Teaser** (Action: Vertical Slice)
   - *Reason:* Feature 'Teaser' spread across 2 folders (Fragmentation Tax)
 - [ ] **Tour** (Action: Vertical Slice)
   - *Reason:* Feature 'Tour' spread across 3 folders (Fragmentation Tax)
-- [ ] **Logger** (Action: Vertical Slice)
-  - *Reason:* Feature 'Logger' spread across 2 folders (Fragmentation Tax)
-- [ ] **Exif** (Action: Vertical Slice)
-  - *Reason:* Feature 'Exif' spread across 2 folders (Fragmentation Tax)
-- [ ] **State** (Action: Vertical Slice)
-  - *Reason:* Feature 'State' spread across 3 folders (Fragmentation Tax)
+- [ ] **Notification** (Action: Vertical Slice)
+  - *Reason:* Feature 'Notification' spread across 2 folders (Fragmentation Tax)
+- [ ] **Visual** (Action: Vertical Slice)
+  - *Reason:* Feature 'Visual' spread across 2 folders (Fragmentation Tax)
 - [ ] **index** (Action: Vertical Slice)
   - *Reason:* Feature 'index' spread across 3 folders (Fragmentation Tax)
-- [ ] **mod** (Action: Vertical Slice)
-  - *Reason:* Feature 'mod' spread across 16 folders (Fragmentation Tax)
+- [ ] **Link** (Action: Vertical Slice)
+  - *Reason:* Feature 'Link' spread across 3 folders (Fragmentation Tax)
+- [ ] **Exif** (Action: Vertical Slice)
+  - *Reason:* Feature 'Exif' spread across 2 folders (Fragmentation Tax)
+- [ ] **Lucide** (Action: Vertical Slice)
+  - *Reason:* Feature 'Lucide' spread across 2 folders (Fragmentation Tax)
+- [ ] **Viewer** (Action: Vertical Slice)
+  - *Reason:* Feature 'Viewer' spread across 6 folders (Fragmentation Tax)
+- [ ] **utils** (Action: Vertical Slice)
+  - *Reason:* Feature 'utils' spread across 3 folders (Fragmentation Tax)
 - [ ] **Ui** (Action: Vertical Slice)
   - *Reason:* Feature 'Ui' spread across 3 folders (Fragmentation Tax)
+- [ ] **Scene** (Action: Vertical Slice)
+  - *Reason:* Feature 'Scene' spread across 6 folders (Fragmentation Tax)
+- [ ] **Navigation** (Action: Vertical Slice)
+  - *Reason:* Feature 'Navigation' spread across 3 folders (Fragmentation Tax)
+- [ ] **Svg** (Action: Vertical Slice)
+  - *Reason:* Feature 'Svg' spread across 2 folders (Fragmentation Tax)
 
 ---
 
 ## 🧩 MERGE TASKS (28)
-### Merge Folder: `../../src/components/Sidebar`
-- **Reason:** Score 7.00 > 1.0
-- **Files:**
-  - `SidebarActions.res`
-  - `SidebarMain.res`
-  - `SidebarBranding.res`
-  - `SidebarMainTypes.res`
-  - `SidebarProcessing.res`
-  - `SidebarMainLogic.res`
-  - `SidebarProjectInfo.res`
-### Merge Folder: `../../src/components/ui`
-- **Reason:** Score 4.00 > 1.0
-- **Files:**
-  - `context-menu.jsx`
-  - `Shadcn.res`
-  - `dropdown-menu.jsx`
-  - `button.jsx`
-  - `popover.jsx`
-  - `tooltip.jsx`
-  - `sonner.jsx`
-  - `LucideIcons.res`
-### Merge Folder: `../../src/components/ui/Lucide`
-- **Reason:** Score 4.00 > 1.0
-- **Files:**
-  - `LucideActions.res`
-  - `LucideStatus.res`
-  - `LucideMedia.res`
-  - `LucideCore.res`
-### Merge Folder: `../../src/components/VisualPipeline`
-- **Reason:** Score 5.00 > 1.0
-- **Files:**
-  - `VisualPipelineRender.res`
-  - `VisualPipelineMain.res`
-  - `VisualPipelineStyles.res`
-  - `VisualPipelineTypes.res`
-  - `VisualPipelineLogic.res`
-### Merge Folder: `../../src/systems/api`
-- **Reason:** Score 3.00 > 1.0
-- **Files:**
-  - `ProjectApi.res`
-  - `MediaApi.res`
-  - `ApiTypes.res`
-### Merge Folder: `../../backend/src/pathfinder`
-- **Reason:** Score 2.00 > 1.0
-- **Files:**
-  - `mod.rs`
-  - `utils.rs`
-### Merge Folder: `../..`
-- **Reason:** Score 5.00 > 1.0
-- **Files:**
-  - `jsconfig.json`
-  - `index.html`
-  - `tailwind.config.js`
-  - `package.json`
-  - `postcss.config.js`
-### Merge Folder: `../../backend/src/api`
-- **Reason:** Score 5.00 > 1.0
-- **Files:**
-  - `telemetry.rs`
-  - `auth.rs`
-  - `mod.rs`
-  - `geocoding.rs`
-  - `utils.rs`
-### Merge Folder: `../../backend/src/api/media`
-- **Reason:** Score 3.00 > 1.0
-- **Files:**
-  - `serve.rs`
-  - `similarity.rs`
-  - `mod.rs`
 ### Merge Folder: `../../src/systems`
 - **Reason:** Score 7.70 > 1.0
 - **Files:**
@@ -329,48 +263,61 @@
   - `SceneLoaderLogicEvents.res`
   - `NavigationRenderer.res`
   - `Exporter.res`
-### Merge Folder: `../../src/utils`
-- **Reason:** Score 2.00 > 1.0
+### Merge Folder: `../../css`
+- **Reason:** Score 3.50 > 1.0
 - **Files:**
-  - `GeoUtils.res`
-  - `PersistenceLayer.res`
-  - `ProgressBar.res`
-  - `ColorPalette.res`
-  - `StateInspector.res`
-  - `TourLogic.res`
-  - `LoggerTelemetry.res`
-  - `Logger.res`
-  - `ImageOptimizer.res`
-  - `UrlUtils.res`
-  - `LazyLoad.res`
-  - `LoggerLogic.res`
-  - `PathInterpolation.res`
-  - `ProjectionMath.res`
-  - `RequestQueue.res`
-  - `LoggerTypes.res`
-  - `Constants.res`
-  - `SessionStore.res`
-  - `Version.res`
-  - `VersionData.res`
-### Merge Folder: `../../backend/src/api/media/video`
-- **Reason:** Score 2.00 > 1.0
+  - `variables.css`
+  - `animations.css`
+  - `tailwind.css`
+  - `style.css`
+  - `legacy.css`
+  - `layout.css`
+  - `base.css`
+### Merge Folder: `../../backend/src/api`
+- **Reason:** Score 5.00 > 1.0
 - **Files:**
+  - `telemetry.rs`
+  - `auth.rs`
   - `mod.rs`
-  - `video_logic.rs`
-### Merge Folder: `../../backend/src/api/project`
-- **Reason:** Score 4.00 > 1.0
+  - `geocoding.rs`
+  - `utils.rs`
+### Merge Folder: `../../src/components`
+- **Reason:** Score 3.20 > 1.0
 - **Files:**
-  - `export.rs`
-  - `mod.rs`
-  - `validation.rs`
-  - `navigation.rs`
-### Merge Folder: `../../src/components/SceneList`
-- **Reason:** Score 2.00 > 1.0
-- **Files:**
-  - `SceneItem.res`
-  - `SceneListMain.res`
+  - `NotificationLayer.res`
+  - `LabelMenu.res`
+  - `HotspotManager.res`
+  - `UploadReport.res`
+  - `Tooltip.res`
+  - `HotspotActionMenu.res`
+  - `ViewerLoader.res`
+  - `QualityIndicator.res`
+  - `ViewerSnapshot.res`
+  - `HotspotLayer.res`
+  - `AppErrorBoundary.res`
+  - `ViewerUI.res`
+  - `PopOver.res`
+  - `PersistentLabel.res`
+  - `Sidebar.res`
+  - `PreviewArrow.res`
+  - `VisualPipeline.res`
+  - `HotspotMenuLayer.res`
+  - `ViewerHUD.res`
+  - `FloorNavigation.res`
+  - `ViewerManagerLogic.res`
+  - `ReturnPrompt.res`
+  - `NotificationContext.res`
+  - `UtilityBar.res`
+  - `ViewerLabelMenu.res`
+  - `SnapshotOverlay.res`
+  - `SceneList.res`
+  - `ViewerManager.res`
+  - `LinkModal.res`
+  - `ModalContext.res`
+  - `Portal.res`
+  - `ErrorFallbackUI.res`
 ### Merge Folder: `../../tests/unit`
-- **Reason:** Score 6.50 > 1.0
+- **Reason:** Score 6.70 > 1.0
 - **Files:**
   - `NavigationReducer_v.test.res`
   - `ExifReportGeneratorLogicExtraction_v.test.res`
@@ -409,6 +356,7 @@
   - `ViewerManager_v.test.res`
   - `Types_v.test.res`
   - `TeaserState_v.test.res`
+  - `AuthenticatedClient_v.test.res`
   - `Reducer_v.test.res`
   - `HotspotManager_v.test.res`
   - `State_v.test.res`
@@ -426,6 +374,7 @@
   - `ExifReportGeneratorLogicGroups_v.test.res`
   - `InteractionsRobustness_v.test.res`
   - `UploadProcessorLogic_v.test.res`
+  - `AuthContext_v.test.res`
   - `TeaserManager_v.test.res`
   - `ReBindings_v.test.res`
   - `ViewerTypes_v.test.res`
@@ -437,6 +386,134 @@
   - `Bindings_Unified_v.test.res`
   - `ServiceWorker_v.test.res`
   - `SceneReducer_v.test.res`
+### Merge Folder: `../../src/systems/api`
+- **Reason:** Score 4.00 > 1.0
+- **Files:**
+  - `ProjectApi.res`
+  - `MediaApi.res`
+  - `ApiTypes.res`
+  - `AuthenticatedClient.res`
+### Merge Folder: `../../scripts/guard`
+- **Reason:** Score 5.00 > 1.0
+- **Files:**
+  - `check-tests.js`
+  - `index.js`
+  - `check-map.js`
+  - `utils.js`
+  - `check-tasks.js`
+### Merge Folder: `../../src/components/SceneList`
+- **Reason:** Score 2.00 > 1.0
+- **Files:**
+  - `SceneItem.res`
+  - `SceneListMain.res`
+### Merge Folder: `../../src/components/ui`
+- **Reason:** Score 5.50 > 1.0
+- **Files:**
+  - `context-menu.jsx`
+  - `Shadcn.res`
+  - `input.jsx`
+  - `dropdown-menu.jsx`
+  - `checkbox.jsx`
+  - `button.jsx`
+  - `popover.jsx`
+  - `tooltip.jsx`
+  - `sonner.jsx`
+  - `label.jsx`
+  - `LucideIcons.res`
+### Merge Folder: `../../backend/src/api/project/storage`
+- **Reason:** Score 2.00 > 1.0
+- **Files:**
+  - `storage_logic.rs`
+  - `mod.rs`
+### Merge Folder: `../../src/components/Sidebar`
+- **Reason:** Score 7.00 > 1.0
+- **Files:**
+  - `SidebarActions.res`
+  - `SidebarMain.res`
+  - `SidebarBranding.res`
+  - `SidebarMainTypes.res`
+  - `SidebarProcessing.res`
+  - `SidebarMainLogic.res`
+  - `SidebarProjectInfo.res`
+### Merge Folder: `../../backend/src/api/media/video`
+- **Reason:** Score 2.00 > 1.0
+- **Files:**
+  - `mod.rs`
+  - `video_logic.rs`
+### Merge Folder: `../../backend/src/services/geocoding`
+- **Reason:** Score 2.00 > 1.0
+- **Files:**
+  - `logic.rs`
+  - `mod.rs`
+### Merge Folder: `../../backend/src/api/media/image`
+- **Reason:** Score 1.50 > 1.0
+- **Files:**
+  - `image_utils.rs`
+  - `mod.rs`
+  - `image_logic.rs`
+### Merge Folder: `../../src/components/VisualPipeline`
+- **Reason:** Score 5.00 > 1.0
+- **Files:**
+  - `VisualPipelineRender.res`
+  - `VisualPipelineMain.res`
+  - `VisualPipelineStyles.res`
+  - `VisualPipelineTypes.res`
+  - `VisualPipelineLogic.res`
+### Merge Folder: `../../backend/src/api/project`
+- **Reason:** Score 4.00 > 1.0
+- **Files:**
+  - `export.rs`
+  - `mod.rs`
+  - `validation.rs`
+  - `navigation.rs`
+### Merge Folder: `../../backend/src/pathfinder`
+- **Reason:** Score 2.00 > 1.0
+- **Files:**
+  - `mod.rs`
+  - `utils.rs`
+### Merge Folder: `../../src/components/ui/Lucide`
+- **Reason:** Score 4.00 > 1.0
+- **Files:**
+  - `LucideActions.res`
+  - `LucideStatus.res`
+  - `LucideMedia.res`
+  - `LucideCore.res`
+### Merge Folder: `../../backend/src/models`
+- **Reason:** Score 5.00 > 1.0
+- **Files:**
+  - `session.rs`
+  - `user.rs`
+  - `mod.rs`
+  - `project.rs`
+  - `errors.rs`
+### Merge Folder: `../../backend/src`
+- **Reason:** Score 2.00 > 1.0
+- **Files:**
+  - `lib.rs`
+  - `main.rs`
+### Merge Folder: `../../src/utils`
+- **Reason:** Score 2.00 > 1.0
+- **Files:**
+  - `GeoUtils.res`
+  - `PersistenceLayer.res`
+  - `ProgressBar.res`
+  - `ColorPalette.res`
+  - `StateInspector.res`
+  - `TourLogic.res`
+  - `LoggerTelemetry.res`
+  - `Logger.res`
+  - `ImageOptimizer.res`
+  - `UrlUtils.res`
+  - `LazyLoad.res`
+  - `LoggerLogic.res`
+  - `PathInterpolation.res`
+  - `ProjectionMath.res`
+  - `RequestQueue.res`
+  - `LoggerTypes.res`
+  - `Constants.res`
+  - `SessionStore.res`
+  - `Version.res`
+  - `VersionData.res`
 ### Merge Folder: `../../src`
 - **Reason:** Score 6.00 > 1.0
 - **Files:**
@@ -446,82 +523,6 @@
   - `ServiceWorkerMain.res`
   - `index.js`
   - `ServiceWorker.res`
-### Merge Folder: `../../src/core/reducers`
-- **Reason:** Score 9.00 > 1.0
-- **Files:**
-  - `TimelineReducer.res`
-  - `NavigationReducer.res`
-  - `ProjectReducer.res`
-  - `SimulationReducer.res`
-  - `SceneReducer.res`
-  - `UiReducer.res`
-  - `mod.res`
-  - `RootReducer.res`
-  - `HotspotReducer.res`
-### Merge Folder: `../../src/components`
-- **Reason:** Score 3.20 > 1.0
-- **Files:**
-  - `NotificationLayer.res`
-  - `LabelMenu.res`
-  - `HotspotManager.res`
-  - `UploadReport.res`
-  - `Tooltip.res`
-  - `HotspotActionMenu.res`
-  - `ViewerLoader.res`
-  - `QualityIndicator.res`
-  - `ViewerSnapshot.res`
-  - `HotspotLayer.res`
-  - `AppErrorBoundary.res`
-  - `ViewerUI.res`
-  - `PopOver.res`
-  - `PersistentLabel.res`
-  - `Sidebar.res`
-  - `PreviewArrow.res`
-  - `VisualPipeline.res`
-  - `HotspotMenuLayer.res`
-  - `ViewerHUD.res`
-  - `FloorNavigation.res`
-  - `ViewerManagerLogic.res`
-  - `ReturnPrompt.res`
-  - `NotificationContext.res`
-  - `UtilityBar.res`
-  - `ViewerLabelMenu.res`
-  - `SnapshotOverlay.res`
-  - `SceneList.res`
-  - `ViewerManager.res`
-  - `LinkModal.res`
-  - `ModalContext.res`
-  - `Portal.res`
-  - `ErrorFallbackUI.res`
-### Merge Folder: `../../scripts/guard`
-- **Reason:** Score 6.00 > 1.0
-- **Files:**
-  - `check-size.js`
-  - `check-tests.js`
-  - `index.js`
-  - `check-map.js`
-  - `utils.js`
-  - `check-tasks.js`
-### Merge Folder: `../../backend/src`
-- **Reason:** Score 2.00 > 1.0
-- **Files:**
-  - `lib.rs`
-  - `main.rs`
-### Merge Folder: `../../css`
-- **Reason:** Score 3.50 > 1.0
-- **Files:**
-  - `variables.css`
-  - `animations.css`
-  - `tailwind.css`
-  - `style.css`
-  - `legacy.css`
-  - `layout.css`
-  - `base.css`
-### Merge Folder: `../../backend/src/services/geocoding`
-- **Reason:** Score 2.00 > 1.0
-- **Files:**
-  - `logic.rs`
-  - `mod.rs`
 ### Merge Folder: `../../src/bindings`
 - **Reason:** Score 6.00 > 1.0
 - **Files:**
@@ -531,24 +532,22 @@
   - `ViewerBindings.res`
   - `IdbBindings.res`
   - `DomBindings.res`
-### Merge Folder: `../../scripts`
-- **Reason:** Score 7.00 > 1.0
+### Merge Folder: `../../backend/src/api/media`
+- **Reason:** Score 3.00 > 1.0
 - **Files:**
-  - `increment-build.js`
-  - `debug-connectivity.js`
-  - `update-changelog.js`
-  - `update-version.js`
-  - `test-logging.js`
-  - `bump-version.js`
-  - `update-readme.js`
-### Merge Folder: `../../backend/src/api/media/image`
-- **Reason:** Score 1.50 > 1.0
-- **Files:**
-  - `image_utils.rs`
+  - `serve.rs`
+  - `similarity.rs`
   - `mod.rs`
-  - `image_logic.rs`
+### Merge Folder: `../..`
+- **Reason:** Score 5.00 > 1.0
+- **Files:**
+  - `jsconfig.json`
+  - `index.html`
+  - `tailwind.config.js`
+  - `package.json`
+  - `postcss.config.js`
 ### Merge Folder: `../../src/core`
-- **Reason:** Score 1.80 > 1.0
+- **Reason:** Score 1.90 > 1.0
 - **Files:**
   - `SimHelpers.res`
   - `Reducer.res`
@@ -567,17 +566,27 @@
   - `GlobalStateBridge.res`
   - `SceneHelpersLogic.res`
   - `State.res`
+  - `AuthContext.res`
   - `SceneCache.res`
-### Merge Folder: `../../backend/src/models`
-- **Reason:** Score 5.00 > 1.0
+### Merge Folder: `../../src/core/reducers`
+- **Reason:** Score 9.00 > 1.0
 - **Files:**
-  - `session.rs`
-  - `user.rs`
-  - `mod.rs`
-  - `project.rs`
-  - `errors.rs`
-### Merge Folder: `../../backend/src/api/project/storage`
-- **Reason:** Score 2.00 > 1.0
+  - `TimelineReducer.res`
+  - `NavigationReducer.res`
+  - `ProjectReducer.res`
+  - `SimulationReducer.res`
+  - `SceneReducer.res`
+  - `UiReducer.res`
+  - `mod.res`
+  - `RootReducer.res`
+  - `HotspotReducer.res`
+### Merge Folder: `../../scripts`
+- **Reason:** Score 7.00 > 1.0
 - **Files:**
-  - `storage_logic.rs`
-  - `mod.rs`
+  - `increment-build.js`
+  - `debug-connectivity.js`
+  - `update-changelog.js`
+  - `update-version.js`
+  - `test-logging.js`
+  - `bump-version.js`
+  - `update-readme.js`
