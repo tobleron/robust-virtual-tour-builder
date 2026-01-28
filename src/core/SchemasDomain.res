@@ -1,23 +1,29 @@
 open RescriptSchema
-
 open Types
 
-let file = S.string->(Obj.magic: S.t<string> => S.t<Types.file>)
+let file = S.string->S.transform(_ => {
+  parser: s => Url(s),
+  serializer: f =>
+    switch f {
+    | Url(s) => s
+    | Blob(_) | File(_) => ""
+    },
+})
 
 let viewFrame = S.object(s => {
   {
-    yaw: s.field("yaw", S.float),
-    pitch: s.field("pitch", S.float),
-    hfov: s.field("hfov", S.float),
+    yaw: s.field("yaw", S.option(S.float)->S.Option.getOr(0.0)),
+    pitch: s.field("pitch", S.option(S.float)->S.Option.getOr(0.0)),
+    hfov: s.field("hfov", S.option(S.float)->S.Option.getOr(0.0)),
   }
 })
 
 let hotspot = S.object(s => {
   {
     linkId: s.field("linkId", S.option(S.string)->S.Option.getOr("")),
-    yaw: s.field("yaw", S.float),
-    pitch: s.field("pitch", S.float),
-    target: s.field("target", S.string),
+    yaw: s.field("yaw", S.option(S.float)->S.Option.getOr(0.0)),
+    pitch: s.field("pitch", S.option(S.float)->S.Option.getOr(0.0)),
+    target: s.field("target", S.option(S.string)->S.Option.getOr("")),
     targetYaw: s.field("targetYaw", S.option(S.float)),
     targetPitch: s.field("targetPitch", S.option(S.float)),
     targetHfov: s.field("targetHfov", S.option(S.float)),
@@ -30,14 +36,20 @@ let hotspot = S.object(s => {
     waypoints: s.field("waypoints", S.option(S.array(viewFrame))),
     displayPitch: s.field("displayPitch", S.option(S.float)),
     transition: s.field("transition", S.option(S.string)),
-    duration: s.field("duration", S.option(S.int)),
+    duration: s.field(
+      "duration",
+      S.option(S.float)->S.transform(_ => {
+        parser: o => o->Option.map(Belt.Float.toInt),
+        serializer: o => o->Option.map(Belt.Int.toFloat),
+      }),
+    ),
   }
 })
 
 let scene = S.object(s => {
   {
     id: s.field("id", S.option(S.string)->S.Option.getOr("")),
-    name: s.field("name", S.string),
+    name: s.field("name", S.option(S.string)->S.Option.getOr("unknown")),
     file: s.field("file", file),
     tinyFile: s.field("tinyFile", S.option(file)),
     originalFile: s.field("originalFile", S.option(file)),
@@ -56,19 +68,25 @@ let scene = S.object(s => {
 
 let timelineItem = S.object(s => {
   {
-    id: s.field("id", S.string),
-    linkId: s.field("linkId", S.string),
-    sceneId: s.field("sceneId", S.string),
-    targetScene: s.field("targetScene", S.string),
-    transition: s.field("transition", S.string),
-    duration: s.field("duration", S.int),
+    id: s.field("id", S.option(S.string)->S.Option.getOr("")),
+    linkId: s.field("linkId", S.option(S.string)->S.Option.getOr("")),
+    sceneId: s.field("sceneId", S.option(S.string)->S.Option.getOr("")),
+    targetScene: s.field("targetScene", S.option(S.string)->S.Option.getOr("")),
+    transition: s.field("transition", S.option(S.string)->S.Option.getOr("")),
+    duration: s.field(
+      "duration",
+      S.option(S.float)->S.transform(_ => {
+        parser: o => o->Option.map(Belt.Float.toInt)->Option.getOr(0),
+        serializer: i => Some(Belt.Int.toFloat(i)),
+      }),
+    ),
   }
 })
 
 let project: S.t<Types.project> = S.object(s => {
   {
     tourName: s.field("tourName", S.option(S.string)->S.Option.getOr("Tour Name")),
-    scenes: s.field("scenes", S.array(scene)),
+    scenes: s.field("scenes", S.option(S.array(scene))->S.Option.getOr([])),
     lastUsedCategory: s.field("lastUsedCategory", S.option(S.string)->S.Option.getOr("outdoor")),
     exifReport: s.field(
       "exifReport",
@@ -80,14 +98,38 @@ let project: S.t<Types.project> = S.object(s => {
   }
 })
 
+let transitionTarget = S.object(s => {
+  {
+    Types.yaw: s.field("yaw", S.float),
+    pitch: s.field("pitch", S.float),
+    targetName: s.field("targetName", S.string),
+    timelineItemId: s.field("timelineItemId", S.option(S.string)),
+  }
+})
+
+let arrivalViewSchema = S.object(s => {
+  {
+    Types.yaw: s.field("yaw", S.float),
+    pitch: s.field("pitch", S.float),
+  }
+})
+
+let step: S.t<Types.step> = S.object(s => {
+  {
+    idx: s.field("idx", S.int),
+    transitionTarget: s.field("transitionTarget", S.option(transitionTarget)),
+    arrivalView: s.field("arrivalView", arrivalViewSchema),
+  }
+})
+
 let importScene = S.object(s => {
   {
-    id: s.field("id", S.string),
-    name: s.field("name", S.string),
-    file: s.field("preview", file),
-    tinyFile: s.field("tiny", S.option(file)),
-    originalFile: s.field("original", S.option(file)),
-    hotspots: [],
+    id: s.field("id", S.option(S.string)->S.Option.getOr("")), // Default empty
+    name: s.field("name", S.option(S.string)->S.Option.getOr("unknown")), // Default unknown
+    file: s.field("file", S.option(file)->S.Option.getOr(Types.Url(""))), // Optional file, default empty Url
+    tinyFile: s.field("tinyFile", S.option(file)),
+    originalFile: s.field("originalFile", S.option(file)),
+    hotspots: s.field("hotspots", S.option(S.array(hotspot))->S.Option.getOr([])),
     category: "outdoor",
     floor: "ground",
     label: "",
@@ -100,7 +142,7 @@ let importScene = S.object(s => {
   }
 })
 
-let updateMetadata: S.t<Types.updateMetadata> = S.object(s => {
+let updateMetadata = S.object(s => {
   {
     category: s.field("category", S.option(S.string)),
     floor: s.field("floor", S.option(S.string)),
@@ -112,30 +154,11 @@ let updateMetadata: S.t<Types.updateMetadata> = S.object(s => {
 let timelineUpdate: S.t<Types.timelineUpdate> = S.object(s => {
   {
     transition: s.field("transition", S.option(S.string)),
-    duration: s.field("duration", S.option(S.option(S.int))),
-  }
-})
-
-let transitionTarget = S.object(s => {
-  {
-    yaw: s.field("yaw", S.float),
-    pitch: s.field("pitch", S.float),
-    targetName: s.field("targetName", S.string),
-    timelineItemId: s.field("timelineItemId", S.option(S.string)),
-  }
-})
-
-let arrivalView = S.object(s => {
-  {
-    yaw: s.field("yaw", S.float),
-    pitch: s.field("pitch", S.float),
-  }
-})
-
-let step = S.object(s => {
-  {
-    idx: s.field("idx", S.int),
-    transitionTarget: s.field("transitionTarget", S.option(transitionTarget)),
-    arrivalView: s.field("arrivalView", arrivalView),
+    duration: s.field("duration",
+      S.option(S.null(S.float))->S.transform(_ => {
+        parser: o => o->Option.map(innerOpt => innerOpt->Option.map(Belt.Float.toInt)),
+        serializer: o => o->Option.map(innerOpt => innerOpt->Option.map(Belt.Int.toFloat))
+      })
+    ),
   }
 })
