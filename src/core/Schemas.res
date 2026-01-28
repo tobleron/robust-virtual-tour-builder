@@ -156,23 +156,21 @@ let castToProjectScene = (json: JSON.t): Types.scene =>
   switch parse(json, Domain.scene) {
   | Ok(v) => sanitizeScene(v)
   | Error(_) => {
-      {
-        id: "error_" ++ Float.toString(Date.now()),
-        name: "invalid",
-        file: Types.Url(""),
-        tinyFile: None,
-        originalFile: None,
-        hotspots: [],
-        category: "outdoor",
-        floor: "ground",
-        label: "",
-        quality: None,
-        colorGroup: None,
-        _metadataSource: "default",
-        categorySet: false,
-        labelSet: false,
-        isAutoForward: false,
-      }
+      id: "error_" ++ Float.toString(Date.now()),
+      name: "invalid",
+      file: Types.Url(""),
+      tinyFile: None,
+      originalFile: None,
+      hotspots: [],
+      category: "outdoor",
+      floor: "ground",
+      label: "",
+      quality: None,
+      colorGroup: None,
+      _metadataSource: "default",
+      categorySet: false,
+      labelSet: false,
+      isAutoForward: false,
     }
   }
 
@@ -181,21 +179,21 @@ let castToProject = (json: JSON.t): Types.state => {
   | Ok(pd) => {
       let scenes = pd.scenes->Belt.Array.map(sanitizeScene)
       {
-      ...State.initialState,
-      tourName: pd.tourName,
-      scenes: scenes,
-      activeIndex: if Array.length(scenes) > 0 {
-        0
-      } else {
-        -1
-      },
-      lastUsedCategory: pd.lastUsedCategory,
-      exifReport: pd.exifReport,
-      sessionId: pd.sessionId,
-      deletedSceneIds: pd.deletedSceneIds,
-      timeline: pd.timeline,
+        ...State.initialState,
+        tourName: pd.tourName,
+        scenes,
+        activeIndex: if Array.length(scenes) > 0 {
+          0
+        } else {
+          -1
+        },
+        lastUsedCategory: pd.lastUsedCategory,
+        exifReport: pd.exifReport,
+        sessionId: pd.sessionId,
+        deletedSceneIds: pd.deletedSceneIds,
+        timeline: pd.timeline,
+      }
     }
-  }
   | Error(_) => State.initialState
   }
 }
