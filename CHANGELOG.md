@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implement autonomous role tagging engine with multi-language header support
 - Automate formal ambiguity task synchronization with the project task system
 - Transform dashboard into a dynamic Architectural Mind Map using D3.js
+- Implement minimal Architectural Ledger dashboard and project-wide task sync
 
 ### Changed
 - Mark task 903 as completed (Asset Persistence & Isolation)
