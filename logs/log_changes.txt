@@ -17,3 +17,4 @@
 [2026-01-28 10:22] v4.8.8 - refactor: safe integration of Jules' latest similarity schema updates
 [2026-01-28 10:27] v4.8.8 - refactor: synchronize stable schema and similarity updates across all branches [TRIPLE]
 [2026-01-28 10:55] v4.8.8 - refactor: integrate Jules' async schema fix
+[2026-01-28 11:15] v4.8.8 - fix: resolve persistent async schema error and restore stable API structure
