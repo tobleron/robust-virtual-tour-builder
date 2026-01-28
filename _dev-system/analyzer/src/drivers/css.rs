@@ -9,6 +9,8 @@ pub fn analyze_css(content: &str) -> anyhow::Result<CommonMetrics> {
         complexity_penalty: 0.0,
         hotspot_lines: None,
         hotspot_reason: None,
+        external_calls: 0,
+        internal_calls: 0,
     };
     
     metrics.logic_count = stripped.matches("{").count();

@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architectural Governor v1.3 | Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0c;
+            --accent-orange: #ea580c;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #e2e8f0;
+            --text-dim: #94a3b8;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #10b981;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .gradient-bg {
+            position: fixed;
+            top: -20%;
+            right: -10%;
+            width: 70%;
+            height: 70%;
+            background: radial-gradient(circle, rgba(234, 88, 12, 0.08) 0%, transparent 70%);
+            z-index: -1;
+            filter: blur(100px);
+            animation: float 20s infinite alternate linear;
+        }
+
+        @keyframes float {
+            from {
+                transform: translate(0, 0);
+            }
+
+            to {
+                transform: translate(-10%, 10%);
+            }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.2rem;
+            font-size: 0.8rem;
+            color: var(--accent-orange);
+            font-weight: 600;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(12px);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(234, 88, 12, 0.3);
+        }
+
+        .stat-label {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            margin-top: 0.5rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+        }
+
+        .sidebar-nav {
+            position: sticky;
+            top: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .filter-group {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 1rem;
+            padding: 1.25rem;
+        }
+
+        .filter-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .btn-filter {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-dim);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-filter:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+
+        .btn-filter.active {
+            background: rgba(234, 88, 12, 0.1);
+            border-color: rgba(234, 88, 12, 0.2);
+            color: var(--accent-orange);
+        }
+
+        .count-badge {
+            font-size: 0.75rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.1rem 0.5rem;
+            border-radius: 1rem;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .task-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            animation: slideIn 0.5s ease backwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .task-type {
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 0.25rem 0.6rem;
+            border-radius: 0.4rem;
+            letter-spacing: 0.05rem;
+        }
+
+        .type-surgical {
+            background: rgba(59, 130, 246, 0.1);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .type-violation {
+            background: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .type-merge {
+            background: rgba(168, 85, 247, 0.1);
+            color: #c084fc;
+            border: 1px solid rgba(168, 85, 247, 0.2);
+        }
+
+        .type-ambiguity {
+            background: rgba(245, 158, 11, 0.1);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .task-file {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #fff;
+            margin-bottom: 0.5rem;
+            word-break: break-all;
+        }
+
+        .task-reason {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            padding-left: 1rem;
+            border-left: 2px solid var(--glass-border);
+        }
+
+        .hotspot-box {
+            margin-top: 1rem;
+            background: rgba(234, 88, 12, 0.05);
+            border: 1px solid rgba(234, 88, 12, 0.1);
+            border-radius: 0.6rem;
+            padding: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .hotspot-icon {
+            font-size: 1.2rem;
+            animation: flicker 2s infinite;
+        }
+
+        @keyframes flicker {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.6;
+                transform: scale(0.9);
+            }
+        }
+
+        .hotspot-text {
+            font-size: 0.85rem;
+            color: var(--accent-orange);
+            font-weight: 600;
+        }
+
+        .search-container {
+            margin-bottom: 2rem;
+        }
+
+        #searchInput {
+            width: 100%;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 0.75rem;
+            padding: 1rem 1.5rem;
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        #searchInput:focus {
+            border-color: var(--accent-orange);
+            box-shadow: 0 0 20px rgba(234, 88, 12, 0.1);
+        }
+
+        .empty-state {
+            padding: 4rem;
+            text-align: center;
+            color: var(--text-dim);
+            font-style: italic;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--glass-border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="gradient-bg"></div>
+
+    <div class="container">
+        <header>
+            <div>
+                <p class="subtitle">Autonomous Governance Engine</p>
+                <h1>Architectural Governor <span style="font-weight: 300; opacity: 0.5;">v1.3</span></h1>
+            </div>
+            <div id="lastUpdate" style="font-size: 0.8rem; color: var(--text-dim);">
+                Scan v8 | AI-Efficiency Optimized
+            </div>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Files Analyzed</div>
+                <div class="stat-value" id="statFiles">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Critical Violations</div>
+                <div class="stat-value" id="statViolations" style="color: var(--danger);">0</div>
+            </div>
+            <div class="stat-card" title="Combined Surgical, Merge, and Ambiguity tasks">
+                <div class="stat-label">Active Refactor Tasks</div>
+                <div class="stat-value" id="statTasks" style="color: var(--warning);">0</div>
+            </div>
+            <div class="stat-card" title="Folders with AI Context Tax > 1.0">
+                <div class="stat-label">Context Merges Plan</div>
+                <div class="stat-value" id="statMerges" style="color: #c084fc;">0</div>
+            </div>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="searchInput"
+                placeholder="Search by filename, pattern, or reason (e.g. 'hotspot', 'schemas', 'unwrap')...">
+        </div>
+
+        <div class="dashboard-grid">
+            <aside class="sidebar-nav">
+                <div class="filter-group">
+                    <div class="filter-title">Language Engines</div>
+                    <button class="btn-filter active" onclick="setEngine('all')">
+                        All Engines <span class="count-badge" id="countAll">0</span>
+                    </button>
+                    <button class="btn-filter" onclick="setEngine('rescript')">
+                        ReScript <span class="count-badge" id="countRes">0</span>
+                    </button>
+                    <button class="btn-filter" onclick="setEngine('rust')">
+                        Rust <span class="count-badge" id="countRust">0</span>
+                    </button>
+                    <button class="btn-filter" onclick="setEngine('web')">
+                        Web (HTML/JS) <span class="count-badge" id="countWeb">0</span>
+                    </button>
+                    <button class="btn-filter" onclick="setEngine('css')">
+                        Stylesheets <span class="count-badge" id="countCss">0</span>
+                    </button>
+                </div>
+
+                <div class="filter-group">
+                    <div class="filter-title">Task Types</div>
+                    <button class="btn-filter" onclick="setType('Surgical')">
+                        Surgical Refactor
+                    </button>
+                    <button class="btn-filter" onclick="setType('Violation')">
+                        Critical Violations
+                    </button>
+                    <button class="btn-filter" onclick="setType('Merge')">
+                        Context Merges
+                    </button>
+                </div>
+            </aside>
+
+            <main class="main-content" id="taskContainer">
+                <!-- Tasks will be injected here -->
+                <div class="empty-state">Loading architectural data...</div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        let fullData = null;
+        let activeEngine = 'all';
+        let activeType = 'all';
+        let searchQuery = '';
+
+        async function loadData() {
+            try {
+                // If using as a local file, we might need to load via a <script> or manually
+                // For this environment, we attempt a standard fetch first
+                let response;
+                try {
+                    response = await fetch('pending/metadata.json');
+                    if (!response.ok) throw new Error("Fetch failed");
+                    fullData = await response.json();
+                } catch (e) {
+                    console.log("Fetch failed, attempting to read from manual injection if available...");
+                    // Fallback for local browser limits
+                    if (window.INJECTED_METADATA) {
+                        fullData = window.INJECTED_METADATA;
+                    } else {
+                        throw e;
+                    }
+                }
+
+                updateStats();
+                renderTasks();
+            } catch (e) {
+                document.getElementById('taskContainer').innerHTML = `
+                    <div class="empty-state" style="color: var(--danger);">
+                        <b>METADATA ACCESS ERROR:</b><br>
+                        Browsers often block <code>fetch()</code> on local files for security.<br><br>
+                        <b>FIX:</b> Open your terminal and run:<br>
+                        <code>npx serve .</code><br>
+                        Then visit the dashboard via the localhost URL.
+                    </div>
+                `;
+            }
+        }
+
+        function updateStats() {
+            let totalFiles = 0;
+            let violations = 0;
+            let tasks = 0;
+            let merges = 0;
+
+            const counts = { res: 0, rust: 0, web: 0, css: 0, config: 0 };
+
+            Object.entries(fullData).forEach(([engine, units]) => {
+                totalFiles += units.length;
+                if (engine === 'rescript') counts.res = units.length;
+                if (engine === 'rust') counts.rust = units.length;
+                if (engine === 'web') counts.web = units.length;
+                if (engine === 'css') counts.css = units.length;
+
+                units.forEach(unit => {
+                    if (unit.Violation) violations++;
+                    if (unit.Surgical) tasks++;
+                    if (unit.Merge) merges++;
+                    if (unit.Ambiguity) tasks++;
+                });
+            });
+
+            document.getElementById('statFiles').innerText = totalFiles;
+            document.getElementById('statViolations').innerText = violations;
+            document.getElementById('statTasks').innerText = tasks + merges;
+            document.getElementById('statMerges').innerText = merges;
+
+            document.getElementById('countAll').innerText = totalFiles;
+            document.getElementById('countRes').innerText = counts.res;
+            document.getElementById('countRust').innerText = counts.rust;
+            document.getElementById('countWeb').innerText = counts.web;
+            document.getElementById('countCss').innerText = counts.css;
+        }
+
+        function setEngine(engine) {
+            activeEngine = engine;
+            document.querySelectorAll('.btn-filter').forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            renderTasks();
+        }
+
+        function setType(type) {
+            activeType = activeType === type ? 'all' : type;
+            renderTasks();
+        }
+
+        function renderTasks() {
+            const container = document.getElementById('taskContainer');
+            container.innerHTML = '';
+
+            let filteredUnits = [];
+
+            Object.entries(fullData).forEach(([engine, units]) => {
+                if (activeEngine !== 'all' && activeEngine !== engine) return;
+
+                units.forEach(unit => {
+                    const type = Object.keys(unit)[0];
+                    if (activeType !== 'all' && activeType !== type) return;
+
+                    const data = unit[type];
+                    const content = JSON.stringify(data).toLowerCase();
+                    if (searchQuery && !content.includes(searchQuery.toLowerCase())) return;
+
+                    filteredUnits.push({ engine, type, data });
+                });
+            });
+
+            if (filteredUnits.length === 0) {
+                container.innerHTML = `<div class="empty-state">No matching tasks found for current filters.</div>`;
+                return;
+            }
+
+            // Sort: Violations first, then Surgical, then Merges
+            filteredUnits.sort((a, b) => {
+                const order = { Violation: 0, Surgical: 1, Merge: 2, Ambiguity: 3 };
+                return order[a.type] - order[b.type];
+            });
+
+            filteredUnits.forEach(unit => {
+                const card = document.createElement('div');
+                card.className = 'task-card';
+
+                let innerHtml = `
+                    <div class="task-header">
+                        <span class="task-type type-${unit.type.toLowerCase()}">${unit.type}</span>
+                        <span style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700;">${unit.engine}</span>
+                    </div>
+                `;
+
+                if (unit.type === 'Merge') {
+                    innerHtml += `
+                        <div class="task-file">Folder: ${unit.data.folder.replace('../../', '')}</div>
+                        <div class="task-reason">${unit.data.reason}</div>
+                        <div style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-dim);">
+                            Files: ${unit.data.files.join(', ')}
+                        </div>
+                    `;
+                } else if (unit.type === 'Ambiguity') {
+                    innerHtml += `
+                        <div class="task-file">${unit.data.file.replace('../../', '')}</div>
+                        <div class="task-reason">Path requires architectural role classification.</div>
+                    `;
+                } else {
+                    innerHtml += `
+                        <div class="task-file">${unit.data.file.replace('../../', '')}</div>
+                        <div class="task-reason">${unit.data.reason || unit.data.pattern || 'Rule violation'}</div>
+                    `;
+
+                    if (unit.data.reason && unit.data.reason.includes('🔥')) {
+                        const hotspotLines = unit.data.reason.split('🔥')[1];
+                        innerHtml += `
+                            <div class="hotspot-box">
+                                <span class="hotspot-icon">🔥</span>
+                                <span class="hotspot-text">HOTSPOT: ${hotspotLines.trim()}</span>
+                            </div>
+                        `;
+                    }
+                }
+
+                card.innerHTML = innerHtml;
+                container.appendChild(card);
+            });
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            renderTasks();
+        });
+
+        loadData();
+    </script>
+</body>
+
+</html>

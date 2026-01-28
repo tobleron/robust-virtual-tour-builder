@@ -9,8 +9,26 @@ pub fn analyze_rescript(content: &str) -> anyhow::Result<CommonMetrics> {
         complexity_penalty: 0.0,
         hotspot_lines: None,
         hotspot_reason: None,
+        external_calls: 0,
+        internal_calls: 0,
     };
     
+    // AI Efficiency: Tracking Dependencies
+    metrics.external_calls += content.matches("open ").count();
+    metrics.external_calls += content.matches("import ").count();
+    // Count Module access (simplified)
+    for line in stripped.lines() {
+        if line.contains(".") {
+            let parts: Vec<&str> = line.split('.').collect();
+            if parts.len() > 1 {
+                let potential_module = parts[0].trim();
+                if !potential_module.is_empty() && potential_module.chars().next().unwrap_or(' ').is_uppercase() {
+                    metrics.external_calls += 1;
+                }
+            }
+        }
+    }
+
     metrics.logic_count += stripped.matches("->").count();
     metrics.logic_count += stripped.matches("switch ").count();
     metrics.logic_count += stripped.matches("| ").count();
@@ -27,7 +45,10 @@ pub fn analyze_rescript(content: &str) -> anyhow::Result<CommonMetrics> {
         // Local nesting
         bracket_stack += stripped_line.matches("{").count();
         if bracket_stack > metrics.max_nesting { metrics.max_nesting = bracket_stack; }
-        local_score += bracket_stack as f64 * 0.5;
+        
+        // AI Penalty: Exponential nesting cost
+        local_score += (bracket_stack as f64).powi(2) * 0.2; 
+        
         bracket_stack = bracket_stack.saturating_sub(stripped_line.matches("}").count());
 
         // Local logic
@@ -49,9 +70,9 @@ pub fn analyze_rescript(content: &str) -> anyhow::Result<CommonMetrics> {
                 best_start = i;
             }
         }
-        if max_window_score > 2.0 { // Sensitivity threshold
+        if max_window_score > 2.0 { 
             metrics.hotspot_lines = Some((best_start + 1, best_start + 5));
-            metrics.hotspot_reason = Some(format!("High local density (score {:.1})", max_window_score));
+            metrics.hotspot_reason = Some(format!("AI Context Fog (score {:.1})", max_window_score));
         }
     }
 
