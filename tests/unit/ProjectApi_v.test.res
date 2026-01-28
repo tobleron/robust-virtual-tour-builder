@@ -135,7 +135,7 @@ describe("ProjectApi", () => {
   testAsync("reverseGeocode: success", async t => {
     setupFetch(
       (url, _) => {
-        if String.includes(url, "/geocode/reverse") {
+        if String.includes(url, "/geocoding/reverse") {
           Promise.resolve(
             Obj.magic({
               "ok": true,
@@ -144,7 +144,13 @@ describe("ProjectApi", () => {
             }),
           )
         } else {
-          Promise.resolve(Obj.magic({"ok": false, "status": 404}))
+          Promise.resolve(
+            Obj.magic({
+              "ok": false,
+              "status": 404,
+              "json": () => Promise.resolve({"error": "Not Found", "details": null}),
+            }),
+          )
         }
       },
     )

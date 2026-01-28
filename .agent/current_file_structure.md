@@ -1,7 +1,5 @@
 .
 ├── backend
-│   ├── backend_run.log
-│   ├── backend.log
 │   ├── bin
 │   │   └── ffmpeg
 │   ├── Cargo.lock
@@ -76,10 +74,7 @@
 │   │       ├── shutdown.rs
 │   │       ├── upload_quota_tests.rs
 │   │       └── upload_quota.rs
-│   ├── startup_debug_v2.log
-│   ├── startup_debug.log
 │   ├── startup_log.txt
-│   ├── startup.log
 │   └── tests
 │       └── shutdown_test.rs
 ├── bin
@@ -6124,4 +6119,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-199 directories, 5926 files
+199 directories, 5921 files
