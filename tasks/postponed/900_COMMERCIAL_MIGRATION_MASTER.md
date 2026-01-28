@@ -14,8 +14,7 @@ This migration replaces transient session hacks with standardized persistence, i
 | **2** | [902](./902_migration_security.md) | JWT, Sessions, and Identity Middleware | 033 (JWT Logic) | Pending |
 | **3** | [903](./903_migration_storage.md) | User-Isolated Persistent Storage | Storage Isolation Recommendations | Pending |
 | **4** | [904](./904_migration_frontend_auth.md) | Auth UI, Legal & i18n | 031 (Auth UI), 015 (Legal), 025 (i18n) | Pending |
-| **5** | [905](./905_migration_dashboard.md) | Dashboard & Custom Branding | 032 (Dashboard), 021 (Theming) | Pending |
-| **6** | [906](./906_migration_telemetry.md) | Hardening, Quality & E2E | 022 (Shield), 024/800 (E2E), 020 (Visual), 004/006 (Docs) | Pending |
+| **5** | [905](./905_migration_telemetry.md) | Hardening, Quality & E2E | 022 (Shield), 024/800 (E2E), 020 (Visual), 004/006 (Docs) | Pending |
 
 ## 🛠️ Design Principles
 1. **Stateless Backend**: The server must not rely on local `/tmp` state.

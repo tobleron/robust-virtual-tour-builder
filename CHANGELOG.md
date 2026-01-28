@@ -12,9 +12,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Establish persistent data foundation (SQLite, migrations, SEO)
 - Implement identity & security layer (JWT, Argon2, AuthMiddleware)
 - Implement persistent asset storage and user isolation (Task 903)
+- **Architectural Governor (v1.3)**: Overhauled the `_dev-system` for AI-autonomous refactoring.
+  - Implemented **Drag Heatmaps** (Hotspot detection) to target specific line ranges for refactoring.
+  - Added **Legacy Amnesty** rules to ignore authorized technical debt in stable files.
+  - Implemented **Logic Stripping** (Comments/Strings) for 100% accurate structural analysis.
+  - Added **Path-Based Strictness** (Drag Ceilings) to enforce purity in utility modules.
 
 ### Changed
 - Mark task 903 as completed (Asset Persistence & Isolation)
+- Feat(_dev-system): overhaul architectural governor with hotspots, amnesty, and smarter parsing
 
 ## [4.8.10] - 2026-01-28
 

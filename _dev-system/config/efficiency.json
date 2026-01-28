@@ -1,0 +1,139 @@
+{
+  "version": "1.2.0",
+  "settings": {
+    "base_loc_limit": 250,
+    "hard_ceiling_loc": 500,
+    "soft_floor_loc": 30,
+    "confidence_threshold": 0.95
+  },
+  "profiles": {
+    "rust": {
+      "extensions": [
+        ".rs"
+      ],
+      "complexity_dictionary": {
+        "unsafe": 2.0,
+        "unwrap": 1.5,
+        "panic!": 2.0,
+        "&mut": 0.5,
+        "match": 0.5,
+        "loop": 0.8
+      },
+      "forbidden_patterns": [
+        "unwrap",
+        "panic!",
+        "todo!"
+      ]
+    },
+    "rescript": {
+      "extensions": [
+        ".res"
+      ],
+      "complexity_dictionary": {
+        "->": 0.05,
+        "switch": 0.8,
+        "| ": 0.5,
+        "mutable": 1.5,
+        "Obj.magic": 2.5
+      },
+      "forbidden_patterns": [
+        "console.log",
+        "mutable "
+      ]
+    },
+    "web": {
+      "extensions": [
+        ".jsx",
+        ".js",
+        ".html"
+      ],
+      "complexity_dictionary": {
+        "useState": 1.0,
+        "useEffect": 1.2,
+        "<div": 0.1
+      },
+      "forbidden_patterns": [
+        "style={{"
+      ]
+    },
+    "css": {
+      "extensions": [
+        ".css"
+      ],
+      "complexity_dictionary": {
+        "!important": 3.0,
+        "@media": 0.5
+      },
+      "forbidden_patterns": [
+        "!important"
+      ]
+    },
+    "config": {
+      "extensions": [
+        ".json"
+      ],
+      "complexity_dictionary": {},
+      "forbidden_patterns": []
+    }
+  },
+  "taxonomy": {
+    "domain-logic": {
+      "multiplier": 0.8
+    },
+    "ui-component": {
+      "multiplier": 1.4
+    },
+    "infra-adapter": {
+      "multiplier": 1.1
+    },
+    "data-model": {
+      "multiplier": 1.5
+    },
+    "orchestrator": {
+      "multiplier": 0.8
+    },
+    "service-orchestrator": {
+      "multiplier": 0.8
+    },
+    "state-reducer": {
+      "multiplier": 0.6
+    },
+    "util-pure": {
+      "multiplier": 0.4
+    },
+    "infra-config": {
+      "multiplier": 1.5
+    },
+    "unknown": {
+      "multiplier": 1.0
+    }
+  },
+  "exceptions": [
+    {
+      "pattern": "src/Main.res",
+      "max_loc": 500,
+      "reason": "App Entry Point orchestrator"
+    },
+    {
+      "pattern": "src/core/Schemas.res",
+      "multiplier": 2.0,
+      "reason": "Central schema collection",
+      "allow_patterns": [
+        "mutable "
+      ]
+    },
+    {
+      "pattern": "src/utils/**/*.res",
+      "drag_ceiling": 1.5,
+      "reason": "Utils must remain pure and flat"
+    },
+    {
+      "pattern": "backend/src/main.rs",
+      "max_loc": 500,
+      "reason": "Backend entry point",
+      "allow_patterns": [
+        "unwrap"
+      ]
+    }
+  ]
+}
