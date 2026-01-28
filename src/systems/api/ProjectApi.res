@@ -11,7 +11,7 @@ let importProject = (file: File.t): Promise.t<apiResult<importResponse>> => {
     FormData.append(formData, "file", file)
 
     Fetch.fetch(
-      Constants.backendUrl ++ "/project/import",
+      Constants.backendUrl ++ "/api/project/import",
       Fetch.requestInit(~method="POST", ~body=formData, ()),
     )
     ->Promise.then(handleResponse)
@@ -58,7 +58,7 @@ let importProject = (file: File.t): Promise.t<apiResult<importResponse>> => {
 let loadProject = (sessionId: string): Promise.t<apiResult<importResponse>> => {
   RequestQueue.schedule(() => {
     Fetch.fetch(
-      Constants.backendUrl ++ "/project/load/" ++ sessionId,
+      Constants.backendUrl ++ "/api/project/load" ++ sessionId,
       Fetch.requestInit(~method="GET", ()),
     )
     ->Promise.then(handleResponse)
@@ -107,7 +107,7 @@ let validateProject = (sessionId: string, projectData: JSON.t): Promise.t<
 > => {
   RequestQueue.schedule(() => {
     Fetch.fetch(
-      Constants.backendUrl ++ "/project/validate/" ++ sessionId,
+      Constants.backendUrl ++ "/api/project/validate/" ++ sessionId,
       Fetch.requestInit(
         ~method="POST",
         ~body=JSON.stringify(projectData),
@@ -153,7 +153,7 @@ let validateProject = (sessionId: string, projectData: JSON.t): Promise.t<
 let saveProject = (sessionId: string, projectData: JSON.t): Promise.t<apiResult<unit>> => {
   RequestQueue.schedule(() => {
     Fetch.fetch(
-      Constants.backendUrl ++ "/project/save/" ++ sessionId,
+      Constants.backendUrl ++ "/api/project/save/" ++ sessionId,
       Fetch.requestInit(
         ~method="POST",
         ~body=JSON.stringify(projectData),
@@ -184,7 +184,7 @@ let saveProject = (sessionId: string, projectData: JSON.t): Promise.t<apiResult<
 let calculatePath = (payload: pathRequest): Promise.t<apiResult<array<step>>> => {
   RequestQueue.schedule(() => {
     Fetch.fetch(
-      Constants.backendUrl ++ "/project/calculate-path",
+      Constants.backendUrl ++ "/api/project/calculate-path",
       Fetch.requestInit(
         ~method="POST",
         ~body=JSON.stringify(Logger.castToJson(payload)),
@@ -235,13 +235,15 @@ let calculatePath = (payload: pathRequest): Promise.t<apiResult<array<step>>> =>
 
 let reverseGeocode = (lat: float, lon: float): Promise.t<apiResult<geocodeResponse>> => {
   RequestQueue.schedule(() => {
+    let payload = Dict.fromArray([("lat", JSON.Encode.float(lat)), ("lon", JSON.Encode.float(lon))])
     Fetch.fetch(
-      Constants.backendUrl ++
-      "/geocode/reverse?lat=" ++
-      Float.toString(lat) ++
-      "&lon=" ++
-      Float.toString(lon),
-      Fetch.requestInit(~method="GET", ()),
+      Constants.backendUrl ++ "/api/geocoding/reverse",
+      Fetch.requestInit(
+        ~method="POST",
+        ~body=JSON.stringify(JSON.Encode.object(payload)),
+        ~headers=Dict.fromArray([("Content-Type", "application/json")]),
+        (),
+      ),
     )
     ->Promise.then(handleResponse)
     ->Promise.then(resultResponse => {
