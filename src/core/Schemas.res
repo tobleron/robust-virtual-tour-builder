@@ -17,6 +17,22 @@ let parse = (json: JSON.t, schema: S.t<'a>): result<'a, string> => {
   }
 }
 
+let parseAsync = (json: JSON.t, schema: S.t<'a>): Promise.t<result<'a, string>> => {
+  try {
+    S.parseAsyncOrThrow(json, schema)
+    ->Promise.then(val => Promise.resolve(Ok(val)))
+    ->Promise.catch(exn => {
+      let msg = S.Error.message(Obj.magic(exn))
+      Promise.resolve(Error(msg))
+    })
+  } catch {
+  | exn => {
+      let msg = S.Error.message(Obj.magic(exn))
+      Promise.resolve(Error(msg))
+    }
+  }
+}
+
 let castToValidationReport = (json: JSON.t): SharedTypes.validationReport => {
   switch JSON.Decode.object(json) {
   | Some(obj) => {

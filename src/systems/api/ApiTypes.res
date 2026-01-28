@@ -44,15 +44,21 @@ type apiResult<'a> = result<'a, string>
 
 /* --- DECODERS (Safe: Schema-backed parsers) --- */
 
-let decodeImportResponse = (json: JSON.t): result<importResponse, string> => {
-  Schemas.parse(json, Schemas.Shared.importResponse)->Result.flatMap(((sessionId, projectData)) => {
-    if sessionId == "" {
-      Error("Session ID required")
-    } else {
-      Ok({
-        sessionId,
-        projectData,
-      })
+let decodeImportResponse = (json: JSON.t): Promise.t<result<importResponse, string>> => {
+  Schemas.parseAsync(json, Schemas.Shared.importResponse)->Promise.then(result => {
+    switch result {
+    | Ok((sessionId, projectData)) =>
+      if sessionId == "" {
+        Promise.resolve(Error("Session ID required"))
+      } else {
+        Promise.resolve(
+          Ok({
+            sessionId,
+            projectData,
+          }),
+        )
+      }
+    | Error(msg) => Promise.resolve(Error(msg))
     }
   })
 }
