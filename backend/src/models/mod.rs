@@ -1,5 +1,6 @@
 pub mod errors;
 pub mod project;
+pub mod session;
 pub mod user;
 pub use errors::*;
 
