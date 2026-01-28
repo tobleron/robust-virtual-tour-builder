@@ -1,4 +1,4 @@
-use actix_web::{HttpRequest, HttpResponse, web, HttpMessage};
+use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 
 use crate::api::utils::sanitize_filename;
 use crate::models::{AppError, user::User};
@@ -10,7 +10,11 @@ pub async fn serve_project_file(
     path: web::Path<(String, String)>,
 ) -> Result<HttpResponse, AppError> {
     let (project_id, filename) = path.into_inner();
-    let user = req.extensions().get::<User>().cloned().ok_or(AppError::Unauthorized("Authentication required".into()))?;
+    let user = req
+        .extensions()
+        .get::<User>()
+        .cloned()
+        .ok_or(AppError::Unauthorized("Authentication required".into()))?;
 
     tracing::info!(user_id = %user.id, project_id = %project_id, filename = %filename, "SERVE_PROJECT_FILE_START");
 

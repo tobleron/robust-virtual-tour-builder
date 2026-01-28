@@ -89,10 +89,9 @@ where
                 if let Some(t) = found {
                     t
                 } else {
-                    let res = req.into_response(
-                        HttpResponse::Unauthorized()
-                            .json(serde_json::json!({"error": "Missing Authorization header or token param"})),
-                    );
+                    let res = req.into_response(HttpResponse::Unauthorized().json(
+                        serde_json::json!({"error": "Missing Authorization header or token param"}),
+                    ));
                     return Ok(res.map_body(|_, b| EitherBody::Right { body: b }));
                 }
             };
