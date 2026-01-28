@@ -25,7 +25,7 @@
 - [ ] **../../backend/src/models/errors.rs**
   - *Reason:* LOC 130 > Limit 112 (Role: data-model, Drag: 2.93)
 - [ ] **../../backend/src/api/project/export_utils.rs**
-  - *Reason:* LOC 50 > Limit 46 (Role: util-pure, Drag: 2.18)
+  - *Reason:* LOC 52 > Limit 46 (Role: util-pure, Drag: 2.18)
 - [ ] **../../backend/src/api/project/storage/storage_logic.rs**
   - *Reason:* LOC 241 > Limit 30 (Role: service-orchestrator, Drag: 4.97)
 - [ ] **../../backend/src/api/project/storage/mod.rs**
@@ -47,7 +47,7 @@
 - [ ] **../../backend/src/api/media/image/image_logic.rs**
   - *Reason:* LOC 283 > Limit 48 (Role: service-orchestrator, Drag: 3.39)
 - [ ] **../../backend/src/api/media/image/tests.rs**
-  - *Reason:* LOC 123 > Limit 83 (Role: infra-adapter, Drag: 2.90)
+  - *Reason:* LOC 122 > Limit 83 (Role: infra-adapter, Drag: 2.90)
 - [ ] **../../backend/src/services/shutdown.rs**
   - *Reason:* LOC 162 > Limit 81 (Role: infra-adapter, Drag: 2.95)
 - [ ] **../../backend/src/services/auth/jwt.rs**

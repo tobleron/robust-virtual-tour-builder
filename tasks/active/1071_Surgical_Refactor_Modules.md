@@ -405,3 +405,5 @@ Break down oversized or high-drag modules into smaller, more specialized units.
 - [ ] **../../backend/src/pathfinder/algorithms/walk.rs** - *Reason:* LOC 178 > Limit 30 (Role: domain-logic, Drag: 4.80)
 - [ ] **../../backend/src/pathfinder/tests.rs** - *Reason:* LOC 67 > Limit 57 (Role: infra-adapter, Drag: 3.70)
 - [ ] **../../backend/src/models/errors.rs** - *Reason:* LOC 130 > Limit 112 (Role: data-model, Drag: 2.93)
+- [ ] **../../backend/src/api/project/export_utils.rs** - *Reason:* LOC 52 > Limit 46 (Role: util-pure, Drag: 2.18)
+- [ ] **../../backend/src/api/media/image/tests.rs** - *Reason:* LOC 122 > Limit 83 (Role: infra-adapter, Drag: 2.90)
