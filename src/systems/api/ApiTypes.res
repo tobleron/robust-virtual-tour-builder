@@ -6,12 +6,6 @@ open SharedTypes
 
 /* --- API TYPES (Matching Rust Structs) --- */
 
-// Types used from SharedTypes:
-// - validationReport
-// - exifMetadata
-// - qualityAnalysis
-// - metadataResponse
-
 type importResponse = {
   sessionId: string,
   projectData: JSON.t,
@@ -51,17 +45,16 @@ type apiResult<'a> = result<'a, string>
 /* --- DECODERS (Safe: Schema-backed parsers) --- */
 
 let decodeImportResponse = (json: JSON.t): result<importResponse, string> => {
-  switch JSON.Decode.object(json) {
-  | Some(dict) =>
-    let sessionId =
-      dict->Dict.get("sessionId")->Option.flatMap(JSON.Decode.string)->Option.getOr("")
-    let projectData = dict->Dict.get("projectData")->Option.getOr(JSON.Encode.null)
-    Ok({
-      sessionId,
-      projectData,
-    })
-  | None => Error("Expected object for import response")
-  }
+  Schemas.parse(json, Schemas.Shared.importResponse)->Result.flatMap(((sessionId, projectData)) => {
+     if sessionId == "" {
+       Error("Session ID required")
+     } else {
+       Ok({
+         sessionId: sessionId,
+         projectData: projectData
+       })
+     }
+  })
 }
 
 let decodeValidationReport = (json: JSON.t): result<validationReport, string> => {

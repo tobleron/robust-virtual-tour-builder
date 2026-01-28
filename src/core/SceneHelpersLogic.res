@@ -1,5 +1,3 @@
-/* src/core/SceneHelpersLogic.res */
-
 open Types
 open SceneHelpersParser
 
@@ -179,14 +177,9 @@ let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
 
 let handleUpdateSceneMetadata = (state: state, index: int, metaJson: JSON.t): state => {
   let scenes = state.scenes
-  let meta = switch JSON.Decode.object(metaJson) {
-  | Some(obj) => {
-      category: obj->Dict.get("category")->Option.flatMap(JSON.Decode.string),
-      floor: obj->Dict.get("floor")->Option.flatMap(JSON.Decode.string),
-      label: obj->Dict.get("label")->Option.flatMap(JSON.Decode.string),
-      isAutoForward: obj->Dict.get("isAutoForward")->Option.flatMap(JSON.Decode.bool),
-    }
-  | None => {
+  let meta = switch Schemas.parse(metaJson, Schemas.Domain.updateMetadata) {
+  | Ok(m) => m
+  | Error(_) => {
       category: None,
       floor: None,
       label: None,
