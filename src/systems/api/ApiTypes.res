@@ -46,14 +46,14 @@ type apiResult<'a> = result<'a, string>
 
 let decodeImportResponse = (json: JSON.t): result<importResponse, string> => {
   Schemas.parse(json, Schemas.Shared.importResponse)->Result.flatMap(((sessionId, projectData)) => {
-     if sessionId == "" {
-       Error("Session ID required")
-     } else {
-       Ok({
-         sessionId: sessionId,
-         projectData: projectData
-       })
-     }
+    if sessionId == "" {
+      Error("Session ID required")
+    } else {
+      Ok({
+        sessionId,
+        projectData,
+      })
+    }
   })
 }
 

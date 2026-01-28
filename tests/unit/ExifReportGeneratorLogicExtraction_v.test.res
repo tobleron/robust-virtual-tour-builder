@@ -83,9 +83,9 @@ describe("ExifReportGeneratorLogicExtraction", () => {
       async t => {
         let meta = {
           "gps": {"lat": 10.0, "lon": 20.0},
-          "dateTime": "2023:01:01 12:00:00",
-          "make": "TestMake",
-          "model": "TestModel",
+          "date": "2023:01:01 12:00:00",
+          "cameraModel": "TestMake",
+          "lensModel": "TestModel",
           "width": 1000,
           "height": 500,
           "focalLength": Nullable.null,
@@ -113,11 +113,11 @@ describe("ExifReportGeneratorLogicExtraction", () => {
       async t => {
         let meta = {
           "gps": Nullable.null, // No GPS in cached metadata
-          "dateTime": "2023:01:01 12:00:00",
+          "date": "2023:01:01 12:00:00",
           "width": 1000,
           "height": 500,
-          "make": Nullable.null,
-          "model": Nullable.null,
+          "cameraModel": Nullable.null,
+          "lensModel": Nullable.null,
           "focalLength": Nullable.null,
           "aperture": Nullable.null,
           "iso": Nullable.null,
