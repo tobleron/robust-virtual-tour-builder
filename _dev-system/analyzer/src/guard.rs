@@ -189,9 +189,8 @@ pub fn check_map(config: &GuardConfig) -> Result<()> {
         let mut added_count = 0;
         for f in unmapped_files {
             if !new_content.contains(&format!("[{}]", f)) {
-                let abs_path = fs::canonicalize(format!("../../{}", f))?;
-                let link = format!("file://{}", abs_path.to_string_lossy());
-                new_content.push_str(&format!("* [{}]({}): New module detected. Please classify. #new\n", f, link));
+                // Project protocol: Use root-relative paths, not file://
+                new_content.push_str(&format!("* [{}]({}): New module detected. Please classify. #new\n", f, f));
                 added_count += 1;
             }
         }
@@ -215,30 +214,6 @@ pub fn check_map(config: &GuardConfig) -> Result<()> {
     Ok(())
 }
 
-pub fn get_hints(content: &str) -> String {
-    let mut hints = String::new();
-    if content.contains("Pannellum") {
-        hints.push_str("\n- **Mock Pannellum**: This module interacts with Pannellum. Mock the global `window.pannellum` object in `tests/node-setup.js` or locally.");
-    }
-    if content.contains("FFmpeg") {
-        hints.push_str("\n- **Mock FFmpeg**: This module uses FFmpeg. Ensure the FFmpeg core is mocked or its promises are resolved instantly.");
-    }
-    if content.contains("EventBus") {
-        hints.push_str("\n- **EventBus Integration**: Use `EventBus.dispatch` spies to verify that actions are triggered correctly.");
-    }
-    if content.contains("Fetch") || content.contains("BackendApi") {
-        hints.push_str("\n- **API Mocks**: Mock `fetch` and `RequestQueue.schedule`. Jules should verify that the correct endpoints are called with the expected payloads.");
-    }
-    if content.contains("Window") || content.contains("Dom") {
-        hints.push_str("\n- **DOM/Window Bindings**: Use `ReBindings` to mock browser-specific properties like `localStorage`, `location`, or `window.innerWidth`.");
-    }
-
-    if !hints.is_empty() {
-        format!("\n## 💡 Implementation Hints for Cloud Agents (Jules)\n{}", hints)
-    } else {
-        String::new()
-    }
-}
 
 pub fn check_tests(config: &GuardConfig, file_path: &Path) -> Result<()> {
     let p_str = file_path.to_string_lossy().replace("\\", "/");
