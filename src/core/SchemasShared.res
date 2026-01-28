@@ -77,9 +77,9 @@ let metadataResponse: S.t<metadataResponse> = S.object(s => {
 
 let similarityResult: S.t<SharedTypes.similarityResult> = S.object(s => {
   {
-    idA: s.field("idA", S.string),
-    idB: s.field("idB", S.string),
-    similarity: s.field("similarity", S.float),
+    idA: s.field("sceneId", S.string),
+    idB: "",
+    similarity: s.field("score", S.float),
   }
 })
 
