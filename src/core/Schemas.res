@@ -3,8 +3,6 @@ open RescriptSchema
 module Shared = SchemasShared
 module Domain = SchemasDomain
 
-let toNullable = SchemasShared.toNullable
-
 /* --- API Response Cast Helpers --- */
 
 let parse = (json: JSON.t, schema: S.t<'a>): result<'a, string> => {
