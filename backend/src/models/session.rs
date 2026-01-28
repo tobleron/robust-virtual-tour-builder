@@ -22,7 +22,7 @@ impl Session {
             INSERT INTO sessions (id, user_id, expires_at)
             VALUES (?, ?, ?)
             RETURNING id, user_id, expires_at
-            "#
+            "#,
         )
         .bind(&id)
         .bind(user_id)

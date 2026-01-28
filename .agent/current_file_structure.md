@@ -5,7 +5,8 @@
 │   ├── Cargo.lock
 │   ├── Cargo.toml
 │   ├── migrations
-│   │   └── 20260124000000_init.sql
+│   │   ├── 20260124000000_init.sql
+│   │   └── 20260128000000_core_schema.sql
 │   ├── src
 │   │   ├── api
 │   │   │   ├── auth.rs
@@ -43,6 +44,7 @@
 │   │   │   ├── errors.rs
 │   │   │   ├── mod.rs
 │   │   │   ├── project.rs
+│   │   │   ├── session.rs
 │   │   │   └── user.rs
 │   │   ├── pathfinder
 │   │   │   ├── algorithms.rs
@@ -5249,6 +5251,7 @@
 │   │   ├── pannellum.css
 │   │   └── pannellum.js
 │   ├── manifest.json
+│   ├── robots.txt
 │   ├── service-worker.js
 │   └── sounds
 │       └── click.wav
@@ -5771,6 +5774,7 @@
 │   │   ├── 821_Aggregate_Completed_Tasks_DONE.md
 │   │   ├── 856_Refactor_ViewerManager_DONE.md
 │   │   ├── 894_Refactor_HotspotLine_DONE.md
+│   │   ├── 901_migration_foundation_DONE.md
 │   │   ├── 929_Refactor_UploadProcessorLogic_DONE.md
 │   │   ├── 965_Refactor_ViewerManagerLogic_DONE.md
 │   │   ├── analysis_1067_schema_fixes.md
@@ -5785,11 +5789,11 @@
 │   │   ├── 1065_Refactor_ViewerManagerLogic.md
 │   │   ├── 1066_Refactor_UploadProcessorLogicLogic.md
 │   │   ├── 1067_Refactor_Schemas.md
+│   │   ├── 1068_Classify_Map_Entries.md
 │   │   └── tests
 │   │       └── 1062_Test_Generation_Unified.md
 │   ├── postponed
 │   │   ├── 900_COMMERCIAL_MIGRATION_MASTER.md
-│   │   ├── 901_migration_foundation.md
 │   │   ├── 902_migration_security.md
 │   │   ├── 903_migration_storage.md
 │   │   ├── 904_migration_frontend_auth.md
@@ -6111,4 +6115,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-199 directories, 5913 files
+199 directories, 5917 files
