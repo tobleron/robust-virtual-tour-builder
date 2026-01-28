@@ -211,3 +211,4 @@ System-generated test requirements for new and modified modules.
 - [ ] Test_ExifReportGeneratorLogicLocation_Update (Update)
 - [ ] Test_PannellumAdapter_Update (Update)
 - [ ] Test_ExifReportGeneratorUtils_Update (Update)
+- [ ] Test_LoggerTelemetry_Update (Update)
