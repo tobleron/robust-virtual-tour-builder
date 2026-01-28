@@ -1,6 +1,6 @@
 use super::*;
-use crate::models::{ColorHist, QualityAnalysis, QualityStats};
-use actix_web::{App, http::StatusCode};
+use crate::models::{ColorHist, MetadataResponse, QualityAnalysis, QualityStats};
+use actix_web::{App, http::StatusCode, web};
 use image::{ImageFormat, RgbaImage};
 use std::io::Cursor;
 
@@ -49,14 +49,7 @@ fn create_test_image() -> Vec<u8> {
 
 fn create_multipart_body(boundary: &str, name: &str, filename: &str, content: &[u8]) -> Vec<u8> {
     let mut body = Vec::new();
-    body.extend_from_slice(
-        format!(
-            "--{}
-",
-            boundary
-        )
-        .as_bytes(),
-    );
+    body.extend_from_slice(format!("--{}\r\n", boundary).as_bytes());
     body.extend_from_slice(
         format!(
             "Content-Disposition: form-data; name=\"{}\"; filename=\"{}\"\r\n",
