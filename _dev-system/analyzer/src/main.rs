@@ -215,6 +215,76 @@ fn flush_plans(buffer: &HashMap<String, Vec<WorkUnit>>) -> Result<()> {
     Ok(())
 }
 
+fn sync_formal_ambiguity_task(buffer: &HashMap<String, Vec<WorkUnit>>) -> Result<()> {
+    let mut all_ambiguities = Vec::new();
+    for units in buffer.values() {
+        for unit in units {
+            if let WorkUnit::Ambiguity { file } = unit {
+                all_ambiguities.push(file);
+            }
+        }
+    }
+
+    if all_ambiguities.is_empty() { return Ok(()); }
+
+    let pending_dir = "../../tasks/pending";
+    let active_dir = "../../tasks/active";
+    let postponed_dir = "../../tasks/postponed";
+    
+    let mut existing_path = None;
+    for dir in vec![pending_dir, active_dir, postponed_dir] {
+        if let Ok(entries) = fs::read_dir(dir) {
+            for entry in entries.filter_map(|e| e.ok()) {
+                let name = entry.file_name().to_string_lossy().into_owned();
+                if name.contains("Classify_Ambiguous_Files") {
+                    existing_path = Some(entry.path());
+                    break;
+                }
+            }
+        }
+        if existing_path.is_some() { break; }
+    }
+
+    if let Some(path) = existing_path {
+        let current_content = fs::read_to_string(&path).unwrap_or_default();
+        let mut to_append = Vec::new();
+        for file in all_ambiguities {
+            if !current_content.contains(file) {
+                 to_append.push(file);
+            }
+        }
+        if !to_append.is_empty() {
+            let mut file = OpenOptions::new().append(true).open(path)?;
+            for f in to_append {
+                file.write_all(format!("- [ ] `{}`\n", f).as_bytes())?;
+            }
+        }
+    } else {
+        let mut max_id = 0;
+        let scan_dirs = vec!["../../tasks/pending", "../../tasks/active", "../../tasks/completed", "../../tasks/postponed"];
+        for dir in scan_dirs {
+            if let Ok(entries) = fs::read_dir(dir) {
+                for entry in entries.filter_map(|e| e.ok()) {
+                    let name = entry.file_name().to_string_lossy().into_owned();
+                    if let Some(id_str) = name.split('_').next() {
+                         if let Ok(id) = id_str.parse::<usize>() {
+                             if id > max_id { max_id = id; }
+                         }
+                    }
+                }
+            }
+        }
+        let next_id = max_id + 1;
+        let new_path = format!("{}/{:03}_Classify_Ambiguous_Files_Headers.md", pending_dir, next_id);
+        let mut file = fs::File::create(new_path)?;
+        file.write_all(format!("# Classify Ambiguous Files\n\n## Objective\nAnalyze and classify unidentified source files.\n\n## Files\n").as_bytes())?;
+        for f in all_ambiguities {
+            file.write_all(format!("- [ ] `{}`\n", f).as_bytes())?;
+        }
+    }
+    Ok(())
+}
+
 fn main() -> Result<()> {
     println!("🚀 _dev-system: Starting AGGREGATED Scan (v8)...");
     let config_raw = fs::read_to_string("../config/efficiency.json")?;
@@ -404,6 +474,7 @@ fn main() -> Result<()> {
     fs::write("../pending/metadata.json", json_data)?;
 
     flush_plans(&buffer)?;
+    let _ = sync_formal_ambiguity_task(&buffer);
     println!("✅ Scan v8 Complete. Fully Aggregated.");
     Ok(())
 }
