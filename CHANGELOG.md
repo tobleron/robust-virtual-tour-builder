@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implement identity & security layer (JWT, Argon2, AuthMiddleware)
 - Implement persistent asset storage and user isolation (Task 903)
 
+### Changed
+- Mark task 903 as completed (Asset Persistence & Isolation)
+
 ## [4.8.10] - 2026-01-28
 
 ### Changed
