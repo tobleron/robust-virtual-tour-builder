@@ -34,6 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - V4.8.11+228 [TRIPLE]: maintenance: consolidate test tasks and fix backend test imports
 - V4.8.11+229 [TRIPLE]: fix: resolve analyzer, backend, and rescript warnings
 - V4.8.11+230 [TRIPLE]: maintenance: optimize test task generation and clean up unified test task
+- Refine `_dev-system` analyzer: focus on core logic (`.rs`, `.res`), fix depth calculation, and align `MAP.md` entries with project protocols.
+- Refine: dev-system analyzer (core focus, depth fix, protocol alignment)
 
 ## [4.8.10] - 2026-01-28
 

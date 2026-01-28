@@ -62,3 +62,5 @@ Consolidate folders with high fragmentation tax to reduce cognitive overhead.
 - [ ] Folder: `../../backend/src/models` - *Reason:* Score 12.00 > 1.0
 - [ ] Folder: `../../backend/src/pathfinder` - *Reason:* Score 7.00 > 1.0
 - [ ] Folder: `../../backend/src/pathfinder/algorithms` - *Reason:* Score 2.00 > 1.0
+- [ ] Folder: `../../src` - *Reason:* Score 5.00 > 1.0
+- [ ] Folder: `../../src/components/ui` - *Reason:* Score 2.00 > 1.0
