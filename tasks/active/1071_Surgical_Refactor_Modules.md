@@ -407,3 +407,4 @@ Break down oversized or high-drag modules into smaller, more specialized units.
 - [ ] **../../backend/src/models/errors.rs** - *Reason:* LOC 130 > Limit 112 (Role: data-model, Drag: 2.93)
 - [ ] **../../backend/src/api/project/export_utils.rs** - *Reason:* LOC 52 > Limit 46 (Role: util-pure, Drag: 2.18)
 - [ ] **../../backend/src/api/media/image/tests.rs** - *Reason:* LOC 122 > Limit 83 (Role: infra-adapter, Drag: 2.90)
+- [ ] **../../backend/src/services/auth/jwt.rs** - *Reason:* LOC 69 > Limit 55 (Role: infra-adapter, Drag: 3.80)
