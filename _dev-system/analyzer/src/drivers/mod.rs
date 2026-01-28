@@ -18,15 +18,29 @@ pub struct CommonMetrics {
 
 pub enum EfficiencyOverride {
     None,
-    Singleton,
     Ignore,
     Strict,
+    Role(String),
 }
 
 pub fn parse_header(content: &str) -> EfficiencyOverride {
-    if content.contains("@efficiency: singleton") { return EfficiencyOverride::Singleton; }
-    if content.contains("@efficiency: ignore") { return EfficiencyOverride::Ignore; }
-    if content.contains("@efficiency: strict") { return EfficiencyOverride::Strict; }
+    if let Some(pos) = content.find("@efficiency:") {
+        let start = pos + "@efficiency:".len();
+        let mut val = String::new();
+        for c in content[start..].chars() {
+            if c.is_alphanumeric() || c == '-' || c == '_' {
+                val.push(c);
+            } else if !val.is_empty() {
+                break;
+            }
+        }
+        
+        let tag = val.trim();
+        if tag == "ignore" { return EfficiencyOverride::Ignore; }
+        if tag == "strict" { return EfficiencyOverride::Strict; }
+        if tag == "singleton" { return EfficiencyOverride::Role("orchestrator".to_string()); }
+        if !tag.is_empty() { return EfficiencyOverride::Role(tag.to_string()); }
+    }
     EfficiencyOverride::None
 }
 
@@ -60,4 +74,11 @@ pub fn strip_code(content: &str) -> String {
         i += 1;
     }
     result
+}
+pub fn apply_complexity_dictionary(content: &str, dict: &std::collections::HashMap<String, f64>) -> f64 {
+    let mut penalty = 0.0;
+    for (pattern, weight) in dict {
+        penalty += (content.matches(pattern).count() as f64) * weight;
+    }
+    penalty
 }

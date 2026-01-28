@@ -1,7 +1,6 @@
 pub struct FolderStats {
     pub file_count: usize,
     pub total_loc: usize,
-    pub avg_loc: usize,
 }
 
 /// AI-Efficiency Merge Score

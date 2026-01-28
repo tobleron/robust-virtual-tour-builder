@@ -120,971 +120,6 @@
       }
     }
   ],
-  "config": [
-    {
-      "Surgical": {
-        "file": "../../docs/openapi.yaml",
-        "action": "De-bloat",
-        "reason": "[Exception: Infrastructure Documentation] LOC 821 > Limit 500 (Role: infra-adapter, Drag: 1.00)"
-      }
-    }
-  ],
-  "rust": [
-    {
-      "Violation": {
-        "file": "../../backend/src/pathfinder/utils.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/pathfinder/utils.rs",
-        "action": "De-bloat",
-        "reason": "LOC 100 > Limit 54 (Role: util-pure, Drag: 1.97)"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/models/mod.rs",
-        "action": "De-bloat",
-        "reason": "LOC 216 > Limit 181 (Role: orchestrator, Drag: 1.40)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/telemetry.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/telemetry.rs",
-        "action": "De-bloat",
-        "reason": "LOC 157 > Limit 134 (Role: infra-adapter, Drag: 2.11)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/project/export.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/project/storage/storage_logic.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/project/storage/storage_logic.rs",
-        "action": "De-bloat",
-        "reason": "LOC 241 > Limit 58 (Role: service-orchestrator, Drag: 2.97)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/project/storage/mod.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/project/storage/mod.rs",
-        "action": "De-bloat",
-        "reason": "LOC 295 > Limit 61 (Role: orchestrator, Drag: 2.88)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/project/navigation.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/project/navigation.rs",
-        "action": "De-bloat",
-        "reason": "LOC 109 > Limit 58 (Role: infra-adapter, Drag: 3.67)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/geocoding.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/geocoding.rs",
-        "action": "De-bloat",
-        "reason": "LOC 153 > Limit 99 (Role: infra-adapter, Drag: 2.58)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/media/video/mod.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/media/video/mod.rs",
-        "action": "De-bloat",
-        "reason": "LOC 175 > Limit 70 (Role: orchestrator, Drag: 2.61)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/media/video/video_logic.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/media/video/video_logic.rs",
-        "action": "De-bloat",
-        "reason": "LOC 228 > Limit 86 (Role: service-orchestrator, Drag: 2.30)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/media/similarity.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/media/similarity.rs",
-        "action": "De-bloat",
-        "reason": "LOC 197 > Limit 144 (Role: infra-adapter, Drag: 2.01)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/media/image/image_utils.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/media/image/mod.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/media/image/mod.rs",
-        "action": "De-bloat",
-        "reason": "LOC 306 > Limit 36 (Role: orchestrator, Drag: 4.08)"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/media/image/image_logic.rs",
-        "action": "De-bloat",
-        "reason": "LOC 283 > Limit 81 (Role: service-orchestrator, Drag: 2.39)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/services/auth/mod.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/services/geocoding/logic.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/geocoding/logic.rs",
-        "action": "De-bloat",
-        "reason": "LOC 129 > Limit 98 (Role: service-orchestrator, Drag: 2.11)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/services/geocoding/mod.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/geocoding/mod.rs",
-        "action": "De-bloat",
-        "reason": "LOC 246 > Limit 37 (Role: orchestrator, Drag: 4.01)"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/project/mod.rs",
-        "action": "De-bloat",
-        "reason": "LOC 116 > Limit 30 (Role: orchestrator, Drag: 5.65)"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/media/analysis/mod.rs",
-        "action": "De-bloat",
-        "reason": "LOC 97 > Limit 86 (Role: orchestrator, Drag: 2.28)"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/media/mod.rs",
-        "action": "De-bloat",
-        "reason": "LOC 94 > Limit 30 (Role: orchestrator, Drag: 6.80)"
-      }
-    }
-  ],
-  "rescript": [
-    {
-      "Violation": {
-        "file": "../../tests/unit/LoggerLogic_v.test.res",
-        "pattern": "console.log",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/ProjectApi_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 166 > Limit 30 (Role: infra-adapter, Drag: 32.27)\n    🔥 Hotspot: Lines 57-61 (AI Context Fog (score 36.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/HotspotLineLogic_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 220 > Limit 30 (Role: service-orchestrator, Drag: 32.12)\n    🔥 Hotspot: Lines 109-113 (AI Context Fog (score 24.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/Bindings_Unified_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 188 > Limit 70 (Role: infra-adapter, Drag: 14.56)\n    🔥 Hotspot: Lines 160-164 (AI Context Fog (score 10.0))"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/core/ViewerState.res",
-        "pattern": "mutable ",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/ViewerState.res",
-        "action": "De-bloat",
-        "reason": "LOC 91 > Limit 30 (Role: domain-logic, Drag: 37.56)\n    🔥 Hotspot: Lines 18-22 (AI Context Fog (score 26.6))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/Actions.res",
-        "action": "De-bloat",
-        "reason": "LOC 105 > Limit 57 (Role: orchestrator, Drag: 3.00)\n    🔥 Hotspot: Lines 55-59 (AI Context Fog (score 3.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/UiHelpers.res",
-        "action": "De-bloat",
-        "reason": "LOC 40 > Limit 30 (Role: domain-logic, Drag: 12.25)\n    🔥 Hotspot: Lines 25-29 (AI Context Fog (score 17.8))"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/core/ViewerTypes.res",
-        "pattern": "mutable ",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/core/SharedTypes.res",
-        "pattern": "mutable ",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/SharedTypes.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Deeply nested but necessary data models] LOC 132 > Limit 33 (Role: data-model, Drag: 19.30)\n    🔥 Hotspot: Lines 6-10 (AI Context Fog (score 26.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/AppContext.res",
-        "action": "De-bloat",
-        "reason": "LOC 135 > Limit 103 (Role: domain-logic, Drag: 1.99)\n    🔥 Hotspot: Lines 85-89 (AI Context Fog (score 36.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/Schemas.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Central schema collection (Authorized debt)] LOC 132 > Limit 69 (Role: domain-logic, Drag: 4.84)\n    🔥 Hotspot: Lines 103-107 (AI Context Fog (score 27.2))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/SchemasShared.res",
-        "action": "De-bloat",
-        "reason": "LOC 99 > Limit 30 (Role: domain-logic, Drag: 6.58)\n    🔥 Hotspot: Lines 24-28 (AI Context Fog (score 8.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/SchemasDomain.res",
-        "action": "De-bloat",
-        "reason": "LOC 154 > Limit 30 (Role: domain-logic, Drag: 7.10)\n    🔥 Hotspot: Lines 160-164 (AI Context Fog (score 13.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/SceneHelpersLogic.res",
-        "action": "De-bloat",
-        "reason": "LOC 198 > Limit 77 (Role: service-orchestrator, Drag: 2.40)\n    🔥 Hotspot: Lines 122-126 (AI Context Fog (score 41.2))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/reducers/SceneReducer.res",
-        "action": "De-bloat",
-        "reason": "LOC 91 > Limit 80 (Role: domain-logic, Drag: 2.35)\n    🔥 Hotspot: Lines 22-26 (AI Context Fog (score 21.4))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/reducers/HotspotReducer.res",
-        "action": "De-bloat",
-        "reason": "LOC 94 > Limit 57 (Role: domain-logic, Drag: 2.90)\n    🔥 Hotspot: Lines 75-79 (AI Context Fog (score 69.4))"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/core/SceneCache.res",
-        "pattern": "mutable ",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/ServiceWorkerMain.res",
-        "action": "De-bloat",
-        "reason": "LOC 164 > Limit 91 (Role: orchestrator, Drag: 2.20)\n    🔥 Hotspot: Lines 169-173 (AI Context Fog (score 61.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/GeoUtils.res",
-        "action": "De-bloat",
-        "reason": "LOC 83 > Limit 54 (Role: util-pure, Drag: 1.97)\n    🔥 Hotspot: Lines 67-71 (AI Context Fog (score 29.4))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/PersistenceLayer.res",
-        "action": "De-bloat",
-        "reason": "LOC 66 > Limit 30 (Role: util-pure, Drag: 4.46)\n    🔥 Hotspot: Lines 38-42 (AI Context Fog (score 11.4))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/ProgressBar.res",
-        "action": "De-bloat",
-        "reason": "LOC 106 > Limit 36 (Role: util-pure, Drag: 2.41)\n    🔥 Hotspot: Lines 111-115 (AI Context Fog (score 37.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/ColorPalette.res",
-        "action": "De-bloat",
-        "reason": "LOC 46 > Limit 40 (Role: util-pure, Drag: 2.40)\n    🔥 Hotspot: Lines 22-26 (AI Context Fog (score 25.2))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/StateInspector.res",
-        "action": "De-bloat",
-        "reason": "LOC 88 > Limit 76 (Role: state-reducer, Drag: 2.01)\n    🔥 Hotspot: Lines 67-71 (AI Context Fog (score 25.4))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/TourLogic.res",
-        "action": "De-bloat",
-        "reason": "LOC 129 > Limit 111 (Role: service-orchestrator, Drag: 1.93)\n    🔥 Hotspot: Lines 75-79 (AI Context Fog (score 32.6))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/LoggerTelemetry.res",
-        "action": "De-bloat",
-        "reason": "LOC 94 > Limit 45 (Role: util-pure, Drag: 2.11)\n    🔥 Hotspot: Lines 51-55 (AI Context Fog (score 31.6))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/Logger.res",
-        "action": "De-bloat",
-        "reason": "LOC 106 > Limit 71 (Role: util-pure, Drag: 1.60)\n    🔥 Hotspot: Lines 69-73 (AI Context Fog (score 11.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/ImageOptimizer.res",
-        "action": "De-bloat",
-        "reason": "LOC 92 > Limit 43 (Role: util-pure, Drag: 2.12)\n    🔥 Hotspot: Lines 59-63 (AI Context Fog (score 49.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/LazyLoad.res",
-        "action": "De-bloat",
-        "reason": "LOC 87 > Limit 35 (Role: util-pure, Drag: 2.41)\n    🔥 Hotspot: Lines 30-34 (AI Context Fog (score 58.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/LoggerLogic.res",
-        "action": "De-bloat",
-        "reason": "LOC 197 > Limit 129 (Role: service-orchestrator, Drag: 1.75)\n    🔥 Hotspot: Lines 68-72 (AI Context Fog (score 17.8))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/PathInterpolation.res",
-        "action": "De-bloat",
-        "reason": "LOC 236 > Limit 37 (Role: util-pure, Drag: 2.46)\n    🔥 Hotspot: Lines 109-113 (AI Context Fog (score 64.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/ProjectionMath.res",
-        "action": "De-bloat",
-        "reason": "LOC 88 > Limit 65 (Role: util-pure, Drag: 1.71)\n    🔥 Hotspot: Lines 104-108 (AI Context Fog (score 14.6))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/RequestQueue.res",
-        "action": "De-bloat",
-        "reason": "LOC 57 > Limit 45 (Role: util-pure, Drag: 2.10)\n    🔥 Hotspot: Lines 43-47 (AI Context Fog (score 27.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/SessionStore.res",
-        "action": "De-bloat",
-        "reason": "LOC 84 > Limit 36 (Role: util-pure, Drag: 2.54)\n    🔥 Hotspot: Lines 53-57 (AI Context Fog (score 29.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/SceneList/SceneItem.res",
-        "action": "De-bloat",
-        "reason": "LOC 200 > Limit 192 (Role: ui-component, Drag: 1.92)\n    🔥 Hotspot: Lines 83-87 (AI Context Fog (score 14.6))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/SceneList/SceneListMain.res",
-        "action": "De-bloat",
-        "reason": "LOC 211 > Limit 122 (Role: ui-component, Drag: 2.53)\n    🔥 Hotspot: Lines 213-217 (AI Context Fog (score 51.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/Sidebar/SidebarMain.res",
-        "action": "De-bloat",
-        "reason": "LOC 221 > Limit 133 (Role: ui-component, Drag: 2.44)\n    🔥 Hotspot: Lines 72-76 (AI Context Fog (score 49.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/Sidebar/SidebarMainLogic.res",
-        "action": "De-bloat",
-        "reason": "LOC 152 > Limit 62 (Role: service-orchestrator, Drag: 2.69)\n    🔥 Hotspot: Lines 83-87 (AI Context Fog (score 43.8))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/LabelMenu.res",
-        "action": "De-bloat",
-        "reason": "LOC 169 > Limit 153 (Role: ui-component, Drag: 2.22)\n    🔥 Hotspot: Lines 134-138 (AI Context Fog (score 43.8))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/HotspotManager.res",
-        "action": "De-bloat",
-        "reason": "LOC 115 > Limit 98 (Role: service-orchestrator, Drag: 1.97)\n    🔥 Hotspot: Lines 109-113 (AI Context Fog (score 16.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/UploadReport.res",
-        "action": "De-bloat",
-        "reason": "LOC 189 > Limit 159 (Role: ui-component, Drag: 2.15)\n    🔥 Hotspot: Lines 91-95 (AI Context Fog (score 36.6))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/HotspotActionMenu.res",
-        "action": "De-bloat",
-        "reason": "LOC 147 > Limit 146 (Role: ui-component, Drag: 2.31)\n    🔥 Hotspot: Lines 84-88 (AI Context Fog (score 38.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/VisualPipeline/VisualPipelineRender.res",
-        "action": "De-bloat",
-        "reason": "LOC 160 > Limit 82 (Role: ui-component, Drag: 2.93)\n    🔥 Hotspot: Lines 47-51 (AI Context Fog (score 66.0))"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/components/VisualPipeline/VisualPipelineTypes.res",
-        "pattern": "mutable ",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/VisualPipeline/VisualPipelineLogic.res",
-        "action": "De-bloat",
-        "reason": "LOC 96 > Limit 65 (Role: service-orchestrator, Drag: 2.48)\n    🔥 Hotspot: Lines 77-81 (AI Context Fog (score 17.8))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/PopOver.res",
-        "action": "De-bloat",
-        "reason": "LOC 147 > Limit 132 (Role: ui-component, Drag: 2.40)\n    🔥 Hotspot: Lines 50-54 (AI Context Fog (score 29.4))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/PreviewArrow.res",
-        "action": "De-bloat",
-        "reason": "LOC 188 > Limit 119 (Role: ui-component, Drag: 2.65)\n    🔥 Hotspot: Lines 90-94 (AI Context Fog (score 66.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/ViewerManagerLogic.res",
-        "action": "De-bloat",
-        "reason": "LOC 307 > Limit 58 (Role: service-orchestrator, Drag: 2.67)\n    🔥 Hotspot: Lines 183-187 (AI Context Fog (score 61.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/LinkModal.res",
-        "action": "De-bloat",
-        "reason": "LOC 175 > Limit 128 (Role: ui-component, Drag: 2.55)\n    🔥 Hotspot: Lines 135-139 (AI Context Fog (score 100.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/ModalContext.res",
-        "action": "De-bloat",
-        "reason": "LOC 166 > Limit 93 (Role: ui-component, Drag: 3.04)\n    🔥 Hotspot: Lines 77-81 (AI Context Fog (score 81.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/ServiceWorker.res",
-        "action": "De-bloat",
-        "reason": "LOC 87 > Limit 79 (Role: orchestrator, Drag: 2.34)\n    🔥 Hotspot: Lines 79-83 (AI Context Fog (score 36.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/TeaserRecorderLogic.res",
-        "action": "De-bloat",
-        "reason": "LOC 251 > Limit 106 (Role: service-orchestrator, Drag: 1.96)\n    🔥 Hotspot: Lines 214-218 (AI Context Fog (score 34.8))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/VideoEncoder.res",
-        "action": "De-bloat",
-        "reason": "LOC 100 > Limit 60 (Role: service-orchestrator, Drag: 2.67)\n    🔥 Hotspot: Lines 57-61 (AI Context Fog (score 67.4))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ExifReportGeneratorLogicExtraction.res",
-        "action": "De-bloat",
-        "reason": "LOC 108 > Limit 56 (Role: service-orchestrator, Drag: 3.02)\n    🔥 Hotspot: Lines 56-60 (AI Context Fog (score 100.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ViewerFollow.res",
-        "action": "De-bloat",
-        "reason": "LOC 131 > Limit 69 (Role: service-orchestrator, Drag: 2.57)\n    🔥 Hotspot: Lines 57-61 (AI Context Fog (score 38.6))"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/systems/SvgManager.res",
-        "pattern": "mutable ",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/SvgManager.res",
-        "action": "De-bloat",
-        "reason": "LOC 137 > Limit 30 (Role: service-orchestrator, Drag: 5.11)\n    🔥 Hotspot: Lines 85-89 (AI Context Fog (score 18.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/NavigationFSM.res",
-        "action": "De-bloat",
-        "reason": "LOC 79 > Limit 73 (Role: service-orchestrator, Drag: 2.54)\n    🔥 Hotspot: Lines 52-56 (AI Context Fog (score 13.2))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/LinkEditorLogic.res",
-        "action": "De-bloat",
-        "reason": "LOC 123 > Limit 81 (Role: service-orchestrator, Drag: 2.27)\n    🔥 Hotspot: Lines 123-127 (AI Context Fog (score 38.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/SimulationLogic.res",
-        "action": "De-bloat",
-        "reason": "LOC 132 > Limit 70 (Role: service-orchestrator, Drag: 2.57)\n    🔥 Hotspot: Lines 55-59 (AI Context Fog (score 53.0))"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/systems/UploadProcessorTypes.res",
-        "pattern": "mutable ",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/TourTemplates.res",
-        "action": "De-bloat",
-        "reason": "LOC 138 > Limit 128 (Role: service-orchestrator, Drag: 1.75)\n    🔥 Hotspot: Lines 127-131 (AI Context Fog (score 25.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/TourTemplateScripts.res",
-        "action": "De-bloat",
-        "reason": "LOC 139 > Limit 128 (Role: service-orchestrator, Drag: 1.76)\n    🔥 Hotspot: Lines 113-117 (AI Context Fog (score 17.8))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ServerTeaser.res",
-        "action": "De-bloat",
-        "reason": "LOC 89 > Limit 82 (Role: service-orchestrator, Drag: 2.15)\n    🔥 Hotspot: Lines 76-80 (AI Context Fog (score 26.2))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/TeaserRecorderTypes.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Deeply nested but necessary data models] LOC 76 > Limit 30 (Role: service-orchestrator, Drag: 16.15)\n    🔥 Hotspot: Lines 62-66 (AI Context Fog (score 26.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/SceneTransitionManager.res",
-        "action": "De-bloat",
-        "reason": "LOC 111 > Limit 74 (Role: service-orchestrator, Drag: 2.31)\n    🔥 Hotspot: Lines 44-48 (AI Context Fog (score 25.2))"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/systems/ViewerPool.res",
-        "pattern": "mutable ",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ViewerPool.res",
-        "action": "De-bloat",
-        "reason": "LOC 94 > Limit 30 (Role: service-orchestrator, Drag: 6.67)\n    🔥 Hotspot: Lines 90-94 (AI Context Fog (score 16.6))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/HotspotLineLogicArrow.res",
-        "action": "De-bloat",
-        "reason": "LOC 189 > Limit 76 (Role: service-orchestrator, Drag: 2.45)\n    🔥 Hotspot: Lines 105-109 (AI Context Fog (score 52.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/SceneLoaderLogic.res",
-        "action": "De-bloat",
-        "reason": "LOC 170 > Limit 55 (Role: service-orchestrator, Drag: 2.88)\n    🔥 Hotspot: Lines 109-113 (AI Context Fog (score 83.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ExifReportGeneratorLogicLocation.res",
-        "action": "De-bloat",
-        "reason": "LOC 117 > Limit 96 (Role: service-orchestrator, Drag: 2.09)\n    🔥 Hotspot: Lines 99-103 (AI Context Fog (score 36.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/AudioManager.res",
-        "action": "De-bloat",
-        "reason": "LOC 122 > Limit 54 (Role: service-orchestrator, Drag: 3.10)\n    🔥 Hotspot: Lines 100-104 (AI Context Fog (score 15.2))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/PanoramaClusterer.res",
-        "action": "De-bloat",
-        "reason": "LOC 146 > Limit 60 (Role: service-orchestrator, Drag: 2.78)\n    🔥 Hotspot: Lines 44-48 (AI Context Fog (score 64.0))"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/systems/PannellumAdapter.res",
-        "pattern": "mutable ",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/PannellumAdapter.res",
-        "action": "De-bloat",
-        "reason": "LOC 68 > Limit 30 (Role: service-orchestrator, Drag: 14.83)\n    🔥 Hotspot: Lines 6-10 (AI Context Fog (score 10.8))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/SvgRenderer.res",
-        "action": "De-bloat",
-        "reason": "LOC 114 > Limit 68 (Role: service-orchestrator, Drag: 2.32)\n    🔥 Hotspot: Lines 48-52 (AI Context Fog (score 27.2))"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/systems/SimulationPathGenerator.res",
-        "pattern": "mutable ",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/SimulationPathGenerator.res",
-        "action": "De-bloat",
-        "reason": "LOC 202 > Limit 30 (Role: service-orchestrator, Drag: 9.13)\n    🔥 Hotspot: Lines 193-197 (AI Context Fog (score 118.8))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/UploadProcessorLogicLogic.res",
-        "action": "De-bloat",
-        "reason": "LOC 307 > Limit 87 (Role: service-orchestrator, Drag: 2.25)\n    🔥 Hotspot: Lines 332-336 (AI Context Fog (score 64.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ProjectData.res",
-        "action": "De-bloat",
-        "reason": "LOC 94 > Limit 89 (Role: service-orchestrator, Drag: 2.22)\n    🔥 Hotspot: Lines 16-20 (AI Context Fog (score 21.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ExifReportGeneratorUtils.res",
-        "action": "De-bloat",
-        "reason": "LOC 102 > Limit 101 (Role: service-orchestrator, Drag: 2.05)\n    🔥 Hotspot: Lines 54-58 (AI Context Fog (score 49.4))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/SimulationNavigation.res",
-        "action": "De-bloat",
-        "reason": "LOC 218 > Limit 91 (Role: service-orchestrator, Drag: 2.20)\n    🔥 Hotspot: Lines 97-101 (AI Context Fog (score 58.0))"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/systems/PannellumLifecycle.res",
-        "pattern": "mutable ",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/UploadProcessor.res",
-        "action": "De-bloat",
-        "reason": "LOC 112 > Limit 63 (Role: service-orchestrator, Drag: 2.62)\n    🔥 Hotspot: Lines 104-108 (AI Context Fog (score 100.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ExifParser.res",
-        "action": "De-bloat",
-        "reason": "LOC 266 > Limit 100 (Role: service-orchestrator, Drag: 2.06)\n    🔥 Hotspot: Lines 49-53 (AI Context Fog (score 48.4))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/TeaserManager.res",
-        "action": "De-bloat",
-        "reason": "LOC 237 > Limit 51 (Role: service-orchestrator, Drag: 3.00)\n    🔥 Hotspot: Lines 223-227 (AI Context Fog (score 146.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/api/ProjectApi.res",
-        "action": "De-bloat",
-        "reason": "LOC 280 > Limit 53 (Role: service-orchestrator, Drag: 2.89)\n    🔥 Hotspot: Lines 257-261 (AI Context Fog (score 52.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/api/MediaApi.res",
-        "action": "De-bloat",
-        "reason": "LOC 174 > Limit 64 (Role: service-orchestrator, Drag: 2.53)\n    🔥 Hotspot: Lines 27-31 (AI Context Fog (score 35.8))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/TourTemplateStyles.res",
-        "action": "De-bloat",
-        "reason": "LOC 186 > Limit 140 (Role: service-orchestrator, Drag: 1.65)\n    🔥 Hotspot: Lines 188-192 (AI Context Fog (score 14.6))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/NavigationController.res",
-        "action": "De-bloat",
-        "reason": "LOC 193 > Limit 39 (Role: service-orchestrator, Drag: 3.67)\n    🔥 Hotspot: Lines 162-166 (AI Context Fog (score 201.8))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/NavigationGraph.res",
-        "action": "De-bloat",
-        "reason": "LOC 211 > Limit 75 (Role: service-orchestrator, Drag: 2.45)\n    🔥 Hotspot: Lines 188-192 (AI Context Fog (score 49.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ProjectManagerLogic.res",
-        "action": "De-bloat",
-        "reason": "LOC 226 > Limit 30 (Role: service-orchestrator, Drag: 5.07)\n    🔥 Hotspot: Lines 175-179 (AI Context Fog (score 43.8))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/HotspotLineLogicLogic.res",
-        "action": "De-bloat",
-        "reason": "LOC 287 > Limit 90 (Role: service-orchestrator, Drag: 2.15)\n    🔥 Hotspot: Lines 130-134 (AI Context Fog (score 36.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ResizerLogic.res",
-        "action": "De-bloat",
-        "reason": "LOC 258 > Limit 59 (Role: service-orchestrator, Drag: 2.78)\n    🔥 Hotspot: Lines 146-150 (AI Context Fog (score 63.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/HotspotLine.res",
-        "action": "De-bloat",
-        "reason": "LOC 102 > Limit 69 (Role: service-orchestrator, Drag: 2.55)\n    🔥 Hotspot: Lines 97-101 (AI Context Fog (score 66.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/SimulationDriver.res",
-        "action": "De-bloat",
-        "reason": "LOC 148 > Limit 58 (Role: service-orchestrator, Drag: 2.81)\n    🔥 Hotspot: Lines 132-136 (AI Context Fog (score 116.8))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/TeaserPlayback.res",
-        "action": "De-bloat",
-        "reason": "LOC 213 > Limit 80 (Role: service-orchestrator, Drag: 2.29)\n    🔥 Hotspot: Lines 31-35 (AI Context Fog (score 27.2))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ProjectManager.res",
-        "action": "De-bloat",
-        "reason": "LOC 98 > Limit 71 (Role: service-orchestrator, Drag: 2.40)\n    🔥 Hotspot: Lines 60-64 (AI Context Fog (score 39.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ExifReportGeneratorLogicGroups.res",
-        "action": "De-bloat",
-        "reason": "LOC 90 > Limit 68 (Role: service-orchestrator, Drag: 2.59)\n    🔥 Hotspot: Lines 77-81 (AI Context Fog (score 22.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/SceneSwitcher.res",
-        "action": "De-bloat",
-        "reason": "LOC 267 > Limit 80 (Role: service-orchestrator, Drag: 2.32)\n    🔥 Hotspot: Lines 208-212 (AI Context Fog (score 38.6))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/DownloadSystem.res",
-        "action": "De-bloat",
-        "reason": "LOC 135 > Limit 96 (Role: service-orchestrator, Drag: 1.97)\n    🔥 Hotspot: Lines 131-135 (AI Context Fog (score 29.4))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/NavigationRenderer.res",
-        "action": "De-bloat",
-        "reason": "LOC 250 > Limit 52 (Role: service-orchestrator, Drag: 3.07)\n    🔥 Hotspot: Lines 206-210 (AI Context Fog (score 125.6))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/Exporter.res",
-        "action": "De-bloat",
-        "reason": "LOC 205 > Limit 68 (Role: service-orchestrator, Drag: 2.51)\n    🔥 Hotspot: Lines 55-59 (AI Context Fog (score 67.4))"
-      }
-    }
-  ],
   "system": [
     {
       "Ambiguity": {
@@ -1643,6 +678,66 @@
     },
     {
       "Merge": {
+        "folder": "../../backend/src/models",
+        "files": [
+          "session.rs",
+          "user.rs",
+          "mod.rs",
+          "project.rs",
+          "errors.rs"
+        ],
+        "reason": "Score 5.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/api/project/storage",
+        "files": [
+          "storage_logic.rs",
+          "mod.rs"
+        ],
+        "reason": "Score 2.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/api/project",
+        "files": [
+          "export.rs",
+          "mod.rs",
+          "validation.rs",
+          "navigation.rs"
+        ],
+        "reason": "Score 4.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/api/media",
+        "files": [
+          "serve.rs",
+          "similarity.rs",
+          "mod.rs"
+        ],
+        "reason": "Score 3.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../scripts/guard",
+        "files": [
+          "check-size.js",
+          "check-tests.js",
+          "index.js",
+          "check-map.js",
+          "utils.js",
+          "check-tasks.js"
+        ],
+        "reason": "Score 6.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
         "folder": "../../src/core",
         "files": [
           "SimHelpers.res",
@@ -1669,16 +764,6 @@
     },
     {
       "Merge": {
-        "folder": "../../backend/src/pathfinder",
-        "files": [
-          "mod.rs",
-          "utils.rs"
-        ],
-        "reason": "Score 2.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
         "folder": "../../backend/src/api",
         "files": [
           "telemetry.rs",
@@ -1688,6 +773,44 @@
           "utils.rs"
         ],
         "reason": "Score 5.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/services/geocoding",
+        "files": [
+          "logic.rs",
+          "mod.rs"
+        ],
+        "reason": "Score 2.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src",
+        "files": [
+          "ReBindings.res",
+          "App.res",
+          "Main.res",
+          "ServiceWorkerMain.res",
+          "index.js",
+          "ServiceWorker.res"
+        ],
+        "reason": "Score 6.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/bindings",
+        "files": [
+          "WebApiBindings.res",
+          "GraphicsBindings.res",
+          "BrowserBindings.res",
+          "ViewerBindings.res",
+          "IdbBindings.res",
+          "DomBindings.res"
+        ],
+        "reason": "Score 6.00 > 1.0"
       }
     },
     {
@@ -1703,25 +826,116 @@
     },
     {
       "Merge": {
-        "folder": "../../src/components/SceneList",
+        "folder": "../../scripts",
         "files": [
-          "SceneItem.res",
-          "SceneListMain.res"
+          "increment-build.js",
+          "debug-connectivity.js",
+          "update-changelog.js",
+          "update-version.js",
+          "test-logging.js",
+          "bump-version.js",
+          "update-readme.js"
+        ],
+        "reason": "Score 7.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src",
+        "files": [
+          "lib.rs",
+          "main.rs"
         ],
         "reason": "Score 2.00 > 1.0"
       }
     },
     {
       "Merge": {
-        "folder": "../../src/components/VisualPipeline",
+        "folder": "../../src/components/ui",
         "files": [
-          "VisualPipelineRender.res",
-          "VisualPipelineMain.res",
-          "VisualPipelineStyles.res",
-          "VisualPipelineTypes.res",
-          "VisualPipelineLogic.res"
+          "context-menu.jsx",
+          "Shadcn.res",
+          "dropdown-menu.jsx",
+          "button.jsx",
+          "popover.jsx",
+          "tooltip.jsx",
+          "sonner.jsx",
+          "LucideIcons.res"
         ],
-        "reason": "Score 5.00 > 1.0"
+        "reason": "Score 4.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../tests/unit",
+        "files": [
+          "NavigationReducer_v.test.res",
+          "ExifReportGeneratorLogicExtraction_v.test.res",
+          "UploadProcessorTypes_v.test.res",
+          "AudioManager_v.test.res",
+          "LoggerLogic_v.test.res",
+          "TimelineReducer_v.test.res",
+          "PreviewArrow_v.test.res",
+          "NotificationContext_v.test.res",
+          "AppContext_v.test.res",
+          "ProjectManagerLogic_v.test.res",
+          "UrlUtils_v.test.res",
+          "StateInspector_v.test.res",
+          "ViewerSnapshot_v.test.res",
+          "ViewerHUD_v.test.res",
+          "MediaApi_v.test.res",
+          "ExifReportGeneratorUtils_v.test.res",
+          "ViewerUI_v.test.res",
+          "HotspotLineTypes_v.test.res",
+          "TourLogic_v.test.res",
+          "SceneHelpers_v.test.res",
+          "SimulationReducer_v.test.res",
+          "HotspotReducer_v.test.res",
+          "ProjectApi_v.test.res",
+          "UiHelpers_v.test.res",
+          "ProjectReducer_v.test.res",
+          "SvgManager_v.test.res",
+          "LinkEditorLogic_v.test.res",
+          "Schemas_v.test.res",
+          "ApiTypes_v.test.res",
+          "ServiceWorkerMain_v.test.res",
+          "ViewerFollow_v.test.res",
+          "RootReducer_v.test.res",
+          "ViewerLabelMenu_v.test.res",
+          "HotspotLineLogic_v.test.res",
+          "ViewerManager_v.test.res",
+          "Types_v.test.res",
+          "TeaserState_v.test.res",
+          "Reducer_v.test.res",
+          "HotspotManager_v.test.res",
+          "State_v.test.res",
+          "ProjectManager_v.test.res",
+          "GeoUtils_v.test.res",
+          "SimulationLogic_v.test.res",
+          "ViewerPool_v.test.res",
+          "LoggerTypes_v.test.res",
+          "SceneTransitionManager_v.test.res",
+          "SimHelpers_v.test.res",
+          "UiReducer_v.test.res",
+          "Actions_v.test.res",
+          "ExifReportGeneratorLogicLocation_v.test.res",
+          "ViewerState_v.test.res",
+          "ExifReportGeneratorLogicGroups_v.test.res",
+          "InteractionsRobustness_v.test.res",
+          "UploadProcessorLogic_v.test.res",
+          "TeaserManager_v.test.res",
+          "ReBindings_v.test.res",
+          "ViewerTypes_v.test.res",
+          "ViewerLoader_v.test.res",
+          "GlobalStateBridge_v.test.res",
+          "BackendApi_v.test.res",
+          "SharedTypes_v.test.res",
+          "ModalContext_v.test.res",
+          "Bindings_Unified_v.test.res",
+          "ServiceWorker_v.test.res",
+          "SceneReducer_v.test.res"
+        ],
+        "reason": "Score 6.50 > 1.0"
       }
     },
     {
@@ -1737,80 +951,6 @@
           "base.css"
         ],
         "reason": "Score 3.50 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src",
-        "files": [
-          "lib.rs",
-          "main.rs"
-        ],
-        "reason": "Score 2.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/api/media/image",
-        "files": [
-          "image_utils.rs",
-          "mod.rs",
-          "image_logic.rs"
-        ],
-        "reason": "Score 1.50 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/models",
-        "files": [
-          "session.rs",
-          "user.rs",
-          "mod.rs",
-          "project.rs",
-          "errors.rs"
-        ],
-        "reason": "Score 5.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/components",
-        "files": [
-          "NotificationLayer.res",
-          "LabelMenu.res",
-          "HotspotManager.res",
-          "UploadReport.res",
-          "Tooltip.res",
-          "HotspotActionMenu.res",
-          "ViewerLoader.res",
-          "QualityIndicator.res",
-          "ViewerSnapshot.res",
-          "HotspotLayer.res",
-          "AppErrorBoundary.res",
-          "ViewerUI.res",
-          "PopOver.res",
-          "PersistentLabel.res",
-          "Sidebar.res",
-          "PreviewArrow.res",
-          "VisualPipeline.res",
-          "HotspotMenuLayer.res",
-          "ViewerHUD.res",
-          "FloorNavigation.res",
-          "ViewerManagerLogic.res",
-          "ReturnPrompt.res",
-          "NotificationContext.res",
-          "UtilityBar.res",
-          "ViewerLabelMenu.res",
-          "SnapshotOverlay.res",
-          "SceneList.res",
-          "ViewerManager.res",
-          "LinkModal.res",
-          "ModalContext.res",
-          "Portal.res",
-          "ErrorFallbackUI.res"
-        ],
-        "reason": "Score 3.20 > 1.0"
       }
     },
     {
@@ -1900,69 +1040,63 @@
     },
     {
       "Merge": {
-        "folder": "../../backend/src/services/geocoding",
+        "folder": "../../src/components/ui/Lucide",
         "files": [
-          "logic.rs",
-          "mod.rs"
+          "LucideActions.res",
+          "LucideStatus.res",
+          "LucideMedia.res",
+          "LucideCore.res"
+        ],
+        "reason": "Score 4.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/components/VisualPipeline",
+        "files": [
+          "VisualPipelineRender.res",
+          "VisualPipelineMain.res",
+          "VisualPipelineStyles.res",
+          "VisualPipelineTypes.res",
+          "VisualPipelineLogic.res"
+        ],
+        "reason": "Score 5.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/pathfinder",
+        "files": [
+          "mod.rs",
+          "utils.rs"
         ],
         "reason": "Score 2.00 > 1.0"
       }
     },
     {
       "Merge": {
-        "folder": "../../scripts",
+        "folder": "../../src/components/Sidebar",
         "files": [
-          "increment-build.js",
-          "debug-connectivity.js",
-          "update-changelog.js",
-          "update-version.js",
-          "test-logging.js",
-          "bump-version.js",
-          "update-readme.js"
+          "SidebarActions.res",
+          "SidebarMain.res",
+          "SidebarBranding.res",
+          "SidebarMainTypes.res",
+          "SidebarProcessing.res",
+          "SidebarMainLogic.res",
+          "SidebarProjectInfo.res"
         ],
         "reason": "Score 7.00 > 1.0"
       }
     },
     {
       "Merge": {
-        "folder": "../../src/core/reducers",
+        "folder": "../../backend/src/api/media/image",
         "files": [
-          "TimelineReducer.res",
-          "NavigationReducer.res",
-          "ProjectReducer.res",
-          "SimulationReducer.res",
-          "SceneReducer.res",
-          "UiReducer.res",
-          "mod.res",
-          "RootReducer.res",
-          "HotspotReducer.res"
+          "image_utils.rs",
+          "mod.rs",
+          "image_logic.rs"
         ],
-        "reason": "Score 9.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/api/media",
-        "files": [
-          "serve.rs",
-          "similarity.rs",
-          "mod.rs"
-        ],
-        "reason": "Score 3.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../scripts/guard",
-        "files": [
-          "check-size.js",
-          "check-tests.js",
-          "index.js",
-          "check-map.js",
-          "utils.js",
-          "check-tasks.js"
-        ],
-        "reason": "Score 6.00 > 1.0"
+        "reason": "Score 1.50 > 1.0"
       }
     },
     {
@@ -1995,55 +1129,79 @@
     },
     {
       "Merge": {
-        "folder": "../../src/components/Sidebar",
+        "folder": "../../src/components",
         "files": [
-          "SidebarActions.res",
-          "SidebarMain.res",
-          "SidebarBranding.res",
-          "SidebarMainTypes.res",
-          "SidebarProcessing.res",
-          "SidebarMainLogic.res",
-          "SidebarProjectInfo.res"
+          "NotificationLayer.res",
+          "LabelMenu.res",
+          "HotspotManager.res",
+          "UploadReport.res",
+          "Tooltip.res",
+          "HotspotActionMenu.res",
+          "ViewerLoader.res",
+          "QualityIndicator.res",
+          "ViewerSnapshot.res",
+          "HotspotLayer.res",
+          "AppErrorBoundary.res",
+          "ViewerUI.res",
+          "PopOver.res",
+          "PersistentLabel.res",
+          "Sidebar.res",
+          "PreviewArrow.res",
+          "VisualPipeline.res",
+          "HotspotMenuLayer.res",
+          "ViewerHUD.res",
+          "FloorNavigation.res",
+          "ViewerManagerLogic.res",
+          "ReturnPrompt.res",
+          "NotificationContext.res",
+          "UtilityBar.res",
+          "ViewerLabelMenu.res",
+          "SnapshotOverlay.res",
+          "SceneList.res",
+          "ViewerManager.res",
+          "LinkModal.res",
+          "ModalContext.res",
+          "Portal.res",
+          "ErrorFallbackUI.res"
         ],
-        "reason": "Score 7.00 > 1.0"
+        "reason": "Score 3.20 > 1.0"
       }
     },
     {
       "Merge": {
-        "folder": "../../src/components/ui",
+        "folder": "../../backend/src/api/media/video",
         "files": [
-          "context-menu.jsx",
-          "Shadcn.res",
-          "dropdown-menu.jsx",
-          "button.jsx",
-          "popover.jsx",
-          "tooltip.jsx",
-          "sonner.jsx",
-          "LucideIcons.res"
-        ],
-        "reason": "Score 4.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/api/project/storage",
-        "files": [
-          "storage_logic.rs",
-          "mod.rs"
+          "mod.rs",
+          "video_logic.rs"
         ],
         "reason": "Score 2.00 > 1.0"
       }
     },
     {
       "Merge": {
-        "folder": "../../backend/src/api/project",
+        "folder": "../../src/core/reducers",
         "files": [
-          "export.rs",
-          "mod.rs",
-          "validation.rs",
-          "navigation.rs"
+          "TimelineReducer.res",
+          "NavigationReducer.res",
+          "ProjectReducer.res",
+          "SimulationReducer.res",
+          "SceneReducer.res",
+          "UiReducer.res",
+          "mod.res",
+          "RootReducer.res",
+          "HotspotReducer.res"
         ],
-        "reason": "Score 4.00 > 1.0"
+        "reason": "Score 9.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/components/SceneList",
+        "files": [
+          "SceneItem.res",
+          "SceneListMain.res"
+        ],
+        "reason": "Score 2.00 > 1.0"
       }
     },
     {
@@ -2060,126 +1218,143 @@
       }
     },
     {
-      "Merge": {
-        "folder": "../../backend/src/api/media/video",
-        "files": [
-          "mod.rs",
-          "video_logic.rs"
-        ],
-        "reason": "Score 2.00 > 1.0"
+      "Structural": {
+        "file": "Sidebar",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Sidebar' spread across 2 folders (Fragmentation Tax)"
       }
     },
     {
-      "Merge": {
-        "folder": "../../src/components/ui/Lucide",
-        "files": [
-          "LucideActions.res",
-          "LucideStatus.res",
-          "LucideMedia.res",
-          "LucideCore.res"
-        ],
-        "reason": "Score 4.00 > 1.0"
+      "Structural": {
+        "file": "Lucide",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Lucide' spread across 2 folders (Fragmentation Tax)"
       }
     },
     {
-      "Merge": {
-        "folder": "../../src/bindings",
-        "files": [
-          "WebApiBindings.res",
-          "GraphicsBindings.res",
-          "BrowserBindings.res",
-          "ViewerBindings.res",
-          "IdbBindings.res",
-          "DomBindings.res"
-        ],
-        "reason": "Score 6.00 > 1.0"
+      "Structural": {
+        "file": "Svg",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Svg' spread across 2 folders (Fragmentation Tax)"
       }
     },
     {
-      "Merge": {
-        "folder": "../../tests/unit",
-        "files": [
-          "NavigationReducer_v.test.res",
-          "ExifReportGeneratorLogicExtraction_v.test.res",
-          "UploadProcessorTypes_v.test.res",
-          "AudioManager_v.test.res",
-          "LoggerLogic_v.test.res",
-          "TimelineReducer_v.test.res",
-          "PreviewArrow_v.test.res",
-          "NotificationContext_v.test.res",
-          "AppContext_v.test.res",
-          "ProjectManagerLogic_v.test.res",
-          "UrlUtils_v.test.res",
-          "StateInspector_v.test.res",
-          "ViewerSnapshot_v.test.res",
-          "ViewerHUD_v.test.res",
-          "MediaApi_v.test.res",
-          "ExifReportGeneratorUtils_v.test.res",
-          "ViewerUI_v.test.res",
-          "HotspotLineTypes_v.test.res",
-          "TourLogic_v.test.res",
-          "SceneHelpers_v.test.res",
-          "SimulationReducer_v.test.res",
-          "HotspotReducer_v.test.res",
-          "ProjectApi_v.test.res",
-          "UiHelpers_v.test.res",
-          "ProjectReducer_v.test.res",
-          "SvgManager_v.test.res",
-          "LinkEditorLogic_v.test.res",
-          "Schemas_v.test.res",
-          "ApiTypes_v.test.res",
-          "ServiceWorkerMain_v.test.res",
-          "ViewerFollow_v.test.res",
-          "RootReducer_v.test.res",
-          "ViewerLabelMenu_v.test.res",
-          "HotspotLineLogic_v.test.res",
-          "ViewerManager_v.test.res",
-          "Types_v.test.res",
-          "TeaserState_v.test.res",
-          "Reducer_v.test.res",
-          "HotspotManager_v.test.res",
-          "State_v.test.res",
-          "ProjectManager_v.test.res",
-          "GeoUtils_v.test.res",
-          "SimulationLogic_v.test.res",
-          "ViewerPool_v.test.res",
-          "LoggerTypes_v.test.res",
-          "SceneTransitionManager_v.test.res",
-          "SimHelpers_v.test.res",
-          "UiReducer_v.test.res",
-          "Actions_v.test.res",
-          "ExifReportGeneratorLogicLocation_v.test.res",
-          "ViewerState_v.test.res",
-          "ExifReportGeneratorLogicGroups_v.test.res",
-          "InteractionsRobustness_v.test.res",
-          "UploadProcessorLogic_v.test.res",
-          "TeaserManager_v.test.res",
-          "ReBindings_v.test.res",
-          "ViewerTypes_v.test.res",
-          "ViewerLoader_v.test.res",
-          "GlobalStateBridge_v.test.res",
-          "BackendApi_v.test.res",
-          "SharedTypes_v.test.res",
-          "ModalContext_v.test.res",
-          "Bindings_Unified_v.test.res",
-          "ServiceWorker_v.test.res",
-          "SceneReducer_v.test.res"
-        ],
-        "reason": "Score 6.50 > 1.0"
+      "Structural": {
+        "file": "Teaser",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Teaser' spread across 2 folders (Fragmentation Tax)"
       }
     },
     {
-      "Merge": {
-        "folder": "../../src",
-        "files": [
-          "ReBindings.res",
-          "App.res",
-          "Main.res",
-          "ServiceWorkerMain.res",
-          "index.js",
-          "ServiceWorker.res"
-        ],
-        "reason": "Score 6.00 > 1.0"
+      "Structural": {
+        "file": "utils",
+        "action": "Vertical Slice",
+        "reason": "Feature 'utils' spread across 3 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "State",
+        "action": "Vertical Slice",
+        "reason": "Feature 'State' spread across 3 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "App",
+        "action": "Vertical Slice",
+        "reason": "Feature 'App' spread across 4 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Scene",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Scene' spread across 6 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Visual",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Visual' spread across 2 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Tour",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Tour' spread across 3 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Simulation",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Simulation' spread across 3 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Link",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Link' spread across 3 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Ui",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Ui' spread across 3 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Service",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Service' spread across 2 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Exif",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Exif' spread across 2 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "index",
+        "action": "Vertical Slice",
+        "reason": "Feature 'index' spread across 3 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "mod",
+        "action": "Vertical Slice",
+        "reason": "Feature 'mod' spread across 16 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Hotspot",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Hotspot' spread across 4 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Upload",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Upload' spread across 3 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Logger",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Logger' spread across 2 folders (Fragmentation Tax)"
       }
     },
     {
@@ -2198,93 +1373,9 @@
     },
     {
       "Structural": {
-        "file": "Service",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Service' spread across 2 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "App",
-        "action": "Vertical Slice",
-        "reason": "Feature 'App' spread across 4 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "utils",
-        "action": "Vertical Slice",
-        "reason": "Feature 'utils' spread across 3 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Simulation",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Simulation' spread across 3 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Ui",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Ui' spread across 3 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Exif",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Exif' spread across 2 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Teaser",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Teaser' spread across 2 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Hotspot",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Hotspot' spread across 4 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Visual",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Visual' spread across 2 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Svg",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Svg' spread across 2 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
         "file": "Viewer",
         "action": "Vertical Slice",
         "reason": "Feature 'Viewer' spread across 6 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Scene",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Scene' spread across 6 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Upload",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Upload' spread across 3 folders (Fragmentation Tax)"
       }
     },
     {
@@ -2293,61 +1384,1285 @@
         "action": "Vertical Slice",
         "reason": "Feature 'Navigation' spread across 3 folders (Fragmentation Tax)"
       }
-    },
+    }
+  ],
+  "rescript": [
     {
-      "Structural": {
-        "file": "Sidebar",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Sidebar' spread across 2 folders (Fragmentation Tax)"
+      "Surgical": {
+        "file": "../../tests/unit/NavigationReducer_v.test.res",
+        "action": "De-bloat",
+        "reason": "[Exception: Scaffolding for testing] LOC 128 > Limit 93 (Role: state-reducer, Drag: 8.23)\n    🔥 Hotspot: Lines 120-124 (AI Context Fog (score 14.0))"
       }
     },
     {
-      "Structural": {
-        "file": "mod",
-        "action": "Vertical Slice",
-        "reason": "Feature 'mod' spread across 16 folders (Fragmentation Tax)"
+      "Violation": {
+        "file": "../../tests/unit/LoggerLogic_v.test.res",
+        "pattern": "console.log",
+        "severity": "CRITICAL"
       }
     },
     {
-      "Structural": {
-        "file": "Lucide",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Lucide' spread across 2 folders (Fragmentation Tax)"
+      "Surgical": {
+        "file": "../../tests/unit/TimelineReducer_v.test.res",
+        "action": "De-bloat",
+        "reason": "[Exception: Scaffolding for testing] LOC 142 > Limit 40 (Role: state-reducer, Drag: 14.57)\n    🔥 Hotspot: Lines 21-25 (AI Context Fog (score 10.0))"
       }
     },
     {
-      "Structural": {
-        "file": "Tour",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Tour' spread across 3 folders (Fragmentation Tax)"
+      "Surgical": {
+        "file": "../../tests/unit/PreviewArrow_v.test.res",
+        "action": "De-bloat",
+        "reason": "[Exception: Scaffolding for testing] LOC 169 > Limit 58 (Role: ui-component, Drag: 19.41)\n    🔥 Hotspot: Lines 98-102 (AI Context Fog (score 27.2))"
       }
     },
     {
-      "Structural": {
-        "file": "Link",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Link' spread across 3 folders (Fragmentation Tax)"
+      "Surgical": {
+        "file": "../../tests/unit/ProjectManagerLogic_v.test.res",
+        "action": "De-bloat",
+        "reason": "[Exception: Scaffolding for testing] LOC 118 > Limit 76 (Role: service-orchestrator, Drag: 11.44)\n    🔥 Hotspot: Lines 68-72 (AI Context Fog (score 16.0))"
       }
     },
     {
-      "Structural": {
-        "file": "State",
-        "action": "Vertical Slice",
-        "reason": "Feature 'State' spread across 3 folders (Fragmentation Tax)"
+      "Surgical": {
+        "file": "../../tests/unit/UrlUtils_v.test.res",
+        "action": "De-bloat",
+        "reason": "[Exception: Scaffolding for testing] LOC 46 > Limit 45 (Role: util-pure, Drag: 10.07)\n    🔥 Hotspot: Lines 27-31 (AI Context Fog (score 7.0))"
       }
     },
     {
-      "Structural": {
-        "file": "index",
-        "action": "Vertical Slice",
-        "reason": "Feature 'index' spread across 3 folders (Fragmentation Tax)"
+      "Surgical": {
+        "file": "../../tests/unit/ViewerSnapshot_v.test.res",
+        "action": "De-bloat",
+        "reason": "[Exception: Scaffolding for testing] LOC 115 > Limit 114 (Role: ui-component, Drag: 11.84)\n    🔥 Hotspot: Lines 37-41 (AI Context Fog (score 23.2))"
       }
     },
     {
-      "Structural": {
-        "file": "Logger",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Logger' spread across 2 folders (Fragmentation Tax)"
+      "Surgical": {
+        "file": "../../tests/unit/ViewerUI_v.test.res",
+        "action": "De-bloat",
+        "reason": "[Exception: Scaffolding for testing] LOC 222 > Limit 78 (Role: ui-component, Drag: 15.74)\n    🔥 Hotspot: Lines 125-129 (AI Context Fog (score 18.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../tests/unit/SceneHelpers_v.test.res",
+        "action": "De-bloat",
+        "reason": "[Exception: Scaffolding for testing] LOC 312 > Limit 42 (Role: util-pure, Drag: 10.69)\n    🔥 Hotspot: Lines 67-71 (AI Context Fog (score 19.6))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../tests/unit/SimulationReducer_v.test.res",
+        "action": "De-bloat",
+        "reason": "[Exception: Scaffolding for testing] LOC 126 > Limit 30 (Role: state-reducer, Drag: 21.92)\n    🔥 Hotspot: Lines 15-19 (AI Context Fog (score 24.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../tests/unit/ProjectApi_v.test.res",
+        "action": "De-bloat",
+        "reason": "[Exception: Scaffolding for testing] LOC 166 > Limit 30 (Role: infra-adapter, Drag: 43.72)\n    🔥 Hotspot: Lines 57-61 (AI Context Fog (score 36.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../tests/unit/ProjectReducer_v.test.res",
+        "action": "De-bloat",
+        "reason": "[Exception: Scaffolding for testing] LOC 193 > Limit 30 (Role: state-reducer, Drag: 34.80)\n    🔥 Hotspot: Lines 100-104 (AI Context Fog (score 17.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../tests/unit/Schemas_v.test.res",
+        "action": "De-bloat",
+        "reason": "[Exception: Scaffolding for testing] LOC 119 > Limit 86 (Role: data-model, Drag: 15.83)\n    🔥 Hotspot: Lines 10-14 (AI Context Fog (score 14.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../tests/unit/RootReducer_v.test.res",
+        "action": "De-bloat",
+        "reason": "[Exception: Scaffolding for testing] LOC 143 > Limit 138 (Role: state-reducer, Drag: 6.38)\n    🔥 Hotspot: Lines 117-121 (AI Context Fog (score 10.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../tests/unit/HotspotLineLogic_v.test.res",
+        "action": "De-bloat",
+        "reason": "[Exception: Scaffolding for testing] LOC 220 > Limit 30 (Role: service-orchestrator, Drag: 35.82)\n    🔥 Hotspot: Lines 109-113 (AI Context Fog (score 24.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../tests/unit/ProjectManager_v.test.res",
+        "action": "De-bloat",
+        "reason": "[Exception: Scaffolding for testing] LOC 88 > Limit 51 (Role: service-orchestrator, Drag: 14.94)\n    🔥 Hotspot: Lines 56-60 (AI Context Fog (score 12.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../tests/unit/SimulationLogic_v.test.res",
+        "action": "De-bloat",
+        "reason": "[Exception: Scaffolding for testing] LOC 319 > Limit 30 (Role: service-orchestrator, Drag: 22.83)\n    🔥 Hotspot: Lines 67-71 (AI Context Fog (score 22.6))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../tests/unit/ViewerPool_v.test.res",
+        "action": "De-bloat",
+        "reason": "[Exception: Scaffolding for testing] LOC 85 > Limit 84 (Role: ui-component, Drag: 15.57)\n    🔥 Hotspot: Lines 17-21 (AI Context Fog (score 17.8))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../tests/unit/UiReducer_v.test.res",
+        "action": "De-bloat",
+        "reason": "[Exception: Scaffolding for testing] LOC 86 > Limit 47 (Role: state-reducer, Drag: 12.85)\n    🔥 Hotspot: Lines 32-36 (AI Context Fog (score 20.6))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../tests/unit/Actions_v.test.res",
+        "action": "De-bloat",
+        "reason": "[Exception: Scaffolding for testing] LOC 211 > Limit 155 (Role: orchestrator, Drag: 7.16)\n    🔥 Hotspot: Lines 15-19 (AI Context Fog (score 10.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../tests/unit/Bindings_Unified_v.test.res",
+        "action": "De-bloat",
+        "reason": "[Exception: Scaffolding for testing] LOC 188 > Limit 53 (Role: infra-adapter, Drag: 17.41)\n    🔥 Hotspot: Lines 160-164 (AI Context Fog (score 10.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/SimHelpers.res",
+        "action": "De-bloat",
+        "reason": "LOC 38 > Limit 30 (Role: domain-logic, Drag: 9.58)\n    🔥 Hotspot: Lines 26-30 (AI Context Fog (score 29.0))"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/core/ViewerState.res",
+        "pattern": "mutable ",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/ViewerState.res",
+        "action": "De-bloat",
+        "reason": "LOC 91 > Limit 30 (Role: domain-logic, Drag: 43.11)\n    🔥 Hotspot: Lines 18-22 (AI Context Fog (score 26.6))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/SceneHelpersParser.res",
+        "action": "De-bloat",
+        "reason": "LOC 67 > Limit 30 (Role: domain-logic, Drag: 5.76)\n    🔥 Hotspot: Lines 49-53 (AI Context Fog (score 27.2))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/Actions.res",
+        "action": "De-bloat",
+        "reason": "LOC 105 > Limit 30 (Role: orchestrator, Drag: 51.80)\n    🔥 Hotspot: Lines 55-59 (AI Context Fog (score 3.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/UiHelpers.res",
+        "action": "De-bloat",
+        "reason": "LOC 40 > Limit 30 (Role: domain-logic, Drag: 18.15)\n    🔥 Hotspot: Lines 25-29 (AI Context Fog (score 17.8))"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/core/ViewerTypes.res",
+        "pattern": "mutable ",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/core/SharedTypes.res",
+        "pattern": "mutable ",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/SharedTypes.res",
+        "action": "De-bloat",
+        "reason": "[Exception: Deeply nested but necessary data models] LOC 132 > Limit 33 (Role: data-model, Drag: 19.30)\n    🔥 Hotspot: Lines 6-10 (AI Context Fog (score 26.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/AppContext.res",
+        "action": "De-bloat",
+        "reason": "LOC 135 > Limit 30 (Role: domain-logic, Drag: 5.59)\n    🔥 Hotspot: Lines 85-89 (AI Context Fog (score 36.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/Types.res",
+        "action": "De-bloat",
+        "reason": "[Exception: Deeply nested but necessary data models] LOC 192 > Limit 117 (Role: data-model, Drag: 8.30)"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/Schemas.res",
+        "action": "De-bloat",
+        "reason": "[Exception: Central schema collection (Authorized debt)] LOC 132 > Limit 30 (Role: domain-logic, Drag: 21.59)\n    🔥 Hotspot: Lines 103-107 (AI Context Fog (score 27.2))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/SchemasShared.res",
+        "action": "De-bloat",
+        "reason": "LOC 99 > Limit 30 (Role: domain-logic, Drag: 7.28)\n    🔥 Hotspot: Lines 24-28 (AI Context Fog (score 8.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/SchemasDomain.res",
+        "action": "De-bloat",
+        "reason": "LOC 154 > Limit 30 (Role: domain-logic, Drag: 11.70)\n    🔥 Hotspot: Lines 160-164 (AI Context Fog (score 13.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/SceneHelpersLogic.res",
+        "action": "De-bloat",
+        "reason": "LOC 198 > Limit 30 (Role: service-orchestrator, Drag: 23.20)\n    🔥 Hotspot: Lines 122-126 (AI Context Fog (score 41.2))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/reducers/NavigationReducer.res",
+        "action": "De-bloat",
+        "reason": "LOC 63 > Limit 30 (Role: domain-logic, Drag: 9.21)\n    🔥 Hotspot: Lines 31-35 (AI Context Fog (score 25.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/reducers/SimulationReducer.res",
+        "action": "De-bloat",
+        "reason": "LOC 94 > Limit 30 (Role: domain-logic, Drag: 7.88)\n    🔥 Hotspot: Lines 9-13 (AI Context Fog (score 16.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/reducers/SceneReducer.res",
+        "action": "De-bloat",
+        "reason": "LOC 91 > Limit 30 (Role: domain-logic, Drag: 10.80)\n    🔥 Hotspot: Lines 22-26 (AI Context Fog (score 21.4))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/reducers/HotspotReducer.res",
+        "action": "De-bloat",
+        "reason": "LOC 94 > Limit 30 (Role: domain-logic, Drag: 10.80)\n    🔥 Hotspot: Lines 75-79 (AI Context Fog (score 69.4))"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/core/SceneCache.res",
+        "pattern": "mutable ",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/SceneCache.res",
+        "action": "De-bloat",
+        "reason": "LOC 35 > Limit 30 (Role: domain-logic, Drag: 5.24)\n    🔥 Hotspot: Lines 4-8 (AI Context Fog (score 6.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/ServiceWorkerMain.res",
+        "action": "De-bloat",
+        "reason": "LOC 164 > Limit 91 (Role: orchestrator, Drag: 2.20)\n    🔥 Hotspot: Lines 169-173 (AI Context Fog (score 61.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/GeoUtils.res",
+        "action": "De-bloat",
+        "reason": "LOC 83 > Limit 30 (Role: util-pure, Drag: 3.77)\n    🔥 Hotspot: Lines 67-71 (AI Context Fog (score 29.4))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/PersistenceLayer.res",
+        "action": "De-bloat",
+        "reason": "LOC 66 > Limit 30 (Role: util-pure, Drag: 9.26)\n    🔥 Hotspot: Lines 38-42 (AI Context Fog (score 11.4))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/ProgressBar.res",
+        "action": "De-bloat",
+        "reason": "LOC 106 > Limit 30 (Role: util-pure, Drag: 10.36)\n    🔥 Hotspot: Lines 111-115 (AI Context Fog (score 37.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/ColorPalette.res",
+        "action": "De-bloat",
+        "reason": "LOC 46 > Limit 30 (Role: util-pure, Drag: 11.40)\n    🔥 Hotspot: Lines 22-26 (AI Context Fog (score 25.2))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/StateInspector.res",
+        "action": "De-bloat",
+        "reason": "LOC 88 > Limit 30 (Role: state-reducer, Drag: 4.81)\n    🔥 Hotspot: Lines 67-71 (AI Context Fog (score 25.4))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/TourLogic.res",
+        "action": "De-bloat",
+        "reason": "LOC 129 > Limit 103 (Role: service-orchestrator, Drag: 2.03)\n    🔥 Hotspot: Lines 75-79 (AI Context Fog (score 32.6))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/LoggerTelemetry.res",
+        "action": "De-bloat",
+        "reason": "LOC 94 > Limit 30 (Role: util-pure, Drag: 6.51)\n    🔥 Hotspot: Lines 51-55 (AI Context Fog (score 31.6))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/Logger.res",
+        "action": "De-bloat",
+        "reason": "LOC 106 > Limit 30 (Role: util-pure, Drag: 3.65)\n    🔥 Hotspot: Lines 69-73 (AI Context Fog (score 11.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/ImageOptimizer.res",
+        "action": "De-bloat",
+        "reason": "LOC 92 > Limit 30 (Role: util-pure, Drag: 3.92)\n    🔥 Hotspot: Lines 59-63 (AI Context Fog (score 49.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/LazyLoad.res",
+        "action": "De-bloat",
+        "reason": "LOC 87 > Limit 30 (Role: util-pure, Drag: 6.16)\n    🔥 Hotspot: Lines 30-34 (AI Context Fog (score 58.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/LoggerLogic.res",
+        "action": "De-bloat",
+        "reason": "LOC 197 > Limit 129 (Role: service-orchestrator, Drag: 1.75)\n    🔥 Hotspot: Lines 68-72 (AI Context Fog (score 17.8))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/PathInterpolation.res",
+        "action": "De-bloat",
+        "reason": "LOC 236 > Limit 30 (Role: util-pure, Drag: 15.56)\n    🔥 Hotspot: Lines 109-113 (AI Context Fog (score 64.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/ProjectionMath.res",
+        "action": "De-bloat",
+        "reason": "LOC 88 > Limit 30 (Role: util-pure, Drag: 4.51)\n    🔥 Hotspot: Lines 104-108 (AI Context Fog (score 14.6))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/RequestQueue.res",
+        "action": "De-bloat",
+        "reason": "LOC 57 > Limit 30 (Role: util-pure, Drag: 5.15)\n    🔥 Hotspot: Lines 43-47 (AI Context Fog (score 27.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/LoggerTypes.res",
+        "action": "De-bloat",
+        "reason": "[Exception: Deeply nested but necessary data models] LOC 105 > Limit 30 (Role: data-model, Drag: 29.49)\n    🔥 Hotspot: Lines 110-114 (AI Context Fog (score 8.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/SessionStore.res",
+        "action": "De-bloat",
+        "reason": "LOC 84 > Limit 30 (Role: util-pure, Drag: 10.49)\n    🔥 Hotspot: Lines 53-57 (AI Context Fog (score 29.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/SceneList/SceneItem.res",
+        "action": "De-bloat",
+        "reason": "LOC 200 > Limit 34 (Role: ui-component, Drag: 6.02)\n    🔥 Hotspot: Lines 83-87 (AI Context Fog (score 14.6))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/SceneList/SceneListMain.res",
+        "action": "De-bloat",
+        "reason": "LOC 211 > Limit 30 (Role: ui-component, Drag: 10.33)\n    🔥 Hotspot: Lines 213-217 (AI Context Fog (score 51.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/Sidebar/SidebarActions.res",
+        "action": "De-bloat",
+        "reason": "LOC 69 > Limit 30 (Role: orchestrator, Drag: 5.48)\n    🔥 Hotspot: Lines 34-38 (AI Context Fog (score 18.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/Sidebar/SidebarMain.res",
+        "action": "De-bloat",
+        "reason": "LOC 221 > Limit 30 (Role: ui-component, Drag: 9.79)\n    🔥 Hotspot: Lines 72-76 (AI Context Fog (score 49.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/Sidebar/SidebarMainLogic.res",
+        "action": "De-bloat",
+        "reason": "LOC 152 > Limit 30 (Role: service-orchestrator, Drag: 18.44)\n    🔥 Hotspot: Lines 83-87 (AI Context Fog (score 43.8))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/NotificationLayer.res",
+        "action": "De-bloat",
+        "reason": "LOC 59 > Limit 36 (Role: ui-component, Drag: 5.85)\n    🔥 Hotspot: Lines 38-42 (AI Context Fog (score 49.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/LabelMenu.res",
+        "action": "De-bloat",
+        "reason": "LOC 169 > Limit 32 (Role: ui-component, Drag: 6.22)\n    🔥 Hotspot: Lines 134-138 (AI Context Fog (score 43.8))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/HotspotManager.res",
+        "action": "De-bloat",
+        "reason": "LOC 115 > Limit 30 (Role: service-orchestrator, Drag: 11.27)\n    🔥 Hotspot: Lines 109-113 (AI Context Fog (score 16.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/UploadReport.res",
+        "action": "De-bloat",
+        "reason": "LOC 189 > Limit 30 (Role: ui-component, Drag: 7.55)\n    🔥 Hotspot: Lines 91-95 (AI Context Fog (score 36.6))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/HotspotActionMenu.res",
+        "action": "De-bloat",
+        "reason": "LOC 147 > Limit 30 (Role: ui-component, Drag: 20.31)\n    🔥 Hotspot: Lines 84-88 (AI Context Fog (score 38.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/VisualPipeline/VisualPipelineRender.res",
+        "action": "De-bloat",
+        "reason": "LOC 160 > Limit 30 (Role: ui-component, Drag: 21.78)\n    🔥 Hotspot: Lines 47-51 (AI Context Fog (score 66.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/VisualPipeline/VisualPipelineStyles.res",
+        "action": "De-bloat",
+        "reason": "LOC 105 > Limit 73 (Role: ui-component, Drag: 3.56)\n    🔥 Hotspot: Lines 18-22 (AI Context Fog (score 9.0))"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/components/VisualPipeline/VisualPipelineTypes.res",
+        "pattern": "mutable ",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/VisualPipeline/VisualPipelineLogic.res",
+        "action": "De-bloat",
+        "reason": "LOC 96 > Limit 30 (Role: service-orchestrator, Drag: 13.53)\n    🔥 Hotspot: Lines 77-81 (AI Context Fog (score 17.8))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/QualityIndicator.res",
+        "action": "De-bloat",
+        "reason": "LOC 48 > Limit 36 (Role: ui-component, Drag: 5.78)\n    🔥 Hotspot: Lines 44-48 (AI Context Fog (score 14.6))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/ViewerSnapshot.res",
+        "action": "De-bloat",
+        "reason": "LOC 54 > Limit 30 (Role: ui-component, Drag: 13.67)\n    🔥 Hotspot: Lines 41-45 (AI Context Fog (score 52.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/PopOver.res",
+        "action": "De-bloat",
+        "reason": "LOC 147 > Limit 30 (Role: ui-component, Drag: 20.15)\n    🔥 Hotspot: Lines 50-54 (AI Context Fog (score 29.4))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/PreviewArrow.res",
+        "action": "De-bloat",
+        "reason": "LOC 188 > Limit 30 (Role: ui-component, Drag: 26.20)\n    🔥 Hotspot: Lines 90-94 (AI Context Fog (score 66.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/HotspotMenuLayer.res",
+        "action": "De-bloat",
+        "reason": "LOC 51 > Limit 37 (Role: ui-component, Drag: 5.74)\n    🔥 Hotspot: Lines 21-25 (AI Context Fog (score 25.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/FloorNavigation.res",
+        "action": "De-bloat",
+        "reason": "LOC 63 > Limit 35 (Role: ui-component, Drag: 5.85)\n    🔥 Hotspot: Lines 59-63 (AI Context Fog (score 27.4))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/ViewerManagerLogic.res",
+        "action": "De-bloat",
+        "reason": "LOC 307 > Limit 30 (Role: service-orchestrator, Drag: 42.57)\n    🔥 Hotspot: Lines 183-187 (AI Context Fog (score 61.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/ReturnPrompt.res",
+        "action": "De-bloat",
+        "reason": "LOC 61 > Limit 30 (Role: ui-component, Drag: 7.53)\n    🔥 Hotspot: Lines 25-29 (AI Context Fog (score 28.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/UtilityBar.res",
+        "action": "De-bloat",
+        "reason": "LOC 116 > Limit 40 (Role: ui-component, Drag: 5.30)\n    🔥 Hotspot: Lines 25-29 (AI Context Fog (score 18.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/LinkModal.res",
+        "action": "De-bloat",
+        "reason": "LOC 175 > Limit 114 (Role: ui-component, Drag: 2.75)\n    🔥 Hotspot: Lines 135-139 (AI Context Fog (score 100.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/ModalContext.res",
+        "action": "De-bloat",
+        "reason": "LOC 166 > Limit 30 (Role: ui-component, Drag: 35.14)\n    🔥 Hotspot: Lines 77-81 (AI Context Fog (score 81.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/ServiceWorker.res",
+        "action": "De-bloat",
+        "reason": "LOC 87 > Limit 30 (Role: orchestrator, Drag: 8.24)\n    🔥 Hotspot: Lines 79-83 (AI Context Fog (score 36.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/TeaserRecorderLogic.res",
+        "action": "De-bloat",
+        "reason": "LOC 251 > Limit 36 (Role: service-orchestrator, Drag: 3.96)\n    🔥 Hotspot: Lines 214-218 (AI Context Fog (score 34.8))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/VideoEncoder.res",
+        "action": "De-bloat",
+        "reason": "LOC 100 > Limit 30 (Role: service-orchestrator, Drag: 10.07)\n    🔥 Hotspot: Lines 57-61 (AI Context Fog (score 67.4))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ExifReportGeneratorLogicExtraction.res",
+        "action": "De-bloat",
+        "reason": "LOC 108 > Limit 30 (Role: service-orchestrator, Drag: 15.97)\n    🔥 Hotspot: Lines 56-60 (AI Context Fog (score 100.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ViewerFollow.res",
+        "action": "De-bloat",
+        "reason": "LOC 131 > Limit 30 (Role: service-orchestrator, Drag: 21.82)\n    🔥 Hotspot: Lines 57-61 (AI Context Fog (score 38.6))"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/SvgManager.res",
+        "pattern": "mutable ",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/SvgManager.res",
+        "action": "De-bloat",
+        "reason": "LOC 137 > Limit 30 (Role: service-orchestrator, Drag: 25.46)\n    🔥 Hotspot: Lines 85-89 (AI Context Fog (score 18.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/NavigationFSM.res",
+        "action": "De-bloat",
+        "reason": "LOC 79 > Limit 30 (Role: service-orchestrator, Drag: 21.64)\n    🔥 Hotspot: Lines 52-56 (AI Context Fog (score 13.2))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/LinkEditorLogic.res",
+        "action": "De-bloat",
+        "reason": "LOC 123 > Limit 30 (Role: service-orchestrator, Drag: 14.97)\n    🔥 Hotspot: Lines 123-127 (AI Context Fog (score 38.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/SimulationLogic.res",
+        "action": "De-bloat",
+        "reason": "LOC 132 > Limit 30 (Role: service-orchestrator, Drag: 22.12)\n    🔥 Hotspot: Lines 55-59 (AI Context Fog (score 53.0))"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/UploadProcessorTypes.res",
+        "pattern": "mutable ",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/TourTemplates.res",
+        "action": "De-bloat",
+        "reason": "LOC 138 > Limit 128 (Role: service-orchestrator, Drag: 1.75)\n    🔥 Hotspot: Lines 127-131 (AI Context Fog (score 25.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/TourTemplateScripts.res",
+        "action": "De-bloat",
+        "reason": "LOC 139 > Limit 122 (Role: service-orchestrator, Drag: 1.81)\n    🔥 Hotspot: Lines 113-117 (AI Context Fog (score 17.8))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ServerTeaser.res",
+        "action": "De-bloat",
+        "reason": "LOC 89 > Limit 30 (Role: service-orchestrator, Drag: 10.10)\n    🔥 Hotspot: Lines 76-80 (AI Context Fog (score 26.2))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/TeaserRecorderTypes.res",
+        "action": "De-bloat",
+        "reason": "[Exception: Deeply nested but necessary data models] LOC 76 > Limit 30 (Role: service-orchestrator, Drag: 16.15)\n    🔥 Hotspot: Lines 62-66 (AI Context Fog (score 26.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/TourTemplateAssets.res",
+        "action": "De-bloat",
+        "reason": "LOC 142 > Limit 120 (Role: service-orchestrator, Drag: 1.83)\n    🔥 Hotspot: Lines 127-131 (AI Context Fog (score 5.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/SceneTransitionManager.res",
+        "action": "De-bloat",
+        "reason": "LOC 111 > Limit 30 (Role: service-orchestrator, Drag: 20.36)\n    🔥 Hotspot: Lines 44-48 (AI Context Fog (score 25.2))"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/ViewerPool.res",
+        "pattern": "mutable ",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ViewerPool.res",
+        "action": "De-bloat",
+        "reason": "LOC 94 > Limit 30 (Role: service-orchestrator, Drag: 17.62)\n    🔥 Hotspot: Lines 90-94 (AI Context Fog (score 16.6))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/HotspotLineLogicArrow.res",
+        "action": "De-bloat",
+        "reason": "LOC 189 > Limit 30 (Role: service-orchestrator, Drag: 16.85)\n    🔥 Hotspot: Lines 105-109 (AI Context Fog (score 52.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/SceneLoaderLogic.res",
+        "action": "De-bloat",
+        "reason": "LOC 170 > Limit 30 (Role: service-orchestrator, Drag: 29.13)\n    🔥 Hotspot: Lines 109-113 (AI Context Fog (score 83.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ExifReportGeneratorLogicLocation.res",
+        "action": "De-bloat",
+        "reason": "LOC 117 > Limit 30 (Role: service-orchestrator, Drag: 7.59)\n    🔥 Hotspot: Lines 99-103 (AI Context Fog (score 36.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/AudioManager.res",
+        "action": "De-bloat",
+        "reason": "LOC 122 > Limit 54 (Role: service-orchestrator, Drag: 3.10)\n    🔥 Hotspot: Lines 100-104 (AI Context Fog (score 15.2))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/PanoramaClusterer.res",
+        "action": "De-bloat",
+        "reason": "LOC 146 > Limit 30 (Role: service-orchestrator, Drag: 24.68)\n    🔥 Hotspot: Lines 44-48 (AI Context Fog (score 64.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/EventBus.res",
+        "action": "De-bloat",
+        "reason": "LOC 64 > Limit 30 (Role: service-orchestrator, Drag: 11.24)\n    🔥 Hotspot: Lines 59-63 (AI Context Fog (score 10.4))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/FingerprintService.res",
+        "action": "De-bloat",
+        "reason": "LOC 77 > Limit 37 (Role: service-orchestrator, Drag: 3.78)\n    🔥 Hotspot: Lines 68-72 (AI Context Fog (score 23.2))"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/PannellumAdapter.res",
+        "pattern": "mutable ",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/PannellumAdapter.res",
+        "action": "De-bloat",
+        "reason": "LOC 68 > Limit 30 (Role: service-orchestrator, Drag: 20.88)\n    🔥 Hotspot: Lines 6-10 (AI Context Fog (score 10.8))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/SvgRenderer.res",
+        "action": "De-bloat",
+        "reason": "LOC 114 > Limit 30 (Role: service-orchestrator, Drag: 16.72)\n    🔥 Hotspot: Lines 48-52 (AI Context Fog (score 27.2))"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/SimulationPathGenerator.res",
+        "pattern": "mutable ",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/SimulationPathGenerator.res",
+        "action": "De-bloat",
+        "reason": "LOC 202 > Limit 30 (Role: service-orchestrator, Drag: 37.93)\n    🔥 Hotspot: Lines 193-197 (AI Context Fog (score 118.8))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/UploadProcessorLogicLogic.res",
+        "action": "De-bloat",
+        "reason": "LOC 307 > Limit 30 (Role: service-orchestrator, Drag: 4.75)\n    🔥 Hotspot: Lines 332-336 (AI Context Fog (score 64.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ProjectData.res",
+        "action": "De-bloat",
+        "reason": "LOC 94 > Limit 42 (Role: service-orchestrator, Drag: 3.67)\n    🔥 Hotspot: Lines 16-20 (AI Context Fog (score 21.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ExifReportGeneratorUtils.res",
+        "action": "De-bloat",
+        "reason": "LOC 102 > Limit 101 (Role: service-orchestrator, Drag: 2.05)\n    🔥 Hotspot: Lines 54-58 (AI Context Fog (score 49.4))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/SimulationNavigation.res",
+        "action": "De-bloat",
+        "reason": "LOC 218 > Limit 91 (Role: service-orchestrator, Drag: 2.20)\n    🔥 Hotspot: Lines 97-101 (AI Context Fog (score 58.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/SimulationChainSkipper.res",
+        "action": "De-bloat",
+        "reason": "LOC 66 > Limit 30 (Role: service-orchestrator, Drag: 5.68)\n    🔥 Hotspot: Lines 58-62 (AI Context Fog (score 36.0))"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/PannellumLifecycle.res",
+        "pattern": "mutable ",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/CursorPhysics.res",
+        "action": "De-bloat",
+        "reason": "LOC 47 > Limit 31 (Role: service-orchestrator, Drag: 3.62)\n    🔥 Hotspot: Lines 53-57 (AI Context Fog (score 16.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/UploadProcessor.res",
+        "action": "De-bloat",
+        "reason": "LOC 112 > Limit 30 (Role: service-orchestrator, Drag: 4.62)\n    🔥 Hotspot: Lines 104-108 (AI Context Fog (score 100.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ExifParser.res",
+        "action": "De-bloat",
+        "reason": "LOC 266 > Limit 97 (Role: service-orchestrator, Drag: 2.11)\n    🔥 Hotspot: Lines 49-53 (AI Context Fog (score 48.4))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/TeaserManager.res",
+        "action": "De-bloat",
+        "reason": "LOC 237 > Limit 30 (Role: service-orchestrator, Drag: 14.55)\n    🔥 Hotspot: Lines 223-227 (AI Context Fog (score 146.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/api/ProjectApi.res",
+        "action": "De-bloat",
+        "reason": "LOC 280 > Limit 30 (Role: service-orchestrator, Drag: 24.09)\n    🔥 Hotspot: Lines 257-261 (AI Context Fog (score 52.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/api/MediaApi.res",
+        "action": "De-bloat",
+        "reason": "LOC 174 > Limit 30 (Role: service-orchestrator, Drag: 14.08)\n    🔥 Hotspot: Lines 27-31 (AI Context Fog (score 35.8))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/TourTemplateStyles.res",
+        "action": "De-bloat",
+        "reason": "LOC 186 > Limit 113 (Role: service-orchestrator, Drag: 1.90)\n    🔥 Hotspot: Lines 188-192 (AI Context Fog (score 14.6))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/NavigationController.res",
+        "action": "De-bloat",
+        "reason": "LOC 193 > Limit 30 (Role: service-orchestrator, Drag: 27.32)\n    🔥 Hotspot: Lines 162-166 (AI Context Fog (score 201.8))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/NavigationGraph.res",
+        "action": "De-bloat",
+        "reason": "LOC 211 > Limit 30 (Role: service-orchestrator, Drag: 27.65)\n    🔥 Hotspot: Lines 188-192 (AI Context Fog (score 49.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ProjectManagerLogic.res",
+        "action": "De-bloat",
+        "reason": "LOC 226 > Limit 30 (Role: service-orchestrator, Drag: 31.57)\n    🔥 Hotspot: Lines 175-179 (AI Context Fog (score 43.8))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/HotspotLineLogicLogic.res",
+        "action": "De-bloat",
+        "reason": "LOC 287 > Limit 30 (Role: service-orchestrator, Drag: 23.75)\n    🔥 Hotspot: Lines 130-134 (AI Context Fog (score 36.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ResizerLogic.res",
+        "action": "De-bloat",
+        "reason": "LOC 258 > Limit 30 (Role: service-orchestrator, Drag: 34.58)\n    🔥 Hotspot: Lines 146-150 (AI Context Fog (score 63.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/HotspotLine.res",
+        "action": "De-bloat",
+        "reason": "LOC 102 > Limit 30 (Role: service-orchestrator, Drag: 13.35)\n    🔥 Hotspot: Lines 97-101 (AI Context Fog (score 66.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/SimulationDriver.res",
+        "action": "De-bloat",
+        "reason": "LOC 148 > Limit 30 (Role: service-orchestrator, Drag: 9.26)\n    🔥 Hotspot: Lines 132-136 (AI Context Fog (score 116.8))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/TeaserPlayback.res",
+        "action": "De-bloat",
+        "reason": "LOC 213 > Limit 30 (Role: service-orchestrator, Drag: 22.54)\n    🔥 Hotspot: Lines 31-35 (AI Context Fog (score 27.2))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/NavigationUI.res",
+        "action": "De-bloat",
+        "reason": "LOC 54 > Limit 30 (Role: service-orchestrator, Drag: 11.78)\n    🔥 Hotspot: Lines 44-48 (AI Context Fog (score 49.4))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/InputSystem.res",
+        "action": "De-bloat",
+        "reason": "LOC 75 > Limit 30 (Role: service-orchestrator, Drag: 7.77)\n    🔥 Hotspot: Lines 84-88 (AI Context Fog (score 13.2))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ProjectManager.res",
+        "action": "De-bloat",
+        "reason": "LOC 98 > Limit 30 (Role: service-orchestrator, Drag: 8.20)\n    🔥 Hotspot: Lines 60-64 (AI Context Fog (score 39.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ExifReportGeneratorLogicGroups.res",
+        "action": "De-bloat",
+        "reason": "LOC 90 > Limit 30 (Role: service-orchestrator, Drag: 20.99)\n    🔥 Hotspot: Lines 77-81 (AI Context Fog (score 22.0))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/SceneLoaderLogicConfig.res",
+        "action": "De-bloat",
+        "reason": "LOC 73 > Limit 42 (Role: infra-config, Drag: 5.51)\n    🔥 Hotspot: Lines 27-31 (AI Context Fog (score 17.8))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/SceneSwitcher.res",
+        "action": "De-bloat",
+        "reason": "LOC 267 > Limit 30 (Role: service-orchestrator, Drag: 23.17)\n    🔥 Hotspot: Lines 208-212 (AI Context Fog (score 38.6))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/DownloadSystem.res",
+        "action": "De-bloat",
+        "reason": "LOC 135 > Limit 30 (Role: service-orchestrator, Drag: 4.32)\n    🔥 Hotspot: Lines 131-135 (AI Context Fog (score 29.4))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/SceneLoaderLogicEvents.res",
+        "action": "De-bloat",
+        "reason": "LOC 93 > Limit 51 (Role: service-orchestrator, Drag: 2.94)\n    🔥 Hotspot: Lines 80-84 (AI Context Fog (score 27.2))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/NavigationRenderer.res",
+        "action": "De-bloat",
+        "reason": "LOC 250 > Limit 30 (Role: service-orchestrator, Drag: 22.17)\n    🔥 Hotspot: Lines 206-210 (AI Context Fog (score 125.6))"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/Exporter.res",
+        "action": "De-bloat",
+        "reason": "LOC 205 > Limit 30 (Role: service-orchestrator, Drag: 10.51)\n    🔥 Hotspot: Lines 55-59 (AI Context Fog (score 67.4))"
+      }
+    }
+  ],
+  "config": [
+    {
+      "Surgical": {
+        "file": "../../docs/openapi.yaml",
+        "action": "De-bloat",
+        "reason": "[Exception: Infrastructure Documentation] LOC 821 > Limit 800 (Role: infra-adapter, Drag: 1.00)"
+      }
+    }
+  ],
+  "rust": [
+    {
+      "Surgical": {
+        "file": "../../backend/src/pathfinder/mod.rs",
+        "action": "De-bloat",
+        "reason": "LOC 77 > Limit 42 (Role: orchestrator, Drag: 3.70)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/pathfinder/utils.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/pathfinder/utils.rs",
+        "action": "De-bloat",
+        "reason": "LOC 100 > Limit 30 (Role: util-pure, Drag: 9.27)"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/models/mod.rs",
+        "action": "De-bloat",
+        "reason": "LOC 216 > Limit 181 (Role: orchestrator, Drag: 1.40)"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/models/errors.rs",
+        "action": "De-bloat",
+        "reason": "LOC 146 > Limit 112 (Role: data-model, Drag: 2.93)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/telemetry.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/telemetry.rs",
+        "action": "De-bloat",
+        "reason": "LOC 157 > Limit 30 (Role: infra-adapter, Drag: 8.61)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/project/export.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/project/export.rs",
+        "action": "De-bloat",
+        "reason": "LOC 94 > Limit 48 (Role: infra-adapter, Drag: 4.16)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/project/storage/storage_logic.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/project/storage/storage_logic.rs",
+        "action": "De-bloat",
+        "reason": "LOC 241 > Limit 30 (Role: service-orchestrator, Drag: 10.97)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/project/storage/mod.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/project/storage/mod.rs",
+        "action": "De-bloat",
+        "reason": "LOC 295 > Limit 30 (Role: orchestrator, Drag: 11.38)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/project/navigation.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/project/navigation.rs",
+        "action": "De-bloat",
+        "reason": "LOC 109 > Limit 35 (Role: infra-adapter, Drag: 5.17)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/geocoding.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/geocoding.rs",
+        "action": "De-bloat",
+        "reason": "LOC 153 > Limit 36 (Role: infra-adapter, Drag: 5.08)"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/serve.rs",
+        "action": "De-bloat",
+        "reason": "LOC 72 > Limit 60 (Role: infra-adapter, Drag: 3.59)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/media/video/mod.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/video/mod.rs",
+        "action": "De-bloat",
+        "reason": "LOC 175 > Limit 30 (Role: orchestrator, Drag: 8.11)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/media/video/video_logic.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/video/video_logic.rs",
+        "action": "De-bloat",
+        "reason": "LOC 228 > Limit 30 (Role: service-orchestrator, Drag: 8.40)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/media/similarity.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/similarity.rs",
+        "action": "De-bloat",
+        "reason": "LOC 197 > Limit 36 (Role: infra-adapter, Drag: 5.01)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/media/image/image_utils.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/image/image_utils.rs",
+        "action": "De-bloat",
+        "reason": "LOC 68 > Limit 47 (Role: infra-adapter, Drag: 4.21)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/media/image/mod.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/image/mod.rs",
+        "action": "De-bloat",
+        "reason": "LOC 306 > Limit 30 (Role: orchestrator, Drag: 8.08)"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/image/image_logic.rs",
+        "action": "De-bloat",
+        "reason": "LOC 283 > Limit 48 (Role: service-orchestrator, Drag: 3.39)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/services/auth/mod.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/services/geocoding/logic.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/geocoding/logic.rs",
+        "action": "De-bloat",
+        "reason": "LOC 129 > Limit 43 (Role: service-orchestrator, Drag: 3.61)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/services/geocoding/mod.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/geocoding/mod.rs",
+        "action": "De-bloat",
+        "reason": "LOC 246 > Limit 30 (Role: orchestrator, Drag: 6.01)"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/media/analysis/mod.rs",
+        "action": "De-bloat",
+        "reason": "LOC 97 > Limit 64 (Role: orchestrator, Drag: 2.78)"
       }
     }
   ],
@@ -2356,7 +2671,7 @@
       "Surgical": {
         "file": "../../index.html",
         "action": "De-bloat",
-        "reason": "LOC 106 > Limit 96 (Role: ui-component, Drag: 3.09)"
+        "reason": "LOC 106 > Limit 92 (Role: ui-component, Drag: 3.19)"
       }
     }
   ]

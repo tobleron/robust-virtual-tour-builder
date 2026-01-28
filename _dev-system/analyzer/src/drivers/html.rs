@@ -1,6 +1,6 @@
 use super::CommonMetrics;
 
-pub fn analyze_html(content: &str) -> anyhow::Result<CommonMetrics> {
+pub fn analyze_html(content: &str, dict: &std::collections::HashMap<String, f64>) -> anyhow::Result<CommonMetrics> {
     let mut metrics = CommonMetrics { 
         loc: content.lines().count(), 
         logic_count: 0, 
@@ -13,6 +13,9 @@ pub fn analyze_html(content: &str) -> anyhow::Result<CommonMetrics> {
     };
     
     metrics.logic_count = content.matches("<").count();
+    
+    // Dynamic Complexity from Config
+    metrics.complexity_penalty += super::apply_complexity_dictionary(content, dict);
     
     for line in content.lines() {
         let indent = line.chars().take_while(|c| c.is_whitespace()).count();
