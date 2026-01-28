@@ -3862,8 +3862,7 @@
 ├── logs
 │   ├── error.log
 │   ├── log_changes.txt
-│   ├── project-guard.log
-│   └── telemetry.log
+│   └── project-guard.log
 ├── MAP.md
 ├── old_ref
 │   ├── 7aadee4
@@ -5789,20 +5788,13 @@
 │   │   └── tests
 │   │       └── 1062_Test_Generation_Unified.md
 │   ├── postponed
-│   │   ├── 003_add_seo_structured_data.md
-│   │   ├── 004_document_core_web_vitals.md
-│   │   ├── 006_update_docs_anchor_positioning_standards.md
-│   │   ├── 015_create_legal_compliance_documents.md
-│   │   ├── 020_visual_regression_testing.md
-│   │   ├── 021_theme_switching_infrastructure.md
-│   │   ├── 022_expand_test_coverage.md
-│   │   ├── 024_implement_e2e_testing_playwright.md
-│   │   ├── 025_implement_internationalization.md
-│   │   ├── 030_implement_sqlite_auth_infrastructure.md
-│   │   ├── 031_implement_auth_ui_rescript.md
-│   │   ├── 032_implement_project_dashboard.md
-│   │   ├── 033_secure_backend_with_jwt.md
-│   │   ├── 800_Refactor_Playwright_E2E_Automation.md
+│   │   ├── 900_COMMERCIAL_MIGRATION_MASTER.md
+│   │   ├── 901_migration_foundation.md
+│   │   ├── 902_migration_security.md
+│   │   ├── 903_migration_storage.md
+│   │   ├── 904_migration_frontend_auth.md
+│   │   ├── 905_migration_dashboard.md
+│   │   ├── 906_migration_telemetry.md
 │   │   └── tests
 │   └── TASKS.md
 ├── test_output.txt
@@ -6119,4 +6111,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-199 directories, 5921 files
+199 directories, 5913 files
