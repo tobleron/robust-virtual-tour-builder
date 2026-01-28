@@ -303,3 +303,5 @@ Break down oversized or high-drag modules into smaller, more specialized units.
 - [ ] **../../css/legacy.css** - *Reason:* LOC 58 > Limit 30 (Role: ui-component, Drag: 10.53)
 - [ ] **../../src/core/AuthContext.res** - *Reason:* LOC 70 > Limit 30 (Role: domain-logic, Drag: 7.73)
     🔥 Hotspot: Lines 42-46 (AI Context Fog (score 29.4))
+- [ ] **../../src/core/AuthContext.res** - *Reason:* LOC 76 > Limit 30 (Role: domain-logic, Drag: 7.69)
+    🔥 Hotspot: Lines 42-46 (AI Context Fog (score 29.4))

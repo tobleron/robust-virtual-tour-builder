@@ -1,257 +1,122 @@
 {
-  "rust": [
+  "css": [
     {
       "Surgical": {
-        "file": "../../backend/src/pathfinder/mod.rs",
+        "file": "../../css/animations.css",
         "action": "De-bloat",
-        "reason": "LOC 77 > Limit 42 (Role: orchestrator, Drag: 3.70)"
+        "reason": "LOC 276 > Limit 222 (Role: ui-component, Drag: 1.77)"
       }
     },
     {
       "Violation": {
-        "file": "../../backend/src/pathfinder/utils.rs",
-        "pattern": "unwrap",
+        "file": "../../css/tailwind.css",
+        "pattern": "!important",
         "severity": "CRITICAL"
       }
     },
     {
       "Surgical": {
-        "file": "../../backend/src/pathfinder/utils.rs",
+        "file": "../../css/tailwind.css",
         "action": "De-bloat",
-        "reason": "LOC 100 > Limit 30 (Role: util-pure, Drag: 9.27)"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/models/mod.rs",
-        "action": "De-bloat",
-        "reason": "LOC 216 > Limit 181 (Role: orchestrator, Drag: 1.40)"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/models/errors.rs",
-        "action": "De-bloat",
-        "reason": "LOC 146 > Limit 112 (Role: data-model, Drag: 2.93)"
+        "reason": "LOC 126 > Limit 30 (Role: ui-component, Drag: 16.47)"
       }
     },
     {
       "Violation": {
-        "file": "../../backend/src/api/telemetry.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/telemetry.rs",
-        "action": "De-bloat",
-        "reason": "LOC 157 > Limit 30 (Role: infra-adapter, Drag: 8.61)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/project/export.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/project/export.rs",
-        "action": "De-bloat",
-        "reason": "LOC 94 > Limit 48 (Role: infra-adapter, Drag: 4.16)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/project/storage/storage_logic.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/project/storage/storage_logic.rs",
-        "action": "De-bloat",
-        "reason": "LOC 241 > Limit 30 (Role: service-orchestrator, Drag: 10.97)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/project/storage/mod.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/project/storage/mod.rs",
-        "action": "De-bloat",
-        "reason": "LOC 295 > Limit 30 (Role: orchestrator, Drag: 11.38)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/project/navigation.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/project/navigation.rs",
-        "action": "De-bloat",
-        "reason": "LOC 109 > Limit 35 (Role: infra-adapter, Drag: 5.17)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/geocoding.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/geocoding.rs",
-        "action": "De-bloat",
-        "reason": "LOC 153 > Limit 36 (Role: infra-adapter, Drag: 5.08)"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/media/serve.rs",
-        "action": "De-bloat",
-        "reason": "LOC 72 > Limit 60 (Role: infra-adapter, Drag: 3.59)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/media/video/mod.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/media/video/mod.rs",
-        "action": "De-bloat",
-        "reason": "LOC 175 > Limit 30 (Role: orchestrator, Drag: 8.11)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/media/video/video_logic.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/media/video/video_logic.rs",
-        "action": "De-bloat",
-        "reason": "LOC 228 > Limit 30 (Role: service-orchestrator, Drag: 8.40)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/media/similarity.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/media/similarity.rs",
-        "action": "De-bloat",
-        "reason": "LOC 197 > Limit 36 (Role: infra-adapter, Drag: 5.01)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/media/image/image_utils.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/media/image/image_utils.rs",
-        "action": "De-bloat",
-        "reason": "LOC 68 > Limit 47 (Role: infra-adapter, Drag: 4.21)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/media/image/mod.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/media/image/mod.rs",
-        "action": "De-bloat",
-        "reason": "LOC 306 > Limit 30 (Role: orchestrator, Drag: 8.08)"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/media/image/image_logic.rs",
-        "action": "De-bloat",
-        "reason": "LOC 283 > Limit 48 (Role: service-orchestrator, Drag: 3.39)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/services/auth/mod.rs",
-        "pattern": "unwrap",
+        "file": "../../css/components/floor-nav.css",
+        "pattern": "!important",
         "severity": "CRITICAL"
       }
     },
     {
       "Violation": {
-        "file": "../../backend/src/services/geocoding/logic.rs",
-        "pattern": "unwrap",
+        "file": "../../css/components/popover.css",
+        "pattern": "!important",
         "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/geocoding/logic.rs",
-        "action": "De-bloat",
-        "reason": "LOC 129 > Limit 43 (Role: service-orchestrator, Drag: 3.61)"
       }
     },
     {
       "Violation": {
-        "file": "../../backend/src/services/geocoding/mod.rs",
-        "pattern": "unwrap",
+        "file": "../../css/components/modals.css",
+        "pattern": "!important",
         "severity": "CRITICAL"
       }
     },
     {
       "Surgical": {
-        "file": "../../backend/src/services/geocoding/mod.rs",
+        "file": "../../css/components/modals.css",
         "action": "De-bloat",
-        "reason": "LOC 246 > Limit 30 (Role: orchestrator, Drag: 6.01)"
+        "reason": "LOC 109 > Limit 30 (Role: ui-component, Drag: 61.39)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../css/components/ui.css",
+        "pattern": "!important",
+        "severity": "CRITICAL"
       }
     },
     {
       "Surgical": {
-        "file": "../../backend/src/services/media/analysis/mod.rs",
+        "file": "../../css/components/ui.css",
         "action": "De-bloat",
-        "reason": "LOC 97 > Limit 64 (Role: orchestrator, Drag: 2.78)"
+        "reason": "LOC 179 > Limit 30 (Role: ui-component, Drag: 121.43)"
       }
-    }
-  ],
-  "config": [
+    },
+    {
+      "Violation": {
+        "file": "../../css/components/viewer.css",
+        "pattern": "!important",
+        "severity": "CRITICAL"
+      }
+    },
     {
       "Surgical": {
-        "file": "../../docs/openapi.yaml",
+        "file": "../../css/components/viewer.css",
         "action": "De-bloat",
-        "reason": "[Exception: Infrastructure Documentation] LOC 821 > Limit 800 (Role: infra-adapter, Drag: 1.00)"
+        "reason": "LOC 627 > Limit 30 (Role: ui-component, Drag: 109.53)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../css/components/buttons.css",
+        "pattern": "!important",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../css/components/buttons.css",
+        "action": "De-bloat",
+        "reason": "LOC 124 > Limit 30 (Role: ui-component, Drag: 19.41)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../css/components/label-menu.css",
+        "pattern": "!important",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../css/components/label-menu.css",
+        "action": "De-bloat",
+        "reason": "LOC 150 > Limit 30 (Role: ui-component, Drag: 10.42)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../css/legacy.css",
+        "pattern": "!important",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../css/legacy.css",
+        "action": "De-bloat",
+        "reason": "LOC 58 > Limit 30 (Role: ui-component, Drag: 10.53)"
       }
     }
   ],
@@ -540,7 +405,7 @@
       "Surgical": {
         "file": "../../src/core/AuthContext.res",
         "action": "De-bloat",
-        "reason": "LOC 70 > Limit 30 (Role: domain-logic, Drag: 7.73)\n    🔥 Hotspot: Lines 42-46 (AI Context Fog (score 29.4))"
+        "reason": "LOC 76 > Limit 30 (Role: domain-logic, Drag: 7.69)\n    🔥 Hotspot: Lines 42-46 (AI Context Fog (score 29.4))"
       }
     },
     {
@@ -1286,124 +1151,268 @@
       }
     }
   ],
-  "css": [
+  "config": [
     {
       "Surgical": {
-        "file": "../../css/animations.css",
+        "file": "../../docs/openapi.yaml",
         "action": "De-bloat",
-        "reason": "LOC 276 > Limit 222 (Role: ui-component, Drag: 1.77)"
+        "reason": "[Exception: Infrastructure Documentation] LOC 821 > Limit 800 (Role: infra-adapter, Drag: 1.00)"
       }
-    },
-    {
-      "Violation": {
-        "file": "../../css/tailwind.css",
-        "pattern": "!important",
-        "severity": "CRITICAL"
-      }
-    },
+    }
+  ],
+  "rust": [
     {
       "Surgical": {
-        "file": "../../css/tailwind.css",
+        "file": "../../backend/src/pathfinder/mod.rs",
         "action": "De-bloat",
-        "reason": "LOC 126 > Limit 30 (Role: ui-component, Drag: 16.47)"
+        "reason": "LOC 77 > Limit 42 (Role: orchestrator, Drag: 3.70)"
       }
     },
     {
       "Violation": {
-        "file": "../../css/components/floor-nav.css",
-        "pattern": "!important",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../css/components/popover.css",
-        "pattern": "!important",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../css/components/modals.css",
-        "pattern": "!important",
+        "file": "../../backend/src/pathfinder/utils.rs",
+        "pattern": "unwrap",
         "severity": "CRITICAL"
       }
     },
     {
       "Surgical": {
-        "file": "../../css/components/modals.css",
+        "file": "../../backend/src/pathfinder/utils.rs",
         "action": "De-bloat",
-        "reason": "LOC 109 > Limit 30 (Role: ui-component, Drag: 61.39)"
+        "reason": "LOC 100 > Limit 30 (Role: util-pure, Drag: 9.27)"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/models/mod.rs",
+        "action": "De-bloat",
+        "reason": "LOC 216 > Limit 181 (Role: orchestrator, Drag: 1.40)"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/models/errors.rs",
+        "action": "De-bloat",
+        "reason": "LOC 146 > Limit 112 (Role: data-model, Drag: 2.93)"
       }
     },
     {
       "Violation": {
-        "file": "../../css/components/ui.css",
-        "pattern": "!important",
+        "file": "../../backend/src/api/telemetry.rs",
+        "pattern": "unwrap",
         "severity": "CRITICAL"
       }
     },
     {
       "Surgical": {
-        "file": "../../css/components/ui.css",
+        "file": "../../backend/src/api/telemetry.rs",
         "action": "De-bloat",
-        "reason": "LOC 179 > Limit 30 (Role: ui-component, Drag: 121.43)"
+        "reason": "LOC 157 > Limit 30 (Role: infra-adapter, Drag: 8.61)"
       }
     },
     {
       "Violation": {
-        "file": "../../css/components/viewer.css",
-        "pattern": "!important",
+        "file": "../../backend/src/api/project/export.rs",
+        "pattern": "unwrap",
         "severity": "CRITICAL"
       }
     },
     {
       "Surgical": {
-        "file": "../../css/components/viewer.css",
+        "file": "../../backend/src/api/project/export.rs",
         "action": "De-bloat",
-        "reason": "LOC 627 > Limit 30 (Role: ui-component, Drag: 109.53)"
+        "reason": "LOC 94 > Limit 48 (Role: infra-adapter, Drag: 4.16)"
       }
     },
     {
       "Violation": {
-        "file": "../../css/components/buttons.css",
-        "pattern": "!important",
+        "file": "../../backend/src/api/project/storage/storage_logic.rs",
+        "pattern": "unwrap",
         "severity": "CRITICAL"
       }
     },
     {
       "Surgical": {
-        "file": "../../css/components/buttons.css",
+        "file": "../../backend/src/api/project/storage/storage_logic.rs",
         "action": "De-bloat",
-        "reason": "LOC 124 > Limit 30 (Role: ui-component, Drag: 19.41)"
+        "reason": "LOC 241 > Limit 30 (Role: service-orchestrator, Drag: 10.97)"
       }
     },
     {
       "Violation": {
-        "file": "../../css/components/label-menu.css",
-        "pattern": "!important",
+        "file": "../../backend/src/api/project/storage/mod.rs",
+        "pattern": "unwrap",
         "severity": "CRITICAL"
       }
     },
     {
       "Surgical": {
-        "file": "../../css/components/label-menu.css",
+        "file": "../../backend/src/api/project/storage/mod.rs",
         "action": "De-bloat",
-        "reason": "LOC 150 > Limit 30 (Role: ui-component, Drag: 10.42)"
+        "reason": "LOC 295 > Limit 30 (Role: orchestrator, Drag: 11.38)"
       }
     },
     {
       "Violation": {
-        "file": "../../css/legacy.css",
-        "pattern": "!important",
+        "file": "../../backend/src/api/project/navigation.rs",
+        "pattern": "unwrap",
         "severity": "CRITICAL"
       }
     },
     {
       "Surgical": {
-        "file": "../../css/legacy.css",
+        "file": "../../backend/src/api/project/navigation.rs",
         "action": "De-bloat",
-        "reason": "LOC 58 > Limit 30 (Role: ui-component, Drag: 10.53)"
+        "reason": "LOC 109 > Limit 35 (Role: infra-adapter, Drag: 5.17)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/geocoding.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/geocoding.rs",
+        "action": "De-bloat",
+        "reason": "LOC 153 > Limit 36 (Role: infra-adapter, Drag: 5.08)"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/serve.rs",
+        "action": "De-bloat",
+        "reason": "LOC 72 > Limit 60 (Role: infra-adapter, Drag: 3.59)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/media/video/mod.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/video/mod.rs",
+        "action": "De-bloat",
+        "reason": "LOC 175 > Limit 30 (Role: orchestrator, Drag: 8.11)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/media/video/video_logic.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/video/video_logic.rs",
+        "action": "De-bloat",
+        "reason": "LOC 228 > Limit 30 (Role: service-orchestrator, Drag: 8.40)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/media/similarity.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/similarity.rs",
+        "action": "De-bloat",
+        "reason": "LOC 197 > Limit 36 (Role: infra-adapter, Drag: 5.01)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/media/image/image_utils.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/image/image_utils.rs",
+        "action": "De-bloat",
+        "reason": "LOC 68 > Limit 47 (Role: infra-adapter, Drag: 4.21)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/media/image/mod.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/image/mod.rs",
+        "action": "De-bloat",
+        "reason": "LOC 306 > Limit 30 (Role: orchestrator, Drag: 8.08)"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/image/image_logic.rs",
+        "action": "De-bloat",
+        "reason": "LOC 283 > Limit 48 (Role: service-orchestrator, Drag: 3.39)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/services/auth/mod.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/services/geocoding/logic.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/geocoding/logic.rs",
+        "action": "De-bloat",
+        "reason": "LOC 129 > Limit 43 (Role: service-orchestrator, Drag: 3.61)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/services/geocoding/mod.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/geocoding/mod.rs",
+        "action": "De-bloat",
+        "reason": "LOC 246 > Limit 30 (Role: orchestrator, Drag: 6.01)"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/media/analysis/mod.rs",
+        "action": "De-bloat",
+        "reason": "LOC 97 > Limit 64 (Role: orchestrator, Drag: 2.78)"
+      }
+    }
+  ],
+  "web": [
+    {
+      "Surgical": {
+        "file": "../../index.html",
+        "action": "De-bloat",
+        "reason": "LOC 106 > Limit 92 (Role: ui-component, Drag: 3.19)"
       }
     }
   ],
@@ -1980,6 +1989,367 @@
     },
     {
       "Merge": {
+        "folder": "../../src",
+        "files": [
+          "ReBindings.res",
+          "App.res",
+          "Main.res",
+          "ServiceWorkerMain.res",
+          "index.js",
+          "ServiceWorker.res"
+        ],
+        "reason": "Score 6.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/components/ui",
+        "files": [
+          "context-menu.jsx",
+          "Shadcn.res",
+          "input.jsx",
+          "dropdown-menu.jsx",
+          "checkbox.jsx",
+          "button.jsx",
+          "popover.jsx",
+          "tooltip.jsx",
+          "sonner.jsx",
+          "label.jsx",
+          "LucideIcons.res"
+        ],
+        "reason": "Score 5.50 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/systems/api",
+        "files": [
+          "ProjectApi.res",
+          "MediaApi.res",
+          "ApiTypes.res",
+          "AuthenticatedClient.res"
+        ],
+        "reason": "Score 4.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/components",
+        "files": [
+          "NotificationLayer.res",
+          "LabelMenu.res",
+          "HotspotManager.res",
+          "UploadReport.res",
+          "Tooltip.res",
+          "HotspotActionMenu.res",
+          "ViewerLoader.res",
+          "QualityIndicator.res",
+          "ViewerSnapshot.res",
+          "HotspotLayer.res",
+          "AppErrorBoundary.res",
+          "ViewerUI.res",
+          "PopOver.res",
+          "PersistentLabel.res",
+          "Sidebar.res",
+          "PreviewArrow.res",
+          "VisualPipeline.res",
+          "HotspotMenuLayer.res",
+          "ViewerHUD.res",
+          "FloorNavigation.res",
+          "ViewerManagerLogic.res",
+          "ReturnPrompt.res",
+          "NotificationContext.res",
+          "UtilityBar.res",
+          "ViewerLabelMenu.res",
+          "SnapshotOverlay.res",
+          "SceneList.res",
+          "ViewerManager.res",
+          "LinkModal.res",
+          "ModalContext.res",
+          "Portal.res",
+          "ErrorFallbackUI.res"
+        ],
+        "reason": "Score 3.20 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/core/reducers",
+        "files": [
+          "TimelineReducer.res",
+          "NavigationReducer.res",
+          "ProjectReducer.res",
+          "SimulationReducer.res",
+          "SceneReducer.res",
+          "UiReducer.res",
+          "mod.res",
+          "RootReducer.res",
+          "HotspotReducer.res"
+        ],
+        "reason": "Score 9.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../tests/unit",
+        "files": [
+          "NavigationReducer_v.test.res",
+          "ExifReportGeneratorLogicExtraction_v.test.res",
+          "UploadProcessorTypes_v.test.res",
+          "AudioManager_v.test.res",
+          "LoggerLogic_v.test.res",
+          "TimelineReducer_v.test.res",
+          "PreviewArrow_v.test.res",
+          "NotificationContext_v.test.res",
+          "AppContext_v.test.res",
+          "ProjectManagerLogic_v.test.res",
+          "UrlUtils_v.test.res",
+          "StateInspector_v.test.res",
+          "ViewerSnapshot_v.test.res",
+          "ViewerHUD_v.test.res",
+          "MediaApi_v.test.res",
+          "ExifReportGeneratorUtils_v.test.res",
+          "ViewerUI_v.test.res",
+          "HotspotLineTypes_v.test.res",
+          "TourLogic_v.test.res",
+          "SceneHelpers_v.test.res",
+          "SimulationReducer_v.test.res",
+          "HotspotReducer_v.test.res",
+          "ProjectApi_v.test.res",
+          "UiHelpers_v.test.res",
+          "ProjectReducer_v.test.res",
+          "SvgManager_v.test.res",
+          "LinkEditorLogic_v.test.res",
+          "Schemas_v.test.res",
+          "ApiTypes_v.test.res",
+          "ServiceWorkerMain_v.test.res",
+          "ViewerFollow_v.test.res",
+          "RootReducer_v.test.res",
+          "ViewerLabelMenu_v.test.res",
+          "HotspotLineLogic_v.test.res",
+          "ViewerManager_v.test.res",
+          "Types_v.test.res",
+          "TeaserState_v.test.res",
+          "AuthenticatedClient_v.test.res",
+          "Reducer_v.test.res",
+          "HotspotManager_v.test.res",
+          "State_v.test.res",
+          "ProjectManager_v.test.res",
+          "GeoUtils_v.test.res",
+          "SimulationLogic_v.test.res",
+          "ViewerPool_v.test.res",
+          "LoggerTypes_v.test.res",
+          "SceneTransitionManager_v.test.res",
+          "SimHelpers_v.test.res",
+          "UiReducer_v.test.res",
+          "Actions_v.test.res",
+          "ExifReportGeneratorLogicLocation_v.test.res",
+          "ViewerState_v.test.res",
+          "ExifReportGeneratorLogicGroups_v.test.res",
+          "InteractionsRobustness_v.test.res",
+          "UploadProcessorLogic_v.test.res",
+          "AuthContext_v.test.res",
+          "TeaserManager_v.test.res",
+          "ReBindings_v.test.res",
+          "ViewerTypes_v.test.res",
+          "ViewerLoader_v.test.res",
+          "GlobalStateBridge_v.test.res",
+          "BackendApi_v.test.res",
+          "SharedTypes_v.test.res",
+          "ModalContext_v.test.res",
+          "Bindings_Unified_v.test.res",
+          "ServiceWorker_v.test.res",
+          "SceneReducer_v.test.res"
+        ],
+        "reason": "Score 6.70 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/components/SceneList",
+        "files": [
+          "SceneItem.res",
+          "SceneListMain.res"
+        ],
+        "reason": "Score 2.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/components/Sidebar",
+        "files": [
+          "SidebarActions.res",
+          "SidebarMain.res",
+          "SidebarBranding.res",
+          "SidebarMainTypes.res",
+          "SidebarProcessing.res",
+          "SidebarMainLogic.res",
+          "SidebarProjectInfo.res"
+        ],
+        "reason": "Score 7.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../scripts",
+        "files": [
+          "increment-build.js",
+          "debug-connectivity.js",
+          "update-changelog.js",
+          "update-version.js",
+          "test-logging.js",
+          "bump-version.js",
+          "update-readme.js"
+        ],
+        "reason": "Score 7.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/utils",
+        "files": [
+          "GeoUtils.res",
+          "PersistenceLayer.res",
+          "ProgressBar.res",
+          "ColorPalette.res",
+          "StateInspector.res",
+          "TourLogic.res",
+          "LoggerTelemetry.res",
+          "Logger.res",
+          "ImageOptimizer.res",
+          "UrlUtils.res",
+          "LazyLoad.res",
+          "LoggerLogic.res",
+          "PathInterpolation.res",
+          "ProjectionMath.res",
+          "RequestQueue.res",
+          "LoggerTypes.res",
+          "Constants.res",
+          "SessionStore.res",
+          "Version.res",
+          "VersionData.res"
+        ],
+        "reason": "Score 2.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/bindings",
+        "files": [
+          "WebApiBindings.res",
+          "GraphicsBindings.res",
+          "BrowserBindings.res",
+          "ViewerBindings.res",
+          "IdbBindings.res",
+          "DomBindings.res"
+        ],
+        "reason": "Score 6.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/models",
+        "files": [
+          "session.rs",
+          "user.rs",
+          "mod.rs",
+          "project.rs",
+          "errors.rs"
+        ],
+        "reason": "Score 5.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../..",
+        "files": [
+          "jsconfig.json",
+          "index.html",
+          "tailwind.config.js",
+          "package.json",
+          "postcss.config.js"
+        ],
+        "reason": "Score 5.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/services/geocoding",
+        "files": [
+          "logic.rs",
+          "mod.rs"
+        ],
+        "reason": "Score 2.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../css",
+        "files": [
+          "variables.css",
+          "animations.css",
+          "tailwind.css",
+          "style.css",
+          "legacy.css",
+          "layout.css",
+          "base.css"
+        ],
+        "reason": "Score 3.50 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/pathfinder",
+        "files": [
+          "mod.rs",
+          "utils.rs"
+        ],
+        "reason": "Score 2.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/api/media/video",
+        "files": [
+          "mod.rs",
+          "video_logic.rs"
+        ],
+        "reason": "Score 2.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src",
+        "files": [
+          "lib.rs",
+          "main.rs"
+        ],
+        "reason": "Score 2.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/api/project/storage",
+        "files": [
+          "storage_logic.rs",
+          "mod.rs"
+        ],
+        "reason": "Score 2.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/api/media",
+        "files": [
+          "serve.rs",
+          "similarity.rs",
+          "mod.rs"
+        ],
+        "reason": "Score 3.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
         "folder": "../../src/systems",
         "files": [
           "TeaserRecorderLogic.res",
@@ -2065,409 +2435,6 @@
     },
     {
       "Merge": {
-        "folder": "../../css",
-        "files": [
-          "variables.css",
-          "animations.css",
-          "tailwind.css",
-          "style.css",
-          "legacy.css",
-          "layout.css",
-          "base.css"
-        ],
-        "reason": "Score 3.50 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/api",
-        "files": [
-          "telemetry.rs",
-          "auth.rs",
-          "mod.rs",
-          "geocoding.rs",
-          "utils.rs"
-        ],
-        "reason": "Score 5.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/components",
-        "files": [
-          "NotificationLayer.res",
-          "LabelMenu.res",
-          "HotspotManager.res",
-          "UploadReport.res",
-          "Tooltip.res",
-          "HotspotActionMenu.res",
-          "ViewerLoader.res",
-          "QualityIndicator.res",
-          "ViewerSnapshot.res",
-          "HotspotLayer.res",
-          "AppErrorBoundary.res",
-          "ViewerUI.res",
-          "PopOver.res",
-          "PersistentLabel.res",
-          "Sidebar.res",
-          "PreviewArrow.res",
-          "VisualPipeline.res",
-          "HotspotMenuLayer.res",
-          "ViewerHUD.res",
-          "FloorNavigation.res",
-          "ViewerManagerLogic.res",
-          "ReturnPrompt.res",
-          "NotificationContext.res",
-          "UtilityBar.res",
-          "ViewerLabelMenu.res",
-          "SnapshotOverlay.res",
-          "SceneList.res",
-          "ViewerManager.res",
-          "LinkModal.res",
-          "ModalContext.res",
-          "Portal.res",
-          "ErrorFallbackUI.res"
-        ],
-        "reason": "Score 3.20 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../tests/unit",
-        "files": [
-          "NavigationReducer_v.test.res",
-          "ExifReportGeneratorLogicExtraction_v.test.res",
-          "UploadProcessorTypes_v.test.res",
-          "AudioManager_v.test.res",
-          "LoggerLogic_v.test.res",
-          "TimelineReducer_v.test.res",
-          "PreviewArrow_v.test.res",
-          "NotificationContext_v.test.res",
-          "AppContext_v.test.res",
-          "ProjectManagerLogic_v.test.res",
-          "UrlUtils_v.test.res",
-          "StateInspector_v.test.res",
-          "ViewerSnapshot_v.test.res",
-          "ViewerHUD_v.test.res",
-          "MediaApi_v.test.res",
-          "ExifReportGeneratorUtils_v.test.res",
-          "ViewerUI_v.test.res",
-          "HotspotLineTypes_v.test.res",
-          "TourLogic_v.test.res",
-          "SceneHelpers_v.test.res",
-          "SimulationReducer_v.test.res",
-          "HotspotReducer_v.test.res",
-          "ProjectApi_v.test.res",
-          "UiHelpers_v.test.res",
-          "ProjectReducer_v.test.res",
-          "SvgManager_v.test.res",
-          "LinkEditorLogic_v.test.res",
-          "Schemas_v.test.res",
-          "ApiTypes_v.test.res",
-          "ServiceWorkerMain_v.test.res",
-          "ViewerFollow_v.test.res",
-          "RootReducer_v.test.res",
-          "ViewerLabelMenu_v.test.res",
-          "HotspotLineLogic_v.test.res",
-          "ViewerManager_v.test.res",
-          "Types_v.test.res",
-          "TeaserState_v.test.res",
-          "AuthenticatedClient_v.test.res",
-          "Reducer_v.test.res",
-          "HotspotManager_v.test.res",
-          "State_v.test.res",
-          "ProjectManager_v.test.res",
-          "GeoUtils_v.test.res",
-          "SimulationLogic_v.test.res",
-          "ViewerPool_v.test.res",
-          "LoggerTypes_v.test.res",
-          "SceneTransitionManager_v.test.res",
-          "SimHelpers_v.test.res",
-          "UiReducer_v.test.res",
-          "Actions_v.test.res",
-          "ExifReportGeneratorLogicLocation_v.test.res",
-          "ViewerState_v.test.res",
-          "ExifReportGeneratorLogicGroups_v.test.res",
-          "InteractionsRobustness_v.test.res",
-          "UploadProcessorLogic_v.test.res",
-          "AuthContext_v.test.res",
-          "TeaserManager_v.test.res",
-          "ReBindings_v.test.res",
-          "ViewerTypes_v.test.res",
-          "ViewerLoader_v.test.res",
-          "GlobalStateBridge_v.test.res",
-          "BackendApi_v.test.res",
-          "SharedTypes_v.test.res",
-          "ModalContext_v.test.res",
-          "Bindings_Unified_v.test.res",
-          "ServiceWorker_v.test.res",
-          "SceneReducer_v.test.res"
-        ],
-        "reason": "Score 6.70 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/systems/api",
-        "files": [
-          "ProjectApi.res",
-          "MediaApi.res",
-          "ApiTypes.res",
-          "AuthenticatedClient.res"
-        ],
-        "reason": "Score 4.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../scripts/guard",
-        "files": [
-          "check-tests.js",
-          "index.js",
-          "check-map.js",
-          "utils.js",
-          "check-tasks.js"
-        ],
-        "reason": "Score 5.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/components/SceneList",
-        "files": [
-          "SceneItem.res",
-          "SceneListMain.res"
-        ],
-        "reason": "Score 2.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/components/ui",
-        "files": [
-          "context-menu.jsx",
-          "Shadcn.res",
-          "input.jsx",
-          "dropdown-menu.jsx",
-          "checkbox.jsx",
-          "button.jsx",
-          "popover.jsx",
-          "tooltip.jsx",
-          "sonner.jsx",
-          "label.jsx",
-          "LucideIcons.res"
-        ],
-        "reason": "Score 5.50 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/api/project/storage",
-        "files": [
-          "storage_logic.rs",
-          "mod.rs"
-        ],
-        "reason": "Score 2.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/components/Sidebar",
-        "files": [
-          "SidebarActions.res",
-          "SidebarMain.res",
-          "SidebarBranding.res",
-          "SidebarMainTypes.res",
-          "SidebarProcessing.res",
-          "SidebarMainLogic.res",
-          "SidebarProjectInfo.res"
-        ],
-        "reason": "Score 7.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/api/media/video",
-        "files": [
-          "mod.rs",
-          "video_logic.rs"
-        ],
-        "reason": "Score 2.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/services/geocoding",
-        "files": [
-          "logic.rs",
-          "mod.rs"
-        ],
-        "reason": "Score 2.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/api/media/image",
-        "files": [
-          "image_utils.rs",
-          "mod.rs",
-          "image_logic.rs"
-        ],
-        "reason": "Score 1.50 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/components/VisualPipeline",
-        "files": [
-          "VisualPipelineRender.res",
-          "VisualPipelineMain.res",
-          "VisualPipelineStyles.res",
-          "VisualPipelineTypes.res",
-          "VisualPipelineLogic.res"
-        ],
-        "reason": "Score 5.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/api/project",
-        "files": [
-          "export.rs",
-          "mod.rs",
-          "validation.rs",
-          "navigation.rs"
-        ],
-        "reason": "Score 4.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/pathfinder",
-        "files": [
-          "mod.rs",
-          "utils.rs"
-        ],
-        "reason": "Score 2.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/components/ui/Lucide",
-        "files": [
-          "LucideActions.res",
-          "LucideStatus.res",
-          "LucideMedia.res",
-          "LucideCore.res"
-        ],
-        "reason": "Score 4.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/models",
-        "files": [
-          "session.rs",
-          "user.rs",
-          "mod.rs",
-          "project.rs",
-          "errors.rs"
-        ],
-        "reason": "Score 5.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src",
-        "files": [
-          "lib.rs",
-          "main.rs"
-        ],
-        "reason": "Score 2.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/utils",
-        "files": [
-          "GeoUtils.res",
-          "PersistenceLayer.res",
-          "ProgressBar.res",
-          "ColorPalette.res",
-          "StateInspector.res",
-          "TourLogic.res",
-          "LoggerTelemetry.res",
-          "Logger.res",
-          "ImageOptimizer.res",
-          "UrlUtils.res",
-          "LazyLoad.res",
-          "LoggerLogic.res",
-          "PathInterpolation.res",
-          "ProjectionMath.res",
-          "RequestQueue.res",
-          "LoggerTypes.res",
-          "Constants.res",
-          "SessionStore.res",
-          "Version.res",
-          "VersionData.res"
-        ],
-        "reason": "Score 2.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src",
-        "files": [
-          "ReBindings.res",
-          "App.res",
-          "Main.res",
-          "ServiceWorkerMain.res",
-          "index.js",
-          "ServiceWorker.res"
-        ],
-        "reason": "Score 6.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/bindings",
-        "files": [
-          "WebApiBindings.res",
-          "GraphicsBindings.res",
-          "BrowserBindings.res",
-          "ViewerBindings.res",
-          "IdbBindings.res",
-          "DomBindings.res"
-        ],
-        "reason": "Score 6.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/api/media",
-        "files": [
-          "serve.rs",
-          "similarity.rs",
-          "mod.rs"
-        ],
-        "reason": "Score 3.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../..",
-        "files": [
-          "jsconfig.json",
-          "index.html",
-          "tailwind.config.js",
-          "package.json",
-          "postcss.config.js"
-        ],
-        "reason": "Score 5.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
         "folder": "../../src/core",
         "files": [
           "SimHelpers.res",
@@ -2495,41 +2462,77 @@
     },
     {
       "Merge": {
-        "folder": "../../src/core/reducers",
+        "folder": "../../src/components/VisualPipeline",
         "files": [
-          "TimelineReducer.res",
-          "NavigationReducer.res",
-          "ProjectReducer.res",
-          "SimulationReducer.res",
-          "SceneReducer.res",
-          "UiReducer.res",
-          "mod.res",
-          "RootReducer.res",
-          "HotspotReducer.res"
+          "VisualPipelineRender.res",
+          "VisualPipelineMain.res",
+          "VisualPipelineStyles.res",
+          "VisualPipelineTypes.res",
+          "VisualPipelineLogic.res"
         ],
-        "reason": "Score 9.00 > 1.0"
+        "reason": "Score 5.00 > 1.0"
       }
     },
     {
       "Merge": {
-        "folder": "../../scripts",
+        "folder": "../../backend/src/api/media/image",
         "files": [
-          "increment-build.js",
-          "debug-connectivity.js",
-          "update-changelog.js",
-          "update-version.js",
-          "test-logging.js",
-          "bump-version.js",
-          "update-readme.js"
+          "image_utils.rs",
+          "mod.rs",
+          "image_logic.rs"
         ],
-        "reason": "Score 7.00 > 1.0"
+        "reason": "Score 1.50 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/components/ui/Lucide",
+        "files": [
+          "LucideActions.res",
+          "LucideStatus.res",
+          "LucideMedia.res",
+          "LucideCore.res"
+        ],
+        "reason": "Score 4.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/api",
+        "files": [
+          "telemetry.rs",
+          "auth.rs",
+          "mod.rs",
+          "geocoding.rs",
+          "utils.rs"
+        ],
+        "reason": "Score 5.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/api/project",
+        "files": [
+          "export.rs",
+          "mod.rs",
+          "validation.rs",
+          "navigation.rs"
+        ],
+        "reason": "Score 4.00 > 1.0"
       }
     },
     {
       "Structural": {
-        "file": "Hotspot",
+        "file": "Teaser",
         "action": "Vertical Slice",
-        "reason": "Feature 'Hotspot' spread across 4 folders (Fragmentation Tax)"
+        "reason": "Feature 'Teaser' spread across 2 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Visual",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Visual' spread across 2 folders (Fragmentation Tax)"
       }
     },
     {
@@ -2548,44 +2551,9 @@
     },
     {
       "Structural": {
-        "file": "Upload",
+        "file": "Hotspot",
         "action": "Vertical Slice",
-        "reason": "Feature 'Upload' spread across 3 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Simulation",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Simulation' spread across 3 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Service",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Service' spread across 2 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "mod",
-        "action": "Vertical Slice",
-        "reason": "Feature 'mod' spread across 16 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Project",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Project' spread across 4 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Sidebar",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Sidebar' spread across 2 folders (Fragmentation Tax)"
+        "reason": "Feature 'Hotspot' spread across 4 folders (Fragmentation Tax)"
       }
     },
     {
@@ -2597,16 +2565,23 @@
     },
     {
       "Structural": {
-        "file": "Teaser",
+        "file": "Lucide",
         "action": "Vertical Slice",
-        "reason": "Feature 'Teaser' spread across 2 folders (Fragmentation Tax)"
+        "reason": "Feature 'Lucide' spread across 2 folders (Fragmentation Tax)"
       }
     },
     {
       "Structural": {
-        "file": "Tour",
+        "file": "Ui",
         "action": "Vertical Slice",
-        "reason": "Feature 'Tour' spread across 3 folders (Fragmentation Tax)"
+        "reason": "Feature 'Ui' spread across 3 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Sidebar",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Sidebar' spread across 2 folders (Fragmentation Tax)"
       }
     },
     {
@@ -2618,16 +2593,37 @@
     },
     {
       "Structural": {
-        "file": "Visual",
+        "file": "Navigation",
         "action": "Vertical Slice",
-        "reason": "Feature 'Visual' spread across 2 folders (Fragmentation Tax)"
+        "reason": "Feature 'Navigation' spread across 3 folders (Fragmentation Tax)"
       }
     },
     {
       "Structural": {
-        "file": "index",
+        "file": "Svg",
         "action": "Vertical Slice",
-        "reason": "Feature 'index' spread across 3 folders (Fragmentation Tax)"
+        "reason": "Feature 'Svg' spread across 2 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Tour",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Tour' spread across 3 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "mod",
+        "action": "Vertical Slice",
+        "reason": "Feature 'mod' spread across 16 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Viewer",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Viewer' spread across 6 folders (Fragmentation Tax)"
       }
     },
     {
@@ -2646,30 +2642,16 @@
     },
     {
       "Structural": {
-        "file": "Lucide",
+        "file": "Simulation",
         "action": "Vertical Slice",
-        "reason": "Feature 'Lucide' spread across 2 folders (Fragmentation Tax)"
+        "reason": "Feature 'Simulation' spread across 3 folders (Fragmentation Tax)"
       }
     },
     {
       "Structural": {
-        "file": "Viewer",
+        "file": "Service",
         "action": "Vertical Slice",
-        "reason": "Feature 'Viewer' spread across 6 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "utils",
-        "action": "Vertical Slice",
-        "reason": "Feature 'utils' spread across 3 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Ui",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Ui' spread across 3 folders (Fragmentation Tax)"
+        "reason": "Feature 'Service' spread across 2 folders (Fragmentation Tax)"
       }
     },
     {
@@ -2681,25 +2663,16 @@
     },
     {
       "Structural": {
-        "file": "Navigation",
+        "file": "Upload",
         "action": "Vertical Slice",
-        "reason": "Feature 'Navigation' spread across 3 folders (Fragmentation Tax)"
+        "reason": "Feature 'Upload' spread across 3 folders (Fragmentation Tax)"
       }
     },
     {
       "Structural": {
-        "file": "Svg",
+        "file": "Project",
         "action": "Vertical Slice",
-        "reason": "Feature 'Svg' spread across 2 folders (Fragmentation Tax)"
-      }
-    }
-  ],
-  "web": [
-    {
-      "Surgical": {
-        "file": "../../index.html",
-        "action": "De-bloat",
-        "reason": "LOC 106 > Limit 92 (Role: ui-component, Drag: 3.19)"
+        "reason": "Feature 'Project' spread across 4 folders (Fragmentation Tax)"
       }
     }
   ]
