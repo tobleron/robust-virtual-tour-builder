@@ -1,6 +1,6 @@
 /* backend/src/api/project/storage/storage_logic.rs */
 
-use crate::api::utils::{PROCESSED_IMAGE_WIDTH, WEBP_QUALITY, get_session_path};
+use crate::api::utils::{PROCESSED_IMAGE_WIDTH, WEBP_QUALITY};
 use crate::models::ValidationReport;
 use crate::services::project;
 use std::collections::{HashMap, HashSet};
@@ -138,7 +138,7 @@ pub fn create_project_zip_sync(
     project_json: String,
     summary_content: String,
     temp_images: Vec<(String, PathBuf)>,
-    session_id: Option<String>,
+    project_path: Option<PathBuf>,
 ) -> Result<(), std::io::Error> {
     let file = fs::File::create(&zip_path)?;
     let mut zip = zip::ZipWriter::new(file);
@@ -162,8 +162,7 @@ pub fn create_project_zip_sync(
         let _ = fs::remove_file(path);
     }
 
-    if let Some(sid) = session_id {
-        let session_path = get_session_path(&sid);
+    if let Some(session_path) = project_path {
         let project_val: serde_json::Value =
             serde_json::from_str(&project_json).unwrap_or(serde_json::Value::Null);
 
@@ -200,7 +199,7 @@ pub fn create_project_zip_sync(
 pub fn validate_project_full_sync(
     json_content: String,
     temp_images: Vec<(String, PathBuf)>,
-    session_id: Option<String>,
+    project_path: Option<PathBuf>,
 ) -> Result<(String, ValidationReport, String), String> {
     let project_data: serde_json::Value =
         serde_json::from_str(&json_content).map_err(|e| format!("Invalid project JSON: {}", e))?;
@@ -212,8 +211,7 @@ pub fn validate_project_full_sync(
         available_files.insert(name.clone());
     }
 
-    if let Some(sid) = &session_id {
-        let session_path = get_session_path(sid);
+    if let Some(session_path) = &project_path {
         if let Ok(entries) = fs::read_dir(session_path.join("images")) {
             for entry in entries.flatten() {
                 if let Ok(name) = entry.file_name().into_string() {
@@ -221,7 +219,7 @@ pub fn validate_project_full_sync(
                 }
             }
         }
-        if let Ok(entries) = fs::read_dir(&session_path) {
+        if let Ok(entries) = fs::read_dir(session_path) {
             for entry in entries.flatten() {
                 if let Ok(name) = entry.file_name().into_string() {
                     available_files.insert(name);

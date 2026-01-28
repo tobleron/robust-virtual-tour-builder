@@ -56,32 +56,42 @@ where
             // Check Authorization header
             let auth_header = req.headers().get(header::AUTHORIZATION);
 
-            let token = match auth_header {
-                Some(header) => match header.to_str() {
+            let token_str = if let Some(header) = auth_header {
+                match header.to_str() {
                     Ok(header_str) => {
                         if header_str.starts_with("Bearer ") {
-                            header_str[7..].to_string()
+                            Some(header_str[7..].to_string())
                         } else {
-                            // Missing or invalid format
-                            let res = req
-                                .into_response(HttpResponse::Unauthorized().json(
-                                    serde_json::json!({"error": "Missing or invalid token"}),
-                                ));
-                            return Ok(res.map_body(|_, b| EitherBody::Right { body: b }));
+                            None
                         }
                     }
-                    Err(_) => {
-                        let res = req.into_response(
-                            HttpResponse::Unauthorized()
-                                .json(serde_json::json!({"error": "Invalid header encoding"})),
-                        );
-                        return Ok(res.map_body(|_, b| EitherBody::Right { body: b }));
+                    Err(_) => None,
+                }
+            } else {
+                None
+            };
+
+            let token = if let Some(t) = token_str {
+                t
+            } else {
+                // Try query param
+                let qs = req.query_string();
+                let mut found = None;
+                for pair in qs.split('&') {
+                    if let Some((key, value)) = pair.split_once('=') {
+                        if key == "token" {
+                            found = Some(value.to_string());
+                            break;
+                        }
                     }
-                },
-                None => {
+                }
+
+                if let Some(t) = found {
+                    t
+                } else {
                     let res = req.into_response(
                         HttpResponse::Unauthorized()
-                            .json(serde_json::json!({"error": "Missing Authorization header"})),
+                            .json(serde_json::json!({"error": "Missing Authorization header or token param"})),
                     );
                     return Ok(res.map_body(|_, b| EitherBody::Right { body: b }));
                 }

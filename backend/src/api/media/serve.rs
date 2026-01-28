@@ -1,21 +1,18 @@
-use actix_web::{HttpRequest, HttpResponse, web};
-use std::fs;
+use actix_web::{HttpRequest, HttpResponse, web, HttpMessage};
 
-use crate::api::utils::{get_session_path, sanitize_filename};
-use crate::models::AppError;
+use crate::api::utils::sanitize_filename;
+use crate::models::{AppError, user::User};
+use crate::services::media::StorageManager;
 
-// Handler for serving session files
-pub async fn serve_session_file(
+// Handler for serving project files
+pub async fn serve_project_file(
     req: HttpRequest,
     path: web::Path<(String, String)>,
 ) -> Result<HttpResponse, AppError> {
-    let (session_id, filename) = path.into_inner();
+    let (project_id, filename) = path.into_inner();
+    let user = req.extensions().get::<User>().cloned().ok_or(AppError::Unauthorized("Authentication required".into()))?;
 
-    println!(
-        ">>> SERVE_SESSION_FILE: sid={}, file={}",
-        session_id, filename
-    );
-    tracing::info!(session_id = %session_id, filename = %filename, "SERVE_SESSION_FILE_START");
+    tracing::info!(user_id = %user.id, project_id = %project_id, filename = %filename, "SERVE_PROJECT_FILE_START");
 
     // Security Check: Sanitize
     let safe_filename = match sanitize_filename(&filename) {
@@ -26,8 +23,8 @@ pub async fn serve_session_file(
         }
     };
 
-    let session_path = get_session_path(&session_id);
-    let file_path = session_path.join("images").join(&safe_filename);
+    let project_path = StorageManager::get_user_project_path(&user.id, &project_id);
+    let file_path = project_path.join("images").join(&safe_filename);
 
     tracing::debug!(path = ?file_path, "Checking images/ subdir");
 
@@ -43,10 +40,10 @@ pub async fn serve_session_file(
     }
 
     // Try root
-    let root_path = session_path.join(&safe_filename);
-    tracing::debug!(path = ?root_path, "Checking session root");
+    let root_path = project_path.join(&safe_filename);
+    tracing::debug!(path = ?root_path, "Checking project root");
     if root_path.exists() && root_path.is_file() {
-        tracing::info!(path = ?root_path, "Serving from session root");
+        tracing::info!(path = ?root_path, "Serving from project root");
         match actix_files::NamedFile::open(&root_path) {
             Ok(named_file) => return Ok(named_file.into_response(&req)),
             Err(e) => {
@@ -57,9 +54,9 @@ pub async fn serve_session_file(
     }
 
     tracing::warn!(
-        session_id = %session_id,
+        project_id = %project_id,
         filename = %filename,
-        "File not found in images/ or root (searched images/ and root)"
+        "File not found in images/ or root"
     );
     Ok(HttpResponse::NotFound().body(format!("File not found: {}", safe_filename)))
 }

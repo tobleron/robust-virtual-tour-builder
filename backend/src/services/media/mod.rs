@@ -3,11 +3,13 @@
 pub mod analysis;
 pub mod naming;
 pub mod resizing;
+pub mod storage;
 pub mod webp;
 
 pub use analysis::*;
 pub use naming::*;
 pub use resizing::*;
+pub use storage::*;
 pub use webp::*;
 
 #[cfg(test)]

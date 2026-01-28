@@ -10,7 +10,6 @@ use uuid::Uuid;
 pub const PROCESSED_IMAGE_WIDTH: u32 = 4096;
 pub const WEBP_QUALITY: f32 = 85.0;
 pub const TEMP_DIR: &str = "/tmp/vt_backend";
-pub const SESSIONS_DIR: &str = "/tmp/vt_sessions";
 pub const MAX_UPLOAD_SIZE: usize = 60 * 1024 * 1024; // 60MB limit
 pub const MAX_LOG_SIZE: u64 = 10 * 1024 * 1024; // 10 MB
 pub const MAX_LOG_FILES: usize = 5;
@@ -24,12 +23,6 @@ pub fn get_temp_path(extension: &str) -> PathBuf {
         tracing::error!("Failed to create temp directory {:?}: {}", path, e);
     }
     path.push(format!("{}.{}", Uuid::new_v4(), extension));
-    path
-}
-
-pub fn get_session_path(session_id: &str) -> PathBuf {
-    let mut path = PathBuf::from(SESSIONS_DIR);
-    path.push(session_id);
     path
 }
 
