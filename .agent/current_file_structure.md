@@ -37,6 +37,7 @@
 │   │   ├── main.rs
 │   │   ├── metrics.rs
 │   │   ├── middleware
+│   │   │   ├── auth.rs
 │   │   │   ├── mod.rs
 │   │   │   ├── quota_check.rs
 │   │   │   └── request_tracker.rs
@@ -52,7 +53,9 @@
 │   │   │   ├── mod.rs
 │   │   │   └── utils.rs
 │   │   └── services
-│   │       ├── auth.rs
+│   │       ├── auth
+│   │       │   ├── jwt.rs
+│   │       │   └── mod.rs
 │   │       ├── database.rs
 │   │       ├── geocoding
 │   │       │   ├── logic.rs
@@ -5775,6 +5778,7 @@
 │   │   ├── 856_Refactor_ViewerManager_DONE.md
 │   │   ├── 894_Refactor_HotspotLine_DONE.md
 │   │   ├── 901_migration_foundation_DONE.md
+│   │   ├── 902_migration_security_DONE.md
 │   │   ├── 929_Refactor_UploadProcessorLogic_DONE.md
 │   │   ├── 965_Refactor_ViewerManagerLogic_DONE.md
 │   │   ├── analysis_1067_schema_fixes.md
@@ -5794,7 +5798,6 @@
 │   │       └── 1062_Test_Generation_Unified.md
 │   ├── postponed
 │   │   ├── 900_COMMERCIAL_MIGRATION_MASTER.md
-│   │   ├── 902_migration_security.md
 │   │   ├── 903_migration_storage.md
 │   │   ├── 904_migration_frontend_auth.md
 │   │   ├── 905_migration_dashboard.md
@@ -6115,4 +6118,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-199 directories, 5917 files
+200 directories, 5919 files

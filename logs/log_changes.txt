@@ -21,3 +21,4 @@
 [2026-01-28 12:06] v4.8.10 - chore: synchronize architecture and api routing fixes [TRIPLE]
 [2026-01-28 12:24] v4.8.11 - feat: architect consolidated commercial migration roadmap (900-906) [TRIPLE]
 [2026-01-28 13:04] v4.8.11 - feat: establish persistent data foundation (SQLite, migrations, SEO) [TRIPLE]
+[2026-01-28 14:20] v4.8.11 - feat: implement identity & security layer (JWT, Argon2, AuthMiddleware) [TRIPLE]
