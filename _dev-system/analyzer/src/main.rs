@@ -90,11 +90,15 @@ fn is_project_source(path: &Path, rules: &ExclusionRules) -> bool {
 fn infer_taxonomy(path: &Path, content: &str) -> String {
     let p = path.to_string_lossy().to_lowercase();
     let f = path.file_name().unwrap_or_default().to_string_lossy().to_lowercase();
+    let ext = path.extension().and_then(|s| s.to_str()).unwrap_or("");
 
-    match parse_header(content) {
-        EfficiencyOverride::Ignore => return "ignored".to_string(),
-        EfficiencyOverride::Role(name) => return name,
-        _ => {}
+    // Skip efficiency headers for data files that don't support custom fields reliably
+    if ext != "json" && ext != "yaml" {
+        match parse_header(content) {
+            EfficiencyOverride::Ignore => return "ignored".to_string(),
+            EfficiencyOverride::Role(name) => return name,
+            _ => {}
+        }
     }
 
     if f=="cargo.toml" || f=="package.json" || f.contains("config") || p.contains("/scripts/") { return "infra-config".to_string(); }
@@ -137,7 +141,7 @@ fn flush_plans(buffer: &HashMap<String, Vec<WorkUnit>>) -> Result<()> {
         let ambiguities: Vec<&WorkUnit> = units.iter().filter(|u| matches!(u, WorkUnit::Ambiguity { .. })).collect();
         if !ambiguities.is_empty() {
             file.write_all(format!("## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION ({})\n", ambiguities.len()).as_bytes())?;
-            file.write_all(b"**Action:** The AI Agent must analyze these files and update `_dev-system/config/efficiency.json` or add `@efficiency` headers.\n\n")?;
+            file.write_all(b"**Action:** The AI Agent must analyze these files and update `_dev-system/config/efficiency.json` or add `@efficiency` headers (EXCLUDING .json and .yaml files).\n\n")?;
             for unit in ambiguities {
                 if let WorkUnit::Ambiguity { file: f_path } = unit {
                     file.write_all(format!("- [ ] `{}`\n", f_path).as_bytes())?;
@@ -324,7 +328,9 @@ fn main() -> Result<()> {
 
     for entry in WalkDir::new("../../").into_iter().filter_map(|e| e.ok()) {
         let path = entry.path();
-        if !path.is_file() || !is_project_source(path, &config.exclusion_rules) { continue; }
+        let path_str = path.to_string_lossy().replace("\\", "/");
+        
+        if path_str.contains("/tests/") || !path.is_file() || !is_project_source(path, &config.exclusion_rules) { continue; }
         
         let mut content = String::new();
         if let Ok(mut f) = fs::File::open(path) { let _ = f.read_to_string(&mut content); } else { continue; }
