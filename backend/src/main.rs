@@ -1,7 +1,8 @@
 use actix_cors::Cors;
 use actix_files as fs;
 use actix_governor::{Governor, GovernorConfigBuilder};
-use actix_web::{App, HttpResponse, HttpServer, Responder, middleware::DefaultHeaders, web};
+use actix_session::{SessionMiddleware, storage::CookieSessionStore};
+use actix_web::{App, HttpResponse, HttpServer, Responder, cookie::Key, middleware::DefaultHeaders, web};
 use actix_web_prom::PrometheusMetricsBuilder;
 use std::io;
 use std::time::Duration;
@@ -160,6 +161,16 @@ async fn main() -> io::Result<()> {
             // Rate Limiting: Apply to all routes
             .wrap(Governor::new(&governor_conf))
 
+            // Session Middleware
+            .wrap(SessionMiddleware::new(
+                CookieSessionStore::default(),
+                Key::from(
+                    std::env::var("SESSION_KEY")
+                        .expect("SESSION_KEY must be set")
+                        .as_bytes(),
+                ),
+            ))
+
             .wrap(cors)
             .wrap(prometheus.clone()) // Prometheus metrics (Execute first)
             .route("/health", web::get().to(health_check))
@@ -190,6 +201,7 @@ async fn main() -> io::Result<()> {
                     .route("/generate-teaser", web::post().to(api::media::generate_teaser))
                 )
                 .service(web::scope("/project")
+                    .wrap(middleware::auth::AuthMiddleware)
                     .route("/save", web::post().to(api::project::save_project))
                     .route("/load", web::post().to(api::project::load_project))
                     .route("/create-tour-package", web::post().to(api::project::create_tour_package))
