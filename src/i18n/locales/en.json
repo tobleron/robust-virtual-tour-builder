@@ -1,0 +1,22 @@
+{
+  "login": {
+    "title": "Welcome back",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign In",
+    "register_link": "Don't have an account? Sign up"
+  },
+  "register": {
+    "title": "Create an account",
+    "email": "Email",
+    "password": "Password",
+    "confirm_password": "Confirm Password",
+    "agree_terms": "I agree to the Terms of Service and Privacy Policy",
+    "submit": "Sign Up",
+    "login_link": "Already have an account? Sign in"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error"
+  }
+}
