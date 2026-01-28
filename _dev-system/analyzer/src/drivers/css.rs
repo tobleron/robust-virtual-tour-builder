@@ -1,6 +1,6 @@
 use super::{CommonMetrics, strip_code};
 
-pub fn analyze_css(content: &str) -> anyhow::Result<CommonMetrics> {
+pub fn analyze_css(content: &str, dict: &std::collections::HashMap<String, f64>) -> anyhow::Result<CommonMetrics> {
     let stripped = strip_code(content);
     let mut metrics = CommonMetrics { 
         loc: content.lines().count(), 
@@ -14,8 +14,9 @@ pub fn analyze_css(content: &str) -> anyhow::Result<CommonMetrics> {
     };
     
     metrics.logic_count = stripped.matches("{").count();
-    metrics.complexity_penalty += (stripped.matches("!important").count() as f64) * 3.0;
-    metrics.complexity_penalty += (stripped.matches("@media").count() as f64) * 0.5;
+    
+    // Dynamic Complexity from Config
+    metrics.complexity_penalty += super::apply_complexity_dictionary(&stripped, dict);
 
     let mut depth = 0;
     for c in stripped.chars() {

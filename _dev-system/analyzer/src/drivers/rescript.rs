@@ -1,6 +1,6 @@
 use super::{CommonMetrics, strip_code};
 
-pub fn analyze_rescript(content: &str) -> anyhow::Result<CommonMetrics> {
+pub fn analyze_rescript(content: &str, dict: &std::collections::HashMap<String, f64>) -> anyhow::Result<CommonMetrics> {
     let stripped = strip_code(content);
     let mut metrics = CommonMetrics { 
         loc: content.lines().filter(|l| !l.trim().is_empty() && !l.trim().starts_with("//")).count(), 
@@ -32,8 +32,9 @@ pub fn analyze_rescript(content: &str) -> anyhow::Result<CommonMetrics> {
     metrics.logic_count += stripped.matches("->").count();
     metrics.logic_count += stripped.matches("switch ").count();
     metrics.logic_count += stripped.matches("| ").count();
-    metrics.complexity_penalty += (stripped.matches("Obj.magic").count() as f64) * 2.5;
-    metrics.complexity_penalty += (stripped.matches("mutable ").count() as f64) * 1.5;
+    
+    // Dynamic Complexity from Config
+    metrics.complexity_penalty += super::apply_complexity_dictionary(&stripped, dict);
 
     let mut bracket_stack: usize = 0;
     let mut line_scores: Vec<f64> = Vec::new();

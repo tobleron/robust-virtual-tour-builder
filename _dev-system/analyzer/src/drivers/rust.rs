@@ -31,16 +31,6 @@ impl<'ast> Visit<'ast> for RustWalker {
     }
 
     fn visit_expr(&mut self, i: &'ast Expr) {
-        if let Expr::MethodCall(m) = i {
-            if m.method == "unwrap" || m.method == "expect" {
-                self.metrics.complexity_penalty += 1.0;
-            }
-        }
-        if let Expr::Macro(m) = i {
-            if m.mac.path.is_ident("panic") {
-                self.metrics.complexity_penalty += 2.0;
-            }
-        }
         visit::visit_expr(self, i);
     }
 
@@ -52,7 +42,7 @@ impl<'ast> Visit<'ast> for RustWalker {
     }
 }
 
-pub fn analyze_rust(content: &str) -> anyhow::Result<CommonMetrics> {
+pub fn analyze_rust(content: &str, dict: &std::collections::HashMap<String, f64>) -> anyhow::Result<CommonMetrics> {
     let syntax = syn::parse_file(content)?;
     let mut walker = RustWalker::default();
     walker.metrics.loc = content.lines().count();
@@ -61,5 +51,9 @@ pub fn analyze_rust(content: &str) -> anyhow::Result<CommonMetrics> {
     walker.metrics.external_calls = 0;
     walker.metrics.internal_calls = 0;
     walker.visit_file(&syntax);
+    
+    // Dynamic Complexity from Config
+    walker.metrics.complexity_penalty += super::apply_complexity_dictionary(content, dict);
+    
     Ok(walker.metrics)
 }
