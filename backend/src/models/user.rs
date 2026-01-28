@@ -1,17 +1,17 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-#[allow(unused_imports)]
-use uuid::Uuid;
+use sqlx::FromRow;
 
-#[allow(dead_code)]
-#[derive(Debug, Serialize, Deserialize, Clone, sqlx::FromRow)]
+#[derive(Debug, Serialize, Deserialize, Clone, FromRow)]
 #[serde(rename_all = "camelCase")]
 pub struct User {
-    pub id: String, // SQLite uses TEXT for UUIDs
+    pub id: String, // UUID
     pub email: String,
-    pub google_id: String,
+    #[serde(skip)] // Don't serialize password hash
+    pub password_hash: String,
     pub name: String,
-    pub avatar_url: Option<String>,
+    pub theme_preference: Option<String>,
+    pub language_preference: Option<String>,
     pub created_at: DateTime<Utc>,
 }
 
@@ -21,4 +21,37 @@ pub struct User {
 pub struct AuthResponse {
     pub token: String,
     pub user: User,
+}
+
+impl User {
+    pub async fn create(
+        pool: &sqlx::SqlitePool,
+        email: &str,
+        password_hash: &str,
+        name: &str,
+    ) -> Result<User, sqlx::Error> {
+        let id = uuid::Uuid::new_v4().to_string();
+        let user = sqlx::query_as::<_, User>(
+            r#"
+            INSERT INTO users (id, email, password_hash, name)
+            VALUES (?, ?, ?, ?)
+            RETURNING id, email, password_hash, name, theme_preference, language_preference, created_at
+            "#
+        )
+        .bind(&id)
+        .bind(email)
+        .bind(password_hash)
+        .bind(name)
+        .fetch_one(pool)
+        .await?;
+
+        Ok(user)
+    }
+
+    pub async fn find_by_email(pool: &sqlx::SqlitePool, email: &str) -> Result<Option<User>, sqlx::Error> {
+        sqlx::query_as::<_, User>("SELECT * FROM users WHERE email = ?")
+            .bind(email)
+            .fetch_optional(pool)
+            .await
+    }
 }
