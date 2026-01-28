@@ -1285,12 +1285,6 @@
 │   │   │       ├── VersionData.cmt
 │   │   │       └── VersionData.res
 │   │   └── tests
-│   │       ├── debug_schema.ast
-│   │       ├── debug_schema.bs.js
-│   │       ├── debug_schema.cmi
-│   │       ├── debug_schema.cmj
-│   │       ├── debug_schema.cmt
-│   │       ├── debug_schema.res
 │   │       ├── TestRunner.ast
 │   │       ├── TestRunner.bs.js
 │   │       ├── TestRunner.cmi
@@ -2286,11 +2280,6 @@
 │   │   ├── CursorPhysics.cmj
 │   │   ├── CursorPhysics.cmt
 │   │   ├── CursorPhysics.res
-│   │   ├── debug_schema.ast
-│   │   ├── debug_schema.cmi
-│   │   ├── debug_schema.cmj
-│   │   ├── debug_schema.cmt
-│   │   ├── debug_schema.res
 │   │   ├── DomBindings.ast
 │   │   ├── DomBindings.cmi
 │   │   ├── DomBindings.cmj
@@ -6134,4 +6123,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-199 directories, 5936 files
+199 directories, 5925 files
