@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Architect consolidated commercial migration roadmap (900-906)
 - Establish persistent data foundation (SQLite, migrations, SEO)
+- Implement identity & security layer (JWT, Argon2, AuthMiddleware)
 
 ## [4.8.10] - 2026-01-28
 

@@ -1,14 +1,15 @@
 use crate::models::user::User;
 use crate::services::auth::jwt::decode_token;
 use actix_web::{
+    Error, HttpMessage, HttpResponse,
     body::{BoxBody, EitherBody},
     dev::{Service, ServiceRequest, ServiceResponse, Transform, forward_ready},
     http::header,
-    web, Error, HttpMessage, HttpResponse,
+    web,
 };
 use futures_util::future::LocalBoxFuture;
 use sqlx::SqlitePool;
-use std::future::{ready, Ready};
+use std::future::{Ready, ready};
 use std::rc::Rc;
 
 pub struct AuthMiddleware;
@@ -62,23 +63,26 @@ where
                             header_str[7..].to_string()
                         } else {
                             // Missing or invalid format
-                            let res = req.into_response(HttpResponse::Unauthorized().json(
-                                serde_json::json!({"error": "Missing or invalid token"})
-                            ));
+                            let res = req
+                                .into_response(HttpResponse::Unauthorized().json(
+                                    serde_json::json!({"error": "Missing or invalid token"}),
+                                ));
                             return Ok(res.map_body(|_, b| EitherBody::Right { body: b }));
                         }
-                    },
+                    }
                     Err(_) => {
-                         let res = req.into_response(HttpResponse::Unauthorized().json(
-                             serde_json::json!({"error": "Invalid header encoding"})
-                         ));
-                         return Ok(res.map_body(|_, b| EitherBody::Right { body: b }));
+                        let res = req.into_response(
+                            HttpResponse::Unauthorized()
+                                .json(serde_json::json!({"error": "Invalid header encoding"})),
+                        );
+                        return Ok(res.map_body(|_, b| EitherBody::Right { body: b }));
                     }
                 },
                 None => {
-                    let res = req.into_response(HttpResponse::Unauthorized().json(
-                        serde_json::json!({"error": "Missing Authorization header"})
-                    ));
+                    let res = req.into_response(
+                        HttpResponse::Unauthorized()
+                            .json(serde_json::json!({"error": "Missing Authorization header"})),
+                    );
                     return Ok(res.map_body(|_, b| EitherBody::Right { body: b }));
                 }
             };
@@ -87,9 +91,10 @@ where
             let claims = match decode_token(&token) {
                 Ok(claims) => claims,
                 Err(e) => {
-                    let res = req.into_response(HttpResponse::Unauthorized().json(
-                        serde_json::json!({"error": e.to_string()})
-                    ));
+                    let res = req.into_response(
+                        HttpResponse::Unauthorized()
+                            .json(serde_json::json!({"error": e.to_string()})),
+                    );
                     return Ok(res.map_body(|_, b| EitherBody::Right { body: b }));
                 }
             };
@@ -114,19 +119,21 @@ where
                 Ok(Some(user)) => {
                     // Attach user to request extensions
                     req.extensions_mut().insert(user);
-                },
+                }
                 Ok(None) => {
-                    let res = req.into_response(HttpResponse::Unauthorized().json(
-                        serde_json::json!({"error": "User not found"})
-                    ));
+                    let res = req.into_response(
+                        HttpResponse::Unauthorized()
+                            .json(serde_json::json!({"error": "User not found"})),
+                    );
                     return Ok(res.map_body(|_, b| EitherBody::Right { body: b }));
-                },
+                }
                 Err(e) => {
-                     tracing::error!("Database error during auth: {}", e);
-                     let res = req.into_response(HttpResponse::InternalServerError().json(
-                         serde_json::json!({"error": "Database error"})
-                     ));
-                     return Ok(res.map_body(|_, b| EitherBody::Right { body: b }));
+                    tracing::error!("Database error during auth: {}", e);
+                    let res = req.into_response(
+                        HttpResponse::InternalServerError()
+                            .json(serde_json::json!({"error": "Database error"})),
+                    );
+                    return Ok(res.map_body(|_, b| EitherBody::Right { body: b }));
                 }
             }
 

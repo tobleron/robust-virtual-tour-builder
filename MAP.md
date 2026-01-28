@@ -286,3 +286,6 @@ This map provides a semantic overview of the project structure to optimize conte
 
 ## 🆕 Unmapped Modules
 * [backend/src/models/session.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/models/session.rs): New module detected. Please classify. #new
+* [backend/src/middleware/auth.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/middleware/auth.rs): New module detected. Please classify. #new
+* [backend/src/services/auth/jwt.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/services/auth/jwt.rs): New module detected. Please classify. #new
+* [backend/src/services/auth/mod.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/services/auth/mod.rs): New module detected. Please classify. #new
