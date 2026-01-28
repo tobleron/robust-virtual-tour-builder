@@ -212,3 +212,4 @@ System-generated test requirements for new and modified modules.
 - [ ] Test_PannellumAdapter_Update (Update)
 - [ ] Test_ExifReportGeneratorUtils_Update (Update)
 - [ ] Test_LoggerTelemetry_Update (Update)
+- [ ] Test_I18n_New (New)

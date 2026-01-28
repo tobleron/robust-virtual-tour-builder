@@ -20,7 +20,9 @@ describe("AuthenticatedClient", () => {
 
     let _ = await AuthenticatedClient.request("/test", ())
 
-    let authHeader = %raw("(function(m){ return m.mock.calls[0][1]['headers']['Authorization'] || (m.mock.calls[0][1]['headers'].get && m.mock.calls[0][1]['headers'].get('Authorization')) })(fetchMock)")
+    let authHeader = %raw(
+      "(function(m){ return m.mock.calls[0][1]['headers']['Authorization'] || (m.mock.calls[0][1]['headers'].get && m.mock.calls[0][1]['headers'].get('Authorization')) })(fetchMock)"
+    )
     t->expect(authHeader)->Expect.toBe("Bearer test-token")
   })
 
@@ -41,10 +43,10 @@ describe("AuthenticatedClient", () => {
       let _ = await AuthenticatedClient.request("/test", ())
     } catch {
     | AuthenticatedClient.HttpError(401, _) =>
-        let calls = %raw(`function(m){return m.mock.calls}`)(dispatchMock)
-        t->expect(Array.length(calls) > 0)->Expect.toBe(true)
-        let eventType = %raw("(function(c){ return c[0][0].type })(calls)")
-        t->expect(eventType)->Expect.toBe("auth:logout")
+      let calls = %raw(`function(m){return m.mock.calls}`)(dispatchMock)
+      t->expect(Array.length(calls) > 0)->Expect.toBe(true)
+      let eventType = %raw("(function(c){ return c[0][0].type })(calls)")
+      t->expect(eventType)->Expect.toBe("auth:logout")
     | _ => t->expect(false)->Expect.toBe(true)
     }
 

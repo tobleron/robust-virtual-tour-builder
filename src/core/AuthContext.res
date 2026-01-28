@@ -54,7 +54,7 @@ module Provider = {
       Dom.Storage2.localStorage->Dom.Storage2.setItem("auth_token", token)
       let userStr: string = %raw(`function(u) { return JSON.stringify(u) }`)(user)
       Dom.Storage2.localStorage->Dom.Storage2.setItem("auth_user", userStr)
-      setState(_ => Authenticated({user: user, token: token}))
+      setState(_ => Authenticated({user, token}))
     }
 
     let logout = React.useCallback0(() => {
@@ -65,10 +65,16 @@ module Provider = {
 
     React.useEffect1(() => {
       let handleLogout = _ => logout()
-      let _ = %raw(`function(handler) { window.addEventListener('auth:logout', handler) }`)(handleLogout)
-      Some(() => {
-        let _ = %raw(`function(handler) { window.removeEventListener('auth:logout', handler) }`)(handleLogout)
-      })
+      let _ = %raw(`function(handler) { window.addEventListener('auth:logout', handler) }`)(
+        handleLogout,
+      )
+      Some(
+        () => {
+          let _ = %raw(`function(handler) { window.removeEventListener('auth:logout', handler) }`)(
+            handleLogout,
+          )
+        },
+      )
     }, [logout])
 
     let isAuthenticated = switch state {

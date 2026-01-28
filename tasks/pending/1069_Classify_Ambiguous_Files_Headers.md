@@ -140,3 +140,6 @@ The `_dev-system` uses a taxonomy-based governor. Files without a classification
 - [ ] `../../backend/src/services/media/storage.rs`
 - [ ] `../../rescript.json`
 - [ ] `../../.vscode/settings.json`
+- [ ] `../../src/i18n/locales/en.json`
+- [ ] `../../src/i18n/locales/es.json`
+- [ ] `../../src/i18n/I18n.res`
