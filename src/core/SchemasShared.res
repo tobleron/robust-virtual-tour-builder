@@ -1,75 +1,12 @@
 open RescriptSchema
 open SharedTypes
 
-// Helper to cast unknown to JSON.t
-let toJson: unknown => JSON.t = Obj.magic
-// Helper to cast JSON.t to unknown
-let toUnknown: JSON.t => unknown = Obj.magic
-
-let isUndefinedOrNull = (v: unknown) => {
-  v === %raw("undefined") || v->toJson === JSON.Encode.null
+let toNullable = (schema: S.t<option<'a>>): S.t<Nullable.t<'a>> => {
+  schema->S.transform(_ => {
+    parser: (opt: option<'a>) => opt->Nullable.fromOption,
+    serializer: (nul: Nullable.t<'a>) => nul->Nullable.toOption,
+  })
 }
-
-let nullableString = S.custom("nullableString", s => {
-  parser: unknown => {
-    if isUndefinedOrNull(unknown) {
-      Nullable.null
-    } else {
-      let json = unknown->toJson
-      switch JSON.Decode.string(json) {
-      | Some(str) => Nullable.make(str)
-      | None => s.fail("Expected string or null")
-      }
-    }
-  },
-  serializer: n => {
-    switch Nullable.toOption(n) {
-    | Some(str) => JSON.Encode.string(str)->toUnknown
-    | None => JSON.Encode.null->toUnknown
-    }
-  },
-})
-
-let nullableFloat = S.custom("nullableFloat", s => {
-  parser: unknown => {
-    if isUndefinedOrNull(unknown) {
-      Nullable.null
-    } else {
-      let json = unknown->toJson
-      switch JSON.Decode.float(json) {
-      | Some(f) => Nullable.make(f)
-      | None => s.fail("Expected float or null")
-      }
-    }
-  },
-  serializer: n => {
-    switch Nullable.toOption(n) {
-    | Some(f) => JSON.Encode.float(f)->toUnknown
-    | None => JSON.Encode.null->toUnknown
-    }
-  },
-})
-
-let nullableInt = S.custom("nullableInt", s => {
-  parser: unknown => {
-    if isUndefinedOrNull(unknown) {
-      Nullable.null
-    } else {
-      let json = unknown->toJson
-      switch JSON.Decode.float(json) {
-      // Decode as float then to int
-      | Some(f) => Nullable.make(Belt.Float.toInt(f))
-      | None => s.fail("Expected int or null")
-      }
-    }
-  },
-  serializer: n => {
-    switch Nullable.toOption(n) {
-    | Some(i) => JSON.Encode.int(i)->toUnknown
-    | None => JSON.Encode.null->toUnknown
-    }
-  },
-})
 
 let gpsData: S.t<gpsData> = S.object(s => {
   {
@@ -78,65 +15,82 @@ let gpsData: S.t<gpsData> = S.object(s => {
   }
 })
 
-let nullableGpsData = S.custom("nullableGpsData", _s => {
-  parser: unknown => {
-    if isUndefinedOrNull(unknown) {
-      Nullable.null
-    } else {
-      let json = unknown->toJson
-      // Use the gpsData schema to parse
-      let res = S.parseOrThrow(json, gpsData)
-      Nullable.make(res)
-    }
-  },
-  serializer: n => {
-    switch Nullable.toOption(n) {
-    | Some(v) => S.reverseConvertOrThrow(v, gpsData)
-    | None => JSON.Encode.null->toUnknown
-    }
-  },
-})
-
 let exifMetadata: S.t<exifMetadata> = S.object(s => {
   {
-    dateTime: s.field("date", nullableString),
-    gps: s.field("gps", nullableGpsData),
-    make: s.field("cameraModel", nullableString),
-    model: s.field("lensModel", nullableString),
+    dateTime: s.field("date", S.nullable(S.string)->toNullable),
+    gps: s.field("gps", S.nullable(gpsData)->toNullable),
+    make: s.field("cameraModel", S.nullable(S.string)->toNullable),
+    model: s.field("lensModel", S.nullable(S.string)->toNullable),
     width: 0,
     height: 0,
-    focalLength: s.field("focalLength", nullableFloat),
-    aperture: s.field("fNumber", nullableFloat),
-    iso: s.field("iso", nullableInt),
+    focalLength: s.field("focalLength", S.nullable(S.float)->toNullable),
+    aperture: s.field("fNumber", S.nullable(S.float)->toNullable),
+    iso: s.field("iso", S.nullable(S.int)->toNullable),
+  }
+})
+
+let colorHist: S.t<SharedTypes.colorHist> = S.object((s): SharedTypes.colorHist => {
+  {
+    r: s.field("r", S.array(S.int)),
+    g: s.field("g", S.array(S.int)),
+    b: s.field("b", S.array(S.int)),
+  }
+})
+
+let qualityStats: S.t<SharedTypes.qualityStats> = S.object(s => {
+  {
+    avgLuminance: s.field("avgLuminance", S.int),
+    blackClipping: s.field("blackClipping", S.float),
+    whiteClipping: s.field("whiteClipping", S.float),
+    sharpnessVariance: s.field("sharpnessVariance", S.int),
+  }
+})
+
+let qualityAnalysis: S.t<SharedTypes.qualityAnalysis> = S.object(s => {
+  {
+    score: s.field("score", S.float),
+    histogram: s.field("histogram", S.array(S.int)),
+    colorHist: s.field("colorHist", colorHist),
+    stats: s.field("stats", qualityStats),
+    isBlurry: s.field("isBlurry", S.bool),
+    isSoft: s.field("isSoft", S.bool),
+    isSeverelyDark: s.field("isSeverelyDark", S.bool),
+    isSeverelyBright: s.field("isSeverelyBright", S.bool),
+    isDim: s.field("isDim", S.bool),
+    hasBlackClipping: s.field("hasBlackClipping", S.bool),
+    hasWhiteClipping: s.field("hasWhiteClipping", S.bool),
+    issues: s.field("issues", S.int),
+    warnings: s.field("warnings", S.int),
+    analysis: s.field("analysis", S.nullable(S.string)->toNullable),
   }
 })
 
 let metadataResponse: S.t<metadataResponse> = S.object(s => {
   {
     exif: s.field("exif", exifMetadata),
-    quality: s.field("quality", S.unknown->(Obj.magic: S.t<unknown> => S.t<qualityAnalysis>)),
+    quality: s.field("quality", qualityAnalysis),
     isOptimized: s.field("isOptimized", S.bool),
     checksum: s.field("checksum", S.string),
-    suggestedName: s.field("suggestedName", nullableString),
+    suggestedName: s.field("suggestedName", S.nullable(S.string)->toNullable),
   }
 })
 
-let similarityResult: S.t<similarityResult> = S.object(s => {
+let similarityResult: S.t<SharedTypes.similarityResult> = S.object(s => {
   {
-    idA: s.field("sceneId", S.string),
-    idB: "",
-    similarity: s.field("score", S.float),
+    idA: s.field("idA", S.string),
+    idB: s.field("idB", S.string),
+    similarity: s.field("similarity", S.float),
   }
 })
 
-let similarityResponse: S.t<similarityResponse> = S.object(s => {
+let similarityResponse: S.t<SharedTypes.similarityResponse> = S.object(s => {
   {
     results: s.field("results", S.array(similarityResult)),
     durationMs: s.field("durationMs", S.float),
   }
 })
 
-let validationReport: S.t<validationReport> = S.object(s => {
+let validationReport: S.t<SharedTypes.validationReport> = S.object(s => {
   {
     brokenLinksRemoved: s.field("brokenLinksRemoved", S.int),
     orphanedScenes: s.field("orphanedScenes", S.array(S.string)),
@@ -146,14 +100,11 @@ let validationReport: S.t<validationReport> = S.object(s => {
   }
 })
 
-// Return a tuple (sessionId, projectData)
-let importResponse = S.object(s => {
+let geocodeResponse: S.t<string> = S.object(s => s.field("address", S.string))
+
+let importResponse: S.t<(string, JSON.t)> = S.object(s => {
   (
     s.field("sessionId", S.string),
     s.field("projectData", S.unknown->(Obj.magic: S.t<unknown> => S.t<JSON.t>)),
   )
-})
-
-let geocodeResponse = S.object(s => {
-  s.field("address", S.string)
 })

@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Integrate schema fixes and update tests
 - Final integration of Jules' async schema improvements
 
+### Fixed
+- Resolve async schema conversion error and geocode response mapping
+
 ## [4.8.8] - 2026-01-27
 
 ### Changed
