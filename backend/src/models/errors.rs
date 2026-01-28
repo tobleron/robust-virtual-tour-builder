@@ -17,6 +17,7 @@ pub enum AppError {
     ZipError(String),
     InternalError(String),
     ValidationError(String),
+    Unauthorized(String),
 }
 
 impl fmt::Display for AppError {
@@ -29,6 +30,7 @@ impl fmt::Display for AppError {
             AppError::ZipError(e) => write!(f, "Zip Error: {}", e),
             AppError::InternalError(e) => write!(f, "Internal Error: {}", e),
             AppError::ValidationError(e) => write!(f, "Validation Error: {}", e),
+            AppError::Unauthorized(e) => write!(f, "Unauthorized: {}", e),
         }
     }
 }
@@ -69,6 +71,11 @@ impl ResponseError for AppError {
             AppError::ValidationError(e) => (
                 actix_web::http::StatusCode::BAD_REQUEST,
                 "Validation Error",
+                Some(e.clone()),
+            ),
+            AppError::Unauthorized(e) => (
+                actix_web::http::StatusCode::UNAUTHORIZED,
+                "Unauthorized",
                 Some(e.clone()),
             ),
         };
