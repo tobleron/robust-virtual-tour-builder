@@ -1,19 +1,20 @@
 /* backend/src/api/project/storage/mod.rs - Facade for Project Storage API */
 
 use actix_multipart::Multipart;
-use actix_web::{HttpRequest, HttpResponse, web};
+use actix_web::{HttpRequest, HttpResponse, web, HttpMessage};
 use futures_util::TryStreamExt as _;
 use serde::Serialize;
 use std::fs;
-use std::io::{Seek, SeekFrom, Write};
+use std::io::{Seek, SeekFrom, Write, Read};
 use std::path::PathBuf;
 use uuid::Uuid;
 
 use crate::api::utils::{
-    MAX_UPLOAD_SIZE, SESSIONS_DIR, TEMP_DIR, get_temp_path, sanitize_filename,
+    MAX_UPLOAD_SIZE, get_temp_path, sanitize_filename,
 };
-use crate::models::AppError;
+use crate::models::{AppError, user::User};
 use crate::services::project;
+use crate::services::media::StorageManager;
 
 mod storage_logic;
 use storage_logic::*;
@@ -26,9 +27,14 @@ pub struct ImportResponse {
 }
 
 /// Saves the current project state into a ZIP file.
-#[tracing::instrument(skip(payload), name = "save_project")]
-pub async fn save_project(mut payload: Multipart) -> Result<HttpResponse, AppError> {
-    tracing::info!(module = "ProjectManager", "SAVE_PROJECT_START");
+#[tracing::instrument(skip(payload, req), name = "save_project")]
+pub async fn save_project(
+    req: HttpRequest,
+    mut payload: Multipart
+) -> Result<HttpResponse, AppError> {
+    let user = req.extensions().get::<User>().cloned().ok_or(AppError::Unauthorized("Authentication required".into()))?;
+
+    tracing::info!(module = "ProjectManager", user_id = %user.id, "SAVE_PROJECT_START");
     let start = std::time::Instant::now();
     let zip_path = get_temp_path("zip");
 
@@ -78,10 +84,16 @@ pub async fn save_project(mut payload: Multipart) -> Result<HttpResponse, AppErr
     let json_content = project_json
         .ok_or_else(|| AppError::MultipartError(actix_multipart::MultipartError::Incomplete))?;
 
+    let project_path = if let Some(pid) = &session_id {
+        Some(StorageManager::get_user_project_path(&user.id, pid))
+    } else {
+        None
+    };
+
     let (validated_json, _report, summary_content) = web::block({
         let temp_images = temp_images.clone();
-        let session_id = session_id.clone();
-        move || validate_project_full_sync(json_content, temp_images, session_id)
+        let project_path = project_path.clone();
+        move || validate_project_full_sync(json_content, temp_images, project_path)
     })
     .await
     .map_err(|e| AppError::InternalError(e.to_string()))??;
@@ -89,14 +101,14 @@ pub async fn save_project(mut payload: Multipart) -> Result<HttpResponse, AppErr
     let final_zip_path = zip_path.clone();
     let zip_creation_result = web::block({
         let validated_json = validated_json.clone();
-        let session_id = session_id.clone();
+        let project_path = project_path.clone();
         move || {
             create_project_zip_sync(
                 final_zip_path,
                 validated_json,
                 summary_content,
                 temp_images,
-                session_id,
+                project_path,
             )
         }
     })
@@ -133,6 +145,8 @@ pub async fn load_project(
     req: HttpRequest,
     mut payload: Multipart,
 ) -> Result<HttpResponse, AppError> {
+    let _user = req.extensions().get::<User>().cloned().ok_or(AppError::Unauthorized("Authentication required".into()))?;
+
     tracing::info!(module = "ProjectManager", "LOAD_PROJECT_START");
     let start = std::time::Instant::now();
 
@@ -174,13 +188,15 @@ pub async fn load_project(
     Ok(named_file.into_response(&req))
 }
 
-/// Imports a project ZIP and establishes a server-side session.
-pub async fn import_project(mut payload: Multipart) -> Result<HttpResponse, AppError> {
-    let session_id = Uuid::new_v4().to_string();
-    let session_dir = PathBuf::from(format!("{}/{}", SESSIONS_DIR, session_id));
-    fs::create_dir_all(&session_dir).map_err(AppError::IoError)?;
+/// Imports a project ZIP and establishes a persistent project.
+pub async fn import_project(
+    req: HttpRequest,
+    mut payload: Multipart
+) -> Result<HttpResponse, AppError> {
+    let user = req.extensions().get::<User>().cloned().ok_or(AppError::Unauthorized("Authentication required".into()))?;
 
-    tracing::info!(module = "ProjectManager", session_id = %session_id, "IMPORT_PROJECT_START");
+    // We don't have project ID yet.
+    tracing::info!(module = "ProjectManager", user_id = %user.id, "IMPORT_PROJECT_START");
 
     while let Ok(Some(mut field)) = payload.try_next().await {
         let name = field
@@ -189,47 +205,61 @@ pub async fn import_project(mut payload: Multipart) -> Result<HttpResponse, AppE
             .unwrap_or("unknown");
 
         if name == "file" {
-            let tmp_path = format!("{}/{}_upload.zip", TEMP_DIR, session_id);
-            fs::create_dir_all(TEMP_DIR).map_err(AppError::IoError)?;
-
+            // We use a temp file for the zip
+            let tmp_path = get_temp_path("zip");
             let mut f = fs::File::create(&tmp_path).map_err(AppError::IoError)?;
             while let Ok(Some(chunk)) = field.try_next().await {
                 f.write_all(&chunk).map_err(AppError::IoError)?;
             }
 
-            // Unzip
+            // Unzip logic moved here
             let file = fs::File::open(&tmp_path).map_err(AppError::IoError)?;
             let mut archive =
                 zip::ZipArchive::new(file).map_err(|e| AppError::ZipError(e.to_string()))?;
 
+            // 1. Extract Project ID from project.json
+            let (project_id, project_data) = {
+                let mut json_file = archive.by_name("project.json").map_err(|_| {
+                    AppError::InternalError("project.json not found in archive".into())
+                })?;
+                let mut json_str = String::new();
+                json_file.read_to_string(&mut json_str).map_err(AppError::IoError)?;
+                let data: serde_json::Value = serde_json::from_str(&json_str)
+                    .map_err(|e| AppError::InternalError(e.to_string()))?;
+
+                let id = if let Some(id_str) = data.get("id").and_then(|v| v.as_str()) {
+                    id_str.to_string()
+                } else {
+                    // Fallback if ID is missing (legacy projects)
+                    Uuid::new_v4().to_string()
+                };
+                (id, data)
+            };
+
+            // 2. Prepare Storage
+            let project_dir = StorageManager::ensure_project_dir(&user.id, &project_id)
+                .map_err(AppError::IoError)?;
+
+            tracing::info!(module = "ProjectManager", project_id = %project_id, "Importing to storage");
+
+            // 3. Extract All Files
             for i in 0..archive.len() {
                 let mut file = archive
                     .by_index(i)
                     .map_err(|e| AppError::ZipError(e.to_string()))?;
+
                 let outpath = match file.enclosed_name() {
-                    Some(path) => {
-                        // Strip 'images/' prefix if present to normalize structure
-                        let mut components = path.components();
-                        let first = components.next();
-                        let final_path = if let Some(std::path::Component::Normal(c)) = first
-                            && c == "images"
-                        {
-                            components.as_path()
-                        } else {
-                            path
-                        };
-                        session_dir.join(final_path)
-                    }
+                    Some(path) => project_dir.join(path),
                     None => continue,
                 };
 
                 if file.name().ends_with('/') {
                     fs::create_dir_all(&outpath).map_err(AppError::IoError)?;
                 } else {
-                    if let Some(p) = outpath.parent()
-                        && !p.exists()
-                    {
-                        fs::create_dir_all(p).map_err(AppError::IoError)?;
+                    if let Some(p) = outpath.parent() {
+                        if !p.exists() {
+                            fs::create_dir_all(p).map_err(AppError::IoError)?;
+                        }
                     }
                     let mut outfile = fs::File::create(&outpath).map_err(AppError::IoError)?;
                     std::io::copy(&mut file, &mut outfile).map_err(AppError::IoError)?;
@@ -238,21 +268,10 @@ pub async fn import_project(mut payload: Multipart) -> Result<HttpResponse, AppE
 
             let _ = fs::remove_file(&tmp_path);
 
-            let project_json_path = session_dir.join("project.json");
-            if !project_json_path.exists() {
-                return Err(AppError::InternalError(
-                    "project.json not found in archive".into(),
-                ));
-            }
-
-            let json_str = fs::read_to_string(project_json_path).map_err(AppError::IoError)?;
-            let project_data: serde_json::Value = serde_json::from_str(&json_str)
-                .map_err(|e| AppError::InternalError(e.to_string()))?;
-
-            tracing::info!(module = "ProjectManager", session_id = %session_id, "IMPORT_PROJECT_SUCCESS");
+            tracing::info!(module = "ProjectManager", project_id = %project_id, "IMPORT_PROJECT_SUCCESS");
 
             return Ok(HttpResponse::Ok().json(ImportResponse {
-                session_id,
+                session_id: project_id,
                 project_data,
             }));
         }
