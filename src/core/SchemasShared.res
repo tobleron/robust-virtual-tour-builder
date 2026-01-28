@@ -27,7 +27,7 @@ let nullableString = S.custom("nullableString", s => {
     | Some(str) => JSON.Encode.string(str)->toUnknown
     | None => JSON.Encode.null->toUnknown
     }
-  }
+  },
 })
 
 let nullableFloat = S.custom("nullableFloat", s => {
@@ -47,7 +47,7 @@ let nullableFloat = S.custom("nullableFloat", s => {
     | Some(f) => JSON.Encode.float(f)->toUnknown
     | None => JSON.Encode.null->toUnknown
     }
-  }
+  },
 })
 
 let nullableInt = S.custom("nullableInt", s => {
@@ -56,7 +56,8 @@ let nullableInt = S.custom("nullableInt", s => {
       Nullable.null
     } else {
       let json = unknown->toJson
-      switch JSON.Decode.float(json) { // Decode as float then to int
+      switch JSON.Decode.float(json) {
+      // Decode as float then to int
       | Some(f) => Nullable.make(Belt.Float.toInt(f))
       | None => s.fail("Expected int or null")
       }
@@ -67,7 +68,7 @@ let nullableInt = S.custom("nullableInt", s => {
     | Some(i) => JSON.Encode.int(i)->toUnknown
     | None => JSON.Encode.null->toUnknown
     }
-  }
+  },
 })
 
 let gpsData: S.t<gpsData> = S.object(s => {
@@ -93,7 +94,7 @@ let nullableGpsData = S.custom("nullableGpsData", _s => {
     | Some(v) => S.reverseConvertOrThrow(v, gpsData)
     | None => JSON.Encode.null->toUnknown
     }
-  }
+  },
 })
 
 let exifMetadata: S.t<exifMetadata> = S.object(s => {

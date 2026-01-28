@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Integrate schema fixes and update tests
+- Final integration of Jules' async schema improvements
 
 ## [4.8.8] - 2026-01-27
 

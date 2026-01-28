@@ -11,17 +11,17 @@ let isUndefinedOrNull = (v: unknown) => {
 let file = S.custom("file", s => {
   parser: unknown => {
     if isUndefinedOrNull(unknown) {
-        // Technically file should be string, but if missing, fail?
-        // Or default to empty url if manual fallback?
-        // The type is `file`, not option<file>.
-        // Let's assume it must be a string.
-        s.fail("Expected string for file")
+      // Technically file should be string, but if missing, fail?
+      // Or default to empty url if manual fallback?
+      // The type is `file`, not option<file>.
+      // Let's assume it must be a string.
+      s.fail("Expected string for file")
     } else {
-        let json = unknown->toJson
-        switch JSON.Decode.string(json) {
-        | Some(str) => Url(str)
-        | None => s.fail("Expected string for file")
-        }
+      let json = unknown->toJson
+      switch JSON.Decode.string(json) {
+      | Some(str) => Url(str)
+      | None => s.fail("Expected string for file")
+      }
     }
   },
   serializer: f => {
@@ -29,7 +29,7 @@ let file = S.custom("file", s => {
     | Url(s) => JSON.Encode.string(s)->toUnknown
     | Blob(_) | File(_) => JSON.Encode.string("")->toUnknown
     }
-  }
+  },
 })
 
 let viewFrame = S.object(s => {
@@ -62,23 +62,23 @@ let hotspot = S.object(s => {
       "duration",
       S.custom("duration", _s => {
         parser: unknown => {
-           if isUndefinedOrNull(unknown) {
-             None
-           } else {
-             let json = unknown->toJson
-             switch JSON.Decode.float(json) {
-             | Some(f) => Some(Belt.Float.toInt(f))
-             | None => None
-             }
-           }
+          if isUndefinedOrNull(unknown) {
+            None
+          } else {
+            let json = unknown->toJson
+            switch JSON.Decode.float(json) {
+            | Some(f) => Some(Belt.Float.toInt(f))
+            | None => None
+            }
+          }
         },
         serializer: o => {
-           switch o {
-           | Some(i) => JSON.Encode.float(Belt.Int.toFloat(i))->toUnknown
-           | None => JSON.Encode.null->toUnknown
-           }
-        }
-      })
+          switch o {
+          | Some(i) => JSON.Encode.float(Belt.Int.toFloat(i))->toUnknown
+          | None => JSON.Encode.null->toUnknown
+          }
+        },
+      }),
     ),
   }
 })
@@ -114,17 +114,17 @@ let timelineItem = S.object(s => {
       "duration",
       S.custom("duration_int", _s => {
         parser: unknown => {
-           if isUndefinedOrNull(unknown) {
-             0
-           } else {
-             let json = unknown->toJson
-             switch JSON.Decode.float(json) {
-             | Some(f) => Belt.Float.toInt(f)
-             | None => 0
-             }
-           }
+          if isUndefinedOrNull(unknown) {
+            0
+          } else {
+            let json = unknown->toJson
+            switch JSON.Decode.float(json) {
+            | Some(f) => Belt.Float.toInt(f)
+            | None => 0
+            }
+          }
         },
-        serializer: i => JSON.Encode.float(Belt.Int.toFloat(i))->toUnknown
+        serializer: i => JSON.Encode.float(Belt.Int.toFloat(i))->toUnknown,
       }),
     ),
   }
@@ -201,7 +201,8 @@ let updateMetadata = S.object(s => {
 let timelineUpdate: S.t<Types.timelineUpdate> = S.object(s => {
   {
     transition: s.field("transition", S.option(S.string)),
-    duration: s.field("duration",
+    duration: s.field(
+      "duration",
       S.custom("timelineUpdate_duration", _s => {
         parser: unknown => {
           if isUndefinedOrNull(unknown) {
@@ -220,8 +221,8 @@ let timelineUpdate: S.t<Types.timelineUpdate> = S.object(s => {
           | Some(None) => JSON.Encode.null->toUnknown
           | None => JSON.Encode.null->toUnknown
           }
-        }
-      })
+        },
+      }),
     ),
   }
 })
