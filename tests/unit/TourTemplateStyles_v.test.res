@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 /* tests/unit/TourTemplateStyles_v.test.res */
 open Vitest
 open TourTemplateStyles

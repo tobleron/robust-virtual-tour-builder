@@ -1,3 +1,4 @@
+// @efficiency: domain-logic
 /* backend/src/services/media/naming.rs */
 
 use once_cell::sync::Lazy;

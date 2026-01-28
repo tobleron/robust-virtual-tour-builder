@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 open Vitest
 open Vitest.Expect
 open PathInterpolation

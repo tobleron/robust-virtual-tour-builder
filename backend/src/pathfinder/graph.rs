@@ -1,3 +1,4 @@
+// @efficiency: domain-logic
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Debug, Clone)]

@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 /* tests/unit/RequestQueue_v.test.res */
 open Vitest
 open RequestQueue

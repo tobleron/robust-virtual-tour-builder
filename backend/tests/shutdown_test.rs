@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 #[tokio::test]
 async fn test_graceful_shutdown() {
     use backend::services::shutdown::ShutdownManager;

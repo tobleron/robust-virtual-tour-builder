@@ -18,6 +18,6 @@ body.auto-pilot-active #viewer-floor-nav button {
 }
 
 body.auto-pilot-active #viewer-floor-nav button.border-danger {
-    opacity: 1 !important;
-    filter: none !important;
+    opacity: 1;
+    filter: none;
 }

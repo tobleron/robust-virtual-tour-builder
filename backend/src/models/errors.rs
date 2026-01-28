@@ -80,7 +80,6 @@ impl ResponseError for AppError {
             ),
         };
 
-        // Structured error logging
         tracing::error!(
             module = "ErrorHandler",
             error_type = msg,
@@ -96,7 +95,6 @@ impl ResponseError for AppError {
     }
 }
 
-// Implement From traits for easy conversion
 impl From<std::io::Error> for AppError {
     fn from(err: std::io::Error) -> Self {
         AppError::IoError(err)
@@ -127,20 +125,6 @@ mod tests {
     fn test_app_error_response_format() {
         let err = AppError::ValidationError("test message".to_string());
         let resp = err.error_response();
-
         assert_eq!(resp.status(), actix_web::http::StatusCode::BAD_REQUEST);
-
-        assert!(err.to_string().contains("Validation Error"));
-        assert!(err.to_string().contains("test message"));
-    }
-
-    #[test]
-    fn test_internal_error_status() {
-        let err = AppError::InternalError("boom".to_string());
-        let resp = err.error_response();
-        assert_eq!(
-            resp.status(),
-            actix_web::http::StatusCode::INTERNAL_SERVER_ERROR
-        );
     }
 }

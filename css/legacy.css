@@ -40,15 +40,15 @@
 
 /* Custom Colors Compatibility */
 .bg-brand-gold {
-    background-color: #ffcc00 !important;
+    background-color: #ffcc00;
 }
 
 .text-brand-gold {
-    color: #ffcc00 !important;
+    color: #ffcc00;
 }
 
 .border-brand-gold\/20 {
-    border-color: rgba(255, 204, 0, 0.3) !important;
+    border-color: rgba(255, 204, 0, 0.3);
 }
 
 /* Temporary / Fixes */

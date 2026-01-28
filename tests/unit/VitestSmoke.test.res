@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 open Vitest
 
 test("Vitest smoke test", t => {

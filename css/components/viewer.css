@@ -32,7 +32,7 @@
 
 #viewer-snapshot-overlay.snapshot-visible {
     visibility: visible;
-    opacity: 1 !important;
+    opacity: 1;
 }
 
 #cursor-guide {
@@ -53,7 +53,7 @@
 .linking-mode canvas,
 .linking-mode .pnlm-dragfix,
 #viewer-stage.linking-mode {
-    cursor: url("data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M16 4V12M16 20V28M4 16H12M20 16H28' stroke='%23FFFF00' stroke-width='2' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='16' r='4' stroke='%23FFFF00' stroke-width='2'/%3E%3C/svg%3E") 16 16, crosshair !important;
+    cursor: url("data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M16 4V12M16 20V28M4 16H12M20 16H28' stroke='%23FFFF00' stroke-width='2' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='16' r='4' stroke='%23FFFF00' stroke-width='2'/%3E%3C/svg%3E") 16 16, crosshair;
 }
 
 /* Hide Pannellum controls in builder */
@@ -63,10 +63,10 @@
 .pnlm-zoom-in,
 .pnlm-zoom-out,
 .pnlm-controls {
-    display: none !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
+    display: none;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
 }
 
 .viewer-placeholder {
@@ -107,49 +107,49 @@
 .pnlm-hotspot-base[style*="transform: translate(0px, 0px)"],
 .pnlm-hotspot-base[style*="translate3d(0px, 0px, 0px)"],
 .pnlm-hotspot-base:not([style*="translate"]) {
-    visibility: hidden !important;
-    opacity: 0 !important;
+    visibility: hidden;
+    opacity: 0;
 }
 
 /* Hide hotspots during simulation if tagged (Used primarily to prevent overlap with Sim Arrow) */
 .pnlm-hotspot.flat-arrow.hidden-in-sim {
-    opacity: 0 !important;
-    pointer-events: none !important;
+    opacity: 0;
+    pointer-events: none;
 }
 
 /* Redesigned: Auto-pilot active now COMPLTELY hides hotspots for a clean view */
 .auto-pilot-active .pnlm-hotspot {
-    opacity: 0 !important;
-    pointer-events: none !important;
+    opacity: 0;
+    pointer-events: none;
 }
 
-/* 1. Container Styling - attributes are forced !important to override Pannellum defaults */
+/* 1. Container Styling - attributes are forced to override Pannellum defaults */
 .pnlm-hotspot.flat-arrow {
-    background-image: none !important;
-    background-color: transparent !important;
-    border: none !important;
-    width: 0px !important;
-    height: 0px !important;
-    margin-left: 0px !important;
-    margin-top: 0px !important;
-    overflow: visible !important;
+    background-image: none;
+    background-color: transparent;
+    border: none;
+    width: 0px;
+    height: 0px;
+    margin-left: 0px;
+    margin-top: 0px;
+    overflow: visible;
     /* Critical: allows the large arrow to spill out */
-    z-index: 10 !important;
-    pointer-events: none !important;
-    cursor: default !important;
+    z-index: 10;
+    pointer-events: none;
+    cursor: default;
 }
 
 /* 5. Tooltip Neutralization (Crucial) */
 /* This makes the default Pannellum tooltip box invisible so it doesn't break our UI */
 .pnlm-hotspot.flat-arrow .pnlm-tooltip {
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    margin: 0;
+    padding: 0;
     /* Ensure content inside (our button) is visible */
-    visibility: visible !important;
-    overflow: visible !important;
+    visibility: visible;
+    overflow: visible;
     /* Reset position if needed */
     position: absolute;
     top: 0;
@@ -158,7 +158,7 @@
 
 /* Also hide the little pointer arrow Pannellum adds to tooltips */
 .pnlm-hotspot.flat-arrow .pnlm-tooltip:after {
-    display: none !important;
+    display: none;
 }
 
 @keyframes shine-pass {
@@ -196,8 +196,8 @@
     pointer-events: auto;
     cursor: pointer;
     display: block;
-    visibility: visible !important;
-    opacity: 1 !important;
+    visibility: visible;
+    opacity: 1;
     z-index: 1;
 
     /* v4.4.1: Precise hit testing - Unified both chevrons into one hit area */
@@ -255,7 +255,7 @@
     background-size: 14px;
     color: white;
     border-radius: 50%;
-    display: flex !important;
+    display: flex;
     align-items: center;
     justify-content: center;
     font-family: var(--font-ui);
@@ -296,8 +296,8 @@
     display: flex;
     justify-content: center;
     z-index: 10005;
-    opacity: 1 !important;
-    visibility: visible !important;
+    opacity: 1;
+    visibility: visible;
     pointer-events: none;
     background: transparent;
     border: none;

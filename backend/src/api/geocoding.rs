@@ -127,7 +127,7 @@ mod tests {
     async fn test_reverse_geocode_structure_internal() {
         let resp = reverse_geocode(web::Json(GeocodeRequest { lat: 0.0, lon: 0.0 })).await;
         assert!(resp.is_ok());
-        let response = resp.unwrap();
+        let response = resp.expect("Geocode response was an error");
         assert_eq!(response.status(), StatusCode::OK);
     }
 

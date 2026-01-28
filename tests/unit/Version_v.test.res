@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 /* tests/unit/Version_v.test.res */
 open Vitest
 open Version

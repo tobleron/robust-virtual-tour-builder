@@ -79,7 +79,7 @@ mod tests {
         let result = calculate_path(web::Json(req)).await;
         assert!(result.is_ok());
 
-        let resp = result.unwrap();
+        let resp = result.expect("Path calculation failed");
         assert_eq!(resp.status(), StatusCode::OK);
     }
 
@@ -103,7 +103,7 @@ mod tests {
         let result = calculate_path(web::Json(req)).await;
         assert!(result.is_ok());
 
-        let resp = result.unwrap();
+        let resp = result.expect("Path calculation failed");
         assert_eq!(resp.status(), StatusCode::OK);
     }
 }

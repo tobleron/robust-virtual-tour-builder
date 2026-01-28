@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 /* backend/src/services/media/webp.rs */
 
 use crate::models::MetadataResponse;

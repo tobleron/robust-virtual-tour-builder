@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 import { vi } from 'vitest';
 
 let currentMockViewer = null;

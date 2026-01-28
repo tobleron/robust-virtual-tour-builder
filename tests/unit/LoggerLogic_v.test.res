@@ -19,10 +19,10 @@ open LoggerTypes
     warn: vi.fn(),
     error: vi.fn()
   };
-  globalThis.console.log = globalThis.mockConsole.log;
-  globalThis.console.info = globalThis.mockConsole.info;
-  globalThis.console.warn = globalThis.mockConsole.warn;
-  globalThis.console.error = globalThis.mockConsole.error;
+  globalThis.console["log"] = globalThis.mockConsole.log;
+  globalThis.console["info"] = globalThis.mockConsole.info;
+  globalThis.console["warn"] = globalThis.mockConsole.warn;
+  globalThis.console["error"] = globalThis.mockConsole.error;
 `)
 
 describe("LoggerLogic", () => {

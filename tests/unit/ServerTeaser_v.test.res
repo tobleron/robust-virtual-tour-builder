@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 /* tests/unit/ServerTeaser_v.test.res */
 open Vitest
 open ServerTeaser

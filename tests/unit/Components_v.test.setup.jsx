@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 import { vi } from 'vitest';
 import React from 'react';
 

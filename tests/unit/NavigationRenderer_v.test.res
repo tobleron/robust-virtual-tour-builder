@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 /* tests/unit/NavigationRenderer_v.test.res */
 open Vitest
 open Types

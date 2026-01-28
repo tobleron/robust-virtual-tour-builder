@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 /* tests/unit/LoggerTelemetry_v.test.res */
 open Vitest
 open LoggerTelemetry

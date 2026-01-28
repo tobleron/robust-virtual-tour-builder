@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 /* tests/unit/ImageOptimizer_v.test.res */
 open Vitest
 open ImageOptimizer

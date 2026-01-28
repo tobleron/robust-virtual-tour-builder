@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 open Vitest
 open ExifParser
 open SharedTypes
@@ -31,7 +32,7 @@ let makeError: string => 'e = %raw(`function(msg) { return new Error(msg); }`)
       warn: vi.fn(),
       error: vi.fn(),
       getErrorDetails: (exn) => {
-        console.log("Mock Logger received exn:", exn)
+        // console.log("Mock Logger received exn:", exn)
         let inner = exn && exn._1 ? exn._1 : exn;
         let msg = inner && inner.message ? inner.message : "Mock Error";
         return [msg, ""];
