@@ -1,20 +1,18 @@
 /* backend/src/api/project/storage/mod.rs - Facade for Project Storage API */
 
 use actix_multipart::Multipart;
-use actix_web::{HttpRequest, HttpResponse, web, HttpMessage};
+use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use futures_util::TryStreamExt as _;
 use serde::Serialize;
 use std::fs;
-use std::io::{Seek, SeekFrom, Write, Read};
+use std::io::{Read, Seek, SeekFrom, Write};
 use std::path::PathBuf;
 use uuid::Uuid;
 
-use crate::api::utils::{
-    MAX_UPLOAD_SIZE, get_temp_path, sanitize_filename,
-};
+use crate::api::utils::{MAX_UPLOAD_SIZE, get_temp_path, sanitize_filename};
 use crate::models::{AppError, user::User};
-use crate::services::project;
 use crate::services::media::StorageManager;
+use crate::services::project;
 
 mod storage_logic;
 use storage_logic::*;
@@ -30,9 +28,13 @@ pub struct ImportResponse {
 #[tracing::instrument(skip(payload, req), name = "save_project")]
 pub async fn save_project(
     req: HttpRequest,
-    mut payload: Multipart
+    mut payload: Multipart,
 ) -> Result<HttpResponse, AppError> {
-    let user = req.extensions().get::<User>().cloned().ok_or(AppError::Unauthorized("Authentication required".into()))?;
+    let user = req
+        .extensions()
+        .get::<User>()
+        .cloned()
+        .ok_or(AppError::Unauthorized("Authentication required".into()))?;
 
     tracing::info!(module = "ProjectManager", user_id = %user.id, "SAVE_PROJECT_START");
     let start = std::time::Instant::now();
@@ -145,7 +147,11 @@ pub async fn load_project(
     req: HttpRequest,
     mut payload: Multipart,
 ) -> Result<HttpResponse, AppError> {
-    let _user = req.extensions().get::<User>().cloned().ok_or(AppError::Unauthorized("Authentication required".into()))?;
+    let _user = req
+        .extensions()
+        .get::<User>()
+        .cloned()
+        .ok_or(AppError::Unauthorized("Authentication required".into()))?;
 
     tracing::info!(module = "ProjectManager", "LOAD_PROJECT_START");
     let start = std::time::Instant::now();
@@ -191,9 +197,13 @@ pub async fn load_project(
 /// Imports a project ZIP and establishes a persistent project.
 pub async fn import_project(
     req: HttpRequest,
-    mut payload: Multipart
+    mut payload: Multipart,
 ) -> Result<HttpResponse, AppError> {
-    let user = req.extensions().get::<User>().cloned().ok_or(AppError::Unauthorized("Authentication required".into()))?;
+    let user = req
+        .extensions()
+        .get::<User>()
+        .cloned()
+        .ok_or(AppError::Unauthorized("Authentication required".into()))?;
 
     // We don't have project ID yet.
     tracing::info!(module = "ProjectManager", user_id = %user.id, "IMPORT_PROJECT_START");
@@ -223,7 +233,9 @@ pub async fn import_project(
                     AppError::InternalError("project.json not found in archive".into())
                 })?;
                 let mut json_str = String::new();
-                json_file.read_to_string(&mut json_str).map_err(AppError::IoError)?;
+                json_file
+                    .read_to_string(&mut json_str)
+                    .map_err(AppError::IoError)?;
                 let data: serde_json::Value = serde_json::from_str(&json_str)
                     .map_err(|e| AppError::InternalError(e.to_string()))?;
 

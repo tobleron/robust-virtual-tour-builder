@@ -69,6 +69,7 @@
 │   │       │   ├── naming_old.rs
 │   │       │   ├── naming.rs
 │   │       │   ├── resizing.rs
+│   │       │   ├── storage.rs
 │   │       │   └── webp.rs
 │   │       ├── mod.rs
 │   │       ├── project
@@ -6118,4 +6119,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-200 directories, 5919 files
+200 directories, 5920 files
