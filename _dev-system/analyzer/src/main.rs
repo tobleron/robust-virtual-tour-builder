@@ -73,12 +73,14 @@ enum WorkUnit {
 }
 
 fn is_project_source(path: &Path, rules: &ExclusionRules) -> bool {
-    let p_str = path.to_string_lossy();
+    let p_str = path.to_string_lossy().replace("\\", "/");
     let file_name = path.file_name().unwrap_or_default().to_string_lossy();
     let ext = path.extension().and_then(|s| s.to_str()).unwrap_or("");
-    let valid_extensions = ["rs", "res", "jsx", "js", "html", "css", "json", "toml", "yaml"];
     
-    if !valid_extensions.contains(&ext) && file_name != "Cargo.toml" && file_name != "package.json" { return false; }
+    // Core Logic Only: res and rs.
+    let valid_extensions = ["rs", "res"];
+    
+    if !valid_extensions.contains(&ext) { return false; }
     
     for folder in &rules.folders { if p_str.contains(folder) { return false; } }
     for file in &rules.files { if file_name == *file { return false; } }
@@ -101,11 +103,13 @@ fn infer_taxonomy(path: &Path, content: &str) -> String {
         }
     }
 
-    if f=="cargo.toml" || f=="package.json" || f.contains("config") || p.contains("/scripts/") { return "infra-config".to_string(); }
-    if f=="main.rs" || f=="lib.rs" || f=="mod.rs" || f=="main.res" || f=="app.res" || f=="index.js" || p.contains("actions") || p.contains("serviceworker") { return "orchestrator".to_string(); }
+    if f == "cargo.toml" || f == "package.json" || f.contains("config") || p.contains("/scripts/") || ext == "json" || ext == "toml" || ext == "yaml" { 
+        return "infra-config".to_string(); 
+    }
+    if f == "main.rs" || f == "lib.rs" || f == "mod.rs" || f == "main.res" || f == "app.res" || p.contains("actions") || p.contains("serviceworker") { return "orchestrator".to_string(); }
     if p.contains("/systems/") || p.contains("logic") || p.contains("manager") { return "service-orchestrator".to_string(); }
     if p.contains("/core/") && !p.contains("types") { return "domain-logic".to_string(); }
-    if p.contains("/components/") || p.contains("view") || p.contains("/public/") || f.ends_with(".html") || f.ends_with(".css") { return "ui-component".to_string(); }
+    if p.contains("/components/") || p.contains("view") || p.contains("/public/") || ext == "css" || ext == "html" || ext == "jsx" { return "ui-component".to_string(); }
     if p.contains("reducer") || p.contains("state") { return "state-reducer".to_string(); }
     if p.contains("types") || p.contains("models") || p.contains("schemas") { return "data-model".to_string(); }
     if p.contains("api") || p.contains("client") || p.contains("bindings") || p.contains("context") { return "infra-adapter".to_string(); }
@@ -319,8 +323,7 @@ fn main() -> Result<()> {
 
     let config_raw = fs::read_to_string("../config/efficiency.json")?;
     let config: EfficiencyConfig = serde_json::from_str(&config_raw)?;
-    let _ = fs::remove_dir_all("../plans");
-    let _ = fs::create_dir("../plans");
+    let _ = fs::create_dir_all("../plans");
 
     let mut buffer: HashMap<String, Vec<WorkUnit>> = HashMap::new();
     let mut dir_stats: HashMap<String, Vec<(String, usize)>> = HashMap::new();
@@ -414,7 +417,10 @@ fn main() -> Result<()> {
         let cohesion_bonus = 1.0 + (0.5 - dependency_density).max(0.0); // Up to 50% bonus for low density
 
         // Traversal Penalty: Depths > Threshold increase Drag
-        let depth = path.components().count().saturating_sub(1); // Relative to root
+        // Accurate depth: strip the "../../" prefix before counting components
+        let clean_path = if path_str.starts_with("../../") { &path_str[6..] } else { &path_str };
+        let depth = Path::new(clean_path).components().count().saturating_sub(1); // sub 1 because we don't count the file itself as a depth level
+        
         let depth_penalty = if depth > config.settings.max_depth_threshold {
             (depth - config.settings.max_depth_threshold) as f64 * 0.25
         } else {
