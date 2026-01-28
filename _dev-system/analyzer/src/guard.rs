@@ -111,7 +111,10 @@ pub fn append_to_unified_task(config: &GuardConfig, task_name: &str, description
         (format!("# Task {}: Test Generation Unified\n\n## Objective\nConsolidated tracking of all pending unit test tasks (New & Update) to reduce file fragmentation.\n\n## Tasks\n", next_id), path)
     };
 
-    if content.contains(task_name) {
+    // Check for exact task name match to prevent duplication
+    let pattern = format!(r"- \[ \] {}\s", regex::escape(task_name));
+    let re = Regex::new(&pattern).unwrap();
+    if re.is_match(&content) {
         return Ok(true);
     }
 
@@ -238,8 +241,10 @@ pub fn get_hints(content: &str) -> String {
 }
 
 pub fn check_tests(config: &GuardConfig, file_path: &Path) -> Result<()> {
-    let p_str = file_path.to_string_lossy();
-    if p_str.contains(".bs.js") || p_str.contains("/libs/") || !p_str.ends_with(".res") {
+    let p_str = file_path.to_string_lossy().replace("\\", "/");
+    
+    // GUARD: Do not generate tests for files in the tests directory or library directories
+    if p_str.contains("/tests/") || p_str.contains("/libs/") || !p_str.ends_with(".res") {
         return Ok(());
     }
 
@@ -264,13 +269,9 @@ pub fn check_tests(config: &GuardConfig, file_path: &Path) -> Result<()> {
         }
     }
 
-    let content = fs::read_to_string(file_path)?;
-    let hints = get_hints(&content);
-    let desc_suffix = if hints.is_empty() { "".to_string() } else { format!(" - {}", hints.replace("\n", " ")) };
-
     if existing_test.is_none() {
-        let task_name = format!("Test_{}_New", file_base);
-        append_to_unified_task(config, &task_name, &format!("New{}", desc_suffix))?;
+        let task_name = format!("Test_{}", file_base);
+        append_to_unified_task(config, &task_name, "New")?;
     } else {
         let src_stats = fs::metadata(file_path)?;
         let test_stats = fs::metadata(existing_test.as_ref().unwrap())?;
@@ -280,8 +281,8 @@ pub fn check_tests(config: &GuardConfig, file_path: &Path) -> Result<()> {
             let test_mtime = test_stats.modified()?;
 
             if src_mtime > test_mtime {
-                let task_name = format!("Test_{}_Update", file_base);
-                append_to_unified_task(config, &task_name, &format!("Update{}", desc_suffix))?;
+                let task_name = format!("Test_{}", file_base);
+                append_to_unified_task(config, &task_name, "Update")?;
             }
         }
     }
