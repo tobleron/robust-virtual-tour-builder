@@ -32,10 +32,7 @@ let exifMetadata: S.t<exifMetadata> = S.object(s => {
 let metadataResponse: S.t<metadataResponse> = S.object(s => {
   {
     exif: s.field("exif", exifMetadata),
-    quality: s.field(
-      "quality",
-      S.unknown->(Obj.magic: S.t<unknown> => S.t<qualityAnalysis>),
-    ),
+    quality: s.field("quality", S.unknown->(Obj.magic: S.t<unknown> => S.t<qualityAnalysis>)),
     isOptimized: s.field("isOptimized", S.bool),
     checksum: s.field("checksum", S.string),
     suggestedName: s.field("suggestedName", S.nullable(S.string)->toNullable),
@@ -71,7 +68,7 @@ let validationReport: S.t<validationReport> = S.object(s => {
 let importResponse = S.object(s => {
   (
     s.field("sessionId", S.string),
-    s.field("projectData", S.unknown->(Obj.magic: S.t<unknown> => S.t<JSON.t>))
+    s.field("projectData", S.unknown->(Obj.magic: S.t<unknown> => S.t<JSON.t>)),
   )
 })
 

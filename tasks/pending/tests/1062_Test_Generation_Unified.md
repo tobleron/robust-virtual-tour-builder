@@ -210,3 +210,4 @@ System-generated test requirements for new and modified modules.
 - [ ] Test_ProjectionMath_Update (Update)
 - [ ] Test_ExifReportGeneratorLogicLocation_Update (Update)
 - [ ] Test_PannellumAdapter_Update (Update)
+- [ ] Test_ExifReportGeneratorUtils_Update (Update)

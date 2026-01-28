@@ -43,21 +43,21 @@ let parseProject = (projectDataJson: JSON.t): state => {
   | Ok(pd) => {
       let scenes = pd.scenes->Belt.Array.map(sanitizeScene)
       {
-      ...State.initialState,
-      tourName: pd.tourName,
-      scenes: scenes,
-      activeIndex: if Array.length(scenes) > 0 {
-        0
-      } else {
-        -1
-      },
-      lastUsedCategory: pd.lastUsedCategory,
-      exifReport: pd.exifReport,
-      sessionId: pd.sessionId,
-      deletedSceneIds: pd.deletedSceneIds,
-      timeline: pd.timeline,
+        ...State.initialState,
+        tourName: pd.tourName,
+        scenes,
+        activeIndex: if Array.length(scenes) > 0 {
+          0
+        } else {
+          -1
+        },
+        lastUsedCategory: pd.lastUsedCategory,
+        exifReport: pd.exifReport,
+        sessionId: pd.sessionId,
+        deletedSceneIds: pd.deletedSceneIds,
+        timeline: pd.timeline,
+      }
     }
-  }
   | Error(msg) =>
     Logger.error(
       ~module_="SceneHelpersParser",

@@ -154,11 +154,12 @@ let updateMetadata = S.object(s => {
 let timelineUpdate: S.t<Types.timelineUpdate> = S.object(s => {
   {
     transition: s.field("transition", S.option(S.string)),
-    duration: s.field("duration",
+    duration: s.field(
+      "duration",
       S.option(S.null(S.float))->S.transform(_ => {
         parser: o => o->Option.map(innerOpt => innerOpt->Option.map(Belt.Float.toInt)),
-        serializer: o => o->Option.map(innerOpt => innerOpt->Option.map(Belt.Int.toFloat))
-      })
+        serializer: o => o->Option.map(innerOpt => innerOpt->Option.map(Belt.Int.toFloat)),
+      }),
     ),
   }
 })
