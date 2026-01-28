@@ -282,3 +282,7 @@ This map provides a semantic overview of the project structure to optimize conte
 | `scripts` | Automation, setup, commit protocols, and maintenance tools. | `#automation` `#scripts` `#ci` `#commit` |
 | `docs/` | Technical specifications and project history. | `#documentation` `#specs` `#history` |
 | `tmp/` | Temporary files and non-integrated documents. | `#temp` `#scratchpad` |
+
+
+## 🆕 Unmapped Modules
+* [backend/src/models/session.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/models/session.rs): New module detected. Please classify. #new

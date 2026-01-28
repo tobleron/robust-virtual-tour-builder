@@ -71,7 +71,7 @@ impl Project {
             INSERT INTO projects (id, user_id, name, data, status, scene_count, hotspot_count)
             VALUES (?, ?, ?, ?, ?, ?, ?)
             RETURNING id, user_id, name, data, status, scene_count, hotspot_count, updated_at
-            "#
+            "#,
         )
         .bind(&id)
         .bind(user_id)

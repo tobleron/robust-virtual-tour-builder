@@ -37,7 +37,10 @@ async fn main() -> io::Result<()> {
 
     // Initialize Database
     let pool = DatabaseManager::new().await.map_err(|e| {
-        io::Error::new(io::ErrorKind::Other, format!("Failed to init database: {}", e))
+        io::Error::new(
+            io::ErrorKind::Other,
+            format!("Failed to init database: {}", e),
+        )
     })?;
     let db_pool = web::Data::new(pool);
 
