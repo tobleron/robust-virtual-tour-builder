@@ -6,16 +6,18 @@ describe("Schemas Domain", () => {
     let json = JSON.parseOrThrow(`{"id": "test"}`)
     let schema = S.object(s => s.field("id", S.string))
 
-    Schemas.parseAsync(json, schema)->Promise.then(result => {
-      switch result {
-      | Ok(id) => t->expect(id)->Expect.toBe("test")
-      | Error(msg) => {
-          Console.log(msg)
-          t->expect(true)->Expect.toBe(false)
+    Schemas.parseAsync(json, schema)->Promise.then(
+      result => {
+        switch result {
+        | Ok(id) => t->expect(id)->Expect.toBe("test")
+        | Error(msg) => {
+            Console.log(msg)
+            t->expect(true)->Expect.toBe(false)
+          }
         }
-      }
-      Promise.resolve()
-    })
+        Promise.resolve()
+      },
+    )
   })
   test("project schema with valid data", t => {
     let projectJson = JSON.parseOrThrow(`{
