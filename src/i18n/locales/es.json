@@ -1,0 +1,22 @@
+{
+  "login": {
+    "title": "Bienvenido de nuevo",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "submit": "Iniciar sesión",
+    "register_link": "¿No tienes una cuenta? Regístrate"
+  },
+  "register": {
+    "title": "Crear una cuenta",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "confirm_password": "Confirmar contraseña",
+    "agree_terms": "Acepto los Términos de Servicio y la Política de Privacidad",
+    "submit": "Registrarse",
+    "login_link": "¿Ya tienes una cuenta? Inicia sesión"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error"
+  }
+}
