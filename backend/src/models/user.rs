@@ -48,7 +48,10 @@ impl User {
         Ok(user)
     }
 
-    pub async fn find_by_email(pool: &sqlx::SqlitePool, email: &str) -> Result<Option<User>, sqlx::Error> {
+    pub async fn find_by_email(
+        pool: &sqlx::SqlitePool,
+        email: &str,
+    ) -> Result<Option<User>, sqlx::Error> {
         sqlx::query_as::<_, User>("SELECT * FROM users WHERE email = ?")
             .bind(email)
             .fetch_optional(pool)
