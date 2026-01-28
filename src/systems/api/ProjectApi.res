@@ -20,14 +20,14 @@ let importProject = (file: File.t): Promise.t<apiResult<importResponse>> => {
       switch resultResponse {
       | Ok(response) =>
         Fetch.json(response)
-        ->Promise.then(
-          json => {
-            switch decodeImportResponse(json) {
+        ->Promise.then(json => {
+          decodeImportResponse(json)->Promise.then(result => {
+            switch result {
             | Ok(data) => Promise.resolve(Ok(data))
             | Error(msg) => Promise.resolve(Error(msg))
             }
-          },
-        )
+          })
+        })
         ->Promise.catch(
           e => {
             let (msg, stack) = Logger.getErrorDetails(e)
