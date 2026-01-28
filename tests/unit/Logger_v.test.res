@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 /* tests/unit/Logger_v.test.res */
 open Vitest
 

@@ -89,32 +89,39 @@ pub fn create_task(config: &GuardConfig, filename: &str, content: &str) -> Resul
 pub fn append_to_unified_task(config: &GuardConfig, task_name: &str, description: &str) -> Result<bool> {
     let tests_dir = PathBuf::from(&config.tasks_dir).join("pending/tests");
     if !tests_dir.exists() {
-        return Ok(false);
+        fs::create_dir_all(&tests_dir)?;
     }
 
-    if let Ok(entries) = fs::read_dir(tests_dir) {
+    let mut unified_path = None;
+    if let Ok(entries) = fs::read_dir(&tests_dir) {
         for entry in entries.filter_map(|e| e.ok()) {
             let name = entry.file_name().to_string_lossy().into_owned();
             if name.contains("Test_Generation_Unified.md") {
-                let path = entry.path();
-                let mut content = fs::read_to_string(&path)?;
-
-                if content.contains(task_name) {
-                    return Ok(true);
-                }
-
-                if !content.ends_with('\n') {
-                    content.push('\n');
-                }
-                content.push_str(&format!("- [ ] {} ({})\n", task_name, description));
-                fs::write(&path, content)?;
-                println!("➕ Appended to Unified Task: {}", task_name);
-                return Ok(true);
+                unified_path = Some(entry.path());
+                break;
             }
         }
     }
+    
+    let (mut content, path) = if let Some(path) = unified_path {
+        (fs::read_to_string(&path)?, path)
+    } else {
+        let next_id = get_next_id(config);
+        let path = tests_dir.join(format!("{:03}_Test_Generation_Unified.md", next_id));
+        (format!("# Task {}: Test Generation Unified\n\n## Objective\nConsolidated tracking of all pending unit test tasks (New & Update) to reduce file fragmentation.\n\n## Tasks\n", next_id), path)
+    };
 
-    Ok(false)
+    if content.contains(task_name) {
+        return Ok(true);
+    }
+
+    if !content.ends_with('\n') {
+        content.push('\n');
+    }
+    content.push_str(&format!("- [ ] {} ({})\n", task_name, description));
+    fs::write(&path, content)?;
+    println!("➕ Appended to Unified Task: {} in {}", task_name, path.display());
+    Ok(true)
 }
 
 pub fn check_map(config: &GuardConfig) -> Result<()> {
@@ -262,19 +269,7 @@ pub fn check_tests(config: &GuardConfig, file_path: &Path) -> Result<()> {
 
     if existing_test.is_none() {
         let task_name = format!("Test_{}_New", file_base);
-        if append_to_unified_task(config, &task_name, "New")? {
-            return Ok(());
-        }
-
-        if !task_exists(config, &task_name) {
-            let next_id = get_next_id(config);
-            let task_filename = format!("tests/{:03}_{}.md", next_id, task_name);
-            let task_content = format!(
-                "# Task {}: Add Unit Tests for {}\n\n## 🚨 Trigger\nModifications detected in `{}` without established unit tests.\n\n## Objective\nCreate a Vitest file `tests/unit/{}_v.test.res` to cover logic in this module.\n\n## Requirements\n- Maintain code coverage for all exported functions.\n- Follow /testing-standards.md.\n{}\n",
-                next_id, file_name, p_str, file_base, get_hints(&content)
-            );
-            create_task(config, &task_filename, &task_content)?;
-        }
+        append_to_unified_task(config, &task_name, "New")?;
     } else {
         let src_stats = fs::metadata(file_path)?;
         let test_stats = fs::metadata(existing_test.as_ref().unwrap())?;
@@ -285,21 +280,7 @@ pub fn check_tests(config: &GuardConfig, file_path: &Path) -> Result<()> {
 
             if src_mtime > test_mtime {
                 let task_name = format!("Test_{}_Update", file_base);
-                if append_to_unified_task(config, &task_name, "Update")? {
-                    return Ok(());
-                }
-
-                if !task_exists(config, &task_name) {
-                    let next_id = get_next_id(config);
-                    let task_filename = format!("tests/{:03}_{}.md", next_id, task_name);
-                    let actual_test_path = existing_test.unwrap();
-                    let task_content = format!(
-                        "# Task {}: Update Unit Tests for {}\n\n## 🚨 Trigger\nImplementation file `{}` is newer than its test file `{}`.\n\n## Objective\nUpdate `{}` to ensure it covers recent changes in `{}`.\n\n## Requirements\n- Review recent changes in `{}`.\n- Update tests to maintain 100% coverage of new logic.\n- Follow /testing-standards.md.\n{}\n",
-                        next_id, file_name, p_str, actual_test_path, actual_test_path, file_name, file_name, get_hints(&content)
-                    );
-                    create_task(config, &task_filename, &task_content)?;
-                    println!("🔄 Created Update Test Task: {}", task_filename);
-                }
+                append_to_unified_task(config, &task_name, "Update")?;
             }
         }
     }

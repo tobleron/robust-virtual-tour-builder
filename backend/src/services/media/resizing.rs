@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 /* backend/src/services/media/resizing.rs */
 
 use fast_image_resize::{

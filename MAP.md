@@ -32,8 +32,10 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/core/JsonTypes.res](src/core/JsonTypes.res): Strictly-typed JSON structures for project persistence. `#json` `#types`
 *   [src/core/ViewerTypes.res](src/core/ViewerTypes.res): Types specialized for 360 viewer state and configuration. `#viewer` `#types`
 *   [src/core/ViewerState.res](src/core/ViewerState.res): Localized state for the active viewer instance. `#state` `#viewer`
+*   [src/core/AuthContext.res](src/core/AuthContext.res): React Context for authentication and session state. `#auth` `#react-context`
 *   [src/core/SceneCache.res](src/core/SceneCache.res): In-memory cache for processed scene assets and metadata. `#cache` `#performance`
 *   [src/core/GlobalStateBridge.res](src/core/GlobalStateBridge.res): Bridge for synchronizing state across different contexts. `#state` `#sync`
+*   [src/i18n/I18n.res](src/i18n/I18n.res): Internationalization orchestrator for multi-language support. `#i18n` `#ui`
 *   [src/core/reducers/mod.res](src/core/reducers/mod.res): Directory entry for the domain-specific reducers. `#reducer`
     *   [src/core/reducers/RootReducer.res](src/core/reducers/RootReducer.res): Combinator for all sub-reducers into a single state tree. `#reducer` `#composition`
     *   [src/core/reducers/ProjectReducer.res](src/core/reducers/ProjectReducer.res): Reducer for project-level state (metadata, settings). `#reducer`
@@ -132,6 +134,7 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [src/systems/TourTemplateScripts.res](src/systems/TourTemplateScripts.res): Theme-specific interaction scripts and logic. `#logic`
     *   [src/systems/TourTemplateStyles.res](src/systems/TourTemplateStyles.res): CSS-in-JS definitions for tour branding. `#styling`
 *   [src/systems/BackendApi.res](src/systems/BackendApi.res): Unified frontend client for all backend interactions. `#api` `#client`
+*   [src/systems/api/AuthenticatedClient.res](src/systems/api/AuthenticatedClient.res): Specialized client with automated authentication header injection. `#api` `#auth`
 *   [src/systems/UploadProcessorTypes.res](src/systems/UploadProcessorTypes.res): Types specialized for the upload pipeline. `#upload` `#types`
 *   [src/systems/HotspotLineTypes.res](src/systems/HotspotLineTypes.res): Types for visual hotspot connections. `#hotspots` `#types`
 *   [src/systems/api/ApiTypes.res](src/systems/api/ApiTypes.res): Generic API request/response types. `#api` `#types`
@@ -216,8 +219,15 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [backend/src/api/media/image/mod.rs](backend/src/api/media/image/mod.rs): Facade for image processing endpoints. `#image` `#api` `#facade`
     *   [backend/src/api/media/image/image_logic.rs](backend/src/api/media/image/image_logic.rs): Core image optimization and batch processing logic. `#logic`
     *   [backend/src/api/media/image/image_utils.rs](backend/src/api/media/image/image_utils.rs): Multipart form-data parsing for image uploads. `#utils`
+    *   [backend/src/api/media/image/resize_batch.rs](backend/src/api/media/image/resize_batch.rs): Optimized batch image resizing operations. `#image` `#processing`
+    *   [backend/src/api/media/image/extract_metadata.rs](backend/src/api/media/image/extract_metadata.rs): Parallelized EXIF and visual metadata extraction. `#image` `#metadata`
+    *   [backend/src/api/media/image/optimize.rs](backend/src/api/media/image/optimize.rs): Image compression and format optimization endpoints. `#image` `#optimization`
+    *   [backend/src/api/media/image/process_full.rs](backend/src/api/media/image/process_full.rs): Orchestrator for the end-to-end image processing pipeline. `#image` `#pipeline`
+    *   [backend/src/api/media/image/tests.rs](backend/src/api/media/image/tests.rs): Integration and performance tests for image APIs. `#image` `#testing`
 *   [backend/src/api/media/video/mod.rs](backend/src/api/media/video/mod.rs): Facade for video transcoding and teaser generation. `#video` `#api` `#facade`
     *   [backend/src/api/media/video/video_logic.rs](backend/src/api/media/video/video_logic.rs): Headless browser automation and FFmpeg orchestration logic. `#logic`
+    *   [backend/src/api/media/video/transcode.rs](backend/src/api/media/video/transcode.rs): Video transcoding and codec optimization endpoints. `#video` `#transcoding`
+    *   [backend/src/api/media/video/teaser.rs](backend/src/api/media/video/teaser.rs): High-efficiency video teaser generation logic. `#video` `#teaser`
 *   [backend/src/api/project/storage/mod.rs](backend/src/api/project/storage/mod.rs): Facade for project persistence, ZIP generation, and imports. `#storage` `#api` `#facade`
     *   [backend/src/api/project/storage/storage_logic.rs](backend/src/api/project/storage/storage_logic.rs): Project validation, summary generation, and ZIP assembly logic. `#logic`
 *   [backend/src/services/geocoding/mod.rs](backend/src/services/geocoding/mod.rs): Facade for the geocoding service with LRU caching. `#geocoding` `#services` `#facade`
@@ -236,9 +246,11 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [backend/src/api/media/similarity.rs](backend/src/api/media/similarity.rs): Endpoint for image similarity and visual clustering. `#api` `#ai`
 *   [backend/src/api/project/mod.rs](backend/src/api/project/mod.rs): Sub-router for project management and metadata. `#api` `#project`
     *   [backend/src/api/project/export.rs](backend/src/api/project/export.rs): Trigger for tour packaging and production export. `#api` `#export`
+    *   [backend/src/api/project/export_utils.rs](backend/src/api/project/export_utils.rs): Shared utilities for project packaging and exports. `#project` `#export`
     *   [backend/src/api/project/navigation.rs](backend/src/api/project/navigation.rs): Endpoint for calculating navigation graphs on the fly. `#api` `#navigation`
     *   [backend/src/api/project/validation.rs](backend/src/api/project/validation.rs): Service for validating project integrity and constraints. `#api` `#validation`
 *   [backend/src/api/telemetry.rs](backend/src/api/telemetry.rs): Endpoint for receiving client-side telemetry and logs. `#api` `#telemetry`
+*   [backend/src/api/telemetry_logic.rs](backend/src/api/telemetry_logic.rs): Processing logic for telemetry ingestion and storage. `#telemetry` `#logic`
 *   [backend/src/api/utils.rs](backend/src/api/utils.rs): Shared logic for API response formatting and errors. `#api` `#utils`
 
 ### 🛡️ Backend Core & Services
@@ -247,15 +259,31 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [backend/src/middleware/mod.rs](backend/src/middleware/mod.rs): Centralized Actix-web middleware collection. `#mw`
     *   [backend/src/middleware/quota_check.rs](backend/src/middleware/quota_check.rs): Enforces upload and API usage quotas. `#mw` `#security`
     *   [backend/src/middleware/request_tracker.rs](backend/src/middleware/request_tracker.rs): Tracks request latency and success rates. `#mw` `#telemetry`
+    *   [backend/src/middleware/auth.rs](backend/src/middleware/auth.rs): Token-based authentication middleware. `#mw` `#auth`
 *   [backend/src/models/mod.rs](backend/src/models/mod.rs): Data model and shared type definitions. `#types` `#models`
     *   [backend/src/models/project.rs](backend/src/models/project.rs): Rust-side representation of the tour project structure. `#models`
-    *   [backend/src/models/user.rs](backend/src/models/user.rs): User and session data models for authentication. `#models` `#auth`
+    *   [backend/src/models/user.rs](backend/src/models/user.rs): User account data model. `#models` `#auth`
+    *   [backend/src/models/session.rs](backend/src/models/session.rs): Active session and token data model. `#models` `#auth`
+    *   [backend/src/models/telemetry.rs](backend/src/models/telemetry.rs): Client-side telemetry event model. `#models` `#telemetry`
+    *   [backend/src/models/metadata.rs](backend/src/models/metadata.rs): Generic metadata and tag models. `#models`
+    *   [backend/src/models/similarity.rs](backend/src/models/similarity.rs): Visual similarity and vector model definitions. `#models` `#ai`
+    *   [backend/src/models/validation.rs](backend/src/models/validation.rs): Structural validation result models. `#models` `#validation`
+    *   [backend/src/models/geocoding.rs](backend/src/models/geocoding.rs): Spatial and geocoding result models. `#models` `#geocoding`
     *   [backend/src/models/errors.rs](backend/src/models/errors.rs): Unified backend error system and response mapping. `#errors`
+    *   [backend/src/models/errors_impl.rs](backend/src/models/errors_impl.rs): Domain-specific implementation of the error system. `#models` `#errors`
+    *   [backend/src/models/errors_tests.rs](backend/src/models/errors_tests.rs): Unit tests for the backend error system. `#models` `#testing`
 *   [backend/src/pathfinder/mod.rs](backend/src/pathfinder/mod.rs): High-performance navigation pathfinding logic. `#navigation` `#logic`
     *   [backend/src/pathfinder/graph.rs](backend/src/pathfinder/graph.rs): Spatial graph representation of scene nodes. `#graph`
+    *   [backend/src/pathfinder/graph_utils.rs](backend/src/pathfinder/graph_utils.rs): Utilities for graph traversal and node manipulation. `#pathfinder` `#graph`
+    *   [backend/src/pathfinder/view_utils.rs](backend/src/pathfinder/view_utils.rs): Math for viewport and FOV projection in pathfinding. `#pathfinder` `#math`
+    *   [backend/src/pathfinder/algorithms/timeline.rs](backend/src/pathfinder/algorithms/timeline.rs): Sequence-based path generation logic. `#pathfinder` `#timeline`
+    *   [backend/src/pathfinder/algorithms/walk.rs](backend/src/pathfinder/algorithms/walk.rs): Deterministic path traversal logic. `#pathfinder` `#logic`
     *   [backend/src/pathfinder/utils.rs](backend/src/pathfinder/utils.rs): Math and spatial utilities for coordinate mapping. `#utils`
+    *   [backend/src/pathfinder/tests.rs](backend/src/pathfinder/tests.rs): Unit and integration tests for pathfinding logic. `#pathfinder` `#testing`
 *   [backend/src/services/mod.rs](backend/src/services/mod.rs): Domain-specific service layer entry point. `#services`
+    *   [backend/src/services/auth/mod.rs](backend/src/services/auth/mod.rs): Orchestrator for authentication and identity services. `#auth` `#facade`
     *   [backend/src/services/auth.rs](backend/src/services/auth.rs): Google Auth and token validation service. `#auth` `#logic`
+    *   [backend/src/services/auth/jwt.rs](backend/src/services/auth/jwt.rs): JWT generation, signing, and verification service. `#auth` `#jwt`
     *   [backend/src/services/database.rs](backend/src/services/database.rs): Persistence layer for project metadata and users. `#database` `#logic`
     *   [backend/src/services/shutdown.rs](backend/src/services/shutdown.rs): Managed graceful shutdown orchestration. `#lifecycle`
     *   [backend/src/services/upload_quota.rs](backend/src/services/upload_quota.rs): Rate-limiting and quota management logic. `#quota` `#logic`
@@ -264,6 +292,8 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [backend/src/services/project/load.rs](backend/src/services/project/load.rs): High-efficiency project loading and patching. `#logic`
     *   [backend/src/services/project/package.rs](backend/src/services/project/package.rs): ZIP packaging and tour assembly logic. `#logic` `#export`
     *   [backend/src/services/project/validate.rs](backend/src/services/project/validate.rs): Deep structural validation for tour projects. `#validation`
+*   [backend/src/services/media/mod.rs](backend/src/services/media/mod.rs): Facade for core media services (encoding, analysis, resizing). `#media` `#services` `#facade`
+*   [backend/src/services/media/storage.rs](backend/src/services/media/storage.rs): Persistent storage and retrieval of media assets. `#media` `#storage`
 *   [backend/src/services/media/naming_old.rs](backend/src/services/media/naming_old.rs): Legacy camera filename normalization logic. `#rust` `#legacy`
 
 ---
@@ -283,13 +313,3 @@ This map provides a semantic overview of the project structure to optimize conte
 | `docs/` | Technical specifications and project history. | `#documentation` `#specs` `#history` |
 | `tmp/` | Temporary files and non-integrated documents. | `#temp` `#scratchpad` |
 
-
-## 🆕 Unmapped Modules
-* [backend/src/models/session.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/models/session.rs): New module detected. Please classify. #new
-* [backend/src/middleware/auth.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/middleware/auth.rs): New module detected. Please classify. #new
-* [backend/src/services/auth/jwt.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/services/auth/jwt.rs): New module detected. Please classify. #new
-* [backend/src/services/auth/mod.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/services/auth/mod.rs): New module detected. Please classify. #new
-* [backend/src/services/media/storage.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/services/media/storage.rs): New module detected. Please classify. #new
-* [src/core/AuthContext.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/core/AuthContext.res): New module detected. Please classify. #new
-* [src/i18n/I18n.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/i18n/I18n.res): New module detected. Please classify. #new
-* [src/systems/api/AuthenticatedClient.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/api/AuthenticatedClient.res): New module detected. Please classify. #new

@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 open Vitest
 open SimulationChainSkipper
 open Types

@@ -108,19 +108,19 @@
 /* PANNELLUM ENGINE FIXES & HOTSPOT STYLES */
 
 /* Hotspot Styles - Clean Base for React Components */
-.pnlm-hotspot-base {
-    overflow: visible !important;
-    pointer-events: auto !important;
-    z-index: 2000 !important;
+.pnlm-container .pnlm-hotspot-base {
+    overflow: visible;
+    pointer-events: auto;
+    z-index: 2000;
 }
 
 /* Ensure tooltips or other defaults don't interfere */
-.pnlm-tooltip span {
-    display: none !important;
+.pnlm-container .pnlm-tooltip span {
+    display: none;
 }
 
 
-.pnlm-load-box,
-.pnlm-loading-container {
-    display: none !important;
+.pnlm-container .pnlm-load-box,
+.pnlm-container .pnlm-loading-container {
+    display: none;
 }

@@ -3,7 +3,7 @@ fn flush_plans(buffer: &HashMap<String, Vec<WorkUnit>>) -> Result<()> {
     for (driver_name, units) in buffer {
         if units.is_empty() { continue; } 
         
-        let plan_path = format!("../pending/{}_PLAN.md", driver_name.to_uppercase());
+        let plan_path = format!("../plans/{}_PLAN.md", driver_name.to_uppercase());
         let mut file = OpenOptions::new().create(true).truncate(true).write(true).open(plan_path).context("Open fail")?;
 
         file.write_all(format!("# {} MASTER PLAN\n", driver_name.to_uppercase()).as_bytes())?;

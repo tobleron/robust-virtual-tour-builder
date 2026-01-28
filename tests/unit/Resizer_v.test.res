@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 /* tests/unit/Resizer_v.test.res */
 open Vitest
 open Resizer

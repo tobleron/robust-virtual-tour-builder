@@ -127,7 +127,7 @@ fn flush_plans(buffer: &HashMap<String, Vec<WorkUnit>>) -> Result<()> {
     for (driver_name, units) in buffer {
         if units.is_empty() { continue; } 
         
-        let plan_path = format!("../pending/{}_PLAN.md", driver_name.to_uppercase());
+        let plan_path = format!("../plans/{}_PLAN.md", driver_name.to_uppercase());
         let mut file = OpenOptions::new().create(true).truncate(true).write(true).open(plan_path).context("Open fail")?;
 
         file.write_all(format!("# {} MASTER PLAN\n", driver_name.to_uppercase()).as_bytes())?;
@@ -315,8 +315,8 @@ fn main() -> Result<()> {
 
     let config_raw = fs::read_to_string("../config/efficiency.json")?;
     let config: EfficiencyConfig = serde_json::from_str(&config_raw)?;
-    let _ = fs::remove_dir_all("../pending");
-    let _ = fs::create_dir("../pending");
+    let _ = fs::remove_dir_all("../plans");
+    let _ = fs::create_dir("../plans");
 
     let mut buffer: HashMap<String, Vec<WorkUnit>> = HashMap::new();
     let mut dir_stats: HashMap<String, Vec<(String, usize)>> = HashMap::new();
@@ -375,11 +375,12 @@ fn main() -> Result<()> {
         }
 
         if let Some(profile) = config.profiles.get(d_name) {
+            let stripped = drivers::strip_code(&content);
             for pattern in &profile.forbidden_patterns {
                 if is_binding && (pattern == "mutable " || pattern == "Obj.magic") { continue; }
                 if allowed_violations.contains(pattern) { continue; } // Amnesty
                 
-                if content.contains(pattern) {
+                if stripped.contains(pattern) {
                     buffer.entry(d_name.to_string()).or_default().push(WorkUnit::Violation { file: path.to_string_lossy().to_string(), pattern: pattern.clone(), severity: "CRITICAL".to_string() });
                 }
             }
@@ -500,7 +501,7 @@ fn main() -> Result<()> {
 
     // 5. EXPORT METADATA (for Dashboard)
     let json_data = serde_json::to_string_pretty(&buffer)?;
-    fs::write("../pending/metadata.json", json_data)?;
+    fs::write("../plans/metadata.json", json_data)?;
 
     flush_plans(&buffer)?;
     let _ = sync_all_architectural_tasks(&buffer);

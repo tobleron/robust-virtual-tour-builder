@@ -1,15 +1,15 @@
 /* css/components/label-menu.css */
 
 .label-menu-container {
-    background-color: #ffffff !important;
-    background: #ffffff !important;
+    background-color: #ffffff;
+    background: #ffffff;
     border: 1px solid var(--slate-200);
     box-shadow: var(--shadow-xl);
     border-radius: 12px;
     color: var(--slate-700);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: auto;
-    padding: 6px !important;
+    padding: 6px;
     /* Tight padding like the more-vert menu */
 }
 

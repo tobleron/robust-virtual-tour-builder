@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 use crate::models::AppError;
 use chrono::{Duration, Utc};
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
@@ -57,11 +58,11 @@ mod tests {
         }
 
         let sub = "test_user_id";
-        let token = encode_token(sub).unwrap();
+        let token = encode_token(sub).expect("Token encoding failed");
 
         assert!(!token.is_empty());
 
-        let claims = decode_token(&token).unwrap();
+        let claims = decode_token(&token).expect("Token decoding failed");
         assert_eq!(claims.sub, sub);
     }
 }

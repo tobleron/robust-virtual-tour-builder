@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 import { vi } from 'vitest';
 
 // We removed the global mocks for Resizer and BackendApi because they 

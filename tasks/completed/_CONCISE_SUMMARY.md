@@ -16,10 +16,16 @@ This document provides a consolidated, extremely concise history of all complete
 - **298-299: Decompose Oversized Systems** — Refactored `UploadProcessor` and `HotspotLine` (both >700 lines) into Logic, Types, and Facade modules.
 - **376: Refactor Backend Project API** — Decomposed oversized `project.rs` (>700 lines) into focused sub-modules (`storage`, `validation`, `export`, `navigation`).
 - **510: Type Safety Restoration** — Enforced strict typing for `UploadProcessor` and `ReBindings`, and removed unsafe `unwrap()` calls in backend auth.
+- **580, 582, 600-601: Surgical Refactor Initiative** — Decomposed monolithic "God Objects" (`ViewerUI`, `ViewerLoader`) into specialized systems and introduced deterministic FSM navigation and abstract Viewer Driver interface.
+- **594: Immutable Domain Models** — Moved ephemeral scene state (snapshots) to `SceneCache` to enforce strict immutability in core domain records.
+- **600: Runtime Schema Validation** — Integrated `rescript-schema` to replace unsafe JSON casting with strict runtime validation for all API boundaries.
+- **604, 626-777: Modular Decomposition** — Decomposed over 20 oversized modules (Frontend & Backend) into focused Facade, Logic, and Types sub-modules to maintain maintainability.
 
 ## ⚙️ Backend & API
 - **016: Backend Geocoding Cache** — Implemented persistent LRU caching for reverse geocoding to reduce API dependency and improve performance.
 - **017: Backend Geocoding Proxy** — Added a secure proxy endpoint for external geocoding services with rate limiting and logging.
+- **584: Backend API Refactor** — Split monolithic `BackendApi` into domain-specific clients (`ProjectApi`, `MediaApi`) with shared type-safe decoders.
+- **738-742: Backend Service Decomposition** — Refactored oversized Rust modules for Image, Video, Storage, and Geocoding into modular structures.
 
 ## 🛡️ Runtime Safety & Error Handling
 - **019: Fix Security (innerHTML)** — Audited and removed unsafe `dangerouslySetInnerHTML` usage, replacing with safe React nodes and text content.
@@ -27,6 +33,7 @@ This document provides a consolidated, extremely concise history of all complete
 - **177: Fix Error Handling** — Standardized error reporting across the codebase using the `Result` type and `Logger`.
 - **199: Enhance GlobalState Safety** — Added validation and guards around shared state between ReScript and JavaScript layers.
 - **300: Remove Console.log Usage** — Eliminated raw `console.log` calls in favor of the structured `Logger` system.
+- **595: Type-Safe Cache Management** — Refactored `SvgManager` to replace unsafe `Obj.magic` casting with proper `option` types for element caching.
 
 ## 📶 Telemetry & Monitoring
 - **023: Intelligent Telemetry** — Implemented priority-based log filtering and batching (98% traffic reduction) with exponential backoff.
@@ -51,11 +58,15 @@ This document provides a consolidated, extremely concise history of all complete
 - **283: Implement Remax-Centric Theme** — Applied a tailored color palette and typography reflecting the brand's identity.
 - **289: Anchor-Based Positioning** — Refactored menus, tooltips, and hotspot actions to use Radix UI (Shadcn) for boundary-aware viewport stability.
 - **301: Document Style Exceptions** — Formally documented and justified the remaining valid instances of inline styling. (Historical Entry)
+- **571: Input Lag Optimization** — Implemented local state debouncing for the Project Name field, reducing re-renders by 90% during typing.
+- **596: React Warning Cleanup** — Resolved noise in test logs by implementing conditional rendering for empty image sources.
 
 ## ⚡ Performance & Optimization
 - **535: Optimize Spline Density** — Standardized curve segments to 40 (from 100) to reduce CPU overhead during rendering.
 - **536: Tune Camera Friction** — Increased Pannellum friction to 0.15 for smoother, weightier camera deceleration.
 - **537: Memoize Projection Math** — Pre-calculated camera constants to eliminate redundant trigonometric operations in render loops.
+- **538-539: Render Loop Efficiency** — Optimized `requestAnimationFrame` usage with lazy dirty checks and implemented an intelligent SVG element reuse system (`SvgManager`) with garbage collection.
+- **569-570: Context & Memoization** — Split monolithic `AppContext` and applied `React.memo` to high-frequency UI layers to eliminate redundant re-renders.
 
 ## 🤖 Simulation & AutoPilot (AutoPilot 2.0)
 - **285: AutoPilot UI Fixes** — Polished the simulation overlay and control bar for better user feedback.
@@ -65,6 +76,7 @@ This document provides a consolidated, extremely concise history of all complete
 - **293: Restore Snapshot Overlay** — Brought back visual "ghost" snapshots during AutoPilot for smoother transition context.
 - **295: Add Retry Logic** — Implemented automatic state recovery for AutoPilot when scene loads or transitions fail.
 - **296: Optimize Render Loop** — Reduced CPU/GPU overhead during simulations by gating unnecessary re-renders.
+- **586: Teaser System Refactor** — Decoupled teaser playback logic from orchestration, enabling cleaner cinematic sequence management.
 
 ## 🛠 Stability & Bug Fixes
 - **216-221: Waypoint & Hotspot Fixes** — A series of atomic fixes for waypoint persistence, invisible links, and "stickiness" bugs.
@@ -75,6 +87,7 @@ This document provides a consolidated, extremely concise history of all complete
 - **297: Race Condition Analysis** — Conducted a comprehensive audit of viewer lifecycle and state synchronization to eliminate timing-related bugs.
 - **298: Resolve Ghost Arrow** — Fixed the top-left (0,0) artifact by adding camera-ready guards and CSS defense layers. (Historical Entry)
 - **299: Sync Hotspot Visibility** — Ensured all hotspots correctly hide/show when toggling between Edit and Simulation modes. (Historical Entry)
+- **581: Input & Physics Isolation** — Extracted raw input handling and cursor physics from business logic to ensure interaction stability.
 
 ## 🧪 Tests & Quality Assurance
 - **001-004: Core & Systems Tests** — Aggregated 100% test coverage for Core State, Simulation Systems, and Utilities.
@@ -85,6 +98,7 @@ This document provides a consolidated, extremely concise history of all complete
 - **300-346: Massive Test Coverage Boost** — Added or updated unit tests for over 40 modules including `NavigationUI`, `HotspotLineLogic`, `UploadProcessorLogic`, `ServiceWorkerMain`, `TourLogic`, `RequestQueue`, and more, reaching >90% coverage for core systems.
 - **347-370, 405-410, 507-534: Vitest Migration & Coverage** — Comprehensive migration to Vitest with 100% coverage across Core, Systems, Utilities, Simulation Logic, and UI Components (App, ViewerManager).
 - **371-375: Legacy Test Cleanup** — Finalized migration of Reducers, Exporters, and specialized services to Vitest.
+- **589-593: System Logic Coverage** — Updated and expanded unit tests for `SvgManager`, `ProjectApi`, `TeaserPlayback`, `LinkEditorLogic`, and `SceneLoader` to maintain 100% coverage after refactors.
 
 ## 📝 Project Infrastructure
 - **005: Changelog Standards** — Established `CHANGELOG.md` following "Keep a Changelog" v1.1.0 standards.
@@ -98,6 +112,7 @@ This document provides a consolidated, extremely concise history of all complete
 - **198: Implement Session Persistence** — Enabled local storage caching to preserve project state across page reloads.
 - **271-272: Similarity Tooling** — Installed and configured backend similarity detection tools for automated scene linking.
 - **286-288: Navigation Refinements** — Optimized chevron hit areas and animation speeds for a more responsive Feel.
+- **001-002, 743: Codebase Map Maintenance** — Routine synchronization of `MAP.md` and classification of ambiguous or new files into the project taxonomy.
 
 ## 🚫 Aborted Efforts (For Historical Context)
 - **178-181, 268, 309**: De-prioritized or superseded by newer architectural decisions (e.g., PWA offline support, v4.2.0 rollbacks).

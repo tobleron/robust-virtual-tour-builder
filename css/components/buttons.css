@@ -67,7 +67,7 @@
     background: rgba(255, 255, 255, 0.15);
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
-    border-color: var(--danger) !important; /* Unified hover accent */
+    border-color: var(--danger); /* Unified hover accent */
 }
 
 /* Sidebar/Grid Buttons */
@@ -109,16 +109,16 @@
     background: rgba(255, 255, 255, 0.15);
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
-    border-color: var(--danger) !important;
+    border-color: var(--danger);
 }
 
 /* Viewer Utility Buttons Popper Effect (matches floor-nav) */
 .v-util-btn {
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    box-shadow: 1px 1px 1px black !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 1px 1px 1px black;
 }
 
 .v-util-btn:hover:not(:disabled) {
-    transform: scale(1.05) translateY(-2px) !important;
-    box-shadow: 2px 2px 1px black !important;
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 2px 2px 1px black;
 }

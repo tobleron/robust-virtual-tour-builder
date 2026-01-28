@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 /* tests/TestRunner.res */
 Console.log("Starting Frontend Unit Tests...")
 

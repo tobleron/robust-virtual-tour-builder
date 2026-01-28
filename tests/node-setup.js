@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 // tests/node-setup.js
 import { register } from 'node:module';
 import { pathToFileURL } from 'node:url';

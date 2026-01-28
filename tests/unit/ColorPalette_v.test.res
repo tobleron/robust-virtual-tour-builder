@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 /* tests/unit/ColorPalette_v.test.res */
 open Vitest
 

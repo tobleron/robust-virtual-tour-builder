@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 /* tests/unit/DownloadSystem_v.test.res */
 open Vitest
 open DownloadSystem
