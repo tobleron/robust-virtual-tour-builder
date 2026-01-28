@@ -1,24 +1,6 @@
 open Vitest
-open RescriptSchema
 
 describe("Schemas Domain", () => {
-  testAsync("parseAsync works", t => {
-    let json = JSON.parseOrThrow(`{"id": "test"}`)
-    let schema = S.object(s => s.field("id", S.string))
-
-    Schemas.parseAsync(json, schema)->Promise.then(
-      result => {
-        switch result {
-        | Ok(id) => t->expect(id)->Expect.toBe("test")
-        | Error(msg) => {
-            Console.log(msg)
-            t->expect(true)->Expect.toBe(false)
-          }
-        }
-        Promise.resolve()
-      },
-    )
-  })
   test("project schema with valid data", t => {
     let projectJson = JSON.parseOrThrow(`{
       "tourName": "Test Tour",
@@ -122,7 +104,7 @@ describe("Schemas Domain", () => {
     let sceneWithOptionalJson = JSON.parseOrThrow(`{
       "id": "s2",
       "name": "scene2.webp",
-      "file": "url2",
+      "preview": "url2",
       "tinyFile": "tiny_url",
       "originalFile": "original_url",
       "quality": "high",

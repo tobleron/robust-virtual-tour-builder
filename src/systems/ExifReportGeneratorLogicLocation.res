@@ -91,7 +91,8 @@ let analyzeLocation = async (gpsPoints, gpsFilenames, totalCount, lines) => {
         let geocodeResult = await ExifParser.reverseGeocode(lat, lon)
 
         switch geocodeResult {
-        | Ok(address) => {
+        | Ok(res) => {
+            let address = res.address
             Logger.info(
               ~module_="ExifReport",
               ~message="GEOCODING_SUCCESS",

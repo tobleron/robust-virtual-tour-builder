@@ -102,7 +102,8 @@ describe("ExifReportGenerator", () => {
       validCount: 1,
     }
     mockCalculateAverageLocation->mockReturnValue(Some(analysis))
-    mockReverseGeocode->mockResolvedValue(Ok("123 Test St"))
+    let mockRes: ApiTypes.geocodeResponse = {address: "123 Test St"}
+    mockReverseGeocode->mockResolvedValue(Ok(mockRes))
 
     // Mock Extraction (fallback not triggered if metadata present, but just in case)
     mockExtractExifTags->mockResolvedValue(Ok((SharedTypes.defaultExif, defaultPanorama)))

@@ -18,7 +18,7 @@ describe("ProjectApi", () => {
   testAsync("importProject: success", async t => {
     setupFetch(
       (url, _) => {
-        if String.includes(url, "/api/project/import") {
+        if String.includes(url, "/project/import") {
           Promise.resolve(
             Obj.magic({
               "ok": true,
@@ -48,7 +48,7 @@ describe("ProjectApi", () => {
   testAsync("validateProject: success", async t => {
     setupFetch(
       (url, _) => {
-        if String.includes(url, "/api/project/validate") {
+        if String.includes(url, "/project/validate") {
           Promise.resolve(
             Obj.magic({
               "ok": true,
@@ -69,8 +69,8 @@ describe("ProjectApi", () => {
       },
     )
 
-    let mockFile: File.t = Obj.magic({"name": "test.zip"})
-    let result = await ProjectApi.validateProject(mockFile)
+    let projectData = JSON.Encode.object(Dict.make())
+    let result = await ProjectApi.validateProject("mock-id", projectData)
 
     switch result {
     | Ok(res) => t->expect(Array.length(res.errors))->Expect.toBe(0)
@@ -81,12 +81,16 @@ describe("ProjectApi", () => {
   testAsync("loadProject: success", async t => {
     setupFetch(
       (url, _) => {
-        if String.includes(url, "/api/project/load") {
+        if String.includes(url, "/project/load") {
           Promise.resolve(
             Obj.magic({
               "ok": true,
               "status": 200,
-              "blob": () => Promise.resolve(Obj.magic("mock-blob")),
+              "json": () =>
+                Promise.resolve({
+                  "sessionId": "mock-id",
+                  "projectData": %raw("{}"),
+                }),
             }),
           )
         } else {
@@ -95,11 +99,10 @@ describe("ProjectApi", () => {
       },
     )
 
-    let mockFile: File.t = Obj.magic({"name": "test.zip"})
-    let result = await ProjectApi.loadProject(mockFile)
+    let result = await ProjectApi.loadProject("mock-id")
 
     switch result {
-    | Ok(blob) => t->expect(blob)->Expect.toBe(Obj.magic("mock-blob"))
+    | Ok(res) => t->expect(res.sessionId)->Expect.toBe("mock-id")
     | Error(msg) => failwith(msg)
     }
   })
@@ -107,12 +110,11 @@ describe("ProjectApi", () => {
   testAsync("saveProject: success", async t => {
     setupFetch(
       (url, _) => {
-        if String.includes(url, "/api/project/save") {
+        if String.includes(url, "/project/save") {
           Promise.resolve(
             Obj.magic({
               "ok": true,
               "status": 200,
-              "blob": () => Promise.resolve(Obj.magic("mock-blob")),
             }),
           )
         } else {
@@ -122,10 +124,10 @@ describe("ProjectApi", () => {
     )
 
     let projectData = JSON.Encode.object(Dict.make())
-    let result = await ProjectApi.saveProject(projectData)
+    let result = await ProjectApi.saveProject("mock-id", projectData)
 
     switch result {
-    | Ok(blob) => t->expect(blob)->Expect.toBe(Obj.magic("mock-blob"))
+    | Ok(_) => t->expect(true)->Expect.toBe(true)
     | Error(msg) => failwith(msg)
     }
   })
@@ -133,7 +135,7 @@ describe("ProjectApi", () => {
   testAsync("reverseGeocode: success", async t => {
     setupFetch(
       (url, _) => {
-        if String.includes(url, "/api/geocoding/reverse") {
+        if String.includes(url, "/geocode/reverse") {
           Promise.resolve(
             Obj.magic({
               "ok": true,
@@ -150,7 +152,7 @@ describe("ProjectApi", () => {
     let result = await ProjectApi.reverseGeocode(10.0, 20.0)
 
     switch result {
-    | Ok(addr) => t->expect(addr)->Expect.toBe("123 Main St")
+    | Ok(res) => t->expect(res.address)->Expect.toBe("123 Main St")
     | Error(msg) => failwith(msg)
     }
   })
@@ -162,6 +164,7 @@ describe("ProjectApi", () => {
           Obj.magic({
             "ok": false,
             "status": 503,
+            "json": () => Promise.resolve({"error": "Service Unavailable", "details": null}),
           }),
         )
       },
@@ -170,7 +173,7 @@ describe("ProjectApi", () => {
     let result = await ProjectApi.reverseGeocode(10.0, 20.0)
 
     switch result {
-    | Error(msg) => t->expect(msg)->Expect.toBe("Geocoding service unavailable")
+    | Error(msg) => t->expect(msg->String.includes("Backend error: 503"))->Expect.toBe(true)
     | Ok(_) => failwith("Should have failed")
     }
   })
