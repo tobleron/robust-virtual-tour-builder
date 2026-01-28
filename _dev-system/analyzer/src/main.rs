@@ -204,7 +204,7 @@ fn flush_plans(buffer: &HashMap<String, Vec<WorkUnit>>) -> Result<()> {
                 if let WorkUnit::Merge { folder, files, reason } = unit {
                     file.write_all(format!("### Merge Folder: `{}`\n", folder).as_bytes())?;
                     file.write_all(format!("- **Reason:** {}\n", reason).as_bytes())?;
-                    file.write_all(format!("- **Files:**\n").as_bytes())?;
+                    file.write_all("- **Files:**\n".to_string().as_bytes())?;
                     for f in files {
                         file.write_all(format!("  - `{}`\n", f).as_bytes())?;
                     }
@@ -223,7 +223,7 @@ fn sync_architectural_category(category_name: &str, units: &[String], objective:
     let postponed_dir = "../../tasks/postponed";
     
     let mut existing_path = None;
-    for dir in vec![pending_dir, active_dir, postponed_dir] {
+    for dir in [pending_dir, active_dir, postponed_dir] {
         if let Ok(entries) = fs::read_dir(dir) {
             for entry in entries.filter_map(|e| e.ok()) {
                 let name = entry.file_name().to_string_lossy().into_owned();
@@ -337,11 +337,11 @@ fn main() -> Result<()> {
         let dict = config.profiles.get(d_name).map(|p| &p.complexity_dictionary).unwrap_or(&default_dict);
 
         let metrics = match d_name {
-            "rust" => analyze_rust(&content, dict).unwrap_or(drivers::CommonMetrics::default()),
-            "rescript" => analyze_rescript(&content, dict).unwrap_or(drivers::CommonMetrics::default()),
-            "web" => analyze_html(&content, dict).unwrap_or(drivers::CommonMetrics::default()),
-            "css" => analyze_css(&content, dict).unwrap_or(drivers::CommonMetrics::default()),
-            _ => analyze_config(&content, dict).unwrap_or(drivers::CommonMetrics::default()),
+            "rust" => analyze_rust(&content, dict).unwrap_or_default(),
+            "rescript" => analyze_rescript(&content, dict).unwrap_or_default(),
+            "web" => analyze_html(&content, dict).unwrap_or_default(),
+            "css" => analyze_css(&content, dict).unwrap_or_default(),
+            _ => analyze_config(&content, dict).unwrap_or_default(),
         };
 
         if metrics.loc == 0 { continue; }
