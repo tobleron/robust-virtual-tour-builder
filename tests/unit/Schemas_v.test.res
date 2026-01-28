@@ -104,9 +104,9 @@ describe("Schemas Domain", () => {
     let sceneWithOptionalJson = JSON.parseOrThrow(`{
       "id": "s2",
       "name": "scene2.webp",
-      "preview": "url2",
-      "tiny": "tiny_url",
-      "original": "original_url",
+      "file": "url2",
+      "tinyFile": "tiny_url",
+      "originalFile": "original_url",
       "quality": "high",
       "colorGroup": "blue"
     }`)
