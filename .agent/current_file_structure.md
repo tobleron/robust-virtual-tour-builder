@@ -5780,6 +5780,7 @@
 │   │   ├── 894_Refactor_HotspotLine_DONE.md
 │   │   ├── 901_migration_foundation_DONE.md
 │   │   ├── 902_migration_security_DONE.md
+│   │   ├── 903_migration_storage_DONE.md
 │   │   ├── 929_Refactor_UploadProcessorLogic_DONE.md
 │   │   ├── 965_Refactor_ViewerManagerLogic_DONE.md
 │   │   ├── analysis_1067_schema_fixes.md
@@ -5799,7 +5800,6 @@
 │   │       └── 1062_Test_Generation_Unified.md
 │   ├── postponed
 │   │   ├── 900_COMMERCIAL_MIGRATION_MASTER.md
-│   │   ├── 903_migration_storage.md
 │   │   ├── 904_migration_frontend_auth.md
 │   │   ├── 905_migration_dashboard.md
 │   │   ├── 906_migration_telemetry.md
