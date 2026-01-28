@@ -13,13 +13,14 @@ module TestComponent = {
       <div id="auth-status">
         {React.string(isAuthenticated ? "Authenticated" : "Unauthenticated")}
       </div>
-      <button id="login-btn" onClick={_ => login("fake-token", {id: "1", name: "Test", email: "test@test.com"})}>
+      <button
+        id="login-btn"
+        onClick={_ => login("fake-token", {id: "1", name: "Test", email: "test@test.com"})}
+      >
         {React.string("Login")}
       </button>
-      <button id="logout-btn" onClick={_ => logout()}>
-        {React.string("Logout")}
-      </button>
-       <div id="user-email">
+      <button id="logout-btn" onClick={_ => logout()}> {React.string("Logout")} </button>
+      <div id="user-email">
         {switch state {
         | Authenticated({user}) => React.string(user.email)
         | Unauthenticated => React.string("None")
@@ -45,13 +46,16 @@ describe("AuthContext", () => {
     let _ = %raw("document.body.appendChild(container)")
     let root = ReactDOM.Client.createRoot(container)
 
-    await actAsync(async () => {
-      ReactDOM.Client.Root.render(root,
-        <AuthContext.Provider>
-          <TestComponent />
-        </AuthContext.Provider>
-      )
-    })
+    await actAsync(
+      async () => {
+        ReactDOM.Client.Root.render(
+          root,
+          <AuthContext.Provider>
+            <TestComponent />
+          </AuthContext.Provider>,
+        )
+      },
+    )
 
     let _ = await wait(50)
 
@@ -67,19 +71,24 @@ describe("AuthContext", () => {
     let _ = %raw("document.body.appendChild(container)")
     let root = ReactDOM.Client.createRoot(container)
 
-    await actAsync(async () => {
-      ReactDOM.Client.Root.render(root,
-        <AuthContext.Provider>
-          <TestComponent />
-        </AuthContext.Provider>
-      )
-    })
+    await actAsync(
+      async () => {
+        ReactDOM.Client.Root.render(
+          root,
+          <AuthContext.Provider>
+            <TestComponent />
+          </AuthContext.Provider>,
+        )
+      },
+    )
 
     let _ = await wait(50)
 
-    await actAsync(async () => {
-      let _ = %raw("container.querySelector('#login-btn').click()")
-    })
+    await actAsync(
+      async () => {
+        let _ = %raw("container.querySelector('#login-btn').click()")
+      },
+    )
 
     let _ = await wait(50)
 

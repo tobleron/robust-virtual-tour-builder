@@ -290,3 +290,6 @@ This map provides a semantic overview of the project structure to optimize conte
 * [backend/src/services/auth/jwt.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/services/auth/jwt.rs): New module detected. Please classify. #new
 * [backend/src/services/auth/mod.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/services/auth/mod.rs): New module detected. Please classify. #new
 * [backend/src/services/media/storage.rs](file:///Users/r2/Desktop/robust-virtual-tour-builder/backend/src/services/media/storage.rs): New module detected. Please classify. #new
+* [src/core/AuthContext.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/core/AuthContext.res): New module detected. Please classify. #new
+* [src/i18n/I18n.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/i18n/I18n.res): New module detected. Please classify. #new
+* [src/systems/api/AuthenticatedClient.res](file:///Users/r2/Desktop/robust-virtual-tour-builder/src/systems/api/AuthenticatedClient.res): New module detected. Please classify. #new

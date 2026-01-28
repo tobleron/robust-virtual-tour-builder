@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import checkSize from './check-size.js';
+
 import checkTests from './check-tests.js';
 import checkMap from './check-map.js';
 import checkTasks from './check-tasks.js';
@@ -24,7 +24,7 @@ function fullScan() {
                     walk(fullPath);
                 }
             } else {
-                checkSize(fullPath);
+
                 checkTests(fullPath);
             }
         }

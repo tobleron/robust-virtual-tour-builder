@@ -25,7 +25,7 @@ let request = async (url, ~method="GET", ~body: option<JSON.t>=?, ~headers=Dict.
   switch body {
   | Some(_) =>
     if Dict.get(headers, "Content-Type") == None {
-       Dict.set(headers, "Content-Type", "application/json")
+      Dict.set(headers, "Content-Type", "application/json")
     }
   | None => ()
   }
@@ -38,7 +38,7 @@ let request = async (url, ~method="GET", ~body: option<JSON.t>=?, ~headers=Dict.
   let options = {
     "method": method,
     "headers": headers,
-    "body": bodyVal
+    "body": bodyVal,
   }
 
   let response = await fetch(url, options)
@@ -49,7 +49,7 @@ let request = async (url, ~method="GET", ~body: option<JSON.t>=?, ~headers=Dict.
   }
 
   if response.status >= 400 {
-     throw(HttpError(response.status, response.statusText))
+    throw(HttpError(response.status, response.statusText))
   }
 
   response
