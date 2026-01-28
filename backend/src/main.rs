@@ -22,6 +22,7 @@ mod services;
 use middleware::quota_check::QuotaCheck;
 use middleware::request_tracker::RequestTracker;
 use services::database::DatabaseManager;
+use services::media::StorageManager;
 use services::shutdown::{ShutdownManager, perform_shutdown_cleanup};
 use services::upload_quota::{QuotaConfig, UploadQuotaManager};
 
@@ -46,6 +47,14 @@ async fn main() -> io::Result<()> {
         )
     })?;
     let db_pool = web::Data::new(pool);
+
+    // Initialize Storage
+    StorageManager::init().map_err(|e| {
+        io::Error::new(
+            io::ErrorKind::Other,
+            format!("Failed to init storage: {}", e),
+        )
+    })?;
 
     // Ensure logs directory exists
     let log_dir = std::env::var("LOG_DIR").unwrap_or_else(|_| "../logs".to_string());
@@ -210,9 +219,7 @@ async fn main() -> io::Result<()> {
                     .route("/validate", web::post().to(api::project::validate_project))
                     .route("/import", web::post().to(api::project::import_project))
                     .route("/calculate-path", web::post().to(api::project::calculate_path))
-                )
-                .service(web::scope("/session")
-                     .route("/{session_id}/{filename:.*}", web::get().to(api::media::serve_session_file))
+                    .route("/{project_id}/file/{filename:.*}", web::get().to(api::media::serve_project_file))
                 )
                 .route("/quota/stats", web::get().to(api::utils::quota_stats))
             )
