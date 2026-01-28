@@ -207,7 +207,19 @@ pub async fn import_project(mut payload: Multipart) -> Result<HttpResponse, AppE
                     .by_index(i)
                     .map_err(|e| AppError::ZipError(e.to_string()))?;
                 let outpath = match file.enclosed_name() {
-                    Some(path) => session_dir.join(path),
+                    Some(path) => {
+                        // Strip 'images/' prefix if present to normalize structure
+                        let mut components = path.components();
+                        let first = components.next();
+                        let final_path = if let Some(std::path::Component::Normal(c)) = first
+                            && c == "images"
+                        {
+                            components.as_path()
+                        } else {
+                            path
+                        };
+                        session_dir.join(final_path)
+                    }
                     None => continue,
                 };
 
