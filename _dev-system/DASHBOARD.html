@@ -4,611 +4,566 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Architectural Governor v1.3 | Dashboard</title>
+    <title>Architectural Mind Map | _dev-system v8</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@400;600;800&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap"
         rel="stylesheet">
     <style>
         :root {
-            --bg-dark: #0a0a0c;
-            --accent-orange: #ea580c;
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --text-main: #e2e8f0;
-            --text-dim: #94a3b8;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --success: #10b981;
+            --bg-dark: #050507;
+            --accent-orange: #ff5722;
+            --accent-blue: #00e5ff;
+            --accent-purple: #bb86fc;
+            --text-main: #e0e0e0;
+            --text-dim: #888;
+            --danger: #ff1744;
+            --warning: #ffea00;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            outline: none;
         }
 
         body {
             background-color: var(--bg-dark);
             color: var(--text-main);
-            font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
-            line-height: 1.6;
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
         }
 
-        .gradient-bg {
+        canvas {
+            display: none;
+        }
+
+        #mindmap-container {
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+
+        #mindmap-container:active {
+            cursor: grabbing;
+        }
+
+        /* Glass Panels */
+        .overlay {
             position: fixed;
-            top: -20%;
-            right: -10%;
-            width: 70%;
-            height: 70%;
-            background: radial-gradient(circle, rgba(234, 88, 12, 0.08) 0%, transparent 70%);
-            z-index: -1;
-            filter: blur(100px);
-            animation: float 20s infinite alternate linear;
+            pointer-events: none;
+            z-index: 10;
         }
 
-        @keyframes float {
-            from {
-                transform: translate(0, 0);
-            }
-
-            to {
-                transform: translate(-10%, 10%);
-            }
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
+        .panel {
+            pointer-events: all;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1.5rem;
             padding: 2rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
         }
 
         header {
+            top: 2rem;
+            left: 2rem;
             display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-bottom: 3rem;
-            padding-bottom: 2rem;
-            border-bottom: 1px solid var(--glass-border);
+            flex-direction: column;
+            gap: 0.5rem;
         }
 
-        h1 {
-            font-family: 'Outfit', sans-serif;
-            font-size: 2.5rem;
+        .title {
+            font-size: 1.8rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            letter-spacing: -0.02em;
+            background: linear-gradient(to right, #fff, var(--text-dim));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 0.5rem;
         }
 
-        .subtitle {
-            font-family: 'Outfit', sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 0.2rem;
-            font-size: 0.8rem;
-            color: var(--accent-orange);
-            font-weight: 600;
+        .version-badge {
+            display: inline-block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            background: var(--accent-orange);
+            color: #000;
+            padding: 0.2rem 0.6rem;
+            border-radius: 2rem;
+            font-weight: 800;
+            width: fit-content;
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 3rem;
+        .stats-panel {
+            bottom: 2rem;
+            left: 2rem;
+            display: flex;
+            gap: 2rem;
+            padding: 1.5rem 2rem;
         }
 
-        .stat-card {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            backdrop-filter: blur(12px);
-            padding: 1.5rem;
-            border-radius: 1rem;
-            transition: transform 0.3s ease, border-color 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(234, 88, 12, 0.3);
+        .stat-item {
+            display: flex;
+            flex-direction: column;
         }
 
         .stat-label {
-            color: var(--text-dim);
-            font-size: 0.85rem;
-            font-weight: 600;
+            font-size: 0.7rem;
             text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-dim);
+            font-weight: 600;
         }
 
         .stat-value {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: 700;
-            font-family: 'Outfit', sans-serif;
-            margin-top: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
         }
 
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 2rem;
-        }
-
-        .sidebar-nav {
-            position: sticky;
+        .details-panel {
             top: 2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
+            right: 2rem;
+            width: 380px;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: translateX(420px);
+            transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
-        .filter-group {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 1rem;
-            padding: 1.25rem;
+        .details-panel.active {
+            transform: translateX(0);
         }
 
-        .filter-title {
-            font-weight: 700;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-            color: #fff;
+        .task-detail-header {
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 1rem;
         }
 
-        .btn-filter {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background: transparent;
-            border: 1px solid transparent;
-            color: var(--text-dim);
-            border-radius: 0.5rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: left;
-            margin-bottom: 0.5rem;
-        }
-
-        .btn-filter:hover {
-            background: rgba(255, 255, 255, 0.05);
-            color: #fff;
-        }
-
-        .btn-filter.active {
-            background: rgba(234, 88, 12, 0.1);
-            border-color: rgba(234, 88, 12, 0.2);
-            color: var(--accent-orange);
-        }
-
-        .count-badge {
-            font-size: 0.75rem;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 0.1rem 0.5rem;
-            border-radius: 1rem;
-        }
-
-        .main-content {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .task-card {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            position: relative;
-            overflow: hidden;
-            animation: slideIn 0.5s ease backwards;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .task-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1rem;
-        }
-
-        .task-type {
-            font-size: 0.7rem;
+        .tag {
+            font-size: 0.6rem;
             font-weight: 800;
             text-transform: uppercase;
-            padding: 0.25rem 0.6rem;
-            border-radius: 0.4rem;
-            letter-spacing: 0.05rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            margin-right: 0.5rem;
         }
 
-        .type-surgical {
-            background: rgba(59, 130, 246, 0.1);
-            color: #60a5fa;
-            border: 1px solid rgba(59, 130, 246, 0.2);
-        }
-
-        .type-violation {
-            background: rgba(239, 68, 68, 0.1);
-            color: #f87171;
-            border: 1px solid rgba(239, 68, 68, 0.2);
-        }
-
-        .type-merge {
-            background: rgba(168, 85, 247, 0.1);
-            color: #c084fc;
-            border: 1px solid rgba(168, 85, 247, 0.2);
-        }
-
-        .type-ambiguity {
-            background: rgba(245, 158, 11, 0.1);
-            color: #fbbf24;
-            border: 1px solid rgba(245, 158, 11, 0.2);
-        }
-
-        .task-file {
-            font-family: 'Outfit', sans-serif;
-            font-weight: 700;
-            font-size: 1.1rem;
+        .tag-violation {
+            background: var(--danger);
             color: #fff;
-            margin-bottom: 0.5rem;
+        }
+
+        .tag-surgical {
+            background: var(--accent-blue);
+            color: #000;
+        }
+
+        .tag-merge {
+            background: var(--accent-purple);
+            color: #000;
+        }
+
+        .tag-structural {
+            background: #fff;
+            color: #000;
+        }
+
+        .file-path {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: #fff;
+            margin-top: 0.5rem;
             word-break: break-all;
         }
 
-        .task-reason {
+        .reason-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 0.75rem;
             font-size: 0.9rem;
+            line-height: 1.5;
             color: var(--text-dim);
-            padding-left: 1rem;
-            border-left: 2px solid var(--glass-border);
         }
 
-        .hotspot-box {
+        .hotspot-alert {
             margin-top: 1rem;
-            background: rgba(234, 88, 12, 0.05);
-            border: 1px solid rgba(234, 88, 12, 0.1);
-            border-radius: 0.6rem;
+            border: 1px solid var(--accent-orange);
+            color: var(--accent-orange);
             padding: 0.75rem;
+            border-radius: 0.75rem;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-        }
-
-        .hotspot-icon {
-            font-size: 1.2rem;
-            animation: flicker 2s infinite;
-        }
-
-        @keyframes flicker {
-
-            0%,
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-
-            50% {
-                opacity: 0.6;
-                transform: scale(0.9);
-            }
-        }
-
-        .hotspot-text {
-            font-size: 0.85rem;
-            color: var(--accent-orange);
+            gap: 0.5rem;
             font-weight: 600;
+            font-size: 0.85rem;
+            animation: pulse 2s infinite;
         }
 
-        .search-container {
-            margin-bottom: 2rem;
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 87, 34, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 87, 34, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 87, 34, 0);
+            }
         }
 
-        #searchInput {
-            width: 100%;
-            background: var(--glass-bg);
+        .controls {
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-control {
+            pointer-events: all;
+            background: var(--glass);
             border: 1px solid var(--glass-border);
-            border-radius: 0.75rem;
-            padding: 1rem 1.5rem;
             color: #fff;
-            font-size: 1rem;
-            transition: all 0.3s;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
-        #searchInput:focus {
-            border-color: var(--accent-orange);
-            box-shadow: 0 0 20px rgba(234, 88, 12, 0.1);
+        .btn-control:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.1);
         }
 
-        .empty-state {
-            padding: 4rem;
-            text-align: center;
-            color: var(--text-dim);
-            font-style: italic;
+        /* Tooltip */
+        #tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 0.5rem 0.8rem;
+            border-radius: 0.5rem;
+            font-size: 0.8rem;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            border: 1px solid var(--glass-border);
+            z-index: 100;
         }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
+        /* D3 Elements */
+        .node-circle {
+            transition: r 0.3s ease, filter 0.3s ease;
+            cursor: pointer;
         }
 
-        ::-webkit-scrollbar-track {
-            background: var(--bg-dark);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--glass-border);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.2);
+        .link {
+            stroke: var(--glass-border);
+            stroke-opacity: 0.3;
+            stroke-width: 1.5px;
         }
     </style>
 </head>
 
 <body>
-    <div class="gradient-bg"></div>
+    <div id="tooltip"></div>
 
-    <div class="container">
-        <header>
-            <div>
-                <p class="subtitle">Autonomous Governance Engine</p>
-                <h1>Architectural Governor <span style="font-weight: 300; opacity: 0.5;">v1.3</span></h1>
-            </div>
-            <div id="lastUpdate" style="font-size: 0.8rem; color: var(--text-dim);">
-                Scan v8 | AI-Efficiency Optimized
-            </div>
-        </header>
+    <header class="overlay panel">
+        <div class="version-badge">SCAN v8 AGGREGATED</div>
+        <h1 class="title">Architectural Mind Map</h1>
+        <p style="color: var(--text-dim); font-size: 0.8rem; font-weight: 600;">AI-Native Governance Visualization</p>
+    </header>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">Total Files Analyzed</div>
-                <div class="stat-value" id="statFiles">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Critical Violations</div>
-                <div class="stat-value" id="statViolations" style="color: var(--danger);">0</div>
-            </div>
-            <div class="stat-card" title="Combined Surgical, Merge, and Ambiguity tasks">
-                <div class="stat-label">Active Refactor Tasks</div>
-                <div class="stat-value" id="statTasks" style="color: var(--warning);">0</div>
-            </div>
-            <div class="stat-card" title="Folders with AI Context Tax > 1.0">
-                <div class="stat-label">Context Merges Plan</div>
-                <div class="stat-value" id="statMerges" style="color: #c084fc;">0</div>
-            </div>
+    <div class="overlay panel stats-panel">
+        <div class="stat-item">
+            <span class="stat-label">Hotspots</span>
+            <span class="stat-value" id="stat-violations" style="color: var(--danger);">0</span>
         </div>
-
-        <div class="search-container">
-            <input type="text" id="searchInput"
-                placeholder="Search by filename, pattern, or reason (e.g. 'hotspot', 'schemas', 'unwrap')...">
+        <div class="stat-item">
+            <span class="stat-label">Merge Ops</span>
+            <span class="stat-value" id="stat-merges" style="color: var(--accent-purple);">0</span>
         </div>
-
-        <div class="dashboard-grid">
-            <aside class="sidebar-nav">
-                <div class="filter-group">
-                    <div class="filter-title">Language Engines</div>
-                    <button class="btn-filter active" onclick="setEngine('all')">
-                        All Engines <span class="count-badge" id="countAll">0</span>
-                    </button>
-                    <button class="btn-filter" onclick="setEngine('rescript')">
-                        ReScript <span class="count-badge" id="countRes">0</span>
-                    </button>
-                    <button class="btn-filter" onclick="setEngine('rust')">
-                        Rust <span class="count-badge" id="countRust">0</span>
-                    </button>
-                    <button class="btn-filter" onclick="setEngine('web')">
-                        Web (HTML/JS) <span class="count-badge" id="countWeb">0</span>
-                    </button>
-                    <button class="btn-filter" onclick="setEngine('css')">
-                        Stylesheets <span class="count-badge" id="countCss">0</span>
-                    </button>
-                </div>
-
-                <div class="filter-group">
-                    <div class="filter-title">Task Types</div>
-                    <button class="btn-filter" onclick="setType('Surgical')">
-                        Surgical Refactor
-                    </button>
-                    <button class="btn-filter" onclick="setType('Violation')">
-                        Critical Violations
-                    </button>
-                    <button class="btn-filter" onclick="setType('Merge')">
-                        Context Merges
-                    </button>
-                </div>
-            </aside>
-
-            <main class="main-content" id="taskContainer">
-                <!-- Tasks will be injected here -->
-                <div class="empty-state">Loading architectural data...</div>
-            </main>
+        <div class="stat-item">
+            <span class="stat-label">Slicing</span>
+            <span class="stat-value" id="stat-structural" style="color: #fff;">0</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Cognitive Drag</span>
+            <span class="stat-value" id="stat-drag" style="color: var(--accent-blue);">0.0</span>
         </div>
     </div>
 
+    <div class="overlay panel details-panel" id="details-panel">
+        <!-- Content injected by JS -->
+    </div>
+
+    <div class="overlay controls">
+        <div class="btn-control" onclick="resetView()" title="Center View">🎯</div>
+        <div class="btn-control" onclick="toggleLabels()" title="Toggle Labels">🏷️</div>
+    </div>
+
+    <div id="mindmap-container"></div>
+
     <script>
-        let fullData = null;
-        let activeEngine = 'all';
-        let activeType = 'all';
-        let searchQuery = '';
+        let rawData = null;
+        let showLabels = true;
+        const width = window.innerWidth;
+        const height = window.innerHeight;
 
-        async function loadData() {
+        const colors = {
+            root: "#fff",
+            rescript: "#f26b00",
+            rust: "#dea584",
+            web: "#61dafb",
+            css: "#264de4",
+            system: "#bb86fc",
+            config: "#888",
+            violation: "#ff1744",
+            surgical: "#00e5ff",
+            merge: "#bb86fc",
+            structural: "#ffffff",
+            ambiguity: "#ffea00"
+        };
+
+        async function init() {
             try {
-                // If using as a local file, we might need to load via a <script> or manually
-                // For this environment, we attempt a standard fetch first
-                let response;
-                try {
-                    response = await fetch('pending/metadata.json');
-                    if (!response.ok) throw new Error("Fetch failed");
-                    fullData = await response.json();
-                } catch (e) {
-                    console.log("Fetch failed, attempting to read from manual injection if available...");
-                    // Fallback for local browser limits
-                    if (window.INJECTED_METADATA) {
-                        fullData = window.INJECTED_METADATA;
-                    } else {
-                        throw e;
-                    }
-                }
-
-                updateStats();
-                renderTasks();
-            } catch (e) {
-                document.getElementById('taskContainer').innerHTML = `
-                    <div class="empty-state" style="color: var(--danger);">
-                        <b>METADATA ACCESS ERROR:</b><br>
-                        Browsers often block <code>fetch()</code> on local files for security.<br><br>
-                        <b>FIX:</b> Open your terminal and run:<br>
-                        <code>npx serve .</code><br>
-                        Then visit the dashboard via the localhost URL.
-                    </div>
-                `;
-            }
-        }
-
-        function updateStats() {
-            let totalFiles = 0;
-            let violations = 0;
-            let tasks = 0;
-            let merges = 0;
-
-            const counts = { res: 0, rust: 0, web: 0, css: 0, config: 0 };
-
-            Object.entries(fullData).forEach(([engine, units]) => {
-                totalFiles += units.length;
-                if (engine === 'rescript') counts.res = units.length;
-                if (engine === 'rust') counts.rust = units.length;
-                if (engine === 'web') counts.web = units.length;
-                if (engine === 'css') counts.css = units.length;
-
-                units.forEach(unit => {
-                    if (unit.Violation) violations++;
-                    if (unit.Surgical) tasks++;
-                    if (unit.Merge) merges++;
-                    if (unit.Ambiguity) tasks++;
-                });
-            });
-
-            document.getElementById('statFiles').innerText = totalFiles;
-            document.getElementById('statViolations').innerText = violations;
-            document.getElementById('statTasks').innerText = tasks + merges;
-            document.getElementById('statMerges').innerText = merges;
-
-            document.getElementById('countAll').innerText = totalFiles;
-            document.getElementById('countRes').innerText = counts.res;
-            document.getElementById('countRust').innerText = counts.rust;
-            document.getElementById('countWeb').innerText = counts.web;
-            document.getElementById('countCss').innerText = counts.css;
-        }
-
-        function setEngine(engine) {
-            activeEngine = engine;
-            document.querySelectorAll('.btn-filter').forEach(btn => btn.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-            renderTasks();
-        }
-
-        function setType(type) {
-            activeType = activeType === type ? 'all' : type;
-            renderTasks();
-        }
-
-        function renderTasks() {
-            const container = document.getElementById('taskContainer');
-            container.innerHTML = '';
-
-            let filteredUnits = [];
-
-            Object.entries(fullData).forEach(([engine, units]) => {
-                if (activeEngine !== 'all' && activeEngine !== engine) return;
-
-                units.forEach(unit => {
-                    const type = Object.keys(unit)[0];
-                    if (activeType !== 'all' && activeType !== type) return;
-
-                    const data = unit[type];
-                    const content = JSON.stringify(data).toLowerCase();
-                    if (searchQuery && !content.includes(searchQuery.toLowerCase())) return;
-
-                    filteredUnits.push({ engine, type, data });
-                });
-            });
-
-            if (filteredUnits.length === 0) {
-                container.innerHTML = `<div class="empty-state">No matching tasks found for current filters.</div>`;
-                return;
-            }
-
-            // Sort: Violations first, then Surgical, then Merges
-            filteredUnits.sort((a, b) => {
-                const order = { Violation: 0, Surgical: 1, Merge: 2, Ambiguity: 3 };
-                return order[a.type] - order[b.type];
-            });
-
-            filteredUnits.forEach(unit => {
-                const card = document.createElement('div');
-                card.className = 'task-card';
-
-                let innerHtml = `
-                    <div class="task-header">
-                        <span class="task-type type-${unit.type.toLowerCase()}">${unit.type}</span>
-                        <span style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700;">${unit.engine}</span>
-                    </div>
-                `;
-
-                if (unit.type === 'Merge') {
-                    innerHtml += `
-                        <div class="task-file">Folder: ${unit.data.folder.replace('../../', '')}</div>
-                        <div class="task-reason">${unit.data.reason}</div>
-                        <div style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-dim);">
-                            Files: ${unit.data.files.join(', ')}
-                        </div>
-                    `;
-                } else if (unit.type === 'Ambiguity') {
-                    innerHtml += `
-                        <div class="task-file">${unit.data.file.replace('../../', '')}</div>
-                        <div class="task-reason">Path requires architectural role classification.</div>
-                    `;
+                const response = await fetch('pending/metadata.json');
+                rawData = await response.json();
+                processAndRender();
+            } catch (err) {
+                console.error("Data load failed", err);
+                // Fallback for local
+                if (window.INJECTED_METADATA) {
+                    rawData = window.INJECTED_METADATA;
+                    processAndRender();
                 } else {
-                    innerHtml += `
-                        <div class="task-file">${unit.data.file.replace('../../', '')}</div>
-                        <div class="task-reason">${unit.data.reason || unit.data.pattern || 'Rule violation'}</div>
-                    `;
-
-                    if (unit.data.reason && unit.data.reason.includes('🔥')) {
-                        const hotspotLines = unit.data.reason.split('🔥')[1];
-                        innerHtml += `
-                            <div class="hotspot-box">
-                                <span class="hotspot-icon">🔥</span>
-                                <span class="hotspot-text">HOTSPOT: ${hotspotLines.trim()}</span>
-                            </div>
-                        `;
-                    }
+                    alert("Browser blocked local file access. Run 'npx serve .' in the _dev-system folder.");
                 }
+            }
+        }
 
-                card.innerHTML = innerHtml;
-                container.appendChild(card);
+        function processAndRender() {
+            const nodes = [{ id: "ROOT", name: "PROJECT", type: "root", val: 30 }];
+            const links = [];
+
+            let totalViolations = 0;
+            let totalMerges = 0;
+            let totalStructural = 0;
+
+            Object.entries(rawData).forEach(([engine, units]) => {
+                const engineId = engine.toUpperCase();
+                nodes.push({ id: engineId, name: engine, type: engine, val: 20 });
+                links.push({ source: "ROOT", target: engineId });
+
+                units.forEach((unit, i) => {
+                    const uType = Object.keys(unit)[0];
+                    const data = unit[uType];
+                    const uId = `${engineId}_${uType}_${i}`;
+
+                    if (uType === 'Violation') totalViolations++;
+                    if (uType === 'Merge') totalMerges++;
+                    if (uType === 'Structural') totalStructural++;
+
+                    nodes.push({
+                        id: uId,
+                        name: data.file ? data.file.split('/').pop() : 'Task',
+                        type: uType.toLowerCase(),
+                        data: data,
+                        engine: engine,
+                        val: uType === 'Violation' ? 12 : 8
+                    });
+
+                    links.push({ source: engineId, target: uId });
+                });
+            });
+
+            document.getElementById('stat-violations').innerText = totalViolations;
+            document.getElementById('stat-merges').innerText = totalMerges;
+            document.getElementById('stat-structural').innerText = totalStructural;
+
+            renderGraph(nodes, links);
+        }
+
+        let simulation, svg, g, node, link, labels;
+
+        function renderGraph(nodes, links) {
+            const container = d3.select("#mindmap-container");
+            container.selectAll("*").remove();
+
+            svg = container.append("svg")
+                .attr("width", width)
+                .attr("height", height);
+
+            const zoom = d3.zoom()
+                .scaleExtent([0.1, 4])
+                .on("zoom", (event) => g.attr("transform", event.transform));
+
+            svg.call(zoom);
+
+            g = svg.append("g");
+
+            simulation = d3.forceSimulation(nodes)
+                .force("link", d3.forceLink(links).id(d => d.id).distance(100))
+                .force("charge", d3.forceManyBody().strength(-300))
+                .force("center", d3.forceCenter(width / 2, height / 2))
+                .force("collision", d3.forceCollide().radius(d => d.val + 20));
+
+            link = g.append("g")
+                .selectAll("line")
+                .data(links)
+                .join("line")
+                .attr("class", "link")
+                .attr("stroke", d => {
+                    const targetNode = nodes.find(n => n.id === d.target.id || n.id === d.target);
+                    return colors[targetNode.type] || colors.config;
+                });
+
+            node = g.append("g")
+                .selectAll("circle")
+                .data(nodes)
+                .join("circle")
+                .attr("class", "node-circle")
+                .attr("r", d => d.val)
+                .attr("fill", d => colors[d.type] || colors.config)
+                .attr("filter", d => d.type === 'violation' ? "drop-shadow(0 0 8px var(--danger))" : "none")
+                .call(drag(simulation))
+                .on("mouseover", showTooltip)
+                .on("mouseout", hideTooltip)
+                .on("click", (event, d) => showDetails(d));
+
+            labels = g.append("g")
+                .selectAll("text")
+                .data(nodes)
+                .join("text")
+                .attr("dy", d => d.val + 15)
+                .attr("text-anchor", "middle")
+                .attr("fill", "#fff")
+                .attr("font-size", "10px")
+                .attr("font-weight", "600")
+                .style("pointer-events", "none")
+                .style("opacity", showLabels ? 0.7 : 0)
+                .text(d => d.name);
+
+            simulation.on("tick", () => {
+                link
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+
+                node
+                    .attr("cx", d => d.x)
+                    .attr("cy", d => d.y);
+
+                labels
+                    .attr("x", d => d.x)
+                    .attr("y", d => d.y);
             });
         }
 
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            searchQuery = e.target.value;
-            renderTasks();
-        });
+        function drag(sim) {
+            function dragstarted(event) {
+                if (!event.active) sim.alphaTarget(0.3).restart();
+                event.subject.fx = event.subject.x;
+                event.subject.fy = event.subject.y;
+            }
+            function dragged(event) {
+                event.subject.fx = event.x;
+                event.subject.fy = event.y;
+            }
+            function dragended(event) {
+                if (!event.active) sim.alphaTarget(0);
+                event.subject.fx = null;
+                event.subject.fy = null;
+            }
+            return d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended);
+        }
 
-        loadData();
+        function showTooltip(event, d) {
+            const tt = d3.select("#tooltip");
+            tt.html(`<strong>${d.name}</strong><br><span style="color:var(--text-dim)">${d.type.toUpperCase()}</span>`)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY + 10) + "px")
+                .style("opacity", 1);
+
+            d3.select(this).attr("r", d.val + 4);
+        }
+
+        function hideTooltip(event, d) {
+            d3.select("#tooltip").style("opacity", 0);
+            d3.select(this).attr("r", d.val);
+        }
+
+        function showDetails(d) {
+            if (!d.data) return;
+            const panel = document.getElementById('details-panel');
+            panel.classList.add('active');
+
+            let content = `
+                <div class="task-detail-header">
+                    <span class="tag tag-${d.type}">${d.type}</span>
+                    <span style="font-size: 0.7rem; color: var(--text-dim); font-weight: 800; float: right;">${d.engine.toUpperCase()}</span>
+                    <div class="file-path">${d.data.file || d.data.folder || 'Global Scope'}</div>
+                </div>
+                <div class="reason-box">
+                    ${d.data.reason || d.data.pattern || 'Architectural integrity requirement.'}
+                </div>
+            `;
+
+            if (d.data.reason && d.data.reason.includes('🔥')) {
+                const hotspotLines = d.data.reason.split('🔥')[1];
+                content += `
+                    <div class="hotspot-alert">
+                        <span>🔥</span>
+                        <span>FRAGMENTATION SPIKE AT LINES ${hotspotLines.trim()}</span>
+                    </div>
+                `;
+            }
+
+            if (d.data.files) {
+                content += `<div style="margin-top: 1rem; font-size: 0.8rem;">
+                    <strong style="color: var(--accent-purple)">Grouped Files:</strong>
+                    <ul style="margin-top: 0.5rem; color: var(--text-dim); list-style: none;">
+                        ${d.data.files.map(f => `<li>• ${f}</li>`).join('')}
+                    </ul>
+                </div>`;
+            }
+
+            panel.innerHTML = content + `<button onclick="this.parentElement.classList.remove('active')" style="margin-top: 2rem; background: var(--glass-border); border: none; color: #fff; padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer; width: 100%;">Close Panel</button>`;
+        }
+
+        function resetView() {
+            svg.transition().duration(750).call(
+                d3.zoom().transform,
+                d3.zoomIdentity
+            );
+        }
+
+        function toggleLabels() {
+            showLabels = !showLabels;
+            labels.transition().duration(300).style("opacity", showLabels ? 0.7 : 0);
+        }
+
+        init();
+
+        window.addEventListener('resize', () => {
+            // Simple resize refresh
+            location.reload();
+        });
     </script>
 </body>
 
