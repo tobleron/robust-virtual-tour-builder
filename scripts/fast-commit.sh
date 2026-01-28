@@ -14,8 +14,7 @@ if [ "$CURRENT_BRANCH" != "development" ]; then
 fi
 
 # 0.5 Project Guard (Quick Check)
-echo "🛡️  Running Project Guard..."
-node scripts/guard/index.js
+./scripts/project-guard.sh
 
 # 1. Versioning (Semantic Bump + Build Increment)
 BUMP_TYPE="${2:-none}"

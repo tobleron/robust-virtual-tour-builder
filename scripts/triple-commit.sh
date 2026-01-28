@@ -17,8 +17,7 @@ if [ -n "$CHANGED_SRC" ]; then
 fi
 
 # 1.5 Project Guard (Static Analysis)
-echo "🛡️  Running Project Guard..."
-node scripts/guard/index.js
+./scripts/project-guard.sh
 
 # 2. Context Refresh
 echo "🗺️  Refreshing file structure map..."
