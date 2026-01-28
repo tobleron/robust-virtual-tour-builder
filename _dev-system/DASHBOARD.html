@@ -4,116 +4,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Architectural Mind Map | _dev-system v8</title>
+    <title>Architectural Ledger</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
         rel="stylesheet">
     <style>
         :root {
-            --bg-dark: #050507;
-            --accent-orange: #ff5722;
-            --accent-blue: #00e5ff;
-            --accent-purple: #bb86fc;
-            --text-main: #e0e0e0;
-            --text-dim: #888;
-            --danger: #ff1744;
-            --warning: #ffea00;
-            --glass: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --bg: #000000;
+            --surface: #0a0a0a;
+            --border: #1a1a1a;
+            --text-main: #ffffff;
+            --text-dim: #555555;
+            --accent: #ffffff;
+            --critical: #ff3b30;
+            /* Only color preserved for safety */
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            outline: none;
         }
 
         body {
-            background-color: var(--bg-dark);
+            background: var(--bg);
             color: var(--text-main);
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Inter', sans-serif;
             overflow: hidden;
-            width: 100vw;
             height: 100vh;
         }
 
-        canvas {
-            display: none;
-        }
-
-        #mindmap-container {
-            width: 100%;
-            height: 100%;
-            cursor: grab;
-        }
-
-        #mindmap-container:active {
-            cursor: grabbing;
-        }
-
-        /* Glass Panels */
-        .overlay {
-            position: fixed;
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        .panel {
-            pointer-events: all;
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 1.5rem;
-            padding: 2rem;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+        .app {
+            display: grid;
+            grid-template-rows: 80px 1fr;
+            height: 100vh;
+            padding: 0 3rem;
         }
 
         header {
-            top: 2rem;
-            left: 2rem;
             display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
         }
 
-        .title {
-            font-size: 1.8rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            background: linear-gradient(to right, #fff, var(--text-dim));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .logo {
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 0.2rem;
+            text-transform: uppercase;
         }
 
-        .version-badge {
-            display: inline-block;
+        .system-status {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.7rem;
-            background: var(--accent-orange);
-            color: #000;
-            padding: 0.2rem 0.6rem;
-            border-radius: 2rem;
-            font-weight: 800;
-            width: fit-content;
+            font-size: 0.65rem;
+            color: var(--text-dim);
         }
 
-        .stats-panel {
-            bottom: 2rem;
-            left: 2rem;
-            display: flex;
-            gap: 2rem;
-            padding: 1.5rem 2rem;
+        .main-layout {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 4rem;
+            overflow: hidden;
+            padding: 3rem 0;
         }
 
-        .stat-item {
+        /* Left: Summaries */
+        .summary-panel {
             display: flex;
             flex-direction: column;
+            gap: 4rem;
         }
 
-        .stat-label {
+        .metric-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .metric-lab {
             font-size: 0.7rem;
             text-transform: uppercase;
             letter-spacing: 0.1em;
@@ -121,449 +100,278 @@
             font-weight: 600;
         }
 
-        .stat-value {
-            font-size: 1.5rem;
+        .metric-val {
+            font-size: 2rem;
+            font-weight: 400;
+        }
+
+        .metric-val.critical {
+            color: var(--critical);
             font-weight: 700;
-            font-family: 'JetBrains Mono', monospace;
         }
 
-        .details-panel {
-            top: 2rem;
-            right: 2rem;
-            width: 380px;
-            max-height: 80vh;
-            overflow-y: auto;
-            transform: translateX(420px);
-            transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        .chart-section {
+            border-top: 1px solid var(--border);
+            padding-top: 3rem;
         }
 
-        .details-panel.active {
-            transform: translateX(0);
-        }
-
-        .task-detail-header {
-            margin-bottom: 1.5rem;
-            border-bottom: 1px solid var(--glass-border);
-            padding-bottom: 1rem;
-        }
-
-        .tag {
-            font-size: 0.6rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
-            margin-right: 0.5rem;
-        }
-
-        .tag-violation {
-            background: var(--danger);
-            color: #fff;
-        }
-
-        .tag-surgical {
-            background: var(--accent-blue);
-            color: #000;
-        }
-
-        .tag-merge {
-            background: var(--accent-purple);
-            color: #000;
-        }
-
-        .tag-structural {
-            background: #fff;
-            color: #000;
-        }
-
-        .file-path {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
-            color: #fff;
-            margin-top: 0.5rem;
-            word-break: break-all;
-        }
-
-        .reason-box {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 1rem;
-            border-radius: 0.75rem;
-            font-size: 0.9rem;
-            line-height: 1.5;
-            color: var(--text-dim);
-        }
-
-        .hotspot-alert {
-            margin-top: 1rem;
-            border: 1px solid var(--accent-orange);
-            color: var(--accent-orange);
-            padding: 0.75rem;
-            border-radius: 0.75rem;
+        .chart-container {
+            width: 100%;
+            height: 200px;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            font-weight: 600;
-            font-size: 0.85rem;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(255, 87, 34, 0.4);
-            }
-
-            70% {
-                box-shadow: 0 0 0 10px rgba(255, 87, 34, 0);
-            }
-
-            100% {
-                box-shadow: 0 0 0 0 rgba(255, 87, 34, 0);
-            }
-        }
-
-        .controls {
-            bottom: 2rem;
-            right: 2rem;
-            display: flex;
-            gap: 1rem;
-        }
-
-        .btn-control {
-            pointer-events: all;
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            color: #fff;
-            width: 3rem;
-            height: 3rem;
-            border-radius: 50%;
-            display: flex;
             justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.2s;
+            position: relative;
         }
 
-        .btn-control:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: scale(1.1);
+        .chart-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            fill: var(--text-dim);
+        }
+
+        /* Right: Ledger/Task Table */
+        .ledger-panel {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .search-area {
+            margin-bottom: 2rem;
+        }
+
+        #searchInput {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+            color: #fff;
+            font-size: 1.2rem;
+            transition: border-color 0.3s;
+        }
+
+        #searchInput:focus {
+            border-color: #555;
+        }
+
+        .ledger-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 1rem;
+        }
+
+        .ledger-row {
+            display: grid;
+            grid-template-columns: 120px 1fr 100px;
+            padding: 1.2rem 0;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: opacity 0.2s;
+            align-items: baseline;
+        }
+
+        .ledger-row:hover {
+            opacity: 0.6;
+        }
+
+        .row-type {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            font-weight: 500;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        .row-file {
+            font-size: 0.95rem;
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            padding-right: 2rem;
+        }
+
+        .row-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-align: right;
+        }
+
+        .row-critical .row-type {
+            color: var(--critical);
+        }
+
+        .row-critical .row-file {
+            color: var(--critical);
+            font-weight: 700;
         }
 
         /* Tooltip */
         #tooltip {
-            position: absolute;
-            background: rgba(0, 0, 0, 0.9);
-            padding: 0.5rem 0.8rem;
-            border-radius: 0.5rem;
+            position: fixed;
+            background: #111;
+            border: 1px solid #222;
+            padding: 1.5rem;
+            border-radius: 0.2rem;
             font-size: 0.8rem;
             pointer-events: none;
             opacity: 0;
-            transition: opacity 0.2s;
-            border: 1px solid var(--glass-border);
-            z-index: 100;
+            z-index: 1000;
+            width: 320px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
         }
 
-        /* D3 Elements */
-        .node-circle {
-            transition: r 0.3s ease, filter 0.3s ease;
-            cursor: pointer;
+        ::-webkit-scrollbar {
+            width: 2px;
         }
 
-        .link {
-            stroke: var(--glass-border);
-            stroke-opacity: 0.3;
-            stroke-width: 1.5px;
+        ::-webkit-scrollbar-thumb {
+            background: #222;
         }
     </style>
 </head>
 
 <body>
     <div id="tooltip"></div>
+    <div class="app">
+        <header>
+            <div class="logo">Architectural Ledger</div>
+            <div class="system-status">SCAN V8.5 // GOVERNANCE_MODE: AGNOSTIC // CLARITY_INDEX: HIGH</div>
+        </header>
 
-    <header class="overlay panel">
-        <div class="version-badge">SCAN v8 AGGREGATED</div>
-        <h1 class="title">Architectural Mind Map</h1>
-        <p style="color: var(--text-dim); font-size: 0.8rem; font-weight: 600;">AI-Native Governance Visualization</p>
-    </header>
+        <div class="main-layout">
+            <!-- Left: Minimal Stats -->
+            <div class="summary-panel">
+                <div class="metric-group">
+                    <div class="metric">
+                        <span class="metric-lab">Critical Hotspots</span>
+                        <span class="metric-val critical" id="stat-violations">0</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-lab">Planned Refactors</span>
+                        <span class="metric-val" id="stat-tasks">0</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-lab">Total Artifacts</span>
+                        <span class="metric-val" id="stat-files">0</span>
+                    </div>
+                </div>
 
-    <div class="overlay panel stats-panel">
-        <div class="stat-item">
-            <span class="stat-label">Hotspots</span>
-            <span class="stat-value" id="stat-violations" style="color: var(--danger);">0</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-label">Merge Ops</span>
-            <span class="stat-value" id="stat-merges" style="color: var(--accent-purple);">0</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-label">Slicing</span>
-            <span class="stat-value" id="stat-structural" style="color: #fff;">0</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-label">Cognitive Drag</span>
-            <span class="stat-value" id="stat-drag" style="color: var(--accent-blue);">0.0</span>
+                <div class="chart-section">
+                    <h3 class="metric-lab" style="margin-bottom: 2rem;">Distribution Balance</h3>
+                    <div id="type-chart" class="chart-container"></div>
+                </div>
+            </div>
+
+            <!-- Right: The Ledger -->
+            <div class="ledger-panel">
+                <div class="search-area">
+                    <input type="text" id="searchInput" placeholder="Query ledger entries...">
+                </div>
+                <div class="ledger-scroll" id="ledger-list">
+                    <!-- Data injected here -->
+                </div>
+            </div>
         </div>
     </div>
-
-    <div class="overlay panel details-panel" id="details-panel">
-        <!-- Content injected by JS -->
-    </div>
-
-    <div class="overlay controls">
-        <div class="btn-control" onclick="resetView()" title="Center View">🎯</div>
-        <div class="btn-control" onclick="toggleLabels()" title="Toggle Labels">🏷️</div>
-    </div>
-
-    <div id="mindmap-container"></div>
 
     <script>
-        let rawData = null;
-        let showLabels = true;
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-
-        const colors = {
-            root: "#fff",
-            rescript: "#f26b00",
-            rust: "#dea584",
-            web: "#61dafb",
-            css: "#264de4",
-            system: "#bb86fc",
-            config: "#888",
-            violation: "#ff1744",
-            surgical: "#00e5ff",
-            merge: "#bb86fc",
-            structural: "#ffffff",
-            ambiguity: "#ffea00"
-        };
+        let fullData = null;
+        let query = '';
 
         async function init() {
             try {
-                const response = await fetch('pending/metadata.json');
-                rawData = await response.json();
-                processAndRender();
-            } catch (err) {
-                console.error("Data load failed", err);
-                // Fallback for local
+                const res = await fetch('pending/metadata.json');
+                fullData = await res.json();
+                render();
+            } catch (e) {
                 if (window.INJECTED_METADATA) {
-                    rawData = window.INJECTED_METADATA;
-                    processAndRender();
+                    fullData = window.INJECTED_METADATA;
+                    render();
                 } else {
-                    alert("Browser blocked local file access. Run 'npx serve .' in the _dev-system folder.");
+                    document.body.innerHTML = "<div style='padding:5rem; font-family:monospace;'>[ERR] METADATA_ORPHANED // REQUIRE_LOCAL_SERVER</div>";
                 }
             }
         }
 
-        function processAndRender() {
-            const nodes = [{ id: "ROOT", name: "PROJECT", type: "root", val: 30 }];
-            const links = [];
+        function render() {
+            let totalFiles = 0, violations = 0, tasks = 0;
+            const typeCounts = { Violation: 0, Surgical: 0, Merge: 0, Structural: 0, Ambiguity: 0 };
+            const backlog = [];
 
-            let totalViolations = 0;
-            let totalMerges = 0;
-            let totalStructural = 0;
+            Object.entries(fullData).forEach(([engine, units]) => {
+                totalFiles += units.length;
+                units.forEach(unit => {
+                    const type = Object.keys(unit)[0];
+                    const data = unit[type];
+                    typeCounts[type]++;
+                    if (type === 'Violation') violations++;
+                    else tasks++;
 
-            Object.entries(rawData).forEach(([engine, units]) => {
-                const engineId = engine.toUpperCase();
-                nodes.push({ id: engineId, name: engine, type: engine, val: 20 });
-                links.push({ source: "ROOT", target: engineId });
-
-                units.forEach((unit, i) => {
-                    const uType = Object.keys(unit)[0];
-                    const data = unit[uType];
-                    const uId = `${engineId}_${uType}_${i}`;
-
-                    if (uType === 'Violation') totalViolations++;
-                    if (uType === 'Merge') totalMerges++;
-                    if (uType === 'Structural') totalStructural++;
-
-                    nodes.push({
-                        id: uId,
-                        name: data.file ? data.file.split('/').pop() : 'Task',
-                        type: uType.toLowerCase(),
-                        data: data,
-                        engine: engine,
-                        val: uType === 'Violation' ? 12 : 8
-                    });
-
-                    links.push({ source: engineId, target: uId });
+                    const fileLabel = data.file ? data.file.split('/').pop() : (data.folder ? data.folder.split('/').pop() : 'Module');
+                    backlog.push({ type, engine, data, label: fileLabel });
                 });
             });
 
-            document.getElementById('stat-violations').innerText = totalViolations;
-            document.getElementById('stat-merges').innerText = totalMerges;
-            document.getElementById('stat-structural').innerText = totalStructural;
+            document.getElementById('stat-files').innerText = totalFiles;
+            document.getElementById('stat-violations').innerText = violations;
+            document.getElementById('stat-tasks').innerText = tasks;
 
-            renderGraph(nodes, links);
+            renderPie(Object.entries(typeCounts).map(([name, val]) => ({ name, val })));
+            renderLedger(backlog);
         }
 
-        let simulation, svg, g, node, link, labels;
-
-        function renderGraph(nodes, links) {
-            const container = d3.select("#mindmap-container");
+        function renderPie(data) {
+            const container = d3.select("#type-chart");
+            const width = 200, height = 200, radius = 70;
             container.selectAll("*").remove();
 
-            svg = container.append("svg")
-                .attr("width", width)
-                .attr("height", height);
+            const svg = container.append("svg").attr("width", width).attr("height", height)
+                .append("g").attr("transform", `translate(${width / 2},${height / 2})`);
 
-            const zoom = d3.zoom()
-                .scaleExtent([0.1, 4])
-                .on("zoom", (event) => g.attr("transform", event.transform));
+            const pie = d3.pie().value(d => d.val).sort(null);
+            const arc = d3.arc().innerRadius(radius * 0.8).outerRadius(radius);
 
-            svg.call(zoom);
+            const g = svg.selectAll(".arc").data(pie(data)).enter().append("g").attr("class", "arc");
 
-            g = svg.append("g");
+            g.append("path").attr("d", arc)
+                .attr("fill", d => d.data.name === 'Violation' ? 'var(--critical)' : '#1a1a1a')
+                .attr("stroke", "var(--bg)").attr("stroke-width", "2px");
 
-            simulation = d3.forceSimulation(nodes)
-                .force("link", d3.forceLink(links).id(d => d.id).distance(100))
-                .force("charge", d3.forceManyBody().strength(-300))
-                .force("center", d3.forceCenter(width / 2, height / 2))
-                .force("collision", d3.forceCollide().radius(d => d.val + 20));
-
-            link = g.append("g")
-                .selectAll("line")
-                .data(links)
-                .join("line")
-                .attr("class", "link")
-                .attr("stroke", d => {
-                    const targetNode = nodes.find(n => n.id === d.target.id || n.id === d.target);
-                    return colors[targetNode.type] || colors.config;
-                });
-
-            node = g.append("g")
-                .selectAll("circle")
-                .data(nodes)
-                .join("circle")
-                .attr("class", "node-circle")
-                .attr("r", d => d.val)
-                .attr("fill", d => colors[d.type] || colors.config)
-                .attr("filter", d => d.type === 'violation' ? "drop-shadow(0 0 8px var(--danger))" : "none")
-                .call(drag(simulation))
-                .on("mouseover", showTooltip)
-                .on("mouseout", hideTooltip)
-                .on("click", (event, d) => showDetails(d));
-
-            labels = g.append("g")
-                .selectAll("text")
-                .data(nodes)
-                .join("text")
-                .attr("dy", d => d.val + 15)
-                .attr("text-anchor", "middle")
-                .attr("fill", "#fff")
-                .attr("font-size", "10px")
-                .attr("font-weight", "600")
-                .style("pointer-events", "none")
-                .style("opacity", showLabels ? 0.7 : 0)
-                .text(d => d.name);
-
-            simulation.on("tick", () => {
-                link
-                    .attr("x1", d => d.source.x)
-                    .attr("y1", d => d.source.y)
-                    .attr("x2", d => d.target.x)
-                    .attr("y2", d => d.target.y);
-
-                node
-                    .attr("cx", d => d.x)
-                    .attr("cy", d => d.y);
-
-                labels
-                    .attr("x", d => d.x)
-                    .attr("y", d => d.y);
-            });
+            // Minimalist legend or center text
+            svg.append("text").text("DEBT").attr("text-anchor", "middle").attr("dy", "0.3em")
+                .attr("fill", "#333").attr("font-size", "10px").attr("font-weight", "800");
         }
 
-        function drag(sim) {
-            function dragstarted(event) {
-                if (!event.active) sim.alphaTarget(0.3).restart();
-                event.subject.fx = event.subject.x;
-                event.subject.fy = event.subject.y;
-            }
-            function dragged(event) {
-                event.subject.fx = event.x;
-                event.subject.fy = event.y;
-            }
-            function dragended(event) {
-                if (!event.active) sim.alphaTarget(0);
-                event.subject.fx = null;
-                event.subject.fy = null;
-            }
-            return d3.drag()
-                .on("start", dragstarted)
-                .on("drag", dragged)
-                .on("end", dragended);
-        }
+        function renderLedger(units) {
+            const list = document.getElementById('ledger-list');
+            const filtered = units.filter(u => (u.label + (u.data.reason || '')).toLowerCase().includes(query.toLowerCase()));
 
-        function showTooltip(event, d) {
-            const tt = d3.select("#tooltip");
-            tt.html(`<strong>${d.name}</strong><br><span style="color:var(--text-dim)">${d.type.toUpperCase()}</span>`)
-                .style("left", (event.pageX + 10) + "px")
-                .style("top", (event.pageY + 10) + "px")
-                .style("opacity", 1);
-
-            d3.select(this).attr("r", d.val + 4);
-        }
-
-        function hideTooltip(event, d) {
-            d3.select("#tooltip").style("opacity", 0);
-            d3.select(this).attr("r", d.val);
-        }
-
-        function showDetails(d) {
-            if (!d.data) return;
-            const panel = document.getElementById('details-panel');
-            panel.classList.add('active');
-
-            let content = `
-                <div class="task-detail-header">
-                    <span class="tag tag-${d.type}">${d.type}</span>
-                    <span style="font-size: 0.7rem; color: var(--text-dim); font-weight: 800; float: right;">${d.engine.toUpperCase()}</span>
-                    <div class="file-path">${d.data.file || d.data.folder || 'Global Scope'}</div>
+            list.innerHTML = filtered.map(u => `
+                <div class="ledger-row ${u.type === 'Violation' ? 'row-critical' : ''}" 
+                     onmouseover="showTooltip(event, '${u.label}', '${(u.data.reason || u.data.pattern || '').replace(/'/g, "\\'")}')" 
+                     onmouseout="hideTooltip()">
+                    <span class="row-type">${u.type}</span>
+                    <span class="row-file">${u.label}</span>
+                    <span class="row-meta">${u.engine.toUpperCase()}</span>
                 </div>
-                <div class="reason-box">
-                    ${d.data.reason || d.data.pattern || 'Architectural integrity requirement.'}
-                </div>
-            `;
-
-            if (d.data.reason && d.data.reason.includes('🔥')) {
-                const hotspotLines = d.data.reason.split('🔥')[1];
-                content += `
-                    <div class="hotspot-alert">
-                        <span>🔥</span>
-                        <span>FRAGMENTATION SPIKE AT LINES ${hotspotLines.trim()}</span>
-                    </div>
-                `;
-            }
-
-            if (d.data.files) {
-                content += `<div style="margin-top: 1rem; font-size: 0.8rem;">
-                    <strong style="color: var(--accent-purple)">Grouped Files:</strong>
-                    <ul style="margin-top: 0.5rem; color: var(--text-dim); list-style: none;">
-                        ${d.data.files.map(f => `<li>• ${f}</li>`).join('')}
-                    </ul>
-                </div>`;
-            }
-
-            panel.innerHTML = content + `<button onclick="this.parentElement.classList.remove('active')" style="margin-top: 2rem; background: var(--glass-border); border: none; color: #fff; padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer; width: 100%;">Close Panel</button>`;
+            `).join('');
         }
 
-        function resetView() {
-            svg.transition().duration(750).call(
-                d3.zoom().transform,
-                d3.zoomIdentity
-            );
+        function showTooltip(e, title, reason) {
+            const tt = document.getElementById('tooltip');
+            tt.innerHTML = `<div style='font-weight:700; margin-bottom:1rem; border-bottom:1px solid #222; padding-bottom:0.5rem;'>${title}</div><div style='color:#888; font-size:0.75rem; line-height:1.6;'>${reason}</div>`;
+            tt.style.opacity = 1; tt.style.left = (e.pageX + 20) + "px"; tt.style.top = (e.pageY + 20) + "px";
         }
+        function hideTooltip() { document.getElementById('tooltip').style.opacity = 0; }
 
-        function toggleLabels() {
-            showLabels = !showLabels;
-            labels.transition().duration(300).style("opacity", showLabels ? 0.7 : 0);
-        }
+        document.getElementById('searchInput').oninput = (e) => { query = e.target.value; render(); };
 
         init();
-
-        window.addEventListener('resize', () => {
-            // Simple resize refresh
-            location.reload();
-        });
+        window.addEventListener('resize', render);
     </script>
 </body>
 
