@@ -8,9 +8,93 @@
 
 ---
 
-## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (28)
+## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (111)
 **Action:** The AI Agent must analyze these files and update `_dev-system/config/efficiency.json` or add `@efficiency` headers.
 
+- [ ] `../../tests/unit/Logger_v.test.res`
+- [ ] `../../tests/unit/Sidebar_v.test.res`
+- [ ] `../../tests/unit/LazyLoad_v.test.res`
+- [ ] `../../tests/unit/NavigationFSM_v.test.res`
+- [ ] `../../tests/unit/ProjectionMath_v.test.res`
+- [ ] `../../tests/unit/EventBus_v.test.res`
+- [ ] `../../tests/unit/VideoEncoder_v.test.res`
+- [ ] `../../tests/unit/Components_v.test.setup.jsx`
+- [ ] `../../tests/unit/SceneCache_v.test.res`
+- [ ] `../../tests/unit/HotspotLayer_v.test.res`
+- [ ] `../../tests/unit/HotspotLine_v.test.res`
+- [ ] `../../tests/unit/VitestSmoke.test.res`
+- [ ] `../../tests/unit/Mod_v.test.res`
+- [ ] `../../tests/unit/App_v.test.res`
+- [ ] `../../tests/unit/FloorNavigation_v.test.res`
+- [ ] `../../tests/unit/FinalAsyncCheck_v.test.res`
+- [ ] `../../tests/unit/PanoramaClusterer_v.test.res`
+- [ ] `../../tests/unit/UploadReport_v.test.res`
+- [ ] `../../tests/unit/SceneLoader_v.test.res`
+- [ ] `../../tests/unit/UploadProcessor_v.test.res`
+- [ ] `../../tests/unit/SimulationDriver_v.test.res`
+- [ ] `../../tests/unit/ServerTeaser_v.test.res`
+- [ ] `../../tests/unit/LoggerTelemetry_v.test.res`
+- [ ] `../../tests/unit/SimulationChainSkipper_v.test.res`
+- [ ] `../../tests/unit/SceneList_v.test.res`
+- [ ] `../../tests/unit/NotificationLayer_v.test.res`
+- [ ] `../../tests/unit/ReturnPrompt_v.test.res`
+- [ ] `../../tests/unit/QualityIndicator_v.test.res`
+- [ ] `../../tests/unit/PannellumLifecycle_v.test.res`
+- [ ] `../../tests/unit/NavigationUI_v.test.res`
+- [ ] `../../tests/unit/HotspotMenuLayer_v.test.res`
+- [ ] `../../tests/unit/TourTemplateAssets_v.test.res`
+- [ ] `../../tests/unit/Constants_v.test.res`
+- [ ] `../../tests/unit/SceneSwitcher_v.test.res`
+- [ ] `../../tests/unit/ProgressBar_v.test.res`
+- [ ] `../../tests/unit/TourTemplateStyles_v.test.res`
+- [ ] `../../tests/unit/LabelMenu_v.test.setup.jsx`
+- [ ] `../../tests/unit/SessionStore_v.test.res`
+- [ ] `../../tests/unit/ProjectData_v.test.res`
+- [ ] `../../tests/unit/TeaserPlayback_v.test.res`
+- [ ] `../../tests/unit/HotspotActionMenu_v.test.res`
+- [ ] `../../tests/unit/Resizer_v.test.res`
+- [ ] `../../tests/unit/TourTemplates_v.test.res`
+- [ ] `../../tests/unit/LinkModal_v.test.res`
+- [ ] `../../tests/unit/VisualPipeline_v.test.res`
+- [ ] `../../tests/unit/LucideIcons_v.test.res`
+- [ ] `../../tests/unit/PersistentLabel_v.test.res`
+- [ ] `../../tests/unit/ErrorFallbackUI_v.test.res`
+- [ ] `../../tests/unit/SceneLoader_Lifecycle_Unified_v.test.res`
+- [ ] `../../tests/unit/Portal_v.test.res`
+- [ ] `../../tests/unit/UploadProcessor_v.test.setup.js`
+- [ ] `../../tests/unit/Version_v.test.res`
+- [ ] `../../tests/unit/NavigationGraph_v.test.res`
+- [ ] `../../tests/unit/TourTemplateScripts_v.test.res`
+- [ ] `../../tests/unit/PathInterpolation_v.test.res`
+- [ ] `../../tests/unit/NavigationRenderer_v.test.res`
+- [ ] `../../tests/unit/TeaserPathfinder_v.test.res`
+- [ ] `../../tests/unit/DownloadSystem_v.test.res`
+- [ ] `../../tests/unit/Main_v.test.res`
+- [ ] `../../tests/unit/ExifReportGenerator_v.test.res`
+- [ ] `../../tests/unit/SvgRenderer_v.test.res`
+- [ ] `../../tests/unit/RequestQueue_v.test.res`
+- [ ] `../../tests/unit/UtilityBar_v.test.res`
+- [ ] `../../tests/unit/ImageValidator_v.test.res`
+- [ ] `../../tests/unit/ImageOptimizer_v.test.res`
+- [ ] `../../tests/unit/NavigationController_v.test.res`
+- [ ] `../../tests/unit/SnapshotOverlay_v.test.res`
+- [ ] `../../tests/unit/ExifParser_v.test.res`
+- [ ] `../../tests/unit/PannellumAdapter_v.test.res`
+- [ ] `../../tests/unit/LabelMenu_v.test.res`
+- [ ] `../../tests/unit/PopOver_v.test.res`
+- [ ] `../../tests/unit/ColorPalette_v.test.res`
+- [ ] `../../tests/unit/HotspotLine_v.test.setup.js`
+- [ ] `../../tests/unit/TeaserRecorder_v.test.res`
+- [ ] `../../tests/unit/Exporter_v.test.res`
+- [ ] `../../tests/unit/FingerprintService_v.test.res`
+- [ ] `../../tests/unit/SimulationNavigation_v.test.res`
+- [ ] `../../tests/unit/AppErrorBoundary_v.test.res`
+- [ ] `../../tests/unit/Shadcn_v.test.res`
+- [ ] `../../tests/unit/InputSystem_v.test.res`
+- [ ] `../../tests/unit/CursorPhysics_v.test.res`
+- [ ] `../../tests/unit/SimulationPathGenerator_v.test.res`
+- [ ] `../../tests/unit/VersionData_v.test.res`
+- [ ] `../../tests/unit/Tooltip_v.test.res`
 - [ ] `../../tests/rescript-schema-shim.js`
 - [ ] `../../tests/TestRunner.res`
 - [ ] `../../tests/node-setup.js`
@@ -36,15 +120,185 @@
 - [ ] `../../backend/src/services/media/webp.rs`
 - [ ] `../../backend/src/services/media/naming_old.rs`
 - [ ] `../../backend/src/services/media/storage.rs`
-- [ ] `../../package-lock.json`
 - [ ] `../../rescript.json`
 - [ ] `../../.vscode/settings.json`
 
 ---
 
-## 🧩 MERGE TASKS (5)
+## 🏗️ STRUCTURAL REFACTOR TASKS (24)
+**Action:** Implement Vertical Slicing to reduce directory traversal overhead.
+
+- [ ] **Project** (Action: Vertical Slice)
+  - *Reason:* Feature 'Project' spread across 4 folders (Fragmentation Tax)
+- [ ] **Notification** (Action: Vertical Slice)
+  - *Reason:* Feature 'Notification' spread across 2 folders (Fragmentation Tax)
+- [ ] **Service** (Action: Vertical Slice)
+  - *Reason:* Feature 'Service' spread across 2 folders (Fragmentation Tax)
+- [ ] **App** (Action: Vertical Slice)
+  - *Reason:* Feature 'App' spread across 4 folders (Fragmentation Tax)
+- [ ] **utils** (Action: Vertical Slice)
+  - *Reason:* Feature 'utils' spread across 3 folders (Fragmentation Tax)
+- [ ] **Simulation** (Action: Vertical Slice)
+  - *Reason:* Feature 'Simulation' spread across 3 folders (Fragmentation Tax)
+- [ ] **Ui** (Action: Vertical Slice)
+  - *Reason:* Feature 'Ui' spread across 3 folders (Fragmentation Tax)
+- [ ] **Exif** (Action: Vertical Slice)
+  - *Reason:* Feature 'Exif' spread across 2 folders (Fragmentation Tax)
+- [ ] **Teaser** (Action: Vertical Slice)
+  - *Reason:* Feature 'Teaser' spread across 2 folders (Fragmentation Tax)
+- [ ] **Hotspot** (Action: Vertical Slice)
+  - *Reason:* Feature 'Hotspot' spread across 4 folders (Fragmentation Tax)
+- [ ] **Visual** (Action: Vertical Slice)
+  - *Reason:* Feature 'Visual' spread across 2 folders (Fragmentation Tax)
+- [ ] **Svg** (Action: Vertical Slice)
+  - *Reason:* Feature 'Svg' spread across 2 folders (Fragmentation Tax)
+- [ ] **Viewer** (Action: Vertical Slice)
+  - *Reason:* Feature 'Viewer' spread across 6 folders (Fragmentation Tax)
+- [ ] **Scene** (Action: Vertical Slice)
+  - *Reason:* Feature 'Scene' spread across 6 folders (Fragmentation Tax)
+- [ ] **Upload** (Action: Vertical Slice)
+  - *Reason:* Feature 'Upload' spread across 3 folders (Fragmentation Tax)
+- [ ] **Navigation** (Action: Vertical Slice)
+  - *Reason:* Feature 'Navigation' spread across 3 folders (Fragmentation Tax)
+- [ ] **Sidebar** (Action: Vertical Slice)
+  - *Reason:* Feature 'Sidebar' spread across 2 folders (Fragmentation Tax)
+- [ ] **mod** (Action: Vertical Slice)
+  - *Reason:* Feature 'mod' spread across 16 folders (Fragmentation Tax)
+- [ ] **Lucide** (Action: Vertical Slice)
+  - *Reason:* Feature 'Lucide' spread across 2 folders (Fragmentation Tax)
+- [ ] **Tour** (Action: Vertical Slice)
+  - *Reason:* Feature 'Tour' spread across 3 folders (Fragmentation Tax)
+- [ ] **Link** (Action: Vertical Slice)
+  - *Reason:* Feature 'Link' spread across 3 folders (Fragmentation Tax)
+- [ ] **State** (Action: Vertical Slice)
+  - *Reason:* Feature 'State' spread across 3 folders (Fragmentation Tax)
+- [ ] **index** (Action: Vertical Slice)
+  - *Reason:* Feature 'index' spread across 3 folders (Fragmentation Tax)
+- [ ] **Logger** (Action: Vertical Slice)
+  - *Reason:* Feature 'Logger' spread across 2 folders (Fragmentation Tax)
+
+---
+
+## 🧩 MERGE TASKS (28)
+### Merge Folder: `../../src/core`
+- **Reason:** Score 1.80 > 1.0
+- **Files:**
+  - `SimHelpers.res`
+  - `Reducer.res`
+  - `ViewerState.res`
+  - `SceneHelpersParser.res`
+  - `Actions.res`
+  - `SceneHelpers.res`
+  - `UiHelpers.res`
+  - `ViewerTypes.res`
+  - `SharedTypes.res`
+  - `AppContext.res`
+  - `Types.res`
+  - `Schemas.res`
+  - `SchemasShared.res`
+  - `SchemasDomain.res`
+  - `GlobalStateBridge.res`
+  - `SceneHelpersLogic.res`
+  - `State.res`
+  - `SceneCache.res`
+### Merge Folder: `../../backend/src/pathfinder`
+- **Reason:** Score 2.00 > 1.0
+- **Files:**
+  - `mod.rs`
+  - `utils.rs`
+### Merge Folder: `../../backend/src/api`
+- **Reason:** Score 5.00 > 1.0
+- **Files:**
+  - `telemetry.rs`
+  - `auth.rs`
+  - `mod.rs`
+  - `geocoding.rs`
+  - `utils.rs`
+### Merge Folder: `../../src/systems/api`
+- **Reason:** Score 3.00 > 1.0
+- **Files:**
+  - `ProjectApi.res`
+  - `MediaApi.res`
+  - `ApiTypes.res`
+### Merge Folder: `../../src/components/SceneList`
+- **Reason:** Score 2.00 > 1.0
+- **Files:**
+  - `SceneItem.res`
+  - `SceneListMain.res`
+### Merge Folder: `../../src/components/VisualPipeline`
+- **Reason:** Score 5.00 > 1.0
+- **Files:**
+  - `VisualPipelineRender.res`
+  - `VisualPipelineMain.res`
+  - `VisualPipelineStyles.res`
+  - `VisualPipelineTypes.res`
+  - `VisualPipelineLogic.res`
+### Merge Folder: `../../css`
+- **Reason:** Score 3.50 > 1.0
+- **Files:**
+  - `variables.css`
+  - `animations.css`
+  - `tailwind.css`
+  - `style.css`
+  - `legacy.css`
+  - `layout.css`
+  - `base.css`
+### Merge Folder: `../../backend/src`
+- **Reason:** Score 2.00 > 1.0
+- **Files:**
+  - `lib.rs`
+  - `main.rs`
+### Merge Folder: `../../backend/src/api/media/image`
+- **Reason:** Score 1.50 > 1.0
+- **Files:**
+  - `image_utils.rs`
+  - `mod.rs`
+  - `image_logic.rs`
+### Merge Folder: `../../backend/src/models`
+- **Reason:** Score 5.00 > 1.0
+- **Files:**
+  - `session.rs`
+  - `user.rs`
+  - `mod.rs`
+  - `project.rs`
+  - `errors.rs`
+### Merge Folder: `../../src/components`
+- **Reason:** Score 3.20 > 1.0
+- **Files:**
+  - `NotificationLayer.res`
+  - `LabelMenu.res`
+  - `HotspotManager.res`
+  - `UploadReport.res`
+  - `Tooltip.res`
+  - `HotspotActionMenu.res`
+  - `ViewerLoader.res`
+  - `QualityIndicator.res`
+  - `ViewerSnapshot.res`
+  - `HotspotLayer.res`
+  - `AppErrorBoundary.res`
+  - `ViewerUI.res`
+  - `PopOver.res`
+  - `PersistentLabel.res`
+  - `Sidebar.res`
+  - `PreviewArrow.res`
+  - `VisualPipeline.res`
+  - `HotspotMenuLayer.res`
+  - `ViewerHUD.res`
+  - `FloorNavigation.res`
+  - `ViewerManagerLogic.res`
+  - `ReturnPrompt.res`
+  - `NotificationContext.res`
+  - `UtilityBar.res`
+  - `ViewerLabelMenu.res`
+  - `SnapshotOverlay.res`
+  - `SceneList.res`
+  - `ViewerManager.res`
+  - `LinkModal.res`
+  - `ModalContext.res`
+  - `Portal.res`
+  - `ErrorFallbackUI.res`
 ### Merge Folder: `../../src/systems`
-- **Reason:** Score 7.13 > 1.5
+- **Reason:** Score 7.70 > 1.0
 - **Files:**
   - `TeaserRecorderLogic.res`
   - `Resizer.res`
@@ -123,67 +377,23 @@
   - `SceneLoaderLogicEvents.res`
   - `NavigationRenderer.res`
   - `Exporter.res`
-
-### Merge Folder: `../../src/core`
-- **Reason:** Score 2.12 > 1.5
+### Merge Folder: `../../backend/src/services/geocoding`
+- **Reason:** Score 2.00 > 1.0
 - **Files:**
-  - `SimHelpers.res`
-  - `Reducer.res`
-  - `ViewerState.res`
-  - `SceneHelpersParser.res`
-  - `Actions.res`
-  - `SceneHelpers.res`
-  - `UiHelpers.res`
-  - `ViewerTypes.res`
-  - `SharedTypes.res`
-  - `AppContext.res`
-  - `Types.res`
-  - `Schemas.res`
-  - `SchemasShared.res`
-  - `SchemasDomain.res`
-  - `GlobalStateBridge.res`
-  - `SceneHelpersLogic.res`
-  - `State.res`
-  - `SceneCache.res`
-
-### Merge Folder: `../../src/components`
-- **Reason:** Score 4.16 > 1.5
+  - `logic.rs`
+  - `mod.rs`
+### Merge Folder: `../../scripts`
+- **Reason:** Score 7.00 > 1.0
 - **Files:**
-  - `NotificationLayer.res`
-  - `LabelMenu.res`
-  - `HotspotManager.res`
-  - `UploadReport.res`
-  - `Tooltip.res`
-  - `HotspotActionMenu.res`
-  - `ViewerLoader.res`
-  - `QualityIndicator.res`
-  - `ViewerSnapshot.res`
-  - `HotspotLayer.res`
-  - `AppErrorBoundary.res`
-  - `ViewerUI.res`
-  - `PopOver.res`
-  - `PersistentLabel.res`
-  - `Sidebar.res`
-  - `PreviewArrow.res`
-  - `VisualPipeline.res`
-  - `HotspotMenuLayer.res`
-  - `ViewerHUD.res`
-  - `FloorNavigation.res`
-  - `ViewerManagerLogic.res`
-  - `ReturnPrompt.res`
-  - `NotificationContext.res`
-  - `UtilityBar.res`
-  - `ViewerLabelMenu.res`
-  - `SnapshotOverlay.res`
-  - `SceneList.res`
-  - `ViewerManager.res`
-  - `LinkModal.res`
-  - `ModalContext.res`
-  - `Portal.res`
-  - `ErrorFallbackUI.res`
-
+  - `increment-build.js`
+  - `debug-connectivity.js`
+  - `update-changelog.js`
+  - `update-version.js`
+  - `test-logging.js`
+  - `bump-version.js`
+  - `update-readme.js`
 ### Merge Folder: `../../src/core/reducers`
-- **Reason:** Score 1.84 > 1.5
+- **Reason:** Score 9.00 > 1.0
 - **Files:**
   - `TimelineReducer.res`
   - `NavigationReducer.res`
@@ -194,9 +404,23 @@
   - `mod.res`
   - `RootReducer.res`
   - `HotspotReducer.res`
-
+### Merge Folder: `../../backend/src/api/media`
+- **Reason:** Score 3.00 > 1.0
+- **Files:**
+  - `serve.rs`
+  - `similarity.rs`
+  - `mod.rs`
+### Merge Folder: `../../scripts/guard`
+- **Reason:** Score 6.00 > 1.0
+- **Files:**
+  - `check-size.js`
+  - `check-tests.js`
+  - `index.js`
+  - `check-map.js`
+  - `utils.js`
+  - `check-tasks.js`
 ### Merge Folder: `../../src/utils`
-- **Reason:** Score 2.08 > 1.5
+- **Reason:** Score 2.00 > 1.0
 - **Files:**
   - `GeoUtils.res`
   - `PersistenceLayer.res`
@@ -218,4 +442,142 @@
   - `SessionStore.res`
   - `Version.res`
   - `VersionData.res`
-
+### Merge Folder: `../../src/components/Sidebar`
+- **Reason:** Score 7.00 > 1.0
+- **Files:**
+  - `SidebarActions.res`
+  - `SidebarMain.res`
+  - `SidebarBranding.res`
+  - `SidebarMainTypes.res`
+  - `SidebarProcessing.res`
+  - `SidebarMainLogic.res`
+  - `SidebarProjectInfo.res`
+### Merge Folder: `../../src/components/ui`
+- **Reason:** Score 4.00 > 1.0
+- **Files:**
+  - `context-menu.jsx`
+  - `Shadcn.res`
+  - `dropdown-menu.jsx`
+  - `button.jsx`
+  - `popover.jsx`
+  - `tooltip.jsx`
+  - `sonner.jsx`
+  - `LucideIcons.res`
+### Merge Folder: `../../backend/src/api/project/storage`
+- **Reason:** Score 2.00 > 1.0
+- **Files:**
+  - `storage_logic.rs`
+  - `mod.rs`
+### Merge Folder: `../../backend/src/api/project`
+- **Reason:** Score 4.00 > 1.0
+- **Files:**
+  - `export.rs`
+  - `mod.rs`
+  - `validation.rs`
+  - `navigation.rs`
+### Merge Folder: `../..`
+- **Reason:** Score 5.00 > 1.0
+- **Files:**
+  - `jsconfig.json`
+  - `index.html`
+  - `tailwind.config.js`
+  - `package.json`
+  - `postcss.config.js`
+### Merge Folder: `../../backend/src/api/media/video`
+- **Reason:** Score 2.00 > 1.0
+- **Files:**
+  - `mod.rs`
+  - `video_logic.rs`
+### Merge Folder: `../../src/components/ui/Lucide`
+- **Reason:** Score 4.00 > 1.0
+- **Files:**
+  - `LucideActions.res`
+  - `LucideStatus.res`
+  - `LucideMedia.res`
+  - `LucideCore.res`
+### Merge Folder: `../../src/bindings`
+- **Reason:** Score 6.00 > 1.0
+- **Files:**
+  - `WebApiBindings.res`
+  - `GraphicsBindings.res`
+  - `BrowserBindings.res`
+  - `ViewerBindings.res`
+  - `IdbBindings.res`
+  - `DomBindings.res`
+### Merge Folder: `../../tests/unit`
+- **Reason:** Score 6.50 > 1.0
+- **Files:**
+  - `NavigationReducer_v.test.res`
+  - `ExifReportGeneratorLogicExtraction_v.test.res`
+  - `UploadProcessorTypes_v.test.res`
+  - `AudioManager_v.test.res`
+  - `LoggerLogic_v.test.res`
+  - `TimelineReducer_v.test.res`
+  - `PreviewArrow_v.test.res`
+  - `NotificationContext_v.test.res`
+  - `AppContext_v.test.res`
+  - `ProjectManagerLogic_v.test.res`
+  - `UrlUtils_v.test.res`
+  - `StateInspector_v.test.res`
+  - `ViewerSnapshot_v.test.res`
+  - `ViewerHUD_v.test.res`
+  - `MediaApi_v.test.res`
+  - `ExifReportGeneratorUtils_v.test.res`
+  - `ViewerUI_v.test.res`
+  - `HotspotLineTypes_v.test.res`
+  - `TourLogic_v.test.res`
+  - `SceneHelpers_v.test.res`
+  - `SimulationReducer_v.test.res`
+  - `HotspotReducer_v.test.res`
+  - `ProjectApi_v.test.res`
+  - `UiHelpers_v.test.res`
+  - `ProjectReducer_v.test.res`
+  - `SvgManager_v.test.res`
+  - `LinkEditorLogic_v.test.res`
+  - `Schemas_v.test.res`
+  - `ApiTypes_v.test.res`
+  - `ServiceWorkerMain_v.test.res`
+  - `ViewerFollow_v.test.res`
+  - `RootReducer_v.test.res`
+  - `ViewerLabelMenu_v.test.res`
+  - `HotspotLineLogic_v.test.res`
+  - `ViewerManager_v.test.res`
+  - `Types_v.test.res`
+  - `TeaserState_v.test.res`
+  - `Reducer_v.test.res`
+  - `HotspotManager_v.test.res`
+  - `State_v.test.res`
+  - `ProjectManager_v.test.res`
+  - `GeoUtils_v.test.res`
+  - `SimulationLogic_v.test.res`
+  - `ViewerPool_v.test.res`
+  - `LoggerTypes_v.test.res`
+  - `SceneTransitionManager_v.test.res`
+  - `SimHelpers_v.test.res`
+  - `UiReducer_v.test.res`
+  - `Actions_v.test.res`
+  - `ExifReportGeneratorLogicLocation_v.test.res`
+  - `ViewerState_v.test.res`
+  - `ExifReportGeneratorLogicGroups_v.test.res`
+  - `InteractionsRobustness_v.test.res`
+  - `UploadProcessorLogic_v.test.res`
+  - `TeaserManager_v.test.res`
+  - `ReBindings_v.test.res`
+  - `ViewerTypes_v.test.res`
+  - `ViewerLoader_v.test.res`
+  - `GlobalStateBridge_v.test.res`
+  - `BackendApi_v.test.res`
+  - `SharedTypes_v.test.res`
+  - `ModalContext_v.test.res`
+  - `Bindings_Unified_v.test.res`
+  - `ServiceWorker_v.test.res`
+  - `SceneReducer_v.test.res`
+### Merge Folder: `../../src`
+- **Reason:** Score 6.00 > 1.0
+- **Files:**
+  - `ReBindings.res`
+  - `App.res`
+  - `Main.res`
+  - `ServiceWorkerMain.res`
+  - `index.js`
+  - `ServiceWorker.res`

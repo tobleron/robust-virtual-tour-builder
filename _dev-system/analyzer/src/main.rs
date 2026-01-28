@@ -20,9 +20,17 @@ use drivers::config::analyze_config;
 #[derive(Debug, Deserialize)]
 struct EfficiencyConfig {
     settings: Settings,
+    exclusion_rules: ExclusionRules,
     profiles: HashMap<String, Profile>,
     taxonomy: HashMap<String, TaxonomyRole>,
     exceptions: Option<Vec<ExceptionRule>>,
+}
+
+#[derive(Debug, Deserialize)]
+struct ExclusionRules {
+    folders: Vec<String>,
+    files: Vec<String>,
+    extensions: Vec<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -40,6 +48,7 @@ struct Settings {
     base_loc_limit: usize,
     hard_ceiling_loc: usize,
     soft_floor_loc: usize,
+    max_depth_threshold: usize,
 }
 
 #[derive(Debug, Deserialize)]
@@ -53,26 +62,30 @@ struct TaxonomyRole {
     multiplier: f64,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize)]
 enum WorkUnit {
     Ambiguity { file: String },
     Violation { file: String, pattern: String, severity: String },
     Surgical { file: String, action: String, reason: String },
     Merge { folder: String, files: Vec<String>, reason: String },
+    Structural { file: String, action: String, reason: String },
 }
 
 fn count_lines(content: &str) -> usize {
     content.lines().filter(|l| !l.trim().is_empty() && !l.trim().starts_with("//")).count()
 }
-fn is_project_source(path: &Path) -> bool {
+fn is_project_source(path: &Path, rules: &ExclusionRules) -> bool {
     let p_str = path.to_string_lossy();
     let file_name = path.file_name().unwrap_or_default().to_string_lossy();
     let ext = path.extension().and_then(|s| s.to_str()).unwrap_or("");
     let valid_extensions = ["rs", "res", "jsx", "js", "html", "css", "json", "toml", "yaml"];
+    
     if !valid_extensions.contains(&ext) && file_name != "Cargo.toml" && file_name != "package.json" { return false; }
-    if file_name.ends_with(".bs.js") || file_name.contains(".test.") || file_name.contains("_v.test") { return false; }
-    let ignored = ["/node_modules/", "/target/", "/lib/", "/.git/", "/.next/", "/old_ref/", "/dist/", "/build/", "/cache/", "/_dev-system/"];
-    for folder in ignored { if p_str.contains(folder) { return false; } }
+    
+    for folder in &rules.folders { if p_str.contains(folder) { return false; } }
+    for file in &rules.files { if file_name == *file { return false; } }
+    for suffix in &rules.extensions { if file_name.ends_with(suffix) { return false; } }
+    
     true
 }
 
@@ -173,7 +186,20 @@ fn flush_plans(buffer: &HashMap<String, Vec<WorkUnit>>) -> Result<()> {
             file.write_all(b"\n---\n\n")?;
         }
 
-        // 4. MERGE TASKS
+        // 4. STRUCTURAL TASKS
+        let structural: Vec<&WorkUnit> = units.iter().filter(|u| matches!(u, WorkUnit::Structural { .. })).collect();
+        if !structural.is_empty() {
+            file.write_all(format!("## 🏗️ STRUCTURAL REFACTOR TASKS ({})\n", structural.len()).as_bytes())?;
+            file.write_all(b"**Action:** Implement Vertical Slicing to reduce directory traversal overhead.\n\n")?;
+            for unit in structural {
+                if let WorkUnit::Structural { file: feature, action, reason } = unit {
+                    file.write_all(format!("- [ ] **{}** (Action: {})\n  - *Reason:* {}\n", feature, action, reason).as_bytes())?;
+                }
+            }
+            file.write_all(b"\n---\n\n")?;
+        }
+
+        // 5. MERGE TASKS
         let merges: Vec<&WorkUnit> = units.iter().filter(|u| matches!(u, WorkUnit::Merge { .. })).collect();
         if !merges.is_empty() {
             file.write_all(format!("## 🧩 MERGE TASKS ({})\n", merges.len()).as_bytes())?;
@@ -185,7 +211,6 @@ fn flush_plans(buffer: &HashMap<String, Vec<WorkUnit>>) -> Result<()> {
                     for f in files {
                         file.write_all(format!("  - `{}`\n", f).as_bytes())?;
                     }
-                    file.write_all(b"\n")?;
                 }
             }
         }
@@ -202,10 +227,11 @@ fn main() -> Result<()> {
 
     let mut buffer: HashMap<String, Vec<WorkUnit>> = HashMap::new();
     let mut dir_stats: HashMap<String, Vec<(String, usize)>> = HashMap::new();
+    let mut feature_map: HashMap<String, Vec<String>> = HashMap::new(); // For Vertical Slicing detection
 
     for entry in WalkDir::new("../../").into_iter().filter_map(|e| e.ok()) {
         let path = entry.path();
-        if !path.is_file() || !is_project_source(path) { continue; }
+        if !path.is_file() || !is_project_source(path, &config.exclusion_rules) { continue; }
         
         let mut content = String::new();
         if let Ok(mut f) = fs::File::open(path) { let _ = f.read_to_string(&mut content); } else { continue; }
@@ -222,11 +248,11 @@ fn main() -> Result<()> {
 
         // 1. METRICS
         let metrics = match ext {
-            "rs" => analyze_rust(&content).unwrap_or(drivers::CommonMetrics{loc:0, logic_count:0, max_nesting:0, complexity_penalty:0.0, hotspot_lines: None, hotspot_reason: None}),
-            "res" => analyze_rescript(&content).unwrap_or(drivers::CommonMetrics{loc:0, logic_count:0, max_nesting:0, complexity_penalty:0.0, hotspot_lines: None, hotspot_reason: None}),
-            "html" => analyze_html(&content).unwrap_or(drivers::CommonMetrics{loc:0, logic_count:0, max_nesting:0, complexity_penalty:0.0, hotspot_lines: None, hotspot_reason: None}),
-            "css" => analyze_css(&content).unwrap_or(drivers::CommonMetrics{loc:0, logic_count:0, max_nesting:0, complexity_penalty:0.0, hotspot_lines: None, hotspot_reason: None}),
-            _ => analyze_config(&content).unwrap_or(drivers::CommonMetrics{loc:0, logic_count:0, max_nesting:0, complexity_penalty:0.0, hotspot_lines: None, hotspot_reason: None}),
+            "rs" => analyze_rust(&content).unwrap_or(drivers::CommonMetrics{loc:0, logic_count:0, max_nesting:0, complexity_penalty:0.0, hotspot_lines: None, hotspot_reason: None, external_calls: 0, internal_calls: 0}),
+            "res" => analyze_rescript(&content).unwrap_or(drivers::CommonMetrics{loc:0, logic_count:0, max_nesting:0, complexity_penalty:0.0, hotspot_lines: None, hotspot_reason: None, external_calls: 0, internal_calls: 0}),
+            "html" => analyze_html(&content).unwrap_or(drivers::CommonMetrics{loc:0, logic_count:0, max_nesting:0, complexity_penalty:0.0, hotspot_lines: None, hotspot_reason: None, external_calls: 0, internal_calls: 0}),
+            "css" => analyze_css(&content).unwrap_or(drivers::CommonMetrics{loc:0, logic_count:0, max_nesting:0, complexity_penalty:0.0, hotspot_lines: None, hotspot_reason: None, external_calls: 0, internal_calls: 0}),
+            _ => analyze_config(&content).unwrap_or(drivers::CommonMetrics{loc:0, logic_count:0, max_nesting:0, complexity_penalty:0.0, hotspot_lines: None, hotspot_reason: None, external_calls: 0, internal_calls: 0}),
         };
 
         if metrics.loc == 0 { continue; }
@@ -260,7 +286,7 @@ fn main() -> Result<()> {
             }
         }
 
-        // 3. LIMITS & EXCEPTIONS (with Drag Ceiling & Hotspots)
+        // 3. LIMITS & EXCEPTIONS (AI-Optimized Math)
         let mut p_mod = config.taxonomy.get(&taxonomy).map(|t| t.multiplier).unwrap_or(1.0);
         let mut reason_prefix = String::new();
         let mut exception_limit: Option<usize> = None;
@@ -274,12 +300,32 @@ fn main() -> Result<()> {
         }
 
         let density = if metrics.loc > 0 { metrics.logic_count as f64 / metrics.loc as f64 } else { 0.0 };
-        let drag = 1.0 + (metrics.max_nesting as f64 * 0.05) + (density * 2.0) + metrics.complexity_penalty;
-        let mut limit = ((config.settings.base_loc_limit as f64 * p_mod) / drag).max(config.settings.soft_floor_loc as f64) as usize;
+        
+        // AI-Native logic: 
+        // 1. Nesting cost is non-linear (AI loses state)
+        // 2. Cohesion bonus: If (External_Calls / LOC) is low, the file can be larger
+        let dependency_density = metrics.external_calls as f64 / metrics.loc.max(1) as f64;
+        let cohesion_bonus = 1.0 + (0.5 - dependency_density).max(0.0); // Up to 50% bonus for low density
+
+        // Traversal Penalty: Depths > Threshold increase Drag
+        let depth = path.components().count().saturating_sub(1); // Relative to root
+        let depth_penalty = if depth > config.settings.max_depth_threshold {
+            (depth - config.settings.max_depth_threshold) as f64 * 0.25
+        } else {
+            0.0
+        };
+
+        let drag = 1.0 + (metrics.max_nesting as f64 * 0.15) + (density * 2.0) + metrics.complexity_penalty + depth_penalty;
+        
+        // Formula Revision: Drag^1.5 significantly tightens window for complex files
+        let mut limit = ((config.settings.base_loc_limit as f64 * p_mod * cohesion_bonus) / drag.powf(1.5)).max(config.settings.soft_floor_loc as f64) as usize;
         
         if let Some(max) = exception_limit {
             limit = max;
         }
+
+        // Hard Ceiling Clamp: Never allow a file to exceed the cognitive window limit
+        limit = limit.min(config.settings.hard_ceiling_loc);
 
         let loc_violation = metrics.loc > limit;
         let ceiling_violation = drag_ceiling.map(|c| drag > c).unwrap_or(false);
@@ -307,17 +353,57 @@ fn main() -> Result<()> {
         }
 
         dir_stats.entry(path.parent().unwrap().to_string_lossy().to_string()).or_default().push((path.file_name().unwrap().to_string_lossy().to_string(), metrics.loc));
-    }
 
-    // 4. MERGE
-    for (dir, files) in dir_stats {
-        let avg = files.iter().map(|(_,l)| *l).sum::<usize>() / files.len().max(1);
-        let score = calculate_merge_score(FolderStats { file_count: files.len(), avg_loc: avg });
-        if score > 1.5 {
-            let names: Vec<String> = files.iter().map(|(n,_)| n.clone()).collect();
-            buffer.entry("system".to_string()).or_default().push(WorkUnit::Merge { folder: dir, files: names, reason: format!("Score {:.2} > 1.5", score) });
+        // Track features for fragmentation (Simple name-based heuristic)
+        let file_stem = path.file_stem().unwrap_or_default().to_string_lossy().to_string();
+        let feature_name = if file_stem.len() > 3 {
+            let mut result = String::new();
+            for (i, c) in file_stem.chars().enumerate() {
+                if i > 0 && c.is_uppercase() { break; }
+                result.push(c);
+            }
+            result
+        } else {
+            file_stem.clone()
+        };
+        if !feature_name.is_empty() {
+            feature_map.entry(feature_name).or_default().push(path.to_string_lossy().to_string());
         }
     }
+
+    // 4. MERGE & STRUCTURE
+    for (dir, files) in dir_stats {
+        let total: usize = files.iter().map(|(_,l)| *l).sum();
+        let avg = total / files.len().max(1);
+        let score = calculate_merge_score(FolderStats { 
+            file_count: files.len(), 
+            total_loc: total,
+            avg_loc: avg 
+        });
+        if score > 1.0 {
+            let names: Vec<String> = files.iter().map(|(n,_)| n.clone()).collect();
+            buffer.entry("system".to_string()).or_default().push(WorkUnit::Merge { folder: dir, files: names, reason: format!("Score {:.2} > 1.0", score) });
+        }
+    }
+
+    for (feature, paths) in feature_map {
+        if paths.len() > 2 {
+            let mut folders: Vec<String> = paths.iter().map(|p| Path::new(p).parent().unwrap().to_string_lossy().to_string()).collect();
+            folders.sort();
+            folders.dedup();
+            if folders.len() > 1 {
+                buffer.entry("system".to_string()).or_default().push(WorkUnit::Structural {
+                    file: feature.clone(),
+                    action: "Vertical Slice".to_string(),
+                    reason: format!("Feature '{}' spread across {} folders (Fragmentation Tax)", feature, folders.len())
+                });
+            }
+        }
+    }
+
+    // 5. EXPORT METADATA (for Dashboard)
+    let json_data = serde_json::to_string_pretty(&buffer)?;
+    fs::write("../pending/metadata.json", json_data)?;
 
     flush_plans(&buffer)?;
     println!("✅ Scan v8 Complete. Fully Aggregated.");

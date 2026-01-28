@@ -58,6 +58,8 @@ pub fn analyze_rust(content: &str) -> anyhow::Result<CommonMetrics> {
     walker.metrics.loc = content.lines().count();
     walker.metrics.hotspot_lines = None;
     walker.metrics.hotspot_reason = None;
+    walker.metrics.external_calls = 0;
+    walker.metrics.internal_calls = 0;
     walker.visit_file(&syntax);
     Ok(walker.metrics)
 }

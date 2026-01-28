@@ -10,8 +10,10 @@ pub struct CommonMetrics {
     pub logic_count: usize,
     pub max_nesting: usize,
     pub complexity_penalty: f64,
-    pub hotspot_lines: Option<(usize, usize)>, // (start, end)
+    pub hotspot_lines: Option<(usize, usize)>,
     pub hotspot_reason: Option<String>,
+    pub external_calls: usize, // Imports/Opens
+    pub internal_calls: usize, // Local function calls
 }
 
 pub enum EfficiencyOverride {

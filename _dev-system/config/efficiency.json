@@ -4,7 +4,37 @@
     "base_loc_limit": 250,
     "hard_ceiling_loc": 500,
     "soft_floor_loc": 30,
-    "confidence_threshold": 0.95
+    "confidence_threshold": 0.95,
+    "max_depth_threshold": 4
+  },
+  "exclusion_rules": {
+    "folders": [
+      "/node_modules/",
+      "/target/",
+      "/lib/",
+      "/.git/",
+      "/.next/",
+      "/old_ref/",
+      "/dist/",
+      "/build/",
+      "/cache/",
+      "/_dev-system/",
+      "/public/",
+      "/modules/",
+      "/vendor/",
+      "/out/",
+      "/coverage/"
+    ],
+    "files": [
+      "output.css",
+      "package-lock.json",
+      "yarn.lock"
+    ],
+    "extensions": [
+      ".min.js",
+      ".bundle.js",
+      ".bs.js"
+    ]
   },
   "profiles": {
     "rust": {
@@ -115,22 +145,42 @@
       "reason": "App Entry Point orchestrator"
     },
     {
-      "pattern": "src/core/Schemas.res",
-      "multiplier": 2.0,
-      "reason": "Central schema collection",
+      "pattern": "**/Schemas.res",
+      "multiplier": 2.5,
+      "reason": "Central schema collection (Authorized debt)",
       "allow_patterns": [
         "mutable "
       ]
     },
     {
+      "pattern": "**/Constants.res",
+      "multiplier": 10.0,
+      "reason": "Data-heavy static source"
+    },
+    {
+      "pattern": "**/*Types.res",
+      "multiplier": 5.0,
+      "reason": "Deeply nested but necessary data models"
+    },
+    {
+      "pattern": "**/openapi.yaml",
+      "multiplier": 10.0,
+      "reason": "Infrastructure Documentation"
+    },
+    {
+      "pattern": "**/tests/**/*",
+      "multiplier": 10.0,
+      "reason": "Scaffolding for testing"
+    },
+    {
       "pattern": "src/utils/**/*.res",
       "drag_ceiling": 1.5,
-      "reason": "Utils must remain pure and flat"
+      "reason": "Strict pure-logic enforcement (Architectural requirement)"
     },
     {
       "pattern": "backend/src/main.rs",
       "max_loc": 500,
-      "reason": "Backend entry point",
+      "reason": "Backend orchestrator (Authorized size)",
       "allow_patterns": [
         "unwrap"
       ]
