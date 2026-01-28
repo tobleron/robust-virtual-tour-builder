@@ -1,5 +1,6 @@
 mod drivers;
 mod consolidator;
+mod guard;
 
 use std::fs::{self, OpenOptions};
 use std::io::{Read, Write};
@@ -306,6 +307,12 @@ fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>) -> Resu
 
 fn main() -> Result<()> {
     println!("🚀 _dev-system: Starting AGGREGATED Scan (v8)...");
+    
+    let guard_config = guard::GuardConfig::default();
+    
+    // 1. Check Tasks (Maintenance)
+    let _ = guard::check_tasks_count(&guard_config);
+
     let config_raw = fs::read_to_string("../config/efficiency.json")?;
     let config: EfficiencyConfig = serde_json::from_str(&config_raw)?;
     let _ = fs::remove_dir_all("../pending");
@@ -345,6 +352,9 @@ fn main() -> Result<()> {
         };
 
         if metrics.loc == 0 { continue; }
+
+        // Core Guard: Check Tests
+        let _ = guard::check_tests(&guard_config, path);
 
         // 2. VIOLATIONS (with Amnesty)
         let is_binding = content.contains("@val") || content.contains("@send") || path.to_string_lossy().contains("bindings");
@@ -494,6 +504,10 @@ fn main() -> Result<()> {
 
     flush_plans(&buffer)?;
     let _ = sync_all_architectural_tasks(&buffer);
+    
+    // Core Guard: Check Map
+    let _ = guard::check_map(&guard_config);
+
     println!("✅ Scan v8 Complete. Fully Aggregated.");
     Ok(())
 }

@@ -16,8 +16,7 @@ if [ "$CURRENT_BRANCH" != "development" ]; then
 fi
 
 # 1.5 Project Guard (Static Analysis)
-echo "🛡️  Running Project Guard..."
-node scripts/guard/index.js
+./scripts/project-guard.sh
 
 # 2. Context Refresh (Anti-Hallucination)
 echo "🗺️  Refreshing file structure map..."

@@ -141,7 +141,7 @@
   - *Reason:* LOC 94 > Limit 30 (Role: domain-logic, Drag: 10.80)
     🔥 Hotspot: Lines 75-79 (AI Context Fog (score 69.4))
 - [ ] **../../src/core/AuthContext.res**
-  - *Reason:* LOC 70 > Limit 30 (Role: domain-logic, Drag: 7.73)
+  - *Reason:* LOC 76 > Limit 30 (Role: domain-logic, Drag: 7.69)
     🔥 Hotspot: Lines 42-46 (AI Context Fog (score 29.4))
 - [ ] **../../src/core/SceneCache.res**
   - *Reason:* LOC 35 > Limit 30 (Role: domain-logic, Drag: 5.24)
