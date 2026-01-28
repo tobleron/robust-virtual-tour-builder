@@ -1,9 +1,14 @@
 open RescriptSchema
 open Types
 
+let jsonSchema: S.t<JSON.t> = S.unknown->S.transform(_ => {
+  parser: (v: unknown) => v->Obj.magic,
+  serializer: (v: JSON.t) => v->Obj.magic,
+})
+
 let file = S.string->S.transform(_ => {
-  parser: s => Url(s),
-  serializer: f =>
+  parser: (s: string) => Url(s),
+  serializer: (f: file) =>
     switch f {
     | Url(s) => s
     | Blob(_) | File(_) => ""
@@ -57,7 +62,7 @@ let scene = S.object(s => {
     category: s.field("category", S.option(S.string)->S.Option.getOr("outdoor")),
     floor: s.field("floor", S.option(S.string)->S.Option.getOr("ground")),
     label: s.field("label", S.option(S.string)->S.Option.getOr("")),
-    quality: s.field("quality", S.option(S.unknown->(Obj.magic: S.t<unknown> => S.t<JSON.t>))),
+    quality: s.field("quality", S.option(jsonSchema)),
     colorGroup: s.field("colorGroup", S.option(S.string)),
     _metadataSource: s.field("_metadataSource", S.option(S.string)->S.Option.getOr("user")),
     categorySet: s.field("categorySet", S.option(S.bool)->S.Option.getOr(false)),
@@ -88,10 +93,7 @@ let project: S.t<Types.project> = S.object(s => {
     tourName: s.field("tourName", S.option(S.string)->S.Option.getOr("Tour Name")),
     scenes: s.field("scenes", S.option(S.array(scene))->S.Option.getOr([])),
     lastUsedCategory: s.field("lastUsedCategory", S.option(S.string)->S.Option.getOr("outdoor")),
-    exifReport: s.field(
-      "exifReport",
-      S.option(S.unknown->(Obj.magic: S.t<unknown> => S.t<JSON.t>)),
-    ),
+    exifReport: s.field("exifReport", S.option(jsonSchema)),
     sessionId: s.field("sessionId", S.option(S.string)),
     deletedSceneIds: s.field("deletedSceneIds", S.option(S.array(S.string))->S.Option.getOr([])),
     timeline: s.field("timeline", S.option(S.array(timelineItem))->S.Option.getOr([])),
@@ -133,7 +135,7 @@ let importScene = S.object(s => {
     category: "outdoor",
     floor: "ground",
     label: "",
-    quality: s.field("quality", S.option(S.unknown->(Obj.magic: S.t<unknown> => S.t<JSON.t>))),
+    quality: s.field("quality", S.option(jsonSchema)),
     colorGroup: s.field("colorGroup", S.option(S.string)),
     _metadataSource: "default",
     categorySet: false,

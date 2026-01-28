@@ -1,6 +1,11 @@
 open RescriptSchema
 open SharedTypes
 
+let jsonSchema: S.t<JSON.t> = S.unknown->S.transform(_ => {
+  parser: (v: unknown) => v->Obj.magic,
+  serializer: (v: JSON.t) => v->Obj.magic,
+})
+
 let toNullable = (schema: S.t<option<'a>>): S.t<Nullable.t<'a>> => {
   schema->S.transform(_ => {
     parser: (opt: option<'a>) => opt->Nullable.fromOption,
@@ -29,7 +34,7 @@ let exifMetadata: S.t<exifMetadata> = S.object(s => {
   }
 })
 
-let colorHist: S.t<SharedTypes.colorHist> = S.object((s): SharedTypes.colorHist => {
+let colorHist: S.t<colorHist> = S.object((s): colorHist => {
   {
     r: s.field("r", S.array(S.int)),
     g: s.field("g", S.array(S.int)),
@@ -37,7 +42,7 @@ let colorHist: S.t<SharedTypes.colorHist> = S.object((s): SharedTypes.colorHist 
   }
 })
 
-let qualityStats: S.t<SharedTypes.qualityStats> = S.object(s => {
+let qualityStats: S.t<qualityStats> = S.object(s => {
   {
     avgLuminance: s.field("avgLuminance", S.int),
     blackClipping: s.field("blackClipping", S.float),
@@ -46,7 +51,7 @@ let qualityStats: S.t<SharedTypes.qualityStats> = S.object(s => {
   }
 })
 
-let qualityAnalysis: S.t<SharedTypes.qualityAnalysis> = S.object(s => {
+let qualityAnalysis: S.t<qualityAnalysis> = S.object(s => {
   {
     score: s.field("score", S.float),
     histogram: s.field("histogram", S.array(S.int)),
@@ -75,7 +80,7 @@ let metadataResponse: S.t<metadataResponse> = S.object(s => {
   }
 })
 
-let similarityResult: S.t<SharedTypes.similarityResult> = S.object(s => {
+let similarityResult: S.t<similarityResult> = S.object(s => {
   {
     idA: s.field("sceneId", S.string),
     idB: "",
@@ -83,14 +88,14 @@ let similarityResult: S.t<SharedTypes.similarityResult> = S.object(s => {
   }
 })
 
-let similarityResponse: S.t<SharedTypes.similarityResponse> = S.object(s => {
+let similarityResponse: S.t<similarityResponse> = S.object(s => {
   {
     results: s.field("results", S.array(similarityResult)),
     durationMs: s.field("durationMs", S.float),
   }
 })
 
-let validationReport: S.t<SharedTypes.validationReport> = S.object(s => {
+let validationReport: S.t<validationReport> = S.object(s => {
   {
     brokenLinksRemoved: s.field("brokenLinksRemoved", S.int),
     orphanedScenes: s.field("orphanedScenes", S.array(S.string)),
@@ -103,8 +108,5 @@ let validationReport: S.t<SharedTypes.validationReport> = S.object(s => {
 let geocodeResponse: S.t<string> = S.object(s => s.field("address", S.string))
 
 let importResponse: S.t<(string, JSON.t)> = S.object(s => {
-  (
-    s.field("sessionId", S.string),
-    s.field("projectData", S.unknown->(Obj.magic: S.t<unknown> => S.t<JSON.t>)),
-  )
+  (s.field("sessionId", S.string), s.field("projectData", jsonSchema))
 })
