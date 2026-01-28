@@ -5875,6 +5875,7 @@
 │   ├── pending
 │   │   ├── 004_Merge_Fragmented_Folders.md
 │   │   ├── 005_Structural_Vertical_Slicing.md
+│   │   ├── 1076_Classify_Ambiguous_Files.md
 │   │   └── tests
 │   │       └── 006_Test_Generation_Unified.md
 │   ├── postponed
@@ -6199,4 +6200,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-211 directories, 5989 files
+211 directories, 5990 files

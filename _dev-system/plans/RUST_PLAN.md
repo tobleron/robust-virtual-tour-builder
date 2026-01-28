@@ -51,7 +51,7 @@
 - [ ] **../../backend/src/services/shutdown.rs**
   - *Reason:* LOC 162 > Limit 81 (Role: infra-adapter, Drag: 2.95)
 - [ ] **../../backend/src/services/auth/jwt.rs**
-  - *Reason:* LOC 68 > Limit 55 (Role: infra-adapter, Drag: 3.80)
+  - *Reason:* LOC 69 > Limit 55 (Role: infra-adapter, Drag: 3.80)
 - [ ] **../../backend/src/services/geocoding/logic.rs**
   - *Reason:* LOC 129 > Limit 98 (Role: service-orchestrator, Drag: 2.11)
 - [ ] **../../backend/src/services/geocoding/mod.rs**
