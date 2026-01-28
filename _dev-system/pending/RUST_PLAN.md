@@ -30,36 +30,44 @@
 
 ---
 
-## 🛠️ SURGICAL REFACTOR TASKS (13)
+## 🛠️ SURGICAL REFACTOR TASKS (17)
 **Action:** Extract logic to new modules to reduce complexity/bloat.
 **Target:** To be determined by AI Agent (Create new modules as needed).
 
 - [ ] **../../backend/src/pathfinder/utils.rs**
-  - *Reason:* LOC 100 > Limit 75 (Role: util-pure, Drag: 1.32)
+  - *Reason:* LOC 100 > Limit 54 (Role: util-pure, Drag: 1.97)
 - [ ] **../../backend/src/models/mod.rs**
-  - *Reason:* LOC 216 > Limit 190 (Role: orchestrator, Drag: 1.05)
+  - *Reason:* LOC 216 > Limit 181 (Role: orchestrator, Drag: 1.40)
+- [ ] **../../backend/src/api/telemetry.rs**
+  - *Reason:* LOC 157 > Limit 134 (Role: infra-adapter, Drag: 2.11)
 - [ ] **../../backend/src/api/project/storage/storage_logic.rs**
-  - *Reason:* LOC 241 > Limit 131 (Role: service-orchestrator, Drag: 1.52)
+  - *Reason:* LOC 241 > Limit 58 (Role: service-orchestrator, Drag: 2.97)
 - [ ] **../../backend/src/api/project/storage/mod.rs**
-  - *Reason:* LOC 295 > Limit 139 (Role: orchestrator, Drag: 1.43)
+  - *Reason:* LOC 295 > Limit 61 (Role: orchestrator, Drag: 2.88)
 - [ ] **../../backend/src/api/project/navigation.rs**
-  - *Reason:* LOC 109 > Limit 89 (Role: infra-adapter, Drag: 3.07)
+  - *Reason:* LOC 109 > Limit 58 (Role: infra-adapter, Drag: 3.67)
 - [ ] **../../backend/src/api/geocoding.rs**
-  - *Reason:* LOC 153 > Limit 129 (Role: infra-adapter, Drag: 2.13)
+  - *Reason:* LOC 153 > Limit 99 (Role: infra-adapter, Drag: 2.58)
 - [ ] **../../backend/src/api/media/video/mod.rs**
-  - *Reason:* LOC 175 > Limit 146 (Role: orchestrator, Drag: 1.36)
+  - *Reason:* LOC 175 > Limit 70 (Role: orchestrator, Drag: 2.61)
 - [ ] **../../backend/src/api/media/video/video_logic.rs**
-  - *Reason:* LOC 228 > Limit 160 (Role: service-orchestrator, Drag: 1.25)
+  - *Reason:* LOC 228 > Limit 86 (Role: service-orchestrator, Drag: 2.30)
+- [ ] **../../backend/src/api/media/similarity.rs**
+  - *Reason:* LOC 197 > Limit 144 (Role: infra-adapter, Drag: 2.01)
 - [ ] **../../backend/src/api/media/image/mod.rs**
-  - *Reason:* LOC 306 > Limit 63 (Role: orchestrator, Drag: 3.13)
+  - *Reason:* LOC 306 > Limit 36 (Role: orchestrator, Drag: 4.08)
 - [ ] **../../backend/src/api/media/image/image_logic.rs**
-  - *Reason:* LOC 283 > Limit 161 (Role: service-orchestrator, Drag: 1.24)
+  - *Reason:* LOC 283 > Limit 81 (Role: service-orchestrator, Drag: 2.39)
+- [ ] **../../backend/src/services/geocoding/logic.rs**
+  - *Reason:* LOC 129 > Limit 98 (Role: service-orchestrator, Drag: 2.11)
 - [ ] **../../backend/src/services/geocoding/mod.rs**
-  - *Reason:* LOC 246 > Limit 62 (Role: orchestrator, Drag: 3.21)
+  - *Reason:* LOC 246 > Limit 37 (Role: orchestrator, Drag: 4.01)
 - [ ] **../../backend/src/services/project/mod.rs**
-  - *Reason:* LOC 116 > Limit 39 (Role: orchestrator, Drag: 5.05)
+  - *Reason:* LOC 116 > Limit 30 (Role: orchestrator, Drag: 5.65)
+- [ ] **../../backend/src/services/media/analysis/mod.rs**
+  - *Reason:* LOC 97 > Limit 86 (Role: orchestrator, Drag: 2.28)
 - [ ] **../../backend/src/services/media/mod.rs**
-  - *Reason:* LOC 94 > Limit 32 (Role: orchestrator, Drag: 6.10)
+  - *Reason:* LOC 94 > Limit 30 (Role: orchestrator, Drag: 6.80)
 
 ---
 

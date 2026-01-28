@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added **Legacy Amnesty** rules to ignore authorized technical debt in stable files.
   - Implemented **Logic Stripping** (Comments/Strings) for 100% accurate structural analysis.
   - Added **Path-Based Strictness** (Drag Ceilings) to enforce purity in utility modules.
+- Implement architectural hard ceiling and structural governance
 
 ### Changed
 - Mark task 903 as completed (Asset Persistence & Isolation)

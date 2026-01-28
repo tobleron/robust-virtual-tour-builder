@@ -8,14 +8,12 @@
 
 ---
 
-## 🛠️ SURGICAL REFACTOR TASKS (2)
+## 🛠️ SURGICAL REFACTOR TASKS (1)
 **Action:** Extract logic to new modules to reduce complexity/bloat.
 **Target:** To be determined by AI Agent (Create new modules as needed).
 
-- [ ] **../../public/libs/jszip.min.js**
-  - *Reason:* LOC 6240 > Limit 350 (Role: ui-component, Drag: 1.00)
-- [ ] **../../public/libs/pannellum.js**
-  - *Reason:* LOC 2843 > Limit 350 (Role: ui-component, Drag: 1.00)
+- [ ] **../../index.html**
+  - *Reason:* LOC 106 > Limit 96 (Role: ui-component, Drag: 3.09)
 
 ---
 
