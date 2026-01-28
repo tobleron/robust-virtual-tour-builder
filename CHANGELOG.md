@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Integrate schema fixes and update tests
 - Final integration of Jules' async schema improvements
+- Safe integration of Jules' latest similarity schema updates
 
 ### Fixed
 - Resolve async schema conversion error and geocode response mapping
