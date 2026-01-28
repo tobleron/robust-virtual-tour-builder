@@ -108,7 +108,11 @@ let processLoadedProjectData = (
           ->Option.getOr("unknown")
 
         let fileUrl =
-          Constants.backendUrl ++ "/api/project/" ++ sessionId ++ "/file/" ++ encodeURIComponent(name)
+          Constants.backendUrl ++
+          "/api/project/" ++
+          sessionId ++
+          "/file/" ++
+          encodeURIComponent(name)
 
         let newSceneDict = Dict.fromArray(Dict.toArray(sceneDict))
 
