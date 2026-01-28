@@ -19,6 +19,7 @@ backend_log.txt
 dist/
 build/
 bin/
+target/
 backend/target/
 css/output.css
 
