@@ -7,7 +7,7 @@ use std::fs;
 use std::io::Write;
 use uuid::Uuid;
 
-use crate::api::utils::{MAX_UPLOAD_SIZE, get_session_path, get_temp_path, sanitize_filename};
+use crate::api::utils::{MAX_UPLOAD_SIZE, TEMP_DIR, get_temp_path, sanitize_filename};
 use crate::models::AppError;
 
 mod video_logic;
@@ -70,7 +70,7 @@ pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, App
 #[tracing::instrument(skip(payload), name = "generate_teaser")]
 pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, AppError> {
     let session_id = Uuid::new_v4().to_string();
-    let session_path = get_session_path(&session_id);
+    let session_path = std::path::PathBuf::from(TEMP_DIR).join(&session_id);
     fs::create_dir_all(&session_path).map_err(AppError::IoError)?;
 
     tracing::info!(module = "TeaserGenerator", session_id = %session_id, "TEASER_GENERATION_START");
