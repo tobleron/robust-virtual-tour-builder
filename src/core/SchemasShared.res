@@ -1,12 +1,74 @@
 open RescriptSchema
 open SharedTypes
 
-let toNullable = (schema: S.t<option<'a>>): S.t<Nullable.t<'a>> => {
-  schema->S.transform(_ => {
-    parser: (opt: option<'a>) => opt->Nullable.fromOption,
-    serializer: (nul: Nullable.t<'a>) => nul->Nullable.toOption,
-  })
+// Helper to cast unknown to JSON.t
+let toJson: unknown => JSON.t = Obj.magic
+// Helper to cast JSON.t to unknown
+let toUnknown: JSON.t => unknown = Obj.magic
+
+let isUndefinedOrNull = (v: unknown) => {
+  v === %raw("undefined") || v->toJson === JSON.Encode.null
 }
+
+let nullableString = S.custom("nullableString", s => {
+  parser: unknown => {
+    if isUndefinedOrNull(unknown) {
+      Nullable.null
+    } else {
+      let json = unknown->toJson
+      switch JSON.Decode.string(json) {
+      | Some(str) => Nullable.make(str)
+      | None => s.fail("Expected string or null")
+      }
+    }
+  },
+  serializer: n => {
+    switch Nullable.toOption(n) {
+    | Some(str) => JSON.Encode.string(str)->toUnknown
+    | None => JSON.Encode.null->toUnknown
+    }
+  }
+})
+
+let nullableFloat = S.custom("nullableFloat", s => {
+  parser: unknown => {
+    if isUndefinedOrNull(unknown) {
+      Nullable.null
+    } else {
+      let json = unknown->toJson
+      switch JSON.Decode.float(json) {
+      | Some(f) => Nullable.make(f)
+      | None => s.fail("Expected float or null")
+      }
+    }
+  },
+  serializer: n => {
+    switch Nullable.toOption(n) {
+    | Some(f) => JSON.Encode.float(f)->toUnknown
+    | None => JSON.Encode.null->toUnknown
+    }
+  }
+})
+
+let nullableInt = S.custom("nullableInt", s => {
+  parser: unknown => {
+    if isUndefinedOrNull(unknown) {
+      Nullable.null
+    } else {
+      let json = unknown->toJson
+      switch JSON.Decode.float(json) { // Decode as float then to int
+      | Some(f) => Nullable.make(Belt.Float.toInt(f))
+      | None => s.fail("Expected int or null")
+      }
+    }
+  },
+  serializer: n => {
+    switch Nullable.toOption(n) {
+    | Some(i) => JSON.Encode.int(i)->toUnknown
+    | None => JSON.Encode.null->toUnknown
+    }
+  }
+})
 
 let gpsData: S.t<gpsData> = S.object(s => {
   {
@@ -15,17 +77,36 @@ let gpsData: S.t<gpsData> = S.object(s => {
   }
 })
 
+let nullableGpsData = S.custom("nullableGpsData", _s => {
+  parser: unknown => {
+    if isUndefinedOrNull(unknown) {
+      Nullable.null
+    } else {
+      let json = unknown->toJson
+      // Use the gpsData schema to parse
+      let res = S.parseOrThrow(json, gpsData)
+      Nullable.make(res)
+    }
+  },
+  serializer: n => {
+    switch Nullable.toOption(n) {
+    | Some(v) => S.reverseConvertOrThrow(v, gpsData)
+    | None => JSON.Encode.null->toUnknown
+    }
+  }
+})
+
 let exifMetadata: S.t<exifMetadata> = S.object(s => {
   {
-    dateTime: s.field("date", S.nullable(S.string)->toNullable),
-    gps: s.field("gps", S.nullable(gpsData)->toNullable),
-    make: s.field("cameraModel", S.nullable(S.string)->toNullable),
-    model: s.field("lensModel", S.nullable(S.string)->toNullable),
+    dateTime: s.field("date", nullableString),
+    gps: s.field("gps", nullableGpsData),
+    make: s.field("cameraModel", nullableString),
+    model: s.field("lensModel", nullableString),
     width: 0,
     height: 0,
-    focalLength: s.field("focalLength", S.nullable(S.float)->toNullable),
-    aperture: s.field("fNumber", S.nullable(S.float)->toNullable),
-    iso: s.field("iso", S.nullable(S.int)->toNullable),
+    focalLength: s.field("focalLength", nullableFloat),
+    aperture: s.field("fNumber", nullableFloat),
+    iso: s.field("iso", nullableInt),
   }
 })
 
@@ -38,7 +119,7 @@ let metadataResponse: S.t<metadataResponse> = S.object(s => {
     ),
     isOptimized: s.field("isOptimized", S.bool),
     checksum: s.field("checksum", S.string),
-    suggestedName: s.field("suggestedName", S.nullable(S.string)->toNullable),
+    suggestedName: s.field("suggestedName", nullableString),
   }
 })
 
