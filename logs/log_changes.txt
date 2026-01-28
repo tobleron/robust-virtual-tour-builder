@@ -12,3 +12,4 @@
 [2026-01-27 23:17] v4.8.8 - Finalized and cleaned up batch of unified test tasks (802-820) [TRIPLE]
 [2026-01-28 01:44] v4.8.8 - fix: resolve project loading and metadata parsing issues in ReScript 12
 [2026-01-28 02:50] v4.8.8 - refactor: integrate schema fixes and update tests
+[2026-01-28 03:54] v4.8.8 - refactor: final integration of Jules' async schema improvements
