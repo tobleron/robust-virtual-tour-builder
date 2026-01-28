@@ -2,265 +2,6 @@
   "rescript": [
     {
       "Surgical": {
-        "file": "../../tests/unit/NavigationReducer_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 128 > Limit 93 (Role: state-reducer, Drag: 8.23)\n    🔥 Hotspot: Lines 120-124 (AI Context Fog (score 14.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/Sidebar_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 407 > Limit 57 (Role: infra-adapter, Drag: 16.66)\n    🔥 Hotspot: Lines 37-41 (AI Context Fog (score 16.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/NavigationFSM_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 134 > Limit 56 (Role: infra-adapter, Drag: 17.18)\n    🔥 Hotspot: Lines 12-16 (AI Context Fog (score 18.4))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/ProjectionMath_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 83 > Limit 76 (Role: infra-adapter, Drag: 14.07)\n    🔥 Hotspot: Lines 37-41 (AI Context Fog (score 17.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/EventBus_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 238 > Limit 50 (Role: infra-adapter, Drag: 18.65)\n    🔥 Hotspot: Lines 232-236 (AI Context Fog (score 20.6))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/TimelineReducer_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 142 > Limit 40 (Role: state-reducer, Drag: 14.57)\n    🔥 Hotspot: Lines 21-25 (AI Context Fog (score 10.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/SceneCache_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 98 > Limit 68 (Role: infra-adapter, Drag: 15.22)\n    🔥 Hotspot: Lines 75-79 (AI Context Fog (score 15.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/PreviewArrow_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 169 > Limit 58 (Role: ui-component, Drag: 19.41)\n    🔥 Hotspot: Lines 98-102 (AI Context Fog (score 27.2))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/ProjectManagerLogic_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 118 > Limit 76 (Role: service-orchestrator, Drag: 11.44)\n    🔥 Hotspot: Lines 68-72 (AI Context Fog (score 16.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/UrlUtils_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 46 > Limit 45 (Role: util-pure, Drag: 10.07)\n    🔥 Hotspot: Lines 27-31 (AI Context Fog (score 7.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/UploadReport_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 207 > Limit 34 (Role: infra-adapter, Drag: 23.39)\n    🔥 Hotspot: Lines 144-148 (AI Context Fog (score 22.6))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/ViewerSnapshot_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 115 > Limit 114 (Role: ui-component, Drag: 11.84)\n    🔥 Hotspot: Lines 37-41 (AI Context Fog (score 23.2))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/SceneList_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 209 > Limit 47 (Role: infra-adapter, Drag: 18.72)\n    🔥 Hotspot: Lines 262-266 (AI Context Fog (score 16.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/ViewerUI_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 222 > Limit 78 (Role: ui-component, Drag: 15.74)\n    🔥 Hotspot: Lines 125-129 (AI Context Fog (score 18.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/Constants_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 122 > Limit 116 (Role: infra-adapter, Drag: 10.73)\n    🔥 Hotspot: Lines 74-78 (AI Context Fog (score 14.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/SceneHelpers_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 312 > Limit 42 (Role: util-pure, Drag: 10.69)\n    🔥 Hotspot: Lines 67-71 (AI Context Fog (score 19.6))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/SimulationReducer_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 126 > Limit 30 (Role: state-reducer, Drag: 21.92)\n    🔥 Hotspot: Lines 15-19 (AI Context Fog (score 24.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/ProjectApi_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 166 > Limit 30 (Role: infra-adapter, Drag: 43.72)\n    🔥 Hotspot: Lines 57-61 (AI Context Fog (score 36.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/ProjectData_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 156 > Limit 30 (Role: infra-adapter, Drag: 29.39)\n    🔥 Hotspot: Lines 39-43 (AI Context Fog (score 16.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/HotspotActionMenu_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 172 > Limit 89 (Role: infra-adapter, Drag: 12.43)\n    🔥 Hotspot: Lines 193-197 (AI Context Fog (score 17.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/ProjectReducer_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 193 > Limit 30 (Role: state-reducer, Drag: 34.80)\n    🔥 Hotspot: Lines 100-104 (AI Context Fog (score 17.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/LinkModal_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 210 > Limit 30 (Role: infra-adapter, Drag: 29.88)\n    🔥 Hotspot: Lines 130-134 (AI Context Fog (score 44.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/VisualPipeline_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 192 > Limit 180 (Role: infra-adapter, Drag: 7.83)\n    🔥 Hotspot: Lines 97-101 (AI Context Fog (score 13.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/Schemas_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 119 > Limit 86 (Role: data-model, Drag: 15.83)\n    🔥 Hotspot: Lines 10-14 (AI Context Fog (score 14.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/RootReducer_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 143 > Limit 138 (Role: state-reducer, Drag: 6.38)\n    🔥 Hotspot: Lines 117-121 (AI Context Fog (score 10.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/HotspotLineLogic_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 220 > Limit 30 (Role: service-orchestrator, Drag: 35.82)\n    🔥 Hotspot: Lines 109-113 (AI Context Fog (score 24.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/NavigationGraph_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 213 > Limit 101 (Role: infra-adapter, Drag: 11.76)\n    🔥 Hotspot: Lines 196-200 (AI Context Fog (score 19.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/ProjectManager_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 88 > Limit 51 (Role: service-orchestrator, Drag: 14.94)\n    🔥 Hotspot: Lines 56-60 (AI Context Fog (score 12.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/SimulationLogic_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 319 > Limit 30 (Role: service-orchestrator, Drag: 22.83)\n    🔥 Hotspot: Lines 67-71 (AI Context Fog (score 22.6))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/ImageOptimizer_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 114 > Limit 51 (Role: infra-adapter, Drag: 18.37)\n    🔥 Hotspot: Lines 70-74 (AI Context Fog (score 20.6))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/ViewerPool_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 85 > Limit 84 (Role: ui-component, Drag: 15.57)\n    🔥 Hotspot: Lines 17-21 (AI Context Fog (score 17.8))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/ExifParser_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 307 > Limit 60 (Role: infra-adapter, Drag: 16.61)\n    🔥 Hotspot: Lines 151-155 (AI Context Fog (score 35.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/UiReducer_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 86 > Limit 47 (Role: state-reducer, Drag: 12.85)\n    🔥 Hotspot: Lines 32-36 (AI Context Fog (score 20.6))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/PopOver_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 202 > Limit 49 (Role: infra-adapter, Drag: 17.74)\n    🔥 Hotspot: Lines 22-26 (AI Context Fog (score 29.4))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/Actions_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 211 > Limit 155 (Role: orchestrator, Drag: 7.16)\n    🔥 Hotspot: Lines 15-19 (AI Context Fog (score 10.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/SimulationNavigation_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 118 > Limit 68 (Role: infra-adapter, Drag: 14.83)\n    🔥 Hotspot: Lines 68-72 (AI Context Fog (score 19.2))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../tests/unit/Bindings_Unified_v.test.res",
-        "action": "De-bloat",
-        "reason": "[Exception: Scaffolding for testing] LOC 188 > Limit 53 (Role: infra-adapter, Drag: 17.41)\n    🔥 Hotspot: Lines 160-164 (AI Context Fog (score 10.0))"
-      }
-    },
-    {
-      "Surgical": {
         "file": "../../src/core/ViewerState.res",
         "action": "De-bloat",
         "reason": "[Exception: High-frequency state updates] LOC 91 > Limit 30 (Role: domain-logic, Drag: 43.11)\n    🔥 Hotspot: Lines 18-22 (AI Context Fog (score 26.6))"
@@ -1277,6 +1018,22 @@
       }
     }
   ],
+  "css": [
+    {
+      "Surgical": {
+        "file": "../../css/animations.css",
+        "action": "De-bloat",
+        "reason": "LOC 276 > Limit 222 (Role: ui-component, Drag: 1.77)"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../css/components/viewer.css",
+        "action": "De-bloat",
+        "reason": "LOC 627 > Limit 277 (Role: ui-component, Drag: 1.53)"
+      }
+    }
+  ],
   "system": [
     {
       "Ambiguity": {
@@ -1300,27 +1057,156 @@
     },
     {
       "Merge": {
-        "folder": "../../backend/src/api/media/video",
+        "folder": "../../backend/src/middleware",
         "files": [
-          "transcode.rs",
-          "teaser.rs",
-          "mod.rs",
-          "video_logic.rs"
+          "request_tracker.rs",
+          "quota_check.rs",
+          "auth.rs",
+          "mod.rs"
         ],
         "reason": "Score 4.00 > 1.0"
       }
     },
     {
       "Merge": {
-        "folder": "../../backend/src/api/project",
+        "folder": "../../backend/src/services/media",
         "files": [
-          "export.rs",
-          "export_utils.rs",
+          "resizing.rs",
+          "naming.rs",
+          "webp.rs",
           "mod.rs",
-          "validation.rs",
-          "navigation.rs"
+          "naming_old.rs",
+          "storage.rs"
         ],
-        "reason": "Score 5.00 > 1.0"
+        "reason": "Score 6.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src",
+        "files": [
+          "ReBindings.res",
+          "App.res",
+          "Main.res",
+          "ServiceWorkerMain.res",
+          "index.js",
+          "ServiceWorker.res"
+        ],
+        "reason": "Score 6.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/utils",
+        "files": [
+          "GeoUtils.res",
+          "PersistenceLayer.res",
+          "ProgressBar.res",
+          "ColorPalette.res",
+          "StateInspector.res",
+          "TourLogic.res",
+          "LoggerTelemetry.res",
+          "Logger.res",
+          "ImageOptimizer.res",
+          "UrlUtils.res",
+          "LazyLoad.res",
+          "LoggerLogic.res",
+          "PathInterpolation.res",
+          "ProjectionMath.res",
+          "RequestQueue.res",
+          "LoggerTypes.res",
+          "Constants.res",
+          "SessionStore.res",
+          "Version.res",
+          "VersionData.res"
+        ],
+        "reason": "Score 2.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/core",
+        "files": [
+          "SimHelpers.res",
+          "Reducer.res",
+          "ViewerState.res",
+          "SceneHelpersParser.res",
+          "Actions.res",
+          "SceneHelpers.res",
+          "UiHelpers.res",
+          "ViewerTypes.res",
+          "SharedTypes.res",
+          "AppContext.res",
+          "Types.res",
+          "Schemas.res",
+          "SchemasShared.res",
+          "SchemasDomain.res",
+          "GlobalStateBridge.res",
+          "SceneHelpersLogic.res",
+          "State.res",
+          "AuthContext.res",
+          "SceneCache.res"
+        ],
+        "reason": "Score 1.90 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src",
+        "files": [
+          "lib.rs",
+          "metrics.rs",
+          "main.rs"
+        ],
+        "reason": "Score 3.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/components/ui",
+        "files": [
+          "context-menu.jsx",
+          "Shadcn.res",
+          "input.jsx",
+          "dropdown-menu.jsx",
+          "checkbox.jsx",
+          "button.jsx",
+          "popover.jsx",
+          "tooltip.jsx",
+          "sonner.jsx",
+          "label.jsx",
+          "LucideIcons.res"
+        ],
+        "reason": "Score 5.50 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/api",
+        "files": [
+          "telemetry.rs",
+          "auth.rs",
+          "mod.rs",
+          "telemetry_logic.rs",
+          "geocoding.rs",
+          "utils.rs"
+        ],
+        "reason": "Score 6.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/components/Sidebar",
+        "files": [
+          "SidebarActions.res",
+          "SidebarMain.res",
+          "SidebarBranding.res",
+          "SidebarMainTypes.res",
+          "SidebarProcessing.res",
+          "SidebarMainLogic.res",
+          "SidebarProjectInfo.res"
+        ],
+        "reason": "Score 7.00 > 1.0"
       }
     },
     {
@@ -1333,19 +1219,6 @@
           "LucideCore.res"
         ],
         "reason": "Score 4.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/services",
-        "files": [
-          "shutdown.rs",
-          "database.rs",
-          "upload_quota.rs",
-          "mod.rs",
-          "upload_quota_tests.rs"
-        ],
-        "reason": "Score 5.00 > 1.0"
       }
     },
     {
@@ -1390,139 +1263,6 @@
     },
     {
       "Merge": {
-        "folder": "../../src/components/VisualPipeline",
-        "files": [
-          "VisualPipelineRender.res",
-          "VisualPipelineMain.res",
-          "VisualPipelineStyles.res",
-          "VisualPipelineTypes.res",
-          "VisualPipelineLogic.res"
-        ],
-        "reason": "Score 5.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/services/project",
-        "files": [
-          "package.rs",
-          "mod.rs",
-          "load.rs",
-          "validate.rs"
-        ],
-        "reason": "Score 2.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/core/reducers",
-        "files": [
-          "TimelineReducer.res",
-          "NavigationReducer.res",
-          "ProjectReducer.res",
-          "SimulationReducer.res",
-          "SceneReducer.res",
-          "UiReducer.res",
-          "mod.res",
-          "RootReducer.res",
-          "HotspotReducer.res"
-        ],
-        "reason": "Score 9.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../tests",
-        "files": [
-          "rescript-schema-shim.js",
-          "TestRunner.res",
-          "node-setup.js"
-        ],
-        "reason": "Score 3.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../css",
-        "files": [
-          "variables.css",
-          "animations.css",
-          "tailwind.css",
-          "style.css",
-          "legacy.css",
-          "layout.css",
-          "base.css"
-        ],
-        "reason": "Score 3.50 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/api/project/storage",
-        "files": [
-          "storage_logic.rs",
-          "mod.rs"
-        ],
-        "reason": "Score 2.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/middleware",
-        "files": [
-          "request_tracker.rs",
-          "quota_check.rs",
-          "auth.rs",
-          "mod.rs"
-        ],
-        "reason": "Score 4.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/api/media",
-        "files": [
-          "serve.rs",
-          "similarity.rs",
-          "mod.rs"
-        ],
-        "reason": "Score 3.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/services/media/analysis",
-        "files": [
-          "mod.rs",
-          "quality.rs",
-          "exif.rs"
-        ],
-        "reason": "Score 3.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src",
-        "files": [
-          "lib.rs",
-          "metrics.rs",
-          "main.rs"
-        ],
-        "reason": "Score 3.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/services/geocoding",
-        "files": [
-          "logic.rs",
-          "mod.rs"
-        ],
-        "reason": "Score 2.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
         "folder": "../../backend/src/api/media/image",
         "files": [
           "resize_batch.rs",
@@ -1533,18 +1273,6 @@
           "image_logic.rs",
           "process_full.rs",
           "tests.rs"
-        ],
-        "reason": "Score 4.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/systems/api",
-        "files": [
-          "ProjectApi.res",
-          "MediaApi.res",
-          "ApiTypes.res",
-          "AuthenticatedClient.res"
         ],
         "reason": "Score 4.00 > 1.0"
       }
@@ -1565,284 +1293,116 @@
     },
     {
       "Merge": {
-        "folder": "../../tests/unit",
+        "folder": "../../src/systems/api",
         "files": [
-          "Logger_v.test.res",
-          "NavigationReducer_v.test.res",
-          "ExifReportGeneratorLogicExtraction_v.test.res",
-          "Sidebar_v.test.res",
-          "LazyLoad_v.test.res",
-          "NavigationFSM_v.test.res",
-          "ProjectionMath_v.test.res",
-          "UploadProcessorTypes_v.test.res",
-          "AudioManager_v.test.res",
-          "EventBus_v.test.res",
-          "VideoEncoder_v.test.res",
-          "Components_v.test.setup.jsx",
-          "LoggerLogic_v.test.res",
-          "TimelineReducer_v.test.res",
-          "SceneCache_v.test.res",
-          "PreviewArrow_v.test.res",
-          "HotspotLayer_v.test.res",
-          "NotificationContext_v.test.res",
-          "HotspotLine_v.test.res",
-          "AppContext_v.test.res",
-          "VitestSmoke.test.res",
-          "Mod_v.test.res",
-          "App_v.test.res",
-          "FloorNavigation_v.test.res",
-          "ProjectManagerLogic_v.test.res",
-          "UrlUtils_v.test.res",
-          "FinalAsyncCheck_v.test.res",
-          "PanoramaClusterer_v.test.res",
-          "StateInspector_v.test.res",
-          "UploadReport_v.test.res",
-          "SceneLoader_v.test.res",
-          "UploadProcessor_v.test.res",
-          "SimulationDriver_v.test.res",
-          "ServerTeaser_v.test.res",
-          "LoggerTelemetry_v.test.res",
-          "ViewerSnapshot_v.test.res",
-          "ViewerHUD_v.test.res",
-          "MediaApi_v.test.res",
-          "SimulationChainSkipper_v.test.res",
-          "ExifReportGeneratorUtils_v.test.res",
-          "SceneList_v.test.res",
-          "NotificationLayer_v.test.res",
-          "ReturnPrompt_v.test.res",
-          "ViewerUI_v.test.res",
-          "HotspotLineTypes_v.test.res",
-          "QualityIndicator_v.test.res",
-          "TourLogic_v.test.res",
-          "PannellumLifecycle_v.test.res",
-          "NavigationUI_v.test.res",
-          "HotspotMenuLayer_v.test.res",
-          "TourTemplateAssets_v.test.res",
-          "Constants_v.test.res",
-          "SceneSwitcher_v.test.res",
-          "ProgressBar_v.test.res",
-          "SceneHelpers_v.test.res",
-          "TourTemplateStyles_v.test.res",
-          "LabelMenu_v.test.setup.jsx",
-          "SessionStore_v.test.res",
-          "SimulationReducer_v.test.res",
-          "HotspotReducer_v.test.res",
-          "ProjectApi_v.test.res",
-          "UiHelpers_v.test.res",
-          "ProjectData_v.test.res",
-          "TeaserPlayback_v.test.res",
-          "HotspotActionMenu_v.test.res",
-          "ProjectReducer_v.test.res",
-          "Resizer_v.test.res",
-          "SvgManager_v.test.res",
-          "TourTemplates_v.test.res",
-          "LinkModal_v.test.res",
-          "VisualPipeline_v.test.res",
-          "LucideIcons_v.test.res",
-          "LinkEditorLogic_v.test.res",
-          "Schemas_v.test.res",
-          "PersistentLabel_v.test.res",
-          "ApiTypes_v.test.res",
-          "ErrorFallbackUI_v.test.res",
-          "ServiceWorkerMain_v.test.res",
-          "SceneLoader_Lifecycle_Unified_v.test.res",
-          "ViewerFollow_v.test.res",
-          "RootReducer_v.test.res",
-          "ViewerLabelMenu_v.test.res",
-          "Portal_v.test.res",
-          "UploadProcessor_v.test.setup.js",
-          "HotspotLineLogic_v.test.res",
-          "ViewerManager_v.test.res",
-          "Version_v.test.res",
-          "Types_v.test.res",
-          "NavigationGraph_v.test.res",
-          "TourTemplateScripts_v.test.res",
-          "TeaserState_v.test.res",
-          "AuthenticatedClient_v.test.res",
-          "PathInterpolation_v.test.res",
-          "NavigationRenderer_v.test.res",
-          "TeaserPathfinder_v.test.res",
-          "Reducer_v.test.res",
-          "HotspotManager_v.test.res",
-          "DownloadSystem_v.test.res",
-          "Main_v.test.res",
-          "State_v.test.res",
-          "ExifReportGenerator_v.test.res",
-          "SvgRenderer_v.test.res",
-          "ProjectManager_v.test.res",
-          "GeoUtils_v.test.res",
-          "RequestQueue_v.test.res",
-          "UtilityBar_v.test.res",
-          "SimulationLogic_v.test.res",
-          "ImageValidator_v.test.res",
-          "ImageOptimizer_v.test.res",
-          "ViewerPool_v.test.res",
-          "NavigationController_v.test.res",
-          "SnapshotOverlay_v.test.res",
-          "LoggerTypes_v.test.res",
-          "SceneTransitionManager_v.test.res",
-          "SimHelpers_v.test.res",
-          "ExifParser_v.test.res",
-          "PannellumAdapter_v.test.res",
-          "LabelMenu_v.test.res",
-          "UiReducer_v.test.res",
-          "PopOver_v.test.res",
-          "Actions_v.test.res",
-          "ExifReportGeneratorLogicLocation_v.test.res",
-          "ColorPalette_v.test.res",
-          "ViewerState_v.test.res",
-          "ExifReportGeneratorLogicGroups_v.test.res",
-          "InteractionsRobustness_v.test.res",
-          "HotspotLine_v.test.setup.js",
-          "TeaserRecorder_v.test.res",
-          "UploadProcessorLogic_v.test.res",
-          "AuthContext_v.test.res",
-          "Exporter_v.test.res",
-          "FingerprintService_v.test.res",
-          "SimulationNavigation_v.test.res",
-          "AppErrorBoundary_v.test.res",
-          "TeaserManager_v.test.res",
-          "Shadcn_v.test.res",
-          "ReBindings_v.test.res",
-          "ViewerTypes_v.test.res",
-          "ViewerLoader_v.test.res",
-          "GlobalStateBridge_v.test.res",
-          "InputSystem_v.test.res",
-          "CursorPhysics_v.test.res",
-          "BackendApi_v.test.res",
-          "SimulationPathGenerator_v.test.res",
-          "VersionData_v.test.res",
-          "SharedTypes_v.test.res",
-          "ModalContext_v.test.res",
-          "Tooltip_v.test.res",
-          "Bindings_Unified_v.test.res",
-          "ServiceWorker_v.test.res",
-          "SceneReducer_v.test.res"
+          "ProjectApi.res",
+          "MediaApi.res",
+          "ApiTypes.res",
+          "AuthenticatedClient.res"
         ],
-        "reason": "Score 15.10 > 1.0"
+        "reason": "Score 4.00 > 1.0"
       }
     },
     {
       "Merge": {
-        "folder": "../../backend/src/api",
+        "folder": "../../backend/src/pathfinder",
         "files": [
-          "telemetry.rs",
-          "auth.rs",
+          "graph_utils.rs",
+          "graph.rs",
+          "algorithms.rs",
+          "view_utils.rs",
           "mod.rs",
-          "telemetry_logic.rs",
-          "geocoding.rs",
+          "tests.rs",
           "utils.rs"
-        ],
-        "reason": "Score 6.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/services/media",
-        "files": [
-          "resizing.rs",
-          "naming.rs",
-          "webp.rs",
-          "mod.rs",
-          "naming_old.rs",
-          "storage.rs"
-        ],
-        "reason": "Score 6.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/utils",
-        "files": [
-          "GeoUtils.res",
-          "PersistenceLayer.res",
-          "ProgressBar.res",
-          "ColorPalette.res",
-          "StateInspector.res",
-          "TourLogic.res",
-          "LoggerTelemetry.res",
-          "Logger.res",
-          "ImageOptimizer.res",
-          "UrlUtils.res",
-          "LazyLoad.res",
-          "LoggerLogic.res",
-          "PathInterpolation.res",
-          "ProjectionMath.res",
-          "RequestQueue.res",
-          "LoggerTypes.res",
-          "Constants.res",
-          "SessionStore.res",
-          "Version.res",
-          "VersionData.res"
-        ],
-        "reason": "Score 2.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/pathfinder/algorithms",
-        "files": [
-          "timeline.rs",
-          "walk.rs"
-        ],
-        "reason": "Score 2.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/components/Sidebar",
-        "files": [
-          "SidebarActions.res",
-          "SidebarMain.res",
-          "SidebarBranding.res",
-          "SidebarMainTypes.res",
-          "SidebarProcessing.res",
-          "SidebarMainLogic.res",
-          "SidebarProjectInfo.res"
         ],
         "reason": "Score 7.00 > 1.0"
       }
     },
     {
       "Merge": {
-        "folder": "../..",
+        "folder": "../../backend/src/services/geocoding",
         "files": [
-          "jsconfig.json",
-          "index.html",
-          "tailwind.config.js",
-          "package.json",
-          "postcss.config.js"
-        ],
-        "reason": "Score 5.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/services/auth",
-        "files": [
-          "mod.rs",
-          "jwt.rs"
+          "logic.rs",
+          "mod.rs"
         ],
         "reason": "Score 2.00 > 1.0"
       }
     },
     {
       "Merge": {
-        "folder": "../../src/components/ui",
+        "folder": "../../backend/src/api/project/storage",
         "files": [
-          "context-menu.jsx",
-          "Shadcn.res",
-          "input.jsx",
-          "dropdown-menu.jsx",
-          "checkbox.jsx",
-          "button.jsx",
-          "popover.jsx",
-          "tooltip.jsx",
-          "sonner.jsx",
-          "label.jsx",
-          "LucideIcons.res"
+          "storage_logic.rs",
+          "mod.rs"
         ],
-        "reason": "Score 5.50 > 1.0"
+        "reason": "Score 2.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../css",
+        "files": [
+          "variables.css",
+          "animations.css",
+          "tailwind.css",
+          "style.css",
+          "legacy.css",
+          "layout.css",
+          "base.css"
+        ],
+        "reason": "Score 3.50 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/api/media",
+        "files": [
+          "serve.rs",
+          "similarity.rs",
+          "mod.rs"
+        ],
+        "reason": "Score 3.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/models",
+        "files": [
+          "telemetry.rs",
+          "session.rs",
+          "metadata.rs",
+          "similarity.rs",
+          "user.rs",
+          "mod.rs",
+          "validation.rs",
+          "project.rs",
+          "errors.rs",
+          "geocoding.rs"
+        ],
+        "reason": "Score 10.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/api/media/video",
+        "files": [
+          "transcode.rs",
+          "teaser.rs",
+          "mod.rs",
+          "video_logic.rs"
+        ],
+        "reason": "Score 4.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/services/media/analysis",
+        "files": [
+          "mod.rs",
+          "quality.rs",
+          "exif.rs"
+        ],
+        "reason": "Score 3.00 > 1.0"
       }
     },
     {
@@ -1932,6 +1492,107 @@
     },
     {
       "Merge": {
+        "folder": "../../backend/src/services",
+        "files": [
+          "shutdown.rs",
+          "database.rs",
+          "upload_quota.rs",
+          "mod.rs",
+          "upload_quota_tests.rs"
+        ],
+        "reason": "Score 5.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/components/VisualPipeline",
+        "files": [
+          "VisualPipelineRender.res",
+          "VisualPipelineMain.res",
+          "VisualPipelineStyles.res",
+          "VisualPipelineTypes.res",
+          "VisualPipelineLogic.res"
+        ],
+        "reason": "Score 5.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../..",
+        "files": [
+          "jsconfig.json",
+          "index.html",
+          "tailwind.config.js",
+          "package.json",
+          "postcss.config.js"
+        ],
+        "reason": "Score 5.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/services/auth",
+        "files": [
+          "mod.rs",
+          "jwt.rs"
+        ],
+        "reason": "Score 2.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/services/project",
+        "files": [
+          "package.rs",
+          "mod.rs",
+          "load.rs",
+          "validate.rs"
+        ],
+        "reason": "Score 2.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/api/project",
+        "files": [
+          "export.rs",
+          "export_utils.rs",
+          "mod.rs",
+          "validation.rs",
+          "navigation.rs"
+        ],
+        "reason": "Score 5.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/components/SceneList",
+        "files": [
+          "SceneItem.res",
+          "SceneListMain.res"
+        ],
+        "reason": "Score 2.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/core/reducers",
+        "files": [
+          "TimelineReducer.res",
+          "NavigationReducer.res",
+          "ProjectReducer.res",
+          "SimulationReducer.res",
+          "SceneReducer.res",
+          "UiReducer.res",
+          "mod.res",
+          "RootReducer.res",
+          "HotspotReducer.res"
+        ],
+        "reason": "Score 9.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
         "folder": "../../scripts",
         "files": [
           "increment-build.js",
@@ -1947,149 +1608,47 @@
     },
     {
       "Merge": {
-        "folder": "../../src/components/SceneList",
+        "folder": "../../backend/src/pathfinder/algorithms",
         "files": [
-          "SceneItem.res",
-          "SceneListMain.res"
+          "timeline.rs",
+          "walk.rs"
         ],
         "reason": "Score 2.00 > 1.0"
       }
     },
     {
-      "Merge": {
-        "folder": "../../backend/src/pathfinder",
-        "files": [
-          "graph_utils.rs",
-          "graph.rs",
-          "algorithms.rs",
-          "view_utils.rs",
-          "mod.rs",
-          "tests.rs",
-          "utils.rs"
-        ],
-        "reason": "Score 7.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/core",
-        "files": [
-          "SimHelpers.res",
-          "Reducer.res",
-          "ViewerState.res",
-          "SceneHelpersParser.res",
-          "Actions.res",
-          "SceneHelpers.res",
-          "UiHelpers.res",
-          "ViewerTypes.res",
-          "SharedTypes.res",
-          "AppContext.res",
-          "Types.res",
-          "Schemas.res",
-          "SchemasShared.res",
-          "SchemasDomain.res",
-          "GlobalStateBridge.res",
-          "SceneHelpersLogic.res",
-          "State.res",
-          "AuthContext.res",
-          "SceneCache.res"
-        ],
-        "reason": "Score 1.90 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/models",
-        "files": [
-          "telemetry.rs",
-          "session.rs",
-          "metadata.rs",
-          "similarity.rs",
-          "user.rs",
-          "mod.rs",
-          "validation.rs",
-          "project.rs",
-          "errors.rs",
-          "geocoding.rs"
-        ],
-        "reason": "Score 10.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src",
-        "files": [
-          "ReBindings.res",
-          "App.res",
-          "Main.res",
-          "ServiceWorkerMain.res",
-          "index.js",
-          "ServiceWorker.res"
-        ],
-        "reason": "Score 6.00 > 1.0"
-      }
-    },
-    {
       "Structural": {
-        "file": "Tour",
+        "file": "Project",
         "action": "Vertical Slice",
-        "reason": "Feature 'Tour' spread across 3 folders (Fragmentation Tax)"
+        "reason": "Feature 'Project' spread across 3 folders (Fragmentation Tax)"
       }
     },
     {
       "Structural": {
         "file": "Scene",
         "action": "Vertical Slice",
-        "reason": "Feature 'Scene' spread across 6 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "State",
-        "action": "Vertical Slice",
-        "reason": "Feature 'State' spread across 3 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Notification",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Notification' spread across 2 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "mod",
-        "action": "Vertical Slice",
-        "reason": "Feature 'mod' spread across 16 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Navigation",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Navigation' spread across 3 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Link",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Link' spread across 3 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Lucide",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Lucide' spread across 3 folders (Fragmentation Tax)"
+        "reason": "Feature 'Scene' spread across 5 folders (Fragmentation Tax)"
       }
     },
     {
       "Structural": {
         "file": "Visual",
         "action": "Vertical Slice",
-        "reason": "Feature 'Visual' spread across 3 folders (Fragmentation Tax)"
+        "reason": "Feature 'Visual' spread across 2 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Navigation",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Navigation' spread across 2 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Tour",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Tour' spread across 2 folders (Fragmentation Tax)"
       }
     },
     {
@@ -2101,114 +1660,51 @@
     },
     {
       "Structural": {
-        "file": "Ui",
+        "file": "mod",
         "action": "Vertical Slice",
-        "reason": "Feature 'Ui' spread across 3 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Logger",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Logger' spread across 2 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Pannellum",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Pannellum' spread across 2 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Service",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Service' spread across 2 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Version",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Version' spread across 2 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Simulation",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Simulation' spread across 3 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Exif",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Exif' spread across 2 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Teaser",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Teaser' spread across 2 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Hotspot",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Hotspot' spread across 4 folders (Fragmentation Tax)"
+        "reason": "Feature 'mod' spread across 16 folders (Fragmentation Tax)"
       }
     },
     {
       "Structural": {
         "file": "Viewer",
         "action": "Vertical Slice",
-        "reason": "Feature 'Viewer' spread across 6 folders (Fragmentation Tax)"
+        "reason": "Feature 'Viewer' spread across 5 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Simulation",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Simulation' spread across 2 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Hotspot",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Hotspot' spread across 3 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Lucide",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Lucide' spread across 2 folders (Fragmentation Tax)"
       }
     },
     {
       "Structural": {
         "file": "App",
         "action": "Vertical Slice",
-        "reason": "Feature 'App' spread across 4 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Image",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Image' spread across 3 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Project",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Project' spread across 4 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Label",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Label' spread across 2 folders (Fragmentation Tax)"
+        "reason": "Feature 'App' spread across 3 folders (Fragmentation Tax)"
       }
     },
     {
       "Structural": {
         "file": "Upload",
         "action": "Vertical Slice",
-        "reason": "Feature 'Upload' spread across 3 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Svg",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Svg' spread across 2 folders (Fragmentation Tax)"
+        "reason": "Feature 'Upload' spread across 2 folders (Fragmentation Tax)"
       }
     }
   ],
@@ -2218,22 +1714,6 @@
         "file": "../../docs/openapi.yaml",
         "action": "De-bloat",
         "reason": "[Exception: Infrastructure Documentation] LOC 821 > Limit 800 (Role: infra-adapter, Drag: 1.00)"
-      }
-    }
-  ],
-  "css": [
-    {
-      "Surgical": {
-        "file": "../../css/animations.css",
-        "action": "De-bloat",
-        "reason": "LOC 276 > Limit 222 (Role: ui-component, Drag: 1.77)"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../css/components/viewer.css",
-        "action": "De-bloat",
-        "reason": "LOC 627 > Limit 277 (Role: ui-component, Drag: 1.53)"
       }
     }
   ]
