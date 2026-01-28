@@ -1,4 +1,1535 @@
 {
+  "system": [
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/Logger_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/Sidebar_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/LazyLoad_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/NavigationFSM_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/ProjectionMath_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/EventBus_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/VideoEncoder_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/Components_v.test.setup.jsx"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/SceneCache_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/HotspotLayer_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/HotspotLine_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/VitestSmoke.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/Mod_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/App_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/FloorNavigation_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/FinalAsyncCheck_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/PanoramaClusterer_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/UploadReport_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/SceneLoader_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/UploadProcessor_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/SimulationDriver_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/ServerTeaser_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/LoggerTelemetry_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/SimulationChainSkipper_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/SceneList_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/NotificationLayer_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/ReturnPrompt_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/QualityIndicator_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/PannellumLifecycle_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/NavigationUI_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/HotspotMenuLayer_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/TourTemplateAssets_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/Constants_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/SceneSwitcher_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/ProgressBar_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/TourTemplateStyles_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/LabelMenu_v.test.setup.jsx"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/SessionStore_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/ProjectData_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/TeaserPlayback_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/HotspotActionMenu_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/Resizer_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/TourTemplates_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/LinkModal_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/VisualPipeline_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/LucideIcons_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/PersistentLabel_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/ErrorFallbackUI_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/SceneLoader_Lifecycle_Unified_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/Portal_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/UploadProcessor_v.test.setup.js"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/Version_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/NavigationGraph_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/TourTemplateScripts_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/PathInterpolation_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/NavigationRenderer_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/TeaserPathfinder_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/DownloadSystem_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/Main_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/ExifReportGenerator_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/SvgRenderer_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/RequestQueue_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/UtilityBar_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/ImageValidator_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/ImageOptimizer_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/NavigationController_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/SnapshotOverlay_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/ExifParser_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/PannellumAdapter_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/LabelMenu_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/PopOver_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/ColorPalette_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/HotspotLine_v.test.setup.js"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/TeaserRecorder_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/Exporter_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/FingerprintService_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/SimulationNavigation_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/AppErrorBoundary_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/Shadcn_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/InputSystem_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/CursorPhysics_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/SimulationPathGenerator_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/VersionData_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/unit/Tooltip_v.test.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/rescript-schema-shim.js"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/TestRunner.res"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../tests/node-setup.js"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/tests/shutdown_test.rs"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/middleware/request_tracker.rs"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/middleware/quota_check.rs"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/middleware/auth.rs"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/pathfinder/graph.rs"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/pathfinder/algorithms.rs"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/metrics.rs"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/shutdown.rs"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/database.rs"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/auth/jwt.rs"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/upload_quota.rs"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/package.rs"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/load.rs"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/project/validate.rs"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/upload_quota_tests.rs"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/media/resizing.rs"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/media/analysis/quality.rs"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/media/analysis/exif.rs"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/media/naming.rs"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/media/webp.rs"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/media/naming_old.rs"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/media/storage.rs"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../rescript.json"
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../.vscode/settings.json"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/components/Sidebar",
+        "files": [
+          "SidebarActions.res",
+          "SidebarMain.res",
+          "SidebarBranding.res",
+          "SidebarMainTypes.res",
+          "SidebarProcessing.res",
+          "SidebarMainLogic.res",
+          "SidebarProjectInfo.res"
+        ],
+        "reason": "Score 7.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/components/ui",
+        "files": [
+          "context-menu.jsx",
+          "Shadcn.res",
+          "dropdown-menu.jsx",
+          "button.jsx",
+          "popover.jsx",
+          "tooltip.jsx",
+          "sonner.jsx",
+          "LucideIcons.res"
+        ],
+        "reason": "Score 4.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/components/ui/Lucide",
+        "files": [
+          "LucideActions.res",
+          "LucideStatus.res",
+          "LucideMedia.res",
+          "LucideCore.res"
+        ],
+        "reason": "Score 4.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/components/VisualPipeline",
+        "files": [
+          "VisualPipelineRender.res",
+          "VisualPipelineMain.res",
+          "VisualPipelineStyles.res",
+          "VisualPipelineTypes.res",
+          "VisualPipelineLogic.res"
+        ],
+        "reason": "Score 5.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/systems/api",
+        "files": [
+          "ProjectApi.res",
+          "MediaApi.res",
+          "ApiTypes.res"
+        ],
+        "reason": "Score 3.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/pathfinder",
+        "files": [
+          "mod.rs",
+          "utils.rs"
+        ],
+        "reason": "Score 2.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../..",
+        "files": [
+          "jsconfig.json",
+          "index.html",
+          "tailwind.config.js",
+          "package.json",
+          "postcss.config.js"
+        ],
+        "reason": "Score 5.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/api",
+        "files": [
+          "telemetry.rs",
+          "auth.rs",
+          "mod.rs",
+          "geocoding.rs",
+          "utils.rs"
+        ],
+        "reason": "Score 5.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/api/media",
+        "files": [
+          "serve.rs",
+          "similarity.rs",
+          "mod.rs"
+        ],
+        "reason": "Score 3.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/systems",
+        "files": [
+          "TeaserRecorderLogic.res",
+          "Resizer.res",
+          "VideoEncoder.res",
+          "ExifReportGeneratorLogicExtraction.res",
+          "ViewerFollow.res",
+          "HotspotLineLogic.res",
+          "SvgManager.res",
+          "NavigationFSM.res",
+          "LinkEditorLogic.res",
+          "SimulationLogic.res",
+          "UploadProcessorTypes.res",
+          "TourTemplates.res",
+          "TourTemplateScripts.res",
+          "ServerTeaser.res",
+          "TeaserRecorderTypes.res",
+          "HotspotLineTypes.res",
+          "HotspotLineUtils.res",
+          "TourTemplateAssets.res",
+          "TeaserRecorderOverlay.res",
+          "SceneTransitionManager.res",
+          "UploadProcessorLogic.res",
+          "ViewerPool.res",
+          "HotspotLineLogicArrow.res",
+          "BackendApi.res",
+          "TeaserRecorder.res",
+          "ImageValidator.res",
+          "SceneLoaderLogic.res",
+          "ExifReportGeneratorLogicLocation.res",
+          "AudioManager.res",
+          "PanoramaClusterer.res",
+          "EventBus.res",
+          "FingerprintService.res",
+          "SceneLoaderTypes.res",
+          "SceneLoaderLogicReuse.res",
+          "PannellumAdapter.res",
+          "SvgRenderer.res",
+          "SimulationPathGenerator.res",
+          "UploadProcessorLogicLogic.res",
+          "ProjectData.res",
+          "ExifReportGeneratorTypes.res",
+          "ExifReportGenerator.res",
+          "ExifReportGeneratorUtils.res",
+          "SimulationNavigation.res",
+          "SceneLoader.res",
+          "SimulationChainSkipper.res",
+          "ExifReportGeneratorLogic.res",
+          "PannellumLifecycle.res",
+          "TeaserState.res",
+          "CursorPhysics.res",
+          "UploadProcessor.res",
+          "ExifParser.res",
+          "TeaserManager.res",
+          "ExifReportGeneratorLogicTypes.res",
+          "TourTemplateStyles.res",
+          "NavigationController.res",
+          "NavigationGraph.res",
+          "ProjectManagerLogic.res",
+          "HotspotLineLogicLogic.res",
+          "ResizerLogic.res",
+          "HotspotLine.res",
+          "SimulationDriver.res",
+          "TeaserPlayback.res",
+          "NavigationUI.res",
+          "InputSystem.res",
+          "TeaserPathfinder.res",
+          "ProjectManager.res",
+          "HotspotLineLogicTypes.res",
+          "ExifReportGeneratorLogicGroups.res",
+          "SceneLoaderLogicConfig.res",
+          "ProjectManagerTypes.res",
+          "ResizerTypes.res",
+          "ResizerUtils.res",
+          "SceneSwitcher.res",
+          "DownloadSystem.res",
+          "SceneLoaderLogicEvents.res",
+          "NavigationRenderer.res",
+          "Exporter.res"
+        ],
+        "reason": "Score 7.70 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/utils",
+        "files": [
+          "GeoUtils.res",
+          "PersistenceLayer.res",
+          "ProgressBar.res",
+          "ColorPalette.res",
+          "StateInspector.res",
+          "TourLogic.res",
+          "LoggerTelemetry.res",
+          "Logger.res",
+          "ImageOptimizer.res",
+          "UrlUtils.res",
+          "LazyLoad.res",
+          "LoggerLogic.res",
+          "PathInterpolation.res",
+          "ProjectionMath.res",
+          "RequestQueue.res",
+          "LoggerTypes.res",
+          "Constants.res",
+          "SessionStore.res",
+          "Version.res",
+          "VersionData.res"
+        ],
+        "reason": "Score 2.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/api/media/video",
+        "files": [
+          "mod.rs",
+          "video_logic.rs"
+        ],
+        "reason": "Score 2.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/api/project",
+        "files": [
+          "export.rs",
+          "mod.rs",
+          "validation.rs",
+          "navigation.rs"
+        ],
+        "reason": "Score 4.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/components/SceneList",
+        "files": [
+          "SceneItem.res",
+          "SceneListMain.res"
+        ],
+        "reason": "Score 2.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../tests/unit",
+        "files": [
+          "NavigationReducer_v.test.res",
+          "ExifReportGeneratorLogicExtraction_v.test.res",
+          "UploadProcessorTypes_v.test.res",
+          "AudioManager_v.test.res",
+          "LoggerLogic_v.test.res",
+          "TimelineReducer_v.test.res",
+          "PreviewArrow_v.test.res",
+          "NotificationContext_v.test.res",
+          "AppContext_v.test.res",
+          "ProjectManagerLogic_v.test.res",
+          "UrlUtils_v.test.res",
+          "StateInspector_v.test.res",
+          "ViewerSnapshot_v.test.res",
+          "ViewerHUD_v.test.res",
+          "MediaApi_v.test.res",
+          "ExifReportGeneratorUtils_v.test.res",
+          "ViewerUI_v.test.res",
+          "HotspotLineTypes_v.test.res",
+          "TourLogic_v.test.res",
+          "SceneHelpers_v.test.res",
+          "SimulationReducer_v.test.res",
+          "HotspotReducer_v.test.res",
+          "ProjectApi_v.test.res",
+          "UiHelpers_v.test.res",
+          "ProjectReducer_v.test.res",
+          "SvgManager_v.test.res",
+          "LinkEditorLogic_v.test.res",
+          "Schemas_v.test.res",
+          "ApiTypes_v.test.res",
+          "ServiceWorkerMain_v.test.res",
+          "ViewerFollow_v.test.res",
+          "RootReducer_v.test.res",
+          "ViewerLabelMenu_v.test.res",
+          "HotspotLineLogic_v.test.res",
+          "ViewerManager_v.test.res",
+          "Types_v.test.res",
+          "TeaserState_v.test.res",
+          "Reducer_v.test.res",
+          "HotspotManager_v.test.res",
+          "State_v.test.res",
+          "ProjectManager_v.test.res",
+          "GeoUtils_v.test.res",
+          "SimulationLogic_v.test.res",
+          "ViewerPool_v.test.res",
+          "LoggerTypes_v.test.res",
+          "SceneTransitionManager_v.test.res",
+          "SimHelpers_v.test.res",
+          "UiReducer_v.test.res",
+          "Actions_v.test.res",
+          "ExifReportGeneratorLogicLocation_v.test.res",
+          "ViewerState_v.test.res",
+          "ExifReportGeneratorLogicGroups_v.test.res",
+          "InteractionsRobustness_v.test.res",
+          "UploadProcessorLogic_v.test.res",
+          "TeaserManager_v.test.res",
+          "ReBindings_v.test.res",
+          "ViewerTypes_v.test.res",
+          "ViewerLoader_v.test.res",
+          "GlobalStateBridge_v.test.res",
+          "BackendApi_v.test.res",
+          "SharedTypes_v.test.res",
+          "ModalContext_v.test.res",
+          "Bindings_Unified_v.test.res",
+          "ServiceWorker_v.test.res",
+          "SceneReducer_v.test.res"
+        ],
+        "reason": "Score 6.50 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src",
+        "files": [
+          "ReBindings.res",
+          "App.res",
+          "Main.res",
+          "ServiceWorkerMain.res",
+          "index.js",
+          "ServiceWorker.res"
+        ],
+        "reason": "Score 6.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/core/reducers",
+        "files": [
+          "TimelineReducer.res",
+          "NavigationReducer.res",
+          "ProjectReducer.res",
+          "SimulationReducer.res",
+          "SceneReducer.res",
+          "UiReducer.res",
+          "mod.res",
+          "RootReducer.res",
+          "HotspotReducer.res"
+        ],
+        "reason": "Score 9.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/components",
+        "files": [
+          "NotificationLayer.res",
+          "LabelMenu.res",
+          "HotspotManager.res",
+          "UploadReport.res",
+          "Tooltip.res",
+          "HotspotActionMenu.res",
+          "ViewerLoader.res",
+          "QualityIndicator.res",
+          "ViewerSnapshot.res",
+          "HotspotLayer.res",
+          "AppErrorBoundary.res",
+          "ViewerUI.res",
+          "PopOver.res",
+          "PersistentLabel.res",
+          "Sidebar.res",
+          "PreviewArrow.res",
+          "VisualPipeline.res",
+          "HotspotMenuLayer.res",
+          "ViewerHUD.res",
+          "FloorNavigation.res",
+          "ViewerManagerLogic.res",
+          "ReturnPrompt.res",
+          "NotificationContext.res",
+          "UtilityBar.res",
+          "ViewerLabelMenu.res",
+          "SnapshotOverlay.res",
+          "SceneList.res",
+          "ViewerManager.res",
+          "LinkModal.res",
+          "ModalContext.res",
+          "Portal.res",
+          "ErrorFallbackUI.res"
+        ],
+        "reason": "Score 3.20 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../scripts/guard",
+        "files": [
+          "check-size.js",
+          "check-tests.js",
+          "index.js",
+          "check-map.js",
+          "utils.js",
+          "check-tasks.js"
+        ],
+        "reason": "Score 6.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src",
+        "files": [
+          "lib.rs",
+          "main.rs"
+        ],
+        "reason": "Score 2.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../css",
+        "files": [
+          "variables.css",
+          "animations.css",
+          "tailwind.css",
+          "style.css",
+          "legacy.css",
+          "layout.css",
+          "base.css"
+        ],
+        "reason": "Score 3.50 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/services/geocoding",
+        "files": [
+          "logic.rs",
+          "mod.rs"
+        ],
+        "reason": "Score 2.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/bindings",
+        "files": [
+          "WebApiBindings.res",
+          "GraphicsBindings.res",
+          "BrowserBindings.res",
+          "ViewerBindings.res",
+          "IdbBindings.res",
+          "DomBindings.res"
+        ],
+        "reason": "Score 6.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../scripts",
+        "files": [
+          "increment-build.js",
+          "debug-connectivity.js",
+          "update-changelog.js",
+          "update-version.js",
+          "test-logging.js",
+          "bump-version.js",
+          "update-readme.js"
+        ],
+        "reason": "Score 7.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/api/media/image",
+        "files": [
+          "image_utils.rs",
+          "mod.rs",
+          "image_logic.rs"
+        ],
+        "reason": "Score 1.50 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/core",
+        "files": [
+          "SimHelpers.res",
+          "Reducer.res",
+          "ViewerState.res",
+          "SceneHelpersParser.res",
+          "Actions.res",
+          "SceneHelpers.res",
+          "UiHelpers.res",
+          "ViewerTypes.res",
+          "SharedTypes.res",
+          "AppContext.res",
+          "Types.res",
+          "Schemas.res",
+          "SchemasShared.res",
+          "SchemasDomain.res",
+          "GlobalStateBridge.res",
+          "SceneHelpersLogic.res",
+          "State.res",
+          "SceneCache.res"
+        ],
+        "reason": "Score 1.80 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/models",
+        "files": [
+          "session.rs",
+          "user.rs",
+          "mod.rs",
+          "project.rs",
+          "errors.rs"
+        ],
+        "reason": "Score 5.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/api/project/storage",
+        "files": [
+          "storage_logic.rs",
+          "mod.rs"
+        ],
+        "reason": "Score 2.00 > 1.0"
+      }
+    },
+    {
+      "Structural": {
+        "file": "utils",
+        "action": "Vertical Slice",
+        "reason": "Feature 'utils' spread across 3 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Project",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Project' spread across 4 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Visual",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Visual' spread across 2 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Scene",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Scene' spread across 6 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Service",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Service' spread across 2 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Simulation",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Simulation' spread across 3 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Link",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Link' spread across 3 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Viewer",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Viewer' spread across 6 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "App",
+        "action": "Vertical Slice",
+        "reason": "Feature 'App' spread across 4 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Hotspot",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Hotspot' spread across 4 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Lucide",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Lucide' spread across 2 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Notification",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Notification' spread across 2 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Navigation",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Navigation' spread across 3 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Sidebar",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Sidebar' spread across 2 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Upload",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Upload' spread across 3 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Svg",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Svg' spread across 2 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Teaser",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Teaser' spread across 2 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Tour",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Tour' spread across 3 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Logger",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Logger' spread across 2 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Exif",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Exif' spread across 2 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "State",
+        "action": "Vertical Slice",
+        "reason": "Feature 'State' spread across 3 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "index",
+        "action": "Vertical Slice",
+        "reason": "Feature 'index' spread across 3 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "mod",
+        "action": "Vertical Slice",
+        "reason": "Feature 'mod' spread across 16 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Ui",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Ui' spread across 3 folders (Fragmentation Tax)"
+      }
+    }
+  ],
+  "rust": [
+    {
+      "Surgical": {
+        "file": "../../backend/src/pathfinder/mod.rs",
+        "action": "De-bloat",
+        "reason": "LOC 77 > Limit 42 (Role: orchestrator, Drag: 3.70)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/pathfinder/utils.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/pathfinder/utils.rs",
+        "action": "De-bloat",
+        "reason": "LOC 100 > Limit 30 (Role: util-pure, Drag: 9.27)"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/models/mod.rs",
+        "action": "De-bloat",
+        "reason": "LOC 216 > Limit 181 (Role: orchestrator, Drag: 1.40)"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/models/errors.rs",
+        "action": "De-bloat",
+        "reason": "LOC 146 > Limit 112 (Role: data-model, Drag: 2.93)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/telemetry.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/telemetry.rs",
+        "action": "De-bloat",
+        "reason": "LOC 157 > Limit 30 (Role: infra-adapter, Drag: 8.61)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/project/export.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/project/export.rs",
+        "action": "De-bloat",
+        "reason": "LOC 94 > Limit 48 (Role: infra-adapter, Drag: 4.16)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/project/storage/storage_logic.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/project/storage/storage_logic.rs",
+        "action": "De-bloat",
+        "reason": "LOC 241 > Limit 30 (Role: service-orchestrator, Drag: 10.97)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/project/storage/mod.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/project/storage/mod.rs",
+        "action": "De-bloat",
+        "reason": "LOC 295 > Limit 30 (Role: orchestrator, Drag: 11.38)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/project/navigation.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/project/navigation.rs",
+        "action": "De-bloat",
+        "reason": "LOC 109 > Limit 35 (Role: infra-adapter, Drag: 5.17)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/geocoding.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/geocoding.rs",
+        "action": "De-bloat",
+        "reason": "LOC 153 > Limit 36 (Role: infra-adapter, Drag: 5.08)"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/serve.rs",
+        "action": "De-bloat",
+        "reason": "LOC 72 > Limit 60 (Role: infra-adapter, Drag: 3.59)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/media/video/mod.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/video/mod.rs",
+        "action": "De-bloat",
+        "reason": "LOC 175 > Limit 30 (Role: orchestrator, Drag: 8.11)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/media/video/video_logic.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/video/video_logic.rs",
+        "action": "De-bloat",
+        "reason": "LOC 228 > Limit 30 (Role: service-orchestrator, Drag: 8.40)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/media/similarity.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/similarity.rs",
+        "action": "De-bloat",
+        "reason": "LOC 197 > Limit 36 (Role: infra-adapter, Drag: 5.01)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/media/image/image_utils.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/image/image_utils.rs",
+        "action": "De-bloat",
+        "reason": "LOC 68 > Limit 47 (Role: infra-adapter, Drag: 4.21)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/api/media/image/mod.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/image/mod.rs",
+        "action": "De-bloat",
+        "reason": "LOC 306 > Limit 30 (Role: orchestrator, Drag: 8.08)"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/image/image_logic.rs",
+        "action": "De-bloat",
+        "reason": "LOC 283 > Limit 48 (Role: service-orchestrator, Drag: 3.39)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/services/auth/mod.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/services/geocoding/logic.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/geocoding/logic.rs",
+        "action": "De-bloat",
+        "reason": "LOC 129 > Limit 43 (Role: service-orchestrator, Drag: 3.61)"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/services/geocoding/mod.rs",
+        "pattern": "unwrap",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/geocoding/mod.rs",
+        "action": "De-bloat",
+        "reason": "LOC 246 > Limit 30 (Role: orchestrator, Drag: 6.01)"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/media/analysis/mod.rs",
+        "action": "De-bloat",
+        "reason": "LOC 97 > Limit 64 (Role: orchestrator, Drag: 2.78)"
+      }
+    }
+  ],
+  "config": [
+    {
+      "Surgical": {
+        "file": "../../docs/openapi.yaml",
+        "action": "De-bloat",
+        "reason": "[Exception: Infrastructure Documentation] LOC 821 > Limit 800 (Role: infra-adapter, Drag: 1.00)"
+      }
+    }
+  ],
+  "web": [
+    {
+      "Surgical": {
+        "file": "../../index.html",
+        "action": "De-bloat",
+        "reason": "LOC 106 > Limit 92 (Role: ui-component, Drag: 3.19)"
+      }
+    }
+  ],
   "rescript": [
     {
       "Surgical": {
@@ -1020,1537 +2551,6 @@
         "file": "../../src/systems/Exporter.res",
         "action": "De-bloat",
         "reason": "LOC 205 > Limit 30 (Role: service-orchestrator, Drag: 10.51)\n    🔥 Hotspot: Lines 55-59 (AI Context Fog (score 67.4))"
-      }
-    }
-  ],
-  "config": [
-    {
-      "Surgical": {
-        "file": "../../docs/openapi.yaml",
-        "action": "De-bloat",
-        "reason": "[Exception: Infrastructure Documentation] LOC 821 > Limit 800 (Role: infra-adapter, Drag: 1.00)"
-      }
-    }
-  ],
-  "rust": [
-    {
-      "Surgical": {
-        "file": "../../backend/src/pathfinder/mod.rs",
-        "action": "De-bloat",
-        "reason": "LOC 77 > Limit 42 (Role: orchestrator, Drag: 3.70)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/pathfinder/utils.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/pathfinder/utils.rs",
-        "action": "De-bloat",
-        "reason": "LOC 100 > Limit 30 (Role: util-pure, Drag: 9.27)"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/models/mod.rs",
-        "action": "De-bloat",
-        "reason": "LOC 216 > Limit 181 (Role: orchestrator, Drag: 1.40)"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/models/errors.rs",
-        "action": "De-bloat",
-        "reason": "LOC 146 > Limit 112 (Role: data-model, Drag: 2.93)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/telemetry.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/telemetry.rs",
-        "action": "De-bloat",
-        "reason": "LOC 157 > Limit 30 (Role: infra-adapter, Drag: 8.61)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/project/export.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/project/export.rs",
-        "action": "De-bloat",
-        "reason": "LOC 94 > Limit 48 (Role: infra-adapter, Drag: 4.16)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/project/storage/storage_logic.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/project/storage/storage_logic.rs",
-        "action": "De-bloat",
-        "reason": "LOC 241 > Limit 30 (Role: service-orchestrator, Drag: 10.97)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/project/storage/mod.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/project/storage/mod.rs",
-        "action": "De-bloat",
-        "reason": "LOC 295 > Limit 30 (Role: orchestrator, Drag: 11.38)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/project/navigation.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/project/navigation.rs",
-        "action": "De-bloat",
-        "reason": "LOC 109 > Limit 35 (Role: infra-adapter, Drag: 5.17)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/geocoding.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/geocoding.rs",
-        "action": "De-bloat",
-        "reason": "LOC 153 > Limit 36 (Role: infra-adapter, Drag: 5.08)"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/media/serve.rs",
-        "action": "De-bloat",
-        "reason": "LOC 72 > Limit 60 (Role: infra-adapter, Drag: 3.59)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/media/video/mod.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/media/video/mod.rs",
-        "action": "De-bloat",
-        "reason": "LOC 175 > Limit 30 (Role: orchestrator, Drag: 8.11)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/media/video/video_logic.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/media/video/video_logic.rs",
-        "action": "De-bloat",
-        "reason": "LOC 228 > Limit 30 (Role: service-orchestrator, Drag: 8.40)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/media/similarity.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/media/similarity.rs",
-        "action": "De-bloat",
-        "reason": "LOC 197 > Limit 36 (Role: infra-adapter, Drag: 5.01)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/media/image/image_utils.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/media/image/image_utils.rs",
-        "action": "De-bloat",
-        "reason": "LOC 68 > Limit 47 (Role: infra-adapter, Drag: 4.21)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/api/media/image/mod.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/media/image/mod.rs",
-        "action": "De-bloat",
-        "reason": "LOC 306 > Limit 30 (Role: orchestrator, Drag: 8.08)"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/media/image/image_logic.rs",
-        "action": "De-bloat",
-        "reason": "LOC 283 > Limit 48 (Role: service-orchestrator, Drag: 3.39)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/services/auth/mod.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/services/geocoding/logic.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/geocoding/logic.rs",
-        "action": "De-bloat",
-        "reason": "LOC 129 > Limit 43 (Role: service-orchestrator, Drag: 3.61)"
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/services/geocoding/mod.rs",
-        "pattern": "unwrap",
-        "severity": "CRITICAL"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/geocoding/mod.rs",
-        "action": "De-bloat",
-        "reason": "LOC 246 > Limit 30 (Role: orchestrator, Drag: 6.01)"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/media/analysis/mod.rs",
-        "action": "De-bloat",
-        "reason": "LOC 97 > Limit 64 (Role: orchestrator, Drag: 2.78)"
-      }
-    }
-  ],
-  "web": [
-    {
-      "Surgical": {
-        "file": "../../index.html",
-        "action": "De-bloat",
-        "reason": "LOC 106 > Limit 92 (Role: ui-component, Drag: 3.19)"
-      }
-    }
-  ],
-  "system": [
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/Logger_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/Sidebar_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/LazyLoad_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/NavigationFSM_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/ProjectionMath_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/EventBus_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/VideoEncoder_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/Components_v.test.setup.jsx"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/SceneCache_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/HotspotLayer_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/HotspotLine_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/VitestSmoke.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/Mod_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/App_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/FloorNavigation_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/FinalAsyncCheck_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/PanoramaClusterer_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/UploadReport_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/SceneLoader_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/UploadProcessor_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/SimulationDriver_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/ServerTeaser_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/LoggerTelemetry_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/SimulationChainSkipper_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/SceneList_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/NotificationLayer_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/ReturnPrompt_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/QualityIndicator_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/PannellumLifecycle_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/NavigationUI_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/HotspotMenuLayer_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/TourTemplateAssets_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/Constants_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/SceneSwitcher_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/ProgressBar_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/TourTemplateStyles_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/LabelMenu_v.test.setup.jsx"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/SessionStore_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/ProjectData_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/TeaserPlayback_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/HotspotActionMenu_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/Resizer_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/TourTemplates_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/LinkModal_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/VisualPipeline_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/LucideIcons_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/PersistentLabel_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/ErrorFallbackUI_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/SceneLoader_Lifecycle_Unified_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/Portal_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/UploadProcessor_v.test.setup.js"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/Version_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/NavigationGraph_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/TourTemplateScripts_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/PathInterpolation_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/NavigationRenderer_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/TeaserPathfinder_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/DownloadSystem_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/Main_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/ExifReportGenerator_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/SvgRenderer_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/RequestQueue_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/UtilityBar_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/ImageValidator_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/ImageOptimizer_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/NavigationController_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/SnapshotOverlay_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/ExifParser_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/PannellumAdapter_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/LabelMenu_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/PopOver_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/ColorPalette_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/HotspotLine_v.test.setup.js"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/TeaserRecorder_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/Exporter_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/FingerprintService_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/SimulationNavigation_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/AppErrorBoundary_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/Shadcn_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/InputSystem_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/CursorPhysics_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/SimulationPathGenerator_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/VersionData_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/unit/Tooltip_v.test.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/rescript-schema-shim.js"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/TestRunner.res"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../tests/node-setup.js"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/tests/shutdown_test.rs"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/middleware/request_tracker.rs"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/middleware/quota_check.rs"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/middleware/auth.rs"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/pathfinder/graph.rs"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/pathfinder/algorithms.rs"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/metrics.rs"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/shutdown.rs"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/database.rs"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/auth/jwt.rs"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/upload_quota.rs"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/project/package.rs"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/project/load.rs"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/project/validate.rs"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/upload_quota_tests.rs"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/media/resizing.rs"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/media/analysis/quality.rs"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/media/analysis/exif.rs"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/media/naming.rs"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/media/webp.rs"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/media/naming_old.rs"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/media/storage.rs"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../rescript.json"
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../.vscode/settings.json"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/bindings",
-        "files": [
-          "WebApiBindings.res",
-          "GraphicsBindings.res",
-          "BrowserBindings.res",
-          "ViewerBindings.res",
-          "IdbBindings.res",
-          "DomBindings.res"
-        ],
-        "reason": "Score 6.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src",
-        "files": [
-          "lib.rs",
-          "main.rs"
-        ],
-        "reason": "Score 2.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src",
-        "files": [
-          "ReBindings.res",
-          "App.res",
-          "Main.res",
-          "ServiceWorkerMain.res",
-          "index.js",
-          "ServiceWorker.res"
-        ],
-        "reason": "Score 6.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/systems",
-        "files": [
-          "TeaserRecorderLogic.res",
-          "Resizer.res",
-          "VideoEncoder.res",
-          "ExifReportGeneratorLogicExtraction.res",
-          "ViewerFollow.res",
-          "HotspotLineLogic.res",
-          "SvgManager.res",
-          "NavigationFSM.res",
-          "LinkEditorLogic.res",
-          "SimulationLogic.res",
-          "UploadProcessorTypes.res",
-          "TourTemplates.res",
-          "TourTemplateScripts.res",
-          "ServerTeaser.res",
-          "TeaserRecorderTypes.res",
-          "HotspotLineTypes.res",
-          "HotspotLineUtils.res",
-          "TourTemplateAssets.res",
-          "TeaserRecorderOverlay.res",
-          "SceneTransitionManager.res",
-          "UploadProcessorLogic.res",
-          "ViewerPool.res",
-          "HotspotLineLogicArrow.res",
-          "BackendApi.res",
-          "TeaserRecorder.res",
-          "ImageValidator.res",
-          "SceneLoaderLogic.res",
-          "ExifReportGeneratorLogicLocation.res",
-          "AudioManager.res",
-          "PanoramaClusterer.res",
-          "EventBus.res",
-          "FingerprintService.res",
-          "SceneLoaderTypes.res",
-          "SceneLoaderLogicReuse.res",
-          "PannellumAdapter.res",
-          "SvgRenderer.res",
-          "SimulationPathGenerator.res",
-          "UploadProcessorLogicLogic.res",
-          "ProjectData.res",
-          "ExifReportGeneratorTypes.res",
-          "ExifReportGenerator.res",
-          "ExifReportGeneratorUtils.res",
-          "SimulationNavigation.res",
-          "SceneLoader.res",
-          "SimulationChainSkipper.res",
-          "ExifReportGeneratorLogic.res",
-          "PannellumLifecycle.res",
-          "TeaserState.res",
-          "CursorPhysics.res",
-          "UploadProcessor.res",
-          "ExifParser.res",
-          "TeaserManager.res",
-          "ExifReportGeneratorLogicTypes.res",
-          "TourTemplateStyles.res",
-          "NavigationController.res",
-          "NavigationGraph.res",
-          "ProjectManagerLogic.res",
-          "HotspotLineLogicLogic.res",
-          "ResizerLogic.res",
-          "HotspotLine.res",
-          "SimulationDriver.res",
-          "TeaserPlayback.res",
-          "NavigationUI.res",
-          "InputSystem.res",
-          "TeaserPathfinder.res",
-          "ProjectManager.res",
-          "HotspotLineLogicTypes.res",
-          "ExifReportGeneratorLogicGroups.res",
-          "SceneLoaderLogicConfig.res",
-          "ProjectManagerTypes.res",
-          "ResizerTypes.res",
-          "ResizerUtils.res",
-          "SceneSwitcher.res",
-          "DownloadSystem.res",
-          "SceneLoaderLogicEvents.res",
-          "NavigationRenderer.res",
-          "Exporter.res"
-        ],
-        "reason": "Score 7.70 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/components/ui/Lucide",
-        "files": [
-          "LucideActions.res",
-          "LucideStatus.res",
-          "LucideMedia.res",
-          "LucideCore.res"
-        ],
-        "reason": "Score 4.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/api/project/storage",
-        "files": [
-          "storage_logic.rs",
-          "mod.rs"
-        ],
-        "reason": "Score 2.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/pathfinder",
-        "files": [
-          "mod.rs",
-          "utils.rs"
-        ],
-        "reason": "Score 2.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../tests/unit",
-        "files": [
-          "NavigationReducer_v.test.res",
-          "ExifReportGeneratorLogicExtraction_v.test.res",
-          "UploadProcessorTypes_v.test.res",
-          "AudioManager_v.test.res",
-          "LoggerLogic_v.test.res",
-          "TimelineReducer_v.test.res",
-          "PreviewArrow_v.test.res",
-          "NotificationContext_v.test.res",
-          "AppContext_v.test.res",
-          "ProjectManagerLogic_v.test.res",
-          "UrlUtils_v.test.res",
-          "StateInspector_v.test.res",
-          "ViewerSnapshot_v.test.res",
-          "ViewerHUD_v.test.res",
-          "MediaApi_v.test.res",
-          "ExifReportGeneratorUtils_v.test.res",
-          "ViewerUI_v.test.res",
-          "HotspotLineTypes_v.test.res",
-          "TourLogic_v.test.res",
-          "SceneHelpers_v.test.res",
-          "SimulationReducer_v.test.res",
-          "HotspotReducer_v.test.res",
-          "ProjectApi_v.test.res",
-          "UiHelpers_v.test.res",
-          "ProjectReducer_v.test.res",
-          "SvgManager_v.test.res",
-          "LinkEditorLogic_v.test.res",
-          "Schemas_v.test.res",
-          "ApiTypes_v.test.res",
-          "ServiceWorkerMain_v.test.res",
-          "ViewerFollow_v.test.res",
-          "RootReducer_v.test.res",
-          "ViewerLabelMenu_v.test.res",
-          "HotspotLineLogic_v.test.res",
-          "ViewerManager_v.test.res",
-          "Types_v.test.res",
-          "TeaserState_v.test.res",
-          "Reducer_v.test.res",
-          "HotspotManager_v.test.res",
-          "State_v.test.res",
-          "ProjectManager_v.test.res",
-          "GeoUtils_v.test.res",
-          "SimulationLogic_v.test.res",
-          "ViewerPool_v.test.res",
-          "LoggerTypes_v.test.res",
-          "SceneTransitionManager_v.test.res",
-          "SimHelpers_v.test.res",
-          "UiReducer_v.test.res",
-          "Actions_v.test.res",
-          "ExifReportGeneratorLogicLocation_v.test.res",
-          "ViewerState_v.test.res",
-          "ExifReportGeneratorLogicGroups_v.test.res",
-          "InteractionsRobustness_v.test.res",
-          "UploadProcessorLogic_v.test.res",
-          "TeaserManager_v.test.res",
-          "ReBindings_v.test.res",
-          "ViewerTypes_v.test.res",
-          "ViewerLoader_v.test.res",
-          "GlobalStateBridge_v.test.res",
-          "BackendApi_v.test.res",
-          "SharedTypes_v.test.res",
-          "ModalContext_v.test.res",
-          "Bindings_Unified_v.test.res",
-          "ServiceWorker_v.test.res",
-          "SceneReducer_v.test.res"
-        ],
-        "reason": "Score 6.50 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/components/SceneList",
-        "files": [
-          "SceneItem.res",
-          "SceneListMain.res"
-        ],
-        "reason": "Score 2.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/components/Sidebar",
-        "files": [
-          "SidebarActions.res",
-          "SidebarMain.res",
-          "SidebarBranding.res",
-          "SidebarMainTypes.res",
-          "SidebarProcessing.res",
-          "SidebarMainLogic.res",
-          "SidebarProjectInfo.res"
-        ],
-        "reason": "Score 7.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../scripts",
-        "files": [
-          "increment-build.js",
-          "debug-connectivity.js",
-          "update-changelog.js",
-          "update-version.js",
-          "test-logging.js",
-          "bump-version.js",
-          "update-readme.js"
-        ],
-        "reason": "Score 7.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/api",
-        "files": [
-          "telemetry.rs",
-          "auth.rs",
-          "mod.rs",
-          "geocoding.rs",
-          "utils.rs"
-        ],
-        "reason": "Score 5.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/api/project",
-        "files": [
-          "export.rs",
-          "mod.rs",
-          "validation.rs",
-          "navigation.rs"
-        ],
-        "reason": "Score 4.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/components",
-        "files": [
-          "NotificationLayer.res",
-          "LabelMenu.res",
-          "HotspotManager.res",
-          "UploadReport.res",
-          "Tooltip.res",
-          "HotspotActionMenu.res",
-          "ViewerLoader.res",
-          "QualityIndicator.res",
-          "ViewerSnapshot.res",
-          "HotspotLayer.res",
-          "AppErrorBoundary.res",
-          "ViewerUI.res",
-          "PopOver.res",
-          "PersistentLabel.res",
-          "Sidebar.res",
-          "PreviewArrow.res",
-          "VisualPipeline.res",
-          "HotspotMenuLayer.res",
-          "ViewerHUD.res",
-          "FloorNavigation.res",
-          "ViewerManagerLogic.res",
-          "ReturnPrompt.res",
-          "NotificationContext.res",
-          "UtilityBar.res",
-          "ViewerLabelMenu.res",
-          "SnapshotOverlay.res",
-          "SceneList.res",
-          "ViewerManager.res",
-          "LinkModal.res",
-          "ModalContext.res",
-          "Portal.res",
-          "ErrorFallbackUI.res"
-        ],
-        "reason": "Score 3.20 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/api/media/video",
-        "files": [
-          "mod.rs",
-          "video_logic.rs"
-        ],
-        "reason": "Score 2.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/api/media",
-        "files": [
-          "serve.rs",
-          "similarity.rs",
-          "mod.rs"
-        ],
-        "reason": "Score 3.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../scripts/guard",
-        "files": [
-          "check-size.js",
-          "check-tests.js",
-          "index.js",
-          "check-map.js",
-          "utils.js",
-          "check-tasks.js"
-        ],
-        "reason": "Score 6.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/core/reducers",
-        "files": [
-          "TimelineReducer.res",
-          "NavigationReducer.res",
-          "ProjectReducer.res",
-          "SimulationReducer.res",
-          "SceneReducer.res",
-          "UiReducer.res",
-          "mod.res",
-          "RootReducer.res",
-          "HotspotReducer.res"
-        ],
-        "reason": "Score 9.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/services/geocoding",
-        "files": [
-          "logic.rs",
-          "mod.rs"
-        ],
-        "reason": "Score 2.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/systems/api",
-        "files": [
-          "ProjectApi.res",
-          "MediaApi.res",
-          "ApiTypes.res"
-        ],
-        "reason": "Score 3.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/utils",
-        "files": [
-          "GeoUtils.res",
-          "PersistenceLayer.res",
-          "ProgressBar.res",
-          "ColorPalette.res",
-          "StateInspector.res",
-          "TourLogic.res",
-          "LoggerTelemetry.res",
-          "Logger.res",
-          "ImageOptimizer.res",
-          "UrlUtils.res",
-          "LazyLoad.res",
-          "LoggerLogic.res",
-          "PathInterpolation.res",
-          "ProjectionMath.res",
-          "RequestQueue.res",
-          "LoggerTypes.res",
-          "Constants.res",
-          "SessionStore.res",
-          "Version.res",
-          "VersionData.res"
-        ],
-        "reason": "Score 2.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/components/VisualPipeline",
-        "files": [
-          "VisualPipelineRender.res",
-          "VisualPipelineMain.res",
-          "VisualPipelineStyles.res",
-          "VisualPipelineTypes.res",
-          "VisualPipelineLogic.res"
-        ],
-        "reason": "Score 5.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../css",
-        "files": [
-          "variables.css",
-          "animations.css",
-          "tailwind.css",
-          "style.css",
-          "legacy.css",
-          "layout.css",
-          "base.css"
-        ],
-        "reason": "Score 3.50 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/core",
-        "files": [
-          "SimHelpers.res",
-          "Reducer.res",
-          "ViewerState.res",
-          "SceneHelpersParser.res",
-          "Actions.res",
-          "SceneHelpers.res",
-          "UiHelpers.res",
-          "ViewerTypes.res",
-          "SharedTypes.res",
-          "AppContext.res",
-          "Types.res",
-          "Schemas.res",
-          "SchemasShared.res",
-          "SchemasDomain.res",
-          "GlobalStateBridge.res",
-          "SceneHelpersLogic.res",
-          "State.res",
-          "SceneCache.res"
-        ],
-        "reason": "Score 1.80 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../..",
-        "files": [
-          "jsconfig.json",
-          "index.html",
-          "tailwind.config.js",
-          "package.json",
-          "postcss.config.js"
-        ],
-        "reason": "Score 5.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/api/media/image",
-        "files": [
-          "image_utils.rs",
-          "mod.rs",
-          "image_logic.rs"
-        ],
-        "reason": "Score 1.50 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/models",
-        "files": [
-          "session.rs",
-          "user.rs",
-          "mod.rs",
-          "project.rs",
-          "errors.rs"
-        ],
-        "reason": "Score 5.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/components/ui",
-        "files": [
-          "context-menu.jsx",
-          "Shadcn.res",
-          "dropdown-menu.jsx",
-          "button.jsx",
-          "popover.jsx",
-          "tooltip.jsx",
-          "sonner.jsx",
-          "LucideIcons.res"
-        ],
-        "reason": "Score 4.00 > 1.0"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Upload",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Upload' spread across 3 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Svg",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Svg' spread across 2 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Project",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Project' spread across 4 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Visual",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Visual' spread across 2 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Viewer",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Viewer' spread across 6 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Ui",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Ui' spread across 3 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Sidebar",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Sidebar' spread across 2 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Notification",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Notification' spread across 2 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Tour",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Tour' spread across 3 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "index",
-        "action": "Vertical Slice",
-        "reason": "Feature 'index' spread across 3 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Navigation",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Navigation' spread across 3 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "App",
-        "action": "Vertical Slice",
-        "reason": "Feature 'App' spread across 4 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Teaser",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Teaser' spread across 2 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "mod",
-        "action": "Vertical Slice",
-        "reason": "Feature 'mod' spread across 16 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Hotspot",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Hotspot' spread across 4 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Logger",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Logger' spread across 2 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Exif",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Exif' spread across 2 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Simulation",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Simulation' spread across 3 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Lucide",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Lucide' spread across 2 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Scene",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Scene' spread across 6 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "State",
-        "action": "Vertical Slice",
-        "reason": "Feature 'State' spread across 3 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "utils",
-        "action": "Vertical Slice",
-        "reason": "Feature 'utils' spread across 3 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Link",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Link' spread across 3 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Service",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Service' spread across 2 folders (Fragmentation Tax)"
       }
     }
   ],

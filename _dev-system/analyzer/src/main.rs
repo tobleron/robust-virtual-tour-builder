@@ -215,17 +215,8 @@ fn flush_plans(buffer: &HashMap<String, Vec<WorkUnit>>) -> Result<()> {
     Ok(())
 }
 
-fn sync_formal_ambiguity_task(buffer: &HashMap<String, Vec<WorkUnit>>) -> Result<()> {
-    let mut all_ambiguities = Vec::new();
-    for units in buffer.values() {
-        for unit in units {
-            if let WorkUnit::Ambiguity { file } = unit {
-                all_ambiguities.push(file);
-            }
-        }
-    }
-
-    if all_ambiguities.is_empty() { return Ok(()); }
+fn sync_architectural_category(category_name: &str, units: &[String], objective: &str) -> Result<()> {
+    if units.is_empty() { return Ok(()); }
 
     let pending_dir = "../../tasks/pending";
     let active_dir = "../../tasks/active";
@@ -236,7 +227,7 @@ fn sync_formal_ambiguity_task(buffer: &HashMap<String, Vec<WorkUnit>>) -> Result
         if let Ok(entries) = fs::read_dir(dir) {
             for entry in entries.filter_map(|e| e.ok()) {
                 let name = entry.file_name().to_string_lossy().into_owned();
-                if name.contains("Classify_Ambiguous_Files") {
+                if name.contains(category_name) {
                     existing_path = Some(entry.path());
                     break;
                 }
@@ -248,15 +239,15 @@ fn sync_formal_ambiguity_task(buffer: &HashMap<String, Vec<WorkUnit>>) -> Result
     if let Some(path) = existing_path {
         let current_content = fs::read_to_string(&path).unwrap_or_default();
         let mut to_append = Vec::new();
-        for file in all_ambiguities {
-            if !current_content.contains(file) {
-                 to_append.push(file);
+        for unit in units {
+            if !current_content.contains(unit) {
+                 to_append.push(unit);
             }
         }
         if !to_append.is_empty() {
             let mut file = OpenOptions::new().append(true).open(path)?;
             for f in to_append {
-                file.write_all(format!("- [ ] `{}`\n", f).as_bytes())?;
+                file.write_all(format!("- [ ] {}\n", f).as_bytes())?;
             }
         }
     } else {
@@ -275,13 +266,41 @@ fn sync_formal_ambiguity_task(buffer: &HashMap<String, Vec<WorkUnit>>) -> Result
             }
         }
         let next_id = max_id + 1;
-        let new_path = format!("{}/{:03}_Classify_Ambiguous_Files_Headers.md", pending_dir, next_id);
+        let new_path = format!("{}/{:03}_{}.md", pending_dir, next_id, category_name);
         let mut file = fs::File::create(new_path)?;
-        file.write_all(format!("# Classify Ambiguous Files\n\n## Objective\nAnalyze and classify unidentified source files.\n\n## Files\n").as_bytes())?;
-        for f in all_ambiguities {
-            file.write_all(format!("- [ ] `{}`\n", f).as_bytes())?;
+        file.write_all(format!("# Task {}: {}\n\n## Objective\n{}\n\n## Tasks\n", next_id, category_name.replace("_", " "), objective).as_bytes())?;
+        for f in units {
+            file.write_all(format!("- [ ] {}\n", f).as_bytes())?;
         }
     }
+    Ok(())
+}
+
+fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>) -> Result<()> {
+    let mut ambiguities = Vec::new();
+    let mut violations = Vec::new();
+    let mut surgical = Vec::new();
+    let mut structural = Vec::new();
+    let mut merges = Vec::new();
+
+    for units in buffer.values() {
+        for unit in units {
+            match unit {
+                WorkUnit::Ambiguity { file } => ambiguities.push(format!("`{}`", file)),
+                WorkUnit::Violation { file, pattern, .. } => violations.push(format!("`{}` (Pattern: `{}`)", file, pattern)),
+                WorkUnit::Surgical { file, reason, .. } => surgical.push(format!("**{}** - *Reason:* {}", file, reason)),
+                WorkUnit::Structural { file, reason, .. } => structural.push(format!("**{}** - *Reason:* {}", file, reason)),
+                WorkUnit::Merge { folder, reason, .. } => merges.push(format!("Folder: `{}` - *Reason:* {}", folder, reason)),
+            }
+        }
+    }
+
+    sync_architectural_category("Classify_Ambiguous_Files", &ambiguities, "Analyze and classify unidentified source files into the efficiency taxonomy.")?;
+    sync_architectural_category("Fix_Critical_Violations", &violations, "Resolve forbidden patterns and critical LOC violations across the project.")?;
+    sync_architectural_category("Surgical_Refactor_Modules", &surgical, "Break down oversized or high-drag modules into smaller, more specialized units.")?;
+    sync_architectural_category("Structural_Vertical_Slicing", &structural, "Implement vertical slicing for fragmented features spread across multiple folders.")?;
+    sync_architectural_category("Merge_Fragmented_Folders", &merges, "Consolidate folders with high fragmentation tax to reduce cognitive overhead.")?;
+
     Ok(())
 }
 
@@ -474,7 +493,7 @@ fn main() -> Result<()> {
     fs::write("../pending/metadata.json", json_data)?;
 
     flush_plans(&buffer)?;
-    let _ = sync_formal_ambiguity_task(&buffer);
+    let _ = sync_all_architectural_tasks(&buffer);
     println!("✅ Scan v8 Complete. Fully Aggregated.");
     Ok(())
 }
