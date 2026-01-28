@@ -18,6 +18,7 @@ mod services;
 
 use middleware::quota_check::QuotaCheck;
 use middleware::request_tracker::RequestTracker;
+use services::database::DatabaseManager;
 use services::shutdown::{ShutdownManager, perform_shutdown_cleanup};
 use services::upload_quota::{QuotaConfig, UploadQuotaManager};
 
@@ -33,6 +34,12 @@ async fn main() -> io::Result<()> {
         .init();
 
     tracing::info!("Starting server at http://localhost:8080");
+
+    // Initialize Database
+    let pool = DatabaseManager::new().await.map_err(|e| {
+        io::Error::new(io::ErrorKind::Other, format!("Failed to init database: {}", e))
+    })?;
+    let db_pool = web::Data::new(pool);
 
     // Ensure logs directory exists
     let log_dir = std::env::var("LOG_DIR").unwrap_or_else(|_| "../logs".to_string());
@@ -80,6 +87,7 @@ async fn main() -> io::Result<()> {
         })?;
 
     let shutdown_manager_server = shutdown_manager.clone();
+    let db_pool_server = db_pool.clone();
     let server = HttpServer::new(move || {
         // CORS Configuration: Permissive in debug, restricted in release
         let cors = if cfg!(debug_assertions) {
@@ -120,6 +128,7 @@ async fn main() -> io::Result<()> {
             .app_data(web::PayloadConfig::new(quota_config.max_payload_size))
             .app_data(quota_manager.clone())
             .app_data(shutdown_manager_server.clone())
+            .app_data(db_pool_server.clone())
             .wrap(QuotaCheck) // Check upload quotas
             .wrap(RequestTracker) // Track active requests
             .wrap(TracingLogger::default()) // Structured request logging

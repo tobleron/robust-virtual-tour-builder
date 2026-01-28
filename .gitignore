@@ -39,5 +39,9 @@ node_modules/
 package-lock.json
 backend/Cargo.lock
 
+# Database
+backend/data/
+*.db
+
 # Ensure tasks are always tracked
 !tasks/
