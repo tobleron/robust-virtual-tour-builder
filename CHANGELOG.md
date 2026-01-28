@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Final integration of Jules' async schema improvements
 - Safe integration of Jules' latest similarity schema updates
 - Synchronize stable schema and similarity updates across all branches
+- Integrate Jules' async schema fix
 
 ### Fixed
 - Resolve async schema conversion error and geocode response mapping
