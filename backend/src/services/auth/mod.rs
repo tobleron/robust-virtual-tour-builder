@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 pub mod jwt;
 
 use crate::models::AppError;
@@ -5,6 +6,7 @@ use oauth2::basic::BasicClient;
 use oauth2::{AuthUrl, ClientId, ClientSecret, RedirectUrl, TokenUrl};
 use std::env;
 
+#[allow(dead_code)]
 pub struct AuthService {
     pub google_client: BasicClient,
 }

@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 // @efficiency: infra-adapter
 use crate::models::AppError;
 use chrono::{Duration, Utc};

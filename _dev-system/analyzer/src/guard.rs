@@ -243,7 +243,6 @@ pub fn check_tests(config: &GuardConfig, file_path: &Path) -> Result<()> {
         return Ok(());
     }
 
-    let file_name = file_path.file_name().unwrap().to_string_lossy();
     let file_base = file_path.file_stem().unwrap().to_string_lossy();
     
     if file_base == "Version" {
@@ -266,10 +265,12 @@ pub fn check_tests(config: &GuardConfig, file_path: &Path) -> Result<()> {
     }
 
     let content = fs::read_to_string(file_path)?;
+    let hints = get_hints(&content);
+    let desc_suffix = if hints.is_empty() { "".to_string() } else { format!(" - {}", hints.replace("\n", " ")) };
 
     if existing_test.is_none() {
         let task_name = format!("Test_{}_New", file_base);
-        append_to_unified_task(config, &task_name, "New")?;
+        append_to_unified_task(config, &task_name, &format!("New{}", desc_suffix))?;
     } else {
         let src_stats = fs::metadata(file_path)?;
         let test_stats = fs::metadata(existing_test.as_ref().unwrap())?;
@@ -280,7 +281,7 @@ pub fn check_tests(config: &GuardConfig, file_path: &Path) -> Result<()> {
 
             if src_mtime > test_mtime {
                 let task_name = format!("Test_{}_Update", file_base);
-                append_to_unified_task(config, &task_name, "Update")?;
+                append_to_unified_task(config, &task_name, &format!("Update{}", desc_suffix))?;
             }
         }
     }

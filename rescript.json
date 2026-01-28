@@ -1,5 +1,4 @@
 {
-    "@efficiency:": "infra-config",
     "name": "robust-virtual-tour-builder",
     "sources": [
         {
