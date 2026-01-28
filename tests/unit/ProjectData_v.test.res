@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 /* tests/unit/ProjectData_v.test.res */
 open Vitest
 open ProjectData

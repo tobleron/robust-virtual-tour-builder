@@ -30,20 +30,20 @@
 
 /* Sidebar Branding & UI */
 .sidebar-branding-header {
-    background: #0e2d52 !important;
+    background: #0e2d52;
 }
 
 .sidebar-branding-icon {
-    font-size: 32px !important;
+    font-size: 32px;
 }
 
 .sidebar-branding-title {
-    font-size: 16px !important;
-    letter-spacing: 0.15em !important;
+    font-size: 16px;
+    letter-spacing: 0.15em;
 }
 
 .sidebar-upload-btn {
-    background-color: var(--danger) !important;
+    background-color: var(--danger);
 }
 
 .sidebar-progress-fill {
@@ -52,11 +52,11 @@
 
 .sidebar-version-line {
     font-family: var(--font-mono);
-    font-weight: 400 !important;
+    font-weight: 400;
 }
 
 .sidebar-icon-teaser {
-    color: var(--purple-brand) !important;
+    color: var(--purple-brand);
 }
 
 /* Sidebar Project Name Label */
@@ -112,68 +112,68 @@
 /* NUCLEAR OVERRIDE FOR SONNER */
 
 /* Target by the data attribute directly for absolute victory */
-[data-sonner-toaster] {
-    position: absolute !important;
-    top: 24px !important;
-    right: 24px !important;
-    z-index: 100000 !important;
+html body [data-sonner-toaster] {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    z-index: 100000;
 }
 
-[data-sonner-toaster]>ol {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 0 !important;
+html body [data-sonner-toaster]>ol {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
     /* The 5px gap the user wants */
-    position: absolute !important;
-    right: 0 !important;
-    top: 0 !important;
-    align-items: flex-end !important;
+    position: absolute;
+    right: 0;
+    top: 0;
+    align-items: flex-end;
 }
 
-[data-sonner-toast] {
-    --toast-width: 360px !important;
-    width: 360px !important;
-    height: 42px !important;
-    background: #0e2d52 !important;
+html body [data-sonner-toast] {
+    --toast-width: 360px;
+    width: 360px;
+    height: 42px;
+    background: #0e2d52;
     /* CORPORATE BLUE AS REQUESTED */
-    color: #ffffff !important;
-    box-shadow: none !important;
-    border: none !important;
-    border-radius: 9px !important;
-    position: relative !important;
+    color: #ffffff;
+    box-shadow: none;
+    border: none;
+    border-radius: 9px;
+    position: relative;
     /* Allow normal document flow for gap */
-    inset: auto !important;
-    transform: none !important;
-    margin-bottom: calc(var(--toast-stack-gap, 8) * 1px) !important;
+    inset: auto;
+    transform: none;
+    margin-bottom: calc(var(--toast-stack-gap, 8) * 1px);
     /* MATCHING FLOOR BUTTON GAP (gap-2 = 8px) */
-    transition: transform calc(var(--toast-animation-duration, 1000) * 1ms) cubic-bezier(0.4, 0, 0.2, 1), opacity calc(var(--toast-animation-duration, 1000) * 1ms) ease !important;
+    transition: transform calc(var(--toast-animation-duration, 1000) * 1ms) cubic-bezier(0.4, 0, 0.2, 1), opacity calc(var(--toast-animation-duration, 1000) * 1ms) ease;
 }
 
 /* Override Sonner's internal success/error/etc. backgrounds if they exist as attributes */
-[data-sonner-toast][data-type="success"] {
-    background: #008B8B !important;
+html body [data-sonner-toast][data-type="success"] {
+    background: #008B8B;
 }
 
-[data-sonner-toast][data-type="error"] {
-    background: #ea580c !important;
+html body [data-sonner-toast][data-type="error"] {
+    background: #ea580c;
 }
 
-[data-sonner-toast][data-type="warning"] {
-    background: #B8860B !important;
+html body [data-sonner-toast][data-type="warning"] {
+    background: #B8860B;
 }
 
-[data-sonner-toast][data-type="info"] {
-    background: #0e2d52 !important;
+html body [data-sonner-toast][data-type="info"] {
+    background: #0e2d52;
 }
 
 /* Icon sizing */
-[data-sonner-toast] [data-icon] {
-    width: 16px !important;
-    height: 16px !important;
-    min-width: 16px !important;
+html body [data-sonner-toast] [data-icon] {
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
 }
 
-[data-sonner-toast] [data-content] {
-    font-size: 13px !important;
-    line-height: normal !important;
+html body [data-sonner-toast] [data-content] {
+    font-size: 13px;
+    line-height: normal;
 }

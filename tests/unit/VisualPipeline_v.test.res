@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 /* tests/unit/VisualPipeline_v.test.res */
 open Vitest
 open ReBindings

@@ -1,0 +1,631 @@
+# SYSTEM MASTER PLAN
+## 📚 LEGEND & DEFINITIONS
+*   **LOC (Lines of Code):** Source lines excluding comments and whitespace.
+*   **Drag:** A calculated resistance metric based on nesting depth, logic density, and complexity penalties. Higher drag reduces the allowed LOC.
+*   **Limit:** The dynamic LOC limit for a specific file, calculated as `(Base_Limit * Role_Multiplier) / Drag`.
+*   **Role:** The architectural classification (e.g., `orchestrator`, `ui-component`) which determines the base allowed size.
+*   **Pattern:** A specific code construct (e.g., `unwrap`, `!important`) that is restricted or forbidden.
+
+---
+
+## 🏗️ STRUCTURAL REFACTOR TASKS (26)
+**Action:** Implement Vertical Slicing to reduce directory traversal overhead.
+
+- [ ] **Navigation** (Action: Vertical Slice)
+  - *Reason:* Feature 'Navigation' spread across 3 folders (Fragmentation Tax)
+- [ ] **Service** (Action: Vertical Slice)
+  - *Reason:* Feature 'Service' spread across 2 folders (Fragmentation Tax)
+- [ ] **Pannellum** (Action: Vertical Slice)
+  - *Reason:* Feature 'Pannellum' spread across 2 folders (Fragmentation Tax)
+- [ ] **Image** (Action: Vertical Slice)
+  - *Reason:* Feature 'Image' spread across 3 folders (Fragmentation Tax)
+- [ ] **Upload** (Action: Vertical Slice)
+  - *Reason:* Feature 'Upload' spread across 3 folders (Fragmentation Tax)
+- [ ] **Scene** (Action: Vertical Slice)
+  - *Reason:* Feature 'Scene' spread across 6 folders (Fragmentation Tax)
+- [ ] **Exif** (Action: Vertical Slice)
+  - *Reason:* Feature 'Exif' spread across 2 folders (Fragmentation Tax)
+- [ ] **Svg** (Action: Vertical Slice)
+  - *Reason:* Feature 'Svg' spread across 2 folders (Fragmentation Tax)
+- [ ] **Visual** (Action: Vertical Slice)
+  - *Reason:* Feature 'Visual' spread across 3 folders (Fragmentation Tax)
+- [ ] **Teaser** (Action: Vertical Slice)
+  - *Reason:* Feature 'Teaser' spread across 2 folders (Fragmentation Tax)
+- [ ] **Lucide** (Action: Vertical Slice)
+  - *Reason:* Feature 'Lucide' spread across 3 folders (Fragmentation Tax)
+- [ ] **Tour** (Action: Vertical Slice)
+  - *Reason:* Feature 'Tour' spread across 3 folders (Fragmentation Tax)
+- [ ] **Version** (Action: Vertical Slice)
+  - *Reason:* Feature 'Version' spread across 2 folders (Fragmentation Tax)
+- [ ] **Label** (Action: Vertical Slice)
+  - *Reason:* Feature 'Label' spread across 2 folders (Fragmentation Tax)
+- [ ] **Notification** (Action: Vertical Slice)
+  - *Reason:* Feature 'Notification' spread across 2 folders (Fragmentation Tax)
+- [ ] **Logger** (Action: Vertical Slice)
+  - *Reason:* Feature 'Logger' spread across 2 folders (Fragmentation Tax)
+- [ ] **Hotspot** (Action: Vertical Slice)
+  - *Reason:* Feature 'Hotspot' spread across 4 folders (Fragmentation Tax)
+- [ ] **Viewer** (Action: Vertical Slice)
+  - *Reason:* Feature 'Viewer' spread across 6 folders (Fragmentation Tax)
+- [ ] **App** (Action: Vertical Slice)
+  - *Reason:* Feature 'App' spread across 4 folders (Fragmentation Tax)
+- [ ] **Ui** (Action: Vertical Slice)
+  - *Reason:* Feature 'Ui' spread across 3 folders (Fragmentation Tax)
+- [ ] **Link** (Action: Vertical Slice)
+  - *Reason:* Feature 'Link' spread across 3 folders (Fragmentation Tax)
+- [ ] **Sidebar** (Action: Vertical Slice)
+  - *Reason:* Feature 'Sidebar' spread across 2 folders (Fragmentation Tax)
+- [ ] **State** (Action: Vertical Slice)
+  - *Reason:* Feature 'State' spread across 3 folders (Fragmentation Tax)
+- [ ] **Simulation** (Action: Vertical Slice)
+  - *Reason:* Feature 'Simulation' spread across 3 folders (Fragmentation Tax)
+- [ ] **mod** (Action: Vertical Slice)
+  - *Reason:* Feature 'mod' spread across 16 folders (Fragmentation Tax)
+- [ ] **Project** (Action: Vertical Slice)
+  - *Reason:* Feature 'Project' spread across 4 folders (Fragmentation Tax)
+
+---
+
+## 🧩 MERGE TASKS (36)
+### Merge Folder: `../../backend/src/api/media`
+- **Reason:** Score 3.00 > 1.0
+- **Files:**
+  - `serve.rs`
+  - `similarity.rs`
+  - `mod.rs`
+### Merge Folder: `../../backend/src/api/project`
+- **Reason:** Score 5.00 > 1.0
+- **Files:**
+  - `export.rs`
+  - `export_utils.rs`
+  - `mod.rs`
+  - `validation.rs`
+  - `navigation.rs`
+### Merge Folder: `../../backend/src/api/media/video`
+- **Reason:** Score 4.00 > 1.0
+- **Files:**
+  - `transcode.rs`
+  - `teaser.rs`
+  - `mod.rs`
+  - `video_logic.rs`
+### Merge Folder: `../../backend/src/api/media/image`
+- **Reason:** Score 4.00 > 1.0
+- **Files:**
+  - `resize_batch.rs`
+  - `extract_metadata.rs`
+  - `optimize.rs`
+  - `image_utils.rs`
+  - `mod.rs`
+  - `image_logic.rs`
+  - `process_full.rs`
+  - `tests.rs`
+### Merge Folder: `../../backend/src/services/media`
+- **Reason:** Score 6.00 > 1.0
+- **Files:**
+  - `resizing.rs`
+  - `naming.rs`
+  - `webp.rs`
+  - `mod.rs`
+  - `naming_old.rs`
+  - `storage.rs`
+### Merge Folder: `../../src/core`
+- **Reason:** Score 1.90 > 1.0
+- **Files:**
+  - `SimHelpers.res`
+  - `Reducer.res`
+  - `ViewerState.res`
+  - `SceneHelpersParser.res`
+  - `Actions.res`
+  - `SceneHelpers.res`
+  - `UiHelpers.res`
+  - `ViewerTypes.res`
+  - `SharedTypes.res`
+  - `AppContext.res`
+  - `Types.res`
+  - `Schemas.res`
+  - `SchemasShared.res`
+  - `SchemasDomain.res`
+  - `GlobalStateBridge.res`
+  - `SceneHelpersLogic.res`
+  - `State.res`
+  - `AuthContext.res`
+  - `SceneCache.res`
+### Merge Folder: `../../backend/src/services`
+- **Reason:** Score 5.00 > 1.0
+- **Files:**
+  - `shutdown.rs`
+  - `database.rs`
+  - `upload_quota.rs`
+  - `mod.rs`
+  - `upload_quota_tests.rs`
+### Merge Folder: `../../backend/src/api`
+- **Reason:** Score 6.00 > 1.0
+- **Files:**
+  - `telemetry.rs`
+  - `auth.rs`
+  - `mod.rs`
+  - `telemetry_logic.rs`
+  - `geocoding.rs`
+  - `utils.rs`
+### Merge Folder: `../../backend/src/services/project`
+- **Reason:** Score 2.00 > 1.0
+- **Files:**
+  - `package.rs`
+  - `mod.rs`
+  - `load.rs`
+  - `validate.rs`
+### Merge Folder: `../../scripts`
+- **Reason:** Score 7.00 > 1.0
+- **Files:**
+  - `increment-build.js`
+  - `debug-connectivity.js`
+  - `update-changelog.js`
+  - `update-version.js`
+  - `test-logging.js`
+  - `bump-version.js`
+  - `update-readme.js`
+### Merge Folder: `../../src/components/Sidebar`
+- **Reason:** Score 7.00 > 1.0
+- **Files:**
+  - `SidebarActions.res`
+  - `SidebarMain.res`
+  - `SidebarBranding.res`
+  - `SidebarMainTypes.res`
+  - `SidebarProcessing.res`
+  - `SidebarMainLogic.res`
+  - `SidebarProjectInfo.res`
+### Merge Folder: `../../tests/unit`
+- **Reason:** Score 15.10 > 1.0
+- **Files:**
+  - `Logger_v.test.res`
+  - `NavigationReducer_v.test.res`
+  - `ExifReportGeneratorLogicExtraction_v.test.res`
+  - `Sidebar_v.test.res`
+  - `LazyLoad_v.test.res`
+  - `NavigationFSM_v.test.res`
+  - `ProjectionMath_v.test.res`
+  - `UploadProcessorTypes_v.test.res`
+  - `AudioManager_v.test.res`
+  - `EventBus_v.test.res`
+  - `VideoEncoder_v.test.res`
+  - `Components_v.test.setup.jsx`
+  - `LoggerLogic_v.test.res`
+  - `TimelineReducer_v.test.res`
+  - `SceneCache_v.test.res`
+  - `PreviewArrow_v.test.res`
+  - `HotspotLayer_v.test.res`
+  - `NotificationContext_v.test.res`
+  - `HotspotLine_v.test.res`
+  - `AppContext_v.test.res`
+  - `VitestSmoke.test.res`
+  - `Mod_v.test.res`
+  - `App_v.test.res`
+  - `FloorNavigation_v.test.res`
+  - `ProjectManagerLogic_v.test.res`
+  - `UrlUtils_v.test.res`
+  - `FinalAsyncCheck_v.test.res`
+  - `PanoramaClusterer_v.test.res`
+  - `StateInspector_v.test.res`
+  - `UploadReport_v.test.res`
+  - `SceneLoader_v.test.res`
+  - `UploadProcessor_v.test.res`
+  - `SimulationDriver_v.test.res`
+  - `ServerTeaser_v.test.res`
+  - `LoggerTelemetry_v.test.res`
+  - `ViewerSnapshot_v.test.res`
+  - `ViewerHUD_v.test.res`
+  - `MediaApi_v.test.res`
+  - `SimulationChainSkipper_v.test.res`
+  - `ExifReportGeneratorUtils_v.test.res`
+  - `SceneList_v.test.res`
+  - `NotificationLayer_v.test.res`
+  - `ReturnPrompt_v.test.res`
+  - `ViewerUI_v.test.res`
+  - `HotspotLineTypes_v.test.res`
+  - `QualityIndicator_v.test.res`
+  - `TourLogic_v.test.res`
+  - `PannellumLifecycle_v.test.res`
+  - `NavigationUI_v.test.res`
+  - `HotspotMenuLayer_v.test.res`
+  - `TourTemplateAssets_v.test.res`
+  - `Constants_v.test.res`
+  - `SceneSwitcher_v.test.res`
+  - `ProgressBar_v.test.res`
+  - `SceneHelpers_v.test.res`
+  - `TourTemplateStyles_v.test.res`
+  - `LabelMenu_v.test.setup.jsx`
+  - `SessionStore_v.test.res`
+  - `SimulationReducer_v.test.res`
+  - `HotspotReducer_v.test.res`
+  - `ProjectApi_v.test.res`
+  - `UiHelpers_v.test.res`
+  - `ProjectData_v.test.res`
+  - `TeaserPlayback_v.test.res`
+  - `HotspotActionMenu_v.test.res`
+  - `ProjectReducer_v.test.res`
+  - `Resizer_v.test.res`
+  - `SvgManager_v.test.res`
+  - `TourTemplates_v.test.res`
+  - `LinkModal_v.test.res`
+  - `VisualPipeline_v.test.res`
+  - `LucideIcons_v.test.res`
+  - `LinkEditorLogic_v.test.res`
+  - `Schemas_v.test.res`
+  - `PersistentLabel_v.test.res`
+  - `ApiTypes_v.test.res`
+  - `ErrorFallbackUI_v.test.res`
+  - `ServiceWorkerMain_v.test.res`
+  - `SceneLoader_Lifecycle_Unified_v.test.res`
+  - `ViewerFollow_v.test.res`
+  - `RootReducer_v.test.res`
+  - `ViewerLabelMenu_v.test.res`
+  - `Portal_v.test.res`
+  - `UploadProcessor_v.test.setup.js`
+  - `HotspotLineLogic_v.test.res`
+  - `ViewerManager_v.test.res`
+  - `Version_v.test.res`
+  - `Types_v.test.res`
+  - `NavigationGraph_v.test.res`
+  - `TourTemplateScripts_v.test.res`
+  - `TeaserState_v.test.res`
+  - `AuthenticatedClient_v.test.res`
+  - `PathInterpolation_v.test.res`
+  - `NavigationRenderer_v.test.res`
+  - `TeaserPathfinder_v.test.res`
+  - `Reducer_v.test.res`
+  - `HotspotManager_v.test.res`
+  - `DownloadSystem_v.test.res`
+  - `Main_v.test.res`
+  - `State_v.test.res`
+  - `ExifReportGenerator_v.test.res`
+  - `SvgRenderer_v.test.res`
+  - `ProjectManager_v.test.res`
+  - `GeoUtils_v.test.res`
+  - `RequestQueue_v.test.res`
+  - `UtilityBar_v.test.res`
+  - `SimulationLogic_v.test.res`
+  - `ImageValidator_v.test.res`
+  - `ImageOptimizer_v.test.res`
+  - `ViewerPool_v.test.res`
+  - `NavigationController_v.test.res`
+  - `SnapshotOverlay_v.test.res`
+  - `LoggerTypes_v.test.res`
+  - `SceneTransitionManager_v.test.res`
+  - `SimHelpers_v.test.res`
+  - `ExifParser_v.test.res`
+  - `PannellumAdapter_v.test.res`
+  - `LabelMenu_v.test.res`
+  - `UiReducer_v.test.res`
+  - `PopOver_v.test.res`
+  - `Actions_v.test.res`
+  - `ExifReportGeneratorLogicLocation_v.test.res`
+  - `ColorPalette_v.test.res`
+  - `ViewerState_v.test.res`
+  - `ExifReportGeneratorLogicGroups_v.test.res`
+  - `InteractionsRobustness_v.test.res`
+  - `HotspotLine_v.test.setup.js`
+  - `TeaserRecorder_v.test.res`
+  - `UploadProcessorLogic_v.test.res`
+  - `AuthContext_v.test.res`
+  - `Exporter_v.test.res`
+  - `FingerprintService_v.test.res`
+  - `SimulationNavigation_v.test.res`
+  - `AppErrorBoundary_v.test.res`
+  - `TeaserManager_v.test.res`
+  - `Shadcn_v.test.res`
+  - `ReBindings_v.test.res`
+  - `ViewerTypes_v.test.res`
+  - `ViewerLoader_v.test.res`
+  - `GlobalStateBridge_v.test.res`
+  - `InputSystem_v.test.res`
+  - `CursorPhysics_v.test.res`
+  - `BackendApi_v.test.res`
+  - `SimulationPathGenerator_v.test.res`
+  - `VersionData_v.test.res`
+  - `SharedTypes_v.test.res`
+  - `ModalContext_v.test.res`
+  - `Tooltip_v.test.res`
+  - `Bindings_Unified_v.test.res`
+  - `ServiceWorker_v.test.res`
+  - `SceneReducer_v.test.res`
+### Merge Folder: `../../src/components/VisualPipeline`
+- **Reason:** Score 5.00 > 1.0
+- **Files:**
+  - `VisualPipelineRender.res`
+  - `VisualPipelineMain.res`
+  - `VisualPipelineStyles.res`
+  - `VisualPipelineTypes.res`
+  - `VisualPipelineLogic.res`
+### Merge Folder: `../..`
+- **Reason:** Score 6.00 > 1.0
+- **Files:**
+  - `jsconfig.json`
+  - `index.html`
+  - `tailwind.config.js`
+  - `package.json`
+  - `rescript.json`
+  - `postcss.config.js`
+### Merge Folder: `../../src/components/ui/Lucide`
+- **Reason:** Score 4.00 > 1.0
+- **Files:**
+  - `LucideActions.res`
+  - `LucideStatus.res`
+  - `LucideMedia.res`
+  - `LucideCore.res`
+### Merge Folder: `../../backend/src/services/media/analysis`
+- **Reason:** Score 3.00 > 1.0
+- **Files:**
+  - `mod.rs`
+  - `quality.rs`
+  - `exif.rs`
+### Merge Folder: `../../backend/src/models`
+- **Reason:** Score 10.00 > 1.0
+- **Files:**
+  - `telemetry.rs`
+  - `session.rs`
+  - `metadata.rs`
+  - `similarity.rs`
+  - `user.rs`
+  - `mod.rs`
+  - `validation.rs`
+  - `project.rs`
+  - `errors.rs`
+  - `geocoding.rs`
+### Merge Folder: `../../backend/src/api/project/storage`
+- **Reason:** Score 2.00 > 1.0
+- **Files:**
+  - `storage_logic.rs`
+  - `mod.rs`
+### Merge Folder: `../../tests`
+- **Reason:** Score 3.00 > 1.0
+- **Files:**
+  - `rescript-schema-shim.js`
+  - `TestRunner.res`
+  - `node-setup.js`
+### Merge Folder: `../../src/bindings`
+- **Reason:** Score 6.00 > 1.0
+- **Files:**
+  - `WebApiBindings.res`
+  - `GraphicsBindings.res`
+  - `BrowserBindings.res`
+  - `ViewerBindings.res`
+  - `IdbBindings.res`
+  - `DomBindings.res`
+### Merge Folder: `../../backend/src/middleware`
+- **Reason:** Score 4.00 > 1.0
+- **Files:**
+  - `request_tracker.rs`
+  - `quota_check.rs`
+  - `auth.rs`
+  - `mod.rs`
+### Merge Folder: `../../src/components`
+- **Reason:** Score 3.20 > 1.0
+- **Files:**
+  - `NotificationLayer.res`
+  - `LabelMenu.res`
+  - `HotspotManager.res`
+  - `UploadReport.res`
+  - `Tooltip.res`
+  - `HotspotActionMenu.res`
+  - `ViewerLoader.res`
+  - `QualityIndicator.res`
+  - `ViewerSnapshot.res`
+  - `HotspotLayer.res`
+  - `AppErrorBoundary.res`
+  - `ViewerUI.res`
+  - `PopOver.res`
+  - `PersistentLabel.res`
+  - `Sidebar.res`
+  - `PreviewArrow.res`
+  - `VisualPipeline.res`
+  - `HotspotMenuLayer.res`
+  - `ViewerHUD.res`
+  - `FloorNavigation.res`
+  - `ViewerManagerLogic.res`
+  - `ReturnPrompt.res`
+  - `NotificationContext.res`
+  - `UtilityBar.res`
+  - `ViewerLabelMenu.res`
+  - `SnapshotOverlay.res`
+  - `SceneList.res`
+  - `ViewerManager.res`
+  - `LinkModal.res`
+  - `ModalContext.res`
+  - `Portal.res`
+  - `ErrorFallbackUI.res`
+### Merge Folder: `../../src/components/SceneList`
+- **Reason:** Score 2.00 > 1.0
+- **Files:**
+  - `SceneItem.res`
+  - `SceneListMain.res`
+### Merge Folder: `../../src/systems/api`
+- **Reason:** Score 4.00 > 1.0
+- **Files:**
+  - `ProjectApi.res`
+  - `MediaApi.res`
+  - `ApiTypes.res`
+  - `AuthenticatedClient.res`
+### Merge Folder: `../../backend/src/pathfinder/algorithms`
+- **Reason:** Score 2.00 > 1.0
+- **Files:**
+  - `timeline.rs`
+  - `walk.rs`
+### Merge Folder: `../../backend/src/services/auth`
+- **Reason:** Score 2.00 > 1.0
+- **Files:**
+  - `mod.rs`
+  - `jwt.rs`
+### Merge Folder: `../../backend/src`
+- **Reason:** Score 3.00 > 1.0
+- **Files:**
+  - `lib.rs`
+  - `metrics.rs`
+  - `main.rs`
+### Merge Folder: `../../src/i18n/locales`
+- **Reason:** Score 2.00 > 1.0
+- **Files:**
+  - `en.json`
+  - `es.json`
+### Merge Folder: `../../src`
+- **Reason:** Score 6.00 > 1.0
+- **Files:**
+  - `ReBindings.res`
+  - `App.res`
+  - `Main.res`
+  - `ServiceWorkerMain.res`
+  - `index.js`
+  - `ServiceWorker.res`
+### Merge Folder: `../../src/core/reducers`
+- **Reason:** Score 9.00 > 1.0
+- **Files:**
+  - `TimelineReducer.res`
+  - `NavigationReducer.res`
+  - `ProjectReducer.res`
+  - `SimulationReducer.res`
+  - `SceneReducer.res`
+  - `UiReducer.res`
+  - `mod.res`
+  - `RootReducer.res`
+  - `HotspotReducer.res`
+### Merge Folder: `../../src/systems`
+- **Reason:** Score 7.70 > 1.0
+- **Files:**
+  - `TeaserRecorderLogic.res`
+  - `Resizer.res`
+  - `VideoEncoder.res`
+  - `ExifReportGeneratorLogicExtraction.res`
+  - `ViewerFollow.res`
+  - `HotspotLineLogic.res`
+  - `SvgManager.res`
+  - `NavigationFSM.res`
+  - `LinkEditorLogic.res`
+  - `SimulationLogic.res`
+  - `UploadProcessorTypes.res`
+  - `TourTemplates.res`
+  - `TourTemplateScripts.res`
+  - `ServerTeaser.res`
+  - `TeaserRecorderTypes.res`
+  - `HotspotLineTypes.res`
+  - `HotspotLineUtils.res`
+  - `TourTemplateAssets.res`
+  - `TeaserRecorderOverlay.res`
+  - `SceneTransitionManager.res`
+  - `UploadProcessorLogic.res`
+  - `ViewerPool.res`
+  - `HotspotLineLogicArrow.res`
+  - `BackendApi.res`
+  - `TeaserRecorder.res`
+  - `ImageValidator.res`
+  - `SceneLoaderLogic.res`
+  - `ExifReportGeneratorLogicLocation.res`
+  - `AudioManager.res`
+  - `PanoramaClusterer.res`
+  - `EventBus.res`
+  - `FingerprintService.res`
+  - `SceneLoaderTypes.res`
+  - `SceneLoaderLogicReuse.res`
+  - `PannellumAdapter.res`
+  - `SvgRenderer.res`
+  - `SimulationPathGenerator.res`
+  - `UploadProcessorLogicLogic.res`
+  - `ProjectData.res`
+  - `ExifReportGeneratorTypes.res`
+  - `ExifReportGenerator.res`
+  - `ExifReportGeneratorUtils.res`
+  - `SimulationNavigation.res`
+  - `SceneLoader.res`
+  - `SimulationChainSkipper.res`
+  - `ExifReportGeneratorLogic.res`
+  - `PannellumLifecycle.res`
+  - `TeaserState.res`
+  - `CursorPhysics.res`
+  - `UploadProcessor.res`
+  - `ExifParser.res`
+  - `TeaserManager.res`
+  - `ExifReportGeneratorLogicTypes.res`
+  - `TourTemplateStyles.res`
+  - `NavigationController.res`
+  - `NavigationGraph.res`
+  - `ProjectManagerLogic.res`
+  - `HotspotLineLogicLogic.res`
+  - `ResizerLogic.res`
+  - `HotspotLine.res`
+  - `SimulationDriver.res`
+  - `TeaserPlayback.res`
+  - `NavigationUI.res`
+  - `InputSystem.res`
+  - `TeaserPathfinder.res`
+  - `ProjectManager.res`
+  - `HotspotLineLogicTypes.res`
+  - `ExifReportGeneratorLogicGroups.res`
+  - `SceneLoaderLogicConfig.res`
+  - `ProjectManagerTypes.res`
+  - `ResizerTypes.res`
+  - `ResizerUtils.res`
+  - `SceneSwitcher.res`
+  - `DownloadSystem.res`
+  - `SceneLoaderLogicEvents.res`
+  - `NavigationRenderer.res`
+  - `Exporter.res`
+### Merge Folder: `../../css`
+- **Reason:** Score 3.50 > 1.0
+- **Files:**
+  - `variables.css`
+  - `animations.css`
+  - `tailwind.css`
+  - `style.css`
+  - `legacy.css`
+  - `layout.css`
+  - `base.css`
+### Merge Folder: `../../backend/src/pathfinder`
+- **Reason:** Score 7.00 > 1.0
+- **Files:**
+  - `graph_utils.rs`
+  - `graph.rs`
+  - `algorithms.rs`
+  - `view_utils.rs`
+  - `mod.rs`
+  - `tests.rs`
+  - `utils.rs`
+### Merge Folder: `../../backend/src/services/geocoding`
+- **Reason:** Score 2.00 > 1.0
+- **Files:**
+  - `logic.rs`
+  - `mod.rs`
+### Merge Folder: `../../src/utils`
+- **Reason:** Score 2.00 > 1.0
+- **Files:**
+  - `GeoUtils.res`
+  - `PersistenceLayer.res`
+  - `ProgressBar.res`
+  - `ColorPalette.res`
+  - `StateInspector.res`
+  - `TourLogic.res`
+  - `LoggerTelemetry.res`
+  - `Logger.res`
+  - `ImageOptimizer.res`
+  - `UrlUtils.res`
+  - `LazyLoad.res`
+  - `LoggerLogic.res`
+  - `PathInterpolation.res`
+  - `ProjectionMath.res`
+  - `RequestQueue.res`
+  - `LoggerTypes.res`
+  - `Constants.res`
+  - `SessionStore.res`
+  - `Version.res`
+  - `VersionData.res`
+### Merge Folder: `../../src/components/ui`
+- **Reason:** Score 5.50 > 1.0
+- **Files:**
+  - `context-menu.jsx`
+  - `Shadcn.res`
+  - `input.jsx`
+  - `dropdown-menu.jsx`
+  - `checkbox.jsx`
+  - `button.jsx`
+  - `popover.jsx`
+  - `tooltip.jsx`
+  - `sonner.jsx`
+  - `label.jsx`
+  - `LucideIcons.res`

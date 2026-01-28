@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 use actix_web::{
     Error, HttpResponse,
     body::{BoxBody, EitherBody},

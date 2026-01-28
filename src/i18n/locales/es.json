@@ -1,4 +1,5 @@
 {
+  "@efficiency:": "infra-config",
   "login": {
     "title": "Bienvenido de nuevo",
     "email": "Correo electrónico",

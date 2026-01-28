@@ -1,3 +1,4 @@
+// @efficiency: domain-logic
 use crate::models::ValidationReport;
 use std::collections::HashSet;
 

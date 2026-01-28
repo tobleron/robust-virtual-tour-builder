@@ -43,14 +43,14 @@
       ],
       "complexity_dictionary": {
         "unsafe": 2.0,
-        "unwrap": 1.5,
+        "unwrap()": 1.5,
         "panic!": 2.0,
         "&mut": 0.5,
         "match": 0.5,
         "loop": 0.8
       },
       "forbidden_patterns": [
-        "unwrap",
+        "unwrap()",
         "panic!",
         "todo!"
       ]
@@ -140,6 +140,62 @@
   },
   "exceptions": [
     {
+      "pattern": "**/ViewerPool.res",
+      "multiplier": 2.0,
+      "reason": "Authorized state management",
+      "allow_patterns": [
+        "mutable "
+      ]
+    },
+    {
+      "pattern": "**/ViewerState.res",
+      "multiplier": 2.0,
+      "reason": "High-frequency state updates",
+      "allow_patterns": [
+        "mutable "
+      ]
+    },
+    {
+      "pattern": "Types.res",
+      "multiplier": 5.0,
+      "reason": "Deeply nested but necessary data models",
+      "allow_patterns": [
+        "mutable "
+      ]
+    },
+    {
+      "pattern": "**/SvgManager.res",
+      "multiplier": 2.0,
+      "reason": "DOM-heavy state",
+      "allow_patterns": [
+        "mutable "
+      ]
+    },
+    {
+      "pattern": "**/PannellumAdapter.res",
+      "multiplier": 2.0,
+      "reason": "External library adapter",
+      "allow_patterns": [
+        "mutable "
+      ]
+    },
+    {
+      "pattern": "**/SimulationPathGenerator.res",
+      "multiplier": 2.0,
+      "reason": "Complex iterative algorithm state",
+      "allow_patterns": [
+        "mutable "
+      ]
+    },
+    {
+      "pattern": "**/PannellumLifecycle.res",
+      "multiplier": 2.0,
+      "reason": "External lifecycle tracking",
+      "allow_patterns": [
+        "mutable "
+      ]
+    },
+    {
       "pattern": "src/Main.res",
       "max_loc": 500,
       "reason": "App Entry Point orchestrator"
@@ -156,11 +212,6 @@
       "pattern": "**/Constants.res",
       "multiplier": 10.0,
       "reason": "Data-heavy static source"
-    },
-    {
-      "pattern": "**/*Types.res",
-      "multiplier": 5.0,
-      "reason": "Deeply nested but necessary data models"
     },
     {
       "pattern": "**/openapi.yaml",

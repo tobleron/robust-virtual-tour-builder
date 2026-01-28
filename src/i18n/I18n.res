@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 type locale = En | Es
 
 type contextValue = {

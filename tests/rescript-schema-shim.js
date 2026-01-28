@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 
 if (typeof globalThis.Caml_option === 'undefined') {
     globalThis.Caml_option = {

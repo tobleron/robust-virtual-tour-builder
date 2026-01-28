@@ -1,3 +1,4 @@
+// @efficiency: domain-logic
 use super::super::resizing::resize_fast_rgba;
 use crate::models::*;
 use rayon::prelude::*;

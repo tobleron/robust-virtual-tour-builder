@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 use lazy_static::lazy_static;
 use prometheus::{
     Counter, CounterVec, Gauge, Histogram, register_counter, register_counter_vec, register_gauge,

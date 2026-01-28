@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 use std::fs;
 use std::io;
 use std::path::PathBuf;

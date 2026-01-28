@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 use crate::models::AppError;
 use sqlx::sqlite::{SqliteConnectOptions, SqlitePool};
 use std::env;

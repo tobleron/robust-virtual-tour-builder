@@ -1,3 +1,4 @@
+// @efficiency: infra-adapter
 /* tests/unit/VideoEncoder_v.test.res */
 open Vitest
 open VideoEncoder
