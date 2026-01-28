@@ -65,12 +65,10 @@ pub fn strip_code(content: &str) -> String {
         } else if in_string {
             if c == '\\' && i + 1 < chars.len() { i += 1; } // Skip escaped char
             else if c == string_char { in_string = false; }
-        } else {
-            if c == '/' && next == Some('/') { in_line_comment = true; i += 1; }
-            else if c == '/' && next == Some('*') { in_block_comment = true; i += 1; }
-            else if c == '"' || c == '\'' || c == '`' { in_string = true; string_char = c; }
-            else { result.push(c); }
-        }
+        } else if c == '/' && next == Some('/') { in_line_comment = true; i += 1; }
+        else if c == '/' && next == Some('*') { in_block_comment = true; i += 1; }
+        else if c == '"' || c == '\'' || c == '`' { in_string = true; string_char = c; }
+        else { result.push(c); }
         i += 1;
     }
     result
