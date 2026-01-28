@@ -13,7 +13,7 @@
 **Target:** To be determined by AI Agent (Create new modules as needed).
 
 - [ ] **../../docs/openapi.yaml**
-  - *Reason:* [Exception: Infrastructure Documentation] LOC 821 > Limit 500 (Role: infra-adapter, Drag: 1.00)
+  - *Reason:* [Exception: Infrastructure Documentation] LOC 821 > Limit 800 (Role: infra-adapter, Drag: 1.00)
 
 ---
 

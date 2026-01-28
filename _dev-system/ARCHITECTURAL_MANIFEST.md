@@ -1,96 +1,62 @@
-# 🏛️ THE EFFICIENCY GOVERNOR: ARCHITECTURAL MANIFEST
+# 🏗️ ARCHITECTURAL MANIFEST (v1.0)
 
-## 1. Core Philosophy
-The `_dev-system` is an autonomous "Architectural Governor" designed to maintain code quality, prevent bloat, and ensure modularity without human micromanagement. It operates on a **"Zero-Human" intervention model** where uncertainty is handled by delegating "Precursor Tasks" to an AI Agent.
-
-**Key Mandates:**
-*   **100% Accuracy:** No "guessing" via Regex. All analysis uses AST (Abstract Syntax Tree) or Structural Parsing.
-*   **Cross-Platform Portability:** Uses an "Allow-list" approach (scanning only known extensions) to avoid OS-specific noise.
-*   **Actionable Blueprints:** It does not just flag errors; it generates "Surgical Tasks" with specific instructions for refactoring.
+## 🎯 MISSION STATEMENT
+The `_dev-system` is an **AI-Native Governance Engine** designed to maintain a codebase that is optimized for autonomous agents. Unlike traditional linters that focus on human style, this system focuses on **Cognitive Bandwidth, Context Preservation, and Token Economy.**
 
 ---
 
-## 2. The Logic & Formulas (The "Brain")
+## 🧠 CORE VOCABULARY & CONCEPTS
 
-### A. The Dynamic Limit Formula (De-Bloating)
-Instead of a static line limit (e.g., "Max 300 lines"), the system calculates a unique `MaxLOC` for every file based on its **cognitive density**.
+### 1. 💨 Drag (Resistance Metric)
+**Drag** is the cumulative weight of a file's complexity. A file with high drag requires more "inference energy" to understand and modify safely.
+*   **Drag Sources**: Nesting depth (`bracket_stack²`), logic density (branching/loops), and language-specific "risks" (e.g., `mutable`, `unsafe`, `unwrap`).
 
-**Formula:**
-`L_max = (Base_Limit * P_mod) / Drag_Factor`
+### 2. 🌫️ Context Fog (Hotspots)
+A **Hotspot** is a specific 5-line window where the Drag spikes to a critical level.
+*   **AI Interpretation**: In these lines, the probability of an AI hallucinating or missing a state change increases exponentially. The system flags these for immediate surgical refactoring.
 
-**Variables:**
-*   **Base_Limit:** 250 LOC (The "Goldilocks" context window).
-*   **P_mod (Purpose Multiplier):** Defined in `efficiency.json`. 
-    *   *Examples:* UI Components (1.4x) are allowed to be longer; Core Algorithms (0.5x) must be shorter.
-*   **Drag_Factor:** The resistance to readability.
-    *   `Drag = 1.0 + (Nesting * 0.05) + (LogicDensity * 2.0) + ComplexityPenalty`
+### 3. 💵 Read Tax (Token Overhead)
+The "hidden cost" of file fragmentation. Every time an agent has to `view_file` or perform an `ls` to find related logic, it incurs a **Read Tax** in tokens and attention.
+*   **System Response**: The system penalizes large numbers of small files in a single folder, recommending merges to keep related logic within a single context window.
 
-### B. The Fragmentation Formula (Consolidation)
-Detects "Micro-Module Fatigue" (too many tiny files scattered across a folder).
+### 4. 🚀 Cohesion Bonus
+Files that have a high ratio of internal logic to external dependencies receive a **LOC Allowance**.
+*   **Philosophy**: One self-contained 300-line file is cheaper for an AI than three 100-line files that are tightly coupled via complex imports.
 
-**Formula:**
-`Merge_Score = (File_Count * 10) / (Avg_LOC + 1)`
-
-*   **Threshold:** If `Score > 1.5`, the folder is flagged for consolidation.
-
----
-
-## 3. The System Architecture
-
-### A. Directory Structure (`_dev-system/`)
-*   **`analyzer/`**: The Rust binary (The Engine).
-    *   **`drivers/`**: Language-specific logic (`rust.rs`, `rescript.rs`, `css.rs`, etc.).
-    *   **`main.rs`**: The Orchestrator (Crawler, Inference, Task Gen).
-*   **`config/efficiency.json`**: The Configuration (Weights, Multipliers, Forbidden Patterns).
-*   **`pending/`**: The Output. Contains the "Master Plans" (`RUST_PLAN.md`, `SYSTEM_PLAN.md`).
-
-### B. The Inference Engine (Taxonomy)
-The system automatically classifies files into architectural roles based on:
-1.  **Path Segments:** `/systems/` -> `service-orchestrator`, `/core/` -> `domain-logic`.
-2.  **Filenames:** `main.rs` -> `orchestrator`, `types.res` -> `data-model`.
-3.  **Content Headers:** `// @efficiency: singleton` overrides automatic inference.
-
-### C. The Workflow
-1.  **Scan**: The Rust binary crawls the project (ignoring `node_modules`, `old_ref`, etc.).
-2.  **Ambiguity Check**: If a file's role cannot be determined, a **Precursor Task** is created in `SYSTEM_PLAN.md`.
-3.  **Metric Extraction**: Drivers calculate LOC, Logic Count, and Nesting Depth using structural parsing.
-4.  **Violation Check**: Checks for forbidden patterns (`unwrap`, `mutable`, `console.log`).
-5.  **Task Generation**:
-    *   **Surgical Task**: "Split file X because Drag is too high."
-    *   **Merge Task**: "Combine folder Y because it's too fragmented."
-    *   **Violation**: "Fix `unwrap` usage immediately."
+### 5. 🧱 Vertical Slicing (Feature Pods)
+A structural paradigm where **UI, State, and Logic** for a single feature live in the same folder.
+*   **Fragmentation Tax**: Triggered when a single feature (e.g., "Viewer") is spread across multiple root directories (Core, Components, Systems). This forces the AI to "folder hop," leading to context decay.
 
 ---
 
-## 4. Supported Languages & Drivers
+## 📐 THE MATHEMATICAL ENGINE
 
-| Language | Extension | Driver Logic | Complexity Penalties |
-| :--- | :--- | :--- | :--- |
-| **Rust** | `.rs` | `syn` (AST) | `unsafe`, `unwrap`, `panic!`, `&mut`, `macro_rules!` |
-| **ReScript** | `.res` | Stack-Based Lexer | `->` (Pipe), `switch`, `mutable`, `Obj.magic` |
-| **Web UI** | `.jsx`, `.html` | Tag/Indent Stack | Deep Nesting, `useEffect`, inline `style={{}}` |
-| **CSS** | `.css` | Selector State Machine | `!important`, `@media`, Deep Selectors |
-| **Config** | `.json` | JSON Tree Walker | Key Density |
+### The Limit Formula
+The dynamic line-count limit for any file is calculated using:
+`Limit = (Base_Limit * Role_Multiplier * Cohesion_Bonus) / Drag^1.5`
 
----
-
-## 5. Usage Instructions
-
-### For the "Orchestrator" (User)
-1.  **Run the Scan:** Execute the binary in `_dev-system/analyzer`.
-2.  **Check Plans:** Look at `_dev-system/pending/`.
-3.  **Delegate:** Copy the content of a Plan (e.g., `RUST_PLAN.md`) to your AI Coder.
-    *   *"Execute the Surgical Task for `algorithms.rs`."*
-    *   *"Resolve the Ambiguity for `index.html`."*
-
-### For the AI Agent
-1.  **Read the Anchor:** Use the specific symbol or file path provided in the Task.
-2.  **Respect the Logic:** Do not blindly split; follow the "Extract to Target" instruction.
-3.  **Verify:** Ensure no build errors are introduced (circular dependencies).
+*   **Drag^1.5**: We use an exponential power to aggressively shrink the budget for complex files.
+*   **Role Multiplier**: Architectural roles (e.g., `orchestrator`, `data-model`) provide different starting budgets based on the expected "density" of that role.
+*   **Hard Ceiling**: No file, regardless of bonuses or exceptions, may ever exceed **800 lines** (The standard AI safety threshold).
 
 ---
 
-## 6. Maintenance
-To tweak the strictness of the system, edit `_dev-system/config/efficiency.json`.
-*   **To make it stricter:** Increase `complexity_dictionary` weights.
-*   **To allow larger files:** Increase `base_loc_limit`.
+## 🛠️ GOVERNANCE TOOLS
+
+| Tool | Purpose | Output |
+| :--- | :--- | :--- |
+| **Analyzer** | The Rust-powered scanning engine. | `pending/*.md`, `metadata.json` |
+| **Surgical Strikes** | Recommendations to move a Hotspot logic range into a new module. | `RESCRIPT_PLAN.md` |
+| **Contextual Merges** | Suggestions to combine small related files to reduce Read Tax. | `SYSTEM_PLAN.md` |
+| **Structural Rebase** | Suggestions to move fragmented feature files into a unified Vertical Slice. | `SYSTEM_PLAN.md` |
+| **Dashboard** | A glassmorphic UI for real-time architectural visualization. | `DASHBOARD.html` |
+
+---
+
+## 🛡️ WHY WE BUILT THIS
+Traditional software architecture optimizes for "Human Readability." However, AI Agents:
+1.  **Don't "read" like humans**: They ingest tokens in parallel but have limited attention over long sequences.
+2.  **Suffer from Context Fog**: They lose the "thread" of complex state in deeply nested code.
+3.  **Incur High Latency on Jumps**: Every new file read is a network roundtrip and a context reload.
+
+**The `_dev-system` ensures the codebase evolves in a way that remains "AI-Friendly" as the project grows.**

@@ -71,9 +71,6 @@ enum WorkUnit {
     Structural { file: String, action: String, reason: String },
 }
 
-fn count_lines(content: &str) -> usize {
-    content.lines().filter(|l| !l.trim().is_empty() && !l.trim().starts_with("//")).count()
-}
 fn is_project_source(path: &Path, rules: &ExclusionRules) -> bool {
     let p_str = path.to_string_lossy();
     let file_name = path.file_name().unwrap_or_default().to_string_lossy();
@@ -95,7 +92,7 @@ fn infer_taxonomy(path: &Path, content: &str) -> String {
 
     match parse_header(content) {
         EfficiencyOverride::Ignore => return "ignored".to_string(),
-        EfficiencyOverride::Singleton => return "orchestrator".to_string(),
+        EfficiencyOverride::Role(name) => return name,
         _ => {}
     }
 
@@ -247,12 +244,15 @@ fn main() -> Result<()> {
         }
 
         // 1. METRICS
-        let metrics = match ext {
-            "rs" => analyze_rust(&content).unwrap_or(drivers::CommonMetrics{loc:0, logic_count:0, max_nesting:0, complexity_penalty:0.0, hotspot_lines: None, hotspot_reason: None, external_calls: 0, internal_calls: 0}),
-            "res" => analyze_rescript(&content).unwrap_or(drivers::CommonMetrics{loc:0, logic_count:0, max_nesting:0, complexity_penalty:0.0, hotspot_lines: None, hotspot_reason: None, external_calls: 0, internal_calls: 0}),
-            "html" => analyze_html(&content).unwrap_or(drivers::CommonMetrics{loc:0, logic_count:0, max_nesting:0, complexity_penalty:0.0, hotspot_lines: None, hotspot_reason: None, external_calls: 0, internal_calls: 0}),
-            "css" => analyze_css(&content).unwrap_or(drivers::CommonMetrics{loc:0, logic_count:0, max_nesting:0, complexity_penalty:0.0, hotspot_lines: None, hotspot_reason: None, external_calls: 0, internal_calls: 0}),
-            _ => analyze_config(&content).unwrap_or(drivers::CommonMetrics{loc:0, logic_count:0, max_nesting:0, complexity_penalty:0.0, hotspot_lines: None, hotspot_reason: None, external_calls: 0, internal_calls: 0}),
+        let default_dict = HashMap::new();
+        let dict = config.profiles.get(d_name).map(|p| &p.complexity_dictionary).unwrap_or(&default_dict);
+
+        let metrics = match d_name {
+            "rust" => analyze_rust(&content, dict).unwrap_or(drivers::CommonMetrics::default()),
+            "rescript" => analyze_rescript(&content, dict).unwrap_or(drivers::CommonMetrics::default()),
+            "web" => analyze_html(&content, dict).unwrap_or(drivers::CommonMetrics::default()),
+            "css" => analyze_css(&content, dict).unwrap_or(drivers::CommonMetrics::default()),
+            _ => analyze_config(&content, dict).unwrap_or(drivers::CommonMetrics::default()),
         };
 
         if metrics.loc == 0 { continue; }
@@ -374,11 +374,9 @@ fn main() -> Result<()> {
     // 4. MERGE & STRUCTURE
     for (dir, files) in dir_stats {
         let total: usize = files.iter().map(|(_,l)| *l).sum();
-        let avg = total / files.len().max(1);
         let score = calculate_merge_score(FolderStats { 
             file_count: files.len(), 
-            total_loc: total,
-            avg_loc: avg 
+            total_loc: total, 
         });
         if score > 1.0 {
             let names: Vec<String> = files.iter().map(|(n,_)| n.clone()).collect();

@@ -2,7 +2,7 @@
   "version": "1.2.0",
   "settings": {
     "base_loc_limit": 250,
-    "hard_ceiling_loc": 500,
+    "hard_ceiling_loc": 800,
     "soft_floor_loc": 30,
     "confidence_threshold": 0.95,
     "max_depth_threshold": 4
