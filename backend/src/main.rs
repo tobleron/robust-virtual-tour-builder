@@ -2,7 +2,9 @@ use actix_cors::Cors;
 use actix_files as fs;
 use actix_governor::{Governor, GovernorConfigBuilder};
 use actix_session::{SessionMiddleware, storage::CookieSessionStore};
-use actix_web::{App, HttpResponse, HttpServer, Responder, cookie::Key, middleware::DefaultHeaders, web};
+use actix_web::{
+    App, HttpResponse, HttpServer, Responder, cookie::Key, middleware::DefaultHeaders, web,
+};
 use actix_web_prom::PrometheusMetricsBuilder;
 use std::io;
 use std::time::Duration;
