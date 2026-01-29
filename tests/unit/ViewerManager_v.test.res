@@ -37,8 +37,22 @@ external mockHandleStageClick: mockFn = "handleStageClick"
 external mockHandleStagePointerDown: mockFn = "handleStagePointerDown"
 
 %%raw(`
-  vi.mock('../../src/systems/NavigationRenderer.bs.js', () => ({
-    init: vi.fn(),
+  vi.mock('../../src/systems/Navigation.bs.js', () => ({
+    FSM: {
+      reducer: vi.fn(),
+      toString: vi.fn(),
+    },
+    Graph: {},
+    Renderer: {
+      init: vi.fn(),
+      startJourney: vi.fn(),
+    },
+    UI: {
+      updateReturnPrompt: vi.fn(),
+    },
+    Controller: {
+      make: vi.fn(),
+    },
   }))
 `)
 
@@ -141,7 +155,9 @@ describe("ViewerManager", () => {
     // Reset ViewerState
     ViewerSystem.Pool.clearInstance("panorama-a")
     ViewerSystem.Pool.clearInstance("panorama-b")
-    ViewerSystem.Pool.pool->Belt.Array.forEach(v => v.status = v.id == "primary-a" ? #Active : #Background)
+    ViewerSystem.Pool.pool->Belt.Array.forEach(
+      v => v.status = v.id == "primary-a" ? #Active : #Background,
+    )
     ViewerState.state.isSwapping = false
     ViewerState.state.lastSceneId = Nullable.null
     ViewerState.state.lastPreloadingIndex = -1

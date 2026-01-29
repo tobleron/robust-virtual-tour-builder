@@ -570,7 +570,7 @@ let make = () => {
                       ~targetHfov=hfov,
                       (),
                     )
-  | Complete({reason: _reason}) =>
+                  | Complete({reason: _reason}) =>
                     EventBus.dispatch(ShowNotification("Simulation Complete", #Success))
                     let _ = await Promise.make((resolve, _) => {
                       let _ = setTimeout(resolve, Constants.Simulation.stepDelay)
