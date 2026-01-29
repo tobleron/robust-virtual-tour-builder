@@ -56,12 +56,15 @@
 │   │   │   ├── geocoding.rs
 │   │   │   ├── media
 │   │   │   │   ├── image.rs
+│   │   │   │   ├── image_logic.rs
 │   │   │   │   ├── mod.rs
 │   │   │   │   ├── serve.rs
 │   │   │   │   ├── similarity.rs
-│   │   │   │   └── video.rs
+│   │   │   │   ├── video.rs
+│   │   │   │   └── video_logic.rs
 │   │   │   ├── mod.rs
 │   │   │   ├── project.rs
+│   │   │   ├── project_logic.rs
 │   │   │   ├── telemetry.rs
 │   │   │   └── utils.rs
 │   │   ├── lib.rs
@@ -4615,6 +4618,12 @@
 │   │   ├── 1077_Structural_Refactor_BACKEND_DONE.md
 │   │   ├── 1078_Fix_Violations_FRONTEND_DONE.md
 │   │   ├── 1079_Fix_Violations_BACKEND_DONE.md
+│   │   ├── 1080_Surgical_Refactor_CORE_FRONTEND_DONE.md
+│   │   ├── 1081_Surgical_Refactor_SYSTEMS_FRONTEND_DONE.md
+│   │   ├── 1082_Surgical_Refactor_COMPONENTS_FRONTEND_DONE.md
+│   │   ├── 1083_Surgical_Refactor_UTILS_FRONTEND_DONE.md
+│   │   ├── 1084_Surgical_Refactor_API_BACKEND_DONE.md
+│   │   ├── 1085_Surgical_Refactor_MEDIA_BACKEND_DONE.md
 │   │   ├── 795_Refactor_analysis_DONE.md
 │   │   ├── 798_Refactor_Backend_Streaming_ZIP_DONE.md
 │   │   ├── 799_Refactor_Backend_Asset_Sanitization_DONE.md
@@ -4657,16 +4666,16 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1080_Surgical_Refactor_CORE_FRONTEND.md
-│   │   ├── 1081_Surgical_Refactor_SYSTEMS_FRONTEND.md
-│   │   ├── 1082_Surgical_Refactor_COMPONENTS_FRONTEND.md
-│   │   ├── 1083_Surgical_Refactor_UTILS_FRONTEND.md
-│   │   ├── 1084_Surgical_Refactor_API_BACKEND.md
-│   │   ├── 1085_Surgical_Refactor_MEDIA_BACKEND.md
 │   │   ├── 1086_Merge_Folders_FRONTEND.md
 │   │   ├── 1087_Merge_Folders_BACKEND.md
 │   │   ├── 1088_Classify_Ambiguous_Files.md
 │   │   ├── 1089_Classify_Map_Entries.md
+│   │   ├── 1090_Surgical_Refactor_CORE_FRONTEND.md
+│   │   ├── 1091_Surgical_Refactor_SYSTEMS_FRONTEND.md
+│   │   ├── 1092_Surgical_Refactor_COMPONENTS_FRONTEND.md
+│   │   ├── 1093_Surgical_Refactor_UTILS_FRONTEND.md
+│   │   ├── 1094_Surgical_Refactor_MEDIA_BACKEND.md
+│   │   ├── 1095_Surgical_Refactor_API_BACKEND.md
 │   │   └── tests
 │   │       └── 006_Test_Generation_Unified.md
 │   └── postponed
@@ -4988,4 +4997,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-191 directories, 4798 files
+191 directories, 4807 files
