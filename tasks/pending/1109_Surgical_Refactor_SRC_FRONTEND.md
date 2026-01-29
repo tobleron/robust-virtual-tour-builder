@@ -1,4 +1,4 @@
-# Task 1099: Surgical Refactor AUTH BACKEND
+# Task 1109: Surgical Refactor SRC FRONTEND
 
 ## Objective
 ## ⚡ Surgical Objective
@@ -12,7 +12,7 @@ The following regions are calculated to be the most confusing for AI:
 
 ## Tasks
 
-### 🔧 Action: Audit & Delete
-**Directive:** De-bloat: Reduce module size by identifying and extracting independent domain logic.
+### 🔧 Action: De-bloat
+**Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
 
-- [ ] - **../../backend/src/services/auth/jwt.rs** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 69))
+- [ ] - **../../src/ReBindings.res** (Metric: [Nesting: 0.60, Density: 0.00, Coupling: 0.34] | Drag: 1.89 | LOC: 350/309  Hotspot: Lines 233-237)

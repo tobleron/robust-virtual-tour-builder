@@ -191,29 +191,20 @@ fn sync_architectural_category(category_name: &str, platform: &str, units: &[Str
         (Path::new(pending_dir).join(format!("{:03}_{}.md", next_id, full_category_name)), format!("{:03}", next_id))
     };
 
-    let mut file_content = String::new();
-    if path.exists() {
-        if let Ok(mut f) = fs::File::open(&path) {
-            let _ = f.read_to_string(&mut file_content);
-        }
-    }
+    // Idempotent: Overwrite the file to ensure dead tasks are removed and structure is clean
+    let mut file = OpenOptions::new().create(true).write(true).truncate(true).open(path)?;
 
-    let mut file = OpenOptions::new().create(true).append(true).open(path)?;
-    if file_content.is_empty() {
-        file.write_all(format!("# Task {}: {}\n\n## Objective\n{}\n\n## Tasks\n", id, full_category_name.replace("_", " "), objective).as_bytes())?;
-    }
+    file.write_all(format!("# Task {}: {}\n\n## Objective\n{}\n\n## Tasks\n", id, full_category_name.replace("_", " "), objective).as_bytes())?;
 
     for f in units {
         // Heuristic: If it starts with # (Header), don't add the checkbox bullet
+        // Also skip extra newlines if the input string handles them
         let line = if f.trim().starts_with("#") {
             format!("{}\n", f)
         } else {
             format!("- [ ] {}\n", f)
         };
-
-        if !file_content.contains(f) {
-            file.write_all(line.as_bytes())?;
-        }
+        file.write_all(line.as_bytes())?;
     }
     Ok(())
 }
@@ -486,6 +477,13 @@ fn main() -> Result<()> {
     // --- Phase 2: Graph Construction ---
     let mut dep_graph = DependencyGraph::new();
 
+    // Sanity Guard: Ensure all orchestrators are treated as entry points
+    for (p_str, (_, _, taxonomy, _, _, _)) in &registry {
+        if taxonomy == "orchestrator" {
+            entry_points.insert(p_str.clone());
+        }
+    }
+
     for (path_str, (path, _, _, metrics, _, _)) in &registry {
         for dep in &metrics.dependencies {
             let mut resolved = false;
@@ -666,6 +664,8 @@ fn main() -> Result<()> {
     // --- Phase 4: Recursive Cluster Analysis ---
     // Group files by (Platform, Extension) to find "Feature Pods" across subdirectories
     let mut recursive_groups: HashMap<(String, String), Vec<FileInfo>> = HashMap::new();
+    let mut processed_merge_files: HashSet<String> = HashSet::new();
+
     for (p_str, (_, _, _, metrics, platform, _)) in &registry {
         // We use extension as a proxy for language/compatibility
         let ext = Path::new(p_str).extension().and_then(|s| s.to_str()).unwrap_or("").to_string();
@@ -675,9 +675,11 @@ fn main() -> Result<()> {
         });
     }
 
+    // Priority 1: Recursive Feature Pods (Deep Clustering)
     for ((platform, _ext), files) in recursive_groups {
         let clusters = find_recursive_clusters(files, config.settings.hard_ceiling_loc);
         for cluster in clusters {
+             for f in &cluster.files { processed_merge_files.insert(f.clone()); }
              buffer.entry("system".to_string()).or_default().push(WorkUnit::Merge {
                 folder: cluster.root_folder.clone(),
                 files: cluster.files.clone(),
@@ -688,12 +690,21 @@ fn main() -> Result<()> {
         }
     }
 
-    for ((dir, ext), files) in dir_stats {
-        let total: usize = files.iter().map(|(_,l,_,_)| *l).sum();
+    // Priority 2: Shallow Folder Merges (with De-duplication)
+    for ((dir, _ext), files) in dir_stats {
+        // Filter out files that are already part of a Recursive Cluster
+        let eligible_files: Vec<&(String, usize, String, f64)> = files.iter().filter(|(name, _, _, _)| {
+             let full_path = Path::new(&dir).join(name).to_string_lossy().to_string();
+             !processed_merge_files.contains(&full_path)
+        }).collect();
+
+        if eligible_files.len() < 2 { continue; }
+
+        let total: usize = eligible_files.iter().map(|(_,l,_,_)| *l).sum();
 
         // Smart Merge Logic: Circularity Prevention
         // Check if merging these files would create a file that immediately violates the Split limit.
-        let max_drag: f64 = files.iter().map(|(_,_,_,d)| *d).fold(0.0, f64::max);
+        let max_drag: f64 = eligible_files.iter().map(|(_,_,_,d)| *d).fold(0.0, f64::max);
         let safe_drag = if max_drag < 1.0 { 1.0 } else { max_drag };
         // We use the same Drag^0.75 curve as the split logic to determine the projected limit.
         let projected_limit = dynamic_base / safe_drag.powf(0.75);
@@ -701,14 +712,14 @@ fn main() -> Result<()> {
         let score = if total as f64 > projected_limit {
              0.0 // Force score to 0 to prevent merge
         } else {
-             calculate_merge_score(FolderStats { file_count: files.len(), total_loc: total }, config.settings.hard_ceiling_loc)
+             calculate_merge_score(FolderStats { file_count: eligible_files.len(), total_loc: total }, config.settings.hard_ceiling_loc)
         };
 
         if score > config.settings.merge_score_threshold {
             buffer.entry("system".to_string()).or_default().push(WorkUnit::Merge { 
                 folder: dir.clone(), 
-                files: files.iter().map(|(n,_,_,_)| n.clone()).collect(),
-                platform: files[0].2.clone(),
+                files: eligible_files.iter().map(|(n,_,_,_)| n.clone()).collect(),
+                platform: eligible_files[0].2.clone(),
                 reason: format!("Read Tax high (Score {:.2}). Projected Limit: {:.0} (Drag {:.2})", score, projected_limit, safe_drag),
                 strategy: String::new()
             });
