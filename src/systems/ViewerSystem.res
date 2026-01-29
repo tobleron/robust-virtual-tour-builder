@@ -202,16 +202,6 @@ module Follow = {
         ViewerState.state := {...ViewerState.state.contents, followLoopActive: false}
       } else {
         if s.isLinking {
-          let getEdgePower = (val, dz) => {
-            let a = Math.abs(val)
-            if a > dz {
-              let s = val > 0.0 ? 1.0 : -1.0
-              let n = (a -. dz) /. (1.0 -. dz)
-              s *. (n *. n)
-            } else {
-              0.0
-            }
-          }
           let startPt = ViewerState.state.contents.linkingStartPoint->Nullable.toOption
           let lastMouse = ViewerState.state.contents.lastMouseEvent->Nullable.toOption
           let (insideDz, shouldReset) = isInsideDeadZone(startPt, lastMouse)
@@ -219,22 +209,15 @@ module Follow = {
           if shouldReset {
             ViewerState.state := {...ViewerState.state.contents, linkingStartPoint: Nullable.null}
           }
-          let getBoost = vel => {
-            let a = Math.abs(vel)
-            if a > 500.0 {
-              Math.min((a -. 500.0) /. 3000.0, 1.5)
-            } else {
-              0.0
-            }
-          }
-          let yb = getBoost(ViewerState.state.contents.mouseVelocityX)
-          let pb = getBoost(ViewerState.state.contents.mouseVelocityY)
+
+          let yb = ViewerLogic.getBoost(ViewerState.state.contents.mouseVelocityX)
+          let pb = ViewerLogic.getBoost(ViewerState.state.contents.mouseVelocityY)
           let yd = insideDz
             ? 0.0
-            : getEdgePower(ViewerState.state.contents.mouseXNorm, 0.5) *. 1.5 *. (1.0 +. yb)
+            : ViewerLogic.getEdgePower(ViewerState.state.contents.mouseXNorm, 0.5) *. 1.5 *. (1.0 +. yb)
           let pd = insideDz
             ? 0.0
-            : -.getEdgePower(ViewerState.state.contents.mouseYNorm, 0.5) *. 1.0 *. (1.0 +. pb)
+            : -.ViewerLogic.getEdgePower(ViewerState.state.contents.mouseYNorm, 0.5) *. 1.0 *. (1.0 +. pb)
           ViewerState.state := {
               ...ViewerState.state.contents,
               lastAppliedYaw: Nullable.null,
