@@ -1,7 +1,7 @@
 // @efficiency: infra-adapter
 /* tests/unit/ServerTeaser_v.test.res */
 open Vitest
-open ServerTeaser
+open Teaser.Server
 open Types
 
 // Global mocks

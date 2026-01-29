@@ -19,7 +19,7 @@ let getPanoramaUrl = (file: Types.file): string => {
 }
 
 module Loader = {
-  let loadStartTime = SceneLoader.loadStartTime
+  let loadStartTime = Scene.Loader.loadStartTime
 
   type customViewerProps = PannellumLifecycle.customViewerProps
   let asCustom = PannellumLifecycle.asCustom
@@ -28,9 +28,9 @@ module Loader = {
   let destroyViewer = PannellumLifecycle.destroyViewer
 
   let performSwap = loadedScene => {
-    SceneTransitionManager.performSwap(loadedScene, loadStartTime.contents)
+    Scene.Transition.performSwap(loadedScene, loadStartTime.contents)
   }
 
   let loadNewScene = (prev, target, ~isAnticipatory=false) =>
-    SceneLoader.loadNewScene(prev, target, ~isAnticipatory)
+    Scene.Loader.loadNewScene(prev, target, ~isAnticipatory)
 }

@@ -46,34 +46,13 @@
 │   │   │   ├── auth.rs
 │   │   │   ├── geocoding.rs
 │   │   │   ├── media
-│   │   │   │   ├── image
-│   │   │   │   │   ├── extract_metadata.rs
-│   │   │   │   │   ├── image_logic.rs
-│   │   │   │   │   ├── image_utils.rs
-│   │   │   │   │   ├── mod.rs
-│   │   │   │   │   ├── optimize.rs
-│   │   │   │   │   ├── process_full.rs
-│   │   │   │   │   ├── resize_batch.rs
-│   │   │   │   │   └── tests.rs
+│   │   │   │   ├── image.rs
 │   │   │   │   ├── mod.rs
 │   │   │   │   ├── serve.rs
 │   │   │   │   ├── similarity.rs
-│   │   │   │   └── video
-│   │   │   │       ├── mod.rs
-│   │   │   │       ├── teaser.rs
-│   │   │   │       ├── transcode.rs
-│   │   │   │       └── video_logic.rs
+│   │   │   │   └── video.rs
 │   │   │   ├── mod.rs
-│   │   │   ├── project
-│   │   │   │   ├── export_utils.rs
-│   │   │   │   ├── export.rs
-│   │   │   │   ├── mod.rs
-│   │   │   │   ├── navigation.rs
-│   │   │   │   ├── storage
-│   │   │   │   │   ├── mod.rs
-│   │   │   │   │   └── storage_logic.rs
-│   │   │   │   └── validation.rs
-│   │   │   ├── telemetry_logic.rs
+│   │   │   ├── project.rs
 │   │   │   ├── telemetry.rs
 │   │   │   └── utils.rs
 │   │   ├── lib.rs
@@ -84,28 +63,8 @@
 │   │   │   ├── mod.rs
 │   │   │   ├── quota_check.rs
 │   │   │   └── request_tracker.rs
-│   │   ├── models
-│   │   │   ├── errors.rs
-│   │   │   ├── geocoding.rs
-│   │   │   ├── metadata.rs
-│   │   │   ├── mod.rs
-│   │   │   ├── project.rs
-│   │   │   ├── session.rs
-│   │   │   ├── similarity.rs
-│   │   │   ├── telemetry.rs
-│   │   │   ├── user.rs
-│   │   │   └── validation.rs
-│   │   ├── pathfinder
-│   │   │   ├── algorithms
-│   │   │   │   ├── timeline.rs
-│   │   │   │   └── walk.rs
-│   │   │   ├── algorithms.rs
-│   │   │   ├── graph_utils.rs
-│   │   │   ├── graph.rs
-│   │   │   ├── mod.rs
-│   │   │   ├── tests.rs
-│   │   │   ├── utils.rs
-│   │   │   └── view_utils.rs
+│   │   ├── models.rs
+│   │   ├── pathfinder.rs
 │   │   └── services
 │   │       ├── auth
 │   │       │   ├── jwt.rs
@@ -178,51 +137,8 @@
 ├── lib
 │   ├── bs
 │   │   ├── build.ninja
-│   │   ├── compiler-info.json
 │   │   ├── src
 │   │   │   ├── App.ast
-│   │   │   ├── App.bs.js
-│   │   │   ├── App.cmi
-│   │   │   ├── App.cmj
-│   │   │   ├── App.cmt
-│   │   │   ├── App.res
-│   │   │   ├── bindings
-│   │   │   │   ├── BrowserBindings.ast
-│   │   │   │   ├── BrowserBindings.bs.js
-│   │   │   │   ├── BrowserBindings.cmi
-│   │   │   │   ├── BrowserBindings.cmj
-│   │   │   │   ├── BrowserBindings.cmt
-│   │   │   │   ├── BrowserBindings.res
-│   │   │   │   ├── DomBindings.ast
-│   │   │   │   ├── DomBindings.bs.js
-│   │   │   │   ├── DomBindings.cmi
-│   │   │   │   ├── DomBindings.cmj
-│   │   │   │   ├── DomBindings.cmt
-│   │   │   │   ├── DomBindings.res
-│   │   │   │   ├── GraphicsBindings.ast
-│   │   │   │   ├── GraphicsBindings.bs.js
-│   │   │   │   ├── GraphicsBindings.cmi
-│   │   │   │   ├── GraphicsBindings.cmj
-│   │   │   │   ├── GraphicsBindings.cmt
-│   │   │   │   ├── GraphicsBindings.res
-│   │   │   │   ├── IdbBindings.ast
-│   │   │   │   ├── IdbBindings.bs.js
-│   │   │   │   ├── IdbBindings.cmi
-│   │   │   │   ├── IdbBindings.cmj
-│   │   │   │   ├── IdbBindings.cmt
-│   │   │   │   ├── IdbBindings.res
-│   │   │   │   ├── ViewerBindings.ast
-│   │   │   │   ├── ViewerBindings.bs.js
-│   │   │   │   ├── ViewerBindings.cmi
-│   │   │   │   ├── ViewerBindings.cmj
-│   │   │   │   ├── ViewerBindings.cmt
-│   │   │   │   ├── ViewerBindings.res
-│   │   │   │   ├── WebApiBindings.ast
-│   │   │   │   ├── WebApiBindings.bs.js
-│   │   │   │   ├── WebApiBindings.cmi
-│   │   │   │   ├── WebApiBindings.cmj
-│   │   │   │   ├── WebApiBindings.cmt
-│   │   │   │   └── WebApiBindings.res
 │   │   │   ├── components
 │   │   │   │   ├── AppErrorBoundary.ast
 │   │   │   │   ├── AppErrorBoundary.bs.js
@@ -237,17 +153,7 @@
 │   │   │   │   ├── ErrorFallbackUI.cmt
 │   │   │   │   ├── ErrorFallbackUI.res
 │   │   │   │   ├── FloorNavigation.ast
-│   │   │   │   ├── FloorNavigation.bs.js
-│   │   │   │   ├── FloorNavigation.cmi
-│   │   │   │   ├── FloorNavigation.cmj
-│   │   │   │   ├── FloorNavigation.cmt
-│   │   │   │   ├── FloorNavigation.res
 │   │   │   │   ├── HotspotActionMenu.ast
-│   │   │   │   ├── HotspotActionMenu.bs.js
-│   │   │   │   ├── HotspotActionMenu.cmi
-│   │   │   │   ├── HotspotActionMenu.cmj
-│   │   │   │   ├── HotspotActionMenu.cmt
-│   │   │   │   ├── HotspotActionMenu.res
 │   │   │   │   ├── HotspotLayer.ast
 │   │   │   │   ├── HotspotLayer.bs.js
 │   │   │   │   ├── HotspotLayer.cmi
@@ -255,23 +161,8 @@
 │   │   │   │   ├── HotspotLayer.cmt
 │   │   │   │   ├── HotspotLayer.res
 │   │   │   │   ├── HotspotManager.ast
-│   │   │   │   ├── HotspotManager.bs.js
-│   │   │   │   ├── HotspotManager.cmi
-│   │   │   │   ├── HotspotManager.cmj
-│   │   │   │   ├── HotspotManager.cmt
-│   │   │   │   ├── HotspotManager.res
 │   │   │   │   ├── HotspotMenuLayer.ast
-│   │   │   │   ├── HotspotMenuLayer.bs.js
-│   │   │   │   ├── HotspotMenuLayer.cmi
-│   │   │   │   ├── HotspotMenuLayer.cmj
-│   │   │   │   ├── HotspotMenuLayer.cmt
-│   │   │   │   ├── HotspotMenuLayer.res
 │   │   │   │   ├── LabelMenu.ast
-│   │   │   │   ├── LabelMenu.bs.js
-│   │   │   │   ├── LabelMenu.cmi
-│   │   │   │   ├── LabelMenu.cmj
-│   │   │   │   ├── LabelMenu.cmt
-│   │   │   │   ├── LabelMenu.res
 │   │   │   │   ├── LinkModal.ast
 │   │   │   │   ├── LinkModal.bs.js
 │   │   │   │   ├── LinkModal.cmi
@@ -315,11 +206,6 @@
 │   │   │   │   ├── Portal.cmt
 │   │   │   │   ├── Portal.res
 │   │   │   │   ├── PreviewArrow.ast
-│   │   │   │   ├── PreviewArrow.bs.js
-│   │   │   │   ├── PreviewArrow.cmi
-│   │   │   │   ├── PreviewArrow.cmj
-│   │   │   │   ├── PreviewArrow.cmt
-│   │   │   │   ├── PreviewArrow.res
 │   │   │   │   ├── QualityIndicator.ast
 │   │   │   │   ├── QualityIndicator.bs.js
 │   │   │   │   ├── QualityIndicator.cmi
@@ -327,79 +213,8 @@
 │   │   │   │   ├── QualityIndicator.cmt
 │   │   │   │   ├── QualityIndicator.res
 │   │   │   │   ├── ReturnPrompt.ast
-│   │   │   │   ├── ReturnPrompt.bs.js
-│   │   │   │   ├── ReturnPrompt.cmi
-│   │   │   │   ├── ReturnPrompt.cmj
-│   │   │   │   ├── ReturnPrompt.cmt
-│   │   │   │   ├── ReturnPrompt.res
-│   │   │   │   ├── SceneList
-│   │   │   │   │   ├── SceneItem.ast
-│   │   │   │   │   ├── SceneItem.bs.js
-│   │   │   │   │   ├── SceneItem.cmi
-│   │   │   │   │   ├── SceneItem.cmj
-│   │   │   │   │   ├── SceneItem.cmt
-│   │   │   │   │   ├── SceneItem.res
-│   │   │   │   │   ├── SceneListMain.ast
-│   │   │   │   │   ├── SceneListMain.bs.js
-│   │   │   │   │   ├── SceneListMain.cmi
-│   │   │   │   │   ├── SceneListMain.cmj
-│   │   │   │   │   ├── SceneListMain.cmt
-│   │   │   │   │   └── SceneListMain.res
 │   │   │   │   ├── SceneList.ast
-│   │   │   │   ├── SceneList.bs.js
-│   │   │   │   ├── SceneList.cmi
-│   │   │   │   ├── SceneList.cmj
-│   │   │   │   ├── SceneList.cmt
-│   │   │   │   ├── SceneList.res
-│   │   │   │   ├── Sidebar
-│   │   │   │   │   ├── SidebarActions.ast
-│   │   │   │   │   ├── SidebarActions.bs.js
-│   │   │   │   │   ├── SidebarActions.cmi
-│   │   │   │   │   ├── SidebarActions.cmj
-│   │   │   │   │   ├── SidebarActions.cmt
-│   │   │   │   │   ├── SidebarActions.res
-│   │   │   │   │   ├── SidebarBranding.ast
-│   │   │   │   │   ├── SidebarBranding.bs.js
-│   │   │   │   │   ├── SidebarBranding.cmi
-│   │   │   │   │   ├── SidebarBranding.cmj
-│   │   │   │   │   ├── SidebarBranding.cmt
-│   │   │   │   │   ├── SidebarBranding.res
-│   │   │   │   │   ├── SidebarMain.ast
-│   │   │   │   │   ├── SidebarMain.bs.js
-│   │   │   │   │   ├── SidebarMain.cmi
-│   │   │   │   │   ├── SidebarMain.cmj
-│   │   │   │   │   ├── SidebarMain.cmt
-│   │   │   │   │   ├── SidebarMain.res
-│   │   │   │   │   ├── SidebarMainLogic.ast
-│   │   │   │   │   ├── SidebarMainLogic.bs.js
-│   │   │   │   │   ├── SidebarMainLogic.cmi
-│   │   │   │   │   ├── SidebarMainLogic.cmj
-│   │   │   │   │   ├── SidebarMainLogic.cmt
-│   │   │   │   │   ├── SidebarMainLogic.res
-│   │   │   │   │   ├── SidebarMainTypes.ast
-│   │   │   │   │   ├── SidebarMainTypes.bs.js
-│   │   │   │   │   ├── SidebarMainTypes.cmi
-│   │   │   │   │   ├── SidebarMainTypes.cmj
-│   │   │   │   │   ├── SidebarMainTypes.cmt
-│   │   │   │   │   ├── SidebarMainTypes.res
-│   │   │   │   │   ├── SidebarProcessing.ast
-│   │   │   │   │   ├── SidebarProcessing.bs.js
-│   │   │   │   │   ├── SidebarProcessing.cmi
-│   │   │   │   │   ├── SidebarProcessing.cmj
-│   │   │   │   │   ├── SidebarProcessing.cmt
-│   │   │   │   │   ├── SidebarProcessing.res
-│   │   │   │   │   ├── SidebarProjectInfo.ast
-│   │   │   │   │   ├── SidebarProjectInfo.bs.js
-│   │   │   │   │   ├── SidebarProjectInfo.cmi
-│   │   │   │   │   ├── SidebarProjectInfo.cmj
-│   │   │   │   │   ├── SidebarProjectInfo.cmt
-│   │   │   │   │   └── SidebarProjectInfo.res
 │   │   │   │   ├── Sidebar.ast
-│   │   │   │   ├── Sidebar.bs.js
-│   │   │   │   ├── Sidebar.cmi
-│   │   │   │   ├── Sidebar.cmj
-│   │   │   │   ├── Sidebar.cmt
-│   │   │   │   ├── Sidebar.res
 │   │   │   │   ├── SnapshotOverlay.ast
 │   │   │   │   ├── SnapshotOverlay.bs.js
 │   │   │   │   ├── SnapshotOverlay.cmi
@@ -413,31 +228,6 @@
 │   │   │   │   ├── Tooltip.cmt
 │   │   │   │   ├── Tooltip.res
 │   │   │   │   ├── ui
-│   │   │   │   │   ├── Lucide
-│   │   │   │   │   │   ├── LucideActions.ast
-│   │   │   │   │   │   ├── LucideActions.bs.js
-│   │   │   │   │   │   ├── LucideActions.cmi
-│   │   │   │   │   │   ├── LucideActions.cmj
-│   │   │   │   │   │   ├── LucideActions.cmt
-│   │   │   │   │   │   ├── LucideActions.res
-│   │   │   │   │   │   ├── LucideCore.ast
-│   │   │   │   │   │   ├── LucideCore.bs.js
-│   │   │   │   │   │   ├── LucideCore.cmi
-│   │   │   │   │   │   ├── LucideCore.cmj
-│   │   │   │   │   │   ├── LucideCore.cmt
-│   │   │   │   │   │   ├── LucideCore.res
-│   │   │   │   │   │   ├── LucideMedia.ast
-│   │   │   │   │   │   ├── LucideMedia.bs.js
-│   │   │   │   │   │   ├── LucideMedia.cmi
-│   │   │   │   │   │   ├── LucideMedia.cmj
-│   │   │   │   │   │   ├── LucideMedia.cmt
-│   │   │   │   │   │   ├── LucideMedia.res
-│   │   │   │   │   │   ├── LucideStatus.ast
-│   │   │   │   │   │   ├── LucideStatus.bs.js
-│   │   │   │   │   │   ├── LucideStatus.cmi
-│   │   │   │   │   │   ├── LucideStatus.cmj
-│   │   │   │   │   │   ├── LucideStatus.cmt
-│   │   │   │   │   │   └── LucideStatus.res
 │   │   │   │   │   ├── LucideIcons.ast
 │   │   │   │   │   ├── LucideIcons.bs.js
 │   │   │   │   │   ├── LucideIcons.cmi
@@ -451,47 +241,12 @@
 │   │   │   │   │   ├── Shadcn.cmt
 │   │   │   │   │   └── Shadcn.res
 │   │   │   │   ├── UploadReport.ast
-│   │   │   │   ├── UploadReport.bs.js
-│   │   │   │   ├── UploadReport.cmi
-│   │   │   │   ├── UploadReport.cmj
-│   │   │   │   ├── UploadReport.cmt
-│   │   │   │   ├── UploadReport.res
 │   │   │   │   ├── UtilityBar.ast
-│   │   │   │   ├── UtilityBar.bs.js
-│   │   │   │   ├── UtilityBar.cmi
-│   │   │   │   ├── UtilityBar.cmj
-│   │   │   │   ├── UtilityBar.cmt
-│   │   │   │   ├── UtilityBar.res
 │   │   │   │   ├── ViewerHUD.ast
-│   │   │   │   ├── ViewerHUD.bs.js
-│   │   │   │   ├── ViewerHUD.cmi
-│   │   │   │   ├── ViewerHUD.cmj
-│   │   │   │   ├── ViewerHUD.cmt
-│   │   │   │   ├── ViewerHUD.res
 │   │   │   │   ├── ViewerLabelMenu.ast
-│   │   │   │   ├── ViewerLabelMenu.bs.js
-│   │   │   │   ├── ViewerLabelMenu.cmi
-│   │   │   │   ├── ViewerLabelMenu.cmj
-│   │   │   │   ├── ViewerLabelMenu.cmt
-│   │   │   │   ├── ViewerLabelMenu.res
 │   │   │   │   ├── ViewerLoader.ast
-│   │   │   │   ├── ViewerLoader.bs.js
-│   │   │   │   ├── ViewerLoader.cmi
-│   │   │   │   ├── ViewerLoader.cmj
-│   │   │   │   ├── ViewerLoader.cmt
-│   │   │   │   ├── ViewerLoader.res
 │   │   │   │   ├── ViewerManager.ast
-│   │   │   │   ├── ViewerManager.bs.js
-│   │   │   │   ├── ViewerManager.cmi
-│   │   │   │   ├── ViewerManager.cmj
-│   │   │   │   ├── ViewerManager.cmt
-│   │   │   │   ├── ViewerManager.res
 │   │   │   │   ├── ViewerManagerLogic.ast
-│   │   │   │   ├── ViewerManagerLogic.bs.js
-│   │   │   │   ├── ViewerManagerLogic.cmi
-│   │   │   │   ├── ViewerManagerLogic.cmj
-│   │   │   │   ├── ViewerManagerLogic.cmt
-│   │   │   │   ├── ViewerManagerLogic.res
 │   │   │   │   ├── ViewerSnapshot.ast
 │   │   │   │   ├── ViewerSnapshot.bs.js
 │   │   │   │   ├── ViewerSnapshot.cmi
@@ -499,42 +254,6 @@
 │   │   │   │   ├── ViewerSnapshot.cmt
 │   │   │   │   ├── ViewerSnapshot.res
 │   │   │   │   ├── ViewerUI.ast
-│   │   │   │   ├── ViewerUI.bs.js
-│   │   │   │   ├── ViewerUI.cmi
-│   │   │   │   ├── ViewerUI.cmj
-│   │   │   │   ├── ViewerUI.cmt
-│   │   │   │   ├── ViewerUI.res
-│   │   │   │   ├── VisualPipeline
-│   │   │   │   │   ├── VisualPipelineLogic.ast
-│   │   │   │   │   ├── VisualPipelineLogic.bs.js
-│   │   │   │   │   ├── VisualPipelineLogic.cmi
-│   │   │   │   │   ├── VisualPipelineLogic.cmj
-│   │   │   │   │   ├── VisualPipelineLogic.cmt
-│   │   │   │   │   ├── VisualPipelineLogic.res
-│   │   │   │   │   ├── VisualPipelineMain.ast
-│   │   │   │   │   ├── VisualPipelineMain.bs.js
-│   │   │   │   │   ├── VisualPipelineMain.cmi
-│   │   │   │   │   ├── VisualPipelineMain.cmj
-│   │   │   │   │   ├── VisualPipelineMain.cmt
-│   │   │   │   │   ├── VisualPipelineMain.res
-│   │   │   │   │   ├── VisualPipelineRender.ast
-│   │   │   │   │   ├── VisualPipelineRender.bs.js
-│   │   │   │   │   ├── VisualPipelineRender.cmi
-│   │   │   │   │   ├── VisualPipelineRender.cmj
-│   │   │   │   │   ├── VisualPipelineRender.cmt
-│   │   │   │   │   ├── VisualPipelineRender.res
-│   │   │   │   │   ├── VisualPipelineStyles.ast
-│   │   │   │   │   ├── VisualPipelineStyles.bs.js
-│   │   │   │   │   ├── VisualPipelineStyles.cmi
-│   │   │   │   │   ├── VisualPipelineStyles.cmj
-│   │   │   │   │   ├── VisualPipelineStyles.cmt
-│   │   │   │   │   ├── VisualPipelineStyles.res
-│   │   │   │   │   ├── VisualPipelineTypes.ast
-│   │   │   │   │   ├── VisualPipelineTypes.bs.js
-│   │   │   │   │   ├── VisualPipelineTypes.cmi
-│   │   │   │   │   ├── VisualPipelineTypes.cmj
-│   │   │   │   │   ├── VisualPipelineTypes.cmt
-│   │   │   │   │   └── VisualPipelineTypes.res
 │   │   │   │   ├── VisualPipeline.ast
 │   │   │   │   ├── VisualPipeline.bs.js
 │   │   │   │   ├── VisualPipeline.cmi
@@ -579,61 +298,6 @@
 │   │   │   │   ├── Reducer.cmj
 │   │   │   │   ├── Reducer.cmt
 │   │   │   │   ├── Reducer.res
-│   │   │   │   ├── reducers
-│   │   │   │   │   ├── HotspotReducer.ast
-│   │   │   │   │   ├── HotspotReducer.bs.js
-│   │   │   │   │   ├── HotspotReducer.cmi
-│   │   │   │   │   ├── HotspotReducer.cmj
-│   │   │   │   │   ├── HotspotReducer.cmt
-│   │   │   │   │   ├── HotspotReducer.res
-│   │   │   │   │   ├── mod.ast
-│   │   │   │   │   ├── mod.bs.js
-│   │   │   │   │   ├── mod.cmi
-│   │   │   │   │   ├── mod.cmj
-│   │   │   │   │   ├── mod.cmt
-│   │   │   │   │   ├── mod.res
-│   │   │   │   │   ├── NavigationReducer.ast
-│   │   │   │   │   ├── NavigationReducer.bs.js
-│   │   │   │   │   ├── NavigationReducer.cmi
-│   │   │   │   │   ├── NavigationReducer.cmj
-│   │   │   │   │   ├── NavigationReducer.cmt
-│   │   │   │   │   ├── NavigationReducer.res
-│   │   │   │   │   ├── ProjectReducer.ast
-│   │   │   │   │   ├── ProjectReducer.bs.js
-│   │   │   │   │   ├── ProjectReducer.cmi
-│   │   │   │   │   ├── ProjectReducer.cmj
-│   │   │   │   │   ├── ProjectReducer.cmt
-│   │   │   │   │   ├── ProjectReducer.res
-│   │   │   │   │   ├── RootReducer.ast
-│   │   │   │   │   ├── RootReducer.bs.js
-│   │   │   │   │   ├── RootReducer.cmi
-│   │   │   │   │   ├── RootReducer.cmj
-│   │   │   │   │   ├── RootReducer.cmt
-│   │   │   │   │   ├── RootReducer.res
-│   │   │   │   │   ├── SceneReducer.ast
-│   │   │   │   │   ├── SceneReducer.bs.js
-│   │   │   │   │   ├── SceneReducer.cmi
-│   │   │   │   │   ├── SceneReducer.cmj
-│   │   │   │   │   ├── SceneReducer.cmt
-│   │   │   │   │   ├── SceneReducer.res
-│   │   │   │   │   ├── SimulationReducer.ast
-│   │   │   │   │   ├── SimulationReducer.bs.js
-│   │   │   │   │   ├── SimulationReducer.cmi
-│   │   │   │   │   ├── SimulationReducer.cmj
-│   │   │   │   │   ├── SimulationReducer.cmt
-│   │   │   │   │   ├── SimulationReducer.res
-│   │   │   │   │   ├── TimelineReducer.ast
-│   │   │   │   │   ├── TimelineReducer.bs.js
-│   │   │   │   │   ├── TimelineReducer.cmi
-│   │   │   │   │   ├── TimelineReducer.cmj
-│   │   │   │   │   ├── TimelineReducer.cmt
-│   │   │   │   │   ├── TimelineReducer.res
-│   │   │   │   │   ├── UiReducer.ast
-│   │   │   │   │   ├── UiReducer.bs.js
-│   │   │   │   │   ├── UiReducer.cmi
-│   │   │   │   │   ├── UiReducer.cmj
-│   │   │   │   │   ├── UiReducer.cmt
-│   │   │   │   │   └── UiReducer.res
 │   │   │   │   ├── SceneCache.ast
 │   │   │   │   ├── SceneCache.bs.js
 │   │   │   │   ├── SceneCache.cmi
@@ -646,36 +310,12 @@
 │   │   │   │   ├── SceneHelpers.cmj
 │   │   │   │   ├── SceneHelpers.cmt
 │   │   │   │   ├── SceneHelpers.res
-│   │   │   │   ├── SceneHelpersLogic.ast
-│   │   │   │   ├── SceneHelpersLogic.bs.js
-│   │   │   │   ├── SceneHelpersLogic.cmi
-│   │   │   │   ├── SceneHelpersLogic.cmj
-│   │   │   │   ├── SceneHelpersLogic.cmt
-│   │   │   │   ├── SceneHelpersLogic.res
-│   │   │   │   ├── SceneHelpersParser.ast
-│   │   │   │   ├── SceneHelpersParser.bs.js
-│   │   │   │   ├── SceneHelpersParser.cmi
-│   │   │   │   ├── SceneHelpersParser.cmj
-│   │   │   │   ├── SceneHelpersParser.cmt
-│   │   │   │   ├── SceneHelpersParser.res
 │   │   │   │   ├── Schemas.ast
 │   │   │   │   ├── Schemas.bs.js
 │   │   │   │   ├── Schemas.cmi
 │   │   │   │   ├── Schemas.cmj
 │   │   │   │   ├── Schemas.cmt
 │   │   │   │   ├── Schemas.res
-│   │   │   │   ├── SchemasDomain.ast
-│   │   │   │   ├── SchemasDomain.bs.js
-│   │   │   │   ├── SchemasDomain.cmi
-│   │   │   │   ├── SchemasDomain.cmj
-│   │   │   │   ├── SchemasDomain.cmt
-│   │   │   │   ├── SchemasDomain.res
-│   │   │   │   ├── SchemasShared.ast
-│   │   │   │   ├── SchemasShared.bs.js
-│   │   │   │   ├── SchemasShared.cmi
-│   │   │   │   ├── SchemasShared.cmj
-│   │   │   │   ├── SchemasShared.cmt
-│   │   │   │   ├── SchemasShared.res
 │   │   │   │   ├── SharedTypes.ast
 │   │   │   │   ├── SharedTypes.bs.js
 │   │   │   │   ├── SharedTypes.cmi
@@ -726,11 +366,6 @@
 │   │   │   │   ├── I18n.cmt
 │   │   │   │   └── I18n.res
 │   │   │   ├── Main.ast
-│   │   │   ├── Main.bs.js
-│   │   │   ├── Main.cmi
-│   │   │   ├── Main.cmj
-│   │   │   ├── Main.cmt
-│   │   │   ├── Main.res
 │   │   │   ├── ReBindings.ast
 │   │   │   ├── ReBindings.bs.js
 │   │   │   ├── ReBindings.cmi
@@ -750,31 +385,12 @@
 │   │   │   ├── ServiceWorkerMain.cmt
 │   │   │   ├── ServiceWorkerMain.res
 │   │   │   ├── systems
-│   │   │   │   ├── api
-│   │   │   │   │   ├── ApiTypes.ast
-│   │   │   │   │   ├── ApiTypes.bs.js
-│   │   │   │   │   ├── ApiTypes.cmi
-│   │   │   │   │   ├── ApiTypes.cmj
-│   │   │   │   │   ├── ApiTypes.cmt
-│   │   │   │   │   ├── ApiTypes.res
-│   │   │   │   │   ├── AuthenticatedClient.ast
-│   │   │   │   │   ├── AuthenticatedClient.bs.js
-│   │   │   │   │   ├── AuthenticatedClient.cmi
-│   │   │   │   │   ├── AuthenticatedClient.cmj
-│   │   │   │   │   ├── AuthenticatedClient.cmt
-│   │   │   │   │   ├── AuthenticatedClient.res
-│   │   │   │   │   ├── MediaApi.ast
-│   │   │   │   │   ├── MediaApi.bs.js
-│   │   │   │   │   ├── MediaApi.cmi
-│   │   │   │   │   ├── MediaApi.cmj
-│   │   │   │   │   ├── MediaApi.cmt
-│   │   │   │   │   ├── MediaApi.res
-│   │   │   │   │   ├── ProjectApi.ast
-│   │   │   │   │   ├── ProjectApi.bs.js
-│   │   │   │   │   ├── ProjectApi.cmi
-│   │   │   │   │   ├── ProjectApi.cmj
-│   │   │   │   │   ├── ProjectApi.cmt
-│   │   │   │   │   └── ProjectApi.res
+│   │   │   │   ├── Api.ast
+│   │   │   │   ├── Api.bs.js
+│   │   │   │   ├── Api.cmi
+│   │   │   │   ├── Api.cmj
+│   │   │   │   ├── Api.cmt
+│   │   │   │   ├── Api.res
 │   │   │   │   ├── AudioManager.ast
 │   │   │   │   ├── AudioManager.bs.js
 │   │   │   │   ├── AudioManager.cmi
@@ -812,53 +428,6 @@
 │   │   │   │   ├── ExifParser.cmt
 │   │   │   │   ├── ExifParser.res
 │   │   │   │   ├── ExifReportGenerator.ast
-│   │   │   │   ├── ExifReportGenerator.bs.js
-│   │   │   │   ├── ExifReportGenerator.cmi
-│   │   │   │   ├── ExifReportGenerator.cmj
-│   │   │   │   ├── ExifReportGenerator.cmt
-│   │   │   │   ├── ExifReportGenerator.res
-│   │   │   │   ├── ExifReportGeneratorLogic.ast
-│   │   │   │   ├── ExifReportGeneratorLogic.bs.js
-│   │   │   │   ├── ExifReportGeneratorLogic.cmi
-│   │   │   │   ├── ExifReportGeneratorLogic.cmj
-│   │   │   │   ├── ExifReportGeneratorLogic.cmt
-│   │   │   │   ├── ExifReportGeneratorLogic.res
-│   │   │   │   ├── ExifReportGeneratorLogicExtraction.ast
-│   │   │   │   ├── ExifReportGeneratorLogicExtraction.bs.js
-│   │   │   │   ├── ExifReportGeneratorLogicExtraction.cmi
-│   │   │   │   ├── ExifReportGeneratorLogicExtraction.cmj
-│   │   │   │   ├── ExifReportGeneratorLogicExtraction.cmt
-│   │   │   │   ├── ExifReportGeneratorLogicExtraction.res
-│   │   │   │   ├── ExifReportGeneratorLogicGroups.ast
-│   │   │   │   ├── ExifReportGeneratorLogicGroups.bs.js
-│   │   │   │   ├── ExifReportGeneratorLogicGroups.cmi
-│   │   │   │   ├── ExifReportGeneratorLogicGroups.cmj
-│   │   │   │   ├── ExifReportGeneratorLogicGroups.cmt
-│   │   │   │   ├── ExifReportGeneratorLogicGroups.res
-│   │   │   │   ├── ExifReportGeneratorLogicLocation.ast
-│   │   │   │   ├── ExifReportGeneratorLogicLocation.bs.js
-│   │   │   │   ├── ExifReportGeneratorLogicLocation.cmi
-│   │   │   │   ├── ExifReportGeneratorLogicLocation.cmj
-│   │   │   │   ├── ExifReportGeneratorLogicLocation.cmt
-│   │   │   │   ├── ExifReportGeneratorLogicLocation.res
-│   │   │   │   ├── ExifReportGeneratorLogicTypes.ast
-│   │   │   │   ├── ExifReportGeneratorLogicTypes.bs.js
-│   │   │   │   ├── ExifReportGeneratorLogicTypes.cmi
-│   │   │   │   ├── ExifReportGeneratorLogicTypes.cmj
-│   │   │   │   ├── ExifReportGeneratorLogicTypes.cmt
-│   │   │   │   ├── ExifReportGeneratorLogicTypes.res
-│   │   │   │   ├── ExifReportGeneratorTypes.ast
-│   │   │   │   ├── ExifReportGeneratorTypes.bs.js
-│   │   │   │   ├── ExifReportGeneratorTypes.cmi
-│   │   │   │   ├── ExifReportGeneratorTypes.cmj
-│   │   │   │   ├── ExifReportGeneratorTypes.cmt
-│   │   │   │   ├── ExifReportGeneratorTypes.res
-│   │   │   │   ├── ExifReportGeneratorUtils.ast
-│   │   │   │   ├── ExifReportGeneratorUtils.bs.js
-│   │   │   │   ├── ExifReportGeneratorUtils.cmi
-│   │   │   │   ├── ExifReportGeneratorUtils.cmj
-│   │   │   │   ├── ExifReportGeneratorUtils.cmt
-│   │   │   │   ├── ExifReportGeneratorUtils.res
 │   │   │   │   ├── Exporter.ast
 │   │   │   │   ├── Exporter.bs.js
 │   │   │   │   ├── Exporter.cmi
@@ -866,53 +435,12 @@
 │   │   │   │   ├── Exporter.cmt
 │   │   │   │   ├── Exporter.res
 │   │   │   │   ├── FingerprintService.ast
-│   │   │   │   ├── FingerprintService.bs.js
-│   │   │   │   ├── FingerprintService.cmi
-│   │   │   │   ├── FingerprintService.cmj
-│   │   │   │   ├── FingerprintService.cmt
-│   │   │   │   ├── FingerprintService.res
 │   │   │   │   ├── HotspotLine.ast
 │   │   │   │   ├── HotspotLine.bs.js
 │   │   │   │   ├── HotspotLine.cmi
 │   │   │   │   ├── HotspotLine.cmj
 │   │   │   │   ├── HotspotLine.cmt
 │   │   │   │   ├── HotspotLine.res
-│   │   │   │   ├── HotspotLineLogic.ast
-│   │   │   │   ├── HotspotLineLogic.bs.js
-│   │   │   │   ├── HotspotLineLogic.cmi
-│   │   │   │   ├── HotspotLineLogic.cmj
-│   │   │   │   ├── HotspotLineLogic.cmt
-│   │   │   │   ├── HotspotLineLogic.res
-│   │   │   │   ├── HotspotLineLogicArrow.ast
-│   │   │   │   ├── HotspotLineLogicArrow.bs.js
-│   │   │   │   ├── HotspotLineLogicArrow.cmi
-│   │   │   │   ├── HotspotLineLogicArrow.cmj
-│   │   │   │   ├── HotspotLineLogicArrow.cmt
-│   │   │   │   ├── HotspotLineLogicArrow.res
-│   │   │   │   ├── HotspotLineLogicLogic.ast
-│   │   │   │   ├── HotspotLineLogicLogic.bs.js
-│   │   │   │   ├── HotspotLineLogicLogic.cmi
-│   │   │   │   ├── HotspotLineLogicLogic.cmj
-│   │   │   │   ├── HotspotLineLogicLogic.cmt
-│   │   │   │   ├── HotspotLineLogicLogic.res
-│   │   │   │   ├── HotspotLineLogicTypes.ast
-│   │   │   │   ├── HotspotLineLogicTypes.bs.js
-│   │   │   │   ├── HotspotLineLogicTypes.cmi
-│   │   │   │   ├── HotspotLineLogicTypes.cmj
-│   │   │   │   ├── HotspotLineLogicTypes.cmt
-│   │   │   │   ├── HotspotLineLogicTypes.res
-│   │   │   │   ├── HotspotLineTypes.ast
-│   │   │   │   ├── HotspotLineTypes.bs.js
-│   │   │   │   ├── HotspotLineTypes.cmi
-│   │   │   │   ├── HotspotLineTypes.cmj
-│   │   │   │   ├── HotspotLineTypes.cmt
-│   │   │   │   ├── HotspotLineTypes.res
-│   │   │   │   ├── HotspotLineUtils.ast
-│   │   │   │   ├── HotspotLineUtils.bs.js
-│   │   │   │   ├── HotspotLineUtils.cmi
-│   │   │   │   ├── HotspotLineUtils.cmj
-│   │   │   │   ├── HotspotLineUtils.cmt
-│   │   │   │   ├── HotspotLineUtils.res
 │   │   │   │   ├── ImageValidator.ast
 │   │   │   │   ├── ImageValidator.bs.js
 │   │   │   │   ├── ImageValidator.cmi
@@ -931,12 +459,8 @@
 │   │   │   │   ├── LinkEditorLogic.cmj
 │   │   │   │   ├── LinkEditorLogic.cmt
 │   │   │   │   ├── LinkEditorLogic.res
+│   │   │   │   ├── Navigation.ast
 │   │   │   │   ├── NavigationController.ast
-│   │   │   │   ├── NavigationController.bs.js
-│   │   │   │   ├── NavigationController.cmi
-│   │   │   │   ├── NavigationController.cmj
-│   │   │   │   ├── NavigationController.cmt
-│   │   │   │   ├── NavigationController.res
 │   │   │   │   ├── NavigationFSM.ast
 │   │   │   │   ├── NavigationFSM.bs.js
 │   │   │   │   ├── NavigationFSM.cmi
@@ -961,24 +485,7 @@
 │   │   │   │   ├── NavigationUI.cmj
 │   │   │   │   ├── NavigationUI.cmt
 │   │   │   │   ├── NavigationUI.res
-│   │   │   │   ├── PannellumAdapter.ast
-│   │   │   │   ├── PannellumAdapter.bs.js
-│   │   │   │   ├── PannellumAdapter.cmi
-│   │   │   │   ├── PannellumAdapter.cmj
-│   │   │   │   ├── PannellumAdapter.cmt
-│   │   │   │   ├── PannellumAdapter.res
-│   │   │   │   ├── PannellumLifecycle.ast
-│   │   │   │   ├── PannellumLifecycle.bs.js
-│   │   │   │   ├── PannellumLifecycle.cmi
-│   │   │   │   ├── PannellumLifecycle.cmj
-│   │   │   │   ├── PannellumLifecycle.cmt
-│   │   │   │   ├── PannellumLifecycle.res
 │   │   │   │   ├── PanoramaClusterer.ast
-│   │   │   │   ├── PanoramaClusterer.bs.js
-│   │   │   │   ├── PanoramaClusterer.cmi
-│   │   │   │   ├── PanoramaClusterer.cmj
-│   │   │   │   ├── PanoramaClusterer.cmt
-│   │   │   │   ├── PanoramaClusterer.res
 │   │   │   │   ├── ProjectData.ast
 │   │   │   │   ├── ProjectData.bs.js
 │   │   │   │   ├── ProjectData.cmi
@@ -991,252 +498,37 @@
 │   │   │   │   ├── ProjectManager.cmj
 │   │   │   │   ├── ProjectManager.cmt
 │   │   │   │   ├── ProjectManager.res
-│   │   │   │   ├── ProjectManagerLogic.ast
-│   │   │   │   ├── ProjectManagerLogic.bs.js
-│   │   │   │   ├── ProjectManagerLogic.cmi
-│   │   │   │   ├── ProjectManagerLogic.cmj
-│   │   │   │   ├── ProjectManagerLogic.cmt
-│   │   │   │   ├── ProjectManagerLogic.res
-│   │   │   │   ├── ProjectManagerTypes.ast
-│   │   │   │   ├── ProjectManagerTypes.bs.js
-│   │   │   │   ├── ProjectManagerTypes.cmi
-│   │   │   │   ├── ProjectManagerTypes.cmj
-│   │   │   │   ├── ProjectManagerTypes.cmt
-│   │   │   │   ├── ProjectManagerTypes.res
 │   │   │   │   ├── Resizer.ast
-│   │   │   │   ├── Resizer.bs.js
-│   │   │   │   ├── Resizer.cmi
-│   │   │   │   ├── Resizer.cmj
-│   │   │   │   ├── Resizer.cmt
-│   │   │   │   ├── Resizer.res
-│   │   │   │   ├── ResizerLogic.ast
-│   │   │   │   ├── ResizerLogic.bs.js
-│   │   │   │   ├── ResizerLogic.cmi
-│   │   │   │   ├── ResizerLogic.cmj
-│   │   │   │   ├── ResizerLogic.cmt
-│   │   │   │   ├── ResizerLogic.res
-│   │   │   │   ├── ResizerTypes.ast
-│   │   │   │   ├── ResizerTypes.bs.js
-│   │   │   │   ├── ResizerTypes.cmi
-│   │   │   │   ├── ResizerTypes.cmj
-│   │   │   │   ├── ResizerTypes.cmt
-│   │   │   │   ├── ResizerTypes.res
-│   │   │   │   ├── ResizerUtils.ast
-│   │   │   │   ├── ResizerUtils.bs.js
-│   │   │   │   ├── ResizerUtils.cmi
-│   │   │   │   ├── ResizerUtils.cmj
-│   │   │   │   ├── ResizerUtils.cmt
-│   │   │   │   ├── ResizerUtils.res
-│   │   │   │   ├── SceneLoader.ast
-│   │   │   │   ├── SceneLoader.bs.js
-│   │   │   │   ├── SceneLoader.cmi
-│   │   │   │   ├── SceneLoader.cmj
-│   │   │   │   ├── SceneLoader.cmt
-│   │   │   │   ├── SceneLoader.res
-│   │   │   │   ├── SceneLoaderLogic.ast
-│   │   │   │   ├── SceneLoaderLogic.bs.js
-│   │   │   │   ├── SceneLoaderLogic.cmi
-│   │   │   │   ├── SceneLoaderLogic.cmj
-│   │   │   │   ├── SceneLoaderLogic.cmt
-│   │   │   │   ├── SceneLoaderLogic.res
-│   │   │   │   ├── SceneLoaderLogicConfig.ast
-│   │   │   │   ├── SceneLoaderLogicConfig.bs.js
-│   │   │   │   ├── SceneLoaderLogicConfig.cmi
-│   │   │   │   ├── SceneLoaderLogicConfig.cmj
-│   │   │   │   ├── SceneLoaderLogicConfig.cmt
-│   │   │   │   ├── SceneLoaderLogicConfig.res
-│   │   │   │   ├── SceneLoaderLogicEvents.ast
-│   │   │   │   ├── SceneLoaderLogicEvents.bs.js
-│   │   │   │   ├── SceneLoaderLogicEvents.cmi
-│   │   │   │   ├── SceneLoaderLogicEvents.cmj
-│   │   │   │   ├── SceneLoaderLogicEvents.cmt
-│   │   │   │   ├── SceneLoaderLogicEvents.res
-│   │   │   │   ├── SceneLoaderLogicReuse.ast
-│   │   │   │   ├── SceneLoaderLogicReuse.bs.js
-│   │   │   │   ├── SceneLoaderLogicReuse.cmi
-│   │   │   │   ├── SceneLoaderLogicReuse.cmj
-│   │   │   │   ├── SceneLoaderLogicReuse.cmt
-│   │   │   │   ├── SceneLoaderLogicReuse.res
-│   │   │   │   ├── SceneLoaderTypes.ast
-│   │   │   │   ├── SceneLoaderTypes.bs.js
-│   │   │   │   ├── SceneLoaderTypes.cmi
-│   │   │   │   ├── SceneLoaderTypes.cmj
-│   │   │   │   ├── SceneLoaderTypes.cmt
-│   │   │   │   ├── SceneLoaderTypes.res
-│   │   │   │   ├── SceneSwitcher.ast
-│   │   │   │   ├── SceneSwitcher.bs.js
-│   │   │   │   ├── SceneSwitcher.cmi
-│   │   │   │   ├── SceneSwitcher.cmj
-│   │   │   │   ├── SceneSwitcher.cmt
-│   │   │   │   ├── SceneSwitcher.res
-│   │   │   │   ├── SceneTransitionManager.ast
-│   │   │   │   ├── SceneTransitionManager.bs.js
-│   │   │   │   ├── SceneTransitionManager.cmi
-│   │   │   │   ├── SceneTransitionManager.cmj
-│   │   │   │   ├── SceneTransitionManager.cmt
-│   │   │   │   ├── SceneTransitionManager.res
-│   │   │   │   ├── ServerTeaser.ast
-│   │   │   │   ├── ServerTeaser.bs.js
-│   │   │   │   ├── ServerTeaser.cmi
-│   │   │   │   ├── ServerTeaser.cmj
-│   │   │   │   ├── ServerTeaser.cmt
-│   │   │   │   ├── ServerTeaser.res
-│   │   │   │   ├── SimulationChainSkipper.ast
-│   │   │   │   ├── SimulationChainSkipper.bs.js
-│   │   │   │   ├── SimulationChainSkipper.cmi
-│   │   │   │   ├── SimulationChainSkipper.cmj
-│   │   │   │   ├── SimulationChainSkipper.cmt
-│   │   │   │   ├── SimulationChainSkipper.res
-│   │   │   │   ├── SimulationDriver.ast
-│   │   │   │   ├── SimulationDriver.bs.js
-│   │   │   │   ├── SimulationDriver.cmi
-│   │   │   │   ├── SimulationDriver.cmj
-│   │   │   │   ├── SimulationDriver.cmt
-│   │   │   │   ├── SimulationDriver.res
-│   │   │   │   ├── SimulationLogic.ast
-│   │   │   │   ├── SimulationLogic.bs.js
-│   │   │   │   ├── SimulationLogic.cmi
-│   │   │   │   ├── SimulationLogic.cmj
-│   │   │   │   ├── SimulationLogic.cmt
-│   │   │   │   ├── SimulationLogic.res
-│   │   │   │   ├── SimulationNavigation.ast
-│   │   │   │   ├── SimulationNavigation.bs.js
-│   │   │   │   ├── SimulationNavigation.cmi
-│   │   │   │   ├── SimulationNavigation.cmj
-│   │   │   │   ├── SimulationNavigation.cmt
-│   │   │   │   ├── SimulationNavigation.res
-│   │   │   │   ├── SimulationPathGenerator.ast
-│   │   │   │   ├── SimulationPathGenerator.bs.js
-│   │   │   │   ├── SimulationPathGenerator.cmi
-│   │   │   │   ├── SimulationPathGenerator.cmj
-│   │   │   │   ├── SimulationPathGenerator.cmt
-│   │   │   │   ├── SimulationPathGenerator.res
+│   │   │   │   ├── Scene.ast
+│   │   │   │   ├── Scene.cmt
+│   │   │   │   ├── Simulation.ast
 │   │   │   │   ├── SvgManager.ast
 │   │   │   │   ├── SvgManager.bs.js
 │   │   │   │   ├── SvgManager.cmi
 │   │   │   │   ├── SvgManager.cmj
 │   │   │   │   ├── SvgManager.cmt
 │   │   │   │   ├── SvgManager.res
-│   │   │   │   ├── SvgRenderer.ast
-│   │   │   │   ├── SvgRenderer.bs.js
-│   │   │   │   ├── SvgRenderer.cmi
-│   │   │   │   ├── SvgRenderer.cmj
-│   │   │   │   ├── SvgRenderer.cmt
-│   │   │   │   ├── SvgRenderer.res
-│   │   │   │   ├── TeaserManager.ast
-│   │   │   │   ├── TeaserManager.bs.js
-│   │   │   │   ├── TeaserManager.cmi
-│   │   │   │   ├── TeaserManager.cmj
-│   │   │   │   ├── TeaserManager.cmt
-│   │   │   │   ├── TeaserManager.res
-│   │   │   │   ├── TeaserPathfinder.ast
-│   │   │   │   ├── TeaserPathfinder.bs.js
-│   │   │   │   ├── TeaserPathfinder.cmi
-│   │   │   │   ├── TeaserPathfinder.cmj
-│   │   │   │   ├── TeaserPathfinder.cmt
-│   │   │   │   ├── TeaserPathfinder.res
-│   │   │   │   ├── TeaserPlayback.ast
-│   │   │   │   ├── TeaserPlayback.bs.js
-│   │   │   │   ├── TeaserPlayback.cmi
-│   │   │   │   ├── TeaserPlayback.cmj
-│   │   │   │   ├── TeaserPlayback.cmt
-│   │   │   │   ├── TeaserPlayback.res
-│   │   │   │   ├── TeaserRecorder.ast
-│   │   │   │   ├── TeaserRecorder.bs.js
-│   │   │   │   ├── TeaserRecorder.cmi
-│   │   │   │   ├── TeaserRecorder.cmj
-│   │   │   │   ├── TeaserRecorder.cmt
-│   │   │   │   ├── TeaserRecorder.res
-│   │   │   │   ├── TeaserRecorderLogic.ast
-│   │   │   │   ├── TeaserRecorderLogic.bs.js
-│   │   │   │   ├── TeaserRecorderLogic.cmi
-│   │   │   │   ├── TeaserRecorderLogic.cmj
-│   │   │   │   ├── TeaserRecorderLogic.cmt
-│   │   │   │   ├── TeaserRecorderLogic.res
-│   │   │   │   ├── TeaserRecorderOverlay.ast
-│   │   │   │   ├── TeaserRecorderOverlay.bs.js
-│   │   │   │   ├── TeaserRecorderOverlay.cmi
-│   │   │   │   ├── TeaserRecorderOverlay.cmj
-│   │   │   │   ├── TeaserRecorderOverlay.cmt
-│   │   │   │   ├── TeaserRecorderOverlay.res
-│   │   │   │   ├── TeaserRecorderTypes.ast
-│   │   │   │   ├── TeaserRecorderTypes.bs.js
-│   │   │   │   ├── TeaserRecorderTypes.cmi
-│   │   │   │   ├── TeaserRecorderTypes.cmj
-│   │   │   │   ├── TeaserRecorderTypes.cmt
-│   │   │   │   ├── TeaserRecorderTypes.res
-│   │   │   │   ├── TeaserState.ast
-│   │   │   │   ├── TeaserState.bs.js
-│   │   │   │   ├── TeaserState.cmi
-│   │   │   │   ├── TeaserState.cmj
-│   │   │   │   ├── TeaserState.cmt
-│   │   │   │   ├── TeaserState.res
-│   │   │   │   ├── TourTemplateAssets.ast
-│   │   │   │   ├── TourTemplateAssets.bs.js
-│   │   │   │   ├── TourTemplateAssets.cmi
-│   │   │   │   ├── TourTemplateAssets.cmj
-│   │   │   │   ├── TourTemplateAssets.cmt
-│   │   │   │   ├── TourTemplateAssets.res
+│   │   │   │   ├── Teaser.ast
 │   │   │   │   ├── TourTemplates.ast
 │   │   │   │   ├── TourTemplates.bs.js
 │   │   │   │   ├── TourTemplates.cmi
 │   │   │   │   ├── TourTemplates.cmj
 │   │   │   │   ├── TourTemplates.cmt
 │   │   │   │   ├── TourTemplates.res
-│   │   │   │   ├── TourTemplateScripts.ast
-│   │   │   │   ├── TourTemplateScripts.bs.js
-│   │   │   │   ├── TourTemplateScripts.cmi
-│   │   │   │   ├── TourTemplateScripts.cmj
-│   │   │   │   ├── TourTemplateScripts.cmt
-│   │   │   │   ├── TourTemplateScripts.res
-│   │   │   │   ├── TourTemplateStyles.ast
-│   │   │   │   ├── TourTemplateStyles.bs.js
-│   │   │   │   ├── TourTemplateStyles.cmi
-│   │   │   │   ├── TourTemplateStyles.cmj
-│   │   │   │   ├── TourTemplateStyles.cmt
-│   │   │   │   ├── TourTemplateStyles.res
 │   │   │   │   ├── UploadProcessor.ast
-│   │   │   │   ├── UploadProcessor.bs.js
-│   │   │   │   ├── UploadProcessor.cmi
-│   │   │   │   ├── UploadProcessor.cmj
-│   │   │   │   ├── UploadProcessor.cmt
-│   │   │   │   ├── UploadProcessor.res
-│   │   │   │   ├── UploadProcessorLogic.ast
-│   │   │   │   ├── UploadProcessorLogic.bs.js
-│   │   │   │   ├── UploadProcessorLogic.cmi
-│   │   │   │   ├── UploadProcessorLogic.cmj
-│   │   │   │   ├── UploadProcessorLogic.cmt
-│   │   │   │   ├── UploadProcessorLogic.res
-│   │   │   │   ├── UploadProcessorLogicLogic.ast
-│   │   │   │   ├── UploadProcessorLogicLogic.bs.js
-│   │   │   │   ├── UploadProcessorLogicLogic.cmi
-│   │   │   │   ├── UploadProcessorLogicLogic.cmj
-│   │   │   │   ├── UploadProcessorLogicLogic.cmt
-│   │   │   │   ├── UploadProcessorLogicLogic.res
-│   │   │   │   ├── UploadProcessorTypes.ast
-│   │   │   │   ├── UploadProcessorTypes.bs.js
-│   │   │   │   ├── UploadProcessorTypes.cmi
-│   │   │   │   ├── UploadProcessorTypes.cmj
-│   │   │   │   ├── UploadProcessorTypes.cmt
-│   │   │   │   ├── UploadProcessorTypes.res
+│   │   │   │   ├── UploadTypes.ast
 │   │   │   │   ├── VideoEncoder.ast
 │   │   │   │   ├── VideoEncoder.bs.js
 │   │   │   │   ├── VideoEncoder.cmi
 │   │   │   │   ├── VideoEncoder.cmj
 │   │   │   │   ├── VideoEncoder.cmt
 │   │   │   │   ├── VideoEncoder.res
-│   │   │   │   ├── ViewerFollow.ast
-│   │   │   │   ├── ViewerFollow.bs.js
-│   │   │   │   ├── ViewerFollow.cmi
-│   │   │   │   ├── ViewerFollow.cmj
-│   │   │   │   ├── ViewerFollow.cmt
-│   │   │   │   ├── ViewerFollow.res
-│   │   │   │   ├── ViewerPool.ast
-│   │   │   │   ├── ViewerPool.bs.js
-│   │   │   │   ├── ViewerPool.cmi
-│   │   │   │   ├── ViewerPool.cmj
-│   │   │   │   ├── ViewerPool.cmt
-│   │   │   │   └── ViewerPool.res
+│   │   │   │   ├── ViewerSystem.ast
+│   │   │   │   ├── ViewerSystem.bs.js
+│   │   │   │   ├── ViewerSystem.cmi
+│   │   │   │   ├── ViewerSystem.cmj
+│   │   │   │   ├── ViewerSystem.cmt
+│   │   │   │   └── ViewerSystem.res
 │   │   │   └── utils
 │   │   │       ├── ColorPalette.ast
 │   │   │       ├── ColorPalette.bs.js
@@ -1277,24 +569,6 @@
 │   │   │       ├── Logger.cmj
 │   │   │       ├── Logger.cmt
 │   │   │       ├── Logger.res
-│   │   │       ├── LoggerLogic.ast
-│   │   │       ├── LoggerLogic.bs.js
-│   │   │       ├── LoggerLogic.cmi
-│   │   │       ├── LoggerLogic.cmj
-│   │   │       ├── LoggerLogic.cmt
-│   │   │       ├── LoggerLogic.res
-│   │   │       ├── LoggerTelemetry.ast
-│   │   │       ├── LoggerTelemetry.bs.js
-│   │   │       ├── LoggerTelemetry.cmi
-│   │   │       ├── LoggerTelemetry.cmj
-│   │   │       ├── LoggerTelemetry.cmt
-│   │   │       ├── LoggerTelemetry.res
-│   │   │       ├── LoggerTypes.ast
-│   │   │       ├── LoggerTypes.bs.js
-│   │   │       ├── LoggerTypes.cmi
-│   │   │       ├── LoggerTypes.cmj
-│   │   │       ├── LoggerTypes.cmt
-│   │   │       ├── LoggerTypes.res
 │   │   │       ├── PathInterpolation.ast
 │   │   │       ├── PathInterpolation.bs.js
 │   │   │       ├── PathInterpolation.cmi
@@ -1354,13 +628,7 @@
 │   │   │       ├── Version.cmi
 │   │   │       ├── Version.cmj
 │   │   │       ├── Version.cmt
-│   │   │       ├── Version.res
-│   │   │       ├── VersionData.ast
-│   │   │       ├── VersionData.bs.js
-│   │   │       ├── VersionData.cmi
-│   │   │       ├── VersionData.cmj
-│   │   │       ├── VersionData.cmt
-│   │   │       └── VersionData.res
+│   │   │       └── Version.res
 │   │   └── tests
 │   │       ├── TestRunner.ast
 │   │       ├── TestRunner.bs.js
@@ -1382,17 +650,7 @@
 │   │           ├── ApiTypes_v.test.cmt
 │   │           ├── ApiTypes_v.test.res
 │   │           ├── App_v.test.ast
-│   │           ├── App_v.test.bs.js
-│   │           ├── App_v.test.cmi
-│   │           ├── App_v.test.cmj
-│   │           ├── App_v.test.cmt
-│   │           ├── App_v.test.res
 │   │           ├── AppContext_v.test.ast
-│   │           ├── AppContext_v.test.bs.js
-│   │           ├── AppContext_v.test.cmi
-│   │           ├── AppContext_v.test.cmj
-│   │           ├── AppContext_v.test.cmt
-│   │           ├── AppContext_v.test.res
 │   │           ├── AppErrorBoundary_v.test.ast
 │   │           ├── AppErrorBoundary_v.test.bs.js
 │   │           ├── AppErrorBoundary_v.test.cmi
@@ -1466,41 +724,11 @@
 │   │           ├── EventBus_v.test.cmt
 │   │           ├── EventBus_v.test.res
 │   │           ├── ExifParser_v.test.ast
-│   │           ├── ExifParser_v.test.bs.js
-│   │           ├── ExifParser_v.test.cmi
-│   │           ├── ExifParser_v.test.cmj
-│   │           ├── ExifParser_v.test.cmt
-│   │           ├── ExifParser_v.test.res
 │   │           ├── ExifReportGenerator_v.test.ast
-│   │           ├── ExifReportGenerator_v.test.bs.js
-│   │           ├── ExifReportGenerator_v.test.cmi
-│   │           ├── ExifReportGenerator_v.test.cmj
-│   │           ├── ExifReportGenerator_v.test.cmt
-│   │           ├── ExifReportGenerator_v.test.res
 │   │           ├── ExifReportGeneratorLogicExtraction_v.test.ast
-│   │           ├── ExifReportGeneratorLogicExtraction_v.test.bs.js
-│   │           ├── ExifReportGeneratorLogicExtraction_v.test.cmi
-│   │           ├── ExifReportGeneratorLogicExtraction_v.test.cmj
-│   │           ├── ExifReportGeneratorLogicExtraction_v.test.cmt
-│   │           ├── ExifReportGeneratorLogicExtraction_v.test.res
 │   │           ├── ExifReportGeneratorLogicGroups_v.test.ast
-│   │           ├── ExifReportGeneratorLogicGroups_v.test.bs.js
-│   │           ├── ExifReportGeneratorLogicGroups_v.test.cmi
-│   │           ├── ExifReportGeneratorLogicGroups_v.test.cmj
-│   │           ├── ExifReportGeneratorLogicGroups_v.test.cmt
-│   │           ├── ExifReportGeneratorLogicGroups_v.test.res
 │   │           ├── ExifReportGeneratorLogicLocation_v.test.ast
-│   │           ├── ExifReportGeneratorLogicLocation_v.test.bs.js
-│   │           ├── ExifReportGeneratorLogicLocation_v.test.cmi
-│   │           ├── ExifReportGeneratorLogicLocation_v.test.cmj
-│   │           ├── ExifReportGeneratorLogicLocation_v.test.cmt
-│   │           ├── ExifReportGeneratorLogicLocation_v.test.res
 │   │           ├── ExifReportGeneratorUtils_v.test.ast
-│   │           ├── ExifReportGeneratorUtils_v.test.bs.js
-│   │           ├── ExifReportGeneratorUtils_v.test.cmi
-│   │           ├── ExifReportGeneratorUtils_v.test.cmj
-│   │           ├── ExifReportGeneratorUtils_v.test.cmt
-│   │           ├── ExifReportGeneratorUtils_v.test.res
 │   │           ├── Exporter_v.test.ast
 │   │           ├── Exporter_v.test.bs.js
 │   │           ├── Exporter_v.test.cmi
@@ -1514,17 +742,7 @@
 │   │           ├── FinalAsyncCheck_v.test.cmt
 │   │           ├── FinalAsyncCheck_v.test.res
 │   │           ├── FingerprintService_v.test.ast
-│   │           ├── FingerprintService_v.test.bs.js
-│   │           ├── FingerprintService_v.test.cmi
-│   │           ├── FingerprintService_v.test.cmj
-│   │           ├── FingerprintService_v.test.cmt
-│   │           ├── FingerprintService_v.test.res
 │   │           ├── FloorNavigation_v.test.ast
-│   │           ├── FloorNavigation_v.test.bs.js
-│   │           ├── FloorNavigation_v.test.cmi
-│   │           ├── FloorNavigation_v.test.cmj
-│   │           ├── FloorNavigation_v.test.cmt
-│   │           ├── FloorNavigation_v.test.res
 │   │           ├── GeoUtils_v.test.ast
 │   │           ├── GeoUtils_v.test.bs.js
 │   │           ├── GeoUtils_v.test.cmi
@@ -1538,11 +756,6 @@
 │   │           ├── GlobalStateBridge_v.test.cmt
 │   │           ├── GlobalStateBridge_v.test.res
 │   │           ├── HotspotActionMenu_v.test.ast
-│   │           ├── HotspotActionMenu_v.test.bs.js
-│   │           ├── HotspotActionMenu_v.test.cmi
-│   │           ├── HotspotActionMenu_v.test.cmj
-│   │           ├── HotspotActionMenu_v.test.cmt
-│   │           ├── HotspotActionMenu_v.test.res
 │   │           ├── HotspotLayer_v.test.ast
 │   │           ├── HotspotLayer_v.test.bs.js
 │   │           ├── HotspotLayer_v.test.cmi
@@ -1568,17 +781,7 @@
 │   │           ├── HotspotLineTypes_v.test.cmt
 │   │           ├── HotspotLineTypes_v.test.res
 │   │           ├── HotspotManager_v.test.ast
-│   │           ├── HotspotManager_v.test.bs.js
-│   │           ├── HotspotManager_v.test.cmi
-│   │           ├── HotspotManager_v.test.cmj
-│   │           ├── HotspotManager_v.test.cmt
-│   │           ├── HotspotManager_v.test.res
 │   │           ├── HotspotMenuLayer_v.test.ast
-│   │           ├── HotspotMenuLayer_v.test.bs.js
-│   │           ├── HotspotMenuLayer_v.test.cmi
-│   │           ├── HotspotMenuLayer_v.test.cmj
-│   │           ├── HotspotMenuLayer_v.test.cmt
-│   │           ├── HotspotMenuLayer_v.test.res
 │   │           ├── HotspotReducer_v.test.ast
 │   │           ├── HotspotReducer_v.test.bs.js
 │   │           ├── HotspotReducer_v.test.cmi
@@ -1598,11 +801,6 @@
 │   │           ├── ImageValidator_v.test.cmt
 │   │           ├── ImageValidator_v.test.res
 │   │           ├── InputSystem_v.test.ast
-│   │           ├── InputSystem_v.test.bs.js
-│   │           ├── InputSystem_v.test.cmi
-│   │           ├── InputSystem_v.test.cmj
-│   │           ├── InputSystem_v.test.cmt
-│   │           ├── InputSystem_v.test.res
 │   │           ├── InteractionsRobustness_v.test.ast
 │   │           ├── InteractionsRobustness_v.test.bs.js
 │   │           ├── InteractionsRobustness_v.test.cmi
@@ -1610,11 +808,6 @@
 │   │           ├── InteractionsRobustness_v.test.cmt
 │   │           ├── InteractionsRobustness_v.test.res
 │   │           ├── LabelMenu_v.test.ast
-│   │           ├── LabelMenu_v.test.bs.js
-│   │           ├── LabelMenu_v.test.cmi
-│   │           ├── LabelMenu_v.test.cmj
-│   │           ├── LabelMenu_v.test.cmt
-│   │           ├── LabelMenu_v.test.res
 │   │           ├── LazyLoad_v.test.ast
 │   │           ├── LazyLoad_v.test.bs.js
 │   │           ├── LazyLoad_v.test.cmi
@@ -1664,11 +857,6 @@
 │   │           ├── LucideIcons_v.test.cmt
 │   │           ├── LucideIcons_v.test.res
 │   │           ├── Main_v.test.ast
-│   │           ├── Main_v.test.bs.js
-│   │           ├── Main_v.test.cmi
-│   │           ├── Main_v.test.cmj
-│   │           ├── Main_v.test.cmt
-│   │           ├── Main_v.test.res
 │   │           ├── MediaApi_v.test.ast
 │   │           ├── MediaApi_v.test.bs.js
 │   │           ├── MediaApi_v.test.cmi
@@ -1688,11 +876,6 @@
 │   │           ├── ModalContext_v.test.cmt
 │   │           ├── ModalContext_v.test.res
 │   │           ├── NavigationController_v.test.ast
-│   │           ├── NavigationController_v.test.bs.js
-│   │           ├── NavigationController_v.test.cmi
-│   │           ├── NavigationController_v.test.cmj
-│   │           ├── NavigationController_v.test.cmt
-│   │           ├── NavigationController_v.test.res
 │   │           ├── NavigationFSM_v.test.ast
 │   │           ├── NavigationFSM_v.test.bs.js
 │   │           ├── NavigationFSM_v.test.cmi
@@ -1748,11 +931,6 @@
 │   │           ├── PannellumLifecycle_v.test.cmt
 │   │           ├── PannellumLifecycle_v.test.res
 │   │           ├── PanoramaClusterer_v.test.ast
-│   │           ├── PanoramaClusterer_v.test.bs.js
-│   │           ├── PanoramaClusterer_v.test.cmi
-│   │           ├── PanoramaClusterer_v.test.cmj
-│   │           ├── PanoramaClusterer_v.test.cmt
-│   │           ├── PanoramaClusterer_v.test.res
 │   │           ├── PathInterpolation_v.test.ast
 │   │           ├── PathInterpolation_v.test.bs.js
 │   │           ├── PathInterpolation_v.test.cmi
@@ -1778,11 +956,6 @@
 │   │           ├── Portal_v.test.cmt
 │   │           ├── Portal_v.test.res
 │   │           ├── PreviewArrow_v.test.ast
-│   │           ├── PreviewArrow_v.test.bs.js
-│   │           ├── PreviewArrow_v.test.cmi
-│   │           ├── PreviewArrow_v.test.cmj
-│   │           ├── PreviewArrow_v.test.cmt
-│   │           ├── PreviewArrow_v.test.res
 │   │           ├── ProgressBar_v.test.ast
 │   │           ├── ProgressBar_v.test.bs.js
 │   │           ├── ProgressBar_v.test.cmi
@@ -1808,17 +981,7 @@
 │   │           ├── ProjectionMath_v.test.cmt
 │   │           ├── ProjectionMath_v.test.res
 │   │           ├── ProjectManager_v.test.ast
-│   │           ├── ProjectManager_v.test.bs.js
-│   │           ├── ProjectManager_v.test.cmi
-│   │           ├── ProjectManager_v.test.cmj
-│   │           ├── ProjectManager_v.test.cmt
-│   │           ├── ProjectManager_v.test.res
 │   │           ├── ProjectManagerLogic_v.test.ast
-│   │           ├── ProjectManagerLogic_v.test.bs.js
-│   │           ├── ProjectManagerLogic_v.test.cmi
-│   │           ├── ProjectManagerLogic_v.test.cmj
-│   │           ├── ProjectManagerLogic_v.test.cmt
-│   │           ├── ProjectManagerLogic_v.test.res
 │   │           ├── ProjectReducer_v.test.ast
 │   │           ├── ProjectReducer_v.test.bs.js
 │   │           ├── ProjectReducer_v.test.cmi
@@ -1850,17 +1013,7 @@
 │   │           ├── RequestQueue_v.test.cmt
 │   │           ├── RequestQueue_v.test.res
 │   │           ├── Resizer_v.test.ast
-│   │           ├── Resizer_v.test.bs.js
-│   │           ├── Resizer_v.test.cmi
-│   │           ├── Resizer_v.test.cmj
-│   │           ├── Resizer_v.test.cmt
-│   │           ├── Resizer_v.test.res
 │   │           ├── ReturnPrompt_v.test.ast
-│   │           ├── ReturnPrompt_v.test.bs.js
-│   │           ├── ReturnPrompt_v.test.cmi
-│   │           ├── ReturnPrompt_v.test.cmj
-│   │           ├── ReturnPrompt_v.test.cmt
-│   │           ├── ReturnPrompt_v.test.res
 │   │           ├── RootReducer_v.test.ast
 │   │           ├── RootReducer_v.test.bs.js
 │   │           ├── RootReducer_v.test.cmi
@@ -1880,23 +1033,8 @@
 │   │           ├── SceneHelpers_v.test.cmt
 │   │           ├── SceneHelpers_v.test.res
 │   │           ├── SceneList_v.test.ast
-│   │           ├── SceneList_v.test.bs.js
-│   │           ├── SceneList_v.test.cmi
-│   │           ├── SceneList_v.test.cmj
-│   │           ├── SceneList_v.test.cmt
-│   │           ├── SceneList_v.test.res
 │   │           ├── SceneLoader_Lifecycle_Unified_v.test.ast
-│   │           ├── SceneLoader_Lifecycle_Unified_v.test.bs.js
-│   │           ├── SceneLoader_Lifecycle_Unified_v.test.cmi
-│   │           ├── SceneLoader_Lifecycle_Unified_v.test.cmj
-│   │           ├── SceneLoader_Lifecycle_Unified_v.test.cmt
-│   │           ├── SceneLoader_Lifecycle_Unified_v.test.res
 │   │           ├── SceneLoader_v.test.ast
-│   │           ├── SceneLoader_v.test.bs.js
-│   │           ├── SceneLoader_v.test.cmi
-│   │           ├── SceneLoader_v.test.cmj
-│   │           ├── SceneLoader_v.test.cmt
-│   │           ├── SceneLoader_v.test.res
 │   │           ├── SceneReducer_v.test.ast
 │   │           ├── SceneReducer_v.test.bs.js
 │   │           ├── SceneReducer_v.test.cmi
@@ -1904,17 +1042,7 @@
 │   │           ├── SceneReducer_v.test.cmt
 │   │           ├── SceneReducer_v.test.res
 │   │           ├── SceneSwitcher_v.test.ast
-│   │           ├── SceneSwitcher_v.test.bs.js
-│   │           ├── SceneSwitcher_v.test.cmi
-│   │           ├── SceneSwitcher_v.test.cmj
-│   │           ├── SceneSwitcher_v.test.cmt
-│   │           ├── SceneSwitcher_v.test.res
 │   │           ├── SceneTransitionManager_v.test.ast
-│   │           ├── SceneTransitionManager_v.test.bs.js
-│   │           ├── SceneTransitionManager_v.test.cmi
-│   │           ├── SceneTransitionManager_v.test.cmj
-│   │           ├── SceneTransitionManager_v.test.cmt
-│   │           ├── SceneTransitionManager_v.test.res
 │   │           ├── Schemas_v.test.ast
 │   │           ├── Schemas_v.test.bs.js
 │   │           ├── Schemas_v.test.cmi
@@ -1922,11 +1050,6 @@
 │   │           ├── Schemas_v.test.cmt
 │   │           ├── Schemas_v.test.res
 │   │           ├── ServerTeaser_v.test.ast
-│   │           ├── ServerTeaser_v.test.bs.js
-│   │           ├── ServerTeaser_v.test.cmi
-│   │           ├── ServerTeaser_v.test.cmj
-│   │           ├── ServerTeaser_v.test.cmt
-│   │           ├── ServerTeaser_v.test.res
 │   │           ├── ServiceWorker_v.test.ast
 │   │           ├── ServiceWorker_v.test.bs.js
 │   │           ├── ServiceWorker_v.test.cmi
@@ -1958,11 +1081,6 @@
 │   │           ├── SharedTypes_v.test.cmt
 │   │           ├── SharedTypes_v.test.res
 │   │           ├── Sidebar_v.test.ast
-│   │           ├── Sidebar_v.test.bs.js
-│   │           ├── Sidebar_v.test.cmi
-│   │           ├── Sidebar_v.test.cmj
-│   │           ├── Sidebar_v.test.cmt
-│   │           ├── Sidebar_v.test.res
 │   │           ├── SimHelpers_v.test.ast
 │   │           ├── SimHelpers_v.test.bs.js
 │   │           ├── SimHelpers_v.test.cmi
@@ -1970,35 +1088,10 @@
 │   │           ├── SimHelpers_v.test.cmt
 │   │           ├── SimHelpers_v.test.res
 │   │           ├── SimulationChainSkipper_v.test.ast
-│   │           ├── SimulationChainSkipper_v.test.bs.js
-│   │           ├── SimulationChainSkipper_v.test.cmi
-│   │           ├── SimulationChainSkipper_v.test.cmj
-│   │           ├── SimulationChainSkipper_v.test.cmt
-│   │           ├── SimulationChainSkipper_v.test.res
 │   │           ├── SimulationDriver_v.test.ast
-│   │           ├── SimulationDriver_v.test.bs.js
-│   │           ├── SimulationDriver_v.test.cmi
-│   │           ├── SimulationDriver_v.test.cmj
-│   │           ├── SimulationDriver_v.test.cmt
-│   │           ├── SimulationDriver_v.test.res
 │   │           ├── SimulationLogic_v.test.ast
-│   │           ├── SimulationLogic_v.test.bs.js
-│   │           ├── SimulationLogic_v.test.cmi
-│   │           ├── SimulationLogic_v.test.cmj
-│   │           ├── SimulationLogic_v.test.cmt
-│   │           ├── SimulationLogic_v.test.res
 │   │           ├── SimulationNavigation_v.test.ast
-│   │           ├── SimulationNavigation_v.test.bs.js
-│   │           ├── SimulationNavigation_v.test.cmi
-│   │           ├── SimulationNavigation_v.test.cmj
-│   │           ├── SimulationNavigation_v.test.cmt
-│   │           ├── SimulationNavigation_v.test.res
 │   │           ├── SimulationPathGenerator_v.test.ast
-│   │           ├── SimulationPathGenerator_v.test.bs.js
-│   │           ├── SimulationPathGenerator_v.test.cmi
-│   │           ├── SimulationPathGenerator_v.test.cmj
-│   │           ├── SimulationPathGenerator_v.test.cmt
-│   │           ├── SimulationPathGenerator_v.test.res
 │   │           ├── SimulationReducer_v.test.ast
 │   │           ├── SimulationReducer_v.test.bs.js
 │   │           ├── SimulationReducer_v.test.cmi
@@ -2036,35 +1129,10 @@
 │   │           ├── SvgRenderer_v.test.cmt
 │   │           ├── SvgRenderer_v.test.res
 │   │           ├── TeaserManager_v.test.ast
-│   │           ├── TeaserManager_v.test.bs.js
-│   │           ├── TeaserManager_v.test.cmi
-│   │           ├── TeaserManager_v.test.cmj
-│   │           ├── TeaserManager_v.test.cmt
-│   │           ├── TeaserManager_v.test.res
 │   │           ├── TeaserPathfinder_v.test.ast
-│   │           ├── TeaserPathfinder_v.test.bs.js
-│   │           ├── TeaserPathfinder_v.test.cmi
-│   │           ├── TeaserPathfinder_v.test.cmj
-│   │           ├── TeaserPathfinder_v.test.cmt
-│   │           ├── TeaserPathfinder_v.test.res
 │   │           ├── TeaserPlayback_v.test.ast
-│   │           ├── TeaserPlayback_v.test.bs.js
-│   │           ├── TeaserPlayback_v.test.cmi
-│   │           ├── TeaserPlayback_v.test.cmj
-│   │           ├── TeaserPlayback_v.test.cmt
-│   │           ├── TeaserPlayback_v.test.res
 │   │           ├── TeaserRecorder_v.test.ast
-│   │           ├── TeaserRecorder_v.test.bs.js
-│   │           ├── TeaserRecorder_v.test.cmi
-│   │           ├── TeaserRecorder_v.test.cmj
-│   │           ├── TeaserRecorder_v.test.cmt
-│   │           ├── TeaserRecorder_v.test.res
 │   │           ├── TeaserState_v.test.ast
-│   │           ├── TeaserState_v.test.bs.js
-│   │           ├── TeaserState_v.test.cmi
-│   │           ├── TeaserState_v.test.cmj
-│   │           ├── TeaserState_v.test.cmt
-│   │           ├── TeaserState_v.test.res
 │   │           ├── TimelineReducer_v.test.ast
 │   │           ├── TimelineReducer_v.test.bs.js
 │   │           ├── TimelineReducer_v.test.cmi
@@ -2126,29 +1194,9 @@
 │   │           ├── UiReducer_v.test.cmt
 │   │           ├── UiReducer_v.test.res
 │   │           ├── UploadProcessor_v.test.ast
-│   │           ├── UploadProcessor_v.test.bs.js
-│   │           ├── UploadProcessor_v.test.cmi
-│   │           ├── UploadProcessor_v.test.cmj
-│   │           ├── UploadProcessor_v.test.cmt
-│   │           ├── UploadProcessor_v.test.res
 │   │           ├── UploadProcessorLogic_v.test.ast
-│   │           ├── UploadProcessorLogic_v.test.bs.js
-│   │           ├── UploadProcessorLogic_v.test.cmi
-│   │           ├── UploadProcessorLogic_v.test.cmj
-│   │           ├── UploadProcessorLogic_v.test.cmt
-│   │           ├── UploadProcessorLogic_v.test.res
 │   │           ├── UploadProcessorTypes_v.test.ast
-│   │           ├── UploadProcessorTypes_v.test.bs.js
-│   │           ├── UploadProcessorTypes_v.test.cmi
-│   │           ├── UploadProcessorTypes_v.test.cmj
-│   │           ├── UploadProcessorTypes_v.test.cmt
-│   │           ├── UploadProcessorTypes_v.test.res
 │   │           ├── UploadReport_v.test.ast
-│   │           ├── UploadReport_v.test.bs.js
-│   │           ├── UploadReport_v.test.cmi
-│   │           ├── UploadReport_v.test.cmj
-│   │           ├── UploadReport_v.test.cmt
-│   │           ├── UploadReport_v.test.res
 │   │           ├── UrlUtils_v.test.ast
 │   │           ├── UrlUtils_v.test.bs.js
 │   │           ├── UrlUtils_v.test.cmi
@@ -2156,11 +1204,6 @@
 │   │           ├── UrlUtils_v.test.cmt
 │   │           ├── UrlUtils_v.test.res
 │   │           ├── UtilityBar_v.test.ast
-│   │           ├── UtilityBar_v.test.bs.js
-│   │           ├── UtilityBar_v.test.cmi
-│   │           ├── UtilityBar_v.test.cmj
-│   │           ├── UtilityBar_v.test.cmt
-│   │           ├── UtilityBar_v.test.res
 │   │           ├── utils
 │   │           │   ├── TestUtils.ast
 │   │           │   ├── TestUtils.bs.js
@@ -2174,18 +1217,7 @@
 │   │           ├── Version_v.test.cmj
 │   │           ├── Version_v.test.cmt
 │   │           ├── Version_v.test.res
-│   │           ├── VersionData_v.test.ast
-│   │           ├── VersionData_v.test.bs.js
-│   │           ├── VersionData_v.test.cmi
-│   │           ├── VersionData_v.test.cmj
-│   │           ├── VersionData_v.test.cmt
-│   │           ├── VersionData_v.test.res
 │   │           ├── VideoEncoder_v.test.ast
-│   │           ├── VideoEncoder_v.test.bs.js
-│   │           ├── VideoEncoder_v.test.cmi
-│   │           ├── VideoEncoder_v.test.cmj
-│   │           ├── VideoEncoder_v.test.cmt
-│   │           ├── VideoEncoder_v.test.res
 │   │           ├── ViewerFollow_v.test.ast
 │   │           ├── ViewerFollow_v.test.bs.js
 │   │           ├── ViewerFollow_v.test.cmi
@@ -2193,29 +1225,9 @@
 │   │           ├── ViewerFollow_v.test.cmt
 │   │           ├── ViewerFollow_v.test.res
 │   │           ├── ViewerHUD_v.test.ast
-│   │           ├── ViewerHUD_v.test.bs.js
-│   │           ├── ViewerHUD_v.test.cmi
-│   │           ├── ViewerHUD_v.test.cmj
-│   │           ├── ViewerHUD_v.test.cmt
-│   │           ├── ViewerHUD_v.test.res
 │   │           ├── ViewerLabelMenu_v.test.ast
-│   │           ├── ViewerLabelMenu_v.test.bs.js
-│   │           ├── ViewerLabelMenu_v.test.cmi
-│   │           ├── ViewerLabelMenu_v.test.cmj
-│   │           ├── ViewerLabelMenu_v.test.cmt
-│   │           ├── ViewerLabelMenu_v.test.res
 │   │           ├── ViewerLoader_v.test.ast
-│   │           ├── ViewerLoader_v.test.bs.js
-│   │           ├── ViewerLoader_v.test.cmi
-│   │           ├── ViewerLoader_v.test.cmj
-│   │           ├── ViewerLoader_v.test.cmt
-│   │           ├── ViewerLoader_v.test.res
 │   │           ├── ViewerManager_v.test.ast
-│   │           ├── ViewerManager_v.test.bs.js
-│   │           ├── ViewerManager_v.test.cmi
-│   │           ├── ViewerManager_v.test.cmj
-│   │           ├── ViewerManager_v.test.cmt
-│   │           ├── ViewerManager_v.test.res
 │   │           ├── ViewerPool_v.test.ast
 │   │           ├── ViewerPool_v.test.bs.js
 │   │           ├── ViewerPool_v.test.cmi
@@ -2241,11 +1253,6 @@
 │   │           ├── ViewerTypes_v.test.cmt
 │   │           ├── ViewerTypes_v.test.res
 │   │           ├── ViewerUI_v.test.ast
-│   │           ├── ViewerUI_v.test.bs.js
-│   │           ├── ViewerUI_v.test.cmi
-│   │           ├── ViewerUI_v.test.cmj
-│   │           ├── ViewerUI_v.test.cmt
-│   │           ├── ViewerUI_v.test.res
 │   │           ├── VisualPipeline_v.test.ast
 │   │           ├── VisualPipeline_v.test.bs.js
 │   │           ├── VisualPipeline_v.test.cmi
@@ -2269,31 +1276,19 @@
 │   │   ├── Actions.cmj
 │   │   ├── Actions.cmt
 │   │   ├── Actions.res
+│   │   ├── Api.ast
+│   │   ├── Api.cmi
+│   │   ├── Api.cmj
+│   │   ├── Api.cmt
+│   │   ├── Api.res
 │   │   ├── ApiTypes_v.test.ast
 │   │   ├── ApiTypes_v.test.cmi
 │   │   ├── ApiTypes_v.test.cmj
 │   │   ├── ApiTypes_v.test.cmt
 │   │   ├── ApiTypes_v.test.res
-│   │   ├── ApiTypes.ast
-│   │   ├── ApiTypes.cmi
-│   │   ├── ApiTypes.cmj
-│   │   ├── ApiTypes.cmt
-│   │   ├── ApiTypes.res
 │   │   ├── App_v.test.ast
-│   │   ├── App_v.test.cmi
-│   │   ├── App_v.test.cmj
-│   │   ├── App_v.test.cmt
-│   │   ├── App_v.test.res
 │   │   ├── App.ast
-│   │   ├── App.cmi
-│   │   ├── App.cmj
-│   │   ├── App.cmt
-│   │   ├── App.res
 │   │   ├── AppContext_v.test.ast
-│   │   ├── AppContext_v.test.cmi
-│   │   ├── AppContext_v.test.cmj
-│   │   ├── AppContext_v.test.cmt
-│   │   ├── AppContext_v.test.res
 │   │   ├── AppContext.ast
 │   │   ├── AppContext.cmi
 │   │   ├── AppContext.cmj
@@ -2334,11 +1329,6 @@
 │   │   ├── AuthenticatedClient_v.test.cmj
 │   │   ├── AuthenticatedClient_v.test.cmt
 │   │   ├── AuthenticatedClient_v.test.res
-│   │   ├── AuthenticatedClient.ast
-│   │   ├── AuthenticatedClient.cmi
-│   │   ├── AuthenticatedClient.cmj
-│   │   ├── AuthenticatedClient.cmt
-│   │   ├── AuthenticatedClient.res
 │   │   ├── BackendApi_v.test.ast
 │   │   ├── BackendApi_v.test.cmi
 │   │   ├── BackendApi_v.test.cmj
@@ -2354,11 +1344,6 @@
 │   │   ├── Bindings_Unified_v.test.cmj
 │   │   ├── Bindings_Unified_v.test.cmt
 │   │   ├── Bindings_Unified_v.test.res
-│   │   ├── BrowserBindings.ast
-│   │   ├── BrowserBindings.cmi
-│   │   ├── BrowserBindings.cmj
-│   │   ├── BrowserBindings.cmt
-│   │   ├── BrowserBindings.res
 │   │   ├── ColorPalette_v.test.ast
 │   │   ├── ColorPalette_v.test.cmi
 │   │   ├── ColorPalette_v.test.cmj
@@ -2389,11 +1374,6 @@
 │   │   ├── CursorPhysics.cmj
 │   │   ├── CursorPhysics.cmt
 │   │   ├── CursorPhysics.res
-│   │   ├── DomBindings.ast
-│   │   ├── DomBindings.cmi
-│   │   ├── DomBindings.cmj
-│   │   ├── DomBindings.cmt
-│   │   ├── DomBindings.res
 │   │   ├── DownloadSystem_v.test.ast
 │   │   ├── DownloadSystem_v.test.cmi
 │   │   ├── DownloadSystem_v.test.cmj
@@ -2425,80 +1405,17 @@
 │   │   ├── EventBus.cmt
 │   │   ├── EventBus.res
 │   │   ├── ExifParser_v.test.ast
-│   │   ├── ExifParser_v.test.cmi
-│   │   ├── ExifParser_v.test.cmj
-│   │   ├── ExifParser_v.test.cmt
-│   │   ├── ExifParser_v.test.res
 │   │   ├── ExifParser.ast
 │   │   ├── ExifParser.cmi
 │   │   ├── ExifParser.cmj
 │   │   ├── ExifParser.cmt
 │   │   ├── ExifParser.res
 │   │   ├── ExifReportGenerator_v.test.ast
-│   │   ├── ExifReportGenerator_v.test.cmi
-│   │   ├── ExifReportGenerator_v.test.cmj
-│   │   ├── ExifReportGenerator_v.test.cmt
-│   │   ├── ExifReportGenerator_v.test.res
 │   │   ├── ExifReportGenerator.ast
-│   │   ├── ExifReportGenerator.cmi
-│   │   ├── ExifReportGenerator.cmj
-│   │   ├── ExifReportGenerator.cmt
-│   │   ├── ExifReportGenerator.res
-│   │   ├── ExifReportGeneratorLogic.ast
-│   │   ├── ExifReportGeneratorLogic.cmi
-│   │   ├── ExifReportGeneratorLogic.cmj
-│   │   ├── ExifReportGeneratorLogic.cmt
-│   │   ├── ExifReportGeneratorLogic.res
 │   │   ├── ExifReportGeneratorLogicExtraction_v.test.ast
-│   │   ├── ExifReportGeneratorLogicExtraction_v.test.cmi
-│   │   ├── ExifReportGeneratorLogicExtraction_v.test.cmj
-│   │   ├── ExifReportGeneratorLogicExtraction_v.test.cmt
-│   │   ├── ExifReportGeneratorLogicExtraction_v.test.res
-│   │   ├── ExifReportGeneratorLogicExtraction.ast
-│   │   ├── ExifReportGeneratorLogicExtraction.cmi
-│   │   ├── ExifReportGeneratorLogicExtraction.cmj
-│   │   ├── ExifReportGeneratorLogicExtraction.cmt
-│   │   ├── ExifReportGeneratorLogicExtraction.res
 │   │   ├── ExifReportGeneratorLogicGroups_v.test.ast
-│   │   ├── ExifReportGeneratorLogicGroups_v.test.cmi
-│   │   ├── ExifReportGeneratorLogicGroups_v.test.cmj
-│   │   ├── ExifReportGeneratorLogicGroups_v.test.cmt
-│   │   ├── ExifReportGeneratorLogicGroups_v.test.res
-│   │   ├── ExifReportGeneratorLogicGroups.ast
-│   │   ├── ExifReportGeneratorLogicGroups.cmi
-│   │   ├── ExifReportGeneratorLogicGroups.cmj
-│   │   ├── ExifReportGeneratorLogicGroups.cmt
-│   │   ├── ExifReportGeneratorLogicGroups.res
 │   │   ├── ExifReportGeneratorLogicLocation_v.test.ast
-│   │   ├── ExifReportGeneratorLogicLocation_v.test.cmi
-│   │   ├── ExifReportGeneratorLogicLocation_v.test.cmj
-│   │   ├── ExifReportGeneratorLogicLocation_v.test.cmt
-│   │   ├── ExifReportGeneratorLogicLocation_v.test.res
-│   │   ├── ExifReportGeneratorLogicLocation.ast
-│   │   ├── ExifReportGeneratorLogicLocation.cmi
-│   │   ├── ExifReportGeneratorLogicLocation.cmj
-│   │   ├── ExifReportGeneratorLogicLocation.cmt
-│   │   ├── ExifReportGeneratorLogicLocation.res
-│   │   ├── ExifReportGeneratorLogicTypes.ast
-│   │   ├── ExifReportGeneratorLogicTypes.cmi
-│   │   ├── ExifReportGeneratorLogicTypes.cmj
-│   │   ├── ExifReportGeneratorLogicTypes.cmt
-│   │   ├── ExifReportGeneratorLogicTypes.res
-│   │   ├── ExifReportGeneratorTypes.ast
-│   │   ├── ExifReportGeneratorTypes.cmi
-│   │   ├── ExifReportGeneratorTypes.cmj
-│   │   ├── ExifReportGeneratorTypes.cmt
-│   │   ├── ExifReportGeneratorTypes.res
 │   │   ├── ExifReportGeneratorUtils_v.test.ast
-│   │   ├── ExifReportGeneratorUtils_v.test.cmi
-│   │   ├── ExifReportGeneratorUtils_v.test.cmj
-│   │   ├── ExifReportGeneratorUtils_v.test.cmt
-│   │   ├── ExifReportGeneratorUtils_v.test.res
-│   │   ├── ExifReportGeneratorUtils.ast
-│   │   ├── ExifReportGeneratorUtils.cmi
-│   │   ├── ExifReportGeneratorUtils.cmj
-│   │   ├── ExifReportGeneratorUtils.cmt
-│   │   ├── ExifReportGeneratorUtils.res
 │   │   ├── Exporter_v.test.ast
 │   │   ├── Exporter_v.test.cmi
 │   │   ├── Exporter_v.test.cmj
@@ -2515,25 +1432,9 @@
 │   │   ├── FinalAsyncCheck_v.test.cmt
 │   │   ├── FinalAsyncCheck_v.test.res
 │   │   ├── FingerprintService_v.test.ast
-│   │   ├── FingerprintService_v.test.cmi
-│   │   ├── FingerprintService_v.test.cmj
-│   │   ├── FingerprintService_v.test.cmt
-│   │   ├── FingerprintService_v.test.res
 │   │   ├── FingerprintService.ast
-│   │   ├── FingerprintService.cmi
-│   │   ├── FingerprintService.cmj
-│   │   ├── FingerprintService.cmt
-│   │   ├── FingerprintService.res
 │   │   ├── FloorNavigation_v.test.ast
-│   │   ├── FloorNavigation_v.test.cmi
-│   │   ├── FloorNavigation_v.test.cmj
-│   │   ├── FloorNavigation_v.test.cmt
-│   │   ├── FloorNavigation_v.test.res
 │   │   ├── FloorNavigation.ast
-│   │   ├── FloorNavigation.cmi
-│   │   ├── FloorNavigation.cmj
-│   │   ├── FloorNavigation.cmt
-│   │   ├── FloorNavigation.res
 │   │   ├── GeoUtils_v.test.ast
 │   │   ├── GeoUtils_v.test.cmi
 │   │   ├── GeoUtils_v.test.cmj
@@ -2554,21 +1455,8 @@
 │   │   ├── GlobalStateBridge.cmj
 │   │   ├── GlobalStateBridge.cmt
 │   │   ├── GlobalStateBridge.res
-│   │   ├── GraphicsBindings.ast
-│   │   ├── GraphicsBindings.cmi
-│   │   ├── GraphicsBindings.cmj
-│   │   ├── GraphicsBindings.cmt
-│   │   ├── GraphicsBindings.res
 │   │   ├── HotspotActionMenu_v.test.ast
-│   │   ├── HotspotActionMenu_v.test.cmi
-│   │   ├── HotspotActionMenu_v.test.cmj
-│   │   ├── HotspotActionMenu_v.test.cmt
-│   │   ├── HotspotActionMenu_v.test.res
 │   │   ├── HotspotActionMenu.ast
-│   │   ├── HotspotActionMenu.cmi
-│   │   ├── HotspotActionMenu.cmj
-│   │   ├── HotspotActionMenu.cmt
-│   │   ├── HotspotActionMenu.res
 │   │   ├── HotspotLayer_v.test.ast
 │   │   ├── HotspotLayer_v.test.cmi
 │   │   ├── HotspotLayer_v.test.cmj
@@ -2594,81 +1482,25 @@
 │   │   ├── HotspotLineLogic_v.test.cmj
 │   │   ├── HotspotLineLogic_v.test.cmt
 │   │   ├── HotspotLineLogic_v.test.res
-│   │   ├── HotspotLineLogic.ast
-│   │   ├── HotspotLineLogic.cmi
-│   │   ├── HotspotLineLogic.cmj
-│   │   ├── HotspotLineLogic.cmt
-│   │   ├── HotspotLineLogic.res
-│   │   ├── HotspotLineLogicArrow.ast
-│   │   ├── HotspotLineLogicArrow.cmi
-│   │   ├── HotspotLineLogicArrow.cmj
-│   │   ├── HotspotLineLogicArrow.cmt
-│   │   ├── HotspotLineLogicArrow.res
-│   │   ├── HotspotLineLogicLogic.ast
-│   │   ├── HotspotLineLogicLogic.cmi
-│   │   ├── HotspotLineLogicLogic.cmj
-│   │   ├── HotspotLineLogicLogic.cmt
-│   │   ├── HotspotLineLogicLogic.res
-│   │   ├── HotspotLineLogicTypes.ast
-│   │   ├── HotspotLineLogicTypes.cmi
-│   │   ├── HotspotLineLogicTypes.cmj
-│   │   ├── HotspotLineLogicTypes.cmt
-│   │   ├── HotspotLineLogicTypes.res
 │   │   ├── HotspotLineTypes_v.test.ast
 │   │   ├── HotspotLineTypes_v.test.cmi
 │   │   ├── HotspotLineTypes_v.test.cmj
 │   │   ├── HotspotLineTypes_v.test.cmt
 │   │   ├── HotspotLineTypes_v.test.res
-│   │   ├── HotspotLineTypes.ast
-│   │   ├── HotspotLineTypes.cmi
-│   │   ├── HotspotLineTypes.cmj
-│   │   ├── HotspotLineTypes.cmt
-│   │   ├── HotspotLineTypes.res
-│   │   ├── HotspotLineUtils.ast
-│   │   ├── HotspotLineUtils.cmi
-│   │   ├── HotspotLineUtils.cmj
-│   │   ├── HotspotLineUtils.cmt
-│   │   ├── HotspotLineUtils.res
 │   │   ├── HotspotManager_v.test.ast
-│   │   ├── HotspotManager_v.test.cmi
-│   │   ├── HotspotManager_v.test.cmj
-│   │   ├── HotspotManager_v.test.cmt
-│   │   ├── HotspotManager_v.test.res
 │   │   ├── HotspotManager.ast
-│   │   ├── HotspotManager.cmi
-│   │   ├── HotspotManager.cmj
-│   │   ├── HotspotManager.cmt
-│   │   ├── HotspotManager.res
 │   │   ├── HotspotMenuLayer_v.test.ast
-│   │   ├── HotspotMenuLayer_v.test.cmi
-│   │   ├── HotspotMenuLayer_v.test.cmj
-│   │   ├── HotspotMenuLayer_v.test.cmt
-│   │   ├── HotspotMenuLayer_v.test.res
 │   │   ├── HotspotMenuLayer.ast
-│   │   ├── HotspotMenuLayer.cmi
-│   │   ├── HotspotMenuLayer.cmj
-│   │   ├── HotspotMenuLayer.cmt
-│   │   ├── HotspotMenuLayer.res
 │   │   ├── HotspotReducer_v.test.ast
 │   │   ├── HotspotReducer_v.test.cmi
 │   │   ├── HotspotReducer_v.test.cmj
 │   │   ├── HotspotReducer_v.test.cmt
 │   │   ├── HotspotReducer_v.test.res
-│   │   ├── HotspotReducer.ast
-│   │   ├── HotspotReducer.cmi
-│   │   ├── HotspotReducer.cmj
-│   │   ├── HotspotReducer.cmt
-│   │   ├── HotspotReducer.res
 │   │   ├── I18n.ast
 │   │   ├── I18n.cmi
 │   │   ├── I18n.cmj
 │   │   ├── I18n.cmt
 │   │   ├── I18n.res
-│   │   ├── IdbBindings.ast
-│   │   ├── IdbBindings.cmi
-│   │   ├── IdbBindings.cmj
-│   │   ├── IdbBindings.cmt
-│   │   ├── IdbBindings.res
 │   │   ├── ImageOptimizer_v.test.ast
 │   │   ├── ImageOptimizer_v.test.cmi
 │   │   ├── ImageOptimizer_v.test.cmj
@@ -2693,10 +1525,6 @@
 │   │   ├── ImageValidator.cmt
 │   │   ├── ImageValidator.res
 │   │   ├── InputSystem_v.test.ast
-│   │   ├── InputSystem_v.test.cmi
-│   │   ├── InputSystem_v.test.cmj
-│   │   ├── InputSystem_v.test.cmt
-│   │   ├── InputSystem_v.test.res
 │   │   ├── InputSystem.ast
 │   │   ├── InputSystem.cmi
 │   │   ├── InputSystem.cmj
@@ -2708,15 +1536,7 @@
 │   │   ├── InteractionsRobustness_v.test.cmt
 │   │   ├── InteractionsRobustness_v.test.res
 │   │   ├── LabelMenu_v.test.ast
-│   │   ├── LabelMenu_v.test.cmi
-│   │   ├── LabelMenu_v.test.cmj
-│   │   ├── LabelMenu_v.test.cmt
-│   │   ├── LabelMenu_v.test.res
 │   │   ├── LabelMenu.ast
-│   │   ├── LabelMenu.cmi
-│   │   ├── LabelMenu.cmj
-│   │   ├── LabelMenu.cmt
-│   │   ├── LabelMenu.res
 │   │   ├── LazyLoad_v.test.ast
 │   │   ├── LazyLoad_v.test.cmi
 │   │   ├── LazyLoad_v.test.cmj
@@ -2762,41 +1582,16 @@
 │   │   ├── LoggerLogic_v.test.cmj
 │   │   ├── LoggerLogic_v.test.cmt
 │   │   ├── LoggerLogic_v.test.res
-│   │   ├── LoggerLogic.ast
-│   │   ├── LoggerLogic.cmi
-│   │   ├── LoggerLogic.cmj
-│   │   ├── LoggerLogic.cmt
-│   │   ├── LoggerLogic.res
 │   │   ├── LoggerTelemetry_v.test.ast
 │   │   ├── LoggerTelemetry_v.test.cmi
 │   │   ├── LoggerTelemetry_v.test.cmj
 │   │   ├── LoggerTelemetry_v.test.cmt
 │   │   ├── LoggerTelemetry_v.test.res
-│   │   ├── LoggerTelemetry.ast
-│   │   ├── LoggerTelemetry.cmi
-│   │   ├── LoggerTelemetry.cmj
-│   │   ├── LoggerTelemetry.cmt
-│   │   ├── LoggerTelemetry.res
 │   │   ├── LoggerTypes_v.test.ast
 │   │   ├── LoggerTypes_v.test.cmi
 │   │   ├── LoggerTypes_v.test.cmj
 │   │   ├── LoggerTypes_v.test.cmt
 │   │   ├── LoggerTypes_v.test.res
-│   │   ├── LoggerTypes.ast
-│   │   ├── LoggerTypes.cmi
-│   │   ├── LoggerTypes.cmj
-│   │   ├── LoggerTypes.cmt
-│   │   ├── LoggerTypes.res
-│   │   ├── LucideActions.ast
-│   │   ├── LucideActions.cmi
-│   │   ├── LucideActions.cmj
-│   │   ├── LucideActions.cmt
-│   │   ├── LucideActions.res
-│   │   ├── LucideCore.ast
-│   │   ├── LucideCore.cmi
-│   │   ├── LucideCore.cmj
-│   │   ├── LucideCore.cmt
-│   │   ├── LucideCore.res
 │   │   ├── LucideIcons_v.test.ast
 │   │   ├── LucideIcons_v.test.cmi
 │   │   ├── LucideIcons_v.test.cmj
@@ -2807,46 +1602,18 @@
 │   │   ├── LucideIcons.cmj
 │   │   ├── LucideIcons.cmt
 │   │   ├── LucideIcons.res
-│   │   ├── LucideMedia.ast
-│   │   ├── LucideMedia.cmi
-│   │   ├── LucideMedia.cmj
-│   │   ├── LucideMedia.cmt
-│   │   ├── LucideMedia.res
-│   │   ├── LucideStatus.ast
-│   │   ├── LucideStatus.cmi
-│   │   ├── LucideStatus.cmj
-│   │   ├── LucideStatus.cmt
-│   │   ├── LucideStatus.res
 │   │   ├── Main_v.test.ast
-│   │   ├── Main_v.test.cmi
-│   │   ├── Main_v.test.cmj
-│   │   ├── Main_v.test.cmt
-│   │   ├── Main_v.test.res
 │   │   ├── Main.ast
-│   │   ├── Main.cmi
-│   │   ├── Main.cmj
-│   │   ├── Main.cmt
-│   │   ├── Main.res
 │   │   ├── MediaApi_v.test.ast
 │   │   ├── MediaApi_v.test.cmi
 │   │   ├── MediaApi_v.test.cmj
 │   │   ├── MediaApi_v.test.cmt
 │   │   ├── MediaApi_v.test.res
-│   │   ├── MediaApi.ast
-│   │   ├── MediaApi.cmi
-│   │   ├── MediaApi.cmj
-│   │   ├── MediaApi.cmt
-│   │   ├── MediaApi.res
 │   │   ├── Mod_v.test.ast
 │   │   ├── Mod_v.test.cmi
 │   │   ├── Mod_v.test.cmj
 │   │   ├── Mod_v.test.cmt
 │   │   ├── Mod_v.test.res
-│   │   ├── mod.ast
-│   │   ├── mod.cmi
-│   │   ├── mod.cmj
-│   │   ├── mod.cmt
-│   │   ├── mod.res
 │   │   ├── ModalContext_v.test.ast
 │   │   ├── ModalContext_v.test.cmi
 │   │   ├── ModalContext_v.test.cmj
@@ -2857,16 +1624,9 @@
 │   │   ├── ModalContext.cmj
 │   │   ├── ModalContext.cmt
 │   │   ├── ModalContext.res
+│   │   ├── Navigation.ast
 │   │   ├── NavigationController_v.test.ast
-│   │   ├── NavigationController_v.test.cmi
-│   │   ├── NavigationController_v.test.cmj
-│   │   ├── NavigationController_v.test.cmt
-│   │   ├── NavigationController_v.test.res
 │   │   ├── NavigationController.ast
-│   │   ├── NavigationController.cmi
-│   │   ├── NavigationController.cmj
-│   │   ├── NavigationController.cmt
-│   │   ├── NavigationController.res
 │   │   ├── NavigationFSM_v.test.ast
 │   │   ├── NavigationFSM_v.test.cmi
 │   │   ├── NavigationFSM_v.test.cmj
@@ -2892,11 +1652,6 @@
 │   │   ├── NavigationReducer_v.test.cmj
 │   │   ├── NavigationReducer_v.test.cmt
 │   │   ├── NavigationReducer_v.test.res
-│   │   ├── NavigationReducer.ast
-│   │   ├── NavigationReducer.cmi
-│   │   ├── NavigationReducer.cmj
-│   │   ├── NavigationReducer.cmt
-│   │   ├── NavigationReducer.res
 │   │   ├── NavigationRenderer_v.test.ast
 │   │   ├── NavigationRenderer_v.test.cmi
 │   │   ├── NavigationRenderer_v.test.cmj
@@ -2942,31 +1697,13 @@
 │   │   ├── PannellumAdapter_v.test.cmj
 │   │   ├── PannellumAdapter_v.test.cmt
 │   │   ├── PannellumAdapter_v.test.res
-│   │   ├── PannellumAdapter.ast
-│   │   ├── PannellumAdapter.cmi
-│   │   ├── PannellumAdapter.cmj
-│   │   ├── PannellumAdapter.cmt
-│   │   ├── PannellumAdapter.res
 │   │   ├── PannellumLifecycle_v.test.ast
 │   │   ├── PannellumLifecycle_v.test.cmi
 │   │   ├── PannellumLifecycle_v.test.cmj
 │   │   ├── PannellumLifecycle_v.test.cmt
 │   │   ├── PannellumLifecycle_v.test.res
-│   │   ├── PannellumLifecycle.ast
-│   │   ├── PannellumLifecycle.cmi
-│   │   ├── PannellumLifecycle.cmj
-│   │   ├── PannellumLifecycle.cmt
-│   │   ├── PannellumLifecycle.res
 │   │   ├── PanoramaClusterer_v.test.ast
-│   │   ├── PanoramaClusterer_v.test.cmi
-│   │   ├── PanoramaClusterer_v.test.cmj
-│   │   ├── PanoramaClusterer_v.test.cmt
-│   │   ├── PanoramaClusterer_v.test.res
 │   │   ├── PanoramaClusterer.ast
-│   │   ├── PanoramaClusterer.cmi
-│   │   ├── PanoramaClusterer.cmj
-│   │   ├── PanoramaClusterer.cmt
-│   │   ├── PanoramaClusterer.res
 │   │   ├── PathInterpolation_v.test.ast
 │   │   ├── PathInterpolation_v.test.cmi
 │   │   ├── PathInterpolation_v.test.cmj
@@ -3013,15 +1750,7 @@
 │   │   ├── Portal.cmt
 │   │   ├── Portal.res
 │   │   ├── PreviewArrow_v.test.ast
-│   │   ├── PreviewArrow_v.test.cmi
-│   │   ├── PreviewArrow_v.test.cmj
-│   │   ├── PreviewArrow_v.test.cmt
-│   │   ├── PreviewArrow_v.test.res
 │   │   ├── PreviewArrow.ast
-│   │   ├── PreviewArrow.cmi
-│   │   ├── PreviewArrow.cmj
-│   │   ├── PreviewArrow.cmt
-│   │   ├── PreviewArrow.res
 │   │   ├── ProgressBar_v.test.ast
 │   │   ├── ProgressBar_v.test.cmi
 │   │   ├── ProgressBar_v.test.cmj
@@ -3037,11 +1766,6 @@
 │   │   ├── ProjectApi_v.test.cmj
 │   │   ├── ProjectApi_v.test.cmt
 │   │   ├── ProjectApi_v.test.res
-│   │   ├── ProjectApi.ast
-│   │   ├── ProjectApi.cmi
-│   │   ├── ProjectApi.cmj
-│   │   ├── ProjectApi.cmt
-│   │   ├── ProjectApi.res
 │   │   ├── ProjectData_v.test.ast
 │   │   ├── ProjectData_v.test.cmi
 │   │   ├── ProjectData_v.test.cmj
@@ -3063,40 +1787,17 @@
 │   │   ├── ProjectionMath.cmt
 │   │   ├── ProjectionMath.res
 │   │   ├── ProjectManager_v.test.ast
-│   │   ├── ProjectManager_v.test.cmi
-│   │   ├── ProjectManager_v.test.cmj
-│   │   ├── ProjectManager_v.test.cmt
-│   │   ├── ProjectManager_v.test.res
 │   │   ├── ProjectManager.ast
 │   │   ├── ProjectManager.cmi
 │   │   ├── ProjectManager.cmj
 │   │   ├── ProjectManager.cmt
 │   │   ├── ProjectManager.res
 │   │   ├── ProjectManagerLogic_v.test.ast
-│   │   ├── ProjectManagerLogic_v.test.cmi
-│   │   ├── ProjectManagerLogic_v.test.cmj
-│   │   ├── ProjectManagerLogic_v.test.cmt
-│   │   ├── ProjectManagerLogic_v.test.res
-│   │   ├── ProjectManagerLogic.ast
-│   │   ├── ProjectManagerLogic.cmi
-│   │   ├── ProjectManagerLogic.cmj
-│   │   ├── ProjectManagerLogic.cmt
-│   │   ├── ProjectManagerLogic.res
-│   │   ├── ProjectManagerTypes.ast
-│   │   ├── ProjectManagerTypes.cmi
-│   │   ├── ProjectManagerTypes.cmj
-│   │   ├── ProjectManagerTypes.cmt
-│   │   ├── ProjectManagerTypes.res
 │   │   ├── ProjectReducer_v.test.ast
 │   │   ├── ProjectReducer_v.test.cmi
 │   │   ├── ProjectReducer_v.test.cmj
 │   │   ├── ProjectReducer_v.test.cmt
 │   │   ├── ProjectReducer_v.test.res
-│   │   ├── ProjectReducer.ast
-│   │   ├── ProjectReducer.cmi
-│   │   ├── ProjectReducer.cmj
-│   │   ├── ProjectReducer.cmt
-│   │   ├── ProjectReducer.res
 │   │   ├── QualityIndicator_v.test.ast
 │   │   ├── QualityIndicator_v.test.cmi
 │   │   ├── QualityIndicator_v.test.cmj
@@ -3138,50 +1839,15 @@
 │   │   ├── RequestQueue.cmt
 │   │   ├── RequestQueue.res
 │   │   ├── Resizer_v.test.ast
-│   │   ├── Resizer_v.test.cmi
-│   │   ├── Resizer_v.test.cmj
-│   │   ├── Resizer_v.test.cmt
-│   │   ├── Resizer_v.test.res
 │   │   ├── Resizer.ast
-│   │   ├── Resizer.cmi
-│   │   ├── Resizer.cmj
-│   │   ├── Resizer.cmt
-│   │   ├── Resizer.res
-│   │   ├── ResizerLogic.ast
-│   │   ├── ResizerLogic.cmi
-│   │   ├── ResizerLogic.cmj
-│   │   ├── ResizerLogic.cmt
-│   │   ├── ResizerLogic.res
-│   │   ├── ResizerTypes.ast
-│   │   ├── ResizerTypes.cmi
-│   │   ├── ResizerTypes.cmj
-│   │   ├── ResizerTypes.cmt
-│   │   ├── ResizerTypes.res
-│   │   ├── ResizerUtils.ast
-│   │   ├── ResizerUtils.cmi
-│   │   ├── ResizerUtils.cmj
-│   │   ├── ResizerUtils.cmt
-│   │   ├── ResizerUtils.res
 │   │   ├── ReturnPrompt_v.test.ast
-│   │   ├── ReturnPrompt_v.test.cmi
-│   │   ├── ReturnPrompt_v.test.cmj
-│   │   ├── ReturnPrompt_v.test.cmt
-│   │   ├── ReturnPrompt_v.test.res
 │   │   ├── ReturnPrompt.ast
-│   │   ├── ReturnPrompt.cmi
-│   │   ├── ReturnPrompt.cmj
-│   │   ├── ReturnPrompt.cmt
-│   │   ├── ReturnPrompt.res
 │   │   ├── RootReducer_v.test.ast
 │   │   ├── RootReducer_v.test.cmi
 │   │   ├── RootReducer_v.test.cmj
 │   │   ├── RootReducer_v.test.cmt
 │   │   ├── RootReducer_v.test.res
-│   │   ├── RootReducer.ast
-│   │   ├── RootReducer.cmi
-│   │   ├── RootReducer.cmj
-│   │   ├── RootReducer.cmt
-│   │   ├── RootReducer.res
+│   │   ├── Scene.ast
 │   │   ├── SceneCache_v.test.ast
 │   │   ├── SceneCache_v.test.cmi
 │   │   ├── SceneCache_v.test.cmj
@@ -3202,106 +1868,17 @@
 │   │   ├── SceneHelpers.cmj
 │   │   ├── SceneHelpers.cmt
 │   │   ├── SceneHelpers.res
-│   │   ├── SceneHelpersLogic.ast
-│   │   ├── SceneHelpersLogic.cmi
-│   │   ├── SceneHelpersLogic.cmj
-│   │   ├── SceneHelpersLogic.cmt
-│   │   ├── SceneHelpersLogic.res
-│   │   ├── SceneHelpersParser.ast
-│   │   ├── SceneHelpersParser.cmi
-│   │   ├── SceneHelpersParser.cmj
-│   │   ├── SceneHelpersParser.cmt
-│   │   ├── SceneHelpersParser.res
-│   │   ├── SceneItem.ast
-│   │   ├── SceneItem.cmi
-│   │   ├── SceneItem.cmj
-│   │   ├── SceneItem.cmt
-│   │   ├── SceneItem.res
 │   │   ├── SceneList_v.test.ast
-│   │   ├── SceneList_v.test.cmi
-│   │   ├── SceneList_v.test.cmj
-│   │   ├── SceneList_v.test.cmt
-│   │   ├── SceneList_v.test.res
 │   │   ├── SceneList.ast
-│   │   ├── SceneList.cmi
-│   │   ├── SceneList.cmj
-│   │   ├── SceneList.cmt
-│   │   ├── SceneList.res
-│   │   ├── SceneListMain.ast
-│   │   ├── SceneListMain.cmi
-│   │   ├── SceneListMain.cmj
-│   │   ├── SceneListMain.cmt
-│   │   ├── SceneListMain.res
 │   │   ├── SceneLoader_Lifecycle_Unified_v.test.ast
-│   │   ├── SceneLoader_Lifecycle_Unified_v.test.cmi
-│   │   ├── SceneLoader_Lifecycle_Unified_v.test.cmj
-│   │   ├── SceneLoader_Lifecycle_Unified_v.test.cmt
-│   │   ├── SceneLoader_Lifecycle_Unified_v.test.res
 │   │   ├── SceneLoader_v.test.ast
-│   │   ├── SceneLoader_v.test.cmi
-│   │   ├── SceneLoader_v.test.cmj
-│   │   ├── SceneLoader_v.test.cmt
-│   │   ├── SceneLoader_v.test.res
-│   │   ├── SceneLoader.ast
-│   │   ├── SceneLoader.cmi
-│   │   ├── SceneLoader.cmj
-│   │   ├── SceneLoader.cmt
-│   │   ├── SceneLoader.res
-│   │   ├── SceneLoaderLogic.ast
-│   │   ├── SceneLoaderLogic.cmi
-│   │   ├── SceneLoaderLogic.cmj
-│   │   ├── SceneLoaderLogic.cmt
-│   │   ├── SceneLoaderLogic.res
-│   │   ├── SceneLoaderLogicConfig.ast
-│   │   ├── SceneLoaderLogicConfig.cmi
-│   │   ├── SceneLoaderLogicConfig.cmj
-│   │   ├── SceneLoaderLogicConfig.cmt
-│   │   ├── SceneLoaderLogicConfig.res
-│   │   ├── SceneLoaderLogicEvents.ast
-│   │   ├── SceneLoaderLogicEvents.cmi
-│   │   ├── SceneLoaderLogicEvents.cmj
-│   │   ├── SceneLoaderLogicEvents.cmt
-│   │   ├── SceneLoaderLogicEvents.res
-│   │   ├── SceneLoaderLogicReuse.ast
-│   │   ├── SceneLoaderLogicReuse.cmi
-│   │   ├── SceneLoaderLogicReuse.cmj
-│   │   ├── SceneLoaderLogicReuse.cmt
-│   │   ├── SceneLoaderLogicReuse.res
-│   │   ├── SceneLoaderTypes.ast
-│   │   ├── SceneLoaderTypes.cmi
-│   │   ├── SceneLoaderTypes.cmj
-│   │   ├── SceneLoaderTypes.cmt
-│   │   ├── SceneLoaderTypes.res
 │   │   ├── SceneReducer_v.test.ast
 │   │   ├── SceneReducer_v.test.cmi
 │   │   ├── SceneReducer_v.test.cmj
 │   │   ├── SceneReducer_v.test.cmt
 │   │   ├── SceneReducer_v.test.res
-│   │   ├── SceneReducer.ast
-│   │   ├── SceneReducer.cmi
-│   │   ├── SceneReducer.cmj
-│   │   ├── SceneReducer.cmt
-│   │   ├── SceneReducer.res
 │   │   ├── SceneSwitcher_v.test.ast
-│   │   ├── SceneSwitcher_v.test.cmi
-│   │   ├── SceneSwitcher_v.test.cmj
-│   │   ├── SceneSwitcher_v.test.cmt
-│   │   ├── SceneSwitcher_v.test.res
-│   │   ├── SceneSwitcher.ast
-│   │   ├── SceneSwitcher.cmi
-│   │   ├── SceneSwitcher.cmj
-│   │   ├── SceneSwitcher.cmt
-│   │   ├── SceneSwitcher.res
 │   │   ├── SceneTransitionManager_v.test.ast
-│   │   ├── SceneTransitionManager_v.test.cmi
-│   │   ├── SceneTransitionManager_v.test.cmj
-│   │   ├── SceneTransitionManager_v.test.cmt
-│   │   ├── SceneTransitionManager_v.test.res
-│   │   ├── SceneTransitionManager.ast
-│   │   ├── SceneTransitionManager.cmi
-│   │   ├── SceneTransitionManager.cmj
-│   │   ├── SceneTransitionManager.cmt
-│   │   ├── SceneTransitionManager.res
 │   │   ├── Schemas_v.test.ast
 │   │   ├── Schemas_v.test.cmi
 │   │   ├── Schemas_v.test.cmj
@@ -3312,26 +1889,7 @@
 │   │   ├── Schemas.cmj
 │   │   ├── Schemas.cmt
 │   │   ├── Schemas.res
-│   │   ├── SchemasDomain.ast
-│   │   ├── SchemasDomain.cmi
-│   │   ├── SchemasDomain.cmj
-│   │   ├── SchemasDomain.cmt
-│   │   ├── SchemasDomain.res
-│   │   ├── SchemasShared.ast
-│   │   ├── SchemasShared.cmi
-│   │   ├── SchemasShared.cmj
-│   │   ├── SchemasShared.cmt
-│   │   ├── SchemasShared.res
 │   │   ├── ServerTeaser_v.test.ast
-│   │   ├── ServerTeaser_v.test.cmi
-│   │   ├── ServerTeaser_v.test.cmj
-│   │   ├── ServerTeaser_v.test.cmt
-│   │   ├── ServerTeaser_v.test.res
-│   │   ├── ServerTeaser.ast
-│   │   ├── ServerTeaser.cmi
-│   │   ├── ServerTeaser.cmj
-│   │   ├── ServerTeaser.cmt
-│   │   ├── ServerTeaser.res
 │   │   ├── ServiceWorker_v.test.ast
 │   │   ├── ServiceWorker_v.test.cmi
 │   │   ├── ServiceWorker_v.test.cmj
@@ -3383,50 +1941,7 @@
 │   │   ├── SharedTypes.cmt
 │   │   ├── SharedTypes.res
 │   │   ├── Sidebar_v.test.ast
-│   │   ├── Sidebar_v.test.cmi
-│   │   ├── Sidebar_v.test.cmj
-│   │   ├── Sidebar_v.test.cmt
-│   │   ├── Sidebar_v.test.res
 │   │   ├── Sidebar.ast
-│   │   ├── Sidebar.cmi
-│   │   ├── Sidebar.cmj
-│   │   ├── Sidebar.cmt
-│   │   ├── Sidebar.res
-│   │   ├── SidebarActions.ast
-│   │   ├── SidebarActions.cmi
-│   │   ├── SidebarActions.cmj
-│   │   ├── SidebarActions.cmt
-│   │   ├── SidebarActions.res
-│   │   ├── SidebarBranding.ast
-│   │   ├── SidebarBranding.cmi
-│   │   ├── SidebarBranding.cmj
-│   │   ├── SidebarBranding.cmt
-│   │   ├── SidebarBranding.res
-│   │   ├── SidebarMain.ast
-│   │   ├── SidebarMain.cmi
-│   │   ├── SidebarMain.cmj
-│   │   ├── SidebarMain.cmt
-│   │   ├── SidebarMain.res
-│   │   ├── SidebarMainLogic.ast
-│   │   ├── SidebarMainLogic.cmi
-│   │   ├── SidebarMainLogic.cmj
-│   │   ├── SidebarMainLogic.cmt
-│   │   ├── SidebarMainLogic.res
-│   │   ├── SidebarMainTypes.ast
-│   │   ├── SidebarMainTypes.cmi
-│   │   ├── SidebarMainTypes.cmj
-│   │   ├── SidebarMainTypes.cmt
-│   │   ├── SidebarMainTypes.res
-│   │   ├── SidebarProcessing.ast
-│   │   ├── SidebarProcessing.cmi
-│   │   ├── SidebarProcessing.cmj
-│   │   ├── SidebarProcessing.cmt
-│   │   ├── SidebarProcessing.res
-│   │   ├── SidebarProjectInfo.ast
-│   │   ├── SidebarProjectInfo.cmi
-│   │   ├── SidebarProjectInfo.cmj
-│   │   ├── SidebarProjectInfo.cmt
-│   │   ├── SidebarProjectInfo.res
 │   │   ├── SimHelpers_v.test.ast
 │   │   ├── SimHelpers_v.test.cmi
 │   │   ├── SimHelpers_v.test.cmj
@@ -3437,66 +1952,17 @@
 │   │   ├── SimHelpers.cmj
 │   │   ├── SimHelpers.cmt
 │   │   ├── SimHelpers.res
+│   │   ├── Simulation.ast
 │   │   ├── SimulationChainSkipper_v.test.ast
-│   │   ├── SimulationChainSkipper_v.test.cmi
-│   │   ├── SimulationChainSkipper_v.test.cmj
-│   │   ├── SimulationChainSkipper_v.test.cmt
-│   │   ├── SimulationChainSkipper_v.test.res
-│   │   ├── SimulationChainSkipper.ast
-│   │   ├── SimulationChainSkipper.cmi
-│   │   ├── SimulationChainSkipper.cmj
-│   │   ├── SimulationChainSkipper.cmt
-│   │   ├── SimulationChainSkipper.res
 │   │   ├── SimulationDriver_v.test.ast
-│   │   ├── SimulationDriver_v.test.cmi
-│   │   ├── SimulationDriver_v.test.cmj
-│   │   ├── SimulationDriver_v.test.cmt
-│   │   ├── SimulationDriver_v.test.res
-│   │   ├── SimulationDriver.ast
-│   │   ├── SimulationDriver.cmi
-│   │   ├── SimulationDriver.cmj
-│   │   ├── SimulationDriver.cmt
-│   │   ├── SimulationDriver.res
 │   │   ├── SimulationLogic_v.test.ast
-│   │   ├── SimulationLogic_v.test.cmi
-│   │   ├── SimulationLogic_v.test.cmj
-│   │   ├── SimulationLogic_v.test.cmt
-│   │   ├── SimulationLogic_v.test.res
-│   │   ├── SimulationLogic.ast
-│   │   ├── SimulationLogic.cmi
-│   │   ├── SimulationLogic.cmj
-│   │   ├── SimulationLogic.cmt
-│   │   ├── SimulationLogic.res
 │   │   ├── SimulationNavigation_v.test.ast
-│   │   ├── SimulationNavigation_v.test.cmi
-│   │   ├── SimulationNavigation_v.test.cmj
-│   │   ├── SimulationNavigation_v.test.cmt
-│   │   ├── SimulationNavigation_v.test.res
-│   │   ├── SimulationNavigation.ast
-│   │   ├── SimulationNavigation.cmi
-│   │   ├── SimulationNavigation.cmj
-│   │   ├── SimulationNavigation.cmt
-│   │   ├── SimulationNavigation.res
 │   │   ├── SimulationPathGenerator_v.test.ast
-│   │   ├── SimulationPathGenerator_v.test.cmi
-│   │   ├── SimulationPathGenerator_v.test.cmj
-│   │   ├── SimulationPathGenerator_v.test.cmt
-│   │   ├── SimulationPathGenerator_v.test.res
-│   │   ├── SimulationPathGenerator.ast
-│   │   ├── SimulationPathGenerator.cmi
-│   │   ├── SimulationPathGenerator.cmj
-│   │   ├── SimulationPathGenerator.cmt
-│   │   ├── SimulationPathGenerator.res
 │   │   ├── SimulationReducer_v.test.ast
 │   │   ├── SimulationReducer_v.test.cmi
 │   │   ├── SimulationReducer_v.test.cmj
 │   │   ├── SimulationReducer_v.test.cmt
 │   │   ├── SimulationReducer_v.test.res
-│   │   ├── SimulationReducer.ast
-│   │   ├── SimulationReducer.cmi
-│   │   ├── SimulationReducer.cmj
-│   │   ├── SimulationReducer.cmt
-│   │   ├── SimulationReducer.res
 │   │   ├── SnapshotOverlay_v.test.ast
 │   │   ├── SnapshotOverlay_v.test.cmi
 │   │   ├── SnapshotOverlay_v.test.cmj
@@ -3542,76 +2008,12 @@
 │   │   ├── SvgRenderer_v.test.cmj
 │   │   ├── SvgRenderer_v.test.cmt
 │   │   ├── SvgRenderer_v.test.res
-│   │   ├── SvgRenderer.ast
-│   │   ├── SvgRenderer.cmi
-│   │   ├── SvgRenderer.cmj
-│   │   ├── SvgRenderer.cmt
-│   │   ├── SvgRenderer.res
+│   │   ├── Teaser.ast
 │   │   ├── TeaserManager_v.test.ast
-│   │   ├── TeaserManager_v.test.cmi
-│   │   ├── TeaserManager_v.test.cmj
-│   │   ├── TeaserManager_v.test.cmt
-│   │   ├── TeaserManager_v.test.res
-│   │   ├── TeaserManager.ast
-│   │   ├── TeaserManager.cmi
-│   │   ├── TeaserManager.cmj
-│   │   ├── TeaserManager.cmt
-│   │   ├── TeaserManager.res
 │   │   ├── TeaserPathfinder_v.test.ast
-│   │   ├── TeaserPathfinder_v.test.cmi
-│   │   ├── TeaserPathfinder_v.test.cmj
-│   │   ├── TeaserPathfinder_v.test.cmt
-│   │   ├── TeaserPathfinder_v.test.res
-│   │   ├── TeaserPathfinder.ast
-│   │   ├── TeaserPathfinder.cmi
-│   │   ├── TeaserPathfinder.cmj
-│   │   ├── TeaserPathfinder.cmt
-│   │   ├── TeaserPathfinder.res
 │   │   ├── TeaserPlayback_v.test.ast
-│   │   ├── TeaserPlayback_v.test.cmi
-│   │   ├── TeaserPlayback_v.test.cmj
-│   │   ├── TeaserPlayback_v.test.cmt
-│   │   ├── TeaserPlayback_v.test.res
-│   │   ├── TeaserPlayback.ast
-│   │   ├── TeaserPlayback.cmi
-│   │   ├── TeaserPlayback.cmj
-│   │   ├── TeaserPlayback.cmt
-│   │   ├── TeaserPlayback.res
 │   │   ├── TeaserRecorder_v.test.ast
-│   │   ├── TeaserRecorder_v.test.cmi
-│   │   ├── TeaserRecorder_v.test.cmj
-│   │   ├── TeaserRecorder_v.test.cmt
-│   │   ├── TeaserRecorder_v.test.res
-│   │   ├── TeaserRecorder.ast
-│   │   ├── TeaserRecorder.cmi
-│   │   ├── TeaserRecorder.cmj
-│   │   ├── TeaserRecorder.cmt
-│   │   ├── TeaserRecorder.res
-│   │   ├── TeaserRecorderLogic.ast
-│   │   ├── TeaserRecorderLogic.cmi
-│   │   ├── TeaserRecorderLogic.cmj
-│   │   ├── TeaserRecorderLogic.cmt
-│   │   ├── TeaserRecorderLogic.res
-│   │   ├── TeaserRecorderOverlay.ast
-│   │   ├── TeaserRecorderOverlay.cmi
-│   │   ├── TeaserRecorderOverlay.cmj
-│   │   ├── TeaserRecorderOverlay.cmt
-│   │   ├── TeaserRecorderOverlay.res
-│   │   ├── TeaserRecorderTypes.ast
-│   │   ├── TeaserRecorderTypes.cmi
-│   │   ├── TeaserRecorderTypes.cmj
-│   │   ├── TeaserRecorderTypes.cmt
-│   │   ├── TeaserRecorderTypes.res
 │   │   ├── TeaserState_v.test.ast
-│   │   ├── TeaserState_v.test.cmi
-│   │   ├── TeaserState_v.test.cmj
-│   │   ├── TeaserState_v.test.cmt
-│   │   ├── TeaserState_v.test.res
-│   │   ├── TeaserState.ast
-│   │   ├── TeaserState.cmi
-│   │   ├── TeaserState.cmj
-│   │   ├── TeaserState.cmt
-│   │   ├── TeaserState.res
 │   │   ├── TestRunner.ast
 │   │   ├── TestRunner.cmi
 │   │   ├── TestRunner.cmj
@@ -3627,11 +2029,6 @@
 │   │   ├── TimelineReducer_v.test.cmj
 │   │   ├── TimelineReducer_v.test.cmt
 │   │   ├── TimelineReducer_v.test.res
-│   │   ├── TimelineReducer.ast
-│   │   ├── TimelineReducer.cmi
-│   │   ├── TimelineReducer.cmj
-│   │   ├── TimelineReducer.cmt
-│   │   ├── TimelineReducer.res
 │   │   ├── Tooltip_v.test.ast
 │   │   ├── Tooltip_v.test.cmi
 │   │   ├── Tooltip_v.test.cmj
@@ -3657,11 +2054,6 @@
 │   │   ├── TourTemplateAssets_v.test.cmj
 │   │   ├── TourTemplateAssets_v.test.cmt
 │   │   ├── TourTemplateAssets_v.test.res
-│   │   ├── TourTemplateAssets.ast
-│   │   ├── TourTemplateAssets.cmi
-│   │   ├── TourTemplateAssets.cmj
-│   │   ├── TourTemplateAssets.cmt
-│   │   ├── TourTemplateAssets.res
 │   │   ├── TourTemplates_v.test.ast
 │   │   ├── TourTemplates_v.test.cmi
 │   │   ├── TourTemplates_v.test.cmj
@@ -3677,21 +2069,11 @@
 │   │   ├── TourTemplateScripts_v.test.cmj
 │   │   ├── TourTemplateScripts_v.test.cmt
 │   │   ├── TourTemplateScripts_v.test.res
-│   │   ├── TourTemplateScripts.ast
-│   │   ├── TourTemplateScripts.cmi
-│   │   ├── TourTemplateScripts.cmj
-│   │   ├── TourTemplateScripts.cmt
-│   │   ├── TourTemplateScripts.res
 │   │   ├── TourTemplateStyles_v.test.ast
 │   │   ├── TourTemplateStyles_v.test.cmi
 │   │   ├── TourTemplateStyles_v.test.cmj
 │   │   ├── TourTemplateStyles_v.test.cmt
 │   │   ├── TourTemplateStyles_v.test.res
-│   │   ├── TourTemplateStyles.ast
-│   │   ├── TourTemplateStyles.cmi
-│   │   ├── TourTemplateStyles.cmj
-│   │   ├── TourTemplateStyles.cmt
-│   │   ├── TourTemplateStyles.res
 │   │   ├── Types_v.test.ast
 │   │   ├── Types_v.test.cmi
 │   │   ├── Types_v.test.cmj
@@ -3717,56 +2099,13 @@
 │   │   ├── UiReducer_v.test.cmj
 │   │   ├── UiReducer_v.test.cmt
 │   │   ├── UiReducer_v.test.res
-│   │   ├── UiReducer.ast
-│   │   ├── UiReducer.cmi
-│   │   ├── UiReducer.cmj
-│   │   ├── UiReducer.cmt
-│   │   ├── UiReducer.res
 │   │   ├── UploadProcessor_v.test.ast
-│   │   ├── UploadProcessor_v.test.cmi
-│   │   ├── UploadProcessor_v.test.cmj
-│   │   ├── UploadProcessor_v.test.cmt
-│   │   ├── UploadProcessor_v.test.res
 │   │   ├── UploadProcessor.ast
-│   │   ├── UploadProcessor.cmi
-│   │   ├── UploadProcessor.cmj
-│   │   ├── UploadProcessor.cmt
-│   │   ├── UploadProcessor.res
 │   │   ├── UploadProcessorLogic_v.test.ast
-│   │   ├── UploadProcessorLogic_v.test.cmi
-│   │   ├── UploadProcessorLogic_v.test.cmj
-│   │   ├── UploadProcessorLogic_v.test.cmt
-│   │   ├── UploadProcessorLogic_v.test.res
-│   │   ├── UploadProcessorLogic.ast
-│   │   ├── UploadProcessorLogic.cmi
-│   │   ├── UploadProcessorLogic.cmj
-│   │   ├── UploadProcessorLogic.cmt
-│   │   ├── UploadProcessorLogic.res
-│   │   ├── UploadProcessorLogicLogic.ast
-│   │   ├── UploadProcessorLogicLogic.cmi
-│   │   ├── UploadProcessorLogicLogic.cmj
-│   │   ├── UploadProcessorLogicLogic.cmt
-│   │   ├── UploadProcessorLogicLogic.res
 │   │   ├── UploadProcessorTypes_v.test.ast
-│   │   ├── UploadProcessorTypes_v.test.cmi
-│   │   ├── UploadProcessorTypes_v.test.cmj
-│   │   ├── UploadProcessorTypes_v.test.cmt
-│   │   ├── UploadProcessorTypes_v.test.res
-│   │   ├── UploadProcessorTypes.ast
-│   │   ├── UploadProcessorTypes.cmi
-│   │   ├── UploadProcessorTypes.cmj
-│   │   ├── UploadProcessorTypes.cmt
-│   │   ├── UploadProcessorTypes.res
 │   │   ├── UploadReport_v.test.ast
-│   │   ├── UploadReport_v.test.cmi
-│   │   ├── UploadReport_v.test.cmj
-│   │   ├── UploadReport_v.test.cmt
-│   │   ├── UploadReport_v.test.res
 │   │   ├── UploadReport.ast
-│   │   ├── UploadReport.cmi
-│   │   ├── UploadReport.cmj
-│   │   ├── UploadReport.cmt
-│   │   ├── UploadReport.res
+│   │   ├── UploadTypes.ast
 │   │   ├── UrlUtils_v.test.ast
 │   │   ├── UrlUtils_v.test.cmi
 │   │   ├── UrlUtils_v.test.cmj
@@ -3778,15 +2117,7 @@
 │   │   ├── UrlUtils.cmt
 │   │   ├── UrlUtils.res
 │   │   ├── UtilityBar_v.test.ast
-│   │   ├── UtilityBar_v.test.cmi
-│   │   ├── UtilityBar_v.test.cmj
-│   │   ├── UtilityBar_v.test.cmt
-│   │   ├── UtilityBar_v.test.res
 │   │   ├── UtilityBar.ast
-│   │   ├── UtilityBar.cmi
-│   │   ├── UtilityBar.cmj
-│   │   ├── UtilityBar.cmt
-│   │   ├── UtilityBar.res
 │   │   ├── Version_v.test.ast
 │   │   ├── Version_v.test.cmi
 │   │   ├── Version_v.test.cmj
@@ -3797,31 +2128,12 @@
 │   │   ├── Version.cmj
 │   │   ├── Version.cmt
 │   │   ├── Version.res
-│   │   ├── VersionData_v.test.ast
-│   │   ├── VersionData_v.test.cmi
-│   │   ├── VersionData_v.test.cmj
-│   │   ├── VersionData_v.test.cmt
-│   │   ├── VersionData_v.test.res
-│   │   ├── VersionData.ast
-│   │   ├── VersionData.cmi
-│   │   ├── VersionData.cmj
-│   │   ├── VersionData.cmt
-│   │   ├── VersionData.res
 │   │   ├── VideoEncoder_v.test.ast
-│   │   ├── VideoEncoder_v.test.cmi
-│   │   ├── VideoEncoder_v.test.cmj
-│   │   ├── VideoEncoder_v.test.cmt
-│   │   ├── VideoEncoder_v.test.res
 │   │   ├── VideoEncoder.ast
 │   │   ├── VideoEncoder.cmi
 │   │   ├── VideoEncoder.cmj
 │   │   ├── VideoEncoder.cmt
 │   │   ├── VideoEncoder.res
-│   │   ├── ViewerBindings.ast
-│   │   ├── ViewerBindings.cmi
-│   │   ├── ViewerBindings.cmj
-│   │   ├── ViewerBindings.cmt
-│   │   ├── ViewerBindings.res
 │   │   ├── ViewerDriver.ast
 │   │   ├── ViewerDriver.cmi
 │   │   ├── ViewerDriver.cmj
@@ -3832,66 +2144,20 @@
 │   │   ├── ViewerFollow_v.test.cmj
 │   │   ├── ViewerFollow_v.test.cmt
 │   │   ├── ViewerFollow_v.test.res
-│   │   ├── ViewerFollow.ast
-│   │   ├── ViewerFollow.cmi
-│   │   ├── ViewerFollow.cmj
-│   │   ├── ViewerFollow.cmt
-│   │   ├── ViewerFollow.res
 │   │   ├── ViewerHUD_v.test.ast
-│   │   ├── ViewerHUD_v.test.cmi
-│   │   ├── ViewerHUD_v.test.cmj
-│   │   ├── ViewerHUD_v.test.cmt
-│   │   ├── ViewerHUD_v.test.res
 │   │   ├── ViewerHUD.ast
-│   │   ├── ViewerHUD.cmi
-│   │   ├── ViewerHUD.cmj
-│   │   ├── ViewerHUD.cmt
-│   │   ├── ViewerHUD.res
 │   │   ├── ViewerLabelMenu_v.test.ast
-│   │   ├── ViewerLabelMenu_v.test.cmi
-│   │   ├── ViewerLabelMenu_v.test.cmj
-│   │   ├── ViewerLabelMenu_v.test.cmt
-│   │   ├── ViewerLabelMenu_v.test.res
 │   │   ├── ViewerLabelMenu.ast
-│   │   ├── ViewerLabelMenu.cmi
-│   │   ├── ViewerLabelMenu.cmj
-│   │   ├── ViewerLabelMenu.cmt
-│   │   ├── ViewerLabelMenu.res
 │   │   ├── ViewerLoader_v.test.ast
-│   │   ├── ViewerLoader_v.test.cmi
-│   │   ├── ViewerLoader_v.test.cmj
-│   │   ├── ViewerLoader_v.test.cmt
-│   │   ├── ViewerLoader_v.test.res
 │   │   ├── ViewerLoader.ast
-│   │   ├── ViewerLoader.cmi
-│   │   ├── ViewerLoader.cmj
-│   │   ├── ViewerLoader.cmt
-│   │   ├── ViewerLoader.res
 │   │   ├── ViewerManager_v.test.ast
-│   │   ├── ViewerManager_v.test.cmi
-│   │   ├── ViewerManager_v.test.cmj
-│   │   ├── ViewerManager_v.test.cmt
-│   │   ├── ViewerManager_v.test.res
 │   │   ├── ViewerManager.ast
-│   │   ├── ViewerManager.cmi
-│   │   ├── ViewerManager.cmj
-│   │   ├── ViewerManager.cmt
-│   │   ├── ViewerManager.res
 │   │   ├── ViewerManagerLogic.ast
-│   │   ├── ViewerManagerLogic.cmi
-│   │   ├── ViewerManagerLogic.cmj
-│   │   ├── ViewerManagerLogic.cmt
-│   │   ├── ViewerManagerLogic.res
 │   │   ├── ViewerPool_v.test.ast
 │   │   ├── ViewerPool_v.test.cmi
 │   │   ├── ViewerPool_v.test.cmj
 │   │   ├── ViewerPool_v.test.cmt
 │   │   ├── ViewerPool_v.test.res
-│   │   ├── ViewerPool.ast
-│   │   ├── ViewerPool.cmi
-│   │   ├── ViewerPool.cmj
-│   │   ├── ViewerPool.cmt
-│   │   ├── ViewerPool.res
 │   │   ├── ViewerSnapshot_v.test.ast
 │   │   ├── ViewerSnapshot_v.test.cmi
 │   │   ├── ViewerSnapshot_v.test.cmj
@@ -3912,6 +2178,11 @@
 │   │   ├── ViewerState.cmj
 │   │   ├── ViewerState.cmt
 │   │   ├── ViewerState.res
+│   │   ├── ViewerSystem.ast
+│   │   ├── ViewerSystem.cmi
+│   │   ├── ViewerSystem.cmj
+│   │   ├── ViewerSystem.cmt
+│   │   ├── ViewerSystem.res
 │   │   ├── ViewerTypes_v.test.ast
 │   │   ├── ViewerTypes_v.test.cmi
 │   │   ├── ViewerTypes_v.test.cmj
@@ -3923,15 +2194,7 @@
 │   │   ├── ViewerTypes.cmt
 │   │   ├── ViewerTypes.res
 │   │   ├── ViewerUI_v.test.ast
-│   │   ├── ViewerUI_v.test.cmi
-│   │   ├── ViewerUI_v.test.cmj
-│   │   ├── ViewerUI_v.test.cmt
-│   │   ├── ViewerUI_v.test.res
 │   │   ├── ViewerUI.ast
-│   │   ├── ViewerUI.cmi
-│   │   ├── ViewerUI.cmj
-│   │   ├── ViewerUI.cmt
-│   │   ├── ViewerUI.res
 │   │   ├── VisualPipeline_v.test.ast
 │   │   ├── VisualPipeline_v.test.cmi
 │   │   ├── VisualPipeline_v.test.cmj
@@ -3942,41 +2205,11 @@
 │   │   ├── VisualPipeline.cmj
 │   │   ├── VisualPipeline.cmt
 │   │   ├── VisualPipeline.res
-│   │   ├── VisualPipelineLogic.ast
-│   │   ├── VisualPipelineLogic.cmi
-│   │   ├── VisualPipelineLogic.cmj
-│   │   ├── VisualPipelineLogic.cmt
-│   │   ├── VisualPipelineLogic.res
-│   │   ├── VisualPipelineMain.ast
-│   │   ├── VisualPipelineMain.cmi
-│   │   ├── VisualPipelineMain.cmj
-│   │   ├── VisualPipelineMain.cmt
-│   │   ├── VisualPipelineMain.res
-│   │   ├── VisualPipelineRender.ast
-│   │   ├── VisualPipelineRender.cmi
-│   │   ├── VisualPipelineRender.cmj
-│   │   ├── VisualPipelineRender.cmt
-│   │   ├── VisualPipelineRender.res
-│   │   ├── VisualPipelineStyles.ast
-│   │   ├── VisualPipelineStyles.cmi
-│   │   ├── VisualPipelineStyles.cmj
-│   │   ├── VisualPipelineStyles.cmt
-│   │   ├── VisualPipelineStyles.res
-│   │   ├── VisualPipelineTypes.ast
-│   │   ├── VisualPipelineTypes.cmi
-│   │   ├── VisualPipelineTypes.cmj
-│   │   ├── VisualPipelineTypes.cmt
-│   │   ├── VisualPipelineTypes.res
 │   │   ├── VitestSmoke.test.ast
 │   │   ├── VitestSmoke.test.cmi
 │   │   ├── VitestSmoke.test.cmj
 │   │   ├── VitestSmoke.test.cmt
-│   │   ├── VitestSmoke.test.res
-│   │   ├── WebApiBindings.ast
-│   │   ├── WebApiBindings.cmi
-│   │   ├── WebApiBindings.cmj
-│   │   ├── WebApiBindings.cmt
-│   │   └── WebApiBindings.res
+│   │   └── VitestSmoke.test.res
 │   └── rescript.lock
 ├── LICENSE
 ├── logs
@@ -5397,37 +3630,18 @@
 │   ├── update-readme.js
 │   └── update-version.js
 ├── src
-│   ├── App.bs.js
 │   ├── App.res
-│   ├── bindings
-│   │   ├── BrowserBindings.bs.js
-│   │   ├── BrowserBindings.res
-│   │   ├── DomBindings.bs.js
-│   │   ├── DomBindings.res
-│   │   ├── GraphicsBindings.bs.js
-│   │   ├── GraphicsBindings.res
-│   │   ├── IdbBindings.bs.js
-│   │   ├── IdbBindings.res
-│   │   ├── ViewerBindings.bs.js
-│   │   ├── ViewerBindings.res
-│   │   ├── WebApiBindings.bs.js
-│   │   └── WebApiBindings.res
 │   ├── components
 │   │   ├── AppErrorBoundary.bs.js
 │   │   ├── AppErrorBoundary.res
 │   │   ├── ErrorFallbackUI.bs.js
 │   │   ├── ErrorFallbackUI.res
-│   │   ├── FloorNavigation.bs.js
 │   │   ├── FloorNavigation.res
-│   │   ├── HotspotActionMenu.bs.js
 │   │   ├── HotspotActionMenu.res
 │   │   ├── HotspotLayer.bs.js
 │   │   ├── HotspotLayer.res
-│   │   ├── HotspotManager.bs.js
 │   │   ├── HotspotManager.res
-│   │   ├── HotspotMenuLayer.bs.js
 │   │   ├── HotspotMenuLayer.res
-│   │   ├── LabelMenu.bs.js
 │   │   ├── LabelMenu.res
 │   │   ├── LinkModal.bs.js
 │   │   ├── LinkModal.res
@@ -5443,35 +3657,11 @@
 │   │   ├── PopOver.res
 │   │   ├── Portal.bs.js
 │   │   ├── Portal.res
-│   │   ├── PreviewArrow.bs.js
 │   │   ├── PreviewArrow.res
 │   │   ├── QualityIndicator.bs.js
 │   │   ├── QualityIndicator.res
-│   │   ├── ReturnPrompt.bs.js
 │   │   ├── ReturnPrompt.res
-│   │   ├── SceneList
-│   │   │   ├── SceneItem.bs.js
-│   │   │   ├── SceneItem.res
-│   │   │   ├── SceneListMain.bs.js
-│   │   │   └── SceneListMain.res
-│   │   ├── SceneList.bs.js
 │   │   ├── SceneList.res
-│   │   ├── Sidebar
-│   │   │   ├── SidebarActions.bs.js
-│   │   │   ├── SidebarActions.res
-│   │   │   ├── SidebarBranding.bs.js
-│   │   │   ├── SidebarBranding.res
-│   │   │   ├── SidebarMain.bs.js
-│   │   │   ├── SidebarMain.res
-│   │   │   ├── SidebarMainLogic.bs.js
-│   │   │   ├── SidebarMainLogic.res
-│   │   │   ├── SidebarMainTypes.bs.js
-│   │   │   ├── SidebarMainTypes.res
-│   │   │   ├── SidebarProcessing.bs.js
-│   │   │   ├── SidebarProcessing.res
-│   │   │   ├── SidebarProjectInfo.bs.js
-│   │   │   └── SidebarProjectInfo.res
-│   │   ├── Sidebar.bs.js
 │   │   ├── Sidebar.res
 │   │   ├── SnapshotOverlay.bs.js
 │   │   ├── SnapshotOverlay.res
@@ -5484,15 +3674,6 @@
 │   │   │   ├── dropdown-menu.jsx
 │   │   │   ├── input.jsx
 │   │   │   ├── label.jsx
-│   │   │   ├── Lucide
-│   │   │   │   ├── LucideActions.bs.js
-│   │   │   │   ├── LucideActions.res
-│   │   │   │   ├── LucideCore.bs.js
-│   │   │   │   ├── LucideCore.res
-│   │   │   │   ├── LucideMedia.bs.js
-│   │   │   │   ├── LucideMedia.res
-│   │   │   │   ├── LucideStatus.bs.js
-│   │   │   │   └── LucideStatus.res
 │   │   │   ├── LucideIcons.bs.js
 │   │   │   ├── LucideIcons.res
 │   │   │   ├── popover.jsx
@@ -5500,35 +3681,16 @@
 │   │   │   ├── Shadcn.res
 │   │   │   ├── sonner.jsx
 │   │   │   └── tooltip.jsx
-│   │   ├── UploadReport.bs.js
 │   │   ├── UploadReport.res
-│   │   ├── UtilityBar.bs.js
 │   │   ├── UtilityBar.res
-│   │   ├── ViewerHUD.bs.js
 │   │   ├── ViewerHUD.res
-│   │   ├── ViewerLabelMenu.bs.js
 │   │   ├── ViewerLabelMenu.res
-│   │   ├── ViewerLoader.bs.js
 │   │   ├── ViewerLoader.res
-│   │   ├── ViewerManager.bs.js
 │   │   ├── ViewerManager.res
-│   │   ├── ViewerManagerLogic.bs.js
 │   │   ├── ViewerManagerLogic.res
 │   │   ├── ViewerSnapshot.bs.js
 │   │   ├── ViewerSnapshot.res
-│   │   ├── ViewerUI.bs.js
 │   │   ├── ViewerUI.res
-│   │   ├── VisualPipeline
-│   │   │   ├── VisualPipelineLogic.bs.js
-│   │   │   ├── VisualPipelineLogic.res
-│   │   │   ├── VisualPipelineMain.bs.js
-│   │   │   ├── VisualPipelineMain.res
-│   │   │   ├── VisualPipelineRender.bs.js
-│   │   │   ├── VisualPipelineRender.res
-│   │   │   ├── VisualPipelineStyles.bs.js
-│   │   │   ├── VisualPipelineStyles.res
-│   │   │   ├── VisualPipelineTypes.bs.js
-│   │   │   └── VisualPipelineTypes.res
 │   │   ├── VisualPipeline.bs.js
 │   │   └── VisualPipeline.res
 │   ├── core
@@ -5545,39 +3707,12 @@
 │   │   │   └── ViewerDriver.res
 │   │   ├── Reducer.bs.js
 │   │   ├── Reducer.res
-│   │   ├── reducers
-│   │   │   ├── HotspotReducer.bs.js
-│   │   │   ├── HotspotReducer.res
-│   │   │   ├── mod.bs.js
-│   │   │   ├── mod.res
-│   │   │   ├── NavigationReducer.bs.js
-│   │   │   ├── NavigationReducer.res
-│   │   │   ├── ProjectReducer.bs.js
-│   │   │   ├── ProjectReducer.res
-│   │   │   ├── RootReducer.bs.js
-│   │   │   ├── RootReducer.res
-│   │   │   ├── SceneReducer.bs.js
-│   │   │   ├── SceneReducer.res
-│   │   │   ├── SimulationReducer.bs.js
-│   │   │   ├── SimulationReducer.res
-│   │   │   ├── TimelineReducer.bs.js
-│   │   │   ├── TimelineReducer.res
-│   │   │   ├── UiReducer.bs.js
-│   │   │   └── UiReducer.res
 │   │   ├── SceneCache.bs.js
 │   │   ├── SceneCache.res
 │   │   ├── SceneHelpers.bs.js
 │   │   ├── SceneHelpers.res
-│   │   ├── SceneHelpersLogic.bs.js
-│   │   ├── SceneHelpersLogic.res
-│   │   ├── SceneHelpersParser.bs.js
-│   │   ├── SceneHelpersParser.res
 │   │   ├── Schemas.bs.js
 │   │   ├── Schemas.res
-│   │   ├── SchemasDomain.bs.js
-│   │   ├── SchemasDomain.res
-│   │   ├── SchemasShared.bs.js
-│   │   ├── SchemasShared.res
 │   │   ├── SharedTypes.bs.js
 │   │   ├── SharedTypes.res
 │   │   ├── SimHelpers.bs.js
@@ -5602,7 +3737,6 @@
 │   ├── index.js
 │   ├── lib
 │   │   └── utils.js
-│   ├── Main.bs.js
 │   ├── Main.res
 │   ├── ReBindings.bs.js
 │   ├── ReBindings.res
@@ -5611,15 +3745,8 @@
 │   ├── ServiceWorkerMain.bs.js
 │   ├── ServiceWorkerMain.res
 │   ├── systems
-│   │   ├── api
-│   │   │   ├── ApiTypes.bs.js
-│   │   │   ├── ApiTypes.res
-│   │   │   ├── AuthenticatedClient.bs.js
-│   │   │   ├── AuthenticatedClient.res
-│   │   │   ├── MediaApi.bs.js
-│   │   │   ├── MediaApi.res
-│   │   │   ├── ProjectApi.bs.js
-│   │   │   └── ProjectApi.res
+│   │   ├── Api.bs.js
+│   │   ├── Api.res
 │   │   ├── AudioManager.bs.js
 │   │   ├── AudioManager.res
 │   │   ├── BackendApi.bs.js
@@ -5632,47 +3759,19 @@
 │   │   ├── EventBus.res
 │   │   ├── ExifParser.bs.js
 │   │   ├── ExifParser.res
-│   │   ├── ExifReportGenerator.bs.js
 │   │   ├── ExifReportGenerator.res
-│   │   ├── ExifReportGeneratorLogic.bs.js
-│   │   ├── ExifReportGeneratorLogic.res
-│   │   ├── ExifReportGeneratorLogicExtraction.bs.js
-│   │   ├── ExifReportGeneratorLogicExtraction.res
-│   │   ├── ExifReportGeneratorLogicGroups.bs.js
-│   │   ├── ExifReportGeneratorLogicGroups.res
-│   │   ├── ExifReportGeneratorLogicLocation.bs.js
-│   │   ├── ExifReportGeneratorLogicLocation.res
-│   │   ├── ExifReportGeneratorLogicTypes.bs.js
-│   │   ├── ExifReportGeneratorLogicTypes.res
-│   │   ├── ExifReportGeneratorTypes.bs.js
-│   │   ├── ExifReportGeneratorTypes.res
-│   │   ├── ExifReportGeneratorUtils.bs.js
-│   │   ├── ExifReportGeneratorUtils.res
 │   │   ├── Exporter.bs.js
 │   │   ├── Exporter.res
-│   │   ├── FingerprintService.bs.js
 │   │   ├── FingerprintService.res
 │   │   ├── HotspotLine.bs.js
 │   │   ├── HotspotLine.res
-│   │   ├── HotspotLineLogic.bs.js
-│   │   ├── HotspotLineLogic.res
-│   │   ├── HotspotLineLogicArrow.bs.js
-│   │   ├── HotspotLineLogicArrow.res
-│   │   ├── HotspotLineLogicLogic.bs.js
-│   │   ├── HotspotLineLogicLogic.res
-│   │   ├── HotspotLineLogicTypes.bs.js
-│   │   ├── HotspotLineLogicTypes.res
-│   │   ├── HotspotLineTypes.bs.js
-│   │   ├── HotspotLineTypes.res
-│   │   ├── HotspotLineUtils.bs.js
-│   │   ├── HotspotLineUtils.res
 │   │   ├── ImageValidator.bs.js
 │   │   ├── ImageValidator.res
 │   │   ├── InputSystem.bs.js
 │   │   ├── InputSystem.res
 │   │   ├── LinkEditorLogic.bs.js
 │   │   ├── LinkEditorLogic.res
-│   │   ├── NavigationController.bs.js
+│   │   ├── Navigation.res
 │   │   ├── NavigationController.res
 │   │   ├── NavigationFSM.bs.js
 │   │   ├── NavigationFSM.res
@@ -5682,98 +3781,25 @@
 │   │   ├── NavigationRenderer.res
 │   │   ├── NavigationUI.bs.js
 │   │   ├── NavigationUI.res
-│   │   ├── PannellumAdapter.bs.js
-│   │   ├── PannellumAdapter.res
-│   │   ├── PannellumLifecycle.bs.js
-│   │   ├── PannellumLifecycle.res
-│   │   ├── PanoramaClusterer.bs.js
 │   │   ├── PanoramaClusterer.res
 │   │   ├── ProjectData.bs.js
 │   │   ├── ProjectData.res
 │   │   ├── ProjectManager.bs.js
 │   │   ├── ProjectManager.res
-│   │   ├── ProjectManagerLogic.bs.js
-│   │   ├── ProjectManagerLogic.res
-│   │   ├── ProjectManagerTypes.bs.js
-│   │   ├── ProjectManagerTypes.res
-│   │   ├── Resizer.bs.js
 │   │   ├── Resizer.res
-│   │   ├── ResizerLogic.bs.js
-│   │   ├── ResizerLogic.res
-│   │   ├── ResizerTypes.bs.js
-│   │   ├── ResizerTypes.res
-│   │   ├── ResizerUtils.bs.js
-│   │   ├── ResizerUtils.res
-│   │   ├── SceneLoader.bs.js
-│   │   ├── SceneLoader.res
-│   │   ├── SceneLoaderLogic.bs.js
-│   │   ├── SceneLoaderLogic.res
-│   │   ├── SceneLoaderLogicConfig.bs.js
-│   │   ├── SceneLoaderLogicConfig.res
-│   │   ├── SceneLoaderLogicEvents.bs.js
-│   │   ├── SceneLoaderLogicEvents.res
-│   │   ├── SceneLoaderLogicReuse.bs.js
-│   │   ├── SceneLoaderLogicReuse.res
-│   │   ├── SceneLoaderTypes.bs.js
-│   │   ├── SceneLoaderTypes.res
-│   │   ├── SceneSwitcher.bs.js
-│   │   ├── SceneSwitcher.res
-│   │   ├── SceneTransitionManager.bs.js
-│   │   ├── SceneTransitionManager.res
-│   │   ├── ServerTeaser.bs.js
-│   │   ├── ServerTeaser.res
-│   │   ├── SimulationChainSkipper.bs.js
-│   │   ├── SimulationChainSkipper.res
-│   │   ├── SimulationDriver.bs.js
-│   │   ├── SimulationDriver.res
-│   │   ├── SimulationLogic.bs.js
-│   │   ├── SimulationLogic.res
-│   │   ├── SimulationNavigation.bs.js
-│   │   ├── SimulationNavigation.res
-│   │   ├── SimulationPathGenerator.bs.js
-│   │   ├── SimulationPathGenerator.res
+│   │   ├── Scene.res
+│   │   ├── Simulation.res
 │   │   ├── SvgManager.bs.js
 │   │   ├── SvgManager.res
-│   │   ├── SvgRenderer.bs.js
-│   │   ├── SvgRenderer.res
-│   │   ├── TeaserManager.bs.js
-│   │   ├── TeaserManager.res
-│   │   ├── TeaserPathfinder.bs.js
-│   │   ├── TeaserPathfinder.res
-│   │   ├── TeaserPlayback.bs.js
-│   │   ├── TeaserPlayback.res
-│   │   ├── TeaserRecorder.bs.js
-│   │   ├── TeaserRecorder.res
-│   │   ├── TeaserRecorderLogic.bs.js
-│   │   ├── TeaserRecorderLogic.res
-│   │   ├── TeaserRecorderOverlay.bs.js
-│   │   ├── TeaserRecorderOverlay.res
-│   │   ├── TeaserRecorderTypes.bs.js
-│   │   ├── TeaserRecorderTypes.res
-│   │   ├── TeaserState.bs.js
-│   │   ├── TeaserState.res
-│   │   ├── TourTemplateAssets.bs.js
-│   │   ├── TourTemplateAssets.res
+│   │   ├── Teaser.res
 │   │   ├── TourTemplates.bs.js
 │   │   ├── TourTemplates.res
-│   │   ├── TourTemplateScripts.bs.js
-│   │   ├── TourTemplateScripts.res
-│   │   ├── TourTemplateStyles.bs.js
-│   │   ├── TourTemplateStyles.res
-│   │   ├── UploadProcessor.bs.js
 │   │   ├── UploadProcessor.res
-│   │   ├── UploadProcessorLogic.bs.js
-│   │   ├── UploadProcessorLogic.res
-│   │   ├── UploadProcessorLogicLogic.bs.js
-│   │   ├── UploadProcessorLogicLogic.res
-│   │   ├── UploadProcessorTypes.bs.js
-│   │   ├── UploadProcessorTypes.res
+│   │   ├── UploadTypes.res
 │   │   ├── VideoEncoder.bs.js
 │   │   ├── VideoEncoder.res
-│   │   ├── ViewerFollow.bs.js
-│   │   ├── ViewerFollow.res
-│   │   ├── ViewerPool.bs.js
-│   │   └── ViewerPool.res
+│   │   ├── ViewerSystem.bs.js
+│   │   └── ViewerSystem.res
 │   └── utils
 │       ├── ColorPalette.bs.js
 │       ├── ColorPalette.res
@@ -5788,12 +3814,6 @@
 │       ├── LazyLoad.res
 │       ├── Logger.bs.js
 │       ├── Logger.res
-│       ├── LoggerLogic.bs.js
-│       ├── LoggerLogic.res
-│       ├── LoggerTelemetry.bs.js
-│       ├── LoggerTelemetry.res
-│       ├── LoggerTypes.bs.js
-│       ├── LoggerTypes.res
 │       ├── PathInterpolation.bs.js
 │       ├── PathInterpolation.res
 │       ├── PersistenceLayer.bs.js
@@ -5813,14 +3833,11 @@
 │       ├── UrlUtils.bs.js
 │       ├── UrlUtils.res
 │       ├── Version.bs.js
-│       ├── Version.res
-│       ├── VersionData.bs.js
-│       └── VersionData.res
+│       └── Version.res
 ├── start_prod.sh
 ├── tailwind.config.js
 ├── tasks
 │   ├── active
-│   │   └── 1071_Surgical_Refactor_Modules.md
 │   ├── completed
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   ├── 003_Aggregate_Completed_Tasks_DONE.md
@@ -5873,9 +3890,19 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 004_Merge_Fragmented_Folders.md
-│   │   ├── 005_Structural_Vertical_Slicing.md
-│   │   ├── 1076_Classify_Ambiguous_Files.md
+│   │   ├── 1077_Fix_Critical_Violations.md
+│   │   ├── 1078_Classify_Ambiguous_Files.md
+│   │   ├── 1079_Fix_Violations_FRONTEND.md
+│   │   ├── 1080_Surgical_Refactor_Batch_1_FRONTEND.md
+│   │   ├── 1081_Surgical_Refactor_Batch_2_FRONTEND.md
+│   │   ├── 1082_Surgical_Refactor_Batch_3_FRONTEND.md
+│   │   ├── 1083_Surgical_Refactor_Batch_4_FRONTEND.md
+│   │   ├── 1084_Surgical_Refactor_Batch_5_FRONTEND.md
+│   │   ├── 1085_Merge_Folders_FRONTEND.md
+│   │   ├── 1086_Fix_Violations_BACKEND.md
+│   │   ├── 1087_Surgical_Refactor_Batch_1_BACKEND.md
+│   │   ├── 1088_Merge_Folders_BACKEND.md
+│   │   ├── 1089_Classify_Map_Entries.md
 │   │   └── tests
 │   │       └── 006_Test_Generation_Unified.md
 │   ├── postponed
@@ -5895,9 +3922,7 @@
 │       ├── ActionsTest.bs.js
 │       ├── ApiTypes_v.test.bs.js
 │       ├── ApiTypes_v.test.res
-│       ├── App_v.test.bs.js
 │       ├── App_v.test.res
-│       ├── AppContext_v.test.bs.js
 │       ├── AppContext_v.test.res
 │       ├── AppErrorBoundary_v.test.bs.js
 │       ├── AppErrorBoundary_v.test.res
@@ -5926,32 +3951,23 @@
 │       ├── EventBus_v.test.bs.js
 │       ├── EventBus_v.test.res
 │       ├── EventBusTest.bs.js
-│       ├── ExifParser_v.test.bs.js
 │       ├── ExifParser_v.test.res
-│       ├── ExifReportGenerator_v.test.bs.js
 │       ├── ExifReportGenerator_v.test.res
-│       ├── ExifReportGeneratorLogicExtraction_v.test.bs.js
 │       ├── ExifReportGeneratorLogicExtraction_v.test.res
-│       ├── ExifReportGeneratorLogicGroups_v.test.bs.js
 │       ├── ExifReportGeneratorLogicGroups_v.test.res
-│       ├── ExifReportGeneratorLogicLocation_v.test.bs.js
 │       ├── ExifReportGeneratorLogicLocation_v.test.res
-│       ├── ExifReportGeneratorUtils_v.test.bs.js
 │       ├── ExifReportGeneratorUtils_v.test.res
 │       ├── Exporter_v.test.bs.js
 │       ├── Exporter_v.test.res
 │       ├── FinalAsyncCheck_v.test.bs.js
 │       ├── FinalAsyncCheck_v.test.res
-│       ├── FingerprintService_v.test.bs.js
 │       ├── FingerprintService_v.test.res
-│       ├── FloorNavigation_v.test.bs.js
 │       ├── FloorNavigation_v.test.res
 │       ├── GeoUtils_v.test.bs.js
 │       ├── GeoUtils_v.test.res
 │       ├── GlobalStateBridge_v.test.bs.js
 │       ├── GlobalStateBridge_v.test.res
 │       ├── GlobalStateBridgeTest.bs.js
-│       ├── HotspotActionMenu_v.test.bs.js
 │       ├── HotspotActionMenu_v.test.res
 │       ├── HotspotLayer_v.test.bs.js
 │       ├── HotspotLayer_v.test.res
@@ -5962,9 +3978,7 @@
 │       ├── HotspotLineLogic_v.test.res
 │       ├── HotspotLineTypes_v.test.bs.js
 │       ├── HotspotLineTypes_v.test.res
-│       ├── HotspotManager_v.test.bs.js
 │       ├── HotspotManager_v.test.res
-│       ├── HotspotMenuLayer_v.test.bs.js
 │       ├── HotspotMenuLayer_v.test.res
 │       ├── HotspotReducer_v.test.bs.js
 │       ├── HotspotReducer_v.test.res
@@ -5972,11 +3986,9 @@
 │       ├── ImageOptimizer_v.test.res
 │       ├── ImageValidator_v.test.bs.js
 │       ├── ImageValidator_v.test.res
-│       ├── InputSystem_v.test.bs.js
 │       ├── InputSystem_v.test.res
 │       ├── InteractionsRobustness_v.test.bs.js
 │       ├── InteractionsRobustness_v.test.res
-│       ├── LabelMenu_v.test.bs.js
 │       ├── LabelMenu_v.test.res
 │       ├── LabelMenu_v.test.setup.jsx
 │       ├── LazyLoad_v.test.bs.js
@@ -5995,7 +4007,6 @@
 │       ├── LoggerTypes_v.test.res
 │       ├── LucideIcons_v.test.bs.js
 │       ├── LucideIcons_v.test.res
-│       ├── Main_v.test.bs.js
 │       ├── Main_v.test.res
 │       ├── MediaApi_v.test.bs.js
 │       ├── MediaApi_v.test.res
@@ -6003,7 +4014,6 @@
 │       ├── Mod_v.test.res
 │       ├── ModalContext_v.test.bs.js
 │       ├── ModalContext_v.test.res
-│       ├── NavigationController_v.test.bs.js
 │       ├── NavigationController_v.test.res
 │       ├── NavigationFSM_v.test.bs.js
 │       ├── NavigationFSM_v.test.res
@@ -6023,7 +4033,6 @@
 │       ├── PannellumAdapter_v.test.res
 │       ├── PannellumLifecycle_v.test.bs.js
 │       ├── PannellumLifecycle_v.test.res
-│       ├── PanoramaClusterer_v.test.bs.js
 │       ├── PanoramaClusterer_v.test.res
 │       ├── PathInterpolation_v.test.bs.js
 │       ├── PathInterpolation_v.test.res
@@ -6033,7 +4042,6 @@
 │       ├── PopOver_v.test.res
 │       ├── Portal_v.test.bs.js
 │       ├── Portal_v.test.res
-│       ├── PreviewArrow_v.test.bs.js
 │       ├── PreviewArrow_v.test.res
 │       ├── ProgressBar_v.test.bs.js
 │       ├── ProgressBar_v.test.res
@@ -6043,9 +4051,7 @@
 │       ├── ProjectData_v.test.res
 │       ├── ProjectionMath_v.test.bs.js
 │       ├── ProjectionMath_v.test.res
-│       ├── ProjectManager_v.test.bs.js
 │       ├── ProjectManager_v.test.res
-│       ├── ProjectManagerLogic_v.test.bs.js
 │       ├── ProjectManagerLogic_v.test.res
 │       ├── ProjectReducer_v.test.bs.js
 │       ├── ProjectReducer_v.test.res
@@ -6057,9 +4063,7 @@
 │       ├── Reducer_v.test.res
 │       ├── RequestQueue_v.test.bs.js
 │       ├── RequestQueue_v.test.res
-│       ├── Resizer_v.test.bs.js
 │       ├── Resizer_v.test.res
-│       ├── ReturnPrompt_v.test.bs.js
 │       ├── ReturnPrompt_v.test.res
 │       ├── RootReducer_v.test.bs.js
 │       ├── RootReducer_v.test.res
@@ -6067,21 +4071,15 @@
 │       ├── SceneCache_v.test.res
 │       ├── SceneHelpers_v.test.bs.js
 │       ├── SceneHelpers_v.test.res
-│       ├── SceneList_v.test.bs.js
 │       ├── SceneList_v.test.res
-│       ├── SceneLoader_Lifecycle_Unified_v.test.bs.js
 │       ├── SceneLoader_Lifecycle_Unified_v.test.res
-│       ├── SceneLoader_v.test.bs.js
 │       ├── SceneLoader_v.test.res
 │       ├── SceneReducer_v.test.bs.js
 │       ├── SceneReducer_v.test.res
-│       ├── SceneSwitcher_v.test.bs.js
 │       ├── SceneSwitcher_v.test.res
-│       ├── SceneTransitionManager_v.test.bs.js
 │       ├── SceneTransitionManager_v.test.res
 │       ├── Schemas_v.test.bs.js
 │       ├── Schemas_v.test.res
-│       ├── ServerTeaser_v.test.bs.js
 │       ├── ServerTeaser_v.test.res
 │       ├── ServiceWorker_v.test.bs.js
 │       ├── ServiceWorker_v.test.res
@@ -6094,19 +4092,13 @@
 │       ├── SharedTypes_v.test.bs.js
 │       ├── SharedTypes_v.test.res
 │       ├── SharedTypesTest.bs.js
-│       ├── Sidebar_v.test.bs.js
 │       ├── Sidebar_v.test.res
 │       ├── SimHelpers_v.test.bs.js
 │       ├── SimHelpers_v.test.res
-│       ├── SimulationChainSkipper_v.test.bs.js
 │       ├── SimulationChainSkipper_v.test.res
-│       ├── SimulationDriver_v.test.bs.js
 │       ├── SimulationDriver_v.test.res
-│       ├── SimulationLogic_v.test.bs.js
 │       ├── SimulationLogic_v.test.res
-│       ├── SimulationNavigation_v.test.bs.js
 │       ├── SimulationNavigation_v.test.res
-│       ├── SimulationPathGenerator_v.test.bs.js
 │       ├── SimulationPathGenerator_v.test.res
 │       ├── SimulationReducer_v.test.bs.js
 │       ├── SimulationReducer_v.test.res
@@ -6121,15 +4113,10 @@
 │       ├── SvgManager_v.test.res
 │       ├── SvgRenderer_v.test.bs.js
 │       ├── SvgRenderer_v.test.res
-│       ├── TeaserManager_v.test.bs.js
 │       ├── TeaserManager_v.test.res
-│       ├── TeaserPathfinder_v.test.bs.js
 │       ├── TeaserPathfinder_v.test.res
-│       ├── TeaserPlayback_v.test.bs.js
 │       ├── TeaserPlayback_v.test.res
-│       ├── TeaserRecorder_v.test.bs.js
 │       ├── TeaserRecorder_v.test.res
-│       ├── TeaserState_v.test.bs.js
 │       ├── TeaserState_v.test.res
 │       ├── TimelineReducer_v.test.bs.js
 │       ├── TimelineReducer_v.test.res
@@ -6151,37 +4138,25 @@
 │       ├── UiHelpers_v.test.res
 │       ├── UiReducer_v.test.bs.js
 │       ├── UiReducer_v.test.res
-│       ├── UploadProcessor_v.test.bs.js
 │       ├── UploadProcessor_v.test.res
 │       ├── UploadProcessor_v.test.setup.js
-│       ├── UploadProcessorLogic_v.test.bs.js
 │       ├── UploadProcessorLogic_v.test.res
-│       ├── UploadProcessorTypes_v.test.bs.js
 │       ├── UploadProcessorTypes_v.test.res
-│       ├── UploadReport_v.test.bs.js
 │       ├── UploadReport_v.test.res
 │       ├── UrlUtils_v.test.bs.js
 │       ├── UrlUtils_v.test.res
-│       ├── UtilityBar_v.test.bs.js
 │       ├── UtilityBar_v.test.res
 │       ├── utils
 │       │   ├── TestUtils.bs.js
 │       │   └── TestUtils.res
 │       ├── Version_v.test.bs.js
 │       ├── Version_v.test.res
-│       ├── VersionData_v.test.bs.js
-│       ├── VersionData_v.test.res
-│       ├── VideoEncoder_v.test.bs.js
 │       ├── VideoEncoder_v.test.res
 │       ├── ViewerFollow_v.test.bs.js
 │       ├── ViewerFollow_v.test.res
-│       ├── ViewerHUD_v.test.bs.js
 │       ├── ViewerHUD_v.test.res
-│       ├── ViewerLabelMenu_v.test.bs.js
 │       ├── ViewerLabelMenu_v.test.res
-│       ├── ViewerLoader_v.test.bs.js
 │       ├── ViewerLoader_v.test.res
-│       ├── ViewerManager_v.test.bs.js
 │       ├── ViewerManager_v.test.res
 │       ├── ViewerPool_v.test.bs.js
 │       ├── ViewerPool_v.test.res
@@ -6191,7 +4166,6 @@
 │       ├── ViewerState_v.test.res
 │       ├── ViewerTypes_v.test.bs.js
 │       ├── ViewerTypes_v.test.res
-│       ├── ViewerUI_v.test.bs.js
 │       ├── ViewerUI_v.test.res
 │       ├── VisualPipeline_v.test.bs.js
 │       ├── VisualPipeline_v.test.res
@@ -6200,4 +4174,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-211 directories, 5990 files
+190 directories, 3985 files

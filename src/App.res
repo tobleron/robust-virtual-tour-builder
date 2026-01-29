@@ -54,9 +54,9 @@ module InnerApp = {
       </div>
 
       /* Logic Controllers */
-      <NavigationController />
+      <Navigation.Controller />
       <ViewerManager />
-      <SimulationDriver />
+      <Simulation />
     </div>
   }
 }

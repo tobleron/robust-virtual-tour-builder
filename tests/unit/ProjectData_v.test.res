@@ -5,8 +5,8 @@ open ProjectData
 open Types
 
 let _ = describe("ProjectData", () => {
-  test("VersionData.version should exist", t => {
-    t->expect(VersionData.version != "")->Expect.toBe(true)
+  test("Version.version should exist", t => {
+    t->expect(Version.version != "")->Expect.toBe(true)
   })
 
   test("sanitizeLoadedScenes handles empty array", t => {

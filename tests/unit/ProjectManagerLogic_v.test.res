@@ -1,5 +1,5 @@
 open Vitest
-open ProjectManagerLogic
+open ProjectManager.Logic
 
 /* Mock setup */
 %%raw(`

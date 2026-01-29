@@ -1,5 +1,5 @@
 // @efficiency: infra-adapter
-use crate::models::user::User;
+use crate::models::User;
 use crate::services::auth::jwt::decode_token;
 use actix_web::{
     Error, HttpMessage, HttpResponse,

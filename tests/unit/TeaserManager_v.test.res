@@ -1,6 +1,6 @@
 open Vitest
-open TeaserManager
-open TeaserState
+open Teaser.Manager
+open Teaser.State
 
 /* Types */
 type mockFn

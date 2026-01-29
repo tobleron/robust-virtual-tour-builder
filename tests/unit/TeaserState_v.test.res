@@ -1,5 +1,5 @@
 open Vitest
-open TeaserState
+open Teaser.State
 
 describe("TeaserState", () => {
   test("getConfigForStyle returns correct config", t => {

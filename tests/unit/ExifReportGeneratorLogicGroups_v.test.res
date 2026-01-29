@@ -1,6 +1,5 @@
 open Vitest
-open ExifReportGeneratorLogicGroups
-open ExifReportGeneratorTypes
+open ExifReportGenerator.Groups
 open SharedTypes
 
 /* Mocks */
@@ -23,7 +22,14 @@ type mockFn
 external mockGetCameraSignature: mockFn = "getCameraSignature"
 
 /* Helper to create mock result */
-let createMockResult = (~name, ~make=?, ~model=?, ~gps=?, ~score=10.0, ()) => {
+let createMockResult = (
+  ~name,
+  ~make=?,
+  ~model=?,
+  ~gps=?,
+  ~score=10.0,
+  (),
+): ExifReportGenerator.ExifReportGeneratorTypes.exifResult => {
   let exif: exifMetadata = {
     ...SharedTypes.defaultExif,
     make: Nullable.fromOption(make),
@@ -35,7 +41,6 @@ let createMockResult = (~name, ~make=?, ~model=?, ~gps=?, ~score=10.0, ()) => {
     ...SharedTypes.defaultQuality(""),
     score,
   }
-
   {
     filename: name,
     exifData: exif,

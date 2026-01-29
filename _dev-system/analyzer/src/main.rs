@@ -21,10 +21,21 @@ use drivers::config::analyze_config;
 #[derive(Debug, Deserialize)]
 struct EfficiencyConfig {
     settings: Settings,
+    templates: Templates,
     exclusion_rules: ExclusionRules,
     profiles: HashMap<String, Profile>,
     taxonomy: HashMap<String, TaxonomyRole>,
     exceptions: Option<Vec<ExceptionRule>>,
+}
+
+#[derive(Debug, Deserialize)]
+struct Templates {
+    legend: String,
+    surgical_objective: String,
+    violation_objective: String,
+    structural_objective: String,
+    merge_objective: String,
+    ambiguity_objective: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -39,9 +50,6 @@ struct ExceptionRule {
     pattern: String,
     max_loc: Option<usize>,
     multiplier: Option<f64>,
-    drag_ceiling: Option<f64>,
-    allow_patterns: Option<Vec<String>>,
-    reason: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -49,7 +57,11 @@ struct Settings {
     base_loc_limit: usize,
     hard_ceiling_loc: usize,
     soft_floor_loc: usize,
-    max_depth_threshold: usize,
+    max_session_complexity: f64,
+    merge_score_threshold: f64,
+    nesting_weight: f64,
+    density_weight: f64,
+    drag_target: f64,
 }
 
 #[derive(Debug, Deserialize)]
@@ -61,31 +73,27 @@ struct Profile {
 #[derive(Debug, Deserialize)]
 struct TaxonomyRole {
     multiplier: f64,
+    desc: Option<String>,
 }
 
 #[derive(Debug, Clone, serde::Serialize)]
 enum WorkUnit {
     Ambiguity { file: String },
-    Violation { file: String, pattern: String, severity: String },
-    Surgical { file: String, action: String, reason: String },
-    Merge { folder: String, files: Vec<String>, reason: String },
-    Structural { file: String, action: String, reason: String },
+    Violation { file: String, pattern: String },
+    Surgical { file: String, action: String, reason: String, platform: String, complexity: f64 },
+    Merge { folder: String, files: Vec<String>, reason: String, platform: String },
+    Structural { file: String, action: String, reason: String, platform: String },
 }
 
 fn is_project_source(path: &Path, rules: &ExclusionRules) -> bool {
     let p_str = path.to_string_lossy().replace("\\", "/");
     let file_name = path.file_name().unwrap_or_default().to_string_lossy();
     let ext = path.extension().and_then(|s| s.to_str()).unwrap_or("");
-    
-    // Core Logic Only: res and rs.
     let valid_extensions = ["rs", "res"];
-    
     if !valid_extensions.contains(&ext) { return false; }
-    
     for folder in &rules.folders { if p_str.contains(folder) { return false; } }
     for file in &rules.files { if file_name == *file { return false; } }
     for suffix in &rules.extensions { if file_name.ends_with(suffix) { return false; } }
-    
     true
 }
 
@@ -93,8 +101,6 @@ fn infer_taxonomy(path: &Path, content: &str) -> String {
     let p = path.to_string_lossy().to_lowercase();
     let f = path.file_name().unwrap_or_default().to_string_lossy().to_lowercase();
     let ext = path.extension().and_then(|s| s.to_str()).unwrap_or("");
-
-    // Skip efficiency headers for data files that don't support custom fields reliably
     if ext != "json" && ext != "yaml" {
         match parse_header(content) {
             EfficiencyOverride::Ignore => return "ignored".to_string(),
@@ -102,10 +108,7 @@ fn infer_taxonomy(path: &Path, content: &str) -> String {
             _ => {}
         }
     }
-
-    if f == "cargo.toml" || f == "package.json" || f.contains("config") || p.contains("/scripts/") || ext == "json" || ext == "toml" || ext == "yaml" { 
-        return "infra-config".to_string(); 
-    }
+    if f == "cargo.toml" || f == "package.json" || f.contains("config") || p.contains("/scripts/") || ext == "json" || ext == "toml" || ext == "yaml" { return "infra-config".to_string(); }
     if f == "main.rs" || f == "lib.rs" || f == "mod.rs" || f == "main.res" || f == "app.res" || p.contains("actions") || p.contains("serviceworker") { return "orchestrator".to_string(); }
     if p.contains("/systems/") || p.contains("logic") || p.contains("manager") { return "service-orchestrator".to_string(); }
     if p.contains("/core/") && !p.contains("types") { return "domain-logic".to_string(); }
@@ -114,38 +117,135 @@ fn infer_taxonomy(path: &Path, content: &str) -> String {
     if p.contains("types") || p.contains("models") || p.contains("schemas") { return "data-model".to_string(); }
     if p.contains("api") || p.contains("client") || p.contains("bindings") || p.contains("context") { return "infra-adapter".to_string(); }
     if p.contains("utils") || p.contains("helpers") { return "util-pure".to_string(); }
-
     "unknown".to_string()
 }
 
-fn get_legend() -> &'static str {
-    r#"## 📚 LEGEND & DEFINITIONS
-*   **LOC (Lines of Code):** Source lines excluding comments and whitespace.
-*   **Drag:** A calculated resistance metric based on nesting depth, logic density, and complexity penalties. Higher drag reduces the allowed LOC.
-*   **Limit:** The dynamic LOC limit for a specific file, calculated as `(Base_Limit * Role_Multiplier) / Drag`.
-*   **Role:** The architectural classification (e.g., `orchestrator`, `ui-component`) which determines the base allowed size.
-*   **Pattern:** A specific code construct (e.g., `unwrap`, `!important`) that is restricted or forbidden.
+fn sync_architectural_category(category_name: &str, platform: &str, units: &[String], objective: &str) -> Result<()> {
+    if units.is_empty() { return Ok(()); }
+    let pending_dir = "../../tasks/pending";
+    let platform_label = if platform.is_empty() { "".to_string() } else { format!("_{}", platform.to_uppercase()) };
+    let full_category_name = format!("{}{}", category_name, platform_label);
+    let mut existing_path = None;
+    if let Ok(entries) = fs::read_dir(pending_dir) {
+        for entry in entries.filter_map(|e| e.ok()) {
+            let name = entry.file_name().to_string_lossy().into_owned();
+            if name.contains(&full_category_name) { existing_path = Some(entry.path()); break; }
+        }
+    }
+    
+    let (path, id) = if let Some(p) = existing_path {
+        let id_str = p.file_name().unwrap().to_string_lossy().split('_').next().unwrap_or("0").to_string();
+        (p, id_str)
+    } else {
+        let mut max_id = 0;
+        for dir in ["../../tasks/pending", "../../tasks/active", "../../tasks/completed", "../../tasks/postponed"] {
+            if let Ok(entries) = fs::read_dir(dir) {
+                for entry in entries.filter_map(|e| e.ok()) {
+                    if let Some(id_str) = entry.file_name().to_string_lossy().split('_').next() {
+                         if let Ok(id) = id_str.parse::<usize>() { if id > max_id { max_id = id; } }
+                    }
+                }
+            }
+        }
+        let next_id = max_id + 1;
+        (Path::new(pending_dir).join(format!("{:03}_{}.md", next_id, full_category_name)), format!("{:03}", next_id))
+    };
 
----
-
-"#
+    let mut file = fs::File::create(path)?;
+    file.write_all(format!("# Task {}: {}\n\n## Objective\n{}\n\n## Tasks\n", id, full_category_name.replace("_", " "), objective).as_bytes())?;
+    for f in units { file.write_all(format!("- [ ] {}\n", f).as_bytes())?; }
+    Ok(())
 }
 
-fn flush_plans(buffer: &HashMap<String, Vec<WorkUnit>>) -> Result<()> {
+fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>, config: &EfficiencyConfig) -> Result<()> {
+    let mut ambiguities = Vec::new();
+    let mut violations_fe = Vec::new();
+    let mut violations_be = Vec::new();
+    let mut structural_fe = Vec::new();
+    let mut structural_be = Vec::new();
+    let mut merges_fe = Vec::new();
+    let mut merges_be = Vec::new();
+    let mut surgical_fe_units = Vec::new();
+    let mut surgical_be_units = Vec::new();
+
+    for units in buffer.values() {
+        for unit in units {
+            match unit {
+                WorkUnit::Ambiguity { file } => ambiguities.push(format!("`{}`", file)),
+                WorkUnit::Violation { file, pattern } => {
+                    let item = format!("`{}` (Pattern: `{}`)", file, pattern);
+                    if file.contains("backend") || file.ends_with(".rs") { violations_be.push(item); } else { violations_fe.push(item); }
+                },
+                WorkUnit::Surgical { file, reason, platform, complexity, .. } => {
+                    let item = format!("**{}** - {}", file, reason);
+                    if platform == "backend" { surgical_be_units.push((item, *complexity)); } 
+                    else { surgical_fe_units.push((item, *complexity)); }
+                },
+                WorkUnit::Structural { file, reason, platform, .. } => {
+                    let item = format!("**{}** - {}", file, reason);
+                    if platform == "backend" { structural_be.push(item); } else { structural_fe.push(item); }
+                },
+                WorkUnit::Merge { folder, reason, platform, .. } => {
+                    let item = format!("Folder: `{}` - {}", folder, reason);
+                    if platform == "backend" { merges_be.push(item); } else { merges_fe.push(item); }
+                },
+            }
+        }
+    }
+
+    let surgical_obj = config.templates.surgical_objective
+        .replace("{nesting_w}", &format!("{:.2}", config.settings.nesting_weight))
+        .replace("{density_w}", &format!("{:.2}", config.settings.density_weight))
+        .replace("{drag_t}", &format!("{:.2}", config.settings.drag_target));
+
+    let merge_obj = config.templates.merge_objective
+        .replace("{merge_t}", &format!("{:.2}", config.settings.merge_score_threshold));
+
+    let mut role_list = String::new();
+    for (role, data) in &config.taxonomy {
+        role_list.push_str(&format!("*   **{}**: {}\n", role, data.desc.as_ref().cloned().unwrap_or_default()));
+    }
+    let ambiguity_obj = config.templates.ambiguity_objective.replace("{roles}", &role_list);
+
+    let max_complexity = config.settings.max_session_complexity;
+    let sync_surgical = |units: Vec<(String, f64)>, platform: &str| -> Result<()> {
+        let mut batch = Vec::new();
+        let mut current_complexity = 0.0;
+        let mut batch_idx = 1;
+        for (unit, comp) in units {
+            if current_complexity + comp > max_complexity && !batch.is_empty() {
+                sync_architectural_category(&format!("Surgical_Refactor_Batch_{}", batch_idx), platform, &batch, &surgical_obj)?;
+                batch.clear(); current_complexity = 0.0; batch_idx += 1;
+            }
+            batch.push(unit); current_complexity += comp;
+        }
+        if !batch.is_empty() { sync_architectural_category(&format!("Surgical_Refactor_Batch_{}", batch_idx), platform, &batch, &surgical_obj)?; }
+        Ok(())
+    };
+
+    sync_architectural_category("Classify_Ambiguous_Files", "", &ambiguities, &ambiguity_obj)?;
+    sync_architectural_category("Fix_Violations", "Frontend", &violations_fe, &config.templates.violation_objective)?;
+    sync_surgical(surgical_fe_units, "Frontend")?;
+    sync_architectural_category("Structural_Refactor", "Frontend", &structural_fe, &config.templates.structural_objective)?;
+    sync_architectural_category("Merge_Folders", "Frontend", &merges_fe, &merge_obj)?;
+    sync_architectural_category("Fix_Violations", "Backend", &violations_be, &config.templates.violation_objective)?;
+    sync_surgical(surgical_be_units, "Backend")?;
+    sync_architectural_category("Structural_Refactor", "Backend", &structural_be, &config.templates.structural_objective)?;
+    sync_architectural_category("Merge_Folders", "Backend", &merges_be, &merge_obj)?;
+    Ok(())
+}
+
+fn flush_plans(buffer: &HashMap<String, Vec<WorkUnit>>, config: &EfficiencyConfig) -> Result<()> {
     for (driver_name, units) in buffer {
         if units.is_empty() { continue; } 
-        
         let plan_path = format!("../plans/{}_PLAN.md", driver_name.to_uppercase());
-        let mut file = OpenOptions::new().create(true).truncate(true).write(true).open(plan_path).context("Open fail")?;
-
+        let mut file = OpenOptions::new().create(true).truncate(true).write(true).open(&plan_path).context("Open fail")?;
         file.write_all(format!("# {} MASTER PLAN\n", driver_name.to_uppercase()).as_bytes())?;
-        file.write_all(get_legend().as_bytes())?;
+        file.write_all(config.templates.legend.as_bytes())?;
 
-        // 1. AMBIGUITIES (Aggregated)
         let ambiguities: Vec<&WorkUnit> = units.iter().filter(|u| matches!(u, WorkUnit::Ambiguity { .. })).collect();
         if !ambiguities.is_empty() {
             file.write_all(format!("## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION ({})\n", ambiguities.len()).as_bytes())?;
-            file.write_all(b"**Action:** The AI Agent must analyze these files and update `_dev-system/config/efficiency.json` or add `@efficiency` headers (EXCLUDING .json and .yaml files).\n\n")?;
             for unit in ambiguities {
                 if let WorkUnit::Ambiguity { file: f_path } = unit {
                     file.write_all(format!("- [ ] `{}`\n", f_path).as_bytes())?;
@@ -154,66 +254,34 @@ fn flush_plans(buffer: &HashMap<String, Vec<WorkUnit>>) -> Result<()> {
             file.write_all(b"\n---\n\n")?;
         }
 
-        // 2. VIOLATIONS (Aggregated by Pattern)
-        let violations: Vec<&WorkUnit> = units.iter().filter(|u| matches!(u, WorkUnit::Violation { .. })).collect();
-        if !violations.is_empty() {
-            file.write_all(format!("## 🚨 CRITICAL VIOLATIONS ({})\n", violations.len()).as_bytes())?;
-            file.write_all(b"**Action:** Fix these patterns immediately using project standards.\n\n")?;
-            
-            let mut by_pattern: HashMap<String, Vec<String>> = HashMap::new();
-            for unit in &violations {
-                if let WorkUnit::Violation { file, pattern, .. } = unit {
-                    by_pattern.entry(pattern.clone()).or_default().push(file.clone());
-                }
-            }
-
-            for (pattern, files) in by_pattern {
-                file.write_all(format!("### Pattern: `{}`\n", pattern).as_bytes())?;
-                for f in files {
-                    file.write_all(format!("- [ ] `{}`\n", f).as_bytes())?;
-                }
-                file.write_all(b"\n")?;
-            }
-            file.write_all(b"---\n\n")?;
-        }
-
-        // 3. SURGICAL TASKS (Aggregated)
         let surgicals: Vec<&WorkUnit> = units.iter().filter(|u| matches!(u, WorkUnit::Surgical { .. })).collect();
         if !surgicals.is_empty() {
             file.write_all(format!("## 🛠️ SURGICAL REFACTOR TASKS ({})\n", surgicals.len()).as_bytes())?;
-            file.write_all(b"**Action:** Extract logic to new modules to reduce complexity/bloat.\n")?;
-            file.write_all(b"**Target:** To be determined by AI Agent (Create new modules as needed).\n\n")?;
-            
             for unit in surgicals {
-                if let WorkUnit::Surgical { file: f_path, action: _, reason } = unit {
+                if let WorkUnit::Surgical { file: f_path, reason, .. } = unit {
                     file.write_all(format!("- [ ] **{}**\n  - *Reason:* {}\n", f_path, reason).as_bytes())?;
                 }
             }
             file.write_all(b"\n---\n\n")?;
         }
 
-        // 4. STRUCTURAL TASKS
         let structural: Vec<&WorkUnit> = units.iter().filter(|u| matches!(u, WorkUnit::Structural { .. })).collect();
         if !structural.is_empty() {
             file.write_all(format!("## 🏗️ STRUCTURAL REFACTOR TASKS ({})\n", structural.len()).as_bytes())?;
-            file.write_all(b"**Action:** Implement Vertical Slicing to reduce directory traversal overhead.\n\n")?;
             for unit in structural {
-                if let WorkUnit::Structural { file: feature, action, reason } = unit {
-                    file.write_all(format!("- [ ] **{}** (Action: {})\n  - *Reason:* {}\n", feature, action, reason).as_bytes())?;
+                if let WorkUnit::Structural { file: f, action, reason, .. } = unit {
+                    file.write_all(format!("- [ ] **{}** (Action: {})\n  - *Reason:* {}\n", f, action, reason).as_bytes())?;
                 }
             }
             file.write_all(b"\n---\n\n")?;
         }
 
-        // 5. MERGE TASKS
         let merges: Vec<&WorkUnit> = units.iter().filter(|u| matches!(u, WorkUnit::Merge { .. })).collect();
         if !merges.is_empty() {
             file.write_all(format!("## 🧩 MERGE TASKS ({})\n", merges.len()).as_bytes())?;
             for unit in merges {
-                if let WorkUnit::Merge { folder, files, reason } = unit {
-                    file.write_all(format!("### Merge Folder: `{}`\n", folder).as_bytes())?;
-                    file.write_all(format!("- **Reason:** {}\n", reason).as_bytes())?;
-                    file.write_all("- **Files:**\n".to_string().as_bytes())?;
+                if let WorkUnit::Merge { folder, files, reason, .. } = unit {
+                    file.write_all(format!("### Merge Folder: `{}`\n- **Reason:** {}\n- **Files:**\n", folder, reason).as_bytes())?;
                     for f in files {
                         file.write_all(format!("  - `{}`\n", f).as_bytes())?;
                     }
@@ -224,169 +292,29 @@ fn flush_plans(buffer: &HashMap<String, Vec<WorkUnit>>) -> Result<()> {
     Ok(())
 }
 
-fn sync_architectural_category(category_name: &str, units: &[String], objective: &str) -> Result<()> {
-    if units.is_empty() { return Ok(()); }
-
-    let pending_dir = "../../tasks/pending";
-    let active_dir = "../../tasks/active";
-    let postponed_dir = "../../tasks/postponed";
-    
-    let mut existing_path = None;
-    for dir in [pending_dir, active_dir, postponed_dir] {
-        if let Ok(entries) = fs::read_dir(dir) {
-            for entry in entries.filter_map(|e| e.ok()) {
-                let name = entry.file_name().to_string_lossy().into_owned();
-                if name.contains(category_name) {
-                    existing_path = Some(entry.path());
-                    break;
-                }
-            }
-        }
-        if existing_path.is_some() { break; }
-    }
-
-    if let Some(path) = existing_path {
-        let current_content = fs::read_to_string(&path).unwrap_or_default();
-        
-        // Update Objective if changed (Standardize Header)
-        let header_end = current_content.find("## Tasks").unwrap_or(0);
-        let new_header = format!("# Task {}: {}\n\n## Objective\n{}\n\n## Tasks\n", path.file_name().unwrap_or_default().to_string_lossy().split('_').next().unwrap_or("0"), category_name.replace("_", " "), objective);
-        
-        let content_after_header = if header_end > 0 { &current_content[header_end + 8..] } else { &current_content };
-        
-        let mut to_append = Vec::new();
-        for unit in units {
-            if !current_content.contains(unit) {
-                 to_append.push(unit);
-            }
-        }
-        
-        // Rewrite file with new header and existing tasks + new tasks
-        let mut new_full_content = new_header.clone();
-        new_full_content.push_str(content_after_header);
-        for f in to_append {
-            if !new_full_content.ends_with('\n') { new_full_content.push('\n'); }
-            new_full_content.push_str(&format!("- [ ] {}\n", f));
-        }
-        
-        fs::write(path, new_full_content)?;
-    } else {
-        let mut max_id = 0;
-        let scan_dirs = vec!["../../tasks/pending", "../../tasks/active", "../../tasks/completed", "../../tasks/postponed"];
-        for dir in scan_dirs {
-            if let Ok(entries) = fs::read_dir(dir) {
-                for entry in entries.filter_map(|e| e.ok()) {
-                    let name = entry.file_name().to_string_lossy().into_owned();
-                    if let Some(id_str) = name.split('_').next() {
-                         if let Ok(id) = id_str.parse::<usize>() {
-                             if id > max_id { max_id = id; }
-                         }
-                    }
-                }
-            }
-        }
-        let next_id = max_id + 1;
-        let new_path = format!("{}/{:03}_{}.md", pending_dir, next_id, category_name);
-        let mut file = fs::File::create(new_path)?;
-        file.write_all(format!("# Task {}: {}\n\n## Objective\n{}\n\n## Tasks\n", next_id, category_name.replace("_", " "), objective).as_bytes())?;
-        for f in units {
-            file.write_all(format!("- [ ] {}\n", f).as_bytes())?;
-        }
-    }
-    Ok(())
-}
-
-fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>) -> Result<()> {
-    let mut ambiguities = Vec::new();
-    let mut violations = Vec::new();
-    let mut surgical = Vec::new();
-    let mut structural = Vec::new();
-    let mut merges = Vec::new();
-
-    for units in buffer.values() {
-        for unit in units {
-            match unit {
-                WorkUnit::Ambiguity { file } => ambiguities.push(format!("`{}`", file)),
-                WorkUnit::Violation { file, pattern, .. } => violations.push(format!("`{}` (Pattern: `{}`)", file, pattern)),
-                WorkUnit::Surgical { file, reason, .. } => surgical.push(format!("**{}** - *Reason:* {}", file, reason)),
-                WorkUnit::Structural { file, reason, .. } => structural.push(format!("**{}** - *Reason:* {}", file, reason)),
-                WorkUnit::Merge { folder, reason, .. } => merges.push(format!("Folder: `{}` - *Reason:* {}", folder, reason)),
-            }
-        }
-    }
-
-    sync_architectural_category(
-        "Classify_Ambiguous_Files", 
-        &ambiguities, 
-        "Analyze and classify unidentified source files into the efficiency taxonomy. \n\n**Action Steps:**\n1. Review the listed files.\n2. Add `@efficiency` headers or update `_dev-system/config/efficiency.json` to assign a role (e.g., 'ui-component', 'domain-logic').\n3. Ensure unidentified files are brought into the tracking system."
-    )?;
-    
-    sync_architectural_category(
-        "Fix_Critical_Violations", 
-        &violations, 
-        "Resolve forbidden patterns and critical LOC violations across the project. \n\n**Action Steps:**\n1. Locate the file and violation pattern (e.g., `unwrap()`, `mutable`).\n2. Refactor to use safe patterns (e.g., `Option/Result` mapping, immutable data structures).\n3. Verify that the pattern is completely removed."
-    )?;
-    
-    sync_architectural_category(
-        "Surgical_Refactor_Modules", 
-        &surgical, 
-        "Break down oversized or high-drag modules into smaller, more specialized units. \n\n**Action Steps:**\n1. Identify logical clusters within the oversized file.\n2. Extract these clusters into new modules (e.g., `ModuleTypes.res`, `ModuleLogic.res`).\n3. Use the original file as a facade/index if necessary to avoid breaking external imports.\n4. Aim for < 500 LOC per file."
-    )?;
-    
-    sync_architectural_category(
-        "Structural_Vertical_Slicing", 
-        &structural, 
-        "Implement vertical slicing for fragmented features spread across multiple folders. \n\n**Action Steps:**\n1. Locate all files related to the specific feature (e.g., Reducer, UI, API Logic).\n2. Create a single folder for the feature (e.g., `src/features/FeatureName`).\n3. Move all related files into this folder.\n4. Update all imports/dependencies to point to the new location."
-    )?;
-    
-    sync_architectural_category(
-        "Merge_Fragmented_Folders", 
-        &merges, 
-        "Consolidate folders containing many small files (high 'Read Tax') into single cohesive modules. \n\n**Action Steps:**\n1. Analyze the files in the directory. If they represent a single logical unit, merge them into one file (e.g., `Reducers.res`).\n2. Update all external references to the new consolidated file.\n3. Delete the original fragmented files and their empty parent directories.\n4. This reduces the cognitive overhead of 'directory hopping'."
-    )?;
-
-    Ok(())
-}
-
 fn main() -> Result<()> {
     println!("🚀 _dev-system: Starting AGGREGATED Scan (v8)...");
-    
     let guard_config = guard::GuardConfig::default();
-    
-    // 1. Check Tasks (Maintenance)
-    let _ = guard::check_tasks_count(&guard_config);
-
     let config_raw = fs::read_to_string("../config/efficiency.json")?;
     let config: EfficiencyConfig = serde_json::from_str(&config_raw)?;
-    let _ = fs::create_dir_all("../plans");
-
     let mut buffer: HashMap<String, Vec<WorkUnit>> = HashMap::new();
-    let mut dir_stats: HashMap<String, Vec<(String, usize)>> = HashMap::new();
-    let mut feature_map: HashMap<String, Vec<String>> = HashMap::new(); // For Vertical Slicing detection
+    let mut dir_stats: HashMap<String, Vec<(String, usize, String)>> = HashMap::new();
+    let mut feature_map: HashMap<String, Vec<(String, String)>> = HashMap::new(); 
+    let default_dict: HashMap<String, f64> = HashMap::new();
 
     for entry in WalkDir::new("../../").into_iter().filter_map(|e| e.ok()) {
         let path = entry.path();
-        let path_str = path.to_string_lossy().replace("\\", "/");
-        
-        if path_str.contains("/tests/") || !path.is_file() || !is_project_source(path, &config.exclusion_rules) { continue; }
-        
+        if path.to_string_lossy().contains("/tests/") || !path.is_file() || !is_project_source(path, &config.exclusion_rules) { continue; }
         let mut content = String::new();
         if let Ok(mut f) = fs::File::open(path) { let _ = f.read_to_string(&mut content); } else { continue; }
-        
         let taxonomy = infer_taxonomy(path, &content);
         if taxonomy == "ignored" { continue; }
         let ext = path.extension().and_then(|s| s.to_str()).unwrap_or("");
         let d_name = match ext { "rs" => "rust", "res" => "rescript", "jsx"|"js"|"html" => "web", "css" => "css", _ => "config" };
-
-        if taxonomy == "unknown" {
-            buffer.entry("system".to_string()).or_default().push(WorkUnit::Ambiguity { file: path.to_string_lossy().to_string() });
-            continue;
-        }
-
-        // 1. METRICS
-        let default_dict = HashMap::new();
+        let platform = if ext == "rs" || path.to_string_lossy().contains("backend") { "backend" } else { "frontend" };
+        if taxonomy == "unknown" { buffer.entry("system".to_string()).or_default().push(WorkUnit::Ambiguity { file: path.to_string_lossy().to_string() }); continue; }
+        
         let dict = config.profiles.get(d_name).map(|p| &p.complexity_dictionary).unwrap_or(&default_dict);
-
         let metrics = match d_name {
             "rust" => analyze_rust(&content, dict).unwrap_or_default(),
             "rescript" => analyze_rescript(&content, dict).unwrap_or_default(),
@@ -394,168 +322,70 @@ fn main() -> Result<()> {
             "css" => analyze_css(&content, dict).unwrap_or_default(),
             _ => analyze_config(&content, dict).unwrap_or_default(),
         };
-
         if metrics.loc == 0 { continue; }
-
-        // Core Guard: Check Tests
+        
         let _ = guard::check_tests(&guard_config, path);
-
-        // 2. VIOLATIONS (with Amnesty)
-        let is_binding = content.contains("@val") || content.contains("@send") || path.to_string_lossy().contains("bindings");
-        let mut allowed_violations: Vec<String> = Vec::new();
-
-        let path_str = path.to_string_lossy().replace("\\", "/"); 
-        let mut current_exception: Option<&ExceptionRule> = None;
-
-        if let Some(exceptions) = &config.exceptions {
-            for rule in exceptions {
-                let clean_pattern = rule.pattern.replace("\\", "/");
-                if path_str.contains(&clean_pattern) || glob::Pattern::new(&clean_pattern).map(|p| p.matches(&path_str)).unwrap_or(false) {
-                    current_exception = Some(rule);
-                    if let Some(am) = &rule.allow_patterns { allowed_violations.extend(am.clone()); }
-                    break;
-                }
-            }
-        }
 
         if let Some(profile) = config.profiles.get(d_name) {
             let stripped = drivers::strip_code(&content);
             for pattern in &profile.forbidden_patterns {
-                if is_binding && (pattern == "mutable " || pattern == "Obj.magic") { continue; }
-                if allowed_violations.contains(pattern) { continue; } // Amnesty
-                
                 if stripped.contains(pattern) {
-                    buffer.entry(d_name.to_string()).or_default().push(WorkUnit::Violation { file: path.to_string_lossy().to_string(), pattern: pattern.clone(), severity: "CRITICAL".to_string() });
+                    buffer.entry(d_name.to_string()).or_default().push(WorkUnit::Violation { file: path.to_string_lossy().to_string(), pattern: pattern.clone() });
                 }
             }
         }
 
-        // 3. LIMITS & EXCEPTIONS (AI-Optimized Math)
         let mut p_mod = config.taxonomy.get(&taxonomy).map(|t| t.multiplier).unwrap_or(1.0);
-        let mut reason_prefix = String::new();
-        let mut exception_limit: Option<usize> = None;
-        let mut drag_ceiling: Option<f64> = None;
-
-        if let Some(rule) = current_exception {
-            if let Some(m) = rule.multiplier { p_mod *= m; }
-            if let Some(max) = rule.max_loc { exception_limit = Some(max); }
-            if let Some(dc) = rule.drag_ceiling { drag_ceiling = Some(dc); }
-            reason_prefix = format!("[Exception: {}] ", rule.reason);
-        }
-
-        let density = if metrics.loc > 0 { metrics.logic_count as f64 / metrics.loc as f64 } else { 0.0 };
-        
-        // AI-Native logic: 
-        // 1. Nesting cost is non-linear (AI loses state)
-        // 2. Cohesion bonus: If (External_Calls / LOC) is low, the file can be larger
-        let dependency_density = metrics.external_calls as f64 / metrics.loc.max(1) as f64;
-        let cohesion_bonus = 1.0 + (0.5 - dependency_density).max(0.0); // Up to 50% bonus for low density
-
-        // Traversal Penalty: Depths > Threshold increase Drag
-        // Accurate depth: strip the "../../" prefix before counting components
-        let clean_path = if path_str.starts_with("../../") { &path_str[6..] } else { &path_str };
-        let depth = Path::new(clean_path).components().count().saturating_sub(1); // sub 1 because we don't count the file itself as a depth level
-        
-        let depth_penalty = if depth > config.settings.max_depth_threshold {
-            (depth - config.settings.max_depth_threshold) as f64 * 0.25
-        } else {
-            0.0
-        };
-
-        let drag = 1.0 + (metrics.max_nesting as f64 * 0.15) + (density * 2.0) + metrics.complexity_penalty + depth_penalty;
-        
-        // Formula Revision: Drag^1.5 significantly tightens window for complex files
+        if let Some(exceptions) = &config.exceptions { for rule in exceptions { if path.to_string_lossy().contains(&rule.pattern) { if let Some(m) = rule.multiplier { p_mod *= m; } break; } } }
+        let density = metrics.logic_count as f64 / metrics.loc as f64;
+        let dependency_density = metrics.external_calls as f64 / metrics.loc as f64;
+        let cohesion_bonus = 1.0 + (0.5 - dependency_density).max(0.0);
+        let drag = 1.0 + (metrics.max_nesting as f64 * config.settings.nesting_weight) + (density * config.settings.density_weight) + metrics.complexity_penalty;
         let mut limit = ((config.settings.base_loc_limit as f64 * p_mod * cohesion_bonus) / drag.powf(1.5)).max(config.settings.soft_floor_loc as f64) as usize;
-        
-        if let Some(max) = exception_limit {
-            limit = max;
-        }
-
-        // Hard Ceiling Clamp: Never allow a file to exceed the cognitive window limit
+        if let Some(exceptions) = &config.exceptions { for rule in exceptions { if path.to_string_lossy().contains(&rule.pattern) { if let Some(max) = rule.max_loc { limit = max; } break; } } }
         limit = limit.min(config.settings.hard_ceiling_loc);
-
-        let loc_violation = metrics.loc > limit;
-        let ceiling_violation = drag_ceiling.map(|c| drag > c).unwrap_or(false);
-
-        if loc_violation || ceiling_violation {
-            let mut reason = if loc_violation {
-                if exception_limit.is_some() {
-                    format!("{}LOC {} > Exception Limit {}", reason_prefix, metrics.loc, limit)
-                } else {
-                    format!("{}LOC {} > Limit {} (Role: {}, Drag: {:.2})", reason_prefix, metrics.loc, limit, taxonomy, drag)
-                }
-            } else {
-                format!("{}Drag {:.2} > Ceiling {} [Strict Path]", reason_prefix, drag, drag_ceiling.unwrap())
-            };
-
-            if let Some((start, end)) = metrics.hotspot_lines {
-                reason = format!("{}\n    🔥 Hotspot: Lines {}-{} ({})", reason, start, end, metrics.hotspot_reason.unwrap_or_default());
-            }
-
-            buffer.entry(d_name.to_string()).or_default().push(WorkUnit::Surgical {
-                file: path.to_string_lossy().to_string(),
-                action: "De-bloat".to_string(),
-                reason,
+        if metrics.loc > limit {
+            let nesting_factor = metrics.max_nesting as f64 * config.settings.nesting_weight;
+            let density_factor = density * config.settings.density_weight;
+            let breakdown = format!("[Nesting: {:.2}, Density: {:.2}, Deps: {:.2}] | Drag: {:.2} | LOC: {}/{}", 
+                nesting_factor, density_factor, dependency_density, drag, metrics.loc, limit);
+            let mut reason = breakdown;
+            if let Some((s, e)) = metrics.hotspot_lines { reason = format!("{}  Hotspot: Lines {}-{} ({})", reason, s, e, metrics.hotspot_reason.unwrap_or_default()); }
+            let complexity = ((metrics.loc - limit) as f64 / 10.0) + drag;
+            buffer.entry(d_name.to_string()).or_default().push(WorkUnit::Surgical { file: path.to_string_lossy().to_string(), action: "De-bloat".to_string(), reason, platform: platform.to_string(), complexity });
+        }
+        dir_stats.entry(path.parent().unwrap().to_string_lossy().to_string()).or_default().push((path.file_name().unwrap().to_string_lossy().to_string(), metrics.loc, platform.to_string()));
+        let file_stem = path.file_stem().unwrap_or_default().to_string_lossy().to_string();
+        if file_stem.len() > 3 { feature_map.entry(file_stem).or_default().push((path.to_string_lossy().to_string(), platform.to_string())); }
+    }
+    for (dir, files) in dir_stats {
+        let total: usize = files.iter().map(|(_,l,_)| *l).sum();
+        let score = calculate_merge_score(FolderStats { file_count: files.len(), total_loc: total });
+        if score > config.settings.merge_score_threshold {
+            buffer.entry("system".to_string()).or_default().push(WorkUnit::Merge { 
+                folder: dir, files: files.iter().map(|(n,_,_)| n.clone()).collect(), platform: files[0].2.clone(),
+                reason: format!("Read Tax high (Score {:.2}).", score) 
             });
         }
-
-        dir_stats.entry(path.parent().unwrap().to_string_lossy().to_string()).or_default().push((path.file_name().unwrap().to_string_lossy().to_string(), metrics.loc));
-
-        // Track features for fragmentation (Simple name-based heuristic)
-        let file_stem = path.file_stem().unwrap_or_default().to_string_lossy().to_string();
-        let feature_name = if file_stem.len() > 3 {
-            let mut result = String::new();
-            for (i, c) in file_stem.chars().enumerate() {
-                if i > 0 && c.is_uppercase() { break; }
-                result.push(c);
-            }
-            result
-        } else {
-            file_stem.clone()
-        };
-        if !feature_name.is_empty() {
-            feature_map.entry(feature_name).or_default().push(path.to_string_lossy().to_string());
-        }
     }
-
-    // 4. MERGE & STRUCTURE
-    for (dir, files) in dir_stats {
-        let total: usize = files.iter().map(|(_,l)| *l).sum();
-        let score = calculate_merge_score(FolderStats { 
-            file_count: files.len(), 
-            total_loc: total, 
-        });
-        if score > 1.0 {
-            let names: Vec<String> = files.iter().map(|(n,_)| n.clone()).collect();
-            buffer.entry("system".to_string()).or_default().push(WorkUnit::Merge { folder: dir, files: names, reason: format!("Score {:.2} > 1.0", score) });
-        }
-    }
-
     for (feature, paths) in feature_map {
         if paths.len() > 2 {
-            let mut folders: Vec<String> = paths.iter().map(|p| Path::new(p).parent().unwrap().to_string_lossy().to_string()).collect();
-            folders.sort();
-            folders.dedup();
+            let folders: Vec<String> = paths.iter().map(|(p, _)| Path::new(p).parent().unwrap().to_string_lossy().to_string()).collect();
             if folders.len() > 1 {
                 buffer.entry("system".to_string()).or_default().push(WorkUnit::Structural {
-                    file: feature.clone(),
-                    action: "Vertical Slice".to_string(),
-                    reason: format!("Feature '{}' spread across {} folders (Fragmentation Tax)", feature, folders.len())
+                    file: feature.clone(), action: "Vertical Slice".to_string(), platform: paths[0].1.clone(),
+                    reason: format!("Feature fragmented across {} folders.", folders.len())
                 });
             }
         }
     }
-
-    // 5. EXPORT METADATA (for Dashboard)
-    let json_data = serde_json::to_string_pretty(&buffer)?;
-    fs::write("../plans/metadata.json", json_data)?;
-
-    flush_plans(&buffer)?;
-    let _ = sync_all_architectural_tasks(&buffer);
-    
-    // Core Guard: Check Map
+    let _ = fs::create_dir_all("../plans");
+    let json_data = serde_json::to_string_pretty(&buffer).unwrap_or_default();
+    let _ = fs::write("../plans/metadata.json", json_data);
+    let _ = flush_plans(&buffer, &config);
+    let _ = sync_all_architectural_tasks(&buffer, &config);
     let _ = guard::check_map(&guard_config);
-
-    println!("✅ Scan v8 Complete. Fully Aggregated.");
+    let _ = guard::check_tasks_count(&guard_config);
     Ok(())
 }
+

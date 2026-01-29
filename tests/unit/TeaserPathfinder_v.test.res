@@ -1,6 +1,6 @@
 // @efficiency: infra-adapter
 open Vitest
-open TeaserPathfinder
+open Teaser.Pathfinder
 
 /* Types */
 type mockFn
@@ -23,7 +23,7 @@ type expectation
 
 @module("../../src/systems/BackendApi.bs.js") external mockCalculatePath: mockFn = "calculatePath"
 
-describe("TeaserPathfinder", () => {
+describe("Teaser.Pathfinder", () => {
   beforeEach(() => {
     let _ = %raw(`vi.clearAllMocks()`)
     mockCalculatePath->mockResolvedValue(Ok([]))
@@ -61,7 +61,7 @@ describe("TeaserPathfinder", () => {
   })
 
   testAsync("getWalkPath forwards BackendApi result", async t => {
-    let mockResult: array<TeaserPathfinder.step> = [
+    let mockResult: array<Teaser.Pathfinder.step> = [
       {
         idx: 1,
         transitionTarget: Some({

@@ -9,7 +9,7 @@ open Actions
 let useInitialization = () => {
   React.useEffect0(() => {
     let cleanupInput = InputSystem.initInputSystem()
-    NavigationRenderer.init() // Legacy init for now
+    Navigation.Renderer.init() // Legacy init for now
 
     let handleResize = _ => {
       let v = getActiveViewer()
@@ -72,15 +72,15 @@ let useInitialization = () => {
 let useSceneCleanup = (state: state) => {
   React.useEffect1(() => {
     if Belt.Array.length(state.scenes) == 0 {
-      ViewerPool.pool->Belt.Array.forEach(vVp => {
+      ViewerSystem.Pool.pool->Belt.Array.forEach(vVp => {
         switch vVp.instance {
-        | Some(instance) => PannellumAdapter.destroy(instance)
+        | Some(instance) => ViewerSystem.Adapter.destroy(instance)
         | None => ()
         }
         vVp.instance = None
       })
 
-      ViewerState.resetState()
+      ViewerSystem.resetState()
 
       let pA = Dom.getElementById("panorama-a")
       let pB = Dom.getElementById("panorama-b")
@@ -133,15 +133,15 @@ let useMainSceneLoading = (state: state, dispatch: action => unit) => {
         if !isLastIdValid {
           Logger.info(~module_="ViewerManagerLogic", ~message="PROJECT_CONTEXT_RESET", ())
 
-          ViewerPool.pool->Belt.Array.forEach(vVp => {
+          ViewerSystem.Pool.pool->Belt.Array.forEach(vVp => {
             switch vVp.instance {
-            | Some(instance) => PannellumAdapter.destroy(instance)
+            | Some(instance) => ViewerSystem.Adapter.destroy(instance)
             | None => ()
             }
             vVp.instance = None
           })
 
-          ViewerState.resetState()
+          ViewerSystem.resetState()
 
           let pA = Dom.getElementById("panorama-a")
           let pB = Dom.getElementById("panorama-b")
@@ -170,7 +170,7 @@ let useMainSceneLoading = (state: state, dispatch: action => unit) => {
           )
           dispatch(DispatchNavigationFsmEvent(UserClickedScene({targetSceneId: scene.id})))
         } else {
-          let v = ViewerState.getActiveViewer()
+          let v = ViewerSystem.getActiveViewer()
           switch Nullable.toOption(v) {
           | Some(viewer) =>
             if !state.isLinking {
@@ -188,7 +188,7 @@ let useMainSceneLoading = (state: state, dispatch: action => unit) => {
 
               HotspotManager.syncHotspots(viewer, state, scene, dispatch)
               HotspotLine.updateLines(viewer, state, ())
-              SceneSwitcher.handleAutoForward(dispatch, state, scene)
+              Scene.Switcher.handleAutoForward(dispatch, state, scene)
             }
           | None => ()
           }
@@ -219,7 +219,7 @@ let useHotspotSync = (state: state, dispatch: action => unit) => {
       )
       switch Belt.Array.get(state.scenes, state.activeIndex) {
       | Some(scene) =>
-        let v = ViewerState.getActiveViewer()
+        let v = ViewerSystem.getActiveViewer()
         switch Nullable.toOption(v) {
         | Some(viewer) =>
           // We don't trigger auto-forward here, only sync visual hotspots
@@ -247,7 +247,7 @@ let useRatchetState = (state: state) => {
 
       if !ViewerState.state.followLoopActive {
         ViewerState.state.followLoopActive = true
-        ViewerFollow.updateFollowLoop()
+        ViewerSystem.Follow.updateFollowLoop()
       }
     }
     None
@@ -295,7 +295,7 @@ let useLinkingAndSimUI = (state: state, dispatch: action => unit) => {
       Dom.classList(body)->Dom.ClassList.add("auto-pilot-active")
 
       // Sync Hotspots immediately to apply hidden-in-sim class
-      let v = ViewerState.getActiveViewer()
+      let v = ViewerSystem.getActiveViewer()
       switch (Nullable.toOption(v), Belt.Array.get(state.scenes, state.activeIndex)) {
       | (Some(viewer), Some(scene)) =>
         Logger.debug(
@@ -323,7 +323,7 @@ let useHotspotLineLoop = () => {
     let lastHfov = ref(-999.0)
 
     let rec loop = () => {
-      let v = ViewerState.getActiveViewer()
+      let v = ViewerSystem.getActiveViewer()
       switch Nullable.toOption(v) {
       | Some(viewer) =>
         let currentState = GlobalStateBridge.getState()

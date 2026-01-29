@@ -27,7 +27,7 @@ open Vitest
   }));
 `)
 
-describe("SceneTransitionManager", () => {
+describe("Scene.Transition", () => {
   beforeEach(() => {
     let _ = %raw(`
       (() => {
@@ -67,7 +67,7 @@ describe("SceneTransitionManager", () => {
   test("performSwap swaps active class", t => {
     let s1 = TestUtils.createMockScene(~id="s1", ~name="s1", ())
 
-    SceneTransitionManager.performSwap(s1, 0.0)
+    Scene.Transition.performSwap(s1, 0.0)
 
     let classLists: dict<array<string>> = %raw(`globalThis.classLists`)
     let c1Classes = Dict.get(classLists, "c1")->Belt.Option.getWithDefault([])

@@ -44,7 +44,7 @@ let toJSON = (state: Types.state) => {
   })
 
   {
-    "version": VersionData.version,
+    "version": Version.version,
     "tourName": state.tourName,
     "savedAt": Date.toISOString(Date.make()),
     "activeIndex": state.activeIndex,

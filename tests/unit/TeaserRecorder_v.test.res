@@ -1,6 +1,6 @@
 // @efficiency: infra-adapter
 open Vitest
-open TeaserRecorder
+open Teaser.Recorder
 
 /* Types */
 type mockFn
@@ -168,7 +168,7 @@ describe("TeaserRecorder", () => {
 
   test("startAnimationLoop requests animation frame", t => {
     let logoState = {
-      TeaserRecorderTypes.img: None,
+      Teaser.Recorder.img: None,
       loaded: false,
     }
     startAnimationLoop(false, logoState)

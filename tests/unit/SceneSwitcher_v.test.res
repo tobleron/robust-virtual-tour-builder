@@ -3,7 +3,7 @@ open Vitest
 open Types
 open Actions
 
-describe("SceneSwitcher", () => {
+describe("Scene.Switcher", () => {
   beforeEach(() => {
     GlobalStateBridge.setState(State.initialState)
     // Mock Viewer
@@ -30,7 +30,7 @@ describe("SceneSwitcher", () => {
     let s2 = TestUtils.createMockScene(~id="s2", ~name="s2", ())
     let state = {...State.initialState, scenes: [s1, s2], activeIndex: 0}
 
-    SceneSwitcher.navigateToScene(dispatch, state, 1, 0, -1, ())
+    Scene.Switcher.navigateToScene(dispatch, state, 1, 0, -1, ())
 
     t->expect(dispatched.contents->Array.length >= 2)->Expect.toBe(true)
     // Expect SetActiveScene and IncrementJourneyId
@@ -84,7 +84,7 @@ describe("SceneSwitcher", () => {
       navigation: Navigating(journey),
     }
 
-    SceneSwitcher.navigateToScene(dispatch, state, 1, 0, -1, ())
+    Scene.Switcher.navigateToScene(dispatch, state, 1, 0, -1, ())
 
     t->expect(dispatched.contents->Array.length)->Expect.toBe(0)
   })

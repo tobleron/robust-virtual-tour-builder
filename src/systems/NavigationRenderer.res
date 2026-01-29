@@ -129,7 +129,7 @@ let startJourney = (data: EventBus.navStartPayload) => {
             let opacity = blinkState == 0 ? 1.0 : 0.0
             let colorOverride = isPreview ? Some("red") : None
 
-            if HotspotLine.isViewerReady(v) {
+            if ViewerSystem.isViewerReady(v) {
               HotspotLine.updateSimulationArrow(
                 v,
                 arrowStartPitch,
@@ -231,7 +231,7 @@ let startJourney = (data: EventBus.navStartPayload) => {
           Viewer.setHfov(v, hfovProgress, false)
 
           // Only draw if viewer is valid
-          if HotspotLine.isViewerReady(v) {
+          if ViewerSystem.isViewerReady(v) {
             // PERFORMANCE: Direct DOM access to bypass Facade overhead
             // We implement "Cinema Mode" here: We strictly draw ONLY the arrow.
             // We intentionally skip HotspotLine.updateLines() which draws static markers,
@@ -243,18 +243,14 @@ let startJourney = (data: EventBus.navStartPayload) => {
               let rect = Dom.getBoundingClientRect(svg)
 
               if rect.width > 0.0 {
-                // 2. Get Camera State
-                let cam = HotspotLineLogic.getCamState(v, rect)
-
                 // 3. Update Arrow directly
-                HotspotLineLogic.updateSimulationArrow(
-                  cam,
+                HotspotLine.updateSimulationArrow(
+                  v,
                   arrowStartPitch,
                   arrowStartYaw,
                   pathData.targetPitchForPan,
                   pathData.targetYawForPan,
                   progress,
-                  rect,
                   ~opacity=1.0,
                   ~waypoints=arrowWaypoints,
                   ~preComputedSegments=arrowSegments,

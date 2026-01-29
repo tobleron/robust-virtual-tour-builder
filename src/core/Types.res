@@ -8,6 +8,8 @@ type linkInfo = {
   hotspotIndex: int,
 }
 
+type screenCoords = {x: float, y: float}
+
 type pathPoint = {
   yaw: float,
   pitch: float,

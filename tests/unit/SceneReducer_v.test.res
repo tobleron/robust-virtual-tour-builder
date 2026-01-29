@@ -2,9 +2,9 @@
 open Vitest
 open Actions
 open TestUtils
-// RootReducer is used fully qualified, no open needed if namespaced correctly, but keeping it open for now if needed.
-// Actually, RootReducer was unused because I use RootReducer.reducer explicitly?
-// ReScript says "unused open RootReducer".
+// Reducer is used fully qualified, no open needed if namespaced correctly, but keeping it open for now if needed.
+// Actually, Reducer was unused because I use Reducer.reducer explicitly?
+// ReScript says "unused open Reducer".
 
 test("SceneReducer: handleSetActiveScene sets active index and transition", t => {
   let s1 = createMockScene(~id="s1", ())
@@ -18,8 +18,8 @@ test("SceneReducer: handleSetActiveScene sets active index and transition", t =>
   }
 
   let action = SetActiveScene(1, 45.0, -10.0, Some(transition))
-  // Use RootReducer to verify the action is handled correctly by the system
-  let result = RootReducer.reducer(state, action)
+  // Use Reducer to verify the action is handled correctly by the system
+  let result = Reducer.reducer(state, action)
 
   t->expect(result.activeIndex)->Expect.toBe(1)
   t->expect(result.activeYaw)->Expect.toBe(45.0)
@@ -30,7 +30,7 @@ test("SceneReducer: handleSetActiveScene sets active index and transition", t =>
 test("SceneReducer: handleSetActiveScene ignores invalid index", t => {
   let state = createMockState(~scenes=[createMockScene()], ~activeIndex=0, ())
   let action = SetActiveScene(5, 0.0, 0.0, None)
-  let result = RootReducer.reducer(state, action)
+  let result = Reducer.reducer(state, action)
 
   t->expect(result.activeIndex)->Expect.toBe(0)
 })
@@ -43,7 +43,7 @@ test("SceneReducer: ReorderScenes moves scene and updates activeIndex correctly"
 
   // Move "1" to index 2: [0, 2, 1]
   let action = ReorderScenes(1, 2)
-  let result = RootReducer.reducer(state, action)
+  let result = Reducer.reducer(state, action)
 
   let scene = result.scenes[2]->Option.getOrThrow
   t->expect(scene.id)->Expect.toBe("1")
@@ -58,7 +58,7 @@ test("SceneReducer: DeleteScene removes scene and cleanup hotspots", t => {
 
   // Delete s2 (index 1)
   let action = DeleteScene(1)
-  let result = RootReducer.reducer(state, action)
+  let result = Reducer.reducer(state, action)
 
   t->expect(result.scenes->Array.length)->Expect.toBe(1)
   let remainingScene = result.scenes[0]->Option.getOrThrow
@@ -70,7 +70,7 @@ test("SceneReducer: handleSetActiveScene applies lastUsedCategory if not set", t
   let state = createMockState(~scenes=[s1], ~activeIndex=-1, ~lastUsedCategory="kitchen", ())
 
   let action = SetActiveScene(0, 0.0, 0.0, None)
-  let result = RootReducer.reducer(state, action)
+  let result = Reducer.reducer(state, action)
 
   let updatedScene = result.scenes[0]->Option.getOrThrow
   t->expect(updatedScene.category)->Expect.toBe("kitchen")
@@ -81,7 +81,7 @@ test("SceneReducer: ApplyLazyRename updates label and syncs name", t => {
   let state = createMockState(~scenes=[s1], ~activeIndex=0, ())
 
   let action = ApplyLazyRename(0, "New Label")
-  let result = RootReducer.reducer(state, action)
+  let result = Reducer.reducer(state, action)
 
   let updatedScene = result.scenes[0]->Option.getOrThrow
   t->expect(updatedScene.label)->Expect.toBe("New Label")

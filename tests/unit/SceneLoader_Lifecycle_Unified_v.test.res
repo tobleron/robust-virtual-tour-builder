@@ -108,7 +108,7 @@ describe("SceneLoader Lifecycle Unified", () => {
     let newState = {...State.initialState, scenes: [s1, s2], activeIndex: 0}
     GlobalStateBridge.setState(newState)
 
-    SceneLoaderLogic.loadNewScene(None, Some(1), ~isAnticipatory=false)
+    Scene.Loader.loadNewScene(None, Some(1), ~isAnticipatory=false)
 
     Promise.make(
       (resolve, _reject) => {
@@ -128,7 +128,7 @@ describe("SceneLoader Lifecycle Unified", () => {
   })
 
   test("Config creates correct viewer config", t => {
-    let config = SceneLoaderLogicConfig.createViewerConfig(false, "pano.jpg", "")
+    let config = Scene.LoaderConfig.createViewerConfig(false, "pano.jpg", "")
     let json = JSON.stringify(Obj.magic(config))
     t->expect(String.includes(json, "pano.jpg"))->Expect.toBe(true)
     t->expect(String.includes(json, "master"))->Expect.toBe(true)
@@ -136,7 +136,7 @@ describe("SceneLoader Lifecycle Unified", () => {
   })
 
   test("Config creates progressive viewer config", t => {
-    let config = SceneLoaderLogicConfig.createViewerConfig(true, "pano.jpg", "tiny.jpg")
+    let config = Scene.LoaderConfig.createViewerConfig(true, "pano.jpg", "tiny.jpg")
     let json = JSON.stringify(Obj.magic(config))
     t->expect(String.includes(json, "preview"))->Expect.toBe(true)
     t->expect(String.includes(json, "tiny.jpg"))->Expect.toBe(true)

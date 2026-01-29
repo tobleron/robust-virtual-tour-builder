@@ -1,5 +1,5 @@
 open Vitest
-open HotspotLineTypes
+open Types
 
 describe("HotspotLineTypes", () => {
   test("should define screenCoords correctly", t => {
@@ -9,7 +9,7 @@ describe("HotspotLineTypes", () => {
   })
 
   test("should define customViewerProps correctly", t => {
-    let props: customViewerProps = {sceneId: "scene-1"}
+    let props: HotspotLine.customViewerProps = {sceneId: "scene-1"}
     t->expect(props.sceneId)->Expect.toBe("scene-1")
 
     // Verify @as("_sceneId") via raw JS if possible, but standard ReScript access is enough for structural test

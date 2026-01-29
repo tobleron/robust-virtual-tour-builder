@@ -1,14 +1,14 @@
-/* tests/unit/UiReducerTest.res */
+/* tests/unit/Reducer.UiTest.res */
 open Vitest
 open Actions
 open Types
 
-describe("UiReducer", () => {
+describe("Reducer.Ui", () => {
   let initialState = State.initialState
 
   test("SetPreloadingScene updates preloadingSceneIndex", t => {
     let action = SetPreloadingScene(5)
-    let result = UiReducer.reduce(initialState, action)
+    let result = Reducer.Ui.reduce(initialState, action)
 
     switch result {
     | Some(newState) => t->expect(newState.preloadingSceneIndex)->Expect.toBe(5)
@@ -26,7 +26,7 @@ describe("UiReducer", () => {
       intermediatePoints: None,
     }
     let action = StartLinking(Some(draft))
-    let result = UiReducer.reduce(initialState, action)
+    let result = Reducer.Ui.reduce(initialState, action)
 
     switch result {
     | Some(newState) => {
@@ -51,7 +51,7 @@ describe("UiReducer", () => {
       }),
     }
     let action = StopLinking
-    let result = UiReducer.reduce(state, action)
+    let result = Reducer.Ui.reduce(state, action)
 
     switch result {
     | Some(newState) => {
@@ -72,7 +72,7 @@ describe("UiReducer", () => {
       intermediatePoints: None,
     }
     let action = UpdateLinkDraft(draft)
-    let result = UiReducer.reduce(initialState, action)
+    let result = Reducer.Ui.reduce(initialState, action)
 
     switch result {
     | Some(newState) => t->expect(newState.linkDraft)->Expect.toBe(Some(draft))
@@ -82,7 +82,7 @@ describe("UiReducer", () => {
 
   test("SetIsTeasing updates isTeasing", t => {
     let action = SetIsTeasing(true)
-    let result = UiReducer.reduce(initialState, action)
+    let result = Reducer.Ui.reduce(initialState, action)
 
     switch result {
     | Some(newState) => t->expect(newState.isTeasing)->Expect.toBe(true)
@@ -91,8 +91,8 @@ describe("UiReducer", () => {
   })
 
   test("Unhandled action returns None", t => {
-    let action = Reset // UiReducer doesn't handle Reset
-    let result = UiReducer.reduce(initialState, action)
+    let action = Reset // Reducer.Ui doesn't handle Reset
+    let result = Reducer.Ui.reduce(initialState, action)
 
     t->expect(result)->Expect.toBe(None)
   })

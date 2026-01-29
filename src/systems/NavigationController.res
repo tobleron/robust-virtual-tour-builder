@@ -29,7 +29,7 @@ let make = () => {
         | None => None
         }
         // Reaction to Preloading: Trigger the imperative loader if it hasn't started
-        SceneLoader.loadNewScene(prevId, Some(idx), ~isAnticipatory)
+        Scene.Loader.loadNewScene(prevId, Some(idx), ~isAnticipatory)
       | None => ()
       }
     | Transitioning({toSceneId: _toSceneId, progress}) =>
@@ -45,7 +45,7 @@ let make = () => {
         switch targetScene {
         | Some(ts) =>
           // Perform the actual viewer swap
-          SceneTransitionManager.performSwap(ts, 0.0)
+          Scene.Transition.performSwap(ts, 0.0)
         | None => dispatch(DispatchNavigationFsmEvent(Reset))
         }
       })
@@ -66,7 +66,7 @@ let make = () => {
       if activeJourneyId.current != Some(journey.journeyId) {
         activeJourneyId.current = Some(journey.journeyId)
 
-        let viewer = ViewerState.getActiveViewer()->Nullable.toOption
+        let viewer = ViewerSystem.getActiveViewer()->Nullable.toOption
 
         switch (viewer, journey.pathData) {
         | (Some(v), Some(pd)) =>
@@ -116,7 +116,7 @@ let make = () => {
                   let colorOverride = isPreview ? Some("red") : None
 
                   // Only draw if viewer is valid AND active (prevents stale camera data)
-                  if HotspotLine.isViewerReady(v) {
+                  if ViewerSystem.isViewerReady(v) {
                     HotspotLine.updateLines(v, state, ())
 
                     HotspotLine.updateSimulationArrow(
@@ -186,7 +186,7 @@ let make = () => {
                 Viewer.setHfov(v, hfovProgress, false)
 
                 // Only draw if viewer is valid AND active (prevents stale camera data)
-                if HotspotLine.isViewerReady(v) {
+                if ViewerSystem.isViewerReady(v) {
                   HotspotLine.updateLines(v, state, ())
 
                   HotspotLine.updateSimulationArrow(

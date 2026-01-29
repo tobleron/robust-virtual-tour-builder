@@ -97,7 +97,7 @@ let make = (
             }
           }
 
-          SceneSwitcher.navigateToScene(
+          Scene.Switcher.navigateToScene(
             dispatch,
             state,
             tIdx,

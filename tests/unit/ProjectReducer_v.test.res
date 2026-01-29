@@ -1,8 +1,8 @@
-/* tests/unit/ProjectReducer_v.test.res */
+/* tests/unit/Reducer.Project_v.test.res */
 open Vitest
 open Actions
 
-describe("ProjectReducer", () => {
+describe("Reducer.Project", () => {
   let initialState = State.initialState
 
   // Helper to create basic scene
@@ -29,7 +29,7 @@ describe("ProjectReducer", () => {
 
   test("SetTourName sanitizes the name", t => {
     let action = SetTourName("My Tour Name")
-    let result = ProjectReducer.reduce(initialState, action)
+    let result = Reducer.Project.reduce(initialState, action)
 
     switch result {
     | Some(state) => t->expect(state.tourName)->Expect.toEqual("My_Tour_Name")
@@ -39,7 +39,7 @@ describe("ProjectReducer", () => {
 
   test("SetTourName handles empty string", t => {
     let actionEmpty = SetTourName("")
-    let resultEmpty = ProjectReducer.reduce(initialState, actionEmpty)
+    let resultEmpty = Reducer.Project.reduce(initialState, actionEmpty)
 
     switch resultEmpty {
     | Some(state) => t->expect(state.tourName)->Expect.toEqual("Untitled")
@@ -49,7 +49,7 @@ describe("ProjectReducer", () => {
 
   test("SetTourName handles special characters", t => {
     let actionSpecial = SetTourName("Tour<>:\"/\\|?*Name")
-    let resultSpecial = ProjectReducer.reduce(initialState, actionSpecial)
+    let resultSpecial = Reducer.Project.reduce(initialState, actionSpecial)
 
     switch resultSpecial {
     | Some(state) => t->expect(state.tourName)->Expect.toEqual("Tour_Name")
@@ -60,7 +60,7 @@ describe("ProjectReducer", () => {
   test("SetTourName respects maxLength", t => {
     let longName = String.repeat("a", 300)
     let actionLong = SetTourName(longName)
-    let resultLong = ProjectReducer.reduce(initialState, actionLong)
+    let resultLong = Reducer.Project.reduce(initialState, actionLong)
 
     switch resultLong {
     | Some(state) => t->expect(String.length(state.tourName))->Expect.toEqual(255)
@@ -71,7 +71,7 @@ describe("ProjectReducer", () => {
   test("LoadProject parses project data", t => {
     let projectJson = JSON.parseOrThrow(`{"tourName": "Test Tour", "scenes": []}`)
     let actionLoad = LoadProject(projectJson)
-    let resultLoad = ProjectReducer.reduce(initialState, actionLoad)
+    let resultLoad = Reducer.Project.reduce(initialState, actionLoad)
 
     switch resultLoad {
     | Some(state) =>
@@ -84,7 +84,7 @@ describe("ProjectReducer", () => {
   test("LoadProject handles missing tourName", t => {
     let projectJsonNoName = JSON.parseOrThrow(`{"scenes": []}`)
     let actionLoadNoName = LoadProject(projectJsonNoName)
-    let resultLoadNoName = ProjectReducer.reduce(initialState, actionLoadNoName)
+    let resultLoadNoName = Reducer.Project.reduce(initialState, actionLoadNoName)
 
     switch resultLoadNoName {
     | Some(state) => t->expect(state.tourName)->Expect.toEqual("Tour Name")
@@ -95,7 +95,7 @@ describe("ProjectReducer", () => {
   test("Reset returns initial state", t => {
     let modifiedState = {...initialState, tourName: "Modified", activeIndex: 5}
     let actionReset = Reset
-    let resultReset = ProjectReducer.reduce(modifiedState, actionReset)
+    let resultReset = Reducer.Project.reduce(modifiedState, actionReset)
 
     switch resultReset {
     | Some(state) =>
@@ -114,7 +114,7 @@ describe("ProjectReducer", () => {
       "validClusters": 2
     }`)
     let actionExif = SetExifReport(exifData)
-    let resultExif = ProjectReducer.reduce(initialState, actionExif)
+    let resultExif = Reducer.Project.reduce(initialState, actionExif)
 
     switch resultExif {
     | Some(state) => t->expect(state.exifReport)->Expect.toEqual(Some(exifData))
@@ -125,7 +125,7 @@ describe("ProjectReducer", () => {
   test("RemoveDeletedSceneId removes the ID", t => {
     let stateWithDeleted = {...initialState, deletedSceneIds: ["id1", "id2", "id3"]}
     let actionRemove = RemoveDeletedSceneId("id2")
-    let resultRemove = ProjectReducer.reduce(stateWithDeleted, actionRemove)
+    let resultRemove = Reducer.Project.reduce(stateWithDeleted, actionRemove)
 
     switch resultRemove {
     | Some(state) =>
@@ -140,7 +140,7 @@ describe("ProjectReducer", () => {
   test("RemoveDeletedSceneId handles non-existent ID", t => {
     let stateWithDeleted2 = {...initialState, deletedSceneIds: ["id1", "id2"]}
     let actionRemoveNonExistent = RemoveDeletedSceneId("id99")
-    let resultRemoveNonExistent = ProjectReducer.reduce(stateWithDeleted2, actionRemoveNonExistent)
+    let resultRemoveNonExistent = Reducer.Project.reduce(stateWithDeleted2, actionRemoveNonExistent)
 
     switch resultRemoveNonExistent {
     | Some(state) =>
@@ -153,7 +153,7 @@ describe("ProjectReducer", () => {
 
   test("Unhandled action returns None", t => {
     let actionUnhandled = StopLinking
-    let resultUnhandled = ProjectReducer.reduce(initialState, actionUnhandled)
+    let resultUnhandled = Reducer.Project.reduce(initialState, actionUnhandled)
 
     t->expect(resultUnhandled)->Expect.toEqual(None)
   })
@@ -161,7 +161,7 @@ describe("ProjectReducer", () => {
   test("State immutability", t => {
     let originalState = {...initialState, tourName: "Original"}
     let actionMutate = SetTourName("Modified")
-    let _newState = ProjectReducer.reduce(originalState, actionMutate)
+    let _newState = Reducer.Project.reduce(originalState, actionMutate)
 
     t->expect(originalState.tourName)->Expect.toEqual("Original")
   })
@@ -169,7 +169,7 @@ describe("ProjectReducer", () => {
   test("SetTourName preserves other state fields", t => {
     let stateWithScenes = {...initialState, scenes: [createScene("s1")], activeIndex: 0}
     let actionPreserve = SetTourName("New Name")
-    let resultPreserve = ProjectReducer.reduce(stateWithScenes, actionPreserve)
+    let resultPreserve = Reducer.Project.reduce(stateWithScenes, actionPreserve)
 
     switch resultPreserve {
     | Some(state) =>
@@ -185,7 +185,7 @@ describe("ProjectReducer", () => {
     let newExif = JSON.parseOrThrow(`{"totalSelected": 2}`)
     let stateWithExif = {...initialState, exifReport: Some(oldExif)}
     let actionReplaceExif = SetExifReport(newExif)
-    let resultReplaceExif = ProjectReducer.reduce(stateWithExif, actionReplaceExif)
+    let resultReplaceExif = Reducer.Project.reduce(stateWithExif, actionReplaceExif)
 
     switch resultReplaceExif {
     | Some(state) => t->expect(state.exifReport)->Expect.toEqual(Some(newExif))
@@ -196,7 +196,7 @@ describe("ProjectReducer", () => {
   test("RemoveDeletedSceneId with empty array", t => {
     let stateEmpty = {...initialState, deletedSceneIds: []}
     let actionRemoveEmpty = RemoveDeletedSceneId("id1")
-    let resultRemoveEmpty = ProjectReducer.reduce(stateEmpty, actionRemoveEmpty)
+    let resultRemoveEmpty = Reducer.Project.reduce(stateEmpty, actionRemoveEmpty)
 
     switch resultRemoveEmpty {
     | Some(state) => t->expect(Array.length(state.deletedSceneIds))->Expect.toEqual(0)
@@ -206,7 +206,7 @@ describe("ProjectReducer", () => {
 
   test("SetSessionId sets the session ID", t => {
     let actionSession = SetSessionId("session_123")
-    let resultSession = ProjectReducer.reduce(initialState, actionSession)
+    let resultSession = Reducer.Project.reduce(initialState, actionSession)
 
     switch resultSession {
     | Some(state) => t->expect(state.sessionId)->Expect.toEqual(Some("session_123"))
@@ -218,7 +218,7 @@ describe("ProjectReducer", () => {
     let stateWithSession = {...initialState, sessionId: Some("preserved_session")}
     let projectJson = JSON.parseOrThrow(`{"tourName": "Real Tour", "scenes": []}`)
     let actionLoadPreserve = LoadProject(projectJson)
-    let resultLoadPreserve = ProjectReducer.reduce(stateWithSession, actionLoadPreserve)
+    let resultLoadPreserve = Reducer.Project.reduce(stateWithSession, actionLoadPreserve)
 
     switch resultLoadPreserve {
     | Some(state) =>

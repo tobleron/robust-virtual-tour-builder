@@ -1,6 +1,6 @@
 /* src/systems/FingerprintService.res */
 open ReBindings
-open UploadProcessorTypes
+open UploadTypes
 
 // Hashing and duplication detection.
 let fingerprintFiles = (validFiles: array<File.t>) => {

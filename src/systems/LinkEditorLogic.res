@@ -1,14 +1,14 @@
 /* src/systems/LinkEditorLogic.res */
 
 open ReBindings
-open ViewerState
+
 open Types
 
 let handleStageClick = (e: Dom.event) => {
   let currentState = GlobalStateBridge.getState()
 
   if currentState.isLinking && currentState.simulation.status != Running {
-    let viewer = getActiveViewer()
+    let viewer = ViewerSystem.getActiveViewer()
 
     switch Nullable.toOption(viewer) {
     | Some(v) =>
@@ -107,7 +107,7 @@ let handleEnter = () => {
   let currentState = GlobalStateBridge.getState()
 
   if currentState.isLinking && currentState.simulation.status != Running {
-    let viewer = getActiveViewer()
+    let viewer = ViewerSystem.getActiveViewer()
 
     switch (Nullable.toOption(viewer), currentState.linkDraft) {
     | (Some(v), Some(d)) =>

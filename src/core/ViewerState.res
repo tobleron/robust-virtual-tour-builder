@@ -63,28 +63,6 @@ let state = {
   isSwapping: false,
 }
 
-let getActiveViewer = () => {
-  ViewerPool.getActiveViewer()->Nullable.fromOption
-}
-
-let getInactiveViewer = () => {
-  ViewerPool.getInactiveViewer()->Nullable.fromOption
-}
-
-let getActiveContainerId = () => {
-  switch ViewerPool.getActive() {
-  | Some(v) => v.containerId
-  | None => "panorama-a"
-  }
-}
-
-let getInactiveContainerId = () => {
-  switch ViewerPool.getInactive() {
-  | Some(v) => v.containerId
-  | None => "panorama-b"
-  }
-}
-
 let resetState = () => {
   state.lastSceneId = Nullable.null
   switch Nullable.toOption(state.loadSafetyTimeout) {
@@ -92,8 +70,4 @@ let resetState = () => {
   | None => ()
   }
   state.loadSafetyTimeout = Nullable.null
-
-  ViewerPool.pool->Belt.Array.forEach(v => {
-    ViewerPool.clearCleanupTimeout(v.id)
-  })
 }
