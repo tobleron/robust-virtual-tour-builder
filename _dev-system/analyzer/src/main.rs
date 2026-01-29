@@ -22,6 +22,7 @@ use drivers::config::analyze_config;
 
 #[derive(Debug, Deserialize)]
 struct EfficiencyConfig {
+    scanned_roots: Option<Vec<String>>,
     settings: Settings,
     templates: Templates,
     exclusion_rules: ExclusionRules,
@@ -280,22 +281,30 @@ fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>, config:
         }
 
         for (domain, domain_units) in domain_groups {
-            let mut groups: HashMap<String, Vec<String>> = HashMap::new();
+            // Group by Action (Directive)
+            let mut action_groups: HashMap<String, Vec<(String, String, String)>> = HashMap::new(); // Action -> Vec<(File, Reason, Strategy)>
             
+            for (file, reason, action, strategy, _comp) in domain_units {
+                action_groups.entry(action).or_default().push((file, reason, strategy));
+            }
+
             // Heuristic for naming: Use the last part of the path (e.g., "systems", "core")
             let domain_name = Path::new(&domain).file_name().unwrap_or_default().to_string_lossy().to_uppercase();
             let category_name = format!("Surgical_Refactor_{}", domain_name);
 
-            for (file, reason, action, strategy, _comp) in domain_units {
-                groups.entry(action).or_default().push(format!("**{}**\n    - **Metric:** {}\n    - **Directive:** {}", file, reason, strategy));
+            let mut lines = Vec::new();
+
+            for (action, items) in action_groups {
+                // Extract strategy from the first item (assuming consistent strategy per action)
+                let strategy = &items[0].2;
+                lines.push(format!("\n### 🔧 Action: {}\n**Directive:** {}\n", action, strategy));
+
+                for (file, reason, _) in items {
+                    lines.push(format!("- **{}** (Metric: {})\n", file, reason));
+                }
             }
 
-            if !groups.is_empty() {
-                let mut lines = Vec::new();
-                for (act, items) in &groups {
-                    lines.push(format!("\n### 🔧 Action: {}", act));
-                    lines.extend(items.clone());
-                }
+            if !lines.is_empty() {
                 sync_architectural_category(&category_name, platform, &lines, &surgical_obj)?;
             }
         }
@@ -387,7 +396,7 @@ fn main() -> Result<()> {
     let config_raw = fs::read_to_string("../config/efficiency.json")?;
     let config: EfficiencyConfig = serde_json::from_str(&config_raw)?;
     let mut buffer: HashMap<String, Vec<WorkUnit>> = HashMap::new();
-    let mut dir_stats: HashMap<String, Vec<(String, usize, String)>> = HashMap::new();
+    let mut dir_stats: HashMap<String, Vec<(String, usize, String, f64)>> = HashMap::new();
     let mut feature_map: HashMap<String, Vec<(String, String)>> = HashMap::new(); 
     let default_dict: HashMap<String, f64> = HashMap::new();
 
@@ -405,37 +414,39 @@ fn main() -> Result<()> {
     entry_points.insert("../../src/index.js".to_string());
     entry_points.insert("../../src/main.rs".to_string()); // Backend entry
 
-    for entry in WalkDir::new("../../").into_iter().filter_map(|e| e.ok()) {
-        let path = entry.path();
-        if !path.is_file() || !is_project_source(path, &config.exclusion_rules) { continue; }
+    let roots = config.scanned_roots.clone().unwrap_or_else(|| vec!["../../".to_string()]);
 
-        if let Ok(content) = fs::read_to_string(path) {
-            let p_str = path.to_string_lossy().to_string();
-            all_files.insert(p_str.clone());
+    for root in roots {
+        let walk_path = if root.starts_with("../../") { root.clone() } else { format!("../../{}", root) };
+        println!("📂 Scanning Root: {}", walk_path);
 
-            // LOC Stats
-            let loc = content.lines().filter(|l| !l.trim().is_empty()).count();
-            if loc > 0 { total_loc += loc; file_count += 1; }
+        for entry in WalkDir::new(walk_path).into_iter().filter_map(|e| e.ok()) {
+            let path = entry.path();
+            if !path.is_file() || !is_project_source(path, &config.exclusion_rules) { continue; }
 
-            // Graph Building (Simple Regex for imports)
-            // Note: This is a rough heuristic. Real parsing is complex.
-            // We look for `open Module` or `include Module` or `from "..."`
-            for line in content.lines() {
-                // ReScript/Rust naive dependency extraction
-                if line.starts_with("open ") || line.starts_with("include ") || line.starts_with("mod ") {
-                    // Extract module name
-                    let parts: Vec<&str> = line.split_whitespace().collect();
-                    if parts.len() >= 2 {
-                        let target = parts[1].replace(";", "");
-                        // Try to resolve to a file (naive resolution)
-                        // In a real system, we'd need a file map. Here we just assume checks.
-                        // For demonstration, we won't fully populate the graph accurately without a symbol table.
-                        // But we can verify strict imports if they match file names.
+            if let Ok(content) = fs::read_to_string(path) {
+                // Explicit Ignore Directive Check
+                if content.contains("@efficiency-role: ignored") { continue; }
+
+                let p_str = path.to_string_lossy().to_string();
+                all_files.insert(p_str.clone());
+
+                // LOC Stats
+                let loc = content.lines().filter(|l| !l.trim().is_empty()).count();
+                if loc > 0 { total_loc += loc; file_count += 1; }
+
+                // Graph Building (Simple Regex for imports)
+                for line in content.lines() {
+                    if line.starts_with("open ") || line.starts_with("include ") || line.starts_with("mod ") {
+                        let parts: Vec<&str> = line.split_whitespace().collect();
+                        if parts.len() >= 2 {
+                            let _target = parts[1].replace(";", "");
+                        }
                     }
                 }
-            }
 
-            file_contents.insert(path.to_path_buf(), content);
+                file_contents.insert(path.to_path_buf(), content);
+            }
         }
     }
 
@@ -535,19 +546,32 @@ fn main() -> Result<()> {
                 complexity 
             });
         }
-        dir_stats.entry(path.parent().unwrap().to_string_lossy().to_string()).or_default().push((path.file_name().unwrap().to_string_lossy().to_string(), metrics.loc, platform.to_string()));
+        dir_stats.entry(path.parent().unwrap().to_string_lossy().to_string()).or_default().push((path.file_name().unwrap().to_string_lossy().to_string(), metrics.loc, platform.to_string(), drag));
         let file_stem = path.file_stem().unwrap_or_default().to_string_lossy().to_string();
         if file_stem.len() > 3 { feature_map.entry(file_stem).or_default().push((path.to_string_lossy().to_string(), platform.to_string())); }
     }
     for (dir, files) in dir_stats {
-        let total: usize = files.iter().map(|(_,l,_)| *l).sum();
-        let score = calculate_merge_score(FolderStats { file_count: files.len(), total_loc: total }, config.settings.hard_ceiling_loc);
+        let total: usize = files.iter().map(|(_,l,_,_)| *l).sum();
+
+        // Smart Merge Logic: Circularity Prevention
+        // Check if merging these files would create a file that immediately violates the Split limit.
+        let max_drag: f64 = files.iter().map(|(_,_,_,d)| *d).fold(0.0, f64::max);
+        let safe_drag = if max_drag < 1.0 { 1.0 } else { max_drag };
+        // We use the same Drag^0.75 curve as the split logic to determine the projected limit.
+        let projected_limit = dynamic_base / safe_drag.powf(0.75);
+
+        let score = if total as f64 > projected_limit {
+             0.0 // Force score to 0 to prevent merge
+        } else {
+             calculate_merge_score(FolderStats { file_count: files.len(), total_loc: total }, config.settings.hard_ceiling_loc)
+        };
+
         if score > config.settings.merge_score_threshold {
             buffer.entry("system".to_string()).or_default().push(WorkUnit::Merge { 
                 folder: dir.clone(), 
-                files: files.iter().map(|(n,_,_)| n.clone()).collect(), 
+                files: files.iter().map(|(n,_,_,_)| n.clone()).collect(),
                 platform: files[0].2.clone(),
-                reason: format!("Read Tax high (Score {:.2}).", score),
+                reason: format!("Read Tax high (Score {:.2}). Projected Limit: {:.0} (Drag {:.2})", score, projected_limit, safe_drag),
                 strategy: String::new()
             });
         }
