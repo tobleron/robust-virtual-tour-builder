@@ -17,242 +17,18 @@
     },
     {
       "Merge": {
-        "folder": "../../backend/src/api/media",
+        "folder": "../../backend/src/api/media/image",
         "files": [
-          "serve.rs",
-          "similarity.rs",
-          "mod.rs"
-        ],
-        "reason": "Score 3.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/models",
-        "files": [
-          "telemetry.rs",
-          "session.rs",
-          "metadata.rs",
-          "similarity.rs",
-          "user.rs",
+          "resize_batch.rs",
+          "extract_metadata.rs",
+          "optimize.rs",
+          "image_utils.rs",
           "mod.rs",
-          "validation.rs",
-          "project.rs",
-          "errors.rs",
-          "geocoding.rs"
-        ],
-        "reason": "Score 10.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/components/SceneList",
-        "files": [
-          "SceneItem.res",
-          "SceneListMain.res"
-        ],
-        "reason": "Score 2.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/api/project",
-        "files": [
-          "export.rs",
-          "export_utils.rs",
-          "mod.rs",
-          "validation.rs",
-          "navigation.rs"
-        ],
-        "reason": "Score 5.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/core/reducers",
-        "files": [
-          "TimelineReducer.res",
-          "NavigationReducer.res",
-          "ProjectReducer.res",
-          "SimulationReducer.res",
-          "SceneReducer.res",
-          "UiReducer.res",
-          "mod.res",
-          "RootReducer.res",
-          "HotspotReducer.res"
-        ],
-        "reason": "Score 9.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/services",
-        "files": [
-          "shutdown.rs",
-          "database.rs",
-          "upload_quota.rs",
-          "mod.rs",
-          "upload_quota_tests.rs"
-        ],
-        "reason": "Score 5.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/pathfinder/algorithms",
-        "files": [
-          "timeline.rs",
-          "walk.rs"
-        ],
-        "reason": "Score 2.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/components/VisualPipeline",
-        "files": [
-          "VisualPipelineRender.res",
-          "VisualPipelineMain.res",
-          "VisualPipelineStyles.res",
-          "VisualPipelineTypes.res",
-          "VisualPipelineLogic.res"
-        ],
-        "reason": "Score 5.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/components/ui/Lucide",
-        "files": [
-          "LucideActions.res",
-          "LucideStatus.res",
-          "LucideMedia.res",
-          "LucideCore.res"
+          "image_logic.rs",
+          "process_full.rs",
+          "tests.rs"
         ],
         "reason": "Score 4.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/services/geocoding",
-        "files": [
-          "logic.rs",
-          "mod.rs"
-        ],
-        "reason": "Score 2.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/services/media",
-        "files": [
-          "resizing.rs",
-          "naming.rs",
-          "webp.rs",
-          "mod.rs",
-          "naming_old.rs",
-          "storage.rs"
-        ],
-        "reason": "Score 6.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/core",
-        "files": [
-          "SimHelpers.res",
-          "Reducer.res",
-          "ViewerState.res",
-          "SceneHelpersParser.res",
-          "Actions.res",
-          "SceneHelpers.res",
-          "UiHelpers.res",
-          "ViewerTypes.res",
-          "SharedTypes.res",
-          "AppContext.res",
-          "Types.res",
-          "Schemas.res",
-          "SchemasShared.res",
-          "SchemasDomain.res",
-          "GlobalStateBridge.res",
-          "SceneHelpersLogic.res",
-          "State.res",
-          "AuthContext.res",
-          "SceneCache.res"
-        ],
-        "reason": "Score 1.90 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/systems/api",
-        "files": [
-          "ProjectApi.res",
-          "MediaApi.res",
-          "ApiTypes.res",
-          "AuthenticatedClient.res"
-        ],
-        "reason": "Score 4.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/services/media/analysis",
-        "files": [
-          "mod.rs",
-          "quality.rs",
-          "exif.rs"
-        ],
-        "reason": "Score 3.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/components/Sidebar",
-        "files": [
-          "SidebarActions.res",
-          "SidebarMain.res",
-          "SidebarBranding.res",
-          "SidebarMainTypes.res",
-          "SidebarProcessing.res",
-          "SidebarMainLogic.res",
-          "SidebarProjectInfo.res"
-        ],
-        "reason": "Score 7.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/api/project/storage",
-        "files": [
-          "storage_logic.rs",
-          "mod.rs"
-        ],
-        "reason": "Score 2.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/api",
-        "files": [
-          "telemetry.rs",
-          "auth.rs",
-          "mod.rs",
-          "telemetry_logic.rs",
-          "geocoding.rs",
-          "utils.rs"
-        ],
-        "reason": "Score 6.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/components/ui",
-        "files": [
-          "Shadcn.res",
-          "LucideIcons.res"
-        ],
-        "reason": "Score 2.00 > 1.0"
       }
     },
     {
@@ -293,111 +69,6 @@
           "ErrorFallbackUI.res"
         ],
         "reason": "Score 3.20 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/services/auth",
-        "files": [
-          "mod.rs",
-          "jwt.rs"
-        ],
-        "reason": "Score 2.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/services/project",
-        "files": [
-          "package.rs",
-          "mod.rs",
-          "load.rs",
-          "validate.rs"
-        ],
-        "reason": "Score 2.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src",
-        "files": [
-          "ReBindings.res",
-          "App.res",
-          "Main.res",
-          "ServiceWorkerMain.res",
-          "ServiceWorker.res"
-        ],
-        "reason": "Score 5.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/middleware",
-        "files": [
-          "request_tracker.rs",
-          "quota_check.rs",
-          "auth.rs",
-          "mod.rs"
-        ],
-        "reason": "Score 4.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/api/media/image",
-        "files": [
-          "resize_batch.rs",
-          "extract_metadata.rs",
-          "optimize.rs",
-          "image_utils.rs",
-          "mod.rs",
-          "image_logic.rs",
-          "process_full.rs",
-          "tests.rs"
-        ],
-        "reason": "Score 4.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/utils",
-        "files": [
-          "GeoUtils.res",
-          "PersistenceLayer.res",
-          "ProgressBar.res",
-          "ColorPalette.res",
-          "StateInspector.res",
-          "TourLogic.res",
-          "LoggerTelemetry.res",
-          "Logger.res",
-          "ImageOptimizer.res",
-          "UrlUtils.res",
-          "LazyLoad.res",
-          "LoggerLogic.res",
-          "PathInterpolation.res",
-          "ProjectionMath.res",
-          "RequestQueue.res",
-          "LoggerTypes.res",
-          "Constants.res",
-          "SessionStore.res",
-          "Version.res",
-          "VersionData.res"
-        ],
-        "reason": "Score 2.00 > 1.0"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/bindings",
-        "files": [
-          "WebApiBindings.res",
-          "GraphicsBindings.res",
-          "BrowserBindings.res",
-          "ViewerBindings.res",
-          "IdbBindings.res",
-          "DomBindings.res"
-        ],
-        "reason": "Score 6.00 > 1.0"
       }
     },
     {
@@ -451,6 +122,7 @@
           "SimulationChainSkipper.res",
           "ExifReportGeneratorLogic.res",
           "PannellumLifecycle.res",
+          "Api.res",
           "TeaserState.res",
           "CursorPhysics.res",
           "UploadProcessor.res",
@@ -482,7 +154,94 @@
           "NavigationRenderer.res",
           "Exporter.res"
         ],
-        "reason": "Score 7.70 > 1.0"
+        "reason": "Score 7.80 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/api/project/storage",
+        "files": [
+          "storage_logic.rs",
+          "mod.rs"
+        ],
+        "reason": "Score 2.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/services/media/analysis",
+        "files": [
+          "mod.rs",
+          "quality.rs",
+          "exif.rs"
+        ],
+        "reason": "Score 3.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/api",
+        "files": [
+          "telemetry.rs",
+          "auth.rs",
+          "mod.rs",
+          "telemetry_logic.rs",
+          "geocoding.rs",
+          "utils.rs"
+        ],
+        "reason": "Score 6.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/components/ui",
+        "files": [
+          "Shadcn.res",
+          "LucideIcons.res"
+        ],
+        "reason": "Score 2.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/services/auth",
+        "files": [
+          "mod.rs",
+          "jwt.rs"
+        ],
+        "reason": "Score 2.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/services/project",
+        "files": [
+          "package.rs",
+          "mod.rs",
+          "load.rs",
+          "validate.rs"
+        ],
+        "reason": "Score 2.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/services/geocoding",
+        "files": [
+          "logic.rs",
+          "mod.rs"
+        ],
+        "reason": "Score 2.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/pathfinder/algorithms",
+        "files": [
+          "timeline.rs",
+          "walk.rs"
+        ],
+        "reason": "Score 2.00 > 1.0"
       }
     },
     {
@@ -499,6 +258,48 @@
     },
     {
       "Merge": {
+        "folder": "../../backend/src/services/media",
+        "files": [
+          "resizing.rs",
+          "naming.rs",
+          "webp.rs",
+          "mod.rs",
+          "naming_old.rs",
+          "storage.rs"
+        ],
+        "reason": "Score 6.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/api/media",
+        "files": [
+          "serve.rs",
+          "similarity.rs",
+          "mod.rs"
+        ],
+        "reason": "Score 3.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/core/reducers",
+        "files": [
+          "TimelineReducer.res",
+          "NavigationReducer.res",
+          "ProjectReducer.res",
+          "SimulationReducer.res",
+          "SceneReducer.res",
+          "UiReducer.res",
+          "mod.res",
+          "RootReducer.res",
+          "HotspotReducer.res"
+        ],
+        "reason": "Score 9.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
         "folder": "../../backend/src",
         "files": [
           "lib.rs",
@@ -509,59 +310,151 @@
       }
     },
     {
-      "Structural": {
-        "file": "Navigation",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Navigation' spread across 2 folders (Fragmentation Tax)"
+      "Merge": {
+        "folder": "../../src/core",
+        "files": [
+          "SimHelpers.res",
+          "Reducer.res",
+          "ViewerState.res",
+          "SceneHelpersParser.res",
+          "Actions.res",
+          "SceneHelpers.res",
+          "UiHelpers.res",
+          "ViewerTypes.res",
+          "SharedTypes.res",
+          "AppContext.res",
+          "Types.res",
+          "Schemas.res",
+          "SchemasShared.res",
+          "SchemasDomain.res",
+          "GlobalStateBridge.res",
+          "SceneHelpersLogic.res",
+          "State.res",
+          "AuthContext.res",
+          "SceneCache.res"
+        ],
+        "reason": "Score 1.90 > 1.0"
       }
     },
     {
-      "Structural": {
-        "file": "Project",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Project' spread across 3 folders (Fragmentation Tax)"
+      "Merge": {
+        "folder": "../../backend/src/models",
+        "files": [
+          "telemetry.rs",
+          "session.rs",
+          "metadata.rs",
+          "similarity.rs",
+          "user.rs",
+          "mod.rs",
+          "validation.rs",
+          "project.rs",
+          "errors.rs",
+          "geocoding.rs"
+        ],
+        "reason": "Score 10.00 > 1.0"
       }
     },
     {
-      "Structural": {
-        "file": "Simulation",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Simulation' spread across 2 folders (Fragmentation Tax)"
+      "Merge": {
+        "folder": "../../src",
+        "files": [
+          "ReBindings.res",
+          "App.res",
+          "Main.res",
+          "ServiceWorkerMain.res",
+          "ServiceWorker.res"
+        ],
+        "reason": "Score 5.00 > 1.0"
       }
     },
     {
-      "Structural": {
-        "file": "Scene",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Scene' spread across 5 folders (Fragmentation Tax)"
+      "Merge": {
+        "folder": "../../src/utils",
+        "files": [
+          "GeoUtils.res",
+          "PersistenceLayer.res",
+          "ProgressBar.res",
+          "ColorPalette.res",
+          "StateInspector.res",
+          "TourLogic.res",
+          "LoggerTelemetry.res",
+          "Logger.res",
+          "ImageOptimizer.res",
+          "UrlUtils.res",
+          "LazyLoad.res",
+          "LoggerLogic.res",
+          "PathInterpolation.res",
+          "ProjectionMath.res",
+          "RequestQueue.res",
+          "LoggerTypes.res",
+          "Constants.res",
+          "SessionStore.res",
+          "Version.res",
+          "VersionData.res"
+        ],
+        "reason": "Score 2.00 > 1.0"
       }
     },
     {
-      "Structural": {
-        "file": "Sidebar",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Sidebar' spread across 2 folders (Fragmentation Tax)"
+      "Merge": {
+        "folder": "../../backend/src/middleware",
+        "files": [
+          "request_tracker.rs",
+          "quota_check.rs",
+          "auth.rs",
+          "mod.rs"
+        ],
+        "reason": "Score 4.00 > 1.0"
       }
     },
     {
-      "Structural": {
-        "file": "mod",
-        "action": "Vertical Slice",
-        "reason": "Feature 'mod' spread across 16 folders (Fragmentation Tax)"
+      "Merge": {
+        "folder": "../../src/components/SceneList",
+        "files": [
+          "SceneItem.res",
+          "SceneListMain.res"
+        ],
+        "reason": "Score 2.00 > 1.0"
       }
     },
     {
-      "Structural": {
-        "file": "App",
-        "action": "Vertical Slice",
-        "reason": "Feature 'App' spread across 3 folders (Fragmentation Tax)"
+      "Merge": {
+        "folder": "../../backend/src/api/project",
+        "files": [
+          "export.rs",
+          "export_utils.rs",
+          "mod.rs",
+          "validation.rs",
+          "navigation.rs"
+        ],
+        "reason": "Score 5.00 > 1.0"
       }
     },
     {
-      "Structural": {
-        "file": "Hotspot",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Hotspot' spread across 3 folders (Fragmentation Tax)"
+      "Merge": {
+        "folder": "../../backend/src/services",
+        "files": [
+          "shutdown.rs",
+          "database.rs",
+          "upload_quota.rs",
+          "mod.rs",
+          "upload_quota_tests.rs"
+        ],
+        "reason": "Score 5.00 > 1.0"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/bindings",
+        "files": [
+          "WebApiBindings.res",
+          "GraphicsBindings.res",
+          "BrowserBindings.res",
+          "ViewerBindings.res",
+          "IdbBindings.res",
+          "DomBindings.res"
+        ],
+        "reason": "Score 6.00 > 1.0"
       }
     },
     {
@@ -573,9 +466,51 @@
     },
     {
       "Structural": {
+        "file": "mod",
+        "action": "Vertical Slice",
+        "reason": "Feature 'mod' spread across 16 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Simulation",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Simulation' spread across 2 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Navigation",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Navigation' spread across 2 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
         "file": "Upload",
         "action": "Vertical Slice",
         "reason": "Feature 'Upload' spread across 2 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Scene",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Scene' spread across 5 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Project",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Project' spread across 2 folders (Fragmentation Tax)"
+      }
+    },
+    {
+      "Structural": {
+        "file": "Hotspot",
+        "action": "Vertical Slice",
+        "reason": "Feature 'Hotspot' spread across 3 folders (Fragmentation Tax)"
       }
     },
     {
@@ -587,16 +522,9 @@
     },
     {
       "Structural": {
-        "file": "Visual",
+        "file": "App",
         "action": "Vertical Slice",
-        "reason": "Feature 'Visual' spread across 2 folders (Fragmentation Tax)"
-      }
-    },
-    {
-      "Structural": {
-        "file": "Lucide",
-        "action": "Vertical Slice",
-        "reason": "Feature 'Lucide' spread across 2 folders (Fragmentation Tax)"
+        "reason": "Feature 'App' spread across 3 folders (Fragmentation Tax)"
       }
     }
   ],
@@ -1025,27 +953,6 @@
     },
     {
       "Surgical": {
-        "file": "../../src/components/Sidebar/SidebarActions.res",
-        "action": "De-bloat",
-        "reason": "LOC 69 > Limit 30 (Role: orchestrator, Drag: 5.23)\n    🔥 Hotspot: Lines 34-38 (AI Context Fog (score 18.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/Sidebar/SidebarMain.res",
-        "action": "De-bloat",
-        "reason": "LOC 221 > Limit 30 (Role: ui-component, Drag: 9.54)\n    🔥 Hotspot: Lines 72-76 (AI Context Fog (score 49.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/Sidebar/SidebarMainLogic.res",
-        "action": "De-bloat",
-        "reason": "LOC 152 > Limit 30 (Role: service-orchestrator, Drag: 18.19)\n    🔥 Hotspot: Lines 83-87 (AI Context Fog (score 43.8))"
-      }
-    },
-    {
-      "Surgical": {
         "file": "../../src/components/NotificationLayer.res",
         "action": "De-bloat",
         "reason": "LOC 59 > Limit 36 (Role: ui-component, Drag: 5.85)\n    🔥 Hotspot: Lines 38-42 (AI Context Fog (score 49.0))"
@@ -1081,27 +988,6 @@
     },
     {
       "Surgical": {
-        "file": "../../src/components/VisualPipeline/VisualPipelineRender.res",
-        "action": "De-bloat",
-        "reason": "LOC 160 > Limit 30 (Role: ui-component, Drag: 21.53)\n    🔥 Hotspot: Lines 47-51 (AI Context Fog (score 66.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/VisualPipeline/VisualPipelineStyles.res",
-        "action": "De-bloat",
-        "reason": "LOC 105 > Limit 82 (Role: ui-component, Drag: 3.31)\n    🔥 Hotspot: Lines 18-22 (AI Context Fog (score 9.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/VisualPipeline/VisualPipelineLogic.res",
-        "action": "De-bloat",
-        "reason": "LOC 96 > Limit 30 (Role: service-orchestrator, Drag: 13.28)\n    🔥 Hotspot: Lines 77-81 (AI Context Fog (score 17.8))"
-      }
-    },
-    {
-      "Surgical": {
         "file": "../../src/components/QualityIndicator.res",
         "action": "De-bloat",
         "reason": "LOC 48 > Limit 36 (Role: ui-component, Drag: 5.78)\n    🔥 Hotspot: Lines 44-48 (AI Context Fog (score 14.6))"
@@ -1123,9 +1009,30 @@
     },
     {
       "Surgical": {
+        "file": "../../src/components/Sidebar.res",
+        "action": "De-bloat",
+        "reason": "LOC 567 > Limit 160 (Role: ui-component, Drag: 2.20)\n    🔥 Hotspot: Lines 103-107 (AI Context Fog (score 52.0))"
+      }
+    },
+    {
+      "Surgical": {
         "file": "../../src/components/PreviewArrow.res",
         "action": "De-bloat",
         "reason": "LOC 188 > Limit 30 (Role: ui-component, Drag: 26.20)\n    🔥 Hotspot: Lines 90-94 (AI Context Fog (score 66.0))"
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/components/VisualPipeline.res",
+        "pattern": "mutable ",
+        "severity": "CRITICAL"
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/VisualPipeline.res",
+        "action": "De-bloat",
+        "reason": "LOC 364 > Limit 30 (Role: ui-component, Drag: 28.64)\n    🔥 Hotspot: Lines 241-245 (AI Context Fog (score 83.0))"
       }
     },
     {
@@ -1403,6 +1310,13 @@
     },
     {
       "Surgical": {
+        "file": "../../src/systems/Api.res",
+        "action": "De-bloat",
+        "reason": "LOC 584 > Limit 32 (Role: service-orchestrator, Drag: 4.37)\n    🔥 Hotspot: Lines 593-597 (AI Context Fog (score 67.4))"
+      }
+    },
+    {
+      "Surgical": {
         "file": "../../src/systems/CursorPhysics.res",
         "action": "De-bloat",
         "reason": "LOC 47 > Limit 31 (Role: service-orchestrator, Drag: 3.62)\n    🔥 Hotspot: Lines 53-57 (AI Context Fog (score 16.0))"
@@ -1427,20 +1341,6 @@
         "file": "../../src/systems/TeaserManager.res",
         "action": "De-bloat",
         "reason": "LOC 237 > Limit 30 (Role: service-orchestrator, Drag: 14.55)\n    🔥 Hotspot: Lines 223-227 (AI Context Fog (score 146.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/api/ProjectApi.res",
-        "action": "De-bloat",
-        "reason": "LOC 280 > Limit 30 (Role: service-orchestrator, Drag: 23.84)\n    🔥 Hotspot: Lines 257-261 (AI Context Fog (score 52.0))"
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/api/MediaApi.res",
-        "action": "De-bloat",
-        "reason": "LOC 174 > Limit 30 (Role: service-orchestrator, Drag: 13.83)\n    🔥 Hotspot: Lines 27-31 (AI Context Fog (score 35.8))"
       }
     },
     {

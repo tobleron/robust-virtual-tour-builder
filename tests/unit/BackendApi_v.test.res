@@ -16,8 +16,12 @@ describe("BackendApi Facade", () => {
     t->expect(typeof(fn))->Expect.toBe(#function)
   })
 
-  test("Should export ApiTypes types (compile check)", _ => {
-    // If this compiles, BackendApi successfully includes ApiTypes
-    let _: BackendApi.apiResult<unit> = Ok()
+  test("Should export Api types (compile check)", t => {
+    // If this compiles, BackendApi successfully includes Api
+    let _: Api.importResponse = {
+      sessionId: "test",
+      projectData: JSON.Encode.object(Dict.make()),
+    }
+    t->expect(true)->Expect.toBe(true)
   })
 })

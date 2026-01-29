@@ -62,7 +62,7 @@ testAsync("ProjectManager: processLoadedProjectData handles valid response", asy
       let firstScene = scenes[0]->Option.getOrThrow->Obj.magic
       // Check if URL was reconstructed
       let url = firstScene["file"]->JSON.Decode.string->Option.getOrThrow
-      t->expect(String.includes(url, "api/session/session_123/living.webp"))->Expect.toBe(true)
+      t->expect(String.includes(url, "api/project/session_123/file/living.webp"))->Expect.toBe(true)
     }
   | Error(_msg) => t->expect(true)->Expect.toBe(false) // Workaround for fail
   }

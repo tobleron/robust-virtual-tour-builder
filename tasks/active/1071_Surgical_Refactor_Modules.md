@@ -1,9 +1,18 @@
 # Task 1071: Surgical Refactor Modules
 
 ## Objective
-Break down oversized or high-drag modules into smaller, more specialized units.
+Break down oversized or high-drag modules into smaller, more specialized units. 
+
+**Action Steps:**
+1. Identify logical clusters within the oversized file.
+2. Extract these clusters into new modules (e.g., `ModuleTypes.res`, `ModuleLogic.res`).
+3. Use the original file as a facade/index if necessary to avoid breaking external imports.
+4. Aim for < 500 LOC per file.
 
 ## Tasks
+
+
+
 - [x] **../../backend/src/pathfinder/mod.rs** - *Reason:* LOC 77 > Limit 42 (Role: orchestrator, Drag: 3.70)
 - [x] **../../backend/src/pathfinder/utils.rs** - *Reason:* LOC 100 > Limit 30 (Role: util-pure, Drag: 9.27)
 - [x] **../../backend/src/models/mod.rs** - *Reason:* LOC 216 > Limit 181 (Role: orchestrator, Drag: 1.40)
@@ -461,3 +470,9 @@ Break down oversized or high-drag modules into smaller, more specialized units.
 - [ ] **../../backend/src/services/media/analysis/quality.rs** - *Reason:* LOC 220 > Limit 103 (Role: domain-logic, Drag: 2.03)
 - [ ] **../../backend/src/services/media/analysis/exif.rs** - *Reason:* LOC 117 > Limit 74 (Role: infra-adapter, Drag: 3.14)
 - [ ] **../../backend/src/services/media/naming.rs** - *Reason:* LOC 109 > Limit 39 (Role: domain-logic, Drag: 3.87)
+- [ ] **../../src/components/Sidebar.res** - *Reason:* LOC 567 > Limit 160 (Role: ui-component, Drag: 2.20)
+    🔥 Hotspot: Lines 103-107 (AI Context Fog (score 52.0))
+- [ ] **../../src/components/VisualPipeline.res** - *Reason:* LOC 364 > Limit 30 (Role: ui-component, Drag: 28.64)
+    🔥 Hotspot: Lines 241-245 (AI Context Fog (score 83.0))
+- [ ] **../../src/systems/Api.res** - *Reason:* LOC 584 > Limit 32 (Role: service-orchestrator, Drag: 4.37)
+    🔥 Hotspot: Lines 593-597 (AI Context Fog (score 67.4))

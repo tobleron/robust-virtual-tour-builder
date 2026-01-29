@@ -37,7 +37,19 @@ describe("AuthContext", () => {
     })
 
   beforeEach(() => {
-    Dom.Storage2.localStorage->Dom.Storage2.clear
+    let _ = %raw(`(() => {
+      if (typeof localStorage === 'undefined' || !localStorage.clear) {
+        let store = {};
+        global.localStorage = {
+          getItem: (key) => store[key] || null,
+          setItem: (key, value) => { store[key] = value.toString(); },
+          removeItem: (key) => { delete store[key]; },
+          clear: () => { Object.keys(store).forEach(k => delete store[k]); }
+        };
+      } else {
+        localStorage.clear();
+      }
+    })()`)
     ignore(Promise.resolve())
   })
 

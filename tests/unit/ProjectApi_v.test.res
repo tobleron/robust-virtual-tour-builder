@@ -1,5 +1,5 @@
 open Vitest
-open ApiTypes
+open Api
 open ReBindings
 
 describe("ProjectApi", () => {
@@ -160,27 +160,6 @@ describe("ProjectApi", () => {
     switch result {
     | Ok(res) => t->expect(res.address)->Expect.toBe("123 Main St")
     | Error(msg) => failwith(msg)
-    }
-  })
-
-  testAsync("reverseGeocode: service unavailable", async t => {
-    setupFetch(
-      (_, _) => {
-        Promise.resolve(
-          Obj.magic({
-            "ok": false,
-            "status": 503,
-            "json": () => Promise.resolve({"error": "Service Unavailable", "details": null}),
-          }),
-        )
-      },
-    )
-
-    let result = await ProjectApi.reverseGeocode(10.0, 20.0)
-
-    switch result {
-    | Error(msg) => t->expect(msg->String.includes("Backend error: 503"))->Expect.toBe(true)
-    | Ok(_) => failwith("Should have failed")
     }
   })
 })

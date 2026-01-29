@@ -247,18 +247,29 @@ fn sync_architectural_category(category_name: &str, units: &[String], objective:
 
     if let Some(path) = existing_path {
         let current_content = fs::read_to_string(&path).unwrap_or_default();
+        
+        // Update Objective if changed (Standardize Header)
+        let header_end = current_content.find("## Tasks").unwrap_or(0);
+        let new_header = format!("# Task {}: {}\n\n## Objective\n{}\n\n## Tasks\n", path.file_name().unwrap_or_default().to_string_lossy().split('_').next().unwrap_or("0"), category_name.replace("_", " "), objective);
+        
+        let content_after_header = if header_end > 0 { &current_content[header_end + 8..] } else { &current_content };
+        
         let mut to_append = Vec::new();
         for unit in units {
             if !current_content.contains(unit) {
                  to_append.push(unit);
             }
         }
-        if !to_append.is_empty() {
-            let mut file = OpenOptions::new().append(true).open(path)?;
-            for f in to_append {
-                file.write_all(format!("- [ ] {}\n", f).as_bytes())?;
-            }
+        
+        // Rewrite file with new header and existing tasks + new tasks
+        let mut new_full_content = new_header.clone();
+        new_full_content.push_str(content_after_header);
+        for f in to_append {
+            if !new_full_content.ends_with('\n') { new_full_content.push('\n'); }
+            new_full_content.push_str(&format!("- [ ] {}\n", f));
         }
+        
+        fs::write(path, new_full_content)?;
     } else {
         let mut max_id = 0;
         let scan_dirs = vec!["../../tasks/pending", "../../tasks/active", "../../tasks/completed", "../../tasks/postponed"];
@@ -304,11 +315,35 @@ fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>) -> Resu
         }
     }
 
-    sync_architectural_category("Classify_Ambiguous_Files", &ambiguities, "Analyze and classify unidentified source files into the efficiency taxonomy.")?;
-    sync_architectural_category("Fix_Critical_Violations", &violations, "Resolve forbidden patterns and critical LOC violations across the project.")?;
-    sync_architectural_category("Surgical_Refactor_Modules", &surgical, "Break down oversized or high-drag modules into smaller, more specialized units.")?;
-    sync_architectural_category("Structural_Vertical_Slicing", &structural, "Implement vertical slicing for fragmented features spread across multiple folders.")?;
-    sync_architectural_category("Merge_Fragmented_Folders", &merges, "Consolidate folders with high fragmentation tax to reduce cognitive overhead.")?;
+    sync_architectural_category(
+        "Classify_Ambiguous_Files", 
+        &ambiguities, 
+        "Analyze and classify unidentified source files into the efficiency taxonomy. \n\n**Action Steps:**\n1. Review the listed files.\n2. Add `@efficiency` headers or update `_dev-system/config/efficiency.json` to assign a role (e.g., 'ui-component', 'domain-logic').\n3. Ensure unidentified files are brought into the tracking system."
+    )?;
+    
+    sync_architectural_category(
+        "Fix_Critical_Violations", 
+        &violations, 
+        "Resolve forbidden patterns and critical LOC violations across the project. \n\n**Action Steps:**\n1. Locate the file and violation pattern (e.g., `unwrap()`, `mutable`).\n2. Refactor to use safe patterns (e.g., `Option/Result` mapping, immutable data structures).\n3. Verify that the pattern is completely removed."
+    )?;
+    
+    sync_architectural_category(
+        "Surgical_Refactor_Modules", 
+        &surgical, 
+        "Break down oversized or high-drag modules into smaller, more specialized units. \n\n**Action Steps:**\n1. Identify logical clusters within the oversized file.\n2. Extract these clusters into new modules (e.g., `ModuleTypes.res`, `ModuleLogic.res`).\n3. Use the original file as a facade/index if necessary to avoid breaking external imports.\n4. Aim for < 500 LOC per file."
+    )?;
+    
+    sync_architectural_category(
+        "Structural_Vertical_Slicing", 
+        &structural, 
+        "Implement vertical slicing for fragmented features spread across multiple folders. \n\n**Action Steps:**\n1. Locate all files related to the specific feature (e.g., Reducer, UI, API Logic).\n2. Create a single folder for the feature (e.g., `src/features/FeatureName`).\n3. Move all related files into this folder.\n4. Update all imports/dependencies to point to the new location."
+    )?;
+    
+    sync_architectural_category(
+        "Merge_Fragmented_Folders", 
+        &merges, 
+        "Consolidate folders containing many small files (high 'Read Tax') into single cohesive modules. \n\n**Action Steps:**\n1. Analyze the files in the directory. If they represent a single logical unit, merge them into one file (e.g., `Reducers.res`).\n2. Update all external references to the new consolidated file.\n3. Delete the original fragmented files and their empty parent directories.\n4. This reduces the cognitive overhead of 'directory hopping'."
+    )?;
 
     Ok(())
 }

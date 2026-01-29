@@ -88,8 +88,7 @@ This map provides a semantic overview of the project structure to optimize conte
     * [src/systems/ProjectManagerLogic.res](src/systems/ProjectManagerLogic.res): Core logic for project packaging and resolution. `#logic`
     * [src/systems/ProjectManagerTypes.res](src/systems/ProjectManagerTypes.res): Shared types for project management. `#types`
 *   [src/systems/Exporter.res](src/systems/Exporter.res): Generates production-ready tour clusters. `#export` `#deployment`
-*   [src/systems/api/ProjectApi.res](src/systems/api/ProjectApi.res): Frontend API client for project operations. `#api` `#client`
-*   [src/systems/api/MediaApi.res](src/systems/api/MediaApi.res): Frontend API client for media operations. `#api` `#media`
+*   [src/systems/Api.res](src/systems/Api.res): Consolidated API module for media, projects, and authentication. `#api` `#client` `#consolidated`
 *   [src/systems/FingerprintService.res](src/systems/FingerprintService.res): Image fingerprinting for deduplication. `#image` `#fingerprint`
 *   [src/systems/PanoramaClusterer.res](src/systems/PanoramaClusterer.res): Logic for grouping and clustering panoramas. `#logic` `#clustering`
 *   [src/systems/SvgManager.res](src/systems/SvgManager.res): Management of SVG overlays and elements. `#svg` `#rendering`
@@ -133,33 +132,19 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [src/systems/TourTemplateAssets.res](src/systems/TourTemplateAssets.res): Static and dynamic assets for tour themes. `#assets`
     *   [src/systems/TourTemplateScripts.res](src/systems/TourTemplateScripts.res): Theme-specific interaction scripts and logic. `#logic`
     *   [src/systems/TourTemplateStyles.res](src/systems/TourTemplateStyles.res): CSS-in-JS definitions for tour branding. `#styling`
-*   [src/systems/BackendApi.res](src/systems/BackendApi.res): Unified frontend client for all backend interactions. `#api` `#client`
-*   [src/systems/api/AuthenticatedClient.res](src/systems/api/AuthenticatedClient.res): Specialized client with automated authentication header injection. `#api` `#auth`
+*   [src/systems/BackendApi.res](src/systems/BackendApi.res): Facade for the consolidated API module. `#api` `#client` `#facade`
 *   [src/systems/UploadProcessorTypes.res](src/systems/UploadProcessorTypes.res): Types specialized for the upload pipeline. `#upload` `#types`
 *   [src/systems/HotspotLineTypes.res](src/systems/HotspotLineTypes.res): Types for visual hotspot connections. `#hotspots` `#types`
-*   [src/systems/api/ApiTypes.res](src/systems/api/ApiTypes.res): Generic API request/response types. `#api` `#types`
 
 ### 🎨 Visual & UI Components
 *   [src/components/ViewerUI.res](src/components/ViewerUI.res): High-level orchestrator for the viewer interface. `#ui` `#hud` `#orchestration`
 *   [src/components/ViewerHUD.res](src/components/ViewerHUD.res): Primary overlay system (UtilityBar, FloorNav, Labels). `#ui` `#hud` `#overlays`
 *   [src/components/FloorNavigation.res](src/components/FloorNavigation.res): Interactive floor and level switcher for the viewer HUD. `#ui` `#navigation`
 *   [src/components/UtilityBar.res](src/components/UtilityBar.res): Top-level action bar for viewer tools and settings. `#ui` `#hud`
-*   [src/components/VisualPipeline.res](src/components/VisualPipeline.res): Lightweight facade for the tour visualizer pipeline. `#ui` `#visual-pipeline` `#facade`
-    *   [src/components/VisualPipeline/VisualPipelineMain.res](src/components/VisualPipeline/VisualPipelineMain.res): Main UI orchestration for the visual pipeline. `#ui`
-    *   [src/components/VisualPipeline/VisualPipelineLogic.res](src/components/VisualPipeline/VisualPipelineLogic.res): State management and animation logic for the pipeline. `#logic`
-    *   [src/components/VisualPipeline/VisualPipelineRender.res](src/components/VisualPipeline/VisualPipelineRender.res): Specialized Canvas/SVG rendering for pipeline steps. `#rendering`
-    *   [src/components/VisualPipeline/VisualPipelineStyles.res](src/components/VisualPipeline/VisualPipelineStyles.res): Tailwind-integrated styles for the visual pipeline. `#styling`
-    *   [src/components/VisualPipeline/VisualPipelineTypes.res](src/components/VisualPipeline/VisualPipelineTypes.res): Types for pipeline state and step definitions. `#types`
+*   [src/components/VisualPipeline.res](src/components/VisualPipeline.res): Consolidated visualizer pipeline module. `#ui` `#visual-pipeline` `#logic` `#rendering`
 *   [src/components/SnapshotOverlay.res](src/components/SnapshotOverlay.res): Visual transition "flash" layer. `#ui` `#transition`
 *   [src/components/NotificationLayer.res](src/components/NotificationLayer.res): Centralized notification and processing status layer. `#ui` `#notifications`
-*   [src/components/Sidebar.res](src/components/Sidebar.res): Lightweight facade for sidebar management. `#sidebar` `#scene-management` `#facade`
-    *   [src/components/Sidebar/SidebarMain.res](src/components/Sidebar/SidebarMain.res): Lightweight facade for sidebar orchestration. `#ui` `#facade`
-    *   [src/components/Sidebar/SidebarMainLogic.res](src/components/Sidebar/SidebarMainLogic.res): Core project management and upload logic. `#logic`
-    *   [src/components/Sidebar/SidebarMainTypes.res](src/components/Sidebar/SidebarMainTypes.res): Types for sidebar processing and state. `#types`
-    *   [src/components/Sidebar/SidebarBranding.res](src/components/Sidebar/SidebarBranding.res): Sidebar branding and version header. `#ui`
-    *   [src/components/Sidebar/SidebarActions.res](src/components/Sidebar/SidebarActions.res): Primary action buttons for project management. `#ui` `#actions`
-    *   [src/components/Sidebar/SidebarProjectInfo.res](src/components/Sidebar/SidebarProjectInfo.res): Project name input and upload triggers. `#ui`
-    *   [src/components/Sidebar/SidebarProcessing.res](src/components/Sidebar/SidebarProcessing.res): Processing progress and status overlay. `#ui` `#progress`
+*   [src/components/Sidebar.res](src/components/Sidebar.res): Consolidated sidebar module for project management and UI. `#sidebar` `#scene-management` `#ui` `#logic`
 *   [src/components/SceneList.res](src/components/SceneList.res): Virtualized list of tour scenes. `#ui` `#virtualization` `#facade`
     *   [src/components/SceneList/SceneListMain.res](src/components/SceneList/SceneListMain.res): Main virtualization and list management logic. `#logic`
     *   [src/components/SceneList/SceneItem.res](src/components/SceneList/SceneItem.res): Individual scene item component. `#ui`

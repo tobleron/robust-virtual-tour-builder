@@ -8,7 +8,15 @@
 
 ---
 
-## 🛠️ SURGICAL REFACTOR TASKS (115)
+## 🚨 CRITICAL VIOLATIONS (1)
+**Action:** Fix these patterns immediately using project standards.
+
+### Pattern: `mutable `
+- [ ] `../../src/components/VisualPipeline.res`
+
+---
+
+## 🛠️ SURGICAL REFACTOR TASKS (110)
 **Action:** Extract logic to new modules to reduce complexity/bloat.
 **Target:** To be determined by AI Agent (Create new modules as needed).
 
@@ -119,15 +127,6 @@
 - [ ] **../../src/components/SceneList/SceneListMain.res**
   - *Reason:* LOC 211 > Limit 30 (Role: ui-component, Drag: 10.08)
     🔥 Hotspot: Lines 213-217 (AI Context Fog (score 51.0))
-- [ ] **../../src/components/Sidebar/SidebarActions.res**
-  - *Reason:* LOC 69 > Limit 30 (Role: orchestrator, Drag: 5.23)
-    🔥 Hotspot: Lines 34-38 (AI Context Fog (score 18.0))
-- [ ] **../../src/components/Sidebar/SidebarMain.res**
-  - *Reason:* LOC 221 > Limit 30 (Role: ui-component, Drag: 9.54)
-    🔥 Hotspot: Lines 72-76 (AI Context Fog (score 49.0))
-- [ ] **../../src/components/Sidebar/SidebarMainLogic.res**
-  - *Reason:* LOC 152 > Limit 30 (Role: service-orchestrator, Drag: 18.19)
-    🔥 Hotspot: Lines 83-87 (AI Context Fog (score 43.8))
 - [ ] **../../src/components/NotificationLayer.res**
   - *Reason:* LOC 59 > Limit 36 (Role: ui-component, Drag: 5.85)
     🔥 Hotspot: Lines 38-42 (AI Context Fog (score 49.0))
@@ -143,15 +142,6 @@
 - [ ] **../../src/components/HotspotActionMenu.res**
   - *Reason:* LOC 147 > Limit 30 (Role: ui-component, Drag: 20.31)
     🔥 Hotspot: Lines 84-88 (AI Context Fog (score 38.0))
-- [ ] **../../src/components/VisualPipeline/VisualPipelineRender.res**
-  - *Reason:* LOC 160 > Limit 30 (Role: ui-component, Drag: 21.53)
-    🔥 Hotspot: Lines 47-51 (AI Context Fog (score 66.0))
-- [ ] **../../src/components/VisualPipeline/VisualPipelineStyles.res**
-  - *Reason:* LOC 105 > Limit 82 (Role: ui-component, Drag: 3.31)
-    🔥 Hotspot: Lines 18-22 (AI Context Fog (score 9.0))
-- [ ] **../../src/components/VisualPipeline/VisualPipelineLogic.res**
-  - *Reason:* LOC 96 > Limit 30 (Role: service-orchestrator, Drag: 13.28)
-    🔥 Hotspot: Lines 77-81 (AI Context Fog (score 17.8))
 - [ ] **../../src/components/QualityIndicator.res**
   - *Reason:* LOC 48 > Limit 36 (Role: ui-component, Drag: 5.78)
     🔥 Hotspot: Lines 44-48 (AI Context Fog (score 14.6))
@@ -161,9 +151,15 @@
 - [ ] **../../src/components/PopOver.res**
   - *Reason:* LOC 147 > Limit 30 (Role: ui-component, Drag: 20.15)
     🔥 Hotspot: Lines 50-54 (AI Context Fog (score 29.4))
+- [ ] **../../src/components/Sidebar.res**
+  - *Reason:* LOC 567 > Limit 160 (Role: ui-component, Drag: 2.20)
+    🔥 Hotspot: Lines 103-107 (AI Context Fog (score 52.0))
 - [ ] **../../src/components/PreviewArrow.res**
   - *Reason:* LOC 188 > Limit 30 (Role: ui-component, Drag: 26.20)
     🔥 Hotspot: Lines 90-94 (AI Context Fog (score 66.0))
+- [ ] **../../src/components/VisualPipeline.res**
+  - *Reason:* LOC 364 > Limit 30 (Role: ui-component, Drag: 28.64)
+    🔥 Hotspot: Lines 241-245 (AI Context Fog (score 83.0))
 - [ ] **../../src/components/HotspotMenuLayer.res**
   - *Reason:* LOC 51 > Limit 37 (Role: ui-component, Drag: 5.74)
     🔥 Hotspot: Lines 21-25 (AI Context Fog (score 25.0))
@@ -281,6 +277,9 @@
 - [ ] **../../src/systems/SimulationChainSkipper.res**
   - *Reason:* LOC 66 > Limit 30 (Role: service-orchestrator, Drag: 5.68)
     🔥 Hotspot: Lines 58-62 (AI Context Fog (score 36.0))
+- [ ] **../../src/systems/Api.res**
+  - *Reason:* LOC 584 > Limit 32 (Role: service-orchestrator, Drag: 4.37)
+    🔥 Hotspot: Lines 593-597 (AI Context Fog (score 67.4))
 - [ ] **../../src/systems/CursorPhysics.res**
   - *Reason:* LOC 47 > Limit 31 (Role: service-orchestrator, Drag: 3.62)
     🔥 Hotspot: Lines 53-57 (AI Context Fog (score 16.0))
@@ -293,12 +292,6 @@
 - [ ] **../../src/systems/TeaserManager.res**
   - *Reason:* LOC 237 > Limit 30 (Role: service-orchestrator, Drag: 14.55)
     🔥 Hotspot: Lines 223-227 (AI Context Fog (score 146.0))
-- [ ] **../../src/systems/api/ProjectApi.res**
-  - *Reason:* LOC 280 > Limit 30 (Role: service-orchestrator, Drag: 23.84)
-    🔥 Hotspot: Lines 257-261 (AI Context Fog (score 52.0))
-- [ ] **../../src/systems/api/MediaApi.res**
-  - *Reason:* LOC 174 > Limit 30 (Role: service-orchestrator, Drag: 13.83)
-    🔥 Hotspot: Lines 27-31 (AI Context Fog (score 35.8))
 - [ ] **../../src/systems/TourTemplateStyles.res**
   - *Reason:* LOC 186 > Limit 113 (Role: service-orchestrator, Drag: 1.90)
     🔥 Hotspot: Lines 188-192 (AI Context Fog (score 14.6))
