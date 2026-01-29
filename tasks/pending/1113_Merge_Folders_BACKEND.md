@@ -8,13 +8,6 @@
 **Optimal State:** Related small modules are unified into a single context window, reducing token consumption.
 
 ## Tasks
-- [ ] Folder: `backend/src/services/project`
-    - **Metric:** Recursive Feature Pod: 4 files in subtree sum to 605 LOC (fits in context).
-    - **Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module to reduce token overhead during analysis.
-    - `../../backend/src/services/project/load.rs`
-    - `../../backend/src/services/project/mod.rs`
-    - `../../backend/src/services/project/package.rs`
-    - `../../backend/src/services/project/validate.rs`
 - [ ] Folder: `backend/src/services/media`
     - **Metric:** Recursive Feature Pod: 9 files in subtree sum to 791 LOC (fits in context).
     - **Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module to reduce token overhead during analysis.
@@ -27,6 +20,13 @@
     - `../../backend/src/services/media/resizing.rs`
     - `../../backend/src/services/media/storage.rs`
     - `../../backend/src/services/media/webp.rs`
+- [ ] Folder: `backend/src/services/project`
+    - **Metric:** Recursive Feature Pod: 4 files in subtree sum to 605 LOC (fits in context).
+    - **Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module to reduce token overhead during analysis.
+    - `../../backend/src/services/project/load.rs`
+    - `../../backend/src/services/project/mod.rs`
+    - `../../backend/src/services/project/package.rs`
+    - `../../backend/src/services/project/validate.rs`
 - [ ] Folder: `backend/src/services/geocoding`
     - **Metric:** Recursive Feature Pod: 2 files in subtree sum to 375 LOC (fits in context).
     - **Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module to reduce token overhead during analysis.
