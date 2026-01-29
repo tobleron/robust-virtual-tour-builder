@@ -13,33 +13,38 @@
 
 ---
 
-## 🏗️ STRUCTURAL REFACTOR TASKS (11)
-- [ ] **../../src/core/interfaces** (Action: Flatten Hierarchy)
-  - *Reason:* Folder depth is 5. Flatten to reduce traversal tax.
-- [ ] **../../backend/src/services/media** (Action: Flatten Hierarchy)
-  - *Reason:* Folder depth is 6. Flatten to reduce traversal tax.
-- [ ] **../../src/components/ui** (Action: Flatten Hierarchy)
-  - *Reason:* Folder depth is 5. Flatten to reduce traversal tax.
-- [ ] **../../backend/src/services/project** (Action: Flatten Hierarchy)
-  - *Reason:* Folder depth is 6. Flatten to reduce traversal tax.
-- [ ] **../../backend/src/services/auth** (Action: Flatten Hierarchy)
-  - *Reason:* Folder depth is 6. Flatten to reduce traversal tax.
-- [ ] **../../backend/src/api/media** (Action: Flatten Hierarchy)
-  - *Reason:* Folder depth is 6. Flatten to reduce traversal tax.
-- [ ] **../../backend/src/services** (Action: Flatten Hierarchy)
-  - *Reason:* Folder depth is 5. Flatten to reduce traversal tax.
-- [ ] **../../backend/src/services/geocoding** (Action: Flatten Hierarchy)
-  - *Reason:* Folder depth is 6. Flatten to reduce traversal tax.
-- [ ] **../../backend/src/middleware** (Action: Flatten Hierarchy)
-  - *Reason:* Folder depth is 5. Flatten to reduce traversal tax.
+## 🏗️ STRUCTURAL REFACTOR TASKS (1)
 - [ ] **../../backend/src/services/media/analysis** (Action: Flatten Hierarchy)
-  - *Reason:* Folder depth is 7. Flatten to reduce traversal tax.
-- [ ] **../../backend/src/api** (Action: Flatten Hierarchy)
   - *Reason:* Folder depth is 5. Flatten to reduce traversal tax.
 
 ---
 
 ## 🧩 MERGE TASKS (8)
+### Merge Folder: `../../backend/src/middleware`
+- **Reason:** Read Tax high (Score 4.00).
+- **Files:**
+  - `auth.rs`
+  - `quota_check.rs`
+  - `mod.rs`
+  - `request_tracker.rs`
+### Merge Folder: `../../backend/src/services`
+- **Reason:** Read Tax high (Score 5.00).
+- **Files:**
+  - `database.rs`
+  - `shutdown.rs`
+  - `upload_quota.rs`
+  - `mod.rs`
+  - `upload_quota_tests.rs`
+### Merge Folder: `../../src/components/ui`
+- **Reason:** Read Tax high (Score 2.00).
+- **Files:**
+  - `Shadcn.res`
+  - `LucideIcons.res`
+### Merge Folder: `../../backend/src/services/auth`
+- **Reason:** Read Tax high (Score 2.00).
+- **Files:**
+  - `jwt.rs`
+  - `mod.rs`
 ### Merge Folder: `../../backend/src/services/media`
 - **Reason:** Read Tax high (Score 6.00).
 - **Files:**
@@ -49,11 +54,12 @@
   - `mod.rs`
   - `naming.rs`
   - `webp.rs`
-### Merge Folder: `../../src/components/ui`
-- **Reason:** Read Tax high (Score 2.00).
+### Merge Folder: `../../backend/src/services/media/analysis`
+- **Reason:** Read Tax high (Score 3.00).
 - **Files:**
-  - `Shadcn.res`
-  - `LucideIcons.res`
+  - `quality.rs`
+  - `exif.rs`
+  - `mod.rs`
 ### Merge Folder: `../../backend/src/services/project`
 - **Reason:** Read Tax high (Score 2.00).
 - **Files:**
@@ -61,34 +67,8 @@
   - `mod.rs`
   - `validate.rs`
   - `package.rs`
-### Merge Folder: `../../backend/src/services/auth`
-- **Reason:** Read Tax high (Score 2.00).
-- **Files:**
-  - `jwt.rs`
-  - `mod.rs`
-### Merge Folder: `../../backend/src/services`
-- **Reason:** Read Tax high (Score 5.00).
-- **Files:**
-  - `database.rs`
-  - `shutdown.rs`
-  - `upload_quota.rs`
-  - `mod.rs`
-  - `upload_quota_tests.rs`
 ### Merge Folder: `../../backend/src/services/geocoding`
 - **Reason:** Read Tax high (Score 2.00).
 - **Files:**
   - `mod.rs`
   - `logic.rs`
-### Merge Folder: `../../backend/src/middleware`
-- **Reason:** Read Tax high (Score 4.00).
-- **Files:**
-  - `auth.rs`
-  - `quota_check.rs`
-  - `mod.rs`
-  - `request_tracker.rs`
-### Merge Folder: `../../backend/src/services/media/analysis`
-- **Reason:** Read Tax high (Score 3.00).
-- **Files:**
-  - `quality.rs`
-  - `exif.rs`
-  - `mod.rs`
