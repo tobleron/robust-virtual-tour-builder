@@ -12,16 +12,6 @@ The following regions are calculated to be the most confusing for AI:
 
 ## Tasks
 
-### 🔧 Action: Audit & Delete
-**Directive:** De-bloat: Reduce module size by identifying and extracting independent domain logic.
-
-- [ ] - **../../src/systems/NavigationController.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 194))
-
-- [ ] - **../../src/systems/NavigationRenderer.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 248))
-
-- [ ] - **../../src/systems/NavigationUI.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 54))
-
-
 ### 🔧 Action: De-bloat
 **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
 
@@ -46,3 +36,14 @@ The following regions are calculated to be the most confusing for AI:
 - [ ] - **../../src/systems/UploadProcessor.res** (Metric: [Nesting: 1.50, Density: 0.02, Coupling: 0.58] | Drag: 2.55 | LOC: 333/250  Hotspot: Lines 338-342)
 
 - [ ] - **../../src/systems/ViewerSystem.res** (Metric: [Nesting: 1.20, Density: 0.21, Coupling: 0.51] | Drag: 3.96 | LOC: 299/250  Hotspot: Lines 207-211)
+
+
+### 🔧 Action: Audit & Delete
+**Directive:** De-bloat: Reduce module size by identifying and extracting independent domain logic.
+
+- [ ] - **../../src/systems/NavigationController.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 194))
+
+- [ ] - **../../src/systems/NavigationRenderer.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 248))
+
+- [ ] - **../../src/systems/NavigationUI.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 54))
+

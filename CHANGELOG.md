@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Create task for perfecting _dev-system analyzer app (Phase 2)
 - Improve: fix rescript dependency extraction and identify analyzer task pollution
 - Add task 1104 for analyzer maintenance
+- Improve: implement analyzer refinements (idempotent sync, unified merge, entry point guard)
 
 ### Added
 - Refined `_dev-system` Smart Merge logic to support (Directory, Extension) grouping, preventing polyglot merge errors.

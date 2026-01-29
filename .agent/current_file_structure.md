@@ -4668,24 +4668,18 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1086_Surgical_Refactor_COMPONENTS_FRONTEND.md
-│   │   ├── 1087_Surgical_Refactor_SYSTEMS_FRONTEND.md
-│   │   ├── 1088_Surgical_Refactor_UTILS_FRONTEND.md
-│   │   ├── 1089_Surgical_Refactor_CORE_FRONTEND.md
-│   │   ├── 1090_Surgical_Refactor_API_BACKEND.md
-│   │   ├── 1091_Surgical_Refactor_MEDIA_BACKEND.md
-│   │   ├── 1092_Surgical_Refactor_SRC_BACKEND.md
-│   │   ├── 1093_Merge_Folders_BACKEND.md
-│   │   ├── 1094_Surgical_Refactor_SRC_FRONTEND.md
 │   │   ├── 1095_Classify_Ambiguous_Files.md
 │   │   ├── 1097_Perfect_Dev_System_Analyzer.md
-│   │   ├── 1098_Surgical_Refactor_CSS_FRONTEND.md
-│   │   ├── 1099_Surgical_Refactor_AUTH_BACKEND.md
-│   │   ├── 1100_Surgical_Refactor_PROJECT_BACKEND.md
-│   │   ├── 1101_Surgical_Refactor_MIDDLEWARE_BACKEND.md
-│   │   ├── 1102_Surgical_Refactor_GEOCODING_BACKEND.md
-│   │   ├── 1103_Surgical_Refactor_SERVICES_BACKEND.md
 │   │   ├── 1104_refine_dev_system_analyzer_maintenance.md
+│   │   ├── 1105_Surgical_Refactor_SYSTEMS_FRONTEND.md
+│   │   ├── 1106_Surgical_Refactor_CORE_FRONTEND.md
+│   │   ├── 1107_Surgical_Refactor_CSS_FRONTEND.md
+│   │   ├── 1108_Surgical_Refactor_COMPONENTS_FRONTEND.md
+│   │   ├── 1109_Surgical_Refactor_SRC_FRONTEND.md
+│   │   ├── 1110_Surgical_Refactor_UTILS_FRONTEND.md
+│   │   ├── 1111_Surgical_Refactor_MEDIA_BACKEND.md
+│   │   ├── 1112_Surgical_Refactor_SRC_BACKEND.md
+│   │   ├── 1113_Merge_Folders_BACKEND.md
 │   │   └── tests
 │   │       └── 006_Test_Generation_Unified.md
 │   └── postponed
@@ -5007,4 +5001,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-192 directories, 4816 files
+192 directories, 4810 files
