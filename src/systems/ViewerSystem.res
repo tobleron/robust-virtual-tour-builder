@@ -151,6 +151,23 @@ module Pool = {
 // --- FOLLOW (from ViewerFollow.res) ---
 
 module Follow = {
+  let isInsideDeadZone = (startPt, lastMouse) => {
+    switch (startPt, lastMouse) {
+    | (Some(st), Some(ev)) =>
+      let d = Math.sqrt(
+        (Belt.Int.toFloat(Dom.clientX(ev)) -. st["x"]) ** 2.0 +.
+          (Belt.Int.toFloat(Dom.clientY(ev)) -. st["y"]) ** 2.0,
+      )
+      if d > 150.0 {
+        (false, true)
+      } else {
+        (true, false)
+      }
+    | (Some(_), None) => (true, false)
+    | _ => (false, false)
+    }
+  }
+
   let rec updateFollowLoop = () => {
     let busy =
       Dom.getElementById("processing-ui")
@@ -197,20 +214,10 @@ module Follow = {
           }
           let startPt = ViewerState.state.contents.linkingStartPoint->Nullable.toOption
           let lastMouse = ViewerState.state.contents.lastMouseEvent->Nullable.toOption
-          let insideDz = switch (startPt, lastMouse) {
-          | (Some(st), Some(ev)) =>
-            let d = Math.sqrt(
-              (Belt.Int.toFloat(Dom.clientX(ev)) -. st["x"]) ** 2.0 +.
-                (Belt.Int.toFloat(Dom.clientY(ev)) -. st["y"]) ** 2.0,
-            )
-            if d > 150.0 {
-              ViewerState.state := {...ViewerState.state.contents, linkingStartPoint: Nullable.null}
-              false
-            } else {
-              true
-            }
-          | (Some(_), None) => true
-          | _ => false
+          let (insideDz, shouldReset) = isInsideDeadZone(startPt, lastMouse)
+
+          if shouldReset {
+            ViewerState.state := {...ViewerState.state.contents, linkingStartPoint: Nullable.null}
           }
           let getBoost = vel => {
             let a = Math.abs(vel)

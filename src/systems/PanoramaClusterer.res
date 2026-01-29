@@ -24,6 +24,19 @@ let clusterScenes = (
 
   // Build pairs for batch similarity
   let pairs: array<similarityPair> = []
+
+  let addSimilarityPair = (idA, idB, histA, histB) => {
+    let _ = Array.push(
+      pairs,
+      {
+        idA,
+        idB,
+        histogramA: histA,
+        histogramB: histB,
+      },
+    )
+  }
+
   Belt.Array.forEachWithIndex(validProcessed, (i, current) => {
     let currentId = Nullable.toOption(current.id)->Option.getOr(File.name(current.original))
     let currentQ = current.quality
@@ -39,15 +52,7 @@ let clusterScenes = (
             switch prev.quality {
             | Some(pq) =>
               let prevId = Nullable.toOption(prev.id)->Option.getOr(File.name(prev.original))
-              let _ = Array.push(
-                pairs,
-                {
-                  idA: currentId,
-                  idB: prevId,
-                  histogramA: q,
-                  histogramB: pq,
-                },
-              )
+              addSimilarityPair(currentId, prevId, q, pq)
             | None => ()
             }
           | None => ()
@@ -61,15 +66,7 @@ let clusterScenes = (
         switch lastS.quality {
         | Some(lq) =>
           let lastId = lastS.id
-          let _ = Array.push(
-            pairs,
-            {
-              idA: currentId,
-              idB: lastId,
-              histogramA: q,
-              histogramB: lq,
-            },
-          )
+          addSimilarityPair(currentId, lastId, q, lq)
         | None => ()
         }
       | None => ()

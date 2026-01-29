@@ -352,26 +352,30 @@ let sanitizeScene = (s: Types.scene): Types.scene => {
   }
 }
 
+let createDefaultErrorScene = (idPrefix: string, name: string): Types.scene => {
+  {
+    id: idPrefix ++ Float.toString(Date.now()),
+    name: name,
+    file: Types.Url(""),
+    tinyFile: None,
+    originalFile: None,
+    hotspots: [],
+    category: "outdoor",
+    floor: "ground",
+    label: "",
+    quality: None,
+    colorGroup: None,
+    _metadataSource: "default",
+    categorySet: false,
+    labelSet: false,
+    isAutoForward: false,
+  }
+}
+
 let castToProjectScene = (json: JSON.t): Types.scene =>
   switch parse(json, Domain.scene) {
   | Ok(v) => sanitizeScene(v)
-  | Error(_) => {
-      id: "error_" ++ Float.toString(Date.now()),
-      name: "invalid",
-      file: Types.Url(""),
-      tinyFile: None,
-      originalFile: None,
-      hotspots: [],
-      category: "outdoor",
-      floor: "ground",
-      label: "",
-      quality: None,
-      colorGroup: None,
-      _metadataSource: "default",
-      categorySet: false,
-      labelSet: false,
-      isAutoForward: false,
-    }
+  | Error(_) => createDefaultErrorScene("error_", "invalid")
   }
 
 let castToProject = (json: JSON.t): Types.state => {
@@ -407,21 +411,5 @@ let castToSteps = (json: JSON.t): array<Types.step> =>
 let castToImportScene = (json: JSON.t): Types.scene =>
   switch parse(json, Domain.importScene) {
   | Ok(v) => sanitizeScene(v)
-  | Error(_) => {
-      id: "error",
-      name: "invalid",
-      file: Types.Url(""),
-      tinyFile: None,
-      originalFile: None,
-      hotspots: [],
-      category: "outdoor",
-      floor: "ground",
-      label: "",
-      quality: None,
-      colorGroup: None,
-      _metadataSource: "default",
-      categorySet: false,
-      labelSet: false,
-      isAutoForward: false,
-    }
+  | Error(_) => createDefaultErrorScene("error", "invalid")
   }
