@@ -20,55 +20,55 @@
 ---
 
 ## 🧩 MERGE TASKS (8)
-### Merge Folder: `../../backend/src/services/media/analysis`
-- **Reason:** Read Tax high (Score 3.00).
+### Merge Folder: `../../backend/src/services`
+- **Reason:** Read Tax high (Score 5.00).
 - **Files:**
-  - `quality.rs`
-  - `exif.rs`
+  - `upload_quota.rs`
+  - `shutdown.rs`
   - `mod.rs`
-### Merge Folder: `../../backend/src/services/media`
-- **Reason:** Read Tax high (Score 6.00).
-- **Files:**
-  - `naming_old.rs`
-  - `resizing.rs`
-  - `storage.rs`
-  - `mod.rs`
-  - `naming.rs`
-  - `webp.rs`
-### Merge Folder: `../../backend/src/middleware`
-- **Reason:** Read Tax high (Score 4.00).
-- **Files:**
-  - `auth.rs`
-  - `quota_check.rs`
-  - `mod.rs`
-  - `request_tracker.rs`
-### Merge Folder: `../../backend/src/services/geocoding`
-- **Reason:** Read Tax high (Score 2.00).
-- **Files:**
-  - `mod.rs`
-  - `logic.rs`
+  - `database.rs`
+  - `upload_quota_tests.rs`
 ### Merge Folder: `../../src/components/ui`
 - **Reason:** Read Tax high (Score 2.00).
 - **Files:**
-  - `Shadcn.res`
   - `LucideIcons.res`
+  - `Shadcn.res`
+### Merge Folder: `../../backend/src/services/media/analysis`
+- **Reason:** Read Tax high (Score 3.00).
+- **Files:**
+  - `mod.rs`
+  - `exif.rs`
+  - `quality.rs`
 ### Merge Folder: `../../backend/src/services/project`
 - **Reason:** Read Tax high (Score 2.00).
 - **Files:**
-  - `load.rs`
   - `mod.rs`
   - `validate.rs`
   - `package.rs`
+  - `load.rs`
+### Merge Folder: `../../backend/src/middleware`
+- **Reason:** Read Tax high (Score 4.00).
+- **Files:**
+  - `request_tracker.rs`
+  - `quota_check.rs`
+  - `mod.rs`
+  - `auth.rs`
+### Merge Folder: `../../backend/src/services/geocoding`
+- **Reason:** Read Tax high (Score 2.00).
+- **Files:**
+  - `logic.rs`
+  - `mod.rs`
 ### Merge Folder: `../../backend/src/services/auth`
 - **Reason:** Read Tax high (Score 2.00).
 - **Files:**
   - `jwt.rs`
   - `mod.rs`
-### Merge Folder: `../../backend/src/services`
-- **Reason:** Read Tax high (Score 5.00).
+### Merge Folder: `../../backend/src/services/media`
+- **Reason:** Read Tax high (Score 6.00).
 - **Files:**
-  - `database.rs`
-  - `shutdown.rs`
-  - `upload_quota.rs`
+  - `naming.rs`
+  - `naming_old.rs`
+  - `webp.rs`
+  - `resizing.rs`
+  - `storage.rs`
   - `mod.rs`
-  - `upload_quota_tests.rs`
