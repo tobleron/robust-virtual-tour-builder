@@ -157,7 +157,7 @@ describe("SceneList", () => {
     await wait(50)
 
     // Mock lastSwitchTime to be recent
-    ViewerState.state.lastSwitchTime = Date.now()
+    ViewerState.state := {...ViewerState.state.contents, lastSwitchTime: Date.now()}
 
     let clickSecondItem: Dom.element => unit = %raw(`(container) => {
       const items = container.querySelectorAll(".scene-item");

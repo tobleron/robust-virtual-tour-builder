@@ -118,6 +118,9 @@ let clusterScenes = (
       }
     }
 
+    // Proper sequential clustering with immutable items:
+    let results = []
+
     Belt.Array.forEachWithIndex(validProcessed, (i, current) => {
       let foundMatch = ref(None)
       let currentId = Nullable.toOption(current.id)->Option.getOr(File.name(current.original))
@@ -126,8 +129,9 @@ let clusterScenes = (
         if foundMatch.contents == None {
           let prevIdx = i - j
           if prevIdx >= 0 {
-            switch Belt.Array.get(validProcessed, prevIdx) {
-            | Some(prev) =>
+            // Look at RESULTS array which has the updated groups
+            switch results[prevIdx] {
+            | Some(prev: UploadTypes.uploadItem) =>
               let prevId = Nullable.toOption(prev.id)->Option.getOr(File.name(prev.original))
               let score = getSimilarity(currentId, prevId)
               if score > 0.65 {
@@ -140,7 +144,6 @@ let clusterScenes = (
       }
 
       if foundMatch.contents == None && existingCount > 0 {
-        /* Check match with last existing */
         switch lastExistingScene {
         | Some(lastS) =>
           let lastId = lastS.id
@@ -152,16 +155,19 @@ let clusterScenes = (
         }
       }
 
-      switch foundMatch.contents {
-      | Some(g) => current.colorGroup = Some(g)
+      let newGroup = switch foundMatch.contents {
+      | Some(g) => Some(g)
       | None =>
         lastGroupRef := lastGroupRef.contents + 1
-        current.colorGroup = Some(Belt.Int.toString(lastGroupRef.contents))
+        Some(Belt.Int.toString(lastGroupRef.contents))
       }
+
+      let newItem = { ...current, colorGroup: newGroup }
+      let _ = Array.push(results, newItem)
     })
 
     updateProgress(98.0, "Updating Sidebar...", true, "Finalizing")
 
-    Promise.resolve(validProcessed)
+    Promise.resolve(results)
   })
 }

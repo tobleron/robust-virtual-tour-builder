@@ -1,10 +1,10 @@
 type ratchetState = {
-  mutable pitchOffset: float,
-  mutable yawOffset: float,
-  mutable maxPitchOffset: float,
-  mutable minPitchOffset: float,
-  mutable maxYawOffset: float,
-  mutable minYawOffset: float,
+  pitchOffset: float,
+  yawOffset: float,
+  maxPitchOffset: float,
+  minPitchOffset: float,
+  maxYawOffset: float,
+  minYawOffset: float,
 }
 
 type viewerKey = A | B

@@ -55,12 +55,16 @@ module Navigation = {
   let findViewerForScene = (sceneId: string): option<Viewer.t> => {
     let globalViewer = Nullable.toOption(Viewer.instance)
     switch globalViewer {
-    | Some(v) if ViewerSystem.Adapter.asCustom(v).sceneId == sceneId => Some(v)
+    | Some(v)
+      if ViewerSystem.Adapter.getSceneId(ViewerSystem.Adapter.asCustom(v)) == Some(sceneId) =>
+      Some(v)
     | _ =>
       let found = ref(None)
-      ViewerSystem.Pool.pool->Belt.Array.forEach(vp => {
+      ViewerSystem.Pool.pool.contents->Belt.Array.forEach(vp => {
         switch vp.instance {
-        | Some(v) if ViewerSystem.Adapter.asCustom(v).sceneId == sceneId => found := Some(v)
+        | Some(v)
+          if ViewerSystem.Adapter.getSceneId(ViewerSystem.Adapter.asCustom(v)) == Some(sceneId) =>
+          found := Some(v)
         | _ => ()
         }
       })

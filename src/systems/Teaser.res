@@ -49,18 +49,18 @@ module Recorder = {
   type logoResult = {img: option<Dom.element>, loaded: bool}
 
   type recorderState = {
-    mutable mediaRecorder: option<mediaRecorder>,
-    mutable chunks: array<blob>,
-    mutable streamLoopId: option<int>,
-    mutable startTime: float,
-    mutable fadeOpacity: float,
-    mutable isTeasing: bool,
-    mutable ghostCanvas: option<Dom.element>,
-    mutable ghostCtx: option<Canvas.context2d>,
-    mutable snapshotCanvas: option<Dom.element>,
+    mediaRecorder: option<mediaRecorder>,
+    chunks: array<blob>,
+    streamLoopId: option<int>,
+    startTime: float,
+    fadeOpacity: float,
+    isTeasing: bool,
+    ghostCanvas: option<Dom.element>,
+    ghostCtx: option<Canvas.context2d>,
+    snapshotCanvas: option<Dom.element>,
   }
 
-  let internalState: recorderState = {
+  let internalState = ref({
     mediaRecorder: (None: option<mediaRecorder>),
     chunks: ([]: array<blob>),
     streamLoopId: (None: option<int>),
@@ -70,7 +70,7 @@ module Recorder = {
     ghostCanvas: (None: option<Dom.element>),
     ghostCtx: (None: option<Canvas.context2d>),
     snapshotCanvas: (None: option<Dom.element>),
-  }
+  })
 
   module Overlay = {
     let getOrCreate = () => {
@@ -112,12 +112,15 @@ module Recorder = {
     })
 
   let initGhost = () => {
-    if internalState.ghostCanvas == None {
+    if internalState.contents.ghostCanvas == None {
       let c = Dom.createElement("canvas")
       Dom.setWidth(c, canvasWidth)
       Dom.setHeight(c, canvasHeight)
-      internalState.ghostCanvas = Some(c)
-      internalState.ghostCtx = Some(Canvas.getContext2d(c, "2d", {"alpha": false}))
+      internalState := {
+        ...internalState.contents,
+        ghostCanvas: Some(c),
+        ghostCtx: Some(Canvas.getContext2d(c, "2d", {"alpha": false})),
+      }
     }
   }
 
@@ -158,7 +161,7 @@ module Recorder = {
   }
 
   let renderFrame = (sourceCanvas, includeLogo, logoState: logoResult) => {
-    switch internalState.ghostCtx {
+    switch internalState.contents.ghostCtx {
     | Some(ctx) =>
       let sw = Belt.Int.toFloat(Dom.getWidth(sourceCanvas))
       let sh = Belt.Int.toFloat(Dom.getHeight(sourceCanvas))
@@ -173,11 +176,11 @@ module Recorder = {
         Canvas.setFillStyle(ctx, "#000")
         Canvas.fillRect(ctx, 0.0, 0.0, dw, dh)
         drawImageScaled(ctx, sourceCanvas, rx, ry, rw, rh)
-        if internalState.fadeOpacity > 0.01 {
-          switch internalState.snapshotCanvas {
+        if internalState.contents.fadeOpacity > 0.01 {
+          switch internalState.contents.snapshotCanvas {
           | Some(snap) =>
             Canvas.save(ctx)
-            Canvas.setGlobalAlpha(ctx, internalState.fadeOpacity)
+            Canvas.setGlobalAlpha(ctx, internalState.contents.fadeOpacity)
             drawImagePos(ctx, snap, 0.0, 0.0)
             Canvas.restore(ctx)
           | None => ()
@@ -203,15 +206,15 @@ module Recorder = {
       | Some(sc) => renderFrame(sc, includeLogo, logoState)
       | None => ()
       }
-      internalState.streamLoopId = Some(requestAnimationFrame(draw))
+      internalState := {...internalState.contents, streamLoopId: Some(requestAnimationFrame(draw))}
     }
-    internalState.streamLoopId->Option.forEach(cancelAnimationFrame)
-    internalState.streamLoopId = Some(requestAnimationFrame(draw))
+    internalState.contents.streamLoopId->Option.forEach(cancelAnimationFrame)
+    internalState := {...internalState.contents, streamLoopId: Some(requestAnimationFrame(draw))}
   }
 
   let startRecording = () => {
     initGhost()
-    switch internalState.ghostCanvas {
+    switch internalState.contents.ghostCanvas {
     | None => false
     | Some(canvas) =>
       let stream = captureStream(canvas, 60)
@@ -222,14 +225,20 @@ module Recorder = {
       }
       try {
         let r = createMediaRecorder(stream, {"mimeType": mimeType, "videoBitsPerSecond": 10000000})
-        internalState.chunks = []
-        internalState.mediaRecorder = Some(r)
-        internalState.startTime = Date.now()
-        internalState.isTeasing = true
+        internalState := {
+          ...internalState.contents,
+          chunks: [],
+          mediaRecorder: Some(r),
+          startTime: Date.now(),
+          isTeasing: true,
+        }
         r->ondataavailable(e => {
           if e["data"]["size"] > 0 {
             let b = castToBlob(e["data"])
-            let _ = Array.push(internalState.chunks, b)
+            internalState := {
+              ...internalState.contents,
+              chunks: Array.concat(internalState.contents.chunks, [b]),
+            }
           }
         })
         r->start(100)
@@ -241,29 +250,29 @@ module Recorder = {
   }
 
   let stopRecording = () => {
-    internalState.isTeasing = false
-    internalState.mediaRecorder->Option.forEach(r =>
+    internalState := {...internalState.contents, isTeasing: false}
+    internalState.contents.mediaRecorder->Option.forEach(r =>
       if state(r) != "inactive" {
         stop(r)
       }
     )
-    internalState.streamLoopId->Option.forEach(cancelAnimationFrame)
+    internalState.contents.streamLoopId->Option.forEach(cancelAnimationFrame)
   }
 
   let pause = () =>
-    internalState.mediaRecorder->Option.forEach(r =>
+    internalState.contents.mediaRecorder->Option.forEach(r =>
       if state(r) == "recording" {
         pause(r)
       }
     )
   let resume = () =>
-    internalState.mediaRecorder->Option.forEach(r =>
+    internalState.contents.mediaRecorder->Option.forEach(r =>
       if state(r) == "paused" {
         resume(r)
       }
     )
   let setFadeOpacity = op => {
-    internalState.fadeOpacity = op
+    internalState := {...internalState.contents, fadeOpacity: op}
     Overlay.setOpacity(op)
   }
 }
@@ -384,8 +393,8 @@ module Playback = {
     style,
     config: State.teaserConfig,
   ) => {
-    Recorder.internalState.ghostCanvas->Option.forEach(g =>
-      Recorder.internalState.snapshotCanvas = Some(g)
+    Recorder.internalState.contents.ghostCanvas->Option.forEach(g =>
+      Recorder.internalState := {...Recorder.internalState.contents, snapshotCanvas: Some(g)}
     )
     Recorder.setFadeOpacity(1.0)
     await wait(50)
@@ -488,7 +497,7 @@ module Server = {
 
 module Manager = {
   let finalizeTeaser = async (format, baseName) => {
-    let chunks = Recorder.internalState.chunks
+    let chunks = Recorder.internalState.contents.chunks
     if Array.length(chunks) > 0 {
       let blob = Blob.newBlob(chunks, {"type": "video/webm"})
       if format == "webm" {

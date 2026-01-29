@@ -3,18 +3,18 @@
 
 /* --- XMP / GPano Types --- */
 type gPanoMetadata = {
-  mutable usePanoramaViewer: bool,
-  mutable projectionType: string,
-  mutable poseHeadingDegrees: float,
-  mutable posePitchDegrees: float,
-  mutable poseRollDegrees: float,
-  mutable croppedAreaImageWidthPixels: int,
-  mutable croppedAreaImageHeightPixels: int,
-  mutable fullPanoWidthPixels: int,
-  mutable fullPanoHeightPixels: int,
-  mutable croppedAreaLeftPixels: int,
-  mutable croppedAreaTopPixels: int,
-  mutable initialViewHeadingDegrees: int,
+  usePanoramaViewer: bool,
+  projectionType: string,
+  poseHeadingDegrees: float,
+  posePitchDegrees: float,
+  poseRollDegrees: float,
+  croppedAreaImageWidthPixels: int,
+  croppedAreaImageHeightPixels: int,
+  fullPanoWidthPixels: int,
+  fullPanoHeightPixels: int,
+  croppedAreaLeftPixels: int,
+  croppedAreaTopPixels: int,
+  initialViewHeadingDegrees: int,
 }
 
 /* --- Backend Metadata Types --- */

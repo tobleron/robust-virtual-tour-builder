@@ -2,7 +2,7 @@ open Vitest
 
 describe("ViewerFollow", () => {
   test("updateFollowLoop should stop if followLoopActive is false", t => {
-    ViewerState.state.followLoopActive = false
+    ViewerState.state := {...ViewerState.state.contents, followLoopActive: false}
 
     // Setup mock DOM to avoid crashes on getElementById
     let _ = %raw(`
@@ -11,11 +11,11 @@ describe("ViewerFollow", () => {
 
     ViewerSystem.Follow.updateFollowLoop()
 
-    t->expect(ViewerState.state.followLoopActive)->Expect.toBe(false)
+    t->expect(ViewerState.state.contents.followLoopActive)->Expect.toBe(false)
   })
 
   test("updateFollowLoop should stop if no viewer", t => {
-    ViewerState.state.followLoopActive = true
+    ViewerState.state := {...ViewerState.state.contents, followLoopActive: true}
     ViewerSystem.Pool.clearInstance("panorama-a")
 
     // State with no linking and no hotspots
@@ -28,15 +28,18 @@ describe("ViewerFollow", () => {
 
     ViewerSystem.Follow.updateFollowLoop()
 
-    t->expect(ViewerState.state.followLoopActive)->Expect.toBe(false)
+    t->expect(ViewerState.state.contents.followLoopActive)->Expect.toBe(false)
   })
 
   testAsync("updateFollowLoop should apply movement when linking", async t => {
     // Setup state for linking
-    ViewerState.state.followLoopActive = true
-    ViewerState.state.mouseXNorm = 0.8 // Outside 0.5 deadzone
-    ViewerState.state.mouseYNorm = 0.0 // Inside deadzone
-    ViewerState.state.linkingStartPoint = Nullable.null // No deadzone block
+    ViewerState.state := {
+      ...ViewerState.state.contents,
+      followLoopActive: true,
+      mouseXNorm: 0.8, // Outside 0.5 deadzone
+      mouseYNorm: 0.0, // Inside deadzone
+      linkingStartPoint: Nullable.null // No deadzone block
+    }
 
     let mockState = {
       ...State.initialState,

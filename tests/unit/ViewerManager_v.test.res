@@ -155,13 +155,16 @@ describe("ViewerManager", () => {
     // Reset ViewerState
     ViewerSystem.Pool.clearInstance("panorama-a")
     ViewerSystem.Pool.clearInstance("panorama-b")
-    ViewerSystem.Pool.pool->Belt.Array.forEach(
-      v => v.status = v.id == "primary-a" ? #Active : #Background,
+    ViewerSystem.Pool.pool := ViewerSystem.Pool.pool.contents->Belt.Array.map(
+      v => {...v, status: v.id == "primary-a" ? #Active : #Background},
     )
-    ViewerState.state.isSwapping = false
-    ViewerState.state.lastSceneId = Nullable.null
-    ViewerState.state.lastPreloadingIndex = -1
-    ViewerState.state.followLoopActive = false
+    ViewerState.state := {
+      ...ViewerState.state.contents,
+      isSwapping: false,
+      lastSceneId: Nullable.null,
+      lastPreloadingIndex: -1,
+      followLoopActive: false,
+    }
 
     // Clear document body from previous tests if any
     let body = Dom.documentBody
@@ -358,7 +361,7 @@ describe("ViewerManager", () => {
     Dom.appendChild(Dom.documentBody, container)
 
     // Set an old lastSceneId that is not in the new scenes list
-    ViewerState.state.lastSceneId = Nullable.make("old-stale-id")
+    ViewerState.state := {...ViewerState.state.contents, lastSceneId: Nullable.make("old-stale-id")}
 
     let mockState = {
       ...State.initialState,
@@ -380,7 +383,7 @@ describe("ViewerManager", () => {
     await wait(50)
 
     // lastSceneId should be reset to null (via ViewerSystem.resetState)
-    t->expect(ViewerState.state.lastSceneId)->Expect.toBe(Nullable.null)
+    t->expect(ViewerState.state.contents.lastSceneId)->Expect.toBe(Nullable.null)
 
     Dom.removeElement(container)
   })

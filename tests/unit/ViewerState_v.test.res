@@ -3,11 +3,22 @@ open Vitest
 describe("ViewerState", () => {
   beforeEach(() => {
     // Reset pool defaults
-    ViewerSystem.Pool.pool->Belt.Array.forEach(
-      v => {
-        v.instance = None
+    ViewerSystem.Pool.pool := [
+      {
+        id: "primary-a",
+        containerId: "panorama-a",
+        instance: None,
+        status: #Active,
+        cleanupTimeout: None,
       },
-    )
+      {
+        id: "primary-b",
+        containerId: "panorama-b",
+        instance: None,
+        status: #Background,
+        cleanupTimeout: None,
+      },
+    ]
     ViewerState.resetState()
   })
 
@@ -32,8 +43,8 @@ describe("ViewerState", () => {
   })
 
   test("resetState resets lastSceneId and timers", t => {
-    ViewerState.state.lastSceneId = Nullable.make("s0")
+    ViewerState.state := {...ViewerState.state.contents, lastSceneId: Nullable.make("s0")}
     ViewerSystem.resetState()
-    t->expect(ViewerState.state.lastSceneId)->Expect.toBe(Nullable.null)
+    t->expect(ViewerState.state.contents.lastSceneId)->Expect.toBe(Nullable.null)
   })
 })

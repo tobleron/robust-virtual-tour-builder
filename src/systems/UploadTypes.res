@@ -7,12 +7,12 @@ type file = File.t
 type uploadItem = {
   id: Nullable.t<string>,
   original: file,
-  mutable error: option<string>,
-  mutable preview: option<file>,
-  mutable tiny: option<file>,
-  mutable quality: option<JSON.t>,
-  mutable metadata: option<JSON.t>,
-  mutable colorGroup: option<string>,
+  error: option<string>,
+  preview: option<file>,
+  tiny: option<file>,
+  quality: option<JSON.t>,
+  metadata: option<JSON.t>,
+  colorGroup: option<string>,
 }
 
 type processResult = {
