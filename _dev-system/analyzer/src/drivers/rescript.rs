@@ -50,14 +50,16 @@ pub fn analyze_rescript(content: &str, dict: &std::collections::HashMap<String, 
              }
         }
 
-        // JSX Component Usage: <Module ... or <Module.Sub
-        if trim.starts_with("<") {
-             // Heuristic: <Module
-             // split on space or slash or dot
-             let clean_tag = trim.replace("<", "").replace("/>", "").replace(">", "");
+        // JSX Component Usage: <Module ... or <Module.Sub (Anywhere in line)
+        // Split by '<' to find all potential tags
+        let tag_chunks: Vec<&str> = trim.split('<').collect();
+        // Skip the first chunk (before the first <)
+        for chunk in tag_chunks.iter().skip(1) {
+             let clean_tag = chunk.replace("/>", "").replace(">", "");
              let tag_parts: Vec<&str> = clean_tag.split_whitespace().next().unwrap_or("").split('.').collect();
              if !tag_parts.is_empty() {
                  let potential_module = tag_parts[0];
+                 // Must start with Uppercase to be a Module Component
                  if !potential_module.is_empty() && potential_module.chars().next().unwrap_or(' ').is_uppercase() {
                       metrics.external_calls += 1;
                       metrics.dependencies.push(potential_module.to_string());

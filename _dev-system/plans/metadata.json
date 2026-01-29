@@ -2,122 +2,12 @@
   "rescript": [
     {
       "Surgical": {
-        "file": "../../src/components/Sidebar.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.20, Density: 0.00, Coupling: 0.00] | Drag: 2.20 | LOC: 569/453  Hotspot: Lines 103-107 (AI Context Fog (score 52.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 13.8
-      }
-    },
-    {
-      "Surgical": {
         "file": "../../src/systems/HotspotLine.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 1.35, Density: 0.12, Coupling: 0.06] | Drag: 2.78 | LOC: 697/250  Hotspot: Lines 245-249 (AI Context Fog (score 67.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "reason": "[Nesting: 1.35, Density: 0.12, Coupling: 0.08] | Drag: 2.78 | LOC: 697/250  Hotspot: Lines 245-249 (AI Context Fog (score 67.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
         "strategy": "",
         "platform": "frontend",
         "complexity": 47.476111908177906
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/Reducer.res",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 433)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/AuthContext.res",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 76)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ProjectData.res",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 94)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/RequestQueue.res",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 57)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/SceneList.res",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 416)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/CursorPhysics.res",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 55)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/TourLogic.res",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 129)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/GeoUtils.res",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 83)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/LazyLoad.res",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 87)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/Teaser.res",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 581)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
       }
     },
     {
@@ -132,89 +22,9 @@
     },
     {
       "Surgical": {
-        "file": "../../src/systems/Navigation.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.10, Density: 0.21, Coupling: 0.14] | Drag: 4.10 | LOC: 415/250  Hotspot: Lines 376-380 (AI Context Fog (score 196.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 20.602409638554217
-      }
-    },
-    {
-      "Surgical": {
         "file": "../../src/core/Schemas.res",
         "action": "Audit & Delete",
         "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 373)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/PanoramaClusterer.res",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 143)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/Resizer.res",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 303)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/FingerprintService.res",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 77)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/Exporter.res",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 205)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/Simulation.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.65, Density: 0.00, Coupling: 0.01] | Drag: 2.65 | LOC: 557/250  Hotspot: Lines 370-374 (AI Context Fog (score 124.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 33.35
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/ProgressBar.res",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 109)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/SceneHelpers.res",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 271)",
         "strategy": "",
         "platform": "frontend",
         "complexity": 0.0
@@ -232,9 +42,9 @@
     },
     {
       "Surgical": {
-        "file": "../../src/systems/Api.res",
+        "file": "../../src/systems/NavigationUI.res",
         "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 592)",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 54)",
         "strategy": "",
         "platform": "frontend",
         "complexity": 0.0
@@ -242,99 +52,9 @@
     },
     {
       "Surgical": {
-        "file": "../../src/components/VisualPipeline.res",
+        "file": "../../src/utils/TourLogic.res",
         "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 365)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/DownloadSystem.res",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 135)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/VideoEncoder.res",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 100)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/NavigationController.res",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 194)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ProjectManager.res",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 247)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/UploadReport.res",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 189)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/ViewerManagerLogic.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.20, Density: 0.24, Coupling: 0.21] | Drag: 3.00 | LOC: 314/250  Hotspot: Lines 185-189 (AI Context Fog (score 61.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 9.396178343949046
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/Logger.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 0.90, Density: 0.13, Coupling: 0.03] | Drag: 2.29 | LOC: 492/250  Hotspot: Lines 175-179 (AI Context Fog (score 31.6): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 26.49430894308943
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/SharedTypes.res",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 132)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/PopOver.res",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 147)",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 129)",
         "strategy": "",
         "platform": "frontend",
         "complexity": 0.0
@@ -352,19 +72,9 @@
     },
     {
       "Surgical": {
-        "file": "../../src/systems/ViewerSystem.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.20, Density: 0.21, Coupling: 0.08] | Drag: 3.96 | LOC: 299/250  Hotspot: Lines 207-211 (AI Context Fog (score 52.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 8.862541806020067
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/ServiceWorkerMain.res",
+        "file": "../../src/systems/ProjectManager.res",
         "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 164)",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 247)",
         "strategy": "",
         "platform": "frontend",
         "complexity": 0.0
@@ -372,9 +82,39 @@
     },
     {
       "Surgical": {
-        "file": "../../src/systems/InputSystem.res",
+        "file": "../../src/systems/NavigationController.res",
         "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 78)",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 194)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/ViewerManagerLogic.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.20, Density: 0.24, Coupling: 0.21] | Drag: 3.00 | LOC: 314/250  Hotspot: Lines 185-189 (AI Context Fog (score 61.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 9.396178343949046
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/UploadProcessor.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 333)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/CursorPhysics.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 55)",
         "strategy": "",
         "platform": "frontend",
         "complexity": 0.0
@@ -392,6 +132,146 @@
     },
     {
       "Surgical": {
+        "file": "../../src/utils/RequestQueue.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 57)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/Teaser.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 581)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/SceneHelpers.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 271)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/Reducer.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 433)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/Sidebar.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.20, Density: 0.00, Coupling: 0.00] | Drag: 2.20 | LOC: 569/453  Hotspot: Lines 103-107 (AI Context Fog (score 52.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 13.8
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/Api.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 592)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/InputSystem.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 78)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/Simulation.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.65, Density: 0.00, Coupling: 0.01] | Drag: 2.65 | LOC: 557/250  Hotspot: Lines 370-374 (AI Context Fog (score 124.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 33.35
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/DownloadSystem.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 135)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/SharedTypes.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 132)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/Resizer.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 303)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/VideoEncoder.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 100)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/ProgressBar.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 109)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/ServiceWorkerMain.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 164)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
         "file": "../../src/systems/TourTemplates.res",
         "action": "Audit & Delete",
         "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 217)",
@@ -402,9 +282,9 @@
     },
     {
       "Surgical": {
-        "file": "../../src/systems/UploadProcessor.res",
+        "file": "../../src/systems/FingerprintService.res",
         "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 333)",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 77)",
         "strategy": "",
         "platform": "frontend",
         "complexity": 0.0
@@ -412,19 +292,77 @@
     },
     {
       "Surgical": {
-        "file": "../../src/systems/NavigationUI.res",
+        "file": "../../src/core/AuthContext.res",
         "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 54)",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 76)",
         "strategy": "",
         "platform": "frontend",
         "complexity": 0.0
       }
-    }
-  ],
-  "css": [
+    },
     {
       "Surgical": {
-        "file": "../../css/components/upload-report.css",
+        "file": "../../src/utils/Logger.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 0.90, Density: 0.13, Coupling: 0.03] | Drag: 2.29 | LOC: 492/250  Hotspot: Lines 175-179 (AI Context Fog (score 31.6): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 26.49430894308943
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/Exporter.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 205)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/LazyLoad.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 87)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/PopOver.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 147)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/SceneList.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 416)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ViewerSystem.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.20, Density: 0.21, Coupling: 0.09] | Drag: 3.96 | LOC: 299/250  Hotspot: Lines 207-211 (AI Context Fog (score 52.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 8.862541806020067
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/UploadReport.res",
         "action": "Audit & Delete",
         "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 189)",
         "strategy": "",
@@ -434,403 +372,51 @@
     },
     {
       "Surgical": {
-        "file": "../../css/components/buttons.css",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 124)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../css/components/ui.css",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 179)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../css/animations.css",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 276)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../css/components/label-menu.css",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 150)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../css/base.css",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 71)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../css/legacy.css",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 58)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../css/components/modals.css",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 109)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../css/components/viewer.css",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 627)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../css/variables.css",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 109)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../css/tailwind.css",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 126)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../css/components/error-fallback.css",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 55)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    }
-  ],
-  "rust": [
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/media/analysis.rs",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 97)",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/pathfinder.rs",
+        "file": "../../src/systems/Navigation.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 1.05, Density: 0.07, Coupling: 0.05] | Drag: 2.40 | LOC: 583/250",
+        "reason": "[Nesting: 2.10, Density: 0.21, Coupling: 0.14] | Drag: 4.10 | LOC: 415/250  Hotspot: Lines 376-380 (AI Context Fog (score 196.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
         "strategy": "",
-        "platform": "backend",
-        "complexity": 35.7033447684391
+        "platform": "frontend",
+        "complexity": 20.602409638554217
       }
     },
     {
       "Surgical": {
-        "file": "../../backend/src/services/project/package.rs",
+        "file": "../../src/components/VisualPipeline.res",
         "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 137)",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 365)",
         "strategy": "",
-        "platform": "backend",
+        "platform": "frontend",
         "complexity": 0.0
       }
     },
     {
       "Surgical": {
-        "file": "../../backend/src/services/media/analysis_quality.rs",
+        "file": "../../src/systems/PanoramaClusterer.res",
         "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 220)",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 143)",
         "strategy": "",
-        "platform": "backend",
+        "platform": "frontend",
         "complexity": 0.0
       }
     },
     {
       "Surgical": {
-        "file": "../../backend/src/services/project/validate.rs",
+        "file": "../../src/systems/ProjectData.res",
         "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 197)",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 94)",
         "strategy": "",
-        "platform": "backend",
+        "platform": "frontend",
         "complexity": 0.0
       }
     },
     {
       "Surgical": {
-        "file": "../../backend/src/middleware/request_tracker.rs",
+        "file": "../../src/utils/GeoUtils.res",
         "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 90)",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 83)",
         "strategy": "",
-        "platform": "backend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/geocoding/mod.rs",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 246)",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/middleware/quota_check.rs",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 127)",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/project/mod.rs",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 116)",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/middleware/auth.rs",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 155)",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/project.rs",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 375)",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/project_logic.rs",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 181)",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/media/serve.rs",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 72)",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/media/analysis_exif.rs",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 117)",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/geocoding/logic.rs",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 129)",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/upload_quota.rs",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 298)",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/media/image_logic.rs",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 290)",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/shutdown.rs",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 162)",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/auth/jwt.rs",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 69)",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/geocoding.rs",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 153)",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/project/load.rs",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 155)",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/media/video_logic.rs",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 200)",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/media/mod.rs",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 98)",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/media/naming.rs",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 109)",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/services/media/resizing.rs",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 54)",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/media/video.rs",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 173)",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/media/similarity.rs",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 197)",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/telemetry.rs",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 154)",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 0.0
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/media/image.rs",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 198)",
-        "strategy": "",
-        "platform": "backend",
+        "platform": "frontend",
         "complexity": 0.0
       }
     }
@@ -838,42 +424,16 @@
   "system": [
     {
       "Merge": {
-        "folder": "backend/src/services/auth",
-        "files": [
-          "../../backend/src/services/auth/jwt.rs",
-          "../../backend/src/services/auth/mod.rs"
-        ],
-        "reason": "Recursive Feature Pod: 2 files in subtree sum to 111 LOC (fits in context).",
-        "strategy": "",
-        "platform": "backend"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "backend/src/services/project",
-        "files": [
-          "../../backend/src/services/project/package.rs",
-          "../../backend/src/services/project/validate.rs",
-          "../../backend/src/services/project/mod.rs",
-          "../../backend/src/services/project/load.rs"
-        ],
-        "reason": "Recursive Feature Pod: 4 files in subtree sum to 605 LOC (fits in context).",
-        "strategy": "",
-        "platform": "backend"
-      }
-    },
-    {
-      "Merge": {
         "folder": "backend/src/services/media",
         "files": [
-          "../../backend/src/services/media/naming_old.rs",
+          "../../backend/src/services/media/naming.rs",
           "../../backend/src/services/media/analysis.rs",
+          "../../backend/src/services/media/resizing.rs",
           "../../backend/src/services/media/analysis_quality.rs",
           "../../backend/src/services/media/storage.rs",
           "../../backend/src/services/media/analysis_exif.rs",
+          "../../backend/src/services/media/naming_old.rs",
           "../../backend/src/services/media/mod.rs",
-          "../../backend/src/services/media/naming.rs",
-          "../../backend/src/services/media/resizing.rs",
           "../../backend/src/services/media/webp.rs"
         ],
         "reason": "Recursive Feature Pod: 9 files in subtree sum to 791 LOC (fits in context).",
@@ -895,12 +455,38 @@
     },
     {
       "Merge": {
+        "folder": "backend/src/services/project",
+        "files": [
+          "../../backend/src/services/project/validate.rs",
+          "../../backend/src/services/project/package.rs",
+          "../../backend/src/services/project/load.rs",
+          "../../backend/src/services/project/mod.rs"
+        ],
+        "reason": "Recursive Feature Pod: 4 files in subtree sum to 605 LOC (fits in context).",
+        "strategy": "",
+        "platform": "backend"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "backend/src/services/auth",
+        "files": [
+          "../../backend/src/services/auth/jwt.rs",
+          "../../backend/src/services/auth/mod.rs"
+        ],
+        "reason": "Recursive Feature Pod: 2 files in subtree sum to 111 LOC (fits in context).",
+        "strategy": "",
+        "platform": "backend"
+      }
+    },
+    {
+      "Merge": {
         "folder": "backend/src/middleware",
         "files": [
-          "../../backend/src/middleware/mod.rs",
-          "../../backend/src/middleware/request_tracker.rs",
+          "../../backend/src/middleware/auth.rs",
           "../../backend/src/middleware/quota_check.rs",
-          "../../backend/src/middleware/auth.rs"
+          "../../backend/src/middleware/mod.rs",
+          "../../backend/src/middleware/request_tracker.rs"
         ],
         "reason": "Recursive Feature Pod: 4 files in subtree sum to 375 LOC (fits in context).",
         "strategy": "",
@@ -917,6 +503,420 @@
         "reason": "Read Tax high (Score 2.00). Projected Limit: 204 (Drag 2.38)",
         "strategy": "",
         "platform": "backend"
+      }
+    }
+  ],
+  "css": [
+    {
+      "Surgical": {
+        "file": "../../css/components/ui.css",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 179)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../css/variables.css",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 109)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../css/components/upload-report.css",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 189)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../css/components/modals.css",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 109)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../css/base.css",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 71)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../css/components/error-fallback.css",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 55)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../css/components/viewer.css",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 627)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../css/components/label-menu.css",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 150)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../css/legacy.css",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 58)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../css/components/buttons.css",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 124)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../css/animations.css",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 276)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../css/tailwind.css",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 126)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    }
+  ],
+  "rust": [
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/auth/jwt.rs",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 69)",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/video_logic.rs",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 200)",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/similarity.rs",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 197)",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/middleware/auth.rs",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 155)",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/middleware/quota_check.rs",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 127)",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/serve.rs",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 72)",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/media/naming.rs",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 109)",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/media/analysis.rs",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 97)",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/media/resizing.rs",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 54)",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/media/analysis_quality.rs",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 220)",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/geocoding/mod.rs",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 246)",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/project_logic.rs",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 181)",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/pathfinder.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.05, Density: 0.07, Coupling: 0.05] | Drag: 2.40 | LOC: 583/250",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 35.7033447684391
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/video.rs",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 173)",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/image.rs",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 198)",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/telemetry.rs",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 154)",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/project.rs",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 375)",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/middleware/request_tracker.rs",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 90)",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/upload_quota.rs",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 298)",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/geocoding.rs",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 153)",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/project/validate.rs",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 197)",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/shutdown.rs",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 162)",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/project/package.rs",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 137)",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/media/analysis_exif.rs",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 117)",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/image_logic.rs",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 290)",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/media/mod.rs",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 98)",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/project/load.rs",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 155)",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/geocoding/logic.rs",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 129)",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/project/mod.rs",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 116)",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 0.0
       }
     }
   ]

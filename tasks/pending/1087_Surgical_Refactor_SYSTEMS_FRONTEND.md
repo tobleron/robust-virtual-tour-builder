@@ -202,3 +202,7 @@ The following regions are calculated to be the most confusing for AI:
 - [ ] - **../../src/systems/Simulation.res** (Metric: [Nesting: 1.65, Density: 0.00, Coupling: 0.01] | Drag: 2.65 | LOC: 557/250  Hotspot: Lines 370-374)
 
 - [ ] - **../../src/systems/ViewerSystem.res** (Metric: [Nesting: 1.20, Density: 0.21, Coupling: 0.08] | Drag: 3.96 | LOC: 299/250  Hotspot: Lines 207-211)
+
+- [ ] - **../../src/systems/HotspotLine.res** (Metric: [Nesting: 1.35, Density: 0.12, Coupling: 0.08] | Drag: 2.78 | LOC: 697/250  Hotspot: Lines 245-249)
+
+- [ ] - **../../src/systems/ViewerSystem.res** (Metric: [Nesting: 1.20, Density: 0.21, Coupling: 0.09] | Drag: 3.96 | LOC: 299/250  Hotspot: Lines 207-211)
