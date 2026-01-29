@@ -1,65 +1,50 @@
 # RUST MASTER PLAN
 ## 📚 LEGEND & DEFINITIONS
-*   **LOC (Lines of Code):** Source lines excluding comments and whitespace.
-*   **Drag:** A calculated resistance metric based on nesting depth, logic density, and complexity penalties. Higher drag reduces the allowed LOC.
-*   **Limit:** The dynamic LOC limit for a specific file, calculated as `(Base_Limit * Role_Multiplier) / Drag`.
-*   **Role:** The architectural classification (e.g., `orchestrator`, `ui-component`) which determines the base allowed size.
-*   **Pattern:** A specific code construct (e.g., `unwrap`, `!important`) that is restricted or forbidden.
+*   **LOC:** Total non-comment lines.
+*   **Drag:** Complexity multiplier (1.0 = base).
+*   **Cognitive Capacity:** Inference energy required (Goal: < 100%).
+*   **Read Tax:** Tokens and time overhead for switching context between files.
+*   **AI Context Fog:** High-complexity peak regions within a file.
 
 ---
 
-## 🛠️ SURGICAL REFACTOR TASKS (24)
-**Action:** Extract logic to new modules to reduce complexity/bloat.
-**Target:** To be determined by AI Agent (Create new modules as needed).
-
+## 🛠️ SURGICAL REFACTOR TASKS (18)
 - [ ] **../../backend/src/middleware/quota_check.rs**
-  - *Reason:* LOC 127 > Limit 94 (Role: infra-adapter, Drag: 2.66)
+  - *Reason:* [Nesting: 0.60, Density: 0.06, Deps: 0.00] | Drag: 2.66 | LOC: 127/94
 - [ ] **../../backend/src/middleware/auth.rs**
-  - *Reason:* LOC 155 > Limit 51 (Role: infra-adapter, Drag: 4.03)
-- [ ] **../../backend/src/pathfinder/algorithms/timeline.rs**
-  - *Reason:* LOC 125 > Limit 51 (Role: domain-logic, Drag: 3.26)
-- [ ] **../../backend/src/pathfinder/algorithms/walk.rs**
-  - *Reason:* LOC 178 > Limit 33 (Role: domain-logic, Drag: 4.30)
-- [ ] **../../backend/src/pathfinder/tests.rs**
-  - *Reason:* LOC 67 > Limit 64 (Role: infra-adapter, Drag: 3.45)
-- [ ] **../../backend/src/models/errors.rs**
-  - *Reason:* LOC 130 > Limit 128 (Role: data-model, Drag: 2.68)
-- [ ] **../../backend/src/api/project/storage/storage_logic.rs**
-  - *Reason:* LOC 241 > Limit 31 (Role: service-orchestrator, Drag: 4.47)
-- [ ] **../../backend/src/api/project/storage/mod.rs**
-  - *Reason:* LOC 295 > Limit 30 (Role: orchestrator, Drag: 4.88)
-- [ ] **../../backend/src/api/telemetry_logic.rs**
-  - *Reason:* LOC 93 > Limit 65 (Role: util-pure, Drag: 1.73)
-- [ ] **../../backend/src/api/media/video/teaser.rs**
-  - *Reason:* LOC 113 > Limit 77 (Role: service-orchestrator, Drag: 2.47)
-- [ ] **../../backend/src/api/media/video/video_logic.rs**
-  - *Reason:* LOC 228 > Limit 47 (Role: service-orchestrator, Drag: 3.40)
-- [ ] **../../backend/src/api/media/image/image_logic.rs**
-  - *Reason:* LOC 283 > Limit 61 (Role: service-orchestrator, Drag: 2.89)
-- [ ] **../../backend/src/api/media/image/tests.rs**
-  - *Reason:* LOC 122 > Limit 110 (Role: infra-adapter, Drag: 2.40)
+  - *Reason:* [Nesting: 0.90, Density: 0.13, Deps: 0.00] | Drag: 4.03 | LOC: 155/51
+- [ ] **../../backend/src/models.rs**
+  - *Reason:* [Nesting: 0.15, Density: 0.02, Deps: 0.00] | Drag: 3.67 | LOC: 520/80
+- [ ] **../../backend/src/main.rs**
+  - *Reason:* [Nesting: 0.60, Density: 0.04, Deps: 0.00] | Drag: 3.14 | LOC: 285/54
+- [ ] **../../backend/src/api/telemetry.rs**
+  - *Reason:* [Nesting: 0.60, Density: 0.12, Deps: 0.00] | Drag: 2.22 | LOC: 154/124
+- [ ] **../../backend/src/api/project.rs**
+  - *Reason:* [Nesting: 1.05, Density: 0.13, Deps: 0.00] | Drag: 7.18 | LOC: 518/30
+- [ ] **../../backend/src/api/media/image.rs**
+  - *Reason:* [Nesting: 0.75, Density: 0.07, Deps: 0.00] | Drag: 6.32 | LOC: 482/30
+- [ ] **../../backend/src/api/media/video.rs**
+  - *Reason:* [Nesting: 0.75, Density: 0.11, Deps: 0.00] | Drag: 4.46 | LOC: 372/43
 - [ ] **../../backend/src/services/shutdown.rs**
-  - *Reason:* LOC 162 > Limit 93 (Role: infra-adapter, Drag: 2.70)
+  - *Reason:* [Nesting: 0.75, Density: 0.15, Deps: 0.00] | Drag: 2.70 | LOC: 162/93
 - [ ] **../../backend/src/services/auth/jwt.rs**
-  - *Reason:* LOC 69 > Limit 68 (Role: infra-adapter, Drag: 3.30)
+  - *Reason:* [Nesting: 0.30, Density: 0.00, Deps: 0.00] | Drag: 3.30 | LOC: 69/68
 - [ ] **../../backend/src/services/geocoding/mod.rs**
-  - *Reason:* LOC 246 > Limit 75 (Role: orchestrator, Drag: 2.51)
+  - *Reason:* [Nesting: 0.45, Density: 0.06, Deps: 0.00] | Drag: 2.51 | LOC: 246/75
 - [ ] **../../backend/src/services/upload_quota.rs**
-  - *Reason:* LOC 298 > Limit 57 (Role: domain-logic, Drag: 3.01)
+  - *Reason:* [Nesting: 0.45, Density: 0.06, Deps: 0.00] | Drag: 3.01 | LOC: 298/57
 - [ ] **../../backend/src/services/project/package.rs**
-  - *Reason:* LOC 137 > Limit 83 (Role: service-orchestrator, Drag: 2.35)
+  - *Reason:* [Nesting: 0.75, Density: 0.10, Deps: 0.00] | Drag: 2.35 | LOC: 137/83
 - [ ] **../../backend/src/services/project/load.rs**
-  - *Reason:* LOC 155 > Limit 42 (Role: service-orchestrator, Drag: 3.66)
+  - *Reason:* [Nesting: 0.60, Density: 0.06, Deps: 0.00] | Drag: 3.66 | LOC: 155/42
 - [ ] **../../backend/src/services/project/validate.rs**
-  - *Reason:* LOC 197 > Limit 100 (Role: domain-logic, Drag: 2.07)
-- [ ] **../../backend/src/services/media/analysis/mod.rs**
-  - *Reason:* LOC 97 > Limit 86 (Role: orchestrator, Drag: 2.28)
+  - *Reason:* [Nesting: 0.90, Density: 0.17, Deps: 0.00] | Drag: 2.07 | LOC: 197/100
 - [ ] **../../backend/src/services/media/analysis/quality.rs**
-  - *Reason:* LOC 220 > Limit 103 (Role: domain-logic, Drag: 2.03)
+  - *Reason:* [Nesting: 0.60, Density: 0.18, Deps: 0.00] | Drag: 1.78 | LOC: 220/126
 - [ ] **../../backend/src/services/media/analysis/exif.rs**
-  - *Reason:* LOC 117 > Limit 74 (Role: infra-adapter, Drag: 3.14)
+  - *Reason:* [Nesting: 0.75, Density: 0.14, Deps: 0.00] | Drag: 2.89 | LOC: 117/84
 - [ ] **../../backend/src/services/media/naming.rs**
-  - *Reason:* LOC 109 > Limit 39 (Role: domain-logic, Drag: 3.87)
+  - *Reason:* [Nesting: 0.30, Density: 0.07, Deps: 0.00] | Drag: 3.87 | LOC: 109/39
 
 ---
 

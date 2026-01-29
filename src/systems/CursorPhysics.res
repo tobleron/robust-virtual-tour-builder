@@ -52,7 +52,7 @@ let updateRodPosition = (x: float, y: float, isLinking: bool) => {
       // Re-enable follow loop for wider waypoints navigation (Stage 2)
       if !ViewerState.state.followLoopActive {
         ViewerState.state.followLoopActive = true
-        ViewerFollow.updateFollowLoop()
+        ViewerSystem.Follow.updateFollowLoop()
       }
     } else {
       Dom.setProperty(g, "display", "none !important")

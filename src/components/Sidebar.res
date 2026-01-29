@@ -43,7 +43,7 @@ module SidebarLogic = {
       let fileArray = JsHelpers.from(files)
 
       try {
-        let result: UploadProcessorTypes.processResult = await UploadProcessor.processUploads(
+        let result: UploadTypes.processResult = await UploadProcessor.processUploads(
           fileArray,
           Some(
             (pct, msg, isProc, phase) => {
@@ -177,10 +177,10 @@ module SidebarBranding = {
         className="flex items-center gap-2 text-white mt-1 sidebar-version-line font-normal font-mono"
       >
         <span className="text-[10px] tracking-wider">
-          {React.string("V " ++ VersionData.version)}
+          {React.string("V " ++ Version.version)}
         </span>
         <span className="text-[10px]"> {React.string("\u2022")} </span>
-        <span className="text-[10px]"> {React.string(VersionData.buildInfo)} </span>
+        <span className="text-[10px]"> {React.string(Version.buildInfo)} </span>
       </div>
     </div>
   })
@@ -349,7 +349,9 @@ module SidebarProcessing = {
               <span className="truncate"> {React.string(leftPart)} </span>
             </div>
             {if rightPart != "" {
-              <span className="text-slate-400 truncate max-w-[50%]"> {React.string(rightPart)} </span>
+              <span className="text-slate-400 truncate max-w-[50%]">
+                {React.string(rightPart)}
+              </span>
             } else {
               React.null
             }}
@@ -532,10 +534,10 @@ let make = React.memo(() => {
               content: Some(
                 <div className="flex flex-col gap-1 mt-2">
                   <p className="text-white font-semibold font-mono text-[11px]">
-                    {React.string(`Version: ${VersionData.version}`)}
+                    {React.string(`Version: ${Version.version}`)}
                   </p>
                   <p className="text-slate-200 font-mono text-[10px]">
-                    {React.string(`Build: ${VersionData.buildInfo}`)}
+                    {React.string(`Build: ${Version.buildInfo}`)}
                   </p>
                 </div>,
               ),
@@ -557,7 +559,7 @@ let make = React.memo(() => {
           let _ = handleExport(sceneSlice.scenes)
         }}
         onTeaser={() => {
-          let _ = TeaserManager.startAutoTeaser(sceneSlice.tourName, false, "mp4", false)
+          let _ = Teaser.startAutoTeaser(sceneSlice.tourName, false, "mp4", false)
         }}
       />
 

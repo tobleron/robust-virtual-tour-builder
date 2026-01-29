@@ -1,7 +1,7 @@
 /* tests/unit/SimulationLogic_v.test.res */
 open Vitest
 open Types
-open SimulationLogic
+open Simulation.Logic
 
 describe("SimulationLogic", () => {
   let createHotspot = (target, isReturn) => {

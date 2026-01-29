@@ -1,7 +1,7 @@
 // @efficiency: infra-adapter
-/* tests/unit/LoggerTelemetry_v.test.res */
+/* tests/unit/Logger_v.test.res */
 open Vitest
-open LoggerTelemetry
+open Logger
 
 // Mock global fetch
 %%raw(`
@@ -19,16 +19,16 @@ open LoggerTelemetry
   }))
 `)
 
-describe("LoggerTelemetry", () => {
+describe("Logger", () => {
   beforeEach(() => {
-    ignore(%raw(`LoggerTelemetry.telemetryQueue.length = 0`))
-    ignore(%raw(`LoggerTelemetry.isFlushing.contents = false`))
+    ignore(%raw(`Logger.telemetryQueue.length = 0`))
+    ignore(%raw(`Logger.isFlushing.contents = false`))
     ignore(%raw(`globalThis.mockFetch.mockClear()`))
     setBypassTestEnvCheck(true)
   })
 
   testAsync("sendTelemetry batches Medium priority logs", async t => {
-    let entry: LoggerTypes.logEntry = {
+    let entry: Logger.logEntry = {
       timestampMs: 123.0,
       timestamp: "2024-01-01",
       module_: "Test",
@@ -40,13 +40,13 @@ describe("LoggerTelemetry", () => {
 
     await sendTelemetry(entry)
 
-    let queueLen = %raw(`LoggerTelemetry.telemetryQueue.length`)
+    let queueLen = %raw(`Logger.telemetryQueue.length`)
     t->expect(queueLen)->Expect.toBe(1)
     t->expect(%raw(`globalThis.mockFetch.mock.calls.length`))->Expect.toBe(0)
   })
 
   testAsync("sendTelemetry sends High/Critical priority logs immediately", async t => {
-    let entry: LoggerTypes.logEntry = {
+    let entry: Logger.logEntry = {
       timestampMs: 123.0,
       timestamp: "2024-01-01",
       module_: "Test",
@@ -58,7 +58,7 @@ describe("LoggerTelemetry", () => {
 
     await sendTelemetry(entry)
 
-    let queueLen = %raw(`LoggerTelemetry.telemetryQueue.length`)
+    let queueLen = %raw(`Logger.telemetryQueue.length`)
     t->expect(queueLen)->Expect.toBe(0)
     t->expect(%raw(`globalThis.mockFetch.mock.calls.length`))->Expect.toBe(1)
     t
@@ -67,7 +67,7 @@ describe("LoggerTelemetry", () => {
   })
 
   testAsync("flushTelemetry sends batch and clears queue", async t => {
-    let entry: LoggerTypes.logEntry = {
+    let entry: Logger.logEntry = {
       timestampMs: 123.0,
       timestamp: "2024-01-01",
       module_: "Test",
@@ -78,19 +78,19 @@ describe("LoggerTelemetry", () => {
     }
 
     // Add items to queue
-    ignore(%raw(`(e) => LoggerTelemetry.telemetryQueue.push(e, e)`)(entry))
+    ignore(%raw(`(e) => Logger.telemetryQueue.push(e, e)`)(entry))
 
     await flushTelemetry()
 
     t->expect(%raw(`globalThis.mockFetch.mock.calls.length`))->Expect.toBe(1)
-    t->expect(%raw(`LoggerTelemetry.telemetryQueue.length`))->Expect.toBe(0)
+    t->expect(%raw(`Logger.telemetryQueue.length`))->Expect.toBe(0)
 
     let body = %raw(`JSON.parse(globalThis.mockFetch.mock.calls[0][1].body)`)
     t->expect(Array.length(body["entries"]))->Expect.toBe(2)
   })
 
   testAsync("sendTelemetry triggers flush when batch size reached", async t => {
-    let entry: LoggerTypes.logEntry = {
+    let entry: Logger.logEntry = {
       timestampMs: 123.0,
       timestamp: "2024-01-01",
       module_: "Test",
@@ -107,13 +107,13 @@ describe("LoggerTelemetry", () => {
       await sendTelemetry(entry)
     }
 
-    t->expect(%raw(`LoggerTelemetry.telemetryQueue.length`))->Expect.toBe(batchSize - 1)
+    t->expect(%raw(`Logger.telemetryQueue.length`))->Expect.toBe(batchSize - 1)
     t->expect(%raw(`globalThis.mockFetch.mock.calls.length`))->Expect.toBe(0)
 
     // Send the last one to trigger flush
     await sendTelemetry(entry)
 
     t->expect(%raw(`globalThis.mockFetch.mock.calls.length`))->Expect.toBe(1)
-    t->expect(%raw(`LoggerTelemetry.telemetryQueue.length`))->Expect.toBe(0)
+    t->expect(%raw(`Logger.telemetryQueue.length`))->Expect.toBe(0)
   })
 })

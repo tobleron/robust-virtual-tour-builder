@@ -31,7 +31,7 @@ try {
         console.log('ℹ️ No change needed for index.html');
     }
 
-    // 2. Update src/utils/VersionData.res
+    // 2. Update src/utils/Version.res
     let currentBranch = 'unknown';
     try {
         currentBranch = execSync('git branch --show-current').toString().trim();
@@ -48,10 +48,36 @@ try {
         buildInfo = "[Development Build]";
     }
 
-    const versionResPath = join(process.cwd(), 'src', 'utils', 'VersionData.res');
-    const versionResContent = `/**\n * GENERATED FILE - DO NOT EDIT MANUALLY\n * This file is updated by scripts/update-version.js\n */\n\nlet version = "${version}"\nlet buildNumber = ${buildNumber}\nlet buildInfo = "${buildInfo}"\n`;
+    const versionResPath = join(process.cwd(), 'src', 'utils', 'Version.res');
+    const versionResContent = [
+        "/**",
+        " * GENERATED FILE - DO NOT EDIT MANUALLY",
+        " * This file is updated by scripts/update-version.js",
+        " * It contains both version data and utility functions.",
+        " */",
+        "",
+        `let version = "${version}"`,
+        `let buildNumber = ${buildNumber}`,
+        `let buildInfo = "${buildInfo}"`,
+        "",
+        "/**",
+        " * Returns the current application version.",
+        " */",
+        "let getVersion = () => version",
+        "",
+        "/**",
+        " * Returns the build information (e.g., \"[Stable Release]\").",
+        " */",
+        "let getBuildInfo = () => buildInfo",
+        "",
+        "/**",
+        " * Returns a full version string for display.",
+        " */",
+        "let getFullVersion = () => `${version} ${buildInfo}`",
+    ].join("\n") + "\n";
+
     writeFileSync(versionResPath, versionResContent);
-    console.log(`✅ Updated src/utils/VersionData.res (Branch: ${currentBranch} -> ${buildInfo})`);
+    console.log(`✅ Updated src/utils/Version.res (Branch: ${currentBranch} -> ${buildInfo})`);
 
     console.log(`Successfully updated version to ${version}`);
 } catch (error) {

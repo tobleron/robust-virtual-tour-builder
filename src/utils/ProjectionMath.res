@@ -1,6 +1,6 @@
 /* src/utils/ProjectionMath.res */
 open ReBindings
-open HotspotLineTypes
+open Types
 
 let degToRad = Math.Constants.pi /. 180.0
 let toRad = deg => deg *. degToRad

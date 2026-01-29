@@ -25,7 +25,7 @@ describe("FingerprintService", () => {
     let existingScenes = [TestUtils.createMockScene(~id="id1", ())]
     let results = [
       {
-        UploadProcessorTypes.id: Nullable.make("id1"),
+        UploadTypes.id: Nullable.make("id1"),
         original: Obj.magic({"name": "f1.jpg"}),
         error: None,
         preview: None,
@@ -35,7 +35,7 @@ describe("FingerprintService", () => {
         colorGroup: None,
       },
       {
-        UploadProcessorTypes.id: Nullable.make("id2"),
+        UploadTypes.id: Nullable.make("id2"),
         original: Obj.magic({"name": "f2.jpg"}),
         error: None,
         preview: None,

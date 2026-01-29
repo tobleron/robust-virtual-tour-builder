@@ -37,7 +37,7 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
       JsxEvent.Mouse.stopPropagation(e)
       if simActive {
         dispatch(Actions.StopAutoPilot)
-        SceneSwitcher.cancelNavigation()
+        Scene.Switcher.cancelNavigation()
         dispatch(Actions.SetActiveScene(0, 0.0, 0.0, None))
 
         // Force hide snapshot overlay and release locks for maximum robustness

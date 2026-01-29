@@ -1,7 +1,7 @@
 // @efficiency: infra-adapter
 open Vitest
 open PanoramaClusterer
-open UploadProcessorTypes
+open UploadTypes
 
 /* Mock setup */
 %%raw(`

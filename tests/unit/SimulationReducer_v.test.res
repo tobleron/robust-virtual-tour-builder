@@ -2,12 +2,12 @@ open Vitest
 open Types
 open Actions
 
-describe("SimulationReducer", () => {
+describe("Reducer.Simulation", () => {
   let initialState = State.initialState
 
   test("StartAutoPilot initializes simulation state", t => {
     let action = StartAutoPilot(42, true)
-    let result = SimulationReducer.reduce(initialState, action)
+    let result = Reducer.Simulation.reduce(initialState, action)
 
     switch result {
     | Some(newState) => {
@@ -38,7 +38,7 @@ describe("SimulationReducer", () => {
     }
 
     let action = StopAutoPilot
-    let result = SimulationReducer.reduce(runningState, action)
+    let result = Reducer.Simulation.reduce(runningState, action)
 
     switch result {
     | Some(newState) => {
@@ -64,7 +64,7 @@ describe("SimulationReducer", () => {
     }
 
     let action = AddVisitedScene(20)
-    let result = SimulationReducer.reduce(visitedState, action)
+    let result = Reducer.Simulation.reduce(visitedState, action)
 
     switch result {
     | Some(newState) => {
@@ -86,7 +86,7 @@ describe("SimulationReducer", () => {
     }
 
     let action = ClearVisitedScenes
-    let result = SimulationReducer.reduce(visitedState, action)
+    let result = Reducer.Simulation.reduce(visitedState, action)
 
     switch result {
     | Some(newState) => t->expect(Array.length(newState.simulation.visitedScenes))->Expect.toBe(0)
@@ -96,7 +96,7 @@ describe("SimulationReducer", () => {
 
   test("SetStoppingOnArrival updates flag", t => {
     let action = SetStoppingOnArrival(true)
-    let result = SimulationReducer.reduce(initialState, action)
+    let result = Reducer.Simulation.reduce(initialState, action)
 
     switch result {
     | Some(newState) => t->expect(newState.simulation.stoppingOnArrival)->Expect.toBe(true)
@@ -106,7 +106,7 @@ describe("SimulationReducer", () => {
 
   test("SetSkipAutoForward updates flag", t => {
     // Check toggle to true
-    let result1 = SimulationReducer.reduce(initialState, SetSkipAutoForward(true))
+    let result1 = Reducer.Simulation.reduce(initialState, SetSkipAutoForward(true))
     switch result1 {
     | Some(state) => t->expect(state.simulation.skipAutoForwardGlobal)->Expect.toBe(true)
     | None => t->expect(true)->Expect.toBe(false)
@@ -117,7 +117,7 @@ describe("SimulationReducer", () => {
       ...initialState,
       simulation: {...initialState.simulation, skipAutoForwardGlobal: true},
     }
-    let result2 = SimulationReducer.reduce(startStateTrue, SetSkipAutoForward(false))
+    let result2 = Reducer.Simulation.reduce(startStateTrue, SetSkipAutoForward(false))
     switch result2 {
     | Some(state) => t->expect(state.simulation.skipAutoForwardGlobal)->Expect.toBe(false)
     | None => t->expect(true)->Expect.toBe(false)
@@ -126,7 +126,7 @@ describe("SimulationReducer", () => {
 
   test("UpdateAdvanceTime updates lastAdvanceTime", t => {
     let action = UpdateAdvanceTime(999.5)
-    let result = SimulationReducer.reduce(initialState, action)
+    let result = Reducer.Simulation.reduce(initialState, action)
 
     switch result {
     | Some(newState) => t->expect(newState.simulation.lastAdvanceTime)->Expect.toBe(999.5)
@@ -136,7 +136,7 @@ describe("SimulationReducer", () => {
 
   test("SetPendingAdvance updates pendingAdvanceId", t => {
     let action = SetPendingAdvance(Some(55))
-    let result = SimulationReducer.reduce(initialState, action)
+    let result = Reducer.Simulation.reduce(initialState, action)
 
     switch result {
     | Some(newState) => t->expect(newState.simulation.pendingAdvanceId)->Expect.toBe(Some(55))
@@ -145,11 +145,11 @@ describe("SimulationReducer", () => {
   })
 
   test("Unknown action returns None", t => {
-    // Using an action that SimulationReducer doesn't handle, e.g., ToggleSidebar
+    // Using an action that Reducer.Simulation doesn't handle, e.g., ToggleSidebar
     // We need to cast or construct an action that is valid in the type system but ignored by this reducer.
     // ToggleSidebar is in Actions
     let action = SetTourName("ignored")
-    let result = SimulationReducer.reduce(initialState, action)
+    let result = Reducer.Simulation.reduce(initialState, action)
 
     t->expect(result)->Expect.toBe(None)
   })

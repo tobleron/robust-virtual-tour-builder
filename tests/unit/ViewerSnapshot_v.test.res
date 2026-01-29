@@ -50,7 +50,7 @@ describe("ViewerSnapshot", () => {
     GlobalStateBridge.setState(mockState)
 
     // Mock Viewer
-    ViewerPool.registerInstance("panorama-a", Obj.magic({"id": "mock_viewer"}))
+    ViewerSystem.Pool.registerInstance("panorama-a", Obj.magic({"id": "mock_viewer"}))
 
     // Trigger
     ViewerSnapshot.requestIdleSnapshot()
@@ -96,7 +96,7 @@ describe("ViewerSnapshot", () => {
     let mockState = TestUtils.createMockState(~scenes=[scene], ~activeIndex=0, ())
     GlobalStateBridge.setState(mockState)
 
-    ViewerPool.registerInstance("panorama-a", Obj.magic({"id": "mock_viewer"}))
+    ViewerSystem.Pool.registerInstance("panorama-a", Obj.magic({"id": "mock_viewer"}))
 
     SceneCache.setSnapshot("s1", "blob:old-url")
     ViewerSnapshot.requestIdleSnapshot()
@@ -126,8 +126,8 @@ describe("ViewerSnapshot", () => {
       })()
     `)
 
-    ViewerPool.clearInstance("panorama-a")
-    ViewerPool.clearInstance("panorama-b")
+    ViewerSystem.Pool.clearInstance("panorama-a")
+    ViewerSystem.Pool.clearInstance("panorama-b")
 
     SceneCache.clearAll()
     ViewerSnapshot.requestIdleSnapshot()
@@ -145,7 +145,7 @@ describe("ViewerSnapshot", () => {
       })()
     `)
 
-    ViewerPool.registerInstance("panorama-a", Obj.magic({"id": "mock_viewer"}))
+    ViewerSystem.Pool.registerInstance("panorama-a", Obj.magic({"id": "mock_viewer"}))
 
     SceneCache.clearAll()
     ViewerSnapshot.requestIdleSnapshot()

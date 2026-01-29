@@ -1,11 +1,24 @@
 {
-  "version": "1.2.0",
+  "version": "1.4.2",
   "settings": {
     "base_loc_limit": 250,
     "hard_ceiling_loc": 800,
     "soft_floor_loc": 30,
+    "max_session_complexity": 500.0,
+    "merge_score_threshold": 1.0,
+    "nesting_weight": 0.15,
+    "density_weight": 2.0,
+    "drag_target": 2.0,
     "confidence_threshold": 0.95,
     "max_depth_threshold": 4
+  },
+  "templates": {
+    "legend": "## 📚 LEGEND & DEFINITIONS\n*   **LOC:** Total non-comment lines.\n*   **Drag:** Complexity multiplier (1.0 = base).\n*   **Cognitive Capacity:** Inference energy required (Goal: < 100%).\n*   **Read Tax:** Tokens and time overhead for switching context between files.\n*   **AI Context Fog:** High-complexity peak regions within a file.\n\n---\n\n",
+    "surgical_objective": "### 📚 Complexity Legend\n* **Nesting:** Nesting depth penalty (Weight: {nesting_w}).\n* **Density:** Logic density (branching/loops) (Weight: {density_w}).\n* **Deps:** External dependency pressure.\n\n### 🎯 General Instruction\nReduce the complexity variables for the following files to reach a Drag factor below {drag_t}. \nYou have full architectural autonomy on how to split, extract, or simplify the code to achieve this goal while maintaining logic integrity.",
+    "violation_objective": "### 🎯 General Instruction\nResolve forbidden patterns and critical LOC violations to ensure the codebase remains predictable and safe for AI-driven refactoring.",
+    "structural_objective": "### 🎯 General Instruction\nImplement vertical slicing for fragmented features spread across multiple folders. Group all layers (API, Logic, UI) into a single directory to minimize Traversal Tax.",
+    "merge_objective": "### 📚 Metric Legend\n* **Context Efficiency Score:** A measure of folder fragmentation. High scores indicate a high 'Read Tax'.\n* **Read Tax:** The cumulative token and time cost incurred when an AI has to switch between many small files.\n\n### 🎯 General Instruction\nConsolidate the following folders to reach a Context Efficiency Score below {merge_t}. \nYou have full architectural autonomy to merge related small files into cohesive modules while ensuring all external references are updated and the original fragmented structure is pruned.",
+    "ambiguity_objective": "### 🎯 General Instruction\nThe following files could not be automatically classified. Please add an @efficiency-role tag to the file header using one of the following architectural roles:\n\n### 📚 Valid Roles (Taxonomy Dictionary)\n{roles}\n\n### 📝 Example Header\n```rescript\n// @efficiency-role(domain-logic)\n```"
   },
   "exclusion_rules": {
     "folders": [
@@ -38,9 +51,7 @@
   },
   "profiles": {
     "rust": {
-      "extensions": [
-        ".rs"
-      ],
+      "extensions": [".rs"],
       "complexity_dictionary": {
         "unsafe": 2.0,
         "unwrap()": 1.5,
@@ -49,16 +60,10 @@
         "match": 0.5,
         "loop": 0.8
       },
-      "forbidden_patterns": [
-        "unwrap()",
-        "panic!",
-        "todo!"
-      ]
+      "forbidden_patterns": ["unwrap()", "panic!", "todo!"]
     },
     "rescript": {
-      "extensions": [
-        ".res"
-      ],
+      "extensions": [".res"],
       "complexity_dictionary": {
         "->": 0.05,
         "switch": 0.8,
@@ -66,175 +71,23 @@
         "mutable": 1.5,
         "Obj.magic": 2.5
       },
-      "forbidden_patterns": [
-        "console.log",
-        "mutable "
-      ]
-    },
-    "web": {
-      "extensions": [
-        ".jsx",
-        ".js",
-        ".html"
-      ],
-      "complexity_dictionary": {
-        "useState": 1.0,
-        "useEffect": 1.2,
-        "<div": 0.1
-      },
-      "forbidden_patterns": [
-        "style={{"
-      ]
-    },
-    "css": {
-      "extensions": [
-        ".css"
-      ],
-      "complexity_dictionary": {
-        "!important": 3.0,
-        "@media": 0.5
-      },
-      "forbidden_patterns": [
-        "!important"
-      ]
-    },
-    "config": {
-      "extensions": [
-        ".json"
-      ],
-      "complexity_dictionary": {},
-      "forbidden_patterns": []
+      "forbidden_patterns": ["console.log", "mutable "]
     }
   },
   "taxonomy": {
-    "domain-logic": {
-      "multiplier": 0.8
-    },
-    "ui-component": {
-      "multiplier": 1.4
-    },
-    "infra-adapter": {
-      "multiplier": 1.1
-    },
-    "data-model": {
-      "multiplier": 1.5
-    },
-    "orchestrator": {
-      "multiplier": 0.8
-    },
-    "service-orchestrator": {
-      "multiplier": 0.8
-    },
-    "state-reducer": {
-      "multiplier": 0.6
-    },
-    "util-pure": {
-      "multiplier": 0.4
-    },
-    "infra-config": {
-      "multiplier": 1.5
-    },
-    "unknown": {
-      "multiplier": 1.0
-    }
+    "domain-logic": { "multiplier": 0.8, "desc": "Pure business logic, entities, and domain services." },
+    "ui-component": { "multiplier": 1.4, "desc": "Visual presentation and user interaction layers." },
+    "infra-adapter": { "multiplier": 1.1, "desc": "External API clients, database drivers, and third-party bindings." },
+    "data-model": { "multiplier": 1.5, "desc": "Type definitions, schemas, and DTOs (low logic density)." },
+    "orchestrator": { "multiplier": 0.8, "desc": "App entry points and high-level flow control." },
+    "service-orchestrator": { "multiplier": 0.8, "desc": "Complex coordination between multiple domain services." },
+    "state-reducer": { "multiplier": 0.6, "desc": "Deterministic state transitions (Redux/Store style)." },
+    "util-pure": { "multiplier": 0.4, "desc": "Side-effect free helper functions." },
+    "infra-config": { "multiplier": 1.5, "desc": "Build scripts, project configuration, and environment setups." }
   },
   "exceptions": [
-    {
-      "pattern": "**/ViewerPool.res",
-      "multiplier": 2.0,
-      "reason": "Authorized state management",
-      "allow_patterns": [
-        "mutable "
-      ]
-    },
-    {
-      "pattern": "**/ViewerState.res",
-      "multiplier": 2.0,
-      "reason": "High-frequency state updates",
-      "allow_patterns": [
-        "mutable "
-      ]
-    },
-    {
-      "pattern": "Types.res",
-      "multiplier": 5.0,
-      "reason": "Deeply nested but necessary data models",
-      "allow_patterns": [
-        "mutable "
-      ]
-    },
-    {
-      "pattern": "**/SvgManager.res",
-      "multiplier": 2.0,
-      "reason": "DOM-heavy state",
-      "allow_patterns": [
-        "mutable "
-      ]
-    },
-    {
-      "pattern": "**/PannellumAdapter.res",
-      "multiplier": 2.0,
-      "reason": "External library adapter",
-      "allow_patterns": [
-        "mutable "
-      ]
-    },
-    {
-      "pattern": "**/SimulationPathGenerator.res",
-      "multiplier": 2.0,
-      "reason": "Complex iterative algorithm state",
-      "allow_patterns": [
-        "mutable "
-      ]
-    },
-    {
-      "pattern": "**/PannellumLifecycle.res",
-      "multiplier": 2.0,
-      "reason": "External lifecycle tracking",
-      "allow_patterns": [
-        "mutable "
-      ]
-    },
-    {
-      "pattern": "src/Main.res",
-      "max_loc": 500,
-      "reason": "App Entry Point orchestrator"
-    },
-    {
-      "pattern": "**/Schemas.res",
-      "multiplier": 2.5,
-      "reason": "Central schema collection (Authorized debt)",
-      "allow_patterns": [
-        "mutable "
-      ]
-    },
-    {
-      "pattern": "**/Constants.res",
-      "multiplier": 10.0,
-      "reason": "Data-heavy static source"
-    },
-    {
-      "pattern": "**/openapi.yaml",
-      "multiplier": 10.0,
-      "reason": "Infrastructure Documentation"
-    },
-    {
-      "pattern": "**/tests/**/*",
-      "multiplier": 10.0,
-      "reason": "Scaffolding for testing"
-    },
-    {
-      "pattern": "src/utils/**/*.res",
-      "drag_ceiling": 1.5,
-      "reason": "Strict pure-logic enforcement (Architectural requirement)"
-    },
-    {
-      "pattern": "backend/src/main.rs",
-      "max_loc": 500,
-      "reason": "Backend orchestrator (Authorized size)",
-      "allow_patterns": [
-        "unwrap"
-      ]
-    }
+    { "pattern": "**/ViewerPool.res", "multiplier": 2.0, "reason": "Authorized state management" },
+    { "pattern": "**/ViewerState.res", "multiplier": 2.0, "reason": "High-frequency state updates" },
+    { "pattern": "src/Main.res", "max_loc": 500, "reason": "App Entry Point orchestrator" }
   ]
 }

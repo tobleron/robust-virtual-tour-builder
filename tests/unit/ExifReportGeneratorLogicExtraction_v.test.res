@@ -1,6 +1,5 @@
 open Vitest
-open ExifReportGeneratorLogicExtraction
-open ExifReportGeneratorTypes
+open ExifReportGenerator.Extraction
 open SharedTypes
 
 /* Mocks */
@@ -41,7 +40,13 @@ let defaultPanorama: gPanoMetadata = {
 }
 
 /* Helper to create mock sceneDataItem */
-let createMockItem = (~name, ~metadata=?, ~quality=?, ~fileObj=?, ()) => {
+let createMockItem = (
+  ~name,
+  ~metadata=?,
+  ~quality=?,
+  ~fileObj=?,
+  (),
+): ExifReportGenerator.sceneDataItem => {
   let file = switch fileObj {
   | Some(f) => f
   | None => {
@@ -52,7 +57,6 @@ let createMockItem = (~name, ~metadata=?, ~quality=?, ~fileObj=?, ()) => {
       })(name)`)
     }
   }
-
   {
     original: file,
     metadataJson: metadata,

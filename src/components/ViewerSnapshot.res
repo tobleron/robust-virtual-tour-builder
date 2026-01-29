@@ -8,11 +8,11 @@ let requestIdleSnapshot = () => {
   }
 
   state.idleSnapshotTimeout = Nullable.make(Window.setTimeout(() => {
-      let viewer = getActiveViewer()
+      let viewer = ViewerSystem.getActiveViewer()
 
       switch Nullable.toOption(viewer) {
       | Some(_) =>
-        let containerId = getActiveContainerId()
+        let containerId = ViewerSystem.getActiveContainerId()
 
         let container = Dom.getElementById(containerId)
         let canvas = switch Nullable.toOption(container) {

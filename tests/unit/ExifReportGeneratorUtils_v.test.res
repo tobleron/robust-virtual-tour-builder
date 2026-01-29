@@ -1,5 +1,5 @@
 open Vitest
-open ExifReportGeneratorUtils
+open ExifReportGenerator.Utils
 
 /* Mocks */
 type mockFn

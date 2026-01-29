@@ -1,6 +1,6 @@
 // @efficiency: infra-adapter
 open Vitest
-open SimulationChainSkipper
+open Simulation.ChainSkipper
 open Types
 
 describe("SimulationChainSkipper", () => {

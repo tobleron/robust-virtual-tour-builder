@@ -363,7 +363,7 @@ describe("ViewerManager", () => {
 
     await wait(50)
 
-    // lastSceneId should be reset to null (via ViewerState.resetState)
+    // lastSceneId should be reset to null (via ViewerSystem.resetState)
     t->expect(ViewerState.state.lastSceneId)->Expect.toBe(Nullable.null)
 
     Dom.removeElement(container)
