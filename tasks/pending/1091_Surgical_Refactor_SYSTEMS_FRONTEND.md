@@ -67,3 +67,9 @@ The following regions are calculated to be the most confusing for AI:
 - [ ] **../../src/systems/Simulation.res**
     - **Metric:** [Nesting: 1.65, Density: 0.00, Deps: 0.01] | Drag: 2.65 | LOC: 557/221  Hotspot: Lines 370-374
     - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
+- [ ] **../../src/systems/Resizer.res**
+    - **Metric:** [Nesting: 1.50, Density: 0.26, Deps: 0.11] | Drag: 8.10 | LOC: 303/88  Hotspot: Lines 218-222
+    - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
+- [ ] **../../src/systems/NavigationRenderer.res**
+    - **Metric:** [Nesting: 1.80, Density: 0.14, Deps: 0.08] | Drag: 6.79 | LOC: 248/103  Hotspot: Lines 206-210
+    - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.

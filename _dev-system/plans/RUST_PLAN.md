@@ -10,9 +10,9 @@
 
 ## 🛠️ SURGICAL REFACTOR TASKS (2)
 - [ ] **../../backend/src/api/project.rs**
-  - *Reason:* [Nesting: 0.75, Density: 0.04, Deps: 0.00] | Drag: 2.19 | LOC: 374/353
+  - *Reason:* [Nesting: 0.75, Density: 0.04, Deps: 0.00] | Drag: 2.19 | LOC: 375/353
 - [ ] **../../backend/src/api/media/image_logic.rs**
-  - *Reason:* [Nesting: 0.75, Density: 0.04, Deps: 0.00] | Drag: 2.46 | LOC: 290/235
+  - *Reason:* [Nesting: 0.75, Density: 0.04, Deps: 0.00] | Drag: 2.46 | LOC: 290/234
 
 ---
 
