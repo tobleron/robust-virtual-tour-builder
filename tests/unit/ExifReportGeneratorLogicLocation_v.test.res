@@ -75,7 +75,7 @@ describe("ExifReportGeneratorLogicLocation", () => {
         mockCalculateAverageLocation->mockReturnValue(Some(analysis))
 
         // Mock geocoding
-        let mockRes: ApiTypes.geocodeResponse = {address: "123 Test St"}
+        let mockRes: Api.geocodeResponse = {address: "123 Test St"}
         mockReverseGeocode->mockResolvedValue(Ok(mockRes))
 
         let result = await analyzeLocation(gpsPoints, gpsFilenames, 1, lines)
@@ -126,7 +126,7 @@ describe("ExifReportGeneratorLogicLocation", () => {
           validCount: 1,
         }
         mockCalculateAverageLocation->mockReturnValue(Some(analysis))
-        let mockRes: ApiTypes.geocodeResponse = {address: "Address"}
+        let mockRes: Api.geocodeResponse = {address: "Address"}
         mockReverseGeocode->mockResolvedValue(Ok(mockRes))
 
         let _ = await analyzeLocation(gpsPoints, gpsFilenames, 2, lines)

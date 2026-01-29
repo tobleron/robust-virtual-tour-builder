@@ -1,4 +1,5 @@
 open Vitest
+open Api
 open ReBindings
 
 describe("MediaApi", () => {
