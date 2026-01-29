@@ -208,8 +208,11 @@ fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>, config:
                     let item = format!("**{}** - {}", file, reason);
                     if platform == "backend" { structural_be.push(item); } else { structural_fe.push(item); }
                 },
-                WorkUnit::Merge { folder, reason, platform, .. } => {
-                    let item = format!("Folder: `{}` - {}", folder, reason);
+                WorkUnit::Merge { folder, files, reason, platform, .. } => {
+                    let mut item = format!("Folder: `{}` - {}", folder, reason);
+                    for f in files {
+                        item.push_str(&format!("\n    - `{}`", f));
+                    }
                     if platform == "backend" { merges_be.push(item); } else { merges_fe.push(item); }
                 },
             }
@@ -232,39 +235,34 @@ fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>, config:
 
     let max_complexity = config.settings.max_session_complexity;
     let sync_surgical = |units: Vec<(String, String, String, f64)>, platform: &str| -> Result<()> {
-        // Group by Action to minimize redundancy
-        let mut groups: HashMap<String, Vec<String>> = HashMap::new();
-        let mut complexity_acc = 0.0;
+        // Group by Parent Directory (Domain) to minimize context switching
+        let mut domain_groups: HashMap<String, Vec<(String, String, String, f64)>> = HashMap::new();
+        for unit in units {
+            let parent = Path::new(&unit.0).parent().unwrap_or(Path::new("")).to_string_lossy().to_string();
+            domain_groups.entry(parent).or_default().push(unit);
+        }
 
-        // Sort by complexity descending
-        let mut sorted_units = units;
-        sorted_units.sort_by(|a, b| b.3.partial_cmp(&a.3).unwrap_or(std::cmp::Ordering::Equal));
+        for (domain, domain_units) in domain_groups {
+            let mut groups: HashMap<String, Vec<String>> = HashMap::new();
+            let mut complexity_acc = 0.0;
+            
+            // Heuristic for naming: Use the last part of the path (e.g., "systems", "core")
+            let domain_name = Path::new(&domain).file_name().unwrap_or_default().to_string_lossy().to_uppercase();
+            let category_name = format!("Surgical_Refactor_{}", domain_name);
 
-        let mut batch_idx = 1;
+            for (file, reason, action, comp) in domain_units {
+                groups.entry(action).or_default().push(format!("**{}** - {}", file, reason));
+                complexity_acc += comp;
+            }
 
-        for (file, reason, action, comp) in sorted_units {
-            if complexity_acc + comp > max_complexity && !groups.is_empty() {
-                // Flush Batch
+            if !groups.is_empty() {
                 let mut lines = Vec::new();
                 for (act, items) in &groups {
                     lines.push(format!("\n### 🔧 Action: {}", act));
                     lines.extend(items.clone());
                 }
-                sync_architectural_category(&format!("Surgical_Refactor_Batch_{}", batch_idx), platform, &lines, &surgical_obj)?;
-                groups.clear(); complexity_acc = 0.0; batch_idx += 1;
+                sync_architectural_category(&category_name, platform, &lines, &surgical_obj)?;
             }
-
-            groups.entry(action).or_default().push(format!("**{}** - {}", file, reason));
-            complexity_acc += comp;
-        }
-
-        if !groups.is_empty() {
-            let mut lines = Vec::new();
-            for (act, items) in &groups {
-                lines.push(format!("\n### 🔧 Action: {}", act));
-                lines.extend(items.clone());
-            }
-            sync_architectural_category(&format!("Surgical_Refactor_Batch_{}", batch_idx), platform, &lines, &surgical_obj)?;
         }
         Ok(())
     };
