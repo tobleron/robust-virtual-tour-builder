@@ -18,18 +18,11 @@ pub struct MultipartImageData {
     pub metadata: Option<ExifMetadata>,
 }
 
-// --- SYNC LOGIC ---
+// --- HELPER FUNCTIONS ---
 
-pub fn process_image_full_sync(
-    data: Vec<u8>,
-    original_filename: Option<String>,
-    is_optimized_frontend: bool,
-    frontend_metadata: Option<ExifMetadata>,
-) -> Result<Vec<u8>, String> {
-    let decode_start = Instant::now();
+fn decode_image(data: &[u8]) -> Result<(image::DynamicImage, image::ImageFormat), String> {
     let data_size = data.len();
-
-    let reader = image::ImageReader::new(Cursor::new(&data))
+    let reader = image::ImageReader::new(Cursor::new(data))
         .with_guessed_format()
         .map_err(|e| {
             format!(
@@ -42,40 +35,37 @@ pub fn process_image_full_sync(
         "Unsupported or invalid image format. Please upload JPEG, PNG, WebP, or HEIC.".to_string()
     })?;
 
-    tracing::info!(module = "Processor", format = ?format, size = data_size, "IMAGE_FORMAT_IDENTIFIED");
-
     let img = reader
         .decode()
         .map_err(|e| format!("Failed to decode image (size: {} bytes): {}", data_size, e))?;
 
-    let decode_time = decode_start.elapsed().as_millis();
-    tracing::info!(
-        module = "Processor",
-        duration_ms = decode_time,
-        "IMAGE_DECODE_COMPLETE"
-    );
+    Ok((img, format))
+}
 
-    let rgba_start = Instant::now();
-    let (src_w, src_h) = (img.width(), img.height());
-    let src_rgba = img.to_rgba8();
-    let rgba_time = rgba_start.elapsed();
-
-    let parallel_start = Instant::now();
+fn execute_parallel_image_processing(
+    src_rgba: &image::RgbaImage,
+    src_w: u32,
+    src_h: u32,
+    data: &[u8],
+    original_filename: Option<&str>,
+    frontend_metadata: Option<ExifMetadata>,
+    is_optimized_frontend: bool,
+) -> Result<(MetadataResponse, Vec<u8>, Vec<u8>), String> {
     let ((metadata_res, tiny_res), large_res) = rayon::join(
         || {
             rayon::join(
                 || -> Result<MetadataResponse, String> {
                     let mut meta = media::perform_metadata_extraction_rgba(
-                        &src_rgba,
+                        src_rgba,
                         src_w,
                         src_h,
-                        &data,
-                        original_filename.as_deref(),
+                        data,
+                        original_filename,
                     )?;
                     if let Some(front_exif) = frontend_metadata {
                         meta.exif = front_exif;
                         meta.suggested_name =
-                            original_filename.as_deref().map(media::get_suggested_name);
+                            original_filename.map(media::get_suggested_name);
                     }
                     if is_optimized_frontend {
                         meta.is_optimized = true;
@@ -83,7 +73,7 @@ pub fn process_image_full_sync(
                     Ok(meta)
                 },
                 || -> Result<Vec<u8>, String> {
-                    let tiny_rgba = media::resize_fast_rgba(&src_rgba, src_w, src_h, 512, 512)
+                    let tiny_rgba = media::resize_fast_rgba(src_rgba, src_w, src_h, 512, 512)
                         .map_err(|e| format!("Tiny resize failed: {}", e))?;
                     let tiny_img = image::RgbaImage::from_raw(512, 512, tiny_rgba)
                         .ok_or_else(|| "Failed to create tiny image buffer".to_string())?;
@@ -97,10 +87,10 @@ pub fn process_image_full_sync(
                     module = "Processor",
                     "BYPASSING_4K_RESIZE_FRONTEND_OPTIMIZED"
                 );
-                Ok(data.clone())
+                Ok(data.to_vec())
             } else {
                 let resized_rgba = media::resize_fast_rgba(
-                    &src_rgba,
+                    src_rgba,
                     src_w,
                     src_h,
                     PROCESSED_IMAGE_WIDTH,
@@ -117,20 +107,19 @@ pub fn process_image_full_sync(
             }
         },
     );
-    let parallel_time = parallel_start.elapsed();
 
     let metadata = metadata_res?;
     let tiny_bytes = tiny_res?;
     let large_bytes = large_res?;
 
-    let webp_buffer_vec = if is_optimized_frontend && src_w == PROCESSED_IMAGE_WIDTH {
-        media::inject_remx_chunk(large_bytes, &metadata)?
-    } else if metadata.is_optimized && src_w == PROCESSED_IMAGE_WIDTH {
-        data.clone()
-    } else {
-        media::inject_remx_chunk(large_bytes, &metadata)?
-    };
+    Ok((metadata, tiny_bytes, large_bytes))
+}
 
+fn create_zip_response(
+    webp_buffer_vec: &[u8],
+    tiny_bytes: &[u8],
+    metadata: &MetadataResponse,
+) -> Result<Vec<u8>, String> {
     let mut zip_buffer = Cursor::new(Vec::new());
     {
         let mut zip = zip::ZipWriter::new(&mut zip_buffer);
@@ -140,21 +129,73 @@ pub fn process_image_full_sync(
 
         zip.start_file("preview.webp", options)
             .map_err(|e| e.to_string())?;
-        zip.write_all(&webp_buffer_vec).map_err(|e| e.to_string())?;
+        zip.write_all(webp_buffer_vec).map_err(|e| e.to_string())?;
 
         zip.start_file("tiny.webp", options)
             .map_err(|e| e.to_string())?;
-        zip.write_all(&tiny_bytes).map_err(|e| e.to_string())?;
+        zip.write_all(tiny_bytes).map_err(|e| e.to_string())?;
 
         zip.start_file("metadata.json", options)
             .map_err(|e| e.to_string())?;
-        let meta_json = serde_json::to_string(&metadata).map_err(|e| e.to_string())?;
+        let meta_json = serde_json::to_string(metadata).map_err(|e| e.to_string())?;
         zip.write_all(meta_json.as_bytes())
             .map_err(|e| e.to_string())?;
 
         zip.finish().map_err(|e| e.to_string())?;
     }
-    let zip_time = Instant::now().elapsed(); // Approximate
+    Ok(zip_buffer.into_inner())
+}
+
+// --- SYNC LOGIC ---
+
+pub fn process_image_full_sync(
+    data: Vec<u8>,
+    original_filename: Option<String>,
+    is_optimized_frontend: bool,
+    frontend_metadata: Option<ExifMetadata>,
+) -> Result<Vec<u8>, String> {
+    let decode_start = Instant::now();
+    let data_size = data.len();
+
+    let (img, format) = decode_image(&data)?;
+
+    tracing::info!(module = "Processor", format = ?format, size = data_size, "IMAGE_FORMAT_IDENTIFIED");
+
+    let decode_time = decode_start.elapsed().as_millis();
+    tracing::info!(
+        module = "Processor",
+        duration_ms = decode_time,
+        "IMAGE_DECODE_COMPLETE"
+    );
+
+    let rgba_start = Instant::now();
+    let (src_w, src_h) = (img.width(), img.height());
+    let src_rgba = img.to_rgba8();
+    let rgba_time = rgba_start.elapsed();
+
+    let parallel_start = Instant::now();
+    let (metadata, tiny_bytes, large_bytes) = execute_parallel_image_processing(
+        &src_rgba,
+        src_w,
+        src_h,
+        &data,
+        original_filename.as_deref(),
+        frontend_metadata,
+        is_optimized_frontend,
+    )?;
+    let parallel_time = parallel_start.elapsed();
+
+    let webp_buffer_vec = if is_optimized_frontend && src_w == PROCESSED_IMAGE_WIDTH {
+        media::inject_remx_chunk(large_bytes, &metadata)?
+    } else if metadata.is_optimized && src_w == PROCESSED_IMAGE_WIDTH {
+        data.clone()
+    } else {
+        media::inject_remx_chunk(large_bytes, &metadata)?
+    };
+
+    let zip_start = Instant::now();
+    let zip_bytes = create_zip_response(&webp_buffer_vec, &tiny_bytes, &metadata)?;
+    let zip_time = zip_start.elapsed();
 
     tracing::info!(
         "Backend Timings: Decode: {}ms, RGBA: {:?}, Parallel: {:?}, Zip: {:?}",
@@ -163,7 +204,7 @@ pub fn process_image_full_sync(
         parallel_time,
         zip_time
     );
-    Ok(zip_buffer.into_inner())
+    Ok(zip_bytes)
 }
 
 pub fn optimize_image_sync(data: Vec<u8>) -> Result<Vec<u8>, String> {
