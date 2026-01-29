@@ -16,3 +16,6 @@ The following regions are calculated to be the most confusing for AI:
 - [ ] **../../backend/src/api/media/image_logic.rs**
     - **Metric:** [Nesting: 0.75, Density: 0.04, Deps: 0.00] | Drag: 2.46 | LOC: 290/235
     - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
+- [ ] **../../backend/src/api/media/image_logic.rs**
+    - **Metric:** [Nesting: 0.75, Density: 0.04, Deps: 0.00] | Drag: 2.46 | LOC: 290/234
+    - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.

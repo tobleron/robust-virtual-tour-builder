@@ -4,30 +4,376 @@
       "Surgical": {
         "file": "../../backend/src/api/project.rs",
         "action": "De-bloat",
-        "reason": "[Nesting: 0.75, Density: 0.04, Deps: 0.00] | Drag: 2.19 | LOC: 374/353",
+        "reason": "[Nesting: 0.75, Density: 0.04, Deps: 0.00] | Drag: 2.19 | LOC: 375/353",
         "strategy": "",
         "platform": "backend",
-        "complexity": 4.288502673796792
+        "complexity": 4.387333333333334
       }
     },
     {
       "Surgical": {
         "file": "../../backend/src/api/media/image_logic.rs",
         "action": "De-bloat",
-        "reason": "[Nesting: 0.75, Density: 0.04, Deps: 0.00] | Drag: 2.46 | LOC: 290/235",
+        "reason": "[Nesting: 0.75, Density: 0.04, Deps: 0.00] | Drag: 2.46 | LOC: 290/234",
         "strategy": "",
         "platform": "backend",
-        "complexity": 7.9637931034482765
+        "complexity": 8.063793103448276
+      }
+    }
+  ],
+  "rescript": [
+    {
+      "Surgical": {
+        "file": "../../src/systems/Resizer.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.50, Density: 0.26, Deps: 0.11] | Drag: 8.10 | LOC: 303/88  Hotspot: Lines 218-222 (AI Context Fog (score 70.2): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 29.603960396039604
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/Simulation.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.65, Density: 0.00, Deps: 0.01] | Drag: 2.65 | LOC: 557/221  Hotspot: Lines 370-374 (AI Context Fog (score 124.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 36.25
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ProjectManager.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.20, Density: 0.28, Deps: 0.18] | Drag: 8.10 | LOC: 247/84  Hotspot: Lines 235-239 (AI Context Fog (score 52.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 24.402834008097166
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/Teaser.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.20, Density: 0.01, Deps: 0.03] | Drag: 2.53 | LOC: 581/224  Hotspot: Lines 594-598 (AI Context Fog (score 65.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 38.23218588640276
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/SceneHelpers.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.05, Density: 0.15, Deps: 0.04] | Drag: 6.72 | LOC: 271/107  Hotspot: Lines 204-208 (AI Context Fog (score 41.2): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 23.116051660516604
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/Exporter.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.35, Density: 0.08, Deps: 0.13] | Drag: 4.38 | LOC: 205/139  Hotspot: Lines 55-59 (AI Context Fog (score 67.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 10.979268292682926
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ExifReportGenerator.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.65, Density: 0.00, Deps: 0.00] | Drag: 2.65 | LOC: 542/221  Hotspot: Lines 204-208 (AI Context Fog (score 121.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 34.75
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/NavigationGraph.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.20, Density: 0.21, Deps: 0.06] | Drag: 7.06 | LOC: 121/102  Hotspot: Lines 92-96 (AI Context Fog (score 55.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 8.963636363636365
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/PanoramaClusterer.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.20, Density: 0.29, Deps: 0.10] | Drag: 10.15 | LOC: 143/80  Hotspot: Lines 132-136 (AI Context Fog (score 59.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 16.451048951048953
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/Actions.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.05, Density: 0.81, Deps: 0.01] | Drag: 24.35 | LOC: 155/80  Hotspot: Lines 155-159 (AI Context Fog (score 48.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 31.846774193548384
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/SvgManager.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 0.90, Density: 0.24, Deps: 0.19] | Drag: 8.08 | LOC: 190/83  Hotspot: Lines 163-167 (AI Context Fog (score 40.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 18.776315789473685
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/Api.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.35, Density: 0.01, Deps: 0.03] | Drag: 2.53 | LOC: 592/225  Hotspot: Lines 601-605 (AI Context Fog (score 67.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 39.230743243243246
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/NavigationRenderer.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.80, Density: 0.14, Deps: 0.08] | Drag: 6.79 | LOC: 248/103  Hotspot: Lines 206-210 (AI Context Fog (score 125.6): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 21.287903225806453
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/Navigation.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.10, Density: 0.21, Deps: 0.13] | Drag: 7.83 | LOC: 415/90  Hotspot: Lines 376-380 (AI Context Fog (score 196.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 40.325301204819276
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/Logger.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 0.90, Density: 0.13, Deps: 0.02] | Drag: 5.24 | LOC: 492/80  Hotspot: Lines 175-179 (AI Context Fog (score 31.6): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 46.43739837398374
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/HotspotLine.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.35, Density: 0.12, Deps: 0.06] | Drag: 5.95 | LOC: 697/116  Hotspot: Lines 245-249 (AI Context Fog (score 67.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 64.05258249641321
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/ModalContext.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.05, Density: 0.34, Deps: 0.09] | Drag: 11.83 | LOC: 170/119  Hotspot: Lines 113-117 (AI Context Fog (score 48.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 16.926470588235293
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/Schemas.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 0.90, Density: 0.25, Deps: 0.02] | Drag: 6.78 | LOC: 373/108  Hotspot: Lines 390-394 (AI Context Fog (score 27.2): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 33.280697050938336
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/LinkEditorLogic.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 0.90, Density: 0.19, Deps: 0.09] | Drag: 7.29 | LOC: 122/97  Hotspot: Lines 123-127 (AI Context Fog (score 38.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 9.79344262295082
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/PreviewArrow.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 0.90, Density: 0.22, Deps: 0.03] | Drag: 8.19 | LOC: 194/164  Hotspot: Lines 137-141 (AI Context Fog (score 27.2): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 11.186082474226803
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/ViewerManagerLogic.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.20, Density: 0.24, Deps: 0.21] | Drag: 8.81 | LOC: 314/80  Hotspot: Lines 185-189 (AI Context Fog (score 61.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 32.20509554140128
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/VisualPipeline.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.35, Density: 0.14, Deps: 0.24] | Drag: 5.85 | LOC: 365/181  Hotspot: Lines 242-246 (AI Context Fog (score 83.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 24.2486301369863
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/Reducer.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.20, Density: 0.21, Deps: 0.04] | Drag: 7.64 | LOC: 433/97  Hotspot: Lines 191-195 (AI Context Fog (score 63.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 41.23879907621247
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/UploadProcessor.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.50, Density: 0.02, Deps: 0.01] | Drag: 2.94 | LOC: 333/204  Hotspot: Lines 338-342 (AI Context Fog (score 84.8): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 15.835435435435436
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/Constants.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 0.45, Density: 0.03, Deps: 0.00] | Drag: 2.05 | LOC: 185/134  Hotspot: Lines 216-220 (AI Context Fog (score 6.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 7.1499999999999995
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/Scene.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.05, Density: 0.14, Deps: 0.10] | Drag: 3.90 | LOC: 338/155  Hotspot: Lines 319-323 (AI Context Fog (score 39.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 22.20059171597633
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/LazyLoad.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.20, Density: 0.10, Deps: 0.16] | Drag: 4.46 | LOC: 87/80  Hotspot: Lines 30-34 (AI Context Fog (score 58.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 5.158620689655173
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/ProgressBar.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 0.90, Density: 0.25, Deps: 0.14] | Drag: 5.79 | LOC: 109/80  Hotspot: Lines 100-104 (AI Context Fog (score 27.2): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 8.694495412844036
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/PathInterpolation.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.20, Density: 0.13, Deps: 0.06] | Drag: 5.11 | LOC: 236/80  Hotspot: Lines 109-113 (AI Context Fog (score 64.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 20.70677966101695
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/HotspotManager.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 0.60, Density: 0.18, Deps: 0.14] | Drag: 5.83 | LOC: 115/111  Hotspot: Lines 109-113 (AI Context Fog (score 16.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 6.22608695652174
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/NavigationController.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.25, Density: 0.20, Deps: 0.11] | Drag: 9.08 | LOC: 194/81  Hotspot: Lines 163-167 (AI Context Fog (score 201.8): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 20.377319587628868
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/SceneList.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.05, Density: 0.07, Deps: 0.06] | Drag: 3.55 | LOC: 416/299  Hotspot: Lines 436-440 (AI Context Fog (score 51.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 15.254807692307692
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/Sidebar.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.20, Density: 0.00, Deps: 0.01] | Drag: 2.20 | LOC: 569/446  Hotspot: Lines 103-107 (AI Context Fog (score 52.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 14.5
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/ImageOptimizer.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.05, Density: 0.03, Deps: 0.16] | Drag: 3.06 | LOC: 92/88  Hotspot: Lines 59-63 (AI Context Fog (score 49.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 3.4608695652173913
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ViewerSystem.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.20, Density: 0.21, Deps: 0.05] | Drag: 6.87 | LOC: 299/105  Hotspot: Lines 207-211 (AI Context Fog (score 52.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 26.26722408026756
       }
     }
   ],
   "system": [
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/media/analysis.rs",
-        "strategy": ""
-      }
-    },
     {
       "Ambiguity": {
         "file": "../../backend/src/pathfinder.rs",
@@ -35,27 +381,54 @@
       }
     },
     {
+      "Ambiguity": {
+        "file": "../../backend/src/services/media/analysis.rs",
+        "strategy": ""
+      }
+    },
+    {
       "Merge": {
-        "folder": "../../backend/src/services/auth",
+        "folder": "../../backend/src/middleware",
         "files": [
+          "quota_check.rs",
+          "request_tracker.rs",
           "mod.rs",
-          "jwt.rs"
+          "auth.rs"
         ],
-        "reason": "Read Tax high (Score 2.00).",
+        "reason": "Read Tax high (Score 4.00).",
         "strategy": "",
         "platform": "backend"
       }
     },
     {
       "Merge": {
-        "folder": "../../backend/src/services/project",
+        "folder": "../../backend/src/services",
         "files": [
+          "shutdown.rs",
+          "upload_quota_tests.rs",
           "mod.rs",
-          "package.rs",
-          "validate.rs",
-          "load.rs"
+          "upload_quota.rs",
+          "database.rs"
         ],
-        "reason": "Read Tax high (Score 2.00).",
+        "reason": "Read Tax high (Score 5.00).",
+        "strategy": "",
+        "platform": "backend"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../backend/src/services/media",
+        "files": [
+          "analysis_quality.rs",
+          "naming_old.rs",
+          "webp.rs",
+          "mod.rs",
+          "analysis_exif.rs",
+          "storage.rs",
+          "resizing.rs",
+          "naming.rs"
+        ],
+        "reason": "Read Tax high (Score 4.00).",
         "strategy": "",
         "platform": "backend"
       }
@@ -74,413 +447,28 @@
     },
     {
       "Merge": {
-        "folder": "../../src/components/ui",
+        "folder": "../../backend/src/services/project",
         "files": [
-          "Shadcn.res",
-          "LucideIcons.res"
+          "package.rs",
+          "validate.rs",
+          "mod.rs",
+          "load.rs"
         ],
         "reason": "Read Tax high (Score 2.00).",
         "strategy": "",
-        "platform": "frontend"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/middleware",
-        "files": [
-          "request_tracker.rs",
-          "mod.rs",
-          "quota_check.rs",
-          "auth.rs"
-        ],
-        "reason": "Read Tax high (Score 4.00).",
-        "strategy": "",
         "platform": "backend"
       }
     },
     {
       "Merge": {
-        "folder": "../../backend/src/services",
+        "folder": "../../backend/src/services/auth",
         "files": [
-          "upload_quota_tests.rs",
-          "shutdown.rs",
-          "upload_quota.rs",
-          "mod.rs",
-          "database.rs"
+          "jwt.rs",
+          "mod.rs"
         ],
-        "reason": "Read Tax high (Score 5.00).",
+        "reason": "Read Tax high (Score 2.00).",
         "strategy": "",
         "platform": "backend"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/services/media",
-        "files": [
-          "resizing.rs",
-          "naming.rs",
-          "analysis_exif.rs",
-          "storage.rs",
-          "webp.rs",
-          "analysis_quality.rs",
-          "mod.rs",
-          "naming_old.rs"
-        ],
-        "reason": "Read Tax high (Score 4.00).",
-        "strategy": "",
-        "platform": "backend"
-      }
-    }
-  ],
-  "rescript": [
-    {
-      "Surgical": {
-        "file": "../../src/systems/Resizer.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.50, Density: 0.26, Deps: 0.11] | Drag: 8.10 | LOC: 303/89  Hotspot: Lines 218-222 (AI Context Fog (score 70.2): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 29.503960396039602
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/NavigationRenderer.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.80, Density: 0.14, Deps: 0.08] | Drag: 6.79 | LOC: 248/104  Hotspot: Lines 206-210 (AI Context Fog (score 125.6): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 21.18790322580645
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ViewerSystem.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.20, Density: 0.21, Deps: 0.05] | Drag: 6.87 | LOC: 299/105  Hotspot: Lines 207-211 (AI Context Fog (score 52.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 26.26722408026756
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/HotspotLine.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.35, Density: 0.12, Deps: 0.06] | Drag: 5.95 | LOC: 697/116  Hotspot: Lines 245-249 (AI Context Fog (score 67.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 64.05258249641321
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/ViewerManagerLogic.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.20, Density: 0.24, Deps: 0.21] | Drag: 8.81 | LOC: 314/80  Hotspot: Lines 185-189 (AI Context Fog (score 61.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 32.20509554140128
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ProjectManager.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.20, Density: 0.28, Deps: 0.18] | Drag: 8.10 | LOC: 247/84  Hotspot: Lines 235-239 (AI Context Fog (score 52.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 24.402834008097166
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/Constants.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 0.45, Density: 0.03, Deps: 0.00] | Drag: 2.05 | LOC: 185/134  Hotspot: Lines 216-220 (AI Context Fog (score 6.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 7.1499999999999995
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/Schemas.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 0.90, Density: 0.25, Deps: 0.02] | Drag: 6.78 | LOC: 373/108  Hotspot: Lines 389-393 (AI Context Fog (score 27.2): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 33.280697050938336
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/Reducer.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.20, Density: 0.21, Deps: 0.04] | Drag: 7.64 | LOC: 433/97  Hotspot: Lines 191-195 (AI Context Fog (score 63.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 41.23879907621247
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ExifReportGenerator.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.65, Density: 0.00, Deps: 0.00] | Drag: 2.65 | LOC: 542/221  Hotspot: Lines 204-208 (AI Context Fog (score 121.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 34.75
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/Api.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.35, Density: 0.01, Deps: 0.03] | Drag: 2.53 | LOC: 592/225  Hotspot: Lines 601-605 (AI Context Fog (score 67.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 39.230743243243246
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/PreviewArrow.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 0.90, Density: 0.22, Deps: 0.03] | Drag: 8.19 | LOC: 194/164  Hotspot: Lines 137-141 (AI Context Fog (score 27.2): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 11.186082474226804
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/PanoramaClusterer.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.20, Density: 0.29, Deps: 0.10] | Drag: 10.15 | LOC: 143/80  Hotspot: Lines 132-136 (AI Context Fog (score 59.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 16.451048951048953
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/UploadProcessor.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.50, Density: 0.02, Deps: 0.01] | Drag: 2.94 | LOC: 333/204  Hotspot: Lines 338-342 (AI Context Fog (score 84.8): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 15.835435435435436
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/Logger.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 0.90, Density: 0.13, Deps: 0.02] | Drag: 5.24 | LOC: 492/80  Hotspot: Lines 175-179 (AI Context Fog (score 31.6): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 46.43739837398374
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/SceneHelpers.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.05, Density: 0.15, Deps: 0.04] | Drag: 6.72 | LOC: 271/107  Hotspot: Lines 204-208 (AI Context Fog (score 41.2): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 23.116051660516604
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/VisualPipeline.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.35, Density: 0.14, Deps: 0.24] | Drag: 5.85 | LOC: 365/181  Hotspot: Lines 242-246 (AI Context Fog (score 83.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 24.2486301369863
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/NavigationController.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.25, Density: 0.20, Deps: 0.11] | Drag: 9.08 | LOC: 194/81  Hotspot: Lines 163-167 (AI Context Fog (score 201.8): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 20.377319587628868
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/ModalContext.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.05, Density: 0.34, Deps: 0.09] | Drag: 11.83 | LOC: 170/119  Hotspot: Lines 113-117 (AI Context Fog (score 48.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 16.926470588235293
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/LinkEditorLogic.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 0.90, Density: 0.19, Deps: 0.09] | Drag: 7.29 | LOC: 122/97  Hotspot: Lines 123-127 (AI Context Fog (score 38.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 9.79344262295082
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/Scene.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.05, Density: 0.14, Deps: 0.10] | Drag: 3.90 | LOC: 338/155  Hotspot: Lines 319-323 (AI Context Fog (score 39.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 22.20059171597633
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/PathInterpolation.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.20, Density: 0.13, Deps: 0.06] | Drag: 5.11 | LOC: 236/80  Hotspot: Lines 109-113 (AI Context Fog (score 64.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 20.70677966101695
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/ProgressBar.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 0.90, Density: 0.25, Deps: 0.14] | Drag: 5.79 | LOC: 109/80  Hotspot: Lines 100-104 (AI Context Fog (score 27.2): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 8.694495412844036
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/LazyLoad.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.20, Density: 0.10, Deps: 0.16] | Drag: 4.46 | LOC: 87/80  Hotspot: Lines 30-34 (AI Context Fog (score 58.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 5.158620689655173
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/SvgManager.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 0.90, Density: 0.24, Deps: 0.19] | Drag: 8.08 | LOC: 190/83  Hotspot: Lines 163-167 (AI Context Fog (score 40.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 18.776315789473685
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/Teaser.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.20, Density: 0.01, Deps: 0.03] | Drag: 2.53 | LOC: 581/224  Hotspot: Lines 594-598 (AI Context Fog (score 65.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 38.23218588640276
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/ImageOptimizer.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.05, Density: 0.03, Deps: 0.16] | Drag: 3.06 | LOC: 92/89  Hotspot: Lines 59-63 (AI Context Fog (score 49.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 3.360869565217391
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/Sidebar.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.20, Density: 0.00, Deps: 0.01] | Drag: 2.20 | LOC: 569/446  Hotspot: Lines 103-107 (AI Context Fog (score 52.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 14.5
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/NavigationGraph.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.20, Density: 0.21, Deps: 0.06] | Drag: 7.06 | LOC: 121/102  Hotspot: Lines 92-96 (AI Context Fog (score 55.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 8.963636363636365
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/Actions.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.05, Density: 0.82, Deps: 0.01] | Drag: 24.49 | LOC: 154/80  Hotspot: Lines 153-157 (AI Context Fog (score 48.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 31.891558441558438
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/Navigation.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.10, Density: 0.21, Deps: 0.13] | Drag: 7.83 | LOC: 415/90  Hotspot: Lines 376-380 (AI Context Fog (score 196.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 40.325301204819276
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/Exporter.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.35, Density: 0.08, Deps: 0.13] | Drag: 4.38 | LOC: 205/139  Hotspot: Lines 55-59 (AI Context Fog (score 67.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 10.979268292682926
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/Simulation.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.65, Density: 0.00, Deps: 0.01] | Drag: 2.65 | LOC: 557/221  Hotspot: Lines 370-374 (AI Context Fog (score 124.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 36.25
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/SceneList.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.05, Density: 0.07, Deps: 0.06] | Drag: 3.55 | LOC: 416/299  Hotspot: Lines 436-440 (AI Context Fog (score 51.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 15.254807692307692
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/HotspotManager.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 0.60, Density: 0.18, Deps: 0.14] | Drag: 5.83 | LOC: 115/111  Hotspot: Lines 109-113 (AI Context Fog (score 16.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 6.22608695652174
       }
     }
   ]

@@ -31,3 +31,6 @@ The following regions are calculated to be the most confusing for AI:
 - [ ] **../../src/utils/ImageOptimizer.res**
     - **Metric:** [Nesting: 1.05, Density: 0.03, Deps: 0.16] | Drag: 3.06 | LOC: 92/89  Hotspot: Lines 59-63
     - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
+- [ ] **../../src/utils/ImageOptimizer.res**
+    - **Metric:** [Nesting: 1.05, Density: 0.03, Deps: 0.16] | Drag: 3.06 | LOC: 92/88  Hotspot: Lines 59-63
+    - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
