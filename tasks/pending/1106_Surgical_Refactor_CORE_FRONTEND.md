@@ -12,12 +12,6 @@ The following regions are calculated to be the most confusing for AI:
 
 ## Tasks
 
-### 🔧 Action: De-bloat
-**Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
-
-- [ ] - **../../src/core/Reducer.res** (Metric: [Nesting: 1.20, Density: 0.21, Coupling: 0.26] | Drag: 2.85 | LOC: 433/400  Hotspot: Lines 191-195)
-
-
 ### 🔧 Action: Audit & Delete
 **Directive:** De-bloat: Reduce module size by identifying and extracting independent domain logic.
 
