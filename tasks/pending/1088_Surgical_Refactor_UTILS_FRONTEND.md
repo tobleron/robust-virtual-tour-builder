@@ -51,3 +51,34 @@ The following regions are calculated to be the most confusing for AI:
 
 - [ ] - **../../src/utils/Logger.res** (Metric: [Nesting: 0.90, Density: 0.13, Deps: 0.02] | Drag: 2.29 | LOC: 492/250  Hotspot: Lines 175-179)
 
+
+### 🔧 Action: Audit & Delete
+**Directive:** De-bloat: Reduce module size by identifying and extracting independent domain logic.
+
+- [ ] - **../../src/utils/Constants.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 185))
+
+- [ ] - **../../src/utils/GeoUtils.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 83))
+
+- [ ] - **../../src/utils/ImageOptimizer.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 92))
+
+- [ ] - **../../src/utils/LazyLoad.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 87))
+
+- [ ] - **../../src/utils/Logger.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 492))
+
+- [ ] - **../../src/utils/PathInterpolation.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 236))
+
+- [ ] - **../../src/utils/PersistenceLayer.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 66))
+
+- [ ] - **../../src/utils/ProgressBar.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 109))
+
+- [ ] - **../../src/utils/ProjectionMath.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 88))
+
+- [ ] - **../../src/utils/RequestQueue.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 57))
+
+- [ ] - **../../src/utils/SessionStore.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 80))
+
+- [ ] - **../../src/utils/StateInspector.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 88))
+
+- [ ] - **../../src/utils/TourLogic.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 129))
+
+- [ ] - **../../src/utils/Logger.res** (Metric: [Nesting: 0.90, Density: 0.13, Coupling: 0.03] | Drag: 2.29 | LOC: 492/250  Hotspot: Lines 175-179)

@@ -21,3 +21,4 @@ The following regions are calculated to be the most confusing for AI:
 
 - [ ] - **../../backend/src/pathfinder.rs** (Metric: [Nesting: 1.05, Density: 0.07, Deps: 0.00] | Drag: 2.40 | LOC: 583/250)
 
+- [ ] - **../../backend/src/pathfinder.rs** (Metric: [Nesting: 1.05, Density: 0.07, Coupling: 0.05] | Drag: 2.40 | LOC: 583/250)
