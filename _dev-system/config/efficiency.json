@@ -5,7 +5,14 @@
     "backend/src",
     "css"
   ],
+  "entry_points": [
+    "src/Main.res",
+    "src/index.js",
+    "backend/src/main.rs",
+    "src/App.res"
+  ],
   "settings": {
+    "min_dead_code_loc": 50,
     "base_loc_limit": 450,
     "hard_ceiling_loc": 800,
     "soft_floor_loc": 250,

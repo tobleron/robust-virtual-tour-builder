@@ -14,6 +14,7 @@ pub struct CommonMetrics {
     pub hotspot_reason: Option<String>,
     pub external_calls: usize, // Imports/Opens
     pub internal_calls: usize, // Local function calls
+    pub dependencies: Vec<String>, // Explicit imports/modules
 }
 
 pub enum EfficiencyOverride {

@@ -13,7 +13,7 @@ use anyhow::{Context, Result};
 use graph::DependencyGraph;
 
 use drivers::{parse_header, EfficiencyOverride};
-use consolidator::{FolderStats, calculate_merge_score};
+use consolidator::{FolderStats, calculate_merge_score, find_recursive_clusters, FileInfo};
 use drivers::rust::analyze_rust;
 use drivers::rescript::analyze_rescript;
 use drivers::html::analyze_html;
@@ -23,6 +23,7 @@ use drivers::config::analyze_config;
 #[derive(Debug, Deserialize)]
 struct EfficiencyConfig {
     scanned_roots: Option<Vec<String>>,
+    entry_points: Option<Vec<String>>,
     settings: Settings,
     templates: Templates,
     exclusion_rules: ExclusionRules,
@@ -57,6 +58,7 @@ struct ExceptionRule {
 
 #[derive(Debug, Deserialize)]
 struct Settings {
+    min_dead_code_loc: usize,
     base_loc_limit: usize,
     hard_ceiling_loc: usize,
     soft_floor_loc: usize,
@@ -113,7 +115,7 @@ fn infer_taxonomy(path: &Path, content: &str) -> String {
         }
     }
     if f == "cargo.toml" || f == "package.json" || f.contains("config") || p.contains("/scripts/") || ext == "json" || ext == "toml" || ext == "yaml" { return "infra-config".to_string(); }
-    if f == "main.rs" || f == "lib.rs" || f == "mod.rs" || f == "main.res" || f == "app.res" || p.contains("actions") || p.contains("serviceworker") { return "orchestrator".to_string(); }
+    if f == "main.rs" || f == "lib.rs" || f == "mod.rs" || f == "main.res" || f == "app.res" || f == "index.js" || p.contains("actions") || p.contains("serviceworker") { return "orchestrator".to_string(); }
     if p.contains("/systems/") || p.contains("logic") || p.contains("manager") { return "service-orchestrator".to_string(); }
     if p.contains("/core/") && !p.contains("types") { return "domain-logic".to_string(); }
     if p.contains("/components/") || p.contains("view") || p.contains("/public/") || ext == "css" || ext == "html" || ext == "jsx" { return "ui-component".to_string(); }
@@ -396,7 +398,7 @@ fn flush_plans(buffer: &HashMap<String, Vec<WorkUnit>>, config: &EfficiencyConfi
 }
 
 fn main() -> Result<()> {
-    println!("🚀 _dev-system: Starting AGGREGATED Scan (v8)...");
+    // println!("🚀 _dev-system: Starting AGGREGATED Scan (v8)...");
     let guard_config = guard::GuardConfig::default();
     let config_raw = fs::read_to_string("../config/efficiency.json")?;
     let config: EfficiencyConfig = serde_json::from_str(&config_raw)?;
@@ -405,143 +407,218 @@ fn main() -> Result<()> {
     let mut feature_map: HashMap<String, Vec<(String, String)>> = HashMap::new(); 
     let default_dict: HashMap<String, f64> = HashMap::new();
 
-    // Pass 1: Indexing & Graph Building
-    let mut dep_graph = DependencyGraph::new();
-    let mut all_files = HashSet::new();
-    let mut file_contents: HashMap<PathBuf, String> = HashMap::new();
+    // --- Phase 1: Discovery & Analysis ---
+    // In this phase, we load all files, run the language drivers to get metrics (including dependencies),
+    // and build a registry of everything in the project.
+
+    // Registry: PathString -> (PathBuf, Content, Taxonomy, Metrics, Platform, DriverName)
+    let mut registry: HashMap<String, (PathBuf, String, String, drivers::CommonMetrics, String, String)> = HashMap::new();
+    // Resolver Map: FileNameStem -> Vec<FullPathString> (For resolving "User" to "src/core/User.res")
+    let mut file_resolver: HashMap<String, Vec<String>> = HashMap::new();
+    let mut all_files_set: HashSet<String> = HashSet::new();
+
     let mut total_loc = 0;
     let mut file_count = 0;
 
-    // Hardcoded Entry Points for Dead Code Analysis (can be moved to config later)
-    let mut entry_points = HashSet::new();
-    entry_points.insert("../../src/Main.res".to_string());
-    entry_points.insert("../../src/App.res".to_string());
-    entry_points.insert("../../src/index.js".to_string());
-    entry_points.insert("../../src/main.rs".to_string()); // Backend entry
-
     let roots = config.scanned_roots.clone().unwrap_or_else(|| vec!["../../".to_string()]);
+
+    // Entry Points setup
+    let mut entry_points = HashSet::new();
+    if let Some(eps) = &config.entry_points {
+        for ep in eps {
+             entry_points.insert(format!("../../{}", ep));
+        }
+    }
 
     for root in roots {
         let walk_path = if root.starts_with("../../") { root.clone() } else { format!("../../{}", root) };
-        println!("📂 Scanning Root: {}", walk_path);
+        // println!("📂 Scanning Root: {}", walk_path);
 
         for entry in WalkDir::new(walk_path).into_iter().filter_map(|e| e.ok()) {
             let path = entry.path();
             if !path.is_file() || !is_project_source(path, &config.exclusion_rules) { continue; }
 
             if let Ok(content) = fs::read_to_string(path) {
-                // Explicit Ignore Directive Check
                 if content.contains("@efficiency-role: ignored") { continue; }
 
                 let p_str = path.to_string_lossy().to_string();
-                all_files.insert(p_str.clone());
 
-                // LOC Stats
-                let loc = content.lines().filter(|l| !l.trim().is_empty()).count();
-                if loc > 0 { total_loc += loc; file_count += 1; }
+                // --- Analyze File ---
+                let taxonomy = infer_taxonomy(path, &content);
+                // Skip analysis for ignored files early
+                if taxonomy == "ignored" { continue; }
 
-                // Graph Building (Simple Regex for imports)
-                for line in content.lines() {
-                    if line.starts_with("open ") || line.starts_with("include ") || line.starts_with("mod ") {
-                        let parts: Vec<&str> = line.split_whitespace().collect();
-                        if parts.len() >= 2 {
-                            let _target = parts[1].replace(";", "");
-                        }
-                    }
+                let ext = path.extension().and_then(|s| s.to_str()).unwrap_or("");
+                let d_name = match ext { "rs" => "rust", "res" => "rescript", "jsx"|"js"|"html" => "web", "css" => "css", _ => "config" };
+                let platform = if ext == "rs" || path.to_string_lossy().contains("backend") { "backend" } else { "frontend" };
+
+                let dict = config.profiles.get(d_name).map(|p| &p.complexity_dictionary).unwrap_or(&default_dict);
+
+                let metrics = match d_name {
+                    "rust" => analyze_rust(&content, dict).unwrap_or_default(),
+                    "rescript" => analyze_rescript(&content, dict).unwrap_or_default(),
+                    "web" => analyze_html(&content, dict).unwrap_or_default(),
+                    "css" => analyze_css(&content, dict).unwrap_or_default(),
+                    _ => analyze_config(&content, dict).unwrap_or_default(),
+                };
+
+                if metrics.loc > 0 {
+                    total_loc += metrics.loc;
+                    file_count += 1;
                 }
 
-                file_contents.insert(path.to_path_buf(), content);
+                // Register for Graph & Processing
+                all_files_set.insert(p_str.clone());
+
+                let file_stem = path.file_stem().unwrap_or_default().to_string_lossy().to_string();
+                file_resolver.entry(file_stem.clone()).or_default().push(p_str.clone());
+
+                // Store in registry
+                registry.insert(p_str, (path.to_path_buf(), content, taxonomy, metrics, platform.to_string(), d_name.to_string()));
             }
         }
     }
 
     let project_avg_loc = if file_count > 0 { total_loc as f64 / file_count as f64 } else { config.settings.base_loc_limit as f64 };
     let dynamic_base = (config.settings.base_loc_limit as f64 * 0.8) + (project_avg_loc * 0.2);
-    println!("📊 Project Stats: Avg LOC {:.0} -> Dynamic Base Adjusted to {:.0}", project_avg_loc, dynamic_base);
+    // println!("📊 Project Stats: Avg LOC {:.0} -> Dynamic Base Adjusted to {:.0}", project_avg_loc, dynamic_base);
 
-    // Pass 2: Analysis & Task Generation
-    for (path, content) in file_contents {
-        let path = path.as_path();
-        if path.to_string_lossy().contains("/tests/") { continue; }
-        let taxonomy = infer_taxonomy(path, &content);
-        if taxonomy == "ignored" { continue; }
-        let ext = path.extension().and_then(|s| s.to_str()).unwrap_or("");
-        let d_name = match ext { "rs" => "rust", "res" => "rescript", "jsx"|"js"|"html" => "web", "css" => "css", _ => "config" };
-        let platform = if ext == "rs" || path.to_string_lossy().contains("backend") { "backend" } else { "frontend" };
-        if taxonomy == "unknown" { buffer.entry("system".to_string()).or_default().push(WorkUnit::Ambiguity { file: path.to_string_lossy().to_string(), strategy: String::new() }); continue; }
-        
-        let dict = config.profiles.get(d_name).map(|p| &p.complexity_dictionary).unwrap_or(&default_dict);
-        let metrics = match d_name {
-            "rust" => analyze_rust(&content, dict).unwrap_or_default(),
-            "rescript" => analyze_rescript(&content, dict).unwrap_or_default(),
-            "web" => analyze_html(&content, dict).unwrap_or_default(),
-            "css" => analyze_css(&content, dict).unwrap_or_default(),
-            _ => analyze_config(&content, dict).unwrap_or_default(),
-        };
-        if metrics.loc == 0 { continue; }
-        
-        let _ = guard::check_tests(&guard_config, path);
+    // --- Phase 2: Graph Construction ---
+    let mut dep_graph = DependencyGraph::new();
 
-        if let Some(profile) = config.profiles.get(d_name) {
-            let stripped = drivers::strip_code(&content);
-            for pattern in &profile.forbidden_patterns {
-                if stripped.contains(pattern) {
-                    let unit = WorkUnit::Violation { 
-                        file: path.to_string_lossy().to_string(), 
-                        pattern: pattern.clone(),
-                        strategy: String::new() // Will be populated by generic directive
-                    };
-                    buffer.entry(d_name.to_string()).or_default().push(unit);
+    for (path_str, (path, _, _, metrics, _, _)) in &registry {
+        for dep in &metrics.dependencies {
+            let mut resolved = false;
+
+            // Cleanup dependency string (handling Rust paths like `std::collections::HashMap` or `crate::foo`)
+            // Strategy: Take the last segment if it looks like a path
+            let clean_dep = if dep.contains("::") {
+                dep.split("::").last().unwrap_or(dep).trim()
+            } else {
+                dep.trim()
+            };
+
+            // 1. Try Exact/Stem Match (Fastest, covers ReScript/Rust modules)
+            if let Some(candidates) = file_resolver.get(clean_dep) {
+                for c in candidates {
+                    dep_graph.add_dependency(path_str, c);
+                    resolved = true;
+                }
+            }
+
+            if !resolved {
+                // 2. Relative Path Resolution (JS/CSS/Rust relative)
+                // If starts with "." or matches a known file extension logic
+                if clean_dep.starts_with(".") {
+                    if let Some(parent) = path.parent() {
+                        // Attempt to resolve against parent dir
+                        // We try adding extensions or just resolving path
+                        let extensions = ["", ".js", ".jsx", ".rs", ".res", ".css", "/index.js", "/mod.rs"];
+
+                        // We need to normalize the joined path to match `registry` keys (which are relative strings)
+                        // This is hard because `registry` keys are like "../../src/foo.res".
+                        // `path` is PathBuf("../../src/foo.res").
+                        // parent is PathBuf("../../src").
+                        // joined is PathBuf("../../src/../utils").
+                        // canonicalize() requires filesystem existence.
+
+                        // Heuristic: Construct potential paths and check `all_files_set`
+                        // We can't easily perform `path.join` and get a clean string without `canonicalize` which might fail or be absolute.
+                        // Instead, we use `walkdir` results which are what `all_files_set` contains.
+
+                        // Let's try simple string manipulation for reliability
+                        // remove leading "./"
+                        // handle "../" by popping segments from parent
+
+                        // Since `all_files_set` contains standardized paths from WalkDir, we should try to match them.
+                        // But verifying every relative path is expensive.
+                        // LUCKILY, `dep` usually points to a file name.
+
+                        // Fallback: If it's a relative path, extract the filename and try stem matching again?
+                        // e.g. import x from "./utils/MyHelper" -> stem "MyHelper".
+                        // This usually works!
+
+                        let path_obj = Path::new(clean_dep);
+                        if let Some(stem) = path_obj.file_stem().and_then(|s| s.to_str()) {
+                             if let Some(candidates) = file_resolver.get(stem) {
+                                 // We found candidates with matching stem.
+                                 // We should pick the one closest to `path`.
+                                 // But for safety (Dead Code), linking ALL is safer than linking none.
+                                 for c in candidates {
+                                     dep_graph.add_dependency(path_str, c);
+                                     resolved = true;
+                                 }
+                             }
+                        }
+                    }
                 }
             }
         }
+    }
 
-        let mut p_mod = config.taxonomy.get(&taxonomy).map(|t| t.multiplier).unwrap_or(1.0);
-        if let Some(exceptions) = &config.exceptions { for rule in exceptions { if path.to_string_lossy().contains(&rule.pattern) { if let Some(m) = rule.multiplier { p_mod *= m; } break; } } }
+    // --- Phase 3: Task Generation (Synthesis) ---
 
-        // Dead Code Detection Logic
-        let p_str = path.to_string_lossy().to_string();
-        if !entry_points.contains(&p_str) && !dep_graph.find_dead_code(&all_files, &entry_points).contains(&p_str) && metrics.loc > 50 {
-            // Heuristic: If a file isn't reachable and isn't an entry point, it's potentially dead code.
-            // We only flag this if it's substantial (> 50 LOC) to avoid noise from config/boilerplates.
+    // Dead Code Pass
+    let reachable_files = dep_graph.find_dead_code(&all_files_set, &entry_points);
+    // Note: find_dead_code returns *Dead* files (unreachable), naming is confusing in graph mod?
+    // Checking graph/mod.rs: "all_files.difference(&visited).cloned().collect()" -> YES, it returns DEAD files.
+    let dead_files: HashSet<String> = reachable_files.into_iter().collect();
+
+    for (p_str, (path, content, taxonomy, metrics, platform, d_name)) in &registry {
+        let path = path.as_path();
+
+        // 1. Ambiguity Check
+        if taxonomy == "unknown" {
+             buffer.entry("system".to_string()).or_default().push(WorkUnit::Ambiguity { file: p_str.clone(), strategy: String::new() });
+             continue;
         }
 
+        // 2. Metrics Calculation
         let density = metrics.logic_count as f64 / metrics.loc as f64;
         let dependency_density = metrics.external_calls as f64 / metrics.loc as f64;
+        let coupling_score = if metrics.loc > 0 { metrics.external_calls as f64 / metrics.loc as f64 } else { 0.0 };
+
+        // Taxonomy Multiplier
+        let mut p_mod = config.taxonomy.get(taxonomy).map(|t| t.multiplier).unwrap_or(1.0);
+        if let Some(exceptions) = &config.exceptions { for rule in exceptions { if p_str.contains(&rule.pattern) { if let Some(m) = rule.multiplier { p_mod *= m; } break; } } }
+
         let cohesion_bonus = 1.0 + (0.5 - dependency_density).max(0.0);
-        // Tuned: Normalized complexity penalty to be a density metric (intensive) rather than extensive.
-        // This prevents the "squared penalty" effect where larger files get exponentially tighter limits.
         let complexity_density = if metrics.loc > 0 { metrics.complexity_penalty / metrics.loc as f64 } else { 0.0 };
-        // We weight the specific complexity density (keywords) higher (x20) to make it impactful but fair.
-        // Depth Penalty: Folders deeper than 4 levels incur a drag penalty.
-        // Fix: Clean the path (remove ../..) before counting depth to ensure we only count actual project structure.
-        let clean_path_str = path.to_string_lossy().replace("../../", "");
+
+        let clean_path_str = p_str.replace("../../", "");
         let clean_path = Path::new(&clean_path_str);
         let dir_depth = clean_path.components().count().saturating_sub(config.settings.max_depth_threshold) as f64;
         let depth_penalty = if dir_depth > 0.0 { dir_depth * 0.5 } else { 0.0 };
 
         let drag = 1.0 + (metrics.max_nesting as f64 * config.settings.nesting_weight) + (density * config.settings.density_weight) + (complexity_density * 20.0) + depth_penalty;
 
-        // Tuned: Math updated to use a gentler curve (Drag^0.75) with a higher base (450).
-        // This ensures the limit curve distributes nicely between 80 (complex) and 400 (simple).
-        // Dynamic: Uses the calculated dynamic_base instead of static config base.
         let mut limit = ((dynamic_base * p_mod * cohesion_bonus) / drag.powf(0.75)).max(config.settings.soft_floor_loc as f64) as usize;
-        if let Some(exceptions) = &config.exceptions { for rule in exceptions { if path.to_string_lossy().contains(&rule.pattern) { if let Some(max) = rule.max_loc { limit = max; } break; } } }
+        if let Some(exceptions) = &config.exceptions { for rule in exceptions { if p_str.contains(&rule.pattern) { if let Some(max) = rule.max_loc { limit = max; } break; } } }
         limit = limit.min(config.settings.hard_ceiling_loc);
-        if metrics.loc > limit {
+
+        // 3. Dead Code Task
+        if dead_files.contains(p_str) && metrics.loc > config.settings.min_dead_code_loc {
+             buffer.entry(d_name.clone()).or_default().push(WorkUnit::Surgical {
+                file: p_str.clone(),
+                action: "Audit & Delete".to_string(),
+                reason: format!("Unreachable Module. Not referenced by any entry point. (LOC: {})", metrics.loc),
+                strategy: String::new(),
+                platform: platform.clone(),
+                complexity: 0.0
+             });
+        }
+        // 4. Surgical Refactor Task (De-bloat)
+        else if metrics.loc > limit {
             let nesting_factor = metrics.max_nesting as f64 * config.settings.nesting_weight;
             let density_factor = density * config.settings.density_weight;
-            let breakdown = format!("[Nesting: {:.2}, Density: {:.2}, Deps: {:.2}] | Drag: {:.2} | LOC: {}/{}", 
-                nesting_factor, density_factor, dependency_density, drag, metrics.loc, limit);
+            let breakdown = format!("[Nesting: {:.2}, Density: {:.2}, Coupling: {:.2}] | Drag: {:.2} | LOC: {}/{}",
+                nesting_factor, density_factor, coupling_score, drag, metrics.loc, limit);
             let mut reason = breakdown;
-            if let Some((s, e)) = metrics.hotspot_lines { reason = format!("{}  Hotspot: Lines {}-{} ({})", reason, s, e, metrics.hotspot_reason.unwrap_or_default()); }
+            if let Some((s, e)) = metrics.hotspot_lines { reason = format!("{}  Hotspot: Lines {}-{} ({})", reason, s, e, metrics.hotspot_reason.as_ref().unwrap_or(&String::new())); }
             let complexity = ((metrics.loc - limit) as f64 / 10.0) + drag;
 
-            // Feature: Safety Check for Missing Tests
-            // If a file is high drag (> 4.0) and has no associated test, prioritize test creation.
-            let p_str = path.to_string_lossy();
             let test_path_res = p_str.replace(".res", "_test.res");
-            let test_path_rs = p_str.replace(".rs", "_test.rs"); // Convention varies
+            let test_path_rs = p_str.replace(".rs", "_test.rs");
             let has_test = Path::new(&test_path_res).exists() || Path::new(&test_path_rs).exists() || content.contains("#[cfg(test)]");
 
             let action = if drag > 4.0 && !has_test && !p_str.contains("test") {
@@ -550,21 +627,66 @@ fn main() -> Result<()> {
                 "De-bloat".to_string()
             };
 
-            buffer.entry(d_name.to_string()).or_default().push(WorkUnit::Surgical { 
-                file: p_str.to_string(), 
+            buffer.entry(d_name.clone()).or_default().push(WorkUnit::Surgical {
+                file: p_str.clone(),
                 action, 
                 reason, 
-                strategy: String::new(), // Populated during category sync
-                platform: platform.to_string(), 
+                strategy: String::new(),
+                platform: platform.clone(),
                 complexity 
             });
         }
+
+        // 5. Violation Check
+        if let Some(profile) = config.profiles.get(d_name) {
+            let stripped = drivers::strip_code(&content);
+            for pattern in &profile.forbidden_patterns {
+                if stripped.contains(pattern) {
+                    let unit = WorkUnit::Violation {
+                        file: p_str.clone(),
+                        pattern: pattern.clone(),
+                        strategy: String::new()
+                    };
+                    buffer.entry(d_name.clone()).or_default().push(unit);
+                }
+            }
+        }
+
+        // 6. Stats Aggregation for Merges
         let dir = path.parent().unwrap().to_string_lossy().to_string();
         let ext_str = path.extension().and_then(|s| s.to_str()).unwrap_or("").to_string();
-        dir_stats.entry((dir, ext_str)).or_default().push((path.file_name().unwrap().to_string_lossy().to_string(), metrics.loc, platform.to_string(), drag));
+        dir_stats.entry((dir, ext_str)).or_default().push((path.file_name().unwrap().to_string_lossy().to_string(), metrics.loc, platform.clone(), drag));
+
         let file_stem = path.file_stem().unwrap_or_default().to_string_lossy().to_string();
-        if file_stem.len() > 3 { feature_map.entry(file_stem).or_default().push((path.to_string_lossy().to_string(), platform.to_string())); }
+        if file_stem.len() > 3 { feature_map.entry(file_stem).or_default().push((p_str.clone(), platform.clone())); }
+
+        let _ = guard::check_tests(&guard_config, path);
     }
+    // --- Phase 4: Recursive Cluster Analysis ---
+    // Group files by (Platform, Extension) to find "Feature Pods" across subdirectories
+    let mut recursive_groups: HashMap<(String, String), Vec<FileInfo>> = HashMap::new();
+    for (p_str, (_, _, _, metrics, platform, _)) in &registry {
+        // We use extension as a proxy for language/compatibility
+        let ext = Path::new(p_str).extension().and_then(|s| s.to_str()).unwrap_or("").to_string();
+        recursive_groups.entry((platform.clone(), ext)).or_default().push(FileInfo {
+            path: p_str.clone(),
+            loc: metrics.loc,
+        });
+    }
+
+    for ((platform, _ext), files) in recursive_groups {
+        let clusters = find_recursive_clusters(files, config.settings.hard_ceiling_loc);
+        for cluster in clusters {
+             buffer.entry("system".to_string()).or_default().push(WorkUnit::Merge {
+                folder: cluster.root_folder.clone(),
+                files: cluster.files.clone(),
+                platform: platform.clone(),
+                reason: format!("Recursive Feature Pod: {} files in subtree sum to {} LOC (fits in context).", cluster.files.len(), cluster.total_loc),
+                strategy: String::new()
+            });
+        }
+    }
+
     for ((dir, ext), files) in dir_stats {
         let total: usize = files.iter().map(|(_,l,_,_)| *l).sum();
 

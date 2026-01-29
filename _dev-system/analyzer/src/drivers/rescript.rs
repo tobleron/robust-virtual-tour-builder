@@ -11,21 +11,58 @@ pub fn analyze_rescript(content: &str, dict: &std::collections::HashMap<String, 
         hotspot_reason: None,
         external_calls: 0,
         internal_calls: 0,
+        dependencies: Vec::new(),
     };
     
     // AI Efficiency: Tracking Dependencies
-    metrics.external_calls += content.matches("open ").count();
-    metrics.external_calls += content.matches("import ").count();
-    // Count Module access (simplified)
-    for line in stripped.lines() {
-        if line.contains(".") {
-            let parts: Vec<&str> = line.split('.').collect();
-            if parts.len() > 1 {
-                let potential_module = parts[0].trim();
-                if !potential_module.is_empty() && potential_module.chars().next().unwrap_or(' ').is_uppercase() {
-                    metrics.external_calls += 1;
-                }
+    // Extract `open Module`, `include Module`, `module X = Module`
+    let lines: Vec<&str> = stripped.lines().collect();
+    for line in lines {
+        let trim = line.trim();
+        if trim.starts_with("open ") {
+            if let Some(dep) = trim.split_whitespace().nth(1) {
+                metrics.dependencies.push(dep.replace(";", "").to_string());
+                metrics.external_calls += 1;
             }
+        } else if trim.starts_with("include ") {
+            if let Some(dep) = trim.split_whitespace().nth(1) {
+                metrics.dependencies.push(dep.replace(";", "").to_string());
+                metrics.external_calls += 1;
+            }
+        } else if trim.starts_with("module ") && trim.contains("=") {
+            // module X = Y
+            if let Some(parts) = trim.split('=').nth(1) {
+                 let dep = parts.trim().replace(";", "");
+                 metrics.dependencies.push(dep);
+                 metrics.external_calls += 1;
+            }
+        } else if trim.contains(".") {
+             // Heuristic for inline usage like Module.func()
+             let parts: Vec<&str> = trim.split('.').collect();
+             if parts.len() > 1 {
+                 let potential_module = parts[0].trim();
+                 // Convention: Modules start with Uppercase
+                 if !potential_module.is_empty() && potential_module.chars().next().unwrap_or(' ').is_uppercase() {
+                     metrics.external_calls += 1;
+                     // Reliable Fix: Capture implicit module usage for the graph
+                     metrics.dependencies.push(potential_module.to_string());
+                 }
+             }
+        }
+
+        // JSX Component Usage: <Module ... or <Module.Sub
+        if trim.starts_with("<") {
+             // Heuristic: <Module
+             // split on space or slash or dot
+             let clean_tag = trim.replace("<", "").replace("/>", "").replace(">", "");
+             let tag_parts: Vec<&str> = clean_tag.split_whitespace().next().unwrap_or("").split('.').collect();
+             if !tag_parts.is_empty() {
+                 let potential_module = tag_parts[0];
+                 if !potential_module.is_empty() && potential_module.chars().next().unwrap_or(' ').is_uppercase() {
+                      metrics.external_calls += 1;
+                      metrics.dependencies.push(potential_module.to_string());
+                 }
+             }
         }
     }
 

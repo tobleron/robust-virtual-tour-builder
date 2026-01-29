@@ -10,8 +10,32 @@ pub fn analyze_html(content: &str, dict: &std::collections::HashMap<String, f64>
         hotspot_reason: None,
         external_calls: 0,
         internal_calls: 0,
+        dependencies: Vec::new(),
     };
     
+    // Dependencies extraction for JS/JSX
+    for line in content.lines() {
+        let t = line.trim();
+        if t.starts_with("import ") {
+            // import ... from "..."
+            if let Some(pos) = t.find("from") {
+                let remainder = &t[pos+4..];
+                let dep = remainder.trim().replace(";", "").replace("'", "").replace("\"", "");
+                metrics.dependencies.push(dep);
+                metrics.external_calls += 1;
+            }
+        } else if t.contains("require(") {
+            let parts: Vec<&str> = t.split("require(").collect();
+            if parts.len() > 1 {
+                if let Some(end) = parts[1].find(")") {
+                    let dep = parts[1][..end].replace("'", "").replace("\"", "");
+                    metrics.dependencies.push(dep);
+                    metrics.external_calls += 1;
+                }
+            }
+        }
+    }
+
     metrics.logic_count = content.matches("<").count();
     
     // Dynamic Complexity from Config
