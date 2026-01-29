@@ -167,7 +167,13 @@ fn sync_architectural_category(category_name: &str, platform: &str, units: &[Str
     }
 
     for f in units {
-        let line = format!("- [ ] {}\n", f);
+        // Heuristic: If it starts with # (Header), don't add the checkbox bullet
+        let line = if f.trim().starts_with("#") {
+            format!("{}\n", f)
+        } else {
+            format!("- [ ] {}\n", f)
+        };
+
         if !file_content.contains(f) {
             file.write_all(line.as_bytes())?;
         }
@@ -194,10 +200,9 @@ fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>, config:
                     let item = format!("`{}` (Pattern: `{}`)", file, pattern);
                     if file.contains("backend") || file.ends_with(".rs") { violations_be.push(item); } else { violations_fe.push(item); }
                 },
-                WorkUnit::Surgical { file, reason, platform, complexity, .. } => {
-                    let item = format!("**{}** - {}", file, reason);
-                    if platform == "backend" { surgical_be_units.push((item, *complexity)); } 
-                    else { surgical_fe_units.push((item, *complexity)); }
+                WorkUnit::Surgical { file, reason, platform, complexity, action } => {
+                    if platform == "backend" { surgical_be_units.push((file.clone(), reason.clone(), action.clone(), *complexity)); }
+                    else { surgical_fe_units.push((file.clone(), reason.clone(), action.clone(), *complexity)); }
                 },
                 WorkUnit::Structural { file, reason, platform, .. } => {
                     let item = format!("**{}** - {}", file, reason);
@@ -226,18 +231,41 @@ fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>, config:
     let ambiguity_obj = config.templates.ambiguity_objective.replace("{roles}", &role_list);
 
     let max_complexity = config.settings.max_session_complexity;
-    let sync_surgical = |units: Vec<(String, f64)>, platform: &str| -> Result<()> {
-        let mut batch = Vec::new();
-        let mut current_complexity = 0.0;
+    let sync_surgical = |units: Vec<(String, String, String, f64)>, platform: &str| -> Result<()> {
+        // Group by Action to minimize redundancy
+        let mut groups: HashMap<String, Vec<String>> = HashMap::new();
+        let mut complexity_acc = 0.0;
+
+        // Sort by complexity descending
+        let mut sorted_units = units;
+        sorted_units.sort_by(|a, b| b.3.partial_cmp(&a.3).unwrap_or(std::cmp::Ordering::Equal));
+
         let mut batch_idx = 1;
-        for (unit, comp) in units {
-            if current_complexity + comp > max_complexity && !batch.is_empty() {
-                sync_architectural_category(&format!("Surgical_Refactor_Batch_{}", batch_idx), platform, &batch, &surgical_obj)?;
-                batch.clear(); current_complexity = 0.0; batch_idx += 1;
+
+        for (file, reason, action, comp) in sorted_units {
+            if complexity_acc + comp > max_complexity && !groups.is_empty() {
+                // Flush Batch
+                let mut lines = Vec::new();
+                for (act, items) in &groups {
+                    lines.push(format!("\n### 🔧 Action: {}", act));
+                    lines.extend(items.clone());
+                }
+                sync_architectural_category(&format!("Surgical_Refactor_Batch_{}", batch_idx), platform, &lines, &surgical_obj)?;
+                groups.clear(); complexity_acc = 0.0; batch_idx += 1;
             }
-            batch.push(unit); current_complexity += comp;
+
+            groups.entry(action).or_default().push(format!("**{}** - {}", file, reason));
+            complexity_acc += comp;
         }
-        if !batch.is_empty() { sync_architectural_category(&format!("Surgical_Refactor_Batch_{}", batch_idx), platform, &batch, &surgical_obj)?; }
+
+        if !groups.is_empty() {
+            let mut lines = Vec::new();
+            for (act, items) in &groups {
+                lines.push(format!("\n### 🔧 Action: {}", act));
+                lines.extend(items.clone());
+            }
+            sync_architectural_category(&format!("Surgical_Refactor_Batch_{}", batch_idx), platform, &lines, &surgical_obj)?;
+        }
         Ok(())
     };
 
