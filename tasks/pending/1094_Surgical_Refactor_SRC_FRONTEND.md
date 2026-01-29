@@ -17,3 +17,10 @@ The following regions are calculated to be the most confusing for AI:
 
 - [ ] - **../../src/ReBindings.res** (Metric: [Nesting: 0.60, Density: 0.00, Deps: 0.00] | Drag: 2.31 | LOC: 350/342  Hotspot: Lines 233-237)
 
+
+### 🔧 Action: Audit & Delete
+**Directive:** De-bloat: Reduce module size by identifying and extracting independent domain logic.
+
+- [ ] - **../../src/ServiceWorker.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 87))
+
+- [ ] - **../../src/ServiceWorkerMain.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 164))

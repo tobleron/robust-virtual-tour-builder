@@ -1,6 +1,7 @@
-use syn::{visit::{self, Visit}, ItemFn, ExprMatch, ExprIf, ExprLoop, Block, Expr};
+use syn::{visit::{self, Visit}, ItemFn, ExprMatch, ExprIf, ExprLoop, Block, Expr, ItemUse, ItemMod};
 use std::cmp;
 use super::CommonMetrics;
+use quote::ToTokens;
 
 #[derive(Default)]
 pub struct RustWalker {
@@ -40,6 +41,22 @@ impl<'ast> Visit<'ast> for RustWalker {
         visit::visit_item_fn(self, i);
         self.current_depth = old_depth;
     }
+
+    fn visit_item_use(&mut self, i: &'ast ItemUse) {
+        // Extract basic path from use statements
+        let dep = i.tree.to_token_stream().to_string().replace(" ", "");
+        self.metrics.dependencies.push(dep);
+        self.metrics.external_calls += 1;
+        visit::visit_item_use(self, i);
+    }
+
+    fn visit_item_mod(&mut self, i: &'ast ItemMod) {
+        // mod x; is a dependency on file x.rs/mod.rs
+        let dep = i.ident.to_string();
+        self.metrics.dependencies.push(dep);
+        self.metrics.external_calls += 1;
+        visit::visit_item_mod(self, i);
+    }
 }
 
 pub fn analyze_rust(content: &str, dict: &std::collections::HashMap<String, f64>) -> anyhow::Result<CommonMetrics> {
@@ -50,6 +67,7 @@ pub fn analyze_rust(content: &str, dict: &std::collections::HashMap<String, f64>
     walker.metrics.hotspot_reason = None;
     walker.metrics.external_calls = 0;
     walker.metrics.internal_calls = 0;
+    walker.metrics.dependencies = Vec::new();
     walker.visit_file(&syntax);
     
     // Dynamic Complexity from Config

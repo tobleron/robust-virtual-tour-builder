@@ -129,3 +129,76 @@ The following regions are calculated to be the most confusing for AI:
 
 - [ ] - **../../src/systems/ViewerSystem.res** (Metric: [Nesting: 1.20, Density: 0.21, Deps: 0.05] | Drag: 3.96 | LOC: 299/250  Hotspot: Lines 207-211)
 
+
+### 🔧 Action: Audit & Delete
+**Directive:** De-bloat: Reduce module size by identifying and extracting independent domain logic.
+
+- [ ] - **../../src/systems/Api.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 592))
+
+- [ ] - **../../src/systems/AudioManager.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 123))
+
+- [ ] - **../../src/systems/CursorPhysics.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 55))
+
+- [ ] - **../../src/systems/DownloadSystem.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 135))
+
+- [ ] - **../../src/systems/EventBus.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 64))
+
+- [ ] - **../../src/systems/ExifParser.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 266))
+
+- [ ] - **../../src/systems/ExifReportGenerator.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 542))
+
+- [ ] - **../../src/systems/Exporter.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 205))
+
+- [ ] - **../../src/systems/FingerprintService.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 77))
+
+- [ ] - **../../src/systems/HotspotLine.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 697))
+
+- [ ] - **../../src/systems/InputSystem.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 78))
+
+- [ ] - **../../src/systems/LinkEditorLogic.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 122))
+
+- [ ] - **../../src/systems/Navigation.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 415))
+
+- [ ] - **../../src/systems/NavigationController.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 194))
+
+- [ ] - **../../src/systems/NavigationFSM.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 79))
+
+- [ ] - **../../src/systems/NavigationGraph.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 121))
+
+- [ ] - **../../src/systems/NavigationRenderer.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 248))
+
+- [ ] - **../../src/systems/NavigationUI.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 54))
+
+- [ ] - **../../src/systems/PanoramaClusterer.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 143))
+
+- [ ] - **../../src/systems/ProjectData.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 94))
+
+- [ ] - **../../src/systems/ProjectManager.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 247))
+
+- [ ] - **../../src/systems/Resizer.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 303))
+
+- [ ] - **../../src/systems/Scene.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 338))
+
+- [ ] - **../../src/systems/Simulation.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 557))
+
+- [ ] - **../../src/systems/SvgManager.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 190))
+
+- [ ] - **../../src/systems/Teaser.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 581))
+
+- [ ] - **../../src/systems/TourTemplates.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 217))
+
+- [ ] - **../../src/systems/UploadProcessor.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 333))
+
+- [ ] - **../../src/systems/VideoEncoder.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 100))
+
+- [ ] - **../../src/systems/ViewerSystem.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 299))
+
+- [ ] - **../../src/systems/HotspotLine.res** (Metric: [Nesting: 1.35, Density: 0.12, Coupling: 0.06] | Drag: 2.78 | LOC: 697/250  Hotspot: Lines 245-249)
+
+- [ ] - **../../src/systems/Navigation.res** (Metric: [Nesting: 2.10, Density: 0.21, Coupling: 0.14] | Drag: 4.10 | LOC: 415/250  Hotspot: Lines 376-380)
+
+- [ ] - **../../src/systems/Scene.res** (Metric: [Nesting: 1.05, Density: 0.14, Coupling: 0.11] | Drag: 2.32 | LOC: 338/250  Hotspot: Lines 319-323)
+
+- [ ] - **../../src/systems/Simulation.res** (Metric: [Nesting: 1.65, Density: 0.00, Coupling: 0.01] | Drag: 2.65 | LOC: 557/250  Hotspot: Lines 370-374)
+
+- [ ] - **../../src/systems/ViewerSystem.res** (Metric: [Nesting: 1.20, Density: 0.21, Coupling: 0.08] | Drag: 3.96 | LOC: 299/250  Hotspot: Lines 207-211)

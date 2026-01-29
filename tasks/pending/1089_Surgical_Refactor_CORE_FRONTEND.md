@@ -41,3 +41,24 @@ The following regions are calculated to be the most confusing for AI:
 
 - [ ] - **../../src/core/Schemas.res** (Metric: [Nesting: 0.90, Density: 0.25, Deps: 0.02] | Drag: 3.72 | LOC: 373/321  Hotspot: Lines 390-394)
 
+
+### 🔧 Action: Audit & Delete
+**Directive:** De-bloat: Reduce module size by identifying and extracting independent domain logic.
+
+- [ ] - **../../src/core/Actions.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 155))
+
+- [ ] - **../../src/core/AppContext.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 135))
+
+- [ ] - **../../src/core/AuthContext.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 76))
+
+- [ ] - **../../src/core/Reducer.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 433))
+
+- [ ] - **../../src/core/SceneHelpers.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 271))
+
+- [ ] - **../../src/core/Schemas.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 373))
+
+- [ ] - **../../src/core/SharedTypes.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 132))
+
+- [ ] - **../../src/core/Types.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 200))
+
+- [ ] - **../../src/core/ViewerState.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 70))
