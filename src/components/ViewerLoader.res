@@ -15,17 +15,17 @@ let getComputedOpacity = el => {
 }
 
 let getPanoramaUrl = (file: Types.file): string => {
-  UrlUtils.fileToUrl(file)
+  Types.fileToUrl(file)
 }
 
 module Loader = {
   let loadStartTime = Scene.Loader.loadStartTime
 
-  type customViewerProps = PannellumLifecycle.customViewerProps
-  let asCustom = PannellumLifecycle.asCustom
+  type customViewerProps = HotspotLine.HotspotLineTypes.customViewerProps
+  let asCustom = HotspotLine.asCustom
 
-  let initializeViewer = PannellumLifecycle.initializeViewer
-  let destroyViewer = PannellumLifecycle.destroyViewer
+  let initializeViewer = ViewerSystem.Adapter.initialize
+  let destroyViewer = ViewerSystem.Adapter.destroy
 
   let performSwap = loadedScene => {
     Scene.Transition.performSwap(loadedScene, loadStartTime.contents)
