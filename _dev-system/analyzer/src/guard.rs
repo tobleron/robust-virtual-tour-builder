@@ -171,7 +171,7 @@ pub fn check_map(config: &GuardConfig) -> Result<()> {
                 };
 
                 let extension = path.extension().and_then(|s| s.to_str()).unwrap_or("");
-                if (extension == "res" || extension == "rs") && !mapped_paths.contains(clean_path) {
+                if (extension == "res" || extension == "rs" || extension == "js" || extension == "jsx") && !mapped_paths.contains(clean_path) {
                     unmapped_files.push(clean_path.to_string());
                 }
             }
@@ -207,6 +207,18 @@ pub fn check_map(config: &GuardConfig) -> Result<()> {
                     next_id
                 );
                 create_task(config, &task_filename, &task_content)?;
+            }
+        }
+    } else {
+        // Zombie Elimination: If no unmapped files exist, remove the task if it exists
+        let pending_dir = format!("{}/pending", config.tasks_dir);
+        if let Ok(entries) = fs::read_dir(pending_dir) {
+            for entry in entries.filter_map(|e| e.ok()) {
+                let name = entry.file_name().to_string_lossy().into_owned();
+                if name.contains("Classify_Map_Entries") {
+                    println!("🧹 Deleting resolved task: {:?}", entry.path());
+                    let _ = fs::remove_file(entry.path());
+                }
             }
         }
     }

@@ -294,3 +294,14 @@ This map provides a semantic overview of the project structure to optimize conte
 * [src/AmbiguousFile.res](src/AmbiguousFile.res): New module detected. Please classify. #new
 * [src/systems/ViewerLogic.res](src/systems/ViewerLogic.res): New module detected. Please classify. #new
 * [src/systems/NavigationLogic.res](src/systems/NavigationLogic.res): New module detected. Please classify. #new
+* [src/index.js](src/index.js): New module detected. Please classify. #new
+* [src/components/ui/sonner.jsx](src/components/ui/sonner.jsx): New module detected. Please classify. #new
+* [src/components/ui/input.jsx](src/components/ui/input.jsx): New module detected. Please classify. #new
+* [src/components/ui/tooltip.jsx](src/components/ui/tooltip.jsx): New module detected. Please classify. #new
+* [src/components/ui/checkbox.jsx](src/components/ui/checkbox.jsx): New module detected. Please classify. #new
+* [src/components/ui/label.jsx](src/components/ui/label.jsx): New module detected. Please classify. #new
+* [src/components/ui/button.jsx](src/components/ui/button.jsx): New module detected. Please classify. #new
+* [src/components/ui/popover.jsx](src/components/ui/popover.jsx): New module detected. Please classify. #new
+* [src/components/ui/dropdown-menu.jsx](src/components/ui/dropdown-menu.jsx): New module detected. Please classify. #new
+* [src/components/ui/context-menu.jsx](src/components/ui/context-menu.jsx): New module detected. Please classify. #new
+* [src/lib/utils.js](src/lib/utils.js): New module detected. Please classify. #new
