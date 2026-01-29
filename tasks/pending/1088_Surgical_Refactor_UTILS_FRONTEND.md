@@ -27,3 +27,27 @@ The following regions are calculated to be the most confusing for AI:
 
 - [ ] - **../../src/utils/ProgressBar.res** (Metric: [Nesting: 0.90, Density: 0.25, Deps: 0.14] | Drag: 5.79 | LOC: 109/80  Hotspot: Lines 100-104)
 
+- [ ] - **../../src/utils/Constants.res** (Metric: [Nesting: 0.45, Density: 0.03, Deps: 0.00] | Drag: 1.59 | LOC: 185/165  Hotspot: Lines 216-220)
+
+- [ ] - **../../src/utils/Logger.res** (Metric: [Nesting: 0.90, Density: 0.13, Deps: 0.02] | Drag: 2.70 | LOC: 492/109  Hotspot: Lines 175-179)
+
+- [ ] - **../../src/utils/PathInterpolation.res** (Metric: [Nesting: 1.20, Density: 0.13, Deps: 0.06] | Drag: 2.92 | LOC: 236/100  Hotspot: Lines 109-113)
+
+- [ ] - **../../src/utils/ProgressBar.res** (Metric: [Nesting: 0.90, Density: 0.25, Deps: 0.14] | Drag: 2.88 | LOC: 109/96  Hotspot: Lines 100-104)
+
+- [ ] - **../../src/utils/Constants.res** (Metric: [Nesting: 0.45, Density: 0.03, Deps: 0.00] | Drag: 1.53 | LOC: 185/170  Hotspot: Lines 216-220)
+
+- [ ] - **../../src/utils/Logger.res** (Metric: [Nesting: 0.90, Density: 0.13, Deps: 0.02] | Drag: 2.29 | LOC: 492/123  Hotspot: Lines 175-179)
+
+- [ ] - **../../src/utils/PathInterpolation.res** (Metric: [Nesting: 1.20, Density: 0.13, Deps: 0.06] | Drag: 2.57 | LOC: 236/111  Hotspot: Lines 109-113)
+
+- [ ] - **../../src/utils/ProgressBar.res** (Metric: [Nesting: 0.90, Density: 0.25, Deps: 0.14] | Drag: 2.44 | LOC: 109/108  Hotspot: Lines 100-104)
+
+- [ ] - **../../src/utils/Constants.res** (Metric: [Nesting: 0.45, Density: 0.03, Deps: 0.00] | Drag: 1.53 | LOC: 185/180  Hotspot: Lines 216-220)
+
+- [ ] - **../../src/utils/Logger.res** (Metric: [Nesting: 0.90, Density: 0.13, Deps: 0.02] | Drag: 2.29 | LOC: 492/180  Hotspot: Lines 175-179)
+
+- [ ] - **../../src/utils/PathInterpolation.res** (Metric: [Nesting: 1.20, Density: 0.13, Deps: 0.06] | Drag: 2.57 | LOC: 236/180  Hotspot: Lines 109-113)
+
+- [ ] - **../../src/utils/Logger.res** (Metric: [Nesting: 0.90, Density: 0.13, Deps: 0.02] | Drag: 2.29 | LOC: 492/250  Hotspot: Lines 175-179)
+

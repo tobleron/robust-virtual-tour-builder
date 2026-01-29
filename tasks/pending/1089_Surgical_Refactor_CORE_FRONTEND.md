@@ -23,3 +23,21 @@ The following regions are calculated to be the most confusing for AI:
 
 - [ ] - **../../src/core/Schemas.res** (Metric: [Nesting: 0.90, Density: 0.25, Deps: 0.02] | Drag: 6.78 | LOC: 373/205  Hotspot: Lines 390-394)
 
+- [ ] - **../../src/core/Reducer.res** (Metric: [Nesting: 1.20, Density: 0.21, Deps: 0.04] | Drag: 3.50 | LOC: 433/177  Hotspot: Lines 191-195)
+
+- [ ] - **../../src/core/SceneHelpers.res** (Metric: [Nesting: 1.05, Density: 0.15, Deps: 0.04] | Drag: 3.20 | LOC: 271/189  Hotspot: Lines 204-208)
+
+- [ ] - **../../src/core/Schemas.res** (Metric: [Nesting: 0.90, Density: 0.25, Deps: 0.02] | Drag: 6.06 | LOC: 373/223  Hotspot: Lines 390-394)
+
+- [ ] - **../../src/core/Reducer.res** (Metric: [Nesting: 1.20, Density: 0.21, Deps: 0.04] | Drag: 2.85 | LOC: 433/207  Hotspot: Lines 191-195)
+
+- [ ] - **../../src/core/SceneHelpers.res** (Metric: [Nesting: 1.05, Density: 0.15, Deps: 0.04] | Drag: 2.60 | LOC: 271/221  Hotspot: Lines 204-208)
+
+- [ ] - **../../src/core/Schemas.res** (Metric: [Nesting: 0.90, Density: 0.25, Deps: 0.02] | Drag: 3.72 | LOC: 373/322  Hotspot: Lines 390-394)
+
+- [ ] - **../../src/core/Reducer.res** (Metric: [Nesting: 1.20, Density: 0.21, Deps: 0.04] | Drag: 2.85 | LOC: 433/250  Hotspot: Lines 191-195)
+
+- [ ] - **../../src/core/SceneHelpers.res** (Metric: [Nesting: 1.05, Density: 0.15, Deps: 0.04] | Drag: 2.60 | LOC: 271/250  Hotspot: Lines 204-208)
+
+- [ ] - **../../src/core/Schemas.res** (Metric: [Nesting: 0.90, Density: 0.25, Deps: 0.02] | Drag: 3.72 | LOC: 373/321  Hotspot: Lines 390-394)
+

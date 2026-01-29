@@ -139,6 +139,8 @@
 │   ├── PROJECT_HISTORY.md
 │   ├── PROJECT_SPECS.md
 │   ├── TERMS_OF_SERVICE.md
+│   ├── _pending_integration
+│   │   └── ANALYSIS_DEV_SYSTEM_ACCURACY.md
 │   ├── openapi.yaml
 │   └── tmp
 ├── index.html
@@ -4674,6 +4676,9 @@
 │   │   ├── 1091_Surgical_Refactor_MEDIA_BACKEND.md
 │   │   ├── 1092_Surgical_Refactor_SRC_BACKEND.md
 │   │   ├── 1093_Merge_Folders_BACKEND.md
+│   │   ├── 1094_Surgical_Refactor_SRC_FRONTEND.md
+│   │   ├── 1095_Classify_Ambiguous_Files.md
+│   │   ├── 1096_Implement_Accuracy_Report_Recommendations.md
 │   │   └── tests
 │   │       └── 006_Test_Generation_Unified.md
 │   └── postponed
@@ -4995,4 +5000,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-191 directories, 4805 files
+192 directories, 4809 files
