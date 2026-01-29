@@ -24,3 +24,4 @@ The following regions are calculated to be the most confusing for AI:
 - [ ] - **../../css/tailwind.css** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 126))
 
 - [ ] - **../../css/variables.css** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 109))
+

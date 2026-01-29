@@ -16,3 +16,4 @@ The following regions are calculated to be the most confusing for AI:
 **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
 
 - [ ] - **../../src/ReBindings.res** (Metric: [Nesting: 0.60, Density: 0.00, Coupling: 0.34] | Drag: 1.89 | LOC: 350/309  Hotspot: Lines 233-237)
+
