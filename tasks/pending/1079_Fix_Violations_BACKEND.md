@@ -1,8 +1,10 @@
 # Task 1079: Fix Violations BACKEND
 
 ## Objective
-### 🎯 General Instruction
-Resolve forbidden patterns and critical LOC violations to ensure the codebase remains predictable and safe for AI-driven refactoring.
+## 🛡️ Violation Objective
+**Role:** Code Safety Officer
+**Goal:** Fix critical anti-patterns or missing safety nets.
+**Priority:** High. These issues risk stability or build integrity.
 
 ## Tasks
 - [ ] `../../backend/src/api/media/image.rs` (Pattern: `unwrap()`)
