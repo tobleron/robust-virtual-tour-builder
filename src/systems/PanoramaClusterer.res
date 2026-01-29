@@ -162,7 +162,7 @@ let clusterScenes = (
         Some(Belt.Int.toString(lastGroupRef.contents))
       }
 
-      let newItem = { ...current, colorGroup: newGroup }
+      let newItem = {...current, colorGroup: newGroup}
       let _ = Array.push(results, newItem)
     })
 

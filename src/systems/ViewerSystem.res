@@ -99,50 +99,53 @@ module Pool = {
   let getInactive = () => pool.contents->Belt.Array.getBy(v => v.status == #Background)
   let getInactiveViewer = () => getInactive()->Option.flatMap(v => v.instance)
   let swapActive = () =>
-    pool := pool.contents->Belt.Array.map(v =>
-      {
+    pool :=
+      pool.contents->Belt.Array.map(v => {
         ...v,
         status: switch v.status {
         | #Active => #Background
         | #Background => #Active
         | #Free => #Free
-        }
-      }
-    )
+        },
+      })
   let registerInstance = (cId, inst) =>
-    pool := pool.contents->Belt.Array.map(v =>
-      if v.containerId == cId {
-        {...v, instance: Some(inst)}
-      } else {
-        v
-      }
-    )
+    pool :=
+      pool.contents->Belt.Array.map(v =>
+        if v.containerId == cId {
+          {...v, instance: Some(inst)}
+        } else {
+          v
+        }
+      )
   let clearInstance = cId =>
-    pool := pool.contents->Belt.Array.map(v =>
-      if v.containerId == cId {
-        {...v, instance: None}
-      } else {
-        v
-      }
-    )
+    pool :=
+      pool.contents->Belt.Array.map(v =>
+        if v.containerId == cId {
+          {...v, instance: None}
+        } else {
+          v
+        }
+      )
   let setCleanupTimeout = (id, t) =>
-    pool := pool.contents->Belt.Array.map(v =>
-      if v.id == id {
-        v.cleanupTimeout->Option.forEach(Window.clearTimeout)
-        {...v, cleanupTimeout: t}
-      } else {
-        v
-      }
-    )
+    pool :=
+      pool.contents->Belt.Array.map(v =>
+        if v.id == id {
+          v.cleanupTimeout->Option.forEach(Window.clearTimeout)
+          {...v, cleanupTimeout: t}
+        } else {
+          v
+        }
+      )
   let clearCleanupTimeout = id =>
-    pool := pool.contents->Belt.Array.map(v =>
-      if v.id == id {
-        v.cleanupTimeout->Option.forEach(Window.clearTimeout)
-        {...v, cleanupTimeout: None}
-      } else {
-        v
-      }
-    )
+    pool :=
+      pool.contents->Belt.Array.map(v =>
+        if v.id == id {
+          v.cleanupTimeout->Option.forEach(Window.clearTimeout)
+          {...v, cleanupTimeout: None}
+        } else {
+          v
+        }
+      )
 }
 
 // --- FOLLOW (from ViewerFollow.res) ---
@@ -169,7 +172,11 @@ module Follow = {
       | _ => false
       }
 
-      if !ViewerState.state.contents.followLoopActive || vOpt == None || (!s.isLinking && !hasHotspots) {
+      if (
+        !ViewerState.state.contents.followLoopActive ||
+        vOpt == None ||
+        (!s.isLinking && !hasHotspots)
+      ) {
         if !fsmBusy {
           Dom.getElementById("viewer-hotspot-lines")
           ->Nullable.toOption
@@ -222,10 +229,10 @@ module Follow = {
             ? 0.0
             : -.getEdgePower(ViewerState.state.contents.mouseYNorm, 0.5) *. 1.0 *. (1.0 +. pb)
           ViewerState.state := {
-            ...ViewerState.state.contents,
-            lastAppliedYaw: Nullable.null,
-            lastAppliedPitch: Nullable.null,
-          }
+              ...ViewerState.state.contents,
+              lastAppliedYaw: Nullable.null,
+              lastAppliedPitch: Nullable.null,
+            }
           vOpt->Option.forEach(v => {
             if yd != 0.0 {
               Viewer.setYaw(v, Viewer.getYaw(v) +. yd, false)

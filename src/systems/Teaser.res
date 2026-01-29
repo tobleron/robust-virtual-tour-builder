@@ -117,10 +117,10 @@ module Recorder = {
       Dom.setWidth(c, canvasWidth)
       Dom.setHeight(c, canvasHeight)
       internalState := {
-        ...internalState.contents,
-        ghostCanvas: Some(c),
-        ghostCtx: Some(Canvas.getContext2d(c, "2d", {"alpha": false})),
-      }
+          ...internalState.contents,
+          ghostCanvas: Some(c),
+          ghostCtx: Some(Canvas.getContext2d(c, "2d", {"alpha": false})),
+        }
     }
   }
 
@@ -226,19 +226,19 @@ module Recorder = {
       try {
         let r = createMediaRecorder(stream, {"mimeType": mimeType, "videoBitsPerSecond": 10000000})
         internalState := {
-          ...internalState.contents,
-          chunks: [],
-          mediaRecorder: Some(r),
-          startTime: Date.now(),
-          isTeasing: true,
-        }
+            ...internalState.contents,
+            chunks: [],
+            mediaRecorder: Some(r),
+            startTime: Date.now(),
+            isTeasing: true,
+          }
         r->ondataavailable(e => {
           if e["data"]["size"] > 0 {
             let b = castToBlob(e["data"])
             internalState := {
-              ...internalState.contents,
-              chunks: Array.concat(internalState.contents.chunks, [b]),
-            }
+                ...internalState.contents,
+                chunks: Array.concat(internalState.contents.chunks, [b]),
+              }
           }
         })
         r->start(100)

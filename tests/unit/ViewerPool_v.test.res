@@ -4,21 +4,21 @@ open ViewerSystem.Pool
 describe("ViewerPool", () => {
   beforeEach(() => {
     pool := [
-      {
-        id: "primary-a",
-        containerId: "panorama-a",
-        instance: None,
-        status: #Active,
-        cleanupTimeout: None,
-      },
-      {
-        id: "primary-b",
-        containerId: "panorama-b",
-        instance: None,
-        status: #Background,
-        cleanupTimeout: None,
-      },
-    ]
+        {
+          id: "primary-a",
+          containerId: "panorama-a",
+          instance: None,
+          status: #Active,
+          cleanupTimeout: None,
+        },
+        {
+          id: "primary-b",
+          containerId: "panorama-b",
+          instance: None,
+          status: #Background,
+          cleanupTimeout: None,
+        },
+      ]
   })
 
   test("getViewportByContainer should return correct viewport", t => {

@@ -20,18 +20,18 @@ let calculateVelocity = (x: float, y: float) => {
       ViewerState.state.contents.mouseVelocityY *. smoothing +. velY *. (1.0 -. smoothing)
 
     ViewerState.state := {
-      ...ViewerState.state.contents,
-      mouseVelocityX: newVelX,
-      mouseVelocityY: newVelY
-    }
+        ...ViewerState.state.contents,
+        mouseVelocityX: newVelX,
+        mouseVelocityY: newVelY,
+      }
   }
 
   ViewerState.state := {
-    ...ViewerState.state.contents,
-    lastMoveX: x,
-    lastMoveY: y,
-    lastMoveTime: now
-  }
+      ...ViewerState.state.contents,
+      lastMoveX: x,
+      lastMoveY: y,
+      lastMoveTime: now,
+    }
 }
 
 let updateRodPosition = (x: float, y: float, isLinking: bool) => {

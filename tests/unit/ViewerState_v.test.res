@@ -4,21 +4,21 @@ describe("ViewerState", () => {
   beforeEach(() => {
     // Reset pool defaults
     ViewerSystem.Pool.pool := [
-      {
-        id: "primary-a",
-        containerId: "panorama-a",
-        instance: None,
-        status: #Active,
-        cleanupTimeout: None,
-      },
-      {
-        id: "primary-b",
-        containerId: "panorama-b",
-        instance: None,
-        status: #Background,
-        cleanupTimeout: None,
-      },
-    ]
+        {
+          id: "primary-a",
+          containerId: "panorama-a",
+          instance: None,
+          status: #Active,
+          cleanupTimeout: None,
+        },
+        {
+          id: "primary-b",
+          containerId: "panorama-b",
+          instance: None,
+          status: #Background,
+          cleanupTimeout: None,
+        },
+      ]
     ViewerState.resetState()
   })
 

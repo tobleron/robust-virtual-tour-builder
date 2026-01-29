@@ -12,7 +12,10 @@ describe("ViewerSnapshot", () => {
 
     ViewerSnapshot.requestIdleSnapshot()
 
-    t->expect(ViewerState.state.contents.idleSnapshotTimeout)->Expect.not->Expect.toBe(Nullable.null)
+    t
+    ->expect(ViewerState.state.contents.idleSnapshotTimeout)
+    ->Expect.not
+    ->Expect.toBe(Nullable.null)
 
     // Cleanup
     switch Nullable.toOption(ViewerState.state.contents.idleSnapshotTimeout) {
