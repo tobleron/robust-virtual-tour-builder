@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Consolidate frontend API modules into Api.res and fix related tests
 - Merge: tune-dev-system-logic-6120814584194181031
+- Merge comprehensive surgical refactors for frontend logic and backend api/logic separation (Tasks 1080-1085)
 
 ### Added
 - Optimized _dev-system task generation for domain-aware refactoring and explicit merges

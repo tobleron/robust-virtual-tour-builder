@@ -1,9 +1,9 @@
+use serde_json::Value;
 use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::io::{Read, Write};
 use std::path::PathBuf;
 use zip::write::FileOptions;
-use serde_json::Value;
 
 use crate::api::utils::{PROCESSED_IMAGE_WIDTH, WEBP_QUALITY};
 use crate::models::ValidationReport;
@@ -114,8 +114,7 @@ pub fn create_project_zip_sync(
         let _ = fs::remove_file(path);
     }
     if let Some(session_path) = project_path {
-        let project_val: Value =
-            serde_json::from_str(&project_json).unwrap_or(Value::Null);
+        let project_val: Value = serde_json::from_str(&project_json).unwrap_or(Value::Null);
         if let Some(scenes) = project_val["scenes"].as_array() {
             for scene in scenes {
                 if let Some(name) = scene["name"].as_str() {

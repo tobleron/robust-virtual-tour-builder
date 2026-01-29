@@ -355,7 +355,7 @@ let sanitizeScene = (s: Types.scene): Types.scene => {
 let createDefaultErrorScene = (idPrefix: string, name: string): Types.scene => {
   {
     id: idPrefix ++ Float.toString(Date.now()),
-    name: name,
+    name,
     file: Types.Url(""),
     tinyFile: None,
     originalFile: None,

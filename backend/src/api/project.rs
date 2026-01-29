@@ -10,12 +10,12 @@ use std::io::{Read, Seek, SeekFrom, Write};
 use std::path::PathBuf;
 use uuid::Uuid;
 
+use crate::api::project_logic;
 use crate::api::utils::{MAX_UPLOAD_SIZE, get_temp_path, sanitize_filename};
 use crate::models::{AppError, User};
 use crate::pathfinder::PathRequest;
 use crate::services::media::StorageManager;
 use crate::services::project;
-use crate::api::project_logic;
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -28,10 +28,7 @@ pub struct ImportResponse {
 
 /// Saves the current project state into a ZIP file.
 #[tracing::instrument(skip(payload, req), name = "save_project")]
-pub async fn save_project(
-    req: HttpRequest,
-    payload: Multipart,
-) -> Result<HttpResponse, AppError> {
+pub async fn save_project(req: HttpRequest, payload: Multipart) -> Result<HttpResponse, AppError> {
     let user = req
         .extensions()
         .get::<User>()
@@ -153,8 +150,8 @@ pub async fn import_project(
         json_file
             .read_to_string(&mut json_str)
             .map_err(AppError::IoError)?;
-        let data: serde_json::Value = serde_json::from_str(&json_str)
-            .map_err(|e| AppError::InternalError(e.to_string()))?;
+        let data: serde_json::Value =
+            serde_json::from_str(&json_str).map_err(|e| AppError::InternalError(e.to_string()))?;
         let id = data
             .get("id")
             .and_then(|v| v.as_str())
@@ -163,8 +160,8 @@ pub async fn import_project(
         (id, data)
     };
 
-    let project_dir = StorageManager::ensure_project_dir(&user.id, &project_id)
-        .map_err(AppError::IoError)?;
+    let project_dir =
+        StorageManager::ensure_project_dir(&user.id, &project_id).map_err(AppError::IoError)?;
 
     // Unzip logic extracted to improve readability could be here, but let's keep it inline for now or move to private helper
     extract_zip_to_project_dir(&tmp_path, &project_dir)?;
@@ -290,8 +287,11 @@ async fn parse_save_project_multipart(
     Ok((project_json, session_id, temp_images))
 }
 
-async fn extract_file_from_multipart(mut payload: Multipart, ext: &str) -> Result<PathBuf, AppError> {
-     while let Ok(Some(mut field)) = payload.try_next().await {
+async fn extract_file_from_multipart(
+    mut payload: Multipart,
+    ext: &str,
+) -> Result<PathBuf, AppError> {
+    while let Ok(Some(mut field)) = payload.try_next().await {
         if field.name() == Some("file") {
             let tmp_path = get_temp_path(ext);
             let mut f = fs::File::create(&tmp_path).map_err(AppError::IoError)?;
@@ -308,8 +308,7 @@ async fn extract_file_from_multipart(mut payload: Multipart, ext: &str) -> Resul
 
 fn extract_zip_to_project_dir(zip_path: &PathBuf, project_dir: &PathBuf) -> Result<(), AppError> {
     let file = fs::File::open(zip_path).map_err(AppError::IoError)?;
-    let mut archive =
-        zip::ZipArchive::new(file).map_err(|e| AppError::ZipError(e.to_string()))?;
+    let mut archive = zip::ZipArchive::new(file).map_err(|e| AppError::ZipError(e.to_string()))?;
     for i in 0..archive.len() {
         let mut file = archive
             .by_index(i)
@@ -333,7 +332,9 @@ fn extract_zip_to_project_dir(zip_path: &PathBuf, project_dir: &PathBuf) -> Resu
     Ok(())
 }
 
-async fn parse_tour_package_multipart(mut payload: Multipart) -> Result<(Vec<(String, Vec<u8>)>, HashMap<String, String>), AppError> {
+async fn parse_tour_package_multipart(
+    mut payload: Multipart,
+) -> Result<(Vec<(String, Vec<u8>)>, HashMap<String, String>), AppError> {
     let mut image_files = Vec::new();
     let mut fields = HashMap::new();
 
