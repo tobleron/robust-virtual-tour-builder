@@ -62,6 +62,7 @@ struct Settings {
     nesting_weight: f64,
     density_weight: f64,
     drag_target: f64,
+    max_depth_threshold: usize,
 }
 
 #[derive(Debug, Deserialize)]
@@ -151,9 +152,24 @@ fn sync_architectural_category(category_name: &str, platform: &str, units: &[Str
         (Path::new(pending_dir).join(format!("{:03}_{}.md", next_id, full_category_name)), format!("{:03}", next_id))
     };
 
-    let mut file = fs::File::create(path)?;
-    file.write_all(format!("# Task {}: {}\n\n## Objective\n{}\n\n## Tasks\n", id, full_category_name.replace("_", " "), objective).as_bytes())?;
-    for f in units { file.write_all(format!("- [ ] {}\n", f).as_bytes())?; }
+    let mut file_content = String::new();
+    if path.exists() {
+        if let Ok(mut f) = fs::File::open(&path) {
+            let _ = f.read_to_string(&mut file_content);
+        }
+    }
+
+    let mut file = OpenOptions::new().create(true).append(true).open(path)?;
+    if file_content.is_empty() {
+        file.write_all(format!("# Task {}: {}\n\n## Objective\n{}\n\n## Tasks\n", id, full_category_name.replace("_", " "), objective).as_bytes())?;
+    }
+
+    for f in units {
+        let line = format!("- [ ] {}\n", f);
+        if !file_content.contains(f) {
+            file.write_all(line.as_bytes())?;
+        }
+    }
     Ok(())
 }
 
@@ -223,14 +239,24 @@ fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>, config:
         Ok(())
     };
 
+    // Priority Order Enforcement
+    // 1. Ambiguity (Clarify)
     sync_architectural_category("Classify_Ambiguous_Files", "", &ambiguities, &ambiguity_obj)?;
-    sync_architectural_category("Fix_Violations", "Frontend", &violations_fe, &config.templates.violation_objective)?;
-    sync_surgical(surgical_fe_units, "Frontend")?;
+
+    // 2. Structural (Fix hierarchy first)
     sync_architectural_category("Structural_Refactor", "Frontend", &structural_fe, &config.templates.structural_objective)?;
-    sync_architectural_category("Merge_Folders", "Frontend", &merges_fe, &merge_obj)?;
-    sync_architectural_category("Fix_Violations", "Backend", &violations_be, &config.templates.violation_objective)?;
-    sync_surgical(surgical_be_units, "Backend")?;
     sync_architectural_category("Structural_Refactor", "Backend", &structural_be, &config.templates.structural_objective)?;
+
+    // 3. Violations (Fix critical bugs)
+    sync_architectural_category("Fix_Violations", "Frontend", &violations_fe, &config.templates.violation_objective)?;
+    sync_architectural_category("Fix_Violations", "Backend", &violations_be, &config.templates.violation_objective)?;
+
+    // 4. Surgical (Optimize specific files)
+    sync_surgical(surgical_fe_units, "Frontend")?;
+    sync_surgical(surgical_be_units, "Backend")?;
+
+    // 5. Merges (Cleanup)
+    sync_architectural_category("Merge_Folders", "Frontend", &merges_fe, &merge_obj)?;
     sync_architectural_category("Merge_Folders", "Backend", &merges_be, &merge_obj)?;
     Ok(())
 }
@@ -345,7 +371,10 @@ fn main() -> Result<()> {
         let complexity_density = if metrics.loc > 0 { metrics.complexity_penalty / metrics.loc as f64 } else { 0.0 };
         // We weight the specific complexity density (keywords) higher (x50) to make it impactful but fair.
         // Depth Penalty: Folders deeper than 4 levels incur a drag penalty.
-        let dir_depth = path.components().count().saturating_sub(4) as f64;
+        // Fix: Clean the path (remove ../..) before counting depth to ensure we only count actual project structure.
+        let clean_path_str = path.to_string_lossy().replace("../../", "");
+        let clean_path = Path::new(&clean_path_str);
+        let dir_depth = clean_path.components().count().saturating_sub(config.settings.max_depth_threshold) as f64;
         let depth_penalty = if dir_depth > 0.0 { dir_depth * 0.5 } else { 0.0 };
 
         let drag = 1.0 + (metrics.max_nesting as f64 * config.settings.nesting_weight) + (density * config.settings.density_weight) + (complexity_density * 50.0) + depth_penalty;
@@ -380,13 +409,15 @@ fn main() -> Result<()> {
         }
 
         // Structural: Deep nesting check
-        let dir_depth = Path::new(&dir).components().count().saturating_sub(4);
+        let clean_dir_str = dir.replace("../../", "");
+        let clean_dir = Path::new(&clean_dir_str);
+        let dir_depth = clean_dir.components().count().saturating_sub(config.settings.max_depth_threshold);
         if dir_depth > 0 {
              buffer.entry("system".to_string()).or_default().push(WorkUnit::Structural {
                 file: dir.clone(),
                 action: "Flatten Hierarchy".to_string(),
                 platform: files[0].2.clone(),
-                reason: format!("Folder depth is {}. Flatten to reduce traversal tax.", Path::new(&dir).components().count())
+                reason: format!("Folder depth is {}. Flatten to reduce traversal tax.", clean_dir.components().count())
             });
         }
     }
