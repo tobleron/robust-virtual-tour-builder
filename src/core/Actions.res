@@ -97,7 +97,8 @@ let navigationActionToString = (action: action): option<string> =>
   | SetIncomingLink(_) => Some("SetIncomingLink")
   | ResetAutoForwardChain => Some("ResetAutoForwardChain")
   | AddToAutoForwardChain(idx) => Some(`AddToAutoForwardChain(${Belt.Int.toString(idx)})`)
-  | SetPendingReturnSceneName(opt) => Some(`SetPendingReturnSceneName(${opt->Option.getOr("None")})`)
+  | SetPendingReturnSceneName(opt) =>
+    Some(`SetPendingReturnSceneName(${opt->Option.getOr("None")})`)
   | IncrementJourneyId => Some("IncrementJourneyId")
   | SetCurrentJourneyId(id) => Some(`SetCurrentJourneyId(${Belt.Int.toString(id)})`)
   | NavigationCompleted(_) => Some("NavigationCompleted")

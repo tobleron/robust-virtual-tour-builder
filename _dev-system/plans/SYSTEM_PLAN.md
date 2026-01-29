@@ -9,57 +9,57 @@
 ---
 
 ## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (2)
-- [ ] `../../backend/src/pathfinder.rs`
 - [ ] `../../backend/src/services/media/analysis.rs`
+- [ ] `../../backend/src/pathfinder.rs`
 
 ---
 
 ## 🧩 MERGE TASKS (7)
-### Merge Folder: `../../backend/src/services/media`
-- **Reason:** Read Tax high (Score 4.00).
-- **Files:**
-  - `mod.rs`
-  - `analysis_quality.rs`
-  - `storage.rs`
-  - `webp.rs`
-  - `analysis_exif.rs`
-  - `naming_old.rs`
-  - `resizing.rs`
-  - `naming.rs`
 ### Merge Folder: `../../backend/src/services/auth`
 - **Reason:** Read Tax high (Score 2.00).
 - **Files:**
+  - `mod.rs`
   - `jwt.rs`
-  - `mod.rs`
-### Merge Folder: `../../backend/src/services`
-- **Reason:** Read Tax high (Score 5.00).
-- **Files:**
-  - `mod.rs`
-  - `upload_quota.rs`
-  - `database.rs`
-  - `shutdown.rs`
-  - `upload_quota_tests.rs`
 ### Merge Folder: `../../backend/src/services/project`
 - **Reason:** Read Tax high (Score 2.00).
 - **Files:**
   - `mod.rs`
-  - `load.rs`
   - `package.rs`
   - `validate.rs`
-### Merge Folder: `../../src/components/ui`
-- **Reason:** Read Tax high (Score 2.00).
-- **Files:**
-  - `Shadcn.res`
-  - `LucideIcons.res`
+  - `load.rs`
 ### Merge Folder: `../../backend/src/services/geocoding`
 - **Reason:** Read Tax high (Score 2.00).
 - **Files:**
   - `logic.rs`
   - `mod.rs`
+### Merge Folder: `../../src/components/ui`
+- **Reason:** Read Tax high (Score 2.00).
+- **Files:**
+  - `Shadcn.res`
+  - `LucideIcons.res`
 ### Merge Folder: `../../backend/src/middleware`
 - **Reason:** Read Tax high (Score 4.00).
 - **Files:**
+  - `request_tracker.rs`
   - `mod.rs`
   - `quota_check.rs`
   - `auth.rs`
-  - `request_tracker.rs`
+### Merge Folder: `../../backend/src/services`
+- **Reason:** Read Tax high (Score 5.00).
+- **Files:**
+  - `upload_quota_tests.rs`
+  - `shutdown.rs`
+  - `upload_quota.rs`
+  - `mod.rs`
+  - `database.rs`
+### Merge Folder: `../../backend/src/services/media`
+- **Reason:** Read Tax high (Score 4.00).
+- **Files:**
+  - `resizing.rs`
+  - `naming.rs`
+  - `analysis_exif.rs`
+  - `storage.rs`
+  - `webp.rs`
+  - `analysis_quality.rs`
+  - `mod.rs`
+  - `naming_old.rs`
