@@ -23,52 +23,52 @@
 ### Merge Folder: `../../backend/src/services/media/analysis`
 - **Reason:** Read Tax high (Score 3.00).
 - **Files:**
-  - `quality.rs`
+  - `mod.rs`
   - `exif.rs`
-  - `mod.rs`
-### Merge Folder: `../../backend/src/services/media`
-- **Reason:** Read Tax high (Score 6.00).
+  - `quality.rs`
+### Merge Folder: `../../backend/src/services/auth`
+- **Reason:** Read Tax high (Score 2.00).
 - **Files:**
-  - `naming_old.rs`
-  - `resizing.rs`
-  - `storage.rs`
   - `mod.rs`
-  - `naming.rs`
-  - `webp.rs`
-### Merge Folder: `../../backend/src/middleware`
-- **Reason:** Read Tax high (Score 4.00).
+  - `jwt.rs`
+### Merge Folder: `../../backend/src/services`
+- **Reason:** Read Tax high (Score 5.00).
 - **Files:**
-  - `auth.rs`
-  - `quota_check.rs`
+  - `shutdown.rs`
   - `mod.rs`
-  - `request_tracker.rs`
+  - `database.rs`
+  - `upload_quota.rs`
+  - `upload_quota_tests.rs`
 ### Merge Folder: `../../backend/src/services/geocoding`
 - **Reason:** Read Tax high (Score 2.00).
 - **Files:**
   - `mod.rs`
   - `logic.rs`
+### Merge Folder: `../../backend/src/services/media`
+- **Reason:** Read Tax high (Score 6.00).
+- **Files:**
+  - `naming.rs`
+  - `mod.rs`
+  - `storage.rs`
+  - `resizing.rs`
+  - `webp.rs`
+  - `naming_old.rs`
+### Merge Folder: `../../backend/src/middleware`
+- **Reason:** Read Tax high (Score 4.00).
+- **Files:**
+  - `auth.rs`
+  - `request_tracker.rs`
+  - `quota_check.rs`
+  - `mod.rs`
 ### Merge Folder: `../../src/components/ui`
 - **Reason:** Read Tax high (Score 2.00).
 - **Files:**
-  - `Shadcn.res`
   - `LucideIcons.res`
+  - `Shadcn.res`
 ### Merge Folder: `../../backend/src/services/project`
 - **Reason:** Read Tax high (Score 2.00).
 - **Files:**
-  - `load.rs`
-  - `mod.rs`
   - `validate.rs`
+  - `mod.rs`
+  - `load.rs`
   - `package.rs`
-### Merge Folder: `../../backend/src/services/auth`
-- **Reason:** Read Tax high (Score 2.00).
-- **Files:**
-  - `jwt.rs`
-  - `mod.rs`
-### Merge Folder: `../../backend/src/services`
-- **Reason:** Read Tax high (Score 5.00).
-- **Files:**
-  - `database.rs`
-  - `shutdown.rs`
-  - `upload_quota.rs`
-  - `mod.rs`
-  - `upload_quota_tests.rs`
