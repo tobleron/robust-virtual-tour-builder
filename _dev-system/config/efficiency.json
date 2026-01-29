@@ -1,5 +1,9 @@
 {
   "version": "1.4.2",
+  "scanned_roots": [
+    "src",
+    "backend/src"
+  ],
   "settings": {
     "base_loc_limit": 450,
     "hard_ceiling_loc": 800,
