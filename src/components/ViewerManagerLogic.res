@@ -78,7 +78,8 @@ let useSceneCleanup = (state: state) => {
         | None => ()
         }
       })
-      ViewerSystem.Pool.pool := ViewerSystem.Pool.pool.contents->Belt.Array.map(v => {...v, instance: None})
+      ViewerSystem.Pool.pool :=
+        ViewerSystem.Pool.pool.contents->Belt.Array.map(v => {...v, instance: None})
 
       ViewerSystem.resetState()
 
@@ -139,7 +140,8 @@ let useMainSceneLoading = (state: state, dispatch: action => unit) => {
             | None => ()
             }
           })
-          ViewerSystem.Pool.pool := ViewerSystem.Pool.pool.contents->Belt.Array.map(v => {...v, instance: None})
+          ViewerSystem.Pool.pool :=
+            ViewerSystem.Pool.pool.contents->Belt.Array.map(v => {...v, instance: None})
 
           ViewerSystem.resetState()
 
@@ -239,16 +241,16 @@ let useRatchetState = (state: state) => {
   React.useEffect1(() => {
     if state.isLinking {
       ViewerState.state := {
-        ...ViewerState.state.contents,
-        ratchetState: {
-          yawOffset: 0.0,
-          pitchOffset: 0.0,
-          maxYawOffset: 0.0,
-          minYawOffset: 0.0,
-          maxPitchOffset: 0.0,
-          minPitchOffset: 0.0,
+          ...ViewerState.state.contents,
+          ratchetState: {
+            yawOffset: 0.0,
+            pitchOffset: 0.0,
+            maxYawOffset: 0.0,
+            minYawOffset: 0.0,
+            maxPitchOffset: 0.0,
+            minPitchOffset: 0.0,
+          },
         }
-      }
 
       if !ViewerState.state.contents.followLoopActive {
         ViewerState.state := {...ViewerState.state.contents, followLoopActive: true}

@@ -32,10 +32,10 @@ let handleMouseMove = (e: Dom.event) => {
     let coords = normalizeMouseCoords(e, el)
 
     ViewerState.state := {
-      ...ViewerState.state.contents,
-      mouseXNorm: coords["xNorm"],
-      mouseYNorm: coords["yNorm"],
-    }
+        ...ViewerState.state.contents,
+        mouseXNorm: coords["xNorm"],
+        mouseYNorm: coords["yNorm"],
+      }
 
     // Physics Update
     CursorPhysics.calculateVelocity(coords["x"], coords["y"])

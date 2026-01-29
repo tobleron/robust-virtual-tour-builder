@@ -34,12 +34,12 @@ describe("ViewerFollow", () => {
   testAsync("updateFollowLoop should apply movement when linking", async t => {
     // Setup state for linking
     ViewerState.state := {
-      ...ViewerState.state.contents,
-      followLoopActive: true,
-      mouseXNorm: 0.8, // Outside 0.5 deadzone
-      mouseYNorm: 0.0, // Inside deadzone
-      linkingStartPoint: Nullable.null // No deadzone block
-    }
+        ...ViewerState.state.contents,
+        followLoopActive: true,
+        mouseXNorm: 0.8, // Outside 0.5 deadzone
+        mouseYNorm: 0.0, // Inside deadzone
+        linkingStartPoint: Nullable.null, // No deadzone block
+      }
 
     let mockState = {
       ...State.initialState,

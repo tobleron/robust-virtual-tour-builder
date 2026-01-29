@@ -67,3 +67,21 @@ The following regions are calculated to be the most confusing for AI:
 - [ ] **../../src/systems/NavigationGraph.res**
     - **Metric:** [Nesting: 1.20, Density: 0.21, Deps: 0.06] | Drag: 7.06 | LOC: 121/102  Hotspot: Lines 92-96
     - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
+- [ ] **../../src/systems/Simulation.res**
+    - **Metric:** [Nesting: 1.65, Density: 0.00, Deps: 0.01] | Drag: 2.65 | LOC: 557/221  Hotspot: Lines 370-374
+    - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
+- [ ] **../../src/systems/UploadProcessor.res**
+    - **Metric:** [Nesting: 1.50, Density: 0.02, Deps: 0.01] | Drag: 2.94 | LOC: 333/204  Hotspot: Lines 338-342
+    - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
+- [ ] **../../src/systems/PanoramaClusterer.res**
+    - **Metric:** [Nesting: 1.20, Density: 0.28, Deps: 0.10] | Drag: 9.88 | LOC: 148/80  Hotspot: Lines 44-48
+    - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
+- [ ] **../../src/systems/ViewerSystem.res**
+    - **Metric:** [Nesting: 1.20, Density: 0.23, Deps: 0.06] | Drag: 7.24 | LOC: 287/100  Hotspot: Lines 199-203
+    - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
+- [ ] **../../src/systems/Teaser.res**
+    - **Metric:** [Nesting: 1.20, Density: 0.01, Deps: 0.03] | Drag: 2.53 | LOC: 581/225  Hotspot: Lines 594-598
+    - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
+- [ ] **../../src/systems/SvgManager.res**
+    - **Metric:** [Nesting: 0.90, Density: 0.24, Deps: 0.19] | Drag: 8.08 | LOC: 190/83  Hotspot: Lines 163-167
+    - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.

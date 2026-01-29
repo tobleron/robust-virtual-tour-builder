@@ -8,13 +8,13 @@ describe("CursorPhysics", () => {
   test("calculateVelocity updates viewer state", t => {
     // Reset state
     ViewerState.state := {
-      ...ViewerState.state.contents,
-      lastMoveX: 100.0,
-      lastMoveY: 100.0,
-      lastMoveTime: Date.now() -. 50.0, // 50ms ago
-      mouseVelocityX: 0.0,
-      mouseVelocityY: 0.0,
-    }
+        ...ViewerState.state.contents,
+        lastMoveX: 100.0,
+        lastMoveY: 100.0,
+        lastMoveTime: Date.now() -. 50.0, // 50ms ago
+        mouseVelocityX: 0.0,
+        mouseVelocityY: 0.0,
+      }
 
     calculateVelocity(150.0, 120.0)
 
