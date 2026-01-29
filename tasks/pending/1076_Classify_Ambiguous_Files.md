@@ -5,25 +5,20 @@
 **Role:** Code Taxonomist
 **Goal:** Classify unknown files to enable accurate analysis.
 **Action:** Add an @efficiency-role tag to the file header.
+**Optimal State:** Every file has a clear architectural identity, allowing the analyzer to apply correct LOC limits.
 
 ### 📚 Valid Roles
-*   **infra-config**: Build scripts, project configuration, and environment setups.
-*   **orchestrator**: App entry points and high-level flow control.
-*   **domain-logic**: Pure business logic, entities, and domain services.
 *   **state-reducer**: Deterministic state transitions (Redux/Store style).
-*   **ui-component**: Visual presentation and user interaction layers.
-*   **data-model**: Type definitions, schemas, and DTOs (low logic density).
-*   **service-orchestrator**: Complex coordination between multiple domain services.
-*   **util-pure**: Side-effect free helper functions.
 *   **infra-adapter**: External API clients, database drivers, and third-party bindings.
+*   **infra-config**: Build scripts, project configuration, and environment setups.
+*   **domain-logic**: Pure business logic, entities, and domain services.
+*   **service-orchestrator**: Complex coordination between multiple domain services.
+*   **ui-component**: Visual presentation and user interaction layers.
+*   **orchestrator**: App entry points and high-level flow control.
+*   **data-model**: Type definitions, schemas, and DTOs (low logic density).
+*   **util-pure**: Side-effect free helper functions.
 
 
 ## Tasks
 - [ ] `../../backend/src/pathfinder.rs`
-- [ ] `../../src/systems/ViewerSystem.res`
-- [ ] `../../src/systems/Simulation.res`
-- [ ] `../../src/systems/Teaser.res`
-- [ ] `../../src/systems/Scene.res`
-- [ ] `../../src/systems/Navigation.res`
-- [ ] `../../backend/src/models.rs`
-- [ ] `../../src/systems/UploadTypes.res`
+    - **Directive:** Taxonomy Resolution: Add the required @efficiency-role tag to help the analyzer apply the correct complexity limits.

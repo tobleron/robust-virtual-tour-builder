@@ -1,4 +1,4 @@
-# Task 1094: Surgical Refactor MEDIA BACKEND
+# Task 1084: Surgical Refactor API BACKEND
 
 ## Objective
 ## ⚡ Surgical Objective
@@ -13,5 +13,6 @@ The following regions are calculated to be the most confusing for AI:
 ## Tasks
 
 ### 🔧 Action: De-bloat
-- [ ] **../../backend/src/api/media/image.rs** - [Nesting: 0.75, Density: 0.03, Deps: 0.00] | Drag: 2.75 | LOC: 482/297
-- [ ] **../../backend/src/api/media/video.rs** - [Nesting: 0.75, Density: 0.05, Deps: 0.00] | Drag: 2.65 | LOC: 372/305
+- [ ] **../../backend/src/api/project.rs**
+    - **Metric:** [Nesting: 1.05, Density: 0.07, Deps: 0.00] | Drag: 2.60 | LOC: 518/310
+    - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
