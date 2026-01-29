@@ -20,55 +20,55 @@
 ---
 
 ## 🧩 MERGE TASKS (8)
+### Merge Folder: `../../backend/src/services`
+- **Reason:** Read Tax high (Score 5.00).
+- **Files:**
+  - `upload_quota.rs`
+  - `shutdown.rs`
+  - `mod.rs`
+  - `database.rs`
+  - `upload_quota_tests.rs`
+### Merge Folder: `../../src/components/ui`
+- **Reason:** Read Tax high (Score 2.00).
+- **Files:**
+  - `LucideIcons.res`
+  - `Shadcn.res`
 ### Merge Folder: `../../backend/src/services/media/analysis`
 - **Reason:** Read Tax high (Score 3.00).
 - **Files:**
   - `mod.rs`
   - `exif.rs`
   - `quality.rs`
-### Merge Folder: `../../backend/src/services/auth`
+### Merge Folder: `../../backend/src/services/project`
 - **Reason:** Read Tax high (Score 2.00).
 - **Files:**
   - `mod.rs`
-  - `jwt.rs`
-### Merge Folder: `../../backend/src/services`
-- **Reason:** Read Tax high (Score 5.00).
+  - `validate.rs`
+  - `package.rs`
+  - `load.rs`
+### Merge Folder: `../../backend/src/middleware`
+- **Reason:** Read Tax high (Score 4.00).
 - **Files:**
-  - `shutdown.rs`
+  - `request_tracker.rs`
+  - `quota_check.rs`
   - `mod.rs`
-  - `database.rs`
-  - `upload_quota.rs`
-  - `upload_quota_tests.rs`
+  - `auth.rs`
 ### Merge Folder: `../../backend/src/services/geocoding`
 - **Reason:** Read Tax high (Score 2.00).
 - **Files:**
-  - `mod.rs`
   - `logic.rs`
+  - `mod.rs`
+### Merge Folder: `../../backend/src/services/auth`
+- **Reason:** Read Tax high (Score 2.00).
+- **Files:**
+  - `jwt.rs`
+  - `mod.rs`
 ### Merge Folder: `../../backend/src/services/media`
 - **Reason:** Read Tax high (Score 6.00).
 - **Files:**
   - `naming.rs`
-  - `mod.rs`
-  - `storage.rs`
-  - `resizing.rs`
-  - `webp.rs`
   - `naming_old.rs`
-### Merge Folder: `../../backend/src/middleware`
-- **Reason:** Read Tax high (Score 4.00).
-- **Files:**
-  - `auth.rs`
-  - `request_tracker.rs`
-  - `quota_check.rs`
+  - `webp.rs`
+  - `resizing.rs`
+  - `storage.rs`
   - `mod.rs`
-### Merge Folder: `../../src/components/ui`
-- **Reason:** Read Tax high (Score 2.00).
-- **Files:**
-  - `LucideIcons.res`
-  - `Shadcn.res`
-### Merge Folder: `../../backend/src/services/project`
-- **Reason:** Read Tax high (Score 2.00).
-- **Files:**
-  - `validate.rs`
-  - `mod.rs`
-  - `load.rs`
-  - `package.rs`
