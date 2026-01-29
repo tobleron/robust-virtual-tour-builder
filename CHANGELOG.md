@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Merge comprehensive surgical refactors for frontend logic and backend api/logic separation (Tasks 1080-1085)
 - Optimize _dev-system smart-merge logic and automate ignored role classification
 - Implement accuracy report recommendations and tune analyzer metrics
+- Create task for perfecting _dev-system analyzer app (Phase 2)
 
 ### Added
 - Refined `_dev-system` Smart Merge logic to support (Directory, Extension) grouping, preventing polyglot merge errors.
