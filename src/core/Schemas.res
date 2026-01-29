@@ -1,3 +1,4 @@
+// @efficiency-role: data-model
 /* src/core/Schemas.res */
 
 open RescriptSchema
