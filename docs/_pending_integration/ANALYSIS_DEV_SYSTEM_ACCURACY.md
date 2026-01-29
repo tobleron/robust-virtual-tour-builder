@@ -40,8 +40,8 @@ Tokens like `->` (pipe), `switch`, and `|` are counted **twice**:
 
 To improve accuracy and prevent "Busy Work" refactors on the Frontend, we must adjust the `efficiency.json` configuration for ReScript.
 
-### 1. Immediate Config Adjustment (Recommended)
-Modify `_dev-system/config/efficiency.json` under `profiles.rescript.complexity_dictionary`:
+### 1. Immediate Config Adjustment (Applied)
+Modified `_dev-system/config/efficiency.json` under `profiles.rescript.complexity_dictionary`:
 
 ```json
 "rescript": {
