@@ -344,7 +344,11 @@ fn main() -> Result<()> {
         // This prevents the "squared penalty" effect where larger files get exponentially tighter limits.
         let complexity_density = if metrics.loc > 0 { metrics.complexity_penalty / metrics.loc as f64 } else { 0.0 };
         // We weight the specific complexity density (keywords) higher (x50) to make it impactful but fair.
-        let drag = 1.0 + (metrics.max_nesting as f64 * config.settings.nesting_weight) + (density * config.settings.density_weight) + (complexity_density * 50.0);
+        // Depth Penalty: Folders deeper than 4 levels incur a drag penalty.
+        let dir_depth = path.components().count().saturating_sub(4) as f64;
+        let depth_penalty = if dir_depth > 0.0 { dir_depth * 0.5 } else { 0.0 };
+
+        let drag = 1.0 + (metrics.max_nesting as f64 * config.settings.nesting_weight) + (density * config.settings.density_weight) + (complexity_density * 50.0) + depth_penalty;
 
         // Tuned: Math updated to use a gentler curve (Drag^0.75) with a higher base (450).
         // This ensures the limit curve distributes nicely between 80 (complex) and 400 (simple).
@@ -370,8 +374,19 @@ fn main() -> Result<()> {
         let score = calculate_merge_score(FolderStats { file_count: files.len(), total_loc: total }, config.settings.hard_ceiling_loc);
         if score > config.settings.merge_score_threshold {
             buffer.entry("system".to_string()).or_default().push(WorkUnit::Merge { 
-                folder: dir, files: files.iter().map(|(n,_,_)| n.clone()).collect(), platform: files[0].2.clone(),
+                folder: dir.clone(), files: files.iter().map(|(n,_,_)| n.clone()).collect(), platform: files[0].2.clone(),
                 reason: format!("Read Tax high (Score {:.2}).", score) 
+            });
+        }
+
+        // Structural: Deep nesting check
+        let dir_depth = Path::new(&dir).components().count().saturating_sub(4);
+        if dir_depth > 0 {
+             buffer.entry("system".to_string()).or_default().push(WorkUnit::Structural {
+                file: dir.clone(),
+                action: "Flatten Hierarchy".to_string(),
+                platform: files[0].2.clone(),
+                reason: format!("Folder depth is {}. Flatten to reduce traversal tax.", Path::new(&dir).components().count())
             });
         }
     }
