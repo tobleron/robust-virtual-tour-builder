@@ -247,8 +247,10 @@ fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>, config:
                     if platform == "backend" { structural_be.push(item); } else { structural_fe.push(item); }
                 },
                 WorkUnit::Merge { folder, files, reason, platform, .. } => {
+                    let mut sorted_files = files.clone();
+                    sorted_files.sort();
                     let mut item = format!("Folder: `{}`\n    - **Metric:** {}\n    - **Directive:** {}", folder, reason, strategy);
-                    for f in files {
+                    for f in sorted_files {
                         item.push_str(&format!("\n    - `{}`", f));
                     }
                     if platform == "backend" { merges_be.push(item); } else { merges_fe.push(item); }
@@ -294,13 +296,16 @@ fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>, config:
 
             let mut lines = Vec::new();
 
-            for (action, items) in action_groups {
+            for (action, mut items) in action_groups {
+                // Sort items for determinism
+                items.sort();
                 // Extract strategy from the first item (assuming consistent strategy per action)
                 let strategy = &items[0].2;
                 lines.push(format!("\n### 🔧 Action: {}\n**Directive:** {}\n", action, strategy));
 
                 for (file, reason, _) in items {
-                    lines.push(format!("- **{}** (Metric: {})\n", file, reason));
+                    let entry = format!("- **{}** (Metric: {})\n", file, reason);
+                    lines.push(entry);
                 }
             }
 
@@ -396,7 +401,7 @@ fn main() -> Result<()> {
     let config_raw = fs::read_to_string("../config/efficiency.json")?;
     let config: EfficiencyConfig = serde_json::from_str(&config_raw)?;
     let mut buffer: HashMap<String, Vec<WorkUnit>> = HashMap::new();
-    let mut dir_stats: HashMap<String, Vec<(String, usize, String, f64)>> = HashMap::new();
+    let mut dir_stats: HashMap<(String, String), Vec<(String, usize, String, f64)>> = HashMap::new();
     let mut feature_map: HashMap<String, Vec<(String, String)>> = HashMap::new(); 
     let default_dict: HashMap<String, f64> = HashMap::new();
 
@@ -546,11 +551,13 @@ fn main() -> Result<()> {
                 complexity 
             });
         }
-        dir_stats.entry(path.parent().unwrap().to_string_lossy().to_string()).or_default().push((path.file_name().unwrap().to_string_lossy().to_string(), metrics.loc, platform.to_string(), drag));
+        let dir = path.parent().unwrap().to_string_lossy().to_string();
+        let ext_str = path.extension().and_then(|s| s.to_str()).unwrap_or("").to_string();
+        dir_stats.entry((dir, ext_str)).or_default().push((path.file_name().unwrap().to_string_lossy().to_string(), metrics.loc, platform.to_string(), drag));
         let file_stem = path.file_stem().unwrap_or_default().to_string_lossy().to_string();
         if file_stem.len() > 3 { feature_map.entry(file_stem).or_default().push((path.to_string_lossy().to_string(), platform.to_string())); }
     }
-    for (dir, files) in dir_stats {
+    for ((dir, ext), files) in dir_stats {
         let total: usize = files.iter().map(|(_,l,_,_)| *l).sum();
 
         // Smart Merge Logic: Circularity Prevention

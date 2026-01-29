@@ -24,22 +24,25 @@ pub enum EfficiencyOverride {
 }
 
 pub fn parse_header(content: &str) -> EfficiencyOverride {
-    if let Some(pos) = content.find("@efficiency:") {
-        let start = pos + "@efficiency:".len();
-        let mut val = String::new();
-        for c in content[start..].chars() {
-            if c.is_alphanumeric() || c == '-' || c == '_' {
-                val.push(c);
-            } else if !val.is_empty() {
-                break;
+    let prefixes = ["@efficiency:", "@efficiency-role:"];
+    for prefix in &prefixes {
+        if let Some(pos) = content.find(prefix) {
+            let start = pos + prefix.len();
+            let mut val = String::new();
+            for c in content[start..].chars() {
+                if c.is_alphanumeric() || c == '-' || c == '_' {
+                    val.push(c);
+                } else if !val.is_empty() {
+                    break;
+                }
             }
+            
+            let tag = val.trim();
+            if tag == "ignore" || tag == "ignored" { return EfficiencyOverride::Ignore; }
+            if tag == "strict" { return EfficiencyOverride::Strict; }
+            if tag == "singleton" { return EfficiencyOverride::Role("orchestrator".to_string()); }
+            if !tag.is_empty() { return EfficiencyOverride::Role(tag.to_string()); }
         }
-        
-        let tag = val.trim();
-        if tag == "ignore" { return EfficiencyOverride::Ignore; }
-        if tag == "strict" { return EfficiencyOverride::Strict; }
-        if tag == "singleton" { return EfficiencyOverride::Role("orchestrator".to_string()); }
-        if !tag.is_empty() { return EfficiencyOverride::Role(tag.to_string()); }
     }
     EfficiencyOverride::None
 }
