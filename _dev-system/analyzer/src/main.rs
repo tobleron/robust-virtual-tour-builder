@@ -81,11 +81,11 @@ struct TaxonomyRole {
 
 #[derive(Debug, Clone, serde::Serialize)]
 enum WorkUnit {
-    Ambiguity { file: String },
-    Violation { file: String, pattern: String },
-    Surgical { file: String, action: String, reason: String, platform: String, complexity: f64 },
-    Merge { folder: String, files: Vec<String>, reason: String, platform: String },
-    Structural { file: String, action: String, reason: String, platform: String },
+    Ambiguity { file: String, strategy: String },
+    Violation { file: String, pattern: String, strategy: String },
+    Surgical { file: String, action: String, reason: String, strategy: String, platform: String, complexity: f64 },
+    Merge { folder: String, files: Vec<String>, reason: String, strategy: String, platform: String },
+    Structural { file: String, action: String, reason: String, strategy: String, platform: String },
 }
 
 fn is_project_source(path: &Path, rules: &ExclusionRules) -> bool {
@@ -121,6 +121,40 @@ fn infer_taxonomy(path: &Path, content: &str) -> String {
     if p.contains("api") || p.contains("client") || p.contains("bindings") || p.contains("context") { return "infra-adapter".to_string(); }
     if p.contains("utils") || p.contains("helpers") { return "util-pure".to_string(); }
     "unknown".to_string()
+}
+
+fn generate_strategic_directive(unit: &WorkUnit) -> String {
+    match unit {
+        WorkUnit::Surgical { reason, action, .. } => {
+            if action.contains("Missing Tests") {
+                "Safety First: Generate unit tests covering the core logic paths to secure the module before refactoring.".to_string()
+            } else if reason.contains("Nesting") && reason.contains("Density") {
+                "Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.".to_string()
+            } else if reason.contains("Nesting") {
+                "Flatten Control Flow: Replace nested if/switch blocks with early returns or pattern matching.".to_string()
+            } else if reason.contains("Density") {
+                "Extract Service Logic: Move complex calculations or data transformations into specialized sub-modules.".to_string()
+            } else {
+                "De-bloat: Reduce module size by identifying and extracting independent domain logic.".to_string()
+            }
+        },
+        WorkUnit::Merge { .. } => {
+            "Unified Context: Consolidate these fragmented files into a single cohesive module to reduce token overhead during analysis.".to_string()
+        },
+        WorkUnit::Structural { action, .. } => {
+            if action.contains("Flatten") {
+                "Hierarchy Cleanup: Move these modules 1-2 levels higher to reduce the directory traversal tax.".to_string()
+            } else {
+                "Vertical Slicing: Group related UI and Logic files into a single 'Feature Pod' folder.".to_string()
+            }
+        },
+        WorkUnit::Violation { pattern, .. } => {
+            format!("Pattern Fix: Replace the forbidden '{}' pattern with the recommended functional alternative (Logger, Result/Option, etc).", pattern)
+        },
+        WorkUnit::Ambiguity { .. } => {
+            "Taxonomy Resolution: Add the required @efficiency-role tag to help the analyzer apply the correct complexity limits.".to_string()
+        }
+    }
 }
 
 fn sync_architectural_category(category_name: &str, platform: &str, units: &[String], objective: &str) -> Result<()> {
@@ -194,22 +228,25 @@ fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>, config:
 
     for units in buffer.values() {
         for unit in units {
+            let strategy = generate_strategic_directive(unit);
             match unit {
-                WorkUnit::Ambiguity { file } => ambiguities.push(format!("`{}`", file)),
-                WorkUnit::Violation { file, pattern } => {
-                    let item = format!("`{}` (Pattern: `{}`)", file, pattern);
+                WorkUnit::Ambiguity { file, .. } => ambiguities.push(format!("`{}`\n    - **Directive:** {}", file, strategy)),
+                WorkUnit::Violation { file, pattern, .. } => {
+                    let item = format!("`{}` (Pattern: `{}`)\n    - **Directive:** {}", file, pattern, strategy);
                     if file.contains("backend") || file.ends_with(".rs") { violations_be.push(item); } else { violations_fe.push(item); }
                 },
-                WorkUnit::Surgical { file, reason, platform, complexity, action } => {
-                    if platform == "backend" { surgical_be_units.push((file.clone(), reason.clone(), action.clone(), *complexity)); }
-                    else { surgical_fe_units.push((file.clone(), reason.clone(), action.clone(), *complexity)); }
+                WorkUnit::Surgical { file, reason, platform, complexity, action, .. } => {
+                    // Clean up reason: remove the verbose AI explanation, keep the metrics
+                    let clean_reason = reason.split(" (AI Context Fog").next().unwrap_or(reason).to_string();
+                    if platform == "backend" { surgical_be_units.push((file.clone(), clean_reason, action.clone(), strategy, *complexity)); }
+                    else { surgical_fe_units.push((file.clone(), clean_reason, action.clone(), strategy, *complexity)); }
                 },
-                WorkUnit::Structural { file, reason, platform, .. } => {
-                    let item = format!("**{}** - {}", file, reason);
+                WorkUnit::Structural { file, reason, platform, action, .. } => {
+                    let item = format!("**{}** ({})\n    - **Metric:** {}\n    - **Directive:** {}", file, action, reason, strategy);
                     if platform == "backend" { structural_be.push(item); } else { structural_fe.push(item); }
                 },
                 WorkUnit::Merge { folder, files, reason, platform, .. } => {
-                    let mut item = format!("Folder: `{}` - {}", folder, reason);
+                    let mut item = format!("Folder: `{}`\n    - **Metric:** {}\n    - **Directive:** {}", folder, reason, strategy);
                     for f in files {
                         item.push_str(&format!("\n    - `{}`", f));
                     }
@@ -233,10 +270,10 @@ fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>, config:
     }
     let ambiguity_obj = config.templates.ambiguity_objective.replace("{roles}", &role_list);
 
-    let max_complexity = config.settings.max_session_complexity;
-    let sync_surgical = |units: Vec<(String, String, String, f64)>, platform: &str| -> Result<()> {
+    let _max_complexity = config.settings.max_session_complexity;
+    let sync_surgical = |units: Vec<(String, String, String, String, f64)>, platform: &str| -> Result<()> {
         // Group by Parent Directory (Domain) to minimize context switching
-        let mut domain_groups: HashMap<String, Vec<(String, String, String, f64)>> = HashMap::new();
+        let mut domain_groups: HashMap<String, Vec<(String, String, String, String, f64)>> = HashMap::new();
         for unit in units {
             let parent = Path::new(&unit.0).parent().unwrap_or(Path::new("")).to_string_lossy().to_string();
             domain_groups.entry(parent).or_default().push(unit);
@@ -244,15 +281,13 @@ fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>, config:
 
         for (domain, domain_units) in domain_groups {
             let mut groups: HashMap<String, Vec<String>> = HashMap::new();
-            let mut complexity_acc = 0.0;
             
             // Heuristic for naming: Use the last part of the path (e.g., "systems", "core")
             let domain_name = Path::new(&domain).file_name().unwrap_or_default().to_string_lossy().to_uppercase();
             let category_name = format!("Surgical_Refactor_{}", domain_name);
 
-            for (file, reason, action, comp) in domain_units {
-                groups.entry(action).or_default().push(format!("**{}** - {}", file, reason));
-                complexity_acc += comp;
+            for (file, reason, action, strategy, _comp) in domain_units {
+                groups.entry(action).or_default().push(format!("**{}**\n    - **Metric:** {}\n    - **Directive:** {}", file, reason, strategy));
             }
 
             if !groups.is_empty() {
@@ -301,7 +336,7 @@ fn flush_plans(buffer: &HashMap<String, Vec<WorkUnit>>, config: &EfficiencyConfi
         if !ambiguities.is_empty() {
             file.write_all(format!("## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION ({})\n", ambiguities.len()).as_bytes())?;
             for unit in ambiguities {
-                if let WorkUnit::Ambiguity { file: f_path } = unit {
+                if let WorkUnit::Ambiguity { file: f_path, .. } = unit {
                     file.write_all(format!("- [ ] `{}`\n", f_path).as_bytes())?;
                 }
             }
@@ -417,7 +452,7 @@ fn main() -> Result<()> {
         let ext = path.extension().and_then(|s| s.to_str()).unwrap_or("");
         let d_name = match ext { "rs" => "rust", "res" => "rescript", "jsx"|"js"|"html" => "web", "css" => "css", _ => "config" };
         let platform = if ext == "rs" || path.to_string_lossy().contains("backend") { "backend" } else { "frontend" };
-        if taxonomy == "unknown" { buffer.entry("system".to_string()).or_default().push(WorkUnit::Ambiguity { file: path.to_string_lossy().to_string() }); continue; }
+        if taxonomy == "unknown" { buffer.entry("system".to_string()).or_default().push(WorkUnit::Ambiguity { file: path.to_string_lossy().to_string(), strategy: String::new() }); continue; }
         
         let dict = config.profiles.get(d_name).map(|p| &p.complexity_dictionary).unwrap_or(&default_dict);
         let metrics = match d_name {
@@ -435,7 +470,12 @@ fn main() -> Result<()> {
             let stripped = drivers::strip_code(&content);
             for pattern in &profile.forbidden_patterns {
                 if stripped.contains(pattern) {
-                    buffer.entry(d_name.to_string()).or_default().push(WorkUnit::Violation { file: path.to_string_lossy().to_string(), pattern: pattern.clone() });
+                    let unit = WorkUnit::Violation { 
+                        file: path.to_string_lossy().to_string(), 
+                        pattern: pattern.clone(),
+                        strategy: String::new() // Will be populated by generic directive
+                    };
+                    buffer.entry(d_name.to_string()).or_default().push(unit);
                 }
             }
         }
@@ -486,7 +526,14 @@ fn main() -> Result<()> {
                 "De-bloat".to_string()
             };
 
-            buffer.entry(d_name.to_string()).or_default().push(WorkUnit::Surgical { file: p_str.to_string(), action, reason, platform: platform.to_string(), complexity });
+            buffer.entry(d_name.to_string()).or_default().push(WorkUnit::Surgical { 
+                file: p_str.to_string(), 
+                action, 
+                reason, 
+                strategy: String::new(), // Populated during category sync
+                platform: platform.to_string(), 
+                complexity 
+            });
         }
         dir_stats.entry(path.parent().unwrap().to_string_lossy().to_string()).or_default().push((path.file_name().unwrap().to_string_lossy().to_string(), metrics.loc, platform.to_string()));
         let file_stem = path.file_stem().unwrap_or_default().to_string_lossy().to_string();
@@ -497,8 +544,11 @@ fn main() -> Result<()> {
         let score = calculate_merge_score(FolderStats { file_count: files.len(), total_loc: total }, config.settings.hard_ceiling_loc);
         if score > config.settings.merge_score_threshold {
             buffer.entry("system".to_string()).or_default().push(WorkUnit::Merge { 
-                folder: dir.clone(), files: files.iter().map(|(n,_,_)| n.clone()).collect(), platform: files[0].2.clone(),
-                reason: format!("Read Tax high (Score {:.2}).", score) 
+                folder: dir.clone(), 
+                files: files.iter().map(|(n,_,_)| n.clone()).collect(), 
+                platform: files[0].2.clone(),
+                reason: format!("Read Tax high (Score {:.2}).", score),
+                strategy: String::new()
             });
         }
 
@@ -511,7 +561,8 @@ fn main() -> Result<()> {
                 file: dir.clone(),
                 action: "Flatten Hierarchy".to_string(),
                 platform: files[0].2.clone(),
-                reason: format!("Folder depth is {}. Flatten to reduce traversal tax.", clean_dir.components().count())
+                reason: format!("Folder depth is {}. Flatten to reduce traversal tax.", clean_dir.components().count()),
+                strategy: String::new()
             });
         }
     }
@@ -521,7 +572,8 @@ fn main() -> Result<()> {
             if folders.len() > 1 {
                 buffer.entry("system".to_string()).or_default().push(WorkUnit::Structural {
                     file: feature.clone(), action: "Vertical Slice".to_string(), platform: paths[0].1.clone(),
-                    reason: format!("Feature fragmented across {} folders.", folders.len())
+                    reason: format!("Feature fragmented across {} folders.", folders.len()),
+                    strategy: String::new()
                 });
             }
         }
