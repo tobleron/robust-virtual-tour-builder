@@ -52,3 +52,32 @@
     - `increment-build.js`
     - `update-readme.js`
     - `test-logging.js`
+- [ ] Folder: `../../scripts`
+    - **Metric:** Read Tax high (Score 7.00).
+    - **Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module to reduce token overhead during analysis.
+    - `test-logging.js`
+    - `increment-build.js`
+    - `debug-connectivity.js`
+    - `update-changelog.js`
+    - `update-version.js`
+    - `update-readme.js`
+    - `bump-version.js`
+- [ ] Folder: `../../css`
+    - **Metric:** Read Tax high (Score 3.50).
+    - **Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module to reduce token overhead during analysis.
+    - `tailwind.css`
+    - `style.css`
+    - `legacy.css`
+    - `base.css`
+    - `animations.css`
+    - `layout.css`
+    - `variables.css`
+- [ ] Folder: `../..`
+    - **Metric:** Read Tax high (Score 6.00).
+    - **Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module to reduce token overhead during analysis.
+    - `rescript.json`
+    - `package.json`
+    - `jsconfig.json`
+    - `index.html`
+    - `tailwind.config.js`
+    - `postcss.config.js`

@@ -9,9 +9,9 @@
 ---
 
 ## 🛠️ SURGICAL REFACTOR TASKS (2)
-- [ ] **../../src/components/ui/context-menu.jsx**
-  - *Reason:* [Nesting: 0.60, Density: 0.16, Deps: 0.00] | Drag: 14.10 | LOC: 158/110
 - [ ] **../../src/components/ui/dropdown-menu.jsx**
   - *Reason:* [Nesting: 0.60, Density: 0.16, Deps: 0.00] | Drag: 14.34 | LOC: 155/109
+- [ ] **../../src/components/ui/context-menu.jsx**
+  - *Reason:* [Nesting: 0.60, Density: 0.16, Deps: 0.00] | Drag: 14.10 | LOC: 158/110
 
 ---
