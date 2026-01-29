@@ -28,3 +28,4 @@ The following regions are calculated to be the most confusing for AI:
 - [ ] - **../../css/components/upload-report.css** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 189))
 
 - [ ] - **../../css/components/viewer.css** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 627))
+
