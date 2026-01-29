@@ -346,8 +346,9 @@ fn main() -> Result<()> {
         // We weight the specific complexity density (keywords) higher (x50) to make it impactful but fair.
         let drag = 1.0 + (metrics.max_nesting as f64 * config.settings.nesting_weight) + (density * config.settings.density_weight) + (complexity_density * 50.0);
 
-        // Tuned: Exponent reduced from 1.5 to 1.15. With normalized drag, this should yield sensible targets (100-300 LOC).
-        let mut limit = ((config.settings.base_loc_limit as f64 * p_mod * cohesion_bonus) / drag.powf(1.15)).max(config.settings.soft_floor_loc as f64) as usize;
+        // Tuned: Math updated to use a gentler curve (Drag^0.75) with a higher base (450).
+        // This ensures the limit curve distributes nicely between 80 (complex) and 400 (simple).
+        let mut limit = ((config.settings.base_loc_limit as f64 * p_mod * cohesion_bonus) / drag.powf(0.75)).max(config.settings.soft_floor_loc as f64) as usize;
         if let Some(exceptions) = &config.exceptions { for rule in exceptions { if path.to_string_lossy().contains(&rule.pattern) { if let Some(max) = rule.max_loc { limit = max; } break; } } }
         limit = limit.min(config.settings.hard_ceiling_loc);
         if metrics.loc > limit {
