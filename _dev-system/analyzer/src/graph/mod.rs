@@ -61,6 +61,8 @@ impl DependencyGraph {
             if all_files.contains(entry) {
                 queue.push(entry.clone());
                 visited.insert(entry.clone());
+            } else {
+                println!("DEBUG: Entry point NOT FOUND in registry: {}", entry);
             }
         }
 

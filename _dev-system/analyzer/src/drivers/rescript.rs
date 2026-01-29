@@ -16,8 +16,7 @@ pub fn analyze_rescript(content: &str, dict: &std::collections::HashMap<String, 
     
     // AI Efficiency: Tracking Dependencies
     // Extract `open Module`, `include Module`, `module X = Module`
-    let lines: Vec<&str> = stripped.lines().collect();
-    for line in lines {
+    for line in content.lines() {
         let trim = line.trim();
         if trim.starts_with("open ") {
             if let Some(dep) = trim.split_whitespace().nth(1) {
@@ -37,32 +36,45 @@ pub fn analyze_rescript(content: &str, dict: &std::collections::HashMap<String, 
                  metrics.external_calls += 1;
             }
         } else if trim.contains(".") {
-             // Heuristic for inline usage like Module.func()
+             // Heuristic for inline usage like Module.func() or Module.Sub.func()
              let parts: Vec<&str> = trim.split('.').collect();
              if parts.len() > 1 {
-                 let potential_module = parts[0].trim();
-                 // Convention: Modules start with Uppercase
-                 if !potential_module.is_empty() && potential_module.chars().next().unwrap_or(' ').is_uppercase() {
-                     metrics.external_calls += 1;
-                     // Reliable Fix: Capture implicit module usage for the graph
-                     metrics.dependencies.push(potential_module.to_string());
+                 for i in 0..parts.len() - 1 {
+                     let potential_module_part = parts[i].trim();
+                     // Extract the last valid word (token) before the dot
+                     let potential_module = potential_module_part.split(|c: char| !c.is_alphanumeric() && c != '_')
+                         .filter(|s| !s.is_empty())
+                         .last().unwrap_or("");
+                     
+                     if !potential_module.is_empty() && potential_module.chars().next().unwrap_or(' ').is_uppercase() {
+                         metrics.external_calls += 1;
+                         metrics.dependencies.push(potential_module.to_string());
+                     }
                  }
              }
         }
 
+
         // JSX Component Usage: <Module ... or <Module.Sub
-        if trim.starts_with("<") {
-             // Heuristic: <Module
-             // split on space or slash or dot
-             let clean_tag = trim.replace("<", "").replace("/>", "").replace(">", "");
-             let tag_parts: Vec<&str> = clean_tag.split_whitespace().next().unwrap_or("").split('.').collect();
-             if !tag_parts.is_empty() {
-                 let potential_module = tag_parts[0];
-                 if !potential_module.is_empty() && potential_module.chars().next().unwrap_or(' ').is_uppercase() {
-                      metrics.external_calls += 1;
-                      metrics.dependencies.push(potential_module.to_string());
-                 }
-             }
+        // Improved: Find all occurrences of < followed by an Uppercase letter
+        let mut start_search = 0;
+        while let Some(pos) = trim[start_search..].find('<') {
+            let actual_pos = start_search + pos;
+            if let Some(next_char) = trim.chars().nth(actual_pos + 1) {
+                if next_char.is_uppercase() {
+                    // Extract module name
+                    let rest = &trim[actual_pos + 1..];
+                    let end_pos = rest.find(|c: char| !c.is_alphanumeric() && c != '.' && c != '_').unwrap_or(rest.len());
+                    let full_tag = &rest[..end_pos];
+                    let potential_module = full_tag.split('.').next().unwrap_or("");
+                    
+                    if !potential_module.is_empty() {
+                        metrics.external_calls += 1;
+                        metrics.dependencies.push(potential_module.to_string());
+                    }
+                }
+            }
+            start_search = actual_pos + 1;
         }
     }
 

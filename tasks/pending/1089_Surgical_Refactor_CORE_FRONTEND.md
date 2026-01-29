@@ -62,3 +62,19 @@ The following regions are calculated to be the most confusing for AI:
 - [ ] - **../../src/core/Types.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 200))
 
 - [ ] - **../../src/core/ViewerState.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 70))
+- [ ] - **../../src/core/Schemas.res** (Metric: [Nesting: 0.90, Density: 0.25, Coupling: 0.21] | Drag: 3.72 | LOC: 373/281  Hotspot: Lines 390-394)
+
+- [ ] - **../../src/core/Reducer.res** (Metric: [Nesting: 1.20, Density: 0.21, Coupling: 0.19] | Drag: 2.85 | LOC: 433/250  Hotspot: Lines 191-195)
+
+- [ ] - **../../src/core/SceneHelpers.res** (Metric: [Nesting: 1.05, Density: 0.15, Coupling: 0.35] | Drag: 2.60 | LOC: 271/250  Hotspot: Lines 204-208)
+
+- [ ] - **../../src/core/Schemas.res** (Metric: [Nesting: 0.90, Density: 0.25, Coupling: 1.03] | Drag: 3.72 | LOC: 373/250  Hotspot: Lines 390-394)
+
+- [ ] - **../../src/core/Reducer.res** (Metric: [Nesting: 1.20, Density: 0.21, Coupling: 0.26] | Drag: 2.85 | LOC: 433/250  Hotspot: Lines 191-195)
+
+- [ ] - **../../src/core/Schemas.res** (Metric: [Nesting: 0.90, Density: 0.25, Coupling: 1.04] | Drag: 3.72 | LOC: 373/250  Hotspot: Lines 390-394)
+
+- [ ] - **../../src/core/SceneHelpers.res** (Metric: [Nesting: 1.05, Density: 0.15, Coupling: 0.36] | Drag: 2.60 | LOC: 271/250  Hotspot: Lines 204-208)
+
+- [ ] - **../../src/core/Schemas.res** (Metric: [Nesting: 0.90, Density: 0.25, Coupling: 1.06] | Drag: 3.72 | LOC: 373/250  Hotspot: Lines 390-394)
+

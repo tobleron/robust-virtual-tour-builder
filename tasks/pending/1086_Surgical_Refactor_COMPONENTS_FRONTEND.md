@@ -108,3 +108,19 @@ The following regions are calculated to be the most confusing for AI:
 - [ ] - **../../src/components/Sidebar.res** (Metric: [Nesting: 1.20, Density: 0.00, Coupling: 0.00] | Drag: 2.20 | LOC: 569/453  Hotspot: Lines 103-107)
 
 - [ ] - **../../src/components/ViewerManagerLogic.res** (Metric: [Nesting: 1.20, Density: 0.24, Coupling: 0.21] | Drag: 3.00 | LOC: 314/250  Hotspot: Lines 185-189)
+- [ ] - **../../src/components/ViewerManagerLogic.res** (Metric: [Nesting: 1.20, Density: 0.24, Coupling: 0.39] | Drag: 3.00 | LOC: 314/250  Hotspot: Lines 185-189)
+
+- [ ] - **../../src/components/ViewerManagerLogic.res** (Metric: [Nesting: 1.20, Density: 0.24, Coupling: 0.56] | Drag: 3.00 | LOC: 314/250  Hotspot: Lines 185-189)
+
+- [ ] - **../../src/components/SceneList.res** (Metric: [Nesting: 1.05, Density: 0.07, Coupling: 0.43] | Drag: 2.24 | LOC: 416/319  Hotspot: Lines 436-440)
+
+- [ ] - **../../src/components/Sidebar.res** (Metric: [Nesting: 1.20, Density: 0.00, Coupling: 0.30] | Drag: 2.20 | LOC: 569/363  Hotspot: Lines 103-107)
+
+- [ ] - **../../src/components/ViewerManagerLogic.res** (Metric: [Nesting: 1.20, Density: 0.24, Coupling: 0.57] | Drag: 3.00 | LOC: 314/250  Hotspot: Lines 185-189)
+
+- [ ] - **../../src/components/VisualPipeline.res** (Metric: [Nesting: 1.35, Density: 0.14, Coupling: 0.47] | Drag: 2.78 | LOC: 365/260  Hotspot: Lines 242-246)
+
+- [ ] - **../../src/components/Sidebar.res** (Metric: [Nesting: 1.20, Density: 0.00, Coupling: 0.30] | Drag: 2.20 | LOC: 569/361  Hotspot: Lines 103-107)
+
+- [ ] - **../../src/components/VisualPipeline.res** (Metric: [Nesting: 1.35, Density: 0.14, Coupling: 0.48] | Drag: 2.78 | LOC: 365/259  Hotspot: Lines 242-246)
+
