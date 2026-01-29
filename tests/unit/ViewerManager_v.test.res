@@ -155,16 +155,17 @@ describe("ViewerManager", () => {
     // Reset ViewerState
     ViewerSystem.Pool.clearInstance("panorama-a")
     ViewerSystem.Pool.clearInstance("panorama-b")
-    ViewerSystem.Pool.pool := ViewerSystem.Pool.pool.contents->Belt.Array.map(
-      v => {...v, status: v.id == "primary-a" ? #Active : #Background},
-    )
+    ViewerSystem.Pool.pool :=
+      ViewerSystem.Pool.pool.contents->Belt.Array.map(
+        v => {...v, status: v.id == "primary-a" ? #Active : #Background},
+      )
     ViewerState.state := {
-      ...ViewerState.state.contents,
-      isSwapping: false,
-      lastSceneId: Nullable.null,
-      lastPreloadingIndex: -1,
-      followLoopActive: false,
-    }
+        ...ViewerState.state.contents,
+        isSwapping: false,
+        lastSceneId: Nullable.null,
+        lastPreloadingIndex: -1,
+        followLoopActive: false,
+      }
 
     // Clear document body from previous tests if any
     let body = Dom.documentBody

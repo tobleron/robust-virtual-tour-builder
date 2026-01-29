@@ -34,3 +34,12 @@ The following regions are calculated to be the most confusing for AI:
 - [ ] **../../src/components/VisualPipeline.res**
     - **Metric:** [Nesting: 1.35, Density: 0.14, Deps: 0.24] | Drag: 6.05 | LOC: 365/176  Hotspot: Lines 242-246
     - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
+- [ ] **../../src/components/ViewerManagerLogic.res**
+    - **Metric:** [Nesting: 1.20, Density: 0.24, Deps: 0.21] | Drag: 8.85 | LOC: 312/80  Hotspot: Lines 183-187
+    - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
+- [ ] **../../src/components/SceneList.res**
+    - **Metric:** [Nesting: 1.05, Density: 0.07, Deps: 0.06] | Drag: 3.55 | LOC: 416/299  Hotspot: Lines 436-440
+    - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
+- [ ] **../../src/components/VisualPipeline.res**
+    - **Metric:** [Nesting: 1.35, Density: 0.14, Deps: 0.24] | Drag: 5.85 | LOC: 365/181  Hotspot: Lines 242-246
+    - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.

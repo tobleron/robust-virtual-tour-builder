@@ -285,3 +285,6 @@ This map provides a semantic overview of the project structure to optimize conte
 * [src/systems/Navigation.res](src/systems/Navigation.res): New module detected. Please classify. #new
 * [backend/src/models.rs](backend/src/models.rs): New module detected. Please classify. #new
 * [src/systems/UploadTypes.res](src/systems/UploadTypes.res): New module detected. Please classify. #new
+* [backend/src/services/media/analysis.rs](backend/src/services/media/analysis.rs): New module detected. Please classify. #new
+* [backend/src/services/media/analysis_quality.rs](backend/src/services/media/analysis_quality.rs): New module detected. Please classify. #new
+* [backend/src/services/media/analysis_exif.rs](backend/src/services/media/analysis_exif.rs): New module detected. Please classify. #new

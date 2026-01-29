@@ -8,67 +8,58 @@
 
 ---
 
-## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (1)
+## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (2)
 - [ ] `../../backend/src/pathfinder.rs`
+- [ ] `../../backend/src/services/media/analysis.rs`
 
 ---
 
-## 🏗️ STRUCTURAL REFACTOR TASKS (1)
-- [ ] **../../backend/src/services/media/analysis** (Action: Flatten Hierarchy)
-  - *Reason:* Folder depth is 5. Flatten to reduce traversal tax.
-
----
-
-## 🧩 MERGE TASKS (8)
-### Merge Folder: `../../backend/src/services/geocoding`
-- **Reason:** Read Tax high (Score 2.00).
-- **Files:**
-  - `logic.rs`
-  - `mod.rs`
+## 🧩 MERGE TASKS (7)
 ### Merge Folder: `../../backend/src/services/media`
-- **Reason:** Read Tax high (Score 6.00).
+- **Reason:** Read Tax high (Score 4.00).
 - **Files:**
   - `mod.rs`
+  - `analysis_quality.rs`
   - `storage.rs`
+  - `webp.rs`
+  - `analysis_exif.rs`
+  - `naming_old.rs`
   - `resizing.rs`
   - `naming.rs`
-  - `webp.rs`
-  - `naming_old.rs`
-### Merge Folder: `../../backend/src/services/media/analysis`
-- **Reason:** Read Tax high (Score 3.00).
-- **Files:**
-  - `mod.rs`
-  - `quality.rs`
-  - `exif.rs`
 ### Merge Folder: `../../backend/src/services/auth`
 - **Reason:** Read Tax high (Score 2.00).
 - **Files:**
   - `jwt.rs`
   - `mod.rs`
-### Merge Folder: `../../src/components/ui`
-- **Reason:** Read Tax high (Score 2.00).
-- **Files:**
-  - `Shadcn.res`
-  - `LucideIcons.res`
-### Merge Folder: `../../backend/src/middleware`
-- **Reason:** Read Tax high (Score 4.00).
+### Merge Folder: `../../backend/src/services`
+- **Reason:** Read Tax high (Score 5.00).
 - **Files:**
   - `mod.rs`
-  - `request_tracker.rs`
-  - `quota_check.rs`
-  - `auth.rs`
+  - `upload_quota.rs`
+  - `database.rs`
+  - `shutdown.rs`
+  - `upload_quota_tests.rs`
 ### Merge Folder: `../../backend/src/services/project`
 - **Reason:** Read Tax high (Score 2.00).
 - **Files:**
   - `mod.rs`
   - `load.rs`
-  - `validate.rs`
   - `package.rs`
-### Merge Folder: `../../backend/src/services`
-- **Reason:** Read Tax high (Score 5.00).
+  - `validate.rs`
+### Merge Folder: `../../src/components/ui`
+- **Reason:** Read Tax high (Score 2.00).
 - **Files:**
-  - `shutdown.rs`
-  - `database.rs`
-  - `upload_quota.rs`
-  - `upload_quota_tests.rs`
+  - `Shadcn.res`
+  - `LucideIcons.res`
+### Merge Folder: `../../backend/src/services/geocoding`
+- **Reason:** Read Tax high (Score 2.00).
+- **Files:**
+  - `logic.rs`
   - `mod.rs`
+### Merge Folder: `../../backend/src/middleware`
+- **Reason:** Read Tax high (Score 4.00).
+- **Files:**
+  - `mod.rs`
+  - `quota_check.rs`
+  - `auth.rs`
+  - `request_tracker.rs`

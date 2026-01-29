@@ -17,12 +17,12 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
         let cx = JsxEvent.Mouse.clientX(e)
         let cy = JsxEvent.Mouse.clientY(e)
         ViewerState.state := {
-          ...ViewerState.state.contents,
-          linkingStartPoint: Nullable.make({
-            "x": Belt.Int.toFloat(cx),
-            "y": Belt.Int.toFloat(cy),
-          }),
-        }
+            ...ViewerState.state.contents,
+            linkingStartPoint: Nullable.make({
+              "x": Belt.Int.toFloat(cx),
+              "y": Belt.Int.toFloat(cy),
+            }),
+          }
 
         let v = Nullable.toOption(ReBindings.Viewer.instance)
         switch v {

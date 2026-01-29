@@ -83,10 +83,9 @@
 │   │       │   ├── logic.rs
 │   │       │   └── mod.rs
 │   │       ├── media
-│   │       │   ├── analysis
-│   │       │   │   ├── exif.rs
-│   │       │   │   ├── mod.rs
-│   │       │   │   └── quality.rs
+│   │       │   ├── analysis.rs
+│   │       │   ├── analysis_exif.rs
+│   │       │   ├── analysis_quality.rs
 │   │       │   ├── mod.rs
 │   │       │   ├── naming.rs
 │   │       │   ├── naming_old.rs
@@ -4612,6 +4611,10 @@
 │   │   ├── 1070_Fix_Critical_Violations_DONE.md
 │   │   ├── 1074_Migrate_JS_Guard_to_Rust_DONE.md
 │   │   ├── 1075_Classify_Map_Entries_DONE.md
+│   │   ├── 1076_Classify_Ambiguous_Files_DONE.md
+│   │   ├── 1077_Structural_Refactor_BACKEND_DONE.md
+│   │   ├── 1078_Fix_Violations_FRONTEND_DONE.md
+│   │   ├── 1079_Fix_Violations_BACKEND_DONE.md
 │   │   ├── 795_Refactor_analysis_DONE.md
 │   │   ├── 798_Refactor_Backend_Streaming_ZIP_DONE.md
 │   │   ├── 799_Refactor_Backend_Asset_Sanitization_DONE.md
@@ -4654,10 +4657,6 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1076_Classify_Ambiguous_Files.md
-│   │   ├── 1077_Structural_Refactor_BACKEND.md
-│   │   ├── 1078_Fix_Violations_FRONTEND.md
-│   │   ├── 1079_Fix_Violations_BACKEND.md
 │   │   ├── 1080_Surgical_Refactor_CORE_FRONTEND.md
 │   │   ├── 1081_Surgical_Refactor_SYSTEMS_FRONTEND.md
 │   │   ├── 1082_Surgical_Refactor_COMPONENTS_FRONTEND.md
@@ -4666,6 +4665,8 @@
 │   │   ├── 1085_Surgical_Refactor_MEDIA_BACKEND.md
 │   │   ├── 1086_Merge_Folders_FRONTEND.md
 │   │   ├── 1087_Merge_Folders_BACKEND.md
+│   │   ├── 1088_Classify_Ambiguous_Files.md
+│   │   ├── 1089_Classify_Map_Entries.md
 │   │   └── tests
 │   │       └── 006_Test_Generation_Unified.md
 │   └── postponed
@@ -4987,4 +4988,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-192 directories, 4796 files
+191 directories, 4798 files

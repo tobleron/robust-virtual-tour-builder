@@ -316,9 +316,9 @@ let make = React.memo(() => {
             (),
           )
           ViewerState.state := {
-            ...ViewerState.state.contents,
-            lastSwitchTime: now,
-          }
+              ...ViewerState.state.contents,
+              lastSwitchTime: now,
+            }
 
           dispatch(Actions.SetNavigationStatus(Types.Idle))
           if uiSlice.isLinking {
