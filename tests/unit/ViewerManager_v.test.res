@@ -38,14 +38,17 @@ external mockHandleStagePointerDown: mockFn = "handleStagePointerDown"
 
 %%raw(`
   vi.mock('../../src/systems/Navigation.bs.js', () => ({
+    __esModule: true,
     FSM: {
       reducer: vi.fn(),
       toString: vi.fn(),
     },
     Graph: {},
     Renderer: {
-      init: vi.fn(),
+      activeJourneyId: { contents: undefined },
+      setupBlinks: vi.fn(),
       startJourney: vi.fn(),
+      init: vi.fn(),
     },
     UI: {
       updateReturnPrompt: vi.fn(),
@@ -64,7 +67,8 @@ external mockHandleStagePointerDown: mockFn = "handleStagePointerDown"
        activeIndex: -1,
        scenes: [],
        navigation: 'Idle',
-       linkDraft: undefined
+       linkDraft: undefined,
+       simulation: { status: 'Idle' }
     })),
     dispatch: vi.fn(),
   }))
@@ -83,12 +87,6 @@ external mockHandleStagePointerDown: mockFn = "handleStagePointerDown"
 %%raw(`
   vi.mock('../../src/components/HotspotManager.bs.js', () => ({
     syncHotspots: vi.fn(),
-  }))
-`)
-
-%%raw(`
-  vi.mock('../../src/systems/Navigation.bs.js', () => ({
-    handleAutoForward: vi.fn(),
   }))
 `)
 

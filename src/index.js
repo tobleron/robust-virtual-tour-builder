@@ -1,3 +1,4 @@
+// @efficiency-role: orchestrator
 /**
  * Application Entry Point
  * 
