@@ -46,11 +46,7 @@ describe("SimulationChainSkipper", () => {
     }
   }
 
-  let createMockEnrichedLink = (
-    hotspot,
-    targetIndex,
-    isBridge,
-  ): Simulation.enrichedLink => {
+  let createMockEnrichedLink = (hotspot, targetIndex, isBridge): Simulation.enrichedLink => {
     {
       hotspot,
       hotspotIndex: 0,

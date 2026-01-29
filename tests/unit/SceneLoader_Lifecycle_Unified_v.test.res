@@ -127,7 +127,7 @@ describe("SceneLoader Lifecycle Unified", () => {
     )
   })
 
-/*
+  /*
   test("Config creates correct viewer config", t => {
     let config = Scene.LoaderConfig.createViewerConfig(false, "pano.jpg", "")
     let json = JSON.stringify(Obj.magic(config))

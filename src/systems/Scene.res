@@ -172,7 +172,9 @@ module Loader = {
         if !isAnticipatory {
           loadStartTime := Date.now()
           GlobalStateBridge.dispatch(
-            DispatchNavigationFsmEvent(NavigationFSM.PreloadStarted({targetSceneId: targetScene.id})),
+            DispatchNavigationFsmEvent(
+              NavigationFSM.PreloadStarted({targetSceneId: targetScene.id}),
+            ),
           )
         }
         switch if isAnticipatory {

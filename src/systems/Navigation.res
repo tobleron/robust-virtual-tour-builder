@@ -42,8 +42,7 @@ module FSM = {
       p >= 1.0
         ? Stabilizing({targetSceneId: toSceneId})
         : Transitioning({fromSceneId, toSceneId, progress: p})
-    | (Transitioning({toSceneId}), TransitionComplete) =>
-      Stabilizing({targetSceneId: toSceneId})
+    | (Transitioning({toSceneId}), TransitionComplete) => Stabilizing({targetSceneId: toSceneId})
     | (Stabilizing(_), StabilizeComplete) => Idle
     | (Error({recoveryTarget: Some(t)}), RecoveryTriggered({targetSceneId}))
       if t == targetSceneId =>
@@ -289,11 +288,7 @@ module Controller = {
         ->Belt.Array.getIndexBy(s => s.id == targetSceneId)
         ->Option.forEach(idx => {
           let prevIndex = state.activeIndex >= 0 ? Some(state.activeIndex) : None
-          Scene.Loader.loadNewScene(
-            prevIndex,
-            Some(idx),
-            ~isAnticipatory,
-          )
+          Scene.Loader.loadNewScene(prevIndex, Some(idx), ~isAnticipatory)
         })
       | Transitioning({progress}) if state.navigation == Idle && progress == 0.0 =>
         dispatch(DispatchNavigationFsmEvent(TransitionComplete))
