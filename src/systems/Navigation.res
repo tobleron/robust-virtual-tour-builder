@@ -163,31 +163,9 @@ module Renderer = {
               )
             }
           } else {
-            let tdist = prog *. pd.totalPathDistance
-            let (cp, cy) = (ref(pd.startPitch), ref(pd.startYaw))
-            let segs = pd.segments
-            let (cov, found) = (ref(0.0), ref(false))
-            if pd.totalPathDistance > 0.0 && Array.length(segs) > 0 {
-              for i in 0 to Array.length(segs) - 1 {
-                if !found.contents {
-                  segs[i]->Option.forEach(s => {
-                    if tdist <= cov.contents +. s.dist {
-                      let sp = s.dist > 0.0 ? (tdist -. cov.contents) /. s.dist : 0.0
-                      cp := s.p1.pitch +. s.pitchDiff *. sp
-                      cy := s.p1.yaw +. s.yawDiff *. sp
-                      found := true
-                    }
-                    cov := cov.contents +. s.dist
-                    if !found.contents {
-                      cp := s.p2.pitch
-                      cy := s.p2.yaw
-                    }
-                  })
-                }
-              }
-            }
-            Viewer.setPitch(v, cp.contents, false)
-            Viewer.setYaw(v, cy.contents, false)
+            let (cp, cy) = NavigationLogic.calculateCameraPosition(~progress=prog, ~pathData=pd)
+            Viewer.setPitch(v, cp, false)
+            Viewer.setYaw(v, cy, false)
             Viewer.setHfov(v, pd.startHfov +. (pd.targetHfovForPan -. pd.startHfov) *. prog, false)
             if ViewerSystem.isViewerReady(v) {
               Dom.getElementById("viewer-hotspot-lines")
@@ -364,33 +342,9 @@ module Controller = {
                     }
                   } else {
                     dispatch(DispatchNavigationFsmEvent(AnimationProgress(prog)))
-                    let tdist = prog *. pd.totalPathDistance
-                    let (cp, cy) = (ref(pd.startPitch), ref(pd.startYaw))
-                    let segs = pd.segments
-                    if pd.totalPathDistance > 0.0 && Array.length(segs) > 0 {
-                      let (cov, found) = (ref(0.0), ref(false))
-                      for i in 0 to Array.length(segs) - 1 {
-                        if !found.contents {
-                          segs[i]->Option.forEach(
-                            s => {
-                              if tdist <= cov.contents +. s.dist {
-                                let sp = s.dist > 0.0 ? (tdist -. cov.contents) /. s.dist : 0.0
-                                cp := s.p1.pitch +. s.pitchDiff *. sp
-                                cy := s.p1.yaw +. s.yawDiff *. sp
-                                found := true
-                              }
-                              cov := cov.contents +. s.dist
-                              if !found.contents {
-                                cp := s.p2.pitch
-                                cy := s.p2.yaw
-                              }
-                            },
-                          )
-                        }
-                      }
-                    }
-                    Viewer.setPitch(v, cp.contents, false)
-                    Viewer.setYaw(v, cy.contents, false)
+                    let (cp, cy) = NavigationLogic.calculateCameraPosition(~progress=prog, ~pathData=pd)
+                    Viewer.setPitch(v, cp, false)
+                    Viewer.setYaw(v, cy, false)
                     Viewer.setHfov(
                       v,
                       pd.startHfov +. (pd.targetHfovForPan -. pd.startHfov) *. prog,

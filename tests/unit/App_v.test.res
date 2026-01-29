@@ -41,10 +41,27 @@ open ReBindings
 `)
 
 %%raw(`
-  vi.mock('../../src/systems/NavigationController.bs.js', () => {
+  vi.mock('../../src/systems/Navigation.bs.js', () => {
     const React = require('react');
     return {
-      make: () => React.createElement('div', { 'data-testid': 'navigation-controller' }),
+      __esModule: true,
+      FSM: {
+        reducer: vi.fn(),
+        toString: vi.fn(),
+      },
+      Graph: {},
+      Renderer: {
+        activeJourneyId: { contents: undefined },
+        setupBlinks: vi.fn(),
+        startJourney: vi.fn(),
+        init: vi.fn(),
+      },
+      UI: {
+        updateReturnPrompt: vi.fn(),
+      },
+      Controller: {
+        make: () => React.createElement('div', { 'data-testid': 'navigation-controller' }),
+      },
     };
   })
 `)
