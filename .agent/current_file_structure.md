@@ -4666,16 +4666,14 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1086_Merge_Folders_FRONTEND.md
-│   │   ├── 1087_Merge_Folders_BACKEND.md
-│   │   ├── 1088_Classify_Ambiguous_Files.md
-│   │   ├── 1089_Classify_Map_Entries.md
-│   │   ├── 1090_Surgical_Refactor_CORE_FRONTEND.md
-│   │   ├── 1091_Surgical_Refactor_SYSTEMS_FRONTEND.md
-│   │   ├── 1092_Surgical_Refactor_COMPONENTS_FRONTEND.md
-│   │   ├── 1093_Surgical_Refactor_UTILS_FRONTEND.md
-│   │   ├── 1094_Surgical_Refactor_MEDIA_BACKEND.md
-│   │   ├── 1095_Surgical_Refactor_API_BACKEND.md
+│   │   ├── 1086_Surgical_Refactor_COMPONENTS_FRONTEND.md
+│   │   ├── 1087_Surgical_Refactor_SYSTEMS_FRONTEND.md
+│   │   ├── 1088_Surgical_Refactor_UTILS_FRONTEND.md
+│   │   ├── 1089_Surgical_Refactor_CORE_FRONTEND.md
+│   │   ├── 1090_Surgical_Refactor_API_BACKEND.md
+│   │   ├── 1091_Surgical_Refactor_MEDIA_BACKEND.md
+│   │   ├── 1092_Surgical_Refactor_SRC_BACKEND.md
+│   │   ├── 1093_Merge_Folders_BACKEND.md
 │   │   └── tests
 │   │       └── 006_Test_Generation_Unified.md
 │   └── postponed
@@ -4997,4 +4995,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-191 directories, 4807 files
+191 directories, 4805 files
