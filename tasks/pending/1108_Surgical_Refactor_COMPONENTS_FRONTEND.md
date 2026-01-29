@@ -12,20 +12,10 @@ The following regions are calculated to be the most confusing for AI:
 
 ## Tasks
 
-### 🔧 Action: Audit & Delete
-**Directive:** De-bloat: Reduce module size by identifying and extracting independent domain logic.
+### 🔧 Action: De-bloat
+**Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
 
-- [ ] - **../../css/components/buttons.css** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 124))
+- [ ] - **../../src/components/SceneList.res** (Metric: [Nesting: 1.05, Density: 0.07, Coupling: 0.43] | Drag: 2.24 | LOC: 416/400  Hotspot: Lines 436-440)
 
-- [ ] - **../../css/components/error-fallback.css** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 55))
-
-- [ ] - **../../css/components/label-menu.css** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 150))
-
-- [ ] - **../../css/components/modals.css** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 109))
-
-- [ ] - **../../css/components/ui.css** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 179))
-
-- [ ] - **../../css/components/upload-report.css** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 189))
-
-- [ ] - **../../css/components/viewer.css** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 627))
+- [ ] - **../../src/components/Sidebar.res** (Metric: [Nesting: 1.20, Density: 0.00, Coupling: 0.30] | Drag: 2.20 | LOC: 569/400  Hotspot: Lines 103-107)
 

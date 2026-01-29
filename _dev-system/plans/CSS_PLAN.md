@@ -9,30 +9,30 @@
 ---
 
 ## 🛠️ SURGICAL REFACTOR TASKS (12)
-- [ ] **../../css/components/ui.css**
-  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 179)
-- [ ] **../../css/components/label-menu.css**
-  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 150)
-- [ ] **../../css/components/modals.css**
-  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 109)
-- [ ] **../../css/legacy.css**
-  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 58)
-- [ ] **../../css/base.css**
-  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 71)
-- [ ] **../../css/components/viewer.css**
-  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 627)
-- [ ] **../../css/variables.css**
-  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 109)
+- [ ] **../../css/animations.css**
+  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 276)
 - [ ] **../../css/components/upload-report.css**
   - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 189)
 - [ ] **../../css/tailwind.css**
   - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 126)
+- [ ] **../../css/base.css**
+  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 71)
+- [ ] **../../css/legacy.css**
+  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 58)
+- [ ] **../../css/variables.css**
+  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 109)
+- [ ] **../../css/components/ui.css**
+  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 179)
+- [ ] **../../css/components/viewer.css**
+  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 627)
+- [ ] **../../css/components/modals.css**
+  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 109)
 - [ ] **../../css/components/buttons.css**
   - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 124)
-- [ ] **../../css/animations.css**
-  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 276)
 - [ ] **../../css/components/error-fallback.css**
   - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 55)
+- [ ] **../../css/components/label-menu.css**
+  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 150)
 
 ---
 

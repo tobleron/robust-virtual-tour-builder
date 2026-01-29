@@ -214,10 +214,14 @@ module Follow = {
           let pb = ViewerLogic.getBoost(ViewerState.state.contents.mouseVelocityY)
           let yd = insideDz
             ? 0.0
-            : ViewerLogic.getEdgePower(ViewerState.state.contents.mouseXNorm, 0.5) *. 1.5 *. (1.0 +. yb)
+            : ViewerLogic.getEdgePower(ViewerState.state.contents.mouseXNorm, 0.5) *.
+              1.5 *.
+              (1.0 +. yb)
           let pd = insideDz
             ? 0.0
-            : -.ViewerLogic.getEdgePower(ViewerState.state.contents.mouseYNorm, 0.5) *. 1.0 *. (1.0 +. pb)
+            : -.ViewerLogic.getEdgePower(ViewerState.state.contents.mouseYNorm, 0.5) *.
+              1.0 *.
+              (1.0 +. pb)
           ViewerState.state := {
               ...ViewerState.state.contents,
               lastAppliedYaw: Nullable.null,
