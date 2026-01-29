@@ -50,7 +50,7 @@ describe("SimulationChainSkipper", () => {
     hotspot,
     targetIndex,
     isBridge,
-  ): SimulationNavigation.enrichedLink => {
+  ): Simulation.enrichedLink => {
     {
       hotspot,
       hotspotIndex: 0,

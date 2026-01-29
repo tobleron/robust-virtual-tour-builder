@@ -42,8 +42,7 @@ module FSM = {
       p >= 1.0
         ? Stabilizing({targetSceneId: toSceneId})
         : Transitioning({fromSceneId, toSceneId, progress: p})
-    | (Transitioning({toSceneId}), TransitionComplete)
-    | (Transitioning({toSceneId}), AnimationProgress(1.0)) =>
+    | (Transitioning({toSceneId}), TransitionComplete) =>
       Stabilizing({targetSceneId: toSceneId})
     | (Stabilizing(_), StabilizeComplete) => Idle
     | (Error({recoveryTarget: Some(t)}), RecoveryTriggered({targetSceneId}))
@@ -197,8 +196,8 @@ module Renderer = {
               ->Option.forEach(svg => {
                 let r = Dom.getBoundingClientRect(svg)
                 if r.width > 0.0 {
-                  HotspotLineLogic.updateSimulationArrow(
-                    HotspotLineLogic.getCamState(v, r),
+                  HotspotLine.Logic.updateSimulationArrow(
+                    HotspotLine.Logic.getCamState(v, r),
                     asP,
                     asY,
                     pd.targetPitchForPan,
@@ -262,7 +261,7 @@ module UI = {
               ->Option.forEach(el => Dom.setTextContent(el, "Return to " ++ src.name))
               Dom.remove(p, "hidden")
               Dom.add(p, "flex")
-              Window.requestAnimationFrame(() => Dom.add(p, "visible"))
+              let _ = Window.requestAnimationFrame(() => Dom.add(p, "visible"))
             }
           })
         | None =>
@@ -289,8 +288,9 @@ module Controller = {
         state.scenes
         ->Belt.Array.getIndexBy(s => s.id == targetSceneId)
         ->Option.forEach(idx => {
+          let prevIndex = state.activeIndex >= 0 ? Some(state.activeIndex) : None
           Scene.Loader.loadNewScene(
-            state.scenes[state.activeIndex]->Option.map(s => s.id),
+            prevIndex,
             Some(idx),
             ~isAnticipatory,
           )

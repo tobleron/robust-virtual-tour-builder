@@ -218,3 +218,11 @@ type step = {
   transitionTarget: option<transitionTarget>,
   arrivalView: arrivalView,
 }
+
+let fileToUrl = (f: file): string => {
+  switch f {
+  | Url(u) => u
+  | Blob(b) => ReBindings.URL.createObjectURL(b)
+  | File(f) => ReBindings.URL.createObjectURL(f)
+  }
+}
