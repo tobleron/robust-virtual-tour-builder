@@ -1,3 +1,4 @@
+// @efficiency-role: domain-logic
 use bytes::Bytes;
 use img_parts::riff::RiffContent;
 use img_parts::webp::WebP;

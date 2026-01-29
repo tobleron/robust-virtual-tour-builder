@@ -59,6 +59,12 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/systems/UploadProcessor.res](src/systems/UploadProcessor.res): Lightweight facade for the image processing pipeline. `#upload` `#facade`
 *   [src/systems/UploadProcessorLogic.res](src/systems/UploadProcessorLogic.res): Lightweight facade for the image processing and upload queue logic. `#upload` `#facade`
     *   [src/systems/UploadProcessorLogicLogic.res](src/systems/UploadProcessorLogicLogic.res): Core logic for image processing, queue management, and upload finalization. `#logic`
+*   [src/systems/ViewerSystem.res](src/systems/ViewerSystem.res): Consolidated Viewer System - Adapter, Pool, and Follow logic. `#viewer` `#orchestration`
+*   [src/systems/Scene.res](src/systems/Scene.res): Consolidated Scene System - Loader, Switcher, and Transition logic. `#scene` `#orchestration`
+*   [src/systems/Navigation.res](src/systems/Navigation.res): Consolidated Navigation System - Controller, FSM, and Graph logic. `#navigation` `#orchestration`
+*   [src/systems/Teaser.res](src/systems/Teaser.res): Consolidated Teaser System - Manager, Recorder, and Playback logic. `#teaser` `#orchestration`
+*   [src/systems/Simulation.res](src/systems/Simulation.res): Consolidated Simulation System - Driver, Logic, and Navigation. `#simulation` `#logic`
+*   [src/systems/UploadTypes.res](src/systems/UploadTypes.res): Types for the upload system. `#upload` `#types`
 * [src/systems/SceneLoader.res](src/systems/SceneLoader.res): Lightweight facade for scene transition and viewer loading orchestration. `#scene-loading` `#lifecycle` `#facade`
     * [src/systems/SceneLoaderLogic.res](src/systems/SceneLoaderLogic.res): Lightweight facade for scene loading orchestration. `#logic` `#facade`
     * [src/systems/SceneLoaderLogicReuse.res](src/systems/SceneLoaderLogicReuse.res): Logic for viewer reuse and session persistence. `#logic`
@@ -206,9 +212,9 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [backend/src/services/geocoding/mod.rs](backend/src/services/geocoding/mod.rs): Facade for the geocoding service with LRU caching. `#geocoding` `#services` `#facade`
     *   [backend/src/services/geocoding/logic.rs](backend/src/services/geocoding/logic.rs): OSM Nominatim API interaction and coordinate rounding logic. `#logic`
 *   [backend/src/services/media/mod.rs](backend/src/services/media/mod.rs): Facade for core media services (encoding, analysis, resizing). `#media` `#services` `#facade`
-*   [backend/src/services/media/analysis/mod.rs](backend/src/services/media/analysis/mod.rs): Facade for image quality analysis and metadata extraction. `#media` `#analysis` `#facade`
-    *   [backend/src/services/media/analysis/exif.rs](backend/src/services/media/analysis/exif.rs): EXIF data parsing and normalization logic. `#exif` `#parsing`
-    *   [backend/src/services/media/analysis/quality.rs](backend/src/services/media/analysis/quality.rs): Image quality analysis, histograms, and blur detection. `#image-processing` `#logic`
+*   [backend/src/services/media/analysis.rs](backend/src/services/media/analysis.rs): Consolidated Media Analysis logic. `#media` `#analysis`
+    *   [backend/src/services/media/analysis_exif.rs](backend/src/services/media/analysis_exif.rs): EXIF data parsing and extraction. `#media` `#exif`
+    *   [backend/src/services/media/analysis_quality.rs](backend/src/services/media/analysis_quality.rs): Image quality analysis logic. `#media` `#quality`
     *   [backend/src/services/media/webp.rs](backend/src/services/media/webp.rs): WebP encoding and metadata injection. `#encoding`
     *   [backend/src/services/media/resizing.rs](backend/src/services/media/resizing.rs): High-performance image resizing. `#processing`
     *   [backend/src/services/media/naming.rs](backend/src/services/media/naming.rs): Camera filename normalization logic. `#utils`
@@ -229,18 +235,7 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [backend/src/middleware/quota_check.rs](backend/src/middleware/quota_check.rs): Enforces upload and API usage quotas. `#mw` `#security`
     *   [backend/src/middleware/request_tracker.rs](backend/src/middleware/request_tracker.rs): Tracks request latency and success rates. `#mw` `#telemetry`
     *   [backend/src/middleware/auth.rs](backend/src/middleware/auth.rs): Token-based authentication middleware. `#mw` `#auth`
-*   [backend/src/models/mod.rs](backend/src/models/mod.rs): Data model and shared type definitions. `#types` `#models`
-    *   [backend/src/models/project.rs](backend/src/models/project.rs): Rust-side representation of the tour project structure. `#models`
-    *   [backend/src/models/user.rs](backend/src/models/user.rs): User account data model. `#models` `#auth`
-    *   [backend/src/models/session.rs](backend/src/models/session.rs): Active session and token data model. `#models` `#auth`
-    *   [backend/src/models/telemetry.rs](backend/src/models/telemetry.rs): Client-side telemetry event model. `#models` `#telemetry`
-    *   [backend/src/models/metadata.rs](backend/src/models/metadata.rs): Generic metadata and tag models. `#models`
-    *   [backend/src/models/similarity.rs](backend/src/models/similarity.rs): Visual similarity and vector model definitions. `#models` `#ai`
-    *   [backend/src/models/validation.rs](backend/src/models/validation.rs): Structural validation result models. `#models` `#validation`
-    *   [backend/src/models/geocoding.rs](backend/src/models/geocoding.rs): Spatial and geocoding result models. `#models` `#geocoding`
-    *   [backend/src/models/errors.rs](backend/src/models/errors.rs): Unified backend error system and response mapping. `#errors`
-    *   [backend/src/models/errors_impl.rs](backend/src/models/errors_impl.rs): Domain-specific implementation of the error system. `#models` `#errors`
-    *   [backend/src/models/errors_tests.rs](backend/src/models/errors_tests.rs): Unit tests for the backend error system. `#models` `#testing`
+*   [backend/src/models.rs](backend/src/models.rs): Consolidated Backend Models (Errors, Metadata, Projects, etc.). `#rust` `#models`
 *   [backend/src/pathfinder.rs](backend/src/pathfinder.rs): Consolidated high-performance navigation pathfinding logic. `#navigation` `#logic` `#algorithms`
 *   [backend/src/services/mod.rs](backend/src/services/mod.rs): Domain-specific service layer entry point. `#services`
     *   [backend/src/services/auth/mod.rs](backend/src/services/auth/mod.rs): Orchestrator for authentication and identity services. `#auth` `#facade`
@@ -277,14 +272,3 @@ This map provides a semantic overview of the project structure to optimize conte
 
 
 
-## 🆕 Unmapped Modules
-* [src/systems/ViewerSystem.res](src/systems/ViewerSystem.res): New module detected. Please classify. #new
-* [src/systems/Simulation.res](src/systems/Simulation.res): New module detected. Please classify. #new
-* [src/systems/Teaser.res](src/systems/Teaser.res): New module detected. Please classify. #new
-* [src/systems/Scene.res](src/systems/Scene.res): New module detected. Please classify. #new
-* [src/systems/Navigation.res](src/systems/Navigation.res): New module detected. Please classify. #new
-* [backend/src/models.rs](backend/src/models.rs): New module detected. Please classify. #new
-* [src/systems/UploadTypes.res](src/systems/UploadTypes.res): New module detected. Please classify. #new
-* [backend/src/services/media/analysis.rs](backend/src/services/media/analysis.rs): New module detected. Please classify. #new
-* [backend/src/services/media/analysis_quality.rs](backend/src/services/media/analysis_quality.rs): New module detected. Please classify. #new
-* [backend/src/services/media/analysis_exif.rs](backend/src/services/media/analysis_exif.rs): New module detected. Please classify. #new
