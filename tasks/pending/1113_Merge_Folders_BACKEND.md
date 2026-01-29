@@ -15,11 +15,6 @@
     - `../../backend/src/services/project/mod.rs`
     - `../../backend/src/services/project/package.rs`
     - `../../backend/src/services/project/validate.rs`
-- [ ] Folder: `backend/src/services/auth`
-    - **Metric:** Recursive Feature Pod: 2 files in subtree sum to 111 LOC (fits in context).
-    - **Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module to reduce token overhead during analysis.
-    - `../../backend/src/services/auth/jwt.rs`
-    - `../../backend/src/services/auth/mod.rs`
 - [ ] Folder: `backend/src/services/media`
     - **Metric:** Recursive Feature Pod: 9 files in subtree sum to 791 LOC (fits in context).
     - **Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module to reduce token overhead during analysis.
@@ -37,6 +32,11 @@
     - **Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module to reduce token overhead during analysis.
     - `../../backend/src/services/geocoding/logic.rs`
     - `../../backend/src/services/geocoding/mod.rs`
+- [ ] Folder: `backend/src/services/auth`
+    - **Metric:** Recursive Feature Pod: 2 files in subtree sum to 111 LOC (fits in context).
+    - **Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module to reduce token overhead during analysis.
+    - `../../backend/src/services/auth/jwt.rs`
+    - `../../backend/src/services/auth/mod.rs`
 - [ ] Folder: `backend/src/middleware`
     - **Metric:** Recursive Feature Pod: 4 files in subtree sum to 375 LOC (fits in context).
     - **Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module to reduce token overhead during analysis.
