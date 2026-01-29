@@ -1,3 +1,4 @@
+// @efficiency-role: data-model
 open Types
 
 type action =
