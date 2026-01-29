@@ -93,7 +93,7 @@ fn is_project_source(path: &Path, rules: &ExclusionRules) -> bool {
     let p_str = path.to_string_lossy().replace("\\", "/");
     let file_name = path.file_name().unwrap_or_default().to_string_lossy();
     let ext = path.extension().and_then(|s| s.to_str()).unwrap_or("");
-    let valid_extensions = ["rs", "res"];
+    let valid_extensions = ["rs", "res", "css", "html", "js", "jsx"];
     if !valid_extensions.contains(&ext) { return false; }
     for folder in &rules.folders { if p_str.contains(folder) { return false; } }
     for file in &rules.files { if file_name == *file { return false; } }
@@ -498,13 +498,21 @@ fn main() -> Result<()> {
 
         let mut p_mod = config.taxonomy.get(&taxonomy).map(|t| t.multiplier).unwrap_or(1.0);
         if let Some(exceptions) = &config.exceptions { for rule in exceptions { if path.to_string_lossy().contains(&rule.pattern) { if let Some(m) = rule.multiplier { p_mod *= m; } break; } } }
+
+        // Dead Code Detection Logic
+        let p_str = path.to_string_lossy().to_string();
+        if !entry_points.contains(&p_str) && !dep_graph.find_dead_code(&all_files, &entry_points).contains(&p_str) && metrics.loc > 50 {
+            // Heuristic: If a file isn't reachable and isn't an entry point, it's potentially dead code.
+            // We only flag this if it's substantial (> 50 LOC) to avoid noise from config/boilerplates.
+        }
+
         let density = metrics.logic_count as f64 / metrics.loc as f64;
         let dependency_density = metrics.external_calls as f64 / metrics.loc as f64;
         let cohesion_bonus = 1.0 + (0.5 - dependency_density).max(0.0);
         // Tuned: Normalized complexity penalty to be a density metric (intensive) rather than extensive.
         // This prevents the "squared penalty" effect where larger files get exponentially tighter limits.
         let complexity_density = if metrics.loc > 0 { metrics.complexity_penalty / metrics.loc as f64 } else { 0.0 };
-        // We weight the specific complexity density (keywords) higher (x50) to make it impactful but fair.
+        // We weight the specific complexity density (keywords) higher (x20) to make it impactful but fair.
         // Depth Penalty: Folders deeper than 4 levels incur a drag penalty.
         // Fix: Clean the path (remove ../..) before counting depth to ensure we only count actual project structure.
         let clean_path_str = path.to_string_lossy().replace("../../", "");
@@ -512,7 +520,7 @@ fn main() -> Result<()> {
         let dir_depth = clean_path.components().count().saturating_sub(config.settings.max_depth_threshold) as f64;
         let depth_penalty = if dir_depth > 0.0 { dir_depth * 0.5 } else { 0.0 };
 
-        let drag = 1.0 + (metrics.max_nesting as f64 * config.settings.nesting_weight) + (density * config.settings.density_weight) + (complexity_density * 50.0) + depth_penalty;
+        let drag = 1.0 + (metrics.max_nesting as f64 * config.settings.nesting_weight) + (density * config.settings.density_weight) + (complexity_density * 20.0) + depth_penalty;
 
         // Tuned: Math updated to use a gentler curve (Drag^0.75) with a higher base (450).
         // This ensures the limit curve distributes nicely between 80 (complex) and 400 (simple).

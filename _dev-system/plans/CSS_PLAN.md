@@ -1,21 +1,16 @@
 # CSS MASTER PLAN
 ## 📚 LEGEND & DEFINITIONS
-*   **LOC (Lines of Code):** Source lines excluding comments and whitespace.
-*   **Drag:** A calculated resistance metric based on nesting depth, logic density, and complexity penalties. Higher drag reduces the allowed LOC.
-*   **Limit:** The dynamic LOC limit for a specific file, calculated as `(Base_Limit * Role_Multiplier) / Drag`.
-*   **Role:** The architectural classification (e.g., `orchestrator`, `ui-component`) which determines the base allowed size.
-*   **Pattern:** A specific code construct (e.g., `unwrap`, `!important`) that is restricted or forbidden.
+*   **LOC:** Total non-comment lines. (Lower is easier to read).
+*   **Drag:** Complexity multiplier. (Target: < 2.0). High Drag means AI agents struggle to track state.
+*   **Cognitive Capacity:** Inference energy required (Goal: < 100%).
+*   **Read Tax:** Tokens and time overhead incurred when switching between many small files.
+*   **AI Context Fog:** Regions of code with overlapping logic paths that cause model hallucination.
 
 ---
 
-## 🛠️ SURGICAL REFACTOR TASKS (2)
-**Action:** Extract logic to new modules to reduce complexity/bloat.
-**Target:** To be determined by AI Agent (Create new modules as needed).
-
-- [ ] **../../css/animations.css**
-  - *Reason:* LOC 276 > Limit 222 (Role: ui-component, Drag: 1.77)
+## 🛠️ SURGICAL REFACTOR TASKS (1)
 - [ ] **../../css/components/viewer.css**
-  - *Reason:* LOC 627 > Limit 277 (Role: ui-component, Drag: 1.53)
+  - *Reason:* [Nesting: 0.30, Density: 0.11, Deps: 0.00] | Drag: 1.87 | LOC: 627/510
 
 ---
 
