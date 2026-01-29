@@ -600,6 +600,12 @@
 │   │   │   │   ├── NavigationGraph.cmj
 │   │   │   │   ├── NavigationGraph.cmt
 │   │   │   │   ├── NavigationGraph.res
+│   │   │   │   ├── NavigationLogic.ast
+│   │   │   │   ├── NavigationLogic.bs.js
+│   │   │   │   ├── NavigationLogic.cmi
+│   │   │   │   ├── NavigationLogic.cmj
+│   │   │   │   ├── NavigationLogic.cmt
+│   │   │   │   ├── NavigationLogic.res
 │   │   │   │   ├── NavigationRenderer.ast
 │   │   │   │   ├── NavigationRenderer.bs.js
 │   │   │   │   ├── NavigationRenderer.cmi
@@ -684,6 +690,12 @@
 │   │   │   │   ├── VideoEncoder.cmj
 │   │   │   │   ├── VideoEncoder.cmt
 │   │   │   │   ├── VideoEncoder.res
+│   │   │   │   ├── ViewerLogic.ast
+│   │   │   │   ├── ViewerLogic.bs.js
+│   │   │   │   ├── ViewerLogic.cmi
+│   │   │   │   ├── ViewerLogic.cmj
+│   │   │   │   ├── ViewerLogic.cmt
+│   │   │   │   ├── ViewerLogic.res
 │   │   │   │   ├── ViewerSystem.ast
 │   │   │   │   ├── ViewerSystem.bs.js
 │   │   │   │   ├── ViewerSystem.cmi
@@ -2145,15 +2157,7 @@
 │   │   ├── Navigation.cmj
 │   │   ├── Navigation.cmt
 │   │   ├── Navigation.res
-│   │   ├── NavigationController.ast
-│   │   ├── NavigationController.cmi
-│   │   ├── NavigationController.cmj
-│   │   ├── NavigationController.cmt
 │   │   ├── NavigationController.res
-│   │   ├── NavigationController_v.test.ast
-│   │   ├── NavigationController_v.test.cmi
-│   │   ├── NavigationController_v.test.cmj
-│   │   ├── NavigationController_v.test.cmt
 │   │   ├── NavigationController_v.test.res
 │   │   ├── NavigationFSM.ast
 │   │   ├── NavigationFSM.cmi
@@ -2175,30 +2179,19 @@
 │   │   ├── NavigationGraph_v.test.cmj
 │   │   ├── NavigationGraph_v.test.cmt
 │   │   ├── NavigationGraph_v.test.res
+│   │   ├── NavigationLogic.ast
+│   │   ├── NavigationLogic.cmi
+│   │   ├── NavigationLogic.cmj
+│   │   ├── NavigationLogic.cmt
+│   │   ├── NavigationLogic.res
 │   │   ├── NavigationReducer_v.test.ast
 │   │   ├── NavigationReducer_v.test.cmi
 │   │   ├── NavigationReducer_v.test.cmj
 │   │   ├── NavigationReducer_v.test.cmt
 │   │   ├── NavigationReducer_v.test.res
-│   │   ├── NavigationRenderer.ast
-│   │   ├── NavigationRenderer.cmi
-│   │   ├── NavigationRenderer.cmj
-│   │   ├── NavigationRenderer.cmt
 │   │   ├── NavigationRenderer.res
-│   │   ├── NavigationRenderer_v.test.ast
-│   │   ├── NavigationRenderer_v.test.cmi
-│   │   ├── NavigationRenderer_v.test.cmj
-│   │   ├── NavigationRenderer_v.test.cmt
 │   │   ├── NavigationRenderer_v.test.res
-│   │   ├── NavigationUI.ast
-│   │   ├── NavigationUI.cmi
-│   │   ├── NavigationUI.cmj
-│   │   ├── NavigationUI.cmt
 │   │   ├── NavigationUI.res
-│   │   ├── NavigationUI_v.test.ast
-│   │   ├── NavigationUI_v.test.cmi
-│   │   ├── NavigationUI_v.test.cmj
-│   │   ├── NavigationUI_v.test.cmt
 │   │   ├── NavigationUI_v.test.res
 │   │   ├── NotificationContext.ast
 │   │   ├── NotificationContext.cmi
@@ -2870,6 +2863,11 @@
 │   │   ├── ViewerLoader_v.test.cmj
 │   │   ├── ViewerLoader_v.test.cmt
 │   │   ├── ViewerLoader_v.test.res
+│   │   ├── ViewerLogic.ast
+│   │   ├── ViewerLogic.cmi
+│   │   ├── ViewerLogic.cmj
+│   │   ├── ViewerLogic.cmt
+│   │   ├── ViewerLogic.res
 │   │   ├── ViewerManager.ast
 │   │   ├── ViewerManager.cmi
 │   │   ├── ViewerManager.cmj
@@ -4531,16 +4529,12 @@
 │   │   ├── LinkEditorLogic.res
 │   │   ├── Navigation.bs.js
 │   │   ├── Navigation.res
-│   │   ├── NavigationController.bs.js
-│   │   ├── NavigationController.res
 │   │   ├── NavigationFSM.bs.js
 │   │   ├── NavigationFSM.res
 │   │   ├── NavigationGraph.bs.js
 │   │   ├── NavigationGraph.res
-│   │   ├── NavigationRenderer.bs.js
-│   │   ├── NavigationRenderer.res
-│   │   ├── NavigationUI.bs.js
-│   │   ├── NavigationUI.res
+│   │   ├── NavigationLogic.bs.js
+│   │   ├── NavigationLogic.res
 │   │   ├── PanoramaClusterer.bs.js
 │   │   ├── PanoramaClusterer.res
 │   │   ├── ProjectData.bs.js
@@ -4565,6 +4559,8 @@
 │   │   ├── UploadTypes.res
 │   │   ├── VideoEncoder.bs.js
 │   │   ├── VideoEncoder.res
+│   │   ├── ViewerLogic.bs.js
+│   │   ├── ViewerLogic.res
 │   │   ├── ViewerSystem.bs.js
 │   │   └── ViewerSystem.res
 │   └── utils
@@ -4626,6 +4622,11 @@
 │   │   ├── 1083_Surgical_Refactor_UTILS_FRONTEND_DONE.md
 │   │   ├── 1084_Surgical_Refactor_API_BACKEND_DONE.md
 │   │   ├── 1085_Surgical_Refactor_MEDIA_BACKEND_DONE.md
+│   │   ├── 1095_Classify_Ambiguous_Files_DONE.md
+│   │   ├── 1097_Perfect_Dev_System_Analyzer.md
+│   │   ├── 1104_refine_dev_system_analyzer_maintenance.md
+│   │   ├── 1105_Surgical_Refactor_SYSTEMS_FRONTEND_DONE.md
+│   │   ├── 1111_Surgical_Refactor_MEDIA_BACKEND_DONE.md
 │   │   ├── 795_Refactor_analysis_DONE.md
 │   │   ├── 798_Refactor_Backend_Streaming_ZIP_DONE.md
 │   │   ├── 799_Refactor_Backend_Asset_Sanitization_DONE.md
@@ -4668,18 +4669,15 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1095_Classify_Ambiguous_Files.md
-│   │   ├── 1097_Perfect_Dev_System_Analyzer.md
-│   │   ├── 1104_refine_dev_system_analyzer_maintenance.md
-│   │   ├── 1105_Surgical_Refactor_SYSTEMS_FRONTEND.md
 │   │   ├── 1106_Surgical_Refactor_CORE_FRONTEND.md
 │   │   ├── 1107_Surgical_Refactor_CSS_FRONTEND.md
 │   │   ├── 1108_Surgical_Refactor_COMPONENTS_FRONTEND.md
-│   │   ├── 1109_Surgical_Refactor_SRC_FRONTEND.md
 │   │   ├── 1110_Surgical_Refactor_UTILS_FRONTEND.md
-│   │   ├── 1111_Surgical_Refactor_MEDIA_BACKEND.md
 │   │   ├── 1112_Surgical_Refactor_SRC_BACKEND.md
 │   │   ├── 1113_Merge_Folders_BACKEND.md
+│   │   ├── 1114_Surgical_Refactor_SYSTEMS_FRONTEND.md
+│   │   ├── 1116_Classify_Map_Entries.md
+│   │   ├── 1117_Deep_Audit_and_Process_Enhancement.md
 │   │   └── tests
 │   │       └── 006_Test_Generation_Unified.md
 │   └── postponed
@@ -4806,18 +4804,12 @@
 │       ├── Mod_v.test.res
 │       ├── ModalContext_v.test.bs.js
 │       ├── ModalContext_v.test.res
-│       ├── NavigationController_v.test.bs.js
-│       ├── NavigationController_v.test.res
 │       ├── NavigationFSM_v.test.bs.js
 │       ├── NavigationFSM_v.test.res
 │       ├── NavigationGraph_v.test.bs.js
 │       ├── NavigationGraph_v.test.res
 │       ├── NavigationReducer_v.test.bs.js
 │       ├── NavigationReducer_v.test.res
-│       ├── NavigationRenderer_v.test.bs.js
-│       ├── NavigationRenderer_v.test.res
-│       ├── NavigationUI_v.test.bs.js
-│       ├── NavigationUI_v.test.res
 │       ├── NotificationContext_v.test.bs.js
 │       ├── NotificationContext_v.test.res
 │       ├── NotificationLayer_v.test.bs.js
@@ -5001,4 +4993,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-192 directories, 4810 files
+192 directories, 4802 files

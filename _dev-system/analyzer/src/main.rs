@@ -160,8 +160,7 @@ fn generate_strategic_directive(unit: &WorkUnit) -> String {
     }
 }
 
-fn sync_architectural_category(category_name: &str, platform: &str, units: &[String], objective: &str) -> Result<()> {
-    if units.is_empty() { return Ok(()); }
+fn sync_architectural_category(category_name: &str, platform: &str, units: &[String], objective: &str) -> Result<Option<PathBuf>> {
     let pending_dir = "../../tasks/pending";
     let platform_label = if platform.is_empty() { "".to_string() } else { format!("_{}", platform.to_uppercase()) };
     let full_category_name = format!("{}{}", category_name, platform_label);
@@ -171,6 +170,10 @@ fn sync_architectural_category(category_name: &str, platform: &str, units: &[Str
             let name = entry.file_name().to_string_lossy().into_owned();
             if name.contains(&full_category_name) { existing_path = Some(entry.path()); break; }
         }
+    }
+
+    if units.is_empty() {
+        return Ok(existing_path);
     }
     
     let (path, id) = if let Some(p) = existing_path {
@@ -192,13 +195,11 @@ fn sync_architectural_category(category_name: &str, platform: &str, units: &[Str
     };
 
     // Idempotent: Overwrite the file to ensure dead tasks are removed and structure is clean
-    let mut file = OpenOptions::new().create(true).write(true).truncate(true).open(path)?;
+    let mut file = OpenOptions::new().create(true).write(true).truncate(true).open(&path)?;
 
     file.write_all(format!("# Task {}: {}\n\n## Objective\n{}\n\n## Tasks\n", id, full_category_name.replace("_", " "), objective).as_bytes())?;
 
     for f in units {
-        // Heuristic: If it starts with # (Header), don't add the checkbox bullet
-        // Also skip extra newlines if the input string handles them
         let line = if f.trim().starts_with("#") {
             format!("{}\n", f)
         } else {
@@ -206,7 +207,7 @@ fn sync_architectural_category(category_name: &str, platform: &str, units: &[Str
         };
         file.write_all(line.as_bytes())?;
     }
-    Ok(())
+    Ok(Some(path))
 }
 
 fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>, config: &EfficiencyConfig) -> Result<()> {
@@ -266,8 +267,10 @@ fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>, config:
     }
     let ambiguity_obj = config.templates.ambiguity_objective.replace("{roles}", &role_list);
 
-    let _max_complexity = config.settings.max_session_complexity;
-    let sync_surgical = |units: Vec<(String, String, String, String, f64)>, platform: &str| -> Result<()> {
+    let mut active_tasks = HashSet::new();
+
+    let mut sync_surgical = |units: Vec<(String, String, String, String, f64)>, platform: &str| -> Result<Vec<PathBuf>> {
+        let mut paths = Vec::new();
         // Group by Parent Directory (Domain) to minimize context switching
         let mut domain_groups: HashMap<String, Vec<(String, String, String, String, f64)>> = HashMap::new();
         for unit in units {
@@ -302,32 +305,52 @@ fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>, config:
                 }
             }
 
-            if !lines.is_empty() {
-                sync_architectural_category(&category_name, platform, &lines, &surgical_obj)?;
+            if let Some(path) = sync_architectural_category(&category_name, platform, &lines, &surgical_obj)? {
+                paths.push(path);
             }
         }
-        Ok(())
+        Ok(paths)
     };
 
     // Priority Order Enforcement
     // 1. Ambiguity (Clarify)
-    sync_architectural_category("Classify_Ambiguous_Files", "", &ambiguities, &ambiguity_obj)?;
+    if let Some(p) = sync_architectural_category("Classify_Ambiguous_Files", "", &ambiguities, &ambiguity_obj)? { active_tasks.insert(p); }
 
     // 2. Structural (Fix hierarchy first)
-    sync_architectural_category("Structural_Refactor", "Frontend", &structural_fe, &config.templates.structural_objective)?;
-    sync_architectural_category("Structural_Refactor", "Backend", &structural_be, &config.templates.structural_objective)?;
+    if let Some(p) = sync_architectural_category("Structural_Refactor", "Frontend", &structural_fe, &config.templates.structural_objective)? { active_tasks.insert(p); }
+    if let Some(p) = sync_architectural_category("Structural_Refactor", "Backend", &structural_be, &config.templates.structural_objective)? { active_tasks.insert(p); }
 
     // 3. Violations (Fix critical bugs)
-    sync_architectural_category("Fix_Violations", "Frontend", &violations_fe, &config.templates.violation_objective)?;
-    sync_architectural_category("Fix_Violations", "Backend", &violations_be, &config.templates.violation_objective)?;
+    if let Some(p) = sync_architectural_category("Fix_Violations", "Frontend", &violations_fe, &config.templates.violation_objective)? { active_tasks.insert(p); }
+    if let Some(p) = sync_architectural_category("Fix_Violations", "Backend", &violations_be, &config.templates.violation_objective)? { active_tasks.insert(p); }
 
     // 4. Surgical (Optimize specific files)
-    sync_surgical(surgical_fe_units, "Frontend")?;
-    sync_surgical(surgical_be_units, "Backend")?;
+    active_tasks.extend(sync_surgical(surgical_fe_units, "Frontend")?);
+    active_tasks.extend(sync_surgical(surgical_be_units, "Backend")?);
 
     // 5. Merges (Cleanup)
-    sync_architectural_category("Merge_Folders", "Frontend", &merges_fe, &merge_obj)?;
-    sync_architectural_category("Merge_Folders", "Backend", &merges_be, &merge_obj)?;
+    if let Some(p) = sync_architectural_category("Merge_Folders", "Frontend", &merges_fe, &merge_obj)? { active_tasks.insert(p); }
+    if let Some(p) = sync_architectural_category("Merge_Folders", "Backend", &merges_be, &merge_obj)? { active_tasks.insert(p); }
+
+    // --- Zombie Elimination ---
+    // Cleanup any pending architectural tasks that were NOT updated in this run
+    let pending_dir = "../../tasks/pending";
+    let arch_patterns = ["Surgical_Refactor_", "Merge_Folders_", "Fix_Violations_", "Structural_Refactor_", "Classify_Ambiguous_Files"];
+    
+    if let Ok(entries) = fs::read_dir(pending_dir) {
+        for entry in entries.filter_map(|e| e.ok()) {
+            let path = entry.path();
+            if !path.is_file() { continue; }
+            let name = path.file_name().unwrap_or_default().to_string_lossy();
+            
+            let is_arch = arch_patterns.iter().any(|p| name.contains(p));
+            if is_arch && !active_tasks.contains(&path) {
+                // println!("🧹 Deleting zombie task: {:?}", path);
+                let _ = fs::remove_file(path);
+            }
+        }
+    }
+
     Ok(())
 }
 

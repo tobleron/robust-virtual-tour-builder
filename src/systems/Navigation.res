@@ -342,7 +342,10 @@ module Controller = {
                     }
                   } else {
                     dispatch(DispatchNavigationFsmEvent(AnimationProgress(prog)))
-                    let (cp, cy) = NavigationLogic.calculateCameraPosition(~progress=prog, ~pathData=pd)
+                    let (cp, cy) = NavigationLogic.calculateCameraPosition(
+                      ~progress=prog,
+                      ~pathData=pd,
+                    )
                     Viewer.setPitch(v, cp, false)
                     Viewer.setYaw(v, cy, false)
                     Viewer.setHfov(

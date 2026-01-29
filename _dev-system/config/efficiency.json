@@ -15,7 +15,7 @@
     "min_dead_code_loc": 50,
     "base_loc_limit": 450,
     "hard_ceiling_loc": 800,
-    "soft_floor_loc": 250,
+    "soft_floor_loc": 400,
     "max_session_complexity": 500.0,
     "merge_score_threshold": 1.0,
     "nesting_weight": 0.15,

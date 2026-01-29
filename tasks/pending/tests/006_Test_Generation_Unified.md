@@ -190,3 +190,5 @@
 - [ ] Test_ProjectManager (Update)
 - [ ] Test_Exporter (Update)
 - [ ] Test_UploadTypes (New)
+- [ ] Test_ViewerLogic (New)
+- [ ] Test_NavigationLogic (New)
