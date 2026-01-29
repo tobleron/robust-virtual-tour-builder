@@ -1,6 +1,6 @@
 // @efficiency: infra-adapter
 open Vitest
-open PannellumAdapter
+open ViewerSystem.PannellumAdapter
 
 type expectation
 @val external expectCall: 'a => expectation = "expect"

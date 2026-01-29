@@ -1,7 +1,7 @@
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 
 use crate::api::utils::sanitize_filename;
-use crate::models::{AppError, user::User};
+use crate::models::{AppError, User};
 use crate::services::media::StorageManager;
 
 // Handler for serving project files

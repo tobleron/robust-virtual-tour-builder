@@ -4,7 +4,7 @@ open SharedTypes
 
 // Grouping logic for scenes.
 let clusterScenes = (
-  validProcessed: array<UploadProcessorTypes.uploadItem>,
+  validProcessed: array<UploadTypes.uploadItem>,
   ~existingScenes: array<Types.scene>,
   ~updateProgress: (float, string, bool, string) => unit,
 ) => {

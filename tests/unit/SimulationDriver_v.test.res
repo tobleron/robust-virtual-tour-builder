@@ -1,17 +1,17 @@
 // @efficiency: infra-adapter
-/* tests/unit/SimulationDriver_v.test.res */
+/* tests/unit/Simulation_v.test.res */
 open Vitest
 open ReBindings
 open Actions
 
-describe("SimulationDriver", () => {
+describe("Simulation", () => {
   test("Module exists and exports make", t => {
-    let _ = SimulationDriver.make
+    let _ = Simulation.make
     t->expect(true)->Expect.toBe(true)
   })
 
   test("Component can be instantiated as a React element", t => {
-    let _ = <SimulationDriver />
+    let _ = <Simulation />
     t->expect(true)->Expect.toBe(true)
   })
 
@@ -26,7 +26,7 @@ describe("SimulationDriver", () => {
 
     let _ =
       <AppContext.GlobalProvider value=mockState>
-        <SimulationDriver />
+        <Simulation />
       </AppContext.GlobalProvider>
 
     t->expect(true)->Expect.toBe(true)
@@ -53,7 +53,7 @@ describe("SimulationDriver", () => {
       root,
       <AppContext.DispatchProvider value=mockDispatch>
         <AppContext.GlobalProvider value=mockState>
-          <SimulationDriver />
+          <Simulation />
         </AppContext.GlobalProvider>
       </AppContext.DispatchProvider>,
     )

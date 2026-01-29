@@ -1,6 +1,6 @@
 /* src/utils/PersistenceLayer.res */
 
-open IdbBindings
+open ReBindings.Idb_
 
 type serializedSession = {
   timestamp: float,

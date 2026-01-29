@@ -156,7 +156,8 @@ module InternalLogic = {
     switch (dropIndex, Nullable.toOption(pipeline.dragSourceId)) {
     | (dropIndex, Some(sourceId)) if dropIndex != -1 =>
       let state = GlobalStateBridge.getState()
-      let sourceIndex = state.timeline->Belt.Array.getIndexBy(t => t.id == sourceId)->Option.getOr(-1)
+      let sourceIndex =
+        state.timeline->Belt.Array.getIndexBy(t => t.id == sourceId)->Option.getOr(-1)
 
       if sourceIndex != -1 {
         let finalIndex = if dropIndex > sourceIndex {

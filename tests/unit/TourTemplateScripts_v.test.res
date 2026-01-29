@@ -1,6 +1,6 @@
 // @efficiency: infra-adapter
 open Vitest
-open TourTemplateScripts
+open TourTemplates.TourTemplateScripts
 
 describe("TourTemplateScripts", () => {
   test("generateRenderScript should include correct base size and core logic", t => {

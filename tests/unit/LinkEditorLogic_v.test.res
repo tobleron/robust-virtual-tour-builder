@@ -15,7 +15,7 @@ describe("LinkEditorLogic", () => {
     GlobalStateBridge.setState({...State.initialState, isLinking: true})
     GlobalStateBridge.setDispatch(
       a => {
-        let newState = RootReducer.reducer(GlobalStateBridge.getState(), a)
+        let newState = Reducer.reducer(GlobalStateBridge.getState(), a)
         GlobalStateBridge.setState(newState)
       },
     )

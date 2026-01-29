@@ -201,20 +201,8 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [backend/src/api/auth.rs](backend/src/api/auth.rs): Google OAuth2 authentication endpoints. `#rust` `#auth` `#google-oauth`
 *   [backend/src/api/geocoding.rs](backend/src/api/geocoding.rs): API endpoints for address lookup and coordinate resolution. `#rust` `#api` `#geocoding`
 *   [backend/src/api/project.rs](backend/src/api/project.rs): Endpoints for project packaging, imports, and validation. `#backend-logic` `#project-api`
-*   [backend/src/api/media/image/mod.rs](backend/src/api/media/image/mod.rs): Facade for image processing endpoints. `#image` `#api` `#facade`
-    *   [backend/src/api/media/image/image_logic.rs](backend/src/api/media/image/image_logic.rs): Core image optimization and batch processing logic. `#logic`
-    *   [backend/src/api/media/image/image_utils.rs](backend/src/api/media/image/image_utils.rs): Multipart form-data parsing for image uploads. `#utils`
-    *   [backend/src/api/media/image/resize_batch.rs](backend/src/api/media/image/resize_batch.rs): Optimized batch image resizing operations. `#image` `#processing`
-    *   [backend/src/api/media/image/extract_metadata.rs](backend/src/api/media/image/extract_metadata.rs): Parallelized EXIF and visual metadata extraction. `#image` `#metadata`
-    *   [backend/src/api/media/image/optimize.rs](backend/src/api/media/image/optimize.rs): Image compression and format optimization endpoints. `#image` `#optimization`
-    *   [backend/src/api/media/image/process_full.rs](backend/src/api/media/image/process_full.rs): Orchestrator for the end-to-end image processing pipeline. `#image` `#pipeline`
-    *   [backend/src/api/media/image/tests.rs](backend/src/api/media/image/tests.rs): Integration and performance tests for image APIs. `#image` `#testing`
-*   [backend/src/api/media/video/mod.rs](backend/src/api/media/video/mod.rs): Facade for video transcoding and teaser generation. `#video` `#api` `#facade`
-    *   [backend/src/api/media/video/video_logic.rs](backend/src/api/media/video/video_logic.rs): Headless browser automation and FFmpeg orchestration logic. `#logic`
-    *   [backend/src/api/media/video/transcode.rs](backend/src/api/media/video/transcode.rs): Video transcoding and codec optimization endpoints. `#video` `#transcoding`
-    *   [backend/src/api/media/video/teaser.rs](backend/src/api/media/video/teaser.rs): High-efficiency video teaser generation logic. `#video` `#teaser`
-*   [backend/src/api/project/storage/mod.rs](backend/src/api/project/storage/mod.rs): Facade for project persistence, ZIP generation, and imports. `#storage` `#api` `#facade`
-    *   [backend/src/api/project/storage/storage_logic.rs](backend/src/api/project/storage/storage_logic.rs): Project validation, summary generation, and ZIP assembly logic. `#logic`
+*   [backend/src/api/media/image.rs](backend/src/api/media/image.rs): Consolidated image processing endpoints and optimization logic. `#image` `#api` `#processing`
+*   [backend/src/api/media/video.rs](backend/src/api/media/video.rs): Consolidated video transcoding and teaser generation endpoints. `#video` `#api` `#teaser`
 *   [backend/src/services/geocoding/mod.rs](backend/src/services/geocoding/mod.rs): Facade for the geocoding service with LRU caching. `#geocoding` `#services` `#facade`
     *   [backend/src/services/geocoding/logic.rs](backend/src/services/geocoding/logic.rs): OSM Nominatim API interaction and coordinate rounding logic. `#logic`
 *   [backend/src/services/media/mod.rs](backend/src/services/media/mod.rs): Facade for core media services (encoding, analysis, resizing). `#media` `#services` `#facade`
@@ -229,11 +217,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [backend/src/api/media/mod.rs](backend/src/api/media/mod.rs): Sub-router for media processing and retrieval. `#api` `#media`
     *   [backend/src/api/media/serve.rs](backend/src/api/media/serve.rs): Handles direct asset serving and static delivery. `#api` `#static`
     *   [backend/src/api/media/similarity.rs](backend/src/api/media/similarity.rs): Endpoint for image similarity and visual clustering. `#api` `#ai`
-*   [backend/src/api/project/mod.rs](backend/src/api/project/mod.rs): Sub-router for project management and metadata. `#api` `#project`
-    *   [backend/src/api/project/export.rs](backend/src/api/project/export.rs): Trigger for tour packaging and production export. `#api` `#export`
-    *   [backend/src/api/project/export_utils.rs](backend/src/api/project/export_utils.rs): Shared utilities for project packaging and exports. `#project` `#export`
-    *   [backend/src/api/project/navigation.rs](backend/src/api/project/navigation.rs): Endpoint for calculating navigation graphs on the fly. `#api` `#navigation`
-    *   [backend/src/api/project/validation.rs](backend/src/api/project/validation.rs): Service for validating project integrity and constraints. `#api` `#validation`
+*   [backend/src/api/project.rs](backend/src/api/project.rs): Endpoints for project packaging, imports, pathfinding, and validation. `#backend-logic` `#project-api`
 *   [backend/src/api/telemetry.rs](backend/src/api/telemetry.rs): Endpoint for receiving client-side telemetry and logs. `#api` `#telemetry`
 *   [backend/src/api/telemetry_logic.rs](backend/src/api/telemetry_logic.rs): Processing logic for telemetry ingestion and storage. `#telemetry` `#logic`
 *   [backend/src/api/utils.rs](backend/src/api/utils.rs): Shared logic for API response formatting and errors. `#api` `#utils`
@@ -257,14 +241,7 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [backend/src/models/errors.rs](backend/src/models/errors.rs): Unified backend error system and response mapping. `#errors`
     *   [backend/src/models/errors_impl.rs](backend/src/models/errors_impl.rs): Domain-specific implementation of the error system. `#models` `#errors`
     *   [backend/src/models/errors_tests.rs](backend/src/models/errors_tests.rs): Unit tests for the backend error system. `#models` `#testing`
-*   [backend/src/pathfinder/mod.rs](backend/src/pathfinder/mod.rs): High-performance navigation pathfinding logic. `#navigation` `#logic`
-    *   [backend/src/pathfinder/graph.rs](backend/src/pathfinder/graph.rs): Spatial graph representation of scene nodes. `#graph`
-    *   [backend/src/pathfinder/graph_utils.rs](backend/src/pathfinder/graph_utils.rs): Utilities for graph traversal and node manipulation. `#pathfinder` `#graph`
-    *   [backend/src/pathfinder/view_utils.rs](backend/src/pathfinder/view_utils.rs): Math for viewport and FOV projection in pathfinding. `#pathfinder` `#math`
-    *   [backend/src/pathfinder/algorithms/timeline.rs](backend/src/pathfinder/algorithms/timeline.rs): Sequence-based path generation logic. `#pathfinder` `#timeline`
-    *   [backend/src/pathfinder/algorithms/walk.rs](backend/src/pathfinder/algorithms/walk.rs): Deterministic path traversal logic. `#pathfinder` `#logic`
-    *   [backend/src/pathfinder/utils.rs](backend/src/pathfinder/utils.rs): Math and spatial utilities for coordinate mapping. `#utils`
-    *   [backend/src/pathfinder/tests.rs](backend/src/pathfinder/tests.rs): Unit and integration tests for pathfinding logic. `#pathfinder` `#testing`
+*   [backend/src/pathfinder.rs](backend/src/pathfinder.rs): Consolidated high-performance navigation pathfinding logic. `#navigation` `#logic` `#algorithms`
 *   [backend/src/services/mod.rs](backend/src/services/mod.rs): Domain-specific service layer entry point. `#services`
     *   [backend/src/services/auth/mod.rs](backend/src/services/auth/mod.rs): Orchestrator for authentication and identity services. `#auth` `#facade`
     *   [backend/src/services/auth.rs](backend/src/services/auth.rs): Google Auth and token validation service. `#auth` `#logic`
@@ -298,3 +275,13 @@ This map provides a semantic overview of the project structure to optimize conte
 | `docs/` | Technical specifications and project history. | `#documentation` `#specs` `#history` |
 | `tmp/` | Temporary files and non-integrated documents. | `#temp` `#scratchpad` |
 
+
+
+## 🆕 Unmapped Modules
+* [src/systems/ViewerSystem.res](src/systems/ViewerSystem.res): New module detected. Please classify. #new
+* [src/systems/Simulation.res](src/systems/Simulation.res): New module detected. Please classify. #new
+* [src/systems/Teaser.res](src/systems/Teaser.res): New module detected. Please classify. #new
+* [src/systems/Scene.res](src/systems/Scene.res): New module detected. Please classify. #new
+* [src/systems/Navigation.res](src/systems/Navigation.res): New module detected. Please classify. #new
+* [backend/src/models.rs](backend/src/models.rs): New module detected. Please classify. #new
+* [src/systems/UploadTypes.res](src/systems/UploadTypes.res): New module detected. Please classify. #new

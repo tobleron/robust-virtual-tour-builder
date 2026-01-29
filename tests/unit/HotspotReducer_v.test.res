@@ -10,7 +10,7 @@ test("HotspotReducer: AddHotspot appends hotspot to specific scene", t => {
   let hotspot = createMockHotspot(~id="h1", ())
 
   let action = AddHotspot(0, hotspot)
-  let result = RootReducer.reducer(state, action)
+  let result = Reducer.reducer(state, action)
 
   let scene = result.scenes[0]->Option.getOrThrow
   let hs = Belt.Array.get(scene.hotspots, 0)->Option.getOrThrow
@@ -24,7 +24,7 @@ test("HotspotReducer: RemoveHotspot removes hotspot via ReducerHelpers", t => {
   let state = createMockState(~scenes=[s1, s2], ~activeIndex=0, ())
 
   let action = RemoveHotspot(0, 0)
-  let result = RootReducer.reducer(state, action)
+  let result = Reducer.reducer(state, action)
 
   let scene = result.scenes[0]->Option.getOrThrow
   t->expect(scene.hotspots->Array.length)->Expect.toBe(0)
@@ -37,7 +37,7 @@ test("HotspotReducer: ClearHotspots empties hotspots array for scene", t => {
   let state = createMockState(~scenes=[s1], ~activeIndex=0, ())
 
   let action = ClearHotspots(0)
-  let result = RootReducer.reducer(state, action)
+  let result = Reducer.reducer(state, action)
 
   let scene = result.scenes[0]->Option.getOrThrow
   t->expect(scene.hotspots->Array.length)->Expect.toBe(0)
@@ -49,7 +49,7 @@ test("HotspotReducer: UpdateHotspotTargetView updates view parameters", t => {
   let state = createMockState(~scenes=[s1], ~activeIndex=0, ())
 
   let action = UpdateHotspotTargetView(0, 0, 120.0, -20.0, 60.0)
-  let result = RootReducer.reducer(state, action)
+  let result = Reducer.reducer(state, action)
 
   let scene = result.scenes[0]->Option.getOrThrow
   let hs = Belt.Array.get(scene.hotspots, 0)->Option.getOrThrow
@@ -64,7 +64,7 @@ test("HotspotReducer: UpdateHotspotReturnView sets return frame and flag", t => 
   let state = createMockState(~scenes=[s1], ~activeIndex=0, ())
 
   let action = UpdateHotspotReturnView(0, 0, 45.0, 10.0, 90.0)
-  let result = RootReducer.reducer(state, action)
+  let result = Reducer.reducer(state, action)
 
   let scene = result.scenes[0]->Option.getOrThrow
   let hs = Belt.Array.get(scene.hotspots, 0)->Option.getOrThrow
@@ -81,7 +81,7 @@ test("HotspotReducer: ToggleHotspotReturnLink toggles flag and initializes frame
 
   // First toggle: true
   let action = ToggleHotspotReturnLink(0, 0)
-  let newState1 = RootReducer.reducer(state, action)
+  let newState1 = Reducer.reducer(state, action)
 
   let scene1 = newState1.scenes[0]->Option.getOrThrow
   let hs1 = Belt.Array.get(scene1.hotspots, 0)->Option.getOrThrow
@@ -89,7 +89,7 @@ test("HotspotReducer: ToggleHotspotReturnLink toggles flag and initializes frame
   t->expect(hs1.returnViewFrame != None)->Expect.toBe(true)
 
   // Second toggle: false
-  let newState2 = RootReducer.reducer(newState1, action)
+  let newState2 = Reducer.reducer(newState1, action)
   let scene2 = newState2.scenes[0]->Option.getOrThrow
   let hs2 = Belt.Array.get(scene2.hotspots, 0)->Option.getOrThrow
   t->expect(hs2.isReturnLink)->Expect.toEqual(Some(false))
@@ -100,7 +100,7 @@ test("HotspotReducer: ignores actions with invalid indices", t => {
   let state = createMockState(~scenes=[s1], ~activeIndex=0, ())
 
   let action = UpdateHotspotTargetView(5, 0, 0.0, 0.0, 0.0)
-  let result = RootReducer.reducer(state, action)
+  let result = Reducer.reducer(state, action)
 
   t->expect(result.scenes->Array.length)->Expect.toBe(1)
 })

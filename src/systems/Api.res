@@ -45,7 +45,10 @@ module ApiTypes = {
 
   /* Decoders using Schemas */
   let decodeImportResponse = (json: JSON.t): result<importResponse, string> => {
-    Schemas.parse(json, Schemas.Shared.importResponse)->Result.flatMap(((sessionId, projectData)) => {
+    Schemas.parse(json, Schemas.Shared.importResponse)->Result.flatMap(((
+      sessionId,
+      projectData,
+    )) => {
       if sessionId == "" {
         Error("Session ID required")
       } else {
@@ -317,7 +320,9 @@ module MediaApi = {
                 ~data=Logger.castToJson({"error": msg, "stack": stack}),
                 (),
               )
-              Promise.resolve(Error("Similarity calculation failed: JSON parsing or decoding error"))
+              Promise.resolve(
+                Error("Similarity calculation failed: JSON parsing or decoding error"),
+              )
             },
           )
         | Error(msg) => Promise.resolve(Error(msg))
@@ -571,7 +576,10 @@ module ProjectApi = {
 
   let reverseGeocode = (lat: float, lon: float): Promise.t<apiResult<geocodeResponse>> => {
     RequestQueue.schedule(() => {
-      let payload = Dict.fromArray([("lat", JSON.Encode.float(lat)), ("lon", JSON.Encode.float(lon))])
+      let payload = Dict.fromArray([
+        ("lat", JSON.Encode.float(lat)),
+        ("lon", JSON.Encode.float(lon)),
+      ])
       Fetch.fetch(
         Constants.backendUrl ++ "/api/geocoding/reverse",
         Fetch.requestInit(

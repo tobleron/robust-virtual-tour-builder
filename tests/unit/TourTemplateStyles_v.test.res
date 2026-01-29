@@ -1,7 +1,7 @@
 // @efficiency: infra-adapter
 /* tests/unit/TourTemplateStyles_v.test.res */
 open Vitest
-open TourTemplateStyles
+open TourTemplates.TourTemplateStyles
 
 let _ = describe("TourTemplateStyles", () => {
   test("generateCSS creates correct styles for Desktop 4K", t => {

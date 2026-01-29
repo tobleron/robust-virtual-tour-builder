@@ -1,7 +1,7 @@
 // @efficiency: infra-adapter
 /* tests/unit/TourTemplateAssets_v.test.res */
 open Vitest
-open TourTemplateAssets
+open TourTemplates.TourTemplateAssets
 
 describe("TourTemplateAssets", () => {
   test("generateExportIndex: performs all replacements", t => {

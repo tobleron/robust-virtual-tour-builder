@@ -1,7 +1,7 @@
 // @efficiency: infra-adapter
 open Vitest
-open TeaserPlayback
-open TeaserState
+open Teaser.Playback
+open Teaser.State
 
 /* Types */
 type mockFn
@@ -107,7 +107,7 @@ describe("TeaserPlayback", () => {
   })
 
   testAsync("prepareFirstScene loads scene and sets orientation", async t => {
-    let step: TeaserPathfinder.step = {
+    let step: Teaser.Pathfinder.step = {
       idx: 0,
       arrivalView: {yaw: 10.0, pitch: 5.0},
       transitionTarget: Some({
@@ -135,7 +135,7 @@ describe("TeaserPlayback", () => {
   })
 
   testAsync("transitionToNextShot handles recording pause/resume and fade", async t => {
-    let step: TeaserPathfinder.step = {
+    let step: Teaser.Pathfinder.step = {
       idx: 1,
       arrivalView: {yaw: 20.0, pitch: 0.0},
       transitionTarget: Some({

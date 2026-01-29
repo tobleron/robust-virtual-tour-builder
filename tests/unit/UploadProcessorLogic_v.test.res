@@ -1,6 +1,6 @@
 open Vitest
 open ReBindings
-open UploadProcessorTypes
+open UploadTypes
 
 %%raw(`
   vi.mock('../../src/systems/Resizer.bs.js', () => ({
@@ -58,7 +58,7 @@ describe("UploadProcessorLogic", () => {
       let _ = Array.push(progressLog, (pct, msg, isProc, phase))
     }
 
-    let results = await UploadProcessorLogic.processWithQueue([item1, item2], 2, onProgress)
+    let results = await UploadProcessor.Logic.processWithQueue([item1, item2], 2, onProgress)
 
     t->expect(Array.length(results))->Expect.toBe(2)
     t->expect(Array.length(progressLog) > 0)->Expect.toBe(true)

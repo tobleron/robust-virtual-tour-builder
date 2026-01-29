@@ -1,16 +1,13 @@
-/* src/systems/SvgManager.res */
+/* src/systems/SvgManager.res - Consolidated SVG System */
 
 open ReBindings
 
-/*
- * SvgManager
- *
- * A lightweight "Virtual DOM" substitute optimizing for 60fps animation loops.
- * Prevents "layout thrashing" by reusing DOM elements instead of destroying/recreating them.
- */
+// --- CONSTANTS ---
 
 let containerId = "viewer-hotspot-lines"
 let namespace = Svg.namespace
+
+// --- CACHE & STATE ---
 
 type cache = {
   mutable elementMap: dict<Dom.element>,
@@ -22,23 +19,14 @@ let globalCache = {
   lastContainer: None,
 }
 
-/*
- * getContainer
- * Returns the main SVG container.
- */
-let getContainer = () => {
-  Dom.getElementById(containerId)
-}
+// --- CORE MANAGER ---
 
-/*
- * syncContainer
- * Ensures our cache is not for a stale container (e.g. after React re-mount)
- */
+let getContainer = () => Dom.getElementById(containerId)
+
 let syncContainer = () => {
   let current = getContainer()->Nullable.toOption
   switch (current, globalCache.lastContainer) {
   | (Some(curr), Some(last)) if curr !== last =>
-    // Container changed! Clear element cache to avoid stale DOM references
     globalCache.elementMap = Dict.make()
     globalCache.lastContainer = Some(curr)
   | (Some(curr), None) => globalCache.lastContainer = Some(curr)
@@ -47,10 +35,6 @@ let syncContainer = () => {
   current
 }
 
-/*
- * clearAll
- * DANGEROUS: Clears the entire SVG. Use only on Scene change.
- */
 let clearAll = () => {
   switch syncContainer() {
   | Some(svg) =>
@@ -60,59 +44,38 @@ let clearAll = () => {
   }
 }
 
-/*
- * getElement
- * Tries to find an element by ID, first in cache, then in DOM.
- */
 let getElement = (id: string) => {
-  let _ = syncContainer() // Ensure cache is valid for current container
+  let _ = syncContainer()
   switch Dict.get(globalCache.elementMap, id) {
   | Some(el) =>
-    // Double check: is this element still in the current container?
-    // We use parentNode or contains check.
     switch globalCache.lastContainer {
     | Some(container) if Dom.containsElement(container, el) => Some(el)
     | _ =>
-      // Element is stale or container lost it. Remove from cache and try to retrieve from DOM.
       Dict.delete(globalCache.elementMap, id)
       None
     }
   | None =>
-    // Fallback to DOM query
-    switch globalCache.lastContainer {
-    | Some(svg) =>
-      let el = Dom.querySelector(svg, "#" ++ id)
-      switch Nullable.toOption(el) {
-      | Some(found) =>
+    globalCache.lastContainer->Option.flatMap(svg => {
+      Dom.querySelector(svg, "#" ++ id)
+      ->Nullable.toOption
+      ->Option.map(found => {
         Dict.set(globalCache.elementMap, id, found)
-        Some(found)
-      | None => None
-      }
-    | None => None
-    }
+        found
+      })
+    })
   }
 }
 
-/*
- * create
- * Creates a new SVG element with the given tag and ID, appends it to container.
- */
 let create = (id: string, tag: string) => {
-  switch syncContainer() {
-  | Some(svg) =>
+  syncContainer()->Option.map(svg => {
     let el = Svg.createElementNS(namespace, tag)
     Svg.setAttribute(el, "id", id)
     Svg.appendChild(svg, el)
     Dict.set(globalCache.elementMap, id, el)
-    Some(el)
-  | None => None
-  }
+    el
+  })
 }
 
-/*
- * getOrCreate
- * The primary efficient accessor.
- */
 let getOrCreate = (id: string, tag: string) => {
   switch getElement(id) {
   | Some(el) => Some(el)
@@ -120,37 +83,132 @@ let getOrCreate = (id: string, tag: string) => {
   }
 }
 
-/*
- * hide
- * Hides an element without destroying it.
- */
 let hide = (id: string) => {
-  switch getElement(id) {
-  | Some(el) => Dom.setProperty(el, "display", "none")
-  | None => ()
-  }
+  getElement(id)->Option.forEach(el => Dom.setProperty(el, "display", "none"))
 }
-
-/*
- * show
- * Shows an element.
- */
 let show = (id: string, ~tag="path") => {
-  switch getOrCreate(id, tag) {
-  | Some(el) => Dom.setProperty(el, "display", "block")
-  | None => ()
-  }
+  getOrCreate(id, tag)->Option.forEach(el => Dom.setProperty(el, "display", "block"))
 }
-
-/*
- * remove
- * Removes an element from DOM and cache.
- */
 let remove = (id: string) => {
-  switch getElement(id) {
-  | Some(el) =>
+  getElement(id)->Option.forEach(el => {
     Dom.removeElement(el)
     Dict.delete(globalCache.elementMap, id)
-  | None => ()
+  })
+}
+
+// --- RENDERER ---
+
+module Renderer = {
+  let updateLine = (id, x1, y1, x2, y2, color, width, opacity, ~dashArray=?, ~className=?, ()) => {
+    switch getOrCreate(id, "line") {
+    | Some(line) =>
+      Svg.setAttribute(line, "x1", Float.toString(x1))
+      Svg.setAttribute(line, "y1", Float.toString(y1))
+      Svg.setAttribute(line, "x2", Float.toString(x2))
+      Svg.setAttribute(line, "y2", Float.toString(y2))
+      Svg.setAttribute(line, "stroke", color)
+      Svg.setAttribute(line, "stroke-width", Float.toString(width))
+      Svg.setAttribute(line, "stroke-opacity", Float.toString(opacity))
+      Dom.setProperty(line, "display", "block")
+      switch dashArray {
+      | Some(d) => Svg.setAttribute(line, "stroke-dasharray", d)
+      | None => Dom.removeAttribute(line, "stroke-dasharray")
+      }
+      switch className {
+      | Some(c) => Svg.setAttribute(line, "class", c)
+      | None => Dom.removeAttribute(line, "class")
+      }
+    | None => ()
+    }
   }
+
+  let drawPolyLine = (
+    id,
+    points: array<Types.screenCoords>,
+    color,
+    width,
+    opacity,
+    ~dashArray=?,
+    ~className=?,
+    (),
+  ) => {
+    let len = Array.length(points)
+    if len >= 2 {
+      let cmds = []
+      let first = ref(true)
+      points->Belt.Array.forEach(coords => {
+        let _ = Array.push(
+          cmds,
+          if first.contents {
+            first := false
+            "M"
+          } else {
+            "L"
+          },
+        )
+        let _ = Array.push(cmds, Float.toString(Math.round(coords.x *. 10.0) /. 10.0))
+        let _ = Array.push(cmds, Float.toString(Math.round(coords.y *. 10.0) /. 10.0))
+      })
+      let dString = Array.join(cmds, " ")
+      if dString != "" {
+        switch getOrCreate(id, "path") {
+        | Some(pathEl) =>
+          Svg.setAttribute(pathEl, "d", dString)
+          Svg.setAttribute(pathEl, "stroke", color)
+          Svg.setAttribute(pathEl, "stroke-width", Float.toString(width))
+          Svg.setAttribute(pathEl, "stroke-opacity", Float.toString(opacity))
+          Svg.setAttribute(pathEl, "fill", "none")
+          Svg.setAttribute(pathEl, "stroke-linecap", "round")
+          Svg.setAttribute(pathEl, "stroke-linejoin", "round")
+          Dom.setProperty(pathEl, "display", "block")
+          switch dashArray {
+          | Some(da) => Svg.setAttribute(pathEl, "stroke-dasharray", da)
+          | None => Dom.removeAttribute(pathEl, "stroke-dasharray")
+          }
+          switch className {
+          | Some(c) => Svg.setAttribute(pathEl, "class", c)
+          | None => Dom.removeAttribute(pathEl, "class")
+          }
+        | None => ()
+        }
+      } else {
+        hide(id)
+      }
+    } else {
+      hide(id)
+    }
+  }
+
+  let drawArrow = (id, x, y, angle, color, opacity) => {
+    if Float.isFinite(x) && Float.isFinite(y) && Float.isFinite(angle) {
+      switch getOrCreate(id, "path") {
+      | Some(arrow) =>
+        Svg.setAttribute(arrow, "d", "M -10,-7 L 6,0 L -10,7 Z")
+        Svg.setAttribute(arrow, "fill", color)
+        Svg.setAttribute(arrow, "stroke", "#000")
+        Svg.setAttribute(arrow, "stroke-width", "1")
+        Svg.setAttribute(
+          arrow,
+          "transform",
+          "translate(" ++
+          Float.toString(x) ++
+          ", " ++
+          Float.toString(y) ++
+          ") rotate(" ++
+          Float.toString(angle) ++ ")",
+        )
+        Dom.setProperty(arrow, "display", "block")
+        if opacity < 1.0 {
+          Svg.setAttribute(arrow, "opacity", Float.toString(opacity))
+        } else {
+          Dom.removeAttribute(arrow, "opacity")
+        }
+      | None => ()
+      }
+    } else {
+      hide(id)
+    }
+  }
+
+  let hide = hide
 }

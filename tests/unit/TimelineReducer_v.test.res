@@ -1,8 +1,8 @@
-/* tests/unit/TimelineReducer_v.test.res */
+/* tests/unit/Reducer.Timeline_v.test.res */
 open Vitest
 open Actions
 
-describe("TimelineReducer", () => {
+describe("Reducer.Timeline", () => {
   let initialState = State.initialState
 
   test("AddToTimeline", t => {
@@ -16,7 +16,7 @@ describe("TimelineReducer", () => {
     }`)
 
     let actionAdd = AddToTimeline(itemJson)
-    let resultAdd = TimelineReducer.reduce(initialState, actionAdd)
+    let resultAdd = Reducer.Timeline.reduce(initialState, actionAdd)
 
     switch resultAdd {
     | Some(ns) =>
@@ -44,7 +44,7 @@ describe("TimelineReducer", () => {
     }
 
     let actionSetActive = SetActiveTimelineStep(Some("step1"))
-    let resultSetActive = TimelineReducer.reduce(stateWithItem, actionSetActive)
+    let resultSetActive = Reducer.Timeline.reduce(stateWithItem, actionSetActive)
 
     switch resultSetActive {
     | Some(ns) => t->expect(ns.activeTimelineStepId)->Expect.toEqual(Some("step1"))
@@ -73,7 +73,7 @@ describe("TimelineReducer", () => {
     }`)
 
     let actionUpdate = UpdateTimelineStep("step1", updateJson)
-    let resultUpdate = TimelineReducer.reduce(stateWithItem, actionUpdate)
+    let resultUpdate = Reducer.Timeline.reduce(stateWithItem, actionUpdate)
 
     switch resultUpdate {
     | Some(ns) =>
@@ -108,7 +108,7 @@ describe("TimelineReducer", () => {
     }
 
     let actionReorder = ReorderTimeline(0, 1) // Move first to second
-    let resultReorder = TimelineReducer.reduce(stateWithTwoItems, actionReorder)
+    let resultReorder = Reducer.Timeline.reduce(stateWithTwoItems, actionReorder)
 
     switch resultReorder {
     | Some(ns) =>
@@ -142,7 +142,7 @@ describe("TimelineReducer", () => {
     }
 
     let actionRemove = RemoveFromTimeline("step1")
-    let resultRemove = TimelineReducer.reduce(stateWithTwoItems, actionRemove)
+    let resultRemove = Reducer.Timeline.reduce(stateWithTwoItems, actionRemove)
 
     switch resultRemove {
     | Some(ns) =>
@@ -154,7 +154,7 @@ describe("TimelineReducer", () => {
 
   test("Fallthrough", t => {
     let actionUnknown = Obj.magic("UnknownAction")
-    let resultUnknown = TimelineReducer.reduce(initialState, actionUnknown)
+    let resultUnknown = Reducer.Timeline.reduce(initialState, actionUnknown)
     t->expect(resultUnknown)->Expect.toEqual(None)
   })
 })

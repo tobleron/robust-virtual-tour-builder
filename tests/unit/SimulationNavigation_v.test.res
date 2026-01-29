@@ -1,6 +1,6 @@
 // @efficiency: infra-adapter
 open Vitest
-open SimulationNavigation
+open Simulation.Navigation
 open Types
 
 describe("SimulationNavigation", () => {

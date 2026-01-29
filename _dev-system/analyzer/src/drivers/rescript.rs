@@ -73,7 +73,7 @@ pub fn analyze_rescript(content: &str, dict: &std::collections::HashMap<String, 
         }
         if max_window_score > 2.0 { 
             metrics.hotspot_lines = Some((best_start + 1, best_start + 5));
-            metrics.hotspot_reason = Some(format!("AI Context Fog (score {:.1})", max_window_score));
+            metrics.hotspot_reason = Some(format!("AI Context Fog (score {:.1}): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.", max_window_score));
         }
     }
 

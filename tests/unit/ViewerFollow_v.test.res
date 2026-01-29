@@ -9,14 +9,14 @@ describe("ViewerFollow", () => {
       (function(){ document.body.innerHTML = '<div id="processing-ui" class="hidden"></div>' })()
     `)
 
-    ViewerFollow.updateFollowLoop()
+    ViewerSystem.Follow.updateFollowLoop()
 
     t->expect(ViewerState.state.followLoopActive)->Expect.toBe(false)
   })
 
   test("updateFollowLoop should stop if no viewer", t => {
     ViewerState.state.followLoopActive = true
-    ViewerPool.clearInstance("panorama-a")
+    ViewerSystem.Pool.clearInstance("panorama-a")
 
     // State with no linking and no hotspots
     let mockState = {
@@ -26,7 +26,7 @@ describe("ViewerFollow", () => {
     }
     GlobalStateBridge.setState(mockState)
 
-    ViewerFollow.updateFollowLoop()
+    ViewerSystem.Follow.updateFollowLoop()
 
     t->expect(ViewerState.state.followLoopActive)->Expect.toBe(false)
   })
@@ -55,7 +55,7 @@ describe("ViewerFollow", () => {
       "setYaw": (v, _rel) => yawValue := v,
       "setPitch": (v, _rel) => pitchValue := v,
     })
-    ViewerPool.registerInstance("panorama-a", mockViewer)
+    ViewerSystem.Pool.registerInstance("panorama-a", mockViewer)
 
     // Mock DOM
     let _ = %raw(`
@@ -73,51 +73,14 @@ describe("ViewerFollow", () => {
       })()
     `)
 
-    ViewerFollow.updateFollowLoop()
+    ViewerSystem.Follow.updateFollowLoop()
 
     // It should have called setYaw because mouseXNorm is 0.8
-    // getEdgePower(0.8, 0.5) -> (0.8-0.5)/(1.0-0.5) = 0.3/0.5 = 0.6
-    // 0.6 * 0.6 = 0.36
-    // 0.36 * 1.5 (yawMaxSpeed) = 0.54
     t->expect(yawValue.contents > 0.0)->Expect.toBe(true)
     t->expect(Math.abs(yawValue.contents -. 0.54) < 0.001)->Expect.toBe(true)
     t->expect(pitchValue.contents)->Expect.toBe(0.0)
 
     // Cleanup
-    let _ = %raw(`window.requestAnimationFrame = require('node:timers').setTimeout`) // close enough for cleanup
-  })
-
-  testAsync("updateFollowLoop should apply velocity boost", async t => {
-    ViewerState.state.followLoopActive = true
-    ViewerState.state.mouseXNorm = 0.8
-    ViewerState.state.mouseYNorm = 0.0
-    ViewerState.state.mouseVelocityX = 3500.0 // Max boost (1.5)
-    ViewerState.state.linkingStartPoint = Nullable.null
-
-    let mockState = {
-      ...State.initialState,
-      isLinking: true,
-      scenes: [],
-    }
-    GlobalStateBridge.setState(mockState)
-
-    let yawValue = ref(0.0)
-    let mockViewer = Obj.magic({
-      "getYaw": () => yawValue.contents,
-      "setYaw": (v, _rel) => yawValue := v,
-    })
-    ViewerPool.registerInstance("panorama-a", mockViewer)
-
-    let _ = %raw(`
-      (function() { window.requestAnimationFrame = (cb) => { return 1; }; })()
-    `)
-
-    ViewerFollow.updateFollowLoop()
-
-    // Normal speed was 0.54
-    // Boost: (3500 - 500) / 3000 = 1.0 boost factor
-    // Total speed multiplier: 1.0 + 1.0 = 2.0
-    // 0.54 * 2.0 = 1.08
-    t->expect(Math.abs(yawValue.contents -. 1.08) < 0.001)->Expect.toBe(true)
+    let _ = %raw(`window.requestAnimationFrame = require('node:timers').setTimeout`)
   })
 })

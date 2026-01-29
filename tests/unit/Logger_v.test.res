@@ -40,7 +40,7 @@ describe("Logger Facade Integration", () => {
 
   test("setLevel updates minLevel", t => {
     Logger.setLevel(Error)
-    t->expect(Logger.minLevel.contents)->Expect.toEqual(LoggerTypes.Error)
+    t->expect(Logger.minLevel.contents)->Expect.toEqual(Logger.Error)
   })
 
   test("init sets up window objects", t => {
@@ -59,7 +59,7 @@ describe("Logger Facade Integration", () => {
     ->Expect.Int.toBeGreaterThan(0)
   })
 
-  test("Integration: log call routes correctly to LoggerLogic", t => {
+  test("Integration: log call routes correctly to Logger", t => {
     ignore(%raw(`Logger.entries.length = 0`))
     Logger.info(~module_="FacadeTest", ~message="Hello Integration", ())
 

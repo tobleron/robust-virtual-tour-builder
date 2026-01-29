@@ -1,9 +1,9 @@
 // @efficiency: infra-adapter
-/* tests/unit/SimulationPathGenerator_v.test.res */
+/* tests/unit/Simulation.PathGenerator_v.test.res */
 open Vitest
 open Types
 
-describe("SimulationPathGenerator", () => {
+describe("Simulation.PathGenerator", () => {
   let createScene = (id, name, isAutoForward) => {
     {
       id,
@@ -51,7 +51,7 @@ describe("SimulationPathGenerator", () => {
   })
 
   test("getSimulationPath: handles empty state correctly", t => {
-    let path = SimulationPathGenerator.getSimulationPath(false)
+    let path = Simulation.PathGenerator.getSimulationPath(false)
     t->expect(Array.length(path))->Expect.toBe(0)
   })
 
@@ -67,7 +67,7 @@ describe("SimulationPathGenerator", () => {
       scenes: [scene0, scene1],
     })
 
-    let path = SimulationPathGenerator.getSimulationPath(false)
+    let path = Simulation.PathGenerator.getSimulationPath(false)
     t->expect(Array.length(path))->Expect.toBe(2)
     t->expect(Belt.Array.getExn(path, 0).idx)->Expect.toBe(0)
     t->expect(Belt.Array.getExn(path, 1).idx)->Expect.toBe(1)
@@ -99,7 +99,7 @@ describe("SimulationPathGenerator", () => {
       scenes: [scene0, scene1],
     })
 
-    let path = SimulationPathGenerator.getSimulationPath(false)
+    let path = Simulation.PathGenerator.getSimulationPath(false)
     t->expect(Belt.Array.getExn(path, 1).arrivalView.yaw)->Expect.toBe(111.0)
     t->expect(Belt.Array.getExn(path, 1).arrivalView.pitch)->Expect.toBe(222.0)
   })
@@ -121,7 +121,7 @@ describe("SimulationPathGenerator", () => {
     })
 
     // Skip enabled
-    let path = SimulationPathGenerator.getSimulationPath(true)
+    let path = Simulation.PathGenerator.getSimulationPath(true)
     t->expect(Array.length(path))->Expect.toBe(2)
     t->expect(Belt.Array.getExn(path, 0).idx)->Expect.toBe(0)
     t->expect(Belt.Array.getExn(path, 1).idx)->Expect.toBe(2)
@@ -147,7 +147,7 @@ describe("SimulationPathGenerator", () => {
       scenes: [scene0, scene1],
     })
 
-    let path = SimulationPathGenerator.getSimulationPath(false)
+    let path = Simulation.PathGenerator.getSimulationPath(false)
     // scene0 -> scene1 -> scene0
     // The loop detection should stop it.
     t->expect(Array.length(path) <= 3)->Expect.toBe(true)

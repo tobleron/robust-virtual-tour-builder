@@ -93,11 +93,11 @@ describe("Interactions Robustness (Chaos Fuzzing)", () => {
     }
   }
 
-  test("RootReducer should survive 500 random sequential interactions", t => {
+  test("Reducer should survive 500 random sequential interactions", t => {
     let state = ref(initial)
 
     // Seed with some scenes
-    state.contents = RootReducer.reducer(
+    state.contents = Reducer.reducer(
       state.contents,
       AddScenes([
         Logger.castToJson({
@@ -118,7 +118,7 @@ describe("Interactions Robustness (Chaos Fuzzing)", () => {
       let actionName = actionToString(action)
 
       try {
-        state.contents = RootReducer.reducer(state.contents, action)
+        state.contents = Reducer.reducer(state.contents, action)
         checkInvariants(t, state.contents, actionName)
       } catch {
       | e =>
