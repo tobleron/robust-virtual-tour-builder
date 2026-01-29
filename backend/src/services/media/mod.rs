@@ -1,12 +1,16 @@
 /* backend/src/services/media/mod.rs - Facade for Media Services */
 
 pub mod analysis;
+pub mod analysis_exif;
+pub mod analysis_quality;
 pub mod naming;
 pub mod resizing;
 pub mod storage;
 pub mod webp;
 
 pub use analysis::*;
+pub use analysis_exif::*;
+pub use analysis_quality::*;
 pub use naming::*;
 pub use resizing::*;
 pub use storage::*;

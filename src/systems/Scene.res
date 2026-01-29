@@ -8,7 +8,7 @@ open Actions
 
 module Transition = {
   let performSwap = (loadedScene: scene, _loadStartTime) => {
-    ViewerState.state.isSwapping = true
+    ViewerState.state := {...ViewerState.state.contents, isSwapping: true}
     let (av, iv) = (ViewerSystem.Pool.getActive(), ViewerSystem.Pool.getInactive())
     let (ov, nv) = (ViewerSystem.getActiveViewer(), ViewerSystem.getInactiveViewer())
     ViewerSystem.Pool.swapActive()
@@ -28,12 +28,12 @@ module Transition = {
           HotspotLine.updateLines(
             v,
             GlobalStateBridge.getState(),
-            ~mouseEvent=?ViewerState.state.lastMouseEvent->Nullable.toOption,
+            ~mouseEvent=?ViewerState.state.contents.lastMouseEvent->Nullable.toOption,
             (),
           )
         }
       })
-      ViewerState.state.isSwapping = false
+      ViewerState.state := {...ViewerState.state.contents, isSwapping: false}
     }, 50)
 
     let isCut = GlobalStateBridge.getState().transition.type_ == Cut
@@ -88,7 +88,7 @@ module Transition = {
       }, 450)
     })
     ViewerSnapshot.requestIdleSnapshot()
-    ViewerState.state.lastSceneId = Nullable.make(loadedScene.id)
+    ViewerState.state := {...ViewerState.state.contents, lastSceneId: Nullable.make(loadedScene.id)}
     GlobalStateBridge.dispatch(DispatchNavigationFsmEvent(StabilizeComplete))
   }
 }
@@ -131,7 +131,7 @@ module Loader = {
   module Reuse = {
     let findReusableInstance = (targetIdx: int): option<Dom.element> => {
       let targetSceneId = GlobalStateBridge.getState().scenes[targetIdx]->Option.map(s => s.id)
-      ViewerSystem.Pool.pool
+      ViewerSystem.Pool.pool.contents
       ->Belt.Array.getBy(v =>
         v.instance
         ->Option.map(inst =>
@@ -148,7 +148,7 @@ module Loader = {
   module Events = {
     let onSceneLoad = (v, loadedScene: scene) => {
       let vId = castToDict(v)->Dict.get("container")->Option.getOr("")
-      let entry = ViewerSystem.Pool.pool->Belt.Array.getBy(e => e.containerId == vId)
+      let entry = ViewerSystem.Pool.pool.contents->Belt.Array.getBy(e => e.containerId == vId)
       entry->Option.forEach(e => {
         e.instance->Option.forEach(inst =>
           ViewerSystem.Adapter.setMetaData(inst, "isLoaded", Obj.magic(true))

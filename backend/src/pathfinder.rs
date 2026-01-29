@@ -1,5 +1,4 @@
-// backend/src/pathfinder.rs
-
+// @efficiency-role: domain-logic
 pub mod graph {
     use serde::{Deserialize, Serialize};
 

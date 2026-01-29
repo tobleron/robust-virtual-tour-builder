@@ -21,7 +21,7 @@ let useInitialization = () => {
     Window.addEventListener("resize", handleResize)
 
     // Initialize Guide
-    ViewerState.state.guide = Dom.getElementById("cursor-guide")
+    ViewerState.state := {...ViewerState.state.contents, guide: Dom.getElementById("cursor-guide")}
 
     let stage = Dom.getElementById("viewer-stage")
     switch Nullable.toOption(stage) {
@@ -72,13 +72,13 @@ let useInitialization = () => {
 let useSceneCleanup = (state: state) => {
   React.useEffect1(() => {
     if Belt.Array.length(state.scenes) == 0 {
-      ViewerSystem.Pool.pool->Belt.Array.forEach(vVp => {
+      ViewerSystem.Pool.pool.contents->Belt.Array.forEach(vVp => {
         switch vVp.instance {
         | Some(instance) => ViewerSystem.Adapter.destroy(instance)
         | None => ()
         }
-        vVp.instance = None
       })
+      ViewerSystem.Pool.pool := ViewerSystem.Pool.pool.contents->Belt.Array.map(v => {...v, instance: None})
 
       ViewerSystem.resetState()
 
@@ -103,10 +103,10 @@ let usePreloading = (state: state, dispatch: action => unit) => {
     let preIndex = state.preloadingSceneIndex
     if (
       preIndex != -1 &&
-      preIndex != ViewerState.state.lastPreloadingIndex &&
+      preIndex != ViewerState.state.contents.lastPreloadingIndex &&
       preIndex != state.activeIndex
     ) {
-      ViewerState.state.lastPreloadingIndex = preIndex
+      ViewerState.state := {...ViewerState.state.contents, lastPreloadingIndex: preIndex}
       switch Belt.Array.get(state.scenes, preIndex) {
       | Some(s) =>
         dispatch(DispatchNavigationFsmEvent(StartAnticipatoryLoad({targetSceneId: s.id})))
@@ -123,7 +123,7 @@ let useMainSceneLoading = (state: state, dispatch: action => unit) => {
     if state.activeIndex != -1 {
       switch Belt.Array.get(state.scenes, state.activeIndex) {
       | Some(scene) =>
-        let lastId = Nullable.toOption(ViewerState.state.lastSceneId)
+        let lastId = Nullable.toOption(ViewerState.state.contents.lastSceneId)
 
         let isLastIdValid = switch lastId {
         | Some(id) => Belt.Array.some(state.scenes, s => s.id == id)
@@ -133,13 +133,13 @@ let useMainSceneLoading = (state: state, dispatch: action => unit) => {
         if !isLastIdValid {
           Logger.info(~module_="ViewerManagerLogic", ~message="PROJECT_CONTEXT_RESET", ())
 
-          ViewerSystem.Pool.pool->Belt.Array.forEach(vVp => {
+          ViewerSystem.Pool.pool.contents->Belt.Array.forEach(vVp => {
             switch vVp.instance {
             | Some(instance) => ViewerSystem.Adapter.destroy(instance)
             | None => ()
             }
-            vVp.instance = None
           })
+          ViewerSystem.Pool.pool := ViewerSystem.Pool.pool.contents->Belt.Array.map(v => {...v, instance: None})
 
           ViewerSystem.resetState()
 
@@ -155,7 +155,7 @@ let useMainSceneLoading = (state: state, dispatch: action => unit) => {
           }
         }
 
-        let currentLastId = Nullable.toOption(ViewerState.state.lastSceneId)
+        let currentLastId = Nullable.toOption(ViewerState.state.contents.lastSceneId)
         let hasSceneChanged = switch currentLastId {
         | Some(prev) => prev != scene.id
         | None => true
@@ -238,15 +238,20 @@ let useHotspotSync = (state: state, dispatch: action => unit) => {
 let useRatchetState = (state: state) => {
   React.useEffect1(() => {
     if state.isLinking {
-      ViewerState.state.ratchetState.yawOffset = 0.0
-      ViewerState.state.ratchetState.pitchOffset = 0.0
-      ViewerState.state.ratchetState.maxYawOffset = 0.0
-      ViewerState.state.ratchetState.minYawOffset = 0.0
-      ViewerState.state.ratchetState.maxPitchOffset = 0.0
-      ViewerState.state.ratchetState.minPitchOffset = 0.0
+      ViewerState.state := {
+        ...ViewerState.state.contents,
+        ratchetState: {
+          yawOffset: 0.0,
+          pitchOffset: 0.0,
+          maxYawOffset: 0.0,
+          minYawOffset: 0.0,
+          maxPitchOffset: 0.0,
+          minPitchOffset: 0.0,
+        }
+      }
 
-      if !ViewerState.state.followLoopActive {
-        ViewerState.state.followLoopActive = true
+      if !ViewerState.state.contents.followLoopActive {
+        ViewerState.state := {...ViewerState.state.contents, followLoopActive: true}
         ViewerSystem.Follow.updateFollowLoop()
       }
     }
@@ -329,7 +334,7 @@ let useHotspotLineLoop = () => {
         let currentState = GlobalStateBridge.getState()
 
         // CRITICAL: Skip updates during viewer swap to prevent race condition
-        let isSwapping = ViewerState.state.isSwapping
+        let isSwapping = ViewerState.state.contents.isSwapping
 
         if !isSwapping {
           let p = Viewer.getPitch(viewer)

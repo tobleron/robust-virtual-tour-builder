@@ -1,34 +1,34 @@
 open ReBindings
 
 type t = {
-  mutable lastMouseEvent: Nullable.t<Dom.event>,
-  mutable guide: Nullable.t<Dom.element>,
-  mutable lastPreloadingIndex: int,
-  mutable mouseXNorm: float,
-  mutable mouseYNorm: float,
-  mutable followLoopActive: bool,
+  lastMouseEvent: Nullable.t<Dom.event>,
+  guide: Nullable.t<Dom.element>,
+  lastPreloadingIndex: int,
+  mouseXNorm: float,
+  mouseYNorm: float,
+  followLoopActive: bool,
   ratchetState: ViewerTypes.ratchetState,
-  mutable lastSceneId: Nullable.t<string>,
-  mutable lastHotspotCount: int,
-  mutable lastIsLinking: bool,
-  mutable lastFloor: string,
-  mutable lastAppliedYaw: Nullable.t<float>,
-  mutable lastAppliedPitch: Nullable.t<float>,
-  mutable viewportSaveTimeout: Nullable.t<int>,
-  mutable idleSnapshotTimeout: Nullable.t<int>,
-  mutable loadSafetyTimeout: Nullable.t<int>,
-  mutable cachedFloorCircles: Nullable.t<Dom.element>, // NodeList proxy
-  mutable lastSwitchTime: float,
-  mutable linkingStartPoint: Nullable.t<{"x": float, "y": float}>,
-  mutable lastMoveX: float,
-  mutable lastMoveY: float,
-  mutable lastMoveTime: float,
-  mutable mouseVelocityX: float,
-  mutable mouseVelocityY: float,
-  mutable isSwapping: bool, // Lock flag to prevent render updates during viewer swaps
+  lastSceneId: Nullable.t<string>,
+  lastHotspotCount: int,
+  lastIsLinking: bool,
+  lastFloor: string,
+  lastAppliedYaw: Nullable.t<float>,
+  lastAppliedPitch: Nullable.t<float>,
+  viewportSaveTimeout: Nullable.t<int>,
+  idleSnapshotTimeout: Nullable.t<int>,
+  loadSafetyTimeout: Nullable.t<int>,
+  cachedFloorCircles: Nullable.t<Dom.element>, // NodeList proxy
+  lastSwitchTime: float,
+  linkingStartPoint: Nullable.t<{"x": float, "y": float}>,
+  lastMoveX: float,
+  lastMoveY: float,
+  lastMoveTime: float,
+  mouseVelocityX: float,
+  mouseVelocityY: float,
+  isSwapping: bool, // Lock flag to prevent render updates during viewer swaps
 }
 
-let state = {
+let state = ref({
   lastMouseEvent: Nullable.null,
   guide: Nullable.null,
   lastPreloadingIndex: -1,
@@ -61,13 +61,13 @@ let state = {
   mouseVelocityX: 0.0,
   mouseVelocityY: 0.0,
   isSwapping: false,
-}
+})
 
 let resetState = () => {
-  state.lastSceneId = Nullable.null
-  switch Nullable.toOption(state.loadSafetyTimeout) {
+  state := {...state.contents, lastSceneId: Nullable.null}
+  switch Nullable.toOption(state.contents.loadSafetyTimeout) {
   | Some(t) => Window.clearTimeout(t)
   | None => ()
   }
-  state.loadSafetyTimeout = Nullable.null
+  state := {...state.contents, loadSafetyTimeout: Nullable.null}
 }

@@ -96,8 +96,8 @@ describe("InputSystem", () => {
     let mockEvent = %raw(`{ clientX: 75, clientY: 50 }`)
     InputSystem.handleMouseMove(mockEvent)
 
-    t->expect(ViewerState.state.mouseXNorm)->Expect.toBe(0.5)
-    t->expect(ViewerState.state.mouseYNorm)->Expect.toBe(1.6)
+    t->expect(ViewerState.state.contents.mouseXNorm)->Expect.toBe(0.5)
+    t->expect(ViewerState.state.contents.mouseYNorm)->Expect.toBe(1.6)
 
     Dom.removeElement(stage)
   })

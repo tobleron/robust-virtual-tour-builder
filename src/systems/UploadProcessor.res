@@ -36,12 +36,8 @@ module Logic = {
     )
     Resizer.processAndAnalyzeImage(item.original, ~onStatus=Some(onStatus))
     ->Promise.then(processResult => {
-      switch processResult {
+      let newItem = switch processResult {
       | Ok(res) =>
-        item.preview = Some(res.preview)
-        item.tiny = res.tiny
-        item.metadata = Some(castToJson(res.metadata))
-        item.quality = Some(castToJson(res.qualityData))
         Logger.debug(
           ~module_="UploadLogic",
           ~message="QUALITY_ANALYSIS",
@@ -52,6 +48,13 @@ module Logic = {
           }),
           (),
         )
+        {
+          ...item,
+          preview: Some(res.preview),
+          tiny: res.tiny,
+          metadata: Some(castToJson(res.metadata)),
+          quality: Some(castToJson(res.qualityData)),
+        }
       | Error(msg) =>
         Logger.error(
           ~module_="UploadLogic",
@@ -59,9 +62,9 @@ module Logic = {
           ~data=Some({"filename": File.name(item.original), "error": msg}),
           (),
         )
-        item.error = Some(msg)
+        {...item, error: Some(msg)}
       }
-      Promise.resolve(item)
+      Promise.resolve(newItem)
     })
     ->Promise.catch(err => {
       let (msg, _) = Logger.getErrorDetails(err)
@@ -71,8 +74,7 @@ module Logic = {
         ~data=Some({"filename": File.name(item.original), "error": msg}),
         (),
       )
-      item.error = Some("Processing failed: " ++ msg)
-      Promise.resolve(item)
+      Promise.resolve({...item, error: Some("Processing failed: " ++ msg)})
     })
   }
 

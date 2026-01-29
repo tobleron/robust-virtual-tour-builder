@@ -10,14 +10,14 @@ let namespace = Svg.namespace
 // --- CACHE & STATE ---
 
 type cache = {
-  mutable elementMap: dict<Dom.element>,
-  mutable lastContainer: option<Dom.element>,
+  elementMap: dict<Dom.element>,
+  lastContainer: option<Dom.element>,
 }
 
-let globalCache = {
+let globalCache = ref({
   elementMap: Dict.make(),
   lastContainer: None,
-}
+})
 
 // --- CORE MANAGER ---
 
@@ -25,11 +25,10 @@ let getContainer = () => Dom.getElementById(containerId)
 
 let syncContainer = () => {
   let current = getContainer()->Nullable.toOption
-  switch (current, globalCache.lastContainer) {
+  switch (current, globalCache.contents.lastContainer) {
   | (Some(curr), Some(last)) if curr !== last =>
-    globalCache.elementMap = Dict.make()
-    globalCache.lastContainer = Some(curr)
-  | (Some(curr), None) => globalCache.lastContainer = Some(curr)
+    globalCache := {elementMap: Dict.make(), lastContainer: Some(curr)}
+  | (Some(curr), None) => globalCache := {...globalCache.contents, lastContainer: Some(curr)}
   | _ => ()
   }
   current
@@ -39,27 +38,27 @@ let clearAll = () => {
   switch syncContainer() {
   | Some(svg) =>
     Dom.setTextContent(svg, "")
-    globalCache.elementMap = Dict.make()
+    globalCache := {elementMap: Dict.make(), lastContainer: globalCache.contents.lastContainer}
   | None => ()
   }
 }
 
 let getElement = (id: string) => {
   let _ = syncContainer()
-  switch Dict.get(globalCache.elementMap, id) {
+  switch Dict.get(globalCache.contents.elementMap, id) {
   | Some(el) =>
-    switch globalCache.lastContainer {
+    switch globalCache.contents.lastContainer {
     | Some(container) if Dom.containsElement(container, el) => Some(el)
     | _ =>
-      Dict.delete(globalCache.elementMap, id)
+      Dict.delete(globalCache.contents.elementMap, id)
       None
     }
   | None =>
-    globalCache.lastContainer->Option.flatMap(svg => {
+    globalCache.contents.lastContainer->Option.flatMap(svg => {
       Dom.querySelector(svg, "#" ++ id)
       ->Nullable.toOption
       ->Option.map(found => {
-        Dict.set(globalCache.elementMap, id, found)
+        Dict.set(globalCache.contents.elementMap, id, found)
         found
       })
     })
@@ -71,7 +70,7 @@ let create = (id: string, tag: string) => {
     let el = Svg.createElementNS(namespace, tag)
     Svg.setAttribute(el, "id", id)
     Svg.appendChild(svg, el)
-    Dict.set(globalCache.elementMap, id, el)
+    Dict.set(globalCache.contents.elementMap, id, el)
     el
   })
 }
@@ -92,7 +91,7 @@ let show = (id: string, ~tag="path") => {
 let remove = (id: string) => {
   getElement(id)->Option.forEach(el => {
     Dom.removeElement(el)
-    Dict.delete(globalCache.elementMap, id)
+    Dict.delete(globalCache.contents.elementMap, id)
   })
 }
 
