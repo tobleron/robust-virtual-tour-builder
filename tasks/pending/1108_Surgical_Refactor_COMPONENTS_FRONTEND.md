@@ -15,5 +15,5 @@ The following regions are calculated to be the most confusing for AI:
 ### 🔧 Action: De-bloat
 **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
 
-- [ ] - **../../css/components/viewer.css** (Metric: [Nesting: 0.30, Density: 0.11, Coupling: 0.00] | Drag: 1.87 | LOC: 627/510)
+- [ ] - **../../src/components/Sidebar.res** (Metric: [Nesting: 1.20, Density: 0.00, Coupling: 0.30] | Drag: 2.20 | LOC: 569/500  Hotspot: Lines 103-107)
 
