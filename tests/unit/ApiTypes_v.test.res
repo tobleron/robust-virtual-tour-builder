@@ -1,30 +1,36 @@
 open Vitest
-open ApiTypes
+open Api
 
 describe("ApiTypes", () => {
   test("decodeImportResponse correctly decodes valid JSON", t => {
-    let json = JSON.parseOrThrow(`{"sessionId": "test-session", "projectData": {"foo": "bar"}}`)
-    let result = decodeImportResponse(json)
+    let json = %raw(`({
+      sessionId: "mock-id",
+      projectData: {}
+    })`)
 
+    let result = decodeImportResponse(json)
     switch result {
-    | Ok(res) => t->expect(res.sessionId)->Expect.toBe("test-session")
-    | Error(msg) => failwith(msg)
+    | Ok(res) => t->expect(res.sessionId)->Expect.toBe("mock-id")
+    | Error(_) => t->expect(true)->Expect.toBe(false)
     }
   })
 
-  test("decodeImportResponse fails on invalid JSON", t => {
-    let json = JSON.parseOrThrow(`{"foo": "bar"}`)
+  test("decodeImportResponse fails on missing session_id", t => {
+    let json = %raw(`({
+      project_data: {}
+    })`)
+
     let result = decodeImportResponse(json)
     t->expect(result->Result.isError)->Expect.toBe(true)
   })
 
-  test("decodeGeocodeResponse correctly decodes valid JSON", t => {
-    let json = JSON.parseOrThrow(`{"address": "123 Main St"}`)
-    let result = decodeGeocodeResponse(json)
+  test("decodeGeocodeResponse correctly decodes address", t => {
+    let json = %raw(`({ address: "123 Test St" })`)
 
+    let result = decodeGeocodeResponse(json)
     switch result {
-    | Ok(res) => t->expect(res.address)->Expect.toBe("123 Main St")
-    | Error(msg) => failwith(msg)
+    | Ok(res) => t->expect(res.address)->Expect.toBe("123 Test St")
+    | Error(_) => t->expect(true)->Expect.toBe(false)
     }
   })
 })

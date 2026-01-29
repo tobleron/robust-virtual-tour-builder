@@ -1,9 +1,18 @@
 # Task 005: Structural Vertical Slicing
 
 ## Objective
-Implement vertical slicing for fragmented features spread across multiple folders.
+Implement vertical slicing for fragmented features spread across multiple folders. 
+
+**Action Steps:**
+1. Locate all files related to the specific feature (e.g., Reducer, UI, API Logic).
+2. Create a single folder for the feature (e.g., `src/features/FeatureName`).
+3. Move all related files into this folder.
+4. Update all imports/dependencies to point to the new location.
 
 ## Tasks
+
+
+
 - [ ] **utils** - *Reason:* Feature 'utils' spread across 3 folders (Fragmentation Tax)
 - [ ] **Project** - *Reason:* Feature 'Project' spread across 4 folders (Fragmentation Tax)
 - [ ] **Visual** - *Reason:* Feature 'Visual' spread across 2 folders (Fragmentation Tax)
@@ -43,3 +52,4 @@ Implement vertical slicing for fragmented features spread across multiple folder
 - [ ] **App** - *Reason:* Feature 'App' spread across 3 folders (Fragmentation Tax)
 - [ ] **Viewer** - *Reason:* Feature 'Viewer' spread across 5 folders (Fragmentation Tax)
 - [ ] **Scene** - *Reason:* Feature 'Scene' spread across 5 folders (Fragmentation Tax)
+- [ ] **Project** - *Reason:* Feature 'Project' spread across 2 folders (Fragmentation Tax)

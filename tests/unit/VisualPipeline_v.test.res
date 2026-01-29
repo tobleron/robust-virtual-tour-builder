@@ -216,12 +216,12 @@ describe("VisualPipeline", () => {
     let zones = Dom.querySelectorAll(container, ".drop-zone")
     let targetZone = %raw(`(list) => list[2]`)(zones)
 
-    let dragOverEvent = %raw(`new Event('dragover', {bubbles: true})`)
+    let dragEnterEvent = %raw(`new Event('dragenter', {bubbles: true})`)
     let _ = %raw(`(ev, dt) => Object.defineProperty(ev, 'dataTransfer', { value: dt })`)(
-      dragOverEvent,
+      dragEnterEvent,
       mockDataTransfer,
     )
-    let _ = %raw(`(node, ev) => node.dispatchEvent(ev)`)(targetZone, dragOverEvent)
+    let _ = %raw(`(node, ev) => node.dispatchEvent(ev)`)(targetZone, dragEnterEvent)
 
     // Verify drag-over class
     let clZone = Dom.classList(targetZone)
