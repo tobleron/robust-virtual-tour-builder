@@ -64,8 +64,7 @@ fn execute_parallel_image_processing(
                     )?;
                     if let Some(front_exif) = frontend_metadata {
                         meta.exif = front_exif;
-                        meta.suggested_name =
-                            original_filename.map(media::get_suggested_name);
+                        meta.suggested_name = original_filename.map(media::get_suggested_name);
                     }
                     if is_optimized_frontend {
                         meta.is_optimized = true;

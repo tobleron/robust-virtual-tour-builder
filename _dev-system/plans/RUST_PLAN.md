@@ -8,11 +8,9 @@
 
 ---
 
-## 🛠️ SURGICAL REFACTOR TASKS (2)
-- [ ] **../../backend/src/api/media/image_logic.rs**
-  - *Reason:* [Nesting: 0.75, Density: 0.04, Coupling: 0.03] | Drag: 2.36 | LOC: 290/250
+## 🛠️ SURGICAL REFACTOR TASKS (1)
 - [ ] **../../backend/src/pathfinder.rs**
-  - *Reason:* [Nesting: 1.05, Density: 0.07, Coupling: 0.05] | Drag: 2.40 | LOC: 583/250
+  - *Reason:* [Nesting: 1.05, Density: 0.07, Coupling: 0.05] | Drag: 2.40 | LOC: 583/400
 
 ---
 

@@ -1,9 +1,6 @@
 open Types
 
-let calculateCameraPosition = (
-  ~progress: float,
-  ~pathData: pathData
-) => {
+let calculateCameraPosition = (~progress: float, ~pathData: pathData) => {
   let tdist = progress *. pathData.totalPathDistance
   let cp = ref(pathData.startPitch)
   let cy = ref(pathData.startYaw)
