@@ -78,11 +78,11 @@
         ".res"
       ],
       "complexity_dictionary": {
-        "->": 0.05,
-        "switch": 0.8,
-        "| ": 0.5,
-        "mutable": 1.5,
-        "Obj.magic": 2.5
+        "->": 0.0,
+        "switch": 0.2,
+        "| ": 0.1,
+        "mutable": 2.0,
+        "Obj.magic": 5.0
       },
       "forbidden_patterns": [
         "console.log",
