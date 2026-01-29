@@ -8,13 +8,15 @@
 
 ---
 
-## 🛠️ SURGICAL REFACTOR TASKS (3)
-- [ ] **../../backend/src/api/media/video.rs**
-  - *Reason:* [Nesting: 0.75, Density: 0.05, Deps: 0.00] | Drag: 2.65 | LOC: 372/305
-- [ ] **../../backend/src/api/project.rs**
-  - *Reason:* [Nesting: 1.05, Density: 0.07, Deps: 0.00] | Drag: 2.60 | LOC: 518/310
+## 🛠️ SURGICAL REFACTOR TASKS (4)
 - [ ] **../../backend/src/api/media/image.rs**
-  - *Reason:* [Nesting: 0.75, Density: 0.03, Deps: 0.00] | Drag: 2.75 | LOC: 482/297
+  - *Reason:* [Nesting: 0.75, Density: 0.03, Deps: 0.00] | Drag: 2.75 | LOC: 482/296
+- [ ] **../../backend/src/api/project.rs**
+  - *Reason:* [Nesting: 1.05, Density: 0.07, Deps: 0.00] | Drag: 2.60 | LOC: 518/309
+- [ ] **../../backend/src/services/media/analysis/quality.rs**
+  - *Reason:* [Nesting: 0.60, Density: 0.09, Deps: 0.00] | Drag: 2.69 | LOC: 220/219
+- [ ] **../../backend/src/api/media/video.rs**
+  - *Reason:* [Nesting: 0.75, Density: 0.05, Deps: 0.00] | Drag: 2.65 | LOC: 372/304
 
 ---
 

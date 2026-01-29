@@ -8,8 +8,9 @@
 
 ---
 
-## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (1)
+## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (2)
 - [ ] `../../backend/src/pathfinder.rs`
+- [ ] `../../src/index.js`
 
 ---
 
@@ -19,56 +20,85 @@
 
 ---
 
-## 🧩 MERGE TASKS (8)
-### Merge Folder: `../../backend/src/services/geocoding`
-- **Reason:** Read Tax high (Score 2.00).
-- **Files:**
-  - `logic.rs`
-  - `mod.rs`
+## 🧩 MERGE TASKS (11)
 ### Merge Folder: `../../backend/src/services/media`
 - **Reason:** Read Tax high (Score 6.00).
 - **Files:**
-  - `mod.rs`
-  - `storage.rs`
-  - `resizing.rs`
   - `naming.rs`
-  - `webp.rs`
+  - `mod.rs`
   - `naming_old.rs`
+  - `resizing.rs`
+  - `webp.rs`
+  - `storage.rs`
+### Merge Folder: `../../src/i18n/locales`
+- **Reason:** Read Tax high (Score 2.00).
+- **Files:**
+  - `en.json`
+  - `es.json`
+### Merge Folder: `../../backend/src/services/geocoding`
+- **Reason:** Read Tax high (Score 2.00).
+- **Files:**
+  - `mod.rs`
+  - `logic.rs`
+### Merge Folder: `../../backend/src/middleware`
+- **Reason:** Read Tax high (Score 4.00).
+- **Files:**
+  - `quota_check.rs`
+  - `request_tracker.rs`
+  - `auth.rs`
+  - `mod.rs`
 ### Merge Folder: `../../backend/src/services/media/analysis`
 - **Reason:** Read Tax high (Score 3.00).
 - **Files:**
   - `mod.rs`
-  - `quality.rs`
   - `exif.rs`
-### Merge Folder: `../../backend/src/services/auth`
-- **Reason:** Read Tax high (Score 2.00).
+  - `quality.rs`
+### Merge Folder: `../..`
+- **Reason:** Read Tax high (Score 6.00).
 - **Files:**
-  - `jwt.rs`
-  - `mod.rs`
-### Merge Folder: `../../src/components/ui`
-- **Reason:** Read Tax high (Score 2.00).
-- **Files:**
-  - `Shadcn.res`
-  - `LucideIcons.res`
-### Merge Folder: `../../backend/src/middleware`
-- **Reason:** Read Tax high (Score 4.00).
-- **Files:**
-  - `mod.rs`
-  - `request_tracker.rs`
-  - `quota_check.rs`
-  - `auth.rs`
+  - `postcss.config.js`
+  - `index.html`
+  - `package.json`
+  - `rescript.json`
+  - `tailwind.config.js`
+  - `jsconfig.json`
 ### Merge Folder: `../../backend/src/services/project`
 - **Reason:** Read Tax high (Score 2.00).
 - **Files:**
-  - `mod.rs`
-  - `load.rs`
   - `validate.rs`
   - `package.rs`
+  - `load.rs`
+  - `mod.rs`
+### Merge Folder: `../../css`
+- **Reason:** Read Tax high (Score 3.50).
+- **Files:**
+  - `tailwind.css`
+  - `layout.css`
+  - `base.css`
+  - `legacy.css`
+  - `animations.css`
+  - `variables.css`
+  - `style.css`
 ### Merge Folder: `../../backend/src/services`
 - **Reason:** Read Tax high (Score 5.00).
 - **Files:**
-  - `shutdown.rs`
   - `database.rs`
-  - `upload_quota.rs`
   - `upload_quota_tests.rs`
+  - `upload_quota.rs`
+  - `shutdown.rs`
   - `mod.rs`
+### Merge Folder: `../../scripts`
+- **Reason:** Read Tax high (Score 7.00).
+- **Files:**
+  - `bump-version.js`
+  - `update-version.js`
+  - `debug-connectivity.js`
+  - `update-changelog.js`
+  - `increment-build.js`
+  - `update-readme.js`
+  - `test-logging.js`
+### Merge Folder: `../../backend/src/services/auth`
+- **Reason:** Read Tax high (Score 2.00).
+- **Files:**
+  - `mod.rs`
+  - `jwt.rs`

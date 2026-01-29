@@ -97,3 +97,45 @@
     - `upload_quota.rs`
     - `upload_quota_tests.rs`
     - `mod.rs`
+- [ ] Folder: `../../backend/src/services/media`
+    - **Metric:** Read Tax high (Score 6.00).
+    - **Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module to reduce token overhead during analysis.
+    - `naming.rs`
+    - `mod.rs`
+    - `naming_old.rs`
+    - `resizing.rs`
+    - `webp.rs`
+    - `storage.rs`
+- [ ] Folder: `../../backend/src/services/geocoding`
+    - **Metric:** Read Tax high (Score 2.00).
+    - **Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module to reduce token overhead during analysis.
+    - `mod.rs`
+    - `logic.rs`
+- [ ] Folder: `../../backend/src/middleware`
+    - **Metric:** Read Tax high (Score 4.00).
+    - **Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module to reduce token overhead during analysis.
+    - `quota_check.rs`
+    - `request_tracker.rs`
+    - `auth.rs`
+    - `mod.rs`
+- [ ] Folder: `../../backend/src/services/media/analysis`
+    - **Metric:** Read Tax high (Score 3.00).
+    - **Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module to reduce token overhead during analysis.
+    - `mod.rs`
+    - `exif.rs`
+    - `quality.rs`
+- [ ] Folder: `../../backend/src/services/project`
+    - **Metric:** Read Tax high (Score 2.00).
+    - **Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module to reduce token overhead during analysis.
+    - `validate.rs`
+    - `package.rs`
+    - `load.rs`
+    - `mod.rs`
+- [ ] Folder: `../../backend/src/services`
+    - **Metric:** Read Tax high (Score 5.00).
+    - **Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module to reduce token overhead during analysis.
+    - `database.rs`
+    - `upload_quota_tests.rs`
+    - `upload_quota.rs`
+    - `shutdown.rs`
+    - `mod.rs`

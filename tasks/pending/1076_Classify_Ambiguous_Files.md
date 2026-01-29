@@ -22,3 +22,5 @@
 ## Tasks
 - [ ] `../../backend/src/pathfinder.rs`
     - **Directive:** Taxonomy Resolution: Add the required @efficiency-role tag to help the analyzer apply the correct complexity limits.
+- [ ] `../../src/index.js`
+    - **Directive:** Taxonomy Resolution: Add the required @efficiency-role tag to help the analyzer apply the correct complexity limits.

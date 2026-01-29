@@ -1,4 +1,4 @@
-# Task 1084: Surgical Refactor API BACKEND
+# Task 1089: Surgical Refactor DOCS FRONTEND
 
 ## Objective
 ## ⚡ Surgical Objective
@@ -13,9 +13,6 @@ The following regions are calculated to be the most confusing for AI:
 ## Tasks
 
 ### 🔧 Action: De-bloat
-- [ ] **../../backend/src/api/project.rs**
-    - **Metric:** [Nesting: 1.05, Density: 0.07, Deps: 0.00] | Drag: 2.60 | LOC: 518/310
-    - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
-- [ ] **../../backend/src/api/project.rs**
-    - **Metric:** [Nesting: 1.05, Density: 0.07, Deps: 0.00] | Drag: 2.60 | LOC: 518/309
+- [ ] **../../docs/openapi.yaml**
+    - **Metric:** [Nesting: 0.00, Density: 0.00, Deps: 0.00] | Drag: 1.00 | LOC: 821/800
     - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.

@@ -67,3 +67,24 @@ The following regions are calculated to be the most confusing for AI:
 - [ ] **../../src/systems/NavigationGraph.res**
     - **Metric:** [Nesting: 1.20, Density: 0.21, Deps: 0.06] | Drag: 7.06 | LOC: 121/102  Hotspot: Lines 92-96
     - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
+- [ ] **../../src/systems/ExifParser.res**
+    - **Metric:** [Nesting: 1.05, Density: 0.00, Deps: 0.01] | Drag: 2.06 | LOC: 266/265  Hotspot: Lines 49-53
+    - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
+- [ ] **../../src/systems/Exporter.res**
+    - **Metric:** [Nesting: 1.35, Density: 0.08, Deps: 0.13] | Drag: 4.38 | LOC: 205/138  Hotspot: Lines 55-59
+    - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
+- [ ] **../../src/systems/Api.res**
+    - **Metric:** [Nesting: 1.35, Density: 0.01, Deps: 0.03] | Drag: 2.53 | LOC: 592/224  Hotspot: Lines 601-605
+    - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
+- [ ] **../../src/systems/ViewerSystem.res**
+    - **Metric:** [Nesting: 1.20, Density: 0.23, Deps: 0.06] | Drag: 8.87 | LOC: 272/85  Hotspot: Lines 168-172
+    - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
+- [ ] **../../src/systems/ExifReportGenerator.res**
+    - **Metric:** [Nesting: 1.65, Density: 0.00, Deps: 0.00] | Drag: 2.65 | LOC: 542/221  Hotspot: Lines 204-208
+    - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
+- [ ] **../../src/systems/NavigationRenderer.res**
+    - **Metric:** [Nesting: 1.80, Density: 0.14, Deps: 0.08] | Drag: 6.79 | LOC: 248/103  Hotspot: Lines 206-210
+    - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
+- [ ] **../../src/systems/UploadProcessor.res**
+    - **Metric:** [Nesting: 1.50, Density: 0.02, Deps: 0.01] | Drag: 2.94 | LOC: 331/203  Hotspot: Lines 336-340
+    - **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.

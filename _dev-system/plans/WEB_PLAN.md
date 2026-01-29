@@ -1,4 +1,4 @@
-# CONFIG MASTER PLAN
+# WEB MASTER PLAN
 ## 📚 LEGEND & DEFINITIONS
 *   **LOC:** Total non-comment lines. (Lower is easier to read).
 *   **Drag:** Complexity multiplier. (Target: < 2.0). High Drag means AI agents struggle to track state.
@@ -8,9 +8,10 @@
 
 ---
 
-## 🛠️ SURGICAL REFACTOR TASKS (1)
-- [ ] **../../docs/openapi.yaml**
-  - *Reason:* [Nesting: 0.00, Density: 0.00, Deps: 0.00] | Drag: 1.00 | LOC: 821/800
+## 🛠️ SURGICAL REFACTOR TASKS (2)
+- [ ] **../../src/components/ui/context-menu.jsx**
+  - *Reason:* [Nesting: 0.60, Density: 0.16, Deps: 0.00] | Drag: 14.10 | LOC: 158/110
+- [ ] **../../src/components/ui/dropdown-menu.jsx**
+  - *Reason:* [Nesting: 0.60, Density: 0.16, Deps: 0.00] | Drag: 14.34 | LOC: 155/109
 
 ---
-

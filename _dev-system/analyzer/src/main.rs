@@ -92,7 +92,7 @@ fn is_project_source(path: &Path, rules: &ExclusionRules) -> bool {
     let p_str = path.to_string_lossy().replace("\\", "/");
     let file_name = path.file_name().unwrap_or_default().to_string_lossy();
     let ext = path.extension().and_then(|s| s.to_str()).unwrap_or("");
-    let valid_extensions = ["rs", "res"];
+    let valid_extensions = ["rs", "res", "css", "html", "js", "jsx", "json", "toml", "yaml", "xml"];
     if !valid_extensions.contains(&ext) { return false; }
     for folder in &rules.folders { if p_str.contains(folder) { return false; } }
     for file in &rules.files { if file_name == *file { return false; } }

@@ -83,6 +83,49 @@
         "console.log",
         "mutable "
       ]
+    },
+    "web": {
+      "extensions": [
+        ".js",
+        ".jsx",
+        ".html"
+      ],
+      "complexity_dictionary": {
+        "function": 0.5,
+        "=>": 0.5,
+        "class": 1.0,
+        "useEffect": 1.5,
+        "useState": 0.5,
+        "<": 0.1
+      },
+      "forbidden_patterns": [
+        "console.log",
+        "alert("
+      ]
+    },
+    "css": {
+      "extensions": [
+        ".css"
+      ],
+      "complexity_dictionary": {
+        "!important": 5.0,
+        "@media": 1.0,
+        "calc(": 0.5,
+        "var(": 0.2
+      },
+      "forbidden_patterns": [
+        "!important"
+      ]
+    },
+    "config": {
+      "extensions": [
+        ".json",
+        ".toml",
+        ".yaml",
+        ".xml"
+      ],
+      "complexity_dictionary": {},
+      "forbidden_patterns": []
     }
   },
   "taxonomy": {

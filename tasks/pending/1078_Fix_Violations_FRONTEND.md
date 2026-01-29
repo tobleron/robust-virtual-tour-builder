@@ -26,3 +26,17 @@
     - **Directive:** Pattern Fix: Replace the forbidden 'mutable ' pattern with the recommended functional alternative (Logger, Result/Option, etc).
 - [ ] `../../src/core/SharedTypes.res` (Pattern: `mutable `)
     - **Directive:** Pattern Fix: Replace the forbidden 'mutable ' pattern with the recommended functional alternative (Logger, Result/Option, etc).
+- [ ] `../../scripts/bump-version.js` (Pattern: `console.log`)
+    - **Directive:** Pattern Fix: Replace the forbidden 'console.log' pattern with the recommended functional alternative (Logger, Result/Option, etc).
+- [ ] `../../scripts/update-version.js` (Pattern: `console.log`)
+    - **Directive:** Pattern Fix: Replace the forbidden 'console.log' pattern with the recommended functional alternative (Logger, Result/Option, etc).
+- [ ] `../../scripts/debug-connectivity.js` (Pattern: `console.log`)
+    - **Directive:** Pattern Fix: Replace the forbidden 'console.log' pattern with the recommended functional alternative (Logger, Result/Option, etc).
+- [ ] `../../scripts/update-changelog.js` (Pattern: `console.log`)
+    - **Directive:** Pattern Fix: Replace the forbidden 'console.log' pattern with the recommended functional alternative (Logger, Result/Option, etc).
+- [ ] `../../scripts/increment-build.js` (Pattern: `console.log`)
+    - **Directive:** Pattern Fix: Replace the forbidden 'console.log' pattern with the recommended functional alternative (Logger, Result/Option, etc).
+- [ ] `../../scripts/update-readme.js` (Pattern: `console.log`)
+    - **Directive:** Pattern Fix: Replace the forbidden 'console.log' pattern with the recommended functional alternative (Logger, Result/Option, etc).
+- [ ] `../../scripts/test-logging.js` (Pattern: `console.log`)
+    - **Directive:** Pattern Fix: Replace the forbidden 'console.log' pattern with the recommended functional alternative (Logger, Result/Option, etc).
