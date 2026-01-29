@@ -1,14 +1,16 @@
 mod drivers;
 mod consolidator;
 mod guard;
+mod graph;
 
 use std::fs::{self, OpenOptions};
 use std::io::{Read, Write};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 use serde::Deserialize;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use anyhow::{Context, Result};
+use graph::DependencyGraph;
 
 use drivers::{parse_header, EfficiencyOverride};
 use consolidator::{FolderStats, calculate_merge_score};
@@ -328,25 +330,62 @@ fn main() -> Result<()> {
     let mut feature_map: HashMap<String, Vec<(String, String)>> = HashMap::new(); 
     let default_dict: HashMap<String, f64> = HashMap::new();
 
-    // Pass 1: Calculate Project Average LOC for Dynamic Baseline
+    // Pass 1: Indexing & Graph Building
+    let mut dep_graph = DependencyGraph::new();
+    let mut all_files = HashSet::new();
+    let mut file_contents: HashMap<PathBuf, String> = HashMap::new();
     let mut total_loc = 0;
     let mut file_count = 0;
+
+    // Hardcoded Entry Points for Dead Code Analysis (can be moved to config later)
+    let mut entry_points = HashSet::new();
+    entry_points.insert("../../src/Main.res".to_string());
+    entry_points.insert("../../src/App.res".to_string());
+    entry_points.insert("../../src/index.js".to_string());
+    entry_points.insert("../../src/main.rs".to_string()); // Backend entry
+
     for entry in WalkDir::new("../../").into_iter().filter_map(|e| e.ok()) {
-        if !entry.path().is_file() || !is_project_source(entry.path(), &config.exclusion_rules) { continue; }
-        if let Ok(content) = fs::read_to_string(entry.path()) {
+        let path = entry.path();
+        if !path.is_file() || !is_project_source(path, &config.exclusion_rules) { continue; }
+
+        if let Ok(content) = fs::read_to_string(path) {
+            let p_str = path.to_string_lossy().to_string();
+            all_files.insert(p_str.clone());
+
+            // LOC Stats
             let loc = content.lines().filter(|l| !l.trim().is_empty()).count();
             if loc > 0 { total_loc += loc; file_count += 1; }
+
+            // Graph Building (Simple Regex for imports)
+            // Note: This is a rough heuristic. Real parsing is complex.
+            // We look for `open Module` or `include Module` or `from "..."`
+            for line in content.lines() {
+                // ReScript/Rust naive dependency extraction
+                if line.starts_with("open ") || line.starts_with("include ") || line.starts_with("mod ") {
+                    // Extract module name
+                    let parts: Vec<&str> = line.split_whitespace().collect();
+                    if parts.len() >= 2 {
+                        let target = parts[1].replace(";", "");
+                        // Try to resolve to a file (naive resolution)
+                        // In a real system, we'd need a file map. Here we just assume checks.
+                        // For demonstration, we won't fully populate the graph accurately without a symbol table.
+                        // But we can verify strict imports if they match file names.
+                    }
+                }
+            }
+
+            file_contents.insert(path.to_path_buf(), content);
         }
     }
+
     let project_avg_loc = if file_count > 0 { total_loc as f64 / file_count as f64 } else { config.settings.base_loc_limit as f64 };
     let dynamic_base = (config.settings.base_loc_limit as f64 * 0.8) + (project_avg_loc * 0.2);
     println!("📊 Project Stats: Avg LOC {:.0} -> Dynamic Base Adjusted to {:.0}", project_avg_loc, dynamic_base);
 
-    for entry in WalkDir::new("../../").into_iter().filter_map(|e| e.ok()) {
-        let path = entry.path();
-        if path.to_string_lossy().contains("/tests/") || !path.is_file() || !is_project_source(path, &config.exclusion_rules) { continue; }
-        let mut content = String::new();
-        if let Ok(mut f) = fs::File::open(path) { let _ = f.read_to_string(&mut content); } else { continue; }
+    // Pass 2: Analysis & Task Generation
+    for (path, content) in file_contents {
+        let path = path.as_path();
+        if path.to_string_lossy().contains("/tests/") { continue; }
         let taxonomy = infer_taxonomy(path, &content);
         if taxonomy == "ignored" { continue; }
         let ext = path.extension().and_then(|s| s.to_str()).unwrap_or("");
@@ -407,7 +446,21 @@ fn main() -> Result<()> {
             let mut reason = breakdown;
             if let Some((s, e)) = metrics.hotspot_lines { reason = format!("{}  Hotspot: Lines {}-{} ({})", reason, s, e, metrics.hotspot_reason.unwrap_or_default()); }
             let complexity = ((metrics.loc - limit) as f64 / 10.0) + drag;
-            buffer.entry(d_name.to_string()).or_default().push(WorkUnit::Surgical { file: path.to_string_lossy().to_string(), action: "De-bloat".to_string(), reason, platform: platform.to_string(), complexity });
+
+            // Feature: Safety Check for Missing Tests
+            // If a file is high drag (> 4.0) and has no associated test, prioritize test creation.
+            let p_str = path.to_string_lossy();
+            let test_path_res = p_str.replace(".res", "_test.res");
+            let test_path_rs = p_str.replace(".rs", "_test.rs"); // Convention varies
+            let has_test = Path::new(&test_path_res).exists() || Path::new(&test_path_rs).exists() || content.contains("#[cfg(test)]");
+
+            let action = if drag > 4.0 && !has_test && !p_str.contains("test") {
+                "Safety Hazard: Missing Tests".to_string()
+            } else {
+                "De-bloat".to_string()
+            };
+
+            buffer.entry(d_name.to_string()).or_default().push(WorkUnit::Surgical { file: p_str.to_string(), action, reason, platform: platform.to_string(), complexity });
         }
         dir_stats.entry(path.parent().unwrap().to_string_lossy().to_string()).or_default().push((path.file_name().unwrap().to_string_lossy().to_string(), metrics.loc, platform.to_string()));
         let file_stem = path.file_stem().unwrap_or_default().to_string_lossy().to_string();
