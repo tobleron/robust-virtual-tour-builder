@@ -328,6 +328,20 @@ fn main() -> Result<()> {
     let mut feature_map: HashMap<String, Vec<(String, String)>> = HashMap::new(); 
     let default_dict: HashMap<String, f64> = HashMap::new();
 
+    // Pass 1: Calculate Project Average LOC for Dynamic Baseline
+    let mut total_loc = 0;
+    let mut file_count = 0;
+    for entry in WalkDir::new("../../").into_iter().filter_map(|e| e.ok()) {
+        if !entry.path().is_file() || !is_project_source(entry.path(), &config.exclusion_rules) { continue; }
+        if let Ok(content) = fs::read_to_string(entry.path()) {
+            let loc = content.lines().filter(|l| !l.trim().is_empty()).count();
+            if loc > 0 { total_loc += loc; file_count += 1; }
+        }
+    }
+    let project_avg_loc = if file_count > 0 { total_loc as f64 / file_count as f64 } else { config.settings.base_loc_limit as f64 };
+    let dynamic_base = (config.settings.base_loc_limit as f64 * 0.8) + (project_avg_loc * 0.2);
+    println!("📊 Project Stats: Avg LOC {:.0} -> Dynamic Base Adjusted to {:.0}", project_avg_loc, dynamic_base);
+
     for entry in WalkDir::new("../../").into_iter().filter_map(|e| e.ok()) {
         let path = entry.path();
         if path.to_string_lossy().contains("/tests/") || !path.is_file() || !is_project_source(path, &config.exclusion_rules) { continue; }
@@ -381,7 +395,8 @@ fn main() -> Result<()> {
 
         // Tuned: Math updated to use a gentler curve (Drag^0.75) with a higher base (450).
         // This ensures the limit curve distributes nicely between 80 (complex) and 400 (simple).
-        let mut limit = ((config.settings.base_loc_limit as f64 * p_mod * cohesion_bonus) / drag.powf(0.75)).max(config.settings.soft_floor_loc as f64) as usize;
+        // Dynamic: Uses the calculated dynamic_base instead of static config base.
+        let mut limit = ((dynamic_base * p_mod * cohesion_bonus) / drag.powf(0.75)).max(config.settings.soft_floor_loc as f64) as usize;
         if let Some(exceptions) = &config.exceptions { for rule in exceptions { if path.to_string_lossy().contains(&rule.pattern) { if let Some(max) = rule.max_loc { limit = max; } break; } } }
         limit = limit.min(config.settings.hard_ceiling_loc);
         if metrics.loc > limit {
