@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Consolidate frontend API modules into Api.res and fix related tests
+- Merge: tune-dev-system-logic-6120814584194181031
 
 ## [4.8.11] - 2026-01-28
 
