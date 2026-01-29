@@ -7,11 +7,10 @@ use std::time::Instant;
 use super::naming::get_suggested_name;
 use crate::models::*;
 
-pub mod exif;
-pub mod quality;
-
-use self::exif::extract_exif;
-use self::quality::analyze_quality;
+// Changed: Removed `pub mod exif;` and `pub mod quality;`
+// Changed: Use sibling modules instead of submodules
+use super::analysis_exif::extract_exif;
+use super::analysis_quality::analyze_quality;
 
 pub fn perform_metadata_extraction_rgba(
     src_rgba: &[u8],

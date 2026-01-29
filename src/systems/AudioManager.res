@@ -6,7 +6,7 @@ open ReBindings
 type audioContext
 type audioBuffer
 type audioNode
-type audioParam = {mutable value: float}
+type audioParam
 type gainNode
 type audioBufferSourceNode
 
@@ -34,6 +34,7 @@ external asAudioNode: 'a => audioNode = "%identity"
 
 /* GainNode specific */
 @get external getGain: gainNode => audioParam = "gain"
+@set external setValue: (audioParam, float) => unit = "value"
 
 /* HTML Audio Element */
 type audioElement
@@ -107,7 +108,7 @@ let playTick = () => {
       let gainNode = createGain(ctx)
 
       let gainVal = getGain(gainNode)
-      gainVal.value = 0.4
+      setValue(gainVal, 0.4)
 
       connect(asAudioNode(source), asAudioNode(gainNode))
       connect(asAudioNode(gainNode), destination(ctx))

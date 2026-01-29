@@ -8,14 +8,14 @@ describe("ViewerSnapshot", () => {
     })
 
   test("requestIdleSnapshot should set a timeout", t => {
-    ViewerState.state.idleSnapshotTimeout = Nullable.null
+    ViewerState.state := {...ViewerState.state.contents, idleSnapshotTimeout: Nullable.null}
 
     ViewerSnapshot.requestIdleSnapshot()
 
-    t->expect(ViewerState.state.idleSnapshotTimeout)->Expect.not->Expect.toBe(Nullable.null)
+    t->expect(ViewerState.state.contents.idleSnapshotTimeout)->Expect.not->Expect.toBe(Nullable.null)
 
     // Cleanup
-    switch Nullable.toOption(ViewerState.state.idleSnapshotTimeout) {
+    switch Nullable.toOption(ViewerState.state.contents.idleSnapshotTimeout) {
     | Some(id) => Window.clearTimeout(id)
     | None => ()
     }

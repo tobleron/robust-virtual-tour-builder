@@ -476,7 +476,7 @@ mod tests {
             warnings: 0,
             analysis: None,
         };
-        let serialized = serde_json::to_string(&quality).unwrap();
+        let serialized = serde_json::to_string(&quality).expect("Serialization failed");
         assert!(serialized.contains("\"score\":0.82"));
     }
 }

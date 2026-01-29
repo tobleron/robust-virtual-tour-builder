@@ -24,15 +24,18 @@ let normalizeMouseCoords = (e: Dom.event, element: Dom.element) => {
 }
 
 let handleMouseMove = (e: Dom.event) => {
-  ViewerState.state.lastMouseEvent = Nullable.make(e)
+  ViewerState.state := {...ViewerState.state.contents, lastMouseEvent: Nullable.make(e)}
 
   let stage = Dom.getElementById("viewer-stage")
   switch Nullable.toOption(stage) {
   | Some(el) =>
     let coords = normalizeMouseCoords(e, el)
 
-    ViewerState.state.mouseXNorm = coords["xNorm"]
-    ViewerState.state.mouseYNorm = coords["yNorm"]
+    ViewerState.state := {
+      ...ViewerState.state.contents,
+      mouseXNorm: coords["xNorm"],
+      mouseYNorm: coords["yNorm"],
+    }
 
     // Physics Update
     CursorPhysics.calculateVelocity(coords["x"], coords["y"])

@@ -3,12 +3,22 @@ open ViewerSystem.Pool
 
 describe("ViewerPool", () => {
   beforeEach(() => {
-    pool->Belt.Array.forEach(
-      v => {
-        v.instance = None
-        v.status = v.containerId == "panorama-a" ? #Active : #Background
+    pool := [
+      {
+        id: "primary-a",
+        containerId: "panorama-a",
+        instance: None,
+        status: #Active,
+        cleanupTimeout: None,
       },
-    )
+      {
+        id: "primary-b",
+        containerId: "panorama-b",
+        instance: None,
+        status: #Background,
+        cleanupTimeout: None,
+      },
+    ]
   })
 
   test("getViewportByContainer should return correct viewport", t => {

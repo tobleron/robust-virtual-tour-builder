@@ -6,7 +6,7 @@ module InternalTypes = {
   type t = {
     container: Dom.element,
     wrapper: Dom.element,
-    mutable dragSourceId: Nullable.t<string>,
+    dragSourceId: ref<Nullable.t<string>>,
     thumbCache: Dict.t<string>,
   }
 }
@@ -117,14 +117,14 @@ module InternalLogic = {
   let handleDragStart = (pipeline: t, e) => {
     let target = Dom.target(e)
     let id = Dict.get(Dom.dataset(target), "id")->Option.getOr("")
-    pipeline.dragSourceId = Nullable.fromOption(Some(id))
+    pipeline.dragSourceId := Nullable.fromOption(Some(id))
     Dom.add(target, "is-dragging")
     Dom.add(pipeline.wrapper, "dragging-active")
   }
 
   let handleDragEnd = (pipeline: t, e) => {
     let target = Dom.target(e)
-    pipeline.dragSourceId = Nullable.null
+    pipeline.dragSourceId := Nullable.null
     Dom.remove(target, "is-dragging")
     Dom.remove(pipeline.wrapper, "dragging-active")
   }
@@ -153,7 +153,7 @@ module InternalLogic = {
       ->Option.flatMap(s => Belt.Int.fromString(s))
       ->Option.getOr(-1)
 
-    switch (dropIndex, Nullable.toOption(pipeline.dragSourceId)) {
+    switch (dropIndex, Nullable.toOption(pipeline.dragSourceId.contents)) {
     | (dropIndex, Some(sourceId)) if dropIndex != -1 =>
       let state = GlobalStateBridge.getState()
       let sourceIndex =
@@ -399,7 +399,7 @@ let init = (containerId: string) => {
     let pipeline = {
       container: c,
       wrapper,
-      dragSourceId: Nullable.null,
+      dragSourceId: ref(Nullable.null),
       thumbCache: Dict.make(),
     }
 

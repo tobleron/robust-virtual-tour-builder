@@ -1,5 +1,5 @@
 // @efficiency: domain-logic
-use super::super::resizing::resize_fast_rgba;
+use super::resizing::resize_fast_rgba;
 use crate::models::*;
 use rayon::prelude::*;
 
@@ -13,7 +13,7 @@ pub fn analyze_quality(src_rgba: &[u8], src_w: u32, src_h: u32) -> Result<Qualit
 
     let gray_pixels: Vec<u8> = thumb_rgba
         .par_chunks(4)
-        .map(|chunk| {
+        .map(|chunk: &[u8]| {
             if chunk.len() >= 3 {
                 ((chunk[0] as u32 * 54)
                     .saturating_add(chunk[1] as u32 * 183)
@@ -37,7 +37,7 @@ pub fn analyze_quality(src_rgba: &[u8], src_w: u32, src_h: u32) -> Result<Qualit
                     0u64,
                 )
             },
-            |(mut hr, mut hg, mut hb, mut hgray, mut tlum), chunk| {
+            |(mut hr, mut hg, mut hb, mut hgray, mut tlum), chunk: &[u8]| {
                 if chunk.len() >= 3 {
                     let r = chunk[0] as usize;
                     let g = chunk[1] as usize;

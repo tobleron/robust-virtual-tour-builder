@@ -303,7 +303,7 @@ let make = React.memo(() => {
         ()
       } else {
         let now = Date.now()
-        let timeDiff = now -. ViewerState.state.lastSwitchTime
+        let timeDiff = now -. ViewerState.state.contents.lastSwitchTime
         let throttleLimit = 650.0
 
         if timeDiff < throttleLimit {
@@ -315,7 +315,10 @@ let make = React.memo(() => {
             ~data=Some({"index": index}),
             (),
           )
-          ViewerState.state.lastSwitchTime = now
+          ViewerState.state := {
+            ...ViewerState.state.contents,
+            lastSwitchTime: now,
+          }
 
           dispatch(Actions.SetNavigationStatus(Types.Idle))
           if uiSlice.isLinking {

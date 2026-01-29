@@ -7,17 +7,20 @@ open CursorPhysics
 describe("CursorPhysics", () => {
   test("calculateVelocity updates viewer state", t => {
     // Reset state
-    ViewerState.state.lastMoveX = 100.0
-    ViewerState.state.lastMoveY = 100.0
-    ViewerState.state.lastMoveTime = Date.now() -. 50.0 // 50ms ago
-    ViewerState.state.mouseVelocityX = 0.0
-    ViewerState.state.mouseVelocityY = 0.0
+    ViewerState.state := {
+      ...ViewerState.state.contents,
+      lastMoveX: 100.0,
+      lastMoveY: 100.0,
+      lastMoveTime: Date.now() -. 50.0, // 50ms ago
+      mouseVelocityX: 0.0,
+      mouseVelocityY: 0.0,
+    }
 
     calculateVelocity(150.0, 120.0)
 
     // Check if velocities were updated (they should be non-zero)
-    t->expect(ViewerState.state.mouseVelocityX != 0.0)->Expect.toBe(true)
-    t->expect(ViewerState.state.mouseVelocityY != 0.0)->Expect.toBe(true)
+    t->expect(ViewerState.state.contents.mouseVelocityX != 0.0)->Expect.toBe(true)
+    t->expect(ViewerState.state.contents.mouseVelocityY != 0.0)->Expect.toBe(true)
   })
 
   test("updateRodPosition handles guide visibility", t => {
