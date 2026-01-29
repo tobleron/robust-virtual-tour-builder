@@ -1,13 +1,13 @@
 {
   "version": "1.4.2",
   "settings": {
-    "base_loc_limit": 250,
+    "base_loc_limit": 450,
     "hard_ceiling_loc": 800,
     "soft_floor_loc": 80,
     "max_session_complexity": 500.0,
     "merge_score_threshold": 1.0,
     "nesting_weight": 0.15,
-    "density_weight": 2.0,
+    "density_weight": 1.0,
     "drag_target": 2.0,
     "confidence_threshold": 0.95,
     "max_depth_threshold": 4
