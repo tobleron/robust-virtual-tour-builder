@@ -13,3 +13,13 @@
     - **Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module to reduce token overhead during analysis.
     - `jwt.rs`
     - `mod.rs`
+- [ ] Folder: `../../backend/src/services/auth`
+    - **Metric:** Read Tax high (Score 2.00). Projected Limit: 204 (Drag 2.38)
+    - **Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module to reduce token overhead during analysis.
+    - `jwt.rs`
+    - `mod.rs`
+- [ ] Folder: `../../backend/src/services/auth`
+    - **Metric:** Read Tax high (Score 2.00). Projected Limit: 203 (Drag 2.38)
+    - **Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module to reduce token overhead during analysis.
+    - `jwt.rs`
+    - `mod.rs`

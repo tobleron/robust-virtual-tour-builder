@@ -2,12 +2,13 @@
   "version": "1.4.2",
   "scanned_roots": [
     "src",
-    "backend/src"
+    "backend/src",
+    "css"
   ],
   "settings": {
     "base_loc_limit": 450,
     "hard_ceiling_loc": 800,
-    "soft_floor_loc": 80,
+    "soft_floor_loc": 250,
     "max_session_complexity": 500.0,
     "merge_score_threshold": 1.0,
     "nesting_weight": 0.15,
@@ -87,6 +88,19 @@
       "forbidden_patterns": [
         "console.log",
         "mutable "
+      ]
+    },
+    "css": {
+      "extensions": [
+        ".css"
+      ],
+      "complexity_dictionary": {
+        "!important": 2.5,
+        "@media": 1.0,
+        "{": 0.2
+      },
+      "forbidden_patterns": [
+        "!important"
       ]
     }
   },

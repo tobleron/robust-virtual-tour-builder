@@ -8,9 +8,14 @@
 
 ---
 
+## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (1)
+- [ ] `../../src/index.js`
+
+---
+
 ## 🧩 MERGE TASKS (1)
 ### Merge Folder: `../../backend/src/services/auth`
-- **Reason:** Read Tax high (Score 2.00). Projected Limit: 161 (Drag 3.25)
+- **Reason:** Read Tax high (Score 2.00). Projected Limit: 203 (Drag 2.38)
 - **Files:**
-  - `mod.rs`
   - `jwt.rs`
+  - `mod.rs`
