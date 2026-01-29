@@ -11,8 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Consolidate frontend API modules into Api.res and fix related tests
 - Merge: tune-dev-system-logic-6120814584194181031
 - Merge comprehensive surgical refactors for frontend logic and backend api/logic separation (Tasks 1080-1085)
+- Optimize _dev-system smart-merge logic and automate ignored role classification
 
 ### Added
+- Refined `_dev-system` Smart Merge logic to support (Directory, Extension) grouping, preventing polyglot merge errors.
+- Automated "Ignored" role classification in `_dev-system` via AI taxonomy templates.
+- Improved task generation with deterministic sorting and action-based grouping for cleaner refactoring workflows.
 - Optimized _dev-system task generation for domain-aware refactoring and explicit merges
 - Implemented AI Strategic Directives and metadata optimization for _dev-system analyzer
 - Merge backend structural refactor and frontend safety migration (Tasks 1076-1079)

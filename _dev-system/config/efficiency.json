@@ -22,7 +22,7 @@
     "violation_objective": "## \ud83d\udee1\ufe0f Violation Objective\n**Role:** Code Safety Officer\n**Goal:** Fix critical anti-patterns or missing safety nets.\n**Priority:** High. These issues risk stability or build integrity.\n**Optimal State:** Zero forbidden patterns remaining in the module.",
     "structural_objective": "## \ud83c\udfd7\ufe0f Structural Objective\n**Role:** File System Organizer\n**Goal:** Flatten deep hierarchies (Max depth 4) to minimize Traversal Tax.\n**Optimal State:** Features live in 'Feature Pods' where UI and Logic are adjacent.",
     "merge_objective": "## \ud83e\udde9 Merge Objective\n**Role:** Architecture Cleanup Bot\n**Goal:** Reduce File Fragmentation (Read Tax).\n**Constraint:** Combined file must not exceed 800 LOC.\n**Optimal State:** Related small modules are unified into a single context window, reducing token consumption.",
-    "ambiguity_objective": "## \ud83c\udff7\ufe0f Ambiguity Objective\n**Role:** Code Taxonomist\n**Goal:** Classify unknown files to enable accurate analysis.\n**Action:** Add an @efficiency-role tag to the file header.\n**Optimal State:** Every file has a clear architectural identity, allowing the analyzer to apply correct LOC limits.\n\n### \ud83d\udcda Valid Roles\n{roles}"
+    "ambiguity_objective": "## 🏷️ Ambiguity Objective\n**Role:** Code Taxonomist\n**Goal:** Classify unknown files to enable accurate analysis.\n**Action:** Add an @efficiency-role tag to the file header.\n**Note:** If a file is legacy, third-party, or should not be subject to splitting/merging rules, classify it as **ignored**.\n**Optimal State:** Every file has a clear architectural identity, allowing the analyzer to apply correct LOC limits.\n\n### 📚 Valid Roles\n{roles}"
   },
   "exclusion_rules": {
     "folders": [
@@ -126,6 +126,10 @@
     "infra-config": {
       "multiplier": 1.5,
       "desc": "Build scripts, project configuration, and environment setups."
+    },
+    "ignored": {
+      "multiplier": 0.0,
+      "desc": "Exclude this file from all efficiency metrics and tasks (use for legacy, dummy, or third-party code)."
     }
   },
   "exceptions": [
