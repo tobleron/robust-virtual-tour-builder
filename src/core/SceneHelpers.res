@@ -110,6 +110,26 @@ let syncSceneNames = (scenes: array<scene>) => {
   }
 }
 
+let calculateActiveIndexAfterDelete = (
+  currentIndex: int,
+  deletedIndex: int,
+  newScenesLength: int,
+): int => {
+  if newScenesLength == 0 {
+    -1
+  } else if deletedIndex == currentIndex {
+    if deletedIndex < newScenesLength {
+      deletedIndex
+    } else {
+      newScenesLength - 1
+    }
+  } else if deletedIndex < currentIndex {
+    currentIndex - 1
+  } else {
+    currentIndex
+  }
+}
+
 let handleDeleteScene = (state: state, index: int): state => {
   let scenes = state.scenes
   switch Belt.Array.get(scenes, index) {
@@ -135,19 +155,7 @@ let handleDeleteScene = (state: state, index: int): state => {
 
     // Adjust activeIndex
     let newLen = Belt.Array.length(cleanupScenes)
-    let newActiveIndex = if newLen == 0 {
-      -1
-    } else if index == state.activeIndex {
-      if index < newLen {
-        index
-      } else {
-        newLen - 1
-      }
-    } else if index < state.activeIndex {
-      state.activeIndex - 1
-    } else {
-      state.activeIndex
-    }
+    let newActiveIndex = calculateActiveIndexAfterDelete(state.activeIndex, index, newLen)
 
     let baseState = {
       ...state,

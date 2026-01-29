@@ -108,6 +108,22 @@ module Scene = {
 }
 
 module Hotspot = {
+  let calculateNewReturnViewFrame = (hotspot: hotspot, isReturnLink: bool): option<viewFrame> => {
+    if isReturnLink && hotspot.returnViewFrame == None {
+      let vf = switch hotspot.viewFrame {
+      | Some(v) => v
+      | None => {yaw: 0.0, pitch: 0.0, hfov: 90.0}
+      }
+      Some({
+        yaw: vf.yaw,
+        pitch: vf.pitch,
+        hfov: vf.hfov,
+      })
+    } else {
+      hotspot.returnViewFrame
+    }
+  }
+
   let reduce = (state: state, action: action): option<state> => {
     switch action {
     | AddHotspot(sceneIndex, hotspot) =>
@@ -178,19 +194,7 @@ module Hotspot = {
               | None => false
               }
               let nextVal = !currentVal
-              let newReturnViewFrame = if nextVal && h.returnViewFrame == None {
-                let vf = switch h.viewFrame {
-                | Some(v) => v
-                | None => {yaw: 0.0, pitch: 0.0, hfov: 90.0}
-                }
-                Some({
-                  yaw: vf.yaw,
-                  pitch: vf.pitch,
-                  hfov: vf.hfov,
-                })
-              } else {
-                h.returnViewFrame
-              }
+              let newReturnViewFrame = calculateNewReturnViewFrame(h, nextVal)
               {...h, isReturnLink: Some(nextVal), returnViewFrame: newReturnViewFrame}
             } else {
               h
