@@ -12,7 +12,7 @@ let useInitialization = () => {
     Navigation.Renderer.init() // Legacy init for now
 
     let handleResize = _ => {
-      let v = getActiveViewer()
+      let v = ViewerSystem.getActiveViewer()
       switch Nullable.toOption(v) {
       | Some(viewer) => HotspotLine.updateLines(viewer, GlobalStateBridge.getState(), ())
       | None => ()

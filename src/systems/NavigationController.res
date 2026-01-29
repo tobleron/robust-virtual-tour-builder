@@ -24,12 +24,13 @@ let make = () => {
       let targetIndex = Belt.Array.getIndexBy(state.scenes, s => s.id == targetSceneId)
       switch targetIndex {
       | Some(idx) =>
-        let prevId = switch Belt.Array.get(state.scenes, state.activeIndex) {
-        | Some(s) => Some(s.id)
-        | None => None
+        let prevIndex = if state.activeIndex >= 0 {
+          Some(state.activeIndex)
+        } else {
+          None
         }
         // Reaction to Preloading: Trigger the imperative loader if it hasn't started
-        Scene.Loader.loadNewScene(prevId, Some(idx), ~isAnticipatory)
+        Scene.Loader.loadNewScene(prevIndex, Some(idx), ~isAnticipatory)
       | None => ()
       }
     | Transitioning({toSceneId: _toSceneId, progress}) =>
