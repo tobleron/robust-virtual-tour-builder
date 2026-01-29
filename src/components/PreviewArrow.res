@@ -1,5 +1,47 @@
 external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 
+module Logic = {
+  let calculateNavParams = (hotspot: Types.hotspot) => {
+    let navYaw = ref(0.0)
+    let navPitch = ref(0.0)
+    let navHfov = ref(90.0)
+
+    if hotspot.isReturnLink == Some(true) {
+      switch hotspot.returnViewFrame {
+      | Some(r) =>
+        navYaw := r.yaw
+        navPitch := r.pitch
+        navHfov := r.hfov
+      | None => ()
+      }
+    } else {
+      switch hotspot.targetYaw {
+      | Some(ty) =>
+        navYaw := ty
+        navPitch :=
+          switch hotspot.targetPitch {
+          | Some(p) => p
+          | None => 0.0
+          }
+        navHfov :=
+          switch hotspot.targetHfov {
+          | Some(h) => h
+          | None => 90.0
+          }
+      | None =>
+        switch hotspot.viewFrame {
+        | Some(vf) =>
+          navYaw := vf.yaw
+          navPitch := vf.pitch
+          navHfov := vf.hfov
+        | None => ()
+        }
+      }
+    }
+    (navYaw.contents, navPitch.contents, navHfov.contents)
+  }
+}
+
 @react.component
 let make = (
   ~sceneIndex: int,
@@ -60,42 +102,7 @@ let make = (
         let targetIdx = Belt.Array.getIndexBy(scenes, s => s.name == hotspot.target)
         switch targetIdx {
         | Some(tIdx) =>
-          let navYaw = ref(0.0)
-          let navPitch = ref(0.0)
-          let navHfov = ref(90.0)
-
-          if hotspot.isReturnLink == Some(true) {
-            switch hotspot.returnViewFrame {
-            | Some(r) =>
-              navYaw := r.yaw
-              navPitch := r.pitch
-              navHfov := r.hfov
-            | None => ()
-            }
-          } else {
-            switch hotspot.targetYaw {
-            | Some(ty) =>
-              navYaw := ty
-              navPitch :=
-                switch hotspot.targetPitch {
-                | Some(p) => p
-                | None => 0.0
-                }
-              navHfov :=
-                switch hotspot.targetHfov {
-                | Some(h) => h
-                | None => 90.0
-                }
-            | None =>
-              switch hotspot.viewFrame {
-              | Some(vf) =>
-                navYaw := vf.yaw
-                navPitch := vf.pitch
-                navHfov := vf.hfov
-              | None => ()
-              }
-            }
-          }
+          let (ny, np, nh) = Logic.calculateNavParams(hotspot)
 
           Scene.Switcher.navigateToScene(
             dispatch,
@@ -103,9 +110,9 @@ let make = (
             tIdx,
             sceneIndex,
             hotspotIndex,
-            ~targetYaw=navYaw.contents,
-            ~targetPitch=navPitch.contents,
-            ~targetHfov=navHfov.contents,
+            ~targetYaw=ny,
+            ~targetPitch=np,
+            ~targetHfov=nh,
             (),
           )
         | None => ()

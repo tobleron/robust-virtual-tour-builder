@@ -210,21 +210,25 @@ module Logic = {
         let suggestedName = Nullable.toOption(metadata.suggestedName)
         let originalName = File.name(file)
 
-        let newName = switch suggestedName {
-        | Some(name) => name
-        | None =>
-          let baseName = String.replaceRegExp(originalName, /\.[^/.]+$/, "")
-          switch String.match(originalName, /_(\d{6})_\d{2}_(\d{3})/) {
-          | Some(captures) =>
-            let p1 = captures->Array.get(1)->Option.flatMap(x => x)
-            let p2 = captures->Array.get(2)->Option.flatMap(x => x)
-            switch (p1, p2) {
-            | (Some(p1), Some(p2)) => p1 ++ "_" ++ p2
-            | _ => baseName
+        let computeNewName = (suggestedName: option<string>, originalName: string) => {
+          switch suggestedName {
+          | Some(name) => name
+          | None =>
+            let baseName = String.replaceRegExp(originalName, /\.[^/.]+$/, "")
+            switch String.match(originalName, /_(\d{6})_\d{2}_(\d{3})/) {
+            | Some(captures) =>
+              let p1 = captures->Array.get(1)->Option.flatMap(x => x)
+              let p2 = captures->Array.get(2)->Option.flatMap(x => x)
+              switch (p1, p2) {
+              | (Some(p1), Some(p2)) => p1 ++ "_" ++ p2
+              | _ => baseName
+              }
+            | None => baseName
             }
-          | None => baseName
           }
         }
+
+        let newName = computeNewName(suggestedName, originalName)
 
         let previewFile = File.newFile(
           [previewBlob],

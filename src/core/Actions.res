@@ -51,58 +51,113 @@ type action =
   | SetNavigationFsmState(NavigationFSM.distinctState)
   | DispatchNavigationFsmEvent(NavigationFSM.event)
 
-let actionToString = (action: action): string =>
+let sceneActionToString = (action: action): option<string> =>
   switch action {
-  | SetPreloadingScene(idx) => `SetPreloadingScene(${Belt.Int.toString(idx)})`
-  | StartLinking(_) => "StartLinking"
-  | StopLinking => "StopLinking"
-  | UpdateLinkDraft(_) => "UpdateLinkDraft"
-  | SetIsTeasing(b) => `SetIsTeasing(${b ? "true" : "false"})`
-  | SetTourName(name) => `SetTourName(${name})`
-  | AddScenes(arr) => `AddScenes(${Belt.Int.toString(Belt.Array.length(arr))})`
-  | SetActiveScene(idx, _, _, _) => `SetActiveScene(${Belt.Int.toString(idx)})`
-  | AddHotspot(idx, _) => `AddHotspot(${Belt.Int.toString(idx)})`
-  | RemoveHotspot(sIdx, hIdx) =>
-    `RemoveHotspot(${Belt.Int.toString(sIdx)}, ${Belt.Int.toString(hIdx)})`
-  | ReorderScenes(i1, i2) => `ReorderScenes(${Belt.Int.toString(i1)}, ${Belt.Int.toString(i2)})`
-  | ClearHotspots(idx) => `ClearHotspots(${Belt.Int.toString(idx)})`
-  | DeleteScene(idx) => `DeleteScene(${Belt.Int.toString(idx)})`
-  | RemoveDeletedSceneId(id) => `RemoveDeletedSceneId(${id})`
-  | SyncSceneNames => "SyncSceneNames"
-  | ApplyLazyRename(idx, name) => `ApplyLazyRename(${Belt.Int.toString(idx)}, ${name})`
-  | UpdateSceneMetadata(idx, _) => `UpdateSceneMetadata(${Belt.Int.toString(idx)})`
-  | UpdateHotspotTargetView(sIdx, hIdx, _, _, _) =>
-    `UpdateHotspotTargetView(${Belt.Int.toString(sIdx)}, ${Belt.Int.toString(hIdx)})`
-  | UpdateHotspotReturnView(sIdx, hIdx, _, _, _) =>
-    `UpdateHotspotReturnView(${Belt.Int.toString(sIdx)}, ${Belt.Int.toString(hIdx)})`
-  | ToggleHotspotReturnLink(sIdx, hIdx) =>
-    `ToggleHotspotReturnLink(${Belt.Int.toString(sIdx)}, ${Belt.Int.toString(hIdx)})`
-  | AddToTimeline(_) => "AddToTimeline"
-  | SetActiveTimelineStep(opt) => `SetActiveTimelineStep(${opt->Option.getOr("None")})`
-  | RemoveFromTimeline(id) => `RemoveFromTimeline(${id})`
-  | ReorderTimeline(i1, i2) => `ReorderTimeline(${Belt.Int.toString(i1)}, ${Belt.Int.toString(i2)})`
-  | UpdateTimelineStep(id, _) => `UpdateTimelineStep(${id})`
-  | LoadProject(_) => "LoadProject"
-  | Reset => "Reset"
-  | SetSimulationMode(b) => `SetSimulationMode(${b ? "true" : "false"})`
-  | SetNavigationStatus(_) => "SetNavigationStatus"
-  | SetIncomingLink(_) => "SetIncomingLink"
-  | ResetAutoForwardChain => "ResetAutoForwardChain"
-  | AddToAutoForwardChain(idx) => `AddToAutoForwardChain(${Belt.Int.toString(idx)})`
-  | SetPendingReturnSceneName(opt) => `SetPendingReturnSceneName(${opt->Option.getOr("None")})`
-  | IncrementJourneyId => "IncrementJourneyId"
-  | SetCurrentJourneyId(id) => `SetCurrentJourneyId(${Belt.Int.toString(id)})`
-  | NavigationCompleted(_) => "NavigationCompleted"
-  | SetExifReport(_) => "SetExifReport"
-  | StartAutoPilot(_, _) => "StartAutoPilot"
-  | StopAutoPilot => "StopAutoPilot"
-  | AddVisitedScene(_) => "AddVisitedScene"
-  | ClearVisitedScenes => "ClearVisitedScenes"
-  | SetStoppingOnArrival(_) => "SetStoppingOnArrival"
-  | SetSkipAutoForward(_) => "SetSkipAutoForward"
-  | UpdateAdvanceTime(_) => "UpdateAdvanceTime"
-  | SetPendingAdvance(_) => "SetPendingAdvance"
-  | SetSessionId(id) => `SetSessionId(${id})`
-  | SetNavigationFsmState(state) => `SetNavigationFsmState(${NavigationFSM.toString(state)})`
-  | DispatchNavigationFsmEvent(_) => `DispatchNavigationFsmEvent`
+  | AddScenes(arr) => Some(`AddScenes(${Belt.Int.toString(Belt.Array.length(arr))})`)
+  | SetActiveScene(idx, _, _, _) => Some(`SetActiveScene(${Belt.Int.toString(idx)})`)
+  | ReorderScenes(i1, i2) =>
+    Some(`ReorderScenes(${Belt.Int.toString(i1)}, ${Belt.Int.toString(i2)})`)
+  | DeleteScene(idx) => Some(`DeleteScene(${Belt.Int.toString(idx)})`)
+  | RemoveDeletedSceneId(id) => Some(`RemoveDeletedSceneId(${id})`)
+  | SyncSceneNames => Some("SyncSceneNames")
+  | ApplyLazyRename(idx, name) => Some(`ApplyLazyRename(${Belt.Int.toString(idx)}, ${name})`)
+  | UpdateSceneMetadata(idx, _) => Some(`UpdateSceneMetadata(${Belt.Int.toString(idx)})`)
+  | _ => None
   }
+
+let hotspotActionToString = (action: action): option<string> =>
+  switch action {
+  | AddHotspot(idx, _) => Some(`AddHotspot(${Belt.Int.toString(idx)})`)
+  | RemoveHotspot(sIdx, hIdx) =>
+    Some(`RemoveHotspot(${Belt.Int.toString(sIdx)}, ${Belt.Int.toString(hIdx)})`)
+  | ClearHotspots(idx) => Some(`ClearHotspots(${Belt.Int.toString(idx)})`)
+  | UpdateHotspotTargetView(sIdx, hIdx, _, _, _) =>
+    Some(`UpdateHotspotTargetView(${Belt.Int.toString(sIdx)}, ${Belt.Int.toString(hIdx)})`)
+  | UpdateHotspotReturnView(sIdx, hIdx, _, _, _) =>
+    Some(`UpdateHotspotReturnView(${Belt.Int.toString(sIdx)}, ${Belt.Int.toString(hIdx)})`)
+  | ToggleHotspotReturnLink(sIdx, hIdx) =>
+    Some(`ToggleHotspotReturnLink(${Belt.Int.toString(sIdx)}, ${Belt.Int.toString(hIdx)})`)
+  | _ => None
+  }
+
+let timelineActionToString = (action: action): option<string> =>
+  switch action {
+  | AddToTimeline(_) => Some("AddToTimeline")
+  | SetActiveTimelineStep(opt) => Some(`SetActiveTimelineStep(${opt->Option.getOr("None")})`)
+  | RemoveFromTimeline(id) => Some(`RemoveFromTimeline(${id})`)
+  | ReorderTimeline(i1, i2) =>
+    Some(`ReorderTimeline(${Belt.Int.toString(i1)}, ${Belt.Int.toString(i2)})`)
+  | UpdateTimelineStep(id, _) => Some(`UpdateTimelineStep(${id})`)
+  | _ => None
+  }
+
+let navigationActionToString = (action: action): option<string> =>
+  switch action {
+  | SetNavigationStatus(_) => Some("SetNavigationStatus")
+  | SetIncomingLink(_) => Some("SetIncomingLink")
+  | ResetAutoForwardChain => Some("ResetAutoForwardChain")
+  | AddToAutoForwardChain(idx) => Some(`AddToAutoForwardChain(${Belt.Int.toString(idx)})`)
+  | SetPendingReturnSceneName(opt) => Some(`SetPendingReturnSceneName(${opt->Option.getOr("None")})`)
+  | IncrementJourneyId => Some("IncrementJourneyId")
+  | SetCurrentJourneyId(id) => Some(`SetCurrentJourneyId(${Belt.Int.toString(id)})`)
+  | NavigationCompleted(_) => Some("NavigationCompleted")
+  | SetNavigationFsmState(state) => Some(`SetNavigationFsmState(${NavigationFSM.toString(state)})`)
+  | DispatchNavigationFsmEvent(_) => Some(`DispatchNavigationFsmEvent`)
+  | _ => None
+  }
+
+let simulationActionToString = (action: action): option<string> =>
+  switch action {
+  | SetSimulationMode(b) => Some(`SetSimulationMode(${b ? "true" : "false"})`)
+  | StartAutoPilot(_, _) => Some("StartAutoPilot")
+  | StopAutoPilot => Some("StopAutoPilot")
+  | AddVisitedScene(_) => Some("AddVisitedScene")
+  | ClearVisitedScenes => Some("ClearVisitedScenes")
+  | SetStoppingOnArrival(_) => Some("SetStoppingOnArrival")
+  | SetSkipAutoForward(_) => Some("SetSkipAutoForward")
+  | UpdateAdvanceTime(_) => Some("UpdateAdvanceTime")
+  | SetPendingAdvance(_) => Some("SetPendingAdvance")
+  | _ => None
+  }
+
+let uiActionToString = (action: action): option<string> =>
+  switch action {
+  | SetPreloadingScene(idx) => Some(`SetPreloadingScene(${Belt.Int.toString(idx)})`)
+  | StartLinking(_) => Some("StartLinking")
+  | StopLinking => Some("StopLinking")
+  | UpdateLinkDraft(_) => Some("UpdateLinkDraft")
+  | SetIsTeasing(b) => Some(`SetIsTeasing(${b ? "true" : "false"})`)
+  | SetTourName(name) => Some(`SetTourName(${name})`)
+  | LoadProject(_) => Some("LoadProject")
+  | Reset => Some("Reset")
+  | SetExifReport(_) => Some("SetExifReport")
+  | SetSessionId(id) => Some(`SetSessionId(${id})`)
+  | _ => None
+  }
+
+let actionToString = (action: action): string => {
+  switch sceneActionToString(action) {
+  | Some(s) => s
+  | None =>
+    switch hotspotActionToString(action) {
+    | Some(s) => s
+    | None =>
+      switch timelineActionToString(action) {
+      | Some(s) => s
+      | None =>
+        switch navigationActionToString(action) {
+        | Some(s) => s
+        | None =>
+          switch simulationActionToString(action) {
+          | Some(s) => s
+          | None =>
+            switch uiActionToString(action) {
+            | Some(s) => s
+            | None => "UnknownAction"
+            }
+          }
+        }
+      }
+    }
+  }
+}

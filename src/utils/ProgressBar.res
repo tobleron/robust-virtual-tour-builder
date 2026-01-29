@@ -12,6 +12,22 @@ let setStyleProperty = (el: Dom.element, prop: string, val: string) => {
   Dom.setProperty(el, prop, val)
 }
 
+let handleAutoHide = (ui: Dom.element, uploadLabel: option<Dom.element>) => {
+  let id = Window.setTimeout(() => {
+    Dom.setOpacity(ui, "0")
+    setStyleProperty(ui, "transform", "translateY(-10px)")
+
+    let _ = Window.setTimeout(() => {
+      Dom.setDisplay(ui, "none")
+      Dom.setOpacity(ui, "1")
+      setStyleProperty(ui, "transform", "translateY(0)")
+      uploadLabel->Belt.Option.forEach(l => Dom.setDisplay(l, "flex"))
+    }, 300)
+    progressAutoHideTimeout := None
+  }, Constants.progressBarAutoHideDelay)
+  progressAutoHideTimeout := Some(id)
+}
+
 let updateProgressBar = (
   percent: float,
   text: string,
@@ -104,19 +120,7 @@ let updateProgressBar = (
 
       /* Auto Hide */
       if clampedPercent >= 100.0 {
-        let id = Window.setTimeout(() => {
-          Dom.setOpacity(ui, "0")
-          setStyleProperty(ui, "transform", "translateY(-10px)")
-
-          let _ = Window.setTimeout(() => {
-            Dom.setDisplay(ui, "none")
-            Dom.setOpacity(ui, "1")
-            setStyleProperty(ui, "transform", "translateY(0)")
-            uploadLabel->Belt.Option.forEach(l => Dom.setDisplay(l, "flex"))
-          }, 300)
-          progressAutoHideTimeout := None
-        }, Constants.progressBarAutoHideDelay)
-        progressAutoHideTimeout := Some(id)
+        handleAutoHide(ui, uploadLabel)
       }
     }
   | _ => () /* Elements missing */

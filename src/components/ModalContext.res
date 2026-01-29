@@ -8,6 +8,33 @@ module ElementExt = {
   @send external closest: (Dom.element, string) => Nullable.t<Dom.element> = "closest"
 }
 
+module Logic = {
+  let handleFocusTrap = (e: Dom.event, modal: Dom.element) => {
+    let focusables = Dom.querySelectorAll(
+      modal,
+      "button, input, select, textarea, [tabindex]:not([tabindex=\"-1\"])",
+    )
+    let focusablesArray = JsHelpers.from(focusables)
+    switch (
+      Belt.Array.get(focusablesArray, 0),
+      Belt.Array.get(focusablesArray, Array.length(focusablesArray) - 1),
+    ) {
+    | (Some(first), Some(last)) =>
+      let isShift = Dom.shiftKey(e)
+      if isShift {
+        if Dom.document["activeElement"] === first {
+          Dom.preventDefault(e)
+          Dom.focus(last)
+        }
+      } else if Dom.document["activeElement"] === last {
+        Dom.preventDefault(e)
+        Dom.focus(first)
+      }
+    | _ => ()
+    }
+  }
+}
+
 @react.component
 let make = () => {
   let (activeConfig, setActiveConfig) = React.useState(_ => None)
@@ -61,29 +88,7 @@ let make = () => {
         | Some(el) =>
           let root = ElementExt.closest(el, ".modal-box-premium")
           switch Nullable.toOption(root) {
-          | Some(modal) =>
-            let focusables = Dom.querySelectorAll(
-              modal,
-              "button, input, select, textarea, [tabindex]:not([tabindex=\"-1\"])",
-            )
-            let focusablesArray = JsHelpers.from(focusables)
-            switch (
-              Belt.Array.get(focusablesArray, 0),
-              Belt.Array.get(focusablesArray, Array.length(focusablesArray) - 1),
-            ) {
-            | (Some(first), Some(last)) =>
-              let isShift = Dom.shiftKey(e)
-              if isShift {
-                if Dom.document["activeElement"] === first {
-                  Dom.preventDefault(e)
-                  Dom.focus(last)
-                }
-              } else if Dom.document["activeElement"] === last {
-                Dom.preventDefault(e)
-                Dom.focus(first)
-              }
-            | _ => ()
-            }
+          | Some(modal) => Logic.handleFocusTrap(e, modal)
           | None => ()
           }
         | None => ()
