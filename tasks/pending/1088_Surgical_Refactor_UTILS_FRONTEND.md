@@ -82,3 +82,9 @@ The following regions are calculated to be the most confusing for AI:
 - [ ] - **../../src/utils/TourLogic.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 129))
 
 - [ ] - **../../src/utils/Logger.res** (Metric: [Nesting: 0.90, Density: 0.13, Coupling: 0.03] | Drag: 2.29 | LOC: 492/250  Hotspot: Lines 175-179)
+- [ ] - **../../src/utils/Logger.res** (Metric: [Nesting: 0.90, Density: 0.13, Coupling: 0.09] | Drag: 2.29 | LOC: 492/250  Hotspot: Lines 175-179)
+
+- [ ] - **../../src/utils/Logger.res** (Metric: [Nesting: 0.90, Density: 0.13, Coupling: 0.12] | Drag: 2.29 | LOC: 492/250  Hotspot: Lines 175-179)
+
+- [ ] - **../../src/utils/Logger.res** (Metric: [Nesting: 0.90, Density: 0.13, Coupling: 0.30] | Drag: 2.29 | LOC: 492/250  Hotspot: Lines 175-179)
+

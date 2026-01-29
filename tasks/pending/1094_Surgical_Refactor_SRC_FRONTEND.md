@@ -24,3 +24,9 @@ The following regions are calculated to be the most confusing for AI:
 - [ ] - **../../src/ServiceWorker.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 87))
 
 - [ ] - **../../src/ServiceWorkerMain.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 164))
+- [ ] - **../../src/ReBindings.res** (Metric: [Nesting: 0.60, Density: 0.00, Coupling: 0.21] | Drag: 1.89 | LOC: 350/344  Hotspot: Lines 233-237)
+
+- [ ] - **../../src/ReBindings.res** (Metric: [Nesting: 0.60, Density: 0.00, Coupling: 0.32] | Drag: 1.89 | LOC: 350/314  Hotspot: Lines 233-237)
+
+- [ ] - **../../src/ReBindings.res** (Metric: [Nesting: 0.60, Density: 0.00, Coupling: 0.34] | Drag: 1.89 | LOC: 350/309  Hotspot: Lines 233-237)
+

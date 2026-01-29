@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optimize _dev-system smart-merge logic and automate ignored role classification
 - Implement accuracy report recommendations and tune analyzer metrics
 - Create task for perfecting _dev-system analyzer app (Phase 2)
+- Improve: fix rescript dependency extraction and identify analyzer task pollution
 
 ### Added
 - Refined `_dev-system` Smart Merge logic to support (Directory, Extension) grouping, preventing polyglot merge errors.

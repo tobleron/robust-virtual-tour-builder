@@ -4679,6 +4679,12 @@
 │   │   ├── 1094_Surgical_Refactor_SRC_FRONTEND.md
 │   │   ├── 1095_Classify_Ambiguous_Files.md
 │   │   ├── 1097_Perfect_Dev_System_Analyzer.md
+│   │   ├── 1098_Surgical_Refactor_CSS_FRONTEND.md
+│   │   ├── 1099_Surgical_Refactor_AUTH_BACKEND.md
+│   │   ├── 1100_Surgical_Refactor_PROJECT_BACKEND.md
+│   │   ├── 1101_Surgical_Refactor_MIDDLEWARE_BACKEND.md
+│   │   ├── 1102_Surgical_Refactor_GEOCODING_BACKEND.md
+│   │   ├── 1103_Surgical_Refactor_SERVICES_BACKEND.md
 │   │   └── tests
 │   │       └── 006_Test_Generation_Unified.md
 │   └── postponed
@@ -5000,4 +5006,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-192 directories, 4809 files
+192 directories, 4815 files
