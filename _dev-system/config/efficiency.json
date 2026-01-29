@@ -3,7 +3,7 @@
   "settings": {
     "base_loc_limit": 250,
     "hard_ceiling_loc": 800,
-    "soft_floor_loc": 30,
+    "soft_floor_loc": 80,
     "max_session_complexity": 500.0,
     "merge_score_threshold": 1.0,
     "nesting_weight": 0.15,

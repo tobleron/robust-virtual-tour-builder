@@ -340,8 +340,14 @@ fn main() -> Result<()> {
         let density = metrics.logic_count as f64 / metrics.loc as f64;
         let dependency_density = metrics.external_calls as f64 / metrics.loc as f64;
         let cohesion_bonus = 1.0 + (0.5 - dependency_density).max(0.0);
-        let drag = 1.0 + (metrics.max_nesting as f64 * config.settings.nesting_weight) + (density * config.settings.density_weight) + metrics.complexity_penalty;
-        let mut limit = ((config.settings.base_loc_limit as f64 * p_mod * cohesion_bonus) / drag.powf(1.5)).max(config.settings.soft_floor_loc as f64) as usize;
+        // Tuned: Normalized complexity penalty to be a density metric (intensive) rather than extensive.
+        // This prevents the "squared penalty" effect where larger files get exponentially tighter limits.
+        let complexity_density = if metrics.loc > 0 { metrics.complexity_penalty / metrics.loc as f64 } else { 0.0 };
+        // We weight the specific complexity density (keywords) higher (x50) to make it impactful but fair.
+        let drag = 1.0 + (metrics.max_nesting as f64 * config.settings.nesting_weight) + (density * config.settings.density_weight) + (complexity_density * 50.0);
+
+        // Tuned: Exponent reduced from 1.5 to 1.15. With normalized drag, this should yield sensible targets (100-300 LOC).
+        let mut limit = ((config.settings.base_loc_limit as f64 * p_mod * cohesion_bonus) / drag.powf(1.15)).max(config.settings.soft_floor_loc as f64) as usize;
         if let Some(exceptions) = &config.exceptions { for rule in exceptions { if path.to_string_lossy().contains(&rule.pattern) { if let Some(max) = rule.max_loc { limit = max; } break; } } }
         limit = limit.min(config.settings.hard_ceiling_loc);
         if metrics.loc > limit {
@@ -360,7 +366,7 @@ fn main() -> Result<()> {
     }
     for (dir, files) in dir_stats {
         let total: usize = files.iter().map(|(_,l,_)| *l).sum();
-        let score = calculate_merge_score(FolderStats { file_count: files.len(), total_loc: total });
+        let score = calculate_merge_score(FolderStats { file_count: files.len(), total_loc: total }, config.settings.hard_ceiling_loc);
         if score > config.settings.merge_score_threshold {
             buffer.entry("system".to_string()).or_default().push(WorkUnit::Merge { 
                 folder: dir, files: files.iter().map(|(n,_,_)| n.clone()).collect(), platform: files[0].2.clone(),
