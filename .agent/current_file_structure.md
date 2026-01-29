@@ -4658,11 +4658,15 @@
 │   │   ├── 1077_Structural_Refactor_BACKEND.md
 │   │   ├── 1078_Fix_Violations_FRONTEND.md
 │   │   ├── 1079_Fix_Violations_BACKEND.md
-│   │   ├── 1080_Surgical_Refactor_Batch_1_FRONTEND.md
-│   │   ├── 1081_Surgical_Refactor_Batch_2_FRONTEND.md
 │   │   ├── 1082_Surgical_Refactor_Batch_1_BACKEND.md
 │   │   ├── 1083_Merge_Folders_FRONTEND.md
 │   │   ├── 1084_Merge_Folders_BACKEND.md
+│   │   ├── 1090_Surgical_Refactor_UTILS_FRONTEND.md
+│   │   ├── 1091_Surgical_Refactor_CORE_FRONTEND.md
+│   │   ├── 1092_Surgical_Refactor_COMPONENTS_FRONTEND.md
+│   │   ├── 1093_Surgical_Refactor_SYSTEMS_FRONTEND.md
+│   │   ├── 1094_Surgical_Refactor_MEDIA_BACKEND.md
+│   │   ├── 1095_Surgical_Refactor_API_BACKEND.md
 │   │   └── tests
 │   │       └── 006_Test_Generation_Unified.md
 │   └── postponed
@@ -4984,4 +4988,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-192 directories, 4793 files
+192 directories, 4797 files

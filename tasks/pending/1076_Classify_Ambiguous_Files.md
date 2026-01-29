@@ -20,3 +20,10 @@
 
 ## Tasks
 - [ ] `../../backend/src/pathfinder.rs`
+- [ ] `../../src/systems/ViewerSystem.res`
+- [ ] `../../src/systems/Simulation.res`
+- [ ] `../../src/systems/Teaser.res`
+- [ ] `../../src/systems/Scene.res`
+- [ ] `../../src/systems/Navigation.res`
+- [ ] `../../backend/src/models.rs`
+- [ ] `../../src/systems/UploadTypes.res`
