@@ -345,7 +345,7 @@ fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>, config:
             
             let is_arch = arch_patterns.iter().any(|p| name.contains(p));
             if is_arch && !active_tasks.contains(&path) {
-                // println!("🧹 Deleting zombie task: {:?}", path);
+                println!("🧹 Deleting zombie task: {:?}", path);
                 let _ = fs::remove_file(path);
             }
         }
@@ -417,7 +417,7 @@ fn main() -> Result<()> {
     let config_raw = fs::read_to_string("../config/efficiency.json")?;
     let config: EfficiencyConfig = serde_json::from_str(&config_raw)?;
     let mut buffer: HashMap<String, Vec<WorkUnit>> = HashMap::new();
-    let mut dir_stats: HashMap<(String, String), Vec<(String, usize, String, f64)>> = HashMap::new();
+    let mut dir_stats: HashMap<(String, String), Vec<(String, usize, String, f64, f64)>> = HashMap::new();
     let mut feature_map: HashMap<String, Vec<(String, String)>> = HashMap::new(); 
     let default_dict: HashMap<String, f64> = HashMap::new();
 
@@ -677,7 +677,7 @@ fn main() -> Result<()> {
         // 6. Stats Aggregation for Merges
         let dir = path.parent().unwrap().to_string_lossy().to_string();
         let ext_str = path.extension().and_then(|s| s.to_str()).unwrap_or("").to_string();
-        dir_stats.entry((dir, ext_str)).or_default().push((path.file_name().unwrap().to_string_lossy().to_string(), metrics.loc, platform.clone(), drag));
+        dir_stats.entry((dir, ext_str)).or_default().push((path.file_name().unwrap().to_string_lossy().to_string(), metrics.loc, platform.clone(), drag, p_mod));
 
         let file_stem = path.file_stem().unwrap_or_default().to_string_lossy().to_string();
         if file_stem.len() > 3 { feature_map.entry(file_stem).or_default().push((p_str.clone(), platform.clone())); }
@@ -716,21 +716,22 @@ fn main() -> Result<()> {
     // Priority 2: Shallow Folder Merges (with De-duplication)
     for ((dir, _ext), files) in dir_stats {
         // Filter out files that are already part of a Recursive Cluster
-        let eligible_files: Vec<&(String, usize, String, f64)> = files.iter().filter(|(name, _, _, _)| {
+        let eligible_files: Vec<&(String, usize, String, f64, f64)> = files.iter().filter(|(name, _, _, _, _)| {
              let full_path = Path::new(&dir).join(name).to_string_lossy().to_string();
              !processed_merge_files.contains(&full_path)
         }).collect();
 
         if eligible_files.len() < 2 { continue; }
 
-        let total: usize = eligible_files.iter().map(|(_,l,_,_)| *l).sum();
+        let total: usize = eligible_files.iter().map(|(_,l,_,_,_)| *l).sum();
 
         // Smart Merge Logic: Circularity Prevention
         // Check if merging these files would create a file that immediately violates the Split limit.
-        let max_drag: f64 = eligible_files.iter().map(|(_,_,_,d)| *d).fold(0.0, f64::max);
+        let max_drag: f64 = eligible_files.iter().map(|(_,_,_,d,_)| *d).fold(0.0, f64::max);
+        let min_pmod: f64 = eligible_files.iter().map(|(_,_,_,_,m)| *m).fold(100.0, f64::min);
         let safe_drag = if max_drag < 1.0 { 1.0 } else { max_drag };
         // We use the same Drag^0.75 curve as the split logic to determine the projected limit.
-        let projected_limit = dynamic_base / safe_drag.powf(0.75);
+        let projected_limit = (dynamic_base * min_pmod) / safe_drag.powf(0.75);
 
         let score = if total as f64 > projected_limit {
              0.0 // Force score to 0 to prevent merge
@@ -741,7 +742,7 @@ fn main() -> Result<()> {
         if score > config.settings.merge_score_threshold {
             buffer.entry("system".to_string()).or_default().push(WorkUnit::Merge { 
                 folder: dir.clone(), 
-                files: eligible_files.iter().map(|(n,_,_,_)| n.clone()).collect(),
+                files: eligible_files.iter().map(|(n,_,_,_,_)| n.clone()).collect(),
                 platform: eligible_files[0].2.clone(),
                 reason: format!("Read Tax high (Score {:.2}). Projected Limit: {:.0} (Drag {:.2})", score, projected_limit, safe_drag),
                 strategy: String::new()
