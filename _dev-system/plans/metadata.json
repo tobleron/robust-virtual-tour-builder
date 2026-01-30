@@ -1,4 +1,56 @@
 {
+  "system": [
+    {
+      "Merge": {
+        "folder": "backend/src/services/geocoding",
+        "files": [
+          "../../backend/src/services/geocoding/logic.rs",
+          "../../backend/src/services/geocoding/mod.rs"
+        ],
+        "reason": "Recursive Feature Pod: 2 files in subtree sum to 375 LOC (fits in context). Max Drag: 1.56",
+        "strategy": "",
+        "platform": "backend"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "backend/src/services/auth",
+        "files": [
+          "../../backend/src/services/auth/mod.rs",
+          "../../backend/src/services/auth/jwt.rs"
+        ],
+        "reason": "Recursive Feature Pod: 2 files in subtree sum to 111 LOC (fits in context). Max Drag: 1.88",
+        "strategy": "",
+        "platform": "backend"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "backend/src/middleware",
+        "files": [
+          "../../backend/src/middleware/request_tracker.rs",
+          "../../backend/src/middleware/quota_check.rs",
+          "../../backend/src/middleware/mod.rs",
+          "../../backend/src/middleware/auth.rs"
+        ],
+        "reason": "Recursive Feature Pod: 4 files in subtree sum to 375 LOC (fits in context). Max Drag: 2.22",
+        "strategy": "",
+        "platform": "backend"
+      }
+    }
+  ],
+  "css": [
+    {
+      "Surgical": {
+        "file": "../../css/components/viewer.css",
+        "action": "De-bloat",
+        "reason": "[Nesting: 0.30, Density: 0.11, Coupling: 0.00] | Drag: 1.87 | LOC: 627/511",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 13.474162679425836
+      }
+    }
+  ],
   "rust": [
     {
       "Surgical": {
@@ -14,12 +66,22 @@
   "rescript": [
     {
       "Surgical": {
-        "file": "../../src/systems/Api.res",
+        "file": "../../src/systems/HotspotLine.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 1.35, Density: 0.04, Coupling: 0.54] | Drag: 2.69 | LOC: 592/500  Hotspot: Lines 601-605 (AI Context Fog (score 67.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "reason": "[Nesting: 1.35, Density: 0.27, Coupling: 0.37] | Drag: 4.31 | LOC: 697/500  Hotspot: Lines 245-249 (AI Context Fog (score 67.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 11.889527027027025
+        "complexity": 24.012697274031563
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/Sidebar.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.20, Density: 0.00, Coupling: 0.30] | Drag: 2.22 | LOC: 569/500  Hotspot: Lines 103-107 (AI Context Fog (score 52.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 9.117574692442883
       }
     },
     {
@@ -44,12 +106,12 @@
     },
     {
       "Surgical": {
-        "file": "../../src/components/Sidebar.res",
+        "file": "../../src/systems/Api.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 1.20, Density: 0.00, Coupling: 0.30] | Drag: 2.22 | LOC: 569/500  Hotspot: Lines 103-107 (AI Context Fog (score 52.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "reason": "[Nesting: 1.35, Density: 0.04, Coupling: 0.54] | Drag: 2.69 | LOC: 592/500  Hotspot: Lines 601-605 (AI Context Fog (score 67.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 9.117574692442883
+        "complexity": 11.889527027027025
       }
     },
     {
@@ -60,68 +122,6 @@
         "strategy": "",
         "platform": "frontend",
         "complexity": 6.918265682656827
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/HotspotLine.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.35, Density: 0.27, Coupling: 0.37] | Drag: 4.31 | LOC: 697/500  Hotspot: Lines 245-249 (AI Context Fog (score 67.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 24.012697274031563
-      }
-    }
-  ],
-  "css": [
-    {
-      "Surgical": {
-        "file": "../../css/components/viewer.css",
-        "action": "De-bloat",
-        "reason": "[Nesting: 0.30, Density: 0.11, Coupling: 0.00] | Drag: 1.87 | LOC: 627/511",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 13.474162679425836
-      }
-    }
-  ],
-  "system": [
-    {
-      "Merge": {
-        "folder": "backend/src/services/auth",
-        "files": [
-          "../../backend/src/services/auth/jwt.rs",
-          "../../backend/src/services/auth/mod.rs"
-        ],
-        "reason": "Recursive Feature Pod: 2 files in subtree sum to 111 LOC (fits in context). Max Drag: 1.88",
-        "strategy": "",
-        "platform": "backend"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "backend/src/services/geocoding",
-        "files": [
-          "../../backend/src/services/geocoding/mod.rs",
-          "../../backend/src/services/geocoding/logic.rs"
-        ],
-        "reason": "Recursive Feature Pod: 2 files in subtree sum to 375 LOC (fits in context). Max Drag: 1.56",
-        "strategy": "",
-        "platform": "backend"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "backend/src/middleware",
-        "files": [
-          "../../backend/src/middleware/quota_check.rs",
-          "../../backend/src/middleware/auth.rs",
-          "../../backend/src/middleware/request_tracker.rs",
-          "../../backend/src/middleware/mod.rs"
-        ],
-        "reason": "Recursive Feature Pod: 4 files in subtree sum to 375 LOC (fits in context). Max Drag: 2.22",
-        "strategy": "",
-        "platform": "backend"
       }
     }
   ]
