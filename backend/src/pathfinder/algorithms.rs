@@ -110,10 +110,7 @@ pub fn follow_auto_forward_chain(
 
 // --- ALGORITHMS ---
 
-fn find_timeline_hotspot<'a>(
-    scene: &'a Scene,
-    item: &TimelineItem,
-) -> Option<&'a Hotspot> {
+fn find_timeline_hotspot<'a>(scene: &'a Scene, item: &TimelineItem) -> Option<&'a Hotspot> {
     if !item.link_id.is_empty() {
         scene
             .hotspots
