@@ -6,8 +6,8 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::io::{Seek, SeekFrom};
 
-use crate::api::{project_logic, project_multipart};
 use crate::api::utils::get_temp_path;
+use crate::api::{project_logic, project_multipart};
 use crate::models::{AppError, User};
 use crate::pathfinder::PathRequest;
 use crate::services::media::StorageManager;
@@ -34,7 +34,8 @@ pub async fn save_project(req: HttpRequest, payload: Multipart) -> Result<HttpRe
     let start = std::time::Instant::now();
     let zip_path = get_temp_path("zip");
 
-    let (project_json, session_id, temp_images) = project_multipart::parse_save_project_multipart(payload).await?;
+    let (project_json, session_id, temp_images) =
+        project_multipart::parse_save_project_multipart(payload).await?;
 
     let json_content = project_json.ok_or_else(|| {
         AppError::MultipartError(actix_multipart::MultipartError::Incomplete.to_string())
@@ -90,10 +91,7 @@ pub async fn save_project(req: HttpRequest, payload: Multipart) -> Result<HttpRe
 }
 
 /// Loads a project ZIP file into memory.
-pub async fn load_project(
-    req: HttpRequest,
-    payload: Multipart,
-) -> Result<HttpResponse, AppError> {
+pub async fn load_project(req: HttpRequest, payload: Multipart) -> Result<HttpResponse, AppError> {
     let _user = req
         .extensions()
         .get::<User>()

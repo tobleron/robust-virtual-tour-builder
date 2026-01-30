@@ -80,12 +80,10 @@ where
                     tracing::warn!(ip = %ip, size = content_length, error = %e, "Upload rejected");
 
                     return Ok(req
-                        .into_response(HttpResponse::TooManyRequests().json(
-                            serde_json::json!({
-                                "error": "Quota exceeded",
-                                "message": e
-                            }),
-                        ))
+                        .into_response(HttpResponse::TooManyRequests().json(serde_json::json!({
+                            "error": "Quota exceeded",
+                            "message": e
+                        })))
                         .map_body(|_, b| EitherBody::Right { body: b }));
                 }
 
@@ -111,9 +109,7 @@ where
 
 fn should_check_quota(req: &ServiceRequest) -> bool {
     let path = req.path();
-    path.contains("/media/")
-        || path.contains("/project/save")
-        || path.contains("/project/import")
+    path.contains("/media/") || path.contains("/project/save") || path.contains("/project/import")
 }
 
 #[cfg(test)]

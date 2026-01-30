@@ -172,7 +172,12 @@ pub async fn update_cache(key: GeocodeKey, address: String) {
 }
 
 // For tests
-pub async fn manual_insert(key: GeocodeKey, address: String, last_accessed: u64, access_count: u32) {
+pub async fn manual_insert(
+    key: GeocodeKey,
+    address: String,
+    last_accessed: u64,
+    access_count: u32,
+) {
     let mut cache = GEOCODE_CACHE.write().await;
     cache.insert(
         key,

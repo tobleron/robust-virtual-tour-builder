@@ -8,31 +8,29 @@
 
 ---
 
-## 🛠️ SURGICAL REFACTOR TASKS (12)
-- [ ] **../../src/core/Reducer.res**
-  - *Reason:* [Nesting: 4.00, Density: 0.45, Coupling: 0.06] | Drag: 8.89 | LOC: 433/300  🎯 Target: Function: `newTransition` (High Local Complexity (2.0). Logic heavy.)
-- [ ] **../../src/systems/UploadProcessor.res**
-  - *Reason:* [Nesting: 2.50, Density: 0.05, Coupling: 0.10] | Drag: 5.68 | LOC: 337/300  🎯 Target: Function: `type_` (High Local Complexity (4.0). Logic heavy.)
-- [ ] **../../src/systems/Navigation.res**
-  - *Reason:* [Nesting: 6.00, Density: 0.40, Coupling: 0.08] | Drag: 10.23 | LOC: 390/300  🎯 Target: Function: `startJourney` (High Local Complexity (10.1). Logic heavy.)
+## 🛠️ SURGICAL REFACTOR TASKS (11)
 - [ ] **../../src/systems/HotspotLineLogic.res**
-  - *Reason:* [Nesting: 4.00, Density: 0.29, Coupling: 0.04] | Drag: 7.54 | LOC: 538/300  🎯 Target: Function: `mousePtOpt` (High Local Complexity (5.0). Logic heavy.)
-- [ ] **../../src/systems/ApiLogic.res**
-  - *Reason:* [Nesting: 3.50, Density: 0.11, Coupling: 0.05] | Drag: 7.10 | LOC: 589/300  🎯 Target: Function: `processErrorResponse` (High Local Complexity (4.5). Logic heavy.)
-- [ ] **../../src/systems/ExifReportGeneratorLogic.res**
-  - *Reason:* [Nesting: 4.00, Density: 0.13, Coupling: 0.07] | Drag: 7.96 | LOC: 433/300  🎯 Target: Function: `extractLocationName` (High Local Complexity (9.2). Logic heavy.)
-- [ ] **../../src/systems/Scene.res**
-  - *Reason:* [Nesting: 3.00, Density: 0.16, Coupling: 0.09] | Drag: 6.97 | LOC: 350/300  🎯 Target: Function: `scheduleCleanup` (High Local Complexity (6.6). Logic heavy.)
-- [ ] **../../src/ReBindings.res**
-  - *Reason:* [Nesting: 1.50, Density: 0.66, Coupling: 0.14] | Drag: 9.34 | LOC: 358/300
-- [ ] **../../src/systems/Resizer.res**
-  - *Reason:* [Nesting: 3.50, Density: 0.20, Coupling: 0.10] | Drag: 8.23 | LOC: 301/300  🎯 Target: Function: `getMemoryUsage` (High Local Complexity (10.9). Logic heavy.)
-- [ ] **../../src/core/Schemas.res**
-  - *Reason:* [Nesting: 2.50, Density: 0.50, Coupling: 0.05] | Drag: 6.62 | LOC: 376/300  🎯 Target: Function: `castToProject` (High Local Complexity (3.4). Logic heavy.)
-- [ ] **../../src/utils/Logger.res**
-  - *Reason:* [Nesting: 3.00, Density: 0.31, Coupling: 0.05] | Drag: 7.56 | LOC: 492/300  🎯 Target: Function: `stringToLevel` (High Local Complexity (7.0). Logic heavy.)
+  - *Reason:* [Nesting: 4.00, Density: 0.29, Coupling: 0.04] | Drag: 7.55 | LOC: 540/300  🎯 Target: Function: `isViewerValid` (High Local Complexity (2.0). Logic heavy.)
 - [ ] **../../src/systems/SimulationLogic.res**
-  - *Reason:* [Nesting: 4.50, Density: 0.11, Coupling: 0.06] | Drag: 9.22 | LOC: 459/300  🎯 Target: Function: `globalViewer` (High Local Complexity (7.5). Logic heavy.)
+  - *Reason:* [Nesting: 4.50, Density: 0.12, Coupling: 0.06] | Drag: 9.29 | LOC: 467/300  🎯 Target: Function: `currentResult` (High Local Complexity (6.6). Logic heavy.)
+- [ ] **../../src/systems/Navigation.res**
+  - *Reason:* [Nesting: 6.00, Density: 0.38, Coupling: 0.08] | Drag: 10.09 | LOC: 415/300  🎯 Target: Function: `startJourney` (High Local Complexity (9.8). Logic heavy.)
+- [ ] **../../src/core/Reducer.res**
+  - *Reason:* [Nesting: 4.00, Density: 0.45, Coupling: 0.06] | Drag: 8.85 | LOC: 443/300  🎯 Target: Function: `calculateTransition` (High Local Complexity (3.0). Logic heavy.)
+- [ ] **../../src/systems/ExifReportGeneratorLogic.res**
+  - *Reason:* [Nesting: 4.00, Density: 0.13, Coupling: 0.07] | Drag: 7.96 | LOC: 434/300  🎯 Target: Function: `extractLocationName` (High Local Complexity (7.0). Logic heavy.)
+- [ ] **../../src/core/Schemas.res**
+  - *Reason:* [Nesting: 2.00, Density: 0.51, Coupling: 0.05] | Drag: 6.14 | LOC: 377/300  🎯 Target: Function: `castToValidationReport` (High Local Complexity (3.0). Logic heavy.)
+- [ ] **../../src/utils/Logger.res**
+  - *Reason:* [Nesting: 2.00, Density: 0.29, Coupling: 0.05] | Drag: 6.28 | LOC: 514/300  🎯 Target: Function: `levelPriority` (High Local Complexity (6.0). Logic heavy.)
+- [ ] **../../src/systems/UploadProcessor.res**
+  - *Reason:* [Nesting: 2.50, Density: 0.05, Coupling: 0.10] | Drag: 5.70 | LOC: 339/300  🎯 Target: Function: `getNotificationType` (High Local Complexity (4.0). Logic heavy.)
+- [ ] **../../src/systems/ApiLogic.res**
+  - *Reason:* [Nesting: 3.50, Density: 0.11, Coupling: 0.05] | Drag: 7.10 | LOC: 592/300  🎯 Target: Function: `extractErrorMessage` (High Local Complexity (3.0). Logic heavy.)
+- [ ] **../../src/systems/Scene.res**
+  - *Reason:* [Nesting: 3.00, Density: 0.17, Coupling: 0.09] | Drag: 6.99 | LOC: 355/300  🎯 Target: Function: `updateGlobalStateAndViewer` (High Local Complexity (5.8). Logic heavy.)
+- [ ] **../../src/systems/Resizer.res**
+  - *Reason:* [Nesting: 3.50, Density: 0.20, Coupling: 0.10] | Drag: 8.21 | LOC: 303/300  🎯 Target: Function: `getMemoryUsage` (High Local Complexity (10.4). Logic heavy.)
 
 ---
 

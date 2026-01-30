@@ -6,16 +6,16 @@ pub mod utils;
 pub mod walk;
 
 pub use algorithms::calculate_path;
+pub use graph::PathRequest;
 #[allow(unused_imports)]
 pub use timeline::calculate_timeline_path;
 #[allow(unused_imports)]
 pub use walk::calculate_walk_path;
-pub use graph::PathRequest;
 
 #[cfg(test)]
 mod tests {
-    use super::utils;
     use super::graph::{Hotspot, Scene};
+    use super::utils;
     use std::collections::HashSet;
 
     fn create_scene(name: &str, auto_forward: bool, targets: Vec<(&str, bool)>) -> Scene {
