@@ -1,5 +1,5 @@
 use crate::models::AppError;
-use crate::services::auth::AuthService;
+use crate::auth::service::AuthService;
 use actix_web::{HttpResponse, web};
 use oauth2::{CsrfToken, PkceCodeChallenge, Scope};
 use serde::Deserialize;
