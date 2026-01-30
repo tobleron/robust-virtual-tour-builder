@@ -1,4 +1,16 @@
 {
+  "rust": [
+    {
+      "Surgical": {
+        "file": "../../backend/src/pathfinder.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.05, Density: 0.07, Coupling: 0.05] | Drag: 2.54 | LOC: 583/500",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 10.840566037735849
+      }
+    }
+  ],
   "rescript": [
     {
       "Surgical": {
@@ -12,32 +24,12 @@
     },
     {
       "Surgical": {
-        "file": "../../src/systems/HotspotLine.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.35, Density: 0.27, Coupling: 0.37] | Drag: 4.31 | LOC: 697/500  Hotspot: Lines 245-249 (AI Context Fog (score 67.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 24.012697274031563
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ExifReportGenerator.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.65, Density: 0.01, Coupling: 0.49] | Drag: 2.72 | LOC: 542/500  Hotspot: Lines 204-208 (AI Context Fog (score 121.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 6.918265682656827
-      }
-    },
-    {
-      "Surgical": {
         "file": "../../src/systems/Teaser.res",
         "action": "De-bloat",
         "reason": "[Nesting: 1.20, Density: 0.08, Coupling: 0.45] | Drag: 2.93 | LOC: 581/500  Hotspot: Lines 594-598 (AI Context Fog (score 65.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 11.029776247848538
+        "complexity": 11.029776247848536
       }
     },
     {
@@ -59,6 +51,38 @@
         "platform": "frontend",
         "complexity": 9.117574692442883
       }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ExifReportGenerator.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.65, Density: 0.01, Coupling: 0.49] | Drag: 2.72 | LOC: 542/500  Hotspot: Lines 204-208 (AI Context Fog (score 121.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 6.918265682656827
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/HotspotLine.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.35, Density: 0.27, Coupling: 0.37] | Drag: 4.31 | LOC: 697/500  Hotspot: Lines 245-249 (AI Context Fog (score 67.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 24.012697274031563
+      }
+    }
+  ],
+  "css": [
+    {
+      "Surgical": {
+        "file": "../../css/components/viewer.css",
+        "action": "De-bloat",
+        "reason": "[Nesting: 0.30, Density: 0.11, Coupling: 0.00] | Drag: 1.87 | LOC: 627/511",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 13.474162679425836
+      }
     }
   ],
   "system": [
@@ -66,8 +90,8 @@
       "Merge": {
         "folder": "backend/src/services/auth",
         "files": [
-          "../../backend/src/services/auth/mod.rs",
-          "../../backend/src/services/auth/jwt.rs"
+          "../../backend/src/services/auth/jwt.rs",
+          "../../backend/src/services/auth/mod.rs"
         ],
         "reason": "Recursive Feature Pod: 2 files in subtree sum to 111 LOC (fits in context). Max Drag: 1.88",
         "strategy": "",
@@ -90,38 +114,14 @@
       "Merge": {
         "folder": "backend/src/middleware",
         "files": [
-          "../../backend/src/middleware/mod.rs",
           "../../backend/src/middleware/quota_check.rs",
           "../../backend/src/middleware/auth.rs",
-          "../../backend/src/middleware/request_tracker.rs"
+          "../../backend/src/middleware/request_tracker.rs",
+          "../../backend/src/middleware/mod.rs"
         ],
         "reason": "Recursive Feature Pod: 4 files in subtree sum to 375 LOC (fits in context). Max Drag: 2.22",
         "strategy": "",
         "platform": "backend"
-      }
-    }
-  ],
-  "rust": [
-    {
-      "Surgical": {
-        "file": "../../backend/src/pathfinder.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.05, Density: 0.07, Coupling: 0.05] | Drag: 2.54 | LOC: 583/500",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 10.840566037735849
-      }
-    }
-  ],
-  "css": [
-    {
-      "Surgical": {
-        "file": "../../css/components/viewer.css",
-        "action": "De-bloat",
-        "reason": "[Nesting: 0.30, Density: 0.11, Coupling: 0.00] | Drag: 1.87 | LOC: 627/511",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 13.474162679425836
       }
     }
   ]

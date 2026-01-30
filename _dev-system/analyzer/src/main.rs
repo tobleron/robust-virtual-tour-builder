@@ -181,7 +181,7 @@ fn sync_architectural_category(category_name: &str, platform: &str, units: &[Str
     }
 
     if units.is_empty() {
-        return Ok(existing_path);
+        return Ok(None);
     }
     
     let (path, id) = if let Some(p) = existing_path {
