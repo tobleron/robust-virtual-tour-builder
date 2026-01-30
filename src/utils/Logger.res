@@ -2,243 +2,34 @@
 
 open ReBindings
 
-// --- Types ---
+/* Include shared types and helpers */
+include LoggerCommon
 
-type level =
-  | Trace
-  | Debug
-  | Info
-  | Warn
-  | Error
-  | Perf
+// --- Telemetry & Console ---
 
-type priority =
-  | Critical
-  | High
-  | Medium
-  | Low
+/*
+   Orchestrate sub-modules:
+   - LoggerCommon: Shared types/utils
+   - LoggerTelemetry: Backend logging
+   - LoggerConsole: Frontend/Console logging
+*/
 
-type logEntry = {
-  timestampMs: float,
-  timestamp: string,
-  @as("module") module_: string,
-  level: string,
-  message: string,
-  data: option<JSON.t>,
-  priority: string,
-}
+/* Re-export state for compatibility and tests */
+let telemetryQueue = LoggerTelemetry.telemetryQueue
+let isFlushing = LoggerTelemetry.isFlushing
+let setBypassTestEnvCheck = LoggerTelemetry.setBypassTestEnvCheck
+let flushTelemetry = LoggerTelemetry.flushTelemetry
+let sendTelemetry = LoggerTelemetry.sendTelemetry
 
-type telemetryBatch = {entries: array<logEntry>}
-
-type timedResult<'a> = {
-  result: 'a,
-  durationMs: float,
-}
-
-type operationResult<'a> = result<'a, string>
-
-external castToJson: 'a => JSON.t = "%identity"
-external asDynamic: 'a => {..} = "%identity"
-
-let optToNullable = (opt: option<'a>): Nullable.t<'a> =>
-  switch opt {
-  | Some(v) => Nullable.make(v)
-  | None => Nullable.null
-  }
-
-let levelPriority = (level: level): int =>
-  switch level {
-  | Trace => 0
-  | Debug => 1
-  | Info => 2
-  | Perf => 2
-  | Warn => 3
-  | Error => 4
-  }
-
-let levelToTelemetryPriority = (level: level): priority =>
-  switch level {
-  | Error => Critical
-  | Warn => High
-  | Info | Perf => Medium
-  | Trace | Debug => Low
-  }
-
-let levelToString = (level: level): string =>
-  switch level {
-  | Trace => "trace"
-  | Debug => "debug"
-  | Info => "info"
-  | Warn => "warn"
-  | Error => "error"
-  | Perf => "perf"
-  }
-
-let priorityToString = (p: priority): string =>
-  switch p {
-  | Critical => "critical"
-  | High => "high"
-  | Medium => "medium"
-  | Low => "low"
-  }
-
-let levelMap = Dict.fromArray([
-  ("trace", Trace),
-  ("debug", Debug),
-  ("info", Info),
-  ("warn", Warn),
-  ("error", Error),
-  ("perf", Perf),
-])
-
-let stringToLevel = (s: string): level => {
-  Dict.get(levelMap, s)->Option.getOr(Info)
-}
-
-let moduleColors = Dict.fromArray([
-  ("Teaser", "#f97316"),
-  ("Navigation", "#3b82f6"),
-  ("Store", "#10b981"),
-  ("Viewer", "#8b5cf6"),
-  ("Hotspot", "#ec4899"),
-  ("Export", "#14b8a6"),
-  ("Default", "#64748b"),
-])
-
-module JsError = {
-  type t
-  @get external message: t => string = "message"
-  @get external stack: t => Nullable.t<string> = "stack"
-  @get external name: t => string = "name"
-}
-
-let getErrorDetails = (e: exn): (string, string) => {
-  switch JsExn.fromException(e) {
-  | Some(jsExn) => (
-      JsExn.message(jsExn)->Option.getOr("Unknown JS Error"),
-      JsExn.stack(jsExn)->Option.getOr(""),
-    )
-  | None => ("Non-JS ReScript Error", "")
-  }
-}
-
-let getErrorMessage = (e: exn): string => {
-  let (msg, _) = getErrorDetails(e)
-  msg
-}
-
-// --- Telemetry ---
-
-let telemetryQueue: array<logEntry> = []
-let isFlushing = ref(false)
-let bypassTestEnvCheck = ref(false)
-
-let setBypassTestEnvCheck = (v: bool) => {
-  bypassTestEnvCheck := v
-}
-
-let rec attemptSendBatch = async (payload: telemetryBatch, retries: int) => {
-  try {
-    let _ = await RequestQueue.schedule(() =>
-      Fetch.fetch(
-        Constants.backendUrl ++ "/api/telemetry/batch",
-        Fetch.requestInit(
-          ~method="POST",
-          ~headers=Dict.fromArray([("Content-Type", "application/json")]),
-          ~body=JSON.stringify(castToJson(payload)),
-          (),
-        ),
-      )
-    )
-    true
-  } catch {
-  | _ if retries < Constants.Telemetry.retryMaxAttempts => {
-      let delay = Belt.Float.toInt(
-        Belt.Int.toFloat(Constants.Telemetry.retryBackoffMs) *.
-        Math.pow(2.0, ~exp=Belt.Int.toFloat(retries)),
-      )
-      let _ = await Promise.make((resolve, _) => {
-        let _ = Window.setTimeout(() => resolve(ignore()), delay)
-      })
-      await attemptSendBatch(payload, retries + 1)
-    }
-  | _ => {
-      Console.error("[Logger] Failed to send telemetry batch after max retries")
-      false
-    }
-  }
-}
-
-let flushTelemetry = async () => {
-  if Array.length(telemetryQueue) > 0 && !isFlushing.contents {
-    isFlushing := true
-
-    let batchLimit = Constants.Telemetry.batchSize
-    let currentQueueLen = Array.length(telemetryQueue)
-    let takeCount = if currentQueueLen > batchLimit {
-      batchLimit
-    } else {
-      currentQueueLen
-    }
-
-    let batch = Belt.Array.slice(telemetryQueue, ~offset=0, ~len=takeCount)
-    ignore(%raw(`telemetryQueue.splice(0, takeCount)`))
-
-    let payload: telemetryBatch = {entries: batch}
-    let _ = await attemptSendBatch(payload, 0)
-    isFlushing := false
-  }
-}
-
-let sendTelemetry = async entry => {
-  if Constants.isTestEnvironment() && !bypassTestEnvCheck.contents {
-    ()
-  } else {
-    let p = stringToLevel(entry.level)->levelToTelemetryPriority
-    switch p {
-    | Critical | High =>
-      let endpoint = if p == Critical {
-        "/api/telemetry/error"
-      } else {
-        "/api/telemetry/log"
-      }
-      try {
-        let _ = await RequestQueue.schedule(() =>
-          Fetch.fetch(
-            Constants.backendUrl ++ endpoint,
-            Fetch.requestInit(
-              ~method="POST",
-              ~headers=Dict.fromArray([("Content-Type", "application/json")]),
-              ~body=JSON.stringify(castToJson(entry)),
-              (),
-            ),
-          )
-        )
-      } catch {
-      | e => Console.error(`[Logger] Failed to send immediate telemetry: ${getErrorMessage(e)}`)
-      }
-    | Medium =>
-      if Array.length(telemetryQueue) < Constants.Telemetry.queueMaxSize {
-        let _ = Array.push(telemetryQueue, entry)
-      }
-      if Array.length(telemetryQueue) >= Constants.Telemetry.batchSize {
-        let _ = flushTelemetry()->Promise.catch(_ => Promise.resolve())
-      }
-    | Low => ()
-    }
-  }
-}
-
-// --- Logic ---
+let enabled = LoggerConsole.enabled
+let minLevel = LoggerConsole.minLevel
+let enabledModules = LoggerConsole.enabledModules
+let logToConsole = LoggerConsole.logToConsole
 
 let entries: array<logEntry> = []
 let maxEntries = 2000
 let appLog: array<string> = []
 let maxAppLogEntries = 1000
-
-let enabled = ref(Constants.isDebugBuild())
-let minLevel = ref(Info)
-let enabledModules = ref(Belt.Set.String.empty)
 
 let createLogEntry = (
   ~module_: string,
@@ -273,40 +64,6 @@ let updateLogBuffers = (entry: logEntry, level: level, module_: string, message:
   Array.push(appLog, appLogMsg)
   if Array.length(appLog) > maxAppLogEntries {
     let _ = Array.shift(appLog)
-  }
-}
-
-let logToConsole = (~module_: string, ~level: level, ~message: string, ~data: option<JSON.t>) => {
-  if enabled.contents && levelPriority(level) >= levelPriority(minLevel.contents) {
-    let hasFilter = Belt.Set.String.size(enabledModules.contents) > 0
-    if !hasFilter || Belt.Set.String.has(enabledModules.contents, module_) {
-      let color =
-        Dict.get(moduleColors, module_)->Option.getOr(
-          Dict.get(moduleColors, "Default")->Option.getOr("#64748b"),
-        )
-      let prefix = `%c[${module_}]%c`
-      let prefixStyle = `color: ${color}; font-weight: bold;`
-      let resetStyle = "color: inherit;"
-
-      let consoleMethod = switch level {
-      | Trace | Debug | Perf => "log"
-      | Info => "info"
-      | Warn => "warn"
-      | Error => "error"
-      }
-
-      let callConsole: (string, string, string, string, string, Nullable.t<JSON.t>) => unit = %raw(`
-        function(method, p1, p2, p3, msg, data) {
-          if (data !== null && data !== undefined) {
-            console[method](p1, p2, p3, msg, data);
-          } else {
-            console[method](p1, p2, p3, msg);
-          }
-        }
-      `)
-
-      callConsole(consoleMethod, prefix, prefixStyle, resetStyle, message, data->optToNullable)
-    }
   }
 }
 

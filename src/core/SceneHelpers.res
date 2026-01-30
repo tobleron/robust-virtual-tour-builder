@@ -309,3 +309,10 @@ let handleUpdateSceneMetadata = (state: state, index: int, metaJson: JSON.t): st
   })
   {...state, scenes: newScenes, lastUsedCategory: updatedLastUsedCategory.contents}
 }
+
+let calculateTransition = (transition: option<transition>): transition => {
+  switch transition {
+  | Some(t) => t
+  | None => {type_: Fade, targetHotspotIndex: -1, fromSceneName: None}
+  }
+}
