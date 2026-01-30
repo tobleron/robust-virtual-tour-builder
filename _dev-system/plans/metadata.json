@@ -1,6 +1,166 @@
 {
   "rescript": [
     {
+      "Surgical": {
+        "file": "../../src/systems/HotspotLineLogic.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.20, Density: 0.25, Coupling: 0.01] | Drag: 4.22 | LOC: 514/500  🎯 Target: Function: `getPointAtProgress` (High Local Complexity (25.5). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 5.61556420233463
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/Schemas.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 373)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/StateInspector.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 88)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/ProgressBar.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 109)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/RequestQueue.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 57)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/PersistenceLayer.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 66)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/PopOver.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 147)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ApiLogic.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.05, Density: 0.09, Coupling: 0.02] | Drag: 4.35 | LOC: 586/500  🎯 Target: Function: `handleResponse` (High Local Complexity (4.2). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 12.94692832764505
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/ImageOptimizer.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 92)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/LazyLoad.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 87)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/ProjectionMath.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 88)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/SceneHelpers.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 271)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/Sidebar.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.20, Density: 0.04, Coupling: 0.03] | Drag: 3.95 | LOC: 569/500  🎯 Target: Function: `handleUpload` (High Local Complexity (5.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 10.845166959578208
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/LinkModal.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 175)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/Reducer.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 433)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/Constants.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 185)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
       "Violation": {
         "file": "../../src/systems/SimulationLogic.res",
         "pattern": "mutable ",
@@ -9,39 +169,39 @@
     },
     {
       "Surgical": {
-        "file": "../../src/systems/HotspotLineLogic.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.35, Density: 0.28, Coupling: 0.40] | Drag: 4.40 | LOC: 514/500  Hotspot: Lines 245-249 (AI Context Fog (score 67.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "file": "../../src/utils/SessionStore.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 80)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 5.796692607003891
+        "complexity": 0.0
       }
     },
     {
       "Surgical": {
-        "file": "../../src/components/Sidebar.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.20, Density: 0.30, Coupling: 0.28] | Drag: 4.69 | LOC: 569/500  Hotspot: Lines 103-107 (AI Context Fog (score 52.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "file": "../../src/components/ViewerSnapshot.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 57)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 11.58506151142355
+        "complexity": 0.0
       }
     },
     {
       "Surgical": {
-        "file": "../../src/systems/ApiLogic.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.35, Density: 0.39, Coupling: 0.51] | Drag: 4.94 | LOC: 586/500  Hotspot: Lines 598-602 (AI Context Fog (score 67.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "file": "../../src/utils/Logger.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 492)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 13.542150170648464
+        "complexity": 0.0
       }
     }
   ],
   "system": [
     {
       "Ambiguity": {
-        "file": "../../backend/src/pathfinder/algorithms.rs",
+        "file": "../../backend/src/services/geocoding.rs",
         "strategy": ""
       }
     },
@@ -53,7 +213,7 @@
     },
     {
       "Ambiguity": {
-        "file": "../../backend/src/services/geocoding.rs",
+        "file": "../../backend/src/pathfinder/algorithms.rs",
         "strategy": ""
       }
     },
@@ -61,12 +221,25 @@
       "Merge": {
         "folder": "backend/src/pathfinder",
         "files": [
-          "../../backend/src/pathfinder/algorithms.rs",
-          "../../backend/src/pathfinder/graph.rs"
+          "../../backend/src/pathfinder/graph.rs",
+          "../../backend/src/pathfinder/algorithms.rs"
         ],
         "reason": "Recursive Feature Pod: 2 files in subtree sum to 485 LOC (fits in context). Max Drag: 2.45",
         "strategy": "",
         "platform": "backend"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "src/utils",
+        "files": [
+          "../../src/utils/TourLogic.res",
+          "../../src/utils/GeoUtils.res",
+          "../../src/utils/PathInterpolation.res"
+        ],
+        "reason": "Recursive Feature Pod: 3 files in subtree sum to 448 LOC (fits in context). Max Drag: 4.36",
+        "strategy": "",
+        "platform": "frontend"
       }
     }
   ]

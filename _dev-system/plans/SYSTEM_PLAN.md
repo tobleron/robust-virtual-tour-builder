@@ -9,15 +9,21 @@
 ---
 
 ## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (3)
-- [ ] `../../backend/src/pathfinder/algorithms.rs`
-- [ ] `../../backend/src/pathfinder/graph.rs`
 - [ ] `../../backend/src/services/geocoding.rs`
+- [ ] `../../backend/src/pathfinder/graph.rs`
+- [ ] `../../backend/src/pathfinder/algorithms.rs`
 
 ---
 
-## 🧩 MERGE TASKS (1)
+## 🧩 MERGE TASKS (2)
 ### Merge Folder: `backend/src/pathfinder`
 - **Reason:** Recursive Feature Pod: 2 files in subtree sum to 485 LOC (fits in context). Max Drag: 2.45
 - **Files:**
-  - `../../backend/src/pathfinder/algorithms.rs`
   - `../../backend/src/pathfinder/graph.rs`
+  - `../../backend/src/pathfinder/algorithms.rs`
+### Merge Folder: `src/utils`
+- **Reason:** Recursive Feature Pod: 3 files in subtree sum to 448 LOC (fits in context). Max Drag: 4.36
+- **Files:**
+  - `../../src/utils/TourLogic.res`
+  - `../../src/utils/GeoUtils.res`
+  - `../../src/utils/PathInterpolation.res`
