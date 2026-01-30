@@ -1,32 +1,32 @@
 {
   "files": {
-    "../../src/systems/ServerTeaser.res": {
-      "last_action": null,
-      "last_action_timestamp": 0,
-      "stability_score": 0.0,
-      "failure_count": 51,
-      "last_failure_timestamp": 1769808179
-    },
     "../../src/systems/TeaserRecorder.res": {
       "last_action": null,
       "last_action_timestamp": 0,
       "stability_score": 0.0,
-      "failure_count": 51,
-      "last_failure_timestamp": 1769808179
+      "failure_count": 55,
+      "last_failure_timestamp": 1769813964
     },
     "../../src/systems/Simulation.res": {
       "last_action": null,
       "last_action_timestamp": 0,
       "stability_score": 0.0,
-      "failure_count": 51,
-      "last_failure_timestamp": 1769808179
+      "failure_count": 55,
+      "last_failure_timestamp": 1769813964
+    },
+    "../../src/systems/ServerTeaser.res": {
+      "last_action": null,
+      "last_action_timestamp": 0,
+      "stability_score": 0.0,
+      "failure_count": 55,
+      "last_failure_timestamp": 1769813964
     },
     "../../src/systems/Teaser.res": {
       "last_action": null,
       "last_action_timestamp": 0,
       "stability_score": 0.0,
-      "failure_count": 51,
-      "last_failure_timestamp": 1769808179
+      "failure_count": 55,
+      "last_failure_timestamp": 1769813964
     }
   }
 }
