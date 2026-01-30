@@ -9,16 +9,16 @@
 ---
 
 ## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (4)
-- [ ] `../../backend/src/services/geocoding/osm.rs`
+- [ ] `../../backend/src/pathfinder/walk.rs`
 - [ ] `../../backend/src/pathfinder/timeline.rs`
 - [ ] `../../backend/src/services/geocoding/cache.rs`
-- [ ] `../../backend/src/pathfinder/walk.rs`
+- [ ] `../../backend/src/services/geocoding/osm.rs`
 
 ---
 
 ## 🏗️ STRUCTURAL REFACTOR TASKS (1)
 - [ ] **auth** (Action: Vertical Slice)
-  - *Reason:* Feature fragmented across 3 folders.
+  - *Reason:* Feature fragmented across 3 files: [`../../backend/src/api/auth.rs`, `../../backend/src/middleware/auth.rs`, `../../backend/src/services/auth.rs`]
 
 ---
 
@@ -26,6 +26,6 @@
 ### Merge Folder: `../../backend/src/pathfinder`
 - **Reason:** Read Tax high (Score 3.00). Projected Limit: 300 (Drag 3.47)
 - **Files:**
-  - `graph.rs`
-  - `algorithms.rs`
-  - `utils.rs`
+  - `../../backend/src/pathfinder/algorithms.rs`
+  - `../../backend/src/pathfinder/utils.rs`
+  - `../../backend/src/pathfinder/graph.rs`

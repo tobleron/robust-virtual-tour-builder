@@ -263,7 +263,9 @@ fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>, config:
                     sorted_files.sort();
                     let mut item = format!("Folder: `{}` (Metric: {})", folder, reason);
                     for f in sorted_files {
-                        item.push_str(&format!("\n    - `{}`", f));
+                        // Concatenate folder and filename to provide full path context
+                        let full_path = Path::new(folder).join(f);
+                        item.push_str(&format!("\n    - `{}`", full_path.to_string_lossy()));
                     }
                     let groups = if platform == "backend" { &mut merges_be_grouped } else { &mut merges_fe_grouped };
                     groups.entry(("Merge Fragmented Folders".to_string(), strategy)).or_default().push(item);
@@ -437,7 +439,8 @@ fn flush_plans(buffer: &HashMap<String, Vec<WorkUnit>>, config: &EfficiencyConfi
                 if let WorkUnit::Merge { folder, files, reason, .. } = unit {
                     file.write_all(format!("### Merge Folder: `{}`\n- **Reason:** {}\n- **Files:**\n", folder, reason).as_bytes())?;
                     for f in files {
-                        file.write_all(format!("  - `{}`\n", f).as_bytes())?;
+                         let full_path = Path::new(folder).join(f);
+                        file.write_all(format!("  - `{}`\n", full_path.to_string_lossy()).as_bytes())?;
                     }
                 }
             }
@@ -795,15 +798,22 @@ fn main() -> Result<()> {
     }
     for (feature, paths) in feature_map {
         if paths.len() > 2 {
-            let folders: Vec<String> = paths.iter().map(|(p, _)| {
+            let mut unique_folders: Vec<String> = paths.iter().map(|(p, _)| {
                 Path::new(p).parent()
                     .map(|pp| pp.to_string_lossy().to_string())
                     .unwrap_or_else(|| ".".to_string())
             }).collect();
-            if folders.len() > 1 {
+            unique_folders.sort();
+            unique_folders.dedup();
+
+            if unique_folders.len() > 1 {
+                let mut sorted_paths = paths.clone();
+                sorted_paths.sort_by(|a, b| a.0.cmp(&b.0));
+
+                let locations = sorted_paths.iter().map(|(p, _)| format!("`{}`", p)).collect::<Vec<_>>().join(", ");
                 buffer.entry("system".to_string()).or_default().push(WorkUnit::Structural {
                     file: feature.clone(), action: "Vertical Slice".to_string(), platform: paths[0].1.clone(),
-                    reason: format!("Feature fragmented across {} folders.", folders.len()),
+                    reason: format!("Feature fragmented across {} files: [{}]", paths.len(), locations),
                     strategy: String::new()
                 });
             }

@@ -13,6 +13,6 @@
 **Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module to reduce token overhead during analysis.
 
 - [ ] Folder: `../../backend/src/pathfinder` (Metric: Read Tax high (Score 3.00). Projected Limit: 300 (Drag 3.47))
-    - `algorithms.rs`
-    - `graph.rs`
-    - `utils.rs`
+    - `../../backend/src/pathfinder/algorithms.rs`
+    - `../../backend/src/pathfinder/graph.rs`
+    - `../../backend/src/pathfinder/utils.rs`
