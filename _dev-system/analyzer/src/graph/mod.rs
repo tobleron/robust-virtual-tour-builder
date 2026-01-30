@@ -7,11 +7,16 @@ pub struct DependencyGraph {
 
 impl DependencyGraph {
     pub fn new() -> Self {
-        Self { adj: HashMap::new() }
+        Self {
+            adj: HashMap::new(),
+        }
     }
 
     pub fn add_dependency(&mut self, from: &str, to: &str) {
-        self.adj.entry(from.to_string()).or_default().push(to.to_string());
+        self.adj
+            .entry(from.to_string())
+            .or_default()
+            .push(to.to_string());
     }
 
     /// Detects cycles using simple DFS
@@ -23,13 +28,26 @@ impl DependencyGraph {
         for node in self.adj.keys() {
             if !visited.contains(node) {
                 let mut path = Vec::new();
-                self.dfs(node, &mut visited, &mut recursion_stack, &mut path, &mut cycles);
+                self.dfs(
+                    node,
+                    &mut visited,
+                    &mut recursion_stack,
+                    &mut path,
+                    &mut cycles,
+                );
             }
         }
         cycles
     }
 
-    fn dfs(&self, node: &str, visited: &mut HashSet<String>, stack: &mut HashSet<String>, path: &mut Vec<String>, cycles: &mut Vec<Vec<String>>) {
+    fn dfs(
+        &self,
+        node: &str,
+        visited: &mut HashSet<String>,
+        stack: &mut HashSet<String>,
+        path: &mut Vec<String>,
+        cycles: &mut Vec<Vec<String>>,
+    ) {
         visited.insert(node.to_string());
         stack.insert(node.to_string());
         path.push(node.to_string());
@@ -53,7 +71,11 @@ impl DependencyGraph {
     }
 
     /// Finds all unreachable nodes given a set of entry points
-    pub fn find_dead_code(&self, all_files: &HashSet<String>, entry_points: &HashSet<String>) -> Vec<String> {
+    pub fn find_dead_code(
+        &self,
+        all_files: &HashSet<String>,
+        entry_points: &HashSet<String>,
+    ) -> Vec<String> {
         let mut visited = HashSet::new();
         let mut queue = Vec::new();
 

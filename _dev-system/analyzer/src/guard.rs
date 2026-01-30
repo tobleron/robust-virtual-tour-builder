@@ -1,8 +1,8 @@
+use anyhow::Result;
+use regex::Regex;
 use std::fs;
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
-use anyhow::Result;
-use regex::Regex;
 
 #[derive(Debug, serde::Deserialize, Clone)]
 pub struct ExclusionRules {
@@ -16,10 +16,24 @@ pub fn is_project_source(path: &Path, rules: &ExclusionRules) -> bool {
     let file_name = path.file_name().unwrap_or_default().to_string_lossy();
     let ext = path.extension().and_then(|s| s.to_str()).unwrap_or("");
     let valid_extensions = ["rs", "res", "css", "html", "js", "jsx"];
-    if !valid_extensions.contains(&ext) { return false; }
-    for folder in &rules.folders { if p_str.contains(folder) { return false; } }
-    for file in &rules.files { if file_name == *file { return false; } }
-    for suffix in &rules.extensions { if file_name.ends_with(suffix) { return false; } }
+    if !valid_extensions.contains(&ext) {
+        return false;
+    }
+    for folder in &rules.folders {
+        if p_str.contains(folder) {
+            return false;
+        }
+    }
+    for file in &rules.files {
+        if file_name == *file {
+            return false;
+        }
+    }
+    for suffix in &rules.extensions {
+        if file_name.ends_with(suffix) {
+            return false;
+        }
+    }
     true
 }
 
@@ -85,9 +99,13 @@ pub fn task_exists(config: &GuardConfig, pattern: &str) -> bool {
 
 pub fn create_task(config: &GuardConfig, filename: &str, content: &str) -> Result<bool> {
     let file_path = if filename.contains("/") {
-        PathBuf::from(&config.tasks_dir).join("pending").join(filename)
+        PathBuf::from(&config.tasks_dir)
+            .join("pending")
+            .join(filename)
     } else {
-        PathBuf::from(&config.tasks_dir).join("pending").join(filename)
+        PathBuf::from(&config.tasks_dir)
+            .join("pending")
+            .join(filename)
     };
 
     if let Some(parent) = file_path.parent() {
@@ -105,7 +123,11 @@ pub fn create_task(config: &GuardConfig, filename: &str, content: &str) -> Resul
     }
 }
 
-pub fn append_to_unified_task(config: &GuardConfig, task_name: &str, description: &str) -> Result<bool> {
+pub fn append_to_unified_task(
+    config: &GuardConfig,
+    task_name: &str,
+    description: &str,
+) -> Result<bool> {
     let tests_dir = PathBuf::from(&config.tasks_dir).join("pending/tests");
     if !tests_dir.exists() {
         fs::create_dir_all(&tests_dir)?;
@@ -121,7 +143,7 @@ pub fn append_to_unified_task(config: &GuardConfig, task_name: &str, description
             }
         }
     }
-    
+
     let (mut content, path) = if let Some(path) = unified_path {
         (fs::read_to_string(&path)?, path)
     } else {
@@ -142,7 +164,11 @@ pub fn append_to_unified_task(config: &GuardConfig, task_name: &str, description
     }
     content.push_str(&format!("- [ ] {} ({})\n", task_name, description));
     fs::write(&path, content)?;
-    println!("➕ Appended to Unified Task: {} in {}", task_name, path.display());
+    println!(
+        "➕ Appended to Unified Task: {} in {}",
+        task_name,
+        path.display()
+    );
     Ok(true)
 }
 
@@ -220,12 +246,12 @@ pub fn check_map(config: &GuardConfig, rules: &ExclusionRules) -> Result<()> {
             // Extract path
             if let Some(start) = line.find('(') {
                 if let Some(end) = line.find(')') {
-                    let path_in_map = &line[start+1..end];
+                    let path_in_map = &line[start + 1..end];
                     let full_path = Path::new("../../").join(path_in_map);
                     if !is_project_source(&full_path, rules) || !full_path.exists() {
                         println!("🧹 Removing invalid/zombie unmapped entry: {}", path_in_map);
                         changed = true;
-                        continue; 
+                        continue;
                     }
                 }
             }
@@ -236,9 +262,11 @@ pub fn check_map(config: &GuardConfig, rules: &ExclusionRules) -> Result<()> {
 
     if !unmapped_files.is_empty() {
         println!("🗺️ Found {} unmapped files.", unmapped_files.len());
-        
+
         // Find or create header
-        let header_idx = lines.iter().position(|l| l.contains("## 🆕 Unmapped Modules"));
+        let header_idx = lines
+            .iter()
+            .position(|l| l.contains("## 🆕 Unmapped Modules"));
         let idx = if let Some(i) = header_idx {
             i + 1
         } else {
@@ -249,7 +277,10 @@ pub fn check_map(config: &GuardConfig, rules: &ExclusionRules) -> Result<()> {
         };
 
         for f in unmapped_files {
-            let entry = format!("* [{}]({}): New module detected. Please classify. #new", f, f);
+            let entry = format!(
+                "* [{}]({}): New module detected. Please classify. #new",
+                f, f
+            );
             if !lines.iter().any(|l| l.contains(&format!("[{}]", f))) {
                 lines.insert(idx, entry);
                 changed = true;
@@ -277,12 +308,13 @@ pub fn check_map(config: &GuardConfig, rules: &ExclusionRules) -> Result<()> {
     } else {
         // Check if unmapped section is now empty and remove the task if it was resolved
         let unmapped_header = "## 🆕 Unmapped Modules";
-        let has_unmapped_items = lines.iter()
+        let has_unmapped_items = lines
+            .iter()
             .skip_while(|l| !l.contains(unmapped_header))
             .skip(1) // Skip the header itself
             .take_while(|l| !l.starts_with("## ") || l.contains(unmapped_header)) // Take lines until next header or end of file
             .any(|l| l.starts_with("* [")); // Check if any of these lines are list items
-        
+
         if !has_unmapped_items {
             let pending_dir = format!("{}/pending", config.tasks_dir);
             if let Ok(entries) = fs::read_dir(pending_dir) {
@@ -300,17 +332,16 @@ pub fn check_map(config: &GuardConfig, rules: &ExclusionRules) -> Result<()> {
     Ok(())
 }
 
-
 pub fn check_tests(config: &GuardConfig, file_path: &Path) -> Result<()> {
     let p_str = file_path.to_string_lossy().replace("\\", "/");
-    
+
     // GUARD: Do not generate tests for files in the tests directory or library directories
     if p_str.contains("/tests/") || p_str.contains("/libs/") || !p_str.ends_with(".res") {
         return Ok(());
     }
 
     let file_base = file_path.file_stem().unwrap().to_string_lossy();
-    
+
     if file_base == "Version" {
         return Ok(());
     }
