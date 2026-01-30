@@ -88,10 +88,7 @@ fn extract_token(req: &ServiceRequest) -> Option<String> {
     })
 }
 
-async fn attach_user_to_request(
-    req: &ServiceRequest,
-    user_id: &str,
-) -> Result<(), HttpResponse> {
+async fn attach_user_to_request(req: &ServiceRequest, user_id: &str) -> Result<(), HttpResponse> {
     let pool = req.app_data::<web::Data<SqlitePool>>().ok_or_else(|| {
         tracing::error!("Database pool not found in app_data");
         HttpResponse::InternalServerError().finish()
@@ -103,8 +100,7 @@ async fn attach_user_to_request(
         .await
         .map_err(|e| {
             tracing::error!("Database error during auth: {}", e);
-            HttpResponse::InternalServerError()
-                .json(serde_json::json!({"error": "Database error"}))
+            HttpResponse::InternalServerError().json(serde_json::json!({"error": "Database error"}))
         })?
         .ok_or_else(|| {
             HttpResponse::Unauthorized().json(serde_json::json!({"error": "User not found"}))

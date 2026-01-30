@@ -7,7 +7,7 @@ pub mod osm;
 use crate::models::{CachedGeocode, GeocodeKey};
 
 pub use cache::{
-    clear_cache, get_info, load_cache_from_disk, save_cache_to_disk, GeocoderInfo, MAX_CACHE_SIZE,
+    GeocoderInfo, MAX_CACHE_SIZE, clear_cache, get_info, load_cache_from_disk, save_cache_to_disk,
 };
 
 pub async fn reverse_geocode(lat: f64, lon: f64) -> Result<String, String> {
@@ -48,12 +48,7 @@ mod tests {
         let address = "San Francisco, CA".to_string();
         let key = cache::round_coords(lat, lon);
         {
-            cache::manual_insert(
-                key,
-                address.clone(),
-                cache::get_current_timestamp(),
-                1,
-            ).await;
+            cache::manual_insert(key, address.clone(), cache::get_current_timestamp(), 1).await;
         }
         let result = reverse_geocode(lat, lon)
             .await
@@ -62,7 +57,9 @@ mod tests {
         let info = get_info().await;
         assert_eq!(info.stats.hits, 1);
 
-        let access_count = cache::get_cache_entry_access_count(&key).await.expect("Cache entry missing");
+        let access_count = cache::get_cache_entry_access_count(&key)
+            .await
+            .expect("Cache entry missing");
         assert_eq!(access_count, 2);
     }
 
@@ -71,12 +68,7 @@ mod tests {
         {
             for i in 0..MAX_CACHE_SIZE {
                 let key = (i as i32, 0);
-                cache::manual_insert(
-                    key,
-                    format!("Address {}", i),
-                    i as u64,
-                    1,
-                ).await;
+                cache::manual_insert(key, format!("Address {}", i), i as u64, 1).await;
             }
         }
 
@@ -103,12 +95,7 @@ mod tests {
 
     async fn test_clear_cache_internal() {
         {
-            cache::manual_insert(
-                (1, 1),
-                "foo".to_string(),
-                0,
-                0,
-            ).await;
+            cache::manual_insert((1, 1), "foo".to_string(), 0, 0).await;
         }
         clear_cache().await;
         let len = cache::get_cache_len().await;

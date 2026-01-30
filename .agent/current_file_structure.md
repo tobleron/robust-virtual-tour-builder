@@ -69,6 +69,8 @@
 │   │   │   ├── media
 │   │   │   │   ├── image.rs
 │   │   │   │   ├── image_logic.rs
+│   │   │   │   ├── image_multipart.rs
+│   │   │   │   ├── image_tasks.rs
 │   │   │   │   ├── mod.rs
 │   │   │   │   ├── serve.rs
 │   │   │   │   ├── similarity.rs
@@ -77,21 +79,32 @@
 │   │   │   ├── mod.rs
 │   │   │   ├── project.rs
 │   │   │   ├── project_logic.rs
+│   │   │   ├── project_multipart.rs
 │   │   │   ├── telemetry.rs
 │   │   │   └── utils.rs
 │   │   ├── lib.rs
 │   │   ├── main.rs
 │   │   ├── metrics.rs
-│   │   ├── middleware.rs
+│   │   ├── middleware
+│   │   │   ├── auth.rs
+│   │   │   ├── mod.rs
+│   │   │   ├── quota_check.rs
+│   │   │   └── request_tracker.rs
 │   │   ├── models.rs
 │   │   ├── pathfinder
 │   │   │   ├── algorithms.rs
-│   │   │   └── graph.rs
+│   │   │   ├── graph.rs
+│   │   │   ├── timeline.rs
+│   │   │   ├── utils.rs
+│   │   │   └── walk.rs
 │   │   ├── pathfinder.rs
 │   │   └── services
 │   │       ├── auth.rs
 │   │       ├── database.rs
-│   │       ├── geocoding.rs
+│   │       ├── geocoding
+│   │       │   ├── cache.rs
+│   │       │   ├── mod.rs
+│   │       │   └── osm.rs
 │   │       ├── media
 │   │       │   ├── analysis.rs
 │   │       │   ├── analysis_exif.rs
@@ -190,6 +203,43 @@
 │   │   │   ├── ServiceWorkerMain.cmj
 │   │   │   ├── ServiceWorkerMain.cmt
 │   │   │   ├── ServiceWorkerMain.res
+│   │   │   ├── bindings
+│   │   │   │   ├── BrowserBindings.ast
+│   │   │   │   ├── BrowserBindings.bs.js
+│   │   │   │   ├── BrowserBindings.cmi
+│   │   │   │   ├── BrowserBindings.cmj
+│   │   │   │   ├── BrowserBindings.cmt
+│   │   │   │   ├── BrowserBindings.res
+│   │   │   │   ├── DomBindings.ast
+│   │   │   │   ├── DomBindings.bs.js
+│   │   │   │   ├── DomBindings.cmi
+│   │   │   │   ├── DomBindings.cmj
+│   │   │   │   ├── DomBindings.cmt
+│   │   │   │   ├── DomBindings.res
+│   │   │   │   ├── GraphicsBindings.ast
+│   │   │   │   ├── GraphicsBindings.bs.js
+│   │   │   │   ├── GraphicsBindings.cmi
+│   │   │   │   ├── GraphicsBindings.cmj
+│   │   │   │   ├── GraphicsBindings.cmt
+│   │   │   │   ├── GraphicsBindings.res
+│   │   │   │   ├── IdbBindings.ast
+│   │   │   │   ├── IdbBindings.bs.js
+│   │   │   │   ├── IdbBindings.cmi
+│   │   │   │   ├── IdbBindings.cmj
+│   │   │   │   ├── IdbBindings.cmt
+│   │   │   │   ├── IdbBindings.res
+│   │   │   │   ├── ViewerBindings.ast
+│   │   │   │   ├── ViewerBindings.bs.js
+│   │   │   │   ├── ViewerBindings.cmi
+│   │   │   │   ├── ViewerBindings.cmj
+│   │   │   │   ├── ViewerBindings.cmt
+│   │   │   │   ├── ViewerBindings.res
+│   │   │   │   ├── WebApiBindings.ast
+│   │   │   │   ├── WebApiBindings.bs.js
+│   │   │   │   ├── WebApiBindings.cmi
+│   │   │   │   ├── WebApiBindings.cmj
+│   │   │   │   ├── WebApiBindings.cmt
+│   │   │   │   └── WebApiBindings.res
 │   │   │   ├── components
 │   │   │   │   ├── AppErrorBoundary.ast
 │   │   │   │   ├── AppErrorBoundary.bs.js
@@ -548,25 +598,6 @@
 │   │   │   │   ├── I18n.cmt
 │   │   │   │   └── I18n.res
 │   │   │   ├── systems
-│   │   │   │   ├── Api
-│   │   │   │   │   ├── ApiTypes.ast
-│   │   │   │   │   ├── ApiTypes.bs.js
-│   │   │   │   │   ├── ApiTypes.cmi
-│   │   │   │   │   ├── ApiTypes.cmj
-│   │   │   │   │   ├── ApiTypes.cmt
-│   │   │   │   │   ├── ApiTypes.res
-│   │   │   │   │   ├── AuthenticatedClient.ast
-│   │   │   │   │   ├── AuthenticatedClient.bs.js
-│   │   │   │   │   ├── AuthenticatedClient.cmi
-│   │   │   │   │   ├── AuthenticatedClient.cmj
-│   │   │   │   │   ├── AuthenticatedClient.cmt
-│   │   │   │   │   ├── AuthenticatedClient.res
-│   │   │   │   │   ├── MediaApi.ast
-│   │   │   │   │   ├── MediaApi.bs.js
-│   │   │   │   │   ├── MediaApi.cmi
-│   │   │   │   │   ├── MediaApi.cmj
-│   │   │   │   │   ├── MediaApi.cmt
-│   │   │   │   │   └── MediaApi.res
 │   │   │   │   ├── Api.ast
 │   │   │   │   ├── Api.bs.js
 │   │   │   │   ├── Api.cmi
@@ -1831,7 +1862,6 @@
 │   │   ├── ApiLogic.cmj
 │   │   ├── ApiLogic.cmt
 │   │   ├── ApiLogic.res
-│   │   ├── ApiTypes.res
 │   │   ├── ApiTypes_v.test.ast
 │   │   ├── ApiTypes_v.test.cmi
 │   │   ├── ApiTypes_v.test.cmj
@@ -1877,7 +1907,6 @@
 │   │   ├── AudioManager_v.test.cmj
 │   │   ├── AudioManager_v.test.cmt
 │   │   ├── AudioManager_v.test.res
-│   │   ├── AuthenticatedClient.res
 │   │   ├── AuthenticatedClient_v.test.ast
 │   │   ├── AuthenticatedClient_v.test.cmi
 │   │   ├── AuthenticatedClient_v.test.cmj
@@ -1898,6 +1927,11 @@
 │   │   ├── Bindings_Unified_v.test.cmj
 │   │   ├── Bindings_Unified_v.test.cmt
 │   │   ├── Bindings_Unified_v.test.res
+│   │   ├── BrowserBindings.ast
+│   │   ├── BrowserBindings.cmi
+│   │   ├── BrowserBindings.cmj
+│   │   ├── BrowserBindings.cmt
+│   │   ├── BrowserBindings.res
 │   │   ├── ColorPalette.ast
 │   │   ├── ColorPalette.cmi
 │   │   ├── ColorPalette.cmj
@@ -1928,6 +1962,11 @@
 │   │   ├── CursorPhysics_v.test.cmj
 │   │   ├── CursorPhysics_v.test.cmt
 │   │   ├── CursorPhysics_v.test.res
+│   │   ├── DomBindings.ast
+│   │   ├── DomBindings.cmi
+│   │   ├── DomBindings.cmj
+│   │   ├── DomBindings.cmt
+│   │   ├── DomBindings.res
 │   │   ├── DownloadSystem.ast
 │   │   ├── DownloadSystem.cmi
 │   │   ├── DownloadSystem.cmj
@@ -2058,6 +2097,11 @@
 │   │   ├── GlobalStateBridge_v.test.cmj
 │   │   ├── GlobalStateBridge_v.test.cmt
 │   │   ├── GlobalStateBridge_v.test.res
+│   │   ├── GraphicsBindings.ast
+│   │   ├── GraphicsBindings.cmi
+│   │   ├── GraphicsBindings.cmj
+│   │   ├── GraphicsBindings.cmt
+│   │   ├── GraphicsBindings.res
 │   │   ├── HotspotActionMenu.ast
 │   │   ├── HotspotActionMenu.cmi
 │   │   ├── HotspotActionMenu.cmj
@@ -2133,6 +2177,11 @@
 │   │   ├── I18n.cmj
 │   │   ├── I18n.cmt
 │   │   ├── I18n.res
+│   │   ├── IdbBindings.ast
+│   │   ├── IdbBindings.cmi
+│   │   ├── IdbBindings.cmj
+│   │   ├── IdbBindings.cmt
+│   │   ├── IdbBindings.res
 │   │   ├── ImageOptimizer.ast
 │   │   ├── ImageOptimizer.cmi
 │   │   ├── ImageOptimizer.cmj
@@ -2256,7 +2305,6 @@
 │   │   ├── Main_v.test.cmj
 │   │   ├── Main_v.test.cmt
 │   │   ├── Main_v.test.res
-│   │   ├── MediaApi.res
 │   │   ├── MediaApi_v.test.ast
 │   │   ├── MediaApi_v.test.cmi
 │   │   ├── MediaApi_v.test.cmj
@@ -3017,6 +3065,11 @@
 │   │   ├── VideoEncoder_v.test.cmj
 │   │   ├── VideoEncoder_v.test.cmt
 │   │   ├── VideoEncoder_v.test.res
+│   │   ├── ViewerBindings.ast
+│   │   ├── ViewerBindings.cmi
+│   │   ├── ViewerBindings.cmj
+│   │   ├── ViewerBindings.cmt
+│   │   ├── ViewerBindings.res
 │   │   ├── ViewerDriver.ast
 │   │   ├── ViewerDriver.cmi
 │   │   ├── ViewerDriver.cmj
@@ -3161,7 +3214,12 @@
 │   │   ├── VitestSmoke.test.cmi
 │   │   ├── VitestSmoke.test.cmj
 │   │   ├── VitestSmoke.test.cmt
-│   │   └── VitestSmoke.test.res
+│   │   ├── VitestSmoke.test.res
+│   │   ├── WebApiBindings.ast
+│   │   ├── WebApiBindings.cmi
+│   │   ├── WebApiBindings.cmj
+│   │   ├── WebApiBindings.cmt
+│   │   └── WebApiBindings.res
 │   └── rescript.lock
 ├── logs
 │   ├── error.log
@@ -4590,6 +4648,19 @@
 │   ├── ServiceWorker.res
 │   ├── ServiceWorkerMain.bs.js
 │   ├── ServiceWorkerMain.res
+│   ├── bindings
+│   │   ├── BrowserBindings.bs.js
+│   │   ├── BrowserBindings.res
+│   │   ├── DomBindings.bs.js
+│   │   ├── DomBindings.res
+│   │   ├── GraphicsBindings.bs.js
+│   │   ├── GraphicsBindings.res
+│   │   ├── IdbBindings.bs.js
+│   │   ├── IdbBindings.res
+│   │   ├── ViewerBindings.bs.js
+│   │   ├── ViewerBindings.res
+│   │   ├── WebApiBindings.bs.js
+│   │   └── WebApiBindings.res
 │   ├── components
 │   │   ├── AppErrorBoundary.bs.js
 │   │   ├── AppErrorBoundary.res
@@ -4904,11 +4975,15 @@
 │   │   ├── 1124_Complete_ReScript_JSX_Auto_Discovery_Implementation_DONE.md
 │   │   ├── 1125_Fix_Violations_FRONTEND_DONE.md
 │   │   ├── 1126_Upgrade_Dev_System_Semantic_Engine_DONE.md
+│   │   ├── 1127_Surgical_Refactor_CORE_FRONTEND_DONE.md
+│   │   ├── 1128_Surgical_Refactor_UTILS_FRONTEND_DONE.md
+│   │   ├── 1130_Surgical_Refactor_SRC_FRONTEND_DONE.md
 │   │   ├── 1131_Surgical_Refactor_SRC_BACKEND_DONE.md
 │   │   ├── 1132_Surgical_Refactor_MEDIA_BACKEND_DONE.md
 │   │   ├── 1133_Surgical_Refactor_API_BACKEND_DONE.md
 │   │   ├── 1135_Surgical_Refactor_SERVICES_BACKEND_DONE.md
 │   │   ├── 1136_Surgical_Refactor_PATHFINDER_BACKEND_DONE.md
+│   │   ├── 1137_Surgical_Refactor_SYSTEMS_FRONTEND_DONE.md
 │   │   ├── 1138_Merge_Folders_FRONTEND_DONE.md
 │   │   ├── 1139_Classify_Map_Entries_DONE.md
 │   │   ├── 1140_Surgical_Refactor_MEDIA_BACKEND_DONE.md
@@ -4916,6 +4991,11 @@
 │   │   ├── 1142_Surgical_Refactor_SRC_BACKEND_DONE.md
 │   │   ├── 1143_Surgical_Refactor_SERVICES_BACKEND_DONE.md
 │   │   ├── 1144_Surgical_Refactor_PATHFINDER_BACKEND_DONE.md
+│   │   ├── 1145_Surgical_Refactor_API_BACKEND_DONE.md
+│   │   ├── 1146_Surgical_Refactor_PATHFINDER_BACKEND_DONE.md
+│   │   ├── 1147_Surgical_Refactor_SERVICES_BACKEND_DONE.md
+│   │   ├── 1148_Surgical_Refactor_SRC_BACKEND_DONE.md
+│   │   ├── 1149_Surgical_Refactor_MEDIA_BACKEND_DONE.md
 │   │   ├── 795_Refactor_analysis_DONE.md
 │   │   ├── 798_Refactor_Backend_Streaming_ZIP_DONE.md
 │   │   ├── 799_Refactor_Backend_Asset_Sanitization_DONE.md
@@ -4958,15 +5038,14 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1127_Surgical_Refactor_CORE_FRONTEND.md
-│   │   ├── 1128_Surgical_Refactor_UTILS_FRONTEND.md
-│   │   ├── 1130_Surgical_Refactor_SRC_FRONTEND.md
-│   │   ├── 1137_Surgical_Refactor_SYSTEMS_FRONTEND.md
-│   │   ├── 1145_Surgical_Refactor_API_BACKEND.md
-│   │   ├── 1146_Surgical_Refactor_PATHFINDER_BACKEND.md
-│   │   ├── 1147_Surgical_Refactor_SERVICES_BACKEND.md
-│   │   ├── 1148_Surgical_Refactor_SRC_BACKEND.md
-│   │   ├── 1149_Surgical_Refactor_MEDIA_BACKEND.md
+│   │   ├── 1150_Surgical_Refactor_UTILS_FRONTEND.md
+│   │   ├── 1151_Surgical_Refactor_CORE_FRONTEND.md
+│   │   ├── 1152_Surgical_Refactor_SYSTEMS_FRONTEND.md
+│   │   ├── 1153_Aggregate_Completed_Tasks.md
+│   │   ├── 1154_Classify_Ambiguous_Files.md
+│   │   ├── 1155_Structural_Refactor_BACKEND.md
+│   │   ├── 1157_Merge_Folders_BACKEND.md
+│   │   ├── 1158_Classify_Map_Entries.md
 │   │   └── tests
 │   └── postponed
 │       ├── 900_COMMERCIAL_MIGRATION_MASTER.md
@@ -5281,4 +5360,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-201 directories, 5081 files
+204 directories, 5157 files

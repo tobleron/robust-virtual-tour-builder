@@ -47,8 +47,13 @@ pub fn process_image_full_sync(
     )?;
     let parallel_time = parallel_start.elapsed();
 
-    let webp_buffer_vec =
-        image_tasks::finalize_webp_buffer(&data, large_bytes, &metadata, is_optimized_frontend, src_w)?;
+    let webp_buffer_vec = image_tasks::finalize_webp_buffer(
+        &data,
+        large_bytes,
+        &metadata,
+        is_optimized_frontend,
+        src_w,
+    )?;
 
     let zip_start = Instant::now();
     let zip_bytes = image_tasks::create_zip_response(&webp_buffer_vec, &tiny_bytes, &metadata)?;

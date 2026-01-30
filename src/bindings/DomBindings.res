@@ -105,8 +105,7 @@ module Dom = {
   @send external scrollTo: (element, {..}) => unit = "scrollTo"
   @send external closest: (element, string) => Nullable.t<element> = "closest"
   @send
-  external addEventListenerCapture: (element, string, 'a => unit, bool) => unit =
-    "addEventListener"
+  external addEventListenerCapture: (element, string, 'a => unit, bool) => unit = "addEventListener"
   @send
   external removeEventListenerCapture: (element, string, 'a => unit, bool) => unit =
     "removeEventListener"

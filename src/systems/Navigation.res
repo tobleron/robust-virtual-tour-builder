@@ -84,15 +84,7 @@ module Renderer = {
     Float.fromInt(Constants.blinkRatePreview),
     Float.fromInt(Constants.blinkRateSimulation),
   )
-  let renderJourneyFrame = (
-    v,
-    prog,
-    pd: Types.pathData,
-    asP,
-    asY,
-    aWp,
-    aSeg,
-  ) => {
+  let renderJourneyFrame = (v, prog, pd: Types.pathData, asP, asY, aWp, aSeg) => {
     let (cp, cy) = NavigationLogic.calculateCameraPosition(~progress=prog, ~pathData=pd)
     Viewer.setPitch(v, cp, false)
     Viewer.setYaw(v, cy, false)
