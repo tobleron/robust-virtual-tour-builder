@@ -11,6 +11,8 @@ type apiError = string
 // --- INTERNAL LOGIC ---
 
 module Logic = {
+  external anyToUnknown: 'a => 'b = "%identity"
+
   let validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {
     switch JSON.Decode.object(data) {
     | Some(obj) =>
@@ -34,7 +36,7 @@ module Logic = {
     progress(0, 100, "Preparing metadata...")
     let projectData = ProjectData.toJSON(state)
     let formData = FormData.newFormData()
-    let jsonStr = JSON.stringify(Obj.magic(projectData))
+    let jsonStr = JSON.stringify(anyToUnknown(projectData))
     FormData.append(formData, "project_data", jsonStr)
 
     Belt.Array.forEachWithIndex(state.scenes, (_index, scene) => {
