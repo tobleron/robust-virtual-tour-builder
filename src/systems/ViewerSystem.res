@@ -8,6 +8,7 @@ module Adapter = {
   type t = Viewer.t
   type customViewerProps
   external asCustom: Viewer.t => customViewerProps = "%identity"
+  external identity: 'a => 'b = "%identity"
 
   @get @return(nullable) external getSceneId: customViewerProps => option<string> = "_sceneId"
   @set external setSceneId: (customViewerProps, string) => unit = "_sceneId"
@@ -48,17 +49,17 @@ module Adapter = {
   let setMetaData = (v, key, value) => {
     let c = asCustom(v)
     if key == "sceneId" {
-      setSceneId(c, Obj.magic(value))
+      setSceneId(c, identity(value))
     } else if key == "isLoaded" {
-      setIsLoaded(c, Obj.magic(value))
+      setIsLoaded(c, identity(value))
     }
   }
   let getMetaData = (v, key) => {
     let c = asCustom(v)
     if key == "sceneId" {
-      Some(Obj.magic(getSceneId(c)))
+      Some(identity(getSceneId(c)))
     } else if key == "isLoaded" {
-      Some(Obj.magic(getIsLoaded(c)))
+      Some(identity(getIsLoaded(c)))
     } else {
       None
     }
