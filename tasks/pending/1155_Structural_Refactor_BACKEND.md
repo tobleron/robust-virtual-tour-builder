@@ -11,4 +11,4 @@
 ### 🔧 Action: Vertical Slice
 **Directive:** Vertical Slicing: Group related UI and Logic files into a single 'Feature Pod' folder.
 
-- [ ] **auth** (Metric: Feature fragmented across 3 folders.)
+- [ ] **auth** (Metric: Feature fragmented across 3 files: [`../../backend/src/api/auth.rs`, `../../backend/src/middleware/auth.rs`, `../../backend/src/services/auth.rs`])
