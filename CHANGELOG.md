@@ -23,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Harmonize split/merge math and improve ReScript complexity fidelity
 - Integrate state density (mutability) into Drag formula across all languages
 
+### Fixed
+- Treat mapped modules in MAP.md as entry points to prevent false-positive unreachable module flags
+
 ## [4.8.11] - 2026-01-29
 
 ### Changed

@@ -277,3 +277,8 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [backend/src/services/media/mod.rs](backend/src/services/media/mod.rs): Facade for core media services (encoding, analysis, resizing). `#media` `#services` `#facade`
 *   [backend/src/services/media/storage.rs](backend/src/services/media/storage.rs): Persistent storage and retrieval of media assets. `#media` `#storage`
 *   [backend/src/services/media/naming_old.rs](backend/src/services/media/naming_old.rs): Legacy camera filename normalization logic. `#rust` `#legacy`
+
+## 🆕 Unmapped Modules
+* [src/systems/Api/AuthenticatedClient.res](src/systems/Api/AuthenticatedClient.res): New module detected. Please classify. #new
+* [src/systems/Api/ApiTypes.res](src/systems/Api/ApiTypes.res): New module detected. Please classify. #new
+* [src/systems/Api/MediaApi.res](src/systems/Api/MediaApi.res): New module detected. Please classify. #new
