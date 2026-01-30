@@ -21,11 +21,11 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 - [ ] - **../../src/systems/HotspotLineLogic.res** (Metric: [Nesting: 4.00, Density: 0.29, Coupling: 0.04] | Drag: 7.54 | LOC: 538/300  🎯 Target: Function: `mousePtOpt` (High Local Complexity (5.0). Logic heavy.))
 
-- [ ] - **../../src/systems/Navigation.res** (Metric: [Nesting: 5.50, Density: 0.41, Coupling: 0.09] | Drag: 10.81 | LOC: 380/300  🎯 Target: Function: `startJourney` (High Local Complexity (10.1). Logic heavy.))
+- [ ] - **../../src/systems/Navigation.res** (Metric: [Nesting: 6.00, Density: 0.40, Coupling: 0.08] | Drag: 10.23 | LOC: 390/300  🎯 Target: Function: `startJourney` (High Local Complexity (10.1). Logic heavy.))
 
 - [ ] - **../../src/systems/Resizer.res** (Metric: [Nesting: 3.50, Density: 0.20, Coupling: 0.10] | Drag: 8.23 | LOC: 301/300  🎯 Target: Function: `getMemoryUsage` (High Local Complexity (10.9). Logic heavy.))
 
-- [ ] - **../../src/systems/Scene.res** (Metric: [Nesting: 3.00, Density: 0.16, Coupling: 0.10] | Drag: 8.65 | LOC: 348/300  🎯 Target: Function: `scheduleCleanup` (High Local Complexity (6.6). Logic heavy.))
+- [ ] - **../../src/systems/Scene.res** (Metric: [Nesting: 3.00, Density: 0.16, Coupling: 0.09] | Drag: 6.97 | LOC: 350/300  🎯 Target: Function: `scheduleCleanup` (High Local Complexity (6.6). Logic heavy.))
 
 - [ ] - **../../src/systems/SimulationLogic.res** (Metric: [Nesting: 4.50, Density: 0.11, Coupling: 0.06] | Drag: 9.22 | LOC: 459/300  🎯 Target: Function: `globalViewer` (High Local Complexity (7.5). Logic heavy.))
 

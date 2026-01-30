@@ -226,13 +226,8 @@ pub fn process_image_full_sync(
     )?;
     let parallel_time = parallel_start.elapsed();
 
-    let webp_buffer_vec = finalize_webp_buffer(
-        &data,
-        large_bytes,
-        &metadata,
-        is_optimized_frontend,
-        src_w,
-    )?;
+    let webp_buffer_vec =
+        finalize_webp_buffer(&data, large_bytes, &metadata, is_optimized_frontend, src_w)?;
 
     let zip_start = Instant::now();
     let zip_bytes = create_zip_response(&webp_buffer_vec, &tiny_bytes, &metadata)?;
@@ -253,13 +248,18 @@ pub fn optimize_image_sync(data: Vec<u8>) -> Result<Vec<u8>, String> {
     let reader = image::ImageReader::new(Cursor::new(data))
         .with_guessed_format()
         .map_err(|e| format!("Failed to guess format: {}", e))?;
-    reader.format()
+    reader
+        .format()
         .ok_or_else(|| "Unsupported or invalid image format.".to_string())?;
     let img = reader
         .decode()
         .map_err(|e| format!("Failed to decode image: {}", e))?;
 
-    tracing::info!(module = "Optimizer", duration_ms = start.elapsed().as_millis(), "IMAGE_DECODE_COMPLETE");
+    tracing::info!(
+        module = "Optimizer",
+        duration_ms = start.elapsed().as_millis(),
+        "IMAGE_DECODE_COMPLETE"
+    );
 
     let resized = media::resize_fast(&img, PROCESSED_IMAGE_WIDTH, PROCESSED_IMAGE_WIDTH)
         .map_err(|e| format!("Resize failed: {}", e))?;
@@ -368,7 +368,9 @@ async fn process_optimized_field(field: &mut actix_multipart::Field) -> Result<b
     }
 }
 
-async fn process_metadata_field(field: &mut actix_multipart::Field) -> Result<Option<ExifMetadata>, AppError> {
+async fn process_metadata_field(
+    field: &mut actix_multipart::Field,
+) -> Result<Option<ExifMetadata>, AppError> {
     let value = read_field_content(field).await?;
     if let Ok(s) = String::from_utf8(value) {
         Ok(serde_json::from_str(&s).ok())
@@ -388,7 +390,9 @@ pub async fn read_multipart_image(mut payload: Multipart) -> Result<MultipartIma
             "file" => data = process_file_field(&mut field, &mut filename).await?,
             "is_optimized" => is_optimized = process_optimized_field(&mut field).await?,
             "metadata" => metadata = process_metadata_field(&mut field).await?,
-            _ => { let _ = read_field_content(&mut field).await?; }
+            _ => {
+                let _ = read_field_content(&mut field).await?;
+            }
         }
     }
 
