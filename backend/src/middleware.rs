@@ -55,33 +55,10 @@ pub mod auth {
             let service = self.service.clone();
 
             Box::pin(async move {
-                let token = match extract_token(&req) {
-                    Some(t) => t,
-                    None => {
-                        return Ok(req
-                            .into_response(HttpResponse::Unauthorized().json(serde_json::json!({
-                                "error": "Missing Authorization header or token param"
-                            })))
-                            .map_body(|_, b| EitherBody::Right { body: b }));
-                    }
-                };
-
-                // Validate token
-                let claims = match decode_token(&token) {
-                    Ok(claims) => claims,
-                    Err(e) => {
-                        return Ok(req
-                            .into_response(HttpResponse::Unauthorized().json(serde_json::json!({
-                                "error": e.to_string()
-                            })))
-                            .map_body(|_, b| EitherBody::Right { body: b }));
-                    }
-                };
-
-                // Fetch user from DB
-                if let Err(response) = attach_user_to_request(&req, &claims.sub).await {
-                    let res = req.into_response(response);
-                    return Ok(res.map_body(|_, b| EitherBody::Right { body: b }));
+                if let Err(response) = process_authentication(&req).await {
+                    return Ok(req
+                        .into_response(response)
+                        .map_body(|_, b| EitherBody::Right { body: b }));
                 }
 
                 // Continue request
@@ -95,8 +72,8 @@ pub mod auth {
         // Check Authorization header
         if let Some(header) = req.headers().get(header::AUTHORIZATION) {
             if let Ok(header_str) = header.to_str() {
-                if header_str.starts_with("Bearer ") {
-                    return Some(header_str[7..].to_string());
+                if let Some(token) = header_str.strip_prefix("Bearer ") {
+                    return Some(token.to_string());
                 }
             }
         }
@@ -116,34 +93,42 @@ pub mod auth {
         req: &ServiceRequest,
         user_id: &str,
     ) -> Result<(), HttpResponse> {
-        let pool = match req.app_data::<web::Data<SqlitePool>>() {
-            Some(p) => p,
-            None => {
-                tracing::error!("Database pool not found in app_data");
-                return Err(HttpResponse::InternalServerError().finish());
-            }
-        };
+        let pool = req.app_data::<web::Data<SqlitePool>>().ok_or_else(|| {
+            tracing::error!("Database pool not found in app_data");
+            HttpResponse::InternalServerError().finish()
+        })?;
 
-        let user_result = sqlx::query_as::<_, User>("SELECT * FROM users WHERE id = ?")
+        let user = sqlx::query_as::<_, User>("SELECT * FROM users WHERE id = ?")
             .bind(user_id)
             .fetch_optional(pool.get_ref())
-            .await;
-
-        match user_result {
-            Ok(Some(user)) => {
-                req.extensions_mut().insert(user);
-                Ok(())
-            }
-            Ok(None) => {
-                Err(HttpResponse::Unauthorized()
-                    .json(serde_json::json!({"error": "User not found"})))
-            }
-            Err(e) => {
+            .await
+            .map_err(|e| {
                 tracing::error!("Database error during auth: {}", e);
-                Err(HttpResponse::InternalServerError()
-                    .json(serde_json::json!({"error": "Database error"})))
-            }
-        }
+                HttpResponse::InternalServerError()
+                    .json(serde_json::json!({"error": "Database error"}))
+            })?
+            .ok_or_else(|| {
+                HttpResponse::Unauthorized().json(serde_json::json!({"error": "User not found"}))
+            })?;
+
+        req.extensions_mut().insert(user);
+        Ok(())
+    }
+
+    async fn process_authentication(req: &ServiceRequest) -> Result<(), HttpResponse> {
+        let token = extract_token(req).ok_or_else(|| {
+            HttpResponse::Unauthorized().json(serde_json::json!({
+                "error": "Missing Authorization header or token param"
+            }))
+        })?;
+
+        let claims = decode_token(&token).map_err(|e| {
+            HttpResponse::Unauthorized().json(serde_json::json!({
+                "error": e.to_string()
+            }))
+        })?;
+
+        attach_user_to_request(req, &claims.sub).await
     }
 }
 
@@ -198,15 +183,10 @@ pub mod quota_check {
         forward_ready!(service);
 
         fn call(&self, req: ServiceRequest) -> Self::Future {
-            let path = req.path().to_string();
-            let should_check = path.contains("/media/")
-                || path.contains("/project/save")
-                || path.contains("/project/import");
-
             let service = self.service.clone();
 
-            if !should_check {
-                return Box::pin(async move {
+            if !should_check_quota(&req) {
+                 return Box::pin(async move {
                     service
                         .call(req)
                         .await
@@ -231,17 +211,15 @@ pub mod quota_check {
 
             Box::pin(async move {
                 if let Some(manager) = quota_manager {
-                    // Check if upload can proceed
                     if let Err(e) = manager.can_upload(&ip, content_length).await {
                         tracing::warn!(ip = %ip, size = content_length, error = %e, "Upload rejected");
 
-                        let res = req.into_response(HttpResponse::TooManyRequests().json(
+                        return Ok(req.into_response(HttpResponse::TooManyRequests().json(
                             serde_json::json!({
                                 "error": "Quota exceeded",
                                 "message": e
                             }),
-                        ));
-                        return Ok(res.map_body(|_, b| EitherBody::Right { body: b }));
+                        )).map_body(|_, b| EitherBody::Right { body: b }));
                     }
 
                     // Register upload
@@ -253,12 +231,8 @@ pub mod quota_check {
                     // Unregister upload
                     manager.unregister_upload(&ip, content_length).await;
 
-                    match res_call {
-                        Ok(res) => Ok(res.map_body(|_, b| EitherBody::Left { body: b })),
-                        Err(e) => Err(e),
-                    }
+                    res_call.map(|res| res.map_body(|_, b| EitherBody::Left { body: b }))
                 } else {
-                    // No manager, proceed
                     service
                         .call(req)
                         .await
@@ -266,6 +240,13 @@ pub mod quota_check {
                 }
             })
         }
+    }
+
+    fn should_check_quota(req: &ServiceRequest) -> bool {
+        let path = req.path();
+        path.contains("/media/")
+            || path.contains("/project/save")
+            || path.contains("/project/import")
     }
 
     #[cfg(test)]
@@ -332,15 +313,14 @@ pub mod request_tracker {
             let fut = self.service.call(req);
 
             Box::pin(async move {
+                ACTIVE_SESSIONS.inc();
                 if let Some(manager) = shutdown_manager {
                     manager.register_request().await;
-                    ACTIVE_SESSIONS.inc();
                     let res = fut.await;
-                    ACTIVE_SESSIONS.dec();
                     manager.unregister_request().await;
+                    ACTIVE_SESSIONS.dec();
                     res
                 } else {
-                    ACTIVE_SESSIONS.inc();
                     let res = fut.await;
                     ACTIVE_SESSIONS.dec();
                     res

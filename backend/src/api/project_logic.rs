@@ -2,12 +2,59 @@ use serde_json::Value;
 use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use zip::write::FileOptions;
 
 use crate::api::utils::{PROCESSED_IMAGE_WIDTH, WEBP_QUALITY};
 use crate::models::ValidationReport;
 use crate::services::project;
+
+pub fn list_available_files(project_path: &Path) -> HashSet<String> {
+    let mut available_files = HashSet::new();
+    // Check images subdirectory
+    if let Ok(entries) = fs::read_dir(project_path.join("images")) {
+        for entry in entries.flatten() {
+            if let Ok(name) = entry.file_name().into_string() {
+                available_files.insert(name);
+            }
+        }
+    }
+    // Check root directory (fallback/legacy)
+    if let Ok(entries) = fs::read_dir(project_path) {
+        for entry in entries.flatten() {
+            if let Ok(name) = entry.file_name().into_string() {
+                available_files.insert(name);
+            }
+        }
+    }
+    available_files
+}
+
+pub fn extract_zip_to_project_dir(zip_path: &PathBuf, project_dir: &PathBuf) -> Result<(), String> {
+    let file = fs::File::open(zip_path).map_err(|e| e.to_string())?;
+    let mut archive = zip::ZipArchive::new(file).map_err(|e| e.to_string())?;
+
+    for i in 0..archive.len() {
+        let mut file = archive.by_index(i).map_err(|e| e.to_string())?;
+        let outpath = match file.enclosed_name() {
+            Some(path) => project_dir.join(path),
+            None => continue,
+        };
+
+        if file.name().ends_with('/') {
+            fs::create_dir_all(&outpath).map_err(|e| e.to_string())?;
+        } else {
+            if let Some(p) = outpath.parent() {
+                if !p.exists() {
+                    fs::create_dir_all(p).map_err(|e| e.to_string())?;
+                }
+            }
+            let mut outfile = fs::File::create(&outpath).map_err(|e| e.to_string())?;
+            std::io::copy(&mut file, &mut outfile).map_err(|e| e.to_string())?;
+        }
+    }
+    Ok(())
+}
 
 pub fn generate_project_summary(project_data: &Value) -> Result<String, String> {
     let tour_name = project_data["tourName"]
@@ -151,26 +198,17 @@ pub fn validate_project_full_sync(
     let project_data: Value =
         serde_json::from_str(&json_content).map_err(|e| format!("Invalid project JSON: {}", e))?;
     let summary = generate_project_summary(&project_data)?;
+
     let mut available_files = HashSet::new();
     for (name, _) in &temp_images {
         available_files.insert(name.clone());
     }
+
     if let Some(session_path) = &project_path {
-        if let Ok(entries) = fs::read_dir(session_path.join("images")) {
-            for entry in entries.flatten() {
-                if let Ok(name) = entry.file_name().into_string() {
-                    available_files.insert(name);
-                }
-            }
-        }
-        if let Ok(entries) = fs::read_dir(session_path) {
-            for entry in entries.flatten() {
-                if let Ok(name) = entry.file_name().into_string() {
-                    available_files.insert(name);
-                }
-            }
-        }
+        let existing_files = list_available_files(session_path);
+        available_files.extend(existing_files);
     }
+
     let (mut validated_project, report) =
         project::validate_and_clean_project(project_data, &available_files)?;
     validated_project["validationReport"] =
