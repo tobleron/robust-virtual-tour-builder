@@ -552,6 +552,12 @@ fn main() -> Result<()> {
     let resolver = Resolver::new(file_resolver.clone());
 
     // Sanity Guard: Ensure all orchestrators are treated as entry points
+    // Protection 3.0: Also treat everything in MAP.md as an entry point (Vital Modules)
+    let mapped_files = guard::get_mapped_files(&guard_config);
+    for f in mapped_files {
+        entry_points.insert(f);
+    }
+
     for (p_str, (_, content, taxonomy, _, _, _)) in &registry {
         // Any file with a specific role that is NOT ignored is likely an entry point or vital
         if taxonomy == "orchestrator" || taxonomy == "service-orchestrator" {

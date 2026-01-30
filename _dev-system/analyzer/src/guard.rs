@@ -1,5 +1,6 @@
 use anyhow::Result;
 use regex::Regex;
+use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
@@ -170,6 +171,34 @@ pub fn append_to_unified_task(
         path.display()
     );
     Ok(true)
+}
+
+pub fn get_mapped_files(config: &GuardConfig) -> HashSet<String> {
+    let mut mapped_paths = HashSet::new();
+    if let Ok(map_content) = fs::read_to_string(&config.map_file) {
+        let regex = Regex::new(r" \[.*?\]\((.*?)\)").unwrap();
+        for cap in regex.captures_iter(&map_content) {
+            let mut p = cap[1].to_string();
+            if p.starts_with("file://") {
+                if let Some(idx) = p.find("/robust-virtual-tour-builder/") {
+                    p = p[idx + "/robust-virtual-tour-builder/".len()..].to_string();
+                }
+            }
+            let clean_p = format!("../../{}", p.replace("\\", "/"));
+            mapped_paths.insert(clean_p);
+        }
+
+        // Fallback for [src/Main.res] style
+        let text_regex = Regex::new(r"\[(.*?)\]\(").unwrap();
+        for cap in text_regex.captures_iter(&map_content) {
+            let p = cap[1].to_string();
+            if p.contains('.') && (p.starts_with("src/") || p.starts_with("backend/src/")) {
+                let clean_p = format!("../../{}", p.replace("\\", "/"));
+                mapped_paths.insert(clean_p);
+            }
+        }
+    }
+    mapped_paths
 }
 
 pub fn check_map(config: &GuardConfig, rules: &ExclusionRules) -> Result<()> {
