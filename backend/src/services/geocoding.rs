@@ -32,51 +32,22 @@ fn format_address_from_json(json: &serde_json::Value) -> Option<String> {
     let address_obj = json.get("address")?;
     let mut parts = Vec::new();
 
-    let push_if_present = |parts: &mut Vec<String>, key: &str| {
-        if let Some(val) = address_obj.get(key).and_then(|v| v.as_str()) {
-            if !val.is_empty() {
-                parts.push(val.to_string());
+    let get_val = |keys: &[&str]| -> Option<String> {
+        for key in keys {
+            if let Some(val) = address_obj.get(key).and_then(|v| v.as_str()) {
+                if !val.is_empty() {
+                    return Some(val.to_string());
+                }
             }
         }
+        None
     };
 
-    push_if_present(&mut parts, "road");
-
-    // Suburb/Neighbourhood
-    let suburb = address_obj
-        .get("suburb")
-        .or_else(|| address_obj.get("neighbourhood"))
-        .and_then(|v| v.as_str());
-    if let Some(s) = suburb {
-        if !s.is_empty() {
-            parts.push(s.to_string());
-        }
-    }
-
-    // City/Town/Village
-    let city = address_obj
-        .get("city")
-        .or_else(|| address_obj.get("town"))
-        .or_else(|| address_obj.get("village"))
-        .and_then(|v| v.as_str());
-    if let Some(c) = city {
-        if !c.is_empty() {
-            parts.push(c.to_string());
-        }
-    }
-
-    // State/Province
-    let state = address_obj
-        .get("state")
-        .or_else(|| address_obj.get("province"))
-        .and_then(|v| v.as_str());
-    if let Some(s) = state {
-        if !s.is_empty() {
-            parts.push(s.to_string());
-        }
-    }
-
-    push_if_present(&mut parts, "country");
+    if let Some(v) = get_val(&["road"]) { parts.push(v); }
+    if let Some(v) = get_val(&["suburb", "neighbourhood"]) { parts.push(v); }
+    if let Some(v) = get_val(&["city", "town", "village"]) { parts.push(v); }
+    if let Some(v) = get_val(&["state", "province"]) { parts.push(v); }
+    if let Some(v) = get_val(&["country"]) { parts.push(v); }
 
     if !parts.is_empty() {
         Some(parts.join(", "))
@@ -112,17 +83,14 @@ pub async fn call_osm_nominatim(lat: f64, lon: f64) -> Result<String, String> {
         .await
         .map_err(|e| format!("Failed to parse OSM response: {}", e))?;
 
-    // Check for error in response
     if let Some(error) = json.get("error") {
         return Err(format!("OSM API error: {}", error));
     }
 
-    // Extract and format address
     if let Some(formatted) = format_address_from_json(&json) {
         return Ok(formatted);
     }
 
-    // Fallback to display_name
     json.get("display_name")
         .and_then(|v| v.as_str())
         .map(|s| s.to_string())
@@ -237,46 +205,55 @@ pub async fn clear_cache() {
     tracing::info!(module = "Geocoder", "CACHE_CLEARED");
 }
 
+async fn check_cache(key: GeocodeKey) -> Option<String> {
+    let mut cache = GEOCODE_CACHE.write().await;
+    if let Some(entry) = cache.get_mut(&key) {
+        entry.last_accessed = get_current_timestamp();
+        entry.access_count += 1;
+        let mut stats = CACHE_STATS.write().await;
+        stats.hits += 1;
+        GEOCODING_CACHE_HITS_TOTAL.inc();
+        return Some(entry.address.clone());
+    }
+    let mut stats = CACHE_STATS.write().await;
+    stats.misses += 1;
+    GEOCODING_CACHE_MISSES_TOTAL.inc();
+    None
+}
+
+async fn update_cache(key: GeocodeKey, address: String) {
+    let current_time = get_current_timestamp();
+    let cache_len = {
+        let cache = GEOCODE_CACHE.read().await;
+        cache.len()
+    };
+
+    if cache_len >= MAX_CACHE_SIZE {
+        evict_lru_entry(GEOCODE_CACHE.clone(), CACHE_STATS.clone()).await;
+    }
+
+    let mut cache = GEOCODE_CACHE.write().await;
+    cache.insert(
+        key,
+        CachedGeocode {
+            address,
+            last_accessed: current_time,
+            access_count: 1,
+        },
+    );
+}
+
 pub async fn reverse_geocode(lat: f64, lon: f64) -> Result<String, String> {
     tracing::info!(lat = lat, lon = lon, "REVERSE_GEOCODE_COORD_RECEIVED");
     let key = round_coords(lat, lon);
-    let current_time = get_current_timestamp();
 
-    {
-        let mut cache = GEOCODE_CACHE.write().await;
-        if let Some(entry) = cache.get_mut(&key) {
-            entry.last_accessed = current_time;
-            entry.access_count += 1;
-            let mut stats = CACHE_STATS.write().await;
-            stats.hits += 1;
-            GEOCODING_CACHE_HITS_TOTAL.inc();
-            return Ok(entry.address.clone());
-        }
-        let mut stats = CACHE_STATS.write().await;
-        stats.misses += 1;
-        GEOCODING_CACHE_MISSES_TOTAL.inc();
+    if let Some(address) = check_cache(key).await {
+        return Ok(address);
     }
 
     match call_osm_nominatim(lat, lon).await {
         Ok(address) => {
-            let cache_len = {
-                let cache = GEOCODE_CACHE.read().await;
-                cache.len()
-            };
-
-            if cache_len >= MAX_CACHE_SIZE {
-                evict_lru_entry(GEOCODE_CACHE.clone(), CACHE_STATS.clone()).await;
-            }
-
-            let mut cache = GEOCODE_CACHE.write().await;
-            cache.insert(
-                key,
-                CachedGeocode {
-                    address: address.clone(),
-                    last_accessed: current_time,
-                    access_count: 1,
-                },
-            );
+            update_cache(key, address.clone()).await;
             tracing::info!(address = %address, "REVERSE_GEOCODE_RESOLVED");
             Ok(address)
         }

@@ -171,6 +171,22 @@ fn create_zip_response(
     Ok(zip_buffer.into_inner())
 }
 
+fn finalize_webp_buffer(
+    data: &[u8],
+    large_bytes: Vec<u8>,
+    metadata: &MetadataResponse,
+    is_optimized_frontend: bool,
+    src_w: u32,
+) -> Result<Vec<u8>, String> {
+    if is_optimized_frontend && src_w == PROCESSED_IMAGE_WIDTH {
+        media::inject_remx_chunk(large_bytes, metadata)
+    } else if metadata.is_optimized && src_w == PROCESSED_IMAGE_WIDTH {
+        Ok(data.to_vec())
+    } else {
+        media::inject_remx_chunk(large_bytes, metadata)
+    }
+}
+
 // --- SYNC LOGIC ---
 
 pub fn process_image_full_sync(
@@ -210,13 +226,13 @@ pub fn process_image_full_sync(
     )?;
     let parallel_time = parallel_start.elapsed();
 
-    let webp_buffer_vec = if is_optimized_frontend && src_w == PROCESSED_IMAGE_WIDTH {
-        media::inject_remx_chunk(large_bytes, &metadata)?
-    } else if metadata.is_optimized && src_w == PROCESSED_IMAGE_WIDTH {
-        data.clone()
-    } else {
-        media::inject_remx_chunk(large_bytes, &metadata)?
-    };
+    let webp_buffer_vec = finalize_webp_buffer(
+        &data,
+        large_bytes,
+        &metadata,
+        is_optimized_frontend,
+        src_w,
+    )?;
 
     let zip_start = Instant::now();
     let zip_bytes = create_zip_response(&webp_buffer_vec, &tiny_bytes, &metadata)?;
@@ -237,14 +253,13 @@ pub fn optimize_image_sync(data: Vec<u8>) -> Result<Vec<u8>, String> {
     let reader = image::ImageReader::new(Cursor::new(data))
         .with_guessed_format()
         .map_err(|e| format!("Failed to guess format: {}", e))?;
-    let format = reader
-        .format()
+    reader.format()
         .ok_or_else(|| "Unsupported or invalid image format.".to_string())?;
     let img = reader
         .decode()
         .map_err(|e| format!("Failed to decode image: {}", e))?;
 
-    tracing::info!(module = "Optimizer", format = ?format, duration_ms = start.elapsed().as_millis(), "IMAGE_DECODE_COMPLETE");
+    tracing::info!(module = "Optimizer", duration_ms = start.elapsed().as_millis(), "IMAGE_DECODE_COMPLETE");
 
     let resized = media::resize_fast(&img, PROCESSED_IMAGE_WIDTH, PROCESSED_IMAGE_WIDTH)
         .map_err(|e| format!("Resize failed: {}", e))?;
@@ -330,49 +345,57 @@ async fn read_file_field_content(
     Ok(data)
 }
 
+async fn process_file_field(
+    field: &mut actix_multipart::Field,
+    original_filename: &mut Option<String>,
+) -> Result<Vec<u8>, AppError> {
+    if original_filename.is_none() {
+        if let Some(cd) = field.content_disposition() {
+            if let Some(fname) = cd.get_filename() {
+                *original_filename = Some(fname.to_string());
+            }
+        }
+    }
+    read_file_field_content(field, MAX_UPLOAD_SIZE).await
+}
+
+async fn process_optimized_field(field: &mut actix_multipart::Field) -> Result<bool, AppError> {
+    let value = read_field_content(field).await?;
+    if let Ok(s) = String::from_utf8(value) {
+        Ok(s.to_lowercase() == "true")
+    } else {
+        Ok(false)
+    }
+}
+
+async fn process_metadata_field(field: &mut actix_multipart::Field) -> Result<Option<ExifMetadata>, AppError> {
+    let value = read_field_content(field).await?;
+    if let Ok(s) = String::from_utf8(value) {
+        Ok(serde_json::from_str(&s).ok())
+    } else {
+        Ok(None)
+    }
+}
+
 pub async fn read_multipart_image(mut payload: Multipart) -> Result<MultipartImageData, AppError> {
     let mut data = Vec::new();
-    let mut original_filename: Option<String> = None;
-    let mut is_optimized_frontend = false;
-    let mut frontend_metadata: Option<ExifMetadata> = None;
+    let mut filename: Option<String> = None;
+    let mut is_optimized = false;
+    let mut metadata: Option<ExifMetadata> = None;
 
     while let Some(mut field) = payload.try_next().await? {
-        let name = field.name().unwrap_or("").to_string();
-
-        match name.as_str() {
-            "file" => {
-                if original_filename.is_none() {
-                    if let Some(cd) = field.content_disposition() {
-                        if let Some(fname) = cd.get_filename() {
-                            original_filename = Some(fname.to_string());
-                        }
-                    }
-                }
-                data = read_file_field_content(&mut field, MAX_UPLOAD_SIZE).await?;
-            }
-            "is_optimized" => {
-                let value = read_field_content(&mut field).await?;
-                if let Ok(s) = String::from_utf8(value) {
-                    is_optimized_frontend = s.to_lowercase() == "true";
-                }
-            }
-            "metadata" => {
-                let value = read_field_content(&mut field).await?;
-                if let Ok(s) = String::from_utf8(value) {
-                    frontend_metadata = serde_json::from_str(&s).ok();
-                }
-            }
-            _ => {
-                // Ignore unknown fields
-                let _ = read_field_content(&mut field).await?;
-            }
+        match field.name().unwrap_or("") {
+            "file" => data = process_file_field(&mut field, &mut filename).await?,
+            "is_optimized" => is_optimized = process_optimized_field(&mut field).await?,
+            "metadata" => metadata = process_metadata_field(&mut field).await?,
+            _ => { let _ = read_field_content(&mut field).await?; }
         }
     }
 
     Ok(MultipartImageData {
         data,
-        filename: original_filename,
-        is_optimized: is_optimized_frontend,
-        metadata: frontend_metadata,
+        filename,
+        is_optimized,
+        metadata,
     })
 }

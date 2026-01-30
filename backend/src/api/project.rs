@@ -145,7 +145,9 @@ pub async fn import_project(
     let project_dir =
         StorageManager::ensure_project_dir(&user.id, &project_id).map_err(AppError::IoError)?;
 
-    extract_zip_to_project_dir(&tmp_path, &project_dir)?;
+    // Use shared logic for extraction
+    project_logic::extract_zip_to_project_dir(&tmp_path, &project_dir)
+        .map_err(AppError::InternalError)?;
 
     let _ = fs::remove_file(&tmp_path);
     return Ok(HttpResponse::Ok().json(ImportResponse {
@@ -192,14 +194,7 @@ pub async fn validate_project(
     let project_path = StorageManager::get_user_project_path(&user.id, &payload.session_id);
 
     let result = web::block(move || {
-        let mut available_files = HashSet::new();
-        if let Ok(entries) = fs::read_dir(project_path.join("images")) {
-            for entry in entries.flatten() {
-                if let Ok(name) = entry.file_name().into_string() {
-                    available_files.insert(name);
-                }
-            }
-        }
+        let available_files = project_logic::list_available_files(&project_path);
         project::validate_and_clean_project(payload.data, &available_files)
     })
     .await
@@ -284,21 +279,11 @@ async fn parse_save_project_multipart(
     let mut temp_images: Vec<(String, PathBuf)> = Vec::new();
 
     while let Some(mut field) = payload.try_next().await? {
-        let name = field.name().unwrap_or("unknown").to_string();
-        match name.as_str() {
-            "project_data" => {
-                project_json = Some(read_string_field(&mut field).await?);
-            }
-            "files" => {
-                temp_images.push(save_temp_file_field(&mut field).await?);
-            }
-            "session_id" => {
-                session_id = Some(read_string_field(&mut field).await?);
-            }
-            _ => {
-                // consume unknown field
-                let _ = read_string_field(&mut field).await?;
-            }
+        match field.name().unwrap_or("") {
+            "project_data" => project_json = Some(read_string_field(&mut field).await?),
+            "files" => temp_images.push(save_temp_file_field(&mut field).await?),
+            "session_id" => session_id = Some(read_string_field(&mut field).await?),
+            _ => { let _ = read_string_field(&mut field).await?; }
         }
     }
     Ok((project_json, session_id, temp_images))
@@ -323,32 +308,6 @@ async fn extract_file_from_multipart(
     ))
 }
 
-fn extract_zip_to_project_dir(zip_path: &PathBuf, project_dir: &PathBuf) -> Result<(), AppError> {
-    let file = fs::File::open(zip_path).map_err(AppError::IoError)?;
-    let mut archive = zip::ZipArchive::new(file).map_err(|e| AppError::ZipError(e.to_string()))?;
-    for i in 0..archive.len() {
-        let mut file = archive
-            .by_index(i)
-            .map_err(|e| AppError::ZipError(e.to_string()))?;
-        let outpath = match file.enclosed_name() {
-            Some(path) => project_dir.join(path),
-            None => continue,
-        };
-        if file.name().ends_with('/') {
-            fs::create_dir_all(&outpath).map_err(AppError::IoError)?;
-        } else {
-            if let Some(p) = outpath.parent() {
-                if !p.exists() {
-                    fs::create_dir_all(p).map_err(AppError::IoError)?;
-                }
-            }
-            let mut outfile = fs::File::create(&outpath).map_err(AppError::IoError)?;
-            std::io::copy(&mut file, &mut outfile).map_err(AppError::IoError)?;
-        }
-    }
-    Ok(())
-}
-
 async fn parse_tour_package_multipart(
     mut payload: Multipart,
 ) -> Result<(Vec<(String, Vec<u8>)>, HashMap<String, String>), AppError> {
@@ -356,28 +315,22 @@ async fn parse_tour_package_multipart(
     let mut fields = HashMap::new();
 
     while let Some(mut field) = payload.try_next().await? {
-        let content_disposition = field
-            .content_disposition()
-            .ok_or_else(|| AppError::InternalError("Missing content disposition".into()))?;
-        let name = content_disposition
-            .get_name()
-            .unwrap_or("unknown")
-            .to_string();
+        let name = field.name().unwrap_or("unknown").to_string();
 
         if ["html_4k", "html_2k", "html_hd", "html_index", "embed_codes"].contains(&name.as_str()) {
-            fields.insert(name, read_string_field(&mut field).await?);
+             fields.insert(name, read_string_field(&mut field).await?);
         } else {
-            // Assume it's a file (library, logo, or scene)
-            let filename = content_disposition
-                .get_filename()
+             // It's a file
+             let filename = field.content_disposition()
+                .and_then(|cd| cd.get_filename())
                 .map(|f| f.to_string())
                 .unwrap_or_else(|| name.clone());
 
-            let mut bytes = Vec::new();
-            while let Some(chunk) = field.try_next().await? {
-                bytes.extend_from_slice(&chunk);
-            }
-            image_files.push((filename, bytes));
+             let mut bytes = Vec::new();
+             while let Some(chunk) = field.try_next().await? {
+                 bytes.extend_from_slice(&chunk);
+             }
+             image_files.push((filename, bytes));
         }
     }
     Ok((image_files, fields))
