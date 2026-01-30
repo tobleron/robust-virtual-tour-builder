@@ -319,7 +319,7 @@ describe("SceneHelpers", () => {
     }
 
     // Remove hotspot in s1 that points to s2
-    let stateAfterRemoveHotspot = handleRemoveHotspot(stateWithAutoForward, 0, 0)
+    let stateAfterRemoveHotspot = HotspotHelpers.handleRemoveHotspot(stateWithAutoForward, 0, 0)
     let s1AfterRemove = Belt.Array.getExn(stateAfterRemoveHotspot.scenes, 0)
     t->expect(Belt.Array.length(s1AfterRemove.hotspots))->Expect.toEqual(0)
 
@@ -352,7 +352,7 @@ describe("SceneHelpers", () => {
     }
 
     // Remove hotspot in s1 pointing to s3
-    let result = handleRemoveHotspot(state, 0, 0)
+    let result = HotspotHelpers.handleRemoveHotspot(state, 0, 0)
     let s3Result = Belt.Array.getExn(result.scenes, 2)
     // Should still be auto-forward because s2 still points to it
     t->expect(s3Result.isAutoForward)->Expect.toEqual(true)

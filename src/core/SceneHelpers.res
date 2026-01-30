@@ -173,49 +173,44 @@ let handleDeleteScene = (state: state, index: int): state => {
   }
 }
 
-let handleRemoveHotspot = (state: state, sceneIndex: int, hotspotIndex: int): state => {
-  let scenes = state.scenes
-  switch Belt.Array.get(scenes, sceneIndex) {
-  | Some(sourceScene) =>
-    switch Belt.Array.get(sourceScene.hotspots, hotspotIndex) {
-    | Some(hotspotToDelete) =>
-      let targetName = hotspotToDelete.target
+let handleReorderScenes = (state: state, fromIndex: int, toIndex: int): state => {
+  if fromIndex != toIndex {
+    let scenes = state.scenes
+    switch Belt.Array.get(scenes, fromIndex) {
+    | Some(movedItem) =>
+      let rest = Belt.Array.keepWithIndex(scenes, (_, i) => i != fromIndex)
+      let newScenes = UiHelpers.insertAt(rest, toIndex, movedItem)
 
-      // 1. Remove the hotspot
-      let newSourceHotspots = Belt.Array.keepWithIndex(sourceScene.hotspots, (_, i) =>
-        i != hotspotIndex
-      )
-      let scenesWithRemovedHotspot = Belt.Array.mapWithIndex(scenes, (i, s) => {
-        if i == sceneIndex {
-          {...s, hotspots: newSourceHotspots}
-        } else {
-          s
-        }
-      })
-
-      // 2. Check if anything else still points to targetName
-      let stillReferenced = Belt.Array.some(scenesWithRemovedHotspot, s => {
-        Belt.Array.some(s.hotspots, h => h.target == targetName)
-      })
-
-      // 3. If no longer referenced, reset target scene's isAutoForward
-      let finalScenes = if !stillReferenced {
-        Belt.Array.map(scenesWithRemovedHotspot, s => {
-          if s.name == targetName {
-            {...s, isAutoForward: false}
-          } else {
-            s
-          }
-        })
+      let newActiveIndex = if state.activeIndex == fromIndex {
+        toIndex
+      } else if state.activeIndex > fromIndex && state.activeIndex <= toIndex {
+        state.activeIndex - 1
+      } else if state.activeIndex < fromIndex && state.activeIndex >= toIndex {
+        state.activeIndex + 1
       } else {
-        scenesWithRemovedHotspot
+        state.activeIndex
       }
 
-      {...state, scenes: finalScenes}
+      {...state, scenes: syncSceneNames(newScenes), activeIndex: newActiveIndex}
     | None => state
     }
-  | None => state
+  } else {
+    state
   }
+}
+
+let updateSceneCategories = (
+  scenes: array<scene>,
+  targetIndex: int,
+  lastUsedCategory: string,
+): array<scene> => {
+  scenes->Belt.Array.mapWithIndex((i, s) => {
+    if i == targetIndex && !s.categorySet {
+      {...s, category: lastUsedCategory}
+    } else {
+      s
+    }
+  })
 }
 
 let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
@@ -315,4 +310,39 @@ let calculateTransition = (transition: option<transition>): transition => {
   | Some(t) => t
   | None => {type_: Fade, targetHotspotIndex: -1, fromSceneName: None}
   }
+}
+
+let handleSetActiveScene = (
+  state: state,
+  index: int,
+  yaw: float,
+  pitch: float,
+  transition: option<transition>,
+): state => {
+  if index >= 0 && index < Belt.Array.length(state.scenes) {
+    let newTransition = calculateTransition(transition)
+    let newScenes = updateSceneCategories(state.scenes, index, state.lastUsedCategory)
+
+    {
+      ...state,
+      scenes: newScenes,
+      activeIndex: index,
+      activeYaw: yaw,
+      activePitch: pitch,
+      transition: newTransition,
+    }
+  } else {
+    state
+  }
+}
+
+let handleApplyLazyRename = (state: state, index: int, name: string): state => {
+  let newScenes = Belt.Array.mapWithIndex(state.scenes, (i, s) => {
+    if i == index {
+      {...s, label: name}
+    } else {
+      s
+    }
+  })
+  {...state, scenes: syncSceneNames(newScenes)}
 }

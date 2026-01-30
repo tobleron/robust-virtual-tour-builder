@@ -13,43 +13,7 @@ module Scene = {
   }
 
   let handleReorderScenes = (state: state, fromIndex: int, toIndex: int): state => {
-    if fromIndex != toIndex {
-      let scenes = state.scenes
-      switch Belt.Array.get(scenes, fromIndex) {
-      | Some(movedItem) =>
-        let rest = Belt.Array.keepWithIndex(scenes, (_, i) => i != fromIndex)
-        let newScenes = UiHelpers.insertAt(rest, toIndex, movedItem)
-
-        let newActiveIndex = if state.activeIndex == fromIndex {
-          toIndex
-        } else if state.activeIndex > fromIndex && state.activeIndex <= toIndex {
-          state.activeIndex - 1
-        } else if state.activeIndex < fromIndex && state.activeIndex >= toIndex {
-          state.activeIndex + 1
-        } else {
-          state.activeIndex
-        }
-
-        {...state, scenes: SceneHelpers.syncSceneNames(newScenes), activeIndex: newActiveIndex}
-      | None => state
-      }
-    } else {
-      state
-    }
-  }
-
-  let updateSceneCategories = (
-    scenes: array<scene>,
-    targetIndex: int,
-    lastUsedCategory: string,
-  ): array<scene> => {
-    scenes->Belt.Array.mapWithIndex((i, s) => {
-      if i == targetIndex && !s.categorySet {
-        {...s, category: lastUsedCategory}
-      } else {
-        s
-      }
-    })
+    SceneHelpers.handleReorderScenes(state, fromIndex, toIndex)
   }
 
   let handleSetActiveScene = (
@@ -59,21 +23,7 @@ module Scene = {
     pitch: float,
     transition: option<transition>,
   ): state => {
-    if index >= 0 && index < Belt.Array.length(state.scenes) {
-      let newTransition = SceneHelpers.calculateTransition(transition)
-      let newScenes = updateSceneCategories(state.scenes, index, state.lastUsedCategory)
-
-      {
-        ...state,
-        scenes: newScenes,
-        activeIndex: index,
-        activeYaw: yaw,
-        activePitch: pitch,
-        transition: newTransition,
-      }
-    } else {
-      state
-    }
+    SceneHelpers.handleSetActiveScene(state, index, yaw, pitch, transition)
   }
 
   let handleUpdateSceneMetadata = (state: state, index: int, metaJson): state => {
@@ -85,14 +35,7 @@ module Scene = {
   }
 
   let handleApplyLazyRename = (state: state, index: int, name: string): state => {
-    let newScenes = Belt.Array.mapWithIndex(state.scenes, (i, s) => {
-      if i == index {
-        {...s, label: name}
-      } else {
-        s
-      }
-    })
-    {...state, scenes: SceneHelpers.syncSceneNames(newScenes)}
+    SceneHelpers.handleApplyLazyRename(state, index, name)
   }
 
   let reduce = (state: state, action: action): option<state> => {
@@ -112,104 +55,25 @@ module Scene = {
 }
 
 module Hotspot = {
-  let calculateNewReturnViewFrame = (hotspot: hotspot, isReturnLink: bool): option<viewFrame> => {
-    if isReturnLink && hotspot.returnViewFrame == None {
-      let vf = switch hotspot.viewFrame {
-      | Some(v) => v
-      | None => {yaw: 0.0, pitch: 0.0, hfov: 90.0}
-      }
-      Some({
-        yaw: vf.yaw,
-        pitch: vf.pitch,
-        hfov: vf.hfov,
-      })
-    } else {
-      hotspot.returnViewFrame
-    }
-  }
-
   let reduce = (state: state, action: action): option<state> => {
     switch action {
     | AddHotspot(sceneIndex, hotspot) =>
-      let newScenes = Belt.Array.mapWithIndex(state.scenes, (i, s) => {
-        if i == sceneIndex {
-          {...s, hotspots: Belt.Array.concat(s.hotspots, [hotspot])}
-        } else {
-          s
-        }
-      })
-      Some({...state, scenes: newScenes})
+      Some(HotspotHelpers.handleAddHotspot(state, sceneIndex, hotspot))
 
     | RemoveHotspot(sceneIndex, hotspotIndex) =>
-      Some(SceneHelpers.handleRemoveHotspot(state, sceneIndex, hotspotIndex))
+      Some(HotspotHelpers.handleRemoveHotspot(state, sceneIndex, hotspotIndex))
 
     | ClearHotspots(index) =>
-      let newScenes = Belt.Array.mapWithIndex(state.scenes, (i, s) => {
-        if i == index {
-          {...s, hotspots: []}
-        } else {
-          s
-        }
-      })
-      Some({...state, scenes: newScenes})
+      Some(HotspotHelpers.handleClearHotspots(state, index))
 
     | UpdateHotspotTargetView(sceneIndex, hotspotIndex, yaw, pitch, hfov) =>
-      let newScenes = Belt.Array.mapWithIndex(state.scenes, (i, s) => {
-        if i == sceneIndex {
-          let newHotspots = Belt.Array.mapWithIndex(s.hotspots, (hi, h) => {
-            if hi == hotspotIndex {
-              {...h, targetYaw: Some(yaw), targetPitch: Some(pitch), targetHfov: Some(hfov)}
-            } else {
-              h
-            }
-          })
-          {...s, hotspots: newHotspots}
-        } else {
-          s
-        }
-      })
-      Some({...state, scenes: newScenes})
+      Some(HotspotHelpers.handleUpdateHotspotTargetView(state, sceneIndex, hotspotIndex, yaw, pitch, hfov))
 
     | UpdateHotspotReturnView(sceneIndex, hotspotIndex, yaw, pitch, hfov) =>
-      let newScenes = Belt.Array.mapWithIndex(state.scenes, (i, s) => {
-        if i == sceneIndex {
-          let newHotspots = Belt.Array.mapWithIndex(s.hotspots, (hi, h) => {
-            if hi == hotspotIndex {
-              let vf: viewFrame = {yaw, pitch, hfov}
-              {...h, returnViewFrame: Some(vf), isReturnLink: Some(true)}
-            } else {
-              h
-            }
-          })
-          {...s, hotspots: newHotspots}
-        } else {
-          s
-        }
-      })
-      Some({...state, scenes: newScenes})
+      Some(HotspotHelpers.handleUpdateHotspotReturnView(state, sceneIndex, hotspotIndex, yaw, pitch, hfov))
 
     | ToggleHotspotReturnLink(sceneIndex, hotspotIndex) =>
-      let newScenes = Belt.Array.mapWithIndex(state.scenes, (i, s) => {
-        if i == sceneIndex {
-          let newHotspots = Belt.Array.mapWithIndex(s.hotspots, (hi, h) => {
-            if hi == hotspotIndex {
-              let currentVal = switch h.isReturnLink {
-              | Some(b) => b
-              | None => false
-              }
-              let nextVal = !currentVal
-              let newReturnViewFrame = calculateNewReturnViewFrame(h, nextVal)
-              {...h, isReturnLink: Some(nextVal), returnViewFrame: newReturnViewFrame}
-            } else {
-              h
-            }
-          })
-          {...s, hotspots: newHotspots}
-        } else {
-          s
-        }
-      })
-      Some({...state, scenes: newScenes})
+      Some(HotspotHelpers.handleToggleHotspotReturnLink(state, sceneIndex, hotspotIndex))
 
     | _ => None
     }
