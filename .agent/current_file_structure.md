@@ -15,6 +15,7 @@
 │   │   │   │   ├── mod.rs
 │   │   │   │   ├── rescript.rs
 │   │   │   │   └── rust.rs
+│   │   │   ├── feedback.rs
 │   │   │   ├── graph
 │   │   │   │   └── mod.rs
 │   │   │   ├── guard.rs
@@ -23,12 +24,13 @@
 │   │   │   ├── main.rs.backup
 │   │   │   ├── part2.rs
 │   │   │   ├── rescript_auto_discovery.rs
-│   │   │   └── resolver.rs
+│   │   │   ├── resolver.rs
+│   │   │   └── state.rs
 │   │   ├── test_manual_resolver
 │   │   └── tests
 │   │       ├── dependency_test.rs
 │   │       └── rescript_parser_test.rs
-│   ├── ARCHITECTURAL_MANIFEST.md
+│   ├── analyzer_state.json
 │   ├── config
 │   │   ├── deprecated
 │   │   │   └── templates_v1.json
@@ -4761,6 +4763,7 @@
 │   │   ├── 1117_Deep_Audit_and_Process_Enhancement.md
 │   │   ├── 1123_Comprehensive_DevSystem_Analyzer_Overhaul_DONE.md
 │   │   ├── 1124_Complete_ReScript_JSX_Auto_Discovery_Implementation_DONE.md
+│   │   ├── 1126_Upgrade_Dev_System_Semantic_Engine_DONE.md
 │   │   ├── 795_Refactor_analysis_DONE.md
 │   │   ├── 798_Refactor_Backend_Streaming_ZIP_DONE.md
 │   │   ├── 799_Refactor_Backend_Asset_Sanitization_DONE.md
@@ -4805,10 +4808,15 @@
 │   │   ├── 1118_Classify_Ambiguous_Files.md
 │   │   ├── 1119_Surgical_Refactor_COMPONENTS_FRONTEND.md
 │   │   ├── 1120_Surgical_Refactor_SYSTEMS_FRONTEND.md
-│   │   ├── 1121_Merge_Folders_BACKEND.md
 │   │   ├── 1122_Classify_Map_Entries.md
 │   │   ├── 1125_Fix_Violations_FRONTEND.md
-│   │   ├── 1126_Upgrade_Dev_System_Semantic_Engine.md
+│   │   ├── 1127_Surgical_Refactor_CORE_FRONTEND.md
+│   │   ├── 1128_Surgical_Refactor_UTILS_FRONTEND.md
+│   │   ├── 1129_Surgical_Refactor_I18N_FRONTEND.md
+│   │   ├── 1130_Surgical_Refactor_SRC_FRONTEND.md
+│   │   ├── 1131_Surgical_Refactor_SRC_BACKEND.md
+│   │   ├── 1132_Surgical_Refactor_MEDIA_BACKEND.md
+│   │   ├── 1133_Surgical_Refactor_API_BACKEND.md
 │   │   └── tests
 │   │       └── 006_Test_Generation_Unified.md
 │   ├── postponed
@@ -5125,4 +5133,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-191 directories, 4935 files
+191 directories, 4943 files
