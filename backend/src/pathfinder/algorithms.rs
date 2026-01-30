@@ -1,4 +1,6 @@
-use super::graph::{ArrivalView, Hotspot, PathRequest, Scene, Step, TimelineItem, TransitionTarget};
+use super::graph::{
+    ArrivalView, Hotspot, PathRequest, Scene, Step, TimelineItem, TransitionTarget,
+};
 use std::collections::HashSet;
 
 // --- UTILS ---
@@ -112,7 +114,10 @@ pub fn calculate_timeline_path(
                         .iter()
                         .find(|h| h.link_id.as_deref() == Some(&item.link_id))
                 } else {
-                    scene.hotspots.iter().find(|h| h.target == item.target_scene)
+                    scene
+                        .hotspots
+                        .iter()
+                        .find(|h| h.target == item.target_scene)
                 };
 
                 let (trans_yaw, trans_pitch) = match hotspot {
@@ -264,9 +269,8 @@ pub fn calculate_walk_path(
         });
 
         if let Some(link) = forward_link {
-            let mut next_idx = find_scene_index(&scenes, &link.target).ok_or_else(|| {
-                format!("Pathfinding error: Scene '{}' not found", link.target)
-            })?;
+            let mut next_idx = find_scene_index(&scenes, &link.target)
+                .ok_or_else(|| format!("Pathfinding error: Scene '{}' not found", link.target))?;
 
             // Update previous step transition target
             if let Some(last_step) = path.last_mut() {
@@ -336,8 +340,7 @@ pub fn calculate_walk_path(
 
             if skip_auto_forward {
                 let mut local_visited = HashSet::new();
-                next_idx =
-                    follow_auto_forward_chain(&scenes, next_idx, &mut local_visited, true)?;
+                next_idx = follow_auto_forward_chain(&scenes, next_idx, &mut local_visited, true)?;
             }
 
             let arr_view = if next_idx == original_target_idx {

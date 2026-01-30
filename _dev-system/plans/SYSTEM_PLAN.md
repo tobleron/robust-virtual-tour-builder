@@ -9,15 +9,15 @@
 ---
 
 ## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (3)
-- [ ] `../../backend/src/services/geocoding.rs`
-- [ ] `../../backend/src/pathfinder/graph.rs`
 - [ ] `../../backend/src/pathfinder/algorithms.rs`
+- [ ] `../../backend/src/pathfinder/graph.rs`
+- [ ] `../../backend/src/services/geocoding.rs`
 
 ---
 
 ## 🧩 MERGE TASKS (1)
 ### Merge Folder: `backend/src/pathfinder`
-- **Reason:** Recursive Feature Pod: 2 files in subtree sum to 482 LOC (fits in context). Max Drag: 2.45
+- **Reason:** Recursive Feature Pod: 2 files in subtree sum to 485 LOC (fits in context). Max Drag: 2.45
 - **Files:**
-  - `../../backend/src/pathfinder/graph.rs`
   - `../../backend/src/pathfinder/algorithms.rs`
+  - `../../backend/src/pathfinder/graph.rs`

@@ -9,12 +9,12 @@
 ---
 
 ## 🛠️ SURGICAL REFACTOR TASKS (3)
-- [ ] **../../src/systems/ApiLogic.res**
-  - *Reason:* [Nesting: 1.35, Density: 0.39, Coupling: 0.51] | Drag: 4.94 | LOC: 586/500  Hotspot: Lines 598-602 (AI Context Fog (score 67.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)
 - [ ] **../../src/systems/HotspotLineLogic.res**
   - *Reason:* [Nesting: 1.35, Density: 0.28, Coupling: 0.40] | Drag: 4.40 | LOC: 514/500  Hotspot: Lines 245-249 (AI Context Fog (score 67.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)
 - [ ] **../../src/components/Sidebar.res**
   - *Reason:* [Nesting: 1.20, Density: 0.30, Coupling: 0.28] | Drag: 4.69 | LOC: 569/500  Hotspot: Lines 103-107 (AI Context Fog (score 52.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)
+- [ ] **../../src/systems/ApiLogic.res**
+  - *Reason:* [Nesting: 1.35, Density: 0.39, Coupling: 0.51] | Drag: 4.94 | LOC: 586/500  Hotspot: Lines 598-602 (AI Context Fog (score 67.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)
 
 ---
 
