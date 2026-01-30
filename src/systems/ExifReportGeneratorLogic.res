@@ -42,6 +42,93 @@ module Utils = ExifUtils
 // --- LOGIC: EXTRACTION ---
 
 module Extraction = {
+  let processSceneDataItem = async (item: sceneDataItem) => {
+    let file = item.original
+    let exifData = switch item.metadataJson {
+    | Some(m) => {
+        let meta = Schemas.castToExifMetadata(m)
+        let hasGps = switch meta.gps->Nullable.toOption {
+        | Some(_) => true
+        | None => false
+        }
+
+        if hasGps {
+          let q =
+            item.qualityJson
+            ->Option.map(Schemas.castToQualityAnalysis)
+            ->Option.getOr(defaultQuality("Cached metadata loaded"))
+          {
+            exif: meta,
+            quality: q,
+            isOptimized: false,
+            checksum: "",
+            suggestedName: Nullable.null,
+          }
+        } else {
+          let localRes = await ExifParser.extractExifTags(File(file))
+          switch localRes {
+          | Ok((exif, _pano)) => {
+              exif,
+              quality: defaultQuality("GPS recovered locally"),
+              isOptimized: false,
+              checksum: "",
+              suggestedName: Nullable.null,
+            }
+          | Error(_) => {
+              let q =
+                item.qualityJson
+                ->Option.map(Schemas.castToQualityAnalysis)
+                ->Option.getOr(defaultQuality("Cached metadata (no GPS)"))
+              {
+                exif: meta,
+                quality: q,
+                isOptimized: false,
+                checksum: "",
+                suggestedName: Nullable.null,
+              }
+            }
+          }
+        }
+      }
+    | None =>
+      let localRes = await ExifParser.extractExifTags(File(file))
+      switch localRes {
+      | Ok((exif, _pano)) => {
+          exif,
+          quality: defaultQuality("Extracted locally"),
+          isOptimized: false,
+          checksum: "",
+          suggestedName: Nullable.null,
+        }
+      | Error(msg) => {
+          exif: defaultExif,
+          quality: defaultQuality("Local extraction failed: " ++ msg),
+          isOptimized: false,
+          checksum: "error",
+          suggestedName: Nullable.null,
+        }
+      }
+    }
+
+    let result: exifResult = {
+      filename: File.name(file),
+      exifData: exifData.exif,
+      qualityData: exifData.quality,
+    }
+
+    let gpsPoint = switch exifData.exif.gps->Nullable.toOption {
+    | Some(gpsDict) => Some({GeoUtils.lat: gpsDict.lat, lon: gpsDict.lon})
+    | None => None
+    }
+
+    let dateTime = switch exifData.exif.dateTime->Nullable.toOption {
+    | Some(dt) => if dt != "" {Some(dt)} else {None}
+    | None => None
+    }
+
+    (result, gpsPoint, File.name(file), dateTime)
+  }
+
   let extractAllExif = async (sceneDataList: array<sceneDataItem>) => {
     let exifResults = []
     let gpsPoints: array<GeoUtils.point> = []
@@ -51,99 +138,18 @@ module Extraction = {
     for i in 0 to Array.length(sceneDataList) - 1 {
       switch Belt.Array.get(sceneDataList, i) {
       | Some(item) => {
-          let file = item.original
-          let exifData = switch item.metadataJson {
-          | Some(m) => {
-              let meta = Schemas.castToExifMetadata(m)
-              let hasGps = switch meta.gps->Nullable.toOption {
-              | Some(_) => true
-              | None => false
-              }
-
-              if hasGps {
-                let q =
-                  item.qualityJson
-                  ->Option.map(Schemas.castToQualityAnalysis)
-                  ->Option.getOr(defaultQuality("Cached metadata loaded"))
-                {
-                  exif: meta,
-                  quality: q,
-                  isOptimized: false,
-                  checksum: "",
-                  suggestedName: Nullable.null,
-                }
-              } else {
-                let localRes = await ExifParser.extractExifTags(File(file))
-                switch localRes {
-                | Ok((exif, _pano)) => {
-                    exif,
-                    quality: defaultQuality("GPS recovered locally"),
-                    isOptimized: false,
-                    checksum: "",
-                    suggestedName: Nullable.null,
-                  }
-                | Error(_) => {
-                    let q =
-                      item.qualityJson
-                      ->Option.map(Schemas.castToQualityAnalysis)
-                      ->Option.getOr(defaultQuality("Cached metadata (no GPS)"))
-                    {
-                      exif: meta,
-                      quality: q,
-                      isOptimized: false,
-                      checksum: "",
-                      suggestedName: Nullable.null,
-                    }
-                  }
-                }
-              }
-            }
-          | None =>
-            let localRes = await ExifParser.extractExifTags(File(file))
-            switch localRes {
-            | Ok((exif, _pano)) => {
-                exif,
-                quality: defaultQuality("Extracted locally"),
-                isOptimized: false,
-                checksum: "",
-                suggestedName: Nullable.null,
-              }
-            | Error(msg) => {
-                exif: defaultExif,
-                quality: defaultQuality("Local extraction failed: " ++ msg),
-                isOptimized: false,
-                checksum: "error",
-                suggestedName: Nullable.null,
-              }
-            }
-          }
-
-          let result: exifResult = {
-            filename: File.name(file),
-            exifData: exifData.exif,
-            qualityData: exifData.quality,
-          }
+          let (result, gpsOpt, filename, dtOpt) = await processSceneDataItem(item)
           let _ = Array.push(exifResults, result)
 
-          let gpsOpt = exifData.exif.gps
-          switch gpsOpt->Nullable.toOption {
-          | Some(gpsDict) => {
-              let gpsPoint: GeoUtils.point = {lat: gpsDict.lat, lon: gpsDict.lon}
-              let _ = Array.push(gpsPoints, gpsPoint)
-              let _ = Array.push(gpsFilenames, File.name(file))
-            }
+          switch gpsOpt {
+          | Some(p) =>
+            let _ = Array.push(gpsPoints, p)
+            let _ = Array.push(gpsFilenames, filename)
           | None => ()
           }
 
           if captureDateTime.contents == None {
-            let dateOpt = exifData.exif.dateTime
-            switch dateOpt->Nullable.toOption {
-            | Some(dt) =>
-              if dt != "" {
-                captureDateTime := Some(dt)
-              }
-            | None => ()
-            }
+            captureDateTime := dtOpt
           }
         }
       | None => ()

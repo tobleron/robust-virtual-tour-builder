@@ -6,7 +6,7 @@ open Actions
 
 // --- UTILS ---
 
-module Utils = {
+module NotificationHelpers = {
   let getNotificationType = (typeStr: string) => {
     switch typeStr {
     | "error" => #Error
@@ -15,9 +15,11 @@ module Utils = {
     | _ => #Info
     }
   }
+}
 
+module Utils = {
   let notify = (msg, typeStr) => {
-    EventBus.dispatch(ShowNotification(msg, getNotificationType(typeStr)))
+    EventBus.dispatch(ShowNotification(msg, NotificationHelpers.getNotificationType(typeStr)))
   }
 }
 
