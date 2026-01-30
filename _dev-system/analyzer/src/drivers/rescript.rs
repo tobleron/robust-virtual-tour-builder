@@ -11,6 +11,7 @@ pub fn analyze_rescript(content: &str, dict: &std::collections::HashMap<String, 
         hotspot_reason: None,
         external_calls: 0,
         internal_calls: 0,
+        state_count: 0,
         dependencies: Vec::new(),
     };
     
@@ -106,7 +107,10 @@ pub fn analyze_rescript(content: &str, dict: &std::collections::HashMap<String, 
         // Local logic
         local_score += (stripped_line.matches("->").count() as f64) * 1.0;
         local_score += (stripped_line.matches("switch").count() as f64) * 2.0;
-        local_score += (stripped_line.matches("mutable").count() as f64) * 5.0;
+
+        let sc = stripped_line.matches("mutable").count() + stripped_line.matches("ref(").count() + stripped_line.matches("useState").count();
+        metrics.state_count += sc;
+        local_score += (sc as f64) * 5.0;
 
         line_scores.push(local_score);
     }

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Harmonize split/merge math and improve ReScript complexity fidelity
+- Integrate state density (mutability) into Drag formula across all languages
 
 ## [4.8.11] - 2026-01-29
 

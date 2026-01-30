@@ -10,6 +10,7 @@ pub fn analyze_html(content: &str, dict: &std::collections::HashMap<String, f64>
         hotspot_reason: None,
         external_calls: 0,
         internal_calls: 0,
+        state_count: 0,
         dependencies: Vec::new(),
     };
     
