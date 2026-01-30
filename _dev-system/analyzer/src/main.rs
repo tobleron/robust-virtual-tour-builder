@@ -144,6 +144,29 @@ fn generate_strategic_directive(unit: &WorkUnit) -> String {
     }
 }
 
+fn calculate_dynamic_limit(
+    drag: f64, 
+    p_mod: f64, 
+    cohesion_bonus: f64, 
+    dynamic_base: f64, 
+    config: &EfficiencyConfig,
+    p_str: &str
+) -> usize {
+    let mut limit = ((dynamic_base * p_mod * cohesion_bonus) / drag.powf(0.75)).max(config.settings.soft_floor_loc as f64) as usize;
+    
+    if let Some(exceptions) = &config.exceptions {
+        for rule in exceptions {
+            if p_str.contains(&rule.pattern) {
+                if let Some(max) = rule.max_loc {
+                    limit = max;
+                }
+                break;
+            }
+        }
+    }
+    limit.min(config.settings.hard_ceiling_loc)
+}
+
 fn sync_architectural_category(category_name: &str, platform: &str, units: &[String], objective: &str) -> Result<Option<PathBuf>> {
     let pending_dir = "../../tasks/pending";
     let platform_label = if platform.is_empty() { "".to_string() } else { format!("_{}", platform.to_uppercase()) };
@@ -597,9 +620,7 @@ fn main() -> Result<()> {
 
         let drag = 1.0 + (metrics.max_nesting as f64 * config.settings.nesting_weight) + (density * config.settings.density_weight) + (complexity_density * 20.0) + depth_penalty;
 
-        let mut limit = ((dynamic_base * p_mod * cohesion_bonus) / drag.powf(0.75)).max(config.settings.soft_floor_loc as f64) as usize;
-        if let Some(exceptions) = &config.exceptions { for rule in exceptions { if p_str.contains(&rule.pattern) { if let Some(max) = rule.max_loc { limit = max; } break; } } }
-        limit = limit.min(config.settings.hard_ceiling_loc);
+        let limit = calculate_dynamic_limit(drag, p_mod, cohesion_bonus, dynamic_base, &config, p_str);
 
         // 3. Dead Code Task (Check for ALL files)
         if dead_files.contains(p_str) && metrics.loc > config.settings.min_dead_code_loc {
@@ -613,9 +634,11 @@ fn main() -> Result<()> {
              });
         }
 
+        let mut is_surgical = false;
         if taxonomy != "unknown" {
             // 4. Surgical Refactor Task (De-bloat) - Only for known modules
             if metrics.loc > limit {
+                is_surgical = true;
                 let nesting_factor = metrics.max_nesting as f64 * config.settings.nesting_weight;
                 let density_factor = density * config.settings.density_weight;
                 let breakdown = format!("[Nesting: {:.2}, Density: {:.2}, Coupling: {:.2}] | Drag: {:.2} | LOC: {}/{}",
@@ -644,13 +667,17 @@ fn main() -> Result<()> {
                 });
             }
 
-            // 5. Stats Aggregation for Merges - Only for known modules
-            let dir = path.parent().unwrap().to_string_lossy().to_string();
-            let ext_str = path.extension().and_then(|s| s.to_str()).unwrap_or("").to_string();
-            dir_stats.entry((dir, ext_str)).or_default().push((path.file_name().unwrap().to_string_lossy().to_string(), metrics.loc, platform.clone(), drag, p_mod));
+            // Conflict Locking: If a file is surgical, it cannot be merged.
+            // Also, only known taxonomies are considered for merging.
+            if !is_surgical && taxonomy != "unknown" {
+                // 5. Stats Aggregation for Merges - Only for known modules AND non-surgical files (Conflict Locking)
+                let dir = path.parent().unwrap().to_string_lossy().to_string();
+                let ext_str = path.extension().and_then(|s| s.to_str()).unwrap_or("").to_string();
+                dir_stats.entry((dir, ext_str)).or_default().push((path.file_name().unwrap().to_string_lossy().to_string(), metrics.loc, platform.clone(), drag, p_mod));
 
-            let file_stem = path.file_stem().unwrap_or_default().to_string_lossy().to_string();
-            if file_stem.len() > 3 { feature_map.entry(file_stem).or_default().push((p_str.clone(), platform.clone())); }
+                let file_stem = path.file_stem().unwrap_or_default().to_string_lossy().to_string();
+                if file_stem.len() > 3 { feature_map.entry(file_stem).or_default().push((p_str.clone(), platform.clone())); }
+            }
         }
 
         // 6. Violation Check (Check for ALL files)
@@ -676,14 +703,17 @@ fn main() -> Result<()> {
     let mut processed_merge_files: HashSet<String> = HashSet::new();
 
     for (p_str, (_, _, _, metrics, platform, _)) in &registry {
-        // --- Circularity Prevention: Skip unreachable files for merging ---
-        if dead_files.contains(p_str) { continue; }
+        // --- Circularity Prevention: Skip unreachable files OR surgical files for merging ---
+        if dead_files.contains(p_str) || buffer.values().any(|units| units.iter().any(|u| if let WorkUnit::Surgical { file, .. } = u { file == p_str } else { false })) { continue; }
+
+        let drag = 1.0 + (metrics.max_nesting as f64 * config.settings.nesting_weight) + ((metrics.logic_count as f64 / metrics.loc as f64) * config.settings.density_weight) + ((metrics.complexity_penalty / metrics.loc as f64) * 20.0);
 
         // We use extension as a proxy for language/compatibility
         let ext = Path::new(p_str).extension().and_then(|s| s.to_str()).unwrap_or("").to_string();
         recursive_groups.entry((platform.clone(), ext)).or_default().push(FileInfo {
             path: p_str.clone(),
             loc: metrics.loc,
+            drag,
         });
     }
 
@@ -691,12 +721,19 @@ fn main() -> Result<()> {
     for ((platform, _ext), files) in recursive_groups {
         let clusters = find_recursive_clusters(files, config.settings.hard_ceiling_loc);
         for cluster in clusters {
+             // NEW: Recommendation 4 - Check if this cluster would violate the dynamic limit
+             let projected_limit = calculate_dynamic_limit(cluster.max_drag, 1.0, 1.0, dynamic_base, &config, &cluster.root_folder);
+             
+             if cluster.total_loc as f64 > projected_limit as f64 {
+                 continue; // Too complex to merge as a pod
+             }
+
              for f in &cluster.files { processed_merge_files.insert(f.clone()); }
              buffer.entry("system".to_string()).or_default().push(WorkUnit::Merge {
                 folder: cluster.root_folder.clone(),
                 files: cluster.files.clone(),
                 platform: platform.clone(),
-                reason: format!("Recursive Feature Pod: {} files in subtree sum to {} LOC (fits in context).", cluster.files.len(), cluster.total_loc),
+                reason: format!("Recursive Feature Pod: {} files in subtree sum to {} LOC (fits in context). Max Drag: {:.2}", cluster.files.len(), cluster.total_loc, cluster.max_drag),
                 strategy: String::new()
             });
         }
@@ -719,10 +756,10 @@ fn main() -> Result<()> {
         let max_drag: f64 = eligible_files.iter().map(|(_,_,_,d,_)| *d).fold(0.0, f64::max);
         let min_pmod: f64 = eligible_files.iter().map(|(_,_,_,_,m)| *m).fold(100.0, f64::min);
         let safe_drag = if max_drag < 1.0 { 1.0 } else { max_drag };
-        // We use the same Drag^0.75 curve as the split logic to determine the projected limit.
-        let projected_limit = (dynamic_base * min_pmod) / safe_drag.powf(0.75);
+        
+        let projected_limit = calculate_dynamic_limit(safe_drag, min_pmod, 1.0, dynamic_base, &config, &dir);
 
-        let score = if total as f64 > projected_limit {
+        let score = if total as f64 > projected_limit as f64 {
              0.0 // Force score to 0 to prevent merge
         } else {
              calculate_merge_score(FolderStats { file_count: eligible_files.len(), total_loc: total }, config.settings.hard_ceiling_loc)

@@ -79,6 +79,8 @@ pub fn analyze_rescript(content: &str, dict: &std::collections::HashMap<String, 
     }
 
     metrics.logic_count += stripped.matches("->").count();
+    metrics.logic_count += stripped.matches("=>").count();
+    metrics.logic_count += stripped.matches("if ").count();
     metrics.logic_count += stripped.matches("switch ").count();
     metrics.logic_count += stripped.matches("| ").count();
     
