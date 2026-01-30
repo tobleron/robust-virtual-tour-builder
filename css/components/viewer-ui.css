@@ -1,0 +1,231 @@
+/* =========================================
+   Refactor: ViewerUI Specific Classes
+   ========================================= */
+
+/* --- Utility Bar Buttons --- */
+/* Add Link Button */
+.v-util-btn-add-link.state-empty {
+    background-color: var(--slate-500);
+    color: white;
+}
+
+.v-util-btn-add-link.state-linking {
+    background-color: var(--accent);
+    color: black;
+}
+
+.v-util-btn-add-link.state-idle {
+    background-color: var(--danger);
+    color: white;
+}
+
+.v-util-btn-add-link-icon {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+/* Semantic Hover States */
+.v-util-btn-add-link.state-idle:hover {
+    background-color: var(--danger-light);
+}
+
+.v-util-btn-add-link.state-linking:hover {
+    background-color: var(--accent-light);
+}
+
+.v-util-btn-add-link.state-empty:hover {
+    background-color: var(--slate-500);
+    cursor: not-allowed;
+}
+
+/* Auto-Pilot Button */
+.v-util-btn-autopilot.state-empty {
+    background-color: var(--slate-500);
+}
+
+.v-util-btn-autopilot.state-active {
+    background-color: var(--danger);
+}
+
+.v-util-btn-autopilot.state-idle {
+    background-color: var(--danger);
+}
+
+.v-util-btn-autopilot.state-active:hover {
+    background-color: var(--danger-light);
+}
+
+.v-util-btn-autopilot.state-idle:hover {
+    background-color: var(--danger-light);
+}
+
+.v-util-btn-icon {
+    font-size: 18px;
+    color: white;
+}
+
+/* Category Button */
+.v-util-btn-category.state-empty {
+    background-color: var(--slate-500);
+}
+
+.v-util-btn-category.cat-outdoor {
+    background-color: var(--danger);
+}
+
+.v-util-btn-category.cat-indoor {
+    background-color: var(--danger);
+}
+
+.v-util-btn-category.cat-none {
+    background-color: var(--danger);
+}
+
+.v-util-btn-category.cat-outdoor:hover {
+    background-color: var(--danger-light);
+}
+
+.v-util-btn-category.cat-indoor:hover {
+    background-color: var(--danger-light);
+}
+
+.v-util-btn-category.cat-none:hover {
+    background-color: var(--danger-light);
+}
+
+/* Label Button */
+.v-util-btn-label.state-empty {
+    background-color: var(--slate-500);
+}
+
+.v-util-btn-label.state-loaded {
+    background-color: var(--danger);
+}
+
+.v-util-btn-label.state-loaded:hover {
+    background-color: var(--danger-light);
+}
+
+/* Global Disabled State for Buttons (Used during Auto-Pilot for non-active buttons) */
+.v-util-btn.state-disabled {
+    opacity: 0.6;
+    pointer-events: none;
+    cursor: not-allowed;
+    filter: grayscale(1);
+    transition: all 0.3s ease;
+}
+
+/* HUD Labels */
+/* Moved dynamic logic to CSS classes if possible, but opacity/transform is best handled by conditional classes already present */
+
+/* --- Quality Badges --- */
+.quality-badge {
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    /* default rounded */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    /* shadow-sm */
+    opacity: 0.9;
+}
+
+.quality-badge.q-blurry {
+    background-color: var(--danger);
+}
+
+.quality-badge.q-soft {
+    background-color: var(--warning);
+}
+
+.quality-badge.q-dark {
+    background-color: var(--slate-900);
+}
+
+.quality-badge.q-dim {
+    background-color: var(--slate-500);
+}
+
+
+/* --- Viewer Logo --- */
+.viewer-logo-masked {
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+    mask-image: radial-gradient(white, black);
+}
+
+
+/* --- Linking Hint --- */
+.linking-hint-text {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    color: white;
+}
+
+.linking-hint-subtext {
+    font-size: 10px;
+    opacity: 0.8;
+}
+
+
+/* --- Floor Navigation --- */
+.floor-circle-shadow-selected {
+    box-shadow: 0 0 12px rgba(0, 61, 165, 0.5);
+}
+
+.floor-circle-shadow-idle {
+    box-shadow: 1px 1px 1px black;
+}
+
+.floor-suffix {
+    font-size: 10px;
+    margin-left: 1px;
+}
+
+/* --- Persistent Room Label --- */
+.viewer-persistent-label {
+    position: absolute;
+    top: 24px;
+    /* Aligned with utility bar (top-6 = 24px) */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 6005;
+    background-color: rgba(0, 61, 165, 0.85);
+    backdrop-filter: blur(var(--glass-blur, 12px));
+    color: white;
+    padding: 0 0.5rem;
+    /* User Request: tighter left/right padding */
+    height: 27px;
+    /* User Request: exactly 27px */
+    border-radius: var(--radius-sm);
+    /* User Request: Less rounded */
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    box-shadow: var(--shadow-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    letter-spacing: 0.1em;
+}
+
+.viewer-persistent-label.state-visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+    visibility: visible;
+}
+
+.viewer-persistent-label.state-hidden {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-1rem) scale(0.9);
+    visibility: hidden;
+    pointer-events: none;
+}

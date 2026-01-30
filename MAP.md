@@ -11,6 +11,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/ServiceWorker.res](src/ServiceWorker.res): Offline capabilities and asset caching. `#pwa` `#service-worker`
 *   [src/ServiceWorkerMain.res](src/ServiceWorkerMain.res): Main thread logic for service worker coordination. `#pwa` `#orchestration`
 *   [src/App.res](src/App.res): Root React component orchestrating the high-level UI layout. `#root-component` `#layout`
+*   [src/index.js](src/index.js): React entry point. `#entry` `#react`
 *   [src/ReBindings.res](src/ReBindings.res): Lightweight facade for centralized external bindings. `#rescript` `#bindings` `#facade`
     *   [src/bindings/BrowserBindings.res](src/bindings/BrowserBindings.res): Core browser types (Blob, File), JSZip, and AbortController. `#browser` `#types`
     *   [src/bindings/DomBindings.res](src/bindings/DomBindings.res): DOM, Window, and React-specific bindings. `#dom` `#react` `#window`
@@ -59,28 +60,36 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/systems/UploadProcessor.res](src/systems/UploadProcessor.res): Lightweight facade for the image processing pipeline. `#upload` `#facade`
 *   [src/systems/UploadProcessorLogic.res](src/systems/UploadProcessorLogic.res): Lightweight facade for the image processing and upload queue logic. `#upload` `#facade`
     *   [src/systems/UploadProcessorLogicLogic.res](src/systems/UploadProcessorLogicLogic.res): Core logic for image processing, queue management, and upload finalization. `#logic`
+*   [src/systems/UploadTypes.res](src/systems/UploadTypes.res): Types for upload processing system. `#types`
 * [src/systems/SceneLoader.res](src/systems/SceneLoader.res): Lightweight facade for scene transition and viewer loading orchestration. `#scene-loading` `#lifecycle` `#facade`
     * [src/systems/SceneLoaderLogic.res](src/systems/SceneLoaderLogic.res): Lightweight facade for scene loading orchestration. `#logic` `#facade`
     * [src/systems/SceneLoaderLogicReuse.res](src/systems/SceneLoaderLogicReuse.res): Logic for viewer reuse and session persistence. `#logic`
     * [src/systems/SceneLoaderLogicConfig.res](src/systems/SceneLoaderLogicConfig.res): Pannellum configuration and URL generation. `#logic` `#config`
     * [src/systems/SceneLoaderLogicEvents.res](src/systems/SceneLoaderLogicEvents.res): Handler for viewer load events and hotspot injection. `#logic` `#events`
     * [src/systems/SceneLoaderTypes.res](src/systems/SceneLoaderTypes.res): Shared types and performance tracking for scene loading. `#types`
+*   [src/systems/Scene.res](src/systems/Scene.res): Core scene management logic. `#scene` `#management`
 *   [src/systems/SceneTransitionManager.res](src/systems/SceneTransitionManager.res): Manages DOM transitions and viewer swapping logic. `#transition` `#dom`
 *   [src/systems/PannellumLifecycle.res](src/systems/PannellumLifecycle.res): Lifecycle bindings for Pannellum viewer initialization and destruction. `#pannellum` `#bindings`
 *   [src/systems/HotspotLine.res](src/systems/HotspotLine.res): Facade for visual hotspot connections and simulation arrows. `#hotspots` `#rendering` `#facade`
 *   [src/core/interfaces/ViewerDriver.res](src/core/interfaces/ViewerDriver.res): Interface contract for 360 renderer drivers. `#interface` `#abstraction`
 *   [src/systems/PannellumAdapter.res](src/systems/PannellumAdapter.res): Pannellum-specific implementation of ViewerDriver. `#adapter` `#rendering`
+*   [src/systems/ViewerSystem.res](src/systems/ViewerSystem.res): Unified viewer system orchestrator. `#viewer` `#orchestration`
+*   [src/systems/ViewerLogic.res](src/systems/ViewerLogic.res): Core logic for viewer interactions and state. `#viewer` `#logic`
 *   [src/systems/ViewerPool.res](src/systems/ViewerPool.res): Manager for multiple viewport instances and their lifecycles. `#orchestration` `#efficiency`
 *   [src/systems/HotspotLineLogic.res](src/systems/HotspotLineLogic.res): Lightweight facade for coordinate projection and SVG drawing. `#math` `#rendering` `#facade`
     *   [src/systems/HotspotLineLogicLogic.res](src/systems/HotspotLineLogicLogic.res): Main logic for persistent lines and linking drafts. `#logic`
     *   [src/systems/HotspotLineLogicArrow.res](src/systems/HotspotLineLogicArrow.res): Specialized logic for simulation arrow rendering and animation. `#logic` `#animation`
     *   [src/systems/HotspotLineLogicTypes.res](src/systems/HotspotLineLogicTypes.res): Internal types for hotspot line logic and caching. `#types`
     *   [src/systems/HotspotLineUtils.res](src/systems/HotspotLineUtils.res): State and caching for hotspot line rendering. `#utils` `#caching`
+*   [src/systems/Simulation.res](src/systems/Simulation.res): Core logic for autopilot simulations. `#simulation` `#autopilot`
 *   [src/systems/SimulationDriver.res](src/systems/SimulationDriver.res): Logic for Autopilot and route simulations. `#autopilot` `#simulation` `#navigation`
+*   [src/systems/Navigation.res](src/systems/Navigation.res): Centralized navigation system. `#navigation` `#orchestration`
+*   [src/systems/NavigationLogic.res](src/systems/NavigationLogic.res): Core logic for navigation state transitions. `#navigation` `#logic`
 *   [src/systems/NavigationController.res](src/systems/NavigationController.res): Manages movement between scenes. `#navigation` `#scene-switching`
 *   [src/systems/NavigationFSM.res](src/systems/NavigationFSM.res): Pure deterministic Finite State Machine for navigation lifecycle. `#orchestration` `#reliability`
 *   [src/systems/NavigationGraph.res](src/systems/NavigationGraph.res): Viewport math and link projection logic. `#math` `#navigation`
 *   [src/systems/SceneSwitcher.res](src/systems/SceneSwitcher.res): Handles the state transitions and side effects of changing scenes. `#scene-switching` `#transition`
+*   [src/systems/Teaser.res](src/systems/Teaser.res): Teaser generation system. `#teaser` `#video`
 *   [src/systems/TeaserPlayback.res](src/systems/TeaserPlayback.res): Orchestrates teaser and autopilot playback logic. `#teaser` `#playback`
 *   [src/systems/TeaserState.res](src/systems/TeaserState.res): State management for the teaser system. `#teaser` `#state`
 *   [src/systems/TeaserManager.res](src/systems/TeaserManager.res): Manager for teaser recording and playback sessions. `#teaser` `#manager`
@@ -203,9 +212,14 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [backend/src/api/project.rs](backend/src/api/project.rs): Endpoints for project packaging, imports, and validation. `#backend-logic` `#project-api`
 *   [backend/src/api/media/image.rs](backend/src/api/media/image.rs): Consolidated image processing endpoints and optimization logic. `#image` `#api` `#processing`
 *   [backend/src/api/media/video.rs](backend/src/api/media/video.rs): Consolidated video transcoding and teaser generation endpoints. `#video` `#api` `#teaser`
-*   [backend/src/services/geocoding/mod.rs](backend/src/services/geocoding/mod.rs): Facade for the geocoding service with LRU caching. `#geocoding` `#services` `#facade`
-    *   [backend/src/services/geocoding/logic.rs](backend/src/services/geocoding/logic.rs): OSM Nominatim API interaction and coordinate rounding logic. `#logic`
+*   [backend/src/api/project_logic.rs](backend/src/api/project_logic.rs): Detailed logic for project packaging and import. `#logic`
+*   [backend/src/api/media/image_logic.rs](backend/src/api/media/image_logic.rs): Logic for image processing operations. `#image` `#logic`
+*   [backend/src/api/media/video_logic.rs](backend/src/api/media/video_logic.rs): Logic for video transcoding and processing. `#video` `#logic`
+*   [backend/src/services/geocoding.rs](backend/src/services/geocoding.rs): Facade for the geocoding service with LRU caching. `#geocoding` `#services` `#facade`
 *   [backend/src/services/media/mod.rs](backend/src/services/media/mod.rs): Facade for core media services (encoding, analysis, resizing). `#media` `#services` `#facade`
+*   [backend/src/services/media/analysis.rs](backend/src/services/media/analysis.rs): Aggregated media analysis functionality. `#media` `#analysis`
+*   [backend/src/services/media/analysis_quality.rs](backend/src/services/media/analysis_quality.rs): Image quality assessment logic. `#media` `#quality`
+*   [backend/src/services/media/analysis_exif.rs](backend/src/services/media/analysis_exif.rs): EXIF metadata extraction logic. `#media` `#exif`
 *   [backend/src/services/media/analysis/mod.rs](backend/src/services/media/analysis/mod.rs): Facade for image quality analysis and metadata extraction. `#media` `#analysis` `#facade`
     *   [backend/src/services/media/analysis/exif.rs](backend/src/services/media/analysis/exif.rs): EXIF data parsing and normalization logic. `#exif` `#parsing`
     *   [backend/src/services/media/analysis/quality.rs](backend/src/services/media/analysis/quality.rs): Image quality analysis, histograms, and blur detection. `#image-processing` `#logic`
@@ -225,10 +239,8 @@ This map provides a semantic overview of the project structure to optimize conte
 ### 🛡️ Backend Core & Services
 *   [backend/src/lib.rs](backend/src/lib.rs): Shared library code and trait definitions for the backend. `#rust` `#core`
 *   [backend/src/metrics.rs](backend/src/metrics.rs): Prometheus metrics collection and instrumentation. `#monitoring` `#telemetry`
-*   [backend/src/middleware/mod.rs](backend/src/middleware/mod.rs): Centralized Actix-web middleware collection. `#mw`
-    *   [backend/src/middleware/quota_check.rs](backend/src/middleware/quota_check.rs): Enforces upload and API usage quotas. `#mw` `#security`
-    *   [backend/src/middleware/request_tracker.rs](backend/src/middleware/request_tracker.rs): Tracks request latency and success rates. `#mw` `#telemetry`
-    *   [backend/src/middleware/auth.rs](backend/src/middleware/auth.rs): Token-based authentication middleware. `#mw` `#auth`
+*   [backend/src/middleware.rs](backend/src/middleware.rs): Centralized Actix-web middleware collection (Auth, Quota, Request Tracker). `#mw`
+*   [backend/src/models.rs](backend/src/models.rs): Aggregated data models and shared type definitions. `#types` `#models`
 *   [backend/src/models/mod.rs](backend/src/models/mod.rs): Data model and shared type definitions. `#types` `#models`
     *   [backend/src/models/project.rs](backend/src/models/project.rs): Rust-side representation of the tour project structure. `#models`
     *   [backend/src/models/user.rs](backend/src/models/user.rs): User account data model. `#models` `#auth`
@@ -243,9 +255,7 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [backend/src/models/errors_tests.rs](backend/src/models/errors_tests.rs): Unit tests for the backend error system. `#models` `#testing`
 *   [backend/src/pathfinder.rs](backend/src/pathfinder.rs): Consolidated high-performance navigation pathfinding logic. `#navigation` `#logic` `#algorithms`
 *   [backend/src/services/mod.rs](backend/src/services/mod.rs): Domain-specific service layer entry point. `#services`
-    *   [backend/src/services/auth/mod.rs](backend/src/services/auth/mod.rs): Orchestrator for authentication and identity services. `#auth` `#facade`
-    *   [backend/src/services/auth.rs](backend/src/services/auth.rs): Google Auth and token validation service. `#auth` `#logic`
-    *   [backend/src/services/auth/jwt.rs](backend/src/services/auth/jwt.rs): JWT generation, signing, and verification service. `#auth` `#jwt`
+    *   [backend/src/services/auth.rs](backend/src/services/auth.rs): Orchestrator for authentication and identity services. `#auth` `#facade`
     *   [backend/src/services/database.rs](backend/src/services/database.rs): Persistence layer for project metadata and users. `#database` `#logic`
     *   [backend/src/services/shutdown.rs](backend/src/services/shutdown.rs): Managed graceful shutdown orchestration. `#lifecycle`
     *   [backend/src/services/upload_quota.rs](backend/src/services/upload_quota.rs): Rate-limiting and quota management logic. `#quota` `#logic`
@@ -259,38 +269,3 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [backend/src/services/media/naming_old.rs](backend/src/services/media/naming_old.rs): Legacy camera filename normalization logic. `#rust` `#legacy`
 
 ---
-
-## 📁 Directory Semantic Index
-
-| Directory | Primary Purpose | Key Tags |
-| :--- | :--- | :--- |
-| `src/` | Root components and foundational bindings. | `#entry` `#bindings` `#app` |
-| `src/core` | Data model, state, and foundational types. | `#state` `#types` `#json` |
-| `src/systems` | Complex business logic and background services. | `#logic` `#processing` `#simulation` |
-| `src/components` | UI building blocks and contextual modules. | `#ui` `#react` `#hud` |
-| `src/utils` | Shared helper functions and utility modules. | `#utils` `#helpers` `#logging` |
-| `backend/src` | High-performance Rust services and APIs. | `#rust` `#backend` `#concurrency` |
-| `css` | Design system, tokens, and animations. | `#styling` `#tailwind` `#tokens` |
-| `scripts` | Automation, setup, commit protocols, and maintenance tools. | `#automation` `#scripts` `#ci` `#commit` |
-| `docs/` | Technical specifications and project history. | `#documentation` `#specs` `#history` |
-| `tmp/` | Temporary files and non-integrated documents. | `#temp` `#scratchpad` |
-
-
-
-## 🆕 Unmapped Modules
-* [src/systems/ViewerSystem.res](src/systems/ViewerSystem.res): New module detected. Please classify. #new
-* [src/systems/Simulation.res](src/systems/Simulation.res): New module detected. Please classify. #new
-* [src/systems/Teaser.res](src/systems/Teaser.res): New module detected. Please classify. #new
-* [src/systems/Scene.res](src/systems/Scene.res): New module detected. Please classify. #new
-* [src/systems/Navigation.res](src/systems/Navigation.res): New module detected. Please classify. #new
-* [backend/src/models.rs](backend/src/models.rs): New module detected. Please classify. #new
-* [src/systems/UploadTypes.res](src/systems/UploadTypes.res): New module detected. Please classify. #new
-* [backend/src/services/media/analysis.rs](backend/src/services/media/analysis.rs): New module detected. Please classify. #new
-* [backend/src/services/media/analysis_quality.rs](backend/src/services/media/analysis_quality.rs): New module detected. Please classify. #new
-* [backend/src/services/media/analysis_exif.rs](backend/src/services/media/analysis_exif.rs): New module detected. Please classify. #new
-* [backend/src/api/project_logic.rs](backend/src/api/project_logic.rs): New module detected. Please classify. #new
-* [backend/src/api/media/image_logic.rs](backend/src/api/media/image_logic.rs): New module detected. Please classify. #new
-* [backend/src/api/media/video_logic.rs](backend/src/api/media/video_logic.rs): New module detected. Please classify. #new
-* [src/systems/ViewerLogic.res](src/systems/ViewerLogic.res): New module detected. Please classify. #new
-* [src/systems/NavigationLogic.res](src/systems/NavigationLogic.res): New module detected. Please classify. #new
-* [src/index.js](src/index.js): New module detected. Please classify. #new
