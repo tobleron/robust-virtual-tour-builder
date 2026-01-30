@@ -1,3 +1,4 @@
+// @efficiency-role: data-model
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Debug, Clone)]

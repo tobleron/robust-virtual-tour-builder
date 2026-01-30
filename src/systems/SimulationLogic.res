@@ -30,8 +30,8 @@ type skipResult = {
 }
 
 type arrivalView = {
-  mutable yaw: float,
-  mutable pitch: float,
+  yaw: float,
+  pitch: float,
 }
 
 type transitionTarget = {
@@ -45,8 +45,8 @@ type transitionTarget = {
 
 type pathStep = {
   idx: int,
-  mutable transitionTarget: option<transitionTarget>,
-  mutable arrivalView: arrivalView,
+  transitionTarget: option<transitionTarget>,
+  arrivalView: arrivalView,
 }
 
 // --- UTILS: NAVIGATION ---
@@ -261,26 +261,23 @@ module PathGenerator = {
       let loopCount = ref(0)
       let maxSteps = 50
 
-      let currentPathObj = {idx: 0, transitionTarget: None, arrivalView: {yaw: 0.0, pitch: 0.0}}
-      switch Belt.Array.get(state.scenes, 0) {
-      | Some(firstScene) =>
-        if Array.length(firstScene.hotspots) > 0 {
-          switch Belt.Array.get(firstScene.hotspots, 0) {
-          | Some(startHotspot) =>
-            switch startHotspot.viewFrame {
-            | Some(vf) =>
-              currentPathObj.arrivalView.yaw = vf.yaw
-              currentPathObj.arrivalView.pitch = vf.pitch
-            | None => ()
-            }
-          | None => ()
+      let initialArrivalView = switch Belt.Array.get(state.scenes, 0) {
+      | Some(firstScene) if Array.length(firstScene.hotspots) > 0 =>
+        switch Belt.Array.get(firstScene.hotspots, 0) {
+        | Some(startHotspot) =>
+          switch startHotspot.viewFrame {
+          | Some(vf) => {yaw: vf.yaw, pitch: vf.pitch}
+          | None => {yaw: 0.0, pitch: 0.0}
           }
+        | None => {yaw: 0.0, pitch: 0.0}
         }
-      | None => ()
+      | _ => {yaw: 0.0, pitch: 0.0}
       }
 
+      let currentPathObj = {idx: 0, transitionTarget: None, arrivalView: initialArrivalView}
+
       let _ = Array.push(path, currentPathObj)
-      let activePathObj = ref(currentPathObj)
+      let activePathObjIdx = ref(0)
       let visitedStateSet = [] // "idx->target"
       let loop = ref(true)
 
@@ -341,16 +338,26 @@ module PathGenerator = {
                 }
                 let waypoints = hotspot.waypoints->Option.getOr([])
 
-                activePathObj.contents.transitionTarget = Some({
-                  yaw: transYaw,
-                  pitch: transPitch,
-                  targetName: Belt.Array.get(state.scenes, targetIdx)
-                  ->Option.map(s => s.name)
-                  ->Option.getOr(hotspot.target),
-                  startYaw: hotspot.startYaw->Option.getOr(0.0),
-                  startPitch: hotspot.startPitch->Option.getOr(0.0),
-                  waypoints,
-                })
+                // Update the PREVIOUS step's transition target
+                switch Belt.Array.get(path, activePathObjIdx.contents) {
+                | Some(prev) =>
+                  path[
+                    activePathObjIdx.contents
+                  ] = {
+                    ...prev,
+                    transitionTarget: Some({
+                      yaw: transYaw,
+                      pitch: transPitch,
+                      targetName: Belt.Array.get(state.scenes, targetIdx)
+                      ->Option.map(s => s.name)
+                      ->Option.getOr(hotspot.target),
+                      startYaw: hotspot.startYaw->Option.getOr(0.0),
+                      startPitch: hotspot.startPitch->Option.getOr(0.0),
+                      waypoints,
+                    }),
+                  }
+                | None => ()
+                }
 
                 let arrivalYaw = ref(0.0)
                 let arrivalPitch = ref(0.0)
@@ -382,7 +389,7 @@ module PathGenerator = {
                   arrivalView: {yaw: arrivalYaw.contents, pitch: arrivalPitch.contents},
                 }
                 let _ = Array.push(path, nextPathObj)
-                activePathObj := nextPathObj
+                activePathObjIdx := Array.length(path) - 1
                 let _ = Array.push(localVisited, targetIdx)
                 currentIdx := targetIdx
                 loopCount := loopCount.contents + 1
