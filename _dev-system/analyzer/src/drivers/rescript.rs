@@ -1,7 +1,41 @@
-use super::{CommonMetrics, strip_code};
+use super::{CommonMetrics, strip_code_modular};
+use regex::Regex;
+
+pub fn find_jsx_components(content: &str) -> Vec<String> {
+    let mut components = Vec::new();
+    
+    // Use regex to find all JSX component patterns
+    // Pattern: < followed by an Uppercase letter, then alphanumeric/dots/underscores
+    let jsx_regex = Regex::new(r"<([A-Z][a-zA-Z0-9\._]*)").unwrap();
+    
+    for captures in jsx_regex.captures_iter(content) {
+        if let Some(match_obj) = captures.get(1) {
+            let full_tag = match_obj.as_str();
+            
+            // Extract the first part of the tag (the module name)
+            let component_name = full_tag.split('.').next().unwrap_or("");
+
+            if component_name.is_empty() {
+                continue;
+            }
+            
+            // Skip non-component patterns that might look like components
+            if component_name == "React" || component_name == "JSON" || component_name == "Blob" || 
+               component_name == "File" || component_name == "Dom" || component_name == "Nullable" {
+                continue;
+            }
+            
+            components.push(component_name.to_string());
+        }
+    }
+    
+    components
+}
 
 pub fn analyze_rescript(content: &str, dict: &std::collections::HashMap<String, f64>) -> anyhow::Result<CommonMetrics> {
-    let stripped = strip_code(content);
+    // ReScript doesn't use single quotes for strings (only char literals/type variables), 
+    // so we must NOT treat them as string delimiters to avoid swallowing code.
+    let stripped = strip_code_modular(content, false);
     let mut metrics = CommonMetrics { 
         loc: content.lines().filter(|l| !l.trim().is_empty() && !l.trim().starts_with("//")).count(), 
         logic_count: 0, 
@@ -54,28 +88,14 @@ pub fn analyze_rescript(content: &str, dict: &std::collections::HashMap<String, 
                  }
              }
         }
+    }
 
-
-        // JSX Component Usage: <Module ... or <Module.Sub
-        // Improved: Find all occurrences of < followed by an Uppercase letter
-        let mut start_search = 0;
-        while let Some(pos) = trim[start_search..].find('<') {
-            let actual_pos = start_search + pos;
-            if let Some(next_char) = trim.chars().nth(actual_pos + 1) {
-                if next_char.is_uppercase() {
-                    // Extract module name
-                    let rest = &trim[actual_pos + 1..];
-                    let end_pos = rest.find(|c: char| !c.is_alphanumeric() && c != '.' && c != '_').unwrap_or(rest.len());
-                    let full_tag = &rest[..end_pos];
-                    let potential_module = full_tag.split('.').next().unwrap_or("");
-                    
-                    if !potential_module.is_empty() {
-                        metrics.external_calls += 1;
-                        metrics.dependencies.push(potential_module.to_string());
-                    }
-                }
-            }
-            start_search = actual_pos + 1;
+    // JSX Component Usage: <Module ... or <Module.Sub
+    let jsx_components = find_jsx_components(&stripped);
+    for component in jsx_components {
+        if !metrics.dependencies.contains(&component) {
+            metrics.dependencies.push(component);
+            metrics.external_calls += 1;
         }
     }
 
@@ -92,7 +112,7 @@ pub fn analyze_rescript(content: &str, dict: &std::collections::HashMap<String, 
     let mut line_scores: Vec<f64> = Vec::new();
 
     for line in content.lines() {
-        let stripped_line = strip_code(line);
+        let stripped_line = strip_code_modular(line, false);
         let mut local_score = 0.0;
         
         // Local nesting

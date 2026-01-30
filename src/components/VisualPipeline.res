@@ -1,4 +1,5 @@
-/* src/components/VisualPipeline.res - Consolidated VisualPipeline module */
+/* src/components/VisualPipeline.res - Consolidated VisualPipeline module 
+   @efficiency-role: entry-point */
 
 open ReBindings
 

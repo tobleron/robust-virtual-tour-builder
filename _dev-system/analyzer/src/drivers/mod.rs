@@ -58,6 +58,11 @@ pub fn parse_header(content: &str) -> EfficiencyOverride {
 }
 
 pub fn strip_code(content: &str) -> String {
+    // Default to strict (treat single quotes as strings for JS/CSS compatibility)
+    strip_code_modular(content, true)
+}
+
+pub fn strip_code_modular(content: &str, treat_single_quote_as_string: bool) -> String {
     let mut result = String::with_capacity(content.len());
     let chars: Vec<char> = content.chars().collect();
     let mut i = 0;
@@ -95,7 +100,7 @@ pub fn strip_code(content: &str) -> String {
         } else if c == '/' && next == Some('*') {
             in_block_comment = true;
             i += 1;
-        } else if c == '"' || c == '\'' || c == '`' {
+        } else if c == '"' || (treat_single_quote_as_string && c == '\'') || c == '`' {
             in_string = true;
             string_char = c;
         } else {
