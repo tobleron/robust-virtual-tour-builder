@@ -186,7 +186,7 @@ pub mod quota_check {
             let service = self.service.clone();
 
             if !should_check_quota(&req) {
-                 return Box::pin(async move {
+                return Box::pin(async move {
                     service
                         .call(req)
                         .await
@@ -214,12 +214,14 @@ pub mod quota_check {
                     if let Err(e) = manager.can_upload(&ip, content_length).await {
                         tracing::warn!(ip = %ip, size = content_length, error = %e, "Upload rejected");
 
-                        return Ok(req.into_response(HttpResponse::TooManyRequests().json(
-                            serde_json::json!({
-                                "error": "Quota exceeded",
-                                "message": e
-                            }),
-                        )).map_body(|_, b| EitherBody::Right { body: b }));
+                        return Ok(req
+                            .into_response(HttpResponse::TooManyRequests().json(
+                                serde_json::json!({
+                                    "error": "Quota exceeded",
+                                    "message": e
+                                }),
+                            ))
+                            .map_body(|_, b| EitherBody::Right { body: b }));
                     }
 
                     // Register upload

@@ -1831,10 +1831,6 @@
 │   │   ├── ApiLogic.cmj
 │   │   ├── ApiLogic.cmt
 │   │   ├── ApiLogic.res
-│   │   ├── ApiTypes.ast
-│   │   ├── ApiTypes.cmi
-│   │   ├── ApiTypes.cmj
-│   │   ├── ApiTypes.cmt
 │   │   ├── ApiTypes.res
 │   │   ├── ApiTypes_v.test.ast
 │   │   ├── ApiTypes_v.test.cmi
@@ -1881,10 +1877,6 @@
 │   │   ├── AudioManager_v.test.cmj
 │   │   ├── AudioManager_v.test.cmt
 │   │   ├── AudioManager_v.test.res
-│   │   ├── AuthenticatedClient.ast
-│   │   ├── AuthenticatedClient.cmi
-│   │   ├── AuthenticatedClient.cmj
-│   │   ├── AuthenticatedClient.cmt
 │   │   ├── AuthenticatedClient.res
 │   │   ├── AuthenticatedClient_v.test.ast
 │   │   ├── AuthenticatedClient_v.test.cmi
@@ -2264,10 +2256,6 @@
 │   │   ├── Main_v.test.cmj
 │   │   ├── Main_v.test.cmt
 │   │   ├── Main_v.test.res
-│   │   ├── MediaApi.ast
-│   │   ├── MediaApi.cmi
-│   │   ├── MediaApi.cmj
-│   │   ├── MediaApi.cmt
 │   │   ├── MediaApi.res
 │   │   ├── MediaApi_v.test.ast
 │   │   ├── MediaApi_v.test.cmi
@@ -4744,12 +4732,6 @@
 │   │   └── utils.js
 │   ├── systems
 │   │   ├── Api
-│   │   │   ├── ApiTypes.bs.js
-│   │   │   ├── ApiTypes.res
-│   │   │   ├── AuthenticatedClient.bs.js
-│   │   │   ├── AuthenticatedClient.res
-│   │   │   ├── MediaApi.bs.js
-│   │   │   └── MediaApi.res
 │   │   ├── Api.bs.js
 │   │   ├── Api.res
 │   │   ├── ApiLogic.bs.js
@@ -4920,12 +4902,20 @@
 │   │   ├── 1122_Classify_Map_Entries_DONE.md
 │   │   ├── 1123_Comprehensive_DevSystem_Analyzer_Overhaul_DONE.md
 │   │   ├── 1124_Complete_ReScript_JSX_Auto_Discovery_Implementation_DONE.md
+│   │   ├── 1125_Fix_Violations_FRONTEND_DONE.md
 │   │   ├── 1126_Upgrade_Dev_System_Semantic_Engine_DONE.md
 │   │   ├── 1131_Surgical_Refactor_SRC_BACKEND_DONE.md
 │   │   ├── 1132_Surgical_Refactor_MEDIA_BACKEND_DONE.md
 │   │   ├── 1133_Surgical_Refactor_API_BACKEND_DONE.md
 │   │   ├── 1135_Surgical_Refactor_SERVICES_BACKEND_DONE.md
 │   │   ├── 1136_Surgical_Refactor_PATHFINDER_BACKEND_DONE.md
+│   │   ├── 1138_Merge_Folders_FRONTEND_DONE.md
+│   │   ├── 1139_Classify_Map_Entries_DONE.md
+│   │   ├── 1140_Surgical_Refactor_MEDIA_BACKEND_DONE.md
+│   │   ├── 1141_Surgical_Refactor_API_BACKEND_DONE.md
+│   │   ├── 1142_Surgical_Refactor_SRC_BACKEND_DONE.md
+│   │   ├── 1143_Surgical_Refactor_SERVICES_BACKEND_DONE.md
+│   │   ├── 1144_Surgical_Refactor_PATHFINDER_BACKEND_DONE.md
 │   │   ├── 795_Refactor_analysis_DONE.md
 │   │   ├── 798_Refactor_Backend_Streaming_ZIP_DONE.md
 │   │   ├── 799_Refactor_Backend_Asset_Sanitization_DONE.md
@@ -4968,18 +4958,15 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1125_Fix_Violations_FRONTEND.md
 │   │   ├── 1127_Surgical_Refactor_CORE_FRONTEND.md
 │   │   ├── 1128_Surgical_Refactor_UTILS_FRONTEND.md
 │   │   ├── 1130_Surgical_Refactor_SRC_FRONTEND.md
 │   │   ├── 1137_Surgical_Refactor_SYSTEMS_FRONTEND.md
-│   │   ├── 1138_Merge_Folders_FRONTEND.md
-│   │   ├── 1139_Classify_Map_Entries.md
-│   │   ├── 1140_Surgical_Refactor_MEDIA_BACKEND.md
-│   │   ├── 1141_Surgical_Refactor_API_BACKEND.md
-│   │   ├── 1142_Surgical_Refactor_SRC_BACKEND.md
-│   │   ├── 1143_Surgical_Refactor_SERVICES_BACKEND.md
-│   │   ├── 1144_Surgical_Refactor_PATHFINDER_BACKEND.md
+│   │   ├── 1145_Surgical_Refactor_API_BACKEND.md
+│   │   ├── 1146_Surgical_Refactor_PATHFINDER_BACKEND.md
+│   │   ├── 1147_Surgical_Refactor_SERVICES_BACKEND.md
+│   │   ├── 1148_Surgical_Refactor_SRC_BACKEND.md
+│   │   ├── 1149_Surgical_Refactor_MEDIA_BACKEND.md
 │   │   └── tests
 │   └── postponed
 │       ├── 900_COMMERCIAL_MIGRATION_MASTER.md
@@ -5294,4 +5281,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-201 directories, 5094 files
+201 directories, 5081 files

@@ -331,10 +331,12 @@ module ControllerHooks = {
                           pd.targetYawForPan,
                           1.0,
                           ~opacity=mod(Belt.Float.toInt(bel /. rate), 2) == 0 ? 1.0 : 0.0,
-                          ~waypoints=pd.waypoints->Belt.Array.map((w): PathInterpolation.point => {
-                            PathInterpolation.yaw: w.yaw,
-                            pitch: w.pitch,
-                          }),
+                          ~waypoints=pd.waypoints->Belt.Array.map(
+                            (w): PathInterpolation.point => {
+                              PathInterpolation.yaw: w.yaw,
+                              pitch: w.pitch,
+                            },
+                          ),
                           ~colorOverride=?j.previewOnly ? Some("red") : None,
                           (),
                         )
@@ -367,10 +369,12 @@ module ControllerHooks = {
                         pd.targetYawForPan,
                         prog,
                         ~opacity=1.0,
-                        ~waypoints=pd.waypoints->Belt.Array.map((w): PathInterpolation.point => {
-                          PathInterpolation.yaw: w.yaw,
-                          pitch: w.pitch,
-                        }),
+                        ~waypoints=pd.waypoints->Belt.Array.map(
+                          (w): PathInterpolation.point => {
+                            PathInterpolation.yaw: w.yaw,
+                            pitch: w.pitch,
+                          },
+                        ),
                         (),
                       )
                     }

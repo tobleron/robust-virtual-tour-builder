@@ -43,11 +43,21 @@ fn format_address_from_json(json: &serde_json::Value) -> Option<String> {
         None
     };
 
-    if let Some(v) = get_val(&["road"]) { parts.push(v); }
-    if let Some(v) = get_val(&["suburb", "neighbourhood"]) { parts.push(v); }
-    if let Some(v) = get_val(&["city", "town", "village"]) { parts.push(v); }
-    if let Some(v) = get_val(&["state", "province"]) { parts.push(v); }
-    if let Some(v) = get_val(&["country"]) { parts.push(v); }
+    if let Some(v) = get_val(&["road"]) {
+        parts.push(v);
+    }
+    if let Some(v) = get_val(&["suburb", "neighbourhood"]) {
+        parts.push(v);
+    }
+    if let Some(v) = get_val(&["city", "town", "village"]) {
+        parts.push(v);
+    }
+    if let Some(v) = get_val(&["state", "province"]) {
+        parts.push(v);
+    }
+    if let Some(v) = get_val(&["country"]) {
+        parts.push(v);
+    }
 
     if !parts.is_empty() {
         Some(parts.join(", "))

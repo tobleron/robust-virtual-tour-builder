@@ -283,7 +283,9 @@ async fn parse_save_project_multipart(
             "project_data" => project_json = Some(read_string_field(&mut field).await?),
             "files" => temp_images.push(save_temp_file_field(&mut field).await?),
             "session_id" => session_id = Some(read_string_field(&mut field).await?),
-            _ => { let _ = read_string_field(&mut field).await?; }
+            _ => {
+                let _ = read_string_field(&mut field).await?;
+            }
         }
     }
     Ok((project_json, session_id, temp_images))
@@ -318,19 +320,20 @@ async fn parse_tour_package_multipart(
         let name = field.name().unwrap_or("unknown").to_string();
 
         if ["html_4k", "html_2k", "html_hd", "html_index", "embed_codes"].contains(&name.as_str()) {
-             fields.insert(name, read_string_field(&mut field).await?);
+            fields.insert(name, read_string_field(&mut field).await?);
         } else {
-             // It's a file
-             let filename = field.content_disposition()
+            // It's a file
+            let filename = field
+                .content_disposition()
                 .and_then(|cd| cd.get_filename())
                 .map(|f| f.to_string())
                 .unwrap_or_else(|| name.clone());
 
-             let mut bytes = Vec::new();
-             while let Some(chunk) = field.try_next().await? {
-                 bytes.extend_from_slice(&chunk);
-             }
-             image_files.push((filename, bytes));
+            let mut bytes = Vec::new();
+            while let Some(chunk) = field.try_next().await? {
+                bytes.extend_from_slice(&chunk);
+            }
+            image_files.push((filename, bytes));
         }
     }
     Ok((image_files, fields))
