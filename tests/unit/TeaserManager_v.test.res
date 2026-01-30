@@ -106,7 +106,10 @@ describe("TeaserManager", () => {
   beforeEach(() => {
     let _ = %raw(`vi.clearAllMocks()`)
     mockGetState->mockReturnValue({
-      "scenes": [makeMockScene(~id="scene1", ~name="S1", ()), makeMockScene(~id="scene2", ~name="S1", ())],
+      "scenes": [
+        makeMockScene(~id="scene1", ~name="S1", ()),
+        makeMockScene(~id="scene2", ~name="S1", ()),
+      ],
       "tourName": "TestTour",
       "simulation": {"status": "Idle", "visitedScenes": []},
     })
