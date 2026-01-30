@@ -1,0 +1,32 @@
+{
+  "files": {
+    "../../src/systems/TeaserRecorder.res": {
+      "last_action": null,
+      "last_action_timestamp": 0,
+      "stability_score": 0.0,
+      "failure_count": 2,
+      "last_failure_timestamp": 1769784387
+    },
+    "../../src/systems/Simulation.res": {
+      "last_action": null,
+      "last_action_timestamp": 0,
+      "stability_score": 0.0,
+      "failure_count": 2,
+      "last_failure_timestamp": 1769784387
+    },
+    "../../src/systems/ServerTeaser.res": {
+      "last_action": null,
+      "last_action_timestamp": 0,
+      "stability_score": 0.0,
+      "failure_count": 2,
+      "last_failure_timestamp": 1769784387
+    },
+    "../../src/systems/Teaser.res": {
+      "last_action": null,
+      "last_action_timestamp": 0,
+      "stability_score": 0.0,
+      "failure_count": 2,
+      "last_failure_timestamp": 1769784387
+    }
+  }
+}
