@@ -9,7 +9,9 @@ pub mod storage;
 pub mod webp;
 
 pub use analysis::*;
+#[allow(unused_imports)]
 pub use analysis_exif::*;
+#[allow(unused_imports)]
 pub use analysis_quality::*;
 pub use naming::*;
 pub use resizing::*;

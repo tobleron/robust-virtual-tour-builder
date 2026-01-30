@@ -3,6 +3,7 @@ pub mod algorithms;
 pub mod graph;
 
 pub use algorithms::calculate_path;
+#[allow(unused_imports)]
 pub use algorithms::{calculate_timeline_path, calculate_walk_path};
 pub use graph::PathRequest;
 

@@ -1,36 +1,4 @@
 {
-  "system": [
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/pathfinder/algorithms.rs",
-        "strategy": ""
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/pathfinder/graph.rs",
-        "strategy": ""
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/geocoding.rs",
-        "strategy": ""
-      }
-    },
-    {
-      "Merge": {
-        "folder": "backend/src/pathfinder",
-        "files": [
-          "../../backend/src/pathfinder/algorithms.rs",
-          "../../backend/src/pathfinder/graph.rs"
-        ],
-        "reason": "Recursive Feature Pod: 2 files in subtree sum to 482 LOC (fits in context). Max Drag: 2.45",
-        "strategy": "",
-        "platform": "backend"
-      }
-    }
-  ],
   "rescript": [
     {
       "Surgical": {
@@ -40,13 +8,6 @@
         "strategy": "",
         "platform": "frontend",
         "complexity": 13.542150170648464
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/systems/SimulationLogic.res",
-        "pattern": "mutable ",
-        "strategy": ""
       }
     },
     {
@@ -67,6 +28,45 @@
         "strategy": "",
         "platform": "frontend",
         "complexity": 11.58506151142355
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/SimulationLogic.res",
+        "pattern": "mutable ",
+        "strategy": ""
+      }
+    }
+  ],
+  "system": [
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/geocoding.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/pathfinder/graph.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/pathfinder/algorithms.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Merge": {
+        "folder": "backend/src/pathfinder",
+        "files": [
+          "../../backend/src/pathfinder/graph.rs",
+          "../../backend/src/pathfinder/algorithms.rs"
+        ],
+        "reason": "Recursive Feature Pod: 2 files in subtree sum to 482 LOC (fits in context). Max Drag: 2.45",
+        "strategy": "",
+        "platform": "backend"
       }
     }
   ]

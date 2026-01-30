@@ -126,6 +126,7 @@ pub fn process_uploaded_project_zip(
 ///
 /// # Errors
 /// * Returns a `String` error if the ZIP cannot be read or is missing `project.json`.
+#[allow(dead_code)]
 pub fn validate_project_zip(zip_file: std::fs::File) -> Result<ValidationReport, String> {
     let mut archive =
         zip::ZipArchive::new(zip_file).map_err(|e| format!("Failed to read ZIP: {}", e))?;
