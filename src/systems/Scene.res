@@ -3,14 +3,12 @@
 open ReBindings
 open Types
 open Actions
-
 // --- TRANSITION (from SceneTransitionManager.res) ---
 
+type viewport = ViewerSystem.Pool.viewport
+
 module Transition = {
-  let performSwap = (loadedScene: scene, _loadStartTime) => {
-    ViewerState.state := {...ViewerState.state.contents, isSwapping: true}
-    let (av, iv) = (ViewerSystem.Pool.getActive(), ViewerSystem.Pool.getInactive())
-    let (ov, nv) = (ViewerSystem.getActiveViewer(), ViewerSystem.getInactiveViewer())
+  let updateGlobalStateAndViewer = (nv) => {
     ViewerSystem.Pool.swapActive()
     ViewerSystem.Pool.getActive()->Option.forEach(v => ViewerSystem.Pool.clearCleanupTimeout(v.id))
     let assignGlobal: Nullable.t<ReBindings.Viewer.t> => unit = %raw(
@@ -20,6 +18,7 @@ module Transition = {
     Dom.getElementById("viewer-hotspot-lines")
     ->Nullable.toOption
     ->Option.forEach(svg => Dom.setTextContent(svg, ""))
+
     let _ = Window.setTimeout(() => {
       ViewerSystem.getActiveViewer()
       ->Nullable.toOption
@@ -35,10 +34,12 @@ module Transition = {
       })
       ViewerState.state := {...ViewerState.state.contents, isSwapping: false}
     }, 50)
+  }
 
+  let updateDomTransitions = (av, iv) => {
     let isCut = GlobalStateBridge.getState().transition.type_ == Cut
     switch (av, iv) {
-    | (Some(act), Some(inact)) =>
+    | (Some(act: viewport), Some(inact: viewport)) =>
       let (actEl, inactEl) = (
         Dom.getElementById(act.containerId),
         Dom.getElementById(inact.containerId),
@@ -64,7 +65,9 @@ module Transition = {
       }
     | _ => ()
     }
+  }
 
+  let scheduleCleanup = (ov) => {
     let clv = ViewerSystem.Pool.getInactive()
     switch clv {
     | Some(vp) =>
@@ -87,6 +90,17 @@ module Transition = {
         }
       }, 450)
     })
+  }
+
+  let performSwap = (loadedScene: scene, _loadStartTime) => {
+    ViewerState.state := {...ViewerState.state.contents, isSwapping: true}
+    let (av, iv) = (ViewerSystem.Pool.getActive(), ViewerSystem.Pool.getInactive())
+    let (ov, nv) = (ViewerSystem.getActiveViewer(), ViewerSystem.getInactiveViewer())
+
+    updateGlobalStateAndViewer(nv)
+    updateDomTransitions(av, iv)
+    scheduleCleanup(ov)
+
     ViewerSnapshot.requestIdleSnapshot()
     ViewerState.state := {...ViewerState.state.contents, lastSceneId: Nullable.make(loadedScene.id)}
     GlobalStateBridge.dispatch(DispatchNavigationFsmEvent(StabilizeComplete))
