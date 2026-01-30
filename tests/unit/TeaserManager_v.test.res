@@ -37,18 +37,42 @@ external mockGenerateServerTeaser: mockFn = "generateServerTeaser"
     getTimelinePath: vi.fn(),
   }));
 
-  vi.mock('../../src/systems/TeaserRecorder.bs.js', () => ({
-    startRecording: vi.fn(),
-    stopRecording: vi.fn(),
-    loadLogo: vi.fn(),
-    startAnimationLoop: vi.fn(),
-    pauseRecording: vi.fn(),
-    resumeRecording: vi.fn(),
-    getGhostCanvas: vi.fn(),
-    setSnapshot: vi.fn(),
-    setFadeOpacity: vi.fn(),
-    getRecordedBlobs: vi.fn(() => []),
-  }));
+  vi.mock('../../src/systems/TeaserRecorder.bs.js', () => {
+    const startRecording = vi.fn();
+    const stopRecording = vi.fn();
+    const loadLogo = vi.fn();
+    const startAnimationLoop = vi.fn();
+    const pauseRecording = vi.fn();
+    const resumeRecording = vi.fn();
+    const getGhostCanvas = vi.fn();
+    const setSnapshot = vi.fn();
+    const setFadeOpacity = vi.fn();
+    const getRecordedBlobs = vi.fn(() => []);
+    return {
+      startRecording,
+      stopRecording,
+      loadLogo,
+      startAnimationLoop,
+      pauseRecording,
+      resumeRecording,
+      getGhostCanvas,
+      setSnapshot,
+      setFadeOpacity,
+      getRecordedBlobs,
+      Recorder: {
+        startRecording,
+        stopRecording,
+        pause: pauseRecording,
+        resume: resumeRecording,
+        getGhostCanvas,
+        getRecordedBlobs,
+        setSnapshot,
+        setFadeOpacity,
+        loadLogo,
+        startAnimationLoop,
+      }
+    };
+  });
 
   vi.mock('../../src/core/GlobalStateBridge.bs.js', () => ({
     getState: vi.fn(),
@@ -56,9 +80,13 @@ external mockGenerateServerTeaser: mockFn = "generateServerTeaser"
     SetIsTeasing: (v) => ({ type: 'SetIsTeasing', payload: v })
   }));
 
-  vi.mock('../../src/systems/ServerTeaser.bs.js', () => ({
-    generateServerTeaser: vi.fn(),
-  }));
+  vi.mock('../../src/systems/ServerTeaser.bs.js', () => {
+    const generateServerTeaser = vi.fn();
+    return {
+      generateServerTeaser,
+      Server: { generateServerTeaser }
+    };
+  });
 
   vi.mock('../../src/utils/Logger.bs.js', () => ({
     startOperation: vi.fn(),

@@ -10,8 +10,8 @@
 
 ## 🧩 MERGE TASKS (1)
 ### Merge Folder: `src/systems/Api`
-- **Reason:** Recursive Feature Pod: 3 files in subtree sum to 270 LOC (fits in context). Max Drag: 6.93
+- **Reason:** Recursive Feature Pod: 3 files in subtree sum to 299 LOC (fits in context). Max Drag: 6.93
 - **Files:**
-  - `../../src/systems/Api/AuthenticatedClient.res`
-  - `../../src/systems/Api/MediaApi.res`
   - `../../src/systems/Api/ApiTypes.res`
+  - `../../src/systems/Api/MediaApi.res`
+  - `../../src/systems/Api/AuthenticatedClient.res`

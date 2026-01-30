@@ -118,10 +118,8 @@ fn infer_taxonomy(path: &Path, content: &str) -> String {
 
 fn generate_strategic_directive(unit: &WorkUnit) -> String {
     match unit {
-        WorkUnit::Surgical { reason, action, .. } => {
-            if action.contains("Missing Tests") {
-                "Safety First: Generate unit tests covering the core logic paths to secure the module before refactoring.".to_string()
-            } else if reason.contains("Nesting") && reason.contains("Density") {
+        WorkUnit::Surgical { reason, .. } => {
+            if reason.contains("Nesting") && reason.contains("Density") {
                 "Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.".to_string()
             } else if reason.contains("Nesting") {
                 "Flatten Control Flow: Replace nested if/switch blocks with early returns or pattern matching.".to_string()
@@ -654,15 +652,7 @@ fn main() -> Result<()> {
 
                 let complexity = ((metrics.loc - limit) as f64 / 10.0) + drag;
 
-                let test_path_res = p_str.replace(".res", "_test.res");
-                let test_path_rs = p_str.replace(".rs", "_test.rs");
-                let has_test = Path::new(&test_path_res).exists() || Path::new(&test_path_rs).exists() || content.contains("#[cfg(test)]");
-
-                let action = if drag > 4.0 && !has_test && !p_str.contains("test") {
-                    "Safety Hazard: Missing Tests".to_string()
-                } else {
-                    "De-bloat".to_string()
-                };
+                let action = "De-bloat".to_string();
 
                 buffer.entry(d_name.clone()).or_default().push(WorkUnit::Surgical {
                     file: p_str.clone(),

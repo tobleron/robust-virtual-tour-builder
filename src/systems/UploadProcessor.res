@@ -96,10 +96,7 @@ module Logic = {
       let _ = Array.push(parts, "Extracting: " ++ Belt.Int.toString(getC("Extracting")))
     }
     let queueStatus =
-      "Processing " ++
-      Belt.Int.toString(completedCount) ++
-      "/" ++
-      Belt.Int.toString(total)
+      "Processing " ++ Belt.Int.toString(completedCount) ++ "/" ++ Belt.Int.toString(total)
     let activityDetails = if Array.length(parts) > 0 {
       Array.join(parts, " \u2022 ")
     } else {
@@ -110,8 +107,7 @@ module Logic = {
     } else {
       queueStatus
     }
-    let progress =
-      20.0 +. 75.0 *. (Float.fromInt(completedCount) /. Float.fromInt(total))
+    let progress = 20.0 +. 75.0 *. (Float.fromInt(completedCount) /. Float.fromInt(total))
     (progress, statusMsg)
   }
 

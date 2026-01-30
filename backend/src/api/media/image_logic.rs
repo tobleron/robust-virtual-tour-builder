@@ -51,13 +51,8 @@ fn process_metadata_task(
     frontend_metadata: Option<ExifMetadata>,
     is_optimized_frontend: bool,
 ) -> Result<MetadataResponse, String> {
-    let mut meta = media::perform_metadata_extraction_rgba(
-        src_rgba,
-        src_w,
-        src_h,
-        data,
-        original_filename,
-    )?;
+    let mut meta =
+        media::perform_metadata_extraction_rgba(src_rgba, src_w, src_h, data, original_filename)?;
     if let Some(front_exif) = frontend_metadata {
         meta.exif = front_exif;
         meta.suggested_name = original_filename.map(media::get_suggested_name);
@@ -102,12 +97,9 @@ fn process_large_image_task(
             PROCESSED_IMAGE_WIDTH,
         )
         .map_err(|e| format!("Resize failed: {}", e))?;
-        let img = image::RgbaImage::from_raw(
-            PROCESSED_IMAGE_WIDTH,
-            PROCESSED_IMAGE_WIDTH,
-            resized_rgba,
-        )
-        .ok_or_else(|| "Failed to create image buffer".to_string())?;
+        let img =
+            image::RgbaImage::from_raw(PROCESSED_IMAGE_WIDTH, PROCESSED_IMAGE_WIDTH, resized_rgba)
+                .ok_or_else(|| "Failed to create image buffer".to_string())?;
         media::encode_webp(&image::DynamicImage::ImageRgba8(img), WEBP_QUALITY)
     }
 }
@@ -124,15 +116,17 @@ fn execute_parallel_image_processing(
     let ((metadata_res, tiny_res), large_res) = rayon::join(
         || {
             rayon::join(
-                || process_metadata_task(
-                    src_rgba,
-                    src_w,
-                    src_h,
-                    data,
-                    original_filename,
-                    frontend_metadata.clone(),
-                    is_optimized_frontend,
-                ),
+                || {
+                    process_metadata_task(
+                        src_rgba,
+                        src_w,
+                        src_h,
+                        data,
+                        original_filename,
+                        frontend_metadata.clone(),
+                        is_optimized_frontend,
+                    )
+                },
                 || process_tiny_image_task(src_rgba, src_w, src_h),
             )
         },
@@ -309,9 +303,7 @@ pub fn extract_metadata_sync(
 
 // --- UTILS ---
 
-async fn read_field_content(
-    field: &mut actix_multipart::Field,
-) -> Result<Vec<u8>, AppError> {
+async fn read_field_content(field: &mut actix_multipart::Field) -> Result<Vec<u8>, AppError> {
     let mut value = Vec::new();
     while let Some(chunk) = field.try_next().await? {
         value.extend_from_slice(&chunk);
@@ -357,19 +349,19 @@ pub async fn read_multipart_image(mut payload: Multipart) -> Result<MultipartIma
                     }
                 }
                 data = read_file_field_content(&mut field, MAX_UPLOAD_SIZE).await?;
-            },
+            }
             "is_optimized" => {
                 let value = read_field_content(&mut field).await?;
                 if let Ok(s) = String::from_utf8(value) {
                     is_optimized_frontend = s.to_lowercase() == "true";
                 }
-            },
+            }
             "metadata" => {
                 let value = read_field_content(&mut field).await?;
                 if let Ok(s) = String::from_utf8(value) {
                     frontend_metadata = serde_json::from_str(&s).ok();
                 }
-            },
+            }
             _ => {
                 // Ignore unknown fields
                 let _ = read_field_content(&mut field).await?;
