@@ -83,27 +83,17 @@ impl Resolver {
             }
         }
 
-        // Strategy 6: ReScript Same-Directory JSX Resolution
-        // For ReScript JSX components in same directory that don't need explicit imports
-        if matches.is_empty() {
-            // Try all registered paths to see if any contain this component in same directory
-            for (module_stem, file_paths) in &self.registry {
-                for file_path in file_paths {
-                    // Check if this is a ReScript file and the stem matches
-                    if file_path.ends_with(".res") && module_stem == dep {
-                        // Found a ReScript component with matching name
-                        matches.extend(file_paths.clone());
-                    }
-                }
-            }
-        }
+        // Strategy 6: ReScript JSX component resolution (handled by Stem Match above, 
+        // but preserved as a documented hook for future specific JSX resolution rules if needed)
 
-        println!(
-            "🎯 RESOLVER: Found {} matches for '{}': {:?}",
-            matches.len(),
-            dep,
-            matches
-        );
+        if std::env::var("DEBUG_RESOLVER").is_ok() {
+            println!(
+                "🎯 RESOLVER: Found {} matches for '{}': {:?}",
+                matches.len(),
+                dep,
+                matches
+            );
+        }
         matches.sort();
         matches.dedup();
         matches
