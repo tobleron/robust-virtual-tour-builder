@@ -4,7 +4,7 @@ use actix_multipart::Multipart;
 use actix_web::{HttpResponse, web};
 use std::time::Instant;
 
-use crate::api::media::image_logic;
+use crate::api::media::{image_logic, image_multipart};
 use crate::metrics::{IMAGE_PROCESSING_DURATION, IMAGE_PROCESSING_TOTAL, UPLOAD_BYTES_TOTAL};
 use crate::models::{AppError, MetadataResponse};
 
@@ -13,7 +13,7 @@ use crate::models::{AppError, MetadataResponse};
 /// Extracts EXIF metadata and performs quality analysis on an image.
 #[tracing::instrument(skip(payload), name = "extract_metadata")]
 pub async fn extract_metadata(payload: Multipart) -> Result<HttpResponse, AppError> {
-    let multipart_data = image_logic::read_multipart_image(payload).await?;
+    let multipart_data = image_multipart::read_multipart_image(payload).await?;
     let total_size = multipart_data.data.len();
 
     UPLOAD_BYTES_TOTAL.inc_by(total_size as f64);
@@ -50,7 +50,7 @@ pub async fn extract_metadata(payload: Multipart) -> Result<HttpResponse, AppErr
 #[tracing::instrument(skip(payload), name = "optimize_image")]
 pub async fn optimize_image(payload: Multipart) -> Result<HttpResponse, AppError> {
     let start = Instant::now();
-    let multipart_data = image_logic::read_multipart_image(payload).await?;
+    let multipart_data = image_multipart::read_multipart_image(payload).await?;
     let total_size = multipart_data.data.len();
 
     UPLOAD_BYTES_TOTAL.inc_by(total_size as f64);
@@ -85,7 +85,7 @@ pub async fn optimize_image(payload: Multipart) -> Result<HttpResponse, AppError
 /// Processes an uploaded panorama image through the full optimization pipeline.
 #[tracing::instrument(skip(payload), name = "process_image_full")]
 pub async fn process_image_full(payload: Multipart) -> Result<HttpResponse, AppError> {
-    let multipart_data = image_logic::read_multipart_image(payload).await?;
+    let multipart_data = image_multipart::read_multipart_image(payload).await?;
     let total_size = multipart_data.data.len();
 
     UPLOAD_BYTES_TOTAL.inc_by(total_size as f64);
@@ -127,7 +127,7 @@ pub async fn process_image_full(payload: Multipart) -> Result<HttpResponse, AppE
 pub async fn resize_image_batch(payload: Multipart) -> Result<HttpResponse, AppError> {
     tracing::info!(module = "Resizer", "RESIZE_BATCH_START");
     let start = Instant::now();
-    let multipart_data = image_logic::read_multipart_image(payload).await?;
+    let multipart_data = image_multipart::read_multipart_image(payload).await?;
     let total_size = multipart_data.data.len();
 
     UPLOAD_BYTES_TOTAL.inc_by(total_size as f64);
