@@ -148,6 +148,47 @@ module Logic = {
     }
   }
 
+  let calculatePointAtProgress = (
+    progress,
+    totalDistance,
+    segments: array<(float, float, float, PathInterpolation.point, PathInterpolation.point)>,
+    startYaw,
+    startPitch,
+    endYaw,
+    endPitch,
+  ) => {
+    let tDist = progress *. totalDistance
+    let cov = ref(0.0)
+    let ptYaw = ref(startYaw)
+    let ptPitch = ref(startPitch)
+    let fnd = ref(false)
+
+    for i in 0 to Array.length(segments) - 1 {
+      if !fnd.contents {
+        switch Belt.Array.get(segments, i) {
+        | Some((dist, dy, dp, p1, _)) =>
+          if tDist <= cov.contents +. dist {
+            let sp = if dist > 0.0 {
+              (tDist -. cov.contents) /. dist
+            } else {
+              0.0
+            }
+            ptPitch := p1.pitch +. dp *. sp
+            ptYaw := p1.yaw +. dy *. sp
+            fnd := true
+          }
+          cov := cov.contents +. dist
+        | None => ()
+        }
+      }
+    }
+    if !fnd.contents {
+      ptPitch := endPitch
+      ptYaw := endYaw
+    }
+    (ptYaw.contents, ptPitch.contents)
+  }
+
   let updateSimulationArrow = (
     cam: ProjectionMath.camState,
     startPitch,
@@ -230,41 +271,24 @@ module Logic = {
     let progFront = Math.min(rotationCalcProgress +. delta, 1.0)
     let progBack = Math.max(0.0, rotationCalcProgress -. delta)
 
-    let getPointAtProgress = p => {
-      let tDist = p *. totalDistanceRef.contents
-      let cov = ref(0.0)
-      let ptYaw = ref(startYaw)
-      let ptPitch = ref(startPitch)
-      let fnd = ref(false)
-
-      for i in 0 to Array.length(segments) - 1 {
-        if !fnd.contents {
-          switch Belt.Array.get(segments, i) {
-          | Some((dist, dy, dp, p1, _)) =>
-            if tDist <= cov.contents +. dist {
-              let sp = if dist > 0.0 {
-                (tDist -. cov.contents) /. dist
-              } else {
-                0.0
-              }
-              ptPitch := p1.pitch +. dp *. sp
-              ptYaw := p1.yaw +. dy *. sp
-              fnd := true
-            }
-            cov := cov.contents +. dist
-          | None => ()
-          }
-        }
-      }
-      if !fnd.contents {
-        ptPitch := endPitch
-        ptYaw := endYaw
-      }
-      (ptYaw.contents, ptPitch.contents)
-    }
-
-    let (yF, pF) = getPointAtProgress(progFront)
-    let (yB, pB) = getPointAtProgress(progBack)
+    let (yF, pF) = calculatePointAtProgress(
+      progFront,
+      totalDistanceRef.contents,
+      segments,
+      startYaw,
+      startPitch,
+      endYaw,
+      endPitch,
+    )
+    let (yB, pB) = calculatePointAtProgress(
+      progBack,
+      totalDistanceRef.contents,
+      segments,
+      startYaw,
+      startPitch,
+      endYaw,
+      endPitch,
+    )
 
     let dy = ref(yF -. yB)
     while dy.contents > 180.0 {

@@ -252,13 +252,8 @@ module UI = {
 
 // --- CONTROLLER ---
 
-module Controller = {
-  @react.component
-  let make = () => {
-    let state = AppContext.useAppState()
-    let dispatch = AppContext.useAppDispatch()
-    let ajid = React.useRef(None)
-    let req = React.useRef(None)
+module ControllerHooks = {
+  let useNavigationFSM = (state: state, dispatch) => {
     React.useEffect1(() => {
       switch state.navigationFsm {
       | Preloading({targetSceneId, isAnticipatory}) =>
@@ -269,7 +264,7 @@ module Controller = {
           Scene.Loader.loadNewScene(prevIndex, Some(idx), ~isAnticipatory)
         })
       | Transitioning({progress}) if state.navigation == Idle && progress == 0.0 =>
-        dispatch(DispatchNavigationFsmEvent(TransitionComplete))
+        dispatch(Actions.DispatchNavigationFsmEvent(TransitionComplete))
       | Stabilizing({targetSceneId}) =>
         let _ = Window.requestAnimationFrame(() => {
           state.scenes
@@ -285,6 +280,12 @@ module Controller = {
       }
       None
     }, [state.navigationFsm])
+  }
+
+  let useNavigationAnimation = (state: state, dispatch) => {
+    let ajid = React.useRef(None)
+    let req = React.useRef(None)
+
     React.useEffect1(() => {
       switch state.navigation {
       | Navigating(j) if ajid.current != Some(j.journeyId) =>
@@ -338,10 +339,10 @@ module Controller = {
                       req.current = Some(Window.requestAnimationFrame(loop))
                     } else {
                       cft := true
-                      dispatch(DispatchNavigationFsmEvent(TransitionComplete))
+                      dispatch(Actions.DispatchNavigationFsmEvent(TransitionComplete))
                     }
                   } else {
-                    dispatch(DispatchNavigationFsmEvent(AnimationProgress(prog)))
+                    dispatch(Actions.DispatchNavigationFsmEvent(AnimationProgress(prog)))
                     let (cp, cy) = NavigationLogic.calculateCameraPosition(
                       ~progress=prog,
                       ~pathData=pd,
@@ -383,6 +384,16 @@ module Controller = {
       }
       Some(() => req.current->Option.forEach(Window.cancelAnimationFrame))
     }, [state.navigation])
+  }
+}
+
+module Controller = {
+  @react.component
+  let make = () => {
+    let state = AppContext.useAppState()
+    let dispatch = AppContext.useAppDispatch()
+    ControllerHooks.useNavigationFSM(state, dispatch)
+    ControllerHooks.useNavigationAnimation(state, dispatch)
     React.null
   }
 }

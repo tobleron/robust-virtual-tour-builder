@@ -48,35 +48,37 @@ module Utils = {
   external castToDict: JSON.t => dict<JSON.t> = "%identity"
   external castToJson: 'a => JSON.t = "%identity"
 
+  let extractLocationName = (addr: string): option<string> => {
+    let words =
+      String.split(addr, " ")
+      ->Belt.Array.flatMap(w => String.split(w, ","))
+      ->Belt.Array.keep(w => String.length(String.trim(w)) > 0)
+
+    let selectedWords =
+      Belt.Array.slice(words, ~offset=0, ~len=3)
+      ->Belt.Array.map(w => {
+        let clean = String.replaceRegExp(w, /[^\p{L}\p{N}]/gu, "")
+        if String.length(clean) == 0 {
+          ""
+        } else {
+          let first = String.charAt(clean, 0)->String.toUpperCase
+          let rest =
+            String.slice(clean, ~start=1, ~end=String.length(clean))->String.toLowerCase
+          first ++ rest
+        }
+      })
+      ->Belt.Array.keep(w => String.length(w) > 0)
+
+    if Array.length(selectedWords) > 0 {
+      Some(Array.join(selectedWords, "_"))
+    } else {
+      None
+    }
+  }
+
   let generateProjectName = (address: option<string>, dateTime: option<string>): option<string> => {
     let locationPart = switch address {
-    | Some(addr) => {
-        let words =
-          String.split(addr, " ")
-          ->Belt.Array.flatMap(w => String.split(w, ","))
-          ->Belt.Array.keep(w => String.length(String.trim(w)) > 0)
-
-        let selectedWords =
-          Belt.Array.slice(words, ~offset=0, ~len=3)
-          ->Belt.Array.map(w => {
-            let clean = String.replaceRegExp(w, /[^\p{L}\p{N}]/gu, "")
-            if String.length(clean) == 0 {
-              ""
-            } else {
-              let first = String.charAt(clean, 0)->String.toUpperCase
-              let rest =
-                String.slice(clean, ~start=1, ~end=String.length(clean))->String.toLowerCase
-              first ++ rest
-            }
-          })
-          ->Belt.Array.keep(w => String.length(w) > 0)
-
-        if Array.length(selectedWords) > 0 {
-          Some(Array.join(selectedWords, "_"))
-        } else {
-          None
-        }
-      }
+    | Some(addr) => extractLocationName(addr)
     | None => None
     }
 
