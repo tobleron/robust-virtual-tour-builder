@@ -10,7 +10,7 @@
 
 ## 🛠️ SURGICAL REFACTOR TASKS (1)
 - [ ] **../../css/components/viewer.css**
-  - *Reason:* [Nesting: 0.30, Density: 0.11, Coupling: 0.00] | Drag: 1.87 | LOC: 627/510
+  - *Reason:* [Nesting: 0.30, Density: 0.11, Coupling: 0.00] | Drag: 1.87 | LOC: 627/511
 
 ---
 
