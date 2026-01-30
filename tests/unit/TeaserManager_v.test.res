@@ -1,6 +1,7 @@
 open Vitest
 open Teaser.Manager
 open Teaser.State
+open Types
 
 /* Types */
 type mockFn
@@ -83,13 +84,31 @@ external mockGenerateServerTeaser: mockFn = "generateServerTeaser"
   }));
 `)
 
+let makeMockScene = (~id, ~name, ()) => {
+  id,
+  name,
+  file: Url(name ++ ".jpg"),
+  tinyFile: None,
+  originalFile: None,
+  hotspots: [],
+  category: "default",
+  floor: "ground",
+  label: name,
+  quality: None,
+  colorGroup: None,
+  _metadataSource: "test",
+  categorySet: false,
+  labelSet: false,
+  isAutoForward: false,
+}
+
 describe("TeaserManager", () => {
   beforeEach(() => {
     let _ = %raw(`vi.clearAllMocks()`)
     mockGetState->mockReturnValue({
-      "scenes": [{"id": "scene1"}, {"id": "scene2"}],
+      "scenes": [makeMockScene(~id="scene1", ~name="S1", ()), makeMockScene(~id="scene2", ~name="S1", ())],
       "tourName": "TestTour",
-      "simulation": {"status": "Idle"},
+      "simulation": {"status": "Idle", "visitedScenes": []},
     })
     mockLoadLogo->mockResolvedValue(%raw("null"))
     mockGetWalkPath->mockResolvedValue(Ok([])) // Empty path for basic test
@@ -113,7 +132,7 @@ describe("TeaserManager", () => {
     await startAutoTeaser(style, includeLogo, format, skipAutoForward)
 
     expectCall(mockGetWalkPath)->toHaveBeenCalledWith2(
-      [%raw(`{"id": "scene1"}`), %raw(`{"id": "scene2"}`)],
+      [makeMockScene(~id="scene1", ~name="S1", ()), makeMockScene(~id="scene2", ~name="S1", ())],
       skipAutoForward,
     )
 

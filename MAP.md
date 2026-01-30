@@ -269,3 +269,8 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [backend/src/services/media/naming_old.rs](backend/src/services/media/naming_old.rs): Legacy camera filename normalization logic. `#rust` `#legacy`
 
 ---
+
+## 🆕 Unmapped Modules
+* [backend/src/pathfinder/graph.rs](backend/src/pathfinder/graph.rs): New module detected. Please classify. #new
+* [src/systems/TeaserLogic.res](src/systems/TeaserLogic.res): New module detected. Please classify. #new
+* [src/systems/ApiLogic.res](src/systems/ApiLogic.res): New module detected. Please classify. #new
