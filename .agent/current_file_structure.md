@@ -517,6 +517,12 @@
 │   │   │   │   ├── GlobalStateBridge.cmj
 │   │   │   │   ├── GlobalStateBridge.cmt
 │   │   │   │   ├── GlobalStateBridge.res
+│   │   │   │   ├── HotspotHelpers.ast
+│   │   │   │   ├── HotspotHelpers.bs.js
+│   │   │   │   ├── HotspotHelpers.cmi
+│   │   │   │   ├── HotspotHelpers.cmj
+│   │   │   │   ├── HotspotHelpers.cmt
+│   │   │   │   ├── HotspotHelpers.res
 │   │   │   │   ├── Reducer.ast
 │   │   │   │   ├── Reducer.bs.js
 │   │   │   │   ├── Reducer.cmi
@@ -2164,6 +2170,11 @@
 │   │   ├── HotspotActionMenu_v.test.cmj
 │   │   ├── HotspotActionMenu_v.test.cmt
 │   │   ├── HotspotActionMenu_v.test.res
+│   │   ├── HotspotHelpers.ast
+│   │   ├── HotspotHelpers.cmi
+│   │   ├── HotspotHelpers.cmj
+│   │   ├── HotspotHelpers.cmt
+│   │   ├── HotspotHelpers.res
 │   │   ├── HotspotLayer.ast
 │   │   ├── HotspotLayer.cmi
 │   │   ├── HotspotLayer.cmj
@@ -4844,6 +4855,8 @@
 │   │   ├── AppContext.res
 │   │   ├── GlobalStateBridge.bs.js
 │   │   ├── GlobalStateBridge.res
+│   │   ├── HotspotHelpers.bs.js
+│   │   ├── HotspotHelpers.res
 │   │   ├── Reducer.bs.js
 │   │   ├── Reducer.res
 │   │   ├── SceneCache.bs.js
@@ -5073,6 +5086,7 @@
 │   │   ├── 1147_Surgical_Refactor_SERVICES_BACKEND_DONE.md
 │   │   ├── 1148_Surgical_Refactor_SRC_BACKEND_DONE.md
 │   │   ├── 1149_Surgical_Refactor_MEDIA_BACKEND_DONE.md
+│   │   ├── 1151_Surgical_Refactor_CORE_FRONTEND_DONE.md
 │   │   ├── 1153_Aggregate_Completed_Tasks_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
@@ -5080,12 +5094,12 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1151_Surgical_Refactor_CORE_FRONTEND.md
 │   │   ├── 1152_Surgical_Refactor_SYSTEMS_FRONTEND.md
 │   │   ├── 1154_Classify_Ambiguous_Files.md
 │   │   ├── 1155_Structural_Refactor_BACKEND.md
 │   │   ├── 1157_Merge_Folders_BACKEND.md
 │   │   ├── 1158_Classify_Map_Entries.md
+│   │   ├── 1159_Surgical_Refactor_CORE_FRONTEND.md
 │   │   └── tests
 │   └── postponed
 │       ├── 900_COMMERCIAL_MIGRATION_MASTER.md
@@ -5400,4 +5414,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-204 directories, 5197 files
+204 directories, 5211 files

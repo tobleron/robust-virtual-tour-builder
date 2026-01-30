@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - V4.8.12+324 [TRIPLE]: integrate backend stage-2 optimizations, refresh frontend surgical targets (Logger/Reducer), and trigger task aggregation maintenance
 - Imp(dev-system): Show full file paths in Vertical Slice and Merge tasks
 - Merge refactor/frontend-surgical-stage-3 and generate new system tasks
+- Merge refactor/frontend-surgical-stage-3 and refactor-reducer-core-frontend
 
 ## [4.8.11] - 2026-01-30
 
