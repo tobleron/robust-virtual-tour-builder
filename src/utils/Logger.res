@@ -82,16 +82,18 @@ let priorityToString = (p: priority): string =>
   | Low => "low"
   }
 
-let stringToLevel = (s: string): level =>
-  switch s {
-  | "trace" => Trace
-  | "debug" => Debug
-  | "info" => Info
-  | "warn" => Warn
-  | "error" => Error
-  | "perf" => Perf
-  | _ => Info
-  }
+let levelMap = Dict.fromArray([
+  ("trace", Trace),
+  ("debug", Debug),
+  ("info", Info),
+  ("warn", Warn),
+  ("error", Error),
+  ("perf", Perf),
+])
+
+let stringToLevel = (s: string): level => {
+  Dict.get(levelMap, s)->Option.getOr(Info)
+}
 
 let moduleColors = Dict.fromArray([
   ("Teaser", "#f97316"),
@@ -135,6 +137,38 @@ let setBypassTestEnvCheck = (v: bool) => {
   bypassTestEnvCheck := v
 }
 
+let rec attemptSendBatch = async (payload: telemetryBatch, retries: int) => {
+  try {
+    let _ = await RequestQueue.schedule(() =>
+      Fetch.fetch(
+        Constants.backendUrl ++ "/api/telemetry/batch",
+        Fetch.requestInit(
+          ~method="POST",
+          ~headers=Dict.fromArray([("Content-Type", "application/json")]),
+          ~body=JSON.stringify(castToJson(payload)),
+          (),
+        ),
+      )
+    )
+    true
+  } catch {
+  | _ if retries < Constants.Telemetry.retryMaxAttempts => {
+      let delay = Belt.Float.toInt(
+        Belt.Int.toFloat(Constants.Telemetry.retryBackoffMs) *.
+        Math.pow(2.0, ~exp=Belt.Int.toFloat(retries)),
+      )
+      let _ = await Promise.make((resolve, _) => {
+        let _ = Window.setTimeout(() => resolve(ignore()), delay)
+      })
+      await attemptSendBatch(payload, retries + 1)
+    }
+  | _ => {
+      Console.error("[Logger] Failed to send telemetry batch after max retries")
+      false
+    }
+  }
+}
+
 let flushTelemetry = async () => {
   if Array.length(telemetryQueue) > 0 && !isFlushing.contents {
     isFlushing := true
@@ -151,40 +185,8 @@ let flushTelemetry = async () => {
     ignore(%raw(`telemetryQueue.splice(0, takeCount)`))
 
     let payload: telemetryBatch = {entries: batch}
-
-    let rec attemptSend = async retries => {
-      try {
-        let _ = await RequestQueue.schedule(() =>
-          Fetch.fetch(
-            Constants.backendUrl ++ "/api/telemetry/batch",
-            Fetch.requestInit(
-              ~method="POST",
-              ~headers=Dict.fromArray([("Content-Type", "application/json")]),
-              ~body=JSON.stringify(castToJson(payload)),
-              (),
-            ),
-          )
-        )
-        isFlushing := false
-      } catch {
-      | _ if retries < Constants.Telemetry.retryMaxAttempts => {
-          let delay = Belt.Float.toInt(
-            Belt.Int.toFloat(Constants.Telemetry.retryBackoffMs) *.
-            Math.pow(2.0, ~exp=Belt.Int.toFloat(retries)),
-          )
-          let _ = await Promise.make((resolve, _) => {
-            let _ = Window.setTimeout(() => resolve(ignore()), delay)
-          })
-          await attemptSend(retries + 1)
-        }
-      | _ => {
-          Console.error("[Logger] Failed to send telemetry batch after max retries")
-          isFlushing := false
-        }
-      }
-    }
-
-    await attemptSend(0)
+    let _ = await attemptSendBatch(payload, 0)
+    isFlushing := false
   }
 }
 
@@ -238,39 +240,48 @@ let enabled = ref(Constants.isDebugBuild())
 let minLevel = ref(Info)
 let enabledModules = ref(Belt.Set.String.empty)
 
-let log = (~module_: string, ~level: level, ~message: string, ~data: 'a=?, ()): unit => {
+let createLogEntry = (
+  ~module_: string,
+  ~level: level,
+  ~message: string,
+  ~data: option<JSON.t>,
+): logEntry => {
   let timestampMs = Date.now()
   let timestamp = Date.toISOString(Date.make())
   let p = levelToTelemetryPriority(level)
-
-  let entry = {
+  {
     timestampMs,
     timestamp,
     module_,
     level: levelToString(level),
     message,
-    data: data->Option.map(castToJson),
+    data,
     priority: priorityToString(p),
   }
+}
 
+let updateLogBuffers = (entry: logEntry, level: level, module_: string, message: string) => {
   Array.push(entries, entry)
   if Array.length(entries) > maxEntries {
     let _ = Array.shift(entries)
   }
 
   /* App Log Buffer (for UI) */
-  let appLogMsg = `[${timestamp}][${levelToString(
+  let appLogMsg = `[${entry.timestamp}][${levelToString(
       level,
     )->String.toUpperCase}] [${module_}] ${message}`
   Array.push(appLog, appLogMsg)
   if Array.length(appLog) > maxAppLogEntries {
     let _ = Array.shift(appLog)
   }
+}
 
-  /* Backend Telemetry */
-  let _ = sendTelemetry(entry)->Promise.catch(_ => Promise.resolve())
-
-  /* Console Output */
+let logToConsole = (
+  ~module_: string,
+  ~level: level,
+  ~message: string,
+  ~data: option<JSON.t>,
+) => {
   if enabled.contents && levelPriority(level) >= levelPriority(minLevel.contents) {
     let hasFilter = Belt.Set.String.size(enabledModules.contents) > 0
     if !hasFilter || Belt.Set.String.has(enabledModules.contents, module_) {
@@ -305,10 +316,23 @@ let log = (~module_: string, ~level: level, ~message: string, ~data: 'a=?, ()): 
         prefixStyle,
         resetStyle,
         message,
-        data->Option.map(castToJson)->optToNullable,
+        data->optToNullable,
       )
     }
   }
+}
+
+let log = (~module_: string, ~level: level, ~message: string, ~data: 'a=?, ()): unit => {
+  let jsonParams = data->Option.map(castToJson)
+  let entry = createLogEntry(~module_, ~level, ~message, ~data=jsonParams)
+
+  updateLogBuffers(entry, level, module_, message)
+
+  /* Backend Telemetry */
+  let _ = sendTelemetry(entry)->Promise.catch(_ => Promise.resolve())
+
+  /* Console Output */
+  logToConsole(~module_, ~level, ~message, ~data=jsonParams)
 }
 
 let trace = (~module_, ~message, ~data: 'a=?, ()) =>
