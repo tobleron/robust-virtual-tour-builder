@@ -37,35 +37,38 @@ module SidebarLogic = {
     )
   }
 
+  let performUpload = async files => {
+    let fileArray = JsHelpers.from(files)
+
+    try {
+      let result: UploadTypes.processResult = await UploadProcessor.processUploads(
+        fileArray,
+        Some(
+          (pct, msg, isProc, phase) => {
+            updateProgress(pct, msg, isProc, phase)
+          },
+        ),
+      )
+
+      let qualityResults = result.qualityResults
+      let report = result.report
+
+      UploadReport.show(report, qualityResults)
+    } catch {
+    | JsExn(obj) =>
+      let msg = switch JsExn.message(obj) {
+      | Some(m) => m
+      | None => "Unknown error"
+      }
+      EventBus.dispatch(ShowNotification("Upload failed: " ++ msg, #Error))
+      updateProgress(0.0, "Error: " ++ msg, false, "")
+    | _ => ()
+    }
+  }
+
   let handleUpload = async filesOpt => {
     switch filesOpt {
-    | Some(files) if FileList.length(files) > 0 =>
-      let fileArray = JsHelpers.from(files)
-
-      try {
-        let result: UploadTypes.processResult = await UploadProcessor.processUploads(
-          fileArray,
-          Some(
-            (pct, msg, isProc, phase) => {
-              updateProgress(pct, msg, isProc, phase)
-            },
-          ),
-        )
-
-        let qualityResults = result.qualityResults
-        let report = result.report
-
-        UploadReport.show(report, qualityResults)
-      } catch {
-      | JsExn(obj) =>
-        let msg = switch JsExn.message(obj) {
-        | Some(m) => m
-        | None => "Unknown error"
-        }
-        EventBus.dispatch(ShowNotification("Upload failed: " ++ msg, #Error))
-        updateProgress(0.0, "Error: " ++ msg, false, "")
-      | _ => ()
-      }
+    | Some(files) if FileList.length(files) > 0 => await performUpload(files)
     | _ => ()
     }
   }
