@@ -5,15 +5,15 @@ open Actions
 
 module Scene = {
   let handleAddScenes = (state: state, scenesData): state => {
-    SceneHelpers.handleAddScenes(state, scenesData)
+    SceneMutations.handleAddScenes(state, scenesData)
   }
 
   let handleDeleteScene = (state: state, index: int): state => {
-    SceneHelpers.handleDeleteScene(state, index)
+    SceneMutations.handleDeleteScene(state, index)
   }
 
   let handleReorderScenes = (state: state, fromIndex: int, toIndex: int): state => {
-    SceneHelpers.handleReorderScenes(state, fromIndex, toIndex)
+    SceneMutations.handleReorderScenes(state, fromIndex, toIndex)
   }
 
   let handleSetActiveScene = (
@@ -23,19 +23,19 @@ module Scene = {
     pitch: float,
     transition: option<transition>,
   ): state => {
-    SceneHelpers.handleSetActiveScene(state, index, yaw, pitch, transition)
+    SceneMutations.handleSetActiveScene(state, index, yaw, pitch, transition)
   }
 
   let handleUpdateSceneMetadata = (state: state, index: int, metaJson): state => {
-    SceneHelpers.handleUpdateSceneMetadata(state, index, metaJson)
+    SceneMutations.handleUpdateSceneMetadata(state, index, metaJson)
   }
 
   let handleSyncSceneNames = (state: state): state => {
-    {...state, scenes: SceneHelpers.syncSceneNames(state.scenes)}
+    {...state, scenes: SceneMutations.syncSceneNames(state.scenes)}
   }
 
   let handleApplyLazyRename = (state: state, index: int, name: string): state => {
-    SceneHelpers.handleApplyLazyRename(state, index, name)
+    SceneMutations.handleApplyLazyRename(state, index, name)
   }
 
   let reduce = (state: state, action: action): option<state> => {
@@ -125,52 +125,14 @@ module Navigation = {
     | SetNavigationStatus(status) => Some({...state, navigation: status})
     | SetIncomingLink(link) => Some({...state, incomingLink: link})
     | ResetAutoForwardChain => Some({...state, autoForwardChain: []})
-    | AddToAutoForwardChain(idx) =>
-      let chain = state.autoForwardChain
-      if !Array.includes(chain, idx) {
-        Some({...state, autoForwardChain: Belt.Array.concat(chain, [idx])})
-      } else {
-        Some(state)
-      }
+    | AddToAutoForwardChain(idx) => Some(NavigationHelpers.handleAddToAutoForwardChain(state, idx))
     | SetPendingReturnSceneName(name) => Some({...state, pendingReturnSceneName: name})
     | IncrementJourneyId => Some({...state, currentJourneyId: state.currentJourneyId + 1})
     | SetCurrentJourneyId(id) => Some({...state, currentJourneyId: id})
-    | NavigationCompleted(journey) =>
-      if journey.journeyId == state.currentJourneyId {
-        if journey.previewOnly {
-          Some({...state, navigation: Idle})
-        } else {
-          let incomingLinkVal: linkInfo = {
-            sceneIndex: journey.sourceIndex,
-            hotspotIndex: journey.hotspotIndex,
-          }
-
-          let transition = {
-            type_: Link,
-            targetHotspotIndex: -1,
-            fromSceneName: None,
-          }
-          Some({
-            ...state,
-            navigation: Idle,
-            incomingLink: Some(incomingLinkVal),
-            activeIndex: journey.targetIndex,
-            activeYaw: journey.arrivalYaw,
-            activePitch: journey.arrivalPitch,
-            transition,
-          })
-        }
-      } else {
-        Some(state)
-      }
+    | NavigationCompleted(journey) => Some(NavigationHelpers.handleNavigationCompleted(state, journey))
     | SetNavigationFsmState(fsmState) => Some({...state, navigationFsm: fsmState})
     | DispatchNavigationFsmEvent(event) =>
-      let nextFsmState = NavigationFSM.reducer(state.navigationFsm, event)
-      if nextFsmState != state.navigationFsm {
-        Some({...state, navigationFsm: nextFsmState})
-      } else {
-        Some(state)
-      }
+      Some(NavigationHelpers.handleDispatchNavigationFsmEvent(state, event))
     | _ => None
     }
   }
@@ -180,52 +142,13 @@ module Simulation = {
   let reduce = (state: state, action: action): option<state> => {
     switch action {
     | StartAutoPilot(journeyId, skip) =>
-      Some({
-        ...state,
-        simulation: {
-          ...state.simulation,
-          status: Running,
-          autoPilotJourneyId: journeyId,
-          visitedScenes: [],
-          skipAutoForwardGlobal: skip,
-          stoppingOnArrival: false,
-        },
-      })
-    | StartLinking(_) =>
-      Some({
-        ...state,
-        navigation: Idle,
-        simulation: {
-          ...state.simulation,
-          status: Idle,
-          pendingAdvanceId: None,
-          visitedScenes: [],
-          stoppingOnArrival: false,
-          skipAutoForwardGlobal: false,
-        },
-      })
+      Some(SimulationHelpers.handleStartAutoPilot(state, journeyId, skip))
+    | StartLinking(draft) =>
+      Some(SimulationHelpers.handleStartLinking(state, draft))
     | StopAutoPilot =>
-      Some({
-        ...state,
-        navigation: Idle,
-        currentJourneyId: state.currentJourneyId + 1,
-        simulation: {
-          ...state.simulation,
-          status: Idle,
-          pendingAdvanceId: None,
-          visitedScenes: [],
-          stoppingOnArrival: false,
-          skipAutoForwardGlobal: false,
-        },
-      })
+      Some(SimulationHelpers.handleStopAutoPilot(state))
     | AddVisitedScene(sceneIdx) =>
-      Some({
-        ...state,
-        simulation: {
-          ...state.simulation,
-          visitedScenes: Belt.Array.concat(state.simulation.visitedScenes, [sceneIdx]),
-        },
-      })
+      Some(SimulationHelpers.handleAddVisitedScene(state, sceneIdx))
     | ClearVisitedScenes =>
       Some({
         ...state,
