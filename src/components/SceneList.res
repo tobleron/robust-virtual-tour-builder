@@ -2,6 +2,15 @@
 
 external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 
+module Logic = {
+  let getThumbUrl = (scene: Types.scene) => {
+    switch scene.tinyFile {
+    | Some(tiny) => UrlUtils.fileToUrl(tiny)
+    | None => UrlUtils.fileToUrl(scene.file)
+    }
+  }
+}
+
 module Item = {
   @react.component
   let make = React.memo((
@@ -20,12 +29,7 @@ module Item = {
       None
     })
 
-    let thumbUrl = React.useMemo1(() => {
-      switch scene.tinyFile {
-      | Some(tiny) => UrlUtils.fileToUrl(tiny)
-      | None => UrlUtils.fileToUrl(scene.file)
-      }
-    }, [scene.id])
+    let thumbUrl = React.useMemo1(() => Logic.getThumbUrl(scene), [scene.id])
 
     let (isMenuOpen, setMenuOpen) = React.useState(_ => false)
     let (flickerState, setFlickerState) = React.useState(_ => #None)
