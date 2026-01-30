@@ -60,12 +60,52 @@
     },
     {
       "Surgical": {
-        "file": "../../src/systems/ApiLogic.res",
+        "file": "../../src/core/Reducer.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 3.50, Density: 0.08, Coupling: 0.04] | Drag: 7.14 | LOC: 503/300  🎯 Target: Function: `bodyVal` (High Local Complexity (2.0). Logic heavy.)",
+        "reason": "[Nesting: 3.00, Density: 0.42, Coupling: 0.09] | Drag: 7.92 | LOC: 306/300",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 27.440954274353878
+        "complexity": 8.522875816993464
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ExifReportGeneratorLogic.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 5.50, Density: 0.14, Coupling: 0.06] | Drag: 9.29 | LOC: 331/300  🎯 Target: Function: `extractAllExif` (High Local Complexity (11.1). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 12.387915407854983
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/Scene.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.17, Coupling: 0.09] | Drag: 6.99 | LOC: 355/300  🎯 Target: Function: `updateGlobalStateAndViewer` (High Local Complexity (5.8). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 12.493802816901407
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/SceneHelpers.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.50, Density: 0.03, Coupling: 0.05] | Drag: 5.60 | LOC: 308/300  🎯 Target: Function: `sanitizeScene` (High Local Complexity (2.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 6.398701298701298
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/HotspotLineLogic.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.00, Density: 0.29, Coupling: 0.04] | Drag: 7.55 | LOC: 540/300  🎯 Target: Function: `isViewerValid` (High Local Complexity (2.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 31.546666666666667
       }
     },
     {
@@ -90,52 +130,22 @@
     },
     {
       "Surgical": {
-        "file": "../../src/systems/Scene.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.17, Coupling: 0.09] | Drag: 6.99 | LOC: 355/300  🎯 Target: Function: `updateGlobalStateAndViewer` (High Local Complexity (5.8). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 12.493802816901407
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ExifReportGeneratorLogic.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 5.50, Density: 0.14, Coupling: 0.06] | Drag: 9.29 | LOC: 331/300  🎯 Target: Function: `extractAllExif` (High Local Complexity (11.1). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 12.387915407854983
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/HotspotLineLogic.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.00, Density: 0.29, Coupling: 0.04] | Drag: 7.55 | LOC: 540/300  🎯 Target: Function: `isViewerValid` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 31.546666666666667
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/Reducer.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.00, Density: 0.44, Coupling: 0.06] | Drag: 8.79 | LOC: 437/300  🎯 Target: Function: `vf` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 22.49496567505721
-      }
-    },
-    {
-      "Surgical": {
         "file": "../../src/systems/Navigation.res",
         "action": "De-bloat",
         "reason": "[Nesting: 6.00, Density: 0.39, Coupling: 0.08] | Drag: 10.15 | LOC: 407/300  🎯 Target: Function: `startJourney` (High Local Complexity (9.8). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
         "complexity": 20.848894348894348
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ApiLogic.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.50, Density: 0.08, Coupling: 0.04] | Drag: 7.14 | LOC: 503/300  🎯 Target: Function: `bodyVal` (High Local Complexity (2.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 27.440954274353878
       }
     }
   ]
