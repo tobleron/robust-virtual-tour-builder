@@ -31,6 +31,7 @@ struct EfficiencyConfig {
     profiles: HashMap<String, Profile>,
     taxonomy: HashMap<String, TaxonomyRole>,
     exceptions: Option<Vec<ExceptionRule>>,
+    protected_patterns: Option<Vec<String>>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -511,9 +512,19 @@ fn main() -> Result<()> {
     let resolver = Resolver::new(file_resolver.clone());
 
     // Sanity Guard: Ensure all orchestrators are treated as entry points
-    for (p_str, (_, _, taxonomy, _, _, _)) in &registry {
+    for (p_str, (_, content, taxonomy, _, _, _)) in &registry {
+        // Any file with a specific role that is NOT ignored is likely an entry point or vital
         if taxonomy == "orchestrator" || taxonomy == "service-orchestrator" {
             entry_points.insert(p_str.clone());
+        }
+        
+        // Entry Point Protection 2.0: Check for protected patterns
+        if let Some(protected) = &config.protected_patterns {
+            for pattern in protected {
+                if p_str.contains(pattern) || content.contains(pattern) {
+                    entry_points.insert(p_str.clone());
+                }
+            }
         }
     }
 
@@ -624,7 +635,8 @@ fn main() -> Result<()> {
 
         // 6. Violation Check (Check for ALL files)
         if let Some(profile) = config.profiles.get(d_name) {
-             let stripped = drivers::strip_code(&content);
+             let treat_single_quote_as_string = d_name != "rescript" && d_name != "rust";
+             let stripped = drivers::strip_code_modular(&content, treat_single_quote_as_string);
              for pattern in &profile.forbidden_patterns {
                  if stripped.contains(pattern) {
                      let unit = WorkUnit::Violation {

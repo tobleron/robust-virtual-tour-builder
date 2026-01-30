@@ -170,7 +170,16 @@
     {
       "pattern": "src/Main.res",
       "max_loc": 500,
-      "reason": "App Entry Point orchestrator"
-    }
-  ]
-}
+            "reason": "App Entry Point orchestrator"
+          }
+        ],
+        "protected_patterns": [
+          "@efficiency-role: orchestrator",
+          "@efficiency-role: entry-point",
+          "@efficiency-role: service-orchestrator",
+          "src/Main.res",
+          "src/App.res",
+          "backend/src/main.rs"
+        ]
+      }
+      
