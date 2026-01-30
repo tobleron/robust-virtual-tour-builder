@@ -27,7 +27,7 @@ pub enum EfficiencyOverride {
 }
 
 pub fn parse_header(content: &str) -> EfficiencyOverride {
-    let prefixes = ["@efficiency:", "@efficiency-role:"];
+    let prefixes = ["@efficiency:", "@efficiency-role:", "@efficiency-role "];
     for prefix in &prefixes {
         if let Some(pos) = content.find(prefix) {
             let start = pos + prefix.len();

@@ -1,3 +1,4 @@
+// @efficiency-role: domain-logic
 use super::graph::{
     ArrivalView, Hotspot, PathRequest, Scene, Step, TimelineItem, TransitionTarget,
 };

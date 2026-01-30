@@ -340,7 +340,10 @@ pub fn check_tests(config: &GuardConfig, file_path: &Path) -> Result<()> {
         return Ok(());
     }
 
-    let file_base = file_path.file_stem().unwrap().to_string_lossy();
+    let file_base = match file_path.file_stem() {
+        Some(stem) => stem.to_string_lossy(),
+        None => return Ok(()),
+    };
 
     if file_base == "Version" {
         return Ok(());

@@ -90,6 +90,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/systems/NavigationGraph.res](src/systems/NavigationGraph.res): Viewport math and link projection logic. `#math` `#navigation`
 *   [src/systems/SceneSwitcher.res](src/systems/SceneSwitcher.res): Handles the state transitions and side effects of changing scenes. `#scene-switching` `#transition`
 *   [src/systems/Teaser.res](src/systems/Teaser.res): Teaser generation system. `#teaser` `#video`
+*   [src/systems/TeaserLogic.res](src/systems/TeaserLogic.res): Core playback, recording orchestration, and cinematic movement logic for teasers. `#teaser` `#playback` `#logic`
 *   [src/systems/TeaserPlayback.res](src/systems/TeaserPlayback.res): Orchestrates teaser and autopilot playback logic. `#teaser` `#playback`
 *   [src/systems/TeaserState.res](src/systems/TeaserState.res): State management for the teaser system. `#teaser` `#state`
 *   [src/systems/TeaserManager.res](src/systems/TeaserManager.res): Manager for teaser recording and playback sessions. `#teaser` `#manager`
@@ -98,6 +99,7 @@ This map provides a semantic overview of the project structure to optimize conte
     * [src/systems/ProjectManagerTypes.res](src/systems/ProjectManagerTypes.res): Shared types for project management. `#types`
 *   [src/systems/Exporter.res](src/systems/Exporter.res): Generates production-ready tour clusters. `#export` `#deployment`
 *   [src/systems/Api.res](src/systems/Api.res): Consolidated API module for media, projects, and authentication. `#api` `#client` `#consolidated`
+*   [src/systems/ApiLogic.res](src/systems/ApiLogic.res): Implementation of API client logic, including decoders and authenticated requests. `#api` `#client` `#logic`
 *   [src/systems/FingerprintService.res](src/systems/FingerprintService.res): Image fingerprinting for deduplication. `#image` `#fingerprint`
 *   [src/systems/PanoramaClusterer.res](src/systems/PanoramaClusterer.res): Logic for grouping and clustering panoramas. `#logic` `#clustering`
 *   [src/systems/SvgManager.res](src/systems/SvgManager.res): Management of SVG overlays and elements. `#svg` `#rendering`
@@ -154,8 +156,12 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/components/SnapshotOverlay.res](src/components/SnapshotOverlay.res): Visual transition "flash" layer. `#ui` `#transition`
 *   [src/components/NotificationLayer.res](src/components/NotificationLayer.res): Centralized notification and processing status layer. `#ui` `#notifications`
 *   [src/components/Sidebar.res](src/components/Sidebar.res): Consolidated sidebar module for project management and UI. `#sidebar` `#scene-management` `#ui` `#logic`
+    * [src/components/Sidebar/SidebarLogic.res](src/components/Sidebar/SidebarLogic.res): Core sidebar logic and upload orchestration. `#logic`
+    * [src/components/Sidebar/SidebarProjectInfo.res](src/components/Sidebar/SidebarProjectInfo.res): UI for tour name and upload triggers. `#ui`
+    * [src/components/Sidebar/SidebarProcessing.res](src/components/Sidebar/SidebarProcessing.res): Global processing status and progress tracking. `#ui` `#notifications`
+    * [src/components/Sidebar/SidebarBranding.res](src/components/Sidebar/SidebarBranding.res): Application branding and version information. `#ui`
+    * [src/components/Sidebar/SidebarActions.res](src/components/Sidebar/SidebarActions.res): Primary toolbar for project operations. `#ui`
 *   [src/components/SceneList.res](src/components/SceneList.res): Virtualized list of tour scenes. `#ui` `#virtualization` `#facade`
-    *   [src/components/SceneList/SceneListMain.res](src/components/SceneList/SceneListMain.res): Main virtualization and list management logic. `#logic`
     *   [src/components/SceneList/SceneItem.res](src/components/SceneList/SceneItem.res): Individual scene item component. `#ui`
 *   [src/components/HotspotManager.res](src/components/HotspotManager.res): Visual editor for placement and editing of nav links. `#hotspots` `#editor`
 *   [src/components/AppErrorBoundary.res](src/components/AppErrorBoundary.res): Top-level safety net for render failures. `#error-handling` `#stability`
@@ -179,6 +185,9 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/components/ViewerLoader.res](src/components/ViewerLoader.res): Loading state and splash screen for the 360 viewer. `#ui` `#loading`
 *   [src/components/ViewerManager.res](src/components/ViewerManager.res): Lightweight facade orchestrating viewer logic. `#rendering` `#orchestration` `#facade`
     *   [src/components/ViewerManagerLogic.res](src/components/ViewerManagerLogic.res): Core logic hooks for viewer initialization, scene loading, and sync. `#logic` `#hooks`
+    *   [src/components/ViewerManager/ViewerManagerLifecycle.res](src/components/ViewerManager/ViewerManagerLifecycle.res): Lifecycle hooks for stage events and global UI state. `#logic` `#hooks`
+*   [src/components/VisualPipeline.res](src/components/VisualPipeline.res): Consolidated visualizer pipeline module. `#ui` `#visual-pipeline` `#logic` `#rendering`
+    * [src/components/VisualPipeline/VisualPipelineStyles.res](src/components/VisualPipeline/VisualPipelineStyles.res): CSS-in-JS definitions for the visual pipeline. `#styling`
 *   [src/components/ViewerSnapshot.res](src/components/ViewerSnapshot.res): UI for triggering and managing viewer captures. `#ui` `#snapshot`
 *   [src/components/ui/LucideIcons.res](src/components/ui/LucideIcons.res): Lightweight facade for Lucide React icons. `#ui` `#icons` `#facade`
     *   [src/components/ui/Lucide/LucideCore.res](src/components/ui/Lucide/LucideCore.res): Core UI icons (arrows, close, menu). `#ui` `#icons`
@@ -226,7 +235,6 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [backend/src/services/media/webp.rs](backend/src/services/media/webp.rs): WebP encoding and metadata injection. `#encoding`
     *   [backend/src/services/media/resizing.rs](backend/src/services/media/resizing.rs): High-performance image resizing. `#processing`
     *   [backend/src/services/media/naming.rs](backend/src/services/media/naming.rs): Camera filename normalization logic. `#utils`
-*   [backend/src/pathfinder/algorithms.rs](backend/src/pathfinder/algorithms.rs): Graph traversal logic for optimal routes. `#algorithms` `#graph-theory`
 *   [backend/src/api/mod.rs](backend/src/api/mod.rs): Root interface for the backend REST API. `#api`
 *   [backend/src/api/media/mod.rs](backend/src/api/media/mod.rs): Sub-router for media processing and retrieval. `#api` `#media`
     *   [backend/src/api/media/serve.rs](backend/src/api/media/serve.rs): Handles direct asset serving and static delivery. `#api` `#static`
@@ -254,6 +262,8 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [backend/src/models/errors_impl.rs](backend/src/models/errors_impl.rs): Domain-specific implementation of the error system. `#models` `#errors`
     *   [backend/src/models/errors_tests.rs](backend/src/models/errors_tests.rs): Unit tests for the backend error system. `#models` `#testing`
 *   [backend/src/pathfinder.rs](backend/src/pathfinder.rs): Consolidated high-performance navigation pathfinding logic. `#navigation` `#logic` `#algorithms`
+*   [backend/src/pathfinder/graph.rs](backend/src/pathfinder/graph.rs): Data models and types for the pathfinding graph. `#navigation` `#models` `#types`
+*   [backend/src/pathfinder/algorithms.rs](backend/src/pathfinder/algorithms.rs): Graph traversal logic for optimal routes. `#algorithms` `#graph-theory`
 *   [backend/src/services/mod.rs](backend/src/services/mod.rs): Domain-specific service layer entry point. `#services`
     *   [backend/src/services/auth.rs](backend/src/services/auth.rs): Orchestrator for authentication and identity services. `#auth` `#facade`
     *   [backend/src/services/database.rs](backend/src/services/database.rs): Persistence layer for project metadata and users. `#database` `#logic`
@@ -267,10 +277,3 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [backend/src/services/media/mod.rs](backend/src/services/media/mod.rs): Facade for core media services (encoding, analysis, resizing). `#media` `#services` `#facade`
 *   [backend/src/services/media/storage.rs](backend/src/services/media/storage.rs): Persistent storage and retrieval of media assets. `#media` `#storage`
 *   [backend/src/services/media/naming_old.rs](backend/src/services/media/naming_old.rs): Legacy camera filename normalization logic. `#rust` `#legacy`
-
----
-
-## 🆕 Unmapped Modules
-* [backend/src/pathfinder/graph.rs](backend/src/pathfinder/graph.rs): New module detected. Please classify. #new
-* [src/systems/TeaserLogic.res](src/systems/TeaserLogic.res): New module detected. Please classify. #new
-* [src/systems/ApiLogic.res](src/systems/ApiLogic.res): New module detected. Please classify. #new

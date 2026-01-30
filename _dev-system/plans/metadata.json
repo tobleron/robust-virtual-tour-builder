@@ -1,18 +1,80 @@
 {
+  "rust": [
+    {
+      "Surgical": {
+        "file": "../../backend/src/middleware.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.05, Coupling: 0.06] | Drag: 4.16 | LOC: 380/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 12.157894736842106
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/pathfinder/algorithms.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.50, Density: 0.12, Coupling: 0.00] | Drag: 5.07 | LOC: 405/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 15.57283950617284
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/services/geocoding.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.50, Density: 0.06, Coupling: 0.02] | Drag: 2.67 | LOC: 367/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 9.370027247956404
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/media/image_logic.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.50, Density: 0.04, Coupling: 0.03] | Drag: 4.27 | LOC: 330/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 7.267878787878788
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/api/project.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.50, Density: 0.04, Coupling: 0.04] | Drag: 3.82 | LOC: 375/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 11.3168
+      }
+    }
+  ],
   "rescript": [
     {
       "Surgical": {
-        "file": "../../src/components/VisualPipeline.res",
+        "file": "../../src/systems/ExifReportGeneratorLogic.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.08, Coupling: 0.07] | Drag: 6.43 | LOC: 357/300  🎯 Target: Function: `injectStyles` (High Local Complexity (3.0). Logic heavy.)",
+        "reason": "[Nesting: 4.00, Density: 0.12, Coupling: 0.07] | Drag: 7.94 | LOC: 433/300  🎯 Target: Function: `locationPart` (High Local Complexity (6.6). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 12.133613445378153
+        "complexity": 21.237644341801385
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/UploadProcessor.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.50, Density: 0.05, Coupling: 0.10] | Drag: 5.68 | LOC: 333/300  🎯 Target: Function: `type_` (High Local Complexity (4.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 8.976576576576576
       }
     },
     {
       "Violation": {
-        "file": "../../src/systems/ProjectManager.res",
+        "file": "../../src/utils/PersistenceLayer.res",
         "pattern": "Obj.magic",
         "strategy": ""
       }
@@ -36,90 +98,29 @@
     },
     {
       "Surgical": {
-        "file": "../../src/utils/Logger.res",
+        "file": "../../src/ReBindings.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.31, Coupling: 0.05] | Drag: 7.56 | LOC: 492/300  🎯 Target: Function: `stringToLevel` (High Local Complexity (7.0). Logic heavy.)",
+        "reason": "[Nesting: 1.50, Density: 0.67, Coupling: 0.15] | Drag: 9.94 | LOC: 350/300",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 26.764227642276424
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/Reducer.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.00, Density: 0.45, Coupling: 0.06] | Drag: 8.89 | LOC: 433/300  🎯 Target: Function: `newTransition` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 22.190993071593535
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/HotspotLineLogic.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.00, Density: 0.30, Coupling: 0.04] | Drag: 7.65 | LOC: 514/300  🎯 Target: Function: `getPointAtProgress` (High Local Complexity (25.5). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 29.053696498054475
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ExifReportGeneratorLogic.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.00, Density: 0.12, Coupling: 0.07] | Drag: 7.94 | LOC: 433/300  🎯 Target: Function: `locationPart` (High Local Complexity (6.6). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 21.237644341801385
+        "complexity": 14.936571428571428
       }
     },
     {
       "Violation": {
-        "file": "../../src/core/UiHelpers.res",
+        "file": "../../src/ReBindings.res",
         "pattern": "Obj.magic",
         "strategy": ""
       }
     },
     {
       "Surgical": {
-        "file": "../../src/components/ViewerManagerLogic.res",
+        "file": "../../src/systems/ApiLogic.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 2.00, Density: 0.03, Coupling: 0.09] | Drag: 6.91 | LOC: 314/300  🎯 Target: Function: `v` (High Local Complexity (2.0). Logic heavy.)",
+        "reason": "[Nesting: 3.50, Density: 0.11, Coupling: 0.05] | Drag: 7.09 | LOC: 586/300  🎯 Target: Function: `handleResponse` (High Local Complexity (4.2). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 8.30955414012739
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/utils/PersistenceLayer.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/systems/ServerTeaser.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/systems/ViewerSystem.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/i18n/I18n.res",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 44)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
+        "complexity": 35.691808873720134
       }
     },
     {
@@ -141,6 +142,50 @@
     },
     {
       "Surgical": {
+        "file": "../../src/systems/HotspotLineLogic.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.00, Density: 0.30, Coupling: 0.04] | Drag: 7.65 | LOC: 514/300  🎯 Target: Function: `getPointAtProgress` (High Local Complexity (25.5). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 29.053696498054475
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/NavigationGraph.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/core/UiHelpers.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/Reducer.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.00, Density: 0.45, Coupling: 0.06] | Drag: 8.89 | LOC: 433/300  🎯 Target: Function: `newTransition` (High Local Complexity (2.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 22.190993071593535
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/SimulationLogic.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.50, Density: 0.10, Coupling: 0.06] | Drag: 9.24 | LOC: 458/300  🎯 Target: Function: `globalViewer` (High Local Complexity (11.2). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 25.04235807860262
+      }
+    },
+    {
+      "Surgical": {
         "file": "../../src/core/Schemas.res",
         "action": "De-bloat",
         "reason": "[Nesting: 2.50, Density: 0.50, Coupling: 0.05] | Drag: 9.24 | LOC: 373/300  🎯 Target: Function: `castToProject` (High Local Complexity (3.4). Logic heavy.)",
@@ -157,84 +202,10 @@
       }
     },
     {
-      "Surgical": {
-        "file": "../../src/systems/ApiLogic.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.50, Density: 0.11, Coupling: 0.05] | Drag: 7.09 | LOC: 586/300  🎯 Target: Function: `handleResponse` (High Local Complexity (4.2). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 35.691808873720134
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/SimulationLogic.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.50, Density: 0.11, Coupling: 0.06] | Drag: 9.77 | LOC: 455/300  🎯 Target: Function: `globalViewer` (High Local Complexity (11.2). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 25.27252747252747
-      }
-    },
-    {
       "Violation": {
-        "file": "../../src/systems/SimulationLogic.res",
-        "pattern": "mutable ",
-        "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/ReBindings.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.50, Density: 0.67, Coupling: 0.15] | Drag: 9.94 | LOC: 350/300",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 14.936571428571428
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/ReBindings.res",
+        "file": "../../src/systems/ProjectManager.res",
         "pattern": "Obj.magic",
         "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/Sidebar.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.00, Density: 0.05, Coupling: 0.09] | Drag: 7.12 | LOC: 571/300  🎯 Target: Function: `handleUpload` (High Local Complexity (3.5). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 34.21698774080561
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/systems/NavigationGraph.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/UploadProcessor.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.50, Density: 0.05, Coupling: 0.10] | Drag: 5.68 | LOC: 333/300  🎯 Target: Function: `type_` (High Local Complexity (4.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 8.976576576576576
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/SceneList.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.50, Density: 0.09, Coupling: 0.08] | Drag: 7.02 | LOC: 419/300  🎯 Target: Function: `getThumbUrl` (High Local Complexity (3.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 18.92124105011933
       }
     },
     {
@@ -246,57 +217,39 @@
         "platform": "frontend",
         "complexity": 8.472607260726074
       }
-    }
-  ],
-  "rust": [
-    {
-      "Surgical": {
-        "file": "../../backend/src/middleware.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.05, Coupling: 0.06] | Drag: 4.16 | LOC: 380/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 12.157894736842106
-      }
     },
     {
-      "Surgical": {
-        "file": "../../backend/src/api/project.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.50, Density: 0.04, Coupling: 0.04] | Drag: 3.82 | LOC: 375/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 11.3168
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/api/media/image_logic.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.50, Density: 0.04, Coupling: 0.03] | Drag: 4.27 | LOC: 330/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 7.267878787878788
-      }
-    }
-  ],
-  "system": [
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/geocoding.rs",
+      "Violation": {
+        "file": "../../src/systems/ServerTeaser.res",
+        "pattern": "Obj.magic",
         "strategy": ""
       }
     },
     {
-      "Ambiguity": {
-        "file": "../../backend/src/pathfinder/graph.rs",
+      "Surgical": {
+        "file": "../../src/i18n/I18n.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 44)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/ViewerSystem.res",
+        "pattern": "Obj.magic",
         "strategy": ""
       }
     },
     {
-      "Ambiguity": {
-        "file": "../../backend/src/pathfinder/algorithms.rs",
-        "strategy": ""
+      "Surgical": {
+        "file": "../../src/utils/Logger.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.31, Coupling: 0.05] | Drag: 7.56 | LOC: 492/300  🎯 Target: Function: `stringToLevel` (High Local Complexity (7.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 26.764227642276424
       }
     }
   ]

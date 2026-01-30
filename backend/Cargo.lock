@@ -554,6 +554,7 @@ dependencies = [
  "base64 0.21.7",
  "bytes",
  "chrono",
+ "dotenvy",
  "fast_image_resize",
  "flate2",
  "fs2",

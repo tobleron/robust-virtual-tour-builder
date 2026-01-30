@@ -22,8 +22,3 @@
 - [ ] `../../src/systems/ServerTeaser.res`
 - [ ] `../../src/systems/ViewerSystem.res`
 - [ ] `../../src/utils/PersistenceLayer.res`
-
-### 🔧 Action: Fix Pattern `mutable `
-**Directive:** Pattern Fix: Replace the forbidden 'mutable ' pattern with the recommended functional alternative (Logger, Result/Option, etc).
-
-- [ ] `../../src/systems/SimulationLogic.res`

@@ -272,12 +272,50 @@
 │   │   │   │   ├── ReturnPrompt.cmj
 │   │   │   │   ├── ReturnPrompt.cmt
 │   │   │   │   ├── ReturnPrompt.res
+│   │   │   │   ├── SceneList
+│   │   │   │   │   ├── SceneItem.ast
+│   │   │   │   │   ├── SceneItem.bs.js
+│   │   │   │   │   ├── SceneItem.cmi
+│   │   │   │   │   ├── SceneItem.cmj
+│   │   │   │   │   ├── SceneItem.cmt
+│   │   │   │   │   └── SceneItem.res
 │   │   │   │   ├── SceneList.ast
 │   │   │   │   ├── SceneList.bs.js
 │   │   │   │   ├── SceneList.cmi
 │   │   │   │   ├── SceneList.cmj
 │   │   │   │   ├── SceneList.cmt
 │   │   │   │   ├── SceneList.res
+│   │   │   │   ├── Sidebar
+│   │   │   │   │   ├── SidebarActions.ast
+│   │   │   │   │   ├── SidebarActions.bs.js
+│   │   │   │   │   ├── SidebarActions.cmi
+│   │   │   │   │   ├── SidebarActions.cmj
+│   │   │   │   │   ├── SidebarActions.cmt
+│   │   │   │   │   ├── SidebarActions.res
+│   │   │   │   │   ├── SidebarBranding.ast
+│   │   │   │   │   ├── SidebarBranding.bs.js
+│   │   │   │   │   ├── SidebarBranding.cmi
+│   │   │   │   │   ├── SidebarBranding.cmj
+│   │   │   │   │   ├── SidebarBranding.cmt
+│   │   │   │   │   ├── SidebarBranding.res
+│   │   │   │   │   ├── SidebarLogic.ast
+│   │   │   │   │   ├── SidebarLogic.bs.js
+│   │   │   │   │   ├── SidebarLogic.cmi
+│   │   │   │   │   ├── SidebarLogic.cmj
+│   │   │   │   │   ├── SidebarLogic.cmt
+│   │   │   │   │   ├── SidebarLogic.res
+│   │   │   │   │   ├── SidebarProcessing.ast
+│   │   │   │   │   ├── SidebarProcessing.bs.js
+│   │   │   │   │   ├── SidebarProcessing.cmi
+│   │   │   │   │   ├── SidebarProcessing.cmj
+│   │   │   │   │   ├── SidebarProcessing.cmt
+│   │   │   │   │   ├── SidebarProcessing.res
+│   │   │   │   │   ├── SidebarProjectInfo.ast
+│   │   │   │   │   ├── SidebarProjectInfo.bs.js
+│   │   │   │   │   ├── SidebarProjectInfo.cmi
+│   │   │   │   │   ├── SidebarProjectInfo.cmj
+│   │   │   │   │   ├── SidebarProjectInfo.cmt
+│   │   │   │   │   └── SidebarProjectInfo.res
 │   │   │   │   ├── Sidebar.ast
 │   │   │   │   ├── Sidebar.bs.js
 │   │   │   │   ├── Sidebar.cmi
@@ -339,6 +377,13 @@
 │   │   │   │   ├── ViewerLoader.cmj
 │   │   │   │   ├── ViewerLoader.cmt
 │   │   │   │   ├── ViewerLoader.res
+│   │   │   │   ├── ViewerManager
+│   │   │   │   │   ├── ViewerManagerLifecycle.ast
+│   │   │   │   │   ├── ViewerManagerLifecycle.bs.js
+│   │   │   │   │   ├── ViewerManagerLifecycle.cmi
+│   │   │   │   │   ├── ViewerManagerLifecycle.cmj
+│   │   │   │   │   ├── ViewerManagerLifecycle.cmt
+│   │   │   │   │   └── ViewerManagerLifecycle.res
 │   │   │   │   ├── ViewerManager.ast
 │   │   │   │   ├── ViewerManager.bs.js
 │   │   │   │   ├── ViewerManager.cmi
@@ -2485,6 +2530,11 @@
 │   │   ├── SceneHelpers.cmj
 │   │   ├── SceneHelpers.cmt
 │   │   ├── SceneHelpers.res
+│   │   ├── SceneItem.ast
+│   │   ├── SceneItem.cmi
+│   │   ├── SceneItem.cmj
+│   │   ├── SceneItem.cmt
+│   │   ├── SceneItem.res
 │   │   ├── SceneList_v.test.ast
 │   │   ├── SceneList_v.test.cmi
 │   │   ├── SceneList_v.test.cmj
@@ -2600,6 +2650,31 @@
 │   │   ├── Sidebar.cmj
 │   │   ├── Sidebar.cmt
 │   │   ├── Sidebar.res
+│   │   ├── SidebarActions.ast
+│   │   ├── SidebarActions.cmi
+│   │   ├── SidebarActions.cmj
+│   │   ├── SidebarActions.cmt
+│   │   ├── SidebarActions.res
+│   │   ├── SidebarBranding.ast
+│   │   ├── SidebarBranding.cmi
+│   │   ├── SidebarBranding.cmj
+│   │   ├── SidebarBranding.cmt
+│   │   ├── SidebarBranding.res
+│   │   ├── SidebarLogic.ast
+│   │   ├── SidebarLogic.cmi
+│   │   ├── SidebarLogic.cmj
+│   │   ├── SidebarLogic.cmt
+│   │   ├── SidebarLogic.res
+│   │   ├── SidebarProcessing.ast
+│   │   ├── SidebarProcessing.cmi
+│   │   ├── SidebarProcessing.cmj
+│   │   ├── SidebarProcessing.cmt
+│   │   ├── SidebarProcessing.res
+│   │   ├── SidebarProjectInfo.ast
+│   │   ├── SidebarProjectInfo.cmi
+│   │   ├── SidebarProjectInfo.cmj
+│   │   ├── SidebarProjectInfo.cmt
+│   │   ├── SidebarProjectInfo.res
 │   │   ├── SimHelpers_v.test.ast
 │   │   ├── SimHelpers_v.test.cmi
 │   │   ├── SimHelpers_v.test.cmj
@@ -2970,6 +3045,11 @@
 │   │   ├── ViewerManager.cmj
 │   │   ├── ViewerManager.cmt
 │   │   ├── ViewerManager.res
+│   │   ├── ViewerManagerLifecycle.ast
+│   │   ├── ViewerManagerLifecycle.cmi
+│   │   ├── ViewerManagerLifecycle.cmj
+│   │   ├── ViewerManagerLifecycle.cmt
+│   │   ├── ViewerManagerLifecycle.res
 │   │   ├── ViewerManagerLogic.ast
 │   │   ├── ViewerManagerLogic.cmi
 │   │   ├── ViewerManagerLogic.cmj
@@ -4504,8 +4584,22 @@
 │   │   ├── QualityIndicator.res
 │   │   ├── ReturnPrompt.bs.js
 │   │   ├── ReturnPrompt.res
+│   │   ├── SceneList
+│   │   │   ├── SceneItem.bs.js
+│   │   │   └── SceneItem.res
 │   │   ├── SceneList.bs.js
 │   │   ├── SceneList.res
+│   │   ├── Sidebar
+│   │   │   ├── SidebarActions.bs.js
+│   │   │   ├── SidebarActions.res
+│   │   │   ├── SidebarBranding.bs.js
+│   │   │   ├── SidebarBranding.res
+│   │   │   ├── SidebarLogic.bs.js
+│   │   │   ├── SidebarLogic.res
+│   │   │   ├── SidebarProcessing.bs.js
+│   │   │   ├── SidebarProcessing.res
+│   │   │   ├── SidebarProjectInfo.bs.js
+│   │   │   └── SidebarProjectInfo.res
 │   │   ├── Sidebar.bs.js
 │   │   ├── Sidebar.res
 │   │   ├── SnapshotOverlay.bs.js
@@ -4536,6 +4630,9 @@
 │   │   ├── ViewerLabelMenu.res
 │   │   ├── ViewerLoader.bs.js
 │   │   ├── ViewerLoader.res
+│   │   ├── ViewerManager
+│   │   │   ├── ViewerManagerLifecycle.bs.js
+│   │   │   └── ViewerManagerLifecycle.res
 │   │   ├── ViewerManager.bs.js
 │   │   ├── ViewerManager.res
 │   │   ├── ViewerManagerLogic.bs.js
@@ -4544,6 +4641,8 @@
 │   │   ├── ViewerSnapshot.res
 │   │   ├── ViewerUI.bs.js
 │   │   ├── ViewerUI.res
+│   │   ├── VisualPipeline
+│   │   │   └── VisualPipelineStyles.res
 │   │   ├── VisualPipeline.bs.js
 │   │   └── VisualPipeline.res
 │   ├── core
@@ -4761,6 +4860,9 @@
 │   │   ├── 1114_Surgical_Refactor_SYSTEMS_FRONTEND_DONE.md
 │   │   ├── 1116_Classify_Map_Entries_DONE.md
 │   │   ├── 1117_Deep_Audit_and_Process_Enhancement.md
+│   │   ├── 1118_Classify_Ambiguous_Files_DONE.md
+│   │   ├── 1119_Surgical_Refactor_COMPONENTS_FRONTEND_DONE.md
+│   │   ├── 1122_Classify_Map_Entries_DONE.md
 │   │   ├── 1123_Comprehensive_DevSystem_Analyzer_Overhaul_DONE.md
 │   │   ├── 1124_Complete_ReScript_JSX_Auto_Discovery_Implementation_DONE.md
 │   │   ├── 1126_Upgrade_Dev_System_Semantic_Engine_DONE.md
@@ -4805,10 +4907,7 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1118_Classify_Ambiguous_Files.md
-│   │   ├── 1119_Surgical_Refactor_COMPONENTS_FRONTEND.md
 │   │   ├── 1120_Surgical_Refactor_SYSTEMS_FRONTEND.md
-│   │   ├── 1122_Classify_Map_Entries.md
 │   │   ├── 1125_Fix_Violations_FRONTEND.md
 │   │   ├── 1127_Surgical_Refactor_CORE_FRONTEND.md
 │   │   ├── 1128_Surgical_Refactor_UTILS_FRONTEND.md
@@ -4817,6 +4916,8 @@
 │   │   ├── 1131_Surgical_Refactor_SRC_BACKEND.md
 │   │   ├── 1132_Surgical_Refactor_MEDIA_BACKEND.md
 │   │   ├── 1133_Surgical_Refactor_API_BACKEND.md
+│   │   ├── 1135_Surgical_Refactor_SERVICES_BACKEND.md
+│   │   ├── 1136_Surgical_Refactor_PATHFINDER_BACKEND.md
 │   │   └── tests
 │   │       └── 006_Test_Generation_Unified.md
 │   ├── postponed
@@ -5133,4 +5234,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-191 directories, 4943 files
+198 directories, 5037 files

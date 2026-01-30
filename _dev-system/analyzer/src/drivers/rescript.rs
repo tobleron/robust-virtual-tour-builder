@@ -234,18 +234,20 @@ impl<'a> RescriptParser<'a> {
     }
 
     fn pop_scope(&mut self) {
-        if let Some(scope) = self.scope_stack.pop() {
-            // Propagate complexity to parent (bubbling up)
-            if let Some(parent) = self.scope_stack.last_mut() {
-                parent.complexity += scope.complexity * 0.5; // Child complexity contributes partial weight to parent
+        if self.scope_stack.len() > 1 {
+            if let Some(scope) = self.scope_stack.pop() {
+                // Propagate complexity to parent (bubbling up)
+                if let Some(parent) = self.scope_stack.last_mut() {
+                    parent.complexity += scope.complexity * 0.5; // Child complexity contributes partial weight to parent
+                }
+                self.completed_scopes.push(scope);
             }
-            self.completed_scopes.push(scope);
         }
         self.pos += 1;
     }
     
     fn current_scope_mut(&mut self) -> &mut Scope {
-        self.scope_stack.last_mut().unwrap()
+        self.scope_stack.last_mut().expect("Scope stack should never be empty (guarded root)")
     }
 
     fn peek(&self, offset: usize) -> char {

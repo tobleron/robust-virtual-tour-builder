@@ -32,6 +32,9 @@ async fn health_check() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> io::Result<()> {
+    // Load environment variables from .env file
+    let _ = dotenvy::dotenv();
+
     // Initialize tracing (logging)
     tracing_subscriber::fmt()
         .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())

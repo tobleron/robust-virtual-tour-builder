@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - _dev-system: Upgrade to Semantic Engine v1.5.0 (AST-Parsing, Symbol-Awareness, Failure-Feedback, and Stability Guard)
 - Docs: Unify _dev-system README and Manifest into a comprehensive v1.5.0 Semantic Engine Guide
 - Standardize directive grouping in task generation system across all architectural categories
+- Complete task 1119/1134, improve analyzer robustness, and extract frontend sub-modules
 
 ### Added
 - Harmonize split/merge math and improve ReScript complexity fidelity
