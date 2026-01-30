@@ -250,7 +250,7 @@ module Dom_ = {
     external createPortal: (React.element, Dom.element) => React.element = "createPortal"
   }
 
-  let makeStyle = (props: {..}): ReactDOM.Style.t => Obj.magic(props)
+  external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 
   module ReactDOMClient = {
     type root

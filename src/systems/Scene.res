@@ -113,6 +113,9 @@ module Loader = {
   let castToString: 'a => string = %raw("(x) => typeof x === 'string' ? x : ''")
   let castToDict: 'a => dict<string> = %raw("(x) => (typeof x === 'object' && x !== null) ? x : {}")
   external asDynamic: 'a => {..} = "%identity"
+  external boolToUnknown: bool => unknown = "%identity"
+  external idToUnknown: string => unknown = "%identity"
+
   let loadStartTime = ref(0.0)
   module Config = {
     let getHotspots = (scene: scene) =>
@@ -150,7 +153,7 @@ module Loader = {
         v.instance
         ->Option.map(inst =>
           ViewerSystem.Adapter.getMetaData(inst, "sceneId") ==
-            targetSceneId->Option.map(id => Obj.magic(id))
+            targetSceneId->Option.map(id => idToUnknown(id))
         )
         ->Option.getOr(false)
       )
@@ -165,7 +168,7 @@ module Loader = {
       let entry = ViewerSystem.Pool.pool.contents->Belt.Array.getBy(e => e.containerId == vId)
       entry->Option.forEach(e => {
         e.instance->Option.forEach(inst =>
-          ViewerSystem.Adapter.setMetaData(inst, "isLoaded", Obj.magic(true))
+          ViewerSystem.Adapter.setMetaData(inst, "isLoaded", boolToUnknown(true))
         )
       })
       ViewerSystem.Pool.setCleanupTimeout(vId, None)
@@ -209,10 +212,8 @@ module Loader = {
           vp->Option.forEach(
             v => {
               let config = Config.makeSceneConfig(targetScene)
-              let _ = ViewerSystem.Adapter.initialize(v.containerId, config)
-              ViewerSystem.Pool.registerInstance(v.containerId, Obj.magic(v.instance)) // This is a bit hacky but okay for now
-              // Wait, PannellumAdapter.load had a specific implementation.
-              // Let's check PannellumAdapter.res again.
+              let newInstance = ViewerSystem.Adapter.initialize(v.containerId, config)
+              ViewerSystem.Pool.registerInstance(v.containerId, newInstance)
             },
           )
         }
