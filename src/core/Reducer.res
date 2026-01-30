@@ -38,13 +38,6 @@ module Scene = {
     }
   }
 
-  let calculateTransition = (transition: option<transition>): transition => {
-    switch transition {
-    | Some(t) => t
-    | None => {type_: Fade, targetHotspotIndex: -1, fromSceneName: None}
-    }
-  }
-
   let updateSceneCategories = (
     scenes: array<scene>,
     targetIndex: int,
@@ -67,7 +60,7 @@ module Scene = {
     transition: option<transition>,
   ): state => {
     if index >= 0 && index < Belt.Array.length(state.scenes) {
-      let newTransition = calculateTransition(transition)
+      let newTransition = SceneHelpers.calculateTransition(transition)
       let newScenes = updateSceneCategories(state.scenes, index, state.lastUsedCategory)
 
       {
