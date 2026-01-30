@@ -15,5 +15,5 @@ The following regions are calculated to be the most confusing for AI:
 ### 🔧 Action: De-bloat
 **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
 
-- [ ] - **../../backend/src/pathfinder.rs** (Metric: [Nesting: 1.05, Density: 0.07, Coupling: 0.05] | Drag: 2.40 | LOC: 583/500)
+- [ ] - **../../backend/src/pathfinder.rs** (Metric: [Nesting: 1.05, Density: 0.07, Coupling: 0.05] | Drag: 2.54 | LOC: 583/500)
 

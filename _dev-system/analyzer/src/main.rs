@@ -61,6 +61,7 @@ struct Settings {
     nesting_weight: f64,
     density_weight: f64,
     drag_target: f64,
+    state_weight: f64,
     max_depth_threshold: usize,
 }
 
@@ -612,13 +613,14 @@ fn main() -> Result<()> {
 
         let cohesion_bonus = 1.0 + (0.5 - dependency_density).max(0.0);
         let complexity_density = if metrics.loc > 0 { metrics.complexity_penalty / metrics.loc as f64 } else { 0.0 };
+        let state_density = if metrics.loc > 0 { metrics.state_count as f64 / metrics.loc as f64 } else { 0.0 };
 
-        let clean_path_str = p_str.replace("../../", "");
-        let clean_path = Path::new(&clean_path_str);
-        let dir_depth = clean_path.components().count().saturating_sub(config.settings.max_depth_threshold) as f64;
+        let clean_path_from_root = p_str.replace("../../", "");
+        let clean_path_obj = Path::new(&clean_path_from_root);
+        let dir_depth = clean_path_obj.components().count().saturating_sub(config.settings.max_depth_threshold) as f64;
         let depth_penalty = if dir_depth > 0.0 { dir_depth * 0.5 } else { 0.0 };
 
-        let drag = 1.0 + (metrics.max_nesting as f64 * config.settings.nesting_weight) + (density * config.settings.density_weight) + (complexity_density * 20.0) + depth_penalty;
+        let drag = 1.0 + (metrics.max_nesting as f64 * config.settings.nesting_weight) + (density * config.settings.density_weight) + (complexity_density * 20.0) + (state_density * config.settings.state_weight) + depth_penalty;
 
         let limit = calculate_dynamic_limit(drag, p_mod, cohesion_bonus, dynamic_base, &config, p_str);
 

@@ -1,4 +1,4 @@
-use syn::{visit::{self, Visit}, ItemFn, ExprMatch, ExprIf, ExprLoop, Block, Expr, ItemUse, ItemMod};
+use syn::{visit::{self, Visit}, ItemFn, ExprMatch, ExprIf, ExprLoop, Block, Expr, ItemUse, ItemMod, PatType, Pat, ExprAssign};
 use std::cmp;
 use super::CommonMetrics;
 use quote::ToTokens;
@@ -57,6 +57,20 @@ impl<'ast> Visit<'ast> for RustWalker {
         self.metrics.external_calls += 1;
         visit::visit_item_mod(self, i);
     }
+
+    fn visit_pat_type(&mut self, i: &'ast PatType) {
+        if let Pat::Ident(ref id) = *i.pat {
+            if id.mutability.is_some() {
+                self.metrics.state_count += 1;
+            }
+        }
+        visit::visit_pat_type(self, i);
+    }
+
+    fn visit_expr_assign(&mut self, i: &'ast ExprAssign) {
+        self.metrics.state_count += 1;
+        visit::visit_expr_assign(self, i);
+    }
 }
 
 pub fn analyze_rust(content: &str, dict: &std::collections::HashMap<String, f64>) -> anyhow::Result<CommonMetrics> {
@@ -67,6 +81,7 @@ pub fn analyze_rust(content: &str, dict: &std::collections::HashMap<String, f64>
     walker.metrics.hotspot_reason = None;
     walker.metrics.external_calls = 0;
     walker.metrics.internal_calls = 0;
+    walker.metrics.state_count = 0;
     walker.metrics.dependencies = Vec::new();
     walker.visit_file(&syntax);
     

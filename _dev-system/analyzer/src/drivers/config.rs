@@ -11,6 +11,7 @@ pub fn analyze_config(content: &str, _dict: &std::collections::HashMap<String, f
         hotspot_reason: None,
         external_calls: 0,
         internal_calls: 0,
+        state_count: 0,
         dependencies: Vec::new(),
     };
     let v: Value = serde_json::from_str(content).unwrap_or(Value::Null);
