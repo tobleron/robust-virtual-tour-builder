@@ -2,6 +2,8 @@ mod drivers;
 mod consolidator;
 mod guard;
 mod graph;
+mod state;
+mod feedback;
 
 use efficiency_analyzer::resolver::Resolver;
 use std::fs::{self, OpenOptions};
@@ -424,6 +426,7 @@ fn flush_plans(buffer: &HashMap<String, Vec<WorkUnit>>, config: &EfficiencyConfi
 
 fn main() -> Result<()> {
     // println!("🚀 _dev-system: Starting AGGREGATED Scan (v8)...");
+    let mut state = state::AnalyzerState::load();
     let guard_config = guard::GuardConfig::default();
     let config_raw = fs::read_to_string("../config/efficiency.json")?;
     let config: EfficiencyConfig = serde_json::from_str(&config_raw)?;
@@ -431,6 +434,10 @@ fn main() -> Result<()> {
     let mut dir_stats: HashMap<(String, String), Vec<(String, usize, String, f64, f64)>> = HashMap::new();
     let mut feature_map: HashMap<String, Vec<(String, String)>> = HashMap::new(); 
     let default_dict: HashMap<String, f64> = HashMap::new();
+
+    // --- Phase 0: Feedback Loop ---
+    let failed_items = feedback::get_recent_failures();
+    // We can't map failures to full paths yet, so we'll do it during discovery or registry building.
 
     // --- Phase 1: Discovery & Analysis ---
     // In this phase, we load all files, run the language drivers to get metrics (including dependencies),
@@ -496,6 +503,14 @@ fn main() -> Result<()> {
                 all_files_set.insert(p_str.clone());
 
                 let file_stem = path.file_stem().unwrap_or_default().to_string_lossy().to_string();
+
+                // Feedback Loop Integration
+                // Check if this file matches any failure logs (by full path or stem/module name)
+                if failed_items.contains(&p_str) || failed_items.contains(&file_stem) {
+                     state.mark_failure(&p_str);
+                     // println!("⚠️ Marked Failure for: {}", p_str);
+                }
+
                 file_resolver.entry(file_stem.clone()).or_default().push(p_str.clone());
 
                 // Store in registry
@@ -572,7 +587,8 @@ fn main() -> Result<()> {
         let dir_depth = clean_path_obj.components().count().saturating_sub(config.settings.max_depth_threshold) as f64;
         let depth_penalty = if dir_depth > 0.0 { dir_depth * 0.5 } else { 0.0 };
 
-        let drag = 1.0 + (metrics.max_nesting as f64 * config.settings.nesting_weight) + (density * config.settings.density_weight) + (complexity_density * 20.0) + (state_density * config.settings.state_weight) + depth_penalty;
+        let failure_penalty_mult = state.get_drag_multiplier(p_str);
+        let drag = (1.0 + (metrics.max_nesting as f64 * config.settings.nesting_weight) + (density * config.settings.density_weight) + (complexity_density * 20.0) + (state_density * config.settings.state_weight) + depth_penalty) * failure_penalty_mult;
 
         let limit = calculate_dynamic_limit(drag, p_mod, cohesion_bonus, dynamic_base, &config, p_str);
 
@@ -598,7 +614,14 @@ fn main() -> Result<()> {
                 let breakdown = format!("[Nesting: {:.2}, Density: {:.2}, Coupling: {:.2}] | Drag: {:.2} | LOC: {}/{}",
                     nesting_factor, density_factor, coupling_score, drag, metrics.loc, limit);
                 let mut reason = breakdown;
-                if let Some((s, e)) = metrics.hotspot_lines { reason = format!("{}  Hotspot: Lines {}-{} ({})", reason, s, e, metrics.hotspot_reason.as_ref().unwrap_or(&String::new())); }
+
+                // Enhanced Semantic Hotspot
+                if let Some(symbol) = &metrics.hotspot_symbol {
+                    reason = format!("{}  🎯 Target: {} ({})", reason, symbol, metrics.hotspot_reason.as_ref().unwrap_or(&"Complex Logic".to_string()));
+                } else if let Some((s, e)) = metrics.hotspot_lines {
+                    reason = format!("{}  Hotspot: Lines {}-{} ({})", reason, s, e, metrics.hotspot_reason.as_ref().unwrap_or(&String::new()));
+                }
+
                 let complexity = ((metrics.loc - limit) as f64 / 10.0) + drag;
 
                 let test_path_res = p_str.replace(".res", "_test.res");
@@ -696,6 +719,11 @@ fn main() -> Result<()> {
 
     // Priority 2: Shallow Folder Merges (with De-duplication)
     for ((dir, _ext), files) in dir_stats {
+        // Stability Guard: Don't merge if the folder is locked (recently modified/split)
+        if state.is_locked(&dir) {
+             continue;
+        }
+
         // Filter out files that are already part of a Recursive Cluster
         let eligible_files: Vec<&(String, usize, String, f64, f64)> = files.iter().filter(|(name, _, _, _, _)| {
              let full_path = Path::new(&dir).join(name).to_string_lossy().to_string();
@@ -763,6 +791,7 @@ fn main() -> Result<()> {
     let _ = sync_all_architectural_tasks(&buffer, &config);
     let _ = guard::check_map(&guard_config, &config.exclusion_rules);
     let _ = guard::check_tasks_count(&guard_config);
+    state.save()?;
     Ok(())
 }
 

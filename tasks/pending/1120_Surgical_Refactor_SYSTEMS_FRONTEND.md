@@ -15,7 +15,7 @@ The following regions are calculated to be the most confusing for AI:
 ### 🔧 Action: De-bloat
 **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
 
-- [ ] - **../../src/systems/ApiLogic.res** (Metric: [Nesting: 1.35, Density: 0.39, Coupling: 0.51] | Drag: 4.94 | LOC: 586/500  Hotspot: Lines 598-602)
+- [ ] - **../../src/systems/ApiLogic.res** (Metric: [Nesting: 1.05, Density: 0.09, Coupling: 0.02] | Drag: 4.35 | LOC: 586/500  🎯 Target: Function: `handleResponse` (High Local Complexity (4.2). Logic heavy.))
 
-- [ ] - **../../src/systems/HotspotLineLogic.res** (Metric: [Nesting: 1.35, Density: 0.28, Coupling: 0.40] | Drag: 4.40 | LOC: 514/500  Hotspot: Lines 245-249)
+- [ ] - **../../src/systems/HotspotLineLogic.res** (Metric: [Nesting: 1.20, Density: 0.25, Coupling: 0.01] | Drag: 4.22 | LOC: 514/500  🎯 Target: Function: `getPointAtProgress` (High Local Complexity (25.5). Logic heavy.))
 

@@ -8,13 +8,45 @@
 
 ---
 
-## 🛠️ SURGICAL REFACTOR TASKS (3)
+## 🛠️ SURGICAL REFACTOR TASKS (19)
 - [ ] **../../src/systems/HotspotLineLogic.res**
-  - *Reason:* [Nesting: 1.35, Density: 0.28, Coupling: 0.40] | Drag: 4.40 | LOC: 514/500  Hotspot: Lines 245-249 (AI Context Fog (score 67.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)
-- [ ] **../../src/components/Sidebar.res**
-  - *Reason:* [Nesting: 1.20, Density: 0.30, Coupling: 0.28] | Drag: 4.69 | LOC: 569/500  Hotspot: Lines 103-107 (AI Context Fog (score 52.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)
+  - *Reason:* [Nesting: 1.20, Density: 0.25, Coupling: 0.01] | Drag: 4.22 | LOC: 514/500  🎯 Target: Function: `getPointAtProgress` (High Local Complexity (25.5). Logic heavy.)
+- [ ] **../../src/core/Schemas.res**
+  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 373)
+- [ ] **../../src/utils/StateInspector.res**
+  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 88)
+- [ ] **../../src/utils/ProgressBar.res**
+  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 109)
+- [ ] **../../src/utils/RequestQueue.res**
+  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 57)
+- [ ] **../../src/utils/PersistenceLayer.res**
+  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 66)
+- [ ] **../../src/components/PopOver.res**
+  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 147)
 - [ ] **../../src/systems/ApiLogic.res**
-  - *Reason:* [Nesting: 1.35, Density: 0.39, Coupling: 0.51] | Drag: 4.94 | LOC: 586/500  Hotspot: Lines 598-602 (AI Context Fog (score 67.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)
+  - *Reason:* [Nesting: 1.05, Density: 0.09, Coupling: 0.02] | Drag: 4.35 | LOC: 586/500  🎯 Target: Function: `handleResponse` (High Local Complexity (4.2). Logic heavy.)
+- [ ] **../../src/utils/ImageOptimizer.res**
+  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 92)
+- [ ] **../../src/utils/LazyLoad.res**
+  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 87)
+- [ ] **../../src/utils/ProjectionMath.res**
+  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 88)
+- [ ] **../../src/core/SceneHelpers.res**
+  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 271)
+- [ ] **../../src/components/Sidebar.res**
+  - *Reason:* [Nesting: 1.20, Density: 0.04, Coupling: 0.03] | Drag: 3.95 | LOC: 569/500  🎯 Target: Function: `handleUpload` (High Local Complexity (5.0). Logic heavy.)
+- [ ] **../../src/components/LinkModal.res**
+  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 175)
+- [ ] **../../src/core/Reducer.res**
+  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 433)
+- [ ] **../../src/utils/Constants.res**
+  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 185)
+- [ ] **../../src/utils/SessionStore.res**
+  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 80)
+- [ ] **../../src/components/ViewerSnapshot.res**
+  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 57)
+- [ ] **../../src/utils/Logger.res**
+  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 492)
 
 ---
 
