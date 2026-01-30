@@ -63,14 +63,31 @@ module Hotspot = {
     | RemoveHotspot(sceneIndex, hotspotIndex) =>
       Some(HotspotHelpers.handleRemoveHotspot(state, sceneIndex, hotspotIndex))
 
-    | ClearHotspots(index) =>
-      Some(HotspotHelpers.handleClearHotspots(state, index))
+    | ClearHotspots(index) => Some(HotspotHelpers.handleClearHotspots(state, index))
 
     | UpdateHotspotTargetView(sceneIndex, hotspotIndex, yaw, pitch, hfov) =>
-      Some(HotspotHelpers.handleUpdateHotspotTargetView(state, sceneIndex, hotspotIndex, yaw, pitch, hfov))
+      Some(
+        HotspotHelpers.handleUpdateHotspotTargetView(
+          state,
+          sceneIndex,
+          hotspotIndex,
+          yaw,
+          pitch,
+          hfov,
+        ),
+      )
 
     | UpdateHotspotReturnView(sceneIndex, hotspotIndex, yaw, pitch, hfov) =>
-      Some(HotspotHelpers.handleUpdateHotspotReturnView(state, sceneIndex, hotspotIndex, yaw, pitch, hfov))
+      Some(
+        HotspotHelpers.handleUpdateHotspotReturnView(
+          state,
+          sceneIndex,
+          hotspotIndex,
+          yaw,
+          pitch,
+          hfov,
+        ),
+      )
 
     | ToggleHotspotReturnLink(sceneIndex, hotspotIndex) =>
       Some(HotspotHelpers.handleToggleHotspotReturnLink(state, sceneIndex, hotspotIndex))

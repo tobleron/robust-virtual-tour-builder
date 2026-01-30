@@ -283,6 +283,7 @@ This map provides a semantic overview of the project structure to optimize conte
 
 
 ## 🆕 Unmapped Modules
+* [src/core/HotspotHelpers.res](src/core/HotspotHelpers.res): New module detected. Please classify. #new
 * [src/systems/ApiHelpers.res](src/systems/ApiHelpers.res): New module detected. Please classify. #new
 * [src/systems/ExifUtils.res](src/systems/ExifUtils.res): New module detected. Please classify. #new
 * [src/utils/LoggerConsole.res](src/utils/LoggerConsole.res): New module detected. Please classify. #new
