@@ -4,6 +4,25 @@ use walkdir::WalkDir;
 use anyhow::Result;
 use regex::Regex;
 
+#[derive(Debug, serde::Deserialize, Clone)]
+pub struct ExclusionRules {
+    pub folders: Vec<String>,
+    pub files: Vec<String>,
+    pub extensions: Vec<String>,
+}
+
+pub fn is_project_source(path: &Path, rules: &ExclusionRules) -> bool {
+    let p_str = path.to_string_lossy().replace("\\", "/");
+    let file_name = path.file_name().unwrap_or_default().to_string_lossy();
+    let ext = path.extension().and_then(|s| s.to_str()).unwrap_or("");
+    let valid_extensions = ["rs", "res", "css", "html", "js", "jsx"];
+    if !valid_extensions.contains(&ext) { return false; }
+    for folder in &rules.folders { if p_str.contains(folder) { return false; } }
+    for file in &rules.files { if file_name == *file { return false; } }
+    for suffix in &rules.extensions { if file_name.ends_with(suffix) { return false; } }
+    true
+}
+
 pub struct GuardConfig {
     pub tasks_dir: String,
     pub map_file: String,
@@ -127,7 +146,7 @@ pub fn append_to_unified_task(config: &GuardConfig, task_name: &str, description
     Ok(true)
 }
 
-pub fn check_map(config: &GuardConfig) -> Result<()> {
+pub fn check_map(config: &GuardConfig, rules: &ExclusionRules) -> Result<()> {
     if !Path::new(&config.map_file).exists() {
         return Ok(());
     }
@@ -164,60 +183,115 @@ pub fn check_map(config: &GuardConfig) -> Result<()> {
             if path.is_file() {
                 let p_str = path.to_string_lossy().to_string().replace("\\", "/");
                 // Remove "../../" prefix
-                let clean_path = if p_str.starts_with("../../") {
+                let clean_p = if p_str.starts_with("../../") {
                     &p_str[6..]
                 } else {
                     &p_str
                 };
 
-                let extension = path.extension().and_then(|s| s.to_str()).unwrap_or("");
-                if (extension == "res" || extension == "rs" || extension == "js" || extension == "jsx") && !mapped_paths.contains(clean_path) {
-                    unmapped_files.push(clean_path.to_string());
+                if is_project_source(path, rules) && !mapped_paths.contains(clean_p) {
+                    if path.exists() {
+                        unmapped_files.push(clean_p.to_string());
+                    }
                 }
             }
         }
     }
 
+    let mut lines: Vec<String> = map_content.lines().map(|s| s.to_string()).collect();
+    let mut changed = false;
+
+    // --- MAP.md Zombie Elimination for Unmapped Modules ---
+    // If an entry in Unmapped Modules matches exclusion rules OR no longer exists, remove it.
+    let mut new_lines = Vec::new();
+    let mut in_unmapped = false;
+    for line in lines.into_iter() {
+        if line.contains("## 🆕 Unmapped Modules") {
+            in_unmapped = true;
+            new_lines.push(line);
+            continue;
+        }
+        // Stop being in unmapped section if we hit another header
+        if in_unmapped && line.starts_with("## ") && !line.contains("## 🆕 Unmapped Modules") {
+            in_unmapped = false;
+        }
+
+        if in_unmapped && line.starts_with("* [") {
+            // Extract path
+            if let Some(start) = line.find('(') {
+                if let Some(end) = line.find(')') {
+                    let path_in_map = &line[start+1..end];
+                    let full_path = Path::new("../../").join(path_in_map);
+                    if !is_project_source(&full_path, rules) || !full_path.exists() {
+                        println!("🧹 Removing invalid/zombie unmapped entry: {}", path_in_map);
+                        changed = true;
+                        continue; 
+                    }
+                }
+            }
+        }
+        new_lines.push(line);
+    }
+    lines = new_lines;
+
     if !unmapped_files.is_empty() {
         println!("🗺️ Found {} unmapped files.", unmapped_files.len());
-        let mut new_content = map_content.clone();
         
-        if !new_content.contains("## 🆕 Unmapped Modules") {
-            new_content.push_str("\n\n## 🆕 Unmapped Modules\n");
-        }
+        // Find or create header
+        let header_idx = lines.iter().position(|l| l.contains("## 🆕 Unmapped Modules"));
+        let idx = if let Some(i) = header_idx {
+            i + 1
+        } else {
+            lines.push("".to_string());
+            lines.push("## 🆕 Unmapped Modules".to_string());
+            changed = true;
+            lines.len()
+        };
 
-        let mut added_count = 0;
         for f in unmapped_files {
-            if !new_content.contains(&format!("[{}]", f)) {
-                // Project protocol: Use root-relative paths, not file://
-                new_content.push_str(&format!("* [{}]({}): New module detected. Please classify. #new\n", f, f));
-                added_count += 1;
+            let entry = format!("* [{}]({}): New module detected. Please classify. #new", f, f);
+            if !lines.iter().any(|l| l.contains(&format!("[{}]", f))) {
+                lines.insert(idx, entry);
+                changed = true;
             }
         }
+    }
 
-        if added_count > 0 {
-            fs::write(&config.map_file, new_content)?;
-            println!("🗺️ Added {} files to MAP.md.", added_count);
+    if changed {
+        let mut final_content = lines.join("\n");
+        if !final_content.ends_with('\n') {
+            final_content.push('\n');
+        }
+        fs::write(&config.map_file, final_content)?;
+        println!("🗺️ Updated MAP.md.");
 
-            if !task_exists(config, "Classify_Map_Entries") {
-                let next_id = get_next_id(config);
-                let task_filename = format!("{:03}_Classify_Map_Entries.md", next_id);
-                let task_content = format!(
-                    "# Task {}: Classify New Map Entries\n\n## 🚨 Trigger\nNew modules were detected and added to the 'Unmapped Modules' section of `MAP.md`.\n\n## Objective\nMove the entries from 'Unmapped Modules' to their appropriate semantic sections in `MAP.md`.\n",
-                    next_id
-                );
-                create_task(config, &task_filename, &task_content)?;
-            }
+        if !task_exists(config, "Classify_Map_Entries") {
+            let next_id = get_next_id(config);
+            let task_filename = format!("{:03}_Classify_Map_Entries.md", next_id);
+            let task_content = format!(
+                "# Task {}: Classify New Map Entries\n\n## 🚨 Trigger\nNew modules were detected and added to the 'Unmapped Modules' section of `MAP.md`.\n\n## Objective\nMove the entries from 'Unmapped Modules' to their appropriate semantic sections in `MAP.md`.\n",
+                next_id
+            );
+            create_task(config, &task_filename, &task_content)?;
         }
     } else {
-        // Zombie Elimination: If no unmapped files exist, remove the task if it exists
-        let pending_dir = format!("{}/pending", config.tasks_dir);
-        if let Ok(entries) = fs::read_dir(pending_dir) {
-            for entry in entries.filter_map(|e| e.ok()) {
-                let name = entry.file_name().to_string_lossy().into_owned();
-                if name.contains("Classify_Map_Entries") {
-                    println!("🧹 Deleting resolved task: {:?}", entry.path());
-                    let _ = fs::remove_file(entry.path());
+        // Check if unmapped section is now empty and remove the task if it was resolved
+        let unmapped_header = "## 🆕 Unmapped Modules";
+        let has_unmapped_items = lines.iter()
+            .skip_while(|l| !l.contains(unmapped_header))
+            .skip(1) // Skip the header itself
+            .take_while(|l| !l.starts_with("## ") || l.contains(unmapped_header)) // Take lines until next header or end of file
+            .any(|l| l.starts_with("* [")); // Check if any of these lines are list items
+        
+        if !has_unmapped_items {
+            let pending_dir = format!("{}/pending", config.tasks_dir);
+            if let Ok(entries) = fs::read_dir(pending_dir) {
+                for entry in entries.filter_map(|e| e.ok()) {
+                    let name = entry.file_name().to_string_lossy().into_owned();
+                    if name.contains("Classify_Map_Entries") {
+                        println!("🧹 Deleting resolved task: {:?}", entry.path());
+                        let _ = fs::remove_file(entry.path());
+                    }
                 }
             }
         }
