@@ -36,10 +36,7 @@ type apiResult<'a> = result<'a, string>
 
 /* Decoders using Schemas */
 let decodeImportResponse = (json: JSON.t): result<importResponse, string> => {
-  Schemas.parse(json, Schemas.Shared.importResponse)->Result.flatMap(((
-    sessionId,
-    projectData,
-  )) => {
+  Schemas.parse(json, Schemas.Shared.importResponse)->Result.flatMap(((sessionId, projectData)) => {
     if sessionId == "" {
       Error("Session ID required")
     } else {

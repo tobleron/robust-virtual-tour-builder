@@ -535,6 +535,18 @@
 │   │   │   │   ├── SceneHelpers.cmj
 │   │   │   │   ├── SceneHelpers.cmt
 │   │   │   │   ├── SceneHelpers.res
+│   │   │   │   ├── SchemaDefinitions.ast
+│   │   │   │   ├── SchemaDefinitions.bs.js
+│   │   │   │   ├── SchemaDefinitions.cmi
+│   │   │   │   ├── SchemaDefinitions.cmj
+│   │   │   │   ├── SchemaDefinitions.cmt
+│   │   │   │   ├── SchemaDefinitions.res
+│   │   │   │   ├── SchemaParsers.ast
+│   │   │   │   ├── SchemaParsers.bs.js
+│   │   │   │   ├── SchemaParsers.cmi
+│   │   │   │   ├── SchemaParsers.cmj
+│   │   │   │   ├── SchemaParsers.cmt
+│   │   │   │   ├── SchemaParsers.res
 │   │   │   │   ├── Schemas.ast
 │   │   │   │   ├── Schemas.bs.js
 │   │   │   │   ├── Schemas.cmi
@@ -604,6 +616,12 @@
 │   │   │   │   ├── Api.cmj
 │   │   │   │   ├── Api.cmt
 │   │   │   │   ├── Api.res
+│   │   │   │   ├── ApiHelpers.ast
+│   │   │   │   ├── ApiHelpers.bs.js
+│   │   │   │   ├── ApiHelpers.cmi
+│   │   │   │   ├── ApiHelpers.cmj
+│   │   │   │   ├── ApiHelpers.cmt
+│   │   │   │   ├── ApiHelpers.res
 │   │   │   │   ├── ApiLogic.ast
 │   │   │   │   ├── ApiLogic.bs.js
 │   │   │   │   ├── ApiLogic.cmi
@@ -658,6 +676,12 @@
 │   │   │   │   ├── ExifReportGeneratorLogic.cmj
 │   │   │   │   ├── ExifReportGeneratorLogic.cmt
 │   │   │   │   ├── ExifReportGeneratorLogic.res
+│   │   │   │   ├── ExifUtils.ast
+│   │   │   │   ├── ExifUtils.bs.js
+│   │   │   │   ├── ExifUtils.cmi
+│   │   │   │   ├── ExifUtils.cmj
+│   │   │   │   ├── ExifUtils.cmt
+│   │   │   │   ├── ExifUtils.res
 │   │   │   │   ├── Exporter.ast
 │   │   │   │   ├── Exporter.bs.js
 │   │   │   │   ├── Exporter.cmi
@@ -914,6 +938,24 @@
 │   │   │       ├── Logger.cmj
 │   │   │       ├── Logger.cmt
 │   │   │       ├── Logger.res
+│   │   │       ├── LoggerCommon.ast
+│   │   │       ├── LoggerCommon.bs.js
+│   │   │       ├── LoggerCommon.cmi
+│   │   │       ├── LoggerCommon.cmj
+│   │   │       ├── LoggerCommon.cmt
+│   │   │       ├── LoggerCommon.res
+│   │   │       ├── LoggerConsole.ast
+│   │   │       ├── LoggerConsole.bs.js
+│   │   │       ├── LoggerConsole.cmi
+│   │   │       ├── LoggerConsole.cmj
+│   │   │       ├── LoggerConsole.cmt
+│   │   │       ├── LoggerConsole.res
+│   │   │       ├── LoggerTelemetry.ast
+│   │   │       ├── LoggerTelemetry.bs.js
+│   │   │       ├── LoggerTelemetry.cmi
+│   │   │       ├── LoggerTelemetry.cmj
+│   │   │       ├── LoggerTelemetry.cmt
+│   │   │       ├── LoggerTelemetry.res
 │   │   │       ├── PathInterpolation.ast
 │   │   │       ├── PathInterpolation.bs.js
 │   │   │       ├── PathInterpolation.cmi
@@ -1857,6 +1899,11 @@
 │   │   ├── Api.cmj
 │   │   ├── Api.cmt
 │   │   ├── Api.res
+│   │   ├── ApiHelpers.ast
+│   │   ├── ApiHelpers.cmi
+│   │   ├── ApiHelpers.cmj
+│   │   ├── ApiHelpers.cmt
+│   │   ├── ApiHelpers.res
 │   │   ├── ApiLogic.ast
 │   │   ├── ApiLogic.cmi
 │   │   ├── ApiLogic.cmj
@@ -2042,6 +2089,11 @@
 │   │   ├── ExifReportGenerator_v.test.cmj
 │   │   ├── ExifReportGenerator_v.test.cmt
 │   │   ├── ExifReportGenerator_v.test.res
+│   │   ├── ExifUtils.ast
+│   │   ├── ExifUtils.cmi
+│   │   ├── ExifUtils.cmj
+│   │   ├── ExifUtils.cmt
+│   │   ├── ExifUtils.res
 │   │   ├── Exporter.ast
 │   │   ├── Exporter.cmi
 │   │   ├── Exporter.cmj
@@ -2265,11 +2317,26 @@
 │   │   ├── Logger.cmj
 │   │   ├── Logger.cmt
 │   │   ├── Logger.res
+│   │   ├── LoggerCommon.ast
+│   │   ├── LoggerCommon.cmi
+│   │   ├── LoggerCommon.cmj
+│   │   ├── LoggerCommon.cmt
+│   │   ├── LoggerCommon.res
+│   │   ├── LoggerConsole.ast
+│   │   ├── LoggerConsole.cmi
+│   │   ├── LoggerConsole.cmj
+│   │   ├── LoggerConsole.cmt
+│   │   ├── LoggerConsole.res
 │   │   ├── LoggerLogic_v.test.ast
 │   │   ├── LoggerLogic_v.test.cmi
 │   │   ├── LoggerLogic_v.test.cmj
 │   │   ├── LoggerLogic_v.test.cmt
 │   │   ├── LoggerLogic_v.test.res
+│   │   ├── LoggerTelemetry.ast
+│   │   ├── LoggerTelemetry.cmi
+│   │   ├── LoggerTelemetry.cmj
+│   │   ├── LoggerTelemetry.cmt
+│   │   ├── LoggerTelemetry.res
 │   │   ├── LoggerTelemetry_v.test.ast
 │   │   ├── LoggerTelemetry_v.test.cmi
 │   │   ├── LoggerTelemetry_v.test.cmj
@@ -2650,6 +2717,16 @@
 │   │   ├── SceneTransitionManager_v.test.cmj
 │   │   ├── SceneTransitionManager_v.test.cmt
 │   │   ├── SceneTransitionManager_v.test.res
+│   │   ├── SchemaDefinitions.ast
+│   │   ├── SchemaDefinitions.cmi
+│   │   ├── SchemaDefinitions.cmj
+│   │   ├── SchemaDefinitions.cmt
+│   │   ├── SchemaDefinitions.res
+│   │   ├── SchemaParsers.ast
+│   │   ├── SchemaParsers.cmi
+│   │   ├── SchemaParsers.cmj
+│   │   ├── SchemaParsers.cmt
+│   │   ├── SchemaParsers.res
 │   │   ├── Schemas.ast
 │   │   ├── Schemas.cmi
 │   │   ├── Schemas.cmj
@@ -4773,6 +4850,10 @@
 │   │   ├── SceneCache.res
 │   │   ├── SceneHelpers.bs.js
 │   │   ├── SceneHelpers.res
+│   │   ├── SchemaDefinitions.bs.js
+│   │   ├── SchemaDefinitions.res
+│   │   ├── SchemaParsers.bs.js
+│   │   ├── SchemaParsers.res
 │   │   ├── Schemas.bs.js
 │   │   ├── Schemas.res
 │   │   ├── SharedTypes.bs.js
@@ -4805,6 +4886,8 @@
 │   │   ├── Api
 │   │   ├── Api.bs.js
 │   │   ├── Api.res
+│   │   ├── ApiHelpers.bs.js
+│   │   ├── ApiHelpers.res
 │   │   ├── ApiLogic.bs.js
 │   │   ├── ApiLogic.res
 │   │   ├── AudioManager.bs.js
@@ -4823,6 +4906,8 @@
 │   │   ├── ExifReportGenerator.res
 │   │   ├── ExifReportGeneratorLogic.bs.js
 │   │   ├── ExifReportGeneratorLogic.res
+│   │   ├── ExifUtils.bs.js
+│   │   ├── ExifUtils.res
 │   │   ├── Exporter.bs.js
 │   │   ├── Exporter.res
 │   │   ├── FingerprintService.bs.js
@@ -4909,6 +4994,12 @@
 │       ├── LazyLoad.res
 │       ├── Logger.bs.js
 │       ├── Logger.res
+│       ├── LoggerCommon.bs.js
+│       ├── LoggerCommon.res
+│       ├── LoggerConsole.bs.js
+│       ├── LoggerConsole.res
+│       ├── LoggerTelemetry.bs.js
+│       ├── LoggerTelemetry.res
 │       ├── PathInterpolation.bs.js
 │       ├── PathInterpolation.res
 │       ├── PersistenceLayer.bs.js
@@ -4937,20 +5028,6 @@
 │   ├── TASKS.md
 │   ├── active
 │   ├── completed
-│   │   ├── 003_Aggregate_Completed_Tasks_DONE.md
-│   │   ├── 1004_Refactor_HotspotLineLogic_DONE.md
-│   │   ├── 1041_Refactor_UploadProcessorLogicLogic_DONE.md
-│   │   ├── 1063_Classify_Map_Entries_DONE.md
-│   │   ├── 1064_Refactor_Schemas_DONE.md
-│   │   ├── 1069_Classify_Ambiguous_Files_Headers_DONE.md
-│   │   ├── 1070_Fix_Critical_Violations_DONE.md
-│   │   ├── 1074_Migrate_JS_Guard_to_Rust_DONE.md
-│   │   ├── 1075_Classify_Map_Entries_DONE.md
-│   │   ├── 1076_Classify_Ambiguous_Files_DONE.md
-│   │   ├── 1077_Structural_Refactor_BACKEND_DONE.md
-│   │   ├── 1078_Fix_Violations_FRONTEND_DONE.md
-│   │   ├── 1079_Fix_Violations_BACKEND_DONE.md
-│   │   ├── 1080_Surgical_Refactor_CORE_FRONTEND_DONE.md
 │   │   ├── 1081_Surgical_Refactor_SYSTEMS_FRONTEND_DONE.md
 │   │   ├── 1082_Surgical_Refactor_COMPONENTS_FRONTEND_DONE.md
 │   │   ├── 1083_Surgical_Refactor_UTILS_FRONTEND_DONE.md
@@ -4996,52 +5073,15 @@
 │   │   ├── 1147_Surgical_Refactor_SERVICES_BACKEND_DONE.md
 │   │   ├── 1148_Surgical_Refactor_SRC_BACKEND_DONE.md
 │   │   ├── 1149_Surgical_Refactor_MEDIA_BACKEND_DONE.md
-│   │   ├── 795_Refactor_analysis_DONE.md
-│   │   ├── 798_Refactor_Backend_Streaming_ZIP_DONE.md
-│   │   ├── 799_Refactor_Backend_Asset_Sanitization_DONE.md
-│   │   ├── 801_Test_Logger_System_Unified_TESTED.md
-│   │   ├── 802_Test_ExifReport_Pipeline_Unified.md
-│   │   ├── 803_Test_SceneLoader_Lifecycle_Unified.md
-│   │   ├── 804_Test_Sidebar_Components_Unified.md
-│   │   ├── 805_Test_VisualPipeline_System_Unified.md
-│   │   ├── 806_Test_Bindings_Unified.md
-│   │   ├── 807_Test_Simulation_Autopilot_Unified.md
-│   │   ├── 808_Test_Navigation_Graph_Unified.md
-│   │   ├── 809_Test_Teaser_System_Unified.md
-│   │   ├── 810_Test_Tour_Templates_Unified.md
-│   │   ├── 811_Test_Hotspots_Unified.md
-│   │   ├── 812_Test_Viewer_Core_Unified.md
-│   │   ├── 813_Test_Project_Persistence_Unified.md
-│   │   ├── 814_Test_UI_Components_Unified.md
-│   │   ├── 815_Test_Lucide_Icons_Unified.md
-│   │   ├── 816_Test_Utilities_Unified.md
-│   │   ├── 817_Test_App_Core_Infrastructure_Unified.md
-│   │   ├── 818_Test_Media_Services_Unified.md
-│   │   ├── 819_Test_Core_Reducers_Unified.md
-│   │   ├── 820_Test_Visuals_Remaining_Unified.md
-│   │   ├── 821_Aggregate_Completed_Tasks_DONE.md
-│   │   ├── 856_Refactor_ViewerManager_DONE.md
-│   │   ├── 894_Refactor_HotspotLine_DONE.md
-│   │   ├── 901_migration_foundation_DONE.md
-│   │   ├── 902_migration_security_DONE.md
-│   │   ├── 903_migration_storage_DONE.md
-│   │   ├── 904_migration_frontend_auth_DONE.md
-│   │   ├── 929_Refactor_UploadProcessorLogic_DONE.md
-│   │   ├── 965_Refactor_ViewerManagerLogic_DONE.md
+│   │   ├── 1153_Aggregate_Completed_Tasks_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
-│   │   ├── analysis_1067_schema_fixes.md
-│   │   ├── task_598_reduce_magic_REPORT.md
-│   │   ├── task_599_backend_tests_REPORT.md
-│   │   ├── task_602_feature_persistence_layer_DONE.md
 │   │   └── tests
 │   │       ├── 598_Test_SceneCache_New.md
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1150_Surgical_Refactor_UTILS_FRONTEND.md
 │   │   ├── 1151_Surgical_Refactor_CORE_FRONTEND.md
 │   │   ├── 1152_Surgical_Refactor_SYSTEMS_FRONTEND.md
-│   │   ├── 1153_Aggregate_Completed_Tasks.md
 │   │   ├── 1154_Classify_Ambiguous_Files.md
 │   │   ├── 1155_Structural_Refactor_BACKEND.md
 │   │   ├── 1157_Merge_Folders_BACKEND.md
@@ -5360,4 +5400,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-204 directories, 5157 files
+204 directories, 5197 files

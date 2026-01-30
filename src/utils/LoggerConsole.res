@@ -4,8 +4,16 @@ let enabled = ref(Constants.isDebugBuild())
 let minLevel = ref(LoggerCommon.Info)
 let enabledModules = ref(Belt.Set.String.empty)
 
-let logToConsole = (~module_: string, ~level: LoggerCommon.level, ~message: string, ~data: option<JSON.t>) => {
-  if enabled.contents && LoggerCommon.levelPriority(level) >= LoggerCommon.levelPriority(minLevel.contents) {
+let logToConsole = (
+  ~module_: string,
+  ~level: LoggerCommon.level,
+  ~message: string,
+  ~data: option<JSON.t>,
+) => {
+  if (
+    enabled.contents &&
+    LoggerCommon.levelPriority(level) >= LoggerCommon.levelPriority(minLevel.contents)
+  ) {
     let hasFilter = Belt.Set.String.size(enabledModules.contents) > 0
     if !hasFilter || Belt.Set.String.has(enabledModules.contents, module_) {
       let color =
@@ -33,7 +41,14 @@ let logToConsole = (~module_: string, ~level: LoggerCommon.level, ~message: stri
         }
       `)
 
-      callConsole(consoleMethod, prefix, prefixStyle, resetStyle, message, data->LoggerCommon.optToNullable)
+      callConsole(
+        consoleMethod,
+        prefix,
+        prefixStyle,
+        resetStyle,
+        message,
+        data->LoggerCommon.optToNullable,
+      )
     }
   }
 }
