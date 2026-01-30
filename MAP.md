@@ -99,6 +99,9 @@ This map provides a semantic overview of the project structure to optimize conte
     * [src/systems/ProjectManagerTypes.res](src/systems/ProjectManagerTypes.res): Shared types for project management. `#types`
 *   [src/systems/Exporter.res](src/systems/Exporter.res): Generates production-ready tour clusters. `#export` `#deployment`
 *   [src/systems/Api.res](src/systems/Api.res): Consolidated API module for media, projects, and authentication. `#api` `#client` `#consolidated`
+    *   [src/systems/Api/AuthenticatedClient.res](src/systems/Api/AuthenticatedClient.res): Fetch wrapper with token injection and error handling. `#api` `#auth` `#client` `#adapter`
+    *   [src/systems/Api/ApiTypes.res](src/systems/Api/ApiTypes.res): Type definitions and JSON decoders for API responses. `#api` `#types` `#json` `#schema`
+    *   [src/systems/Api/MediaApi.res](src/systems/Api/MediaApi.res): Logic for media-related API operations (metadata, processing, similarity). `#api` `#media` `#logic` `#client`
 *   [src/systems/ApiLogic.res](src/systems/ApiLogic.res): Implementation of API client logic, including decoders and authenticated requests. `#api` `#client` `#logic`
 *   [src/systems/FingerprintService.res](src/systems/FingerprintService.res): Image fingerprinting for deduplication. `#image` `#fingerprint`
 *   [src/systems/PanoramaClusterer.res](src/systems/PanoramaClusterer.res): Logic for grouping and clustering panoramas. `#logic` `#clustering`
@@ -278,7 +281,3 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [backend/src/services/media/storage.rs](backend/src/services/media/storage.rs): Persistent storage and retrieval of media assets. `#media` `#storage`
 *   [backend/src/services/media/naming_old.rs](backend/src/services/media/naming_old.rs): Legacy camera filename normalization logic. `#rust` `#legacy`
 
-## 🆕 Unmapped Modules
-* [src/systems/Api/AuthenticatedClient.res](src/systems/Api/AuthenticatedClient.res): New module detected. Please classify. #new
-* [src/systems/Api/ApiTypes.res](src/systems/Api/ApiTypes.res): New module detected. Please classify. #new
-* [src/systems/Api/MediaApi.res](src/systems/Api/MediaApi.res): New module detected. Please classify. #new

@@ -110,6 +110,55 @@ pub fn follow_auto_forward_chain(
 
 // --- ALGORITHMS ---
 
+fn find_timeline_hotspot<'a>(
+    scene: &'a Scene,
+    item: &TimelineItem,
+) -> Option<&'a Hotspot> {
+    if !item.link_id.is_empty() {
+        scene
+            .hotspots
+            .iter()
+            .find(|h| h.link_id.as_deref() == Some(&item.link_id))
+    } else {
+        scene
+            .hotspots
+            .iter()
+            .find(|h| h.target == item.target_scene)
+    }
+}
+
+fn append_transition_step(
+    path: &mut Vec<Step>,
+    start_scene_idx: usize,
+    hotspot: Option<&Hotspot>,
+    item: &TimelineItem,
+) {
+    let (trans_yaw, trans_pitch) = match hotspot {
+        Some(h) => get_hotspot_view(h),
+        None => (0.0, 0.0),
+    };
+
+    let transition = TransitionTarget {
+        yaw: trans_yaw,
+        pitch: trans_pitch,
+        target_name: item.target_scene.clone(),
+        timeline_item_id: Some(item.id.clone()),
+    };
+
+    if let Some(last) = path.last_mut() {
+        if last.idx == start_scene_idx && last.transition_target.is_none() {
+            last.transition_target = Some(transition);
+            return;
+        }
+    }
+
+    path.push(Step {
+        idx: start_scene_idx,
+        transition_target: Some(transition),
+        arrival_view: get_default_view(),
+    });
+}
+
 fn process_timeline_item(
     scenes: &[Scene],
     item: &TimelineItem,
@@ -121,48 +170,9 @@ fn process_timeline_item(
         let scene = &scenes[start_scene_idx];
 
         if !(skip_auto_forward && scene.is_auto_forward) {
-            let hotspot = if !item.link_id.is_empty() {
-                scene
-                    .hotspots
-                    .iter()
-                    .find(|h| h.link_id.as_deref() == Some(&item.link_id))
-            } else {
-                scene
-                    .hotspots
-                    .iter()
-                    .find(|h| h.target == item.target_scene)
-            };
+            let hotspot = find_timeline_hotspot(scene, item);
 
-            let (trans_yaw, trans_pitch) = match hotspot {
-                Some(h) => get_hotspot_view(h),
-                None => (0.0, 0.0),
-            };
-
-            let mut push_new = true;
-            if let Some(last) = path.last_mut() {
-                if last.idx == start_scene_idx && last.transition_target.is_none() {
-                    last.transition_target = Some(TransitionTarget {
-                        yaw: trans_yaw,
-                        pitch: trans_pitch,
-                        target_name: item.target_scene.clone(),
-                        timeline_item_id: Some(item.id.clone()),
-                    });
-                    push_new = false;
-                }
-            }
-
-            if push_new {
-                path.push(Step {
-                    idx: start_scene_idx,
-                    transition_target: Some(TransitionTarget {
-                        yaw: trans_yaw,
-                        pitch: trans_pitch,
-                        target_name: item.target_scene.clone(),
-                        timeline_item_id: Some(item.id.clone()),
-                    }),
-                    arrival_view: get_default_view(),
-                });
-            }
+            append_transition_step(path, start_scene_idx, hotspot, item);
 
             // Arrival
             let target_idx_opt = find_scene_index(scenes, &item.target_scene);
@@ -225,6 +235,38 @@ pub fn calculate_timeline_path(
     Ok(dedupe_path(final_path))
 }
 
+fn find_next_link<'a>(
+    scenes: &[Scene],
+    current_scene: &'a Scene,
+    visited: &HashSet<usize>,
+    require_return: bool,
+) -> Option<&'a Hotspot> {
+    current_scene.hotspots.iter().find(|h| {
+        if require_return && !h.is_return_link.unwrap_or(false) {
+            return false;
+        }
+        if !require_return && h.is_return_link.unwrap_or(false) {
+            return false;
+        }
+        match find_scene_index(scenes, &h.target) {
+            Some(idx) => !visited.contains(&idx),
+            None => false,
+        }
+    })
+}
+
+fn update_step_with_link(path: &mut Vec<Step>, link: &Hotspot) {
+    if let Some(last_step) = path.last_mut() {
+        let (trans_yaw, trans_pitch) = get_hotspot_view(link);
+        last_step.transition_target = Some(TransitionTarget {
+            yaw: trans_yaw,
+            pitch: trans_pitch,
+            target_name: link.target.clone(),
+            timeline_item_id: None,
+        });
+    }
+}
+
 fn walk_forward_phase(
     scenes: &[Scene],
     path: &mut Vec<Step>,
@@ -237,36 +279,14 @@ fn walk_forward_phase(
         forward_steps += 1;
         let current_scene = &scenes[*current_idx];
 
-        // Find forward link
-        let forward_link = current_scene.hotspots.iter().find(|h| {
-            if h.is_return_link.unwrap_or(false) {
-                false
-            } else {
-                match find_scene_index(scenes, &h.target) {
-                    Some(idx) => !visited.contains(&idx),
-                    None => false,
-                }
-            }
-        });
-
-        if let Some(link) = forward_link {
+        if let Some(link) = find_next_link(scenes, current_scene, visited, false) {
             let mut next_idx = find_scene_index(scenes, &link.target)
                 .ok_or_else(|| format!("Pathfinding error: Scene '{}' not found", link.target))?;
 
-            // Update previous step transition target
-            if let Some(last_step) = path.last_mut() {
-                let (trans_yaw, trans_pitch) = get_hotspot_view(link);
-                last_step.transition_target = Some(TransitionTarget {
-                    yaw: trans_yaw,
-                    pitch: trans_pitch,
-                    target_name: link.target.clone(),
-                    timeline_item_id: None,
-                });
-            }
+            update_step_with_link(path, link);
 
             let original_target_idx = next_idx;
 
-            // Skip Auto Forward
             if skip_auto_forward {
                 next_idx = follow_auto_forward_chain(scenes, next_idx, visited, false)?;
             }
@@ -314,15 +334,7 @@ fn walk_return_phase(
                 None => break,
             };
 
-            if let Some(last_step) = path.last_mut() {
-                let (trans_yaw, trans_pitch) = get_hotspot_view(link);
-                last_step.transition_target = Some(TransitionTarget {
-                    yaw: trans_yaw,
-                    pitch: trans_pitch,
-                    target_name: link.target.clone(),
-                    timeline_item_id: None,
-                });
-            }
+            update_step_with_link(path, link);
 
             let original_target_idx = next_idx;
 
