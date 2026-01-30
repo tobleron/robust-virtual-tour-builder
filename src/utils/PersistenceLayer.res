@@ -13,6 +13,8 @@ let debounceMs = 2000
 @val external requestIdleCallback: (unit => unit) => int = "requestIdleCallback"
 @val external cancelIdleCallback: int => unit = "cancelIdleCallback"
 
+external anyToJson: 'a => JSON.t = "%identity"
+
 let lastSaveTimeout = ref(None)
 
 let performSave = (state: Types.state) => {
@@ -23,7 +25,7 @@ let performSave = (state: Types.state) => {
     let projectData = ProjectData.toJSON(state)
     let payload = {
       timestamp: Date.now(),
-      projectData: projectData->Obj.magic,
+      projectData: projectData->anyToJson,
     }
 
     let _ =

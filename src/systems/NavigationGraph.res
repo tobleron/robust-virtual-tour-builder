@@ -7,20 +7,23 @@ let calculateSmartArrivalTarget = (scenes: array<scene>, targetIndex: int) => {
   let (ay, ap, ah) = (ref(0.0), ref(0.0), ref(90.0))
   if targetIndex >= 0 && targetIndex < Array.length(scenes) {
     scenes[targetIndex]->Option.forEach(ns => {
-      let t =
-        ns.hotspots
-        ->Belt.Array.getBy(h => h.isReturnLink != Some(true))
-        ->Option.getOr(ns.hotspots->Belt.Array.get(0)->Option.getOr(Obj.magic(None)))
-      if Obj.magic(t) !== None {
-        switch (t.startYaw, t.startPitch) {
+      let t = switch ns.hotspots->Belt.Array.getBy(h => h.isReturnLink != Some(true)) {
+      | Some(h) => Some(h)
+      | None => ns.hotspots->Belt.Array.get(0)
+      }
+
+      switch t {
+      | Some(hotspot) =>
+        switch (hotspot.startYaw, hotspot.startPitch) {
         | (Some(sy), Some(sp)) =>
           ay := sy
           ap := sp
-          t.startHfov->Option.forEach(sh => ah := sh)
+          hotspot.startHfov->Option.forEach(sh => ah := sh)
         | _ =>
-          ay := t.yaw -. 35.0
+          ay := hotspot.yaw -. 35.0
           ap := 0.0
         }
+      | None => ()
       }
     })
   }
