@@ -51,10 +51,13 @@ impl<'ast> Visit<'ast> for RustWalker {
     }
 
     fn visit_item_mod(&mut self, i: &'ast ItemMod) {
-        // mod x; is a dependency on file x.rs/mod.rs
-        let dep = i.ident.to_string();
-        self.metrics.dependencies.push(dep);
-        self.metrics.external_calls += 1;
+        // mod x; is a dependency on file x.rs/mod.rs.
+        // mod x { ... } is NOT a file dependency (it's inline).
+        if i.content.is_none() {
+            let dep = i.ident.to_string();
+            self.metrics.dependencies.push(dep);
+            self.metrics.external_calls += 1;
+        }
         visit::visit_item_mod(self, i);
     }
 

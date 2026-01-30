@@ -17,7 +17,7 @@ pub fn analyze_rescript(content: &str, dict: &std::collections::HashMap<String, 
     
     // AI Efficiency: Tracking Dependencies
     // Extract `open Module`, `include Module`, `module X = Module`
-    for line in content.lines() {
+    for line in stripped.lines() {
         let trim = line.trim();
         if trim.starts_with("open ") {
             if let Some(dep) = trim.split_whitespace().nth(1) {
