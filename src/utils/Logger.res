@@ -276,12 +276,7 @@ let updateLogBuffers = (entry: logEntry, level: level, module_: string, message:
   }
 }
 
-let logToConsole = (
-  ~module_: string,
-  ~level: level,
-  ~message: string,
-  ~data: option<JSON.t>,
-) => {
+let logToConsole = (~module_: string, ~level: level, ~message: string, ~data: option<JSON.t>) => {
   if enabled.contents && levelPriority(level) >= levelPriority(minLevel.contents) {
     let hasFilter = Belt.Set.String.size(enabledModules.contents) > 0
     if !hasFilter || Belt.Set.String.has(enabledModules.contents, module_) {
@@ -310,14 +305,7 @@ let logToConsole = (
         }
       `)
 
-      callConsole(
-        consoleMethod,
-        prefix,
-        prefixStyle,
-        resetStyle,
-        message,
-        data->optToNullable,
-      )
+      callConsole(consoleMethod, prefix, prefixStyle, resetStyle, message, data->optToNullable)
     }
   }
 }

@@ -8,17 +8,13 @@
 
 ---
 
-## 🛠️ SURGICAL REFACTOR TASKS (5)
-- [ ] **../../backend/src/api/project.rs**
-  - *Reason:* [Nesting: 2.00, Density: 0.02, Coupling: 0.04] | Drag: 3.47 | LOC: 340/300
-- [ ] **../../backend/src/middleware.rs**
-  - *Reason:* [Nesting: 2.00, Density: 0.03, Coupling: 0.06] | Drag: 3.03 | LOC: 354/300
-- [ ] **../../backend/src/pathfinder/algorithms.rs**
-  - *Reason:* [Nesting: 3.00, Density: 0.10, Coupling: 0.00] | Drag: 4.78 | LOC: 436/300
-- [ ] **../../backend/src/services/geocoding.rs**
-  - *Reason:* [Nesting: 2.50, Density: 0.07, Coupling: 0.02] | Drag: 3.68 | LOC: 365/300
-- [ ] **../../backend/src/api/media/image_logic.rs**
-  - *Reason:* [Nesting: 2.00, Density: 0.04, Coupling: 0.02] | Drag: 4.02 | LOC: 405/300
+## 🛠️ SURGICAL REFACTOR TASKS (3)
+- [ ] **../../backend/src/services/geocoding/osm.rs**
+  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 78)
+- [ ] **../../backend/src/services/geocoding/mod.rs**
+  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 119)
+- [ ] **../../backend/src/services/geocoding/cache.rs**
+  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 210)
 
 ---
 

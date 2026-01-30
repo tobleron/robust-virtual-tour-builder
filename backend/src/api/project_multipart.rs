@@ -109,9 +109,7 @@ pub async fn parse_tour_package_multipart(
 }
 
 /// Saves the entire multipart payload to a temporary file (used for loading project zip).
-pub async fn save_multipart_to_tempfile(
-    mut payload: Multipart,
-) -> Result<fs::File, AppError> {
+pub async fn save_multipart_to_tempfile(mut payload: Multipart) -> Result<fs::File, AppError> {
     let mut temp_upload = tempfile::tempfile().map_err(AppError::IoError)?;
     let mut uploaded_size = 0;
     while let Some(mut field) = payload.try_next().await? {

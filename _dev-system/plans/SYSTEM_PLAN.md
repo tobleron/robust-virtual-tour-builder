@@ -8,10 +8,24 @@
 
 ---
 
+## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (4)
+- [ ] `../../backend/src/services/geocoding/osm.rs`
+- [ ] `../../backend/src/pathfinder/timeline.rs`
+- [ ] `../../backend/src/services/geocoding/cache.rs`
+- [ ] `../../backend/src/pathfinder/walk.rs`
+
+---
+
+## 🏗️ STRUCTURAL REFACTOR TASKS (1)
+- [ ] **auth** (Action: Vertical Slice)
+  - *Reason:* Feature fragmented across 3 folders.
+
+---
+
 ## 🧩 MERGE TASKS (1)
-### Merge Folder: `src/systems/Api`
-- **Reason:** Recursive Feature Pod: 3 files in subtree sum to 294 LOC (fits in context). Max Drag: 6.93
+### Merge Folder: `../../backend/src/pathfinder`
+- **Reason:** Read Tax high (Score 3.00). Projected Limit: 300 (Drag 3.47)
 - **Files:**
-  - `../../src/systems/Api/AuthenticatedClient.res`
-  - `../../src/systems/Api/MediaApi.res`
-  - `../../src/systems/Api/ApiTypes.res`
+  - `graph.rs`
+  - `algorithms.rs`
+  - `utils.rs`

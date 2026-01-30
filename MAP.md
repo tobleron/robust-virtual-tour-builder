@@ -281,3 +281,18 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [backend/src/services/media/storage.rs](backend/src/services/media/storage.rs): Persistent storage and retrieval of media assets. `#media` `#storage`
 *   [backend/src/services/media/naming_old.rs](backend/src/services/media/naming_old.rs): Legacy camera filename normalization logic. `#rust` `#legacy`
 
+
+## 🆕 Unmapped Modules
+* [backend/src/services/geocoding/mod.rs](backend/src/services/geocoding/mod.rs): New module detected. Please classify. #new
+* [backend/src/services/geocoding/osm.rs](backend/src/services/geocoding/osm.rs): New module detected. Please classify. #new
+* [backend/src/services/geocoding/cache.rs](backend/src/services/geocoding/cache.rs): New module detected. Please classify. #new
+* [backend/src/api/media/image_tasks.rs](backend/src/api/media/image_tasks.rs): New module detected. Please classify. #new
+* [backend/src/api/media/image_multipart.rs](backend/src/api/media/image_multipart.rs): New module detected. Please classify. #new
+* [backend/src/api/project_multipart.rs](backend/src/api/project_multipart.rs): New module detected. Please classify. #new
+* [backend/src/pathfinder/walk.rs](backend/src/pathfinder/walk.rs): New module detected. Please classify. #new
+* [backend/src/pathfinder/utils.rs](backend/src/pathfinder/utils.rs): New module detected. Please classify. #new
+* [backend/src/pathfinder/timeline.rs](backend/src/pathfinder/timeline.rs): New module detected. Please classify. #new
+* [backend/src/middleware/mod.rs](backend/src/middleware/mod.rs): New module detected. Please classify. #new
+* [backend/src/middleware/auth.rs](backend/src/middleware/auth.rs): New module detected. Please classify. #new
+* [backend/src/middleware/quota_check.rs](backend/src/middleware/quota_check.rs): New module detected. Please classify. #new
+* [backend/src/middleware/request_tracker.rs](backend/src/middleware/request_tracker.rs): New module detected. Please classify. #new
