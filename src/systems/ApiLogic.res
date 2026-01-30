@@ -79,30 +79,34 @@ module ApiTypes = {
     Schemas.parse(json, Schemas.Shared.similarityResponse)
   }
 
+  let processErrorResponse = (response: Fetch.response): Promise.t<apiResult<Fetch.response>> => {
+    Fetch.json(response)
+    ->Promise.then((json: apiError) => {
+      let msg = switch Nullable.toOption(json.details) {
+      | Some(d) => d
+      | None => json.error
+      }
+      Promise.resolve(
+        Error("Backend error: " ++ Belt.Int.toString(Fetch.status(response)) ++ " " ++ msg),
+      )
+    })
+    ->Promise.catch(_ => {
+      Promise.resolve(
+        Error(
+          "Backend error: " ++
+          Belt.Int.toString(Fetch.status(response)) ++
+          " " ++
+          Fetch.statusText(response),
+        ),
+      )
+    })
+  }
+
   let handleResponse = (response: Fetch.response): Promise.t<apiResult<Fetch.response>> => {
     if Fetch.ok(response) {
       Promise.resolve(Ok(response))
     } else {
-      Fetch.json(response)
-      ->Promise.then((json: apiError) => {
-        let msg = switch Nullable.toOption(json.details) {
-        | Some(d) => d
-        | None => json.error
-        }
-        Promise.resolve(
-          Error("Backend error: " ++ Belt.Int.toString(Fetch.status(response)) ++ " " ++ msg),
-        )
-      })
-      ->Promise.catch(_ => {
-        Promise.resolve(
-          Error(
-            "Backend error: " ++
-            Belt.Int.toString(Fetch.status(response)) ++
-            " " ++
-            Fetch.statusText(response),
-          ),
-        )
-      })
+      processErrorResponse(response)
     }
   }
 }

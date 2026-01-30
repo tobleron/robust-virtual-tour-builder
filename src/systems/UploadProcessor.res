@@ -78,6 +78,43 @@ module Logic = {
     })
   }
 
+  let computeStatusAndProgress = (activeStatuses, completedCount, total) => {
+    let counts = Dict.make()
+    Dict.toArray(activeStatuses)->Belt.Array.forEach(((_k, status)) => {
+      let current = Dict.get(counts, status)->Option.getOr(0)
+      Dict.set(counts, status, current + 1)
+    })
+    let parts = []
+    let getC = s => Dict.get(counts, s)->Option.getOr(0)
+    if getC("Optimizing") > 0 {
+      let _ = Array.push(parts, "Optimizing: " ++ Belt.Int.toString(getC("Optimizing")))
+    }
+    if getC("Uploading") > 0 {
+      let _ = Array.push(parts, "Uploading: " ++ Belt.Int.toString(getC("Uploading")))
+    }
+    if getC("Extracting") > 0 {
+      let _ = Array.push(parts, "Extracting: " ++ Belt.Int.toString(getC("Extracting")))
+    }
+    let queueStatus =
+      "Processing " ++
+      Belt.Int.toString(completedCount) ++
+      "/" ++
+      Belt.Int.toString(total)
+    let activityDetails = if Array.length(parts) > 0 {
+      Array.join(parts, " \u2022 ")
+    } else {
+      ""
+    }
+    let statusMsg = if activityDetails != "" {
+      queueStatus ++ "|" ++ activityDetails
+    } else {
+      queueStatus
+    }
+    let progress =
+      20.0 +. 75.0 *. (Float.fromInt(completedCount) /. Float.fromInt(total))
+    (progress, statusMsg)
+  }
+
   let processWithQueue = (
     items: array<UploadTypes.uploadItem>,
     maxConcurrency: int,
@@ -90,39 +127,11 @@ module Logic = {
     let activeStatuses = Dict.make()
 
     let updateStatusMessage = () => {
-      let counts = Dict.make()
-      Dict.toArray(activeStatuses)->Belt.Array.forEach(((_k, status)) => {
-        let current = Dict.get(counts, status)->Option.getOr(0)
-        Dict.set(counts, status, current + 1)
-      })
-      let parts = []
-      let getC = s => Dict.get(counts, s)->Option.getOr(0)
-      if getC("Optimizing") > 0 {
-        let _ = Array.push(parts, "Optimizing: " ++ Belt.Int.toString(getC("Optimizing")))
-      }
-      if getC("Uploading") > 0 {
-        let _ = Array.push(parts, "Uploading: " ++ Belt.Int.toString(getC("Uploading")))
-      }
-      if getC("Extracting") > 0 {
-        let _ = Array.push(parts, "Extracting: " ++ Belt.Int.toString(getC("Extracting")))
-      }
-      let queueStatus =
-        "Processing " ++
-        Belt.Int.toString(completedCount.contents) ++
-        "/" ++
-        Belt.Int.toString(total)
-      let activityDetails = if Array.length(parts) > 0 {
-        Array.join(parts, " \u2022 ")
-      } else {
-        ""
-      }
-      let statusMsg = if activityDetails != "" {
-        queueStatus ++ "|" ++ activityDetails
-      } else {
-        queueStatus
-      }
-      let progress =
-        20.0 +. 75.0 *. (Float.fromInt(completedCount.contents) /. Float.fromInt(total))
+      let (progress, statusMsg) = computeStatusAndProgress(
+        activeStatuses,
+        completedCount.contents,
+        total,
+      )
       updateProgress(progress, statusMsg, true, "Processing")
     }
 

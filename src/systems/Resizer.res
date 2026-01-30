@@ -26,13 +26,11 @@ external now: unit => float = "now"
 
 let getMemoryUsage = () => {
   try {
-    let used = usedJSHeapSize /. 1024.0 /. 1024.0
-    let total = totalJSHeapSize /. 1024.0 /. 1024.0
-    let limit = jsHeapSizeLimit /. 1024.0 /. 1024.0
+    let toMB = v => Float.toFixed(v /. 1024.0 /. 1024.0, ~digits=0) ++ "MB"
     {
-      "used": Float.toFixed(used, ~digits=0) ++ "MB",
-      "total": Float.toFixed(total, ~digits=0) ++ "MB",
-      "limit": Float.toFixed(limit, ~digits=0) ++ "MB",
+      "used": toMB(usedJSHeapSize),
+      "total": toMB(totalJSHeapSize),
+      "limit": toMB(jsHeapSizeLimit),
     }
   } catch {
   | _ => {"used": "N/A", "total": "N/A", "limit": "N/A"}
