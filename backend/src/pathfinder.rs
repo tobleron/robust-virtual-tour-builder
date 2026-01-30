@@ -1,15 +1,20 @@
 // @efficiency-role: domain-logic
 pub mod algorithms;
 pub mod graph;
+pub mod timeline;
+pub mod utils;
+pub mod walk;
 
 pub use algorithms::calculate_path;
 #[allow(unused_imports)]
-pub use algorithms::{calculate_timeline_path, calculate_walk_path};
+pub use timeline::calculate_timeline_path;
+#[allow(unused_imports)]
+pub use walk::calculate_walk_path;
 pub use graph::PathRequest;
 
 #[cfg(test)]
 mod tests {
-    use super::algorithms;
+    use super::utils;
     use super::graph::{Hotspot, Scene};
     use std::collections::HashSet;
 
@@ -46,7 +51,7 @@ mod tests {
         let mut visited = HashSet::new();
         // Start at B
         let start_idx = 1;
-        let result = algorithms::follow_auto_forward_chain(&scenes, start_idx, &mut visited, false);
+        let result = utils::follow_auto_forward_chain(&scenes, start_idx, &mut visited, false);
         assert!(result.is_ok());
         assert_eq!(scenes[result.expect("Pathfinding failed")].name, "D");
     }
@@ -59,7 +64,7 @@ mod tests {
         ];
 
         let mut visited = HashSet::new();
-        let result = algorithms::follow_auto_forward_chain(&scenes, 0, &mut visited, false);
+        let result = utils::follow_auto_forward_chain(&scenes, 0, &mut visited, false);
         // Loop detected: 0 visited->jump to 1. 1 visited->jump to 0. 0 visited. stop.
         assert!(result.is_ok());
         assert_eq!(scenes[result.expect("Pathfinding failed")].name, "B");
@@ -70,7 +75,7 @@ mod tests {
         let scenes = vec![create_scene("A", true, vec![("B", false)])];
 
         let mut visited = HashSet::new();
-        let result = algorithms::follow_auto_forward_chain(&scenes, 0, &mut visited, false);
+        let result = utils::follow_auto_forward_chain(&scenes, 0, &mut visited, false);
         // Should stop at A (0) because B is missing
         assert!(result.is_ok());
         assert_eq!(result.expect("Pathfinding failed"), 0);
