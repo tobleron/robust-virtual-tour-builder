@@ -59,16 +59,15 @@ module Navigation = {
       if ViewerSystem.Adapter.getSceneId(ViewerSystem.Adapter.asCustom(v)) == Some(sceneId) =>
       Some(v)
     | _ =>
-      let found = ref(None)
-      ViewerSystem.Pool.pool.contents->Belt.Array.forEach(vp => {
+      ViewerSystem.Pool.pool.contents
+      ->Belt.Array.getBy(vp => {
         switch vp.instance {
-        | Some(v)
-          if ViewerSystem.Adapter.getSceneId(ViewerSystem.Adapter.asCustom(v)) == Some(sceneId) =>
-          found := Some(v)
-        | _ => ()
+        | Some(v) =>
+          ViewerSystem.Adapter.getSceneId(ViewerSystem.Adapter.asCustom(v)) == Some(sceneId)
+        | None => false
         }
       })
-      found.contents
+      ->Option.flatMap(vp => vp.instance)
     }
   }
 
