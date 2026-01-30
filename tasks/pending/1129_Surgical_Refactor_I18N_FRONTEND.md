@@ -1,4 +1,4 @@
-# Task 1128: Surgical Refactor UTILS FRONTEND
+# Task 1129: Surgical Refactor I18N FRONTEND
 
 ## Objective
 ## ⚡ Surgical Objective
@@ -12,8 +12,8 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 ## Tasks
 
-### 🔧 Action: De-bloat
-**Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
+### 🔧 Action: Audit & Delete
+**Directive:** De-bloat: Reduce module size by identifying and extracting independent domain logic.
 
-- [ ] - **../../src/utils/Logger.res** (Metric: [Nesting: 3.00, Density: 0.31, Coupling: 0.05] | Drag: 7.56 | LOC: 492/300  🎯 Target: Function: `stringToLevel` (High Local Complexity (7.0). Logic heavy.))
+- [ ] - **../../src/i18n/I18n.res** (Metric: Unreachable Module. Not referenced by any entry point. (LOC: 44))
 
