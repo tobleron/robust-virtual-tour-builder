@@ -3,15 +3,14 @@ pub mod auth {
     use crate::models::User;
     use crate::services::auth::jwt::decode_token;
     use actix_web::{
-        Error, HttpMessage, HttpResponse,
         body::{BoxBody, EitherBody},
-        dev::{Service, ServiceRequest, ServiceResponse, Transform, forward_ready},
+        dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
         http::header,
-        web,
+        web, Error, HttpMessage, HttpResponse,
     };
     use futures_util::future::LocalBoxFuture;
     use sqlx::SqlitePool;
-    use std::future::{Ready, ready};
+    use std::future::{ready, Ready};
     use std::rc::Rc;
 
     pub struct AuthMiddleware;
@@ -55,46 +54,14 @@ pub mod auth {
             let service = self.service.clone();
 
             Box::pin(async move {
-                // Check Authorization header
-                let auth_header = req.headers().get(header::AUTHORIZATION);
-
-                let token_str = if let Some(header) = auth_header {
-                    match header.to_str() {
-                        Ok(header_str) => {
-                            if header_str.starts_with("Bearer ") {
-                                Some(header_str[7..].to_string())
-                            } else {
-                                None
-                            }
-                        }
-                        Err(_) => None,
-                    }
-                } else {
-                    None
-                };
-
-                let token = if let Some(t) = token_str {
-                    t
-                } else {
-                    // Try query param
-                    let qs = req.query_string();
-                    let mut found = None;
-                    for pair in qs.split('&') {
-                        if let Some((key, value)) = pair.split_once('=') {
-                            if key == "token" {
-                                found = Some(value.to_string());
-                                break;
-                            }
-                        }
-                    }
-
-                    if let Some(t) = found {
-                        t
-                    } else {
-                        let res = req.into_response(HttpResponse::Unauthorized().json(
-                            serde_json::json!({"error": "Missing Authorization header or token param"}),
-                        ));
-                        return Ok(res.map_body(|_, b| EitherBody::Right { body: b }));
+                let token = match extract_token(&req) {
+                    Some(t) => t,
+                    None => {
+                        return Ok(req
+                            .into_response(HttpResponse::Unauthorized().json(serde_json::json!({
+                                "error": "Missing Authorization header or token param"
+                            })))
+                            .map_body(|_, b| EitherBody::Right { body: b }));
                     }
                 };
 
@@ -102,50 +69,18 @@ pub mod auth {
                 let claims = match decode_token(&token) {
                     Ok(claims) => claims,
                     Err(e) => {
-                        let res = req.into_response(
-                            HttpResponse::Unauthorized()
-                                .json(serde_json::json!({"error": e.to_string()})),
-                        );
-                        return Ok(res.map_body(|_, b| EitherBody::Right { body: b }));
+                        return Ok(req
+                            .into_response(HttpResponse::Unauthorized().json(serde_json::json!({
+                                "error": e.to_string()
+                            })))
+                            .map_body(|_, b| EitherBody::Right { body: b }));
                     }
                 };
 
                 // Fetch user from DB
-                let pool = match req.app_data::<web::Data<SqlitePool>>() {
-                    Some(p) => p,
-                    None => {
-                        tracing::error!("Database pool not found in app_data");
-                        let res = req.into_response(HttpResponse::InternalServerError().finish());
-                        return Ok(res.map_body(|_, b| EitherBody::Right { body: b }));
-                    }
-                };
-
-                // We use SQLx to find the user
-                let user_result = sqlx::query_as::<_, User>("SELECT * FROM users WHERE id = ?")
-                    .bind(&claims.sub)
-                    .fetch_optional(pool.get_ref())
-                    .await;
-
-                match user_result {
-                    Ok(Some(user)) => {
-                        // Attach user to request extensions
-                        req.extensions_mut().insert(user);
-                    }
-                    Ok(None) => {
-                        let res = req.into_response(
-                            HttpResponse::Unauthorized()
-                                .json(serde_json::json!({"error": "User not found"})),
-                        );
-                        return Ok(res.map_body(|_, b| EitherBody::Right { body: b }));
-                    }
-                    Err(e) => {
-                        tracing::error!("Database error during auth: {}", e);
-                        let res = req.into_response(
-                            HttpResponse::InternalServerError()
-                                .json(serde_json::json!({"error": "Database error"})),
-                        );
-                        return Ok(res.map_body(|_, b| EitherBody::Right { body: b }));
-                    }
+                if let Err(response) = attach_user_to_request(&req, &claims.sub).await {
+                    let res = req.into_response(response);
+                    return Ok(res.map_body(|_, b| EitherBody::Right { body: b }));
                 }
 
                 // Continue request
@@ -154,21 +89,69 @@ pub mod auth {
             })
         }
     }
+
+    fn extract_token(req: &ServiceRequest) -> Option<String> {
+        // Check Authorization header
+        if let Some(header) = req.headers().get(header::AUTHORIZATION) {
+            if let Ok(header_str) = header.to_str() {
+                if header_str.starts_with("Bearer ") {
+                    return Some(header_str[7..].to_string());
+                }
+            }
+        }
+
+        // Try query param
+        req.query_string().split('&').find_map(|pair| {
+            let (key, value) = pair.split_once('=')?;
+            if key == "token" {
+                Some(value.to_string())
+            } else {
+                None
+            }
+        })
+    }
+
+    async fn attach_user_to_request(req: &ServiceRequest, user_id: &str) -> Result<(), HttpResponse> {
+        let pool = match req.app_data::<web::Data<SqlitePool>>() {
+            Some(p) => p,
+            None => {
+                tracing::error!("Database pool not found in app_data");
+                return Err(HttpResponse::InternalServerError().finish());
+            }
+        };
+
+        let user_result = sqlx::query_as::<_, User>("SELECT * FROM users WHERE id = ?")
+            .bind(user_id)
+            .fetch_optional(pool.get_ref())
+            .await;
+
+        match user_result {
+            Ok(Some(user)) => {
+                req.extensions_mut().insert(user);
+                Ok(())
+            }
+            Ok(None) => Err(HttpResponse::Unauthorized()
+                .json(serde_json::json!({"error": "User not found"}))),
+            Err(e) => {
+                tracing::error!("Database error during auth: {}", e);
+                Err(HttpResponse::InternalServerError()
+                    .json(serde_json::json!({"error": "Database error"})))
+            }
+        }
+    }
 }
 
 pub mod quota_check {
     // @efficiency: infra-adapter
+    use crate::services::upload_quota::UploadQuotaManager;
     use actix_web::{
-        Error, HttpResponse,
         body::{BoxBody, EitherBody},
-        dev::{Service, ServiceRequest, ServiceResponse, Transform, forward_ready},
-        web,
+        dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
+        web, Error, HttpResponse,
     };
     use futures_util::future::LocalBoxFuture;
-    use std::future::{Ready, ready};
+    use std::future::{ready, Ready};
     use std::rc::Rc;
-
-    use crate::services::upload_quota::UploadQuotaManager;
 
     pub struct QuotaCheck;
 
@@ -208,7 +191,6 @@ pub mod quota_check {
         forward_ready!(service);
 
         fn call(&self, req: ServiceRequest) -> Self::Future {
-            // Only check quota for upload endpoints
             let path = req.path().to_string();
             let should_check = path.contains("/media/")
                 || path.contains("/project/save")
@@ -216,7 +198,15 @@ pub mod quota_check {
 
             let service = self.service.clone();
 
-            // Extract data needed for check
+            if !should_check {
+                return Box::pin(async move {
+                    service
+                        .call(req)
+                        .await
+                        .map(|res| res.map_body(|_, b| EitherBody::Left { body: b }))
+                });
+            }
+
             let ip = req
                 .connection_info()
                 .realip_remote_addr()
@@ -233,19 +223,17 @@ pub mod quota_check {
             let quota_manager = req.app_data::<web::Data<UploadQuotaManager>>().cloned();
 
             Box::pin(async move {
-                if should_check && let Some(manager) = quota_manager {
+                if let Some(manager) = quota_manager {
                     // Check if upload can proceed
                     if let Err(e) = manager.can_upload(&ip, content_length).await {
                         tracing::warn!(ip = %ip, size = content_length, error = %e, "Upload rejected");
 
-                        // Construct response using req
                         let res = req.into_response(HttpResponse::TooManyRequests().json(
                             serde_json::json!({
                                 "error": "Quota exceeded",
                                 "message": e
                             }),
                         ));
-
                         return Ok(res.map_body(|_, b| EitherBody::Right { body: b }));
                     }
 
@@ -259,15 +247,15 @@ pub mod quota_check {
                     manager.unregister_upload(&ip, content_length).await;
 
                     match res_call {
-                        Ok(res) => return Ok(res.map_body(|_, b| EitherBody::Left { body: b })),
-                        Err(e) => return Err(e),
+                        Ok(res) => Ok(res.map_body(|_, b| EitherBody::Left { body: b })),
+                        Err(e) => Err(e),
                     }
-                }
-
-                // Proceed normally if no check needed or no manager
-                match service.call(req).await {
-                    Ok(res) => Ok(res.map_body(|_, b| EitherBody::Left { body: b })),
-                    Err(e) => Err(e),
+                } else {
+                    // No manager, proceed
+                    service
+                        .call(req)
+                        .await
+                        .map(|res| res.map_body(|_, b| EitherBody::Left { body: b }))
                 }
             })
         }
@@ -279,8 +267,6 @@ pub mod quota_check {
 
         #[test]
         fn test_quota_check_middleware_exists() {
-            // Validation that middleware struct can be instantiated
-            // Real logic tested in upload_quota_tests and integration tests
             let _ = QuotaCheck;
         }
     }
@@ -288,16 +274,14 @@ pub mod quota_check {
 
 pub mod request_tracker {
     // @efficiency: infra-adapter
-    use actix_web::web;
-    use actix_web::{
-        Error,
-        dev::{Service, ServiceRequest, ServiceResponse, Transform, forward_ready},
-    };
-    use futures_util::future::LocalBoxFuture;
-    use std::future::{Ready, ready};
-
     use crate::metrics::ACTIVE_SESSIONS;
     use crate::services::shutdown::ShutdownManager;
+    use actix_web::{
+        dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
+        web, Error,
+    };
+    use futures_util::future::LocalBoxFuture;
+    use std::future::{ready, Ready};
 
     pub struct RequestTracker;
 
@@ -360,7 +344,7 @@ pub mod request_tracker {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use actix_web::{App, HttpResponse, test, web};
+        use actix_web::{test, web, App, HttpResponse};
 
         #[actix_web::test]
         async fn test_request_tracker_middleware() {
