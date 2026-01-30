@@ -1,7 +1,10 @@
-use syn::{visit::{self, Visit}, ItemFn, ExprMatch, ExprIf, ExprLoop, Block, Expr, ItemUse, ItemMod, PatType, Pat, ExprAssign};
-use std::cmp;
 use super::CommonMetrics;
 use quote::ToTokens;
+use std::cmp;
+use syn::{
+    visit::{self, Visit},
+    Block, Expr, ExprAssign, ExprIf, ExprLoop, ExprMatch, ItemFn, ItemMod, ItemUse, Pat, PatType,
+};
 
 #[derive(Default)]
 pub struct RustWalker {
@@ -76,7 +79,10 @@ impl<'ast> Visit<'ast> for RustWalker {
     }
 }
 
-pub fn analyze_rust(content: &str, dict: &std::collections::HashMap<String, f64>) -> anyhow::Result<CommonMetrics> {
+pub fn analyze_rust(
+    content: &str,
+    dict: &std::collections::HashMap<String, f64>,
+) -> anyhow::Result<CommonMetrics> {
     let syntax = syn::parse_file(content)?;
     let mut walker = RustWalker::default();
     walker.metrics.loc = content.lines().count();
@@ -87,9 +93,9 @@ pub fn analyze_rust(content: &str, dict: &std::collections::HashMap<String, f64>
     walker.metrics.state_count = 0;
     walker.metrics.dependencies = Vec::new();
     walker.visit_file(&syntax);
-    
+
     // Dynamic Complexity from Config
     walker.metrics.complexity_penalty += super::apply_complexity_dictionary(content, dict);
-    
+
     Ok(walker.metrics)
 }
