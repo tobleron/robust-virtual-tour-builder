@@ -3,8 +3,9 @@ mod consolidator;
 mod guard;
 mod graph;
 
+use efficiency_analyzer::resolver::Resolver;
 use std::fs::{self, OpenOptions};
-use std::io::{Read, Write};
+use std::io::Write;
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 use serde::Deserialize;
@@ -277,7 +278,7 @@ fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>, config:
 
     let mut active_tasks = HashSet::new();
 
-    let mut sync_surgical = |units: Vec<(String, String, String, String, f64)>, platform: &str| -> Result<Vec<PathBuf>> {
+    let sync_surgical = |units: Vec<(String, String, String, String, f64)>, platform: &str| -> Result<Vec<PathBuf>> {
         let mut paths = Vec::new();
         // Group by Parent Directory (Domain) to minimize context switching
         let mut domain_groups: HashMap<String, Vec<(String, String, String, String, f64)>> = HashMap::new();
@@ -507,81 +508,20 @@ fn main() -> Result<()> {
 
     // --- Phase 2: Graph Construction ---
     let mut dep_graph = DependencyGraph::new();
+    let resolver = Resolver::new(file_resolver.clone());
 
     // Sanity Guard: Ensure all orchestrators are treated as entry points
     for (p_str, (_, _, taxonomy, _, _, _)) in &registry {
-        if taxonomy == "orchestrator" {
+        if taxonomy == "orchestrator" || taxonomy == "service-orchestrator" {
             entry_points.insert(p_str.clone());
         }
     }
 
-    for (path_str, (path, _, _, metrics, _, _)) in &registry {
+    for (path_str, (_, _, _, metrics, _, _)) in &registry {
         for dep in &metrics.dependencies {
-            let mut resolved = false;
-
-            // Cleanup dependency string (handling Rust paths like `std::collections::HashMap` or `crate::foo`)
-            // Strategy: Take the last segment if it looks like a path
-            let clean_dep = if dep.contains("::") {
-                dep.split("::").last().unwrap_or(dep).trim()
-            } else {
-                dep.trim()
-            };
-
-            // 1. Try Exact/Stem Match (Fastest, covers ReScript/Rust modules)
-            if let Some(candidates) = file_resolver.get(clean_dep) {
-                for c in candidates {
-                    dep_graph.add_dependency(path_str, c);
-                    resolved = true;
-                }
-            }
-
-
-            if !resolved {
-                // 2. Relative Path Resolution (JS/CSS/Rust relative)
-                // If starts with "." or matches a known file extension logic
-                if clean_dep.starts_with(".") {
-                    if let Some(parent) = path.parent() {
-                        // Attempt to resolve against parent dir
-                        // We try adding extensions or just resolving path
-                        let extensions = ["", ".js", ".jsx", ".rs", ".res", ".css", "/index.js", "/mod.rs"];
-
-                        // We need to normalize the joined path to match `registry` keys (which are relative strings)
-                        // This is hard because `registry` keys are like "../../src/foo.res".
-                        // `path` is PathBuf("../../src/foo.res").
-                        // parent is PathBuf("../../src").
-                        // joined is PathBuf("../../src/../utils").
-                        // canonicalize() requires filesystem existence.
-
-                        // Heuristic: Construct potential paths and check `all_files_set`
-                        // We can't easily perform `path.join` and get a clean string without `canonicalize` which might fail or be absolute.
-                        // Instead, we use `walkdir` results which are what `all_files_set` contains.
-
-                        // Let's try simple string manipulation for reliability
-                        // remove leading "./"
-                        // handle "../" by popping segments from parent
-
-                        // Since `all_files_set` contains standardized paths from WalkDir, we should try to match them.
-                        // But verifying every relative path is expensive.
-                        // LUCKILY, `dep` usually points to a file name.
-
-                        // Fallback: If it's a relative path, extract the filename and try stem matching again?
-                        // e.g. import x from "./utils/MyHelper" -> stem "MyHelper".
-                        // This usually works!
-
-                        let path_obj = Path::new(clean_dep);
-                        if let Some(stem) = path_obj.file_stem().and_then(|s| s.to_str()) {
-                             if let Some(candidates) = file_resolver.get(stem) {
-                                 // We found candidates with matching stem.
-                                 // We should pick the one closest to `path`.
-                                 // But for safety (Dead Code), linking ALL is safer than linking none.
-                                 for c in candidates {
-                                     dep_graph.add_dependency(path_str, c);
-                                     resolved = true;
-                                 }
-                             }
-                        }
-                    }
-                }
+            let matches = resolver.resolve(dep);
+            for m in matches {
+                dep_graph.add_dependency(path_str, &m);
             }
         }
     }

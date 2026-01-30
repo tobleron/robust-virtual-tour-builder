@@ -1,47 +1,5 @@
 {
-  "system": [
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/pathfinder/graph.rs",
-        "strategy": ""
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/geocoding.rs",
-        "strategy": ""
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/pathfinder/algorithms.rs",
-        "strategy": ""
-      }
-    },
-    {
-      "Merge": {
-        "folder": "backend/src/pathfinder",
-        "files": [
-          "../../backend/src/pathfinder/graph.rs",
-          "../../backend/src/pathfinder/algorithms.rs"
-        ],
-        "reason": "Recursive Feature Pod: 2 files in subtree sum to 482 LOC (fits in context). Max Drag: 2.45",
-        "strategy": "",
-        "platform": "backend"
-      }
-    }
-  ],
   "rescript": [
-    {
-      "Surgical": {
-        "file": "../../src/systems/ServerTeaser.res",
-        "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 55)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 0.0
-      }
-    },
     {
       "Surgical": {
         "file": "../../src/systems/HotspotLineLogic.res",
@@ -56,7 +14,7 @@
       "Surgical": {
         "file": "../../src/components/Sidebar.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 1.20, Density: 0.00, Coupling: 0.30] | Drag: 2.22 | LOC: 569/500  Hotspot: Lines 103-107 (AI Context Fog (score 52.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "reason": "[Nesting: 1.20, Density: 0.00, Coupling: 0.00] | Drag: 2.22 | LOC: 569/500  Hotspot: Lines 103-107 (AI Context Fog (score 52.0): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
         "strategy": "",
         "platform": "frontend",
         "complexity": 9.117574692442883
@@ -64,9 +22,19 @@
     },
     {
       "Surgical": {
-        "file": "../../src/systems/TeaserRecorder.res",
+        "file": "../../src/components/VisualPipeline.res",
         "action": "Audit & Delete",
-        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 261)",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 365)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 0.0
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/SceneList.res",
+        "action": "Audit & Delete",
+        "reason": "Unreachable Module. Not referenced by any entry point. (LOC: 416)",
         "strategy": "",
         "platform": "frontend",
         "complexity": 0.0
@@ -76,10 +44,42 @@
       "Surgical": {
         "file": "../../src/systems/ApiLogic.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 1.35, Density: 0.04, Coupling: 0.53] | Drag: 2.69 | LOC: 586/500  Hotspot: Lines 598-602 (AI Context Fog (score 67.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
+        "reason": "[Nesting: 1.35, Density: 0.04, Coupling: 0.11] | Drag: 2.69 | LOC: 586/500  Hotspot: Lines 598-602 (AI Context Fog (score 67.4): This 5-line window has extreme density and nesting. AI agents often lose track of state here, leading to logic Errors.)",
         "strategy": "",
         "platform": "frontend",
         "complexity": 11.293003412969282
+      }
+    }
+  ],
+  "system": [
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/pathfinder/algorithms.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/pathfinder/graph.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/geocoding.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Merge": {
+        "folder": "backend/src/pathfinder",
+        "files": [
+          "../../backend/src/pathfinder/algorithms.rs",
+          "../../backend/src/pathfinder/graph.rs"
+        ],
+        "reason": "Recursive Feature Pod: 2 files in subtree sum to 482 LOC (fits in context). Max Drag: 2.45",
+        "strategy": "",
+        "platform": "backend"
       }
     }
   ]
