@@ -181,10 +181,7 @@ let renderFrame = (sourceCanvas, includeLogo, logoState: logoResult) => {
 
 let startAnimationLoop = (includeLogo, logoState) => {
   let rec draw = () => {
-    switch Dom.querySelector(
-      Dom.documentBody,
-      ".pnlm-render-container canvas",
-    )->Nullable.toOption {
+    switch Dom.querySelector(Dom.documentBody, ".pnlm-render-container canvas")->Nullable.toOption {
     | Some(sc) => renderFrame(sc, includeLogo, logoState)
     | None => ()
     }

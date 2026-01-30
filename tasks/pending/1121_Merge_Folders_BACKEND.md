@@ -9,7 +9,7 @@
 
 ## Tasks
 - [ ] Folder: `backend/src/pathfinder`
-    - **Metric:** Recursive Feature Pod: 2 files in subtree sum to 482 LOC (fits in context). Max Drag: 2.45
+    - **Metric:** Recursive Feature Pod: 2 files in subtree sum to 485 LOC (fits in context). Max Drag: 2.45
     - **Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module to reduce token overhead during analysis.
     - `../../backend/src/pathfinder/algorithms.rs`
     - `../../backend/src/pathfinder/graph.rs`

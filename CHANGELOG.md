@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Merge: bugfix/analyzer-empty-task-deletion and sync plans
 - _dev-system unreachable modules fixed
 - Fix all warnings and errors across frontend and backend
+- Add task 1126: Upgrade _dev-system to Semantic Engine for 100% accuracy
 
 ### Added
 - Harmonize split/merge math and improve ReScript complexity fidelity

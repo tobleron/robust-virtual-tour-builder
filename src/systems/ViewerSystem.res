@@ -149,15 +149,13 @@ module Pool = {
 
   let reset = () => {
     pool :=
-      pool.contents->Belt.Array.map(
-        v => {
-          switch v.instance {
-          | Some(i) => i->Adapter.destroy
-          | None => ()
-          }
-          {...v, instance: None, status: #Free}
-        },
-      )
+      pool.contents->Belt.Array.map(v => {
+        switch v.instance {
+        | Some(i) => i->Adapter.destroy
+        | None => ()
+        }
+        {...v, instance: None, status: #Free}
+      })
   }
 }
 
