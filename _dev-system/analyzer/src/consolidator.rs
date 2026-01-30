@@ -56,18 +56,20 @@ mod tests {
 pub struct FileInfo {
     pub path: String,
     pub loc: usize,
+    pub drag: f64,
 }
 
 pub struct Cluster {
     pub root_folder: String,
     pub files: Vec<String>,
     pub total_loc: usize,
+    pub max_drag: f64,
 }
 
 use std::collections::HashMap;
 
 struct DirNode {
-    files: Vec<String>,
+    files: Vec<(String, f64)>, // Path, Drag
     loc: usize,
     children: HashMap<String, DirNode>,
 }
@@ -77,16 +79,16 @@ impl DirNode {
         Self { files: Vec::new(), loc: 0, children: HashMap::new() }
     }
 
-    fn insert(&mut self, path_parts: &[&str], full_path: String, loc: usize) {
+    fn insert(&mut self, path_parts: &[&str], full_path: String, loc: usize, drag: f64) {
         if path_parts.is_empty() {
-            self.files.push(full_path);
+            self.files.push((full_path, drag));
             self.loc += loc;
             return;
         }
 
         self.children.entry(path_parts[0].to_string())
             .or_insert_with(DirNode::new)
-            .insert(&path_parts[1..], full_path, loc);
+            .insert(&path_parts[1..], full_path, loc, drag);
     }
 }
 
@@ -100,29 +102,31 @@ pub fn find_recursive_clusters(files: Vec<FileInfo>, max_loc: usize) -> Vec<Clus
         let clean_parts: Vec<&str> = clean.split('/').collect();
 
         // We use full path for storage, cleaned parts for structure
-        root.insert(&clean_parts[..clean_parts.len()-1], file.path, file.loc);
+        root.insert(&clean_parts[..clean_parts.len()-1], file.path, file.loc, file.drag);
     }
 
     let mut clusters = Vec::new();
-    let (_, _, top_cluster) = scan_node(&root, String::new(), max_loc, &mut clusters);
+    let (_, _, _, top_cluster) = scan_node(&root, String::new(), max_loc, &mut clusters);
     if let Some(c) = top_cluster {
         clusters.push(c);
     }
     clusters
 }
 
-// Returns: (Total LOC, All Files, Candidate Cluster)
-fn scan_node(node: &DirNode, current_path: String, max_loc: usize, final_clusters: &mut Vec<Cluster>) -> (usize, Vec<String>, Option<Cluster>) {
+// Returns: (Total LOC, All Files, Max Drag, Candidate Cluster)
+fn scan_node(node: &DirNode, current_path: String, max_loc: usize, final_clusters: &mut Vec<Cluster>) -> (usize, Vec<(String, f64)>, f64, Option<Cluster>) {
     let mut total_loc = node.loc;
     let mut all_files = node.files.clone();
+    let mut max_drag: f64 = node.files.iter().map(|(_, d)| *d).fold(0.0, f64::max);
     let mut child_candidates: Vec<Cluster> = Vec::new();
 
     for (name, child) in &node.children {
         let child_path = if current_path.is_empty() { name.clone() } else { format!("{}/{}", current_path, name) };
-        let (c_loc, c_files, c_cluster) = scan_node(child, child_path, max_loc, final_clusters);
+        let (c_loc, c_files, c_drag, c_cluster) = scan_node(child, child_path, max_loc, final_clusters);
 
         total_loc += c_loc;
         all_files.extend(c_files);
+        if c_drag > max_drag { max_drag = c_drag; }
 
         if let Some(c) = c_cluster {
             child_candidates.push(c);
@@ -132,10 +136,11 @@ fn scan_node(node: &DirNode, current_path: String, max_loc: usize, final_cluster
     // Logic: Greedy Clustering (Merge highest possible node)
     if total_loc <= max_loc && all_files.len() > 1 {
         // I supersede all child candidates. They are swallowed.
-        return (total_loc, all_files.clone(), Some(Cluster {
+        return (total_loc, all_files.clone(), max_drag, Some(Cluster {
             root_folder: current_path,
-            files: all_files,
-            total_loc
+            files: all_files.into_iter().map(|(p, _)| p).collect(),
+            total_loc,
+            max_drag,
         }));
     } else {
         // I am too big to be a cluster myself.
@@ -143,6 +148,6 @@ fn scan_node(node: &DirNode, current_path: String, max_loc: usize, final_cluster
         for c in child_candidates {
             final_clusters.push(c);
         }
-        return (total_loc, all_files, None);
+        return (total_loc, all_files, max_drag, None);
     }
 }
