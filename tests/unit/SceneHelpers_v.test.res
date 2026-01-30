@@ -1,5 +1,6 @@
 open Vitest
 open SceneHelpers
+open SceneMutations
 open Types
 
 describe("SceneHelpers", () => {
