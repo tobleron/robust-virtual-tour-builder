@@ -48,16 +48,15 @@ module Utils = {
 // --- INTERNAL LOGIC ---
 
 module Logic = {
+  let areCoordinatesValid = (viewer) => {
+    let hfov = Viewer.getHfov(viewer)
+    let yaw = Viewer.getYaw(viewer)
+    let pitch = Viewer.getPitch(viewer)
+    hfov > 0.0 && Float.isFinite(hfov) && Float.isFinite(yaw) && Float.isFinite(pitch)
+  }
+
   let isViewerValid = (viewer: Viewer.t): bool => {
-    let loaded = Viewer.isLoaded(viewer)
-    if !loaded {
-      false
-    } else {
-      let hfov = Viewer.getHfov(viewer)
-      let yaw = Viewer.getYaw(viewer)
-      let pitch = Viewer.getPitch(viewer)
-      hfov > 0.0 && Float.isFinite(hfov) && Float.isFinite(yaw) && Float.isFinite(pitch)
-    }
+    Viewer.isLoaded(viewer) && areCoordinatesValid(viewer)
   }
 
   let getCamState = (viewer, rect: Dom.rect) => {

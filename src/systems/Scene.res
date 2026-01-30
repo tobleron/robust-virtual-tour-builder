@@ -8,6 +8,22 @@ open Actions
 type viewport = ViewerSystem.Pool.viewport
 
 module Transition = {
+  let finalizeSwap = () => {
+    ViewerSystem.getActiveViewer()
+    ->Nullable.toOption
+    ->Option.forEach(v => {
+      if ViewerSystem.isViewerReady(v) {
+        HotspotLine.updateLines(
+          v,
+          GlobalStateBridge.getState(),
+          ~mouseEvent=?ViewerState.state.contents.lastMouseEvent->Nullable.toOption,
+          (),
+        )
+      }
+    })
+    ViewerState.state := {...ViewerState.state.contents, isSwapping: false}
+  }
+
   let updateGlobalStateAndViewer = nv => {
     ViewerSystem.Pool.swapActive()
     ViewerSystem.Pool.getActive()->Option.forEach(v => ViewerSystem.Pool.clearCleanupTimeout(v.id))
@@ -19,21 +35,7 @@ module Transition = {
     ->Nullable.toOption
     ->Option.forEach(svg => Dom.setTextContent(svg, ""))
 
-    let _ = Window.setTimeout(() => {
-      ViewerSystem.getActiveViewer()
-      ->Nullable.toOption
-      ->Option.forEach(v => {
-        if ViewerSystem.isViewerReady(v) {
-          HotspotLine.updateLines(
-            v,
-            GlobalStateBridge.getState(),
-            ~mouseEvent=?ViewerState.state.contents.lastMouseEvent->Nullable.toOption,
-            (),
-          )
-        }
-      })
-      ViewerState.state := {...ViewerState.state.contents, isSwapping: false}
-    }, 50)
+    let _ = Window.setTimeout(finalizeSwap, 50)
   }
 
   let updateDomTransitions = (av, iv) => {

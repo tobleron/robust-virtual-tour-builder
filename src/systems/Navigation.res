@@ -176,6 +176,51 @@ module Renderer = {
     }
   }
 
+  let prepareSegments = (pd: Types.pathData) => {
+    pd.segments->Belt.Array.map(s => (
+      s.dist,
+      s.yawDiff,
+      s.pitchDiff,
+      ({PathInterpolation.yaw: s.p1.yaw, pitch: s.p1.pitch}: PathInterpolation.point),
+      ({PathInterpolation.yaw: s.p2.yaw, pitch: s.p2.pitch}: PathInterpolation.point),
+    ))
+  }
+
+  let prepareWaypoints = (pd: Types.pathData) => {
+    pd.waypoints->Belt.Array.map((w): PathInterpolation.point => {
+      PathInterpolation.yaw: w.yaw,
+      pitch: w.pitch,
+    })
+  }
+
+  let rec runJourneyLoop = (v, data: EventBus.navStartPayload, pd, bst, cft, asP, asY, aWp, aSeg, st, ()) => {
+    if activeJourneyId.contents == Some(data.journeyId) && !cft.contents {
+      let elap = Date.now() -. st
+      let prog = Math.min(elap /. pd.panDuration, 1.0)
+      if prog >= 1.0 {
+        handleJourneyCompletion(
+          v,
+          data,
+          pd,
+          bst,
+          cft,
+          asP,
+          asY,
+          aWp,
+          aSeg,
+          () => runJourneyLoop(v, data, pd, bst, cft, asP, asY, aWp, aSeg, st, ()),
+        )
+      } else {
+        renderJourneyFrame(v, prog, pd, asP, asY, aWp, aSeg)
+        let _ = Window.requestAnimationFrame(() =>
+          runJourneyLoop(v, data, pd, bst, cft, asP, asY, aWp, aSeg, st, ())
+        )
+      }
+    } else {
+      SvgManager.hide("sim_arrow")
+    }
+  }
+
   let startJourney = (data: EventBus.navStartPayload) => {
     Viewer.instance
     ->Nullable.toOption
@@ -189,33 +234,13 @@ module Renderer = {
       Viewer.setYaw(v, pd.startYaw, false)
       Viewer.setHfov(v, pd.startHfov, false)
       let (asP, asY) = (pd.startPitch, pd.startYaw)
-      let aSeg =
-        pd.segments->Belt.Array.map(s => (
-          s.dist,
-          s.yawDiff,
-          s.pitchDiff,
-          ({PathInterpolation.yaw: s.p1.yaw, pitch: s.p1.pitch}: PathInterpolation.point),
-          ({PathInterpolation.yaw: s.p2.yaw, pitch: s.p2.pitch}: PathInterpolation.point),
-        ))
-      let aWp = pd.waypoints->Belt.Array.map((w): PathInterpolation.point => {
-        PathInterpolation.yaw: w.yaw,
-        pitch: w.pitch,
-      })
-      let rec loop = () => {
-        if activeJourneyId.contents == Some(data.journeyId) && !cft.contents {
-          let elap = Date.now() -. st
-          let prog = Math.min(elap /. pd.panDuration, 1.0)
-          if prog >= 1.0 {
-            handleJourneyCompletion(v, data, pd, bst, cft, asP, asY, aWp, aSeg, loop)
-          } else {
-            renderJourneyFrame(v, prog, pd, asP, asY, aWp, aSeg)
-            let _ = Window.requestAnimationFrame(loop)
-          }
-        } else {
-          SvgManager.hide("sim_arrow")
-        }
-      }
-      let _ = Window.requestAnimationFrame(loop)
+
+      let aSeg = prepareSegments(pd)
+      let aWp = prepareWaypoints(pd)
+
+      let _ = Window.requestAnimationFrame(() =>
+        runJourneyLoop(v, data, pd, bst, cft, asP, asY, aWp, aSeg, st, ())
+      )
     })
   }
   let init = () => {
