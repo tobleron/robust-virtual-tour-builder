@@ -26,7 +26,7 @@ struct EfficiencyConfig {
     entry_points: Option<Vec<String>>,
     settings: Settings,
     templates: Templates,
-    exclusion_rules: ExclusionRules,
+    exclusion_rules: guard::ExclusionRules,
     profiles: HashMap<String, Profile>,
     taxonomy: HashMap<String, TaxonomyRole>,
     exceptions: Option<Vec<ExceptionRule>>,
@@ -42,12 +42,6 @@ struct Templates {
     ambiguity_objective: String,
 }
 
-#[derive(Debug, Deserialize)]
-struct ExclusionRules {
-    folders: Vec<String>,
-    files: Vec<String>,
-    extensions: Vec<String>,
-}
 
 #[derive(Debug, Deserialize)]
 struct ExceptionRule {
@@ -91,17 +85,7 @@ enum WorkUnit {
     Structural { file: String, action: String, reason: String, strategy: String, platform: String },
 }
 
-fn is_project_source(path: &Path, rules: &ExclusionRules) -> bool {
-    let p_str = path.to_string_lossy().replace("\\", "/");
-    let file_name = path.file_name().unwrap_or_default().to_string_lossy();
-    let ext = path.extension().and_then(|s| s.to_str()).unwrap_or("");
-    let valid_extensions = ["rs", "res", "css", "html", "js", "jsx"];
-    if !valid_extensions.contains(&ext) { return false; }
-    for folder in &rules.folders { if p_str.contains(folder) { return false; } }
-    for file in &rules.files { if file_name == *file { return false; } }
-    for suffix in &rules.extensions { if file_name.ends_with(suffix) { return false; } }
-    true
-}
+use guard::is_project_source;
 
 fn infer_taxonomy(path: &Path, content: &str) -> String {
     let p = path.to_string_lossy().to_lowercase();
@@ -592,10 +576,9 @@ fn main() -> Result<()> {
         // 1. Ambiguity Check
         if taxonomy == "unknown" {
              buffer.entry("system".to_string()).or_default().push(WorkUnit::Ambiguity { file: p_str.clone(), strategy: String::new() });
-             continue;
         }
 
-        // 2. Metrics Calculation
+        // 2. Metrics Calculation (Common for all files)
         let density = metrics.logic_count as f64 / metrics.loc as f64;
         let dependency_density = metrics.external_calls as f64 / metrics.loc as f64;
         let coupling_score = if metrics.loc > 0 { metrics.external_calls as f64 / metrics.loc as f64 } else { 0.0 };
@@ -618,7 +601,7 @@ fn main() -> Result<()> {
         if let Some(exceptions) = &config.exceptions { for rule in exceptions { if p_str.contains(&rule.pattern) { if let Some(max) = rule.max_loc { limit = max; } break; } } }
         limit = limit.min(config.settings.hard_ceiling_loc);
 
-        // 3. Dead Code Task
+        // 3. Dead Code Task (Check for ALL files)
         if dead_files.contains(p_str) && metrics.loc > config.settings.min_dead_code_loc {
              buffer.entry(d_name.clone()).or_default().push(WorkUnit::Surgical {
                 file: p_str.clone(),
@@ -629,60 +612,63 @@ fn main() -> Result<()> {
                 complexity: 0.0
              });
         }
-        // 4. Surgical Refactor Task (De-bloat)
-        else if metrics.loc > limit {
-            let nesting_factor = metrics.max_nesting as f64 * config.settings.nesting_weight;
-            let density_factor = density * config.settings.density_weight;
-            let breakdown = format!("[Nesting: {:.2}, Density: {:.2}, Coupling: {:.2}] | Drag: {:.2} | LOC: {}/{}",
-                nesting_factor, density_factor, coupling_score, drag, metrics.loc, limit);
-            let mut reason = breakdown;
-            if let Some((s, e)) = metrics.hotspot_lines { reason = format!("{}  Hotspot: Lines {}-{} ({})", reason, s, e, metrics.hotspot_reason.as_ref().unwrap_or(&String::new())); }
-            let complexity = ((metrics.loc - limit) as f64 / 10.0) + drag;
 
-            let test_path_res = p_str.replace(".res", "_test.res");
-            let test_path_rs = p_str.replace(".rs", "_test.rs");
-            let has_test = Path::new(&test_path_res).exists() || Path::new(&test_path_rs).exists() || content.contains("#[cfg(test)]");
+        if taxonomy != "unknown" {
+            // 4. Surgical Refactor Task (De-bloat) - Only for known modules
+            if metrics.loc > limit {
+                let nesting_factor = metrics.max_nesting as f64 * config.settings.nesting_weight;
+                let density_factor = density * config.settings.density_weight;
+                let breakdown = format!("[Nesting: {:.2}, Density: {:.2}, Coupling: {:.2}] | Drag: {:.2} | LOC: {}/{}",
+                    nesting_factor, density_factor, coupling_score, drag, metrics.loc, limit);
+                let mut reason = breakdown;
+                if let Some((s, e)) = metrics.hotspot_lines { reason = format!("{}  Hotspot: Lines {}-{} ({})", reason, s, e, metrics.hotspot_reason.as_ref().unwrap_or(&String::new())); }
+                let complexity = ((metrics.loc - limit) as f64 / 10.0) + drag;
 
-            let action = if drag > 4.0 && !has_test && !p_str.contains("test") {
-                "Safety Hazard: Missing Tests".to_string()
-            } else {
-                "De-bloat".to_string()
-            };
+                let test_path_res = p_str.replace(".res", "_test.res");
+                let test_path_rs = p_str.replace(".rs", "_test.rs");
+                let has_test = Path::new(&test_path_res).exists() || Path::new(&test_path_rs).exists() || content.contains("#[cfg(test)]");
 
-            buffer.entry(d_name.clone()).or_default().push(WorkUnit::Surgical {
-                file: p_str.clone(),
-                action, 
-                reason, 
-                strategy: String::new(),
-                platform: platform.clone(),
-                complexity 
-            });
-        }
+                let action = if drag > 4.0 && !has_test && !p_str.contains("test") {
+                    "Safety Hazard: Missing Tests".to_string()
+                } else {
+                    "De-bloat".to_string()
+                };
 
-        // 5. Violation Check
-        if let Some(profile) = config.profiles.get(d_name) {
-            let stripped = drivers::strip_code(&content);
-            for pattern in &profile.forbidden_patterns {
-                if stripped.contains(pattern) {
-                    let unit = WorkUnit::Violation {
-                        file: p_str.clone(),
-                        pattern: pattern.clone(),
-                        strategy: String::new()
-                    };
-                    buffer.entry(d_name.clone()).or_default().push(unit);
-                }
+                buffer.entry(d_name.clone()).or_default().push(WorkUnit::Surgical {
+                    file: p_str.clone(),
+                    action, 
+                    reason, 
+                    strategy: String::new(),
+                    platform: platform.clone(),
+                    complexity 
+                });
             }
+
+            // 5. Stats Aggregation for Merges - Only for known modules
+            let dir = path.parent().unwrap().to_string_lossy().to_string();
+            let ext_str = path.extension().and_then(|s| s.to_str()).unwrap_or("").to_string();
+            dir_stats.entry((dir, ext_str)).or_default().push((path.file_name().unwrap().to_string_lossy().to_string(), metrics.loc, platform.clone(), drag, p_mod));
+
+            let file_stem = path.file_stem().unwrap_or_default().to_string_lossy().to_string();
+            if file_stem.len() > 3 { feature_map.entry(file_stem).or_default().push((p_str.clone(), platform.clone())); }
         }
 
-        // 6. Stats Aggregation for Merges
-        let dir = path.parent().unwrap().to_string_lossy().to_string();
-        let ext_str = path.extension().and_then(|s| s.to_str()).unwrap_or("").to_string();
-        dir_stats.entry((dir, ext_str)).or_default().push((path.file_name().unwrap().to_string_lossy().to_string(), metrics.loc, platform.clone(), drag, p_mod));
+        // 6. Violation Check (Check for ALL files)
+        if let Some(profile) = config.profiles.get(d_name) {
+             let stripped = drivers::strip_code(&content);
+             for pattern in &profile.forbidden_patterns {
+                 if stripped.contains(pattern) {
+                     let unit = WorkUnit::Violation {
+                         file: p_str.clone(),
+                         pattern: pattern.clone(),
+                         strategy: String::new()
+                     };
+                     buffer.entry(d_name.clone()).or_default().push(unit);
+                 }
+             }
+         }
 
-        let file_stem = path.file_stem().unwrap_or_default().to_string_lossy().to_string();
-        if file_stem.len() > 3 { feature_map.entry(file_stem).or_default().push((p_str.clone(), platform.clone())); }
-
-        let _ = guard::check_tests(&guard_config, path);
+         let _ = guard::check_tests(&guard_config, path);
     }
     // --- Phase 4: Recursive Cluster Analysis ---
     // Group files by (Platform, Extension) to find "Feature Pods" across subdirectories
@@ -690,6 +676,9 @@ fn main() -> Result<()> {
     let mut processed_merge_files: HashSet<String> = HashSet::new();
 
     for (p_str, (_, _, _, metrics, platform, _)) in &registry {
+        // --- Circularity Prevention: Skip unreachable files for merging ---
+        if dead_files.contains(p_str) { continue; }
+
         // We use extension as a proxy for language/compatibility
         let ext = Path::new(p_str).extension().and_then(|s| s.to_str()).unwrap_or("").to_string();
         recursive_groups.entry((platform.clone(), ext)).or_default().push(FileInfo {
@@ -780,7 +769,7 @@ fn main() -> Result<()> {
     let _ = fs::write("../plans/metadata.json", json_data);
     let _ = flush_plans(&buffer, &config);
     let _ = sync_all_architectural_tasks(&buffer, &config);
-    let _ = guard::check_map(&guard_config);
+    let _ = guard::check_map(&guard_config, &config.exclusion_rules);
     let _ = guard::check_tasks_count(&guard_config);
     Ok(())
 }

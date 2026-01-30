@@ -43,3 +43,4 @@
 [2026-01-29 21:34] v4.8.11 - chore: add task 1104 for analyzer maintenance
 [2026-01-29 21:49] v4.8.11 - improve: implement analyzer refinements (idempotent sync, unified merge, entry point guard) [TRIPLE]
 [2026-01-29 23:38] v4.8.11 - feat: implement zombie task elimination and adjust LOC threshold to 400
+[2026-01-30 09:38] v4.8.11 - Refactor: Enhance analyzer reachability & zombie elimination, purge dead code [TRIPLE]
