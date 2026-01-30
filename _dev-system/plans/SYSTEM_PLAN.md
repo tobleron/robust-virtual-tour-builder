@@ -8,21 +8,16 @@
 
 ---
 
-## 🧩 MERGE TASKS (3)
-### Merge Folder: `backend/src/services/geocoding`
-- **Reason:** Recursive Feature Pod: 2 files in subtree sum to 375 LOC (fits in context). Max Drag: 1.56
+## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (3)
+- [ ] `../../backend/src/pathfinder/graph.rs`
+- [ ] `../../backend/src/services/geocoding.rs`
+- [ ] `../../backend/src/pathfinder/algorithms.rs`
+
+---
+
+## 🧩 MERGE TASKS (1)
+### Merge Folder: `backend/src/pathfinder`
+- **Reason:** Recursive Feature Pod: 2 files in subtree sum to 482 LOC (fits in context). Max Drag: 2.45
 - **Files:**
-  - `../../backend/src/services/geocoding/logic.rs`
-  - `../../backend/src/services/geocoding/mod.rs`
-### Merge Folder: `backend/src/services/auth`
-- **Reason:** Recursive Feature Pod: 2 files in subtree sum to 111 LOC (fits in context). Max Drag: 1.88
-- **Files:**
-  - `../../backend/src/services/auth/mod.rs`
-  - `../../backend/src/services/auth/jwt.rs`
-### Merge Folder: `backend/src/middleware`
-- **Reason:** Recursive Feature Pod: 4 files in subtree sum to 375 LOC (fits in context). Max Drag: 2.22
-- **Files:**
-  - `../../backend/src/middleware/request_tracker.rs`
-  - `../../backend/src/middleware/quota_check.rs`
-  - `../../backend/src/middleware/mod.rs`
-  - `../../backend/src/middleware/auth.rs`
+  - `../../backend/src/pathfinder/graph.rs`
+  - `../../backend/src/pathfinder/algorithms.rs`

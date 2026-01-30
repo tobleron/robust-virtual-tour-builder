@@ -192,3 +192,7 @@
 - [ ] Test_UploadTypes (New)
 - [ ] Test_ViewerLogic (New)
 - [ ] Test_NavigationLogic (New)
+- [ ] Test_TeaserLogic (New)
+- [ ] Test_PannellumLifecycle (Update)
+- [ ] Test_ApiLogic (New)
+- [ ] Test_HotspotLineLogic (Update)

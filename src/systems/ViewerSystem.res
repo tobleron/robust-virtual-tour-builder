@@ -146,6 +146,19 @@ module Pool = {
           v
         }
       )
+
+  let reset = () => {
+    pool :=
+      pool.contents->Belt.Array.map(
+        v => {
+          switch v.instance {
+          | Some(i) => i->Adapter.destroy
+          | None => ()
+          }
+          {...v, instance: None, status: #Free}
+        },
+      )
+  }
 }
 
 // --- FOLLOW (from ViewerFollow.res) ---
@@ -267,6 +280,7 @@ let getInactiveContainerId = () =>
 
 let resetState = () => {
   ViewerState.resetState()
+  Pool.reset()
   Pool.pool.contents->Belt.Array.forEach(v => {
     Pool.clearCleanupTimeout(v.id)
   })

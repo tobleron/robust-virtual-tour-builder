@@ -85,6 +85,15 @@ open ReBindings
 `)
 
 %%raw(`
+  vi.mock('../../src/systems/Simulation.bs.js', () => {
+    const React = require('react');
+    return {
+      make: () => React.createElement('div', { 'data-testid': 'simulation-mock' }),
+    };
+  })
+`)
+
+%%raw(`
   vi.mock('../../src/components/AppErrorBoundary.bs.js', () => {
       const React = require('react');
       return {
@@ -159,7 +168,7 @@ describe("App", () => {
     let viewerManager = Dom.querySelector(container, "[data-testid='viewer-manager']")
     t->expect(Nullable.toOption(viewerManager)->Belt.Option.isSome)->Expect.toBe(true)
 
-    let simDriver = Dom.querySelector(container, "[data-testid='simulation-driver']")
+    let simDriver = Dom.querySelector(container, "[data-testid='simulation-mock']")
     t->expect(Nullable.toOption(simDriver)->Belt.Option.isSome)->Expect.toBe(true)
 
     // Check for Panorama Layers
@@ -201,7 +210,8 @@ describe("App", () => {
        activeYaw: 0,
        activePitch: 0,
        isLinking: false,
-       isTeasing: false
+       isTeasing: false,
+       simulation: { status: "Idle", visitedScenes: [], stoppingOnArrival: false, skipAutoForwardGlobal: false, lastAdvanceTime: 0, pendingAdvanceId: null, autoPilotJourneyId: 0 }
     }`)
 
     let root = ReactDOMClient.createRoot(container)
