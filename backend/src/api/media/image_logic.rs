@@ -42,6 +42,76 @@ fn decode_image(data: &[u8]) -> Result<(image::DynamicImage, image::ImageFormat)
     Ok((img, format))
 }
 
+fn process_metadata_task(
+    src_rgba: &image::RgbaImage,
+    src_w: u32,
+    src_h: u32,
+    data: &[u8],
+    original_filename: Option<&str>,
+    frontend_metadata: Option<ExifMetadata>,
+    is_optimized_frontend: bool,
+) -> Result<MetadataResponse, String> {
+    let mut meta = media::perform_metadata_extraction_rgba(
+        src_rgba,
+        src_w,
+        src_h,
+        data,
+        original_filename,
+    )?;
+    if let Some(front_exif) = frontend_metadata {
+        meta.exif = front_exif;
+        meta.suggested_name = original_filename.map(media::get_suggested_name);
+    }
+    if is_optimized_frontend {
+        meta.is_optimized = true;
+    }
+    Ok(meta)
+}
+
+fn process_tiny_image_task(
+    src_rgba: &image::RgbaImage,
+    src_w: u32,
+    src_h: u32,
+) -> Result<Vec<u8>, String> {
+    let tiny_rgba = media::resize_fast_rgba(src_rgba, src_w, src_h, 512, 512)
+        .map_err(|e| format!("Tiny resize failed: {}", e))?;
+    let tiny_img = image::RgbaImage::from_raw(512, 512, tiny_rgba)
+        .ok_or_else(|| "Failed to create tiny image buffer".to_string())?;
+    media::encode_webp(&image::DynamicImage::ImageRgba8(tiny_img), 60.0)
+}
+
+fn process_large_image_task(
+    src_rgba: &image::RgbaImage,
+    src_w: u32,
+    src_h: u32,
+    data: &[u8],
+    is_optimized_frontend: bool,
+) -> Result<Vec<u8>, String> {
+    if is_optimized_frontend && src_w == PROCESSED_IMAGE_WIDTH {
+        tracing::info!(
+            module = "Processor",
+            "BYPASSING_4K_RESIZE_FRONTEND_OPTIMIZED"
+        );
+        Ok(data.to_vec())
+    } else {
+        let resized_rgba = media::resize_fast_rgba(
+            src_rgba,
+            src_w,
+            src_h,
+            PROCESSED_IMAGE_WIDTH,
+            PROCESSED_IMAGE_WIDTH,
+        )
+        .map_err(|e| format!("Resize failed: {}", e))?;
+        let img = image::RgbaImage::from_raw(
+            PROCESSED_IMAGE_WIDTH,
+            PROCESSED_IMAGE_WIDTH,
+            resized_rgba,
+        )
+        .ok_or_else(|| "Failed to create image buffer".to_string())?;
+        media::encode_webp(&image::DynamicImage::ImageRgba8(img), WEBP_QUALITY)
+    }
+}
+
 fn execute_parallel_image_processing(
     src_rgba: &image::RgbaImage,
     src_w: u32,
@@ -54,57 +124,19 @@ fn execute_parallel_image_processing(
     let ((metadata_res, tiny_res), large_res) = rayon::join(
         || {
             rayon::join(
-                || -> Result<MetadataResponse, String> {
-                    let mut meta = media::perform_metadata_extraction_rgba(
-                        src_rgba,
-                        src_w,
-                        src_h,
-                        data,
-                        original_filename,
-                    )?;
-                    if let Some(front_exif) = frontend_metadata {
-                        meta.exif = front_exif;
-                        meta.suggested_name = original_filename.map(media::get_suggested_name);
-                    }
-                    if is_optimized_frontend {
-                        meta.is_optimized = true;
-                    }
-                    Ok(meta)
-                },
-                || -> Result<Vec<u8>, String> {
-                    let tiny_rgba = media::resize_fast_rgba(src_rgba, src_w, src_h, 512, 512)
-                        .map_err(|e| format!("Tiny resize failed: {}", e))?;
-                    let tiny_img = image::RgbaImage::from_raw(512, 512, tiny_rgba)
-                        .ok_or_else(|| "Failed to create tiny image buffer".to_string())?;
-                    media::encode_webp(&image::DynamicImage::ImageRgba8(tiny_img), 60.0)
-                },
-            )
-        },
-        || -> Result<Vec<u8>, String> {
-            if is_optimized_frontend && src_w == PROCESSED_IMAGE_WIDTH {
-                tracing::info!(
-                    module = "Processor",
-                    "BYPASSING_4K_RESIZE_FRONTEND_OPTIMIZED"
-                );
-                Ok(data.to_vec())
-            } else {
-                let resized_rgba = media::resize_fast_rgba(
+                || process_metadata_task(
                     src_rgba,
                     src_w,
                     src_h,
-                    PROCESSED_IMAGE_WIDTH,
-                    PROCESSED_IMAGE_WIDTH,
-                )
-                .map_err(|e| format!("Resize failed: {}", e))?;
-                let img = image::RgbaImage::from_raw(
-                    PROCESSED_IMAGE_WIDTH,
-                    PROCESSED_IMAGE_WIDTH,
-                    resized_rgba,
-                )
-                .ok_or_else(|| "Failed to create image buffer".to_string())?;
-                media::encode_webp(&image::DynamicImage::ImageRgba8(img), WEBP_QUALITY)
-            }
+                    data,
+                    original_filename,
+                    frontend_metadata.clone(),
+                    is_optimized_frontend,
+                ),
+                || process_tiny_image_task(src_rgba, src_w, src_h),
+            )
         },
+        || process_large_image_task(src_rgba, src_w, src_h, data, is_optimized_frontend),
     );
 
     let metadata = metadata_res?;
@@ -277,50 +309,74 @@ pub fn extract_metadata_sync(
 
 // --- UTILS ---
 
-pub async fn read_multipart_image(mut payload: Multipart) -> Result<MultipartImageData, AppError> {
+async fn read_field_content(
+    field: &mut actix_multipart::Field,
+) -> Result<Vec<u8>, AppError> {
+    let mut value = Vec::new();
+    while let Some(chunk) = field.try_next().await? {
+        value.extend_from_slice(&chunk);
+    }
+    Ok(value)
+}
+
+async fn read_file_field_content(
+    field: &mut actix_multipart::Field,
+    max_size: usize,
+) -> Result<Vec<u8>, AppError> {
     let mut data = Vec::with_capacity(32 * 1024 * 1024);
     let mut total_size = 0;
+    while let Some(chunk) = field.try_next().await? {
+        total_size += chunk.len();
+        if total_size > max_size {
+            return Err(AppError::ImageError(format!(
+                "Upload exceeds limit of {}MB",
+                max_size / (1024 * 1024)
+            )));
+        }
+        data.extend_from_slice(&chunk);
+    }
+    Ok(data)
+}
+
+pub async fn read_multipart_image(mut payload: Multipart) -> Result<MultipartImageData, AppError> {
+    let mut data = Vec::new();
     let mut original_filename: Option<String> = None;
     let mut is_optimized_frontend = false;
     let mut frontend_metadata: Option<ExifMetadata> = None;
 
     while let Some(mut field) = payload.try_next().await? {
         let name = field.name().unwrap_or("").to_string();
-        if name == "file" {
-            if original_filename.is_none()
-                && let Some(cd) = field.content_disposition()
-                && let Some(fname) = cd.get_filename()
-            {
-                original_filename = Some(fname.to_string());
-            }
-            while let Some(chunk) = field.try_next().await? {
-                total_size += chunk.len();
-                if total_size > MAX_UPLOAD_SIZE {
-                    return Err(AppError::ImageError(format!(
-                        "Upload exceeds limit of {}MB",
-                        MAX_UPLOAD_SIZE / (1024 * 1024)
-                    )));
+
+        match name.as_str() {
+            "file" => {
+                if original_filename.is_none() {
+                    if let Some(cd) = field.content_disposition() {
+                        if let Some(fname) = cd.get_filename() {
+                            original_filename = Some(fname.to_string());
+                        }
+                    }
                 }
-                data.extend_from_slice(&chunk);
-            }
-        } else if name == "is_optimized" {
-            let mut value = Vec::new();
-            while let Some(chunk) = field.try_next().await? {
-                value.extend_from_slice(&chunk);
-            }
-            if let Ok(s) = String::from_utf8(value) {
-                is_optimized_frontend = s.to_lowercase() == "true";
-            }
-        } else if name == "metadata" {
-            let mut value = Vec::new();
-            while let Some(chunk) = field.try_next().await? {
-                value.extend_from_slice(&chunk);
-            }
-            if let Ok(s) = String::from_utf8(value) {
-                frontend_metadata = serde_json::from_str(&s).ok();
+                data = read_file_field_content(&mut field, MAX_UPLOAD_SIZE).await?;
+            },
+            "is_optimized" => {
+                let value = read_field_content(&mut field).await?;
+                if let Ok(s) = String::from_utf8(value) {
+                    is_optimized_frontend = s.to_lowercase() == "true";
+                }
+            },
+            "metadata" => {
+                let value = read_field_content(&mut field).await?;
+                if let Ok(s) = String::from_utf8(value) {
+                    frontend_metadata = serde_json::from_str(&s).ok();
+                }
+            },
+            _ => {
+                // Ignore unknown fields
+                let _ = read_field_content(&mut field).await?;
             }
         }
     }
+
     Ok(MultipartImageData {
         data,
         filename: original_filename,
