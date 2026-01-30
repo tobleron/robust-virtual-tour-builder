@@ -62,8 +62,7 @@ module Utils = {
           ""
         } else {
           let first = String.charAt(clean, 0)->String.toUpperCase
-          let rest =
-            String.slice(clean, ~start=1, ~end=String.length(clean))->String.toLowerCase
+          let rest = String.slice(clean, ~start=1, ~end=String.length(clean))->String.toLowerCase
           first ++ rest
         }
       })

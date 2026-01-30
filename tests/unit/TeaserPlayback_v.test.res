@@ -35,21 +35,31 @@ external mockSetFadeOpacity: mockFn = "setFadeOpacity"
 %%raw(`
   import { vi } from 'vitest';
 
-  vi.mock('../../src/systems/TeaserRecorder.bs.js', () => ({
-    startRecording: vi.fn(),
-    stopRecording: vi.fn(),
-    pauseRecording: vi.fn(),
-    resumeRecording: vi.fn(),
-    getGhostCanvas: vi.fn(),
-    setSnapshot: vi.fn(),
-    setFadeOpacity: vi.fn(),
-    loadLogo: vi.fn(),
-    startAnimationLoop: vi.fn()
-  }));
+  vi.mock('../../src/systems/TeaserRecorder.bs.js', () => {
+    const startRecording = vi.fn();
+    const stopRecording = vi.fn();
+    const pauseRecording = vi.fn();
+    const resumeRecording = vi.fn();
+    const getGhostCanvas = vi.fn();
+    const setSnapshot = vi.fn();
+    const setFadeOpacity = vi.fn();
+    const loadLogo = vi.fn();
+    const startAnimationLoop = vi.fn();
+    return {
+      startRecording, stopRecording, pauseRecording, resumeRecording,
+      getGhostCanvas, setSnapshot, setFadeOpacity, loadLogo, startAnimationLoop,
+      Recorder: {
+        startRecording, stopRecording, pause: pauseRecording, resume: resumeRecording,
+        getGhostCanvas, setSnapshot, setFadeOpacity, loadLogo, startAnimationLoop,
+        internalState: { contents: { ghostCanvas: null, snapshotCanvas: null } }
+      }
+    };
+  });
 
   vi.mock('../../src/core/GlobalStateBridge.bs.js', () => ({
     getState: vi.fn(),
     dispatch: vi.fn(),
+    SetIsTeasing: (v) => ({ type: 'SetIsTeasing', payload: v })
   }));
 
   vi.mock('../../src/utils/Logger.bs.js', () => ({
@@ -62,11 +72,11 @@ external mockSetFadeOpacity: mockFn = "setFadeOpacity"
     castToJson: (obj) => obj
   }));
 
-  // Mock Window methods used in TeaserPlayback
+  let currentTime = Date.now();
+  global.Date.now = () => currentTime;
+
   global.setTimeout = (fn, ms) => {
-      // Execute immediately for tests, or use fake timers
-      // But TeaserPlayback uses await wait(ms).
-      // If we execute immediately, logic flows.
+      currentTime += ms;
       fn();
       return 1;
   };

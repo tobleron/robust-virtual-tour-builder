@@ -192,7 +192,7 @@ let make = React.memo(() => {
           let _ = SidebarLogic.handleExport(sceneSlice.scenes)
         }}
         onTeaser={() => {
-          let _ = Teaser.startAutoTeaser(sceneSlice.tourName, false, "mp4", false)
+          let _ = Teaser.startAutoTeaser("fast", false, "mp4", false)
         }}
       />
 

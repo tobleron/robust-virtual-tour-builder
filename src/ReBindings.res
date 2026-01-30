@@ -198,6 +198,14 @@ module Dom_ = {
     @val @scope("document")
     external createDocumentFragment: unit => element = "createDocumentFragment"
     @val @scope("document") external head: element = "head"
+    module Storage2 = {
+      type t
+      @val @scope("window") external localStorage: t = "localStorage"
+      @send @return(nullable) external getItem: (t, string) => option<string> = "getItem"
+      @send external setItem: (t, string, string) => unit = "setItem"
+      @send external removeItem: (t, string) => unit = "removeItem"
+      @send external clear: t => unit = "clear"
+    }
   }
 
   module ResizeObserver = {

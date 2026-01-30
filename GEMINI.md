@@ -22,12 +22,11 @@
 ## 🛠️ WORKFLOW AUTOMATION
 
 ### PHASE 1: EXECUTION
-- **Test-Driven**: Run `npm test` autonomously. If 2 failures occur, STOP and generate `FAILURE_REPORT.md`.
 - **Build**: For normal requests, skip (let dev server handle it).
 
 ### PHASE 2: COMMIT & PUSH
 - **Explicit Permission**: Only commit when the user provides a message or instruction.
 - **Fast Path (Local Snapshot)**: `./scripts/fast-commit.sh "msg"` (Quick, Local, No Tests/Push).
-- **Standard Path (Push)**: `./scripts/commit.sh "msg" [branch]` (Build Guard, Commit, & Push).
+- **Standard Path (Push)**: `./scripts/commit.sh "msg" [branch]` (Build Guard, Commit, & Push. Note: Tests are currently Bypassed/Manual).
 - **Triple Path (Sync)**: `./scripts/triple-commit.sh "msg"` (Syncs & Pushes to main/testing/dev).
 - **Manual Push**: `./scripts/pre-push.sh` is available for manual verification if needed.

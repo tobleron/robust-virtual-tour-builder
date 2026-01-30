@@ -14,7 +14,7 @@ let extractMetadata = (file: File.t): Promise.t<apiResult<SharedTypes.metadataRe
       Constants.backendUrl ++ "/api/media/extract-metadata",
       Fetch.requestInit(~method="POST", ~body=formData, ()),
     )
-    ->Promise.then(ApiLogic.handleResponse)
+    ->Promise.then(handleResponse)
     ->Promise.then(resultResponse => {
       switch resultResponse {
       | Ok(response) =>
@@ -75,7 +75,7 @@ let processImageFull = (
       Constants.backendUrl ++ "/api/media/process-full",
       Fetch.requestInit(~method="POST", ~body=formData, ()),
     )
-    ->Promise.then(ApiLogic.handleResponse)
+    ->Promise.then(handleResponse)
     ->Promise.then(resultResponse => {
       switch resultResponse {
       | Ok(response) =>
@@ -129,7 +129,7 @@ let batchCalculateSimilarity = (pairs: array<SharedTypes.similarityPair>): Promi
         (),
       ),
     )
-    ->Promise.then(ApiLogic.handleResponse)
+    ->Promise.then(handleResponse)
     ->Promise.then(resultResponse => {
       switch resultResponse {
       | Ok(response) =>
@@ -151,9 +151,7 @@ let batchCalculateSimilarity = (pairs: array<SharedTypes.similarityPair>): Promi
               ~data=Logger.castToJson({"error": msg, "stack": stack}),
               (),
             )
-            Promise.resolve(
-              Error("Similarity calculation failed: JSON parsing or decoding error"),
-            )
+            Promise.resolve(Error("Similarity calculation failed: JSON parsing or decoding error"))
           },
         )
       | Error(msg) => Promise.resolve(Error(msg))

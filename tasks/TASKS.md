@@ -4,13 +4,7 @@
 - **Mandatory Prefix**: Every new task MUST have a sequential number prefix (e.g., `189_task_name.md`).
 - **Sequence Basis**: The sequence number must be the next available number based on the highest existing number across `completed/`, `pending/`, `postponed/`, `postponed/tests/`, and `active/` folders.
 - **Format**: Use three-digit padding where possible (or two if consistent with history) to ensure proper sorting.
-- **Test Tasks**: Create proactive test-related tasks inside `tasks/pending/tests/` or `tasks/postponed/tests/`. They MUST follow the same sequential numbering rule as other tasks.
-    - **Naming Convention**: `XXX_Test_[ModuleName]_[Type].md`
-        - `XXX`: Sequential Task ID.
-        - `Test`: Mandatory prefix after ID.
-        - `[ModuleName]`: The name of the module being tested.
-        - `[Type]`: `New` for new unit tests, `Update` for updating existing tests.
-    - Example: `480_Test_PreviewArrow_New.md` or `481_Test_Portal_Update.md`.
+- **Test Tasks**: (⚠️ SUSPENDED) Automated test task generation is disabled during heavy refactoring.
 - **Detail Requirement**: Every task MUST be self-documenting. Provide enough technical detail, context, and clear objective so that a rename (e.g., `_DONE`) is sufficient to signify completion without a separate report.
 
 

@@ -25,8 +25,7 @@ pub fn get_current_timestamp() -> u64 {
 }
 
 fn get_cache_file_path() -> String {
-    std::env::var("GEOCODING_CACHE_FILE")
-        .unwrap_or_else(|_| "../cache/geocoding.json".to_string())
+    std::env::var("GEOCODING_CACHE_FILE").unwrap_or_else(|_| "../cache/geocoding.json".to_string())
 }
 
 fn format_address_from_json(json: &serde_json::Value) -> Option<String> {

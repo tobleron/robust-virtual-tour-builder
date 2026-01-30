@@ -182,12 +182,8 @@ fn process_timeline_item(
                 if skip_auto_forward {
                     let mut local_visited = HashSet::new(); // Local visited for this chain only
                     let original_target = target_idx;
-                    target_idx = follow_auto_forward_chain(
-                        scenes,
-                        target_idx,
-                        &mut local_visited,
-                        false,
-                    )?;
+                    target_idx =
+                        follow_auto_forward_chain(scenes, target_idx, &mut local_visited, false)?;
 
                     if target_idx != original_target {
                         arrival_view = get_default_view();

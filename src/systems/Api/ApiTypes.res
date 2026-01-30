@@ -37,10 +37,7 @@ type apiResult<'a> = result<'a, string>
 
 /* Decoders using Schemas */
 let decodeImportResponse = (json: JSON.t): result<importResponse, string> => {
-  Schemas.parse(json, Schemas.Shared.importResponse)->Result.flatMap(((
-    sessionId,
-    projectData,
-  )) => {
+  Schemas.parse(json, Schemas.Shared.importResponse)->Result.flatMap(((sessionId, projectData)) => {
     if sessionId == "" {
       Error("Session ID required")
     } else {
@@ -72,4 +69,35 @@ let decodeGeocodeResponse = (json: JSON.t): result<geocodeResponse, string> => {
 
 let decodeSimilarityResponse = (json: JSON.t): result<similarityResponse, string> => {
   Schemas.parse(json, Schemas.Shared.similarityResponse)
+}
+
+let processErrorResponse = (response: Fetch.response): Promise.t<apiResult<Fetch.response>> => {
+  Fetch.json(response)
+  ->Promise.then((json: apiError) => {
+    let msg = switch Nullable.toOption(json.details) {
+    | Some(d) => d
+    | None => json.error
+    }
+    Promise.resolve(
+      Error("Backend error: " ++ Belt.Int.toString(Fetch.status(response)) ++ " " ++ msg),
+    )
+  })
+  ->Promise.catch(_ => {
+    Promise.resolve(
+      Error(
+        "Backend error: " ++
+        Belt.Int.toString(Fetch.status(response)) ++
+        " " ++
+        Fetch.statusText(response),
+      ),
+    )
+  })
+}
+
+let handleResponse = (response: Fetch.response): Promise.t<apiResult<Fetch.response>> => {
+  if Fetch.ok(response) {
+    Promise.resolve(Ok(response))
+  } else {
+    processErrorResponse(response)
+  }
 }

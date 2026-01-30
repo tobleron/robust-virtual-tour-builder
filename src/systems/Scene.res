@@ -8,7 +8,7 @@ open Actions
 type viewport = ViewerSystem.Pool.viewport
 
 module Transition = {
-  let updateGlobalStateAndViewer = (nv) => {
+  let updateGlobalStateAndViewer = nv => {
     ViewerSystem.Pool.swapActive()
     ViewerSystem.Pool.getActive()->Option.forEach(v => ViewerSystem.Pool.clearCleanupTimeout(v.id))
     let assignGlobal: Nullable.t<ReBindings.Viewer.t> => unit = %raw(
@@ -67,7 +67,7 @@ module Transition = {
     }
   }
 
-  let scheduleCleanup = (ov) => {
+  let scheduleCleanup = ov => {
     let clv = ViewerSystem.Pool.getInactive()
     switch clv {
     | Some(vp) =>

@@ -1,4 +1,4 @@
-# Task 1130: Surgical Refactor SRC FRONTEND
+# Task 1143: Surgical Refactor SERVICES BACKEND
 
 ## Objective
 ## ⚡ Surgical Objective
@@ -15,5 +15,5 @@ The Semantic Engine has identified the following specific symbols for refactorin
 ### 🔧 Action: De-bloat
 **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
 
-- [ ] - **../../src/ReBindings.res** (Metric: [Nesting: 1.50, Density: 0.66, Coupling: 0.15] | Drag: 9.90 | LOC: 358/300)
+- [ ] - **../../backend/src/services/geocoding.rs** (Metric: [Nesting: 2.00, Density: 0.06, Coupling: 0.02] | Drag: 3.25 | LOC: 379/300)
 
