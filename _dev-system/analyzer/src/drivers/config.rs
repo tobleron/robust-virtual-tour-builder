@@ -1,11 +1,14 @@
 use super::CommonMetrics;
 use serde_json::Value;
 
-pub fn analyze_config(content: &str, _dict: &std::collections::HashMap<String, f64>) -> anyhow::Result<CommonMetrics> {
-    let mut metrics = CommonMetrics { 
-        loc: content.lines().count(), 
-        logic_count: 0, 
-        max_nesting: 0, 
+pub fn analyze_config(
+    content: &str,
+    _dict: &std::collections::HashMap<String, f64>,
+) -> anyhow::Result<CommonMetrics> {
+    let mut metrics = CommonMetrics {
+        loc: content.lines().count(),
+        logic_count: 0,
+        max_nesting: 0,
         complexity_penalty: 0.0,
         hotspot_lines: None,
         hotspot_reason: None,
