@@ -24,6 +24,68 @@ pub fn get_current_timestamp() -> u64 {
         .as_secs()
 }
 
+fn get_cache_file_path() -> String {
+    std::env::var("GEOCODING_CACHE_FILE")
+        .unwrap_or_else(|_| "../cache/geocoding.json".to_string())
+}
+
+fn format_address_from_json(json: &serde_json::Value) -> Option<String> {
+    let address_obj = json.get("address")?;
+    let mut parts = Vec::new();
+
+    let push_if_present = |parts: &mut Vec<String>, key: &str| {
+        if let Some(val) = address_obj.get(key).and_then(|v| v.as_str()) {
+            if !val.is_empty() {
+                parts.push(val.to_string());
+            }
+        }
+    };
+
+    push_if_present(&mut parts, "road");
+
+    // Suburb/Neighbourhood
+    let suburb = address_obj
+        .get("suburb")
+        .or_else(|| address_obj.get("neighbourhood"))
+        .and_then(|v| v.as_str());
+    if let Some(s) = suburb {
+        if !s.is_empty() {
+            parts.push(s.to_string());
+        }
+    }
+
+    // City/Town/Village
+    let city = address_obj
+        .get("city")
+        .or_else(|| address_obj.get("town"))
+        .or_else(|| address_obj.get("village"))
+        .and_then(|v| v.as_str());
+    if let Some(c) = city {
+        if !c.is_empty() {
+            parts.push(c.to_string());
+        }
+    }
+
+    // State/Province
+    let state = address_obj
+        .get("state")
+        .or_else(|| address_obj.get("province"))
+        .and_then(|v| v.as_str());
+    if let Some(s) = state {
+        if !s.is_empty() {
+            parts.push(s.to_string());
+        }
+    }
+
+    push_if_present(&mut parts, "country");
+
+    if !parts.is_empty() {
+        Some(parts.join(", "))
+    } else {
+        None
+    }
+}
+
 pub async fn call_osm_nominatim(lat: f64, lon: f64) -> Result<String, String> {
     let url = format!(
         "https://nominatim.openstreetmap.org/reverse?format=json&lat={}&lon={}&zoom=18&addressdetails=1&accept-language=en",
@@ -57,56 +119,8 @@ pub async fn call_osm_nominatim(lat: f64, lon: f64) -> Result<String, String> {
     }
 
     // Extract and format address
-    if let Some(address_obj) = json.get("address") {
-        let mut parts = Vec::new();
-
-        // Extract address components
-        if let Some(road) = address_obj.get("road").and_then(|v| v.as_str())
-            && !road.is_empty()
-        {
-            parts.push(road.to_string());
-        }
-
-        let suburb = address_obj
-            .get("suburb")
-            .or_else(|| address_obj.get("neighbourhood"))
-            .and_then(|v| v.as_str());
-        if let Some(s) = suburb
-            && !s.is_empty()
-        {
-            parts.push(s.to_string());
-        }
-
-        let city = address_obj
-            .get("city")
-            .or_else(|| address_obj.get("town"))
-            .or_else(|| address_obj.get("village"))
-            .and_then(|v| v.as_str());
-        if let Some(c) = city
-            && !c.is_empty()
-        {
-            parts.push(c.to_string());
-        }
-
-        let state = address_obj
-            .get("state")
-            .or_else(|| address_obj.get("province"))
-            .and_then(|v| v.as_str());
-        if let Some(s) = state
-            && !s.is_empty()
-        {
-            parts.push(s.to_string());
-        }
-
-        if let Some(country) = address_obj.get("country").and_then(|v| v.as_str())
-            && !country.is_empty()
-        {
-            parts.push(country.to_string());
-        }
-
-        if !parts.is_empty() {
-            return Ok(parts.join(", "));
-        }
+    if let Some(formatted) = format_address_from_json(&json) {
+        return Ok(formatted);
     }
 
     // Fallback to display_name
@@ -157,8 +171,7 @@ pub async fn save_cache_to_disk() -> Result<(), String> {
     let cache = GEOCODE_CACHE.read().await;
     let mut stats = CACHE_STATS.write().await;
 
-    let cache_file = std::env::var("GEOCODING_CACHE_FILE")
-        .unwrap_or_else(|_| "../cache/geocoding.json".to_string());
+    let cache_file = get_cache_file_path();
 
     if let Some(parent) = std::path::Path::new(&cache_file).parent() {
         std::fs::create_dir_all(parent)
@@ -183,8 +196,7 @@ pub async fn save_cache_to_disk() -> Result<(), String> {
 }
 
 pub async fn load_cache_from_disk() -> std::io::Result<()> {
-    let cache_file = std::env::var("GEOCODING_CACHE_FILE")
-        .unwrap_or_else(|_| "../cache/geocoding.json".to_string());
+    let cache_file = get_cache_file_path();
 
     match tokio::fs::read_to_string(&cache_file).await {
         Ok(contents) => {
