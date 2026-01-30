@@ -78,8 +78,7 @@ let useSceneCleanup = (state: state) => {
         | None => ()
         }
       })
-      ViewerSystem.Pool.pool :=
-        ViewerSystem.Pool.pool.contents->Belt.Array.map(v => {...v, instance: None})
+      ViewerSystem.Pool.reset()
 
       ViewerSystem.resetState()
 
@@ -140,8 +139,7 @@ let useMainSceneLoading = (state: state, dispatch: action => unit) => {
             | None => ()
             }
           })
-          ViewerSystem.Pool.pool :=
-            ViewerSystem.Pool.pool.contents->Belt.Array.map(v => {...v, instance: None})
+          ViewerSystem.Pool.reset()
 
           ViewerSystem.resetState()
 
