@@ -194,7 +194,9 @@ let startAnimationLoop = (includeLogo, logoState) => {
 let startRecording = () => {
   initGhost()
   switch internalState.contents.ghostCanvas {
-  | None => false
+  | None =>
+    Logger.error(~module_="TeaserRecorder", ~message="GHOST_CANVAS_NOT_READY", ())
+    false
   | Some(canvas) =>
     let stream = captureStream(canvas, 60)
     let mimeType = if String.includes(Window.navigatorUserAgent, "Firefox") {
@@ -202,6 +204,17 @@ let startRecording = () => {
     } else {
       "video/webm;codecs=vp9,opus"
     }
+
+    Logger.info(
+      ~module_="TeaserRecorder",
+      ~message="RECORDING_START",
+      ~data={
+        "width": canvasWidth,
+        "height": canvasHeight,
+        "mimeType": mimeType,
+      },
+      (),
+    )
     try {
       let r = createMediaRecorder(stream, {"mimeType": mimeType, "videoBitsPerSecond": 10000000})
       internalState := {
@@ -235,6 +248,12 @@ let stopRecording = () => {
     internalState := {...internalState.contents, isTeasing: false}
     internalState.contents.streamLoopId->Option.forEach(cancelAnimationFrame)
     internalState := {...internalState.contents, streamLoopId: None}
+    Logger.info(
+      ~module_="TeaserRecorder",
+      ~message="RECORDING_STOP",
+      ~data={"chunkCount": Array.length(internalState.contents.chunks)},
+      (),
+    )
   | None => ()
   }
 }

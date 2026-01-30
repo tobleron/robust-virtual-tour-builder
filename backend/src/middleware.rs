@@ -3,14 +3,15 @@ pub mod auth {
     use crate::models::User;
     use crate::services::auth::jwt::decode_token;
     use actix_web::{
+        Error, HttpMessage, HttpResponse,
         body::{BoxBody, EitherBody},
-        dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
+        dev::{Service, ServiceRequest, ServiceResponse, Transform, forward_ready},
         http::header,
-        web, Error, HttpMessage, HttpResponse,
+        web,
     };
     use futures_util::future::LocalBoxFuture;
     use sqlx::SqlitePool;
-    use std::future::{ready, Ready};
+    use std::future::{Ready, ready};
     use std::rc::Rc;
 
     pub struct AuthMiddleware;
@@ -111,7 +112,10 @@ pub mod auth {
         })
     }
 
-    async fn attach_user_to_request(req: &ServiceRequest, user_id: &str) -> Result<(), HttpResponse> {
+    async fn attach_user_to_request(
+        req: &ServiceRequest,
+        user_id: &str,
+    ) -> Result<(), HttpResponse> {
         let pool = match req.app_data::<web::Data<SqlitePool>>() {
             Some(p) => p,
             None => {
@@ -130,8 +134,10 @@ pub mod auth {
                 req.extensions_mut().insert(user);
                 Ok(())
             }
-            Ok(None) => Err(HttpResponse::Unauthorized()
-                .json(serde_json::json!({"error": "User not found"}))),
+            Ok(None) => {
+                Err(HttpResponse::Unauthorized()
+                    .json(serde_json::json!({"error": "User not found"})))
+            }
             Err(e) => {
                 tracing::error!("Database error during auth: {}", e);
                 Err(HttpResponse::InternalServerError()
@@ -145,12 +151,13 @@ pub mod quota_check {
     // @efficiency: infra-adapter
     use crate::services::upload_quota::UploadQuotaManager;
     use actix_web::{
+        Error, HttpResponse,
         body::{BoxBody, EitherBody},
-        dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
-        web, Error, HttpResponse,
+        dev::{Service, ServiceRequest, ServiceResponse, Transform, forward_ready},
+        web,
     };
     use futures_util::future::LocalBoxFuture;
-    use std::future::{ready, Ready};
+    use std::future::{Ready, ready};
     use std::rc::Rc;
 
     pub struct QuotaCheck;
@@ -277,11 +284,12 @@ pub mod request_tracker {
     use crate::metrics::ACTIVE_SESSIONS;
     use crate::services::shutdown::ShutdownManager;
     use actix_web::{
-        dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
-        web, Error,
+        Error,
+        dev::{Service, ServiceRequest, ServiceResponse, Transform, forward_ready},
+        web,
     };
     use futures_util::future::LocalBoxFuture;
-    use std::future::{ready, Ready};
+    use std::future::{Ready, ready};
 
     pub struct RequestTracker;
 
@@ -344,7 +352,7 @@ pub mod request_tracker {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use actix_web::{test, web, App, HttpResponse};
+        use actix_web::{App, HttpResponse, test, web};
 
         #[actix_web::test]
         async fn test_request_tracker_middleware() {

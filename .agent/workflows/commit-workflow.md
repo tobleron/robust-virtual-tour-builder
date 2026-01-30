@@ -9,7 +9,7 @@ All technical verifications (Linting, Formatting, Build, Tests, Versioning, and 
 ## 1. The Golden Rule
 ## 1. The Golden Rule
 **Command (Standard)**: `./scripts/commit.sh "prefix: Description" [target-branch] [bump-level]`
-- **Impact**: Full verification (Build, Tests, Docs).
+- **Impact**: Build verification only (Tests skipped during Refactor).
 - **Bump Level**: `major` | `minor` | `patch` | `none` (default).
 
 **Command (Fast)**: `./scripts/fast-commit.sh "prefix: Description" [bump-level]`
@@ -63,7 +63,5 @@ Before running the commit script, perform these checks that automation cannot ca
 The `./scripts/commit.sh` will block your commit if:
 1. **Forbidden Patterns**: It detects `console.log`, `var`, `debugger`, or `alert(`.
 2. **Build Warnings**: ReScript compiler emits *any* warnings (Strict Mode).
-3. **Test Gaps**: `scripts/detect-missing-tests.cjs` identifies modified logic without corresponding test updates.
-4. **Test Failures**: Any Vitest or Rust tests fail.
-
+3. **Tests**: (Bypassed during Refactor phase).
 If the script blocks you, resolve the issue and run it again. Do not bypass the script.

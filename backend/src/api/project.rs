@@ -228,10 +228,11 @@ pub async fn create_tour_package(payload: Multipart) -> Result<HttpResponse, App
 
 // --- PRIVATE HELPERS ---
 
-fn extract_project_metadata_from_zip(path: &PathBuf) -> Result<(String, serde_json::Value), AppError> {
+fn extract_project_metadata_from_zip(
+    path: &PathBuf,
+) -> Result<(String, serde_json::Value), AppError> {
     let file = fs::File::open(path).map_err(AppError::IoError)?;
-    let mut archive =
-        zip::ZipArchive::new(file).map_err(|e| AppError::ZipError(e.to_string()))?;
+    let mut archive = zip::ZipArchive::new(file).map_err(|e| AppError::ZipError(e.to_string()))?;
     let mut json_file = archive
         .by_name("project.json")
         .map_err(|_| AppError::InternalError("project.json missing".into()))?;
@@ -257,14 +258,16 @@ async fn read_string_field(field: &mut actix_multipart::Field) -> Result<String,
     Ok(String::from_utf8_lossy(&bytes).to_string())
 }
 
-async fn save_temp_file_field(field: &mut actix_multipart::Field) -> Result<(String, PathBuf), AppError> {
+async fn save_temp_file_field(
+    field: &mut actix_multipart::Field,
+) -> Result<(String, PathBuf), AppError> {
     let filename = field
         .content_disposition()
         .and_then(|cd| cd.get_filename())
         .map(|f| f.to_string())
         .unwrap_or_else(|| format!("img_{}.webp", Uuid::new_v4()));
-    let sanitized_name = sanitize_filename(&filename)
-        .unwrap_or_else(|_| format!("img_{}.webp", Uuid::new_v4()));
+    let sanitized_name =
+        sanitize_filename(&filename).unwrap_or_else(|_| format!("img_{}.webp", Uuid::new_v4()));
     let temp_img_path = get_temp_path("tmp");
     let mut f = fs::File::create(&temp_img_path).map_err(AppError::IoError)?;
     while let Some(chunk) = field.try_next().await? {
@@ -285,13 +288,13 @@ async fn parse_save_project_multipart(
         match name.as_str() {
             "project_data" => {
                 project_json = Some(read_string_field(&mut field).await?);
-            },
+            }
             "files" => {
                 temp_images.push(save_temp_file_field(&mut field).await?);
-            },
+            }
             "session_id" => {
                 session_id = Some(read_string_field(&mut field).await?);
-            },
+            }
             _ => {
                 // consume unknown field
                 let _ = read_string_field(&mut field).await?;

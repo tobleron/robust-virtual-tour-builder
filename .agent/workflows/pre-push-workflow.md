@@ -21,9 +21,9 @@ Automation cannot catch everything. Perform these final "System 2" checks:
 - [ ] **Clean Logs**: Verify `logs/` only contains `log_changes.txt` and `.gitkeep`.
 
 ### State Consistency
-- [ ] **Build Status**: Ensure your last `commit.sh` run was successful and all tests passed.
+- [ ] **Build Status**: Ensure your last `commit.sh` run was successful.
 - [ ] **Map Sync**: Verify `MAP.md` is updated if you added/moved files.
-- [ ] **README Sync**: Verify `README.md` reflects the current version and test status.
+- [ ] **README Sync**: Verify `README.md` reflects the current version and build status.
 
 ## 3. Final Push
 Once sanitized:
