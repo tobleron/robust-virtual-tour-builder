@@ -128,7 +128,7 @@ pub async fn load_project(
 /// Imports a project ZIP and establishes a persistent project.
 pub async fn import_project(
     req: HttpRequest,
-    mut payload: Multipart,
+    payload: Multipart,
 ) -> Result<HttpResponse, AppError> {
     let user = req
         .extensions()

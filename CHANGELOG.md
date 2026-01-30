@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dev System Finally Stable & Perfect Math
 - Merge: bugfix/analyzer-empty-task-deletion and sync plans
 - _dev-system unreachable modules fixed
+- Fix all warnings and errors across frontend and backend
 
 ### Added
 - Harmonize split/merge math and improve ReScript complexity fidelity

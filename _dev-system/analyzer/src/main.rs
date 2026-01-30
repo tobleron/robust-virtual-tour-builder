@@ -58,6 +58,7 @@ struct Settings {
     base_loc_limit: usize,
     hard_ceiling_loc: usize,
     soft_floor_loc: usize,
+    #[allow(dead_code)]
     max_session_complexity: f64,
     merge_score_threshold: f64,
     nesting_weight: f64,

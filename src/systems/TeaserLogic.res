@@ -22,7 +22,7 @@ let wait = (ms: int) =>
 
 // --- MODULE ALIASES (extracted for testability) ---
 module Recorder = TeaserRecorder.Recorder
-module Pathfinder = TeaserPathfinder.Pathfinder
+module Pathfinder = TeaserPathfinder
 module Server = ServerTeaser.Server
 
 // --- MODULE: STATE/CONFIG ---

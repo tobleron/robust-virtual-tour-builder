@@ -20,6 +20,7 @@ impl DependencyGraph {
     }
 
     /// Detects cycles using simple DFS
+    #[allow(dead_code)]
     pub fn detect_cycles(&self) -> Vec<Vec<String>> {
         let mut cycles = Vec::new();
         let mut visited = HashSet::new();
@@ -40,6 +41,7 @@ impl DependencyGraph {
         cycles
     }
 
+    #[allow(dead_code)]
     fn dfs(
         &self,
         node: &str,

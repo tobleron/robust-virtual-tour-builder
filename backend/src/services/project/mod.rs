@@ -3,6 +3,7 @@ mod package;
 mod validate;
 
 // Re-export public API
+#[allow(unused_imports)]
 pub use load::{process_uploaded_project_zip, validate_project_zip};
 pub use package::create_tour_package;
 pub use validate::validate_and_clean_project;
