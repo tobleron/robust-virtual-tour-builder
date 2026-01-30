@@ -13,6 +13,7 @@ use tracing_actix_web::TracingLogger;
 
 // mod handlers; // Deleted
 mod api;
+mod auth;
 mod metrics;
 mod middleware;
 mod models;
@@ -215,7 +216,7 @@ async fn main() -> io::Result<()> {
                     .route("/generate-teaser", web::post().to(api::media::generate_teaser))
                 )
                 .service(web::scope("/project")
-                    .wrap(middleware::auth::AuthMiddleware)
+                    .wrap(auth::middleware::AuthMiddleware)
                     .route("/save", web::post().to(api::project::save_project))
                     .route("/load", web::post().to(api::project::load_project))
                     .route("/create-tour-package", web::post().to(api::project::create_tour_package))
