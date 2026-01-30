@@ -6,9 +6,11 @@ open RescriptSchema
 module Shared = {
   open SharedTypes
 
+  external identity: 'a => 'b = "%identity"
+
   let jsonSchema: S.t<JSON.t> = S.unknown->S.transform(_ => {
-    parser: (v: unknown) => v->Obj.magic,
-    serializer: (v: JSON.t) => v->Obj.magic,
+    parser: (v: unknown) => v->identity,
+    serializer: (v: JSON.t) => v->identity,
   })
 
   let toNullable = (schema: S.t<option<'a>>): S.t<Nullable.t<'a>> => {
@@ -120,9 +122,11 @@ module Shared = {
 module Domain = {
   open Types
 
+  external identity: 'a => 'b = "%identity"
+
   let jsonSchema: S.t<JSON.t> = S.unknown->S.transform(_ => {
-    parser: (v: unknown) => v->Obj.magic,
-    serializer: (v: JSON.t) => v->Obj.magic,
+    parser: (v: unknown) => v->identity,
+    serializer: (v: JSON.t) => v->identity,
   })
 
   let file = S.string->S.transform(_ => {
@@ -288,12 +292,14 @@ module Domain = {
 
 /* --- API Response Cast Helpers --- */
 
+external asRescriptSchemaError: exn => S.error = "%identity"
+
 let parse = (json: JSON.t, schema: S.t<'a>): result<'a, string> => {
   try {
     Ok(S.parseOrThrow(json, schema))
   } catch {
   | exn => {
-      let msg = S.Error.message(Obj.magic(exn))
+      let msg = S.Error.message(asRescriptSchemaError(exn))
       Error(msg)
     }
   }

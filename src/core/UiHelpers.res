@@ -7,10 +7,10 @@ let insertAt = (arr, index, item) => {
   Belt.Array.concatMany([before, [item], after])
 }
 
-let castJsonToFile = (json: JSON.t): ReBindings.File.t => Obj.magic(json)
-let castJsonToBlob = (json: JSON.t): ReBindings.Blob.t => Obj.magic(json)
-let castStringToBlob = (str: string): ReBindings.Blob.t => Obj.magic(str)
-let castFileToBlob = (file: ReBindings.File.t): ReBindings.Blob.t => Obj.magic(file)
+external castJsonToFile: JSON.t => ReBindings.File.t = "%identity"
+external castJsonToBlob: JSON.t => ReBindings.Blob.t = "%identity"
+external castStringToBlob: string => ReBindings.Blob.t = "%identity"
+external castFileToBlob: ReBindings.File.t => ReBindings.Blob.t = "%identity"
 
 let decodeFile = (json: JSON.t): Types.file => {
   switch JSON.Decode.string(json) {
