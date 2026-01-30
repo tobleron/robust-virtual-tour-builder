@@ -52,22 +52,32 @@ type pathStep = {
 // --- UTILS: NAVIGATION ---
 
 module Navigation = {
-  let findViewerForScene = (sceneId: string): option<Viewer.t> => {
+  let getGlobalViewerForScene = (sceneId: string): option<Viewer.t> => {
     let globalViewer = Nullable.toOption(Viewer.instance)
     switch globalViewer {
     | Some(v)
       if ViewerSystem.Adapter.getSceneId(ViewerSystem.Adapter.asCustom(v)) == Some(sceneId) =>
       Some(v)
-    | _ =>
-      ViewerSystem.Pool.pool.contents
-      ->Belt.Array.getBy(vp => {
-        switch vp.instance {
-        | Some(v) =>
-          ViewerSystem.Adapter.getSceneId(ViewerSystem.Adapter.asCustom(v)) == Some(sceneId)
-        | None => false
-        }
-      })
-      ->Option.flatMap(vp => vp.instance)
+    | _ => None
+    }
+  }
+
+  let getPooledViewerForScene = (sceneId: string): option<Viewer.t> => {
+    ViewerSystem.Pool.pool.contents
+    ->Belt.Array.getBy(vp => {
+      switch vp.instance {
+      | Some(v) =>
+        ViewerSystem.Adapter.getSceneId(ViewerSystem.Adapter.asCustom(v)) == Some(sceneId)
+      | None => false
+      }
+    })
+    ->Option.flatMap(vp => vp.instance)
+  }
+
+  let findViewerForScene = (sceneId: string): option<Viewer.t> => {
+    switch getGlobalViewerForScene(sceneId) {
+    | Some(v) => Some(v)
+    | None => getPooledViewerForScene(sceneId)
     }
   }
 

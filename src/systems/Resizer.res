@@ -24,13 +24,16 @@ external jsHeapSizeLimit: float = "jsHeapSizeLimit"
 @val @scope("performance")
 external now: unit => float = "now"
 
+let formatBytesToMB = (v: float): string => {
+  Float.toFixed(v /. 1024.0 /. 1024.0, ~digits=0) ++ "MB"
+}
+
 let getMemoryUsage = () => {
   try {
-    let toMB = v => Float.toFixed(v /. 1024.0 /. 1024.0, ~digits=0) ++ "MB"
     {
-      "used": toMB(usedJSHeapSize),
-      "total": toMB(totalJSHeapSize),
-      "limit": toMB(jsHeapSizeLimit),
+      "used": formatBytesToMB(usedJSHeapSize),
+      "total": formatBytesToMB(totalJSHeapSize),
+      "limit": formatBytesToMB(jsHeapSizeLimit),
     }
   } catch {
   | _ => {"used": "N/A", "total": "N/A", "limit": "N/A"}

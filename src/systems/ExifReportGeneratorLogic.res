@@ -48,6 +48,17 @@ module Utils = {
   external castToDict: JSON.t => dict<JSON.t> = "%identity"
   external castToJson: 'a => JSON.t = "%identity"
 
+  let cleanLocationWord = (w: string): string => {
+    let clean = String.replaceRegExp(w, /[^\p{L}\p{N}]/gu, "")
+    if String.length(clean) == 0 {
+      ""
+    } else {
+      let first = String.charAt(clean, 0)->String.toUpperCase
+      let rest = String.slice(clean, ~start=1, ~end=String.length(clean))->String.toLowerCase
+      first ++ rest
+    }
+  }
+
   let extractLocationName = (addr: string): option<string> => {
     let words =
       String.split(addr, " ")
@@ -56,16 +67,7 @@ module Utils = {
 
     let selectedWords =
       Belt.Array.slice(words, ~offset=0, ~len=3)
-      ->Belt.Array.map(w => {
-        let clean = String.replaceRegExp(w, /[^\p{L}\p{N}]/gu, "")
-        if String.length(clean) == 0 {
-          ""
-        } else {
-          let first = String.charAt(clean, 0)->String.toUpperCase
-          let rest = String.slice(clean, ~start=1, ~end=String.length(clean))->String.toLowerCase
-          first ++ rest
-        }
-      })
+      ->Belt.Array.map(cleanLocationWord)
       ->Belt.Array.keep(w => String.length(w) > 0)
 
     if Array.length(selectedWords) > 0 {

@@ -84,6 +84,106 @@ module Renderer = {
     Float.fromInt(Constants.blinkRatePreview),
     Float.fromInt(Constants.blinkRateSimulation),
   )
+  let renderJourneyFrame = (
+    v,
+    prog,
+    pd: Types.pathData,
+    asP,
+    asY,
+    aWp,
+    aSeg,
+  ) => {
+    let (cp, cy) = NavigationLogic.calculateCameraPosition(~progress=prog, ~pathData=pd)
+    Viewer.setPitch(v, cp, false)
+    Viewer.setYaw(v, cy, false)
+    Viewer.setHfov(v, pd.startHfov +. (pd.targetHfovForPan -. pd.startHfov) *. prog, false)
+    if ViewerSystem.isViewerReady(v) {
+      Dom.getElementById("viewer-hotspot-lines")
+      ->Nullable.toOption
+      ->Option.forEach(svg => {
+        let r = Dom.getBoundingClientRect(svg)
+        if r.width > 0.0 {
+          HotspotLine.Logic.updateSimulationArrow(
+            HotspotLine.Logic.getCamState(v, r),
+            asP,
+            asY,
+            pd.targetPitchForPan,
+            pd.targetYawForPan,
+            prog,
+            r,
+            ~opacity=1.0,
+            ~waypoints=aWp,
+            ~preComputedSegments=aSeg,
+            ~preComputedTotalDistance=pd.totalPathDistance,
+            (),
+          )
+        }
+      })
+    }
+  }
+
+  let handleJourneyCompletion = (
+    v,
+    data: EventBus.navStartPayload,
+    pd: Types.pathData,
+    bst,
+    cft,
+    asP,
+    asY,
+    aWp,
+    aSeg,
+    loop,
+  ) => {
+    let sb = bst.contents->Option.getOr({
+      let n = Date.now()
+      bst := Some(n)
+      n
+    })
+    let bel = Date.now() -. sb
+    let isP = data.previewOnly
+    let (bdP, bdS, brP, brS) = setupBlinks()
+    let dur = isP ? bdP : bdS
+    let rate = isP ? brP : brS
+    Viewer.setPitch(v, pd.targetPitchForPan, false)
+    Viewer.setYaw(v, pd.targetYawForPan, false)
+    Viewer.setHfov(v, pd.targetHfovForPan, false)
+    if bel < dur {
+      let op = mod(Belt.Float.toInt(bel /. rate), 2) == 0 ? 1.0 : 0.0
+      if ViewerSystem.isViewerReady(v) {
+        HotspotLine.updateSimulationArrow(
+          v,
+          asP,
+          asY,
+          pd.targetPitchForPan,
+          pd.targetYawForPan,
+          1.0,
+          ~opacity=op,
+          ~waypoints=aWp,
+          ~colorOverride=?isP ? Some("red") : None,
+          ~preComputedSegments=aSeg,
+          ~preComputedTotalDistance=pd.totalPathDistance,
+          (),
+        )
+      }
+      let _ = Window.requestAnimationFrame(loop)
+    } else {
+      cft := true
+      EventBus.dispatch(
+        NavCompleted({
+          journeyId: data.journeyId,
+          targetIndex: data.targetIndex,
+          sourceIndex: data.sourceIndex,
+          hotspotIndex: data.hotspotIndex,
+          arrivalYaw: pd.arrivalYaw,
+          arrivalPitch: pd.arrivalPitch,
+          arrivalHfov: pd.arrivalHfov,
+          previewOnly: data.previewOnly,
+          pathData: None,
+        }),
+      )
+    }
+  }
+
   let startJourney = (data: EventBus.navStartPayload) => {
     Viewer.instance
     ->Nullable.toOption
@@ -114,82 +214,9 @@ module Renderer = {
           let elap = Date.now() -. st
           let prog = Math.min(elap /. pd.panDuration, 1.0)
           if prog >= 1.0 {
-            let sb = bst.contents->Option.getOr({
-              let n = Date.now()
-              bst := Some(n)
-              n
-            })
-            let bel = Date.now() -. sb
-            let isP = data.previewOnly
-            let (bdP, bdS, brP, brS) = setupBlinks()
-            let dur = isP ? bdP : bdS
-            let rate = isP ? brP : brS
-            Viewer.setPitch(v, pd.targetPitchForPan, false)
-            Viewer.setYaw(v, pd.targetYawForPan, false)
-            Viewer.setHfov(v, pd.targetHfovForPan, false)
-            if bel < dur {
-              let op = mod(Belt.Float.toInt(bel /. rate), 2) == 0 ? 1.0 : 0.0
-              if ViewerSystem.isViewerReady(v) {
-                HotspotLine.updateSimulationArrow(
-                  v,
-                  asP,
-                  asY,
-                  pd.targetPitchForPan,
-                  pd.targetYawForPan,
-                  1.0,
-                  ~opacity=op,
-                  ~waypoints=aWp,
-                  ~colorOverride=?isP ? Some("red") : None,
-                  ~preComputedSegments=aSeg,
-                  ~preComputedTotalDistance=pd.totalPathDistance,
-                  (),
-                )
-              }
-              let _ = Window.requestAnimationFrame(loop)
-            } else {
-              cft := true
-              EventBus.dispatch(
-                NavCompleted({
-                  journeyId: data.journeyId,
-                  targetIndex: data.targetIndex,
-                  sourceIndex: data.sourceIndex,
-                  hotspotIndex: data.hotspotIndex,
-                  arrivalYaw: pd.arrivalYaw,
-                  arrivalPitch: pd.arrivalPitch,
-                  arrivalHfov: pd.arrivalHfov,
-                  previewOnly: data.previewOnly,
-                  pathData: None,
-                }),
-              )
-            }
+            handleJourneyCompletion(v, data, pd, bst, cft, asP, asY, aWp, aSeg, loop)
           } else {
-            let (cp, cy) = NavigationLogic.calculateCameraPosition(~progress=prog, ~pathData=pd)
-            Viewer.setPitch(v, cp, false)
-            Viewer.setYaw(v, cy, false)
-            Viewer.setHfov(v, pd.startHfov +. (pd.targetHfovForPan -. pd.startHfov) *. prog, false)
-            if ViewerSystem.isViewerReady(v) {
-              Dom.getElementById("viewer-hotspot-lines")
-              ->Nullable.toOption
-              ->Option.forEach(svg => {
-                let r = Dom.getBoundingClientRect(svg)
-                if r.width > 0.0 {
-                  HotspotLine.Logic.updateSimulationArrow(
-                    HotspotLine.Logic.getCamState(v, r),
-                    asP,
-                    asY,
-                    pd.targetPitchForPan,
-                    pd.targetYawForPan,
-                    prog,
-                    r,
-                    ~opacity=1.0,
-                    ~waypoints=aWp,
-                    ~preComputedSegments=aSeg,
-                    ~preComputedTotalDistance=pd.totalPathDistance,
-                    (),
-                  )
-                }
-              })
-            }
+            renderJourneyFrame(v, prog, pd, asP, asY, aWp, aSeg)
             let _ = Window.requestAnimationFrame(loop)
           }
         } else {
