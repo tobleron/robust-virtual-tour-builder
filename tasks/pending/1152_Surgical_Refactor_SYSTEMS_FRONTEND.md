@@ -21,7 +21,7 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 - [ ] - **../../src/systems/HotspotLineLogic.res** (Metric: [Nesting: 4.00, Density: 0.29, Coupling: 0.04] | Drag: 7.55 | LOC: 540/300  🎯 Target: Function: `isViewerValid` (High Local Complexity (2.0). Logic heavy.))
 
-- [ ] - **../../src/systems/Navigation.res** (Metric: [Nesting: 6.00, Density: 0.38, Coupling: 0.08] | Drag: 10.09 | LOC: 415/300  🎯 Target: Function: `startJourney` (High Local Complexity (9.8). Logic heavy.))
+- [ ] - **../../src/systems/Navigation.res** (Metric: [Nesting: 6.00, Density: 0.39, Coupling: 0.08] | Drag: 10.15 | LOC: 407/300  🎯 Target: Function: `startJourney` (High Local Complexity (9.8). Logic heavy.))
 
 - [ ] - **../../src/systems/Resizer.res** (Metric: [Nesting: 3.50, Density: 0.20, Coupling: 0.10] | Drag: 8.21 | LOC: 303/300  🎯 Target: Function: `getMemoryUsage` (High Local Complexity (10.4). Logic heavy.))
 

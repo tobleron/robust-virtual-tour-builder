@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Eliminate testing protocol for refactor phase, integrate backend/frontend systems merges, and fix unreachable module false-positives
 - V4.8.12+322 [TRIPLE]: integrate backend/frontend architectural merges, finalize structural cleanup, and refresh stage-2 surgical tasks
 - V4.8.12+324 [TRIPLE]: integrate backend stage-2 optimizations, refresh frontend surgical targets (Logger/Reducer), and trigger task aggregation maintenance
+- Imp(dev-system): Show full file paths in Vertical Slice and Merge tasks
 
 ## [4.8.11] - 2026-01-30
 
