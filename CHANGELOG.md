@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Refactor: Enhance analyzer reachability & zombie elimination, purge dead code
+- Dev System Finally Stable & Perfect Math
 
 ### Added
 - Harmonize split/merge math and improve ReScript complexity fidelity
