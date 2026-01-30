@@ -8,25 +8,22 @@
 **Optimal State:** Zero forbidden patterns remaining in the module.
 
 ## Tasks
-- [ ] `../../src/systems/ProjectManager.res` (Pattern: `Obj.magic`)
-    - **Directive:** Pattern Fix: Replace the forbidden 'Obj.magic' pattern with the recommended functional alternative (Logger, Result/Option, etc).
-- [ ] `../../src/core/UiHelpers.res` (Pattern: `Obj.magic`)
-    - **Directive:** Pattern Fix: Replace the forbidden 'Obj.magic' pattern with the recommended functional alternative (Logger, Result/Option, etc).
-- [ ] `../../src/systems/NavigationGraph.res` (Pattern: `Obj.magic`)
-    - **Directive:** Pattern Fix: Replace the forbidden 'Obj.magic' pattern with the recommended functional alternative (Logger, Result/Option, etc).
-- [ ] `../../src/systems/Scene.res` (Pattern: `Obj.magic`)
-    - **Directive:** Pattern Fix: Replace the forbidden 'Obj.magic' pattern with the recommended functional alternative (Logger, Result/Option, etc).
-- [ ] `../../src/systems/SimulationLogic.res` (Pattern: `mutable `)
-    - **Directive:** Pattern Fix: Replace the forbidden 'mutable ' pattern with the recommended functional alternative (Logger, Result/Option, etc).
-- [ ] `../../src/ReBindings.res` (Pattern: `Obj.magic`)
-    - **Directive:** Pattern Fix: Replace the forbidden 'Obj.magic' pattern with the recommended functional alternative (Logger, Result/Option, etc).
-- [ ] `../../src/systems/ServerTeaser.res` (Pattern: `Obj.magic`)
-    - **Directive:** Pattern Fix: Replace the forbidden 'Obj.magic' pattern with the recommended functional alternative (Logger, Result/Option, etc).
-- [ ] `../../src/core/Schemas.res` (Pattern: `Obj.magic`)
-    - **Directive:** Pattern Fix: Replace the forbidden 'Obj.magic' pattern with the recommended functional alternative (Logger, Result/Option, etc).
-- [ ] `../../src/systems/ViewerSystem.res` (Pattern: `Obj.magic`)
-    - **Directive:** Pattern Fix: Replace the forbidden 'Obj.magic' pattern with the recommended functional alternative (Logger, Result/Option, etc).
-- [ ] `../../src/systems/Navigation.res` (Pattern: `Obj.magic`)
-    - **Directive:** Pattern Fix: Replace the forbidden 'Obj.magic' pattern with the recommended functional alternative (Logger, Result/Option, etc).
-- [ ] `../../src/utils/PersistenceLayer.res` (Pattern: `Obj.magic`)
-    - **Directive:** Pattern Fix: Replace the forbidden 'Obj.magic' pattern with the recommended functional alternative (Logger, Result/Option, etc).
+
+### 🔧 Action: Fix Pattern `Obj.magic`
+**Directive:** Pattern Fix: Replace the forbidden 'Obj.magic' pattern with the recommended functional alternative (Logger, Result/Option, etc).
+
+- [ ] `../../src/ReBindings.res`
+- [ ] `../../src/core/Schemas.res`
+- [ ] `../../src/core/UiHelpers.res`
+- [ ] `../../src/systems/Navigation.res`
+- [ ] `../../src/systems/NavigationGraph.res`
+- [ ] `../../src/systems/ProjectManager.res`
+- [ ] `../../src/systems/Scene.res`
+- [ ] `../../src/systems/ServerTeaser.res`
+- [ ] `../../src/systems/ViewerSystem.res`
+- [ ] `../../src/utils/PersistenceLayer.res`
+
+### 🔧 Action: Fix Pattern `mutable `
+**Directive:** Pattern Fix: Replace the forbidden 'mutable ' pattern with the recommended functional alternative (Logger, Result/Option, etc).
+
+- [ ] `../../src/systems/SimulationLogic.res`

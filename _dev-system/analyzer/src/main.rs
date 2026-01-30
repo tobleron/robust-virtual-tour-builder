@@ -224,13 +224,13 @@ fn sync_architectural_category(category_name: &str, platform: &str, units: &[Str
 }
 
 fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>, config: &EfficiencyConfig) -> Result<()> {
-    let mut ambiguities = Vec::new();
-    let mut violations_fe = Vec::new();
-    let mut violations_be = Vec::new();
-    let mut structural_fe = Vec::new();
-    let mut structural_be = Vec::new();
-    let mut merges_fe = Vec::new();
-    let mut merges_be = Vec::new();
+    let mut ambiguities_grouped: HashMap<(String, String), Vec<String>> = HashMap::new();
+    let mut violations_fe_grouped: HashMap<(String, String), Vec<String>> = HashMap::new();
+    let mut violations_be_grouped: HashMap<(String, String), Vec<String>> = HashMap::new();
+    let mut structural_fe_grouped: HashMap<(String, String), Vec<String>> = HashMap::new();
+    let mut structural_be_grouped: HashMap<(String, String), Vec<String>> = HashMap::new();
+    let mut merges_fe_grouped: HashMap<(String, String), Vec<String>> = HashMap::new();
+    let mut merges_be_grouped: HashMap<(String, String), Vec<String>> = HashMap::new();
     let mut surgical_fe_units = Vec::new();
     let mut surgical_be_units = Vec::new();
 
@@ -238,10 +238,13 @@ fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>, config:
         for unit in units {
             let strategy = generate_strategic_directive(unit);
             match unit {
-                WorkUnit::Ambiguity { file, .. } => ambiguities.push(format!("`{}`\n    - **Directive:** {}", file, strategy)),
+                WorkUnit::Ambiguity { file, .. } => {
+                    ambiguities_grouped.entry(("Classify Ambiguous Files".to_string(), strategy)).or_default().push(format!("`{}`", file));
+                },
                 WorkUnit::Violation { file, pattern, .. } => {
-                    let item = format!("`{}` (Pattern: `{}`)\n    - **Directive:** {}", file, pattern, strategy);
-                    if file.contains("backend") || file.ends_with(".rs") { violations_be.push(item); } else { violations_fe.push(item); }
+                    let action = format!("Fix Pattern `{}`", pattern);
+                    let groups = if file.contains("backend") || file.ends_with(".rs") { &mut violations_be_grouped } else { &mut violations_fe_grouped };
+                    groups.entry((action, strategy)).or_default().push(format!("`{}`", file));
                 },
                 WorkUnit::Surgical { file, reason, platform, complexity, action, .. } => {
                     // Clean up reason: remove the verbose AI explanation, keep the metrics
@@ -250,21 +253,38 @@ fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>, config:
                     else { surgical_fe_units.push((file.clone(), clean_reason, action.clone(), strategy, *complexity)); }
                 },
                 WorkUnit::Structural { file, reason, platform, action, .. } => {
-                    let item = format!("**{}** ({})\n    - **Metric:** {}\n    - **Directive:** {}", file, action, reason, strategy);
-                    if platform == "backend" { structural_be.push(item); } else { structural_fe.push(item); }
+                    let groups = if platform == "backend" { &mut structural_be_grouped } else { &mut structural_fe_grouped };
+                    groups.entry((action.clone(), strategy)).or_default().push(format!("**{}** (Metric: {})", file, reason));
                 },
                 WorkUnit::Merge { folder, files, reason, platform, .. } => {
                     let mut sorted_files = files.clone();
                     sorted_files.sort();
-                    let mut item = format!("Folder: `{}`\n    - **Metric:** {}\n    - **Directive:** {}", folder, reason, strategy);
+                    let mut item = format!("Folder: `{}` (Metric: {})", folder, reason);
                     for f in sorted_files {
                         item.push_str(&format!("\n    - `{}`", f));
                     }
-                    if platform == "backend" { merges_be.push(item); } else { merges_fe.push(item); }
+                    let groups = if platform == "backend" { &mut merges_be_grouped } else { &mut merges_fe_grouped };
+                    groups.entry(("Merge Fragmented Folders".to_string(), strategy)).or_default().push(item);
                 },
             }
         }
     }
+
+    let format_groups = |groups: HashMap<(String, String), Vec<String>>| -> Vec<String> {
+        let mut lines = Vec::new();
+        let mut sorted_keys: Vec<_> = groups.keys().collect();
+        sorted_keys.sort();
+
+        for key in sorted_keys {
+            lines.push(format!("\n### 🔧 Action: {}\n**Directive:** {}\n", key.0, key.1));
+            let mut items = groups.get(key).unwrap().clone();
+            items.sort();
+            for item in items {
+                lines.push(item);
+            }
+        }
+        lines
+    };
 
     let surgical_obj = config.templates.surgical_objective
         .replace("{nesting_w}", &format!("{:.2}", config.settings.nesting_weight))
@@ -327,23 +347,23 @@ fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>, config:
 
     // Priority Order Enforcement
     // 1. Ambiguity (Clarify)
-    if let Some(p) = sync_architectural_category("Classify_Ambiguous_Files", "", &ambiguities, &ambiguity_obj)? { active_tasks.insert(p); }
+    if let Some(p) = sync_architectural_category("Classify_Ambiguous_Files", "", &format_groups(ambiguities_grouped), &ambiguity_obj)? { active_tasks.insert(p); }
 
     // 2. Structural (Fix hierarchy first)
-    if let Some(p) = sync_architectural_category("Structural_Refactor", "Frontend", &structural_fe, &config.templates.structural_objective)? { active_tasks.insert(p); }
-    if let Some(p) = sync_architectural_category("Structural_Refactor", "Backend", &structural_be, &config.templates.structural_objective)? { active_tasks.insert(p); }
+    if let Some(p) = sync_architectural_category("Structural_Refactor", "Frontend", &format_groups(structural_fe_grouped), &config.templates.structural_objective)? { active_tasks.insert(p); }
+    if let Some(p) = sync_architectural_category("Structural_Refactor", "Backend", &format_groups(structural_be_grouped), &config.templates.structural_objective)? { active_tasks.insert(p); }
 
     // 3. Violations (Fix critical bugs)
-    if let Some(p) = sync_architectural_category("Fix_Violations", "Frontend", &violations_fe, &config.templates.violation_objective)? { active_tasks.insert(p); }
-    if let Some(p) = sync_architectural_category("Fix_Violations", "Backend", &violations_be, &config.templates.violation_objective)? { active_tasks.insert(p); }
+    if let Some(p) = sync_architectural_category("Fix_Violations", "Frontend", &format_groups(violations_fe_grouped), &config.templates.violation_objective)? { active_tasks.insert(p); }
+    if let Some(p) = sync_architectural_category("Fix_Violations", "Backend", &format_groups(violations_be_grouped), &config.templates.violation_objective)? { active_tasks.insert(p); }
 
     // 4. Surgical (Optimize specific files)
     active_tasks.extend(sync_surgical(surgical_fe_units, "Frontend")?);
     active_tasks.extend(sync_surgical(surgical_be_units, "Backend")?);
 
     // 5. Merges (Cleanup)
-    if let Some(p) = sync_architectural_category("Merge_Folders", "Frontend", &merges_fe, &merge_obj)? { active_tasks.insert(p); }
-    if let Some(p) = sync_architectural_category("Merge_Folders", "Backend", &merges_be, &merge_obj)? { active_tasks.insert(p); }
+    if let Some(p) = sync_architectural_category("Merge_Folders", "Frontend", &format_groups(merges_fe_grouped), &merge_obj)? { active_tasks.insert(p); }
+    if let Some(p) = sync_architectural_category("Merge_Folders", "Backend", &format_groups(merges_be_grouped), &merge_obj)? { active_tasks.insert(p); }
 
     // --- Zombie Elimination ---
     // Cleanup any pending architectural tasks that were NOT updated in this run
