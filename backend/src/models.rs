@@ -22,6 +22,7 @@ pub enum AppError {
     FFmpegError(String),
     ZipError(String),
     InternalError(String),
+    #[allow(dead_code)]
     ValidationError(String),
     Unauthorized(String),
 }
@@ -222,6 +223,7 @@ pub struct MetadataResponse {
 
 // --- PROJECT MODELS ---
 
+#[allow(dead_code)]
 #[derive(Debug, Serialize, Deserialize, Clone, sqlx::Type)]
 #[serde(rename_all = "lowercase")]
 pub enum ProjectStatus {
@@ -250,6 +252,7 @@ impl ToString for ProjectStatus {
     }
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Serialize, Deserialize, Clone, FromRow)]
 #[serde(rename_all = "camelCase")]
 pub struct Project {
@@ -263,6 +266,7 @@ pub struct Project {
     pub updated_at: DateTime<Utc>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ProjectSyncRequest {
@@ -275,6 +279,7 @@ pub struct ProjectSyncRequest {
 }
 
 impl Project {
+    #[allow(dead_code)]
     pub async fn create(
         pool: &sqlx::SqlitePool,
         user_id: &str,
@@ -307,6 +312,7 @@ impl Project {
 
 // --- SESSION MODELS ---
 
+#[allow(dead_code)]
 #[derive(Debug, Serialize, Deserialize, Clone, FromRow)]
 #[serde(rename_all = "camelCase")]
 pub struct Session {
@@ -316,6 +322,7 @@ pub struct Session {
 }
 
 impl Session {
+    #[allow(dead_code)]
     pub async fn create(
         pool: &sqlx::SqlitePool,
         user_id: &str,
@@ -419,6 +426,7 @@ pub struct User {
     pub id: String,
     pub email: String,
     #[serde(skip)]
+    #[allow(dead_code)]
     pub password_hash: String,
     pub name: String,
     pub theme_preference: Option<String>,
@@ -426,6 +434,7 @@ pub struct User {
     pub created_at: DateTime<Utc>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AuthResponse {
@@ -434,6 +443,7 @@ pub struct AuthResponse {
 }
 
 impl User {
+    #[allow(dead_code)]
     pub async fn create(
         pool: &sqlx::SqlitePool,
         email: &str,
@@ -458,6 +468,7 @@ impl User {
         Ok(user)
     }
 
+    #[allow(dead_code)]
     pub async fn find_by_email(
         pool: &sqlx::SqlitePool,
         email: &str,
