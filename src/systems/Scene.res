@@ -67,19 +67,16 @@ module Transition = {
     }
   }
 
-  let scheduleCleanup = ov => {
-    let clv = ViewerSystem.Pool.getInactive()
-    switch clv {
-    | Some(vp) =>
-      let tid = Window.setTimeout(() => {
-        ov->Nullable.toOption->Option.forEach(ViewerSystem.Adapter.destroy)
-        ViewerSystem.Pool.clearInstance(vp.containerId)
-        ViewerSystem.Pool.clearCleanupTimeout(vp.id)
-      }, 500)
-      ViewerSystem.Pool.setCleanupTimeout(vp.id, Some(tid))
-    | None => ()
-    }
+  let cleanupViewerInstance = (ov, vp: viewport) => {
+    let tid = Window.setTimeout(() => {
+      ov->Nullable.toOption->Option.forEach(ViewerSystem.Adapter.destroy)
+      ViewerSystem.Pool.clearInstance(vp.containerId)
+      ViewerSystem.Pool.clearCleanupTimeout(vp.id)
+    }, 500)
+    ViewerSystem.Pool.setCleanupTimeout(vp.id, Some(tid))
+  }
 
+  let cleanupSnapshotOverlay = () => {
     Dom.getElementById("viewer-snapshot-overlay")
     ->Nullable.toOption
     ->Option.forEach(s => {
@@ -90,6 +87,15 @@ module Transition = {
         }
       }, 450)
     })
+  }
+
+  let scheduleCleanup = ov => {
+    let clv = ViewerSystem.Pool.getInactive()
+    switch clv {
+    | Some(vp) => cleanupViewerInstance(ov, vp)
+    | None => ()
+    }
+    cleanupSnapshotOverlay()
   }
 
   let performSwap = (loadedScene: scene, _loadStartTime) => {

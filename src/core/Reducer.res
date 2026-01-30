@@ -38,6 +38,27 @@ module Scene = {
     }
   }
 
+  let calculateTransition = (transition: option<transition>): transition => {
+    switch transition {
+    | Some(t) => t
+    | None => {type_: Fade, targetHotspotIndex: -1, fromSceneName: None}
+    }
+  }
+
+  let updateSceneCategories = (
+    scenes: array<scene>,
+    targetIndex: int,
+    lastUsedCategory: string,
+  ): array<scene> => {
+    scenes->Belt.Array.mapWithIndex((i, s) => {
+      if i == targetIndex && !s.categorySet {
+        {...s, category: lastUsedCategory}
+      } else {
+        s
+      }
+    })
+  }
+
   let handleSetActiveScene = (
     state: state,
     index: int,
@@ -46,18 +67,8 @@ module Scene = {
     transition: option<transition>,
   ): state => {
     if index >= 0 && index < Belt.Array.length(state.scenes) {
-      let newTransition = switch transition {
-      | Some(t) => t
-      | None => {type_: Fade, targetHotspotIndex: -1, fromSceneName: None}
-      }
-
-      let newScenes = state.scenes->Belt.Array.mapWithIndex((i, s) => {
-        if i == index && !s.categorySet {
-          {...s, category: state.lastUsedCategory}
-        } else {
-          s
-        }
-      })
+      let newTransition = calculateTransition(transition)
+      let newScenes = updateSceneCategories(state.scenes, index, state.lastUsedCategory)
 
       {
         ...state,

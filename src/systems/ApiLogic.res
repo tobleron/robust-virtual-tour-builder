@@ -79,13 +79,17 @@ module ApiTypes = {
     Schemas.parse(json, Schemas.Shared.similarityResponse)
   }
 
+  let extractErrorMessage = (json: apiError): string => {
+    switch Nullable.toOption(json.details) {
+    | Some(d) => d
+    | None => json.error
+    }
+  }
+
   let processErrorResponse = (response: Fetch.response): Promise.t<apiResult<Fetch.response>> => {
     Fetch.json(response)
     ->Promise.then((json: apiError) => {
-      let msg = switch Nullable.toOption(json.details) {
-      | Some(d) => d
-      | None => json.error
-      }
+      let msg = extractErrorMessage(json)
       Promise.resolve(
         Error("Backend error: " ++ Belt.Int.toString(Fetch.status(response)) ++ " " ++ msg),
       )

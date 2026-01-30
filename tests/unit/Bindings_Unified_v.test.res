@@ -165,9 +165,9 @@ describe("DomBindings", () => {
   })
 })
 
-describe("ReBindings.Idb_", () => {
+describe("IdbBindings", () => {
   test("Modules are accessible", _ => {
-    let _ = (ReBindings.Idb_.get, ReBindings.Idb_.set, ReBindings.Idb_.del, ReBindings.Idb_.clear)
+    let _ = (IdbBindings.get, IdbBindings.set, IdbBindings.del, IdbBindings.clear)
   })
 })
 

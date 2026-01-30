@@ -7,14 +7,17 @@ open Actions
 // --- UTILS ---
 
 module Utils = {
-  let notify = (msg, typeStr) => {
-    let type_ = switch typeStr {
+  let getNotificationType = (typeStr: string) => {
+    switch typeStr {
     | "error" => #Error
     | "warning" => #Warning
     | "success" => #Success
     | _ => #Info
     }
-    EventBus.dispatch(ShowNotification(msg, type_))
+  }
+
+  let notify = (msg, typeStr) => {
+    EventBus.dispatch(ShowNotification(msg, getNotificationType(typeStr)))
   }
 }
 

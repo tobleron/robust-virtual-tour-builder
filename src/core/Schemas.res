@@ -385,26 +385,28 @@ let castToProjectScene = (json: JSON.t): Types.scene =>
   | Error(_) => createDefaultErrorScene("error_", "invalid")
   }
 
+let createStateFromProjectData = (pd: Types.project): Types.state => {
+  let scenes = pd.scenes->Belt.Array.map(sanitizeScene)
+  {
+    ...State.initialState,
+    tourName: pd.tourName,
+    scenes,
+    activeIndex: if Array.length(scenes) > 0 {
+      0
+    } else {
+      -1
+    },
+    lastUsedCategory: pd.lastUsedCategory,
+    exifReport: pd.exifReport,
+    sessionId: pd.sessionId,
+    deletedSceneIds: pd.deletedSceneIds,
+    timeline: pd.timeline,
+  }
+}
+
 let castToProject = (json: JSON.t): Types.state => {
   switch parse(json, Domain.project) {
-  | Ok(pd) => {
-      let scenes = pd.scenes->Belt.Array.map(sanitizeScene)
-      {
-        ...State.initialState,
-        tourName: pd.tourName,
-        scenes,
-        activeIndex: if Array.length(scenes) > 0 {
-          0
-        } else {
-          -1
-        },
-        lastUsedCategory: pd.lastUsedCategory,
-        exifReport: pd.exifReport,
-        sessionId: pd.sessionId,
-        deletedSceneIds: pd.deletedSceneIds,
-        timeline: pd.timeline,
-      }
-    }
+  | Ok(pd) => createStateFromProjectData(pd)
   | Error(_) => State.initialState
   }
 }

@@ -519,8 +519,8 @@ module Logic = {
         pitch: p.pitch,
       }),
     )
-    let mousePtOpt = switch mouseEvent {
-    | Some(ev) =>
+
+    let calculateMousePoint = (viewer, ev): option<PathInterpolation.point> => {
       let mockEvent = {
         "clientX": Belt.Int.toFloat(Dom.clientX(ev)),
         "clientY": Belt.Int.toFloat(Dom.clientY(ev)) +. Constants.linkingRodHeight,
@@ -532,6 +532,10 @@ module Logic = {
       | (Some(p), Some(y)) => Some({PathInterpolation.yaw: y, pitch: p})
       | _ => None
       }
+    }
+
+    let mousePtOpt = switch mouseEvent {
+    | Some(ev) => calculateMousePoint(viewer, ev)
     | None => None
     }
 
