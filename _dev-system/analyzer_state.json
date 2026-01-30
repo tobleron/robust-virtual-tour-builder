@@ -4,29 +4,29 @@
       "last_action": null,
       "last_action_timestamp": 0,
       "stability_score": 0.0,
-      "failure_count": 6,
-      "last_failure_timestamp": 1769786510
-    },
-    "../../src/systems/TeaserRecorder.res": {
-      "last_action": null,
-      "last_action_timestamp": 0,
-      "stability_score": 0.0,
-      "failure_count": 6,
-      "last_failure_timestamp": 1769786510
-    },
-    "../../src/systems/Simulation.res": {
-      "last_action": null,
-      "last_action_timestamp": 0,
-      "stability_score": 0.0,
-      "failure_count": 6,
-      "last_failure_timestamp": 1769786510
+      "failure_count": 9,
+      "last_failure_timestamp": 1769789427
     },
     "../../src/systems/ServerTeaser.res": {
       "last_action": null,
       "last_action_timestamp": 0,
       "stability_score": 0.0,
-      "failure_count": 6,
-      "last_failure_timestamp": 1769786510
+      "failure_count": 9,
+      "last_failure_timestamp": 1769789427
+    },
+    "../../src/systems/Simulation.res": {
+      "last_action": null,
+      "last_action_timestamp": 0,
+      "stability_score": 0.0,
+      "failure_count": 9,
+      "last_failure_timestamp": 1769789427
+    },
+    "../../src/systems/TeaserRecorder.res": {
+      "last_action": null,
+      "last_action_timestamp": 0,
+      "stability_score": 0.0,
+      "failure_count": 9,
+      "last_failure_timestamp": 1769789427
     }
   }
 }
