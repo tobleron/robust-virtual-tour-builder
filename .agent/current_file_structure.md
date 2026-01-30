@@ -4560,6 +4560,7 @@
 │   │   ├── 1104_refine_dev_system_analyzer_maintenance.md
 │   │   ├── 1105_Surgical_Refactor_SYSTEMS_FRONTEND_DONE.md
 │   │   ├── 1111_Surgical_Refactor_MEDIA_BACKEND_DONE.md
+│   │   ├── 1117_Deep_Audit_and_Process_Enhancement.md
 │   │   ├── 795_Refactor_analysis_DONE.md
 │   │   ├── 798_Refactor_Backend_Streaming_ZIP_DONE.md
 │   │   ├── 799_Refactor_Backend_Asset_Sanitization_DONE.md
@@ -4607,7 +4608,6 @@
 │   │   ├── 1113_Merge_Folders_BACKEND.md
 │   │   ├── 1114_Surgical_Refactor_SYSTEMS_FRONTEND.md
 │   │   ├── 1116_Classify_Map_Entries.md
-│   │   ├── 1117_Deep_Audit_and_Process_Enhancement.md
 │   │   └── tests
 │   │       └── 006_Test_Generation_Unified.md
 │   └── postponed
