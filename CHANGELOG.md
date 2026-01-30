@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Refactor: Enhance analyzer reachability & zombie elimination, purge dead code
 
+### Added
+- Harmonize split/merge math and improve ReScript complexity fidelity
+
 ## [4.8.11] - 2026-01-29
 
 ### Changed

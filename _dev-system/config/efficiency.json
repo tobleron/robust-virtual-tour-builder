@@ -87,6 +87,8 @@
       ],
       "complexity_dictionary": {
         "->": 0.0,
+        "=>": 0.5,
+        "if ": 0.2,
         "switch": 0.2,
         "| ": 0.1,
         "mutable": 2.0,
