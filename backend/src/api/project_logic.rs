@@ -1,13 +1,36 @@
 use serde_json::Value;
 use std::collections::{HashMap, HashSet};
 use std::fs;
-use std::io::Write;
+use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
+use uuid::Uuid;
 use zip::write::FileOptions;
 
 use crate::api::utils::{PROCESSED_IMAGE_WIDTH, WEBP_QUALITY};
-use crate::models::ValidationReport;
+use crate::models::{AppError, ValidationReport};
 use crate::services::project;
+
+pub fn extract_project_metadata_from_zip(
+    path: &PathBuf,
+) -> Result<(String, serde_json::Value), AppError> {
+    let file = fs::File::open(path).map_err(AppError::IoError)?;
+    let mut archive = zip::ZipArchive::new(file).map_err(|e| AppError::ZipError(e.to_string()))?;
+    let mut json_file = archive
+        .by_name("project.json")
+        .map_err(|_| AppError::InternalError("project.json missing".into()))?;
+    let mut json_str = String::new();
+    json_file
+        .read_to_string(&mut json_str)
+        .map_err(AppError::IoError)?;
+    let data: serde_json::Value =
+        serde_json::from_str(&json_str).map_err(|e| AppError::InternalError(e.to_string()))?;
+    let id = data
+        .get("id")
+        .and_then(|v| v.as_str())
+        .map(|s| s.to_string())
+        .unwrap_or_else(|| Uuid::new_v4().to_string());
+    Ok((id, data))
+}
 
 pub fn list_available_files(project_path: &Path) -> HashSet<String> {
     let mut available_files = HashSet::new();
