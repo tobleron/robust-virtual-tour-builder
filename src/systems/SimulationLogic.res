@@ -81,6 +81,39 @@ module Navigation = {
     }
   }
 
+  let pollForViewer = async (expectedSceneId, expectedSceneName, isAutoPilotActive) => {
+    let timeout = Float.fromInt(Constants.sceneLoadTimeout)
+    let start = InternalDate.now()
+    let loop = ref(true)
+    let currentResult = ref(Ok())
+
+    while loop.contents {
+      if !isAutoPilotActive() {
+        loop := false
+      } else if InternalDate.now() -. start > timeout {
+        loop := false
+        currentResult := Error("Timeout waiting for viewer to load scene " ++ expectedSceneName)
+      } else {
+        let v = findViewerForScene(expectedSceneId)
+        switch v {
+        | Some(viewer) =>
+          if ViewerSystem.isViewerReady(viewer) {
+            loop := false
+          } else {
+            let _ = await Promise.make((resolve, _) => {
+              let _ = setTimeout(() => resolve(), 100)
+            })
+          }
+        | None =>
+          let _ = await Promise.make((resolve, _) => {
+            let _ = setTimeout(() => resolve(), 100)
+          })
+        }
+      }
+    }
+    currentResult.contents
+  }
+
   let waitForViewerScene = async (
     sceneIndex: int,
     isAutoPilotActive: unit => bool,
@@ -91,38 +124,9 @@ module Navigation = {
     switch Belt.Array.get(state.scenes, sceneIndex) {
     | Some(expectedScene) =>
       let rec attemptLoad = async (attempt: int) => {
-        let timeout = Float.fromInt(Constants.sceneLoadTimeout)
-        let start = InternalDate.now()
-        let loop = ref(true)
-        let currentResult = ref(Ok())
+        let result = await pollForViewer(expectedScene.id, expectedScene.name, isAutoPilotActive)
 
-        while loop.contents {
-          if !isAutoPilotActive() {
-            loop := false
-          } else if InternalDate.now() -. start > timeout {
-            loop := false
-            currentResult :=
-              Error("Timeout waiting for viewer to load scene " ++ expectedScene.name)
-          } else {
-            let v = findViewerForScene(expectedScene.id)
-            switch v {
-            | Some(viewer) =>
-              if ViewerSystem.isViewerReady(viewer) {
-                loop := false
-              } else {
-                let _ = await Promise.make((resolve, _) => {
-                  let _ = setTimeout(() => resolve(), 100)
-                })
-              }
-            | None =>
-              let _ = await Promise.make((resolve, _) => {
-                let _ = setTimeout(() => resolve(), 100)
-              })
-            }
-          }
-        }
-
-        switch currentResult.contents {
+        switch result {
         | Ok() => Ok()
         | Error(msg) =>
           if attempt < maxRetries && isAutoPilotActive() {

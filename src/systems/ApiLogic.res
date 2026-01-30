@@ -29,6 +29,17 @@ module AuthenticatedClient = {
 
   @val external fetch: (string, 'options) => Promise.t<response> = "fetch"
 
+  let prepareRequestBody = (body: option<JSON.t>, headers: Dict.t<string>) => {
+    switch body {
+    | Some(b) =>
+      if Dict.get(headers, "Content-Type") == None {
+        Dict.set(headers, "Content-Type", "application/json")
+      }
+      Some(JSON.stringify(b))
+    | None => None
+    }
+  }
+
   let request = async (url, ~method="GET", ~body: option<JSON.t>=?, ~headers=Dict.make(), ()) => {
     let token = GlobalDom.Storage2.localStorage->GlobalDom.Storage2.getItem("auth_token")
 
@@ -37,18 +48,7 @@ module AuthenticatedClient = {
     | None => ()
     }
 
-    switch body {
-    | Some(_) =>
-      if Dict.get(headers, "Content-Type") == None {
-        Dict.set(headers, "Content-Type", "application/json")
-      }
-    | None => ()
-    }
-
-    let bodyVal = switch body {
-    | Some(b) => Some(JSON.stringify(b))
-    | None => None
-    }
+    let bodyVal = prepareRequestBody(body, headers)
 
     let options = {
       "method": method,

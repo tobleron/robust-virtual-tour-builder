@@ -28,15 +28,22 @@ let formatBytesToMB = (v: float): string => {
   Float.toFixed(v /. 1024.0 /. 1024.0, ~digits=0) ++ "MB"
 }
 
-let getMemoryUsage = () => {
+let safeGetMemoryStats = () => {
   try {
-    {
-      "used": formatBytesToMB(usedJSHeapSize),
-      "total": formatBytesToMB(totalJSHeapSize),
-      "limit": formatBytesToMB(jsHeapSizeLimit),
-    }
+    Some((usedJSHeapSize, totalJSHeapSize, jsHeapSizeLimit))
   } catch {
-  | _ => {"used": "N/A", "total": "N/A", "limit": "N/A"}
+  | _ => None
+  }
+}
+
+let getMemoryUsage = () => {
+  switch safeGetMemoryStats() {
+  | Some((u, t, l)) => {
+      "used": formatBytesToMB(u),
+      "total": formatBytesToMB(t),
+      "limit": formatBytesToMB(l),
+    }
+  | None => {"used": "N/A", "total": "N/A", "limit": "N/A"}
   }
 }
 
