@@ -1,4 +1,5 @@
 /* backend/src/services/geocoding.rs - Facade for Geocoding Service */
+// @efficiency-role: infra-adapter
 
 use crate::metrics::{GEOCODING_CACHE_HITS_TOTAL, GEOCODING_CACHE_MISSES_TOTAL};
 use crate::models::{CacheStats, CachedGeocode, GeocodeKey};

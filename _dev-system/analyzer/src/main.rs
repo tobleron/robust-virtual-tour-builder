@@ -145,7 +145,7 @@ fn generate_strategic_directive(unit: &WorkUnit) -> String {
             format!("Pattern Fix: Replace the forbidden '{}' pattern with the recommended functional alternative (Logger, Result/Option, etc).", pattern)
         },
         WorkUnit::Ambiguity { .. } => {
-            "Taxonomy Resolution: Add the required @efficiency-role tag to help the analyzer apply the correct complexity limits.".to_string()
+            "Taxonomy Resolution: Add the required @efficiency-role: <role> tag (including colon) to help the analyzer apply the correct complexity limits.".to_string()
         }
     }
 }
@@ -190,7 +190,11 @@ fn sync_architectural_category(category_name: &str, platform: &str, units: &[Str
     }
     
     let (path, id) = if let Some(p) = existing_path {
-        let id_str = p.file_name().unwrap().to_string_lossy().split('_').next().unwrap_or("0").to_string();
+        let id_str = p.file_name()
+            .and_then(|n| n.to_str())
+            .and_then(|s| s.split('_').next())
+            .unwrap_or("0")
+            .to_string();
         (p, id_str)
     } else {
         let mut max_id = 0;
@@ -491,7 +495,7 @@ fn main() -> Result<()> {
             if !path.is_file() || !is_project_source(path, &config.exclusion_rules) { continue; }
 
             if let Ok(content) = fs::read_to_string(path) {
-                if content.contains("@efficiency-role: ignored") { continue; }
+                if content.contains("@efficiency-role: ignored") || content.contains("@efficiency-role ignored") { continue; }
 
                 let p_str = path.to_string_lossy().to_string();
 
@@ -668,9 +672,10 @@ fn main() -> Result<()> {
             // Also, only known taxonomies are considered for merging.
             if !is_surgical && taxonomy != "unknown" {
                 // 5. Stats Aggregation for Merges - Only for known modules AND non-surgical files (Conflict Locking)
-                let dir = path.parent().unwrap().to_string_lossy().to_string();
+                let dir = path.parent().map(|p| p.to_string_lossy().to_string()).unwrap_or_else(|| ".".to_string());
                 let ext_str = path.extension().and_then(|s| s.to_str()).unwrap_or("").to_string();
-                dir_stats.entry((dir, ext_str)).or_default().push((path.file_name().unwrap().to_string_lossy().to_string(), metrics.loc, platform.clone(), drag, p_mod));
+                let f_name = path.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
+                dir_stats.entry((dir, ext_str)).or_default().push((f_name, metrics.loc, platform.clone(), drag, p_mod));
 
                 let file_stem = path.file_stem().unwrap_or_default().to_string_lossy().to_string();
                 if file_stem.len() > 3 { feature_map.entry(file_stem).or_default().push((p_str.clone(), platform.clone())); }
@@ -794,7 +799,11 @@ fn main() -> Result<()> {
     }
     for (feature, paths) in feature_map {
         if paths.len() > 2 {
-            let folders: Vec<String> = paths.iter().map(|(p, _)| Path::new(p).parent().unwrap().to_string_lossy().to_string()).collect();
+            let folders: Vec<String> = paths.iter().map(|(p, _)| {
+                Path::new(p).parent()
+                    .map(|pp| pp.to_string_lossy().to_string())
+                    .unwrap_or_else(|| ".".to_string())
+            }).collect();
             if folders.len() > 1 {
                 buffer.entry("system".to_string()).or_default().push(WorkUnit::Structural {
                     file: feature.clone(), action: "Vertical Slice".to_string(), platform: paths[0].1.clone(),

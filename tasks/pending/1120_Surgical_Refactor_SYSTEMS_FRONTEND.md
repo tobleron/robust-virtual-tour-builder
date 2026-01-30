@@ -27,7 +27,7 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 - [ ] - **../../src/systems/Scene.res** (Metric: [Nesting: 3.00, Density: 0.15, Coupling: 0.10] | Drag: 8.69 | LOC: 338/300  🎯 Target: Function: `clv` (High Local Complexity (3.5). Logic heavy.))
 
-- [ ] - **../../src/systems/SimulationLogic.res** (Metric: [Nesting: 4.50, Density: 0.11, Coupling: 0.06] | Drag: 9.77 | LOC: 455/300  🎯 Target: Function: `globalViewer` (High Local Complexity (11.2). Logic heavy.))
+- [ ] - **../../src/systems/SimulationLogic.res** (Metric: [Nesting: 4.50, Density: 0.10, Coupling: 0.06] | Drag: 9.24 | LOC: 458/300  🎯 Target: Function: `globalViewer` (High Local Complexity (11.2). Logic heavy.))
 
 - [ ] - **../../src/systems/UploadProcessor.res** (Metric: [Nesting: 2.50, Density: 0.05, Coupling: 0.10] | Drag: 5.68 | LOC: 333/300  🎯 Target: Function: `type_` (High Local Complexity (4.0). Logic heavy.))
 

@@ -9,9 +9,9 @@
 ---
 
 ## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (3)
+- [ ] `../../backend/src/pathfinder/algorithms.rs`
 - [ ] `../../backend/src/services/geocoding.rs`
 - [ ] `../../backend/src/pathfinder/graph.rs`
-- [ ] `../../backend/src/pathfinder/algorithms.rs`
 
 ---
 

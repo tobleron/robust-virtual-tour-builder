@@ -196,3 +196,5 @@
 - [ ] Test_PannellumLifecycle (Update)
 - [ ] Test_ApiLogic (New)
 - [ ] Test_HotspotLineLogic (Update)
+- [ ] Test_SidebarLogic (New)
+- [ ] Test_ViewerManagerLifecycle (New)
