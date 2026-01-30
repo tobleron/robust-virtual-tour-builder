@@ -15,9 +15,9 @@ The Semantic Engine has identified the following specific symbols for refactorin
 ### 🔧 Action: De-bloat
 **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
 
-- [ ] - **../../src/systems/ApiLogic.res** (Metric: [Nesting: 3.50, Density: 0.11, Coupling: 0.05] | Drag: 7.10 | LOC: 592/300  🎯 Target: Function: `extractErrorMessage` (High Local Complexity (3.0). Logic heavy.))
+- [ ] - **../../src/systems/ApiLogic.res** (Metric: [Nesting: 3.50, Density: 0.08, Coupling: 0.04] | Drag: 7.14 | LOC: 503/300  🎯 Target: Function: `bodyVal` (High Local Complexity (2.0). Logic heavy.))
 
-- [ ] - **../../src/systems/ExifReportGeneratorLogic.res** (Metric: [Nesting: 4.00, Density: 0.13, Coupling: 0.07] | Drag: 7.96 | LOC: 434/300  🎯 Target: Function: `extractLocationName` (High Local Complexity (7.0). Logic heavy.))
+- [ ] - **../../src/systems/ExifReportGeneratorLogic.res** (Metric: [Nesting: 5.50, Density: 0.14, Coupling: 0.06] | Drag: 9.29 | LOC: 331/300  🎯 Target: Function: `extractAllExif` (High Local Complexity (11.1). Logic heavy.))
 
 - [ ] - **../../src/systems/HotspotLineLogic.res** (Metric: [Nesting: 4.00, Density: 0.29, Coupling: 0.04] | Drag: 7.55 | LOC: 540/300  🎯 Target: Function: `isViewerValid` (High Local Complexity (2.0). Logic heavy.))
 

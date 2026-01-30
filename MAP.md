@@ -283,6 +283,12 @@ This map provides a semantic overview of the project structure to optimize conte
 
 
 ## 🆕 Unmapped Modules
+* [src/systems/ApiHelpers.res](src/systems/ApiHelpers.res): New module detected. Please classify. #new
+* [src/systems/ExifUtils.res](src/systems/ExifUtils.res): New module detected. Please classify. #new
+* [src/utils/LoggerConsole.res](src/utils/LoggerConsole.res): New module detected. Please classify. #new
+* [src/utils/LoggerCommon.res](src/utils/LoggerCommon.res): New module detected. Please classify. #new
+* [src/core/SchemaParsers.res](src/core/SchemaParsers.res): New module detected. Please classify. #new
+* [src/core/SchemaDefinitions.res](src/core/SchemaDefinitions.res): New module detected. Please classify. #new
 * [backend/src/services/geocoding/mod.rs](backend/src/services/geocoding/mod.rs): New module detected. Please classify. #new
 * [backend/src/services/geocoding/osm.rs](backend/src/services/geocoding/osm.rs): New module detected. Please classify. #new
 * [backend/src/services/geocoding/cache.rs](backend/src/services/geocoding/cache.rs): New module detected. Please classify. #new

@@ -15,7 +15,5 @@ The Semantic Engine has identified the following specific symbols for refactorin
 ### 🔧 Action: De-bloat
 **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
 
-- [ ] - **../../src/core/Reducer.res** (Metric: [Nesting: 4.00, Density: 0.45, Coupling: 0.06] | Drag: 8.85 | LOC: 443/300  🎯 Target: Function: `calculateTransition` (High Local Complexity (3.0). Logic heavy.))
-
-- [ ] - **../../src/core/Schemas.res** (Metric: [Nesting: 2.00, Density: 0.51, Coupling: 0.05] | Drag: 6.14 | LOC: 377/300  🎯 Target: Function: `castToValidationReport` (High Local Complexity (3.0). Logic heavy.))
+- [ ] - **../../src/core/Reducer.res** (Metric: [Nesting: 4.00, Density: 0.44, Coupling: 0.06] | Drag: 8.79 | LOC: 437/300  🎯 Target: Function: `vf` (High Local Complexity (2.0). Logic heavy.))
 
