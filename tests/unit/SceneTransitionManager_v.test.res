@@ -4,16 +4,22 @@ open Vitest
 %%raw(`
   import { vi } from "vitest";
 
-  vi.mock("../../src/systems/ViewerPool.bs.js", () => {
+  vi.mock("../../src/systems/ViewerSystem.bs.js", () => {
     return {
-      getActive: () => ({id: "v1", containerId: "c1", status: "Active"}),
-      getInactive: () => ({id: "v2", containerId: "c2", status: "Background"}),
-      getActiveViewer: () => ({}),
-      getInactiveViewer: () => ({}),
-      swapActive: () => {},
-      clearCleanupTimeout: () => {},
-      clearInstance: () => {},
-      setCleanupTimeout: () => {}
+      Pool: {
+        getActive: () => ({id: "v1", containerId: "c1", status: "Active"}),
+        getInactive: () => ({id: "v2", containerId: "c2", status: "Background"}),
+        getActiveViewer: () => ({}),
+        getInactiveViewer: () => ({}),
+        swapActive: () => {},
+        clearCleanupTimeout: () => {},
+        clearInstance: () => {},
+        setCleanupTimeout: () => {}
+      },
+      getActiveViewer: () => ({}), // Fallback facade
+      getInactiveViewer: () => ({}), // Fallback facade
+      isViewerReady: () => true,
+      Adapter: { destroy: () => {} }
     }
   });
 
