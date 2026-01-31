@@ -10,7 +10,7 @@
 ## Tasks
 
 ### 🔧 Action: Merge Fragmented Folders
-**Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module to reduce token overhead during analysis.
+**Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module. CRITICAL: Strip any existing '@efficiency' tags from the bodies of the merged files.
 
 - [ ] Folder: `../../backend/src/pathfinder` (Metric: Read Tax high (Score 3.00). Projected Limit: 300 (Drag 3.47))
     - `../../backend/src/pathfinder/algorithms.rs`
