@@ -99,8 +99,13 @@ let checkRecovery = () => {
         Promise.resolve(Some(saved))
       } catch {
       | S.Raised(e) =>
-         Logger.warn(~module_="Persistence", ~message="Corrupt autosave found", ~data={"error": S.Error.message(e)}, ())
-         Promise.resolve(None)
+        Logger.warn(
+          ~module_="Persistence",
+          ~message="Corrupt autosave found",
+          ~data={"error": S.Error.message(e)},
+          (),
+        )
+        Promise.resolve(None)
       | _ => Promise.resolve(None)
       }
     | None => Promise.resolve(None)
