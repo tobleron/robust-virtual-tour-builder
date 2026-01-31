@@ -1,32 +1,32 @@
 {
   "files": {
-    "../../src/systems/ServerTeaser.res": {
-      "last_action": null,
-      "last_action_timestamp": 0,
-      "stability_score": 0.0,
-      "failure_count": 60,
-      "last_failure_timestamp": 1769819262
-    },
-    "../../src/systems/Teaser.res": {
-      "last_action": null,
-      "last_action_timestamp": 0,
-      "stability_score": 0.0,
-      "failure_count": 60,
-      "last_failure_timestamp": 1769819262
-    },
     "../../src/systems/TeaserRecorder.res": {
       "last_action": null,
       "last_action_timestamp": 0,
       "stability_score": 0.0,
-      "failure_count": 60,
-      "last_failure_timestamp": 1769819262
+      "failure_count": 61,
+      "last_failure_timestamp": 1769819489
+    },
+    "../../src/systems/ServerTeaser.res": {
+      "last_action": null,
+      "last_action_timestamp": 0,
+      "stability_score": 0.0,
+      "failure_count": 61,
+      "last_failure_timestamp": 1769819489
     },
     "../../src/systems/Simulation.res": {
       "last_action": null,
       "last_action_timestamp": 0,
       "stability_score": 0.0,
-      "failure_count": 60,
-      "last_failure_timestamp": 1769819262
+      "failure_count": 61,
+      "last_failure_timestamp": 1769819489
+    },
+    "../../src/systems/Teaser.res": {
+      "last_action": null,
+      "last_action_timestamp": 0,
+      "stability_score": 0.0,
+      "failure_count": 61,
+      "last_failure_timestamp": 1769819489
     }
   }
 }
