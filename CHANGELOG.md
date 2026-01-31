@@ -26,6 +26,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Create task for Rescript Schema migration
 - Merge migrate-json-to-schema branch and resolve SessionStore compilation issues
 - Finalize rescript-schema migration and update project standards
+- **Feat(Logging)**: Implement unified diagnostic logging system (Frontend + Backend)
+  - Configure dual backend logging sinks (`diagnostic.log`, `error.log`) with JSON formatting
+  - Implement real-time Diagnostic Mode toggle in About dialog box
+  - Enable live telemetry streaming (bypassing batching) when Diagnostic Mode is ON
+  - Add backend panic hook to capture unhandled exceptions in tracing
+  - Intercept high-value UI events (notifications, modals, processing) for automatic telemetry
+  - Synchronize `tail-diagnostics.sh` for formatted real-time multi-source log viewing
+  - Fix trace correlation with `X-Request-ID` injection and `requestId` field synchronization
+- **Refactor**: Move diagnostic toggle from Sidebar Branding to About dialog box to maintain clean aesthetics
+
+### Added
+- Implement unified diagnostic logging system with real-time UI toggle and live telemetry
 
 ## [4.8.12] - 2026-01-30
 

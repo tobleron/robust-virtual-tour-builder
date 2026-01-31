@@ -411,6 +411,8 @@ pub struct TelemetryEntry {
     pub data: Option<serde_json::Value>,
     pub timestamp: String,
     pub priority: TelemetryPriority,
+    #[serde(default)]
+    pub request_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

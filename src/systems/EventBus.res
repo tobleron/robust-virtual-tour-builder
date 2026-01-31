@@ -56,6 +56,41 @@ let subscribe = (callback: event => unit): subscription => {
 }
 
 let dispatch = (evt: event) => {
+  // --- Auto-Logging Interceptor ---
+  // Ensures UI feedback is mirrored in backend telemetry
+  switch evt {
+  | ShowNotification(msg, type_) =>
+    switch type_ {
+    | #Error => Logger.error(~module_="Notification", ~message=msg, ())
+    | #Warning => Logger.warn(~module_="Notification", ~message=msg, ())
+    | #Success => Logger.info(~module_="Notification", ~message=`SUCCESS: ${msg}`, ())
+    | #Info => Logger.info(~module_="Notification", ~message=`INFO: ${msg}`, ())
+    }
+  | ShowModal(config) =>
+    Logger.info(
+      ~module_="Modal",
+      ~message=`Opening Modal: ${config.title}`,
+      ~data=Logger.castToJson(config.description),
+      (),
+    )
+  | UpdateProcessing(status) =>
+    if status["error"] {
+      Logger.error(
+        ~module_="Processing",
+        ~message=`Processing Error: ${status["message"]}`,
+        ~data=Logger.castToJson(status),
+        (),
+      )
+    }
+  | NavStart(payload) =>
+    Logger.info(
+      ~module_="Navigation",
+      ~message=`Navigating to Journey ${Belt.Int.toString(payload.journeyId)}`,
+      (),
+    )
+  | _ => () // Ignore high-frequency events like NavProgress
+  }
+
   listeners.contents->Belt.Array.forEach(cb => {
     try {
       cb(evt)

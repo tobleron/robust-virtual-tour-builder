@@ -38,6 +38,14 @@ let request = async (url, ~method="GET", ~body: option<JSON.t>=?, ~headers=Dict.
   | None => ()
   }
 
+  // Inject Request ID for distributed tracing
+  let requestId = try {
+    Crypto.randomUUID()
+  } catch {
+  | _ => "req_" ++ Float.toString(Date.now()) // Fallback for older browsers
+  }
+  Dict.set(headers, "X-Request-ID", requestId)
+
   let bodyVal = prepareRequestBody(body, headers)
 
   let options = {

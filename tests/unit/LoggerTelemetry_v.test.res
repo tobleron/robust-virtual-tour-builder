@@ -36,6 +36,7 @@ describe("Logger", () => {
       message: "Test message",
       data: None,
       priority: "medium",
+      requestId: None,
     }
 
     await sendTelemetry(entry)
@@ -54,6 +55,7 @@ describe("Logger", () => {
       message: "Critical error",
       data: None,
       priority: "critical",
+      requestId: None,
     }
 
     await sendTelemetry(entry)
@@ -75,6 +77,7 @@ describe("Logger", () => {
       message: "Batch item",
       data: None,
       priority: "medium",
+      requestId: None,
     }
 
     // Add items to queue
@@ -98,6 +101,7 @@ describe("Logger", () => {
       message: "Filler",
       data: None,
       priority: "medium",
+      requestId: None,
     }
 
     let batchSize = Constants.Telemetry.batchSize

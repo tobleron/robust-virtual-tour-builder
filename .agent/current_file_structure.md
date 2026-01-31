@@ -3623,6 +3623,7 @@
 │   │   └── WebApiBindings.res
 │   └── rescript.lock
 ├── logs
+│   ├── diagnostic.log
 │   ├── error.log
 │   ├── log_changes.txt
 │   └── project-guard.log
@@ -5033,6 +5034,7 @@
 │   ├── setup.sh
 │   ├── strip_zombie_tags.cjs
 │   ├── sync-sw.cjs
+│   ├── tail-diagnostics.sh
 │   ├── test-logging.js
 │   ├── triple-commit.sh
 │   ├── update-changelog.js
@@ -5491,8 +5493,13 @@
 │   │       ├── 598_Test_SceneCache_New.md
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
+│   ├── implementation_plan_diagnostic_logging.md
 │   ├── pending
 │   │   ├── 1173_Migrate_To_Rescript_Schema.md
+│   │   ├── 1174_Fix_Violations_FRONTEND.md
+│   │   ├── 1175_Surgical_Refactor_UTILS_FRONTEND.md
+│   │   ├── 1176_Surgical_Refactor_SRC_BACKEND.md
+│   │   ├── 1177_Fix_Violations_BACKEND.md
 │   │   └── tests
 │   └── postponed
 ├── test_output.txt
@@ -5803,4 +5810,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-216 directories, 5588 files
+216 directories, 5595 files
