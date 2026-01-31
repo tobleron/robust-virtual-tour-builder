@@ -144,7 +144,7 @@ let handleEnter = () => {
       // Notification said "Enter to save", implying clicking first is required or center is used.
       // For now, let's notify if they try to save without any points.
       if currentState.linkDraft == None {
-        EventBus.dispatch(ShowNotification("Add at least one point before saving.", #Warning))
+        EventBus.dispatch(ShowNotification("Add at least one point before saving.", #Warning, None))
       }
     }
   }

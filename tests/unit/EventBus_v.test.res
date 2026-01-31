@@ -139,7 +139,7 @@ describe("EventBus", _ => {
     let unsub = subscribe(
       evt => {
         switch evt {
-        | ShowNotification(msg, severity) =>
+        | ShowNotification(msg, severity, _) =>
           receivedNotifications :=
             Belt.Array.concat(receivedNotifications.contents, [(msg, severity)])
         | _ => ()
@@ -147,10 +147,10 @@ describe("EventBus", _ => {
       },
     )
 
-    dispatch(ShowNotification("Info message", #Info))
-    dispatch(ShowNotification("Success message", #Success))
-    dispatch(ShowNotification("Error message", #Error))
-    dispatch(ShowNotification("Warning message", #Warning))
+    dispatch(ShowNotification("Info message", #Info, None))
+    dispatch(ShowNotification("Success message", #Success, None))
+    dispatch(ShowNotification("Error message", #Error, None))
+    dispatch(ShowNotification("Warning message", #Warning, None))
 
     t->expect(Belt.Array.length(receivedNotifications.contents))->Expect.toBe(4)
     unsub()

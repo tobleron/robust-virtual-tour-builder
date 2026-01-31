@@ -143,6 +143,7 @@ let make = (
             EventBus.ShowNotification(
               newVal ? "Auto-Forward Enabled" : "Normal Forward Set",
               #Info,
+              None,
             ),
           )
           let _ = setTimeout(() => setIsSwapping(_ => false), 600)
@@ -160,7 +161,7 @@ let make = (
     let _ = setTimeout(() => {
       setFlickerRed(_ => false)
       dispatch(Actions.RemoveHotspot(sceneIndex, hotspotIndex))
-      EventBus.dispatch(EventBus.ShowNotification("Hotspot Removed", #Info))
+      EventBus.dispatch(EventBus.ShowNotification("Hotspot Removed", #Info, None))
     }, 800)
   }
 

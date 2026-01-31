@@ -240,7 +240,15 @@ let exportTour = async (
         ~data={"error": finalMsg, "stack": stack, "phase": currentPhase.contents},
         (),
       )
-      EventBus.dispatch(ShowNotification(`Export Failed: ${finalMsg}`, #Error))
+      EventBus.dispatch(
+        ShowNotification(
+          `Export Failed: ${finalMsg}`,
+          #Error,
+          Some(
+            Logger.castToJson({"error": finalMsg, "stack": stack, "phase": currentPhase.contents}),
+          ),
+        ),
+      )
       progress(0.0, 0.0, "Failed")
       Error(finalMsg)
     }

@@ -185,7 +185,13 @@ module Manager = {
       } else {
         let res = await VideoEncoder.transcodeWebMToMP4(blob, baseName, None)
         if res == Error("failed") {
-          EventBus.dispatch(ShowNotification("Video transcoding failed", #Error))
+          EventBus.dispatch(
+            ShowNotification(
+              "Video transcoding failed",
+              #Error,
+              Some(Logger.castToJson({"error": "Transcoding failed", "baseName": baseName})),
+            ),
+          )
         }
       }
     }
@@ -254,7 +260,13 @@ module Manager = {
             "Cinematic_" ++ String.replaceRegExp(state.tourName, /[^a-z0-9]/gi, "_") ++ ".mp4",
           )
         | Error(msg) =>
-          EventBus.dispatch(ShowNotification("Server Generation Failed: " ++ msg, #Error))
+          EventBus.dispatch(
+            ShowNotification(
+              "Server Generation Failed: " ++ msg,
+              #Error,
+              Some(Logger.castToJson({"error": msg})),
+            ),
+          )
         }
         Promise.resolve()
       })
@@ -293,7 +305,13 @@ module Manager = {
           }
         }
       | Error(msg) =>
-        EventBus.dispatch(ShowNotification("Failed to generate path: " ++ msg, #Error))
+        EventBus.dispatch(
+          ShowNotification(
+            "Failed to generate path: " ++ msg,
+            #Error,
+            Some(Logger.castToJson({"error": msg})),
+          ),
+        )
       }
     }
   }

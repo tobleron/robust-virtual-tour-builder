@@ -59,7 +59,13 @@ let performUpload = async files => {
     | Some(m) => m
     | None => "Unknown error"
     }
-    EventBus.dispatch(ShowNotification("Upload failed: " ++ msg, #Error))
+    let data = Some(
+      Logger.castToJson({
+        "error": msg,
+        "stack": JsExn.stack(obj)->Option.getOr(""),
+      }),
+    )
+    EventBus.dispatch(ShowNotification("Upload failed: " ++ msg, #Error, data))
     updateProgress(0.0, "Error: " ++ msg, false, "")
   | _ => ()
   }
@@ -112,7 +118,13 @@ let handleLoadProject = async (filesOpt, dispatch, _sceneCount, target) => {
             updateProgress(100.0, "Done", false, "")
           }
         | Error(msg) => {
-            EventBus.dispatch(ShowNotification("Load failed: " ++ msg, #Error))
+            EventBus.dispatch(
+              ShowNotification(
+                "Load failed: " ++ msg,
+                #Error,
+                Some(Logger.castToJson({"error": msg})),
+              ),
+            )
             updateProgress(0.0, "Error: " ++ msg, false, "")
             Logger.endOperation(
               ~module_="Sidebar",
@@ -141,12 +153,18 @@ let handleExport = async scenes => {
     )
     switch exportResult {
     | Ok() => {
-        EventBus.dispatch(ShowNotification("Export complete", #Success))
+        EventBus.dispatch(ShowNotification("Export complete", #Success, None))
         updateProgress(100.0, "Done", false, "")
       }
     | Error(msg) => {
-        EventBus.dispatch(ShowNotification("Export failed: " ++ msg, #Error))
-        updateProgress(0.0, "Error", false, "")
+        EventBus.dispatch(
+          ShowNotification(
+            "Export failed: " ++ msg,
+            #Error,
+            Some(Logger.castToJson({"error": msg})),
+          ),
+        )
+        updateProgress(0.0, "Error: " ++ msg, false, "")
       }
     }
   } catch {

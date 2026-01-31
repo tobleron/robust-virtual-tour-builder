@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,7 +13,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="VTB" />
   <link rel="apple-touch-icon" href="/images/icon-192.png" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' blob: https://esm.sh; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' blob: data: http://localhost:8080 http://127.0.0.1:8080 http://0.0.0.0:8080; connect-src 'self' blob: ws: http://localhost:8080 http://127.0.0.1:8080 http://0.0.0.0:8080 https://nominatim.openstreetmap.org https://esm.sh; worker-src 'self' blob:; media-src 'self' blob: http://localhost:8080 http://127.0.0.1:8080 http://0.0.0.0:8080; object-src 'none'; base-uri 'self'; form-action 'self';">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' blob: https://esm.sh; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' blob: data: http://localhost:8080 http://127.0.0.1:8080 http://0.0.0.0:8080; connect-src 'self' blob: ws: http://localhost:8080 http://127.0.0.1:8080 http://0.0.0.0:8080 https://nominatim.openstreetmap.org https://esm.sh; worker-src 'self' blob:; media-src 'self' blob: http://localhost:8080 http://127.0.0.1:8080 http://0.0.0.0:8080; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>
     <%= title %>
   </title>
@@ -45,15 +47,16 @@
   <script src="/libs/pannellum.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
   <!-- CSS is now injected by Rsbuild via PostCSS pipeline -->
-    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Virtual Tour Builder","applicationCategory":"DesignApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
-  </head>
+  <script
+    type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Virtual Tour Builder","applicationCategory":"DesignApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+</head>
+
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
   <div id="app"></div>
   <!-- LIBRARIES -->
 </body>
+
 </html>

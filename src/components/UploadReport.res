@@ -140,7 +140,7 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
           }
         | None =>
           EventBus.dispatch(
-            ShowNotification("Report is still generating... please wait a moment.", #Info),
+            ShowNotification("Report is still generating... please wait a moment.", #Info, None),
           )
         }
       },

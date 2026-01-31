@@ -11,7 +11,7 @@ module AboutContent = {
       if Logger.isDiagnosticMode() {
         Logger.disableDiagnostics()
         setIsDiagnostic(_ => false)
-        EventBus.dispatch(ShowNotification("Diagnostic Mode Disabled", #Info))
+        EventBus.dispatch(ShowNotification("Diagnostic Mode Disabled", #Info, None))
       } else {
         Logger.enableDiagnostics()
         Logger.trace(
@@ -20,7 +20,7 @@ module AboutContent = {
           (),
         )
         setIsDiagnostic(_ => true)
-        EventBus.dispatch(ShowNotification("Diagnostic Mode Enabled", #Success))
+        EventBus.dispatch(ShowNotification("Diagnostic Mode Enabled", #Success, None))
       }
     }
 
