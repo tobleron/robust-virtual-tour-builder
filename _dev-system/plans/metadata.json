@@ -1,4 +1,42 @@
 {
+  "rust": [
+    {
+      "Surgical": {
+        "file": "../../backend/src/pathfinder.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.07, Coupling: 0.03] | Drag: 4.62 | LOC: 630/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 37.61968253968254
+      }
+    }
+  ],
+  "system": [
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/middleware.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/auth.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/geocoding/osm.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/services/geocoding/cache.rs",
+        "strategy": ""
+      }
+    }
+  ],
   "rescript": [
     {
       "Surgical": {
@@ -8,36 +46,6 @@
         "strategy": "",
         "platform": "frontend",
         "complexity": 23.110697674418603
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/UploadProcessor.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.50, Density: 0.05, Coupling: 0.11] | Drag: 5.69 | LOC: 341/300  🎯 Target: Function: `getNotificationType` (High Local Complexity (4.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 9.787683284457477
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/HotspotLineLogic.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.00, Density: 0.29, Coupling: 0.04] | Drag: 7.55 | LOC: 538/300  🎯 Target: Function: `waypointsRaw` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 31.35390334572491
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ExifReportGeneratorLogic.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.00, Density: 0.16, Coupling: 0.06] | Drag: 7.88 | LOC: 338/300  🎯 Target: Function: `processSceneDataItem` (High Local Complexity (14.4). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 11.67810650887574
       }
     },
     {
@@ -52,12 +60,42 @@
     },
     {
       "Surgical": {
+        "file": "../../src/systems/ExifReportGeneratorLogic.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.00, Density: 0.16, Coupling: 0.06] | Drag: 7.88 | LOC: 338/300  🎯 Target: Function: `processSceneDataItem` (High Local Complexity (14.4). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 11.67810650887574
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/SimulationLogic.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.50, Density: 0.12, Coupling: 0.06] | Drag: 8.29 | LOC: 470/300  🎯 Target: Function: `currentResult` (High Local Complexity (6.6). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 25.28808510638298
+      }
+    },
+    {
+      "Surgical": {
         "file": "../../src/systems/Scene.res",
         "action": "De-bloat",
         "reason": "[Nesting: 3.00, Density: 0.17, Coupling: 0.09] | Drag: 6.99 | LOC: 356/300  🎯 Target: Function: `updateGlobalStateAndViewer` (High Local Complexity (3.5). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
         "complexity": 12.585393258426965
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/UploadProcessor.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.50, Density: 0.05, Coupling: 0.11] | Drag: 5.69 | LOC: 341/300  🎯 Target: Function: `getNotificationType` (High Local Complexity (4.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 9.787683284457477
       }
     },
     {
@@ -72,84 +110,12 @@
     },
     {
       "Surgical": {
-        "file": "../../src/systems/SimulationLogic.res",
+        "file": "../../src/systems/HotspotLineLogic.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 3.50, Density: 0.12, Coupling: 0.06] | Drag: 8.29 | LOC: 470/300  🎯 Target: Function: `currentResult` (High Local Complexity (6.6). Logic heavy.)",
+        "reason": "[Nesting: 4.00, Density: 0.29, Coupling: 0.04] | Drag: 7.55 | LOC: 538/300  🎯 Target: Function: `waypointsRaw` (High Local Complexity (2.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 25.28808510638298
-      }
-    }
-  ],
-  "system": [
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/geocoding/cache.rs",
-        "strategy": ""
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/pathfinder/timeline.rs",
-        "strategy": ""
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/services/geocoding/osm.rs",
-        "strategy": ""
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/auth/handlers.rs",
-        "strategy": ""
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../backend/src/pathfinder/walk.rs",
-        "strategy": ""
-      }
-    },
-    {
-      "Merge": {
-        "folder": "backend/src/middleware",
-        "files": [
-          "../../backend/src/middleware/mod.rs",
-          "../../backend/src/middleware/request_tracker.rs",
-          "../../backend/src/middleware/quota_check.rs"
-        ],
-        "reason": "Recursive Feature Pod: 3 files in subtree sum to 213 LOC (fits in context). Max Drag: 3.03",
-        "strategy": "",
-        "platform": "backend"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "backend/src/auth",
-        "files": [
-          "../../backend/src/auth/middleware.rs",
-          "../../backend/src/auth/handlers.rs",
-          "../../backend/src/auth/service.rs",
-          "../../backend/src/auth/mod.rs"
-        ],
-        "reason": "Recursive Feature Pod: 4 files in subtree sum to 288 LOC (fits in context). Max Drag: 3.05",
-        "strategy": "",
-        "platform": "backend"
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../backend/src/pathfinder",
-        "files": [
-          "utils.rs",
-          "graph.rs",
-          "algorithms.rs"
-        ],
-        "reason": "Read Tax high (Score 3.00). Projected Limit: 300 (Drag 3.47)",
-        "strategy": "",
-        "platform": "backend"
+        "complexity": 31.35390334572491
       }
     }
   ]

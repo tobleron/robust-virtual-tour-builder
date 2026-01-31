@@ -283,10 +283,7 @@ This map provides a semantic overview of the project structure to optimize conte
 
 
 ## 🆕 Unmapped Modules
-* [backend/src/auth/middleware.rs](backend/src/auth/middleware.rs): New module detected. Please classify. #new
-* [backend/src/auth/mod.rs](backend/src/auth/mod.rs): New module detected. Please classify. #new
-* [backend/src/auth/service.rs](backend/src/auth/service.rs): New module detected. Please classify. #new
-* [backend/src/auth/handlers.rs](backend/src/auth/handlers.rs): New module detected. Please classify. #new
+* [backend/src/auth.rs](backend/src/auth.rs): New module detected. Please classify. #new
 * [src/core/SimulationHelpers.res](src/core/SimulationHelpers.res): New module detected. Please classify. #new
 * [src/core/SceneMutations.res](src/core/SceneMutations.res): New module detected. Please classify. #new
 * [src/core/NavigationHelpers.res](src/core/NavigationHelpers.res): New module detected. Please classify. #new
@@ -303,9 +300,3 @@ This map provides a semantic overview of the project structure to optimize conte
 * [backend/src/api/media/image_tasks.rs](backend/src/api/media/image_tasks.rs): New module detected. Please classify. #new
 * [backend/src/api/media/image_multipart.rs](backend/src/api/media/image_multipart.rs): New module detected. Please classify. #new
 * [backend/src/api/project_multipart.rs](backend/src/api/project_multipart.rs): New module detected. Please classify. #new
-* [backend/src/pathfinder/walk.rs](backend/src/pathfinder/walk.rs): New module detected. Please classify. #new
-* [backend/src/pathfinder/utils.rs](backend/src/pathfinder/utils.rs): New module detected. Please classify. #new
-* [backend/src/pathfinder/timeline.rs](backend/src/pathfinder/timeline.rs): New module detected. Please classify. #new
-* [backend/src/middleware/mod.rs](backend/src/middleware/mod.rs): New module detected. Please classify. #new
-* [backend/src/middleware/quota_check.rs](backend/src/middleware/quota_check.rs): New module detected. Please classify. #new
-* [backend/src/middleware/request_tracker.rs](backend/src/middleware/request_tracker.rs): New module detected. Please classify. #new
