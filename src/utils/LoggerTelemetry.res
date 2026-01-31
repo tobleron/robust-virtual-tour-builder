@@ -71,16 +71,12 @@ let sendTelemetry = async entry => {
   } else {
     let p = stringToLevel(entry.level)->levelToTelemetryPriority
     switch p {
-    | Critical | High =>
-      let endpoint = if p == Critical {
-        "/api/telemetry/error"
-      } else {
-        "/api/telemetry/log"
-      }
+    // Critical: Send immediately to Error endpoint (triggers Error Log)
+    | Critical =>
       try {
         let _ = await RequestQueue.schedule(() =>
           Fetch.fetch(
-            Constants.backendUrl ++ endpoint,
+            Constants.backendUrl ++ "/api/telemetry/error",
             Fetch.requestInit(
               ~method="POST",
               ~headers=Dict.fromArray([("Content-Type", "application/json")]),
@@ -92,11 +88,13 @@ let sendTelemetry = async entry => {
       } catch {
       | e => Console.error(`[Logger] Failed to send immediate telemetry: ${getErrorMessage(e)}`)
       }
-    | Medium | Low =>
-      let shouldSend = if p == Medium {
+
+    // High/Medium: Standard Logs (Warn/Info) - Send to Log endpoint (Diagnostic Log)
+    // Low: Debug/Trace - Only if Diagnostic Mode is ON or filtered
+    | High | Medium | Low =>
+      let shouldSend = if p == High || p == Medium {
         true
-      } // Low Priority (Debug/Trace) Logic:
-      else if Constants.Telemetry.diagnosticMode.contents {
+      } else if Constants.Telemetry.diagnosticMode.contents {
         true
       } else {
         // Micro-management: Allow specific modules even when diagnostic mode is OFF

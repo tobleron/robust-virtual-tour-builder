@@ -135,13 +135,20 @@ module JsError = {
   @get external name: t => string = "name"
 }
 
+// Improved Error Details: Use %raw to stringify non-JS Error exceptions
 let getErrorDetails = (e: exn): (string, string) => {
   switch JsExn.fromException(e) {
   | Some(jsExn) => (
       JsExn.message(jsExn)->Option.getOr("Unknown JS Error"),
       JsExn.stack(jsExn)->Option.getOr(""),
     )
-  | None => ("Non-JS ReScript Error", "")
+  | None =>
+    let rawStr = try {
+      %raw(`String(e)`)
+    } catch {
+    | _ => "Unknown Error"
+    }
+    (rawStr, "")
   }
 }
 
