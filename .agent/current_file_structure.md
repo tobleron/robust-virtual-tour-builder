@@ -5431,7 +5431,6 @@
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── implementation_plan_diagnostic_logging.md
 │   ├── pending
-│   │   ├── 1173_Migrate_To_Rescript_Schema.md
 │   │   ├── 1174_Fix_Violations_FRONTEND.md
 │   │   ├── 1175_Surgical_Refactor_UTILS_FRONTEND.md
 │   │   ├── 1176_Surgical_Refactor_SRC_BACKEND.md
@@ -5738,4 +5737,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-216 directories, 5523 files
+216 directories, 5522 files

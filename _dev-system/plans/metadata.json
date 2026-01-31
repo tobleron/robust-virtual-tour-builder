@@ -8,6 +8,48 @@
       }
     },
     {
+      "Violation": {
+        "file": "../../src/systems/Api/MediaApi.res",
+        "pattern": "JSON.stringify",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/Api/MediaApi.res",
+        "pattern": "JSON.stringifyAny",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/Api/ProjectApi.res",
+        "pattern": "JSON.stringify",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/Api/ProjectApi.res",
+        "pattern": "JSON.stringifyAny",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/utils/LoggerTelemetry.res",
+        "pattern": "JSON.stringify",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/utils/LoggerTelemetry.res",
+        "pattern": "JSON.stringifyAny",
+        "strategy": ""
+      }
+    },
+    {
       "Surgical": {
         "file": "../../src/utils/Logger.res",
         "action": "De-bloat",
@@ -21,6 +63,41 @@
       "Violation": {
         "file": "../../src/utils/PersistenceLayer.res",
         "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/ProjectManager.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/ProjectManager.res",
+        "pattern": "JSON.stringify",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/ProjectManager.res",
+        "pattern": "JSON.stringifyAny",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/Api/AuthenticatedClient.res",
+        "pattern": "JSON.stringify",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/Api/AuthenticatedClient.res",
+        "pattern": "JSON.stringifyAny",
         "strategy": ""
       }
     },
@@ -40,8 +117,36 @@
     },
     {
       "Violation": {
-        "file": "../../src/systems/ProjectManager.res",
-        "pattern": "Obj.magic",
+        "file": "../../src/utils/SessionStore.res",
+        "pattern": "JSON.stringify",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/utils/SessionStore.res",
+        "pattern": "JSON.stringifyAny",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/utils/SessionStore.res",
+        "pattern": "JSON.parse",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/ServerTeaser.res",
+        "pattern": "JSON.stringify",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/ServerTeaser.res",
+        "pattern": "JSON.stringifyAny",
         "strategy": ""
       }
     }

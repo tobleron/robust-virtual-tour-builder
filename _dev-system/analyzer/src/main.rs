@@ -140,7 +140,11 @@ fn generate_strategic_directive(unit: &WorkUnit) -> String {
             }
         },
         WorkUnit::Violation { pattern, .. } => {
-            format!("Pattern Fix: Replace the forbidden '{}' pattern with the recommended functional alternative (Logger, Result/Option, etc).", pattern)
+            if pattern.contains("JSON") || pattern.contains("magic") || pattern.contains("schema") {
+                 format!("CSP Compliance: Replace '{}' with `rescript-json-combinators` (Zero-Eval).", pattern)
+            } else {
+                 format!("Pattern Fix: Replace the forbidden '{}' pattern with the recommended functional alternative.", pattern)
+            }
         },
         WorkUnit::Ambiguity { .. } => {
             "Taxonomy Resolution: Add the required @efficiency-role: <role> tag (including colon) to help the analyzer apply the correct complexity limits.".to_string()
