@@ -56,7 +56,6 @@ impl AuthService {
 
 #[allow(dead_code)]
 pub mod jwt {
-    // @efficiency: infra-adapter
     use crate::models::AppError;
     use chrono::{Duration, Utc};
     use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};

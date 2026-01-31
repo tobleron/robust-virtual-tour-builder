@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Merge Core, Systems, and Backend Auth refactors
 - Fix(dev-system): update merge directive to strip efficiency tags
+- Post-merge sanitation of efficiency tags
 
 ## [4.8.12] - 2026-01-30
 
