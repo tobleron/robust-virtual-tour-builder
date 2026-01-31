@@ -3562,8 +3562,7 @@
 │   ├── diagnostic.log
 │   ├── error.log
 │   ├── log_changes.txt
-│   ├── project-guard.log
-│   └── telemetry.log
+│   └── project-guard.log
 ├── old_ref
 │   ├── 7aadee4
 │   │   ├── CHANGELOG.md
@@ -5437,6 +5436,7 @@
 │   │   ├── 1175_Surgical_Refactor_UTILS_FRONTEND.md
 │   │   ├── 1176_Surgical_Refactor_SRC_BACKEND.md
 │   │   ├── 1177_Fix_Violations_BACKEND.md
+│   │   ├── 1178_Migration_CSP_Friendly_Validation.md
 │   │   └── tests
 │   └── postponed
 ├── test_diagnostics_latest.txt

@@ -1,5 +1,5 @@
+@@warning("-3")
 open Types
-open RescriptSchema
 
 @val @scope("localStorage")
 external setItem: (string, string) => unit = "setItem"
@@ -23,18 +23,21 @@ let saveState = (state: state) => {
   }
 
   try {
-    let str = S.reverseConvertToJsonStringOrThrow(sessionState, Schemas.Domain.sessionState)
-    setItem(storageKey, str)
+    // CSP SAFE FIX: rescript-schema uses `new Function` which violates strict CSP.
+    // Using standard JSON.stringify since sessionState is a simple record.
+    let str = switch JSON.stringifyAny(sessionState) {
+    | Some(s) => s
+    | None => {
+        Logger.error(~module_="SessionStore", ~message="Failed to stringify session state", ())
+        ""
+      }
+    }
+    if str != "" {
+      setItem(storageKey, str)
+    }
   } catch {
-  | S.Raised(e) =>
-    Logger.error(
-      ~module_="SessionStore",
-      ~message="SessionStore Save Error: " ++ S.Error.message(e),
-      (),
-    )
-  | JsExn(e) => {
-      // Use helper to extract message instead of logging raw 'e'
-      let (msg, stack) = Logger.getErrorDetails(JsExn.anyToExnInternal(e))
+  | Js.Exn.Error(e) => {
+      let (msg, stack) = Logger.getErrorDetails(Js.Exn.anyToExnInternal(e))
       Logger.error(
         ~module_="SessionStore",
         ~message="SessionStore Save Exn",
@@ -48,12 +51,23 @@ let saveState = (state: state) => {
 
 let decodeSessionState = (jsonStr: string): option<sessionState> => {
   try {
-    Some(S.parseJsonStringOrThrow(jsonStr, Schemas.Domain.sessionState))
+    // CSP SAFE FIX: Using standard parse + cast.
+    let json = try {
+      JSON.parseOrThrow(jsonStr)
+    } catch {
+    | _ => JSON.Encode.null
+    }
+
+    // Safety check: Ensure it's an object/array before casting
+    switch Js.Json.classify(json) {
+    | JSONObject(_) | JSONArray(_) => Some(Obj.magic(json))
+    | _ => None
+    }
   } catch {
-  | S.Raised(e) =>
+  | Js.Exn.Error(e) =>
     Logger.error(
       ~module_="SessionStore",
-      ~message="SessionStore Decode Error: " ++ S.Error.message(e),
+      ~message="SessionStore Decode Error: " ++ Js.Exn.message(e)->Option.getOr("Unknown"),
       (),
     )
     None

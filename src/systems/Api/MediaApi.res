@@ -1,6 +1,5 @@
 /* src/systems/Api/MediaApi.res */
 
-open RescriptSchema
 open SharedTypes
 open ApiHelpers
 open ReBindings
@@ -85,7 +84,8 @@ let processImageFull = (
       FormData.append(
         formData,
         "metadata",
-        S.reverseConvertToJsonStringOrThrow(m, Schemas.Shared.exifMetadata),
+        // CSP SAFE FIX: Bypass schema eval
+        JSON.stringifyAny(m)->Option.getOr("{}"),
       )
     | None => ()
     }
@@ -122,14 +122,8 @@ let batchCalculateSimilarity = (pairs: array<similarityPair>): Promise.t<
     let headers = Dict.make()
     Dict.set(headers, "Content-Type", "application/json")
 
-    let body = S.reverseConvertToJsonStringOrThrow(
-      {"pairs": pairs},
-      S.object(s =>
-        {
-          "pairs": s.field("pairs", S.array(Schemas.Shared.similarityPair)),
-        }
-      ),
-    )
+    // CSP SAFE FIX: Bypass schema eval
+    let body = JSON.stringifyAny({"pairs": pairs})->Option.getOr("{}")
 
     Fetch.fetch(
       Constants.backendUrl ++ "/api/media/similarity",

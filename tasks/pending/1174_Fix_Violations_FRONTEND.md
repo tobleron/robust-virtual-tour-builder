@@ -12,4 +12,8 @@
 ### 🔧 Action: Fix Pattern `Obj.magic`
 **Directive:** Pattern Fix: Replace the forbidden 'Obj.magic' pattern with the recommended functional alternative (Logger, Result/Option, etc).
 
+- [ ] `../../src/core/SchemaParsers.res`
 - [ ] `../../src/systems/ApiHelpers.res`
+- [ ] `../../src/systems/ProjectManager.res`
+- [ ] `../../src/utils/PersistenceLayer.res`
+- [ ] `../../src/utils/SessionStore.res`

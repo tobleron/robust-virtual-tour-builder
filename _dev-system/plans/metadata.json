@@ -1,6 +1,13 @@
 {
   "rescript": [
     {
+      "Violation": {
+        "file": "../../src/core/SchemaParsers.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
       "Surgical": {
         "file": "../../src/utils/Logger.res",
         "action": "De-bloat",
@@ -12,7 +19,28 @@
     },
     {
       "Violation": {
+        "file": "../../src/utils/PersistenceLayer.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
         "file": "../../src/systems/ApiHelpers.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/utils/SessionStore.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/ProjectManager.res",
         "pattern": "Obj.magic",
         "strategy": ""
       }

@@ -43,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [telemetry] add fallback sanitized logging for malformed payloads
 - [infra] relax CSP in index.html to allow 'unsafe-eval' for legacy bindings
 - [backend] integrate sentry and tracing-tree for robust error tracking
+- Fix(core): Resolve CSP unsafe-eval violations via zero-eval strategy
 
 ### Added
 - Implement unified diagnostic logging system with real-time UI toggle and live telemetry

@@ -1,7 +1,6 @@
 /* src/utils/LoggerTelemetry.res */
 
 open ReBindings
-open RescriptSchema
 open LoggerCommon
 
 let telemetryQueue: array<logEntry> = []
@@ -20,7 +19,8 @@ let rec attemptSendBatch = async (payload: telemetryBatch, retries: int) => {
         Fetch.requestInit(
           ~method="POST",
           ~headers=Dict.fromArray([("Content-Type", "application/json")]),
-          ~body=S.reverseConvertToJsonStringOrThrow(payload, telemetryBatchSchema),
+          // CSP SAFE FIX: Bypass schema eval
+          ~body=JSON.stringifyAny(payload)->Option.getOr("{}"),
           (),
         ),
       )
@@ -80,7 +80,8 @@ let sendTelemetry = async entry => {
             Fetch.requestInit(
               ~method="POST",
               ~headers=Dict.fromArray([("Content-Type", "application/json")]),
-              ~body=S.reverseConvertToJsonStringOrThrow(entry, logEntrySchema),
+              // CSP SAFE FIX: Bypass schema eval
+              ~body=JSON.stringifyAny(entry)->Option.getOr("{}"),
               (),
             ),
           )
@@ -119,7 +120,8 @@ let sendTelemetry = async entry => {
                 Fetch.requestInit(
                   ~method="POST",
                   ~headers=Dict.fromArray([("Content-Type", "application/json")]),
-                  ~body=S.reverseConvertToJsonStringOrThrow(entry, logEntrySchema),
+                  // CSP SAFE FIX: Bypass schema eval
+                  ~body=JSON.stringifyAny(entry)->Option.getOr("{}"),
                   (),
                 ),
               )
