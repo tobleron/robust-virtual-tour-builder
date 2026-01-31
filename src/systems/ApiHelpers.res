@@ -9,10 +9,7 @@ type importResponse = {
   projectData: JSON.t,
 }
 
-type geocodeRequest = {
-  lat: float,
-  lon: float,
-}
+type geocodeRequest = SharedTypes.geocodeRequest
 
 type geocodeResponse = {address: string}
 
@@ -20,12 +17,7 @@ type transitionTarget = Types.transitionTarget
 type arrivalView = Types.arrivalView
 type step = Types.step
 
-type pathRequest = {
-  @as("type") type_: string,
-  scenes: array<Types.scene>,
-  skipAutoForward: bool,
-  timeline?: array<Types.timelineItem>,
-}
+type pathRequest = Types.pathRequest
 
 type apiError = {
   error: string,

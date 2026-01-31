@@ -2,6 +2,7 @@
 
 open ReBindings
 open Types
+open RescriptSchema
 
 // --- TYPES ---
 
@@ -11,16 +12,17 @@ type apiError = string
 // --- INTERNAL LOGIC ---
 
 module Logic = {
-  external anyToUnknown: 'a => 'b = "%identity"
+  external asJson: unknown => JSON.t = "%identity"
+
+  let validationReportSchema = S.object(s => s.field("validationReport", Schemas.Shared.validationReport))
 
   let validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {
-    switch JSON.Decode.object(data) {
-    | Some(obj) =>
-      switch (Dict.get(obj, "scenes"), Dict.get(obj, "tourName")) {
-      | (Some(_), Some(_)) => Ok(data)
-      | _ => Error("Invalid project structure: missing scenes or tourName")
-      }
-    | None => Error("Invalid project data: expected object")
+    try {
+      ignore(S.parseOrThrow(data, Schemas.Domain.project))
+      Ok(data)
+    } catch {
+    | S.Raised(e) => Error("Invalid project structure: " ++ S.Error.message(e))
+    | _ => Error("Invalid project structure")
     }
   }
 
@@ -34,9 +36,20 @@ module Logic = {
       }
     }
     progress(0, 100, "Preparing metadata...")
-    let projectData = ProjectData.toJSON(state)
+
+    let project: Types.project = {
+      tourName: state.tourName,
+      scenes: state.scenes,
+      lastUsedCategory: state.lastUsedCategory,
+      exifReport: state.exifReport,
+      sessionId: state.sessionId,
+      deletedSceneIds: state.deletedSceneIds,
+      timeline: state.timeline,
+    }
+
+    let projectData = S.reverseConvertOrThrow(project, Schemas.Domain.project)
     let formData = FormData.newFormData()
-    let jsonStr = JSON.stringify(anyToUnknown(projectData))
+    let jsonStr = JSON.stringify(asJson(projectData))
     FormData.append(formData, "project_data", jsonStr)
 
     Belt.Array.forEachWithIndex(state.scenes, (_index, scene) => {
@@ -90,27 +103,10 @@ module Logic = {
     switch resultSessionData {
     | Ok((sessionId, projectData)) =>
       progress(70, 100, "Resolving scenes...")
-      let pd = JSON.Decode.object(projectData)->Option.getOr(Dict.make())
-      let scenesArray = Dict.get(pd, "scenes")->Option.flatMap(JSON.Decode.array)->Option.getOr([])
-      let validScenes = Belt.Array.map(scenesArray, item => {
-        let sceneDict = JSON.Decode.object(item)->Option.getOr(Dict.make())
-        let name =
-          Dict.get(sceneDict, "name")->Option.flatMap(JSON.Decode.string)->Option.getOr("unknown")
-        let fileUrl =
-          Constants.backendUrl ++
-          "/api/project/" ++
-          sessionId ++
-          "/file/" ++
-          encodeURIComponent(name)
-        let newSceneDict = Dict.fromArray(Dict.toArray(sceneDict))
-        Dict.set(newSceneDict, "file", JSON.Encode.string(fileUrl))
-        Dict.set(newSceneDict, "originalFile", JSON.Encode.string(fileUrl))
-        JSON.Encode.object(newSceneDict)
-      })
 
-      switch Dict.get(pd, "validationReport") {
-      | Some(report) =>
-        let r = Schemas.castToValidationReport(report)
+      // Check validation report
+      try {
+        let r = S.parseOrThrow(projectData, validationReportSchema)
         if r.brokenLinksRemoved > 0 {
           EventBus.dispatch(
             ShowNotification(
@@ -132,39 +128,44 @@ module Logic = {
         r.errors->Belt.Array.forEach(error =>
           EventBus.dispatch(ShowNotification("Error: " ++ error, #Error))
         )
-      | None => ()
+      } catch { | _ => () }
+
+      try {
+        let pd = S.parseOrThrow(projectData, Schemas.Domain.project)
+        let validScenes = Belt.Array.map(pd.scenes, scene => {
+          let fileUrl =
+            Constants.backendUrl ++
+            "/api/project/" ++
+            sessionId ++
+            "/file/" ++
+            encodeURIComponent(scene.name)
+
+          {...scene, file: Url(fileUrl), originalFile: Some(Url(fileUrl))}
+        })
+
+        let loadedProject: Types.project = {
+          ...pd,
+          scenes: validScenes,
+        }
+
+        let json = S.reverseConvertOrThrow(loadedProject, Schemas.Domain.project)
+
+        progress(100, 100, "Project Loaded!")
+        Logger.endOperation(
+          ~module_="ProjectManager",
+          ~operation="PROJECT_LOAD",
+          ~data=Some({
+            "sceneCount": Array.length(validScenes),
+            "durationMs": Date.now() -. loadStartTime,
+          }),
+          (),
+        )
+        Promise.resolve(Ok((sessionId, asJson(json))))
+      } catch {
+      | S.Raised(e) => Promise.resolve(Error("Failed to parse project data: " ++ S.Error.message(e)))
+      | _ => Promise.resolve(Error("Failed to parse project data"))
       }
 
-      let loadedProject = Dict.make()
-      Dict.set(
-        loadedProject,
-        "tourName",
-        Dict.get(pd, "tourName")->Option.getOr(JSON.Encode.string("Tour Name")),
-      )
-      Dict.set(loadedProject, "scenes", JSON.Encode.array(validScenes))
-      Dict.set(
-        loadedProject,
-        "deletedSceneIds",
-        Dict.get(pd, "deletedSceneIds")->Option.getOr(JSON.Encode.array([])),
-      )
-      Dict.set(
-        loadedProject,
-        "timeline",
-        Dict.get(pd, "timeline")->Option.getOr(JSON.Encode.array([])),
-      )
-      Dict.set(loadedProject, "activeIndex", JSON.Encode.float(0.0))
-
-      progress(100, 100, "Project Loaded!")
-      Logger.endOperation(
-        ~module_="ProjectManager",
-        ~operation="PROJECT_LOAD",
-        ~data=Some({
-          "sceneCount": Array.length(validScenes),
-          "durationMs": Date.now() -. loadStartTime,
-        }),
-        (),
-      )
-      Promise.resolve(Ok((sessionId, JSON.Encode.object(loadedProject))))
     | Error(msg) => Promise.resolve(Error(msg))
     }
   }

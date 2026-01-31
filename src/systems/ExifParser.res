@@ -198,7 +198,7 @@ let extractExifTags = async (file: Types.file): result<(exifMetadata, gPanoMetad
           ~data=Logger.castToJson({"lat": la, "lon": lo}),
           (),
         )
-        Nullable.make({lat: la, lon: lo})
+        Nullable.make(({lat: la, lon: lo}: gpsData))
       }
     | _ => {
         Logger.warn(
