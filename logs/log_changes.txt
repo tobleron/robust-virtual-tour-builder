@@ -63,3 +63,4 @@
 [2026-01-31 03:54] v4.8.12 - Doc(map): Classify AsyncQueue.res in Utilities & Infrastructure
 [2026-01-31 03:55] v4.8.12 - Fix(rules): Replace Obj.magic in AsyncQueue.res & classify in MAP.md [TRIPLE]
 [2026-01-31 04:34] v4.8.12 - Fix MAP.md zombie entries and enhance analyzer guard logic [TRIPLE]
+[2026-01-31 11:19] v4.8.12 - docs: Create task for Rescript Schema migration [TRIPLE]

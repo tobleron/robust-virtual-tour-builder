@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Doc(map): Classify AsyncQueue.res in Utilities & Infrastructure
 - Fix(rules): Replace Obj.magic in AsyncQueue.res & classify in MAP.md
 - Fix MAP.md zombie entries and enhance analyzer guard logic
+- Create task for Rescript Schema migration
 
 ## [4.8.12] - 2026-01-30
 
