@@ -32,7 +32,7 @@ let saveState = (state: state) => {
       ("Cannot set properties of undefined (setting '~r')") when reverse converting this object in the test environment.
       Since the sessionState record fields map 1:1 to the JSON keys defined in the schema,
       JSON.stringify is safe and produces compatible JSON for the parser.
-    */
+ */
     let str = stringify(sessionState)
     setItem(storageKey, str)
   } catch {
