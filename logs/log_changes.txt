@@ -58,3 +58,4 @@
 [2026-01-31 01:17] v4.8.12 - Merge refactor/frontend-surgical-stage-3 and refactor-reducer-core-frontend [TRIPLE]
 [2026-01-31 02:01] v4.8.12 - Merge Core, Systems, and Backend Auth refactors [TRIPLE]
 [2026-01-31 02:31] v4.8.12 - Merge refactor-systems-frontend and sanitize [TRIPLE]
+[2026-01-31 03:19] v4.8.12 - refactor: modularize pathfinder, consolidate upload, and fix circular navigation dependency [TRIPLE]

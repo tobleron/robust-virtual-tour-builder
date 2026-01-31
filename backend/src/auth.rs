@@ -1,3 +1,4 @@
+// @efficiency-role: service-orchestrator
 use crate::models::{AppError, User};
 use actix_web::{
     Error, HttpMessage, HttpResponse,
