@@ -363,6 +363,83 @@ module Logic = {
     }
   }
 
+  let drawSingleHotspotLine = (
+    h: Types.hotspot,
+    cam,
+    rect,
+    currentFrameIds,
+    simulationStatus: Types.simulationStatus,
+  ) => {
+    switch (h.startYaw, h.startPitch, h.viewFrame) {
+    | (Some(sy), Some(sp), Some(vf)) =>
+      let id = "hl_" ++ h.linkId
+      Belt.MutableSet.String.add(currentFrameIds, id)
+      let waypointsRaw = switch h.waypoints {
+      | Some(w) => w
+      | None => []
+      }
+      let waypoints: array<PathInterpolation.point> = Belt.Array.map(waypointsRaw, w => {
+        PathInterpolation.yaw: w.yaw,
+        pitch: w.pitch,
+      })
+
+      if Array.length(waypoints) > 0 {
+        let startPt: array<PathInterpolation.point> = [{PathInterpolation.yaw: sy, pitch: sp}]
+        let endPt: array<PathInterpolation.point> = [
+          {PathInterpolation.yaw: vf.yaw, pitch: vf.pitch},
+        ]
+        let controlPoints = Belt.Array.concat(startPt, Belt.Array.concat(waypoints, endPt))
+        let splinePath = Utils.getCachedSplinePath(h, controlPoints, 40)
+        updatePolyLine(
+          id,
+          cam,
+          splinePath,
+          rect,
+          "var(--danger-light)",
+          3.0,
+          0.8,
+          ~className="line-marching-ants",
+          (),
+        )
+      } else {
+        let startPt: PathInterpolation.point = {PathInterpolation.yaw: sy, pitch: sp}
+        let endPt: PathInterpolation.point = {PathInterpolation.yaw: vf.yaw, pitch: vf.pitch}
+        let curvedPath = Utils.getCachedFloorPath(h, startPt, endPt, 40)
+        updatePolyLine(
+          id,
+          cam,
+          curvedPath,
+          rect,
+          "var(--danger-light)",
+          3.0,
+          0.8,
+          ~className="line-marching-ants",
+          (),
+        )
+      }
+
+      if simulationStatus == Idle {
+        let arrowId = "arrow_" ++ h.linkId
+        Belt.MutableSet.String.add(currentFrameIds, arrowId)
+        updateSimulationArrow(
+          cam,
+          sp,
+          sy,
+          vf.pitch,
+          vf.yaw,
+          0.0,
+          rect,
+          ~opacity=0.9,
+          ~waypoints,
+          ~colorOverride="var(--orange-brand)",
+          ~id=arrowId,
+          (),
+        )
+      }
+    | _ => ()
+    }
+  }
+
   let drawPersistentLines = (
     cam,
     rect,
@@ -372,75 +449,7 @@ module Logic = {
   ) => {
     for i in 0 to Array.length(hotspots) - 1 {
       switch Belt.Array.get(hotspots, i) {
-      | Some(h) =>
-        switch (h.startYaw, h.startPitch, h.viewFrame) {
-        | (Some(sy), Some(sp), Some(vf)) =>
-          let id = "hl_" ++ h.linkId
-          Belt.MutableSet.String.add(currentFrameIds, id)
-          let waypointsRaw = switch h.waypoints {
-          | Some(w) => w
-          | None => []
-          }
-          let waypoints: array<PathInterpolation.point> = Belt.Array.map(waypointsRaw, w => {
-            PathInterpolation.yaw: w.yaw,
-            pitch: w.pitch,
-          })
-
-          if Array.length(waypoints) > 0 {
-            let startPt: array<PathInterpolation.point> = [{PathInterpolation.yaw: sy, pitch: sp}]
-            let endPt: array<PathInterpolation.point> = [
-              {PathInterpolation.yaw: vf.yaw, pitch: vf.pitch},
-            ]
-            let controlPoints = Belt.Array.concat(startPt, Belt.Array.concat(waypoints, endPt))
-            let splinePath = Utils.getCachedSplinePath(h, controlPoints, 40)
-            updatePolyLine(
-              id,
-              cam,
-              splinePath,
-              rect,
-              "var(--danger-light)",
-              3.0,
-              0.8,
-              ~className="line-marching-ants",
-              (),
-            )
-          } else {
-            let startPt: PathInterpolation.point = {PathInterpolation.yaw: sy, pitch: sp}
-            let endPt: PathInterpolation.point = {PathInterpolation.yaw: vf.yaw, pitch: vf.pitch}
-            let curvedPath = Utils.getCachedFloorPath(h, startPt, endPt, 40)
-            updatePolyLine(
-              id,
-              cam,
-              curvedPath,
-              rect,
-              "var(--danger-light)",
-              3.0,
-              0.8,
-              ~className="line-marching-ants",
-              (),
-            )
-          }
-
-          if simulationStatus == Idle {
-            let arrowId = "arrow_" ++ h.linkId
-            Belt.MutableSet.String.add(currentFrameIds, arrowId)
-            updateSimulationArrow(
-              cam,
-              sp,
-              sy,
-              vf.pitch,
-              vf.yaw,
-              0.0,
-              rect,
-              ~opacity=0.9,
-              ~waypoints,
-              ~colorOverride="var(--orange-brand)",
-              ~id=arrowId,
-              (),
-            )
-          }
-        | _ => ()
-        }
+      | Some(h) => drawSingleHotspotLine(h, cam, rect, currentFrameIds, simulationStatus)
       | None => ()
       }
     }
