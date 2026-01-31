@@ -81,25 +81,12 @@
 │   │   │   ├── project_multipart.rs
 │   │   │   ├── telemetry.rs
 │   │   │   └── utils.rs
-│   │   ├── auth
-│   │   │   ├── handlers.rs
-│   │   │   ├── middleware.rs
-│   │   │   ├── mod.rs
-│   │   │   └── service.rs
+│   │   ├── auth.rs
 │   │   ├── lib.rs
 │   │   ├── main.rs
 │   │   ├── metrics.rs
-│   │   ├── middleware
-│   │   │   ├── mod.rs
-│   │   │   ├── quota_check.rs
-│   │   │   └── request_tracker.rs
+│   │   ├── middleware.rs
 │   │   ├── models.rs
-│   │   ├── pathfinder
-│   │   │   ├── algorithms.rs
-│   │   │   ├── graph.rs
-│   │   │   ├── timeline.rs
-│   │   │   ├── utils.rs
-│   │   │   └── walk.rs
 │   │   ├── pathfinder.rs
 │   │   └── services
 │   │       ├── database.rs
@@ -525,6 +512,12 @@
 │   │   │   │   ├── HotspotHelpers.cmj
 │   │   │   │   ├── HotspotHelpers.cmt
 │   │   │   │   ├── HotspotHelpers.res
+│   │   │   │   ├── NavigationHelpers.ast
+│   │   │   │   ├── NavigationHelpers.bs.js
+│   │   │   │   ├── NavigationHelpers.cmi
+│   │   │   │   ├── NavigationHelpers.cmj
+│   │   │   │   ├── NavigationHelpers.cmt
+│   │   │   │   ├── NavigationHelpers.res
 │   │   │   │   ├── Reducer.ast
 │   │   │   │   ├── Reducer.bs.js
 │   │   │   │   ├── Reducer.cmi
@@ -543,6 +536,12 @@
 │   │   │   │   ├── SceneHelpers.cmj
 │   │   │   │   ├── SceneHelpers.cmt
 │   │   │   │   ├── SceneHelpers.res
+│   │   │   │   ├── SceneMutations.ast
+│   │   │   │   ├── SceneMutations.bs.js
+│   │   │   │   ├── SceneMutations.cmi
+│   │   │   │   ├── SceneMutations.cmj
+│   │   │   │   ├── SceneMutations.cmt
+│   │   │   │   ├── SceneMutations.res
 │   │   │   │   ├── SchemaDefinitions.ast
 │   │   │   │   ├── SchemaDefinitions.bs.js
 │   │   │   │   ├── SchemaDefinitions.cmi
@@ -573,6 +572,12 @@
 │   │   │   │   ├── SimHelpers.cmj
 │   │   │   │   ├── SimHelpers.cmt
 │   │   │   │   ├── SimHelpers.res
+│   │   │   │   ├── SimulationHelpers.ast
+│   │   │   │   ├── SimulationHelpers.bs.js
+│   │   │   │   ├── SimulationHelpers.cmi
+│   │   │   │   ├── SimulationHelpers.cmj
+│   │   │   │   ├── SimulationHelpers.cmt
+│   │   │   │   ├── SimulationHelpers.res
 │   │   │   │   ├── State.ast
 │   │   │   │   ├── State.bs.js
 │   │   │   │   ├── State.cmi
@@ -2430,6 +2435,11 @@
 │   │   ├── NavigationGraph_v.test.cmj
 │   │   ├── NavigationGraph_v.test.cmt
 │   │   ├── NavigationGraph_v.test.res
+│   │   ├── NavigationHelpers.ast
+│   │   ├── NavigationHelpers.cmi
+│   │   ├── NavigationHelpers.cmj
+│   │   ├── NavigationHelpers.cmt
+│   │   ├── NavigationHelpers.res
 │   │   ├── NavigationLogic.ast
 │   │   ├── NavigationLogic.cmi
 │   │   ├── NavigationLogic.cmj
@@ -2715,6 +2725,11 @@
 │   │   ├── SceneLoader_v.test.cmj
 │   │   ├── SceneLoader_v.test.cmt
 │   │   ├── SceneLoader_v.test.res
+│   │   ├── SceneMutations.ast
+│   │   ├── SceneMutations.cmi
+│   │   ├── SceneMutations.cmj
+│   │   ├── SceneMutations.cmt
+│   │   ├── SceneMutations.res
 │   │   ├── SceneReducer_v.test.ast
 │   │   ├── SceneReducer_v.test.cmi
 │   │   ├── SceneReducer_v.test.cmj
@@ -2870,6 +2885,11 @@
 │   │   ├── SimulationDriver_v.test.cmj
 │   │   ├── SimulationDriver_v.test.cmt
 │   │   ├── SimulationDriver_v.test.res
+│   │   ├── SimulationHelpers.ast
+│   │   ├── SimulationHelpers.cmi
+│   │   ├── SimulationHelpers.cmj
+│   │   ├── SimulationHelpers.cmt
+│   │   ├── SimulationHelpers.res
 │   │   ├── SimulationLogic.ast
 │   │   ├── SimulationLogic.cmi
 │   │   ├── SimulationLogic.cmj
@@ -4720,6 +4740,7 @@
 │   ├── prune-snapshots.sh
 │   ├── restore-snapshot.sh
 │   ├── setup.sh
+│   ├── strip_zombie_tags.cjs
 │   ├── sync-sw.cjs
 │   ├── test-logging.js
 │   ├── triple-commit.sh
@@ -4859,6 +4880,7 @@
 │   │   ├── GlobalStateBridge.res
 │   │   ├── HotspotHelpers.bs.js
 │   │   ├── HotspotHelpers.res
+│   │   ├── NavigationHelpers.bs.js
 │   │   ├── NavigationHelpers.res
 │   │   ├── Reducer.bs.js
 │   │   ├── Reducer.res
@@ -4866,6 +4888,7 @@
 │   │   ├── SceneCache.res
 │   │   ├── SceneHelpers.bs.js
 │   │   ├── SceneHelpers.res
+│   │   ├── SceneMutations.bs.js
 │   │   ├── SceneMutations.res
 │   │   ├── SchemaDefinitions.bs.js
 │   │   ├── SchemaDefinitions.res
@@ -4877,6 +4900,7 @@
 │   │   ├── SharedTypes.res
 │   │   ├── SimHelpers.bs.js
 │   │   ├── SimHelpers.res
+│   │   ├── SimulationHelpers.bs.js
 │   │   ├── SimulationHelpers.res
 │   │   ├── State.bs.js
 │   │   ├── State.res
@@ -5045,7 +5069,8 @@
 ├── tasks
 │   ├── TASKS.md
 │   ├── active
-│   │   └── 1155_Structural_Refactor_BACKEND.md
+│   │   ├── 1155_Structural_Refactor_BACKEND.md
+│   │   └── 1160_Surgical_Refactor_SYSTEMS_FRONTEND.md
 │   ├── completed
 │   │   ├── 1081_Surgical_Refactor_SYSTEMS_FRONTEND_DONE.md
 │   │   ├── 1082_Surgical_Refactor_COMPONENTS_FRONTEND_DONE.md
@@ -5095,6 +5120,7 @@
 │   │   ├── 1151_Surgical_Refactor_CORE_FRONTEND_DONE.md
 │   │   ├── 1152_Surgical_Refactor_SYSTEMS_FRONTEND_DONE.md
 │   │   ├── 1153_Aggregate_Completed_Tasks_DONE.md
+│   │   ├── 1157_Merge_Folders_BACKEND_DONE.md
 │   │   ├── 1159_Surgical_Refactor_CORE_FRONTEND_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
@@ -5103,9 +5129,9 @@
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
 │   │   ├── 1154_Classify_Ambiguous_Files.md
-│   │   ├── 1157_Merge_Folders_BACKEND.md
 │   │   ├── 1158_Classify_Map_Entries.md
-│   │   ├── 1160_Surgical_Refactor_SYSTEMS_FRONTEND.md
+│   │   ├── 1161_Surgical_Refactor_SRC_BACKEND.md
+│   │   ├── 1162_Surgical_Refactor_SYSTEMS_FRONTEND.md
 │   │   └── tests
 │   └── postponed
 │       ├── 900_COMMERCIAL_MIGRATION_MASTER.md
@@ -5420,4 +5446,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-205 directories, 5216 files
+202 directories, 5245 files

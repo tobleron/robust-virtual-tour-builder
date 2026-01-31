@@ -311,7 +311,7 @@ module NavigationAnimationLoop = {
     cft,
     dispatch,
     req: React.ref<option<int>>,
-    ()
+    (),
   ) => {
     if cft.contents {
       Dom.getElementById("viewer-hotspot-lines")
@@ -342,34 +342,29 @@ module NavigationAnimationLoop = {
               pd.targetYawForPan,
               1.0,
               ~opacity=mod(Belt.Float.toInt(bel /. rate), 2) == 0 ? 1.0 : 0.0,
-              ~waypoints=pd.waypoints->Belt.Array.map(
-                (w): PathInterpolation.point => {
-                  PathInterpolation.yaw: w.yaw,
-                  pitch: w.pitch,
-                },
-              ),
+              ~waypoints=pd.waypoints->Belt.Array.map((w): PathInterpolation.point => {
+                PathInterpolation.yaw: w.yaw,
+                pitch: w.pitch,
+              }),
               ~colorOverride=?j.previewOnly ? Some("red") : None,
               (),
             )
           }
-          req.current = Some(Window.requestAnimationFrame(() => loop(v, state, j, pd, st, bst, cft, dispatch, req, ())))
+          req.current = Some(
+            Window.requestAnimationFrame(() =>
+              loop(v, state, j, pd, st, bst, cft, dispatch, req, ())
+            ),
+          )
         } else {
           cft := true
           dispatch(Actions.DispatchNavigationFsmEvent(TransitionComplete))
         }
       } else {
         dispatch(Actions.DispatchNavigationFsmEvent(AnimationProgress(prog)))
-        let (cp, cy) = NavigationLogic.calculateCameraPosition(
-          ~progress=prog,
-          ~pathData=pd,
-        )
+        let (cp, cy) = NavigationLogic.calculateCameraPosition(~progress=prog, ~pathData=pd)
         Viewer.setPitch(v, cp, false)
         Viewer.setYaw(v, cy, false)
-        Viewer.setHfov(
-          v,
-          pd.startHfov +. (pd.targetHfovForPan -. pd.startHfov) *. prog,
-          false,
-        )
+        Viewer.setHfov(v, pd.startHfov +. (pd.targetHfovForPan -. pd.startHfov) *. prog, false)
         if ViewerSystem.isViewerReady(v) {
           HotspotLine.updateLines(v, state, ())
           HotspotLine.updateSimulationArrow(
@@ -380,16 +375,18 @@ module NavigationAnimationLoop = {
             pd.targetYawForPan,
             prog,
             ~opacity=1.0,
-            ~waypoints=pd.waypoints->Belt.Array.map(
-              (w): PathInterpolation.point => {
-                PathInterpolation.yaw: w.yaw,
-                pitch: w.pitch,
-              },
-            ),
+            ~waypoints=pd.waypoints->Belt.Array.map((w): PathInterpolation.point => {
+              PathInterpolation.yaw: w.yaw,
+              pitch: w.pitch,
+            }),
             (),
           )
         }
-        req.current = Some(Window.requestAnimationFrame(() => loop(v, state, j, pd, st, bst, cft, dispatch, req, ())))
+        req.current = Some(
+          Window.requestAnimationFrame(() =>
+            loop(v, state, j, pd, st, bst, cft, dispatch, req, ())
+          ),
+        )
       }
     }
   }
@@ -402,7 +399,9 @@ module NavigationAnimationLoop = {
     Viewer.setYaw(v, pd.startYaw, false)
     Viewer.setHfov(v, pd.startHfov, false)
 
-    req.current = Some(Window.requestAnimationFrame(() => loop(v, state, j, pd, st, bst, cft, dispatch, req, ())))
+    req.current = Some(
+      Window.requestAnimationFrame(() => loop(v, state, j, pd, st, bst, cft, dispatch, req, ())),
+    )
   }
 }
 

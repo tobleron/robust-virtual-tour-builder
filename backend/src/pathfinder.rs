@@ -135,16 +135,16 @@ pub mod utils {
     pub fn dedupe_path(path: Vec<Step>) -> Vec<Step> {
         if path.is_empty() {
             return Vec::new();
-    }
-    let mut deduped = Vec::with_capacity(path.len());
-    let mut last_idx = None;
-    for step in path {
-        if Some(step.idx) != last_idx {
-            last_idx = Some(step.idx);
-            deduped.push(step);
         }
-    }
-    deduped
+        let mut deduped = Vec::with_capacity(path.len());
+        let mut last_idx = None;
+        for step in path {
+            if Some(step.idx) != last_idx {
+                last_idx = Some(step.idx);
+                deduped.push(step);
+            }
+        }
+        deduped
     }
 
     /// Follows a chain of "auto-forward" scenes until a non-auto-forward scene is reached.
@@ -285,8 +285,12 @@ pub mod timeline {
                     if skip_auto_forward {
                         let mut local_visited = HashSet::new(); // Local visited for this chain only
                         let original_target = target_idx;
-                        target_idx =
-                            follow_auto_forward_chain(scenes, target_idx, &mut local_visited, false)?;
+                        target_idx = follow_auto_forward_chain(
+                            scenes,
+                            target_idx,
+                            &mut local_visited,
+                            false,
+                        )?;
 
                         if target_idx != original_target {
                             arrival_view = get_default_view();
@@ -319,8 +323,8 @@ pub mod timeline {
         // Cleanup
         let final_path = if skip_auto_forward {
             path.into_iter()
-            .filter(|step| !scenes[step.idx].is_auto_forward)
-            .collect::<Vec<_>>()
+                .filter(|step| !scenes[step.idx].is_auto_forward)
+                .collect::<Vec<_>>()
         } else {
             path
         };
@@ -334,8 +338,8 @@ pub mod walk {
 
     use super::graph::{ArrivalView, Hotspot, Scene, Step, TransitionTarget};
     use super::utils::{
-        dedupe_path, find_scene_index, follow_auto_forward_chain, get_arrival_view, get_default_view,
-        get_hotspot_view,
+        dedupe_path, find_scene_index, follow_auto_forward_chain, get_arrival_view,
+        get_default_view, get_hotspot_view,
     };
 
     fn find_next_link<'a>(
@@ -383,8 +387,9 @@ pub mod walk {
             let current_scene = &scenes[*current_idx];
 
             if let Some(link) = find_next_link(scenes, current_scene, visited, false) {
-                let mut next_idx = find_scene_index(scenes, &link.target)
-                    .ok_or_else(|| format!("Pathfinding error: Scene '{}' not found", link.target))?;
+                let mut next_idx = find_scene_index(scenes, &link.target).ok_or_else(|| {
+                    format!("Pathfinding error: Scene '{}' not found", link.target)
+                })?;
 
                 update_step_with_link(path, link);
 
@@ -443,7 +448,8 @@ pub mod walk {
 
                 if skip_auto_forward {
                     let mut local_visited = HashSet::new();
-                    next_idx = follow_auto_forward_chain(scenes, next_idx, &mut local_visited, true)?;
+                    next_idx =
+                        follow_auto_forward_chain(scenes, next_idx, &mut local_visited, true)?;
                 }
 
                 let arr_view = if next_idx == original_target_idx {
@@ -518,8 +524,8 @@ pub mod walk {
         // Cleanup
         let final_path = if skip_auto_forward {
             path.into_iter()
-            .filter(|step| !scenes[step.idx].is_auto_forward)
-            .collect()
+                .filter(|step| !scenes[step.idx].is_auto_forward)
+                .collect()
         } else {
             path
         };

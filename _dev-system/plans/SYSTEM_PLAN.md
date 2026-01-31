@@ -9,10 +9,10 @@
 ---
 
 ## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (4)
-- [ ] `../../backend/src/middleware.rs`
 - [ ] `../../backend/src/auth.rs`
 - [ ] `../../backend/src/services/geocoding/osm.rs`
 - [ ] `../../backend/src/services/geocoding/cache.rs`
+- [ ] `../../backend/src/middleware.rs`
 
 ---
 
