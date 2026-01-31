@@ -1,14 +1,102 @@
 {
+  "rescript": [
+    {
+      "Surgical": {
+        "file": "../../src/systems/ExifReportGeneratorLogic.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.00, Density: 0.16, Coupling: 0.06] | Drag: 7.92 | LOC: 333/300  🎯 Target: Function: `processSceneDataItem` (High Local Complexity (14.4). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 11.22132132132132
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/SimulationLogic.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.50, Density: 0.12, Coupling: 0.06] | Drag: 8.29 | LOC: 470/300  🎯 Target: Function: `currentResult` (High Local Complexity (6.6). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 25.28808510638298
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/Resizer.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.50, Density: 0.21, Coupling: 0.10] | Drag: 8.30 | LOC: 309/300  🎯 Target: Function: `getMemoryUsage` (High Local Complexity (12.9). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 9.195469255663431
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/Navigation.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 6.00, Density: 0.39, Coupling: 0.08] | Drag: 10.13 | LOC: 427/300  🎯 Target: Function: `req` (High Local Complexity (9.3). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 22.83255269320843
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/Scene.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.17, Coupling: 0.09] | Drag: 6.99 | LOC: 356/300  🎯 Target: Function: `updateGlobalStateAndViewer` (High Local Complexity (3.5). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 12.585393258426965
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/UploadProcessor.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.50, Density: 0.05, Coupling: 0.11] | Drag: 5.69 | LOC: 341/300  🎯 Target: Function: `getNotificationType` (High Local Complexity (4.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 9.787683284457477
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ApiLogic.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.50, Density: 0.07, Coupling: 0.04] | Drag: 7.09 | LOC: 503/300  🎯 Target: Function: `extractMetadata` (High Local Complexity (1.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 27.388469184890656
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/HotspotLineLogic.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.00, Density: 0.29, Coupling: 0.04] | Drag: 7.55 | LOC: 538/300  🎯 Target: Function: `waypointsRaw` (High Local Complexity (2.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 31.35390334572491
+      }
+    }
+  ],
   "system": [
     {
       "Ambiguity": {
-        "file": "../../backend/src/pathfinder/timeline.rs",
+        "file": "../../backend/src/auth/handlers.rs",
         "strategy": ""
       }
     },
     {
       "Ambiguity": {
-        "file": "../../backend/src/services/geocoding/cache.rs",
+        "file": "../../backend/src/services/geocoding/osm.rs",
+        "strategy": ""
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../backend/src/pathfinder/timeline.rs",
         "strategy": ""
       }
     },
@@ -20,8 +108,35 @@
     },
     {
       "Ambiguity": {
-        "file": "../../backend/src/services/geocoding/osm.rs",
+        "file": "../../backend/src/services/geocoding/cache.rs",
         "strategy": ""
+      }
+    },
+    {
+      "Merge": {
+        "folder": "backend/src/auth",
+        "files": [
+          "../../backend/src/auth/mod.rs",
+          "../../backend/src/auth/handlers.rs",
+          "../../backend/src/auth/middleware.rs",
+          "../../backend/src/auth/service.rs"
+        ],
+        "reason": "Recursive Feature Pod: 4 files in subtree sum to 288 LOC (fits in context). Max Drag: 3.05",
+        "strategy": "",
+        "platform": "backend"
+      }
+    },
+    {
+      "Merge": {
+        "folder": "backend/src/middleware",
+        "files": [
+          "../../backend/src/middleware/mod.rs",
+          "../../backend/src/middleware/quota_check.rs",
+          "../../backend/src/middleware/request_tracker.rs"
+        ],
+        "reason": "Recursive Feature Pod: 3 files in subtree sum to 213 LOC (fits in context). Max Drag: 3.03",
+        "strategy": "",
+        "platform": "backend"
       }
     },
     {
@@ -29,123 +144,12 @@
         "folder": "../../backend/src/pathfinder",
         "files": [
           "graph.rs",
-          "utils.rs",
-          "algorithms.rs"
+          "algorithms.rs",
+          "utils.rs"
         ],
         "reason": "Read Tax high (Score 3.00). Projected Limit: 300 (Drag 3.47)",
         "strategy": "",
         "platform": "backend"
-      }
-    },
-    {
-      "Structural": {
-        "file": "auth",
-        "action": "Vertical Slice",
-        "reason": "Feature fragmented across 3 files: [`../../backend/src/api/auth.rs`, `../../backend/src/middleware/auth.rs`, `../../backend/src/services/auth.rs`]",
-        "strategy": "",
-        "platform": "backend"
-      }
-    }
-  ],
-  "rescript": [
-    {
-      "Surgical": {
-        "file": "../../src/systems/Resizer.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.50, Density: 0.20, Coupling: 0.10] | Drag: 8.21 | LOC: 303/300  🎯 Target: Function: `getMemoryUsage` (High Local Complexity (10.4). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 8.509570957095711
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/Reducer.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.42, Coupling: 0.09] | Drag: 7.92 | LOC: 306/300",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 8.522875816993464
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ExifReportGeneratorLogic.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 5.50, Density: 0.14, Coupling: 0.06] | Drag: 9.29 | LOC: 331/300  🎯 Target: Function: `extractAllExif` (High Local Complexity (11.1). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 12.387915407854983
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/Scene.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.17, Coupling: 0.09] | Drag: 6.99 | LOC: 355/300  🎯 Target: Function: `updateGlobalStateAndViewer` (High Local Complexity (5.8). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 12.493802816901407
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/SceneHelpers.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.50, Density: 0.03, Coupling: 0.05] | Drag: 5.60 | LOC: 308/300  🎯 Target: Function: `sanitizeScene` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 6.398701298701298
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/HotspotLineLogic.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.00, Density: 0.29, Coupling: 0.04] | Drag: 7.55 | LOC: 540/300  🎯 Target: Function: `isViewerValid` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 31.546666666666667
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/SimulationLogic.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.50, Density: 0.12, Coupling: 0.06] | Drag: 9.29 | LOC: 467/300  🎯 Target: Function: `currentResult` (High Local Complexity (6.6). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 25.98843683083512
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/UploadProcessor.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.50, Density: 0.05, Coupling: 0.10] | Drag: 5.70 | LOC: 339/300  🎯 Target: Function: `getNotificationType` (High Local Complexity (4.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 9.600589970501476
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/Navigation.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 6.00, Density: 0.39, Coupling: 0.08] | Drag: 10.15 | LOC: 407/300  🎯 Target: Function: `startJourney` (High Local Complexity (9.8). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 20.848894348894348
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ApiLogic.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.50, Density: 0.08, Coupling: 0.04] | Drag: 7.14 | LOC: 503/300  🎯 Target: Function: `bodyVal` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 27.440954274353878
       }
     }
   ]

@@ -48,7 +48,7 @@ module Utils = {
 // --- INTERNAL LOGIC ---
 
 module Logic = {
-  let areCoordinatesValid = (viewer) => {
+  let areCoordinatesValid = viewer => {
     let hfov = Viewer.getHfov(viewer)
     let yaw = Viewer.getYaw(viewer)
     let pitch = Viewer.getPitch(viewer)

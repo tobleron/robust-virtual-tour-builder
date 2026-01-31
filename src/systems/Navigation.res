@@ -193,22 +193,25 @@ module Renderer = {
     })
   }
 
-  let rec runJourneyLoop = (v, data: EventBus.navStartPayload, pd, bst, cft, asP, asY, aWp, aSeg, st, ()) => {
+  let rec runJourneyLoop = (
+    v,
+    data: EventBus.navStartPayload,
+    pd,
+    bst,
+    cft,
+    asP,
+    asY,
+    aWp,
+    aSeg,
+    st,
+    (),
+  ) => {
     if activeJourneyId.contents == Some(data.journeyId) && !cft.contents {
       let elap = Date.now() -. st
       let prog = Math.min(elap /. pd.panDuration, 1.0)
       if prog >= 1.0 {
-        handleJourneyCompletion(
-          v,
-          data,
-          pd,
-          bst,
-          cft,
-          asP,
-          asY,
-          aWp,
-          aSeg,
-          () => runJourneyLoop(v, data, pd, bst, cft, asP, asY, aWp, aSeg, st, ()),
+        handleJourneyCompletion(v, data, pd, bst, cft, asP, asY, aWp, aSeg, () =>
+          runJourneyLoop(v, data, pd, bst, cft, asP, asY, aWp, aSeg, st, ())
         )
       } else {
         renderJourneyFrame(v, prog, pd, asP, asY, aWp, aSeg)

@@ -16,3 +16,12 @@
     - `../../backend/src/pathfinder/algorithms.rs`
     - `../../backend/src/pathfinder/graph.rs`
     - `../../backend/src/pathfinder/utils.rs`
+- [ ] Folder: `backend/src/auth` (Metric: Recursive Feature Pod: 4 files in subtree sum to 288 LOC (fits in context). Max Drag: 3.05)
+    - `backend/src/auth/../../backend/src/auth/handlers.rs`
+    - `backend/src/auth/../../backend/src/auth/middleware.rs`
+    - `backend/src/auth/../../backend/src/auth/mod.rs`
+    - `backend/src/auth/../../backend/src/auth/service.rs`
+- [ ] Folder: `backend/src/middleware` (Metric: Recursive Feature Pod: 3 files in subtree sum to 213 LOC (fits in context). Max Drag: 3.03)
+    - `backend/src/middleware/../../backend/src/middleware/mod.rs`
+    - `backend/src/middleware/../../backend/src/middleware/quota_check.rs`
+    - `backend/src/middleware/../../backend/src/middleware/request_tracker.rs`
