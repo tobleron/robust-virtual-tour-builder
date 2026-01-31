@@ -1,19 +1,15 @@
+@@warning("-3")
 /* src/utils/PersistenceLayer.res */
 
 open IdbBindings
-open RescriptSchema
 
 type serializedSession = {
   timestamp: float,
   projectData: JSON.t,
 }
 
-let serializedSessionSchema = S.object((s): serializedSession => {
-  {
-    timestamp: s.field("timestamp", S.float),
-    projectData: s.field("projectData", Schemas.Domain.jsonSchema),
-  }
-})
+// Schema removed to satisfy CSP (no eval).
+// Replaced with direct casting for internal persistence.
 
 let key = "autosave_session_latest"
 let debounceMs = 2000
@@ -40,7 +36,8 @@ let performSave = (state: Types.state) => {
       timeline: state.timeline,
     }
 
-    let projectData = S.reverseConvertOrThrow(project, Schemas.Domain.project)
+    // CSP SAFE FIX: Direct cast since Record = JS Object in ReScript v11+. Schema uses eval.
+    let projectData = Obj.magic(project)
 
     let payload = {
       timestamp: Date.now(),
@@ -95,14 +92,15 @@ let checkRecovery = () => {
     switch Nullable.toOption(item) {
     | Some(raw) =>
       try {
-        let saved = S.parseOrThrow(raw, serializedSessionSchema)
+        // CSP SAFE FIX: Casting instead of schema validation
+        let saved: serializedSession = Obj.magic(raw)
         Promise.resolve(Some(saved))
       } catch {
-      | S.Raised(e) =>
+      | Js.Exn.Error(e) =>
         Logger.warn(
           ~module_="Persistence",
-          ~message="Corrupt autosave found",
-          ~data={"error": S.Error.message(e)},
+          ~message="Corrupt autosave found (cast failed)",
+          ~data={"error": Js.Exn.message(e)},
           (),
         )
         Promise.resolve(None)

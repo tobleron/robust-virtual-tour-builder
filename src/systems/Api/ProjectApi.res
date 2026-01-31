@@ -3,7 +3,6 @@
 
 open ApiHelpers
 open ReBindings
-open RescriptSchema
 
 let handleError = (e, message, logKey) => {
   let (msg, stack) = Logger.getErrorDetails(e)
@@ -48,18 +47,20 @@ let importProject = (file: File.t): Promise.t<apiResult<importResponse>> => {
       Fetch.requestInit(~method="POST", ~body=formData, ~headers, ()),
     )
     ->Promise.then(response => {
-       if Fetch.Response.ok(response) {
-         Promise.resolve(Ok(response))
-       } else {
-         Fetch.text(response)->Promise.then(text => {
-           let errorMsg = if text == "" {
-             `Request failed with status ${Int.toString(Fetch.Response.status(response))}`
-           } else {
-             text
-           }
-           Promise.resolve(Error(errorMsg))
-         })
-       }
+      if Fetch.ok(response) {
+        Promise.resolve(Ok(response))
+      } else {
+        Fetch.text(response)->Promise.then(
+          text => {
+            let errorMsg = if text == "" {
+              `Request failed with status ${Int.toString(Fetch.status(response))}`
+            } else {
+              text
+            }
+            Promise.resolve(Error(errorMsg))
+          },
+        )
+      }
     })
     ->Promise.then(resultResponse => {
       switch resultResponse {
@@ -111,7 +112,8 @@ let validateProject = (sessionId: string, projectData: JSON.t): Promise.t<
       Constants.backendUrl ++ "/api/project/validate/" ++ sessionId,
       Fetch.requestInit(
         ~method="POST",
-        ~body=S.reverseConvertToJsonStringOrThrow(projectData, Schemas.Shared.jsonSchema),
+        // CSP SAFE FIX: Bypass schema eval
+        ~body=JSON.stringifyAny(projectData)->Option.getOr("{}"),
         ~headers=Dict.fromArray([("Content-Type", "application/json")]),
         (),
       ),
@@ -149,7 +151,8 @@ let saveProject = (sessionId: string, projectData: JSON.t): Promise.t<apiResult<
       Constants.backendUrl ++ "/api/project/save/" ++ sessionId,
       Fetch.requestInit(
         ~method="POST",
-        ~body=S.reverseConvertToJsonStringOrThrow(projectData, Schemas.Shared.jsonSchema),
+        // CSP SAFE FIX: Bypass schema eval
+        ~body=JSON.stringifyAny(projectData)->Option.getOr("{}"),
         ~headers=Dict.fromArray([("Content-Type", "application/json")]),
         (),
       ),
@@ -167,19 +170,10 @@ let saveProject = (sessionId: string, projectData: JSON.t): Promise.t<apiResult<
 
 let calculatePath = (payload: pathRequest): Promise.t<apiResult<array<step>>> => {
   RequestQueue.schedule(() => {
-    // Replaced manual cast/stringify with Schema serialization
-    let body = try {
-      S.reverseConvertToJsonStringOrThrow(payload, Schemas.Domain.pathRequest)
-    } catch {
-    | S.Raised(e) =>
-      Logger.error(
-        ~module_="ProjectApi",
-        ~message="Path serialization failed",
-        ~data=Logger.castToJson({"error": S.Error.message(e)}),
-        (),
-      )
-      "{}"
-    | _ => "{}"
+    // Replaced manual cast/stringify with Schema serialization -> Reverted due to CSP eval
+    let body = switch JSON.stringifyAny(payload) {
+    | Some(s) => s
+    | None => "{}"
     }
 
     Fetch.fetch(
@@ -218,10 +212,10 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<apiResult<geocodeRespon
   RequestQueue.schedule(() => {
     let payload: geocodeRequest = {lat, lon}
 
-    let body = try {
-      S.reverseConvertToJsonStringOrThrow(payload, Schemas.Shared.geocodeRequest)
-    } catch {
-    | _ => "{}"
+    // CSP SAFE FIX
+    let body = switch JSON.stringifyAny(payload) {
+    | Some(s) => s
+    | None => "{}"
     }
 
     Fetch.fetch(

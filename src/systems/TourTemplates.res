@@ -1,9 +1,6 @@
 /* src/systems/TourTemplates.res - Consolidated Tour Templates System */
 
 open Types
-open RescriptSchema
-open Schemas.Domain
-
 @scope("JSON") @val external stringify: 'a => string = "stringify"
 
 // --- ASSETS ---
@@ -222,7 +219,7 @@ let generateTourHTML = (
     ->Option.map(vf => (vf.pitch, vf.yaw))
     ->Option.getOr((0.0, 0.0))
 
-  `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${tourName}</title><link rel="stylesheet" href="libs/pannellum.css"/><script src="libs/pannellum.js"></script><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap" rel="stylesheet"><style>${css}</style></head><body><div id="stage"><div id="panorama"></div>${logoDiv}</div><script>
+  let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${tourName}</title><link rel="stylesheet" href="libs/pannellum.css"/><script src="libs/pannellum.js"></script><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap" rel="stylesheet"><style>${css}</style></head><body><div id="stage"><div id="panorama"></div>${logoDiv}</div><script>
     const firstSceneId = "${firstSceneName}"; ${renderScript}
     let transitionFrom = null; let persistentFrom = null; let isFirstLoad = true;
     const config = { "default": { "firstScene": "${firstSceneName}", "sceneFadeDuration": 1000, "pitch": ${Belt.Float.toString(
@@ -230,10 +227,10 @@ let generateTourHTML = (
     )}, "yaw": ${Belt.Float.toString(
       defYaw,
     )}, "hfov": 90, "minHfov": 90, "maxHfov": 90, "showControls": false }, "scenes":{} };
-    const scenesData = ${S.reverseConvertToJsonStringOrThrow(
-      rawScenesData->castToJSON,
-      jsonSchema,
-    )};
+    const scenesData = ${switch JSON.stringifyAny(rawScenesData) {
+    | Some(s) => s
+    | None => "{}"
+    }};
     for (const [name, data] of Object.entries(scenesData)) {
       config.scenes[name] = { panorama: data.panorama, autoLoad: true, hotSpots: data.hotSpots.map((h, idx) => ({ pitch: h.pitch, yaw: h.yaw, type: "info", cssClass: "flat-arrow", createTooltipFunc: renderGoldArrow, createTooltipArgs: { i: idx, targetSceneId: h.target, viewFrame: h.viewFrame, targetYaw: h.targetYaw, targetPitch: h.targetPitch, isReturnLink: h.isReturnLink, returnViewFrame: h.returnViewFrame } })) };
     }
@@ -241,6 +238,7 @@ let generateTourHTML = (
     window.addEventListener('resize', () => window.viewer?.resize());
     ${Scripts.loadEventScript}
   </script></body></html>`
+  html
 }
 
 // --- COMPATIBILITY ALIASES ---

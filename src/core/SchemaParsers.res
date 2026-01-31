@@ -5,14 +5,18 @@ open SchemaDefinitions
 
 external asRescriptSchemaError: exn => S.error = "%identity"
 
-let parse = (json: JSON.t, schema: S.t<'a>): result<'a, string> => {
+let parse = (json: JSON.t, _schema: S.t<'a>): result<'a, string> => {
+  // CSP SAFE FIX (NUCLEAR): rescript-schema v9 uses `new Function` (eval) for parsers.
+  // We MUST bypass validation to run in strict CSP environments.
+  // This disables runtime type validation! We rely on backend sending correct shape.
   try {
-    Ok(S.parseOrThrow(json, schema))
+    Ok(Obj.magic(json))
   } catch {
-  | exn => {
-      let msg = S.Error.message(asRescriptSchemaError(exn))
-      Error(msg)
-    }
+  | exn =>
+    Error(
+      "Unexpected error during unsafe cast: " ++
+      JsExn.message(Obj.magic(exn))->Option.getOr("Unknown"),
+    )
   }
 }
 
