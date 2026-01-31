@@ -10,32 +10,22 @@ These rules apply specifically when editing **ReScript (`.res`, `.resi`)** files
 
 ## 🔒 Part 1: Error Prevention Patterns (CRITICAL)
 
-### 1. Type Coercion Safety
+### 1. Schema-Driven IO
 **Goal**: Eliminate runtime errors from invalid data shapes.
 
-- **Rule**: Define `JsonTypes` for all external data (API responses, LocalStorage).
-- **Rule**: Use `Obj.magic` **ONLY** at the API boundary, never internally.
-- **Rule**: Always annotate `Obj.magic` with the target type.
+- **Rule**: Use `rescript-schema` for ALL data entering or leaving the system (API, LocalStorage, IndexedDB).
+- **Rule**: Forbid legacy `JSON.Decode` and `JSON.stringify` for complex objects.
+- **Rule**: NO `Obj.magic` or unsafe casts at the boundary. Use `S.parseOrThrow` or `S.parse`.
 
 ```rescript
-// ❌ BAD: Unsafe Access
+// ❌ BAD: Unsafe Access or Legacy Decode
 let parse = json => {
-  let data = Obj.magic(json) // Untyped magic
-  data["field"] // Runtime risk!
+  let data = JSON.Decode.string(json) // Legacy
 }
 
-// ✅ GOOD: Typed Boundary
-type responseJson = {
-  data: Nullable.t<string>,
-  count: int
-}
-
+// ✅ GOOD: Schema Validation
 let parse = (json: JSON.t): data => {
-  let typed: responseJson = Obj.magic(json) // Typed boundary
-  switch Nullable.toOption(typed.data) { // Safe conversion
-  | Some(d) => process(d)
-  | None => default()
-  }
+  S.parseOrThrow(json, Schemas.Domain.someSchema)
 }
 ```
 

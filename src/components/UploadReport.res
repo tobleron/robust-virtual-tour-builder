@@ -129,7 +129,11 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
         let state = GlobalStateBridge.getState()
         switch state.exifReport {
         | Some(reportJson) =>
-          switch JSON.Decode.string(reportJson) {
+          switch try {
+            Some(RescriptSchema.S.parseOrThrow(reportJson, RescriptSchema.S.string))
+          } catch {
+          | _ => None
+          } {
           | Some(content) =>
             let _ = ExifReportGenerator.downloadExifReport(content)
           | None => ()

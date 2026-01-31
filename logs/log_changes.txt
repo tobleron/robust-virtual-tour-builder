@@ -65,3 +65,4 @@
 [2026-01-31 04:34] v4.8.12 - Fix MAP.md zombie entries and enhance analyzer guard logic [TRIPLE]
 [2026-01-31 11:19] v4.8.12 - docs: Create task for Rescript Schema migration [TRIPLE]
 [2026-01-31 13:27] v4.8.12 - Merge migrate-json-to-schema branch and resolve SessionStore compilation issues [TRIPLE]
+[2026-01-31 14:35] v4.8.12 - chore: finalize rescript-schema migration and update project standards [TRIPLE]

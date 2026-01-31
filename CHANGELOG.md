@@ -8,10 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [4.8.12] - 2026-01-31
 
 ### Changed
-- Merge(migrate-json-to-schema): Complete migration of legacy JSON handling to type-safe Rescript Schema validation across core systems
+- Merge(migrate-json-to-schema): Complete migration of legacy JSON handling to type-safe Rescript Schema validation across core systems (API, Telemetry, Templates)
+- Delete(ProjectData.res): Removed legacy serialization module in favor of schema-driven transformations
+- Doc(Standards): Mandated `rescript-schema` usage in `GEMINI.md` and workflow standards
 - Fix(SessionStore): Resolve compilation errors for JsExn and migrate from Console to Logger
 - Harden(Persistence): Secure autosave and project loading with declarative schema boundaries
-- Doc(map): Classify AsyncQueue.res in Utilities & Infrastructure
 - Fix(rules): Replace forbidden Obj.magic in AsyncQueue.res with safe error handling and logging
 - Merge Core, Systems, and Backend Auth refactors
 - Fix(dev-system): update merge directive to strip efficiency tags
@@ -24,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix MAP.md zombie entries and enhance analyzer guard logic
 - Create task for Rescript Schema migration
 - Merge migrate-json-to-schema branch and resolve SessionStore compilation issues
+- Finalize rescript-schema migration and update project standards
 
 ## [4.8.12] - 2026-01-30
 

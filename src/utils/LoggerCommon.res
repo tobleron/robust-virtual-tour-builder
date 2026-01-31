@@ -1,4 +1,9 @@
 /* src/utils/LoggerCommon.res */
+open RescriptSchema
+
+external castToJson: 'a => JSON.t = "%identity"
+external asDynamic: 'a => {..} = "%identity"
+external castToUnknown: 'a => unknown = "%identity"
 
 // --- Types ---
 
@@ -26,7 +31,28 @@ type logEntry = {
   priority: string,
 }
 
+let jsonSchema: S.t<JSON.t> = S.unknown->S.transform(_ => {
+  parser: (v: unknown) => v->asDynamic->castToJson,
+  serializer: (v: JSON.t) => v->asDynamic->castToUnknown,
+})
+
+let logEntrySchema: S.t<logEntry> = S.object(s => {
+  {
+    timestampMs: s.field("timestampMs", S.float),
+    timestamp: s.field("timestamp", S.string),
+    module_: s.field("module", S.string),
+    level: s.field("level", S.string),
+    message: s.field("message", S.string),
+    data: s.field("data", S.option(jsonSchema)),
+    priority: s.field("priority", S.string),
+  }
+})
+
 type telemetryBatch = {entries: array<logEntry>}
+
+let telemetryBatchSchema: S.t<telemetryBatch> = S.object(s => {
+  {entries: s.field("entries", S.array(logEntrySchema))}
+})
 
 type timedResult<'a> = {
   result: 'a,
@@ -34,9 +60,6 @@ type timedResult<'a> = {
 }
 
 type operationResult<'a> = result<'a, string>
-
-external castToJson: 'a => JSON.t = "%identity"
-external asDynamic: 'a => {..} = "%identity"
 
 let optToNullable = (opt: option<'a>): Nullable.t<'a> =>
   switch opt {

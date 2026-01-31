@@ -225,8 +225,7 @@ let exportTour = async (
       let (msg, stack) = Logger.getErrorDetails(exn)
 
       let finalMsg = try {
-        let json = JSON.parseOrThrow(msg)
-        let err = S.parseOrThrow(json, apiErrorSchema)
+        let err = S.parseJsonStringOrThrow(msg, apiErrorSchema)
         switch err.details {
         | Some(d) => d
         | None => err.error

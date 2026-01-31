@@ -1,6 +1,7 @@
 /* src/systems/TourTemplates.res - Consolidated Tour Templates System */
 
 open Types
+open RescriptSchema
 
 // --- ASSETS ---
 
@@ -163,6 +164,7 @@ module Scripts = {
 // --- MAIN ---
 
 external castToJSON: dict<'a> => JSON.t = "%identity"
+external castToUnknown: 'a => unknown = "%identity"
 
 let generateTourHTML = (
   scenes: array<scene>,
@@ -225,7 +227,10 @@ let generateTourHTML = (
     )}, "yaw": ${Belt.Float.toString(
       defYaw,
     )}, "hfov": 90, "minHfov": 90, "maxHfov": 90, "showControls": false }, "scenes":{} };
-    const scenesData = ${JSON.stringify(castToJSON(rawScenesData))};
+    const scenesData = ${S.reverseConvertToJsonStringOrThrow(
+      castToUnknown(rawScenesData),
+      S.unknown,
+    )};
     for (const [name, data] of Object.entries(scenesData)) {
       config.scenes[name] = { panorama: data.panorama, autoLoad: true, hotSpots: data.hotSpots.map((h, idx) => ({ pitch: h.pitch, yaw: h.yaw, type: "info", cssClass: "flat-arrow", createTooltipFunc: renderGoldArrow, createTooltipArgs: { i: idx, targetSceneId: h.target, viewFrame: h.viewFrame, targetYaw: h.targetYaw, targetPitch: h.targetPitch, isReturnLink: h.isReturnLink, returnViewFrame: h.returnViewFrame } })) };
     }
