@@ -16,7 +16,8 @@ type expectation
 
 @scope("vi") @val external useFakeTimers: unit => unit = "useFakeTimers"
 @scope("vi") @val external useRealTimers: unit => unit = "useRealTimers"
-@scope("vi") @val external advanceTimersByTimeAsync: int => promise<unit> = "advanceTimersByTimeAsync"
+@scope("vi") @val
+external advanceTimersByTimeAsync: int => promise<unit> = "advanceTimersByTimeAsync"
 
 /* Mocks */
 @module("../../src/systems/TeaserRecorder.bs.js")
@@ -34,14 +35,11 @@ external mockSetFadeOpacity: mockFn = "setFadeOpacity"
 /* Expose internalState from the mock */
 type internalStateContent = {
   ghostCanvas: option<Dom.element>,
-  snapshotCanvas: option<Dom.element>
+  snapshotCanvas: option<Dom.element>,
 }
-type internalStateRef = {
-  mutable contents: internalStateContent
-}
+type internalStateRef = {mutable contents: internalStateContent}
 @module("../../src/systems/TeaserRecorder.bs.js")
 external mockInternalState: internalStateRef = "internalState"
-
 
 @module("../../src/core/GlobalStateBridge.bs.js") external mockGetState: mockFn = "getState"
 @module("../../src/core/GlobalStateBridge.bs.js") external mockDispatch: mockFn = "dispatch"
@@ -107,7 +105,7 @@ describe("TeaserPlayback", () => {
     useFakeTimers()
 
     // Reset internal state
-    mockInternalState.contents = { ghostCanvas: None, snapshotCanvas: None }
+    mockInternalState.contents = {ghostCanvas: None, snapshotCanvas: None}
 
     // Setup Default State
     mockGetState->mockReturnValue({
@@ -173,7 +171,7 @@ describe("TeaserPlayback", () => {
     // Set ghostCanvas in the mocked internalState
     // We use a dummy object for canvas
     let dummyCanvas: Dom.element = %raw(`{ tagName: 'CANVAS' }`)
-    mockInternalState.contents = { ghostCanvas: Some(dummyCanvas), snapshotCanvas: None }
+    mockInternalState.contents = {ghostCanvas: Some(dummyCanvas), snapshotCanvas: None}
 
     // Next scene must be "scene2" for waitForViewerReady
     let _ = %raw(`global.window.pannellumViewer.getScene = () => "scene2"`)
