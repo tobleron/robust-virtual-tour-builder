@@ -19,9 +19,7 @@ module LoggerMock = {
 let _ = %raw(`
   globalThis.vi.mock('../../src/utils/Logger.bs.js', () => {
     return {
-      error: (args) => {
-        console.error("MOCKED LOGGER ERROR:", args.message);
-      },
+      error: (_args) => {},
       castToJson: (v) => v
     }
   })
