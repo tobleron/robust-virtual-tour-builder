@@ -10,6 +10,9 @@ external getItem: string => Nullable.t<string> = "getItem"
 @val @scope("localStorage")
 external removeItem: string => unit = "removeItem"
 
+@val @scope("JSON")
+external stringify: 'a => string = "stringify"
+
 let storageKey = "vtb_session_store"
 
 let saveState = (state: state) => {
@@ -23,15 +26,16 @@ let saveState = (state: state) => {
   }
 
   try {
-    let str = S.reverseConvertToJsonStringOrThrow(sessionState, Schemas.Domain.sessionState)
+    /*
+      NOTE: We use JSON.stringify here instead of S.reverseConvertToJsonStringOrThrow
+      because the current version of rescript-schema (9.3.4) throws an internal TypeError
+      ("Cannot set properties of undefined (setting '~r')") when reverse converting this object in the test environment.
+      Since the sessionState record fields map 1:1 to the JSON keys defined in the schema,
+      JSON.stringify is safe and produces compatible JSON for the parser.
+    */
+    let str = stringify(sessionState)
     setItem(storageKey, str)
   } catch {
-  | S.Raised(e) =>
-    Logger.error(
-      ~module_="SessionStore",
-      ~message="SessionStore Save Error: " ++ S.Error.message(e),
-      (),
-    )
   | JsExn(e) =>
     Logger.error(
       ~module_="SessionStore",
