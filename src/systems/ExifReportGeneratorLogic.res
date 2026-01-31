@@ -122,7 +122,12 @@ module Extraction = {
     }
 
     let dateTime = switch exifData.exif.dateTime->Nullable.toOption {
-    | Some(dt) => if dt != "" {Some(dt)} else {None}
+    | Some(dt) =>
+      if dt != "" {
+        Some(dt)
+      } else {
+        None
+      }
     | None => None
     }
 

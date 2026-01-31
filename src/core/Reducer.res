@@ -129,7 +129,8 @@ module Navigation = {
     | SetPendingReturnSceneName(name) => Some({...state, pendingReturnSceneName: name})
     | IncrementJourneyId => Some({...state, currentJourneyId: state.currentJourneyId + 1})
     | SetCurrentJourneyId(id) => Some({...state, currentJourneyId: id})
-    | NavigationCompleted(journey) => Some(NavigationHelpers.handleNavigationCompleted(state, journey))
+    | NavigationCompleted(journey) =>
+      Some(NavigationHelpers.handleNavigationCompleted(state, journey))
     | SetNavigationFsmState(fsmState) => Some({...state, navigationFsm: fsmState})
     | DispatchNavigationFsmEvent(event) =>
       Some(NavigationHelpers.handleDispatchNavigationFsmEvent(state, event))
@@ -143,12 +144,9 @@ module Simulation = {
     switch action {
     | StartAutoPilot(journeyId, skip) =>
       Some(SimulationHelpers.handleStartAutoPilot(state, journeyId, skip))
-    | StartLinking(draft) =>
-      Some(SimulationHelpers.handleStartLinking(state, draft))
-    | StopAutoPilot =>
-      Some(SimulationHelpers.handleStopAutoPilot(state))
-    | AddVisitedScene(sceneIdx) =>
-      Some(SimulationHelpers.handleAddVisitedScene(state, sceneIdx))
+    | StartLinking(draft) => Some(SimulationHelpers.handleStartLinking(state, draft))
+    | StopAutoPilot => Some(SimulationHelpers.handleStopAutoPilot(state))
+    | AddVisitedScene(sceneIdx) => Some(SimulationHelpers.handleAddVisitedScene(state, sceneIdx))
     | ClearVisitedScenes =>
       Some({
         ...state,
