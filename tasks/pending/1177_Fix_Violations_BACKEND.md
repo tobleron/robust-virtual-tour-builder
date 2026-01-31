@@ -10,6 +10,6 @@
 ## Tasks
 
 ### 🔧 Action: Fix Pattern `unwrap()`
-**Directive:** Pattern Fix: Replace the forbidden 'unwrap()' pattern with the recommended functional alternative (Logger, Result/Option, etc).
+**Directive:** Pattern Fix: Replace the forbidden 'unwrap()' pattern with the recommended functional alternative.
 
 - [ ] `../../backend/src/main.rs`

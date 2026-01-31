@@ -9,8 +9,35 @@
 
 ## Tasks
 
+### 🔧 Action: Fix Pattern `JSON.parse`
+**Directive:** CSP Compliance: Replace 'JSON.parse' with `rescript-json-combinators` (Zero-Eval).
+
+- [ ] `../../src/utils/SessionStore.res`
+
+### 🔧 Action: Fix Pattern `JSON.stringifyAny`
+**Directive:** CSP Compliance: Replace 'JSON.stringifyAny' with `rescript-json-combinators` (Zero-Eval).
+
+- [ ] `../../src/systems/Api/AuthenticatedClient.res`
+- [ ] `../../src/systems/Api/MediaApi.res`
+- [ ] `../../src/systems/Api/ProjectApi.res`
+- [ ] `../../src/systems/ProjectManager.res`
+- [ ] `../../src/systems/ServerTeaser.res`
+- [ ] `../../src/utils/LoggerTelemetry.res`
+- [ ] `../../src/utils/SessionStore.res`
+
+### 🔧 Action: Fix Pattern `JSON.stringify`
+**Directive:** CSP Compliance: Replace 'JSON.stringify' with `rescript-json-combinators` (Zero-Eval).
+
+- [ ] `../../src/systems/Api/AuthenticatedClient.res`
+- [ ] `../../src/systems/Api/MediaApi.res`
+- [ ] `../../src/systems/Api/ProjectApi.res`
+- [ ] `../../src/systems/ProjectManager.res`
+- [ ] `../../src/systems/ServerTeaser.res`
+- [ ] `../../src/utils/LoggerTelemetry.res`
+- [ ] `../../src/utils/SessionStore.res`
+
 ### 🔧 Action: Fix Pattern `Obj.magic`
-**Directive:** Pattern Fix: Replace the forbidden 'Obj.magic' pattern with the recommended functional alternative (Logger, Result/Option, etc).
+**Directive:** CSP Compliance: Replace 'Obj.magic' with `rescript-json-combinators` (Zero-Eval).
 
 - [ ] `../../src/core/SchemaParsers.res`
 - [ ] `../../src/systems/ApiHelpers.res`

@@ -101,7 +101,12 @@
       "forbidden_patterns": [
         "console.log",
         "mutable ",
-        "Obj.magic"
+        "Obj.magic",
+        "JSON.stringify",
+        "JSON.stringifyAny",
+        "JSON.parse",
+        "Js.Json.stringify",
+        "Js.Json.parse"
       ]
     },
     "css": {
