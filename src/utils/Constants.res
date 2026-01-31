@@ -243,11 +243,24 @@ let sceneLoadTimeout = 10000
 // ============================================
 
 module Telemetry = {
+  // --- CONFIGURATION ---
+  // User: "I want to be able to make it an option in constants"
+  // User: "All goes to backend by default" -> Set this to true
+  // User: "Micro management when needed" -> Set this to false, then use traceFilterModules
+  let startInDiagnosticMode = true
+
+  // Micro-management: Add keys here to allow Trace/Debug logs for specific modules only
+  // If array is empty ["*"] or diagnosticMode is true, ALL logs are sent.
+  // Example: ["Teaser", "Navigation"]
+  let traceFilterModules: array<string> = []
+
+  // --- INTERNAL ---
   let batchInterval = 5000 // ms
   let batchSize = 50 // max entries per batch
   let queueMaxSize = 1000 // total buffered logs
   let retryMaxAttempts = 3
   let retryBackoffMs = 1000
+  let diagnosticMode = ref(startInDiagnosticMode)
 }
 
 // ============================================

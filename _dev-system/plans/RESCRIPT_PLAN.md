@@ -8,3 +8,9 @@
 
 ---
 
+## 🛠️ SURGICAL REFACTOR TASKS (1)
+- [ ] **../../src/utils/Logger.res**
+  - *Reason:* [Nesting: 2.00, Density: 0.14, Coupling: 0.07] | Drag: 5.47 | LOC: 327/300  🎯 Target: Function: `pd` (High Local Complexity (2.0). Logic heavy.)
+
+---
+

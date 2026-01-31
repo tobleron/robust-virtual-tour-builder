@@ -8,7 +8,7 @@ actix-cors = "0.7.1"
 actix-multipart = "0.7.2"
 actix-web = "4.12.1"
 tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 tracing-actix-web = "0.7"
 futures-util = "0.3.31"
 image = { version = "0.25.9", features = ["rayon"] }
@@ -48,6 +48,7 @@ oauth2 = "4.4"
 actix-web-prom = "0.7"
 prometheus = "0.13"
 tempfile = "3.24.0"
+tracing-appender = "0.2.4"
 # PERFORMANCE: Release build optimizations
 [profile.release]
 lto = true           # Link-Time Optimization for smaller, faster binaries

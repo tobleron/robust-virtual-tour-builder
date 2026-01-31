@@ -48,6 +48,7 @@ let createLogEntry = (
     message,
     data,
     priority: priorityToString(p),
+    requestId: None, // Populated by caller if needed, or via context later?
   }
 }
 
@@ -212,7 +213,30 @@ let endOperation = (~module_, ~operation, ~data=?, ()) =>
   info(~module_, ~message=`${operation}_COMPLETE`, ~data?, ())
 let initialized = (~module_) => info(~module_, ~message=`${module_} initialized`, ())
 
+let logResult = (
+  ~module_: string,
+  ~message: string,
+  result: Belt.Result.t<'a, 'e>,
+  ~verbose=false,
+) => {
+  switch result {
+  | Ok(_) =>
+    if verbose {
+      debug(~module_, ~message=`${message}_SUCCESS`, ())
+    }
+  | Error(_e) =>
+    let errStr = try {
+      %raw(`String(_e)`)
+    } catch {
+    | _ => "Unknown Error"
+    }
+    error(~module_, ~message=`${message}_FAILED`, ~data=castToJson({"error": errStr}), ())
+  }
+}
+
 // --- Facade & Init ---
+
+let isDiagnosticMode = () => Constants.Telemetry.diagnosticMode.contents
 
 let setLevel = lvl => {
   minLevel := lvl
@@ -223,6 +247,16 @@ let enable = () => {
   enabled := true
   enabledModules := Belt.Set.String.empty
   info(~module_="Logger", ~message="Debug mode ENABLED", ())
+}
+
+let enableDiagnostics = () => {
+  Constants.Telemetry.diagnosticMode := true
+  info(~module_="Logger", ~message="Diagnostic Mode ENABLED (All logs sent to server)", ())
+}
+
+let disableDiagnostics = () => {
+  Constants.Telemetry.diagnosticMode := false
+  info(~module_="Logger", ~message="Diagnostic Mode DISABLED", ())
 }
 
 let disable = () => {
@@ -265,7 +299,14 @@ let init = () => {
     "setLevel": s => setLevel(stringToLevel(s)),
     "getLog": () => entries,
     "clear": () => {%raw(`entries.length = 0`)},
-    "isEnabled": () => enabled.contents,
+    "enableDiagnostics": () => {
+      Constants.Telemetry.diagnosticMode := true
+      info(~module_="Logger", ~message="Diagnostic Mode ENABLED (All logs sent to server)", ())
+    },
+    "disableDiagnostics": () => {
+      Constants.Telemetry.diagnosticMode := false
+      info(~module_="Logger", ~message="Diagnostic Mode DISABLED", ())
+    },
     "testError": () => {
       ignore(%raw(`(function(){ throw new Error("Test Error from Console") })()`))
     },

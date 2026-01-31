@@ -36,9 +36,48 @@ async fn main() -> io::Result<()> {
     // Load environment variables from .env file
     let _ = dotenvy::dotenv();
 
+    // Panic Hook: Capture panics and log them via tracing
+    std::panic::set_hook(Box::new(|panic_info| {
+        let location = panic_info.location().unwrap();
+        let msg = match panic_info.payload().downcast_ref::<&'static str>() {
+            Some(s) => *s,
+            None => match panic_info.payload().downcast_ref::<String>() {
+                Some(s) => &s[..],
+                None => "Box<Any>",
+            },
+        };
+        tracing::error!(
+            target: "panic",
+            message = %msg,
+            file = %location.file(),
+            line = %location.line(),
+            "🔥 API PANIC DETECTED 🔥"
+        );
+    }));
+
     // Initialize tracing (logging)
-    tracing_subscriber::fmt()
-        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
+    let diag_appender = tracing_appender::rolling::never("../logs", "diagnostic.log");
+    let (diag_writer, _diag_guard) = tracing_appender::non_blocking(diag_appender);
+
+    let error_appender = tracing_appender::rolling::never("../logs", "error.log");
+    let (error_writer, _error_guard) = tracing_appender::non_blocking(error_appender);
+
+    let diag_layer = tracing_subscriber::fmt::layer()
+        .json()
+        .with_writer(diag_writer)
+        .with_filter(
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info")),
+        );
+
+    let error_layer = tracing_subscriber::fmt::layer()
+        .with_writer(error_writer)
+        .with_filter(tracing_subscriber::filter::LevelFilter::ERROR);
+
+    use tracing_subscriber::prelude::*;
+    tracing_subscriber::registry()
+        .with(diag_layer)
+        .with(error_layer)
         .init();
 
     tracing::info!("Starting server at http://localhost:8080");
