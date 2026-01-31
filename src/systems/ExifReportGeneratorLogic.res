@@ -42,9 +42,9 @@ module Utils = ExifUtils
 // --- LOGIC: EXTRACTION ---
 
 module Extraction = {
-  let processSceneDataItem = async (item: sceneDataItem) => {
+  let resolveExifData = async (item: sceneDataItem) => {
     let file = item.original
-    let exifData = switch item.metadataJson {
+    switch item.metadataJson {
     | Some(m) => {
         let meta = Schemas.castToExifMetadata(m)
         let hasGps = switch meta.gps->Nullable.toOption {
@@ -109,6 +109,11 @@ module Extraction = {
         }
       }
     }
+  }
+
+  let processSceneDataItem = async (item: sceneDataItem) => {
+    let file = item.original
+    let exifData = await resolveExifData(item)
 
     let result: exifResult = {
       filename: File.name(file),

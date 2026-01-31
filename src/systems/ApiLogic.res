@@ -74,8 +74,31 @@ module AuthenticatedClient = {
 module MediaApi = {
   /* From MediaApi.res */
 
-  /* ApiTypes is already opened at file scope, but for clarity/safety inside submodules: */
-  /* open ApiTypes (already opened) */
+  /* Helper functions to reduce nesting */
+  let handleError = (e, message, logKey) => {
+    let (msg, stack) = Logger.getErrorDetails(e)
+    Logger.error(
+      ~module_="MediaApi",
+      ~message=logKey,
+      ~data=Logger.castToJson({"error": msg, "stack": stack}),
+      (),
+    )
+    Promise.resolve(Error(message))
+  }
+
+  let handleJsonDecode = (json, decoder, logKey, errorMessage) => {
+    switch decoder(json) {
+    | Ok(data) => Promise.resolve(Ok(data))
+    | Error(msg) =>
+       Logger.error(
+          ~module_="MediaApi",
+          ~message=logKey ++ "_DECODE_FAILED",
+          ~data=Logger.castToJson({"error": msg}),
+          (),
+       )
+       Promise.resolve(Error(errorMessage ++ ": " ++ msg))
+    }
+  }
 
   let extractMetadata = (file: File.t): Promise.t<apiResult<metadataResponse>> => {
     RequestQueue.schedule(() => {
@@ -91,39 +114,17 @@ module MediaApi = {
         switch resultResponse {
         | Ok(response) =>
           Fetch.json(response)
-          ->Promise.then(
-            json => {
-              switch decodeMetadataResponse(json) {
-              | Ok(data) => Promise.resolve(Ok(data))
-              | Error(msg) => Promise.resolve(Error(msg))
-              }
-            },
-          )
-          ->Promise.catch(
-            e => {
-              let (msg, stack) = Logger.getErrorDetails(e)
-              Logger.error(
-                ~module_="MediaApi",
-                ~message="METADATA_ERROR_JSON_DECODE",
-                ~data=Logger.castToJson({"error": msg, "stack": stack}),
-                (),
-              )
-              Promise.resolve(Error("Metadata extraction failed: JSON parsing or decoding error"))
-            },
-          )
+          ->Promise.then(json => handleJsonDecode(
+            json,
+            decodeMetadataResponse,
+            "METADATA",
+            "Metadata extraction failed"
+          ))
+          ->Promise.catch(e => handleError(e, "Metadata extraction failed: JSON parsing error", "METADATA_ERROR_JSON_DECODE"))
         | Error(msg) => Promise.resolve(Error(msg))
         }
       })
-      ->Promise.catch(e => {
-        let (msg, stack) = Logger.getErrorDetails(e)
-        Logger.error(
-          ~module_="MediaApi",
-          ~message="METADATA_ERROR",
-          ~data=Logger.castToJson({"error": msg, "stack": stack}),
-          (),
-        )
-        Promise.resolve(Error("Metadata extraction failed"))
-      })
+      ->Promise.catch(e => handleError(e, "Metadata extraction failed", "METADATA_ERROR"))
     })
   }
 
@@ -153,31 +154,11 @@ module MediaApi = {
         | Ok(response) =>
           Fetch.blob(response)
           ->Promise.then(blob => Promise.resolve(Ok(blob)))
-          ->Promise.catch(
-            e => {
-              let (msg, stack) = Logger.getErrorDetails(e)
-              Logger.error(
-                ~module_="MediaApi",
-                ~message="PROCESSING_ERROR_BLOB_CONVERSION",
-                ~data=Logger.castToJson({"error": msg, "stack": stack}),
-                (),
-              )
-              Promise.resolve(Error("Image processing failed: Blob conversion error"))
-            },
-          )
+          ->Promise.catch(e => handleError(e, "Image processing failed: Blob conversion error", "PROCESSING_ERROR_BLOB_CONVERSION"))
         | Error(msg) => Promise.resolve(Error(msg))
         }
       })
-      ->Promise.catch(e => {
-        let (msg, stack) = Logger.getErrorDetails(e)
-        Logger.error(
-          ~module_="MediaApi",
-          ~message="PROCESSING_ERROR",
-          ~data=Logger.castToJson({"error": msg, "stack": stack}),
-          (),
-        )
-        Promise.resolve(Error("Image processing failed"))
-      })
+      ->Promise.catch(e => handleError(e, "Image processing failed", "PROCESSING_ERROR"))
     })
   }
 
@@ -206,47 +187,48 @@ module MediaApi = {
         switch resultResponse {
         | Ok(response) =>
           Fetch.json(response)
-          ->Promise.then(
-            json => {
-              switch decodeSimilarityResponse(json) {
-              | Ok(data) => Promise.resolve(Ok(data.results))
-              | Error(msg) => Promise.resolve(Error(msg))
-              }
-            },
-          )
-          ->Promise.catch(
-            e => {
-              let (msg, stack) = Logger.getErrorDetails(e)
-              Logger.error(
-                ~module_="MediaApi",
-                ~message="SIMILARITY_BATCH_ERROR_JSON_DECODE",
-                ~data=Logger.castToJson({"error": msg, "stack": stack}),
-                (),
-              )
-              Promise.resolve(
-                Error("Similarity calculation failed: JSON parsing or decoding error"),
-              )
-            },
-          )
+          ->Promise.then(json => {
+            switch decodeSimilarityResponse(json) {
+            | Ok(data) => Promise.resolve(Ok(data.results))
+            | Error(msg) => Promise.resolve(Error(msg))
+            }
+          })
+          ->Promise.catch(e => handleError(e, "Similarity calculation failed: JSON parsing error", "SIMILARITY_BATCH_ERROR_JSON_DECODE"))
         | Error(msg) => Promise.resolve(Error(msg))
         }
       })
-      ->Promise.catch(e => {
-        let (msg, stack) = Logger.getErrorDetails(e)
-        Logger.error(
-          ~module_="MediaApi",
-          ~message="SIMILARITY_BATCH_ERROR",
-          ~data=Logger.castToJson({"error": msg, "stack": stack}),
-          (),
-        )
-        Promise.resolve(Error("Similarity calculation failed"))
-      })
+      ->Promise.catch(e => handleError(e, "Similarity calculation failed", "SIMILARITY_BATCH_ERROR"))
     })
   }
 }
 
 module ProjectApi = {
   /* From ProjectApi.res */
+
+  let handleError = (e, message, logKey) => {
+    let (msg, stack) = Logger.getErrorDetails(e)
+    Logger.error(
+      ~module_="ProjectApi",
+      ~message=logKey,
+      ~data=Logger.castToJson({"error": msg, "stack": stack}),
+      (),
+    )
+    Promise.resolve(Error(message))
+  }
+
+  let handleJsonDecode = (json, decoder, logKey, errorMessage) => {
+    switch decoder(json) {
+    | Ok(data) => Promise.resolve(Ok(data))
+    | Error(msg) =>
+       Logger.error(
+          ~module_="ProjectApi",
+          ~message=logKey ++ "_DECODE_FAILED",
+          ~data=Logger.castToJson({"error": msg}),
+          (),
+       )
+       Promise.resolve(Error(errorMessage ++ ": " ++ msg))
+    }
+  }
 
   let importProject = (file: File.t): Promise.t<apiResult<importResponse>> => {
     RequestQueue.schedule(() => {
@@ -262,39 +244,17 @@ module ProjectApi = {
         switch resultResponse {
         | Ok(response) =>
           Fetch.json(response)
-          ->Promise.then(
-            json => {
-              switch decodeImportResponse(json) {
-              | Ok(data) => Promise.resolve(Ok(data))
-              | Error(msg) => Promise.resolve(Error(msg))
-              }
-            },
-          )
-          ->Promise.catch(
-            e => {
-              let (msg, stack) = Logger.getErrorDetails(e)
-              Logger.error(
-                ~module_="ProjectApi",
-                ~message="IMPORT_ERROR_JSON_DECODE",
-                ~data=Logger.castToJson({"error": msg, "stack": stack}),
-                (),
-              )
-              Promise.resolve(Error("Project import failed: JSON parsing or decoding error"))
-            },
-          )
+          ->Promise.then(json => handleJsonDecode(
+            json,
+            decodeImportResponse,
+            "IMPORT",
+            "Project import failed"
+          ))
+          ->Promise.catch(e => handleError(e, "Project import failed: JSON parsing error", "IMPORT_ERROR_JSON_DECODE"))
         | Error(msg) => Promise.resolve(Error(msg))
         }
       })
-      ->Promise.catch(e => {
-        let (msg, stack) = Logger.getErrorDetails(e)
-        Logger.error(
-          ~module_="ProjectApi",
-          ~message="IMPORT_ERROR",
-          ~data=Logger.castToJson({"error": msg, "stack": stack}),
-          (),
-        )
-        Promise.resolve(Error("Project import failed"))
-      })
+      ->Promise.catch(e => handleError(e, "Project import failed", "IMPORT_ERROR"))
     })
   }
 
@@ -309,39 +269,17 @@ module ProjectApi = {
         switch resultResponse {
         | Ok(response) =>
           Fetch.json(response)
-          ->Promise.then(
-            json => {
-              switch decodeImportResponse(json) {
-              | Ok(data) => Promise.resolve(Ok(data))
-              | Error(msg) => Promise.resolve(Error(msg))
-              }
-            },
-          )
-          ->Promise.catch(
-            e => {
-              let (msg, stack) = Logger.getErrorDetails(e)
-              Logger.error(
-                ~module_="ProjectApi",
-                ~message="LOAD_ERROR_JSON_DECODE",
-                ~data=Logger.castToJson({"error": msg, "stack": stack}),
-                (),
-              )
-              Promise.resolve(Error("Project load failed: JSON parsing error"))
-            },
-          )
+          ->Promise.then(json => handleJsonDecode(
+            json,
+            decodeImportResponse,
+            "LOAD",
+            "Project load failed"
+          ))
+          ->Promise.catch(e => handleError(e, "Project load failed: JSON parsing error", "LOAD_ERROR_JSON_DECODE"))
         | Error(msg) => Promise.resolve(Error(msg))
         }
       })
-      ->Promise.catch(e => {
-        let (msg, stack) = Logger.getErrorDetails(e)
-        Logger.error(
-          ~module_="ProjectApi",
-          ~message="LOAD_ERROR",
-          ~data=Logger.castToJson({"error": msg, "stack": stack}),
-          (),
-        )
-        Promise.resolve(Error("Project load failed"))
-      })
+      ->Promise.catch(e => handleError(e, "Project load failed", "LOAD_ERROR"))
     })
   }
 
@@ -363,33 +301,20 @@ module ProjectApi = {
         switch resultResponse {
         | Ok(response) =>
           Fetch.json(response)
-          ->Promise.then(
-            json => {
-              switch decodeValidationReport(json) {
-              | Ok(report) => Promise.resolve(Ok(report))
-              | Error(msg) => Promise.resolve(Error(msg))
-              }
-            },
-          )
-          ->Promise.catch(
-            e => {
-              let (msg, _) = Logger.getErrorDetails(e)
-              Promise.resolve(Error("Decoding validation report failed: " ++ msg))
-            },
-          )
+          ->Promise.then(json => handleJsonDecode(
+            json,
+            decodeValidationReport,
+            "VALIDATION",
+            "Project validation failed"
+          ))
+          ->Promise.catch(e => {
+             let (msg, _) = Logger.getErrorDetails(e)
+             Promise.resolve(Error("Decoding validation report failed: " ++ msg))
+          })
         | Error(msg) => Promise.resolve(Error(msg))
         }
       })
-      ->Promise.catch(e => {
-        let (msg, stack) = Logger.getErrorDetails(e)
-        Logger.error(
-          ~module_="ProjectApi",
-          ~message="VALIDATION_ERROR",
-          ~data=Logger.castToJson({"error": msg, "stack": stack}),
-          (),
-        )
-        Promise.resolve(Error("Project validation failed"))
-      })
+      ->Promise.catch(e => handleError(e, "Project validation failed", "VALIDATION_ERROR"))
     })
   }
 
@@ -411,16 +336,7 @@ module ProjectApi = {
         | Error(msg) => Promise.resolve(Error(msg))
         }
       })
-      ->Promise.catch(e => {
-        let (msg, stack) = Logger.getErrorDetails(e)
-        Logger.error(
-          ~module_="ProjectApi",
-          ~message="SAVE_ERROR",
-          ~data=Logger.castToJson({"error": msg, "stack": stack}),
-          (),
-        )
-        Promise.resolve(Error("Project save failed"))
-      })
+      ->Promise.catch(e => handleError(e, "Project save failed", "SAVE_ERROR"))
     })
   }
 
@@ -440,39 +356,17 @@ module ProjectApi = {
         switch resultResponse {
         | Ok(response) =>
           Fetch.json(response)
-          ->Promise.then(
-            json => {
-              switch decodeSteps(json) {
-              | Ok(data) => Promise.resolve(Ok(data))
-              | Error(msg) => Promise.resolve(Error(msg))
-              }
-            },
-          )
-          ->Promise.catch(
-            e => {
-              let (msg, stack) = Logger.getErrorDetails(e)
-              Logger.error(
-                ~module_="ProjectApi",
-                ~message="CALCULATE_PATH_ERROR_JSON_DECODE",
-                ~data=Logger.castToJson({"error": msg, "stack": stack}),
-                (),
-              )
-              Promise.resolve(Error("Path calculation failed: JSON parsing or decoding error"))
-            },
-          )
+          ->Promise.then(json => handleJsonDecode(
+            json,
+            decodeSteps,
+            "CALCULATE_PATH",
+            "Path calculation failed"
+          ))
+          ->Promise.catch(e => handleError(e, "Path calculation failed: JSON parsing error", "CALCULATE_PATH_ERROR_JSON_DECODE"))
         | Error(msg) => Promise.resolve(Error(msg))
         }
       })
-      ->Promise.catch(e => {
-        let (msg, stack) = Logger.getErrorDetails(e)
-        Logger.error(
-          ~module_="ProjectApi",
-          ~message="CALCULATE_PATH_ERROR",
-          ~data=Logger.castToJson({"error": msg, "stack": stack}),
-          (),
-        )
-        Promise.resolve(Error("Path calculation failed"))
-      })
+      ->Promise.catch(e => handleError(e, "Path calculation failed", "CALCULATE_PATH_ERROR"))
     })
   }
 
@@ -496,41 +390,20 @@ module ProjectApi = {
         switch resultResponse {
         | Ok(response) =>
           Fetch.json(response)
-          ->Promise.then(
-            json => {
-              switch decodeGeocodeResponse(json) {
-              | Ok(data) => Promise.resolve(Ok(data))
-              | Error(msg) => {
-                  Logger.warn(
-                    ~module_="ProjectApi",
-                    ~message="GEOCODE_DECODE_FAILED",
-                    ~data=Logger.castToJson({"error": msg}),
-                    (),
-                  )
-                  Promise.resolve(Error(msg))
-                }
-              }
-            },
-          )
-          ->Promise.catch(
-            e => {
-              let (msg, _) = Logger.getErrorDetails(e)
-              Promise.resolve(Error("Decoding geocode response failed: " ++ msg))
-            },
-          )
+          ->Promise.then(json => handleJsonDecode(
+            json,
+            decodeGeocodeResponse,
+            "GEOCODE",
+            "Geocoding failed"
+          ))
+          ->Promise.catch(e => {
+             let (msg, _) = Logger.getErrorDetails(e)
+             Promise.resolve(Error("Decoding geocode response failed: " ++ msg))
+          })
         | Error(msg) => Promise.resolve(Error(msg))
         }
       })
-      ->Promise.catch(e => {
-        let (msg, stack) = Logger.getErrorDetails(e)
-        Logger.error(
-          ~module_="ProjectApi",
-          ~message="GEOCODE_FAILED",
-          ~data=Logger.castToJson({"error": msg, "stack": stack}),
-          (),
-        )
-        Promise.resolve(Error("Geocoding failed: " ++ msg))
-      })
+      ->Promise.catch(e => handleError(e, "Geocoding failed", "GEOCODE_FAILED"))
     })
   }
 }
