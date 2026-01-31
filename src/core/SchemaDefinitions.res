@@ -101,6 +101,15 @@ module Shared = {
     }
   })
 
+  let similarityPair: S.t<similarityPair> = S.object(s => {
+    {
+      idA: s.field("idA", S.string),
+      idB: s.field("idB", S.string),
+      histogramA: s.field("histogramA", jsonSchema),
+      histogramB: s.field("histogramB", jsonSchema),
+    }
+  })
+
   let validationReport: S.t<validationReport> = S.object(s => {
     {
       brokenLinksRemoved: s.field("brokenLinksRemoved", S.int),

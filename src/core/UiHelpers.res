@@ -1,3 +1,4 @@
+open RescriptSchema
 open Types
 
 // Helper for array insertion
@@ -13,9 +14,10 @@ external castStringToBlob: string => ReBindings.Blob.t = "%identity"
 external castFileToBlob: ReBindings.File.t => ReBindings.Blob.t = "%identity"
 
 let decodeFile = (json: JSON.t): Types.file => {
-  switch JSON.Decode.string(json) {
-  | Some(s) => Url(s)
-  | None =>
+  try {
+    Url(S.parseOrThrow(json, S.string))
+  } catch {
+  | _ =>
     // Check if it's a raw File/Blob object from upload via %identity
     let isFile: bool = %raw("json instanceof File")
     if isFile {

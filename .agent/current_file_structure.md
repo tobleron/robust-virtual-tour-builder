@@ -876,12 +876,6 @@
 │   │   │   │   ├── PanoramaClusterer.cmj
 │   │   │   │   ├── PanoramaClusterer.cmt
 │   │   │   │   ├── PanoramaClusterer.res
-│   │   │   │   ├── ProjectData.ast
-│   │   │   │   ├── ProjectData.bs.js
-│   │   │   │   ├── ProjectData.cmi
-│   │   │   │   ├── ProjectData.cmj
-│   │   │   │   ├── ProjectData.cmt
-│   │   │   │   ├── ProjectData.res
 │   │   │   │   ├── ProjectManager.ast
 │   │   │   │   ├── ProjectManager.bs.js
 │   │   │   │   ├── ProjectManager.cmi
@@ -1617,12 +1611,6 @@
 │   │           ├── ProjectApi_v.test.cmj
 │   │           ├── ProjectApi_v.test.cmt
 │   │           ├── ProjectApi_v.test.res
-│   │           ├── ProjectData_v.test.ast
-│   │           ├── ProjectData_v.test.bs.js
-│   │           ├── ProjectData_v.test.cmi
-│   │           ├── ProjectData_v.test.cmj
-│   │           ├── ProjectData_v.test.cmt
-│   │           ├── ProjectData_v.test.res
 │   │           ├── ProjectManagerLogic_v.test.ast
 │   │           ├── ProjectManagerLogic_v.test.bs.js
 │   │           ├── ProjectManagerLogic_v.test.cmi
@@ -2823,16 +2811,6 @@
 │   │   ├── ProjectApi_v.test.cmj
 │   │   ├── ProjectApi_v.test.cmt
 │   │   ├── ProjectApi_v.test.res
-│   │   ├── ProjectData.ast
-│   │   ├── ProjectData.cmi
-│   │   ├── ProjectData.cmj
-│   │   ├── ProjectData.cmt
-│   │   ├── ProjectData.res
-│   │   ├── ProjectData_v.test.ast
-│   │   ├── ProjectData_v.test.cmi
-│   │   ├── ProjectData_v.test.cmj
-│   │   ├── ProjectData_v.test.cmt
-│   │   ├── ProjectData_v.test.res
 │   │   ├── ProjectManager.ast
 │   │   ├── ProjectManager.cmi
 │   │   ├── ProjectManager.cmj
@@ -5322,8 +5300,6 @@
 │   │   ├── PannellumLifecycle.res
 │   │   ├── PanoramaClusterer.bs.js
 │   │   ├── PanoramaClusterer.res
-│   │   ├── ProjectData.bs.js
-│   │   ├── ProjectData.res
 │   │   ├── ProjectManager.bs.js
 │   │   ├── ProjectManager.res
 │   │   ├── Resizer
@@ -5670,8 +5646,6 @@
 │       ├── ProgressBar_v.test.res
 │       ├── ProjectApi_v.test.bs.js
 │       ├── ProjectApi_v.test.res
-│       ├── ProjectData_v.test.bs.js
-│       ├── ProjectData_v.test.res
 │       ├── ProjectManagerLogic_v.test.bs.js
 │       ├── ProjectManagerLogic_v.test.res
 │       ├── ProjectManager_v.test.bs.js
@@ -5829,4 +5803,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-216 directories, 5614 files
+216 directories, 5588 files

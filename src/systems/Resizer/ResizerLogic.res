@@ -1,6 +1,7 @@
 /* src/systems/Resizer/ResizerLogic.res */
 
 open ReBindings
+open RescriptSchema
 open SharedTypes
 open ResizerTypes
 open ResizerUtils
@@ -29,7 +30,10 @@ let processZipResponse = zipResult => {
 let createResultFiles = (extractedResult, originalName) => {
   switch extractedResult {
   | Ok((previewBlob, metaText, tinyBlobOpt)) =>
-    let metadata: metadataResponse = Schemas.castToMetadataResponse(JSON.parseOrThrow(metaText))
+    let metadata: metadataResponse = S.parseJsonStringOrThrow(
+      metaText,
+      Schemas.Shared.metadataResponse,
+    )
     let suggestedName = Nullable.toOption(metadata.suggestedName)
 
     let computeNewName = (suggestedName: option<string>, originalName: string) => {

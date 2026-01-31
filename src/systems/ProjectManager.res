@@ -49,9 +49,8 @@ module Logic = {
       timeline: state.timeline,
     }
 
-    let projectData = S.reverseConvertOrThrow(project, Schemas.Domain.project)
+    let jsonStr = S.reverseConvertToJsonStringOrThrow(project, Schemas.Domain.project)
     let formData = FormData.newFormData()
-    let jsonStr = JSON.stringify(asJson(projectData))
     FormData.append(formData, "project_data", jsonStr)
 
     Belt.Array.forEachWithIndex(state.scenes, (_index, scene) => {
