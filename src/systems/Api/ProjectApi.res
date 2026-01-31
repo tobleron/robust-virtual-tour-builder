@@ -33,13 +33,34 @@ let handleJsonDecode = (json, decoder, logKey, errorMessage) => {
 let importProject = (file: File.t): Promise.t<apiResult<importResponse>> => {
   RequestQueue.schedule(() => {
     let formData = FormData.newFormData()
-    FormData.append(formData, "file", file)
+    FormData.append(formData, "zip", file)
+
+    let headers = Dict.make()
+    let token = Dom.Storage2.localStorage->Dom.Storage2.getItem("auth_token")
+
+    switch token {
+    | Some(t) => Dict.set(headers, "Authorization", "Bearer " ++ t)
+    | None => ()
+    }
 
     Fetch.fetch(
       Constants.backendUrl ++ "/api/project/import",
-      Fetch.requestInit(~method="POST", ~body=formData, ()),
+      Fetch.requestInit(~method="POST", ~body=formData, ~headers, ()),
     )
-    ->Promise.then(handleResponse)
+    ->Promise.then(response => {
+       if Fetch.Response.ok(response) {
+         Promise.resolve(Ok(response))
+       } else {
+         Fetch.text(response)->Promise.then(text => {
+           let errorMsg = if text == "" {
+             `Request failed with status ${Int.toString(Fetch.Response.status(response))}`
+           } else {
+             text
+           }
+           Promise.resolve(Error(errorMsg))
+         })
+       }
+    })
     ->Promise.then(resultResponse => {
       switch resultResponse {
       | Ok(response) =>

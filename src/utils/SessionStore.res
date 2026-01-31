@@ -32,13 +32,16 @@ let saveState = (state: state) => {
       ~message="SessionStore Save Error: " ++ S.Error.message(e),
       (),
     )
-  | JsExn(e) =>
-    Logger.error(
-      ~module_="SessionStore",
-      ~message="SessionStore Save Exn",
-      ~data=Logger.castToJson({"error": e}),
-      (),
-    )
+  | JsExn(e) => {
+      // Use helper to extract message instead of logging raw 'e'
+      let (msg, stack) = Logger.getErrorDetails(JsExn.anyToExnInternal(e))
+      Logger.error(
+        ~module_="SessionStore",
+        ~message="SessionStore Save Exn",
+        ~data=Logger.castToJson({"error": msg, "stack": stack}),
+        (),
+      )
+    }
   | _ => Logger.error(~module_="SessionStore", ~message="SessionStore Save Error: Unknown", ())
   }
 }
