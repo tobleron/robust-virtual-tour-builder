@@ -1,10 +1,9 @@
 /* src/systems/Api/MediaApi.res */
 
+open RescriptSchema
 open SharedTypes
 open ApiHelpers
 open ReBindings
-
-@scope("JSON") @val external stringify: 'a => string = "stringify"
 
 /* Helper functions to reduce nesting */
 let handleError = (e, message, logKey) => {
@@ -82,7 +81,12 @@ let processImageFull = (
       FormData.append(formData, "is_optimized", "true")
     }
     switch metadata {
-    | Some(m) => FormData.append(formData, "metadata", stringify(m))
+    | Some(m) =>
+      FormData.append(
+        formData,
+        "metadata",
+        S.reverseConvertToJsonStringOrThrow(m, Schemas.Shared.exifMetadata),
+      )
     | None => ()
     }
 
@@ -118,7 +122,14 @@ let batchCalculateSimilarity = (pairs: array<similarityPair>): Promise.t<
     let headers = Dict.make()
     Dict.set(headers, "Content-Type", "application/json")
 
-    let body = stringify({"pairs": pairs})
+    let body = S.reverseConvertToJsonStringOrThrow(
+      {"pairs": pairs},
+      S.object(s =>
+        {
+          "pairs": s.field("pairs", S.array(Schemas.Shared.similarityPair)),
+        }
+      ),
+    )
 
     Fetch.fetch(
       Constants.backendUrl ++ "/api/media/similarity",

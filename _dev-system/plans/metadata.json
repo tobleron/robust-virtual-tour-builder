@@ -20,6 +20,13 @@
   ],
   "rescript": [
     {
+      "Violation": {
+        "file": "../../src/systems/ApiHelpers.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
       "Surgical": {
         "file": "../../src/utils/Logger.res",
         "action": "De-bloat",
@@ -27,13 +34,6 @@
         "strategy": "",
         "platform": "frontend",
         "complexity": 8.169724770642201
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/systems/ApiHelpers.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
       }
     }
   ]

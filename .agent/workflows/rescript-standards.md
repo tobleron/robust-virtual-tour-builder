@@ -14,7 +14,8 @@ These rules apply specifically when editing **ReScript (`.res`, `.resi`)** files
 **Goal**: Eliminate runtime errors from invalid data shapes.
 
 - **Rule**: Use `rescript-schema` for ALL data entering or leaving the system (API, LocalStorage, IndexedDB).
-- **Rule**: Forbid legacy `JSON.Decode` and `JSON.stringify` for complex objects.
+- **Rule**: Forbid native `JSON.stringify` for complex objects or records. ALWAYS use `S.reverseConvertToJsonStringOrThrow` to ensure schema integrity.
+- **Rule**: Use `S.json` for arbitrary `JSON.t` data instead of `S.unknown`. `S.unknown` is not reversible. Note: The `TypeError` ("setting '~r'") issue was resolved by upgrading to `rescript-schema@9.3.0-rescript12.0`.
 - **Rule**: NO `Obj.magic` or unsafe casts at the boundary. Use `S.parseOrThrow` or `S.parse`.
 
 ```rescript
