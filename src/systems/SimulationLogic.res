@@ -84,34 +84,33 @@ module Navigation = {
   let pollForViewer = async (expectedSceneId, expectedSceneName, isAutoPilotActive) => {
     let timeout = Float.fromInt(Constants.sceneLoadTimeout)
     let start = InternalDate.now()
-    let loop = ref(true)
-    let currentResult = ref(Ok())
 
-    while loop.contents {
+    let rec pollLoop = async () => {
       if !isAutoPilotActive() {
-        loop := false
+        Ok()
       } else if InternalDate.now() -. start > timeout {
-        loop := false
-        currentResult := Error("Timeout waiting for viewer to load scene " ++ expectedSceneName)
+        Error("Timeout waiting for viewer to load scene " ++ expectedSceneName)
       } else {
         let v = findViewerForScene(expectedSceneId)
         switch v {
         | Some(viewer) =>
           if ViewerSystem.isViewerReady(viewer) {
-            loop := false
+            Ok()
           } else {
             let _ = await Promise.make((resolve, _) => {
               let _ = setTimeout(() => resolve(), 100)
             })
+            await pollLoop()
           }
         | None =>
           let _ = await Promise.make((resolve, _) => {
             let _ = setTimeout(() => resolve(), 100)
           })
+          await pollLoop()
         }
       }
     }
-    currentResult.contents
+    await pollLoop()
   }
 
   let waitForViewerScene = async (
