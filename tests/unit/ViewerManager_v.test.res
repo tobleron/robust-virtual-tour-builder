@@ -110,6 +110,7 @@ external mockLoadNewScene: mockFn = "loadNewScene"
 %%raw(`
   vi.mock('../../src/systems/EventBus.bs.js', () => ({
     dispatch: vi.fn(),
+    subscribe: vi.fn(() => () => {}),
   }))
 `)
 

@@ -47,20 +47,23 @@ The project follows a **System 2 Thinking** architecture, partitioned between a 
 
 ### Error Handling Philosophy
 - **ReScript/Rust Types**: Errors are handled as values (Result/Option), preventing runtime crashes.
+- **Backend Panic Hook**: A global panic hook captures unhandled Rust exceptions and routes them through the tracing system with full location metadata.
 - **Graceful Degradation**: Failures in non-critical systems (like caching) do not interrupt the primary application flow.
 
 ## 4. Observability & Metrics
 
 ### Intelligent Telemetry
-The system employs a priority-based telemetry engine to balance debugging depth with backend performance:
+The system employs a priority-based, unified telemetry engine to balance debugging depth with backend performance. All logs (Frontend/Backend) are consolidated into a structured JSON sink (`diagnostic.log`).
 
-- **Critical/High (Errors/Warnings)**: Transmitted immediately to the backend for real-time alerting.
-- **Medium (Info/Performance)**: Buffered in a client-side queue and dispatched in batches (default: every 5s or 50 entries) to minimize network overhead.
-- **Low (Debug/Trace)**: Restricted to the browser console to avoid backend congestion in production.
-- **Reliability**: Implements exponential backoff (starting at 1s) for failed batch transmissions to ensure observability even during transient network instability.
+- **Diagnostic Mode (Live)**: When toggled in the **About** dialog, the frontend switches to **Live Telemetry**, bypassing batching to stream all Trace/Debug logs immediately to the server.
+- **Critical/High (Errors/Warnings)**: Always transmitted immediately to the backend for real-time alerting.
+- **Medium (Info/Performance)**: Buffered in a client-side queue and dispatched in batches (default: every 5s or 50 entries) when not in Diagnostic Mode.
+- **Low (Debug/Trace)**: Restricted to the browser console when Diagnostic Mode is OFF; broadcasted live when Diagnostic Mode is ON.
+- **Reliability**: Implements exponential backoff (starting at 1s) for failed transmissions to ensure observability during transient network instability.
 
 ### System Monitoring
 - **Visual Performance**: Throttled rendering (20fps during simulation) minimizes resource contention.
+- **Real-time Tailer**: Dedicated tool `./scripts/tail-diagnostics.sh` provides a formatted, color-coded view of multi-source logs.
 - **Log Categorization**: Structured logs track the visual pipeline (SCENE_SWAP, CROSSFADE_TRIGGER) to debug race conditions.
 - **Turtle Logs**: Console warnings (🐢) highlight operations taking >500ms for developer awareness.
 
