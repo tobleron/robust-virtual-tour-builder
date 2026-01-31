@@ -1,6 +1,7 @@
 /* src/systems/Api/MediaApi.res */
 
 open SharedTypes
+open RescriptSchema
 open ApiHelpers
 open ReBindings
 
@@ -80,7 +81,12 @@ let processImageFull = (
       FormData.append(formData, "is_optimized", "true")
     }
     switch metadata {
-    | Some(m) => FormData.append(formData, "metadata", JSON.stringify(Logger.castToJson(m)))
+    | Some(m) =>
+      FormData.append(
+        formData,
+        "metadata",
+        S.reverseConvertToJsonStringOrThrow(m, Schemas.Shared.exifMetadata),
+      )
     | None => ()
     }
 
@@ -116,18 +122,18 @@ let batchCalculateSimilarity = (pairs: array<similarityPair>): Promise.t<
     let headers = Dict.make()
     Dict.set(headers, "Content-Type", "application/json")
 
+    let body = S.reverseConvertToJsonStringOrThrow(
+      {"pairs": pairs},
+      S.object(s =>
+        {
+          "pairs": s.field("pairs", S.array(Schemas.Shared.similarityPair)),
+        }
+      ),
+    )
+
     Fetch.fetch(
       Constants.backendUrl ++ "/api/media/similarity",
-      Fetch.requestInit(
-        ~method="POST",
-        ~headers,
-        ~body=JSON.stringify(
-          Logger.castToJson({
-            "pairs": pairs,
-          }),
-        ),
-        (),
-      ),
+      Fetch.requestInit(~method="POST", ~headers, ~body, ()),
     )
     ->Promise.then(handleResponse)
     ->Promise.then(resultResponse => {

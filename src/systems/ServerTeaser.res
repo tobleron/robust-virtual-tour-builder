@@ -1,5 +1,6 @@
 /* src/systems/ServerTeaser.res */
 open ReBindings
+open RescriptSchema
 open Types
 
 external anyToUnknown: 'a => 'b = "%identity"
@@ -7,9 +8,18 @@ external anyToUnknown: 'a => 'b = "%identity"
 let generateServerTeaser = (state: state, onProgress) => {
   let progress = (p, m) => onProgress->Option.forEach(cb => cb(p, m))
   progress(0, "Preparing Project Data...")
-  let projectData = ProjectData.toJSON(state)
+  let project: Types.project = {
+    tourName: state.tourName,
+    scenes: state.scenes,
+    lastUsedCategory: state.lastUsedCategory,
+    exifReport: state.exifReport,
+    sessionId: state.sessionId,
+    deletedSceneIds: state.deletedSceneIds,
+    timeline: state.timeline,
+  }
+  let jsonStr = S.reverseConvertToJsonStringOrThrow(project, Schemas.Domain.project)
   let formData = FormData.newFormData()
-  FormData.append(formData, "project_data", JSON.stringify(anyToUnknown(projectData)))
+  FormData.append(formData, "project_data", jsonStr)
   FormData.append(formData, "width", "1920")
   FormData.append(formData, "height", "1080")
   let added = ref(0)

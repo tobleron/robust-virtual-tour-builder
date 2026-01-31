@@ -89,7 +89,7 @@ let validateProject = (sessionId: string, projectData: JSON.t): Promise.t<
       Constants.backendUrl ++ "/api/project/validate/" ++ sessionId,
       Fetch.requestInit(
         ~method="POST",
-        ~body=JSON.stringify(projectData),
+        ~body=S.reverseConvertToJsonStringOrThrow(projectData, Schemas.Shared.jsonSchema),
         ~headers=Dict.fromArray([("Content-Type", "application/json")]),
         (),
       ),
@@ -127,7 +127,7 @@ let saveProject = (sessionId: string, projectData: JSON.t): Promise.t<apiResult<
       Constants.backendUrl ++ "/api/project/save/" ++ sessionId,
       Fetch.requestInit(
         ~method="POST",
-        ~body=JSON.stringify(projectData),
+        ~body=S.reverseConvertToJsonStringOrThrow(projectData, Schemas.Shared.jsonSchema),
         ~headers=Dict.fromArray([("Content-Type", "application/json")]),
         (),
       ),
