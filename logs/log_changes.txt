@@ -59,3 +59,4 @@
 [2026-01-31 02:01] v4.8.12 - Merge Core, Systems, and Backend Auth refactors [TRIPLE]
 [2026-01-31 02:31] v4.8.12 - Merge refactor-systems-frontend and sanitize [TRIPLE]
 [2026-01-31 03:19] v4.8.12 - refactor: modularize pathfinder, consolidate upload, and fix circular navigation dependency [TRIPLE]
+[2026-01-31 03:53] v4.8.12 - Fix(rules): Replace forbidden Obj.magic in AsyncQueue.res with safe error handling and logging
