@@ -8,13 +8,9 @@
 
 ---
 
-## 🛠️ SURGICAL REFACTOR TASKS (3)
-- [ ] **../../backend/src/services/geocoding/osm.rs**
-  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 78)
-- [ ] **../../backend/src/services/geocoding/mod.rs**
-  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 119)
-- [ ] **../../backend/src/services/geocoding/cache.rs**
-  - *Reason:* Unreachable Module. Not referenced by any entry point. (LOC: 210)
+## 🛠️ SURGICAL REFACTOR TASKS (1)
+- [ ] **../../backend/src/pathfinder.rs**
+  - *Reason:* [Nesting: 3.00, Density: 0.07, Coupling: 0.03] | Drag: 4.62 | LOC: 630/300
 
 ---
 

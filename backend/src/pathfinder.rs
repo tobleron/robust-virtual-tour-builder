@@ -5,7 +5,6 @@
 // ==========================================
 
 pub mod graph {
-    // @efficiency-role: data-model
     use serde::{Deserialize, Serialize};
 
     #[derive(Deserialize, Debug, Clone)]
@@ -530,7 +529,6 @@ pub mod walk {
 }
 
 pub mod algorithms {
-    // @efficiency-role: domain-logic
     use super::graph::{PathRequest, Step};
     use super::timeline;
     use super::walk;
