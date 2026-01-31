@@ -8,11 +8,19 @@
 
 ---
 
-## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (4)
-- [ ] `../../backend/src/auth.rs`
-- [ ] `../../backend/src/services/geocoding/osm.rs`
-- [ ] `../../backend/src/services/geocoding/cache.rs`
-- [ ] `../../backend/src/middleware.rs`
+## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (5)
+- [ ] `../../backend/src/pathfinder/graph.rs`
+- [ ] `../../backend/src/pathfinder/algorithms.rs`
+- [ ] `../../backend/src/pathfinder/tests.rs`
+- [ ] `../../backend/src/pathfinder/timeline.rs`
+- [ ] `../../backend/src/pathfinder/walk.rs`
 
 ---
 
+## 🧩 MERGE TASKS (1)
+### Merge Folder: `src/systems/Upload`
+- **Reason:** Recursive Feature Pod: 3 files in subtree sum to 261 LOC (fits in context). Max Drag: 8.67
+- **Files:**
+  - `src/systems/Upload/../../src/systems/Upload/UploadProcessorQueue.res`
+  - `src/systems/Upload/../../src/systems/Upload/UploadProcessorFinalizer.res`
+  - `src/systems/Upload/../../src/systems/Upload/UploadProcessorUtils.res`

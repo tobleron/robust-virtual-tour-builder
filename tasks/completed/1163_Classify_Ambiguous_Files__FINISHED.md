@@ -1,4 +1,4 @@
-# Task 1154: Classify Ambiguous Files
+# Task 1163: Classify Ambiguous Files
 
 ## Objective
 ## 🏷️ Ambiguity Objective
@@ -9,18 +9,18 @@
 **Optimal State:** Every file has a clear architectural identity, allowing the analyzer to apply correct LOC limits.
 
 ### 📚 Valid Roles
+*   **infra-adapter**: External API clients, database drivers, and third-party bindings.
 *   **infra-binding**: External JS/FFI bindings. High LOC permitted due to low logic density.
-*   **state-hook**: Custom hooks with high state-to-logic ratio.
 *   **util-pure**: Side-effect free helper functions.
 *   **ui-component**: Visual presentation and user interaction layers.
+*   **state-hook**: Custom hooks with high state-to-logic ratio.
 *   **infra-config**: Build scripts, project configuration, and environment setups.
-*   **state-reducer**: Deterministic state transitions (Redux/Store style).
 *   **ignored**: Exclude this file from all efficiency metrics and tasks.
-*   **orchestrator**: App entry points and high-level flow control.
 *   **service-orchestrator**: Complex coordination between multiple domain services.
-*   **domain-logic**: Pure business logic, entities, and domain services.
-*   **infra-adapter**: External API clients, database drivers, and third-party bindings.
+*   **state-reducer**: Deterministic state transitions (Redux/Store style).
 *   **data-model**: Type definitions, schemas, and DTOs (low logic density).
+*   **orchestrator**: App entry points and high-level flow control.
+*   **domain-logic**: Pure business logic, entities, and domain services.
 
 
 ## Tasks
@@ -28,7 +28,8 @@
 ### 🔧 Action: Classify Ambiguous Files
 **Directive:** Taxonomy Resolution: Add the required @efficiency-role: <role> tag (including colon) to help the analyzer apply the correct complexity limits.
 
-- [ ] `../../backend/src/auth.rs`
-- [ ] `../../backend/src/middleware.rs`
-- [ ] `../../backend/src/services/geocoding/cache.rs`
-- [ ] `../../backend/src/services/geocoding/osm.rs`
+- [ ] `../../backend/src/pathfinder/algorithms.rs`
+- [ ] `../../backend/src/pathfinder/graph.rs`
+- [ ] `../../backend/src/pathfinder/tests.rs`
+- [ ] `../../backend/src/pathfinder/timeline.rs`
+- [ ] `../../backend/src/pathfinder/walk.rs`

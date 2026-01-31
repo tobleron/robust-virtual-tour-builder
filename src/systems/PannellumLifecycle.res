@@ -1,2 +1,3 @@
-/* src/systems/PannellumLifecycle.res - Compatibility Facade */
+/* src/systems/PannellumLifecycle.res */
+// @efficiency-role: infra-adapter
 include ViewerSystem.Adapter

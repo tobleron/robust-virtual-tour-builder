@@ -23,6 +23,9 @@ This map provides a semantic overview of the project structure to optimize conte
     * [src/utils/LoggerLogic.res](src/utils/LoggerLogic.res): Core logging logic, console output, and performance tracking. `#logic`
     * [src/utils/LoggerTelemetry.res](src/utils/LoggerTelemetry.res): Async telemetry batching and backend synchronization. `#telemetry`
     * [src/utils/LoggerTypes.res](src/utils/LoggerTypes.res): Shared types, levels, and error helpers for the logger. `#types`
+    * [src/utils/LoggerConsole.res](src/utils/LoggerConsole.res): Console-specific logging output implementation. `#logging` `#console`
+    * [src/utils/LoggerCommon.res](src/utils/LoggerCommon.res): Shared logging logic and timestamp formatting. `#logging` `#utils`
+
 
 ### 🛡️ State Management & Logic
 *   [src/core/State.res](src/core/State.res): Central application state definition. `#state` `#immutability`
@@ -37,29 +40,27 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/core/SceneCache.res](src/core/SceneCache.res): In-memory cache for processed scene assets and metadata. `#cache` `#performance`
 *   [src/core/GlobalStateBridge.res](src/core/GlobalStateBridge.res): Bridge for synchronizing state across different contexts. `#state` `#sync`
 *   [src/i18n/I18n.res](src/i18n/I18n.res): Internationalization orchestrator for multi-language support. `#i18n` `#ui`
-*   [src/core/reducers/mod.res](src/core/reducers/mod.res): Directory entry for the domain-specific reducers. `#reducer`
-    *   [src/core/reducers/RootReducer.res](src/core/reducers/RootReducer.res): Combinator for all sub-reducers into a single state tree. `#reducer` `#composition`
-    *   [src/core/reducers/ProjectReducer.res](src/core/reducers/ProjectReducer.res): Reducer for project-level state (metadata, settings). `#reducer`
-    *   [src/core/reducers/SceneReducer.res](src/core/reducers/SceneReducer.res): Reducer for scene collection and image management. `#reducer` `#scene`
-    *   [src/core/reducers/HotspotReducer.res](src/core/reducers/HotspotReducer.res): Reducer for interactive hotspots and their actions. `#reducer` `#hotspots`
-    *   [src/core/reducers/NavigationReducer.res](src/core/reducers/NavigationReducer.res): Reducer for active navigation state and history. `#reducer` `#navigation`
-    *   [src/core/reducers/SimulationReducer.res](src/core/reducers/SimulationReducer.res): Reducer for autopilot and simulation parameters. `#reducer` `#simulation`
-    *   [src/core/reducers/TimelineReducer.res](src/core/reducers/TimelineReducer.res): Reducer for the visual timeline and event sequencing. `#reducer` `#timeline`
-    *   [src/core/reducers/UiReducer.res](src/core/reducers/UiReducer.res): Reducer for non-persistent UI state (modals, tooltips). `#reducer` `#ui`
+*   [src/core/Reducer.res](src/core/Reducer.res): Consolidated state reducer handling scenes, hotspots, navigation, and projects. `#reducer` `#logic`
+    *   [src/core/SceneMutations.res](src/core/SceneMutations.res): Complex state mutation logic for scene renaming, deletion, and reordering. `#state` `#scene` `#logic`
 *   [src/core/AppContext.res](src/core/AppContext.res): Typed React Context for state and dispatch accessibility. `#react-context` `#hooks`
 *   [src/core/Schemas.res](src/core/Schemas.res): Lightweight facade for data validation and parsing. `#json` `#validation` `#facade`
     *   [src/core/SchemasShared.res](src/core/SchemasShared.res): Shared validation schemas for backend communication. `#json` `#types`
     *   [src/core/SchemasDomain.res](src/core/SchemasDomain.res): Domain-specific validation schemas for tour state. `#json` `#types`
+    *   [src/core/SchemaParsers.res](src/core/SchemaParsers.res): Composable parsers for complex domain schemas. `#json` `#parsing`
+    *   [src/core/SchemaDefinitions.res](src/core/SchemaDefinitions.res): Canonical type definitions derived from Zod-like schemas. `#json` `#types`
+
 *   [src/core/SceneHelpers.res](src/core/SceneHelpers.res): Lightweight facade for scene-related helpers. `#helpers` `#scene` `#facade`
     *   [src/core/SceneHelpersParser.res](src/core/SceneHelpersParser.res): Parsing logic for hotspots, scenes, and projects. `#parsing`
     *   [src/core/SceneHelpersLogic.res](src/core/SceneHelpersLogic.res): Complex action handlers for scene management. `#logic`
 *   [src/core/UiHelpers.res](src/core/UiHelpers.res): Generic UI utilities, blob/file handling, and array manipulation. `#helpers` `#ui` `#utils`
 *   [src/core/SimHelpers.res](src/core/SimHelpers.res): Simulation and timeline specific parsers and helpers. `#helpers` `#simulation`
+*   [src/core/SimulationHelpers.res](src/core/SimulationHelpers.res): Advanced simulation waypoint and path helpers. `#helpers` `#simulation`
+*   [src/core/NavigationHelpers.res](src/core/NavigationHelpers.res): Transition and target-aware navigation helpers. `#helpers` `#navigation`
+*   [src/core/HotspotHelpers.res](src/core/HotspotHelpers.res): Hotspot placement and coordinate projection helpers. `#helpers` `#hotspots`
+
 
 ### 🌐 System Layer (Business Logic)
-*   [src/systems/UploadProcessor.res](src/systems/UploadProcessor.res): Lightweight facade for the image processing pipeline. `#upload` `#facade`
-*   [src/systems/UploadProcessorLogic.res](src/systems/UploadProcessorLogic.res): Lightweight facade for the image processing and upload queue logic. `#upload` `#facade`
-    *   [src/systems/UploadProcessorLogicLogic.res](src/systems/UploadProcessorLogicLogic.res): Core logic for image processing, queue management, and upload finalization. `#logic`
+*   [src/systems/UploadProcessor.res](src/systems/UploadProcessor.res): Consolidated orchestrator for image processing and upload pipeline. `#upload` `#orchestration` `#logic`
 *   [src/systems/UploadTypes.res](src/systems/UploadTypes.res): Types for upload processing system. `#types`
 * [src/systems/SceneLoader.res](src/systems/SceneLoader.res): Lightweight facade for scene transition and viewer loading orchestration. `#scene-loading` `#lifecycle` `#facade`
     * [src/systems/SceneLoaderLogic.res](src/systems/SceneLoaderLogic.res): Lightweight facade for scene loading orchestration. `#logic` `#facade`
@@ -67,28 +68,31 @@ This map provides a semantic overview of the project structure to optimize conte
     * [src/systems/SceneLoaderLogicConfig.res](src/systems/SceneLoaderLogicConfig.res): Pannellum configuration and URL generation. `#logic` `#config`
     * [src/systems/SceneLoaderLogicEvents.res](src/systems/SceneLoaderLogicEvents.res): Handler for viewer load events and hotspot injection. `#logic` `#events`
     * [src/systems/SceneLoaderTypes.res](src/systems/SceneLoaderTypes.res): Shared types and performance tracking for scene loading. `#types`
-*   [src/systems/Scene.res](src/systems/Scene.res): Core scene management logic. `#scene` `#management`
-*   [src/systems/SceneTransitionManager.res](src/systems/SceneTransitionManager.res): Manages DOM transitions and viewer swapping logic. `#transition` `#dom`
-*   [src/systems/PannellumLifecycle.res](src/systems/PannellumLifecycle.res): Lifecycle bindings for Pannellum viewer initialization and destruction. `#pannellum` `#bindings`
-*   [src/systems/HotspotLine.res](src/systems/HotspotLine.res): Facade for visual hotspot connections and simulation arrows. `#hotspots` `#rendering` `#facade`
+*   [src/systems/Scene.res](src/systems/Scene.res): Orchestrator for scene management, transitions, and loading. `#scene` `#orchestration`
+    *   [src/systems/Scene/SceneLoader.res](src/systems/Scene/SceneLoader.res): Scene transition logic and viewer loading coordination. `#scene-loading` `#lifecycle`
+    *   [src/systems/Scene/SceneTransition.res](src/systems/Scene/SceneTransition.res): DOM transitions and viewport swapping management. `#transition` `#dom`
+    *   [src/systems/Scene/SceneSwitcher.res](src/systems/Scene/SceneSwitcher.res): High-level scene switching, journey initialization, and auto-forwarding. `#scene-switching`
+*   [src/systems/HotspotLine.res](src/systems/HotspotLine.res): Orchestrator for visual hotspot connections and simulation arrows. `#hotspots` `#rendering` `#orchestration`
 *   [src/core/interfaces/ViewerDriver.res](src/core/interfaces/ViewerDriver.res): Interface contract for 360 renderer drivers. `#interface` `#abstraction`
-*   [src/systems/PannellumAdapter.res](src/systems/PannellumAdapter.res): Pannellum-specific implementation of ViewerDriver. `#adapter` `#rendering`
+*   [src/systems/PannellumAdapter.res](src/systems/PannellumAdapter.res): Pannellum-specific implementation of ViewerDriver. `#adapter`
+*   [src/systems/PannellumLifecycle.res](src/systems/PannellumLifecycle.res): Management of Pannellum instance creation and destruction. `#lifecycle` `#adapter`
 *   [src/systems/ViewerSystem.res](src/systems/ViewerSystem.res): Unified viewer system orchestrator. `#viewer` `#orchestration`
 *   [src/systems/ViewerLogic.res](src/systems/ViewerLogic.res): Core logic for viewer interactions and state. `#viewer` `#logic`
 *   [src/systems/ViewerPool.res](src/systems/ViewerPool.res): Manager for multiple viewport instances and their lifecycles. `#orchestration` `#efficiency`
-*   [src/systems/HotspotLineLogic.res](src/systems/HotspotLineLogic.res): Lightweight facade for coordinate projection and SVG drawing. `#math` `#rendering` `#facade`
-    *   [src/systems/HotspotLineLogicLogic.res](src/systems/HotspotLineLogicLogic.res): Main logic for persistent lines and linking drafts. `#logic`
-    *   [src/systems/HotspotLineLogicArrow.res](src/systems/HotspotLineLogicArrow.res): Specialized logic for simulation arrow rendering and animation. `#logic` `#animation`
-    *   [src/systems/HotspotLineLogicTypes.res](src/systems/HotspotLineLogicTypes.res): Internal types for hotspot line logic and caching. `#types`
-    *   [src/systems/HotspotLineUtils.res](src/systems/HotspotLineUtils.res): State and caching for hotspot line rendering. `#utils` `#caching`
+*   [src/systems/HotspotLineLogic.res](src/systems/HotspotLineLogic.res): Orchestrator for coordinate projection and SVG drawing. `#math` `#rendering` `#orchestration`
+    *   [src/systems/HotspotLine/HotspotLineLogicLogic.res](src/systems/HotspotLine/HotspotLineLogicLogic.res): Main logic for persistent lines and linking drafts. `#logic`
+    *   [src/systems/HotspotLine/HotspotLineLogicArrow.res](src/systems/HotspotLine/HotspotLineLogicArrow.res): Specialized logic for simulation arrow rendering and animation. `#logic` `#animation`
+    *   [src/systems/HotspotLine/HotspotLineLogicTypes.res](src/systems/HotspotLine/HotspotLineLogicTypes.res): Internal types for hotspot line logic and caching. `#types`
+    *   [src/systems/HotspotLine/HotspotLineUtils.res](src/systems/HotspotLine/HotspotLineUtils.res): State and caching for hotspot line rendering. `#utils` `#caching`
 *   [src/systems/Simulation.res](src/systems/Simulation.res): Core logic for autopilot simulations. `#simulation` `#autopilot`
 *   [src/systems/SimulationDriver.res](src/systems/SimulationDriver.res): Logic for Autopilot and route simulations. `#autopilot` `#simulation` `#navigation`
-*   [src/systems/Navigation.res](src/systems/Navigation.res): Centralized navigation system. `#navigation` `#orchestration`
+*   [src/systems/Navigation.res](src/systems/Navigation.res): Orchestrator for the centralized navigation system. `#navigation` `#orchestration`
+    *   [src/systems/Navigation/NavigationFSM.res](src/systems/Navigation/NavigationFSM.res): Pure deterministic Finite State Machine for navigation lifecycle. `#logic` `#reliability`
+    *   [src/systems/Navigation/NavigationGraph.res](src/systems/Navigation/NavigationGraph.res): Viewport math and link projection logic. `#math` `#navigation`
+    *   [src/systems/Navigation/NavigationRenderer.res](src/systems/Navigation/NavigationRenderer.res): Specialized renderer for interactive navigation elements. `#rendering`
+    *   [src/systems/Navigation/NavigationUI.res](src/systems/Navigation/NavigationUI.res): UI-driven navigation logic and prompt management. `#ui` `#navigation`
+    *   [src/systems/Navigation/NavigationController.res](src/systems/Navigation/NavigationController.res): React hooks and controller for navigation side effects. `#logic` `#controller`
 *   [src/systems/NavigationLogic.res](src/systems/NavigationLogic.res): Core logic for navigation state transitions. `#navigation` `#logic`
-*   [src/systems/NavigationController.res](src/systems/NavigationController.res): Manages movement between scenes. `#navigation` `#scene-switching`
-*   [src/systems/NavigationFSM.res](src/systems/NavigationFSM.res): Pure deterministic Finite State Machine for navigation lifecycle. `#orchestration` `#reliability`
-*   [src/systems/NavigationGraph.res](src/systems/NavigationGraph.res): Viewport math and link projection logic. `#math` `#navigation`
-*   [src/systems/SceneSwitcher.res](src/systems/SceneSwitcher.res): Handles the state transitions and side effects of changing scenes. `#scene-switching` `#transition`
 *   [src/systems/Teaser.res](src/systems/Teaser.res): Teaser generation system. `#teaser` `#video`
 *   [src/systems/TeaserLogic.res](src/systems/TeaserLogic.res): Core playback, recording orchestration, and cinematic movement logic for teasers. `#teaser` `#playback` `#logic`
 *   [src/systems/TeaserPlayback.res](src/systems/TeaserPlayback.res): Orchestrates teaser and autopilot playback logic. `#teaser` `#playback`
@@ -99,18 +103,23 @@ This map provides a semantic overview of the project structure to optimize conte
     * [src/systems/ProjectManagerTypes.res](src/systems/ProjectManagerTypes.res): Shared types for project management. `#types`
 *   [src/systems/Exporter.res](src/systems/Exporter.res): Generates production-ready tour clusters. `#export` `#deployment`
 *   [src/systems/Api.res](src/systems/Api.res): Consolidated API module for media, projects, and authentication. `#api` `#client` `#consolidated`
-    *   [src/systems/Api/AuthenticatedClient.res](src/systems/Api/AuthenticatedClient.res): Fetch wrapper with token injection and error handling. `#api` `#auth` `#client` `#adapter`
-    *   [src/systems/Api/ApiTypes.res](src/systems/Api/ApiTypes.res): Type definitions and JSON decoders for API responses. `#api` `#types` `#json` `#schema`
-    *   [src/systems/Api/MediaApi.res](src/systems/Api/MediaApi.res): Logic for media-related API operations (metadata, processing, similarity). `#api` `#media` `#logic` `#client`
-*   [src/systems/ApiLogic.res](src/systems/ApiLogic.res): Implementation of API client logic, including decoders and authenticated requests. `#api` `#client` `#logic`
+*   [src/systems/ApiLogic.res](src/systems/ApiLogic.res): Orchestrator for API client logic and sub-modules. `#api` `#client` `#orchestration`
+    *   [src/systems/Api/AuthenticatedClient.res](src/systems/Api/AuthenticatedClient.res): Fetch wrapper with token injection and error handling. `#api` `#auth` `#adapter`
+    *   [src/systems/Api/MediaApi.res](src/systems/Api/MediaApi.res): Logic for media-related API operations (metadata, processing, similarity). `#api` `#media`
+    *   [backend/src/api/media/image_tasks.rs](backend/src/api/media/image_tasks.rs): Backend processing tasks for multi-resolution images. `#api` `#processing`
+    *   [backend/src/api/media/image_multipart.rs](backend/src/api/media/image_multipart.rs): Handling of large image uploads via multipart/form-data. `#api` `#upload`
+    *   [backend/src/api/project_multipart.rs](backend/src/api/project_multipart.rs): Specialized multipart handling for project ZIP imports. `#api` `#project`
+
+    *   [src/systems/Api/ProjectApi.res](src/systems/Api/ProjectApi.res): Logic for project-related API operations (load, save, validate). `#api` `#project`
+    *   [src/systems/ApiHelpers.res](src/systems/ApiHelpers.res): Shared helper functions and types for the API system. `#api` `#helpers`
 *   [src/systems/FingerprintService.res](src/systems/FingerprintService.res): Image fingerprinting for deduplication. `#image` `#fingerprint`
 *   [src/systems/PanoramaClusterer.res](src/systems/PanoramaClusterer.res): Logic for grouping and clustering panoramas. `#logic` `#clustering`
 *   [src/systems/SvgManager.res](src/systems/SvgManager.res): Management of SVG overlays and elements. `#svg` `#rendering`
 *   [src/systems/VideoEncoder.res](src/systems/VideoEncoder.res): Logic for encoding tour sequences into video. `#video` `#encoding`
-*   [src/systems/Resizer.res](src/systems/Resizer.res): Lightweight facade for client-side image resizing. `#processing` `#image` `#facade`
-    *   [src/systems/ResizerLogic.res](src/systems/ResizerLogic.res): Core canvas-based resizing and blob generation logic. `#logic`
-    *   [src/systems/ResizerTypes.res](src/systems/ResizerTypes.res): Internal types for the resizing pipeline. `#types`
-    *   [src/systems/ResizerUtils.res](src/systems/ResizerUtils.res): Shared utilities for image dimension calculations. `#utils`
+*   [src/systems/Resizer.res](src/systems/Resizer.res): Orchestrator for client-side image resizing and analysis. `#processing` `#image` `#orchestration`
+    *   [src/systems/Resizer/ResizerLogic.res](src/systems/Resizer/ResizerLogic.res): Core canvas-based resizing and response processing. `#logic`
+    *   [src/systems/Resizer/ResizerTypes.res](src/systems/Resizer/ResizerTypes.res): Internal types for the resizing pipeline. `#types`
+    *   [src/systems/Resizer/ResizerUtils.res](src/systems/Resizer/ResizerUtils.res): Shared utilities and memory reporting for resizing. `#utils`
 *   [src/systems/TeaserRecorder.res](src/systems/TeaserRecorder.res): Lightweight facade for capturing and recording tour teasers. `#teaser` `#recording` `#facade`
     *   [src/systems/TeaserRecorderLogic.res](src/systems/TeaserRecorderLogic.res): Core recording orchestration and frame capture logic. `#logic`
     *   [src/systems/TeaserRecorderOverlay.res](src/systems/TeaserRecorderOverlay.res): Visual status indicators during recording sessions. `#ui`
@@ -121,23 +130,26 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/systems/InputSystem.res](src/systems/InputSystem.res): Unified handler for mouse, touch, and keyboard input. `#input` `#gestures`
 *   [src/systems/CursorPhysics.res](src/systems/CursorPhysics.res): Physics-based cursor and interaction smoothing. `#physics` `#ux`
 *   [src/systems/ExifParser.res](src/systems/ExifParser.res): Frontend-side EXIF data parsing and normalization. `#exif` `#parsing`
-*   [src/systems/ExifReportGenerator.res](src/systems/ExifReportGenerator.res): Lightweight facade for EXIF report generation and downloading. `#exif` `#reporting` `#facade`
-    *   [src/systems/ExifReportGeneratorLogic.res](src/systems/ExifReportGeneratorLogic.res): Main report generation orchestrator. `#logic`
-    *   [src/systems/ExifReportGeneratorLogicExtraction.res](src/systems/ExifReportGeneratorLogicExtraction.res): EXIF data extraction from file batches. `#logic` `#extraction`
-    *   [src/systems/ExifReportGeneratorLogicLocation.res](src/systems/ExifReportGeneratorLogicLocation.res): GPS analysis, centroid calculation, and geocoding. `#logic` `#geo`
-    *   [src/systems/ExifReportGeneratorLogicGroups.res](src/systems/ExifReportGeneratorLogicGroups.res): Camera device grouping and file listing logic. `#logic`
-    *   [src/systems/ExifReportGeneratorLogicTypes.res](src/systems/ExifReportGeneratorLogicTypes.res): Internal types for EXIF report analysis. `#types`
-    *   [src/systems/ExifReportGeneratorTypes.res](src/systems/ExifReportGeneratorTypes.res): Shared types for EXIF reporting. `#types`
-    *   [src/systems/ExifReportGeneratorUtils.res](src/systems/ExifReportGeneratorUtils.res): Project name generation and report downloading utilities. `#utils`
+*   [src/systems/ExifReportGenerator.res](src/systems/ExifReportGenerator.res): Lightweight facade for EXIF report generation. `#exif` `#reporting` `#facade`
+*   [src/systems/ExifReportGeneratorLogic.res](src/systems/ExifReportGeneratorLogic.res): Orchestrator for the main report generation logic. `#exif` `#orchestration`
+    *   [src/systems/ExifReport/ExifReportGeneratorLogicExtraction.res](src/systems/ExifReport/ExifReportGeneratorLogicExtraction.res): EXIF data extraction from file batches. `#logic` `#extraction`
+    *   [src/systems/ExifReport/ExifReportGeneratorLogicLocation.res](src/systems/ExifReport/ExifReportGeneratorLogicLocation.res): GPS analysis, centroid calculation, and geocoding. `#logic` `#geo`
+    *   [src/systems/ExifReport/ExifReportGeneratorLogicGroups.res](src/systems/ExifReport/ExifReportGeneratorLogicGroups.res): Camera device grouping and file listing logic. `#logic`
+    *   [src/systems/ExifReport/ExifReportGeneratorLogicTypes.res](src/systems/ExifReport/ExifReportGeneratorLogicTypes.res): Internal types for EXIF report analysis. `#types`
+*   [src/systems/ExifReportGeneratorTypes.res](src/systems/ExifReportGeneratorTypes.res): Shared types for EXIF reporting. `#types`
+*   [src/systems/ExifReportGeneratorUtils.res](src/systems/ExifReportGeneratorUtils.res): Project name generation and report downloading utilities. `#utils`
+*   [src/systems/ExifUtils.res](src/systems/ExifUtils.res): Shared helper functions for EXIF data and geolocation. `#exif` `#helpers`
 *   [src/systems/ImageValidator.res](src/systems/ImageValidator.res): Client-side validation of image formats and dimensions. `#image` `#validation`
 *   [src/systems/NavigationUI.res](src/systems/NavigationUI.res): UI-driven navigation logic and breadcrumb management. `#navigation` `#ui`
 *   [src/systems/NavigationRenderer.res](src/systems/NavigationRenderer.res): Specialized renderer for interactive navigation elements. `#rendering` `#navigation`
 *   [src/systems/LinkEditorLogic.res](src/systems/LinkEditorLogic.res): Core logic for the visual link and hotspot editor. `#editor` `#logic`
 *   [src/systems/ProjectData.res](src/systems/ProjectData.res): Domain logic for project structure manipulation and serialization. `#project` `#logic`
-*   [src/systems/SimulationLogic.res](src/systems/SimulationLogic.res): Advanced logic for waypoint-based movement simulations. `#simulation` `#logic`
-*   [src/systems/SimulationNavigation.res](src/systems/SimulationNavigation.res): Navigation specialized for automated autopilot routes. `#simulation` `#navigation`
-*   [src/systems/SimulationPathGenerator.res](src/systems/SimulationPathGenerator.res): Algorithm for generating optimal paths between scenes. `#simulation` `#algorithms`
-*   [src/systems/SimulationChainSkipper.res](src/systems/SimulationChainSkipper.res): Optimization logic for skipping redundant simulation steps. `#simulation` `#optimization`
+*   [src/systems/SimulationLogic.res](src/systems/SimulationLogic.res): Orchestrator for advanced waypoint-based movement simulations. `#simulation` `#orchestration`
+    *   [src/systems/Simulation/SimulationMainLogic.res](src/systems/Simulation/SimulationMainLogic.res): Core decision logic for simulation moves and actions. `#logic`
+    *   [src/systems/Simulation/SimulationNavigation.res](src/systems/Simulation/SimulationNavigation.res): Navigation specialized for automated autopilot routes. `#navigation`
+    *   [src/systems/Simulation/SimulationPathGenerator.res](src/systems/Simulation/SimulationPathGenerator.res): Algorithm for generating optimal paths between scenes. `#algorithms`
+    *   [src/systems/Simulation/SimulationChainSkipper.res](src/systems/Simulation/SimulationChainSkipper.res): Optimization logic for skipping redundant simulation steps. `#optimization`
+    *   [src/systems/Simulation/SimulationTypes.res](src/systems/Simulation/SimulationTypes.res): Internal types for the simulation logic. `#types`
 *   [src/systems/TeaserPathfinder.res](src/systems/TeaserPathfinder.res): Specialized pathfinding for cinematic teaser sequences. `#teaser` `#pathfinding`
 *   [src/systems/ServerTeaser.res](src/systems/ServerTeaser.res): Client-side bridge for server-side teaser generation requests. `#teaser` `#api`
 *   [src/systems/ViewerFollow.res](src/systems/ViewerFollow.res): Logic for synchronizing viewer orientations across sessions. `#sync` `#viewer`
@@ -246,6 +258,8 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [backend/src/api/telemetry.rs](backend/src/api/telemetry.rs): Endpoint for receiving client-side telemetry and logs. `#api` `#telemetry`
 *   [backend/src/api/telemetry_logic.rs](backend/src/api/telemetry_logic.rs): Processing logic for telemetry ingestion and storage. `#telemetry` `#logic`
 *   [backend/src/api/utils.rs](backend/src/api/utils.rs): Shared logic for API response formatting and errors. `#api` `#utils`
+*   [backend/src/auth.rs](backend/src/auth.rs): Backend authentication orchestrator and JWT middleware. `#auth` `#orchestration`
+
 
 ### 🛡️ Backend Core & Services
 *   [backend/src/lib.rs](backend/src/lib.rs): Shared library code and trait definitions for the backend. `#rust` `#core`
@@ -264,9 +278,17 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [backend/src/models/errors.rs](backend/src/models/errors.rs): Unified backend error system and response mapping. `#errors`
     *   [backend/src/models/errors_impl.rs](backend/src/models/errors_impl.rs): Domain-specific implementation of the error system. `#models` `#errors`
     *   [backend/src/models/errors_tests.rs](backend/src/models/errors_tests.rs): Unit tests for the backend error system. `#models` `#testing`
-*   [backend/src/pathfinder.rs](backend/src/pathfinder.rs): Consolidated high-performance navigation pathfinding logic. `#navigation` `#logic` `#algorithms`
-*   [backend/src/pathfinder/graph.rs](backend/src/pathfinder/graph.rs): Data models and types for the pathfinding graph. `#navigation` `#models` `#types`
-*   [backend/src/pathfinder/algorithms.rs](backend/src/pathfinder/algorithms.rs): Graph traversal logic for optimal routes. `#algorithms` `#graph-theory`
+*   [backend/src/pathfinder.rs](backend/src/pathfinder.rs): Orchestrator for high-performance navigation pathfinding logic. `#navigation` `#orchestration`
+    *   [backend/src/pathfinder/graph.rs](backend/src/pathfinder/graph.rs): Data models and types for the pathfinding graph. `#navigation` `#models`
+    *   [backend/src/pathfinder/utils.rs](backend/src/pathfinder/utils.rs): Shared utilities for scene indexing and view calculations. `#navigation` `#utils`
+    *   [backend/src/pathfinder/timeline.rs](backend/src/pathfinder/timeline.rs): Logic for calculating guided paths based on timelines. `#navigation` `#logic`
+    *   [backend/src/pathfinder/walk.rs](backend/src/pathfinder/walk.rs): Logic for calculating exploratory walk paths. `#navigation` `#logic`
+    *   [backend/src/pathfinder/algorithms.rs](backend/src/pathfinder/algorithms.rs): High-level pathfinding algorithm selection. `#navigation` `#algorithms`
+    *   [backend/src/pathfinder/tests.rs](backend/src/pathfinder/tests.rs): Unit tests for the pathfinding engine. `#navigation` `#testing`
+*   [backend/src/services/geocoding/mod.rs](backend/src/services/geocoding/mod.rs): Facade for the geocoding service with OSM integration. `#geocoding` `#services` `#facade`
+    *   [backend/src/services/geocoding/osm.rs](backend/src/services/geocoding/osm.rs): OpenStreetMap Nominatim API client driver. `#geocoding` `#adapter`
+    *   [backend/src/services/geocoding/cache.rs](backend/src/services/geocoding/cache.rs): LRU persistent cache for geocoding results. `#geocoding` `#cache`
+
 *   [backend/src/services/mod.rs](backend/src/services/mod.rs): Domain-specific service layer entry point. `#services`
     *   [backend/src/services/auth.rs](backend/src/services/auth.rs): Orchestrator for authentication and identity services. `#auth` `#facade`
     *   [backend/src/services/database.rs](backend/src/services/database.rs): Persistence layer for project metadata and users. `#database` `#logic`
@@ -282,21 +304,4 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [backend/src/services/media/naming_old.rs](backend/src/services/media/naming_old.rs): Legacy camera filename normalization logic. `#rust` `#legacy`
 
 
-## 🆕 Unmapped Modules
-* [backend/src/auth.rs](backend/src/auth.rs): New module detected. Please classify. #new
-* [src/core/SimulationHelpers.res](src/core/SimulationHelpers.res): New module detected. Please classify. #new
-* [src/core/SceneMutations.res](src/core/SceneMutations.res): New module detected. Please classify. #new
-* [src/core/NavigationHelpers.res](src/core/NavigationHelpers.res): New module detected. Please classify. #new
-* [src/core/HotspotHelpers.res](src/core/HotspotHelpers.res): New module detected. Please classify. #new
-* [src/systems/ApiHelpers.res](src/systems/ApiHelpers.res): New module detected. Please classify. #new
-* [src/systems/ExifUtils.res](src/systems/ExifUtils.res): New module detected. Please classify. #new
-* [src/utils/LoggerConsole.res](src/utils/LoggerConsole.res): New module detected. Please classify. #new
-* [src/utils/LoggerCommon.res](src/utils/LoggerCommon.res): New module detected. Please classify. #new
-* [src/core/SchemaParsers.res](src/core/SchemaParsers.res): New module detected. Please classify. #new
-* [src/core/SchemaDefinitions.res](src/core/SchemaDefinitions.res): New module detected. Please classify. #new
-* [backend/src/services/geocoding/mod.rs](backend/src/services/geocoding/mod.rs): New module detected. Please classify. #new
-* [backend/src/services/geocoding/osm.rs](backend/src/services/geocoding/osm.rs): New module detected. Please classify. #new
-* [backend/src/services/geocoding/cache.rs](backend/src/services/geocoding/cache.rs): New module detected. Please classify. #new
-* [backend/src/api/media/image_tasks.rs](backend/src/api/media/image_tasks.rs): New module detected. Please classify. #new
-* [backend/src/api/media/image_multipart.rs](backend/src/api/media/image_multipart.rs): New module detected. Please classify. #new
-* [backend/src/api/project_multipart.rs](backend/src/api/project_multipart.rs): New module detected. Please classify. #new
+

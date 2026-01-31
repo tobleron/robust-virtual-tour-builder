@@ -1,4 +1,6 @@
+// @efficiency-role: domain-logic
 use crate::metrics::{GEOCODING_CACHE_HITS_TOTAL, GEOCODING_CACHE_MISSES_TOTAL};
+
 use crate::models::{CacheStats, CachedGeocode, GeocodeKey};
 use serde_json::json;
 use std::collections::HashMap;

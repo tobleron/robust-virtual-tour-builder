@@ -1,34 +1,35 @@
-/* src/systems/UploadProcessor.res - Consolidated Upload Processor System */
+/* src/systems/UploadProcessor.res */
+// @efficiency-role: orchestrator
 
 open ReBindings
 open SharedTypes
+open UploadTypes
 open Actions
 
-// --- UTILS ---
+@@warning("-45")
 
-module NotificationHelpers = {
-  let getNotificationType = (typeStr: string) => {
-    switch typeStr {
-    | "error" => #Error
-    | "warning" => #Warning
-    | "success" => #Success
-    | _ => #Info
-    }
-  }
-}
+external castToJson: 'a => JSON.t = "%identity"
 
 module Utils = {
+  module NotificationHelpers = {
+    let getNotificationType = (typeStr: string) => {
+      switch typeStr {
+      | "error" => #Error
+      | "warning" => #Warning
+      | "success" => #Success
+      | _ => #Info
+      }
+    }
+  }
+
   let notify = (msg, typeStr) => {
     EventBus.dispatch(ShowNotification(msg, NotificationHelpers.getNotificationType(typeStr)))
   }
 }
 
-// --- LOGIC ---
-
 module Logic = {
-  external castToJson: 'a => JSON.t = "%identity"
-
-  let handleProcessSuccess = (res: Resizer.processResult, item: UploadTypes.uploadItem) => {
+  // From UploadProcessorQueue
+  let handleProcessSuccess = (res: Resizer.processResult, item: uploadItem) => {
     Logger.debug(
       ~module_="UploadLogic",
       ~message="QUALITY_ANALYSIS",
@@ -48,7 +49,7 @@ module Logic = {
     }
   }
 
-  let handleProcessError = (msg, item: UploadTypes.uploadItem) => {
+  let handleProcessError = (msg, item: uploadItem) => {
     Logger.error(
       ~module_="UploadLogic",
       ~message="FILE_FAILED",
@@ -58,7 +59,7 @@ module Logic = {
     {...item, error: Some(msg)}
   }
 
-  let processItem = (i, item: UploadTypes.uploadItem, onStatus: string => unit) => {
+  let processItem = (i, item: uploadItem, onStatus: string => unit) => {
     Logger.debug(
       ~module_="UploadLogic",
       ~message="FILE_START",
@@ -123,7 +124,7 @@ module Logic = {
   }
 
   let processWithQueue = (
-    items: array<UploadTypes.uploadItem>,
+    items: array<uploadItem>,
     maxConcurrency: int,
     updateProgress: (float, string, bool, string) => unit,
   ) => {
@@ -142,10 +143,10 @@ module Logic = {
       updateProgress(progress, statusMsg, true, "Processing")
     }
 
-    let (resolve, reject) = (ref(ignore), ref(ignore))
+    let (resolve, _reject) = (ref(ignore), ref(ignore))
     let promise = Promise.make((res, rej) => {
       resolve := res
-      reject := rej
+      _reject := rej
     })
 
     let rec next = () => {
@@ -185,8 +186,9 @@ module Logic = {
     promise
   }
 
+  // From UploadProcessorFinalizer
   let finalizeUploads = (
-    validProcessed: array<UploadTypes.uploadItem>,
+    validProcessed: array<uploadItem>,
     startTime: float,
     updateProgress: (float, string, bool, string) => unit,
   ) => {
@@ -263,7 +265,7 @@ module Logic = {
                   let q =
                     i.quality
                     ->Option.map(Schemas.castToQualityAnalysis)
-                    ->Option.getOr(defaultQuality("No quality data"))
+                    ->Option.getOr(SharedTypes.defaultQuality("No quality data"))
                   ({quality: q, newName: File.name(i.original)}: UploadReport.qualityItem)
                 },
               ),
@@ -276,8 +278,6 @@ module Logic = {
     })
   }
 }
-
-// --- MAIN ---
 
 let processUploads = (
   files: array<UploadTypes.file>,

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix(dev-system): update merge directive to strip efficiency tags
 - Post-merge sanitation of efficiency tags
 - Merge refactor-systems-frontend and sanitize
+- Modularize pathfinder, consolidate upload, and fix circular navigation dependency
 
 ## [4.8.12] - 2026-01-30
 

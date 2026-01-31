@@ -1,0 +1,121 @@
+/* src/systems/Scene/SceneTransition.res */
+
+open ReBindings
+open Types
+
+type viewport = ViewerSystem.Pool.viewport
+
+let finalizeSwap = () => {
+  ViewerSystem.getActiveViewer()
+  ->Nullable.toOption
+  ->Option.forEach(v => {
+    if ViewerSystem.isViewerReady(v) {
+      HotspotLine.updateLines(
+        v,
+        GlobalStateBridge.getState(),
+        ~mouseEvent=?ViewerState.state.contents.lastMouseEvent->Nullable.toOption,
+        (),
+      )
+    }
+  })
+  ViewerState.state := {...ViewerState.state.contents, isSwapping: false}
+}
+
+let assignGlobalViewer = nv => {
+  let assignGlobal: Nullable.t<ReBindings.Viewer.t> => unit = %raw(
+    "(v) => window.pannellumViewer = v"
+  )
+  assignGlobal(nv)
+}
+
+let clearHotspotLines = () => {
+  Dom.getElementById("viewer-hotspot-lines")
+  ->Nullable.toOption
+  ->Option.forEach(svg => Dom.setTextContent(svg, ""))
+}
+
+let updateGlobalStateAndViewer = nv => {
+  ViewerSystem.Pool.swapActive()
+  ViewerSystem.Pool.getActive()->Option.forEach(v => ViewerSystem.Pool.clearCleanupTimeout(v.id))
+
+  assignGlobalViewer(nv)
+  clearHotspotLines()
+
+  let _ = Window.setTimeout(finalizeSwap, 50)
+}
+
+let updateDomTransitions = (av, iv) => {
+  let isCut = GlobalStateBridge.getState().transition.type_ == Cut
+  switch (av, iv) {
+  | (Some(act: viewport), Some(inact: viewport)) =>
+    let (actEl, inactEl) = (
+      Dom.getElementById(act.containerId),
+      Dom.getElementById(inact.containerId),
+    )
+    switch (actEl->Nullable.toOption, inactEl->Nullable.toOption) {
+    | (Some(a), Some(i)) =>
+      if isCut {
+        Dom.setTransition(a, "none")
+        Dom.setTransition(i, "none")
+      } else {
+        Dom.setTransition(a, "")
+        Dom.setTransition(i, "")
+      }
+      Dom.remove(a, "active")
+      Dom.add(i, "active")
+      if isCut {
+        let _ = Window.setTimeout(() => {
+          Dom.setTransition(a, "")
+          Dom.setTransition(i, "")
+        }, 50)
+      }
+    | _ => ()
+    }
+  | _ => ()
+  }
+}
+
+let cleanupViewerInstance = (ov, vp: viewport) => {
+  let tid = Window.setTimeout(() => {
+    ov->Nullable.toOption->Option.forEach(ViewerSystem.Adapter.destroy)
+    ViewerSystem.Pool.clearInstance(vp.containerId)
+    ViewerSystem.Pool.clearCleanupTimeout(vp.id)
+  }, 500)
+  ViewerSystem.Pool.setCleanupTimeout(vp.id, Some(tid))
+}
+
+let cleanupSnapshotOverlay = () => {
+  Dom.getElementById("viewer-snapshot-overlay")
+  ->Nullable.toOption
+  ->Option.forEach(s => {
+    Dom.remove(s, "snapshot-visible")
+    let _ = Window.setTimeout(() => {
+      if !(Dom.classList(s)->Dom.ClassList.contains("snapshot-visible")) {
+        Dom.setBackgroundImage(s, "none")
+      }
+    }, 450)
+  })
+}
+
+let scheduleCleanup = ov => {
+  let clv = ViewerSystem.Pool.getInactive()
+  switch clv {
+  | Some(vp) => cleanupViewerInstance(ov, vp)
+  | None => ()
+  }
+  cleanupSnapshotOverlay()
+}
+
+let performSwap = (loadedScene: scene, _loadStartTime) => {
+  ViewerState.state := {...ViewerState.state.contents, isSwapping: true}
+  let (av, iv) = (ViewerSystem.Pool.getActive(), ViewerSystem.Pool.getInactive())
+  let (ov, nv) = (ViewerSystem.getActiveViewer(), ViewerSystem.getInactiveViewer())
+
+  updateGlobalStateAndViewer(nv)
+  updateDomTransitions(av, iv)
+  scheduleCleanup(ov)
+
+  ViewerSnapshot.requestIdleSnapshot()
+  ViewerState.state := {...ViewerState.state.contents, lastSceneId: Nullable.make(loadedScene.id)}
+  GlobalStateBridge.dispatch(DispatchNavigationFsmEvent(StabilizeComplete))
+}
