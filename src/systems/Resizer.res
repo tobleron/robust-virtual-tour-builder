@@ -144,54 +144,7 @@ module Utils = {
 // --- LOGIC ---
 
 module Logic = {
-  let processAndAnalyzeImage = (file: File.t, ~onStatus: option<statusCallback>): Promise.t<
-    result<processResult, string>,
-  > => {
-    let mem = getMemoryUsage()
-    let reportStatus = (status: string) => {
-      switch onStatus {
-      | Some(cb) => cb(status)
-      | None => ()
-      }
-    }
-
-    Logger.startOperation(
-      ~module_="Resizer",
-      ~operation="BACKEND_PROCESS_FULL",
-      ~data={"file": File.name(file), "size": File.size(file), "memory": mem},
-      (),
-    )
-    reportStatus("Optimizing")
-    let _fetchStart = now()
-
-    Promise.all2((
-      ExifParser.extractExifTags(File(file)),
-      ImageOptimizer.compressToWebP(file, 0.90),
-    ))
-    ->Promise.then(((exifResult, compressionResult)) => {
-      let exifData = switch exifResult {
-      | Ok((exif, _pano)) => Some(exif)
-      | Error(_) => None
-      }
-      switch compressionResult {
-      | Ok(webpBlob) =>
-        let webpFile = File.newFile([webpBlob], File.name(file), %raw("{type: 'image/webp'}"))
-        reportStatus("Uploading")
-        BackendApi.processImageFull(webpFile, ~isOptimized=true, ~metadata=?exifData)
-      | Error(msg) => Promise.resolve(Error(msg))
-      }
-    })
-    ->Promise.then(result => {
-      switch result {
-      | Ok(zipBlob) =>
-        reportStatus("Extracting")
-        LazyLoad.loadJSZip()
-        ->Promise.then(() => JSZip.loadAsync(zipBlob))
-        ->Promise.then(zip => Promise.resolve(Ok(zip)))
-      | Error(msg) => Promise.resolve(Error(msg))
-      }
-    })
-    ->Promise.then(zipResult => {
+  let processZipResponse = (zipResult) => {
       switch zipResult {
       | Ok(zip) =>
         let previewZipFile = JSZip.file(zip, "preview.webp")
@@ -210,13 +163,13 @@ module Logic = {
         }
       | Error(msg) => Promise.resolve(Error(msg))
       }
-    })
-    ->Promise.then(extractedResult => {
+  }
+
+  let createResultFiles = (extractedResult, originalName) => {
       switch extractedResult {
       | Ok((previewBlob, metaText, tinyBlobOpt)) =>
         let metadata: metadataResponse = Schemas.castToMetadataResponse(JSON.parseOrThrow(metaText))
         let suggestedName = Nullable.toOption(metadata.suggestedName)
-        let originalName = File.name(file)
 
         let computeNewName = (suggestedName: option<string>, originalName: string) => {
           switch suggestedName {
@@ -266,7 +219,57 @@ module Logic = {
         )
       | Error(msg) => Promise.resolve(Error(msg))
       }
+  }
+
+  let processAndAnalyzeImage = (file: File.t, ~onStatus: option<statusCallback>): Promise.t<
+    result<processResult, string>,
+  > => {
+    let mem = getMemoryUsage()
+    let reportStatus = (status: string) => {
+      switch onStatus {
+      | Some(cb) => cb(status)
+      | None => ()
+      }
+    }
+
+    Logger.startOperation(
+      ~module_="Resizer",
+      ~operation="BACKEND_PROCESS_FULL",
+      ~data={"file": File.name(file), "size": File.size(file), "memory": mem},
+      (),
+    )
+    reportStatus("Optimizing")
+    let _fetchStart = now()
+
+    Promise.all2((
+      ExifParser.extractExifTags(File(file)),
+      ImageOptimizer.compressToWebP(file, 0.90),
+    ))
+    ->Promise.then(((exifResult, compressionResult)) => {
+      let exifData = switch exifResult {
+      | Ok((exif, _pano)) => Some(exif)
+      | Error(_) => None
+      }
+      switch compressionResult {
+      | Ok(webpBlob) =>
+        let webpFile = File.newFile([webpBlob], File.name(file), %raw("{type: 'image/webp'}"))
+        reportStatus("Uploading")
+        BackendApi.processImageFull(webpFile, ~isOptimized=true, ~metadata=?exifData)
+      | Error(msg) => Promise.resolve(Error(msg))
+      }
     })
+    ->Promise.then(result => {
+      switch result {
+      | Ok(zipBlob) =>
+        reportStatus("Extracting")
+        LazyLoad.loadJSZip()
+        ->Promise.then(() => JSZip.loadAsync(zipBlob))
+        ->Promise.then(zip => Promise.resolve(Ok(zip)))
+      | Error(msg) => Promise.resolve(Error(msg))
+      }
+    })
+    ->Promise.then(processZipResponse)
+    ->Promise.then(extractedResult => createResultFiles(extractedResult, File.name(file)))
     ->Promise.catch(err => {
       let (msg, _) = Logger.getErrorDetails(err)
       Promise.resolve(Error(msg))
