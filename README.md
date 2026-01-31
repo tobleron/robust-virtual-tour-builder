@@ -3,7 +3,7 @@
 ![CI](https://github.com/tobleron/robust-virtual-tour-builder/actions/workflows/ci.yml/badge.svg)
 
 <!-- METADATA_START -->
-**Version:** 4.8.12 (Build 349)  
+**Version:** 4.8.12 (Build 350)  
 **Directing Developer:** Arto Kalishian  
 **Release Date:** January 31, 2026  
 **Status:** Commercial Ready

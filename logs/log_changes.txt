@@ -69,3 +69,4 @@
 [2026-01-31 17:47] v4.8.12 - feat: implement unified diagnostic logging system with real-time UI toggle and live telemetry [TRIPLE]
 [2026-01-31 18:50] v4.8.12 - fix: resolve widespread test failures and schema runtime errors; restore App and ViewerManager unit tests [TRIPLE]
 [2026-01-31 19:14] v4.8.12 - chore: merge test stabilization fixes [TRIPLE]
+[2026-01-31 19:15] v4.8.12 - chore: final standards alignment for session tests [TRIPLE]
