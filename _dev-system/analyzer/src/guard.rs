@@ -246,7 +246,16 @@ pub fn check_map(config: &GuardConfig, rules: &ExclusionRules) -> Result<()> {
 
                 if is_project_source(path, rules) && !mapped_paths.contains(clean_p) {
                     if path.exists() {
-                        unmapped_files.push(clean_p.to_string());
+                         // Check for ignore tag in content
+                         let is_ignored = if let Ok(content) = fs::read_to_string(path) {
+                             content.contains("@efficiency-role: ignored") || content.contains("@efficiency-role ignored")
+                         } else {
+                             false
+                         };
+
+                         if !is_ignored {
+                             unmapped_files.push(clean_p.to_string());
+                         }
                     }
                 }
             }
@@ -256,36 +265,47 @@ pub fn check_map(config: &GuardConfig, rules: &ExclusionRules) -> Result<()> {
     let mut lines: Vec<String> = map_content.lines().map(|s| s.to_string()).collect();
     let mut changed = false;
 
-    // --- MAP.md Zombie Elimination for Unmapped Modules ---
-    // If an entry in Unmapped Modules matches exclusion rules OR no longer exists, remove it.
+    // --- MAP.md Zombie Elimination (Global) ---
+    // If ANY entry in MAP.md points to a non-existent file, remove it.
     let mut new_lines = Vec::new();
-    let mut in_unmapped = false;
-    for line in lines.into_iter() {
-        if line.contains("## 🆕 Unmapped Modules") {
-            in_unmapped = true;
-            new_lines.push(line);
-            continue;
-        }
-        // Stop being in unmapped section if we hit another header
-        if in_unmapped && line.starts_with("## ") && !line.contains("## 🆕 Unmapped Modules") {
-            in_unmapped = false;
-        }
+    let link_regex = Regex::new(r"\[.*?\]\((.*?)\)").unwrap();
 
-        if in_unmapped && line.starts_with("* [") {
-            // Extract path
-            if let Some(start) = line.find('(') {
-                if let Some(end) = line.find(')') {
-                    let path_in_map = &line[start + 1..end];
-                    let full_path = Path::new("../../").join(path_in_map);
-                    if !is_project_source(&full_path, rules) || !full_path.exists() {
-                        println!("🧹 Removing invalid/zombie unmapped entry: {}", path_in_map);
-                        changed = true;
-                        continue;
+    for line in lines.into_iter() {
+        let mut is_zombie = false;
+        
+        // Only check lines that look like structural map entries (bullet points with links)
+        if line.trim_start().starts_with("* [") || line.trim_start().starts_with("- [") {
+            // Find the FIRST link in the line (usually the file path)
+            if let Some(cap) = link_regex.captures(&line) {
+                let raw_path = cap[1].to_string();
+                // Handle anchors (e.g., src/Main.res#anchor)
+                let p_no_anchor = raw_path.split('#').next().unwrap_or(&raw_path);
+                
+                let mut p = p_no_anchor.to_string();
+
+                // Clean path (remove file:// prefix if present)
+                if p.starts_with("file://") {
+                    if let Some(idx) = p.find("/robust-virtual-tour-builder/") {
+                        p = p[idx + "/robust-virtual-tour-builder/".len()..].to_string();
                     }
+                }
+                
+                // Ignore external links or empty paths
+                if !p.starts_with("http") && !p.is_empty() {
+                     let full_path = Path::new("../../").join(&p);
+                     // If file does not exist, mark for deletion
+                     if !full_path.exists() {
+                         println!("🧹 Removing zombie entry: {}", p);
+                         is_zombie = true;
+                         changed = true;
+                     }
                 }
             }
         }
-        new_lines.push(line);
+        
+        if !is_zombie {
+            new_lines.push(line);
+        }
     }
     lines = new_lines;
 
