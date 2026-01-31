@@ -14,6 +14,10 @@ type expectation
 @send external toHaveBeenCalled: (expectation, unit) => unit = "toHaveBeenCalled"
 @send external toHaveBeenCalledWith: (expectation, 'a) => unit = "toHaveBeenCalledWith"
 
+@scope("vi") @val external useFakeTimers: unit => unit = "useFakeTimers"
+@scope("vi") @val external useRealTimers: unit => unit = "useRealTimers"
+@scope("vi") @val external advanceTimersByTimeAsync: int => promise<unit> = "advanceTimersByTimeAsync"
+
 /* Mocks */
 @module("../../src/systems/TeaserRecorder.bs.js")
 external mockStartRecording: mockFn = "startRecording"
@@ -27,6 +31,18 @@ external mockGetGhostCanvas: mockFn = "getGhostCanvas"
 @module("../../src/systems/TeaserRecorder.bs.js")
 external mockSetFadeOpacity: mockFn = "setFadeOpacity"
 
+/* Expose internalState from the mock */
+type internalStateContent = {
+  ghostCanvas: option<Dom.element>,
+  snapshotCanvas: option<Dom.element>
+}
+type internalStateRef = {
+  mutable contents: internalStateContent
+}
+@module("../../src/systems/TeaserRecorder.bs.js")
+external mockInternalState: internalStateRef = "internalState"
+
+
 @module("../../src/core/GlobalStateBridge.bs.js") external mockGetState: mockFn = "getState"
 @module("../../src/core/GlobalStateBridge.bs.js") external mockDispatch: mockFn = "dispatch"
 
@@ -36,6 +52,7 @@ external mockSetFadeOpacity: mockFn = "setFadeOpacity"
   import { vi } from 'vitest';
 
   vi.mock('../../src/systems/TeaserRecorder.bs.js', () => {
+    const internalState = { contents: { ghostCanvas: null, snapshotCanvas: null } };
     const startRecording = vi.fn();
     const stopRecording = vi.fn();
     const pauseRecording = vi.fn();
@@ -46,12 +63,13 @@ external mockSetFadeOpacity: mockFn = "setFadeOpacity"
     const loadLogo = vi.fn();
     const startAnimationLoop = vi.fn();
     return {
+      internalState, // Exported top-level ref
       startRecording, stopRecording, pauseRecording, resumeRecording,
       getGhostCanvas, setSnapshot, setFadeOpacity, loadLogo, startAnimationLoop,
       Recorder: {
+        internalState, // Exposed on Recorder module too
         startRecording, stopRecording, pause: pauseRecording, resume: resumeRecording,
         getGhostCanvas, setSnapshot, setFadeOpacity, loadLogo, startAnimationLoop,
-        internalState: { contents: { ghostCanvas: null, snapshotCanvas: null } }
       }
     };
   });
@@ -72,15 +90,6 @@ external mockSetFadeOpacity: mockFn = "setFadeOpacity"
     castToJson: (obj) => obj
   }));
 
-  let currentTime = Date.now();
-  global.Date.now = () => currentTime;
-
-  global.setTimeout = (fn, ms) => {
-      currentTime += ms;
-      fn();
-      return 1;
-  };
-
   // Mock Viewer on window
   global.window = global; // JSDOM does this
   global.window.pannellumViewer = {
@@ -95,6 +104,10 @@ external mockSetFadeOpacity: mockFn = "setFadeOpacity"
 describe("TeaserPlayback", () => {
   beforeEach(() => {
     let _ = %raw(`vi.clearAllMocks()`)
+    useFakeTimers()
+
+    // Reset internal state
+    mockInternalState.contents = { ghostCanvas: None, snapshotCanvas: None }
 
     // Setup Default State
     mockGetState->mockReturnValue({
@@ -116,6 +129,10 @@ describe("TeaserPlayback", () => {
     let _ = %raw(`global.window.pannellumViewer.getScene = () => "scene1"`)
   })
 
+  afterEach(() => {
+    useRealTimers()
+  })
+
   testAsync("prepareFirstScene loads scene and sets orientation", async t => {
     let step: Teaser.Pathfinder.step = {
       idx: 0,
@@ -128,15 +145,12 @@ describe("TeaserPlayback", () => {
       }),
     }
 
-    // Mock getScene to return something else initially so we can test loading wait?
-    // Actually prepareFirstScene dispatches SetActiveScene.
-
-    await prepareFirstScene(step, "fast", fastConfig)
+    let p = prepareFirstScene(step, "fast", fastConfig)
+    await advanceTimersByTimeAsync(2000)
+    await p
 
     // Verify Dispatch
     let dispatchCalls = %raw(`mockDispatch.mock.calls`)
-    // First arg is action. It's complex to check ReScript variant equality via calls arguments in JS.
-    // But we can check calls length.
     t->expect(Array.length(dispatchCalls))->Expect.Int.toBeGreaterThan(0)
 
     // Verify Viewer.setYaw was called
@@ -156,17 +170,24 @@ describe("TeaserPlayback", () => {
       }),
     }
 
-    mockGetGhostCanvas->mockReturnValue(Some(%raw(`{}`)))
+    // Set ghostCanvas in the mocked internalState
+    // We use a dummy object for canvas
+    let dummyCanvas: Dom.element = %raw(`{ tagName: 'CANVAS' }`)
+    mockInternalState.contents = { ghostCanvas: Some(dummyCanvas), snapshotCanvas: None }
 
     // Next scene must be "scene2" for waitForViewerReady
     let _ = %raw(`global.window.pannellumViewer.getScene = () => "scene2"`)
 
-    await transitionToNextShot(0, step, "fast", fastConfig)
+    let p = transitionToNextShot(0, step, "fast", fastConfig)
+    await advanceTimersByTimeAsync(3000) // 1000ms fade + waits
+    await p
 
     // Verify sequence:
-    // 1. setSnapshot
-    let setSnapCalls = %raw(`mockSetSnapshot.mock.calls`)
-    t->expect(Array.length(setSnapCalls))->Expect.toBe(1)
+
+    // 1. internalState.snapshotCanvas should be set (checked via logic)
+    // Actually, TeaserLogic does: internalState := {...internalState.contents, snapshotCanvas: Some(g)}
+    // So we can check mockInternalState.contents.snapshotCanvas
+    t->expect(mockInternalState.contents.snapshotCanvas)->Expect.toBe(Some(dummyCanvas))
 
     // 2. pauseRecording
     let pauseCalls = %raw(`mockPauseRecording.mock.calls`)
