@@ -219,6 +219,24 @@ type step = {
   arrivalView: arrivalView,
 }
 
+/* --- Request Types --- */
+
+type pathRequest = {
+  @as("type") type_: string,
+  scenes: array<scene>,
+  skipAutoForward: bool,
+  timeline: option<array<timelineItem>>,
+}
+
+type sessionState = {
+  tourName: string,
+  activeIndex: int,
+  activeYaw: float,
+  activePitch: float,
+  isLinking: bool,
+  isTeasing: bool,
+}
+
 let fileToUrl = (f: file): string => {
   switch f {
   | Url(u) => u

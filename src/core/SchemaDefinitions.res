@@ -19,7 +19,7 @@ module Shared = {
     })
   }
 
-  let gpsData: S.t<gpsData> = S.object(s => {
+  let gpsData: S.t<gpsData> = S.object((s): gpsData => {
     {
       lat: s.field("lat", S.float),
       lon: s.field("lon", S.float),
@@ -112,6 +112,13 @@ module Shared = {
   })
 
   let geocodeResponse: S.t<string> = S.object(s => s.field("address", S.string))
+
+  let geocodeRequest: S.t<geocodeRequest> = S.object((s): geocodeRequest => {
+    {
+      lat: s.field("lat", S.float),
+      lon: s.field("lon", S.float),
+    }
+  })
 
   let importResponse: S.t<(string, JSON.t)> = S.object(s => {
     (s.field("sessionId", S.string), s.field("projectData", jsonSchema))
@@ -285,6 +292,26 @@ module Domain = {
           serializer: o => o->Option.map(innerOpt => innerOpt->Option.map(Belt.Int.toFloat)),
         }),
       ),
+    }
+  })
+
+  let pathRequest: S.t<Types.pathRequest> = S.object((s): Types.pathRequest => {
+    {
+      type_: s.field("type", S.string),
+      scenes: s.field("scenes", S.array(scene)),
+      skipAutoForward: s.field("skipAutoForward", S.bool),
+      timeline: s.field("timeline", S.option(S.array(timelineItem))),
+    }
+  })
+
+  let sessionState: S.t<Types.sessionState> = S.object((s): Types.sessionState => {
+    {
+      tourName: s.field("tourName", S.string),
+      activeIndex: s.field("activeIndex", S.int),
+      activeYaw: s.field("activeYaw", S.float),
+      activePitch: s.field("activePitch", S.float),
+      isLinking: s.field("isLinking", S.bool),
+      isTeasing: s.field("isTeasing", S.bool),
     }
   })
 }
