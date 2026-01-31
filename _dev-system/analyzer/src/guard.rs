@@ -124,6 +124,7 @@ pub fn create_task(config: &GuardConfig, filename: &str, content: &str) -> Resul
     }
 }
 
+#[allow(dead_code)]
 pub fn append_to_unified_task(
     config: &GuardConfig,
     task_name: &str,
