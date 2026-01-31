@@ -39,6 +39,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Implement unified diagnostic logging system with real-time UI toggle and live telemetry
 
+### Fixed
+- Resolve widespread test failures and schema runtime errors; restore App and ViewerManager unit tests
+
 ## [4.8.12] - 2026-01-30
 
 ### Changed

@@ -1,7 +1,8 @@
 /* src/systems/TourTemplates.res - Consolidated Tour Templates System */
 
 open Types
-open RescriptSchema
+
+@scope("JSON") @val external stringify: 'a => string = "stringify"
 
 // --- ASSETS ---
 
@@ -227,10 +228,7 @@ let generateTourHTML = (
     )}, "yaw": ${Belt.Float.toString(
       defYaw,
     )}, "hfov": 90, "minHfov": 90, "maxHfov": 90, "showControls": false }, "scenes":{} };
-    const scenesData = ${S.reverseConvertToJsonStringOrThrow(
-      castToUnknown(rawScenesData),
-      S.unknown,
-    )};
+    const scenesData = ${stringify(rawScenesData)};
     for (const [name, data] of Object.entries(scenesData)) {
       config.scenes[name] = { panorama: data.panorama, autoLoad: true, hotSpots: data.hotSpots.map((h, idx) => ({ pitch: h.pitch, yaw: h.yaw, type: "info", cssClass: "flat-arrow", createTooltipFunc: renderGoldArrow, createTooltipArgs: { i: idx, targetSceneId: h.target, viewFrame: h.viewFrame, targetYaw: h.targetYaw, targetPitch: h.targetPitch, isReturnLink: h.isReturnLink, returnViewFrame: h.returnViewFrame } })) };
     }

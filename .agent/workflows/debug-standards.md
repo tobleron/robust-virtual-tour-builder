@@ -16,12 +16,12 @@ Follow these standards to ensure consistent logging and observational capabiliti
 
 | Level | When to Use | Console | Backend |
 |-------|-------------|---------|---------|
-| `trace` | Frame-by-frame, animation ticks | Hidden | No |
-| `debug` | Step-by-step function flow | Hidden | Conditional |
-| `info` | Major lifecycle events | ✅ Shown | ✅ Sent |
-| `warn` | Soft failures, unexpected states | ✅ Shown | ✅ Sent |
-| `error` | Critical failures | ✅ Shown | ✅ **Always** |
-| `perf` | Performance timing | ✅ Shown | ✅ Sent |
+| `trace` | Frame-by-frame, diagnostic detail | Hidden | Diagnostic Mode Only |
+| `debug` | Step-by-step function flow | Hidden | Diagnostic Mode Only |
+| `info` | Major lifecycle events | ✅ Shown | ✅ Sent (`diagnostic.log`) |
+| `warn` | Soft failures, unexpected states | ✅ Shown | ✅ Sent (`diagnostic.log` + `error.log`) |
+| `error` | Critical failures, Panics | ✅ Shown | ✅ Sent (`diagnostic.log` + `error.log`) |
+| `perf` | Performance timing | ✅ Shown | ✅ Sent (`diagnostic.log`) |
 
 ### Configuration (`src/constants.js`)
 
@@ -134,10 +134,10 @@ DEBUG.getSummary()              // Count by module
 ## 7. Troubleshooting Workflow
 
 1. **Check `logs/error.log`** — Recent critical errors
-2. **Enable debug** — `DEBUG.setLevel('debug')` in console
-3. **Filter by module** — `DEBUG.enableModule('ModuleName')`
-4. **Export logs** — `DEBUG.downloadLog('issue_report')`
-5. **Analyze** — Filter by timestamp and module
+2. **Enable Diagnostic Mode** — Open **About** dialog and toggle "Diagnostic Mode" ON.
+3. **Tail Logs** — Run `./scripts/tail-diagnostics.sh` in the terminal for live, colorized logs.
+4. **Export logs** — `DEBUG.downloadLog('issue_report')` from console.
+5. **Analyze** — Filter by timestamp and module.
 
 ---
 
@@ -152,9 +152,25 @@ DEBUG.getSummary()              // Count by module
 
 | File | Content |
 |------|---------|
-| `logs/telemetry.log` | All logs (JSON lines) |
-| `logs/error.log` | Critical errors (plaintext) |
-| `logs/backend.log` | Rust internal logs |
+| `logs/diagnostic.log` | **Unified Sink**: All frontend & backend logs (JSON) |
+| `logs/error.log` | **Critical Sink**: Warn/Error/Panic levels only |
+| `logs/telemetry.log` | Legacy/Raw backup (Frontend JSON lines) |
+
+---
+
+## 9. Real-time Observation
+
+Use the built-in formatter to view logs across all layers:
+
+```bash
+# In your terminal
+./scripts/tail-diagnostics.sh
+```
+
+- 🟦 **FRONTEND**: Cyan labels (Real-time via Live Telemetry)
+- 🟩 **BACKEND**: Green labels (Rust tracing)
+- 🟪 **PANIC**: Captured Rust panics with stack info
+- 🌫️ **DATA**: Expandable JSON context details
 
 ---
 

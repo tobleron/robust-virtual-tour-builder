@@ -252,7 +252,7 @@ impl UploadQuotaManager {
         use std::path::Path;
 
         // Get disk space for temp directory
-        let temp_path = std::env::var("TEMP_DIR").unwrap_or_else(|_| "../temp".to_string());
+        let temp_path = std::env::var("TEMP_DIR").unwrap_or_else(|_| "../tmp".to_string());
 
         match fs2::available_space(Path::new(&temp_path)) {
             Ok(available) => {

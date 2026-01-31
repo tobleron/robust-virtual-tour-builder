@@ -1,8 +1,6 @@
 // @efficiency: infra-adapter
 open Vitest
-open ReBindings
 
-/* Mocks */
 /* Mocks */
 %%raw(`
   vi.mock('../../src/components/Sidebar.bs.js', () => {
@@ -41,27 +39,10 @@ open ReBindings
 `)
 
 %%raw(`
-  vi.mock('../../src/systems/Navigation.bs.js', () => {
+  vi.mock('../../src/systems/Navigation/NavigationController.bs.js', () => {
     const React = require('react');
     return {
-      __esModule: true,
-      FSM: {
-        reducer: vi.fn(),
-        toString: vi.fn(),
-      },
-      Graph: {},
-      Renderer: {
-        activeJourneyId: { contents: undefined },
-        setupBlinks: vi.fn(),
-        startJourney: vi.fn(),
-        init: vi.fn(),
-      },
-      UI: {
-        updateReturnPrompt: vi.fn(),
-      },
-      Controller: {
-        make: () => React.createElement('div', { 'data-testid': 'navigation-controller' }),
-      },
+      make: () => React.createElement('div', { 'data-testid': 'navigation-controller' }),
     };
   })
 `)
@@ -71,15 +52,6 @@ open ReBindings
     const React = require('react');
     return {
       make: () => React.createElement('div', { 'data-testid': 'viewer-manager' }),
-    };
-  })
-`)
-
-%%raw(`
-  vi.mock('../../src/systems/SimulationDriver.bs.js', () => {
-    const React = require('react');
-    return {
-      make: () => React.createElement('div', { 'data-testid': 'simulation-driver' }),
     };
   })
 `)
@@ -103,45 +75,80 @@ open ReBindings
 `)
 
 %%raw(`
-  vi.mock('../../src/components/ui/tooltip.jsx', () => {
+  vi.mock('../../src/components/ui/Shadcn.bs.js', () => {
       const React = require('react');
       return {
-        TooltipProvider: ({children}) => React.createElement('div', { 'data-testid': 'tooltip-provider' }, children),
+        Tooltip: {
+          Provider: {
+            make: ({children}) => React.createElement('div', { 'data-testid': 'tooltip-provider' }, children),
+          }
+        }
       };
   })
 `)
 
 %%raw(`
-  vi.mock('../../src/utils/SessionStore.bs.js', () => {
-    return {
-      loadState: () => undefined,
-      saveState: () => {},
-    };
+  vi.mock('../../src/core/AppContext.bs.js', () => {
+      const React = require('react');
+      return {
+        Provider: {
+          make: ({children}) => React.createElement('div', { 'data-testid': 'app-context-provider' }, children)
+        },
+        useAppState: vi.fn(() => ({
+           scenes: [],
+           tourName: "Test",
+           activeIndex: 0,
+           activeYaw: 0,
+           activePitch: 0,
+           isLinking: false,
+           isTeasing: false,
+           simulation: { status: "Idle", visitedScenes: [], stoppingOnArrival: false, skipAutoForwardGlobal: false, lastAdvanceTime: 0, pendingAdvanceId: null, autoPilotJourneyId: 0 }
+        }))
+      };
   })
+
 `)
 
-%%raw(`
-  vi.mock('../../src/core/GlobalStateBridge.bs.js', () => {
-    return {
-      setDispatch: () => {},
-      setState: () => {},
-      getInstance: () => ({ state: {}, dispatch: () => {} }),
-    };
-  })
-`)
+/* Helper Modules */
+module Dom = {
+  type element
+  @val external documentBody: element = "document.body"
+  @val external createElement: string => element = "document.createElement"
+  @send external appendChild: (element, element) => unit = "appendChild"
+  @send external removeElement: element => unit = "remove"
+  @send external querySelector: (element, string) => Nullable.t<element> = "querySelector"
+  @get external getTextContent: element => string = "textContent"
+}
+
+module ReactDOMClient = {
+  type root
+  @module("react-dom/client")
+  external createRoot: Dom.element => root = "createRoot"
+
+  module Root = {
+    @send external render: (root, React.element) => unit = "render"
+  }
+}
+
+type mockFn
+@send external mockReturnValue: (mockFn, 'a) => unit = "mockReturnValue"
+@send external mockReset: mockFn => unit = "mockReset"
 
 describe("App", () => {
   let wait = ms =>
     Promise.make((resolve, _) => {
-      let _ = Window.setTimeout(() => resolve(), ms)
+      let _ = setTimeout(() => resolve(), ms)
     })
 
+  /* Note: We use dynamic import for App to ensure mocks defined above are applied before App loads */
   testAsync("should render main application structure", async t => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
+    let app = await %raw(`import("../../src/App.bs.js").then(m => m.make)`)
+
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(root, <App />)
+    ReactDOMClient.Root.render(root, React.createElement(app, %raw("{}")))
 
     await wait(100)
 
@@ -185,8 +192,10 @@ describe("App", () => {
     let container = Dom.createElement("div")
     ignore(Dom.appendChild(Dom.documentBody, container))
 
+    let app = await %raw(`import("../../src/App.bs.js").then(m => m.make)`)
+
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(root, <App />)
+    ReactDOMClient.Root.render(root, React.createElement(app, %raw("{}")))
 
     await wait(100)
 
@@ -203,7 +212,14 @@ describe("App", () => {
     let container = Dom.createElement("div")
     ignore(Dom.appendChild(Dom.documentBody, container))
 
-    let dummyState: Types.state = %raw(`{
+    let app = await %raw(`import("../../src/App.bs.js").then(m => m.make)`)
+
+    /* Mock useAppState to return scenes */
+    let useAppStateMock: mockFn = await %raw(`import("../../src/core/AppContext.bs.js").then(m => m.useAppState)`)
+
+    // Update mock implementation to return scenes
+    useAppStateMock->mockReturnValue(
+      %raw(`{
        scenes: [{id: "1"}],
        tourName: "Test",
        activeIndex: 0,
@@ -212,15 +228,19 @@ describe("App", () => {
        isLinking: false,
        isTeasing: false,
        simulation: { status: "Idle", visitedScenes: [], stoppingOnArrival: false, skipAutoForwardGlobal: false, lastAdvanceTime: 0, pendingAdvanceId: null, autoPilotJourneyId: 0 }
-    }`)
+    }`),
+    )
 
     let root = ReactDOMClient.createRoot(container)
-    ReactDOMClient.Root.render(root, <App initialState={dummyState} />)
+    ReactDOMClient.Root.render(root, React.createElement(app, %raw("{}")))
 
     await wait(100)
 
     let placeholder = Dom.querySelector(container, "#placeholder-text")
     t->expect(Nullable.toOption(placeholder)->Belt.Option.isNone)->Expect.toBe(true)
+
+    // Reset mock
+    useAppStateMock->mockReset
 
     Dom.removeElement(container)
   })

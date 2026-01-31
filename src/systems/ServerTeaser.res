@@ -1,7 +1,9 @@
 /* src/systems/ServerTeaser.res */
 open ReBindings
-open RescriptSchema
+
 open Types
+
+@scope("JSON") @val external stringify: 'a => string = "stringify"
 
 external anyToUnknown: 'a => 'b = "%identity"
 
@@ -17,7 +19,7 @@ let generateServerTeaser = (state: state, onProgress) => {
     deletedSceneIds: state.deletedSceneIds,
     timeline: state.timeline,
   }
-  let jsonStr = S.reverseConvertToJsonStringOrThrow(project, Schemas.Domain.project)
+  let jsonStr = stringify(project)
   let formData = FormData.newFormData()
   FormData.append(formData, "project_data", jsonStr)
   FormData.append(formData, "width", "1920")

@@ -34,5 +34,5 @@ Check the file extension you are working on and **READ** the corresponding stand
 ## Summary Checklist (Universal)
 
 - [ ] Am I mutating state where I could return a new value?
-- [ ] Are my side effects isolated from business logic?
+- [ ] Are my side effects (I/O, Logging) isolated via the unified `Logger` system?
 - [ ] Have I handled failure cases as values types (Result/Option)?
