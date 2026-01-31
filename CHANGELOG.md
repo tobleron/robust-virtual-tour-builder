@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fix trace correlation with `X-Request-ID` injection and `requestId` field synchronization
 - **Refactor**: Move diagnostic toggle from Sidebar Branding to About dialog box to maintain clean aesthetics
 - Merge test stabilization fixes
+- Final standards alignment for session tests
 
 ### Added
 - Implement unified diagnostic logging system with real-time UI toggle and live telemetry
