@@ -70,3 +70,4 @@
 [2026-01-31 18:50] v4.8.12 - fix: resolve widespread test failures and schema runtime errors; restore App and ViewerManager unit tests [TRIPLE]
 [2026-01-31 19:14] v4.8.12 - chore: merge test stabilization fixes [TRIPLE]
 [2026-01-31 19:15] v4.8.12 - chore: final standards alignment for session tests [TRIPLE]
+[2026-01-31 19:55] v4.8.12 - fix: upgrade rescript-schema and restore standard serialization across systems [TRIPLE]
