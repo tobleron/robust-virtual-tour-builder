@@ -24,16 +24,25 @@ module Transition = {
     ViewerState.state := {...ViewerState.state.contents, isSwapping: false}
   }
 
-  let updateGlobalStateAndViewer = nv => {
-    ViewerSystem.Pool.swapActive()
-    ViewerSystem.Pool.getActive()->Option.forEach(v => ViewerSystem.Pool.clearCleanupTimeout(v.id))
+  let assignGlobalViewer = nv => {
     let assignGlobal: Nullable.t<ReBindings.Viewer.t> => unit = %raw(
       "(v) => window.pannellumViewer = v"
     )
     assignGlobal(nv)
+  }
+
+  let clearHotspotLines = () => {
     Dom.getElementById("viewer-hotspot-lines")
     ->Nullable.toOption
     ->Option.forEach(svg => Dom.setTextContent(svg, ""))
+  }
+
+  let updateGlobalStateAndViewer = nv => {
+    ViewerSystem.Pool.swapActive()
+    ViewerSystem.Pool.getActive()->Option.forEach(v => ViewerSystem.Pool.clearCleanupTimeout(v.id))
+
+    assignGlobalViewer(nv)
+    clearHotspotLines()
 
     let _ = Window.setTimeout(finalizeSwap, 50)
   }
