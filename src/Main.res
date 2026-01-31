@@ -194,7 +194,7 @@ let init = async () => {
                 class_: "bg-blue-500/20 text-white hover:bg-blue-500/40",
                 onClick: () => {
                   GlobalStateBridge.dispatch(LoadProject(session.projectData))
-                  EventBus.dispatch(ShowNotification("Session Restored", #Success))
+                  EventBus.dispatch(ShowNotification("Session Restored", #Success, None))
                 },
                 autoClose: Some(true),
               },
@@ -203,7 +203,7 @@ let init = async () => {
                 class_: "bg-slate-100/10 text-white hover:bg-white/20",
                 onClick: () => {
                   PersistenceLayer.clearSession()
-                  EventBus.dispatch(ShowNotification("Session Discarded", #Info))
+                  EventBus.dispatch(ShowNotification("Session Discarded", #Info, None))
                 },
                 autoClose: Some(true),
               },

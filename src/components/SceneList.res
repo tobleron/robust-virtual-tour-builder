@@ -87,7 +87,7 @@ let make = React.memo(() => {
         let throttleLimit = 650.0
 
         if timeDiff < throttleLimit {
-          EventBus.dispatch(ShowNotification("Switching too fast - Please wait...", #Warning))
+          EventBus.dispatch(ShowNotification("Switching too fast - Please wait...", #Warning, None))
         } else {
           Logger.info(
             ~module_="SceneList",
@@ -125,7 +125,7 @@ let make = React.memo(() => {
         (),
       )
       dispatch(Actions.DeleteScene(index))
-      EventBus.dispatch(ShowNotification("Scene Removed", #Info))
+      EventBus.dispatch(ShowNotification("Scene Removed", #Info, None))
     }
   , [dispatch])
 
@@ -138,7 +138,7 @@ let make = React.memo(() => {
         (),
       )
       dispatch(Actions.ClearHotspots(index))
-      EventBus.dispatch(ShowNotification("Links Cleared", #Info))
+      EventBus.dispatch(ShowNotification("Links Cleared", #Info, None))
     }
   , [dispatch])
 

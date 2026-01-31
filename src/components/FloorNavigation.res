@@ -24,7 +24,7 @@ let make = React.memo((~scenesLoaded, ~activeIndex, ~isLinking) => {
     JsxEvent.Mouse.stopPropagation(e)
     if activeIndex >= 0 {
       dispatch(Actions.UpdateSceneMetadata(activeIndex, Logger.castToJson({"floor": fid})))
-      EventBus.dispatch(ShowNotification("Floor: " ++ label, #Success))
+      EventBus.dispatch(ShowNotification("Floor: " ++ label, #Success, None))
     }
   }
 

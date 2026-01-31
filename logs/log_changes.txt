@@ -71,3 +71,9 @@
 [2026-01-31 19:14] v4.8.12 - chore: merge test stabilization fixes [TRIPLE]
 [2026-01-31 19:15] v4.8.12 - chore: final standards alignment for session tests [TRIPLE]
 [2026-01-31 19:55] v4.8.12 - fix: upgrade rescript-schema and restore standard serialization across systems [TRIPLE]
+[2026-01-31 21:40] v4.8.12 - fix(telemetry): harden logging pipeline and csp compliance
+
+- [telemetry] implement crash-safe serialization fallback in frontend logger
+- [telemetry] add fallback sanitized logging for malformed payloads
+- [infra] relax CSP in index.html to allow 'unsafe-eval' for legacy bindings
+- [backend] integrate sentry and tracing-tree for robust error tracking [TRIPLE]

@@ -72,7 +72,7 @@ let showLinkModal = (
     | Some(el) =>
       let targetName = Dom.getValue(el)
       if targetName == "" {
-        EventBus.dispatch(ShowNotification("Please select a destination room", #Warning))
+        EventBus.dispatch(ShowNotification("Please select a destination room", #Warning, None))
       } else {
         // Check for existing link to same target
         let currentScene = Belt.Array.get(state.scenes, state.activeIndex)
@@ -82,7 +82,9 @@ let showLinkModal = (
         }
 
         if exists {
-          EventBus.dispatch(ShowNotification("A link to this room already exists here!", #Warning))
+          EventBus.dispatch(
+            ShowNotification("A link to this room already exists here!", #Warning, None),
+          )
         } else {
           let isReturnLink = Belt.Option.isSome(Nullable.toOption(pendingReturnSceneName))
           let displayPitch = pitch -. Constants.hotspotVisualOffsetDegrees

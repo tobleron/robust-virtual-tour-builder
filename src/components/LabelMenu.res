@@ -40,7 +40,7 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
         ~data=Some({"label": label, "index": targetIndex}),
         (),
       )
-      EventBus.dispatch(ShowNotification("Label Set: " ++ label, #Success))
+      EventBus.dispatch(ShowNotification("Label Set: " ++ label, #Success, None))
       onClose()
     }, 800)
   }
@@ -55,14 +55,14 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
         ~data=Some({"label": val, "index": targetIndex}),
         (),
       )
-      EventBus.dispatch(ShowNotification("Label Set: " ++ val, #Success))
+      EventBus.dispatch(ShowNotification("Label Set: " ++ val, #Success, None))
       onClose()
     }
   }
 
   let handleClear = () => {
     dispatch(UpdateSceneMetadata(targetIndex, Logger.castToJson({"label": ""})))
-    EventBus.dispatch(ShowNotification("Label Cleared", #Warning))
+    EventBus.dispatch(ShowNotification("Label Cleared", #Warning, None))
     onClose()
   }
 
