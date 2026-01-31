@@ -5505,13 +5505,13 @@
 │   │   ├── 1169_Surgical_Refactor_SYSTEMS_FRONTEND__CANCELLED.md
 │   │   ├── 1170_Surgical_Refactor_SYSTEMS_FRONTEND__FINISHED.md
 │   │   ├── 1171_Fix_Violations_FRONTEND_DONE.md
+│   │   ├── 1172_Classify_Map_Entries_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
 │   │       ├── 598_Test_SceneCache_New.md
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1172_Classify_Map_Entries.md
 │   │   └── tests
 │   └── postponed
 │       ├── 900_COMMERCIAL_MIGRATION_MASTER.md

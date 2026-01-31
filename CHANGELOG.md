@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [4.8.12] - 2026-01-31
 
 ### Changed
+- Doc(map): Classify AsyncQueue.res in Utilities & Infrastructure
 - Fix(rules): Replace forbidden Obj.magic in AsyncQueue.res with safe error handling and logging
 - Merge Core, Systems, and Backend Auth refactors
 - Fix(dev-system): update merge directive to strip efficiency tags
@@ -15,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Merge refactor-systems-frontend and sanitize
 - Modularize pathfinder, consolidate upload, and fix circular navigation dependency
 - Fix(rules): Replace forbidden Obj.magic in AsyncQueue.res with safe error handling and logging
+- Doc(map): Classify AsyncQueue.res in Utilities & Infrastructure
 
 ## [4.8.12] - 2026-01-30
 
