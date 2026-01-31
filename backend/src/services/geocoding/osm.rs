@@ -1,3 +1,4 @@
+// @efficiency-role: infra-adapter
 fn format_address_from_json(json: &serde_json::Value) -> Option<String> {
     let address_obj = json.get("address")?;
     let mut parts = Vec::new();

@@ -1,4 +1,5 @@
-/* src/systems/NavigationGraph.res - Extracted Pathfinding Logic */
+/* src/systems/Navigation/NavigationGraph.res */
+// @efficiency-role: domain-logic
 
 open Types
 open ReBindings

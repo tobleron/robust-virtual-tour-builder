@@ -1,4 +1,6 @@
+// @efficiency-role: service-orchestrator
 use crate::metrics::ACTIVE_SESSIONS;
+
 use crate::services::shutdown::ShutdownManager;
 use crate::services::upload_quota::UploadQuotaManager;
 use actix_web::{

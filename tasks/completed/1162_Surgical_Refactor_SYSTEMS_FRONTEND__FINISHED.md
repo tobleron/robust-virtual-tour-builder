@@ -15,13 +15,13 @@ The Semantic Engine has identified the following specific symbols for refactorin
 ### 🔧 Action: De-bloat
 **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.
 
-- [ ] - **../../src/systems/ApiLogic.res** (Metric: [Nesting: 2.00, Density: 0.05, Coupling: 0.06] | Drag: 6.19 | LOC: 373/300)
+- [ ] - **../../src/systems/ApiLogic.res** (Metric: [Nesting: 2.00, Density: 0.05, Coupling: 0.05] | Drag: 5.88 | LOC: 414/300)
 
 - [ ] - **../../src/systems/ExifReportGeneratorLogic.res** (Metric: [Nesting: 4.00, Density: 0.16, Coupling: 0.06] | Drag: 7.88 | LOC: 342/300  🎯 Target: Function: `extractAllExif` (High Local Complexity (10.0). Logic heavy.))
 
 - [ ] - **../../src/systems/HotspotLineLogic.res** (Metric: [Nesting: 4.00, Density: 0.29, Coupling: 0.04] | Drag: 7.54 | LOC: 546/300  🎯 Target: Function: `waypointsRaw` (High Local Complexity (2.0). Logic heavy.))
 
-- [ ] - **../../src/systems/Navigation.res** (Metric: [Nesting: 3.50, Density: 0.38, Coupling: 0.08] | Drag: 7.62 | LOC: 447/300  🎯 Target: Function: `req` (High Local Complexity (7.6). Logic heavy.))
+- [ ] - **../../src/systems/Navigation.res** (Metric: [Nesting: 3.50, Density: 0.38, Coupling: 0.08] | Drag: 7.63 | LOC: 446/300  🎯 Target: Function: `req` (High Local Complexity (7.6). Logic heavy.))
 
 - [ ] - **../../src/systems/Resizer.res** (Metric: [Nesting: 2.50, Density: 0.24, Coupling: 0.10] | Drag: 7.35 | LOC: 310/300  🎯 Target: Function: `getMemoryUsage` (High Local Complexity (10.5). Logic heavy.))
 
