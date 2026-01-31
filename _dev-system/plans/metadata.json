@@ -1,14 +1,1 @@
-{
-  "rescript": [
-    {
-      "Surgical": {
-        "file": "../../src/systems/UploadProcessor.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.00, Density: 0.03, Coupling: 0.10] | Drag: 5.19 | LOC: 347/300  🎯 Target: Function: `getNotificationType` (High Local Complexity (4.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 9.890201729106629
-      }
-    }
-  ]
-}
+{}

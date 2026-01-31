@@ -61,6 +61,7 @@ This map provides a semantic overview of the project structure to optimize conte
 
 ### 🌐 System Layer (Business Logic)
 *   [src/systems/UploadProcessor.res](src/systems/UploadProcessor.res): Consolidated orchestrator for image processing and upload pipeline. `#upload` `#orchestration` `#logic`
+    *   [src/systems/UploadProcessorLogic.res](src/systems/UploadProcessorLogic.res): Core logic and state management for upload processing. `#upload` `#logic`
 *   [src/systems/UploadTypes.res](src/systems/UploadTypes.res): Types for upload processing system. `#types`
 * [src/systems/SceneLoader.res](src/systems/SceneLoader.res): Lightweight facade for scene transition and viewer loading orchestration. `#scene-loading` `#lifecycle` `#facade`
     * [src/systems/SceneLoaderLogic.res](src/systems/SceneLoaderLogic.res): Lightweight facade for scene loading orchestration. `#logic` `#facade`
@@ -305,3 +306,6 @@ This map provides a semantic overview of the project structure to optimize conte
 
 
 
+
+## 🆕 Unmapped Modules
+* [src/utils/AsyncQueue.res](src/utils/AsyncQueue.res): New module detected. Please classify. #new

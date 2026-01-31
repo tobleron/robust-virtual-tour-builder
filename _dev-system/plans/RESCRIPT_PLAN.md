@@ -8,9 +8,3 @@
 
 ---
 
-## 🛠️ SURGICAL REFACTOR TASKS (1)
-- [ ] **../../src/systems/UploadProcessor.res**
-  - *Reason:* [Nesting: 2.00, Density: 0.03, Coupling: 0.10] | Drag: 5.19 | LOC: 347/300  🎯 Target: Function: `getNotificationType` (High Local Complexity (4.0). Logic heavy.)
-
----
-
