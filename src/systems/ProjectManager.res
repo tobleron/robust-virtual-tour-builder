@@ -14,7 +14,9 @@ type apiError = string
 module Logic = {
   external asJson: unknown => JSON.t = "%identity"
 
-  let validationReportSchema = S.object(s => s.field("validationReport", Schemas.Shared.validationReport))
+  let validationReportSchema = S.object(s =>
+    s.field("validationReport", Schemas.Shared.validationReport)
+  )
 
   let validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {
     try {
@@ -128,7 +130,9 @@ module Logic = {
         r.errors->Belt.Array.forEach(error =>
           EventBus.dispatch(ShowNotification("Error: " ++ error, #Error))
         )
-      } catch { | _ => () }
+      } catch {
+      | _ => ()
+      }
 
       try {
         let pd = S.parseOrThrow(projectData, Schemas.Domain.project)
@@ -162,7 +166,8 @@ module Logic = {
         )
         Promise.resolve(Ok((sessionId, asJson(json))))
       } catch {
-      | S.Raised(e) => Promise.resolve(Error("Failed to parse project data: " ++ S.Error.message(e)))
+      | S.Raised(e) =>
+        Promise.resolve(Error("Failed to parse project data: " ++ S.Error.message(e)))
       | _ => Promise.resolve(Error("Failed to parse project data"))
       }
 

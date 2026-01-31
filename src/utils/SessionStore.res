@@ -26,9 +26,20 @@ let saveState = (state: state) => {
     let str = S.reverseConvertToJsonStringOrThrow(sessionState, Schemas.Domain.sessionState)
     setItem(storageKey, str)
   } catch {
-  | S.Raised(e) => Console.error("SessionStore Save Error: " ++ S.Error.message(e))
-  | Js.Exn.Error(e) => Console.error2("SessionStore Save Exn: ", e)
-  | _ => Console.error("SessionStore Save Error: Unknown")
+  | S.Raised(e) =>
+    Logger.error(
+      ~module_="SessionStore",
+      ~message="SessionStore Save Error: " ++ S.Error.message(e),
+      (),
+    )
+  | JsExn(e) =>
+    Logger.error(
+      ~module_="SessionStore",
+      ~message="SessionStore Save Exn",
+      ~data=Logger.castToJson({"error": e}),
+      (),
+    )
+  | _ => Logger.error(~module_="SessionStore", ~message="SessionStore Save Error: Unknown", ())
   }
 }
 
@@ -37,8 +48,12 @@ let decodeSessionState = (jsonStr: string): option<sessionState> => {
     Some(S.parseJsonStringOrThrow(jsonStr, Schemas.Domain.sessionState))
   } catch {
   | S.Raised(e) =>
-      Console.error("SessionStore Decode Error: " ++ S.Error.message(e))
-      None
+    Logger.error(
+      ~module_="SessionStore",
+      ~message="SessionStore Decode Error: " ++ S.Error.message(e),
+      (),
+    )
+    None
   | _ => None
   }
 }

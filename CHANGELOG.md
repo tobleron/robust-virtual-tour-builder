@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [4.8.12] - 2026-01-31
 
 ### Changed
+- Merge(migrate-json-to-schema): Complete migration of legacy JSON handling to type-safe Rescript Schema validation across core systems
+- Fix(SessionStore): Resolve compilation errors for JsExn and migrate from Console to Logger
+- Harden(Persistence): Secure autosave and project loading with declarative schema boundaries
 - Doc(map): Classify AsyncQueue.res in Utilities & Infrastructure
 - Fix(rules): Replace forbidden Obj.magic in AsyncQueue.res with safe error handling and logging
 - Merge Core, Systems, and Backend Auth refactors
@@ -20,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix(rules): Replace Obj.magic in AsyncQueue.res & classify in MAP.md
 - Fix MAP.md zombie entries and enhance analyzer guard logic
 - Create task for Rescript Schema migration
+- Merge migrate-json-to-schema branch and resolve SessionStore compilation issues
 
 ## [4.8.12] - 2026-01-30
 
