@@ -46,37 +46,44 @@ pub async fn log_batch(
 async fn process_entry(entry: &TelemetryEntry) {
     use crate::models::TelemetryPriority;
 
-    // Route critical/high logs to error level (goes to error.log AND diagnostic.log)
-    if entry.priority == TelemetryPriority::Critical || entry.priority == TelemetryPriority::High {
-        tracing::error!(
-            target: "frontend",
-            module = %entry.module,
-            priority = ?entry.priority,
-            json_data = ?entry.data,
-            request_id = ?entry.request_id,
-            "{} {}", entry.module, entry.message
-        );
-    } else {
-        // Route others to info level (goes to diagnostic.log only)
-        tracing::info!(
-            target: "frontend",
-            module = %entry.module,
-            priority = ?entry.priority,
-            json_data = ?entry.data,
-            request_id = ?entry.request_id,
-            "{} {}", entry.module, entry.message
-        );
+    match entry.priority {
+        TelemetryPriority::Critical => {
+            // Critical: Goes to error.log AND diagnostic.log (via ERROR level)
+            tracing::error!(
+                target: "frontend",
+                module = %entry.module,
+                priority = ?entry.priority,
+                json_data = ?entry.data,
+                request_id = ?entry.request_id,
+                "{} {}", entry.module, entry.message
+            );
+        }
+        TelemetryPriority::High => {
+            // High (Warnings): Goes to diagnostic.log only (via WARN level)
+            // Harmonized: Only Critical is ERROR.
+            tracing::warn!(
+                target: "frontend",
+                module = %entry.module,
+                priority = ?entry.priority,
+                json_data = ?entry.data,
+                request_id = ?entry.request_id,
+                "{} {}", entry.module, entry.message
+            );
+        }
+        _ => {
+            // Medium/Low: Goes to diagnostic.log only (via INFO level)
+            tracing::info!(
+                target: "frontend",
+                module = %entry.module,
+                priority = ?entry.priority,
+                json_data = ?entry.data,
+                request_id = ?entry.request_id,
+                "{} {}", entry.module, entry.message
+            );
+        }
     }
 
-    // Legacy: Keep telemetry.log as a raw backup if needed, or remove it.
-    // Logic: "All logs except Low go to telemetry.log"
-    // We can keep it or rely on the new unified system. The request asked for unified logging.
-    // I will keep the legacy behavior for safety but fix the race condition (?)
-    // Actually, writing to `telemetry.log` is fine if it's a different file.
-    if entry.priority != TelemetryPriority::Low {
-        let line = serde_json::to_string(entry).unwrap_or_default() + "\n";
-        let _ = append_to_log("telemetry.log", &line).await;
-    }
+    // Legacy telemetry.log removed as requested for unified logging.
 }
 
 // --- Logic from telemetry_logic.rs ---
