@@ -8,7 +8,9 @@ use actix_web::{
 };
 use futures_util::future::LocalBoxFuture;
 use oauth2::basic::BasicClient;
-use oauth2::{AuthUrl, ClientId, ClientSecret, CsrfToken, PkceCodeChallenge, RedirectUrl, Scope, TokenUrl};
+use oauth2::{
+    AuthUrl, ClientId, ClientSecret, CsrfToken, PkceCodeChallenge, RedirectUrl, Scope, TokenUrl,
+};
 use serde::Deserialize;
 use sqlx::SqlitePool;
 use std::env;

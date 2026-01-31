@@ -144,81 +144,81 @@ module Utils = {
 // --- LOGIC ---
 
 module Logic = {
-  let processZipResponse = (zipResult) => {
-      switch zipResult {
-      | Ok(zip) =>
-        let previewZipFile = JSZip.file(zip, "preview.webp")
-        let tinyZipFile = JSZip.file(zip, "tiny.webp")
-        let metaZipFile = JSZip.file(zip, "metadata.json")
-        switch (Nullable.toOption(previewZipFile), Nullable.toOption(metaZipFile)) {
-        | (Some(pInZip), Some(mInZip)) =>
-          let p1 = JSZip.async(pInZip, "blob")
-          let p2 = JSZip.async(mInZip, "text")
-          let p3 = switch Nullable.toOption(tinyZipFile) {
-          | Some(f) => JSZip.async(f, "blob")->Promise.then(b => Promise.resolve(Some(b)))
-          | None => Promise.resolve(None)
-          }
-          Promise.all3((p1, p2, p3))->Promise.then(res => Promise.resolve(Ok(res)))
-        | _ => Promise.resolve(Error("Missing preview.webp or metadata.json in response"))
+  let processZipResponse = zipResult => {
+    switch zipResult {
+    | Ok(zip) =>
+      let previewZipFile = JSZip.file(zip, "preview.webp")
+      let tinyZipFile = JSZip.file(zip, "tiny.webp")
+      let metaZipFile = JSZip.file(zip, "metadata.json")
+      switch (Nullable.toOption(previewZipFile), Nullable.toOption(metaZipFile)) {
+      | (Some(pInZip), Some(mInZip)) =>
+        let p1 = JSZip.async(pInZip, "blob")
+        let p2 = JSZip.async(mInZip, "text")
+        let p3 = switch Nullable.toOption(tinyZipFile) {
+        | Some(f) => JSZip.async(f, "blob")->Promise.then(b => Promise.resolve(Some(b)))
+        | None => Promise.resolve(None)
         }
-      | Error(msg) => Promise.resolve(Error(msg))
+        Promise.all3((p1, p2, p3))->Promise.then(res => Promise.resolve(Ok(res)))
+      | _ => Promise.resolve(Error("Missing preview.webp or metadata.json in response"))
       }
+    | Error(msg) => Promise.resolve(Error(msg))
+    }
   }
 
   let createResultFiles = (extractedResult, originalName) => {
-      switch extractedResult {
-      | Ok((previewBlob, metaText, tinyBlobOpt)) =>
-        let metadata: metadataResponse = Schemas.castToMetadataResponse(JSON.parseOrThrow(metaText))
-        let suggestedName = Nullable.toOption(metadata.suggestedName)
+    switch extractedResult {
+    | Ok((previewBlob, metaText, tinyBlobOpt)) =>
+      let metadata: metadataResponse = Schemas.castToMetadataResponse(JSON.parseOrThrow(metaText))
+      let suggestedName = Nullable.toOption(metadata.suggestedName)
 
-        let computeNewName = (suggestedName: option<string>, originalName: string) => {
-          switch suggestedName {
-          | Some(name) => name
-          | None =>
-            let baseName = String.replaceRegExp(originalName, /\.[^/.]+$/, "")
-            switch String.match(originalName, /_(\d{6})_\d{2}_(\d{3})/) {
-            | Some(captures) =>
-              let p1 = captures->Array.get(1)->Option.flatMap(x => x)
-              let p2 = captures->Array.get(2)->Option.flatMap(x => x)
-              switch (p1, p2) {
-              | (Some(p1), Some(p2)) => p1 ++ "_" ++ p2
-              | _ => baseName
-              }
-            | None => baseName
+      let computeNewName = (suggestedName: option<string>, originalName: string) => {
+        switch suggestedName {
+        | Some(name) => name
+        | None =>
+          let baseName = String.replaceRegExp(originalName, /\.[^/.]+$/, "")
+          switch String.match(originalName, /_(\d{6})_\d{2}_(\d{3})/) {
+          | Some(captures) =>
+            let p1 = captures->Array.get(1)->Option.flatMap(x => x)
+            let p2 = captures->Array.get(2)->Option.flatMap(x => x)
+            switch (p1, p2) {
+            | (Some(p1), Some(p2)) => p1 ++ "_" ++ p2
+            | _ => baseName
             }
+          | None => baseName
           }
         }
-
-        let newName = computeNewName(suggestedName, originalName)
-
-        let previewFile = File.newFile(
-          [previewBlob],
-          newName ++ ".webp",
-          {"type": "image/webp", "lastModified": Date.now()},
-        )
-        let tinyFile = switch tinyBlobOpt {
-        | Some(b) =>
-          Some(
-            File.newFile(
-              [b],
-              newName ++ "_tiny.webp",
-              {"type": "image/webp", "lastModified": Date.now()},
-            ),
-          )
-        | None => None
-        }
-
-        Promise.resolve(
-          Ok({
-            preview: previewFile,
-            tiny: tinyFile,
-            metadata: metadata.exif,
-            qualityData: metadata.quality,
-            checksumData: metadata.checksum,
-          }),
-        )
-      | Error(msg) => Promise.resolve(Error(msg))
       }
+
+      let newName = computeNewName(suggestedName, originalName)
+
+      let previewFile = File.newFile(
+        [previewBlob],
+        newName ++ ".webp",
+        {"type": "image/webp", "lastModified": Date.now()},
+      )
+      let tinyFile = switch tinyBlobOpt {
+      | Some(b) =>
+        Some(
+          File.newFile(
+            [b],
+            newName ++ "_tiny.webp",
+            {"type": "image/webp", "lastModified": Date.now()},
+          ),
+        )
+      | None => None
+      }
+
+      Promise.resolve(
+        Ok({
+          preview: previewFile,
+          tiny: tinyFile,
+          metadata: metadata.exif,
+          qualityData: metadata.quality,
+          checksumData: metadata.checksum,
+        }),
+      )
+    | Error(msg) => Promise.resolve(Error(msg))
+    }
   }
 
   let processAndAnalyzeImage = (file: File.t, ~onStatus: option<statusCallback>): Promise.t<
