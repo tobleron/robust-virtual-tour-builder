@@ -92,14 +92,52 @@ let sendTelemetry = async entry => {
       } catch {
       | e => Console.error(`[Logger] Failed to send immediate telemetry: ${getErrorMessage(e)}`)
       }
-    | Medium =>
-      if Array.length(telemetryQueue) < Constants.Telemetry.queueMaxSize {
-        let _ = Array.push(telemetryQueue, entry)
+    | Medium | Low =>
+      let shouldSend = if p == Medium {
+        true
+      } // Low Priority (Debug/Trace) Logic:
+      else if Constants.Telemetry.diagnosticMode.contents {
+        true
+      } else {
+        // Micro-management: Allow specific modules even when diagnostic mode is OFF
+        let filters = Constants.Telemetry.traceFilterModules
+        let moduleName = entry.module_
+        if Array.length(filters) == 0 {
+          false
+        } else {
+          filters->Array.includes(moduleName) || filters->Array.includes("*")
+        }
       }
-      if Array.length(telemetryQueue) >= Constants.Telemetry.batchSize {
-        let _ = flushTelemetry()->Promise.catch(_ => Promise.resolve())
+
+      if shouldSend {
+        // If Diagnostic Mode is ON, we send immediately for a "Live" experience.
+        // Otherwise, we batch to save resources.
+        if Constants.Telemetry.diagnosticMode.contents {
+          // Reuse the immediate send logic but at info level (sent to /api/telemetry/log)
+          try {
+            let _ = await RequestQueue.schedule(() =>
+              Fetch.fetch(
+                Constants.backendUrl ++ "/api/telemetry/log",
+                Fetch.requestInit(
+                  ~method="POST",
+                  ~headers=Dict.fromArray([("Content-Type", "application/json")]),
+                  ~body=S.reverseConvertToJsonStringOrThrow(entry, logEntrySchema),
+                  (),
+                ),
+              )
+            )
+          } catch {
+          | _ => () // Fail silently to avoid interrupting the app
+          }
+        } else {
+          if Array.length(telemetryQueue) < Constants.Telemetry.queueMaxSize {
+            let _ = Array.push(telemetryQueue, entry)
+          }
+          if Array.length(telemetryQueue) >= Constants.Telemetry.batchSize {
+            let _ = flushTelemetry()->Promise.catch(_ => Promise.resolve())
+          }
+        }
       }
-    | Low => ()
     }
   }
 }

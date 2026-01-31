@@ -29,6 +29,7 @@ type logEntry = {
   message: string,
   data: option<JSON.t>,
   priority: string,
+  requestId: option<string>,
 }
 
 let jsonSchema: S.t<JSON.t> = S.unknown->S.transform(_ => {
@@ -45,6 +46,7 @@ let logEntrySchema: S.t<logEntry> = S.object(s => {
     message: s.field("message", S.string),
     data: s.field("data", S.option(jsonSchema)),
     priority: s.field("priority", S.string),
+    requestId: s.field("requestId", S.option(S.string)),
   }
 })
 

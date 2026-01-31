@@ -73,11 +73,24 @@ let processErrorResponse = (response: Fetch.response): Promise.t<apiResult<Fetch
   Fetch.json(response)
   ->Promise.then((json: apiError) => {
     let msg = extractErrorMessage(json)
+    Logger.error(
+      ~module_="ApiHelpers",
+      ~message="Backend Error",
+      ~data=Obj.magic({"status": Fetch.status(response), "message": msg}),
+      (),
+    )
     Promise.resolve(
       Error("Backend error: " ++ Belt.Int.toString(Fetch.status(response)) ++ " " ++ msg),
     )
   })
-  ->Promise.catch(_ => {
+  ->Promise.catch(e => {
+    let (msg, _) = Logger.getErrorDetails(e)
+    Logger.error(
+      ~module_="ApiHelpers",
+      ~message="Fetch/Network Error",
+      ~data=Obj.magic({"status": Fetch.status(response), "message": msg}),
+      (),
+    )
     Promise.resolve(
       Error(
         "Backend error: " ++

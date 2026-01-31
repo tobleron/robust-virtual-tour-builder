@@ -2,6 +2,65 @@
 
 @scope(("window", "location")) @val external reload: unit => unit = "reload"
 
+module AboutContent = {
+  @react.component
+  let make = () => {
+    let (isDiagnostic, setIsDiagnostic) = React.useState(_ => Logger.isDiagnosticMode())
+
+    let toggleDiagnostic = _ => {
+      if Logger.isDiagnosticMode() {
+        Logger.disableDiagnostics()
+        setIsDiagnostic(_ => false)
+        EventBus.dispatch(ShowNotification("Diagnostic Mode Disabled", #Info))
+      } else {
+        Logger.enableDiagnostics()
+        Logger.trace(
+          ~module_="About",
+          ~message="User enabled diagnostic mode via About Dialog.",
+          (),
+        )
+        setIsDiagnostic(_ => true)
+        EventBus.dispatch(ShowNotification("Diagnostic Mode Enabled", #Success))
+      }
+    }
+
+    <div className="flex flex-col gap-4 mt-2">
+      <div className="flex flex-col gap-1">
+        <p className="text-white font-semibold font-mono text-[11px]">
+          {React.string(`Version: ${Version.version}`)}
+        </p>
+        <p className="text-slate-300 font-mono text-[10px]">
+          {React.string(`Build: ${Version.buildInfo}`)}
+        </p>
+      </div>
+      <div
+        className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors cursor-pointer"
+        onClick={toggleDiagnostic}
+      >
+        <div className="flex flex-col gap-0.5">
+          <span className="text-xs font-medium text-white">
+            {React.string("Diagnostic Mode")}
+          </span>
+          <span className="text-[10px] text-slate-400">
+            {React.string("Sends all traces and debug logs to server")}
+          </span>
+        </div>
+        <div
+          className={`w-10 h-5 rounded-full relative transition-colors ${isDiagnostic
+              ? "bg-green-500"
+              : "bg-slate-700"}`}
+        >
+          <div
+            className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${isDiagnostic
+                ? "right-1"
+                : "left-1"}`}
+          />
+        </div>
+      </div>
+    </div>
+  }
+}
+
 @react.component
 let make = React.memo(() => {
   let state = AppContext.useAppState()
@@ -164,16 +223,7 @@ let make = React.memo(() => {
               title: "About Builder",
               description: None,
               icon: Some("info"),
-              content: Some(
-                <div className="flex flex-col gap-1 mt-2">
-                  <p className="text-white font-semibold font-mono text-[11px]">
-                    {React.string(`Version: ${Version.version}`)}
-                  </p>
-                  <p className="text-slate-200 font-mono text-[10px]">
-                    {React.string(`Build: ${Version.buildInfo}`)}
-                  </p>
-                </div>,
-              ),
+              content: Some(<AboutContent />),
               onClose: None,
               allowClose: Some(true),
               className: Some("modal-blue"),

@@ -12,6 +12,7 @@ use actix_web::{
 use futures_util::future::LocalBoxFuture;
 use std::future::{Ready, ready};
 use std::rc::Rc;
+use tracing::Instrument;
 
 // ==========================================
 // QuotaCheck
@@ -171,22 +172,34 @@ where
     fn call(&self, req: ServiceRequest) -> Self::Future {
         let shutdown_manager = req.app_data::<web::Data<ShutdownManager>>().cloned();
 
+        let request_id = req
+            .headers()
+            .get("X-Request-ID")
+            .and_then(|v| v.to_str().ok())
+            .map(|s| s.to_string())
+            .unwrap_or_else(|| uuid::Uuid::new_v4().to_string());
+
         let fut = self.service.call(req);
 
-        Box::pin(async move {
-            ACTIVE_SESSIONS.inc();
-            if let Some(manager) = shutdown_manager {
-                manager.register_request().await;
-                let res = fut.await;
-                manager.unregister_request().await;
-                ACTIVE_SESSIONS.dec();
-                res
-            } else {
-                let res = fut.await;
-                ACTIVE_SESSIONS.dec();
-                res
+        let span = tracing::info_span!("request", request_id = %request_id);
+
+        Box::pin(
+            async move {
+                ACTIVE_SESSIONS.inc();
+                if let Some(manager) = shutdown_manager {
+                    manager.register_request().await;
+                    let res = fut.await;
+                    manager.unregister_request().await;
+                    ACTIVE_SESSIONS.dec();
+                    res
+                } else {
+                    let res = fut.await;
+                    ACTIVE_SESSIONS.dec();
+                    res
+                }
             }
-        })
+            .instrument(span),
+        )
     }
 }
 

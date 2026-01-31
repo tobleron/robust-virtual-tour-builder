@@ -9,8 +9,8 @@
 ---
 
 ## 🛠️ SURGICAL REFACTOR TASKS (1)
-- [ ] **../../backend/src/pathfinder.rs**
-  - *Reason:* [Nesting: 3.00, Density: 0.07, Coupling: 0.03] | Drag: 4.61 | LOC: 636/300
+- [ ] **../../backend/src/main.rs**
+  - *Reason:* [Nesting: 2.00, Density: 0.03, Coupling: 0.07] | Drag: 3.25 | LOC: 328/300
 
 ---
 

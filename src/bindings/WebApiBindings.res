@@ -36,3 +36,7 @@ module FormData = {
   @send external append: (t, string, 'a) => unit = "append"
   @send external appendWithFilename: (t, string, 'a, string) => unit = "append"
 }
+
+module Crypto = {
+  @val @scope("crypto") external randomUUID: unit => string = "randomUUID"
+}
