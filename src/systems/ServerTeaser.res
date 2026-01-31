@@ -3,8 +3,6 @@ open ReBindings
 
 open Types
 
-open RescriptSchema
-
 external anyToUnknown: 'a => 'b = "%identity"
 
 let generateServerTeaser = (state: state, onProgress) => {
@@ -19,7 +17,8 @@ let generateServerTeaser = (state: state, onProgress) => {
     deletedSceneIds: state.deletedSceneIds,
     timeline: state.timeline,
   }
-  let jsonStr = S.reverseConvertToJsonStringOrThrow(project, Schemas.Domain.project)
+  // CSP SAFE FIX
+  let jsonStr = JSON.stringifyAny(project)->Option.getOr("{}")
   let formData = FormData.newFormData()
   FormData.append(formData, "project_data", jsonStr)
   FormData.append(formData, "width", "1920")

@@ -77,3 +77,4 @@
 - [telemetry] add fallback sanitized logging for malformed payloads
 - [infra] relax CSP in index.html to allow 'unsafe-eval' for legacy bindings
 - [backend] integrate sentry and tracing-tree for robust error tracking [TRIPLE]
+[2026-01-31 23:12] v4.8.12 - fix(core): Resolve CSP unsafe-eval violations via zero-eval strategy [TRIPLE]

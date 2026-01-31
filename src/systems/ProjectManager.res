@@ -49,7 +49,10 @@ module Logic = {
       timeline: state.timeline,
     }
 
-    let jsonStr = S.reverseConvertToJsonStringOrThrow(project, Schemas.Domain.project)
+    let jsonStr = switch JSON.stringifyAny(project) {
+    | Some(s) => s
+    | None => "{}"
+    }
     let formData = FormData.newFormData()
     FormData.append(formData, "project_data", jsonStr)
 
@@ -153,7 +156,8 @@ module Logic = {
           scenes: validScenes,
         }
 
-        let json = S.reverseConvertOrThrow(loadedProject, Schemas.Domain.project)
+        // CSP SAFE FIX: Casting instead of schema conversion
+        let json = Obj.magic(loadedProject)
 
         progress(100, 100, "Project Loaded!")
         Logger.endOperation(

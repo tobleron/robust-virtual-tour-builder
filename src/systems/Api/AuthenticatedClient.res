@@ -1,7 +1,6 @@
 /* src/systems/Api/AuthenticatedClient.res */
 
 open ReBindings
-open RescriptSchema
 
 exception HttpError(int, string)
 
@@ -25,7 +24,8 @@ let prepareRequestBody = (body: option<JSON.t>, headers: Dict.t<string>) => {
     if Dict.get(headers, "Content-Type") == None {
       Dict.set(headers, "Content-Type", "application/json")
     }
-    Some(S.reverseConvertToJsonStringOrThrow(b, Schemas.Shared.jsonSchema))
+    // CSP SAFE FIX
+    Some(JSON.stringifyAny(b)->Option.getOr("{}"))
   | None => None
   }
 }
