@@ -7,10 +7,7 @@ module Shared = {
 
   external identity: 'a => 'b = "%identity"
 
-  let jsonSchema: S.t<JSON.t> = S.unknown->S.transform(_ => {
-    parser: (v: unknown) => v->identity,
-    serializer: (v: JSON.t) => v->identity,
-  })
+  let jsonSchema: S.t<JSON.t> = S.json(~validate=false)
 
   let toNullable = (schema: S.t<option<'a>>): S.t<Nullable.t<'a>> => {
     schema->S.transform(_ => {
@@ -139,10 +136,7 @@ module Domain = {
 
   external identity: 'a => 'b = "%identity"
 
-  let jsonSchema: S.t<JSON.t> = S.unknown->S.transform(_ => {
-    parser: (v: unknown) => v->identity,
-    serializer: (v: JSON.t) => v->identity,
-  })
+  let jsonSchema: S.t<JSON.t> = S.json(~validate=false)
 
   let file = S.string->S.transform(_ => {
     parser: (s: string) => Url(s),

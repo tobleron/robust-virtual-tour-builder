@@ -43,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Resolve widespread test failures and schema runtime errors; restore App and ViewerManager unit tests
+- Upgrade rescript-schema and restore standard serialization across systems
 
 ## [4.8.12] - 2026-01-30
 

@@ -3,8 +3,7 @@
 
 open ApiHelpers
 open ReBindings
-
-@scope("JSON") @val external stringify: 'a => string = "stringify"
+open RescriptSchema
 
 let handleError = (e, message, logKey) => {
   let (msg, stack) = Logger.getErrorDetails(e)
@@ -91,7 +90,7 @@ let validateProject = (sessionId: string, projectData: JSON.t): Promise.t<
       Constants.backendUrl ++ "/api/project/validate/" ++ sessionId,
       Fetch.requestInit(
         ~method="POST",
-        ~body=stringify(projectData),
+        ~body=S.reverseConvertToJsonStringOrThrow(projectData, Schemas.Shared.jsonSchema),
         ~headers=Dict.fromArray([("Content-Type", "application/json")]),
         (),
       ),
@@ -129,7 +128,7 @@ let saveProject = (sessionId: string, projectData: JSON.t): Promise.t<apiResult<
       Constants.backendUrl ++ "/api/project/save/" ++ sessionId,
       Fetch.requestInit(
         ~method="POST",
-        ~body=stringify(projectData),
+        ~body=S.reverseConvertToJsonStringOrThrow(projectData, Schemas.Shared.jsonSchema),
         ~headers=Dict.fromArray([("Content-Type", "application/json")]),
         (),
       ),
@@ -149,13 +148,13 @@ let calculatePath = (payload: pathRequest): Promise.t<apiResult<array<step>>> =>
   RequestQueue.schedule(() => {
     // Replaced manual cast/stringify with Schema serialization
     let body = try {
-      stringify(payload)
+      S.reverseConvertToJsonStringOrThrow(payload, Schemas.Domain.pathRequest)
     } catch {
-    | Js.Exn.Error(e) =>
+    | S.Raised(e) =>
       Logger.error(
         ~module_="ProjectApi",
         ~message="Path serialization failed",
-        ~data=Logger.castToJson({"error": Js.Exn.message(e)}),
+        ~data=Logger.castToJson({"error": S.Error.message(e)}),
         (),
       )
       "{}"
@@ -199,7 +198,7 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<apiResult<geocodeRespon
     let payload: geocodeRequest = {lat, lon}
 
     let body = try {
-      stringify(payload)
+      S.reverseConvertToJsonStringOrThrow(payload, Schemas.Shared.geocodeRequest)
     } catch {
     | _ => "{}"
     }
