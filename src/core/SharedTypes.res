@@ -19,6 +19,11 @@ type gPanoMetadata = {
 
 /* --- Backend Metadata Types --- */
 
+type geocodeRequest = {
+  lat: float,
+  lon: float,
+}
+
 type gpsData = {
   lat: float,
   lon: float,
@@ -113,6 +118,13 @@ type validationReport = {
   @as("unusedFiles") unusedFiles: array<string>,
   warnings: array<string>,
   errors: array<string>,
+}
+
+type geocodeResponse = {address: string}
+
+type importResponse = {
+  sessionId: string,
+  projectData: JSON.t,
 }
 
 let defaultQuality = (msg: string): qualityAnalysis => {

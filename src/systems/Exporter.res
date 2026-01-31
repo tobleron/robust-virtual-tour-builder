@@ -3,6 +3,19 @@
 open ReBindings
 open Types
 open EventBus
+open RescriptSchema
+
+type apiError = {
+  error: string,
+  details: option<string>,
+}
+
+let apiErrorSchema = S.object((s): apiError => {
+  {
+    error: s.field("error", S.string),
+    details: s.field("details", S.nullable(S.string)),
+  }
+})
 
 // Version is accessed natively
 
@@ -52,17 +65,13 @@ let uploadAndProcessRaw: (
                     if (xhr.responseType === "blob") {
                         const reader = new FileReader();
                         reader.onload = () => {
-                            try {
-                                const json = JSON.parse(reader.result);
-                                reject(new Error(json.details || json.error));
-                            } catch (e) {
-                                reject(new Error("Backend returned status " + xhr.status));
-                            }
+                            // Reject with RAW TEXT so ReScript can parse it safely
+                            reject(new Error(reader.result));
                         };
                         reader.readAsText(xhr.response);
                     } else {
-                        const json = JSON.parse(xhr.responseText);
-                        reject(new Error(json.details || json.error));
+                        // Reject with RAW TEXT
+                        reject(new Error(xhr.responseText));
                     }
                 } catch (e) {
                     reject(new Error("Backend returned status " + xhr.status));
@@ -214,15 +223,27 @@ let exportTour = async (
   } catch {
   | exn => {
       let (msg, stack) = Logger.getErrorDetails(exn)
+
+      let finalMsg = try {
+        let json = JSON.parseOrThrow(msg)
+        let err = S.parseOrThrow(json, apiErrorSchema)
+        switch err.details {
+        | Some(d) => d
+        | None => err.error
+        }
+      } catch {
+      | _ => msg
+      }
+
       Logger.error(
         ~module_="Exporter",
         ~message="EXPORT_FAILED",
-        ~data={"error": msg, "stack": stack, "phase": currentPhase.contents},
+        ~data={"error": finalMsg, "stack": stack, "phase": currentPhase.contents},
         (),
       )
-      EventBus.dispatch(ShowNotification(`Export Failed: ${msg}`, #Error))
+      EventBus.dispatch(ShowNotification(`Export Failed: ${finalMsg}`, #Error))
       progress(0.0, 0.0, "Failed")
-      Error(msg)
+      Error(finalMsg)
     }
   }
 }

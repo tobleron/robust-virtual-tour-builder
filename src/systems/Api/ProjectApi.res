@@ -2,6 +2,7 @@
 
 open ApiHelpers
 open ReBindings
+open RescriptSchema
 
 let handleError = (e, message, logKey) => {
   let (msg, stack) = Logger.getErrorDetails(e)
@@ -144,11 +145,21 @@ let saveProject = (sessionId: string, projectData: JSON.t): Promise.t<apiResult<
 
 let calculatePath = (payload: pathRequest): Promise.t<apiResult<array<step>>> => {
   RequestQueue.schedule(() => {
+    // Replaced manual cast/stringify with Schema serialization
+    let body = try {
+      S.reverseConvertToJsonStringOrThrow(payload, Schemas.Domain.pathRequest)
+    } catch {
+    | S.Raised(e) =>
+       Logger.error(~module_="ProjectApi", ~message="Path serialization failed", ~data=Logger.castToJson({"error": S.Error.message(e)}), ())
+       "{}"
+    | _ => "{}"
+    }
+
     Fetch.fetch(
       Constants.backendUrl ++ "/api/project/calculate-path",
       Fetch.requestInit(
         ~method="POST",
-        ~body=JSON.stringify(Logger.castToJson(payload)),
+        ~body=body,
         ~headers=Dict.fromArray([("Content-Type", "application/json")]),
         (),
       ),
@@ -178,12 +189,19 @@ let calculatePath = (payload: pathRequest): Promise.t<apiResult<array<step>>> =>
 
 let reverseGeocode = (lat: float, lon: float): Promise.t<apiResult<geocodeResponse>> => {
   RequestQueue.schedule(() => {
-    let payload = Dict.fromArray([("lat", JSON.Encode.float(lat)), ("lon", JSON.Encode.float(lon))])
+    let payload: geocodeRequest = {lat, lon}
+
+    let body = try {
+      S.reverseConvertToJsonStringOrThrow(payload, Schemas.Shared.geocodeRequest)
+    } catch {
+    | _ => "{}"
+    }
+
     Fetch.fetch(
       Constants.backendUrl ++ "/api/geocoding/reverse",
       Fetch.requestInit(
         ~method="POST",
-        ~body=JSON.stringify(JSON.Encode.object(payload)),
+        ~body=body,
         ~headers=Dict.fromArray([("Content-Type", "application/json")]),
         (),
       ),

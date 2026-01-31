@@ -1,13 +1,5 @@
 open Types
-
-type sessionState = {
-  tourName: string,
-  activeIndex: int,
-  activeYaw: float,
-  activePitch: float,
-  isLinking: bool,
-  isTeasing: bool,
-}
+open RescriptSchema
 
 @val @scope("localStorage")
 external setItem: (string, string) => unit = "setItem"
@@ -21,7 +13,7 @@ external removeItem: string => unit = "removeItem"
 let storageKey = "vtb_session_store"
 
 let saveState = (state: state) => {
-  let sessionState = {
+  let sessionState: sessionState = {
     tourName: state.tourName,
     activeIndex: state.activeIndex,
     activeYaw: state.activeYaw,
@@ -31,41 +23,23 @@ let saveState = (state: state) => {
   }
 
   try {
-    let json = JSON.stringifyAny(sessionState)
-    switch json {
-    | Some(str) => setItem(storageKey, str)
-    | None => ()
-    }
+    let str = S.reverseConvertToJsonStringOrThrow(sessionState, Schemas.Domain.sessionState)
+    setItem(storageKey, str)
   } catch {
-  | _ => () // Fallback for private mode or quota exceeded
+  | S.Raised(e) => Console.error("SessionStore Save Error: " ++ S.Error.message(e))
+  | Js.Exn.Error(e) => Console.error2("SessionStore Save Exn: ", e)
+  | _ => Console.error("SessionStore Save Error: Unknown")
   }
 }
 
 let decodeSessionState = (jsonStr: string): option<sessionState> => {
-  switch JSON.parseOrThrow(jsonStr)->JSON.Decode.object {
-  | Some(obj) =>
-    Some({
-      tourName: obj->Dict.get("tourName")->Option.flatMap(JSON.Decode.string)->Option.getOr(""),
-      activeIndex: obj
-      ->Dict.get("activeIndex")
-      ->Option.flatMap(JSON.Decode.float)
-      ->Option.map(Float.toInt)
-      ->Option.getOr(-1),
-      activeYaw: obj->Dict.get("activeYaw")->Option.flatMap(JSON.Decode.float)->Option.getOr(0.0),
-      activePitch: obj
-      ->Dict.get("activePitch")
-      ->Option.flatMap(JSON.Decode.float)
-      ->Option.getOr(0.0),
-      isLinking: obj
-      ->Dict.get("isLinking")
-      ->Option.flatMap(JSON.Decode.bool)
-      ->Option.getOr(false),
-      isTeasing: obj
-      ->Dict.get("isTeasing")
-      ->Option.flatMap(JSON.Decode.bool)
-      ->Option.getOr(false),
-    })
-  | None => None
+  try {
+    Some(S.parseJsonStringOrThrow(jsonStr, Schemas.Domain.sessionState))
+  } catch {
+  | S.Raised(e) =>
+      Console.error("SessionStore Decode Error: " ++ S.Error.message(e))
+      None
+  | _ => None
   }
 }
 
@@ -80,6 +54,7 @@ let loadState = (): option<sessionState> => {
   | _ => None
   }
 }
+
 let clearState = () => {
   try {
     removeItem(storageKey)
