@@ -229,6 +229,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/utils/TourLogic.res](src/utils/TourLogic.res): Core domain logic for tour structure and state validation. `#utils` `#logic`
 *   [src/utils/UrlUtils.res](src/utils/UrlUtils.res): Utilities for parsing and generating tour URLs. `#utils` `#url`
 *   [src/utils/Version.res](src/utils/Version.res): Semantic versioning and build manifest utilities. `#utils` `#version`
+*   [src/utils/AsyncQueue.res](src/utils/AsyncQueue.res): Generic asynchronous queue with concurrency control and progress reporting. `#utils` `#concurrency`
 
 ### ⚙️ Backend API (Rust)
 *   [backend/src/main.rs](backend/src/main.rs): Server entry point, middleware setup, and routing. `#rust` `#api` `#server`
@@ -307,5 +308,3 @@ This map provides a semantic overview of the project structure to optimize conte
 
 
 
-## 🆕 Unmapped Modules
-* [src/utils/AsyncQueue.res](src/utils/AsyncQueue.res): New module detected. Please classify. #new
