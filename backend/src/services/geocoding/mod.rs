@@ -4,11 +4,9 @@
 pub mod cache;
 pub mod osm;
 
-use crate::models::{CachedGeocode, GeocodeKey};
+// use crate::models::{CachedGeocode, GeocodeKey};
 
-pub use cache::{
-    GeocoderInfo, MAX_CACHE_SIZE, clear_cache, get_info, load_cache_from_disk, save_cache_to_disk,
-};
+pub use cache::{MAX_CACHE_SIZE, clear_cache, get_info, load_cache_from_disk, save_cache_to_disk};
 
 pub async fn reverse_geocode(lat: f64, lon: f64) -> Result<String, String> {
     tracing::info!(lat = lat, lon = lon, "REVERSE_GEOCODE_COORD_RECEIVED");

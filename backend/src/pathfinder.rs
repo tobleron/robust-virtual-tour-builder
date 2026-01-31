@@ -12,7 +12,7 @@ mod tests;
 // Re-exports for backward compatibility and clean API
 pub use algorithms::calculate_path;
 pub use graph::PathRequest;
-pub use timeline::calculate_timeline_path;
-pub use walk::calculate_walk_path;
+// pub use timeline::calculate_timeline_path;
+// pub use walk::calculate_walk_path;
 
-pub use graph::{ArrivalView, Hotspot, Scene, Step, TimelineItem, TransitionTarget, ViewFrame};
+// pub use graph::{ArrivalView, Hotspot, Scene, Step, TimelineItem, TransitionTarget, ViewFrame};

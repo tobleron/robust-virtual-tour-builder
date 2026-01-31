@@ -174,6 +174,7 @@ pub async fn update_cache(key: GeocodeKey, address: String) {
 }
 
 // For tests
+#[allow(dead_code)]
 pub async fn manual_insert(
     key: GeocodeKey,
     address: String,
@@ -191,26 +192,31 @@ pub async fn manual_insert(
     );
 }
 
+#[allow(dead_code)]
 pub async fn get_cache_len() -> usize {
     let cache = GEOCODE_CACHE.read().await;
     cache.len()
 }
 
+#[allow(dead_code)]
 pub async fn cache_contains_key(key: &GeocodeKey) -> bool {
     let cache = GEOCODE_CACHE.read().await;
     cache.contains_key(key)
 }
 
+#[allow(dead_code)]
 pub async fn get_cache_entry_access_count(key: &GeocodeKey) -> Option<u32> {
     let cache = GEOCODE_CACHE.read().await;
     cache.get(key).map(|e| e.access_count)
 }
 
+#[allow(dead_code)]
 pub async fn get_evictions_count() -> u64 {
     let stats = CACHE_STATS.read().await;
     stats.evictions
 }
 
+#[allow(dead_code)]
 pub async fn get_hits_count() -> u64 {
     let stats = CACHE_STATS.read().await;
     stats.hits
