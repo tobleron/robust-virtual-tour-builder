@@ -28,6 +28,36 @@ module Utils = {
 module Logic = {
   external castToJson: 'a => JSON.t = "%identity"
 
+  let handleProcessSuccess = (res: Resizer.processResult, item: UploadTypes.uploadItem) => {
+    Logger.debug(
+      ~module_="UploadLogic",
+      ~message="QUALITY_ANALYSIS",
+      ~data=Some({
+        "filename": File.name(item.original),
+        "avgLuminance": res.qualityData.stats.avgLuminance,
+        "isBlurry": res.qualityData.isBlurry,
+      }),
+      (),
+    )
+    {
+      ...item,
+      preview: Some(res.preview),
+      tiny: res.tiny,
+      metadata: Some(castToJson(res.metadata)),
+      quality: Some(castToJson(res.qualityData)),
+    }
+  }
+
+  let handleProcessError = (msg, item: UploadTypes.uploadItem) => {
+    Logger.error(
+      ~module_="UploadLogic",
+      ~message="FILE_FAILED",
+      ~data=Some({"filename": File.name(item.original), "error": msg}),
+      (),
+    )
+    {...item, error: Some(msg)}
+  }
+
   let processItem = (i, item: UploadTypes.uploadItem, onStatus: string => unit) => {
     Logger.debug(
       ~module_="UploadLogic",
@@ -42,32 +72,8 @@ module Logic = {
     Resizer.processAndAnalyzeImage(item.original, ~onStatus=Some(onStatus))
     ->Promise.then(processResult => {
       let newItem = switch processResult {
-      | Ok(res) =>
-        Logger.debug(
-          ~module_="UploadLogic",
-          ~message="QUALITY_ANALYSIS",
-          ~data=Some({
-            "filename": File.name(item.original),
-            "avgLuminance": res.qualityData.stats.avgLuminance,
-            "isBlurry": res.qualityData.isBlurry,
-          }),
-          (),
-        )
-        {
-          ...item,
-          preview: Some(res.preview),
-          tiny: res.tiny,
-          metadata: Some(castToJson(res.metadata)),
-          quality: Some(castToJson(res.qualityData)),
-        }
-      | Error(msg) =>
-        Logger.error(
-          ~module_="UploadLogic",
-          ~message="FILE_FAILED",
-          ~data=Some({"filename": File.name(item.original), "error": msg}),
-          (),
-        )
-        {...item, error: Some(msg)}
+      | Ok(res) => handleProcessSuccess(res, item)
+      | Error(msg) => handleProcessError(msg, item)
       }
       Promise.resolve(newItem)
     })
