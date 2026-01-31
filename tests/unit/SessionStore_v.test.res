@@ -27,7 +27,6 @@ let _ = %raw(`
   })
 `)
 
-
 describe("SessionStore", () => {
   test("Module exists and exports functions", t => {
     let _ = SessionStore.saveState

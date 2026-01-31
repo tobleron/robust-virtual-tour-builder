@@ -1337,12 +1337,6 @@
 │   │           ├── ExifReportGenerator_v.test.cmj
 │   │           ├── ExifReportGenerator_v.test.cmt
 │   │           ├── ExifReportGenerator_v.test.res
-│   │           ├── Exporter_v.test.ast
-│   │           ├── Exporter_v.test.bs.js
-│   │           ├── Exporter_v.test.cmi
-│   │           ├── Exporter_v.test.cmj
-│   │           ├── Exporter_v.test.cmt
-│   │           ├── Exporter_v.test.res
 │   │           ├── FinalAsyncCheck_v.test.ast
 │   │           ├── FinalAsyncCheck_v.test.bs.js
 │   │           ├── FinalAsyncCheck_v.test.cmi
@@ -1457,12 +1451,6 @@
 │   │           ├── LazyLoad_v.test.cmj
 │   │           ├── LazyLoad_v.test.cmt
 │   │           ├── LazyLoad_v.test.res
-│   │           ├── LinkEditorLogic_v.test.ast
-│   │           ├── LinkEditorLogic_v.test.bs.js
-│   │           ├── LinkEditorLogic_v.test.cmi
-│   │           ├── LinkEditorLogic_v.test.cmj
-│   │           ├── LinkEditorLogic_v.test.cmt
-│   │           ├── LinkEditorLogic_v.test.res
 │   │           ├── LinkModal_v.test.ast
 │   │           ├── LinkModal_v.test.bs.js
 │   │           ├── LinkModal_v.test.cmi
@@ -1475,12 +1463,6 @@
 │   │           ├── LoggerLogic_v.test.cmj
 │   │           ├── LoggerLogic_v.test.cmt
 │   │           ├── LoggerLogic_v.test.res
-│   │           ├── LoggerTelemetry_v.test.ast
-│   │           ├── LoggerTelemetry_v.test.bs.js
-│   │           ├── LoggerTelemetry_v.test.cmi
-│   │           ├── LoggerTelemetry_v.test.cmj
-│   │           ├── LoggerTelemetry_v.test.cmt
-│   │           ├── LoggerTelemetry_v.test.res
 │   │           ├── LoggerTypes_v.test.ast
 │   │           ├── LoggerTypes_v.test.bs.js
 │   │           ├── LoggerTypes_v.test.cmi
@@ -1607,24 +1589,6 @@
 │   │           ├── ProgressBar_v.test.cmj
 │   │           ├── ProgressBar_v.test.cmt
 │   │           ├── ProgressBar_v.test.res
-│   │           ├── ProjectApi_v.test.ast
-│   │           ├── ProjectApi_v.test.bs.js
-│   │           ├── ProjectApi_v.test.cmi
-│   │           ├── ProjectApi_v.test.cmj
-│   │           ├── ProjectApi_v.test.cmt
-│   │           ├── ProjectApi_v.test.res
-│   │           ├── ProjectManagerLogic_v.test.ast
-│   │           ├── ProjectManagerLogic_v.test.bs.js
-│   │           ├── ProjectManagerLogic_v.test.cmi
-│   │           ├── ProjectManagerLogic_v.test.cmj
-│   │           ├── ProjectManagerLogic_v.test.cmt
-│   │           ├── ProjectManagerLogic_v.test.res
-│   │           ├── ProjectManager_v.test.ast
-│   │           ├── ProjectManager_v.test.bs.js
-│   │           ├── ProjectManager_v.test.cmi
-│   │           ├── ProjectManager_v.test.cmj
-│   │           ├── ProjectManager_v.test.cmt
-│   │           ├── ProjectManager_v.test.res
 │   │           ├── ProjectReducer_v.test.ast
 │   │           ├── ProjectReducer_v.test.bs.js
 │   │           ├── ProjectReducer_v.test.cmi
@@ -2310,7 +2274,6 @@
 │   │   ├── Exporter.cmj
 │   │   ├── Exporter.cmt
 │   │   ├── Exporter.res
-│   │   ├── Exporter_v.test.res
 │   │   ├── FinalAsyncCheck_v.test.ast
 │   │   ├── FinalAsyncCheck_v.test.cmi
 │   │   ├── FinalAsyncCheck_v.test.cmj
@@ -2529,7 +2492,6 @@
 │   │   ├── LinkEditorLogic.cmj
 │   │   ├── LinkEditorLogic.cmt
 │   │   ├── LinkEditorLogic.res
-│   │   ├── LinkEditorLogic_v.test.res
 │   │   ├── LinkModal.ast
 │   │   ├── LinkModal.cmi
 │   │   ├── LinkModal.cmj
@@ -2565,7 +2527,6 @@
 │   │   ├── LoggerTelemetry.cmj
 │   │   ├── LoggerTelemetry.cmt
 │   │   ├── LoggerTelemetry.res
-│   │   ├── LoggerTelemetry_v.test.res
 │   │   ├── LoggerTypes_v.test.ast
 │   │   ├── LoggerTypes_v.test.cmi
 │   │   ├── LoggerTypes_v.test.cmj
@@ -2796,14 +2757,11 @@
 │   │   ├── ProjectApi.cmj
 │   │   ├── ProjectApi.cmt
 │   │   ├── ProjectApi.res
-│   │   ├── ProjectApi_v.test.res
 │   │   ├── ProjectManager.ast
 │   │   ├── ProjectManager.cmi
 │   │   ├── ProjectManager.cmj
 │   │   ├── ProjectManager.cmt
 │   │   ├── ProjectManager.res
-│   │   ├── ProjectManagerLogic_v.test.res
-│   │   ├── ProjectManager_v.test.res
 │   │   ├── ProjectReducer_v.test.ast
 │   │   ├── ProjectReducer_v.test.cmi
 │   │   ├── ProjectReducer_v.test.cmj
@@ -5779,4 +5737,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-216 directories, 5564 files
+216 directories, 5522 files

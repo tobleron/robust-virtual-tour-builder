@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Synchronize `tail-diagnostics.sh` for formatted real-time multi-source log viewing
   - Fix trace correlation with `X-Request-ID` injection and `requestId` field synchronization
 - **Refactor**: Move diagnostic toggle from Sidebar Branding to About dialog box to maintain clean aesthetics
+- Merge test stabilization fixes
 
 ### Added
 - Implement unified diagnostic logging system with real-time UI toggle and live telemetry
