@@ -150,8 +150,13 @@ let calculatePath = (payload: pathRequest): Promise.t<apiResult<array<step>>> =>
       S.reverseConvertToJsonStringOrThrow(payload, Schemas.Domain.pathRequest)
     } catch {
     | S.Raised(e) =>
-       Logger.error(~module_="ProjectApi", ~message="Path serialization failed", ~data=Logger.castToJson({"error": S.Error.message(e)}), ())
-       "{}"
+      Logger.error(
+        ~module_="ProjectApi",
+        ~message="Path serialization failed",
+        ~data=Logger.castToJson({"error": S.Error.message(e)}),
+        (),
+      )
+      "{}"
     | _ => "{}"
     }
 
@@ -159,7 +164,7 @@ let calculatePath = (payload: pathRequest): Promise.t<apiResult<array<step>>> =>
       Constants.backendUrl ++ "/api/project/calculate-path",
       Fetch.requestInit(
         ~method="POST",
-        ~body=body,
+        ~body,
         ~headers=Dict.fromArray([("Content-Type", "application/json")]),
         (),
       ),
@@ -201,7 +206,7 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<apiResult<geocodeRespon
       Constants.backendUrl ++ "/api/geocoding/reverse",
       Fetch.requestInit(
         ~method="POST",
-        ~body=body,
+        ~body,
         ~headers=Dict.fromArray([("Content-Type", "application/json")]),
         (),
       ),
