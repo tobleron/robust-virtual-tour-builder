@@ -17,11 +17,11 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 - [ ] - **../../src/systems/ApiLogic.res** (Metric: [Nesting: 3.50, Density: 0.07, Coupling: 0.04] | Drag: 7.09 | LOC: 503/300  🎯 Target: Function: `extractMetadata` (High Local Complexity (1.0). Logic heavy.))
 
-- [ ] - **../../src/systems/ExifReportGeneratorLogic.res** (Metric: [Nesting: 4.00, Density: 0.16, Coupling: 0.06] | Drag: 7.92 | LOC: 333/300  🎯 Target: Function: `processSceneDataItem` (High Local Complexity (14.4). Logic heavy.))
+- [ ] - **../../src/systems/ExifReportGeneratorLogic.res** (Metric: [Nesting: 4.00, Density: 0.16, Coupling: 0.06] | Drag: 7.88 | LOC: 338/300  🎯 Target: Function: `processSceneDataItem` (High Local Complexity (14.4). Logic heavy.))
 
 - [ ] - **../../src/systems/HotspotLineLogic.res** (Metric: [Nesting: 4.00, Density: 0.29, Coupling: 0.04] | Drag: 7.55 | LOC: 538/300  🎯 Target: Function: `waypointsRaw` (High Local Complexity (2.0). Logic heavy.))
 
-- [ ] - **../../src/systems/Navigation.res** (Metric: [Nesting: 6.00, Density: 0.39, Coupling: 0.08] | Drag: 10.13 | LOC: 427/300  🎯 Target: Function: `req` (High Local Complexity (9.3). Logic heavy.))
+- [ ] - **../../src/systems/Navigation.res** (Metric: [Nesting: 6.00, Density: 0.39, Coupling: 0.08] | Drag: 10.11 | LOC: 430/300  🎯 Target: Function: `req` (High Local Complexity (9.3). Logic heavy.))
 
 - [ ] - **../../src/systems/Resizer.res** (Metric: [Nesting: 3.50, Density: 0.21, Coupling: 0.10] | Drag: 8.30 | LOC: 309/300  🎯 Target: Function: `getMemoryUsage` (High Local Complexity (12.9). Logic heavy.))
 

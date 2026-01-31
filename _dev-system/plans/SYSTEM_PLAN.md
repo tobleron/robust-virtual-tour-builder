@@ -9,31 +9,31 @@
 ---
 
 ## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (5)
-- [ ] `../../backend/src/auth/handlers.rs`
-- [ ] `../../backend/src/services/geocoding/osm.rs`
-- [ ] `../../backend/src/pathfinder/timeline.rs`
-- [ ] `../../backend/src/pathfinder/walk.rs`
 - [ ] `../../backend/src/services/geocoding/cache.rs`
+- [ ] `../../backend/src/pathfinder/timeline.rs`
+- [ ] `../../backend/src/services/geocoding/osm.rs`
+- [ ] `../../backend/src/auth/handlers.rs`
+- [ ] `../../backend/src/pathfinder/walk.rs`
 
 ---
 
 ## 🧩 MERGE TASKS (3)
-### Merge Folder: `backend/src/auth`
-- **Reason:** Recursive Feature Pod: 4 files in subtree sum to 288 LOC (fits in context). Max Drag: 3.05
-- **Files:**
-  - `backend/src/auth/../../backend/src/auth/mod.rs`
-  - `backend/src/auth/../../backend/src/auth/handlers.rs`
-  - `backend/src/auth/../../backend/src/auth/middleware.rs`
-  - `backend/src/auth/../../backend/src/auth/service.rs`
 ### Merge Folder: `backend/src/middleware`
 - **Reason:** Recursive Feature Pod: 3 files in subtree sum to 213 LOC (fits in context). Max Drag: 3.03
 - **Files:**
   - `backend/src/middleware/../../backend/src/middleware/mod.rs`
-  - `backend/src/middleware/../../backend/src/middleware/quota_check.rs`
   - `backend/src/middleware/../../backend/src/middleware/request_tracker.rs`
+  - `backend/src/middleware/../../backend/src/middleware/quota_check.rs`
+### Merge Folder: `backend/src/auth`
+- **Reason:** Recursive Feature Pod: 4 files in subtree sum to 288 LOC (fits in context). Max Drag: 3.05
+- **Files:**
+  - `backend/src/auth/../../backend/src/auth/middleware.rs`
+  - `backend/src/auth/../../backend/src/auth/handlers.rs`
+  - `backend/src/auth/../../backend/src/auth/service.rs`
+  - `backend/src/auth/../../backend/src/auth/mod.rs`
 ### Merge Folder: `../../backend/src/pathfinder`
 - **Reason:** Read Tax high (Score 3.00). Projected Limit: 300 (Drag 3.47)
 - **Files:**
+  - `../../backend/src/pathfinder/utils.rs`
   - `../../backend/src/pathfinder/graph.rs`
   - `../../backend/src/pathfinder/algorithms.rs`
-  - `../../backend/src/pathfinder/utils.rs`

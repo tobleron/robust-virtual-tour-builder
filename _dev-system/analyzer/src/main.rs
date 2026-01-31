@@ -130,7 +130,7 @@ fn generate_strategic_directive(unit: &WorkUnit) -> String {
             }
         },
         WorkUnit::Merge { .. } => {
-            "Unified Context: Consolidate these fragmented files into a single cohesive module to reduce token overhead during analysis.".to_string()
+            "Unified Context: Consolidate these fragmented files into a single cohesive module. CRITICAL: Strip any existing '@efficiency' tags from the bodies of the merged files.".to_string()
         },
         WorkUnit::Structural { action, .. } => {
             if action.contains("Flatten") {
