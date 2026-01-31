@@ -64,7 +64,6 @@
 │   │   └── 20260128000000_core_schema.sql
 │   ├── src
 │   │   ├── api
-│   │   │   ├── auth.rs
 │   │   │   ├── geocoding.rs
 │   │   │   ├── media
 │   │   │   │   ├── image.rs
@@ -82,11 +81,15 @@
 │   │   │   ├── project_multipart.rs
 │   │   │   ├── telemetry.rs
 │   │   │   └── utils.rs
+│   │   ├── auth
+│   │   │   ├── handlers.rs
+│   │   │   ├── middleware.rs
+│   │   │   ├── mod.rs
+│   │   │   └── service.rs
 │   │   ├── lib.rs
 │   │   ├── main.rs
 │   │   ├── metrics.rs
 │   │   ├── middleware
-│   │   │   ├── auth.rs
 │   │   │   ├── mod.rs
 │   │   │   ├── quota_check.rs
 │   │   │   └── request_tracker.rs
@@ -99,7 +102,6 @@
 │   │   │   └── walk.rs
 │   │   ├── pathfinder.rs
 │   │   └── services
-│   │       ├── auth.rs
 │   │       ├── database.rs
 │   │       ├── geocoding
 │   │       │   ├── cache.rs
@@ -4857,12 +4859,14 @@
 │   │   ├── GlobalStateBridge.res
 │   │   ├── HotspotHelpers.bs.js
 │   │   ├── HotspotHelpers.res
+│   │   ├── NavigationHelpers.res
 │   │   ├── Reducer.bs.js
 │   │   ├── Reducer.res
 │   │   ├── SceneCache.bs.js
 │   │   ├── SceneCache.res
 │   │   ├── SceneHelpers.bs.js
 │   │   ├── SceneHelpers.res
+│   │   ├── SceneMutations.res
 │   │   ├── SchemaDefinitions.bs.js
 │   │   ├── SchemaDefinitions.res
 │   │   ├── SchemaParsers.bs.js
@@ -4873,6 +4877,7 @@
 │   │   ├── SharedTypes.res
 │   │   ├── SimHelpers.bs.js
 │   │   ├── SimHelpers.res
+│   │   ├── SimulationHelpers.res
 │   │   ├── State.bs.js
 │   │   ├── State.res
 │   │   ├── Types.bs.js
@@ -5040,6 +5045,7 @@
 ├── tasks
 │   ├── TASKS.md
 │   ├── active
+│   │   └── 1155_Structural_Refactor_BACKEND.md
 │   ├── completed
 │   │   ├── 1081_Surgical_Refactor_SYSTEMS_FRONTEND_DONE.md
 │   │   ├── 1082_Surgical_Refactor_COMPONENTS_FRONTEND_DONE.md
@@ -5087,19 +5093,19 @@
 │   │   ├── 1148_Surgical_Refactor_SRC_BACKEND_DONE.md
 │   │   ├── 1149_Surgical_Refactor_MEDIA_BACKEND_DONE.md
 │   │   ├── 1151_Surgical_Refactor_CORE_FRONTEND_DONE.md
+│   │   ├── 1152_Surgical_Refactor_SYSTEMS_FRONTEND_DONE.md
 │   │   ├── 1153_Aggregate_Completed_Tasks_DONE.md
+│   │   ├── 1159_Surgical_Refactor_CORE_FRONTEND_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
 │   │       ├── 598_Test_SceneCache_New.md
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1152_Surgical_Refactor_SYSTEMS_FRONTEND.md
 │   │   ├── 1154_Classify_Ambiguous_Files.md
-│   │   ├── 1155_Structural_Refactor_BACKEND.md
 │   │   ├── 1157_Merge_Folders_BACKEND.md
 │   │   ├── 1158_Classify_Map_Entries.md
-│   │   ├── 1159_Surgical_Refactor_CORE_FRONTEND.md
+│   │   ├── 1160_Surgical_Refactor_SYSTEMS_FRONTEND.md
 │   │   └── tests
 │   └── postponed
 │       ├── 900_COMMERCIAL_MIGRATION_MASTER.md
@@ -5414,4 +5420,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-204 directories, 5211 files
+205 directories, 5216 files

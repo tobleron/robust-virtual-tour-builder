@@ -8,27 +8,23 @@
 
 ---
 
-## 🛠️ SURGICAL REFACTOR TASKS (10)
-- [ ] **../../src/systems/Resizer.res**
-  - *Reason:* [Nesting: 3.50, Density: 0.20, Coupling: 0.10] | Drag: 8.21 | LOC: 303/300  🎯 Target: Function: `getMemoryUsage` (High Local Complexity (10.4). Logic heavy.)
-- [ ] **../../src/core/Reducer.res**
-  - *Reason:* [Nesting: 3.00, Density: 0.42, Coupling: 0.09] | Drag: 7.92 | LOC: 306/300
+## 🛠️ SURGICAL REFACTOR TASKS (8)
 - [ ] **../../src/systems/ExifReportGeneratorLogic.res**
-  - *Reason:* [Nesting: 5.50, Density: 0.14, Coupling: 0.06] | Drag: 9.29 | LOC: 331/300  🎯 Target: Function: `extractAllExif` (High Local Complexity (11.1). Logic heavy.)
-- [ ] **../../src/systems/Scene.res**
-  - *Reason:* [Nesting: 3.00, Density: 0.17, Coupling: 0.09] | Drag: 6.99 | LOC: 355/300  🎯 Target: Function: `updateGlobalStateAndViewer` (High Local Complexity (5.8). Logic heavy.)
-- [ ] **../../src/core/SceneHelpers.res**
-  - *Reason:* [Nesting: 1.50, Density: 0.03, Coupling: 0.05] | Drag: 5.60 | LOC: 308/300  🎯 Target: Function: `sanitizeScene` (High Local Complexity (2.0). Logic heavy.)
-- [ ] **../../src/systems/HotspotLineLogic.res**
-  - *Reason:* [Nesting: 4.00, Density: 0.29, Coupling: 0.04] | Drag: 7.55 | LOC: 540/300  🎯 Target: Function: `isViewerValid` (High Local Complexity (2.0). Logic heavy.)
+  - *Reason:* [Nesting: 4.00, Density: 0.16, Coupling: 0.06] | Drag: 7.92 | LOC: 333/300  🎯 Target: Function: `processSceneDataItem` (High Local Complexity (14.4). Logic heavy.)
 - [ ] **../../src/systems/SimulationLogic.res**
-  - *Reason:* [Nesting: 4.50, Density: 0.12, Coupling: 0.06] | Drag: 9.29 | LOC: 467/300  🎯 Target: Function: `currentResult` (High Local Complexity (6.6). Logic heavy.)
-- [ ] **../../src/systems/UploadProcessor.res**
-  - *Reason:* [Nesting: 2.50, Density: 0.05, Coupling: 0.10] | Drag: 5.70 | LOC: 339/300  🎯 Target: Function: `getNotificationType` (High Local Complexity (4.0). Logic heavy.)
+  - *Reason:* [Nesting: 3.50, Density: 0.12, Coupling: 0.06] | Drag: 8.29 | LOC: 470/300  🎯 Target: Function: `currentResult` (High Local Complexity (6.6). Logic heavy.)
+- [ ] **../../src/systems/Resizer.res**
+  - *Reason:* [Nesting: 3.50, Density: 0.21, Coupling: 0.10] | Drag: 8.30 | LOC: 309/300  🎯 Target: Function: `getMemoryUsage` (High Local Complexity (12.9). Logic heavy.)
 - [ ] **../../src/systems/Navigation.res**
-  - *Reason:* [Nesting: 6.00, Density: 0.39, Coupling: 0.08] | Drag: 10.15 | LOC: 407/300  🎯 Target: Function: `startJourney` (High Local Complexity (9.8). Logic heavy.)
+  - *Reason:* [Nesting: 6.00, Density: 0.39, Coupling: 0.08] | Drag: 10.13 | LOC: 427/300  🎯 Target: Function: `req` (High Local Complexity (9.3). Logic heavy.)
+- [ ] **../../src/systems/Scene.res**
+  - *Reason:* [Nesting: 3.00, Density: 0.17, Coupling: 0.09] | Drag: 6.99 | LOC: 356/300  🎯 Target: Function: `updateGlobalStateAndViewer` (High Local Complexity (3.5). Logic heavy.)
+- [ ] **../../src/systems/UploadProcessor.res**
+  - *Reason:* [Nesting: 2.50, Density: 0.05, Coupling: 0.11] | Drag: 5.69 | LOC: 341/300  🎯 Target: Function: `getNotificationType` (High Local Complexity (4.0). Logic heavy.)
 - [ ] **../../src/systems/ApiLogic.res**
-  - *Reason:* [Nesting: 3.50, Density: 0.08, Coupling: 0.04] | Drag: 7.14 | LOC: 503/300  🎯 Target: Function: `bodyVal` (High Local Complexity (2.0). Logic heavy.)
+  - *Reason:* [Nesting: 3.50, Density: 0.07, Coupling: 0.04] | Drag: 7.09 | LOC: 503/300  🎯 Target: Function: `extractMetadata` (High Local Complexity (1.0). Logic heavy.)
+- [ ] **../../src/systems/HotspotLineLogic.res**
+  - *Reason:* [Nesting: 4.00, Density: 0.29, Coupling: 0.04] | Drag: 7.55 | LOC: 538/300  🎯 Target: Function: `waypointsRaw` (High Local Complexity (2.0). Logic heavy.)
 
 ---
 
