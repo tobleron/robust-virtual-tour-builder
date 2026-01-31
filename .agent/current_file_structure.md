@@ -49,8 +49,10 @@
 │       ├── RUST_PLAN.md
 │       ├── SYSTEM_PLAN.md
 │       └── metadata.json
+├── app_test_debug.txt
 ├── app_test_fail.txt
 ├── app_test_fail_2.txt
+├── app_test_fail_3.txt
 ├── backend
 │   ├── Cargo.lock
 │   ├── Cargo.toml
@@ -2308,10 +2310,6 @@
 │   │   ├── Exporter.cmj
 │   │   ├── Exporter.cmt
 │   │   ├── Exporter.res
-│   │   ├── Exporter_v.test.ast
-│   │   ├── Exporter_v.test.cmi
-│   │   ├── Exporter_v.test.cmj
-│   │   ├── Exporter_v.test.cmt
 │   │   ├── Exporter_v.test.res
 │   │   ├── FinalAsyncCheck_v.test.ast
 │   │   ├── FinalAsyncCheck_v.test.cmi
@@ -2531,10 +2529,6 @@
 │   │   ├── LinkEditorLogic.cmj
 │   │   ├── LinkEditorLogic.cmt
 │   │   ├── LinkEditorLogic.res
-│   │   ├── LinkEditorLogic_v.test.ast
-│   │   ├── LinkEditorLogic_v.test.cmi
-│   │   ├── LinkEditorLogic_v.test.cmj
-│   │   ├── LinkEditorLogic_v.test.cmt
 │   │   ├── LinkEditorLogic_v.test.res
 │   │   ├── LinkModal.ast
 │   │   ├── LinkModal.cmi
@@ -2571,10 +2565,6 @@
 │   │   ├── LoggerTelemetry.cmj
 │   │   ├── LoggerTelemetry.cmt
 │   │   ├── LoggerTelemetry.res
-│   │   ├── LoggerTelemetry_v.test.ast
-│   │   ├── LoggerTelemetry_v.test.cmi
-│   │   ├── LoggerTelemetry_v.test.cmj
-│   │   ├── LoggerTelemetry_v.test.cmt
 │   │   ├── LoggerTelemetry_v.test.res
 │   │   ├── LoggerTypes_v.test.ast
 │   │   ├── LoggerTypes_v.test.cmi
@@ -2806,25 +2796,13 @@
 │   │   ├── ProjectApi.cmj
 │   │   ├── ProjectApi.cmt
 │   │   ├── ProjectApi.res
-│   │   ├── ProjectApi_v.test.ast
-│   │   ├── ProjectApi_v.test.cmi
-│   │   ├── ProjectApi_v.test.cmj
-│   │   ├── ProjectApi_v.test.cmt
 │   │   ├── ProjectApi_v.test.res
 │   │   ├── ProjectManager.ast
 │   │   ├── ProjectManager.cmi
 │   │   ├── ProjectManager.cmj
 │   │   ├── ProjectManager.cmt
 │   │   ├── ProjectManager.res
-│   │   ├── ProjectManagerLogic_v.test.ast
-│   │   ├── ProjectManagerLogic_v.test.cmi
-│   │   ├── ProjectManagerLogic_v.test.cmj
-│   │   ├── ProjectManagerLogic_v.test.cmt
 │   │   ├── ProjectManagerLogic_v.test.res
-│   │   ├── ProjectManager_v.test.ast
-│   │   ├── ProjectManager_v.test.cmi
-│   │   ├── ProjectManager_v.test.cmj
-│   │   ├── ProjectManager_v.test.cmt
 │   │   ├── ProjectManager_v.test.res
 │   │   ├── ProjectReducer_v.test.ast
 │   │   ├── ProjectReducer_v.test.cmi
@@ -5502,9 +5480,13 @@
 │   │   ├── 1177_Fix_Violations_BACKEND.md
 │   │   └── tests
 │   └── postponed
+├── test_diagnostics_latest.txt
 ├── test_output.txt
 ├── test_results.txt
 ├── test_results_2.txt
+├── test_results_3.txt
+├── test_run.json
+├── test_run_2.json
 ├── tests
 │   ├── TestRunner.bs.js
 │   ├── TestRunner.res
@@ -5523,7 +5505,6 @@
 │       ├── AppErrorBoundary_v.test.res
 │       ├── App_v.test.bs.js
 │       ├── App_v.test.res
-│       ├── AsyncDebug_v.test.bs.js
 │       ├── AudioManager_v.test.bs.js
 │       ├── AudioManager_v.test.res
 │       ├── AuthenticatedClient_v.test.bs.js
@@ -5558,8 +5539,6 @@
 │       ├── ExifReportGeneratorUtils_v.test.res
 │       ├── ExifReportGenerator_v.test.bs.js
 │       ├── ExifReportGenerator_v.test.res
-│       ├── Exporter_v.test.bs.js
-│       ├── Exporter_v.test.res
 │       ├── FinalAsyncCheck_v.test.bs.js
 │       ├── FinalAsyncCheck_v.test.res
 │       ├── FingerprintService_v.test.bs.js
@@ -5601,14 +5580,10 @@
 │       ├── LabelMenu_v.test.setup.jsx
 │       ├── LazyLoad_v.test.bs.js
 │       ├── LazyLoad_v.test.res
-│       ├── LinkEditorLogic_v.test.bs.js
-│       ├── LinkEditorLogic_v.test.res
 │       ├── LinkModal_v.test.bs.js
 │       ├── LinkModal_v.test.res
 │       ├── LoggerLogic_v.test.bs.js
 │       ├── LoggerLogic_v.test.res
-│       ├── LoggerTelemetry_v.test.bs.js
-│       ├── LoggerTelemetry_v.test.res
 │       ├── LoggerTypes_v.test.bs.js
 │       ├── LoggerTypes_v.test.res
 │       ├── Logger_v.test.bs.js
@@ -5651,12 +5626,6 @@
 │       ├── PreviewArrow_v.test.res
 │       ├── ProgressBar_v.test.bs.js
 │       ├── ProgressBar_v.test.res
-│       ├── ProjectApi_v.test.bs.js
-│       ├── ProjectApi_v.test.res
-│       ├── ProjectManagerLogic_v.test.bs.js
-│       ├── ProjectManagerLogic_v.test.res
-│       ├── ProjectManager_v.test.bs.js
-│       ├── ProjectManager_v.test.res
 │       ├── ProjectReducer_v.test.bs.js
 │       ├── ProjectReducer_v.test.res
 │       ├── ProjectionMath_v.test.bs.js
@@ -5810,4 +5779,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-216 directories, 5595 files
+216 directories, 5564 files

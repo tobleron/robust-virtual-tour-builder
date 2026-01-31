@@ -13,7 +13,24 @@ include SimulationLogic
 let make = () => {
   let state = AppContext.useAppState()
   let dispatch = AppContext.useAppDispatch()
-  let simulation = state.simulation
+  // DEBUG PROBE
+  let isInvalid = %raw(`function(s) { return typeof s === 'undefined' || typeof s.simulation === 'undefined' }`)(
+    state,
+  )
+  if isInvalid {
+    Console.error("CRITICAL: Simulation loaded with invalid state")
+    // We can return null here to avoid crash, but we must return a React Element
+    // However, let's just let it crash after logging, or try to recover?
+    // If we return here, we can't because of hooks rules (must call hooks unconditionally).
+    // But we are at the top, hooks are above.
+  }
+
+  // Safe access pattern
+  let simulation = if isInvalid {
+    State.initialState.simulation
+  } else {
+    state.simulation
+  }
   let stateRef = React.useRef(state)
 
   React.useEffect1(() => {

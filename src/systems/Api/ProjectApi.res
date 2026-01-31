@@ -1,8 +1,10 @@
 /* src/systems/Api/ProjectApi.res */
+@@warning("-3")
 
 open ApiHelpers
 open ReBindings
-open RescriptSchema
+
+@scope("JSON") @val external stringify: 'a => string = "stringify"
 
 let handleError = (e, message, logKey) => {
   let (msg, stack) = Logger.getErrorDetails(e)
@@ -89,7 +91,7 @@ let validateProject = (sessionId: string, projectData: JSON.t): Promise.t<
       Constants.backendUrl ++ "/api/project/validate/" ++ sessionId,
       Fetch.requestInit(
         ~method="POST",
-        ~body=S.reverseConvertToJsonStringOrThrow(projectData, Schemas.Shared.jsonSchema),
+        ~body=stringify(projectData),
         ~headers=Dict.fromArray([("Content-Type", "application/json")]),
         (),
       ),
@@ -127,7 +129,7 @@ let saveProject = (sessionId: string, projectData: JSON.t): Promise.t<apiResult<
       Constants.backendUrl ++ "/api/project/save/" ++ sessionId,
       Fetch.requestInit(
         ~method="POST",
-        ~body=S.reverseConvertToJsonStringOrThrow(projectData, Schemas.Shared.jsonSchema),
+        ~body=stringify(projectData),
         ~headers=Dict.fromArray([("Content-Type", "application/json")]),
         (),
       ),
@@ -147,13 +149,13 @@ let calculatePath = (payload: pathRequest): Promise.t<apiResult<array<step>>> =>
   RequestQueue.schedule(() => {
     // Replaced manual cast/stringify with Schema serialization
     let body = try {
-      S.reverseConvertToJsonStringOrThrow(payload, Schemas.Domain.pathRequest)
+      stringify(payload)
     } catch {
-    | S.Raised(e) =>
+    | Js.Exn.Error(e) =>
       Logger.error(
         ~module_="ProjectApi",
         ~message="Path serialization failed",
-        ~data=Logger.castToJson({"error": S.Error.message(e)}),
+        ~data=Logger.castToJson({"error": Js.Exn.message(e)}),
         (),
       )
       "{}"
@@ -197,7 +199,7 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<apiResult<geocodeRespon
     let payload: geocodeRequest = {lat, lon}
 
     let body = try {
-      S.reverseConvertToJsonStringOrThrow(payload, Schemas.Shared.geocodeRequest)
+      stringify(payload)
     } catch {
     | _ => "{}"
     }

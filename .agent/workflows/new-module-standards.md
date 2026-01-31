@@ -131,6 +131,8 @@ Always include relevant context in log data:
 - [ ] Error logs include relevant context data
 - [ ] Message naming follows UPPER_SNAKE_CASE
 - [ ] New module has corresponding unit tests (see `.agent/workflows/testing-standards.md`)
+- [ ] **Telemetry Verification**: Verified that high-value events appear in `./scripts/tail-diagnostics.sh`
+- [ ] **Diagnostic Support**: Traces/Debug logs are correctly gated by `Diagnostic Mode` (verified live)
 - [ ] No `Obj.magic` except at API boundaries (see `.agent/workflows/rescript-standards.md` Part 1)
 - [ ] All external APIs have proper bindings (see `.agent/workflows/rescript-standards.md` Part 1)
 - [ ] `npm test` passes
