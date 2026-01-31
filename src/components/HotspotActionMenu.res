@@ -14,7 +14,7 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
 
   let handleDelete = () => {
     dispatch(Actions.RemoveHotspot(state.activeIndex, index))
-    EventBus.dispatch(ShowNotification("Link deleted", #Info))
+    EventBus.dispatch(ShowNotification("Link deleted", #Info, None))
     onClose()
   }
 
@@ -36,6 +36,7 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
               "DISABLED"
             },
             #Success,
+            None,
           ),
         )
       | None => ()

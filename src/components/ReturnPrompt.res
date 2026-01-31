@@ -18,7 +18,7 @@ let make = React.memo((~incomingLink, ~scenes) => {
         ReBindings.Viewer.setYawWithDuration(viewer, currentYaw +. 180.0, 1000)
         dispatch(Actions.SetPendingReturnSceneName(Some(scene.name)))
         EventBus.dispatch(
-          ShowNotification("Turned around! NOW click '+' to place the link.", #Success),
+          ShowNotification("Turned around! NOW click '+' to place the link.", #Success, None),
         )
 
         // Use ReBindings.Dom for manipulation

@@ -95,7 +95,7 @@ let waitForViewerScene = async (
             ~data=Some({"scene": expectedScene.name, "attempt": nextAttempt, "error": msg}),
             (),
           )
-          EventBus.dispatch(ShowNotification("Retrying scene load...", #Warning))
+          EventBus.dispatch(ShowNotification("Retrying scene load...", #Warning, None))
           let backoffMs = switch attempt {
           | 1 => 1000
           | 2 => 2000

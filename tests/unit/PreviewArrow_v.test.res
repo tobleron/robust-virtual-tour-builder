@@ -110,7 +110,7 @@ describe("PreviewArrow", () => {
     let unsub = EventBus.subscribe(
       evt => {
         switch evt {
-        | ShowNotification(msg, _) =>
+        | ShowNotification(msg, _, _) =>
           if String.includes(msg, "Auto-Forward Enabled") {
             notificationReceived := true
           }

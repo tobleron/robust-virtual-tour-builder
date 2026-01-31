@@ -12,7 +12,7 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
       if isLinking {
         ViewerState.state := {...ViewerState.state.contents, linkingStartPoint: Nullable.null}
         dispatch(Actions.StopLinking)
-        EventBus.dispatch(ShowNotification("Link Mode: OFF", #Warning))
+        EventBus.dispatch(ShowNotification("Link Mode: OFF", #Warning, None))
       } else {
         let cx = JsxEvent.Mouse.clientX(e)
         let cy = JsxEvent.Mouse.clientY(e)
@@ -28,8 +28,8 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
         switch v {
         | Some(_viewer) =>
           dispatch(Actions.StartLinking(None))
-          EventBus.dispatch(ShowNotification("ESC to cancel, Enter to save link.", #Info))
-        | None => EventBus.dispatch(ShowNotification("Viewer not initialized", #Error))
+          EventBus.dispatch(ShowNotification("ESC to cancel, Enter to save link.", #Info, None))
+        | None => EventBus.dispatch(ShowNotification("Viewer not initialized", #Error, None))
         }
       }
     }
@@ -53,7 +53,7 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
         dispatch(Actions.DispatchNavigationFsmEvent(Reset))
       } else {
         dispatch(Actions.StartAutoPilot(currentJourneyId, false))
-        EventBus.dispatch(ShowNotification("ESC to stop tour preview.", #Info))
+        EventBus.dispatch(ShowNotification("ESC to stop tour preview.", #Info, None))
       }
     }
   , (simActive, currentJourneyId))

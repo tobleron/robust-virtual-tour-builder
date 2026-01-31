@@ -99,7 +99,7 @@ let handleAutoForward = (dispatch, state: state, currentScene: scene) => {
     }
     if Array.includes(chain, state.activeIndex) {
       dispatch(ResetAutoForwardChain)
-      EventBus.dispatch(ShowNotification("Loop detected", #Warning))
+      EventBus.dispatch(ShowNotification("Loop detected", #Warning, None))
     } else {
       dispatch(AddToAutoForwardChain(state.activeIndex))
       currentScene.hotspots

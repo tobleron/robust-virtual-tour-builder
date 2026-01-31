@@ -100,7 +100,7 @@ let make = () => {
                       (),
                     )
                   | Complete({reason: _reason}) =>
-                    EventBus.dispatch(ShowNotification("Simulation Complete", #Success))
+                    EventBus.dispatch(ShowNotification("Simulation Complete", #Success, None))
                     let _ = await Promise.make((resolve, _) => {
                       let _ = setTimeout(resolve, Constants.Simulation.stepDelay)
                     })
@@ -114,7 +114,13 @@ let make = () => {
                   }
                 }
               | Error(msg) =>
-                EventBus.dispatch(ShowNotification("Simulation error: " ++ msg, #Error))
+                EventBus.dispatch(
+                  ShowNotification(
+                    "Simulation error: " ++ msg,
+                    #Error,
+                    Some(Logger.castToJson({"error": msg})),
+                  ),
+                )
                 Scene.Switcher.cancelNavigation()
                 dispatch(StopAutoPilot)
               }

@@ -58,7 +58,7 @@ let handleKeyDown = e => {
     let storeState = GlobalStateBridge.getState()
     if storeState.isLinking {
       GlobalStateBridge.dispatch(StopLinking)
-      EventBus.dispatch(ShowNotification("Link Cancelled", #Info))
+      EventBus.dispatch(ShowNotification("Link Cancelled", #Info, None))
     }
 
     // 1. Close Modals

@@ -73,7 +73,7 @@ module Events = {
   }
   let onSceneError = msg => {
     Logger.error(~module_="SceneLoader", ~message="LOAD_ERROR", ~data={"error": msg}, ())
-    EventBus.dispatch(ShowNotification(msg, #Error))
+    EventBus.dispatch(ShowNotification(msg, #Error, Some(Logger.castToJson({"error": msg}))))
   }
 }
 

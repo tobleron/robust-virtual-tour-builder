@@ -37,6 +37,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Refactor**: Move diagnostic toggle from Sidebar Branding to About dialog box to maintain clean aesthetics
 - Merge test stabilization fixes
 - Final standards alignment for session tests
+- Fix(telemetry): harden logging pipeline and csp compliance
+
+- [telemetry] implement crash-safe serialization fallback in frontend logger
+- [telemetry] add fallback sanitized logging for malformed payloads
+- [infra] relax CSP in index.html to allow 'unsafe-eval' for legacy bindings
+- [backend] integrate sentry and tracing-tree for robust error tracking
 
 ### Added
 - Implement unified diagnostic logging system with real-time UI toggle and live telemetry

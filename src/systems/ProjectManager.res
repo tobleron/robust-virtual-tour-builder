@@ -114,6 +114,7 @@ module Logic = {
               "Project loaded. " ++
               Belt.Int.toString(r.brokenLinksRemoved) ++ " broken link(s) removed.",
               #Warning,
+              None,
             ),
           )
         }
@@ -123,11 +124,12 @@ module Logic = {
               "Warning: " ++
               Belt.Int.toString(Array.length(r.orphanedScenes)) ++ " orphaned scene(s) detected.",
               #Warning,
+              None,
             ),
           )
         }
         r.errors->Belt.Array.forEach(error =>
-          EventBus.dispatch(ShowNotification("Error: " ++ error, #Error))
+          EventBus.dispatch(ShowNotification("Error: " ++ error, #Error, None))
         )
       } catch {
       | _ => ()

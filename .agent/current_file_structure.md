@@ -626,18 +626,6 @@
 │   │   │   │       ├── ViewerDriver.cmj
 │   │   │   │       ├── ViewerDriver.cmt
 │   │   │   │       └── ViewerDriver.res
-│   │   │   ├── diag_schema.ast
-│   │   │   ├── diag_schema.bs.js
-│   │   │   ├── diag_schema.cmi
-│   │   │   ├── diag_schema.cmj
-│   │   │   ├── diag_schema.cmt
-│   │   │   ├── diag_schema.res
-│   │   │   ├── diag_v.test.ast
-│   │   │   ├── diag_v.test.bs.js
-│   │   │   ├── diag_v.test.cmi
-│   │   │   ├── diag_v.test.cmj
-│   │   │   ├── diag_v.test.cmt
-│   │   │   ├── diag_v.test.res
 │   │   │   ├── i18n
 │   │   │   │   ├── I18n.ast
 │   │   │   │   ├── I18n.bs.js
@@ -2033,12 +2021,6 @@
 │   │           ├── VitestSmoke.test.cmj
 │   │           ├── VitestSmoke.test.cmt
 │   │           ├── VitestSmoke.test.res
-│   │           ├── diag_v.test.ast
-│   │           ├── diag_v.test.bs.js
-│   │           ├── diag_v.test.cmi
-│   │           ├── diag_v.test.cmj
-│   │           ├── diag_v.test.cmt
-│   │           ├── diag_v.test.res
 │   │           └── utils
 │   │               ├── TestUtils.ast
 │   │               ├── TestUtils.bs.js
@@ -3574,15 +3556,14 @@
 │   │   ├── WebApiBindings.cmi
 │   │   ├── WebApiBindings.cmj
 │   │   ├── WebApiBindings.cmt
-│   │   ├── WebApiBindings.res
-│   │   ├── diag_schema.res
-│   │   └── diag_v.test.res
+│   │   └── WebApiBindings.res
 │   └── rescript.lock
 ├── logs
 │   ├── diagnostic.log
 │   ├── error.log
 │   ├── log_changes.txt
-│   └── project-guard.log
+│   ├── project-guard.log
+│   └── telemetry.log
 ├── old_ref
 │   ├── 7aadee4
 │   │   ├── CHANGELOG.md
@@ -5757,4 +5738,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-216 directories, 5542 files
+216 directories, 5523 files

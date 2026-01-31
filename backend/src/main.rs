@@ -55,32 +55,52 @@ async fn main() -> io::Result<()> {
         );
     }));
 
+    // Initialize Sentry (Professional Error Tracking)
+    let _sentry_guard = sentry::init(sentry::ClientOptions {
+        dsn: std::env::var("SENTRY_DSN")
+            .ok()
+            .and_then(|s| s.parse().ok()),
+        release: sentry::release_name!(),
+        traces_sample_rate: 1.0,
+        ..Default::default()
+    });
+
     // Initialize tracing (logging)
     let diag_appender = tracing_appender::rolling::never("../logs", "diagnostic.log");
-    let (diag_writer, _diag_guard) = tracing_appender::non_blocking(diag_appender);
+    let (diag_writer, diag_guard) = tracing_appender::non_blocking(diag_appender);
 
     let error_appender = tracing_appender::rolling::never("../logs", "error.log");
-    let (error_writer, _error_guard) = tracing_appender::non_blocking(error_appender);
+    let (error_writer, error_guard) = tracing_appender::non_blocking(error_appender);
 
     let diag_layer = tracing_subscriber::fmt::layer()
         .json()
         .with_writer(diag_writer)
-        .with_filter(
-            tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info")),
-        );
+        .with_filter(tracing_subscriber::filter::LevelFilter::INFO);
 
     let error_layer = tracing_subscriber::fmt::layer()
         .with_writer(error_writer)
         .with_filter(tracing_subscriber::filter::LevelFilter::ERROR);
 
+    let stdout_layer = tracing_tree::HierarchicalLayer::new(2)
+        .with_targets(true)
+        .with_bracketed_fields(true)
+        .with_filter(tracing_subscriber::filter::LevelFilter::INFO);
+
+    // Sentry Layer to capture errors and warnings
+    let sentry_layer = sentry_tracing::layer();
+
     use tracing_subscriber::prelude::*;
     tracing_subscriber::registry()
+        .with(stdout_layer)
         .with(diag_layer)
         .with(error_layer)
+        .with(sentry_layer)
         .init();
 
-    tracing::info!("Starting server at http://localhost:8080");
+    tracing::info!("🚀 Unified Logging System Initialized (Diagnostic + Error Logs)");
+
+    // Keep guards alive for the duration of main
+    let _guards = (diag_guard, error_guard);
 
     // Initialize Database
     let pool = DatabaseManager::new().await.map_err(|e| {
