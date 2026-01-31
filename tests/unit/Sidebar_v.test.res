@@ -25,11 +25,11 @@ open ReBindings
   globalThis.exporterMock = exporterMock;
   globalThis.vi.mock('../../src/systems/Exporter.bs.js', () => exporterMock);
 
-  const tmMock = {
+  const teaserMock = {
     startAutoTeaser: globalThis.vi.fn(),
   };
-  globalThis.tmMock = tmMock;
-  globalThis.vi.mock('../../src/systems/TeaserManager.bs.js', () => tmMock);
+  globalThis.teaserMock = teaserMock;
+  globalThis.vi.mock('../../src/systems/Teaser.bs.js', () => teaserMock);
 
   const upMock = {
     processUploads: globalThis.vi.fn().mockResolvedValue({
@@ -438,7 +438,7 @@ describe("Sidebar", () => {
 
     await wait(50)
 
-    let called = %raw(`globalThis.tmMock.startAutoTeaser.mock.calls.length > 0`)
+    let called = %raw(`globalThis.teaserMock.startAutoTeaser.mock.calls.length > 0`)
     t->expect(called)->Expect.toBe(true)
 
     Dom.removeElement(container)
