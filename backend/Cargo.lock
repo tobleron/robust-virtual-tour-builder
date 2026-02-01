@@ -584,6 +584,7 @@ dependencies = [
  "mime_guess",
  "oauth2",
  "once_cell",
+ "percent-encoding",
  "prometheus",
  "rayon",
  "regex",

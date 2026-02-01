@@ -1,3 +1,4 @@
+use percent_encoding::percent_decode_str;
 use serde_json::Value;
 use std::collections::{HashMap, HashSet};
 use std::fs;
@@ -191,13 +192,45 @@ pub fn create_project_zip_sync(
                     if !written_files.contains(name) {
                         let img_subdir = session_path.join("images").join(name);
                         let root_path = session_path.join(name);
-                        let source_path = if img_subdir.exists() {
+                        let mut source_path = if img_subdir.exists() {
                             Some(img_subdir)
                         } else if root_path.exists() {
                             Some(root_path)
                         } else {
                             None
                         };
+
+                        // Fallback: Check 'file' property if not found by name
+                        if source_path.is_none() {
+                            if let Some(file_url) = scene["file"].as_str() {
+                                if file_url.contains("/file/") {
+                                    if let Some(filename_segment) = file_url
+                                        .split("/file/")
+                                        .nth(1)
+                                        .and_then(|s| s.split('?').next())
+                                    {
+                                        if let Ok(decoded_filename) =
+                                            percent_decode_str(filename_segment).decode_utf8()
+                                        {
+                                            let decoded_filename = decoded_filename.to_string();
+                                            if let Ok(safe_filename) =
+                                                crate::api::utils::sanitize_filename(&decoded_filename)
+                                            {
+                                                let img_subdir =
+                                                    session_path.join("images").join(&safe_filename);
+                                                let root_path = session_path.join(&safe_filename);
+                                                if img_subdir.exists() {
+                                                    source_path = Some(img_subdir);
+                                                } else if root_path.exists() {
+                                                    source_path = Some(root_path);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
                         if let Some(path) = source_path {
                             zip.start_file(format!("images/{}", name), options)?;
                             let mut f = fs::File::open(path)?;

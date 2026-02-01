@@ -52,6 +52,7 @@ tracing-appender = "0.2.4"
 tracing-tree = "0.4.1"
 sentry = { version = "0.46.1", features = ["backtrace", "contexts", "panic", "transport", "reqwest"] }
 sentry-tracing = "0.46.1"
+percent-encoding = "2.3.2"
 # PERFORMANCE: Release build optimizations
 [profile.release]
 lto = true           # Link-Time Optimization for smaller, faster binaries
