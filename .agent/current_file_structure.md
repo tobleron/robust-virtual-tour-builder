@@ -5403,7 +5403,6 @@
 │   │   ├── 1176_Surgical_Refactor_SRC_BACKEND.md
 │   │   ├── 1177_Fix_Violations_BACKEND.md
 │   │   ├── 1179_Surgical_Refactor_CORE_FRONTEND.md
-│   │   ├── 1180_Classify_Map_Entries.md
 │   │   └── tests
 │   └── postponed
 ├── test_diagnostics_latest.txt
@@ -5705,4 +5704,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-215 directories, 5491 files
+215 directories, 5490 files
