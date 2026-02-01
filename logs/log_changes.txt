@@ -81,3 +81,4 @@
 [2026-01-31 23:18] v4.8.12 - feat(dev-system): Update analyzer rules to enforce CSP-friendly JSON validation [TRIPLE]
 [2026-02-01 02:22] v4.8.13 - Refactor(Core): Replaced rescript-schema with rescript-json-combinators for full CSP compliance
 [2026-02-01 09:12] v4.8.13 - Perf(Backend): Async I/O & Core: Schema Migration to Combinators [TRIPLE]
+[2026-02-01 10:05] v4.8.13 - ui: premium toast styling and ruthless json sanitization [TRIPLE]

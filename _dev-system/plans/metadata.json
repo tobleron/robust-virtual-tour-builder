@@ -20,32 +20,29 @@
   ],
   "rescript": [
     {
-      "Surgical": {
-        "file": "../../src/utils/Logger.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.00, Density: 0.14, Coupling: 0.07] | Drag: 5.47 | LOC: 327/300  🎯 Target: Function: `pd` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 8.169724770642201
+      "Violation": {
+        "file": "../../src/systems/ProjectManager.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
       }
     },
     {
       "Violation": {
-        "file": "../../src/systems/Api/AuthenticatedClient.res",
+        "file": "../../src/systems/ProjectManager.res",
         "pattern": "JSON.stringify",
         "strategy": ""
       }
     },
     {
       "Violation": {
-        "file": "../../src/systems/Api/AuthenticatedClient.res",
+        "file": "../../src/systems/ProjectManager.res",
         "pattern": "JSON.stringifyAny",
         "strategy": ""
       }
     },
     {
       "Violation": {
-        "file": "../../src/systems/ApiHelpers.res",
+        "file": "../../src/components/NotificationContext.res",
         "pattern": "Obj.magic",
         "strategy": ""
       }
@@ -62,22 +59,41 @@
     },
     {
       "Violation": {
-        "file": "../../src/systems/ProjectManager.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/systems/ProjectManager.res",
+        "file": "../../src/systems/Api/AuthenticatedClient.res",
         "pattern": "JSON.stringify",
         "strategy": ""
       }
     },
     {
       "Violation": {
-        "file": "../../src/systems/ProjectManager.res",
+        "file": "../../src/systems/Api/AuthenticatedClient.res",
         "pattern": "JSON.stringifyAny",
+        "strategy": ""
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/utils/Logger.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.00, Density: 0.14, Coupling: 0.07] | Drag: 5.47 | LOC: 327/300  🎯 Target: Function: `pd` (High Local Complexity (2.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 8.169724770642201
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/ApiHelpers.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    }
+  ],
+  "css": [
+    {
+      "Violation": {
+        "file": "../../css/components/ui.css",
+        "pattern": "!important",
         "strategy": ""
       }
     }

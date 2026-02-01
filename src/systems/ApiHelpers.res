@@ -53,8 +53,27 @@ let extractErrorMessage = (json: apiError): string => {
 
 let processErrorResponse = (response: Fetch.response): Promise.t<apiResult<Fetch.response>> => {
   Fetch.json(response)
-  ->Promise.then((json: apiError) => {
-    let msg = extractErrorMessage(json)
+  ->Promise.then(json => {
+    // Safely extract message from JSON.t without unsafe record casting
+    let msg = switch JsonCombinators.Json.decode(
+      json,
+      JsonCombinators.Json.Decode.oneOf([
+        JsonCombinators.Json.Decode.field("message", JsonCombinators.Json.Decode.string),
+        JsonCombinators.Json.Decode.field("error", JsonCombinators.Json.Decode.string),
+        JsonCombinators.Json.Decode.field("detail", JsonCombinators.Json.Decode.string),
+        JsonCombinators.Json.Decode.field("details", JsonCombinators.Json.Decode.string),
+        JsonCombinators.Json.Decode.field("msg", JsonCombinators.Json.Decode.string),
+      ]),
+    ) {
+    | Ok(m) => m
+    | Error(_) =>
+      // Fallback: If it's a simple string, use it. If it's an object, stringify briefly or use statusText
+      switch JsonCombinators.Json.decode(json, JsonCombinators.Json.Decode.string) {
+      | Ok(s) => s
+      | Error(_) => Fetch.statusText(response)
+      }
+    }
+
     Logger.error(
       ~module_="ApiHelpers",
       ~message="Backend Error",

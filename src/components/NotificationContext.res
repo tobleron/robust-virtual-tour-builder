@@ -10,27 +10,82 @@ type notification = {
 
 @react.component
 let make = () => {
-  // Helper to santize messages that might be raw JSON
+  // Ruthless helper to sanitize messages from any potential JSON or technical syntax
   let cleanMessage = (msg: string) => {
-    if msg->Js.String2.startsWith("{") && msg->Js.String2.endsWith("}") {
-      switch JsonCombinators.Json.parse(msg) {
-      | Ok(json) =>
-        // Try to decode common error fields
-        let decoder = JsonCombinators.Json.Decode.oneOf(list{
-          JsonCombinators.Json.Decode.field("message", JsonCombinators.Json.Decode.string),
-          JsonCombinators.Json.Decode.field("error", JsonCombinators.Json.Decode.string),
-          JsonCombinators.Json.Decode.field("detail", JsonCombinators.Json.Decode.string),
-        })
-        
-        switch JsonCombinators.Json.decode(json, decoder) {
-        | Ok(clean) => clean
-        | Error(_) => "An error occurred (details in console)"
+    Logger.debug(
+      ~module_="Notification",
+      ~message="RAW_NOTIFICATION",
+      ~data=Obj.magic({"raw": msg}),
+      (),
+    )
+
+    let trimmed = msg->String.trim
+
+    // Recursive extraction to handle nested JSON or prefixed JSON
+    let rec extractClean = (input: string) => {
+      let s = input->String.indexOf("{")
+      let e = input->String.lastIndexOf("}")
+
+      if s != -1 && e != -1 && e > s {
+        let jsonPart = input->String.substring(~start=s, ~end=e + 1)
+        switch JsonCombinators.Json.parse(jsonPart) {
+        | Ok(json) =>
+          let decoder = JsonCombinators.Json.Decode.oneOf([
+            JsonCombinators.Json.Decode.field("message", JsonCombinators.Json.Decode.string),
+            JsonCombinators.Json.Decode.field("error", JsonCombinators.Json.Decode.string),
+            JsonCombinators.Json.Decode.field("detail", JsonCombinators.Json.Decode.string),
+            JsonCombinators.Json.Decode.field("details", JsonCombinators.Json.Decode.string),
+            JsonCombinators.Json.Decode.field("msg", JsonCombinators.Json.Decode.string),
+            JsonCombinators.Json.Decode.field("reason", JsonCombinators.Json.Decode.string),
+          ])
+
+          switch JsonCombinators.Json.decode(json, decoder) {
+          | Ok(clean) => extractClean(clean) // Check if the extracted part is also JSON
+          | Error(_) =>
+            if s > 0 {
+              input->String.substring(~start=0, ~end=s)->String.trim ++ " (Technical Error)"
+            } else {
+              "A technical error occurred"
+            }
+          }
+        | Error(_) => input // Not valid JSON, return as is (will be checked by desperation filter)
         }
-      | Error(_) => msg
+      } else {
+        input
       }
-    } else {
-      msg
     }
+
+    let result = extractClean(trimmed)
+
+    // Secondary strip: common technical prefixes and patterns
+    let stripped =
+      result
+      ->String.replaceRegExp(/^Backend error: \d+\s+/, "")
+      ->String.replaceRegExp(/^Error:\s+/i, "")
+      ->String.replaceRegExp(/^Uncaught\s+/i, "")
+      ->String.replaceRegExp(/^Exception:\s+/i, "")
+      ->String.trim
+
+    // Final Desperation check: If it STILL contains JSON syntax elements, kill it
+    let final = if (
+      stripped->String.includes("{") ||
+      stripped->String.includes("}") ||
+      stripped->String.includes("[") ||
+      stripped->String.includes("]") ||
+      stripped->String.includes("\":")
+    ) {
+      "An unexpected server error occurred"
+    } else {
+      stripped
+    }
+
+    Logger.debug(
+      ~module_="Notification",
+      ~message="CLEAN_NOTIFICATION",
+      ~data=Obj.magic({"clean": final}),
+      (),
+    )
+    final
   }
   React.useEffect0(() => {
     let unsubscribe = EventBus.subscribe(event => {
