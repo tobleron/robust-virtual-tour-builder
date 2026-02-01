@@ -158,7 +158,26 @@ pub async fn serve_project_file(
                 "SERVING_FILE_FINAL_RESPONSE"
             );
 
-            Ok(named_file.into_response(&req))
+            let mut response = named_file.into_response(&req);
+
+            // SECURITY/FIX: Force no-cache to prevent browsers from holding onto
+            // the "application/octet-stream" version of these files.
+            response.headers_mut().insert(
+                actix_web::http::header::CACHE_CONTROL,
+                actix_web::http::header::HeaderValue::from_static(
+                    "no-store, no-cache, must-revalidate, proxy-revalidate",
+                ),
+            );
+            response.headers_mut().insert(
+                actix_web::http::header::PRAGMA,
+                actix_web::http::header::HeaderValue::from_static("no-cache"),
+            );
+            response.headers_mut().insert(
+                actix_web::http::header::EXPIRES,
+                actix_web::http::header::HeaderValue::from_static("0"),
+            );
+
+            Ok(response)
         }
         Err(e) => {
             tracing::error!(path = ?file_path, error = %e, "FAILED_TO_OPEN_FILE");

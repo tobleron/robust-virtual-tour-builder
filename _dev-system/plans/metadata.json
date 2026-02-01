@@ -2,16 +2,6 @@
   "rust": [
     {
       "Surgical": {
-        "file": "../../backend/src/auth.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.00, Density: 0.02, Coupling: 0.05] | Drag: 3.22 | LOC: 306/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 3.819607843137255
-      }
-    },
-    {
-      "Surgical": {
         "file": "../../backend/src/main.rs",
         "action": "De-bloat",
         "reason": "[Nesting: 2.00, Density: 0.02, Coupling: 0.07] | Drag: 3.23 | LOC: 356/300",
@@ -26,25 +16,19 @@
         "pattern": "unwrap()",
         "strategy": ""
       }
-    }
-  ],
-  "css": [
+    },
     {
-      "Violation": {
-        "file": "../../css/components/ui.css",
-        "pattern": "!important",
-        "strategy": ""
+      "Surgical": {
+        "file": "../../backend/src/auth.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.00, Density: 0.02, Coupling: 0.05] | Drag: 3.22 | LOC: 306/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 3.819607843137255
       }
     }
   ],
   "rescript": [
-    {
-      "Violation": {
-        "file": "../../src/systems/ApiHelpers.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
     {
       "Surgical": {
         "file": "../../src/utils/Logger.res",
@@ -57,15 +41,8 @@
     },
     {
       "Violation": {
-        "file": "../../src/systems/Api/AuthenticatedClient.res",
-        "pattern": "JSON.stringify",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/systems/Api/AuthenticatedClient.res",
-        "pattern": "JSON.stringifyAny",
+        "file": "../../src/systems/ApiHelpers.res",
+        "pattern": "Obj.magic",
         "strategy": ""
       }
     },
@@ -77,13 +54,6 @@
         "strategy": "",
         "platform": "frontend",
         "complexity": 12.369129287598945
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/components/NotificationContext.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
       }
     },
     {
@@ -107,6 +77,36 @@
       "Violation": {
         "file": "../../src/systems/ProjectManager.res",
         "pattern": "JSON.stringifyAny",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/Api/AuthenticatedClient.res",
+        "pattern": "JSON.stringify",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/Api/AuthenticatedClient.res",
+        "pattern": "JSON.stringifyAny",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/components/NotificationContext.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    }
+  ],
+  "css": [
+    {
+      "Violation": {
+        "file": "../../css/components/ui.css",
+        "pattern": "!important",
         "strategy": ""
       }
     }
