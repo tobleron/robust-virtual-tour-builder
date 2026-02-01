@@ -165,8 +165,7 @@ module Logic = {
           (),
         )
         Promise.resolve(Ok((sessionId, asJson(json))))
-      | Error(e) =>
-        Promise.resolve(Error("Failed to parse project data: " ++ e))
+      | Error(e) => Promise.resolve(Error("Failed to parse project data: " ++ e))
       }
 
     | Error(msg) => Promise.resolve(Error(msg))

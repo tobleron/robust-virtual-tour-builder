@@ -16,7 +16,7 @@ module Shared = {
   let id = Decode.id
 
   // Custom nullable decoder: maps option(decoder) to Nullable.t
-  let toNullable = (decoder) => {
+  let toNullable = decoder => {
     map(option(decoder), Nullable.fromOption)
   }
 
@@ -319,7 +319,7 @@ module Encoders = {
     Encode.object([
       ("yaw", Encode.float(v.yaw)),
       ("pitch", Encode.float(v.pitch)),
-      ("hfov", Encode.float(v.hfov))
+      ("hfov", Encode.float(v.hfov)),
     ])
   }
 
@@ -393,15 +393,12 @@ module Encoders = {
       ("type", Encode.string(req.type_)),
       ("scenes", Encode.array(scene)(req.scenes)),
       ("skipAutoForward", Encode.bool(req.skipAutoForward)),
-      ("timeline", Encode.option(Encode.array(timelineItem))(req.timeline))
+      ("timeline", Encode.option(Encode.array(timelineItem))(req.timeline)),
     ])
   }
 
   let gpsData = (g: SharedTypes.gpsData) => {
-    Encode.object([
-      ("lat", Encode.float(g.lat)),
-      ("lon", Encode.float(g.lon))
-    ])
+    Encode.object([("lat", Encode.float(g.lat)), ("lon", Encode.float(g.lon))])
   }
 
   let exifMetadata = (m: SharedTypes.exifMetadata) => {
@@ -414,7 +411,7 @@ module Encoders = {
       ("fNumber", nullable(Encode.float, m.aperture)),
       ("iso", nullable(Encode.int, m.iso)),
       ("width", Encode.int(m.width)),
-      ("height", Encode.int(m.height))
+      ("height", Encode.int(m.height)),
     ])
   }
 
@@ -423,7 +420,7 @@ module Encoders = {
       ("idA", Encode.string(p.idA)),
       ("idB", Encode.string(p.idB)),
       ("histogramA", value(p.histogramA)),
-      ("histogramB", value(p.histogramB))
+      ("histogramB", value(p.histogramB)),
     ])
   }
 }

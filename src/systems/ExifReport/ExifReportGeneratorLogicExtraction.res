@@ -11,11 +11,9 @@ let resolveExifData = async (item: sceneDataItem) => {
   | Some(m) => {
       // Js.log("Metadata present")
       let meta = switch JsonCombinators.Json.decode(m, JsonParsers.Shared.exifMetadata) {
-        | Ok(meta) => meta
-        | Error(_) => {
-            // Js.log("Decode error: " ++ e)
-            SharedTypes.defaultExif
-        }
+      | Ok(meta) => meta
+      | Error(_) => // Js.log("Decode error: " ++ e)
+        SharedTypes.defaultExif
       }
 
       let hasGps = switch meta.gps->Nullable.toOption {
@@ -26,10 +24,12 @@ let resolveExifData = async (item: sceneDataItem) => {
       if hasGps {
         let q =
           item.qualityJson
-          ->Option.flatMap(q => switch JsonCombinators.Json.decode(q, JsonParsers.Shared.qualityAnalysis) {
+          ->Option.flatMap(q =>
+            switch JsonCombinators.Json.decode(q, JsonParsers.Shared.qualityAnalysis) {
             | Ok(qa) => Some(qa)
             | Error(_) => None
-          })
+            }
+          )
           ->Option.getOr(SharedTypes.defaultQuality("Cached metadata loaded"))
         {
           exif: meta,
@@ -53,10 +53,12 @@ let resolveExifData = async (item: sceneDataItem) => {
             // Js.log("Local extraction error")
             let q =
               item.qualityJson
-              ->Option.flatMap(q => switch JsonCombinators.Json.decode(q, JsonParsers.Shared.qualityAnalysis) {
+              ->Option.flatMap(q =>
+                switch JsonCombinators.Json.decode(q, JsonParsers.Shared.qualityAnalysis) {
                 | Ok(qa) => Some(qa)
                 | Error(_) => None
-              })
+                }
+              )
               ->Option.getOr(SharedTypes.defaultQuality("Cached metadata (no GPS)"))
             {
               exif: meta,

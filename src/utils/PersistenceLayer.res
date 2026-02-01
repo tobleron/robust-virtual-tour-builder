@@ -37,7 +37,7 @@ let performSave = (state: Types.state) => {
 
     let payload = {
       timestamp: Date.now(),
-      projectData: projectData,
+      projectData,
     }
 
     let _ =

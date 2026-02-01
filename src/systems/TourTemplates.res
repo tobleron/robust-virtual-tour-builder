@@ -194,11 +194,31 @@ let encodeHotspot = (h: hotspotData) => {
     ("yaw", JsonCombinators.Json.Encode.float(h["yaw"])),
     ("target", JsonCombinators.Json.Encode.string(h["target"])),
     ("truePitch", JsonCombinators.Json.Encode.float(h["truePitch"])),
-    ("viewFrame", JsonCombinators.Json.Encode.option(JsonParsers.Encoders.viewFrame)(Nullable.toOption(h["viewFrame"]))),
-    ("returnViewFrame", JsonCombinators.Json.Encode.option(JsonParsers.Encoders.viewFrame)(Nullable.toOption(h["returnViewFrame"]))),
+    (
+      "viewFrame",
+      JsonCombinators.Json.Encode.option(JsonParsers.Encoders.viewFrame)(
+        Nullable.toOption(h["viewFrame"]),
+      ),
+    ),
+    (
+      "returnViewFrame",
+      JsonCombinators.Json.Encode.option(JsonParsers.Encoders.viewFrame)(
+        Nullable.toOption(h["returnViewFrame"]),
+      ),
+    ),
     ("isReturnLink", JsonCombinators.Json.Encode.bool(h["isReturnLink"])),
-    ("targetYaw", JsonCombinators.Json.Encode.option(JsonCombinators.Json.Encode.float)(Nullable.toOption(h["targetYaw"]))),
-    ("targetPitch", JsonCombinators.Json.Encode.option(JsonCombinators.Json.Encode.float)(Nullable.toOption(h["targetPitch"])))
+    (
+      "targetYaw",
+      JsonCombinators.Json.Encode.option(JsonCombinators.Json.Encode.float)(
+        Nullable.toOption(h["targetYaw"]),
+      ),
+    ),
+    (
+      "targetPitch",
+      JsonCombinators.Json.Encode.option(JsonCombinators.Json.Encode.float)(
+        Nullable.toOption(h["targetPitch"]),
+      ),
+    ),
   ])
 }
 
@@ -210,7 +230,7 @@ let encodeSceneData = (s: sceneData) => {
     ("category", JsonCombinators.Json.Encode.string(s["category"])),
     ("label", JsonCombinators.Json.Encode.string(s["label"])),
     ("isAutoForward", JsonCombinators.Json.Encode.bool(s["isAutoForward"])),
-    ("hotSpots", JsonCombinators.Json.Encode.array(encodeHotspot)(s["hotSpots"]))
+    ("hotSpots", JsonCombinators.Json.Encode.array(encodeHotspot)(s["hotSpots"])),
   ])
 }
 
@@ -268,7 +288,9 @@ let generateTourHTML = (
     ->Option.getOr((0.0, 0.0))
 
   // CSP SAFE: Using strict encoder
-  let scenesDataJson = JsonCombinators.Json.stringify(JsonCombinators.Json.Encode.dict(encodeSceneData)(rawScenesData))
+  let scenesDataJson = JsonCombinators.Json.stringify(
+    JsonCombinators.Json.Encode.dict(encodeSceneData)(rawScenesData),
+  )
 
   let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${tourName}</title><link rel="stylesheet" href="libs/pannellum.css"/><script src="libs/pannellum.js"></script><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap" rel="stylesheet"><style>${css}</style></head><body><div id="stage"><div id="panorama"></div>${logoDiv}</div><script>
     const firstSceneId = "${firstSceneName}"; ${renderScript}
