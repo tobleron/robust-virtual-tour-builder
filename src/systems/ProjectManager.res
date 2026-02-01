@@ -164,11 +164,11 @@ module Logic = {
         }
 
         let validScenes = Belt.Array.map(pd.scenes, scene => {
-          // 1. Rebuild primary file URL (Fall back to name-based if not a URL)
+          // 1. Rebuild primary file URL (Fall back to name-based if not a URL or if URL is empty)
           let file = switch rebuildUrl(scene.file) {
-          | Url(u) => Types.Url(u)
+          | Url(u) if u != "" => Types.Url(u)
           | _ =>
-            // Legacy/Fallback helper: rebuild from Name if it's not a valid URL yet
+            // Legacy/Fallback helper: rebuild from Name if it's not a valid URL yet or is empty
             Types.Url(
               Constants.backendUrl ++
               "/api/project/" ++
@@ -179,8 +179,21 @@ module Logic = {
             )
           }
 
-          let originalFile = scene.originalFile->Option.map(rebuildUrl)
-          let tinyFile = scene.tinyFile->Option.map(rebuildUrl)
+          let originalFile = scene.originalFile->Option.flatMap(f => {
+            switch rebuildUrl(f) {
+            | Url("") => None
+            | Url(u) => Some(Types.Url(u))
+            | other => Some(other)
+            }
+          })
+
+          let tinyFile = scene.tinyFile->Option.flatMap(f => {
+            switch rebuildUrl(f) {
+            | Url("") => None
+            | Url(u) => Some(Types.Url(u))
+            | other => Some(other)
+            }
+          })
 
           {...scene, file, originalFile, tinyFile}
         })
