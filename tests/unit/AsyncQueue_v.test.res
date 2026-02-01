@@ -43,11 +43,11 @@ describe("AsyncQueue", () => {
   })
 
   testAsync("execute handles empty list", async t => {
-      let items = []
-      let worker = (_, _, _) => Promise.resolve(0)
-      let onProgress = (_, _) => ()
+    let items = []
+    let worker = (_, _, _) => Promise.resolve(0)
+    let onProgress = (_, _) => ()
 
-      let results = await execute(items, 2, worker, onProgress)
-      t->expect(Array.length(results))->Expect.toBe(0)
+    let results = await execute(items, 2, worker, onProgress)
+    t->expect(Array.length(results))->Expect.toBe(0)
   })
 })
