@@ -1,6 +1,6 @@
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
-use std::io::Read;
 use std::path::Path;
+use tokio::io::AsyncReadExt;
 
 use crate::api::utils::sanitize_filename;
 use crate::models::{AppError, User};
@@ -109,8 +109,8 @@ pub async fn serve_project_file(
 
                 let mut buffer = [0u8; 12];
                 // Use a separate file handle to avoid messing with named_file's internal pointer
-                if let Ok(mut f) = std::fs::File::open(&file_path) {
-                    if let Ok(_) = f.read_exact(&mut buffer) {
+                if let Ok(mut f) = tokio::fs::File::open(&file_path).await {
+                    if let Ok(_) = f.read_exact(&mut buffer).await {
                         let detected_mime = if buffer.starts_with(b"RIFF")
                             && &buffer[8..12] == b"WEBP"
                         {

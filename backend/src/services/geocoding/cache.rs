@@ -71,7 +71,8 @@ pub async fn save_cache_to_disk() -> Result<(), String> {
     let cache_file = get_cache_file_path();
 
     if let Some(parent) = std::path::Path::new(&cache_file).parent() {
-        std::fs::create_dir_all(parent)
+        tokio::fs::create_dir_all(parent)
+            .await
             .map_err(|e| format!("Failed to create cache directory: {}", e))?;
     }
 
@@ -85,7 +86,9 @@ pub async fn save_cache_to_disk() -> Result<(), String> {
     let json = serde_json::to_string_pretty(&data)
         .map_err(|e| format!("Failed to serialize cache: {}", e))?;
 
-    std::fs::write(&cache_file, json).map_err(|e| format!("Failed to write cache file: {}", e))?;
+    tokio::fs::write(&cache_file, json)
+        .await
+        .map_err(|e| format!("Failed to write cache file: {}", e))?;
 
     stats.last_save = Some(current_time);
     tracing::info!(module = "Geocoder", entries = cache.len(), file = %cache_file, "CACHE_SAVED_TO_DISK");
