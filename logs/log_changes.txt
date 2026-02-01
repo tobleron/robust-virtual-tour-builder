@@ -89,3 +89,4 @@
 [2026-02-01 13:52] v4.8.13 - fix: improve MIME sniffing in backend and bust SW cache to resolve black images
 [2026-02-01 14:09] v4.8.13 - fix: disable etag to force correct content-type propagation
 [2026-02-01 14:10] v4.8.13 - chore: cleanup unused imports in media/serve.rs
+[2026-02-01 14:12] v4.8.13 - fix: add cache-control headers to prevent stale mime types
