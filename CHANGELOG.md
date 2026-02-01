@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Parser perfected, images loaded to sidebar, but window viewer still not loads
 - Fix navigation FSM deadlock and improve project import URL reconstruction (v4.8.14+391)
 - Add investigation task for viewer rendering issue (v4.8.14+392)
+- Final sync and build check
 
 ## [4.8.13] - 2026-02-01
 
