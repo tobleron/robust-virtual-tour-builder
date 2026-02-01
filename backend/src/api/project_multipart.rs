@@ -23,13 +23,14 @@ async fn save_field_to_file(
     field: &mut actix_multipart::Field,
     path: &Path,
 ) -> Result<(), AppError> {
-    let mut f = tokio::fs::File::create(path)
+    let f = tokio::fs::File::create(path)
         .await
         .map_err(AppError::IoError)?;
+    let mut writer = tokio::io::BufWriter::new(f);
     while let Some(chunk) = field.try_next().await? {
-        f.write_all(&chunk).await.map_err(AppError::IoError)?;
+        writer.write_all(&chunk).await.map_err(AppError::IoError)?;
     }
-    f.flush().await.map_err(AppError::IoError)?;
+    writer.flush().await.map_err(AppError::IoError)?;
     Ok(())
 }
 
@@ -122,7 +123,8 @@ pub async fn parse_tour_package_multipart(
 /// Saves the entire multipart payload to a temporary file (used for loading project zip).
 pub async fn save_multipart_to_tempfile(mut payload: Multipart) -> Result<fs::File, AppError> {
     let temp_upload = tempfile::tempfile().map_err(AppError::IoError)?;
-    let mut async_file = tokio::fs::File::from_std(temp_upload);
+    let async_file = tokio::fs::File::from_std(temp_upload);
+    let mut writer = tokio::io::BufWriter::new(async_file);
     let mut uploaded_size = 0;
     while let Some(mut field) = payload.try_next().await? {
         while let Some(chunk) = field.try_next().await? {
@@ -130,12 +132,10 @@ pub async fn save_multipart_to_tempfile(mut payload: Multipart) -> Result<fs::Fi
             if uploaded_size > MAX_UPLOAD_SIZE {
                 return Err(AppError::ImageError("Project too large".into()));
             }
-            async_file
-                .write_all(&chunk)
-                .await
-                .map_err(AppError::IoError)?;
+            writer.write_all(&chunk).await.map_err(AppError::IoError)?;
         }
     }
-    async_file.flush().await.map_err(AppError::IoError)?;
+    writer.flush().await.map_err(AppError::IoError)?;
+    let async_file = writer.into_inner();
     Ok(async_file.into_std().await)
 }
