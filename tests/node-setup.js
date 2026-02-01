@@ -118,6 +118,20 @@ defineGlobal('caches', {
     delete: () => Promise.resolve(true)
 });
 
+const localStorageMock = (() => {
+    let store = {};
+    return {
+        getItem: (key) => store[key] || null,
+        setItem: (key, value) => { store[key] = value.toString(); },
+        removeItem: (key) => { delete store[key]; },
+        clear: () => { store = {}; },
+        key: (index) => Object.keys(store)[index] || null,
+        get length() { return Object.keys(store).length; }
+    };
+})();
+defineGlobal('localStorage', localStorageMock);
+mockWindow.localStorage = localStorageMock;
+
 
 // Mock React for tests
 defineGlobal('React', {
