@@ -142,33 +142,58 @@ module Logic = {
         let rebuildUrl = (f: Types.file) => {
           switch f {
           | Url(url) =>
-            // Robust filename extraction from legacy/external URLs
-            let parts = String.split(url, "/file/")
-            switch Belt.Array.get(parts, 1) {
-            | Some(afterFile) =>
-              let filename =
-                String.split(afterFile, "?")->Belt.Array.get(0)->Option.getOr(afterFile)
+            let isFullUrl = String.startsWith(url, "http") || String.startsWith(url, "blob:")
+            let isLegacyBackend = String.includes(url, "/api/project/")
+
+            if isLegacyBackend {
+              // Extract filename from old backend URL and rebuild with current sessionId
+              let parts = String.split(url, "/file/")
+              switch Belt.Array.get(parts, 1) {
+              | Some(afterFile) =>
+                let filename =
+                  String.split(afterFile, "?")->Belt.Array.get(0)->Option.getOr(afterFile)
+                Types.Url(
+                  Constants.backendUrl ++
+                  "/api/project/" ++
+                  sessionId ++
+                  "/file/" ++
+                  filename ++
+                  tokenQuery,
+                )
+              | None => f
+              }
+            } else if isFullUrl {
+              f
+            } else if url != "" {
+              // It's a relative path (e.g., "images/room1.jpg" or "room1.jpg")
+              let filename = if String.includes(url, "/") {
+                let parts = String.split(url, "/")
+                Belt.Array.get(parts, Array.length(parts) - 1)->Option.getOr(url)
+              } else {
+                url
+              }
               Types.Url(
                 Constants.backendUrl ++
                 "/api/project/" ++
                 sessionId ++
                 "/file/" ++
-                filename ++
-                // filename is already encoded if it came from a URL
+                encodeURIComponent(filename) ++
                 tokenQuery,
               )
-            | None => f
+            } else {
+              f
             }
           | _ => f
           }
         }
 
         let validScenes = Belt.Array.map(pd.scenes, scene => {
-          // 1. Rebuild primary file URL (Fall back to name-based if not a URL or if URL is empty)
+          // 1. Rebuild primary file URL
           let file = switch rebuildUrl(scene.file) {
-          | Url(u) if u != "" => Types.Url(u)
+          | Url(u) if u != "" && (String.startsWith(u, "http") || String.startsWith(u, "blob:")) =>
+            Types.Url(u)
           | _ =>
-            // Legacy/Fallback helper: rebuild from Name if it's not a valid URL yet or is empty
+            // Fallback: Use scene name as filename
             Types.Url(
               Constants.backendUrl ++
               "/api/project/" ++

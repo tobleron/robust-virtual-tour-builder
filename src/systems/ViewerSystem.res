@@ -45,7 +45,7 @@ module Adapter = {
     Viewer.loadScene(v, sceneId, p, y, h)
   }
   let on = (v, ev, cb) => Viewer.on(v, ev, cb)
-  let isLoaded = v => asCustom(v)->getIsLoaded->Option.getOr(false)
+  let isLoaded = v => Viewer.isLoaded(v)
   let setMetaData = (v, key, value) => {
     let c = asCustom(v)
     if key == "sceneId" {
