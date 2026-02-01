@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Merge project import image fix and sync SW
 - Resolve image loading issues & secure project handling [CSP]
 
+### Changed
+- Merge sanitization standards PR
+
 ## [4.8.13] - 2026-02-01
 
 ### Changed

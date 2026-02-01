@@ -2,6 +2,16 @@
   "rust": [
     {
       "Surgical": {
+        "file": "../../backend/src/auth.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.00, Density: 0.02, Coupling: 0.05] | Drag: 3.22 | LOC: 306/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 3.819607843137255
+      }
+    },
+    {
+      "Surgical": {
         "file": "../../backend/src/main.rs",
         "action": "De-bloat",
         "reason": "[Nesting: 2.00, Density: 0.02, Coupling: 0.07] | Drag: 3.23 | LOC: 356/300",
@@ -16,28 +26,19 @@
         "pattern": "unwrap()",
         "strategy": ""
       }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/auth.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.00, Density: 0.02, Coupling: 0.05] | Drag: 3.22 | LOC: 306/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 3.819607843137255
-      }
-    }
-  ],
-  "css": [
-    {
-      "Violation": {
-        "file": "../../css/components/ui.css",
-        "pattern": "!important",
-        "strategy": ""
-      }
     }
   ],
   "rescript": [
+    {
+      "Surgical": {
+        "file": "../../src/core/JsonParsers.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.00, Density: 0.28, Coupling: 0.04] | Drag: 4.47 | LOC: 379/300  🎯 Target: Function: `file` (High Local Complexity (3.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 12.369129287598945
+      }
+    },
     {
       "Violation": {
         "file": "../../src/systems/ApiHelpers.res",
@@ -56,19 +57,18 @@
       }
     },
     {
-      "Surgical": {
-        "file": "../../src/core/JsonParsers.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.00, Density: 0.28, Coupling: 0.04] | Drag: 4.47 | LOC: 379/300  🎯 Target: Function: `file` (High Local Complexity (3.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 12.369129287598945
-      }
-    },
-    {
       "Violation": {
         "file": "../../src/components/NotificationContext.res",
         "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    }
+  ],
+  "css": [
+    {
+      "Violation": {
+        "file": "../../css/components/ui.css",
+        "pattern": "!important",
         "strategy": ""
       }
     }
