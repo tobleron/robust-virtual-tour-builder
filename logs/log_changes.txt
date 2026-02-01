@@ -92,3 +92,4 @@
 [2026-02-01 14:12] v4.8.13 - fix: add cache-control headers to prevent stale mime types
 [2026-02-01 14:22] v4.8.13 - fix: final verification of image cache control
 [2026-02-01 14:37] v4.8.13 - chore: add debugging logs for image serving
+[2026-02-01 14:39] v4.8.13 - fix: fallback to main file if tinyFile is empty to prevent black images

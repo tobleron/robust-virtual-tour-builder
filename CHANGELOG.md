@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Disable etag to force correct content-type propagation
 - Add cache-control headers to prevent stale mime types
 - Final verification of image cache control
+- Fallback to main file if tinyFile is empty to prevent black images
 
 ## [4.8.12] - 2026-01-31
 
