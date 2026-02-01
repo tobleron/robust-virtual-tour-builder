@@ -82,8 +82,6 @@ async fn process_entry(entry: &TelemetryEntry) {
             );
         }
     }
-
-
 }
 
 // --- Logic from telemetry_logic.rs ---

@@ -34,14 +34,14 @@ module AboutContent = {
         </p>
       </div>
 
-      <div 
+      <div
         className="cursor-pointer flex items-center gap-2 group opacity-70 hover:opacity-100 transition-opacity"
         onClick={toggleDiagnostic}
       >
-        <span 
-          className={`text-[9px] font-mono uppercase tracking-wider transition-colors ${
-            isDiagnostic ? "text-green-500 font-bold" : "text-slate-500 group-hover:text-slate-400"
-          }`}
+        <span
+          className={`text-[9px] font-mono uppercase tracking-wider transition-colors ${isDiagnostic
+              ? "text-green-500 font-bold"
+              : "text-slate-500 group-hover:text-slate-400"}`}
         >
           {React.string("Debug Mode")}
         </span>

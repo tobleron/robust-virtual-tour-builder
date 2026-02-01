@@ -134,10 +134,10 @@ html body [data-sonner-toast] {
     --toast-width: 360px;
     width: 360px;
     height: 42px;
-    background: #0e2d52;
-    /* CORPORATE BLUE AS REQUESTED */
-    color: #ffffff;
-    box-shadow: none;
+    background: #1e293b !important;
+    /* DEFAULT TO INFO COLOR */
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     border: none;
     border-radius: 9px;
     position: relative;
@@ -151,26 +151,51 @@ html body [data-sonner-toast] {
 
 /* Override Sonner's internal success/error/etc. backgrounds if they exist as attributes */
 html body [data-sonner-toast][data-type="success"] {
-    background: #008B8B;
+    background: #065f46 !important;
 }
 
 html body [data-sonner-toast][data-type="error"] {
-    background: #ea580c;
+    background: #991b1b !important;
 }
 
 html body [data-sonner-toast][data-type="warning"] {
-    background: #B8860B;
+    background: #92400e !important;
 }
 
 html body [data-sonner-toast][data-type="info"] {
-    background: #0e2d52;
+    background: #1e293b !important;
 }
 
-/* Icon sizing */
+/* Ensure text is white even with sonner's default styles */
+html body [data-sonner-toast] [data-content],
+html body [data-sonner-toast] [data-title],
+html body [data-sonner-toast] [data-description] {
+    color: #ffffff !important;
+}
+
+/* Icon sizing and color - ensure strokes are white and no fill interferes */
 html body [data-sonner-toast] [data-icon] {
-    width: 16px;
-    height: 16px;
-    min-width: 16px;
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    color: #ffffff !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+html body [data-sonner-toast] [data-icon] svg {
+    width: 18px;
+    height: 18px;
+    color: #ffffff !important;
+    stroke: #ffffff !important;
+    fill: none !important;
+}
+
+/* Ensure no default icon background circle from sonner is visible or black */
+html body [data-sonner-toast] [data-icon]>div {
+    background: transparent !important;
+    border: none !important;
 }
 
 html body [data-sonner-toast] [data-content] {
