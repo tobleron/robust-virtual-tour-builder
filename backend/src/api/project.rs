@@ -127,11 +127,10 @@ pub async fn import_project(
 
     // Extract metadata
     let tmp_path_clone = tmp_path.clone();
-    let (project_id, project_data) = web::block(move || {
-        project_logic::extract_project_metadata_from_zip(&tmp_path_clone)
-    })
-    .await
-    .map_err(|e| AppError::InternalError(e.to_string()))??;
+    let (project_id, project_data) =
+        web::block(move || project_logic::extract_project_metadata_from_zip(&tmp_path_clone))
+            .await
+            .map_err(|e| AppError::InternalError(e.to_string()))??;
 
     let project_dir =
         StorageManager::ensure_project_dir(&user.id, &project_id).map_err(AppError::IoError)?;

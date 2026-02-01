@@ -8,7 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [4.8.13] - 2026-02-01
 
 ### Changed
+- **Perf(Backend)**: Implemented comprehensive async I/O for multipart uploads, project imports, and video processing.
+  - Replaced blocking `std::fs` with `tokio::fs` across `project_multipart.rs`, `video.rs`, and `project.rs`.
+  - Introduced `tokio::io::BufWriter` for optimized large file writes during video uploads.
+  - Offloaded blocking zip extraction and cleanup tasks to Actix thread pool via `web::block`.
+  - Added performance benchmarks and unit tests for multipart and video processing.
 - Refactor(Core): Replaced rescript-schema with rescript-json-combinators for full CSP compliance
+- Perf(Backend): Async I/O & Core: Schema Migration to Combinators
 
 ## [4.8.12] - 2026-01-31
 

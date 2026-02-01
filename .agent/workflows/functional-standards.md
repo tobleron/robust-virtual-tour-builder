@@ -10,7 +10,7 @@ No matter the language, adhering to these core principles reduces bugs:
 
 1.  **Immutability First**: Default to `const`/`let`-bindings. Create new values rather than modifying existing ones.
 2.  **Pure Functions**: Same Input → Same Output. Isolate side-effects (I/O, DB) to the edges of your architecture.
-3.  **Type Safety**: Handle all edge cases. No "null" surprises. Use `Result` or `Option` types. Mandate `rescript-schema` (ReScript) or `serde` (Rust) for all I/O boundary validation.
+3.  **Type Safety**: Handle all edge cases. No "null" surprises. Use `Result` or `Option` types. Mandate `rescript-json-combinators` (ReScript) or `serde` (Rust) for all I/O boundary validation.
 
 ---
 

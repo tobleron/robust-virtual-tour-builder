@@ -23,7 +23,9 @@ async fn save_field_to_file(
     field: &mut actix_multipart::Field,
     path: &Path,
 ) -> Result<(), AppError> {
-    let mut f = tokio::fs::File::create(path).await.map_err(AppError::IoError)?;
+    let mut f = tokio::fs::File::create(path)
+        .await
+        .map_err(AppError::IoError)?;
     while let Some(chunk) = field.try_next().await? {
         f.write_all(&chunk).await.map_err(AppError::IoError)?;
     }
@@ -43,9 +45,9 @@ pub async fn save_temp_file_field(
     let sanitized_name =
         sanitize_filename(&filename).unwrap_or_else(|_| format!("img_{}.webp", Uuid::new_v4()));
     let temp_img_path = get_temp_path("tmp");
-    
+
     save_field_to_file(field, &temp_img_path).await?;
-    
+
     Ok((sanitized_name, temp_img_path))
 }
 
