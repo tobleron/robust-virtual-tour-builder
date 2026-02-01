@@ -25,7 +25,10 @@ let handleUpdateTimelineStep = (state: state, id: string, dataJson: JSON.t): sta
   // Manual decode or add to JsonParsers. Let's do manual for speed and locality
   let transition = switch JsonCombinators.Json.decode(
     dataJson,
-    JsonCombinators.Json.Decode.field("transition", JsonCombinators.Json.Decode.option(JsonCombinators.Json.Decode.string)),
+    JsonCombinators.Json.Decode.field(
+      "transition",
+      JsonCombinators.Json.Decode.option(JsonCombinators.Json.Decode.string),
+    ),
   ) {
   | Ok(v) => v
   | Error(_) => None
@@ -35,7 +38,9 @@ let handleUpdateTimelineStep = (state: state, id: string, dataJson: JSON.t): sta
     dataJson,
     JsonCombinators.Json.Decode.field(
       "duration",
-      JsonCombinators.Json.Decode.option(JsonCombinators.Json.Decode.option(JsonCombinators.Json.Decode.int)),
+      JsonCombinators.Json.Decode.option(
+        JsonCombinators.Json.Decode.option(JsonCombinators.Json.Decode.int),
+      ),
     ),
   ) {
   | Ok(v) => v

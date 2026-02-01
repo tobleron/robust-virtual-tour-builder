@@ -173,33 +173,33 @@ let showFromProjectData = (projectDataJson: JSON.t) => {
   let project = switch JsonCombinators.Json.decode(projectDataJson, JsonParsers.Domain.project) {
   | Ok(p) => p
   | Error(e) => {
-    Logger.error(
+      Logger.error(
         ~module_="UploadReport",
         ~message="Failed to parse project data for report",
         ~data=Logger.castToJson({"error": e}),
-        ()
-    )
-    // Return empty/safe default if parse fails
-    {
+        (),
+      )
+      // Return empty/safe default if parse fails
+      {
         tourName: "",
         scenes: [],
         lastUsedCategory: "",
         exifReport: None,
         sessionId: None,
         deletedSceneIds: [],
-        timeline: []
+        timeline: [],
+      }
     }
-  }
   }
 
   let successNames = Belt.Array.map(project.scenes, s => s.name)
   let qualityResults = Belt.Array.map(project.scenes, s => {
     let q = switch s.quality {
     | Some(qJson) =>
-        switch JsonCombinators.Json.decode(qJson, JsonParsers.Shared.qualityAnalysis) {
-        | Ok(qa) => qa
-        | Error(_) => SharedTypes.defaultQuality("Parse error")
-        }
+      switch JsonCombinators.Json.decode(qJson, JsonParsers.Shared.qualityAnalysis) {
+      | Ok(qa) => qa
+      | Error(_) => SharedTypes.defaultQuality("Parse error")
+      }
     | None => SharedTypes.defaultQuality("Missing quality data")
     }
     {quality: q, newName: s.name}
