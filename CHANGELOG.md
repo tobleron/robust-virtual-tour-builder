@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Improve MIME sniffing in backend and bust SW cache to resolve black images
 - Disable etag to force correct content-type propagation
+- Add cache-control headers to prevent stale mime types
 
 ## [4.8.12] - 2026-01-31
 
