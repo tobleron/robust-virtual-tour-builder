@@ -5,7 +5,13 @@ external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 module Logic = {
   let getThumbUrl = (scene: Types.scene) => {
     switch scene.tinyFile {
-    | Some(tiny) => UrlUtils.fileToUrl(tiny)
+    | Some(tiny) =>
+      let url = UrlUtils.fileToUrl(tiny)
+      if url == "" {
+        UrlUtils.fileToUrl(scene.file)
+      } else {
+        url
+      }
     | None => UrlUtils.fileToUrl(scene.file)
     }
   }
