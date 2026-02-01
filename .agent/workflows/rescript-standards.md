@@ -10,23 +10,33 @@ These rules apply specifically when editing **ReScript (`.res`, `.resi`)** files
 
 ## 🔒 Part 1: Error Prevention Patterns (CRITICAL)
 
-### 1. Schema-Driven IO
-**Goal**: Eliminate runtime errors from invalid data shapes.
+### 1. CSP-Safe Schema Validation
+**Goal**: Eliminate runtime errors and CSP violations (no `eval`).
 
-- **Rule**: Use `rescript-schema` for ALL data entering or leaving the system (API, LocalStorage, IndexedDB).
-- **Rule**: Forbid native `JSON.stringify` for complex objects or records. ALWAYS use `S.reverseConvertToJsonStringOrThrow` to ensure schema integrity.
-- **Rule**: Use `S.json` for arbitrary `JSON.t` data instead of `S.unknown`. `S.unknown` is not reversible. Note: The `TypeError` ("setting '~r'") issue was resolved by upgrading to `rescript-schema@9.3.0-rescript12.0`.
-- **Rule**: NO `Obj.magic` or unsafe casts at the boundary. Use `S.parseOrThrow` or `S.parse`.
+- **Rule**: Use `rescript-json-combinators` (`@glennsl/rescript-json-combinators`) for ALL data validation.
+- **Rule**: FORBID `rescript-schema` (uses `eval` -> CSP violation).
+- **Rule**: Use `JsonCombinators.Json.decode` for parsing and `JsonCombinators.Json.stringify` for serialization.
+- **Rule**: Define decoders/encoders in a dedicated `Schemas` or `Decoders` module.
 
 ```rescript
-// ❌ BAD: Unsafe Access or Legacy Decode
+// ❌ BAD: Unsafe or Eval-based
 let parse = json => {
-  let data = JSON.Decode.string(json) // Legacy
+  let data = JSON.parseExn(json) // Unsafe
+  // OR
+  S.parseOrThrow(json, schema) // Uses eval!
 }
 
-// ✅ GOOD: Schema Validation
-let parse = (json: JSON.t): data => {
-  S.parseOrThrow(json, Schemas.Domain.someSchema)
+// ✅ GOOD: Combinator Validation
+let decodeUser = {
+  open JsonCombinators.Json.Decode
+  object(field => {
+      name: field.required("name", string),
+      age: field.required("age", int)
+  })
+}
+
+let parse = (json: JSON.t) => {
+  JsonCombinators.Json.decode(json, decodeUser)
 }
 ```
 

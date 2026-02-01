@@ -1,12 +1,13 @@
 use actix_multipart::Multipart;
-use actix_web::{test, web, App, HttpResponse, Error};
+use actix_web::{App, Error, HttpResponse, test, web};
 use backend::api::project_multipart;
 use std::fs;
 
 async fn test_handler(payload: Multipart) -> Result<HttpResponse, Error> {
     // We try to extract "zip" file from the multipart.
     // It will expect a field named "file".
-    let path = project_multipart::extract_file_from_multipart(payload, "zip").await
+    let path = project_multipart::extract_file_from_multipart(payload, "zip")
+        .await
         .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
 
     // Read content to verify
@@ -19,9 +20,7 @@ async fn test_handler(payload: Multipart) -> Result<HttpResponse, Error> {
 #[actix_web::test]
 async fn test_extract_file_blocking() {
     // Initialize the app with the handler
-    let app = test::init_service(
-        App::new().route("/", web::post().to(test_handler))
-    ).await;
+    let app = test::init_service(App::new().route("/", web::post().to(test_handler))).await;
 
     // Create a multipart payload
     let payload = "--abbc54650145\r\n\

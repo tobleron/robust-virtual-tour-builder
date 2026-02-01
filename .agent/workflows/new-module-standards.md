@@ -43,16 +43,21 @@ Every module must include these log points where applicable:
 
 ### Synchronous Operations
 ```rescript
-let parseConfig = (raw: string): result<config, string> => {
-  Logger.attempt(~module_="Config", ~operation="PARSE", () => {
-    Json.parseExn(raw)->decodeConfig
-  })
+let parseConfig = (json: JSON.t): result<config, string> => {
+  // JsonCombinators returns a Result, so we handle it explicitly
+  switch JsonCombinators.Json.decode(json, configDecoder) {
+  | Ok(config) => Ok(config)
+  | Error(msg) => 
+      // Log the validation failure with context
+      Logger.error(~module_="Config", ~message="CONFIG_INVALID", ~data={"reason": msg}, ())
+      Error(msg)
+  }
 }
 
 // Usage:
-switch parseConfig(rawJson) {
+switch parseConfig(data) {
 | Ok(config) => use(config)
-| Error(_) => showError("Invalid config") // Already logged!
+| Error(_) => showUiError() // Already logged!
 }
 ```
 

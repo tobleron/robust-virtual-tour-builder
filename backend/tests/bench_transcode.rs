@@ -1,4 +1,4 @@
-use actix_web::{test, App, web};
+use actix_web::{App, test, web};
 use backend::api::media::video::transcode_video;
 use std::time::Instant;
 
@@ -7,13 +7,20 @@ async fn bench_transcode_upload_performance() {
     let app = test::init_service(
         App::new()
             .app_data(web::PayloadConfig::new(100 * 1024 * 1024))
-            .route("/api/media/transcode-video", web::post().to(transcode_video))
-    ).await;
+            .route(
+                "/api/media/transcode-video",
+                web::post().to(transcode_video),
+            ),
+    )
+    .await;
 
     let boundary = "------------------------Boundary123";
     let large_data = vec![0u8; 10 * 1024 * 1024]; // 10MB
 
-    let header = format!("--{}\r\nContent-Disposition: form-data; name=\"file\"; filename=\"video.mp4\"\r\nContent-Type: video/mp4\r\n\r\n", boundary);
+    let header = format!(
+        "--{}\r\nContent-Disposition: form-data; name=\"file\"; filename=\"video.mp4\"\r\nContent-Type: video/mp4\r\n\r\n",
+        boundary
+    );
     let footer = format!("\r\n--{}--\r\n", boundary);
 
     let mut body = Vec::new();
@@ -25,7 +32,10 @@ async fn bench_transcode_upload_performance() {
 
     let req = test::TestRequest::post()
         .uri("/api/media/transcode-video")
-        .insert_header(("content-type", format!("multipart/form-data; boundary={}", boundary)))
+        .insert_header((
+            "content-type",
+            format!("multipart/form-data; boundary={}", boundary),
+        ))
         .set_payload(body)
         .to_request();
 

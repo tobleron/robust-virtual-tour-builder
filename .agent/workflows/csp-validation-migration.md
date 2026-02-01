@@ -2,18 +2,14 @@
 description: Guide for transitioning from rescript-schema to CSP-friendly validation
 ---
 
-# Migration to CSP-Friendly Validation
+# Validation Standards & Migration Guide
+ 
+ ## Problem Statement
+ The project previously used `rescript-schema` (v9/v10) which relied on `unsafe-eval` (via `new Function`), violating the strict Content Security Policy (CSP).
+ 
+ ## Mandated Standard: `rescript-json-combinators`
+ To ensure runtime safety and CSP compliance, we have standardized on **`glennsl/rescript-json-combinators`**.
 
-## Problem Statement
-The project currently uses `rescript-schema` (v9/v10) which relies on `unsafe-eval` (via `new Function`) for performance optimization. This violates the strict Content Security Policy (CSP) required for the tour builder application, causing `EvalError` at runtime.
-
-## Immediate Mitigation (Zero-Eval Strategy)
-As a hotfix, all critical paths (`SessionStore`, `PersistenceLayer`, `ProjectApi`, `MediaApi`, `LoggerTelemetry`) have been patched to bypass schema validation:
-- **Serialization**: `S.reverseConvert...` -> `JSON.stringifyAny`
-- **Parsing**: `S.parse...` -> `Object.magic` (unsafe cast) or manual checks.
-
-## Recommended Alternative: `rescript-json-combinators`
-To regain runtime type safety without `eval`, we should migrate to **`glennsl/rescript-json-combinators`**.
 
 ### Why this library?
 1.  **Zero Eval**: It uses functional combinators (functions calling functions), not code generation.
