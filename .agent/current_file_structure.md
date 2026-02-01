@@ -163,6 +163,9 @@
 │   ├── PROJECT_HISTORY.md
 │   ├── PROJECT_SPECS.md
 │   ├── TERMS_OF_SERVICE.md
+│   ├── _pending_integration
+│   │   ├── ANALYSIS_DEV_SYSTEM_ACCURACY.md
+│   │   └── analysis_1108_1114_1112_1113_1116.md
 │   ├── openapi.yaml
 │   └── tmp
 ├── index.html
@@ -3528,8 +3531,7 @@
 │   ├── diagnostic.log
 │   ├── error.log
 │   ├── log_changes.txt
-│   ├── project-guard.log
-│   └── telemetry.log
+│   └── project-guard.log
 ├── old_ref
 │   ├── 7aadee4
 │   │   ├── CHANGELOG.md
@@ -5704,4 +5706,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-215 directories, 5490 files
+216 directories, 5491 files
