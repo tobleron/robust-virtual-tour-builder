@@ -166,6 +166,54 @@ module Scripts = {
 external castToJSON: dict<'a> => JSON.t = "%identity"
 external castToUnknown: 'a => unknown = "%identity"
 
+type hotspotData = {
+  "pitch": float,
+  "yaw": float,
+  "target": string,
+  "truePitch": float,
+  "viewFrame": Nullable.t<viewFrame>,
+  "returnViewFrame": Nullable.t<viewFrame>,
+  "isReturnLink": bool,
+  "targetYaw": Nullable.t<float>,
+  "targetPitch": Nullable.t<float>,
+}
+
+type sceneData = {
+  "panorama": string,
+  "autoLoad": bool,
+  "floor": string,
+  "category": string,
+  "label": string,
+  "isAutoForward": bool,
+  "hotSpots": array<hotspotData>,
+}
+
+let encodeHotspot = (h: hotspotData) => {
+  JsonCombinators.Json.Encode.object([
+    ("pitch", JsonCombinators.Json.Encode.float(h["pitch"])),
+    ("yaw", JsonCombinators.Json.Encode.float(h["yaw"])),
+    ("target", JsonCombinators.Json.Encode.string(h["target"])),
+    ("truePitch", JsonCombinators.Json.Encode.float(h["truePitch"])),
+    ("viewFrame", JsonCombinators.Json.Encode.option(JsonParsers.Encoders.viewFrame)(Nullable.toOption(h["viewFrame"]))),
+    ("returnViewFrame", JsonCombinators.Json.Encode.option(JsonParsers.Encoders.viewFrame)(Nullable.toOption(h["returnViewFrame"]))),
+    ("isReturnLink", JsonCombinators.Json.Encode.bool(h["isReturnLink"])),
+    ("targetYaw", JsonCombinators.Json.Encode.option(JsonCombinators.Json.Encode.float)(Nullable.toOption(h["targetYaw"]))),
+    ("targetPitch", JsonCombinators.Json.Encode.option(JsonCombinators.Json.Encode.float)(Nullable.toOption(h["targetPitch"])))
+  ])
+}
+
+let encodeSceneData = (s: sceneData) => {
+  JsonCombinators.Json.Encode.object([
+    ("panorama", JsonCombinators.Json.Encode.string(s["panorama"])),
+    ("autoLoad", JsonCombinators.Json.Encode.bool(s["autoLoad"])),
+    ("floor", JsonCombinators.Json.Encode.string(s["floor"])),
+    ("category", JsonCombinators.Json.Encode.string(s["category"])),
+    ("label", JsonCombinators.Json.Encode.string(s["label"])),
+    ("isAutoForward", JsonCombinators.Json.Encode.bool(s["isAutoForward"])),
+    ("hotSpots", JsonCombinators.Json.Encode.array(encodeHotspot)(s["hotSpots"]))
+  ])
+}
+
 let generateTourHTML = (
   scenes: array<scene>,
   tourName,
@@ -219,6 +267,9 @@ let generateTourHTML = (
     ->Option.map(vf => (vf.pitch, vf.yaw))
     ->Option.getOr((0.0, 0.0))
 
+  // CSP SAFE: Using strict encoder
+  let scenesDataJson = JsonCombinators.Json.stringify(JsonCombinators.Json.Encode.dict(encodeSceneData)(rawScenesData))
+
   let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${tourName}</title><link rel="stylesheet" href="libs/pannellum.css"/><script src="libs/pannellum.js"></script><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap" rel="stylesheet"><style>${css}</style></head><body><div id="stage"><div id="panorama"></div>${logoDiv}</div><script>
     const firstSceneId = "${firstSceneName}"; ${renderScript}
     let transitionFrom = null; let persistentFrom = null; let isFirstLoad = true;
@@ -227,10 +278,7 @@ let generateTourHTML = (
     )}, "yaw": ${Belt.Float.toString(
       defYaw,
     )}, "hfov": 90, "minHfov": 90, "maxHfov": 90, "showControls": false }, "scenes":{} };
-    const scenesData = ${switch JSON.stringifyAny(rawScenesData) {
-    | Some(s) => s
-    | None => "{}"
-    }};
+    const scenesData = ${scenesDataJson};
     for (const [name, data] of Object.entries(scenesData)) {
       config.scenes[name] = { panorama: data.panorama, autoLoad: true, hotSpots: data.hotSpots.map((h, idx) => ({ pitch: h.pitch, yaw: h.yaw, type: "info", cssClass: "flat-arrow", createTooltipFunc: renderGoldArrow, createTooltipArgs: { i: idx, targetSceneId: h.target, viewFrame: h.viewFrame, targetYaw: h.targetYaw, targetPitch: h.targetPitch, isReturnLink: h.isReturnLink, returnViewFrame: h.returnViewFrame } })) };
     }

@@ -12,21 +12,20 @@ describe("MediaApi", () => {
              status: 200,
              json: () => Promise.resolve({
                exif: {
-                 width: 100, height: 100,
-                 make: null, model: null, dateTime: null,
-                 gps: null,
-                 focalLength: null, aperture: null, iso: null
+                 width: 100, height: 100
+                 // gps and other optional fields omitted
                },
                quality: {
                  score: 0.9, isBlurry: false, isDim: false, isSeverelyDark: false,
                  stats: { avgLuminance: 128, sharpnessVariance: 10, blackClipping: 0, whiteClipping: 0 },
-                 analysis: null, histogram: [], colorHist: {r:[], g:[], b:[]},
+                 // analysis omitted
+                 histogram: [], colorHist: {r:[], g:[], b:[]},
                  isSoft: false, isSeverelyBright: false, hasBlackClipping: false, hasWhiteClipping: false,
                  issues: 0, warnings: 0
                },
                isOptimized: false,
-               checksum: "abc",
-               suggestedName: null
+               checksum: "abc"
+               // suggestedName omitted
              })
            });
         }

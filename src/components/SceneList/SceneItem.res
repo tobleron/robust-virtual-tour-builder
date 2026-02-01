@@ -61,8 +61,10 @@ let make = React.memo((
 
   let qualityScore = switch scene.quality {
   | Some(q) =>
-    let qObj = Schemas.castToQualityAnalysis(q)
-    qObj.score
+    switch JsonCombinators.Json.decode(q, JsonParsers.Shared.qualityAnalysis) {
+    | Ok(qObj) => qObj.score
+    | Error(_) => 10.0
+    }
   | None => 10.0
   }
   let isLowQuality = qualityScore < 6.5

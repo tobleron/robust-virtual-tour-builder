@@ -84,8 +84,7 @@ let processImageFull = (
       FormData.append(
         formData,
         "metadata",
-        // CSP SAFE FIX: Bypass schema eval
-        JSON.stringifyAny(m)->Option.getOr("{}"),
+        JsonCombinators.Json.stringify(JsonParsers.Encoders.exifMetadata(m)),
       )
     | None => ()
     }
@@ -122,8 +121,9 @@ let batchCalculateSimilarity = (pairs: array<similarityPair>): Promise.t<
     let headers = Dict.make()
     Dict.set(headers, "Content-Type", "application/json")
 
-    // CSP SAFE FIX: Bypass schema eval
-    let body = JSON.stringifyAny({"pairs": pairs})->Option.getOr("{}")
+    let body = JsonCombinators.Json.stringify(JsonCombinators.Json.Encode.object([
+      ("pairs", JsonCombinators.Json.Encode.array(JsonParsers.Encoders.similarityPair)(pairs))
+    ]))
 
     Fetch.fetch(
       Constants.backendUrl ++ "/api/media/similarity",

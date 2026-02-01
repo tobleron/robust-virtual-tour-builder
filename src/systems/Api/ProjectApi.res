@@ -1,5 +1,4 @@
 /* src/systems/Api/ProjectApi.res */
-@@warning("-3")
 
 open ApiHelpers
 open ReBindings
@@ -83,7 +82,7 @@ let importProject = (file: File.t): Promise.t<apiResult<importResponse>> => {
 let loadProject = (sessionId: string): Promise.t<apiResult<importResponse>> => {
   RequestQueue.schedule(() => {
     Fetch.fetch(
-      Constants.backendUrl ++ "/api/project/load" ++ sessionId,
+      Constants.backendUrl ++ "/api/project/load/" ++ sessionId,
       Fetch.requestInit(~method="GET", ()),
     )
     ->Promise.then(handleResponse)
@@ -108,12 +107,15 @@ let validateProject = (sessionId: string, projectData: JSON.t): Promise.t<
   apiResult<SharedTypes.validationReport>,
 > => {
   RequestQueue.schedule(() => {
+    // projectData is already a JSON value (from PersistenceLayer or similar)
+    // We use Json.stringify to convert it to a string for the body
+    let body = JsonCombinators.Json.stringify(projectData)
+
     Fetch.fetch(
       Constants.backendUrl ++ "/api/project/validate/" ++ sessionId,
       Fetch.requestInit(
         ~method="POST",
-        // CSP SAFE FIX: Bypass schema eval
-        ~body=JSON.stringifyAny(projectData)->Option.getOr("{}"),
+        ~body=body,
         ~headers=Dict.fromArray([("Content-Type", "application/json")]),
         (),
       ),
@@ -147,12 +149,13 @@ let validateProject = (sessionId: string, projectData: JSON.t): Promise.t<
 
 let saveProject = (sessionId: string, projectData: JSON.t): Promise.t<apiResult<unit>> => {
   RequestQueue.schedule(() => {
+    let body = JsonCombinators.Json.stringify(projectData)
+
     Fetch.fetch(
       Constants.backendUrl ++ "/api/project/save/" ++ sessionId,
       Fetch.requestInit(
         ~method="POST",
-        // CSP SAFE FIX: Bypass schema eval
-        ~body=JSON.stringifyAny(projectData)->Option.getOr("{}"),
+        ~body=body,
         ~headers=Dict.fromArray([("Content-Type", "application/json")]),
         (),
       ),
@@ -170,11 +173,7 @@ let saveProject = (sessionId: string, projectData: JSON.t): Promise.t<apiResult<
 
 let calculatePath = (payload: pathRequest): Promise.t<apiResult<array<step>>> => {
   RequestQueue.schedule(() => {
-    // Replaced manual cast/stringify with Schema serialization -> Reverted due to CSP eval
-    let body = switch JSON.stringifyAny(payload) {
-    | Some(s) => s
-    | None => "{}"
-    }
+    let body = JsonCombinators.Json.stringify(JsonParsers.Encoders.pathRequest(payload))
 
     Fetch.fetch(
       Constants.backendUrl ++ "/api/project/calculate-path",
@@ -210,13 +209,12 @@ let calculatePath = (payload: pathRequest): Promise.t<apiResult<array<step>>> =>
 
 let reverseGeocode = (lat: float, lon: float): Promise.t<apiResult<geocodeResponse>> => {
   RequestQueue.schedule(() => {
-    let payload: geocodeRequest = {lat, lon}
+    let payload = JsonCombinators.Json.Encode.object([
+      ("lat", JsonCombinators.Json.Encode.float(lat)),
+      ("lon", JsonCombinators.Json.Encode.float(lon))
+    ])
 
-    // CSP SAFE FIX
-    let body = switch JSON.stringifyAny(payload) {
-    | Some(s) => s
-    | None => "{}"
-    }
+    let body = JsonCombinators.Json.stringify(payload)
 
     Fetch.fetch(
       Constants.backendUrl ++ "/api/geocoding/reverse",

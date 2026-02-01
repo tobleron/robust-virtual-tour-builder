@@ -2,7 +2,6 @@
 
 open ReBindings
 open Types
-open RescriptSchema
 
 // --- TYPES ---
 
@@ -14,17 +13,14 @@ type apiError = string
 module Logic = {
   external asJson: unknown => JSON.t = "%identity"
 
-  let validationReportSchema = S.object(s =>
-    s.field("validationReport", Schemas.Shared.validationReport)
-  )
+  let validationReportWrapperDecoder = JsonCombinators.Json.Decode.object(field => {
+    field.required("validationReport", JsonParsers.Shared.validationReport)
+  })
 
   let validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {
-    try {
-      ignore(S.parseOrThrow(data, Schemas.Domain.project))
-      Ok(data)
-    } catch {
-    | S.Raised(e) => Error("Invalid project structure: " ++ S.Error.message(e))
-    | _ => Error("Invalid project structure")
+    switch JsonCombinators.Json.decode(data, JsonParsers.Domain.project) {
+    | Ok(_) => Ok(data)
+    | Error(e) => Error("Invalid project structure: " ++ e)
     }
   }
 
@@ -109,8 +105,8 @@ module Logic = {
       progress(70, 100, "Resolving scenes...")
 
       // Check validation report
-      try {
-        let r = S.parseOrThrow(projectData, validationReportSchema)
+      switch JsonCombinators.Json.decode(projectData, validationReportWrapperDecoder) {
+      | Ok(r) =>
         if r.brokenLinksRemoved > 0 {
           EventBus.dispatch(
             ShowNotification(
@@ -134,12 +130,11 @@ module Logic = {
         r.errors->Belt.Array.forEach(error =>
           EventBus.dispatch(ShowNotification("Error: " ++ error, #Error, None))
         )
-      } catch {
-      | _ => ()
+      | Error(_) => ()
       }
 
-      try {
-        let pd = S.parseOrThrow(projectData, Schemas.Domain.project)
+      switch JsonCombinators.Json.decode(projectData, JsonParsers.Domain.project) {
+      | Ok(pd) =>
         let validScenes = Belt.Array.map(pd.scenes, scene => {
           let fileUrl =
             Constants.backendUrl ++
@@ -170,10 +165,8 @@ module Logic = {
           (),
         )
         Promise.resolve(Ok((sessionId, asJson(json))))
-      } catch {
-      | S.Raised(e) =>
-        Promise.resolve(Error("Failed to parse project data: " ++ S.Error.message(e)))
-      | _ => Promise.resolve(Error("Failed to parse project data"))
+      | Error(e) =>
+        Promise.resolve(Error("Failed to parse project data: " ++ e))
       }
 
     | Error(msg) => Promise.resolve(Error(msg))

@@ -142,7 +142,7 @@ let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
   let wasEmpty = Belt.Array.length(state.scenes) == 0
 
   let newScenes = Belt.Array.reduce(scenesData, state.scenes, (acc, dataJson) => {
-    let id = switch Schemas.parse(dataJson, Schemas.Domain.scene) {
+    let id = switch JsonCombinators.Json.decode(dataJson, JsonParsers.Domain.scene) {
     | Ok(data) => data.id
     | Error(_) => "error_" ++ Float.toString(Date.now())
     }
@@ -179,7 +179,7 @@ let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
 
 let handleUpdateSceneMetadata = (state: state, index: int, metaJson: JSON.t): state => {
   let scenes = state.scenes
-  let meta = switch Schemas.parse(metaJson, Schemas.Domain.updateMetadata) {
+  let meta = switch JsonCombinators.Json.decode(metaJson, JsonParsers.Domain.updateMetadata) {
   | Ok(m) => m
   | Error(_) => {
       category: None,
