@@ -142,22 +142,40 @@ module Logic = {
         let rebuildUrl = (f: Types.file) => {
           switch f {
           | Url(url) =>
-            // Robust filename extraction from legacy/external URLs
-            let parts = String.split(url, "/file/")
-            switch Belt.Array.get(parts, 1) {
-            | Some(afterFile) =>
-              let filename =
-                String.split(afterFile, "?")->Belt.Array.get(0)->Option.getOr(afterFile)
+            if String.includes(url, "/file/") {
+              // Robust filename extraction from legacy/external URLs
+              let parts = String.split(url, "/file/")
+              switch Belt.Array.get(parts, 1) {
+              | Some(afterFile) =>
+                let filename =
+                  String.split(afterFile, "?")->Belt.Array.get(0)->Option.getOr(afterFile)
+                Types.Url(
+                  Constants.backendUrl ++
+                  "/api/project/" ++
+                  sessionId ++
+                  "/file/" ++
+                  filename ++
+                  // filename is already encoded if it came from a URL
+                  tokenQuery,
+                )
+              | None => f
+              }
+            } else if !String.startsWith(url, "http") {
+              // Handle relative paths from legacy imports (e.g. "images/foo.jpg")
+              let parts = String.split(url, "/")
+              let lastPart = Belt.Array.get(parts, Array.length(parts) - 1)->Option.getOr(url)
+              let filename = String.split(lastPart, "?")->Belt.Array.get(0)->Option.getOr(lastPart)
+
               Types.Url(
                 Constants.backendUrl ++
                 "/api/project/" ++
                 sessionId ++
                 "/file/" ++
-                filename ++
-                // filename is already encoded if it came from a URL
+                encodeURIComponent(filename) ++
                 tokenQuery,
               )
-            | None => f
+            } else {
+              f
             }
           | _ => f
           }
