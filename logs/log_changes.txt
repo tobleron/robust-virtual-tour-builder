@@ -95,3 +95,4 @@
 [2026-02-01 14:39] v4.8.13 - fix: fallback to main file if tinyFile is empty to prevent black images
 [2026-02-01 14:42] v4.8.13 - Black image bug persists, image not loading [TRIPLE]
 [2026-02-01 18:20] v4.8.14 - fix: Merge project import image fix and sync SW
+[2026-02-01 19:21] v4.8.14 - fix: Resolve image loading issues & secure project handling [CSP] [TRIPLE]

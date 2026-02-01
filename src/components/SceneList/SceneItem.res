@@ -109,12 +109,6 @@ let make = React.memo((
     <div className="flex flex-col gap-0 h-full p-1">
       <div className="w-20 h-full relative bg-slate-900 overflow-hidden cursor-pointer rounded-md">
         {if thumbUrl != "" {
-          Logger.info(
-            ~module_="SceneItem",
-            ~message="Rendering thumb",
-            ~data={"url": thumbUrl, "name": scene.name},
-            (),
-          )
           <img
             src={thumbUrl}
             alt={`Thumbnail of ${scene.name}`}

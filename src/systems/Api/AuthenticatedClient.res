@@ -32,7 +32,7 @@ let prepareRequestBody = (body: option<JSON.t>, headers: Dict.t<string>) => {
       Dict.set(headers, "Content-Type", "application/json")
     }
     // CSP SAFE FIX
-    Some(JSON.stringifyAny(b)->Option.getOr("{}"))
+    Some(JsonCombinators.Json.stringify(b))
   | None => None
   }
 }
