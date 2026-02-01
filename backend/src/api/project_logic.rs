@@ -214,10 +214,13 @@ pub fn create_project_zip_sync(
                                         {
                                             let decoded_filename = decoded_filename.to_string();
                                             if let Ok(safe_filename) =
-                                                crate::api::utils::sanitize_filename(&decoded_filename)
+                                                crate::api::utils::sanitize_filename(
+                                                    &decoded_filename,
+                                                )
                                             {
-                                                let img_subdir =
-                                                    session_path.join("images").join(&safe_filename);
+                                                let img_subdir = session_path
+                                                    .join("images")
+                                                    .join(&safe_filename);
                                                 let root_path = session_path.join(&safe_filename);
                                                 if img_subdir.exists() {
                                                     source_path = Some(img_subdir);

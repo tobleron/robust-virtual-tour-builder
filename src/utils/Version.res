@@ -3,8 +3,8 @@
  * This file is updated by scripts/update-version.js
  * It contains both version data and utility functions.
  */
-let version = "4.8.13"
-let buildNumber = 379
+let version = "4.8.14"
+let buildNumber = 380
 let buildInfo = "[Development Build]"
 
 /**
