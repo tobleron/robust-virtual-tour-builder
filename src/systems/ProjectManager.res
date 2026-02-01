@@ -135,13 +135,20 @@ module Logic = {
 
       switch JsonCombinators.Json.decode(projectData, JsonParsers.Domain.project) {
       | Ok(pd) =>
+        let token = Dom.Storage2.localStorage->Dom.Storage2.getItem("auth_token")
+        let tokenQuery = switch token {
+        | Some(t) => "?token=" ++ t
+        | None => ""
+        }
+
         let validScenes = Belt.Array.map(pd.scenes, scene => {
           let fileUrl =
             Constants.backendUrl ++
             "/api/project/" ++
             sessionId ++
             "/file/" ++
-            encodeURIComponent(scene.name)
+            encodeURIComponent(scene.name) ++
+            tokenQuery
 
           {...scene, file: Url(fileUrl), originalFile: Some(Url(fileUrl))}
         })
@@ -151,8 +158,123 @@ module Logic = {
           scenes: validScenes,
         }
 
-        // CSP SAFE FIX: Casting instead of schema conversion
-        let json = Obj.magic(loadedProject)
+        // Encode back to JSON ensuring Types.file is serialized as string, not variant object
+        let safeEncodeFile = (f: Types.file) => {
+          switch f {
+          | Url(u) => JsonCombinators.Json.Encode.string(u)
+          | _ => JsonCombinators.Json.Encode.string("")
+          }
+        }
+
+        let encodeField = (key, encoder, value) => {
+          Some((key, encoder(value)))
+        }
+
+        let encodeOpt = (key, encoder, valueOpt) => {
+          switch valueOpt {
+          | Some(v) => Some((key, encoder(v)))
+          | None => None
+          }
+        }
+
+        let safeEncodeHotspot = (h: Types.hotspot) => {
+          JsonCombinators.Json.Encode.object(
+            Belt.Array.keepMap(
+              [
+                encodeField("linkId", JsonCombinators.Json.Encode.string, h.linkId),
+                encodeField("yaw", JsonCombinators.Json.Encode.float, h.yaw),
+                encodeField("pitch", JsonCombinators.Json.Encode.float, h.pitch),
+                encodeField("target", JsonCombinators.Json.Encode.string, h.target),
+                encodeOpt("targetYaw", JsonCombinators.Json.Encode.float, h.targetYaw),
+                encodeOpt("targetPitch", JsonCombinators.Json.Encode.float, h.targetPitch),
+                encodeOpt("targetHfov", JsonCombinators.Json.Encode.float, h.targetHfov),
+                encodeOpt("startYaw", JsonCombinators.Json.Encode.float, h.startYaw),
+                encodeOpt("startPitch", JsonCombinators.Json.Encode.float, h.startPitch),
+                encodeOpt("startHfov", JsonCombinators.Json.Encode.float, h.startHfov),
+                encodeOpt("isReturnLink", JsonCombinators.Json.Encode.bool, h.isReturnLink),
+                encodeOpt("viewFrame", JsonParsers.Encoders.viewFrame, h.viewFrame),
+                encodeOpt("returnViewFrame", JsonParsers.Encoders.viewFrame, h.returnViewFrame),
+                encodeOpt(
+                  "waypoints",
+                  JsonCombinators.Json.Encode.array(JsonParsers.Encoders.viewFrame),
+                  h.waypoints,
+                ),
+                encodeOpt("displayPitch", JsonCombinators.Json.Encode.float, h.displayPitch),
+                encodeOpt("transition", JsonCombinators.Json.Encode.string, h.transition),
+                encodeOpt(
+                  "duration",
+                  i => JsonCombinators.Json.Encode.float(Belt.Int.toFloat(i)),
+                  h.duration,
+                ),
+              ],
+              x => x,
+            ),
+          )
+        }
+
+        let safeEncodeScene = (s: Types.scene) => {
+          JsonCombinators.Json.Encode.object(
+            Belt.Array.keepMap(
+              [
+                encodeField("id", JsonCombinators.Json.Encode.string, s.id),
+                encodeField("name", JsonCombinators.Json.Encode.string, s.name),
+                encodeField("file", safeEncodeFile, s.file),
+                encodeOpt("tinyFile", safeEncodeFile, s.tinyFile),
+                encodeOpt("originalFile", safeEncodeFile, s.originalFile),
+                encodeField(
+                  "hotspots",
+                  JsonCombinators.Json.Encode.array(safeEncodeHotspot),
+                  s.hotspots,
+                ),
+                encodeField("category", JsonCombinators.Json.Encode.string, s.category),
+                encodeField("floor", JsonCombinators.Json.Encode.string, s.floor),
+                encodeField("label", JsonCombinators.Json.Encode.string, s.label),
+                encodeOpt("quality", JsonParsers.Encoders.value, s.quality),
+                encodeOpt("colorGroup", JsonCombinators.Json.Encode.string, s.colorGroup),
+                encodeField(
+                  "_metadataSource",
+                  JsonCombinators.Json.Encode.string,
+                  s._metadataSource,
+                ),
+                encodeField("categorySet", JsonCombinators.Json.Encode.bool, s.categorySet),
+                encodeField("labelSet", JsonCombinators.Json.Encode.bool, s.labelSet),
+                encodeField("isAutoForward", JsonCombinators.Json.Encode.bool, s.isAutoForward),
+              ],
+              x => x,
+            ),
+          )
+        }
+
+        let json = JsonCombinators.Json.Encode.object(
+          Belt.Array.keepMap(
+            [
+              encodeField("tourName", JsonCombinators.Json.Encode.string, loadedProject.tourName),
+              encodeField(
+                "scenes",
+                JsonCombinators.Json.Encode.array(safeEncodeScene),
+                loadedProject.scenes,
+              ),
+              encodeField(
+                "lastUsedCategory",
+                JsonCombinators.Json.Encode.string,
+                loadedProject.lastUsedCategory,
+              ),
+              encodeOpt("exifReport", JsonParsers.Encoders.value, loadedProject.exifReport),
+              encodeOpt("sessionId", JsonCombinators.Json.Encode.string, loadedProject.sessionId),
+              encodeField(
+                "deletedSceneIds",
+                JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.string),
+                loadedProject.deletedSceneIds,
+              ),
+              encodeField(
+                "timeline",
+                JsonCombinators.Json.Encode.array(JsonParsers.Encoders.timelineItem),
+                loadedProject.timeline,
+              ),
+            ],
+            x => x,
+          ),
+        )
 
         progress(100, 100, "Project Loaded!")
         Logger.endOperation(
@@ -164,7 +286,7 @@ module Logic = {
           }),
           (),
         )
-        Promise.resolve(Ok((sessionId, asJson(json))))
+        Promise.resolve(Ok((sessionId, json)))
       | Error(e) => Promise.resolve(Error("Failed to parse project data: " ++ e))
       }
 

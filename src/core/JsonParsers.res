@@ -176,7 +176,7 @@ module Domain = {
     {
       Types.id: field.optional("id", string)->Option.getOr(""),
       name: field.optional("name", string)->Option.getOr("unknown"),
-      file: field.required("file", file),
+      file: field.optional("file", file)->Option.getOr(Types.Url("")),
       tinyFile: field.optional("tinyFile", file),
       originalFile: field.optional("originalFile", file),
       hotspots: field.optional("hotspots", array(hotspot))->Option.getOr([]),

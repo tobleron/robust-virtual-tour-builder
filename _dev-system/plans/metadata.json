@@ -2,42 +2,38 @@
   "rescript": [
     {
       "Violation": {
-        "file": "../../src/systems/ProjectManager.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/systems/ProjectManager.res",
+        "file": "../../src/systems/Api/AuthenticatedClient.res",
         "pattern": "JSON.stringify",
         "strategy": ""
       }
     },
     {
       "Violation": {
-        "file": "../../src/systems/ProjectManager.res",
+        "file": "../../src/systems/Api/AuthenticatedClient.res",
         "pattern": "JSON.stringifyAny",
         "strategy": ""
       }
     },
     {
-      "Violation": {
-        "file": "../../src/systems/ApiHelpers.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
+      "Surgical": {
+        "file": "../../src/systems/ProjectManager.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.31, Coupling: 0.11] | Drag: 7.62 | LOC: 317/300  🎯 Target: Function: `safeEncodeFile` (High Local Complexity (3.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 9.318927444794951
       }
     },
     {
       "Violation": {
-        "file": "../../src/systems/Api/AuthenticatedClient.res",
+        "file": "../../src/systems/ProjectManager.res",
         "pattern": "JSON.stringify",
         "strategy": ""
       }
     },
     {
       "Violation": {
-        "file": "../../src/systems/Api/AuthenticatedClient.res",
+        "file": "../../src/systems/ProjectManager.res",
         "pattern": "JSON.stringifyAny",
         "strategy": ""
       }
@@ -53,28 +49,26 @@
       }
     },
     {
+      "Violation": {
+        "file": "../../src/components/NotificationContext.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
       "Surgical": {
         "file": "../../src/core/JsonParsers.res",
         "action": "De-bloat",
         "reason": "[Nesting: 2.00, Density: 0.28, Coupling: 0.04] | Drag: 4.47 | LOC: 379/300  🎯 Target: Function: `file` (High Local Complexity (3.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 12.365963060686017
+        "complexity": 12.369129287598945
       }
     },
     {
       "Violation": {
-        "file": "../../src/components/NotificationContext.res",
+        "file": "../../src/systems/ApiHelpers.res",
         "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    }
-  ],
-  "css": [
-    {
-      "Violation": {
-        "file": "../../css/components/ui.css",
-        "pattern": "!important",
         "strategy": ""
       }
     }
@@ -94,6 +88,25 @@
       "Violation": {
         "file": "../../backend/src/main.rs",
         "pattern": "unwrap()",
+        "strategy": ""
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/auth.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.00, Density: 0.02, Coupling: 0.05] | Drag: 3.22 | LOC: 303/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 3.521782178217822
+      }
+    }
+  ],
+  "css": [
+    {
+      "Violation": {
+        "file": "../../css/components/ui.css",
+        "pattern": "!important",
         "strategy": ""
       }
     }
