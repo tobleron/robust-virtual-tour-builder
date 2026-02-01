@@ -39,9 +39,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/core/Reducer.res](src/core/Reducer.res): Consolidated state reducer handling scenes, hotspots, navigation, and projects. `#reducer` `#logic`
     *   [src/core/SceneMutations.res](src/core/SceneMutations.res): Complex state mutation logic for scene renaming, deletion, and reordering. `#state` `#scene` `#logic`
 *   [src/core/AppContext.res](src/core/AppContext.res): Typed React Context for state and dispatch accessibility. `#react-context` `#hooks`
-*   [src/core/Schemas.res](src/core/Schemas.res): Lightweight facade for data validation and parsing. `#json` `#validation` `#facade`
-    *   [src/core/SchemaParsers.res](src/core/SchemaParsers.res): Composable parsers for complex domain schemas. `#json` `#parsing`
-    *   [src/core/SchemaDefinitions.res](src/core/SchemaDefinitions.res): Canonical type definitions derived from Zod-like schemas. `#json` `#types`
+*   [src/core/JsonParsers.res](src/core/JsonParsers.res): Consolidated JSON parsers and encoders using JsonCombinators. `#json` `#parsing` `#combinators` `#csp-safe`
 
 *   [src/core/SceneHelpers.res](src/core/SceneHelpers.res): Lightweight facade for scene-related helpers. `#helpers` `#scene` `#facade`
 
@@ -263,5 +261,4 @@ This map provides a semantic overview of the project structure to optimize conte
 
 
 
-## 🆕 Unmapped Modules
-* [src/core/JsonParsers.res](src/core/JsonParsers.res): New module detected. Please classify. #new
+
