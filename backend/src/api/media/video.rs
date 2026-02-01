@@ -3,8 +3,8 @@
 use actix_multipart::Multipart;
 use actix_web::{HttpResponse, web};
 use futures_util::TryStreamExt as _;
-use std::fs;
-use std::io::Write;
+use tokio::fs;
+use tokio::io::AsyncWriteExt;
 use uuid::Uuid;
 
 use crate::api::media::video_logic;
@@ -18,7 +18,7 @@ use crate::models::AppError;
 pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, AppError> {
     let session_id = Uuid::new_v4().to_string();
     let session_path = std::path::PathBuf::from(TEMP_DIR).join(&session_id);
-    fs::create_dir_all(&session_path).map_err(AppError::IoError)?;
+    fs::create_dir_all(&session_path).await.map_err(AppError::IoError)?;
 
     tracing::info!(module = "TeaserGenerator", session_id = %session_id, "TEASER_GENERATION_START");
 
@@ -70,9 +70,9 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
                 .unwrap_or_else(|| format!("img_{}.webp", Uuid::new_v4()));
             let sanitized = sanitize_filename(&filename).unwrap_or(filename);
             let file_path = session_path.join(&sanitized);
-            let mut f = fs::File::create(file_path).map_err(AppError::IoError)?;
+            let mut f = fs::File::create(file_path).await.map_err(AppError::IoError)?;
             while let Some(chunk) = field.try_next().await? {
-                f.write_all(&chunk).map_err(AppError::IoError)?;
+                f.write_all(&chunk).await.map_err(AppError::IoError)?;
             }
         }
     }
@@ -96,19 +96,19 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
     .await
     .map_err(|e| AppError::InternalError(e.to_string()))?;
 
-    let _ = fs::remove_dir_all(&session_path);
+    let _ = fs::remove_dir_all(&session_path).await;
 
     match result {
         Ok(_) => {
             tracing::info!(module = "TeaserGenerator", "TEASER_GENERATION_COMPLETE");
-            let file_bytes = fs::read(&output_path).map_err(AppError::IoError)?;
-            let _ = fs::remove_file(output_path);
+            let file_bytes = fs::read(&output_path).await.map_err(AppError::IoError)?;
+            let _ = fs::remove_file(output_path).await;
             Ok(HttpResponse::Ok()
                 .content_type("video/mp4")
                 .body(file_bytes))
         }
         Err(e) => {
-            let _ = fs::remove_file(&output_path);
+            let _ = fs::remove_file(&output_path).await;
             Err(AppError::InternalError(e))
         }
     }
@@ -125,17 +125,17 @@ pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, App
             .content_disposition()
             .ok_or_else(|| AppError::InternalError("Missing content disposition".to_string()))?;
         if content_disposition.get_name() == Some("file") {
-            let mut f = fs::File::create(&input_path)?;
+            let mut f = fs::File::create(&input_path).await?;
             while let Some(chunk) = field.try_next().await? {
                 total_size += chunk.len();
                 if total_size > MAX_UPLOAD_SIZE {
-                    let _ = fs::remove_file(&input_path);
+                    let _ = fs::remove_file(&input_path).await;
                     return Err(AppError::ImageError(format!(
                         "Video upload exceeds maximum size of {}MB",
                         MAX_UPLOAD_SIZE / (1024 * 1024)
                     )));
                 }
-                f.write_all(&chunk)?;
+                f.write_all(&chunk).await?;
             }
         }
     }
@@ -153,14 +153,14 @@ pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, App
     match result {
         Ok(path) => {
             tracing::info!(module = "VideoEncoder", "TRANSCODE_COMPLETE");
-            let file_bytes = fs::read(&path)?;
-            let _ = fs::remove_file(path);
+            let file_bytes = fs::read(&path).await?;
+            let _ = fs::remove_file(path).await;
             Ok(HttpResponse::Ok()
                 .content_type("video/mp4")
                 .body(file_bytes))
         }
         Err(e) => {
-            let _ = fs::remove_file(&input_path);
+            let _ = fs::remove_file(&input_path).await;
             Err(AppError::FFmpegError(e))
         }
     }
