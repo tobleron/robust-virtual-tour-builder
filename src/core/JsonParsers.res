@@ -42,12 +42,12 @@ module Shared = {
   })
 
   let colorHist = object(field => {
-    let result: SharedTypes.colorHist = {
+    let res: SharedTypes.colorHist = {
       r: field.required("r", array(int)),
       g: field.required("g", array(int)),
       b: field.required("b", array(int)),
     }
-    result
+    res
   })
 
   let qualityStats = object(field => {
@@ -177,8 +177,8 @@ module Domain = {
       Types.id: field.optional("id", string)->Option.getOr(""),
       name: field.optional("name", string)->Option.getOr("unknown"),
       file: field.optional("file", file)->Option.getOr(Types.Url("")),
-      tinyFile: field.optional("tinyFile", file),
-      originalFile: field.optional("originalFile", file),
+      tinyFile: field.optional("tinyFile", option(file))->Option.flatMap(x => x),
+      originalFile: field.optional("originalFile", option(file))->Option.flatMap(x => x),
       hotspots: field.optional("hotspots", array(hotspot))->Option.getOr([]),
       category: field.optional("category", string)->Option.getOr("outdoor"),
       floor: field.optional("floor", string)->Option.getOr("ground"),
@@ -246,8 +246,8 @@ module Domain = {
       Types.id: field.optional("id", string)->Option.getOr(""),
       name: field.optional("name", string)->Option.getOr("unknown"),
       file: field.optional("file", file)->Option.getOr(Types.Url("")),
-      tinyFile: field.optional("tinyFile", file),
-      originalFile: field.optional("originalFile", file),
+      tinyFile: field.optional("tinyFile", option(file))->Option.flatMap(x => x),
+      originalFile: field.optional("originalFile", option(file))->Option.flatMap(x => x),
       hotspots: field.optional("hotspots", array(hotspot))->Option.getOr([]),
       category: "outdoor",
       floor: "ground",

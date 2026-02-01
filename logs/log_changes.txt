@@ -100,3 +100,4 @@
 [2026-02-01 20:04] v4.8.14 - refactor: use non-blocking I/O in backend async handlers [TRIPLE]
 [2026-02-01 20:48] v4.8.14 - v4.8.14+385 [TRIPLE]: merge: frontend unit tests PR & document failures [TRIPLE]
 [2026-02-01 21:34] v4.8.14 - v4.8.14+386 [TRIPLE]: merge: infrastructure fix PR, cleanup obsolete artifacts & create fix task [TRIPLE]
+[2026-02-01 22:33] v4.8.14 - fix: project import image loading by handling null files and improving URL reconstruction fallback [TRIPLE]

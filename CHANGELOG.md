@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Merge project import image fix and sync SW
 - Resolve image loading issues & secure project handling [CSP]
+- Project import image loading by handling null files and improving URL reconstruction fallback
 
 ### Changed
 - Merge sanitization standards PR
