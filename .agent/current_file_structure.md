@@ -3162,6 +3162,12 @@
 │   │           ├── AppErrorBoundary_v.test.cmj
 │   │           ├── AppErrorBoundary_v.test.cmt
 │   │           ├── AppErrorBoundary_v.test.res
+│   │           ├── AsyncQueue_v.test.ast
+│   │           ├── AsyncQueue_v.test.bs.js
+│   │           ├── AsyncQueue_v.test.cmi
+│   │           ├── AsyncQueue_v.test.cmj
+│   │           ├── AsyncQueue_v.test.cmt
+│   │           ├── AsyncQueue_v.test.res
 │   │           ├── AudioManager_v.test.ast
 │   │           ├── AudioManager_v.test.bs.js
 │   │           ├── AudioManager_v.test.cmi
@@ -3438,6 +3444,12 @@
 │   │           ├── NavigationGraph_v.test.cmj
 │   │           ├── NavigationGraph_v.test.cmt
 │   │           ├── NavigationGraph_v.test.res
+│   │           ├── NavigationLogic_v.test.ast
+│   │           ├── NavigationLogic_v.test.bs.js
+│   │           ├── NavigationLogic_v.test.cmi
+│   │           ├── NavigationLogic_v.test.cmj
+│   │           ├── NavigationLogic_v.test.cmt
+│   │           ├── NavigationLogic_v.test.res
 │   │           ├── NavigationReducer_v.test.ast
 │   │           ├── NavigationReducer_v.test.bs.js
 │   │           ├── NavigationReducer_v.test.cmi
@@ -3516,6 +3528,12 @@
 │   │           ├── ProjectionMath_v.test.cmj
 │   │           ├── ProjectionMath_v.test.cmt
 │   │           ├── ProjectionMath_v.test.res
+│   │           ├── ProjectManager_v.test.ast
+│   │           ├── ProjectManager_v.test.bs.js
+│   │           ├── ProjectManager_v.test.cmi
+│   │           ├── ProjectManager_v.test.cmj
+│   │           ├── ProjectManager_v.test.cmt
+│   │           ├── ProjectManager_v.test.res
 │   │           ├── ProjectReducer_v.test.ast
 │   │           ├── ProjectReducer_v.test.bs.js
 │   │           ├── ProjectReducer_v.test.cmi
@@ -4004,6 +4022,11 @@
 │   │   ├── AppErrorBoundary.cmj
 │   │   ├── AppErrorBoundary.cmt
 │   │   ├── AppErrorBoundary.res
+│   │   ├── AsyncQueue_v.test.ast
+│   │   ├── AsyncQueue_v.test.cmi
+│   │   ├── AsyncQueue_v.test.cmj
+│   │   ├── AsyncQueue_v.test.cmt
+│   │   ├── AsyncQueue_v.test.res
 │   │   ├── AsyncQueue.ast
 │   │   ├── AsyncQueue.cmi
 │   │   ├── AsyncQueue.cmj
@@ -4537,6 +4560,11 @@
 │   │   ├── NavigationHelpers.cmj
 │   │   ├── NavigationHelpers.cmt
 │   │   ├── NavigationHelpers.res
+│   │   ├── NavigationLogic_v.test.ast
+│   │   ├── NavigationLogic_v.test.cmi
+│   │   ├── NavigationLogic_v.test.cmj
+│   │   ├── NavigationLogic_v.test.cmt
+│   │   ├── NavigationLogic_v.test.res
 │   │   ├── NavigationLogic.ast
 │   │   ├── NavigationLogic.cmi
 │   │   ├── NavigationLogic.cmj
@@ -4687,6 +4715,11 @@
 │   │   ├── ProjectionMath.cmj
 │   │   ├── ProjectionMath.cmt
 │   │   ├── ProjectionMath.res
+│   │   ├── ProjectManager_v.test.ast
+│   │   ├── ProjectManager_v.test.cmi
+│   │   ├── ProjectManager_v.test.cmj
+│   │   ├── ProjectManager_v.test.cmt
+│   │   ├── ProjectManager_v.test.res
 │   │   ├── ProjectManager.ast
 │   │   ├── ProjectManager.cmi
 │   │   ├── ProjectManager.cmj
@@ -5463,8 +5496,7 @@
 │   ├── diagnostic.log
 │   ├── error.log
 │   ├── log_changes.txt
-│   ├── project-guard.log
-│   └── telemetry.log
+│   └── project-guard.log
 ├── MAP.md
 ├── old_ref
 │   ├── 7aadee4
@@ -7326,6 +7358,7 @@
 │   │   ├── 1170_Surgical_Refactor_SYSTEMS_FRONTEND__FINISHED.md
 │   │   ├── 1171_Fix_Violations_FRONTEND_DONE.md
 │   │   ├── 1172_Classify_Map_Entries_DONE.md
+│   │   ├── 1181_Resolve_Frontend_Test_Failures_DONE.md
 │   │   ├── 900_COMMERCIAL_MIGRATION_MASTER.md
 │   │   ├── 905_migration_telemetry_DONE.md
 │   │   └── tests
@@ -7339,7 +7372,7 @@
 │   │   ├── 1176_Surgical_Refactor_SRC_BACKEND.md
 │   │   ├── 1177_Fix_Violations_BACKEND.md
 │   │   ├── 1179_Surgical_Refactor_CORE_FRONTEND.md
-│   │   ├── 1181_Resolve_Frontend_Test_Failures.md
+│   │   ├── 1182_Fix_Remaining_Frontend_Tests.md
 │   │   └── tests
 │   ├── postponed
 │   └── TASKS.md
@@ -7353,296 +7386,297 @@
 ├── tests
 │   ├── jsx-loader.mjs
 │   ├── node-setup.js
-│   ├── rescript-schema-shim.js
 │   ├── TestRunner.bs.js
 │   ├── TestRunner.res
-│   └── unit
-│       ├── Actions_v.test.bs.js
-│       ├── Actions_v.test.res
-│       ├── ActionsTest.bs.js
-│       ├── ApiTypes_v.test.bs.js
-│       ├── ApiTypes_v.test.res
-│       ├── App_v.test.bs.js
-│       ├── App_v.test.res
-│       ├── AppContext_v.test.bs.js
-│       ├── AppContext_v.test.res
-│       ├── AppErrorBoundary_v.test.bs.js
-│       ├── AppErrorBoundary_v.test.res
-│       ├── AsyncQueue_v.test.res
-│       ├── AudioManager_v.test.bs.js
-│       ├── AudioManager_v.test.res
-│       ├── AuthenticatedClient_v.test.bs.js
-│       ├── AuthenticatedClient_v.test.res
-│       ├── BackendApi_v.test.bs.js
-│       ├── BackendApi_v.test.res
-│       ├── Bindings_Unified_v.test.bs.js
-│       ├── Bindings_Unified_v.test.res
-│       ├── ColorPalette_v.test.bs.js
-│       ├── ColorPalette_v.test.res
-│       ├── Components_v.test.setup.jsx
-│       ├── Constants_v.test.bs.js
-│       ├── Constants_v.test.res
-│       ├── CursorPhysics_v.test.bs.js
-│       ├── CursorPhysics_v.test.res
-│       ├── DownloadSystem_v.test.bs.js
-│       ├── DownloadSystem_v.test.res
-│       ├── ErrorFallbackUI_v.test.bs.js
-│       ├── ErrorFallbackUI_v.test.res
-│       ├── EventBus_v.test.bs.js
-│       ├── EventBus_v.test.res
-│       ├── EventBusTest.bs.js
-│       ├── ExifParser_v.test.bs.js
-│       ├── ExifParser_v.test.res
-│       ├── ExifReportGenerator_v.test.bs.js
-│       ├── ExifReportGenerator_v.test.res
-│       ├── ExifReportGeneratorLogicExtraction_v.test.bs.js
-│       ├── ExifReportGeneratorLogicExtraction_v.test.res
-│       ├── ExifReportGeneratorLogicGroups_v.test.bs.js
-│       ├── ExifReportGeneratorLogicGroups_v.test.res
-│       ├── ExifReportGeneratorLogicLocation_v.test.bs.js
-│       ├── ExifReportGeneratorLogicLocation_v.test.res
-│       ├── ExifReportGeneratorUtils_v.test.bs.js
-│       ├── ExifReportGeneratorUtils_v.test.res
-│       ├── FinalAsyncCheck_v.test.bs.js
-│       ├── FingerprintService_v.test.bs.js
-│       ├── FingerprintService_v.test.res
-│       ├── FloorNavigation_v.test.bs.js
-│       ├── FloorNavigation_v.test.res
-│       ├── GeoUtils_v.test.bs.js
-│       ├── GeoUtils_v.test.res
-│       ├── GlobalStateBridge_v.test.bs.js
-│       ├── GlobalStateBridge_v.test.res
-│       ├── GlobalStateBridgeTest.bs.js
-│       ├── HotspotActionMenu_v.test.bs.js
-│       ├── HotspotActionMenu_v.test.res
-│       ├── HotspotLayer_v.test.bs.js
-│       ├── HotspotLayer_v.test.res
-│       ├── HotspotLine_v.test.bs.js
-│       ├── HotspotLine_v.test.res
-│       ├── HotspotLine_v.test.setup.js
-│       ├── HotspotLineLogic_v.test.bs.js
-│       ├── HotspotLineLogic_v.test.res
-│       ├── HotspotLineTypes_v.test.bs.js
-│       ├── HotspotLineTypes_v.test.res
-│       ├── HotspotManager_v.test.bs.js
-│       ├── HotspotManager_v.test.res
-│       ├── HotspotMenuLayer_v.test.bs.js
-│       ├── HotspotMenuLayer_v.test.res
-│       ├── HotspotReducer_v.test.bs.js
-│       ├── HotspotReducer_v.test.res
-│       ├── ImageOptimizer_v.test.bs.js
-│       ├── ImageOptimizer_v.test.res
-│       ├── ImageValidator_v.test.bs.js
-│       ├── ImageValidator_v.test.res
-│       ├── InputSystem_v.test.bs.js
-│       ├── InputSystem_v.test.res
-│       ├── InteractionsRobustness_v.test.bs.js
-│       ├── InteractionsRobustness_v.test.res
-│       ├── JsonParsers_v.test.bs.js
-│       ├── JsonParsers_v.test.res
-│       ├── LabelMenu_v.test.bs.js
-│       ├── LabelMenu_v.test.res
-│       ├── LabelMenu_v.test.setup.jsx
-│       ├── LazyLoad_v.test.bs.js
-│       ├── LazyLoad_v.test.res
-│       ├── LinkModal_v.test.bs.js
-│       ├── LinkModal_v.test.res
-│       ├── Logger_v.test.bs.js
-│       ├── Logger_v.test.res
-│       ├── LoggerLogic_v.test.bs.js
-│       ├── LoggerLogic_v.test.res
-│       ├── LoggerTypes_v.test.bs.js
-│       ├── LoggerTypes_v.test.res
-│       ├── LucideIcons_v.test.bs.js
-│       ├── LucideIcons_v.test.res
-│       ├── Main_v.test.bs.js
-│       ├── Main_v.test.res
-│       ├── MediaApi_v.test.bs.js
-│       ├── MediaApi_v.test.res
-│       ├── Mod_v.test.bs.js
-│       ├── Mod_v.test.res
-│       ├── ModalContext_v.test.bs.js
-│       ├── ModalContext_v.test.res
-│       ├── NavigationFSM_v.test.bs.js
-│       ├── NavigationFSM_v.test.res
-│       ├── NavigationGraph_v.test.bs.js
-│       ├── NavigationGraph_v.test.res
-│       ├── NavigationLogic_v.test.res
-│       ├── NavigationReducer_v.test.bs.js
-│       ├── NavigationReducer_v.test.res
-│       ├── NotificationContext_v.test.bs.js
-│       ├── NotificationContext_v.test.res
-│       ├── NotificationLayer_v.test.bs.js
-│       ├── NotificationLayer_v.test.res
-│       ├── PannellumAdapter_v.test.bs.js
-│       ├── PannellumAdapter_v.test.res
-│       ├── PannellumLifecycle_v.test.bs.js
-│       ├── PannellumLifecycle_v.test.res
-│       ├── PanoramaClusterer_v.test.bs.js
-│       ├── PanoramaClusterer_v.test.res
-│       ├── PathInterpolation_v.test.bs.js
-│       ├── PathInterpolation_v.test.res
-│       ├── PersistentLabel_v.test.bs.js
-│       ├── PersistentLabel_v.test.res
-│       ├── PopOver_v.test.bs.js
-│       ├── PopOver_v.test.res
-│       ├── Portal_v.test.bs.js
-│       ├── Portal_v.test.res
-│       ├── PreviewArrow_v.test.bs.js
-│       ├── PreviewArrow_v.test.res
-│       ├── ProgressBar_v.test.bs.js
-│       ├── ProgressBar_v.test.res
-│       ├── ProjectionMath_v.test.bs.js
-│       ├── ProjectionMath_v.test.res
-│       ├── ProjectManager_v.test.res
-│       ├── ProjectReducer_v.test.bs.js
-│       ├── ProjectReducer_v.test.res
-│       ├── QualityIndicator_v.test.bs.js
-│       ├── QualityIndicator_v.test.res
-│       ├── ReBindings_v.test.bs.js
-│       ├── ReBindings_v.test.res
-│       ├── Reducer_v.test.bs.js
-│       ├── Reducer_v.test.res
-│       ├── RequestQueue_v.test.bs.js
-│       ├── RequestQueue_v.test.res
-│       ├── Resizer_v.test.bs.js
-│       ├── Resizer_v.test.res
-│       ├── ReturnPrompt_v.test.bs.js
-│       ├── ReturnPrompt_v.test.res
-│       ├── RootReducer_v.test.bs.js
-│       ├── RootReducer_v.test.res
-│       ├── SceneCache_v.test.bs.js
-│       ├── SceneCache_v.test.res
-│       ├── SceneHelpers_v.test.bs.js
-│       ├── SceneHelpers_v.test.res
-│       ├── SceneList_v.test.bs.js
-│       ├── SceneList_v.test.res
-│       ├── SceneLoader_Lifecycle_Unified_v.test.bs.js
-│       ├── SceneLoader_Lifecycle_Unified_v.test.res
-│       ├── SceneLoader_v.test.bs.js
-│       ├── SceneLoader_v.test.res
-│       ├── SceneReducer_v.test.bs.js
-│       ├── SceneReducer_v.test.res
-│       ├── SceneSwitcher_v.test.bs.js
-│       ├── SceneSwitcher_v.test.res
-│       ├── SceneTransitionManager_v.test.bs.js
-│       ├── SceneTransitionManager_v.test.res
-│       ├── Schemas_v.test.bs.js
-│       ├── ServerTeaser_v.test.bs.js
-│       ├── ServerTeaser_v.test.res
-│       ├── ServiceWorker_v.test.bs.js
-│       ├── ServiceWorker_v.test.res
-│       ├── ServiceWorkerMain_v.test.bs.js
-│       ├── ServiceWorkerMain_v.test.res
-│       ├── SessionStore_v.test.bs.js
-│       ├── SessionStore_v.test.res
-│       ├── Shadcn_v.test.bs.js
-│       ├── Shadcn_v.test.res
-│       ├── SharedTypes_v.test.bs.js
-│       ├── SharedTypes_v.test.res
-│       ├── SharedTypesTest.bs.js
-│       ├── Sidebar_v.test.bs.js
-│       ├── Sidebar_v.test.res
-│       ├── SimHelpers_v.test.bs.js
-│       ├── SimHelpers_v.test.res
-│       ├── SimulationChainSkipper_v.test.bs.js
-│       ├── SimulationChainSkipper_v.test.res
-│       ├── SimulationDriver_v.test.bs.js
-│       ├── SimulationDriver_v.test.res
-│       ├── SimulationLogic_v.test.bs.js
-│       ├── SimulationLogic_v.test.res
-│       ├── SimulationNavigation_v.test.bs.js
-│       ├── SimulationNavigation_v.test.res
-│       ├── SimulationPathGenerator_v.test.bs.js
-│       ├── SimulationPathGenerator_v.test.res
-│       ├── SimulationReducer_v.test.bs.js
-│       ├── SimulationReducer_v.test.res
-│       ├── SnapshotOverlay_v.test.bs.js
-│       ├── SnapshotOverlay_v.test.res
-│       ├── State_v.test.bs.js
-│       ├── State_v.test.res
-│       ├── StateInspector_v.test.bs.js
-│       ├── StateInspector_v.test.res
-│       ├── StateInspectorTest.bs.js
-│       ├── SvgManager_v.test.bs.js
-│       ├── SvgManager_v.test.res
-│       ├── SvgRenderer_v.test.bs.js
-│       ├── SvgRenderer_v.test.res
-│       ├── TeaserManager_v.test.bs.js
-│       ├── TeaserManager_v.test.res
-│       ├── TeaserPathfinder_v.test.bs.js
-│       ├── TeaserPathfinder_v.test.res
-│       ├── TeaserPlayback_v.test.bs.js
-│       ├── TeaserPlayback_v.test.res
-│       ├── TeaserRecorder_v.test.bs.js
-│       ├── TeaserRecorder_v.test.res
-│       ├── TeaserState_v.test.bs.js
-│       ├── TeaserState_v.test.res
-│       ├── TimelineReducer_v.test.bs.js
-│       ├── TimelineReducer_v.test.res
-│       ├── Tooltip_v.test.bs.js
-│       ├── Tooltip_v.test.res
-│       ├── TourLogic_v.test.bs.js
-│       ├── TourLogic_v.test.res
-│       ├── TourTemplateAssets_v.test.bs.js
-│       ├── TourTemplateAssets_v.test.res
-│       ├── TourTemplates_v.test.bs.js
-│       ├── TourTemplates_v.test.res
-│       ├── TourTemplateScripts_v.test.bs.js
-│       ├── TourTemplateScripts_v.test.res
-│       ├── TourTemplateStyles_v.test.bs.js
-│       ├── TourTemplateStyles_v.test.res
-│       ├── Types_v.test.bs.js
-│       ├── Types_v.test.res
-│       ├── UiHelpers_v.test.bs.js
-│       ├── UiHelpers_v.test.res
-│       ├── UiReducer_v.test.bs.js
-│       ├── UiReducer_v.test.res
-│       ├── UploadProcessor_v.test.bs.js
-│       ├── UploadProcessor_v.test.res
-│       ├── UploadProcessor_v.test.setup.js
-│       ├── UploadProcessorLogic_v.test.bs.js
-│       ├── UploadProcessorLogic_v.test.res
-│       ├── UploadProcessorTypes_v.test.bs.js
-│       ├── UploadProcessorTypes_v.test.res
-│       ├── UploadReport_v.test.bs.js
-│       ├── UploadReport_v.test.res
-│       ├── UrlUtils_v.test.bs.js
-│       ├── UrlUtils_v.test.res
-│       ├── UtilityBar_v.test.bs.js
-│       ├── UtilityBar_v.test.res
-│       ├── utils
-│       │   ├── TestUtils.bs.js
-│       │   └── TestUtils.res
-│       ├── Version_v.test.bs.js
-│       ├── Version_v.test.res
-│       ├── VideoEncoder_v.test.bs.js
-│       ├── VideoEncoder_v.test.res
-│       ├── ViewerFollow_v.test.bs.js
-│       ├── ViewerFollow_v.test.res
-│       ├── ViewerHUD_v.test.bs.js
-│       ├── ViewerHUD_v.test.res
-│       ├── ViewerLabelMenu_v.test.bs.js
-│       ├── ViewerLabelMenu_v.test.res
-│       ├── ViewerLoader_v.test.bs.js
-│       ├── ViewerLoader_v.test.res
-│       ├── ViewerManager_v.test.bs.js
-│       ├── ViewerManager_v.test.res
-│       ├── ViewerPool_v.test.bs.js
-│       ├── ViewerPool_v.test.res
-│       ├── ViewerSnapshot_v.test.bs.js
-│       ├── ViewerSnapshot_v.test.res
-│       ├── ViewerState_v.test.bs.js
-│       ├── ViewerState_v.test.res
-│       ├── ViewerTypes_v.test.bs.js
-│       ├── ViewerTypes_v.test.res
-│       ├── ViewerUI_v.test.bs.js
-│       ├── ViewerUI_v.test.res
-│       ├── VisualPipeline_v.test.bs.js
-│       ├── VisualPipeline_v.test.res
-│       ├── VitestSmoke.test.bs.js
-│       └── VitestSmoke.test.res
+│   ├── unit
+│   │   ├── Actions_v.test.bs.js
+│   │   ├── Actions_v.test.res
+│   │   ├── ActionsTest.bs.js
+│   │   ├── ApiTypes_v.test.bs.js
+│   │   ├── ApiTypes_v.test.res
+│   │   ├── App_v.test.bs.js
+│   │   ├── App_v.test.res
+│   │   ├── AppContext_v.test.bs.js
+│   │   ├── AppContext_v.test.res
+│   │   ├── AppErrorBoundary_v.test.bs.js
+│   │   ├── AppErrorBoundary_v.test.res
+│   │   ├── AsyncQueue_v.test.bs.js
+│   │   ├── AsyncQueue_v.test.res
+│   │   ├── AudioManager_v.test.bs.js
+│   │   ├── AudioManager_v.test.res
+│   │   ├── AuthenticatedClient_v.test.bs.js
+│   │   ├── AuthenticatedClient_v.test.res
+│   │   ├── BackendApi_v.test.bs.js
+│   │   ├── BackendApi_v.test.res
+│   │   ├── Bindings_Unified_v.test.bs.js
+│   │   ├── Bindings_Unified_v.test.res
+│   │   ├── ColorPalette_v.test.bs.js
+│   │   ├── ColorPalette_v.test.res
+│   │   ├── Components_v.test.setup.jsx
+│   │   ├── Constants_v.test.bs.js
+│   │   ├── Constants_v.test.res
+│   │   ├── CursorPhysics_v.test.bs.js
+│   │   ├── CursorPhysics_v.test.res
+│   │   ├── DownloadSystem_v.test.bs.js
+│   │   ├── DownloadSystem_v.test.res
+│   │   ├── ErrorFallbackUI_v.test.bs.js
+│   │   ├── ErrorFallbackUI_v.test.res
+│   │   ├── EventBus_v.test.bs.js
+│   │   ├── EventBus_v.test.res
+│   │   ├── EventBusTest.bs.js
+│   │   ├── ExifParser_v.test.bs.js
+│   │   ├── ExifParser_v.test.res
+│   │   ├── ExifReportGenerator_v.test.bs.js
+│   │   ├── ExifReportGenerator_v.test.res
+│   │   ├── ExifReportGeneratorLogicExtraction_v.test.bs.js
+│   │   ├── ExifReportGeneratorLogicExtraction_v.test.res
+│   │   ├── ExifReportGeneratorLogicGroups_v.test.bs.js
+│   │   ├── ExifReportGeneratorLogicGroups_v.test.res
+│   │   ├── ExifReportGeneratorLogicLocation_v.test.bs.js
+│   │   ├── ExifReportGeneratorLogicLocation_v.test.res
+│   │   ├── ExifReportGeneratorUtils_v.test.bs.js
+│   │   ├── ExifReportGeneratorUtils_v.test.res
+│   │   ├── FingerprintService_v.test.bs.js
+│   │   ├── FingerprintService_v.test.res
+│   │   ├── FloorNavigation_v.test.bs.js
+│   │   ├── FloorNavigation_v.test.res
+│   │   ├── GeoUtils_v.test.bs.js
+│   │   ├── GeoUtils_v.test.res
+│   │   ├── GlobalStateBridge_v.test.bs.js
+│   │   ├── GlobalStateBridge_v.test.res
+│   │   ├── GlobalStateBridgeTest.bs.js
+│   │   ├── HotspotActionMenu_v.test.bs.js
+│   │   ├── HotspotActionMenu_v.test.res
+│   │   ├── HotspotLayer_v.test.bs.js
+│   │   ├── HotspotLayer_v.test.res
+│   │   ├── HotspotLine_v.test.bs.js
+│   │   ├── HotspotLine_v.test.res
+│   │   ├── HotspotLine_v.test.setup.js
+│   │   ├── HotspotLineLogic_v.test.bs.js
+│   │   ├── HotspotLineLogic_v.test.res
+│   │   ├── HotspotLineTypes_v.test.bs.js
+│   │   ├── HotspotLineTypes_v.test.res
+│   │   ├── HotspotManager_v.test.bs.js
+│   │   ├── HotspotManager_v.test.res
+│   │   ├── HotspotMenuLayer_v.test.bs.js
+│   │   ├── HotspotMenuLayer_v.test.res
+│   │   ├── HotspotReducer_v.test.bs.js
+│   │   ├── HotspotReducer_v.test.res
+│   │   ├── ImageOptimizer_v.test.bs.js
+│   │   ├── ImageOptimizer_v.test.res
+│   │   ├── ImageValidator_v.test.bs.js
+│   │   ├── ImageValidator_v.test.res
+│   │   ├── InputSystem_v.test.bs.js
+│   │   ├── InputSystem_v.test.res
+│   │   ├── InteractionsRobustness_v.test.bs.js
+│   │   ├── InteractionsRobustness_v.test.res
+│   │   ├── JsonParsers_v.test.bs.js
+│   │   ├── JsonParsers_v.test.res
+│   │   ├── LabelMenu_v.test.bs.js
+│   │   ├── LabelMenu_v.test.res
+│   │   ├── LabelMenu_v.test.setup.jsx
+│   │   ├── LazyLoad_v.test.bs.js
+│   │   ├── LazyLoad_v.test.res
+│   │   ├── LinkModal_v.test.bs.js
+│   │   ├── LinkModal_v.test.res
+│   │   ├── Logger_v.test.bs.js
+│   │   ├── Logger_v.test.res
+│   │   ├── LoggerLogic_v.test.bs.js
+│   │   ├── LoggerLogic_v.test.res
+│   │   ├── LoggerTypes_v.test.bs.js
+│   │   ├── LoggerTypes_v.test.res
+│   │   ├── LucideIcons_v.test.bs.js
+│   │   ├── LucideIcons_v.test.res
+│   │   ├── Main_v.test.bs.js
+│   │   ├── Main_v.test.res
+│   │   ├── MediaApi_v.test.bs.js
+│   │   ├── MediaApi_v.test.res
+│   │   ├── Mod_v.test.bs.js
+│   │   ├── Mod_v.test.res
+│   │   ├── ModalContext_v.test.bs.js
+│   │   ├── ModalContext_v.test.res
+│   │   ├── NavigationFSM_v.test.bs.js
+│   │   ├── NavigationFSM_v.test.res
+│   │   ├── NavigationGraph_v.test.bs.js
+│   │   ├── NavigationGraph_v.test.res
+│   │   ├── NavigationLogic_v.test.bs.js
+│   │   ├── NavigationLogic_v.test.res
+│   │   ├── NavigationReducer_v.test.bs.js
+│   │   ├── NavigationReducer_v.test.res
+│   │   ├── NotificationContext_v.test.bs.js
+│   │   ├── NotificationContext_v.test.res
+│   │   ├── NotificationLayer_v.test.bs.js
+│   │   ├── NotificationLayer_v.test.res
+│   │   ├── PannellumAdapter_v.test.bs.js
+│   │   ├── PannellumAdapter_v.test.res
+│   │   ├── PannellumLifecycle_v.test.bs.js
+│   │   ├── PannellumLifecycle_v.test.res
+│   │   ├── PanoramaClusterer_v.test.bs.js
+│   │   ├── PanoramaClusterer_v.test.res
+│   │   ├── PathInterpolation_v.test.bs.js
+│   │   ├── PathInterpolation_v.test.res
+│   │   ├── PersistentLabel_v.test.bs.js
+│   │   ├── PersistentLabel_v.test.res
+│   │   ├── PopOver_v.test.bs.js
+│   │   ├── PopOver_v.test.res
+│   │   ├── Portal_v.test.bs.js
+│   │   ├── Portal_v.test.res
+│   │   ├── PreviewArrow_v.test.bs.js
+│   │   ├── PreviewArrow_v.test.res
+│   │   ├── ProgressBar_v.test.bs.js
+│   │   ├── ProgressBar_v.test.res
+│   │   ├── ProjectionMath_v.test.bs.js
+│   │   ├── ProjectionMath_v.test.res
+│   │   ├── ProjectManager_v.test.bs.js
+│   │   ├── ProjectManager_v.test.res
+│   │   ├── ProjectReducer_v.test.bs.js
+│   │   ├── ProjectReducer_v.test.res
+│   │   ├── QualityIndicator_v.test.bs.js
+│   │   ├── QualityIndicator_v.test.res
+│   │   ├── ReBindings_v.test.bs.js
+│   │   ├── ReBindings_v.test.res
+│   │   ├── Reducer_v.test.bs.js
+│   │   ├── Reducer_v.test.res
+│   │   ├── RequestQueue_v.test.bs.js
+│   │   ├── RequestQueue_v.test.res
+│   │   ├── Resizer_v.test.bs.js
+│   │   ├── Resizer_v.test.res
+│   │   ├── ReturnPrompt_v.test.bs.js
+│   │   ├── ReturnPrompt_v.test.res
+│   │   ├── RootReducer_v.test.bs.js
+│   │   ├── RootReducer_v.test.res
+│   │   ├── SceneCache_v.test.bs.js
+│   │   ├── SceneCache_v.test.res
+│   │   ├── SceneHelpers_v.test.bs.js
+│   │   ├── SceneHelpers_v.test.res
+│   │   ├── SceneList_v.test.bs.js
+│   │   ├── SceneList_v.test.res
+│   │   ├── SceneLoader_Lifecycle_Unified_v.test.bs.js
+│   │   ├── SceneLoader_Lifecycle_Unified_v.test.res
+│   │   ├── SceneLoader_v.test.bs.js
+│   │   ├── SceneLoader_v.test.res
+│   │   ├── SceneReducer_v.test.bs.js
+│   │   ├── SceneReducer_v.test.res
+│   │   ├── SceneSwitcher_v.test.bs.js
+│   │   ├── SceneSwitcher_v.test.res
+│   │   ├── SceneTransitionManager_v.test.bs.js
+│   │   ├── SceneTransitionManager_v.test.res
+│   │   ├── ServerTeaser_v.test.bs.js
+│   │   ├── ServerTeaser_v.test.res
+│   │   ├── ServiceWorker_v.test.bs.js
+│   │   ├── ServiceWorker_v.test.res
+│   │   ├── ServiceWorkerMain_v.test.bs.js
+│   │   ├── ServiceWorkerMain_v.test.res
+│   │   ├── SessionStore_v.test.bs.js
+│   │   ├── SessionStore_v.test.res
+│   │   ├── Shadcn_v.test.bs.js
+│   │   ├── Shadcn_v.test.res
+│   │   ├── SharedTypes_v.test.bs.js
+│   │   ├── SharedTypes_v.test.res
+│   │   ├── SharedTypesTest.bs.js
+│   │   ├── Sidebar_v.test.bs.js
+│   │   ├── Sidebar_v.test.res
+│   │   ├── SimHelpers_v.test.bs.js
+│   │   ├── SimHelpers_v.test.res
+│   │   ├── SimulationChainSkipper_v.test.bs.js
+│   │   ├── SimulationChainSkipper_v.test.res
+│   │   ├── SimulationDriver_v.test.bs.js
+│   │   ├── SimulationDriver_v.test.res
+│   │   ├── SimulationLogic_v.test.bs.js
+│   │   ├── SimulationLogic_v.test.res
+│   │   ├── SimulationNavigation_v.test.bs.js
+│   │   ├── SimulationNavigation_v.test.res
+│   │   ├── SimulationPathGenerator_v.test.bs.js
+│   │   ├── SimulationPathGenerator_v.test.res
+│   │   ├── SimulationReducer_v.test.bs.js
+│   │   ├── SimulationReducer_v.test.res
+│   │   ├── SnapshotOverlay_v.test.bs.js
+│   │   ├── SnapshotOverlay_v.test.res
+│   │   ├── State_v.test.bs.js
+│   │   ├── State_v.test.res
+│   │   ├── StateInspector_v.test.bs.js
+│   │   ├── StateInspector_v.test.res
+│   │   ├── StateInspectorTest.bs.js
+│   │   ├── SvgManager_v.test.bs.js
+│   │   ├── SvgManager_v.test.res
+│   │   ├── SvgRenderer_v.test.bs.js
+│   │   ├── SvgRenderer_v.test.res
+│   │   ├── TeaserManager_v.test.bs.js
+│   │   ├── TeaserManager_v.test.res
+│   │   ├── TeaserPathfinder_v.test.bs.js
+│   │   ├── TeaserPathfinder_v.test.res
+│   │   ├── TeaserPlayback_v.test.bs.js
+│   │   ├── TeaserPlayback_v.test.res
+│   │   ├── TeaserRecorder_v.test.bs.js
+│   │   ├── TeaserRecorder_v.test.res
+│   │   ├── TeaserState_v.test.bs.js
+│   │   ├── TeaserState_v.test.res
+│   │   ├── TimelineReducer_v.test.bs.js
+│   │   ├── TimelineReducer_v.test.res
+│   │   ├── Tooltip_v.test.bs.js
+│   │   ├── Tooltip_v.test.res
+│   │   ├── TourLogic_v.test.bs.js
+│   │   ├── TourLogic_v.test.res
+│   │   ├── TourTemplateAssets_v.test.bs.js
+│   │   ├── TourTemplateAssets_v.test.res
+│   │   ├── TourTemplates_v.test.bs.js
+│   │   ├── TourTemplates_v.test.res
+│   │   ├── TourTemplateScripts_v.test.bs.js
+│   │   ├── TourTemplateScripts_v.test.res
+│   │   ├── TourTemplateStyles_v.test.bs.js
+│   │   ├── TourTemplateStyles_v.test.res
+│   │   ├── Types_v.test.bs.js
+│   │   ├── Types_v.test.res
+│   │   ├── UiHelpers_v.test.bs.js
+│   │   ├── UiHelpers_v.test.res
+│   │   ├── UiReducer_v.test.bs.js
+│   │   ├── UiReducer_v.test.res
+│   │   ├── UploadProcessor_v.test.bs.js
+│   │   ├── UploadProcessor_v.test.res
+│   │   ├── UploadProcessor_v.test.setup.js
+│   │   ├── UploadProcessorLogic_v.test.bs.js
+│   │   ├── UploadProcessorLogic_v.test.res
+│   │   ├── UploadProcessorTypes_v.test.bs.js
+│   │   ├── UploadProcessorTypes_v.test.res
+│   │   ├── UploadReport_v.test.bs.js
+│   │   ├── UploadReport_v.test.res
+│   │   ├── UrlUtils_v.test.bs.js
+│   │   ├── UrlUtils_v.test.res
+│   │   ├── UtilityBar_v.test.bs.js
+│   │   ├── UtilityBar_v.test.res
+│   │   ├── utils
+│   │   │   ├── TestUtils.bs.js
+│   │   │   └── TestUtils.res
+│   │   ├── Version_v.test.bs.js
+│   │   ├── Version_v.test.res
+│   │   ├── VideoEncoder_v.test.bs.js
+│   │   ├── VideoEncoder_v.test.res
+│   │   ├── ViewerFollow_v.test.bs.js
+│   │   ├── ViewerFollow_v.test.res
+│   │   ├── ViewerHUD_v.test.bs.js
+│   │   ├── ViewerHUD_v.test.res
+│   │   ├── ViewerLabelMenu_v.test.bs.js
+│   │   ├── ViewerLabelMenu_v.test.res
+│   │   ├── ViewerLoader_v.test.bs.js
+│   │   ├── ViewerLoader_v.test.res
+│   │   ├── ViewerManager_v.test.bs.js
+│   │   ├── ViewerManager_v.test.res
+│   │   ├── ViewerPool_v.test.bs.js
+│   │   ├── ViewerPool_v.test.res
+│   │   ├── ViewerSnapshot_v.test.bs.js
+│   │   ├── ViewerSnapshot_v.test.res
+│   │   ├── ViewerState_v.test.bs.js
+│   │   ├── ViewerState_v.test.res
+│   │   ├── ViewerTypes_v.test.bs.js
+│   │   ├── ViewerTypes_v.test.res
+│   │   ├── ViewerUI_v.test.bs.js
+│   │   ├── ViewerUI_v.test.res
+│   │   ├── VisualPipeline_v.test.bs.js
+│   │   ├── VisualPipeline_v.test.res
+│   │   ├── VitestSmoke.test.bs.js
+│   │   └── VitestSmoke.test.res
+│   └── vitest-shim.js
 ├── tmp
 └── vitest.config.mjs
 
-309 directories, 7337 files
+309 directories, 7371 files
