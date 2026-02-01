@@ -50,20 +50,20 @@ pub async fn serve_project_file(
         // Fallback: Check if file exists without extension
         let path_obj = Path::new(&safe_filename);
         let fallback_path = if let Some(stem) = path_obj.file_stem() {
-             // Only try fallback if there was an extension to strip (stem != original)
-             // or just check stem generally.
-             if stem != path_obj.as_os_str() {
-                 let stem_str = stem.to_string_lossy();
-                 let no_ext = project_path.join("images").join(stem_str.as_ref());
-                 if no_ext.exists() && no_ext.is_file() {
-                     tracing::warn!(path = ?no_ext, original = %safe_filename, "Serving extensionless fallback");
-                     Some(no_ext)
-                 } else {
-                     None
-                 }
-             } else {
-                 None
-             }
+            // Only try fallback if there was an extension to strip (stem != original)
+            // or just check stem generally.
+            if stem != path_obj.as_os_str() {
+                let stem_str = stem.to_string_lossy();
+                let no_ext = project_path.join("images").join(stem_str.as_ref());
+                if no_ext.exists() && no_ext.is_file() {
+                    tracing::warn!(path = ?no_ext, original = %safe_filename, "Serving extensionless fallback");
+                    Some(no_ext)
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
         } else {
             None
         };
@@ -76,70 +76,72 @@ pub async fn serve_project_file(
                     filename = %filename,
                     "File not found in images/ or root"
                 );
-                return Ok(HttpResponse::NotFound().body(format!("File not found: {}", safe_filename)));
+                return Ok(
+                    HttpResponse::NotFound().body(format!("File not found: {}", safe_filename))
+                );
             }
         }
     };
 
     match actix_files::NamedFile::open(&file_path) {
         Ok(mut named_file) => {
-            // Fix for "Black Image" issue:
-            // Browsers block rendering of images with "application/octet-stream" content-type
-            // when "X-Content-Type-Options: nosniff" is set (which we do for security).
-            // Files saved without extensions (legacy projects) default to octet-stream.
-            // We attempt to detect the MIME type or fallback to image/webp.
+            let initial_content_type = named_file.content_type().to_string();
 
-            let content_type = named_file.content_type().to_string();
+            // If it's octet-stream or text/plain (common for extensionless/unknown files), attempt sniffing
+            if initial_content_type == "application/octet-stream"
+                || initial_content_type == "text/plain"
+            {
+                tracing::info!(
+                    filename = %safe_filename,
+                    content_type = %initial_content_type,
+                    "Attempting MIME sniffing for suspected image"
+                );
 
-            if content_type == "application/octet-stream" {
-                tracing::warn!(filename = %safe_filename, "Detected octet-stream, attempting MIME sniffing");
-
-                // Attempt to sniff header
                 let mut buffer = [0u8; 12];
-                // NamedFile::file() returns &File. &File implements Read and Seek.
-                // We need 'mut' because Read takes &mut self (where self is &File).
-                let mut file = named_file.file();
+                // Use a separate file handle to avoid messing with named_file's internal pointer
+                if let Ok(mut f) = std::fs::File::open(&file_path) {
+                    if let Ok(_) = f.read_exact(&mut buffer) {
+                        let detected_mime = if buffer.starts_with(b"RIFF")
+                            && &buffer[8..12] == b"WEBP"
+                        {
+                            Some("image/webp")
+                        } else if buffer.starts_with(&[0xFF, 0xD8, 0xFF]) {
+                            Some("image/jpeg")
+                        } else if buffer
+                            .starts_with(&[0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])
+                        {
+                            Some("image/png")
+                        } else if buffer.starts_with(b"GIF87a") || buffer.starts_with(b"GIF89a") {
+                            Some("image/gif")
+                        } else if buffer.starts_with(b"BM") {
+                            Some("image/bmp")
+                        } else {
+                            None
+                        };
 
-                // Save current position (should be 0, but good practice)
-                let start_pos = file.stream_position().unwrap_or(0);
-
-                if let Ok(_) = file.read_exact(&mut buffer) {
-                    // Reset position
-                    let _ = file.seek(SeekFrom::Start(start_pos));
-
-                    if buffer.starts_with(b"RIFF") && &buffer[8..12] == b"WEBP" {
-                        if let Ok(mime) = "image/webp".parse() {
-                            named_file = named_file.set_content_type(mime);
-                        }
-                    } else if buffer.starts_with(&[0xFF, 0xD8, 0xFF]) {
-                        if let Ok(mime) = "image/jpeg".parse() {
-                            named_file = named_file.set_content_type(mime);
-                        }
-                    } else if buffer.starts_with(&[0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]) {
-                        if let Ok(mime) = "image/png".parse() {
-                            named_file = named_file.set_content_type(mime);
-                        }
-                    } else {
-                        // Fallback default for this application
-                        tracing::warn!("Sniffing failed, defaulting to image/webp");
-                        if let Ok(mime) = "image/webp".parse() {
-                            named_file = named_file.set_content_type(mime);
+                        if let Some(m) = detected_mime {
+                            if let Ok(mime) = m.parse() {
+                                tracing::info!(filename = %safe_filename, mime = %m, "MIME sniffed successfully");
+                                named_file = named_file.set_content_type(mime);
+                            }
+                        } else {
+                            // Fallback to webp only if it was octet-stream
+                            if initial_content_type == "application/octet-stream" {
+                                tracing::warn!(filename = %safe_filename, "Sniffing failed, defaulting to image/webp");
+                                if let Ok(mime) = "image/webp".parse() {
+                                    named_file = named_file.set_content_type(mime);
+                                }
+                            }
                         }
                     }
-                } else {
-                     // Read failed, just fallback
-                     let _ = file.seek(SeekFrom::Start(start_pos));
-                     if let Ok(mime) = "image/webp".parse() {
-                         named_file = named_file.set_content_type(mime);
-                     }
                 }
             }
 
-            return Ok(named_file.into_response(&req));
-        },
+            Ok(named_file.into_response(&req))
+        }
         Err(e) => {
             tracing::error!(path = ?file_path, error = %e, "FAILED_TO_OPEN_FILE");
-            return Err(AppError::IoError(e));
+            Err(AppError::IoError(e))
         }
     }
 }
