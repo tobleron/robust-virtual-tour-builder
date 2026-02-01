@@ -1,13 +1,19 @@
 {
+  "css": [
+    {
+      "Violation": {
+        "file": "../../css/components/ui.css",
+        "pattern": "!important",
+        "strategy": ""
+      }
+    }
+  ],
   "rescript": [
     {
-      "Surgical": {
-        "file": "../../src/core/JsonParsers.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.00, Density: 0.31, Coupling: 0.04] | Drag: 4.60 | LOC: 379/300  🎯 Target: Function: `scene` (High Local Complexity (4.2). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 12.5
+      "Violation": {
+        "file": "../../src/components/NotificationContext.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
       }
     },
     {
@@ -21,10 +27,13 @@
       }
     },
     {
-      "Violation": {
-        "file": "../../src/components/NotificationContext.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
+      "Surgical": {
+        "file": "../../src/core/JsonParsers.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.00, Density: 0.91, Coupling: 0.04] | Drag: 7.41 | LOC: 386/300  🎯 Target: Function: `qualityAnalysis` (High Local Complexity (14.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 16.008290155440413
       }
     },
     {
@@ -36,6 +45,16 @@
     }
   ],
   "rust": [
+    {
+      "Surgical": {
+        "file": "../../backend/src/auth.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.00, Density: 0.02, Coupling: 0.05] | Drag: 3.22 | LOC: 306/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 3.819607843137255
+      }
+    },
     {
       "Surgical": {
         "file": "../../backend/src/main.rs",
@@ -50,25 +69,6 @@
       "Violation": {
         "file": "../../backend/src/main.rs",
         "pattern": "unwrap()",
-        "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/auth.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.00, Density: 0.02, Coupling: 0.05] | Drag: 3.22 | LOC: 306/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 3.819607843137255
-      }
-    }
-  ],
-  "css": [
-    {
-      "Violation": {
-        "file": "../../css/components/ui.css",
-        "pattern": "!important",
         "strategy": ""
       }
     }
