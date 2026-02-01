@@ -33,7 +33,7 @@ pub async fn serve_project_file(
     let images_path = project_path.join("images").join(&safe_filename);
     let root_path = project_path.join(&safe_filename);
 
-    tracing::debug!(path = ?images_path, "Checking images/ subdir");
+    tracing::info!(path = ?images_path, "Checking images/ subdir for file request");
 
     // Logic:
     // 1. Check images/filename
