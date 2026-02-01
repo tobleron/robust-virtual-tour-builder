@@ -4,7 +4,7 @@ use actix_multipart::Multipart;
 use actix_web::{HttpResponse, web};
 use futures_util::TryStreamExt as _;
 use std::fs;
-use std::io::Write;
+use tokio::io::AsyncWriteExt;
 use uuid::Uuid;
 
 use crate::api::media::video_logic;
@@ -70,9 +70,11 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
                 .unwrap_or_else(|| format!("img_{}.webp", Uuid::new_v4()));
             let sanitized = sanitize_filename(&filename).unwrap_or(filename);
             let file_path = session_path.join(&sanitized);
-            let mut f = fs::File::create(file_path).map_err(AppError::IoError)?;
+            let mut f = tokio::fs::File::create(file_path)
+                .await
+                .map_err(AppError::IoError)?;
             while let Some(chunk) = field.try_next().await? {
-                f.write_all(&chunk).map_err(AppError::IoError)?;
+                f.write_all(&chunk).await.map_err(AppError::IoError)?;
             }
         }
     }
@@ -125,7 +127,7 @@ pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, App
             .content_disposition()
             .ok_or_else(|| AppError::InternalError("Missing content disposition".to_string()))?;
         if content_disposition.get_name() == Some("file") {
-            let mut f = fs::File::create(&input_path)?;
+            let mut f = tokio::fs::File::create(&input_path).await?;
             while let Some(chunk) = field.try_next().await? {
                 total_size += chunk.len();
                 if total_size > MAX_UPLOAD_SIZE {
@@ -135,7 +137,7 @@ pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, App
                         MAX_UPLOAD_SIZE / (1024 * 1024)
                     )));
                 }
-                f.write_all(&chunk)?;
+                f.write_all(&chunk).await?;
             }
         }
     }
