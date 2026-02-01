@@ -1,33 +1,4 @@
 {
-  "rust": [
-    {
-      "Surgical": {
-        "file": "../../backend/src/main.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.00, Density: 0.02, Coupling: 0.07] | Drag: 3.23 | LOC: 356/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 8.831460674157302
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../backend/src/main.rs",
-        "pattern": "unwrap()",
-        "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/auth.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.00, Density: 0.02, Coupling: 0.05] | Drag: 3.22 | LOC: 306/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 3.819607843137255
-      }
-    }
-  ],
   "rescript": [
     {
       "Surgical": {
@@ -37,13 +8,6 @@
         "strategy": "",
         "platform": "frontend",
         "complexity": 8.169724770642201
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/systems/ApiHelpers.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
       }
     },
     {
@@ -82,6 +46,20 @@
     },
     {
       "Violation": {
+        "file": "../../src/systems/ApiHelpers.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/components/NotificationContext.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
         "file": "../../src/systems/Api/AuthenticatedClient.res",
         "pattern": "JSON.stringify",
         "strategy": ""
@@ -93,11 +71,33 @@
         "pattern": "JSON.stringifyAny",
         "strategy": ""
       }
+    }
+  ],
+  "rust": [
+    {
+      "Surgical": {
+        "file": "../../backend/src/auth.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.00, Density: 0.02, Coupling: 0.05] | Drag: 3.22 | LOC: 306/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 3.819607843137255
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/main.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.00, Density: 0.02, Coupling: 0.07] | Drag: 3.23 | LOC: 356/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 8.831460674157302
+      }
     },
     {
       "Violation": {
-        "file": "../../src/components/NotificationContext.res",
-        "pattern": "Obj.magic",
+        "file": "../../backend/src/main.rs",
+        "pattern": "unwrap()",
         "strategy": ""
       }
     }
