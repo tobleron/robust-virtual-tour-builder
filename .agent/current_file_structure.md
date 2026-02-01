@@ -6000,8 +6000,7 @@
 │   ├── diagnostic.log
 │   ├── error.log
 │   ├── log_changes.txt
-│   ├── project-guard.log
-│   └── telemetry.log
+│   └── project-guard.log
 ├── MAP.md
 ├── old_ref
 │   ├── 7aadee4
@@ -7879,6 +7878,7 @@
 │   │   ├── 1177_Fix_Violations_BACKEND.md
 │   │   ├── 1179_Surgical_Refactor_CORE_FRONTEND.md
 │   │   ├── 1183_Surgical_Refactor_SYSTEMS_FRONTEND.md
+│   │   ├── 1184_investigate_viewer_rendering_issue.md
 │   │   └── tests
 │   ├── postponed
 │   └── TASKS.md
