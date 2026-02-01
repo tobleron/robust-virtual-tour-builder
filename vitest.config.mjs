@@ -6,7 +6,7 @@ export default defineConfig({
         environment: 'jsdom',
         globals: true,
         setupFiles: [
-            'tests/rescript-schema-shim.js',
+            'tests/vitest-shim.js',
             'tests/unit/LabelMenu_v.test.setup.jsx',
             'tests/unit/UploadProcessor_v.test.setup.js',
             'tests/unit/HotspotLine_v.test.setup.js',
@@ -14,7 +14,7 @@ export default defineConfig({
         ],
         server: {
             deps: {
-                inline: ['sonner', 'rescript-schema']
+                inline: ['sonner']
             }
         }
     },
