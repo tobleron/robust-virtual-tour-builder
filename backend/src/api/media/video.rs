@@ -3,7 +3,6 @@
 use actix_multipart::Multipart;
 use actix_web::{HttpResponse, web};
 use futures_util::TryStreamExt as _;
-use std::fs;
 use tokio::io::{AsyncWriteExt, BufWriter};
 use uuid::Uuid;
 
@@ -18,7 +17,9 @@ use crate::models::AppError;
 pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, AppError> {
     let session_id = Uuid::new_v4().to_string();
     let session_path = std::path::PathBuf::from(TEMP_DIR).join(&session_id);
-    fs::create_dir_all(&session_path).map_err(AppError::IoError)?;
+    tokio::fs::create_dir_all(&session_path)
+        .await
+        .map_err(AppError::IoError)?;
 
     tracing::info!(module = "TeaserGenerator", session_id = %session_id, "TEASER_GENERATION_START");
 
