@@ -96,19 +96,21 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
     .await
     .map_err(|e| AppError::InternalError(e.to_string()))?;
 
-    let _ = fs::remove_dir_all(&session_path);
+    let _ = tokio::fs::remove_dir_all(&session_path).await;
 
     match result {
         Ok(_) => {
             tracing::info!(module = "TeaserGenerator", "TEASER_GENERATION_COMPLETE");
-            let file_bytes = fs::read(&output_path).map_err(AppError::IoError)?;
-            let _ = fs::remove_file(output_path);
+            let file_bytes = tokio::fs::read(&output_path)
+                .await
+                .map_err(AppError::IoError)?;
+            let _ = tokio::fs::remove_file(output_path).await;
             Ok(HttpResponse::Ok()
                 .content_type("video/mp4")
                 .body(file_bytes))
         }
         Err(e) => {
-            let _ = fs::remove_file(&output_path);
+            let _ = tokio::fs::remove_file(&output_path).await;
             Err(AppError::InternalError(e))
         }
     }
