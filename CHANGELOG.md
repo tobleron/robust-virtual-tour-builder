@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Merge sanitization standards PR
+- Use non-blocking I/O in backend async handlers
 
 ## [4.8.13] - 2026-02-01
 
