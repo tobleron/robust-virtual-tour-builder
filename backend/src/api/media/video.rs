@@ -5,6 +5,8 @@ use actix_web::{HttpResponse, web};
 use futures_util::TryStreamExt as _;
 use std::fs;
 use std::io::Write;
+use tokio::fs as async_fs;
+use tokio::io::AsyncWriteExt;
 use uuid::Uuid;
 
 use crate::api::media::video_logic;
@@ -70,9 +72,11 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
                 .unwrap_or_else(|| format!("img_{}.webp", Uuid::new_v4()));
             let sanitized = sanitize_filename(&filename).unwrap_or(filename);
             let file_path = session_path.join(&sanitized);
-            let mut f = fs::File::create(file_path).map_err(AppError::IoError)?;
+            let mut f = async_fs::File::create(file_path)
+                .await
+                .map_err(AppError::IoError)?;
             while let Some(chunk) = field.try_next().await? {
-                f.write_all(&chunk).map_err(AppError::IoError)?;
+                f.write_all(&chunk).await.map_err(AppError::IoError)?;
             }
         }
     }
