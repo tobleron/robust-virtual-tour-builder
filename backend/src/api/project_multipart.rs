@@ -5,6 +5,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use tokio::io::AsyncWriteExt;
 use uuid::Uuid;
+use actix_web::web;
 
 use crate::api::utils::{MAX_UPLOAD_SIZE, get_temp_path, sanitize_filename};
 use crate::models::AppError;
@@ -121,7 +122,12 @@ pub async fn parse_tour_package_multipart(
 
 /// Saves the entire multipart payload to a temporary file (used for loading project zip).
 pub async fn save_multipart_to_tempfile(mut payload: Multipart) -> Result<fs::File, AppError> {
-    let temp_upload = tempfile::tempfile().map_err(AppError::IoError)?;
+    // Optimization: Use web::block to avoid blocking the async runtime with tempfile creation
+    let temp_upload = web::block(|| tempfile::tempfile())
+        .await
+        .map_err(|e| AppError::InternalError(e.to_string()))?
+        .map_err(AppError::IoError)?;
+
     let mut async_file = tokio::fs::File::from_std(temp_upload);
     let mut uploaded_size = 0;
     while let Some(mut field) = payload.try_next().await? {
