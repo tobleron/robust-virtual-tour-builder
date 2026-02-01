@@ -103,3 +103,4 @@
 [2026-02-01 22:33] v4.8.14 - fix: project import image loading by handling null files and improving URL reconstruction fallback [TRIPLE]
 [2026-02-01 22:55] v4.8.14 - Parser perfected, images loaded to sidebar, but window viewer still not loads [TRIPLE]
 [2026-02-01 23:03] v4.8.14 - fix: viewer loading by hooking up Pannellum load events and fixing hook violation in FloorNavigation [TRIPLE]
+[2026-02-01 23:38] v4.8.14 - Fix navigation FSM deadlock and improve project import URL reconstruction (v4.8.14+391) [TRIPLE]

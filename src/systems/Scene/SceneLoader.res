@@ -94,7 +94,11 @@ let loadNewScene = (_prevIndex: option<int>, targetIndex: option<int>, ~isAntici
       } {
       | Some(_) =>
         if !isAnticipatory {
-          SceneTransition.performSwap(targetScene, loadStartTime.contents)
+          GlobalStateBridge.dispatch(
+            DispatchNavigationFsmEvent(
+              NavigationFSM.TextureLoaded({targetSceneId: targetScene.id}),
+            ),
+          )
         }
       | None =>
         let vp = if isAnticipatory {
@@ -114,6 +118,11 @@ let loadNewScene = (_prevIndex: option<int>, targetIndex: option<int>, ~isAntici
               _ => Events.onSceneLoad(newInstance, targetScene),
             )
             ViewerSystem.Adapter.on(newInstance, "error", msg => Events.onSceneError(msg))
+
+            // RE-CHECK: If already loaded (e.g. from cache), trigger it manually
+            if ViewerSystem.Adapter.isLoaded(newInstance) {
+              Events.onSceneLoad(newInstance, targetScene)
+            }
 
             ViewerSystem.Pool.registerInstance(v.containerId, newInstance)
           },
