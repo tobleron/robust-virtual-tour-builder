@@ -1,5 +1,24 @@
 {
+  "css": [
+    {
+      "Violation": {
+        "file": "../../css/components/ui.css",
+        "pattern": "!important",
+        "strategy": ""
+      }
+    }
+  ],
   "rust": [
+    {
+      "Surgical": {
+        "file": "../../backend/src/auth.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.00, Density: 0.02, Coupling: 0.05] | Drag: 3.22 | LOC: 306/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 3.819607843137255
+      }
+    },
     {
       "Surgical": {
         "file": "../../backend/src/main.rs",
@@ -16,16 +35,6 @@
         "pattern": "unwrap()",
         "strategy": ""
       }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/auth.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.00, Density: 0.02, Coupling: 0.05] | Drag: 3.22 | LOC: 306/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 3.819607843137255
-      }
     }
   ],
   "rescript": [
@@ -40,15 +49,25 @@
       }
     },
     {
+      "Surgical": {
+        "file": "../../src/core/JsonParsers.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.00, Density: 0.75, Coupling: 0.03] | Drag: 6.62 | LOC: 470/300  🎯 Target: Function: `qualityAnalysis` (High Local Complexity (14.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 23.620425531914893
+      }
+    },
+    {
       "Violation": {
-        "file": "../../src/components/NotificationContext.res",
+        "file": "../../src/systems/ApiHelpers.res",
         "pattern": "Obj.magic",
         "strategy": ""
       }
     },
     {
       "Violation": {
-        "file": "../../src/systems/ApiHelpers.res",
+        "file": "../../src/components/NotificationContext.res",
         "pattern": "Obj.magic",
         "strategy": ""
       }
@@ -61,25 +80,6 @@
         "strategy": "",
         "platform": "frontend",
         "complexity": 8.169724770642201
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/JsonParsers.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.00, Density: 0.75, Coupling: 0.03] | Drag: 6.62 | LOC: 470/300  🎯 Target: Function: `qualityAnalysis` (High Local Complexity (14.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 23.620425531914893
-      }
-    }
-  ],
-  "css": [
-    {
-      "Violation": {
-        "file": "../../css/components/ui.css",
-        "pattern": "!important",
-        "strategy": ""
       }
     }
   ]
