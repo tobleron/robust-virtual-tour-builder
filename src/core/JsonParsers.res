@@ -22,59 +22,104 @@ module Shared = {
 
   let gpsData = object(field => {
     {
-      SharedTypes.lat: field.required("lat", float),
-      lon: field.required("lon", float),
+      SharedTypes.lat: field.optional("lat", option(float))
+      ->Option.flatMap(x => x)
+      ->Option.getOr(0.0),
+      lon: field.optional("lon", option(float))->Option.flatMap(x => x)->Option.getOr(0.0),
     }
   })
 
   let exifMetadata = object(field => {
     {
-      SharedTypes.dateTime: field.optional("date", string)->Nullable.fromOption,
-      gps: field.optional("gps", gpsData)->Nullable.fromOption,
-      make: field.optional("cameraModel", string)->Nullable.fromOption,
-      model: field.optional("lensModel", string)->Nullable.fromOption,
+      SharedTypes.dateTime: field.optional("date", option(string))
+      ->Option.flatMap(x => x)
+      ->Nullable.fromOption,
+      gps: field.optional("gps", option(gpsData))->Option.flatMap(x => x)->Nullable.fromOption,
+      make: field.optional("cameraModel", option(string))
+      ->Option.flatMap(x => x)
+      ->Nullable.fromOption,
+      model: field.optional("lensModel", option(string))
+      ->Option.flatMap(x => x)
+      ->Nullable.fromOption,
       width: 0,
       height: 0,
-      focalLength: field.optional("focalLength", float)->Nullable.fromOption,
-      aperture: field.optional("fNumber", float)->Nullable.fromOption,
-      iso: field.optional("iso", int)->Nullable.fromOption,
+      focalLength: field.optional("focalLength", option(float))
+      ->Option.flatMap(x => x)
+      ->Nullable.fromOption,
+      aperture: field.optional("fNumber", option(float))
+      ->Option.flatMap(x => x)
+      ->Nullable.fromOption,
+      iso: field.optional("iso", option(int))->Option.flatMap(x => x)->Nullable.fromOption,
     }
   })
 
   let colorHist = object(field => {
     let res: SharedTypes.colorHist = {
-      r: field.required("r", array(int)),
-      g: field.required("g", array(int)),
-      b: field.required("b", array(int)),
+      r: field.optional("r", option(array(int)))->Option.flatMap(x => x)->Option.getOr([]),
+      g: field.optional("g", option(array(int)))->Option.flatMap(x => x)->Option.getOr([]),
+      b: field.optional("b", option(array(int)))->Option.flatMap(x => x)->Option.getOr([]),
     }
     res
   })
 
   let qualityStats = object(field => {
     {
-      SharedTypes.avgLuminance: field.required("avgLuminance", int),
-      blackClipping: field.required("blackClipping", float),
-      whiteClipping: field.required("whiteClipping", float),
-      sharpnessVariance: field.required("sharpnessVariance", int),
+      SharedTypes.avgLuminance: field.optional("avgLuminance", option(int))
+      ->Option.flatMap(x => x)
+      ->Option.getOr(0),
+      blackClipping: field.optional("blackClipping", option(float))
+      ->Option.flatMap(x => x)
+      ->Option.getOr(0.0),
+      whiteClipping: field.optional("whiteClipping", option(float))
+      ->Option.flatMap(x => x)
+      ->Option.getOr(0.0),
+      sharpnessVariance: field.optional("sharpnessVariance", option(int))
+      ->Option.flatMap(x => x)
+      ->Option.getOr(0),
     }
   })
 
   let qualityAnalysis = object(field => {
     {
-      SharedTypes.score: field.required("score", float),
-      histogram: field.required("histogram", array(int)),
-      colorHist: field.required("colorHist", colorHist),
-      stats: field.required("stats", qualityStats),
-      isBlurry: field.required("isBlurry", bool),
-      isSoft: field.required("isSoft", bool),
-      isSeverelyDark: field.required("isSeverelyDark", bool),
-      isSeverelyBright: field.required("isSeverelyBright", bool),
-      isDim: field.required("isDim", bool),
-      hasBlackClipping: field.required("hasBlackClipping", bool),
-      hasWhiteClipping: field.required("hasWhiteClipping", bool),
-      issues: field.required("issues", int),
-      warnings: field.required("warnings", int),
-      analysis: field.optional("analysis", string)->Nullable.fromOption,
+      SharedTypes.score: field.optional("score", option(float))
+      ->Option.flatMap(x => x)
+      ->Option.getOr(0.0),
+      histogram: field.optional("histogram", option(array(int)))
+      ->Option.flatMap(x => x)
+      ->Option.getOr([]),
+      colorHist: field.optional("colorHist", option(colorHist))
+      ->Option.flatMap(x => x)
+      ->Option.getOr({r: [], g: [], b: []}),
+      stats: field.optional("stats", option(qualityStats))
+      ->Option.flatMap(x => x)
+      ->Option.getOr({
+        avgLuminance: 0,
+        blackClipping: 0.0,
+        whiteClipping: 0.0,
+        sharpnessVariance: 0,
+      }),
+      isBlurry: field.optional("isBlurry", option(bool))
+      ->Option.flatMap(x => x)
+      ->Option.getOr(false),
+      isSoft: field.optional("isSoft", option(bool))->Option.flatMap(x => x)->Option.getOr(false),
+      isSeverelyDark: field.optional("isSeverelyDark", option(bool))
+      ->Option.flatMap(x => x)
+      ->Option.getOr(false),
+      isSeverelyBright: field.optional("isSeverelyBright", option(bool))
+      ->Option.flatMap(x => x)
+      ->Option.getOr(false),
+      isDim: field.optional("isDim", option(bool))->Option.flatMap(x => x)->Option.getOr(false),
+      hasBlackClipping: field.optional("hasBlackClipping", option(bool))
+      ->Option.flatMap(x => x)
+      ->Option.getOr(false),
+      hasWhiteClipping: field.optional("hasWhiteClipping", option(bool))
+      ->Option.flatMap(x => x)
+      ->Option.getOr(false),
+      issues: field.optional("issues", option(int))->Option.flatMap(x => x)->Option.getOr(0),
+      warnings: field.optional("warnings", option(int))->Option.flatMap(x => x)->Option.getOr(0),
+      analysis: field.optional("analysis", option(string))
+      ->Option.flatMap(x => x)
+      ->Nullable.fromOption,
     }
   })
 
@@ -82,9 +127,11 @@ module Shared = {
     {
       SharedTypes.exif: field.required("exif", exifMetadata),
       quality: field.required("quality", qualityAnalysis),
-      isOptimized: field.required("isOptimized", bool),
-      checksum: field.required("checksum", string),
-      suggestedName: field.optional("suggestedName", string)->Nullable.fromOption,
+      isOptimized: field.optional("isOptimized", bool)->Option.getOr(false),
+      checksum: field.optional("checksum", string)->Option.getOr(""),
+      suggestedName: field.optional("suggestedName", option(string))
+      ->Option.flatMap(x => x)
+      ->Nullable.fromOption,
     }
   })
 
@@ -144,74 +191,111 @@ module Domain = {
 
   let viewFrame = object(field => {
     {
-      Types.yaw: field.optional("yaw", float)->Option.getOr(0.0),
-      pitch: field.optional("pitch", float)->Option.getOr(0.0),
-      hfov: field.optional("hfov", float)->Option.getOr(0.0),
+      Types.yaw: field.optional("yaw", option(float))->Option.flatMap(x => x)->Option.getOr(0.0),
+      pitch: field.optional("pitch", option(float))->Option.flatMap(x => x)->Option.getOr(0.0),
+      hfov: field.optional("hfov", option(float))->Option.flatMap(x => x)->Option.getOr(0.0),
     }
   })
 
   let hotspot = object(field => {
     {
-      Types.linkId: field.optional("linkId", string)->Option.getOr(""),
-      yaw: field.optional("yaw", float)->Option.getOr(0.0),
-      pitch: field.optional("pitch", float)->Option.getOr(0.0),
-      target: field.optional("target", string)->Option.getOr(""),
-      targetYaw: field.optional("targetYaw", float),
-      targetPitch: field.optional("targetPitch", float),
-      targetHfov: field.optional("targetHfov", float),
-      startYaw: field.optional("startYaw", float),
-      startPitch: field.optional("startPitch", float),
-      startHfov: field.optional("startHfov", float),
-      isReturnLink: field.optional("isReturnLink", bool),
-      viewFrame: field.optional("viewFrame", viewFrame),
-      returnViewFrame: field.optional("returnViewFrame", viewFrame),
-      waypoints: field.optional("waypoints", array(viewFrame)),
-      displayPitch: field.optional("displayPitch", float),
-      transition: field.optional("transition", string),
-      duration: field.optional("duration", float)->Option.map(Belt.Float.toInt),
+      Types.linkId: field.optional("linkId", option(string))
+      ->Option.flatMap(x => x)
+      ->Option.getOr(""),
+      yaw: field.optional("yaw", option(float))->Option.flatMap(x => x)->Option.getOr(0.0),
+      pitch: field.optional("pitch", option(float))->Option.flatMap(x => x)->Option.getOr(0.0),
+      target: field.optional("target", option(string))->Option.flatMap(x => x)->Option.getOr(""),
+      targetYaw: field.optional("targetYaw", option(float))->Option.flatMap(x => x),
+      targetPitch: field.optional("targetPitch", option(float))->Option.flatMap(x => x),
+      targetHfov: field.optional("targetHfov", option(float))->Option.flatMap(x => x),
+      startYaw: field.optional("startYaw", option(float))->Option.flatMap(x => x),
+      startPitch: field.optional("startPitch", option(float))->Option.flatMap(x => x),
+      startHfov: field.optional("startHfov", option(float))->Option.flatMap(x => x),
+      isReturnLink: field.optional("isReturnLink", option(bool))->Option.flatMap(x => x),
+      viewFrame: field.optional("viewFrame", option(viewFrame))->Option.flatMap(x => x),
+      returnViewFrame: field.optional("returnViewFrame", option(viewFrame))->Option.flatMap(x => x),
+      waypoints: field.optional("waypoints", option(array(viewFrame)))->Option.flatMap(x => x),
+      displayPitch: field.optional("displayPitch", option(float))->Option.flatMap(x => x),
+      transition: field.optional("transition", option(string))->Option.flatMap(x => x),
+      duration: field.optional("duration", option(float))
+      ->Option.flatMap(x => x)
+      ->Option.map(Belt.Float.toInt),
     }
   })
 
   let scene = object(field => {
     {
-      Types.id: field.optional("id", string)->Option.getOr(""),
-      name: field.optional("name", string)->Option.getOr("unknown"),
-      file: field.optional("file", file)->Option.getOr(Types.Url("")),
+      Types.id: field.optional("id", option(string))->Option.flatMap(x => x)->Option.getOr(""),
+      name: field.optional("name", option(string))->Option.flatMap(x => x)->Option.getOr("unknown"),
+      file: field.optional("file", option(file))
+      ->Option.flatMap(x => x)
+      ->Option.getOr(Types.Url("")),
       tinyFile: field.optional("tinyFile", option(file))->Option.flatMap(x => x),
       originalFile: field.optional("originalFile", option(file))->Option.flatMap(x => x),
-      hotspots: field.optional("hotspots", array(hotspot))->Option.getOr([]),
-      category: field.optional("category", string)->Option.getOr("outdoor"),
-      floor: field.optional("floor", string)->Option.getOr("ground"),
-      label: field.optional("label", string)->Option.getOr(""),
+      hotspots: field.optional("hotspots", option(array(hotspot)))
+      ->Option.flatMap(x => x)
+      ->Option.getOr([]),
+      category: field.optional("category", option(string))
+      ->Option.flatMap(x => x)
+      ->Option.getOr("outdoor"),
+      floor: field.optional("floor", option(string))
+      ->Option.flatMap(x => x)
+      ->Option.getOr("ground"),
+      label: field.optional("label", option(string))->Option.flatMap(x => x)->Option.getOr(""),
       quality: field.optional("quality", id),
-      colorGroup: field.optional("colorGroup", string),
-      _metadataSource: field.optional("_metadataSource", string)->Option.getOr("user"),
-      categorySet: field.optional("categorySet", bool)->Option.getOr(false),
-      labelSet: field.optional("labelSet", bool)->Option.getOr(false),
-      isAutoForward: field.optional("isAutoForward", bool)->Option.getOr(false),
+      colorGroup: field.optional("colorGroup", option(string))->Option.flatMap(x => x),
+      _metadataSource: field.optional("_metadataSource", option(string))
+      ->Option.flatMap(x => x)
+      ->Option.getOr("user"),
+      categorySet: field.optional("categorySet", option(bool))
+      ->Option.flatMap(x => x)
+      ->Option.getOr(false),
+      labelSet: field.optional("labelSet", option(bool))
+      ->Option.flatMap(x => x)
+      ->Option.getOr(false),
+      isAutoForward: field.optional("isAutoForward", option(bool))
+      ->Option.flatMap(x => x)
+      ->Option.getOr(false),
     }
   })
 
   let timelineItem = object(field => {
     {
-      Types.id: field.optional("id", string)->Option.getOr(""),
-      linkId: field.optional("linkId", string)->Option.getOr(""),
-      sceneId: field.optional("sceneId", string)->Option.getOr(""),
-      targetScene: field.optional("targetScene", string)->Option.getOr(""),
-      transition: field.optional("transition", string)->Option.getOr(""),
-      duration: field.optional("duration", float)->Option.map(Belt.Float.toInt)->Option.getOr(0),
+      Types.id: field.optional("id", option(string))->Option.flatMap(x => x)->Option.getOr(""),
+      linkId: field.optional("linkId", option(string))->Option.flatMap(x => x)->Option.getOr(""),
+      sceneId: field.optional("sceneId", option(string))->Option.flatMap(x => x)->Option.getOr(""),
+      targetScene: field.optional("targetScene", option(string))
+      ->Option.flatMap(x => x)
+      ->Option.getOr(""),
+      transition: field.optional("transition", option(string))
+      ->Option.flatMap(x => x)
+      ->Option.getOr(""),
+      duration: field.optional("duration", option(float))
+      ->Option.flatMap(x => x)
+      ->Option.map(Belt.Float.toInt)
+      ->Option.getOr(0),
     }
   })
 
   let project = object(field => {
     {
-      Types.tourName: field.optional("tourName", string)->Option.getOr("Tour Name"),
-      scenes: field.optional("scenes", array(scene))->Option.getOr([]),
-      lastUsedCategory: field.optional("lastUsedCategory", string)->Option.getOr("outdoor"),
+      Types.tourName: field.optional("tourName", option(string))
+      ->Option.flatMap(x => x)
+      ->Option.getOr("Tour Name"),
+      scenes: field.optional("scenes", option(array(scene)))
+      ->Option.flatMap(x => x)
+      ->Option.getOr([]),
+      lastUsedCategory: field.optional("lastUsedCategory", option(string))
+      ->Option.flatMap(x => x)
+      ->Option.getOr("outdoor"),
       exifReport: field.optional("exifReport", id),
-      sessionId: field.optional("sessionId", string),
-      deletedSceneIds: field.optional("deletedSceneIds", array(string))->Option.getOr([]),
-      timeline: field.optional("timeline", array(timelineItem))->Option.getOr([]),
+      sessionId: field.optional("sessionId", option(string))->Option.flatMap(x => x),
+      deletedSceneIds: field.optional("deletedSceneIds", option(array(string)))
+      ->Option.flatMap(x => x)
+      ->Option.getOr([]),
+      timeline: field.optional("timeline", option(array(timelineItem)))
+      ->Option.flatMap(x => x)
+      ->Option.getOr([]),
     }
   })
 
@@ -220,7 +304,7 @@ module Domain = {
       Types.yaw: field.required("yaw", float),
       pitch: field.required("pitch", float),
       targetName: field.required("targetName", string),
-      timelineItemId: field.optional("timelineItemId", string),
+      timelineItemId: field.optional("timelineItemId", option(string))->Option.flatMap(x => x),
     }
   })
 
@@ -234,7 +318,10 @@ module Domain = {
   let step = object(field => {
     {
       Types.idx: field.required("idx", int),
-      transitionTarget: field.optional("transitionTarget", transitionTarget),
+      transitionTarget: field.optional(
+        "transitionTarget",
+        option(transitionTarget),
+      )->Option.flatMap(x => x),
       arrivalView: field.required("arrivalView", arrivalView),
     }
   })
@@ -243,17 +330,21 @@ module Domain = {
 
   let importScene = object(field => {
     {
-      Types.id: field.optional("id", string)->Option.getOr(""),
-      name: field.optional("name", string)->Option.getOr("unknown"),
-      file: field.optional("file", file)->Option.getOr(Types.Url("")),
+      Types.id: field.optional("id", option(string))->Option.flatMap(x => x)->Option.getOr(""),
+      name: field.optional("name", option(string))->Option.flatMap(x => x)->Option.getOr("unknown"),
+      file: field.optional("file", option(file))
+      ->Option.flatMap(x => x)
+      ->Option.getOr(Types.Url("")),
       tinyFile: field.optional("tinyFile", option(file))->Option.flatMap(x => x),
       originalFile: field.optional("originalFile", option(file))->Option.flatMap(x => x),
-      hotspots: field.optional("hotspots", array(hotspot))->Option.getOr([]),
+      hotspots: field.optional("hotspots", option(array(hotspot)))
+      ->Option.flatMap(x => x)
+      ->Option.getOr([]),
       category: "outdoor",
       floor: "ground",
       label: "",
       quality: field.optional("quality", id),
-      colorGroup: field.optional("colorGroup", string),
+      colorGroup: field.optional("colorGroup", option(string))->Option.flatMap(x => x),
       _metadataSource: "default",
       categorySet: false,
       labelSet: false,
@@ -263,10 +354,10 @@ module Domain = {
 
   let updateMetadata = object(field => {
     {
-      Types.category: field.optional("category", string),
-      floor: field.optional("floor", string),
-      label: field.optional("label", string),
-      isAutoForward: field.optional("isAutoForward", bool),
+      Types.category: field.optional("category", option(string))->Option.flatMap(x => x),
+      floor: field.optional("floor", option(string))->Option.flatMap(x => x),
+      label: field.optional("label", option(string))->Option.flatMap(x => x),
+      isAutoForward: field.optional("isAutoForward", option(bool))->Option.flatMap(x => x),
     }
   })
 
