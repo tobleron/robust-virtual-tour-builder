@@ -132,8 +132,9 @@ pub async fn import_project(
             .await
             .map_err(|e| AppError::InternalError(e.to_string()))??;
 
-    let project_dir =
-        StorageManager::ensure_project_dir(&user.id, &project_id).map_err(AppError::IoError)?;
+    let project_dir = StorageManager::ensure_project_dir_async(&user.id, &project_id)
+        .await
+        .map_err(AppError::IoError)?;
 
     // Use shared logic for extraction
     let tmp_path_clone = tmp_path.clone();

@@ -27,6 +27,14 @@ impl StorageManager {
         Ok(path)
     }
 
+    pub async fn ensure_project_dir_async(user_id: &str, project_id: &str) -> io::Result<PathBuf> {
+        let path = Self::get_user_project_path(user_id, project_id);
+        if !tokio::fs::try_exists(&path).await? {
+            tokio::fs::create_dir_all(&path).await?;
+        }
+        Ok(path)
+    }
+
     pub fn init() -> io::Result<()> {
         let root = Self::get_storage_root();
         if !root.exists() {
