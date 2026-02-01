@@ -105,3 +105,4 @@
 [2026-02-01 23:03] v4.8.14 - fix: viewer loading by hooking up Pannellum load events and fixing hook violation in FloorNavigation [TRIPLE]
 [2026-02-01 23:38] v4.8.14 - Fix navigation FSM deadlock and improve project import URL reconstruction (v4.8.14+391) [TRIPLE]
 [2026-02-01 23:40] v4.8.14 - Add investigation task for viewer rendering issue (v4.8.14+392) [TRIPLE]
+[2026-02-02 00:27] v4.8.14 - fix: viewer rendering visibility (Task #885) - invalidate stale blob URLs
