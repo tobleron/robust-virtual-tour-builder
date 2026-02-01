@@ -3,7 +3,7 @@ open NavigationLogic
 open Types
 
 describe("NavigationLogic", () => {
-  let createPathData = (segments) => {
+  let createPathData = segments => {
     {
       startPitch: 0.0,
       startYaw: 0.0,
@@ -12,7 +12,7 @@ describe("NavigationLogic", () => {
       targetYawForPan: 0.0,
       targetHfovForPan: 100.0,
       totalPathDistance: 10.0,
-      segments: segments,
+      segments,
       waypoints: [],
       panDuration: 1000.0,
       arrivalYaw: 0.0,
@@ -25,11 +25,11 @@ describe("NavigationLogic", () => {
     let p1 = {pitch: p1Pitch, yaw: p1Yaw}
     let p2 = {pitch: p2Pitch, yaw: p2Yaw}
     {
-      dist: dist,
+      dist,
       yawDiff: p2Yaw -. p1Yaw,
       pitchDiff: p2Pitch -. p1Pitch,
-      p1: p1,
-      p2: p2,
+      p1,
+      p2,
     }
   }
 
@@ -84,10 +84,10 @@ describe("NavigationLogic", () => {
   })
 
   test("calculateCameraPosition handles empty segments", t => {
-      let pathData = createPathData([])
-      let (p, y) = calculateCameraPosition(~progress=0.5, ~pathData)
-      // Expect start values
-      t->expect(p)->Expect.toBe(0.0)
-      t->expect(y)->Expect.toBe(0.0)
+    let pathData = createPathData([])
+    let (p, y) = calculateCameraPosition(~progress=0.5, ~pathData)
+    // Expect start values
+    t->expect(p)->Expect.toBe(0.0)
+    t->expect(y)->Expect.toBe(0.0)
   })
 })

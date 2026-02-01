@@ -15,16 +15,16 @@ module Vi = {
 
 // Helpers
 let mockFormData = () => {
-    let append = Vi.fn()
-    let mockInstance = {
-        "append": append
-    }
-    let mockImpl = %raw(`function(i) { return function() { return i } }`)(mockInstance)
-    let mockCtor = Vi.fn()
-    let _ = mockCtor->Vi.mockImplementation(mockImpl)
+  let append = Vi.fn()
+  let mockInstance = {
+    "append": append,
+  }
+  let mockImpl = %raw(`function(i) { return function() { return i } }`)(mockInstance)
+  let mockCtor = Vi.fn()
+  let _ = mockCtor->Vi.mockImplementation(mockImpl)
 
-    Vi.stubGlobal("FormData", mockCtor)
-    append
+  Vi.stubGlobal("FormData", mockCtor)
+  append
 }
 
 let mockFetch = () => {
@@ -37,7 +37,11 @@ let createMockResponse = (ok, status, jsonFn, blobFn) => {
   {
     "ok": ok,
     "status": status,
-    "statusText": if ok { "OK" } else { "Error" },
+    "statusText": if ok {
+      "OK"
+    } else {
+      "Error"
+    },
     "json": jsonFn,
     "blob": blobFn,
     "text": Vi.fn(),
@@ -120,7 +124,10 @@ describe("ProjectManager.Logic", () => {
     let mockLocalStorage = {"getItem": mockGetItem}
     Vi.stubGlobal("localStorage", mockLocalStorage)
 
-    let result = await ProjectManager.Logic.processLoadedProjectData(input, ~loadStartTime=startTime)
+    let result = await ProjectManager.Logic.processLoadedProjectData(
+      input,
+      ~loadStartTime=startTime,
+    )
 
     switch result {
     | Ok((sid, _data)) => t->expect(sid)->Expect.toBe(sessionId)
