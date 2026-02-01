@@ -2,8 +2,9 @@ use actix_multipart::Multipart;
 use futures_util::TryStreamExt as _;
 use std::collections::HashMap;
 use std::fs;
-use std::io::Write;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
+use tokio::fs as tokio_fs;
+use tokio::io::AsyncWriteExt;
 use uuid::Uuid;
 
 use crate::api::utils::{MAX_UPLOAD_SIZE, get_temp_path, sanitize_filename};
@@ -18,6 +19,19 @@ pub async fn read_string_field(field: &mut actix_multipart::Field) -> Result<Str
     Ok(String::from_utf8_lossy(&bytes).to_string())
 }
 
+/// Helper to save field content to a file asynchronously
+async fn save_field_to_file(
+    field: &mut actix_multipart::Field,
+    path: &Path,
+) -> Result<(), AppError> {
+    let mut f = tokio_fs::File::create(path).await.map_err(AppError::IoError)?;
+    while let Some(chunk) = field.try_next().await? {
+        f.write_all(&chunk).await.map_err(AppError::IoError)?;
+    }
+    f.flush().await.map_err(AppError::IoError)?;
+    Ok(())
+}
+
 /// Saves a file field to a temporary file.
 pub async fn save_temp_file_field(
     field: &mut actix_multipart::Field,
@@ -30,10 +44,9 @@ pub async fn save_temp_file_field(
     let sanitized_name =
         sanitize_filename(&filename).unwrap_or_else(|_| format!("img_{}.webp", Uuid::new_v4()));
     let temp_img_path = get_temp_path("tmp");
-    let mut f = fs::File::create(&temp_img_path).map_err(AppError::IoError)?;
-    while let Some(chunk) = field.try_next().await? {
-        f.write_all(&chunk).map_err(AppError::IoError)?;
-    }
+
+    save_field_to_file(field, &temp_img_path).await?;
+
     Ok((sanitized_name, temp_img_path))
 }
 
@@ -66,10 +79,7 @@ pub async fn extract_file_from_multipart(
     while let Ok(Some(mut field)) = payload.try_next().await {
         if field.name() == Some("file") {
             let tmp_path = get_temp_path(ext);
-            let mut f = fs::File::create(&tmp_path).map_err(AppError::IoError)?;
-            while let Ok(Some(chunk)) = field.try_next().await {
-                f.write_all(&chunk).map_err(AppError::IoError)?;
-            }
+            save_field_to_file(&mut field, &tmp_path).await?;
             return Ok(tmp_path);
         }
     }
@@ -110,7 +120,9 @@ pub async fn parse_tour_package_multipart(
 
 /// Saves the entire multipart payload to a temporary file (used for loading project zip).
 pub async fn save_multipart_to_tempfile(mut payload: Multipart) -> Result<fs::File, AppError> {
-    let mut temp_upload = tempfile::tempfile().map_err(AppError::IoError)?;
+    let temp_file = tempfile::tempfile().map_err(AppError::IoError)?;
+    let mut async_file = tokio_fs::File::from_std(temp_file.try_clone().map_err(AppError::IoError)?);
+
     let mut uploaded_size = 0;
     while let Some(mut field) = payload.try_next().await? {
         while let Some(chunk) = field.try_next().await? {
@@ -118,8 +130,10 @@ pub async fn save_multipart_to_tempfile(mut payload: Multipart) -> Result<fs::Fi
             if uploaded_size > MAX_UPLOAD_SIZE {
                 return Err(AppError::ImageError("Project too large".into()));
             }
-            temp_upload.write_all(&chunk).map_err(AppError::IoError)?;
+            async_file.write_all(&chunk).await.map_err(AppError::IoError)?;
         }
     }
-    Ok(temp_upload)
+    async_file.flush().await.map_err(AppError::IoError)?;
+
+    Ok(temp_file)
 }
