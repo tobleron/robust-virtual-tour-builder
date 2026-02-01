@@ -88,3 +88,4 @@
 [2026-02-01 11:13] v4.8.13 - fix(project-manager): use safe json encoding for project load (sidebar images fixed, viewer pending) [TRIPLE]
 [2026-02-01 13:52] v4.8.13 - fix: improve MIME sniffing in backend and bust SW cache to resolve black images
 [2026-02-01 14:09] v4.8.13 - fix: disable etag to force correct content-type propagation
+[2026-02-01 14:10] v4.8.13 - chore: cleanup unused imports in media/serve.rs

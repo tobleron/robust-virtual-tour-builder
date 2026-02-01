@@ -1,5 +1,5 @@
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
-use std::io::{Read, Seek, SeekFrom};
+use std::io::Read;
 use std::path::Path;
 
 use crate::api::utils::sanitize_filename;
