@@ -72,8 +72,8 @@ pub async fn save_project(req: HttpRequest, payload: Multipart) -> Result<HttpRe
     let duration = start.elapsed().as_millis();
     match zip_creation_result {
         Ok(_) => {
-            let file_bytes = fs::read(&zip_path).map_err(AppError::IoError)?;
-            let _ = fs::remove_file(&zip_path);
+            let file_bytes = tokio::fs::read(&zip_path).await.map_err(AppError::IoError)?;
+            let _ = tokio::fs::remove_file(&zip_path).await;
             tracing::info!(
                 module = "ProjectManager",
                 duration_ms = duration,
@@ -84,7 +84,7 @@ pub async fn save_project(req: HttpRequest, payload: Multipart) -> Result<HttpRe
                 .body(file_bytes))
         }
         Err(e) => {
-            let _ = fs::remove_file(&zip_path);
+            let _ = tokio::fs::remove_file(&zip_path).await;
             Err(e.into())
         }
     }
