@@ -40,6 +40,13 @@ external mockReverseGeocode: mockFn = "reverseGeocode"
 
 external anyToJson: 'a => JSON.t = "%identity"
 
+/* Helper to remove undefined fields from object */
+let sanitizeObject: 'a => 'a = %raw(`
+  function(obj) {
+    return JSON.parse(JSON.stringify(obj));
+  }
+`)
+
 /* Helper to create mock sceneDataItem */
 let createMockItem = (~name, ~metadata=?, ()) => {
   let _ = name
@@ -67,7 +74,7 @@ let defaultPanorama: gPanoMetadata = {
 
 describe("ExifReportGenerator", () => {
   beforeEach(() => {
-    %raw(`vi.clearAllMocks()`)
+    let _ = %raw(`vi.clearAllMocks()`)
   })
 
   testAsync("generateExifReport: handles empty file list", async t => {
@@ -83,18 +90,21 @@ describe("ExifReportGenerator", () => {
 
   testAsync("generateExifReport: processes files and generates full report", async t => {
     // Setup mocks
+    // Use proper schema keys matching JsonParsers: date, cameraModel, lensModel
+    // Use undefined for optional fields to satisfy strict parser
     let meta = {
       "gps": {"lat": 10.0, "lon": 20.0},
-      "dateTime": "2023:01:01 12:00:00",
-      "make": "TestMake",
-      "model": "TestModel",
+      "date": "2023:01:01 12:00:00",
+      "cameraModel": "TestMake",
+      "lensModel": "TestModel",
       "width": 1000,
       "height": 500,
-      "focalLength": Nullable.null,
-      "aperture": Nullable.null,
-      "iso": Nullable.null,
+      "focalLength": %raw("undefined"),
+      "aperture": %raw("undefined"),
+      "iso": %raw("undefined"),
     }
-    let item = createMockItem(~name="img1.jpg", ~metadata=anyToJson(meta), ())
+    let cleanMeta = sanitizeObject(meta)
+    let item = createMockItem(~name="img1.jpg", ~metadata=anyToJson(cleanMeta), ())
 
     // Mock Location
     let analysis: GeoUtils.scanResult = {

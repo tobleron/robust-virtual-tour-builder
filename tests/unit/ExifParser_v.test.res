@@ -312,9 +312,48 @@ describe("ExifParser", () => {
       async t => {
         let fileType = %raw(`new File([new Blob([""], {type: "image/jpeg"})], "test.jpg")`)
 
+        let mockResponse = {
+          "exif": {
+            "make": "Canon",
+            "model": "EOS R5",
+            "date": "2023:01:01",
+            "cameraModel": "Canon EOS R5",
+            "lensModel": "RF 15-35mm",
+            "width": 8192,
+            "height": 5464,
+            "focalLength": 15.0,
+            "fNumber": 2.8,
+            "iso": 100
+            // gps omitted (undefined) instead of null
+          },
+          "quality": {
+            "score": 0.9,
+            "histogram": [1,2,3],
+            "colorHist": {"r": [], "g": [], "b": []},
+            "stats": {
+               "avgLuminance": 128,
+               "blackClipping": 0.0,
+               "whiteClipping": 0.0,
+               "sharpnessVariance": 10
+            },
+            "isBlurry": false,
+            "isSoft": false,
+            "isSeverelyDark": false,
+            "isSeverelyBright": false,
+            "isDim": false,
+            "hasBlackClipping": false,
+            "hasWhiteClipping": false,
+            "issues": 0,
+            "warnings": 0
+            // analysis omitted
+          },
+          "isOptimized": false,
+          "checksum": "abc12345"
+        }
+
         _mockFetch->mockResolvedValue({
           "ok": true,
-          "json": () => Promise.resolve({"quality": {"score": 0.9}}),
+          "json": () => Promise.resolve(mockResponse),
         })
 
         let result = await analyzeImageQuality(fileType)

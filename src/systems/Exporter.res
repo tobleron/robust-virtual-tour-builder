@@ -3,17 +3,16 @@
 open ReBindings
 open Types
 open EventBus
-open RescriptSchema
 
 type apiError = {
   error: string,
   details: option<string>,
 }
 
-let apiErrorSchema = S.object((s): apiError => {
+let apiErrorDecoder = JsonCombinators.Json.Decode.object(field => {
   {
-    error: s.field("error", S.string),
-    details: s.field("details", S.nullable(S.string)),
+    error: field.required("error", JsonCombinators.Json.Decode.string),
+    details: field.optional("details", JsonCombinators.Json.Decode.string),
   }
 })
 
@@ -224,14 +223,13 @@ let exportTour = async (
   | exn => {
       let (msg, stack) = Logger.getErrorDetails(exn)
 
-      let finalMsg = try {
-        let err = S.parseJsonStringOrThrow(msg, apiErrorSchema)
-        switch err.details {
-        | Some(d) => d
-        | None => err.error
+      let finalMsg = switch JsonCombinators.Json.parse(msg) {
+      | Ok(json) =>
+        switch JsonCombinators.Json.decode(json, apiErrorDecoder) {
+        | Ok(err) => err.details->Option.getOr(err.error)
+        | Error(_) => msg
         }
-      } catch {
-      | _ => msg
+      | Error(_) => msg
       }
 
       Logger.error(

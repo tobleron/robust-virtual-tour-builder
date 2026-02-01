@@ -24,6 +24,13 @@ external mockExtractExifTags: mockFn = "extractExifTags"
 
 external anyToJson: 'a => JSON.t = "%identity"
 
+/* Helper to remove undefined fields from object */
+let sanitizeObject: 'a => 'a = %raw(`
+  function(obj) {
+    return JSON.parse(JSON.stringify(obj));
+  }
+`)
+
 let defaultPanorama: gPanoMetadata = {
   usePanoramaViewer: false,
   projectionType: "equirectangular",
@@ -66,7 +73,9 @@ let createMockItem = (
 
 describe("ExifReportGeneratorLogicExtraction", () => {
   beforeEach(() => {
-    %raw(`vi.clearAllMocks()`)
+    let _ = %raw(`vi.clearAllMocks()`)
+    // Ensure mock returns something safe by default to avoid crash if logic fallbacks
+    mockExtractExifTags->mockResolvedValue(Error("Default Mock Error"))
   })
 
   describe("extractAllExif", () => {
@@ -92,11 +101,12 @@ describe("ExifReportGeneratorLogicExtraction", () => {
           "lensModel": "TestModel",
           "width": 1000,
           "height": 500,
-          "focalLength": Nullable.null,
-          "aperture": Nullable.null,
-          "iso": Nullable.null,
+          "focalLength": %raw("undefined"),
+          "aperture": %raw("undefined"),
+          "iso": %raw("undefined"),
         }
-        let item = createMockItem(~name="test1.jpg", ~metadata=anyToJson(meta), ())
+        let cleanMeta = sanitizeObject(meta)
+        let item = createMockItem(~name="test1.jpg", ~metadata=anyToJson(cleanMeta), ())
 
         let (results, gps, _filenames, date) = await extractAllExif([item])
 
@@ -116,17 +126,14 @@ describe("ExifReportGeneratorLogicExtraction", () => {
       "falls back to local extraction when metadata has no GPS",
       async t => {
         let meta = {
-          "gps": Nullable.null, // No GPS in cached metadata
+          "gps": %raw("undefined"), // No GPS (undefined)
           "date": "2023:01:01 12:00:00",
           "width": 1000,
           "height": 500,
-          "cameraModel": Nullable.null,
-          "lensModel": Nullable.null,
-          "focalLength": Nullable.null,
-          "aperture": Nullable.null,
-          "iso": Nullable.null,
+          // Optional fields omitted or undefined
         }
-        let item = createMockItem(~name="test2.jpg", ~metadata=anyToJson(meta), ())
+        let cleanMeta = sanitizeObject(meta)
+        let item = createMockItem(~name="test2.jpg", ~metadata=anyToJson(cleanMeta), ())
 
         // Mock local extraction success with GPS
         let localExif: exifMetadata = {

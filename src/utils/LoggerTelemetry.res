@@ -11,6 +11,34 @@ let setBypassTestEnvCheck = (v: bool) => {
   bypassTestEnvCheck := v
 }
 
+let encodeLogEntry = (entry: logEntry) => {
+  let encode = JsonCombinators.Json.Encode.object
+  let float = JsonCombinators.Json.Encode.float
+  let string = JsonCombinators.Json.Encode.string
+  let option = JsonCombinators.Json.Encode.option
+  let id = (v: JSON.t) => v
+
+  encode([
+    ("timestampMs", float(entry.timestampMs)),
+    ("timestamp", string(entry.timestamp)),
+    ("module", string(entry.module_)),
+    ("level", string(entry.level)),
+    ("message", string(entry.message)),
+    ("data", option(id)(entry.data)),
+    ("priority", string(entry.priority)),
+    ("requestId", option(string)(entry.requestId))
+  ])
+}
+
+let encodeTelemetryBatch = (batch: telemetryBatch) => {
+  let encode = JsonCombinators.Json.Encode.object
+  let array = JsonCombinators.Json.Encode.array
+
+  encode([
+    ("entries", array(encodeLogEntry)(batch.entries))
+  ])
+}
+
 let rec attemptSendBatch = async (payload: telemetryBatch, retries: int) => {
   try {
     let _ = await RequestQueue.schedule(() =>
@@ -19,8 +47,7 @@ let rec attemptSendBatch = async (payload: telemetryBatch, retries: int) => {
         Fetch.requestInit(
           ~method="POST",
           ~headers=Dict.fromArray([("Content-Type", "application/json")]),
-          // CSP SAFE FIX: Bypass schema eval
-          ~body=JSON.stringifyAny(payload)->Option.getOr("{}"),
+          ~body=JsonCombinators.Json.stringify(encodeTelemetryBatch(payload)),
           (),
         ),
       )
@@ -71,7 +98,6 @@ let sendTelemetry = async entry => {
   } else {
     let p = stringToLevel(entry.level)->levelToTelemetryPriority
     switch p {
-    // Critical: Send immediately to Error endpoint (triggers Error Log)
     | Critical =>
       try {
         let _ = await RequestQueue.schedule(() =>
@@ -80,8 +106,7 @@ let sendTelemetry = async entry => {
             Fetch.requestInit(
               ~method="POST",
               ~headers=Dict.fromArray([("Content-Type", "application/json")]),
-              // CSP SAFE FIX: Bypass schema eval
-              ~body=JSON.stringifyAny(entry)->Option.getOr("{}"),
+              ~body=JsonCombinators.Json.stringify(encodeLogEntry(entry)),
               (),
             ),
           )
@@ -90,15 +115,12 @@ let sendTelemetry = async entry => {
       | e => Console.error(`[Logger] Failed to send immediate telemetry: ${getErrorMessage(e)}`)
       }
 
-    // High/Medium: Standard Logs (Warn/Info) - Send to Log endpoint (Diagnostic Log)
-    // Low: Debug/Trace - Only if Diagnostic Mode is ON or filtered
     | High | Medium | Low =>
       let shouldSend = if p == High || p == Medium {
         true
       } else if Constants.Telemetry.diagnosticMode.contents {
         true
       } else {
-        // Micro-management: Allow specific modules even when diagnostic mode is OFF
         let filters = Constants.Telemetry.traceFilterModules
         let moduleName = entry.module_
         if Array.length(filters) == 0 {
@@ -109,10 +131,7 @@ let sendTelemetry = async entry => {
       }
 
       if shouldSend {
-        // If Diagnostic Mode is ON, we send immediately for a "Live" experience.
-        // Otherwise, we batch to save resources.
         if Constants.Telemetry.diagnosticMode.contents {
-          // Reuse the immediate send logic but at info level (sent to /api/telemetry/log)
           try {
             let _ = await RequestQueue.schedule(() =>
               Fetch.fetch(
@@ -120,14 +139,13 @@ let sendTelemetry = async entry => {
                 Fetch.requestInit(
                   ~method="POST",
                   ~headers=Dict.fromArray([("Content-Type", "application/json")]),
-                  // CSP SAFE FIX: Bypass schema eval
-                  ~body=JSON.stringifyAny(entry)->Option.getOr("{}"),
+                  ~body=JsonCombinators.Json.stringify(encodeLogEntry(entry)),
                   (),
                 ),
               )
             )
           } catch {
-          | _ => () // Fail silently to avoid interrupting the app
+          | _ => ()
           }
         } else {
           if Array.length(telemetryQueue) < Constants.Telemetry.queueMaxSize {

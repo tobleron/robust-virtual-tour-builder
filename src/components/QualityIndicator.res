@@ -14,7 +14,10 @@ let make = React.memo((~activeIndex, ~scenes) => {
 
   let badges = switch quality {
   | Some(qJson) =>
-    let q = Schemas.castToQualityAnalysis(qJson)
+    let q = switch JsonCombinators.Json.decode(qJson, JsonParsers.Shared.qualityAnalysis) {
+    | Ok(q) => q
+    | Error(_) => SharedTypes.defaultQuality("Parsing failed")
+    }
     let b = []
     if q.isBlurry {
       let _ = Array.push(b, {"text": "BLURRY", "cls": "q-blurry"})

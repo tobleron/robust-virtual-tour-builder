@@ -1,4 +1,3 @@
-@@warning("-3")
 /* src/utils/PersistenceLayer.res */
 
 open IdbBindings
@@ -7,9 +6,6 @@ type serializedSession = {
   timestamp: float,
   projectData: JSON.t,
 }
-
-// Schema removed to satisfy CSP (no eval).
-// Replaced with direct casting for internal persistence.
 
 let key = "autosave_session_latest"
 let debounceMs = 2000
@@ -36,12 +32,12 @@ let performSave = (state: Types.state) => {
       timeline: state.timeline,
     }
 
-    // CSP SAFE FIX: Direct cast since Record = JS Object in ReScript v11+. Schema uses eval.
-    let projectData = Obj.magic(project)
+    // Encoded to JSON value using combinators
+    let projectData = JsonParsers.Encoders.project(project)
 
     let payload = {
       timestamp: Date.now(),
-      projectData: asJson(projectData),
+      projectData: projectData,
     }
 
     let _ =
@@ -91,20 +87,25 @@ let checkRecovery = () => {
   get(key)->Promise.then(item => {
     switch Nullable.toOption(item) {
     | Some(raw) =>
-      try {
-        // CSP SAFE FIX: Casting instead of schema validation
-        let saved: serializedSession = Obj.magic(raw)
-        Promise.resolve(Some(saved))
-      } catch {
-      | Js.Exn.Error(e) =>
-        Logger.warn(
-          ~module_="Persistence",
-          ~message="Corrupt autosave found (cast failed)",
-          ~data={"error": Js.Exn.message(e)},
-          (),
-        )
-        Promise.resolve(None)
-      | _ => Promise.resolve(None)
+      let json = asJson(raw)
+      let decoder = JsonCombinators.Json.Decode.object(field => {
+        {
+          timestamp: field.required("timestamp", JsonCombinators.Json.Decode.float),
+          projectData: field.required("projectData", JsonCombinators.Json.Decode.id),
+        }
+      })
+
+      switch JsonCombinators.Json.decode(json, decoder) {
+      | Ok(saved) => Promise.resolve(Some(saved))
+      | Error(e) => {
+          Logger.warn(
+            ~module_="Persistence",
+            ~message="Corrupt autosave found (decode failed)",
+            ~data={"error": e},
+            (),
+          )
+          Promise.resolve(None)
+        }
       }
     | None => Promise.resolve(None)
     }
