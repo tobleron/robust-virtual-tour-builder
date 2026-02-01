@@ -86,3 +86,4 @@
 [2026-02-01 10:25] v4.8.13 - docs: preserve analysis reports and dev-system refinement history [TRIPLE]
 [2026-02-01 10:29] v4.8.13 - chore: final repository cleanup and automated plan updates [TRIPLE]
 [2026-02-01 11:13] v4.8.13 - fix(project-manager): use safe json encoding for project load (sidebar images fixed, viewer pending) [TRIPLE]
+[2026-02-01 13:52] v4.8.13 - fix: improve MIME sniffing in backend and bust SW cache to resolve black images

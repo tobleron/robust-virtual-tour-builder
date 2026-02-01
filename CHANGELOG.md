@@ -22,6 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Final repository cleanup and automated plan updates
 - Fix(project-manager): use safe json encoding for project load (sidebar images fixed, viewer pending)
 
+### Fixed
+- Improve MIME sniffing in backend and bust SW cache to resolve black images
+
 ## [4.8.12] - 2026-01-31
 
 ### Changed
