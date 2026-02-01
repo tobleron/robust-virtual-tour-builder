@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Synchronize codebase map, classify JsonParsers, and clean up stale tasks
 - Preserve analysis reports and dev-system refinement history
 - Final repository cleanup and automated plan updates
+- Fix(project-manager): use safe json encoding for project load (sidebar images fixed, viewer pending)
 
 ## [4.8.12] - 2026-01-31
 

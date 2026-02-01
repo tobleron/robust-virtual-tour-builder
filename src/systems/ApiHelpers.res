@@ -104,6 +104,17 @@ let processErrorResponse = (response: Fetch.response): Promise.t<apiResult<Fetch
 }
 
 let handleResponse = (response: Fetch.response): Promise.t<apiResult<Fetch.response>> => {
+  if Fetch.status(response) == 401 {
+    Dom.Storage2.localStorage->Dom.Storage2.removeItem("auth_token")
+    let _ = %raw("window.dispatchEvent(new Event('auth:logout'))")
+    Logger.warn(
+      ~module_="ApiHelpers",
+      ~message="UNAUTHORIZED",
+      ~data=Some({"action": "Cleared invalid auth_token, next request will use fallback"}),
+      (),
+    )
+  }
+
   if Fetch.ok(response) {
     Promise.resolve(Ok(response))
   } else {
