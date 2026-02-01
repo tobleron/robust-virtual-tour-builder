@@ -126,16 +126,27 @@ pub async fn import_project(
     let tmp_path = project_multipart::extract_file_from_multipart(payload, "zip").await?;
 
     // Extract metadata
-    let (project_id, project_data) = project_logic::extract_project_metadata_from_zip(&tmp_path)?;
+    let tmp_path_clone = tmp_path.clone();
+    let (project_id, project_data) = web::block(move || {
+        project_logic::extract_project_metadata_from_zip(&tmp_path_clone)
+    })
+    .await
+    .map_err(|e| AppError::InternalError(e.to_string()))??;
 
     let project_dir =
         StorageManager::ensure_project_dir(&user.id, &project_id).map_err(AppError::IoError)?;
 
     // Use shared logic for extraction
-    project_logic::extract_zip_to_project_dir(&tmp_path, &project_dir)
-        .map_err(AppError::InternalError)?;
+    let tmp_path_clone = tmp_path.clone();
+    let project_dir_clone = project_dir.clone();
+    web::block(move || {
+        project_logic::extract_zip_to_project_dir(&tmp_path_clone, &project_dir_clone)
+    })
+    .await
+    .map_err(|e| AppError::InternalError(e.to_string()))?
+    .map_err(AppError::InternalError)?;
 
-    let _ = fs::remove_file(&tmp_path);
+    let _ = web::block(move || fs::remove_file(tmp_path)).await;
     return Ok(HttpResponse::Ok().json(ImportResponse {
         session_id: project_id,
         project_data,
