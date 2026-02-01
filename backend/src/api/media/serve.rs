@@ -85,16 +85,26 @@ pub async fn serve_project_file(
 
     match actix_files::NamedFile::open(&file_path) {
         Ok(mut named_file) => {
+            // FORCE REFRESH: Disable caching headers to prevent 304 Not Modified
+            // This ensures the browser always gets the corrected Content-Type header
+            named_file = named_file.use_etag(false).use_last_modified(false);
+
             let initial_content_type = named_file.content_type().to_string();
+
+            tracing::debug!(
+                filename = %safe_filename,
+                initial_content_type = %initial_content_type,
+                "SERVING_FILE_DEBUG_CHECK"
+            );
 
             // If it's octet-stream or text/plain (common for extensionless/unknown files), attempt sniffing
             if initial_content_type == "application/octet-stream"
                 || initial_content_type == "text/plain"
             {
-                tracing::info!(
+                tracing::debug!(
                     filename = %safe_filename,
                     content_type = %initial_content_type,
-                    "Attempting MIME sniffing for suspected image"
+                    "Suspected missing content-type, attempting MIME sniffing"
                 );
 
                 let mut buffer = [0u8; 12];
@@ -121,7 +131,7 @@ pub async fn serve_project_file(
 
                         if let Some(m) = detected_mime {
                             if let Ok(mime) = m.parse() {
-                                tracing::info!(filename = %safe_filename, mime = %m, "MIME sniffed successfully");
+                                tracing::debug!(filename = %safe_filename, sniffed_mime = %m, "MIME sniffed successfully");
                                 named_file = named_file.set_content_type(mime);
                             }
                         } else {
@@ -133,9 +143,20 @@ pub async fn serve_project_file(
                                 }
                             }
                         }
+                    } else {
+                        tracing::warn!(filename = %safe_filename, "Failed to read file header for sniffing");
                     }
+                } else {
+                    tracing::warn!(filename = %safe_filename, "Failed to open file for sniffing");
                 }
             }
+
+            let final_content_type = named_file.content_type().to_string();
+            tracing::debug!(
+                filename = %safe_filename,
+                final_content_type = %final_content_type,
+                "SERVING_FILE_FINAL_RESPONSE"
+            );
 
             Ok(named_file.into_response(&req))
         }
