@@ -61,7 +61,23 @@ pub fn extract_zip_to_project_dir(zip_path: &PathBuf, project_dir: &PathBuf) -> 
     for i in 0..archive.len() {
         let mut file = archive.by_index(i).map_err(|e| e.to_string())?;
         let outpath = match file.enclosed_name() {
-            Some(path) => project_dir.join(path),
+            Some(path) => {
+                // Double-check sanitization using our robust util
+                if let Some(fname) = path.file_name().and_then(|s| s.to_str()) {
+                    if let Ok(safe_name) = crate::api::utils::sanitize_filename(fname) {
+                        // Reconstruct path with sanitized filename if it's a file
+                        if let Some(parent) = path.parent() {
+                            project_dir.join(parent).join(safe_name)
+                        } else {
+                            project_dir.join(safe_name)
+                        }
+                    } else {
+                        project_dir.join(path)
+                    }
+                } else {
+                    project_dir.join(path)
+                }
+            }
             None => continue,
         };
 
@@ -188,57 +204,51 @@ pub fn create_project_zip_sync(
         let project_val: Value = serde_json::from_str(&project_json).unwrap_or(Value::Null);
         if let Some(scenes) = project_val["scenes"].as_array() {
             for scene in scenes {
-                if let Some(name) = scene["name"].as_str() {
-                    if !written_files.contains(name) {
-                        let img_subdir = session_path.join("images").join(name);
-                        let root_path = session_path.join(name);
-                        let mut source_path = if img_subdir.exists() {
-                            Some(img_subdir)
-                        } else if root_path.exists() {
-                            Some(root_path)
-                        } else {
-                            None
-                        };
-
-                        // Fallback: Check 'file' property if not found by name
-                        if source_path.is_none() {
-                            if let Some(file_url) = scene["file"].as_str() {
-                                if file_url.contains("/file/") {
-                                    if let Some(filename_segment) = file_url
-                                        .split("/file/")
-                                        .nth(1)
-                                        .and_then(|s| s.split('?').next())
+                if let Some(_name) = scene["name"].as_str() {
+                    // Collect all possible file references in a scene
+                    let file_props = ["file", "tinyFile", "originalFile"];
+                    for prop in file_props {
+                        if let Some(file_url) = scene[prop].as_str() {
+                            if file_url.contains("/file/") {
+                                if let Some(filename_segment) = file_url
+                                    .split("/file/")
+                                    .nth(1)
+                                    .and_then(|s| s.split('?').next())
+                                {
+                                    if let Ok(decoded_filename) =
+                                        percent_decode_str(filename_segment).decode_utf8()
                                     {
-                                        if let Ok(decoded_filename) =
-                                            percent_decode_str(filename_segment).decode_utf8()
+                                        let decoded_filename = decoded_filename.to_string();
+                                        if let Ok(safe_filename) =
+                                            crate::api::utils::sanitize_filename(&decoded_filename)
                                         {
-                                            let decoded_filename = decoded_filename.to_string();
-                                            if let Ok(safe_filename) =
-                                                crate::api::utils::sanitize_filename(
-                                                    &decoded_filename,
-                                                )
-                                            {
+                                            if !written_files.contains(&safe_filename) {
                                                 let img_subdir = session_path
                                                     .join("images")
                                                     .join(&safe_filename);
                                                 let root_path = session_path.join(&safe_filename);
-                                                if img_subdir.exists() {
-                                                    source_path = Some(img_subdir);
+                                                let source_path = if img_subdir.exists() {
+                                                    Some(img_subdir)
                                                 } else if root_path.exists() {
-                                                    source_path = Some(root_path);
+                                                    Some(root_path)
+                                                } else {
+                                                    None
+                                                };
+
+                                                if let Some(path) = source_path {
+                                                    zip.start_file(
+                                                        format!("images/{}", safe_filename),
+                                                        options,
+                                                    )?;
+                                                    let mut f = fs::File::open(path)?;
+                                                    std::io::copy(&mut f, &mut zip)?;
+                                                    written_files.insert(safe_filename);
                                                 }
                                             }
                                         }
                                     }
                                 }
                             }
-                        }
-
-                        if let Some(path) = source_path {
-                            zip.start_file(format!("images/{}", name), options)?;
-                            let mut f = fs::File::open(path)?;
-                            std::io::copy(&mut f, &mut zip)?;
-                            written_files.insert(name.to_string());
                         }
                     }
                 }

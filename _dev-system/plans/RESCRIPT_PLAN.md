@@ -8,13 +8,11 @@
 
 ---
 
-## 🛠️ SURGICAL REFACTOR TASKS (3)
-- [ ] **../../src/core/JsonParsers.res**
-  - *Reason:* [Nesting: 2.00, Density: 0.28, Coupling: 0.04] | Drag: 4.47 | LOC: 379/300  🎯 Target: Function: `file` (High Local Complexity (3.0). Logic heavy.)
+## 🛠️ SURGICAL REFACTOR TASKS (2)
 - [ ] **../../src/utils/Logger.res**
   - *Reason:* [Nesting: 2.00, Density: 0.14, Coupling: 0.07] | Drag: 5.47 | LOC: 327/300  🎯 Target: Function: `pd` (High Local Complexity (2.0). Logic heavy.)
-- [ ] **../../src/systems/ProjectManager.res**
-  - *Reason:* [Nesting: 3.00, Density: 0.26, Coupling: 0.10] | Drag: 7.13 | LOC: 355/300  🎯 Target: Function: `safeEncodeFile` (High Local Complexity (3.0). Logic heavy.)
+- [ ] **../../src/core/JsonParsers.res**
+  - *Reason:* [Nesting: 2.00, Density: 0.28, Coupling: 0.04] | Drag: 4.47 | LOC: 379/300  🎯 Target: Function: `file` (High Local Complexity (3.0). Logic heavy.)
 
 ---
 

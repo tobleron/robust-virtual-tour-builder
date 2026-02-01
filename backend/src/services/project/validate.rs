@@ -68,6 +68,35 @@ pub fn validate_and_clean_project(
             image_found = true;
         }
 
+        // Fallback: Check 'file' property (URL) if not found by name
+        if !image_found {
+            if let Some(file_url) = scene["file"].as_str() {
+                if file_url.contains("/file/") {
+                    if let Some(filename_segment) = file_url
+                        .split("/file/")
+                        .nth(1)
+                        .and_then(|s| s.split('?').next())
+                    {
+                        if let Ok(decoded_filename) =
+                            percent_encoding::percent_decode_str(filename_segment).decode_utf8()
+                        {
+                            let decoded_filename = decoded_filename.to_string();
+                            if let Ok(safe_filename) =
+                                crate::api::utils::sanitize_filename(&decoded_filename)
+                            {
+                                if available_files.contains(&safe_filename)
+                                    || available_files
+                                        .contains(&format!("images/{}", safe_filename))
+                                {
+                                    image_found = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         if !image_found {
             report.warnings.push(format!(
                 "Scene '{}': Image file not found in ZIP",

@@ -63,6 +63,7 @@ module AboutContent = {
 
 @react.component
 let make = React.memo(() => {
+  Logger.info(~module_="Sidebar", ~message="Rendering Sidebar", ())
   let state = AppContext.useAppState()
   let sceneSlice = AppContext.useSceneSlice()
   let dispatch = AppContext.useAppDispatch()

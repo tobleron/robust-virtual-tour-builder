@@ -14,16 +14,6 @@
 
 - [ ] `../../css/components/ui.css`
 
-### 🔧 Action: Fix Pattern `JSON.stringifyAny`
-**Directive:** CSP Compliance: Replace 'JSON.stringifyAny' with `rescript-json-combinators` (Zero-Eval).
-
-- [ ] `../../src/systems/Api/AuthenticatedClient.res`
-
-### 🔧 Action: Fix Pattern `JSON.stringify`
-**Directive:** CSP Compliance: Replace 'JSON.stringify' with `rescript-json-combinators` (Zero-Eval).
-
-- [ ] `../../src/systems/Api/AuthenticatedClient.res`
-
 ### 🔧 Action: Fix Pattern `Obj.magic`
 **Directive:** CSP Compliance: Replace 'Obj.magic' with `rescript-json-combinators` (Zero-Eval).
 
