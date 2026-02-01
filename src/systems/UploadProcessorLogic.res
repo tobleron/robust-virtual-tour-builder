@@ -181,7 +181,10 @@ let finalizeUploads = (
         i => {
           let q =
             i.quality
-            ->Option.map(Schemas.castToQualityAnalysis)
+            ->Option.flatMap(q => switch JsonCombinators.Json.decode(q, JsonParsers.Shared.qualityAnalysis) {
+              | Ok(qa) => Some(qa)
+              | Error(_) => None
+            })
             ->Option.getOr(SharedTypes.defaultQuality("No quality data"))
           ({quality: q, newName: File.name(i.original)}: UploadReport.qualityItem)
         },

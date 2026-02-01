@@ -13,7 +13,7 @@ let sanitizeScene = (s: scene): scene => {
 }
 
 let parseScene = (dataJson: JSON.t): scene => {
-  switch Schemas.parse(dataJson, Schemas.Domain.scene) {
+  switch JsonCombinators.Json.decode(dataJson, JsonParsers.Domain.scene) {
   | Ok(data) => sanitizeScene(data)
   | Error(msg) =>
     Logger.error(
@@ -43,7 +43,7 @@ let parseScene = (dataJson: JSON.t): scene => {
 }
 
 let parseProject = (projectDataJson: JSON.t): state => {
-  switch Schemas.parse(projectDataJson, Schemas.Domain.project) {
+  switch JsonCombinators.Json.decode(projectDataJson, JsonParsers.Domain.project) {
   | Ok(pd) => {
       let scenes = pd.scenes->Belt.Array.map(sanitizeScene)
       {

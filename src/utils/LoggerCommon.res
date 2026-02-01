@@ -1,5 +1,4 @@
 /* src/utils/LoggerCommon.res */
-open RescriptSchema
 
 external castToJson: 'a => JSON.t = "%identity"
 external asDynamic: 'a => {..} = "%identity"
@@ -32,29 +31,7 @@ type logEntry = {
   requestId: option<string>,
 }
 
-let jsonSchema: S.t<JSON.t> = S.unknown->S.transform(_ => {
-  parser: (v: unknown) => v->asDynamic->castToJson,
-  serializer: (v: JSON.t) => v->asDynamic->castToUnknown,
-})
-
-let logEntrySchema: S.t<logEntry> = S.object(s => {
-  {
-    timestampMs: s.field("timestampMs", S.float),
-    timestamp: s.field("timestamp", S.string),
-    module_: s.field("module", S.string),
-    level: s.field("level", S.string),
-    message: s.field("message", S.string),
-    data: s.field("data", S.option(jsonSchema)),
-    priority: s.field("priority", S.string),
-    requestId: s.field("requestId", S.option(S.string)),
-  }
-})
-
 type telemetryBatch = {entries: array<logEntry>}
-
-let telemetryBatchSchema: S.t<telemetryBatch> = S.object(s => {
-  {entries: s.field("entries", S.array(logEntrySchema))}
-})
 
 type timedResult<'a> = {
   result: 'a,

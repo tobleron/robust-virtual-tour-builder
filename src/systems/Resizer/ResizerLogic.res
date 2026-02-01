@@ -1,7 +1,6 @@
 /* src/systems/Resizer/ResizerLogic.res */
 
 open ReBindings
-open RescriptSchema
 open SharedTypes
 open ResizerTypes
 open ResizerUtils
@@ -30,58 +29,62 @@ let processZipResponse = zipResult => {
 let createResultFiles = (extractedResult, originalName) => {
   switch extractedResult {
   | Ok((previewBlob, metaText, tinyBlobOpt)) =>
-    let metadata: metadataResponse = S.parseJsonStringOrThrow(
-      metaText,
-      Schemas.Shared.metadataResponse,
-    )
-    let suggestedName = Nullable.toOption(metadata.suggestedName)
+    switch JsonCombinators.Json.parse(metaText) {
+    | Ok(json) =>
+      switch JsonCombinators.Json.decode(json, JsonParsers.Shared.metadataResponse) {
+      | Ok(metadata) =>
+        let suggestedName = Nullable.toOption(metadata.suggestedName)
 
-    let computeNewName = (suggestedName: option<string>, originalName: string) => {
-      switch suggestedName {
-      | Some(name) => name
-      | None =>
-        let baseName = String.replaceRegExp(originalName, /\.[^/.]+$/, "")
-        switch String.match(originalName, /_(\d{6})_\d{2}_(\d{3})/) {
-        | Some(captures) =>
-          let p1 = captures->Array.get(1)->Option.flatMap(x => x)
-          let p2 = captures->Array.get(2)->Option.flatMap(x => x)
-          switch (p1, p2) {
-          | (Some(p1), Some(p2)) => p1 ++ "_" ++ p2
-          | _ => baseName
+        let computeNewName = (suggestedName: option<string>, originalName: string) => {
+          switch suggestedName {
+          | Some(name) => name
+          | None =>
+            let baseName = String.replaceRegExp(originalName, /\.[^/.]+$/, "")
+            switch String.match(originalName, /_(\d{6})_\d{2}_(\d{3})/) {
+            | Some(captures) =>
+              let p1 = captures->Array.get(1)->Option.flatMap(x => x)
+              let p2 = captures->Array.get(2)->Option.flatMap(x => x)
+              switch (p1, p2) {
+              | (Some(p1), Some(p2)) => p1 ++ "_" ++ p2
+              | _ => baseName
+              }
+            | None => baseName
+            }
           }
-        | None => baseName
         }
-      }
-    }
 
-    let newName = computeNewName(suggestedName, originalName)
+        let newName = computeNewName(suggestedName, originalName)
 
-    let previewFile = File.newFile(
-      [previewBlob],
-      newName ++ ".webp",
-      {"type": "image/webp", "lastModified": Date.now()},
-    )
-    let tinyFile = switch tinyBlobOpt {
-    | Some(b) =>
-      Some(
-        File.newFile(
-          [b],
-          newName ++ "_tiny.webp",
+        let previewFile = File.newFile(
+          [previewBlob],
+          newName ++ ".webp",
           {"type": "image/webp", "lastModified": Date.now()},
-        ),
-      )
-    | None => None
-    }
+        )
+        let tinyFile = switch tinyBlobOpt {
+        | Some(b) =>
+          Some(
+            File.newFile(
+              [b],
+              newName ++ "_tiny.webp",
+              {"type": "image/webp", "lastModified": Date.now()},
+            ),
+          )
+        | None => None
+        }
 
-    Promise.resolve(
-      Ok({
-        preview: previewFile,
-        tiny: tinyFile,
-        metadata: metadata.exif,
-        qualityData: metadata.quality,
-        checksumData: metadata.checksum,
-      }),
-    )
+        Promise.resolve(
+          Ok({
+            preview: previewFile,
+            tiny: tinyFile,
+            metadata: metadata.exif,
+            qualityData: metadata.quality,
+            checksumData: metadata.checksum,
+          }),
+        )
+      | Error(msg) => Promise.resolve(Error("Metadata decode error: " ++ msg))
+      }
+    | Error(msg) => Promise.resolve(Error("Metadata parse error: " ++ msg))
+    }
   | Error(msg) => Promise.resolve(Error(msg))
   }
 }

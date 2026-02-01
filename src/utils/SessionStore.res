@@ -1,4 +1,3 @@
-@@warning("-3")
 open Types
 
 @val @scope("localStorage")
@@ -23,21 +22,11 @@ let saveState = (state: state) => {
   }
 
   try {
-    // CSP SAFE FIX: rescript-schema uses `new Function` which violates strict CSP.
-    // Using standard JSON.stringify since sessionState is a simple record.
-    let str = switch JSON.stringifyAny(sessionState) {
-    | Some(s) => s
-    | None => {
-        Logger.error(~module_="SessionStore", ~message="Failed to stringify session state", ())
-        ""
-      }
-    }
-    if str != "" {
-      setItem(storageKey, str)
-    }
+    let str = JsonCombinators.Json.stringify(JsonParsers.Domain.SessionState.encode(sessionState))
+    setItem(storageKey, str)
   } catch {
-  | Js.Exn.Error(e) => {
-      let (msg, stack) = Logger.getErrorDetails(Js.Exn.anyToExnInternal(e))
+  | e => {
+      let (msg, stack) = Logger.getErrorDetails(e)
       Logger.error(
         ~module_="SessionStore",
         ~message="SessionStore Save Exn",
@@ -45,33 +34,31 @@ let saveState = (state: state) => {
         (),
       )
     }
-  | _ => Logger.error(~module_="SessionStore", ~message="SessionStore Save Error: Unknown", ())
   }
 }
 
 let decodeSessionState = (jsonStr: string): option<sessionState> => {
-  try {
-    // CSP SAFE FIX: Using standard parse + cast.
-    let json = try {
-      JSON.parseOrThrow(jsonStr)
-    } catch {
-    | _ => JSON.Encode.null
+  switch JsonCombinators.Json.parse(jsonStr) {
+  | Ok(json) =>
+    switch JsonCombinators.Json.decode(json, JsonParsers.Domain.SessionState.decode) {
+    | Ok(s) => Some(s)
+    | Error(e) => {
+        Logger.error(
+          ~module_="SessionStore",
+          ~message="SessionStore Decode Error: " ++ e,
+          (),
+        )
+        None
+      }
     }
-
-    // Safety check: Ensure it's an object/array before casting
-    switch Js.Json.classify(json) {
-    | JSONObject(_) | JSONArray(_) => Some(Obj.magic(json))
-    | _ => None
+  | Error(e) => {
+      Logger.error(
+        ~module_="SessionStore",
+        ~message="SessionStore Parse Error: " ++ e,
+        (),
+      )
+      None
     }
-  } catch {
-  | Js.Exn.Error(e) =>
-    Logger.error(
-      ~module_="SessionStore",
-      ~message="SessionStore Decode Error: " ++ Js.Exn.message(e)->Option.getOr("Unknown"),
-      (),
-    )
-    None
-  | _ => None
   }
 }
 

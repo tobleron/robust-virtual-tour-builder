@@ -23,7 +23,7 @@
     "dependencies": [
         "@rescript/react",
         "rescript-vitest",
-        "rescript-schema"
+        "@glennsl/rescript-json-combinators"
     ],
     "warnings": {
         "error": "+A"

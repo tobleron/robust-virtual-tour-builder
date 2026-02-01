@@ -9,7 +9,15 @@ let resolveExifData = async (item: sceneDataItem) => {
   let file = item.original
   switch item.metadataJson {
   | Some(m) => {
-      let meta = Schemas.castToExifMetadata(m)
+      // Js.log("Metadata present")
+      let meta = switch JsonCombinators.Json.decode(m, JsonParsers.Shared.exifMetadata) {
+        | Ok(meta) => meta
+        | Error(_) => {
+            // Js.log("Decode error: " ++ e)
+            SharedTypes.defaultExif
+        }
+      }
+
       let hasGps = switch meta.gps->Nullable.toOption {
       | Some(_) => true
       | None => false
@@ -18,7 +26,10 @@ let resolveExifData = async (item: sceneDataItem) => {
       if hasGps {
         let q =
           item.qualityJson
-          ->Option.map(Schemas.castToQualityAnalysis)
+          ->Option.flatMap(q => switch JsonCombinators.Json.decode(q, JsonParsers.Shared.qualityAnalysis) {
+            | Ok(qa) => Some(qa)
+            | Error(_) => None
+          })
           ->Option.getOr(SharedTypes.defaultQuality("Cached metadata loaded"))
         {
           exif: meta,
@@ -28,6 +39,7 @@ let resolveExifData = async (item: sceneDataItem) => {
           suggestedName: Nullable.null,
         }
       } else {
+        // Js.log("No GPS, extracting locally")
         let localRes = await ExifParser.extractExifTags(File(file))
         switch localRes {
         | Ok((exif, _pano)) => {
@@ -38,9 +50,13 @@ let resolveExifData = async (item: sceneDataItem) => {
             suggestedName: Nullable.null,
           }
         | Error(_) => {
+            // Js.log("Local extraction error")
             let q =
               item.qualityJson
-              ->Option.map(Schemas.castToQualityAnalysis)
+              ->Option.flatMap(q => switch JsonCombinators.Json.decode(q, JsonParsers.Shared.qualityAnalysis) {
+                | Ok(qa) => Some(qa)
+                | Error(_) => None
+              })
               ->Option.getOr(SharedTypes.defaultQuality("Cached metadata (no GPS)"))
             {
               exif: meta,

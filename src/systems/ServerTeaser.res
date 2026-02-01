@@ -17,8 +17,9 @@ let generateServerTeaser = (state: state, onProgress) => {
     deletedSceneIds: state.deletedSceneIds,
     timeline: state.timeline,
   }
-  // CSP SAFE FIX
-  let jsonStr = JSON.stringifyAny(project)->Option.getOr("{}")
+
+  // Encoded with strict combinators
+  let jsonStr = JsonCombinators.Json.stringify(JsonParsers.Encoders.project(project))
   let formData = FormData.newFormData()
   FormData.append(formData, "project_data", jsonStr)
   FormData.append(formData, "width", "1920")

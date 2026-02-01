@@ -129,14 +129,10 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
         let state = GlobalStateBridge.getState()
         switch state.exifReport {
         | Some(reportJson) =>
-          switch try {
-            Some(RescriptSchema.S.parseOrThrow(reportJson, RescriptSchema.S.string))
-          } catch {
-          | _ => None
-          } {
-          | Some(content) =>
+          switch JsonCombinators.Json.decode(reportJson, JsonCombinators.Json.Decode.string) {
+          | Ok(content) =>
             let _ = ExifReportGenerator.downloadExifReport(content)
-          | None => ()
+          | Error(_) => ()
           }
         | None =>
           EventBus.dispatch(
@@ -174,32 +170,37 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
 }
 
 let showFromProjectData = (projectDataJson: JSON.t) => {
-  let project = Schemas.castToProject(projectDataJson)
+  let project = switch JsonCombinators.Json.decode(projectDataJson, JsonParsers.Domain.project) {
+  | Ok(p) => p
+  | Error(e) => {
+    Logger.error(
+        ~module_="UploadReport",
+        ~message="Failed to parse project data for report",
+        ~data=Logger.castToJson({"error": e}),
+        ()
+    )
+    // Return empty/safe default if parse fails
+    {
+        tourName: "",
+        scenes: [],
+        lastUsedCategory: "",
+        exifReport: None,
+        sessionId: None,
+        deletedSceneIds: [],
+        timeline: []
+    }
+  }
+  }
+
   let successNames = Belt.Array.map(project.scenes, s => s.name)
   let qualityResults = Belt.Array.map(project.scenes, s => {
     let q = switch s.quality {
-    | Some(qJson) => Schemas.castToQualityAnalysis(qJson)
-    | None => {
-        SharedTypes.score: 0.0,
-        isBlurry: false,
-        isDim: false,
-        isSeverelyDark: false,
-        stats: {
-          avgLuminance: 0,
-          sharpnessVariance: 0,
-          blackClipping: 0.0,
-          whiteClipping: 0.0,
-        },
-        analysis: Nullable.null,
-        histogram: [],
-        colorHist: {r: [], g: [], b: []},
-        isSoft: false,
-        isSeverelyBright: false,
-        hasBlackClipping: false,
-        hasWhiteClipping: false,
-        issues: 0,
-        warnings: 0,
-      }
+    | Some(qJson) =>
+        switch JsonCombinators.Json.decode(qJson, JsonParsers.Shared.qualityAnalysis) {
+        | Ok(qa) => qa
+        | Error(_) => SharedTypes.defaultQuality("Parse error")
+        }
+    | None => SharedTypes.defaultQuality("Missing quality data")
     }
     {quality: q, newName: s.name}
   })

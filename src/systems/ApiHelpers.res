@@ -1,17 +1,11 @@
 /* src/systems/ApiHelpers.res */
 
 open SharedTypes
-open RescriptSchema
 open ReBindings
 
-type importResponse = {
-  sessionId: string,
-  projectData: JSON.t,
-}
-
-type geocodeRequest = SharedTypes.geocodeRequest
-
-type geocodeResponse = {address: string}
+type importResponse = SharedTypes.importResponse
+// type geocodeRequest = SharedTypes.geocodeRequest // Already defined in SharedTypes
+type geocodeResponse = SharedTypes.geocodeResponse
 
 type transitionTarget = Types.transitionTarget
 type arrivalView = Types.arrivalView
@@ -26,40 +20,28 @@ type apiError = {
 
 type apiResult<'a> = result<'a, string>
 
-/* Decoders using Schemas */
 let decodeImportResponse = (json: JSON.t): result<importResponse, string> => {
-  Schemas.parse(json, Schemas.Shared.importResponse)->Result.flatMap(((sessionId, projectData)) => {
-    if sessionId == "" {
-      Error("Session ID required")
-    } else {
-      Ok({
-        sessionId,
-        projectData,
-      })
-    }
-  })
+  JsonCombinators.Json.decode(json, JsonParsers.Shared.importResponse)
 }
 
 let decodeValidationReport = (json: JSON.t): result<validationReport, string> => {
-  Schemas.parse(json, Schemas.Shared.validationReport)
+  JsonCombinators.Json.decode(json, JsonParsers.Shared.validationReport)
 }
 
 let decodeMetadataResponse = (json: JSON.t): result<metadataResponse, string> => {
-  Schemas.parse(json, Schemas.Shared.metadataResponse)
+  JsonCombinators.Json.decode(json, JsonParsers.Shared.metadataResponse)
 }
 
 let decodeSteps = (json: JSON.t): result<array<step>, string> => {
-  Schemas.parse(json, S.array(Schemas.Domain.step))
+  JsonCombinators.Json.decode(json, JsonParsers.Domain.steps)
 }
 
 let decodeGeocodeResponse = (json: JSON.t): result<geocodeResponse, string> => {
-  Schemas.parse(json, Schemas.Shared.geocodeResponse)->Result.map(address => {
-    address: address,
-  })
+  JsonCombinators.Json.decode(json, JsonParsers.Shared.geocodeResponse)
 }
 
 let decodeSimilarityResponse = (json: JSON.t): result<similarityResponse, string> => {
-  Schemas.parse(json, Schemas.Shared.similarityResponse)
+  JsonCombinators.Json.decode(json, JsonParsers.Shared.similarityResponse)
 }
 
 let extractErrorMessage = (json: apiError): string => {

@@ -256,7 +256,12 @@ let extractExifData = (file: File.t): Promise.t<BackendApi.apiResult<metadataRes
       switch result {
       | Ok(res) =>
         Fetch.json(res)->Promise.then(
-          json => Promise.resolve(Ok(Schemas.castToMetadataResponse(json))),
+          json => {
+            switch JsonCombinators.Json.decode(json, JsonParsers.Shared.metadataResponse) {
+            | Ok(data) => Promise.resolve(Ok(data))
+            | Error(e) => Promise.resolve(Error("Metadata parse error: " ++ e))
+            }
+          },
         )
       | Error(msg) => Promise.resolve(Error(msg))
       }
