@@ -5,9 +5,10 @@ open EventBus
 @react.component
 let make = React.memo((~scenesLoaded, ~activeIndex, ~isLinking) => {
   let dispatch = AppContext.useAppDispatch()
+  let sceneSlice = AppContext.useSceneSlice()
 
   let currentFloor = if activeIndex >= 0 {
-    switch Belt.Array.get(AppContext.useSceneSlice().scenes, activeIndex) {
+    switch Belt.Array.get(sceneSlice.scenes, activeIndex) {
     | Some(s) =>
       if s.floor == "" {
         "ground"

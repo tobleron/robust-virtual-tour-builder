@@ -106,6 +106,15 @@ let loadNewScene = (_prevIndex: option<int>, targetIndex: option<int>, ~isAntici
           v => {
             let config = Config.makeSceneConfig(targetScene)
             let newInstance = ViewerSystem.Adapter.initialize(v.containerId, config)
+
+            // Hook up events
+            ViewerSystem.Adapter.on(
+              newInstance,
+              "load",
+              _ => Events.onSceneLoad(newInstance, targetScene),
+            )
+            ViewerSystem.Adapter.on(newInstance, "error", msg => Events.onSceneError(msg))
+
             ViewerSystem.Pool.registerInstance(v.containerId, newInstance)
           },
         )
