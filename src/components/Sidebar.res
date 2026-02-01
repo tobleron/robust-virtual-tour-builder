@@ -24,8 +24,8 @@ module AboutContent = {
       }
     }
 
-    <div className="flex flex-col gap-4 mt-2">
-      <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-6 mt-2 items-center w-full">
+      <div className="flex flex-col gap-1 items-center text-center">
         <p className="text-white font-semibold font-mono text-[11px]">
           {React.string(`Version: ${Version.version}`)}
         </p>
@@ -33,27 +33,27 @@ module AboutContent = {
           {React.string(`Build: ${Version.buildInfo}`)}
         </p>
       </div>
-      <div
-        className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors cursor-pointer"
+
+      <div 
+        className="cursor-pointer flex items-center gap-2 group opacity-70 hover:opacity-100 transition-opacity"
         onClick={toggleDiagnostic}
       >
-        <div className="flex flex-col gap-0.5">
-          <span className="text-xs font-medium text-white">
-            {React.string("Diagnostic Mode")}
-          </span>
-          <span className="text-[10px] text-slate-400">
-            {React.string("Sends all traces and debug logs to server")}
-          </span>
-        </div>
+        <span 
+          className={`text-[9px] font-mono uppercase tracking-wider transition-colors ${
+            isDiagnostic ? "text-green-500 font-bold" : "text-slate-500 group-hover:text-slate-400"
+          }`}
+        >
+          {React.string("Debug Mode")}
+        </span>
         <div
-          className={`w-10 h-5 rounded-full relative transition-colors ${isDiagnostic
+          className={`w-8 h-4 rounded-full relative transition-colors ${isDiagnostic
               ? "bg-green-500"
-              : "bg-slate-700"}`}
+              : "bg-slate-700 group-hover:bg-slate-600"}`}
         >
           <div
-            className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${isDiagnostic
-                ? "right-1"
-                : "left-1"}`}
+            className={`absolute top-0.5 w-3 h-3 rounded-full bg-white shadow-sm transition-all ${isDiagnostic
+                ? "right-0.5"
+                : "left-0.5"}`}
           />
         </div>
       </div>

@@ -16,12 +16,12 @@ Follow these standards to ensure consistent logging and observational capabiliti
 
 | Level | When to Use | Console | Backend |
 |-------|-------------|---------|---------|
-| `trace` | Frame-by-frame, diagnostic detail | Hidden | Diagnostic Mode Only |
-| `debug` | Step-by-step function flow | Hidden | Diagnostic Mode Only |
-| `info` | Major lifecycle events | ✅ Shown | ✅ Sent (`diagnostic.log`) |
+| `trace` | Frame-by-frame, diagnostic detail | Hidden | ✅ Sent (`diagnostic.log` only) |
+| `debug` | Step-by-step function flow | Hidden | ✅ Sent (`diagnostic.log` only) |
+| `info` | Major lifecycle events | ✅ Shown | ✅ Sent (`diagnostic.log` only) |
 | `warn` | Soft failures, unexpected states | ✅ Shown | ✅ Sent (`diagnostic.log` + `error.log`) |
-| `error` | Critical failures, Panics | ✅ Shown | ✅ Sent (`diagnostic.log` + `error.log`) |
-| `perf` | Performance timing | ✅ Shown | ✅ Sent (`diagnostic.log`) |
+| `error` | Critical failures, Panics | ✅ Shown | ✅ Sent (`diagnostic.log` + `error.log` + `telemetry.log`) |
+| `perf` | Performance timing | ✅ Shown | ✅ Sent (`diagnostic.log` only) |
 
 ### Configuration (`src/constants.js`)
 
@@ -150,11 +150,11 @@ DEBUG.getSummary()              // Count by module
 
 ### Log Files
 
-| File | Content |
-|------|---------|
-| `logs/diagnostic.log` | **Unified Sink**: All frontend & backend logs (JSON) |
-| `logs/error.log` | **Critical Sink**: Warn/Error/Panic levels only |
-| `logs/telemetry.log` | Legacy/Raw backup (Frontend JSON lines) |
+| File | Content | Level Filter |
+|------|---------|--------------|
+| `logs/diagnostic.log` | **Unified Sink**: All logs (Trace/Debug/Info/Warn/Error) | `DEBUG`+ |
+| `logs/error.log` | **Issue Sink**: Warnings and Errors | `WARN`+ |
+| `logs/telemetry.log` | **Critical Sink**: Critical system events & crashes | `ERROR` only |
 
 ---
 
