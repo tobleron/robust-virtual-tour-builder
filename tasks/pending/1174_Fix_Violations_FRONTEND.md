@@ -31,4 +31,3 @@
 
 - [ ] `../../src/components/NotificationContext.res`
 - [ ] `../../src/systems/ApiHelpers.res`
-- [ ] `../../src/systems/ProjectManager.res`
