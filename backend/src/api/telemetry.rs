@@ -48,7 +48,7 @@ async fn process_entry(entry: &TelemetryEntry) {
 
     match entry.priority {
         TelemetryPriority::Critical => {
-            // Critical: Goes to error.log AND diagnostic.log (via ERROR level)
+            // Critical: Goes to telemetry.log (ERROR), error.log (WARN+) AND diagnostic.log (DEBUG+)
             tracing::error!(
                 target: "frontend",
                 module = %entry.module,
@@ -59,7 +59,7 @@ async fn process_entry(entry: &TelemetryEntry) {
             );
         }
         TelemetryPriority::High => {
-            // High (Warnings): Goes to diagnostic.log only (via WARN level)
+            // High (Warnings): Goes to error.log (WARN+) AND diagnostic.log (DEBUG+)
             // Harmonized: Only Critical is ERROR.
             tracing::warn!(
                 target: "frontend",
@@ -71,7 +71,7 @@ async fn process_entry(entry: &TelemetryEntry) {
             );
         }
         _ => {
-            // Medium/Low: Goes to diagnostic.log only (via INFO level)
+            // Medium/Low: Goes to diagnostic.log (DEBUG+)
             tracing::info!(
                 target: "frontend",
                 module = %entry.module,
@@ -83,7 +83,7 @@ async fn process_entry(entry: &TelemetryEntry) {
         }
     }
 
-    // Legacy telemetry.log removed as requested for unified logging.
+
 }
 
 // --- Logic from telemetry_logic.rs ---

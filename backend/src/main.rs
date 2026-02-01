@@ -72,13 +72,20 @@ async fn main() -> io::Result<()> {
     let error_appender = tracing_appender::rolling::never("../logs", "error.log");
     let (error_writer, error_guard) = tracing_appender::non_blocking(error_appender);
 
+    let telemetry_appender = tracing_appender::rolling::never("../logs", "telemetry.log");
+    let (telemetry_writer, telemetry_guard) = tracing_appender::non_blocking(telemetry_appender);
+
     let diag_layer = tracing_subscriber::fmt::layer()
         .json()
         .with_writer(diag_writer)
-        .with_filter(tracing_subscriber::filter::LevelFilter::INFO);
+        .with_filter(tracing_subscriber::filter::LevelFilter::DEBUG);
 
     let error_layer = tracing_subscriber::fmt::layer()
         .with_writer(error_writer)
+        .with_filter(tracing_subscriber::filter::LevelFilter::WARN);
+
+    let telemetry_layer = tracing_subscriber::fmt::layer()
+        .with_writer(telemetry_writer)
         .with_filter(tracing_subscriber::filter::LevelFilter::ERROR);
 
     let stdout_layer = tracing_tree::HierarchicalLayer::new(2)
@@ -94,13 +101,14 @@ async fn main() -> io::Result<()> {
         .with(stdout_layer)
         .with(diag_layer)
         .with(error_layer)
+        .with(telemetry_layer)
         .with(sentry_layer)
         .init();
 
-    tracing::info!("🚀 Unified Logging System Initialized (Diagnostic + Error Logs)");
+    tracing::info!("🚀 Unified Logging System Initialized (Diagnostic + Error + Telemetry Logs)");
 
     // Keep guards alive for the duration of main
-    let _guards = (diag_guard, error_guard);
+    let _guards = (diag_guard, error_guard, telemetry_guard);
 
     // Initialize Database
     let pool = DatabaseManager::new().await.map_err(|e| {
