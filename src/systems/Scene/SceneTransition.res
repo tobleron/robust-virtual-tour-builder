@@ -71,6 +71,21 @@ let updateDomTransitions = (av, iv) => {
       }
     | _ => ()
     }
+  | (None, Some(inact: viewport)) =>
+    // Robustness: If no previous active viewport (first load), just activate the new one
+    switch Dom.getElementById(inact.containerId)->Nullable.toOption {
+    | Some(i) =>
+      if !isCut {
+        Dom.setTransition(i, "")
+      }
+      Dom.add(i, "active")
+      if isCut {
+        let _ = Window.setTimeout(() => {
+          Dom.setTransition(i, "")
+        }, 50)
+      }
+    | None => ()
+    }
   | _ => ()
   }
 }
