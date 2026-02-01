@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Merge sanitization standards PR
 - Use non-blocking I/O in backend async handlers
 - V4.8.14+385 [TRIPLE]: merge: frontend unit tests PR & document failures
+- V4.8.14+386 [TRIPLE]: merge: infrastructure fix PR, cleanup obsolete artifacts & create fix task
 
 ## [4.8.13] - 2026-02-01
 
