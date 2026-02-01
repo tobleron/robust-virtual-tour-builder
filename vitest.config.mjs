@@ -6,7 +6,7 @@ export default defineConfig({
         environment: 'jsdom',
         globals: true,
         setupFiles: [
-            'tests/vitest-shim.js',
+            'tests/vitest-setup.js',
             'tests/unit/LabelMenu_v.test.setup.jsx',
             'tests/unit/UploadProcessor_v.test.setup.js',
             'tests/unit/HotspotLine_v.test.setup.js',
