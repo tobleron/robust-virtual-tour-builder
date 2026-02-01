@@ -142,10 +142,14 @@ module Logic = {
         let rebuildUrl = (f: Types.file) => {
           switch f {
           | Url(url) =>
-            let isFullUrl = String.startsWith(url, "http") || String.startsWith(url, "blob:")
+            let isFullUrl = String.startsWith(url, "http")
             let isLegacyBackend = String.includes(url, "/api/project/")
 
-            if isLegacyBackend {
+            // Blob URLs from saved projects are invalid/dead in the new session.
+            // We return Empty to force the scene-name fallback within validScenes loop.
+            if String.startsWith(url, "blob:") {
+              Types.Url("")
+            } else if isLegacyBackend {
               // Extract filename from old backend URL and rebuild with current sessionId
               let parts = String.split(url, "/file/")
               switch Belt.Array.get(parts, 1) {

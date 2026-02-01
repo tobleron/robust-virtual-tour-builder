@@ -1,24 +1,5 @@
 {
-  "css": [
-    {
-      "Violation": {
-        "file": "../../css/components/ui.css",
-        "pattern": "!important",
-        "strategy": ""
-      }
-    }
-  ],
   "rust": [
-    {
-      "Surgical": {
-        "file": "../../backend/src/auth.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.00, Density: 0.02, Coupling: 0.05] | Drag: 3.22 | LOC: 306/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 3.819607843137255
-      }
-    },
     {
       "Surgical": {
         "file": "../../backend/src/main.rs",
@@ -35,17 +16,50 @@
         "pattern": "unwrap()",
         "strategy": ""
       }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/auth.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.00, Density: 0.02, Coupling: 0.05] | Drag: 3.22 | LOC: 306/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 3.819607843137255
+      }
+    }
+  ],
+  "css": [
+    {
+      "Violation": {
+        "file": "../../css/components/ui.css",
+        "pattern": "!important",
+        "strategy": ""
+      }
     }
   ],
   "rescript": [
     {
       "Surgical": {
-        "file": "../../src/systems/ProjectManager.res",
+        "file": "../../src/utils/Logger.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 4.00, Density: 0.38, Coupling: 0.11] | Drag: 9.05 | LOC: 309/300  🎯 Target: Function: `rebuildUrl` (High Local Complexity (7.4). Logic heavy.)",
+        "reason": "[Nesting: 2.00, Density: 0.14, Coupling: 0.07] | Drag: 5.47 | LOC: 327/300  🎯 Target: Function: `pd` (High Local Complexity (2.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 9.953074433656958
+        "complexity": 8.169724770642201
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/components/NotificationContext.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/ApiHelpers.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
       }
     },
     {
@@ -59,27 +73,13 @@
       }
     },
     {
-      "Violation": {
-        "file": "../../src/systems/ApiHelpers.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/components/NotificationContext.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
       "Surgical": {
-        "file": "../../src/utils/Logger.res",
+        "file": "../../src/systems/ProjectManager.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 2.00, Density: 0.14, Coupling: 0.07] | Drag: 5.47 | LOC: 327/300  🎯 Target: Function: `pd` (High Local Complexity (2.0). Logic heavy.)",
+        "reason": "[Nesting: 4.00, Density: 0.38, Coupling: 0.11] | Drag: 9.06 | LOC: 311/300  🎯 Target: Function: `rebuildUrl` (High Local Complexity (8.4). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 8.169724770642201
+        "complexity": 10.160450160771704
       }
     }
   ]
