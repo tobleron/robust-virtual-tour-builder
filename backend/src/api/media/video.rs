@@ -164,9 +164,7 @@ pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, App
     match result {
         Ok(path) => {
             tracing::info!(module = "VideoEncoder", "TRANSCODE_COMPLETE");
-            let file_bytes = tokio::fs::read(&path)
-                .await
-                .map_err(AppError::IoError)?;
+            let file_bytes = tokio::fs::read(&path).await.map_err(AppError::IoError)?;
             let _ = tokio::fs::remove_file(path).await;
             Ok(HttpResponse::Ok()
                 .content_type("video/mp4")
