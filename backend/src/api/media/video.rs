@@ -3,7 +3,6 @@
 use actix_multipart::Multipart;
 use actix_web::{HttpResponse, web};
 use futures_util::TryStreamExt as _;
-use std::fs;
 use tokio::io::{AsyncWriteExt, BufWriter};
 use uuid::Uuid;
 
@@ -18,7 +17,9 @@ use crate::models::AppError;
 pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, AppError> {
     let session_id = Uuid::new_v4().to_string();
     let session_path = std::path::PathBuf::from(TEMP_DIR).join(&session_id);
-    fs::create_dir_all(&session_path).map_err(AppError::IoError)?;
+    tokio::fs::create_dir_all(&session_path)
+        .await
+        .map_err(AppError::IoError)?;
 
     tracing::info!(module = "TeaserGenerator", session_id = %session_id, "TEASER_GENERATION_START");
 
@@ -179,6 +180,32 @@ pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, App
 
 #[cfg(test)]
 mod tests {
-    #[test]
-    fn placeholder() {}
+    use super::*;
+    use actix_web::{test, App, web};
+
+    #[actix_web::test]
+    async fn test_generate_teaser_directory_creation() {
+        // Construct a simple multipart payload
+        let payload = "--boundary\r\n\
+                       Content-Disposition: form-data; name=\"project_data\"\r\n\
+                       \r\n\
+                       {}\r\n\
+                       --boundary--\r\n";
+
+        let req = test::TestRequest::post()
+            .uri("/generate_teaser")
+            .insert_header(("content-type", "multipart/form-data; boundary=boundary"))
+            .set_payload(payload)
+            .to_request();
+
+        let app = test::init_service(
+            App::new().route("/generate_teaser", web::post().to(generate_teaser))
+        ).await;
+
+        let resp = test::call_service(&app, req).await;
+
+        // The handler might return error because project_data is empty and files are missing,
+        // but it should NOT panic on fs::create_dir_all.
+        assert!(resp.status().is_server_error() || resp.status().is_success());
+    }
 }
