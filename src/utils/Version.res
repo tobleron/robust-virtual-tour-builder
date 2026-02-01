@@ -4,7 +4,7 @@
  * It contains both version data and utility functions.
  */
 let version = "4.8.13"
-let buildNumber = 376
+let buildNumber = 377
 let buildInfo = "[Development Build]"
 
 /**
