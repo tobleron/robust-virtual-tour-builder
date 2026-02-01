@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Perf(Backend): Async I/O & Core: Schema Migration to Combinators
 - Ui: update toast colors and sanitize json errors
 - Ui: premium toast styling and ruthless json sanitization
+- Synchronize codebase map, classify JsonParsers, and clean up stale tasks
 
 ## [4.8.12] - 2026-01-31
 
