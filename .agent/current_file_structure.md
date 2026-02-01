@@ -523,6 +523,12 @@
 │   │   │   │   ├── HotspotHelpers.cmj
 │   │   │   │   ├── HotspotHelpers.cmt
 │   │   │   │   ├── HotspotHelpers.res
+│   │   │   │   ├── JsonParsers.ast
+│   │   │   │   ├── JsonParsers.bs.js
+│   │   │   │   ├── JsonParsers.cmi
+│   │   │   │   ├── JsonParsers.cmj
+│   │   │   │   ├── JsonParsers.cmt
+│   │   │   │   ├── JsonParsers.res
 │   │   │   │   ├── NavigationHelpers.ast
 │   │   │   │   ├── NavigationHelpers.bs.js
 │   │   │   │   ├── NavigationHelpers.cmi
@@ -553,24 +559,6 @@
 │   │   │   │   ├── SceneMutations.cmj
 │   │   │   │   ├── SceneMutations.cmt
 │   │   │   │   ├── SceneMutations.res
-│   │   │   │   ├── SchemaDefinitions.ast
-│   │   │   │   ├── SchemaDefinitions.bs.js
-│   │   │   │   ├── SchemaDefinitions.cmi
-│   │   │   │   ├── SchemaDefinitions.cmj
-│   │   │   │   ├── SchemaDefinitions.cmt
-│   │   │   │   ├── SchemaDefinitions.res
-│   │   │   │   ├── SchemaParsers.ast
-│   │   │   │   ├── SchemaParsers.bs.js
-│   │   │   │   ├── SchemaParsers.cmi
-│   │   │   │   ├── SchemaParsers.cmj
-│   │   │   │   ├── SchemaParsers.cmt
-│   │   │   │   ├── SchemaParsers.res
-│   │   │   │   ├── Schemas.ast
-│   │   │   │   ├── Schemas.bs.js
-│   │   │   │   ├── Schemas.cmi
-│   │   │   │   ├── Schemas.cmj
-│   │   │   │   ├── Schemas.cmt
-│   │   │   │   ├── Schemas.res
 │   │   │   │   ├── SharedTypes.ast
 │   │   │   │   ├── SharedTypes.bs.js
 │   │   │   │   ├── SharedTypes.cmi
@@ -1337,12 +1325,6 @@
 │   │           ├── ExifReportGenerator_v.test.cmj
 │   │           ├── ExifReportGenerator_v.test.cmt
 │   │           ├── ExifReportGenerator_v.test.res
-│   │           ├── FinalAsyncCheck_v.test.ast
-│   │           ├── FinalAsyncCheck_v.test.bs.js
-│   │           ├── FinalAsyncCheck_v.test.cmi
-│   │           ├── FinalAsyncCheck_v.test.cmj
-│   │           ├── FinalAsyncCheck_v.test.cmt
-│   │           ├── FinalAsyncCheck_v.test.res
 │   │           ├── FingerprintService_v.test.ast
 │   │           ├── FingerprintService_v.test.bs.js
 │   │           ├── FingerprintService_v.test.cmi
@@ -1439,6 +1421,12 @@
 │   │           ├── InteractionsRobustness_v.test.cmj
 │   │           ├── InteractionsRobustness_v.test.cmt
 │   │           ├── InteractionsRobustness_v.test.res
+│   │           ├── JsonParsers_v.test.ast
+│   │           ├── JsonParsers_v.test.bs.js
+│   │           ├── JsonParsers_v.test.cmi
+│   │           ├── JsonParsers_v.test.cmj
+│   │           ├── JsonParsers_v.test.cmt
+│   │           ├── JsonParsers_v.test.res
 │   │           ├── LabelMenu_v.test.ast
 │   │           ├── LabelMenu_v.test.bs.js
 │   │           ├── LabelMenu_v.test.cmi
@@ -1691,12 +1679,6 @@
 │   │           ├── SceneTransitionManager_v.test.cmj
 │   │           ├── SceneTransitionManager_v.test.cmt
 │   │           ├── SceneTransitionManager_v.test.res
-│   │           ├── Schemas_v.test.ast
-│   │           ├── Schemas_v.test.bs.js
-│   │           ├── Schemas_v.test.cmi
-│   │           ├── Schemas_v.test.cmj
-│   │           ├── Schemas_v.test.cmt
-│   │           ├── Schemas_v.test.res
 │   │           ├── ServerTeaser_v.test.ast
 │   │           ├── ServerTeaser_v.test.bs.js
 │   │           ├── ServerTeaser_v.test.cmi
@@ -2274,11 +2256,6 @@
 │   │   ├── Exporter.cmj
 │   │   ├── Exporter.cmt
 │   │   ├── Exporter.res
-│   │   ├── FinalAsyncCheck_v.test.ast
-│   │   ├── FinalAsyncCheck_v.test.cmi
-│   │   ├── FinalAsyncCheck_v.test.cmj
-│   │   ├── FinalAsyncCheck_v.test.cmt
-│   │   ├── FinalAsyncCheck_v.test.res
 │   │   ├── FingerprintService.ast
 │   │   ├── FingerprintService.cmi
 │   │   ├── FingerprintService.cmj
@@ -2467,6 +2444,16 @@
 │   │   ├── InteractionsRobustness_v.test.cmj
 │   │   ├── InteractionsRobustness_v.test.cmt
 │   │   ├── InteractionsRobustness_v.test.res
+│   │   ├── JsonParsers.ast
+│   │   ├── JsonParsers.cmi
+│   │   ├── JsonParsers.cmj
+│   │   ├── JsonParsers.cmt
+│   │   ├── JsonParsers.res
+│   │   ├── JsonParsers_v.test.ast
+│   │   ├── JsonParsers_v.test.cmi
+│   │   ├── JsonParsers_v.test.cmj
+│   │   ├── JsonParsers_v.test.cmt
+│   │   ├── JsonParsers_v.test.res
 │   │   ├── LabelMenu.ast
 │   │   ├── LabelMenu.cmi
 │   │   ├── LabelMenu.cmj
@@ -2942,26 +2929,6 @@
 │   │   ├── SceneTransitionManager_v.test.cmj
 │   │   ├── SceneTransitionManager_v.test.cmt
 │   │   ├── SceneTransitionManager_v.test.res
-│   │   ├── SchemaDefinitions.ast
-│   │   ├── SchemaDefinitions.cmi
-│   │   ├── SchemaDefinitions.cmj
-│   │   ├── SchemaDefinitions.cmt
-│   │   ├── SchemaDefinitions.res
-│   │   ├── SchemaParsers.ast
-│   │   ├── SchemaParsers.cmi
-│   │   ├── SchemaParsers.cmj
-│   │   ├── SchemaParsers.cmt
-│   │   ├── SchemaParsers.res
-│   │   ├── Schemas.ast
-│   │   ├── Schemas.cmi
-│   │   ├── Schemas.cmj
-│   │   ├── Schemas.cmt
-│   │   ├── Schemas.res
-│   │   ├── Schemas_v.test.ast
-│   │   ├── Schemas_v.test.cmi
-│   │   ├── Schemas_v.test.cmj
-│   │   ├── Schemas_v.test.cmt
-│   │   ├── Schemas_v.test.res
 │   │   ├── ServerTeaser.ast
 │   │   ├── ServerTeaser.cmi
 │   │   ├── ServerTeaser.cmj
@@ -5109,6 +5076,8 @@
 │   │   ├── GlobalStateBridge.res
 │   │   ├── HotspotHelpers.bs.js
 │   │   ├── HotspotHelpers.res
+│   │   ├── JsonParsers.bs.js
+│   │   ├── JsonParsers.res
 │   │   ├── NavigationHelpers.bs.js
 │   │   ├── NavigationHelpers.res
 │   │   ├── Reducer.bs.js
@@ -5120,11 +5089,8 @@
 │   │   ├── SceneMutations.bs.js
 │   │   ├── SceneMutations.res
 │   │   ├── SchemaDefinitions.bs.js
-│   │   ├── SchemaDefinitions.res
 │   │   ├── SchemaParsers.bs.js
-│   │   ├── SchemaParsers.res
 │   │   ├── Schemas.bs.js
-│   │   ├── Schemas.res
 │   │   ├── SharedTypes.bs.js
 │   │   ├── SharedTypes.res
 │   │   ├── SimHelpers.bs.js
@@ -5356,6 +5322,7 @@
 ├── tasks
 │   ├── TASKS.md
 │   ├── active
+│   │   └── 1178_Migration_CSP_Friendly_Validation.md
 │   ├── completed
 │   │   ├── 1081_Surgical_Refactor_SYSTEMS_FRONTEND_DONE.md
 │   │   ├── 1082_Surgical_Refactor_COMPONENTS_FRONTEND_DONE.md
@@ -5435,7 +5402,8 @@
 │   │   ├── 1175_Surgical_Refactor_UTILS_FRONTEND.md
 │   │   ├── 1176_Surgical_Refactor_SRC_BACKEND.md
 │   │   ├── 1177_Fix_Violations_BACKEND.md
-│   │   ├── 1178_Migration_CSP_Friendly_Validation.md
+│   │   ├── 1179_Surgical_Refactor_CORE_FRONTEND.md
+│   │   ├── 1180_Classify_Map_Entries.md
 │   │   └── tests
 │   └── postponed
 ├── test_diagnostics_latest.txt
@@ -5498,7 +5466,6 @@
 │       ├── ExifReportGenerator_v.test.bs.js
 │       ├── ExifReportGenerator_v.test.res
 │       ├── FinalAsyncCheck_v.test.bs.js
-│       ├── FinalAsyncCheck_v.test.res
 │       ├── FingerprintService_v.test.bs.js
 │       ├── FingerprintService_v.test.res
 │       ├── FloorNavigation_v.test.bs.js
@@ -5533,6 +5500,8 @@
 │       ├── InputSystem_v.test.res
 │       ├── InteractionsRobustness_v.test.bs.js
 │       ├── InteractionsRobustness_v.test.res
+│       ├── JsonParsers_v.test.bs.js
+│       ├── JsonParsers_v.test.res
 │       ├── LabelMenu_v.test.bs.js
 │       ├── LabelMenu_v.test.res
 │       ├── LabelMenu_v.test.setup.jsx
@@ -5619,7 +5588,6 @@
 │       ├── SceneTransitionManager_v.test.bs.js
 │       ├── SceneTransitionManager_v.test.res
 │       ├── Schemas_v.test.bs.js
-│       ├── Schemas_v.test.res
 │       ├── ServerTeaser_v.test.bs.js
 │       ├── ServerTeaser_v.test.res
 │       ├── ServiceWorkerMain_v.test.bs.js
@@ -5737,4 +5705,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-216 directories, 5522 files
+216 directories, 5490 files

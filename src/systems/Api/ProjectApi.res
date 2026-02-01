@@ -115,7 +115,7 @@ let validateProject = (sessionId: string, projectData: JSON.t): Promise.t<
       Constants.backendUrl ++ "/api/project/validate/" ++ sessionId,
       Fetch.requestInit(
         ~method="POST",
-        ~body=body,
+        ~body,
         ~headers=Dict.fromArray([("Content-Type", "application/json")]),
         (),
       ),
@@ -155,7 +155,7 @@ let saveProject = (sessionId: string, projectData: JSON.t): Promise.t<apiResult<
       Constants.backendUrl ++ "/api/project/save/" ++ sessionId,
       Fetch.requestInit(
         ~method="POST",
-        ~body=body,
+        ~body,
         ~headers=Dict.fromArray([("Content-Type", "application/json")]),
         (),
       ),
@@ -211,7 +211,7 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<apiResult<geocodeRespon
   RequestQueue.schedule(() => {
     let payload = JsonCombinators.Json.Encode.object([
       ("lat", JsonCombinators.Json.Encode.float(lat)),
-      ("lon", JsonCombinators.Json.Encode.float(lon))
+      ("lon", JsonCombinators.Json.Encode.float(lon)),
     ])
 
     let body = JsonCombinators.Json.stringify(payload)

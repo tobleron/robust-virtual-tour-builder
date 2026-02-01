@@ -121,9 +121,11 @@ let batchCalculateSimilarity = (pairs: array<similarityPair>): Promise.t<
     let headers = Dict.make()
     Dict.set(headers, "Content-Type", "application/json")
 
-    let body = JsonCombinators.Json.stringify(JsonCombinators.Json.Encode.object([
-      ("pairs", JsonCombinators.Json.Encode.array(JsonParsers.Encoders.similarityPair)(pairs))
-    ]))
+    let body = JsonCombinators.Json.stringify(
+      JsonCombinators.Json.Encode.object([
+        ("pairs", JsonCombinators.Json.Encode.array(JsonParsers.Encoders.similarityPair)(pairs)),
+      ]),
+    )
 
     Fetch.fetch(
       Constants.backendUrl ++ "/api/media/similarity",

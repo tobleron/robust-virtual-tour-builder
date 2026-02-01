@@ -43,20 +43,12 @@ let decodeSessionState = (jsonStr: string): option<sessionState> => {
     switch JsonCombinators.Json.decode(json, JsonParsers.Domain.SessionState.decode) {
     | Ok(s) => Some(s)
     | Error(e) => {
-        Logger.error(
-          ~module_="SessionStore",
-          ~message="SessionStore Decode Error: " ++ e,
-          (),
-        )
+        Logger.error(~module_="SessionStore", ~message="SessionStore Decode Error: " ++ e, ())
         None
       }
     }
   | Error(e) => {
-      Logger.error(
-        ~module_="SessionStore",
-        ~message="SessionStore Parse Error: " ++ e,
-        (),
-      )
+      Logger.error(~module_="SessionStore", ~message="SessionStore Parse Error: " ++ e, ())
       None
     }
   }

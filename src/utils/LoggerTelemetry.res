@@ -26,7 +26,7 @@ let encodeLogEntry = (entry: logEntry) => {
     ("message", string(entry.message)),
     ("data", option(id)(entry.data)),
     ("priority", string(entry.priority)),
-    ("requestId", option(string)(entry.requestId))
+    ("requestId", option(string)(entry.requestId)),
   ])
 }
 
@@ -34,9 +34,7 @@ let encodeTelemetryBatch = (batch: telemetryBatch) => {
   let encode = JsonCombinators.Json.Encode.object
   let array = JsonCombinators.Json.Encode.array
 
-  encode([
-    ("entries", array(encodeLogEntry)(batch.entries))
-  ])
+  encode([("entries", array(encodeLogEntry)(batch.entries))])
 }
 
 let rec attemptSendBatch = async (payload: telemetryBatch, retries: int) => {

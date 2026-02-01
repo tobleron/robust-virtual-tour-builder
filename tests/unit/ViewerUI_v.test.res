@@ -168,20 +168,38 @@ describe("ViewerUI", () => {
       ("isDim", JsonCombinators.Json.Encode.bool(quality.isDim)),
       ("hasBlackClipping", JsonCombinators.Json.Encode.bool(quality.hasBlackClipping)),
       ("hasWhiteClipping", JsonCombinators.Json.Encode.bool(quality.hasWhiteClipping)),
-      ("stats", JsonCombinators.Json.Encode.object([
-        ("avgLuminance", JsonCombinators.Json.Encode.int(quality.stats.avgLuminance)),
-        ("blackClipping", JsonCombinators.Json.Encode.float(quality.stats.blackClipping)),
-        ("whiteClipping", JsonCombinators.Json.Encode.float(quality.stats.whiteClipping)),
-        ("sharpnessVariance", JsonCombinators.Json.Encode.int(quality.stats.sharpnessVariance))
-      ])),
-      ("histogram", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.int)(quality.histogram)),
-      ("colorHist", JsonCombinators.Json.Encode.object([
-        ("r", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.int)(quality.colorHist.r)),
-        ("g", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.int)(quality.colorHist.g)),
-        ("b", JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.int)(quality.colorHist.b))
-      ])),
+      (
+        "stats",
+        JsonCombinators.Json.Encode.object([
+          ("avgLuminance", JsonCombinators.Json.Encode.int(quality.stats.avgLuminance)),
+          ("blackClipping", JsonCombinators.Json.Encode.float(quality.stats.blackClipping)),
+          ("whiteClipping", JsonCombinators.Json.Encode.float(quality.stats.whiteClipping)),
+          ("sharpnessVariance", JsonCombinators.Json.Encode.int(quality.stats.sharpnessVariance)),
+        ]),
+      ),
+      (
+        "histogram",
+        JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.int)(quality.histogram),
+      ),
+      (
+        "colorHist",
+        JsonCombinators.Json.Encode.object([
+          (
+            "r",
+            JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.int)(quality.colorHist.r),
+          ),
+          (
+            "g",
+            JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.int)(quality.colorHist.g),
+          ),
+          (
+            "b",
+            JsonCombinators.Json.Encode.array(JsonCombinators.Json.Encode.int)(quality.colorHist.b),
+          ),
+        ]),
+      ),
       ("issues", JsonCombinators.Json.Encode.int(quality.issues)),
-      ("warnings", JsonCombinators.Json.Encode.int(quality.warnings))
+      ("warnings", JsonCombinators.Json.Encode.int(quality.warnings)),
       // analysis omitted
     ])
 

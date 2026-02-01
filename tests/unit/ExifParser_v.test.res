@@ -323,18 +323,18 @@ describe("ExifParser", () => {
             "height": 5464,
             "focalLength": 15.0,
             "fNumber": 2.8,
-            "iso": 100
+            "iso": 100,
             // gps omitted (undefined) instead of null
           },
           "quality": {
             "score": 0.9,
-            "histogram": [1,2,3],
+            "histogram": [1, 2, 3],
             "colorHist": {"r": [], "g": [], "b": []},
             "stats": {
-               "avgLuminance": 128,
-               "blackClipping": 0.0,
-               "whiteClipping": 0.0,
-               "sharpnessVariance": 10
+              "avgLuminance": 128,
+              "blackClipping": 0.0,
+              "whiteClipping": 0.0,
+              "sharpnessVariance": 10,
             },
             "isBlurry": false,
             "isSoft": false,
@@ -344,11 +344,11 @@ describe("ExifParser", () => {
             "hasBlackClipping": false,
             "hasWhiteClipping": false,
             "issues": 0,
-            "warnings": 0
+            "warnings": 0,
             // analysis omitted
           },
           "isOptimized": false,
-          "checksum": "abc12345"
+          "checksum": "abc12345",
         }
 
         _mockFetch->mockResolvedValue({
