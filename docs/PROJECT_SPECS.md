@@ -50,6 +50,34 @@ The project follows a **System 2 Thinking** architecture, partitioned between a 
 - **Backend Panic Hook**: A global panic hook captures unhandled Rust exceptions and routes them through the tracing system with full location metadata.
 - **Graceful Degradation**: Failures in non-critical systems (like caching) do not interrupt the primary application flow.
 
+### Sanitization Standards
+To prevent filesystem vulnerabilities and ensure cross-platform compatibility, all file input/output must adhere to strict sanitization rules.
+
+**1. Backend Filename Sanitization (`sanitize_filename`)**
+Any filename processed by the Rust backend must pass the `sanitize_filename` check in `backend/src/api/utils.rs`:
+- **Rejection Rules**:
+  - Must not be empty.
+  - Must not be an absolute path.
+  - Must not contain parent directory traversal (`..`).
+  - Must not address the root directory.
+- **Replacement Rules**:
+  - `/`, `\`, and `\0` (null byte) are replaced with `_`.
+- **Output**: Returns only the filename component, stripping any directory path.
+
+**2. Frontend Input Sanitization (`TourLogic.sanitizeName`)**
+User-generated names (Tours, Scenes) are sanitized before being used in any context that might touch the filesystem (e.g., zip generation):
+- **Trimming**: Whitespace is trimmed from start/end.
+- **Character Whitelist**: Control characters (`\x00-\x1F\x7F`) and filesystem reserved characters (`< > : " / \ | ? *`) are replaced with `_`.
+- **Formatting**: Multiple spaces/underscores are collapsed to a single `_`; leading/trailing underscores are removed.
+- **Fallback**: Empty results default to `"Untitled"`.
+
+**3. Project Export Filenames**
+When generating project ZIP files for download, a strict alphanumeric subset is enforced to ensure maximum compatibility:
+- **Format**: `Saved_RMX_[NAME]_v[VERSION]_[DATE].vt.zip`
+- **Logic**:
+  - `[NAME]`: Converted to lowercase.
+  - **Strict Regex**: `/[^a-z0-9]/gi` is replaced with `_`.
+
 ## 4. Observability & Metrics
 
 ### Intelligent Telemetry
