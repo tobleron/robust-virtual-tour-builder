@@ -45,10 +45,7 @@ module Logic = {
       timeline: state.timeline,
     }
 
-    let jsonStr = switch JSON.stringifyAny(project) {
-    | Some(s) => s
-    | None => "{}"
-    }
+    let jsonStr = JsonCombinators.Json.stringify(JsonParsers.Encoders.project(project))
     let formData = FormData.newFormData()
     FormData.append(formData, "project_data", jsonStr)
 
