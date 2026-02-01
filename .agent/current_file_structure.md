@@ -5874,8 +5874,7 @@
 │   ├── diagnostic.log
 │   ├── error.log
 │   ├── log_changes.txt
-│   ├── project-guard.log
-│   └── telemetry.log
+│   └── project-guard.log
 ├── MAP.md
 ├── old_ref
 │   ├── 7aadee4
@@ -8058,4 +8057,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-327 directories, 7732 files
+327 directories, 7731 files

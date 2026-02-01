@@ -12,7 +12,7 @@
 - [ ] **../../src/utils/Logger.res**
   - *Reason:* [Nesting: 2.00, Density: 0.14, Coupling: 0.07] | Drag: 5.47 | LOC: 327/300  🎯 Target: Function: `pd` (High Local Complexity (2.0). Logic heavy.)
 - [ ] **../../src/core/JsonParsers.res**
-  - *Reason:* [Nesting: 2.00, Density: 0.91, Coupling: 0.04] | Drag: 7.41 | LOC: 386/300  🎯 Target: Function: `qualityAnalysis` (High Local Complexity (14.0). Logic heavy.)
+  - *Reason:* [Nesting: 2.00, Density: 0.75, Coupling: 0.03] | Drag: 6.62 | LOC: 470/300  🎯 Target: Function: `qualityAnalysis` (High Local Complexity (14.0). Logic heavy.)
 
 ---
 
