@@ -15,7 +15,6 @@ let activeJourneyId = ref(None)
 module AnimationLoop = {
   let rec loop = (
     v,
-    state,
     j: journeyData,
     pd: Types.pathData,
     st,
@@ -25,6 +24,7 @@ module AnimationLoop = {
     req: React.ref<option<int>>,
     (),
   ) => {
+    let state = GlobalStateBridge.getState()
     if activeJourneyId.contents == Some(j.journeyId) && !cft.contents {
       let prog = Math.min((Date.now() -. st) /. pd.panDuration, 1.0)
       if prog >= 1.0 {
@@ -44,31 +44,35 @@ module AnimationLoop = {
         Viewer.setHfov(v, pd.targetHfovForPan, false)
         if bel < dur {
           if ViewerSystem.isViewerReady(v) {
-            HotspotLine.updateLines(v, state, ())
-            HotspotLine.updateSimulationArrow(
-              v,
-              pd.startPitch,
-              pd.startYaw,
-              pd.targetPitchForPan,
-              pd.targetYawForPan,
-              1.0,
-              ~opacity=mod(Belt.Float.toInt(bel /. rate), 2) == 0 ? 1.0 : 0.0,
-              ~waypoints=pd.waypoints->Belt.Array.map((w): PathInterpolation.point => {
-                PathInterpolation.yaw: w.yaw,
-                pitch: w.pitch,
-              }),
-              ~colorOverride=?j.previewOnly ? Some("red") : None,
-              (),
-            )
+            try {
+              HotspotLine.updateLines(v, state, ())
+              HotspotLine.updateSimulationArrow(
+                v,
+                pd.startPitch,
+                pd.startYaw,
+                pd.targetPitchForPan,
+                pd.targetYawForPan,
+                1.0,
+                ~opacity=mod(Belt.Float.toInt(bel /. rate), 2) == 0 ? 1.0 : 0.0,
+                ~waypoints=pd.waypoints->Belt.Array.map((w): PathInterpolation.point => {
+                  PathInterpolation.yaw: w.yaw,
+                  pitch: w.pitch,
+                }),
+                ~colorOverride=?j.previewOnly ? Some("red") : None,
+                (),
+              )
+            } catch {
+            | _ => ()
+            }
           }
           req.current = Some(
             Window.requestAnimationFrame(() =>
-              loop(v, state, j, pd, st, bst, cft, dispatch, req, ())
+              loop(v, j, pd, st, bst, cft, dispatch, req, ())
             ),
           )
         } else {
           // SYNC GUARD: Only finalize if FSM has moved past Preloading (i.e. texture is loaded)
-          let currentFsm = GlobalStateBridge.getState().navigationFsm
+          let currentFsm = state.navigationFsm
           switch currentFsm {
           | NavigationFSM.Transitioning(_) | NavigationFSM.Stabilizing(_) =>
             Logger.debug(
@@ -99,7 +103,7 @@ module AnimationLoop = {
             )
             req.current = Some(
               Window.requestAnimationFrame(() =>
-                loop(v, state, j, pd, st, bst, cft, dispatch, req, ())
+                loop(v, j, pd, st, bst, cft, dispatch, req, ())
               ),
             )
           }
@@ -111,26 +115,28 @@ module AnimationLoop = {
         Viewer.setYaw(v, cy, false)
         Viewer.setHfov(v, pd.startHfov +. (pd.targetHfovForPan -. pd.startHfov) *. prog, false)
         if ViewerSystem.isViewerReady(v) {
-          HotspotLine.updateLines(v, state, ())
-          HotspotLine.updateSimulationArrow(
-            v,
-            pd.startPitch,
-            pd.startYaw,
-            pd.targetPitchForPan,
-            pd.targetYawForPan,
-            prog,
-            ~opacity=1.0,
-            ~waypoints=pd.waypoints->Belt.Array.map((w): PathInterpolation.point => {
-              PathInterpolation.yaw: w.yaw,
-              pitch: w.pitch,
-            }),
-            (),
-          )
+          try {
+            HotspotLine.updateLines(v, state, ())
+            HotspotLine.updateSimulationArrow(
+              v,
+              pd.startPitch,
+              pd.startYaw,
+              pd.targetPitchForPan,
+              pd.targetYawForPan,
+              prog,
+              ~opacity=1.0,
+              ~waypoints=pd.waypoints->Belt.Array.map((w): PathInterpolation.point => {
+                PathInterpolation.yaw: w.yaw,
+                pitch: w.pitch,
+              }),
+              (),
+            )
+          } catch {
+          | _ => ()
+          }
         }
         req.current = Some(
-          Window.requestAnimationFrame(() =>
-            loop(v, state, j, pd, st, bst, cft, dispatch, req, ())
-          ),
+          Window.requestAnimationFrame(() => loop(v, j, pd, st, bst, cft, dispatch, req, ())),
         )
       }
     } else {
@@ -141,7 +147,6 @@ module AnimationLoop = {
 
   let startLoop = (
     v,
-    state,
     j: journeyData,
     pd: Types.pathData,
     dispatch,
@@ -156,7 +161,7 @@ module AnimationLoop = {
     Viewer.setHfov(v, pd.startHfov, false)
 
     req.current = Some(
-      Window.requestAnimationFrame(() => loop(v, state, j, pd, st, bst, cft, dispatch, req, ())),
+      Window.requestAnimationFrame(() => loop(v, j, pd, st, bst, cft, dispatch, req, ())),
     )
   }
 }
