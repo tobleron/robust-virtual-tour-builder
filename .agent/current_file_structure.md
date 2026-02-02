@@ -6800,8 +6800,7 @@
 │   ├── diagnostic.log
 │   ├── error.log
 │   ├── log_changes.txt
-│   ├── project-guard.log
-│   └── telemetry.log
+│   └── project-guard.log
 ├── old_ref
 │   ├── 7aadee4
 │   │   ├── CHANGELOG.md
@@ -8679,6 +8678,7 @@
 │   │   ├── 1177_Fix_Violations_BACKEND.md
 │   │   ├── 1179_Surgical_Refactor_CORE_FRONTEND.md
 │   │   ├── 1183_Surgical_Refactor_SYSTEMS_FRONTEND.md
+│   │   ├── 1185_Implement_Serial_Command_Queue.md
 │   │   └── tests
 │   └── postponed
 ├── test_diagnostics_latest.txt

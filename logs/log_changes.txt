@@ -108,3 +108,4 @@
 [2026-02-02 00:27] v4.8.14 - fix: viewer rendering visibility (Task #885) - invalidate stale blob URLs
 [2026-02-02 00:30] v4.8.14 - chore: final sync and build check
 [2026-02-02 11:32] v4.8.15 - Investigating scene transition problem in tour preview autopilot mode [TRIPLE]
+[2026-02-02 11:39] v4.8.15 - feat: create architecture task for serial interaction queue (1185) [TRIPLE]
