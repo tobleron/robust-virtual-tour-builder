@@ -43,6 +43,7 @@ type event =
       {"active": bool, "progress": float, "message": string, "phase": string, "error": bool},
     )
   | OpenHotspotMenu({"anchor": Dom.element, "hotspot": Types.hotspot, "index": int})
+  | ForceHotspotSync
 
 type subscription = unit => unit
 

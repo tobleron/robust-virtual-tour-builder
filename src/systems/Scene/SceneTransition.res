@@ -10,12 +10,17 @@ let finalizeSwap = () => {
   ->Nullable.toOption
   ->Option.forEach(v => {
     if ViewerSystem.isViewerReady(v) {
-      HotspotLine.updateLines(
-        v,
-        GlobalStateBridge.getState(),
-        ~mouseEvent=?ViewerState.state.contents.lastMouseEvent->Nullable.toOption,
-        (),
-      )
+      let state = GlobalStateBridge.getState()
+      if state.activeIndex != -1 {
+        // Break direct dependency on HotspotManager by using EventBus
+        EventBus.dispatch(ForceHotspotSync)
+        HotspotLine.updateLines(
+          v,
+          state,
+          ~mouseEvent=?ViewerState.state.contents.lastMouseEvent->Nullable.toOption,
+          (),
+        )
+      }
     }
   })
   ViewerState.state := {...ViewerState.state.contents, isSwapping: false}

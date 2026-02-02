@@ -57,7 +57,7 @@ h1 { font-size: 42px; font-weight: 600; margin: 0 0 16px 0; }
 
 module Styles = {
   let cssTemplate = `
-    :root { --viewer-bg: #111; --stage-border: #333; --glow-color: #fff4d1; --font-family: 'Outfit', sans-serif; --gold-1: #FFD700; --gold-2: #FDB931; --gold-3: #B8860B; --gold-text: #4B3300; --gold-border: #8B6508; --arrow-white: rgba(255, 255, 255, 0.5); }
+    :root { --viewer-bg: #111; --stage-border: #333; --glow-color: #fff4d1; --font-family: 'Outfit', sans-serif; --gold-1: #ea580c; --gold-2: #f97316; --gold-3: #c2410c; --gold-text: #ffffff; --gold-border: #7c2d12; --arrow-white: rgba(255, 255, 255, 0.4); }
     body { margin: 0; padding: 0; width: 100%; min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow: auto; background-color: var(--viewer-bg); font-family: var(--font-family); }
     body::before { content: ""; position: fixed; top: -20px; left: -20px; right: -20px; bottom: -20px; background: url('assets/images/__FIRST_SCENE_NAME__') no-repeat center center fixed; background-size: cover; filter: blur(25px) brightness(0.4); z-index: -1; }
     __MEDIA_QUERY_CSS__
@@ -102,7 +102,7 @@ module Styles = {
 
 module Scripts = {
   let renderScriptTemplate = `
-    function renderGoldArrow(hotSpotDiv, args) {
+    function renderOrangeHotspot(hotSpotDiv, args) {
       const currentSceneId = window.viewer.getScene();
       const currentSceneData = scenesData[currentSceneId];
       const isHome = currentSceneData && currentSceneData.hotSpots.length === 1 && persistentFrom && args.targetSceneId === persistentFrom;
@@ -118,19 +118,18 @@ module Scripts = {
         grad.setAttribute("id", "homeGradExport_" + args.i); grad.setAttribute("x1", "0%"); grad.setAttribute("y1", "0%"); grad.setAttribute("x2", "0%"); grad.setAttribute("y2", "100%");
         [{o:"0%",c:"var(--gold-1)"},{o:"50%",c:"var(--gold-2)"},{o:"100%",c:"var(--gold-3)"}].forEach(s=>{ const stop=document.createElementNS(ns,"stop"); stop.setAttribute("offset",s.o); stop.style.stopColor=s.c; grad.appendChild(stop); });
         defs.appendChild(grad); svg.appendChild(defs);
-        const rect = document.createElementNS(ns, "rect"); rect.setAttribute("x", "5"); rect.setAttribute("y", "5"); rect.setAttribute("width", "90"); rect.setAttribute("height", "90"); rect.setAttribute("rx", "8"); rect.setAttribute("fill", "url(#homeGradExport_" + args.i + ")"); svg.appendChild(rect);
-        const text = document.createElementNS(ns, "text"); text.setAttribute("x", "50"); text.setAttribute("y", "52"); text.setAttribute("text-anchor", "middle"); text.setAttribute("dominant-baseline", "middle"); text.style.fontFamily = "Outfit, sans-serif"; text.style.fontWeight = "700"; text.style.fontSize = "24px"; text.setAttribute("fill", "var(--gold-text)"); text.textContent = "HOME"; svg.appendChild(text);
+        const rect = document.createElementNS(ns, "rect"); rect.setAttribute("x", "5"); rect.setAttribute("y", "5"); rect.setAttribute("width", "90"); rect.setAttribute("height", "90"); rect.setAttribute("rx", "12"); rect.setAttribute("fill", "url(#homeGradExport_" + args.i + ")"); svg.appendChild(rect);
+        const text = document.createElementNS(ns, "text"); text.setAttribute("x", "50"); text.setAttribute("y", "52"); text.setAttribute("text-anchor", "middle"); text.setAttribute("dominant-baseline", "middle"); text.style.fontFamily = "Outfit, sans-serif"; text.style.fontWeight = "700"; text.style.fontSize = "22px"; text.setAttribute("fill", "var(--gold-text)"); text.textContent = "HOME"; svg.appendChild(text);
       } else {
         const defs = document.createElementNS(ns, "defs");
         const grad = document.createElementNS(ns, "linearGradient");
         grad.setAttribute("id", "arrowGradExport_" + args.i); grad.setAttribute("x1", "0%"); grad.setAttribute("y1", "0%"); grad.setAttribute("x2", "0%"); grad.setAttribute("y2", "100%");
         [{o:"0%",c:"var(--gold-1)"},{o:"50%",c:"var(--gold-2)"},{o:"100%",c:"var(--gold-3)"}].forEach(s=>{ const stop=document.createElementNS(ns,"stop"); stop.setAttribute("offset",s.o); stop.style.stopColor=s.c; grad.appendChild(stop); });
         defs.appendChild(grad); svg.appendChild(defs);
-        const p1 = document.createElementNS(ns, "path"); p1.setAttribute("d", "M10 43 L50 13 L90 43 L90 53 L50 23 L10 53 Z M10 73 L50 43 L90 73 L90 83 L50 53 L10 83 Z"); p1.setAttribute("fill", "var(--gold-border)"); svg.appendChild(p1);
-        const p2 = document.createElementNS(ns, "path"); p2.setAttribute("d", "M10 40 L50 10 L90 40 L90 60 L50 30 L10 60 Z M10 70 L50 40 L90 70 L90 90 L50 60 L10 90 Z"); p2.setAttribute("fill", "url(#arrowGradExport_" + args.i + ")"); svg.appendChild(p2);
-        const g1 = document.createElementNS(ns, "path"); g1.setAttribute("class", "glow-unit glow-top"); g1.setAttribute("d", "M10 40 L50 10 L90 40 L90 60 L50 30 L10 60 Z"); svg.appendChild(g1);
-        const g2 = document.createElementNS(ns, "path"); g2.setAttribute("class", "glow-unit glow-bottom"); g2.setAttribute("d", "M10 70 L50 40 L90 70 L90 90 L50 60 L10 90 Z"); svg.appendChild(g2);
-        const p3 = document.createElementNS(ns, "path"); p3.setAttribute("d", "M10 40 L50 10 L90 40 L50 11 Z"); p3.setAttribute("fill", "var(--arrow-white)"); svg.appendChild(p3);
+        // Single Chevron SVG
+        const p1 = document.createElementNS(ns, "path"); p1.setAttribute("d", "M10 50 L50 20 L90 50 L90 65 L50 35 L10 65 Z"); p1.setAttribute("fill", "var(--gold-border)"); svg.appendChild(p1);
+        const p2 = document.createElementNS(ns, "path"); p2.setAttribute("d", "M10 47 L50 17 L90 47 L90 62 L50 32 L10 62 Z"); p2.setAttribute("fill", "url(#arrowGradExport_" + args.i + ")"); svg.appendChild(p2);
+        const p3 = document.createElementNS(ns, "path"); p3.setAttribute("d", "M10 47 L50 17 L90 47 L50 18 Z"); p3.setAttribute("fill", "var(--arrow-white)"); svg.appendChild(p3);
       }
       while (hotSpotDiv.firstChild) hotSpotDiv.removeChild(hotSpotDiv.firstChild);
       hotSpotDiv.appendChild(svg);
@@ -302,7 +301,7 @@ let generateTourHTML = (
     )}, "hfov": 90, "minHfov": 90, "maxHfov": 90, "showControls": false }, "scenes":{} };
     const scenesData = ${scenesDataJson};
     for (const [name, data] of Object.entries(scenesData)) {
-      config.scenes[name] = { panorama: data.panorama, autoLoad: true, hotSpots: data.hotSpots.map((h, idx) => ({ pitch: h.pitch, yaw: h.yaw, type: "info", cssClass: "flat-arrow", createTooltipFunc: renderGoldArrow, createTooltipArgs: { i: idx, targetSceneId: h.target, viewFrame: h.viewFrame, targetYaw: h.targetYaw, targetPitch: h.targetPitch, isReturnLink: h.isReturnLink, returnViewFrame: h.returnViewFrame } })) };
+      config.scenes[name] = { panorama: data.panorama, autoLoad: true, hotSpots: data.hotSpots.map((h, idx) => ({ pitch: h.pitch, yaw: h.yaw, type: "info", cssClass: "flat-arrow", createTooltipFunc: renderOrangeHotspot, createTooltipArgs: { i: idx, targetSceneId: h.target, viewFrame: h.viewFrame, targetYaw: h.targetYaw, targetPitch: h.targetPitch, isReturnLink: h.isReturnLink, returnViewFrame: h.returnViewFrame } })) };
     }
     window.viewer = pannellum.viewer('panorama', config); window.viewer.resize();
     window.addEventListener('resize', () => window.viewer?.resize());

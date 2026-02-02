@@ -44,6 +44,7 @@ module Adapter = {
     let h = hfov->Option.getOr(Viewer.getHfov(v))
     Viewer.loadScene(v, sceneId, p, y, h)
   }
+  let addScene = (v, id, config) => Viewer.addScene(v, id, config)
   let on = (v, ev, cb) => Viewer.on(v, ev, cb)
   let isLoaded = v => Viewer.isLoaded(v)
   let setMetaData = (v, key, value) => {

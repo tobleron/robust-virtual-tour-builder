@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Viewer loading failure after project import by restoring proper viewport statuses in `ViewerSystem.Pool.reset`.
 - Potential stale state issues by ensuring `ViewerSystem.resetState` is called during project load.
 - Restore viewer functionality after project import by fixing Pool.reset
+- Eliminate legacy svg hotspots and resolve navigation state desync
 
 ## [4.8.14] - 2026-02-01
 
