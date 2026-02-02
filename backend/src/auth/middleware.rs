@@ -1,3 +1,4 @@
+// @efficiency-role: infra-adapter
 use super::jwt;
 use crate::models::User;
 use actix_web::{

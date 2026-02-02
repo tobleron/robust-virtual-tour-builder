@@ -9,16 +9,16 @@ type queueItem =
   | Thunk(unit => Promise.t<unit>)
 
 type state = {
-  mutable queue: array<queueItem>,
-  mutable isProcessing: bool,
-  mutable timerId: option<int>,
+  queue: array<queueItem>,
+  isProcessing: bool,
+  timerId: option<int>,
 }
 
-let internalState = {
+let internalState = ref({
   queue: [],
   isProcessing: false,
   timerId: None,
-}
+})
 
 let stabilityCheckInterval = 50
 let maxStabilityWait = 2000
@@ -87,15 +87,20 @@ let rec waitForStability = (startTime: float): Promise.t<unit> => {
 }
 
 let rec processNext = () => {
-  if Belt.Array.length(internalState.queue) == 0 {
-    internalState.isProcessing = false
+  let {queue} = internalState.contents
+  switch queue[0] {
+  | None =>
+    internalState.contents = {...internalState.contents, isProcessing: false}
     Logger.debug(~module_="InteractionQueue", ~message="QUEUE_DRAINED", ())
-  } else {
-    internalState.isProcessing = true
-    let item = Array.shift(internalState.queue)
+  | Some(item) =>
+    internalState.contents = {
+      ...internalState.contents,
+      isProcessing: true,
+      queue: Array.slice(queue, ~start=1),
+    }
 
     let executionPromise = switch item {
-    | Some(Action(action)) =>
+    | Action(action) =>
       Logger.debug(
         ~module_="InteractionQueue",
         ~message="PROCESS_ACTION",
@@ -109,11 +114,9 @@ let rec processNext = () => {
         let _ = setTimeout(() => resolve(), 0)
       })->Promise.then(() => waitForStability(Date.now()))
 
-    | Some(Thunk(fn)) =>
+    | Thunk(fn) =>
       Logger.debug(~module_="InteractionQueue", ~message="PROCESS_THUNK", ())
       fn()->Promise.then(() => waitForStability(Date.now()))
-
-    | None => Promise.resolve()
     }
 
     executionPromise
@@ -126,18 +129,21 @@ let rec processNext = () => {
 }
 
 let enqueue = (item: queueItem) => {
-  Array.push(internalState.queue, item)
+  internalState.contents = {
+    ...internalState.contents,
+    queue: Array.concat(internalState.contents.queue, [item]),
+  }
   Logger.debug(
     ~module_="InteractionQueue",
     ~message="ENQUEUE",
     ~data=Logger.castToJson({
-      "queueLength": Belt.Array.length(internalState.queue),
-      "isProcessing": internalState.isProcessing,
+      "queueLength": Array.length(internalState.contents.queue),
+      "isProcessing": internalState.contents.isProcessing,
     }),
     (),
   )
 
-  if !internalState.isProcessing {
+  if !internalState.contents.isProcessing {
     processNext()
   }
 }

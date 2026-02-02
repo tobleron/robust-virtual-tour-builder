@@ -1,3 +1,4 @@
+// @efficiency-role: infra-adapter
 use crate::models::AppError;
 use chrono::{Duration, Utc};
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};

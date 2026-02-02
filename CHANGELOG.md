@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Potential stale state issues by ensuring `ViewerSystem.resetState` is called during project load.
 - Restore viewer functionality after project import by fixing Pool.reset
 - Eliminate legacy svg hotspots and resolve navigation state desync
+- Frontend violations, interaction queue immutability, and backend safety improvements
 
 ### Changed
 - Investigating scene transition problem in tour preview autopilot mode

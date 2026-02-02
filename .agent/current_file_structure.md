@@ -5,6 +5,7 @@
 ├── MAP.md
 ├── README.md
 ├── _dev-system
+│   ├── ARCHITECTURE.md
 │   ├── DASHBOARD.html
 │   ├── README.md
 │   ├── analyzer
@@ -3737,10 +3738,7 @@
 │   │   │   ├── shutdown.rs
 │   │   │   ├── upload_quota.rs
 │   │   │   └── upload_quota_tests.rs
-│   │   └── startup
-│   │       ├── config.rs
-│   │       ├── logging.rs
-│   │       └── mod.rs
+│   │   └── startup.rs
 │   ├── startup_log.txt
 │   └── tests
 │       ├── bench_transcode.rs
@@ -4158,6 +4156,12 @@
 │   │   │   │   ├── JsonParsers.cmj
 │   │   │   │   ├── JsonParsers.cmt
 │   │   │   │   ├── JsonParsers.res
+│   │   │   │   ├── JsonParsersShared.ast
+│   │   │   │   ├── JsonParsersShared.bs.js
+│   │   │   │   ├── JsonParsersShared.cmi
+│   │   │   │   ├── JsonParsersShared.cmj
+│   │   │   │   ├── JsonParsersShared.cmt
+│   │   │   │   ├── JsonParsersShared.res
 │   │   │   │   ├── NavigationHelpers.ast
 │   │   │   │   ├── NavigationHelpers.bs.js
 │   │   │   │   ├── NavigationHelpers.cmi
@@ -6123,6 +6127,11 @@
 │   │   ├── JsonParsers.cmj
 │   │   ├── JsonParsers.cmt
 │   │   ├── JsonParsers.res
+│   │   ├── JsonParsersShared.ast
+│   │   ├── JsonParsersShared.cmi
+│   │   ├── JsonParsersShared.cmj
+│   │   ├── JsonParsersShared.cmt
+│   │   ├── JsonParsersShared.res
 │   │   ├── JsonParsers_v.test.ast
 │   │   ├── JsonParsers_v.test.cmi
 │   │   ├── JsonParsers_v.test.cmj
@@ -8770,6 +8779,8 @@
 │   │   ├── InteractionQueue.res
 │   │   ├── JsonParsers.bs.js
 │   │   ├── JsonParsers.res
+│   │   ├── JsonParsersShared.bs.js
+│   │   ├── JsonParsersShared.res
 │   │   ├── NavigationHelpers.bs.js
 │   │   ├── NavigationHelpers.res
 │   │   ├── Reducer.bs.js
@@ -9082,8 +9093,10 @@
 │   │   ├── 1170_Surgical_Refactor_SYSTEMS_FRONTEND__FINISHED.md
 │   │   ├── 1171_Fix_Violations_FRONTEND_DONE.md
 │   │   ├── 1172_Classify_Map_Entries_DONE.md
+│   │   ├── 1174_Fix_Violations_FRONTEND_DONE.md
 │   │   ├── 1175_Surgical_Refactor_UTILS_FRONTEND_DONE.md
 │   │   ├── 1176_Surgical_Refactor_SRC_BACKEND_DONE.md
+│   │   ├── 1177_Fix_Violations_BACKEND_DONE.md
 │   │   ├── 1178_Migration_CSP_Friendly_Validation_DONE.md
 │   │   ├── 1181_Resolve_Frontend_Test_Failures_DONE.md
 │   │   ├── 1182_Fix_Remaining_Frontend_Tests_DONE.md
@@ -9091,6 +9104,8 @@
 │   │   ├── 1185_Implement_Serial_Command_Queue_DONE.md
 │   │   ├── 1186_Classify_Map_Entries_DONE.md
 │   │   ├── 1190_Fix_Preview_Transition_Block.md
+│   │   ├── 1191_Classify_Ambiguous_Files_DONE.md
+│   │   ├── 1192_Merge_Folders_BACKEND_DONE.md
 │   │   ├── 900_COMMERCIAL_MIGRATION_MASTER.md
 │   │   ├── 905_migration_telemetry_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
@@ -9100,11 +9115,7 @@
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── implementation_plan_diagnostic_logging.md
 │   ├── pending
-│   │   ├── 1174_Fix_Violations_FRONTEND.md
-│   │   ├── 1177_Fix_Violations_BACKEND.md
-│   │   ├── 1179_Surgical_Refactor_CORE_FRONTEND.md
-│   │   ├── 1191_Classify_Ambiguous_Files.md
-│   │   ├── 1192_Merge_Folders_BACKEND.md
+│   │   ├── 1193_Merge_Folders_BACKEND.md
 │   │   └── tests
 │   └── postponed
 ├── test_diagnostics_latest.txt
@@ -9412,4 +9423,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-391 directories, 9022 files
+390 directories, 9034 files
