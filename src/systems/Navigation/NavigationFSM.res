@@ -42,8 +42,33 @@ type event =
   | RecoveryTriggered({targetSceneId: string})
   | Reset
 
+let toString = (state: distinctState) => {
+  switch state {
+  | Idle => "Idle"
+  | Preloading(_) => "Preloading"
+  | Transitioning(_) => "Transitioning"
+  | Stabilizing(_) => "Stabilizing"
+  | Error(_) => "Error"
+  }
+}
+
+let eventToString = (event: event) => {
+  switch event {
+  | UserClickedScene({targetSceneId: id}) => "UserClickedScene(" ++ id ++ ")"
+  | PreloadStarted({targetSceneId: id}) => "PreloadStarted(" ++ id ++ ")"
+  | StartAnticipatoryLoad({targetSceneId: id}) => "StartAnticipatoryLoad(" ++ id ++ ")"
+  | TextureLoaded({targetSceneId: id}) => "TextureLoaded(" ++ id ++ ")"
+  | AnimationProgress(p) => "AnimationProgress(" ++ Float.toString(p) ++ ")"
+  | TransitionComplete => "TransitionComplete"
+  | StabilizeComplete => "StabilizeComplete"
+  | LoadTimeout => "LoadTimeout"
+  | RecoveryTriggered({targetSceneId: id}) => "RecoveryTriggered(" ++ id ++ ")"
+  | Reset => "Reset"
+  }
+}
+
 let reducer = (state: distinctState, action: event): distinctState => {
-  switch (state, action) {
+  let nextState = switch (state, action) {
   | (Idle, UserClickedScene({targetSceneId})) =>
     Preloading({targetSceneId, attempt: 1, isAnticipatory: false})
   | (Idle, PreloadStarted({targetSceneId})) =>
@@ -60,12 +85,7 @@ let reducer = (state: distinctState, action: event): distinctState => {
       Transitioning({fromSceneId: None, toSceneId: targetSceneId, progress: 0.0})
     }
 
-  | (Transitioning(s), AnimationProgress(p)) =>
-    if p >= 1.0 {
-      Stabilizing({targetSceneId: s.toSceneId})
-    } else {
-      Transitioning({...s, progress: p})
-    }
+  | (Transitioning(s), AnimationProgress(p)) => Transitioning({...s, progress: p})
   | (Transitioning(s), TransitionComplete) => Stabilizing({targetSceneId: s.toSceneId})
   | (Transitioning(_), UserClickedScene({targetSceneId})) =>
     Preloading({targetSceneId, attempt: 1, isAnticipatory: false})
@@ -85,14 +105,18 @@ let reducer = (state: distinctState, action: event): distinctState => {
   | (_, Reset) => Idle
   | (s, _) => s
   }
-}
 
-let toString = (state: distinctState) => {
-  switch state {
-  | Idle => "Idle"
-  | Preloading(_) => "Preloading"
-  | Transitioning(_) => "Transitioning"
-  | Stabilizing(_) => "Stabilizing"
-  | Error(_) => "Error"
+  if nextState != state {
+    Logger.debug(
+      ~module_="NavigationFSM",
+      ~message="TRANSITION",
+      ~data=Some({
+        "from": toString(state),
+        "to": toString(nextState),
+        "event": eventToString(action),
+      }),
+      (),
+    )
   }
+  nextState
 }
