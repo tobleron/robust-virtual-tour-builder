@@ -19,9 +19,11 @@ describe("InteractionQueue", () => {
     InteractionQueue.dispatch(SetTourName("Second"))
 
     // Wait for async processing
-    let _ = await Promise.make((resolve, _) => {
-      let _ = setTimeout(() => resolve(. ()), 100)
-    })
+    let _ = await Promise.make(
+      (resolve, _) => {
+        let _ = setTimeout(() => resolve(), 100)
+      },
+    )
 
     t->expect(receivedActions)->Expect.toEqual([SetTourName("First"), SetTourName("Second")])
   })
@@ -37,7 +39,11 @@ describe("InteractionQueue", () => {
         // Simulate becoming busy immediately after dispatch
         GlobalStateBridge.setState({
           ...State.initialState,
-          navigationFsm: NavigationFSM.Transitioning({fromSceneId: None, toSceneId: "x", progress: 0.0})
+          navigationFsm: NavigationFSM.Transitioning({
+            fromSceneId: None,
+            toSceneId: "x",
+            progress: 0.0,
+          }),
         })
       | _ => ()
       }
@@ -51,9 +57,11 @@ describe("InteractionQueue", () => {
     InteractionQueue.dispatch(SetTourName("Should Wait"))
 
     // Wait 100ms - App is busy, so queue should stall
-    let _ = await Promise.make((resolve, _) => {
-      let _ = setTimeout(() => resolve(. ()), 100)
-    })
+    let _ = await Promise.make(
+      (resolve, _) => {
+        let _ = setTimeout(() => resolve(), 100)
+      },
+    )
 
     // Expect only first action
     t->expect(receivedActions)->Expect.toEqual([SetTourName("Trigger Busy")])
@@ -62,11 +70,15 @@ describe("InteractionQueue", () => {
     GlobalStateBridge.setState(State.initialState)
 
     // Wait > 50ms (interval)
-    let _ = await Promise.make((resolve, _) => {
-      let _ = setTimeout(() => resolve(. ()), 150)
-    })
+    let _ = await Promise.make(
+      (resolve, _) => {
+        let _ = setTimeout(() => resolve(), 150)
+      },
+    )
 
     // Expect second action to have run
-    t->expect(receivedActions)->Expect.toEqual([SetTourName("Trigger Busy"), SetTourName("Should Wait")])
+    t
+    ->expect(receivedActions)
+    ->Expect.toEqual([SetTourName("Trigger Busy"), SetTourName("Should Wait")])
   })
 })
