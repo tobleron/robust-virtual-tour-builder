@@ -3,7 +3,6 @@
 use actix_multipart::Multipart;
 use actix_web::{HttpMessage, HttpRequest, HttpResponse, web};
 use serde::{Deserialize, Serialize};
-use std::fs;
 use std::io::{Seek, SeekFrom};
 
 use crate::api::utils::get_temp_path;
@@ -72,8 +71,10 @@ pub async fn save_project(req: HttpRequest, payload: Multipart) -> Result<HttpRe
     let duration = start.elapsed().as_millis();
     match zip_creation_result {
         Ok(_) => {
-            let file_bytes = fs::read(&zip_path).map_err(AppError::IoError)?;
-            let _ = fs::remove_file(&zip_path);
+            let file_bytes = tokio::fs::read(&zip_path)
+                .await
+                .map_err(AppError::IoError)?;
+            let _ = tokio::fs::remove_file(&zip_path).await;
             tracing::info!(
                 module = "ProjectManager",
                 duration_ms = duration,
@@ -84,7 +85,7 @@ pub async fn save_project(req: HttpRequest, payload: Multipart) -> Result<HttpRe
                 .body(file_bytes))
         }
         Err(e) => {
-            let _ = fs::remove_file(&zip_path);
+            let _ = tokio::fs::remove_file(&zip_path).await;
             Err(e.into())
         }
     }
@@ -145,7 +146,7 @@ pub async fn import_project(
     .map_err(|e| AppError::InternalError(e.to_string()))?
     .map_err(AppError::InternalError)?;
 
-    let _ = web::block(move || fs::remove_file(tmp_path)).await;
+    let _ = tokio::fs::remove_file(tmp_path).await;
     return Ok(HttpResponse::Ok().json(ImportResponse {
         session_id: project_id,
         project_data,
