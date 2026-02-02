@@ -44,19 +44,25 @@ A structural paradigm where **UI, State, and Logic** for a single feature live i
 
 ---
 
-## 🚀 ADVANCED FEATURES (v1.5.0 Semantic Engine)
+## 🚀 ADVANCED FEATURES (v1.6.0 Semantic Engine)
 
 ### 🌲 1. Semantic AST Parsing
 The analyzer utilizes a high-fidelity **Semantic Scanner** (e.g., `RescriptParser`) that understands function boundaries and scope depth. It replaces simple regex heuristics with actual structural analysis.
 
-### 🎯 2. Symbol-Aware Hotspotting
-Advisory tasks are no longer bound to volatile line numbers. The system identifies **Symbols** (e.g., `Function: handleUpload`) as targets, ensuring 100% accurate refactoring guidance even as files change.
+### 🎯 2. Symbol-Aware Architectural Targets
+Advisory tasks are no longer bound to volatile line numbers. The system identifies **Symbols** (e.g., `Function: handleUpload`) as targets and calculates **Exactly how many modules** are required for an optimal split (aiming for a 300 LOC "Soft Floor").
 
-### 📉 3. Inference Feedback Loop
-The analyzer scans local failure logs (`FAILURE_REPORT.md`, `test_results.txt`). Problematic files that cause recent AI hallucinations or test failures receive an automatic **1.5x Drag Multiplier**, prioritizing them for refactoring.
+### ⚖️ 3. Hysteresis (Stability Dead Zone)
+To prevent "Architectural Jitter" (Split/Merge loops), the system implements a **+/- 15% Buffer Zone**. 
+*   **Split**: Triggered at `Limit * 1.15`.
+*   **Merge**: Resulting file must be `< Limit * 0.85`.
+This ensures files only move when the architectural benefit is mathematically significant.
 
-### 🛡️ 4. Architectural Stability Guard
-Persistence layer (`analyzer_state.json`) tracks the stability score and failure history of every file. It includes a **Stability Lock** to prevent rapid "Merge/Split" yoyo cycles, ensuring a consistent architectural trajectory.
+### 👤 4. Shadow Orchestrator Protection
+The merge engine automatically detects when a folder's contents belong to a sibling "Orchestrator" file (e.g., `auth.rs` + `auth/`). It forbids merging sub-modules back into their parents to maintain intentional domain separation.
+
+### 🏢 5. Folder Flattening (Nesting Tax)
+Merge tasks now explicitly require **Flattening**. When a folder's logic is consolidated into a single module, the directory is deleted to move the file one level higher in the hierarchy, reducing the "Directory Nesting Tax."
 
 ---
 
