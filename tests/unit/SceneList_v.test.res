@@ -141,8 +141,8 @@ describe("SceneList", () => {
     Dom.removeElement(container)
   })
 
-  /* SKIPPED: Task 1198 */
-  /* testAsync("should throttle scene switching clicks", async t => {
+
+  testAsync("should throttle scene switching clicks", async t => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
@@ -177,13 +177,17 @@ describe("SceneList", () => {
     await wait(700)
     clickSecondItem(container)
 
+    // Allow queue to process (SceneList dispatches multiple actions)
+    await wait(100)
+
     switch lastAction.contents {
     | Some(Actions.SetActiveScene(idx, _, _, _)) => t->expect(idx)->Expect.toBe(1)
-    | _ => t->expect("SetActiveScene")->Expect.toBe("Dispatched")
+    | Some(other) => t->expect(Actions.actionToString(other))->Expect.toBe("SetActiveScene")
+    | None => t->expect("None")->Expect.toBe("SetActiveScene")
     }
 
     Dom.removeElement(container)
-  }) */
+  })
 
   testAsync("should have drag attributes and quality indicator classes", async t => {
     let container = Dom.createElement("div")
