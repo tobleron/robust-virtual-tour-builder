@@ -85,8 +85,12 @@ module AnimationLoop = {
           | NavigationFSM.Idle =>
             // Already idle, just stop the loop
             cft := true
+          | NavigationFSM.Error(_) =>
+            // Error occurred (e.g. timeout), stop blinking and cancel
+            cft := true
+            EventBus.dispatch(NavCancelled)
           | _ =>
-            // Texture not loaded yet (Preloading or Error), keep blinking at the waypoint
+            // Texture not loaded yet (Preloading), keep blinking at the waypoint
             Logger.debug(
               ~module_="NavigationRenderer",
               ~message="WAITING_FOR_TEXTURE",

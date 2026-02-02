@@ -16,6 +16,14 @@ module ControllerHooks = {
           let prevIndex = state.activeIndex >= 0 ? Some(state.activeIndex) : None
           Scene.Loader.loadNewScene(prevIndex, Some(idx), ~isAnticipatory)
         })
+        let timeoutId = Window.setTimeout(() => {
+          if isAnticipatory {
+            dispatch(Actions.DispatchNavigationFsmEvent(Reset))
+          } else {
+            dispatch(Actions.DispatchNavigationFsmEvent(LoadTimeout))
+          }
+        }, 10000)
+        Some(() => Window.clearTimeout(timeoutId))
       | Transitioning({progress}) if progress == 0.0 =>
         let shouldFinalize = switch state.navigation {
         | Idle => true
@@ -25,20 +33,22 @@ module ControllerHooks = {
         if shouldFinalize {
           dispatch(Actions.DispatchNavigationFsmEvent(TransitionComplete))
         }
+        None
       | Stabilizing({targetSceneId}) =>
         let _ = Window.requestAnimationFrame(() => {
           state.scenes
           ->Belt.Array.getBy(s => s.id == targetSceneId)
           ->Option.forEach(ts => Scene.Transition.performSwap(ts, 0.0))
         })
+        None
       | Idle =>
         switch state.navigation {
         | Navigating(j) => dispatch(NavigationCompleted(j))
         | _ => ()
         }
-      | _ => ()
+        None
+      | _ => None
       }
-      None
     }, [state.navigationFsm])
   }
 
