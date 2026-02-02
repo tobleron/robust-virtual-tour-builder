@@ -17,3 +17,5 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 - [ ] - **../../src/systems/ProjectManager.res** (Metric: [Nesting: 4.00, Density: 0.38, Coupling: 0.11] | Drag: 9.06 | LOC: 311/300  🎯 Target: Function: `rebuildUrl` (High Local Complexity (8.4). Logic heavy.))
 
+- [ ] - **../../src/systems/ViewerSystem.res** (Metric: [Nesting: 3.50, Density: 0.65, Coupling: 0.09] | Drag: 9.03 | LOC: 307/300  🎯 Target: Function: `reset` (High Local Complexity (4.1). Logic heavy.))
+

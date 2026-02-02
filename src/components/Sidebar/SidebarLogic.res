@@ -105,6 +105,7 @@ let handleLoadProject = async (filesOpt, dispatch, _sceneCount, target) => {
 
         switch projectDataResult {
         | Ok((sessionId, projectData)) => {
+            ViewerSystem.resetState()
             dispatch(Actions.SetSessionId(sessionId))
             dispatch(Actions.LoadProject(projectData))
             UploadReport.showFromProjectData(projectData)
