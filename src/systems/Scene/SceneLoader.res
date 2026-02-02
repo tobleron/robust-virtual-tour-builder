@@ -110,6 +110,7 @@ let loadNewScene = (_prevIndex: option<int>, targetIndex: option<int>, ~isAntici
             let config = Config.makeSceneConfig(targetScene)
             let newInstance = ViewerSystem.Adapter.initialize(v.containerId, config)
             ViewerSystem.Adapter.setMetaData(newInstance, "sceneId", idToUnknown(targetScene.id))
+            ViewerSystem.Adapter.setMetaData(newInstance, "isLoaded", boolToUnknown(false))
 
             // Hook up events
             ViewerSystem.Adapter.on(

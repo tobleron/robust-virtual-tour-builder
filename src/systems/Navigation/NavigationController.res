@@ -70,7 +70,7 @@ module ControllerHooks = {
         ->Nullable.toOption
         ->Option.forEach(v => {
           switch j.pathData {
-          | Some(pd) => NavigationRenderer.AnimationLoop.startLoop(v, state, j, pd, dispatch, req)
+          | Some(pd) => NavigationRenderer.AnimationLoop.startLoop(v, j, pd, dispatch, req)
           | None =>
             Logger.warn(~module_="NavigationController", ~message="NO_PATH_DATA_FALLBACK", ())
             dispatch(Actions.DispatchNavigationFsmEvent(TransitionComplete))

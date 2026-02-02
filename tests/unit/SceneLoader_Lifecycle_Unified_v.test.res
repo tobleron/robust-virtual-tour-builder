@@ -60,6 +60,7 @@ describe("SceneLoader Lifecycle Unified", () => {
           setHfov: () => {},
           _sceneId: "",
           _isLoaded: false,
+          isLoaded: () => false,
           trigger: function(event) {
             if (this._listeners[event]) this._listeners[event]();
           }
