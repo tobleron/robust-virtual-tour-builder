@@ -1,17 +1,51 @@
 {
-  "rescript": [
+  "rust": [
     {
-      "Violation": {
-        "file": "../../src/core/InteractionQueue.res",
-        "pattern": "mutable ",
-        "strategy": ""
+      "Surgical": {
+        "file": "../../backend/src/main.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.00, Density: 0.02, Coupling: 0.07] | Drag: 3.23 | LOC: 356/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 8.831460674157302
       }
     },
     {
       "Violation": {
-        "file": "../../src/components/NotificationContext.res",
-        "pattern": "Obj.magic",
+        "file": "../../backend/src/main.rs",
+        "pattern": "unwrap()",
         "strategy": ""
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../backend/src/auth.rs",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.00, Density: 0.02, Coupling: 0.05] | Drag: 3.22 | LOC: 306/300",
+        "strategy": "",
+        "platform": "backend",
+        "complexity": 3.819607843137255
+      }
+    }
+  ],
+  "css": [
+    {
+      "Violation": {
+        "file": "../../css/components/ui.css",
+        "pattern": "!important",
+        "strategy": ""
+      }
+    }
+  ],
+  "rescript": [
+    {
+      "Surgical": {
+        "file": "../../src/systems/ViewerSystem.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.50, Density: 0.65, Coupling: 0.09] | Drag: 9.05 | LOC: 308/300  🎯 Target: Function: `reset` (High Local Complexity (4.1). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 9.846753246753247
       }
     },
     {
@@ -22,23 +56,6 @@
         "strategy": "",
         "platform": "frontend",
         "complexity": 10.160450160771704
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/systems/ApiHelpers.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ViewerSystem.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.50, Density: 0.65, Coupling: 0.09] | Drag: 9.05 | LOC: 308/300  🎯 Target: Function: `reset` (High Local Complexity (4.1). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 9.846753246753247
       }
     },
     {
@@ -60,42 +77,25 @@
         "platform": "frontend",
         "complexity": 23.620425531914893
       }
-    }
-  ],
-  "rust": [
-    {
-      "Surgical": {
-        "file": "../../backend/src/auth.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.00, Density: 0.02, Coupling: 0.05] | Drag: 3.22 | LOC: 306/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 3.819607843137255
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../backend/src/main.rs",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.00, Density: 0.02, Coupling: 0.07] | Drag: 3.23 | LOC: 356/300",
-        "strategy": "",
-        "platform": "backend",
-        "complexity": 8.831460674157302
-      }
     },
     {
       "Violation": {
-        "file": "../../backend/src/main.rs",
-        "pattern": "unwrap()",
+        "file": "../../src/systems/ApiHelpers.res",
+        "pattern": "Obj.magic",
         "strategy": ""
       }
-    }
-  ],
-  "css": [
+    },
     {
       "Violation": {
-        "file": "../../css/components/ui.css",
-        "pattern": "!important",
+        "file": "../../src/components/NotificationContext.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/core/InteractionQueue.res",
+        "pattern": "mutable ",
         "strategy": ""
       }
     }
