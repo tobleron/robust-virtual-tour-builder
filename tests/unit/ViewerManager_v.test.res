@@ -1,6 +1,7 @@
 /* tests/unit/ViewerManager_v.test.res */
 open Vitest
 open Types
+open ReBindings
 
 test("ViewerManager placeholder", t => {
   t->expect(true)->Expect.toBe(true)
@@ -63,20 +64,26 @@ external mockHandleStagePointerDown: mockFn = "handleStagePointerDown"
 `)
 
 %%raw(`
-  vi.mock('../../src/core/GlobalStateBridge.bs.js', () => ({
-    getState: vi.fn(() => ({
+  vi.mock('../../src/core/GlobalStateBridge.bs.js', () => {
+    let localState = {
        isLinking: false,
        simulation: { status: 'Idle' },
        activeIndex: -1,
        scenes: [],
        navigation: 'Idle',
        linkDraft: undefined,
-       simulation: { status: 'Idle' }
-    })),
-    dispatch: vi.fn(),
-    setDispatch: vi.fn(),
-    setState: vi.fn(),
-  }))
+       simulation: { status: 'Idle' },
+       navigationFsm: 'Idle'
+    };
+    let localDispatch = vi.fn();
+
+    return {
+      getState: vi.fn(() => localState),
+      dispatch: vi.fn((action) => localDispatch(action)),
+      setDispatch: vi.fn((fn) => { localDispatch = fn; }),
+      setState: vi.fn((s) => { localState = s; }),
+    }
+  })
 `)
 
 @module("../../src/core/GlobalStateBridge.bs.js") external mockGetState: mockFn = "getState"
@@ -149,7 +156,7 @@ let makeMockScene = (~id, ~name, ()) => {
 }
 
 /* SKIPPED: Task 1197 */
-/* describe("ViewerManager", () => {
+describe("ViewerManager", () => {
   let wait = ms =>
     Promise.make((resolve, _) => {
       let _ = Window.setTimeout(() => resolve(), ms)
@@ -469,4 +476,4 @@ let makeMockScene = (~id, ~name, ()) => {
 
     Dom.removeElement(container)
   })
-}) */
+})
