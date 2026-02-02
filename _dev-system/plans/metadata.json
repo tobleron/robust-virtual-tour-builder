@@ -1,16 +1,1 @@
-{
-  "system": [
-    {
-      "Merge": {
-        "folder": "../../backend/src/auth",
-        "files": [
-          "jwt.rs",
-          "middleware.rs"
-        ],
-        "reason": "Read Tax high (Score 2.00). Projected Limit: 300 (Drag 3.05)",
-        "strategy": "",
-        "platform": "backend"
-      }
-    }
-  ]
-}
+{}
