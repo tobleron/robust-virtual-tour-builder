@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Investigating scene transition problem in tour preview autopilot mode
 
+### Added
+- Create architecture task for serial interaction queue (1185)
+
 ## [4.8.14] - 2026-02-01
 
 ### Fixed
