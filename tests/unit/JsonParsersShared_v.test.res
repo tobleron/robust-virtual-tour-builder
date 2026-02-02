@@ -99,8 +99,16 @@ describe("JsonParsersShared", () => {
     | Ok(r) => {
         t->expect(r.sessionId)->Expect.toBe("sess123")
         // projectData is 'id' decoder, so it returns Json.t
-        t->expect(JsonCombinators.Json.decode(r.projectData, JsonCombinators.Json.Decode.object(f => f.required("some", JsonCombinators.Json.Decode.string))))
-          ->Expect.toEqual(Ok("data"))
+        t
+        ->expect(
+          JsonCombinators.Json.decode(
+            r.projectData,
+            JsonCombinators.Json.Decode.object(
+              f => f.required("some", JsonCombinators.Json.Decode.string),
+            ),
+          ),
+        )
+        ->Expect.toEqual(Ok("data"))
       }
     | Error(msg) => {
         Console.log("importResponse failed: " ++ msg)
