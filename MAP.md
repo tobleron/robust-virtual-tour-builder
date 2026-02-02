@@ -262,3 +262,6 @@ This map provides a semantic overview of the project structure to optimize conte
 
 
 
+
+## 🆕 Unmapped Modules
+* [src/core/InteractionQueue.res](src/core/InteractionQueue.res): New module detected. Please classify. #new

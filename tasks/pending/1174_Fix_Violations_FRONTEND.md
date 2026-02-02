@@ -19,3 +19,8 @@
 
 - [ ] `../../src/components/NotificationContext.res`
 - [ ] `../../src/systems/ApiHelpers.res`
+
+### 🔧 Action: Fix Pattern `mutable `
+**Directive:** Pattern Fix: Replace the forbidden 'mutable ' pattern with the recommended functional alternative.
+
+- [ ] `../../src/core/InteractionQueue.res`

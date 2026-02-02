@@ -72,10 +72,14 @@ let rec waitForStability = (startTime: float): Promise.t<unit> => {
     } else {
       Promise.make((resolve, _) => {
         let _ = setTimeout(() => {
-          waitForStability(startTime)->Promise.then(() => {
-            resolve(.)
-            Promise.resolve()
-          })->ignore
+          waitForStability(startTime)
+          ->Promise.then(
+            () => {
+              resolve()
+              Promise.resolve()
+            },
+          )
+          ->ignore
         }, stabilityCheckInterval)
       })
     }
@@ -102,7 +106,7 @@ let rec processNext = () => {
       // After dispatch, we must wait for the side effects to "settle"
       // We wait a tick first to allow React/Reducers to update state
       Promise.make((resolve, _) => {
-        let _ = setTimeout(() => resolve(. ()), 0)
+        let _ = setTimeout(() => resolve(), 0)
       })->Promise.then(() => waitForStability(Date.now()))
 
     | Some(Thunk(fn)) =>
@@ -112,10 +116,12 @@ let rec processNext = () => {
     | None => Promise.resolve()
     }
 
-    executionPromise->Promise.then(() => {
+    executionPromise
+    ->Promise.then(() => {
       processNext()
       Promise.resolve()
-    })->ignore
+    })
+    ->ignore
   }
 }
 
@@ -126,7 +132,7 @@ let enqueue = (item: queueItem) => {
     ~message="ENQUEUE",
     ~data=Logger.castToJson({
       "queueLength": Belt.Array.length(internalState.queue),
-      "isProcessing": internalState.isProcessing
+      "isProcessing": internalState.isProcessing,
     }),
     (),
   )

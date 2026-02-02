@@ -169,12 +169,12 @@ let useSimState = () => React.useContext(globalContext) // Temporary fallback
 // Interaction Queue Hook
 type interactionQueue = {
   dispatch: action => unit,
-  enqueueThunk: (unit => Promise.t<unit>) => unit
+  enqueueThunk: (unit => Promise.t<unit>) => unit,
 }
 
 let useInteractionQueue = (): interactionQueue => {
   {
-    dispatch: (action) => InteractionQueue.enqueue(Action(action)),
-    enqueueThunk: (fn) => InteractionQueue.enqueue(Thunk(fn))
+    dispatch: action => InteractionQueue.enqueue(Action(action)),
+    enqueueThunk: fn => InteractionQueue.enqueue(Thunk(fn)),
   }
 }

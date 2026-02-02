@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Investigating scene transition problem in tour preview autopilot mode
+- Merge branch 'fix-tour-preview-hang-18228800889238016474' into main: Fix tour preview hang by handling scene load timeouts and errors
 
 ### Added
 - Create architecture task for serial interaction queue (1185)
