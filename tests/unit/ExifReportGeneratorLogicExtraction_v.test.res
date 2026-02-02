@@ -96,7 +96,7 @@ describe("ExifReportGeneratorLogicExtraction", () => {
       async t => {
         let meta = {
           "gps": {"lat": 10.0, "lon": 20.0},
-          "date": "2023:01:01 12:00:00",
+          "dateTime": "2023:01:01 12:00:00",
           "cameraModel": "TestMake",
           "lensModel": "TestModel",
           "width": 1000,
@@ -127,7 +127,7 @@ describe("ExifReportGeneratorLogicExtraction", () => {
       async t => {
         let meta = {
           "gps": %raw("undefined"), // No GPS (undefined)
-          "date": "2023:01:01 12:00:00",
+          "dateTime": "2023:01:01 12:00:00",
           "width": 1000,
           "height": 500,
           // Optional fields omitted or undefined
