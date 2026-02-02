@@ -3697,9 +3697,6 @@
 │   │   │   ├── project_multipart.rs
 │   │   │   ├── telemetry.rs
 │   │   │   └── utils.rs
-│   │   ├── auth
-│   │   │   ├── jwt.rs
-│   │   │   └── middleware.rs
 │   │   ├── auth.rs
 │   │   ├── lib.rs
 │   │   ├── main.rs
@@ -7227,8 +7224,7 @@
 │   ├── diagnostic.log
 │   ├── error.log
 │   ├── log_changes.txt
-│   ├── project-guard.log
-│   └── telemetry.log
+│   └── project-guard.log
 ├── old_ref
 │   ├── 7aadee4
 │   │   ├── CHANGELOG.md
@@ -9106,6 +9102,7 @@
 │   │   ├── 1190_Fix_Preview_Transition_Block.md
 │   │   ├── 1191_Classify_Ambiguous_Files_DONE.md
 │   │   ├── 1192_Merge_Folders_BACKEND_DONE.md
+│   │   ├── 1193_Merge_Folders_BACKEND_DONE.md
 │   │   ├── 900_COMMERCIAL_MIGRATION_MASTER.md
 │   │   ├── 905_migration_telemetry_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
@@ -9115,7 +9112,7 @@
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── implementation_plan_diagnostic_logging.md
 │   ├── pending
-│   │   ├── 1193_Merge_Folders_BACKEND.md
+│   │   ├── 1194_Comprehensive_Test_Coverage_Hydration.md
 │   │   └── tests
 │   └── postponed
 ├── test_diagnostics_latest.txt
@@ -9423,4 +9420,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-390 directories, 9034 files
+389 directories, 9032 files

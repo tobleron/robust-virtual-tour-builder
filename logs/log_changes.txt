@@ -113,3 +113,4 @@
 [2026-02-02 13:14] v4.8.15 - Add task to fix tour preview transition block and document scene load errors [TRIPLE]
 [2026-02-02 19:48] v4.8.15 - feat: Backend refactor (Task 1176) & _dev-system upgrade (v1.6.0) [TRIPLE]
 [2026-02-02 21:25] v4.8.15 - fix: frontend violations, interaction queue immutability, and backend safety improvements [TRIPLE]
+[2026-02-02 21:30] v4.8.15 - chore: merge auth subsystem into unified auth.rs module [TRIPLE]
