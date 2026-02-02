@@ -265,12 +265,14 @@ let make = React.memo(() => {
         className="hidden"
         onChange={e => {
           let target = JsxEvent.Form.target(e)->ReBindings.Dom.unsafeToElement
-          enqueueThunk(() => SidebarLogic.handleLoadProject(
-            ReBindings.Dom.getFiles(target),
-            dispatch, // This now uses queue-aware dispatch!
-            Array.length(sceneSlice.scenes),
-            target,
-          ))
+          enqueueThunk(() =>
+            SidebarLogic.handleLoadProject(
+              ReBindings.Dom.getFiles(target),
+              dispatch, // This now uses queue-aware dispatch!
+              Array.length(sceneSlice.scenes),
+              target,
+            )
+          )
         }}
       />
     </div>
