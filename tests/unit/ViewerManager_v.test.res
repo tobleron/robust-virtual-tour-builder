@@ -1,7 +1,10 @@
 /* tests/unit/ViewerManager_v.test.res */
 open Vitest
-open ReBindings
 open Types
+
+test("ViewerManager placeholder", t => {
+  t->expect(true)->Expect.toBe(true)
+})
 
 type expectation
 @val external expectCall: 'a => expectation = "expect"

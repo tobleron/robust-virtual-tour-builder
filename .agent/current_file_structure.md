@@ -2121,6 +2121,48 @@
 │   │           │   │   └── 162557_040.webp
 │   │           │   ├── project.json
 │   │           │   └── summary.txt
+│   │           ├── 92ec89f4-cb1c-4640-b88e-ef8eed18aa5c
+│   │           │   ├── images
+│   │           │   │   ├── 154407_002.webp
+│   │           │   │   ├── 154618_004.webp
+│   │           │   │   ├── 154744_005.webp
+│   │           │   │   ├── 154859_006.webp
+│   │           │   │   ├── 155038_007.webp
+│   │           │   │   ├── 155139_008.webp
+│   │           │   │   ├── 155241_009.webp
+│   │           │   │   ├── 155456_010.webp
+│   │           │   │   ├── 155613_011.webp
+│   │           │   │   ├── 155754_012.webp
+│   │           │   │   ├── 155927_013.webp
+│   │           │   │   ├── 160058_014.webp
+│   │           │   │   ├── 160223_015.webp
+│   │           │   │   ├── 160339_016.webp
+│   │           │   │   ├── 160509_017.webp
+│   │           │   │   ├── 160552_018.webp
+│   │           │   │   ├── 160634_019.webp
+│   │           │   │   ├── 160715_020.webp
+│   │           │   │   ├── 160825_021.webp
+│   │           │   │   ├── 160926_022.webp
+│   │           │   │   ├── 161026_023.webp
+│   │           │   │   ├── 161123_024.webp
+│   │           │   │   ├── 161213_025.webp
+│   │           │   │   ├── 161309_026.webp
+│   │           │   │   ├── 161358_027.webp
+│   │           │   │   ├── 161456_028.webp
+│   │           │   │   ├── 161628_029.webp
+│   │           │   │   ├── 161706_030.webp
+│   │           │   │   ├── 161739_031.webp
+│   │           │   │   ├── 161824_032.webp
+│   │           │   │   ├── 161910_033.webp
+│   │           │   │   ├── 162015_034.webp
+│   │           │   │   ├── 162106_035.webp
+│   │           │   │   ├── 162215_036.webp
+│   │           │   │   ├── 162251_037.webp
+│   │           │   │   ├── 162400_038.webp
+│   │           │   │   ├── 162456_039.webp
+│   │           │   │   └── 162557_040.webp
+│   │           │   ├── project.json
+│   │           │   └── summary.txt
 │   │           ├── 934b2209-2298-42be-9a14-292ca78bc6af
 │   │           │   ├── images
 │   │           │   │   ├── 154407_002.webp
@@ -4841,6 +4883,12 @@
 │   │           ├── Actions_v.test.cmj
 │   │           ├── Actions_v.test.cmt
 │   │           ├── Actions_v.test.res
+│   │           ├── ApiHelpers_v.test.ast
+│   │           ├── ApiHelpers_v.test.bs.js
+│   │           ├── ApiHelpers_v.test.cmi
+│   │           ├── ApiHelpers_v.test.cmj
+│   │           ├── ApiHelpers_v.test.cmt
+│   │           ├── ApiHelpers_v.test.res
 │   │           ├── ApiTypes_v.test.ast
 │   │           ├── ApiTypes_v.test.bs.js
 │   │           ├── ApiTypes_v.test.cmi
@@ -5069,6 +5117,12 @@
 │   │           ├── InteractionsRobustness_v.test.cmj
 │   │           ├── InteractionsRobustness_v.test.cmt
 │   │           ├── InteractionsRobustness_v.test.res
+│   │           ├── JsonParsersShared_v.test.ast
+│   │           ├── JsonParsersShared_v.test.bs.js
+│   │           ├── JsonParsersShared_v.test.cmi
+│   │           ├── JsonParsersShared_v.test.cmj
+│   │           ├── JsonParsersShared_v.test.cmt
+│   │           ├── JsonParsersShared_v.test.res
 │   │           ├── JsonParsers_v.test.ast
 │   │           ├── JsonParsers_v.test.bs.js
 │   │           ├── JsonParsers_v.test.cmi
@@ -5691,6 +5745,11 @@
 │   │   ├── ApiHelpers.cmj
 │   │   ├── ApiHelpers.cmt
 │   │   ├── ApiHelpers.res
+│   │   ├── ApiHelpers_v.test.ast
+│   │   ├── ApiHelpers_v.test.cmi
+│   │   ├── ApiHelpers_v.test.cmj
+│   │   ├── ApiHelpers_v.test.cmt
+│   │   ├── ApiHelpers_v.test.res
 │   │   ├── ApiLogic.ast
 │   │   ├── ApiLogic.cmi
 │   │   ├── ApiLogic.cmj
@@ -6129,6 +6188,11 @@
 │   │   ├── JsonParsersShared.cmj
 │   │   ├── JsonParsersShared.cmt
 │   │   ├── JsonParsersShared.res
+│   │   ├── JsonParsersShared_v.test.ast
+│   │   ├── JsonParsersShared_v.test.cmi
+│   │   ├── JsonParsersShared_v.test.cmj
+│   │   ├── JsonParsersShared_v.test.cmt
+│   │   ├── JsonParsersShared_v.test.res
 │   │   ├── JsonParsers_v.test.ast
 │   │   ├── JsonParsers_v.test.cmi
 │   │   ├── JsonParsers_v.test.cmj
@@ -7224,7 +7288,8 @@
 │   ├── diagnostic.log
 │   ├── error.log
 │   ├── log_changes.txt
-│   └── project-guard.log
+│   ├── project-guard.log
+│   └── telemetry.log
 ├── old_ref
 │   ├── 7aadee4
 │   │   ├── CHANGELOG.md
@@ -9103,6 +9168,7 @@
 │   │   ├── 1191_Classify_Ambiguous_Files_DONE.md
 │   │   ├── 1192_Merge_Folders_BACKEND_DONE.md
 │   │   ├── 1193_Merge_Folders_BACKEND_DONE.md
+│   │   ├── 1194_Comprehensive_Test_Coverage_Hydration_DONE.md
 │   │   ├── 900_COMMERCIAL_MIGRATION_MASTER.md
 │   │   ├── 905_migration_telemetry_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
@@ -9112,8 +9178,12 @@
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── implementation_plan_diagnostic_logging.md
 │   ├── pending
-│   │   ├── 1194_Comprehensive_Test_Coverage_Hydration.md
 │   │   └── tests
+│   │       ├── 1195_Test_Teaser.md
+│   │       ├── 1196_Test_ViewerLogic.md
+│   │       ├── 1197_Fix_ViewerManager_Tests.md
+│   │       ├── 1198_Fix_SceneList_Tests.md
+│   │       └── 1199_Fix_PopOver_Tests.md
 │   └── postponed
 ├── test_diagnostics_latest.txt
 ├── test_output.txt
@@ -9131,6 +9201,8 @@
 │   │   ├── ActionsTest.bs.js
 │   │   ├── Actions_v.test.bs.js
 │   │   ├── Actions_v.test.res
+│   │   ├── ApiHelpers_v.test.bs.js
+│   │   ├── ApiHelpers_v.test.res
 │   │   ├── ApiTypes_v.test.bs.js
 │   │   ├── ApiTypes_v.test.res
 │   │   ├── AppContext_v.test.bs.js
@@ -9211,6 +9283,8 @@
 │   │   ├── InteractionQueue_v.test.res
 │   │   ├── InteractionsRobustness_v.test.bs.js
 │   │   ├── InteractionsRobustness_v.test.res
+│   │   ├── JsonParsersShared_v.test.bs.js
+│   │   ├── JsonParsersShared_v.test.res
 │   │   ├── JsonParsers_v.test.bs.js
 │   │   ├── JsonParsers_v.test.res
 │   │   ├── LabelMenu_v.test.bs.js
@@ -9420,4 +9494,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-389 directories, 9032 files
+391 directories, 9104 files

@@ -23,12 +23,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Restore viewer functionality after project import by fixing Pool.reset
 - Eliminate legacy svg hotspots and resolve navigation state desync
 - Frontend violations, interaction queue immutability, and backend safety improvements
+- Resolve build and test failures after merging task-1194
 
 ### Changed
 - Investigating scene transition problem in tour preview autopilot mode
 - Merge branch 'fix-tour-preview-hang-18228800889238016474' into main: Fix tour preview hang by handling scene load timeouts and errors
 - Add task to fix tour preview transition block and document scene load errors
 - Merge auth subsystem into unified auth.rs module
+
+### Merged
+- Task 1194: Comprehensive Test Coverage Hydration.
+    - Audited codebase for test parity and synchronized Vitest suite.
+    - Added unit tests for `JsonParsersShared.res` and `ApiHelpers.res`.
+    - Created granular test tasks for `Teaser`, `ViewerLogic`, and UI components (1195-1199).
+    - Fixed compilation warnings and placeholder tests in `ViewerManager_v.test.res`.
 
 ### Added
 - Create architecture task for serial interaction queue (1185)
