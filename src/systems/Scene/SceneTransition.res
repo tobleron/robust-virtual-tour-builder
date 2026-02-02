@@ -127,15 +127,32 @@ let scheduleCleanup = ov => {
 }
 
 let performSwap = (loadedScene: scene, _loadStartTime) => {
+  Logger.debug(
+    ~module_="SceneTransition",
+    ~message="PERFORM_SWAP",
+    ~data=Some({"targetScene": loadedScene.name}),
+    (),
+  )
   ViewerState.state := {...ViewerState.state.contents, isSwapping: true}
+
   let (av, iv) = (ViewerSystem.Pool.getActive(), ViewerSystem.Pool.getInactive())
   let (ov, nv) = (ViewerSystem.getActiveViewer(), ViewerSystem.getInactiveViewer())
 
-  updateGlobalStateAndViewer(nv)
-  updateDomTransitions(av, iv)
-  scheduleCleanup(ov)
+  switch Nullable.toOption(nv) {
+  | Some(_newViewer) =>
+    Logger.debug(~module_="SceneTransition", ~message="SWAPPING_VIEWERS", ())
+    updateGlobalStateAndViewer(nv)
+    updateDomTransitions(av, iv)
+    scheduleCleanup(ov)
+  | None =>
+    Logger.warn(~module_="SceneTransition", ~message="NO_INACTIVE_VIEWER_FOR_SWAP", ())
+    // Failsafe: if we don't have a second viewer, we still need to finish the transition
+    GlobalStateBridge.dispatch(SyncSceneNames) // Force some state change
+  }
 
   ViewerSnapshot.requestIdleSnapshot()
   ViewerState.state := {...ViewerState.state.contents, lastSceneId: Nullable.make(loadedScene.id)}
+
+  Logger.debug(~module_="SceneTransition", ~message="SWAP_COMPLETE_FSM_SIGNAL", ())
   GlobalStateBridge.dispatch(DispatchNavigationFsmEvent(StabilizeComplete))
 }

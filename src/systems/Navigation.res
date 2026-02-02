@@ -9,4 +9,3 @@ module Controller = NavigationController
 
 // Re-export common functions or components if needed
 let updateReturnPrompt = UI.updateReturnPrompt
-let init = Renderer.init

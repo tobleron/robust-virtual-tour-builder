@@ -229,8 +229,12 @@ let useHotspotLineLoop = (_state: state, dispatch: action => unit) => {
       if e == ForceHotspotSync {
         let v = ViewerSystem.getActiveViewer()
         let currentState = GlobalStateBridge.getState()
-        switch (Nullable.toOption(v), Belt.Array.get(currentState.scenes, currentState.activeIndex)) {
-        | (Some(viewer), Some(scene)) => HotspotManager.syncHotspots(viewer, currentState, scene, dispatch)
+        switch (
+          Nullable.toOption(v),
+          Belt.Array.get(currentState.scenes, currentState.activeIndex),
+        ) {
+        | (Some(viewer), Some(scene)) =>
+          HotspotManager.syncHotspots(viewer, currentState, scene, dispatch)
         | _ => ()
         }
       }

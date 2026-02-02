@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Restore viewer functionality after project import by fixing Pool.reset
 - Eliminate legacy svg hotspots and resolve navigation state desync
 
+### Changed
+- Investigating scene transition problem in tour preview autopilot mode
+
 ## [4.8.14] - 2026-02-01
 
 ### Fixed
