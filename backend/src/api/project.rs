@@ -72,8 +72,8 @@ pub async fn save_project(req: HttpRequest, payload: Multipart) -> Result<HttpRe
     let duration = start.elapsed().as_millis();
     match zip_creation_result {
         Ok(_) => {
-            let file_bytes = fs::read(&zip_path).map_err(AppError::IoError)?;
-            let _ = fs::remove_file(&zip_path);
+            let file_bytes = tokio::fs::read(&zip_path).await.map_err(AppError::IoError)?;
+            let _ = tokio::fs::remove_file(&zip_path).await;
             tracing::info!(
                 module = "ProjectManager",
                 duration_ms = duration,
@@ -84,7 +84,7 @@ pub async fn save_project(req: HttpRequest, payload: Multipart) -> Result<HttpRe
                 .body(file_bytes))
         }
         Err(e) => {
-            let _ = fs::remove_file(&zip_path);
+            let _ = tokio::fs::remove_file(&zip_path).await;
             Err(e.into())
         }
     }
@@ -106,7 +106,10 @@ pub async fn load_project(req: HttpRequest, payload: Multipart) -> Result<HttpRe
     let result_zip_file = web::block(move || project::process_uploaded_project_zip(temp_upload))
         .await
         .map_err(|e| AppError::InternalError(e.to_string()))??;
-    let file = result_zip_file.reopen().map_err(AppError::IoError)?;
+    let file = web::block(move || result_zip_file.reopen())
+        .await
+        .map_err(|e| AppError::InternalError(e.to_string()))?
+        .map_err(AppError::IoError)?;
     let named_file = actix_files::NamedFile::from_file(file, "project.zip")?;
     Ok(named_file.into_response(&req))
 }
@@ -132,8 +135,9 @@ pub async fn import_project(
             .await
             .map_err(|e| AppError::InternalError(e.to_string()))??;
 
-    let project_dir =
-        StorageManager::ensure_project_dir(&user.id, &project_id).map_err(AppError::IoError)?;
+    let project_dir = StorageManager::ensure_project_dir_async(&user.id, &project_id)
+        .await
+        .map_err(AppError::IoError)?;
 
     // Use shared logic for extraction
     let tmp_path_clone = tmp_path.clone();
