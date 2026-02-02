@@ -7,7 +7,6 @@ open Actions
 let useInitialization = () => {
   React.useEffect0(() => {
     let cleanupInput = InputSystem.initInputSystem()
-    Navigation.Renderer.init() // Legacy init for now
 
     let handleResize = _ => {
       let v = ViewerSystem.getActiveViewer()

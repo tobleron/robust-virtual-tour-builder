@@ -62,6 +62,13 @@ let make = () => {
             Constants.Simulation.stepDelay
           }
 
+          Logger.debug(
+            ~module_="Simulation",
+            ~message="SIM_TICK_WAIT",
+            ~data=Some({"sceneIndex": currentIndex, "delay": delay}),
+            (),
+          )
+
           let _ = await Promise.make((resolve, _) => {
             let _ = setTimeout(resolve, delay)
           })
@@ -72,6 +79,7 @@ let make = () => {
             !stateRef.current.simulation.stoppingOnArrival
           ) {
             try {
+              Logger.debug(~module_="Simulation", ~message="SIM_WAIT_FOR_VIEWER", ())
               let waitResult = await Navigation.waitForViewerScene(
                 stateRef.current.activeIndex,
                 () => !cancel.contents && stateRef.current.simulation.status == Running,
@@ -85,6 +93,12 @@ let make = () => {
                   stateRef.current.simulation.status == Running
                 ) {
                   let move = Logic.getNextMove(stateRef.current)
+                  Logger.debug(
+                    ~module_="Simulation",
+                    ~message="SIM_NEXT_MOVE",
+                    ~data=Some({"move": "TODO"}),
+                    (),
+                  )
                   switch move {
                   | Move({targetIndex, hotspotIndex, yaw, pitch, hfov, triggerActions}) =>
                     triggerActions->Belt.Array.forEach(a => dispatch(a))
@@ -99,7 +113,13 @@ let make = () => {
                       ~targetHfov=hfov,
                       (),
                     )
-                  | Complete({reason: _reason}) =>
+                  | Complete({reason}) =>
+                    Logger.info(
+                      ~module_="Simulation",
+                      ~message="SIM_COMPLETE",
+                      ~data=Some({"reason": reason}),
+                      (),
+                    )
                     EventBus.dispatch(ShowNotification("Simulation Complete", #Success, None))
                     let _ = await Promise.make((resolve, _) => {
                       let _ = setTimeout(resolve, Constants.Simulation.stepDelay)
@@ -109,11 +129,31 @@ let make = () => {
                       dispatch(StopAutoPilot)
                     }
                   | None =>
+                    Logger.warn(~module_="Simulation", ~message="SIM_NO_MOVE", ())
                     Scene.Switcher.cancelNavigation()
                     dispatch(StopAutoPilot)
                   }
+                } else {
+                  Logger.debug(
+                    ~module_="Simulation",
+                    ~message="SIM_TICK_SKIP",
+                    ~data=Some({
+                      "nav": stateRef.current.navigation == Idle ? "Idle" : "Busy",
+                      "cancel": cancel.contents,
+                      "status": stateRef.current.simulation.status == Running
+                        ? "Running"
+                        : "Stopped",
+                    }),
+                    (),
+                  )
                 }
               | Error(msg) =>
+                Logger.error(
+                  ~module_="Simulation",
+                  ~message="SIM_TICK_ERROR",
+                  ~data={"error": msg},
+                  (),
+                )
                 EventBus.dispatch(
                   ShowNotification(
                     "Simulation error: " ++ msg,
@@ -125,7 +165,14 @@ let make = () => {
                 dispatch(StopAutoPilot)
               }
             } catch {
-            | _ => dispatch(StopAutoPilot)
+            | _err =>
+              Logger.error(
+                ~module_="Simulation",
+                ~message="SIM_TICK_EXCEPTION",
+                ~data={"error": "TODO"},
+                (),
+              )
+              dispatch(StopAutoPilot)
             }
           }
           if advancingForIndex.current == currentIndex {

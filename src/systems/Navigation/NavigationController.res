@@ -16,8 +16,15 @@ module ControllerHooks = {
           let prevIndex = state.activeIndex >= 0 ? Some(state.activeIndex) : None
           Scene.Loader.loadNewScene(prevIndex, Some(idx), ~isAnticipatory)
         })
-      | Transitioning({progress}) if state.navigation == Idle && progress == 0.0 =>
-        dispatch(Actions.DispatchNavigationFsmEvent(TransitionComplete))
+      | Transitioning({progress}) if progress == 0.0 =>
+        let shouldFinalize = switch state.navigation {
+        | Idle => true
+        | Navigating(j) if j.pathData == None => true
+        | _ => false
+        }
+        if shouldFinalize {
+          dispatch(Actions.DispatchNavigationFsmEvent(TransitionComplete))
+        }
       | Stabilizing({targetSceneId}) =>
         let _ = Window.requestAnimationFrame(() => {
           state.scenes
@@ -43,22 +50,36 @@ module ControllerHooks = {
       switch state.navigation {
       | Navigating(j) if ajid.current != Some(j.journeyId) =>
         ajid.current = Some(j.journeyId)
+        Logger.debug(
+          ~module_="NavigationController",
+          ~message="START_JOURNEY_ANIMATION",
+          ~data=Some({"journeyId": j.journeyId}),
+          (),
+        )
         ViewerSystem.getActiveViewer()
         ->Nullable.toOption
         ->Option.forEach(v => {
-          j.pathData->Option.forEach(
-            pd => {
-              NavigationRenderer.AnimationLoop.startLoop(v, state, j, pd, dispatch, req)
-            },
-          )
+          switch j.pathData {
+          | Some(pd) => NavigationRenderer.AnimationLoop.startLoop(v, state, j, pd, dispatch, req)
+          | None =>
+            Logger.warn(~module_="NavigationController", ~message="NO_PATH_DATA_FALLBACK", ())
+            dispatch(Actions.DispatchNavigationFsmEvent(TransitionComplete))
+          }
         })
       | Idle =>
-        ajid.current = None
+        if ajid.current != None {
+          Logger.debug(~module_="NavigationController", ~message="NAVIGATION_IDLE", ())
+          ajid.current = None
+        }
         req.current->Option.forEach(id => Window.cancelAnimationFrame(id))
         req.current = None
       | _ => ()
       }
-      Some(() => req.current->Option.forEach(Window.cancelAnimationFrame))
+      Some(
+        () => {
+          req.current->Option.forEach(id => Window.cancelAnimationFrame(id))
+        },
+      )
     }, [state.navigation])
   }
 }
