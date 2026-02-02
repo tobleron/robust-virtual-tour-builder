@@ -66,7 +66,7 @@ let make = React.memo(() => {
   Logger.info(~module_="Sidebar", ~message="Rendering Sidebar", ())
   let state = AppContext.useAppState()
   let sceneSlice = AppContext.useSceneSlice()
-  let dispatch = AppContext.useAppDispatch()
+  let {dispatch, enqueueThunk} = AppContext.useInteractionQueue()
 
   let fileInputRef = React.useRef(Nullable.null)
   let projectFileInputRef = React.useRef(Nullable.null)
@@ -210,7 +210,7 @@ let make = React.memo(() => {
           }
         }}
         onSave={() => {
-          let _ = handleSave(state)
+          enqueueThunk(() => handleSave(state))
         }}
         onLoad={() => {
           switch Nullable.toOption(projectFileInputRef.current) {
@@ -240,10 +240,10 @@ let make = React.memo(() => {
           )
         }}
         onExport={() => {
-          let _ = SidebarLogic.handleExport(sceneSlice.scenes)
+          enqueueThunk(() => SidebarLogic.handleExport(sceneSlice.scenes))
         }}
         onTeaser={() => {
-          let _ = Teaser.startAutoTeaser("fast", false, "mp4", false)
+          enqueueThunk(() => Teaser.startAutoTeaser("fast", false, "mp4", false))
         }}
       />
 
@@ -255,7 +255,7 @@ let make = React.memo(() => {
         className="hidden"
         onChange={e => {
           let target = JsxEvent.Form.target(e)->ReBindings.Dom.unsafeToElement
-          let _ = SidebarLogic.handleUpload(ReBindings.Dom.getFiles(target))
+          enqueueThunk(() => SidebarLogic.handleUpload(ReBindings.Dom.getFiles(target)))
         }}
       />
       <input
@@ -265,12 +265,12 @@ let make = React.memo(() => {
         className="hidden"
         onChange={e => {
           let target = JsxEvent.Form.target(e)->ReBindings.Dom.unsafeToElement
-          let _ = SidebarLogic.handleLoadProject(
+          enqueueThunk(() => SidebarLogic.handleLoadProject(
             ReBindings.Dom.getFiles(target),
-            dispatch,
+            dispatch, // This now uses queue-aware dispatch!
             Array.length(sceneSlice.scenes),
             target,
-          )
+          ))
         }}
       />
     </div>

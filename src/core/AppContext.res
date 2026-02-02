@@ -165,3 +165,16 @@ let useSimSlice = () => React.useContext(simContext)
 let useSceneState = () => React.useContext(globalContext) // Temporary fallback
 let useUiState = () => React.useContext(globalContext) // Temporary fallback
 let useSimState = () => React.useContext(globalContext) // Temporary fallback
+
+// Interaction Queue Hook
+type interactionQueue = {
+  dispatch: action => unit,
+  enqueueThunk: (unit => Promise.t<unit>) => unit
+}
+
+let useInteractionQueue = (): interactionQueue => {
+  {
+    dispatch: (action) => InteractionQueue.enqueue(Action(action)),
+    enqueueThunk: (fn) => InteractionQueue.enqueue(Thunk(fn))
+  }
+}

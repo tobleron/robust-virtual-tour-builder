@@ -6,7 +6,7 @@ external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 let make = React.memo(() => {
   let sceneSlice = AppContext.useSceneSlice()
   let uiSlice = AppContext.useUiSlice()
-  let dispatch = AppContext.useAppDispatch()
+  let {dispatch} = AppContext.useInteractionQueue()
 
   let (_draggedIndex, setDraggedIndex) = React.useState(_ => None)
 
