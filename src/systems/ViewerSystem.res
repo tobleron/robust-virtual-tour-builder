@@ -155,7 +155,17 @@ module Pool = {
         | Some(i) => i->Adapter.destroy
         | None => ()
         }
-        {...v, instance: None, status: #Free}
+        {
+          ...v,
+          instance: None,
+          status: if v.id == "primary-a" {
+            #Active
+          } else if v.id == "primary-b" {
+            #Background
+          } else {
+            #Free
+          },
+        }
       })
   }
 }
