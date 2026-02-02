@@ -1,6 +1,10 @@
+// @efficiency-role: orchestrator
+use actix_cors::Cors;
+use actix_web::middleware::DefaultHeaders;
 use tracing_subscriber::prelude::*;
 
-pub fn init() -> (
+/// Initialize the unified logging system.
+pub fn init_logging() -> (
     tracing_appender::non_blocking::WorkerGuard,
     tracing_appender::non_blocking::WorkerGuard,
     tracing_appender::non_blocking::WorkerGuard,
@@ -8,7 +12,10 @@ pub fn init() -> (
 ) {
     // Panic Hook
     std::panic::set_hook(Box::new(|panic_info| {
-        let location = panic_info.location().unwrap();
+        let location = panic_info.location();
+        let file = location.map(|l| l.file()).unwrap_or("unknown");
+        let line = location.map(|l| l.line()).unwrap_or(0);
+
         let msg = match panic_info.payload().downcast_ref::<&'static str>() {
             Some(s) => *s,
             None => match panic_info.payload().downcast_ref::<String>() {
@@ -19,8 +26,8 @@ pub fn init() -> (
         tracing::error!(
             target: "panic",
             message = %msg,
-            file = %location.file(),
-            line = %location.line(),
+            file = %file,
+            line = %line,
             "🔥 API PANIC DETECTED 🔥"
         );
     }));
@@ -76,4 +83,42 @@ pub fn init() -> (
     tracing::info!("🚀 Unified Logging System Initialized (Diagnostic + Error + Telemetry Logs)");
 
     (diag_guard, error_guard, telemetry_guard, sentry_guard)
+}
+
+/// Configure CORS for the application.
+pub fn cors() -> Cors {
+    if cfg!(debug_assertions) {
+        Cors::permissive()
+    } else {
+        Cors::default()
+            .allowed_origin("http://localhost:5173")
+            .allowed_origin("http://127.0.0.1:5173")
+            .allowed_origin("http://localhost:3000")
+            .allowed_origin("http://127.0.0.1:3000")
+            .allowed_origin("http://localhost:9999")
+            .allowed_origin("http://127.0.0.1:9999")
+            .allowed_origin("http://localhost:8080")
+            .allowed_origin("http://127.0.0.1:8080")
+            .allowed_origin_fn(|origin, _req_head| origin.as_bytes().starts_with(b"file://"))
+            .allowed_methods(vec!["GET", "POST", "DELETE"])
+            .allowed_headers(vec![
+                actix_web::http::header::CONTENT_TYPE,
+                actix_web::http::header::ACCEPT,
+            ])
+            .max_age(3600)
+    }
+}
+
+/// Define security headers for the application.
+pub fn security_headers() -> DefaultHeaders {
+    DefaultHeaders::new()
+        .add(("X-Content-Type-Options", "nosniff"))
+        .add(("X-Frame-Options", "DENY"))
+        .add(("X-XSS-Protection", "1; mode=block"))
+        .add(("Referrer-Policy", "strict-origin-when-cross-origin"))
+        .add((
+            "Permissions-Policy",
+            "geolocation=(), microphone=(), camera=()",
+        ))
+        .add(("X-DNS-Prefetch-Control", "off"))
 }

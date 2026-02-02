@@ -15,7 +15,7 @@ let make = () => {
     Logger.debug(
       ~module_="Notification",
       ~message="RAW_NOTIFICATION",
-      ~data=Obj.magic({"raw": msg}),
+      ~data=JsonCombinators.Json.Encode.object([("raw", JsonCombinators.Json.Encode.string(msg))]),
       (),
     )
 
@@ -82,7 +82,9 @@ let make = () => {
     Logger.debug(
       ~module_="Notification",
       ~message="CLEAN_NOTIFICATION",
-      ~data=Obj.magic({"clean": final}),
+      ~data=JsonCombinators.Json.Encode.object([
+        ("clean", JsonCombinators.Json.Encode.string(final)),
+      ]),
       (),
     )
     final

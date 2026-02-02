@@ -1,4 +1,4 @@
-# CONFIG MASTER PLAN
+xxxxwxw# CONFIG MASTER PLAN
 ## 📚 LEGEND & DEFINITIONS
 *   **LOC (Lines of Code):** Source lines excluding comments and whitespace.
 *   **Drag:** A calculated resistance metric based on nesting depth, logic density, and complexity penalties. Higher drag reduces the allowed LOC.

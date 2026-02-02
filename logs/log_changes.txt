@@ -112,3 +112,4 @@
 [2026-02-02 13:08] v4.8.15 - Merge branch 'fix-tour-preview-hang-18228800889238016474' into main: Fix tour preview hang by handling scene load timeouts and errors [TRIPLE]
 [2026-02-02 13:14] v4.8.15 - Add task to fix tour preview transition block and document scene load errors [TRIPLE]
 [2026-02-02 19:48] v4.8.15 - feat: Backend refactor (Task 1176) & _dev-system upgrade (v1.6.0) [TRIPLE]
+[2026-02-02 21:25] v4.8.15 - fix: frontend violations, interaction queue immutability, and backend safety improvements [TRIPLE]

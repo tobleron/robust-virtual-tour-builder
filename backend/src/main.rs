@@ -34,7 +34,7 @@ async fn main() -> io::Result<()> {
     let _ = dotenvy::dotenv();
 
     // Initialize Logging
-    let _guards = startup::logging::init();
+    let _guards = startup::init_logging();
 
     // Initialize Database
     let pool = DatabaseManager::new().await.map_err(|e| {
@@ -116,7 +116,7 @@ async fn main() -> io::Result<()> {
             .wrap(QuotaCheck)
             .wrap(RequestTracker)
             .wrap(TracingLogger::default())
-            .wrap(startup::config::security_headers())
+            .wrap(startup::security_headers())
             .wrap(actix_governor::Governor::new(&governor_conf))
             .wrap(SessionMiddleware::new(
                 CookieSessionStore::default(),
@@ -126,7 +126,7 @@ async fn main() -> io::Result<()> {
                         .as_bytes(),
                 ),
             ))
-            .wrap(startup::config::cors())
+            .wrap(startup::cors())
             .wrap(prometheus.clone())
             .route("/health", web::get().to(health_check))
             .configure(api::config)
