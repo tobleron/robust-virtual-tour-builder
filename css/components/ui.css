@@ -130,13 +130,13 @@ html body [data-sonner-toaster]>ol {
     align-items: flex-end;
 }
 
-html body [data-sonner-toast] {
+html body [data-sonner-toast][data-sonner-toast] {
     --toast-width: 360px;
     width: 360px;
     height: 42px;
-    background: #1e293b !important;
+    background: #1e293b;
     /* DEFAULT TO INFO COLOR */
-    color: #ffffff !important;
+    color: #ffffff;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     border: none;
     border-radius: 9px;
@@ -150,55 +150,55 @@ html body [data-sonner-toast] {
 }
 
 /* Override Sonner's internal success/error/etc. backgrounds if they exist as attributes */
-html body [data-sonner-toast][data-type="success"] {
-    background: #065f46 !important;
+html body [data-sonner-toast][data-sonner-toast][data-type="success"] {
+    background: #065f46;
 }
 
-html body [data-sonner-toast][data-type="error"] {
-    background: #991b1b !important;
+html body [data-sonner-toast][data-sonner-toast][data-type="error"] {
+    background: #991b1b;
 }
 
-html body [data-sonner-toast][data-type="warning"] {
-    background: #92400e !important;
+html body [data-sonner-toast][data-sonner-toast][data-type="warning"] {
+    background: #92400e;
 }
 
-html body [data-sonner-toast][data-type="info"] {
-    background: #1e293b !important;
+html body [data-sonner-toast][data-sonner-toast][data-type="info"] {
+    background: #1e293b;
 }
 
 /* Ensure text is white even with sonner's default styles */
-html body [data-sonner-toast] [data-content],
-html body [data-sonner-toast] [data-title],
-html body [data-sonner-toast] [data-description] {
-    color: #ffffff !important;
+html body [data-sonner-toast][data-sonner-toast] [data-content],
+html body [data-sonner-toast][data-sonner-toast] [data-title],
+html body [data-sonner-toast][data-sonner-toast] [data-description] {
+    color: #ffffff;
 }
 
 /* Icon sizing and color - ensure strokes are white and no fill interferes */
-html body [data-sonner-toast] [data-icon] {
+html body [data-sonner-toast][data-sonner-toast] [data-icon] {
     width: 20px;
     height: 20px;
     min-width: 20px;
-    color: #ffffff !important;
+    color: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-html body [data-sonner-toast] [data-icon] svg {
+html body [data-sonner-toast][data-sonner-toast] [data-icon] svg {
     width: 18px;
     height: 18px;
-    color: #ffffff !important;
-    stroke: #ffffff !important;
-    fill: none !important;
+    color: #ffffff;
+    stroke: #ffffff;
+    fill: none;
 }
 
 /* Ensure no default icon background circle from sonner is visible or black */
-html body [data-sonner-toast] [data-icon]>div {
-    background: transparent !important;
-    border: none !important;
+html body [data-sonner-toast][data-sonner-toast] [data-icon]>div {
+    background: transparent;
+    border: none;
 }
 
-html body [data-sonner-toast] [data-content] {
+html body [data-sonner-toast][data-sonner-toast] [data-content] {
     font-size: 13px;
     line-height: normal;
 }

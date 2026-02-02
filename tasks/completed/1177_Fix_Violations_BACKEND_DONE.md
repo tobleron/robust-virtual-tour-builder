@@ -12,4 +12,4 @@
 ### 🔧 Action: Fix Pattern `unwrap()`
 **Directive:** Pattern Fix: Replace the forbidden 'unwrap()' pattern with the recommended functional alternative.
 
-- [ ] `../../backend/src/startup/logging.rs`
+- [ ] `../../backend/src/startup.rs`

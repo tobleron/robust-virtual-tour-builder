@@ -77,7 +77,10 @@ let processErrorResponse = (response: Fetch.response): Promise.t<apiResult<Fetch
     Logger.error(
       ~module_="ApiHelpers",
       ~message="Backend Error",
-      ~data=Obj.magic({"status": Fetch.status(response), "message": msg}),
+      ~data=JsonCombinators.Json.Encode.object([
+        ("status", JsonCombinators.Json.Encode.int(Fetch.status(response))),
+        ("message", JsonCombinators.Json.Encode.string(msg)),
+      ]),
       (),
     )
     Promise.resolve(
@@ -89,7 +92,10 @@ let processErrorResponse = (response: Fetch.response): Promise.t<apiResult<Fetch
     Logger.error(
       ~module_="ApiHelpers",
       ~message="Fetch/Network Error",
-      ~data=Obj.magic({"status": Fetch.status(response), "message": msg}),
+      ~data=JsonCombinators.Json.Encode.object([
+        ("status", JsonCombinators.Json.Encode.int(Fetch.status(response))),
+        ("message", JsonCombinators.Json.Encode.string(msg)),
+      ]),
       (),
     )
     Promise.resolve(
@@ -110,7 +116,14 @@ let handleResponse = (response: Fetch.response): Promise.t<apiResult<Fetch.respo
     Logger.warn(
       ~module_="ApiHelpers",
       ~message="UNAUTHORIZED",
-      ~data=Some({"action": "Cleared invalid auth_token, next request will use fallback"}),
+      ~data=JsonCombinators.Json.Encode.object([
+        (
+          "action",
+          JsonCombinators.Json.Encode.string(
+            "Cleared invalid auth_token, next request will use fallback",
+          ),
+        ),
+      ]),
       (),
     )
   }

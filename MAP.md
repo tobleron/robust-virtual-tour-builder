@@ -41,7 +41,8 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/core/Reducer.res](src/core/Reducer.res): Consolidated state reducer handling scenes, hotspots, navigation, and projects. `#reducer` `#logic`
     *   [src/core/SceneMutations.res](src/core/SceneMutations.res): Complex state mutation logic for scene renaming, deletion, and reordering. `#state` `#scene` `#logic`
 *   [src/core/AppContext.res](src/core/AppContext.res): Typed React Context for state and dispatch accessibility. `#react-context` `#hooks`
-*   [src/core/JsonParsers.res](src/core/JsonParsers.res): Consolidated JSON parsers and encoders using JsonCombinators. `#json` `#parsing` `#combinators` `#csp-safe`
+*   [src/core/JsonParsers.res](src/core/JsonParsers.res): Domain-specific JSON parsers and encoders. `#json` `#parsing` `#domain`
+*   [src/core/JsonParsersShared.res](src/core/JsonParsersShared.res): Shared JSON parsers for cross-domain metadata (Exif, Quality). `#json` `#shared` `#parsing`
 
 *   [src/core/SceneHelpers.res](src/core/SceneHelpers.res): Lightweight facade for scene-related helpers. `#helpers` `#scene` `#facade`
 
@@ -257,9 +258,7 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [backend/src/services/project/load.rs](backend/src/services/project/load.rs): High-efficiency project loading and patching. `#logic`
     *   [backend/src/services/project/package.rs](backend/src/services/project/package.rs): ZIP packaging and tour assembly logic. `#logic` `#export`
     *   [backend/src/services/project/validate.rs](backend/src/services/project/validate.rs): Deep structural validation for tour projects. `#validation`
-*   [backend/src/startup/mod.rs](backend/src/startup/mod.rs): Server startup orchestration module. `#startup`
-    *   [backend/src/startup/logging.rs](backend/src/startup/logging.rs): Unified logging and error tracking initialization. `#startup` `#logging`
-    *   [backend/src/startup/config.rs](backend/src/startup/config.rs): Server configuration (CORS, Security Headers). `#startup` `#config`
+*   [backend/src/startup.rs](backend/src/startup.rs): Consolidated server startup orchestration (Logging, CORS, Security). `#startup` `#logging` `#config` `#consolidated`
 *   [backend/src/services/media/mod.rs](backend/src/services/media/mod.rs): Facade for core media services (encoding, analysis, resizing). `#media` `#services` `#facade`
 
 
