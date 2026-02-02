@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.8.15] - 2026-02-02
 
+### Refactored
+- De-bloated backend modules: `main.rs` (357 -> 189 LOC) and `auth.rs` (307 -> 99 LOC).
+- Extracted backend sub-modules: `auth/jwt.rs`, `auth/middleware.rs`, `startup/logging.rs`, `startup/config.rs`, and moved API configuration to `api/mod.rs`.
+- **Upgraded `_dev-system` (v1.6.0)**:
+    - Implemented **Hysteresis (Dead Zone)** to prevent Split/Merge circular loops.
+    - Added **Architectural Targets** to Surgical tasks (explicit module split counts).
+    - Added **Shadow Orchestrator Detection** to protect intentional sub-module groupings.
+    - Implemented **Folder Flattening** in Merge directives to reduce directory nesting tax.
+    - Unified stability logic by validating merges against hypothetical surgical limits.
+
 ### Fixed
 - Viewer loading failure after project import by restoring proper viewport statuses in `ViewerSystem.Pool.reset`.
 - Potential stale state issues by ensuring `ViewerSystem.resetState` is called during project load.
@@ -20,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Create architecture task for serial interaction queue (1185)
+- Backend refactor (Task 1176) & _dev-system upgrade (v1.6.0)
 
 ## [4.8.14] - 2026-02-01
 
