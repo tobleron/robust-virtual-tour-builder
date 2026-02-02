@@ -47,7 +47,7 @@ let handleStageClick = (e: Dom.event) => {
             intermediatePoints: None,
           }
 
-          GlobalStateBridge.dispatch(Actions.StartLinking(Some(initialDraft)))
+          InteractionQueue.dispatch(Actions.StartLinking(Some(initialDraft)))
 
           // Force update lines immediately for the very first click
           let mockState = {...currentState, linkDraft: Some(initialDraft)}
@@ -74,7 +74,7 @@ let handleStageClick = (e: Dom.event) => {
           let newPoints = Belt.Array.concat(currentPoints, [newPoint])
 
           let updatedDraft = {...d, intermediatePoints: Some(newPoints)}
-          GlobalStateBridge.dispatch(Actions.UpdateLinkDraft(updatedDraft))
+          InteractionQueue.dispatch(Actions.UpdateLinkDraft(updatedDraft))
 
           // Force update lines immediately
           let mockState = {...currentState, linkDraft: Some(updatedDraft)}
