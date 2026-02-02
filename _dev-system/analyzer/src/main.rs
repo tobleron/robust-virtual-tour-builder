@@ -86,7 +86,7 @@ struct TaxonomyRole {
 enum WorkUnit {
     Ambiguity { file: String, strategy: String },
     Violation { file: String, pattern: String, strategy: String },
-    Surgical { file: String, action: String, reason: String, strategy: String, platform: String, complexity: f64 },
+    Surgical { file: String, action: String, reason: String, strategy: String, platform: String, complexity: f64, recommended_splits: usize },
     Merge { folder: String, files: Vec<String>, reason: String, strategy: String, platform: String },
     Structural { file: String, action: String, reason: String, strategy: String, platform: String },
 }
@@ -118,19 +118,21 @@ fn infer_taxonomy(path: &Path, content: &str) -> String {
 
 fn generate_strategic_directive(unit: &WorkUnit) -> String {
     match unit {
-        WorkUnit::Surgical { reason, .. } => {
-            if reason.contains("Nesting") && reason.contains("Density") {
-                "Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions.".to_string()
+        WorkUnit::Surgical { reason, recommended_splits, .. } => {
+            let base = if reason.contains("Nesting") && reason.contains("Density") {
+                "Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions."
             } else if reason.contains("Nesting") {
-                "Flatten Control Flow: Replace nested if/switch blocks with early returns or pattern matching.".to_string()
+                "Flatten Control Flow: Replace nested if/switch blocks with early returns or pattern matching."
             } else if reason.contains("Density") {
-                "Extract Service Logic: Move complex calculations or data transformations into specialized sub-modules.".to_string()
+                "Extract Service Logic: Move complex calculations or data transformations into specialized sub-modules."
             } else {
-                "De-bloat: Reduce module size by identifying and extracting independent domain logic.".to_string()
-            }
+                "De-bloat: Reduce module size by identifying and extracting independent domain logic."
+            };
+            format!("{} 🏗️ ARCHITECTURAL TARGET: Split into exactly {} cohesive modules to respect the Read Tax (avg 300 LOC/module).", base, recommended_splits)
         },
-        WorkUnit::Merge { .. } => {
-            "Unified Context: Consolidate these fragmented files into a single cohesive module. CRITICAL: Strip any existing '@efficiency' tags from the bodies of the merged files.".to_string()
+        WorkUnit::Merge { folder, .. } => {
+            let folder_name = Path::new(folder).file_name().unwrap_or_default().to_string_lossy();
+            format!("Unified Context: Consolidate these fragmented files into a single cohesive module file (e.g., `{}.rs`). CRITICAL: Delete the now-empty `{}/` folder to reduce directory nesting tax and strip any existing '@efficiency' tags.", folder_name, folder)
         },
         WorkUnit::Structural { action, .. } => {
             if action.contains("Flatten") {
@@ -252,11 +254,11 @@ fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>, config:
                     let groups = if file.contains("backend") || file.ends_with(".rs") { &mut violations_be_grouped } else { &mut violations_fe_grouped };
                     groups.entry((action, strategy)).or_default().push(format!("`{}`", file));
                 },
-                WorkUnit::Surgical { file, reason, platform, complexity, action, .. } => {
+                WorkUnit::Surgical { file, reason, platform, complexity, action, recommended_splits, .. } => {
                     // Clean up reason: remove the verbose AI explanation, keep the metrics
                     let clean_reason = reason.split(" (AI Context Fog").next().unwrap_or(reason).to_string();
-                    if platform == "backend" { surgical_be_units.push((file.clone(), clean_reason, action.clone(), strategy, *complexity)); }
-                    else { surgical_fe_units.push((file.clone(), clean_reason, action.clone(), strategy, *complexity)); }
+                    if platform == "backend" { surgical_be_units.push((file.clone(), clean_reason, action.clone(), strategy, *complexity, *recommended_splits)); }
+                    else { surgical_fe_units.push((file.clone(), clean_reason, action.clone(), strategy, *complexity, *recommended_splits)); }
                 },
                 WorkUnit::Structural { file, reason, platform, action, .. } => {
                     let groups = if platform == "backend" { &mut structural_be_grouped } else { &mut structural_fe_grouped };
@@ -310,10 +312,10 @@ fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>, config:
 
     let mut active_tasks = HashSet::new();
 
-    let sync_surgical = |units: Vec<(String, String, String, String, f64)>, platform: &str| -> Result<Vec<PathBuf>> {
+    let sync_surgical = |units: Vec<(String, String, String, String, f64, usize)>, platform: &str| -> Result<Vec<PathBuf>> {
         let mut paths = Vec::new();
         // Group by Parent Directory (Domain) to minimize context switching
-        let mut domain_groups: HashMap<String, Vec<(String, String, String, String, f64)>> = HashMap::new();
+        let mut domain_groups: HashMap<String, Vec<(String, String, String, String, f64, usize)>> = HashMap::new();
         for unit in units {
             let parent = Path::new(&unit.0).parent().unwrap_or(Path::new("")).to_string_lossy().to_string();
             domain_groups.entry(parent).or_default().push(unit);
@@ -321,10 +323,10 @@ fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>, config:
 
         for (domain, domain_units) in domain_groups {
             // Group by Action (Directive)
-            let mut action_groups: HashMap<String, Vec<(String, String, String)>> = HashMap::new(); // Action -> Vec<(File, Reason, Strategy)>
+            let mut action_groups: HashMap<String, Vec<(String, String, String, usize)>> = HashMap::new(); // Action -> Vec<(File, Reason, Strategy, Splits)>
             
-            for (file, reason, action, strategy, _comp) in domain_units {
-                action_groups.entry(action).or_default().push((file, reason, strategy));
+            for (file, reason, action, strategy, _comp, splits) in domain_units {
+                action_groups.entry(action).or_default().push((file, reason, strategy, splits));
             }
 
             // Heuristic for naming: Use the last part of the path (e.g., "systems", "core")
@@ -340,7 +342,7 @@ fn sync_all_architectural_tasks(buffer: &HashMap<String, Vec<WorkUnit>>, config:
                 let strategy = &items[0].2;
                 lines.push(format!("\n### 🔧 Action: {}\n**Directive:** {}\n", action, strategy));
 
-                for (file, reason, _) in items {
+                for (file, reason, _, _) in items {
                     let entry = format!("- **{}** (Metric: {})\n", file, reason);
                     lines.push(entry);
                 }
@@ -635,7 +637,8 @@ fn main() -> Result<()> {
                 reason: format!("Unreachable Module. Not referenced by any entry point. (LOC: {})", metrics.loc),
                 strategy: String::new(),
                 platform: platform.clone(),
-                complexity: 0.0
+                complexity: 0.0,
+                recommended_splits: 1
              });
         }
 
@@ -646,6 +649,13 @@ fn main() -> Result<()> {
                 is_surgical = true;
                 let nesting_factor = metrics.max_nesting as f64 * config.settings.nesting_weight;
                 let density_factor = density * config.settings.density_weight;
+                
+                // HYSTERESIS: Increase limit by 15% for de-bloat triggering to prevent yoyo
+                let split_threshold = (limit as f64 * 1.15) as usize;
+                if metrics.loc <= split_threshold {
+                    continue; // Skip surgical if it's within the 15% buffer zone
+                }
+
                 let breakdown = format!("[Nesting: {:.2}, Density: {:.2}, Coupling: {:.2}] | Drag: {:.2} | LOC: {}/{}",
                     nesting_factor, density_factor, coupling_score, drag, metrics.loc, limit);
                 let mut reason = breakdown;
@@ -660,6 +670,7 @@ fn main() -> Result<()> {
                 let complexity = ((metrics.loc - limit) as f64 / 10.0) + drag;
 
                 let action = "De-bloat".to_string();
+                let recommended_splits = (metrics.loc as f64 / 300.0).ceil().max(2.0) as usize;
 
                 buffer.entry(d_name.clone()).or_default().push(WorkUnit::Surgical {
                     file: p_str.clone(),
@@ -667,7 +678,8 @@ fn main() -> Result<()> {
                     reason, 
                     strategy: String::new(),
                     platform: platform.clone(),
-                    complexity 
+                    complexity,
+                    recommended_splits
                 });
             }
 
@@ -730,8 +742,19 @@ fn main() -> Result<()> {
              // NEW: Recommendation 4 - Check if this cluster would violate the dynamic limit
              let projected_limit = calculate_dynamic_limit(cluster.max_drag, 1.0, 1.0, dynamic_base, &config, &cluster.root_folder);
              
-             if cluster.total_loc as f64 > projected_limit as f64 {
-                 continue; // Too complex to merge as a pod
+             // HYSTERESIS: Only merge if total LOC is < 85% of projected limit
+             let merge_max = (projected_limit as f64 * 0.85) as usize;
+             
+             if cluster.total_loc > merge_max {
+                 continue; // Too close to limit, avoid yoyo
+             }
+
+             // SHADOW CHECK: Do not merge if this is a "Sub-module folder" of a recently de-bloated orchestrator
+             // If cluster is 'backend/src/auth' and 'backend/src/auth.rs' exists, they are linked.
+             let shadow_rs = format!("../../{}.rs", cluster.root_folder);
+             let shadow_res = format!("../../{}.res", cluster.root_folder);
+             if registry.contains_key(&shadow_rs) || registry.contains_key(&shadow_res) {
+                 continue; // Protected Sub-module structure
              }
 
              for f in &cluster.files { processed_merge_files.insert(f.clone()); }

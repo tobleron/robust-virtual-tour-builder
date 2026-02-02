@@ -91,42 +91,15 @@ let error = (~module_, ~message, ~data: 'a=?, ()) =>
   log(~module_, ~level=Error, ~message, ~data?, ())
 
 let perf = (~module_, ~message, ~durationMs, ~data: 'a=?, ()) => {
-  let threshold = if durationMs > 500.0 {
-    "VERY_SLOW"
-  } else if durationMs > 100.0 {
-    "SLOW"
-  } else {
-    "OK"
-  }
-  let emoji = if durationMs > 500.0 {
-    "🐢"
-  } else if durationMs > 100.0 {
-    "⏱️"
-  } else {
-    "⚡"
-  }
-  let level = if durationMs > 500.0 {
-    Warn
-  } else if durationMs > 100.0 {
-    Info
-  } else {
-    Debug
-  }
-
-  let pd = switch data {
-  | Some(d) =>
-    let obj = Object.assign(Object.make(), asDynamic(d))
-    asDynamic(obj)
-  | None => asDynamic(Object.make())
-  }
-  pd["durationMs"] = durationMs
-  pd["threshold"] = threshold
+  let threshold = LoggerLogic.getPerfThreshold(durationMs)
+  let emoji = LoggerLogic.getPerfEmoji(durationMs)
+  let level = LoggerLogic.getPerfLevel(durationMs)
 
   log(
     ~module_,
     ~level,
     ~message=`${emoji} ${message} (${Float.toFixed(durationMs, ~digits=2)}ms)`,
-    ~data=?Some(castToJson(pd)),
+    ~data=?Some(LoggerLogic.enrichPerfData(data, durationMs, threshold)),
     (),
   )
 }
@@ -154,24 +127,15 @@ let attempt = (~module_: string, ~operation: string, fn: unit => 'a): operationR
     let res = fn()
     Belt.Result.Ok(res)
   } catch {
-  | JsExn(e) => {
-      let msg = e->JsExn.message->Option.getOr("Unknown error")
+  | e => {
+      let (msg, stack) = LoggerCommon.getErrorDetails(e)
       error(
         ~module_,
         ~message=`${operation}_FAILED`,
-        ~data=castToJson({"error": msg, "stack": e->JsExn.stack}),
+        ~data=castToJson({"error": msg, "stack": stack}),
         (),
       )
       Belt.Result.Error(msg)
-    }
-  | _ => {
-      error(
-        ~module_,
-        ~message=`${operation}_FAILED`,
-        ~data=castToJson({"error": "Unknown exception"}),
-        (),
-      )
-      Belt.Result.Error("Unknown exception")
     }
   }
 }
@@ -185,24 +149,15 @@ let attemptAsync = async (
     let res = await fn()
     Belt.Result.Ok(res)
   } catch {
-  | JsExn(e) => {
-      let msg = e->JsExn.message->Option.getOr("Unknown error")
+  | e => {
+      let (msg, stack) = LoggerCommon.getErrorDetails(e)
       error(
         ~module_,
         ~message=`${operation}_FAILED`,
-        ~data=castToJson({"error": msg, "stack": e->JsExn.stack}),
+        ~data=castToJson({"error": msg, "stack": stack}),
         (),
       )
       Belt.Result.Error(msg)
-    }
-  | _ => {
-      error(
-        ~module_,
-        ~message=`${operation}_FAILED`,
-        ~data=castToJson({"error": "Unknown exception"}),
-        (),
-      )
-      Belt.Result.Error("Unknown exception")
     }
   }
 }

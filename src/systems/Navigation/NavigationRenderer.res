@@ -66,9 +66,7 @@ module AnimationLoop = {
             }
           }
           req.current = Some(
-            Window.requestAnimationFrame(() =>
-              loop(v, j, pd, st, bst, cft, dispatch, req, ())
-            ),
+            Window.requestAnimationFrame(() => loop(v, j, pd, st, bst, cft, dispatch, req, ())),
           )
         } else {
           // SYNC GUARD: Only finalize if FSM has moved past Preloading (i.e. texture is loaded)
@@ -102,9 +100,7 @@ module AnimationLoop = {
               (),
             )
             req.current = Some(
-              Window.requestAnimationFrame(() =>
-                loop(v, j, pd, st, bst, cft, dispatch, req, ())
-              ),
+              Window.requestAnimationFrame(() => loop(v, j, pd, st, bst, cft, dispatch, req, ())),
             )
           }
         }

@@ -8,19 +8,17 @@
 
 ---
 
-## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (5)
-- [ ] `../../backend/src/pathfinder/graph.rs`
-- [ ] `../../backend/src/pathfinder/algorithms.rs`
-- [ ] `../../backend/src/pathfinder/tests.rs`
-- [ ] `../../backend/src/pathfinder/timeline.rs`
-- [ ] `../../backend/src/pathfinder/walk.rs`
+## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (3)
+- [ ] `../../backend/src/auth/middleware.rs`
+- [ ] `../../backend/src/auth/jwt.rs`
+- [ ] `../../backend/src/startup/logging.rs`
 
 ---
 
 ## 🧩 MERGE TASKS (1)
-### Merge Folder: `src/systems/Upload`
-- **Reason:** Recursive Feature Pod: 3 files in subtree sum to 261 LOC (fits in context). Max Drag: 8.67
+### Merge Folder: `backend/src/startup`
+- **Reason:** Recursive Feature Pod: 3 files in subtree sum to 119 LOC (fits in context). Max Drag: 2.69
 - **Files:**
-  - `src/systems/Upload/../../src/systems/Upload/UploadProcessorQueue.res`
-  - `src/systems/Upload/../../src/systems/Upload/UploadProcessorFinalizer.res`
-  - `src/systems/Upload/../../src/systems/Upload/UploadProcessorUtils.res`
+  - `backend/src/startup/../../backend/src/startup/logging.rs`
+  - `backend/src/startup/../../backend/src/startup/mod.rs`
+  - `backend/src/startup/../../backend/src/startup/config.rs`

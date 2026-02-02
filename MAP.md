@@ -23,6 +23,7 @@ This map provides a semantic overview of the project structure to optimize conte
     * [src/utils/LoggerTelemetry.res](src/utils/LoggerTelemetry.res): Async telemetry batching and backend synchronization. `#telemetry`
     * [src/utils/LoggerConsole.res](src/utils/LoggerConsole.res): Console-specific logging output implementation. `#logging` `#console`
     * [src/utils/LoggerCommon.res](src/utils/LoggerCommon.res): Shared logging logic and timestamp formatting. `#logging` `#utils`
+    * [src/utils/LoggerLogic.res](src/utils/LoggerLogic.res): Extracted logic for performance thresholds and error data enrichment. `#logging` `#logic`
 
 
 ### 🛡️ State Management & Logic
@@ -35,6 +36,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/core/ViewerState.res](src/core/ViewerState.res): Localized state for the active viewer instance. `#state` `#viewer`
 *   [src/core/SceneCache.res](src/core/SceneCache.res): In-memory cache for processed scene assets and metadata. `#cache` `#performance`
 *   [src/core/GlobalStateBridge.res](src/core/GlobalStateBridge.res): Bridge for synchronizing state across different contexts. `#state` `#sync`
+*   [src/core/InteractionQueue.res](src/core/InteractionQueue.res): Serialized action queue to prevent race conditions during transitions. `#queue` `#state` `#stability`
 *   [src/i18n/I18n.res](src/i18n/I18n.res): Internationalization orchestrator for multi-language support. `#i18n` `#ui`
 *   [src/core/Reducer.res](src/core/Reducer.res): Consolidated state reducer handling scenes, hotspots, navigation, and projects. `#reducer` `#logic`
     *   [src/core/SceneMutations.res](src/core/SceneMutations.res): Complex state mutation logic for scene renaming, deletion, and reordering. `#state` `#scene` `#logic`
@@ -199,7 +201,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/utils/AsyncQueue.res](src/utils/AsyncQueue.res): Generic asynchronous queue with concurrency control and progress reporting. `#utils` `#concurrency`
 
 ### ⚙️ Backend API (Rust)
-*   [backend/src/main.rs](backend/src/main.rs): Server entry point, middleware setup, and routing. `#rust` `#api` `#server`
+*   [backend/src/main.rs](backend/src/main.rs): Server entry point and high-level orchestration. `#rust` `#api` `#server` `#entry-point`
 *   [backend/src/api/project.rs](backend/src/api/project.rs): Endpoints for project packaging, imports, and validation. `#backend-logic` `#project-api`
 *   [backend/src/api/geocoding.rs](backend/src/api/geocoding.rs): API endpoints for address lookup and coordinate resolution. `#rust` `#api` `#geocoding`
 *   [backend/src/api/media/image.rs](backend/src/api/media/image.rs): Consolidated image processing endpoints and optimization logic. `#image` `#api` `#processing`
@@ -218,14 +220,16 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [backend/src/services/media/resizing.rs](backend/src/services/media/resizing.rs): High-performance image resizing. `#processing`
     *   [backend/src/services/media/naming.rs](backend/src/services/media/naming.rs): Camera filename normalization logic. `#utils`
     *   [backend/src/services/media/storage.rs](backend/src/services/media/storage.rs): Persistent storage and retrieval of media assets. `#media` `#storage`
-*   [backend/src/api/mod.rs](backend/src/api/mod.rs): Root interface for the backend REST API. `#api`
+*   [backend/src/api/mod.rs](backend/src/api/mod.rs): API route configuration and root interface for the backend REST API. `#api` `#orchestration`
 *   [backend/src/api/media/mod.rs](backend/src/api/media/mod.rs): Sub-router for media processing and retrieval. `#api` `#media`
     *   [backend/src/api/media/serve.rs](backend/src/api/media/serve.rs): Handles direct asset serving and static delivery. `#api` `#static`
     *   [backend/src/api/media/similarity.rs](backend/src/api/media/similarity.rs): Endpoint for image similarity and visual clustering. `#api` `#ai`
 *   [backend/src/api/project.rs](backend/src/api/project.rs): Endpoints for project packaging, imports, pathfinding, and validation. `#backend-logic` `#project-api`
 *   [backend/src/api/telemetry.rs](backend/src/api/telemetry.rs): Endpoint for receiving client-side telemetry and logs. `#api` `#telemetry`
 *   [backend/src/api/utils.rs](backend/src/api/utils.rs): Shared logic for API response formatting and errors. `#api` `#utils`
-*   [backend/src/auth.rs](backend/src/auth.rs): Backend authentication orchestrator and JWT middleware. `#auth` `#orchestration`
+*   [backend/src/auth.rs](backend/src/auth.rs): Auth service orchestrator and Google OAuth logic. `#auth` `#orchestration`
+    *   [backend/src/auth/jwt.rs](backend/src/auth/jwt.rs): JWT token generation and validation logic. `#auth` `#jwt` `#logic`
+    *   [backend/src/auth/middleware.rs](backend/src/auth/middleware.rs): Actix-web authentication middleware. `#auth` `#middleware` `#logic`
 
 
 ### 🛡️ Backend Core & Services
@@ -253,6 +257,9 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [backend/src/services/project/load.rs](backend/src/services/project/load.rs): High-efficiency project loading and patching. `#logic`
     *   [backend/src/services/project/package.rs](backend/src/services/project/package.rs): ZIP packaging and tour assembly logic. `#logic` `#export`
     *   [backend/src/services/project/validate.rs](backend/src/services/project/validate.rs): Deep structural validation for tour projects. `#validation`
+*   [backend/src/startup/mod.rs](backend/src/startup/mod.rs): Server startup orchestration module. `#startup`
+    *   [backend/src/startup/logging.rs](backend/src/startup/logging.rs): Unified logging and error tracking initialization. `#startup` `#logging`
+    *   [backend/src/startup/config.rs](backend/src/startup/config.rs): Server configuration (CORS, Security Headers). `#startup` `#config`
 *   [backend/src/services/media/mod.rs](backend/src/services/media/mod.rs): Facade for core media services (encoding, analysis, resizing). `#media` `#services` `#facade`
 
 
@@ -264,4 +271,5 @@ This map provides a semantic overview of the project structure to optimize conte
 
 
 ## 🆕 Unmapped Modules
-* [src/core/InteractionQueue.res](src/core/InteractionQueue.res): New module detected. Please classify. #new
+
+
