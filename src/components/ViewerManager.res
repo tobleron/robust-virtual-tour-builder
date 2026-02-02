@@ -14,7 +14,7 @@ let make = () => {
   ViewerManagerLogic.useRatchetState(state)
   ViewerManagerLogic.useSimulationArrival(state)
   ViewerManagerLifecycle.useLinkingAndSimUI(state, dispatch)
-  ViewerManagerLogic.useHotspotLineLoop()
+  ViewerManagerLogic.useHotspotLineLoop(state, dispatch)
 
   React.null
 }

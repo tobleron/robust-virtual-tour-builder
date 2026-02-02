@@ -5,6 +5,8 @@ open ViewerState
 open Types
 open Actions
 
+external idToUnknown: string => unknown = "%identity"
+
 // Hook 2: Scene Cleanup
 let useSceneCleanup = (state: state) => {
   React.useEffect1(() => {
@@ -148,30 +150,35 @@ let useMainSceneLoading = (state: state, dispatch: action => unit) => {
 
 // Hook 5: Hotspot Sync
 let useHotspotSync = (state: state, dispatch: action => unit) => {
-  React.useEffect2(() => {
+  React.useEffect3(() => {
     // Only run if we are NOT in linking mode (to avoid wiping the draft lines)
     if state.activeIndex != -1 && !state.isLinking {
-      Logger.debug(
-        ~module_="ViewerManagerLogic",
-        ~message="SYNC_EFFECT_TRIGGERED",
-        ~data=Some({"reason": "Scenes or Linking State Changed"}),
-        (),
-      )
       switch Belt.Array.get(state.scenes, state.activeIndex) {
       | Some(scene) =>
         let v = ViewerSystem.getActiveViewer()
         switch Nullable.toOption(v) {
         | Some(viewer) =>
-          // We don't trigger auto-forward here, only sync visual hotspots
-          HotspotManager.syncHotspots(viewer, state, scene, dispatch)
-          HotspotLine.updateLines(viewer, state, ())
+          // Robustness: Only sync if the viewer actually belongs to this scene
+          let viewerSceneId = ViewerSystem.Adapter.getMetaData(viewer, "sceneId")
+          let targetId = idToUnknown(scene.id)
+
+          if viewerSceneId == Some(targetId) {
+            Logger.debug(
+              ~module_="ViewerManagerLogic",
+              ~message="SYNC_HOTSPOTS",
+              ~data=Some({"sceneId": scene.id}),
+              (),
+            )
+            HotspotManager.syncHotspots(viewer, state, scene, dispatch)
+            HotspotLine.updateLines(viewer, state, ())
+          }
         | None => ()
         }
       | None => ()
       }
     }
     None
-  }, (state.scenes, state.isLinking))
+  }, (state.scenes, state.isLinking, state.activeIndex))
 }
 
 // Hook 6: Ratchet State
@@ -210,12 +217,24 @@ let useSimulationArrival = (state: state) => {
 }
 
 // Hook 9: Hotspot Line Render Loop
-let useHotspotLineLoop = () => {
+let useHotspotLineLoop = (_state: state, dispatch: action => unit) => {
   React.useEffect0(() => {
     let animationFrameId = ref(None)
     let lastPitch = ref(-999.0)
     let lastYaw = ref(-999.0)
     let lastHfov = ref(-999.0)
+
+    // Handle Forced Sync from EventBus (breaks dependencies)
+    let unsub = EventBus.subscribe(e => {
+      if e == ForceHotspotSync {
+        let v = ViewerSystem.getActiveViewer()
+        let currentState = GlobalStateBridge.getState()
+        switch (Nullable.toOption(v), Belt.Array.get(currentState.scenes, currentState.activeIndex)) {
+        | (Some(viewer), Some(scene)) => HotspotManager.syncHotspots(viewer, currentState, scene, dispatch)
+        | _ => ()
+        }
+      }
+    })
 
     let rec loop = () => {
       let v = ViewerSystem.getActiveViewer()
@@ -246,6 +265,7 @@ let useHotspotLineLoop = () => {
 
     Some(
       () => {
+        unsub()
         switch animationFrameId.contents {
         | Some(id) => Window.cancelAnimationFrame(id)
         | None => ()

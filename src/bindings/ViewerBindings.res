@@ -29,6 +29,7 @@ module Viewer = {
   @send external on: (t, string, 'event => unit) => unit = "on"
   @send external getScene: t => string = "getScene"
   @send external loadScene: (t, string, float, float, float) => unit = "loadScene"
+  @send external addScene: (t, string, {..}) => unit = "addScene"
   @send external isLoaded: t => bool = "isLoaded"
 }
 

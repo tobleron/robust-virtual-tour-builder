@@ -1,6 +1,5 @@
 /* src/systems/Scene/SceneLoader.res */
 
-open ReBindings
 open Types
 open Actions
 
@@ -17,43 +16,37 @@ module Config = {
     scene.hotspots->Belt.Array.mapWithIndex((idx, h) => {
       let pitch = h.displayPitch->Option.getOr(h.pitch)
       {
+        "id": "hs_" ++ Belt.Int.toString(idx),
         "pitch": pitch,
         "yaw": h.yaw,
         "type": "info",
-        "cssClass": "flat-arrow",
-        "createTooltipFunc": HotspotLine.renderGoldArrow,
+        "cssClass": "pnlm-hotspot flat-arrow arrow-gold",
         "createTooltipArgs": {
-          "i": idx,
           "targetSceneId": h.target,
-          "pitch": pitch,
-          "yaw": h.yaw,
-          "truePitch": h.pitch,
-          "viewFrame": h.viewFrame,
-          "targetYaw": h.targetYaw,
-          "targetPitch": h.targetPitch,
-          "isReturnLink": h.isReturnLink,
-          "returnViewFrame": h.returnViewFrame,
         },
       }
     })
   let makeSceneConfig = (scene: scene) =>
-    {"panorama": scene.file->Types.fileToUrl, "autoLoad": true, "hotSpots": getHotspots(scene)}
+    {
+      "panorama": scene.file->Types.fileToUrl,
+      "autoLoad": true,
+      "hotSpots": getHotspots(scene),
+    }
 }
 
 module Reuse = {
-  let findReusableInstance = (targetIdx: int): option<Dom.element> => {
+  let findReusableInstance = (targetIdx: int): option<ViewerSystem.Adapter.t> => {
     let targetSceneId = GlobalStateBridge.getState().scenes[targetIdx]->Option.map(s => s.id)
     ViewerSystem.Pool.pool.contents
-    ->Belt.Array.getBy(v =>
+    ->Belt.Array.getBy(v => {
       v.instance
-      ->Option.map(inst =>
-        ViewerSystem.Adapter.getMetaData(inst, "sceneId") ==
-          targetSceneId->Option.map(id => idToUnknown(id))
-      )
+      ->Option.map(inst => {
+        let metaId = ViewerSystem.Adapter.getMetaData(inst, "sceneId")
+        metaId == targetSceneId->Option.map(idToUnknown)
+      })
       ->Option.getOr(false)
-    )
-    ->Option.map(v => Dom.getElementById(v.containerId)->Nullable.toOption)
-    ->Option.flatMap(x => x)
+    })
+    ->Option.flatMap(v => v.instance)
   }
 }
 
@@ -62,9 +55,10 @@ module Events = {
     let vId = castToDict(v)->Dict.get("container")->Option.getOr("")
     let entry = ViewerSystem.Pool.pool.contents->Belt.Array.getBy(e => e.containerId == vId)
     entry->Option.forEach(e => {
-      e.instance->Option.forEach(inst =>
+      e.instance->Option.forEach(inst => {
         ViewerSystem.Adapter.setMetaData(inst, "isLoaded", boolToUnknown(true))
-      )
+        ViewerSystem.Adapter.setMetaData(inst, "sceneId", idToUnknown(loadedScene.id))
+      })
     })
     ViewerSystem.Pool.setCleanupTimeout(vId, None)
     GlobalStateBridge.dispatch(
@@ -92,8 +86,12 @@ let loadNewScene = (_prevIndex: option<int>, targetIndex: option<int>, ~isAntici
       } else {
         Reuse.findReusableInstance(tIdx)
       } {
-      | Some(_) =>
+      | Some(inst) =>
         if !isAnticipatory {
+          ViewerSystem.Adapter.setMetaData(inst, "sceneId", idToUnknown(targetScene.id))
+          let config = Config.makeSceneConfig(targetScene)
+          ViewerSystem.Adapter.addScene(inst, targetScene.id, config->asDynamic)
+          ViewerSystem.Adapter.loadScene(inst, targetScene.id, ())
           GlobalStateBridge.dispatch(
             DispatchNavigationFsmEvent(
               NavigationFSM.TextureLoaded({targetSceneId: targetScene.id}),
@@ -110,6 +108,7 @@ let loadNewScene = (_prevIndex: option<int>, targetIndex: option<int>, ~isAntici
           v => {
             let config = Config.makeSceneConfig(targetScene)
             let newInstance = ViewerSystem.Adapter.initialize(v.containerId, config)
+            ViewerSystem.Adapter.setMetaData(newInstance, "sceneId", idToUnknown(targetScene.id))
 
             // Hook up events
             ViewerSystem.Adapter.on(
