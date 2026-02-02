@@ -7,7 +7,7 @@ describe("TourTemplateScripts", () => {
     let script = generateRenderScript(32)
 
     t->expect(String.includes(script, "32px"))->Expect.toBe(true)
-    t->expect(String.includes(script, "renderGoldArrow"))->Expect.toBe(true)
+    t->expect(String.includes(script, "renderOrangeHotspot"))->Expect.toBe(true)
     t->expect(String.includes(script, "hotSpotDiv"))->Expect.toBe(true)
     t->expect(String.includes(script, "window.viewer"))->Expect.toBe(true)
   })

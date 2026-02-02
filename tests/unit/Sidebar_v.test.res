@@ -26,7 +26,7 @@ open ReBindings
   globalThis.vi.mock('../../src/systems/Exporter.bs.js', () => exporterMock);
 
   const teaserMock = {
-    startAutoTeaser: globalThis.vi.fn(),
+    startAutoTeaser: globalThis.vi.fn().mockResolvedValue(),
   };
   globalThis.teaserMock = teaserMock;
   globalThis.vi.mock('../../src/systems/Teaser.bs.js', () => teaserMock);
@@ -90,6 +90,8 @@ describe("Sidebar", () => {
 
     let mockState = State.initialState
     let mockDispatch = _ => ()
+    GlobalStateBridge.setDispatch(mockDispatch)
+    GlobalStateBridge.setState(mockState)
     let sidebarCmp = await loadSidebar()
 
     let root = ReactDOMClient.createRoot(container)
@@ -119,6 +121,8 @@ describe("Sidebar", () => {
     let mockState = {...State.initialState, tourName: "Initial Name"}
     let lastAction = ref(None)
     let mockDispatch = action => lastAction := Some(action)
+    GlobalStateBridge.setDispatch(mockDispatch)
+    GlobalStateBridge.setState(mockState)
     let sidebarCmp = await loadSidebar()
 
     let root = ReactDOMClient.createRoot(container)
@@ -197,6 +201,8 @@ describe("Sidebar", () => {
 
     let mockState = {...State.initialState, scenes: [scene]}
     let mockDispatch = _ => ()
+    GlobalStateBridge.setDispatch(mockDispatch)
+    GlobalStateBridge.setState(mockState)
     let sidebarCmp = await loadSidebar()
 
     let dispatchedEvent = ref(None)
@@ -232,6 +238,8 @@ describe("Sidebar", () => {
 
     let mockState = State.initialState
     let mockDispatch = _ => ()
+    GlobalStateBridge.setDispatch(mockDispatch)
+    GlobalStateBridge.setState(mockState)
     let sidebarCmp = await loadSidebar()
 
     let root = ReactDOMClient.createRoot(container)
@@ -275,8 +283,9 @@ describe("Sidebar", () => {
     Dom.appendChild(Dom.documentBody, container)
 
     let mockState = State.initialState
-    GlobalStateBridge.setState(mockState)
     let mockDispatch = _ => ()
+    GlobalStateBridge.setDispatch(mockDispatch)
+    GlobalStateBridge.setState(mockState)
     let sidebarCmp = await loadSidebar()
 
     let root = ReactDOMClient.createRoot(container)
@@ -347,6 +356,10 @@ describe("Sidebar", () => {
 
     let mockState = {...State.initialState, scenes: [scene]}
     let mockDispatch = _ => ()
+    GlobalStateBridge.setDispatch(mockDispatch)
+    GlobalStateBridge.setState(mockState)
+    GlobalStateBridge.setDispatch(mockDispatch)
+    GlobalStateBridge.setState(mockState)
     let sidebarCmp = await loadSidebar()
 
     let root = ReactDOMClient.createRoot(container)
@@ -418,6 +431,8 @@ describe("Sidebar", () => {
 
     let mockState = {...State.initialState, scenes: [scene]}
     let mockDispatch = _ => ()
+    GlobalStateBridge.setDispatch(mockDispatch)
+    GlobalStateBridge.setState(mockState)
     let sidebarCmp = await loadSidebar()
 
     let root = ReactDOMClient.createRoot(container)
@@ -450,6 +465,8 @@ describe("Sidebar", () => {
 
     let mockState = State.initialState
     let mockDispatch = _ => ()
+    GlobalStateBridge.setDispatch(mockDispatch)
+    GlobalStateBridge.setState(mockState)
     let sidebarCmp = await loadSidebar()
 
     let root = ReactDOMClient.createRoot(container)
