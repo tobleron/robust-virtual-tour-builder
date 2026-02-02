@@ -32,13 +32,13 @@ describe("NavigationFSM", () => {
     }
   })
 
-  test("Transitioning to Stabilizing on AnimationProgress complete", t => {
+  test("Transitioning to Stabilizing on TransitionComplete", t => {
     let state = NavigationFSM.Transitioning({
       fromSceneId: None,
       toSceneId: "scene-1",
-      progress: 0.5,
+      progress: 1.0,
     })
-    let event = NavigationFSM.AnimationProgress(1.0)
+    let event = NavigationFSM.TransitionComplete
     let nextState = NavigationFSM.reducer(state, event)
 
     switch nextState {
