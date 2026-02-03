@@ -2,6 +2,7 @@ module InnerApp = {
   @react.component
   let make = () => {
     let state = AppContext.useAppState()
+    let isSystemLocked = AppContext.useIsSystemLocked()
 
     React.useEffect1(() => {
       let _ = %raw("((s) => { window.__RE_STATE__ = s })(state)")
@@ -9,6 +10,12 @@ module InnerApp = {
     }, [state])
 
     <div className="flex h-screen w-screen overflow-hidden bg-slate-900">
+      {if isSystemLocked {
+        <div className="interaction-lock-overlay" />
+      } else {
+        React.null
+      }}
+
       <Sidebar />
 
       <main

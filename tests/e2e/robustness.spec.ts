@@ -9,7 +9,7 @@ import { setupAIObservability } from './ai-helper';
  */
 test.describe('Application Robustness - Separation of Concerns', () => {
   
-  const desktopPath = path.join(os.homedir(), 'Desktop', 'xyz.zip');
+  const desktopPath = path.resolve('./tests/e2e/fixtures/tour.vt.zip');
 
   test.beforeEach(async ({ page }) => {
     // Setup AI-focused diagnostic logging
