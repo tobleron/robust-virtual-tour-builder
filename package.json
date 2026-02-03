@@ -13,6 +13,9 @@
     "test:frontend": "NODE_ENV=test node --import ./tests/node-setup.js tests/TestRunner.bs.js && vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headless": "playwright test",
     "res:build": "rescript",
     "res:watch": "rescript watch",
     "res:clean": "rescript clean",
@@ -47,6 +50,7 @@
   "homepage": "https://github.com/tobleron/robust-virtual-tour-builder#readme",
   "devDependencies": {
     "@axe-core/cli": "^4.11.0",
+    "@playwright/test": "^1.58.1",
     "@rsbuild/core": "^1.7.2",
     "@rsbuild/plugin-react": "^1.4.2",
     "@tailwindcss/postcss": "^4.1.18",

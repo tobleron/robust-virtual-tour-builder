@@ -14,6 +14,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 backend_log.txt
+*.log
 
 # Build / Output
 dist/
@@ -43,6 +44,12 @@ backend/Cargo.lock
 # Database
 backend/data/
 *.db
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
 
 # Ensure tasks are always tracked
 !tasks/
