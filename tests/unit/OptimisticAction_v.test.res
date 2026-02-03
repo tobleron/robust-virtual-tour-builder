@@ -5,38 +5,38 @@ open Types
 
 let makeInitialState = (): Types.state => {
   {
-     tourName: "Original Name",
-     scenes: [],
-     activeIndex: 0,
-     activeYaw: 0.0,
-     activePitch: 0.0,
-     isLinking: false,
-     transition: {type_: Cut, targetHotspotIndex: -1, fromSceneName: None},
-     lastUploadReport: {success: [], skipped: []},
-     exifReport: None,
-     linkDraft: None,
-     preloadingSceneIndex: -1,
-     isTeasing: false,
-     deletedSceneIds: [],
-     timeline: [],
-     activeTimelineStepId: None,
-     navigation: Idle,
-     navigationFsm: Idle,
-     simulation: {
-       status: Idle,
-       visitedScenes: [],
-       stoppingOnArrival: false,
-       skipAutoForwardGlobal: false,
-       lastAdvanceTime: 0.0,
-       pendingAdvanceId: None,
-       autoPilotJourneyId: 0,
-     },
-     incomingLink: None,
-     autoForwardChain: [],
-     pendingReturnSceneName: None,
-     currentJourneyId: 0,
-     lastUsedCategory: "outdoor",
-     sessionId: None,
+    tourName: "Original Name",
+    scenes: [],
+    activeIndex: 0,
+    activeYaw: 0.0,
+    activePitch: 0.0,
+    isLinking: false,
+    transition: {type_: Cut, targetHotspotIndex: -1, fromSceneName: None},
+    lastUploadReport: {success: [], skipped: []},
+    exifReport: None,
+    linkDraft: None,
+    preloadingSceneIndex: -1,
+    isTeasing: false,
+    deletedSceneIds: [],
+    timeline: [],
+    activeTimelineStepId: None,
+    navigation: Idle,
+    navigationFsm: Idle,
+    simulation: {
+      status: Idle,
+      visitedScenes: [],
+      stoppingOnArrival: false,
+      skipAutoForwardGlobal: false,
+      lastAdvanceTime: 0.0,
+      pendingAdvanceId: None,
+      autoPilotJourneyId: 0,
+    },
+    incomingLink: None,
+    autoForwardChain: [],
+    pendingReturnSceneName: None,
+    currentJourneyId: 0,
+    lastUsedCategory: "outdoor",
+    sessionId: None,
   }
 }
 
@@ -53,10 +53,7 @@ testAsync("OptimisticAction commits on success", async t => {
 
   let action = Actions.SetTourName("New Name")
 
-  let result = await OptimisticAction.execute(
-    ~action=action,
-    ~apiCall=MockApi.success
-  )
+  let result = await OptimisticAction.execute(~action, ~apiCall=MockApi.success)
 
   switch result {
   | Committed(_) => t->expect(true)->Expect.toBe(true)
@@ -81,11 +78,7 @@ testAsync("OptimisticAction rolls back on failure", async t => {
     GlobalStateBridge.setState(s)
   }
 
-  let result = await OptimisticAction.execute(
-    ~action=action,
-    ~apiCall=MockApi.failure,
-    ~onRollback=onRollback
-  )
+  let result = await OptimisticAction.execute(~action, ~apiCall=MockApi.failure, ~onRollback)
 
   switch result {
   | RolledBack(msg) => t->expect(msg)->Expect.toBe("Network Error")

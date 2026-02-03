@@ -37,6 +37,8 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/core/SceneCache.res](src/core/SceneCache.res): In-memory cache for processed scene assets and metadata. `#cache` `#performance`
 *   [src/core/GlobalStateBridge.res](src/core/GlobalStateBridge.res): Bridge for synchronizing state across different contexts. `#state` `#sync`
 *   [src/core/InteractionQueue.res](src/core/InteractionQueue.res): Serialized action queue to prevent race conditions during transitions. `#queue` `#state` `#stability`
+*   [src/core/StateSnapshot.res](src/core/StateSnapshot.res): Manager for capturing and rolling back application state snapshots. `#state` `#rollback` `#reliability`
+*   [src/core/OptimisticAction.res](src/core/OptimisticAction.res): Wrapper for executing actions optimistically with automatic rollback on failure. `#actions` `#optimistic-update` `#reliability`
 *   [src/i18n/I18n.res](src/i18n/I18n.res): Internationalization orchestrator for multi-language support. `#i18n` `#ui`
 *   [src/core/Reducer.res](src/core/Reducer.res): Consolidated state reducer handling scenes, hotspots, navigation, and projects. `#reducer` `#logic`
     *   [src/core/SceneMutations.res](src/core/SceneMutations.res): Complex state mutation logic for scene renaming, deletion, and reordering. `#state` `#scene` `#logic`

@@ -132,3 +132,4 @@
 [2026-02-03 22:29] v4.8.15 - Stable UI tour preview & load project [TRIPLE]
 [2026-02-03 23:19] v4.8.15 - Waypoint Perfect Smoothing Factor [TRIPLE]
 [2026-02-03 23:37] v4.8.15 - fix: lock viewer HFOV at 90, disable zoom, and restore app unit tests [TRIPLE]
+[2026-02-04 00:45] v4.8.15 - Merge and verify optimistic-update-rollback: Infrastructure, tests, and MAP.md updates [TRIPLE]

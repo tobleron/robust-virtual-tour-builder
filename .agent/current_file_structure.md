@@ -5649,6 +5649,48 @@
 │   │           │   │   └── 162557_040.webp
 │   │           │   ├── project.json
 │   │           │   └── summary.txt
+│   │           ├── fb58ea41-e449-475e-bd58-8f62c28eca16
+│   │           │   ├── images
+│   │           │   │   ├── 154407_002.webp
+│   │           │   │   ├── 154618_004.webp
+│   │           │   │   ├── 154744_005.webp
+│   │           │   │   ├── 154859_006.webp
+│   │           │   │   ├── 155038_007.webp
+│   │           │   │   ├── 155139_008.webp
+│   │           │   │   ├── 155241_009.webp
+│   │           │   │   ├── 155456_010.webp
+│   │           │   │   ├── 155613_011.webp
+│   │           │   │   ├── 155754_012.webp
+│   │           │   │   ├── 155927_013.webp
+│   │           │   │   ├── 160058_014.webp
+│   │           │   │   ├── 160223_015.webp
+│   │           │   │   ├── 160339_016.webp
+│   │           │   │   ├── 160509_017.webp
+│   │           │   │   ├── 160552_018.webp
+│   │           │   │   ├── 160634_019.webp
+│   │           │   │   ├── 160715_020.webp
+│   │           │   │   ├── 160825_021.webp
+│   │           │   │   ├── 160926_022.webp
+│   │           │   │   ├── 161026_023.webp
+│   │           │   │   ├── 161123_024.webp
+│   │           │   │   ├── 161213_025.webp
+│   │           │   │   ├── 161309_026.webp
+│   │           │   │   ├── 161358_027.webp
+│   │           │   │   ├── 161456_028.webp
+│   │           │   │   ├── 161628_029.webp
+│   │           │   │   ├── 161706_030.webp
+│   │           │   │   ├── 161739_031.webp
+│   │           │   │   ├── 161824_032.webp
+│   │           │   │   ├── 161910_033.webp
+│   │           │   │   ├── 162015_034.webp
+│   │           │   │   ├── 162106_035.webp
+│   │           │   │   ├── 162215_036.webp
+│   │           │   │   ├── 162251_037.webp
+│   │           │   │   ├── 162400_038.webp
+│   │           │   │   ├── 162456_039.webp
+│   │           │   │   └── 162557_040.webp
+│   │           │   ├── project.json
+│   │           │   └── summary.txt
 │   │           ├── ffdba21d-87f3-42bd-a47c-d4a97d1f163c
 │   │           │   ├── images
 │   │           │   │   ├── 154407_002.webp
@@ -6196,6 +6238,15 @@
 │   │   │   │   ├── NavigationHelpers.cmj
 │   │   │   │   ├── NavigationHelpers.cmt
 │   │   │   │   ├── NavigationHelpers.res
+│   │   │   │   ├── OptimisticAction.ast
+│   │   │   │   ├── OptimisticAction.bs.js
+│   │   │   │   ├── OptimisticAction.cmi
+│   │   │   │   ├── OptimisticAction.cmj
+│   │   │   │   ├── OptimisticAction.cmt
+│   │   │   │   ├── OptimisticAction.cmti
+│   │   │   │   ├── OptimisticAction.iast
+│   │   │   │   ├── OptimisticAction.res
+│   │   │   │   ├── OptimisticAction.resi
 │   │   │   │   ├── Reducer.ast
 │   │   │   │   ├── Reducer.bs.js
 │   │   │   │   ├── Reducer.cmi
@@ -6244,6 +6295,15 @@
 │   │   │   │   ├── State.cmj
 │   │   │   │   ├── State.cmt
 │   │   │   │   ├── State.res
+│   │   │   │   ├── StateSnapshot.ast
+│   │   │   │   ├── StateSnapshot.bs.js
+│   │   │   │   ├── StateSnapshot.cmi
+│   │   │   │   ├── StateSnapshot.cmj
+│   │   │   │   ├── StateSnapshot.cmt
+│   │   │   │   ├── StateSnapshot.cmti
+│   │   │   │   ├── StateSnapshot.iast
+│   │   │   │   ├── StateSnapshot.res
+│   │   │   │   ├── StateSnapshot.resi
 │   │   │   │   ├── Types.ast
 │   │   │   │   ├── Types.bs.js
 │   │   │   │   ├── Types.cmi
@@ -7248,6 +7308,12 @@
 │   │           ├── NotificationLayer_v.test.cmj
 │   │           ├── NotificationLayer_v.test.cmt
 │   │           ├── NotificationLayer_v.test.res
+│   │           ├── OptimisticAction_v.test.ast
+│   │           ├── OptimisticAction_v.test.bs.js
+│   │           ├── OptimisticAction_v.test.cmi
+│   │           ├── OptimisticAction_v.test.cmj
+│   │           ├── OptimisticAction_v.test.cmt
+│   │           ├── OptimisticAction_v.test.res
 │   │           ├── PannellumAdapter_v.test.ast
 │   │           ├── PannellumAdapter_v.test.bs.js
 │   │           ├── PannellumAdapter_v.test.cmi
@@ -8451,6 +8517,19 @@
 │   │   ├── NotificationLayer_v.test.cmj
 │   │   ├── NotificationLayer_v.test.cmt
 │   │   ├── NotificationLayer_v.test.res
+│   │   ├── OptimisticAction.ast
+│   │   ├── OptimisticAction.cmi
+│   │   ├── OptimisticAction.cmj
+│   │   ├── OptimisticAction.cmt
+│   │   ├── OptimisticAction.cmti
+│   │   ├── OptimisticAction.iast
+│   │   ├── OptimisticAction.res
+│   │   ├── OptimisticAction.resi
+│   │   ├── OptimisticAction_v.test.ast
+│   │   ├── OptimisticAction_v.test.cmi
+│   │   ├── OptimisticAction_v.test.cmj
+│   │   ├── OptimisticAction_v.test.cmt
+│   │   ├── OptimisticAction_v.test.res
 │   │   ├── PannellumAdapter.ast
 │   │   ├── PannellumAdapter.cmi
 │   │   ├── PannellumAdapter.cmj
@@ -8946,6 +9025,14 @@
 │   │   ├── StateInspector_v.test.cmj
 │   │   ├── StateInspector_v.test.cmt
 │   │   ├── StateInspector_v.test.res
+│   │   ├── StateSnapshot.ast
+│   │   ├── StateSnapshot.cmi
+│   │   ├── StateSnapshot.cmj
+│   │   ├── StateSnapshot.cmt
+│   │   ├── StateSnapshot.cmti
+│   │   ├── StateSnapshot.iast
+│   │   ├── StateSnapshot.res
+│   │   ├── StateSnapshot.resi
 │   │   ├── State_v.test.ast
 │   │   ├── State_v.test.cmi
 │   │   ├── State_v.test.cmj
@@ -10964,6 +11051,9 @@
 │   │   ├── JsonParsersShared.res
 │   │   ├── NavigationHelpers.bs.js
 │   │   ├── NavigationHelpers.res
+│   │   ├── OptimisticAction.bs.js
+│   │   ├── OptimisticAction.res
+│   │   ├── OptimisticAction.resi
 │   │   ├── Reducer.bs.js
 │   │   ├── Reducer.res
 │   │   ├── SceneCache.bs.js
@@ -10983,6 +11073,9 @@
 │   │   ├── SimulationHelpers.res
 │   │   ├── State.bs.js
 │   │   ├── State.res
+│   │   ├── StateSnapshot.bs.js
+│   │   ├── StateSnapshot.res
+│   │   ├── StateSnapshot.resi
 │   │   ├── Types.bs.js
 │   │   ├── Types.res
 │   │   ├── UiHelpers.bs.js
@@ -11214,6 +11307,7 @@
 ├── tasks
 │   ├── TASKS.md
 │   ├── active
+│   │   └── 1202_IMPLEMENT_OPTIMISTIC_UPDATE_ROLLBACK.md
 │   ├── completed
 │   │   ├── 1081_Surgical_Refactor_SYSTEMS_FRONTEND_DONE.md
 │   │   ├── 1082_Surgical_Refactor_COMPONENTS_FRONTEND_DONE.md
@@ -11311,7 +11405,6 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1202_IMPLEMENT_OPTIMISTIC_UPDATE_ROLLBACK.md
 │   │   ├── 1203_IMPLEMENT_CLIENT_SIDE_REQUEST_DEBOUNCING.md
 │   │   ├── 1204_IMPLEMENT_REQUEST_RETRY_WITH_BACKOFF.md
 │   │   ├── 1205_ENHANCE_PERSISTENCE_MID_FLIGHT_RECOVERY.md
@@ -11320,7 +11413,8 @@
 │   │   ├── 1208_IMPROVE_DEV_SYSTEM_ANALYZER.md
 │   │   ├── 1209_Classify_Ambiguous_Files.md
 │   │   ├── 1210_Classify_Map_Entries.md
-│   │   └── 1211_Fix_Violations_FRONTEND.md
+│   │   ├── 1211_Fix_Violations_FRONTEND.md
+│   │   └── 1212_Surgical_Refactor_CORE_FRONTEND.md
 │   └── postponed
 ├── test-results
 │   ├── robustness-Application-Rob-2ce67-d-Saving-during-Interaction-chromium
@@ -11509,6 +11603,8 @@
 │   │   ├── NotificationContext_v.test.res
 │   │   ├── NotificationLayer_v.test.bs.js
 │   │   ├── NotificationLayer_v.test.res
+│   │   ├── OptimisticAction_v.test.bs.js
+│   │   ├── OptimisticAction_v.test.res
 │   │   ├── PannellumAdapter_v.test.bs.js
 │   │   ├── PannellumAdapter_v.test.res
 │   │   ├── PannellumLifecycle_v.test.bs.js
@@ -11687,4 +11783,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-505 directories, 11183 files
+507 directories, 11277 files
