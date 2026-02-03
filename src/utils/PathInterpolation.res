@@ -146,13 +146,65 @@ let getBSplinePath = (points: array<point>, totalSegments: int) => {
     // 1. Prepare Points: B-Spline requires triplicating endpoints to ensure we start/end exactly at them
     switch (Belt.Array.get(points, 0), Belt.Array.get(points, Array.length(points) - 1)) {
     | (Some(first), Some(last)) => {
-        // [S, S] + [S, ...pts..., E] + [E, E] -> ensures curve touches S and E
-        let prefix = [first, first]
-        let suffix = [last, last]
-        let rawPoints = Belt.Array.concat(prefix, Belt.Array.concat(points, suffix))
+        // 2. Pre-Smoothing Pass (Human Inertia)
+        let smoothedPoints = if Constants.waypointSmoothingFactor > 0.0 {
+          let s = Constants.waypointSmoothingFactor *. 0.5
+          let pts = Array.copy(points)
+          let len = Array.length(pts)
+          if len > 3 {
+            for _ in 1 to 2 {
+              // Multiple passes for "Freehand" quality
+              for i in 1 to len - 2 {
+                // Ensure we don't smooth the points immediately adjacent to endpoints too aggressively
+                // This keeps the "Linking Rod" anchor perfectly perpendicular
+                let weighting = if i == 1 || i == len - 2 {
+                  s *. 0.5
+                } else {
+                  s
+                }
+                switch (
+                  Belt.Array.get(pts, i - 1),
+                  Belt.Array.get(pts, i),
+                  Belt.Array.get(pts, i + 1),
+                ) {
+                | (Some(pPrev), Some(pCurr), Some(pNext)) =>
+                  let dy1 = ref(pNext.yaw -. pCurr.yaw)
+                  while dy1.contents > 180.0 {
+                    dy1 := dy1.contents -. 360.0
+                  }
+                  while dy1.contents < -180.0 {
+                    dy1 := dy1.contents +. 360.0
+                  }
 
-        // 2. Unroll Points (Yaw normalization)
+                  let dy2 = ref(pPrev.yaw -. pCurr.yaw)
+                  while dy2.contents > 180.0 {
+                    dy2 := dy2.contents -. 360.0
+                  }
+                  while dy2.contents < -180.0 {
+                    dy2 := dy2.contents +. 360.0
+                  }
+
+                  let targetYaw = pCurr.yaw +. (dy1.contents +. dy2.contents) *. weighting
+                  let targetPitch =
+                    pCurr.pitch +. (pNext.pitch +. pPrev.pitch -. 2.0 *. pCurr.pitch) *. weighting
+
+                  pts[i] = {yaw: targetYaw, pitch: targetPitch}
+                | _ => ()
+                }
+              }
+            }
+          }
+          pts
+        } else {
+          points
+        }
+
+        // 3. Unroll Points (Yaw normalization)
         let unrolledPoints = []
+        let rawPoints = Belt.Array.concat(
+          [first, first],
+          Belt.Array.concat(smoothedPoints, [last, last]),
+        )
         if Array.length(rawPoints) > 0 {
           let prevYaw = ref(first.yaw) // Start with known first yaw
 
@@ -173,7 +225,7 @@ let getBSplinePath = (points: array<point>, totalSegments: int) => {
           })
         }
 
-        // 3. Generate B-Spline Points
+        // 4. Generate B-Spline Points
         let splinePoints = []
         // For N control points, we have N-3 segments in uniform cubic B-spline
         let numSections = Array.length(unrolledPoints) - 3

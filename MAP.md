@@ -70,10 +70,10 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/systems/ViewerLogic.res](src/systems/ViewerLogic.res): Core logic for viewer interactions and state. `#viewer` `#logic`
 *   [src/systems/ViewerPool.res](src/systems/ViewerPool.res): Manager for multiple viewport instances and their lifecycles. `#orchestration` `#efficiency`
 *   [src/systems/HotspotLineLogic.res](src/systems/HotspotLineLogic.res): Orchestrator for coordinate projection and SVG drawing. `#math` `#rendering` `#orchestration`
-    *   [src/systems/HotspotLine/HotspotLineLogicLogic.res](src/systems/HotspotLine/HotspotLineLogicLogic.res): Main logic for persistent lines and linking drafts. `#logic`
+    *   [src/systems/HotspotLine/HotspotLineDrawing.res](src/systems/HotspotLine/HotspotLineDrawing.res): Main logic for persistent lines and linking drafts. `#logic`
     *   [src/systems/HotspotLine/HotspotLineLogicArrow.res](src/systems/HotspotLine/HotspotLineLogicArrow.res): Specialized logic for simulation arrow rendering and animation. `#logic` `#animation`
-    *   [src/systems/HotspotLine/HotspotLineLogicTypes.res](src/systems/HotspotLine/HotspotLineLogicTypes.res): Internal types for hotspot line logic and caching. `#types`
-    *   [src/systems/HotspotLine/HotspotLineUtils.res](src/systems/HotspotLine/HotspotLineUtils.res): State and caching for hotspot line rendering. `#utils` `#caching`
+    *   [src/systems/HotspotLine/HotspotLineState.res](src/systems/HotspotLine/HotspotLineState.res): Centralized state, types, and caches for the hotspot line system. `#types` `#state` `#caching`
+    *   [src/systems/HotspotLine/HotspotLineUtils.res](src/systems/HotspotLine/HotspotLineUtils.res): Pure utility functions for path calculations and cache facades. `#utils`
 *   [src/systems/Simulation.res](src/systems/Simulation.res): Core logic for autopilot simulations. `#simulation` `#autopilot`
 
 *   [src/systems/Navigation.res](src/systems/Navigation.res): Orchestrator for the centralized navigation system. `#navigation` `#orchestration`

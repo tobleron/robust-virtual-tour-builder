@@ -2,10 +2,8 @@
 // @efficiency-role: domain-logic
 
 open ReBindings
-
 open Types
-
-open HotspotLineUtils
+open HotspotLineState
 
 let updateArrow = (id, s: screenCoords, angle, color, opacity) => {
   if Float.isFinite(s.x) && Float.isFinite(s.y) && Float.isFinite(angle) {

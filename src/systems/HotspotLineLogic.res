@@ -1,11 +1,11 @@
 /* src/systems/HotspotLineLogic.res */
 // @efficiency-role: orchestrator
 
-include HotspotLineLogicTypes
+include HotspotLineState
 
 module Utils = HotspotLineUtils
 module Logic = {
-  include HotspotLineLogicLogic
+  include HotspotLineDrawing
   include HotspotLineLogicArrow
 }
 

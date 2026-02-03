@@ -2,11 +2,11 @@
 // @efficiency-role: util-pure
 
 open ReBindings
-open HotspotLineLogicTypes
+open HotspotLineState
 
-let lastFrameIds = ref(Belt.MutableSet.String.make())
-let pathCache: JSWeakMap.t<Types.hotspot, array<PathInterpolation.point>> = JSWeakMap.make()
-let segmentCache: JSWeakMap.t<array<PathInterpolation.point>, segmentData> = JSWeakMap.make()
+let lastFrameIds = lastFrameIds
+let pathCache = pathCache
+let segmentCache = segmentCache
 
 let getCachedSplinePath = (h: Types.hotspot, controlPoints, segments) => {
   switch Nullable.toOption(JSWeakMap.get(pathCache, h)) {

@@ -1,4 +1,4 @@
-/* src/systems/HotspotLine/HotspotLineLogicLogic.res */
+/* src/systems/HotspotLine/HotspotLineDrawing.res */
 // @efficiency-role: domain-logic
 
 open ReBindings
@@ -291,7 +291,11 @@ let drawLinkingDraft = (
     | _ => ()
     }
   } else if Array.length(allYellowPoints) > 2 {
-    let yellowSpline = PathInterpolation.getCatmullRomSpline(allYellowPoints, 40)
+    let yellowSpline = if Constants.useBSplineSmoothing {
+      PathInterpolation.getBSplinePath(allYellowPoints, 40)
+    } else {
+      PathInterpolation.getCatmullRomSpline(allYellowPoints, 40)
+    }
     updatePolyLine(
       yellowId,
       cam,
