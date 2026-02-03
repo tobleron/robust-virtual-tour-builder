@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Fix navigation hang and throttle telemetry flood; Add 1199 E2E task
 - Synchronization and version bump
+- Final Sync: Unify E2E task and async fixes across branches
 
 ## [4.8.15] - 2026-02-02
 
