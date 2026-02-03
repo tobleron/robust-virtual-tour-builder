@@ -3,6 +3,11 @@ module InnerApp = {
   let make = () => {
     let state = AppContext.useAppState()
 
+    React.useEffect1(() => {
+      let _ = %raw("((s) => { window.__RE_STATE__ = s })(state)")
+      None
+    }, [state])
+
     <div className="flex h-screen w-screen overflow-hidden bg-slate-900">
       <Sidebar />
 
