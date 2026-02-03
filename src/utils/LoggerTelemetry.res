@@ -129,31 +129,25 @@ let sendTelemetry = async entry => {
       }
 
       if shouldSend {
-        if Constants.Telemetry.diagnosticMode.contents {
-          try {
-            let _ = await RequestQueue.schedule(() =>
-              Fetch.fetch(
-                Constants.backendUrl ++ "/api/telemetry/log",
-                Fetch.requestInit(
-                  ~method="POST",
-                  ~headers=Dict.fromArray([("Content-Type", "application/json")]),
-                  ~body=JsonCombinators.Json.stringify(encodeLogEntry(entry)),
-                  (),
-                ),
-              )
-            )
-          } catch {
-          | _ => ()
-          }
-        } else {
-          if Array.length(telemetryQueue) < Constants.Telemetry.queueMaxSize {
-            let _ = Array.push(telemetryQueue, entry)
-          }
-          if Array.length(telemetryQueue) >= Constants.Telemetry.batchSize {
-            let _ = flushTelemetry()->Promise.catch(_ => Promise.resolve())
-          }
+        if Array.length(telemetryQueue) < Constants.Telemetry.queueMaxSize {
+          let _ = Array.push(telemetryQueue, entry)
+        }
+        if Array.length(telemetryQueue) >= Constants.Telemetry.batchSize {
+          let _ = flushTelemetry()->Promise.catch(_ => Promise.resolve())
         }
       }
     }
   }
 }
+
+// Periodic flush every 2 seconds
+let flushTimer = ref(None)
+let startPeriodicFlush = () => {
+  switch flushTimer.contents {
+  | Some(_) => ()
+  | None => flushTimer := Some(Window.setInterval(() => {
+          let _ = flushTelemetry()->Promise.catch(_ => Promise.resolve())
+        }, 2000))
+  }
+}
+let _ = startPeriodicFlush()
