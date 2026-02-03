@@ -25,6 +25,8 @@ type response = {
 
 @val external fetch: (string, 'options) => Promise.t<response> = "fetch"
 
+let circuitBreaker = CircuitBreaker.make()
+
 let prepareRequestBody = (body: option<JSON.t>, headers: Dict.t<string>) => {
   switch body {
   | Some(b) =>
@@ -38,6 +40,11 @@ let prepareRequestBody = (body: option<JSON.t>, headers: Dict.t<string>) => {
 }
 
 let request = async (url, ~method="GET", ~body: option<JSON.t>=?, ~headers=Dict.make(), ()) => {
+  if !CircuitBreaker.canExecute(circuitBreaker) {
+    Logger.warn(~module_="AuthenticatedClient", ~message="CIRCUIT_OPEN", ~data=None, ())
+    throw(HttpError(503, "Service temporarily unavailable"))
+  }
+
   let token = Dom.Storage2.localStorage->Dom.Storage2.getItem("auth_token")
 
   let finalToken = switch token {
@@ -68,7 +75,35 @@ let request = async (url, ~method="GET", ~body: option<JSON.t>=?, ~headers=Dict.
     "body": bodyVal,
   }
 
-  let response = await fetch(url, options)
+  let handleFailure = () => {
+    let wasOpen = CircuitBreaker.getState(circuitBreaker) == Open
+    CircuitBreaker.recordFailure(circuitBreaker)
+    let isOpen = CircuitBreaker.getState(circuitBreaker) == Open
+
+    if !wasOpen && isOpen {
+      EventBus.dispatch(
+        ShowNotification(
+          "Connection issues detected. Retrying automatically...",
+          #Warning,
+          None,
+        ),
+      )
+    }
+  }
+
+  let response = try {
+    await fetch(url, options)
+  } catch {
+  | JsExn(e) =>
+    handleFailure()
+    throw(JsExn(e))
+  }
+
+  if response.status >= 500 {
+    handleFailure()
+  } else if response.status < 500 {
+    CircuitBreaker.recordSuccess(circuitBreaker)
+  }
 
   if response.status == 401 {
     dispatchLogout()
