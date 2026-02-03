@@ -5,9 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.8.15] - 2026-02-03
+## [4.8.16] - 2026-02-03
 
-### Changed
+### Added
+- Initialize Robustness Task Suite: Updated 1200, created 1201-1207 (Circuit Breaker, Rollback, Debounce, Retry, Recovery).
+- Implement mandatory `rescript-json-combinators` standard for all new robustness tasks.
+
+## [4.8.15] - 2026-02-03
 - Fix navigation hang and throttle telemetry flood; Add 1199 E2E task
 - Synchronization and version bump
 - Final Sync: Unify E2E task and async fixes across branches
@@ -20,6 +24,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Update Constants test timeout and add unit tests for SceneMutations and ExifUtils
+
+### Changed
+- Initialize Robustness Task Suite (updated 1200, created 1201-1207)
 
 ## [4.8.15] - 2026-02-02
 
