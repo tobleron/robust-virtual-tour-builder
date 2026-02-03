@@ -3,12 +3,11 @@
 use actix_multipart::Multipart;
 use actix_web::{HttpResponse, web};
 use futures_util::TryStreamExt as _;
-use std::fs;
 use tokio::io::{AsyncWriteExt, BufWriter};
 use uuid::Uuid;
 
 use crate::api::media::video_logic;
-use crate::api::utils::{MAX_UPLOAD_SIZE, TEMP_DIR, get_temp_path, sanitize_filename};
+use crate::api::utils::{MAX_UPLOAD_SIZE, TEMP_DIR, get_temp_path_async, sanitize_filename};
 use crate::models::AppError;
 
 // --- HANDLERS ---
@@ -18,7 +17,9 @@ use crate::models::AppError;
 pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, AppError> {
     let session_id = Uuid::new_v4().to_string();
     let session_path = std::path::PathBuf::from(TEMP_DIR).join(&session_id);
-    fs::create_dir_all(&session_path).map_err(AppError::IoError)?;
+    tokio::fs::create_dir_all(&session_path)
+        .await
+        .map_err(AppError::IoError)?;
 
     tracing::info!(module = "TeaserGenerator", session_id = %session_id, "TEASER_GENERATION_START");
 
@@ -83,7 +84,7 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
 
     let project_data = project_data_value
         .ok_or_else(|| AppError::InternalError("Missing project_data JSON".into()))?;
-    let output_path = get_temp_path("mp4");
+    let output_path = get_temp_path_async("mp4").await;
     let output_str = output_path.to_string_lossy().to_string();
     let session_id_clone = session_id.clone();
 
@@ -123,7 +124,7 @@ pub async fn generate_teaser(mut payload: Multipart) -> Result<HttpResponse, App
 /// Transcodes an uploaded video file to MP4.
 #[tracing::instrument(skip(payload), name = "transcode_video")]
 pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, AppError> {
-    let input_path = get_temp_path("webm");
+    let input_path = get_temp_path_async("webm").await;
     let mut total_size = 0;
 
     while let Some(mut field) = payload.try_next().await? {
@@ -151,7 +152,7 @@ pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, App
         }
     }
 
-    let output_path = get_temp_path("mp4");
+    let output_path = get_temp_path_async("mp4").await;
     let input_str = input_path.to_string_lossy().to_string();
     let output_str = output_path.to_string_lossy().to_string();
 
