@@ -128,3 +128,4 @@
 [2026-02-03 21:22] v4.8.15 - Initialize Robustness Task Suite (updated 1200, created 1201-1207) [TRIPLE]
 [2026-02-03 21:33] v4.8.15 - Analyze _dev-system and create Task 1208 for analyzer improvements [TRIPLE]
 [2026-02-03 22:19] v4.8.15 - Merge pull: system-robustness-v2-5500292857890026552 and complete Task 1200 [TRIPLE]
+[2026-02-03 22:24] v4.8.15 - fix: release barrier lock earlier in InteractionQueue to allow initial scene load [TRIPLE]
