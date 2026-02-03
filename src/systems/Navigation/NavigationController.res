@@ -103,11 +103,27 @@ module ControllerHooks = {
             ~data=Some({"journeyId": j.journeyId}),
             (),
           )
-          ViewerSystem.getActiveViewer()
-          ->Nullable.toOption
-          ->Option.forEach(v => {
+          let viewerOpt = ViewerSystem.getActiveViewer()->Nullable.toOption
+          Logger.debug(
+            ~module_="NavigationController",
+            ~message="VIEWER_CHECK_FOR_ANIMATION",
+            ~data=Some({
+              "journeyId": j.journeyId,
+              "hasViewer": viewerOpt->Option.isSome,
+              "hasPathData": j.pathData->Option.isSome,
+            }),
+            (),
+          )
+          viewerOpt->Option.forEach(v => {
             switch j.pathData {
-            | Some(pd) => NavigationRenderer.AnimationLoop.startLoop(v, j, pd, dispatch, req)
+            | Some(pd) =>
+              Logger.debug(
+                ~module_="NavigationController",
+                ~message="STARTING_ANIMATION_LOOP",
+                ~data=Some({"journeyId": j.journeyId}),
+                (),
+              )
+              NavigationRenderer.AnimationLoop.startLoop(v, j, pd, dispatch, req)
             | None =>
               Logger.warn(~module_="NavigationController", ~message="NO_PATH_DATA_FALLBACK", ())
               dispatch(Actions.DispatchNavigationFsmEvent(TransitionComplete))
