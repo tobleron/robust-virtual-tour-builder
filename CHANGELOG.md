@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Completed task 1199: Comprehensive Playwright E2E Automation
 - Fix E2E test duplicate detection and improve InteractionQueue stability
 - Add diagnostic logging to NavigationController Stabilizing state
+- Fix tour preview hang and stabilize rapid scene switching
 
 ## [4.8.15] - 2026-02-02
 

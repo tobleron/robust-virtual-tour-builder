@@ -11,6 +11,7 @@ let setupBlinks = () => (
 )
 
 let activeJourneyId = ref(None)
+let blinkStartTime = ref(None)
 
 module AnimationLoop = {
   let rec loop = (
@@ -18,7 +19,6 @@ module AnimationLoop = {
     j: journeyData,
     pd: Types.pathData,
     st,
-    bst,
     cft,
     dispatch,
     req: React.ref<option<int>>,
@@ -29,12 +29,42 @@ module AnimationLoop = {
       try {
         let prog = Math.min((Date.now() -. st) /. pd.panDuration, 1.0)
         if prog >= 1.0 {
-          let sb = bst.contents->Option.getOr({
+          Logger.debug(
+            ~module_="NavigationRenderer",
+            ~message="ANIMATION_COMPLETE_START_BLINK",
+            ~data=Some({
+              "journeyId": j.journeyId,
+              "progress": prog,
+            }),
+            (),
+          )
+          let sb = switch blinkStartTime.contents {
+          | Some(s) => s
+          | None =>
             let n = Date.now()
-            bst := Some(n)
+            Logger.debug(
+              ~module_="NavigationRenderer",
+              ~message="BST_INIT",
+              ~data=Some({"journeyId": j.journeyId, "timestamp": n}),
+              (),
+            )
+            blinkStartTime := Some(n)
             n
-          })
-          let bel = Date.now() -. sb
+          }
+
+          let now = Date.now()
+          let bel = now -. sb
+          Logger.debug(
+            ~module_="NavigationRenderer",
+            ~message="BLINK_TIME_CALC",
+            ~data=Some({
+              "journeyId": j.journeyId,
+              "sb": sb,
+              "now": now,
+              "elapsed": bel,
+            }),
+            (),
+          )
 
           let (bdP, bdS, brP, brS) = setupBlinks()
           let dur = j.previewOnly ? bdP : bdS
@@ -63,13 +93,39 @@ module AnimationLoop = {
             )
           }
 
+          Logger.debug(
+            ~module_="NavigationRenderer",
+            ~message="BLINK_CHECK",
+            ~data=Some({
+              "journeyId": j.journeyId,
+              "blinkElapsed": bel,
+              "blinkDuration": dur,
+              "willContinueBlink": bel < dur,
+            }),
+            (),
+          )
           if bel < dur {
             req.current = Some(
-              Window.requestAnimationFrame(() => loop(v, j, pd, st, bst, cft, dispatch, req, ())),
+              Window.requestAnimationFrame(() => loop(v, j, pd, st, cft, dispatch, req, ())),
             )
           } else {
             // SYNC GUARD: Only finalize if FSM has moved past Preloading (i.e. texture is loaded)
             let currentFsm = state.navigationFsm
+            Logger.debug(
+              ~module_="NavigationRenderer",
+              ~message="BLINK_COMPLETE_FSM_CHECK",
+              ~data=Some({
+                "journeyId": j.journeyId,
+                "fsmState": switch currentFsm {
+                | NavigationFSM.Idle => "Idle"
+                | NavigationFSM.Preloading(_) => "Preloading"
+                | NavigationFSM.Transitioning(_) => "Transitioning"
+                | NavigationFSM.Stabilizing(_) => "Stabilizing"
+                | NavigationFSM.Error(_) => "Error"
+                },
+              }),
+              (),
+            )
             switch currentFsm {
             | NavigationFSM.Transitioning(_) | NavigationFSM.Stabilizing(_) =>
               Logger.debug(
@@ -92,7 +148,7 @@ module AnimationLoop = {
             | _ =>
               // Texture not loaded yet (Preloading), keep blinking at the waypoint
               req.current = Some(
-                Window.requestAnimationFrame(() => loop(v, j, pd, st, bst, cft, dispatch, req, ())),
+                Window.requestAnimationFrame(() => loop(v, j, pd, st, cft, dispatch, req, ())),
               )
             }
           }
@@ -122,7 +178,7 @@ module AnimationLoop = {
           }
 
           req.current = Some(
-            Window.requestAnimationFrame(() => loop(v, j, pd, st, bst, cft, dispatch, req, ())),
+            Window.requestAnimationFrame(() => loop(v, j, pd, st, cft, dispatch, req, ())),
           )
         }
       } catch {
@@ -137,7 +193,7 @@ module AnimationLoop = {
 
           // Always attempt to continue the loop unless journey changed
           req.current = Some(
-            Window.requestAnimationFrame(() => loop(v, j, pd, st, bst, cft, dispatch, req, ())),
+            Window.requestAnimationFrame(() => loop(v, j, pd, st, cft, dispatch, req, ())),
           )
         }
       }
@@ -163,15 +219,15 @@ module AnimationLoop = {
     req: React.ref<option<int>>,
   ) => {
     activeJourneyId := Some(j.journeyId)
+    blinkStartTime := None // Reset blink time for new journey
     let st = Date.now()
-    let bst = ref(None)
     let cft = ref(false)
     Viewer.setPitch(v, pd.startPitch, false)
     Viewer.setYaw(v, pd.startYaw, false)
     Viewer.setHfov(v, pd.startHfov, false)
 
     req.current = Some(
-      Window.requestAnimationFrame(() => loop(v, j, pd, st, bst, cft, dispatch, req, ())),
+      Window.requestAnimationFrame(() => loop(v, j, pd, st, cft, dispatch, req, ())),
     )
   }
 }

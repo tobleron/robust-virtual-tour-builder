@@ -43,9 +43,30 @@ let make = () => {
   React.useEffect2(() => {
     let cancel = ref(false)
 
+    Logger.debug(
+      ~module_="Simulation",
+      ~message="EFFECT_RUN",
+      ~data=Some({
+        "status": simulation.status == Running ? "Running" : "Stopped",
+        "activeIndex": state.activeIndex,
+        "advancingForIndex": advancingForIndex.current,
+      }),
+      (),
+    )
+
     if simulation.status == Running {
       let runTick = async () => {
         let currentIndex = stateRef.current.activeIndex
+        Logger.debug(
+          ~module_="Simulation",
+          ~message="TICK_CHECK",
+          ~data=Some({
+            "currentIndex": currentIndex,
+            "advancingForIndex": advancingForIndex.current,
+            "willRun": advancingForIndex.current != currentIndex,
+          }),
+          (),
+        )
         if advancingForIndex.current != currentIndex {
           advancingForIndex.current = currentIndex
           let s = stateRef.current
@@ -175,6 +196,16 @@ let make = () => {
               dispatch(StopAutoPilot)
             }
           }
+          Logger.debug(
+            ~module_="Simulation",
+            ~message="TICK_COMPLETE",
+            ~data=Some({
+              "currentIndex": currentIndex,
+              "advancingForIndex": advancingForIndex.current,
+              "willReset": advancingForIndex.current == currentIndex,
+            }),
+            (),
+          )
           if advancingForIndex.current == currentIndex {
             advancingForIndex.current = -1
           }
