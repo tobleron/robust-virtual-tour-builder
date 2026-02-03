@@ -6,7 +6,7 @@ external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 let make = React.memo(() => {
   let sceneSlice = AppContext.useSceneSlice()
   let uiSlice = AppContext.useUiSlice()
-  let {dispatch} = AppContext.useInteractionQueue()
+  let {dispatch, enqueueThunk} = AppContext.useInteractionQueue()
 
   let (_draggedIndex, setDraggedIndex) = React.useState(_ => None)
 
@@ -86,7 +86,17 @@ let make = React.memo(() => {
         let timeDiff = now -. ViewerState.state.contents.lastSwitchTime
         let throttleLimit = 650.0
 
-        if timeDiff < throttleLimit {
+        // Check both time throttle AND queue/app stability
+        if timeDiff < throttleLimit || !InteractionQueue.isAppStable() {
+          Logger.info(
+            ~module_="SceneList",
+            ~message="SCENE_SWITCH_THROTTLED",
+            ~data=Some({
+              "timeDiff": timeDiff,
+              "isStable": InteractionQueue.isAppStable(),
+            }),
+            (),
+          )
           EventBus.dispatch(ShowNotification("Switching too fast - Please wait...", #Warning, None))
         } else {
           Logger.info(
@@ -95,22 +105,27 @@ let make = React.memo(() => {
             ~data=Some({"index": index}),
             (),
           )
+
           ViewerState.state := {
               ...ViewerState.state.contents,
               lastSwitchTime: now,
             }
 
-          dispatch(Actions.SetNavigationStatus(Types.Idle))
-          if uiSlice.isLinking {
-            dispatch(Actions.StopLinking)
-          }
-          let trans: Types.transition = {
-            type_: Cut,
-            targetHotspotIndex: -1,
-            fromSceneName: None,
-          }
-          dispatch(Actions.SetActiveTimelineStep(None))
-          dispatch(Actions.SetActiveScene(index, 0.0, 0.0, Some(trans)))
+          enqueueThunk(
+            async () => {
+              dispatch(Actions.SetNavigationStatus(Types.Idle))
+              if uiSlice.isLinking {
+                dispatch(Actions.StopLinking)
+              }
+              let trans: Types.transition = {
+                type_: Cut,
+                targetHotspotIndex: -1,
+                fromSceneName: None,
+              }
+              dispatch(Actions.SetActiveTimelineStep(None))
+              dispatch(Actions.SetActiveScene(index, 0.0, 0.0, Some(trans)))
+            },
+          )
         }
       }
     }

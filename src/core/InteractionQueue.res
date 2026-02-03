@@ -28,11 +28,11 @@ let maxStabilityWait = 8000
 let isNavigationStable = () => {
   let state = GlobalStateBridge.getState()
   switch state.navigationFsm {
-  | Idle
-  | Preloading(_) => true // Preloading is non-blocking for UI interactions
-  | Error(_) => true // Errors are considered stable (we can proceed to recovery)
+  | Idle => true
+  | Preloading(_)
   | Transitioning(_)
   | Stabilizing(_) => false
+  | Error(_) => true // Errors are considered stable (we can proceed to recovery)
   }
 }
 

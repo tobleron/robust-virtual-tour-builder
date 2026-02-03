@@ -121,3 +121,4 @@
 [2026-02-03 09:27] v4.8.15 - Final Sync: Unify E2E task and async fixes across branches [TRIPLE]
 [2026-02-03 14:14] v4.8.15 - completed task 1199: Comprehensive Playwright E2E Automation
 [2026-02-03 16:22] v4.8.15 - Fix E2E test duplicate detection and improve InteractionQueue stability
+[2026-02-03 19:32] v4.8.15 - Fix tour preview hang and stabilize rapid scene switching [TRIPLE]
