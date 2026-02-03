@@ -123,7 +123,10 @@ let createScenePayload = (items: array<UploadTypes.uploadItem>) => {
   })
 }
 
-let handleExifReport = (processedWithClusters: array<UploadTypes.uploadItem>) => {
+let handleExifReport = (
+  processedWithClusters: array<UploadTypes.uploadItem>,
+  skippedCount: int,
+) => {
   let reportData = Belt.Array.map(processedWithClusters, i => {
     let item: ExifReportGenerator.sceneDataItem = {
       original: i.original,
@@ -134,7 +137,8 @@ let handleExifReport = (processedWithClusters: array<UploadTypes.uploadItem>) =>
   })
 
   let successNames = Belt.Array.map(processedWithClusters, i => File.name(i.original))
-  let report: Types.uploadReport = {success: successNames, skipped: []}
+  let skippedNames = Belt.Array.makeBy(skippedCount, i => "Duplicate " ++ Belt.Int.toString(i + 1))
+  let report: Types.uploadReport = {success: successNames, skipped: skippedNames}
 
   ExifReportGenerator.generateExifReport(reportData)->Promise.then(res => {
     GlobalStateBridge.dispatch(SetExifReport(JSON.Encode.string(res.report)))
@@ -155,6 +159,7 @@ let finalizeUploads = (
   validProcessed: array<uploadItem>,
   startTime: float,
   updateProgress: (float, string, bool, string) => unit,
+  skippedCount: int,
 ) => {
   let existingScenes = GlobalStateBridge.getState().scenes
   PanoramaClusterer.clusterScenes(
@@ -165,6 +170,14 @@ let finalizeUploads = (
     updateProgress(98.0, "Updating Sidebar...", true, "Finalizing")
 
     let jsonPayload = createScenePayload(processedWithClusters)
+    Logger.info(
+      ~module_="UploadLogic",
+      ~message="ADDING_SCENES",
+      ~data=Some({
+        "count": Array.length(jsonPayload),
+      }),
+      (),
+    )
 
     let wasEmpty = GlobalStateBridge.getState().activeIndex == -1
     GlobalStateBridge.dispatch(AddScenes(jsonPayload))
@@ -172,7 +185,7 @@ let finalizeUploads = (
       GlobalStateBridge.dispatch(SetPreloadingScene(-1))
     }
 
-    handleExifReport(processedWithClusters)->Promise.then(report => {
+    handleExifReport(processedWithClusters, skippedCount)->Promise.then(report => {
       updateProgress(100.0, "Completed", false, "Done")
       let durationStr = ((Date.now() -. startTime) /. 1000.0)->Float.toFixed(~digits=1)
 
@@ -212,6 +225,7 @@ let executeProcessingChain = (
   maxConcurrency: int,
   startTime: float,
   updateProgress: (float, string, bool, string) => unit,
+  skippedCount: int,
 ) => {
   updateProgress(20.0, "Processing images...", true, "Processing")
 
@@ -241,7 +255,7 @@ let executeProcessingChain = (
         ),
       )
     } else {
-      finalizeUploads(validProcessed, startTime, updateProgress)
+      finalizeUploads(validProcessed, startTime, updateProgress, skippedCount)
     }
   })
 }
@@ -262,6 +276,7 @@ let handleFingerprinting = (
       ~onDuplicate=c => Utils.notify("Skipped " ++ Belt.Int.toString(c) ++ " duplicates.", "info"),
       ~onRestore=id => GlobalStateBridge.dispatch(RemoveDeletedSceneId(id)),
     )
-    executeProcessingChain(uniqueItems, 6, startTime, updateProgress)
+    let skippedFromFingerprint = Belt.Array.length(results) - Belt.Array.length(uniqueItems)
+    executeProcessingChain(uniqueItems, 6, startTime, updateProgress, skippedFromFingerprint)
   })
 }

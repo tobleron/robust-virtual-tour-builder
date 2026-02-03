@@ -21,16 +21,16 @@ let internalState = ref({
 })
 
 let stabilityCheckInterval = 50
-let maxStabilityWait = 2000
+let maxStabilityWait = 8000
 
 // --- Stability Checks ---
 
 let isNavigationStable = () => {
   let state = GlobalStateBridge.getState()
   switch state.navigationFsm {
-  | Idle => true
+  | Idle
+  | Preloading(_) => true // Preloading is non-blocking for UI interactions
   | Error(_) => true // Errors are considered stable (we can proceed to recovery)
-  | Preloading(_)
   | Transitioning(_)
   | Stabilizing(_) => false
   }
@@ -64,7 +64,18 @@ let rec waitForStability = (startTime: float): Promise.t<unit> => {
       Logger.warn(
         ~module_="InteractionQueue",
         ~message="STABILITY_TIMEOUT",
-        ~data=Logger.castToJson({"elapsed": elapsed}),
+        ~data=Logger.castToJson({
+          "elapsed": elapsed,
+          "navStable": isNavigationStable(),
+          "uiStable": isUiStable(),
+          "fsmState": switch GlobalStateBridge.getState().navigationFsm {
+          | Idle => "Idle"
+          | Preloading(_) => "Preloading"
+          | Transitioning(_) => "Transitioning"
+          | Stabilizing(_) => "Stabilizing"
+          | Error(_) => "Error"
+          },
+        }),
         (),
       )
       // Force release lock by resolving, effectively ignoring the unstable state

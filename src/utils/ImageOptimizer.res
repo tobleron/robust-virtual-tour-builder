@@ -98,6 +98,17 @@ let compressToWebP = (file: File.t, quality: float): Promise.t<result<Blob.t, st
 
       Dom.addEventListenerNoEv(img, "load", onLoad)
       Dom.addEventListenerNoEv(img, "error", onError)
+      Logger.info(
+        ~module_=moduleName,
+        ~message="LOADING_IMAGE",
+        ~data=Some({
+          "name": File.name(file),
+          "size": File.size(file),
+          "type": File.type_(file),
+          "url": url,
+        }),
+        (),
+      )
       Dom.setAttribute(img, "src", url)
     }
   })
