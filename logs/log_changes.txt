@@ -115,3 +115,5 @@
 [2026-02-02 21:25] v4.8.15 - fix: frontend violations, interaction queue immutability, and backend safety improvements [TRIPLE]
 [2026-02-02 21:30] v4.8.15 - chore: merge auth subsystem into unified auth.rs module [TRIPLE]
 [2026-02-02 22:03] v4.8.15 - fix: resolve build and test failures after merging task-1194 [TRIPLE]
+[2026-02-03 09:02] v4.8.15 - Fix navigation hang and throttle telemetry flood; Add 1199 E2E task [TRIPLE]
+[2026-02-03 09:12] v4.8.15 - E2E [TRIPLE]

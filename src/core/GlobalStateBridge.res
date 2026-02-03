@@ -17,18 +17,6 @@ let listeners: ref<array<Types.state => unit>> = ref([])
 let setDispatch = d => dispatchRef := d
 let setState = s => {
   stateRef := s
-  Logger.trace(
-    ~module_="Store",
-    ~message="STATE_UPDATED",
-    ~data={"sceneCount": Belt.Array.length(s.scenes), "currentSceneIndex": s.activeIndex},
-    (),
-  )
-  Logger.trace(
-    ~module_="Store",
-    ~message="NOTIFY",
-    ~data={"subscriberCount": Belt.Array.length(listeners.contents)},
-    (),
-  )
   Belt.Array.forEach(listeners.contents, cb => cb(s))
 }
 
@@ -40,12 +28,6 @@ let subscribe = cb => {
 }
 
 let dispatch = action => {
-  Logger.debug(
-    ~module_="Store",
-    ~message="DISPATCH",
-    ~data={"action": Actions.actionToString(action)},
-    (),
-  )
   dispatchRef.contents(action)
 }
 let getState = () => stateRef.contents

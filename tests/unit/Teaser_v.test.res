@@ -137,10 +137,12 @@ describe("Teaser System", () => {
     let _ = %raw(`(s) => globalThis.globalStateMock.getState.mockReturnValue(s)`)(mockState)
 
     // Mock success response
-    ignore(%raw(`(() => {
+    ignore(
+      %raw(`(() => {
         let successBlob = new Blob([], {type: 'video/mp4'})
         globalThis.serverMock.Server.generateServerTeaser.mockResolvedValue({TAG: 'Ok', _0: successBlob})
-    })()`))
+    })()`),
+    )
 
     let teaser = await loadTeaser()
     let startAutoTeaser: (string, bool, string, bool) => promise<unit> = teaser["startAutoTeaser"]
@@ -169,22 +171,26 @@ describe("Teaser System", () => {
     let _ = %raw(`(s) => globalThis.globalStateMock.getState.mockReturnValue(s)`)(mockState)
 
     // Mock Pathfinder success
-    ignore(%raw(`(() => {
+    ignore(
+      %raw(`(() => {
         let step1 = {
         "idx": 0,
         "arrivalView": {"yaw": 0.0, "pitch": 0.0},
         "transitionTarget": undefined
         }
         globalThis.pathfinderMock.getWalkPath.mockResolvedValue({TAG: 'Ok', _0: [step1]})
-    })()`))
+    })()`),
+    )
 
     let teaser = await loadTeaser()
     let startAutoTeaser: (string, bool, string, bool) => promise<unit> = teaser["startAutoTeaser"]
     let promise = startAutoTeaser("fast", false, "webm", false)
 
     // Advance timers to simulate playback duration
-    let rec advance = async (count) => {
-      if (count > 20) { () } else {
+    let rec advance = async count => {
+      if count > 20 {
+        ()
+      } else {
         let p: promise<unit> = %raw(`globalThis.vi.advanceTimersByTimeAsync(1000)`)
         await p
         await advance(count + 1)
@@ -213,7 +219,9 @@ describe("Teaser System", () => {
     let _ = %raw(`(s) => globalThis.globalStateMock.getState.mockReturnValue(s)`)(mockState)
 
     // Mock Pathfinder error
-    ignore(%raw(`globalThis.pathfinderMock.getWalkPath.mockResolvedValue({TAG: 'Error', _0: "No path found"})`))
+    ignore(
+      %raw(`globalThis.pathfinderMock.getWalkPath.mockResolvedValue({TAG: 'Error', _0: "No path found"})`),
+    )
 
     let teaser = await loadTeaser()
     let startAutoTeaser: (string, bool, string, bool) => promise<unit> = teaser["startAutoTeaser"]

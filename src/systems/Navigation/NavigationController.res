@@ -43,7 +43,14 @@ module ControllerHooks = {
         None
       | Idle =>
         switch state.navigation {
-        | Navigating(j) => dispatch(NavigationCompleted(j))
+        | Navigating(j) =>
+          Logger.info(
+            ~module_="NavigationController",
+            ~message="JOURNEY_COMPLETED_DISPATCH",
+            ~data=Some({"journeyId": j.journeyId}),
+            (),
+          )
+          dispatch(NavigationCompleted(j))
         | _ => ()
         }
         None
@@ -58,39 +65,57 @@ module ControllerHooks = {
 
     React.useEffect1(() => {
       switch state.navigation {
-      | Navigating(j) if ajid.current != Some(j.journeyId) =>
-        ajid.current = Some(j.journeyId)
-        Logger.debug(
-          ~module_="NavigationController",
-          ~message="START_JOURNEY_ANIMATION",
-          ~data=Some({"journeyId": j.journeyId}),
-          (),
-        )
-        ViewerSystem.getActiveViewer()
-        ->Nullable.toOption
-        ->Option.forEach(v => {
-          switch j.pathData {
-          | Some(pd) => NavigationRenderer.AnimationLoop.startLoop(v, j, pd, dispatch, req)
-          | None =>
-            Logger.warn(~module_="NavigationController", ~message="NO_PATH_DATA_FALLBACK", ())
-            dispatch(Actions.DispatchNavigationFsmEvent(TransitionComplete))
-          }
-        })
+      | Navigating(j) =>
+        if ajid.current != Some(j.journeyId) {
+          // NEW JOURNEY DETECTED: Cancel previous and start new
+          req.current->Option.forEach(id => Window.cancelAnimationFrame(id))
+
+          ajid.current = Some(j.journeyId)
+          Logger.debug(
+            ~module_="NavigationController",
+            ~message="START_JOURNEY_ANIMATION",
+            ~data=Some({"journeyId": j.journeyId}),
+            (),
+          )
+          ViewerSystem.getActiveViewer()
+          ->Nullable.toOption
+          ->Option.forEach(v => {
+            switch j.pathData {
+            | Some(pd) => NavigationRenderer.AnimationLoop.startLoop(v, j, pd, dispatch, req)
+            | None =>
+              Logger.warn(~module_="NavigationController", ~message="NO_PATH_DATA_FALLBACK", ())
+              dispatch(Actions.DispatchNavigationFsmEvent(TransitionComplete))
+            }
+          })
+        }
       | Idle =>
         if ajid.current != None {
           Logger.debug(~module_="NavigationController", ~message="NAVIGATION_IDLE", ())
           ajid.current = None
+          req.current->Option.forEach(id => Window.cancelAnimationFrame(id))
+          req.current = None
         }
-        req.current->Option.forEach(id => Window.cancelAnimationFrame(id))
-        req.current = None
       | _ => ()
       }
+      None
+    }, [state.navigation])
+
+    // Cleanup ONLY on unmount to prevent ghost animations
+    React.useEffect0(() => {
       Some(
         () => {
+          if ajid.current != None {
+            Logger.debug(
+              ~module_="NavigationController",
+              ~message="ANIMATION_UNMOUNT_CLEANUP",
+              ~data=Some({"journeyId": ajid.current}),
+              (),
+            )
+          }
           req.current->Option.forEach(id => Window.cancelAnimationFrame(id))
         },
       )
-    }, [state.navigation])
+    })
   }
 }
 
