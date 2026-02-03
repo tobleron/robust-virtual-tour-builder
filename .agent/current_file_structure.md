@@ -5398,10 +5398,14 @@
 ├── lib
 │   ├── bs
 │   │   ├── build.ninja
+│   │   ├── compiler-info.json
 │   │   ├── src
 │   │   │   ├── App.ast
+│   │   │   ├── App.bs.js
 │   │   │   ├── App.cmi
+│   │   │   ├── App.cmj
 │   │   │   ├── App.cmt
+│   │   │   ├── App.res
 │   │   │   ├── bindings
 │   │   │   │   ├── BrowserBindings.ast
 │   │   │   │   ├── BrowserBindings.bs.js
@@ -5833,6 +5837,11 @@
 │   │   │   │   ├── I18n.cmt
 │   │   │   │   └── I18n.res
 │   │   │   ├── Main.ast
+│   │   │   ├── Main.bs.js
+│   │   │   ├── Main.cmi
+│   │   │   ├── Main.cmj
+│   │   │   ├── Main.cmt
+│   │   │   ├── Main.res
 │   │   │   ├── ReBindings.ast
 │   │   │   ├── ReBindings.bs.js
 │   │   │   ├── ReBindings.cmi
@@ -6736,6 +6745,11 @@
 │   │           ├── LucideIcons_v.test.cmt
 │   │           ├── LucideIcons_v.test.res
 │   │           ├── Main_v.test.ast
+│   │           ├── Main_v.test.bs.js
+│   │           ├── Main_v.test.cmi
+│   │           ├── Main_v.test.cmj
+│   │           ├── Main_v.test.cmt
+│   │           ├── Main_v.test.res
 │   │           ├── MediaApi_v.test.ast
 │   │           ├── MediaApi_v.test.bs.js
 │   │           ├── MediaApi_v.test.cmi
@@ -7343,6 +7357,10 @@
 │   │   ├── App_v.test.cmt
 │   │   ├── App_v.test.res
 │   │   ├── App.ast
+│   │   ├── App.cmi
+│   │   ├── App.cmj
+│   │   ├── App.cmt
+│   │   ├── App.res
 │   │   ├── AppContext_v.test.ast
 │   │   ├── AppContext_v.test.cmi
 │   │   ├── AppContext_v.test.cmj
@@ -7862,7 +7880,15 @@
 │   │   ├── LucideIcons.cmt
 │   │   ├── LucideIcons.res
 │   │   ├── Main_v.test.ast
+│   │   ├── Main_v.test.cmi
+│   │   ├── Main_v.test.cmj
+│   │   ├── Main_v.test.cmt
+│   │   ├── Main_v.test.res
 │   │   ├── Main.ast
+│   │   ├── Main.cmi
+│   │   ├── Main.cmj
+│   │   ├── Main.cmt
+│   │   ├── Main.res
 │   │   ├── MediaApi_v.test.ast
 │   │   ├── MediaApi_v.test.cmi
 │   │   ├── MediaApi_v.test.cmj
@@ -8877,8 +8903,7 @@
 │   ├── diagnostic.log
 │   ├── error.log
 │   ├── log_changes.txt
-│   ├── project-guard.log
-│   └── telemetry.log
+│   └── project-guard.log
 ├── MAP.md
 ├── old_ref
 │   ├── 7aadee4
@@ -10339,6 +10364,7 @@
 │   ├── update-readme.js
 │   └── update-version.js
 ├── src
+│   ├── App.bs.js
 │   ├── App.res
 │   ├── bindings
 │   │   ├── BrowserBindings.bs.js
@@ -10509,6 +10535,7 @@
 │   ├── index.js
 │   ├── lib
 │   │   └── utils.js
+│   ├── Main.bs.js
 │   ├── Main.res
 │   ├── ReBindings.bs.js
 │   ├── ReBindings.res
@@ -10815,7 +10842,7 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   └── IMPLEMENT_SYSTEM_ROBUSTNESS_V2.md
+│   │   └── 1200_IMPLEMENT_SYSTEM_ROBUSTNESS_V2.md
 │   ├── postponed
 │   └── TASKS.md
 ├── test_diagnostics_latest.txt
@@ -10983,6 +11010,7 @@
 │   │   ├── LoggerTypes_v.test.res
 │   │   ├── LucideIcons_v.test.bs.js
 │   │   ├── LucideIcons_v.test.res
+│   │   ├── Main_v.test.bs.js
 │   │   ├── Main_v.test.res
 │   │   ├── MediaApi_v.test.bs.js
 │   │   ├── MediaApi_v.test.res
@@ -11180,4 +11208,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-483 directories, 10698 files
+483 directories, 10726 files
