@@ -35,10 +35,36 @@ module ControllerHooks = {
         }
         None
       | Stabilizing({targetSceneId}) =>
+        Logger.debug(
+          ~module_="NavigationController",
+          ~message="STABILIZING_STATE_ENTERED",
+          ~data=Some({"targetSceneId": targetSceneId}),
+          (),
+        )
         let _ = Window.requestAnimationFrame(() => {
-          state.scenes
-          ->Belt.Array.getBy(s => s.id == targetSceneId)
-          ->Option.forEach(ts => Scene.Transition.performSwap(ts, 0.0))
+          let sceneOpt = state.scenes->Belt.Array.getBy(s => s.id == targetSceneId)
+          switch sceneOpt {
+          | Some(ts) =>
+            Logger.debug(
+              ~module_="NavigationController",
+              ~message="PERFORMING_SWAP",
+              ~data=Some({"sceneId": ts.id, "sceneName": ts.name}),
+              (),
+            )
+            Scene.Transition.performSwap(ts, 0.0)
+          | None =>
+            Logger.error(
+              ~module_="NavigationController",
+              ~message="STABILIZING_SCENE_NOT_FOUND",
+              ~data=Some({
+                "targetSceneId": targetSceneId,
+                "availableScenes": state.scenes->Belt.Array.map(s => s.id),
+              }),
+              (),
+            )
+            // Force completion even if scene not found
+            GlobalStateBridge.dispatch(Actions.DispatchNavigationFsmEvent(StabilizeComplete))
+          }
         })
         None
       | Idle =>
