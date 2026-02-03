@@ -202,3 +202,12 @@ html body [data-sonner-toast][data-sonner-toast] [data-content] {
     font-size: 13px;
     line-height: normal;
 }
+/* Interaction Lock Overlay */
+.interaction-lock-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: auto;
+    cursor: wait;
+    background: transparent;
+}

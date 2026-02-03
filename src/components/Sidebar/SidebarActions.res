@@ -11,6 +11,8 @@ let make = React.memo((
   ~exportReady,
   ~teaserReady,
 ) => {
+  let isPermitted = UseIsInteractionPermitted.useIsInteractionPermitted()
+
   React.useEffect0(() => {
     Logger.initialized(~module_="SidebarActions")
     None
@@ -27,8 +29,9 @@ let make = React.memo((
       ->Belt.Array.mapWithIndex((i, (icon, label, onClick)) =>
         <button
           key={Int.toString(i)}
-          className="sidebar-action-btn-square hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+          className="sidebar-action-btn-square hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={_ => onClick()}
+          disabled={!isPermitted}
           ariaLabel={label}
         >
           {switch icon {
@@ -46,8 +49,8 @@ let make = React.memo((
 
     <div className="grid grid-cols-2 gap-2">
       <button
-        className="sidebar-action-btn-wide hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
-        disabled={!exportReady}
+        className="sidebar-action-btn-wide hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled={!exportReady || !isPermitted}
         onClick={_ => onExport()}
         ariaLabel="Export Tour"
       >
@@ -58,8 +61,8 @@ let make = React.memo((
       </button>
 
       <button
-        className="sidebar-action-btn-wide hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
-        disabled={!teaserReady}
+        className="sidebar-action-btn-wide hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled={!teaserReady || !isPermitted}
         onClick={_ => onTeaser()}
         ariaLabel="Create Teaser"
       >
