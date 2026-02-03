@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.8.17] - 2026-02-03
+
+### Added
+- Perform deep-dive analysis of `_dev-system` Architectural Governor.
+- Created Task 1208: Improve Dev System Analyzer (Refactor monolith, normalize paths, add test coverage).
+
 ## [4.8.16] - 2026-02-03
 
 ### Added
@@ -27,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Initialize Robustness Task Suite (updated 1200, created 1201-1207)
+- Analyze _dev-system and create Task 1208 for analyzer improvements
 
 ## [4.8.15] - 2026-02-02
 
