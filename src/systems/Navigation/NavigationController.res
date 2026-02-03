@@ -22,7 +22,7 @@ module ControllerHooks = {
           } else {
             dispatch(Actions.DispatchNavigationFsmEvent(LoadTimeout))
           }
-        }, 10000)
+        }, Constants.sceneLoadTimeout)
         Some(() => Window.clearTimeout(timeoutId))
       | Transitioning({progress}) if progress == 0.0 =>
         let shouldFinalize = switch state.navigation {
