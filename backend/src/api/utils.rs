@@ -26,6 +26,15 @@ pub fn get_temp_path(extension: &str) -> PathBuf {
     path
 }
 
+pub async fn get_temp_path_async(extension: &str) -> PathBuf {
+    let mut path = PathBuf::from(TEMP_DIR);
+    if let Err(e) = tokio::fs::create_dir_all(&path).await {
+        tracing::error!("Failed to create temp directory {:?}: {}", path, e);
+    }
+    path.push(format!("{}.{}", Uuid::new_v4(), extension));
+    path
+}
+
 /// Sanitize filename to prevent path traversal attacks
 /// Returns only the filename component, rejecting any directory traversal attempts
 pub fn sanitize_filename(fname: &str) -> Result<String, String> {
