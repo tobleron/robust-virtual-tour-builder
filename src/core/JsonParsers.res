@@ -315,4 +315,96 @@ module Encoders = {
       ("histogramB", value(p.histogramB)),
     ])
   }
+
+  let transition = (t: Types.transition) => {
+    Encode.object([
+      ("type", Encode.string(switch t.type_ {
+        | Cut => "Cut"
+        | Fade => "Fade"
+        | Link => "Link"
+        | Unknown(s) => s
+      })),
+      ("targetHotspotIndex", Encode.int(t.targetHotspotIndex)),
+      ("fromSceneName", Encode.option(Encode.string)(t.fromSceneName)),
+    ])
+  }
+
+  let uploadReport = (r: Types.uploadReport) => {
+    Encode.object([
+      ("success", Encode.array(Encode.string)(r.success)),
+      ("skipped", Encode.array(Encode.string)(r.skipped)),
+    ])
+  }
+
+  let rec linkDraft = (l: Types.linkDraft) => {
+    Encode.object([
+      ("pitch", Encode.float(l.pitch)),
+      ("yaw", Encode.float(l.yaw)),
+      ("camPitch", Encode.float(l.camPitch)),
+      ("camYaw", Encode.float(l.camYaw)),
+      ("camHfov", Encode.float(l.camHfov)),
+      ("intermediatePoints", Encode.option(Encode.array(linkDraft))(l.intermediatePoints)),
+    ])
+  }
+
+  let linkInfo = (l: Types.linkInfo) => {
+    Encode.object([
+      ("sceneIndex", Encode.int(l.sceneIndex)),
+      ("hotspotIndex", Encode.int(l.hotspotIndex)),
+    ])
+  }
+
+  let navigationStatus = (n: Types.navigationStatus) => {
+    switch n {
+    | Idle => Encode.string("Idle")
+    | Navigating(_) => Encode.string("Navigating")
+    | Previewing(l) => Encode.object([("status", Encode.string("Previewing")), ("link", linkInfo(l))])
+    }
+  }
+
+  let navigationFsmState = (s: NavigationFSM.distinctState) => {
+     Encode.string(NavigationFSM.toString(s))
+  }
+
+  let simulationState = (s: Types.simulationState) => {
+     Encode.object([
+        ("status", Encode.string(switch s.status {
+            | Idle => "Idle"
+            | Running => "Running"
+            | Stopping => "Stopping"
+            | Paused => "Paused"
+        })),
+        ("visitedScenes", Encode.array(Encode.int)(s.visitedScenes)),
+        ("autoPilotJourneyId", Encode.int(s.autoPilotJourneyId))
+     ])
+  }
+
+  let state = (s: Types.state) => {
+    Encode.object([
+      ("tourName", Encode.string(s.tourName)),
+      ("scenes", Encode.array(scene)(s.scenes)),
+      ("activeIndex", Encode.int(s.activeIndex)),
+      ("activeYaw", Encode.float(s.activeYaw)),
+      ("activePitch", Encode.float(s.activePitch)),
+      ("isLinking", Encode.bool(s.isLinking)),
+      ("transition", transition(s.transition)),
+      ("lastUploadReport", uploadReport(s.lastUploadReport)),
+      ("exifReport", Encode.option(value)(s.exifReport)),
+      ("linkDraft", Encode.option(linkDraft)(s.linkDraft)),
+      ("preloadingSceneIndex", Encode.int(s.preloadingSceneIndex)),
+      ("isTeasing", Encode.bool(s.isTeasing)),
+      ("deletedSceneIds", Encode.array(Encode.string)(s.deletedSceneIds)),
+      ("timeline", Encode.array(timelineItem)(s.timeline)),
+      ("activeTimelineStepId", Encode.option(Encode.string)(s.activeTimelineStepId)),
+      ("navigation", navigationStatus(s.navigation)),
+      ("navigationFsm", navigationFsmState(s.navigationFsm)),
+      ("simulation", simulationState(s.simulation)),
+      ("incomingLink", Encode.option(linkInfo)(s.incomingLink)),
+      ("autoForwardChain", Encode.array(Encode.int)(s.autoForwardChain)),
+      ("pendingReturnSceneName", Encode.option(Encode.string)(s.pendingReturnSceneName)),
+      ("currentJourneyId", Encode.int(s.currentJourneyId)),
+      ("lastUsedCategory", Encode.string(s.lastUsedCategory)),
+      ("sessionId", Encode.option(Encode.string)(s.sessionId)),
+    ])
+  }
 }
