@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add diagnostic logging to NavigationController Stabilizing state
 - Fix tour preview hang and stabilize rapid scene switching
 
+### Fixed
+- Update Constants test timeout and add unit tests for SceneMutations and ExifUtils
+
 ## [4.8.15] - 2026-02-02
 
 ### Refactored
