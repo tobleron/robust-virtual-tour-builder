@@ -8,9 +8,8 @@
 
 ---
 
-## 🧩 MERGE TASKS (1)
-### Merge Folder: `../../backend/src/auth`
-- **Reason:** Read Tax high (Score 2.00). Projected Limit: 300 (Drag 3.05)
-- **Files:**
-  - `../../backend/src/auth/jwt.rs`
-  - `../../backend/src/auth/middleware.rs`
+## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (1)
+- [ ] `../../src/hooks/UseIsInteractionPermitted.res`
+
+---
+
