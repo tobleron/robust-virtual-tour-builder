@@ -32,7 +32,7 @@ let maxStabilityWait = 8000
 
 // --- Subscription ---
 
-let notifyListeners = (isProcessing) => {
+let notifyListeners = isProcessing => {
   internalState.contents.listeners->Array.forEach(listener => listener(isProcessing))
 }
 
@@ -130,8 +130,8 @@ let rec processNext = () => {
 
   // Update listeners if processing state changes
   let isNowProcessing = Array.length(queue) > 0
-  if (internalState.contents.isProcessing != isNowProcessing) {
-     notifyListeners(isNowProcessing)
+  if internalState.contents.isProcessing != isNowProcessing {
+    notifyListeners(isNowProcessing)
   }
 
   switch queue[0] {
@@ -147,61 +147,62 @@ let rec processNext = () => {
 
     let executionPromise = switch item {
     | Barrier(action) =>
+      Logger.debug(
+        ~module_="InteractionQueue",
+        ~message="PROCESS_BARRIER",
+        ~data=Logger.castToJson({"action": Actions.actionToString(action)}),
+        (),
+      )
+
+      // Set barrier pending
+      internalState.contents = {...internalState.contents, isBarrierPending: true}
+
+      // Wait for stability, then execute
+      waitForStability(Date.now())
+      ->Promise.then(() => {
+        // Flush Session
+        SessionStore.clearState()
+
+        // Dispatch action
+        GlobalStateBridge.dispatch(action)
+
+        // Wait a tick for React updates
+        Promise.make((resolve, _) => {
+          let _ = setTimeout(() => resolve(), 0)
+        })
+      })
+      ->Promise.then(() => {
+        // Cleanup
+        internalState.contents = {...internalState.contents, isBarrierPending: false}
+        Promise.resolve()
+      })
+
+    | Action(action) =>
+      if internalState.contents.isBarrierPending {
+        Logger.warn(~module_="InteractionQueue", ~message="SKIP_ACTION_DURING_BARRIER", ())
+        Promise.resolve()
+      } else {
         Logger.debug(
           ~module_="InteractionQueue",
-          ~message="PROCESS_BARRIER",
+          ~message="PROCESS_ACTION",
           ~data=Logger.castToJson({"action": Actions.actionToString(action)}),
           (),
         )
-        // Set barrier pending
-        internalState.contents = {...internalState.contents, isBarrierPending: true}
-
-        // Wait for stability, then execute
-        waitForStability(Date.now())
-        ->Promise.then(() => {
-           // Flush Session
-           SessionStore.clearState()
-
-           // Dispatch action
-           GlobalStateBridge.dispatch(action)
-
-           // Wait a tick for React updates
-           Promise.make((resolve, _) => {
-              let _ = setTimeout(() => resolve(), 0)
-           })
-        })
-        ->Promise.then(() => {
-            // Cleanup
-            internalState.contents = {...internalState.contents, isBarrierPending: false}
-            Promise.resolve()
-        })
-
-    | Action(action) =>
-      if (internalState.contents.isBarrierPending) {
-         Logger.warn(~module_="InteractionQueue", ~message="SKIP_ACTION_DURING_BARRIER", ())
-         Promise.resolve()
-      } else {
-          Logger.debug(
-            ~module_="InteractionQueue",
-            ~message="PROCESS_ACTION",
-            ~data=Logger.castToJson({"action": Actions.actionToString(action)}),
-            (),
-          )
-          GlobalStateBridge.dispatch(action)
-          // After dispatch, we must wait for the side effects to "settle"
-          // We wait a tick first to allow React/Reducers to update state
-          Promise.make((resolve, _) => {
-            let _ = setTimeout(() => resolve(), 0)
-          })->Promise.then(() => waitForStability(Date.now()))
+        GlobalStateBridge.dispatch(action)
+        // After dispatch, we must wait for the side effects to "settle"
+        // We wait a tick first to allow React/Reducers to update state
+        Promise.make((resolve, _) => {
+          let _ = setTimeout(() => resolve(), 0)
+        })->Promise.then(() => waitForStability(Date.now()))
       }
 
     | Thunk(fn) =>
-      if (internalState.contents.isBarrierPending) {
-         Logger.warn(~module_="InteractionQueue", ~message="SKIP_THUNK_DURING_BARRIER", ())
-         Promise.resolve()
+      if internalState.contents.isBarrierPending {
+        Logger.warn(~module_="InteractionQueue", ~message="SKIP_THUNK_DURING_BARRIER", ())
+        Promise.resolve()
       } else {
-          Logger.debug(~module_="InteractionQueue", ~message="PROCESS_THUNK", ())
-          fn()->Promise.then(() => waitForStability(Date.now()))
+        Logger.debug(~module_="InteractionQueue", ~message="PROCESS_THUNK", ())
+        fn()->Promise.then(() => waitForStability(Date.now()))
       }
     }
 
@@ -215,26 +216,26 @@ let rec processNext = () => {
 }
 
 let enqueue = (item: queueItem) => {
-  if (internalState.contents.isBarrierPending) {
-     Logger.warn(~module_="InteractionQueue", ~message="ENQUEUE_REJECTED_BARRIER_ACTIVE", ())
+  if internalState.contents.isBarrierPending {
+    Logger.warn(~module_="InteractionQueue", ~message="ENQUEUE_REJECTED_BARRIER_ACTIVE", ())
   } else {
-      internalState.contents = {
-        ...internalState.contents,
-        queue: Array.concat(internalState.contents.queue, [item]),
-      }
-      Logger.debug(
-        ~module_="InteractionQueue",
-        ~message="ENQUEUE",
-        ~data=Logger.castToJson({
-          "queueLength": Array.length(internalState.contents.queue),
-          "isProcessing": internalState.contents.isProcessing,
-        }),
-        (),
-      )
+    internalState.contents = {
+      ...internalState.contents,
+      queue: Array.concat(internalState.contents.queue, [item]),
+    }
+    Logger.debug(
+      ~module_="InteractionQueue",
+      ~message="ENQUEUE",
+      ~data=Logger.castToJson({
+        "queueLength": Array.length(internalState.contents.queue),
+        "isProcessing": internalState.contents.isProcessing,
+      }),
+      (),
+    )
 
-      if !internalState.contents.isProcessing {
-        processNext()
-      }
+    if !internalState.contents.isProcessing {
+      processNext()
+    }
   }
 }
 
@@ -246,4 +247,4 @@ let dispatch = (action: action) => {
   }
 }
 
-let enqueueThunk = (fn) => enqueue(Thunk(fn))
+let enqueueThunk = fn => enqueue(Thunk(fn))

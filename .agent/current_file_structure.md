@@ -5352,7 +5352,6 @@
 │       └── shutdown_test.rs
 ├── bin
 │   └── tailwindcss
-├── build_output.txt
 ├── cache
 │   └── geocoding.json
 ├── css
@@ -5856,6 +5855,13 @@
 │   │   │   │       ├── ViewerDriver.cmj
 │   │   │   │       ├── ViewerDriver.cmt
 │   │   │   │       └── ViewerDriver.res
+│   │   │   ├── hooks
+│   │   │   │   ├── UseIsInteractionPermitted.ast
+│   │   │   │   ├── UseIsInteractionPermitted.bs.js
+│   │   │   │   ├── UseIsInteractionPermitted.cmi
+│   │   │   │   ├── UseIsInteractionPermitted.cmj
+│   │   │   │   ├── UseIsInteractionPermitted.cmt
+│   │   │   │   └── UseIsInteractionPermitted.res
 │   │   │   ├── i18n
 │   │   │   │   ├── I18n.ast
 │   │   │   │   ├── I18n.bs.js
@@ -8707,6 +8713,11 @@
 │   │   ├── UrlUtils_v.test.cmj
 │   │   ├── UrlUtils_v.test.cmt
 │   │   ├── UrlUtils_v.test.res
+│   │   ├── UseIsInteractionPermitted.ast
+│   │   ├── UseIsInteractionPermitted.cmi
+│   │   ├── UseIsInteractionPermitted.cmj
+│   │   ├── UseIsInteractionPermitted.cmt
+│   │   ├── UseIsInteractionPermitted.res
 │   │   ├── UtilityBar.ast
 │   │   ├── UtilityBar.cmi
 │   │   ├── UtilityBar.cmj
@@ -10534,6 +10545,9 @@
 │   │   └── interfaces
 │   │       ├── ViewerDriver.bs.js
 │   │       └── ViewerDriver.res
+│   ├── hooks
+│   │   ├── UseIsInteractionPermitted.bs.js
+│   │   └── UseIsInteractionPermitted.res
 │   ├── i18n
 │   │   ├── I18n.bs.js
 │   │   ├── I18n.res
@@ -10831,6 +10845,7 @@
 │   │   ├── 1194_Comprehensive_Test_Coverage_Hydration_DONE.md
 │   │   ├── 1198_Fix_SceneList_Tests_DONE.md
 │   │   ├── 1199_Comprehensive_Playwright_E2E_Automation_DONE.md
+│   │   ├── 1200_IMPLEMENT_SYSTEM_ROBUSTNESS_V2_DONE.md
 │   │   ├── 900_COMMERCIAL_MIGRATION_MASTER.md
 │   │   ├── 905_migration_telemetry_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
@@ -10843,7 +10858,6 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1200_IMPLEMENT_SYSTEM_ROBUSTNESS_V2.md
 │   │   ├── 1201_IMPLEMENT_CIRCUIT_BREAKER_PATTERN.md
 │   │   ├── 1202_IMPLEMENT_OPTIMISTIC_UPDATE_ROLLBACK.md
 │   │   ├── 1203_IMPLEMENT_CLIENT_SIDE_REQUEST_DEBOUNCING.md
@@ -10851,7 +10865,9 @@
 │   │   ├── 1205_ENHANCE_PERSISTENCE_MID_FLIGHT_RECOVERY.md
 │   │   ├── 1206_EXPAND_E2E_ROBUSTNESS_TEST_SUITE.md
 │   │   ├── 1207_JSON_COMBINATORS_AUDIT_AND_MIGRATION.md
-│   │   └── 1208_IMPROVE_DEV_SYSTEM_ANALYZER.md
+│   │   ├── 1208_IMPROVE_DEV_SYSTEM_ANALYZER.md
+│   │   ├── 1209_Classify_Ambiguous_Files.md
+│   │   └── 1210_Classify_Map_Entries.md
 │   └── postponed
 ├── test-results
 │   ├── robustness-Application-Rob-2ce67-d-Saving-during-Interaction-chromium
@@ -11216,4 +11232,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-483 directories, 10734 files
+485 directories, 10748 files
