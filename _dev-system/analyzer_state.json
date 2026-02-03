@@ -1,5 +1,19 @@
 {
   "files": {
+    "../../src/systems/Teaser.res": {
+      "last_action": null,
+      "last_action_timestamp": 0,
+      "stability_score": 0.0,
+      "failure_count": 277,
+      "last_failure_timestamp": 1770120845
+    },
+    "src/core/AppContext.res": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
     "../../src/index.js": {
       "last_action": "refactored",
       "last_action_timestamp": 1770052621,
@@ -7,119 +21,14 @@
       "failure_count": 0,
       "last_failure_timestamp": null
     },
-    "_dev-system/analyzer/src/drivers/rust.rs": {
+    "../../backend/src/pathfinder/algorithms.rs": {
       "last_action": "refactored",
       "last_action_timestamp": 1770052621,
       "stability_score": 0.5,
       "failure_count": 0,
       "last_failure_timestamp": null
     },
-    "backend/src/middleware/../../backend/src/middleware/request_tracker.rs": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "_dev-system/analyzer/src/graph/mod.rs": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "src/systems/UploadProcessorLogicLogic.res": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "_dev-system/analyzer/src/main.rs": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "src/systems/Upload/../../src/systems/Upload/UploadProcessorFinalizer.res": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "backend/src/auth/../../backend/src/auth/service.rs": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "src/core/JsonParsers.res": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "../../src/systems/Api/MediaApi.res": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "../../backend/src/pathfinder/walk.rs": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "../../src/ReBindings.res": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "../../backend/src/middleware/quota_check.rs": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "src/systems/ServerTeaser.res": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "../../backend/src/middleware/mod.rs": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "../../src/systems/Scene.res": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "../../src/systems/ViewerSystem.res": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "src/utils/SessionStore.res": {
+    "backend/src/auth/../../backend/src/auth/mod.rs": {
       "last_action": "refactored",
       "last_action_timestamp": 1770052621,
       "stability_score": 0.5,
@@ -133,7 +42,91 @@
       "failure_count": 0,
       "last_failure_timestamp": null
     },
-    "src/utils/PersistenceLayer.res": {
+    "backend/src/middleware": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "../../src/systems/Api/ApiTypes.res": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "../../src/systems/Scene.res": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "../../src/core/Schemas.res": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "../../backend/src/auth.rs": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "../../src/core/UiHelpers.res": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "../../backend/src/pathfinder/tests.rs": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "../../backend/src/middleware.rs": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "../../src/systems/NavigationGraph.res": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "../../src/systems/ProjectManager.res": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "src/utils/LoggerTelemetry.res": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "../../backend/src/services/auth/mod.rs": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "_dev-system/analyzer/src/drivers/rescript.rs": {
       "last_action": "refactored",
       "last_action_timestamp": 1770052621,
       "stability_score": 0.5,
@@ -147,14 +140,35 @@
       "failure_count": 0,
       "last_failure_timestamp": null
     },
-    "src/core/InteractionQueue.res": {
+    "src/systems/Api": {
       "last_action": "refactored",
       "last_action_timestamp": 1770052621,
       "stability_score": 0.5,
       "failure_count": 0,
       "last_failure_timestamp": null
     },
-    "src/components/ViewerManagerLogic.res": {
+    "../../src/systems/ServerTeaser.res": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.0,
+      "failure_count": 277,
+      "last_failure_timestamp": 1770120845
+    },
+    "src/systems/UploadProcessorLogicLogic.res": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "src/systems/Api/MediaApi.res": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "../../src/systems/Api/MediaApi.res": {
       "last_action": "refactored",
       "last_action_timestamp": 1770052621,
       "stability_score": 0.5,
@@ -175,70 +189,14 @@
       "failure_count": 0,
       "last_failure_timestamp": null
     },
-    "src/systems/Api": {
+    "../../backend/src/pathfinder/walk.rs": {
       "last_action": "refactored",
       "last_action_timestamp": 1770052621,
       "stability_score": 0.5,
       "failure_count": 0,
       "last_failure_timestamp": null
     },
-    "src/core/Schemas.res": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "../../backend/src/pathfinder": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "src/systems/Upload/../../src/systems/Upload/UploadProcessorQueue.res": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "../../backend/src/pathfinder/tests.rs": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "src/systems/UploadProcessorLogic.res": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "../../src/systems/Simulation.res": {
-      "last_action": null,
-      "last_action_timestamp": 0,
-      "stability_score": 0.0,
-      "failure_count": 276,
-      "last_failure_timestamp": 1770103657
-    },
-    "backend/src/middleware": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "src/systems/Api/ProjectApi.res": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "../../backend/src/services/geocoding/mod.rs": {
+    "../../backend/src/services/geocoding/cache.rs": {
       "last_action": "refactored",
       "last_action_timestamp": 1770052621,
       "stability_score": 0.5,
@@ -252,77 +210,21 @@
       "failure_count": 0,
       "last_failure_timestamp": null
     },
-    "../../src/systems/ServerTeaser.res": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.0,
-      "failure_count": 276,
-      "last_failure_timestamp": 1770103657
-    },
-    "../../src/core/UiHelpers.res": {
+    "../../backend/src/pathfinder/timeline.rs": {
       "last_action": "refactored",
       "last_action_timestamp": 1770052621,
       "stability_score": 0.5,
       "failure_count": 0,
       "last_failure_timestamp": null
     },
-    "../../src/utils/PersistenceLayer.res": {
+    "../../backend/src/services/geocoding/osm.rs": {
       "last_action": "refactored",
       "last_action_timestamp": 1770052621,
       "stability_score": 0.5,
       "failure_count": 0,
       "last_failure_timestamp": null
     },
-    "src/systems/Upload/../../src/systems/Upload/UploadProcessorUtils.res": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "backend/src/services/geocoding": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "../../src/systems/ProjectManager.res": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "src/systems/HotspotLine.res": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "../../backend/src/pathfinder/algorithms.rs": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "../../src/utils/AsyncQueue.res": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "backend/src/auth": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "../../backend/src/services/auth/mod.rs": {
+    "src/components/ViewerManagerLogic.res": {
       "last_action": "refactored",
       "last_action_timestamp": 1770052621,
       "stability_score": 0.5,
@@ -336,70 +238,14 @@
       "failure_count": 0,
       "last_failure_timestamp": null
     },
-    "../../src/systems/Api/AuthenticatedClient.res": {
+    "src/utils/SessionStore.res": {
       "last_action": "refactored",
       "last_action_timestamp": 1770052621,
       "stability_score": 0.5,
       "failure_count": 0,
       "last_failure_timestamp": null
     },
-    "../../src/systems/Api/ApiTypes.res": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "_dev-system/analyzer/src/resolver.rs": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "../../backend/src/services/geocoding.rs": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "src/systems/HotspotLineLogic.res": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "src/systems/Api/MediaApi.res": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "backend/src/auth/../../backend/src/auth/handlers.rs": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "../../backend/src/middleware.rs": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "../../backend/src/auth.rs": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "backend/src/auth/../../backend/src/auth/mod.rs": {
+    "backend/src/auth": {
       "last_action": "refactored",
       "last_action_timestamp": 1770052621,
       "stability_score": 0.5,
@@ -420,91 +266,77 @@
       "failure_count": 0,
       "last_failure_timestamp": null
     },
-    "_dev-system/analyzer/src/drivers/rescript.rs": {
+    "../../backend/src/middleware/quota_check.rs": {
       "last_action": "refactored",
       "last_action_timestamp": 1770052621,
       "stability_score": 0.5,
       "failure_count": 0,
       "last_failure_timestamp": null
     },
-    "../../backend/src/middleware/request_tracker.rs": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "src/core/AppContext.res": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "../../src/systems/NavigationGraph.res": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "../../backend/src/services/geocoding/cache.rs": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
-    "../../src/systems/Teaser.res": {
+    "../../src/systems/TeaserRecorder.res": {
       "last_action": null,
       "last_action_timestamp": 0,
       "stability_score": 0.0,
-      "failure_count": 276,
-      "last_failure_timestamp": 1770103657
+      "failure_count": 277,
+      "last_failure_timestamp": 1770120845
     },
-    "src/systems/TourTemplates.res": {
+    "_dev-system/analyzer/src/graph/mod.rs": {
       "last_action": "refactored",
       "last_action_timestamp": 1770052621,
       "stability_score": 0.5,
       "failure_count": 0,
       "last_failure_timestamp": null
     },
-    "backend/src/middleware/../../backend/src/middleware/quota_check.rs": {
+    "backend/src/services/geocoding": {
       "last_action": "refactored",
       "last_action_timestamp": 1770052621,
       "stability_score": 0.5,
       "failure_count": 0,
       "last_failure_timestamp": null
     },
-    "src/core/SchemaDefinitions.res": {
+    "../../backend/src/services/geocoding/mod.rs": {
       "last_action": "refactored",
       "last_action_timestamp": 1770052621,
       "stability_score": 0.5,
       "failure_count": 0,
       "last_failure_timestamp": null
     },
-    "backend/src/services/auth": {
+    "../../backend/src/middleware/mod.rs": {
       "last_action": "refactored",
       "last_action_timestamp": 1770052621,
       "stability_score": 0.5,
       "failure_count": 0,
       "last_failure_timestamp": null
     },
-    "../../backend/src/pathfinder/graph.rs": {
+    "src/systems/UploadProcessorLogic.res": {
       "last_action": "refactored",
       "last_action_timestamp": 1770052621,
       "stability_score": 0.5,
       "failure_count": 0,
       "last_failure_timestamp": null
     },
-    "../../backend/src/pathfinder/timeline.rs": {
+    "src/systems/Upload": {
       "last_action": "refactored",
       "last_action_timestamp": 1770052621,
       "stability_score": 0.5,
       "failure_count": 0,
       "last_failure_timestamp": null
     },
-    "src/utils/LoggerTelemetry.res": {
+    "../../src/systems/ViewerSystem.res": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "_dev-system/analyzer/src/resolver.rs": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "src/systems/ServerTeaser.res": {
       "last_action": "refactored",
       "last_action_timestamp": 1770052621,
       "stability_score": 0.5,
@@ -518,14 +350,119 @@
       "failure_count": 0,
       "last_failure_timestamp": null
     },
-    "../../src/systems/TeaserRecorder.res": {
-      "last_action": null,
-      "last_action_timestamp": 0,
-      "stability_score": 0.0,
-      "failure_count": 276,
-      "last_failure_timestamp": 1770103657
+    "src/systems/HotspotLineLogic.res": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
     },
-    "../../src/core/Schemas.res": {
+    "../../backend/src/middleware/request_tracker.rs": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "src/core/Schemas.res": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "../../src/systems/Api/AuthenticatedClient.res": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "backend/src/middleware/../../backend/src/middleware/quota_check.rs": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "backend/src/services/auth": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "backend/src/auth/../../backend/src/auth/handlers.rs": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "../../backend/src/pathfinder": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "../../src/utils/AsyncQueue.res": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "src/core/JsonParsers.res": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "src/systems/Upload/../../src/systems/Upload/UploadProcessorQueue.res": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "src/systems/Upload/../../src/systems/Upload/UploadProcessorFinalizer.res": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "_dev-system/analyzer/src/drivers/rust.rs": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "_dev-system/analyzer/src/main.rs": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "src/core/InteractionQueue.res": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "src/systems/Upload/../../src/systems/Upload/UploadProcessorUtils.res": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "src/core/SchemaDefinitions.res": {
       "last_action": "refactored",
       "last_action_timestamp": 1770052621,
       "stability_score": 0.5,
@@ -539,13 +476,6 @@
       "failure_count": 0,
       "last_failure_timestamp": null
     },
-    "../../backend/src/services/geocoding/osm.rs": {
-      "last_action": "refactored",
-      "last_action_timestamp": 1770052621,
-      "stability_score": 0.5,
-      "failure_count": 0,
-      "last_failure_timestamp": null
-    },
     "../../backend/src/services/geocoding/logic.rs": {
       "last_action": "refactored",
       "last_action_timestamp": 1770052621,
@@ -553,7 +483,77 @@
       "failure_count": 0,
       "last_failure_timestamp": null
     },
-    "src/systems/Upload": {
+    "backend/src/middleware/../../backend/src/middleware/request_tracker.rs": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "src/utils/PersistenceLayer.res": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "../../src/utils/PersistenceLayer.res": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "src/systems/HotspotLine.res": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "../../backend/src/services/geocoding.rs": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "src/systems/TourTemplates.res": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "../../backend/src/pathfinder/graph.rs": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "../../src/ReBindings.res": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "backend/src/auth/../../backend/src/auth/service.rs": {
+      "last_action": "refactored",
+      "last_action_timestamp": 1770052621,
+      "stability_score": 0.5,
+      "failure_count": 0,
+      "last_failure_timestamp": null
+    },
+    "../../src/systems/Simulation.res": {
+      "last_action": null,
+      "last_action_timestamp": 0,
+      "stability_score": 0.0,
+      "failure_count": 277,
+      "last_failure_timestamp": 1770120845
+    },
+    "src/systems/Api/ProjectApi.res": {
       "last_action": "refactored",
       "last_action_timestamp": 1770052621,
       "stability_score": 0.5,
