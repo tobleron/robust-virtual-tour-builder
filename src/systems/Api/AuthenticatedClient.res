@@ -82,11 +82,7 @@ let request = async (url, ~method="GET", ~body: option<JSON.t>=?, ~headers=Dict.
 
     if !wasOpen && isOpen {
       EventBus.dispatch(
-        ShowNotification(
-          "Connection issues detected. Retrying automatically...",
-          #Warning,
-          None,
-        ),
+        ShowNotification("Connection issues detected. Retrying automatically...", #Warning, None),
       )
     }
   }

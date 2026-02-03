@@ -44,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Update Constants test timeout and add unit tests for SceneMutations and ExifUtils
 - Release barrier lock earlier in InteractionQueue to allow initial scene load
+- Lock viewer HFOV at 90, disable zoom, and restore app unit tests
 
 ### Changed
 - Initialize Robustness Task Suite (updated 1200, created 1201-1207)

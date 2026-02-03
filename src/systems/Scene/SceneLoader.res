@@ -30,6 +30,13 @@ module Config = {
     {
       "panorama": scene.file->Types.fileToUrl,
       "autoLoad": true,
+      "hfov": Constants.globalHfov,
+      "minHfov": Constants.globalHfov,
+      "maxHfov": Constants.globalHfov,
+      "mouseZoom": false,
+      "doubleClickZoom": false,
+      "keyboardZoom": false,
+      "showZoomCtrl": false,
       "hotSpots": getHotspots(scene),
     }
 }

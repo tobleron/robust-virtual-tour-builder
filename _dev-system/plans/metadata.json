@@ -1,4 +1,13 @@
 {
+  "rescript": [
+    {
+      "Violation": {
+        "file": "../../src/utils/CircuitBreaker.res",
+        "pattern": "mutable ",
+        "strategy": ""
+      }
+    }
+  ],
   "system": [
     {
       "Ambiguity": {

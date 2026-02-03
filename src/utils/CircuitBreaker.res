@@ -31,7 +31,7 @@ let make = (
     successCount: 0,
     lastFailureTime: None,
     probing: false,
-    config: config,
+    config,
   }
 }
 
@@ -80,8 +80,7 @@ let recordSuccess = t => {
       t.successCount = 0
       t.lastFailureTime = None
     }
-  | Closed =>
-    t.failureCount = 0
+  | Closed => t.failureCount = 0
   | Open => () // Should not happen usually, but ignore
   }
 }
