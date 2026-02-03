@@ -85,8 +85,17 @@ let flushTelemetry = async () => {
     ignore(%raw(`telemetryQueue.splice(0, takeCount)`))
 
     let payload: telemetryBatch = {entries: batch}
-    let _ = await attemptSendBatch(payload, 0)
-    isFlushing := false
+
+    if WebApiBindings.hasSendBeacon() {
+      let jsonStr = JsonCombinators.Json.stringify(encodeTelemetryBatch(payload))
+      // Use Blob to enforce application/json content type
+      let blob = BrowserBindings.Blob.newBlob([jsonStr], {"type": "application/json"})
+      let _ = WebApiBindings.sendBeaconBlob(Constants.backendUrl ++ "/api/telemetry/batch", blob)
+      isFlushing := false
+    } else {
+      let _ = await attemptSendBatch(payload, 0)
+      isFlushing := false
+    }
   }
 }
 
