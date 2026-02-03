@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add diagnostic logging to NavigationController Stabilizing state
 - Fix tour preview hang and stabilize rapid scene switching
 - Arch: implement system-wide robustness and ai-diagnostic e2e suite
+- Tasks: apply mandatory sequential numbering to robustness task
 
 ### Fixed
 - Update Constants test timeout and add unit tests for SceneMutations and ExifUtils
