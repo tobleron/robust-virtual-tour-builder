@@ -200,6 +200,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/utils/UrlUtils.res](src/utils/UrlUtils.res): Utilities for parsing and generating tour URLs. `#utils` `#url`
 *   [src/utils/Version.res](src/utils/Version.res): Semantic versioning and build manifest utilities. `#utils` `#version`
 *   [src/utils/AsyncQueue.res](src/utils/AsyncQueue.res): Generic asynchronous queue with concurrency control and progress reporting. `#utils` `#concurrency`
+*   [src/utils/CircuitBreaker.res](src/utils/CircuitBreaker.res): Circuit breaker pattern for backend API calls. `#utils` `#resiliency`
 
 ### ⚙️ Backend API (Rust)
 *   [backend/src/main.rs](backend/src/main.rs): Server entry point and high-level orchestration. `#rust` `#api` `#server` `#entry-point`
