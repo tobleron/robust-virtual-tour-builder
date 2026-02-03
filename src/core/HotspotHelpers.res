@@ -4,7 +4,7 @@ let calculateNewReturnViewFrame = (hotspot: hotspot, isReturnLink: bool): option
   if isReturnLink && hotspot.returnViewFrame == None {
     let vf = switch hotspot.viewFrame {
     | Some(v) => v
-    | None => {yaw: 0.0, pitch: 0.0, hfov: 90.0}
+    | None => {yaw: 0.0, pitch: 0.0, hfov: Constants.globalHfov}
     }
     Some({
       yaw: vf.yaw,

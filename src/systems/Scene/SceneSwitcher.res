@@ -13,7 +13,7 @@ let navigateToScene = (
   sourceHIdx,
   ~targetYaw=0.0,
   ~targetPitch=0.0,
-  ~targetHfov=90.0,
+  ~targetHfov=Constants.globalHfov,
   ~previewOnly=false,
   (),
 ) => {

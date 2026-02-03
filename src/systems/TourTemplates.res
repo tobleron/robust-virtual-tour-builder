@@ -151,7 +151,7 @@ module Scripts = {
         return;
       }
       if (!transitionFrom && !isFirstLoad) return;
-      if (sd?.hotSpots?.length > 0) window.viewer.setHfov(120);
+      if (sd?.hotSpots?.length > 0) window.viewer.setHfov(90);
       persistentFrom = transitionFrom; transitionFrom = null; isFirstLoad = false;
     });
   `
