@@ -270,5 +270,5 @@ This map provides a semantic overview of the project structure to optimize conte
 
 
 ## 🆕 Unmapped Modules
-
+* [src/hooks/UseIsInteractionPermitted.res](src/hooks/UseIsInteractionPermitted.res): New module detected. Please classify. #new
 
