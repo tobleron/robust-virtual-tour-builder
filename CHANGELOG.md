@@ -5,11 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.8.17] - 2026-02-03
+## [4.8.18] - 2026-02-03
 
 ### Added
-- Perform deep-dive analysis of `_dev-system` Architectural Governor.
-- Created Task 1208: Improve Dev System Analyzer (Refactor monolith, normalize paths, add test coverage).
+- **Human Inertia Smoothing (Freehand Pathing)**: Implemented a 2-pass weighted inertia filter for waypoint paths in `PathInterpolation.res`.
+- Guaranteed "Wide Turns": The system now "stiffens" path endpoints while filleting inner corners to simulate human head pivots and eyes movement.
+- `waypointSmoothingFactor`: Centralized smoothing control in `Constants.res` (set to 0.3).
+
+### Changed
+- **Unified Pathing**: Both Red (Camera) and Yellow (Floor) draft lines now share the same B-Spline interpolation engine as the final tour paths.
+- **Improved Anchoring**: Strictly pinned floor paths to the Rod Base in Linking Mode to prevent visual "drifting."
+
+### Refactored
+- **HotspotLine System Cleanup**:
+    - Renamed the redundant `HotspotLineLogicLogic.res` to `HotspotLineDrawing.res`.
+    - Consolidated common types and caches into `HotspotLineState.res`.
+    - Resolved circular dependencies by isolating state from rendering and animation logic.
+
+## [4.8.17] - 2026-02-03
 
 ## [4.8.16] - 2026-02-03
 
@@ -37,6 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Analyze _dev-system and create Task 1208 for analyzer improvements
 - Merge pull: system-robustness-v2-5500292857890026552 and complete Task 1200
 - Stable UI tour preview & load project
+- Waypoint Perfect Smoothing Factor
 
 ## [4.8.15] - 2026-02-02
 
