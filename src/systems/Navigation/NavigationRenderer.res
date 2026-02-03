@@ -26,92 +26,84 @@ module AnimationLoop = {
   ) => {
     let state = GlobalStateBridge.getState()
     if activeJourneyId.contents == Some(j.journeyId) && !cft.contents {
-      let prog = Math.min((Date.now() -. st) /. pd.panDuration, 1.0)
-      if prog >= 1.0 {
-        let sb = bst.contents->Option.getOr({
-          let n = Date.now()
-          bst := Some(n)
-          n
-        })
-        let bel = Date.now() -. sb
+      try {
+        let prog = Math.min((Date.now() -. st) /. pd.panDuration, 1.0)
+        if prog >= 1.0 {
+          let sb = bst.contents->Option.getOr({
+            let n = Date.now()
+            bst := Some(n)
+            n
+          })
+          let bel = Date.now() -. sb
 
-        let (bdP, bdS, brP, brS) = setupBlinks()
-        let dur = j.previewOnly ? bdP : bdS
-        let rate = j.previewOnly ? brP : brS
+          let (bdP, bdS, brP, brS) = setupBlinks()
+          let dur = j.previewOnly ? bdP : bdS
+          let rate = j.previewOnly ? brP : brS
 
-        Viewer.setPitch(v, pd.targetPitchForPan, false)
-        Viewer.setYaw(v, pd.targetYawForPan, false)
-        Viewer.setHfov(v, pd.targetHfovForPan, false)
-        if bel < dur {
           if ViewerSystem.isViewerReady(v) {
-            try {
-              HotspotLine.updateLines(v, state, ())
-              HotspotLine.updateSimulationArrow(
-                v,
-                pd.startPitch,
-                pd.startYaw,
-                pd.targetPitchForPan,
-                pd.targetYawForPan,
-                1.0,
-                ~opacity=mod(Belt.Float.toInt(bel /. rate), 2) == 0 ? 1.0 : 0.0,
-                ~waypoints=pd.waypoints->Belt.Array.map((w): PathInterpolation.point => {
-                  PathInterpolation.yaw: w.yaw,
-                  pitch: w.pitch,
-                }),
-                ~colorOverride=?j.previewOnly ? Some("red") : None,
-                (),
-              )
-            } catch {
-            | _ => ()
-            }
-          }
-          req.current = Some(
-            Window.requestAnimationFrame(() => loop(v, j, pd, st, bst, cft, dispatch, req, ())),
-          )
-        } else {
-          // SYNC GUARD: Only finalize if FSM has moved past Preloading (i.e. texture is loaded)
-          let currentFsm = state.navigationFsm
-          switch currentFsm {
-          | NavigationFSM.Transitioning(_) | NavigationFSM.Stabilizing(_) =>
-            Logger.debug(
-              ~module_="NavigationRenderer",
-              ~message="FINALIZE_TRANSITION",
-              ~data=Some({
-                "journeyId": j.journeyId,
-                "fsmState": NavigationFSM.toString(currentFsm),
+            Viewer.setPitch(v, pd.targetPitchForPan, false)
+            Viewer.setYaw(v, pd.targetYawForPan, false)
+            Viewer.setHfov(v, pd.targetHfovForPan, false)
+
+            HotspotLine.updateLines(v, state, ())
+            HotspotLine.updateSimulationArrow(
+              v,
+              pd.startPitch,
+              pd.startYaw,
+              pd.targetPitchForPan,
+              pd.targetYawForPan,
+              1.0,
+              ~opacity=mod(Belt.Float.toInt(bel /. rate), 2) == 0 ? 1.0 : 0.0,
+              ~waypoints=pd.waypoints->Belt.Array.map((w): PathInterpolation.point => {
+                PathInterpolation.yaw: w.yaw,
+                pitch: w.pitch,
               }),
+              ~colorOverride=?j.previewOnly ? Some("red") : None,
               (),
             )
-            cft := true
-            dispatch(Actions.DispatchNavigationFsmEvent(TransitionComplete))
-          | NavigationFSM.Idle =>
-            // Already idle, just stop the loop
-            cft := true
-          | NavigationFSM.Error(_) =>
-            // Error occurred (e.g. timeout), stop blinking and cancel
-            cft := true
-            EventBus.dispatch(NavCancelled)
-          | _ =>
-            // Texture not loaded yet (Preloading), keep blinking at the waypoint
-            Logger.debug(
-              ~module_="NavigationRenderer",
-              ~message="WAITING_FOR_TEXTURE",
-              ~data=Some({"fsmState": NavigationFSM.toString(currentFsm)}),
-              (),
-            )
+          }
+
+          if bel < dur {
             req.current = Some(
               Window.requestAnimationFrame(() => loop(v, j, pd, st, bst, cft, dispatch, req, ())),
             )
+          } else {
+            // SYNC GUARD: Only finalize if FSM has moved past Preloading (i.e. texture is loaded)
+            let currentFsm = state.navigationFsm
+            switch currentFsm {
+            | NavigationFSM.Transitioning(_) | NavigationFSM.Stabilizing(_) =>
+              Logger.debug(
+                ~module_="NavigationRenderer",
+                ~message="FINALIZE_TRANSITION",
+                ~data=Some({
+                  "journeyId": j.journeyId,
+                }),
+                (),
+              )
+              cft := true
+              dispatch(Actions.DispatchNavigationFsmEvent(TransitionComplete))
+            | NavigationFSM.Idle =>
+              // Already idle, just stop the loop
+              cft := true
+            | NavigationFSM.Error(_) =>
+              // Error occurred (e.g. timeout), stop blinking and cancel
+              cft := true
+              EventBus.dispatch(NavCancelled)
+            | _ =>
+              // Texture not loaded yet (Preloading), keep blinking at the waypoint
+              req.current = Some(
+                Window.requestAnimationFrame(() => loop(v, j, pd, st, bst, cft, dispatch, req, ())),
+              )
+            }
           }
-        }
-      } else {
-        dispatch(Actions.DispatchNavigationFsmEvent(AnimationProgress(prog)))
-        let (cp, cy) = NavigationLogic.calculateCameraPosition(~progress=prog, ~pathData=pd)
-        Viewer.setPitch(v, cp, false)
-        Viewer.setYaw(v, cy, false)
-        Viewer.setHfov(v, pd.startHfov +. (pd.targetHfovForPan -. pd.startHfov) *. prog, false)
-        if ViewerSystem.isViewerReady(v) {
-          try {
+        } else {
+          dispatch(Actions.DispatchNavigationFsmEvent(AnimationProgress(prog)))
+          let (cp, cy) = NavigationLogic.calculateCameraPosition(~progress=prog, ~pathData=pd)
+
+          if ViewerSystem.isViewerReady(v) {
+            Viewer.setPitch(v, cp, false)
+            Viewer.setYaw(v, cy, false)
+            Viewer.setHfov(v, pd.startHfov +. (pd.targetHfovForPan -. pd.startHfov) *. prog, false)
             HotspotLine.updateLines(v, state, ())
             HotspotLine.updateSimulationArrow(
               v,
@@ -127,17 +119,39 @@ module AnimationLoop = {
               }),
               (),
             )
-          } catch {
-          | _ => ()
           }
+
+          req.current = Some(
+            Window.requestAnimationFrame(() => loop(v, j, pd, st, bst, cft, dispatch, req, ())),
+          )
         }
-        req.current = Some(
-          Window.requestAnimationFrame(() => loop(v, j, pd, st, bst, cft, dispatch, req, ())),
-        )
+      } catch {
+      | exn => {
+          let (msg, _) = Logger.getErrorDetails(exn)
+          Logger.error(
+            ~module_="NavigationRenderer",
+            ~message="LOOP_CRASH_RECOVERED",
+            ~data={"error": msg},
+            (),
+          )
+
+          // Always attempt to continue the loop unless journey changed
+          req.current = Some(
+            Window.requestAnimationFrame(() => loop(v, j, pd, st, bst, cft, dispatch, req, ())),
+          )
+        }
       }
     } else {
-      // Stop this loop instance
-      ()
+      Logger.debug(
+        ~module_="NavigationRenderer",
+        ~message="LOOP_TERMINATED",
+        ~data=Some({
+          "journeyId": j.journeyId,
+          "activeJourneyId": activeJourneyId.contents,
+          "cft": cft.contents,
+        }),
+        (),
+      )
     }
   }
 

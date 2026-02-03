@@ -107,16 +107,36 @@ let reducer = (state: distinctState, action: event): distinctState => {
   }
 
   if nextState != state {
-    Logger.debug(
-      ~module_="NavigationFSM",
-      ~message="TRANSITION",
-      ~data=Some({
-        "from": toString(state),
-        "to": toString(nextState),
-        "event": eventToString(action),
-      }),
-      (),
-    )
+    let isProgress = switch action {
+    | AnimationProgress(_) => true
+    | _ => false
+    }
+
+    if !isProgress || Constants.Telemetry.diagnosticMode.contents {
+      // Even in diagnostic mode, avoid excessive progress logs unless needed for trace
+      let shouldLog = if isProgress {
+        // Only log every 10% progress or so to avoid flooding
+        switch action {
+        | AnimationProgress(p) => mod(Belt.Float.toInt(p *. 100.0), 10) == 0
+        | _ => true
+        }
+      } else {
+        true
+      }
+
+      if shouldLog {
+        Logger.debug(
+          ~module_="NavigationFSM",
+          ~message="TRANSITION",
+          ~data=Some({
+            "from": toString(state),
+            "to": toString(nextState),
+            "event": isProgress ? "ProgressUpdate" : eventToString(action),
+          }),
+          (),
+        )
+      }
+    }
   }
   nextState
 }
