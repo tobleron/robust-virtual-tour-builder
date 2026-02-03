@@ -1,9 +1,10 @@
 use actix_multipart::Multipart;
+use actix_web::web;
 use futures_util::TryStreamExt as _;
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
-use tokio::io::AsyncWriteExt;
+use tokio::io::{AsyncWriteExt, BufWriter};
 use uuid::Uuid;
 
 use crate::api::utils::{MAX_UPLOAD_SIZE, get_temp_path, sanitize_filename};
@@ -23,13 +24,14 @@ async fn save_field_to_file(
     field: &mut actix_multipart::Field,
     path: &Path,
 ) -> Result<(), AppError> {
-    let mut f = tokio::fs::File::create(path)
+    let f = tokio::fs::File::create(path)
         .await
         .map_err(AppError::IoError)?;
+    let mut writer = BufWriter::new(f);
     while let Some(chunk) = field.try_next().await? {
-        f.write_all(&chunk).await.map_err(AppError::IoError)?;
+        writer.write_all(&chunk).await.map_err(AppError::IoError)?;
     }
-    f.flush().await.map_err(AppError::IoError)?;
+    writer.flush().await.map_err(AppError::IoError)?;
     Ok(())
 }
 
@@ -121,21 +123,24 @@ pub async fn parse_tour_package_multipart(
 
 /// Saves the entire multipart payload to a temporary file (used for loading project zip).
 pub async fn save_multipart_to_tempfile(mut payload: Multipart) -> Result<fs::File, AppError> {
-    let temp_upload = tempfile::tempfile().map_err(AppError::IoError)?;
-    let mut async_file = tokio::fs::File::from_std(temp_upload);
+    let temp_upload = web::block(|| tempfile::tempfile())
+        .await
+        .map_err(|e| AppError::InternalError(e.to_string()))?
+        .map_err(AppError::IoError)?;
+
+    let async_file = tokio::fs::File::from_std(temp_upload);
     let mut uploaded_size = 0;
+    let mut writer = BufWriter::new(async_file);
+
     while let Some(mut field) = payload.try_next().await? {
         while let Some(chunk) = field.try_next().await? {
             uploaded_size += chunk.len();
             if uploaded_size > MAX_UPLOAD_SIZE {
                 return Err(AppError::ImageError("Project too large".into()));
             }
-            async_file
-                .write_all(&chunk)
-                .await
-                .map_err(AppError::IoError)?;
+            writer.write_all(&chunk).await.map_err(AppError::IoError)?;
         }
     }
-    async_file.flush().await.map_err(AppError::IoError)?;
-    Ok(async_file.into_std().await)
+    writer.flush().await.map_err(AppError::IoError)?;
+    Ok(writer.into_inner().into_std().await)
 }
