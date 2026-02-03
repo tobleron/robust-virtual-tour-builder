@@ -5,7 +5,7 @@ open Types
 open ReBindings
 
 let calculateSmartArrivalTarget = (scenes: array<scene>, targetIndex: int) => {
-  let (ay, ap, ah) = (ref(0.0), ref(0.0), ref(90.0))
+  let (ay, ap, ah) = (ref(0.0), ref(0.0), ref(Constants.globalHfov))
   if targetIndex >= 0 && targetIndex < Array.length(scenes) {
     scenes[targetIndex]->Option.forEach(ns => {
       let t = switch ns.hotspots->Belt.Array.getBy(h => h.isReturnLink != Some(true)) {
@@ -34,7 +34,7 @@ let calculateSmartArrivalTarget = (scenes: array<scene>, targetIndex: int) => {
 let getCurrentView = () => {
   switch Viewer.instance->Nullable.toOption {
   | Some(v) => (Viewer.getYaw(v), Viewer.getPitch(v), Viewer.getHfov(v))
-  | None => (0.0, 0.0, 90.0)
+  | None => (0.0, 0.0, Constants.globalHfov)
   }
 }
 

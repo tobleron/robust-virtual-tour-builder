@@ -14,15 +14,15 @@ let make = () => {
   let state = AppContext.useAppState()
   let dispatch = AppContext.useAppDispatch()
   // DEBUG PROBE
-  let isInvalid = %raw(`function(s) { return typeof s === 'undefined' || typeof s.simulation === 'undefined' }`)(
+  let isInvalid = %raw(`function(s) { return typeof s === 'undefined' || s === null || typeof s.simulation === 'undefined' || s.simulation === null }`)(
     state,
   )
   if isInvalid {
-    Console.error("CRITICAL: Simulation loaded with invalid state")
-    // We can return null here to avoid crash, but we must return a React Element
-    // However, let's just let it crash after logging, or try to recover?
-    // If we return here, we can't because of hooks rules (must call hooks unconditionally).
-    // But we are at the top, hooks are above.
+    Logger.error(
+      ~module_="Simulation",
+      ~message="CRITICAL: Simulation loaded with invalid state",
+      (),
+    )
   }
 
   // Safe access pattern
@@ -30,6 +30,11 @@ let make = () => {
     State.initialState.simulation
   } else {
     state.simulation
+  }
+  let activeIndex = if isInvalid {
+    -1
+  } else {
+    state.activeIndex
   }
   let stateRef = React.useRef(state)
 
@@ -217,7 +222,7 @@ let make = () => {
     }
 
     Some(() => {cancel := true})
-  }, (simulation.status, state.activeIndex))
+  }, (simulation.status, activeIndex))
 
   React.null
 }

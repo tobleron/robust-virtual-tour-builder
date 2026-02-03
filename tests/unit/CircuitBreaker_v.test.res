@@ -8,9 +8,7 @@ describe("CircuitBreaker", () => {
   })
 
   test("transitions to Open after failure threshold", t => {
-    let cb = CircuitBreaker.make(
-      ~config={failureThreshold: 3, successThreshold: 1, timeout: 1000},
-    )
+    let cb = CircuitBreaker.make(~config={failureThreshold: 3, successThreshold: 1, timeout: 1000})
     CircuitBreaker.recordFailure(cb)
     t->expect(CircuitBreaker.getState(cb))->Expect.toBe(Closed)
     CircuitBreaker.recordFailure(cb)
@@ -22,9 +20,7 @@ describe("CircuitBreaker", () => {
 
   test("transitions to HalfOpen after timeout", t => {
     let _ = Vitest.Vi.useFakeTimers()
-    let cb = CircuitBreaker.make(
-      ~config={failureThreshold: 1, successThreshold: 1, timeout: 1000},
-    )
+    let cb = CircuitBreaker.make(~config={failureThreshold: 1, successThreshold: 1, timeout: 1000})
     CircuitBreaker.recordFailure(cb)
     t->expect(CircuitBreaker.getState(cb))->Expect.toBe(Open)
 
@@ -40,9 +36,7 @@ describe("CircuitBreaker", () => {
 
   test("HalfOpen allows only one probe (sequential)", t => {
     let _ = Vitest.Vi.useFakeTimers()
-    let cb = CircuitBreaker.make(
-      ~config={failureThreshold: 1, successThreshold: 2, timeout: 1000},
-    )
+    let cb = CircuitBreaker.make(~config={failureThreshold: 1, successThreshold: 2, timeout: 1000})
     CircuitBreaker.recordFailure(cb)
     let _ = Vitest.Vi.advanceTimersByTime(1100)
 
@@ -69,9 +63,7 @@ describe("CircuitBreaker", () => {
 
   test("HalfOpen transitions to Open on failure", t => {
     let _ = Vitest.Vi.useFakeTimers()
-    let cb = CircuitBreaker.make(
-      ~config={failureThreshold: 1, successThreshold: 2, timeout: 1000},
-    )
+    let cb = CircuitBreaker.make(~config={failureThreshold: 1, successThreshold: 2, timeout: 1000})
     CircuitBreaker.recordFailure(cb)
     let _ = Vitest.Vi.advanceTimersByTime(1100)
 

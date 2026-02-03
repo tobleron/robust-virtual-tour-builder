@@ -271,5 +271,6 @@ This map provides a semantic overview of the project structure to optimize conte
 
 
 ## 🆕 Unmapped Modules
-* [src/hooks/UseIsInteractionPermitted.res](src/hooks/UseIsInteractionPermitted.res): New module detected. Please classify. #new
+### 🪝 React Hooks
+* [src/hooks/UseIsInteractionPermitted.res](src/hooks/UseIsInteractionPermitted.res): Logic for determining if user interactions are allowed based on state (linking, simulation, etc.). `#hooks` `#logic` `#interaction`
 
