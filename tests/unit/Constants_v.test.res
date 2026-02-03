@@ -129,7 +129,7 @@ describe("Constants", _ => {
     t->expect(Constants.blinkRateSimulation)->Expect.toBe(600)
     t->expect(Constants.Simulation.stepDelay)->Expect.toBe(800)
     t->expect(Constants.idleSnapshotDelay)->Expect.toBe(2000)
-    t->expect(Constants.sceneLoadTimeout)->Expect.toBe(10000)
+    t->expect(Constants.sceneLoadTimeout)->Expect.toBe(30000)
   })
 
   test("telemetry configuration", t => {

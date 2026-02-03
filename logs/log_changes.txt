@@ -122,3 +122,4 @@
 [2026-02-03 14:14] v4.8.15 - completed task 1199: Comprehensive Playwright E2E Automation
 [2026-02-03 16:22] v4.8.15 - Fix E2E test duplicate detection and improve InteractionQueue stability
 [2026-02-03 19:32] v4.8.15 - Fix tour preview hang and stabilize rapid scene switching [TRIPLE]
+[2026-02-03 20:10] v4.8.15 - fix: update Constants test timeout and add unit tests for SceneMutations and ExifUtils [TRIPLE]
