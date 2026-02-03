@@ -28,10 +28,10 @@ let generateId = () => {
 let capture = (state: Types.state, action: Actions.action): string => {
   let id = generateId()
   let snapshot = {
-    id: id,
+    id,
     timestamp: Date.now(),
-    state: state,
-    action: action,
+    state,
+    action,
   }
 
   // Prepend to history
@@ -49,11 +49,15 @@ let rollback = (id: string): option<Types.state> => {
   let indexOpt = Belt.Array.getIndexBy(history.contents, s => s.id == id)
   switch indexOpt {
   | Some(i) =>
-      let snapshot = Belt.Array.getExn(history.contents, i)
-      // Remove this snapshot and any newer ones (indices 0 to i)
-      let newHistory = Belt.Array.slice(history.contents, ~offset=i + 1, ~len=Belt.Array.length(history.contents) - (i + 1))
-      history := newHistory
-      Some(snapshot.state)
+    let snapshot = Belt.Array.getExn(history.contents, i)
+    // Remove this snapshot and any newer ones (indices 0 to i)
+    let newHistory = Belt.Array.slice(
+      history.contents,
+      ~offset=i + 1,
+      ~len=Belt.Array.length(history.contents) - (i + 1),
+    )
+    history := newHistory
+    Some(snapshot.state)
   | None => None
   }
 }

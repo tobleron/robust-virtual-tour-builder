@@ -126,24 +126,24 @@ let snapshotEncoder = JsonCombinators.Json.Encode.object([
 
 - [ ] Deleting a scene and simulating API failure restores the scene.
 - [ ] User sees notification when rollback occurs.
-- [ ] State history is limited to 10 snapshots (memory safety).
-- [ ] Committed snapshots are removed from history.
+- [x] State history is limited to 10 snapshots (memory safety).
+- [x] Committed snapshots are removed from history.
 - [ ] UI remains responsive during rollback.
-- [ ] All JSON encoding uses `rescript-json-combinators`.
-- [ ] `npm run build` completes with zero warnings.
+- [x] All JSON encoding uses `rescript-json-combinators`.
+- [x] `npm run build` completes with zero warnings.
 
 ---
 
 ## 6. File Checklist
 
-- [ ] `src/core/StateSnapshot.res` - New module
-- [ ] `src/core/StateSnapshot.resi` - Interface file
-- [ ] `src/core/OptimisticAction.res` - New module
-- [ ] `src/core/OptimisticAction.resi` - Interface file
+- [x] `src/core/StateSnapshot.res` - New module
+- [x] `src/core/StateSnapshot.resi` - Interface file
+- [x] `src/core/OptimisticAction.res` - New module
+- [x] `src/core/OptimisticAction.resi` - Interface file
 - [ ] `src/components/Sidebar/SidebarLogic.res` - Apply to delete scene
 - [ ] `src/components/HotspotManager.res` - Apply to hotspot actions
-- [ ] `tests/unit/OptimisticAction_v.test.res` - Unit tests
-- [ ] `MAP.md` - Add new module entries
+- [x] `tests/unit/OptimisticAction_v.test.res` - Unit tests
+- [x] `MAP.md` - Add new module entries
 
 ---
 

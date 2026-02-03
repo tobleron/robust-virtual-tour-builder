@@ -8,3 +8,9 @@
 
 ---
 
+## 🛠️ SURGICAL REFACTOR TASKS (1)
+- [ ] **../../src/core/JsonParsers.res**
+  - *Reason:* [Nesting: 2.00, Density: 0.48, Coupling: 0.04] | Drag: 5.80 | LOC: 380/300  🎯 Target: Function: `hotspot` (High Local Complexity (11.0). Logic heavy.)
+
+---
+
