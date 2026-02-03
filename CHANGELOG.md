@@ -52,6 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Merge pull: system-robustness-v2-5500292857890026552 and complete Task 1200
 - Stable UI tour preview & load project
 - Waypoint Perfect Smoothing Factor
+- Merge and verify optimistic-update-rollback: Infrastructure, tests, and MAP.md updates
 
 ## [4.8.15] - 2026-02-02
 

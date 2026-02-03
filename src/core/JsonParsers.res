@@ -318,12 +318,17 @@ module Encoders = {
 
   let transition = (t: Types.transition) => {
     Encode.object([
-      ("type", Encode.string(switch t.type_ {
-        | Cut => "Cut"
-        | Fade => "Fade"
-        | Link => "Link"
-        | Unknown(s) => s
-      })),
+      (
+        "type",
+        Encode.string(
+          switch t.type_ {
+          | Cut => "Cut"
+          | Fade => "Fade"
+          | Link => "Link"
+          | Unknown(s) => s
+          },
+        ),
+      ),
       ("targetHotspotIndex", Encode.int(t.targetHotspotIndex)),
       ("fromSceneName", Encode.option(Encode.string)(t.fromSceneName)),
     ])
@@ -358,25 +363,31 @@ module Encoders = {
     switch n {
     | Idle => Encode.string("Idle")
     | Navigating(_) => Encode.string("Navigating")
-    | Previewing(l) => Encode.object([("status", Encode.string("Previewing")), ("link", linkInfo(l))])
+    | Previewing(l) =>
+      Encode.object([("status", Encode.string("Previewing")), ("link", linkInfo(l))])
     }
   }
 
   let navigationFsmState = (s: NavigationFSM.distinctState) => {
-     Encode.string(NavigationFSM.toString(s))
+    Encode.string(NavigationFSM.toString(s))
   }
 
   let simulationState = (s: Types.simulationState) => {
-     Encode.object([
-        ("status", Encode.string(switch s.status {
-            | Idle => "Idle"
-            | Running => "Running"
-            | Stopping => "Stopping"
-            | Paused => "Paused"
-        })),
-        ("visitedScenes", Encode.array(Encode.int)(s.visitedScenes)),
-        ("autoPilotJourneyId", Encode.int(s.autoPilotJourneyId))
-     ])
+    Encode.object([
+      (
+        "status",
+        Encode.string(
+          switch s.status {
+          | Idle => "Idle"
+          | Running => "Running"
+          | Stopping => "Stopping"
+          | Paused => "Paused"
+          },
+        ),
+      ),
+      ("visitedScenes", Encode.array(Encode.int)(s.visitedScenes)),
+      ("autoPilotJourneyId", Encode.int(s.autoPilotJourneyId)),
+    ])
   }
 
   let state = (s: Types.state) => {

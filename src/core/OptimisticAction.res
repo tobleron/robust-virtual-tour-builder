@@ -32,11 +32,13 @@ let execute = (
         onRollback(restoredState)
 
         // Notify user
-        EventBus.dispatch(ShowNotification(
-          "Action failed. Changes have been reverted.",
-          #Warning,
-          Some(Logger.castToJson({"action": Actions.actionToString(action), "error": msg}))
-        ))
+        EventBus.dispatch(
+          ShowNotification(
+            "Action failed. Changes have been reverted.",
+            #Warning,
+            Some(Logger.castToJson({"action": Actions.actionToString(action), "error": msg})),
+          ),
+        )
 
         Promise.resolve(RolledBack(msg))
       | None =>
@@ -44,7 +46,7 @@ let execute = (
           ~module_="OptimisticAction",
           ~message="ROLLBACK_FAILED_NO_SNAPSHOT",
           ~data=Some(Logger.castToJson({"id": snapshotId})),
-          ()
+          (),
         )
         Promise.resolve(RolledBack(msg ++ " (Rollback failed)"))
       }
@@ -53,17 +55,18 @@ let execute = (
   ->Promise.catch(ex => {
     let (msg, _) = Logger.getErrorDetails(ex)
 
-     switch StateSnapshot.rollback(snapshotId) {
-      | Some(restoredState) =>
-        onRollback(restoredState)
-        EventBus.dispatch(ShowNotification(
+    switch StateSnapshot.rollback(snapshotId) {
+    | Some(restoredState) =>
+      onRollback(restoredState)
+      EventBus.dispatch(
+        ShowNotification(
           "Action failed. Changes have been reverted.",
           #Warning,
-          Some(Logger.castToJson({"action": Actions.actionToString(action), "error": msg}))
-        ))
-        Promise.resolve(RolledBack(msg))
-      | None =>
-         Promise.resolve(RolledBack(msg ++ " (Rollback failed)"))
-     }
+          Some(Logger.castToJson({"action": Actions.actionToString(action), "error": msg})),
+        ),
+      )
+      Promise.resolve(RolledBack(msg))
+    | None => Promise.resolve(RolledBack(msg ++ " (Rollback failed)"))
+    }
   })
 }
