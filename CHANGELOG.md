@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Synchronization and version bump
 - Final Sync: Unify E2E task and async fixes across branches
 - Completed task 1199: Comprehensive Playwright E2E Automation
+- Fix E2E test duplicate detection and improve InteractionQueue stability
 
 ## [4.8.15] - 2026-02-02
 

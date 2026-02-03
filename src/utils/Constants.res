@@ -236,7 +236,7 @@ let useBSplineSmoothing = true // "Human-like" corner cutting for camera
 module Simulation = {
   let stepDelay = 800
 }
-let sceneLoadTimeout = 10000
+let sceneLoadTimeout = 30000
 
 // ============================================
 // TELEMETRY CONFIGURATION
