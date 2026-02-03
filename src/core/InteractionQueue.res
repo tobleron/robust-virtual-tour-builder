@@ -166,14 +166,15 @@ let rec processNext = () => {
         // Dispatch action
         GlobalStateBridge.dispatch(action)
 
+        // Release barrier lock to allow downstream actions (like initial scene load) to be enqueued
+        internalState.contents = {...internalState.contents, isBarrierPending: false}
+
         // Wait a tick for React updates
         Promise.make((resolve, _) => {
           let _ = setTimeout(() => resolve(), 0)
         })
       })
       ->Promise.then(() => {
-        // Cleanup
-        internalState.contents = {...internalState.contents, isBarrierPending: false}
         Promise.resolve()
       })
 
