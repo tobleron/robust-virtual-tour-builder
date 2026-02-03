@@ -1,6 +1,6 @@
 use std::time::Instant;
-use tokio::io::{AsyncWriteExt, BufWriter};
 use tokio::fs::File;
+use tokio::io::{AsyncWriteExt, BufWriter};
 
 #[tokio::test]
 async fn bench_buffered_vs_unbuffered_write() {
@@ -41,7 +41,9 @@ async fn bench_buffered_vs_unbuffered_write() {
 
     // Check improvement
     if duration_buffered < duration_unbuffered {
-        let improvement = (duration_unbuffered.as_secs_f64() - duration_buffered.as_secs_f64()) / duration_unbuffered.as_secs_f64() * 100.0;
+        let improvement = (duration_unbuffered.as_secs_f64() - duration_buffered.as_secs_f64())
+            / duration_unbuffered.as_secs_f64()
+            * 100.0;
         println!("Improvement: {:.2}%", improvement);
     } else {
         println!("No improvement (overhead might dominate for this chunk size/count)");

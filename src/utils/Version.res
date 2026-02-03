@@ -4,8 +4,8 @@
  * It contains both version data and utility functions.
  */
 let version = "4.8.15"
-let buildNumber = 410
-let buildInfo = "[Stable Release]"
+let buildNumber = 413
+let buildInfo = "[Experimental Build]"
 
 /**
  * Returns the current application version.

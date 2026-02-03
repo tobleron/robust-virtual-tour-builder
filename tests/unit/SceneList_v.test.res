@@ -141,7 +141,6 @@ describe("SceneList", () => {
     Dom.removeElement(container)
   })
 
-
   testAsync("should throttle scene switching clicks", async t => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
