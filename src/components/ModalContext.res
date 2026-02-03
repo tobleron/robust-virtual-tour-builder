@@ -35,6 +35,23 @@ module Logic = {
   }
 }
 
+let useIsModalOpen = () => {
+  let (isOpen, setIsOpen) = React.useState(_ => false)
+
+  React.useEffect0(() => {
+    let unsubscribe = EventBus.subscribe(event => {
+      switch event {
+      | ShowModal(_) => setIsOpen(_ => true)
+      | CloseModal => setIsOpen(_ => false)
+      | _ => ()
+      }
+    })
+    Some(unsubscribe)
+  })
+
+  isOpen
+}
+
 @react.component
 let make = () => {
   let (activeConfig, setActiveConfig) = React.useState(_ => None)
