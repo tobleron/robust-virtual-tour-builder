@@ -63,8 +63,6 @@ module AboutContent = {
 
 @react.component
 let make = React.memo(() => {
-  Logger.info(~module_="Sidebar", ~message="Rendering Sidebar", ())
-  let state = AppContext.useAppState()
   let sceneSlice = AppContext.useSceneSlice()
   let {dispatch, enqueueThunk} = AppContext.useInteractionQueue()
 
@@ -210,7 +208,7 @@ let make = React.memo(() => {
           }
         }}
         onSave={() => {
-          enqueueThunk(() => handleSave(state))
+          enqueueThunk(() => handleSave(GlobalStateBridge.getState()))
         }}
         onLoad={() => {
           switch Nullable.toOption(projectFileInputRef.current) {
