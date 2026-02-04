@@ -41,6 +41,7 @@ type event =
   | LoadTimeout
   | RecoveryTriggered({targetSceneId: string})
   | Reset
+  | Aborted
 
 let toString = (state: distinctState) => {
   switch state {
@@ -64,6 +65,7 @@ let eventToString = (event: event) => {
   | LoadTimeout => "LoadTimeout"
   | RecoveryTriggered({targetSceneId: id}) => "RecoveryTriggered(" ++ id ++ ")"
   | Reset => "Reset"
+  | Aborted => "Aborted"
   }
 }
 
@@ -103,6 +105,7 @@ let reducer = (state: distinctState, action: event): distinctState => {
     Preloading({targetSceneId, attempt, isAnticipatory: false})
 
   | (_, Reset) => Idle
+  | (_, Aborted) => Idle
   | (s, _) => s
   }
 
