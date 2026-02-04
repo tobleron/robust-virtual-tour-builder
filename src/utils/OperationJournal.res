@@ -173,8 +173,7 @@ let startOperation = (~operation: string, ~context: JSON.t, ~retryable: bool) =>
   let newEntries = Array.concat(currentJournal.contents.entries, [entry])
   currentJournal := {...currentJournal.contents, entries: newEntries}
 
-  let _ = saveCurrent()
-  id
+  saveCurrent()->Promise.then(() => Promise.resolve(id))
 }
 
 let updateStatus = (id: string, status: operationStatus) => {
@@ -186,7 +185,7 @@ let updateStatus = (id: string, status: operationStatus) => {
     }
   })
   currentJournal := {...currentJournal.contents, entries: newEntries}
-  let _ = saveCurrent()
+  saveCurrent()
 }
 
 let updateContext = (id: string, context: JSON.t) => {
@@ -198,20 +197,26 @@ let updateContext = (id: string, context: JSON.t) => {
     }
   })
   currentJournal := {...currentJournal.contents, entries: newEntries}
-  let _ = saveCurrent()
+  saveCurrent()
 }
 
 let completeOperation = (id: string) => {
-  updateStatus(id, Completed)
-  // Prune completed operations immediately to keep journal small
-  let pendingOnly = Belt.Array.keep(currentJournal.contents.entries, e =>
+  let newEntries = Belt.Array.map(currentJournal.contents.entries, entry => {
+    if entry.id == id {
+      {...entry, status: Completed, endTime: Some(Date.now())}
+    } else {
+      entry
+    }
+  })
+
+  let pendingOnly = Belt.Array.keep(newEntries, e =>
     switch e.status {
     | InProgress | Pending | Failed(_) | Interrupted => true
     | Completed | Cancelled => false
     }
   )
   currentJournal := {...currentJournal.contents, entries: pendingOnly}
-  let _ = saveCurrent()
+  saveCurrent()
 }
 
 let failOperation = (id: string, reason: string) => {
