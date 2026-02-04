@@ -38,6 +38,9 @@ let calculateDelay = (attempt, config) => {
 let defaultShouldRetry = (error: string) => {
   String.includes(error, "NetworkError") ||
   String.includes(error, "fetch failed") ||
+  String.includes(error, "Failed to fetch") ||
+  String.includes(error, "Network request failed") ||
+  String.includes(error, "connection refused") ||
   String.includes(error, "500") ||
   String.includes(error, "502") ||
   String.includes(error, "503") ||
