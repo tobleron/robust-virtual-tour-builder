@@ -13,8 +13,34 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
   }
 
   let handleDelete = () => {
-    HotspotManager.handleDeleteHotspot(state.activeIndex, index)
-    EventBus.dispatch(ShowNotification("Link deleted", #Info, None))
+    EventBus.dispatch(
+      ShowModal({
+        title: "Delete Link",
+        description: Some("Are you sure you want to delete this link?"),
+        content: None,
+        icon: Some("warning"),
+        className: Some("modal-blue"),
+        allowClose: Some(true),
+        onClose: None,
+        buttons: [
+          {
+            label: "Cancel",
+            class_: "bg-slate-100/10 text-white hover:bg-white/20",
+            onClick: () => (),
+            autoClose: Some(true),
+          },
+          {
+            label: "Delete",
+            class_: "bg-red-500/20 text-white hover:bg-red-500/40",
+            onClick: () => {
+              HotspotManager.handleDeleteHotspot(state.activeIndex, index)
+              EventBus.dispatch(ShowNotification("Link deleted", #Success, None))
+            },
+            autoClose: Some(true),
+          },
+        ],
+      }),
+    )
     onClose()
   }
 
