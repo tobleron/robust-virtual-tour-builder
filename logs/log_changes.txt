@@ -174,3 +174,4 @@ Recommendation: Approve for commercial release after completing Task 1222 [TRIPL
 [2026-02-04 16:19] v4.16.2 - Merge PR 1226: Complete Optimistic Update and Recovery Integration
 [2026-02-04 16:23] v4.16.3 - Merge PR 1226: Complete Optimistic Update and Recovery Integration [TRIPLE]
 [2026-02-04 18:43] v4.18.0 - feat: Evaluate and merge PR 1227 - Project Save Recovery
+[2026-02-04 19:20] v4.18.1 - Merge tactical upload recovery task-1228
