@@ -187,6 +187,7 @@ This map provides a semantic overview of the project structure to optimize conte
 
 ### ⚙️ Utilities & Infrastructure
 *   [src/utils/PersistenceLayer.res](src/utils/PersistenceLayer.res): Advanced persistence layer with IndexedDB and session fallback. `#utils` `#storage` `#indexeddb`
+*   [src/utils/OperationJournal.res](src/utils/OperationJournal.res): Persistent journal for tracking long-running operations and recovery. `#utils` `#persistence` `#journal`
 *   [src/utils/SessionStore.res](src/utils/SessionStore.res): Session-based storage and state persistence. `#utils` `#storage`
 *   [src/utils/RequestQueue.res](src/utils/RequestQueue.res): Queue management for network requests. `#utils` `#network`
 *   [src/utils/LazyLoad.res](src/utils/LazyLoad.res): Helpers for lazy loading components and assets. `#utils` `#performance`

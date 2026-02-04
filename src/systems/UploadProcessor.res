@@ -28,6 +28,12 @@ let processUploads = (
 
   updateProgress(0.0, "Checking backend...", true, "Health Check")
 
+  let journalId = OperationJournal.startOperation(
+    ~operation="UploadImages",
+    ~context=UploadProcessorLogic.castToJson({"fileCount": Belt.Array.length(files)}),
+    ~retryable=false,
+  )
+
   Resizer.checkBackendHealth()->Promise.then(isUp => {
     if !isUp {
       updateProgress(100.0, "Error: Backend Offline", false, "Error")
@@ -35,10 +41,12 @@ let processUploads = (
         "Backend Server Not Connected! Port 8080 is not running.",
         "error",
       )
+      OperationJournal.failOperation(journalId, "Backend Offline")
       Promise.resolve(emptyResult)
     } else {
       let startTime = Date.now()
       if Belt.Array.length(files) == 0 {
+        OperationJournal.completeOperation(journalId)
         Promise.resolve(emptyResult)
       } else {
         let validFiles = ImageValidator.validateFiles(files, msg =>
@@ -46,9 +54,19 @@ let processUploads = (
         )
         if Belt.Array.length(validFiles) == 0 {
           UploadProcessorLogic.Utils.notify("No valid image files selected!", "error")
+          OperationJournal.completeOperation(journalId)
           Promise.resolve(emptyResult)
         } else {
           UploadProcessorLogic.handleFingerprinting(validFiles, startTime, updateProgress)
+          ->Promise.then(result => {
+            OperationJournal.completeOperation(journalId)
+            Promise.resolve(result)
+          })
+          ->Promise.catch(err => {
+            let (msg, _) = Logger.getErrorDetails(err)
+            OperationJournal.failOperation(journalId, msg)
+            Promise.reject(err)
+          })
         }
       }
     }

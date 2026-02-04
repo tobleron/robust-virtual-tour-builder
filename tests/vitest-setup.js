@@ -1,4 +1,5 @@
 // @efficiency: infra-adapter
+import { vi } from 'vitest';
 
 if (typeof globalThis.Caml_option === 'undefined') {
     globalThis.Caml_option = {
@@ -17,6 +18,32 @@ if (typeof globalThis.Caml_option === 'undefined') {
         }
     };
 }
+
+// Mock idb-keyval
+// We use a global store to allow inspection if needed, or just let it be persistent across imports but cleared per test if needed.
+// Since tests run in parallel or isolation, having it module-scoped here is fine for per-file isolation?
+// Vitest runs test files in threads usually.
+// But setup file runs once per file? Yes.
+vi.mock("idb-keyval", () => {
+    let store = {};
+    return {
+        set: (key, val) => {
+            store[key] = val;
+            return Promise.resolve();
+        },
+        get: (key) => {
+            return Promise.resolve(store[key]);
+        },
+        del: (key) => {
+            delete store[key];
+            return Promise.resolve();
+        },
+        clear: () => {
+            store = {};
+            return Promise.resolve();
+        }
+    };
+});
 
 // Mock localStorage
 const localStorageMock = (() => {
