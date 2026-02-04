@@ -1,21 +1,5 @@
 {
-  "css": [
-    {
-      "Violation": {
-        "file": "../../css/components/buttons.css",
-        "pattern": "!important",
-        "strategy": ""
-      }
-    }
-  ],
   "rescript": [
-    {
-      "Violation": {
-        "file": "../../src/utils/CircuitBreaker.res",
-        "pattern": "mutable ",
-        "strategy": ""
-      }
-    },
     {
       "Surgical": {
         "file": "../../src/core/JsonParsers.res",
@@ -28,6 +12,20 @@
       }
     },
     {
+      "Violation": {
+        "file": "../../src/utils/CircuitBreaker.res",
+        "pattern": "mutable ",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/utils/RateLimiter.res",
+        "pattern": "mutable ",
+        "strategy": ""
+      }
+    },
+    {
       "Surgical": {
         "file": "../../src/systems/ProjectManager.res",
         "action": "De-bloat",
@@ -37,11 +35,13 @@
         "complexity": 14.321971830985916,
         "recommended_splits": 2
       }
-    },
+    }
+  ],
+  "css": [
     {
       "Violation": {
-        "file": "../../src/utils/RateLimiter.res",
-        "pattern": "mutable ",
+        "file": "../../css/components/buttons.css",
+        "pattern": "!important",
         "strategy": ""
       }
     }

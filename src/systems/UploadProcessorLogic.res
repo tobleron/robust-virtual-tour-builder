@@ -129,9 +129,7 @@ let handleExifReport = (
   let report: Types.uploadReport = {success: successNames, skipped: skippedNames}
 
   ExifReportGenerator.generateExifReport(reportData)->Promise.then(res => {
-    GlobalStateBridge.dispatch(
-      SetExifReport(JsonCombinators.Json.Encode.string(res.report)),
-    )
+    GlobalStateBridge.dispatch(SetExifReport(JsonCombinators.Json.Encode.string(res.report)))
     switch res.suggestedProjectName {
     | Some(name) if name != "" && !RegExp.test(/Unknown/i, name) =>
       let currentName = GlobalStateBridge.getState().tourName
