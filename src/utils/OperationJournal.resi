@@ -22,12 +22,8 @@ type t = {
 }
 
 let make: unit => t
-let startOperation: (
-  ~operation: string,
-  ~context: JSON.t,
-  ~retryable: bool,
-) => string // Returns ID
-let completeOperation: (string) => unit
+let startOperation: (~operation: string, ~context: JSON.t, ~retryable: bool) => string // Returns ID
+let completeOperation: string => unit
 let failOperation: (string, string) => unit
 let updateStatus: (string, operationStatus) => unit
 let getInterrupted: t => array<journalEntry>

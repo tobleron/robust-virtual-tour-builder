@@ -39,7 +39,8 @@ let statusEncoder = (status: operationStatus) => {
   | Pending => Encode.string("Pending")
   | InProgress => Encode.string("InProgress")
   | Completed => Encode.string("Completed")
-  | Failed(msg) => Encode.object([("status", Encode.string("Failed")), ("error", Encode.string(msg))])
+  | Failed(msg) =>
+    Encode.object([("status", Encode.string("Failed")), ("error", Encode.string(msg))])
   | Interrupted => Encode.string("Interrupted")
   | Cancelled => Encode.string("Cancelled")
   }
@@ -123,8 +124,7 @@ let saveCurrent = () => {
 external asJson: 'a => JSON.t = "%identity"
 
 let load = () => {
-  get(journalKey)
-  ->Promise.then(raw => {
+  get(journalKey)->Promise.then(raw => {
     switch Nullable.toOption(raw) {
     | Some(data) =>
       let json = asJson(data)
@@ -133,7 +133,12 @@ let load = () => {
         currentJournal := journal
         Promise.resolve(journal)
       | Error(e) =>
-        Logger.warn(~module_="OperationJournal", ~message="Failed to decode journal", ~data={"error": e}, ())
+        Logger.warn(
+          ~module_="OperationJournal",
+          ~message="Failed to decode journal",
+          ~data={"error": e},
+          (),
+        )
         let newJournal = make()
         currentJournal := newJournal
         Promise.resolve(newJournal)
@@ -156,13 +161,13 @@ let generateId = () => {
 let startOperation = (~operation: string, ~context: JSON.t, ~retryable: bool) => {
   let id = generateId()
   let entry: journalEntry = {
-    id: id,
-    operation: operation,
+    id,
+    operation,
     status: InProgress,
     startTime: Date.now(),
     endTime: None,
-    context: context,
-    retryable: retryable,
+    context,
+    retryable,
   }
 
   let newEntries = Array.concat(currentJournal.contents.entries, [entry])
@@ -175,7 +180,7 @@ let startOperation = (~operation: string, ~context: JSON.t, ~retryable: bool) =>
 let updateStatus = (id: string, status: operationStatus) => {
   let newEntries = Belt.Array.map(currentJournal.contents.entries, entry => {
     if entry.id == id {
-      {...entry, status: status, endTime: Some(Date.now())}
+      {...entry, status, endTime: Some(Date.now())}
     } else {
       entry
     }

@@ -6244,6 +6244,12 @@
 │   │   │   │   ├── QualityIndicator.cmj
 │   │   │   │   ├── QualityIndicator.cmt
 │   │   │   │   ├── QualityIndicator.res
+│   │   │   │   ├── RecoveryPrompt.ast
+│   │   │   │   ├── RecoveryPrompt.bs.js
+│   │   │   │   ├── RecoveryPrompt.cmi
+│   │   │   │   ├── RecoveryPrompt.cmj
+│   │   │   │   ├── RecoveryPrompt.cmt
+│   │   │   │   ├── RecoveryPrompt.res
 │   │   │   │   ├── ReturnPrompt.ast
 │   │   │   │   ├── ReturnPrompt.bs.js
 │   │   │   │   ├── ReturnPrompt.cmi
@@ -7096,6 +7102,15 @@
 │   │   │       ├── LoggerTelemetry.cmj
 │   │   │       ├── LoggerTelemetry.cmt
 │   │   │       ├── LoggerTelemetry.res
+│   │   │       ├── OperationJournal.ast
+│   │   │       ├── OperationJournal.bs.js
+│   │   │       ├── OperationJournal.cmi
+│   │   │       ├── OperationJournal.cmj
+│   │   │       ├── OperationJournal.cmt
+│   │   │       ├── OperationJournal.cmti
+│   │   │       ├── OperationJournal.iast
+│   │   │       ├── OperationJournal.res
+│   │   │       ├── OperationJournal.resi
 │   │   │       ├── PathInterpolation.ast
 │   │   │       ├── PathInterpolation.bs.js
 │   │   │       ├── PathInterpolation.cmi
@@ -7551,6 +7566,12 @@
 │   │           ├── NotificationLayer_v.test.cmj
 │   │           ├── NotificationLayer_v.test.cmt
 │   │           ├── NotificationLayer_v.test.res
+│   │           ├── OperationJournal_v.test.ast
+│   │           ├── OperationJournal_v.test.bs.js
+│   │           ├── OperationJournal_v.test.cmi
+│   │           ├── OperationJournal_v.test.cmj
+│   │           ├── OperationJournal_v.test.cmt
+│   │           ├── OperationJournal_v.test.res
 │   │           ├── OptimisticAction_v.test.ast
 │   │           ├── OptimisticAction_v.test.bs.js
 │   │           ├── OptimisticAction_v.test.cmi
@@ -8782,6 +8803,19 @@
 │   │   ├── NotificationLayer_v.test.cmj
 │   │   ├── NotificationLayer_v.test.cmt
 │   │   ├── NotificationLayer_v.test.res
+│   │   ├── OperationJournal.ast
+│   │   ├── OperationJournal.cmi
+│   │   ├── OperationJournal.cmj
+│   │   ├── OperationJournal.cmt
+│   │   ├── OperationJournal.cmti
+│   │   ├── OperationJournal.iast
+│   │   ├── OperationJournal.res
+│   │   ├── OperationJournal.resi
+│   │   ├── OperationJournal_v.test.ast
+│   │   ├── OperationJournal_v.test.cmi
+│   │   ├── OperationJournal_v.test.cmj
+│   │   ├── OperationJournal_v.test.cmt
+│   │   ├── OperationJournal_v.test.res
 │   │   ├── OptimisticAction.ast
 │   │   ├── OptimisticAction.cmi
 │   │   ├── OptimisticAction.cmj
@@ -8950,6 +8984,11 @@
 │   │   ├── ReBindings_v.test.cmj
 │   │   ├── ReBindings_v.test.cmt
 │   │   ├── ReBindings_v.test.res
+│   │   ├── RecoveryPrompt.ast
+│   │   ├── RecoveryPrompt.cmi
+│   │   ├── RecoveryPrompt.cmj
+│   │   ├── RecoveryPrompt.cmt
+│   │   ├── RecoveryPrompt.res
 │   │   ├── Reducer.ast
 │   │   ├── Reducer.cmi
 │   │   ├── Reducer.cmj
@@ -9744,7 +9783,8 @@
 │   ├── diagnostic.log
 │   ├── error.log
 │   ├── log_changes.txt
-│   └── project-guard.log
+│   ├── project-guard.log
+│   └── telemetry.log
 ├── old_ref
 │   ├── 7aadee4
 │   │   ├── CHANGELOG.md
@@ -11261,6 +11301,8 @@
 │   │   ├── PreviewArrow.res
 │   │   ├── QualityIndicator.bs.js
 │   │   ├── QualityIndicator.res
+│   │   ├── RecoveryPrompt.bs.js
+│   │   ├── RecoveryPrompt.res
 │   │   ├── ReturnPrompt.bs.js
 │   │   ├── ReturnPrompt.res
 │   │   ├── SceneList
@@ -11575,6 +11617,9 @@
 │       ├── LoggerLogic.res
 │       ├── LoggerTelemetry.bs.js
 │       ├── LoggerTelemetry.res
+│       ├── OperationJournal.bs.js
+│       ├── OperationJournal.res
+│       ├── OperationJournal.resi
 │       ├── PathInterpolation.bs.js
 │       ├── PathInterpolation.res
 │       ├── PersistenceLayer.bs.js
@@ -11607,7 +11652,8 @@
 ├── tasks
 │   ├── TASKS.md
 │   ├── active
-│   │   └── 1202_IMPLEMENT_OPTIMISTIC_UPDATE_ROLLBACK.md
+│   │   ├── 1202_IMPLEMENT_OPTIMISTIC_UPDATE_ROLLBACK.md
+│   │   └── 1205_ENHANCE_PERSISTENCE_MID_FLIGHT_RECOVERY.md
 │   ├── completed
 │   │   ├── 1081_Surgical_Refactor_SYSTEMS_FRONTEND_DONE.md
 │   │   ├── 1082_Surgical_Refactor_COMPONENTS_FRONTEND_DONE.md
@@ -11707,7 +11753,6 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1205_ENHANCE_PERSISTENCE_MID_FLIGHT_RECOVERY.md
 │   │   ├── 1206_EXPAND_E2E_ROBUSTNESS_TEST_SUITE.md
 │   │   ├── 1207_JSON_COMBINATORS_AUDIT_AND_MIGRATION.md
 │   │   ├── 1208_IMPROVE_DEV_SYSTEM_ANALYZER.md
@@ -11715,7 +11760,9 @@
 │   │   ├── 1210_Classify_Map_Entries.md
 │   │   ├── 1211_Fix_Violations_FRONTEND.md
 │   │   ├── 1212_Surgical_Refactor_CORE_FRONTEND.md
-│   │   └── 1213_Merge_Folders_FRONTEND.md
+│   │   ├── 1213_Merge_Folders_FRONTEND.md
+│   │   ├── 1218_BRAINSTORM_RETRY_LOGIC_HANDLERS.md
+│   │   └── 1218_Surgical_Refactor_SYSTEMS_FRONTEND.md
 │   └── postponed
 ├── test-results
 │   ├── robustness-Application-Rob-2ce67-d-Saving-during-Interaction-chromium
@@ -11906,6 +11953,8 @@
 │   │   ├── NotificationContext_v.test.res
 │   │   ├── NotificationLayer_v.test.bs.js
 │   │   ├── NotificationLayer_v.test.res
+│   │   ├── OperationJournal_v.test.bs.js
+│   │   ├── OperationJournal_v.test.res
 │   │   ├── OptimisticAction_v.test.bs.js
 │   │   ├── OptimisticAction_v.test.res
 │   │   ├── PannellumAdapter_v.test.bs.js
@@ -12090,4 +12139,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-517 directories, 11574 files
+517 directories, 11623 files
