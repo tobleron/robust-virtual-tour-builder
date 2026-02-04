@@ -207,6 +207,7 @@ let make = React.memo(() => {
         SidebarLogic.updateProgress(~onCancel, pct->Int.toFloat, msg, true, "Save")
       })
       SidebarLogic.updateProgress(100.0, "Saved", false, "")
+      EventBus.dispatch(ShowNotification("Project Saved", #Success, None))
     } catch {
     | exn => {
         let (msg, _) = Logger.getErrorDetails(exn)
@@ -214,6 +215,7 @@ let make = React.memo(() => {
           SidebarLogic.updateProgress(0.0, "Cancelled", false, "")
         } else {
           SidebarLogic.updateProgress(0.0, "Error", false, "")
+          EventBus.dispatch(ShowNotification("Save failed: " ++ msg, #Error, None))
         }
       }
     }

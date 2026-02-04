@@ -117,6 +117,7 @@ describe("HotspotActionMenu", () => {
     }
     let lastAction = ref(None)
     let mockDispatch = action => lastAction := Some(action)
+    GlobalStateBridge.setDispatch(mockDispatch)
 
     let hotspot: hotspot = {
       ...defaultHotspot,
@@ -137,10 +138,34 @@ describe("HotspotActionMenu", () => {
     await wait(50)
 
     let deleteBtn = Dom.querySelector(container, "button[title='Delete Link']")
+
+    let modalEvent = ref(None)
+    let unsubscribe = EventBus.subscribe(e => {
+      switch e {
+      | ShowModal(config) => modalEvent := Some(config)
+      | _ => ()
+      }
+    })
+
     switch Nullable.toOption(deleteBtn) {
     | Some(btn) => Dom.click(btn)
     | None => t->expect(false)->Expect.toBe(true)
     }
+
+    // Modal should be triggered
+    switch modalEvent.contents {
+    | Some(config) =>
+      t->expect(config.title)->Expect.toBe("Delete Link")
+      // Find Delete button and click it
+      let deleteActionBtn = Belt.Array.getBy(config.buttons, b => b.label == "Delete")
+      switch deleteActionBtn {
+      | Some(b) => b.onClick()
+      | None => t->expect("Delete Button")->Expect.toBe("Found")
+      }
+    | None => t->expect("ShowModal")->Expect.toBe("Dispatched")
+    }
+
+    unsubscribe()
 
     t->expect(lastAction.contents)->Expect.toEqual(Some(Actions.RemoveHotspot(0, 5)))
 
@@ -165,6 +190,7 @@ describe("HotspotActionMenu", () => {
     }
     let lastAction = ref(None)
     let mockDispatch = action => lastAction := Some(action)
+    GlobalStateBridge.setDispatch(mockDispatch)
 
     let hotspot: hotspot = {
       ...defaultHotspot,
