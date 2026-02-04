@@ -8,6 +8,8 @@ const __dirname = path.dirname(__filename);
 
 const FIXTURES_DIR = __dirname;
 const IMAGE_PATH = path.join(FIXTURES_DIR, 'image.jpg');
+const IMAGE_PATH_2 = path.join(FIXTURES_DIR, 'image2.jpg');
+const IMAGE_PATH_3 = path.join(FIXTURES_DIR, 'image3.jpg');
 const ZIP_PATH = path.join(FIXTURES_DIR, 'tour.vt.zip');
 const ZIP_LINKED_PATH = path.join(FIXTURES_DIR, 'tour_linked.vt.zip');
 const ZIP_SIM_PATH = path.join(FIXTURES_DIR, 'tour_sim.vt.zip');
@@ -105,6 +107,15 @@ async function main() {
   // Write image
   fs.writeFileSync(IMAGE_PATH, minimalJpeg);
   console.log(`Created ${IMAGE_PATH}`);
+
+  // Write unique images (append byte to change hash)
+  const jpeg2 = Buffer.concat([minimalJpeg, Buffer.from([0x01])]);
+  fs.writeFileSync(IMAGE_PATH_2, jpeg2);
+  console.log(`Created ${IMAGE_PATH_2}`);
+
+  const jpeg3 = Buffer.concat([minimalJpeg, Buffer.from([0x02])]);
+  fs.writeFileSync(IMAGE_PATH_3, jpeg3);
+  console.log(`Created ${IMAGE_PATH_3}`);
 
   // Create ZIP
   const zip = new JSZip();
