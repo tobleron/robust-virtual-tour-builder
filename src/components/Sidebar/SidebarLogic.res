@@ -161,20 +161,21 @@ let getProjectData = (state: Types.state) => {
 }
 
 let handleDeleteScene = (index: int) => {
-  InteractionQueue.enqueue(Thunk(async () => {
-    let _ = await OptimisticAction.execute(
-      ~action=Actions.DeleteScene(index),
-      ~apiCall=() => {
-        let state = GlobalStateBridge.getState()
-        switch state.sessionId {
-        | Some(sid) =>
-          let projectData = getProjectData(state)
-          Api.ProjectApi.saveProject(sid, projectData)
-        | None => Promise.resolve(Error("No active session"))
-        }
+  InteractionQueue.enqueue(
+    Thunk(
+      async () => {
+        let _ = await OptimisticAction.execute(~action=Actions.DeleteScene(index), ~apiCall=() => {
+          let state = GlobalStateBridge.getState()
+          switch state.sessionId {
+          | Some(sid) =>
+            let projectData = getProjectData(state)
+            Api.ProjectApi.saveProject(sid, projectData)
+          | None => Promise.resolve(Error("No active session"))
+          }
+        })
       },
-    )
-  }))
+    ),
+  )
 }
 
 let handleExport = async (scenes, ~signal, ~onCancel) => {
