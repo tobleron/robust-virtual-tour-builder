@@ -259,6 +259,7 @@ describe("Sidebar", () => {
         "message": "Uploading icons...",
         "phase": "Upload",
         "error": false,
+        "onCancel": () => (),
       }),
     )
 

@@ -40,7 +40,14 @@ type event =
   | ShowModal(modalConfig)
   | CloseModal
   | UpdateProcessing(
-      {"active": bool, "progress": float, "message": string, "phase": string, "error": bool},
+      {
+        "active": bool,
+        "progress": float,
+        "message": string,
+        "phase": string,
+        "error": bool,
+        "onCancel": unit => unit,
+      },
     )
   | OpenHotspotMenu({"anchor": Dom.element, "hotspot": Types.hotspot, "index": int})
   | ForceHotspotSync

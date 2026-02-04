@@ -19,12 +19,13 @@ module SidebarTypes = {
     "message": string,
     "phase": string,
     "error": bool,
+    "onCancel": unit => unit,
   }
 }
 
 open ReBindings
 
-let updateProgress = (pct, msg, active, phase) => {
+let updateProgress = (~onCancel=() => (), pct, msg, active, phase) => {
   EventBus.dispatch(
     UpdateProcessing({
       "active": active,
@@ -32,6 +33,7 @@ let updateProgress = (pct, msg, active, phase) => {
       "message": msg,
       "phase": phase,
       "error": false,
+      "onCancel": onCancel,
     }),
   )
 }
@@ -145,17 +147,22 @@ let handleLoadProject = async (filesOpt, dispatch, _sceneCount, target) => {
   }
 }
 
-let handleExport = async scenes => {
-  updateProgress(0.0, "Exporting...", true, "Export")
+let handleExport = async (scenes, ~signal, ~onCancel) => {
+  updateProgress(~onCancel, 0.0, "Exporting...", true, "Export")
   try {
     let exportResult = await Exporter.exportTour(
       scenes,
-      Some((pct, _, msg) => updateProgress(pct, msg, true, "Export")),
+      ~signal,
+      Some((pct, _, msg) => updateProgress(~onCancel, pct, msg, true, "Export")),
     )
     switch exportResult {
     | Ok() => {
         EventBus.dispatch(ShowNotification("Export complete", #Success, None))
         updateProgress(100.0, "Done", false, "")
+      }
+    | Error("CANCELLED") => {
+        Logger.info(~module_="SidebarLogic", ~message="EXPORT_CANCELLED_HANDLED", ())
+        updateProgress(0.0, "Cancelled", false, "")
       }
     | Error(msg) => {
         EventBus.dispatch(

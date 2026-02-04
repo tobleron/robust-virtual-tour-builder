@@ -3,45 +3,53 @@
 @react.component
 let make = React.memo((
   ~onNew: unit => unit,
-  ~onSave: unit => unit,
-  ~onLoad: unit => unit,
+  ~onSave: (~signal: BrowserBindings.AbortController.signal, ~onCancel: unit => unit) => unit,
+  ~onLoad: (~signal: BrowserBindings.AbortController.signal, ~onCancel: unit => unit) => unit,
   ~onAbout: unit => unit,
-  ~onExport: unit => unit,
+  ~onExport: (~signal: BrowserBindings.AbortController.signal, ~onCancel: unit => unit) => unit,
   ~onTeaser: unit => unit,
   ~exportReady: bool,
   ~teaserReady: bool,
 ) => {
   let isPermitted = UseIsInteractionPermitted.useIsInteractionPermitted()
 
-  let (
-    saveExecute,
-    savePending,
-    _saveThrottled,
-  ) = UseThrottledAction.useThrottledAction(
-    ~action=async () => onSave(),
+  let saveCancelRef = React.useRef(() => ())
+  let (saveExecute, saveCancel, savePending, _saveThrottled) = UseThrottledAction.useThrottledAction(
+    ~action=async (~signal) => onSave(~signal, ~onCancel=() => saveCancelRef.current()),
     ~debounceMs=2000,
     ~rateLimit=(5, 60000),
   )
+  React.useEffect1(() => {
+    saveCancelRef.current = saveCancel
+    None
+  }, [saveCancel])
 
-  let (
-    loadExecute,
-    loadPending,
-    _loadThrottled,
-  ) = UseThrottledAction.useThrottledAction(
-    ~action=async () => onLoad(),
+  let loadCancelRef = React.useRef(() => ())
+  let (loadExecute, loadCancel, loadPending, _loadThrottled) = UseThrottledAction.useThrottledAction(
+    ~action=async (~signal) => onLoad(~signal, ~onCancel=() => loadCancelRef.current()),
     ~debounceMs=2000,
     ~rateLimit=(5, 60000),
   )
+  React.useEffect1(() => {
+    loadCancelRef.current = loadCancel
+    None
+  }, [loadCancel])
 
+  let exportCancelRef = React.useRef(() => ())
   let (
     exportExecute,
+    exportCancel,
     exportPending,
     _exportThrottled,
   ) = UseThrottledAction.useThrottledAction(
-    ~action=async () => onExport(),
+    ~action=async (~signal) => onExport(~signal, ~onCancel=() => exportCancelRef.current()),
     ~debounceMs=5000,
     ~rateLimit=(3, 60000),
   )
+  React.useEffect1(() => {
+    exportCancelRef.current = exportCancel
+    None
+  }, [exportCancel])
 
   React.useEffect0(() => {
     Logger.initialized(~module_="SidebarActions")
