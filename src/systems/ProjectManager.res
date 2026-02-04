@@ -11,7 +11,7 @@ type apiError = string
 // --- INTERNAL LOGIC ---
 
 module Logic = {
-  external asJson: unknown => JSON.t = "%identity"
+  external asJson: 'a => JSON.t = "%identity"
 
   let validationReportWrapperDecoder = JsonCombinators.Json.Decode.object(field => {
     field.required("validationReport", JsonParsers.Shared.validationReport)
@@ -289,6 +289,15 @@ let saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) =
   if Array.length(state.scenes) == 0 {
     Promise.resolve(false)
   } else {
+    let journalId = OperationJournal.startOperation(
+      ~operation="SaveProject",
+      ~context=Logic.asJson({
+        "sceneCount": Array.length(state.scenes),
+        "tourName": state.tourName,
+      }),
+      ~retryable=true,
+    )
+
     let tourName = if state.tourName == "" {
       "Virtual_Tour"
     } else {
@@ -346,25 +355,37 @@ let saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) =
           }->Promise.then(
             success => {
               if success {
+                OperationJournal.completeOperation(journalId)
                 Logger.endOperation(
                   ~module_="ProjectManager",
                   ~operation="PROJECT_SAVE",
                   ~data=Some({"durationMs": Date.now() -. saveStartTime}),
                   (),
                 )
+              } else {
+                OperationJournal.failOperation(journalId, "Save failed during file write")
               }
               Promise.resolve(success)
             },
           )
-        | Error(_) => Promise.resolve(false)
+        | Error(msg) => {
+          if String.includes(msg, "AbortError") {
+            OperationJournal.updateStatus(journalId, Cancelled)
+          } else {
+            OperationJournal.failOperation(journalId, msg)
+          }
+          Promise.resolve(false)
+        }
         }
       })
     })
     ->Promise.catch(exn => {
       let (msg, _) = Logger.getErrorDetails(exn)
       if String.includes(msg, "AbortError") {
+        OperationJournal.updateStatus(journalId, Cancelled)
         Logger.info(~module_="ProjectManager", ~message="SAVE_CANCELLED_PICKER", ())
       } else {
+        OperationJournal.failOperation(journalId, msg)
         Logger.error(~module_="ProjectManager", ~message="SAVE_FAILED", ~data={"error": msg}, ())
       }
       Promise.resolve(false)
