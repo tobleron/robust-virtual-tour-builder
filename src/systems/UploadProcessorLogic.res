@@ -96,30 +96,18 @@ let createScenePayload = (items: array<UploadTypes.uploadItem>) => {
   Belt.Array.map(items, item => {
     let preview = Option.getOr(item.preview, item.original)
     let tiny = Option.getOr(item.tiny, preview)
-    let obj = Dict.make()
-    Dict.set(obj, "id", Nullable.toOption(item.id)->Option.getOr("")->JSON.Encode.string)
-    Dict.set(obj, "originalName", File.name(item.original)->JSON.Encode.string)
-    Dict.set(obj, "name", File.name(preview)->JSON.Encode.string)
 
-    let encodeFile = (f: Types.file) => {
-      switch f {
-      | Url(s) => JSON.Encode.string(s)
-      | File(file) => castToJson(file)
-      | Blob(blob) => castToJson(blob)
-      }
-    }
-
-    Dict.set(obj, "original", encodeFile(Types.File(item.original)))
-    Dict.set(obj, "preview", encodeFile(Types.File(preview)))
-    Dict.set(obj, "tiny", encodeFile(Types.File(tiny)))
-
-    // Optional types don't need casting if they are JSON.t already?
-    // Types.file is not JSON.t, it's a variant.
-    // quality and metadata are JSON.t options.
-    Dict.set(obj, "quality", Option.getOr(item.quality, JSON.Encode.null))
-    Dict.set(obj, "metadata", Option.getOr(item.metadata, JSON.Encode.null))
-    Dict.set(obj, "colorGroup", JSON.Encode.string(Option.getOr(item.colorGroup, "0")))
-    castToJson(obj)
+    JsonEncoders.Upload.sceneItem(
+      ~id=Nullable.toOption(item.id)->Option.getOr(""),
+      ~originalName=File.name(item.original),
+      ~name=File.name(preview),
+      ~original=Types.File(item.original),
+      ~preview=Types.File(preview),
+      ~tiny=Types.File(tiny),
+      ~quality=item.quality,
+      ~metadata=item.metadata,
+      ~colorGroup=Option.getOr(item.colorGroup, "0"),
+    )
   })
 }
 
@@ -141,7 +129,9 @@ let handleExifReport = (
   let report: Types.uploadReport = {success: successNames, skipped: skippedNames}
 
   ExifReportGenerator.generateExifReport(reportData)->Promise.then(res => {
-    GlobalStateBridge.dispatch(SetExifReport(JSON.Encode.string(res.report)))
+    GlobalStateBridge.dispatch(
+      SetExifReport(JsonCombinators.Json.Encode.string(res.report)),
+    )
     switch res.suggestedProjectName {
     | Some(name) if name != "" && !RegExp.test(/Unknown/i, name) =>
       let currentName = GlobalStateBridge.getState().tourName
