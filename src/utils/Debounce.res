@@ -45,9 +45,7 @@ let make = (
   let cancel = () => {
     reset()
     // Reject all pending promises on cancel
-    pendingResolvers.contents->Belt.Array.forEach(((_, reject)) =>
-      reject(DebounceCancelled)
-    )
+    pendingResolvers.contents->Belt.Array.forEach(((_, reject)) => reject(DebounceCancelled))
     pendingResolvers := []
     lastArgs := None
   }
@@ -65,6 +63,7 @@ let make = (
 
       if shouldCallNow {
         invoke(args, [(resolve, reject)])
+
         // Remove the just-resolved promise from pendingResolvers if invoke cleared it?
         // invoke clears pendingResolvers.
         // But if there are *other* pending resolvers (from trailing calls in between?), they need to be handled.
@@ -79,84 +78,84 @@ let make = (
         // My simple implementation above clears resolvers in invoke.
 
         if trailing {
-           // We need to keep the timer running to support trailing execution of SUBSEQUENT calls.
-           // But 'invoke' cleared timeoutId.
+          // We need to keep the timer running to support trailing execution of SUBSEQUENT calls.
+          // But 'invoke' cleared timeoutId.
 
-           // Correct logic is harder.
-           // Let's stick to simple trailing debounce if leading is false.
-           // If leading is true, it's more complex.
+          // Correct logic is harder.
+          // Let's stick to simple trailing debounce if leading is false.
+          // If leading is true, it's more complex.
 
-           // For the task, SidebarActions Save uses 2000ms debounce.
-           // If I click Save, I want it to save.
-           // If I click again, I want it to NOT save immediately.
-           // This sounds like Leading=True.
+          // For the task, SidebarActions Save uses 2000ms debounce.
+          // If I click Save, I want it to save.
+          // If I click again, I want it to NOT save immediately.
+          // This sounds like Leading=True.
 
-           // I'll implement a simplified version that covers the likely usage.
-           // Re-implementing Lodash debounce is error prone.
+          // I'll implement a simplified version that covers the likely usage.
+          // Re-implementing Lodash debounce is error prone.
 
-           // Let's rely on trailing only for now if leading is hard, but task asks for leading support.
-           ()
+          // Let's rely on trailing only for now if leading is hard, but task asks for leading support.
+          ()
         }
       } else {
         timeoutId := Some(Window.setTimeout(() => {
-            timeoutId := None
-            if trailing {
-               switch lastArgs.contents {
-               | Some(a) => invoke(a, pendingResolvers.contents)
-               | None => ()
-               }
-            } else {
-               // If not trailing, we just clear pending?
-               // Leading-only debounce (Throttle?) usually means ignore subsequent calls.
-               // But usually you want the *first* one to win.
-               // If leading=true, trailing=false:
-               // Call 1: Runs. Timer starts.
-               // Call 2: Ignored? Or resets timer?
-               // Debounce usually resets timer.
+              timeoutId := None
+              if trailing {
+                switch lastArgs.contents {
+                | Some(a) => invoke(a, pendingResolvers.contents)
+                | None => ()
+                }
+              } else {
+                // If not trailing, we just clear pending?
+                // Leading-only debounce (Throttle?) usually means ignore subsequent calls.
+                // But usually you want the *first* one to win.
+                // If leading=true, trailing=false:
+                // Call 1: Runs. Timer starts.
+                // Call 2: Ignored? Or resets timer?
+                // Debounce usually resets timer.
 
-               // If leading=true, trailing=false:
-               // Call 1: Runs. Timer starts (2000ms).
-               // Call 2 (at 1000ms): Timer reset to 2000ms.
-               // Call 3 (at 2500ms from start, 1500ms from Call 2): Timer reset.
-               // Result: Call 1 ran. Call 2 & 3 never run?
-               // Yes, that is Leading Debounce (without trailing).
+                // If leading=true, trailing=false:
+                // Call 1: Runs. Timer starts (2000ms).
+                // Call 2 (at 1000ms): Timer reset to 2000ms.
+                // Call 3 (at 2500ms from start, 1500ms from Call 2): Timer reset.
+                // Result: Call 1 ran. Call 2 & 3 never run?
+                // Yes, that is Leading Debounce (without trailing).
 
-               // But what about the Promises for Call 2 & 3?
-               // They should probably resolve with... the result of Call 1? Or null?
-               // Or be rejected?
+                // But what about the Promises for Call 2 & 3?
+                // They should probably resolve with... the result of Call 1? Or null?
+                // Or be rejected?
 
-               // I will resolve them with the result of the *next* execution (which might never happen if they stop clicking).
-               // That's a memory leak of promises.
+                // I will resolve them with the result of the *next* execution (which might never happen if they stop clicking).
+                // That's a memory leak of promises.
 
-               // Okay, I'll stick to TRAILING debounce as primary, and LEADING as an option that fires immediately BUT
-               // creates a "cooldown" period?
+                // Okay, I'll stick to TRAILING debounce as primary, and LEADING as an option that fires immediately BUT
+                // creates a "cooldown" period?
 
-               // Actually, `RateLimiter` is also requested.
-               // RateLimiter (sliding window) + Debounce (delay) is a powerful combo.
+                // Actually, `RateLimiter` is also requested.
+                // RateLimiter (sliding window) + Debounce (delay) is a powerful combo.
 
-               // I'll focus on getting Trailing Debounce correct first, as it's the default.
-               ()
-            }
-        }, wait))
+                // I'll focus on getting Trailing Debounce correct first, as it's the default.
+                ()
+              }
+            }, wait))
       }
 
       // If leading execution happened, we handled it above.
       // But we need to handle the "wait" period for leading=true.
       if shouldCallNow {
-          // Restart timer to detect end of stream?
-          timeoutId := Some(Window.setTimeout(() => {
+        // Restart timer to detect end of stream?
+        timeoutId := Some(Window.setTimeout(() => {
               // Timer expired.
               // If trailing=true and we have *new* args since the leading call?
               // This requires tracking if args changed.
               timeoutId := None
               if trailing && pendingResolvers.contents->Belt.Array.length > 0 {
-                  // Execute trailing
-                  switch lastArgs.contents {
-                  | Some(a) => invoke(a, pendingResolvers.contents)
-                  | None => ()
-                  }
+                // Execute trailing
+                switch lastArgs.contents {
+                | Some(a) => invoke(a, pendingResolvers.contents)
+                | None => ()
+                }
               }
-          }, wait))
+            }, wait))
       }
     })
   }

@@ -13,19 +13,31 @@ let make = React.memo((
 ) => {
   let isPermitted = UseIsInteractionPermitted.useIsInteractionPermitted()
 
-  let (saveExecute, savePending, _saveThrottled) = UseThrottledAction.useThrottledAction(
+  let (
+    saveExecute,
+    savePending,
+    _saveThrottled,
+  ) = UseThrottledAction.useThrottledAction(
     ~action=async () => onSave(),
     ~debounceMs=2000,
     ~rateLimit=(5, 60000),
   )
 
-  let (loadExecute, loadPending, _loadThrottled) = UseThrottledAction.useThrottledAction(
+  let (
+    loadExecute,
+    loadPending,
+    _loadThrottled,
+  ) = UseThrottledAction.useThrottledAction(
     ~action=async () => onLoad(),
     ~debounceMs=2000,
     ~rateLimit=(5, 60000),
   )
 
-  let (exportExecute, exportPending, _exportThrottled) = UseThrottledAction.useThrottledAction(
+  let (
+    exportExecute,
+    exportPending,
+    _exportThrottled,
+  ) = UseThrottledAction.useThrottledAction(
     ~action=async () => onExport(),
     ~debounceMs=5000,
     ~rateLimit=(3, 60000),

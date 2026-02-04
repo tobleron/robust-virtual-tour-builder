@@ -59,20 +59,15 @@ let performSnapshot = () => {
   })
 }
 
-let debouncedSnapshot = Debounce.make(
-  ~fn=() => {
-    if RateLimiter.canCall(snapshotLimiter) {
-      RateLimiter.recordCall(snapshotLimiter)
-      performSnapshot()
-    } else {
-      Logger.warn(~module_="ViewerSnapshot", ~message="SNAPSHOT_RATE_LIMITED", ())
-      Promise.resolve()
-    }
-  },
-  ~wait=1000,
-  ~leading=false,
-  ~trailing=true,
-)
+let debouncedSnapshot = Debounce.make(~fn=() => {
+  if RateLimiter.canCall(snapshotLimiter) {
+    RateLimiter.recordCall(snapshotLimiter)
+    performSnapshot()
+  } else {
+    Logger.warn(~module_="ViewerSnapshot", ~message="SNAPSHOT_RATE_LIMITED", ())
+    Promise.resolve()
+  }
+}, ~wait=1000, ~leading=false, ~trailing=true)
 
 let requestIdleSnapshot = () => {
   switch Nullable.toOption(state.contents.idleSnapshotTimeout) {

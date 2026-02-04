@@ -8,8 +8,15 @@
 
 ---
 
-## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (1)
+## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (2)
 - [ ] `../../src/hooks/UseIsInteractionPermitted.res`
+- [ ] `../../src/hooks/UseThrottledAction.res`
 
 ---
 
+## 🧩 MERGE TASKS (1)
+### Merge Folder: `src/hooks`
+- **Reason:** Recursive Feature Pod: 2 files in subtree sum to 71 LOC (fits in context). Max Drag: 9.58
+- **Files:**
+  - `src/hooks/../../src/hooks/UseIsInteractionPermitted.res`
+  - `src/hooks/../../src/hooks/UseThrottledAction.res`

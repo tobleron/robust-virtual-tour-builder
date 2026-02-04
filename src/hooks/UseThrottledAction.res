@@ -22,42 +22,37 @@ let useThrottledAction = (
   }, [action])
 
   let debounced = React.useMemo2(() => {
-    Debounce.make(
-      ~fn=() => {
-        if RateLimiter.canCall(rateLimiter) {
-             RateLimiter.recordCall(rateLimiter)
+    Debounce.make(~fn=() => {
+      if RateLimiter.canCall(rateLimiter) {
+        RateLimiter.recordCall(rateLimiter)
 
-             if !RateLimiter.canCall(rateLimiter) {
-                 setThrottled(_ => true)
-                 let _ = Window.setTimeout(() => setThrottled(_ => false), windowMs)
-             }
+        if !RateLimiter.canCall(rateLimiter) {
+          setThrottled(_ => true)
+          let _ = Window.setTimeout(() => setThrottled(_ => false), windowMs)
+        }
 
-             setPending(_ => true)
-             actionRef.current()
-             ->Promise.then(res => {
-               setPending(_ => false)
-               Promise.resolve(Some(res))
-             })
-             ->Promise.catch(_ => {
-               setPending(_ => false)
-               Promise.resolve(None)
-             })
-         } else {
-             setThrottled(_ => true)
-             let _ = Window.setTimeout(() => setThrottled(_ => false), windowMs)
+        setPending(_ => true)
+        actionRef.current()
+        ->Promise.then(
+          res => {
+            setPending(_ => false)
+            Promise.resolve(Some(res))
+          },
+        )
+        ->Promise.catch(
+          _ => {
+            setPending(_ => false)
+            Promise.resolve(None)
+          },
+        )
+      } else {
+        setThrottled(_ => true)
+        let _ = Window.setTimeout(() => setThrottled(_ => false), windowMs)
 
-             EventBus.dispatch(ShowNotification(
-               "Rate limit exceeded. Please wait.",
-               #Warning,
-               None
-             ))
-             Promise.resolve(None)
-         }
-      },
-      ~wait=debounceMs,
-      ~leading=true,
-      ~trailing=false
-    )
+        EventBus.dispatch(ShowNotification("Rate limit exceeded. Please wait.", #Warning, None))
+        Promise.resolve(None)
+      }
+    }, ~wait=debounceMs, ~leading=true, ~trailing=false)
   }, (debounceMs, rateLimiter))
 
   React.useEffect1(() => {

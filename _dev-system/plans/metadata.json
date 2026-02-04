@@ -1,4 +1,13 @@
 {
+  "css": [
+    {
+      "Violation": {
+        "file": "../../css/components/buttons.css",
+        "pattern": "!important",
+        "strategy": ""
+      }
+    }
+  ],
   "rescript": [
     {
       "Surgical": {
@@ -17,6 +26,13 @@
         "pattern": "mutable ",
         "strategy": ""
       }
+    },
+    {
+      "Violation": {
+        "file": "../../src/utils/RateLimiter.res",
+        "pattern": "mutable ",
+        "strategy": ""
+      }
     }
   ],
   "system": [
@@ -24,6 +40,24 @@
       "Ambiguity": {
         "file": "../../src/hooks/UseIsInteractionPermitted.res",
         "strategy": ""
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../src/hooks/UseThrottledAction.res",
+        "strategy": ""
+      }
+    },
+    {
+      "Merge": {
+        "folder": "src/hooks",
+        "files": [
+          "../../src/hooks/UseIsInteractionPermitted.res",
+          "../../src/hooks/UseThrottledAction.res"
+        ],
+        "reason": "Recursive Feature Pod: 2 files in subtree sum to 71 LOC (fits in context). Max Drag: 9.58",
+        "strategy": "",
+        "platform": "frontend"
       }
     }
   ]

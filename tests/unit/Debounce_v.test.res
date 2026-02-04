@@ -3,7 +3,7 @@ open Vitest
 describe("Debounce", () => {
   testAsync("should debounce trailing calls", async t => {
     let callCount = ref(0)
-    let fn = async (arg) => {
+    let fn = async arg => {
       callCount := callCount.contents + 1
       arg
     }
@@ -15,9 +15,11 @@ describe("Debounce", () => {
     let _ = debounced.call(3)
 
     // Wait for debounce
-    await Promise.make((resolve, _) => {
-       let _ = setTimeout(resolve, 100)
-    })
+    await Promise.make(
+      (resolve, _) => {
+        let _ = setTimeout(resolve, 100)
+      },
+    )
 
     t->expect(callCount.contents)->Expect.toBe(1)
   })
@@ -35,9 +37,11 @@ describe("Debounce", () => {
 
     t->expect(callCount.contents)->Expect.toBe(1)
 
-    await Promise.make((resolve, _) => {
-       let _ = setTimeout(resolve, 100)
-    })
+    await Promise.make(
+      (resolve, _) => {
+        let _ = setTimeout(resolve, 100)
+      },
+    )
 
     // Call again after wait
     let _ = debounced.call()

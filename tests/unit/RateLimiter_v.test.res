@@ -19,9 +19,11 @@ describe("RateLimiter", () => {
     RateLimiter.recordCall(limiter)
     t->expect(RateLimiter.canCall(limiter))->Expect.toBe(false)
 
-    await Promise.make((resolve, _) => {
-       let _ = setTimeout(resolve, 100)
-    })
+    await Promise.make(
+      (resolve, _) => {
+        let _ = setTimeout(resolve, 100)
+      },
+    )
 
     t->expect(RateLimiter.canCall(limiter))->Expect.toBe(true)
   })
