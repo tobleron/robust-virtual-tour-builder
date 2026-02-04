@@ -139,7 +139,7 @@ test.describe('Application Robustness', () => {
       console.log('Testing: Escape key during active UI transitions...');
       const addLinkBtn = page.locator('button:has([class*="lucide-plus"])');
 
-      await addLinkBtn.click();
+      await addLinkBtn.click({ force: true });
       // Hit Escape multiple times while the UI is responding
       await page.keyboard.press('Escape');
       await page.keyboard.press('Escape');

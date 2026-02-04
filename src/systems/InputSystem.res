@@ -61,6 +61,12 @@ let handleKeyDown = e => {
       EventBus.dispatch(ShowNotification("Link Cancelled", #Info, None))
     }
 
+    // 0b. Handle Navigation Interruption
+    switch storeState.navigationFsm {
+    | NavigationFSM.Idle | NavigationFSM.Error(_) => ()
+    | _ => GlobalStateBridge.dispatch(Actions.DispatchNavigationFsmEvent(NavigationFSM.Aborted))
+    }
+
     // 1. Close Modals
     let closeBtn = Dom.getElementById("btn-close-style")
     switch Nullable.toOption(closeBtn) {
