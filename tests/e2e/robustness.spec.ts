@@ -111,6 +111,9 @@ test.describe('Application Robustness', () => {
       // Expected: UI remains responsive and save finishes (or fails gracefully)
       await expect(page.locator('#sidebar')).toBeVisible();
       await expect(page.locator('text=/Something went wrong/i')).not.toBeVisible();
+
+      // Verify notification is shown
+      await expect(page.locator('text=/Project Saved/i')).toBeVisible();
     });
 
     test('Interrupted Operation Recovery', async ({ page }) => {
