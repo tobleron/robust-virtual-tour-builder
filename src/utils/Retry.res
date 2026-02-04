@@ -23,7 +23,7 @@ let defaultConfig = {
 let calculateDelay = (attempt, config) => {
   let baseDelay = Float.toInt(
     Float.fromInt(config.initialDelayMs) *.
-    Math.pow(config.backoffMultiplier, ~exp=Float.fromInt(attempt - 1))
+    Math.pow(config.backoffMultiplier, ~exp=Float.fromInt(attempt - 1)),
   )
   let capped = Math.Int.min(baseDelay, config.maxDelayMs)
 
@@ -46,14 +46,7 @@ let defaultShouldRetry = (error: string) => {
 
 @get external aborted: ReBindings.AbortController.signal => bool = "aborted"
 
-let rec loop = async (
-  fn,
-  signal,
-  config,
-  shouldRetry,
-  onRetry,
-  attempt
-) => {
+let rec loop = async (fn, signal, config, shouldRetry, onRetry, attempt) => {
   if aborted(signal) {
     Exhausted("Aborted")
   } else {
@@ -76,7 +69,7 @@ let rec loop = async (
 
         // Wait for delay
         let _ = await Promise.make((resolve, _) => {
-           let _ = ReBindings.Window.setTimeout(() => resolve(. ()), delay)
+          let _ = ReBindings.Window.setTimeout(() => resolve(), delay)
         })
 
         await loop(fn, signal, config, shouldRetry, onRetry, attempt + 1)
@@ -85,13 +78,7 @@ let rec loop = async (
   }
 }
 
-let execute = (
-  ~fn,
-  ~signal,
-  ~config=?,
-  ~shouldRetry=?,
-  ~onRetry=?,
-) => {
+let execute = (~fn, ~signal, ~config=?, ~shouldRetry=?, ~onRetry=?) => {
   let cfg = Option.getOr(config, defaultConfig)
   let should = Option.getOr(shouldRetry, defaultShouldRetry)
 

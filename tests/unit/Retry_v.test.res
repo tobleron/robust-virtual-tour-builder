@@ -11,7 +11,7 @@ describe("Retry", () => {
     let result = await execute(
       ~fn=async (~signal as _) => Ok("success"),
       ~signal,
-      ~config=defaultConfig
+      ~config=defaultConfig,
     )
 
     switch result {
@@ -42,7 +42,7 @@ describe("Retry", () => {
       ...defaultConfig,
       maxRetries: 3,
       initialDelayMs: 1, // very fast
-      jitter: false
+      jitter: false,
     }
 
     let result = await execute(~fn, ~signal, ~config)
@@ -70,7 +70,7 @@ describe("Retry", () => {
       ...defaultConfig,
       maxRetries: 2,
       initialDelayMs: 1,
-      jitter: false
+      jitter: false,
     }
 
     let result = await execute(~fn, ~signal, ~config)
@@ -96,9 +96,7 @@ describe("Retry", () => {
 
     switch result {
     | Success(_) => t->expect(true)->Expect.toBe(false)
-    | Exhausted(e) => {
-        t->expect(e)->Expect.toBe("404 Not Found")
-      }
+    | Exhausted(e) => t->expect(e)->Expect.toBe("404 Not Found")
     }
   })
 
@@ -116,23 +114,21 @@ describe("Retry", () => {
       ...defaultConfig,
       maxRetries: 5,
       initialDelayMs: 10,
-      jitter: false
+      jitter: false,
     }
 
     let result = await execute(~fn, ~signal, ~config)
 
     switch result {
     | Success(_) => t->expect(true)->Expect.toBe(false)
-    | Exhausted(e) => {
-        // Depending on race condition of check vs signal update
-        // The check 'aborted(signal)' is at start of loop.
-        // Loop 1 starts. aborted=false. fn returns Error.
-        // Fn aborted controller.
-        // Loop calls itself recursively (loop 2).
-        // Loop 2 checks aborted(signal). True.
-        // Returns Exhausted("Aborted").
-        t->expect(e)->Expect.toBe("Aborted")
-      }
+    | Exhausted(e) => // Depending on race condition of check vs signal update
+      // The check 'aborted(signal)' is at start of loop.
+      // Loop 1 starts. aborted=false. fn returns Error.
+      // Fn aborted controller.
+      // Loop calls itself recursively (loop 2).
+      // Loop 2 checks aborted(signal). True.
+      // Returns Exhausted("Aborted").
+      t->expect(e)->Expect.toBe("Aborted")
     }
   })
 })

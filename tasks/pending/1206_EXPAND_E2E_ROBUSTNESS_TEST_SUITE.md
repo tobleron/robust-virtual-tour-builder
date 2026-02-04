@@ -74,6 +74,28 @@ test('Area: State - Optimistic Rollback on API Failure', async ({ page }) => {
   // Expected: Rollback notification shown
   await expect(page.locator('text=/reverted/i')).toBeVisible();
 });
+
+test('Area: Network - Retry with Exponential Backoff', async ({ page }) => {
+  let attemptCount = 0;
+  await page.route('**/api/project/save', async (route) => {
+    attemptCount++;
+    if (attemptCount < 3) {
+      await route.fulfill({ status: 500, body: 'Temporary Error' });
+    } else {
+      await route.fulfill({ status: 200, body: '{}' });
+    }
+  });
+
+  const saveBtn = page.getByLabel('Save');
+  await saveBtn.click();
+
+  // Expected: Shows retry notification on 2nd attempt
+  await expect(page.locator('text=/Retrying request... \(attempt 2\)/i')).toBeVisible({ timeout: 10000 });
+  
+  // Expected: Eventually succeeds
+  await expect(page.locator('text=/Project saved successfully/i')).toBeVisible({ timeout: 15000 });
+  expect(attemptCount).toBe(3);
+});
 ```
 
 ### C. Add Debounce/Rate Limit Tests (After Task 1203)
@@ -199,6 +221,7 @@ test.describe('Application Robustness', () => {
   test.describe('Network Resilience', () => {
     // New: Circuit Breaker
     // New: Optimistic Rollback
+    // New: Retry with Backoff
   });
 });
 ```

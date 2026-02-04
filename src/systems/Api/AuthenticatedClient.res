@@ -126,13 +126,11 @@ let requestWithRetry = async (
   let result = await Retry.execute(
     ~fn=async (~signal as _) => {
       try {
-        let res = await request(url, ~method, ~body=?body, ~headers, ())
+        let res = await request(url, ~method, ~body?, ~headers, ())
         Ok(res)
       } catch {
-      | HttpError(status, text) =>
-        Error(`HttpError: ${Belt.Int.toString(status)} ${text}`)
-      | JsExn(e) =>
-        Error(JsExn.message(e)->Option.getOr("Unknown Error"))
+      | HttpError(status, text) => Error(`HttpError: ${Belt.Int.toString(status)} ${text}`)
+      | JsExn(e) => Error(JsExn.message(e)->Option.getOr("Unknown Error"))
       | _ => Error("Unknown Error")
       }
     },

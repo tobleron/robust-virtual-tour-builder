@@ -7132,6 +7132,15 @@
 │   │   │       ├── RequestQueue.cmj
 │   │   │       ├── RequestQueue.cmt
 │   │   │       ├── RequestQueue.res
+│   │   │       ├── Retry.ast
+│   │   │       ├── Retry.bs.js
+│   │   │       ├── Retry.cmi
+│   │   │       ├── Retry.cmj
+│   │   │       ├── Retry.cmt
+│   │   │       ├── Retry.cmti
+│   │   │       ├── Retry.iast
+│   │   │       ├── Retry.res
+│   │   │       ├── Retry.resi
 │   │   │       ├── SessionStore.ast
 │   │   │       ├── SessionStore.bs.js
 │   │   │       ├── SessionStore.cmi
@@ -7656,6 +7665,12 @@
 │   │           ├── Resizer_v.test.cmj
 │   │           ├── Resizer_v.test.cmt
 │   │           ├── Resizer_v.test.res
+│   │           ├── Retry_v.test.ast
+│   │           ├── Retry_v.test.bs.js
+│   │           ├── Retry_v.test.cmi
+│   │           ├── Retry_v.test.cmj
+│   │           ├── Retry_v.test.cmt
+│   │           ├── Retry_v.test.res
 │   │           ├── ReturnPrompt_v.test.ast
 │   │           ├── ReturnPrompt_v.test.bs.js
 │   │           ├── ReturnPrompt_v.test.cmi
@@ -8980,6 +8995,19 @@
 │   │   ├── Resizer_v.test.cmj
 │   │   ├── Resizer_v.test.cmt
 │   │   ├── Resizer_v.test.res
+│   │   ├── Retry.ast
+│   │   ├── Retry.cmi
+│   │   ├── Retry.cmj
+│   │   ├── Retry.cmt
+│   │   ├── Retry.cmti
+│   │   ├── Retry.iast
+│   │   ├── Retry.res
+│   │   ├── Retry.resi
+│   │   ├── Retry_v.test.ast
+│   │   ├── Retry_v.test.cmi
+│   │   ├── Retry_v.test.cmj
+│   │   ├── Retry_v.test.cmt
+│   │   ├── Retry_v.test.res
 │   │   ├── ReturnPrompt.ast
 │   │   ├── ReturnPrompt.cmi
 │   │   ├── ReturnPrompt.cmj
@@ -9716,8 +9744,7 @@
 │   ├── diagnostic.log
 │   ├── error.log
 │   ├── log_changes.txt
-│   ├── project-guard.log
-│   └── telemetry.log
+│   └── project-guard.log
 ├── old_ref
 │   ├── 7aadee4
 │   │   ├── CHANGELOG.md
@@ -11561,6 +11588,9 @@
 │       ├── RateLimiter.res
 │       ├── RequestQueue.bs.js
 │       ├── RequestQueue.res
+│       ├── Retry.bs.js
+│       ├── Retry.res
+│       ├── Retry.resi
 │       ├── SessionStore.bs.js
 │       ├── SessionStore.res
 │       ├── StateInspector.bs.js
@@ -11665,6 +11695,7 @@
 │   │   ├── 1200_IMPLEMENT_SYSTEM_ROBUSTNESS_V2_DONE.md
 │   │   ├── 1201_IMPLEMENT_CIRCUIT_BREAKER_PATTERN_DONE.md
 │   │   ├── 1203_IMPLEMENT_CLIENT_SIDE_REQUEST_DEBOUNCING_DONE.md
+│   │   ├── 1204_IMPLEMENT_REQUEST_RETRY_WITH_BACKOFF_DONE.md
 │   │   ├── 900_COMMERCIAL_MIGRATION_MASTER.md
 │   │   ├── 905_migration_telemetry_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
@@ -11677,7 +11708,6 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1204_IMPLEMENT_REQUEST_RETRY_WITH_BACKOFF.md
 │   │   ├── 1205_ENHANCE_PERSISTENCE_MID_FLIGHT_RECOVERY.md
 │   │   ├── 1206_EXPAND_E2E_ROBUSTNESS_TEST_SUITE.md
 │   │   ├── 1207_JSON_COMBINATORS_AUDIT_AND_MIGRATION.md
@@ -11915,6 +11945,8 @@
 │   │   ├── RequestQueue_v.test.res
 │   │   ├── Resizer_v.test.bs.js
 │   │   ├── Resizer_v.test.res
+│   │   ├── Retry_v.test.bs.js
+│   │   ├── Retry_v.test.res
 │   │   ├── ReturnPrompt_v.test.bs.js
 │   │   ├── ReturnPrompt_v.test.res
 │   │   ├── RootReducer_v.test.bs.js
@@ -12059,4 +12091,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-517 directories, 11543 files
+517 directories, 11575 files
