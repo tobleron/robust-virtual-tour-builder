@@ -186,8 +186,10 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/components/VisualPipeline.res](src/components/VisualPipeline.res): Consolidated visualizer pipeline module. `#ui` `#visual-pipeline` `#logic` `#rendering`
     * [src/components/VisualPipeline/VisualPipelineStyles.res](src/components/VisualPipeline/VisualPipelineStyles.res): CSS-in-JS definitions for the visual pipeline. `#styling`
 *   [src/components/ViewerSnapshot.res](src/components/ViewerSnapshot.res): UI for triggering and managing viewer captures. `#ui` `#snapshot`
+### 🪝 React Hooks
+* [src/hooks/UseIsInteractionPermitted.res](src/hooks/UseIsInteractionPermitted.res): Logic for determining if user interactions are allowed based on state (linking, simulation, etc.). `#hooks` `#logic` `#interaction`
+* [src/hooks/UseThrottledAction.res](src/hooks/UseThrottledAction.res): Hook combining debounce and rate limiting for UI actions. `#hooks` `#logic` `#interaction`
 
-### ⚙️ Utilities & Infrastructure
 *   [src/utils/PersistenceLayer.res](src/utils/PersistenceLayer.res): Advanced persistence layer with IndexedDB and session fallback. `#utils` `#storage` `#indexeddb`
 *   [src/utils/OperationJournal.res](src/utils/OperationJournal.res): Persistent journal for tracking long-running operations and recovery. `#utils` `#persistence` `#journal`
 *   [src/utils/SessionStore.res](src/utils/SessionStore.res): Session-based storage and state persistence. `#utils` `#storage`
@@ -282,7 +284,3 @@ This map provides a semantic overview of the project structure to optimize conte
 * [tests/e2e/performance.spec.ts](tests/e2e/performance.spec.ts): Load testing with 200+ scenes and memory leak detection. `#testing` `#e2e` `#performance`
 * [tests/e2e/ai-helper.ts](tests/e2e/ai-helper.ts): Diagnostic helper for AI-observable E2E testing. `#testing` `#utils` `#ai`
 
-## 🆕 Unmapped Modules
-### 🪝 React Hooks
-* [src/hooks/UseIsInteractionPermitted.res](src/hooks/UseIsInteractionPermitted.res): Logic for determining if user interactions are allowed based on state (linking, simulation, etc.). `#hooks` `#logic` `#interaction`
-* [src/hooks/UseThrottledAction.res](src/hooks/UseThrottledAction.res): Hook combining debounce and rate limiting for UI actions. `#hooks` `#logic` `#interaction`
