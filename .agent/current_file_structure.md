@@ -11882,6 +11882,7 @@
 │   │   ├── 1206_EXPAND_E2E_ROBUSTNESS_TEST_SUITE_DONE.md
 │   │   ├── 1207_JSON_COMBINATORS_AUDIT_AND_MIGRATION_DONE.md
 │   │   ├── 1208_IMPROVE_DEV_SYSTEM_ANALYZER_DONE.md
+│   │   ├── 1219_BRAINSTORM_RETRY_LOGIC_HANDLERS_DONE.md
 │   │   ├── 1222_COMPLETE_E2E_CRITICAL_PATH_COVERAGE_DONE.md
 │   │   ├── 900_COMMERCIAL_MIGRATION_MASTER.md
 │   │   ├── 905_migration_telemetry_DONE.md
@@ -11896,14 +11897,15 @@
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
 │   │   ├── 1209_Classify_Ambiguous_Files.md
-│   │   ├── 1210_Classify_Map_Entries.md
 │   │   ├── 1211_Fix_Violations_FRONTEND.md
 │   │   ├── 1212_Surgical_Refactor_CORE_FRONTEND.md
 │   │   ├── 1213_Merge_Folders_FRONTEND.md
 │   │   ├── 1218_Surgical_Refactor_SYSTEMS_FRONTEND.md
-│   │   ├── 1219_BRAINSTORM_RETRY_LOGIC_HANDLERS.md
 │   │   ├── 1220_COMPLETE_OPTIMISTIC_UPDATE_AND_RECOVERY_INTEGRATION.md
-│   │   └── 1221_Aggregate_Completed_Tasks.md
+│   │   ├── 1221_Aggregate_Completed_Tasks.md
+│   │   ├── 1223_IMPLEMENT_PROJECT_SAVE_RECOVERY.md
+│   │   ├── 1224_IMPLEMENT_UPLOAD_BATCH_RECOVERY.md
+│   │   └── 1225_UI_NOTIFICATION_AUDIT.md
 │   └── postponed
 ├── test-results
 │   ├── save-load-recovery-Project-30f67-ata-through-save-load-cycle-chromium
@@ -12294,4 +12296,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-525 directories, 11770 files
+525 directories, 11772 files

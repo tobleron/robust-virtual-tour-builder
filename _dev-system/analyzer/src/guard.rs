@@ -338,6 +338,7 @@ pub fn check_map(config: &GuardConfig, rules: &ExclusionRules) -> Result<()> {
         }
     }
 
+    // --- MAP.md Writing ---
     if changed {
         let mut final_content = lines.join("\n");
         if !final_content.ends_with('\n') {
@@ -345,35 +346,71 @@ pub fn check_map(config: &GuardConfig, rules: &ExclusionRules) -> Result<()> {
         }
         fs::write(&config.map_file, final_content)?;
         println!("🗺️ Updated MAP.md.");
+    }
 
-        if !task_exists(config, "Classify_Map_Entries") {
-            let next_id = get_next_id(config);
-            let task_filename = format!("{:03}_Classify_Map_Entries.md", next_id);
-            let task_content = format!(
-                "# Task {}: Classify New Map Entries\n\n## 🚨 Trigger\nNew modules were detected and added to the 'Unmapped Modules' section of `MAP.md`.\n\n## Objective\nMove the entries from 'Unmapped Modules' to their appropriate semantic sections in `MAP.md`.\n",
-                next_id
-            );
-            create_task(config, &task_filename, &task_content)?;
+    // --- Task Synchronizer (Classify_Map_Entries) ---
+    let unmapped_header = "## 🆕 Unmapped Modules";
+    let mut unmapped_items = Vec::new();
+    let mut header_pos = None;
+
+    for (i, line) in lines.iter().enumerate() {
+        if line.contains(unmapped_header) {
+            header_pos = Some(i);
+            continue;
         }
+        if header_pos.is_some() && i > header_pos.unwrap() {
+            if line.starts_with("## ") {
+                break;
+            }
+            if line.starts_with("* [") {
+                // Extract the entry text
+                unmapped_items.push(line.trim_start_matches("* ").to_string());
+            }
+        }
+    }
+
+    let has_unmapped_items = !unmapped_items.is_empty();
+    let task_pattern = "Classify_Map_Entries";
+
+    if has_unmapped_items {
+        let mut existing_task_path = None;
+        let pending_dir = format!("{}/pending", config.tasks_dir);
+        if let Ok(entries) = fs::read_dir(&pending_dir) {
+            for entry in entries.filter_map(|e| e.ok()) {
+                if entry.file_name().to_string_lossy().contains(task_pattern) {
+                    existing_task_path = Some(entry.path());
+                    break;
+                }
+            }
+        }
+
+        let (id, path) = if let Some(p) = existing_task_path {
+            let id = p.file_name().unwrap().to_string_lossy().split('_').next().unwrap_or("0").to_string();
+            (id, p)
+        } else {
+            let next_id = get_next_id(config);
+            let id_str = format!("{:03}", next_id);
+            (id_str.clone(), PathBuf::from(&pending_dir).join(format!("{}_{}.md", id_str, task_pattern)))
+        };
+
+        let mut task_content = format!(
+            "# Task {}: Classify New Map Entries\n\n## 🚨 Trigger\nNew modules were detected and added to the 'Unmapped Modules' section of `MAP.md`.\n\n## Objective\nMove the entries from 'Unmapped Modules' to their appropriate semantic sections in `MAP.md`.\n\n## Tasks\n",
+            id
+        );
+        for item in unmapped_items {
+            task_content.push_str(&format!("- [ ] {}\n", item));
+        }
+
+        fs::write(&path, task_content)?;
     } else {
         // Check if unmapped section is now empty and remove the task if it was resolved
-        let unmapped_header = "## 🆕 Unmapped Modules";
-        let has_unmapped_items = lines
-            .iter()
-            .skip_while(|l| !l.contains(unmapped_header))
-            .skip(1) // Skip the header itself
-            .take_while(|l| !l.starts_with("## ") || l.contains(unmapped_header)) // Take lines until next header or end of file
-            .any(|l| l.starts_with("* [")); // Check if any of these lines are list items
-
-        if !has_unmapped_items {
-            let pending_dir = format!("{}/pending", config.tasks_dir);
-            if let Ok(entries) = fs::read_dir(pending_dir) {
-                for entry in entries.filter_map(|e| e.ok()) {
-                    let name = entry.file_name().to_string_lossy().into_owned();
-                    if name.contains("Classify_Map_Entries") {
-                        println!("🧹 Deleting resolved task: {:?}", entry.path());
-                        let _ = fs::remove_file(entry.path());
-                    }
+        let pending_dir = format!("{}/pending", config.tasks_dir);
+        if let Ok(entries) = fs::read_dir(pending_dir) {
+            for entry in entries.filter_map(|e| e.ok()) {
+                let name = entry.file_name().to_string_lossy().into_owned();
+                if name.contains(task_pattern) {
+                    println!("🧹 Deleting resolved task: {:?}", entry.path());
+                    let _ = fs::remove_file(entry.path());
                 }
             }
         }
