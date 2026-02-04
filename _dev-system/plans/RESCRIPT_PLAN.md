@@ -9,10 +9,10 @@
 ---
 
 ## 🛠️ SURGICAL REFACTOR TASKS (2)
-- [ ] **../../src/systems/ProjectManager.res**
-  - *Reason:* [Nesting: 4.00, Density: 0.33, Coupling: 0.10] | Drag: 8.82 | LOC: 355/300  🎯 Target: Function: `rebuildUrl` (High Local Complexity (8.4). Logic heavy.)
 - [ ] **../../src/core/JsonParsers.res**
   - *Reason:* [Nesting: 2.00, Density: 0.48, Coupling: 0.04] | Drag: 5.80 | LOC: 380/300  🎯 Target: Function: `hotspot` (High Local Complexity (11.0). Logic heavy.)
+- [ ] **../../src/systems/ProjectManager.res**
+  - *Reason:* [Nesting: 4.00, Density: 0.33, Coupling: 0.10] | Drag: 8.82 | LOC: 355/300  🎯 Target: Function: `rebuildUrl` (High Local Complexity (8.4). Logic heavy.)
 
 ---
 
