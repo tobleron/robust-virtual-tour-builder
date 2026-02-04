@@ -203,106 +203,116 @@ let saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) =
   if Array.length(state.scenes) == 0 {
     Promise.resolve(false)
   } else {
-    let journalId = OperationJournal.startOperation(
+    OperationJournal.startOperation(
       ~operation="SaveProject",
       ~context=Logic.asJson({
         "sceneCount": Array.length(state.scenes),
         "tourName": state.tourName,
       }),
       ~retryable=true,
-    )
+    )->Promise.then(journalId => {
 
-    let tourName = if state.tourName == "" {
-      "Virtual_Tour"
-    } else {
-      state.tourName
-    }
-    let safeName = String.replaceRegExp(tourName, /[^a-z0-9]/gi, "_")->String.toLowerCase
-    let dateParts = String.split(Date.toISOString(Date.make()), "T")
-    let dateStr = Belt.Array.get(dateParts, 0)->Option.getOr("unknown_date")
-    let filename =
-      "Saved_RMX_" ++ safeName ++ "_v" ++ Version.version ++ "_" ++ dateStr ++ ".vt.zip"
+      let tourName = if state.tourName == "" {
+        "Virtual_Tour"
+      } else {
+        state.tourName
+      }
+      let safeName = String.replaceRegExp(tourName, /[^a-z0-9]/gi, "_")->String.toLowerCase
+      let dateParts = String.split(Date.toISOString(Date.make()), "T")
+      let dateStr = Belt.Array.get(dateParts, 0)->Option.getOr("unknown_date")
+      let filename =
+        "Saved_RMX_" ++ safeName ++ "_v" ++ Version.version ++ "_" ++ dateStr ++ ".vt.zip"
 
-    let useFileHandle = %raw(`typeof window.showSaveFilePicker !== 'undefined'`)
-    let handlePromise = if useFileHandle {
-      DownloadSystem.getFileHandle(filename, "application/zip")
-      ->Promise.then(h => Promise.resolve(Some(h)))
+      let useFileHandle = %raw(`typeof window.showSaveFilePicker !== 'undefined'`)
+      let handlePromise = if useFileHandle {
+        DownloadSystem.getFileHandle(filename, "application/zip")
+        ->Promise.then(h => Promise.resolve(Some(h)))
+        ->Promise.catch(exn => {
+          let (msg, _) = Logger.getErrorDetails(exn)
+          if String.includes(msg, "AbortError") {
+            Promise.reject(exn)
+          } else {
+            Promise.resolve(None)
+          }
+        })
+      } else {
+        Promise.resolve(None)
+      }
+
+      let saveStartTime = Date.now()
+      handlePromise
+      ->Promise.then(fileHandle => {
+        // Progress starts AFTER the file handle (confirmation) is received
+        let progress = (curr, total, msg) => {
+          switch onProgress {
+          | Some(cb) => cb(curr, total, msg)
+          | None => ()
+          }
+        }
+        progress(0, 100, "Initializing save...")
+
+        Logic.createSavePackage(state, ~signal?, ~onProgress?)->Promise.then(resultRes => {
+          switch resultRes {
+          | Ok(blob) =>
+            if useFileHandle {
+              switch fileHandle {
+              | Some(h) =>
+                DownloadSystem.writeFileToHandle(h, blob)->Promise.then(() => Promise.resolve(true))
+              | None =>
+                // This can only happen if useFileHandle was true but handle was skipped (not AbortError)
+                DownloadSystem.saveBlob(blob, filename)
+                Promise.resolve(true)
+              }
+            } else {
+              DownloadSystem.saveBlob(blob, filename)
+              Promise.resolve(true)
+            }->Promise.then(
+              success => {
+                if success {
+                  OperationJournal.completeOperation(journalId)
+                  ->Promise.then(() => {
+                    Logger.endOperation(
+                      ~module_="ProjectManager",
+                      ~operation="PROJECT_SAVE",
+                      ~data=Some({"durationMs": Date.now() -. saveStartTime}),
+                      (),
+                    )
+                    Promise.resolve(success)
+                  })
+                } else {
+                  OperationJournal.failOperation(journalId, "Save failed during file write")
+                  ->Promise.then(() => Promise.resolve(success))
+                }
+              },
+            )
+          | Error(msg) => {
+              if String.includes(msg, "AbortError") {
+                OperationJournal.updateStatus(journalId, Cancelled)
+                ->Promise.then(() => Promise.resolve(false))
+              } else {
+                OperationJournal.failOperation(journalId, msg)
+                ->Promise.then(() => Promise.resolve(false))
+              }
+            }
+          }
+        })
+      })
       ->Promise.catch(exn => {
         let (msg, _) = Logger.getErrorDetails(exn)
         if String.includes(msg, "AbortError") {
-          Promise.reject(exn)
-        } else {
-          Promise.resolve(None)
-        }
-      })
-    } else {
-      Promise.resolve(None)
-    }
-
-    let saveStartTime = Date.now()
-    handlePromise
-    ->Promise.then(fileHandle => {
-      // Progress starts AFTER the file handle (confirmation) is received
-      let progress = (curr, total, msg) => {
-        switch onProgress {
-        | Some(cb) => cb(curr, total, msg)
-        | None => ()
-        }
-      }
-      progress(0, 100, "Initializing save...")
-
-      Logic.createSavePackage(state, ~signal?, ~onProgress?)->Promise.then(resultRes => {
-        switch resultRes {
-        | Ok(blob) =>
-          if useFileHandle {
-            switch fileHandle {
-            | Some(h) =>
-              DownloadSystem.writeFileToHandle(h, blob)->Promise.then(() => Promise.resolve(true))
-            | None =>
-              // This can only happen if useFileHandle was true but handle was skipped (not AbortError)
-              DownloadSystem.saveBlob(blob, filename)
-              Promise.resolve(true)
-            }
-          } else {
-            DownloadSystem.saveBlob(blob, filename)
-            Promise.resolve(true)
-          }->Promise.then(
-            success => {
-              if success {
-                OperationJournal.completeOperation(journalId)
-                Logger.endOperation(
-                  ~module_="ProjectManager",
-                  ~operation="PROJECT_SAVE",
-                  ~data=Some({"durationMs": Date.now() -. saveStartTime}),
-                  (),
-                )
-              } else {
-                OperationJournal.failOperation(journalId, "Save failed during file write")
-              }
-              Promise.resolve(success)
-            },
-          )
-        | Error(msg) => {
-            if String.includes(msg, "AbortError") {
-              OperationJournal.updateStatus(journalId, Cancelled)
-            } else {
-              OperationJournal.failOperation(journalId, msg)
-            }
+          OperationJournal.updateStatus(journalId, Cancelled)
+          ->Promise.then(() => {
+            Logger.info(~module_="ProjectManager", ~message="SAVE_CANCELLED_PICKER", ())
             Promise.resolve(false)
-          }
+          })
+        } else {
+          OperationJournal.failOperation(journalId, msg)
+          ->Promise.then(() => {
+            Logger.error(~module_="ProjectManager", ~message="SAVE_FAILED", ~data={"error": msg}, ())
+            Promise.resolve(false)
+          })
         }
       })
-    })
-    ->Promise.catch(exn => {
-      let (msg, _) = Logger.getErrorDetails(exn)
-      if String.includes(msg, "AbortError") {
-        OperationJournal.updateStatus(journalId, Cancelled)
-        Logger.info(~module_="ProjectManager", ~message="SAVE_CANCELLED_PICKER", ())
-      } else {
-        OperationJournal.failOperation(journalId, msg)
-        Logger.error(~module_="ProjectManager", ~message="SAVE_FAILED", ~data={"error": msg}, ())
-      }
-      Promise.resolve(false)
     })
   }
 }

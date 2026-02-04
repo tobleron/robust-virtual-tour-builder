@@ -279,9 +279,7 @@ let executeProcessingChain = (
               JsonCombinators.Json.Encode.object([
                 ("processedCount", JsonCombinators.Json.Encode.int(processedCount.contents)),
               ]),
-            )
-
-            Promise.resolve(processedItem)
+            )->Promise.then(() => Promise.resolve(processedItem))
           })
         } else {
           Promise.resolve(processedItem)
