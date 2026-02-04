@@ -8,43 +8,10 @@
       }
     }
   ],
-  "system": [
-    {
-      "Ambiguity": {
-        "file": "../../src/hooks/UseIsInteractionPermitted.res",
-        "strategy": ""
-      }
-    },
-    {
-      "Ambiguity": {
-        "file": "../../src/hooks/UseThrottledAction.res",
-        "strategy": ""
-      }
-    },
-    {
-      "Merge": {
-        "folder": "src/hooks",
-        "files": [
-          "../../src/hooks/UseIsInteractionPermitted.res",
-          "../../src/hooks/UseThrottledAction.res"
-        ],
-        "reason": "Recursive Feature Pod: 2 files in subtree sum to 85 LOC (fits in context). Max Drag: 9.24",
-        "strategy": "",
-        "platform": "frontend"
-      }
-    }
-  ],
   "rescript": [
     {
       "Violation": {
         "file": "../../src/utils/CircuitBreaker.res",
-        "pattern": "mutable ",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/utils/RateLimiter.res",
         "pattern": "mutable ",
         "strategy": ""
       }
@@ -58,6 +25,39 @@
         "platform": "frontend",
         "complexity": 13.801052631578948,
         "recommended_splits": 2
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/utils/RateLimiter.res",
+        "pattern": "mutable ",
+        "strategy": ""
+      }
+    }
+  ],
+  "system": [
+    {
+      "Ambiguity": {
+        "file": "../../src/hooks/UseThrottledAction.res",
+        "strategy": ""
+      }
+    },
+    {
+      "Ambiguity": {
+        "file": "../../src/hooks/UseIsInteractionPermitted.res",
+        "strategy": ""
+      }
+    },
+    {
+      "Merge": {
+        "folder": "src/hooks",
+        "files": [
+          "../../src/hooks/UseThrottledAction.res",
+          "../../src/hooks/UseIsInteractionPermitted.res"
+        ],
+        "reason": "Recursive Feature Pod: 2 files in subtree sum to 85 LOC (fits in context). Max Drag: 9.24",
+        "strategy": "",
+        "platform": "frontend"
       }
     }
   ]

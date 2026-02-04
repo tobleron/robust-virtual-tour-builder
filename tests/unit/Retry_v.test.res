@@ -121,7 +121,8 @@ describe("Retry", () => {
 
     switch result {
     | Success(_) => t->expect(true)->Expect.toBe(false)
-    | Exhausted(e) => // Depending on race condition of check vs signal update
+    | Exhausted(e) =>
+      // Depending on race condition of check vs signal update
       // The check 'aborted(signal)' is at start of loop.
       // Loop 1 starts. aborted=false. fn returns Error.
       // Fn aborted controller.
