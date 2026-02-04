@@ -1,13 +1,4 @@
 {
-  "css": [
-    {
-      "Violation": {
-        "file": "../../css/components/buttons.css",
-        "pattern": "!important",
-        "strategy": ""
-      }
-    }
-  ],
   "system": [
     {
       "Ambiguity": {
@@ -34,21 +25,19 @@
       }
     }
   ],
-  "rescript": [
-    {
-      "Surgical": {
-        "file": "../../src/core/JsonParsers.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.00, Density: 0.48, Coupling: 0.04] | Drag: 5.80 | LOC: 380/300  🎯 Target: Function: `hotspot` (High Local Complexity (11.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 13.801052631578948,
-        "recommended_splits": 2
-      }
-    },
+  "css": [
     {
       "Violation": {
-        "file": "../../src/utils/CircuitBreaker.res",
+        "file": "../../css/components/buttons.css",
+        "pattern": "!important",
+        "strategy": ""
+      }
+    }
+  ],
+  "rescript": [
+    {
+      "Violation": {
+        "file": "../../src/utils/RateLimiter.res",
         "pattern": "mutable ",
         "strategy": ""
       }
@@ -66,9 +55,20 @@
     },
     {
       "Violation": {
-        "file": "../../src/utils/RateLimiter.res",
+        "file": "../../src/utils/CircuitBreaker.res",
         "pattern": "mutable ",
         "strategy": ""
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/JsonParsers.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.00, Density: 0.48, Coupling: 0.04] | Drag: 5.80 | LOC: 380/300  🎯 Target: Function: `hotspot` (High Local Complexity (11.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 13.801052631578948,
+        "recommended_splits": 2
       }
     }
   ]

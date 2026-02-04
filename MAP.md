@@ -271,12 +271,16 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [backend/src/services/media/mod.rs](backend/src/services/media/mod.rs): Facade for core media services (encoding, analysis, resizing). `#media` `#services` `#facade`
 
 
+## 🧪 Test Suite
 
-
-
-
-
-
+### 🎭 End-to-End (Playwright)
+* [tests/e2e/robustness.spec.ts](tests/e2e/robustness.spec.ts): Stress tests for concurrency, state transitions, and recovery. `#testing` `#e2e` `#robustness`
+* [tests/e2e/upload-link-export-workflow.spec.ts](tests/e2e/upload-link-export-workflow.spec.ts): Full user journey from image upload to project export. `#testing` `#e2e` `#workflow`
+* [tests/e2e/save-load-recovery.spec.ts](tests/e2e/save-load-recovery.spec.ts): Verification of project persistence and state restoration. `#testing` `#e2e` `#persistence`
+* [tests/e2e/simulation-teaser.spec.ts](tests/e2e/simulation-teaser.spec.ts): Validation of autopilot simulation and teaser recording. `#testing` `#e2e` `#simulation` `#teaser`
+* [tests/e2e/error-recovery.spec.ts](tests/e2e/error-recovery.spec.ts): Testing of error handling and network resilience scenarios. `#testing` `#e2e` `#recovery`
+* [tests/e2e/performance.spec.ts](tests/e2e/performance.spec.ts): Load testing with 200+ scenes and memory leak detection. `#testing` `#e2e` `#performance`
+* [tests/e2e/ai-helper.ts](tests/e2e/ai-helper.ts): Diagnostic helper for AI-observable E2E testing. `#testing` `#utils` `#ai`
 
 ## 🆕 Unmapped Modules
 ### 🪝 React Hooks
