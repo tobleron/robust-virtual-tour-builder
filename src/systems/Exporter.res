@@ -125,7 +125,7 @@ let exportTour = async (
   }
   let safeName = tourName->String.replaceRegExp(/[^a-z0-9]/gi, "_")->String.toLowerCase
 
-  // Progress starts after confirmation in higher level? 
+  // Progress starts after confirmation in higher level?
   // For Export it starts immediately because there is no file picker BEFORE upload.
   progress(0.0, 100.0, "Preparing assets...")
   let exportStartTime = Date.now()

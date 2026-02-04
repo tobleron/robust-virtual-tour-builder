@@ -30,6 +30,7 @@ type operationStatus =
   | Completed
   | Failed(string)
   | Interrupted
+  | Cancelled
 
 type journalEntry = {
   id: string,
@@ -95,11 +96,16 @@ let saveProject = (state, ~onProgress=?) => {
     ~retryable=true,
   )
   
-  Logic.createSavePackage(state, ~onProgress?)
+  Logic.createSavePackage(state, ~signal?, ~onProgress?)
   ->Promise.then(result => {
     switch result {
     | Ok(_) => OperationJournal.completeOperation(journalId)
-    | Error(msg) => OperationJournal.failOperation(journalId, msg)
+    | Error(msg) => 
+      if String.includes(msg, "AbortError") {
+        OperationJournal.updateStatus(journalId, Cancelled)
+      } else {
+        OperationJournal.failOperation(journalId, msg)
+      }
     }
     Promise.resolve(result)
   })

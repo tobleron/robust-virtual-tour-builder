@@ -37,7 +37,8 @@ type retryResult<'a> =
   | Exhausted(string)        // Final error after all retries
 
 let execute: (
-  ~fn: unit => Promise.t<result<'a, string>>,
+  ~fn: (~signal: BrowserBindings.AbortController.signal) => Promise.t<result<'a, string>>,
+  ~signal: BrowserBindings.AbortController.signal,
   ~config: config=?,
   ~shouldRetry: string => bool=?,  // Optional: decide if error is retryable
   ~onRetry: (int, string, int) => unit=?,  // (attempt, error, nextDelayMs)

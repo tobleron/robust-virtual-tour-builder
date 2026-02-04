@@ -14,7 +14,12 @@ let make = React.memo((
   let isPermitted = UseIsInteractionPermitted.useIsInteractionPermitted()
 
   let saveCancelRef = React.useRef(() => ())
-  let (saveExecute, saveCancel, savePending, _saveThrottled) = UseThrottledAction.useThrottledAction(
+  let (
+    saveExecute,
+    saveCancel,
+    savePending,
+    _saveThrottled,
+  ) = UseThrottledAction.useThrottledAction(
     ~action=async (~signal) => onSave(~signal, ~onCancel=() => saveCancelRef.current()),
     ~debounceMs=2000,
     ~rateLimit=(5, 60000),
@@ -25,7 +30,12 @@ let make = React.memo((
   }, [saveCancel])
 
   let loadCancelRef = React.useRef(() => ())
-  let (loadExecute, loadCancel, loadPending, _loadThrottled) = UseThrottledAction.useThrottledAction(
+  let (
+    loadExecute,
+    loadCancel,
+    loadPending,
+    _loadThrottled,
+  ) = UseThrottledAction.useThrottledAction(
     ~action=async (~signal) => onLoad(~signal, ~onCancel=() => loadCancelRef.current()),
     ~debounceMs=2000,
     ~rateLimit=(5, 60000),

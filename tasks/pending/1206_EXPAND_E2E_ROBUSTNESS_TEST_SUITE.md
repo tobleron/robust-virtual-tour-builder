@@ -110,6 +110,21 @@ test('Area: Input - Rate Limiter Notification', async ({ page }) => {
   // Expected: Rate limit notification shown
   await expect(page.locator('text=/wait/i')).toBeVisible();
 });
+
+test('Area: Input - Operation Cancellation', async ({ page }) => {
+  const saveBtn = page.getByLabel('Save');
+  await saveBtn.click();
+  
+  // Wait for progress bar to appear (after delay)
+  await expect(page.locator('role=status')).toBeVisible({ timeout: 5000 });
+  
+  // Click Cancel
+  await page.locator('button:has-text("Cancel")').click();
+  
+  // Expected: Progress bar shows 'Cancelled' then hides
+  await expect(page.locator('text=/Cancelled/i')).toBeVisible();
+  await expect(page.locator('role=status')).not.toBeVisible();
+});
 ```
 
 ### D. Add Recovery Tests (After Task 1205)

@@ -47,16 +47,20 @@ let useThrottledAction = (
 
         setPending(_ => true)
         actionRef.current(~signal)
-        ->Promise.then(res => {
-          setPending(_ => false)
-          abortControllerRef.current = None
-          Promise.resolve(Some(res))
-        })
-        ->Promise.catch(_ => {
-          setPending(_ => false)
-          abortControllerRef.current = None
-          Promise.resolve(None)
-        })
+        ->Promise.then(
+          res => {
+            setPending(_ => false)
+            abortControllerRef.current = None
+            Promise.resolve(Some(res))
+          },
+        )
+        ->Promise.catch(
+          _ => {
+            setPending(_ => false)
+            abortControllerRef.current = None
+            Promise.resolve(None)
+          },
+        )
       } else {
         setThrottled(_ => true)
         let _ = Window.setTimeout(() => setThrottled(_ => false), windowMs)
