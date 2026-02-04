@@ -22,8 +22,16 @@ let make = React.memo((~procState: SidebarLogic.SidebarTypes.processingPayload) 
             {React.string(procState["phase"] == "" ? "Processing" : procState["phase"])}
           </div>
         </div>
-        <div className="font-heading font-semibold text-primary text-[11px]">
-          {React.string(Float.toFixed(procState["progress"], ~digits=0) ++ "%")}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={_ => procState["onCancel"]()}
+            className="text-[9px] font-bold text-slate-400 hover:text-red-500 transition-colors uppercase tracking-widest"
+          >
+            {React.string("Cancel")}
+          </button>
+          <div className="font-heading font-semibold text-primary text-[11px]">
+            {React.string(Float.toFixed(procState["progress"], ~digits=0) ++ "%")}
+          </div>
         </div>
       </div>
       <div className="bg-slate-200 h-1.5 rounded-full overflow-hidden relative">

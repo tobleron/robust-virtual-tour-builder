@@ -2,7 +2,7 @@ open EventBus
 open ReBindings
 
 let useThrottledAction = (
-  ~action: unit => Promise.t<'a>,
+  ~action: (~signal: BrowserBindings.AbortController.signal) => Promise.t<'a>,
   ~debounceMs: int,
   ~rateLimit: (int, int),
 ) => {
@@ -15,11 +15,21 @@ let useThrottledAction = (
   let (isPending, setPending) = React.useState(() => false)
   let (isThrottled, setThrottled) = React.useState(() => false)
 
+  let abortControllerRef = React.useRef(None)
   let actionRef = React.useRef(action)
   React.useEffect1(() => {
     actionRef.current = action
     None
   }, [action])
+
+  let cancel = React.useCallback0(() => {
+    switch abortControllerRef.current {
+    | Some(ctrl) => BrowserBindings.AbortController.abort(ctrl)
+    | None => ()
+    }
+    setPending(_ => false)
+    abortControllerRef.current = None
+  })
 
   let debounced = React.useMemo2(() => {
     Debounce.make(~fn=() => {
@@ -31,20 +41,22 @@ let useThrottledAction = (
           let _ = Window.setTimeout(() => setThrottled(_ => false), windowMs)
         }
 
+        let ctrl = BrowserBindings.AbortController.newAbortController()
+        abortControllerRef.current = Some(ctrl)
+        let signal = BrowserBindings.AbortController.signal(ctrl)
+
         setPending(_ => true)
-        actionRef.current()
-        ->Promise.then(
-          res => {
-            setPending(_ => false)
-            Promise.resolve(Some(res))
-          },
-        )
-        ->Promise.catch(
-          _ => {
-            setPending(_ => false)
-            Promise.resolve(None)
-          },
-        )
+        actionRef.current(~signal)
+        ->Promise.then(res => {
+          setPending(_ => false)
+          abortControllerRef.current = None
+          Promise.resolve(Some(res))
+        })
+        ->Promise.catch(_ => {
+          setPending(_ => false)
+          abortControllerRef.current = None
+          Promise.resolve(None)
+        })
       } else {
         setThrottled(_ => true)
         let _ = Window.setTimeout(() => setThrottled(_ => false), windowMs)
@@ -67,5 +79,5 @@ let useThrottledAction = (
     }
   }
 
-  (execute, isPending, isThrottled)
+  (execute, cancel, isPending, isThrottled)
 }

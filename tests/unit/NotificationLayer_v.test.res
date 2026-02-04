@@ -40,6 +40,7 @@ describe("NotificationLayer", () => {
         "message": "Processing...",
         "phase": "Test",
         "error": false,
+        "onCancel": () => (),
       }),
     )
 

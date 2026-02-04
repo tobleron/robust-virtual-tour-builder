@@ -24,7 +24,7 @@ module Logic = {
     }
   }
 
-  let createSavePackage = (state: state, ~onProgress: option<onProgress>=?): Promise.t<
+  let createSavePackage = (state: state, ~signal=?, ~onProgress: option<onProgress>=?): Promise.t<
     result<Blob.t, apiError>,
   > => {
     let progress = (curr, total, msg) => {
@@ -62,7 +62,7 @@ module Logic = {
     RequestQueue.schedule(() => {
       Fetch.fetch(
         Constants.backendUrl ++ "/api/project/save",
-        Fetch.requestInit(~method="POST", ~body=formData, ()),
+        Fetch.requestInit(~method="POST", ~body=formData, ~signal?, ()),
       )
       ->Promise.then(BackendApi.handleResponse)
       ->Promise.then(resultRes => {
@@ -285,7 +285,7 @@ module Logic = {
 
 // --- FACADE ---
 
-let saveProject = (state: state, ~onProgress: option<onProgress>=?) => {
+let saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) => {
   if Array.length(state.scenes) == 0 {
     Promise.resolve(false)
   } else {
@@ -304,14 +304,31 @@ let saveProject = (state: state, ~onProgress: option<onProgress>=?) => {
     let handlePromise = if useFileHandle {
       DownloadSystem.getFileHandle(filename, "application/zip")
       ->Promise.then(h => Promise.resolve(Some(h)))
-      ->Promise.catch(_ => Promise.resolve(None))
+      ->Promise.catch(exn => {
+        let (msg, _) = Logger.getErrorDetails(exn)
+        if String.includes(msg, "AbortError") {
+          Promise.reject(exn)
+        } else {
+          Promise.resolve(None)
+        }
+      })
     } else {
       Promise.resolve(None)
     }
 
     let saveStartTime = Date.now()
-    handlePromise->Promise.then(fileHandle => {
-      Logic.createSavePackage(state, ~onProgress?)->Promise.then(resultRes => {
+    handlePromise
+    ->Promise.then(fileHandle => {
+      // Progress starts AFTER the file handle (confirmation) is received
+      let progress = (curr, total, msg) => {
+        switch onProgress {
+        | Some(cb) => cb(curr, total, msg)
+        | None => ()
+        }
+      }
+      progress(0, 100, "Initializing save...")
+
+      Logic.createSavePackage(state, ~signal?, ~onProgress?)->Promise.then(resultRes => {
         switch resultRes {
         | Ok(blob) =>
           if useFileHandle {
@@ -319,28 +336,36 @@ let saveProject = (state: state, ~onProgress: option<onProgress>=?) => {
             | Some(h) =>
               DownloadSystem.writeFileToHandle(h, blob)->Promise.then(() => Promise.resolve(true))
             | None =>
+              // This can only happen if useFileHandle was true but handle was skipped (not AbortError)
               DownloadSystem.saveBlob(blob, filename)
               Promise.resolve(true)
             }
           } else {
             DownloadSystem.saveBlob(blob, filename)
             Promise.resolve(true)
-          }->Promise.then(
-            success => {
-              if success {
-                Logger.endOperation(
-                  ~module_="ProjectManager",
-                  ~operation="PROJECT_SAVE",
-                  ~data=Some({"durationMs": Date.now() -. saveStartTime}),
-                  (),
-                )
-              }
-              Promise.resolve(success)
-            },
-          )
+          }->Promise.then(success => {
+            if success {
+              Logger.endOperation(
+                ~module_="ProjectManager",
+                ~operation="PROJECT_SAVE",
+                ~data=Some({"durationMs": Date.now() -. saveStartTime}),
+                (),
+              )
+            }
+            Promise.resolve(success)
+          })
         | Error(_) => Promise.resolve(false)
         }
       })
+    })
+    ->Promise.catch(exn => {
+      let (msg, _) = Logger.getErrorDetails(exn)
+      if String.includes(msg, "AbortError") {
+        Logger.info(~module_="ProjectManager", ~message="SAVE_CANCELLED_PICKER", ())
+      } else {
+        Logger.error(~module_="ProjectManager", ~message="SAVE_FAILED", ~data={"error": msg}, ())
+      }
+      Promise.resolve(false)
     })
   }
 }
