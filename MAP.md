@@ -19,11 +19,12 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [src/bindings/GraphicsBindings.res](src/bindings/GraphicsBindings.res): Canvas 2D and SVG rendering bindings. `#graphics` `#canvas` `#svg`
     *   [src/bindings/ViewerBindings.res](src/bindings/ViewerBindings.res): Pannellum and 360 viewer-specific bindings. `#viewer` `#pannellum`
     *   [src/bindings/IdbBindings.res](src/bindings/IdbBindings.res): IndexedDB bindings for persistent client-side storage. `#browser` `#indexeddb` `#bindings`
-* [src/utils/Logger.res](src/utils/Logger.res): Lightweight facade for the unified logging and telemetry system. `#logging` `#telemetry` `#facade`
+*   [src/utils/Logger.res](src/utils/Logger.res): Lightweight facade for the unified logging and telemetry system. `#logging` `#telemetry` `#facade`
     * [src/utils/LoggerTelemetry.res](src/utils/LoggerTelemetry.res): Async telemetry batching and backend synchronization. `#telemetry`
     * [src/utils/LoggerConsole.res](src/utils/LoggerConsole.res): Console-specific logging output implementation. `#logging` `#console`
     * [src/utils/LoggerCommon.res](src/utils/LoggerCommon.res): Shared logging logic and timestamp formatting. `#logging` `#utils`
     * [src/utils/LoggerLogic.res](src/utils/LoggerLogic.res): Extracted logic for performance thresholds and error data enrichment. `#logging` `#logic`
+*   [src/Hooks.res](src/Hooks.res): Common React hooks for throttled actions and interaction permissions. `#react` `#hooks`
 
 
 ### 🛡️ State Management & Logic
@@ -43,7 +44,9 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/core/Reducer.res](src/core/Reducer.res): Consolidated state reducer handling scenes, hotspots, navigation, and projects. `#reducer` `#logic`
     *   [src/core/SceneMutations.res](src/core/SceneMutations.res): Complex state mutation logic for scene renaming, deletion, and reordering. `#state` `#scene` `#logic`
 *   [src/core/AppContext.res](src/core/AppContext.res): Typed React Context for state and dispatch accessibility. `#react-context` `#hooks`
-*   [src/core/JsonParsers.res](src/core/JsonParsers.res): Domain-specific JSON parsers and encoders. `#json` `#parsing` `#domain`
+*   [src/core/JsonParsers.res](src/core/JsonParsers.res): Facade for domain-specific JSON decoders and encoders. `#json` `#parsing` `#facade`
+    *   [src/core/JsonParsersDecoders.res](src/core/JsonParsersDecoders.res): Domain-specific JSON decoders using rescript-json-combinators. `#json` `#parsing` `#decoding`
+    *   [src/core/JsonParsersEncoders.res](src/core/JsonParsersEncoders.res): Domain-specific JSON encoders using rescript-json-combinators. `#json` `#encoding`
 *   [src/core/JsonParsersShared.res](src/core/JsonParsersShared.res): Shared JSON parsers for cross-domain metadata (Exif, Quality). `#json` `#shared` `#parsing`
 *   [src/core/JsonEncoders.res](src/core/JsonEncoders.res): Centralized JSON encoders using rescript-json-combinators for CSP compliance. `#json` `#encoding` `#csp`
 
@@ -92,6 +95,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/systems/TeaserState.res](src/systems/TeaserState.res): State management for the teaser system. `#teaser` `#state`
 *   [src/systems/TeaserManager.res](src/systems/TeaserManager.res): Manager for teaser recording and playback sessions. `#teaser` `#manager`
 *   [src/systems/ProjectManager.res](src/systems/ProjectManager.res): Consolidated project save/load operations. `#persistence` `#save-load` `#consolidated`
+    *   [src/systems/ProjectManagerUrl.res](src/systems/ProjectManagerUrl.res): Specialized logic for rebuilding and validating tour URLs. `#persistence` `#url` `#logic`
 *   [src/systems/Exporter.res](src/systems/Exporter.res): Generates production-ready tour clusters. `#export` `#deployment`
 *   [src/systems/Api.res](src/systems/Api.res): Consolidated API module for media, projects, and authentication. `#api` `#client` `#consolidated`
 *   [src/systems/ApiLogic.res](src/systems/ApiLogic.res): Orchestrator for API client logic and sub-modules. `#api` `#client` `#orchestration`
@@ -128,7 +132,6 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/systems/ImageValidator.res](src/systems/ImageValidator.res): Client-side validation of image formats and dimensions. `#image` `#validation`
 *   [src/systems/Navigation/NavigationRenderer.res](src/systems/Navigation/NavigationRenderer.res): Specialized renderer for interactive navigation elements. `#rendering` `#navigation`
 *   [src/systems/LinkEditorLogic.res](src/systems/LinkEditorLogic.res): Core logic for the visual link and hotspot editor. `#editor` `#logic`
-*   [src/systems/ProjectData.res](src/systems/ProjectData.res): Domain logic for project structure manipulation and serialization. `#project` `#logic`
 *   [src/systems/SimulationLogic.res](src/systems/SimulationLogic.res): Orchestrator for advanced waypoint-based movement simulations. `#simulation` `#orchestration`
     *   [src/systems/Simulation/SimulationMainLogic.res](src/systems/Simulation/SimulationMainLogic.res): Core decision logic for simulation moves and actions. `#logic`
     *   [src/systems/Simulation/SimulationNavigation.res](src/systems/Simulation/SimulationNavigation.res): Navigation specialized for automated autopilot routes. `#navigation`
@@ -187,8 +190,6 @@ This map provides a semantic overview of the project structure to optimize conte
     * [src/components/VisualPipeline/VisualPipelineStyles.res](src/components/VisualPipeline/VisualPipelineStyles.res): CSS-in-JS definitions for the visual pipeline. `#styling`
 *   [src/components/ViewerSnapshot.res](src/components/ViewerSnapshot.res): UI for triggering and managing viewer captures. `#ui` `#snapshot`
 ### 🪝 React Hooks
-* [src/hooks/UseIsInteractionPermitted.res](src/hooks/UseIsInteractionPermitted.res): Logic for determining if user interactions are allowed based on state (linking, simulation, etc.). `#hooks` `#logic` `#interaction`
-* [src/hooks/UseThrottledAction.res](src/hooks/UseThrottledAction.res): Hook combining debounce and rate limiting for UI actions. `#hooks` `#logic` `#interaction`
 
 *   [src/utils/PersistenceLayer.res](src/utils/PersistenceLayer.res): Advanced persistence layer with IndexedDB and session fallback. `#utils` `#storage` `#indexeddb`
 *   [src/utils/OperationJournal.res](src/utils/OperationJournal.res): Persistent journal for tracking long-running operations and recovery. `#utils` `#persistence` `#journal`
@@ -241,8 +242,6 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [backend/src/api/telemetry.rs](backend/src/api/telemetry.rs): Endpoint for receiving client-side telemetry and logs. `#api` `#telemetry`
 *   [backend/src/api/utils.rs](backend/src/api/utils.rs): Shared logic for API response formatting and errors. `#api` `#utils`
 *   [backend/src/auth.rs](backend/src/auth.rs): Auth service orchestrator and Google OAuth logic. `#auth` `#orchestration`
-    *   [backend/src/auth/jwt.rs](backend/src/auth/jwt.rs): JWT token generation and validation logic. `#auth` `#jwt` `#logic`
-    *   [backend/src/auth/middleware.rs](backend/src/auth/middleware.rs): Actix-web authentication middleware. `#auth` `#middleware` `#logic`
 
 
 ### 🛡️ Backend Core & Services
@@ -288,3 +287,5 @@ This map provides a semantic overview of the project structure to optimize conte
 * [tests/e2e/ai-helper.ts](tests/e2e/ai-helper.ts): Diagnostic helper for AI-observable E2E testing. `#testing` `#utils` `#ai`
 
 
+
+## 🆕 Unmapped Modules

@@ -1,3 +1,5 @@
+/* @efficiency-role: infra-adapter */
+
 type state =
   | Closed
   | Open

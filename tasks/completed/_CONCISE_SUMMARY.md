@@ -20,6 +20,11 @@ This document provides a consolidated, extremely concise history of all complete
 - **594: Immutable Domain Models** — Moved ephemeral scene state (snapshots) to `SceneCache` to enforce strict immutability in core domain records.
 - **600: Runtime Schema Validation** — Integrated `rescript-schema` to replace unsafe JSON casting with strict runtime validation for all API boundaries.
 - **604, 626-777: Modular Decomposition** — Decomposed over 20 oversized modules (Frontend & Backend) into focused Facade, Logic, and Types sub-modules to maintain maintainability.
+- **900, 905: Technical Hardening** — Established master plan for commercial migration and implemented secure telemetry for production scale.
+- **1081-1152: Massive Surgical Refactor** — De-bloated 40+ monolithic modules (Frontend/Backend) to reduce "Drag Score" below 2.0, utilizing specialized sub-modules for logic extraction.
+- **1097-1126: Semantic Engine Overhaul** — Upgraded `_dev-system` analyzer with AST-based JSX discovery and semantic dependency resolution for 100% accuracy.
+- **1095-1118: Codebase Taxonomy** — Applied `@efficiency-role` headers to 200+ modules for precise architectural governance and limit enforcement.
+- **1113-1138: Structural Cleanup** — Consolidated redundant directory structures and purged empty folders to maintain a lean, navigable codebase.
 
 ## ⚙️ Backend & API
 - **016: Backend Geocoding Cache** — Implemented persistent LRU caching for reverse geocoding to reduce API dependency and improve performance.
@@ -113,58 +118,14 @@ This document provides a consolidated, extremely concise history of all complete
 - **271-272: Similarity Tooling** — Installed and configured backend similarity detection tools for automated scene linking.
 - **286-288: Navigation Refinements** — Optimized chevron hit areas and animation speeds for a more responsive Feel.
 - **001-002, 743: Codebase Map Maintenance** — Routine synchronization of `MAP.md` and classification of ambiguous or new files into the project taxonomy.
+- **1063: Classify New Map Entries** — New modules were detected and added to the 'Unmapped Modules' section of `MAP.md`.
+- **1075: Classify New Map Entries** — New modules were detected and added to the 'Unmapped Modules' section of `MAP.md`.
+- **1076: Classify Ambiguous Files** — Classified ambiguous files.
 
 ## 🚫 Aborted Efforts (For Historical Context)
 - **178-181, 268, 309**: De-prioritized or superseded by newer architectural decisions (e.g., PWA offline support, v4.2.0 rollbacks).
 - **302-307, 309-312**: Cancelled redundant unit test tasks for modules already covered by existing comprehensive suites.
-## Archived Tasks (Auto-Aggregated)
-- **3: Task 003: Aggregate Completed Tasks** — Completed tasks count exceeds 90 (Current: 91).
-- **598: Task 598: Reduce %identity (Obj.magic) Usage - REPORT** — - Reduce `%identity` usage below 38 instances.
-- **599: Task 599: Implement Backend Integration Tests_REPORT** — The analysis report identified "placeholder" tests in several critical backend API modules. These need to be replaced with real integration tests that verify endpoint functionality.
-- **602: Feature: Hybrid Persistence Layer (Crash-Proofing)** — Currently, the application operates on a "Tool" model where state is purely in-memory until the user manually triggers a "Save" or "Export". If the browser crashes, the tab is closed, or the OS restarts, all unsaved progress is lost. To reach "Commercial Grade" reliability, the application must adopt a "Platform" behavior with robust, local-first autosaving.
-- **795: Task 795: Refactor analysis.rs (Oversized)** — File `backend/src/services/media/analysis.rs` exceeds **360 lines** (Current: 414).
-- **798: Task: 798 - Refactor: Streaming ZIP Orchestration (High-Large Scale Compatibility)** — Refactor the backend project processing logic to use streaming and disk-backed storage instead of in-memory buffers to support multi-gigabyte virtual tour uploads.
-- **799: Task: 799 - Refactor: Hardened Asset Sanitization Utility (Security)** — Implement a robust security layer for asset path normalization to prevent "Zip Slip" vulnerabilities and ensure consistent asset mapping.
-- **801: Task: 801 - Test: Logger System Unified Verification (New + Update)** — Implement comprehensive unit tests for the entire Logger subsystem including logic, telemetry batching, and shared types.
-- **802: Task: 802 - Test: Exif Report Pipeline Unified Verification (New + Update)** — Verify the full EXIF extraction and reporting pipeline, from raw file processing to geocoding and report generation.
-- **803: Task: 803 - Test: Scene Loader & Transition Orchestration (New + Update)** — **Status**: `Completed`
-- **804: Task: 804 - Test: Sidebar & Project HUD Components (New + Update)** — **Status**: `Completed`
-- **805: Task: 805 - Test: Visual Pipeline & Effects System (New + Update)** — Validate the high-granularity visual processing pipeline and its associated styling/types.
-- **806: Task: 806 - Test: External Bindings & Facade Integrity (New + Update)** — Verify the correctness and safety of all external JavaScript/Web API bindings.
-- **807: Task: 807 - Test: Simulation & Autopilot System Unified Verification (Update)** — Verify the entire simulation and autopilot logic, including path generators, chain skippers, and navigation logic.
-- **808: Task: 808 - Test: Navigation Lifecycle & Graph Logic (Update)** — Validate the core navigation framework, including the FSM, graph representation, and interactive HUD elements.
-- **809: Task: 809 - Test: Teaser Creation & Playback System (New + Update)** — Verify the teaser recording, pathfinding, and state management system.
-- **810: Task: 810 - Test: Tour Templates & Presentation Logic (Update)** — Verify the template system that controls the look and feel of the exported tours.
-- **811: Task: 811 - Test: Hotspot Management & Visuals (New + Update)** — Validate the creation, editing, and rendering of navigational hotspots.
-- **812: Task: 812 - Test: Viewer Core & Orchestration (New + Update)** — Verify the central viewer components that wrap the 360 library (Pannellum).
-- **813: Task: 813 - Test: Project Management & Persistence Logic (New + Update)** — **Status**: `Completed`
-- **814: Task: 814 - Test: UI Components & Contexts (Misc) (Update)** — Verify the shared UI library and application-wide contexts.
-- **815: Task: 815 - Test: Lucide Icons & Wrapper System (New + Update)** — Verify the ReScript bindings and wrappers for the Lucide icon library.
-- **816: Task: 816 - Test: Frontend Utilities & Math (New + Update)** — Verify the shared utility libraries, including math, geometry, and image processing helpers.
-- **817: Task: 817 - Test: App Core & Infrastructure (New + Update)** — Verify the application lifecycle, service workers, global state bridges, and event buses.
-- **818: Task: 818 - Test: Media Processing & Backend Services (Unified)** — **Status**: `Completed`
-- **819: Task: 819 - Test: Core Reducers & Global State (Unified)** — Verify the correctness of the Redux-like state reducers that drive the application.
-- **820: Task: 820 - Test: Visual Pipeline & Svg Rendering (Remainder)** — **Status**: `Completed`
-- **821: Task 821: Aggregate Completed Tasks** — Completed tasks count exceeds 90 (Current: 104).
-- **856: Task 856: Refactor ViewerManager.res (Oversized)** — File `src/components/ViewerManager.res` exceeds **360 lines** (Current: 367).
-- **894: Task 894: Refactor HotspotLine.res (Oversized)** — File `src/systems/HotspotLine.res` exceeds **360 lines** (Current: 386).
-- **901: Migration Phase 1: Persistent Data Foundation** — **Goal**: Establish a relational database layer to replace manual JSON file management and transient session tracking.
-- **902: Migration Phase 2: Identity & Security Layer** — **Goal**: Implement industry-standard authentication and authorization using JWT and standard Actix middleware.
-- **903: Migration Phase 3: Asset Persistence & Isolation** — **Goal**: Move from transient `/tmp` storage to a structured, persistent local filesystem that isolates files by User ID.
-- **904: Migration Phase 4: Frontend Auth, Legal & i18n Integration** — **Goal**: Implement the user-facing side of the authentication system in ReScript, including state management, legal compliance, and internationalization support.
-- **929: Task 929: Refactor UploadProcessorLogic.res (Oversized)** — File `src/systems/UploadProcessorLogic.res` exceeds **360 lines** (Current: 369).
-- **965: Task 965: Refactor ViewerManagerLogic.res (Oversized)** — File `src/components/ViewerManagerLogic.res` exceeds **360 lines** (Current: 362).
-- **1004: Task 1004: Refactor HotspotLineLogic.res (Oversized)** — File `src/systems/HotspotLineLogic.res` exceeds **360 lines** (Current: 534).
-- **1041: Task 1041: Refactor UploadProcessorLogicLogic.res (Oversized)** — File `src/systems/UploadProcessorLogicLogic.res` exceeds **360 lines** (Current: 361).
-- **1063: Task 1063: Classify New Map Entries** — New modules were detected and added to the 'Unmapped Modules' section of
-- **1064: Task 1064: Refactor Schemas.res (Oversized)** — File `src/core/Schemas.res` exceeds **360 lines** (Current: 418).
-- **1067: Analysis of Schema Refactoring Fixes** — **Date:** 2024-05-22
-- **1069: Task 1069: Classify Ambiguous Files with Efficiency Headers** — Analyze the 111 files listed as "Ambiguous" in `_dev-system/pending/SYSTEM_PLAN.md` and insert the appropriate `@efficiency` header to classify their architectural role. This will enable the AI-Native math engine to apply correct LOC limits and Drag calculations.
-- **1070: Task 1070: Fix Critical Violations** — Resolve forbidden patterns and critical LOC violations across the project.
-- **1074: Task 1074: Migrate JavaScript Project Guard to Rust Analyzer** — Port the legacy JavaScript logic from `scripts/guard/` into the `_dev-system/analyzer` Rust application. This will consolidate all project governance into a single high-performance engine and ensure features like "Unified Test Tasks" are preserved.
-- **1075: Task 1075: Classify New Map Entries** — New modules were detected and added to the 'Unmapped Modules' section of `MAP.md`.
-- **1076: Task 1076: Classify Ambiguous Files** — **Role:** Code Taxonomist
-- **1077: Task 1077: Structural Refactor BACKEND** — **Role:** File System Organizer
-- **1078: Task 1078: Fix Violations FRONTEND** — **Role:** Code Safety Officer
-- **1079: Task 1079: Fix Violations BACKEND** — **Role:** Code Safety Officer
-- **1080: Task 1080: Surgical Refactor CORE FRONTEND** — **Role:** Senior Refactoring Engineer
+
+## 📦 Systemic Maintenance (Aggregated)
+- **1153, 1221: Task System Maintenance** — Routine aggregation of completed task files to prevent directory bloat and maintain summary clarity.
+- **Various: Map & Integrity Sync** — Continuous synchronization of `MAP.md` and classification of new modules into the project taxonomy.

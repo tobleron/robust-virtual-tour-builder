@@ -125,7 +125,7 @@
 /* Loading State */
 .btn-loading {
     opacity: 0.7;
-    cursor: wait !important;
+    cursor: wait;
     pointer-events: none;
     position: relative;
 }

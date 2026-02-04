@@ -55,6 +55,7 @@
 │       ├── RESCRIPT_PLAN.md
 │       ├── RUST_PLAN.md
 │       ├── SYSTEM_PLAN.md
+│       ├── WEB_PLAN.md
 │       └── metadata.json
 ├── backend
 │   ├── Cargo.lock
@@ -612,6 +613,48 @@
 │   │           │   ├── project.json
 │   │           │   └── summary.txt
 │   │           ├── 193ec439-5224-47e9-8deb-d2e7e246ba65
+│   │           │   ├── images
+│   │           │   │   ├── 154407_002.webp
+│   │           │   │   ├── 154618_004.webp
+│   │           │   │   ├── 154744_005.webp
+│   │           │   │   ├── 154859_006.webp
+│   │           │   │   ├── 155038_007.webp
+│   │           │   │   ├── 155139_008.webp
+│   │           │   │   ├── 155241_009.webp
+│   │           │   │   ├── 155456_010.webp
+│   │           │   │   ├── 155613_011.webp
+│   │           │   │   ├── 155754_012.webp
+│   │           │   │   ├── 155927_013.webp
+│   │           │   │   ├── 160058_014.webp
+│   │           │   │   ├── 160223_015.webp
+│   │           │   │   ├── 160339_016.webp
+│   │           │   │   ├── 160509_017.webp
+│   │           │   │   ├── 160552_018.webp
+│   │           │   │   ├── 160634_019.webp
+│   │           │   │   ├── 160715_020.webp
+│   │           │   │   ├── 160825_021.webp
+│   │           │   │   ├── 160926_022.webp
+│   │           │   │   ├── 161026_023.webp
+│   │           │   │   ├── 161123_024.webp
+│   │           │   │   ├── 161213_025.webp
+│   │           │   │   ├── 161309_026.webp
+│   │           │   │   ├── 161358_027.webp
+│   │           │   │   ├── 161456_028.webp
+│   │           │   │   ├── 161628_029.webp
+│   │           │   │   ├── 161706_030.webp
+│   │           │   │   ├── 161739_031.webp
+│   │           │   │   ├── 161824_032.webp
+│   │           │   │   ├── 161910_033.webp
+│   │           │   │   ├── 162015_034.webp
+│   │           │   │   ├── 162106_035.webp
+│   │           │   │   ├── 162215_036.webp
+│   │           │   │   ├── 162251_037.webp
+│   │           │   │   ├── 162400_038.webp
+│   │           │   │   ├── 162456_039.webp
+│   │           │   │   └── 162557_040.webp
+│   │           │   ├── project.json
+│   │           │   └── summary.txt
+│   │           ├── 1991fbf5-c928-4cf0-936e-1b200da02f21
 │   │           │   ├── images
 │   │           │   │   ├── 154407_002.webp
 │   │           │   │   ├── 154618_004.webp
@@ -6219,6 +6262,12 @@
 │   │   │   ├── App.cmj
 │   │   │   ├── App.cmt
 │   │   │   ├── App.res
+│   │   │   ├── Hooks.ast
+│   │   │   ├── Hooks.bs.js
+│   │   │   ├── Hooks.cmi
+│   │   │   ├── Hooks.cmj
+│   │   │   ├── Hooks.cmt
+│   │   │   ├── Hooks.res
 │   │   │   ├── Main.ast
 │   │   │   ├── Main.bs.js
 │   │   │   ├── Main.cmi
@@ -6587,6 +6636,18 @@
 │   │   │   │   ├── JsonParsers.cmj
 │   │   │   │   ├── JsonParsers.cmt
 │   │   │   │   ├── JsonParsers.res
+│   │   │   │   ├── JsonParsersDecoders.ast
+│   │   │   │   ├── JsonParsersDecoders.bs.js
+│   │   │   │   ├── JsonParsersDecoders.cmi
+│   │   │   │   ├── JsonParsersDecoders.cmj
+│   │   │   │   ├── JsonParsersDecoders.cmt
+│   │   │   │   ├── JsonParsersDecoders.res
+│   │   │   │   ├── JsonParsersEncoders.ast
+│   │   │   │   ├── JsonParsersEncoders.bs.js
+│   │   │   │   ├── JsonParsersEncoders.cmi
+│   │   │   │   ├── JsonParsersEncoders.cmj
+│   │   │   │   ├── JsonParsersEncoders.cmt
+│   │   │   │   ├── JsonParsersEncoders.res
 │   │   │   │   ├── JsonParsersShared.ast
 │   │   │   │   ├── JsonParsersShared.bs.js
 │   │   │   │   ├── JsonParsersShared.cmi
@@ -6967,6 +7028,12 @@
 │   │   │   │   ├── ProjectManager.cmj
 │   │   │   │   ├── ProjectManager.cmt
 │   │   │   │   ├── ProjectManager.res
+│   │   │   │   ├── ProjectManagerUrl.ast
+│   │   │   │   ├── ProjectManagerUrl.bs.js
+│   │   │   │   ├── ProjectManagerUrl.cmi
+│   │   │   │   ├── ProjectManagerUrl.cmj
+│   │   │   │   ├── ProjectManagerUrl.cmt
+│   │   │   │   ├── ProjectManagerUrl.res
 │   │   │   │   ├── Resizer
 │   │   │   │   │   ├── ResizerLogic.ast
 │   │   │   │   │   ├── ResizerLogic.bs.js
@@ -8587,6 +8654,11 @@
 │   │   ├── GraphicsBindings.cmj
 │   │   ├── GraphicsBindings.cmt
 │   │   ├── GraphicsBindings.res
+│   │   ├── Hooks.ast
+│   │   ├── Hooks.cmi
+│   │   ├── Hooks.cmj
+│   │   ├── Hooks.cmt
+│   │   ├── Hooks.res
 │   │   ├── HotspotActionMenu.ast
 │   │   ├── HotspotActionMenu.cmi
 │   │   ├── HotspotActionMenu.cmj
@@ -8750,6 +8822,16 @@
 │   │   ├── JsonParsers.cmj
 │   │   ├── JsonParsers.cmt
 │   │   ├── JsonParsers.res
+│   │   ├── JsonParsersDecoders.ast
+│   │   ├── JsonParsersDecoders.cmi
+│   │   ├── JsonParsersDecoders.cmj
+│   │   ├── JsonParsersDecoders.cmt
+│   │   ├── JsonParsersDecoders.res
+│   │   ├── JsonParsersEncoders.ast
+│   │   ├── JsonParsersEncoders.cmi
+│   │   ├── JsonParsersEncoders.cmj
+│   │   ├── JsonParsersEncoders.cmt
+│   │   ├── JsonParsersEncoders.res
 │   │   ├── JsonParsersShared.ast
 │   │   ├── JsonParsersShared.cmi
 │   │   ├── JsonParsersShared.cmj
@@ -9096,6 +9178,11 @@
 │   │   ├── ProjectManager.cmj
 │   │   ├── ProjectManager.cmt
 │   │   ├── ProjectManager.res
+│   │   ├── ProjectManagerUrl.ast
+│   │   ├── ProjectManagerUrl.cmi
+│   │   ├── ProjectManagerUrl.cmj
+│   │   ├── ProjectManagerUrl.cmt
+│   │   ├── ProjectManagerUrl.res
 │   │   ├── ProjectManager_v.test.ast
 │   │   ├── ProjectManager_v.test.cmi
 │   │   ├── ProjectManager_v.test.cmj
@@ -9747,15 +9834,7 @@
 │   │   ├── UrlUtils_v.test.cmj
 │   │   ├── UrlUtils_v.test.cmt
 │   │   ├── UrlUtils_v.test.res
-│   │   ├── UseIsInteractionPermitted.ast
-│   │   ├── UseIsInteractionPermitted.cmi
-│   │   ├── UseIsInteractionPermitted.cmj
-│   │   ├── UseIsInteractionPermitted.cmt
 │   │   ├── UseIsInteractionPermitted.res
-│   │   ├── UseThrottledAction.ast
-│   │   ├── UseThrottledAction.cmi
-│   │   ├── UseThrottledAction.cmj
-│   │   ├── UseThrottledAction.cmt
 │   │   ├── UseThrottledAction.res
 │   │   ├── UtilityBar.ast
 │   │   ├── UtilityBar.cmi
@@ -9955,7 +10034,8 @@
 │   ├── diagnostic.log
 │   ├── error.log
 │   ├── log_changes.txt
-│   └── project-guard.log
+│   ├── project-guard.log
+│   └── telemetry.log
 ├── old_ref
 │   ├── 7aadee4
 │   │   ├── CHANGELOG.md
@@ -11398,6 +11478,8 @@
 │   ├── App.bs.js
 │   ├── App.res
 │   ├── Dummy.bs.js
+│   ├── Hooks.bs.js
+│   ├── Hooks.res
 │   ├── Main.bs.js
 │   ├── Main.res
 │   ├── ReBindings.bs.js
@@ -11535,6 +11617,10 @@
 │   │   ├── JsonEncoders.res
 │   │   ├── JsonParsers.bs.js
 │   │   ├── JsonParsers.res
+│   │   ├── JsonParsersDecoders.bs.js
+│   │   ├── JsonParsersDecoders.res
+│   │   ├── JsonParsersEncoders.bs.js
+│   │   ├── JsonParsersEncoders.res
 │   │   ├── JsonParsersShared.bs.js
 │   │   ├── JsonParsersShared.res
 │   │   ├── NavigationHelpers.bs.js
@@ -11575,11 +11661,6 @@
 │   │   └── interfaces
 │   │       ├── ViewerDriver.bs.js
 │   │       └── ViewerDriver.res
-│   ├── hooks
-│   │   ├── UseIsInteractionPermitted.bs.js
-│   │   ├── UseIsInteractionPermitted.res
-│   │   ├── UseThrottledAction.bs.js
-│   │   └── UseThrottledAction.res
 │   ├── i18n
 │   │   ├── I18n.bs.js
 │   │   ├── I18n.res
@@ -11676,6 +11757,8 @@
 │   │   ├── PanoramaClusterer.res
 │   │   ├── ProjectManager.bs.js
 │   │   ├── ProjectManager.res
+│   │   ├── ProjectManagerUrl.bs.js
+│   │   ├── ProjectManagerUrl.res
 │   │   ├── Resizer
 │   │   │   ├── ResizerLogic.bs.js
 │   │   │   ├── ResizerLogic.res
@@ -11808,54 +11891,6 @@
 │   ├── TASKS.md
 │   ├── active
 │   ├── completed
-│   │   ├── 1081_Surgical_Refactor_SYSTEMS_FRONTEND_DONE.md
-│   │   ├── 1082_Surgical_Refactor_COMPONENTS_FRONTEND_DONE.md
-│   │   ├── 1083_Surgical_Refactor_UTILS_FRONTEND_DONE.md
-│   │   ├── 1084_Surgical_Refactor_API_BACKEND_DONE.md
-│   │   ├── 1085_Surgical_Refactor_MEDIA_BACKEND_DONE.md
-│   │   ├── 1095_Classify_Ambiguous_Files_DONE.md
-│   │   ├── 1097_Perfect_Dev_System_Analyzer.md
-│   │   ├── 1104_refine_dev_system_analyzer_maintenance.md
-│   │   ├── 1105_Surgical_Refactor_SYSTEMS_FRONTEND_DONE.md
-│   │   ├── 1108_Surgical_Refactor_COMPONENTS_FRONTEND_DONE.md
-│   │   ├── 1111_Surgical_Refactor_MEDIA_BACKEND_DONE.md
-│   │   ├── 1112_Surgical_Refactor_SRC_BACKEND_DONE.md
-│   │   ├── 1113_Merge_Folders_BACKEND_DONE.md
-│   │   ├── 1114_Surgical_Refactor_SYSTEMS_FRONTEND_DONE.md
-│   │   ├── 1116_Classify_Map_Entries_DONE.md
-│   │   ├── 1117_Deep_Audit_and_Process_Enhancement.md
-│   │   ├── 1118_Classify_Ambiguous_Files_DONE.md
-│   │   ├── 1119_Surgical_Refactor_COMPONENTS_FRONTEND_DONE.md
-│   │   ├── 1120_Surgical_Refactor_SYSTEMS_FRONTEND_DONE.md
-│   │   ├── 1122_Classify_Map_Entries_DONE.md
-│   │   ├── 1123_Comprehensive_DevSystem_Analyzer_Overhaul_DONE.md
-│   │   ├── 1124_Complete_ReScript_JSX_Auto_Discovery_Implementation_DONE.md
-│   │   ├── 1125_Fix_Violations_FRONTEND_DONE.md
-│   │   ├── 1126_Upgrade_Dev_System_Semantic_Engine_DONE.md
-│   │   ├── 1127_Surgical_Refactor_CORE_FRONTEND_DONE.md
-│   │   ├── 1128_Surgical_Refactor_UTILS_FRONTEND_DONE.md
-│   │   ├── 1130_Surgical_Refactor_SRC_FRONTEND_DONE.md
-│   │   ├── 1131_Surgical_Refactor_SRC_BACKEND_DONE.md
-│   │   ├── 1132_Surgical_Refactor_MEDIA_BACKEND_DONE.md
-│   │   ├── 1133_Surgical_Refactor_API_BACKEND_DONE.md
-│   │   ├── 1135_Surgical_Refactor_SERVICES_BACKEND_DONE.md
-│   │   ├── 1136_Surgical_Refactor_PATHFINDER_BACKEND_DONE.md
-│   │   ├── 1137_Surgical_Refactor_SYSTEMS_FRONTEND_DONE.md
-│   │   ├── 1138_Merge_Folders_FRONTEND_DONE.md
-│   │   ├── 1139_Classify_Map_Entries_DONE.md
-│   │   ├── 1140_Surgical_Refactor_MEDIA_BACKEND_DONE.md
-│   │   ├── 1141_Surgical_Refactor_API_BACKEND_DONE.md
-│   │   ├── 1142_Surgical_Refactor_SRC_BACKEND_DONE.md
-│   │   ├── 1143_Surgical_Refactor_SERVICES_BACKEND_DONE.md
-│   │   ├── 1144_Surgical_Refactor_PATHFINDER_BACKEND_DONE.md
-│   │   ├── 1145_Surgical_Refactor_API_BACKEND_DONE.md
-│   │   ├── 1146_Surgical_Refactor_PATHFINDER_BACKEND_DONE.md
-│   │   ├── 1147_Surgical_Refactor_SERVICES_BACKEND_DONE.md
-│   │   ├── 1148_Surgical_Refactor_SRC_BACKEND_DONE.md
-│   │   ├── 1149_Surgical_Refactor_MEDIA_BACKEND_DONE.md
-│   │   ├── 1151_Surgical_Refactor_CORE_FRONTEND_DONE.md
-│   │   ├── 1152_Surgical_Refactor_SYSTEMS_FRONTEND_DONE.md
-│   │   ├── 1153_Aggregate_Completed_Tasks_DONE.md
 │   │   ├── 1154_Classify_Ambiguous_Files__FINISHED.md
 │   │   ├── 1157_Merge_Folders_BACKEND_DONE.md
 │   │   ├── 1158_Classify_Map_Entries__FINISHED.md
@@ -11904,9 +11939,14 @@
 │   │   ├── 1226_COMPLETE_OPTIMISTIC_UPDATE_AND_RECOVERY_INTEGRATION.md
 │   │   ├── 1227_IMPLEMENT_PROJECT_SAVE_RECOVERY_DONE.md
 │   │   ├── 1228_IMPLEMENT_UPLOAD_BATCH_RECOVERY_DONE.md
+│   │   ├── 1229_Classify_Ambiguous_Files_DONE.md
+│   │   ├── 1230_Fix_Violations_FRONTEND_DONE.md
+│   │   ├── 1231_Surgical_Refactor_CORE_FRONTEND_DONE.md
+│   │   ├── 1232_Merge_Folders_FRONTEND_DONE.md
+│   │   ├── 1233_Surgical_Refactor_SYSTEMS_FRONTEND_DONE.md
 │   │   ├── 1234_UI_NOTIFICATION_AUDIT_DONE.md
-│   │   ├── 900_COMMERCIAL_MIGRATION_MASTER.md
-│   │   ├── 905_migration_telemetry_DONE.md
+│   │   ├── 1235_Aggregate_Completed_Tasks_DONE.md
+│   │   ├── 1237_Classify_Map_Entries_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
 │   │       ├── 1195_Test_Teaser_DONE.md
@@ -11917,12 +11957,6 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1229_Classify_Ambiguous_Files.md
-│   │   ├── 1230_Fix_Violations_FRONTEND.md
-│   │   ├── 1231_Surgical_Refactor_CORE_FRONTEND.md
-│   │   ├── 1232_Merge_Folders_FRONTEND.md
-│   │   ├── 1233_Surgical_Refactor_SYSTEMS_FRONTEND.md
-│   │   └── 1235_Aggregate_Completed_Tasks.md
 │   └── postponed
 ├── test-results
 ├── tests
@@ -12291,4 +12325,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-520 directories, 11772 files
+521 directories, 11805 files
