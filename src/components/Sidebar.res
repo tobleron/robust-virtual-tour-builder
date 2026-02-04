@@ -114,11 +114,9 @@ let make = React.memo(() => {
     let unsubscribe = EventBus.subscribe(
       event => {
         switch event {
-        | TriggerUpload => {
-            switch Nullable.toOption(fileInputRef.current) {
-            | Some(el) => ReBindings.Dom.click(el)
-            | None => ()
-            }
+        | TriggerUpload => switch Nullable.toOption(fileInputRef.current) {
+          | Some(el) => ReBindings.Dom.click(el)
+          | None => ()
           }
         | UpdateProcessing(payload) => {
             let wantedActive = payload["active"]
