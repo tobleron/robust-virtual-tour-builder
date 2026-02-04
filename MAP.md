@@ -205,6 +205,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/utils/CircuitBreaker.res](src/utils/CircuitBreaker.res): Circuit breaker pattern for backend API calls. `#utils` `#resiliency`
 *   [src/utils/Debounce.res](src/utils/Debounce.res): Utility for debouncing and throttling promise-based functions. `#utils` `#concurrency`
 *   [src/utils/RateLimiter.res](src/utils/RateLimiter.res): Sliding window rate limiter for user actions. `#utils` `#rate-limiting`
+*   [src/utils/Retry.res](src/utils/Retry.res): Utility for retrying async operations with exponential backoff and jitter. `#utils` `#reliability` `#async`
 
 ### ⚙️ Backend API (Rust)
 *   [backend/src/main.rs](backend/src/main.rs): Server entry point and high-level orchestration. `#rust` `#api` `#server` `#entry-point`
