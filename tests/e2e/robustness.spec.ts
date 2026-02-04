@@ -7,6 +7,35 @@ test.describe('Application Robustness', () => {
   const desktopPath = path.resolve('./tests/e2e/fixtures/tour.vt.zip');
 
   test.beforeEach(async ({ page }) => {
+    // Mock the import endpoint to avoid backend dependency
+    await page.route('**/api/project/import', async route => {
+      const jsonResponse = {
+        sessionId: "test-session-id",
+        projectData: {
+          scenes: [
+            {
+              id: "scene_1",
+              name: "Test Scene",
+              fileName: "image.jpg",
+              url: "blob:test",
+              fov: 100,
+              links: [],
+              quality: null
+            }
+          ],
+          version: 1
+        }
+      };
+      // Add delay to simulate backend processing
+      await new Promise(resolve => setTimeout(resolve, 500));
+      await route.fulfill({ status: 200, json: jsonResponse });
+    });
+
+    // Mock telemetry
+    await page.route('**/api/telemetry/**', async route => {
+      await route.fulfill({ status: 200 });
+    });
+
     // Setup AI-focused diagnostic logging
     await setupAIObservability(page);
 
@@ -215,7 +244,7 @@ test.describe('Application Robustness', () => {
       const saveBtn = page.getByLabel('Save');
       for (let i = 0; i < 6; i++) {
         await saveBtn.click();
-        await page.waitForTimeout(100);
+        await page.waitForTimeout(1100);
       }
 
       // Expected: Circuit breaker notification appears
@@ -226,6 +255,7 @@ test.describe('Application Robustness', () => {
       await saveBtn.click();
       await expect(networkPromise).rejects.toThrow();
     });
+
 
     test('Optimistic Rollback on API Failure', async ({ page }) => {
       // Count initial scenes
