@@ -65,6 +65,7 @@ describe("UploadProcessorLogic", () => {
       startTime,
       onProgress,
       0, // skippedCount
+      "test_journal_id",
     )
 
     t->expect(Array.length(results.report.success))->Expect.toBe(2)

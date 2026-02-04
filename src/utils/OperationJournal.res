@@ -189,6 +189,18 @@ let updateStatus = (id: string, status: operationStatus) => {
   let _ = saveCurrent()
 }
 
+let updateContext = (id: string, context: JSON.t) => {
+  let newEntries = Belt.Array.map(currentJournal.contents.entries, entry => {
+    if entry.id == id {
+      {...entry, context}
+    } else {
+      entry
+    }
+  })
+  currentJournal := {...currentJournal.contents, entries: newEntries}
+  let _ = saveCurrent()
+}
+
 let completeOperation = (id: string) => {
   updateStatus(id, Completed)
   // Prune completed operations immediately to keep journal small

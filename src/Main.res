@@ -174,6 +174,7 @@ let init = async () => {
 
       // Register Recovery Handlers
       RecoveryManager.registerHandler("SaveProject", ProjectManager.recoverSaveProject)
+      RecoveryManager.registerHandler("UploadImages", UploadProcessorLogic.recoverUpload)
 
       let _recovered = await PersistenceLayer.checkRecovery()
 
