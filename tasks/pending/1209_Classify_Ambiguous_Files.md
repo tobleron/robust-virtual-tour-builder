@@ -10,17 +10,17 @@
 
 ### 📚 Valid Roles
 *   **domain-logic**: Pure business logic, entities, and domain services.
+*   **infra-binding**: External JS/FFI bindings. High LOC permitted due to low logic density.
+*   **state-reducer**: Deterministic state transitions (Redux/Store style).
 *   **service-orchestrator**: Complex coordination between multiple domain services.
 *   **infra-adapter**: External API clients, database drivers, and third-party bindings.
-*   **orchestrator**: App entry points and high-level flow control.
-*   **ignored**: Exclude this file from all efficiency metrics and tasks.
 *   **data-model**: Type definitions, schemas, and DTOs (low logic density).
 *   **state-hook**: Custom hooks with high state-to-logic ratio.
 *   **util-pure**: Side-effect free helper functions.
-*   **infra-config**: Build scripts, project configuration, and environment setups.
-*   **infra-binding**: External JS/FFI bindings. High LOC permitted due to low logic density.
 *   **ui-component**: Visual presentation and user interaction layers.
-*   **state-reducer**: Deterministic state transitions (Redux/Store style).
+*   **infra-config**: Build scripts, project configuration, and environment setups.
+*   **orchestrator**: App entry points and high-level flow control.
+*   **ignored**: Exclude this file from all efficiency metrics and tasks.
 
 
 ## Tasks
@@ -29,3 +29,4 @@
 **Directive:** Taxonomy Resolution: Add the required @efficiency-role: <role> tag (including colon) to help the analyzer apply the correct complexity limits.
 
 - [ ] `../../src/hooks/UseIsInteractionPermitted.res`
+- [ ] `../../src/hooks/UseThrottledAction.res`
