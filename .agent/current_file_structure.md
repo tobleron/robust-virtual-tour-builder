@@ -11519,30 +11519,7 @@
 │   ├── logical_inconsistencies_analysis.md
 │   └── step1_cleanup_notes.md
 ├── playwright-report
-│   ├── data
-│   │   ├── 03e87d9610ecc909216f9d36347026b0be2c75d6.zip
-│   │   ├── 35f60bfeef77e81b376401da079e7472d78e86d4.png
-│   │   ├── 482db0d878405d11e05f6b62316ecaea5cb3088f.md
-│   │   └── cfb78ec06492ca19afd1abfb9f33767ce72a07ac.webm
-│   ├── index.html
-│   └── trace
-│       ├── assets
-│       │   ├── codeMirrorModule-a5XoALAZ.js
-│       │   └── defaultSettingsView-CJSZINFr.js
-│       ├── codeMirrorModule.DYBRYzYX.css
-│       ├── codicon.DCmgc-ay.ttf
-│       ├── defaultSettingsView.7ch9cixO.css
-│       ├── index.BVu7tZDe.css
-│       ├── index.BiGyQqiM.js
-│       ├── index.html
-│       ├── manifest.webmanifest
-│       ├── playwright-logo.svg
-│       ├── snapshot.html
-│       ├── sw.bundle.js
-│       ├── uiMode.Btcz36p_.css
-│       ├── uiMode.CQJ9SCIQ.js
-│       ├── uiMode.html
-│       └── xtermModule.DYP7pi_n.css
+│   └── index.html
 ├── playwright.config.ts
 ├── postcss.config.js
 ├── public
@@ -12059,6 +12036,7 @@
 │   │   ├── 1234_UI_NOTIFICATION_AUDIT_DONE.md
 │   │   ├── 1235_Aggregate_Completed_Tasks_DONE.md
 │   │   ├── 1237_Classify_Map_Entries_DONE.md
+│   │   ├── 1238_Fix_ZIP_Import_Scene_Loading_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
 │   │       ├── 1195_Test_Teaser_DONE.md
@@ -12069,7 +12047,6 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1238_Fix_ZIP_Import_Scene_Loading.md
 │   │   ├── 1239_Fix_Rapid_Save_Interaction_Stability.md
 │   │   ├── 1240_Fix_Interrupted_Operation_Recovery_Prompt.md
 │   │   ├── 1241_Fix_UI_Transition_Interruption_Robustness.md
@@ -12081,25 +12058,6 @@
 │   │   └── 1247_Fix_Recovery_Modal_on_Browser_Refresh.md
 │   └── postponed
 ├── test-results
-│   ├── error-recovery-Error-Recov-4370c-ould-trigger-recovery-modal-chromium
-│   │   ├── error-context.md
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── error-recovery-Error-Recov-7b440-upload-should-trigger-retry-chromium
-│   │   ├── error-context.md
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── error-recovery-Error-Recov-7b440-upload-should-trigger-retry-firefox
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   └── error-recovery-Error-Recov-fa267-le-should-handle-gracefully-chromium
-│       ├── error-context.md
-│       ├── test-failed-1.png
-│       ├── trace.zip
-│       └── video.webm
 ├── tests
 │   ├── TestRunner.bs.js
 │   ├── TestRunner.res
@@ -12466,4 +12424,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-530 directories, 11937 files
+523 directories, 11902 files
