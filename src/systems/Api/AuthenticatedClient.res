@@ -42,6 +42,9 @@ let prepareRequestBody = (body: option<JSON.t>, headers: Dict.t<string>) => {
 let request = async (url, ~method="GET", ~body: option<JSON.t>=?, ~headers=Dict.make(), ()) => {
   if !CircuitBreaker.canExecute(circuitBreaker) {
     Logger.warn(~module_="AuthenticatedClient", ~message="CIRCUIT_OPEN", ~data=None, ())
+    EventBus.dispatch(
+      ShowNotification("Connection issues. Please wait a moment...", #Warning, None),
+    )
     throw(HttpError(503, "Service temporarily unavailable"))
   }
 
