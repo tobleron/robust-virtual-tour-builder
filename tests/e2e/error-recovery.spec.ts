@@ -27,7 +27,7 @@ test.describe('Error Recovery Scenarios', () => {
         test.setTimeout(120000);
 
         let failCount = 0;
-        await page.route('**/api/media/upload**', async route => {
+        await page.route('**/api/media/process-full*', async route => {
             if (failCount < 1) {
                 failCount++;
                 console.log('Simulating network failure for upload...');
