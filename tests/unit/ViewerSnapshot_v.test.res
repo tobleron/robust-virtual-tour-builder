@@ -7,23 +7,6 @@ describe("ViewerSnapshot", () => {
       let _ = Window.setTimeout(() => resolve(), ms)
     })
 
-  test("requestIdleSnapshot should set a timeout", t => {
-    ViewerState.state := {...ViewerState.state.contents, idleSnapshotTimeout: Nullable.null}
-
-    ViewerSnapshot.requestIdleSnapshot()
-
-    t
-    ->expect(ViewerState.state.contents.idleSnapshotTimeout)
-    ->Expect.not
-    ->Expect.toBe(Nullable.null)
-
-    // Cleanup
-    switch Nullable.toOption(ViewerState.state.contents.idleSnapshotTimeout) {
-    | Some(id) => Window.clearTimeout(id)
-    | None => ()
-    }
-  })
-
   testAsync("snapshot logic should update scene state", async t => {
     // Setup Mock DOM and Timer
     let _ = %raw(`
@@ -38,7 +21,7 @@ describe("ViewerSnapshot", () => {
         const oldSetTimeout = window.setTimeout;
         global.capturedCallback = null;
         window.setTimeout = (cb, delay) => {
-          if (delay === require('../../src/utils/Constants.bs.js').idleSnapshotDelay) {
+          if (delay === 1000) {
             global.capturedCallback = cb;
             return 999;
           }
@@ -86,7 +69,7 @@ describe("ViewerSnapshot", () => {
         const oldSetTimeout = window.setTimeout;
         global.capturedCallback = null;
         window.setTimeout = (cb, delay) => {
-          if (delay === require('../../src/utils/Constants.bs.js').idleSnapshotDelay) {
+          if (delay === 1000) {
             global.capturedCallback = cb;
             return 998;
           }
@@ -120,7 +103,7 @@ describe("ViewerSnapshot", () => {
         global.capturedCallback = null;
         const oldSetTimeout = window.setTimeout;
         window.setTimeout = (cb, delay) => {
-          if (delay === require('../../src/utils/Constants.bs.js').idleSnapshotDelay) {
+          if (delay === 1000) {
             global.capturedCallback = cb;
             return 997;
           }

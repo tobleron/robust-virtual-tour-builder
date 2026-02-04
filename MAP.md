@@ -203,6 +203,8 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/utils/Version.res](src/utils/Version.res): Semantic versioning and build manifest utilities. `#utils` `#version`
 *   [src/utils/AsyncQueue.res](src/utils/AsyncQueue.res): Generic asynchronous queue with concurrency control and progress reporting. `#utils` `#concurrency`
 *   [src/utils/CircuitBreaker.res](src/utils/CircuitBreaker.res): Circuit breaker pattern for backend API calls. `#utils` `#resiliency`
+*   [src/utils/Debounce.res](src/utils/Debounce.res): Utility for debouncing and throttling promise-based functions. `#utils` `#concurrency`
+*   [src/utils/RateLimiter.res](src/utils/RateLimiter.res): Sliding window rate limiter for user actions. `#utils` `#rate-limiting`
 
 ### ⚙️ Backend API (Rust)
 *   [backend/src/main.rs](backend/src/main.rs): Server entry point and high-level orchestration. `#rust` `#api` `#server` `#entry-point`
@@ -275,4 +277,5 @@ This map provides a semantic overview of the project structure to optimize conte
 ## 🆕 Unmapped Modules
 ### 🪝 React Hooks
 * [src/hooks/UseIsInteractionPermitted.res](src/hooks/UseIsInteractionPermitted.res): Logic for determining if user interactions are allowed based on state (linking, simulation, etc.). `#hooks` `#logic` `#interaction`
+* [src/hooks/UseThrottledAction.res](src/hooks/UseThrottledAction.res): Hook combining debounce and rate limiting for UI actions. `#hooks` `#logic` `#interaction`
 
