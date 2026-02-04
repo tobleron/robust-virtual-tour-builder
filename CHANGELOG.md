@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Merge PR #132 (JSON Combinators), update MAP.md, create task 1220 for optimistic update completion
 
+### Changed
+- Refactor dev-system analyzer: Extract main.rs into focused modules (860→266 LOC)
+
 ## [4.12.0] - 2026-02-04
 
 ### Changed
