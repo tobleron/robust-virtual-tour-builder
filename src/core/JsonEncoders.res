@@ -8,11 +8,11 @@ module Upload = {
   let value = (v: JSON.t) => v
 
   let encodeFileFromTypes = (f: Types.file) => {
-     switch f {
-     | Url(s) => Encode.string(s)
-     | File(file) => castFileToJson(file)
-     | Blob(blob) => castBlobToJson(blob)
-     }
+    switch f {
+    | Url(s) => Encode.string(s)
+    | File(file) => castFileToJson(file)
+    | Blob(blob) => castBlobToJson(blob)
+    }
   }
 
   let sceneItem = (
@@ -24,7 +24,7 @@ module Upload = {
     ~tiny: Types.file,
     ~quality: option<JSON.t>,
     ~metadata: option<JSON.t>,
-    ~colorGroup: string
+    ~colorGroup: string,
   ) => {
     Encode.object([
       ("id", Encode.string(id)),
@@ -35,7 +35,7 @@ module Upload = {
       ("tiny", encodeFileFromTypes(tiny)),
       ("quality", Encode.option(value)(quality)),
       ("metadata", Encode.option(value)(metadata)),
-      ("colorGroup", Encode.string(colorGroup))
+      ("colorGroup", Encode.string(colorGroup)),
     ])
   }
 }

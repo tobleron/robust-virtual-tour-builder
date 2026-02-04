@@ -45,6 +45,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/core/AppContext.res](src/core/AppContext.res): Typed React Context for state and dispatch accessibility. `#react-context` `#hooks`
 *   [src/core/JsonParsers.res](src/core/JsonParsers.res): Domain-specific JSON parsers and encoders. `#json` `#parsing` `#domain`
 *   [src/core/JsonParsersShared.res](src/core/JsonParsersShared.res): Shared JSON parsers for cross-domain metadata (Exif, Quality). `#json` `#shared` `#parsing`
+*   [src/core/JsonEncoders.res](src/core/JsonEncoders.res): Centralized JSON encoders using rescript-json-combinators for CSP compliance. `#json` `#encoding` `#csp`
 
 *   [src/core/SceneHelpers.res](src/core/SceneHelpers.res): Lightweight facade for scene-related helpers. `#helpers` `#scene` `#facade`
 
@@ -173,6 +174,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/components/Portal.res](src/components/Portal.res): React portal utility for detached DOM rendering. `#ui` `#dom`
 *   [src/components/PreviewArrow.res](src/components/PreviewArrow.res): Visual indicator for navigation previews. `#ui` `#navigation`
 *   [src/components/QualityIndicator.res](src/components/QualityIndicator.res): Visual badge for image quality scores. `#ui` `#quality`
+*   [src/components/RecoveryPrompt.res](src/components/RecoveryPrompt.res): UI component for displaying interrupted operations and recovery options. `#ui` `#recovery` `#persistence`
 *   [src/components/ReturnPrompt.res](src/components/ReturnPrompt.res): Confirmation dialog for unsaved changes or exits. `#ui` `#dialog`
 *   [src/components/Tooltip.res](src/components/Tooltip.res): Accessible and styled hover tooltips. `#ui` `#accessibility`
 *   [src/components/UploadReport.res](src/components/UploadReport.res): Detailed report UI for batch upload results. `#ui` `#reporting` `#upload`
@@ -277,7 +279,6 @@ This map provides a semantic overview of the project structure to optimize conte
 
 
 ## 🆕 Unmapped Modules
-* [src/components/RecoveryPrompt.res](src/components/RecoveryPrompt.res): New module detected. Please classify. #new
 ### 🪝 React Hooks
 * [src/hooks/UseIsInteractionPermitted.res](src/hooks/UseIsInteractionPermitted.res): Logic for determining if user interactions are allowed based on state (linking, simulation, etc.). `#hooks` `#logic` `#interaction`
 * [src/hooks/UseThrottledAction.res](src/hooks/UseThrottledAction.res): Hook combining debounce and rate limiting for UI actions. `#hooks` `#logic` `#interaction`
