@@ -55,6 +55,7 @@ let performUpload = async files => {
     let report = result.report
 
     UploadReport.show(report, qualityResults)
+    EventBus.dispatch(ShowNotification("Upload Complete", #Success, None))
   } catch {
   | JsExn(obj) =>
     let msg = switch JsExn.message(obj) {
@@ -75,7 +76,9 @@ let performUpload = async files => {
 
 let handleUpload = async filesOpt => {
   switch filesOpt {
-  | Some(files) if FileList.length(files) > 0 => await performUpload(files)
+  | Some(files) if FileList.length(files) > 0 =>
+    EventBus.dispatch(ShowNotification("Upload Started...", #Info, None))
+    await performUpload(files)
   | _ => ()
   }
 }
@@ -119,6 +122,7 @@ let handleLoadProject = async (filesOpt, dispatch, _sceneCount, target) => {
               (),
             )
             updateProgress(100.0, "Done", false, "")
+            EventBus.dispatch(ShowNotification("Project Loaded", #Success, None))
           }
         | Error(msg) => {
             EventBus.dispatch(
@@ -180,6 +184,7 @@ let handleDeleteScene = (index: int) => {
 
 let handleExport = async (scenes, ~signal, ~onCancel) => {
   updateProgress(~onCancel, 0.0, "Exporting...", true, "Export")
+  EventBus.dispatch(ShowNotification("Export Started...", #Info, None))
   try {
     let exportResult = await Exporter.exportTour(
       scenes,

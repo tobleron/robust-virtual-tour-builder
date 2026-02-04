@@ -139,8 +139,34 @@ let make = React.memo(() => {
         ~data=Some({"index": index}),
         (),
       )
-      SidebarLogic.handleDeleteScene(index)
-      EventBus.dispatch(ShowNotification("Scene Removed", #Info, None))
+      EventBus.dispatch(
+        ShowModal({
+          title: "Delete Scene",
+          description: Some("Are you sure you want to delete this scene?"),
+          content: None,
+          icon: Some("warning"),
+          className: Some("modal-blue"),
+          allowClose: Some(true),
+          onClose: None,
+          buttons: [
+            {
+              label: "Cancel",
+              class_: "bg-slate-100/10 text-white hover:bg-white/20",
+              onClick: () => (),
+              autoClose: Some(true),
+            },
+            {
+              label: "Delete",
+              class_: "bg-red-500/20 text-white hover:bg-red-500/40",
+              onClick: () => {
+                SidebarLogic.handleDeleteScene(index)
+                EventBus.dispatch(ShowNotification("Scene Removed", #Success, None))
+              },
+              autoClose: Some(true),
+            },
+          ],
+        }),
+      )
     }
   , [])
 

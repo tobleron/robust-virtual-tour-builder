@@ -263,9 +263,35 @@ describe("SceneList", () => {
 
     switch Nullable.toOption(deleteBtn) {
     | Some(btn) =>
+      let modalEvent = ref(None)
+      let unsubscribe = EventBus.subscribe(e => {
+        switch e {
+        | ShowModal(config) => modalEvent := Some(config)
+        | _ => ()
+        }
+      })
+
       Dom.click(btn)
       // SceneItem has 800ms delay
       await wait(900)
+
+      // Modal should be triggered
+      switch modalEvent.contents {
+      | Some(config) =>
+        t->expect(config.title)->Expect.toBe("Delete Scene")
+        // Find Delete button and click it
+        let deleteActionBtn = Belt.Array.getBy(config.buttons, b => b.label == "Delete")
+        switch deleteActionBtn {
+        | Some(b) => b.onClick()
+        | None => t->expect("Delete Button")->Expect.toBe("Found")
+        }
+      | None => t->expect("ShowModal")->Expect.toBe("Dispatched")
+      }
+
+      unsubscribe()
+
+      // Allow queue processing if needed
+      await wait(100)
 
       switch lastAction.contents {
       | Some(Actions.DeleteScene(index)) => t->expect(index)->Expect.toBe(0)
