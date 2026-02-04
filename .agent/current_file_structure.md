@@ -6139,6 +6139,7 @@
 │   └── storage
 ├── docs
 │   ├── ARCHITECTURE.md
+│   ├── AUDIT_COMPLETION_SUMMARY.md
 │   ├── AUDIT_EXECUTIVE_SUMMARY.md
 │   ├── COMMERCIAL_READINESS_AUDIT.md
 │   ├── GENERAL_MECHANICS.md
@@ -11257,58 +11258,22 @@
 │   └── step1_cleanup_notes.md
 ├── playwright-report
 │   ├── data
-│   │   ├── 00980449cc8c216e458433f5547d2173b5405de5.zip
-│   │   ├── 02c53c7c6360b4e444df0a5d9151b89a6db91464.zip
-│   │   ├── 09399975a1dce0e352072cb46f64ed885606027a.webm
-│   │   ├── 0b766bb4e933a5c5daa1b76503a1bcae3966e2e2.zip
-│   │   ├── 0e895f5c2561f4b5ea560246f76d430e65adc955.webm
-│   │   ├── 14962baac1d029c723207fab922d026fe300b110.webm
-│   │   ├── 15339677a2f99935a41e67e1af197e65610024f1.webm
-│   │   ├── 1e074f6dd5a9ba08acf40d74fb603170cabf9f0f.zip
-│   │   ├── 236ced9f0f8022cf2b97320e65c15579aa0781d9.zip
-│   │   ├── 23a1e8b04ded56964dbe378a064dda34a12cd667.webm
-│   │   ├── 2da9213e9ef84518836cfedc839842371e01ce81.zip
-│   │   ├── 3dcbea78edba04ea446c915b540854a57f5766de.webm
-│   │   ├── 3ecfbbd649e0ae978dc78696a3278457603ee0a3.zip
-│   │   ├── 4cfa9e1ee5cd281f2beac6d540f5901dc10e73ec.webm
-│   │   ├── 5a652565870c1667a66cf9e2bc18ce487f75474e.webm
-│   │   ├── 6462c559c1a4ae2565aebabdd2061ef3a4b59a7f.zip
-│   │   ├── 6e60a77544738e5f7a7e687f9882f1834123331e.webm
-│   │   ├── 721e13a3f64b53af23f73ad4e97a4803f37241db.zip
-│   │   ├── 73a2ee9839080691c6c25d78ec76473f9bae7ec2.webm
-│   │   ├── 73a9e0d461932a0ab7c556834ff2e7dfccfa32a7.zip
+│   │   ├── 3f00864756085be1c929cf349e62e2ad73a688ff.webm
+│   │   ├── 519874c90b026e864332369e27b133b93b2bbada.png
+│   │   ├── 61562e80875f64d75dc16c03c6b207705897b369.zip
+│   │   ├── 692bc6a535b796ab01fe3c2a54d0d102938af353.zip
 │   │   ├── 7a33d5db6370b6de345e990751aa1f1da65ad675.png
-│   │   ├── 86a109f4a048a4a5986b8925987e111d2e5e0770.webm
-│   │   ├── 92391a37d5b57e2f0a641b97afb99f520828012a.zip
-│   │   ├── 92e7b4150b520ea942e2bb880172d3baff4ecb64.webm
-│   │   ├── 960932f55a19b6697182f587ada649fc2d26249e.webm
-│   │   ├── 9bd8a7adebb6d009c7425a62e7aea237893f0907.zip
-│   │   ├── a40faae83fb4e7333ac74f9e7b760c89cd0e9e85.zip
-│   │   ├── a501f1c5bfbdb09d5bc23ee03a705f824ccb83d9.webm
-│   │   ├── a57591bd141327cef845a6ef04392eac88ad7473.webm
+│   │   ├── 8809e9d5c44745646525cee4c524c5abe6d28263.webm
 │   │   ├── a90d9b3d9db7c70f00783db6304c9576b39cd2d0.png
-│   │   ├── acd24ac144e025fdd4eef581c64c88df6e12eda9.zip
-│   │   ├── b6749fb771c515dd395ff7ab95c0f8fda9a7f67c.webm
-│   │   ├── bb12c004cd91add576475847decf36996fbcf834.zip
-│   │   ├── c0c36e031d42f30295ac66cc3ba3362612692765.webm
-│   │   ├── c45ced8e64ce75b7b6a21525d92b3b42ebe22087.zip
-│   │   ├── c703c64522821ef42a3168784b4d75ec0f3bc260.zip
-│   │   ├── c7bb5fe0c40ddc6234fc1b434d5bee7e53166e68.webm
-│   │   ├── c9e9a94ef2b52fd30ea3cc2442d920da07134e90.zip
-│   │   ├── cab3b8d9b484efa90e6eb1717a0539adaa984108.zip
-│   │   ├── caf4b5e31093798a6ff1723f63d8d45b8e4882b4.webm
-│   │   ├── cb68273d1436c224e294e898220fc017c4390b10.zip
-│   │   ├── cd92061c1c36f234411c0953d4f3d1df8c61f607.webm
+│   │   ├── b2ecdeb6433159754c740b48fc600c003ba43d0a.zip
+│   │   ├── bc44eb891ef4fe5918c6e1904e8db16f7c086194.zip
+│   │   ├── c65d81da8a2cd255000a082f4d252dac71730c2d.webm
+│   │   ├── d181243c3d7f4d67baa470313f4f23ae7fa1decd.webm
 │   │   ├── d49177a291157754f4cfd993fe6c6a1175fddb19.md
-│   │   ├── e2fcba94a4b8d1f94acfa98fe47eee935169d815.zip
-│   │   ├── e318500bdc432ed01264eab8ee1e1a7b13ec0397.webm
-│   │   ├── e9f57ad6967a31e8c0f56689f531a0e370ed305f.webm
-│   │   ├── f12686322bf1543306899b139be33983d242df43.zip
-│   │   ├── f5d09e57996c6a78399b3b13db1b7fa93cb23f51.webm
-│   │   ├── f933c479fff9ea3bb60eb1eca706e94f19641110.zip
-│   │   ├── f9f7a9faf1765ed2bb09302d30b0dec4e463ad28.webm
-│   │   ├── fa3a1ac96a277168ddec5fa1ed4a73d74ca9fb5c.zip
-│   │   └── fc38fdebe7dfe35591bf901bf0b4bcb7c8a5f437.zip
+│   │   ├── d7c5efef1b55179c3f5c69668cce59fc60aec2e2.webm
+│   │   ├── ddabecda2cc5cd5cbc956fb1ec8cc11fd91cc444.zip
+│   │   ├── e4e1b68ab558aa49069dc3be0d35a2faa9b5d336.webm
+│   │   └── ec3107c091fcfcfc77d2a552e17decbc43490b34.zip
 │   ├── index.html
 │   └── trace
 │       ├── assets
@@ -11369,7 +11334,8 @@
 │   ├── triple-commit.sh
 │   ├── update-changelog.js
 │   ├── update-readme.js
-│   └── update-version.js
+│   ├── update-version.js
+│   └── wait-for-backend.cjs
 ├── src
 │   ├── App.bs.js
 │   ├── App.res
@@ -11873,6 +11839,7 @@
 │   │   ├── 1206_EXPAND_E2E_ROBUSTNESS_TEST_SUITE_DONE.md
 │   │   ├── 1207_JSON_COMBINATORS_AUDIT_AND_MIGRATION_DONE.md
 │   │   ├── 1208_IMPROVE_DEV_SYSTEM_ANALYZER_DONE.md
+│   │   ├── 1222_COMPLETE_E2E_CRITICAL_PATH_COVERAGE.md
 │   │   ├── 900_COMMERCIAL_MIGRATION_MASTER.md
 │   │   ├── 905_migration_telemetry_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
@@ -11893,116 +11860,32 @@
 │   │   ├── 1218_Surgical_Refactor_SYSTEMS_FRONTEND.md
 │   │   ├── 1219_BRAINSTORM_RETRY_LOGIC_HANDLERS.md
 │   │   ├── 1220_COMPLETE_OPTIMISTIC_UPDATE_AND_RECOVERY_INTEGRATION.md
-│   │   ├── 1221_Aggregate_Completed_Tasks.md
-│   │   └── 1222_COMPLETE_E2E_CRITICAL_PATH_COVERAGE.md
+│   │   └── 1221_Aggregate_Completed_Tasks.md
 │   └── postponed
 ├── test-results
-│   ├── robustness-Application-Rob-0e90a-ation-Rapid-Scene-Switching-chromium
+│   ├── save-load-recovery-Project-30f67-ata-through-save-load-cycle-chromium
 │   │   ├── test-failed-1.png
 │   │   ├── trace.zip
 │   │   └── video.webm
-│   ├── robustness-Application-Rob-0e90a-ation-Rapid-Scene-Switching-firefox
+│   ├── save-load-recovery-Project-30f67-ata-through-save-load-cycle-firefox
 │   │   ├── error-context.md
 │   │   ├── test-failed-1.png
 │   │   ├── trace.zip
 │   │   └── video.webm
-│   ├── robustness-Application-Rob-2fbf0-eyboard-Mouse-Interruptions-chromium
+│   ├── save-load-recovery-Project-30f67-ata-through-save-load-cycle-webkit
 │   │   ├── test-failed-1.png
 │   │   ├── trace.zip
 │   │   └── video.webm
-│   ├── robustness-Application-Rob-2fbf0-eyboard-Mouse-Interruptions-firefox
+│   ├── upload-link-export-workflo-ab193-full-tour-creation-workflow-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── upload-link-export-workflo-ab193-full-tour-creation-workflow-firefox
 │   │   ├── error-context.md
 │   │   ├── test-failed-1.png
 │   │   ├── trace.zip
 │   │   └── video.webm
-│   ├── robustness-Application-Rob-33d59-tic-Rollback-on-API-Failure-chromium
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-33d59-tic-Rollback-on-API-Failure-firefox
-│   │   ├── error-context.md
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-48365-arrier-Blocks-Other-Actions-chromium
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-48365-arrier-Blocks-Other-Actions-firefox
-│   │   ├── error-context.md
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-6cd1c-ling-Operation-Cancellation-chromium
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-6cd1c-ling-Operation-Cancellation-firefox
-│   │   ├── error-context.md
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-7044e--Circuit-Breaker-Activation-chromium
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-7044e--Circuit-Breaker-Activation-firefox
-│   │   ├── error-context.md
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-a4a16-ling-Save-Button-Debouncing-chromium
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-a4a16-ling-Save-Button-Debouncing-firefox
-│   │   ├── error-context.md
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-b56c2-ry-with-Exponential-Backoff-chromium
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-b56c2-ry-with-Exponential-Backoff-firefox
-│   │   ├── error-context.md
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-c8c37-d-Saving-during-Interaction-chromium
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-c8c37-d-Saving-during-Interaction-firefox
-│   │   ├── error-context.md
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-dc047-g-Rate-Limiter-Notification-chromium
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-dc047-g-Rate-Limiter-Notification-firefox
-│   │   ├── error-context.md
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-ddd25-Concurrent-Mode-Transitions-chromium
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-ddd25-Concurrent-Mode-Transitions-firefox
-│   │   ├── error-context.md
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-ddd25-Concurrent-Mode-Transitions-webkit
-│   │   └── trace.zip
-│   ├── robustness-Application-Rob-edf9a-errupted-Operation-Recovery-chromium
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   └── robustness-Application-Rob-edf9a-errupted-Operation-Recovery-firefox
-│       ├── error-context.md
+│   └── upload-link-export-workflo-ab193-full-tour-creation-workflow-webkit
 │       ├── test-failed-1.png
 │       ├── trace.zip
 │       └── video.webm
@@ -12013,9 +11896,11 @@
 │   │   ├── ai-helper.ts
 │   │   ├── desktop-import.spec.ts
 │   │   ├── editor.spec.ts
+│   │   ├── error-recovery.spec.ts
 │   │   ├── fixtures
 │   │   │   ├── image.jpg
 │   │   │   ├── image2.jpg
+│   │   │   ├── image3.jpg
 │   │   │   ├── logo.png
 │   │   │   ├── setup_fixtures.mjs
 │   │   │   ├── tour.vt.zip
@@ -12023,7 +11908,11 @@
 │   │   │   └── tour_sim.vt.zip
 │   │   ├── ingestion.spec.ts
 │   │   ├── navigation.spec.ts
-│   │   └── robustness.spec.ts
+│   │   ├── performance.spec.ts
+│   │   ├── robustness.spec.ts
+│   │   ├── save-load-recovery.spec.ts
+│   │   ├── simulation-teaser.spec.ts
+│   │   └── upload-link-export-workflow.spec.ts
 │   ├── jsx-loader.mjs
 │   ├── node-setup.js
 │   ├── unit
@@ -12362,4 +12251,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-542 directories, 11821 files
+523 directories, 11729 files
