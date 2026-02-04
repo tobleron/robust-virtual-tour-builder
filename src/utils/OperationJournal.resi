@@ -22,11 +22,11 @@ type t = {
 }
 
 let make: unit => t
-let startOperation: (~operation: string, ~context: JSON.t, ~retryable: bool) => string // Returns ID
-let completeOperation: string => unit
-let failOperation: (string, string) => unit
-let updateStatus: (string, operationStatus) => unit
-let updateContext: (string, JSON.t) => unit
+let startOperation: (~operation: string, ~context: JSON.t, ~retryable: bool) => Promise.t<string> // Returns ID
+let completeOperation: string => Promise.t<unit>
+let failOperation: (string, string) => Promise.t<unit>
+let updateStatus: (string, operationStatus) => Promise.t<unit>
+let updateContext: (string, JSON.t) => Promise.t<unit>
 let getInterrupted: t => array<journalEntry>
 let getPending: t => array<journalEntry>
 let save: t => Promise.t<unit>
