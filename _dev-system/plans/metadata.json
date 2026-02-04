@@ -8,33 +8,6 @@
       }
     }
   ],
-  "rescript": [
-    {
-      "Surgical": {
-        "file": "../../src/core/JsonParsers.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.00, Density: 0.48, Coupling: 0.04] | Drag: 5.80 | LOC: 380/300  🎯 Target: Function: `hotspot` (High Local Complexity (11.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 13.801052631578948,
-        "recommended_splits": 2
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/utils/CircuitBreaker.res",
-        "pattern": "mutable ",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/utils/RateLimiter.res",
-        "pattern": "mutable ",
-        "strategy": ""
-      }
-    }
-  ],
   "system": [
     {
       "Ambiguity": {
@@ -58,6 +31,33 @@
         "reason": "Recursive Feature Pod: 2 files in subtree sum to 85 LOC (fits in context). Max Drag: 9.24",
         "strategy": "",
         "platform": "frontend"
+      }
+    }
+  ],
+  "rescript": [
+    {
+      "Violation": {
+        "file": "../../src/utils/CircuitBreaker.res",
+        "pattern": "mutable ",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/utils/RateLimiter.res",
+        "pattern": "mutable ",
+        "strategy": ""
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/JsonParsers.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.00, Density: 0.48, Coupling: 0.04] | Drag: 5.80 | LOC: 380/300  🎯 Target: Function: `hotspot` (High Local Complexity (11.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 13.801052631578948,
+        "recommended_splits": 2
       }
     }
   ]

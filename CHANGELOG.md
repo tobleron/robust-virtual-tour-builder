@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Merge task/1203: Implement Debounce and Rate Limiting for heavy operations
 - Implement Abort support and cancellation for Save/Export
 - Final sync: Implementation of Throttled Action with Abort support and UX refinements
+- Merge task-1204: Implement Request Retry with Exponential Backoff and update related E2E tests task
 
 ## [4.8.18] - 2026-02-03
 
