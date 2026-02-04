@@ -138,3 +138,4 @@
 [2026-02-04 08:13] v4.8.15 - Merge task-1204: Implement Request Retry with Exponential Backoff and update related E2E tests task [TRIPLE]
 [2026-02-04 08:18] v4.9.0 - feat: Implement Smart Versioning and build reset logic [TRIPLE]
 [2026-02-04 09:03] v4.11.0 - Merge task-1205: Implement Operation Journal and Mid-flight Recovery [TRIPLE]
+[2026-02-04 09:12] v4.12.0 - docs: Add ID collision hardening to Task 1208 and resolve task ID collision [TRIPLE]
