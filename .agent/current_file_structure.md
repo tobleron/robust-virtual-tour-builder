@@ -11519,7 +11519,38 @@
 │   ├── logical_inconsistencies_analysis.md
 │   └── step1_cleanup_notes.md
 ├── playwright-report
-│   └── index.html
+│   ├── data
+│   │   ├── 0a76976598ae242a1b715f9383be3bb5bcbaac6c.md
+│   │   ├── 363e500cf7dc9ea6bf871534d8fc8f6dcfec5d9b.md
+│   │   ├── 3abab9b84198a2f2fe3a242770c8978e9270c793.webm
+│   │   ├── 4e4b643737b66ec727d6f412087e9a0f926751ac.png
+│   │   ├── 627d15fe3337b284fcefcb2b5d7b4cbc3e411cc4.webm
+│   │   ├── 65356a6301e36d8b6c6a588d4c5741087a1c0c7f.webm
+│   │   ├── 657ae1ba07753d434fe83120544b9e9ba1f310bf.png
+│   │   ├── 6734ce32b1051e2f62ef2cb077e82217e158868a.zip
+│   │   ├── 68a1043ecb067d8d9493db94ecd8120af0d998c6.zip
+│   │   ├── ad04aed7030935b6db4ab9b57c550fe46eeb4687.png
+│   │   ├── cd84cabdb6c862c0ee5e1148ac5b3dc4c5fdd8f5.zip
+│   │   └── d9a5b74361c6e411d1b3ad35fb0a744f6015d073.md
+│   ├── index.html
+│   └── trace
+│       ├── assets
+│       │   ├── codeMirrorModule-a5XoALAZ.js
+│       │   └── defaultSettingsView-CJSZINFr.js
+│       ├── codeMirrorModule.DYBRYzYX.css
+│       ├── codicon.DCmgc-ay.ttf
+│       ├── defaultSettingsView.7ch9cixO.css
+│       ├── index.BVu7tZDe.css
+│       ├── index.BiGyQqiM.js
+│       ├── index.html
+│       ├── manifest.webmanifest
+│       ├── playwright-logo.svg
+│       ├── snapshot.html
+│       ├── sw.bundle.js
+│       ├── uiMode.Btcz36p_.css
+│       ├── uiMode.CQJ9SCIQ.js
+│       ├── uiMode.html
+│       └── xtermModule.DYP7pi_n.css
 ├── playwright.config.ts
 ├── postcss.config.js
 ├── public
@@ -12037,6 +12068,7 @@
 │   │   ├── 1235_Aggregate_Completed_Tasks_DONE.md
 │   │   ├── 1237_Classify_Map_Entries_DONE.md
 │   │   ├── 1238_Fix_ZIP_Import_Scene_Loading_DONE.md
+│   │   ├── 1239_Fix_Rapid_Save_Interaction_Stability_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
 │   │       ├── 1195_Test_Teaser_DONE.md
@@ -12047,7 +12079,6 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1239_Fix_Rapid_Save_Interaction_Stability.md
 │   │   ├── 1240_Fix_Interrupted_Operation_Recovery_Prompt.md
 │   │   ├── 1241_Fix_UI_Transition_Interruption_Robustness.md
 │   │   ├── 1242_Fix_Rate_Limiter_Notification_Visibility.md
@@ -12058,6 +12089,144 @@
 │   │   └── 1247_Fix_Recovery_Modal_on_Browser_Refresh.md
 │   └── postponed
 ├── test-results
+│   ├── robustness-Application-Rob-0e90a-ation-Rapid-Scene-Switching-firefox
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-0e90a-ation-Rapid-Scene-Switching-webkit
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-2fbf0-eyboard-Mouse-Interruptions-chromium
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-2fbf0-eyboard-Mouse-Interruptions-firefox
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-2fbf0-eyboard-Mouse-Interruptions-webkit
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-33d59-tic-Rollback-on-API-Failure-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-33d59-tic-Rollback-on-API-Failure-firefox
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-33d59-tic-Rollback-on-API-Failure-webkit
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-48365-arrier-Blocks-Other-Actions-firefox
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-48365-arrier-Blocks-Other-Actions-webkit
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-6cd1c-ling-Operation-Cancellation-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-6cd1c-ling-Operation-Cancellation-firefox
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-6cd1c-ling-Operation-Cancellation-webkit
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-7044e--Circuit-Breaker-Activation-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-7044e--Circuit-Breaker-Activation-firefox
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-7044e--Circuit-Breaker-Activation-webkit
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-a4a16-ling-Save-Button-Debouncing-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-a4a16-ling-Save-Button-Debouncing-firefox
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-a4a16-ling-Save-Button-Debouncing-webkit
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-b56c2-ry-with-Exponential-Backoff-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-b56c2-ry-with-Exponential-Backoff-firefox
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-c8c37-d-Saving-during-Interaction-firefox
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-c8c37-d-Saving-during-Interaction-webkit
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-dc047-g-Rate-Limiter-Notification-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-dc047-g-Rate-Limiter-Notification-firefox
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-dc047-g-Rate-Limiter-Notification-webkit
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-ddd25-Concurrent-Mode-Transitions-firefox
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-ddd25-Concurrent-Mode-Transitions-webkit
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-edf9a-errupted-Operation-Recovery-chromium
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-edf9a-errupted-Operation-Recovery-firefox
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   └── robustness-Application-Rob-edf9a-errupted-Operation-Recovery-webkit
+│       ├── test-failed-1.png
+│       ├── trace.zip
+│       └── video.webm
 ├── tests
 │   ├── TestRunner.bs.js
 │   ├── TestRunner.res
@@ -12424,4 +12593,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-523 directories, 11902 files
+557 directories, 12037 files
