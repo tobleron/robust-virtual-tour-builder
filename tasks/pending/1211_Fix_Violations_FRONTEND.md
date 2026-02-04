@@ -9,7 +9,13 @@
 
 ## Tasks
 
+### 🔧 Action: Fix Pattern `!important`
+**Directive:** Pattern Fix: Replace the forbidden '!important' pattern with the recommended functional alternative.
+
+- [ ] `../../css/components/buttons.css`
+
 ### 🔧 Action: Fix Pattern `mutable `
 **Directive:** Pattern Fix: Replace the forbidden 'mutable ' pattern with the recommended functional alternative.
 
 - [ ] `../../src/utils/CircuitBreaker.res`
+- [ ] `../../src/utils/RateLimiter.res`
