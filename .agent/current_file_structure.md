@@ -56,10 +56,6 @@
 │       ├── RUST_PLAN.md
 │       ├── SYSTEM_PLAN.md
 │       └── metadata.json
-├── app_test_debug.txt
-├── app_test_fail.txt
-├── app_test_fail_2.txt
-├── app_test_fail_3.txt
 ├── backend
 │   ├── Cargo.lock
 │   ├── Cargo.toml
@@ -6143,20 +6139,23 @@
 │   └── storage
 ├── docs
 │   ├── ARCHITECTURE.md
+│   ├── AUDIT_EXECUTIVE_SUMMARY.md
+│   ├── COMMERCIAL_READINESS_AUDIT.md
 │   ├── GENERAL_MECHANICS.md
 │   ├── PERFORMANCE_AND_METRICS.md
 │   ├── PRIVACY_POLICY.md
 │   ├── PROJECT_HISTORY.md
 │   ├── PROJECT_SPECS.md
+│   ├── README.md
+│   ├── REORGANIZATION_SUMMARY.md
 │   ├── TERMS_OF_SERVICE.md
-│   ├── _pending_integration
-│   │   ├── ANALYSIS_DEV_SYSTEM_ACCURACY.md
-│   │   └── analysis_1108_1114_1112_1113_1116.md
+│   ├── architecture
+│   │   ├── JSON_ENCODING_STANDARDS.md
+│   │   └── SYSTEM_ROBUSTNESS.md
+│   ├── guides
+│   │   └── IMPLEMENTATION_GUIDE.md
 │   ├── openapi.yaml
 │   └── tmp
-├── editor_fail.html
-├── editor_fail_startbtn1.png
-├── editor_fail_startbtn2.png
 ├── index.html
 ├── jsconfig.json
 ├── lib
@@ -9884,8 +9883,7 @@
 │   ├── diagnostic.log
 │   ├── error.log
 │   ├── log_changes.txt
-│   ├── project-guard.log
-│   └── telemetry.log
+│   └── project-guard.log
 ├── old_ref
 │   ├── 7aadee4
 │   │   ├── CHANGELOG.md
@@ -11259,28 +11257,58 @@
 │   └── step1_cleanup_notes.md
 ├── playwright-report
 │   ├── data
-│   │   ├── 046cf257fcd1e9524439f2003d098fd5a916de89.png
-│   │   ├── 05e254677a48398f5a2ccb5734886129e5bc5128.webm
-│   │   ├── 0a671e7204d02659a32be6caa798ac42b9571521.webm
-│   │   ├── 152d50a58c0bc6142287fd1f087e625c757a23e8.md
-│   │   ├── 21b9aae5f7ed05e11c687a037ded618cf52dd93d.zip
-│   │   ├── 3d1035ab5bb6fb641ae510e6ce1add81c5b70387.zip
-│   │   ├── 47da5dfa2a02fe113277c803c1b6853dcc153560.png
-│   │   ├── 4c48c8b5c522be96ac8873aad6e5de70bf90cbea.zip
-│   │   ├── 5f497702d551355545fdd8a63a3da0722f7ea505.zip
-│   │   ├── 66d306272750ed649e5329a38fb82c62b542434b.webm
-│   │   ├── 6af3ec9cee5f3d02987d970fa6cdcdc07c4b88a4.zip
-│   │   ├── 6fd125ca985349a2bd299b7630b47e05ca4bf8a1.webm
-│   │   ├── 77de179bb9bc4a9acce8e010b3ff238fe2afb8e9.webm
-│   │   ├── 88868973043d9fce4b4b45c3acd06eaba4983045.md
-│   │   ├── 971123666878b29c9bbbf1efb3bfd8be77493ba7.png
-│   │   ├── 9c93f5882f72be12e8483957ad4304c467ef085e.zip
-│   │   ├── a143bc2a8a48ef78b4ee8b31758b3b6d14404d52.webm
-│   │   ├── b51f8be979127d1c6f28aaf606f3f54ab3e5700a.png
-│   │   ├── c0d2c9f7acdd79f3cf583b374c56cfb2b384492d.md
-│   │   ├── d1b47d3025ce35238882e24799ffaa37c3f8f307.png
-│   │   ├── d5c1ea1577f49441da08716f0046238de137bb86.md
-│   │   └── e78bf49d08f1e35bc01efe85a0647382a2f583ea.md
+│   │   ├── 00980449cc8c216e458433f5547d2173b5405de5.zip
+│   │   ├── 02c53c7c6360b4e444df0a5d9151b89a6db91464.zip
+│   │   ├── 09399975a1dce0e352072cb46f64ed885606027a.webm
+│   │   ├── 0b766bb4e933a5c5daa1b76503a1bcae3966e2e2.zip
+│   │   ├── 0e895f5c2561f4b5ea560246f76d430e65adc955.webm
+│   │   ├── 14962baac1d029c723207fab922d026fe300b110.webm
+│   │   ├── 15339677a2f99935a41e67e1af197e65610024f1.webm
+│   │   ├── 1e074f6dd5a9ba08acf40d74fb603170cabf9f0f.zip
+│   │   ├── 236ced9f0f8022cf2b97320e65c15579aa0781d9.zip
+│   │   ├── 23a1e8b04ded56964dbe378a064dda34a12cd667.webm
+│   │   ├── 2da9213e9ef84518836cfedc839842371e01ce81.zip
+│   │   ├── 3dcbea78edba04ea446c915b540854a57f5766de.webm
+│   │   ├── 3ecfbbd649e0ae978dc78696a3278457603ee0a3.zip
+│   │   ├── 4cfa9e1ee5cd281f2beac6d540f5901dc10e73ec.webm
+│   │   ├── 5a652565870c1667a66cf9e2bc18ce487f75474e.webm
+│   │   ├── 6462c559c1a4ae2565aebabdd2061ef3a4b59a7f.zip
+│   │   ├── 6e60a77544738e5f7a7e687f9882f1834123331e.webm
+│   │   ├── 721e13a3f64b53af23f73ad4e97a4803f37241db.zip
+│   │   ├── 73a2ee9839080691c6c25d78ec76473f9bae7ec2.webm
+│   │   ├── 73a9e0d461932a0ab7c556834ff2e7dfccfa32a7.zip
+│   │   ├── 7a33d5db6370b6de345e990751aa1f1da65ad675.png
+│   │   ├── 86a109f4a048a4a5986b8925987e111d2e5e0770.webm
+│   │   ├── 92391a37d5b57e2f0a641b97afb99f520828012a.zip
+│   │   ├── 92e7b4150b520ea942e2bb880172d3baff4ecb64.webm
+│   │   ├── 960932f55a19b6697182f587ada649fc2d26249e.webm
+│   │   ├── 9bd8a7adebb6d009c7425a62e7aea237893f0907.zip
+│   │   ├── a40faae83fb4e7333ac74f9e7b760c89cd0e9e85.zip
+│   │   ├── a501f1c5bfbdb09d5bc23ee03a705f824ccb83d9.webm
+│   │   ├── a57591bd141327cef845a6ef04392eac88ad7473.webm
+│   │   ├── a90d9b3d9db7c70f00783db6304c9576b39cd2d0.png
+│   │   ├── acd24ac144e025fdd4eef581c64c88df6e12eda9.zip
+│   │   ├── b6749fb771c515dd395ff7ab95c0f8fda9a7f67c.webm
+│   │   ├── bb12c004cd91add576475847decf36996fbcf834.zip
+│   │   ├── c0c36e031d42f30295ac66cc3ba3362612692765.webm
+│   │   ├── c45ced8e64ce75b7b6a21525d92b3b42ebe22087.zip
+│   │   ├── c703c64522821ef42a3168784b4d75ec0f3bc260.zip
+│   │   ├── c7bb5fe0c40ddc6234fc1b434d5bee7e53166e68.webm
+│   │   ├── c9e9a94ef2b52fd30ea3cc2442d920da07134e90.zip
+│   │   ├── cab3b8d9b484efa90e6eb1717a0539adaa984108.zip
+│   │   ├── caf4b5e31093798a6ff1723f63d8d45b8e4882b4.webm
+│   │   ├── cb68273d1436c224e294e898220fc017c4390b10.zip
+│   │   ├── cd92061c1c36f234411c0953d4f3d1df8c61f607.webm
+│   │   ├── d49177a291157754f4cfd993fe6c6a1175fddb19.md
+│   │   ├── e2fcba94a4b8d1f94acfa98fe47eee935169d815.zip
+│   │   ├── e318500bdc432ed01264eab8ee1e1a7b13ec0397.webm
+│   │   ├── e9f57ad6967a31e8c0f56689f531a0e370ed305f.webm
+│   │   ├── f12686322bf1543306899b139be33983d242df43.zip
+│   │   ├── f5d09e57996c6a78399b3b13db1b7fa93cb23f51.webm
+│   │   ├── f933c479fff9ea3bb60eb1eca706e94f19641110.zip
+│   │   ├── f9f7a9faf1765ed2bb09302d30b0dec4e463ad28.webm
+│   │   ├── fa3a1ac96a277168ddec5fa1ed4a73d74ca9fb5c.zip
+│   │   └── fc38fdebe7dfe35591bf901bf0b4bcb7c8a5f437.zip
 │   ├── index.html
 │   └── trace
 │       ├── assets
@@ -11749,8 +11777,6 @@
 │       ├── Version.bs.js
 │       └── Version.res
 ├── start_prod.sh
-├── stripped_sidebar.res
-├── stripped_sidebar_fixed.res
 ├── tailwind.config.js
 ├── tasks
 │   ├── TASKS.md
@@ -11844,6 +11870,7 @@
 │   │   ├── 1201_IMPLEMENT_CIRCUIT_BREAKER_PATTERN_DONE.md
 │   │   ├── 1203_IMPLEMENT_CLIENT_SIDE_REQUEST_DEBOUNCING_DONE.md
 │   │   ├── 1204_IMPLEMENT_REQUEST_RETRY_WITH_BACKOFF_DONE.md
+│   │   ├── 1206_EXPAND_E2E_ROBUSTNESS_TEST_SUITE_DONE.md
 │   │   ├── 1207_JSON_COMBINATORS_AUDIT_AND_MIGRATION_DONE.md
 │   │   ├── 1208_IMPROVE_DEV_SYSTEM_ANALYZER_DONE.md
 │   │   ├── 900_COMMERCIAL_MIGRATION_MASTER.md
@@ -11858,7 +11885,6 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1206_EXPAND_E2E_ROBUSTNESS_TEST_SUITE.md
 │   │   ├── 1209_Classify_Ambiguous_Files.md
 │   │   ├── 1210_Classify_Map_Entries.md
 │   │   ├── 1211_Fix_Violations_FRONTEND.md
@@ -11867,46 +11893,119 @@
 │   │   ├── 1218_Surgical_Refactor_SYSTEMS_FRONTEND.md
 │   │   ├── 1219_BRAINSTORM_RETRY_LOGIC_HANDLERS.md
 │   │   ├── 1220_COMPLETE_OPTIMISTIC_UPDATE_AND_RECOVERY_INTEGRATION.md
-│   │   └── 1221_Aggregate_Completed_Tasks.md
+│   │   ├── 1221_Aggregate_Completed_Tasks.md
+│   │   └── 1222_COMPLETE_E2E_CRITICAL_PATH_COVERAGE.md
 │   └── postponed
 ├── test-results
-│   ├── robustness-Application-Rob-2ce67-d-Saving-during-Interaction-chromium
+│   ├── robustness-Application-Rob-0e90a-ation-Rapid-Scene-Switching-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-0e90a-ation-Rapid-Scene-Switching-firefox
 │   │   ├── error-context.md
 │   │   ├── test-failed-1.png
 │   │   ├── trace.zip
 │   │   └── video.webm
-│   ├── robustness-Application-Rob-2ce67-d-Saving-during-Interaction-firefox
+│   ├── robustness-Application-Rob-2fbf0-eyboard-Mouse-Interruptions-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-2fbf0-eyboard-Mouse-Interruptions-firefox
 │   │   ├── error-context.md
 │   │   ├── test-failed-1.png
 │   │   ├── trace.zip
 │   │   └── video.webm
-│   ├── robustness-Application-Rob-2ce67-d-Saving-during-Interaction-webkit
+│   ├── robustness-Application-Rob-33d59-tic-Rollback-on-API-Failure-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-33d59-tic-Rollback-on-API-Failure-firefox
 │   │   ├── error-context.md
 │   │   ├── test-failed-1.png
 │   │   ├── trace.zip
 │   │   └── video.webm
-│   ├── robustness-Application-Rob-8b106-eyboard-Mouse-Interruptions-chromium
+│   ├── robustness-Application-Rob-48365-arrier-Blocks-Other-Actions-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-48365-arrier-Blocks-Other-Actions-firefox
 │   │   ├── error-context.md
 │   │   ├── test-failed-1.png
 │   │   ├── trace.zip
 │   │   └── video.webm
-│   ├── robustness-Application-Rob-8b106-eyboard-Mouse-Interruptions-firefox
+│   ├── robustness-Application-Rob-6cd1c-ling-Operation-Cancellation-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-6cd1c-ling-Operation-Cancellation-firefox
 │   │   ├── error-context.md
 │   │   ├── test-failed-1.png
 │   │   ├── trace.zip
 │   │   └── video.webm
-│   └── robustness-Application-Rob-8b106-eyboard-Mouse-Interruptions-webkit
+│   ├── robustness-Application-Rob-7044e--Circuit-Breaker-Activation-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-7044e--Circuit-Breaker-Activation-firefox
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-a4a16-ling-Save-Button-Debouncing-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-a4a16-ling-Save-Button-Debouncing-firefox
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-b56c2-ry-with-Exponential-Backoff-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-b56c2-ry-with-Exponential-Backoff-firefox
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-c8c37-d-Saving-during-Interaction-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-c8c37-d-Saving-during-Interaction-firefox
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-dc047-g-Rate-Limiter-Notification-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-dc047-g-Rate-Limiter-Notification-firefox
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-ddd25-Concurrent-Mode-Transitions-chromium
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-ddd25-Concurrent-Mode-Transitions-firefox
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-ddd25-Concurrent-Mode-Transitions-webkit
+│   │   └── trace.zip
+│   ├── robustness-Application-Rob-edf9a-errupted-Operation-Recovery-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   └── robustness-Application-Rob-edf9a-errupted-Operation-Recovery-firefox
 │       ├── error-context.md
 │       ├── test-failed-1.png
 │       ├── trace.zip
 │       └── video.webm
-├── test_diagnostics_latest.txt
-├── test_output.txt
-├── test_results.txt
-├── test_results_2.txt
-├── test_results_3.txt
-├── test_run.json
-├── test_run_2.json
 ├── tests
 │   ├── TestRunner.bs.js
 │   ├── TestRunner.res
@@ -12242,6 +12341,25 @@
 │   │       └── TestUtils.res
 │   └── vitest-setup.js
 ├── tmp
+│   └── dead_files
+│       ├── ANALYSIS_DEV_SYSTEM_ACCURACY.md
+│       ├── analysis_1108_1114_1112_1113_1116.md
+│       ├── app_test_debug.txt
+│       ├── app_test_fail.txt
+│       ├── app_test_fail_2.txt
+│       ├── app_test_fail_3.txt
+│       ├── editor_fail.html
+│       ├── editor_fail_startbtn1.png
+│       ├── editor_fail_startbtn2.png
+│       ├── stripped_sidebar.res
+│       ├── stripped_sidebar_fixed.res
+│       ├── test_diagnostics_latest.txt
+│       ├── test_output.txt
+│       ├── test_results.txt
+│       ├── test_results_2.txt
+│       ├── test_results_3.txt
+│       ├── test_run.json
+│       └── test_run_2.json
 └── vitest.config.mjs
 
-521 directories, 11724 files
+542 directories, 11821 files
