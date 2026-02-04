@@ -171,6 +171,10 @@ let init = async () => {
       // 8. Global click handler
       // 9. Persistence & Session Recovery
       PersistenceLayer.initSubscriber()
+
+      // Register Recovery Handlers
+      RecoveryManager.registerHandler("SaveProject", ProjectManager.recoverSaveProject)
+
       let _recovered = await PersistenceLayer.checkRecovery()
 
       let journal = await OperationJournal.load()
@@ -185,13 +189,10 @@ let init = async () => {
         }
 
         let retryAll = entries => {
-          Logger.info(
-            ~module_="Main",
-            ~message="RETRY_OPERATIONS",
-            ~data=Some({"count": Array.length(entries)}),
-            (),
-          )
           EventBus.dispatch(CloseModal)
+          Belt.Array.forEach(entries, entry => {
+            let _ = RecoveryManager.retry(entry)
+          })
         }
 
         EventBus.dispatch(
