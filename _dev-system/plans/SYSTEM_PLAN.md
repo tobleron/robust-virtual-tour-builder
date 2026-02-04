@@ -16,7 +16,7 @@
 
 ## 🧩 MERGE TASKS (1)
 ### Merge Folder: `src/hooks`
-- **Reason:** Recursive Feature Pod: 2 files in subtree sum to 71 LOC (fits in context). Max Drag: 9.58
+- **Reason:** Recursive Feature Pod: 2 files in subtree sum to 81 LOC (fits in context). Max Drag: 9.57
 - **Files:**
   - `src/hooks/../../src/hooks/UseIsInteractionPermitted.res`
   - `src/hooks/../../src/hooks/UseThrottledAction.res`

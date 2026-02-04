@@ -1,14 +1,12 @@
 {
-  "css": [
+  "rescript": [
     {
       "Violation": {
-        "file": "../../css/components/buttons.css",
-        "pattern": "!important",
+        "file": "../../src/utils/RateLimiter.res",
+        "pattern": "mutable ",
         "strategy": ""
       }
-    }
-  ],
-  "rescript": [
+    },
     {
       "Surgical": {
         "file": "../../src/core/JsonParsers.res",
@@ -26,11 +24,13 @@
         "pattern": "mutable ",
         "strategy": ""
       }
-    },
+    }
+  ],
+  "css": [
     {
       "Violation": {
-        "file": "../../src/utils/RateLimiter.res",
-        "pattern": "mutable ",
+        "file": "../../css/components/buttons.css",
+        "pattern": "!important",
         "strategy": ""
       }
     }
@@ -55,7 +55,7 @@
           "../../src/hooks/UseIsInteractionPermitted.res",
           "../../src/hooks/UseThrottledAction.res"
         ],
-        "reason": "Recursive Feature Pod: 2 files in subtree sum to 71 LOC (fits in context). Max Drag: 9.58",
+        "reason": "Recursive Feature Pod: 2 files in subtree sum to 81 LOC (fits in context). Max Drag: 9.57",
         "strategy": "",
         "platform": "frontend"
       }

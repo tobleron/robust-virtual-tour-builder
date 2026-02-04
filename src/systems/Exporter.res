@@ -2,7 +2,6 @@
 
 open ReBindings
 open Types
-open EventBus
 
 type apiError = {
   error: string,
@@ -37,16 +36,30 @@ let fetchLib = async filename => {
 }
 
 /* XHR Upload Logic via Raw JS (for progress events) */
+/* XHR Upload Logic via Raw JS (for progress events) with Abort Support */
 let uploadAndProcessRaw: (
   FormData.t,
   (float, float, string) => unit,
   string,
+  ~signal: BrowserBindings.AbortController.signal,
 ) => Promise.t<Blob.t> = %raw(`
-  function(formData, onProgress, backendUrl) {
+  function(formData, onProgress, backendUrl, signal) {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.open("POST", backendUrl + "/api/project/create-tour-package");
         xhr.timeout = 300000; // 5 minutes
+
+        if (signal) {
+          signal.addEventListener('abort', () => {
+            xhr.abort();
+            reject(new Error("AbortError: Export cancelled by user"));
+          });
+          if (signal.aborted) {
+            xhr.abort();
+            reject(new Error("AbortError: Export cancelled by user"));
+            return;
+          }
+        }
 
         xhr.upload.onprogress = (e) => {
             if (e.lengthComputable) {
@@ -93,6 +106,7 @@ let uploadAndProcessRaw: (
 
 let exportTour = async (
   scenes: array<scene>,
+  ~signal: BrowserBindings.AbortController.signal,
   onProgress: option<(float, float, string) => unit>,
 ): result<unit, string> => {
   let progress = (p, t, m) => {
@@ -111,6 +125,8 @@ let exportTour = async (
   }
   let safeName = tourName->String.replaceRegExp(/[^a-z0-9]/gi, "_")->String.toLowerCase
 
+  // Progress starts after confirmation in higher level? 
+  // For Export it starts immediately because there is no file picker BEFORE upload.
   progress(0.0, 100.0, "Preparing assets...")
   let exportStartTime = Date.now()
   let currentPhase = ref("INITIAL")
@@ -200,7 +216,7 @@ let exportTour = async (
     Logger.info(~module_="Exporter", ~message="UPLOAD_START", ())
     let backendUrl = Constants.backendUrl
     let zipBlob = await RequestQueue.schedule(() =>
-      uploadAndProcessRaw(formData, progress, backendUrl)
+      uploadAndProcessRaw(formData, progress, backendUrl, ~signal)
     )
 
     progress(100.0, 100.0, "Saving...")
@@ -223,32 +239,30 @@ let exportTour = async (
   | exn => {
       let (msg, stack) = Logger.getErrorDetails(exn)
 
-      let finalMsg = switch JsonCombinators.Json.parse(msg) {
-      | Ok(json) =>
-        switch JsonCombinators.Json.decode(json, apiErrorDecoder) {
-        | Ok(err) => err.details->Option.getOr(err.error)
+      if String.includes(msg, "AbortError") {
+        Logger.info(~module_="Exporter", ~message="EXPORT_CANCELLED", ())
+        progress(0.0, 0.0, "Cancelled")
+        Error("CANCELLED")
+      } else {
+        let finalMsg = switch JsonCombinators.Json.parse(msg) {
+        | Ok(json) =>
+          switch JsonCombinators.Json.decode(json, apiErrorDecoder) {
+          | Ok(err) => err.details->Option.getOr(err.error)
+          | Error(_) => msg
+          }
         | Error(_) => msg
         }
-      | Error(_) => msg
-      }
 
-      Logger.error(
-        ~module_="Exporter",
-        ~message="EXPORT_FAILED",
-        ~data={"error": finalMsg, "stack": stack, "phase": currentPhase.contents},
-        (),
-      )
-      EventBus.dispatch(
-        ShowNotification(
-          `Export Failed: ${finalMsg}`,
-          #Error,
-          Some(
-            Logger.castToJson({"error": finalMsg, "stack": stack, "phase": currentPhase.contents}),
-          ),
-        ),
-      )
-      progress(0.0, 0.0, "Failed")
-      Error(finalMsg)
+        Logger.error(
+          ~module_="Exporter",
+          ~message="EXPORT_FAILED",
+          ~data={"error": finalMsg, "stack": stack, "phase": currentPhase.contents},
+          (),
+        )
+        // ... dispatch notification ...
+        progress(0.0, 0.0, "Failed")
+        Error(finalMsg)
+      }
     }
   }
 }

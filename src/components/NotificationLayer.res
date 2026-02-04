@@ -10,6 +10,7 @@ let make = React.memo(() => {
       "message": "",
       "phase": "",
       "error": false,
+      "onCancel": () => (),
     }
   )
   let hideTimerRef = React.useRef(Nullable.null)

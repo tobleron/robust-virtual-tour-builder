@@ -76,6 +76,7 @@ let make = React.memo(() => {
       "message": "",
       "phase": "",
       "error": false,
+      "onCancel": () => (),
     }
   )
 
@@ -149,15 +150,25 @@ let make = React.memo(() => {
   let teaserReady = totalHotspots >= 3
   let exportReady = totalHotspots > 0
 
-  let handleSave = async (state: Types.state) => {
-    SidebarLogic.updateProgress(0.0, "Saving...", true, "Save")
+  let handleSave = async (state: Types.state, ~signal, ~onCancel) => {
     try {
-      let _ = await ProjectManager.saveProject(state, ~onProgress=(pct, _t, msg) => {
-        SidebarLogic.updateProgress(pct->Int.toFloat, msg, true, "Save")
-      })
+      let _ = await ProjectManager.saveProject(
+        state,
+        ~signal,
+        ~onProgress=(pct, _t, msg) => {
+          SidebarLogic.updateProgress(~onCancel, pct->Int.toFloat, msg, true, "Save")
+        },
+      )
       SidebarLogic.updateProgress(100.0, "Saved", false, "")
     } catch {
-    | _ => SidebarLogic.updateProgress(0.0, "Error", false, "")
+    | exn => {
+        let (msg, _) = Logger.getErrorDetails(exn)
+        if String.includes(msg, "AbortError") {
+          SidebarLogic.updateProgress(0.0, "Cancelled", false, "")
+        } else {
+          SidebarLogic.updateProgress(0.0, "Error", false, "")
+        }
+      }
     }
   }
 
@@ -207,10 +218,12 @@ let make = React.memo(() => {
             reload()
           }
         }}
-        onSave={() => {
-          enqueueThunk(() => handleSave(GlobalStateBridge.getState()))
+        onSave={(~signal, ~onCancel) => {
+          enqueueThunk(() =>
+            handleSave(GlobalStateBridge.getState(), ~signal, ~onCancel)
+          )
         }}
-        onLoad={() => {
+        onLoad={(~signal as _, ~onCancel as _) => {
           switch Nullable.toOption(projectFileInputRef.current) {
           | Some(el) => ReBindings.Dom.click(el)
           | None => ()
@@ -237,8 +250,8 @@ let make = React.memo(() => {
             }),
           )
         }}
-        onExport={() => {
-          enqueueThunk(() => SidebarLogic.handleExport(sceneSlice.scenes))
+        onExport={(~signal, ~onCancel) => {
+          enqueueThunk(() => SidebarLogic.handleExport(sceneSlice.scenes, ~signal, ~onCancel))
         }}
         onTeaser={() => {
           enqueueThunk(() => Teaser.startAutoTeaser("fast", false, "mp4", false))
