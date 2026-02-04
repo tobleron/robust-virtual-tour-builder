@@ -57,21 +57,36 @@ The Rust Kernel (`analyzer`) processes the codebase in **4 Distinct Phases**:
 ### Phase 3: The Mathematical Engine (Drag & Limits)
 This is the core differentiator. Instead of a static LOC limit, the system calculates a **Dynamic Limit** for *each file*.
 
-#### 📉 The Drag Formula
+#### 📉 The Drag Formula (v2.0)
 **Drag** represents the "Cognitive Resistance" of a file.
 ```math
-Drag = (1.0 + (Nesting * 0.5) + (Density * 1.2) + (State * 6.0)) * FailurePenalty
+Drag = (1.0 
+    + (Nesting × 0.6) 
+    + (Density × 1.0) 
+    + (StateDensity × 8.0) 
+    + (DepthPenalty × 0.6)
+) × FailurePenalty
 ```
-*   **Nesting**: High penalty. Deeply nested code is hard for LLMs to simulate.
-*   **State**: Massive penalty. Mutable state causes "Context Fog".
-*   **FailurePenalty**: If an agent recently failed to edit this file, Drag increases automatically.
+
+**Where:**
+*   **Nesting** = `max_nesting_depth` (0.6 weight): Critical for AI comprehension. Deeply nested code is hard for LLMs to simulate.
+*   **Density** = `logic_count / LOC` (1.0 weight): Moderate impact. Ratio of control flow keywords to lines.
+*   **StateDensity** = `state_count / LOC` (8.0 weight): Heavy penalty. Mutable state causes "Context Fog" and tracking failures.
+*   **DepthPenalty** = `max(0, dir_depth - 4) × 0.6` (0.6 weight): Minor penalty for deep directory nesting.
+*   **FailurePenalty** = `1.0 + (failure_count × 0.1)`: If an agent recently failed to edit this file, Drag increases automatically.
+
+**Note:** v2.0 removed the `complexity_density × 20.0` term which was double-counting state penalties.
 
 #### 📏 The Dynamic Limit Formula
 Defines the maximum safe size (LOC) for a specific file.
 ```math
-Limit = (BaseLimit * RoleMultiplier * CohesionBonus) / Drag^0.75
+Limit = (BaseLimit × RoleMultiplier × CohesionBonus) / Drag^0.8
 ```
-*   **Result**: A complex, state-heavy file might have a limit of **150 LOC**, while a flat DTO file might have a limit of **600 LOC**.
+*   **BaseLimit**: 400 lines (configurable)
+*   **RoleMultiplier**: 0.4 to 2.5 based on file taxonomy (e.g., util-pure=0.4, infra-binding=2.5)
+*   **CohesionBonus**: `1.0 + max(0, 0.5 - dependency_density)` - rewards self-contained files
+*   **Exponent 0.8**: Diminishing returns curve (less aggressive than linear)
+*   **Result**: A complex, state-heavy file might have a limit of **95 LOC**, while a flat DTO file might have a limit of **600 LOC**.
 
 ### Phase 4: Task Synthesis (Decision Tree)
 The system compares `Current State` vs `Optimal State` and generates discrete tasks.

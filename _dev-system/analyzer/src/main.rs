@@ -144,8 +144,8 @@ fn generate_work_units(
             }
         }
         
+        
         let cohesion_bonus = 1.0 + (0.5 - dependency_density).max(0.0);
-        let complexity_density = metrics.complexity_penalty / metrics.loc.max(1) as f64;
         let state_density = metrics.state_count as f64 / metrics.loc.max(1) as f64;
         
         let clean_path = p_str.replace("../../", "");
@@ -154,11 +154,15 @@ fn generate_work_units(
         let depth_penalty = if dir_depth > 0.0 { dir_depth * 0.5 } else { 0.0 };
         
         let failure_penalty = state.get_drag_multiplier(p_str);
-        let drag = (1.0 + (metrics.max_nesting as f64 * config.settings.nesting_weight) 
-            + (density * config.settings.density_weight) 
-            + (complexity_density * 20.0) 
-            + (state_density * config.settings.state_weight) 
-            + depth_penalty) * failure_penalty;
+        
+        // Formula v2.0: Removed complexity_density * 20.0 (was double-counting state)
+        // Unified state penalty to state_density * state_weight (now 8.0)
+        let drag = (1.0 
+            + (metrics.max_nesting as f64 * config.settings.nesting_weight)  // 0.6: Nesting critical for AI
+            + (density * config.settings.density_weight)                      // 1.0: Moderate impact
+            + (state_density * config.settings.state_weight)                  // 8.0: Unified state penalty
+            + (depth_penalty * 0.6)                                           // 0.6: Minor directory depth penalty
+        ) * failure_penalty;
         
         let limit = calculate_dynamic_limit(drag, p_mod, cohesion_bonus, dynamic_base, config, p_str);
         

@@ -140,12 +140,14 @@ describe("HotspotActionMenu", () => {
     let deleteBtn = Dom.querySelector(container, "button[title='Delete Link']")
 
     let modalEvent = ref(None)
-    let unsubscribe = EventBus.subscribe(e => {
-      switch e {
-      | ShowModal(config) => modalEvent := Some(config)
-      | _ => ()
-      }
-    })
+    let unsubscribe = EventBus.subscribe(
+      e => {
+        switch e {
+        | ShowModal(config) => modalEvent := Some(config)
+        | _ => ()
+        }
+      },
+    )
 
     switch Nullable.toOption(deleteBtn) {
     | Some(btn) => Dom.click(btn)
