@@ -148,3 +148,67 @@ let syncHotspots = (v: Viewer.t, state: state, scene: scene, dispatch: Actions.a
     Viewer.addHotSpot(v, conf)
   })
 }
+
+let getProjectData = (state: Types.state) => {
+  let project: Types.project = {
+    tourName: state.tourName,
+    scenes: state.scenes,
+    lastUsedCategory: state.lastUsedCategory,
+    exifReport: state.exifReport,
+    sessionId: state.sessionId,
+    deletedSceneIds: state.deletedSceneIds,
+    timeline: state.timeline,
+  }
+  JsonParsers.Encoders.project(project)
+}
+
+let handleAddHotspot = (sceneIndex: int, hotspot: Types.hotspot) => {
+  InteractionQueue.enqueue(Thunk(async () => {
+    let _ = await OptimisticAction.execute(
+      ~action=Actions.AddHotspot(sceneIndex, hotspot),
+      ~apiCall=() => {
+        let state = GlobalStateBridge.getState()
+        switch state.sessionId {
+        | Some(sid) =>
+          let projectData = getProjectData(state)
+          Api.ProjectApi.saveProject(sid, projectData)
+        | None => Promise.resolve(Error("No active session"))
+        }
+      },
+    )
+  }))
+}
+
+let handleDeleteHotspot = (sceneIndex: int, hotspotIndex: int) => {
+  InteractionQueue.enqueue(Thunk(async () => {
+    let _ = await OptimisticAction.execute(
+      ~action=Actions.RemoveHotspot(sceneIndex, hotspotIndex),
+      ~apiCall=() => {
+        let state = GlobalStateBridge.getState()
+        switch state.sessionId {
+        | Some(sid) =>
+          let projectData = getProjectData(state)
+          Api.ProjectApi.saveProject(sid, projectData)
+        | None => Promise.resolve(Error("No active session"))
+        }
+      },
+    )
+  }))
+}
+
+let handleUpdateSceneMetadata = (sceneIndex: int, metadata: JSON.t) => {
+  InteractionQueue.enqueue(Thunk(async () => {
+    let _ = await OptimisticAction.execute(
+      ~action=Actions.UpdateSceneMetadata(sceneIndex, metadata),
+      ~apiCall=() => {
+        let state = GlobalStateBridge.getState()
+        switch state.sessionId {
+        | Some(sid) =>
+          let projectData = getProjectData(state)
+          Api.ProjectApi.saveProject(sid, projectData)
+        | None => Promise.resolve(Error("No active session"))
+        }
+      },
+    )
+  }))
+}

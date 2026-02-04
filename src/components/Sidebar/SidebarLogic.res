@@ -147,6 +147,36 @@ let handleLoadProject = async (filesOpt, dispatch, _sceneCount, target) => {
   }
 }
 
+let getProjectData = (state: Types.state) => {
+  let project: Types.project = {
+    tourName: state.tourName,
+    scenes: state.scenes,
+    lastUsedCategory: state.lastUsedCategory,
+    exifReport: state.exifReport,
+    sessionId: state.sessionId,
+    deletedSceneIds: state.deletedSceneIds,
+    timeline: state.timeline,
+  }
+  JsonParsers.Encoders.project(project)
+}
+
+let handleDeleteScene = (index: int) => {
+  InteractionQueue.enqueue(Thunk(async () => {
+    let _ = await OptimisticAction.execute(
+      ~action=Actions.DeleteScene(index),
+      ~apiCall=() => {
+        let state = GlobalStateBridge.getState()
+        switch state.sessionId {
+        | Some(sid) =>
+          let projectData = getProjectData(state)
+          Api.ProjectApi.saveProject(sid, projectData)
+        | None => Promise.resolve(Error("No active session"))
+        }
+      },
+    )
+  }))
+}
+
 let handleExport = async (scenes, ~signal, ~onCancel) => {
   updateProgress(~onCancel, 0.0, "Exporting...", true, "Export")
   try {
