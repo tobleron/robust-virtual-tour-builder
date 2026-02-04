@@ -4,6 +4,8 @@ open SharedTypes
 open ApiHelpers
 open ReBindings
 
+external castJson: 'a => JSON.t = "%identity"
+
 /* Helper functions to reduce nesting */
 let handleError = (e, message, logKey) => {
   let (msg, stack) = Logger.getErrorDetails(e)
@@ -53,17 +55,15 @@ let extractMetadata = (file: File.t): Promise.t<apiResult<metadataResponse>> => 
     let formData = FormData.newFormData()
     FormData.append(formData, "file", file)
 
-    let headers = getAuthHeaders()
-
-    Fetch.fetch(
+    AuthenticatedClient.requestWithRetry(
       Constants.backendUrl ++ "/api/media/extract-metadata",
-      Fetch.requestInit(~method="POST", ~body=formData, ~headers, ()),
-    )
-    ->Promise.then(handleResponse)
-    ->Promise.then(resultResponse => {
+      ~method="POST",
+      ~formData,
+      (),
+    )->Promise.then(resultResponse => {
       switch resultResponse {
-      | Ok(response) =>
-        Fetch.json(response)
+      | Retry.Success(response, _) =>
+        response.json()
         ->Promise.then(
           json =>
             handleJsonDecode(
@@ -81,7 +81,7 @@ let extractMetadata = (file: File.t): Promise.t<apiResult<metadataResponse>> => 
               "METADATA_ERROR_JSON_DECODE",
             ),
         )
-      | Error(msg) => Promise.resolve(Error(msg))
+      | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
       }
     })
     ->Promise.catch(e => handleError(e, "Metadata extraction failed", "METADATA_ERROR"))
@@ -109,17 +109,15 @@ let processImageFull = (
     | None => ()
     }
 
-    let headers = getAuthHeaders()
-
-    Fetch.fetch(
+    AuthenticatedClient.requestWithRetry(
       Constants.backendUrl ++ "/api/media/process-full",
-      Fetch.requestInit(~method="POST", ~body=formData, ~headers, ()),
-    )
-    ->Promise.then(handleResponse)
-    ->Promise.then(resultResponse => {
+      ~method="POST",
+      ~formData,
+      (),
+    )->Promise.then(resultResponse => {
       switch resultResponse {
-      | Ok(response) =>
-        Fetch.blob(response)
+      | Retry.Success(response, _) =>
+        response.blob()
         ->Promise.then(blob => Promise.resolve(Ok(blob)))
         ->Promise.catch(
           e =>
@@ -129,7 +127,7 @@ let processImageFull = (
               "PROCESSING_ERROR_BLOB_CONVERSION",
             ),
         )
-      | Error(msg) => Promise.resolve(Error(msg))
+      | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
       }
     })
     ->Promise.catch(e => handleError(e, "Image processing failed", "PROCESSING_ERROR"))
@@ -140,24 +138,19 @@ let batchCalculateSimilarity = (pairs: array<similarityPair>): Promise.t<
   apiResult<array<similarityResult>>,
 > => {
   RequestQueue.schedule(() => {
-    let headers = getAuthHeaders()
-    Dict.set(headers, "Content-Type", "application/json")
+    let body = JsonCombinators.Json.Encode.object([
+      ("pairs", JsonCombinators.Json.Encode.array(JsonParsers.Encoders.similarityPair)(pairs)),
+    ])
 
-    let body = JsonCombinators.Json.stringify(
-      JsonCombinators.Json.Encode.object([
-        ("pairs", JsonCombinators.Json.Encode.array(JsonParsers.Encoders.similarityPair)(pairs)),
-      ]),
-    )
-
-    Fetch.fetch(
+    AuthenticatedClient.requestWithRetry(
       Constants.backendUrl ++ "/api/media/similarity",
-      Fetch.requestInit(~method="POST", ~headers, ~body, ()),
-    )
-    ->Promise.then(handleResponse)
-    ->Promise.then(resultResponse => {
+      ~method="POST",
+      ~body=castJson(body),
+      (),
+    )->Promise.then(resultResponse => {
       switch resultResponse {
-      | Ok(response) =>
-        Fetch.json(response)
+      | Retry.Success(response, _) =>
+        response.json()
         ->Promise.then(
           json => {
             switch decodeSimilarityResponse(json) {
@@ -174,7 +167,7 @@ let batchCalculateSimilarity = (pairs: array<similarityPair>): Promise.t<
               "SIMILARITY_BATCH_ERROR_JSON_DECODE",
             ),
         )
-      | Error(msg) => Promise.resolve(Error(msg))
+      | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
       }
     })
     ->Promise.catch(e => handleError(e, "Similarity calculation failed", "SIMILARITY_BATCH_ERROR"))
