@@ -6196,7 +6196,9 @@
 │   ├── _pending_integration
 │   │   ├── DEV_SYSTEM_ACTION_PLAN.md
 │   │   ├── DEV_SYSTEM_EVALUATION.md
-│   │   └── DEV_SYSTEM_SUMMARY.md
+│   │   ├── DEV_SYSTEM_SUMMARY.md
+│   │   ├── FORMULA_ANALYSIS.md
+│   │   └── FORMULA_V2_IMPLEMENTATION.md
 │   ├── architecture
 │   │   ├── JSON_ENCODING_STANDARDS.md
 │   │   └── SYSTEM_ROBUSTNESS.md
@@ -11902,6 +11904,7 @@
 │   │   ├── 1226_COMPLETE_OPTIMISTIC_UPDATE_AND_RECOVERY_INTEGRATION.md
 │   │   ├── 1227_IMPLEMENT_PROJECT_SAVE_RECOVERY_DONE.md
 │   │   ├── 1228_IMPLEMENT_UPLOAD_BATCH_RECOVERY_DONE.md
+│   │   ├── 1234_UI_NOTIFICATION_AUDIT_DONE.md
 │   │   ├── 900_COMMERCIAL_MIGRATION_MASTER.md
 │   │   ├── 905_migration_telemetry_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
@@ -11919,7 +11922,6 @@
 │   │   ├── 1231_Surgical_Refactor_CORE_FRONTEND.md
 │   │   ├── 1232_Merge_Folders_FRONTEND.md
 │   │   ├── 1233_Surgical_Refactor_SYSTEMS_FRONTEND.md
-│   │   ├── 1234_UI_NOTIFICATION_AUDIT.md
 │   │   └── 1235_Aggregate_Completed_Tasks.md
 │   └── postponed
 ├── test-results
@@ -12289,4 +12291,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-520 directories, 11770 files
+520 directories, 11772 files

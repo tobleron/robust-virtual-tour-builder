@@ -10,7 +10,7 @@ pub fn calculate_dynamic_limit(
     config: &EfficiencyConfig,
     p_str: &str
 ) -> usize {
-    let mut limit = ((dynamic_base * p_mod * cohesion_bonus) / drag.powf(0.75))
+    let mut limit = ((dynamic_base * p_mod * cohesion_bonus) / drag.powf(0.8))  // v2.0: 0.8 (less aggressive than 0.75)
         .max(config.settings.soft_floor_loc as f64) as usize;
     
     if let Some(exceptions) = &config.exceptions {

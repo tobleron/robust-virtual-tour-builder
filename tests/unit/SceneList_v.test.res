@@ -264,12 +264,14 @@ describe("SceneList", () => {
     switch Nullable.toOption(deleteBtn) {
     | Some(btn) =>
       let modalEvent = ref(None)
-      let unsubscribe = EventBus.subscribe(e => {
-        switch e {
-        | ShowModal(config) => modalEvent := Some(config)
-        | _ => ()
-        }
-      })
+      let unsubscribe = EventBus.subscribe(
+        e => {
+          switch e {
+          | ShowModal(config) => modalEvent := Some(config)
+          | _ => ()
+          }
+        },
+      )
 
       Dom.click(btn)
       // SceneItem has 800ms delay
