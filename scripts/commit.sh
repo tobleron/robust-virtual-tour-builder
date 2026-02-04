@@ -22,14 +22,10 @@ fi
 echo "🗺️  Refreshing file structure map..."
 tree -I "node_modules|target|.git|dist|.agent/workflows" > .agent/current_file_structure.md
 
-# 3. Versioning (Semantic Bump + Build Increment)
-BUMP_TYPE="${3:-none}"
-if [ "$BUMP_TYPE" != "none" ]; then
-    echo "📈 Bumping version: $BUMP_TYPE"
-    node scripts/bump-version.js "$BUMP_TYPE"
-fi
-
-node scripts/increment-build.js
+# 3. Versioning (Smart Detection)
+BUMP_REQUEST="${3:-$MSG}"
+echo "📈 Processing versioning..."
+node scripts/bump-version.js "$BUMP_REQUEST"
 node scripts/update-version.js
 node scripts/sync-sw.cjs
 NEW_VER=$(node -p "require('./package.json').version")

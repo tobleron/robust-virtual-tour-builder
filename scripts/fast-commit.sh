@@ -16,15 +16,10 @@ fi
 # 0.5 Project Guard (Quick Check)
 ./scripts/project-guard.sh
 
-# 1. Versioning (Semantic Bump + Build Increment)
-BUMP_TYPE="${2:-none}"
-if [ "$BUMP_TYPE" != "none" ]; then
-    echo "📈 Bumping version: $BUMP_TYPE"
-    node scripts/bump-version.js "$BUMP_TYPE"
-fi
-
-echo "🔢 Incrementing build..."
-node scripts/increment-build.js
+# 1. Versioning (Smart Detection)
+BUMP_REQUEST="${2:-$MSG}"
+echo "📈 Processing versioning..."
+node scripts/bump-version.js "$BUMP_REQUEST"
 node scripts/update-version.js
 
 NEW_VER=$(node -p "require('./package.json').version")
