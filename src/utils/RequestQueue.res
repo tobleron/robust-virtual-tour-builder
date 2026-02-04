@@ -73,7 +73,7 @@ let scheduleWithRetry = (
       ~fn=(~signal as _) => task(),
       ~signal=ReBindings.AbortController.signal(controller),
       ~config=?retryConfig,
-      ~onRetry=?onRetry
+      ~onRetry?,
     )
   })
 }
