@@ -31,16 +31,18 @@ A structural paradigm where **UI, State, and Logic** for a single feature live i
 
 ---
 
-## 📐 THE MATHEMATICAL ENGINE (v1.5.0 Semantic Tuning)
+## 📐 THE MATHEMATICAL ENGINE (v2.0 Formula Optimization)
 
 ### The Limit Formula
-`Limit = (Base_Limit * Role_Multiplier * Cohesion_Bonus) / Drag^n`
+`Limit = (Base_Limit × Role_Multiplier × Cohesion_Bonus) / Drag^0.8`
 
 *   **Base Limit**: 400 lines (Adjustable per project avg).
 *   **Hard Ceiling**: **800 lines** (The standard AI safety threshold for standard context windows).
-*   **Semantic Weights**: 
-    *   **Nesting**: 0.50 (Aggressive penalty for deep conditional trees).
-    *   **State**: 6.00 (Heavy penalty for excessive mutable state/refs).
+*   **Semantic Weights** (v2.0 - Empirically Optimized): 
+    *   **Nesting**: 0.60 (Critical for AI comprehension - increased from 0.50).
+    *   **Density**: 1.00 (Moderate impact - decreased from 1.20).
+    *   **State**: 8.00 (Heavy unified penalty - increased from 6.00, removed double-counting).
+    *   **Depth**: 0.60 (Minor directory nesting penalty).
 
 ---
 

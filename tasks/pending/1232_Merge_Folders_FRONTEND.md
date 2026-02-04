@@ -12,6 +12,6 @@
 ### 🔧 Action: Merge Fragmented Folders
 **Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module file (e.g., `hooks.rs`). CRITICAL: Delete the now-empty `src/hooks/` folder to reduce directory nesting tax and strip any existing '@efficiency' tags.
 
-- [ ] Folder: `src/hooks` (Metric: Recursive Feature Pod: 2 files in subtree sum to 85 LOC (fits in context). Max Drag: 9.24)
+- [ ] Folder: `src/hooks` (Metric: Recursive Feature Pod: 2 files in subtree sum to 85 LOC (fits in context). Max Drag: 9.65)
     - `src/hooks/../../src/hooks/UseIsInteractionPermitted.res`
     - `src/hooks/../../src/hooks/UseThrottledAction.res`

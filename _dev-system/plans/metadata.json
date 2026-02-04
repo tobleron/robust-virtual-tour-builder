@@ -1,24 +1,31 @@
 {
   "rescript": [
     {
-      "Surgical": {
-        "file": "../../src/systems/ProjectManager.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.00, Density: 0.30, Coupling: 0.09] | Drag: 8.92 | LOC: 392/300  🎯 Target: Function: `rebuildUrl` (High Local Complexity (8.4). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 18.115306122448978,
-        "recommended_splits": 2
+      "Violation": {
+        "file": "../../src/utils/RateLimiter.res",
+        "pattern": "mutable ",
+        "strategy": ""
       }
     },
     {
       "Surgical": {
         "file": "../../src/core/JsonParsers.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 2.00, Density: 0.48, Coupling: 0.04] | Drag: 5.80 | LOC: 380/300  🎯 Target: Function: `hotspot` (High Local Complexity (11.0). Logic heavy.)",
+        "reason": "[Nesting: 2.40, Density: 0.40, Coupling: 0.04] | Drag: 3.80 | LOC: 380/300  🎯 Target: Function: `hotspot` (High Local Complexity (11.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 13.801052631578948,
+        "complexity": 11.8,
+        "recommended_splits": 2
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ProjectManager.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.80, Density: 0.25, Coupling: 0.09] | Drag: 6.05 | LOC: 392/300  🎯 Target: Function: `rebuildUrl` (High Local Complexity (8.4). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 15.252551020408163,
         "recommended_splits": 2
       }
     },
@@ -28,22 +35,9 @@
         "pattern": "mutable ",
         "strategy": ""
       }
-    },
-    {
-      "Violation": {
-        "file": "../../src/utils/RateLimiter.res",
-        "pattern": "mutable ",
-        "strategy": ""
-      }
     }
   ],
   "system": [
-    {
-      "Ambiguity": {
-        "file": "../../src/hooks/UseIsInteractionPermitted.res",
-        "strategy": ""
-      }
-    },
     {
       "Ambiguity": {
         "file": "../../src/hooks/UseThrottledAction.res",
@@ -51,13 +45,19 @@
       }
     },
     {
+      "Ambiguity": {
+        "file": "../../src/hooks/UseIsInteractionPermitted.res",
+        "strategy": ""
+      }
+    },
+    {
       "Merge": {
         "folder": "src/hooks",
         "files": [
-          "../../src/hooks/UseIsInteractionPermitted.res",
-          "../../src/hooks/UseThrottledAction.res"
+          "../../src/hooks/UseThrottledAction.res",
+          "../../src/hooks/UseIsInteractionPermitted.res"
         ],
-        "reason": "Recursive Feature Pod: 2 files in subtree sum to 85 LOC (fits in context). Max Drag: 9.24",
+        "reason": "Recursive Feature Pod: 2 files in subtree sum to 85 LOC (fits in context). Max Drag: 9.65",
         "strategy": "",
         "platform": "frontend"
       }
