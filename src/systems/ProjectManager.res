@@ -393,6 +393,50 @@ let saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) =
   }
 }
 
+let recoverSaveProject = (_entry: OperationJournal.journalEntry) => {
+  let waitForStateUpdate = () => {
+    Promise.make((resolve, _reject) => {
+      let unsubscribeRef = ref(_ => ())
+      let callback = (newState: Types.state) => {
+        if Array.length(newState.scenes) > 0 {
+          unsubscribeRef.contents()
+          resolve(newState)
+        }
+      }
+
+      unsubscribeRef := GlobalStateBridge.subscribe(callback)
+
+      // Safety timeout
+      let _ = setTimeout(() => {
+        unsubscribeRef.contents()
+        resolve(GlobalStateBridge.getState())
+      }, 5000)
+    })
+  }
+
+  let state = GlobalStateBridge.getState()
+
+  let restorePromise = if Array.length(state.scenes) > 0 {
+    Promise.resolve(Some(state))
+  } else {
+    PersistenceLayer.checkRecovery()->Promise.then(recovery => {
+      switch recovery {
+      | Some(session) =>
+        GlobalStateBridge.dispatch(Actions.LoadProject(session.projectData))
+        waitForStateUpdate()->Promise.then(s => Promise.resolve(Some(s)))
+      | None => Promise.resolve(None)
+      }
+    })
+  }
+
+  restorePromise->Promise.then(finalStateOpt => {
+    switch finalStateOpt {
+    | Some(finalState) => saveProject(finalState)
+    | None => Promise.resolve(false)
+    }
+  })
+}
+
 let loadProject = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promise.t<
   BackendApi.apiResult<(string, JSON.t)>,
 > => {
