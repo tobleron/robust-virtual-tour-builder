@@ -1,3 +1,5 @@
+/* @efficiency-role: infra-adapter */
+
 type t = {
   maxCalls: int,
   windowMs: int,
@@ -24,9 +26,6 @@ let canCall = t => {
 }
 
 let recordCall = t => {
-  // We assume caller checked canCall, but we check again or just push?
-  // Usually recordCall implies success.
-  // We should also prune first.
   prune(t)
   t.timestamps = Belt.Array.concat(t.timestamps, [Date.now()])
 }
