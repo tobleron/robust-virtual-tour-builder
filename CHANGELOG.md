@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Complete E2E critical path coverage with simulation, recovery, and performance suites (Task 1222)
 
+### Changed
+- Housekeeping: archive completed tasks 1202, 1205, and 1222
+
 ## [4.14.0] - 2026-02-04
 
 ### Added

@@ -1,4 +1,13 @@
 {
+  "css": [
+    {
+      "Violation": {
+        "file": "../../css/components/buttons.css",
+        "pattern": "!important",
+        "strategy": ""
+      }
+    }
+  ],
   "system": [
     {
       "Ambiguity": {
@@ -25,19 +34,10 @@
       }
     }
   ],
-  "css": [
-    {
-      "Violation": {
-        "file": "../../css/components/buttons.css",
-        "pattern": "!important",
-        "strategy": ""
-      }
-    }
-  ],
   "rescript": [
     {
       "Violation": {
-        "file": "../../src/utils/RateLimiter.res",
+        "file": "../../src/utils/CircuitBreaker.res",
         "pattern": "mutable ",
         "strategy": ""
       }
@@ -55,7 +55,7 @@
     },
     {
       "Violation": {
-        "file": "../../src/utils/CircuitBreaker.res",
+        "file": "../../src/utils/RateLimiter.res",
         "pattern": "mutable ",
         "strategy": ""
       }
