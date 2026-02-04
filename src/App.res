@@ -63,6 +63,7 @@ module InnerApp = {
       <div id="modal-container">
         <ModalContext />
         <NotificationContext />
+        <NotificationLayer />
       </div>
 
       /* Logic Controllers */

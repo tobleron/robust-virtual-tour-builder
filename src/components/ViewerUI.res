@@ -10,8 +10,5 @@ let make = React.memo(() => {
     /* Interactive UI layers */
     <ViewerHUD />
     <HotspotMenuLayer />
-
-    /* Global Notification layer */
-    <NotificationLayer />
   </>
 })
