@@ -8,15 +8,19 @@
 
 ---
 
-## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (2)
-- [ ] `../../src/hooks/UseThrottledAction.res`
-- [ ] `../../src/hooks/UseIsInteractionPermitted.res`
-
----
-
-## 🧩 MERGE TASKS (1)
-### Merge Folder: `src/hooks`
-- **Reason:** Recursive Feature Pod: 2 files in subtree sum to 85 LOC (fits in context). Max Drag: 9.65
+## 🧩 MERGE TASKS (3)
+### Merge Folder: `../../tests`
+- **Reason:** Read Tax high (Score 2.00). Projected Limit: 300 (Drag 9.40)
 - **Files:**
-  - `src/hooks/../../src/hooks/UseThrottledAction.res`
-  - `src/hooks/../../src/hooks/UseIsInteractionPermitted.res`
+  - `../../tests/vitest-setup.js`
+  - `../../tests/node-setup.js`
+### Merge Folder: `../../tests/unit`
+- **Reason:** Read Tax high (Score 2.00). Projected Limit: 300 (Drag 4.60)
+- **Files:**
+  - `../../tests/unit/LabelMenu_v.test.setup.jsx`
+  - `../../tests/unit/Components_v.test.setup.jsx`
+### Merge Folder: `../../tests/unit`
+- **Reason:** Read Tax high (Score 2.00). Projected Limit: 300 (Drag 2.20)
+- **Files:**
+  - `../../tests/unit/UploadProcessor_v.test.setup.js`
+  - `../../tests/unit/HotspotLine_v.test.setup.js`

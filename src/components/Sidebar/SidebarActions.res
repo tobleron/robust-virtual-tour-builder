@@ -11,7 +11,7 @@ let make = React.memo((
   ~exportReady: bool,
   ~teaserReady: bool,
 ) => {
-  let isPermitted = UseIsInteractionPermitted.useIsInteractionPermitted()
+  let isPermitted = Hooks.useIsInteractionPermitted()
 
   let saveCancelRef = React.useRef(() => ())
   let (
@@ -19,7 +19,7 @@ let make = React.memo((
     saveCancel,
     savePending,
     _saveThrottled,
-  ) = UseThrottledAction.useThrottledAction(
+  ) = Hooks.useThrottledAction(
     ~action=async (~signal) => onSave(~signal, ~onCancel=() => saveCancelRef.current()),
     ~debounceMs=2000,
     ~rateLimit=(5, 60000),
@@ -35,7 +35,7 @@ let make = React.memo((
     loadCancel,
     loadPending,
     _loadThrottled,
-  ) = UseThrottledAction.useThrottledAction(
+  ) = Hooks.useThrottledAction(
     ~action=async (~signal) => onLoad(~signal, ~onCancel=() => loadCancelRef.current()),
     ~debounceMs=2000,
     ~rateLimit=(5, 60000),
@@ -51,7 +51,7 @@ let make = React.memo((
     exportCancel,
     exportPending,
     _exportThrottled,
-  ) = UseThrottledAction.useThrottledAction(
+  ) = Hooks.useThrottledAction(
     ~action=async (~signal) => onExport(~signal, ~onCancel=() => exportCancelRef.current()),
     ~debounceMs=5000,
     ~rateLimit=(3, 60000),

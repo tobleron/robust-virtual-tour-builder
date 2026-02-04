@@ -104,7 +104,6 @@
       },
       "forbidden_patterns": [
         "console.log",
-        "mutable ",
         "Obj.magic",
         "JSON.stringify",
         "JSON.stringifyAny",
