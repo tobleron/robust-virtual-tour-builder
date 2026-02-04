@@ -65,6 +65,9 @@ let debouncedSnapshot = Debounce.make(~fn=() => {
     performSnapshot()
   } else {
     Logger.warn(~module_="ViewerSnapshot", ~message="SNAPSHOT_RATE_LIMITED", ())
+    EventBus.dispatch(
+      EventBus.ShowNotification("Please wait before taking another snapshot", #Info, None),
+    )
     Promise.resolve()
   }
 }, ~wait=1000, ~leading=false, ~trailing=true)
