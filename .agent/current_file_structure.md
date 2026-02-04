@@ -6193,6 +6193,10 @@
 │   ├── REORGANIZATION_SUMMARY.md
 │   ├── TERMS_OF_SERVICE.md
 │   ├── TESTING_OPTIMISTIC_UPDATES.md
+│   ├── _pending_integration
+│   │   ├── DEV_SYSTEM_ACTION_PLAN.md
+│   │   ├── DEV_SYSTEM_EVALUATION.md
+│   │   └── DEV_SYSTEM_SUMMARY.md
 │   ├── architecture
 │   │   ├── JSON_ENCODING_STANDARDS.md
 │   │   └── SYSTEM_ROBUSTNESS.md
@@ -9949,8 +9953,7 @@
 │   ├── diagnostic.log
 │   ├── error.log
 │   ├── log_changes.txt
-│   ├── project-guard.log
-│   └── telemetry.log
+│   └── project-guard.log
 ├── old_ref
 │   ├── 7aadee4
 │   │   ├── CHANGELOG.md
@@ -11898,6 +11901,7 @@
 │   │   ├── 1222_COMPLETE_E2E_CRITICAL_PATH_COVERAGE_DONE.md
 │   │   ├── 1226_COMPLETE_OPTIMISTIC_UPDATE_AND_RECOVERY_INTEGRATION.md
 │   │   ├── 1227_IMPLEMENT_PROJECT_SAVE_RECOVERY_DONE.md
+│   │   ├── 1228_IMPLEMENT_UPLOAD_BATCH_RECOVERY_DONE.md
 │   │   ├── 900_COMMERCIAL_MIGRATION_MASTER.md
 │   │   ├── 905_migration_telemetry_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
@@ -11910,7 +11914,6 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1228_IMPLEMENT_UPLOAD_BATCH_RECOVERY.md
 │   │   ├── 1229_Classify_Ambiguous_Files.md
 │   │   ├── 1230_Fix_Violations_FRONTEND.md
 │   │   ├── 1231_Surgical_Refactor_CORE_FRONTEND.md
@@ -12286,4 +12289,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-519 directories, 11768 files
+520 directories, 11770 files

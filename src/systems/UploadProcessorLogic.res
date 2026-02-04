@@ -167,7 +167,7 @@ let finalizeUploads = (
     // Check if we need to set preloading scene (first run)
     let wasEmpty = GlobalStateBridge.getState().activeIndex == -1
     if wasEmpty {
-        GlobalStateBridge.dispatch(SetPreloadingScene(-1))
+      GlobalStateBridge.dispatch(SetPreloadingScene(-1))
     }
 
     handleExifReport(processedWithClusters, skippedCount)->Promise.then(report => {
@@ -220,7 +220,9 @@ let recoverUpload = (entry: OperationJournal.journalEntry) => {
       title: "Partial Upload Detected",
       description: Some(
         "Upload was interrupted. " ++
-        Belt.Int.toString(count) ++ " files were processed. Please select the files again to continue.",
+        Belt.Int.toString(
+          count,
+        ) ++ " files were processed. Please select the files again to continue.",
       ),
       content: None,
       buttons: [
@@ -258,24 +260,32 @@ let executeProcessingChain = (
     maxConcurrency,
     (i, item, updateStatus) => {
       updateStatus("Optimizing")
-      processItem(i, item, updateStatus)
-      ->Promise.then(processedItem => {
-         if processedItem.error == None {
-             let existingScenes = GlobalStateBridge.getState().scenes
-             PanoramaClusterer.clusterScenes([processedItem], ~existingScenes, ~updateProgress=(_, _, _, _) => ())
-             ->Promise.then(clustered => {
-                 let jsonPayload = createScenePayload(clustered)
-                 GlobalStateBridge.dispatch(AddScenes(jsonPayload))
-                 PersistenceLayer.performSave(GlobalStateBridge.getState())
+      processItem(i, item, updateStatus)->Promise.then(processedItem => {
+        if processedItem.error == None {
+          let existingScenes = GlobalStateBridge.getState().scenes
+          PanoramaClusterer.clusterScenes([processedItem], ~existingScenes, ~updateProgress=(
+            _,
+            _,
+            _,
+            _,
+          ) => ())->Promise.then(clustered => {
+            let jsonPayload = createScenePayload(clustered)
+            GlobalStateBridge.dispatch(AddScenes(jsonPayload))
+            PersistenceLayer.performSave(GlobalStateBridge.getState())
 
-                 processedCount := processedCount.contents + 1
-                 OperationJournal.updateContext(journalId, JsonCombinators.Json.Encode.object([("processedCount", JsonCombinators.Json.Encode.int(processedCount.contents))]))
+            processedCount := processedCount.contents + 1
+            OperationJournal.updateContext(
+              journalId,
+              JsonCombinators.Json.Encode.object([
+                ("processedCount", JsonCombinators.Json.Encode.int(processedCount.contents)),
+              ]),
+            )
 
-                 Promise.resolve(processedItem)
-             })
-         } else {
-             Promise.resolve(processedItem)
-         }
+            Promise.resolve(processedItem)
+          })
+        } else {
+          Promise.resolve(processedItem)
+        }
       })
     },
     (pct, msg) => {
@@ -320,6 +330,13 @@ let handleFingerprinting = (
       ~onRestore=id => GlobalStateBridge.dispatch(RemoveDeletedSceneId(id)),
     )
     let skippedFromFingerprint = Belt.Array.length(results) - Belt.Array.length(uniqueItems)
-    executeProcessingChain(uniqueItems, 6, startTime, updateProgress, skippedFromFingerprint, journalId)
+    executeProcessingChain(
+      uniqueItems,
+      6,
+      startTime,
+      updateProgress,
+      skippedFromFingerprint,
+      journalId,
+    )
   })
 }

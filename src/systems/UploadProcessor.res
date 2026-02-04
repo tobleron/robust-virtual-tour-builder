@@ -57,7 +57,12 @@ let processUploads = (
           OperationJournal.completeOperation(journalId)
           Promise.resolve(emptyResult)
         } else {
-          UploadProcessorLogic.handleFingerprinting(validFiles, startTime, updateProgress, journalId)
+          UploadProcessorLogic.handleFingerprinting(
+            validFiles,
+            startTime,
+            updateProgress,
+            journalId,
+          )
           ->Promise.then(result => {
             OperationJournal.completeOperation(journalId)
             Promise.resolve(result)
