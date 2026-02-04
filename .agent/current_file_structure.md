@@ -7280,6 +7280,12 @@
 │   │   │       ├── RateLimiter.cmj
 │   │   │       ├── RateLimiter.cmt
 │   │   │       ├── RateLimiter.res
+│   │   │       ├── RecoveryManager.ast
+│   │   │       ├── RecoveryManager.bs.js
+│   │   │       ├── RecoveryManager.cmi
+│   │   │       ├── RecoveryManager.cmj
+│   │   │       ├── RecoveryManager.cmt
+│   │   │       ├── RecoveryManager.res
 │   │   │       ├── RequestQueue.ast
 │   │   │       ├── RequestQueue.bs.js
 │   │   │       ├── RequestQueue.cmi
@@ -7807,6 +7813,12 @@
 │   │           ├── ReBindings_v.test.cmj
 │   │           ├── ReBindings_v.test.cmt
 │   │           ├── ReBindings_v.test.res
+│   │           ├── RecoveryManager_v.test.ast
+│   │           ├── RecoveryManager_v.test.bs.js
+│   │           ├── RecoveryManager_v.test.cmi
+│   │           ├── RecoveryManager_v.test.cmj
+│   │           ├── RecoveryManager_v.test.cmt
+│   │           ├── RecoveryManager_v.test.res
 │   │           ├── Reducer_v.test.ast
 │   │           ├── Reducer_v.test.bs.js
 │   │           ├── Reducer_v.test.cmi
@@ -9128,6 +9140,16 @@
 │   │   ├── ReBindings_v.test.cmj
 │   │   ├── ReBindings_v.test.cmt
 │   │   ├── ReBindings_v.test.res
+│   │   ├── RecoveryManager.ast
+│   │   ├── RecoveryManager.cmi
+│   │   ├── RecoveryManager.cmj
+│   │   ├── RecoveryManager.cmt
+│   │   ├── RecoveryManager.res
+│   │   ├── RecoveryManager_v.test.ast
+│   │   ├── RecoveryManager_v.test.cmi
+│   │   ├── RecoveryManager_v.test.cmj
+│   │   ├── RecoveryManager_v.test.cmt
+│   │   ├── RecoveryManager_v.test.res
 │   │   ├── RecoveryPrompt.ast
 │   │   ├── RecoveryPrompt.cmi
 │   │   ├── RecoveryPrompt.cmj
@@ -9927,7 +9949,8 @@
 │   ├── diagnostic.log
 │   ├── error.log
 │   ├── log_changes.txt
-│   └── project-guard.log
+│   ├── project-guard.log
+│   └── telemetry.log
 ├── old_ref
 │   ├── 7aadee4
 │   │   ├── CHANGELOG.md
@@ -11301,22 +11324,9 @@
 │   └── step1_cleanup_notes.md
 ├── playwright-report
 │   ├── data
-│   │   ├── 3f00864756085be1c929cf349e62e2ad73a688ff.webm
-│   │   ├── 519874c90b026e864332369e27b133b93b2bbada.png
-│   │   ├── 61562e80875f64d75dc16c03c6b207705897b369.zip
-│   │   ├── 692bc6a535b796ab01fe3c2a54d0d102938af353.zip
 │   │   ├── 7a33d5db6370b6de345e990751aa1f1da65ad675.png
-│   │   ├── 8809e9d5c44745646525cee4c524c5abe6d28263.webm
-│   │   ├── a90d9b3d9db7c70f00783db6304c9576b39cd2d0.png
-│   │   ├── b2ecdeb6433159754c740b48fc600c003ba43d0a.zip
-│   │   ├── bc44eb891ef4fe5918c6e1904e8db16f7c086194.zip
-│   │   ├── c65d81da8a2cd255000a082f4d252dac71730c2d.webm
-│   │   ├── d181243c3d7f4d67baa470313f4f23ae7fa1decd.webm
-│   │   ├── d49177a291157754f4cfd993fe6c6a1175fddb19.md
-│   │   ├── d7c5efef1b55179c3f5c69668cce59fc60aec2e2.webm
-│   │   ├── ddabecda2cc5cd5cbc956fb1ec8cc11fd91cc444.zip
-│   │   ├── e4e1b68ab558aa49069dc3be0d35a2faa9b5d336.webm
-│   │   └── ec3107c091fcfcfc77d2a552e17decbc43490b34.zip
+│   │   ├── e49b169b97e992df7911d0c503c3e669fd6fc46b.webm
+│   │   └── f78ebd71e14b595dc0d446cb0e20475cfd895c39.zip
 │   ├── index.html
 │   └── trace
 │       ├── assets
@@ -11770,6 +11780,8 @@
 │       ├── ProjectionMath.res
 │       ├── RateLimiter.bs.js
 │       ├── RateLimiter.res
+│       ├── RecoveryManager.bs.js
+│       ├── RecoveryManager.res
 │       ├── RequestQueue.bs.js
 │       ├── RequestQueue.res
 │       ├── Retry.bs.js
@@ -11885,6 +11897,7 @@
 │   │   ├── 1219_BRAINSTORM_RETRY_LOGIC_HANDLERS_DONE.md
 │   │   ├── 1222_COMPLETE_E2E_CRITICAL_PATH_COVERAGE_DONE.md
 │   │   ├── 1226_COMPLETE_OPTIMISTIC_UPDATE_AND_RECOVERY_INTEGRATION.md
+│   │   ├── 1227_IMPLEMENT_PROJECT_SAVE_RECOVERY_DONE.md
 │   │   ├── 900_COMMERCIAL_MIGRATION_MASTER.md
 │   │   ├── 905_migration_telemetry_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
@@ -11897,7 +11910,6 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1227_IMPLEMENT_PROJECT_SAVE_RECOVERY.md
 │   │   ├── 1228_IMPLEMENT_UPLOAD_BATCH_RECOVERY.md
 │   │   ├── 1229_Classify_Ambiguous_Files.md
 │   │   ├── 1230_Fix_Violations_FRONTEND.md
@@ -11908,32 +11920,6 @@
 │   │   └── 1235_Aggregate_Completed_Tasks.md
 │   └── postponed
 ├── test-results
-│   ├── save-load-recovery-Project-30f67-ata-through-save-load-cycle-chromium
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── save-load-recovery-Project-30f67-ata-through-save-load-cycle-firefox
-│   │   ├── error-context.md
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── save-load-recovery-Project-30f67-ata-through-save-load-cycle-webkit
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── upload-link-export-workflo-ab193-full-tour-creation-workflow-chromium
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── upload-link-export-workflo-ab193-full-tour-creation-workflow-firefox
-│   │   ├── error-context.md
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   └── upload-link-export-workflo-ab193-full-tour-creation-workflow-webkit
-│       ├── test-failed-1.png
-│       ├── trace.zip
-│       └── video.webm
 ├── tests
 │   ├── TestRunner.bs.js
 │   ├── TestRunner.res
@@ -12127,6 +12113,8 @@
 │   │   ├── RateLimiter_v.test.res
 │   │   ├── ReBindings_v.test.bs.js
 │   │   ├── ReBindings_v.test.res
+│   │   ├── RecoveryManager_v.test.bs.js
+│   │   ├── RecoveryManager_v.test.res
 │   │   ├── Reducer_v.test.bs.js
 │   │   ├── Reducer_v.test.res
 │   │   ├── RequestQueue_v.test.bs.js
@@ -12298,4 +12286,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-525 directories, 11774 files
+519 directories, 11768 files

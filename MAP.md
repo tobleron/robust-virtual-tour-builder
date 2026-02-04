@@ -192,6 +192,7 @@ This map provides a semantic overview of the project structure to optimize conte
 
 *   [src/utils/PersistenceLayer.res](src/utils/PersistenceLayer.res): Advanced persistence layer with IndexedDB and session fallback. `#utils` `#storage` `#indexeddb`
 *   [src/utils/OperationJournal.res](src/utils/OperationJournal.res): Persistent journal for tracking long-running operations and recovery. `#utils` `#persistence` `#journal`
+*   [src/utils/RecoveryManager.res](src/utils/RecoveryManager.res): Orchestrator for operation recovery handlers and retry logic. `#recovery` `#persistence` `#orchestration`
 *   [src/utils/SessionStore.res](src/utils/SessionStore.res): Session-based storage and state persistence. `#utils` `#storage`
 *   [src/utils/RequestQueue.res](src/utils/RequestQueue.res): Queue management for network requests. `#utils` `#network`
 *   [src/utils/LazyLoad.res](src/utils/LazyLoad.res): Helpers for lazy loading components and assets. `#utils` `#performance`
@@ -285,4 +286,5 @@ This map provides a semantic overview of the project structure to optimize conte
 * [tests/e2e/operation-recovery.spec.ts](tests/e2e/operation-recovery.spec.ts): Verification of interrupted operation recovery prompt. `#testing` `#e2e` `#recovery`
 * [tests/e2e/performance.spec.ts](tests/e2e/performance.spec.ts): Load testing with 200+ scenes and memory leak detection. `#testing` `#e2e` `#performance`
 * [tests/e2e/ai-helper.ts](tests/e2e/ai-helper.ts): Diagnostic helper for AI-observable E2E testing. `#testing` `#utils` `#ai`
+
 
