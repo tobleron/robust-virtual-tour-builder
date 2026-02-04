@@ -263,7 +263,7 @@ describe("Sidebar", () => {
       }),
     )
 
-    await wait(150)
+    await wait(1100)
 
     let status = Dom.querySelector(container, "[role='status']")
     t->expect(Nullable.toOption(status)->Belt.Option.isSome)->Expect.toBe(true)

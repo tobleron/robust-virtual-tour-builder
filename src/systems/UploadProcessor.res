@@ -31,7 +31,7 @@ let processUploads = (
   let journalId = OperationJournal.startOperation(
     ~operation="UploadImages",
     ~context=UploadProcessorLogic.castToJson({"fileCount": Belt.Array.length(files)}),
-    ~retryable=false,
+    ~retryable=true,
   )
 
   Resizer.checkBackendHealth()->Promise.then(isUp => {
@@ -57,7 +57,7 @@ let processUploads = (
           OperationJournal.completeOperation(journalId)
           Promise.resolve(emptyResult)
         } else {
-          UploadProcessorLogic.handleFingerprinting(validFiles, startTime, updateProgress)
+          UploadProcessorLogic.handleFingerprinting(validFiles, startTime, updateProgress, journalId)
           ->Promise.then(result => {
             OperationJournal.completeOperation(journalId)
             Promise.resolve(result)

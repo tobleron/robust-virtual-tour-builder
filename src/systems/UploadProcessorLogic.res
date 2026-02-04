@@ -149,7 +149,14 @@ let finalizeUploads = (
   updateProgress: (float, string, bool, string) => unit,
   skippedCount: int,
 ) => {
+  // NOTE: Scenes are now added incrementally during processing.
+  // We just need to cluster (maybe re-cluster?) and generate report.
+  // For now, we assume incremental clustering was sufficient for persistence.
+
   let existingScenes = GlobalStateBridge.getState().scenes
+
+  // We perform a final cluster pass just to be safe for the report data structure,
+  // but we do NOT dispatch AddScenes again.
   PanoramaClusterer.clusterScenes(
     validProcessed,
     ~existingScenes,
@@ -157,20 +164,10 @@ let finalizeUploads = (
   )->Promise.then(processedWithClusters => {
     updateProgress(98.0, "Updating Sidebar...", true, "Finalizing")
 
-    let jsonPayload = createScenePayload(processedWithClusters)
-    Logger.info(
-      ~module_="UploadLogic",
-      ~message="ADDING_SCENES",
-      ~data=Some({
-        "count": Array.length(jsonPayload),
-      }),
-      (),
-    )
-
+    // Check if we need to set preloading scene (first run)
     let wasEmpty = GlobalStateBridge.getState().activeIndex == -1
-    GlobalStateBridge.dispatch(AddScenes(jsonPayload))
     if wasEmpty {
-      GlobalStateBridge.dispatch(SetPreloadingScene(-1))
+        GlobalStateBridge.dispatch(SetPreloadingScene(-1))
     }
 
     handleExifReport(processedWithClusters, skippedCount)->Promise.then(report => {
@@ -207,6 +204,42 @@ let finalizeUploads = (
   })
 }
 
+let recoverUpload = (entry: OperationJournal.journalEntry) => {
+  let count = switch JsonCombinators.Json.decode(
+    entry.context,
+    JsonCombinators.Json.Decode.object(field =>
+      field.optional("processedCount", JsonCombinators.Json.Decode.int)
+    ),
+  ) {
+  | Ok(Some(c)) => c
+  | _ => 0
+  }
+
+  EventBus.dispatch(
+    ShowModal({
+      title: "Partial Upload Detected",
+      description: Some(
+        "Upload was interrupted. " ++
+        Belt.Int.toString(count) ++ " files were processed. Please select the files again to continue.",
+      ),
+      content: None,
+      buttons: [
+        {
+          label: "Finish Upload",
+          class_: "btn-primary",
+          onClick: () => EventBus.dispatch(TriggerUpload),
+          autoClose: Some(true),
+        },
+      ],
+      icon: Some("alert-circle"),
+      allowClose: Some(true),
+      onClose: None,
+      className: None,
+    }),
+  )
+  Promise.resolve(true)
+}
+
 // Refactored Helper for Finalization
 let executeProcessingChain = (
   uniqueItems: array<uploadItem>,
@@ -214,8 +247,11 @@ let executeProcessingChain = (
   startTime: float,
   updateProgress: (float, string, bool, string) => unit,
   skippedCount: int,
+  journalId: string,
 ) => {
   updateProgress(20.0, "Processing images...", true, "Processing")
+
+  let processedCount = ref(0)
 
   AsyncQueue.execute(
     uniqueItems,
@@ -223,6 +259,24 @@ let executeProcessingChain = (
     (i, item, updateStatus) => {
       updateStatus("Optimizing")
       processItem(i, item, updateStatus)
+      ->Promise.then(processedItem => {
+         if processedItem.error == None {
+             let existingScenes = GlobalStateBridge.getState().scenes
+             PanoramaClusterer.clusterScenes([processedItem], ~existingScenes, ~updateProgress=(_, _, _, _) => ())
+             ->Promise.then(clustered => {
+                 let jsonPayload = createScenePayload(clustered)
+                 GlobalStateBridge.dispatch(AddScenes(jsonPayload))
+                 PersistenceLayer.performSave(GlobalStateBridge.getState())
+
+                 processedCount := processedCount.contents + 1
+                 OperationJournal.updateContext(journalId, JsonCombinators.Json.Encode.object([("processedCount", JsonCombinators.Json.Encode.int(processedCount.contents))]))
+
+                 Promise.resolve(processedItem)
+             })
+         } else {
+             Promise.resolve(processedItem)
+         }
+      })
     },
     (pct, msg) => {
       // Map 0.0-1.0 to 20.0-95.0 range
@@ -252,6 +306,7 @@ let handleFingerprinting = (
   validFiles: array<UploadTypes.file>,
   startTime: float,
   updateProgress: (float, string, bool, string) => unit,
+  journalId: string,
 ) => {
   updateProgress(0.0, "Scanning files...", true, "Fingerprinting")
   FingerprintService.fingerprintFiles(validFiles)->Promise.then(results => {
@@ -265,6 +320,6 @@ let handleFingerprinting = (
       ~onRestore=id => GlobalStateBridge.dispatch(RemoveDeletedSceneId(id)),
     )
     let skippedFromFingerprint = Belt.Array.length(results) - Belt.Array.length(uniqueItems)
-    executeProcessingChain(uniqueItems, 6, startTime, updateProgress, skippedFromFingerprint)
+    executeProcessingChain(uniqueItems, 6, startTime, updateProgress, skippedFromFingerprint, journalId)
   })
 }

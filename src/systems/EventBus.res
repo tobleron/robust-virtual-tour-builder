@@ -51,6 +51,7 @@ type event =
     )
   | OpenHotspotMenu({"anchor": Dom.element, "hotspot": Types.hotspot, "index": int})
   | ForceHotspotSync
+  | TriggerUpload
 
 type subscription = unit => unit
 

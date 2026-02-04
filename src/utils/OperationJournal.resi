@@ -26,6 +26,7 @@ let startOperation: (~operation: string, ~context: JSON.t, ~retryable: bool) => 
 let completeOperation: string => unit
 let failOperation: (string, string) => unit
 let updateStatus: (string, operationStatus) => unit
+let updateContext: (string, JSON.t) => unit
 let getInterrupted: t => array<journalEntry>
 let getPending: t => array<journalEntry>
 let save: t => Promise.t<unit>
