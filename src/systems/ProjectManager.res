@@ -343,17 +343,19 @@ let saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) =
           } else {
             DownloadSystem.saveBlob(blob, filename)
             Promise.resolve(true)
-          }->Promise.then(success => {
-            if success {
-              Logger.endOperation(
-                ~module_="ProjectManager",
-                ~operation="PROJECT_SAVE",
-                ~data=Some({"durationMs": Date.now() -. saveStartTime}),
-                (),
-              )
-            }
-            Promise.resolve(success)
-          })
+          }->Promise.then(
+            success => {
+              if success {
+                Logger.endOperation(
+                  ~module_="ProjectManager",
+                  ~operation="PROJECT_SAVE",
+                  ~data=Some({"durationMs": Date.now() -. saveStartTime}),
+                  (),
+                )
+              }
+              Promise.resolve(success)
+            },
+          )
         | Error(_) => Promise.resolve(false)
         }
       })

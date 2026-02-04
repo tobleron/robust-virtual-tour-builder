@@ -104,7 +104,9 @@ let make = React.memo(() => {
     Some(() => ReBindings.Window.clearTimeout(timerId))
   }, [localTourName])
 
+  let appearanceTimerRef = React.useRef(Nullable.null)
   let hideTimerRef = React.useRef(Nullable.null)
+  let isBarVisible = React.useRef(false)
 
   React.useEffect0(() => {
     Logger.initialized(~module_="Sidebar")
@@ -112,31 +114,76 @@ let make = React.memo(() => {
     let unsubscribe = EventBus.subscribe(
       event => {
         switch event {
-        | UpdateProcessing(payload) =>
-          switch Nullable.toOption(hideTimerRef.current) {
-          | Some(timerId) =>
-            ReBindings.Window.clearTimeout(timerId)
-            hideTimerRef.current = Nullable.null
-          | None => ()
-          }
+        | UpdateProcessing(payload) => {
+            let wantedActive = payload["active"]
 
-          setProcState(_ => payload)
-
-          if payload["progress"] >= 100.0 && payload["active"] {
-            let timerId = ReBindings.Window.setTimeout(
-              () => {
-                setProcState(
-                  prev => {
-                    let next = Object.assign(Object.make(), prev)
-                    next["active"] = false
-                    next
-                  },
-                )
+            if wantedActive {
+              // Cancel any pending hide
+              switch Nullable.toOption(hideTimerRef.current) {
+              | Some(timerId) =>
+                ReBindings.Window.clearTimeout(timerId)
                 hideTimerRef.current = Nullable.null
-              },
-              3000,
-            )
-            hideTimerRef.current = Nullable.fromOption(Some(timerId))
+              | None => ()
+              }
+
+              if isBarVisible.current {
+                // Already showing, just update
+                setProcState(_ => payload)
+              } else if Nullable.isNullable(appearanceTimerRef.current) {
+                // Not showing, and no timer? Start appearance delay.
+                let tid = ReBindings.Window.setTimeout(
+                  () => {
+                    setProcState(_ => payload)
+                    isBarVisible.current = true
+                    appearanceTimerRef.current = Nullable.null
+                  },
+                  1000,
+                )
+                appearanceTimerRef.current = Nullable.fromOption(Some(tid))
+              }
+            } else {
+              // Operation is finished (Inactive)
+
+              // 1. Cancel any pending appearance
+              switch Nullable.toOption(appearanceTimerRef.current) {
+              | Some(tid) =>
+                ReBindings.Window.clearTimeout(tid)
+                appearanceTimerRef.current = Nullable.null
+              | None => ()
+              }
+
+              // 2. Cancel any pending hide
+              switch Nullable.toOption(hideTimerRef.current) {
+              | Some(tid) =>
+                ReBindings.Window.clearTimeout(tid)
+                hideTimerRef.current = Nullable.null
+              | None => ()
+              }
+
+              if payload["progress"] >= 100.0 && isBarVisible.current {
+                // Done and visible: Victory Lap (Hold 1500ms)
+                setProcState(_ => payload)
+                let tid = ReBindings.Window.setTimeout(
+                  () => {
+                    setProcState(
+                      prev => {
+                        let next = Object.assign(Object.make(), prev)
+                        next["active"] = false
+                        next
+                      },
+                    )
+                    isBarVisible.current = false
+                    hideTimerRef.current = Nullable.null
+                  },
+                  1500,
+                )
+                hideTimerRef.current = Nullable.fromOption(Some(tid))
+              } else {
+                // Error, Cancelled, or was never visible: Instant hide/stay hidden
+                setProcState(_ => payload)
+                isBarVisible.current = false
+              }
+            }
           }
         | _ => ()
         }
@@ -152,13 +199,9 @@ let make = React.memo(() => {
 
   let handleSave = async (state: Types.state, ~signal, ~onCancel) => {
     try {
-      let _ = await ProjectManager.saveProject(
-        state,
-        ~signal,
-        ~onProgress=(pct, _t, msg) => {
-          SidebarLogic.updateProgress(~onCancel, pct->Int.toFloat, msg, true, "Save")
-        },
-      )
+      let _ = await ProjectManager.saveProject(state, ~signal, ~onProgress=(pct, _t, msg) => {
+        SidebarLogic.updateProgress(~onCancel, pct->Int.toFloat, msg, true, "Save")
+      })
       SidebarLogic.updateProgress(100.0, "Saved", false, "")
     } catch {
     | exn => {
@@ -219,9 +262,7 @@ let make = React.memo(() => {
           }
         }}
         onSave={(~signal, ~onCancel) => {
-          enqueueThunk(() =>
-            handleSave(GlobalStateBridge.getState(), ~signal, ~onCancel)
-          )
+          enqueueThunk(() => handleSave(GlobalStateBridge.getState(), ~signal, ~onCancel))
         }}
         onLoad={(~signal as _, ~onCancel as _) => {
           switch Nullable.toOption(projectFileInputRef.current) {
