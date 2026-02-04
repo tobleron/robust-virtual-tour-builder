@@ -139,10 +139,10 @@ let make = React.memo(() => {
         ~data=Some({"index": index}),
         (),
       )
-      dispatch(Actions.DeleteScene(index))
+      SidebarLogic.handleDeleteScene(index)
       EventBus.dispatch(ShowNotification("Scene Removed", #Info, None))
     }
-  , [dispatch])
+  , [])
 
   let handleClearLinks = React.useMemo1(() =>
     index => {

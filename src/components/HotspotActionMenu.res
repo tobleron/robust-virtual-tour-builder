@@ -13,7 +13,7 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
   }
 
   let handleDelete = () => {
-    dispatch(Actions.RemoveHotspot(state.activeIndex, index))
+    HotspotManager.handleDeleteHotspot(state.activeIndex, index)
     EventBus.dispatch(ShowNotification("Link deleted", #Info, None))
     onClose()
   }
@@ -25,8 +25,9 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
       switch targetIdx {
       | Some(idx) =>
         let currentVal = ts.isAutoForward
-        dispatch(
-          Actions.UpdateSceneMetadata(idx, Logger.castToJson({"isAutoForward": !currentVal})),
+        HotspotManager.handleUpdateSceneMetadata(
+          idx,
+          Logger.castToJson({"isAutoForward": !currentVal}),
         )
         EventBus.dispatch(
           ShowNotification(
