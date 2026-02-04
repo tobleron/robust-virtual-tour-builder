@@ -44,6 +44,17 @@
     },
     {
       "Surgical": {
+        "file": "../../src/core/JsonParsers.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.00, Density: 0.48, Coupling: 0.04] | Drag: 5.80 | LOC: 380/300  🎯 Target: Function: `hotspot` (High Local Complexity (11.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 13.801052631578948,
+        "recommended_splits": 2
+      }
+    },
+    {
+      "Surgical": {
         "file": "../../src/systems/ProjectManager.res",
         "action": "De-bloat",
         "reason": "[Nesting: 4.00, Density: 0.33, Coupling: 0.10] | Drag: 8.82 | LOC: 355/300  🎯 Target: Function: `rebuildUrl` (High Local Complexity (8.4). Logic heavy.)",
@@ -58,17 +69,6 @@
         "file": "../../src/utils/RateLimiter.res",
         "pattern": "mutable ",
         "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/JsonParsers.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.00, Density: 0.48, Coupling: 0.04] | Drag: 5.80 | LOC: 380/300  🎯 Target: Function: `hotspot` (High Local Complexity (11.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 13.801052631578948,
-        "recommended_splits": 2
       }
     }
   ]
