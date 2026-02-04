@@ -64,6 +64,7 @@ module InnerApp = {
         <ModalContext />
         <NotificationContext />
         <NotificationLayer />
+        <RecoveryCheck />
       </div>
 
       /* Logic Controllers */
