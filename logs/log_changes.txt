@@ -134,3 +134,4 @@
 [2026-02-03 23:37] v4.8.15 - fix: lock viewer HFOV at 90, disable zoom, and restore app unit tests [TRIPLE]
 [2026-02-04 00:45] v4.8.15 - Merge and verify optimistic-update-rollback: Infrastructure, tests, and MAP.md updates [TRIPLE]
 [2026-02-04 07:17] v4.8.15 - Merge task/1203: Implement Debounce and Rate Limiting for heavy operations [TRIPLE]
+[2026-02-04 07:36] v4.8.15 - Final sync: Implementation of Throttled Action with Abort support and UX refinements [TRIPLE]
