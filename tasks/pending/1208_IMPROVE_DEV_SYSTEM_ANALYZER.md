@@ -157,6 +157,16 @@ let scope = self.scope_stack.last_mut().ok_or_else(|| anyhow!("Empty scope stack
 }
 ```
 
+### G. ID Collision Hardening 🟡 MEDIUM PRIORITY
+
+**Issue**: Race conditions between manual task creation and automated governor scans lead to duplicate task IDs (e.g., two tasks numbered 1218).
+
+**Fix**:
+1. **Centralize**: Move all ID logic to `guard::acquire_next_id`.
+2. **Double-Check**: Ensure `acquire_next_id` scans for the highest ID *immediately* before file creation.
+3. **Atomic Write**: Use a hidden state file `.next_id` in the `tasks/` directory as a secondary lock.
+4. **Collision Detection**: If `id_NNN_*.md` already exists, skip `NNN` and find the next hole.
+
 ---
 
 ## 3. Verification Criteria
@@ -167,6 +177,7 @@ let scope = self.scope_stack.last_mut().ok_or_else(|| anyhow!("Empty scope stack
 - [ ] No `unwrap()` or raw `panic!` in production code paths.
 - [ ] `analyzer_state.json` contains only valid, normalized paths.
 - [ ] Analyzer can run from project root with path overrides.
+- [ ] **Collisions**: Manual creation of `tasks/pending/999_TEST.md` followed by analyzer run correctly generates an ID of `1000`.
 
 ---
 

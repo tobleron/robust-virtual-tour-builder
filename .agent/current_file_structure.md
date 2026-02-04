@@ -9783,8 +9783,7 @@
 │   ├── diagnostic.log
 │   ├── error.log
 │   ├── log_changes.txt
-│   ├── project-guard.log
-│   └── telemetry.log
+│   └── project-guard.log
 ├── old_ref
 │   ├── 7aadee4
 │   │   ├── CHANGELOG.md
@@ -11761,8 +11760,8 @@
 │   │   ├── 1211_Fix_Violations_FRONTEND.md
 │   │   ├── 1212_Surgical_Refactor_CORE_FRONTEND.md
 │   │   ├── 1213_Merge_Folders_FRONTEND.md
-│   │   ├── 1218_BRAINSTORM_RETRY_LOGIC_HANDLERS.md
-│   │   └── 1218_Surgical_Refactor_SYSTEMS_FRONTEND.md
+│   │   ├── 1218_Surgical_Refactor_SYSTEMS_FRONTEND.md
+│   │   └── 1219_BRAINSTORM_RETRY_LOGIC_HANDLERS.md
 │   └── postponed
 ├── test-results
 │   ├── robustness-Application-Rob-2ce67-d-Saving-during-Interaction-chromium
@@ -12139,4 +12138,4 @@
 ├── tmp
 └── vitest.config.mjs
 
-517 directories, 11623 files
+517 directories, 11622 files
