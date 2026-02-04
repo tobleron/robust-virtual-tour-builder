@@ -12,7 +12,7 @@ describe("OperationJournal", () => {
     let context = JsonCombinators.Json.Encode.object([
       ("foo", JsonCombinators.Json.Encode.string("bar")),
     ])
-    let id = startOperation(~operation="TestOp", ~context, ~retryable=true)
+    let id = await startOperation(~operation="TestOp", ~context, ~retryable=true)
 
     let journal = await load()
     let found = Belt.Array.getBy(journal.entries, e => e.id == id)
@@ -26,9 +26,9 @@ describe("OperationJournal", () => {
   testAsync("completes and prunes an operation", async t => {
     await setup()
     let context = JsonCombinators.Json.Encode.null
-    let id = startOperation(~operation="TestOp", ~context, ~retryable=true)
+    let id = await startOperation(~operation="TestOp", ~context, ~retryable=true)
 
-    completeOperation(id)
+    await completeOperation(id)
 
     let journal = await load()
     let found = Belt.Array.getBy(journal.entries, e => e.id == id)
@@ -39,9 +39,9 @@ describe("OperationJournal", () => {
   testAsync("fails an operation and persists failure", async t => {
     await setup()
     let context = JsonCombinators.Json.Encode.null
-    let id = startOperation(~operation="TestOp", ~context, ~retryable=true)
+    let id = await startOperation(~operation="TestOp", ~context, ~retryable=true)
 
-    failOperation(id, "Something went wrong")
+    await failOperation(id, "Something went wrong")
 
     let journal = await load()
     let found = Belt.Array.getBy(journal.entries, e => e.id == id)
@@ -58,7 +58,7 @@ describe("OperationJournal", () => {
   testAsync("getInterrupted returns in-progress operations", async t => {
     await setup()
     let context = JsonCombinators.Json.Encode.null
-    let _ = startOperation(~operation="InterruptedOp", ~context, ~retryable=true)
+    let _ = await startOperation(~operation="InterruptedOp", ~context, ~retryable=true)
 
     let journal = await load()
     let interrupted = getInterrupted(journal)
