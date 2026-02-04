@@ -15,10 +15,35 @@ export async function setupAIObservability(page: Page) {
     console.log(`[AI-DIAGNOSTIC][NET_FAIL] ${request.method()} ${request.url()} - ${request.failure()?.errorText}`);
   });
 
-  // 3. Inject a state-dumping utility if the app allows it
-  // This allows the AI to see the exact ReScript state at the moment of failure
+  // 3. Inject a state-dumping utility and log capture
   await page.addInitScript(() => {
+    // Capture logs for testing verification
+    (window as any).__debugLogs = [];
+    const originalConsoleLog = console.log;
+    const originalConsoleWarn = console.warn;
+    const originalConsoleError = console.error;
+
+    console.log = (...args: any[]) => {
+      (window as any).__debugLogs.push(args.map(a => String(a)).join(' '));
+      originalConsoleLog.apply(console, args);
+    };
+
+    console.warn = (...args: any[]) => {
+      (window as any).__debugLogs.push(args.map(a => String(a)).join(' '));
+      originalConsoleWarn.apply(console, args);
+    };
+
+    console.error = (...args: any[]) => {
+      // Avoid infinite loops if error logging causes errors
+      try {
+         (window as any).__debugLogs.push(args.map(a => String(a)).join(' '));
+      } catch (e) {}
+      originalConsoleError.apply(console, args);
+    };
+
     window.addEventListener('error', (event) => {
+      // Use original console error to avoid double capturing if possible, or just accept it.
+      // Using console.error here will trigger the overridden console.error above.
       console.error('[AI-STATE-DUMP]', {
         message: event.message,
         filename: event.filename,
