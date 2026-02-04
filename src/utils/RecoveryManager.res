@@ -15,7 +15,9 @@ let retry = (entry: journalEntry) => {
     handler(entry)
     ->Promise.then(success => {
       if success {
-        EventBus.dispatch(ShowNotification(entry.operation ++ " recovered successfully", #Success, None))
+        EventBus.dispatch(
+          ShowNotification(entry.operation ++ " recovered successfully", #Success, None),
+        )
         // Mark the old interrupted operation as completed since it has been handled (re-tried)
         OperationJournal.completeOperation(entry.id)
       } else {
@@ -24,12 +26,17 @@ let retry = (entry: journalEntry) => {
       Promise.resolve()
     })
     ->Promise.catch(e => {
-        let (msg, _) = Logger.getErrorDetails(e)
-        EventBus.dispatch(ShowNotification("Recovery Error: " ++ msg, #Error, None))
-        Promise.resolve()
+      let (msg, _) = Logger.getErrorDetails(e)
+      EventBus.dispatch(ShowNotification("Recovery Error: " ++ msg, #Error, None))
+      Promise.resolve()
     })
   | None =>
-    Logger.warn(~module_="RecoveryManager", ~message="No handler registered", ~data={"operation": entry.operation}, ())
+    Logger.warn(
+      ~module_="RecoveryManager",
+      ~message="No handler registered",
+      ~data={"operation": entry.operation},
+      (),
+    )
     EventBus.dispatch(ShowNotification("No handler for " ++ entry.operation, #Error, None))
     Promise.resolve()
   }

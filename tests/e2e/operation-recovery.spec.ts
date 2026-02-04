@@ -15,25 +15,29 @@ test.describe('Operation Recovery', () => {
 
   test('should show recovery prompt after interrupted save', async ({ page }) => {
     // 1. Mock slow save
-    await page.route('**/api/project/save/*', async route => {
-      // Never fulfill, just hang to simulate interruption
-      await new Promise(r => setTimeout(r, 10000));
+    await page.route('**/api/project/save', async route => {
+      // Never fulfill, just hang to simulate interruption (longer than the wait)
+      await new Promise(r => setTimeout(r, 20000));
     });
 
-    // 2. Trigger save (e.g. by deleting a scene which triggers auto-save via optimistic action)
-    const sceneItems = page.locator('.scene-item');
-    expect(await sceneItems.count()).toBeGreaterThan(0);
+    // 2. Trigger manual save (which uses the journal)
+    const saveBtn = page.getByRole('button', { name: 'Save' });
+    await expect(saveBtn).toBeVisible();
+    await saveBtn.click();
 
-    await sceneItems.first().locator('button[aria-label^="Actions for"]').click();
-    await page.getByText('Remove Scene').click();
+    // Wait for the 2000ms debounce in SidebarActions to trigger the actual save
+    await page.waitForTimeout(3000);
 
     // 3. Reload page immediately
     await page.reload();
 
     // 4. Expect recovery prompt
-    await expect(page.getByText('Interrupted Operations')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Interrupted Operations Detected')).toBeVisible({ timeout: 15000 });
 
     // 5. Dismiss
-    await page.getByText('Dismiss All').click();
+    await page.getByRole('button', { name: 'Dismiss' }).click();
+
+    // 6. Verify prompt is gone
+    await expect(page.getByText('Interrupted Operations Detected')).toBeHidden();
   });
 });
