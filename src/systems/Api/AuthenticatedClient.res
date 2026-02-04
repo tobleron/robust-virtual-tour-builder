@@ -21,9 +21,12 @@ type response = {
   statusText: string,
   json: unit => Promise.t<JSON.t>,
   text: unit => Promise.t<string>,
+  blob: unit => Promise.t<Blob.t>,
 }
 
 @val external fetch: (string, 'options) => Promise.t<response> = "fetch"
+
+external castBody: 'a => JSON.t = "%identity"
 
 let circuitBreaker = CircuitBreaker.make()
 
@@ -39,7 +42,14 @@ let prepareRequestBody = (body: option<JSON.t>, headers: Dict.t<string>) => {
   }
 }
 
-let request = async (url, ~method="GET", ~body: option<JSON.t>=?, ~headers=Dict.make(), ()) => {
+let request = async (
+  url,
+  ~method="GET",
+  ~body: option<JSON.t>=?,
+  ~formData: option<FormData.t>=?,
+  ~headers=Dict.make(),
+  (),
+) => {
   if !CircuitBreaker.canExecute(circuitBreaker) {
     Logger.warn(~module_="AuthenticatedClient", ~message="CIRCUIT_OPEN", ~data=None, ())
     EventBus.dispatch(
@@ -70,7 +80,11 @@ let request = async (url, ~method="GET", ~body: option<JSON.t>=?, ~headers=Dict.
   }
   Dict.set(headers, "X-Request-ID", requestId)
 
-  let bodyVal = prepareRequestBody(body, headers)
+  let bodyVal = switch (body, formData) {
+  | (Some(b), _) => prepareRequestBody(Some(b), headers)->Option.map(castBody)
+  | (None, Some(f)) => Some(castBody(f))
+  | (None, None) => None
+  }
 
   let options = {
     "method": method,
@@ -120,6 +134,7 @@ let requestWithRetry = async (
   url,
   ~method="GET",
   ~body: option<JSON.t>=?,
+  ~formData: option<FormData.t>=?,
   ~headers=Dict.make(),
   ~retryConfig: option<Retry.config>=?,
   (),
@@ -129,7 +144,7 @@ let requestWithRetry = async (
   let result = await Retry.execute(
     ~fn=async (~signal as _) => {
       try {
-        let res = await request(url, ~method, ~body?, ~headers, ())
+        let res = await request(url, ~method, ~body?, ~formData?, ~headers, ())
         Ok(res)
       } catch {
       | HttpError(status, text) => Error(`HttpError: ${Belt.Int.toString(status)} ${text}`)
