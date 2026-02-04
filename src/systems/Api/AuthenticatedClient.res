@@ -112,3 +112,56 @@ let request = async (url, ~method="GET", ~body: option<JSON.t>=?, ~headers=Dict.
 
   response
 }
+
+let requestWithRetry = async (
+  url,
+  ~method="GET",
+  ~body: option<JSON.t>=?,
+  ~headers=Dict.make(),
+  ~retryConfig: option<Retry.config>=?,
+  (),
+) => {
+  let controller = ReBindings.AbortController.newAbortController()
+
+  let result = await Retry.execute(
+    ~fn=async (~signal as _) => {
+      try {
+        let res = await request(url, ~method, ~body=?body, ~headers, ())
+        Ok(res)
+      } catch {
+      | HttpError(status, text) =>
+        Error(`HttpError: ${Belt.Int.toString(status)} ${text}`)
+      | JsExn(e) =>
+        Error(JsExn.message(e)->Option.getOr("Unknown Error"))
+      | _ => Error("Unknown Error")
+      }
+    },
+    ~signal=ReBindings.AbortController.signal(controller),
+    ~config=?retryConfig,
+    ~onRetry=(attempt, error, delay) => {
+      if attempt > 1 {
+        EventBus.dispatch(
+          ShowNotification(
+            `Retrying request... (attempt ${Belt.Int.toString(attempt)})`,
+            #Info,
+            None,
+          ),
+        )
+      }
+      Logger.debug(
+        ~module_="AuthenticatedClient",
+        ~message="RETRY_ATTEMPT",
+        ~data=Some(
+          JsonCombinators.Json.Encode.object([
+            ("attempt", JsonCombinators.Json.Encode.int(attempt)),
+            ("error", JsonCombinators.Json.Encode.string(error)),
+            ("delayMs", JsonCombinators.Json.Encode.int(delay)),
+          ]),
+        ),
+        (),
+      )
+    },
+  )
+
+  result
+}

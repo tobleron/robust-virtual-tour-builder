@@ -60,3 +60,20 @@ let schedule = (task: unit => Promise.t<'a>): Promise.t<'a> => {
     process()
   })
 }
+
+let scheduleWithRetry = (
+  ~task: unit => Promise.t<result<'a, string>>,
+  ~retryConfig: option<Retry.config>=?,
+  ~onRetry: option<(int, string, int) => unit>=?,
+) => {
+  schedule(() => {
+    let controller = ReBindings.AbortController.newAbortController()
+
+    Retry.execute(
+      ~fn=(~signal as _) => task(),
+      ~signal=ReBindings.AbortController.signal(controller),
+      ~config=?retryConfig,
+      ~onRetry=?onRetry
+    )
+  })
+}
