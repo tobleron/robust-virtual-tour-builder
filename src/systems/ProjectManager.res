@@ -369,13 +369,13 @@ let saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) =
             },
           )
         | Error(msg) => {
-          if String.includes(msg, "AbortError") {
-            OperationJournal.updateStatus(journalId, Cancelled)
-          } else {
-            OperationJournal.failOperation(journalId, msg)
+            if String.includes(msg, "AbortError") {
+              OperationJournal.updateStatus(journalId, Cancelled)
+            } else {
+              OperationJournal.failOperation(journalId, msg)
+            }
+            Promise.resolve(false)
           }
-          Promise.resolve(false)
-        }
         }
       })
     })

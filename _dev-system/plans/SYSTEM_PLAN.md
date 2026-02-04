@@ -9,8 +9,8 @@
 ---
 
 ## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (2)
-- [ ] `../../src/hooks/UseThrottledAction.res`
 - [ ] `../../src/hooks/UseIsInteractionPermitted.res`
+- [ ] `../../src/hooks/UseThrottledAction.res`
 
 ---
 
@@ -18,5 +18,5 @@
 ### Merge Folder: `src/hooks`
 - **Reason:** Recursive Feature Pod: 2 files in subtree sum to 85 LOC (fits in context). Max Drag: 9.24
 - **Files:**
-  - `src/hooks/../../src/hooks/UseThrottledAction.res`
   - `src/hooks/../../src/hooks/UseIsInteractionPermitted.res`
+  - `src/hooks/../../src/hooks/UseThrottledAction.res`

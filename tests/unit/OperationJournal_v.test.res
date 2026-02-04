@@ -7,10 +7,11 @@ let setup = async () => {
 }
 
 describe("OperationJournal", () => {
-
   testAsync("starts and persists an operation", async t => {
     await setup()
-    let context = JsonCombinators.Json.Encode.object([("foo", JsonCombinators.Json.Encode.string("bar"))])
+    let context = JsonCombinators.Json.Encode.object([
+      ("foo", JsonCombinators.Json.Encode.string("bar")),
+    ])
     let id = startOperation(~operation="TestOp", ~context, ~retryable=true)
 
     let journal = await load()
@@ -63,8 +64,8 @@ describe("OperationJournal", () => {
     let interrupted = getInterrupted(journal)
 
     t->expect(Array.length(interrupted))->Expect.toBe(1)
-    t->expect(
-      (interrupted->Belt.Array.get(0)->Belt.Option.getExn).operation,
-    )->Expect.toBe("InterruptedOp")
+    t
+    ->expect((interrupted->Belt.Array.get(0)->Belt.Option.getExn).operation)
+    ->Expect.toBe("InterruptedOp")
   })
 })

@@ -184,7 +184,7 @@ let init = async () => {
           EventBus.dispatch(CloseModal)
         }
 
-        let retryAll = (entries) => {
+        let retryAll = entries => {
           Logger.info(
             ~module_="Main",
             ~message="RETRY_OPERATIONS",

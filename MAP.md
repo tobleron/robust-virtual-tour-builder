@@ -277,7 +277,7 @@ This map provides a semantic overview of the project structure to optimize conte
 
 
 ## 🆕 Unmapped Modules
+* [src/components/RecoveryPrompt.res](src/components/RecoveryPrompt.res): New module detected. Please classify. #new
 ### 🪝 React Hooks
 * [src/hooks/UseIsInteractionPermitted.res](src/hooks/UseIsInteractionPermitted.res): Logic for determining if user interactions are allowed based on state (linking, simulation, etc.). `#hooks` `#logic` `#interaction`
 * [src/hooks/UseThrottledAction.res](src/hooks/UseThrottledAction.res): Hook combining debounce and rate limiting for UI actions. `#hooks` `#logic` `#interaction`
-
