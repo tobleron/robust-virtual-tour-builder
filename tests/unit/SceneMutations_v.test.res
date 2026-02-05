@@ -52,7 +52,12 @@ describe("SceneMutations", () => {
     let s1 = createMockScene(~id="s1", ~name="scene1.webp", ())
     let h1 = createMockHotspot(~id="h1", ~target="scene1.webp", ())
     let s2 = createMockScene(~id="s2", ~name="scene2.webp", ~hotspots=[h1], ())
-    let state = createMockState(~scenes=[s1, s2], ~activeIndex=1, ())
+    let state = createMockState(
+      ~scenes=[s1, s2],
+      ~activeIndex=1,
+      ~appMode=InteractiveAuthoring(Idle),
+      (),
+    )
 
     let result = handleDeleteScene(state, 0)
 
@@ -69,7 +74,12 @@ describe("SceneMutations", () => {
     let s0 = createMockScene(~id="0", ())
     let s1 = createMockScene(~id="1", ())
     let s2 = createMockScene(~id="2", ())
-    let state = createMockState(~scenes=[s0, s1, s2], ~activeIndex=1, ())
+    let state = createMockState(
+      ~scenes=[s0, s1, s2],
+      ~activeIndex=1,
+      ~appMode=InteractiveAuthoring(Idle),
+      (),
+    )
 
     // Move 1 to end: [0, 2, 1]
     let result = handleReorderScenes(state, 1, 2)

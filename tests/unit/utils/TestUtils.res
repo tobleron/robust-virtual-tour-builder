@@ -65,6 +65,7 @@ let createMockState = (
   ~activeIndex=-1,
   ~tourName="Test Tour",
   ~lastUsedCategory="outdoor",
+  ~appMode=Initializing,
   (),
 ) => {
   {
@@ -73,6 +74,7 @@ let createMockState = (
     activeIndex,
     tourName,
     lastUsedCategory,
+    appMode,
   }
 }
 

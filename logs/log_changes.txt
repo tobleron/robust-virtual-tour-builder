@@ -184,3 +184,4 @@ Recommendation: Approve for commercial release after completing Task 1222 [TRIPL
 [2026-02-05 12:59] v4.21.0 - Add comprehensive task for fixing black image persistence issue (Task 1249) [TRIPLE]
 [2026-02-05 14:05] v4.23.0 - Fix black image bug: Align Upload keys with Reducer, add log cleanup & telemetry [TRIPLE]
 [2026-02-05 14:58] v4.23.1 - Fix duplicate detection to prioritize deleted scenes for re-upload
+[2026-02-05 17:37] v4.24.0 - Implement FSM-based state management and remove InteractionQueue [TRIPLE]

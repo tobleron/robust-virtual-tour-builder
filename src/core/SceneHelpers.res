@@ -42,26 +42,18 @@ let parseScene = (dataJson: JSON.t): scene => {
   }
 }
 
-let parseProject = (projectDataJson: JSON.t): state => {
+let parseProject = (projectDataJson: JSON.t): result<project, string> => {
   switch JsonCombinators.Json.decode(projectDataJson, JsonParsers.Domain.project) {
-  | Ok(pd) => {
-      let scenes = pd.scenes->Belt.Array.map(sanitizeScene)
-      {
-        ...State.initialState,
-        tourName: pd.tourName,
-        scenes,
-        activeIndex: if Belt.Array.length(scenes) > 0 {
-          0
-        } else {
-          -1
-        },
-        lastUsedCategory: pd.lastUsedCategory,
-        exifReport: pd.exifReport,
-        sessionId: pd.sessionId,
-        deletedSceneIds: pd.deletedSceneIds,
-        timeline: pd.timeline,
-      }
-    }
+  | Ok(pd) =>
+    Ok({
+      tourName: pd.tourName,
+      scenes: pd.scenes->Belt.Array.map(sanitizeScene),
+      lastUsedCategory: pd.lastUsedCategory,
+      exifReport: pd.exifReport,
+      sessionId: pd.sessionId,
+      deletedSceneIds: pd.deletedSceneIds,
+      timeline: pd.timeline,
+    })
   | Error(msg) =>
     Logger.error(
       ~module_="SceneHelpersParser",
@@ -69,6 +61,6 @@ let parseProject = (projectDataJson: JSON.t): state => {
       ~data=Logger.castToJson({"error": msg}),
       (),
     )
-    State.initialState
+    Error(msg)
   }
 }

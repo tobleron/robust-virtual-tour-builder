@@ -2,15 +2,8 @@
 open Types
 
 @react.component
-let make = React.memo((~activeIndex, ~scenes) => {
-  let quality = if activeIndex >= 0 {
-    switch Belt.Array.get(scenes, activeIndex) {
-    | Some(s) => s.quality
-    | None => None
-    }
-  } else {
-    None
-  }
+let make = React.memo((~activeIndex: int, ~scenes: array<scene>) => {
+  let quality = scenes->Belt.Array.get(activeIndex)->Option.flatMap(s => s.quality)
 
   let badges = switch quality {
   | Some(qJson) =>

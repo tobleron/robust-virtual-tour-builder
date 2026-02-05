@@ -6,15 +6,12 @@ let initialState: state = {
   activeIndex: -1,
   activeYaw: 0.0,
   activePitch: 0.0,
+  appMode: Initializing,
   isLinking: false,
   transition: {
     type_: Fade,
     targetHotspotIndex: -1,
     fromSceneName: None,
-  },
-  lastUploadReport: {
-    success: [],
-    skipped: [],
   },
   exifReport: None,
   linkDraft: None,
