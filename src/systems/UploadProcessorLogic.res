@@ -254,6 +254,28 @@ let executeProcessingChain = (
   updateProgress(20.0, "Processing images...", true, "Processing")
 
   let processedCount = ref(0)
+  let buffer = ref([])
+  let lastJournalUpdate = ref(Date.now())
+
+  let flushBuffer = () => {
+    let itemsToFlush = buffer.contents
+    if Belt.Array.length(itemsToFlush) > 0 {
+      buffer := []
+      let existingScenes = GlobalStateBridge.getState().scenes
+      PanoramaClusterer.clusterScenes(
+        itemsToFlush,
+        ~existingScenes,
+        ~updateProgress=(_, _, _, _) => (),
+      )->Promise.then(clustered => {
+        let jsonPayload = createScenePayload(clustered)
+        GlobalStateBridge.dispatch(AddScenes(jsonPayload))
+        PersistenceLayer.performSave(GlobalStateBridge.getState())
+        Promise.resolve()
+      })
+    } else {
+      Promise.resolve()
+    }
+  }
 
   AsyncQueue.execute(
     uniqueItems,
@@ -262,25 +284,29 @@ let executeProcessingChain = (
       updateStatus("Optimizing")
       processItem(i, item, updateStatus)->Promise.then(processedItem => {
         if processedItem.error == None {
-          let existingScenes = GlobalStateBridge.getState().scenes
-          PanoramaClusterer.clusterScenes([processedItem], ~existingScenes, ~updateProgress=(
-            _,
-            _,
-            _,
-            _,
-          ) => ())->Promise.then(clustered => {
-            let jsonPayload = createScenePayload(clustered)
-            GlobalStateBridge.dispatch(AddScenes(jsonPayload))
-            PersistenceLayer.performSave(GlobalStateBridge.getState())
+          buffer := Belt.Array.concat(buffer.contents, [processedItem])
+          processedCount := processedCount.contents + 1
 
-            processedCount := processedCount.contents + 1
+          let now = Date.now()
+          let shouldUpdateJournal = now -. lastJournalUpdate.contents > 1000.0
+
+          let journalPromise = if shouldUpdateJournal {
+            lastJournalUpdate := now
             OperationJournal.updateContext(
               journalId,
               JsonCombinators.Json.Encode.object([
                 ("processedCount", JsonCombinators.Json.Encode.int(processedCount.contents)),
               ]),
-            )->Promise.then(() => Promise.resolve(processedItem))
-          })
+            )
+          } else {
+            Promise.resolve()
+          }
+
+          if Belt.Array.length(buffer.contents) >= 5 {
+            flushBuffer()->Promise.then(() => journalPromise)->Promise.then(() => Promise.resolve(processedItem))
+          } else {
+            journalPromise->Promise.then(() => Promise.resolve(processedItem))
+          }
         } else {
           Promise.resolve(processedItem)
         }
@@ -292,21 +318,23 @@ let executeProcessingChain = (
       updateProgress(scaledPct, msg, true, "Processing")
     },
   )->Promise.then(processedItems => {
-    let validProcessed = Belt.Array.keep(processedItems, i => i.error == None)
-    if Belt.Array.length(validProcessed) == 0 && Belt.Array.length(uniqueItems) > 0 {
-      Utils.notify("All uploads failed.", "error")
-      Promise.resolve(
-        (
-          {
-            qualityResults: [],
-            duration: "0.0",
-            report: {success: [], skipped: []},
-          }: UploadTypes.processResult
-        ),
-      )
-    } else {
-      finalizeUploads(validProcessed, startTime, updateProgress, skippedCount)
-    }
+    flushBuffer()->Promise.then(() => {
+      let validProcessed = Belt.Array.keep(processedItems, i => i.error == None)
+      if Belt.Array.length(validProcessed) == 0 && Belt.Array.length(uniqueItems) > 0 {
+        Utils.notify("All uploads failed.", "error")
+        Promise.resolve(
+          (
+            {
+              qualityResults: [],
+              duration: "0.0",
+              report: {success: [], skipped: []},
+            }: UploadTypes.processResult
+          ),
+        )
+      } else {
+        finalizeUploads(validProcessed, startTime, updateProgress, skippedCount)
+      }
+    })
   })
 }
 
