@@ -152,6 +152,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/components/FloorNavigation.res](src/components/FloorNavigation.res): Interactive floor and level switcher for the viewer HUD. `#ui` `#navigation`
 *   [src/components/UtilityBar.res](src/components/UtilityBar.res): Top-level action bar for viewer tools and settings. `#ui` `#hud`
 *   [src/components/VisualPipeline.res](src/components/VisualPipeline.res): Consolidated visualizer pipeline module. `#ui` `#visual-pipeline` `#logic` `#rendering`
+    *   [src/components/VisualPipeline/VisualPipelineStyles.res](src/components/VisualPipeline/VisualPipelineStyles.res): CSS-in-JS definitions for the visual pipeline. `#styling`
 *   [src/components/SnapshotOverlay.res](src/components/SnapshotOverlay.res): Visual transition "flash" layer. `#ui` `#transition`
 *   [src/components/NotificationLayer.res](src/components/NotificationLayer.res): Centralized notification and processing status layer. `#ui` `#notifications`
 *   [src/components/Sidebar.res](src/components/Sidebar.res): Consolidated sidebar module for project management and UI. `#sidebar` `#scene-management` `#ui` `#logic`
@@ -178,6 +179,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/components/PreviewArrow.res](src/components/PreviewArrow.res): Visual indicator for navigation previews. `#ui` `#navigation`
 *   [src/components/QualityIndicator.res](src/components/QualityIndicator.res): Visual badge for image quality scores. `#ui` `#quality`
 *   [src/components/RecoveryPrompt.res](src/components/RecoveryPrompt.res): UI component for displaying interrupted operations and recovery options. `#ui` `#recovery` `#persistence`
+*   [src/components/RecoveryCheck.res](src/components/RecoveryCheck.res): Headless recovery orchestrator that checks for interrupted operations on startup. `#ui` `#recovery` `#persistence` `#orchestration`
 *   [src/components/ReturnPrompt.res](src/components/ReturnPrompt.res): Confirmation dialog for unsaved changes or exits. `#ui` `#dialog`
 *   [src/components/Tooltip.res](src/components/Tooltip.res): Accessible and styled hover tooltips. `#ui` `#accessibility`
 *   [src/components/UploadReport.res](src/components/UploadReport.res): Detailed report UI for batch upload results. `#ui` `#reporting` `#upload`
@@ -186,8 +188,6 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/components/ViewerManager.res](src/components/ViewerManager.res): Lightweight facade orchestrating viewer logic. `#rendering` `#orchestration` `#facade`
     *   [src/components/ViewerManagerLogic.res](src/components/ViewerManagerLogic.res): Core logic hooks for viewer initialization, scene loading, and sync. `#logic` `#hooks`
     *   [src/components/ViewerManager/ViewerManagerLifecycle.res](src/components/ViewerManager/ViewerManagerLifecycle.res): Lifecycle hooks for stage events and global UI state. `#logic` `#hooks`
-*   [src/components/VisualPipeline.res](src/components/VisualPipeline.res): Consolidated visualizer pipeline module. `#ui` `#visual-pipeline` `#logic` `#rendering`
-    * [src/components/VisualPipeline/VisualPipelineStyles.res](src/components/VisualPipeline/VisualPipelineStyles.res): CSS-in-JS definitions for the visual pipeline. `#styling`
 *   [src/components/ViewerSnapshot.res](src/components/ViewerSnapshot.res): UI for triggering and managing viewer captures. `#ui` `#snapshot`
 ### 🪝 React Hooks
 
@@ -288,4 +288,4 @@ This map provides a semantic overview of the project structure to optimize conte
 
 
 
-## 🆕 Unmapped Modules
+

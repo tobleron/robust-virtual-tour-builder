@@ -60,7 +60,8 @@ let extractMetadata = (file: File.t): Promise.t<apiResult<metadataResponse>> => 
       ~method="POST",
       ~formData,
       (),
-    )->Promise.then(resultResponse => {
+    )
+    ->Promise.then(resultResponse => {
       switch resultResponse {
       | Retry.Success(response, _) =>
         response.json()
@@ -114,7 +115,8 @@ let processImageFull = (
       ~method="POST",
       ~formData,
       (),
-    )->Promise.then(resultResponse => {
+    )
+    ->Promise.then(resultResponse => {
       switch resultResponse {
       | Retry.Success(response, _) =>
         response.blob()
@@ -147,7 +149,8 @@ let batchCalculateSimilarity = (pairs: array<similarityPair>): Promise.t<
       ~method="POST",
       ~body=castJson(body),
       (),
-    )->Promise.then(resultResponse => {
+    )
+    ->Promise.then(resultResponse => {
       switch resultResponse {
       | Retry.Success(response, _) =>
         response.json()

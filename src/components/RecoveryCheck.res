@@ -1,5 +1,6 @@
 open EventBus
 open OperationJournal
+open ReBindings
 
 @react.component
 let make = () => {
@@ -23,31 +24,33 @@ let make = () => {
           })
         }
 
-        EventBus.dispatch(
-          ShowModal({
-            title: "Interrupted Operations Detected",
-            description: Some("The app closed unexpectedly while operations were in progress."),
-            content: Some(<RecoveryPrompt entries={interrupted} />),
-            buttons: [
-              {
-                label: "Retry All",
-                class_: "btn-primary",
-                onClick: () => retryAll(interrupted),
-                autoClose: Some(false),
-              },
-              {
-                label: "Dismiss All",
-                class_: "btn-secondary",
-                onClick: () => clearInterrupted(),
-                autoClose: Some(false),
-              },
-            ],
-            icon: Some("alert-triangle"),
-            allowClose: Some(true),
-            onClose: None,
-            className: None,
-          }),
-        )
+        let _ = Window.setTimeout(() => {
+          EventBus.dispatch(
+            ShowModal({
+              title: "Interrupted Operations Detected",
+              description: Some("The app closed unexpectedly while operations were in progress."),
+              content: Some(<RecoveryPrompt entries={interrupted} />),
+              buttons: [
+                {
+                  label: "Retry All",
+                  class_: "btn-primary",
+                  onClick: () => retryAll(interrupted),
+                  autoClose: Some(false),
+                },
+                {
+                  label: "Dismiss",
+                  class_: "btn-secondary",
+                  onClick: () => clearInterrupted(),
+                  autoClose: Some(false),
+                },
+              ],
+              icon: Some("alert-triangle"),
+              allowClose: Some(true),
+              onClose: None,
+              className: None,
+            }),
+          )
+        }, 500)
       }
     }
 

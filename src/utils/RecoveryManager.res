@@ -19,8 +19,7 @@ let retry = (entry: journalEntry) => {
           ShowNotification(entry.operation ++ " recovered successfully", #Success, None),
         )
         // Mark the old interrupted operation as completed since it has been handled (re-tried)
-        OperationJournal.completeOperation(entry.id)
-        ->Promise.then(() => Promise.resolve())
+        OperationJournal.completeOperation(entry.id)->Promise.then(() => Promise.resolve())
       } else {
         EventBus.dispatch(ShowNotification("Failed to recover " ++ entry.operation, #Error, None))
         Promise.resolve()

@@ -12,5 +12,5 @@ E2E test `tests/e2e/error-recovery.spec.ts` failure: `Browser refresh during sav
 - Relevant Modules: `src/utils/RecoveryManager.res`, `src/components/RecoveryPrompt.res`, `src/utils/OperationJournal.res`.
 
 ## Acceptance Criteria
-- [ ] The recovery modal is shown on startup if an interrupted operation is detected in the journal.
-- [ ] Corresponding test in `error-recovery.spec.ts` passes.
+- [x] The recovery modal is shown on startup if an interrupted operation is detected in the journal.
+- [x] Corresponding test in `error-recovery.spec.ts` passes.

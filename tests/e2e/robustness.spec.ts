@@ -31,6 +31,13 @@ test.describe('Application Robustness', () => {
       await route.fulfill({ status: 200, json: jsonResponse });
     });
 
+    // Mock save endpoint
+    await page.route('**/api/project/save', async route => {
+      // Simulate slow save for interruption tests
+      await new Promise(resolve => setTimeout(resolve, 5000));
+      await route.fulfill({ status: 200, body: '{}' });
+    });
+
     // Mock telemetry
     await page.route('**/api/telemetry/**', async route => {
       await route.fulfill({ status: 200 });
@@ -46,6 +53,8 @@ test.describe('Application Robustness', () => {
     const startBtn = page.getByRole('button', { name: /Start Building|Close/i });
     await expect(startBtn).toBeVisible({ timeout: 60000 });
     await startBtn.click();
+    // Wait for project to be loaded (scenes to appear)
+    await expect(page.locator('.scene-item, [role="button"]:has-text("#")').first()).toBeVisible({ timeout: 10000 });
   });
 
   test.describe('State Machine', () => {
@@ -151,7 +160,7 @@ test.describe('Application Robustness', () => {
       await saveBtn.click();
 
       // Immediately refresh (simulate crash)
-      await page.waitForTimeout(500); // Wait for Journal write
+      await page.waitForTimeout(2000); // Wait for Journal write
       await page.reload();
 
       // Expected: Recovery modal appears
@@ -200,14 +209,14 @@ test.describe('Application Robustness', () => {
     test('Rate Limiter Notification', async ({ page }) => {
       const saveBtn = page.getByLabel('Save');
 
-      // Exhaust rate limit (5 calls)
+      // Exhaust rate limit (5 calls). Need to wait for debouncer (2000ms) each time.
       for (let i = 0; i < 6; i++) {
         await saveBtn.click();
-        await page.waitForTimeout(100);
+        await page.waitForTimeout(2100);
       }
 
       // Expected: Rate limit notification shown
-      await expect(page.locator('text=/wait/i')).toBeVisible();
+      await expect(page.locator('text=/Rate limit exceeded/i')).toBeVisible();
     });
 
     test('Operation Cancellation', async ({ page }) => {

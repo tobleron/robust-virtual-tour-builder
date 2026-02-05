@@ -257,7 +257,11 @@ let useHotspotLineLoop = (_state: state, dispatch: action => unit) => {
           lastPitch := p
           lastYaw := y
           lastHfov := h
-          HotspotLine.updateLines(viewer, currentState, ())
+          try {
+            HotspotLine.updateLines(viewer, currentState, ())
+          } catch {
+          | _ => () // Transient error during viewer swap/init is expected
+          }
         }
       | None => ()
       }

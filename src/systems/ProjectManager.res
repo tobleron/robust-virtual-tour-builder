@@ -211,7 +211,6 @@ let saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) =
       }),
       ~retryable=true,
     )->Promise.then(journalId => {
-
       let tourName = if state.tourName == "" {
         "Virtual_Tour"
       } else {
@@ -251,66 +250,80 @@ let saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) =
         }
         progress(0, 100, "Initializing save...")
 
-        Logic.createSavePackage(state, ~signal?, ~onProgress?)->Promise.then(resultRes => {
-          switch resultRes {
-          | Ok(blob) =>
-            if useFileHandle {
-              switch fileHandle {
-              | Some(h) =>
-                DownloadSystem.writeFileToHandle(h, blob)->Promise.then(() => Promise.resolve(true))
-              | None =>
-                // This can only happen if useFileHandle was true but handle was skipped (not AbortError)
+        Logic.createSavePackage(state, ~signal?, ~onProgress?)->Promise.then(
+          resultRes => {
+            switch resultRes {
+            | Ok(blob) =>
+              if useFileHandle {
+                switch fileHandle {
+                | Some(h) =>
+                  DownloadSystem.writeFileToHandle(h, blob)->Promise.then(
+                    () => Promise.resolve(true),
+                  )
+                | None =>
+                  // This can only happen if useFileHandle was true but handle was skipped (not AbortError)
+                  DownloadSystem.saveBlob(blob, filename)
+                  Promise.resolve(true)
+                }
+              } else {
                 DownloadSystem.saveBlob(blob, filename)
                 Promise.resolve(true)
-              }
-            } else {
-              DownloadSystem.saveBlob(blob, filename)
-              Promise.resolve(true)
-            }->Promise.then(
-              success => {
-                if success {
-                  OperationJournal.completeOperation(journalId)
-                  ->Promise.then(() => {
-                    Logger.endOperation(
-                      ~module_="ProjectManager",
-                      ~operation="PROJECT_SAVE",
-                      ~data=Some({"durationMs": Date.now() -. saveStartTime}),
-                      (),
+              }->Promise.then(
+                success => {
+                  if success {
+                    OperationJournal.completeOperation(journalId)->Promise.then(
+                      () => {
+                        Logger.endOperation(
+                          ~module_="ProjectManager",
+                          ~operation="PROJECT_SAVE",
+                          ~data=Some({"durationMs": Date.now() -. saveStartTime}),
+                          (),
+                        )
+                        Promise.resolve(success)
+                      },
                     )
-                    Promise.resolve(success)
-                  })
-                } else {
-                  OperationJournal.failOperation(journalId, "Save failed during file write")
-                  ->Promise.then(() => Promise.resolve(success))
-                }
-              },
-            )
-          | Error(msg) => {
-              if String.includes(msg, "AbortError") {
-                OperationJournal.updateStatus(journalId, Cancelled)
-                ->Promise.then(() => Promise.resolve(false))
+                  } else {
+                    OperationJournal.failOperation(
+                      journalId,
+                      "Save failed during file write",
+                    )->Promise.then(() => Promise.resolve(success))
+                  }
+                },
+              )
+            | Error(msg) => if String.includes(msg, "AbortError") {
+                OperationJournal.updateStatus(journalId, Cancelled)->Promise.then(
+                  () => Promise.resolve(false),
+                )
               } else {
-                OperationJournal.failOperation(journalId, msg)
-                ->Promise.then(() => Promise.resolve(false))
+                OperationJournal.failOperation(journalId, msg)->Promise.then(
+                  () => Promise.resolve(false),
+                )
               }
             }
-          }
-        })
+          },
+        )
       })
       ->Promise.catch(exn => {
         let (msg, _) = Logger.getErrorDetails(exn)
         if String.includes(msg, "AbortError") {
-          OperationJournal.updateStatus(journalId, Cancelled)
-          ->Promise.then(() => {
-            Logger.info(~module_="ProjectManager", ~message="SAVE_CANCELLED_PICKER", ())
-            Promise.resolve(false)
-          })
+          OperationJournal.updateStatus(journalId, Cancelled)->Promise.then(
+            () => {
+              Logger.info(~module_="ProjectManager", ~message="SAVE_CANCELLED_PICKER", ())
+              Promise.resolve(false)
+            },
+          )
         } else {
-          OperationJournal.failOperation(journalId, msg)
-          ->Promise.then(() => {
-            Logger.error(~module_="ProjectManager", ~message="SAVE_FAILED", ~data={"error": msg}, ())
-            Promise.resolve(false)
-          })
+          OperationJournal.failOperation(journalId, msg)->Promise.then(
+            () => {
+              Logger.error(
+                ~module_="ProjectManager",
+                ~message="SAVE_FAILED",
+                ~data={"error": msg},
+                (),
+              )
+              Promise.resolve(false)
+            },
+          )
         }
       })
     })

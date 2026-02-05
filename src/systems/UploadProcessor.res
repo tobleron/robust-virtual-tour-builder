@@ -33,7 +33,6 @@ let processUploads = (
     ~context=UploadProcessorLogic.castToJson({"fileCount": Belt.Array.length(files)}),
     ~retryable=true,
   )->Promise.then(journalId => {
-
     Resizer.checkBackendHealth()->Promise.then(isUp => {
       if !isUp {
         updateProgress(100.0, "Error: Backend Offline", false, "Error")
@@ -41,21 +40,25 @@ let processUploads = (
           "Backend Server Not Connected! Port 8080 is not running.",
           "error",
         )
-        OperationJournal.failOperation(journalId, "Backend Offline")
-        ->Promise.then(() => Promise.resolve(emptyResult))
+        OperationJournal.failOperation(journalId, "Backend Offline")->Promise.then(
+          () => Promise.resolve(emptyResult),
+        )
       } else {
         let startTime = Date.now()
         if Belt.Array.length(files) == 0 {
-          OperationJournal.completeOperation(journalId)
-          ->Promise.then(() => Promise.resolve(emptyResult))
+          OperationJournal.completeOperation(journalId)->Promise.then(
+            () => Promise.resolve(emptyResult),
+          )
         } else {
-          let validFiles = ImageValidator.validateFiles(files, msg =>
-            UploadProcessorLogic.Utils.notify(msg, "warning")
+          let validFiles = ImageValidator.validateFiles(
+            files,
+            msg => UploadProcessorLogic.Utils.notify(msg, "warning"),
           )
           if Belt.Array.length(validFiles) == 0 {
             UploadProcessorLogic.Utils.notify("No valid image files selected!", "error")
-            OperationJournal.completeOperation(journalId)
-            ->Promise.then(() => Promise.resolve(emptyResult))
+            OperationJournal.completeOperation(journalId)->Promise.then(
+              () => Promise.resolve(emptyResult),
+            )
           } else {
             UploadProcessorLogic.handleFingerprinting(
               validFiles,
@@ -63,15 +66,21 @@ let processUploads = (
               updateProgress,
               journalId,
             )
-            ->Promise.then(result => {
-              OperationJournal.completeOperation(journalId)
-              ->Promise.then(() => Promise.resolve(result))
-            })
-            ->Promise.catch(err => {
-              let (msg, _) = Logger.getErrorDetails(err)
-              OperationJournal.failOperation(journalId, msg)
-              ->Promise.then(() => Promise.reject(err))
-            })
+            ->Promise.then(
+              result => {
+                OperationJournal.completeOperation(journalId)->Promise.then(
+                  () => Promise.resolve(result),
+                )
+              },
+            )
+            ->Promise.catch(
+              err => {
+                let (msg, _) = Logger.getErrorDetails(err)
+                OperationJournal.failOperation(journalId, msg)->Promise.then(
+                  () => Promise.reject(err),
+                )
+              },
+            )
           }
         }
       }
