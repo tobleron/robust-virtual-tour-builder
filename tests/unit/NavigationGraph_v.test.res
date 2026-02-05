@@ -64,7 +64,7 @@ describe("NavigationGraph", () => {
       activePitch: 0.0,
       isLinking: false,
       transition: {type_: Cut, targetHotspotIndex: -1, fromSceneName: None},
-      lastUploadReport: {success: [], skipped: []},
+      appMode: Initializing,
       exifReport: None,
       linkDraft: None,
       preloadingSceneIndex: -1,

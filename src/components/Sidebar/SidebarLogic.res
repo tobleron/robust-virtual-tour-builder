@@ -36,6 +36,9 @@ let updateProgress = (~onCancel=() => (), pct, msg, active, phase) => {
       "onCancel": onCancel,
     }),
   )
+  if active {
+    GlobalStateBridge.dispatch(DispatchAppFsmEvent(UploadProgress(pct)))
+  }
 }
 
 let performUpload = async files => {
@@ -54,6 +57,7 @@ let performUpload = async files => {
     let qualityResults = result.qualityResults
     let report = result.report
 
+    GlobalStateBridge.dispatch(DispatchAppFsmEvent(UploadComplete(report, qualityResults)))
     UploadReport.show(report, qualityResults)
     EventBus.dispatch(ShowNotification("Upload Complete", #Success, None))
   } catch {
@@ -68,17 +72,35 @@ let performUpload = async files => {
         "stack": JsExn.stack(obj)->Option.getOr(""),
       }),
     )
+    GlobalStateBridge.dispatch(
+      Actions.DispatchAppFsmEvent(CriticalErrorOccurred("Upload Failed: " ++ msg)),
+    )
     EventBus.dispatch(ShowNotification("Upload failed: " ++ msg, #Error, data))
     updateProgress(0.0, "Error: " ++ msg, false, "")
-  | _ => ()
+  | _ =>
+    GlobalStateBridge.dispatch(
+      Actions.DispatchAppFsmEvent(CriticalErrorOccurred("Unknown Upload Error")),
+    )
   }
 }
 
 let handleUpload = async filesOpt => {
   switch filesOpt {
   | Some(files) if FileList.length(files) > 0 =>
-    EventBus.dispatch(ShowNotification("Upload Started...", #Info, None))
-    await performUpload(files)
+    let state = GlobalStateBridge.getState()
+    // Guard: Only start if not already blocking
+    switch state.appMode {
+    | SystemBlocking(Uploading(_))
+    | SystemBlocking(Summary(_))
+    | SystemBlocking(ProjectLoading(_)) =>
+      EventBus.dispatch(
+        ShowNotification("Please wait for current operation to finish", #Warning, None),
+      )
+    | _ =>
+      GlobalStateBridge.dispatch(DispatchAppFsmEvent(StartUpload))
+      EventBus.dispatch(ShowNotification("Upload Started...", #Info, None))
+      await performUpload(files)
+    }
   | _ => ()
   }
 }
@@ -87,10 +109,12 @@ let handleLoadProject = async (filesOpt, dispatch, _sceneCount, target) => {
   switch filesOpt {
   | Some(files) if FileList.length(files) > 0 =>
     SessionStore.clearState()
-    updateProgress(0.0, "Loading Project...", true, "Loading")
     try {
       switch FileList.item(files, 0) {
       | Some(file) =>
+        dispatch(Actions.DispatchAppFsmEvent(StartProjectLoad({name: File.name(file)})))
+        updateProgress(0.0, "Loading Project...", true, "Loading")
+
         Logger.startOperation(
           ~module_="Sidebar",
           ~operation="PROJECT_LOAD",
@@ -122,9 +146,11 @@ let handleLoadProject = async (filesOpt, dispatch, _sceneCount, target) => {
               (),
             )
             updateProgress(100.0, "Done", false, "")
+            dispatch(Actions.DispatchAppFsmEvent(ProjectLoadComplete))
             EventBus.dispatch(ShowNotification("Project Loaded", #Success, None))
           }
         | Error(msg) => {
+            dispatch(Actions.DispatchAppFsmEvent(ProjectLoadError(msg)))
             EventBus.dispatch(
               ShowNotification(
                 "Load failed: " ++ msg,
@@ -164,25 +190,20 @@ let getProjectData = (state: Types.state) => {
   JsonParsers.Encoders.project(project)
 }
 
-let handleDeleteScene = (index: int) => {
-  InteractionQueue.enqueue(
-    Thunk(
-      async () => {
-        let _ = await OptimisticAction.execute(~action=Actions.DeleteScene(index), ~apiCall=() => {
-          let state = GlobalStateBridge.getState()
-          switch state.sessionId {
-          | Some(sid) =>
-            let projectData = getProjectData(state)
-            Api.ProjectApi.saveProject(sid, projectData)
-          | None => Promise.resolve(Error("No active session"))
-          }
-        })
-      },
-    ),
-  )
+let handleDeleteScene = async (index: int) => {
+  let _ = await OptimisticAction.execute(~action=Actions.DeleteScene(index), ~apiCall=() => {
+    let state = GlobalStateBridge.getState()
+    switch state.sessionId {
+    | Some(sid) =>
+      let projectData = getProjectData(state)
+      Api.ProjectApi.saveProject(sid, projectData)
+    | None => Promise.resolve(Error("No active session"))
+    }
+  })
 }
 
 let handleExport = async (scenes, ~signal, ~onCancel) => {
+  GlobalStateBridge.dispatch(DispatchAppFsmEvent(StartExport))
   updateProgress(~onCancel, 0.0, "Exporting...", true, "Export")
   EventBus.dispatch(ShowNotification("Export Started...", #Info, None))
   try {
@@ -195,12 +216,15 @@ let handleExport = async (scenes, ~signal, ~onCancel) => {
     | Ok() => {
         EventBus.dispatch(ShowNotification("Export complete", #Success, None))
         updateProgress(100.0, "Done", false, "")
+        GlobalStateBridge.dispatch(DispatchAppFsmEvent(ExportComplete))
       }
     | Error("CANCELLED") => {
         Logger.info(~module_="SidebarLogic", ~message="EXPORT_CANCELLED_HANDLED", ())
         updateProgress(0.0, "Cancelled", false, "")
+        GlobalStateBridge.dispatch(DispatchAppFsmEvent(ExportComplete))
       }
     | Error(msg) => {
+        GlobalStateBridge.dispatch(DispatchAppFsmEvent(ExportError(msg)))
         EventBus.dispatch(
           ShowNotification(
             "Export failed: " ++ msg,
@@ -212,6 +236,8 @@ let handleExport = async (scenes, ~signal, ~onCancel) => {
       }
     }
   } catch {
-  | _ => updateProgress(0.0, "Error", false, "")
+  | _ =>
+    GlobalStateBridge.dispatch(DispatchAppFsmEvent(ExportError("Unexpected Error")))
+    updateProgress(0.0, "Error", false, "")
   }
 }

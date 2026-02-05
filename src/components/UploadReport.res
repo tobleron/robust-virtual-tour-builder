@@ -2,11 +2,6 @@
 
 open Types
 
-type qualityItem = {
-  quality: SharedTypes.qualityAnalysis,
-  newName: string,
-}
-
 type qualityGroups = {
   ex: array<qualityItem>,
   md: array<qualityItem>,
@@ -148,6 +143,7 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
       class_: "bg-blue-500/20 text-white hover:bg-blue-500/40",
       onClick: () => {
         let state = GlobalStateBridge.getState()
+        GlobalStateBridge.dispatch(DispatchAppFsmEvent(CloseSummary))
         if Array.length(state.scenes) > 0 {
           GlobalStateBridge.dispatch(Actions.SetActiveScene(0, 0.0, 0.0, None))
         }
@@ -161,7 +157,7 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
       icon: None,
       content: Some(content),
       buttons: [btnDownload, btnStart],
-      onClose: None,
+      onClose: Some(() => GlobalStateBridge.dispatch(DispatchAppFsmEvent(CloseSummary))),
       allowClose: Some(true),
       className: Some("modal-blue"),
     }

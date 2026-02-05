@@ -6,7 +6,8 @@ external makeStyle: {..} => ReactDOM.Style.t = "%identity"
 let make = React.memo(() => {
   let sceneSlice = AppContext.useSceneSlice()
   let uiSlice = AppContext.useUiSlice()
-  let {dispatch, enqueueThunk} = AppContext.useInteractionQueue()
+  let isSystemLocked = AppContext.useIsSystemLocked()
+  let dispatch = AppContext.useAppDispatch()
 
   let (_draggedIndex, setDraggedIndex) = React.useState(_ => None)
 
@@ -87,13 +88,13 @@ let make = React.memo(() => {
         let throttleLimit = 650.0
 
         // Check both time throttle AND queue/app stability
-        if timeDiff < throttleLimit || !InteractionQueue.isAppStable() {
+        if timeDiff < throttleLimit || isSystemLocked {
           Logger.info(
             ~module_="SceneList",
             ~message="SCENE_SWITCH_THROTTLED",
             ~data=Some({
               "timeDiff": timeDiff,
-              "isStable": InteractionQueue.isAppStable(),
+              "isLocked": isSystemLocked,
             }),
             (),
           )
@@ -111,21 +112,17 @@ let make = React.memo(() => {
               lastSwitchTime: now,
             }
 
-          enqueueThunk(
-            async () => {
-              dispatch(Actions.SetNavigationStatus(Types.Idle))
-              if uiSlice.isLinking {
-                dispatch(Actions.StopLinking)
-              }
-              let trans: Types.transition = {
-                type_: Cut,
-                targetHotspotIndex: -1,
-                fromSceneName: None,
-              }
-              dispatch(Actions.SetActiveTimelineStep(None))
-              dispatch(Actions.SetActiveScene(index, 0.0, 0.0, Some(trans)))
-            },
-          )
+          dispatch(Actions.SetNavigationStatus(Types.Idle))
+          if uiSlice.isLinking {
+            dispatch(Actions.StopLinking)
+          }
+          let trans: Types.transition = {
+            type_: Cut,
+            targetHotspotIndex: -1,
+            fromSceneName: None,
+          }
+          dispatch(Actions.SetActiveTimelineStep(None))
+          dispatch(Actions.SetActiveScene(index, 0.0, 0.0, Some(trans)))
         }
       }
     }
@@ -159,7 +156,7 @@ let make = React.memo(() => {
               label: "Delete",
               class_: "bg-red-500/20 text-white hover:bg-red-500/40",
               onClick: () => {
-                SidebarLogic.handleDeleteScene(index)
+                SidebarLogic.handleDeleteScene(index)->ignore
                 EventBus.dispatch(ShowNotification("Scene Removed", #Success, None))
               },
               autoClose: Some(true),

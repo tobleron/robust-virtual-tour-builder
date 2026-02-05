@@ -187,7 +187,7 @@ let finalizeUploads = (
                 },
             )
             ->Option.getOr(SharedTypes.defaultQuality("No quality data"))
-          ({quality: q, newName: File.name(i.original)}: UploadReport.qualityItem)
+          ({quality: q, newName: File.name(i.original)}: Types.qualityItem)
         },
       )
 

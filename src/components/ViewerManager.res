@@ -3,7 +3,7 @@
 @react.component
 let make = () => {
   let state = AppContext.useAppState()
-  let {dispatch} = AppContext.useInteractionQueue()
+  let dispatch = AppContext.useAppDispatch()
 
   // Business Logic Hooks
   ViewerManagerLifecycle.useInitialization()

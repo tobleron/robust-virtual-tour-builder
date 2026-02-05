@@ -51,6 +51,7 @@ type action =
   | SetSessionId(string)
   | SetNavigationFsmState(NavigationFSM.distinctState)
   | DispatchNavigationFsmEvent(NavigationFSM.event)
+  | DispatchAppFsmEvent(AppFSM.event)
 
 let sceneActionToString = (action: action): option<string> =>
   switch action {
@@ -134,6 +135,7 @@ let uiActionToString = (action: action): option<string> =>
   | Reset => Some("Reset")
   | SetExifReport(_) => Some("SetExifReport")
   | SetSessionId(id) => Some(`SetSessionId(${id})`)
+  | DispatchAppFsmEvent(_) => Some("DispatchAppFsmEvent")
   | _ => None
   }
 

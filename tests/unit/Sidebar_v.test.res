@@ -61,6 +61,7 @@ module WrappedSidebar = {
       isLinking: mockState.isLinking,
       isTeasing: mockState.isTeasing,
       linkDraft: mockState.linkDraft,
+      appMode: mockState.appMode,
     }
 
     <AppContext.DispatchProvider value=mockDispatch>
@@ -199,7 +200,7 @@ describe("Sidebar", () => {
       isAutoForward: false,
     }
 
-    let mockState = {...State.initialState, scenes: [scene]}
+    let mockState = {...State.initialState, scenes: [scene], appMode: InteractiveTouring(Idle)}
     let mockDispatch = _ => ()
     GlobalStateBridge.setDispatch(mockDispatch)
     GlobalStateBridge.setState(mockState)
@@ -283,7 +284,7 @@ describe("Sidebar", () => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
-    let mockState = State.initialState
+    let mockState = {...State.initialState, appMode: InteractiveTouring(Idle)}
     let mockDispatch = _ => ()
     GlobalStateBridge.setDispatch(mockDispatch)
     GlobalStateBridge.setState(mockState)
@@ -355,10 +356,8 @@ describe("Sidebar", () => {
       isAutoForward: false,
     }
 
-    let mockState = {...State.initialState, scenes: [scene]}
+    let mockState = {...State.initialState, scenes: [scene], appMode: InteractiveTouring(Idle)}
     let mockDispatch = _ => ()
-    GlobalStateBridge.setDispatch(mockDispatch)
-    GlobalStateBridge.setState(mockState)
     GlobalStateBridge.setDispatch(mockDispatch)
     GlobalStateBridge.setState(mockState)
     let sidebarCmp = await loadSidebar()
@@ -430,7 +429,7 @@ describe("Sidebar", () => {
       isAutoForward: false,
     }
 
-    let mockState = {...State.initialState, scenes: [scene]}
+    let mockState = {...State.initialState, scenes: [scene], appMode: InteractiveTouring(Idle)}
     let mockDispatch = _ => ()
     GlobalStateBridge.setDispatch(mockDispatch)
     GlobalStateBridge.setState(mockState)
@@ -464,7 +463,7 @@ describe("Sidebar", () => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
-    let mockState = State.initialState
+    let mockState = {...State.initialState, appMode: InteractiveTouring(Idle)}
     let mockDispatch = _ => ()
     GlobalStateBridge.setDispatch(mockDispatch)
     GlobalStateBridge.setState(mockState)
