@@ -89,7 +89,7 @@ let rec waitForStability = (startTime: float): Promise.t<unit> => {
   } else {
     let elapsed = Date.now() -. startTime
     if elapsed > Belt.Float.fromInt(maxStabilityWait) {
-      Logger.warn(
+      Logger.error(
         ~module_="InteractionQueue",
         ~message="STABILITY_TIMEOUT",
         ~data=Logger.castToJson({
@@ -105,6 +105,9 @@ let rec waitForStability = (startTime: float): Promise.t<unit> => {
           },
         }),
         (),
+      )
+      EventBus.dispatch(
+        ShowNotification("System unstable. Attempting recovery...", #Warning, None),
       )
       // Force release lock by resolving, effectively ignoring the unstable state
       Promise.resolve()
