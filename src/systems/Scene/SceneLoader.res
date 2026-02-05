@@ -114,6 +114,10 @@ let loadNewScene = (_prevIndex: option<int>, targetIndex: option<int>, ~isAntici
         }
         vp->Option.forEach(
           v => {
+            // Robustness: Always destroy existing instance in this viewport if it exists
+            // before re-initializing to prevent Pannellum instance collisions.
+            v.instance->Option.forEach(i => ViewerSystem.Adapter.destroy(i))
+
             let config = Config.makeSceneConfig(targetScene)
             let newInstance = ViewerSystem.Adapter.initialize(v.containerId, config)
             ViewerSystem.Adapter.setMetaData(newInstance, "sceneId", idToUnknown(targetScene.id))

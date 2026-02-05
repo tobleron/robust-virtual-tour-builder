@@ -262,10 +262,8 @@ let executeProcessingChain = (
     if Belt.Array.length(itemsToFlush) > 0 {
       buffer := []
       let existingScenes = GlobalStateBridge.getState().scenes
-      PanoramaClusterer.clusterScenes(
-        itemsToFlush,
-        ~existingScenes,
-        ~updateProgress=(_, _, _, _) => (),
+      PanoramaClusterer.clusterScenes(itemsToFlush, ~existingScenes, ~updateProgress=(_, _, _, _) =>
+        ()
       )->Promise.then(clustered => {
         let jsonPayload = createScenePayload(clustered)
         GlobalStateBridge.dispatch(AddScenes(jsonPayload))
@@ -303,7 +301,9 @@ let executeProcessingChain = (
           }
 
           if Belt.Array.length(buffer.contents) >= 5 {
-            flushBuffer()->Promise.then(() => journalPromise)->Promise.then(() => Promise.resolve(processedItem))
+            flushBuffer()
+            ->Promise.then(() => journalPromise)
+            ->Promise.then(() => Promise.resolve(processedItem))
           } else {
             journalPromise->Promise.then(() => Promise.resolve(processedItem))
           }
