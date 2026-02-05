@@ -31,6 +31,7 @@ let file = id->map(json => {
   } else if %raw("(t => t instanceof Blob)")(json) {
     Types.Blob(Obj.magic(json))
   } else {
+    Console.warn2("File Decoder Fallback triggered for:", json)
     Types.Url("")
   }
 })

@@ -1,4 +1,5 @@
 {
+  "system": [],
   "rescript": [
     {
       "Violation": {
@@ -7,6 +8,5 @@
         "strategy": ""
       }
     }
-  ],
-  "system": []
+  ]
 }
