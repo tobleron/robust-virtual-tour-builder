@@ -179,15 +179,17 @@ describe("ViewerSnapshot", () => {
 
     // Setup EventBus Listener
     let notificationReceived = ref(false)
-    let unsubscribe = EventBus.subscribe(event => {
-      switch event {
-      | EventBus.ShowNotification(msg, _, _) =>
-        if (msg->String.includes("Please wait")) {
-          notificationReceived := true
+    let unsubscribe = EventBus.subscribe(
+      event => {
+        switch event {
+        | EventBus.ShowNotification(msg, _, _) =>
+          if msg->String.includes("Please wait") {
+            notificationReceived := true
+          }
+        | _ => ()
         }
-      | _ => ()
-      }
-    })
+      },
+    )
 
     // Setup Viewer
     ViewerSystem.Pool.registerInstance("panorama-a", Obj.magic({"id": "mock_viewer"}))

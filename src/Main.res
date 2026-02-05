@@ -178,7 +178,6 @@ let init = async () => {
 
       let _recovered = await PersistenceLayer.checkRecovery()
 
-
       /*
       switch recovered {
       | Some(session) =>

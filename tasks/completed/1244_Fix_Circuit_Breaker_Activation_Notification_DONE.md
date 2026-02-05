@@ -11,5 +11,5 @@ Ensure the circuit breaker provides consistent feedback when active and doesn't 
 - Update `AuthenticatedClient.request` to dispatch a notification if a request is blocked while the breaker is `Open`, or ensure the initial error message is persistent enough for the user to understand why buttons are non-responsive.
 
 ## Acceptance Criteria
-- [ ] Notification "Connection issues" (or similar) appears when the circuit breaker is activated.
-- [ ] Corresponding test in `robustness.spec.ts` passes.
+- [x] Notification "Connection issues" (or similar) appears when the circuit breaker is activated.
+- [x] Corresponding test in `robustness.spec.ts` passes.

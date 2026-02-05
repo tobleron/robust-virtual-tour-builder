@@ -106,9 +106,7 @@ let rec waitForStability = (startTime: float): Promise.t<unit> => {
         }),
         (),
       )
-      EventBus.dispatch(
-        ShowNotification("System unstable. Attempting recovery...", #Warning, None),
-      )
+      EventBus.dispatch(ShowNotification("System unstable. Attempting recovery...", #Warning, None))
       // Force release lock by resolving, effectively ignoring the unstable state
       Promise.resolve()
     } else {

@@ -97,24 +97,28 @@ let createHotspotConfig = (
       // Note: In a perfect world we would unmount the root, but Pannellum just nukes the DOM.
       // Garbage collection should handle the detached nodes.
 
-      let root = ReBindings.ReactDOMClient.createRoot(div)
+      try {
+        let root = ReBindings.ReactDOMClient.createRoot(div)
 
-      // We pass a dummy elementId because we're not using the HotspotLine loop anymore
-      // Pannellum handles the positioning of 'div' automatically.
-      let elementId = "hs-react-" ++ Belt.Int.toString(index)
+        // We pass a dummy elementId because we're not using the HotspotLine loop anymore
+        // Pannellum handles the positioning of 'div' automatically.
+        let elementId = "hs-react-" ++ Belt.Int.toString(index)
 
-      ReBindings.ReactDOMClient.Root.render(
-        root,
-        <PreviewArrow
-          sceneIndex={state.activeIndex}
-          hotspotIndex={index}
-          dispatch={dispatch}
-          elementId={elementId}
-          isTargetAutoForward={isTargetAutoForward}
-          scenes={state.scenes}
-          state={state}
-        />,
-      )
+        ReBindings.ReactDOMClient.Root.render(
+          root,
+          <PreviewArrow
+            sceneIndex={state.activeIndex}
+            hotspotIndex={index}
+            dispatch={dispatch}
+            elementId={elementId}
+            isTargetAutoForward={isTargetAutoForward}
+            scenes={state.scenes}
+            state={state}
+          />,
+        )
+      } catch {
+      | _ => () // Silence errors during rapid scene cleanup
+      }
     },
   }
 }
