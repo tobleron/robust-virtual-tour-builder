@@ -290,7 +290,8 @@ let saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) =
                   }
                 },
               )
-            | Error(msg) => if String.includes(msg, "AbortError") {
+            | Error(msg) =>
+              if String.includes(msg, "AbortError") {
                 OperationJournal.updateStatus(journalId, Cancelled)->Promise.then(
                   () => Promise.resolve(false),
                 )

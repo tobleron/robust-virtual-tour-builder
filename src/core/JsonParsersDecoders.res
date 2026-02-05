@@ -23,7 +23,17 @@ let opt = (field: Decode.fieldDecoders, key, decoder, default) => {
   field.optional(key, option(decoder))->Option.flatMap(x => x)->Option.getOr(default)
 }
 
-let file = string->map(s => Types.Url(s))
+let file = id->map(json => {
+  if %raw("(t => typeof t === 'string')")(json) {
+    Types.Url(Obj.magic(json))
+  } else if %raw("(t => t instanceof File)")(json) {
+    Types.File(Obj.magic(json))
+  } else if %raw("(t => t instanceof Blob)")(json) {
+    Types.Blob(Obj.magic(json))
+  } else {
+    Types.Url("")
+  }
+})
 
 let viewFrame = object(field => {
   {

@@ -12,10 +12,14 @@ let nullable = (encoder, v: Nullable.t<'a>) => {
   }
 }
 
+external castFileToJson: ReBindings.File.t => JSON.t = "%identity"
+external castBlobToJson: ReBindings.Blob.t => JSON.t = "%identity"
+
 let file = (f: Types.file) => {
   switch f {
   | Url(u) => Encode.string(u)
-  | Blob(_) | File(_) => Encode.string("")
+  | File(file) => castFileToJson(file)
+  | Blob(blob) => castBlobToJson(blob)
   }
 }
 
