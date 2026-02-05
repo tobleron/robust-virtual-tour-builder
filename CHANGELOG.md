@@ -5,10 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.19.4] - 2026-02-05
+
+### Changed
+- Update changelog with reliability details
+
 ## [4.19.3] - 2026-02-05
 
 ### Changed
-- Merge reliability PR and complete tasks 1244, 1248, 1249
+- **Reliability & Optimization**: Implemented upload batching (5 items/batch) and throttled journal updates to reduce reducer overhead and IDB pressure.
+- **Persistence**: Added user notifications for auto-save failures to prevent silent data loss.
+- **Stability**: Enhanced InteractionQueue with error escalation and recovery notifications on stability timeouts.
+- **Security**: Restricted `dev-token` usage to `localhost` and `127.0.0.1` to harden production environments.
+- **Tasks**:
+  - Completed Task 1244: Synchronized Circuit Breaker notifications with UI layers.
+  - Completed Task 1248: Unified codebase classification for new recovery and persistence modules in `MAP.md`.
+  - Completed Task 1249: Fixed recovery modal race condition on browser refresh with a 500ms stabilization delay.
 
 ## [4.19.2] - 2026-02-04
 
