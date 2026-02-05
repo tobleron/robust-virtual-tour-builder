@@ -64,12 +64,12 @@ let filterDuplicates = (
   Belt.Array.forEach(results, item => {
     switch Nullable.toOption(item.id) {
     | Some(id) =>
-      if Belt.Set.String.has(existingIdsSet, id) {
+      if Belt.Set.String.has(deletedIdsSet, id) {
+        onRestore(id)
+        let _ = Array.push(uniqueItems, item)
+      } else if Belt.Set.String.has(existingIdsSet, id) {
         skippedCount := skippedCount.contents + 1
       } else {
-        if Belt.Set.String.has(deletedIdsSet, id) {
-          onRestore(id)
-        }
         let _ = Array.push(uniqueItems, item)
       }
     | None => () /* Failed item */
