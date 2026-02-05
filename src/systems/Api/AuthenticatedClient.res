@@ -64,7 +64,18 @@ let request = async (
   | Some(t) => Some(t)
   | None =>
     // Professional fallback for local development automation
-    Some("dev-token")
+    let hostname: string = %raw("window.location.hostname")
+    if hostname == "localhost" || hostname == "127.0.0.1" {
+      Some("dev-token")
+    } else {
+      Logger.error(
+        ~module_="AuthenticatedClient",
+        ~message="MISSING_AUTH_IN_PROD",
+        ~data=None,
+        (),
+      )
+      throw(HttpError(401, "Unauthorized: No token provided"))
+    }
   }
 
   switch finalToken {

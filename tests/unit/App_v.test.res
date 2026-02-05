@@ -82,6 +82,9 @@ open Vitest
           Provider: {
             make: ({children}) => React.createElement('div', { 'data-testid': 'tooltip-provider' }, children),
           }
+        },
+        Sonner: {
+          make: () => React.createElement('div', { 'data-testid': 'sonner' }),
         }
       };
   })

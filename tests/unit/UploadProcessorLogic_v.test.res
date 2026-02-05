@@ -14,6 +14,20 @@ open UploadTypes
       }
     })
   }));
+
+  vi.mock('../../src/utils/OperationJournal.bs.js', () => ({
+    updateContext: () => Promise.resolve(),
+    load: () => Promise.resolve([]),
+    getInterrupted: () => []
+  }));
+
+  vi.mock('../../src/utils/PersistenceLayer.bs.js', () => ({
+    performSave: () => Promise.resolve()
+  }));
+
+  vi.mock('../../src/systems/PanoramaClusterer.bs.js', () => ({
+    clusterScenes: (items) => Promise.resolve(items)
+  }));
 `)
 
 describe("UploadProcessorLogic", () => {
