@@ -181,3 +181,4 @@ Recommendation: Approve for commercial release after completing Task 1222 [TRIPL
 [2026-02-05 00:43] v4.19.1 - Merge fix-zip-import-selector and fix formatting
 [2026-02-05 00:52] v4.19.2 - Finalized merge of fix-rapid-save-notification-stability with test stabilization
 [2026-02-05 12:33] v4.19.3 - Merge reliability PR and complete tasks 1244, 1248, 1249
+[2026-02-05 12:59] v4.21.0 - Add comprehensive task for fixing black image persistence issue (Task 1249) [TRIPLE]
