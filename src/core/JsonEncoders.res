@@ -3,15 +3,13 @@
 open JsonCombinators.Json
 
 module Upload = {
-  external castFileToJson: ReBindings.File.t => JSON.t = "%identity"
-  external castBlobToJson: ReBindings.Blob.t => JSON.t = "%identity"
   let value = (v: JSON.t) => v
 
   let encodeFileFromTypes = (f: Types.file) => {
     switch f {
     | Url(s) => Encode.string(s)
-    | File(file) => castFileToJson(file)
-    | Blob(blob) => castBlobToJson(blob)
+    | File(_) => Encode.string("")
+    | Blob(_) => Encode.string("")
     }
   }
 
