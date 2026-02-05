@@ -15,6 +15,7 @@ module WrappedSceneList = {
       isLinking: mockState.isLinking,
       isTeasing: mockState.isTeasing,
       linkDraft: mockState.linkDraft,
+      appMode: mockState.appMode,
     }
 
     <AppContext.DispatchProvider value=mockDispatch>
@@ -147,7 +148,12 @@ describe("SceneList", () => {
 
     let s1 = createScene("1", "S1")
     let s2 = createScene("2", "S2")
-    let mockState = {...State.initialState, scenes: [s1, s2], activeIndex: 0}
+    let mockState = {
+      ...State.initialState,
+      scenes: [s1, s2],
+      activeIndex: 0,
+      appMode: InteractiveTouring(Idle),
+    }
     let lastAction = ref(None)
     let mockDispatch = action => lastAction.contents = Some(action)
     GlobalStateBridge.setDispatch(mockDispatch)

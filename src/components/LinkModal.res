@@ -151,7 +151,7 @@ let showLinkModal = (
             duration: None,
           }
 
-          HotspotManager.handleAddHotspot(state.activeIndex, newHotspot)
+          HotspotManager.handleAddHotspot(state.activeIndex, newHotspot)->ignore
           GlobalStateBridge.dispatch(Actions.StopLinking)
           EventBus.dispatch(CloseModal)
         }

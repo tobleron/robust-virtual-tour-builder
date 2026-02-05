@@ -101,11 +101,44 @@ module Ui = {
   let reduce = (state: state, action: action): option<state> => {
     switch action {
     | SetPreloadingScene(idx) => Some({...state, preloadingSceneIndex: idx})
-    | StartLinking(draft) => Some({...state, isLinking: true, linkDraft: draft})
-    | StartAutoPilot(_) => Some({...state, isLinking: false, linkDraft: None})
-    | StopLinking => Some({...state, isLinking: false, linkDraft: None})
+    | StartLinking(draft) =>
+      Some({
+        ...state,
+        isLinking: true,
+        linkDraft: draft,
+        appMode: AppFSM.transition(state.appMode, StartAuthoring),
+      })
+    | StartAutoPilot(_) =>
+      Some({
+        ...state,
+        isLinking: false,
+        linkDraft: None,
+        // Simulation handles its own appMode transition via handleStartAutoPilot
+      })
+    | StopLinking =>
+      Some({
+        ...state,
+        isLinking: false,
+        linkDraft: None,
+        appMode: AppFSM.transition(state.appMode, StopAuthoring),
+      })
     | UpdateLinkDraft(draft) => Some({...state, linkDraft: Some(draft)})
-    | SetIsTeasing(val) => Some({...state, isTeasing: val})
+    | SetIsTeasing(val) =>
+      Some({
+        ...state,
+        isTeasing: val,
+        appMode: AppFSM.transition(state.appMode, val ? StartTeasing : StopTeasing),
+      })
+    | _ => None
+    }
+  }
+}
+
+module AppFsm = {
+  let reduce = (state: state, action: action): option<state> => {
+    switch action {
+    | DispatchAppFsmEvent(event) =>
+      Some({...state, appMode: AppFSM.transition(state.appMode, event)})
     | _ => None
     }
   }
@@ -122,7 +155,15 @@ module Navigation = {
         currentJourneyId: state.currentJourneyId + 1,
         navigation: Idle,
       })
-    | SetNavigationStatus(status) => Some({...state, navigation: status})
+    | SetNavigationStatus(status) =>
+      Some({
+        ...state,
+        navigation: status,
+        appMode: switch state.appMode {
+        | InteractiveTouring(_) => InteractiveTouring(status)
+        | _ => state.appMode
+        },
+      })
     | SetIncomingLink(link) => Some({...state, incomingLink: link})
     | ResetAutoForwardChain => Some({...state, autoForwardChain: []})
     | AddToAutoForwardChain(idx) => Some(NavigationHelpers.handleAddToAutoForwardChain(state, idx))
@@ -232,7 +273,36 @@ module Project = {
     | SetTourName(name) => Some({...state, tourName: TourLogic.sanitizeName(name)})
 
     | LoadProject(projectDataJson) =>
-      Some({...SceneHelpers.parseProject(projectDataJson), sessionId: state.sessionId})
+      switch SceneHelpers.parseProject(projectDataJson) {
+      | Ok(pd) =>
+        Some({
+          ...state,
+          tourName: pd.tourName,
+          scenes: pd.scenes,
+          lastUsedCategory: pd.lastUsedCategory,
+          exifReport: pd.exifReport,
+          sessionId: switch pd.sessionId {
+          | Some(id) => Some(id)
+          | None => state.sessionId
+          },
+          deletedSceneIds: pd.deletedSceneIds,
+          timeline: pd.timeline,
+          activeIndex: if Belt.Array.length(pd.scenes) > 0 {
+            0
+          } else {
+            -1
+          },
+          // Important: Reset views when loading new project
+          activeYaw: 0.0,
+          activePitch: 0.0,
+          navigation: Idle,
+          simulation: State.initialState.simulation,
+          isTeasing: false,
+          isLinking: false,
+          linkDraft: None,
+        })
+      | Error(_) => Some(state)
+      }
 
     | Reset => Some(State.initialState)
 
@@ -270,6 +340,7 @@ module Mod = {
 
 let reducer = (state: state, action: action): state => {
   state
+  ->apply(action, AppFsm.reduce)
   ->apply(action, Scene.reduce)
   ->apply(action, Hotspot.reduce)
   ->apply(action, Ui.reduce)

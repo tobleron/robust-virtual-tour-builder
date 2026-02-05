@@ -64,7 +64,7 @@ describe("Reducer", () => {
 
   test("HotspotReducer actions are handled", t => {
     let scenes = [createScene("s1"), createScene("s2")]
-    let state = {...initialState, scenes, activeIndex: 0}
+    let state = {...initialState, scenes, activeIndex: 0, appMode: InteractiveAuthoring(Idle)}
     let hotspot = createHotspot("h1")
     let actionAdd = AddHotspot(0, hotspot)
     let resultAdd = Reducer.reducer(state, actionAdd)

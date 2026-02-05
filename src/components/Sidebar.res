@@ -64,7 +64,7 @@ module AboutContent = {
 @react.component
 let make = React.memo(() => {
   let sceneSlice = AppContext.useSceneSlice()
-  let {dispatch, enqueueThunk} = AppContext.useInteractionQueue()
+  let dispatch = AppContext.useAppDispatch()
 
   let fileInputRef = React.useRef(Nullable.null)
   let projectFileInputRef = React.useRef(Nullable.null)
@@ -269,7 +269,7 @@ let make = React.memo(() => {
           }
         }}
         onSave={(~signal, ~onCancel) => {
-          enqueueThunk(() => handleSave(GlobalStateBridge.getState(), ~signal, ~onCancel))
+          handleSave(GlobalStateBridge.getState(), ~signal, ~onCancel)->ignore
         }}
         onLoad={(~signal as _, ~onCancel as _) => {
           switch Nullable.toOption(projectFileInputRef.current) {
@@ -299,10 +299,10 @@ let make = React.memo(() => {
           )
         }}
         onExport={(~signal, ~onCancel) => {
-          enqueueThunk(() => SidebarLogic.handleExport(sceneSlice.scenes, ~signal, ~onCancel))
+          SidebarLogic.handleExport(sceneSlice.scenes, ~signal, ~onCancel)->ignore
         }}
         onTeaser={() => {
-          enqueueThunk(() => Teaser.startAutoTeaser("fast", false, "mp4", false))
+          Teaser.startAutoTeaser("fast", false, "mp4", false)->ignore
         }}
       />
 
@@ -314,7 +314,7 @@ let make = React.memo(() => {
         className="hidden"
         onChange={e => {
           let target = JsxEvent.Form.target(e)->ReBindings.Dom.unsafeToElement
-          enqueueThunk(() => SidebarLogic.handleUpload(ReBindings.Dom.getFiles(target)))
+          SidebarLogic.handleUpload(ReBindings.Dom.getFiles(target))->ignore
         }}
       />
       <input
@@ -324,14 +324,12 @@ let make = React.memo(() => {
         className="hidden"
         onChange={e => {
           let target = JsxEvent.Form.target(e)->ReBindings.Dom.unsafeToElement
-          enqueueThunk(() =>
-            SidebarLogic.handleLoadProject(
-              ReBindings.Dom.getFiles(target),
-              dispatch, // This now uses queue-aware dispatch!
-              Array.length(sceneSlice.scenes),
-              target,
-            )
-          )
+          SidebarLogic.handleLoadProject(
+            ReBindings.Dom.getFiles(target),
+            dispatch, // This now uses queue-aware dispatch!
+            Array.length(sceneSlice.scenes),
+            target,
+          )->ignore
         }}
       />
     </div>

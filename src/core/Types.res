@@ -173,15 +173,40 @@ type project = {
   timeline: array<timelineItem>,
 }
 
+type editorState =
+  | Idle
+  | Linking(linkDraft)
+  | EditingMetadata(string) // sceneId
+
+type qualityItem = {
+  quality: SharedTypes.qualityAnalysis,
+  newName: string,
+}
+
+type blockingState =
+  | Uploading({progress: float})
+  | Summary(uploadReport, array<qualityItem>)
+  | ProjectLoading({name: string})
+  | Exporting
+  | CriticalError(string)
+
+type appMode =
+  | Initializing
+  | InteractiveTouring(navigationStatus)
+  | InteractiveAuthoring(editorState)
+  | InteractiveSimulation(simulationState)
+  | InteractiveTeaser
+  | SystemBlocking(blockingState)
+
 type state = {
   tourName: string,
   scenes: array<scene>,
   activeIndex: int,
   activeYaw: float,
   activePitch: float,
+  appMode: appMode,
   isLinking: bool,
   transition: transition,
-  lastUploadReport: uploadReport,
   exifReport: option<JSON.t>,
   linkDraft: option<linkDraft>,
   preloadingSceneIndex: int,

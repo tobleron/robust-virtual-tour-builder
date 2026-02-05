@@ -16,6 +16,7 @@ type uiSlice = {
   isLinking: bool,
   isTeasing: bool,
   linkDraft: option<linkDraft>,
+  appMode: appMode,
 }
 
 type simSlice = {
@@ -36,6 +37,7 @@ let defaultUiSlice: uiSlice = {
   isLinking: State.initialState.isLinking,
   isTeasing: State.initialState.isTeasing,
   linkDraft: State.initialState.linkDraft,
+  appMode: State.initialState.appMode,
 }
 
 let defaultSimSlice: simSlice = {
@@ -105,13 +107,14 @@ module Provider = {
       }
     }, (state.scenes, state.activeIndex, state.tourName))
 
-    let uiSlice = React.useMemo3(() => {
+    let uiSlice = React.useMemo4(() => {
       {
         isLinking: state.isLinking,
         isTeasing: state.isTeasing,
         linkDraft: state.linkDraft,
+        appMode: state.appMode,
       }
-    }, (state.isLinking, state.isTeasing, state.linkDraft))
+    }, (state.isLinking, state.isTeasing, state.linkDraft, state.appMode))
 
     let simSlice = React.useMemo4(() => {
       {
@@ -172,27 +175,21 @@ let useNavigationFsm = () => {
 }
 
 // Interaction Queue Hook
-type interactionQueue = {
-  dispatch: action => unit,
-  enqueueThunk: (unit => Promise.t<unit>) => unit,
-}
-
-let useInteractionQueue = (): interactionQueue => {
-  {
-    dispatch: InteractionQueue.dispatch,
-    enqueueThunk: InteractionQueue.enqueueThunk,
-  }
-}
 
 let useIsSystemLocked = () => {
-  let (isLocked, setIsLocked) = React.useState(_ => false)
-
-  React.useEffect0(() => {
-    let unsubscribe = InteractionQueue.subscribe(locked => {
-      setIsLocked(_ => locked)
-    })
-    Some(unsubscribe)
-  })
-
-  isLocked
+  let state = useAppState()
+  switch state.appMode {
+  | Initializing
+  | SystemBlocking(Uploading(_))
+  | SystemBlocking(ProjectLoading(_))
+  | SystemBlocking(Exporting) => true
+  | SystemBlocking(Summary(_))
+  | SystemBlocking(CriticalError(_)) => false
+  | InteractiveTouring(Navigating(_)) => true
+  | InteractiveTouring(Idle)
+  | InteractiveTouring(Previewing(_))
+  | InteractiveAuthoring(_)
+  | InteractiveSimulation(_)
+  | InteractiveTeaser => false
+  }
 }

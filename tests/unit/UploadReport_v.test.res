@@ -32,7 +32,7 @@ describe("UploadReport", () => {
       warnings: 0,
       analysis: Nullable.null,
     }
-    let item: UploadReport.qualityItem = {
+    let item: Types.qualityItem = {
       quality,
       newName: name,
     }

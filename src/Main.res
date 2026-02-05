@@ -261,6 +261,8 @@ let init = async () => {
           }
         }
       })
+
+      GlobalStateBridge.dispatch(DispatchAppFsmEvent(InitializeComplete))
     } catch {
     | exn =>
       let (msg, stack) = Logger.getErrorDetails(exn)

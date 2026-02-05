@@ -39,7 +39,12 @@ test("SceneReducer: ReorderScenes moves scene and updates activeIndex correctly"
   let s0 = createMockScene(~id="0", ())
   let s1 = createMockScene(~id="1", ())
   let s2 = createMockScene(~id="2", ())
-  let state = createMockState(~scenes=[s0, s1, s2], ~activeIndex=1, ()) // Active is "1"
+  let state = createMockState(
+    ~scenes=[s0, s1, s2],
+    ~activeIndex=1,
+    ~appMode=InteractiveAuthoring(Idle),
+    (),
+  ) // Active is "1"
 
   // Move "1" to index 2: [0, 2, 1]
   let action = ReorderScenes(1, 2)
@@ -54,7 +59,12 @@ test("SceneReducer: DeleteScene removes scene and cleanup hotspots", t => {
   let h1 = createMockHotspot(~id="h1", ~target="scene2_name", ())
   let s1 = createMockScene(~id="s1", ~name="scene1_name", ~hotspots=[h1], ())
   let s2 = createMockScene(~id="s2", ~name="scene2_name", ())
-  let state = createMockState(~scenes=[s1, s2], ~activeIndex=0, ())
+  let state = createMockState(
+    ~scenes=[s1, s2],
+    ~activeIndex=0,
+    ~appMode=InteractiveAuthoring(Idle),
+    (),
+  )
 
   // Delete s2 (index 1)
   let action = DeleteScene(1)

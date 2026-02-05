@@ -14,6 +14,7 @@ module WrappedViewerHUD = {
       isLinking: mockState.isLinking,
       isTeasing: mockState.isTeasing,
       linkDraft: mockState.linkDraft,
+      appMode: mockState.appMode,
     }
     let simSlice: AppContext.simSlice = {
       simulation: mockState.simulation,

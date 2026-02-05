@@ -211,7 +211,6 @@ let state = (s: Types.state) => {
     ("activePitch", Encode.float(s.activePitch)),
     ("isLinking", Encode.bool(s.isLinking)),
     ("transition", transition(s.transition)),
-    ("lastUploadReport", uploadReport(s.lastUploadReport)),
     ("exifReport", Encode.option(value)(s.exifReport)),
     ("linkDraft", Encode.option(linkDraft)(s.linkDraft)),
     ("preloadingSceneIndex", Encode.int(s.preloadingSceneIndex)),

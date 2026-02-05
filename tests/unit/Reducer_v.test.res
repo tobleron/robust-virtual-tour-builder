@@ -58,6 +58,7 @@ describe("Reducer (Root Re-export)", () => {
     let stateWithScenes = {
       ...initialState,
       scenes: [createScene("scene1.webp")],
+      appMode: InteractiveAuthoring(Idle),
     }
     let hotspot: Types.hotspot = {
       linkId: "A01",
@@ -92,6 +93,7 @@ describe("Reducer (Root Re-export)", () => {
       ...initialState,
       scenes: [scene1, scene2],
       activeIndex: 1,
+      appMode: InteractiveAuthoring(Idle),
     }
     let action6 = DeleteScene(1)
     let state6 = Reducer.reducer(stateBeforeDelete, action6)
