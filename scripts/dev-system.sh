@@ -3,6 +3,9 @@
 
 echo "🚀 Starting Architectural Governor Watcher..."
 
+# Cleanup logs on startup
+./scripts/cleanup_logs.sh
+
 # Check if cargo-watch is installed for high performance
 if command -v cargo-watch >/dev/null 2>&1; then
     cd _dev-system/analyzer && cargo watch -w src -w ../config -s "cargo run --release"

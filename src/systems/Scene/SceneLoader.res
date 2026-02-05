@@ -26,9 +26,16 @@ module Config = {
         },
       }
     })
-  let makeSceneConfig = (scene: scene) =>
+  let makeSceneConfig = (scene: scene) => {
+    let url = scene.file->Types.fileToUrl
+    Logger.debug(
+      ~module_="SceneLoader",
+      ~message="PREPARING_SCENE",
+      ~data={"id": scene.id, "url": url},
+      (),
+    )
     {
-      "panorama": scene.file->Types.fileToUrl,
+      "panorama": url,
       "autoLoad": true,
       "hfov": Constants.globalHfov,
       "minHfov": Constants.globalHfov,
@@ -39,6 +46,7 @@ module Config = {
       "showZoomCtrl": false,
       "hotSpots": getHotspots(scene),
     }
+  }
 }
 
 module Reuse = {
