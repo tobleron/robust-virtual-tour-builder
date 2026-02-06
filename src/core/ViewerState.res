@@ -18,7 +18,6 @@ type t = {
   idleSnapshotTimeout: Nullable.t<int>,
   loadSafetyTimeout: Nullable.t<int>,
   cachedFloorCircles: Nullable.t<Dom.element>, // NodeList proxy
-  lastSwitchTime: float,
   linkingStartPoint: Nullable.t<{"x": float, "y": float}>,
   lastMoveX: float,
   lastMoveY: float,
@@ -53,7 +52,6 @@ let state = ref({
   idleSnapshotTimeout: Nullable.null,
   loadSafetyTimeout: Nullable.null,
   cachedFloorCircles: Nullable.null,
-  lastSwitchTime: 0.0,
   linkingStartPoint: Nullable.null,
   lastMoveX: 0.0,
   lastMoveY: 0.0,

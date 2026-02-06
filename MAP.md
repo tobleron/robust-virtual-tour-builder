@@ -37,7 +37,6 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/core/ViewerState.res](src/core/ViewerState.res): Localized state for the active viewer instance. `#state` `#viewer`
 *   [src/core/SceneCache.res](src/core/SceneCache.res): In-memory cache for processed scene assets and metadata. `#cache` `#performance`
 *   [src/core/GlobalStateBridge.res](src/core/GlobalStateBridge.res): Bridge for synchronizing state across different contexts. `#state` `#sync`
-*   [src/core/InteractionQueue.res](src/core/InteractionQueue.res): Serialized action queue to prevent race conditions during transitions. `#queue` `#state` `#stability`
 *   [src/core/StateSnapshot.res](src/core/StateSnapshot.res): Manager for capturing and rolling back application state snapshots. `#state` `#rollback` `#reliability`
 *   [src/core/OptimisticAction.res](src/core/OptimisticAction.res): Wrapper for executing actions optimistically with automatic rollback on failure. `#actions` `#optimistic-update` `#reliability`
 *   [src/core/AppFSM.res](src/core/AppFSM.res): Global Finite State Machine orchestrating top-level application modes. `#fsm` `#state` `#architecture`

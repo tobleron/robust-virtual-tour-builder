@@ -3,63 +3,72 @@
 @react.component
 let make = React.memo((
   ~onNew: unit => unit,
-  ~onSave: (~signal: BrowserBindings.AbortController.signal, ~onCancel: unit => unit) => unit,
-  ~onLoad: (~signal: BrowserBindings.AbortController.signal, ~onCancel: unit => unit) => unit,
+  ~onSave: (~signal: BrowserBindings.AbortController.signal, ~onCancel: unit => unit) => Promise.t<unit>,
+  ~onLoad: (~signal: BrowserBindings.AbortController.signal, ~onCancel: unit => unit) => Promise.t<unit>,
   ~onAbout: unit => unit,
-  ~onExport: (~signal: BrowserBindings.AbortController.signal, ~onCancel: unit => unit) => unit,
+  ~onExport: (~signal: BrowserBindings.AbortController.signal, ~onCancel: unit => unit) => Promise.t<unit>,
   ~onTeaser: unit => unit,
   ~exportReady: bool,
   ~teaserReady: bool,
 ) => {
   let isPermitted = Hooks.useIsInteractionPermitted()
 
-  let saveCancelRef = React.useRef(() => ())
-  let (
-    saveExecute,
-    saveCancel,
-    savePending,
-    _saveThrottled,
-  ) = Hooks.useThrottledAction(
-    ~action=async (~signal) => onSave(~signal, ~onCancel=() => saveCancelRef.current()),
-    ~debounceMs=2000,
-    ~rateLimit=(5, 60000),
+  let saveAbortRef = React.useRef(None)
+  let (saveExecute, savePending, _saveThrottled) = UseInteraction.useInteraction(
+    ~id="project_save",
+    ~policy=InteractionPolicies.projectMutation,
+    ~action=async () => {
+      let ctrl = BrowserBindings.AbortController.newAbortController()
+      saveAbortRef.current = Some(ctrl)
+      let signal = BrowserBindings.AbortController.signal(ctrl)
+      let onCancel = () => {
+        switch saveAbortRef.current {
+        | Some(c) => BrowserBindings.AbortController.abort(c)
+        | None => ()
+        }
+      }
+      await onSave(~signal, ~onCancel)
+      saveAbortRef.current = None
+    },
   )
-  React.useEffect1(() => {
-    saveCancelRef.current = saveCancel
-    None
-  }, [saveCancel])
 
-  let loadCancelRef = React.useRef(() => ())
-  let (
-    loadExecute,
-    loadCancel,
-    loadPending,
-    _loadThrottled,
-  ) = Hooks.useThrottledAction(
-    ~action=async (~signal) => onLoad(~signal, ~onCancel=() => loadCancelRef.current()),
-    ~debounceMs=2000,
-    ~rateLimit=(5, 60000),
+  let loadAbortRef = React.useRef(None)
+  let (loadExecute, loadPending, _loadThrottled) = UseInteraction.useInteraction(
+    ~id="project_load",
+    ~policy=InteractionPolicies.projectMutation,
+    ~action=async () => {
+      let ctrl = BrowserBindings.AbortController.newAbortController()
+      loadAbortRef.current = Some(ctrl)
+      let signal = BrowserBindings.AbortController.signal(ctrl)
+      let onCancel = () => {
+        switch loadAbortRef.current {
+        | Some(c) => BrowserBindings.AbortController.abort(c)
+        | None => ()
+        }
+      }
+      await onLoad(~signal, ~onCancel)
+      loadAbortRef.current = None
+    },
   )
-  React.useEffect1(() => {
-    loadCancelRef.current = loadCancel
-    None
-  }, [loadCancel])
 
-  let exportCancelRef = React.useRef(() => ())
-  let (
-    exportExecute,
-    exportCancel,
-    exportPending,
-    _exportThrottled,
-  ) = Hooks.useThrottledAction(
-    ~action=async (~signal) => onExport(~signal, ~onCancel=() => exportCancelRef.current()),
-    ~debounceMs=5000,
-    ~rateLimit=(3, 60000),
+  let exportAbortRef = React.useRef(None)
+  let (exportExecute, exportPending, _exportThrottled) = UseInteraction.useInteraction(
+    ~id="project_export",
+    ~policy=InteractionPolicies.projectMutation,
+    ~action=async () => {
+      let ctrl = BrowserBindings.AbortController.newAbortController()
+      exportAbortRef.current = Some(ctrl)
+      let signal = BrowserBindings.AbortController.signal(ctrl)
+      let onCancel = () => {
+        switch exportAbortRef.current {
+        | Some(c) => BrowserBindings.AbortController.abort(c)
+        | None => ()
+        }
+      }
+      await onExport(~signal, ~onCancel)
+      exportAbortRef.current = None
+    },
   )
-  React.useEffect1(() => {
-    exportCancelRef.current = exportCancel
-    None
-  }, [exportCancel])
 
   React.useEffect0(() => {
     Logger.initialized(~module_="SidebarActions")
