@@ -80,6 +80,28 @@ pub fn get_next_id(config: &GuardConfig) -> usize {
     max_id + 1
 }
 
+pub fn get_next_dev_id(config: &GuardConfig) -> usize {
+    let mut max_id = 0;
+    let dev_tasks_dir = format!("{}/pending/dev_tasks", config.tasks_dir);
+
+    if let Ok(entries) = fs::read_dir(&dev_tasks_dir) {
+        for entry in entries.filter_map(|e| e.ok()) {
+            let name = entry.file_name().to_string_lossy().into_owned();
+            // Extract ID from D001_task_name format
+            if name.starts_with('D') {
+                if let Some(id_str) = name[1..].split('_').next() {
+                    if let Ok(id) = id_str.parse::<usize>() {
+                        if id > max_id {
+                            max_id = id;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    max_id + 1
+}
+
 pub fn task_exists(config: &GuardConfig, pattern: &str) -> bool {
     let scan_dirs = vec![
         format!("{}/pending", config.tasks_dir),
@@ -376,8 +398,14 @@ pub fn check_map(config: &GuardConfig, rules: &ExclusionRules) -> Result<()> {
 
     if has_unmapped_items {
         let mut existing_task_path = None;
-        let pending_dir = format!("{}/pending", config.tasks_dir);
-        if let Ok(entries) = fs::read_dir(&pending_dir) {
+        let dev_tasks_dir = format!("{}/pending/dev_tasks", config.tasks_dir);
+
+        // Ensure dev_tasks directory exists
+        if !Path::new(&dev_tasks_dir).exists() {
+            let _ = fs::create_dir_all(&dev_tasks_dir);
+        }
+
+        if let Ok(entries) = fs::read_dir(&dev_tasks_dir) {
             for entry in entries.filter_map(|e| e.ok()) {
                 if entry.file_name().to_string_lossy().contains(task_pattern) {
                     existing_task_path = Some(entry.path());
@@ -387,12 +415,12 @@ pub fn check_map(config: &GuardConfig, rules: &ExclusionRules) -> Result<()> {
         }
 
         let (id, path) = if let Some(p) = existing_task_path {
-            let id = p.file_name().unwrap().to_string_lossy().split('_').next().unwrap_or("0").to_string();
+            let id = p.file_name().unwrap().to_string_lossy().split('_').next().unwrap_or("D0").to_string();
             (id, p)
         } else {
-            let next_id = get_next_id(config);
-            let id_str = format!("{:03}", next_id);
-            (id_str.clone(), PathBuf::from(&pending_dir).join(format!("{}_{}.md", id_str, task_pattern)))
+            let next_id = get_next_dev_id(config);
+            let id_str = format!("D{:03}", next_id);
+            (id_str.clone(), PathBuf::from(&dev_tasks_dir).join(format!("{}_{}.md", id_str, task_pattern)))
         };
 
         let mut task_content = format!(
@@ -406,8 +434,8 @@ pub fn check_map(config: &GuardConfig, rules: &ExclusionRules) -> Result<()> {
         fs::write(&path, task_content)?;
     } else {
         // Check if unmapped section is now empty and remove the task if it was resolved
-        let pending_dir = format!("{}/pending", config.tasks_dir);
-        if let Ok(entries) = fs::read_dir(pending_dir) {
+        let dev_tasks_dir = format!("{}/pending/dev_tasks", config.tasks_dir);
+        if let Ok(entries) = fs::read_dir(dev_tasks_dir) {
             for entry in entries.filter_map(|e| e.ok()) {
                 let name = entry.file_name().to_string_lossy().into_owned();
                 if name.contains(task_pattern) {
@@ -557,8 +585,14 @@ pub fn check_data_flow(config: &GuardConfig, rules: &ExclusionRules) -> Result<(
 
     if has_unmapped {
         let mut existing_task_path = None;
-        let pending_dir = format!("{}/pending", config.tasks_dir);
-        if let Ok(entries) = fs::read_dir(&pending_dir) {
+        let dev_tasks_dir = format!("{}/pending/dev_tasks", config.tasks_dir);
+
+        // Ensure dev_tasks directory exists
+        if !Path::new(&dev_tasks_dir).exists() {
+            let _ = fs::create_dir_all(&dev_tasks_dir);
+        }
+
+        if let Ok(entries) = fs::read_dir(&dev_tasks_dir) {
             for entry in entries.filter_map(|e| e.ok()) {
                 if entry.file_name().to_string_lossy().contains(task_pattern) {
                     existing_task_path = Some(entry.path());
@@ -569,12 +603,12 @@ pub fn check_data_flow(config: &GuardConfig, rules: &ExclusionRules) -> Result<(
 
         let (id, path) = if let Some(p) = existing_task_path {
             let id = p.file_name().unwrap().to_string_lossy()
-                .split('_').next().unwrap_or("0").to_string();
+                .split('_').next().unwrap_or("D0").to_string();
             (id, p)
         } else {
-            let next_id = get_next_id(config);
-            let id_str = format!("{:03}", next_id);
-            (id_str.clone(), PathBuf::from(&pending_dir)
+            let next_id = get_next_dev_id(config);
+            let id_str = format!("D{:03}", next_id);
+            (id_str.clone(), PathBuf::from(&dev_tasks_dir)
                 .join(format!("{}_{}.md", id_str, task_pattern)))
         };
 
@@ -583,7 +617,7 @@ pub fn check_data_flow(config: &GuardConfig, rules: &ExclusionRules) -> Result<(
             ## 🚨 Trigger\n\
             New modules were detected that are not represented in `DATA_FLOW.md`.\n\n\
             ## Objective\n\
-            Review the unmapped modules in the 'Unmapped Modules' section of `DATA_FLOW.md` and either:\n\
+            Review the unmapped modules in the 'Unmapped Modules' section of `DATA_FLOW.md` and either:\n\n\
             1. Add them to existing data flows if they're part of a documented flow\n\
             2. Create new flow documentation if they represent a new critical path\n\
             3. Leave them unmapped if they're utilities/helpers that don't fit flow documentation\n\n\
@@ -599,8 +633,8 @@ pub fn check_data_flow(config: &GuardConfig, rules: &ExclusionRules) -> Result<(
         println!("📝 Created/Updated Task: {}", path.display());
     } else {
         // Remove task if no unmapped modules
-        let pending_dir = format!("{}/pending", config.tasks_dir);
-        if let Ok(entries) = fs::read_dir(&pending_dir) {
+        let dev_tasks_dir = format!("{}/pending/dev_tasks", config.tasks_dir);
+        if let Ok(entries) = fs::read_dir(&dev_tasks_dir) {
             for entry in entries.filter_map(|e| e.ok()) {
                 if entry.file_name().to_string_lossy().contains(task_pattern) {
                     let _ = fs::remove_file(entry.path());

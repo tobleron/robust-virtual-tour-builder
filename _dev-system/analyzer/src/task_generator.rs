@@ -56,26 +56,31 @@ pub fn generate_strategic_directive(unit: &WorkUnit) -> String {
 }
 
 fn sync_architectural_category(
-    category_name: &str, 
-    platform: &str, 
-    units: &[String], 
+    category_name: &str,
+    platform: &str,
+    units: &[String],
     objective: &str
 ) -> Result<Option<PathBuf>> {
-    let pending_dir = "../../tasks/pending";
-    let platform_label = if platform.is_empty() { 
-        "".to_string() 
-    } else { 
-        format!("_{}", platform.to_uppercase()) 
+    let dev_tasks_dir = "../../tasks/pending/dev_tasks";
+    let platform_label = if platform.is_empty() {
+        "".to_string()
+    } else {
+        format!("_{}", platform.to_uppercase())
     };
     let full_category_name = format!("{}{}", category_name, platform_label);
     let mut existing_path = None;
-    
-    if let Ok(entries) = fs::read_dir(pending_dir) {
+
+    // Ensure dev_tasks directory exists
+    if !Path::new(dev_tasks_dir).exists() {
+        fs::create_dir_all(dev_tasks_dir)?;
+    }
+
+    if let Ok(entries) = fs::read_dir(dev_tasks_dir) {
         for entry in entries.filter_map(|e| e.ok()) {
             let name = entry.file_name().to_string_lossy().into_owned();
-            if name.contains(&full_category_name) { 
-                existing_path = Some(entry.path()); 
-                break; 
+            if name.contains(&full_category_name) {
+                existing_path = Some(entry.path());
+                break;
             }
         }
     }
@@ -83,31 +88,34 @@ fn sync_architectural_category(
     if units.is_empty() {
         return Ok(None);
     }
-    
+
     let (path, id) = if let Some(p) = existing_path {
         let id_str = p.file_name()
             .and_then(|n| n.to_str())
             .and_then(|s| s.split('_').next())
-            .unwrap_or("0")
+            .unwrap_or("D0")
             .to_string();
         (p, id_str)
     } else {
         let mut max_id = 0;
-        for dir in ["../../tasks/pending", "../../tasks/active", "../../tasks/completed", "../../tasks/postponed"] {
-            if let Ok(entries) = fs::read_dir(dir) {
-                for entry in entries.filter_map(|e| e.ok()) {
-                    if let Some(id_str) = entry.file_name().to_string_lossy().split('_').next() {
-                         if let Ok(id) = id_str.parse::<usize>() { 
-                             if id > max_id { 
-                                 max_id = id; 
-                             } 
-                         }
+        // Only scan dev_tasks folder for dev task IDs (those starting with D)
+        if let Ok(entries) = fs::read_dir(dev_tasks_dir) {
+            for entry in entries.filter_map(|e| e.ok()) {
+                let name = entry.file_name().to_string_lossy().into_owned();
+                if name.starts_with('D') {
+                    if let Some(id_str) = name[1..].split('_').next() {
+                        if let Ok(id) = id_str.parse::<usize>() {
+                            if id > max_id {
+                                max_id = id;
+                            }
+                        }
                     }
                 }
             }
         }
         let next_id = max_id + 1;
-        (Path::new(pending_dir).join(format!("{:03}_{}.md", next_id, full_category_name)), format!("{:03}", next_id))
+        let id_str = format!("D{:03}", next_id);
+        (Path::new(dev_tasks_dir).join(format!("{}_{}.md", id_str, full_category_name)), id_str)
     };
 
     // Idempotent: Overwrite the file to ensure dead tasks are removed and structure is clean
@@ -117,7 +125,7 @@ fn sync_architectural_category(
         .truncate(true)
         .open(&path)?;
 
-    file.write_all(format!("# Task {}: {}\n\n## Objective\n{}\n\n## Tasks\n", 
+    file.write_all(format!("# Task {}: {}\n\n## Objective\n{}\n\n## Tasks\n",
         id, full_category_name.replace("_", " "), objective).as_bytes())?;
 
     for f in units {
@@ -308,18 +316,18 @@ pub fn sync_all_architectural_tasks(
         active_tasks.insert(p); 
     }
 
-    // Zombie Elimination
-    let pending_dir = "../../tasks/pending";
+    // Zombie Elimination (only in dev_tasks folder)
+    let dev_tasks_dir = "../../tasks/pending/dev_tasks";
     let arch_patterns = ["Surgical_Refactor_", "Merge_Folders_", "Fix_Violations_", "Structural_Refactor_", "Classify_Ambiguous_Files"];
-    
-    if let Ok(entries) = fs::read_dir(pending_dir) {
+
+    if let Ok(entries) = fs::read_dir(dev_tasks_dir) {
         for entry in entries.filter_map(|e| e.ok()) {
             let path = entry.path();
             if !path.is_file() { continue; }
             let name = path.file_name()
                 .map(|n| n.to_string_lossy())
                 .unwrap_or_default();
-            
+
             let is_arch = arch_patterns.iter().any(|p| name.contains(p));
             if is_arch && !active_tasks.contains(&path) {
                 println!("🧹 Deleting zombie task: {:?}", path);
