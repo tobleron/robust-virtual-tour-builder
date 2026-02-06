@@ -283,5 +283,8 @@ Address/GPS Query
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)
 
+### 📂 src/components
+- `[src/components/CriticalErrorMonitor.res]`
+
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)
