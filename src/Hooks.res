@@ -91,12 +91,6 @@ let useThrottledAction = (
 let useIsInteractionPermitted = () => {
   let isQueueProcessing = AppContext.useIsSystemLocked()
   let isModalOpen = ModalContext.useIsModalOpen()
-  let navigationFsm = AppContext.useNavigationFsm()
 
-  let isTransitioning = switch navigationFsm {
-  | IdleFsm | ErrorFsm(_) => false
-  | _ => true
-  }
-
-  !(isQueueProcessing || isModalOpen || isTransitioning)
+  !(isQueueProcessing || isModalOpen)
 }
