@@ -117,17 +117,17 @@ module AnimationLoop = {
               ~data=Some({
                 "journeyId": j.journeyId,
                 "fsmState": switch currentFsm {
-                | NavigationFSM.Idle => "Idle"
-                | NavigationFSM.Preloading(_) => "Preloading"
-                | NavigationFSM.Transitioning(_) => "Transitioning"
-                | NavigationFSM.Stabilizing(_) => "Stabilizing"
-                | NavigationFSM.Error(_) => "Error"
+                | IdleFsm => "Idle"
+                | Preloading(_) => "Preloading"
+                | Transitioning(_) => "Transitioning"
+                | Stabilizing(_) => "Stabilizing"
+                | ErrorFsm(_) => "Error"
                 },
               }),
               (),
             )
             switch currentFsm {
-            | NavigationFSM.Transitioning(_) | NavigationFSM.Stabilizing(_) =>
+            | Transitioning(_) | Stabilizing(_) =>
               Logger.debug(
                 ~module_="NavigationRenderer",
                 ~message="FINALIZE_TRANSITION",
@@ -138,10 +138,10 @@ module AnimationLoop = {
               )
               cft := true
               dispatch(Actions.DispatchNavigationFsmEvent(TransitionComplete))
-            | NavigationFSM.Idle =>
+            | IdleFsm =>
               // Already idle, just stop the loop
               cft := true
-            | NavigationFSM.Error(_) =>
+            | ErrorFsm(_) =>
               // Error occurred (e.g. timeout), stop blinking and cancel
               cft := true
               EventBus.dispatch(NavCancelled)

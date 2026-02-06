@@ -1,52 +1,85 @@
 open Types
 
-let syncSceneNames = (scenes: array<scene>) => {
-  let renameMap = Belt.MutableMap.String.make()
+let getActiveScenes = (inventory, sceneOrder) => {
+  sceneOrder->Belt.Array.keepMap(id => {
+    switch inventory->Belt.Map.String.get(id) {
+    | Some({scene, status: Active}) => Some(scene)
+    | _ => None
+    }
+  })
+}
 
-  // 1. Update scene names based on labels
-  let updatedScenes = Belt.Array.mapWithIndex(scenes, (index, scene) => {
-    if scene.label != "" {
-      let oldName = scene.name
-      let newName = TourLogic.computeSceneFilename(index, scene.label)
-      if newName != oldName {
-        let _ = Belt.MutableMap.String.set(renameMap, oldName, newName)
-        {...scene, name: newName}
-      } else {
-        scene
+let getDeletedIds = inventory => {
+  inventory
+  ->Belt.Map.String.toArray
+  ->Belt.Array.keepMap(((id, entry)) => {
+    switch entry.status {
+    | Deleted(_) => Some(id)
+    | Active => None
+    }
+  })
+}
+
+let syncInventoryNames = (inventory, sceneOrder) => {
+  let renameMap = Belt.MutableMap.String.make()
+  let updatedRef = ref(inventory)
+
+  sceneOrder->Belt.Array.forEachWithIndex((index, id) => {
+    switch inventory->Belt.Map.String.get(id) {
+    | Some({scene, status: Active} as entry) =>
+      if scene.label != "" {
+        let oldName = scene.name
+        let newName = TourLogic.computeSceneFilename(index, scene.label)
+        if newName != oldName {
+          let _ = Belt.MutableMap.String.set(renameMap, oldName, newName)
+          updatedRef.contents =
+            updatedRef.contents->Belt.Map.String.set(
+              id,
+              {...entry, scene: {...scene, name: newName}},
+            )
+        }
       }
-    } else {
-      scene
+    | _ => ()
     }
   })
 
-  // 2. Update hotspot targets if renames happened
-  if Belt.MutableMap.String.size(renameMap) > 0 {
-    Belt.Array.map(updatedScenes, s => {
-      let updatedHotspots = Belt.Array.map(s.hotspots, h => {
-        switch Belt.MutableMap.String.get(renameMap, h.target) {
+  let inventoryWithRenames = if Belt.MutableMap.String.size(renameMap) > 0 {
+    updatedRef.contents->Belt.Map.String.map(entry => {
+      let s = entry.scene
+      let updatedHotspots = s.hotspots->Belt.Array.map(h => {
+        switch renameMap->Belt.MutableMap.String.get(h.target) {
         | Some(newName) => {...h, target: newName}
         | None => h
         }
       })
-      {...s, hotspots: updatedHotspots}
+      {...entry, scene: {...s, hotspots: updatedHotspots}}
     })
   } else {
-    updatedScenes
+    updatedRef.contents
+  }
+  inventoryWithRenames
+}
+
+let rebuildLegacyFields = (state: state): state => {
+  {
+    ...state,
+    scenes: getActiveScenes(state.inventory, state.sceneOrder),
+    deletedSceneIds: getDeletedIds(state.inventory),
   }
 }
 
 let calculateActiveIndexAfterDelete = (
   currentIndex: int,
   deletedIndex: int,
-  newScenesLength: int,
+  newOrderLength: int,
 ): int => {
-  if newScenesLength == 0 {
+  if newOrderLength == 0 {
     -1
   } else if deletedIndex == currentIndex {
-    if deletedIndex < newScenesLength {
+    if deletedIndex < newOrderLength {
       deletedIndex
     } else {
-      newScenesLength - 1
+      newOrderLength - 1
     }
   } else if deletedIndex < currentIndex {
     currentIndex - 1
@@ -57,47 +90,47 @@ let calculateActiveIndexAfterDelete = (
 
 let handleDeleteScene = (state: state, index: int): state => {
   switch state.appMode {
-  | InteractiveAuthoring(_) => {
-      let scenes = state.scenes
-      switch Belt.Array.get(scenes, index) {
-      | Some(sceneToDelete) =>
-        let targetName = sceneToDelete.name
+  | Interactive(_) =>
+    switch Belt.Array.get(state.sceneOrder, index) {
+    | Some(idToDelete) =>
+      switch state.inventory->Belt.Map.String.get(idToDelete) {
+      | Some(entry) =>
+        let targetName = entry.scene.name
 
-        let newScenes = Belt.Array.keepWithIndex(scenes, (_, i) => i != index)
+        // 1. Mark as deleted in inventory
+        let updatedInventory =
+          state.inventory->Belt.Map.String.set(idToDelete, {...entry, status: Deleted(Date.now())})
 
-        // Remove hotspots pointing to deleted scene
-        let cleanupScenes = Belt.Array.map(newScenes, s => {
-          let newHotspots = Belt.Array.keep(s.hotspots, h => h.target != targetName)
-          {...s, hotspots: newHotspots}
+        // 2. Remove ID from sceneOrder
+        let updatedOrder = state.sceneOrder->Belt.Array.keep(id => id != idToDelete)
+
+        // 3. Remove hotspots pointing to deleted scene in ALL active scenes
+        let inventoryWithCleanHotspots = updatedInventory->Belt.Map.String.map(e => {
+          let s = e.scene
+          let newHotspots = s.hotspots->Belt.Array.keep(h => h.target != targetName)
+          {...e, scene: {...s, hotspots: newHotspots}}
         })
 
-        let newDeletedIds = if (
-          sceneToDelete.id != "" &&
-            !Belt.Array.some(state.deletedSceneIds, id => id == sceneToDelete.id)
-        ) {
-          Belt.Array.concat(state.deletedSceneIds, [sceneToDelete.id])
-        } else {
-          state.deletedSceneIds
-        }
-
-        // Adjust activeIndex
-        let newLen = Belt.Array.length(cleanupScenes)
+        // 4. Adjust activeIndex
+        let newLen = Belt.Array.length(updatedOrder)
         let newActiveIndex = calculateActiveIndexAfterDelete(state.activeIndex, index, newLen)
 
-        let baseState = {
+        // 5. Sync names & Rebuild legacy
+        let finalizedInventory = syncInventoryNames(inventoryWithCleanHotspots, updatedOrder)
+        {
           ...state,
-          scenes: syncSceneNames(cleanupScenes),
-          deletedSceneIds: newDeletedIds,
+          inventory: finalizedInventory,
+          sceneOrder: updatedOrder,
           activeIndex: newActiveIndex,
-        }
+          activeYaw: newActiveIndex == -1 ? 0.0 : state.activeYaw,
+          activePitch: newActiveIndex == -1 ? 0.0 : state.activePitch,
+          linkDraft: None,
+          deletedSceneIds: state.deletedSceneIds->Array.concat([idToDelete]),
+        }->rebuildLegacyFields
 
-        if newLen == 0 {
-          {...baseState, activeYaw: 0.0, activePitch: 0.0}
-        } else {
-          baseState
-        }
       | None => state
       }
+    | None => state
     }
   | _ => state
   }
@@ -105,13 +138,12 @@ let handleDeleteScene = (state: state, index: int): state => {
 
 let handleReorderScenes = (state: state, fromIndex: int, toIndex: int): state => {
   switch state.appMode {
-  | InteractiveAuthoring(_) =>
+  | Interactive(_) =>
     if fromIndex != toIndex {
-      let scenes = state.scenes
-      switch Belt.Array.get(scenes, fromIndex) {
-      | Some(movedItem) =>
-        let rest = Belt.Array.keepWithIndex(scenes, (_, i) => i != fromIndex)
-        let newScenes = UiHelpers.insertAt(rest, toIndex, movedItem)
+      switch Belt.Array.get(state.sceneOrder, fromIndex) {
+      | Some(movedId) =>
+        let rest = state.sceneOrder->Belt.Array.keepWithIndex((_, i) => i != fromIndex)
+        let updatedOrder = UiHelpers.insertAt(rest, toIndex, movedId)
 
         let newActiveIndex = if state.activeIndex == fromIndex {
           toIndex
@@ -123,7 +155,13 @@ let handleReorderScenes = (state: state, fromIndex: int, toIndex: int): state =>
           state.activeIndex
         }
 
-        {...state, scenes: syncSceneNames(newScenes), activeIndex: newActiveIndex}
+        let finalizedInventory = syncInventoryNames(state.inventory, updatedOrder)
+        {
+          ...state,
+          inventory: finalizedInventory,
+          sceneOrder: updatedOrder,
+          activeIndex: newActiveIndex,
+        }->rebuildLegacyFields
       | None => state
       }
     } else {
@@ -134,120 +172,152 @@ let handleReorderScenes = (state: state, fromIndex: int, toIndex: int): state =>
 }
 
 let updateSceneCategories = (
-  scenes: array<scene>,
+  inventory: Belt.Map.String.t<sceneEntry>,
+  sceneOrder: array<string>,
   targetIndex: int,
   lastUsedCategory: string,
-): array<scene> => {
-  scenes->Belt.Array.mapWithIndex((i, s) => {
-    if i == targetIndex && !s.categorySet {
-      {...s, category: lastUsedCategory}
-    } else {
-      s
+): Belt.Map.String.t<sceneEntry> => {
+  switch Belt.Array.get(sceneOrder, targetIndex) {
+  | Some(id) =>
+    switch inventory->Belt.Map.String.get(id) {
+    | Some({scene} as entry) if !scene.categorySet =>
+      inventory->Belt.Map.String.set(id, {...entry, scene: {...scene, category: lastUsedCategory}})
+    | _ => inventory
     }
-  })
+  | None => inventory
+  }
 }
 
 let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
   switch state.appMode {
-  | InteractiveAuthoring(_)
-  | InteractiveTouring(_)
-  | SystemBlocking(Uploading(_)) => {
-      let wasEmpty = Belt.Array.length(state.scenes) == 0
+  | Interactive(_)
+  | SystemBlocking(Uploading(_)) =>
+    let wasEmpty = Belt.Map.String.isEmpty(state.inventory)
 
-      let newScenes = Belt.Array.reduce(scenesData, state.scenes, (acc, dataJson) => {
-        let id = switch JsonCombinators.Json.decode(dataJson, JsonParsers.Domain.scene) {
-        | Ok(data) => data.id
-        | Error(_) => "error_" ++ Float.toString(Date.now())
-        }
-        if Belt.Array.some(acc, s => s.id == id) {
-          acc
-        } else {
-          let newScene = SceneHelpers.parseScene(dataJson)
-          Belt.Array.concat(acc, [newScene])
-        }
-      })
-
-      let sortedScenes = Array.copy(newScenes)
-      Array.sort(sortedScenes, (a, b) => {
-        String.localeCompare(a.name, b.name)
-      })
-
-      let finalScenes = syncSceneNames(sortedScenes)
-
-      let activeIndex = if (
-        (wasEmpty ||
-        state.activeIndex == -1 ||
-        state.activeIndex >= Belt.Array.length(finalScenes)) && Belt.Array.length(finalScenes) > 0
-      ) {
-        0
+    // 1. Parse and add to inventory
+    let (updatedInventory, addedIds) = scenesData->Belt.Array.reduce((state.inventory, []), (
+      (inv, ids),
+      dataJson,
+    ) => {
+      let newScene = SceneHelpers.parseScene(dataJson)
+      if inv->Belt.Map.String.has(newScene.id) {
+        (inv, ids)
       } else {
-        state.activeIndex
+        (
+          inv->Belt.Map.String.set(newScene.id, {scene: newScene, status: Active}),
+          Belt.Array.concat(ids, [newScene.id]),
+        )
       }
+    })
 
-      if wasEmpty && activeIndex == 0 {
-        {...state, scenes: finalScenes, activeIndex, activeYaw: 0.0, activePitch: 0.0}
-      } else {
-        {...state, scenes: finalScenes, activeIndex}
+    // 2. Update order (sort current + new)
+    let mergedOrder = Belt.Array.concat(state.sceneOrder, addedIds)
+    let sortedOrder = Array.copy(mergedOrder)
+    Array.sort(sortedOrder, (a, b) => {
+      let nameA = switch updatedInventory->Belt.Map.String.get(a) {
+      | Some(e) => e.scene.name
+      | None => ""
       }
+      let nameB = switch updatedInventory->Belt.Map.String.get(b) {
+      | Some(e) => e.scene.name
+      | None => ""
+      }
+      String.localeCompare(nameA, nameB)
+    })
+
+    // 3. Sync names
+    let finalizedInventory = syncInventoryNames(updatedInventory, sortedOrder)
+
+    // 4. Adjust activeIndex
+    let activeIndex = if (
+      (wasEmpty ||
+      state.activeIndex == -1 ||
+      state.activeIndex >= Belt.Array.length(sortedOrder)) && Belt.Array.length(sortedOrder) > 0
+    ) {
+      0
+    } else {
+      state.activeIndex
     }
+
+    let nextState = {
+      ...state,
+      inventory: finalizedInventory,
+      sceneOrder: sortedOrder,
+      activeIndex,
+    }
+
+    if wasEmpty && activeIndex == 0 {
+      {...nextState, activeYaw: 0.0, activePitch: 0.0}
+    } else {
+      nextState
+    }->rebuildLegacyFields
+
   | _ => state
   }
 }
 
 let handleUpdateSceneMetadata = (state: state, index: int, metaJson: JSON.t): state => {
   switch state.appMode {
-  | InteractiveAuthoring(_)
-  | InteractiveTouring(_) => {
-      let scenes = state.scenes
-      let meta = switch JsonCombinators.Json.decode(metaJson, JsonParsers.Domain.updateMetadata) {
-      | Ok(m) => m
-      | Error(_) => {
-          category: None,
-          floor: None,
-          label: None,
-          isAutoForward: None,
+  | Interactive(_) =>
+    switch Belt.Array.get(state.sceneOrder, index) {
+    | Some(targetId) =>
+      switch state.inventory->Belt.Map.String.get(targetId) {
+      | Some({scene} as entry) =>
+        let meta = switch JsonCombinators.Json.decode(metaJson, JsonParsers.Domain.updateMetadata) {
+        | Ok(m) => m
+        | Error(_) => {
+            category: None,
+            floor: None,
+            label: None,
+            isAutoForward: None,
+          }
         }
+
+        let newCategory = switch meta.category {
+        | Some(c) => c
+        | None => scene.category
+        }
+        let newFloor = switch meta.floor {
+        | Some(f) => f
+        | None => scene.floor
+        }
+        let newLabel = switch meta.label {
+        | Some(l) => l
+        | None => scene.label
+        }
+        let newIsAutoForward = switch meta.isAutoForward {
+        | Some(af) => af
+        | None => scene.isAutoForward
+        }
+        let categorySet = switch meta.category {
+        | Some(_) => true
+        | None => scene.categorySet
+        }
+
+        let updatedScene = {
+          ...scene,
+          category: newCategory,
+          floor: newFloor,
+          label: newLabel,
+          isAutoForward: newIsAutoForward,
+          categorySet,
+        }
+
+        {
+          ...state,
+          inventory: state.inventory->Belt.Map.String.set(
+            targetId,
+            {...entry, scene: updatedScene},
+          ),
+          lastUsedCategory: switch meta.category {
+          | Some(c) => c
+          | None => state.lastUsedCategory
+          },
+        }->rebuildLegacyFields
+
+      | None => state
       }
-
-      let updatedLastUsedCategory = ref(state.lastUsedCategory)
-
-      let newScenes = Belt.Array.mapWithIndex(scenes, (i, s) => {
-        if i == index {
-          let newCategory = switch meta.category {
-          | Some(c) =>
-            updatedLastUsedCategory.contents = c
-            c
-          | None => s.category
-          }
-          let newFloor = switch meta.floor {
-          | Some(f) => f
-          | None => s.floor
-          }
-          let newLabel = switch meta.label {
-          | Some(l) => l
-          | None => s.label
-          }
-          let newIsAutoForward = switch meta.isAutoForward {
-          | Some(af) => af
-          | None => s.isAutoForward
-          }
-          let categorySet = switch meta.category {
-          | Some(_) => true
-          | None => s.categorySet
-          }
-          {
-            ...s,
-            category: newCategory,
-            floor: newFloor,
-            label: newLabel,
-            isAutoForward: newIsAutoForward,
-            categorySet,
-          }
-        } else {
-          s
-        }
-      })
-      {...state, scenes: newScenes, lastUsedCategory: updatedLastUsedCategory.contents}
+    | None => state
     }
   | _ => state
   }
@@ -267,30 +337,72 @@ let handleSetActiveScene = (
   pitch: float,
   transition: option<transition>,
 ): state => {
-  if index >= 0 && index < Belt.Array.length(state.scenes) {
+  if index >= 0 && index < Belt.Array.length(state.sceneOrder) {
     let newTransition = calculateTransition(transition)
-    let newScenes = updateSceneCategories(state.scenes, index, state.lastUsedCategory)
+    let updatedInventory = updateSceneCategories(
+      state.inventory,
+      state.sceneOrder,
+      index,
+      state.lastUsedCategory,
+    )
 
     {
       ...state,
-      scenes: newScenes,
+      inventory: updatedInventory,
       activeIndex: index,
       activeYaw: yaw,
       activePitch: pitch,
       transition: newTransition,
-    }
+    }->rebuildLegacyFields
   } else {
     state
   }
 }
 
 let handleApplyLazyRename = (state: state, index: int, name: string): state => {
-  let newScenes = Belt.Array.mapWithIndex(state.scenes, (i, s) => {
-    if i == index {
-      {...s, label: name}
+  switch Belt.Array.get(state.sceneOrder, index) {
+  | Some(id) =>
+    switch state.inventory->Belt.Map.String.get(id) {
+    | Some({scene} as entry) =>
+      let updatedInventory =
+        state.inventory->Belt.Map.String.set(id, {...entry, scene: {...scene, label: name}})
+      let finalizedInventory = syncInventoryNames(updatedInventory, state.sceneOrder)
+      {...state, inventory: finalizedInventory}->rebuildLegacyFields
+    | None => state
+    }
+  | None => state
+  }
+}
+
+let syncSceneNames = (scenes: array<Types.scene>) => {
+  // LEGACY: Keeping to avoid breaking tests that depend on it
+  let renameMap = Belt.MutableMap.String.make()
+  let updatedScenes = Belt.Array.mapWithIndex(scenes, (index, scene) => {
+    if scene.label != "" {
+      let oldName = scene.name
+      let newName = TourLogic.computeSceneFilename(index, scene.label)
+      if newName != oldName {
+        let _ = Belt.MutableMap.String.set(renameMap, oldName, newName)
+        {...scene, name: newName}
+      } else {
+        scene
+      }
     } else {
-      s
+      scene
     }
   })
-  {...state, scenes: syncSceneNames(newScenes)}
+
+  if Belt.MutableMap.String.size(renameMap) > 0 {
+    Belt.Array.map(updatedScenes, s => {
+      let updatedHotspots = Belt.Array.map(s.hotspots, h => {
+        switch Belt.MutableMap.String.get(renameMap, h.target) {
+        | Some(newName) => {...h, target: newName}
+        | None => h
+        }
+      })
+      {...s, hotspots: updatedHotspots}
+    })
+  } else {
+    updatedScenes
+  }
 }

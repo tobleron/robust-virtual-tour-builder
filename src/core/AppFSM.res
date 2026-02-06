@@ -1,80 +1,119 @@
 /* src/core/AppFSM.res */
 open Types
 
-type event =
-  | InitializeComplete
-  | StartAuthoring
-  | StopAuthoring
-  | StartSimulation(simulationState)
-  | StopSimulation
-  | StartTeasing
-  | StopTeasing
-  | StartUpload
-  | UploadProgress(float)
-  | UploadComplete(uploadReport, array<qualityItem>)
-  | CloseSummary
-  | StartProjectLoad({name: string})
-  | ProjectLoadComplete
-  | ProjectLoadError(string)
-  | StartExport
-  | ExportComplete
-  | ExportError(string)
-  | CriticalErrorOccurred(string)
-  | Reset
+type event = appFsmEvent
 
 let toString = (mode: appMode) => {
   switch mode {
   | Initializing => "Initializing"
-  | InteractiveTouring(Idle) => "InteractiveTouring(Idle)"
-  | InteractiveTouring(Navigating(_)) => "InteractiveTouring(Navigating)"
-  | InteractiveTouring(Previewing(_)) => "InteractiveTouring(Previewing)"
-  | InteractiveAuthoring(Idle) => "InteractiveAuthoring(Idle)"
-  | InteractiveAuthoring(Linking(_)) => "InteractiveAuthoring(Linking)"
-  | InteractiveAuthoring(EditingMetadata(_)) => "InteractiveAuthoring(EditingMetadata)"
-  | InteractiveSimulation(_) => "InteractiveSimulation"
-  | InteractiveTeaser => "InteractiveTeaser"
+  | Interactive(s) => {
+      let uiStr = switch s.uiMode {
+      | Viewing => "Viewing"
+      | EditingHotspots => "EditingHotspots"
+      | EditingMetadata(_) => "EditingMetadata"
+      | Simulation(_) => "Simulation"
+      | Teaser => "Teaser"
+      }
+      let navStr = NavigationFSM.toString(s.navigation)
+      let taskStr = switch s.backgroundTask {
+      | Some(Uploading({progress})) => "Uploading(" ++ Float.toString(progress) ++ ")"
+      | Some(GeneratingPreviews) => "GeneratingPreviews"
+      | None => "None"
+      }
+      "Interactive(" ++ uiStr ++ ", " ++ navStr ++ ", " ++ taskStr ++ ")"
+    }
   | SystemBlocking(Uploading(_)) => "SystemBlocking(Uploading)"
   | SystemBlocking(Summary(_)) => "SystemBlocking(Summary)"
   | SystemBlocking(ProjectLoading(_)) => "SystemBlocking(ProjectLoading)"
-  | SystemBlocking(Exporting) => "SystemBlocking(Exporting)"
+  | SystemBlocking(Exporting(_)) => "SystemBlocking(Exporting)"
   | SystemBlocking(CriticalError(_)) => "SystemBlocking(CriticalError)"
   }
 }
 
-let transition = (currentMode: appMode, event: event): appMode => {
+let rec transition = (currentMode: appMode, event: event): appMode => {
   let nextMode = switch (currentMode, event) {
-  | (Initializing, InitializeComplete) => InteractiveTouring(Idle)
+  | (Initializing, InitializeComplete) =>
+    Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None})
   | (Initializing, CriticalErrorOccurred(msg)) => SystemBlocking(CriticalError(msg))
 
-  | (InteractiveTouring(_), StartAuthoring) => InteractiveAuthoring(Idle)
-  | (InteractiveTouring(_), StartSimulation(simState)) => InteractiveSimulation(simState)
-  | (InteractiveTouring(_), StartTeasing) => InteractiveTeaser
-  | (InteractiveTouring(_), StartUpload) => SystemBlocking(Uploading({progress: 0.0}))
+  // --- Interactive Transitions ---
+  | (Interactive(s), StartAuthoring) => Interactive({...s, uiMode: EditingHotspots})
+  | (Interactive(s), StopAuthoring) => Interactive({...s, uiMode: Viewing})
+  | (Interactive(s), StartSimulation(simState)) => Interactive({...s, uiMode: Simulation(simState)})
+  | (Interactive(s), StopSimulation) => Interactive({...s, uiMode: Viewing})
+  | (Interactive(s), StartTeasing) => Interactive({...s, uiMode: Teaser})
+  | (Interactive(s), StopTeasing) => Interactive({...s, uiMode: Viewing})
 
-  | (InteractiveAuthoring(_), StopAuthoring) => InteractiveTouring(Idle)
-  | (InteractiveAuthoring(_), StartUpload) => SystemBlocking(Uploading({progress: 0.0}))
-
-  | (InteractiveSimulation(_), StopSimulation) => InteractiveTouring(Idle)
-
-  | (InteractiveTeaser, StopTeasing) => InteractiveTouring(Idle)
-
-  | (SystemBlocking(Uploading(_)), UploadProgress(p)) => SystemBlocking(Uploading({progress: p}))
-  | (SystemBlocking(Uploading(_)), UploadComplete(report, quality)) =>
+  // --- Background Tasks (Ambient) ---
+  | (Interactive(s), StartUpload) =>
+    Interactive({...s, backgroundTask: Some(Uploading({progress: 0.0}))})
+  | (Interactive(s), UploadProgress(p)) =>
+    switch s.backgroundTask {
+    | Some(Uploading(_)) => Interactive({...s, backgroundTask: Some(Uploading({progress: p}))})
+    | _ => currentMode
+    }
+  | (Interactive(_s), UploadComplete(report, quality)) =>
+    // Summary is Modal
     SystemBlocking(Summary(report, quality))
 
-  | (SystemBlocking(Summary(_)), CloseSummary) => InteractiveTouring(Idle)
-  | (SystemBlocking(Summary(_)), StartUpload) => SystemBlocking(Uploading({progress: 0.0}))
+  | (Interactive(s), NavigationEvent(navEvent)) =>
+    Interactive({...s, navigation: NavigationFSM.reducer(s.navigation, navEvent)})
 
-  | (_, StartProjectLoad({name})) => SystemBlocking(ProjectLoading({name: name}))
-  | (SystemBlocking(ProjectLoading(_)), ProjectLoadComplete) => InteractiveTouring(Idle)
-  | (SystemBlocking(ProjectLoading(_)), ProjectLoadError(msg)) => SystemBlocking(CriticalError(msg))
-  | (_, StartExport) => SystemBlocking(Exporting)
-  | (SystemBlocking(Exporting), ExportComplete) => InteractiveTouring(Idle)
-  | (SystemBlocking(Exporting), ExportError(msg)) => SystemBlocking(CriticalError(msg))
+  // --- Blocking & Buffering ---
+  | (_, StartProjectLoad({name})) => SystemBlocking(ProjectLoading({name, pendingAction: None}))
+  | (SystemBlocking(ProjectLoading(s)), ProjectLoadComplete) =>
+    let next = Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None})
+    switch s.pendingAction {
+    | Some(a) => transition(next, a)
+    | None => next
+    }
+  | (SystemBlocking(ProjectLoading(_s)), ProjectLoadError(msg)) =>
+    SystemBlocking(CriticalError(msg))
+  | (SystemBlocking(ProjectLoading(s)), e) =>
+    // Buffer the event if it's an interaction attempt
+    switch e {
+    | StartAuthoring
+    | StartSimulation(_)
+    | StartTeasing
+    | StartUpload
+    | NavigationEvent(_) =>
+      SystemBlocking(ProjectLoading({...s, pendingAction: Some(e)}))
+    | _ => currentMode // Ignore other system events
+    }
+
+  | (_, StartExport) => SystemBlocking(Exporting({pendingAction: None}))
+  | (SystemBlocking(Exporting(s)), ExportComplete) =>
+    let next = Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None})
+    switch s.pendingAction {
+    | Some(a) => transition(next, a)
+    | None => next
+    }
+  | (SystemBlocking(Exporting(_s)), ExportError(msg)) => SystemBlocking(CriticalError(msg))
+  | (SystemBlocking(Exporting(_s)), e) =>
+    switch e {
+    | StartAuthoring
+    | StartSimulation(_)
+    | StartTeasing
+    | StartUpload
+    | NavigationEvent(_) =>
+      SystemBlocking(Exporting({pendingAction: Some(e)}))
+    | _ => currentMode
+    }
+
+  | (SystemBlocking(Summary(_)), CloseSummary) =>
+    Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None})
+  | (SystemBlocking(Summary(_)), StartUpload) =>
+    Interactive({
+      uiMode: Viewing,
+      navigation: IdleFsm,
+      backgroundTask: Some(Uploading({progress: 0.0})),
+    })
 
   | (_, CriticalErrorOccurred(msg)) => SystemBlocking(CriticalError(msg))
   | (_, Reset) => Initializing
-  | (m, _) => m // Ignore invalid transitions
+
+  // --- Default Catch-all ---
+  | (m, _) => m
   }
 
   if nextMode != currentMode {

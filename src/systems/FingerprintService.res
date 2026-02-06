@@ -50,26 +50,22 @@ let fingerprintFiles = (validFiles: array<File.t>) => {
 
 let filterDuplicates = (
   results: array<uploadItem>,
-  ~existingScenes: array<Types.scene>,
-  ~deletedIds: array<string>,
+  ~inventory: Belt.Map.String.t<Types.sceneEntry>,
   ~onDuplicate: int => unit,
   ~onRestore: string => unit,
 ) => {
-  let existingIdsSet = Belt.Set.String.fromArray(Belt.Array.map(existingScenes, s => s.id))
-  let deletedIdsSet = Belt.Set.String.fromArray(deletedIds)
-
   let uniqueItems = []
   let skippedCount = ref(0)
 
   Belt.Array.forEach(results, item => {
     switch Nullable.toOption(item.id) {
     | Some(id) =>
-      if Belt.Set.String.has(deletedIdsSet, id) {
+      switch inventory->Belt.Map.String.get(id) {
+      | Some({status: Deleted(_)}) =>
         onRestore(id)
         let _ = Array.push(uniqueItems, item)
-      } else if Belt.Set.String.has(existingIdsSet, id) {
-        skippedCount := skippedCount.contents + 1
-      } else {
+      | Some({status: Active}) => skippedCount := skippedCount.contents + 1
+      | None =>
         let _ = Array.push(uniqueItems, item)
       }
     | None => () /* Failed item */

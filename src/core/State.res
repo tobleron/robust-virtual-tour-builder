@@ -1,8 +1,10 @@
 open Types
 
 let initialState: state = {
-  tourName: "Tour Name",
+  tourName: "Untitled Tour",
   scenes: [],
+  inventory: Belt.Map.String.empty,
+  sceneOrder: [],
   activeIndex: -1,
   activeYaw: 0.0,
   activePitch: 0.0,
@@ -21,7 +23,7 @@ let initialState: state = {
   timeline: [],
   activeTimelineStepId: None,
   navigation: Idle,
-  navigationFsm: Idle,
+  navigationFsm: IdleFsm,
   // isSimulationMode: false,
   simulation: {
     status: Idle,

@@ -89,7 +89,7 @@ describe("Interactions Robustness (Chaos Fuzzing)", () => {
         },
       )
     } else {
-      Reset
+      Actions.Reset
     }
   }
 

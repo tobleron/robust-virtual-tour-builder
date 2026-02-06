@@ -200,7 +200,11 @@ describe("Sidebar", () => {
       isAutoForward: false,
     }
 
-    let mockState = {...State.initialState, scenes: [scene], appMode: InteractiveTouring(Idle)}
+    let mockState = {
+      ...State.initialState,
+      scenes: [scene],
+      appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+    }
     let mockDispatch = _ => ()
     GlobalStateBridge.setDispatch(mockDispatch)
     GlobalStateBridge.setState(mockState)
@@ -284,7 +288,10 @@ describe("Sidebar", () => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
-    let mockState = {...State.initialState, appMode: InteractiveTouring(Idle)}
+    let mockState = {
+      ...State.initialState,
+      appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+    }
     let mockDispatch = _ => ()
     GlobalStateBridge.setDispatch(mockDispatch)
     GlobalStateBridge.setState(mockState)
@@ -356,7 +363,11 @@ describe("Sidebar", () => {
       isAutoForward: false,
     }
 
-    let mockState = {...State.initialState, scenes: [scene], appMode: InteractiveTouring(Idle)}
+    let mockState = {
+      ...State.initialState,
+      scenes: [scene],
+      appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+    }
     let mockDispatch = _ => ()
     GlobalStateBridge.setDispatch(mockDispatch)
     GlobalStateBridge.setState(mockState)
@@ -429,7 +440,11 @@ describe("Sidebar", () => {
       isAutoForward: false,
     }
 
-    let mockState = {...State.initialState, scenes: [scene], appMode: InteractiveTouring(Idle)}
+    let mockState = {
+      ...State.initialState,
+      scenes: [scene],
+      appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+    }
     let mockDispatch = _ => ()
     GlobalStateBridge.setDispatch(mockDispatch)
     GlobalStateBridge.setState(mockState)
@@ -463,7 +478,10 @@ describe("Sidebar", () => {
     let container = Dom.createElement("div")
     Dom.appendChild(Dom.documentBody, container)
 
-    let mockState = {...State.initialState, appMode: InteractiveTouring(Idle)}
+    let mockState = {
+      ...State.initialState,
+      appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+    }
     let mockDispatch = _ => ()
     GlobalStateBridge.setDispatch(mockDispatch)
     GlobalStateBridge.setState(mockState)

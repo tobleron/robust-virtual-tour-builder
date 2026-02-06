@@ -1,11 +1,8 @@
-/* tests/unit/Reducer_v.test.res */
+/* tests/unit/RootReducer_v.test.res */
 open Vitest
 open Actions
 
 describe("Reducer", () => {
-  let initialState = State.initialState
-
-  // Helper to create basic scene
   let createScene = name => {
     let sc: Types.scene = {
       id: name,
@@ -27,7 +24,6 @@ describe("Reducer", () => {
     sc
   }
 
-  // Helper to create basic hotspot
   let createHotspot = linkId => {
     let hs: Types.hotspot = {
       linkId,
@@ -51,9 +47,24 @@ describe("Reducer", () => {
     hs
   }
 
+  let mockState = (scenes: array<Types.scene>): Types.state => {
+    let inventory = scenes->Belt.Array.reduce(Belt.Map.String.empty, (acc, s) => {
+      acc->Belt.Map.String.set(s.id, ({scene: s, status: Active}: Types.sceneEntry))
+    })
+    let sceneOrder = scenes->Belt.Array.map(s => s.id)
+    {
+      ...State.initialState,
+      scenes,
+      inventory,
+      sceneOrder,
+      activeIndex: 0,
+      appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
+    }
+  }
+
   test("SceneReducer actions are handled", t => {
     let scenes = [createScene("s1"), createScene("s2")]
-    let state = {...initialState, scenes, activeIndex: 0}
+    let state = mockState(scenes)
 
     let action = SetActiveScene(1, 90.0, 0.0, None)
     let result = Reducer.reducer(state, action)
@@ -64,7 +75,7 @@ describe("Reducer", () => {
 
   test("HotspotReducer actions are handled", t => {
     let scenes = [createScene("s1"), createScene("s2")]
-    let state = {...initialState, scenes, activeIndex: 0, appMode: InteractiveAuthoring(Idle)}
+    let state = mockState(scenes)
     let hotspot = createHotspot("h1")
     let actionAdd = AddHotspot(0, hotspot)
     let resultAdd = Reducer.reducer(state, actionAdd)
@@ -83,35 +94,35 @@ describe("Reducer", () => {
       intermediatePoints: None,
     }
     let actionLinking = StartLinking(Some(dummyDraft))
-    let resultLinking = Reducer.reducer(initialState, actionLinking)
+    let resultLinking = Reducer.reducer(State.initialState, actionLinking)
 
     t->expect(resultLinking.isLinking)->Expect.toEqual(true)
   })
 
   test("NavigationReducer actions are handled", t => {
     let actionStatus = SetNavigationStatus(Idle)
-    let resultStatus = Reducer.reducer(initialState, actionStatus)
+    let resultStatus = Reducer.reducer(State.initialState, actionStatus)
 
     t->expect(resultStatus.navigation)->Expect.toEqual(Idle)
   })
 
   test("TimelineReducer actions are handled", t => {
     let actionTimeline = SetActiveTimelineStep(Some("step1"))
-    let resultTimeline = Reducer.reducer(initialState, actionTimeline)
+    let resultTimeline = Reducer.reducer(State.initialState, actionTimeline)
 
     t->expect(resultTimeline.activeTimelineStepId)->Expect.toEqual(Some("step1"))
   })
 
   test("ProjectReducer actions are handled", t => {
     let actionTourName = SetTourName("My Tour")
-    let resultTourName = Reducer.reducer(initialState, actionTourName)
+    let resultTourName = Reducer.reducer(State.initialState, actionTourName)
 
     t->expect(resultTourName.tourName)->Expect.toEqual("My_Tour")
   })
 
   test("Reducer composition order", t => {
     let scenes = [createScene("s1"), createScene("s2")]
-    let state = {...initialState, scenes, activeIndex: 0}
+    let state = mockState(scenes)
     // SetActiveScene should be handled by SceneReducer
     let actionScene = SetActiveScene(0, 45.0, 10.0, None)
     let resultScene = Reducer.reducer(state, actionScene)
@@ -130,7 +141,7 @@ describe("Reducer", () => {
       camHfov: 0.0,
       intermediatePoints: None,
     }
-    let state1 = Reducer.reducer(initialState, SetTourName("Test Tour"))
+    let state1 = Reducer.reducer(State.initialState, SetTourName("Test Tour"))
     let state2 = Reducer.reducer(state1, StartLinking(Some(dummyDraft)))
     let state3 = Reducer.reducer(state2, SetNavigationStatus(Idle))
 
@@ -140,7 +151,7 @@ describe("Reducer", () => {
   })
 
   test("State immutability", t => {
-    let originalState = {...initialState, tourName: "Original"}
+    let originalState = {...State.initialState, tourName: "Original"}
     let newState = Reducer.reducer(originalState, SetTourName("Modified"))
 
     t->expect(originalState.tourName)->Expect.toEqual("Original")
@@ -148,7 +159,7 @@ describe("Reducer", () => {
   })
 
   test("Journey ID increment", t => {
-    let stateWithJourney = {...initialState, currentJourneyId: 5}
+    let stateWithJourney = {...State.initialState, currentJourneyId: 5}
     let actionIncrement = IncrementJourneyId
     let resultIncrement = Reducer.reducer(stateWithJourney, actionIncrement)
 
@@ -157,15 +168,15 @@ describe("Reducer", () => {
 
   test("Reset action", t => {
     let modifiedState = {
-      ...initialState,
+      ...State.initialState,
       tourName: "Modified",
       isLinking: true,
       activeIndex: 5,
     }
-    let actionReset = Reset
+    let actionReset = Actions.Reset
     let resultReset = Reducer.reducer(modifiedState, actionReset)
 
-    t->expect(resultReset.tourName)->Expect.toEqual("Tour Name")
+    t->expect(resultReset.tourName)->Expect.toEqual("Untitled Tour")
     t->expect(resultReset.isLinking)->Expect.toEqual(false)
     t->expect(resultReset.activeIndex)->Expect.toEqual(-1)
   })

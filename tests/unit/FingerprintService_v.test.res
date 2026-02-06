@@ -22,7 +22,9 @@ describe("FingerprintService", () => {
   })
 
   test("filterDuplicates correctly identifies duplicates", t => {
-    let existingScenes = [TestUtils.createMockScene(~id="id1", ())]
+    let inventory = Belt.Map.String.fromArray([
+      ("id1", {Types.scene: TestUtils.createMockScene(~id="id1", ()), status: Active}),
+    ])
     let results = [
       {
         UploadTypes.id: Nullable.make("id1"),
@@ -49,8 +51,7 @@ describe("FingerprintService", () => {
     let dupCount = ref(0)
     let filtered = FingerprintService.filterDuplicates(
       results,
-      ~existingScenes,
-      ~deletedIds=[],
+      ~inventory,
       ~onDuplicate=c => dupCount := c,
       ~onRestore=_ => (),
     )
