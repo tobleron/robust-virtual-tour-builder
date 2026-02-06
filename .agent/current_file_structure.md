@@ -11393,8 +11393,7 @@
 │   ├── diagnostic.log
 │   ├── error.log
 │   ├── log_changes.txt
-│   ├── project-guard.log
-│   └── telemetry.log
+│   └── project-guard.log
 ├── MAP.md
 ├── old_ref
 │   ├── 7aadee4
@@ -13795,4 +13794,4 @@
 │       └── test_run.json
 └── vitest.config.mjs
 
-592 directories, 13204 files
+592 directories, 13203 files

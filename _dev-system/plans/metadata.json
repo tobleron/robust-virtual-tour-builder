@@ -9,32 +9,10 @@
   ],
   "rescript": [
     {
-      "Surgical": {
-        "file": "../../src/systems/ProjectManager.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.80, Density: 0.21, Coupling: 0.10] | Drag: 6.01 | LOC: 375/300  🎯 Target: Function: `finalToken` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 13.510666666666665,
-        "recommended_splits": 2
-      }
-    },
-    {
       "Violation": {
         "file": "../../src/hooks/UseInteraction.res",
         "pattern": "Obj.magic",
         "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/SceneMutations.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 6.60, Density: 0.48, Coupling: 0.04] | Drag: 8.11 | LOC: 361/300  🎯 Target: Function: `syncSceneNames` (High Local Complexity (5.6). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 14.206925207756232,
-        "recommended_splits": 2
       }
     },
     {
@@ -46,12 +24,34 @@
     },
     {
       "Surgical": {
+        "file": "../../src/systems/ProjectManager.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.80, Density: 0.21, Coupling: 0.10] | Drag: 6.01 | LOC: 375/300  🎯 Target: Function: `finalToken` (High Local Complexity (2.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 13.510666666666665,
+        "recommended_splits": 2
+      }
+    },
+    {
+      "Surgical": {
         "file": "../../src/core/Reducer.res",
         "action": "De-bloat",
         "reason": "[Nesting: 4.20, Density: 0.30, Coupling: 0.10] | Drag: 5.50 | LOC: 385/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
         "complexity": 14.001298701298701,
+        "recommended_splits": 2
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/SceneMutations.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 6.60, Density: 0.48, Coupling: 0.04] | Drag: 8.11 | LOC: 361/300  🎯 Target: Function: `syncSceneNames` (High Local Complexity (5.6). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 14.206925207756232,
         "recommended_splits": 2
       }
     }
