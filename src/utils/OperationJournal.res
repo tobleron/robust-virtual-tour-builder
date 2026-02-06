@@ -211,8 +211,8 @@ let completeOperation = (id: string) => {
 
   let pendingOnly = Belt.Array.keep(newEntries, e =>
     switch e.status {
-    | InProgress | Pending | Failed(_) | Interrupted => true
-    | Completed | Cancelled => false
+    | InProgress | Pending | Interrupted => true
+    | Failed(_) | Completed | Cancelled => false
     }
   )
   currentJournal := {...currentJournal.contents, entries: pendingOnly}
