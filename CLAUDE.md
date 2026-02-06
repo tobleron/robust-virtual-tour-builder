@@ -231,7 +231,7 @@ Production-grade recovery ensures data integrity:
 ### Important Protocol Notes
 
 - **ALWAYS read `MAP.md` first** for context and file discovery
-- **Before any task**: Check if `tasks/TASKS.md` exists for task-related protocols
+- **Task Protocol**: For any task, you MUST follow the exact procedures in `tasks/TASKS.md` (Read `TASKS.md`, move to `active/`, implement, verify build, then archive).
 - **Conditional workflow loading**:
   - Writing `.res` files? Read `.agent/workflows/rescript-standards.md`
   - Writing `.rs` files? Read `.agent/workflows/rust-standards.md`
@@ -329,7 +329,10 @@ cargo fmt
 - **Headless Rendering**: Chrome integration for server-side recording
 - **Geocoding**: Reverse geocoding with LRU cache
 
+
 ## Common Development Tasks
+
+**Note: For all tasks, you MUST follow the procedure in `tasks/TASKS.md` (Read `TASKS.md`, move to `active/`, implement, verify build, then archive).**
 
 ### Adding a New FSM State
 
