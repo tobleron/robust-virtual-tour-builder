@@ -12,7 +12,9 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
   if Array.length(report.success) == 0 && Array.length(report.skipped) == 0 {
     let options: EventBus.modalConfig = {
       title: "Upload Failed",
-      description: Some("No files were successfully processed. Please check your files and try again."),
+      description: Some(
+        "No files were successfully processed. Please check your files and try again.",
+      ),
       icon: Some("alert-circle"),
       content: None,
       buttons: [

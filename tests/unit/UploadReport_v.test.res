@@ -62,7 +62,9 @@ describe("UploadReport", () => {
     switch receivedConfig.contents {
     | Some(config) =>
       t->expect(config.title)->Expect.toBe("Upload Failed")
-      t->expect(config.description)->Expect.toBe(
+      t
+      ->expect(config.description)
+      ->Expect.toBe(
         Some("No files were successfully processed. Please check your files and try again."),
       )
     | None => t->expect(false)->Expect.toBe(true)
