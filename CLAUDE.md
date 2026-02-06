@@ -2,6 +2,38 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 🧠 Core Protocols & System 2 Thinking
+
+**Context-First Approach:**
+1. **ALWAYS READ FIRST**: Start every task by reading `MAP.md` and `DATA_FLOW.md` for context
+2. **MAP.md Integrity**: When updating `MAP.md`, ALWAYS use root-relative paths (e.g., `[src/Main.res](src/Main.res)`). NEVER use absolute paths or `file:///` URIs
+3. **Root-Relative Paths**: All file references must be relative to repository root
+
+**Commitment Constraint:**
+- NEVER run `commit.sh` or `fast-commit.sh` unless explicitly asked to "save", "checkpoint", or "commit"
+- Only commit when the user explicitly provides a message or instruction
+
+**Task Protocol:**
+- Before handling any task-related concerns, read `tasks/TASKS.md`
+- Follow the exact procedures: Read `TASKS.md` → Move to `active/` → Implement → Verify build → Archive
+
+**Conditional Context Loading:**
+- **IF** writing `.res` files: Read `.agent/workflows/rescript-standards.md`
+- **IF** writing `.rs` files: Read `.agent/workflows/rust-standards.md`
+- **IF** writing Tests: Read `.agent/workflows/testing-standards.md`
+- **IF** debugging/instrumenting: Read `.agent/workflows/debug-standards.md`
+- **IF** creating **NEW** modules: Read `.agent/workflows/new-module-standards.md`
+
+## 🚨 Coding Vitals (PRIORITY 0)
+
+These are non-negotiable requirements for all code:
+
+1. **ReScript v12 Only**: Use `Option`/`Result` explicitly. NO `unwrap()`, `panic!`, or `console.log`
+2. **Schema Validation**: Use `@glennsl/rescript-json-combinators` (module `JsonCombinators`) for all JSON/IO interactions to ensure CSP compliance (no `eval`). Forbid `rescript-schema` and legacy `JSON` module
+3. **Logger Module**: Use `Logger.debug/info/warn/error` for all telemetry. High-value events and all diagnostic traces are visible via `./scripts/tail-diagnostics.sh`
+4. **Immutability**: Maintain functional purity in ReScript; avoid `mutable` keyword
+5. **Zero Warnings**: Production builds MUST have zero compiler warnings
+
 ## Project Overview
 
 The Robust Virtual Tour Builder is a professional-grade web application for creating interactive 360° virtual tours. Built with **ReScript** (frontend) and **Rust** (backend), it features a sophisticated FSM-based architecture, dual-panorama viewer system, and production-grade recovery mechanisms.
@@ -78,21 +110,15 @@ npm run rust:fmt
 
 ### Committing Changes
 
-**Important:** Only commit when the user explicitly requests it (provides a message or says "save", "checkpoint", or "commit").
+**PHASE 1: Build**
+- For normal requests, skip building (let dev server handle it)
 
-```bash
-# Fast commit (local snapshot, no tests/push)
-./scripts/fast-commit.sh "message"
-
-# Standard commit (build guard, commit, push to branch)
-./scripts/commit.sh "message" [branch]
-
-# Triple commit (syncs and pushes to main/testing/dev)
-./scripts/triple-commit.sh "message"
-
-# Pre-push verification (manual)
-./scripts/pre-push.sh
-```
+**PHASE 2: Commit & Push**
+- **Explicit Permission Required**: Only commit when the user provides a message or instruction ("save", "checkpoint", or "commit")
+- **Fast Path (Local Snapshot)**: `./scripts/fast-commit.sh "msg"` - Quick, local-only, no tests/push
+- **Standard Path (Push to Branch)**: `./scripts/commit.sh "msg" [branch]` - Build guard, commit, and push. Note: Tests are currently bypassed/manual
+- **Triple Path (Full Sync)**: `./scripts/triple-commit.sh "msg"` - Syncs and pushes to main/testing/dev branches
+- **Manual Verification**: `./scripts/pre-push.sh` is available for manual pre-push verification if needed
 
 ## Architecture Overview
 
@@ -214,30 +240,14 @@ Production-grade recovery ensures data integrity:
 
 ## ReScript Development Guidelines
 
-### Core Rules (Critical - from GEMINI.md and .cursorrules)
+### Code Organization & Patterns
 
-1. **ReScript v12 Only**: All frontend code MUST be in ReScript v12
-2. **Handle Option/Result**: Use explicit pattern matching, never `unwrap()` or `panic!`
-3. **No Console Logs**: Use `Logger` module (priority-based telemetry)
-4. **No Alerts**: Use `EventBus.dispatch(ShowNotification(...))`
-5. **Functional Purity**:
+1. **Functional Purity**:
    - UI components in `src/components/`
    - Business logic in `src/systems/`
    - State definitions in `src/core/State.res`
-6. **Schema Validation**: Use `@glennsl/rescript-json-combinators` for ALL JSON/IO interactions (CSP compliance - no `eval`)
-7. **Zero Warnings**: Production builds MUST have zero compiler warnings
-8. **Immutability**: Maintain functional purity; avoid `mutable`
-
-### Important Protocol Notes
-
-- **ALWAYS read `MAP.md` first** for context and file discovery
-- **Task Protocol**: For any task, you MUST follow the exact procedures in `tasks/TASKS.md` (Read `TASKS.md`, move to `active/`, implement, verify build, then archive).
-- **Conditional workflow loading**:
-  - Writing `.res` files? Read `.agent/workflows/rescript-standards.md`
-  - Writing `.rs` files? Read `.agent/workflows/rust-standards.md`
-  - Writing tests? Read `.agent/workflows/testing-standards.md`
-  - Debugging? Read `.agent/workflows/debug-standards.md`
-  - Creating new modules? Read `.agent/workflows/new-module-standards.md`
+2. **No Alerts**: Use `EventBus.dispatch(ShowNotification(...))` instead of browser alerts
+3. **No Console Logs**: Use `Logger` module for priority-based telemetry
 
 ### Working with ReScript
 
@@ -377,15 +387,14 @@ cargo fmt
 **Important Documentation Files:**
 - **MAP.md** - Semantic codebase map with file descriptions and tags
 - **DATA_FLOW.md** - Critical data flows showing how data moves through the system
-- **GEMINI.md** - Protocol definitions and coding standards
-- **.agent/workflows/** - Detailed coding standards by domain
+- **.agent/workflows/** - Detailed coding standards by domain (rescript, rust, testing, debug, new-module)
+- **tasks/TASKS.md** - Task workflow procedures
 
 **When starting work:**
 1. Read MAP.md to understand file locations and purposes
 2. Read DATA_FLOW.md to understand how modules interact in key flows
-3. Read relevant workflow files for coding standards
-
-Use `MAP.md` for detailed semantic file index with functionality tags.
+3. Read relevant .agent/workflows/ file based on task type
+4. Check tasks/TASKS.md for task management procedure
 
 **Key Directories:**
 - `src/core/` - State, reducers, types, FSMs, JSON parsers
@@ -494,5 +503,3 @@ Refer to `.agent/workflows/` for detailed procedures:
 
 - `README.md` - Full project documentation and feature overview
 - `MAP.md` - Semantic codebase map with functionality tags
-- `.cursorrules` - Primary coding standards and protocols
-- `GEMINI.md` - Protocol definitions (if referenced in .cursorrules)

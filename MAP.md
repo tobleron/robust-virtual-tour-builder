@@ -290,3 +290,6 @@ This map provides a semantic overview of the project structure to optimize conte
 
 
 
+
+## 🆕 Unmapped Modules
+* [src/components/CriticalErrorMonitor.res](src/components/CriticalErrorMonitor.res): New module detected. Please classify. #new

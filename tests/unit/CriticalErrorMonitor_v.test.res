@@ -44,12 +44,14 @@ describe("CriticalErrorMonitor", () => {
     let monitorCmp = await loadMonitor()
 
     let receivedConfig = ref(None)
-    let unsubscribe = EventBus.subscribe(evt => {
-      switch evt {
-      | ShowModal(config) => receivedConfig := Some(config)
-      | _ => ()
-      }
-    })
+    let unsubscribe = EventBus.subscribe(
+      evt => {
+        switch evt {
+        | ShowModal(config) => receivedConfig := Some(config)
+        | _ => ()
+        }
+      },
+    )
 
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(
@@ -86,12 +88,14 @@ describe("CriticalErrorMonitor", () => {
     let monitorCmp = await loadMonitor()
 
     let receivedConfig = ref(None)
-    let unsubscribe = EventBus.subscribe(evt => {
-      switch evt {
-      | ShowModal(config) => receivedConfig := Some(config)
-      | _ => ()
-      }
-    })
+    let unsubscribe = EventBus.subscribe(
+      evt => {
+        switch evt {
+        | ShowModal(config) => receivedConfig := Some(config)
+        | _ => ()
+        }
+      },
+    )
 
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(
