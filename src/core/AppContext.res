@@ -187,8 +187,8 @@ let useIsSystemLocked = () => {
   | SystemBlocking(CriticalError(_)) => false
   | Interactive(s) =>
     switch s.navigation {
-    | IdleFsm => false
-    | _ => true
+    | Transitioning(_) => true
+    | _ => false
     }
   }
 }
