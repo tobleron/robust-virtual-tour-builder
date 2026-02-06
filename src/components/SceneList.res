@@ -83,7 +83,10 @@ let make = React.memo(() => {
       if index == sceneSlice.activeIndex {
         ()
       } else if isSystemLocked {
-        EventBus.dispatch(ShowNotification("System is busy...", #Warning, None))
+        let remainingMs = TransitionLock.getRemainingMs()
+        let remainingSeconds = Math.max(1.0, Int.toFloat(remainingMs) /. 1000.0)
+        let message = "System is busy. Please wait (~" ++ Float.toString(remainingSeconds) ++ "s)..."
+        EventBus.dispatch(ShowNotification(message, #Warning, None))
       } else {
         Logger.info(
           ~module_="SceneList",
