@@ -10,6 +10,7 @@ type policy =
   | Throttle(int, mode)
   | Debounce(int)
   | Mutex(scope)
+  | SlidingWindow(int, int) // maxCalls, windowMs
 
 // Standard Policies
 let sceneNavigation = Throttle(300, Leading)

@@ -44,10 +44,10 @@ let (handleClick, isPending) = useInteraction(
 ## Implementation Plan
 
 ### Phase 1: Foundation (Core Logic)
-1.  [ ] Create `src/core/InteractionGuard.res`.
+1.  [x] Create `src/core/InteractionGuard.res`.
     -   Implement the state tracking map.
     -   Implement `check(policy, history)` logic.
-2.  [ ] Create `src/core/InteractionPolicies.res`.
+2.  [x] Create `src/core/InteractionPolicies.res`.
     -   Define the `policy` variant.
     -   Define standard policies:
         -   `SceneNavigation`: `Throttle(300ms, Leading)`.
@@ -55,30 +55,30 @@ let (handleClick, isPending) = useInteraction(
         -   `HeavyCompute`: `Debounce(100ms)`.
 
 ### Phase 2: React Integration
-1.  [ ] Create `src/hooks/useInteraction.res`.
+1.  [x] Create `src/hooks/useInteraction.res`.
     -   Should return a wrapper function and state (`isPending`, `wasThrottled`).
     -   Handle unmounting cleanup (cancel pending debounces).
 
 ### Phase 3: Adoption (Refactoring)
-1.  [ ] **Scene Switching (Critical):**
+1.  [x] **Scene Switching (Critical):**
     -   Refactor `SceneList.res` to use `useInteraction` with `SceneNavigation` policy.
     -   Refactor `SceneSwitcher.res` (Hotspots) to use `InteractionGuard.attempt` directly (for non-React calls).
     -   Remove manual `lastSwitchTime` logic from `ViewerState` and `SceneList`.
-2.  [ ] **Project Actions:**
+2.  [x] **Project Actions:**
     -   Wrap "Save", "Export", and "Delete" in `SidebarActions.res` with `Mutex` policy.
     -   Ensure visual feedback (spinners/disabled states) is driven by the guard state.
 
 ### Phase 4: Cleanup & Integration (Crucial)
-1.  [ ] **Remove Ghost Modules:**
+1.  [x] **Remove Ghost Modules:**
     -   Remove `src/core/InteractionQueue.res` from `MAP.md` (file does not exist).
-2.  [ ] **Integrate `RateLimiter`:**
+2.  [x] **Integrate `RateLimiter`:**
     -   Review `src/utils/RateLimiter.res`. If `InteractionGuard` implements similar logic, deprecate `RateLimiter` or make `InteractionGuard` use it internally.
     -   Update `ViewerSnapshot.res` to use the new standard `InteractionGuard` instead of raw `RateLimiter`.
 
 ### Phase 5: Validation
-1.  [ ] Add Unit Tests for `InteractionGuard` (simulating time/concurrency).
-2.  [ ] Verify "spam click" protection on Scene List (should execute once per 300ms).
-3.  [ ] Verify "double save" protection (second click should be blocked while first is pending).
+1.  [x] Add Unit Tests for `InteractionGuard` (simulating time/concurrency).
+2.  [x] Verify "spam click" protection on Scene List (should execute once per 300ms).
+3.  [x] Verify "double save" protection (second click should be blocked while first is pending).
 
 ## Benefits
 -   **Robustness:** mathematically impossible to trigger race conditions if policies are correct.

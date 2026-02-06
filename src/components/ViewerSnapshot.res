@@ -1,7 +1,6 @@
 open ReBindings
 open ViewerState
-
-let snapshotLimiter = RateLimiter.make(~maxCalls=10, ~windowMs=60000)
+open InteractionPolicies
 
 let performSnapshot = () => {
   Promise.make((resolve, _reject) => {
@@ -60,10 +59,13 @@ let performSnapshot = () => {
 }
 
 let debouncedSnapshot = Debounce.make(~fn=() => {
-  if RateLimiter.canCall(snapshotLimiter) {
-    RateLimiter.recordCall(snapshotLimiter)
-    performSnapshot()
-  } else {
+  switch InteractionGuard.attempt(
+    "viewer_snapshot_limit",
+    SlidingWindow(10, 60000),
+    performSnapshot
+  ) {
+  | Ok(p) => p
+  | Error(_) =>
     Logger.warn(~module_="ViewerSnapshot", ~message="SNAPSHOT_RATE_LIMITED", ())
     EventBus.dispatch(
       EventBus.ShowNotification("Please wait before taking another snapshot", #Info, None),

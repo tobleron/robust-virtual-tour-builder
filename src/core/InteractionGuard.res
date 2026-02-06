@@ -7,6 +7,7 @@ type state = {
   mutable lastExecution: float,
   mutable timerId: option<int>,
   mutable pendingReject: option<exn => unit>,
+  mutable limiter: option<RateLimiter.t>,
 }
 
 let registry = Dict.make()
@@ -20,6 +21,7 @@ let getState = (id) => {
       lastExecution: 0.0,
       timerId: None,
       pendingReject: None,
+      limiter: None,
     }
     Dict.set(registry, id, s)
     s
@@ -100,6 +102,22 @@ let attempt = (id: string, policy: policy, action: unit => Promise.t<'a>): Resul
         setLock(lockKey, false)
       })
       Ok(wrapped)
+    }
+
+  | SlidingWindow(maxCalls, windowMs) =>
+    let limiter = switch s.limiter {
+    | Some(l) => l
+    | None =>
+      let l = RateLimiter.make(~maxCalls, ~windowMs)
+      s.limiter = Some(l)
+      l
+    }
+
+    if RateLimiter.canCall(limiter) {
+      RateLimiter.recordCall(limiter)
+      Ok(action())
+    } else {
+      Error("Rate limited")
     }
   }
 }
