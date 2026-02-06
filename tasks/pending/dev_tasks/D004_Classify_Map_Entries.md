@@ -1,4 +1,4 @@
-# Task 1259: Classify New Map Entries
+# Task D004: Classify New Map Entries
 
 ## 🚨 Trigger
 New modules were detected and added to the 'Unmapped Modules' section of `MAP.md`.
