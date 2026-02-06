@@ -167,7 +167,10 @@ let finalizeUploads = (
     // Check if we need to set preloading scene (first run)
     let wasEmpty = GlobalStateBridge.getState().activeIndex == -1
     if wasEmpty {
-      GlobalStateBridge.dispatch(SetPreloadingScene(-1))
+      let currentScenes = GlobalStateBridge.getState().scenes
+      if Belt.Array.length(currentScenes) > 0 {
+        GlobalStateBridge.dispatch(SetPreloadingScene(0))
+      }
     }
 
     handleExifReport(processedWithClusters, skippedCount)->Promise.then(report => {

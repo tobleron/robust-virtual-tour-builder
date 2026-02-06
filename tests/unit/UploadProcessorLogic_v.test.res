@@ -89,4 +89,58 @@ describe("UploadProcessorLogic", () => {
     // To test individual items we would need to inspect side effects or mock finalizeUploads.
     // For now we check success count which verifies flow.
   })
+
+  testAsync("finalizeUploads: dispatches SetPreloadingScene(0) if state was empty and new scenes added", async t => {
+    let dispatchedActions = []
+
+    // We need to override the dispatch in GlobalStateBridge
+    GlobalStateBridge.setDispatch(action => {
+       let _ = Array.push(dispatchedActions, action)
+    })
+
+    let f1 = mockFile("test.jpg")
+    let scene: Types.scene = {
+        id: "s1",
+        name: "test.jpg",
+        file: Types.File(f1),
+        tinyFile: Some(Types.File(f1)),
+        originalFile: Some(Types.File(f1)),
+        hotspots: [],
+        category: "0",
+        floor: "1",
+        label: "",
+        quality: None,
+        colorGroup: Some("0"),
+        _metadataSource: "",
+        categorySet: false,
+        labelSet: false,
+        isAutoForward: false,
+    }
+
+    // Set state with activeIndex = -1 and one scene (simulating added scene)
+    let stateWithScenes = { ...State.initialState, scenes: [scene], activeIndex: -1 }
+    GlobalStateBridge.setState(stateWithScenes)
+
+    let item1 = {
+      id: Nullable.null,
+      original: f1,
+      error: None,
+      preview: None,
+      tiny: None,
+      quality: None,
+      metadata: None,
+      colorGroup: None,
+    }
+
+    let _ = await UploadProcessorLogic.finalizeUploads([item1], Date.now(), (_,_,_,_) => (), 0)
+
+    let found = Belt.Array.getBy(dispatchedActions, a =>
+      switch a {
+      | Actions.SetPreloadingScene(idx) if idx == 0 => true
+      | _ => false
+      }
+    )
+
+    t->expect(found->Option.isSome)->Expect.toBe(true)
+  })
 })
