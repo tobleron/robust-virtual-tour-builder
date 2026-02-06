@@ -81,3 +81,33 @@ testAsync("Mutex (Global) - only one executes at a time", async t => {
 
   t->expect(finished.contents)->Expect.toBe(true)
 })
+
+testAsync("SlidingWindow - limits calls in window", async t => {
+  let counter = ref(0)
+  let action = async () => {
+    counter := counter.contents + 1
+  }
+
+  // 2 calls allowed per 50ms
+  let policy = SlidingWindow(2, 50)
+
+  // Call 1: OK
+  let _ = attempt("sliding_test", policy, action)
+  // Call 2: OK
+  let _ = attempt("sliding_test", policy, action)
+  // Call 3: Blocked
+  let r3 = attempt("sliding_test", policy, action)
+
+  t->expect(counter.contents)->Expect.toBe(2)
+  switch r3 {
+  | Ok(_) => t->expect("Third call succeeded")->Expect.toBe("Should be rate limited")
+  | Error(msg) => t->expect(msg)->Expect.toBe("Rate limited")
+  }
+
+  // Wait > 50ms
+  let _ = await wait(60)
+
+  // Call 4: OK
+  let _ = attempt("sliding_test", policy, action)
+  t->expect(counter.contents)->Expect.toBe(3)
+})
