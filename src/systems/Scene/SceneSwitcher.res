@@ -17,77 +17,89 @@ let navigateToScene = (
   ~previewOnly=false,
   (),
 ) => {
-  navStartTime := Date.now()
-  if (
-    state.navigation->(
-      s =>
-        switch s {
-        | Navigating(_) => true
-        | _ => false
-        }
-    )
-  ) {
-    ()
-  } else {
-    let njid = state.currentJourneyId + 1
-    dispatch(Actions.IncrementJourneyId)
-    let currView = NavigationGraph.getCurrentView()
-    if previewOnly {
-      dispatch(SetNavigationStatus(Previewing({sceneIndex: sourceIdx, hotspotIndex: sourceHIdx})))
-    }
-    if state.simulation.status == Running || previewOnly {
-      let pd = NavigationGraph.calculatePathData(
-        state,
-        sourceIdx,
-        sourceHIdx,
-        targetIdx,
-        targetYaw,
-        targetPitch,
-        targetHfov,
-        currView,
+  let action = () => {
+    navStartTime := Date.now()
+    if (
+      state.navigation->(
+        s =>
+          switch s {
+          | Navigating(_) => true
+          | _ => false
+          }
       )
-      let j: journeyData = {
-        journeyId: njid,
-        targetIndex: targetIdx,
-        sourceIndex: sourceIdx,
-        hotspotIndex: sourceHIdx,
-        arrivalYaw: pd->Option.map(p => p.arrivalYaw)->Option.getOr(targetYaw),
-        arrivalPitch: pd->Option.map(p => p.arrivalPitch)->Option.getOr(targetPitch),
-        arrivalHfov: pd->Option.map(p => p.arrivalHfov)->Option.getOr(targetHfov),
-        previewOnly,
-        pathData: pd,
-      }
-      dispatch(SetNavigationStatus(Navigating(j)))
-      state.scenes[targetIdx]->Option.forEach(ts =>
-        dispatch(DispatchNavigationFsmEvent(UserClickedScene({targetSceneId: ts.id})))
-      )
-      pd->Option.forEach(p =>
-        EventBus.dispatch(
-          NavStart({
-            journeyId: njid,
-            targetIndex: targetIdx,
-            sourceIndex: sourceIdx,
-            hotspotIndex: sourceHIdx,
-            previewOnly,
-            pathData: p,
-          }),
-        )
-      )
+    ) {
+      ()
     } else {
-      let (ay, ap, _) = NavigationGraph.calculateSmartArrivalTarget(state.scenes, targetIdx)
-      dispatch(SetIncomingLink(Some({sceneIndex: sourceIdx, hotspotIndex: sourceHIdx})))
-      dispatch(
-        SetActiveScene(
+      let njid = state.currentJourneyId + 1
+      dispatch(Actions.IncrementJourneyId)
+      let currView = NavigationGraph.getCurrentView()
+      if previewOnly {
+        dispatch(SetNavigationStatus(Previewing({sceneIndex: sourceIdx, hotspotIndex: sourceHIdx})))
+      }
+      if state.simulation.status == Running || previewOnly {
+        let pd = NavigationGraph.calculatePathData(
+          state,
+          sourceIdx,
+          sourceHIdx,
           targetIdx,
-          ay,
-          ap,
-          Some({type_: Link, targetHotspotIndex: -1, fromSceneName: None}),
-        ),
-      )
-      state.scenes[targetIdx]->Option.forEach(ts =>
-        dispatch(DispatchNavigationFsmEvent(UserClickedScene({targetSceneId: ts.id})))
-      )
+          targetYaw,
+          targetPitch,
+          targetHfov,
+          currView,
+        )
+        let j: journeyData = {
+          journeyId: njid,
+          targetIndex: targetIdx,
+          sourceIndex: sourceIdx,
+          hotspotIndex: sourceHIdx,
+          arrivalYaw: pd->Option.map(p => p.arrivalYaw)->Option.getOr(targetYaw),
+          arrivalPitch: pd->Option.map(p => p.arrivalPitch)->Option.getOr(targetPitch),
+          arrivalHfov: pd->Option.map(p => p.arrivalHfov)->Option.getOr(targetHfov),
+          previewOnly,
+          pathData: pd,
+        }
+        dispatch(SetNavigationStatus(Navigating(j)))
+        state.scenes[targetIdx]->Option.forEach(ts =>
+          dispatch(DispatchNavigationFsmEvent(UserClickedScene({targetSceneId: ts.id})))
+        )
+        pd->Option.forEach(p =>
+          EventBus.dispatch(
+            NavStart({
+              journeyId: njid,
+              targetIndex: targetIdx,
+              sourceIndex: sourceIdx,
+              hotspotIndex: sourceHIdx,
+              previewOnly,
+              pathData: p,
+            }),
+          )
+        )
+      } else {
+        let (ay, ap, _) = NavigationGraph.calculateSmartArrivalTarget(state.scenes, targetIdx)
+        dispatch(SetIncomingLink(Some({sceneIndex: sourceIdx, hotspotIndex: sourceHIdx})))
+        dispatch(
+          SetActiveScene(
+            targetIdx,
+            ay,
+            ap,
+            Some({type_: Link, targetHotspotIndex: -1, fromSceneName: None}),
+          ),
+        )
+        state.scenes[targetIdx]->Option.forEach(ts =>
+          dispatch(DispatchNavigationFsmEvent(UserClickedScene({targetSceneId: ts.id})))
+        )
+      }
     }
+    Promise.resolve()
+  }
+
+  switch InteractionGuard.attempt(
+    "scene_navigation",
+    InteractionPolicies.sceneNavigation,
+    action,
+  ) {
+  | Ok(_) => ()
+  | Error(_) => EventBus.dispatch(ShowNotification("Switching too fast...", #Warning, None))
   }
 }
 
