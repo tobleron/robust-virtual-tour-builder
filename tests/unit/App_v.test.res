@@ -107,7 +107,10 @@ open Vitest
            isTeasing: false,
            simulation: { status: "Idle", visitedScenes: [], stoppingOnArrival: false, skipAutoForwardGlobal: false, lastAdvanceTime: 0, pendingAdvanceId: null, autoPilotJourneyId: 0 }
         })),
-        useIsSystemLocked: vi.fn(() => false)
+        useIsSystemLocked: vi.fn(() => false),
+        useUiSlice: vi.fn(() => ({
+          appMode: "Creator"
+        }))
       };
   })
 

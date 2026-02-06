@@ -98,13 +98,15 @@ let useLinkingAndSimUI = (state: state, dispatch: action => unit) => {
       let v = ViewerSystem.getActiveViewer()
       switch (Nullable.toOption(v), Belt.Array.get(state.scenes, state.activeIndex)) {
       | (Some(viewer), Some(scene)) =>
-        Logger.debug(
-          ~module_="ViewerManagerLogic",
-          ~message="SIMULATION_STATE_SYNC",
-          ~data=Some({"status": state.simulation.status, "sceneId": scene.id}),
-          (),
-        )
-        HotspotManager.syncHotspots(viewer, state, scene, dispatch)
+        if !ViewerState.state.contents.isSwapping {
+          Logger.debug(
+            ~module_="ViewerManagerLogic",
+            ~message="SIMULATION_STATE_SYNC",
+            ~data=Some({"status": state.simulation.status, "sceneId": scene.id}),
+            (),
+          )
+          HotspotManager.syncHotspots(viewer, state, scene, dispatch)
+        }
       | _ => ()
       }
     } else {

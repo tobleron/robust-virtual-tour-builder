@@ -107,7 +107,7 @@ let handleMainSceneLoad = (state: state, scene: Types.scene, dispatch: action =>
     let v = ViewerSystem.getActiveViewer()
     switch Nullable.toOption(v) {
     | Some(viewer) =>
-      if !state.isLinking {
+      if !state.isLinking && !ViewerState.state.contents.isSwapping {
         // Orientation Sync: Force view position if state changed but scene didn't (e.g. ESC/Stop)
         let currentYaw = Viewer.getYaw(viewer)
         let currentPitch = Viewer.getPitch(viewer)
@@ -162,7 +162,7 @@ let useHotspotSync = (state: state, dispatch: action => unit) => {
           let viewerSceneId = ViewerSystem.Adapter.getMetaData(viewer, "sceneId")
           let targetId = idToUnknown(scene.id)
 
-          if viewerSceneId == Some(targetId) {
+          if viewerSceneId == Some(targetId) && !ViewerState.state.contents.isSwapping {
             Logger.debug(
               ~module_="ViewerManagerLogic",
               ~message="SYNC_HOTSPOTS",
@@ -234,7 +234,18 @@ let useHotspotLineLoop = (_state: state, dispatch: action => unit) => {
           Belt.Array.get(currentState.scenes, currentState.activeIndex),
         ) {
         | (Some(viewer), Some(scene)) =>
-          HotspotManager.syncHotspots(viewer, currentState, scene, dispatch)
+          try {
+            HotspotManager.syncHotspots(viewer, currentState, scene, dispatch)
+          } catch {
+          | e =>
+            let msg = Logger.getErrorMessage(e)
+            Logger.warn(
+              ~module_="ViewerManagerLogic",
+              ~message="FORCE_SYNC_FAILED",
+              ~data=Some({"error": msg}),
+              (),
+            )
+          }
         | _ => ()
         }
       }
