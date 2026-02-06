@@ -59,6 +59,8 @@ describe("NavigationGraph", () => {
     {
       tourName: "Test Tour",
       scenes,
+      inventory: Belt.Map.String.empty,
+      sceneOrder: [],
       activeIndex: 0,
       activeYaw: 0.0,
       activePitch: 0.0,
@@ -73,7 +75,7 @@ describe("NavigationGraph", () => {
       timeline: [],
       activeTimelineStepId: None,
       navigation: Idle,
-      navigationFsm: Idle,
+      navigationFsm: IdleFsm,
       simulation: {
         status: Idle,
         visitedScenes: [],

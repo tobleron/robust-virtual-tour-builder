@@ -81,10 +81,31 @@ let timelineItem = (t: Types.timelineItem) => {
   ])
 }
 
+let sceneStatus = (s: Types.sceneStatus) => {
+  switch s {
+  | Active => Encode.string("Active")
+  | Deleted(t) =>
+    Encode.object([("status", Encode.string("Deleted")), ("timestamp", Encode.float(t))])
+  }
+}
+
+let sceneEntry = (e: Types.sceneEntry) => {
+  Encode.object([("scene", scene(e.scene)), ("status", sceneStatus(e.status))])
+}
+
+let inventory = (inv: Belt.Map.String.t<Types.sceneEntry>) => {
+  let toObj = ((id, entry)) => {
+    Encode.object([("id", Encode.string(id)), ("entry", sceneEntry(entry))])
+  }
+  inv->Belt.Map.String.toArray->Belt.Array.map(toObj)->Encode.jsonArray
+}
+
 let project = (p: Types.project) => {
   Encode.object([
     ("tourName", Encode.string(p.tourName)),
     ("scenes", Encode.array(scene)(p.scenes)),
+    ("inventory", inventory(p.inventory)),
+    ("sceneOrder", Encode.array(Encode.string)(p.sceneOrder)),
     ("lastUsedCategory", Encode.string(p.lastUsedCategory)),
     ("exifReport", Encode.option(value)(p.exifReport)),
     ("sessionId", Encode.option(Encode.string)(p.sessionId)),
@@ -206,6 +227,8 @@ let state = (s: Types.state) => {
   Encode.object([
     ("tourName", Encode.string(s.tourName)),
     ("scenes", Encode.array(scene)(s.scenes)),
+    ("inventory", inventory(s.inventory)),
+    ("sceneOrder", Encode.array(Encode.string)(s.sceneOrder)),
     ("activeIndex", Encode.int(s.activeIndex)),
     ("activeYaw", Encode.float(s.activeYaw)),
     ("activePitch", Encode.float(s.activePitch)),
@@ -227,5 +250,21 @@ let state = (s: Types.state) => {
     ("currentJourneyId", Encode.int(s.currentJourneyId)),
     ("lastUsedCategory", Encode.string(s.lastUsedCategory)),
     ("sessionId", Encode.option(Encode.string)(s.sessionId)),
+    (
+      "appMode",
+      switch s.appMode {
+      | Initializing => Encode.string("Initializing")
+      | Interactive(_) => Encode.string("Interactive") // Minimal for session persistence
+      | SystemBlocking(Uploading({progress})) =>
+        Encode.object([("type", Encode.string("Uploading")), ("progress", Encode.float(progress))])
+      | SystemBlocking(Summary(report, _)) =>
+        Encode.object([("type", Encode.string("Summary")), ("report", uploadReport(report))])
+      | SystemBlocking(ProjectLoading({name})) =>
+        Encode.object([("type", Encode.string("ProjectLoading")), ("name", Encode.string(name))])
+      | SystemBlocking(Exporting(_)) => Encode.object([("type", Encode.string("Exporting"))])
+      | SystemBlocking(CriticalError(msg)) =>
+        Encode.object([("type", Encode.string("CriticalError")), ("message", Encode.string(msg))])
+      },
+    ),
   ])
 }

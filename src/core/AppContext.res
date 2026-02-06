@@ -179,17 +179,16 @@ let useNavigationFsm = () => {
 let useIsSystemLocked = () => {
   let state = useAppState()
   switch state.appMode {
-  | Initializing
-  | SystemBlocking(Uploading(_))
+  | Initializing => true
+  | SystemBlocking(Uploading(_)) => false // Now Ambient in Interactive, but still handled for compatibility if triggered
   | SystemBlocking(ProjectLoading(_))
-  | SystemBlocking(Exporting) => true
+  | SystemBlocking(Exporting(_)) => true
   | SystemBlocking(Summary(_))
   | SystemBlocking(CriticalError(_)) => false
-  | InteractiveTouring(Navigating(_)) => true
-  | InteractiveTouring(Idle)
-  | InteractiveTouring(Previewing(_))
-  | InteractiveAuthoring(_)
-  | InteractiveSimulation(_)
-  | InteractiveTeaser => false
+  | Interactive(s) =>
+    switch s.navigation {
+    | IdleFsm => false
+    | _ => true
+    }
   }
 }

@@ -48,6 +48,8 @@ let parseProject = (projectDataJson: JSON.t): result<project, string> => {
     Ok({
       tourName: pd.tourName,
       scenes: pd.scenes->Belt.Array.map(sanitizeScene),
+      inventory: pd.inventory,
+      sceneOrder: pd.sceneOrder,
       lastUsedCategory: pd.lastUsedCategory,
       exifReport: pd.exifReport,
       sessionId: pd.sessionId,

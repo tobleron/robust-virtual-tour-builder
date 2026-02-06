@@ -1,7 +1,7 @@
 # 🚀 PROJECT PROTOCOLS & CONTEXT (v5.0)
 
 ## 🧠 CORE BEHAVIOR (SYSTEM 2 THINKING)
-1. **Context First**: ALL paths must be relative to root. **ALWAYS READ `MAP.md` FIRST**.
+1. **Context First**: ALL paths must be relative to root. **ALWAYS READ `MAP.md` and `DATA_FLOW.md` FIRST**.
 2. **MAP.md Integrity**: When updating `MAP.md`, ALWAYS use **root-relative paths** (e.g., `[src/Main.res](src/Main.res)`). NEVER use absolute paths or `file:///` URIs.
 3. **Commitment Constraint**: NEVER run `commit.sh` or `fast-commit.sh` unless explicitly asked to "save", "checkpoint", or "commit".
 4. **Task Protocol**: Before handling any task related concerns, read `tasks/TASKS.md`.

@@ -3,6 +3,27 @@
 open Types
 open Actions
 
+module Helpers = {
+  let updateInteractive = (state: state, updater: interactiveState => interactiveState): state => {
+    switch state.appMode {
+    | Interactive(s) => {...state, appMode: Interactive(updater(s))}
+    | _ => state
+    }
+  }
+
+  let updateUiMode = (state: state, mode: uiMode): state => {
+    updateInteractive(state, s => {...s, uiMode: mode})
+  }
+
+  let updateNavigation = (state: state, nav: NavigationFSM.distinctState): state => {
+    updateInteractive(state, s => {...s, navigation: nav})
+  }
+
+  let updateBackgroundTask = (state: state, task: option<backgroundTask>): state => {
+    updateInteractive(state, s => {...s, backgroundTask: task})
+  }
+}
+
 module Scene = {
   let handleAddScenes = (state: state, scenesData): state => {
     SceneMutations.handleAddScenes(state, scenesData)
@@ -137,8 +158,16 @@ module Ui = {
 module AppFsm = {
   let reduce = (state: state, action: action): option<state> => {
     switch action {
-    | DispatchAppFsmEvent(event) =>
-      Some({...state, appMode: AppFSM.transition(state.appMode, event)})
+    | DispatchAppFsmEvent(event) => {
+        let nextAppMode = AppFSM.transition(state.appMode, event)
+        let nextState = {...state, appMode: nextAppMode}
+
+        // Unify navigation state: sync internal FSM state to top-level for components that depend on it
+        switch nextAppMode {
+        | Interactive(s) => Some({...nextState, navigationFsm: s.navigation})
+        | _ => Some(nextState)
+        }
+      }
     | _ => None
     }
   }
@@ -159,10 +188,6 @@ module Navigation = {
       Some({
         ...state,
         navigation: status,
-        appMode: switch state.appMode {
-        | InteractiveTouring(_) => InteractiveTouring(status)
-        | _ => state.appMode
-        },
       })
     | SetIncomingLink(link) => Some({...state, incomingLink: link})
     | ResetAutoForwardChain => Some({...state, autoForwardChain: []})
@@ -173,8 +198,27 @@ module Navigation = {
     | NavigationCompleted(journey) =>
       Some(NavigationHelpers.handleNavigationCompleted(state, journey))
     | SetNavigationFsmState(fsmState) => Some({...state, navigationFsm: fsmState})
-    | DispatchNavigationFsmEvent(event) =>
-      Some(NavigationHelpers.handleDispatchNavigationFsmEvent(state, event))
+    | DispatchNavigationFsmEvent(event) => {
+        let nextFsmState = NavigationFSM.reducer(state.navigationFsm, event)
+        let nextState = {...state, navigationFsm: nextFsmState}
+
+        // Sync back to appMode if interactive
+        let finalState = switch state.appMode {
+        | Interactive(s) => {...nextState, appMode: Interactive({...s, navigation: nextFsmState})}
+        | _ => nextState
+        }
+        Some(finalState)
+      }
+    | DispatchAppFsmEvent(event) => {
+        let nextAppMode = AppFSM.transition(state.appMode, event)
+        let nextState = {...state, appMode: nextAppMode}
+
+        // Unify navigation state: sync internal FSM state to top-level for components that depend on it
+        switch nextAppMode {
+        | Interactive(s) => Some({...nextState, navigationFsm: s.navigation})
+        | _ => Some(nextState)
+        }
+      }
     | _ => None
     }
   }
@@ -274,45 +318,79 @@ module Project = {
 
     | LoadProject(projectDataJson) =>
       switch SceneHelpers.parseProject(projectDataJson) {
-      | Ok(pd) =>
-        Some({
-          ...state,
-          tourName: pd.tourName,
-          scenes: pd.scenes,
-          lastUsedCategory: pd.lastUsedCategory,
-          exifReport: pd.exifReport,
-          sessionId: switch pd.sessionId {
-          | Some(id) => Some(id)
-          | None => state.sessionId
-          },
-          deletedSceneIds: pd.deletedSceneIds,
-          timeline: pd.timeline,
-          activeIndex: if Belt.Array.length(pd.scenes) > 0 {
-            0
-          } else {
-            -1
-          },
-          // Important: Reset views when loading new project
-          activeYaw: 0.0,
-          activePitch: 0.0,
-          navigation: Idle,
-          simulation: State.initialState.simulation,
-          isTeasing: false,
-          isLinking: false,
-          linkDraft: None,
-        })
-      | Error(_) => Some(state)
+      | Ok(pd) => {
+          Logger.info(
+            ~module_="ReducerProject",
+            ~message="PROJECT_LOADED_INTO_STATE",
+            ~data=Some({
+              "tourName": pd.tourName,
+              "sceneCount": Array.length(pd.scenes),
+              "inventorySize": pd.inventory->Belt.Map.String.size,
+              "orderLength": Array.length(pd.sceneOrder),
+            }),
+            (),
+          )
+          {
+            ...state,
+            tourName: pd.tourName,
+            inventory: pd.inventory,
+            sceneOrder: pd.sceneOrder,
+            lastUsedCategory: pd.lastUsedCategory,
+            exifReport: pd.exifReport,
+            sessionId: switch pd.sessionId {
+            | Some(id) => Some(id)
+            | None => state.sessionId
+            },
+            timeline: pd.timeline,
+            activeIndex: if Belt.Array.length(pd.sceneOrder) > 0 {
+              0
+            } else {
+              -1
+            },
+            // Important: Reset views when loading new project
+            activeYaw: 0.0,
+            activePitch: 0.0,
+            navigation: Idle,
+            navigationFsm: IdleFsm,
+            simulation: State.initialState.simulation,
+            isTeasing: false,
+            isLinking: false,
+            linkDraft: None,
+          }
+          ->SceneMutations.rebuildLegacyFields
+          ->Some
+        }
+      | Error(e) => {
+          Logger.error(
+            ~module_="ReducerProject",
+            ~message="PROJECT_LOAD_PARSE_FAILED",
+            ~data=Some({"error": e}),
+            (),
+          )
+          Some(state)
+        }
       }
 
-    | Reset => Some(State.initialState)
+    | Actions.Reset => Some(State.initialState)
 
     | SetExifReport(report) => Some({...state, exifReport: Some(report)})
 
     | RemoveDeletedSceneId(id) =>
-      Some({
-        ...state,
-        deletedSceneIds: Belt.Array.keep(state.deletedSceneIds, i => i != id),
-      })
+      switch state.inventory->Belt.Map.String.get(id) {
+      | Some(entry) =>
+        {
+          ...state,
+          inventory: state.inventory->Belt.Map.String.set(id, {...entry, status: Active}),
+          deletedSceneIds: Belt.Array.keep(state.deletedSceneIds, i => i != id),
+        }
+        ->SceneMutations.rebuildLegacyFields
+        ->Some
+      | None =>
+        Some({
+          ...state,
+          deletedSceneIds: Belt.Array.keep(state.deletedSceneIds, i => i != id),
+        })
+      }
 
     | SetSessionId(id) => Some({...state, sessionId: Some(id)})
     | _ => None

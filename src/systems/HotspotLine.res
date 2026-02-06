@@ -113,9 +113,7 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<Dom.event>=?,
 
 let handleHotspotClick = (targetSceneId: string) => {
   GlobalStateBridge.dispatch(
-    Actions.DispatchNavigationFsmEvent(
-      NavigationFSM.UserClickedScene({targetSceneId: targetSceneId}),
-    ),
+    Actions.DispatchNavigationFsmEvent(UserClickedScene({targetSceneId: targetSceneId})),
   )
 }
 

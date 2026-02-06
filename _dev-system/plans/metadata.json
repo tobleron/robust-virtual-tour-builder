@@ -2,10 +2,43 @@
   "system": [],
   "rescript": [
     {
+      "Surgical": {
+        "file": "../../src/core/Reducer.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.20, Density: 0.31, Coupling: 0.10] | Drag: 5.51 | LOC: 373/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 12.810991957104559,
+        "recommended_splits": 2
+      }
+    },
+    {
       "Violation": {
         "file": "../../src/core/JsonParsersDecoders.res",
         "pattern": "Obj.magic",
         "strategy": ""
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ProjectManager.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.80, Density: 0.21, Coupling: 0.11] | Drag: 6.01 | LOC: 371/300  🎯 Target: Function: `finalToken` (High Local Complexity (2.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 13.112938005390834,
+        "recommended_splits": 2
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/SceneMutations.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 6.60, Density: 0.49, Coupling: 0.04] | Drag: 8.11 | LOC: 363/300  🎯 Target: Function: `syncSceneNames` (High Local Complexity (5.6). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 14.412396694214873,
+        "recommended_splits": 2
       }
     }
   ]

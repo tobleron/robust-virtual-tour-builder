@@ -26,6 +26,8 @@ let performSave = (state: Types.state) => {
     let project: Types.project = {
       tourName: state.tourName,
       scenes: state.scenes,
+      inventory: state.inventory,
+      sceneOrder: state.sceneOrder,
       lastUsedCategory: state.lastUsedCategory,
       exifReport: state.exifReport,
       sessionId: state.sessionId,

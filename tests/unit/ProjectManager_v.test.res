@@ -59,6 +59,8 @@ describe("ProjectManager.Logic", () => {
     let project: Types.project = {
       tourName: "Valid Tour",
       scenes: [],
+      inventory: Belt.Map.String.empty,
+      sceneOrder: [],
       lastUsedCategory: "indoor",
       exifReport: None,
       sessionId: Some("sess1"),
@@ -107,6 +109,8 @@ describe("ProjectManager.Logic", () => {
     let project: Types.project = {
       tourName: "Loaded Tour",
       scenes: [],
+      inventory: Belt.Map.String.empty,
+      sceneOrder: [],
       lastUsedCategory: "indoor",
       exifReport: None,
       sessionId: Some(sessionId),

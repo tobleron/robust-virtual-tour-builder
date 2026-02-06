@@ -62,6 +62,30 @@ type transitionType =
   | Link
   | Unknown(string)
 
+type preloadTarget = {
+  targetSceneId: string,
+  attempt: int,
+  isAnticipatory: bool,
+}
+
+type transitioningState = {
+  fromSceneId: option<string>,
+  toSceneId: string,
+  progress: float,
+}
+
+type errorInfo = {
+  code: string,
+  recoveryTarget: option<string>,
+}
+
+type navigationFsmState =
+  | IdleFsm
+  | Preloading(preloadTarget)
+  | Transitioning(transitioningState)
+  | Stabilizing({targetSceneId: string})
+  | ErrorFsm(errorInfo)
+
 type transition = {
   @as("type") type_: transitionType,
   targetHotspotIndex: int,
@@ -137,6 +161,13 @@ type scene = {
   isAutoForward: bool,
 }
 
+type sceneStatus = Active | Deleted(float) // timestamp of deletion
+
+type sceneEntry = {
+  scene: scene,
+  status: sceneStatus,
+}
+
 type timelineItem = {
   id: string,
   linkId: string,
@@ -165,11 +196,13 @@ type timelineUpdate = {
 
 type project = {
   tourName: string,
-  scenes: array<scene>,
+  scenes: array<scene>, // TODO: Deprecate
+  inventory: Belt.Map.String.t<sceneEntry>,
+  sceneOrder: array<string>,
   lastUsedCategory: string,
   exifReport: option<JSON.t>,
   sessionId: option<string>,
-  deletedSceneIds: array<string>,
+  deletedSceneIds: array<string>, // TODO: Deprecate
   timeline: array<timelineItem>,
 }
 
@@ -183,24 +216,76 @@ type qualityItem = {
   newName: string,
 }
 
+type uiMode =
+  | Viewing
+  | EditingHotspots
+  | EditingMetadata(string)
+  | Simulation(simulationState)
+  | Teaser
+
+type backgroundTask =
+  | Uploading({progress: float})
+  | GeneratingPreviews
+
+type navigationEvent =
+  | UserClickedScene({targetSceneId: string})
+  | PreloadStarted({targetSceneId: string})
+  | StartAnticipatoryLoad({targetSceneId: string})
+  | TextureLoaded({targetSceneId: string})
+  | AnimationProgress(float)
+  | TransitionComplete
+  | StabilizeComplete
+  | LoadTimeout
+  | RecoveryTriggered({targetSceneId: string})
+  | Reset
+  | Aborted
+
+type rec appFsmEvent =
+  | InitializeComplete
+  | StartAuthoring
+  | StopAuthoring
+  | StartSimulation(simulationState)
+  | StopSimulation
+  | StartTeasing
+  | StopTeasing
+  | StartUpload
+  | UploadProgress(float)
+  | UploadComplete(uploadReport, array<qualityItem>)
+  | CloseSummary
+  | StartProjectLoad({name: string})
+  | ProjectLoadComplete
+  | ProjectLoadError(string)
+  | StartExport
+  | ExportComplete
+  | ExportError(string)
+  | CriticalErrorOccurred(string)
+  | Reset
+  | NavigationEvent(navigationEvent)
+  | SetUiMode(uiMode)
+
+type interactiveState = {
+  uiMode: uiMode,
+  navigation: navigationFsmState,
+  backgroundTask: option<backgroundTask>,
+}
+
 type blockingState =
   | Uploading({progress: float})
   | Summary(uploadReport, array<qualityItem>)
-  | ProjectLoading({name: string})
-  | Exporting
+  | ProjectLoading({name: string, pendingAction: option<appFsmEvent>})
+  | Exporting({pendingAction: option<appFsmEvent>})
   | CriticalError(string)
 
 type appMode =
   | Initializing
-  | InteractiveTouring(navigationStatus)
-  | InteractiveAuthoring(editorState)
-  | InteractiveSimulation(simulationState)
-  | InteractiveTeaser
+  | Interactive(interactiveState)
   | SystemBlocking(blockingState)
 
 type state = {
   tourName: string,
-  scenes: array<scene>,
+  scenes: array<scene>, // TODO: Deprecate
+  inventory: Belt.Map.String.t<sceneEntry>,
+  sceneOrder: array<string>,
   activeIndex: int,
   activeYaw: float,
   activePitch: float,
@@ -211,12 +296,12 @@ type state = {
   linkDraft: option<linkDraft>,
   preloadingSceneIndex: int,
   isTeasing: bool,
-  deletedSceneIds: array<string>,
+  deletedSceneIds: array<string>, // TODO: Deprecate
   timeline: array<timelineItem>,
   activeTimelineStepId: option<string>,
   // Navigation State
   navigation: navigationStatus,
-  navigationFsm: NavigationFSM.distinctState,
+  navigationFsm: navigationFsmState,
   // isSimulationMode: bool, // DEPRECATED in favor of simulation.status
   simulation: simulationState,
   incomingLink: option<linkInfo>,

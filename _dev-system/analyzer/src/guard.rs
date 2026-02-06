@@ -41,6 +41,7 @@ pub fn is_project_source(path: &Path, rules: &ExclusionRules) -> bool {
 pub struct GuardConfig {
     pub tasks_dir: String,
     pub map_file: String,
+    pub data_flow_file: String,
 }
 
 impl Default for GuardConfig {
@@ -48,6 +49,7 @@ impl Default for GuardConfig {
         Self {
             tasks_dir: "../../tasks".to_string(),
             map_file: "../../MAP.md".to_string(),
+            data_flow_file: "../../DATA_FLOW.md".to_string(),
         }
     }
 }
@@ -411,6 +413,198 @@ pub fn check_map(config: &GuardConfig, rules: &ExclusionRules) -> Result<()> {
                 if name.contains(task_pattern) {
                     println!("🧹 Deleting resolved task: {:?}", entry.path());
                     let _ = fs::remove_file(entry.path());
+                }
+            }
+        }
+    }
+
+    Ok(())
+}
+
+pub fn check_data_flow(config: &GuardConfig, rules: &ExclusionRules) -> Result<()> {
+    if !Path::new(&config.data_flow_file).exists() {
+        println!("⚠️  DATA_FLOW.md not found. Skipping data flow check.");
+        return Ok(());
+    }
+
+    let flow_content = fs::read_to_string(&config.data_flow_file)?;
+    let regex = Regex::new(r"\[([^\]]+\.(?:res|rs|js|jsx|ts|tsx))\]").unwrap();
+    
+    // --- Split and Reconcile ---
+    let header_marker = "## 🆕 Unmapped Modules";
+    let (top_content, _) = match flow_content.find(header_marker) {
+        Some(idx) => (&flow_content[..idx], &flow_content[idx..]),
+        None => (flow_content.as_str(), ""),
+    };
+
+    // Extract REAL references ONLY from the flows (top section)
+    let mut real_references = std::collections::HashSet::new();
+    for cap in regex.captures_iter(top_content) {
+        real_references.insert(cap[1].to_string().replace("\\", "/"));
+    }
+
+    // --- Physical Scan for Truly Unmapped ---
+    let src_dirs = vec!["../../src", "../../backend/src"];
+    let mut truly_missing = Vec::new();
+
+    for dir in src_dirs {
+        for entry in WalkDir::new(dir).into_iter().filter_map(|e| e.ok()) {
+            let path = entry.path();
+            if path.is_file() {
+                let p_str = path.to_string_lossy().to_string().replace("\\", "/");
+                let clean_p = if p_str.starts_with("../../") { &p_str[6..] } else { &p_str };
+
+                if is_project_source(path, rules) && !real_references.contains(clean_p) {
+                    let is_ignored = if let Ok(content) = fs::read_to_string(path) {
+                        content.contains("@efficiency-role: ignored") || content.contains("@efficiency-role ignored")
+                    } else {
+                        false
+                    };
+
+                    if !is_ignored {
+                        truly_missing.push(clean_p.to_string());
+                    }
+                }
+            }
+        }
+    }
+
+    truly_missing.sort();
+
+    // --- Group by Directory for Token Efficiency ---
+    let mut grouped: std::collections::BTreeMap<String, Vec<String>> = std::collections::BTreeMap::new();
+    for path in truly_missing {
+        let parent = Path::new(&path)
+            .parent()
+            .map(|p| p.to_string_lossy().to_string())
+            .unwrap_or_else(|| "root".to_string());
+        grouped.entry(parent).or_default().push(path);
+    }
+
+    // --- Reconstruct lines ---
+    let mut final_lines: Vec<String> = top_content.lines().map(|s| s.to_string()).collect();
+    
+    // Ensure spacing
+    if !final_lines.is_empty() && !final_lines.last().unwrap().is_empty() {
+        final_lines.push("".to_string());
+    }
+
+    final_lines.push(header_marker.to_string());
+    final_lines.push("(This section auto-populated by _dev-system analyzer)".to_string());
+
+    if !grouped.is_empty() {
+        println!("🌊 Reconciling: {} modules remain unmapped across {} directories.", 
+            grouped.values().map(|v| v.len()).sum::<usize>(),
+            grouped.len()
+        );
+        
+        for (dir, files) in grouped {
+            final_lines.push("".to_string());
+            final_lines.push(format!("### 📂 {}", dir));
+            for f in files {
+                final_lines.push(format!("- `[{}]`", f));
+            }
+        }
+    } else {
+        println!("🌊 Success: All project modules are represented in data flows!");
+    }
+
+    final_lines.push("".to_string());
+    final_lines.push("---".to_string());
+    final_lines.push("(Utilities and Infrastructure modules are excluded from flow documentation by design)".to_string());
+
+    let mut changed = false;
+    let new_content = final_lines.join("\n");
+    if new_content.trim() != flow_content.trim() {
+        changed = true;
+    }
+
+    // --- Write if changed ---
+    if changed {
+        let mut final_content = final_lines.join("\n");
+        if !final_content.ends_with('\n') {
+            final_content.push('\n');
+        }
+        fs::write(&config.data_flow_file, final_content)?;
+        println!("🌊 Updated DATA_FLOW.md");
+    }
+
+    let lines = final_lines;
+
+    // --- Task Generation ---
+    let unmapped_header = "## 🆕 Unmapped Modules";
+    let mut unmapped_items = Vec::new();
+    let mut in_unmapped_section = false;
+
+    for line in &lines {
+        if line.contains(unmapped_header) {
+            in_unmapped_section = true;
+            continue;
+        }
+        if in_unmapped_section {
+            if line.starts_with("## ") && !line.contains(unmapped_header) {
+                break;
+            }
+            // Use same regex to find all bracketed files in this section
+            for cap in regex.captures_iter(line) {
+                unmapped_items.push(format!("[{}]", &cap[1]));
+            }
+        }
+    }
+
+    let has_unmapped = !unmapped_items.is_empty();
+    let task_pattern = "Integrate_DataFlow_Modules";
+
+    if has_unmapped {
+        let mut existing_task_path = None;
+        let pending_dir = format!("{}/pending", config.tasks_dir);
+        if let Ok(entries) = fs::read_dir(&pending_dir) {
+            for entry in entries.filter_map(|e| e.ok()) {
+                if entry.file_name().to_string_lossy().contains(task_pattern) {
+                    existing_task_path = Some(entry.path());
+                    break;
+                }
+            }
+        }
+
+        let (id, path) = if let Some(p) = existing_task_path {
+            let id = p.file_name().unwrap().to_string_lossy()
+                .split('_').next().unwrap_or("0").to_string();
+            (id, p)
+        } else {
+            let next_id = get_next_id(config);
+            let id_str = format!("{:03}", next_id);
+            (id_str.clone(), PathBuf::from(&pending_dir)
+                .join(format!("{}_{}.md", id_str, task_pattern)))
+        };
+
+        let mut task_content = format!(
+            "# Task {}: Integrate Modules into Data Flows\n\n\
+            ## 🚨 Trigger\n\
+            New modules were detected that are not represented in `DATA_FLOW.md`.\n\n\
+            ## Objective\n\
+            Review the unmapped modules in the 'Unmapped Modules' section of `DATA_FLOW.md` and either:\n\
+            1. Add them to existing data flows if they're part of a documented flow\n\
+            2. Create new flow documentation if they represent a new critical path\n\
+            3. Leave them unmapped if they're utilities/helpers that don't fit flow documentation\n\n\
+            ## Unmapped Modules\n",
+            id
+        );
+
+        for item in unmapped_items {
+            task_content.push_str(&format!("- [ ] {}\n", item));
+        }
+
+        fs::write(&path, task_content)?;
+        println!("📝 Created/Updated Task: {}", path.display());
+    } else {
+        // Remove task if no unmapped modules
+        let pending_dir = format!("{}/pending", config.tasks_dir);
+        if let Ok(entries) = fs::read_dir(&pending_dir) {
+            for entry in entries.filter_map(|e| e.ok()) {
+                if entry.file_name().to_string_lossy().contains(task_pattern) {
+                    let _ = fs::remove_file(entry.path());
+                    println!("🗑️  Removed task (all modules integrated)");
                 }
             }
         }

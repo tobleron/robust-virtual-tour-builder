@@ -92,7 +92,8 @@ let handleUpload = async filesOpt => {
     switch state.appMode {
     | SystemBlocking(Uploading(_))
     | SystemBlocking(Summary(_))
-    | SystemBlocking(ProjectLoading(_)) =>
+    | SystemBlocking(ProjectLoading(_))
+    | SystemBlocking(Exporting(_)) =>
       EventBus.dispatch(
         ShowNotification("Please wait for current operation to finish", #Warning, None),
       )
@@ -181,6 +182,8 @@ let getProjectData = (state: Types.state) => {
   let project: Types.project = {
     tourName: state.tourName,
     scenes: state.scenes,
+    inventory: state.inventory,
+    sceneOrder: state.sceneOrder,
     lastUsedCategory: state.lastUsedCategory,
     exifReport: state.exifReport,
     sessionId: state.sessionId,

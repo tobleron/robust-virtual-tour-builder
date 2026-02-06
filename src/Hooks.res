@@ -94,7 +94,7 @@ let useIsInteractionPermitted = () => {
   let navigationFsm = AppContext.useNavigationFsm()
 
   let isTransitioning = switch navigationFsm {
-  | Idle | Error(_) => false
+  | IdleFsm | ErrorFsm(_) => false
   | _ => true
   }
 

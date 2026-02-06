@@ -42,10 +42,12 @@ describe("ServerTeaser - Remote Rendering", () => {
   let mockState: state = {
     tourName: "Test Tour",
     scenes: [makeScene("1", "Scene 1"), makeScene("2", "Scene 2")],
+    inventory: Belt.Map.String.empty,
+    sceneOrder: [],
     activeIndex: 0,
     activeYaw: 0.0,
     activePitch: 0.0,
-    appMode: Initializing,
+    appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
     isLinking: false,
     transition: {type_: Fade, targetHotspotIndex: -1, fromSceneName: None},
     exifReport: None,
@@ -56,7 +58,7 @@ describe("ServerTeaser - Remote Rendering", () => {
     timeline: [],
     activeTimelineStepId: None,
     navigation: Idle,
-    navigationFsm: Idle,
+    navigationFsm: IdleFsm,
     simulation: {
       status: Idle,
       visitedScenes: [],

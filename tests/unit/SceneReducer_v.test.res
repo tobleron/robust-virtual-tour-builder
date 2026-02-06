@@ -42,7 +42,7 @@ test("SceneReducer: ReorderScenes moves scene and updates activeIndex correctly"
   let state = createMockState(
     ~scenes=[s0, s1, s2],
     ~activeIndex=1,
-    ~appMode=InteractiveAuthoring(Idle),
+    ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
     (),
   ) // Active is "1"
 
@@ -62,7 +62,7 @@ test("SceneReducer: DeleteScene removes scene and cleanup hotspots", t => {
   let state = createMockState(
     ~scenes=[s1, s2],
     ~activeIndex=0,
-    ~appMode=InteractiveAuthoring(Idle),
+    ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
     (),
   )
 

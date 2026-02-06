@@ -91,7 +91,7 @@ describe("Reducer.Ui", () => {
   })
 
   test("Unhandled action returns None", t => {
-    let action = Reset // Reducer.Ui doesn't handle Reset
+    let action = Actions.Reset // Reducer.Ui doesn't handle Reset
     let result = Reducer.Ui.reduce(initialState, action)
 
     t->expect(result)->Expect.toBe(None)

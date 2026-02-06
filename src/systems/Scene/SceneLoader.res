@@ -77,13 +77,13 @@ module Events = {
     })
     ViewerSystem.Pool.setCleanupTimeout(vId, None)
     GlobalStateBridge.dispatch(
-      DispatchNavigationFsmEvent(NavigationFSM.TextureLoaded({targetSceneId: loadedScene.id})),
+      DispatchNavigationFsmEvent(TextureLoaded({targetSceneId: loadedScene.id})),
     )
   }
   let onSceneError = msg => {
     Logger.error(~module_="SceneLoader", ~message="LOAD_ERROR", ~data={"error": msg}, ())
     EventBus.dispatch(ShowNotification(msg, #Error, Some(Logger.castToJson({"error": msg}))))
-    GlobalStateBridge.dispatch(DispatchNavigationFsmEvent(NavigationFSM.LoadTimeout))
+    GlobalStateBridge.dispatch(DispatchNavigationFsmEvent(LoadTimeout))
   }
 }
 
@@ -94,7 +94,7 @@ let loadNewScene = (_prevIndex: option<int>, targetIndex: option<int>, ~isAntici
       if !isAnticipatory {
         loadStartTime := Date.now()
         GlobalStateBridge.dispatch(
-          DispatchNavigationFsmEvent(NavigationFSM.PreloadStarted({targetSceneId: targetScene.id})),
+          DispatchNavigationFsmEvent(PreloadStarted({targetSceneId: targetScene.id})),
         )
       }
       switch if isAnticipatory {
@@ -109,9 +109,7 @@ let loadNewScene = (_prevIndex: option<int>, targetIndex: option<int>, ~isAntici
           ViewerSystem.Adapter.addScene(inst, targetScene.id, config->asDynamic)
           ViewerSystem.Adapter.loadScene(inst, targetScene.id, ())
           GlobalStateBridge.dispatch(
-            DispatchNavigationFsmEvent(
-              NavigationFSM.TextureLoaded({targetSceneId: targetScene.id}),
-            ),
+            DispatchNavigationFsmEvent(TextureLoaded({targetSceneId: targetScene.id})),
           )
         }
       | None =>

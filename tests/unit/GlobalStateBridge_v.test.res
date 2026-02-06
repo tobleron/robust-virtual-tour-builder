@@ -12,7 +12,7 @@ describe("GlobalStateBridge", _ => {
     // Ensuring clean slate
     GlobalStateBridge.setState(State.initialState)
     let state = GlobalStateBridge.getState()
-    t->expect(state.tourName)->Expect.toBe("Tour Name")
+    t->expect(state.tourName)->Expect.toBe("Untitled Tour")
   })
 
   test("setState and getState work", t => {
