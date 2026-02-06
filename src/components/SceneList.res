@@ -83,22 +83,8 @@ let make = React.memo(() => {
       if index == sceneSlice.activeIndex {
         ()
       } else {
-        let now = Date.now()
-        let timeDiff = now -. ViewerState.state.contents.lastSwitchTime
-        let throttleLimit = 200.0
-
-        // Check both time throttle AND queue/app stability
-        if timeDiff < throttleLimit || isSystemLocked {
-          Logger.info(
-            ~module_="SceneList",
-            ~message="SCENE_SWITCH_THROTTLED",
-            ~data=Some({
-              "timeDiff": timeDiff,
-              "isLocked": isSystemLocked,
-            }),
-            (),
-          )
-          EventBus.dispatch(ShowNotification("Switching too fast - Please wait...", #Warning, None))
+        if isSystemLocked {
+          EventBus.dispatch(ShowNotification("System is busy...", #Warning, None))
         } else {
           Logger.info(
             ~module_="SceneList",
@@ -106,11 +92,6 @@ let make = React.memo(() => {
             ~data=Some({"index": index}),
             (),
           )
-
-          ViewerState.state := {
-              ...ViewerState.state.contents,
-              lastSwitchTime: now,
-            }
 
           dispatch(Actions.SetNavigationStatus(Types.Idle))
           if uiSlice.isLinking {

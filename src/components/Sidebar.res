@@ -269,13 +269,14 @@ let make = React.memo(() => {
           }
         }}
         onSave={(~signal, ~onCancel) => {
-          handleSave(GlobalStateBridge.getState(), ~signal, ~onCancel)->ignore
+          handleSave(GlobalStateBridge.getState(), ~signal, ~onCancel)
         }}
         onLoad={(~signal as _, ~onCancel as _) => {
           switch Nullable.toOption(projectFileInputRef.current) {
           | Some(el) => ReBindings.Dom.click(el)
           | None => ()
           }
+          Promise.resolve()
         }}
         onAbout={() => {
           EventBus.dispatch(
@@ -299,7 +300,7 @@ let make = React.memo(() => {
           )
         }}
         onExport={(~signal, ~onCancel) => {
-          SidebarLogic.handleExport(sceneSlice.scenes, ~signal, ~onCancel)->ignore
+          SidebarLogic.handleExport(sceneSlice.scenes, ~signal, ~onCancel)
         }}
         onTeaser={() => {
           Teaser.startAutoTeaser("fast", false, "mp4", false)->ignore

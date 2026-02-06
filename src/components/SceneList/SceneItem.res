@@ -22,13 +22,26 @@ let make = React.memo((
   ~scene: Types.scene,
   ~index,
   ~isActive,
-  ~onClick,
+  ~onClick: unit => unit,
   ~onDragStart,
   ~onDragOver,
   ~onDrop,
   ~onDelete,
   ~onClearLinks,
 ) => {
+  let (handleSceneClick, _, wasThrottled) = UseInteraction.useInteraction(
+    ~id="scene_navigation",
+    ~policy=InteractionPolicies.sceneNavigation,
+    ~action=async () => onClick(),
+  )
+
+  React.useEffect1(() => {
+    if wasThrottled {
+      EventBus.dispatch(ShowNotification("Switching too fast - Please wait...", #Warning, None))
+    }
+    None
+  }, [wasThrottled])
+
   React.useEffect0(() => {
     Logger.initialized(~module_="SceneItem")
     None
@@ -89,12 +102,14 @@ let make = React.memo((
     onDragStart={onDragStart}
     onDragOver={onDragOver}
     onDrop={onDrop}
-    onClick={_ => onClick()}
+    onClick={_ => {
+      let _ = handleSceneClick()
+    }}
     tabIndex=0
     onKeyDown={e => {
       if JsxEvent.Keyboard.key(e) == "Enter" || JsxEvent.Keyboard.key(e) == " " {
         JsxEvent.Keyboard.preventDefault(e)
-        onClick()
+        let _ = handleSceneClick()
       }
     }}
     role="button"

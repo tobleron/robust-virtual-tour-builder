@@ -164,32 +164,27 @@ describe("SceneList", () => {
 
     await wait(50)
 
-    // Mock lastSwitchTime to be recent
-    ViewerState.state := {...ViewerState.state.contents, lastSwitchTime: Date.now()}
-
     let clickSecondItem: Dom.element => unit = %raw(`(container) => {
       const items = container.querySelectorAll(".scene-item");
       if (items[1]) items[1].click();
     }`)
 
-    // Attempt to click second item
+    // Click 1: Should Succeed
     clickSecondItem(container)
-
-    // Should NOT have dispatched SetActiveScene because of throttle
-    t->expect(lastAction.contents)->Expect.toBe(None)
-
-    // Wait for throttle and try again
-    await wait(700)
-    clickSecondItem(container)
-
-    // Allow queue to process (SceneList dispatches multiple actions)
-    await wait(100)
+    await wait(50)
 
     switch lastAction.contents {
     | Some(Actions.SetActiveScene(idx, _, _, _)) => t->expect(idx)->Expect.toBe(1)
-    | Some(other) => t->expect(Actions.actionToString(other))->Expect.toBe("SetActiveScene")
-    | None => t->expect("None")->Expect.toBe("SetActiveScene")
+    | _ => t->expect("First Click")->Expect.toBe("Dispatched")
     }
+
+    lastAction := None
+
+    // Click 2: Should Fail (Throttled)
+    clickSecondItem(container)
+    await wait(50)
+
+    t->expect(lastAction.contents)->Expect.toBe(None)
 
     Dom.removeElement(container)
   })
