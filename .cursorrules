@@ -1,7 +1,8 @@
 # Robust Virtual Tour Builder - Agent Rules
 
 ## 🎯 Primary Protocol
-👉 **Consensus Rule**: ALWAYS prioritize protocols defined in [GEMINI.md](GEMINI.md).
+👉 **For Cursor/Gemini users**: ALWAYS prioritize protocols defined in [GEMINI.md](GEMINI.md).
+👉 **For Claude Code users**: See [CLAUDE.md](CLAUDE.md) for architecture overview and development commands.
 
 ## 🚨 CODING VITALS (Priority 0)
 1. **ReScript v12 Only**: All frontend code MUST be in ReScript v12.
@@ -24,4 +25,6 @@ Trigger these workflows based on the current task:
 ## 🏛️ ARCHITECTURE & STYLE
 - **Styling**: Vanilla CSS variables. Premium aesthetics (Outfit/Inter). No Tailwind utility bloat.
 - **State**: Centralized reducer architecture in `src/core/Reducer.res`.
-- **Infrastructure**: Use [MAP.md](MAP.md) for semantic file discovery and functionality tags.
+- **Infrastructure**:
+  - Use [MAP.md](MAP.md) for semantic file discovery and functionality tags.
+  - Use [DATA_FLOW.md](DATA_FLOW.md) for understanding module interactions and data flows.

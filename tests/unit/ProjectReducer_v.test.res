@@ -87,7 +87,7 @@ describe("Reducer.Project", () => {
     let resultLoadNoName = Reducer.Project.reduce(initialState, actionLoadNoName)
 
     switch resultLoadNoName {
-    | Some(state) => t->expect(state.tourName)->Expect.toEqual("Tour Name")
+    | Some(state) => t->expect(state.tourName)->Expect.toEqual("Untitled Tour")
     | None => failwith("Expected Some(state)")
     }
   })
@@ -99,7 +99,7 @@ describe("Reducer.Project", () => {
 
     switch resultReset {
     | Some(state) =>
-      t->expect(state.tourName)->Expect.toEqual("Tour Name")
+      t->expect(state.tourName)->Expect.toEqual("Untitled Tour")
       t->expect(state.activeIndex)->Expect.toEqual(-1)
       t->expect(Array.length(state.scenes))->Expect.toEqual(0)
     | None => failwith("Expected Some(state)")

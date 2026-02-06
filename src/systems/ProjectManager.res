@@ -38,6 +38,8 @@ module Logic = {
     let project: Types.project = {
       tourName: state.tourName,
       scenes: state.scenes,
+      inventory: state.inventory,
+      sceneOrder: state.sceneOrder,
       lastUsedCategory: state.lastUsedCategory,
       exifReport: state.exifReport,
       sessionId: state.sessionId,
@@ -139,11 +141,50 @@ module Logic = {
         }
         let tokenQuery = "?token=" ++ finalToken
 
-        let validScenes = ProjectManagerUrl.rebuildSceneUrls(pd.scenes, ~sessionId, ~tokenQuery)
+        // Rebuild URLs for all active scenes in the inventory
+        let resolvedActiveScenes = if Array.length(pd.sceneOrder) > 0 {
+          pd.sceneOrder->Belt.Array.keepMap(id => {
+            switch pd.inventory->Belt.Map.String.get(id) {
+            | Some({scene, status: Active}) => Some(scene)
+            | _ => None
+            }
+          })
+        } else {
+          []
+        }
+
+        // Failsafe: if inventory-based resolution failed but legacy array has data, use legacy
+        let scenesToRebuild = if (
+          Array.length(resolvedActiveScenes) == 0 && Array.length(pd.scenes) > 0
+        ) {
+          pd.scenes
+        } else {
+          resolvedActiveScenes
+        }
+
+        let validScenes = ProjectManagerUrl.rebuildSceneUrls(
+          scenesToRebuild,
+          ~sessionId,
+          ~tokenQuery,
+        )
+
+        // Sync valid scenes back into inventory
+        let updatedInventory = validScenes->Belt.Array.reduce(pd.inventory, (acc, s) => {
+          acc->Belt.Map.String.set(s.id, {Types.scene: s, status: Active})
+        })
+
+        // Ensure sceneOrder is populated from validScenes if it was empty
+        let finalOrder = if Array.length(pd.sceneOrder) > 0 {
+          pd.sceneOrder
+        } else {
+          validScenes->Belt.Array.map(s => s.id)
+        }
 
         let loadedProject: Types.project = {
           ...pd,
           scenes: validScenes,
+          inventory: updatedInventory,
+          sceneOrder: finalOrder,
         }
 
         progress(100, 100, "Project Loaded!")

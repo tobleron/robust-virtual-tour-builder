@@ -350,8 +350,7 @@ let handleFingerprinting = (
     let currentState = GlobalStateBridge.getState()
     let uniqueItems = FingerprintService.filterDuplicates(
       results,
-      ~existingScenes=currentState.scenes,
-      ~deletedIds=currentState.deletedSceneIds,
+      ~inventory=currentState.inventory,
       ~onDuplicate=c => Utils.notify("Skipped " ++ Belt.Int.toString(c) ++ " duplicates.", "info"),
       ~onRestore=id => GlobalStateBridge.dispatch(RemoveDeletedSceneId(id)),
     )

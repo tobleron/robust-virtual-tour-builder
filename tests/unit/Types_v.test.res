@@ -59,7 +59,7 @@ describe("Types", () => {
       arrivalHfov: 80.0,
     }
     t->expect(pd.totalPathDistance)->Expect.toBe(11.18)
-    t->expect(pd.segments->Array.length)->Expect.toBe(1)
+    t->expect(pd.segments->Belt.Array.length)->Expect.toBe(1)
   })
 
   test("should define journeyData correctly", t => {
@@ -101,7 +101,7 @@ describe("Types", () => {
     let tr: transition = {
       type_: Fade,
       targetHotspotIndex: 1,
-      fromSceneName: Some("hallway"),
+      fromSceneName: None,
     }
     t->expect(tr.type_)->Expect.toEqual(Fade)
     t->expect(tr.targetHotspotIndex)->Expect.toBe(1)
@@ -222,6 +222,8 @@ describe("Types", () => {
     let st: state = {
       tourName: "Test Tour",
       scenes: [],
+      inventory: Belt.Map.String.empty,
+      sceneOrder: [],
       activeIndex: 0,
       activeYaw: 0.0,
       activePitch: 0.0,
@@ -240,7 +242,7 @@ describe("Types", () => {
       timeline: [],
       activeTimelineStepId: None,
       navigation: Idle,
-      navigationFsm: Idle,
+      navigationFsm: IdleFsm,
       simulation: {
         status: Idle,
         visitedScenes: [],

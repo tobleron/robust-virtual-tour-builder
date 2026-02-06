@@ -179,6 +179,8 @@ let showFromProjectData = (projectDataJson: JSON.t) => {
       {
         tourName: "",
         scenes: [],
+        inventory: Belt.Map.String.empty,
+        sceneOrder: [],
         lastUsedCategory: "",
         exifReport: None,
         sessionId: None,

@@ -18,15 +18,22 @@ let calculateNewReturnViewFrame = (hotspot: hotspot, isReturnLink: bool): option
 
 let handleAddHotspot = (state: state, sceneIndex: int, hotspot: hotspot): state => {
   switch state.appMode {
-  | InteractiveAuthoring(_) => {
-      let newScenes = Belt.Array.mapWithIndex(state.scenes, (i, s) => {
-        if i == sceneIndex {
-          {...s, hotspots: Belt.Array.concat(s.hotspots, [hotspot])}
-        } else {
-          s
+  | Interactive(_) =>
+    switch Belt.Array.get(state.sceneOrder, sceneIndex) {
+    | Some(id) =>
+      switch state.inventory->Belt.Map.String.get(id) {
+      | Some(entry) =>
+        let updatedScene = {
+          ...entry.scene,
+          hotspots: Belt.Array.concat(entry.scene.hotspots, [hotspot]),
         }
-      })
-      {...state, scenes: newScenes}
+        {
+          ...state,
+          inventory: state.inventory->Belt.Map.String.set(id, {...entry, scene: updatedScene}),
+        }->SceneMutations.rebuildLegacyFields
+      | None => state
+      }
+    | None => state
     }
   | _ => state
   }
@@ -34,10 +41,12 @@ let handleAddHotspot = (state: state, sceneIndex: int, hotspot: hotspot): state 
 
 let handleRemoveHotspot = (state: state, sceneIndex: int, hotspotIndex: int): state => {
   switch state.appMode {
-  | InteractiveAuthoring(_) => {
-      let scenes = state.scenes
-      switch Belt.Array.get(scenes, sceneIndex) {
-      | Some(sourceScene) =>
+  | Interactive(_) =>
+    switch Belt.Array.get(state.sceneOrder, sceneIndex) {
+    | Some(id) =>
+      switch state.inventory->Belt.Map.String.get(id) {
+      | Some(entry) =>
+        let sourceScene = entry.scene
         switch Belt.Array.get(sourceScene.hotspots, hotspotIndex) {
         | Some(hotspotToDelete) =>
           let targetName = hotspotToDelete.target
@@ -46,37 +55,36 @@ let handleRemoveHotspot = (state: state, sceneIndex: int, hotspotIndex: int): st
           let newSourceHotspots = Belt.Array.keepWithIndex(sourceScene.hotspots, (_, i) =>
             i != hotspotIndex
           )
-          let scenesWithRemovedHotspot = Belt.Array.mapWithIndex(scenes, (i, s) => {
-            if i == sceneIndex {
-              {...s, hotspots: newSourceHotspots}
-            } else {
-              s
-            }
-          })
+          let updatedInventory =
+            state.inventory->Belt.Map.String.set(
+              id,
+              {...entry, scene: {...sourceScene, hotspots: newSourceHotspots}},
+            )
 
           // 2. Check if anything else still points to targetName
-          let stillReferenced = Belt.Array.some(scenesWithRemovedHotspot, s => {
-            Belt.Array.some(s.hotspots, h => h.target == targetName)
+          let stillReferenced = updatedInventory->Belt.Map.String.some((_id, e) => {
+            e.status == Active && Belt.Array.some(e.scene.hotspots, h => h.target == targetName)
           })
 
-          // 3. If no longer referenced, reset target scene's isAutoForward
-          let finalScenes = if !stillReferenced {
-            Belt.Array.map(scenesWithRemovedHotspot, s => {
-              if s.name == targetName {
-                {...s, isAutoForward: false}
+          // 3. If no longer referenced, reset target scene's isAutoForward in inventory
+          let finalInventory = if !stillReferenced {
+            updatedInventory->Belt.Map.String.map(e => {
+              if e.scene.name == targetName {
+                {...e, scene: {...e.scene, isAutoForward: false}}
               } else {
-                s
+                e
               }
             })
           } else {
-            scenesWithRemovedHotspot
+            updatedInventory
           }
 
-          {...state, scenes: finalScenes}
+          {...state, inventory: finalInventory}->SceneMutations.rebuildLegacyFields
         | None => state
         }
       | None => state
       }
+    | None => state
     }
   | _ => state
   }
@@ -84,15 +92,21 @@ let handleRemoveHotspot = (state: state, sceneIndex: int, hotspotIndex: int): st
 
 let handleClearHotspots = (state: state, sceneIndex: int): state => {
   switch state.appMode {
-  | InteractiveAuthoring(_) => {
-      let newScenes = Belt.Array.mapWithIndex(state.scenes, (i, s) => {
-        if i == sceneIndex {
-          {...s, hotspots: []}
-        } else {
-          s
-        }
-      })
-      {...state, scenes: newScenes}
+  | Interactive(_) =>
+    switch Belt.Array.get(state.sceneOrder, sceneIndex) {
+    | Some(id) =>
+      switch state.inventory->Belt.Map.String.get(id) {
+      | Some(entry) =>
+        {
+          ...state,
+          inventory: state.inventory->Belt.Map.String.set(
+            id,
+            {...entry, scene: {...entry.scene, hotspots: []}},
+          ),
+        }->SceneMutations.rebuildLegacyFields
+      | None => state
+      }
+    | None => state
     }
   | _ => state
   }
@@ -107,22 +121,28 @@ let handleUpdateHotspotTargetView = (
   hfov: float,
 ): state => {
   switch state.appMode {
-  | InteractiveAuthoring(_) => {
-      let newScenes = Belt.Array.mapWithIndex(state.scenes, (i, s) => {
-        if i == sceneIndex {
-          let newHotspots = Belt.Array.mapWithIndex(s.hotspots, (hi, h) => {
-            if hi == hotspotIndex {
-              {...h, targetYaw: Some(yaw), targetPitch: Some(pitch), targetHfov: Some(hfov)}
-            } else {
-              h
-            }
-          })
-          {...s, hotspots: newHotspots}
-        } else {
-          s
-        }
-      })
-      {...state, scenes: newScenes}
+  | Interactive(_) =>
+    switch Belt.Array.get(state.sceneOrder, sceneIndex) {
+    | Some(id) =>
+      switch state.inventory->Belt.Map.String.get(id) {
+      | Some(entry) =>
+        let updatedHotspots = Belt.Array.mapWithIndex(entry.scene.hotspots, (hi, h) => {
+          if hi == hotspotIndex {
+            {...h, targetYaw: Some(yaw), targetPitch: Some(pitch), targetHfov: Some(hfov)}
+          } else {
+            h
+          }
+        })
+        {
+          ...state,
+          inventory: state.inventory->Belt.Map.String.set(
+            id,
+            {...entry, scene: {...entry.scene, hotspots: updatedHotspots}},
+          ),
+        }->SceneMutations.rebuildLegacyFields
+      | None => state
+      }
+    | None => state
     }
   | _ => state
   }
@@ -137,23 +157,29 @@ let handleUpdateHotspotReturnView = (
   hfov: float,
 ): state => {
   switch state.appMode {
-  | InteractiveAuthoring(_) => {
-      let newScenes = Belt.Array.mapWithIndex(state.scenes, (i, s) => {
-        if i == sceneIndex {
-          let newHotspots = Belt.Array.mapWithIndex(s.hotspots, (hi, h) => {
-            if hi == hotspotIndex {
-              let vf: viewFrame = {yaw, pitch, hfov}
-              {...h, returnViewFrame: Some(vf), isReturnLink: Some(true)}
-            } else {
-              h
-            }
-          })
-          {...s, hotspots: newHotspots}
-        } else {
-          s
-        }
-      })
-      {...state, scenes: newScenes}
+  | Interactive(_) =>
+    switch Belt.Array.get(state.sceneOrder, sceneIndex) {
+    | Some(id) =>
+      switch state.inventory->Belt.Map.String.get(id) {
+      | Some(entry) =>
+        let updatedHotspots = Belt.Array.mapWithIndex(entry.scene.hotspots, (hi, h) => {
+          if hi == hotspotIndex {
+            let vf: viewFrame = {yaw, pitch, hfov}
+            {...h, returnViewFrame: Some(vf), isReturnLink: Some(true)}
+          } else {
+            h
+          }
+        })
+        {
+          ...state,
+          inventory: state.inventory->Belt.Map.String.set(
+            id,
+            {...entry, scene: {...entry.scene, hotspots: updatedHotspots}},
+          ),
+        }->SceneMutations.rebuildLegacyFields
+      | None => state
+      }
+    | None => state
     }
   | _ => state
   }
@@ -161,28 +187,34 @@ let handleUpdateHotspotReturnView = (
 
 let handleToggleHotspotReturnLink = (state: state, sceneIndex: int, hotspotIndex: int): state => {
   switch state.appMode {
-  | InteractiveAuthoring(_) => {
-      let newScenes = Belt.Array.mapWithIndex(state.scenes, (i, s) => {
-        if i == sceneIndex {
-          let newHotspots = Belt.Array.mapWithIndex(s.hotspots, (hi, h) => {
-            if hi == hotspotIndex {
-              let currentVal = switch h.isReturnLink {
-              | Some(b) => b
-              | None => false
-              }
-              let nextVal = !currentVal
-              let newReturnViewFrame = calculateNewReturnViewFrame(h, nextVal)
-              {...h, isReturnLink: Some(nextVal), returnViewFrame: newReturnViewFrame}
-            } else {
-              h
+  | Interactive(_) =>
+    switch Belt.Array.get(state.sceneOrder, sceneIndex) {
+    | Some(id) =>
+      switch state.inventory->Belt.Map.String.get(id) {
+      | Some(entry) =>
+        let updatedHotspots = Belt.Array.mapWithIndex(entry.scene.hotspots, (hi, h) => {
+          if hi == hotspotIndex {
+            let currentVal = switch h.isReturnLink {
+            | Some(b) => b
+            | None => false
             }
-          })
-          {...s, hotspots: newHotspots}
-        } else {
-          s
-        }
-      })
-      {...state, scenes: newScenes}
+            let nextVal = !currentVal
+            let newReturnViewFrame = calculateNewReturnViewFrame(h, nextVal)
+            {...h, isReturnLink: Some(nextVal), returnViewFrame: newReturnViewFrame}
+          } else {
+            h
+          }
+        })
+        {
+          ...state,
+          inventory: state.inventory->Belt.Map.String.set(
+            id,
+            {...entry, scene: {...entry.scene, hotspots: updatedHotspots}},
+          ),
+        }->SceneMutations.rebuildLegacyFields
+      | None => state
+      }
+    | None => state
     }
   | _ => state
   }

@@ -6,7 +6,12 @@ open TestUtils
 
 test("HotspotReducer: AddHotspot appends hotspot to specific scene", t => {
   let s1 = createMockScene(~id="s1", ())
-  let state = createMockState(~scenes=[s1], ~activeIndex=0, ~appMode=InteractiveAuthoring(Idle), ())
+  let state = createMockState(
+    ~scenes=[s1],
+    ~activeIndex=0,
+    ~appMode=Interactive({uiMode: EditingHotspots, navigation: IdleFsm, backgroundTask: None}),
+    (),
+  )
   let hotspot = createMockHotspot(~id="h1", ())
 
   let action = AddHotspot(0, hotspot)
@@ -24,7 +29,7 @@ test("HotspotReducer: RemoveHotspot removes hotspot via ReducerHelpers", t => {
   let state = createMockState(
     ~scenes=[s1, s2],
     ~activeIndex=0,
-    ~appMode=InteractiveAuthoring(Idle),
+    ~appMode=Interactive({uiMode: EditingHotspots, navigation: IdleFsm, backgroundTask: None}),
     (),
   )
 
@@ -39,7 +44,12 @@ test("HotspotReducer: ClearHotspots empties hotspots array for scene", t => {
   let h1 = createMockHotspot(~id="h1", ())
   let h2 = createMockHotspot(~id="h2", ())
   let s1 = createMockScene(~id="s1", ~hotspots=[h1, h2], ())
-  let state = createMockState(~scenes=[s1], ~activeIndex=0, ~appMode=InteractiveAuthoring(Idle), ())
+  let state = createMockState(
+    ~scenes=[s1],
+    ~activeIndex=0,
+    ~appMode=Interactive({uiMode: EditingHotspots, navigation: IdleFsm, backgroundTask: None}),
+    (),
+  )
 
   let action = ClearHotspots(0)
   let result = Reducer.reducer(state, action)
@@ -51,7 +61,12 @@ test("HotspotReducer: ClearHotspots empties hotspots array for scene", t => {
 test("HotspotReducer: UpdateHotspotTargetView updates view parameters", t => {
   let h1 = createMockHotspot(~id="h1", ())
   let s1 = createMockScene(~id="s1", ~hotspots=[h1], ())
-  let state = createMockState(~scenes=[s1], ~activeIndex=0, ~appMode=InteractiveAuthoring(Idle), ())
+  let state = createMockState(
+    ~scenes=[s1],
+    ~activeIndex=0,
+    ~appMode=Interactive({uiMode: EditingHotspots, navigation: IdleFsm, backgroundTask: None}),
+    (),
+  )
 
   let action = UpdateHotspotTargetView(0, 0, 120.0, -20.0, 60.0)
   let result = Reducer.reducer(state, action)
@@ -66,7 +81,12 @@ test("HotspotReducer: UpdateHotspotTargetView updates view parameters", t => {
 test("HotspotReducer: UpdateHotspotReturnView sets return frame and flag", t => {
   let h1 = createMockHotspot(~id="h1", ())
   let s1 = createMockScene(~id="s1", ~hotspots=[h1], ())
-  let state = createMockState(~scenes=[s1], ~activeIndex=0, ~appMode=InteractiveAuthoring(Idle), ())
+  let state = createMockState(
+    ~scenes=[s1],
+    ~activeIndex=0,
+    ~appMode=Interactive({uiMode: EditingHotspots, navigation: IdleFsm, backgroundTask: None}),
+    (),
+  )
 
   let action = UpdateHotspotReturnView(0, 0, 45.0, 10.0, 90.0)
   let result = Reducer.reducer(state, action)
@@ -82,7 +102,12 @@ test("HotspotReducer: UpdateHotspotReturnView sets return frame and flag", t => 
 test("HotspotReducer: ToggleHotspotReturnLink toggles flag and initializes frame", t => {
   let h1 = createMockHotspot(~id="h1", ())
   let s1 = createMockScene(~id="s1", ~hotspots=[h1], ())
-  let state = createMockState(~scenes=[s1], ~activeIndex=0, ~appMode=InteractiveAuthoring(Idle), ())
+  let state = createMockState(
+    ~scenes=[s1],
+    ~activeIndex=0,
+    ~appMode=Interactive({uiMode: EditingHotspots, navigation: IdleFsm, backgroundTask: None}),
+    (),
+  )
 
   // First toggle: true
   let action = ToggleHotspotReturnLink(0, 0)

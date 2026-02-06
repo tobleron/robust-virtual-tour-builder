@@ -152,7 +152,7 @@ describe("SceneList", () => {
       ...State.initialState,
       scenes: [s1, s2],
       activeIndex: 0,
-      appMode: InteractiveTouring(Idle),
+      appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
     }
     let lastAction = ref(None)
     let mockDispatch = action => lastAction.contents = Some(action)

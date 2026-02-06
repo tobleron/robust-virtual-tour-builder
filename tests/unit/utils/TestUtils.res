@@ -61,16 +61,23 @@ let createMockScene = (
 }
 
 let createMockState = (
-  ~scenes=[],
+  ~scenes: array<Types.scene>=[],
   ~activeIndex=-1,
   ~tourName="Test Tour",
   ~lastUsedCategory="outdoor",
   ~appMode=Initializing,
   (),
 ) => {
+  let inventory = scenes->Belt.Array.reduce(Belt.Map.String.empty, (acc, s) => {
+    acc->Belt.Map.String.set(s.id, {scene: s, status: Active})
+  })
+  let sceneOrder = scenes->Belt.Array.map(s => s.id)
+
   {
     ...State.initialState,
     scenes,
+    inventory,
+    sceneOrder,
     activeIndex,
     tourName,
     lastUsedCategory,

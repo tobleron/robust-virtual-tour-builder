@@ -2,7 +2,6 @@
 
 open Types
 open ReBindings
-open NavigationFSM
 @@warning("-45")
 
 module ControllerHooks = {
@@ -67,7 +66,7 @@ module ControllerHooks = {
           }
         })
         None
-      | Idle =>
+      | IdleFsm =>
         switch state.navigation {
         | Navigating(j) =>
           Logger.info(

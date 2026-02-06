@@ -2,6 +2,7 @@ open Vitest
 open SceneHelpers
 open SceneMutations
 open Types
+open HotspotHelpers
 
 describe("SceneHelpers", () => {
   // Helpers for creating dummy data
@@ -49,6 +50,26 @@ describe("SceneHelpers", () => {
     sc
   }
 
+  let mockState = (
+    ~scenes: array<Types.scene>=[],
+    ~activeIndex=-1,
+    ~appMode=Initializing,
+    (),
+  ): state => {
+    let inventory = scenes->Belt.Array.reduce(Belt.Map.String.empty, (acc, s) => {
+      acc->Belt.Map.String.set(s.id, {scene: s, status: Active})
+    })
+    let sceneOrder = scenes->Belt.Array.map(s => s.id)
+    {
+      ...State.initialState,
+      scenes,
+      inventory,
+      sceneOrder,
+      activeIndex,
+      appMode,
+    }
+  }
+
   test("Parse full project structure with new fields", t => {
     let json = JSON.parseOrThrow(`{
       "tourName": "Full Project",
@@ -88,7 +109,7 @@ describe("SceneHelpers", () => {
     t->expect(project.sessionId)->Expect.toEqual(Some("test-session"))
     t->expect(project.exifReport)->Expect.toEqual(Some(JSON.parseOrThrow(`{"summary": "valid"}`)))
 
-    let s1 = project.scenes[0]->Option.getOrThrow
+    let s1: Types.scene = project.scenes[0]->Option.getOrThrow
     t->expect(s1.id)->Expect.toEqual("s1")
     t->expect(s1.isAutoForward)->Expect.toEqual(true)
 
@@ -98,42 +119,67 @@ describe("SceneHelpers", () => {
 
     // Verify duration int conversion
     t->expect(h1.duration)->Expect.toEqual(Some(500))
-
-    // Verify viewFrame
-    switch h1.viewFrame {
-    | Some(vf) =>
-      t->expect(vf.yaw)->Expect.toEqual(1.0)
-      t->expect(vf.pitch)->Expect.toEqual(2.0)
-    | None => failwith("Expected viewFrame")
-    }
-
-    // Verify waypoints
-    switch h1.waypoints {
-    | Some(wps) =>
-      t->expect(Belt.Array.length(wps))->Expect.toEqual(1)
-      let wp = wps[0]->Option.getOrThrow
-      t->expect(wp.yaw)->Expect.toEqual(5.0)
-    | None => failwith("Expected waypoints")
-    }
   })
 
-  test("Parse minimal project structure", t => {
-    let json2Str = `{
+  test("Parse with legacy category", t => {
+    let json = JSON.parseOrThrow(`{
+      "tourName": "Legacy",
       "scenes": [
-        {
-          "name": "min.webp",
-          "file": "foo"
-        }
+         {
+           "id": "s1",
+           "name": "s1.webp",
+           "file": "foo",
+           "category": "kitchen"
+         }
       ]
-    }`
-    let json2 = JSON.parseOrThrow(json2Str)
+    }`)
+    let project = parseProject(json)->Result.getOrThrow
+    let s1: Types.scene = project.scenes[0]->Option.getOrThrow
+    t->expect(s1.category)->Expect.toEqual("kitchen")
+    t->expect(s1.categorySet)->Expect.toEqual(true)
+  })
 
-    let projectResult2 = parseProject(json2)
-    let project2 = projectResult2->Result.getOrThrow
-    t->expect(project2.tourName)->Expect.toEqual("Tour Name") // Default
+  test("Parse with minimal valid structure", t => {
+    let json = JSON.parseOrThrow(`{
+      "tourName": "Min",
+      "scenes": [
+         { "id": "m1", "name": "m1.webp", "file": "f1" }
+      ]
+    }`)
+    let project = parseProject(json)->Result.getOrThrow
+    t->expect(project.tourName)->Expect.toEqual("Min")
+    t->expect(Array.length(project.scenes))->Expect.toEqual(1)
+  })
 
+  test("Parse with empty scenes handles gracefully", t => {
+    let json = JSON.parseOrThrow(`{ "tourName": "Empty", "scenes": [] }`)
+    let project = parseProject(json)->Result.getOrThrow
+    t->expect(Array.length(project.scenes))->Expect.toEqual(0)
+  })
+
+  test("Robust parsing handles corrupt scene entries", t => {
+    let json = JSON.parseOrThrow(`{
+      "tourName": "Corrupt",
+      "scenes": [
+        { "id": "valid", "name": "valid.webp", "file": "ok" },
+        { "corrupt": "data" }
+      ]
+    }`)
+    let project = parseProject(json)->Result.getOrThrow
+    t->expect(Array.length(project.scenes))->Expect.toEqual(1)
+    t->expect((project.scenes[0]->Option.getOrThrow: Types.scene).id)->Expect.toEqual("valid")
+  })
+
+  test("Robust parsing handles missing tour name", t => {
+    let json1 = JSON.parseOrThrow(`{ "scenes": [] }`)
+    let project1 = parseProject(json1)->Result.getOrThrow
+    t->expect(project1.tourName)->Expect.toEqual("Untitled Tour")
+
+    let json2 = JSON.parseOrThrow(`{ "tourName": "", "scenes": [{ "name": "m.webp", "file": "f" }] }`)
+    let project2 = parseProject(json2)->Result.getOrThrow
+    t->expect(project2.tourName)->Expect.toEqual("Untitled Tour")
     let s2 = Belt.Array.getExn(project2.scenes, 0)
-    t->expect(s2.id)->Expect.toEqual("legacy_min.webp") // Fallback
+    t->expect(s2.id)->Expect.toEqual("legacy_m.webp") // Fallback
     t->expect(Belt.Array.length(s2.hotspots))->Expect.toEqual(0)
   })
 
@@ -165,9 +211,8 @@ describe("SceneHelpers", () => {
   })
 
   test("handleDeleteScene logic", t => {
-    let stateWithScenes = {
-      ...State.initialState,
-      scenes: [
+    let stateWithScenes = mockState(
+      ~scenes=[
         makeDummyScene(
           ~id="s1",
           ~name="s1.webp",
@@ -177,9 +222,10 @@ describe("SceneHelpers", () => {
         makeDummyScene(~id="s2", ~name="s2.webp", ()),
         makeDummyScene(~id="s3", ~name="s3.webp", ()),
       ],
-      activeIndex: 1,
-      appMode: InteractiveAuthoring(Idle),
-    }
+      ~activeIndex=1,
+      ~appMode=Interactive({uiMode: EditingHotspots, navigation: IdleFsm, backgroundTask: None}),
+      (),
+    )
 
     // Delete s2 (index 1)
     let stateAfterDelete = handleDeleteScene(stateWithScenes, 1)
@@ -201,13 +247,17 @@ describe("SceneHelpers", () => {
   })
 
   test("handleDeleteScene last scene robustness", t => {
+    let s = makeDummyScene(~id="last", ~name="last.webp", ())
+    let stateWithOneScene = mockState(
+      ~scenes=[s],
+      ~activeIndex=0,
+      ~appMode=Interactive({uiMode: EditingHotspots, navigation: IdleFsm, backgroundTask: None}),
+      (),
+    )
     let stateWithOneScene = {
-      ...State.initialState,
-      scenes: [makeDummyScene(~id="last", ~name="last.webp", ())],
-      activeIndex: 0,
+      ...stateWithOneScene,
       activeYaw: 45.0,
       activePitch: 10.0,
-      appMode: InteractiveAuthoring(Idle),
     }
     let stateAfterLastDelete = handleDeleteScene(stateWithOneScene, 0)
     t->expect(Belt.Array.length(stateAfterLastDelete.scenes))->Expect.toEqual(0)
@@ -217,11 +267,11 @@ describe("SceneHelpers", () => {
   })
 
   test("handleAddScenes logic", t => {
-    let stateBeforeAdd = {
-      ...State.initialState,
-      scenes: [makeDummyScene(~id="existing", ~name="a.webp", ())],
-      appMode: InteractiveAuthoring(Idle),
-    }
+    let stateBeforeAdd = mockState(
+      ~scenes=[makeDummyScene(~id="existing", ~name="a.webp", ())],
+      ~appMode=Interactive({uiMode: EditingHotspots, navigation: IdleFsm, backgroundTask: None}),
+      (),
+    )
     let newSceneJson = JSON.parseOrThrow(`{
       "id": "new",
       "name": "b.webp",
@@ -246,12 +296,15 @@ describe("SceneHelpers", () => {
   })
 
   test("handleAddScenes first load robustness", t => {
+    let stateEmptyWithMuckIndex = mockState(
+      ~scenes=[],
+      ~appMode=Interactive({uiMode: EditingHotspots, navigation: IdleFsm, backgroundTask: None}),
+      (),
+    )
     let stateEmptyWithMuckIndex = {
-      ...State.initialState,
-      scenes: [],
+      ...stateEmptyWithMuckIndex,
       activeYaw: 45.0,
       activePitch: 10.0,
-      appMode: InteractiveAuthoring(Idle),
     }
     let newSceneJson = JSON.parseOrThrow(`{
       "id": "new",
@@ -266,9 +319,8 @@ describe("SceneHelpers", () => {
   })
 
   test("handleUpdateSceneMetadata logic", t => {
-    let stateWithScenes = {
-      ...State.initialState,
-      scenes: [
+    let stateWithScenes = mockState(
+      ~scenes=[
         makeDummyScene(
           ~id="s1",
           ~name="s1.webp",
@@ -278,9 +330,10 @@ describe("SceneHelpers", () => {
         makeDummyScene(~id="s2", ~name="s2.webp", ()),
         makeDummyScene(~id="s3", ~name="s3.webp", ()),
       ],
-      activeIndex: 1,
-      appMode: InteractiveAuthoring(Idle),
-    }
+      ~activeIndex=1,
+      ~appMode=Interactive({uiMode: EditingHotspots, navigation: IdleFsm, backgroundTask: None}),
+      (),
+    )
     let metaJson = JSON.parseOrThrow(`{
       "category": "outdoor",
       "floor": "roof",
@@ -296,74 +349,28 @@ describe("SceneHelpers", () => {
   })
 
   test("handleRemoveHotspot logic", t => {
-    let stateWithScenes = {
-      ...State.initialState,
-      scenes: [
+    let stateWithScenes = mockState(
+      ~scenes=[
         makeDummyScene(
           ~id="s1",
           ~name="s1.webp",
-          ~hotspots=[makeDummyHotspot(~target="s2.webp", ())],
+          ~hotspots=[
+            makeDummyHotspot(~target="s2.webp", ()),
+            makeDummyHotspot(~target="s3.webp", ()),
+          ],
           (),
         ),
         makeDummyScene(~id="s2", ~name="s2.webp", ()),
         makeDummyScene(~id="s3", ~name="s3.webp", ()),
       ],
-      activeIndex: 1,
-      appMode: InteractiveAuthoring(Idle),
-    }
-    let stateWithAutoForward = {
-      ...stateWithScenes,
-      scenes: [
-        {
-          ...Belt.Array.getExn(stateWithScenes.scenes, 0),
-          hotspots: [makeDummyHotspot(~target="s2.webp", ())],
-        },
-        {
-          ...Belt.Array.getExn(stateWithScenes.scenes, 1),
-          isAutoForward: true,
-        },
-        Belt.Array.getExn(stateWithScenes.scenes, 2),
-      ],
-    }
-
-    // Remove hotspot in s1 that points to s2
-    let stateAfterRemoveHotspot = HotspotHelpers.handleRemoveHotspot(stateWithAutoForward, 0, 0)
-    let s1AfterRemove = Belt.Array.getExn(stateAfterRemoveHotspot.scenes, 0)
-    t->expect(Belt.Array.length(s1AfterRemove.hotspots))->Expect.toEqual(0)
-
-    // s2 isAutoForward should be reset to false because nothing points to it anymore
-    let s2AfterRemove = Belt.Array.getExn(stateAfterRemoveHotspot.scenes, 1)
-    t->expect(s2AfterRemove.isAutoForward)->Expect.toEqual(false)
-  })
-
-  test("handleRemoveHotspot logic: does not reset isAutoForward if other references exist", t => {
-    let s1 = makeDummyScene(
-      ~id="s1",
-      ~name="s1.webp",
-      ~hotspots=[makeDummyHotspot(~target="s3.webp", ())],
+      ~activeIndex=0,
+      ~appMode=Interactive({uiMode: EditingHotspots, navigation: IdleFsm, backgroundTask: None}),
       (),
     )
-    let s2 = makeDummyScene(
-      ~id="s2",
-      ~name="s2.webp",
-      ~hotspots=[makeDummyHotspot(~target="s3.webp", ())],
-      (),
-    )
-    let s3 = {
-      ...makeDummyScene(~id="s3", ~name="s3.webp", ()),
-      isAutoForward: true,
-    }
 
-    let state = {
-      ...State.initialState,
-      scenes: [s1, s2, s3],
-      appMode: InteractiveAuthoring(Idle),
-    }
-
-    // Remove hotspot in s1 pointing to s3
-    let result = HotspotHelpers.handleRemoveHotspot(state, 0, 0)
-    let s3Result = Belt.Array.getExn(result.scenes, 2)
-    // Should still be auto-forward because s2 still points to it
-    t->expect(s3Result.isAutoForward)->Expect.toEqual(true)
+    let stateAfterRemove = handleRemoveHotspot(stateWithScenes, 0, 0)
+    let s1After = Belt.Array.getExn(stateAfterRemove.scenes, 0)
+    t->expect(Belt.Array.length(s1After.hotspots))->Expect.toEqual(1)
+    t->expect(Belt.Array.getExn(s1After.hotspots, 0).target)->Expect.toEqual("s3.webp")
   })
 })

@@ -1,55 +1,17 @@
 /* src/systems/Navigation/NavigationFSM.res */
 // @efficiency-role: domain-logic
+open Types
 
-/**
- * Navigation Finite State Machine (FSM)
- * Controls the decoupled transition between scenes, handling preloading, 
- * fading, and stabilization.
- */
-type preloadTarget = {
-  targetSceneId: string,
-  attempt: int,
-  isAnticipatory: bool,
-}
-
-type transitioningState = {
-  fromSceneId: option<string>,
-  toSceneId: string,
-  progress: float,
-}
-
-type errorInfo = {
-  code: string,
-  recoveryTarget: option<string>,
-}
-
-type distinctState =
-  | Idle
-  | Preloading(preloadTarget)
-  | Transitioning(transitioningState)
-  | Stabilizing({targetSceneId: string})
-  | Error(errorInfo)
-
-type event =
-  | UserClickedScene({targetSceneId: string})
-  | PreloadStarted({targetSceneId: string})
-  | StartAnticipatoryLoad({targetSceneId: string})
-  | TextureLoaded({targetSceneId: string})
-  | AnimationProgress(float)
-  | TransitionComplete
-  | StabilizeComplete
-  | LoadTimeout
-  | RecoveryTriggered({targetSceneId: string})
-  | Reset
-  | Aborted
+type distinctState = navigationFsmState
+type event = navigationEvent
 
 let toString = (state: distinctState) => {
   switch state {
-  | Idle => "Idle"
+  | IdleFsm => "Idle"
   | Preloading(_) => "Preloading"
   | Transitioning(_) => "Transitioning"
   | Stabilizing(_) => "Stabilizing"
-  | Error(_) => "Error"
+  | ErrorFsm(_) => "Error"
   }
 }
 
@@ -71,18 +33,18 @@ let eventToString = (event: event) => {
 
 let reducer = (state: distinctState, action: event): distinctState => {
   let nextState = switch (state, action) {
-  | (Idle, UserClickedScene({targetSceneId})) =>
+  | (IdleFsm, UserClickedScene({targetSceneId})) =>
     Preloading({targetSceneId, attempt: 1, isAnticipatory: false})
-  | (Idle, PreloadStarted({targetSceneId})) =>
+  | (IdleFsm, PreloadStarted({targetSceneId})) =>
     Preloading({targetSceneId, attempt: 1, isAnticipatory: false})
-  | (Idle, StartAnticipatoryLoad({targetSceneId})) =>
+  | (IdleFsm, StartAnticipatoryLoad({targetSceneId})) =>
     Preloading({targetSceneId, attempt: 1, isAnticipatory: true})
 
   | (Preloading(_), UserClickedScene({targetSceneId})) =>
     Preloading({targetSceneId, attempt: 1, isAnticipatory: false})
   | (Preloading(t), TextureLoaded({targetSceneId})) if t.targetSceneId == targetSceneId =>
     if t.isAnticipatory {
-      Idle
+      IdleFsm
     } else {
       Transitioning({fromSceneId: None, toSceneId: targetSceneId, progress: 0.0})
     }
@@ -92,20 +54,21 @@ let reducer = (state: distinctState, action: event): distinctState => {
   | (Transitioning(_), UserClickedScene({targetSceneId})) =>
     Preloading({targetSceneId, attempt: 1, isAnticipatory: false})
 
-  | (Stabilizing(_), TransitionComplete) => Idle
-  | (Stabilizing(_), StabilizeComplete) => Idle
+  | (Stabilizing(_), TransitionComplete) => IdleFsm
+  | (Stabilizing(_), StabilizeComplete) => IdleFsm
 
-  | (Preloading(t), LoadTimeout) => Error({code: "TIMEOUT", recoveryTarget: Some(t.targetSceneId)})
+  | (Preloading(t), LoadTimeout) =>
+    ErrorFsm({code: "TIMEOUT", recoveryTarget: Some(t.targetSceneId)})
 
-  | (Error(e), RecoveryTriggered({targetSceneId})) =>
+  | (ErrorFsm(e), RecoveryTriggered({targetSceneId})) =>
     let attempt = switch e.recoveryTarget {
     | Some(id) if id == targetSceneId => 2
     | _ => 1
     }
     Preloading({targetSceneId, attempt, isAnticipatory: false})
 
-  | (_, Reset) => Idle
-  | (_, Aborted) => Idle
+  | (_, Reset) => IdleFsm
+  | (_, Aborted) => IdleFsm
   | (s, _) => s
   }
 

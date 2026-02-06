@@ -4,6 +4,7 @@ open ReBindings
 open ViewerState
 open Actions
 open EventBus
+open Types
 
 let normalizeMouseCoords = (e: Dom.event, element: Dom.element) => {
   let rect = Dom.getBoundingClientRect(element)
@@ -63,8 +64,8 @@ let handleKeyDown = e => {
 
     // 0b. Handle Navigation Interruption
     switch storeState.navigationFsm {
-    | NavigationFSM.Idle | NavigationFSM.Error(_) => ()
-    | _ => GlobalStateBridge.dispatch(Actions.DispatchNavigationFsmEvent(NavigationFSM.Aborted))
+    | IdleFsm | ErrorFsm(_) => ()
+    | _ => GlobalStateBridge.dispatch(Actions.DispatchNavigationFsmEvent(Aborted))
     }
 
     // 1. Close Modals

@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.24.1] - 2026-02-06
+
+### Changed
+- Fix analyzer regex & 100% Data Flow coverage 🌊
+
+## [4.25.0] - 2026-02-06
+
+### Fixed
+- Corrected regex in `_dev-system/analyzer/src/guard.rs` to accurately capture multiple module references per line in `DATA_FLOW.md`.
+
+### Changed
+- Reorganized `DATA_FLOW.md` for better token efficiency and readability using directory-based grouping.
+- Achieved 100% architectural coverage in `DATA_FLOW.md`, integrating all project modules into logical flows.
+- Verified analyzer self-healing: automated task cleanup and dynamic unmapped module tracking are fully operational.
+
 ## [4.24.0] - 2026-02-05
 
 ### Changed

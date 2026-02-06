@@ -49,7 +49,7 @@ describe("StateInspector", _ => {
     t->expect(hasStore)->Expect.toBe(true)
 
     let storeState = %raw(`globalThis.window.store.state`)
-    t->expect(storeState.tourName)->Expect.toBe("Tour Name")
+    t->expect(storeState.tourName)->Expect.toBe("Untitled Tour")
 
     let _ = %raw(`
       Constants.enableStateInspector.mockRestore()
@@ -89,7 +89,7 @@ describe("StateInspector", _ => {
     exposeToWindow()
 
     let fullState = %raw(`globalThis.window.store.getFullState()`)
-    t->expect(fullState.tourName)->Expect.toBe("Tour Name")
+    t->expect(fullState.tourName)->Expect.toBe("Untitled Tour")
 
     // Test it's frozen
     let isFrozen = %raw(`Object.isFrozen(fullState)`)

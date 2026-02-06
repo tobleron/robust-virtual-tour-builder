@@ -55,7 +55,7 @@ describe("SceneMutations", () => {
     let state = createMockState(
       ~scenes=[s1, s2],
       ~activeIndex=1,
-      ~appMode=InteractiveAuthoring(Idle),
+      ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
       (),
     )
 
@@ -77,7 +77,7 @@ describe("SceneMutations", () => {
     let state = createMockState(
       ~scenes=[s0, s1, s2],
       ~activeIndex=1,
-      ~appMode=InteractiveAuthoring(Idle),
+      ~appMode=Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
       (),
     )
 

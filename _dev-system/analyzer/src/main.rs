@@ -105,6 +105,7 @@ fn main() -> Result<()> {
     sync_all_architectural_tasks(&buffer, &config)?;
     
     let _ = guard::check_map(&guard_config, &config.exclusion_rules);
+    let _ = guard::check_data_flow(&guard_config, &config.exclusion_rules);
     let _ = guard::check_tasks_count(&guard_config);
     state.save()?;
     
