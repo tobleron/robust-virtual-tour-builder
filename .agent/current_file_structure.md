@@ -12991,6 +12991,7 @@
 │   │   ├── 1252_fsm_logical_hardening_and_state_remodeling_DONE.md
 │   │   ├── 1255_Integrate_DataFlow_Modules_DONE.md
 │   │   ├── 1256_FSM_INTERACTION_LOGIC_OVERHAUL_DONE.md
+│   │   ├── 1257_Fix_Logical_Inconsistencies_Upload_Resizer_Journal_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
 │   │       ├── 1195_Test_Teaser_DONE.md
@@ -13006,7 +13007,7 @@
 │   │   ├── 1250_Fix_Violations_FRONTEND.md
 │   │   ├── 1253_Surgical_Refactor_CORE_FRONTEND.md
 │   │   ├── 1254_Surgical_Refactor_SYSTEMS_FRONTEND.md
-│   │   └── 1257_Fix_Logical_Inconsistencies_Upload_Resizer_Journal.md
+│   │   └── 1258_Fix_AppFSM_CriticalError_and_UploadSummary.md
 │   └── postponed
 ├── test-results
 │   ├── rapid-scene-switching-FSM--088e8-g-by-clicking-another-scene-chromium
@@ -13415,4 +13416,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-578 directories, 12838 files
+578 directories, 12839 files
