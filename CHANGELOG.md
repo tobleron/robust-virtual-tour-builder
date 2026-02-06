@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Merge pull request fix/fsm-interaction-overhaul-7792785592159946274: UX and FSM locking improvements
+- Improving UI in progress
+- Improving UI in progress
 
 ## [4.24.3] - 2026-02-06
 
