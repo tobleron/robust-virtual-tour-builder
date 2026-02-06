@@ -68,4 +68,21 @@ describe("OperationJournal", () => {
     ->expect((interrupted->Belt.Array.get(0)->Belt.Option.getExn).operation)
     ->Expect.toBe("InterruptedOp")
   })
+
+  testAsync("cleans up failed operations on completion of another operation", async t => {
+    await setup()
+    let context = JsonCombinators.Json.Encode.null
+    let id1 = await startOperation(~operation="FailedOp", ~context, ~retryable=true)
+    await failOperation(id1, "Some error")
+
+    let id2 = await startOperation(~operation="SuccessOp", ~context, ~retryable=true)
+    await completeOperation(id2)
+
+    let journal = await load()
+    let found1 = Belt.Array.getBy(journal.entries, e => e.id == id1)
+    let found2 = Belt.Array.getBy(journal.entries, e => e.id == id2)
+
+    t->expect(found1)->Expect.toBe(None)
+    t->expect(found2)->Expect.toBe(None)
+  })
 })

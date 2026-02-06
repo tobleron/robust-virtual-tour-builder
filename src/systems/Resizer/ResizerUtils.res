@@ -2,18 +2,20 @@
 
 open ReBindings
 
-open ResizerTypes
-
 let formatBytesToMB = (v: float): string => {
   Float.toFixed(v /. 1024.0 /. 1024.0, ~digits=0) ++ "MB"
 }
 
-let safeGetMemoryStats = () => {
-  try {
-    Some((usedJSHeapSize, totalJSHeapSize, jsHeapSizeLimit))
-  } catch {
-  | _ => None
-  }
+let safeGetMemoryStats = (): option<(float, float, float)> => {
+  %raw(`
+    (function() {
+      if (typeof window !== 'undefined' && window.performance && window.performance.memory) {
+         var mem = window.performance.memory;
+         return [mem.usedJSHeapSize, mem.totalJSHeapSize, mem.jsHeapSizeLimit];
+      }
+      return undefined;
+    })()
+  `)
 }
 
 let getMemoryUsage = () => {
