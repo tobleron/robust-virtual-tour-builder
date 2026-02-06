@@ -51,6 +51,7 @@ let reducer = (state: distinctState, action: event): distinctState => {
 
   | (Transitioning(s), AnimationProgress(p)) => Transitioning({...s, progress: p})
   | (Transitioning(s), TransitionComplete) => Stabilizing({targetSceneId: s.toSceneId})
+  | (Transitioning(s), StabilizeComplete) => Stabilizing({targetSceneId: s.toSceneId})
   | (Transitioning(_), UserClickedScene({targetSceneId})) =>
     Preloading({targetSceneId, attempt: 1, isAnticipatory: false})
 
