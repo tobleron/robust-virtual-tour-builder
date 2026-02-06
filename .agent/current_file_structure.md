@@ -11001,8 +11001,7 @@
 │   ├── diagnostic.log
 │   ├── error.log
 │   ├── log_changes.txt
-│   ├── project-guard.log
-│   └── telemetry.log
+│   └── project-guard.log
 ├── old_ref
 │   ├── 7aadee4
 │   │   ├── CHANGELOG.md
@@ -12376,23 +12375,28 @@
 │   └── step1_cleanup_notes.md
 ├── playwright-report
 │   ├── data
-│   │   ├── 012933d6c88d0419ef32d5a463c8f272e69c2c80.webm
-│   │   ├── 1072285ea9e115d5760f9ec1ca8e86e34ed6b45f.png
-│   │   ├── 12bed233d2fd37e120813a452b660d294df3865d.md
-│   │   ├── 19d0808b1d381ca5b52220e4bbb7eb3026279edb.zip
-│   │   ├── 1acf4f3019633f3db5d1521d1e7464d2e0fee041.zip
-│   │   ├── 35b200d7679206cfc8e10e117fc0b33eb33b2ad7.webm
-│   │   ├── 3e7ccf1f0b19d1529864445059e551d30731fea9.md
-│   │   ├── 450a00245970eb12a0a2a9fcd56809fedae90886.png
-│   │   ├── 483e4c4d0129625e1cec5e1147c7a441119c344c.zip
-│   │   ├── 6329688b384e940b06aa1d64594a6dc126c15285.webm
-│   │   ├── 63f7abbde16d4d3858392997ce6e14a8f8e15332.zip
-│   │   ├── 94f61cdcd24f57aaebe241c91de54d1a651fcf53.png
-│   │   ├── 9b7140ea7ad88e1dafa5df80da2d43e50ac3ad94.png
-│   │   ├── afd34ec1e229eca598d29b3ed9ddabac2ffef791.zip
-│   │   ├── b3f5f1755e013eb948bada2cc731eb096675d559.webm
-│   │   ├── cdd2375129f5229a722f9d799ba6a3b1b15795d1.md
-│   │   └── e7fa893ccd3e5ba2f2692aade1214afd21ba7fe1.webm
+│   │   ├── 23032e499e47c5f201293d22f781a84ae5b383a8.webm
+│   │   ├── 2cba09b013059a250a58e9627b0c64cd7da1c4d9.zip
+│   │   ├── 2e31130a0606cb170a1f2d9160905bbe0baf5ea7.zip
+│   │   ├── 341cf23a255b8857a5cfd52bf4a095801aa96f28.webm
+│   │   ├── 4c3ebfe13f6dcee6a0267b47792f7c6bd1545ce7.webm
+│   │   ├── 519874c90b026e864332369e27b133b93b2bbada.png
+│   │   ├── 5280d01cd3bcb4477cefa7ff67f4aee8cff2086a.webm
+│   │   ├── 6aa7c93039ec3272535705e22d986e21ab1431d5.webm
+│   │   ├── 6c226924939ce00fa3c0d6c60bf9a6544f6d2d6b.webm
+│   │   ├── 6dfb2463c138e7c6621b825d3ad3dcb4dbd18965.zip
+│   │   ├── 74c642aa29d735a9038c7a7a00df425bc4fbab11.webm
+│   │   ├── 78d1a50a1384267cdc54a12c95fad24fab7e8e72.webm
+│   │   ├── 7a33d5db6370b6de345e990751aa1f1da65ad675.png
+│   │   ├── 8bdc4e26633dfcab9a637413ef8bf44541c3fee7.zip
+│   │   ├── 9b870ed06c48d26434683171c8a5b247cac64125.zip
+│   │   ├── a90d9b3d9db7c70f00783db6304c9576b39cd2d0.png
+│   │   ├── b41aa4ee536ec112aef22baaf491d855c86eb5c3.zip
+│   │   ├── be27bc2dc217a5beb2cf98bd03efa7dfc978b936.webm
+│   │   ├── c70b8974e45f2d51c48e59293e7b4ac242a15563.zip
+│   │   ├── d49177a291157754f4cfd993fe6c6a1175fddb19.md
+│   │   ├── dda891eb2acd166a22bfcb5ef482c3b7bf5b985a.zip
+│   │   └── f7d6b6acb2c5389fccafe91e4f6ddad06dfeb1ea.zip
 │   ├── index.html
 │   └── trace
 │       ├── assets
@@ -12944,6 +12948,7 @@
 │   │   ├── 1251_global_fsm_migration_DONE.md
 │   │   ├── 1252_fsm_logical_hardening_and_state_remodeling_DONE.md
 │   │   ├── 1255_Integrate_DataFlow_Modules_DONE.md
+│   │   ├── 1256_FSM_INTERACTION_LOGIC_OVERHAUL_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
 │   │       ├── 1195_Test_Teaser_DONE.md
@@ -12958,32 +12963,45 @@
 │   │   ├── 1246_Handle_Malformed_Project_Files_Gracefully.md
 │   │   ├── 1250_Fix_Violations_FRONTEND.md
 │   │   ├── 1253_Surgical_Refactor_CORE_FRONTEND.md
-│   │   ├── 1254_Surgical_Refactor_SYSTEMS_FRONTEND.md
-│   │   └── 1256_FSM_INTERACTION_LOGIC_OVERHAUL.md
+│   │   └── 1254_Surgical_Refactor_SYSTEMS_FRONTEND.md
 │   └── postponed
 ├── test-results
-│   ├── robustness-Application-Rob-6cd1c-ling-Operation-Cancellation-webkit
+│   ├── rapid-scene-switching-FSM--088e8-g-by-clicking-another-scene-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── rapid-scene-switching-FSM--088e8-g-by-clicking-another-scene-firefox
 │   │   ├── error-context.md
 │   │   ├── test-failed-1.png
 │   │   ├── trace.zip
 │   │   └── video.webm
-│   ├── robustness-Application-Rob-7044e--Circuit-Breaker-Activation-webkit
+│   ├── rapid-scene-switching-FSM--088e8-g-by-clicking-another-scene-webkit
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── rapid-scene-switching-FSM--30f18-ot-dim-during-scene-preload-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── rapid-scene-switching-FSM--30f18-ot-dim-during-scene-preload-firefox
 │   │   ├── error-context.md
 │   │   ├── test-failed-1.png
 │   │   ├── trace.zip
 │   │   └── video.webm
-│   ├── robustness-Application-Rob-b56c2-ry-with-Exponential-Backoff-firefox
+│   ├── rapid-scene-switching-FSM--30f18-ot-dim-during-scene-preload-webkit
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── rapid-scene-switching-FSM--c1619-ne-clicking-should-not-hang-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── rapid-scene-switching-FSM--c1619-ne-clicking-should-not-hang-firefox
 │   │   ├── error-context.md
 │   │   ├── test-failed-1.png
 │   │   ├── trace.zip
 │   │   └── video.webm
-│   ├── robustness-Application-Rob-b56c2-ry-with-Exponential-Backoff-webkit
-│   │   ├── error-context.md
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   └── robustness-Application-Rob-edf9a-errupted-Operation-Recovery-webkit
-│       ├── error-context.md
+│   └── rapid-scene-switching-FSM--c1619-ne-clicking-should-not-hang-webkit
 │       ├── test-failed-1.png
 │       ├── trace.zip
 │       └── video.webm
@@ -13009,6 +13027,7 @@
 │   │   ├── operation-recovery.spec.ts
 │   │   ├── optimistic-rollback.spec.ts
 │   │   ├── performance.spec.ts
+│   │   ├── rapid-scene-switching.spec.ts
 │   │   ├── robustness.spec.ts
 │   │   ├── save-load-recovery.spec.ts
 │   │   ├── simulation-teaser.spec.ts
@@ -13353,4 +13372,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-572 directories, 12782 files
+576 directories, 12797 files

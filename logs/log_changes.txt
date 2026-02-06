@@ -187,3 +187,4 @@ Recommendation: Approve for commercial release after completing Task 1222 [TRIPL
 [2026-02-05 17:37] v4.24.0 - Implement FSM-based state management and remove InteractionQueue [TRIPLE]
 [2026-02-06 12:37] v4.24.1 - Fix analyzer regex & 100% Data Flow coverage 🌊 [TRIPLE]
 [2026-02-06 13:12] v4.24.3 - task: number 1256 and update CLAUDE.md & task details for FSM overhaul [TRIPLE]
+[2026-02-06 14:09] v4.24.4 - Merge pull request fix/fsm-interaction-overhaul-7792785592159946274: UX and FSM locking improvements

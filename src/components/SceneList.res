@@ -85,7 +85,7 @@ let make = React.memo(() => {
       } else {
         let now = Date.now()
         let timeDiff = now -. ViewerState.state.contents.lastSwitchTime
-        let throttleLimit = 650.0
+        let throttleLimit = 200.0
 
         // Check both time throttle AND queue/app stability
         if timeDiff < throttleLimit || isSystemLocked {
