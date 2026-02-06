@@ -13070,11 +13070,13 @@
 │   ├── pending
 │   │   ├── 1243_Fix_Operation_Cancellation_Feedback.md
 │   │   ├── 1246_Handle_Malformed_Project_Files_Gracefully.md
-│   │   ├── 1250_Fix_Violations_FRONTEND.md
-│   │   ├── 1253_Surgical_Refactor_CORE_FRONTEND.md
-│   │   ├── 1254_Surgical_Refactor_SYSTEMS_FRONTEND.md
-│   │   ├── 1259_Classify_Map_Entries.md
-│   │   └── 1260_Integrate_DataFlow_Modules.md
+│   │   ├── 1259_Fix_Scene_Switch_Crash_HotspotManager_Unprotected_Exception.md
+│   │   └── dev_tasks
+│   │       ├── D001_Fix_Violations_FRONTEND.md
+│   │       ├── D002_Surgical_Refactor_CORE_FRONTEND.md
+│   │       ├── D003_Surgical_Refactor_SYSTEMS_FRONTEND.md
+│   │       ├── D004_Classify_Map_Entries.md
+│   │       └── D005_Integrate_DataFlow_Modules.md
 │   ├── postponed
 │   └── TASKS.md
 ├── test-results
@@ -13486,4 +13488,4 @@
 │       └── test_run.json
 └── vitest.config.mjs
 
-579 directories, 12908 files
+580 directories, 12909 files
