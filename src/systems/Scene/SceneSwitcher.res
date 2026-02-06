@@ -31,11 +31,17 @@ let navigateToScene = (
       ()
     } else {
       let njid = state.currentJourneyId + 1
-      dispatch(Actions.IncrementJourneyId)
       let currView = NavigationGraph.getCurrentView()
+      let actions = []
+      let _ = Js.Array.push(Actions.IncrementJourneyId, actions)
+
       if previewOnly {
-        dispatch(SetNavigationStatus(Previewing({sceneIndex: sourceIdx, hotspotIndex: sourceHIdx})))
+        let _ = Js.Array.push(
+          SetNavigationStatus(Previewing({sceneIndex: sourceIdx, hotspotIndex: sourceHIdx})),
+          actions,
+        )
       }
+
       if state.simulation.status == Running || previewOnly {
         let pd = NavigationGraph.calculatePathData(
           state,
@@ -58,10 +64,15 @@ let navigateToScene = (
           previewOnly,
           pathData: pd,
         }
-        dispatch(SetNavigationStatus(Navigating(j)))
-        state.scenes[targetIdx]->Option.forEach(ts =>
-          dispatch(DispatchNavigationFsmEvent(UserClickedScene({targetSceneId: ts.id})))
-        )
+        let _ = Js.Array.push(SetNavigationStatus(Navigating(j)), actions)
+
+        state.scenes[targetIdx]->Option.forEach(ts => {
+          let _ = Js.Array.push(
+            DispatchNavigationFsmEvent(UserClickedScene({targetSceneId: ts.id})),
+            actions,
+          )
+        })
+
         pd->Option.forEach(p =>
           EventBus.dispatch(
             NavStart({
@@ -76,28 +87,32 @@ let navigateToScene = (
         )
       } else {
         let (ay, ap, _) = NavigationGraph.calculateSmartArrivalTarget(state.scenes, targetIdx)
-        dispatch(SetIncomingLink(Some({sceneIndex: sourceIdx, hotspotIndex: sourceHIdx})))
-        dispatch(
+        let _ = Js.Array.push(
+          SetIncomingLink(Some({sceneIndex: sourceIdx, hotspotIndex: sourceHIdx})),
+          actions,
+        )
+        let _ = Js.Array.push(
           SetActiveScene(
             targetIdx,
             ay,
             ap,
             Some({type_: Link, targetHotspotIndex: -1, fromSceneName: None}),
           ),
+          actions,
         )
-        state.scenes[targetIdx]->Option.forEach(ts =>
-          dispatch(DispatchNavigationFsmEvent(UserClickedScene({targetSceneId: ts.id})))
-        )
+        state.scenes[targetIdx]->Option.forEach(ts => {
+          let _ = Js.Array.push(
+            DispatchNavigationFsmEvent(UserClickedScene({targetSceneId: ts.id})),
+            actions,
+          )
+        })
       }
+      dispatch(Batch(actions))
     }
     Promise.resolve()
   }
 
-  switch InteractionGuard.attempt(
-    "scene_navigation",
-    InteractionPolicies.sceneNavigation,
-    action,
-  ) {
+  switch InteractionGuard.attempt("scene_navigation", InteractionPolicies.sceneNavigation, action) {
   | Ok(_) => ()
   | Error(_) => EventBus.dispatch(ShowNotification("Switching too fast...", #Warning, None))
   }
@@ -132,27 +147,35 @@ let handleAutoForward = (dispatch, state: state, currentScene: scene) => {
 }
 
 let setSimulationMode = (dispatch, state: state, val) => {
-  dispatch(SetSimulationMode(val))
-  dispatch(ResetAutoForwardChain)
-  dispatch(SetIncomingLink(None))
-  dispatch(IncrementJourneyId)
+  let actions = [
+    SetSimulationMode(val),
+    ResetAutoForwardChain,
+    SetIncomingLink(None),
+    IncrementJourneyId,
+    SetNavigationStatus(Idle),
+  ]
   EventBus.dispatch(ClearSimUi)
-  dispatch(SetNavigationStatus(Idle))
+  dispatch(Batch(actions))
+
   if val && state.activeIndex >= 0 {
-    let _ = ReBindings.Window.setTimeout(() => {
-      state.scenes[state.activeIndex]->Option.forEach(s => handleAutoForward(dispatch, state, s))
-    }, 100)
+    state.scenes[state.activeIndex]->Option.forEach(s => handleAutoForward(dispatch, state, s))
   }
 }
 
-let cancelNavigation = () => {EventBus.dispatch(NavCancelled)}
+let cancelNavigation = () => {
+  EventBus.dispatch(NavCancelled)
+}
 
 let initNavigation = dispatch => {
-  dispatch(SetSimulationMode(false))
-  dispatch(SetCurrentJourneyId(0))
-  dispatch(SetNavigationStatus(Idle))
-  dispatch(SetIncomingLink(None))
-  dispatch(ResetAutoForwardChain)
+  dispatch(
+    Batch([
+      SetSimulationMode(false),
+      SetCurrentJourneyId(0),
+      SetNavigationStatus(Idle),
+      SetIncomingLink(None),
+      ResetAutoForwardChain,
+    ]),
+  )
   let _ = EventBus.subscribe(e => {
     switch e {
     | NavCompleted(j) => dispatch(NavigationCompleted(j))

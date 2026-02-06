@@ -97,7 +97,7 @@ let useLinkingAndSimUI = (state: state, dispatch: action => unit) => {
       // Sync Hotspots immediately to apply hidden-in-sim class
       let v = ViewerSystem.getActiveViewer()
       switch (Nullable.toOption(v), Belt.Array.get(state.scenes, state.activeIndex)) {
-      | (Some(viewer), Some(scene)) =>
+      | (Some(viewer), Some(scene)) if !TransitionLock.isSwapping() =>
         Logger.debug(
           ~module_="ViewerManagerLogic",
           ~message="SIMULATION_STATE_SYNC",

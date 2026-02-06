@@ -95,6 +95,7 @@ external mockGenerateServerTeaser: mockFn = "generateServerTeaser"
     warn: vi.fn(),
     error: vi.fn(),
     debug: vi.fn(),
+    initialized: vi.fn(),
     getErrorDetails: (exn) => ["", ""],
     castToJson: (obj) => obj
   }));

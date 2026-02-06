@@ -13,7 +13,7 @@ type state = {
 let registry = Dict.make()
 let locks = Dict.make()
 
-let getState = (id) => {
+let getState = id => {
   switch Dict.get(registry, id) {
   | Some(s) => s
   | None =>
@@ -28,7 +28,7 @@ let getState = (id) => {
   }
 }
 
-let isLocked = (key) => {
+let isLocked = key => {
   switch Dict.get(locks, key) {
   | Some(v) => v
   | None => false
@@ -39,7 +39,10 @@ let setLock = (key, value) => {
   Dict.set(locks, key, value)
 }
 
-let attempt = (id: string, policy: policy, action: unit => Promise.t<'a>): Result.t<Promise.t<'a>, string> => {
+let attempt = (id: string, policy: policy, action: unit => Promise.t<'a>): Result.t<
+  Promise.t<'a>,
+  string,
+> => {
   let s = getState(id)
   let now = Date.now()
 
@@ -52,18 +55,17 @@ let attempt = (id: string, policy: policy, action: unit => Promise.t<'a>): Resul
       Ok(action())
     }
 
-  | Throttle(_, Trailing) =>
-    Error("Trailing throttle not implemented")
+  | Throttle(_, Trailing) => Error("Trailing throttle not implemented")
 
   | Debounce(ms) =>
     switch s.timerId {
     | Some(tid) =>
-        Window.clearTimeout(tid)
-        // Reject previous pending promise
-        switch s.pendingReject {
-        | Some(reject) => reject(Debounced)
-        | None => ()
-        }
+      Window.clearTimeout(tid)
+      // Reject previous pending promise
+      switch s.pendingReject {
+      | Some(reject) => reject(Debounced)
+      | None => ()
+      }
     | None => ()
     }
 
@@ -73,14 +75,18 @@ let attempt = (id: string, policy: policy, action: unit => Promise.t<'a>): Resul
         s.timerId = None
         s.pendingReject = None
         action()
-        ->Promise.then(v => {
-          resolve(v)
-          Promise.resolve()
-        })
-        ->Promise.catch(e => {
-          reject(e)
-          Promise.resolve()
-        })
+        ->Promise.then(
+          v => {
+            resolve(v)
+            Promise.resolve()
+          },
+        )
+        ->Promise.catch(
+          e => {
+            reject(e)
+            Promise.resolve()
+          },
+        )
         ->ignore
       }, ms)
       s.timerId = Some(tid)

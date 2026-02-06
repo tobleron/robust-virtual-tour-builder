@@ -38,9 +38,11 @@ describe("Simulation", () => {
 
     let lastAction = ref(None)
     let mockDispatch = action => lastAction := Some(action)
+    let scene1 = TestUtils.createMockScene(~id="s1", ~name="S1", ())
     let mockState: Types.state = {
       ...State.initialState,
       activeIndex: 0,
+      scenes: [scene1],
       simulation: {
         ...State.initialState.simulation,
         status: Running,

@@ -259,7 +259,7 @@ module Follow = {
             }
           })
         }
-        if !ViewerState.state.contents.isSwapping {
+        if !TransitionLock.isSwapping() {
           let me = ViewerState.state.contents.lastMouseEvent->Nullable.toOption
           vOpt->Option.forEach(v => {
             try {HotspotLine.updateLines(v, s, ~mouseEvent=?me, ())} catch {

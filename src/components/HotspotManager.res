@@ -124,33 +124,37 @@ let createHotspotConfig = (
 }
 
 let syncHotspots = (v: Viewer.t, state: state, scene: scene, dispatch: Actions.action => unit) => {
-  let config = Viewer.getConfig(v)
-  let hs = config["hotSpots"]
+  if !ViewerSystem.isViewerReady(v) {
+    Logger.debug(~module_="HotspotManager", ~message="SYNC_SKIPPED_VIEWER_NOT_READY", ())
+  } else {
+    let config = Viewer.getConfig(v)
+    let hs = config["hotSpots"]
 
-  // Safe Nuke: Remove ALL existing hotspots to prevent zombie states
-  // We iterate a copy of IDs (currentIds) so we don't modify the array we are reading from indirectly
-  let currentIds = Belt.Array.map(hs, h => h["id"])
-  Belt.Array.forEach(currentIds, id => {
-    if id != "" {
-      Viewer.removeHotSpot(v, id)
-    }
-  })
+    // Safe Nuke: Remove ALL existing hotspots to prevent zombie states
+    // We iterate a copy of IDs (currentIds) so we don't modify the array we are reading from indirectly
+    let currentIds = Belt.Array.map(hs, h => h["id"])
+    Belt.Array.forEach(currentIds, id => {
+      if id != "" {
+        Viewer.removeHotSpot(v, id)
+      }
+    })
 
-  Logger.debug(
-    ~module_="HotspotManager",
-    ~message="SYNC_HOTSPOTS_NUKE",
-    ~data=Some({
-      "removed": Belt.Array.length(currentIds),
-      "adding": Belt.Array.length(scene.hotspots),
-    }),
-    (),
-  )
+    Logger.debug(
+      ~module_="HotspotManager",
+      ~message="SYNC_HOTSPOTS_NUKE",
+      ~data=Some({
+        "removed": Belt.Array.length(currentIds),
+        "adding": Belt.Array.length(scene.hotspots),
+      }),
+      (),
+    )
 
-  // Add ALL new hotspots
-  Belt.Array.forEachWithIndex(scene.hotspots, (i, h) => {
-    let conf = createHotspotConfig(~hotspot=h, ~index=i, ~state, ~scene, ~dispatch)
-    Viewer.addHotSpot(v, conf)
-  })
+    // Add ALL new hotspots
+    Belt.Array.forEachWithIndex(scene.hotspots, (i, h) => {
+      let conf = createHotspotConfig(~hotspot=h, ~index=i, ~state, ~scene, ~dispatch)
+      Viewer.addHotSpot(v, conf)
+    })
+  }
 }
 
 let getProjectData = (state: Types.state) => {

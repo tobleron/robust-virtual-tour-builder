@@ -31,6 +31,10 @@ module Loader = {
     Scene.Transition.performSwap(loadedScene, loadStartTime.contents)
   }
 
-  let loadNewScene = (prev, target, ~isAnticipatory=false) =>
-    Scene.Loader.loadNewScene(prev, target, ~isAnticipatory)
+  let loadNewScene = (_prev, target, ~isAnticipatory=false) => {
+    switch target {
+    | Some(id) => Scene.Loader.loadNewScene(~targetSceneId=id, ~isAnticipatory)
+    | None => ()
+    }
+  }
 }

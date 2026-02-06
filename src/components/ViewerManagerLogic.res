@@ -107,7 +107,7 @@ let handleMainSceneLoad = (state: state, scene: Types.scene, dispatch: action =>
     let v = ViewerSystem.getActiveViewer()
     switch Nullable.toOption(v) {
     | Some(viewer) =>
-      if !state.isLinking {
+      if !state.isLinking && !TransitionLock.isSwapping() {
         // Orientation Sync: Force view position if state changed but scene didn't (e.g. ESC/Stop)
         let currentYaw = Viewer.getYaw(viewer)
         let currentPitch = Viewer.getPitch(viewer)
@@ -152,7 +152,7 @@ let useMainSceneLoading = (state: state, dispatch: action => unit) => {
 let useHotspotSync = (state: state, dispatch: action => unit) => {
   React.useEffect3(() => {
     // Only run if we are NOT in linking mode (to avoid wiping the draft lines)
-    if state.activeIndex != -1 && !state.isLinking {
+    if state.activeIndex != -1 && !state.isLinking && !TransitionLock.isSwapping() {
       switch Belt.Array.get(state.scenes, state.activeIndex) {
       | Some(scene) =>
         let v = ViewerSystem.getActiveViewer()
@@ -234,7 +234,20 @@ let useHotspotLineLoop = (_state: state, dispatch: action => unit) => {
           Belt.Array.get(currentState.scenes, currentState.activeIndex),
         ) {
         | (Some(viewer), Some(scene)) =>
-          HotspotManager.syncHotspots(viewer, currentState, scene, dispatch)
+          if !TransitionLock.isSwapping() {
+            try {
+              HotspotManager.syncHotspots(viewer, currentState, scene, dispatch)
+            } catch {
+            | e =>
+              let (msg, _) = Logger.getErrorDetails(e)
+              Logger.warn(
+                ~module_="ViewerManagerLogic",
+                ~message="FORCE_SYNC_FAILED",
+                ~data=Some({"error": msg}),
+                (),
+              )
+            }
+          }
         | _ => ()
         }
       }
@@ -247,9 +260,8 @@ let useHotspotLineLoop = (_state: state, dispatch: action => unit) => {
         let currentState = GlobalStateBridge.getState()
 
         // CRITICAL: Skip updates during viewer swap to prevent race condition
-        let isSwapping = ViewerState.state.contents.isSwapping
 
-        if !isSwapping {
+        if !TransitionLock.isSwapping() {
           let p = Viewer.getPitch(viewer)
           let y = Viewer.getYaw(viewer)
           let h = Viewer.getHfov(viewer)

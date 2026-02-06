@@ -105,11 +105,18 @@ open Vitest
            activePitch: 0,
            isLinking: false,
            isTeasing: false,
+           appMode: { TAG: "Interactive", _0: { uiMode: { TAG: "Browsing" }, navigation: { TAG: "IdleFsm" }, backgroundTask: undefined } },
            simulation: { status: "Idle", visitedScenes: [], stoppingOnArrival: false, skipAutoForwardGlobal: false, lastAdvanceTime: 0, pendingAdvanceId: null, autoPilotJourneyId: 0 }
+        })),
+        useUiSlice: vi.fn(() => ({
+          isLinking: false,
+          isTeasing: false,
+          linkDraft: undefined,
+          appMode: { TAG: "Interactive", _0: { uiMode: { TAG: "Browsing" }, navigation: { TAG: "IdleFsm" }, backgroundTask: undefined } }
         })),
         useIsSystemLocked: vi.fn(() => false)
       };
-  })
+    })
 
 `)
 

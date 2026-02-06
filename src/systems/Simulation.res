@@ -61,70 +61,76 @@ let make = () => {
 
     if simulation.status == Running {
       let runTick = async () => {
-        let currentIndex = stateRef.current.activeIndex
-        Logger.debug(
-          ~module_="Simulation",
-          ~message="TICK_CHECK",
-          ~data=Some({
-            "currentIndex": currentIndex,
-            "advancingForIndex": advancingForIndex.current,
-            "willRun": advancingForIndex.current != currentIndex,
-          }),
-          (),
-        )
-        if advancingForIndex.current != currentIndex {
-          advancingForIndex.current = currentIndex
-          let s = stateRef.current
-          if !Array.includes(s.simulation.visitedScenes, s.activeIndex) {
-            dispatch(AddVisitedScene(s.activeIndex))
-          }
+        let s = stateRef.current
+        let currentSceneId = s.scenes->Belt.Array.get(s.activeIndex)->Option.map(ss => ss.id)
 
-          let delay = if s.simulation.skipAutoForwardGlobal {
-            switch Belt.Array.get(s.scenes, s.activeIndex) {
-            | Some(scene) if scene.isAutoForward => 0
-            | _ => Constants.Simulation.stepDelay
-            }
-          } else {
-            Constants.Simulation.stepDelay
-          }
+        switch currentSceneId {
+        | None => ()
+        | Some(sceneId) =>
+          if advancingForIndex.current != stateRef.current.activeIndex {
+            advancingForIndex.current = stateRef.current.activeIndex
 
-          Logger.debug(
-            ~module_="Simulation",
-            ~message="SIM_TICK_WAIT",
-            ~data=Some({"sceneIndex": currentIndex, "delay": delay}),
-            (),
-          )
-
-          let _ = await Promise.make((resolve, _) => {
-            let _ = setTimeout(resolve, delay)
-          })
-
-          if (
-            !cancel.contents &&
-            stateRef.current.simulation.status == Running &&
-            !stateRef.current.simulation.stoppingOnArrival
-          ) {
-            try {
-              Logger.debug(~module_="Simulation", ~message="SIM_WAIT_FOR_VIEWER", ())
-              let waitResult = await Navigation.waitForViewerScene(
+            if (
+              !Array.includes(
+                stateRef.current.simulation.visitedScenes,
                 stateRef.current.activeIndex,
-                () => !cancel.contents && stateRef.current.simulation.status == Running,
-                (),
               )
-              switch waitResult {
-              | Ok() =>
-                if (
-                  stateRef.current.navigation == Idle &&
+            ) {
+              dispatch(AddVisitedScene(stateRef.current.activeIndex))
+            }
+
+            let delay = if stateRef.current.simulation.skipAutoForwardGlobal {
+              switch stateRef.current.scenes->Belt.Array.getBy(ss => ss.id == sceneId) {
+              | Some(scene) if scene.isAutoForward => 0
+              | _ => Constants.Simulation.stepDelay
+              }
+            } else {
+              Constants.Simulation.stepDelay
+            }
+
+            Logger.debug(
+              ~module_="Simulation",
+              ~message="SIM_TICK_WAIT",
+              ~data=Some({"sceneId": sceneId, "delay": delay}),
+              (),
+            )
+
+            let _ = await Promise.make((resolve, _) => {
+              let _ = setTimeout(resolve, delay)
+            })
+
+            // Re-resolve state after delay
+            let sAfterDelay = stateRef.current
+            let stillRunning =
+              !cancel.contents &&
+              sAfterDelay.simulation.status == Running &&
+              !sAfterDelay.simulation.stoppingOnArrival
+            let stillInSameScene =
+              sAfterDelay.scenes
+              ->Belt.Array.get(sAfterDelay.activeIndex)
+              ->Option.map(ss => ss.id) == Some(sceneId)
+
+            if stillRunning && stillInSameScene {
+              try {
+                Logger.debug(~module_="Simulation", ~message="SIM_WAIT_FOR_VIEWER", ())
+                let waitResult = await Navigation.waitForViewerScene(
+                  stateRef.current.activeIndex,
+                  () => !cancel.contents && stateRef.current.simulation.status == Running,
+                  (),
+                )
+
+                // Re-resolve again after viewer wait
+                let sAfterWait = stateRef.current
+                let stillOk =
                   !cancel.contents &&
-                  stateRef.current.simulation.status == Running
-                ) {
-                  let move = Logic.getNextMove(stateRef.current)
-                  Logger.debug(
-                    ~module_="Simulation",
-                    ~message="SIM_NEXT_MOVE",
-                    ~data=Some({"move": "TODO"}),
-                    (),
-                  )
+                  sAfterWait.simulation.status == Running &&
+                  sAfterWait.scenes
+                  ->Belt.Array.get(sAfterWait.activeIndex)
+                  ->Option.map(ss => ss.id) == Some(sceneId)
+
+                switch waitResult {
+                | Ok() if stillOk && sAfterWait.navigation == Idle =>
+                  let move = Logic.getNextMove(sAfterWait)
                   switch move {
                   | Move({targetIndex, hotspotIndex, yaw, pitch, hfov, triggerActions}) =>
                     triggerActions->Belt.Array.forEach(a => dispatch(a))
@@ -159,60 +165,40 @@ let make = () => {
                     Scene.Switcher.cancelNavigation()
                     dispatch(StopAutoPilot)
                   }
-                } else {
-                  Logger.debug(
+                | Ok() =>
+                  Logger.debug(~module_="Simulation", ~message="SIM_TICK_ABORTED_OR_BUSY", ())
+                | Error(msg) =>
+                  Logger.error(
                     ~module_="Simulation",
-                    ~message="SIM_TICK_SKIP",
-                    ~data=Some({
-                      "nav": stateRef.current.navigation == Idle ? "Idle" : "Busy",
-                      "cancel": cancel.contents,
-                      "status": stateRef.current.simulation.status == Running
-                        ? "Running"
-                        : "Stopped",
-                    }),
+                    ~message="SIM_TICK_ERROR",
+                    ~data={"error": msg},
                     (),
                   )
+                  EventBus.dispatch(
+                    ShowNotification(
+                      "Simulation error: " ++ msg,
+                      #Error,
+                      Some(Logger.castToJson({"error": msg})),
+                    ),
+                  )
+                  Scene.Switcher.cancelNavigation()
+                  dispatch(StopAutoPilot)
                 }
-              | Error(msg) =>
+              } catch {
+              | _err =>
                 Logger.error(
                   ~module_="Simulation",
-                  ~message="SIM_TICK_ERROR",
-                  ~data={"error": msg},
+                  ~message="SIM_TICK_EXCEPTION",
+                  ~data={"error": "TODO"},
                   (),
                 )
-                EventBus.dispatch(
-                  ShowNotification(
-                    "Simulation error: " ++ msg,
-                    #Error,
-                    Some(Logger.castToJson({"error": msg})),
-                  ),
-                )
-                Scene.Switcher.cancelNavigation()
                 dispatch(StopAutoPilot)
               }
-            } catch {
-            | _err =>
-              Logger.error(
-                ~module_="Simulation",
-                ~message="SIM_TICK_EXCEPTION",
-                ~data={"error": "TODO"},
-                (),
-              )
-              dispatch(StopAutoPilot)
             }
-          }
-          Logger.debug(
-            ~module_="Simulation",
-            ~message="TICK_COMPLETE",
-            ~data=Some({
-              "currentIndex": currentIndex,
-              "advancingForIndex": advancingForIndex.current,
-              "willReset": advancingForIndex.current == currentIndex,
-            }),
-            (),
-          )
-          if advancingForIndex.current == currentIndex {
-            advancingForIndex.current = -1
+
+            if advancingForIndex.current == stateRef.current.activeIndex {
+              advancingForIndex.current = -1
+            }
           }
         }
       }

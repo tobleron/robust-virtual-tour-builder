@@ -22,6 +22,7 @@ type mockFn
       info: vi.fn(),
       warn: vi.fn(),
       error: vi.fn(),
+      initialized: vi.fn(),
       castToJson: (obj) => obj
     };
   });
