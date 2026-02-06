@@ -194,3 +194,4 @@ Recommendation: Approve for commercial release after completing Task 1222 [TRIPL
 [2026-02-06 15:41] v4.24.6 - Merge fixes for upload preloading, resizer memory stats, and journal cleanup with tests. [TRIPLE]
 [2026-02-06 16:52] v4.26.0 - Add task 1260: Integrate DataFlow Modules [TRIPLE]
 [2026-02-06 17:03] v4.26.0 - Create AGENTS.md as universal agent guidelines [TRIPLE]
+[2026-02-06 17:28] v4.26.0 - Optimize .gitignore: exclude dev-system build artifacts and logs [TRIPLE]

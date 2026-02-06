@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add task 1260: Integrate DataFlow Modules
 - Create AGENTS.md as universal agent guidelines
+- Optimize .gitignore: exclude dev-system build artifacts and logs
 
 ## [4.24.6] - 2026-02-06
 
