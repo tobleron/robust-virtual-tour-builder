@@ -10,6 +10,8 @@ Thumbs.db
 # Logs
 logs/*.log
 logs/debug_log_*.json
+logs/log_changes.txt
+logs/telemetry.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -22,6 +24,8 @@ build/
 bin/
 target/
 backend/target/
+_dev-system/analyzer/target/
+_dev-system/analyzer/.cargo/
 css/output.css
 
 # IDE
