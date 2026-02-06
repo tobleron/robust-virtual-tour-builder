@@ -32,12 +32,20 @@ describe("Scene.Switcher", () => {
 
     Scene.Switcher.navigateToScene(dispatch, state, 1, 0, -1, ())
 
-    t->expect(dispatched.contents->Array.length >= 2)->Expect.toBe(true)
-    // Expect SetActiveScene and IncrementJourneyId
+    t->expect(dispatched.contents->Array.length)->Expect.toBe(1)
+    // Expect Batch containing SetActiveScene and IncrementJourneyId
     let hasSetActive = dispatched.contents->Array.some(
       a => {
         switch a {
-        | SetActiveScene(idx, _, _, _) => idx == 1
+        | Batch(actions) =>
+          actions->Array.some(
+            inner => {
+              switch inner {
+              | SetActiveScene(idx, _, _, _) => idx == 1
+              | _ => false
+              }
+            },
+          )
         | _ => false
         }
       },

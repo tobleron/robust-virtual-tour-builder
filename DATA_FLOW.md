@@ -13,7 +13,9 @@ This document maps critical data flows through the system to help AI understand 
 ```
 User Click Event
   → [src/components/SceneList/SceneItem.res] or [src/components/HotspotLayer.res] handles click
+  → [src/core/InteractionGuard.res] checks cooldowns using [src/core/InteractionPolicies.res]
   → dispatch(UserClickedScene) via [src/core/AppContext.res] and [src/core/Actions.res]
+  → [src/core/TransitionLock.res] acquires lock (Loading phase)
   → [src/App.res] and [src/components/AppErrorBoundary.res] provide the top-level container
       → [src/components/ErrorFallbackUI.res] provides the crash UI
       → [src/Hooks.res] and [src/core/UiHelpers.res] manage top-level component lifecycle
@@ -266,7 +268,7 @@ Address/GPS Query
 
 ### Concurrent Utility primitives
 **Purpose:** Flow control and performance management.
-- [src/utils/AsyncQueue.res], [src/utils/RequestQueue.res], [src/utils/CircuitBreaker.res], [src/utils/RateLimiter.res], [src/utils/Retry.res], [src/utils/Debounce.res]
+- [src/utils/AsyncQueue.res], [src/utils/RequestQueue.res], [src/utils/CircuitBreaker.res], [src/utils/RateLimiter.res], [src/utils/Retry.res], [src/utils/Debounce.res], [src/core/TransitionLock.res], [src/core/InteractionGuard.res]
 
 ### Interaction & Perception
 - [src/systems/InputSystem.res], [src/systems/CursorPhysics.res], [src/systems/ViewerFollow.res], [src/utils/ProgressBar.res], [src/utils/ColorPalette.res], [src/utils/SessionStore.res], [src/utils/StateInspector.res], [src/systems/TourTemplates.res]
@@ -279,6 +281,12 @@ Address/GPS Query
 - [src/utils/Version.res], [src/utils/TourLogic.res], [src/components/UtilityBar.res], [src/i18n/I18n.res], [src/utils/ImageOptimizer.res], [src/utils/LazyLoad.res]
 
 ---
+
+### 📂 src/hooks
+- `[src/hooks/UseInteraction.res]`
+
+---
+(Utilities and Infrastructure modules are excluded from flow documentation by design)
 
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)

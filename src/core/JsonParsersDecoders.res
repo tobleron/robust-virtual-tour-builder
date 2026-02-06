@@ -73,7 +73,7 @@ let scene = object(field => {
   let lbl = field.optional("label", string)
   {
     Types.id: field->opt("id", string, ""),
-    name: field->opt("name", string, "unknown"),
+    name: field.required("name", string),
     file: field->opt("file", file, Types.Url("")),
     tinyFile: field.optional("tinyFile", option(file))->Option.flatMap(x => x),
     originalFile: field.optional("originalFile", option(file))->Option.flatMap(x => x),

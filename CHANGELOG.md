@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Analysis complete: Created 1260_implement_global_interaction_guard
+- Eliminate structural race conditions: TransitionLock, Batch actions, ID-based resolution
 
 ## [4.26.0] - 2026-02-06
 

@@ -30,12 +30,21 @@ module Config = {
     let url = scene.file->Types.fileToUrl
     Logger.debug(
       ~module_="SceneLoader",
-      ~message="PREPARING_SCENE",
+      ~message="PREPARING_SCENE_INNER",
       ~data={"id": scene.id, "url": url},
       (),
     )
     {
       "panorama": url,
+      "hotSpots": getHotspots(scene),
+    }
+  }
+
+  let makeInitialConfig = (scene: scene) => {
+    let inner = makeSceneConfig(scene)
+    {
+      "default": {"firstScene": scene.id},
+      "scenes": Dict.fromArray([(scene.id, inner)]),
       "autoLoad": true,
       "hfov": Constants.globalHfov,
       "minHfov": Constants.globalHfov,
@@ -44,7 +53,6 @@ module Config = {
       "doubleClickZoom": false,
       "keyboardZoom": false,
       "showZoomCtrl": false,
-      "hotSpots": getHotspots(scene),
     }
   }
 }
@@ -87,16 +95,45 @@ module Events = {
   }
 }
 
-let loadNewScene = (_prevIndex: option<int>, targetIndex: option<int>, ~isAnticipatory=false) => {
-  targetIndex->Option.forEach(tIdx => {
+let loadNewScene = (
+  ~sourceSceneId as _sourceSceneId: option<string>=?,
+  ~targetSceneId: string,
+  ~isAnticipatory=false,
+) => {
+  let canProceed = if isAnticipatory {
+    Ok()
+  } else {
+    TransitionLock.acquire("SceneLoader", Loading(targetSceneId))
+  }
+
+  switch canProceed {
+  | Error(_) => ()
+  | Ok() =>
     let state = GlobalStateBridge.getState()
-    state.scenes[tIdx]->Option.forEach(targetScene => {
+    let targetSceneOpt = state.scenes->Belt.Array.getBy(s => s.id == targetSceneId)
+
+    switch targetSceneOpt {
+    | None =>
+      if !isAnticipatory {
+        Logger.warn(
+          ~module_="SceneLoader",
+          ~message="TARGET_SCENE_NOT_FOUND",
+          ~data=Some({"targetId": targetSceneId}),
+          (),
+        )
+        TransitionLock.release("SceneLoader_NotFound")
+        GlobalStateBridge.dispatch(DispatchNavigationFsmEvent(Aborted))
+      }
+    | Some(targetScene) =>
       if !isAnticipatory {
         loadStartTime := Date.now()
         GlobalStateBridge.dispatch(
           DispatchNavigationFsmEvent(PreloadStarted({targetSceneId: targetScene.id})),
         )
       }
+
+      let tIdx = state.scenes->Belt.Array.getIndexBy(s => s.id == targetSceneId)->Option.getOr(-1)
+
       switch if isAnticipatory {
         None
       } else {
@@ -113,39 +150,27 @@ let loadNewScene = (_prevIndex: option<int>, targetIndex: option<int>, ~isAntici
           )
         }
       | None =>
-        let vp = if isAnticipatory {
-          ViewerSystem.Pool.getInactive()
-        } else {
-          ViewerSystem.Pool.getInactive()
-        }
-        vp->Option.forEach(
-          v => {
-            // Robustness: Always destroy existing instance in this viewport if it exists
-            // before re-initializing to prevent Pannellum instance collisions.
-            v.instance->Option.forEach(i => ViewerSystem.Adapter.destroy(i))
+        let vp = ViewerSystem.Pool.getInactive()
+        vp->Option.forEach(v => {
+          v.instance->Option.forEach(i => ViewerSystem.Adapter.destroy(i))
 
-            let config = Config.makeSceneConfig(targetScene)
-            let newInstance = ViewerSystem.Adapter.initialize(v.containerId, config)
-            ViewerSystem.Adapter.setMetaData(newInstance, "sceneId", idToUnknown(targetScene.id))
-            ViewerSystem.Adapter.setMetaData(newInstance, "isLoaded", boolToUnknown(false))
+          let initialConfig = Config.makeInitialConfig(targetScene)
+          let newInstance = ViewerSystem.Adapter.initialize(v.containerId, initialConfig->asDynamic)
+          ViewerSystem.Adapter.setMetaData(newInstance, "sceneId", idToUnknown(targetScene.id))
+          ViewerSystem.Adapter.setMetaData(newInstance, "isLoaded", boolToUnknown(false))
 
-            // Hook up events
-            ViewerSystem.Adapter.on(
-              newInstance,
-              "load",
-              _ => Events.onSceneLoad(newInstance, targetScene),
-            )
-            ViewerSystem.Adapter.on(newInstance, "error", msg => Events.onSceneError(msg))
+          ViewerSystem.Adapter.on(newInstance, "load", _ => {
+            Events.onSceneLoad(newInstance, targetScene)
+          })
+          ViewerSystem.Adapter.on(newInstance, "error", msg => Events.onSceneError(msg))
 
-            // RE-CHECK: If already loaded (e.g. from cache), trigger it manually
-            if ViewerSystem.Adapter.isLoaded(newInstance) {
-              Events.onSceneLoad(newInstance, targetScene)
-            }
+          if ViewerSystem.Adapter.isLoaded(newInstance) {
+            Events.onSceneLoad(newInstance, targetScene)
+          }
 
-            ViewerSystem.Pool.registerInstance(v.containerId, newInstance)
-          },
-        )
+          ViewerSystem.Pool.registerInstance(v.containerId, newInstance)
+        })
       }
-    })
-  })
+    }
+  }
 }

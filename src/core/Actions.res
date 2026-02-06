@@ -1,7 +1,7 @@
 // @efficiency-role: data-model
 open Types
 
-type action =
+type rec action =
   | SetPreloadingScene(int)
   | StartLinking(option<linkDraft>)
   | StopLinking
@@ -52,6 +52,7 @@ type action =
   | SetNavigationFsmState(NavigationFSM.distinctState)
   | DispatchNavigationFsmEvent(NavigationFSM.event)
   | DispatchAppFsmEvent(AppFSM.event)
+  | Batch(array<action>)
 
 let sceneActionToString = (action: action): option<string> =>
   switch action {
@@ -139,25 +140,30 @@ let uiActionToString = (action: action): option<string> =>
   | _ => None
   }
 
-let actionToString = (action: action): string => {
-  switch sceneActionToString(action) {
-  | Some(s) => s
-  | None =>
-    switch hotspotActionToString(action) {
+let rec actionToString = (action: action): string => {
+  switch action {
+  | Batch(actions) =>
+    "Batch([" ++ actions->Belt.Array.map(actionToString)->Belt.Array.joinWith(", ", x => x) ++ "])"
+  | _ =>
+    switch sceneActionToString(action) {
     | Some(s) => s
     | None =>
-      switch timelineActionToString(action) {
+      switch hotspotActionToString(action) {
       | Some(s) => s
       | None =>
-        switch navigationActionToString(action) {
+        switch timelineActionToString(action) {
         | Some(s) => s
         | None =>
-          switch simulationActionToString(action) {
+          switch navigationActionToString(action) {
           | Some(s) => s
           | None =>
-            switch uiActionToString(action) {
+            switch simulationActionToString(action) {
             | Some(s) => s
-            | None => "UnknownAction"
+            | None =>
+              switch uiActionToString(action) {
+              | Some(s) => s
+              | None => "UnknownAction"
+              }
             }
           }
         }

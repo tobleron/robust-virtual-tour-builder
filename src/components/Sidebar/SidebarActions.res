@@ -3,10 +3,19 @@
 @react.component
 let make = React.memo((
   ~onNew: unit => unit,
-  ~onSave: (~signal: BrowserBindings.AbortController.signal, ~onCancel: unit => unit) => Promise.t<unit>,
-  ~onLoad: (~signal: BrowserBindings.AbortController.signal, ~onCancel: unit => unit) => Promise.t<unit>,
+  ~onSave: (
+    ~signal: BrowserBindings.AbortController.signal,
+    ~onCancel: unit => unit,
+  ) => Promise.t<unit>,
+  ~onLoad: (
+    ~signal: BrowserBindings.AbortController.signal,
+    ~onCancel: unit => unit,
+  ) => Promise.t<unit>,
   ~onAbout: unit => unit,
-  ~onExport: (~signal: BrowserBindings.AbortController.signal, ~onCancel: unit => unit) => Promise.t<unit>,
+  ~onExport: (
+    ~signal: BrowserBindings.AbortController.signal,
+    ~onCancel: unit => unit,
+  ) => Promise.t<unit>,
   ~onTeaser: unit => unit,
   ~exportReady: bool,
   ~teaserReady: bool,
@@ -52,7 +61,11 @@ let make = React.memo((
   )
 
   let exportAbortRef = React.useRef(None)
-  let (exportExecute, exportPending, _exportThrottled) = UseInteraction.useInteraction(
+  let (
+    exportExecute,
+    exportPending,
+    _exportThrottled,
+  ) = UseInteraction.useInteraction(
     ~id="project_export",
     ~policy=InteractionPolicies.projectMutation,
     ~action=async () => {

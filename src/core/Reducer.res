@@ -416,14 +416,18 @@ module Mod = {
   module Project = Project
 }
 
-let reducer = (state: state, action: action): state => {
-  state
-  ->apply(action, AppFsm.reduce)
-  ->apply(action, Scene.reduce)
-  ->apply(action, Hotspot.reduce)
-  ->apply(action, Ui.reduce)
-  ->apply(action, Navigation.reduce)
-  ->apply(action, Simulation.reduce)
-  ->apply(action, Timeline.reduce)
-  ->apply(action, Project.reduce)
+let rec reducer = (state: state, action: action): state => {
+  switch action {
+  | Batch(actions) => Belt.Array.reduce(actions, state, (s, a) => reducer(s, a))
+  | _ =>
+    state
+    ->apply(action, AppFsm.reduce)
+    ->apply(action, Scene.reduce)
+    ->apply(action, Hotspot.reduce)
+    ->apply(action, Ui.reduce)
+    ->apply(action, Navigation.reduce)
+    ->apply(action, Simulation.reduce)
+    ->apply(action, Timeline.reduce)
+    ->apply(action, Project.reduce)
+  }
 }

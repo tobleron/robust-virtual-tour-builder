@@ -109,7 +109,7 @@ describe("SceneLoader Lifecycle Unified", () => {
     let newState = {...State.initialState, scenes: [s1, s2], activeIndex: 0}
     GlobalStateBridge.setState(newState)
 
-    Scene.Loader.loadNewScene(None, Some(1), ~isAnticipatory=false)
+    Scene.Loader.loadNewScene(~targetSceneId="s2", ~isAnticipatory=false)
 
     Promise.make(
       (resolve, _reject) => {

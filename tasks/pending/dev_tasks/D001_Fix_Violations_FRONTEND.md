@@ -13,3 +13,4 @@
 **Directive:** CSP Compliance: Replace 'Obj.magic' with `rescript-json-combinators` (Zero-Eval).
 
 - [ ] `../../src/core/JsonParsersDecoders.res`
+- [ ] `../../src/hooks/UseInteraction.res`

@@ -82,29 +82,27 @@ let make = React.memo(() => {
     index => {
       if index == sceneSlice.activeIndex {
         ()
+      } else if isSystemLocked {
+        EventBus.dispatch(ShowNotification("System is busy...", #Warning, None))
       } else {
-        if isSystemLocked {
-          EventBus.dispatch(ShowNotification("System is busy...", #Warning, None))
-        } else {
-          Logger.info(
-            ~module_="SceneList",
-            ~message="SCENE_SWITCH_CLICKED",
-            ~data=Some({"index": index}),
-            (),
-          )
+        Logger.info(
+          ~module_="SceneList",
+          ~message="SCENE_SWITCH_CLICKED",
+          ~data=Some({"index": index}),
+          (),
+        )
 
-          dispatch(Actions.SetNavigationStatus(Types.Idle))
-          if uiSlice.isLinking {
-            dispatch(Actions.StopLinking)
-          }
-          let trans: Types.transition = {
-            type_: Cut,
-            targetHotspotIndex: -1,
-            fromSceneName: None,
-          }
-          dispatch(Actions.SetActiveTimelineStep(None))
-          dispatch(Actions.SetActiveScene(index, 0.0, 0.0, Some(trans)))
+        dispatch(Actions.SetNavigationStatus(Types.Idle))
+        if uiSlice.isLinking {
+          dispatch(Actions.StopLinking)
         }
+        let trans: Types.transition = {
+          type_: Cut,
+          targetHotspotIndex: -1,
+          fromSceneName: None,
+        }
+        dispatch(Actions.SetActiveTimelineStep(None))
+        dispatch(Actions.SetActiveScene(index, 0.0, 0.0, Some(trans)))
       }
     }
   , (sceneSlice.activeIndex, uiSlice.isLinking))
