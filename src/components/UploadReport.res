@@ -10,7 +10,24 @@ type qualityGroups = {
 
 let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
   if Array.length(report.success) == 0 && Array.length(report.skipped) == 0 {
-    ()
+    let options: EventBus.modalConfig = {
+      title: "Upload Failed",
+      description: Some("No files were successfully processed. Please check your files and try again."),
+      icon: Some("alert-circle"),
+      content: None,
+      buttons: [
+        {
+          label: "Close",
+          class_: "btn-secondary",
+          onClick: () => GlobalStateBridge.dispatch(DispatchAppFsmEvent(CloseSummary)),
+          autoClose: Some(true),
+        },
+      ],
+      onClose: Some(() => GlobalStateBridge.dispatch(DispatchAppFsmEvent(CloseSummary))),
+      allowClose: Some(true),
+      className: None,
+    }
+    EventBus.dispatch(ShowModal(options))
   } else {
     let avgScore = ref(0.0)
     let groups = {
