@@ -39,18 +39,18 @@ describe("UploadReport", () => {
     item
   }
 
-  test("should not dispatch modal if no success and no skipped items", t => {
+  test("should dispatch failure modal if no success and no skipped items", t => {
     let report: uploadReport = {
       success: [],
       skipped: [],
     }
     let qualityResults = []
 
-    let dispatched = ref(false)
+    let receivedConfig = ref(None)
     let unsubscribe = EventBus.subscribe(
       evt => {
         switch evt {
-        | ShowModal(_) => dispatched := true
+        | ShowModal(config) => receivedConfig := Some(config)
         | _ => ()
         }
       },
@@ -59,7 +59,14 @@ describe("UploadReport", () => {
     UploadReport.show(report, qualityResults)
     unsubscribe()
 
-    t->expect(dispatched.contents)->Expect.toBe(false)
+    switch receivedConfig.contents {
+    | Some(config) =>
+      t->expect(config.title)->Expect.toBe("Upload Failed")
+      t->expect(config.description)->Expect.toBe(
+        Some("No files were successfully processed. Please check your files and try again."),
+      )
+    | None => t->expect(false)->Expect.toBe(true)
+    }
   })
 
   test("should dispatch modal if there are success items", t => {
