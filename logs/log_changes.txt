@@ -198,3 +198,4 @@ Recommendation: Approve for commercial release after completing Task 1222 [TRIPL
 [2026-02-06 18:41] v4.26.0 - Task 1259 created [TRIPLE]
 [2026-02-06 19:25] v4.28.0 - Analysis complete: Created 1260_implement_global_interaction_guard [TRIPLE]
 [2026-02-06 21:19] v4.28.0 - Eliminate structural race conditions: TransitionLock, Batch actions, ID-based resolution [TRIPLE]
+[2026-02-06 21:25] v4.28.1 - Fix pre-push hook excessive large file scanning [TRIPLE]
