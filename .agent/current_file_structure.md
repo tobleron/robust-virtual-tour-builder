@@ -54,6 +54,7 @@
 │   │   ├── SYSTEM_PLAN.md
 │   │   └── WEB_PLAN.md
 │   └── README.md
+├── AGENTS.md
 ├── backend
 │   ├── bin
 │   │   └── ffmpeg
@@ -11104,8 +11105,7 @@
 │   ├── diagnostic.log
 │   ├── error.log
 │   ├── log_changes.txt
-│   ├── project-guard.log
-│   └── telemetry.log
+│   └── project-guard.log
 ├── MAP.md
 ├── old_ref
 │   ├── 7aadee4
