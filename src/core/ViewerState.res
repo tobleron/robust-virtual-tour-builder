@@ -24,7 +24,6 @@ type t = {
   lastMoveTime: float,
   mouseVelocityX: float,
   mouseVelocityY: float,
-  isSwapping: bool, // Lock flag to prevent render updates during viewer swaps
 }
 
 let state = ref({
@@ -58,7 +57,6 @@ let state = ref({
   lastMoveTime: 0.0,
   mouseVelocityX: 0.0,
   mouseVelocityY: 0.0,
-  isSwapping: false,
 })
 
 let resetState = () => {

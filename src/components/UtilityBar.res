@@ -49,7 +49,7 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
           ReBindings.Dom.ClassList.remove(ReBindings.Dom.classList(el), "snapshot-visible")
         | _ => ()
         }
-        ViewerState.state := {...ViewerState.state.contents, isSwapping: false}
+        TransitionLock.release("UtilityBar_StopSim")
         dispatch(Actions.DispatchNavigationFsmEvent(Reset))
       } else {
         dispatch(Actions.StartAutoPilot(currentJourneyId, false))

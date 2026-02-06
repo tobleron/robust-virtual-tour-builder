@@ -8,19 +8,8 @@
 
 ---
 
-## 🧩 MERGE TASKS (3)
-### Merge Folder: `../../tests`
-- **Reason:** Read Tax high (Score 2.00). Projected Limit: 300 (Drag 9.40)
-- **Files:**
-  - `../../tests/vitest-setup.js`
-  - `../../tests/node-setup.js`
-### Merge Folder: `../../tests/unit`
-- **Reason:** Read Tax high (Score 2.00). Projected Limit: 300 (Drag 4.60)
-- **Files:**
-  - `../../tests/unit/LabelMenu_v.test.setup.jsx`
-  - `../../tests/unit/Components_v.test.setup.jsx`
-### Merge Folder: `../../tests/unit`
-- **Reason:** Read Tax high (Score 2.00). Projected Limit: 300 (Drag 2.20)
-- **Files:**
-  - `../../tests/unit/UploadProcessor_v.test.setup.js`
-  - `../../tests/unit/HotspotLine_v.test.setup.js`
+## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (1)
+- [ ] `../../src/hooks/UseInteraction.res`
+
+---
+

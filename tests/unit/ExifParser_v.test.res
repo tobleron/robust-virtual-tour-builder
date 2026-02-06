@@ -31,6 +31,7 @@ let makeError: string => 'e = %raw(`function(msg) { return new Error(msg); }`)
       info: vi.fn(),
       warn: vi.fn(),
       error: vi.fn(),
+      initialized: vi.fn(),
       getErrorDetails: (exn) => {
         // console.log("Mock Logger received exn:", exn)
         let inner = exn && exn._1 ? exn._1 : exn;

@@ -1,19 +1,17 @@
 open InteractionPolicies
 
-let useInteraction = (
-  ~id: string,
-  ~policy: policy,
-  ~action: unit => Promise.t<'a>,
-) => {
+let useInteraction = (~id: string, ~policy: policy, ~action: unit => Promise.t<'a>) => {
   let (isPending, setPending) = React.useState(() => false)
   let (wasThrottled, setThrottled) = React.useState(() => false)
   let isMounted = React.useRef(true)
 
   React.useEffect0(() => {
     isMounted.current = true
-    Some(() => {
-      isMounted.current = false
-    })
+    Some(
+      () => {
+        isMounted.current = false
+      },
+    )
   })
 
   let execute = React.useCallback1(() => {

@@ -134,6 +134,7 @@ external mockLoadNewScene: mockFn = "loadNewScene"
     info: vi.fn(),
     warn: vi.fn(),
     error: vi.fn(),
+    initialized: vi.fn(),
   }))
 `)
 
@@ -175,7 +176,6 @@ describe("ViewerManager", () => {
       )
     ViewerState.state := {
         ...ViewerState.state.contents,
-        isSwapping: false,
         lastSceneId: Nullable.null,
         lastPreloadingIndex: -1,
         followLoopActive: false,

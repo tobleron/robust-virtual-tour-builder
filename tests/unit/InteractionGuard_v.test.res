@@ -3,9 +3,10 @@ open InteractionGuard
 open InteractionPolicies
 open ReBindings
 
-let wait = ms => Promise.make((resolve, _) => {
-  let _ = Window.setTimeout(() => resolve(. Obj.magic()), ms)
-})
+let wait = ms =>
+  Promise.make((resolve, _) => {
+    let _ = Window.setTimeout(() => resolve(Obj.magic()), ms)
+  })
 
 testAsync("Throttle (Leading) - only one executes per window", async t => {
   let counter = ref(0)
@@ -43,7 +44,7 @@ testAsync("Mutex (Global) - only one executes at a time", async t => {
 
   let resolveRef = ref(_ => ())
   let p = Promise.make((resolve, _) => {
-      resolveRef := resolve
+    resolveRef := resolve
   })
 
   let action = async () => {
@@ -68,7 +69,7 @@ testAsync("Mutex (Global) - only one executes at a time", async t => {
   }
 
   // Finish Action 1
-  resolveRef.contents(. Obj.magic())
+  resolveRef.contents(Obj.magic())
   // Wait for promise chain
   let _ = await wait(10)
 

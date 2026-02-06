@@ -49,6 +49,9 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [src/core/JsonParsersEncoders.res](src/core/JsonParsersEncoders.res): Domain-specific JSON encoders using rescript-json-combinators. `#json` `#encoding`
 *   [src/core/JsonParsersShared.res](src/core/JsonParsersShared.res): Shared JSON parsers for cross-domain metadata (Exif, Quality). `#json` `#shared` `#parsing`
 *   [src/core/JsonEncoders.res](src/core/JsonEncoders.res): Centralized JSON encoders using rescript-json-combinators for CSP compliance. `#json` `#encoding` `#csp`
+*   [src/core/TransitionLock.res](src/core/TransitionLock.res): Global lock for scene transitions and viewer swaps. `#concurrency` `#locking` `#safety`
+*   [src/core/InteractionGuard.res](src/core/InteractionGuard.res): Cooldown and multi-click prevention for UI actions. `#concurrency` `#safety`
+*   [src/core/InteractionPolicies.res](src/core/InteractionPolicies.res): Configuration for interaction cooldowns and limits. `#configuration` `#safety`
 
 *   [src/core/SceneHelpers.res](src/core/SceneHelpers.res): Lightweight facade for scene-related helpers. `#helpers` `#scene` `#facade`
 
@@ -291,4 +294,5 @@ This map provides a semantic overview of the project structure to optimize conte
 
 
 ## 🆕 Unmapped Modules
+* [src/hooks/UseInteraction.res](src/hooks/UseInteraction.res): New module detected. Please classify. #new
 * [src/components/CriticalErrorMonitor.res](src/components/CriticalErrorMonitor.res): New module detected. Please classify. #new

@@ -6,15 +6,12 @@ open ReBindings
 
 module ControllerHooks = {
   let useNavigationFSM = (state: state, dispatch) => {
-    React.useEffect1(() => {
+    React.useEffect3(() => {
       switch state.navigationFsm {
       | Preloading({targetSceneId, isAnticipatory}) =>
-        state.scenes
-        ->Belt.Array.getIndexBy(s => s.id == targetSceneId)
-        ->Option.forEach(idx => {
-          let prevIndex = state.activeIndex >= 0 ? Some(state.activeIndex) : None
-          Scene.Loader.loadNewScene(prevIndex, Some(idx), ~isAnticipatory)
-        })
+        let sourceSceneId = state.scenes->Belt.Array.get(state.activeIndex)->Option.map(s => s.id)
+        Scene.Loader.loadNewScene(~sourceSceneId?, ~targetSceneId, ~isAnticipatory)
+
         let timeoutId = Window.setTimeout(() => {
           if isAnticipatory {
             dispatch(Actions.DispatchNavigationFsmEvent(Reset))
@@ -81,7 +78,7 @@ module ControllerHooks = {
         None
       | _ => None
       }
-    }, [state.navigationFsm])
+    }, (state.navigationFsm, state.scenes, state.activeIndex))
   }
 
   let useNavigationAnimation = (state: state, dispatch) => {
