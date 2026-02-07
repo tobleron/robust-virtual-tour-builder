@@ -11,23 +11,61 @@ let registerHandler = (operation: string, handler: handler) => {
 let retry = (entry: journalEntry) => {
   switch Dict.get(handlers, entry.operation) {
   | Some(handler) =>
-    EventBus.dispatch(ShowNotification("Recovering " ++ entry.operation ++ "...", #Info, None))
+    NotificationManager.dispatch({
+      id: "",
+      importance: Info,
+      context: SystemEvent("recovery"),
+      message: "Recovering " ++ entry.operation ++ "...",
+      details: None,
+      action: None,
+      duration: NotificationTypes.defaultTimeoutMs(Info),
+      dismissible: true,
+      createdAt: Date.now(),
+    })
     handler(entry)
     ->Promise.then(success => {
       if success {
-        EventBus.dispatch(
-          ShowNotification(entry.operation ++ " recovered successfully", #Success, None),
-        )
+        NotificationManager.dispatch({
+          id: "",
+          importance: Success,
+          context: SystemEvent("recovery"),
+          message: entry.operation ++ " recovered successfully",
+          details: None,
+          action: None,
+          duration: NotificationTypes.defaultTimeoutMs(Success),
+          dismissible: true,
+          createdAt: Date.now(),
+        })
         // Mark the old interrupted operation as completed since it has been handled (re-tried)
         OperationJournal.completeOperation(entry.id)->Promise.then(() => Promise.resolve())
       } else {
-        EventBus.dispatch(ShowNotification("Failed to recover " ++ entry.operation, #Error, None))
+        NotificationManager.dispatch({
+          id: "",
+          importance: Error,
+          context: SystemEvent("recovery"),
+          message: "Failed to recover " ++ entry.operation,
+          details: None,
+          action: None,
+          duration: NotificationTypes.defaultTimeoutMs(Error),
+          dismissible: true,
+          createdAt: Date.now(),
+        })
         Promise.resolve()
       }
     })
     ->Promise.catch(e => {
       let (msg, _) = Logger.getErrorDetails(e)
-      EventBus.dispatch(ShowNotification("Recovery Error: " ++ msg, #Error, None))
+      NotificationManager.dispatch({
+        id: "",
+        importance: Error,
+        context: SystemEvent("recovery"),
+        message: "Recovery Error: " ++ msg,
+        details: None,
+        action: None,
+        duration: NotificationTypes.defaultTimeoutMs(Error),
+        dismissible: true,
+        createdAt: Date.now(),
+      })
       Promise.resolve()
     })
   | None =>
@@ -37,7 +75,17 @@ let retry = (entry: journalEntry) => {
       ~data={"operation": entry.operation},
       (),
     )
-    EventBus.dispatch(ShowNotification("No handler for " ++ entry.operation, #Error, None))
+    NotificationManager.dispatch({
+      id: "",
+      importance: Error,
+      context: SystemEvent("recovery"),
+      message: "No handler for " ++ entry.operation,
+      details: None,
+      action: None,
+      duration: NotificationTypes.defaultTimeoutMs(Error),
+      dismissible: true,
+      createdAt: Date.now(),
+    })
     Promise.resolve()
   }
 }

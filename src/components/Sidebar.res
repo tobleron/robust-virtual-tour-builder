@@ -11,7 +11,17 @@ module AboutContent = {
       if Logger.isDiagnosticMode() {
         Logger.disableDiagnostics()
         setIsDiagnostic(_ => false)
-        EventBus.dispatch(ShowNotification("Diagnostic Mode Disabled", #Info, None))
+        NotificationManager.dispatch({
+          id: "",
+          importance: Info,
+          context: Operation("sidebar_diagnostics"),
+          message: "Diagnostic Mode Disabled",
+          details: None,
+          action: None,
+          duration: NotificationTypes.defaultTimeoutMs(Info),
+          dismissible: true,
+          createdAt: Date.now(),
+        })
       } else {
         Logger.enableDiagnostics()
         Logger.trace(
@@ -20,7 +30,17 @@ module AboutContent = {
           (),
         )
         setIsDiagnostic(_ => true)
-        EventBus.dispatch(ShowNotification("Diagnostic Mode Enabled", #Success, None))
+        NotificationManager.dispatch({
+          id: "",
+          importance: Success,
+          context: Operation("sidebar_diagnostics"),
+          message: "Diagnostic Mode Enabled",
+          details: None,
+          action: None,
+          duration: NotificationTypes.defaultTimeoutMs(Success),
+          dismissible: true,
+          createdAt: Date.now(),
+        })
       }
     }
 
@@ -208,7 +228,17 @@ let make = React.memo(() => {
         SidebarLogic.updateProgress(~onCancel, pct->Int.toFloat, msg, true, "Save")
       })
       SidebarLogic.updateProgress(100.0, "Saved", false, "")
-      EventBus.dispatch(ShowNotification("Project Saved", #Success, None))
+      NotificationManager.dispatch({
+        id: "",
+        importance: Success,
+        context: Operation("sidebar_save"),
+        message: "Project Saved",
+        details: None,
+        action: None,
+        duration: NotificationTypes.defaultTimeoutMs(Success),
+        dismissible: true,
+        createdAt: Date.now(),
+      })
     } catch {
     | exn => {
         let (msg, _) = Logger.getErrorDetails(exn)
@@ -216,7 +246,17 @@ let make = React.memo(() => {
           SidebarLogic.updateProgress(0.0, "Cancelled", false, "")
         } else {
           SidebarLogic.updateProgress(0.0, "Error", false, "")
-          EventBus.dispatch(ShowNotification("Save failed: " ++ msg, #Error, None))
+          NotificationManager.dispatch({
+            id: "",
+            importance: Error,
+            context: Operation("sidebar_save"),
+            message: "Save failed: " ++ msg,
+            details: None,
+            action: None,
+            duration: NotificationTypes.defaultTimeoutMs(Error),
+            dismissible: true,
+            createdAt: Date.now(),
+          })
         }
       }
     }

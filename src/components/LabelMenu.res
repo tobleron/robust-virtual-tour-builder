@@ -40,7 +40,17 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
         ~data=Some({"label": label, "index": targetIndex}),
         (),
       )
-      EventBus.dispatch(ShowNotification("Label Set: " ++ label, #Success, None))
+      NotificationManager.dispatch({
+        id: "",
+        importance: Success,
+        context: Operation("label_menu"),
+        message: "Label Set: " ++ label,
+        details: None,
+        action: None,
+        duration: NotificationTypes.defaultTimeoutMs(Success),
+        dismissible: true,
+        createdAt: Date.now(),
+      })
       onClose()
     }, 800)
   }
@@ -55,14 +65,34 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
         ~data=Some({"label": val, "index": targetIndex}),
         (),
       )
-      EventBus.dispatch(ShowNotification("Label Set: " ++ val, #Success, None))
+      NotificationManager.dispatch({
+        id: "",
+        importance: Success,
+        context: Operation("label_menu"),
+        message: "Label Set: " ++ val,
+        details: None,
+        action: None,
+        duration: NotificationTypes.defaultTimeoutMs(Success),
+        dismissible: true,
+        createdAt: Date.now(),
+      })
       onClose()
     }
   }
 
   let handleClear = () => {
     dispatch(UpdateSceneMetadata(targetIndex, Logger.castToJson({"label": ""})))
-    EventBus.dispatch(ShowNotification("Label Cleared", #Warning, None))
+    NotificationManager.dispatch({
+      id: "",
+      importance: Warning,
+      context: Operation("label_menu"),
+      message: "Label Cleared",
+      details: None,
+      action: None,
+      duration: NotificationTypes.defaultTimeoutMs(Warning),
+      dismissible: true,
+      createdAt: Date.now(),
+    })
     onClose()
   }
 

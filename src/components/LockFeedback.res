@@ -33,37 +33,42 @@ let make = () => {
     | _ =>
       let t1 = setTimeout(() => setShowWarning(_ => true), 3000)
       let t2 = setTimeout(() => setShowLongWarning(_ => true), 8000)
-      let countdownIntervalId = setInterval(
-        () => {
-          let remaining = TransitionLock.getRemainingMs() / 1000
-          setRemainingSeconds(_ => remaining)
-        },
-        500,
-      )
+      let countdownIntervalId = setInterval(() => {
+        let remaining = TransitionLock.getRemainingMs() / 1000
+        setRemainingSeconds(_ => remaining)
+      }, 500)
 
-      Some(() => {
-        clearTimeout(t1)
-        clearTimeout(t2)
-        clearInterval(countdownIntervalId)
-      })
+      Some(
+        () => {
+          clearTimeout(t1)
+          clearTimeout(t2)
+          clearInterval(countdownIntervalId)
+        },
+      )
     }
   }, [phase])
 
   if showRecovery {
-    <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[9999] px-4 py-2 rounded-lg shadow-lg font-medium text-sm pointer-events-none transition-all duration-300 bg-green-500/90 text-white">
+    <div
+      className="fixed top-4 right-4 z-[9999] px-4 py-2 rounded-lg shadow-lg font-medium text-sm pointer-events-none transition-all duration-300 bg-green-500/90 text-white"
+    >
       {React.string("Scene transition recovered")}
     </div>
   } else if !showWarning {
     React.null
   } else {
     let (message, color) = if showLongWarning {
-      let countdownMsg = "Transition delayed (" ++ Int.toString(remainingSeconds) ++ "s remaining). System will auto-recover..."
+      let countdownMsg =
+        "Transition delayed (" ++
+        Int.toString(remainingSeconds) ++ "s remaining). System will auto-recover..."
       (countdownMsg, "bg-red-500/90 text-white")
     } else {
       ("Processing scene transition...", "bg-blue-500/90 text-white")
     }
 
-    <div className={`fixed top-20 left-1/2 -translate-x-1/2 z-[9999] px-4 py-2 rounded-lg shadow-lg font-medium text-sm pointer-events-none transition-all duration-300 ${color}`}>
+    <div
+      className={`fixed top-4 right-4 z-[9999] px-4 py-2 rounded-lg shadow-lg font-medium text-sm pointer-events-none transition-all duration-300 ${color}`}
+    >
       {React.string(message)}
     </div>
   }

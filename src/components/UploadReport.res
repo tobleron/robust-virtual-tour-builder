@@ -149,9 +149,17 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
           | Error(_) => ()
           }
         | None =>
-          EventBus.dispatch(
-            ShowNotification("Report is still generating... please wait a moment.", #Info, None),
-          )
+          NotificationManager.dispatch({
+            id: "",
+            importance: Info,
+            context: Operation("upload_report"),
+            message: "Report is still generating... please wait a moment.",
+            details: None,
+            action: None,
+            duration: NotificationTypes.defaultTimeoutMs(Info),
+            dismissible: true,
+            createdAt: Date.now(),
+          })
         }
       },
       autoClose: Some(false),

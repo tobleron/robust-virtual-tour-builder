@@ -1,6 +1,5 @@
 /* src/components/FloorNavigation.res */
 open Types
-open EventBus
 
 @react.component
 let make = React.memo((~scenesLoaded, ~activeIndex, ~isLinking) => {
@@ -25,7 +24,17 @@ let make = React.memo((~scenesLoaded, ~activeIndex, ~isLinking) => {
     JsxEvent.Mouse.stopPropagation(e)
     if activeIndex >= 0 {
       dispatch(Actions.UpdateSceneMetadata(activeIndex, Logger.castToJson({"floor": fid})))
-      EventBus.dispatch(ShowNotification("Floor: " ++ label, #Success, None))
+      NotificationManager.dispatch({
+        id: "",
+        importance: Success,
+        context: Operation("floor_navigation"),
+        message: "Floor: " ++ label,
+        details: None,
+        action: None,
+        duration: NotificationTypes.defaultTimeoutMs(Success),
+        dismissible: true,
+        createdAt: Date.now(),
+      })
     }
   }
 

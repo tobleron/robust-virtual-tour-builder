@@ -32,13 +32,17 @@ let execute = (
         onRollback(restoredState)
 
         // Notify user
-        EventBus.dispatch(
-          ShowNotification(
-            "Action failed. Changes have been reverted.",
-            #Warning,
-            Some(Logger.castToJson({"action": Actions.actionToString(action), "error": msg})),
-          ),
-        )
+        NotificationManager.dispatch({
+          id: "",
+          importance: Warning,
+          context: SystemEvent("optimistic_action"),
+          message: "Action failed. Changes have been reverted.",
+          details: None,
+          action: None,
+          duration: NotificationTypes.defaultTimeoutMs(Warning),
+          dismissible: true,
+          createdAt: Date.now(),
+        })
 
         Promise.resolve(RolledBack(msg))
       | None =>
@@ -58,13 +62,17 @@ let execute = (
     switch StateSnapshot.rollback(snapshotId) {
     | Some(restoredState) =>
       onRollback(restoredState)
-      EventBus.dispatch(
-        ShowNotification(
-          "Action failed. Changes have been reverted.",
-          #Warning,
-          Some(Logger.castToJson({"action": Actions.actionToString(action), "error": msg})),
-        ),
-      )
+      NotificationManager.dispatch({
+        id: "",
+        importance: Warning,
+        context: SystemEvent("optimistic_action"),
+        message: "Action failed. Changes have been reverted.",
+        details: Some("Error: " ++ msg),
+        action: None,
+        duration: NotificationTypes.defaultTimeoutMs(Warning),
+        dismissible: true,
+        createdAt: Date.now(),
+      })
       Promise.resolve(RolledBack(msg))
     | None => Promise.resolve(RolledBack(msg ++ " (Rollback failed)"))
     }
