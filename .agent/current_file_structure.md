@@ -12195,8 +12195,7 @@
 │   ├── diagnostic.log
 │   ├── error.log
 │   ├── log_changes.txt
-│   ├── project-guard.log
-│   └── telemetry.log
+│   └── project-guard.log
 ├── MAP.md
 ├── old_ref
 │   ├── 7aadee4
@@ -14180,6 +14179,12 @@
 │   │   ├── 1269_Create_NotificationManager.res_DONE.md
 │   │   ├── 1270_Write_NotificationManager_Tests_DONE.md
 │   │   ├── 1271_Create_NotificationCenter_Component_DONE.md
+│   │   ├── 1272a_Unify_Notifications_High_Migration_DONE.md
+│   │   ├── 1272b_Unify_Notifications_Medium_Migration_DONE.md
+│   │   ├── 1272c_Unify_Notifications_Final_Migration_DONE.md
+│   │   ├── 1273_Mount_NotificationCenter_in_App_DONE.md
+│   │   ├── 1274_Integration_Testing_and_Verification_DONE.md
+│   │   ├── 1275_Performance_Profiling_and_Optimization_DONE.md
 │   │   └── tests
 │   │       ├── 1195_Test_Teaser_DONE.md
 │   │       ├── 1196_Test_ViewerLogic_DONE.md
@@ -14189,12 +14194,8 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1272a_Unify_Notifications_High_Migration.md
-│   │   ├── 1272b_Unify_Notifications_Medium_Migration.md
-│   │   ├── 1272c_Unify_Notifications_Final_Migration.md
-│   │   ├── 1273_Mount_NotificationCenter_in_App.md
-│   │   ├── 1274_Integration_Testing_and_Verification.md
-│   │   ├── 1275_Performance_Profiling_and_Optimization.md
+│   │   ├── 1276_Comprehensive_Testing_Plan_for_FSM_Lock_Synchronization_Fixes_v4.30.0.md
+│   │   ├── 1277_Aggregate_Completed_Tasks.md
 │   │   └── dev_tasks
 │   │       ├── D001_Fix_Violations_FRONTEND.md
 │   │       ├── D002_Surgical_Refactor_CORE_FRONTEND.md
@@ -14628,4 +14629,4 @@
 │       └── test_run.json
 └── vitest.config.mjs
 
-626 directories, 14003 files
+626 directories, 14004 files
