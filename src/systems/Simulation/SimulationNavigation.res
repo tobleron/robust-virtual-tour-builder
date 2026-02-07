@@ -171,10 +171,15 @@ let findBestNextLink = (currentScene: scene, state: state, visited: array<int>):
           switch p4 {
           | Some(l) => Some(l)
           | None =>
-            let p5 = Array.find(allLinks, l => !l.isReturn)
-            switch p5 {
-            | Some(l) => Some(l)
-            | None => Array.find(allLinks, l => l.isReturn)
+            let uniqueVisitedCount = visited->Belt.Set.Int.fromArray->Belt.Set.Int.size
+            if uniqueVisitedCount >= Belt.Array.length(state.scenes) {
+              Array.find(allLinks, l => l.targetIndex == 0)
+            } else {
+              let p5 = Array.find(allLinks, l => !l.isReturn)
+              switch p5 {
+              | Some(l) => Some(l)
+              | None => Array.find(allLinks, l => l.isReturn)
+              }
             }
           }
         }

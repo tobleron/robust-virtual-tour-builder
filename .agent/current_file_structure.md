@@ -7883,6 +7883,48 @@
 │   │           │   │   └── 162557_040.webp
 │   │           │   ├── project.json
 │   │           │   └── summary.txt
+│   │           ├── ec0a9aab-1a82-44f2-945e-c1bc9c84d8df
+│   │           │   ├── images
+│   │           │   │   ├── 154407_002.webp
+│   │           │   │   ├── 154618_004.webp
+│   │           │   │   ├── 154744_005.webp
+│   │           │   │   ├── 154859_006.webp
+│   │           │   │   ├── 155038_007.webp
+│   │           │   │   ├── 155139_008.webp
+│   │           │   │   ├── 155241_009.webp
+│   │           │   │   ├── 155456_010.webp
+│   │           │   │   ├── 155613_011.webp
+│   │           │   │   ├── 155754_012.webp
+│   │           │   │   ├── 155927_013.webp
+│   │           │   │   ├── 160058_014.webp
+│   │           │   │   ├── 160223_015.webp
+│   │           │   │   ├── 160339_016.webp
+│   │           │   │   ├── 160509_017.webp
+│   │           │   │   ├── 160552_018.webp
+│   │           │   │   ├── 160634_019.webp
+│   │           │   │   ├── 160715_020.webp
+│   │           │   │   ├── 160825_021.webp
+│   │           │   │   ├── 160926_022.webp
+│   │           │   │   ├── 161026_023.webp
+│   │           │   │   ├── 161123_024.webp
+│   │           │   │   ├── 161213_025.webp
+│   │           │   │   ├── 161309_026.webp
+│   │           │   │   ├── 161358_027.webp
+│   │           │   │   ├── 161456_028.webp
+│   │           │   │   ├── 161628_029.webp
+│   │           │   │   ├── 161706_030.webp
+│   │           │   │   ├── 161739_031.webp
+│   │           │   │   ├── 161824_032.webp
+│   │           │   │   ├── 161910_033.webp
+│   │           │   │   ├── 162015_034.webp
+│   │           │   │   ├── 162106_035.webp
+│   │           │   │   ├── 162215_036.webp
+│   │           │   │   ├── 162251_037.webp
+│   │           │   │   ├── 162400_038.webp
+│   │           │   │   ├── 162456_039.webp
+│   │           │   │   └── 162557_040.webp
+│   │           │   ├── project.json
+│   │           │   └── summary.txt
 │   │           ├── ed2e39a4-56e8-43fb-bda5-a2df497e59fb
 │   │           │   ├── images
 │   │           │   │   ├── 154407_002.webp
@@ -14035,10 +14077,92 @@
 │   └── step1_cleanup_notes.md
 ├── playwright-report
 │   ├── data
-│   │   ├── 15c87161b3b3851883e6858b178566473e5579ea.webm
-│   │   ├── 3942416be00d8199c7facb351e2ce6f251d6357b.png
-│   │   ├── 418fbe53fbe67c8b97bedc5d93899e2dc33a8500.md
-│   │   └── 9417903b577a4ea88e8153fc884a1d8eca9facb8.zip
+│   │   ├── 02d40c5e77e185505d5dee18f7322da882978312.zip
+│   │   ├── 04106369e9ac0e5792db482b6d8e32903a31c23c.zip
+│   │   ├── 0616f46a02f6d9144a8bb16d4d7bc1c88d67714f.zip
+│   │   ├── 067956f14ded36770587727d0c97e814c48dff83.zip
+│   │   ├── 0b36445a24c82ea3ab890414c2f47638394a4891.zip
+│   │   ├── 0cb70dcf47b76ee7bc42e8faccb80b66d107df96.png
+│   │   ├── 1935dce165841fb14fe42476c0c27d92fdff13f0.png
+│   │   ├── 1ae69ab0052d4571e5cdf0b951b13362fef0419f.webm
+│   │   ├── 1ea7ec6df8e3eb5afd382564d3881b41cf503de1.webm
+│   │   ├── 1f51a97fc85fe834f4ce14cb19d654a00afd7b34.md
+│   │   ├── 1f6b15ef8a267e4fd8f39a64fee26b856235da99.webm
+│   │   ├── 2b61440001c873f3b10b492204d002e07ac2867d.zip
+│   │   ├── 2cf93d6fb56187680477fd7efe27dcd142b226b4.webm
+│   │   ├── 31bf83a2f918b38c950533fc29347f29f1e14109.zip
+│   │   ├── 322d54ec26abc62d64b45a0d2acf6c03f82ef43d.zip
+│   │   ├── 36adb8ee882f9bac222c3c4b20cbf72e39d55274.zip
+│   │   ├── 378e252fecc8a149c13ab557d681cbe380ccd344.webm
+│   │   ├── 3b3fe559b0b0686b8e29f7703dfb8f8c5a7377d3.md
+│   │   ├── 3beb055a1382ca79d61d9b61a79721533aaa1016.zip
+│   │   ├── 3d847e784a364b717b5a8b22a9d85188b125ba30.zip
+│   │   ├── 3dafdeab233964b65916bef0c0720d7feb40d53e.md
+│   │   ├── 45b2d2ed964f98f5d6d6cca6fd872f002c425ddc.webm
+│   │   ├── 4bd7219329b5481e70d4782a0947e592a8fcd1e6.md
+│   │   ├── 4c34f493c029e1d75ded02d4c9c6ca3a5a2eda85.webm
+│   │   ├── 4fe09fcd2279582dd9b3f3fb21ea38a0f79e849e.zip
+│   │   ├── 50fb969d3620c98f6e9daa4ccde865b1d0a3e5b9.md
+│   │   ├── 51962670adf9ba3c9244a3132c3ac5434047627b.webm
+│   │   ├── 532a5849d9f70969d8db81a7b386566684ec7c34.webm
+│   │   ├── 58aefc28a7f09076238d58231d7e0ff7dd522dff.webm
+│   │   ├── 5c3143a4e80e03479a076ba48a893989bd60d79a.zip
+│   │   ├── 5cc64a823325c6dadeed6282108d07ae61f1c2db.png
+│   │   ├── 5d2c4acabb1f3dae0471b4d288f19ec78b9b78da.png
+│   │   ├── 617315ed058b4f22e4fa1f21b10b20eaaf620414.png
+│   │   ├── 61932c62349aaf9ae4b16428fe4da9e327d83bae.md
+│   │   ├── 62688056011dc49426779eac0269e1aa7bda513f.md
+│   │   ├── 62cce19f80ff490e47c188b40e3836a1c20a939d.png
+│   │   ├── 63926e9fd44d3c2820c915bf66344f5e7d5c2ad3.png
+│   │   ├── 6a149e574ef70dd0dedd85969c29ac3fa8643f2b.webm
+│   │   ├── 6a3c2331ea76ce7def13ff84bbc20c8d93bea645.webm
+│   │   ├── 6e18a28695436df40c34f9a4d7ea44119f3ce8bf.md
+│   │   ├── 6e3b6070d27da9c6459d70c0ecac754178440747.webm
+│   │   ├── 722b3a8715581f8a0bd8861785820472f1567981.zip
+│   │   ├── 724518b17b9ea1ce1d7cbb6f09afae19eda2b765.zip
+│   │   ├── 73ce949aa7b8d2ac9a4e9ea3f5a78fcd6ee2e5ee.png
+│   │   ├── 7825077776b604b9611ac6bcf499981136f621bf.zip
+│   │   ├── 7d66b809446eabaaecf07edd40c0edaa70652e72.png
+│   │   ├── 7eba023b61c75f2d6a20e9fe41e4e0655abf51d3.md
+│   │   ├── 82c589683d46d252d3f0dd9e321490036407a344.webm
+│   │   ├── 8536bbfcf69629cf12a1f5d2ad96fd24fb389dc7.png
+│   │   ├── 885ef09213cd239f57636c1672a62372e4b9f59b.zip
+│   │   ├── 88c0d507047174488de2faf93d6e9f0698fc9df4.zip
+│   │   ├── 89eb48642ba9eee537a5357823697ae1ce6e6954.png
+│   │   ├── 8f1b5bd31a549e1ddda64ed6c13447b4d4779b67.webm
+│   │   ├── 8fdd4e1f48cc49e085eaf19b8f7cb1e30331490e.webm
+│   │   ├── 97b1d53b28b809be282183c2f0e8eccc4c1d858f.zip
+│   │   ├── 9c2a972447e1b677983924dd4f51a76ce2eae668.zip
+│   │   ├── 9cef181d3e715c6e875d9aea102b33135bb3da65.md
+│   │   ├── 9d9dae515a75c101b65e89d5224f1687622769ef.md
+│   │   ├── 9eae76a9fff1f983581030a66770efaef7e80ee1.md
+│   │   ├── a2682be3fcfbb5ccbe1b95891b7ebf438f5d10af.md
+│   │   ├── aa693098e3b18cf8dae4dcd690f6033187da88f9.webm
+│   │   ├── b496f0f5455238912f5afbf949cc51e74e681a7b.png
+│   │   ├── b61af26ce66c60720e8134708d9b72f96d0c2e5a.zip
+│   │   ├── c1c4191c36b47a285e2b61d5e30306a34cc47226.webm
+│   │   ├── c3660a7cdd2b483ead80741b291ad6a8abfd58e8.png
+│   │   ├── c84b2499d8f74d6d4b90b7cbb6d36e98bd8baee2.md
+│   │   ├── cb6a538c22b7b0a5f25120937033fc4a6d18d28d.webm
+│   │   ├── cbcf5212a42fe96261c1cc6bbff59cbcfd887016.png
+│   │   ├── d142d02638e672c61b8d4ce3d693dc3f78fbcbc0.webm
+│   │   ├── d3a919a2ecf85fce6c5f9c827f1fb3734ed4c425.zip
+│   │   ├── da0ad46a795cbe90b71b07b87ed01b64b88045ff.webm
+│   │   ├── db70bf144255d4d9307baec0ab78a78556dc730d.png
+│   │   ├── e2fea9fed9b82d54cf57611d593b0f346b300526.webm
+│   │   ├── e5fcda5691a3bbde3068da1f2f14dedbd4f2f64c.zip
+│   │   ├── ea435c861a6ad1b2a8b8f1f749259456cbc75c5b.webm
+│   │   ├── eb65cf3e0493f75943a1dd148e4d0faebe35d408.md
+│   │   ├── ef587ad262d3433896b532e58a06395c2b690310.zip
+│   │   ├── f36023c057b4035fece911aa37bb086f264b8b1e.webm
+│   │   ├── f8252becd9d408fe857bde8a9e77b23c62e2eb38.webm
+│   │   ├── f83c61ec695f21cffffbc39087e6bb884bf9757c.png
+│   │   ├── f8b57138af7840d6414c8c8e05c0b0075bbebc35.png
+│   │   ├── f8d6bc7d9708a91e9f61c7814b6315019441cd67.png
+│   │   ├── fae9a54347ce814be2c11bea890b71bfce63b651.png
+│   │   ├── fc2b8c8ec22f5663be5fff25c3d5f500b086efc7.png
+│   │   ├── fe2db4d6f282d32b5449c7cc4858ac30118431a4.md
+│   │   └── fef0715ded56565b7704b8f013c05cf542b298b3.zip
 │   ├── index.html
 │   └── trace
 │       ├── assets
@@ -14607,9 +14731,11 @@
 │   │   ├── 1296_ERR_HealthCheck_429_RateLimiting_Integration_DONE.md
 │   │   ├── 1297_ERR_Notification_Rendering_NotAppearing_DONE.md
 │   │   ├── 1298_ERR_LinkButton_Accessibility_Discoverability_DONE.md
+│   │   ├── 1300_ERR_UI_InteractionBlocking_DONE.md
 │   │   ├── 1301_VERIFY_Notification_Accessibility_Fixes_DONE.md
 │   │   ├── 1302_ERR_Pannellum_FileReader_Blob_Error.md
 │   │   ├── 1304_BUG_Linking_Mode_Yellow_Lines_Persist_After_Save_DONE.md
+│   │   ├── 1305_BUG_Simulation_Mode_Infinite_Loop_Stop_Disabled_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
 │   │       ├── 1195_Test_Teaser_DONE.md
@@ -14621,9 +14747,7 @@
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
 │   │   ├── 1299_ERR_Performance_LoadTimeAndMemory.md
-│   │   ├── 1300_ERR_UI_InteractionBlocking.md
 │   │   ├── 1303_AGGREGATE_Viewer_System_E2E_Issues.md
-│   │   ├── 1305_BUG_Simulation_Mode_Infinite_Loop_Stop_Disabled.md
 │   │   └── dev_tasks
 │   │       ├── D001_Fix_Violations_FRONTEND.md
 │   │       ├── D002_Surgical_Refactor_CORE_FRONTEND.md
@@ -14636,17 +14760,127 @@
 │       ├── 1243_Fix_Operation_Cancellation_Feedback.md
 │       └── 1246_Handle_Malformed_Project_Files_Gracefully.md
 ├── test-results
-│   ├── editor-Editor-Interactions-should-sync-tour-name-property-chromium
+│   ├── robustness-Application-Rob-54cde-ivity-Linking-vs-Simulation-chromium
 │   │   ├── error-context.md
 │   │   ├── test-failed-1.png
 │   │   ├── trace.zip
 │   │   └── video.webm
-│   ├── editor-Editor-Interactions-should-sync-tour-name-property-firefox
+│   ├── robustness-Application-Rob-54cde-ivity-Linking-vs-Simulation-firefox
 │   │   ├── error-context.md
 │   │   ├── test-failed-1.png
 │   │   ├── trace.zip
 │   │   └── video.webm
-│   └── editor-Editor-Interactions-should-sync-tour-name-property-webkit
+│   ├── robustness-Application-Rob-54cde-ivity-Linking-vs-Simulation-webkit
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-6cd1c-ling-Operation-Cancellation-chromium
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-6cd1c-ling-Operation-Cancellation-firefox
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-6cd1c-ling-Operation-Cancellation-webkit
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-7044e--Circuit-Breaker-Activation-chromium
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-7044e--Circuit-Breaker-Activation-firefox
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-7044e--Circuit-Breaker-Activation-webkit
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-b56c2-ry-with-Exponential-Backoff-chromium
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-b56c2-ry-with-Exponential-Backoff-firefox
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-b56c2-ry-with-Exponential-Backoff-webkit
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-c8c37-d-Saving-during-Interaction-chromium
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-c8c37-d-Saving-during-Interaction-firefox
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-c8c37-d-Saving-during-Interaction-webkit
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-dc047-g-Rate-Limiter-Notification-chromium
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-dc047-g-Rate-Limiter-Notification-firefox
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-dc047-g-Rate-Limiter-Notification-webkit
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-edf9a-errupted-Operation-Recovery-webkit
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── simulation-teaser-Simulati-4ee6a-un-auto-teaser-and-download-chromium
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── simulation-teaser-Simulati-4ee6a-un-auto-teaser-and-download-firefox
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── simulation-teaser-Simulati-4ee6a-un-auto-teaser-and-download-webkit
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── simulation-teaser-Simulati-ce210-ld-run-autopilot-simulation-chromium
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── simulation-teaser-Simulati-ce210-ld-run-autopilot-simulation-firefox
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   └── simulation-teaser-Simulati-ce210-ld-run-autopilot-simulation-webkit
 │       ├── error-context.md
 │       ├── test-failed-1.png
 │       ├── trace.zip
@@ -15036,4 +15270,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-645 directories, 14392 files
+669 directories, 14602 files

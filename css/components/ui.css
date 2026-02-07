@@ -102,7 +102,7 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    z-index: 5000;
+    z-index: 16000;
 }
 
 #viewer-ui-layer> :not(.pointer-events-none) {
@@ -202,6 +202,7 @@ html body [data-sonner-toast][data-sonner-toast] [data-content] {
     font-size: 13px;
     line-height: normal;
 }
+
 /* Interaction Lock Overlay */
 .interaction-lock-overlay {
     position: fixed;
