@@ -9,6 +9,18 @@ module InnerApp = {
       None
     }, [state])
 
+    let visualPipelineInitialized = React.useRef(false)
+    React.useEffect0(() => {
+      if !visualPipelineInitialized.current {
+        visualPipelineInitialized.current = true
+        // Initialize Visual Pipeline after first render to ensure container exists
+        let _ = setTimeout(() => {
+          VisualPipeline.init("visual-pipeline-container")->ignore
+        }, 500)
+      }
+      None
+    })
+
     <div className="flex h-screen w-screen overflow-hidden bg-slate-900">
       {if isSystemLocked {
         <div className="interaction-lock-overlay" />
