@@ -9,6 +9,7 @@ module Button = {
     ~onClick: JsxEvent.Mouse.t => unit=?,
     ~children: React.element=?,
     ~disabled: bool=?,
+    @as("aria-label") ~ariaLabel: string=?,
   ) => React.element = "Button"
 }
 
@@ -200,23 +201,23 @@ module Sonner = {
     ~visibleToasts: int=?,
   ) => React.element = "Toaster"
 
-  type toastOptions = {description: string}
+  type toastOptions = {
+    duration: int,
+    description: option<string>,
+  }
 
   @module("sonner")
-  external toast: string => unit = "toast"
-
-  @module("sonner")
-  external toastWithDescription: (string, toastOptions) => unit = "toast"
+  external toast: (string, toastOptions) => unit = "toast"
 
   @module("sonner") @scope("toast")
-  external success: string => unit = "success"
+  external success: (string, toastOptions) => unit = "success"
 
   @module("sonner") @scope("toast")
-  external error: string => unit = "error"
+  external error: (string, toastOptions) => unit = "error"
 
   @module("sonner") @scope("toast")
-  external warning: string => unit = "warning"
+  external warning: (string, toastOptions) => unit = "warning"
 
   @module("sonner") @scope("toast")
-  external info: string => unit = "info"
+  external info: (string, toastOptions) => unit = "info"
 }

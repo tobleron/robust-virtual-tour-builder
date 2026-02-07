@@ -88,8 +88,19 @@ module Events = {
       DispatchNavigationFsmEvent(TextureLoaded({targetSceneId: loadedScene.id})),
     )
   }
-  let onSceneError = msg => {
-    Logger.error(~module_="SceneLoader", ~message="LOAD_ERROR", ~data={"error": msg}, ())
+  let onSceneError = (msg, targetSceneId) => {
+    Logger.error(
+      ~module_="SceneLoader",
+      ~message="LOAD_ERROR",
+      ~data={"error": msg, "targetId": targetSceneId},
+      (),
+    )
+    TransitionLock.releaseIf("SceneLoader_Error", p => {
+      switch p {
+      | Loading(id) => id == targetSceneId
+      | _ => false
+      }
+    })
     NotificationManager.dispatch({
       id: "",
       importance: Error,
@@ -177,6 +188,22 @@ let rec loadNewScene = (
         if !isAnticipatory {
           ViewerSystem.Adapter.setMetaData(inst, "sceneId", idToUnknown(targetScene.id))
           let config = Config.makeSceneConfig(targetScene)
+
+          Logger.debug(
+            ~module_="SceneLoader",
+            ~message="LOADING_SCENE_IN_REUSABLE_INSTANCE",
+            ~data=Some({
+              "targetSceneId": targetScene.id,
+              "panorama": config["panorama"],
+              "fileType": switch targetScene.file {
+              | Url(_) => "Url"
+              | Blob(_) => "Blob"
+              | File(_) => "File"
+              },
+            }),
+            (),
+          )
+
           ViewerSystem.Adapter.addScene(inst, targetScene.id, config->asDynamic)
           ViewerSystem.Adapter.loadScene(inst, targetScene.id, ())
           GlobalStateBridge.dispatch(
@@ -188,21 +215,76 @@ let rec loadNewScene = (
         vp->Option.forEach(v => {
           v.instance->Option.forEach(i => ViewerSystem.Adapter.destroy(i))
 
-          let initialConfig = Config.makeInitialConfig(targetScene)
-          let newInstance = ViewerSystem.Adapter.initialize(v.containerId, initialConfig->asDynamic)
-          ViewerSystem.Adapter.setMetaData(newInstance, "sceneId", idToUnknown(targetScene.id))
-          ViewerSystem.Adapter.setMetaData(newInstance, "isLoaded", boolToUnknown(false))
+          try {
+            let initialConfig = Config.makeInitialConfig(targetScene)
 
-          ViewerSystem.Adapter.on(newInstance, "load", _ => {
-            Events.onSceneLoad(newInstance, targetScene)
-          })
-          ViewerSystem.Adapter.on(newInstance, "error", msg => Events.onSceneError(msg))
+            Logger.debug(
+              ~module_="SceneLoader",
+              ~message="INITIALIZING_VIEWER_INSTANCE",
+              ~data=Some({
+                "containerId": v.containerId,
+                "targetSceneId": targetScene.id,
+                "panorama": targetScene.file->Types.fileToUrl,
+                "fileType": switch targetScene.file {
+                | Url(_) => "Url"
+                | Blob(_) => "Blob"
+                | File(_) => "File"
+                },
+              }),
+              (),
+            )
 
-          if ViewerSystem.Adapter.isLoaded(newInstance) {
-            Events.onSceneLoad(newInstance, targetScene)
+            let newInstance = ViewerSystem.Adapter.initialize(
+              v.containerId,
+              initialConfig->asDynamic,
+            )
+            ViewerSystem.Adapter.setMetaData(newInstance, "sceneId", idToUnknown(targetScene.id))
+            ViewerSystem.Adapter.setMetaData(newInstance, "isLoaded", boolToUnknown(false))
+
+            ViewerSystem.Adapter.on(newInstance, "load", _ => {
+              Events.onSceneLoad(newInstance, targetScene)
+            })
+            ViewerSystem.Adapter.on(newInstance, "error", msg =>
+              Events.onSceneError(msg, targetScene.id)
+            )
+
+            if ViewerSystem.Adapter.isLoaded(newInstance) {
+              Events.onSceneLoad(newInstance, targetScene)
+            }
+
+            ViewerSystem.Pool.registerInstance(v.containerId, newInstance)
+
+            Logger.info(
+              ~module_="SceneLoader",
+              ~message="VIEWER_INITIALIZED_SUCCESS",
+              ~data=Some({
+                "containerId": v.containerId,
+                "targetSceneId": targetScene.id,
+              }),
+              (),
+            )
+          } catch {
+          | exn =>
+            let (errMsg, errStack) = Logger.getErrorDetails(exn)
+            Logger.error(
+              ~module_="SceneLoader",
+              ~message="VIEWER_INITIALIZATION_ERROR",
+              ~data=Some({
+                "containerId": v.containerId,
+                "targetSceneId": targetScene.id,
+                "error": errMsg,
+                "stack": errStack,
+              }),
+              (),
+            )
+            Events.onSceneError("Failed to initialize viewer: " ++ errMsg, targetScene.id)
+            TransitionLock.releaseIf("SceneLoader_InitError", p => {
+              switch p {
+              | Loading(id) => id == targetScene.id
+              | _ => false
+              }
+            })
           }
-
-          ViewerSystem.Pool.registerInstance(v.containerId, newInstance)
         })
       }
     }

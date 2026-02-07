@@ -32,9 +32,24 @@ let useInteraction = (~id: string, ~policy: policy, ~action: unit => Promise.t<'
         setThrottled(_ => false)
       }
       p
-    | Error(_) =>
+    | Error(msg) =>
       if isMounted.current {
         setThrottled(_ => true)
+        NotificationManager.dispatch({
+          id: "",
+          importance: Warning,
+          context: SystemEvent("interaction"),
+          message: switch msg {
+          | "Rate limited" => "Rate limit exceeded. Please wait."
+          | "Locked" => "Operation already in progress."
+          | _ => "Action throttled: " ++ msg
+          },
+          details: None,
+          action: None,
+          duration: 2000,
+          dismissible: true,
+          createdAt: Date.now(),
+        })
         let _ = ReBindings.Window.setTimeout(() => {
           if isMounted.current {
             setThrottled(_ => false)

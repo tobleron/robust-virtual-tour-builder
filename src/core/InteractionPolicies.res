@@ -14,5 +14,5 @@ type policy =
 
 // Standard Policies
 let sceneNavigation = Throttle(300, Leading)
-let projectMutation = Mutex(Global)
+let projectMutation = SlidingWindow(5, 10000)
 let heavyCompute = Debounce(100)

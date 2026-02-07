@@ -1,0 +1,20 @@
+{
+  "id": "test-tour-id",
+  "tourName": "Test Tour",
+  "scenes": [
+    {
+      "id": "scene-1",
+      "name": "Scene 1",
+      "label": "Scene 1",
+      "file": "images/image.jpg",
+      "hotspots": [],
+      "quality": {
+        "score": 9,
+        "stats": {
+          "avgLuminance": 120
+        }
+      },
+      "colorGroup": "1"
+    }
+  ]
+}

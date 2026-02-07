@@ -1,9 +1,5 @@
 // src/components/NotificationCenter.res
-// React component that subscribes to NotificationManager and renders notifications
-// Phase 1: Debug widget showing active notification count
-// Phase 2 (future): Full toast/modal rendering with animations
-
-open NotificationTypes
+// React component that subscribes to NotificationManager and renders notifications as Sonner toasts
 
 @react.component
 let make = React.memo(() => {
@@ -12,8 +8,12 @@ let make = React.memo(() => {
     NotificationManager.getState()
   })
 
+  // Track which notifications have been rendered as toasts to avoid duplicates
+  let renderedIdsRef = React.useRef(Set.make())
+
   // Subscribe to manager on mount, unsubscribe on unmount
   React.useEffect0(() => {
+    Logger.info(~module_="NotificationCenter", ~message="MOUNTED_AND_SUBSCRIBING", ())
     let unsubscribe = NotificationManager.subscribe(
       newState => {
         setState(_ => newState)
@@ -21,18 +21,63 @@ let make = React.memo(() => {
     )
 
     // Cleanup: unsubscribe on unmount
-    Some(unsubscribe)
+    Some(
+      () => {
+        Logger.info(~module_="NotificationCenter", ~message="UNMOUNTING", ())
+        unsubscribe()
+      },
+    )
   })
 
-  // Active notification count
-  let activeCount = Belt.Array.length(state.active)
+  // Render active notifications as Sonner toasts
+  React.useEffect1(() => {
+    state.active->Belt.Array.forEach(
+      notification => {
+        let renderedIds = renderedIdsRef.current
 
-  // Phase 1: Debug widget showing active count
-  <div className="fixed inset-0 pointer-events-none z-40">
-    <div
-      className="fixed bottom-4 right-4 pointer-events-auto bg-blue-500 text-white px-4 py-2 rounded text-sm font-medium"
-    >
-      {React.string("Active: " ++ Int.toString(activeCount))}
-    </div>
-  </div>
+        if !Set.has(renderedIds, notification.id) {
+          // Mark as rendered to avoid duplicate toasts
+          Set.add(renderedIds, notification.id)->ignore
+
+          let message = notification.message
+
+          let options: Shadcn.Sonner.toastOptions = {
+            duration: notification.duration,
+            description: notification.details,
+          }
+
+          // Dispatch appropriate toast based on importance
+          switch notification.importance {
+          | NotificationTypes.Success => Shadcn.Sonner.success(message, options)
+          | NotificationTypes.Error => Shadcn.Sonner.error(message, options)
+          | NotificationTypes.Warning => Shadcn.Sonner.warning(message, options)
+          | NotificationTypes.Info => Shadcn.Sonner.info(message, options)
+          | NotificationTypes.Critical => Shadcn.Sonner.error(message, options)
+          | NotificationTypes.Transient => Shadcn.Sonner.toast(message, options)
+          }
+
+          Logger.info(
+            ~module_="NotificationCenter",
+            ~message="RENDERED_TOAST",
+            ~data=Some({
+              "id": notification.id,
+              "importance": switch notification.importance {
+              | NotificationTypes.Info => "info"
+              | NotificationTypes.Success => "success"
+              | NotificationTypes.Warning => "warning"
+              | NotificationTypes.Error => "error"
+              | NotificationTypes.Critical => "critical"
+              | NotificationTypes.Transient => "transient"
+              },
+              "message": message,
+            }),
+            (),
+          )
+        }
+      },
+    )
+    None
+  }, [state.active])
+
+  React.null
 })

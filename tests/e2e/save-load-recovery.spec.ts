@@ -12,18 +12,18 @@ const IMAGE_PATH_1 = path.join(FIXTURES_DIR, 'image.jpg');
 const IMAGE_PATH_2 = path.join(FIXTURES_DIR, 'image2.jpg');
 
 async function handleUpload(page, imagePath, expectedSceneIndex) {
-    const fileInput = page.locator('input[type="file"][accept="image/jpeg,image/png,image/webp"]');
-    await fileInput.setInputFiles([imagePath]);
+  const fileInput = page.locator('input[type="file"][accept="image/jpeg,image/png,image/webp"]');
+  await fileInput.setInputFiles([imagePath]);
 
-    const startBtn = page.getByRole('button', { name: /Start Building/i });
-    try {
-        await startBtn.waitFor({ state: 'visible', timeout: 90000 });
-        await startBtn.click();
-    } catch (e) {
-        console.log(`Start Building button skipped for scene ${expectedSceneIndex} (not visible)`);
-    }
+  const startBtn = page.getByRole('button', { name: /Start Building/i });
+  try {
+    await startBtn.waitFor({ state: 'visible', timeout: 90000 });
+    await startBtn.click();
+  } catch (e) {
+    console.log(`Start Building button skipped for scene ${expectedSceneIndex} (not visible)`);
+  }
 
-    await expect(page.locator('.scene-item').nth(expectedSceneIndex)).toBeVisible({ timeout: 90000 });
+  await expect(page.locator('.scene-item').nth(expectedSceneIndex)).toBeVisible({ timeout: 90000 });
 }
 
 test.describe('Project Persistence: Save -> Load Recovery', () => {
@@ -49,7 +49,7 @@ test.describe('Project Persistence: Save -> Load Recovery', () => {
 
     // Add a hotspot to Scene 1
     await page.locator('.scene-item').nth(0).click();
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(2000); // Wait for viewer stabilization
     const viewer = page.locator('#viewer-stage');
     const box = await viewer.boundingBox();
 
@@ -74,11 +74,23 @@ test.describe('Project Persistence: Save -> Load Recovery', () => {
     await download.saveAs(savePath);
     console.log(`Saved project to: ${savePath}`);
 
-    // 3. Clear State
-    console.log('Step 3: Clearing state...');
+    // 3. Clear State & Reload (Simulate Reset)
+    console.log('Step 3: Resetting application...');
+    const newBtn = page.getByLabel('New');
+    if (await newBtn.isVisible()) {
+      await newBtn.click();
+      // Expect a dialog asking to save or reset, if implemented
+      // For now, assume it might just reset or show a prompt. 
+      // If a native confirm dialog appears, playwright handles it if configured, 
+      // otherwise we reload the page to be sure.
+      await page.reload();
+    } else {
+      await page.reload();
+    }
+
+    // Hard clear to be safe
     await page.evaluate(async () => {
       localStorage.clear();
-      sessionStorage.clear();
       const dbs = await window.indexedDB.databases();
       dbs.forEach(db => { if (db.name) window.indexedDB.deleteDatabase(db.name); });
     });
@@ -88,29 +100,25 @@ test.describe('Project Persistence: Save -> Load Recovery', () => {
     const sceneCount = await page.locator('.scene-item').count();
     expect(sceneCount).toBe(0);
 
-    // 4. Load Project (Upload)
-    console.log('Step 4: Loading project...');
-    // Try explicit load input first, then button
+    // 4. Load Project (Upload Zip)
+    console.log('Step 4: Loading project zip...');
+    // The load button now likely accepts .zip only as per user spec
     const loadInput = page.locator('input[type="file"][accept*=".zip"]');
 
     if (await loadInput.count() > 0) {
-        await loadInput.setInputFiles(savePath);
+      await loadInput.setInputFiles(savePath);
     } else {
-        const loadBtn = page.getByLabel('Load');
-        const fileChooserPromise = page.waitForEvent('filechooser');
-        await loadBtn.click();
-        const fileChooser = await fileChooserPromise;
-        await fileChooser.setFiles(savePath);
+      // Fallback if input is hidden behind button
+      const loadBtn = page.getByLabel('Load');
+      const fileChooserPromise = page.waitForEvent('filechooser');
+      await loadBtn.click();
+      const fileChooser = await fileChooserPromise;
+      await fileChooser.setFiles(savePath);
     }
 
-    // Wait for load to complete (check for start button or scene items)
-    const startBtn = page.getByRole('button', { name: /Start Building|Close/i });
-    try {
-        await startBtn.waitFor({ state: 'visible', timeout: 5000 });
-        await startBtn.click();
-    } catch (e) {
-        console.log('Start Building button skipped after load');
-    }
+    // Wait for Project Loaded notification (toast)
+    // Using a regex to be flexible about the exact message "Project Loaded!"
+    await expect(page.locator('li[data-sonner-toast]')).toContainText(/Project/i, { timeout: 30000 });
 
     // 5. Verify Restoration
     console.log('Step 5: Verifying restoration...');
@@ -119,23 +127,23 @@ test.describe('Project Persistence: Save -> Load Recovery', () => {
 
     // Verify hotspot existence via state check
     const state = await page.evaluate(() => {
-        return (window as any).__RE_STATE__;
+      // @ts-ignore
+      return window.store ? window.store.state : null;
     });
 
     if (state && state.scenes && state.scenes.length > 0) {
-        // Assuming scenes[0] has hotspots
-        // This structure is hypothetical but likely correct
-        console.log('State Scenes:', state.scenes.length);
-        // Verify at least one scene has hotspots
-        const hasHotspots = state.scenes.some(s => s.hotspots && s.hotspots.length > 0);
-        // OR check strictly scene 0
-        // expect(state.scenes[0].hotspots.length).toBeGreaterThan(0);
-        if (!hasHotspots) console.warn('No hotspots found in state dump');
+      console.log('State Scenes:', state.scenes.length);
+      // Verify at least one scene has hotspots
+      const hasHotspots = state.scenes.some(s => s.hotspots && s.hotspots.length > 0);
+      if (!hasHotspots) console.warn('No hotspots found in state dump');
+      expect(hasHotspots).toBeTruthy();
+    } else {
+      console.warn("Could not access window.store for verification");
     }
 
     // Cleanup
     if (fs.existsSync(savePath)) {
-        fs.unlinkSync(savePath);
+      fs.unlinkSync(savePath);
     }
   });
 });

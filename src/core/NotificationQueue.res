@@ -15,20 +15,8 @@ let empty = (): queueState => {
 // Sort notifications by importance priority (lower number = higher priority)
 // Simple implementation: iterate and build sorted result
 let sortByImportance = (notifications: array<notification>): array<notification> => {
-  Belt.Array.reduce(notifications, [], (sorted, notif) => {
-    let notifPriority = importancePriority(notif.importance)
-    let (before, after) = Belt.Array.reduce(sorted, ([], []), ((b, a), existing) => {
-      let existingPriority = importancePriority(existing.importance)
-      if notifPriority < existingPriority && Belt.Array.length(a) === 0 {
-        // Insert before this one
-        (b, Belt.Array.concat(a, [existing]))
-      } else {
-        // Keep looking or add to after
-        (Belt.Array.concat(b, [existing]), a)
-      }
-    })
-    let beforeAfter = Belt.Array.concat(before, [notif])
-    Belt.Array.concat(beforeAfter, after)
+  notifications->Array.toSorted((a, b) => {
+    (importancePriority(a.importance) - importancePriority(b.importance))->Int.toFloat
   })
 }
 

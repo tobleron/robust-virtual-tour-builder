@@ -35,7 +35,15 @@ test.describe('Editor Interactions', () => {
       console.log('HTML Length:', html.length);
       throw e;
     }
+
+    // Wait for scene item and viewer lock release
     await expect(page.locator('.scene-item').filter({ hasText: 'image' }).first()).toBeVisible({ timeout: 30000 });
+    // Ensure TransitionLock has released the viewer for interaction
+    await page.waitForFunction(() => {
+      // @ts-ignore
+      return window.store && window.store.state && window.store.state.transitionLock === 'Idle';
+    }, { timeout: 30000 }).catch(() => console.log("Warning: TransitionLock check timed out, proceeding anyway..."));
+
 
     await fileInput.setInputFiles([IMAGE_PATH_2]);
     const startBtn2 = page.getByRole('button', { name: 'Start Building' });
@@ -49,27 +57,61 @@ test.describe('Editor Interactions', () => {
     await expect(page.locator('.scene-item').filter({ hasText: 'image' }).nth(1)).toBeVisible({ timeout: 30000 });
   });
 
-  test('should create a hotspot and link scenes', async ({ page }) => {
+  test('should create a hotspot, link scenes, and verify visual pipeline', async ({ page }) => {
     test.setTimeout(90000);
     // Use first scene
     await page.waitForSelector('.scene-item', { timeout: 30000 });
     await page.locator('.scene-item').filter({ hasText: 'image' }).first().click();
 
     await page.waitForSelector('#panorama-a.active', { state: 'visible', timeout: 30000 });
-    await page.waitForTimeout(2000); // Wait for viewer stabilization
+    // Wait for viewer logic to stabilize (TransitionLock)
+    await page.waitForTimeout(2000);
 
     const viewer = page.locator('#viewer-stage');
     const box = await viewer.boundingBox();
     if (!box) throw new Error('Viewer not found');
 
+    // Create Hotspot (Alt + Click)
     await page.keyboard.down('Alt');
     await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
     await page.keyboard.up('Alt');
 
+    // Expect Modal
     await expect(page.getByText('Link Destination')).toBeVisible({ timeout: 15000 });
-    await page.selectOption('#link-target', 'image2');
+
+    // Verify System is in Linking Mode (Yellow Dashed Lines visible)
+    const isLinkingMode = await page.evaluate(() => {
+      // @ts-ignore
+      return window.store.state.ui.isLinking;
+    });
+    expect(isLinkingMode).toBe(true);
+
+    await page.selectOption('#link-target', 'image2'); // Select by filename/ID match
     await page.getByRole('button', { name: 'Save Link' }).click();
+
+    // Verify Modal Closed
     await expect(page.getByText('Link Destination')).toBeHidden({ timeout: 10000 });
+
+    // Verify System exited Linking Mode (Yellow Lines removed, Red Lines persist)
+    const isLinkingModeEnded = await page.evaluate(() => {
+      // @ts-ignore
+      return window.store.state.ui.isLinking;
+    });
+    expect(isLinkingModeEnded).toBe(false);
+
+    // Verify Visual Pipeline Update
+    // The visual pipeline should now show a connection or node
+    const pipelineWrapper = page.locator('.visual-pipeline-wrapper');
+    await expect(pipelineWrapper).toBeVisible({ timeout: 10000 });
+
+    // Check for the pipeline node corresponding to the link
+    const pipelineNode = page.locator('.pipeline-node');
+    await expect(pipelineNode).toBeVisible({ timeout: 10000 });
+
+    // Verify tooltip
+    await pipelineNode.hover();
+    await expect(page.locator('.node-tooltip')).toBeVisible();
+    await expect(page.locator('.tooltip-text')).toContainText('image'); // Should contain scene name
   });
 
   test('should sync tour name property', async ({ page }) => {

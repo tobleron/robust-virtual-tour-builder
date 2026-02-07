@@ -75,6 +75,35 @@ test.describe('Application Robustness', () => {
       await expect(page.locator('#viewer-stage')).toBeVisible();
     });
 
+    test('Mode Exclusivity: Linking vs Simulation', async ({ page }) => {
+      // 1. Enter Linking Mode
+      const addLinkBtn = page.getByRole('button', { name: /Add Link|Link/i });
+      // Ensure button exists and Click
+      await expect(addLinkBtn).toBeVisible();
+      await addLinkBtn.click();
+
+      // Verify Linking Mode Active
+      await expect(page.getByText('Link Destination')).toBeVisible();
+
+      // 2. Try to Start Simulation (Auto-Pilot) while in Linking Mode
+      const autoPilotBtn = page.getByRole('button', { name: /Teaser/i });
+
+      // Expected: Auto-Pilot button should be disabled OR clicking it should do nothing/show warning
+      if (await autoPilotBtn.isVisible()) {
+        await autoPilotBtn.click({ force: true });
+
+        // Verify we are STILL in Linking Mode (Did not switch)
+        await expect(page.getByText('Link Destination')).toBeVisible();
+
+        // Verify Simulation DID NOT start (UI check of store check)
+        const isSimActive = await page.evaluate(() => {
+          // @ts-ignore
+          return window.store.state.simulation.status === 'Running';
+        });
+        expect(isSimActive).toBe(false);
+      }
+    });
+
     test('LoadProject Barrier Blocks Other Actions', async ({ page }) => {
       // Since the project is already loaded in beforeEach, we import again to trigger LoadProject
       const fileInput = page.locator('input[type="file"][accept*=".zip"]');

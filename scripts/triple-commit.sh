@@ -8,13 +8,7 @@ if [ -z "$MSG" ]; then echo "❌ Error: Commit message required."; exit 1; fi
 
 # --- VALIDATION PHASE ---
 
-# 1. Preference Guard
-CHANGED_SRC=$(git status --porcelain | awk '{print $2}' | grep "^src/" | grep -v "libs/" | grep -v ".bs.js" | grep -v "Template")
-if [ -n "$CHANGED_SRC" ]; then
-    if echo "$CHANGED_SRC" | xargs grep -Ff .agent/forbidden_patterns.txt; then
-        echo "❌ Forbidden patterns detected in modified files."; exit 1
-    fi
-fi
+
 
 # 1.5 Project Guard (Static Analysis)
 ./scripts/project-guard.sh

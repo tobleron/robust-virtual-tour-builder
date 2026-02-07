@@ -67,7 +67,8 @@ module ControllerHooks = {
               }),
               (),
             )
-            // Force completion even if scene not found
+            // Force release lock and complete even if scene not found
+            TransitionLock.release("NavigationController_NotFound")
             GlobalStateBridge.dispatch(Actions.DispatchNavigationFsmEvent(StabilizeComplete))
           }
         })

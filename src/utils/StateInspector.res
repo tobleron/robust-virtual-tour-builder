@@ -10,6 +10,7 @@ type stateSnapshot = {
   activeSceneIndex: int,
   isLinking: bool,
   simulationStatus: string,
+  transitionLock: string,
   timestamp: float,
 }
 
@@ -29,6 +30,7 @@ let createSnapshot = (state: Types.state): stateSnapshot => {
     | Paused => "Paused"
     | Stopping => "Stopping"
     },
+    transitionLock: TransitionLock.phaseToString(TransitionLock.current.contents),
     timestamp: Date.now(),
   }
 }

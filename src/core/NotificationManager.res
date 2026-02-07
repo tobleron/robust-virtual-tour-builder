@@ -72,6 +72,12 @@ let generateId = (): string => {
 // - Schedules auto-dismiss timer
 // - Notifies all listeners
 let dispatch = (notif: notification): unit => {
+  Logger.info(
+    ~module_="NotificationManager",
+    ~message="DISPATCHING_NOTIFICATION",
+    ~data=Some({"message": notif.message}),
+    (),
+  )
   let withId = {
     ...notif,
     id: if notif.id === "" {
@@ -84,10 +90,22 @@ let dispatch = (notif: notification): unit => {
   // Add to queue
   state := NotificationQueue.enqueue(withId, state.contents)
 
+  // Try to move from pending to active if space is available
+  state := NotificationQueue.dequeue(state.contents)
+
   // Schedule auto-dismiss if needed
   scheduleAutoDismiss(withId.id, withId.duration)
 
   // Notify listeners of new state
+  Logger.info(
+    ~module_="NotificationManager",
+    ~message="STATE_AFTER_DISPATCH",
+    ~data=Some({
+      "pendingCount": Belt.Array.length(state.contents.pending),
+      "activeCount": Belt.Array.length(state.contents.active),
+    }),
+    (),
+  )
   notifyListeners(state.contents)
 }
 
@@ -115,6 +133,8 @@ let getState = (): queueState => {
 let dismiss = (notifId: string): unit => {
   cancelTimer(notifId)
   state := NotificationQueue.dismiss(notifId, state.contents)
+  // Pull next notification from pending
+  state := NotificationQueue.dequeue(state.contents)
   notifyListeners(state.contents)
 }
 

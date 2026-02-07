@@ -124,6 +124,12 @@ let release = (requester: string, ~isTimeout=false) => {
   callbacks->Belt.Array.forEach(cb => cb())
 }
 
+let releaseIf = (requester: string, predicate: phase => bool) => {
+  if predicate(current.contents) {
+    release(requester)
+  }
+}
+
 let forceRelease = () => {
   Logger.error(
     ~module_="TransitionLock",
