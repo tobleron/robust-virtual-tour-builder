@@ -211,7 +211,14 @@ let rec loadNewScene = (
           )
         }
       | None =>
-        let vp = ViewerSystem.Pool.getInactive()
+        let activeVp = ViewerSystem.Pool.getActive()
+        let inactiveVp = ViewerSystem.Pool.getInactive()
+
+        let vp = switch activeVp {
+        | Some(v) if v.instance == None => activeVp
+        | _ => inactiveVp
+        }
+
         vp->Option.forEach(v => {
           v.instance->Option.forEach(i => ViewerSystem.Adapter.destroy(i))
 

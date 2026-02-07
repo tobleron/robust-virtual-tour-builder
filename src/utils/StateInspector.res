@@ -4,11 +4,14 @@
  * This module provides controlled access to application state for debugging purposes.
  * It is automatically disabled in production builds.
  */
+type stateUiSnapshot = {isLinking: bool}
+
 type stateSnapshot = {
   tourName: string,
   sceneCount: int,
   activeSceneIndex: int,
   isLinking: bool,
+  ui: stateUiSnapshot,
   simulationStatus: string,
   transitionLock: string,
   timestamp: float,
@@ -24,6 +27,9 @@ let createSnapshot = (state: Types.state): stateSnapshot => {
     sceneCount: Belt.Array.length(state.scenes),
     activeSceneIndex: state.activeIndex,
     isLinking: state.isLinking,
+    ui: {
+      isLinking: state.isLinking,
+    },
     simulationStatus: switch state.simulation.status {
     | Running => "Running"
     | Idle => "Idle"

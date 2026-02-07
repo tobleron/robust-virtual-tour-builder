@@ -6,8 +6,9 @@ open Types
 
 let handleStageClick = (e: Dom.event) => {
   let currentState = GlobalStateBridge.getState()
+  let isModifier = Dom.altKey(e) || Dom.metaKey(e)
 
-  if currentState.isLinking && currentState.simulation.status != Running {
+  if (currentState.isLinking || isModifier) && currentState.simulation.status != Running {
     let viewer = ViewerSystem.getActiveViewer()
 
     switch Nullable.toOption(viewer) {
@@ -47,11 +48,24 @@ let handleStageClick = (e: Dom.event) => {
             intermediatePoints: None,
           }
 
-          GlobalStateBridge.dispatch(Actions.StartLinking(Some(initialDraft)))
+          if isModifier {
+            GlobalStateBridge.dispatch(Actions.StartLinking(Some(initialDraft)))
+            LinkModal.showLinkModal(
+              ~pitch,
+              ~yaw,
+              ~camPitch,
+              ~camYaw,
+              ~camHfov=hfov,
+              ~linkDraft=Nullable.make(initialDraft),
+              (),
+            )
+          } else {
+            GlobalStateBridge.dispatch(Actions.StartLinking(Some(initialDraft)))
 
-          // Force update lines immediately for the very first click
-          let mockState = {...currentState, linkDraft: Some(initialDraft)}
-          HotspotLine.updateLines(v, mockState, ~mouseEvent=e, ())
+            // Force update lines immediately for the very first click
+            let mockState = {...currentState, linkDraft: Some(initialDraft)}
+            HotspotLine.updateLines(v, mockState, ~mouseEvent=e, ())
+          }
 
         | Some(d) =>
           let currentPoints = switch d.intermediatePoints {

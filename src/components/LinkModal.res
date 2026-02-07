@@ -32,6 +32,23 @@ let showLinkModal = (
   let nextIndex = state.activeIndex + 1
   let scenes = state.scenes
 
+  let defaultTargetName = scenes
+    ->Belt.Array.getIndexBy(s => {
+      let isSelected = switch (
+        Nullable.toOption(pendingReturnSceneName),
+        Nullable.toOption(linkDraft),
+      ) {
+      | (Some(name), _) => s.name == name
+      | (None, _) =>
+        let idx = scenes->Belt.Array.getIndexBy(x => x.name == s.name)->Option.getOr(-1)
+        idx == nextIndex
+      }
+      isSelected
+    })
+    ->Belt.Option.flatMap(idx => scenes->Belt.Array.get(idx))
+    ->Belt.Option.map(s => s.name)
+    ->Belt.Option.getWithDefault("")
+
   let content =
     <div className="flex flex-col gap-4">
       <label htmlFor="link-target" className="sr-only">
@@ -41,23 +58,15 @@ let showLinkModal = (
         id="link-target"
         className="w-full h-11 px-9 pl-3 mb-4 bg-black/30 border border-white/15 rounded-lg text-white font-semibold text-[13px] outline-none cursor-pointer appearance-none bg-[url('data:image/svg+xml,%3Csvg%20fill%3D%22%23ffffff%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20width%3D%2224%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M7%2010l5%205%205-5z%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_10px_center] bg-[length:20px]"
         ariaLabel="Select destination room for navigation link"
+        defaultValue={defaultTargetName}
       >
         <option value="" className="bg-slate-800"> {React.string("-- Select Room --")} </option>
         {scenes
         ->Belt.Array.mapWithIndex((i, s) => {
-          // Auto-select logic
-          let isSelected = switch (
-            Nullable.toOption(pendingReturnSceneName),
-            Nullable.toOption(linkDraft),
-          ) {
-          | (Some(name), _) => s.name == name
-          | (None, _) => i == nextIndex
-          }
-
           if i == state.activeIndex {
             React.null
           } else {
-            <option key={s.name} value={s.name} selected={isSelected} className="bg-slate-800">
+            <option key={s.name} value={s.name} className="bg-slate-800">
               {React.string(s.name)}
             </option>
           }
@@ -181,6 +190,20 @@ let showLinkModal = (
           )
 
           HotspotManager.handleAddHotspot(state.activeIndex, newHotspot)->ignore
+
+          // Part 5 Helper: Auto-register in timeline for Visual Pipeline visibility
+          let timelineItemJson = JsonParsers.Encoders.timelineItem({
+            id: "step_" ++ Date.now()->Float.toString,
+            linkId: newLinkId,
+            sceneId: switch Belt.Array.get(state.scenes, state.activeIndex) {
+            | Some(s) => s.id
+            | None => ""
+            },
+            targetScene: targetName,
+            transition: "fade",
+            duration: 1000,
+          })
+          GlobalStateBridge.dispatch(Actions.AddToTimeline(timelineItemJson))
 
           // Use setTimeout to ensure state updates properly after hotspot is added
           let _ = setTimeout(() => {
