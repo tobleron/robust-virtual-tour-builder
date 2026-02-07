@@ -224,3 +224,29 @@ Testing verified:
 ✓ Notifications appear in consistent location
 
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> [TRIPLE]
+[2026-02-07 02:17] v4.31.0 - chore(tasks): Update task management procedures and archive notification tasks
+
+- Update CLAUDE.md: Add blocking requirement to read tasks/TASKS.md before task creation
+  * Make it explicit that tasks are file-based (.md files), NOT TaskCreate tool
+  * Prevent incorrect abstract task creation in future
+  * Reinforce workflow: Create in pending/ → Move to active/ → Complete → Archive in completed/
+
+- Create task 1276: Comprehensive Testing Plan for FSM-Lock Synchronization Fixes v4.30.0
+  * Full test methodology for validating FSM-Lock coordination fixes
+  * 6 test categories covering basic loads, rapid clicks, lock verification, notifications, regressions, edge cases
+  * Quick test (10min) and full test (30min) flows with success criteria
+
+- Archive completed notification architecture tasks with _DONE postfix:
+  * 1272a_Unify_Notifications_High_Migration_DONE.md
+  * 1272b_Unify_Notifications_Medium_Migration_DONE.md
+  * 1272c_Unify_Notifications_Final_Migration_DONE.md
+  * 1273_Mount_NotificationCenter_in_App_DONE.md
+  * 1274_Integration_Testing_and_Verification_DONE.md
+  * 1275_Performance_Profiling_and_Optimization_DONE.md
+
+- Evaluated postponed tasks (1243, 1246): Recommend keeping postponed
+  * Neither related to v4.30.0 FSM-Lock work
+  * Both valid UX improvements but not blockers
+  * Can be batched into future "UX Polish" epic
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com> [TRIPLE]

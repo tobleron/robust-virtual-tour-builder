@@ -13,9 +13,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - NEVER run `commit.sh` or `fast-commit.sh` unless explicitly asked to "save", "checkpoint", or "commit"
 - Only commit when the user explicitly provides a message or instruction
 
-**Task Protocol:**
-- Before handling any task-related concerns, read `tasks/TASKS.md`
-- Follow the exact procedures: Read `TASKS.md` → Move to `active/` → Implement → Verify build → Archive
+**Task Protocol (BLOCKING REQUIREMENT):**
+- ⚠️ **CRITICAL**: Before creating, reading, or managing ANY tasks, you MUST:
+  1. Read `tasks/TASKS.md` to understand the exact file-based workflow
+  2. Understand that tasks are NOT created via TaskCreate tool - they are `.md` files in `tasks/` folder
+  3. Follow the numbered workflow: Create `.md` in `tasks/pending/` → Move to `tasks/active/` → Implement → Verify `npm run build` → Move to `tasks/completed/` with postfix
+- **If you have already read `tasks/TASKS.md` in THIS conversation**, you may proceed without re-reading
+- **Exception**: Dev-system tasks (prefixed `D###`) are auto-generated guidance in `tasks/pending/dev_tasks/` - they do NOT follow this workflow
 
 **Conditional Context Loading:**
 - **IF** writing `.res` files: Read `.agent/workflows/rescript-standards.md`
@@ -342,7 +346,11 @@ cargo fmt
 
 ## Common Development Tasks
 
-**Note: For all tasks, you MUST follow the procedure in `tasks/TASKS.md` (Read `TASKS.md`, move to `active/`, implement, verify build, then archive).**
+⚠️ **BLOCKING REQUIREMENT**: For ALL task-related work:
+1. **FIRST**: Read `tasks/TASKS.md` (if not already read this conversation)
+2. **ONLY**: Create/move task `.md` files in `tasks/` folders - never use TaskCreate tool
+3. **ALWAYS**: Verify build with `npm run build` before archiving
+4. **Pattern**: Pending → Active → Complete → Archive (with postfix: `_DONE`, `_UPDATED`, `_TESTED`, or `_ABORTED`)
 
 ### Adding a New FSM State
 
