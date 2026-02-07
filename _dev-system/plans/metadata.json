@@ -1,14 +1,18 @@
 {
+  "system": [
+    {
+      "Ambiguity": {
+        "file": "../../src/hooks/UseInteraction.res",
+        "strategy": ""
+      }
+    }
+  ],
   "rescript": [
     {
-      "Surgical": {
-        "file": "../../src/core/Reducer.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.20, Density: 0.30, Coupling: 0.10] | Drag: 5.50 | LOC: 385/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 14.001298701298701,
-        "recommended_splits": 2
+      "Violation": {
+        "file": "../../src/core/JsonParsersDecoders.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
       }
     },
     {
@@ -23,13 +27,6 @@
       }
     },
     {
-      "Violation": {
-        "file": "../../src/core/JsonParsersDecoders.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
       "Surgical": {
         "file": "../../src/core/SceneMutations.res",
         "action": "De-bloat",
@@ -41,10 +38,14 @@
       }
     },
     {
-      "Violation": {
-        "file": "../../src/hooks/UseInteraction.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
+      "Surgical": {
+        "file": "../../src/core/Reducer.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.20, Density: 0.30, Coupling: 0.10] | Drag: 5.50 | LOC: 385/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 14.001298701298701,
+        "recommended_splits": 2
       }
     },
     {
@@ -57,12 +58,11 @@
         "complexity": 16.14054054054054,
         "recommended_splits": 2
       }
-    }
-  ],
-  "system": [
+    },
     {
-      "Ambiguity": {
+      "Violation": {
         "file": "../../src/hooks/UseInteraction.res",
+        "pattern": "Obj.magic",
         "strategy": ""
       }
     }
