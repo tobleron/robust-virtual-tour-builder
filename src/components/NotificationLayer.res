@@ -64,6 +64,7 @@ let make = React.memo(() => {
     position="top-right"
     visibleToasts=Constants.toastVisibleToasts
     duration=Constants.toastDisplayDuration
+    richColors=true
     expand=true
   />
 })
