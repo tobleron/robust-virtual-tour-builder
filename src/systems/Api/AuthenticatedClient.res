@@ -52,9 +52,17 @@ let request = async (
 ) => {
   if !CircuitBreaker.canExecute(circuitBreaker) {
     Logger.warn(~module_="AuthenticatedClient", ~message="CIRCUIT_OPEN", ~data=None, ())
-    EventBus.dispatch(
-      ShowNotification("Connection issues. Please wait a moment...", #Warning, None),
-    )
+    NotificationManager.dispatch({
+      id: "",
+      importance: Warning,
+      context: Operation("api"),
+      message: "Connection issues. Please wait a moment...",
+      details: None,
+      action: None,
+      duration: NotificationTypes.defaultTimeoutMs(Warning),
+      dismissible: true,
+      createdAt: Date.now(),
+    })
     throw(HttpError(503, "Service temporarily unavailable"))
   }
 
@@ -104,9 +112,17 @@ let request = async (
     let isOpen = CircuitBreaker.getState(circuitBreaker) == Open
 
     if !wasOpen && isOpen {
-      EventBus.dispatch(
-        ShowNotification("Connection issues detected. Retrying automatically...", #Warning, None),
-      )
+      NotificationManager.dispatch({
+        id: "",
+        importance: Warning,
+        context: Operation("api"),
+        message: "Connection issues detected. Retrying automatically...",
+        details: None,
+        action: None,
+        duration: NotificationTypes.defaultTimeoutMs(Warning),
+        dismissible: true,
+        createdAt: Date.now(),
+      })
     }
   }
 
@@ -162,13 +178,17 @@ let requestWithRetry = async (
     ~config=?retryConfig,
     ~onRetry=(attempt, error, delay) => {
       if attempt > 1 {
-        EventBus.dispatch(
-          ShowNotification(
-            `Retrying request... (attempt ${Belt.Int.toString(attempt)})`,
-            #Info,
-            None,
-          ),
-        )
+        NotificationManager.dispatch({
+          id: "",
+          importance: Info,
+          context: Operation("api"),
+          message: `Retrying request... (attempt ${Belt.Int.toString(attempt)})`,
+          details: None,
+          action: None,
+          duration: NotificationTypes.defaultTimeoutMs(Info),
+          dismissible: true,
+          createdAt: Date.now(),
+        })
       }
       Logger.debug(
         ~module_="AuthenticatedClient",

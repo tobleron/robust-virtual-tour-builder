@@ -37,7 +37,17 @@ let make = React.memo((
 
   React.useEffect1(() => {
     if wasThrottled {
-      EventBus.dispatch(ShowNotification("Switching too fast - Please wait...", #Warning, None))
+      NotificationManager.dispatch({
+        id: "",
+        importance: Warning,
+        context: Operation("scene_navigation"),
+        message: "Switching too fast - Please wait...",
+        details: None,
+        action: None,
+        duration: NotificationTypes.defaultTimeoutMs(Warning),
+        dismissible: true,
+        createdAt: Date.now(),
+      })
     }
     None
   }, [wasThrottled])

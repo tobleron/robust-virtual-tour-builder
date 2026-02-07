@@ -294,5 +294,10 @@ This map provides a semantic overview of the project structure to optimize conte
 
 
 ## 🆕 Unmapped Modules
+* [src/components/NotificationCenter.res](src/components/NotificationCenter.res): New module detected. Please classify. #new
+* [src/core/NotificationQueue.res](src/core/NotificationQueue.res): New module detected. Please classify. #new
+* [src/core/NotificationManager.res](src/core/NotificationManager.res): New module detected. Please classify. #new
+* [src/core/NotificationTypes.res](src/core/NotificationTypes.res): New module detected. Please classify. #new
+* [src/components/LockFeedback.res](src/components/LockFeedback.res): New module detected. Please classify. #new
 * [src/hooks/UseInteraction.res](src/hooks/UseInteraction.res): New module detected. Please classify. #new
 * [src/components/CriticalErrorMonitor.res](src/components/CriticalErrorMonitor.res): New module detected. Please classify. #new

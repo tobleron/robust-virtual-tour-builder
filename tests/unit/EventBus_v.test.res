@@ -134,28 +134,6 @@ describe("EventBus", _ => {
     unsub()
   })
 
-  test("ShowNotification with different severity levels", t => {
-    let receivedNotifications = ref([])
-    let unsub = subscribe(
-      evt => {
-        switch evt {
-        | ShowNotification(msg, severity, _) =>
-          receivedNotifications :=
-            Belt.Array.concat(receivedNotifications.contents, [(msg, severity)])
-        | _ => ()
-        }
-      },
-    )
-
-    dispatch(ShowNotification("Info message", #Info, None))
-    dispatch(ShowNotification("Success message", #Success, None))
-    dispatch(ShowNotification("Error message", #Error, None))
-    dispatch(ShowNotification("Warning message", #Warning, None))
-
-    t->expect(Belt.Array.length(receivedNotifications.contents))->Expect.toBe(4)
-    unsub()
-  })
-
   test("SceneArrived event with scene name", t => {
     let receivedSceneName = ref(None)
     let unsub = subscribe(

@@ -95,7 +95,17 @@ let waitForViewerScene = async (
             ~data=Some({"scene": expectedScene.name, "attempt": nextAttempt, "error": msg}),
             (),
           )
-          EventBus.dispatch(ShowNotification("Retrying scene load...", #Warning, None))
+          NotificationManager.dispatch({
+            id: "",
+            importance: Warning,
+            context: Operation("simulation_navigation"),
+            message: "Retrying scene load...",
+            details: None,
+            action: None,
+            duration: NotificationTypes.defaultTimeoutMs(Warning),
+            dismissible: true,
+            createdAt: Date.now(),
+          })
           let backoffMs = switch attempt {
           | 1 => 1000
           | 2 => 2000

@@ -1,6 +1,5 @@
 /* src/components/ReturnPrompt.res */
 open Types
-open EventBus
 
 @react.component
 let make = React.memo((~incomingLink, ~scenes) => {
@@ -17,9 +16,17 @@ let make = React.memo((~incomingLink, ~scenes) => {
         let currentYaw = ReBindings.Viewer.getYaw(viewer)
         ReBindings.Viewer.setYawWithDuration(viewer, currentYaw +. 180.0, 1000)
         dispatch(Actions.SetPendingReturnSceneName(Some(scene.name)))
-        EventBus.dispatch(
-          ShowNotification("Turned around! NOW click '+' to place the link.", #Success, None),
-        )
+        NotificationManager.dispatch({
+          id: "",
+          importance: Success,
+          context: Operation("return_prompt"),
+          message: "Turned around! NOW click '+' to place the link.",
+          details: None,
+          action: None,
+          duration: NotificationTypes.defaultTimeoutMs(Success),
+          dismissible: true,
+          createdAt: Date.now(),
+        })
 
         // Use ReBindings.Dom for manipulation
         switch ReBindings.Dom.getElementById("return-link-prompt") {

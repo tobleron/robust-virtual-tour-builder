@@ -139,13 +139,17 @@ let make = (
           let newVal = !localIsAF
           setLocalIsAF(_ => newVal)
           dispatch(Actions.UpdateSceneMetadata(idx, Logger.castToJson({"isAutoForward": newVal})))
-          EventBus.dispatch(
-            EventBus.ShowNotification(
-              newVal ? "Auto-Forward Enabled" : "Normal Forward Set",
-              #Info,
-              None,
-            ),
-          )
+          NotificationManager.dispatch({
+            id: "",
+            importance: Info,
+            context: Operation("preview_arrow"),
+            message: newVal ? "Auto-Forward Enabled" : "Normal Forward Set",
+            details: None,
+            action: None,
+            duration: NotificationTypes.defaultTimeoutMs(Info),
+            dismissible: true,
+            createdAt: Date.now(),
+          })
           let _ = setTimeout(() => setIsSwapping(_ => false), 600)
         }, 800)
       | None => ()
@@ -161,7 +165,17 @@ let make = (
     let _ = setTimeout(() => {
       setFlickerRed(_ => false)
       dispatch(Actions.RemoveHotspot(sceneIndex, hotspotIndex))
-      EventBus.dispatch(EventBus.ShowNotification("Hotspot Removed", #Info, None))
+      NotificationManager.dispatch({
+        id: "",
+        importance: Info,
+        context: Operation("preview_arrow"),
+        message: "Hotspot Removed",
+        details: None,
+        action: None,
+        duration: NotificationTypes.defaultTimeoutMs(Info),
+        dismissible: true,
+        createdAt: Date.now(),
+      })
     }, 800)
   }
 

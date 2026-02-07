@@ -114,7 +114,18 @@ let navigateToScene = (
 
   switch InteractionGuard.attempt("scene_navigation", InteractionPolicies.sceneNavigation, action) {
   | Ok(_) => ()
-  | Error(_) => EventBus.dispatch(ShowNotification("Switching too fast...", #Warning, None))
+  | Error(_) =>
+    NotificationManager.dispatch({
+      id: "",
+      importance: Warning,
+      context: Operation("scene_switcher"),
+      message: "Switching too fast...",
+      details: None,
+      action: None,
+      duration: NotificationTypes.defaultTimeoutMs(Warning),
+      dismissible: true,
+      createdAt: Date.now(),
+    })
   }
 }
 
@@ -126,7 +137,17 @@ let handleAutoForward = (dispatch, state: state, currentScene: scene) => {
     }
     if Array.includes(chain, state.activeIndex) {
       dispatch(ResetAutoForwardChain)
-      EventBus.dispatch(ShowNotification("Loop detected", #Warning, None))
+      NotificationManager.dispatch({
+        id: "",
+        importance: Warning,
+        context: Operation("scene_switcher"),
+        message: "Loop detected",
+        details: None,
+        action: None,
+        duration: NotificationTypes.defaultTimeoutMs(Warning),
+        dismissible: true,
+        createdAt: Date.now(),
+      })
     } else {
       dispatch(AddToAutoForwardChain(state.activeIndex))
       currentScene.hotspots

@@ -107,27 +107,45 @@ module Logic = {
       switch JsonCombinators.Json.decode(projectData, validationReportWrapperDecoder) {
       | Ok(r) =>
         if r.brokenLinksRemoved > 0 {
-          EventBus.dispatch(
-            ShowNotification(
-              "Project loaded. " ++
-              Belt.Int.toString(r.brokenLinksRemoved) ++ " broken link(s) removed.",
-              #Warning,
-              None,
-            ),
-          )
+          NotificationManager.dispatch({
+            id: "",
+            importance: Warning,
+            context: Operation("project_manager"),
+            message: "Project loaded. " ++
+            Belt.Int.toString(r.brokenLinksRemoved) ++ " broken link(s) removed.",
+            details: None,
+            action: None,
+            duration: NotificationTypes.defaultTimeoutMs(Warning),
+            dismissible: true,
+            createdAt: Date.now(),
+          })
         }
         if Array.length(r.orphanedScenes) > 0 {
-          EventBus.dispatch(
-            ShowNotification(
-              "Warning: " ++
-              Belt.Int.toString(Array.length(r.orphanedScenes)) ++ " orphaned scene(s) detected.",
-              #Warning,
-              None,
-            ),
-          )
+          NotificationManager.dispatch({
+            id: "",
+            importance: Warning,
+            context: Operation("project_manager"),
+            message: "Warning: " ++
+            Belt.Int.toString(Array.length(r.orphanedScenes)) ++ " orphaned scene(s) detected.",
+            details: None,
+            action: None,
+            duration: NotificationTypes.defaultTimeoutMs(Warning),
+            dismissible: true,
+            createdAt: Date.now(),
+          })
         }
         r.errors->Belt.Array.forEach(error =>
-          EventBus.dispatch(ShowNotification("Error: " ++ error, #Error, None))
+          NotificationManager.dispatch({
+            id: "",
+            importance: Error,
+            context: Operation("project_manager"),
+            message: "Error: " ++ error,
+            details: None,
+            action: None,
+            duration: NotificationTypes.defaultTimeoutMs(Error),
+            dismissible: true,
+            createdAt: Date.now(),
+          })
         )
       | Error(_) => ()
       }

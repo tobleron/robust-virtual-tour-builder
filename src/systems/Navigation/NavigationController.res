@@ -9,6 +9,15 @@ module ControllerHooks = {
     React.useEffect3(() => {
       switch state.navigationFsm {
       | Preloading({targetSceneId, isAnticipatory}) =>
+        Logger.debug(
+          ~module_="NavigationController",
+          ~message="FSM_PRELOADING_ENTERED",
+          ~data=Some({
+            "targetSceneId": targetSceneId,
+            "isAnticipatory": isAnticipatory,
+          }),
+          (),
+        )
         let sourceSceneId = state.scenes->Belt.Array.get(state.activeIndex)->Option.map(s => s.id)
         Scene.Loader.loadNewScene(~sourceSceneId?, ~targetSceneId, ~isAnticipatory)
 

@@ -36,7 +36,6 @@ type event =
   | ClearSimUi
   | LinkPreviewStart(string)
   | LinkPreviewEnd
-  | ShowNotification(string, [#Info | #Success | #Error | #Warning], option<JSON.t>)
   | ShowModal(modalConfig)
   | CloseModal
   | UpdateProcessing(
@@ -68,14 +67,6 @@ let dispatch = (evt: event) => {
   // --- Auto-Logging Interceptor ---
   // Ensures UI feedback is mirrored in backend telemetry
   switch evt {
-  | ShowNotification(msg, type_, data) =>
-    let module_ = "UI:Notification"
-    switch type_ {
-    | #Error => Logger.error(~module_, ~message=msg, ~data?, ())
-    | #Warning => Logger.warn(~module_, ~message=msg, ~data?, ())
-    | #Success => Logger.info(~module_, ~message=`SUCCESS: ${msg}`, ~data?, ())
-    | #Info => Logger.info(~module_, ~message=`INFO: ${msg}`, ~data?, ())
-    }
   | ShowModal(config) =>
     Logger.info(
       ~module_="Modal",

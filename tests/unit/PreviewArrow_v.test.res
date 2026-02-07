@@ -105,17 +105,26 @@ describe("PreviewArrow", () => {
     | None => None
     }
 
-    // Subscribe to EventBus to check notification
+    // Subscribe to NotificationManager to check notification
     let notificationReceived = ref(false)
-    let unsub = EventBus.subscribe(
-      evt => {
-        switch evt {
-        | ShowNotification(msg, _, _) =>
-          if String.includes(msg, "Auto-Forward Enabled") {
-            notificationReceived := true
-          }
-        | _ => ()
-        }
+    let unsub = NotificationManager.subscribe(
+      queueState => {
+        Belt.Array.forEach(
+          queueState.pending,
+          notif => {
+            if String.includes(notif.message, "Auto-Forward Enabled") {
+              notificationReceived := true
+            }
+          },
+        )
+        Belt.Array.forEach(
+          queueState.active,
+          notif => {
+            if String.includes(notif.message, "Auto-Forward Enabled") {
+              notificationReceived := true
+            }
+          },
+        )
       },
     )
 

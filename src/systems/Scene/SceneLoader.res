@@ -90,12 +90,24 @@ module Events = {
   }
   let onSceneError = msg => {
     Logger.error(~module_="SceneLoader", ~message="LOAD_ERROR", ~data={"error": msg}, ())
-    EventBus.dispatch(ShowNotification(msg, #Error, Some(Logger.castToJson({"error": msg}))))
+    NotificationManager.dispatch({
+      id: "",
+      importance: Error,
+      context: Operation("scene_loader"),
+      message: msg,
+      details: None,
+      action: None,
+      duration: NotificationTypes.defaultTimeoutMs(Error),
+      dismissible: true,
+      createdAt: Date.now(),
+    })
     GlobalStateBridge.dispatch(DispatchNavigationFsmEvent(LoadTimeout))
   }
 }
 
-let loadNewScene = (
+let retryScheduled: ref<option<timeoutId>> = ref(None)
+
+let rec loadNewScene = (
   ~sourceSceneId as _sourceSceneId: option<string>=?,
   ~targetSceneId: string,
   ~isAnticipatory=false,
@@ -107,7 +119,29 @@ let loadNewScene = (
   }
 
   switch canProceed {
-  | Error(_) => ()
+  | Error(_msg) =>
+    if !isAnticipatory {
+      // Log at DEBUG level - acquire failure is expected when lock is held
+      // (not a warning condition, just normal during rapid scene clicks)
+      Logger.debug(
+        ~module_="SceneLoader",
+        ~message="LOCK_ACQUIRE_FAILED_RETRY_SCHEDULED",
+        ~data=Some({
+          "targetId": targetSceneId,
+        }),
+        (),
+      )
+      // Schedule a retry after 100ms to allow previous operation to finish
+      switch retryScheduled.contents {
+      | Some(id) => clearTimeout(id)
+      | None => ()
+      }
+      let retryId = setTimeout(() => {
+        retryScheduled := None
+        loadNewScene(~targetSceneId, ~isAnticipatory)
+      }, 100)
+      retryScheduled := Some(retryId)
+    }
   | Ok() =>
     let state = GlobalStateBridge.getState()
     let targetSceneOpt = state.scenes->Belt.Array.getBy(s => s.id == targetSceneId)

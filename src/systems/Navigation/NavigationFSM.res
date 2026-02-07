@@ -48,6 +48,23 @@ let reducer = (state: distinctState, action: event): distinctState => {
     } else {
       Transitioning({fromSceneId: None, toSceneId: targetSceneId, progress: 0.0})
     }
+  | (Preloading(t), TextureLoaded({targetSceneId: loadedId})) if t.targetSceneId != loadedId =>
+    // MISMATCH: TextureLoaded arrived for a different scene than we're waiting for
+    // This happens when user rapidly clicks scenes while previous scene still loading
+    // Simply ignore it and stay in Preloading with correct target
+    // The old scene's lock will be released through normal flow (performSwap → cleanup)
+    Logger.debug(
+      ~module_="NavigationFSM",
+      ~message="TEXTURE_LOADED_MISMATCH_IGNORED",
+      ~data=Some({
+        "waitingFor": t.targetSceneId,
+        "loadedScene": loadedId,
+      }),
+      (),
+    )
+
+    // Stay in Preloading with correct target, will retry acquire when lock frees
+    state
 
   | (Transitioning(s), AnimationProgress(p)) => Transitioning({...s, progress: p})
   | (Transitioning(s), TransitionComplete) => Stabilizing({targetSceneId: s.toSceneId})

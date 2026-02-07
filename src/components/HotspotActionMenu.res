@@ -34,7 +34,17 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
             class_: "bg-red-500/20 text-white hover:bg-red-500/40",
             onClick: () => {
               HotspotManager.handleDeleteHotspot(state.activeIndex, index)->ignore
-              EventBus.dispatch(ShowNotification("Link deleted", #Success, None))
+              NotificationManager.dispatch({
+                id: "",
+                importance: Success,
+                context: Operation("hotspot_action"),
+                message: "Link deleted",
+                details: None,
+                action: None,
+                duration: NotificationTypes.defaultTimeoutMs(Success),
+                dismissible: true,
+                createdAt: Date.now(),
+              })
             },
             autoClose: Some(true),
           },
@@ -55,17 +65,21 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
           idx,
           Logger.castToJson({"isAutoForward": !currentVal}),
         )->ignore
-        EventBus.dispatch(
-          ShowNotification(
-            "Auto-forward: " ++ if !currentVal {
-              "ENABLED"
-            } else {
-              "DISABLED"
-            },
-            #Success,
-            None,
-          ),
-        )
+        NotificationManager.dispatch({
+          id: "",
+          importance: Success,
+          context: Operation("hotspot_action"),
+          message: "Auto-forward: " ++ if !currentVal {
+            "ENABLED"
+          } else {
+            "DISABLED"
+          },
+          details: None,
+          action: None,
+          duration: NotificationTypes.defaultTimeoutMs(Success),
+          dismissible: true,
+          createdAt: Date.now(),
+        })
       | None => ()
       }
     | None => ()

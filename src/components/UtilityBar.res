@@ -1,5 +1,4 @@
 /* src/components/UtilityBar.res */
-open EventBus
 
 @react.component
 let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId) => {
@@ -12,7 +11,17 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
       if isLinking {
         ViewerState.state := {...ViewerState.state.contents, linkingStartPoint: Nullable.null}
         dispatch(Actions.StopLinking)
-        EventBus.dispatch(ShowNotification("Link Mode: OFF", #Warning, None))
+        NotificationManager.dispatch({
+          id: "",
+          importance: Warning,
+          context: Operation("utility_bar"),
+          message: "Link Mode: OFF",
+          details: None,
+          action: None,
+          duration: NotificationTypes.defaultTimeoutMs(Warning),
+          dismissible: true,
+          createdAt: Date.now(),
+        })
       } else {
         let cx = JsxEvent.Mouse.clientX(e)
         let cy = JsxEvent.Mouse.clientY(e)
@@ -28,8 +37,29 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
         switch v {
         | Some(_viewer) =>
           dispatch(Actions.StartLinking(None))
-          EventBus.dispatch(ShowNotification("ESC to cancel, Enter to save link.", #Info, None))
-        | None => EventBus.dispatch(ShowNotification("Viewer not initialized", #Error, None))
+          NotificationManager.dispatch({
+            id: "",
+            importance: Info,
+            context: Operation("utility_bar"),
+            message: "ESC to cancel, Enter to save link.",
+            details: None,
+            action: None,
+            duration: NotificationTypes.defaultTimeoutMs(Info),
+            dismissible: true,
+            createdAt: Date.now(),
+          })
+        | None =>
+          NotificationManager.dispatch({
+            id: "",
+            importance: Error,
+            context: Operation("utility_bar"),
+            message: "Viewer not initialized",
+            details: None,
+            action: None,
+            duration: NotificationTypes.defaultTimeoutMs(Error),
+            dismissible: true,
+            createdAt: Date.now(),
+          })
         }
       }
     }
@@ -53,7 +83,17 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
         dispatch(Actions.DispatchNavigationFsmEvent(Reset))
       } else {
         dispatch(Actions.StartAutoPilot(currentJourneyId, false))
-        EventBus.dispatch(ShowNotification("ESC to stop tour preview.", #Info, None))
+        NotificationManager.dispatch({
+          id: "",
+          importance: Info,
+          context: Operation("utility_bar"),
+          message: "ESC to stop tour preview.",
+          details: None,
+          action: None,
+          duration: NotificationTypes.defaultTimeoutMs(Info),
+          dismissible: true,
+          createdAt: Date.now(),
+        })
       }
     }
   , (simActive, currentJourneyId))

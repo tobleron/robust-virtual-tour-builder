@@ -1,7 +1,6 @@
 /* src/utils/PersistenceLayer.res */
 
 open IdbBindings
-open EventBus
 
 type serializedSession = {
   timestamp: float,
@@ -56,9 +55,17 @@ let performSave = (state: Types.state) => {
       })
       ->Promise.catch(e => {
         Logger.error(~module_="Persistence", ~message="Auto-save failed", ~data={"error": e}, ())
-        EventBus.dispatch(
-          ShowNotification("Auto-save failed! Please backup your data.", #Error, None),
-        )
+        NotificationManager.dispatch({
+          id: "",
+          importance: Error,
+          context: SystemEvent("persistence"),
+          message: "Auto-save failed! Please backup your data.",
+          details: None,
+          action: None,
+          duration: NotificationTypes.defaultTimeoutMs(Error),
+          dismissible: true,
+          createdAt: Date.now(),
+        })
         Promise.resolve()
       })
   }
