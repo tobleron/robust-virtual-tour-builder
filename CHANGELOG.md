@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Fix VisualPipeline initialization and E2E responsiveness
 
+### Changed
+- Enhance VisualPipeline visibility and responsiveness
+
 ## [4.31.4] - 2026-02-07
 
 ### Fixed
