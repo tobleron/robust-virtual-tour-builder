@@ -152,7 +152,17 @@ let make = () => {
                       ~data=Some({"reason": reason}),
                       (),
                     )
-                    EventBus.dispatch(ShowNotification("Simulation Complete", #Success, None))
+                    NotificationManager.dispatch({
+                      id: "",
+                      importance: Success,
+                      context: Operation("simulation"),
+                      message: "Simulation Complete",
+                      details: None,
+                      action: None,
+                      duration: NotificationTypes.defaultTimeoutMs(Success),
+                      dismissible: true,
+                      createdAt: Date.now(),
+                    })
                     let _ = await Promise.make((resolve, _) => {
                       let _ = setTimeout(resolve, Constants.Simulation.stepDelay)
                     })
@@ -174,13 +184,17 @@ let make = () => {
                     ~data={"error": msg},
                     (),
                   )
-                  EventBus.dispatch(
-                    ShowNotification(
-                      "Simulation error: " ++ msg,
-                      #Error,
-                      Some(Logger.castToJson({"error": msg})),
-                    ),
-                  )
+                  NotificationManager.dispatch({
+                    id: "",
+                    importance: Error,
+                    context: Operation("simulation"),
+                    message: "Simulation error: " ++ msg,
+                    details: None,
+                    action: None,
+                    duration: NotificationTypes.defaultTimeoutMs(Error),
+                    dismissible: true,
+                    createdAt: Date.now(),
+                  })
                   Scene.Switcher.cancelNavigation()
                   dispatch(StopAutoPilot)
                 }

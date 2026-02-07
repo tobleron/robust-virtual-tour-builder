@@ -199,7 +199,17 @@ let init = async () => {
                 class_: "bg-blue-500/20 text-white hover:bg-blue-500/40",
                 onClick: () => {
                   GlobalStateBridge.dispatch(LoadProject(session.projectData))
-                  EventBus.dispatch(ShowNotification("Session Restored", #Success, None))
+                  NotificationManager.dispatch({
+                    id: "",
+                    importance: Success,
+                    context: SystemEvent("session"),
+                    message: "Session Restored",
+                    details: None,
+                    action: None,
+                    duration: NotificationTypes.defaultTimeoutMs(Success),
+                    dismissible: true,
+                    createdAt: Date.now(),
+                  })
                 },
                 autoClose: Some(true),
               },
@@ -208,7 +218,17 @@ let init = async () => {
                 class_: "bg-slate-100/10 text-white hover:bg-white/20",
                 onClick: () => {
                   PersistenceLayer.clearSession()
-                  EventBus.dispatch(ShowNotification("Session Discarded", #Info, None))
+                  NotificationManager.dispatch({
+                    id: "",
+                    importance: Info,
+                    context: SystemEvent("session"),
+                    message: "Session Discarded",
+                    details: None,
+                    action: None,
+                    duration: NotificationTypes.defaultTimeoutMs(Info),
+                    dismissible: true,
+                    createdAt: Date.now(),
+                  })
                 },
                 autoClose: Some(true),
               },

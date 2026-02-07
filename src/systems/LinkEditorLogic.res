@@ -144,7 +144,17 @@ let handleEnter = () => {
       // Notification said "Enter to save", implying clicking first is required or center is used.
       // For now, let's notify if they try to save without any points.
       if currentState.linkDraft == None {
-        EventBus.dispatch(ShowNotification("Add at least one point before saving.", #Warning, None))
+        NotificationManager.dispatch({
+          id: "",
+          importance: Warning,
+          context: Operation("link_editor"),
+          message: "Add at least one point before saving.",
+          details: None,
+          action: None,
+          duration: NotificationTypes.defaultTimeoutMs(Warning),
+          dismissible: true,
+          createdAt: Date.now(),
+        })
       }
     }
   }

@@ -114,9 +114,11 @@ describe("TransitionLock Recovery Listeners", () => {
 
   test("Recovery listener fires on timeout-triggered release", t => {
     let recoveryFired = ref(false)
-    let _ = TransitionLock.addRecoveryListener(() => {
-      recoveryFired := true
-    })
+    let _ = TransitionLock.addRecoveryListener(
+      () => {
+        recoveryFired := true
+      },
+    )
 
     // 1. Acquire lock
     let _ = TransitionLock.acquire("test", Loading("scene1"))

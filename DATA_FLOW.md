@@ -293,6 +293,13 @@ Address/GPS Query
 
 ### 📂 src/components
 - `[src/components/CriticalErrorMonitor.res]`
+- `[src/components/LockFeedback.res]`
+- `[src/components/NotificationCenter.res]`
+
+### 📂 src/core
+- `[src/core/NotificationManager.res]`
+- `[src/core/NotificationQueue.res]`
+- `[src/core/NotificationTypes.res]`
 
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)

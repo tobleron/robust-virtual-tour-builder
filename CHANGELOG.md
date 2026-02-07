@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.30.0] - 2026-02-07
+
+### Changed
+- Fix(fsm-lock): Synchronize state machine and lock lifecycle for reliable scene transitions
+
+Core fixes:
+- Handle TransitionLock.acquire() failures with automatic 100ms retry
+- Detect and ignore mismatched TextureLoaded events (prevents FSM freeze)
+- Implement phase-specific lock timeouts: Loading(15s), Swapping(8s), Cleanup(3s)
+- Add FSM state logging for visibility into transitions
+- Remove redundant "System is busy" notification from SceneList
+
+Result: Scenes now load smoothly without 15-second freezes, lock releases properly in 1-2 seconds, and rapid scene clicks are handled gracefully through retry logic.
+
+Notification improvements:
+- Moved LockFeedback to top-right corner (professional unified location)
+- Consolidated from 3 sources to 2: SceneItem throttle + LockFeedback countdown
+- Clean, consistent user feedback for scene transition status
+
+Testing verified:
+✓ Single scene clicks load smoothly
+✓ Rapid scene clicks handled without lock freeze
+✓ Scene interruption works correctly
+✓ Lock timeout reduced from 15s to natural release (1-2s)
+✓ No React rendering errors
+✓ Notifications appear in consistent location
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+
 ## [4.28.1] - 2026-02-06
 
 ### Changed

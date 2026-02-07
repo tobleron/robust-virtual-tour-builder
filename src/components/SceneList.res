@@ -83,10 +83,14 @@ let make = React.memo(() => {
       if index == sceneSlice.activeIndex {
         ()
       } else if isSystemLocked {
-        let remainingMs = TransitionLock.getRemainingMs()
-        let remainingSeconds = Math.max(1.0, Int.toFloat(remainingMs) /. 1000.0)
-        let message = "System is busy. Please wait (~" ++ Float.toString(remainingSeconds) ++ "s)..."
-        EventBus.dispatch(ShowNotification(message, #Warning, None))
+        // LockFeedback component handles timeout notification independently
+        // No notification dispatch here to avoid redundant "System is busy" message
+        Logger.debug(
+          ~module_="SceneList",
+          ~message="SCENE_CLICK_REJECTED_LOCK_HELD",
+          ~data=Some({"index": index, "remainingMs": TransitionLock.getRemainingMs()}),
+          (),
+        )
       } else {
         Logger.info(
           ~module_="SceneList",
@@ -139,7 +143,17 @@ let make = React.memo(() => {
               class_: "bg-red-500/20 text-white hover:bg-red-500/40",
               onClick: () => {
                 SidebarLogic.handleDeleteScene(index)->ignore
-                EventBus.dispatch(ShowNotification("Scene Removed", #Success, None))
+                NotificationManager.dispatch({
+                  id: "",
+                  importance: Success,
+                  context: Operation("scene_list"),
+                  message: "Scene Removed",
+                  details: None,
+                  action: None,
+                  duration: NotificationTypes.defaultTimeoutMs(Success),
+                  dismissible: true,
+                  createdAt: Date.now(),
+                })
               },
               autoClose: Some(true),
             },
@@ -158,7 +172,17 @@ let make = React.memo(() => {
         (),
       )
       dispatch(Actions.ClearHotspots(index))
-      EventBus.dispatch(ShowNotification("Links Cleared", #Info, None))
+      NotificationManager.dispatch({
+        id: "",
+        importance: Info,
+        context: Operation("scene_list"),
+        message: "Links Cleared",
+        details: None,
+        action: None,
+        duration: NotificationTypes.defaultTimeoutMs(Info),
+        dismissible: true,
+        createdAt: Date.now(),
+      })
     }
   , [dispatch])
 

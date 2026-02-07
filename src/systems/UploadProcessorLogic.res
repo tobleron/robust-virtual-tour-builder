@@ -25,7 +25,23 @@ module Utils = {
   }
 
   let notify = (msg, typeStr) => {
-    EventBus.dispatch(ShowNotification(msg, NotificationHelpers.getNotificationType(typeStr), None))
+    let importance = switch typeStr {
+    | "error" => NotificationTypes.Error
+    | "warning" => NotificationTypes.Warning
+    | "success" => NotificationTypes.Success
+    | _ => NotificationTypes.Info
+    }
+    NotificationManager.dispatch({
+      id: "",
+      importance,
+      context: Operation("upload_processor"),
+      message: msg,
+      details: None,
+      action: None,
+      duration: NotificationTypes.defaultTimeoutMs(importance),
+      dismissible: true,
+      createdAt: Date.now(),
+    })
   }
 }
 

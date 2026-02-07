@@ -177,17 +177,26 @@ describe("ViewerSnapshot", () => {
       })()
     `)
 
-    // Setup EventBus Listener
+    // Setup NotificationManager Listener
     let notificationReceived = ref(false)
-    let unsubscribe = EventBus.subscribe(
-      event => {
-        switch event {
-        | EventBus.ShowNotification(msg, _, _) =>
-          if msg->String.includes("Please wait") {
-            notificationReceived := true
-          }
-        | _ => ()
-        }
+    let unsubscribe = NotificationManager.subscribe(
+      queueState => {
+        Belt.Array.forEach(
+          queueState.pending,
+          notif => {
+            if notif.message->String.includes("Please wait") {
+              notificationReceived := true
+            }
+          },
+        )
+        Belt.Array.forEach(
+          queueState.active,
+          notif => {
+            if notif.message->String.includes("Please wait") {
+              notificationReceived := true
+            }
+          },
+        )
       },
     )
 

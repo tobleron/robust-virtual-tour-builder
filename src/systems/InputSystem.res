@@ -3,7 +3,6 @@
 open ReBindings
 open ViewerState
 open Actions
-open EventBus
 open Types
 
 let normalizeMouseCoords = (e: Dom.event, element: Dom.element) => {
@@ -59,7 +58,17 @@ let handleKeyDown = e => {
     let storeState = GlobalStateBridge.getState()
     if storeState.isLinking {
       GlobalStateBridge.dispatch(StopLinking)
-      EventBus.dispatch(ShowNotification("Link Cancelled", #Info, None))
+      NotificationManager.dispatch({
+        id: "",
+        importance: Info,
+        context: Operation("input_system"),
+        message: "Link Cancelled",
+        details: None,
+        action: None,
+        duration: NotificationTypes.defaultTimeoutMs(Info),
+        dismissible: true,
+        createdAt: Date.now(),
+      })
     }
 
     // 0b. Handle Navigation Interruption

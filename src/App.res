@@ -64,6 +64,7 @@ module InnerApp = {
         <ModalContext />
         <NotificationContext />
         <NotificationLayer />
+        <NotificationCenter />
         <RecoveryCheck />
         <CriticalErrorMonitor />
       </div>

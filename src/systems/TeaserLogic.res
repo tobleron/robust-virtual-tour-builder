@@ -2,7 +2,6 @@
 
 open ReBindings
 open Types
-open EventBus
 
 // --- CONSTANTS ---
 let canvasWidth = Constants.Teaser.canvasWidth
@@ -185,13 +184,17 @@ module Manager = {
       } else {
         let res = await VideoEncoder.transcodeWebMToMP4(blob, baseName, None)
         if res == Error("failed") {
-          EventBus.dispatch(
-            ShowNotification(
-              "Video transcoding failed",
-              #Error,
-              Some(Logger.castToJson({"error": "Transcoding failed", "baseName": baseName})),
-            ),
-          )
+          NotificationManager.dispatch({
+            id: "",
+            importance: Error,
+            context: Operation("teaser"),
+            message: "Video transcoding failed",
+            details: None,
+            action: None,
+            duration: NotificationTypes.defaultTimeoutMs(Error),
+            dismissible: true,
+            createdAt: Date.now(),
+          })
         }
       }
     }
@@ -260,13 +263,17 @@ module Manager = {
             "Cinematic_" ++ String.replaceRegExp(state.tourName, /[^a-z0-9]/gi, "_") ++ ".mp4",
           )
         | Error(msg) =>
-          EventBus.dispatch(
-            ShowNotification(
-              "Server Generation Failed: " ++ msg,
-              #Error,
-              Some(Logger.castToJson({"error": msg})),
-            ),
-          )
+          NotificationManager.dispatch({
+            id: "",
+            importance: Error,
+            context: Operation("teaser"),
+            message: "Server Generation Failed: " ++ msg,
+            details: None,
+            action: None,
+            duration: NotificationTypes.defaultTimeoutMs(Error),
+            dismissible: true,
+            createdAt: Date.now(),
+          })
         }
         Promise.resolve()
       })
@@ -305,13 +312,17 @@ module Manager = {
           }
         }
       | Error(msg) =>
-        EventBus.dispatch(
-          ShowNotification(
-            "Failed to generate path: " ++ msg,
-            #Error,
-            Some(Logger.castToJson({"error": msg})),
-          ),
-        )
+        NotificationManager.dispatch({
+          id: "",
+          importance: Error,
+          context: Operation("teaser"),
+          message: "Failed to generate path: " ++ msg,
+          details: None,
+          action: None,
+          duration: NotificationTypes.defaultTimeoutMs(Error),
+          dismissible: true,
+          createdAt: Date.now(),
+        })
       }
     }
   }

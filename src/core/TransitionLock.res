@@ -17,7 +17,7 @@ let notifyListeners = () => {
   listeners.contents->Belt.Array.forEach(cb => cb(current.contents))
 }
 
-let addChangeListener = (cb) => {
+let addChangeListener = cb => {
   listeners := Belt.Array.concat(listeners.contents, [cb])
   () => {
     listeners := listeners.contents->Belt.Array.keep(x => x !== cb)
@@ -71,17 +71,29 @@ let clearLockTimeout = () => {
   lockTimeoutId := None
 }
 
+let getTimeoutForPhase = (phase: phase): float => {
+  switch phase {
+  | Idle => 0.0
+  | Loading(_) => 15000.0 // Scene loading can be slow (multi-resolution download)
+  | Swapping(_) => 8000.0 // CSS fade is ~500ms, add buffer
+  | Cleanup(_) => 3000.0 // Cleanup is ~500ms, prevent long waits
+  }
+}
+
 let getRemainingMs = (): int => {
   switch acquiredAt.contents {
   | Some(startTime) =>
+    let totalTimeoutMs = getTimeoutForPhase(current.contents)
     let elapsedMs = Date.now() -. startTime
-    let remainingMs = 15000.0 -. elapsedMs
+    let remainingMs = totalTimeoutMs -. elapsedMs
     Math.max(0.0, remainingMs)->Float.toInt
   | None => 0
   }
 }
 
-let getTotalTimeoutMs = (): int => 15000
+let getTotalTimeoutMs = (): int => {
+  getTimeoutForPhase(current.contents)->Float.toInt
+}
 
 let release = (requester: string, ~isTimeout=false) => {
   let prev = current.contents
@@ -117,7 +129,7 @@ let forceRelease = () => {
     ~module_="TransitionLock",
     ~message="LOCK_TIMEOUT_FORCED_RELEASE",
     ~data=Some({
-      "phase": phaseToString(current.contents)
+      "phase": phaseToString(current.contents),
     }),
     (),
   )
@@ -129,9 +141,10 @@ let acquire = (requester: string, newPhase: phase): result<unit, string> => {
     current := newPhase
     acquiredAt := Some(Date.now())
 
-    // Set a safety timeout of 15 seconds
+    let timeoutMs = getTimeoutForPhase(newPhase)->Float.toInt
+    // Set a safety timeout based on phase type
     // If the transition isn't done by then, something is critically wrong.
-    lockTimeoutId := Some(setTimeout(forceRelease, 15000))
+    lockTimeoutId := Some(setTimeout(forceRelease, timeoutMs))
     notifyListeners()
 
     Logger.debug(
@@ -140,6 +153,7 @@ let acquire = (requester: string, newPhase: phase): result<unit, string> => {
       ~data=Some({
         "requester": requester,
         "newPhase": phaseToString(newPhase),
+        "timeoutMs": timeoutMs,
       }),
       (),
     )
@@ -163,7 +177,7 @@ let transition = (requester: string, newPhase: phase) => {
   let prev = current.contents
   current := newPhase
   notifyListeners()
-  
+
   Logger.debug(
     ~module_="TransitionLock",
     ~message="LOCK_TRANSITION",
