@@ -12,6 +12,8 @@ module Dom = {
   @get external key: event => string = "key"
   @get external ctrlKey: event => bool = "ctrlKey"
   @get external shiftKey: event => bool = "shiftKey"
+  @get external altKey: event => bool = "altKey"
+  @get external metaKey: event => bool = "metaKey"
   @get external clientX: event => int = "clientX"
   @get external clientY: event => int = "clientY"
   @get external eventPhase: event => int = "eventPhase"

@@ -181,7 +181,7 @@ let handleAddHotspot = async (sceneIndex: int, hotspot: Types.hotspot) => {
       | Some(sid) =>
         let projectData = getProjectData(state)
         Api.ProjectApi.saveProject(sid, projectData)
-      | None => Promise.resolve(Error("No active session"))
+      | None => Promise.resolve(Ok())
       }
     },
   )
@@ -196,7 +196,7 @@ let handleDeleteHotspot = async (sceneIndex: int, hotspotIndex: int) => {
       | Some(sid) =>
         let projectData = getProjectData(state)
         Api.ProjectApi.saveProject(sid, projectData)
-      | None => Promise.resolve(Error("No active session"))
+      | None => Promise.resolve(Ok())
       }
     },
   )
@@ -211,7 +211,7 @@ let handleUpdateSceneMetadata = async (sceneIndex: int, metadata: JSON.t) => {
       | Some(sid) =>
         let projectData = getProjectData(state)
         Api.ProjectApi.saveProject(sid, projectData)
-      | None => Promise.resolve(Error("No active session"))
+      | None => Promise.resolve(Ok())
       }
     },
   )
