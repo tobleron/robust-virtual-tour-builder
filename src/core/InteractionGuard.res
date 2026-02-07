@@ -110,7 +110,7 @@ let attempt = (id: string, policy: policy, action: unit => Promise.t<'a>): Resul
       Ok(wrapped)
     }
 
-  | SlidingWindow(maxCalls, windowMs) =>
+  | SlidingWindow(maxCalls, windowMs, minIntervalMs) =>
     let limiter = switch s.limiter {
     | Some(l) => l
     | None =>
@@ -119,11 +119,17 @@ let attempt = (id: string, policy: policy, action: unit => Promise.t<'a>): Resul
       l
     }
 
-    if RateLimiter.canCall(limiter) {
+    let intervalPassed = now -. s.lastExecution >= Belt.Int.toFloat(minIntervalMs)
+    let hasQuota = RateLimiter.canCall(limiter)
+
+    if hasQuota && intervalPassed {
       RateLimiter.recordCall(limiter)
+      s.lastExecution = now
       Ok(action())
-    } else {
+    } else if !hasQuota {
       Error("Rate limited")
+    } else {
+      Error("Throttled")
     }
   }
 }

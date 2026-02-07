@@ -89,8 +89,8 @@ testAsync("SlidingWindow - limits calls in window", async t => {
     counter := counter.contents + 1
   }
 
-  // 2 calls allowed per 50ms
-  let policy = SlidingWindow(2, 50)
+  // 2 calls allowed per 50ms, 0ms min interval
+  let policy = SlidingWindow(2, 50, 0)
 
   // Call 1: OK
   let _ = attempt("sliding_test", policy, action)
@@ -111,4 +111,30 @@ testAsync("SlidingWindow - limits calls in window", async t => {
   // Call 4: OK
   let _ = attempt("sliding_test", policy, action)
   t->expect(counter.contents)->Expect.toBe(3)
+})
+
+testAsync("SlidingWindow - enforces minInterval", async t => {
+  let counter = ref(0)
+  let action = async () => counter := counter.contents + 1
+
+  // 10 calls allowed per 1000ms, BUT 100ms min interval
+  let policy = SlidingWindow(10, 1000, 100)
+
+  // Call 1: OK
+  let _ = attempt("interval_test", policy, action)
+  t->expect(counter.contents)->Expect.toBe(1)
+
+  // Call 2: Blocked by minInterval (even though quota exists)
+  let r2 = attempt("interval_test", policy, action)
+  switch r2 {
+  | Ok(_) => t->expect("Second call succeeded")->Expect.toBe("Should be throttled by interval")
+  | Error(msg) => t->expect(msg)->Expect.toBe("Throttled")
+  }
+
+  // Wait 150ms
+  let _ = await wait(150)
+
+  // Call 3: OK
+  let _ = attempt("interval_test", policy, action)
+  t->expect(counter.contents)->Expect.toBe(2)
 })

@@ -263,6 +263,7 @@ let make = React.memo(() => {
   }
 
   <div
+    id="sidebar"
     className="relative w-[340px] min-w-[340px] bg-slate-50 flex flex-col z-[15000] shrink-0 h-full overflow-hidden font-ui"
   >
     <div className="relative w-full flex flex-col z-30 text-white shrink-0 sidebar-branding-header">

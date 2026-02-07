@@ -61,7 +61,7 @@ let performSnapshot = () => {
 let debouncedSnapshot = Debounce.make(~fn=() => {
   switch InteractionGuard.attempt(
     "viewer_snapshot_limit",
-    SlidingWindow(10, 60000),
+    SlidingWindow(10, 60000, 2000),
     performSnapshot,
   ) {
   | Ok(p) => p
