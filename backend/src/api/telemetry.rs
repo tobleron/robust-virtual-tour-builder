@@ -86,6 +86,7 @@ async fn process_entry(entry: &TelemetryEntry) {
 
 // --- Logic from telemetry_logic.rs ---
 
+#[allow(dead_code)]
 pub async fn rotate_log_file(path: &std::path::Path) -> std::io::Result<()> {
     let stem = path.file_stem().and_then(|s| s.to_str()).ok_or_else(|| {
         std::io::Error::new(std::io::ErrorKind::InvalidInput, "Invalid log file stem")
@@ -124,6 +125,7 @@ pub async fn rotate_log_file(path: &std::path::Path) -> std::io::Result<()> {
     Ok(())
 }
 
+#[allow(dead_code)]
 pub async fn append_to_log(path: &str, content: &str) -> std::io::Result<()> {
     use tokio::fs::OpenOptions;
     use tokio::io::AsyncWriteExt;

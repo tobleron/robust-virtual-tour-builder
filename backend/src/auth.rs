@@ -106,6 +106,7 @@ pub struct Claims {
     pub iat: usize,
 }
 
+#[allow(dead_code)]
 pub fn encode_token(sub: &str) -> Result<String, AppError> {
     let secret = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
     let expiration = Utc::now()

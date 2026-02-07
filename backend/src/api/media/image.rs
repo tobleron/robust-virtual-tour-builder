@@ -163,7 +163,6 @@ pub async fn resize_image_batch(payload: Multipart) -> Result<HttpResponse, AppE
 
 #[cfg(test)]
 mod tests {
-    use super::*;
 
     #[test]
     fn test_quality_analysis_serialization() {

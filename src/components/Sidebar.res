@@ -309,7 +309,13 @@ let make = React.memo(() => {
           }
         }}
         onSave={(~signal, ~onCancel) => {
-          handleSave(GlobalStateBridge.getState(), ~signal, ~onCancel)
+          // Unconditionally stop linking to ensure visual artifacts (yellow lines) are cleared
+          Logger.info(~module_="Sidebar", ~message="FORCE_STOP_LINKING_ON_SAVE", ())
+          GlobalStateBridge.dispatch(Actions.StopLinking)
+
+          // Grab state again (best effort) but usually handled by Reducer async update
+          let state = GlobalStateBridge.getState()
+          handleSave(state, ~signal, ~onCancel)
         }}
         onLoad={(~signal as _, ~onCancel as _) => {
           switch Nullable.toOption(projectFileInputRef.current) {

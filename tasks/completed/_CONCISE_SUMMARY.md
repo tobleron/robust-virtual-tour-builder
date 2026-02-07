@@ -25,6 +25,9 @@ This document provides a consolidated, extremely concise history of all complete
 - **1097-1126: Semantic Engine Overhaul** — Upgraded `_dev-system` analyzer with AST-based JSX discovery and semantic dependency resolution for 100% accuracy.
 - **1095-1118: Codebase Taxonomy** — Applied `@efficiency-role` headers to 200+ modules for precise architectural governance and limit enforcement.
 - **1113-1138: Structural Cleanup** — Consolidated redundant directory structures and purged empty folders to maintain a lean, navigable codebase.
+- **1157-1193: Folder Consolidation** — Merged fragmented backend and frontend directories (`backend/src/api/utils/types`, `src/features/LinkEditor`) into cohesive structures.
+- **1159-1176: Surgical Refactor Phase 2** — Decomposed "God Objects" including `Main.res`, `UploadProcessor`, and `backend/main.rs` into specialized Logic/Types/Facade modules.
+- **1200: System Robustness V2** — Implemented global interaction locks and modal guards to prevent race conditions during critical operations.
 
 ## ⚙️ Backend & API
 - **016: Backend Geocoding Cache** — Implemented persistent LRU caching for reverse geocoding to reduce API dependency and improve performance.
@@ -39,6 +42,9 @@ This document provides a consolidated, extremely concise history of all complete
 - **199: Enhance GlobalState Safety** — Added validation and guards around shared state between ReScript and JavaScript layers.
 - **300: Remove Console.log Usage** — Eliminated raw `console.log` calls in favor of the structured `Logger` system.
 - **595: Type-Safe Cache Management** — Refactored `SvgManager` to replace unsafe `Obj.magic` casting with proper `option` types for element caching.
+- **1171-1230: Code Safety Enforcement** — Eliminated `Obj.magic`, `!important`, and `mutable` patterns across frontend and backend modules.
+- **1177: Backend Safety** — Removed unsafe `unwrap()` and `panic!` calls in Rust backend modules.
+- **1178: CSP Validation Migration** — Migrated all schema validation from `rescript-schema` to `rescript-json-combinators` for strict CSP compliance.
 
 ## 📶 Telemetry & Monitoring
 - **023: Intelligent Telemetry** — Implemented priority-based log filtering and batching (98% traffic reduction) with exponential backoff.
@@ -93,6 +99,12 @@ This document provides a consolidated, extremely concise history of all complete
 - **298: Resolve Ghost Arrow** — Fixed the top-left (0,0) artifact by adding camera-ready guards and CSS defense layers. (Historical Entry)
 - **299: Sync Hotspot Visibility** — Ensured all hotspots correctly hide/show when toggling between Edit and Simulation modes. (Historical Entry)
 - **581: Input & Physics Isolation** — Extracted raw input handling and cursor physics from business logic to ensure interaction stability.
+- **1184: Fix Viewer Rendering** — Resolved black screen issues by enforcing texture load completion before rendering.
+- **1185: Serial Command Queue** — Implemented `InteractionQueue` to linearize state updates and prevent race conditions.
+- **1190: Fix Preview Transition** — Resolved logic errors causing the viewer to get stuck in preview mode.
+- **1201: Circuit Breaker Pattern** — Implemented fail-fast mechanisms to prevent cascading system failures during network outages.
+- **1202-1204: Resilient Networking & Optimistic Updates** — Implemented optimistic UI with rollback, client-side debouncing, and exponential backoff.
+- **1205-1228: Crash Recovery System** — Implemented `OperationJournal` and `RecoveryManager` to restore interrupted saves and uploads.
 
 ## 🧪 Tests & Quality Assurance
 - **001-004: Core & Systems Tests** — Aggregated 100% test coverage for Core State, Simulation Systems, and Utilities.
@@ -104,6 +116,8 @@ This document provides a consolidated, extremely concise history of all complete
 - **347-370, 405-410, 507-534: Vitest Migration & Coverage** — Comprehensive migration to Vitest with 100% coverage across Core, Systems, Utilities, Simulation Logic, and UI Components (App, ViewerManager).
 - **371-375: Legacy Test Cleanup** — Finalized migration of Reducers, Exporters, and specialized services to Vitest.
 - **589-593: System Logic Coverage** — Updated and expanded unit tests for `SvgManager`, `ProjectApi`, `TeaserPlayback`, `LinkEditorLogic`, and `SceneLoader` to maintain 100% coverage after refactors.
+- **1181-1198: Frontend Test Stabilization** — Remedied flaky tests in `LinkEditor`, `UploadProcessor`, and `SceneList` and expanded persistence coverage.
+- **1199-1222: Playwright E2E Suite** — Established and expanded the E2E test suite covering critical paths, robustness, and recovery scenarios.
 
 ## 📝 Project Infrastructure
 - **005: Changelog Standards** — Established `CHANGELOG.md` following "Keep a Changelog" v1.1.0 standards.
@@ -121,6 +135,8 @@ This document provides a consolidated, extremely concise history of all complete
 - **1063: Classify New Map Entries** — New modules were detected and added to the 'Unmapped Modules' section of `MAP.md`.
 - **1075: Classify New Map Entries** — New modules were detected and added to the 'Unmapped Modules' section of `MAP.md`.
 - **1076: Classify Ambiguous Files** — Classified ambiguous files.
+- **1207: JSON Combinators Audit** — Enforced standardized JSON encoding/decoding across the entire codebase.
+- **1208: Analyzer Improvements** — Enhanced `_dev-system` logic for precise dependency tracking and LOC analysis.
 
 ## 🚫 Aborted Efforts (For Historical Context)
 - **178-181, 268, 309**: De-prioritized or superseded by newer architectural decisions (e.g., PWA offline support, v4.2.0 rollbacks).
@@ -128,4 +144,5 @@ This document provides a consolidated, extremely concise history of all complete
 
 ## 📦 Systemic Maintenance (Aggregated)
 - **1153, 1221: Task System Maintenance** — Routine aggregation of completed task files to prevent directory bloat and maintain summary clarity.
-- **Various: Map & Integrity Sync** — Continuous synchronization of `MAP.md` and classification of new modules into the project taxonomy.
+- **Variable: Map & Integrity Sync** — Continuous synchronization of `MAP.md` and classification of new modules into the project taxonomy.
+- **1154-1229: Taxonomy & Map Maintenance** — Ongoing classification of ambiguous files and synchronization of `MAP.md`.

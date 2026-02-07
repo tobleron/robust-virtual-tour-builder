@@ -89,6 +89,17 @@ let useLinkingAndSimUI = (state: state, dispatch: action => unit) => {
       }
     }
 
+    // Redraw hotspot lines when linking mode changes to immediately clear/show draft lines
+    let v = ViewerSystem.getActiveViewer()
+    switch Nullable.toOption(v) {
+    | Some(viewer) =>
+      if !state.isLinking {
+        Logger.info(~module_="ViewerManagerLifecycle", ~message="CLEARING_LINK_DRAFT_LINES", ())
+      }
+      HotspotLine.updateLines(viewer, state, ())
+    | None => ()
+    }
+
     let isSimulationActive = state.simulation.status != Idle
 
     if isSimulationActive {

@@ -11,7 +11,9 @@ pub const PROCESSED_IMAGE_WIDTH: u32 = 4096;
 pub const WEBP_QUALITY: f32 = 85.0;
 pub const TEMP_DIR: &str = "/tmp/vt_backend";
 pub const MAX_UPLOAD_SIZE: usize = 60 * 1024 * 1024; // 60MB limit
+#[allow(dead_code)]
 pub const MAX_LOG_SIZE: u64 = 10 * 1024 * 1024; // 10 MB
+#[allow(dead_code)]
 pub const MAX_LOG_FILES: usize = 5;
 pub const LOG_RETENTION_DAYS: u64 = 7;
 
