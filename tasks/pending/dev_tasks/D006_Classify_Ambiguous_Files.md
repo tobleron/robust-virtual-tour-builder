@@ -9,18 +9,18 @@
 **Optimal State:** Every file has a clear architectural identity, allowing the analyzer to apply correct LOC limits.
 
 ### 📚 Valid Roles
-*   **state-reducer**: Deterministic state transitions (Redux/Store style).
-*   **util-pure**: Side-effect free helper functions.
-*   **infra-adapter**: External API clients, database drivers, and third-party bindings.
-*   **domain-logic**: Pure business logic, entities, and domain services.
-*   **ignored**: Exclude this file from all efficiency metrics and tasks.
-*   **orchestrator**: App entry points and high-level flow control.
-*   **infra-binding**: External JS/FFI bindings. High LOC permitted due to low logic density.
 *   **state-hook**: Custom hooks with high state-to-logic ratio.
+*   **infra-binding**: External JS/FFI bindings. High LOC permitted due to low logic density.
 *   **infra-config**: Build scripts, project configuration, and environment setups.
-*   **service-orchestrator**: Complex coordination between multiple domain services.
+*   **domain-logic**: Pure business logic, entities, and domain services.
+*   **orchestrator**: App entry points and high-level flow control.
+*   **infra-adapter**: External API clients, database drivers, and third-party bindings.
 *   **data-model**: Type definitions, schemas, and DTOs (low logic density).
 *   **ui-component**: Visual presentation and user interaction layers.
+*   **state-reducer**: Deterministic state transitions (Redux/Store style).
+*   **service-orchestrator**: Complex coordination between multiple domain services.
+*   **util-pure**: Side-effect free helper functions.
+*   **ignored**: Exclude this file from all efficiency metrics and tasks.
 
 
 ## Tasks

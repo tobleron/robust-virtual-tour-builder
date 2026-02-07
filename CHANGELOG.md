@@ -5,12 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.31.2] - 2026-02-07
+## [4.31.3] - 2026-02-07
 
 ### Changed
-- Fix 1300: UI interaction blocking, debouncing, and notification visibility
+- Chore: consolidate changelog for v4.31.2
 
-## [4.32.0] - 2026-02-07
+## [4.31.2] - 2026-02-07
 
 ### Fixed
 - **UI Interaction & Debouncing (Task 1300)**: Resolved critical interaction blocking and event handling issues.
