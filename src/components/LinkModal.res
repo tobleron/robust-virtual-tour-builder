@@ -32,7 +32,8 @@ let showLinkModal = (
   let nextIndex = state.activeIndex + 1
   let scenes = state.scenes
 
-  let defaultTargetName = scenes
+  let defaultTargetName =
+    scenes
     ->Belt.Array.getIndexBy(s => {
       let isSelected = switch (
         Nullable.toOption(pendingReturnSceneName),
