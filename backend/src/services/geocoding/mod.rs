@@ -29,7 +29,6 @@ pub async fn reverse_geocode(lat: f64, lon: f64) -> Result<String, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::CachedGeocode;
 
     #[tokio::test]
     async fn test_geocoder_suite_sequential() {

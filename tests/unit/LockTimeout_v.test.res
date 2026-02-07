@@ -97,6 +97,7 @@ describe("TransitionLock Time Tracking", () => {
   })
 
   test("getTotalTimeoutMs returns 15000", t => {
+    let _ = TransitionLock.acquire("test", Loading("scene1"))
     let total = TransitionLock.getTotalTimeoutMs()
     t->expect(total)->Expect.toBe(15000)
   })

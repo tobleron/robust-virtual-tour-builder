@@ -110,27 +110,45 @@ test.describe('Performance & Load Testing', () => {
         }
     });
 
-    test('5.3: Bundle size validation', async ({ page }) => {
+    test('5.3: Bundle size validation', async ({ page, context }) => {
+        // Clear browser cache to force fresh downloads
+        await context.clearCookies();
+
         const responses = [];
         page.on('response', response => {
             responses.push(response);
         });
 
-        await page.reload();
+        // Force reload and bypass cache
+        await page.goto('/', { waitUntil: 'networkidle' });
 
         let totalJSSize = 0;
+        const jsFiles: { url: string; size: number }[] = [];
+
         for (const response of responses) {
             const url = response.url();
-            const headers = response.headers();
             if (url.endsWith('.js') && !url.includes('hot-update')) {
-                const contentLength = headers['content-length'];
-                if (contentLength) {
-                    totalJSSize += parseInt(contentLength, 10);
+                try {
+                    const buffer = await response.buffer();
+                    const size = buffer.length;
+                    jsFiles.push({ url, size });
+                    totalJSSize += size;
+                } catch (e) {
+                    // Some responses might not be bufferable, try headers
+                    const contentLength = response.headers()['content-length'];
+                    if (contentLength) {
+                        const size = parseInt(contentLength, 10);
+                        jsFiles.push({ url, size });
+                        totalJSSize += size;
+                    }
                 }
             }
         }
 
+        console.log(`Total JS files: ${jsFiles.length}`);
+        jsFiles.forEach(f => console.log(`  - ${f.url}: ${Math.round(f.size / 1024)} KB`));
         console.log(`Total JS downloaded: ${Math.round(totalJSSize / 1024)} KB`);
+
         // Budget limit
         expect(totalJSSize / 1024).toBeLessThan(2000);
     });

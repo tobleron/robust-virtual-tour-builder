@@ -193,12 +193,18 @@ let handleLoadProject = async (filesOpt, dispatch, _sceneCount, target) => {
             })
           }
         | Error(msg) => {
+            Logger.info(
+              ~module_="SidebarLogic",
+              ~message="PROJECT_LOAD_FAILED_DISPATCHING_NOTIF",
+              ~data=Some({"error": msg}),
+              (),
+            )
             dispatch(Actions.DispatchAppFsmEvent(ProjectLoadError(msg)))
             NotificationManager.dispatch({
               id: "",
               importance: Error,
               context: Operation("sidebar_load_project"),
-              message: "Load failed: " ++ msg,
+              message: "Failed to load project: " ++ msg,
               details: None,
               action: None,
               duration: NotificationTypes.defaultTimeoutMs(Error),

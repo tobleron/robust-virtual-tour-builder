@@ -723,15 +723,39 @@ pub fn check_tasks_count(config: &GuardConfig) -> Result<()> {
     }
 
     if count > 90 {
-        if !task_exists(config, "Aggregate_Completed_Tasks") {
-            let next_id = get_next_id(config);
-            let task_filename = format!("{:03}_Aggregate_Completed_Tasks.md", next_id);
+        // Check dev_tasks directory for existing maintenance task
+        let dev_tasks_dir = format!("{}/pending/dev_tasks", config.tasks_dir);
+        let task_pattern = "Aggregate_Completed_Tasks";
+        let mut exists = false;
+
+        if Path::new(&dev_tasks_dir).exists() {
+            if let Ok(entries) = fs::read_dir(&dev_tasks_dir) {
+                for entry in entries.filter_map(|e| e.ok()) {
+                    if entry.file_name().to_string_lossy().contains(task_pattern) {
+                        exists = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if !exists {
+            // Ensure dev_tasks directory exists
+            if !Path::new(&dev_tasks_dir).exists() {
+                fs::create_dir_all(&dev_tasks_dir)?;
+            }
+
+            let next_id = get_next_dev_id(config);
+            let task_filename = format!("D{:03}_Aggregate_Completed_Tasks.md", next_id);
+            let task_path = PathBuf::from(&dev_tasks_dir).join(&task_filename);
+
             let task_content = format!(
-                "# Task {}: Aggregate Completed Tasks\n\n## 🚨 Trigger\nCompleted tasks count exceeds 90 (Current: {}).\n\n## Objective\nAggregate the oldest 50 completed tasks into `tasks/completed/_CONCISE_SUMMARY.md` and cleanup.\n\n## AI Prompt\n\"Please perform the following maintenance on the task system:\n1. Identify the oldest 50 task files in `tasks/completed/` (based on their numerical prefix).\n2. Read these 50 files and the existing `tasks/completed/_CONCISE_SUMMARY.md`.\n3. Integrate the core accomplishments from these 50 tasks into `tasks/completed/_CONCISE_SUMMARY.md`, following its established style (categorized, bullet points, extremely concise).\n4. After successful integration and verification, delete the 50 original task files from `tasks/completed/`.\n5. Ensure the `_CONCISE_SUMMARY.md` remains the definitive high-level history of the project.\"\n",
+                "# Task D{:03}: Aggregate Completed Tasks\n\n## 🚨 Trigger\nCompleted tasks count exceeds 90 (Current: {}).\n\n## Objective\nAggregate the oldest 50 completed tasks into `tasks/completed/_CONCISE_SUMMARY.md` and cleanup.\n\n## AI Prompt\n\"Please perform the following maintenance on the task system:\n1. Identify the oldest 50 task files in `tasks/completed/` (based on their numerical prefix).\n2. Read these 50 files and the existing `tasks/completed/_CONCISE_SUMMARY.md`.\n3. Integrate the core accomplishments from these 50 tasks into `tasks/completed/_CONCISE_SUMMARY.md`, following its established style (categorized, bullet points, extremely concise).\n4. After successful integration and verification, delete the 50 original task files from `tasks/completed/`.\n5. Ensure the `_CONCISE_SUMMARY.md` remains the definitive high-level history of the project.\"\n",
                 next_id, count
             );
-            create_task(config, &task_filename, &task_content)?;
-            println!("🧹 Created Maintenance Task: {}", task_filename);
+
+            fs::write(&task_path, task_content)?;
+            println!("🧹 Created Maintenance Task: {}", task_path.display());
         }
     }
 

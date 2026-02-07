@@ -98,11 +98,34 @@ async fn main() -> io::Result<()> {
             )
         })?;
 
+    // Rate limiting configuration: allow generous limits for dev/test environments
+    // Production: 100 req/sec | Dev/Test: 10000 req/sec (unlimited for E2E testing)
+    let is_production = std::env::var("NODE_ENV")
+        .map(|v| v == "production")
+        .unwrap_or(false);
+
+    let (requests_per_sec, burst_size) = if is_production {
+        (100, 200) // Strict production limits
+    } else {
+        (10000, 20000) // Very generous dev/test limits for concurrent E2E test startup
+    };
+
     let governor_conf = actix_governor::GovernorConfigBuilder::default()
-        .per_second(100)
-        .burst_size(200)
+        .per_second(requests_per_sec)
+        .burst_size(burst_size)
         .finish()
         .expect("Failed to initialize rate limiter configuration.");
+
+    tracing::info!(
+        requests_per_second = requests_per_sec,
+        burst_size = burst_size,
+        environment = if is_production {
+            "production"
+        } else {
+            "development"
+        },
+        "Rate limiter configured"
+    );
 
     let shutdown_manager_server = shutdown_manager.clone();
     let db_pool_server = db_pool.clone();

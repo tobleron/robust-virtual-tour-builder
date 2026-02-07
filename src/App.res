@@ -65,6 +65,7 @@ module InnerApp = {
         <NotificationContext />
         <NotificationLayer />
         <NotificationCenter />
+        <Shadcn.Sonner position="top-right" richColors=true expand=true />
         <RecoveryCheck />
         <CriticalErrorMonitor />
       </div>

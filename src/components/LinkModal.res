@@ -169,9 +169,46 @@ let showLinkModal = (
             duration: None,
           }
 
+          Logger.info(
+            ~module_="LinkModal",
+            ~message="SAVING_LINK",
+            ~data=Some({
+              "targetName": targetName,
+              "newLinkId": newLinkId,
+              "beforeState": state.isLinking,
+            }),
+            (),
+          )
+
           HotspotManager.handleAddHotspot(state.activeIndex, newHotspot)->ignore
-          GlobalStateBridge.dispatch(Actions.StopLinking)
-          EventBus.dispatch(CloseModal)
+
+          // Use setTimeout to ensure state updates properly after hotspot is added
+          let _ = setTimeout(() => {
+            Logger.info(
+              ~module_="LinkModal",
+              ~message="EXIT_SEQUENCE_START",
+              ~data=Some({"stateBeforeExit": GlobalStateBridge.getState().isLinking}),
+              (),
+            )
+
+            // Step 1: Close modal first to prevent any re-renders
+            EventBus.dispatch(CloseModal)
+            Logger.info(~module_="LinkModal", ~message="MODAL_CLOSED", ())
+
+            // Step 2: Hide draft lines immediately
+            SvgManager.hide("link_draft_red")
+            SvgManager.hide("link_draft_yellow")
+            Logger.info(~module_="LinkModal", ~message="DRAFT_LINES_HIDDEN", ())
+
+            // Step 3: Exit linking mode
+            GlobalStateBridge.dispatch(Actions.StopLinking)
+            Logger.info(
+              ~module_="LinkModal",
+              ~message="STOP_LINKING_DISPATCHED",
+              ~data=Some({"stateAfterDispatch": GlobalStateBridge.getState().isLinking}),
+              (),
+            )
+          }, 50)
         }
       }
     | None => ()
@@ -187,6 +224,9 @@ let showLinkModal = (
       allowClose: Some(true),
       onClose: Some(
         () => {
+          // Explicitly hide draft lines on modal close
+          SvgManager.hide("link_draft_red")
+          SvgManager.hide("link_draft_yellow")
           GlobalStateBridge.dispatch(Actions.StopLinking)
         },
       ),
@@ -201,7 +241,12 @@ let showLinkModal = (
         {
           label: "Cancel",
           class_: "bg-slate-100/10 text-white hover:bg-white/20",
-          onClick: () => {EventBus.dispatch(CloseModal)},
+          onClick: () => {
+            // Explicitly hide draft lines on cancel
+            SvgManager.hide("link_draft_red")
+            SvgManager.hide("link_draft_yellow")
+            EventBus.dispatch(CloseModal)
+          },
           autoClose: Some(false),
         },
       ],

@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   * Can be batched into future "UX Polish" epic
 
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+- Half Stable UI
 
 ## [4.30.0] - 2026-02-07
 

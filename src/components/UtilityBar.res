@@ -128,6 +128,11 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
         }}
         className="w-[32px] h-[32px] rounded-full text-[20px] font-semibold border border-transparent hover:border-[#0e2d52]"
         onClick={handleFabClick}
+        ariaLabel={if isLinking {
+          "Close Link Mode"
+        } else {
+          "Add Link"
+        }}
       >
         {if isLinking {
           <LucideIcons.X size=20 strokeWidth=3.0 />
