@@ -53,9 +53,7 @@ async fn main() -> io::Result<()> {
         )
     })?;
 
-    // Ensure logs directory exists
-    let log_dir = std::env::var("LOG_DIR").unwrap_or_else(|_| "../logs".to_string());
-    std::fs::create_dir_all(log_dir).ok();
+    // Ensure logs directory exists - handled in init_logging
 
     // Load geocoding cache from disk
     if let Err(e) = services::geocoding::load_cache_from_disk().await {
