@@ -121,7 +121,20 @@ let release = (requester: string, ~isTimeout=false) => {
   /* Flush callbacks */
   let callbacks = onIdleCallbacks.contents
   onIdleCallbacks := []
-  callbacks->Belt.Array.forEach(cb => cb())
+  callbacks->Belt.Array.forEach(cb => {
+    try {
+      cb()
+    } catch {
+    | exn =>
+      let (msg, _) = Logger.getErrorDetails(exn)
+      Logger.error(
+        ~module_="TransitionLock",
+        ~message="ON_IDLE_CALLBACK_ERROR",
+        ~data=Some({"error": msg}),
+        (),
+      )
+    }
+  })
 }
 
 let releaseIf = (requester: string, predicate: phase => bool) => {
@@ -131,26 +144,36 @@ let releaseIf = (requester: string, predicate: phase => bool) => {
 }
 
 let forceRelease = () => {
-  Logger.error(
-    ~module_="TransitionLock",
-    ~message="LOCK_TIMEOUT_FORCED_RELEASE",
-    ~data=Some({
-      "phase": phaseToString(current.contents),
-    }),
-    (),
-  )
-  release("TransitionLock_Timeout_System", ~isTimeout=true)
+  if !isIdle() {
+    Logger.error(
+      ~module_="TransitionLock",
+      ~message="LOCK_TIMEOUT_FORCED_RELEASE",
+      ~data=Some({
+        "phase": phaseToString(current.contents),
+        "elapsedMs": switch acquiredAt.contents {
+        | Some(t) => (Date.now() -. t)->Float.toInt
+        | None => -1
+        },
+      }),
+      (),
+    )
+    release("TransitionLock_Timeout_System", ~isTimeout=true)
+  }
+}
+
+let resetTimeout = (newPhase: phase) => {
+  clearLockTimeout()
+  let timeoutMs = getTimeoutForPhase(newPhase)->Float.toInt
+  if timeoutMs > 0 {
+    lockTimeoutId := Some(setTimeout(forceRelease, timeoutMs))
+  }
 }
 
 let acquire = (requester: string, newPhase: phase): result<unit, string> => {
   if isIdle() {
     current := newPhase
     acquiredAt := Some(Date.now())
-
-    let timeoutMs = getTimeoutForPhase(newPhase)->Float.toInt
-    // Set a safety timeout based on phase type
-    // If the transition isn't done by then, something is critically wrong.
-    lockTimeoutId := Some(setTimeout(forceRelease, timeoutMs))
+    resetTimeout(newPhase)
     notifyListeners()
 
     Logger.debug(
@@ -159,12 +182,17 @@ let acquire = (requester: string, newPhase: phase): result<unit, string> => {
       ~data=Some({
         "requester": requester,
         "newPhase": phaseToString(newPhase),
-        "timeoutMs": timeoutMs,
+        "timeoutMs": getTimeoutForPhase(newPhase)->Float.toInt,
       }),
       (),
     )
     Ok()
   } else {
+    let elapsedMs = switch acquiredAt.contents {
+    | Some(t) => (Date.now() -. t)->Float.toInt
+    | None => -1
+    }
+
     Logger.warn(
       ~module_="TransitionLock",
       ~message="LOCK_REJECTED",
@@ -172,6 +200,8 @@ let acquire = (requester: string, newPhase: phase): result<unit, string> => {
         "requester": requester,
         "currentPhase": phaseToString(current.contents),
         "requestedPhase": phaseToString(newPhase),
+        "elapsedMs": elapsedMs,
+        "totalTimeoutMs": getTotalTimeoutMs(),
       }),
       (),
     )
@@ -182,6 +212,7 @@ let acquire = (requester: string, newPhase: phase): result<unit, string> => {
 let transition = (requester: string, newPhase: phase) => {
   let prev = current.contents
   current := newPhase
+  resetTimeout(newPhase)
   notifyListeners()
 
   Logger.debug(
@@ -191,6 +222,7 @@ let transition = (requester: string, newPhase: phase) => {
       "requester": requester,
       "prev": phaseToString(prev),
       "next": phaseToString(newPhase),
+      "newTimeoutMs": getTimeoutForPhase(newPhase)->Float.toInt,
     }),
     (),
   )
