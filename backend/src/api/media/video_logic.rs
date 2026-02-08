@@ -283,8 +283,11 @@ pub fn generate_teaser_sync(
         match child.try_wait() {
             Ok(Some(status)) => {
                 if !status.success() {
-                     drop(browser);
-                     return Err(format!("FFmpeg exited with error code: {:?}", status.code()));
+                    drop(browser);
+                    return Err(format!(
+                        "FFmpeg exited with error code: {:?}",
+                        status.code()
+                    ));
                 }
                 break;
             }
