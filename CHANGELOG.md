@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Fix backend panic and pannellum filereader exception
+- Break down Task 1307 into manageable subtasks
 
 ## [4.33.0] - 2026-02-07
 
