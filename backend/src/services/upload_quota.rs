@@ -134,8 +134,9 @@ impl UploadQuotaManager {
         }
     }
 
-    /// Check if an upload can proceed
-    pub async fn can_upload(&self, ip: &str, size: usize) -> Result<(), String> {
+    /// Try to register an upload. Checks all quotas atomically (except disk space which is checked first).
+    /// Returns Ok(upload_id) if successful, Err(reason) if rejected.
+    pub async fn try_register_upload(&self, ip: &str, size: usize) -> Result<String, String> {
         // Check payload size
         if size > self.config.max_payload_size {
             return Err(format!(
@@ -145,10 +146,11 @@ impl UploadQuotaManager {
             ));
         }
 
-        // Check disk space
+        // Check disk space (IO, no lock)
         self.check_disk_space().await?;
 
-        let active = self.active_uploads.read().await;
+        // Acquire active uploads write lock
+        let mut active = self.active_uploads.write().await;
 
         // Check per-IP concurrent limit
         if let Some(uploads) = active.get(ip)
@@ -170,11 +172,10 @@ impl UploadQuotaManager {
             );
         }
 
-        drop(active);
-
-        // Check rate limit
-        let now = Instant::now();
+        // Acquire history write lock
         let mut history = self.upload_history.write().await;
+
+        let now = Instant::now();
         let user_history = history
             .entry(ip.to_string())
             .or_insert_with(UploadHistory::new);
@@ -190,29 +191,20 @@ impl UploadQuotaManager {
             ));
         }
 
-        Ok(())
-    }
-
-    /// Register a new upload
-    pub async fn register_upload(&self, ip: &str, size: usize) -> String {
+        // Register
         let upload_id = uuid::Uuid::new_v4().to_string();
         let tracker = UploadTracker {
             ip: ip.to_string(),
             size,
-            started_at: Instant::now(),
+            started_at: now,
         };
 
-        let mut active = self.active_uploads.write().await;
         active
             .entry(ip.to_string())
             .or_insert_with(Vec::new)
             .push(tracker);
 
-        let mut history = self.upload_history.write().await;
-        history
-            .entry(ip.to_string())
-            .or_insert_with(UploadHistory::new)
-            .add_upload(Instant::now());
+        user_history.add_upload(now);
 
         tracing::info!(
             ip = ip,
@@ -225,7 +217,7 @@ impl UploadQuotaManager {
         QUOTA_CURRENT_UPLOADS.inc();
         QUOTA_CURRENT_SIZE_BYTES.add(size as f64);
 
-        upload_id
+        Ok(upload_id)
     }
 
     /// Unregister a completed upload

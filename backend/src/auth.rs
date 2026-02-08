@@ -108,7 +108,8 @@ pub struct Claims {
 
 #[allow(dead_code)]
 pub fn encode_token(sub: &str) -> Result<String, AppError> {
-    let secret = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
+    let secret = env::var("JWT_SECRET")
+        .map_err(|_| AppError::InternalError("JWT_SECRET must be set".to_string()))?;
     let expiration = Utc::now()
         .checked_add_signed(Duration::hours(24))
         .expect("valid timestamp")
@@ -129,7 +130,8 @@ pub fn encode_token(sub: &str) -> Result<String, AppError> {
 }
 
 pub fn decode_token(token: &str) -> Result<Claims, AppError> {
-    let secret = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
+    let secret = env::var("JWT_SECRET")
+        .map_err(|_| AppError::InternalError("JWT_SECRET must be set".to_string()))?;
     let validation = Validation::default();
 
     decode::<Claims>(
