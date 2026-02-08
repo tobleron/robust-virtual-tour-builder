@@ -6,7 +6,7 @@ async fn test_quota_allows_small_upload() {
     let config = QuotaConfig::default();
     let manager = UploadQuotaManager::new(config);
 
-    let result = manager.can_upload("127.0.0.1", 1024 * 1024).await;
+    let result = manager.try_register_upload("127.0.0.1", 1024 * 1024).await;
     assert!(result.is_ok());
 }
 
@@ -18,7 +18,7 @@ async fn test_quota_rejects_oversized_upload() {
     };
     let manager = UploadQuotaManager::new(config);
 
-    let result = manager.can_upload("127.0.0.1", 2 * 1024 * 1024).await;
+    let result = manager.try_register_upload("127.0.0.1", 2 * 1024 * 1024).await;
     assert!(result.is_err());
 }
 
@@ -31,14 +31,15 @@ async fn test_concurrent_limit_per_ip() {
     let manager = UploadQuotaManager::new(config);
 
     // First upload should succeed
-    manager.register_upload("127.0.0.1", 1024).await;
+    let res1 = manager.try_register_upload("127.0.0.1", 1024).await;
+    assert!(res1.is_ok());
 
     // Second concurrent upload should fail
-    let result = manager.can_upload("127.0.0.1", 1024).await;
-    assert!(result.is_err());
+    let res2 = manager.try_register_upload("127.0.0.1", 1024).await;
+    assert!(res2.is_err());
 
     // After unregister, should succeed again
     manager.unregister_upload("127.0.0.1", 1024).await;
-    let result = manager.can_upload("127.0.0.1", 1024).await;
-    assert!(result.is_ok());
+    let res3 = manager.try_register_upload("127.0.0.1", 1024).await;
+    assert!(res3.is_ok());
 }
