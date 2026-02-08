@@ -1,6 +1,8 @@
 #!/bin/bash
-# USAGE: ./scripts/triple-commit.sh "feat: Description"
+# USAGE: ./scripts/triple-commit.sh "feat: Description" [bump-override]
 # This script commits to the current branch and force-updates main, testing, and development branches.
+# Optional second argument: 'major', 'minor', 'patch' to override auto-detection.
+# RESTRICTION: Only runs on 'development' branch.
 
 MSG="$1"
 
@@ -8,7 +10,14 @@ if [ -z "$MSG" ]; then echo "❌ Error: Commit message required."; exit 1; fi
 
 # --- VALIDATION PHASE ---
 
-
+# 0. Branch Guard
+CURRENT_BRANCH=$(git branch --show-current)
+if [ "$CURRENT_BRANCH" != "development" ]; then
+    echo "❌ Error: triple-commit is restricted to the 'development' branch."
+    echo "   ► Current branch: $CURRENT_BRANCH"
+    echo "   ► Switch: git checkout development"
+    exit 1
+fi
 
 # 1.5 Project Guard (Static Analysis)
 ./scripts/project-guard.sh
@@ -66,7 +75,6 @@ git add .
 git commit -m "v$FULL_VER [TRIPLE]: $MSG"
 
 # 10. Sync to main, testing, and development
-CURRENT_BRANCH=$(git branch --show-current)
 TARGET_BRANCHES=("main" "testing" "development")
 
 echo "🔄 Syncing all core branches locally..."

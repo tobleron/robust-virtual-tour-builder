@@ -1,6 +1,7 @@
 #!/bin/bash
-# USAGE: ./scripts/commit.sh "feat: Description"
+# USAGE: ./scripts/commit.sh "feat: Description" [bump-override]
 # RESTRICTION: Only runs on 'development' branch.
+# Optional second argument: 'major', 'minor', 'patch' to override auto-detection.
 
 MSG="$1"
 
@@ -23,7 +24,7 @@ echo "🗺️  Refreshing file structure map..."
 tree -I "node_modules|target|.git|dist|.agent/workflows" > .agent/current_file_structure.md
 
 # 3. Versioning (Smart Detection)
-BUMP_REQUEST="${3:-$MSG}"
+BUMP_REQUEST="${2:-$MSG}"
 echo "📈 Processing versioning..."
 node scripts/bump-version.js "$BUMP_REQUEST"
 node scripts/update-version.js
