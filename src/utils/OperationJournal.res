@@ -176,7 +176,7 @@ let startOperation = (~operation: string, ~context: JSON.t, ~retryable: bool) =>
   saveCurrent()->Promise.then(() => Promise.resolve(id))
 }
 
-let updateStatus = (id: string, status: operationStatus) => {
+let updateStatus = (id: string, status: operationStatus): Promise.t<unit> => {
   let newEntries = Belt.Array.map(currentJournal.contents.entries, entry => {
     if entry.id == id {
       {...entry, status, endTime: Some(Date.now())}
@@ -188,7 +188,7 @@ let updateStatus = (id: string, status: operationStatus) => {
   saveCurrent()
 }
 
-let updateContext = (id: string, context: JSON.t) => {
+let updateContext = (id: string, context: JSON.t): Promise.t<unit> => {
   let newEntries = Belt.Array.map(currentJournal.contents.entries, entry => {
     if entry.id == id {
       {...entry, context}
@@ -200,7 +200,7 @@ let updateContext = (id: string, context: JSON.t) => {
   saveCurrent()
 }
 
-let completeOperation = (id: string) => {
+let completeOperation = (id: string): Promise.t<unit> => {
   let newEntries = Belt.Array.map(currentJournal.contents.entries, entry => {
     if entry.id == id {
       {...entry, status: Completed, endTime: Some(Date.now())}
@@ -219,7 +219,7 @@ let completeOperation = (id: string) => {
   saveCurrent()
 }
 
-let failOperation = (id: string, reason: string) => {
+let failOperation = (id: string, reason: string): Promise.t<unit> => {
   updateStatus(id, Failed(reason))
 }
 

@@ -86,10 +86,22 @@ let onStateChange = (state: Types.state) => {
       }, debounceMs))
 }
 
+let unsub = ref(None)
+
 let initSubscriber = () => {
   /* We subscribe to the GlobalStateBridge to detect changes */
   Logger.info(~module_="Persistence", ~message="Initializing Persistence Layer", ())
-  let _ = GlobalStateBridge.subscribe(onStateChange)
+
+  unsub.contents->Option.forEach(f => f())
+  unsub := Some(GlobalStateBridge.subscribe(onStateChange))
+
+  DomBindings.Window.addEventListener("beforeunload", _ => {
+    switch lastSaveTimeout.contents {
+    | Some(_) =>
+      let _ = performSave(GlobalStateBridge.getState())
+    | None => ()
+    }
+  })
 }
 
 let clearSession = () => {

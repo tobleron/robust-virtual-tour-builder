@@ -1,11 +1,38 @@
 open Vitest
-open ReBindings
 
 describe("ViewerSnapshot", () => {
+  let _ = %raw(`
+    (function() {
+      if (!global.originalSetTimeout) {
+        global.originalSetTimeout = window.setTimeout;
+      }
+      if (window.URL && !global.originalRevokeObjectURL) {
+        global.originalRevokeObjectURL = window.URL.revokeObjectURL;
+      }
+    })()
+  `)
+
+  let setTimeoutRaw: (unit => unit, int) => unit = %raw(`
+    function(cb, ms) {
+      global.originalSetTimeout(cb, ms);
+    }
+  `)
+
   let wait = ms =>
     Promise.make((resolve, _) => {
-      let _ = Window.setTimeout(() => resolve(), ms)
+      setTimeoutRaw(resolve, ms)
     })
+
+  let restore = () => {
+    let _ = %raw(`window.setTimeout = global.originalSetTimeout`)
+    let _ = %raw(`
+      (function() {
+        if (global.originalRevokeObjectURL) {
+          window.URL.revokeObjectURL = global.originalRevokeObjectURL;
+        }
+      })()
+    `)
+  }
 
   testAsync("snapshot logic should update scene state", async t => {
     // Setup Mock DOM and Timer
@@ -18,7 +45,6 @@ describe("ViewerSnapshot", () => {
         };
         
         // Mock Timers to trigger immediately
-        global.originalSetTimeout = window.setTimeout;
         global.capturedCallback = null;
         window.setTimeout = (cb, delay) => {
           if (delay === 1000) {
@@ -42,14 +68,13 @@ describe("ViewerSnapshot", () => {
     ViewerSnapshot.requestIdleSnapshot()
 
     // Trigger the captured callback manually
-    let _ = %raw(`global.capturedCallback()`)
+    let _ = %raw(`global.capturedCallback && global.capturedCallback()`)
 
     await wait(50)
 
     t->expect(Belt.Option.isSome(SceneCache.getSnapshot("s1")))->Expect.toBe(true)
 
-    // Restore setTimeout
-    let _ = %raw(`window.setTimeout = global.originalSetTimeout || window.setTimeout`)
+    restore()
   })
 
   testAsync("should revoke old object URL when capturing new snapshot", async t => {
@@ -66,7 +91,6 @@ describe("ViewerSnapshot", () => {
           global.revokedUrl = url;
         };
 
-        global.originalSetTimeout = window.setTimeout;
         global.capturedCallback = null;
         window.setTimeout = (cb, delay) => {
           if (delay === 1000) {
@@ -84,24 +108,23 @@ describe("ViewerSnapshot", () => {
 
     ViewerSystem.Pool.registerInstance("panorama-a", Obj.magic({"id": "mock_viewer"}))
 
+    SceneCache.clearAll()
     SceneCache.setSnapshot("s1", "blob:old-url")
     ViewerSnapshot.requestIdleSnapshot()
-    let _ = %raw(`global.capturedCallback()`)
+    let _ = %raw(`global.capturedCallback && global.capturedCallback()`)
 
     await wait(50)
 
     let revoked = %raw(`global.revokedUrl`)
     t->expect(revoked)->Expect.toBe("blob:old-url")
 
-    // Restore
-    let _ = %raw(`window.setTimeout = global.originalSetTimeout || window.setTimeout`)
+    restore()
   })
 
   testAsync("should skip capture if no viewer is active", async t => {
     let _ = %raw(`
       (function(){
         global.capturedCallback = null;
-        global.originalSetTimeout = window.setTimeout;
         window.setTimeout = (cb, delay) => {
           if (delay === 1000) {
             global.capturedCallback = cb;
@@ -117,13 +140,12 @@ describe("ViewerSnapshot", () => {
 
     SceneCache.clearAll()
     ViewerSnapshot.requestIdleSnapshot()
-    let _ = %raw(`global.capturedCallback()`)
+    let _ = %raw(`global.capturedCallback && global.capturedCallback()`)
 
     await wait(20)
     t->expect(SceneCache.getSnapshot("any"))->Expect.toBe(None)
 
-    // Restore
-    let _ = %raw(`window.setTimeout = global.originalSetTimeout || window.setTimeout`)
+    restore()
   })
 
   testAsync("should skip capture if no canvas is found", async t => {
@@ -131,7 +153,6 @@ describe("ViewerSnapshot", () => {
       (function(){
         document.body.innerHTML = '<div id="panorama-a"></div>'; // No canvas
 
-        global.originalSetTimeout = window.setTimeout;
         global.capturedCallback = null;
         window.setTimeout = (cb, delay) => {
           if (delay === 1000) {
@@ -147,13 +168,12 @@ describe("ViewerSnapshot", () => {
 
     SceneCache.clearAll()
     ViewerSnapshot.requestIdleSnapshot()
-    let _ = %raw(`global.capturedCallback()`)
+    let _ = %raw(`global.capturedCallback && global.capturedCallback()`)
 
     await wait(20)
     t->expect(SceneCache.getSnapshot("s1"))->Expect.toBe(None)
 
-    // Restore
-    let _ = %raw(`window.setTimeout = global.originalSetTimeout || window.setTimeout`)
+    restore()
   })
 
   testAsync("should notify user when rate limited", async t => {
@@ -166,7 +186,6 @@ describe("ViewerSnapshot", () => {
         };
 
         global.capturedCallback = null;
-        global.originalSetTimeout = window.setTimeout;
         window.setTimeout = (cb, delay) => {
           if (delay === 1000) {
             global.capturedCallback = cb;
@@ -214,7 +233,6 @@ describe("ViewerSnapshot", () => {
     t->expect(notificationReceived.contents)->Expect.toBe(true)
 
     unsubscribe()
-    // Cleanup
-    let _ = %raw(`window.setTimeout = global.originalSetTimeout || window.setTimeout`)
+    restore()
   })
 })

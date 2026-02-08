@@ -4,13 +4,19 @@ open UrlUtils
 
 // Global mock for URL
 let _ = %raw(`
-  globalThis.URL = {
-    createObjectURL: (obj) => {
-      if (!obj) throw new Error("Invalid object");
-      return "blob:mock-url";
-    },
-    revokeObjectURL: vi.fn()
-  }
+  (function() {
+    const mockURL = {
+      createObjectURL: (obj) => {
+        if (!obj) throw new Error("Invalid object");
+        return "blob:mock-url";
+      },
+      revokeObjectURL: vi.fn()
+    };
+    globalThis.URL = mockURL;
+    if (typeof window !== 'undefined') {
+      window.URL = mockURL;
+    }
+  })()
 `)
 
 describe("UrlUtils - Object URL Management", () => {

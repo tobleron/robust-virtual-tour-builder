@@ -32,8 +32,8 @@ let execute = (
   worker: (int, 'item, string => unit) => Promise.t<'result>,
   onProgress: (float, string) => unit,
 ) => {
-  let results = []
   let total = Array.length(items)
+  let results = Belt.Array.make(total, None)
   let currentIndex = ref(0)
   let completedCount = ref(0)
   let activeStatuses = Dict.make()
@@ -57,7 +57,7 @@ let execute = (
   let rec next = () => {
     if currentIndex.contents >= total {
       if completedCount.contents == total {
-        resolve.contents(results)
+        resolve.contents(Belt.Array.keepMap(results, x => x))
       }
     } else {
       let i = currentIndex.contents
@@ -73,7 +73,7 @@ let execute = (
             report()
           })
           ->Promise.then(res => {
-            let _ = Array.push(results, res)
+            let _ = Belt.Array.set(results, i, Some(res))
             completedCount := completedCount.contents + 1
             Dict.set(activeStatuses, Belt.Int.toString(i), "__DONE__")
             report()
@@ -101,7 +101,7 @@ let execute = (
 
   let initialWorkers = Math.Int.min(maxConcurrency, total)
   if total == 0 {
-    resolve.contents(results)
+    resolve.contents([])
   } else {
     for _ in 1 to initialWorkers {
       next()

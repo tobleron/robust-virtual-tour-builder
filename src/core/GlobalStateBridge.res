@@ -21,7 +21,7 @@ let setState = s => {
 }
 
 let subscribe = cb => {
-  Array.push(listeners.contents, cb)
+  listeners := Belt.Array.concat(listeners.contents, [cb])
   () => {
     listeners := Array.filter(listeners.contents, l => l !== cb)
   }
