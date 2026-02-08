@@ -34,8 +34,8 @@ The work has been divided into the following sub-tasks for better management and
   - Fix 2.3: Backend Quota Check-Then-Act Race
 
 ### [1307.3] Structural Improvements (Tier 3)
-- **Status:** Pending
-- **Link:** `tasks/pending/1307.3_Robustness_Structural_Improvements.md`
+- **Status:** Completed
+- **Link:** `tasks/completed/1307.3_Robustness_Structural_Improvements_DONE.md`
 - **Scope:**
   - Fix 3.1: CircuitBreaker Non-Atomic State Transitions
   - Fix 3.2: Service Worker Stale Cache Strategy

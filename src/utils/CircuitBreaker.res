@@ -30,7 +30,7 @@ let make = (
 ) => {
   {
     internalState: ClosedState({failureCount: 0}),
-    config: config,
+    config,
   }
 }
 
@@ -63,7 +63,7 @@ let canExecute = t => {
     if probing {
       false
     } else {
-      t.internalState = HalfOpenState({successCount: successCount, probing: true})
+      t.internalState = HalfOpenState({successCount, probing: true})
       true
     }
   }
@@ -86,8 +86,7 @@ let recordSuccess = t => {
 let recordFailure = t => {
   let now = Date.now()
   switch t.internalState {
-  | HalfOpenState(_) =>
-    t.internalState = OpenState({startTime: now})
+  | HalfOpenState(_) => t.internalState = OpenState({startTime: now})
   | ClosedState({failureCount}) =>
     let newFailureCount = failureCount + 1
     if newFailureCount >= t.config.failureThreshold {
