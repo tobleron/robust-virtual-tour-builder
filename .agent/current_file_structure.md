@@ -10114,6 +10114,12 @@
 │   │           ├── App_v.test.cmj
 │   │           ├── App_v.test.cmt
 │   │           ├── App_v.test.res
+│   │           ├── AsyncQueue_Order_v.test.ast
+│   │           ├── AsyncQueue_Order_v.test.bs.js
+│   │           ├── AsyncQueue_Order_v.test.cmi
+│   │           ├── AsyncQueue_Order_v.test.cmj
+│   │           ├── AsyncQueue_Order_v.test.cmt
+│   │           ├── AsyncQueue_Order_v.test.res
 │   │           ├── AsyncQueue_v.test.ast
 │   │           ├── AsyncQueue_v.test.bs.js
 │   │           ├── AsyncQueue_v.test.cmi
@@ -11109,6 +11115,11 @@
 │   │   ├── AsyncQueue.cmj
 │   │   ├── AsyncQueue.cmt
 │   │   ├── AsyncQueue.res
+│   │   ├── AsyncQueue_Order_v.test.ast
+│   │   ├── AsyncQueue_Order_v.test.cmi
+│   │   ├── AsyncQueue_Order_v.test.cmj
+│   │   ├── AsyncQueue_Order_v.test.cmt
+│   │   ├── AsyncQueue_Order_v.test.res
 │   │   ├── AsyncQueue_v.test.ast
 │   │   ├── AsyncQueue_v.test.cmi
 │   │   ├── AsyncQueue_v.test.cmj
@@ -12831,8 +12842,7 @@
 │   ├── diagnostic.log
 │   ├── error.log
 │   ├── log_changes.txt
-│   ├── project-guard.log
-│   └── telemetry.log
+│   └── project-guard.log
 ├── old_ref
 │   ├── 7aadee4
 │   │   ├── CHANGELOG.md
@@ -14784,6 +14794,7 @@
 │   │   ├── 1302_ERR_Pannellum_FileReader_Blob_Error.md
 │   │   ├── 1304_BUG_Linking_Mode_Yellow_Lines_Persist_After_Save_DONE.md
 │   │   ├── 1305_BUG_Simulation_Mode_Infinite_Loop_Stop_Disabled_DONE.md
+│   │   ├── 1307.1_Robustness_Frontend_Quick_Wins_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
 │   │       ├── 1195_Test_Teaser_DONE.md
@@ -14794,7 +14805,6 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1307.1_Robustness_Frontend_Quick_Wins.md
 │   │   ├── 1307.2_Robustness_Backend_Quick_Wins.md
 │   │   ├── 1307.3_Robustness_Structural_Improvements.md
 │   │   ├── 1307_Robustness_Hardening_Race_Condition_Elimination.md
@@ -14864,6 +14874,8 @@
 │   │   ├── AppErrorBoundary_v.test.res
 │   │   ├── App_v.test.bs.js
 │   │   ├── App_v.test.res
+│   │   ├── AsyncQueue_Order_v.test.bs.js
+│   │   ├── AsyncQueue_Order_v.test.res
 │   │   ├── AsyncQueue_v.test.bs.js
 │   │   ├── AsyncQueue_v.test.res
 │   │   ├── AudioManager_v.test.bs.js
@@ -15202,4 +15214,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-651 directories, 14552 files
+651 directories, 14564 files
