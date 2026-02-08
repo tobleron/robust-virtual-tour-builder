@@ -16,8 +16,8 @@ The work has been divided into the following sub-tasks for better management and
 ## Sub-Tasks
 
 ### [1307.1] Frontend Quick Wins (Tier 1)
-- **Status:** Pending
-- **Link:** `tasks/pending/1307.1_Robustness_Frontend_Quick_Wins.md`
+- **Status:** Completed
+- **Link:** `tasks/completed/1307.1_Robustness_Frontend_Quick_Wins_DONE.md`
 - **Scope:**
   - Fix 1.1: AsyncQueue Result Ordering Bug
   - Fix 1.2: OperationJournal Unwaited Saves
