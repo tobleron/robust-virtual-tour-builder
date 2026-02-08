@@ -48,10 +48,19 @@ describe("UrlUtils - Object URL Management", () => {
     t->expect(result)->Expect.toBe("")
   })
 
-  test("revokeUrl calls revokeObjectURL for blob URLs", t => {
+  test("revokeUrl calls revokeObjectURL for blob URLs after delay", t => {
+    let _ = %raw(`vi.useFakeTimers()`)
     revokeUrl("blob:mock-url")
-    let calls = %raw(`URL.revokeObjectURL.mock.calls.length`)
-    t->expect(calls)->Expect.toBe(1)
+    // Should not be called immediately
+    let callsBefore = %raw(`URL.revokeObjectURL.mock.calls.length`)
+    t->expect(callsBefore)->Expect.toBe(0)
+
+    // Fast-forward 5 seconds
+    let _ = %raw(`vi.advanceTimersByTime(5000)`)
+
+    let callsAfter = %raw(`URL.revokeObjectURL.mock.calls.length`)
+    t->expect(callsAfter)->Expect.toBe(1)
+    let _ = %raw(`vi.useRealTimers()`)
   })
 
   test("revokeUrl skips revokeObjectURL for http URLs", t => {
