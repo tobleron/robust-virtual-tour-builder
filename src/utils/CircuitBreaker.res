@@ -5,6 +5,11 @@ type state =
   | Open
   | HalfOpen
 
+type internalState =
+  | ClosedState({failureCount: int})
+  | OpenState({startTime: float})
+  | HalfOpenState({successCount: int, probing: bool})
+
 type config = {
   failureThreshold: int,
   successThreshold: int,
@@ -12,11 +17,7 @@ type config = {
 }
 
 type t = {
-  mutable state: state,
-  mutable failureCount: int,
-  mutable successCount: int,
-  mutable lastFailureTime: option<float>,
-  mutable probing: bool,
+  mutable internalState: internalState,
   config: config,
 }
 
@@ -28,16 +29,18 @@ let make = (
   },
 ) => {
   {
-    state: Closed,
-    failureCount: 0,
-    successCount: 0,
-    lastFailureTime: None,
-    probing: false,
-    config,
+    internalState: ClosedState({failureCount: 0}),
+    config: config,
   }
 }
 
-let getState = t => t.state
+let getState = t => {
+  switch t.internalState {
+  | ClosedState(_) => Closed
+  | OpenState(_) => Open
+  | HalfOpenState(_) => HalfOpen
+  }
+}
 
 let stateToString = state =>
   switch state {
@@ -47,61 +50,53 @@ let stateToString = state =>
   }
 
 let canExecute = t => {
-  switch t.state {
-  | Closed => true
-  | Open =>
-    switch t.lastFailureTime {
-    | Some(time) =>
-      if Date.now() -. time >= Int.toFloat(t.config.timeout) {
-        t.state = HalfOpen
-        t.probing = true
-        true
-      } else {
-        false
-      }
-    | None => true // Should not happen in Open, but safe fallback
+  switch t.internalState {
+  | ClosedState(_) => true
+  | OpenState({startTime}) =>
+    if Date.now() -. startTime >= Int.toFloat(t.config.timeout) {
+      t.internalState = HalfOpenState({successCount: 0, probing: true})
+      true
+    } else {
+      false
     }
-  | HalfOpen =>
-    if t.probing {
+  | HalfOpenState({probing, successCount}) =>
+    if probing {
       false
     } else {
-      t.probing = true
+      t.internalState = HalfOpenState({successCount: successCount, probing: true})
       true
     }
   }
 }
 
 let recordSuccess = t => {
-  switch t.state {
-  | HalfOpen =>
-    t.probing = false
-    t.successCount = t.successCount + 1
-    if t.successCount >= t.config.successThreshold {
-      t.state = Closed
-      t.failureCount = 0
-      t.successCount = 0
-      t.lastFailureTime = None
+  switch t.internalState {
+  | HalfOpenState({successCount}) =>
+    let newSuccessCount = successCount + 1
+    if newSuccessCount >= t.config.successThreshold {
+      t.internalState = ClosedState({failureCount: 0})
+    } else {
+      t.internalState = HalfOpenState({successCount: newSuccessCount, probing: false})
     }
-  | Closed => t.failureCount = 0
-  | Open => () // Should not happen usually, but ignore
+  | ClosedState(_) => t.internalState = ClosedState({failureCount: 0})
+  | OpenState(_) => () // Should not happen usually, but ignore
   }
 }
 
 let recordFailure = t => {
-  switch t.state {
-  | HalfOpen =>
-    t.state = Open
-    t.lastFailureTime = Some(Date.now())
-    t.successCount = 0
-    t.probing = false
-  | Closed =>
-    t.failureCount = t.failureCount + 1
-    if t.failureCount >= t.config.failureThreshold {
-      t.state = Open
-      t.lastFailureTime = Some(Date.now())
+  let now = Date.now()
+  switch t.internalState {
+  | HalfOpenState(_) =>
+    t.internalState = OpenState({startTime: now})
+  | ClosedState({failureCount}) =>
+    let newFailureCount = failureCount + 1
+    if newFailureCount >= t.config.failureThreshold {
+      t.internalState = OpenState({startTime: now})
+    } else {
+      t.internalState = ClosedState({failureCount: newFailureCount})
     }
-  | Open =>
+  | OpenState(_) =>
     // Reset timer on subsequent failures
-    t.lastFailureTime = Some(Date.now())
+    t.internalState = OpenState({startTime: now})
   }
 }
