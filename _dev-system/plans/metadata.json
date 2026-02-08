@@ -1,12 +1,4 @@
 {
-  "system": [
-    {
-      "Ambiguity": {
-        "file": "../../src/hooks/UseInteraction.res",
-        "strategy": ""
-      }
-    }
-  ],
   "rescript": [
     {
       "Violation": {
@@ -24,12 +16,12 @@
     },
     {
       "Surgical": {
-        "file": "../../src/components/Sidebar.res",
+        "file": "../../src/systems/ProjectManager.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 7.80, Density: 0.23, Coupling: 0.09] | Drag: 9.14 | LOC: 370/300  🎯 Target: Function: `make` (High Local Complexity (23.2). Logic heavy.)",
+        "reason": "[Nesting: 4.80, Density: 0.20, Coupling: 0.10] | Drag: 6.00 | LOC: 393/300  🎯 Target: Function: `finalToken` (High Local Complexity (2.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 16.14054054054054,
+        "complexity": 15.301017811704835,
         "recommended_splits": 2
       }
     },
@@ -46,12 +38,12 @@
     },
     {
       "Surgical": {
-        "file": "../../src/systems/ProjectManager.res",
+        "file": "../../src/components/Sidebar.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 4.80, Density: 0.20, Coupling: 0.10] | Drag: 6.00 | LOC: 393/300  🎯 Target: Function: `finalToken` (High Local Complexity (2.0). Logic heavy.)",
+        "reason": "[Nesting: 7.80, Density: 0.23, Coupling: 0.09] | Drag: 9.14 | LOC: 370/300  🎯 Target: Function: `make` (High Local Complexity (23.2). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 15.301017811704835,
+        "complexity": 16.14054054054054,
         "recommended_splits": 2
       }
     },
@@ -64,6 +56,23 @@
         "platform": "frontend",
         "complexity": 14.206925207756232,
         "recommended_splits": 2
+      }
+    }
+  ],
+  "rust": [
+    {
+      "Violation": {
+        "file": "../../backend/src/api/media/video_logic.rs",
+        "pattern": "unwrap()",
+        "strategy": ""
+      }
+    }
+  ],
+  "system": [
+    {
+      "Ambiguity": {
+        "file": "../../src/hooks/UseInteraction.res",
+        "strategy": ""
       }
     }
   ]
