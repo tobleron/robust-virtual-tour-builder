@@ -1,5 +1,6 @@
 #!/bin/bash
-# USAGE: ./scripts/fast-commit.sh "feat: Description"
+# USAGE: ./scripts/fast-commit.sh "feat: Description" [bump-override]
+# Optional second argument: 'major', 'minor', 'patch' to override auto-detection.
 MSG="$1"
 
 if [ -z "$MSG" ]; then echo "❌ Error: Commit message required."; exit 1; fi
@@ -21,6 +22,7 @@ BUMP_REQUEST="${2:-$MSG}"
 echo "📈 Processing versioning..."
 node scripts/bump-version.js "$BUMP_REQUEST"
 node scripts/update-version.js
+node scripts/sync-sw.cjs
 
 NEW_VER=$(node -p "require('./package.json').version")
 BUILD_NUM=$(node -p "require('./package.json').buildNumber")
