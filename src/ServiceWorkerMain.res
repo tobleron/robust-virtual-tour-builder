@@ -63,7 +63,7 @@ module URL = {
 }
 
 /* Constants - Updated by scripts/sync-sw.cjs */
-let cacheName = "vtb-cache-v4.33.5"
+let cacheName = "vtb-cache-v4.33.6"
 let manualAssets = [
   "/",
   "/index.html",
@@ -162,9 +162,11 @@ addEventListener("fetch", (event: FetchEvent.t) => {
             let _ =
               caches
               ->CacheStorage.open_(cacheName)
-              ->Promise.then(cache => {
-                cache->Cache.put(request, responseToCache)
-              })
+              ->Promise.then(
+                cache => {
+                  cache->Cache.put(request, responseToCache)
+                },
+              )
           }
           Promise.resolve(response)
         })
