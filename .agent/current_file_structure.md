@@ -12926,8 +12926,7 @@
 │   ├── diagnostic.log
 │   ├── error.log
 │   ├── log_changes.txt
-│   ├── project-guard.log
-│   └── telemetry.log
+│   └── project-guard.log
 ├── old_ref
 │   ├── 7aadee4
 │   │   ├── CHANGELOG.md
@@ -14902,9 +14901,7 @@
 │   │       ├── D001_Fix_Violations_FRONTEND.md
 │   │       ├── D002_Surgical_Refactor_CORE_FRONTEND.md
 │   │       ├── D003_Surgical_Refactor_SYSTEMS_FRONTEND.md
-│   │       ├── D004_Classify_Map_Entries.md
 │   │       ├── D005_Integrate_DataFlow_Modules.md
-│   │       ├── D006_Classify_Ambiguous_Files.md
 │   │       ├── D007_Surgical_Refactor_COMPONENTS_FRONTEND.md
 │   │       └── D008_Fix_Violations_BACKEND.md
 │   └── postponed
@@ -15381,4 +15378,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-674 directories, 14708 files
+674 directories, 14705 files

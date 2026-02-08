@@ -1,3 +1,4 @@
+/* @efficiency-role: state-hook */
 open InteractionPolicies
 
 let useInteraction = (~id: string, ~policy: policy, ~action: unit => Promise.t<'a>) => {
