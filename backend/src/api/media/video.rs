@@ -158,9 +158,7 @@ pub async fn transcode_video(mut payload: Multipart) -> Result<HttpResponse, App
 
     tracing::info!(module = "VideoEncoder", input = %input_str, output = %output_str, "TRANSCODE_START");
 
-    let result = web::block(move || video_logic::transcode_video_sync(input_str, output_str))
-        .await
-        .map_err(|e| AppError::InternalError(e.to_string()))?;
+    let result = video_logic::transcode_video(input_str, output_str).await;
 
     match result {
         Ok(path) => {

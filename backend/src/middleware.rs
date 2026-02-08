@@ -84,27 +84,27 @@ where
 
         Box::pin(async move {
             if let Some(manager) = quota_manager {
-                if let Err(e) = manager.can_upload(&ip, content_length).await {
-                    tracing::warn!(ip = %ip, size = content_length, error = %e, "Upload rejected");
+                match manager.try_register_upload(&ip, content_length).await {
+                    Err(e) => {
+                        tracing::warn!(ip = %ip, size = content_length, error = %e, "Upload rejected");
 
-                    return Ok(req
-                        .into_response(HttpResponse::TooManyRequests().json(serde_json::json!({
-                            "error": "Quota exceeded",
-                            "message": e
-                        })))
-                        .map_body(|_, b| EitherBody::Right { body: b }));
+                        Ok(req
+                            .into_response(HttpResponse::TooManyRequests().json(serde_json::json!({
+                                "error": "Quota exceeded",
+                                "message": e
+                            })))
+                            .map_body(|_, b| EitherBody::Right { body: b }))
+                    }
+                    Ok(_upload_id) => {
+                        // Process request via service
+                        let res_call = service.call(req).await;
+
+                        // Unregister upload
+                        manager.unregister_upload(&ip, content_length).await;
+
+                        res_call.map(|res| res.map_body(|_, b| EitherBody::Left { body: b }))
+                    }
                 }
-
-                // Register upload
-                let _upload_id = manager.register_upload(&ip, content_length).await;
-
-                // Process request via service
-                let res_call = service.call(req).await;
-
-                // Unregister upload
-                manager.unregister_upload(&ip, content_length).await;
-
-                res_call.map(|res| res.map_body(|_, b| EitherBody::Left { body: b }))
             } else {
                 service
                     .call(req)
