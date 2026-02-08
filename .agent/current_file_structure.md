@@ -14797,6 +14797,7 @@
 │   │   ├── 1307.1_Robustness_Frontend_Quick_Wins_DONE.md
 │   │   ├── 1307.2_Robustness_Backend_Quick_Wins_DONE.md
 │   │   ├── 1307.3_Robustness_Structural_Improvements_DONE.md
+│   │   ├── 1307_Robustness_Hardening_Race_Condition_Elimination_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
 │   │       ├── 1195_Test_Teaser_DONE.md
@@ -14807,7 +14808,6 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1307_Robustness_Hardening_Race_Condition_Elimination.md
 │   │   └── dev_tasks
 │   │       ├── D001_Fix_Violations_FRONTEND.md
 │   │       ├── D002_Surgical_Refactor_CORE_FRONTEND.md
