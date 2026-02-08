@@ -151,15 +151,50 @@ test.describe('Application Robustness', () => {
       const count = await sceneItems.count();
 
       if (count > 1) {
-        // Rapidly switch scenes without waiting for previous load to finish
-        for (let i = 0; i < Math.min(count, 5); i++) {
-          await sceneItems.nth(i).click({ force: true });
-        }
-      }
+        // 1. Click first scene to start fresh
+        await sceneItems.first().click({ force: true });
+        await page.waitForTimeout(500);
 
-      // Expected: Viewer should be in a valid state for the LAST clicked scene
-      await expect(page.locator('#viewer-stage')).toBeVisible();
-      await expect(page.locator('text=/Something went wrong/i')).not.toBeVisible();
+        // 2. Rapidly switch scenes without waiting for previous load to finish
+        // We want to trigger the "Lock Rejected" retry loop logic
+        const targetCount = Math.min(count, 5);
+        for (let i = 0; i < targetCount; i++) {
+          console.log(`Rapid click ${i}`);
+          // Alternating clicks to force state changes
+          const index = i % 2 === 0 ? 1 : 0;
+          await sceneItems.nth(index).click({ force: true });
+          // Very short delay to allow event dispatch but not completion
+          await page.waitForTimeout(100);
+        }
+
+        // 3. Verify we eventually stabilize
+        // The lock timeout is 15s max, so we wait enough to ensure forceRelease would have fired
+        console.log('Waiting for stabilization...');
+
+        // We verify that the "TransitionLock" eventually releases
+        await expect.poll(async () => {
+          const logs = await page.evaluate(() => (window as any).__debugLogs || []);
+          const lastRelease = logs.slice().reverse().find((l: string) => l.includes('LOCK_RELEASED'));
+          return !!lastRelease;
+        }, { timeout: 20000 }).toBeTruthy();
+
+        // 4. Verification: Viewer should be visible and interactive
+        await expect(page.locator('#viewer-stage')).toBeVisible();
+        await expect(page.locator('text=/Something went wrong/i')).not.toBeVisible();
+
+        // 5. Explicit check that we are NOT stuck in a lock
+        // We can check if we can trigger a new transition successfully
+        console.log('Verifying lock is free...');
+        const initialLogs = await page.evaluate(() => (window as any).__debugLogs?.length || 0);
+        await sceneItems.last().click({ force: true });
+
+        // Should produce new logs indicating successful acquisition
+        await expect.poll(async () => {
+          const logs = await page.evaluate(() => (window as any).__debugLogs || []);
+          const newLogs = logs.slice(initialLogs);
+          return newLogs.some((l: string) => l.includes('LOCK_ACQUIRED'));
+        }, { timeout: 5000 }).toBeTruthy();
+      }
     });
   });
 

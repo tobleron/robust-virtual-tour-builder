@@ -197,6 +197,48 @@
 │   │           │   │   └── 162557_040.webp
 │   │           │   ├── project.json
 │   │           │   └── summary.txt
+│   │           ├── 012b1807-0209-454d-b69b-40ea49226d82
+│   │           │   ├── images
+│   │           │   │   ├── 154407_002.webp
+│   │           │   │   ├── 154618_004.webp
+│   │           │   │   ├── 154744_005.webp
+│   │           │   │   ├── 154859_006.webp
+│   │           │   │   ├── 155038_007.webp
+│   │           │   │   ├── 155139_008.webp
+│   │           │   │   ├── 155241_009.webp
+│   │           │   │   ├── 155456_010.webp
+│   │           │   │   ├── 155613_011.webp
+│   │           │   │   ├── 155754_012.webp
+│   │           │   │   ├── 155927_013.webp
+│   │           │   │   ├── 160058_014.webp
+│   │           │   │   ├── 160223_015.webp
+│   │           │   │   ├── 160339_016.webp
+│   │           │   │   ├── 160509_017.webp
+│   │           │   │   ├── 160552_018.webp
+│   │           │   │   ├── 160634_019.webp
+│   │           │   │   ├── 160715_020.webp
+│   │           │   │   ├── 160825_021.webp
+│   │           │   │   ├── 160926_022.webp
+│   │           │   │   ├── 161026_023.webp
+│   │           │   │   ├── 161123_024.webp
+│   │           │   │   ├── 161213_025.webp
+│   │           │   │   ├── 161309_026.webp
+│   │           │   │   ├── 161358_027.webp
+│   │           │   │   ├── 161456_028.webp
+│   │           │   │   ├── 161628_029.webp
+│   │           │   │   ├── 161706_030.webp
+│   │           │   │   ├── 161739_031.webp
+│   │           │   │   ├── 161824_032.webp
+│   │           │   │   ├── 161910_033.webp
+│   │           │   │   ├── 162015_034.webp
+│   │           │   │   ├── 162106_035.webp
+│   │           │   │   ├── 162215_036.webp
+│   │           │   │   ├── 162251_037.webp
+│   │           │   │   ├── 162400_038.webp
+│   │           │   │   ├── 162456_039.webp
+│   │           │   │   └── 162557_040.webp
+│   │           │   ├── project.json
+│   │           │   └── summary.txt
 │   │           ├── 014fa5bc-0f2a-4790-a601-99c947ce05e1
 │   │           │   ├── images
 │   │           │   │   ├── 154407_002.webp
@@ -7883,6 +7925,48 @@
 │   │           │   │   └── 162557_040.webp
 │   │           │   ├── project.json
 │   │           │   └── summary.txt
+│   │           ├── ea272434-4e90-48c8-8a9d-70c05a7510be
+│   │           │   ├── images
+│   │           │   │   ├── 154407_002.webp
+│   │           │   │   ├── 154618_004.webp
+│   │           │   │   ├── 154744_005.webp
+│   │           │   │   ├── 154859_006.webp
+│   │           │   │   ├── 155038_007.webp
+│   │           │   │   ├── 155139_008.webp
+│   │           │   │   ├── 155241_009.webp
+│   │           │   │   ├── 155456_010.webp
+│   │           │   │   ├── 155613_011.webp
+│   │           │   │   ├── 155754_012.webp
+│   │           │   │   ├── 155927_013.webp
+│   │           │   │   ├── 160058_014.webp
+│   │           │   │   ├── 160223_015.webp
+│   │           │   │   ├── 160339_016.webp
+│   │           │   │   ├── 160509_017.webp
+│   │           │   │   ├── 160552_018.webp
+│   │           │   │   ├── 160634_019.webp
+│   │           │   │   ├── 160715_020.webp
+│   │           │   │   ├── 160825_021.webp
+│   │           │   │   ├── 160926_022.webp
+│   │           │   │   ├── 161026_023.webp
+│   │           │   │   ├── 161123_024.webp
+│   │           │   │   ├── 161213_025.webp
+│   │           │   │   ├── 161309_026.webp
+│   │           │   │   ├── 161358_027.webp
+│   │           │   │   ├── 161456_028.webp
+│   │           │   │   ├── 161628_029.webp
+│   │           │   │   ├── 161706_030.webp
+│   │           │   │   ├── 161739_031.webp
+│   │           │   │   ├── 161824_032.webp
+│   │           │   │   ├── 161910_033.webp
+│   │           │   │   ├── 162015_034.webp
+│   │           │   │   ├── 162106_035.webp
+│   │           │   │   ├── 162215_036.webp
+│   │           │   │   ├── 162251_037.webp
+│   │           │   │   ├── 162400_038.webp
+│   │           │   │   ├── 162456_039.webp
+│   │           │   │   └── 162557_040.webp
+│   │           │   ├── project.json
+│   │           │   └── summary.txt
 │   │           ├── ea6916de-db54-48f1-ab57-3c1357744829
 │   │           │   ├── images
 │   │           │   │   ├── 154407_002.webp
@@ -12842,7 +12926,8 @@
 │   ├── diagnostic.log
 │   ├── error.log
 │   ├── log_changes.txt
-│   └── project-guard.log
+│   ├── project-guard.log
+│   └── telemetry.log
 ├── old_ref
 │   ├── 7aadee4
 │   │   ├── CHANGELOG.md
@@ -14808,6 +14893,11 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
+│   │   ├── 1308_Investigate_E2E_Failure_Hotspot_Navigation.md
+│   │   ├── 1309_Investigate_E2E_Failure_Rapid_Clicking.md
+│   │   ├── 1310_Investigate_E2E_Failure_Upload_Retry.md
+│   │   ├── 1311_Investigate_E2E_Failure_Performance.md
+│   │   ├── 1312_Investigate_E2E_Failure_Sync_Tour_Name.md
 │   │   └── dev_tasks
 │   │       ├── D001_Fix_Violations_FRONTEND.md
 │   │       ├── D002_Surgical_Refactor_CORE_FRONTEND.md
@@ -14823,8 +14913,84 @@
 │       ├── 1299_ERR_Performance_LoadTimeAndMemory.md
 │       └── 1306_ARCH_Navigation_Supervisor_Pattern_Research_DEFERRED.md
 ├── test-results
-│   └── editor-Editor-Interactions-should-sync-tour-name-property-firefox
-│       ├── error-context.md
+│   ├── error-recovery-Error-Recov-4370c-ould-trigger-recovery-modal-webkit
+│   │   ├── error-context.md
+│   │   └── test-failed-1.png
+│   ├── rapid-scene-switching-FSM--088e8-g-by-clicking-another-scene-chromium
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── rapid-scene-switching-FSM--c1619-ne-clicking-should-not-hang-chromium
+│   │   ├── error-context.md
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-0e90a-ation-Rapid-Scene-Switching-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-2fbf0-eyboard-Mouse-Interruptions-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-33d59-tic-Rollback-on-API-Failure-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-48365-arrier-Blocks-Other-Actions-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-54cde-ivity-Linking-vs-Simulation-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-6cd1c-ling-Operation-Cancellation-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-7044e--Circuit-Breaker-Activation-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-a4a16-ling-Save-Button-Debouncing-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-b56c2-ry-with-Exponential-Backoff-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-c8c37-d-Saving-during-Interaction-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-dc047-g-Rate-Limiter-Notification-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-ddd25-Concurrent-Mode-Transitions-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── robustness-Application-Rob-edf9a-errupted-Operation-Recovery-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── save-load-recovery-Project-30f67-ata-through-save-load-cycle-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── simulation-teaser-Simulati-4ee6a-un-auto-teaser-and-download-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   ├── simulation-teaser-Simulati-ce210-ld-run-autopilot-simulation-chromium
+│   │   ├── test-failed-1.png
+│   │   ├── trace.zip
+│   │   └── video.webm
+│   └── upload-link-export-workflo-ab193-full-tour-creation-workflow-chromium
 │       ├── test-failed-1.png
 │       ├── trace.zip
 │       └── video.webm
@@ -15215,4 +15381,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-651 directories, 14565 files
+674 directories, 14708 files
