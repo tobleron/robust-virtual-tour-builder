@@ -106,13 +106,25 @@ let cleanupViewerInstance = (ov, vp: viewport) => {
   }
   TransitionLock.transition("SceneTransition_Cleanup", Cleanup(sceneId))
 
-  let tid = Window.setTimeout(() => {
+  // 1. Resource Lifecycle (Cancellable)
+  // We schedule the destruction of the viewer but allow it to be cancelled
+  // if SceneLoader decides to reuse this instance.
+  let resourceCleanupId = Window.setTimeout(() => {
     ov->Nullable.toOption->Option.forEach(ViewerSystem.Adapter.destroy)
     ViewerSystem.Pool.clearInstance(vp.containerId)
+    // We only clear the timeout ref, we don't touch the lock here anymore
     ViewerSystem.Pool.clearCleanupTimeout(vp.id)
-    TransitionLock.release("SceneTransition_CleanupDone")
   }, 500)
-  ViewerSystem.Pool.setCleanupTimeout(vp.id, Some(tid))
+
+  // Register the resource cleanup task so it can be cancelled
+  ViewerSystem.Pool.setCleanupTimeout(vp.id, Some(resourceCleanupId))
+
+  // 2. State Lifecycle (Guaranteed)
+  // This runs independently of the resource cleanup. Even if the viewer is reused
+  // (and resourceCleanupId is cleared), the lock MUST be released to unblock the UI.
+  let _ = Window.setTimeout(() => {
+    TransitionLock.release("SceneTransition_CleanupDone")
+  }, 550) // Small buffer to ensure it runs after cleanup if both proceed
 }
 
 let cleanupSnapshotOverlay = () => {
