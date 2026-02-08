@@ -18,7 +18,9 @@ async fn test_quota_rejects_oversized_upload() {
     };
     let manager = UploadQuotaManager::new(config);
 
-    let result = manager.try_register_upload("127.0.0.1", 2 * 1024 * 1024).await;
+    let result = manager
+        .try_register_upload("127.0.0.1", 2 * 1024 * 1024)
+        .await;
     assert!(result.is_err());
 }
 

@@ -89,10 +89,12 @@ where
                         tracing::warn!(ip = %ip, size = content_length, error = %e, "Upload rejected");
 
                         Ok(req
-                            .into_response(HttpResponse::TooManyRequests().json(serde_json::json!({
-                                "error": "Quota exceeded",
-                                "message": e
-                            })))
+                            .into_response(HttpResponse::TooManyRequests().json(
+                                serde_json::json!({
+                                    "error": "Quota exceeded",
+                                    "message": e
+                                }),
+                            ))
                             .map_body(|_, b| EitherBody::Right { body: b }))
                     }
                     Ok(_upload_id) => {

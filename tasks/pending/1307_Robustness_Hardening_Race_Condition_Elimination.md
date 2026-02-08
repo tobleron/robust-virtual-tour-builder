@@ -26,8 +26,8 @@ The work has been divided into the following sub-tasks for better management and
   - Fix 1.5: PersistenceLayer Subscriber Leak
 
 ### [1307.2] Backend Quick Wins (Tier 2)
-- **Status:** Pending
-- **Link:** `tasks/pending/1307.2_Robustness_Backend_Quick_Wins.md`
+- **Status:** Completed
+- **Link:** `tasks/completed/1307.2_Robustness_Backend_Quick_Wins_DONE.md`
 - **Scope:**
   - Fix 2.1: Backend Auth expect() Panics
   - Fix 2.2: FFmpeg/Chrome Zombie Process Leak
