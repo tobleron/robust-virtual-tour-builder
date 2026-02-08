@@ -1116,7 +1116,7 @@ window.pannellum = (function (E, g, p) {
               a.textContent = a.href;
               K(b.strings.fileAccessError.replace("%s", a.outerHTML));
             }
-            Ba(this.response);
+            if (200 == e.status) Ba(this.response);
             q.load.msg.innerHTML = "";
           };
           e.onprogress = function (a) {
