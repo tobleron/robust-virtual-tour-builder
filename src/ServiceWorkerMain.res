@@ -39,6 +39,7 @@ module FetchEvent = {
   type t
   @get external request: t => Request.t = "request"
   @send external respondWith: (t, Promise.t<Response.t>) => unit = "respondWith"
+  @send external waitUntil: (t, Promise.t<'a>) => unit = "waitUntil"
 }
 
 module ExtendableEvent = {
@@ -153,34 +154,35 @@ addEventListener("fetch", (event: FetchEvent.t) => {
     let isApi = pathname->String.startsWith("/api/") || pathname == "/health"
 
     if !isApi {
+      let fetchAndCache =
+        fetch(request)
+        ->Promise.then(response => {
+          if response->Response.status == 200 && response->Response.type_ == "basic" {
+            let responseToCache = response->Response.clone
+            let _ =
+              caches
+              ->CacheStorage.open_(cacheName)
+              ->Promise.then(cache => {
+                cache->Cache.put(request, responseToCache)
+              })
+          }
+          Promise.resolve(response)
+        })
+        ->Promise.catch(error => {
+          Logger.warn(~module_="ServiceWorker", ~message="BG_FETCH_FAILED", ~data=error, ())
+          Promise.reject(error)
+        })
+
+      event->FetchEvent.waitUntil(fetchAndCache)
+
       event->FetchEvent.respondWith(
         caches
         ->CacheStorage.match(request)
         ->Promise.then(cachedResponse => {
           switch cachedResponse->Nullable.toOption {
           | Some(res) => Promise.resolve(res)
-          | None =>
-            fetch(request)->Promise.then(
-              response => {
-                if response->Response.status == 200 && response->Response.type_ == "basic" {
-                  let responseToCache = response->Response.clone
-                  let _ =
-                    caches
-                    ->CacheStorage.open_(cacheName)
-                    ->Promise.then(
-                      cache => {
-                        cache->Cache.put(request, responseToCache)
-                      },
-                    )
-                }
-                Promise.resolve(response)
-              },
-            )
+          | None => fetchAndCache
           }
-        })
-        ->Promise.catch(error => {
-          Logger.error(~module_="ServiceWorker", ~message="FETCH_FAILED", ~data=error, ())
-          Promise.reject(error)
         }),
       )
     }

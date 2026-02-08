@@ -44,11 +44,24 @@ pub async fn evict_lru_entry(
     cache: Arc<RwLock<HashMap<GeocodeKey, CachedGeocode>>>,
     stats: Arc<RwLock<crate::models::CacheStats>>,
 ) {
-    let mut cache = cache.write().await;
+    let removed = {
+        let mut cache = cache.write().await;
 
-    // Find oldest entry by last_accessed
-    if let Some((&key, _)) = cache.iter().min_by_key(|(_, v)| v.last_accessed) {
-        cache.remove(&key);
+        // Find oldest entry by last_accessed
+        let key_to_remove = cache
+            .iter()
+            .min_by_key(|(_, v)| v.last_accessed)
+            .map(|(&key, _)| key);
+
+        if let Some(key) = key_to_remove {
+            cache.remove(&key);
+            true
+        } else {
+            false
+        }
+    }; // cache lock dropped here
+
+    if removed {
         let mut stats = stats.write().await;
         stats.evictions += 1;
         tracing::debug!(module = "Geocoder", "LRU_EVICTION");
