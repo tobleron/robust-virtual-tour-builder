@@ -25,6 +25,7 @@ This map provides a semantic overview of the project structure to optimize conte
     * [src/utils/LoggerCommon.res](src/utils/LoggerCommon.res): Shared logging logic and timestamp formatting. `#logging` `#utils`
     * [src/utils/LoggerLogic.res](src/utils/LoggerLogic.res): Extracted logic for performance thresholds and error data enrichment. `#logging` `#logic`
 *   [src/Hooks.res](src/Hooks.res): Common React hooks for throttled actions and interaction permissions. `#react` `#hooks`
+*   [src/hooks/UseInteraction.res](src/hooks/UseInteraction.res): Specialized hook for managing interaction policies and feedback. `#react` `#hooks` `#interaction`
 
 
 ### 🛡️ State Management & Logic
@@ -52,6 +53,9 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/core/TransitionLock.res](src/core/TransitionLock.res): Global lock for scene transitions and viewer swaps. `#concurrency` `#locking` `#safety`
 *   [src/core/InteractionGuard.res](src/core/InteractionGuard.res): Cooldown and multi-click prevention for UI actions. `#concurrency` `#safety`
 *   [src/core/InteractionPolicies.res](src/core/InteractionPolicies.res): Configuration for interaction cooldowns and limits. `#configuration` `#safety`
+*   [src/core/NotificationManager.res](src/core/NotificationManager.res): Core logic for dispatching and managing notifications. `#logic` `#notifications`
+*   [src/core/NotificationQueue.res](src/core/NotificationQueue.res): Queue management for sequential notification display. `#logic` `#queue`
+*   [src/core/NotificationTypes.res](src/core/NotificationTypes.res): Type definitions for the notification system. `#types` `#notifications`
 
 *   [src/core/SceneHelpers.res](src/core/SceneHelpers.res): Lightweight facade for scene-related helpers. `#helpers` `#scene` `#facade`
 
@@ -158,6 +162,8 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [src/components/VisualPipeline/VisualPipelineStyles.res](src/components/VisualPipeline/VisualPipelineStyles.res): CSS-in-JS definitions for the visual pipeline. `#styling`
 *   [src/components/SnapshotOverlay.res](src/components/SnapshotOverlay.res): Visual transition "flash" layer. `#ui` `#transition`
 *   [src/components/NotificationLayer.res](src/components/NotificationLayer.res): Centralized notification and processing status layer. `#ui` `#notifications`
+    *   [src/components/NotificationCenter.res](src/components/NotificationCenter.res): High-level notification center UI orchestrator. `#ui` `#notifications`
+*   [src/components/LockFeedback.res](src/components/LockFeedback.res): Visual feedback for transition locks and blocking states. `#ui` `#feedback`
 *   [src/components/Sidebar.res](src/components/Sidebar.res): Consolidated sidebar module for project management and UI. `#sidebar` `#scene-management` `#ui` `#logic`
     * [src/components/Sidebar/SidebarLogic.res](src/components/Sidebar/SidebarLogic.res): Core sidebar logic and upload orchestration. `#logic`
     * [src/components/Sidebar/SidebarProjectInfo.res](src/components/Sidebar/SidebarProjectInfo.res): UI for tour name and upload triggers. `#ui`
@@ -168,6 +174,7 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [src/components/SceneList/SceneItem.res](src/components/SceneList/SceneItem.res): Individual scene item component. `#ui`
 *   [src/components/HotspotManager.res](src/components/HotspotManager.res): Visual editor for placement and editing of nav links. `#hotspots` `#editor`
 *   [src/components/AppErrorBoundary.res](src/components/AppErrorBoundary.res): Top-level safety net for render failures. `#error-handling` `#stability`
+*   [src/components/CriticalErrorMonitor.res](src/components/CriticalErrorMonitor.res): Monitor for capturing and reporting critical application errors. `#error-handling` `#monitoring`
 *   [src/components/ErrorFallbackUI.res](src/components/ErrorFallbackUI.res): Visual fallback for caught rendering errors. `#ui` `#error-handling`
 *   [src/components/HotspotActionMenu.res](src/components/HotspotActionMenu.res): Contextual menu for hotspot-specific actions. `#ui` `#hotspots`
 *   [src/components/HotspotLayer.res](src/components/HotspotLayer.res): Interactive SVG/DOM layer for hotspot rendering. `#ui` `#rendering` `#hotspots`
@@ -293,11 +300,4 @@ This map provides a semantic overview of the project structure to optimize conte
 
 
 
-## 🆕 Unmapped Modules
-* [src/components/NotificationCenter.res](src/components/NotificationCenter.res): New module detected. Please classify. #new
-* [src/core/NotificationQueue.res](src/core/NotificationQueue.res): New module detected. Please classify. #new
-* [src/core/NotificationManager.res](src/core/NotificationManager.res): New module detected. Please classify. #new
-* [src/core/NotificationTypes.res](src/core/NotificationTypes.res): New module detected. Please classify. #new
-* [src/components/LockFeedback.res](src/components/LockFeedback.res): New module detected. Please classify. #new
-* [src/hooks/UseInteraction.res](src/hooks/UseInteraction.res): New module detected. Please classify. #new
-* [src/components/CriticalErrorMonitor.res](src/components/CriticalErrorMonitor.res): New module detected. Please classify. #new
+
