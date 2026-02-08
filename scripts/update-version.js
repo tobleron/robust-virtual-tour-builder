@@ -24,6 +24,10 @@ try {
     const fullVersion = `${version}+${buildNumber}`;
     html = html.replace(/\?v=[\d.+]+/g, `?v=${fullVersion}`);
 
+    if (!/\?v=/.test(originalHtml)) {
+        console.warn('⚠️  Warning: No ?v= cache buster patterns found in index.html. Static assets will not be cache-busted.');
+    }
+
     if (html !== originalHtml) {
         writeFileSync(htmlPath, html);
         console.log('✅ Updated index.html (cache busters and/or CSP header)');
