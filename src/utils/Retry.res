@@ -51,7 +51,7 @@ let defaultShouldRetry = (error: string) => {
 
 let rec loop = async (fn, signal, config, shouldRetry, onRetry, attempt) => {
   if aborted(signal) {
-    Exhausted("Aborted")
+    Exhausted("AbortError")
   } else {
     let result = await fn(~signal)
 
