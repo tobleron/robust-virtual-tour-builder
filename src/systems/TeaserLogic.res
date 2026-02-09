@@ -228,7 +228,9 @@ module Manager = {
 
   let startAutoTeaser = async (style, includeLogo, format, skipAutoForward) => {
     let state = GlobalStateBridge.getState()
-    if Array.length(state.scenes) == 0 {
+    if state.isLinking {
+      Logger.warn(~module_="TeaserLogic", ~message="TEASER_BLOCKED_BY_LINKING", ())
+    } else if Array.length(state.scenes) == 0 {
       ()
     } else if style == "cinematic" && format == "mp4" {
       GlobalStateBridge.dispatch(SetIsTeasing(true))
@@ -239,7 +241,7 @@ module Manager = {
         ~title="Uploading",
         (),
       )
-      Server.generateServerTeaser(
+      let _ = await Server.generateServerTeaser(
         state,
         Some(
           (pct, msg) => {
@@ -252,8 +254,7 @@ module Manager = {
             )
           },
         ),
-      )
-      ->Promise.then(res => {
+      )->Promise.then(res => {
         GlobalStateBridge.dispatch(SetIsTeasing(false))
         ProgressBar.updateProgressBar(0.0, "", ~visible=false, ~title="", ())
         switch res {
@@ -277,7 +278,6 @@ module Manager = {
         }
         Promise.resolve()
       })
-      ->ignore
     } else {
       let config = State.getConfigForStyle(style)
       let logoState = await Recorder.loadLogo()

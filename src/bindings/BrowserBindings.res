@@ -56,4 +56,5 @@ module AbortController = {
   @new external newAbortController: unit => t = "AbortController"
   @get external signal: t => signal = "signal"
   @send external abort: t => unit = "abort"
+  @get external aborted: signal => bool = "aborted"
 }

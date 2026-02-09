@@ -53,7 +53,7 @@ let make = () => {
                   autoClose: Some(false),
                 },
                 {
-                  label: "Dismiss",
+                  label: "Dismiss All",
                   class_: "btn-secondary",
                   onClick: () => clearInterrupted(),
                   autoClose: Some(false),

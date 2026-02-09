@@ -1,22 +1,8 @@
 /* src/systems/Api/AuthenticatedClient.res */
-
 open ReBindings
-
-exception HttpError(int, string)
-
-let dispatchLogout = () => {
-  Dom.Storage2.localStorage->Dom.Storage2.removeItem("auth_token")
-  let _ = %raw("window.dispatchEvent(new Event('auth:logout'))")
-  Logger.warn(
-    ~module_="AuthenticatedClient",
-    ~message="LOGOUT_DISPATCHED",
-    ~data=Some({"action": "Cleared auth_token"}),
-    (),
-  )
-}
+open Types
 
 type response = {
-  ok: bool,
   status: int,
   statusText: string,
   json: unit => Promise.t<JSON.t>,
@@ -26,17 +12,39 @@ type response = {
 
 @val external fetch: (string, 'options) => Promise.t<response> = "fetch"
 
+let fetchJson = (res: response) => res.json()
+let fetchText = (res: response) => res.text()
+let fetchBlob = (res: response) => res.blob()
+
 external castBody: 'a => JSON.t = "%identity"
 
 let circuitBreaker = CircuitBreaker.make()
 
-let prepareRequestBody = (body: option<JSON.t>, headers: Dict.t<string>) => {
+let lastNotificationTime = ref(0.0)
+let throttledNotification = (message, importance) => {
+  let now = Date.now()
+  if now -. lastNotificationTime.contents > 5000.0 {
+    lastNotificationTime := now
+    NotificationManager.dispatch({
+      id: "cb-status-notification",
+      importance,
+      context: Operation("api"),
+      message,
+      details: None,
+      action: None,
+      duration: 5000,
+      dismissible: true,
+      createdAt: now,
+    })
+  }
+}
+
+let prepareRequestBody = (body: option<JSON.t>, headers: Dict.t<string>): option<string> => {
   switch body {
   | Some(b) =>
     if Dict.get(headers, "Content-Type") == None {
       Dict.set(headers, "Content-Type", "application/json")
     }
-    // CSP SAFE FIX
     Some(JsonCombinators.Json.stringify(b))
   | None => None
   }
@@ -48,160 +56,144 @@ let request = async (
   ~body: option<JSON.t>=?,
   ~formData: option<FormData.t>=?,
   ~headers=Dict.make(),
+  ~signal: option<ReBindings.AbortController.signal>=?,
   (),
 ) => {
-  if !CircuitBreaker.canExecute(circuitBreaker) {
-    Logger.warn(~module_="AuthenticatedClient", ~message="CIRCUIT_OPEN", ~data=None, ())
+  let sessionId = switch GlobalStateBridge.getState().sessionId {
+  | Some(id) => id
+  | None => "anonymous"
+  }
+
+  Dict.set(headers, "X-Session-ID", sessionId)
+
+  let lastState = CircuitBreaker.getState(circuitBreaker)
+  if lastState === CircuitBreaker.Open {
     NotificationManager.dispatch({
-      id: "",
+      id: "cb-open-notification",
       importance: Warning,
       context: Operation("api"),
-      message: "Connection issues. Please wait a moment...",
+      message: "Connection issues: Circuit breaker is open. Please wait 30 seconds.",
       details: None,
       action: None,
-      duration: NotificationTypes.defaultTimeoutMs(Warning),
+      duration: 10000,
       dismissible: true,
       createdAt: Date.now(),
     })
-    throw(HttpError(503, "Service temporarily unavailable"))
-  }
+    Error("Circuit breaker is open")
+  } else {
+    // Inject Request ID for distributed tracing
+    let requestId = try {
+      Crypto.randomUUID()
+    } catch {
+    | _ => "req_" ++ Float.toString(Date.now())
+    }
+    Dict.set(headers, "X-Request-ID", requestId)
 
-  let token = Dom.Storage2.localStorage->Dom.Storage2.getItem("auth_token")
+    let bodyVal = switch (body, formData) {
+    | (Some(b), Some(f)) =>
+      Some(
+        prepareRequestBody(Some(b), headers)
+        ->Option.map(castBody)
+        ->Option.getOr(castBody(f)),
+      )
+    | (Some(b), _) => prepareRequestBody(Some(b), headers)->Option.map(castBody)
+    | (None, Some(f)) => Some(castBody(f))
+    | (None, None) => None
+    }
 
-  let finalToken = switch token {
-  | Some(t) => Some(t)
-  | None =>
-    // Professional fallback for local development automation
-    let hostname: string = %raw("window.location.hostname")
-    if hostname == "localhost" || hostname == "127.0.0.1" {
-      Some("dev-token")
-    } else {
-      Logger.error(~module_="AuthenticatedClient", ~message="MISSING_AUTH_IN_PROD", ~data=None, ())
-      throw(HttpError(401, "Unauthorized: No token provided"))
+    let options = {
+      "method": method,
+      "headers": headers,
+      "body": bodyVal,
+      "signal": signal,
+    }
+
+    try {
+      let res = await fetch(url, options)
+      if res.status >= 400 {
+        CircuitBreaker.recordFailure(circuitBreaker)
+        let currentState = CircuitBreaker.getState(circuitBreaker)
+
+        if currentState === CircuitBreaker.Open && lastState !== CircuitBreaker.Open {
+          NotificationManager.dispatch({
+            id: "circuit-breaker-open",
+            importance: Warning,
+            context: Operation("network"),
+            message: "Connection issues: Circuit breaker activated",
+            details: Some(
+              "Multiple requests failing. Circuit breaker activated to prevent overload.",
+            ),
+            action: None,
+            duration: 10000,
+            dismissible: true,
+            createdAt: Date.now(),
+          })
+        } else if lastState === CircuitBreaker.Closed && currentState === CircuitBreaker.Closed {
+          throttledNotification("Connection issues detected. Retrying automatically...", Error)
+        }
+
+        let errorText = await res.text()
+        Error(`HttpError: Status ${Belt.Int.toString(res.status)} - ${errorText}`)
+      } else {
+        CircuitBreaker.recordSuccess(circuitBreaker)
+        Ok(res)
+      }
+    } catch {
+    | e =>
+      CircuitBreaker.recordFailure(circuitBreaker)
+      Error(String.make(e))
     }
   }
-
-  switch finalToken {
-  | Some(t) => Dict.set(headers, "Authorization", "Bearer " ++ t)
-  | None => ()
-  }
-
-  // Inject Request ID for distributed tracing
-  let requestId = try {
-    Crypto.randomUUID()
-  } catch {
-  | _ => "req_" ++ Float.toString(Date.now()) // Fallback for older browsers
-  }
-  Dict.set(headers, "X-Request-ID", requestId)
-
-  let bodyVal = switch (body, formData) {
-  | (Some(b), _) => prepareRequestBody(Some(b), headers)->Option.map(castBody)
-  | (None, Some(f)) => Some(castBody(f))
-  | (None, None) => None
-  }
-
-  let options = {
-    "method": method,
-    "headers": headers,
-    "body": bodyVal,
-  }
-
-  let handleFailure = () => {
-    let wasOpen = CircuitBreaker.getState(circuitBreaker) == Open
-    CircuitBreaker.recordFailure(circuitBreaker)
-    let isOpen = CircuitBreaker.getState(circuitBreaker) == Open
-
-    if !wasOpen && isOpen {
-      NotificationManager.dispatch({
-        id: "",
-        importance: Warning,
-        context: Operation("api"),
-        message: "Connection issues detected. Retrying automatically...",
-        details: None,
-        action: None,
-        duration: NotificationTypes.defaultTimeoutMs(Warning),
-        dismissible: true,
-        createdAt: Date.now(),
-      })
-    }
-  }
-
-  let response = try {
-    await fetch(url, options)
-  } catch {
-  | JsExn(e) =>
-    handleFailure()
-    throw(JsExn(e))
-  }
-
-  if response.status >= 500 {
-    handleFailure()
-  } else if response.status < 500 {
-    CircuitBreaker.recordSuccess(circuitBreaker)
-  }
-
-  if response.status == 401 {
-    dispatchLogout()
-    throw(HttpError(401, "Unauthorized"))
-  }
-
-  if response.status >= 400 {
-    throw(HttpError(response.status, response.statusText))
-  }
-
-  response
 }
 
-let requestWithRetry = async (
+let requestWithRetry = (
   url,
-  ~method="GET",
-  ~body: option<JSON.t>=?,
-  ~formData: option<FormData.t>=?,
+  ~method=?,
+  ~body=?,
+  ~formData=?,
   ~headers=Dict.make(),
+  ~signal: option<ReBindings.AbortController.signal>=?,
   ~retryConfig: option<Retry.config>=?,
   (),
 ) => {
-  let controller = ReBindings.AbortController.newAbortController()
+  // Inject Request ID for distributed tracing and retry linking
+  let requestId = try {
+    Crypto.randomUUID()
+  } catch {
+  | _ => "req_" ++ Float.toString(Date.now())
+  }
 
-  let result = await Retry.execute(
-    ~fn=async (~signal as _) => {
-      try {
-        let res = await request(url, ~method, ~body?, ~formData?, ~headers, ())
-        Ok(res)
-      } catch {
-      | HttpError(status, text) => Error(`HttpError: ${Belt.Int.toString(status)} ${text}`)
-      | JsExn(e) => Error(JsExn.message(e)->Option.getOr("Unknown Error"))
-      | _ => Error("Unknown Error")
-      }
+  Retry.execute(
+    ~fn=(~signal) =>
+      request(url, ~method=method->Option.getOr("GET"), ~body?, ~formData?, ~headers, ~signal, ()),
+    ~signal=switch signal {
+    | Some(s) => s
+    | None => ReBindings.AbortController.signal(ReBindings.AbortController.newAbortController())
     },
-    ~signal=ReBindings.AbortController.signal(controller),
-    ~config=?retryConfig,
+    ~config=Option.getOr(retryConfig, {...Retry.defaultConfig, maxRetries: 3}),
     ~onRetry=(attempt, error, delay) => {
+      Logger.warn(
+        ~module_="AuthenticatedClient",
+        ~message="RETRY_ATTEMPT",
+        ~data=Some({
+          "attempt": attempt,
+          "error": error,
+          "delay": delay,
+        }),
+        (),
+      )
+
       NotificationManager.dispatch({
-        id: "",
+        id: `retry-${requestId}-${Belt.Int.toString(attempt)}`,
         importance: Warning,
         context: Operation("api"),
         message: `Retrying request... (attempt ${Belt.Int.toString(attempt)})`,
-        details: None,
+        details: Some(`Next attempt in ${Float.toString(Float.fromInt(delay) /. 1000.0)}s`),
         action: None,
-        duration: NotificationTypes.defaultTimeoutMs(Warning),
+        duration: 10000,
         dismissible: true,
         createdAt: Date.now(),
       })
-      Logger.debug(
-        ~module_="AuthenticatedClient",
-        ~message="RETRY_ATTEMPT",
-        ~data=Some(
-          JsonCombinators.Json.Encode.object([
-            ("attempt", JsonCombinators.Json.Encode.int(attempt)),
-            ("error", JsonCombinators.Json.Encode.string(error)),
-            ("delayMs", JsonCombinators.Json.Encode.int(delay)),
-          ]),
-        ),
-        (),
-      )
     },
   )
-
-  result
 }

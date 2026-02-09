@@ -35,13 +35,42 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
 
         let v = Nullable.toOption(ReBindings.Viewer.instance)
         switch v {
-        | Some(_viewer) =>
-          dispatch(Actions.StartLinking(None))
+        | Some(viewer) =>
+          let currentYaw = ReBindings.Viewer.getYaw(viewer)
+          let currentPitch = ReBindings.Viewer.getPitch(viewer)
+          let currentHfov = ReBindings.Viewer.getHfov(viewer)
+
+          let initialDraft: Types.linkDraft = {
+            yaw: currentYaw,
+            pitch: currentPitch,
+            camYaw: currentYaw,
+            camPitch: currentPitch,
+            camHfov: currentHfov,
+            intermediatePoints: None,
+          }
+
+          dispatch(Actions.StartLinking(Some(initialDraft)))
+
+          let _ = ReBindings.Window.setTimeout(
+            () => {
+              LinkModal.showLinkModal(
+                ~pitch=currentPitch,
+                ~yaw=currentYaw,
+                ~camPitch=currentPitch,
+                ~camYaw=currentYaw,
+                ~camHfov=currentHfov,
+                ~linkDraft=Nullable.make(initialDraft),
+                (),
+              )
+            },
+            50,
+          )
+
           NotificationManager.dispatch({
-            id: "",
+            id: "linking-info",
             importance: Info,
             context: Operation("utility_bar"),
-            message: "ESC to cancel, Enter to save link.",
+            message: "Link Mode: Choose Destination",
             details: None,
             action: None,
             duration: NotificationTypes.defaultTimeoutMs(Info),
@@ -50,7 +79,7 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
           })
         | None =>
           NotificationManager.dispatch({
-            id: "",
+            id: "viewer-not-found",
             importance: Error,
             context: Operation("utility_bar"),
             message: "Viewer not initialized",
