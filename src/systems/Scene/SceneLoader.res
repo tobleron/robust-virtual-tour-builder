@@ -149,7 +149,22 @@ let rec loadNewScene = (
       }
       let retryId = setTimeout(() => {
         retryScheduled := None
-        loadNewScene(~targetSceneId, ~isAnticipatory)
+        let state = GlobalStateBridge.getState()
+        let isRelevant = switch state.navigationFsm {
+        | Preloading({targetSceneId: activeTarget}) => activeTarget == targetSceneId
+        | _ => false
+        }
+
+        if isRelevant {
+          loadNewScene(~targetSceneId, ~isAnticipatory)
+        } else {
+          Logger.debug(
+            ~module_="SceneLoader",
+            ~message="ABORTING_OBSOLETE_RETRY",
+            ~data=Some({"targetId": targetSceneId}),
+            (),
+          )
+        }
       }, 100)
       retryScheduled := Some(retryId)
     }
