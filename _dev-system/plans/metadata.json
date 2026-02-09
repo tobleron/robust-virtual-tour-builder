@@ -1,31 +1,23 @@
 {
+  "rust": [
+    {
+      "Violation": {
+        "file": "../../backend/src/api/media/video_logic.rs",
+        "pattern": "unwrap()",
+        "strategy": ""
+      }
+    }
+  ],
+  "system": [],
   "rescript": [
     {
       "Surgical": {
-        "file": "../../src/core/Reducer.res",
+        "file": "../../src/core/SceneMutations.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 4.20, Density: 0.30, Coupling: 0.10] | Drag: 5.50 | LOC: 385/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.)",
+        "reason": "[Nesting: 6.60, Density: 0.48, Coupling: 0.04] | Drag: 8.11 | LOC: 361/300  🎯 Target: Function: `syncSceneNames` (High Local Complexity (5.6). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 14.001298701298701,
-        "recommended_splits": 2
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/core/JsonParsersDecoders.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/Sidebar.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 7.80, Density: 0.23, Coupling: 0.09] | Drag: 9.14 | LOC: 370/300  🎯 Target: Function: `make` (High Local Complexity (23.2). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 16.14054054054054,
+        "complexity": 14.206925207756232,
         "recommended_splits": 2
       }
     },
@@ -42,31 +34,39 @@
     },
     {
       "Violation": {
-        "file": "../../src/hooks/UseInteraction.res",
+        "file": "../../src/core/JsonParsersDecoders.res",
         "pattern": "Obj.magic",
         "strategy": ""
       }
     },
     {
       "Surgical": {
-        "file": "../../src/core/SceneMutations.res",
+        "file": "../../src/core/Reducer.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 6.60, Density: 0.48, Coupling: 0.04] | Drag: 8.11 | LOC: 361/300  🎯 Target: Function: `syncSceneNames` (High Local Complexity (5.6). Logic heavy.)",
+        "reason": "[Nesting: 4.20, Density: 0.30, Coupling: 0.10] | Drag: 5.50 | LOC: 385/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 14.206925207756232,
+        "complexity": 14.001298701298701,
         "recommended_splits": 2
       }
-    }
-  ],
-  "rust": [
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/Sidebar.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 7.80, Density: 0.23, Coupling: 0.09] | Drag: 9.14 | LOC: 370/300  🎯 Target: Function: `make` (High Local Complexity (23.2). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 16.14054054054054,
+        "recommended_splits": 2
+      }
+    },
     {
       "Violation": {
-        "file": "../../backend/src/api/media/video_logic.rs",
-        "pattern": "unwrap()",
+        "file": "../../src/hooks/UseInteraction.res",
+        "pattern": "Obj.magic",
         "strategy": ""
       }
     }
-  ],
-  "system": []
+  ]
 }

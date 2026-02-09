@@ -75,7 +75,7 @@ test.describe('FSM Interaction Logic', () => {
     // We expect the final scene to be active.
     // Since we clicked 10 times (i=0 to 9). Last click is i=9 -> index 0.
     // So Scene 1 (index 0) should be active.
-    await expect(page.locator('.scene-item').nth(0)).toHaveClass(/active/);
+    await expect(page.locator('.scene-item').nth(0)).toHaveClass(/bg-slate-50\/50/);
 
     // Also verify viewer shows correct scene label
     await expect(page.locator('#v-scene-persistent-label')).toHaveText(/image/, { timeout: 10000 });
@@ -108,7 +108,7 @@ test.describe('FSM Interaction Logic', () => {
     await page.locator('.scene-item').nth(2).click();
 
     // Should end up on scene 2, not scene 1
-    await expect(page.locator('.scene-item').nth(2)).toHaveClass(/active/);
-    await expect(page.locator('.scene-item').nth(1)).not.toHaveClass(/active/);
+    await expect(page.locator('.scene-item').nth(2)).toHaveClass(/bg-slate-50\/50/);
+    await expect(page.locator('.scene-item').nth(1)).not.toHaveClass(/bg-slate-50\/50/);
   });
 });
