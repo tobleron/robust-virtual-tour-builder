@@ -14882,6 +14882,7 @@
 │   │   ├── 1307.2_Robustness_Backend_Quick_Wins_DONE.md
 │   │   ├── 1307.3_Robustness_Structural_Improvements_DONE.md
 │   │   ├── 1307_Robustness_Hardening_Race_Condition_Elimination_DONE.md
+│   │   ├── 1308_Investigate_E2E_Failure_Hotspot_Navigation_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
 │   │       ├── 1195_Test_Teaser_DONE.md
@@ -14892,7 +14893,6 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1308_Investigate_E2E_Failure_Hotspot_Navigation.md
 │   │   ├── 1309_Investigate_E2E_Failure_Rapid_Clicking.md
 │   │   ├── 1310_Investigate_E2E_Failure_Upload_Retry.md
 │   │   ├── 1311_Investigate_E2E_Failure_Performance.md
