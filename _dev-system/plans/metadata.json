@@ -1,6 +1,17 @@
 {
   "rescript": [
     {
+      "Surgical": {
+        "file": "../../src/core/Reducer.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.20, Density: 0.30, Coupling: 0.10] | Drag: 5.50 | LOC: 385/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 14.001298701298701,
+        "recommended_splits": 2
+      }
+    },
+    {
       "Violation": {
         "file": "../../src/core/JsonParsersDecoders.res",
         "pattern": "Obj.magic",
@@ -9,12 +20,23 @@
     },
     {
       "Surgical": {
-        "file": "../../src/core/Reducer.res",
+        "file": "../../src/components/Sidebar.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 4.20, Density: 0.30, Coupling: 0.10] | Drag: 5.50 | LOC: 385/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.)",
+        "reason": "[Nesting: 7.80, Density: 0.23, Coupling: 0.09] | Drag: 9.14 | LOC: 370/300  🎯 Target: Function: `make` (High Local Complexity (23.2). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 14.001298701298701,
+        "complexity": 16.14054054054054,
+        "recommended_splits": 2
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ProjectManager.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.80, Density: 0.20, Coupling: 0.10] | Drag: 6.00 | LOC: 393/300  🎯 Target: Function: `finalToken` (High Local Complexity (2.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 15.301017811704835,
         "recommended_splits": 2
       }
     },
@@ -35,31 +57,8 @@
         "complexity": 14.206925207756232,
         "recommended_splits": 2
       }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ProjectManager.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.80, Density: 0.20, Coupling: 0.10] | Drag: 6.00 | LOC: 393/300  🎯 Target: Function: `finalToken` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 15.301017811704835,
-        "recommended_splits": 2
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/Sidebar.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 7.80, Density: 0.23, Coupling: 0.09] | Drag: 9.14 | LOC: 370/300  🎯 Target: Function: `make` (High Local Complexity (23.2). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 16.14054054054054,
-        "recommended_splits": 2
-      }
     }
   ],
-  "system": [],
   "rust": [
     {
       "Violation": {
@@ -68,5 +67,6 @@
         "strategy": ""
       }
     }
-  ]
+  ],
+  "system": []
 }
