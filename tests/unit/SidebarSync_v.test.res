@@ -98,8 +98,8 @@ describe("Sidebar Sync", () => {
 
     let root = ReactDOMClient.createRoot(container)
     // We need to re-render to update state
-    let render = (s) => {
-       ReactDOMClient.Root.render(
+    let render = s => {
+      ReactDOMClient.Root.render(
         root,
         <WrappedSidebar mockState=s mockDispatch>
           {React.createElement(sidebarCmp, Object.make())}

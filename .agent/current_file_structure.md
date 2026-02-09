@@ -14805,7 +14805,8 @@
 ├── tasks
 │   ├── TASKS.md
 │   ├── active
-│   │   └── 1303_AGGREGATE_Viewer_System_E2E_Issues.md
+│   │   ├── 1303_AGGREGATE_Viewer_System_E2E_Issues.md
+│   │   └── 1310_Investigate_E2E_Failure_Upload_Retry.md
 │   ├── completed
 │   │   ├── 1231_Surgical_Refactor_CORE_FRONTEND_DONE.md
 │   │   ├── 1232_Merge_Folders_FRONTEND_DONE.md
@@ -14883,6 +14884,8 @@
 │   │   ├── 1307.3_Robustness_Structural_Improvements_DONE.md
 │   │   ├── 1307_Robustness_Hardening_Race_Condition_Elimination_DONE.md
 │   │   ├── 1308_Investigate_E2E_Failure_Hotspot_Navigation_DONE.md
+│   │   ├── 1311_Investigate_E2E_Failure_Performance_DONE.md
+│   │   ├── 1312_Investigate_E2E_Failure_Sync_Tour_Name.md
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
 │   │       ├── 1195_Test_Teaser_DONE.md
@@ -14894,9 +14897,6 @@
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
 │   │   ├── 1309_Investigate_E2E_Failure_Rapid_Clicking.md
-│   │   ├── 1310_Investigate_E2E_Failure_Upload_Retry.md
-│   │   ├── 1311_Investigate_E2E_Failure_Performance.md
-│   │   ├── 1312_Investigate_E2E_Failure_Sync_Tour_Name.md
 │   │   └── dev_tasks
 │   │       ├── D001_Fix_Violations_FRONTEND.md
 │   │       ├── D002_Surgical_Refactor_CORE_FRONTEND.md
@@ -15248,6 +15248,7 @@
 │   │   ├── SharedTypesTest.bs.js
 │   │   ├── SharedTypes_v.test.bs.js
 │   │   ├── SharedTypes_v.test.res
+│   │   ├── SidebarSync_v.test.res
 │   │   ├── Sidebar_v.test.bs.js
 │   │   ├── Sidebar_v.test.res
 │   │   ├── SimHelpers_v.test.bs.js
@@ -15378,4 +15379,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-674 directories, 14705 files
+674 directories, 14706 files
