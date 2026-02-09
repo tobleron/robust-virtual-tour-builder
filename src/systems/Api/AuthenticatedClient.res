@@ -179,12 +179,12 @@ let requestWithRetry = async (
     ~onRetry=(attempt, error, delay) => {
       NotificationManager.dispatch({
         id: "",
-        importance: Info,
+        importance: Warning,
         context: Operation("api"),
         message: `Retrying request... (attempt ${Belt.Int.toString(attempt)})`,
         details: None,
         action: None,
-        duration: NotificationTypes.defaultTimeoutMs(Info),
+        duration: NotificationTypes.defaultTimeoutMs(Warning),
         dismissible: true,
         createdAt: Date.now(),
       })

@@ -14,6 +14,8 @@ test.describe('Error Recovery Scenarios', () => {
         await setupAIObservability(page);
         await page.goto('/');
 
+        page.on('console', msg => console.log(`[BROWSER] ${msg.text()}`));
+
         await page.evaluate(async () => {
             localStorage.clear();
             sessionStorage.clear();
