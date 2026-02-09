@@ -1,6 +1,6 @@
 ---
 title: Investigate E2E Failure: Hotspot Navigation
-status: pending
+status: completed
 priority: critical
 tags:
   - testing
