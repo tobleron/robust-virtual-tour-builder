@@ -22,17 +22,17 @@ let make = React.memo((
   ~scene: Types.scene,
   ~index,
   ~isActive,
-  ~onClick: unit => unit,
-  ~onDragStart,
-  ~onDragOver,
-  ~onDrop,
-  ~onDelete,
-  ~onClearLinks,
+  ~onItemClick: int => unit,
+  ~onItemDragStart: (int, JsxEvent.Mouse.t) => unit,
+  ~onItemDragOver: (int, JsxEvent.Mouse.t) => unit,
+  ~onItemDrop: (int, JsxEvent.Mouse.t) => unit,
+  ~onItemDelete: int => unit,
+  ~onItemClearLinks: int => unit,
 ) => {
   let (handleSceneClick, _, wasThrottled) = UseInteraction.useInteraction(
     ~id="scene_navigation",
     ~policy=InteractionPolicies.sceneNavigation,
-    ~action=async () => onClick(),
+    ~action=async () => onItemClick(index),
   )
 
   React.useEffect1(() => {
@@ -68,7 +68,7 @@ let make = React.memo((
     let _ = ReBindings.Window.setTimeout(() => {
       setFlickerState(_ => #None)
       setMenuOpen(_ => false)
-      onClearLinks()
+      onItemClearLinks(index)
     }, 800)
   }
 
@@ -78,7 +78,7 @@ let make = React.memo((
     let _ = ReBindings.Window.setTimeout(() => {
       setFlickerState(_ => #None)
       setMenuOpen(_ => false)
-      onDelete()
+      onItemDelete(index)
     }, 800)
   }
 
@@ -109,9 +109,9 @@ let make = React.memo((
     key={scene.id}
     className={`scene-item group relative flex items-center border rounded-lg mb-2 overflow-hidden transition-all duration-200 select-none touch-pan-y active-push h-16 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none ${activeClasses}`}
     draggable=true
-    onDragStart={onDragStart}
-    onDragOver={onDragOver}
-    onDrop={onDrop}
+    onDragStart={e => onItemDragStart(index, e)}
+    onDragOver={e => onItemDragOver(index, e)}
+    onDrop={e => onItemDrop(index, e)}
     onClick={_ => {
       let _ = handleSceneClick()
     }}
