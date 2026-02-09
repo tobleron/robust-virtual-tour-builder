@@ -41,7 +41,7 @@ let useInteraction = (~id: string, ~policy: policy, ~action: unit => Promise.t<'
           importance: Warning,
           context: SystemEvent("interaction"),
           message: switch msg {
-          | "Rate limited" => "Rate limit exceeded. Please wait."
+          | "Rate limited" => "Rate limit exceeded"
           | "Locked" => "Operation already in progress."
           | _ => "Action throttled: " ++ msg
           },

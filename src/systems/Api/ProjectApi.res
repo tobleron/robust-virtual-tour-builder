@@ -58,32 +58,16 @@ let importProject = (file: File.t): Promise.t<apiResult<importResponse>> => {
     // Backend expects 'file' field for multipart imports
     FormData.append(formData, "file", file)
 
-    let headers = getAuthHeaders()
-
-    Fetch.fetch(
+    AuthenticatedClient.requestWithRetry(
       Constants.backendUrl ++ "/api/project/import",
-      Fetch.requestInit(~method="POST", ~body=formData, ~headers, ()),
+      ~method="POST",
+      ~formData,
+      (),
     )
-    ->Promise.then(response => {
-      if Fetch.ok(response) {
-        Promise.resolve(Ok(response))
-      } else {
-        Fetch.text(response)->Promise.then(
-          text => {
-            let errorMsg = if text == "" {
-              `Request failed with status ${Int.toString(Fetch.status(response))}`
-            } else {
-              text
-            }
-            Promise.resolve(Error(errorMsg))
-          },
-        )
-      }
-    })
     ->Promise.then(resultResponse => {
       switch resultResponse {
-      | Ok(response) =>
-        Fetch.json(response)
+      | Retry.Success(response, _) =>
+        response.json()
         ->Promise.then(
           json => handleJsonDecode(json, decodeImportResponse, "IMPORT", "Project import failed"),
         )
@@ -91,7 +75,7 @@ let importProject = (file: File.t): Promise.t<apiResult<importResponse>> => {
           e =>
             handleError(e, "Project import failed: JSON parsing error", "IMPORT_ERROR_JSON_DECODE"),
         )
-      | Error(msg) => Promise.resolve(Error(msg))
+      | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
       }
     })
     ->Promise.catch(e => handleError(e, "Project import failed", "IMPORT_ERROR"))
@@ -100,23 +84,22 @@ let importProject = (file: File.t): Promise.t<apiResult<importResponse>> => {
 
 let loadProject = (sessionId: string): Promise.t<apiResult<importResponse>> => {
   RequestQueue.schedule(() => {
-    let headers = getAuthHeaders()
-    Fetch.fetch(
+    AuthenticatedClient.requestWithRetry(
       Constants.backendUrl ++ "/api/project/load/" ++ sessionId,
-      Fetch.requestInit(~method="GET", ~headers, ()),
+      ~method="GET",
+      (),
     )
-    ->Promise.then(handleResponse)
     ->Promise.then(resultResponse => {
       switch resultResponse {
-      | Ok(response) =>
-        Fetch.json(response)
+      | Retry.Success(response, _) =>
+        response.json()
         ->Promise.then(
           json => handleJsonDecode(json, decodeImportResponse, "LOAD", "Project load failed"),
         )
         ->Promise.catch(
           e => handleError(e, "Project load failed: JSON parsing error", "LOAD_ERROR_JSON_DECODE"),
         )
-      | Error(msg) => Promise.resolve(Error(msg))
+      | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
       }
     })
     ->Promise.catch(e => handleError(e, "Project load failed", "LOAD_ERROR"))
@@ -127,21 +110,16 @@ let validateProject = (sessionId: string, projectData: JSON.t): Promise.t<
   apiResult<SharedTypes.validationReport>,
 > => {
   RequestQueue.schedule(() => {
-    // projectData is already a JSON value (from PersistenceLayer or similar)
-    // We use Json.stringify to convert it to a string for the body
-    let body = JsonCombinators.Json.stringify(projectData)
-    let headers = getAuthHeaders()
-    Dict.set(headers, "Content-Type", "application/json")
-
-    Fetch.fetch(
+    AuthenticatedClient.requestWithRetry(
       Constants.backendUrl ++ "/api/project/validate/" ++ sessionId,
-      Fetch.requestInit(~method="POST", ~body, ~headers, ()),
+      ~method="POST",
+      ~body=projectData,
+      (),
     )
-    ->Promise.then(handleResponse)
     ->Promise.then(resultResponse => {
       switch resultResponse {
-      | Ok(response) =>
-        Fetch.json(response)
+      | Retry.Success(response, _) =>
+        response.json()
         ->Promise.then(
           json =>
             handleJsonDecode(
@@ -157,7 +135,7 @@ let validateProject = (sessionId: string, projectData: JSON.t): Promise.t<
             Promise.resolve(Error("Decoding validation report failed: " ++ msg))
           },
         )
-      | Error(msg) => Promise.resolve(Error(msg))
+      | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
       }
     })
     ->Promise.catch(e => handleError(e, "Project validation failed", "VALIDATION_ERROR"))
@@ -166,19 +144,16 @@ let validateProject = (sessionId: string, projectData: JSON.t): Promise.t<
 
 let saveProject = (sessionId: string, projectData: JSON.t): Promise.t<apiResult<unit>> => {
   RequestQueue.schedule(() => {
-    let body = JsonCombinators.Json.stringify(projectData)
-    let headers = getAuthHeaders()
-    Dict.set(headers, "Content-Type", "application/json")
-
-    Fetch.fetch(
+    AuthenticatedClient.requestWithRetry(
       Constants.backendUrl ++ "/api/project/save/" ++ sessionId,
-      Fetch.requestInit(~method="POST", ~body, ~headers, ()),
+      ~method="POST",
+      ~body=projectData,
+      (),
     )
-    ->Promise.then(handleResponse)
     ->Promise.then(resultResponse => {
       switch resultResponse {
-      | Ok(_) => Promise.resolve(Ok())
-      | Error(msg) => Promise.resolve(Error(msg))
+      | Retry.Success(_, _) => Promise.resolve(Ok())
+      | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
       }
     })
     ->Promise.catch(e => handleError(e, "Project save failed", "SAVE_ERROR"))
@@ -187,19 +162,18 @@ let saveProject = (sessionId: string, projectData: JSON.t): Promise.t<apiResult<
 
 let calculatePath = (payload: pathRequest): Promise.t<apiResult<array<step>>> => {
   RequestQueue.schedule(() => {
-    let body = JsonCombinators.Json.stringify(JsonParsers.Encoders.pathRequest(payload))
-    let headers = getAuthHeaders()
-    Dict.set(headers, "Content-Type", "application/json")
+    let body = AuthenticatedClient.castBody(JsonParsers.Encoders.pathRequest(payload))
 
-    Fetch.fetch(
+    AuthenticatedClient.requestWithRetry(
       Constants.backendUrl ++ "/api/project/calculate-path",
-      Fetch.requestInit(~method="POST", ~body, ~headers, ()),
+      ~method="POST",
+      ~body,
+      (),
     )
-    ->Promise.then(handleResponse)
     ->Promise.then(resultResponse => {
       switch resultResponse {
-      | Ok(response) =>
-        Fetch.json(response)
+      | Retry.Success(response, _) =>
+        response.json()
         ->Promise.then(
           json => handleJsonDecode(json, decodeSteps, "CALCULATE_PATH", "Path calculation failed"),
         )
@@ -211,7 +185,7 @@ let calculatePath = (payload: pathRequest): Promise.t<apiResult<array<step>>> =>
               "CALCULATE_PATH_ERROR_JSON_DECODE",
             ),
         )
-      | Error(msg) => Promise.resolve(Error(msg))
+      | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
       }
     })
     ->Promise.catch(e => handleError(e, "Path calculation failed", "CALCULATE_PATH_ERROR"))
@@ -220,24 +194,21 @@ let calculatePath = (payload: pathRequest): Promise.t<apiResult<array<step>>> =>
 
 let reverseGeocode = (lat: float, lon: float): Promise.t<apiResult<geocodeResponse>> => {
   RequestQueue.schedule(() => {
-    let payload = JsonCombinators.Json.Encode.object([
+    let body = JsonCombinators.Json.Encode.object([
       ("lat", JsonCombinators.Json.Encode.float(lat)),
       ("lon", JsonCombinators.Json.Encode.float(lon)),
     ])
 
-    let body = JsonCombinators.Json.stringify(payload)
-    // No auth required for geocoding based on backend main.rs
-    let headers = Dict.fromArray([("Content-Type", "application/json")])
-
-    Fetch.fetch(
+    AuthenticatedClient.requestWithRetry(
       Constants.backendUrl ++ "/api/geocoding/reverse",
-      Fetch.requestInit(~method="POST", ~body, ~headers, ()),
+      ~method="POST",
+      ~body=AuthenticatedClient.castBody(body),
+      (),
     )
-    ->Promise.then(handleResponse)
     ->Promise.then(resultResponse => {
       switch resultResponse {
-      | Ok(response) =>
-        Fetch.json(response)
+      | Retry.Success(response, _) =>
+        response.json()
         ->Promise.then(
           json => handleJsonDecode(json, decodeGeocodeResponse, "GEOCODE", "Geocoding failed"),
         )
@@ -247,7 +218,7 @@ let reverseGeocode = (lat: float, lon: float): Promise.t<apiResult<geocodeRespon
             Promise.resolve(Error("Decoding geocode response failed: " ++ msg))
           },
         )
-      | Error(msg) => Promise.resolve(Error(msg))
+      | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
       }
     })
     ->Promise.catch(e => handleError(e, "Geocoding failed", "GEOCODE_FAILED"))

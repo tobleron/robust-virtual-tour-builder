@@ -62,14 +62,16 @@ module Logic = {
 
     progress(10, 100, "Uploading to backend...")
     RequestQueue.schedule(() => {
-      Fetch.fetch(
+      AuthenticatedClient.request(
         Constants.backendUrl ++ "/api/project/save",
-        Fetch.requestInit(~method="POST", ~body=formData, ~signal?, ()),
-      )
-      ->Promise.then(BackendApi.handleResponse)
-      ->Promise.then(resultRes => {
-        switch resultRes {
-        | Ok(res) => Fetch.blob(res)->Promise.then(blob => Promise.resolve(Ok(blob)))
+        ~method="POST",
+        ~formData,
+        ~signal?,
+        (),
+      )->Promise.then(responseResult => {
+        switch responseResult {
+        | Ok(response) =>
+          AuthenticatedClient.fetchBlob(response)->Promise.then(blob => Promise.resolve(Ok(blob)))
         | Error(msg) => Promise.resolve(Error(msg))
         }
       })

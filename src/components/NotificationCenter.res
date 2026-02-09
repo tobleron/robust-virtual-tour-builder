@@ -79,5 +79,5 @@ let make = React.memo(() => {
     None
   }, [state.active])
 
-  React.null
+  <Shadcn.Sonner richColors=true closeButton=true position="bottom-right" />
 })

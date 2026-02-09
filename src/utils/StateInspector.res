@@ -71,6 +71,11 @@ let exposeToWindow = () => {
             console.warn('⚠️ Accessing full state. This is for debugging only.');
             return Object.freeze(getState());
           },
+
+          // Compatibility for E2E tests
+          getState() {
+            return getState();
+          },
           
           // Helper to log state changes
           subscribe(callback) {
@@ -84,6 +89,9 @@ let exposeToWindow = () => {
           }
         };
         
+        // Alias for compatibility
+        window.STORE = window.store;
+
         // Make window.store itself read-only
         Object.freeze(window.store);
         

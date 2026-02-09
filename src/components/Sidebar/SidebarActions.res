@@ -19,6 +19,7 @@ let make = React.memo((
   ~onTeaser: unit => unit,
   ~exportReady: bool,
   ~teaserReady: bool,
+  ~isLinking: bool,
 ) => {
   let isPermitted = Hooks.useIsInteractionPermitted()
 
@@ -159,7 +160,7 @@ let make = React.memo((
 
       <button
         className="sidebar-action-btn-wide hover-lift active-push group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed"
-        disabled={!teaserReady || !isPermitted}
+        disabled={!teaserReady || !isPermitted || isLinking}
         onClick={_ => onTeaser()}
         ariaLabel="Create Teaser"
       >
