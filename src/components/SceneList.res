@@ -50,10 +50,15 @@ let make = React.memo(() => {
         switch rafId.contents {
         | Some(_) => ()
         | None =>
-          rafId := Some(ReBindings.Window.requestAnimationFrame(() => {
-            updateScroll()
-            rafId := None
-          }))
+          rafId :=
+            Some(
+              ReBindings.Window.requestAnimationFrame(
+                () => {
+                  updateScroll()
+                  rafId := None
+                },
+              ),
+            )
         }
       }
 

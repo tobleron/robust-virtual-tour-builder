@@ -72,16 +72,20 @@ describe("AuthenticatedClient", () => {
   testAsync("dispatches notification on first retry", async t => {
     // 1. Subscribe to notifications
     let notificationReceived = ref(false)
-    let unsubscribe = NotificationManager.subscribe(state => {
-      let messages = Belt.Array.concat(state.active, state.pending)
-      let hasRetryMessage = Belt.Array.some(messages, n =>
-        String.includes(n.message, "Retrying request...") &&
-        String.includes(n.message, "(attempt 1)")
-      )
-      if hasRetryMessage {
-        notificationReceived := true
-      }
-    })
+    let unsubscribe = NotificationManager.subscribe(
+      state => {
+        let messages = Belt.Array.concat(state.active, state.pending)
+        let hasRetryMessage = Belt.Array.some(
+          messages,
+          n =>
+            String.includes(n.message, "Retrying request...") &&
+            String.includes(n.message, "(attempt 1)"),
+        )
+        if hasRetryMessage {
+          notificationReceived := true
+        }
+      },
+    )
 
     // 2. Mock fetch to fail once then succeed
     let fetchMock = %raw("global.fetch")
@@ -112,11 +116,7 @@ describe("AuthenticatedClient", () => {
     // Or just set a token
     Dom.Storage2.localStorage->Dom.Storage2.setItem("auth_token", "test-token")
 
-    let _ = await AuthenticatedClient.requestWithRetry(
-      "/test-retry",
-      ~retryConfig,
-      ()
-    )
+    let _ = await AuthenticatedClient.requestWithRetry("/test-retry", ~retryConfig, ())
 
     // 4. Assert
     t->expect(notificationReceived.contents)->Expect.toBe(true)

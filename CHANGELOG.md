@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Merge fix-hotspot-nav-e2e-12149307716369964221 and finalize task 1308
+- V4.33.11+0 [TRIPLE]: merge 4 pending fixes (performance, upload, sidebar sync, rapid switch)
 
 ## [4.33.9] - 2026-02-08
 
