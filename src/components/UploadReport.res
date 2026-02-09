@@ -171,7 +171,7 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
       onClick: () => {
         let state = GlobalStateBridge.getState()
         GlobalStateBridge.dispatch(DispatchAppFsmEvent(CloseSummary))
-        if Array.length(state.scenes) > 0 {
+        if state.activeIndex == -1 && Array.length(state.scenes) > 0 {
           GlobalStateBridge.dispatch(Actions.SetActiveScene(0, 0.0, 0.0, None))
         }
       },

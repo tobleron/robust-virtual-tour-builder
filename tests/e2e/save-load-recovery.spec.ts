@@ -12,18 +12,23 @@ const IMAGE_PATH_1 = path.join(FIXTURES_DIR, 'image.jpg');
 const IMAGE_PATH_2 = path.join(FIXTURES_DIR, 'image2.jpg');
 
 async function handleUpload(page, imagePath, expectedSceneIndex) {
+  console.log(`Uploading ${imagePath}...`);
   const fileInput = page.locator('input[type="file"][accept="image/jpeg,image/png,image/webp"]');
   await fileInput.setInputFiles([imagePath]);
 
+  console.log(`Waiting for Start Building button for scene ${expectedSceneIndex}...`);
   const startBtn = page.getByRole('button', { name: /Start Building/i });
   try {
     await startBtn.waitFor({ state: 'visible', timeout: 90000 });
     await startBtn.click();
+    console.log(`Clicked Start Building for scene ${expectedSceneIndex}`);
   } catch (e) {
-    console.log(`Start Building button skipped for scene ${expectedSceneIndex} (not visible)`);
+    console.log(`Start Building button skipped or timed out for scene ${expectedSceneIndex}`);
   }
 
+  console.log(`Waiting for scene item ${expectedSceneIndex} to be visible...`);
   await expect(page.locator('.scene-item').nth(expectedSceneIndex)).toBeVisible({ timeout: 90000 });
+  console.log(`Scene item ${expectedSceneIndex} is visible.`);
 }
 
 test.describe('Project Persistence: Save -> Load Recovery', () => {
@@ -58,7 +63,7 @@ test.describe('Project Persistence: Save -> Load Recovery', () => {
     await page.keyboard.up('Alt');
 
     await expect(page.getByText('Link Destination')).toBeVisible();
-    await page.selectOption('#link-target', { index: 0 });
+    await page.selectOption('#link-target', { index: 1 });
     await page.getByRole('button', { name: 'Save Link' }).click();
     await expect(page.getByText('Link Destination')).toBeHidden();
 

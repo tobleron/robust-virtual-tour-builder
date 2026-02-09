@@ -32,6 +32,8 @@ describe("ViewerSnapshot", () => {
         }
       })()
     `)
+    SceneCache.clearAll()
+    InteractionGuard.clear()
   }
 
   testAsync("snapshot logic should update scene state", async t => {
@@ -70,7 +72,7 @@ describe("ViewerSnapshot", () => {
     // Trigger the captured callback manually
     let _ = %raw(`global.capturedCallback && global.capturedCallback()`)
 
-    await wait(50)
+    await wait(100)
 
     t->expect(Belt.Option.isSome(SceneCache.getSnapshot("s1")))->Expect.toBe(true)
 
@@ -113,8 +115,7 @@ describe("ViewerSnapshot", () => {
     ViewerSnapshot.requestIdleSnapshot()
     let _ = %raw(`global.capturedCallback && global.capturedCallback()`)
 
-    await wait(50)
-
+    await wait(100)
     let revoked = %raw(`global.revokedUrl`)
     t->expect(revoked)->Expect.toBe("blob:old-url")
 

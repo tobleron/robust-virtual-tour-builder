@@ -74,8 +74,8 @@ let clearLockTimeout = () => {
 let getTimeoutForPhase = (phase: phase): float => {
   switch phase {
   | Idle => 0.0
-  | Loading(_) => 15000.0 // Scene loading can be slow (multi-resolution download)
-  | Swapping(_) => 8000.0 // CSS fade is ~500ms, add buffer
+  | Loading(_) => 65000.0 // Scene loading can be slow (multi-resolution download)
+  | Swapping(_) => 20000.0 // CSS fade is ~500ms, add buffer
   | Cleanup(_) => 3000.0 // Cleanup is ~500ms, prevent long waits
   }
 }
@@ -95,46 +95,67 @@ let getTotalTimeoutMs = (): int => {
   getTimeoutForPhase(current.contents)->Float.toInt
 }
 
-let release = (requester: string, ~isTimeout=false) => {
-  let prev = current.contents
-  current := Idle
-  clearLockTimeout()
-  acquiredAt := None
-  notifyListeners()
-
-  Logger.debug(
-    ~module_="TransitionLock",
-    ~message="LOCK_RELEASED",
-    ~data=Some({
-      "requester": requester,
-      "prev": phaseToString(prev),
-      "isTimeout": isTimeout,
-    }),
-    (),
-  )
-
-  /* Notify recovery if timeout-triggered */
-  if isTimeout {
-    notifyRecoveryListeners()
+let release = (requester: string, ~isTimeout=false, ~onlyIfPhase: option<phase>=?) => {
+  let shouldRelease = switch onlyIfPhase {
+  | Some(p) => current.contents == p
+  | None => true
   }
 
-  /* Flush callbacks */
-  let callbacks = onIdleCallbacks.contents
-  onIdleCallbacks := []
-  callbacks->Belt.Array.forEach(cb => {
-    try {
-      cb()
-    } catch {
-    | exn =>
-      let (msg, _) = Logger.getErrorDetails(exn)
-      Logger.error(
-        ~module_="TransitionLock",
-        ~message="ON_IDLE_CALLBACK_ERROR",
-        ~data=Some({"error": msg}),
-        (),
-      )
+  if shouldRelease {
+    let prev = current.contents
+    current := Idle
+    clearLockTimeout()
+    acquiredAt := None
+    notifyListeners()
+
+    Logger.debug(
+      ~module_="TransitionLock",
+      ~message="LOCK_RELEASED",
+      ~data=Some({
+        "requester": requester,
+        "prev": phaseToString(prev),
+        "isTimeout": isTimeout,
+      }),
+      (),
+    )
+
+    /* Notify recovery if timeout-triggered */
+    if isTimeout {
+      notifyRecoveryListeners()
     }
-  })
+
+    /* Flush callbacks */
+    let callbacks = onIdleCallbacks.contents
+    onIdleCallbacks := []
+    callbacks->Belt.Array.forEach(cb => {
+      try {
+        cb()
+      } catch {
+      | exn =>
+        let (msg, _) = Logger.getErrorDetails(exn)
+        Logger.error(
+          ~module_="TransitionLock",
+          ~message="ON_IDLE_CALLBACK_ERROR",
+          ~data=Some({"error": msg}),
+          (),
+        )
+      }
+    })
+  } else {
+    Logger.debug(
+      ~module_="TransitionLock",
+      ~message="RELEASE_SKIPPED_PHASE_MISMATCH",
+      ~data=Some({
+        "requester": requester,
+        "current": phaseToString(current.contents),
+        "expected": switch onlyIfPhase {
+        | Some(p) => phaseToString(p)
+        | None => "None"
+        },
+      }),
+      (),
+    )
+  }
 }
 
 let releaseIf = (requester: string, predicate: phase => bool) => {
@@ -158,6 +179,21 @@ let forceRelease = () => {
       (),
     )
     release("TransitionLock_Timeout_System", ~isTimeout=true)
+  }
+}
+
+let preempt = (requester: string) => {
+  if !isIdle() {
+    Logger.info(
+      ~module_="TransitionLock",
+      ~message="LOCK_PREEMPTED",
+      ~data=Some({
+        "phase": phaseToString(current.contents),
+        "requester": requester,
+      }),
+      (),
+    )
+    release(requester, ~isTimeout=false)
   }
 }
 

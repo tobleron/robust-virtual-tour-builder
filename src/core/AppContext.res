@@ -185,10 +185,6 @@ let useIsSystemLocked = () => {
   | SystemBlocking(Exporting(_)) => true
   | SystemBlocking(Summary(_))
   | SystemBlocking(CriticalError(_)) => false
-  | Interactive(s) =>
-    switch s.navigation {
-    | Transitioning(_) => true
-    | _ => false
-    }
+  | Interactive(_) => false
   }
 }

@@ -6,13 +6,13 @@ module Logic = {
   let getThumbUrl = (scene: Types.scene) => {
     switch scene.tinyFile {
     | Some(tiny) =>
-      let url = UrlUtils.fileToUrl(tiny)
+      let url = SceneCache.getThumbUrl(scene.id ++ "_tiny", tiny)
       if url == "" {
-        UrlUtils.fileToUrl(scene.file)
+        SceneCache.getThumbUrl(scene.id, scene.file)
       } else {
         url
       }
-    | None => UrlUtils.fileToUrl(scene.file)
+    | None => SceneCache.getThumbUrl(scene.id, scene.file)
     }
   }
 }

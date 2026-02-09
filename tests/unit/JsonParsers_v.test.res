@@ -153,4 +153,72 @@ describe("JsonParsers Domain", () => {
       }
     }
   })
+  test("project decoder with modern inventory data and hotspots", t => {
+    let json = try {
+      JSON.parseOrThrow(`{
+        "tourName": "Modern Tour",
+        "scenes": [
+          { "id": "s1", "name": "S1", "file": "f1.jpg", "hotspots": [
+            { "linkId": "L1", "yaw": 10.0, "pitch": 5.0, "target": "S2" }
+          ]}
+        ],
+        "inventory": [
+          { "id": "s1", "entry": { 
+            "scene": { 
+              "id": "s1", 
+              "name": "S1", 
+              "file": "f1.jpg", 
+              "hotspots": [
+                { "linkId": "L1", "yaw": 10.0, "pitch": 5.0, "target": "S2" }
+              ]
+            }, 
+            "status": "active" 
+          } }
+        ],
+        "sceneOrder": ["s1"]
+      }`)
+    } catch {
+    | _ => failwith("Invalid JSON setup")
+    }
+    switch JsonCombinators.Json.decode(json, JsonParsers.Domain.project) {
+    | Ok(p) => {
+        t->expect(p.tourName)->Expect.toBe("Modern Tour")
+        t->expect(p.sceneOrder)->Expect.toEqual(["s1"])
+        let entry = p.inventory->Belt.Map.String.get("s1")->Option.getOrThrow
+        t->expect(Array.length(entry.scene.hotspots))->Expect.toBe(1)
+        let h = entry.scene.hotspots[0]->Option.getOrThrow
+        t->expect(h.linkId)->Expect.toBe("L1")
+        t->expect(h.target)->Expect.toBe("S2")
+      }
+    | Error(msg) => {
+        Console.log("modern project with hotspots failed: " ++ msg)
+        t->expect(true)->Expect.toBe(false)
+      }
+    }
+  })
+
+  test("project decoder handles legacy migration", t => {
+    let json = try {
+      JSON.parseOrThrow(`{
+        "tourName": "Legacy Tour",
+        "scenes": [
+          { "id": "legacy1", "name": "Legacy 1", "file": "legacy1.jpg" }
+        ]
+      }`)
+    } catch {
+    | _ => failwith("Invalid JSON setup")
+    }
+    switch JsonCombinators.Json.decode(json, JsonParsers.Domain.project) {
+    | Ok(p) => {
+        t->expect(p.tourName)->Expect.toBe("Legacy Tour")
+        // Migration should populate inventory and order from scenes
+        t->expect(p.sceneOrder)->Expect.toEqual(["legacy1"])
+        t->expect(Belt.Map.String.has(p.inventory, "legacy1"))->Expect.toBe(true)
+      }
+    | Error(msg) => {
+        Console.log("legacy migration failed: " ++ msg)
+        t->expect(true)->Expect.toBe(false)
+      }
+    }
+  })
 })
