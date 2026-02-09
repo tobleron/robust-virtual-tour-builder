@@ -140,8 +140,26 @@ let request = async (
       }
     } catch {
     | e =>
-      CircuitBreaker.recordFailure(circuitBreaker)
-      Error(String.make(e))
+      let errObj: {..} = Obj.magic(e)
+      let name: string = try {errObj["name"]} catch {
+      | _ => "Unknown"
+      }
+      let msg: string = try {errObj["message"]} catch {
+      | _ => String.make(e)
+      }
+
+      if name == "AbortError" || name == "Abort" {
+        Error("AbortError")
+      } else {
+        CircuitBreaker.recordFailure(circuitBreaker)
+        Error(
+          if msg == "" {
+            "Unknown Error"
+          } else {
+            msg
+          },
+        )
+      }
     }
   }
 }

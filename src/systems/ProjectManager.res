@@ -62,17 +62,17 @@ module Logic = {
 
     progress(10, 100, "Uploading to backend...")
     RequestQueue.schedule(() => {
-      AuthenticatedClient.request(
+      AuthenticatedClient.requestWithRetry(
         Constants.backendUrl ++ "/api/project/save",
         ~method="POST",
         ~formData,
         ~signal?,
         (),
-      )->Promise.then(responseResult => {
-        switch responseResult {
-        | Ok(response) =>
+      )->Promise.then(retryResult => {
+        switch retryResult {
+        | Retry.Success(response, _att) =>
           AuthenticatedClient.fetchBlob(response)->Promise.then(blob => Promise.resolve(Ok(blob)))
-        | Error(msg) => Promise.resolve(Error(msg))
+        | Retry.Exhausted(msg) => Promise.resolve(Error(msg))
         }
       })
     })
