@@ -103,13 +103,13 @@ let make = React.memo(() => {
   let (localTourName, setLocalTourName) = React.useState(() => sceneSlice.tourName)
   let expectedTourName = React.useRef(sceneSlice.tourName)
 
-  React.useEffect1(() => {
-    if sceneSlice.tourName != expectedTourName.current {
+  React.useEffect2(() => {
+    if localTourName == expectedTourName.current && sceneSlice.tourName != expectedTourName.current {
       setLocalTourName(_ => sceneSlice.tourName)
       expectedTourName.current = sceneSlice.tourName
     }
     None
-  }, [sceneSlice.tourName])
+  }, (sceneSlice.tourName, localTourName))
 
   React.useEffect1(() => {
     let timerId = ReBindings.Window.setTimeout(
