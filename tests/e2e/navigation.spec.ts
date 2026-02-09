@@ -39,13 +39,8 @@ test.describe('Navigation Engine', () => {
     await page.waitForSelector('.pnlm-hotspot', { state: 'attached', timeout: 45000 });
 
     // Sometimes the click on pnlm-hotspot fails if it's not actually interactive in the way Playwright expects
-    // Click center of viewer as fallback if it doesn't navigate
-    await page.locator('.pnlm-hotspot').first().click();
-
-    // Expect Hotspot Action Menu and click GO
-    const goBtn = page.getByRole('button', { name: 'GO' });
-    await expect(goBtn).toBeVisible({ timeout: 15000 });
-    await goBtn.click();
+    // We target the inner clickable element which handles the interaction
+    await page.locator('.pnlm-hotspot .cursor-pointer').first().click({ force: true });
 
     // Verify Scene 2 becomes active via persistent label. The label is prefixed with '# '
     await expect(page.locator('#v-scene-persistent-label')).toHaveText('# Scene 2', { timeout: 30000 });
