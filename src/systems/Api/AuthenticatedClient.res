@@ -177,19 +177,17 @@ let requestWithRetry = async (
     ~signal=ReBindings.AbortController.signal(controller),
     ~config=?retryConfig,
     ~onRetry=(attempt, error, delay) => {
-      if attempt > 1 {
-        NotificationManager.dispatch({
-          id: "",
-          importance: Info,
-          context: Operation("api"),
-          message: `Retrying request... (attempt ${Belt.Int.toString(attempt)})`,
-          details: None,
-          action: None,
-          duration: NotificationTypes.defaultTimeoutMs(Info),
-          dismissible: true,
-          createdAt: Date.now(),
-        })
-      }
+      NotificationManager.dispatch({
+        id: "",
+        importance: Info,
+        context: Operation("api"),
+        message: `Retrying request... (attempt ${Belt.Int.toString(attempt)})`,
+        details: None,
+        action: None,
+        duration: NotificationTypes.defaultTimeoutMs(Info),
+        dismissible: true,
+        createdAt: Date.now(),
+      })
       Logger.debug(
         ~module_="AuthenticatedClient",
         ~message="RETRY_ATTEMPT",
