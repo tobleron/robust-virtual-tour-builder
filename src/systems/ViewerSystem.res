@@ -19,11 +19,37 @@ module Adapter = {
   let name = "Pannellum"
   let initialize = (id, config) => Pannellum.viewer(id, config)
   let initializeViewer = initialize
+
   let destroy = v => {
-    try {Viewer.destroy(v)} catch {
-    | _ => ()
+    try {
+      Viewer.destroy(v)
+      // Aggressive cleanup to assist Garbage Collection
+      let _ = %raw(`
+        (function(v) {
+          if (v) {
+            // Clear custom properties
+            v._sceneId = null;
+            v._isLoaded = null;
+
+            // Clear internal caches if accessible (Pannellum specific)
+            if (v.clearRenderer) {
+              try { v.clearRenderer(); } catch(e) {}
+            }
+          }
+        })(v)
+      `)
+    } catch {
+    | exn =>
+      let (msg, _) = Logger.getErrorDetails(exn)
+      Logger.warn(
+        ~module_="ViewerSystem",
+        ~message="VIEWER_DESTROY_WARNING",
+        ~data=Some({"error": msg}),
+        (),
+      )
     }
   }
+
   let getPitch = v => Viewer.getPitch(v)
   let getYaw = v => Viewer.getYaw(v)
   let getHfov = v => Viewer.getHfov(v)

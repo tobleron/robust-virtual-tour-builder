@@ -35,6 +35,8 @@ let make = React.memo(() => {
 
     switch scrollContainer {
     | Some(sc) =>
+      let rafId = ref(None)
+
       let updateScroll = () => {
         setScrollState(
           _ => (
@@ -44,7 +46,17 @@ let make = React.memo(() => {
         )
       }
 
-      let handleScroll = _ => updateScroll()
+      let handleScroll = _ => {
+        switch rafId.contents {
+        | Some(_) => ()
+        | None =>
+          rafId := Some(ReBindings.Window.requestAnimationFrame(() => {
+            updateScroll()
+            rafId := None
+          }))
+        }
+      }
+
       ReBindings.Dom.addEventListener(sc, "scroll", handleScroll)
 
       updateScroll()
@@ -60,6 +72,7 @@ let make = React.memo(() => {
         () => {
           ReBindings.Dom.removeEventListener(sc, "scroll", handleScroll)
           ReBindings.ResizeObserver.disconnect(resizeObserver)
+          rafId.contents->Option.forEach(ReBindings.Window.cancelAnimationFrame)
         },
       )
     | None => None
@@ -268,12 +281,12 @@ let make = React.memo(() => {
               scene={scene}
               index={actualIndex}
               isActive={actualIndex == sceneSlice.activeIndex}
-              onClick={() => handleSceneClick(actualIndex)}
-              onDragStart={e => onDragStart(actualIndex, e)}
-              onDragOver={e => onDragOver(actualIndex, e)}
-              onDrop={e => onDrop(actualIndex, e)}
-              onDelete={() => handleDelete(actualIndex)}
-              onClearLinks={() => handleClearLinks(actualIndex)}
+              onItemClick={handleSceneClick}
+              onItemDragStart={onDragStart}
+              onItemDragOver={onDragOver}
+              onItemDrop={onDrop}
+              onItemDelete={handleDelete}
+              onItemClearLinks={handleClearLinks}
             />
           </div>
         })
