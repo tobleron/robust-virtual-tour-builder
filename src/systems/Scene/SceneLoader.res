@@ -304,17 +304,17 @@ let rec loadNewScene = (
             ViewerSystem.Adapter.setMetaData(newInstance, "isLoaded", boolToUnknown(false))
 
             newInstance->ViewerSystem.Adapter.on("texture-loaded", _ => {
-            clearTimeout(safetyTimeoutId)
+              clearTimeout(safetyTimeoutId)
               Events.onSceneLoad(newInstance, targetScene)
             })
 
             newInstance->ViewerSystem.Adapter.on("error", msg => {
-            clearTimeout(safetyTimeoutId)
+              clearTimeout(safetyTimeoutId)
               Events.onSceneError(msg, targetScene.id)
             })
 
             if ViewerSystem.Adapter.isLoaded(newInstance) {
-            clearTimeout(safetyTimeoutId)
+              clearTimeout(safetyTimeoutId)
               Events.onSceneLoad(newInstance, targetScene)
             }
 
