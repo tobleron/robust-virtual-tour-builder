@@ -160,8 +160,9 @@ module Logic = {
         let tokenQuery = "?token=" ++ finalToken
 
         // Rebuild URLs for ALL scenes in the inventory (Active and Deleted)
-        let allInventoryScenes = pd.inventory->Belt.Map.String.toArray->Belt.Array.map(((_id, entry)) => entry.scene)
-        
+        let allInventoryScenes =
+          pd.inventory->Belt.Map.String.toArray->Belt.Array.map(((_id, entry)) => entry.scene)
+
         let validScenes = ProjectManagerUrl.rebuildSceneUrls(
           allInventoryScenes,
           ~sessionId,

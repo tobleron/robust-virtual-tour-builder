@@ -190,15 +190,16 @@ let updateSceneCategories = (
 
 let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
   let modeStr = state.appMode->(
-    mode => switch mode {
-    | Interactive(_) => "Interactive"
-    | SystemBlocking(Uploading(_)) => "Uploading"
-    | SystemBlocking(ProjectLoading(_)) => "ProjectLoading"
-    | SystemBlocking(Exporting(_)) => "Exporting"
-    | SystemBlocking(Summary(_)) => "Summary"
-    | SystemBlocking(CriticalError(_)) => "CriticalError"
-    | Initializing => "Initializing"
-    }
+    mode =>
+      switch mode {
+      | Interactive(_) => "Interactive"
+      | SystemBlocking(Uploading(_)) => "Uploading"
+      | SystemBlocking(ProjectLoading(_)) => "ProjectLoading"
+      | SystemBlocking(Exporting(_)) => "Exporting"
+      | SystemBlocking(Summary(_)) => "Summary"
+      | SystemBlocking(CriticalError(_)) => "CriticalError"
+      | Initializing => "Initializing"
+      }
   )
   Logger.info(
     ~module_="SceneMutations",
@@ -215,7 +216,12 @@ let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
     let wasEmpty = Belt.Map.String.isEmpty(state.inventory)
 
     // 1. Parse and add to inventory
-    Logger.info(~module_="SceneMutations", ~message="ADD_SCENES_START", ~data=Some({"count": Belt.Array.length(scenesData)}), ())
+    Logger.info(
+      ~module_="SceneMutations",
+      ~message="ADD_SCENES_START",
+      ~data=Some({"count": Belt.Array.length(scenesData)}),
+      (),
+    )
     let (updatedInventory, addedIds) = scenesData->Belt.Array.reduce((state.inventory, []), (
       (inv, ids),
       dataJson,
@@ -230,7 +236,12 @@ let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {
         )
       }
     })
-    Logger.info(~module_="SceneMutations", ~message="ADD_SCENES_DONE", ~data=Some({"added": Belt.Array.length(addedIds)}), ())
+    Logger.info(
+      ~module_="SceneMutations",
+      ~message="ADD_SCENES_DONE",
+      ~data=Some({"added": Belt.Array.length(addedIds)}),
+      (),
+    )
 
     // 2. Update order (sort current + new)
     let mergedOrder = Belt.Array.concat(state.sceneOrder, addedIds)

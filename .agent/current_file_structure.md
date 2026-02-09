@@ -65,6 +65,7 @@
 ├── backend
 │   ├── Cargo.lock
 │   ├── Cargo.toml
+│   ├── backend.log
 │   ├── bin
 │   │   └── ffmpeg
 │   ├── data
@@ -8819,9 +8820,14 @@
 │   │               ├── images
 │   │               │   └── image.jpg
 │   │               └── project.json
+│   ├── logs
+│   │   ├── diagnostic.log
+│   │   ├── error.log
+│   │   └── telemetry.log
 │   ├── migrations
 │   │   ├── 20260124000000_init.sql
 │   │   └── 20260128000000_core_schema.sql
+│   ├── sessions
 │   ├── src
 │   │   ├── api
 │   │   │   ├── geocoding.rs
@@ -8881,11 +8887,17 @@
 │   │   │   └── upload_quota_tests.rs
 │   │   └── startup.rs
 │   ├── startup_log.txt
+│   ├── storage
+│   ├── temp
 │   └── tests
 │       ├── bench_bufwriter.rs
 │       ├── bench_transcode.rs
 │       ├── multipart_test.rs
 │       └── shutdown_test.rs
+├── backend.log
+├── backend_new.log
+├── backend_v3.log
+├── backend_v4.log
 ├── bin
 │   └── tailwindcss
 ├── cache
@@ -8915,6 +8927,7 @@
 ├── data
 │   ├── database.db
 │   └── storage
+├── dist-serve.log
 ├── docs
 │   ├── ARCHITECTURE.md
 │   ├── AUDIT_COMPLETION_SUMMARY.md
@@ -8945,6 +8958,9 @@
 ├── editor_fail.html
 ├── editor_fail_startbtn1.png
 ├── editor_fail_startbtn2.png
+├── frontend.log
+├── frontend_v2.log
+├── frontend_v3.log
 ├── index.html
 ├── jsconfig.json
 ├── lib
@@ -10810,6 +10826,12 @@
 │   │           ├── SharedTypes_v.test.cmj
 │   │           ├── SharedTypes_v.test.cmt
 │   │           ├── SharedTypes_v.test.res
+│   │           ├── SidebarSync_v.test.ast
+│   │           ├── SidebarSync_v.test.bs.js
+│   │           ├── SidebarSync_v.test.cmi
+│   │           ├── SidebarSync_v.test.cmj
+│   │           ├── SidebarSync_v.test.cmt
+│   │           ├── SidebarSync_v.test.res
 │   │           ├── Sidebar_v.test.ast
 │   │           ├── Sidebar_v.test.bs.js
 │   │           ├── Sidebar_v.test.cmi
@@ -12379,6 +12401,11 @@
 │   │   ├── SidebarProjectInfo.cmj
 │   │   ├── SidebarProjectInfo.cmt
 │   │   ├── SidebarProjectInfo.res
+│   │   ├── SidebarSync_v.test.ast
+│   │   ├── SidebarSync_v.test.cmi
+│   │   ├── SidebarSync_v.test.cmj
+│   │   ├── SidebarSync_v.test.cmt
+│   │   ├── SidebarSync_v.test.res
 │   │   ├── Sidebar_v.test.ast
 │   │   ├── Sidebar_v.test.cmi
 │   │   ├── Sidebar_v.test.cmj
@@ -12919,14 +12946,6 @@
 │   │   └── WebApiBindings.res
 │   └── rescript.lock
 ├── logs
-│   ├── backend.log
-│   ├── dev-all.log
-│   ├── dev-server.log
-│   ├── dev_server.log
-│   ├── diagnostic.log
-│   ├── error.log
-│   ├── log_changes.txt
-│   └── project-guard.log
 ├── old_ref
 │   ├── 7aadee4
 │   │   ├── CHANGELOG.md
@@ -14300,10 +14319,10 @@
 │   └── step1_cleanup_notes.md
 ├── playwright-report
 │   ├── data
-│   │   ├── 0aac6403bda7ffd611a47987aaeb3fcab0204516.webm
-│   │   ├── 0f746f99332b4cded90f179f9b2b330b86b552c4.png
-│   │   ├── 6abee87c4859be16841295751950a49fa599dc51.zip
-│   │   └── 76dc7234ea9237f532aaf7ad0f528d0a10df1e36.md
+│   │   ├── 6ecdd826ca8e8d48d0388cda010fc055c919b08c.png
+│   │   ├── 8c2440ff1fcc2ac9ab706336bf00effadf6d777f.webm
+│   │   ├── a76f38453528c4aa7447331cf2b5b9a797b7c7b1.md
+│   │   └── fcc12a2f0de37c625d26c5b65d7d78243ca36107.zip
 │   ├── index.html
 │   └── trace
 │       ├── assets
@@ -14325,6 +14344,9 @@
 │       └── xtermModule.DYP7pi_n.css
 ├── playwright.config.ts
 ├── postcss.config.js
+├── preview.log
+├── preview_v2.log
+├── preview_v3.log
 ├── public
 │   ├── early-boot.js
 │   ├── images
@@ -14366,6 +14388,8 @@
 │   ├── update-readme.js
 │   ├── update-version.js
 │   └── wait-for-backend.cjs
+├── serve.log
+├── serve_v2.log
 ├── src
 │   ├── App.bs.js
 │   ├── App.res
@@ -14805,8 +14829,6 @@
 ├── tasks
 │   ├── TASKS.md
 │   ├── active
-│   │   ├── 1303_AGGREGATE_Viewer_System_E2E_Issues.md
-│   │   └── 1310_Investigate_E2E_Failure_Upload_Retry.md
 │   ├── completed
 │   │   ├── 1231_Surgical_Refactor_CORE_FRONTEND_DONE.md
 │   │   ├── 1232_Merge_Folders_FRONTEND_DONE.md
@@ -14877,6 +14899,9 @@
 │   │   ├── 1300_ERR_UI_InteractionBlocking_DONE.md
 │   │   ├── 1301_VERIFY_Notification_Accessibility_Fixes_DONE.md
 │   │   ├── 1302_ERR_Pannellum_FileReader_Blob_Error.md
+│   │   ├── 1303_AGGREGATE_Viewer_System 2.textClipping
+│   │   ├── 1303_AGGREGATE_Viewer_System.textClipping
+│   │   ├── 1303_AGGREGATE_Viewer_System_E2E_Issues.md
 │   │   ├── 1304_BUG_Linking_Mode_Yellow_Lines_Persist_After_Save_DONE.md
 │   │   ├── 1305_BUG_Simulation_Mode_Infinite_Loop_Stop_Disabled_DONE.md
 │   │   ├── 1307.1_Robustness_Frontend_Quick_Wins_DONE.md
@@ -14884,8 +14909,11 @@
 │   │   ├── 1307.3_Robustness_Structural_Improvements_DONE.md
 │   │   ├── 1307_Robustness_Hardening_Race_Condition_Elimination_DONE.md
 │   │   ├── 1308_Investigate_E2E_Failure_Hotspot_Navigation_DONE.md
+│   │   ├── 1309_Investigate_E2E_Failure_Rapid_Clicking_DONE.md
 │   │   ├── 1311_Investigate_E2E_Failure_Performance_DONE.md
 │   │   ├── 1312_Investigate_E2E_Failure_Sync_Tour_Name.md
+│   │   ├── 1313_Investigate_E2E_Failure_FSM_Rapid_Switching_DONE.md
+│   │   ├── 1314_Investigate_E2E_Failure_Persistence.md
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
 │   │       ├── 1195_Test_Teaser_DONE.md
@@ -14896,7 +14924,11 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1309_Investigate_E2E_Failure_Rapid_Clicking.md
+│   │   ├── 1310_Investigate_E2E_Failure_Upload_Retry.md
+│   │   ├── 1315_Investigate_E2E_Failure_Resiliency.md
+│   │   ├── 1316_Investigate_E2E_Failure_Simulation.md
+│   │   ├── 1317_Investigate_E2E_Failure_Core_UI.md
+│   │   ├── 1318_Investigate_E2E_Failure_Full_Workflow.md
 │   │   └── dev_tasks
 │   │       ├── D001_Fix_Violations_FRONTEND.md
 │   │       ├── D002_Surgical_Refactor_CORE_FRONTEND.md
@@ -14910,87 +14942,22 @@
 │       ├── 1299_ERR_Performance_LoadTimeAndMemory.md
 │       └── 1306_ARCH_Navigation_Supervisor_Pattern_Research_DEFERRED.md
 ├── test-results
-│   ├── error-recovery-Error-Recov-4370c-ould-trigger-recovery-modal-webkit
+│   ├── rapid-scene-switching-FSM--088e8-g-by-clicking-another-scene-firefox
 │   │   ├── error-context.md
 │   │   └── test-failed-1.png
-│   ├── rapid-scene-switching-FSM--088e8-g-by-clicking-another-scene-chromium
+│   ├── rapid-scene-switching-FSM--30f18-ot-dim-during-scene-preload-firefox
 │   │   ├── error-context.md
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── rapid-scene-switching-FSM--c1619-ne-clicking-should-not-hang-chromium
-│   │   ├── error-context.md
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-0e90a-ation-Rapid-Scene-Switching-chromium
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-2fbf0-eyboard-Mouse-Interruptions-chromium
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-33d59-tic-Rollback-on-API-Failure-chromium
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-48365-arrier-Blocks-Other-Actions-chromium
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-54cde-ivity-Linking-vs-Simulation-chromium
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-6cd1c-ling-Operation-Cancellation-chromium
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-7044e--Circuit-Breaker-Activation-chromium
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-a4a16-ling-Save-Button-Debouncing-chromium
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-b56c2-ry-with-Exponential-Backoff-chromium
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-c8c37-d-Saving-during-Interaction-chromium
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-dc047-g-Rate-Limiter-Notification-chromium
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-ddd25-Concurrent-Mode-Transitions-chromium
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── robustness-Application-Rob-edf9a-errupted-Operation-Recovery-chromium
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── save-load-recovery-Project-30f67-ata-through-save-load-cycle-chromium
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── simulation-teaser-Simulati-4ee6a-un-auto-teaser-and-download-chromium
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   ├── simulation-teaser-Simulati-ce210-ld-run-autopilot-simulation-chromium
-│   │   ├── test-failed-1.png
-│   │   ├── trace.zip
-│   │   └── video.webm
-│   └── upload-link-export-workflo-ab193-full-tour-creation-workflow-chromium
+│   │   └── test-failed-1.png
+│   └── rapid-scene-switching-FSM--c1619-ne-clicking-should-not-hang-firefox
+│       ├── error-context.md
 │       ├── test-failed-1.png
 │       ├── trace.zip
 │       └── video.webm
+├── test_output.log
+├── test_run.log
+├── test_run_2.log
+├── test_run_rapid.log
+├── test_run_rapid_2.log
 ├── tests
 │   ├── TestRunner.bs.js
 │   ├── TestRunner.res
@@ -15248,6 +15215,7 @@
 │   │   ├── SharedTypesTest.bs.js
 │   │   ├── SharedTypes_v.test.bs.js
 │   │   ├── SharedTypes_v.test.res
+│   │   ├── SidebarSync_v.test.bs.js
 │   │   ├── SidebarSync_v.test.res
 │   │   ├── Sidebar_v.test.bs.js
 │   │   ├── Sidebar_v.test.res
@@ -15379,4 +15347,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-674 directories, 14706 files
+661 directories, 14687 files
