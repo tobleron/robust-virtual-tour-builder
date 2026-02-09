@@ -5,9 +5,20 @@ type t = Belt.MutableMap.String.t<string>
 
 /*
  * Map of sceneId -> blobUrl for pre-calculated snapshots
- * Used to pass visual state from idle to load phase without mutating immutable scene records
  */
 let cache: t = Belt.MutableMap.String.make()
+
+/*
+ * Map of sceneId -> blobUrl for source files
+ * Prevents redundant creates and memory leaks during rapid switching
+ */
+let sourceUrls: t = Belt.MutableMap.String.make()
+
+/*
+ * Map of sceneId -> blobUrl for thumbnails
+ * Prevents redundant creates and memory leaks in the sidebar
+ */
+let thumbUrls: t = Belt.MutableMap.String.make()
 
 let getSnapshot = (sceneId: string) => {
   Belt.MutableMap.String.get(cache, sceneId)
@@ -20,6 +31,26 @@ let setSnapshot = (sceneId: string, url: string) => {
   | _ => ()
   }
   Belt.MutableMap.String.set(cache, sceneId, url)
+}
+
+let getSourceUrl = (sceneId: string, file: Types.file) => {
+  switch Belt.MutableMap.String.get(sourceUrls, sceneId) {
+  | Some(url) => url
+  | None =>
+    let url = UrlUtils.fileToUrl(file)
+    Belt.MutableMap.String.set(sourceUrls, sceneId, url)
+    url
+  }
+}
+
+let getThumbUrl = (sceneId: string, file: Types.file) => {
+  switch Belt.MutableMap.String.get(thumbUrls, sceneId) {
+  | Some(url) => url
+  | None =>
+    let url = UrlUtils.fileToUrl(file)
+    Belt.MutableMap.String.set(thumbUrls, sceneId, url)
+    url
+  }
 }
 
 let removeKeyOnly = (sceneId: string) => {
@@ -39,4 +70,14 @@ let clearAll = () => {
     URL.revokeObjectURL(url)
   })
   Belt.MutableMap.String.clear(cache)
+
+  Belt.MutableMap.String.forEach(sourceUrls, (_, url) => {
+    URL.revokeObjectURL(url)
+  })
+  Belt.MutableMap.String.clear(sourceUrls)
+
+  Belt.MutableMap.String.forEach(thumbUrls, (_, url) => {
+    URL.revokeObjectURL(url)
+  })
+  Belt.MutableMap.String.clear(thumbUrls)
 }

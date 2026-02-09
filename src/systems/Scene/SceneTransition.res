@@ -25,9 +25,13 @@ let finalizeSwap = () => {
   })
 
   // Release lock if we were still in Swapping phase (safety)
-  if TransitionLock.isSwapping() {
-    TransitionLock.release("SceneTransition_Finalize")
-  }
+  // We use releaseIf to ensure we only release if it's still Swapping
+  TransitionLock.releaseIf("SceneTransition_Finalize", p =>
+    switch p {
+    | Swapping(_) => true
+    | _ => false
+    }
+  )
 }
 
 let assignGlobalViewer = nv => {
@@ -122,8 +126,10 @@ let cleanupViewerInstance = (ov, vp: viewport) => {
   // 2. State Lifecycle (Guaranteed)
   // This runs independently of the resource cleanup. Even if the viewer is reused
   // (and resourceCleanupId is cleared), the lock MUST be released to unblock the UI.
+  // CRITICAL: We only release if the phase is still the Cleanup we started.
+  let targetPhase = TransitionLock.Cleanup(sceneId)
   let _ = Window.setTimeout(() => {
-    TransitionLock.release("SceneTransition_CleanupDone")
+    TransitionLock.release("SceneTransition_CleanupDone", ~onlyIfPhase=targetPhase)
   }, 550) // Small buffer to ensure it runs after cleanup if both proceed
 }
 
