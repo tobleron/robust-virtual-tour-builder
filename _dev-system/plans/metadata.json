@@ -1,23 +1,20 @@
 {
-  "system": [],
-  "rust": [
-    {
-      "Violation": {
-        "file": "../../backend/src/api/media/video_logic.rs",
-        "pattern": "unwrap()",
-        "strategy": ""
-      }
-    }
-  ],
   "rescript": [
     {
+      "Violation": {
+        "file": "../../src/core/JsonParsersDecoders.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
       "Surgical": {
-        "file": "../../src/systems/ProjectManager.res",
+        "file": "../../src/systems/UploadProcessorLogic.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 4.20, Density: 0.21, Coupling: 0.10] | Drag: 5.41 | LOC: 395/300  🎯 Target: Function: `finalToken` (High Local Complexity (2.0). Logic heavy.)",
+        "reason": "[Nesting: 2.40, Density: 0.04, Coupling: 0.12] | Drag: 3.44 | LOC: 356/300  🎯 Target: Function: `getNotificationType` (High Local Complexity (4.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 14.905063291139241,
+        "complexity": 9.042134831460674,
         "recommended_splits": 2
       }
     },
@@ -37,6 +34,17 @@
         "file": "../../src/systems/Api/AuthenticatedClient.res",
         "pattern": "Obj.magic",
         "strategy": ""
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ProjectManager.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.20, Density: 0.21, Coupling: 0.10] | Drag: 5.41 | LOC: 395/300  🎯 Target: Function: `finalToken` (High Local Complexity (2.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 14.905063291139241,
+        "recommended_splits": 2
       }
     },
     {
@@ -67,22 +75,14 @@
         "complexity": 16.081725888324872,
         "recommended_splits": 2
       }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/UploadProcessorLogic.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.40, Density: 0.04, Coupling: 0.12] | Drag: 3.44 | LOC: 356/300  🎯 Target: Function: `getNotificationType` (High Local Complexity (4.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 9.042134831460674,
-        "recommended_splits": 2
-      }
-    },
+    }
+  ],
+  "system": [],
+  "rust": [
     {
       "Violation": {
-        "file": "../../src/core/JsonParsersDecoders.res",
-        "pattern": "Obj.magic",
+        "file": "../../backend/src/api/media/video_logic.rs",
+        "pattern": "unwrap()",
         "strategy": ""
       }
     }
