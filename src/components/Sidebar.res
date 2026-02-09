@@ -104,7 +104,9 @@ let make = React.memo(() => {
   let expectedTourName = React.useRef(sceneSlice.tourName)
 
   React.useEffect2(() => {
-    if localTourName == expectedTourName.current && sceneSlice.tourName != expectedTourName.current {
+    if (
+      localTourName == expectedTourName.current && sceneSlice.tourName != expectedTourName.current
+    ) {
       setLocalTourName(_ => sceneSlice.tourName)
       expectedTourName.current = sceneSlice.tourName
     }
