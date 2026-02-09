@@ -14,3 +14,4 @@
 
 - [ ] `../../src/core/JsonParsersDecoders.res`
 - [ ] `../../src/hooks/UseInteraction.res`
+- [ ] `../../src/systems/Api/AuthenticatedClient.res`
