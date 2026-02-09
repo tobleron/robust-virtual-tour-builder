@@ -5,7 +5,12 @@ open Types
 let make = React.memo((~activeIndex: int, ~scenes: array<scene>) => {
   let currentLabel = if activeIndex >= 0 {
     switch Belt.Array.get(scenes, activeIndex) {
-    | Some(s) => s.label
+    | Some(s) =>
+      if s.label == "" {
+        s.name
+      } else {
+        s.label
+      }
     | None => ""
     }
   } else {
