@@ -105,6 +105,7 @@ let make = React.memo((
             ? "btn-loading"
             : ""}`}
         onClick={_ => {
+          let _ = %raw(`console.log("[SIDEBAR_ACTION] Save button clicked")`)
           let _ = saveExecute()
         }}
         disabled={!isPermitted || savePending}

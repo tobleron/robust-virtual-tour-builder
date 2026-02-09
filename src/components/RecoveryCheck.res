@@ -6,8 +6,23 @@ open ReBindings
 let make = () => {
   React.useEffect0(() => {
     let checkRecovery = async () => {
+      let _ = %raw(`console.log("[RECOVERY_CHECK] Started checking...")`)
+      let _ = %raw(`console.log("[RECOVERY_CHECK] About to call OperationJournal.load()")`)
       let journal = await OperationJournal.load()
+      let _ = %raw(`console.log("[RECOVERY_CHECK] Got journal, entries:", journal)`)
       let interrupted = OperationJournal.getInterrupted(journal)
+      let _ = %raw(`console.log("[RECOVERY_CHECK] Got interrupted, count:", interrupted.length)`)
+      Logger.debug(
+        ~module_="RecoveryCheck",
+        ~message="CHECKING_RECOVERY",
+        ~data=Some(
+          Logger.castToJson({
+            "interruptedCount": Array.length(interrupted),
+            "journalEntries": Array.length(journal.entries),
+          }),
+        ),
+        (),
+      )
 
       if Array.length(interrupted) > 0 {
         let clearInterrupted = () => {
@@ -54,7 +69,7 @@ let make = () => {
       }
     }
 
-    let _ = checkRecovery()
+    let _promise = checkRecovery()
     None
   })
 

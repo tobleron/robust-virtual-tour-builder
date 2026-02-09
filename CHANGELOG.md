@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.34.0] - 2026-02-09
+
+### Added
+- Implement recovery modal detection system for interrupted operations
+
+- Add emergency queue mechanism using localStorage for fast operation persistence
+- Implement interrupted operation detection on page reload
+- Create synthetic interrupted entries when emergency flag detected
+- Ensure recovery modal is dispatched with correct operation details
+- Add comprehensive logging for recovery system debugging
+- Verify ModalContext receives and renders recovery prompt
+
+Fixes Task 1311: Recovery modal now properly detects interrupted save operations after browser refresh
+
 ## [4.33.12] - 2026-02-09
 
 ### Changed
