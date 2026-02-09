@@ -8,6 +8,8 @@ let castToDict: 'a => dict<string> = %raw("(x) => (typeof x === 'object' && x !=
 external asDynamic: 'a => {..} = "%identity"
 external boolToUnknown: bool => unknown = "%identity"
 external idToUnknown: string => unknown = "%identity"
+@val external setTimeout: (unit => unit, int) => timeoutId = "setTimeout"
+@val external clearTimeout: timeoutId => unit = "clearTimeout"
 
 let loadStartTime = ref(0.0)
 
@@ -27,7 +29,7 @@ module Config = {
       }
     })
   let makeSceneConfig = (scene: scene) => {
-    let url = scene.file->Types.fileToUrl
+    let url = SceneCache.getSourceUrl(scene.id, scene.file)
     Logger.debug(
       ~module_="SceneLoader",
       ~message="PREPARING_SCENE_INNER",
@@ -126,7 +128,34 @@ let rec loadNewScene = (
   let canProceed = if isAnticipatory {
     Ok()
   } else {
-    TransitionLock.acquire("SceneLoader", Loading(targetSceneId))
+    let result = TransitionLock.acquire("SceneLoader", Loading(targetSceneId))
+    switch result {
+    | Error(_) =>
+      // Pre-emption logic: if the lock is held by a different LOADING phase, we can override it
+      // because the FSM has moved on to a new target.
+      switch TransitionLock.current.contents {
+      | Loading(otherId) if otherId != targetSceneId =>
+        Logger.info(
+          ~module_="SceneLoader",
+          ~message="PREEMPTING_OBSOLETE_LOADING_LOCK",
+          ~data=Some({"oldTarget": otherId, "newTarget": targetSceneId}),
+          (),
+        )
+        TransitionLock.preempt("SceneLoader")
+        TransitionLock.acquire("SceneLoader", Loading(targetSceneId))
+      | Cleanup(_) =>
+        Logger.info(
+          ~module_="SceneLoader",
+          ~message="PREEMPTING_CLEANUP_LOCK",
+          ~data=Some({"newTarget": targetSceneId}),
+          (),
+        )
+        TransitionLock.preempt("SceneLoader")
+        TransitionLock.acquire("SceneLoader", Loading(targetSceneId))
+      | _ => result
+      }
+    | Ok() => result
+    }
   }
 
   switch canProceed {
@@ -237,6 +266,17 @@ let rec loadNewScene = (
         vp->Option.forEach(v => {
           v.instance->Option.forEach(i => ViewerSystem.Adapter.destroy(i))
 
+          // Safety timeout to prevent permanent hangs if Pannellum fails to fire events
+          let safetyTimeoutId = setTimeout(() => {
+            Logger.error(
+              ~module_="SceneLoader",
+              ~message="PANNELLUM_LOAD_TIMEOUT",
+              ~data=Some({"scene": targetScene.id}),
+              (),
+            )
+            Events.onSceneError("Resource load timeout (Safety)", targetScene.id)
+          }, 60000)
+
           try {
             let initialConfig = Config.makeInitialConfig(targetScene)
 
@@ -246,7 +286,7 @@ let rec loadNewScene = (
               ~data=Some({
                 "containerId": v.containerId,
                 "targetSceneId": targetScene.id,
-                "panorama": targetScene.file->Types.fileToUrl,
+                "panorama": SceneCache.getSourceUrl(targetScene.id, targetScene.file),
                 "fileType": switch targetScene.file {
                 | Url(_) => "Url"
                 | Blob(_) => "Blob"
@@ -263,14 +303,18 @@ let rec loadNewScene = (
             ViewerSystem.Adapter.setMetaData(newInstance, "sceneId", idToUnknown(targetScene.id))
             ViewerSystem.Adapter.setMetaData(newInstance, "isLoaded", boolToUnknown(false))
 
-            ViewerSystem.Adapter.on(newInstance, "load", _ => {
+            newInstance->ViewerSystem.Adapter.on("texture-loaded", _ => {
+            clearTimeout(safetyTimeoutId)
               Events.onSceneLoad(newInstance, targetScene)
             })
-            ViewerSystem.Adapter.on(newInstance, "error", msg =>
+
+            newInstance->ViewerSystem.Adapter.on("error", msg => {
+            clearTimeout(safetyTimeoutId)
               Events.onSceneError(msg, targetScene.id)
-            )
+            })
 
             if ViewerSystem.Adapter.isLoaded(newInstance) {
+            clearTimeout(safetyTimeoutId)
               Events.onSceneLoad(newInstance, targetScene)
             }
 
@@ -287,6 +331,7 @@ let rec loadNewScene = (
             )
           } catch {
           | exn =>
+            clearTimeout(safetyTimeoutId)
             let (errMsg, errStack) = Logger.getErrorDetails(exn)
             Logger.error(
               ~module_="SceneLoader",

@@ -13,6 +13,6 @@ type policy =
   | SlidingWindow(int, int, int) // maxCalls, windowMs, minIntervalMs
 
 // Standard Policies
-let sceneNavigation = Throttle(300, Leading)
+let sceneNavigation = Throttle(200, Leading)
 let projectMutation = SlidingWindow(5, 10000, 1000)
 let heavyCompute = Debounce(100)

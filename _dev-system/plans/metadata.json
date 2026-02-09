@@ -1,5 +1,4 @@
 {
-  "system": [],
   "rust": [
     {
       "Violation": {
@@ -11,10 +10,14 @@
   ],
   "rescript": [
     {
-      "Violation": {
-        "file": "../../src/core/JsonParsersDecoders.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
+      "Surgical": {
+        "file": "../../src/systems/ProjectManager.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.20, Density: 0.21, Coupling: 0.10] | Drag: 5.41 | LOC: 386/300  🎯 Target: Function: `finalToken` (High Local Complexity (2.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 14.012435233160621,
+        "recommended_splits": 2
       }
     },
     {
@@ -29,20 +32,13 @@
       }
     },
     {
-      "Violation": {
-        "file": "../../src/hooks/UseInteraction.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
       "Surgical": {
         "file": "../../src/components/Sidebar.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 7.80, Density: 0.23, Coupling: 0.09] | Drag: 9.14 | LOC: 370/300  🎯 Target: Function: `make` (High Local Complexity (23.2). Logic heavy.)",
+        "reason": "[Nesting: 7.80, Density: 0.23, Coupling: 0.09] | Drag: 9.14 | LOC: 372/300  🎯 Target: Function: `make` (High Local Complexity (23.2). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 16.14054054054054,
+        "complexity": 16.338709677419356,
         "recommended_splits": 2
       }
     },
@@ -50,23 +46,38 @@
       "Surgical": {
         "file": "../../src/core/SceneMutations.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 6.60, Density: 0.48, Coupling: 0.04] | Drag: 8.11 | LOC: 361/300  🎯 Target: Function: `syncSceneNames` (High Local Complexity (5.6). Logic heavy.)",
+        "reason": "[Nesting: 5.40, Density: 0.27, Coupling: 0.04] | Drag: 6.69 | LOC: 383/300  🎯 Target: Function: `getDeletedIds` (High Local Complexity (3.5). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 14.206925207756232,
+        "complexity": 14.98981723237598,
         "recommended_splits": 2
       }
     },
     {
       "Surgical": {
-        "file": "../../src/systems/ProjectManager.res",
+        "file": "../../src/systems/UploadProcessorLogic.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 4.80, Density: 0.20, Coupling: 0.10] | Drag: 6.00 | LOC: 393/300  🎯 Target: Function: `finalToken` (High Local Complexity (2.0). Logic heavy.)",
+        "reason": "[Nesting: 2.40, Density: 0.04, Coupling: 0.12] | Drag: 3.44 | LOC: 356/300  🎯 Target: Function: `getNotificationType` (High Local Complexity (4.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 15.301017811704835,
+        "complexity": 9.042134831460674,
         "recommended_splits": 2
       }
+    },
+    {
+      "Violation": {
+        "file": "../../src/core/JsonParsersDecoders.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/hooks/UseInteraction.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
     }
-  ]
+  ],
+  "system": []
 }

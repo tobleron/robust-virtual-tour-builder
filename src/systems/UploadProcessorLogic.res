@@ -87,6 +87,12 @@ let processItem = (i, item: uploadItem, onStatus: string => unit) => {
     }),
     (),
   )
+  Logger.info(
+    ~module_="UploadLogic",
+    ~message="PROCESS_ITEM_INVOKED",
+    ~data=Some({"filename": File.name(item.original)}),
+    (),
+  )
   Resizer.processAndAnalyzeImage(item.original, ~onStatus=Some(onStatus))
   ->Promise.then(processResult => {
     let newItem = switch processResult {
@@ -270,6 +276,7 @@ let executeProcessingChain = (
   skippedCount: int,
   journalId: string,
 ) => {
+  Logger.info(~module_="UploadLogic", ~message="EXECUTE_PROCESSING_CHAIN_START", ())
   updateProgress(20.0, "Processing images...", true, "Processing")
 
   let processedCount = ref(0)
@@ -285,6 +292,12 @@ let executeProcessingChain = (
         ()
       )->Promise.then(clustered => {
         let jsonPayload = createScenePayload(clustered)
+        Logger.info(
+          ~module_="UploadLogic",
+          ~message="DISPATCHING_ADD_SCENES",
+          ~data=Some({"count": Belt.Array.length(jsonPayload)}),
+          (),
+        )
         GlobalStateBridge.dispatch(AddScenes(jsonPayload))
         PersistenceLayer.performSave(GlobalStateBridge.getState())
         Promise.resolve()
@@ -363,6 +376,7 @@ let handleFingerprinting = (
   updateProgress: (float, string, bool, string) => unit,
   journalId: string,
 ) => {
+  Logger.info(~module_="UploadLogic", ~message="START_FINGERPRINTING", ())
   updateProgress(0.0, "Scanning files...", true, "Fingerprinting")
   FingerprintService.fingerprintFiles(validFiles)->Promise.then(results => {
     updateProgress(18.0, "Cleaning up scanning...", true, "Fingerprinting")

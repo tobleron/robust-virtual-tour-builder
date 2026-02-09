@@ -159,36 +159,21 @@ module Logic = {
         }
         let tokenQuery = "?token=" ++ finalToken
 
-        // Rebuild URLs for all active scenes in the inventory
-        let resolvedActiveScenes = if Array.length(pd.sceneOrder) > 0 {
-          pd.sceneOrder->Belt.Array.keepMap(id => {
-            switch pd.inventory->Belt.Map.String.get(id) {
-            | Some({scene, status: Active}) => Some(scene)
-            | _ => None
-            }
-          })
-        } else {
-          []
-        }
-
-        // Failsafe: if inventory-based resolution failed but legacy array has data, use legacy
-        let scenesToRebuild = if (
-          Array.length(resolvedActiveScenes) == 0 && Array.length(pd.scenes) > 0
-        ) {
-          pd.scenes
-        } else {
-          resolvedActiveScenes
-        }
-
+        // Rebuild URLs for ALL scenes in the inventory (Active and Deleted)
+        let allInventoryScenes = pd.inventory->Belt.Map.String.toArray->Belt.Array.map(((_id, entry)) => entry.scene)
+        
         let validScenes = ProjectManagerUrl.rebuildSceneUrls(
-          scenesToRebuild,
+          allInventoryScenes,
           ~sessionId,
           ~tokenQuery,
         )
 
-        // Sync valid scenes back into inventory
+        // Sync valid scenes back into inventory, preserving their original status
         let updatedInventory = validScenes->Belt.Array.reduce(pd.inventory, (acc, s) => {
-          acc->Belt.Map.String.set(s.id, {Types.scene: s, status: Active})
+          switch acc->Belt.Map.String.get(s.id) {
+          | Some(entry) => acc->Belt.Map.String.set(s.id, {...entry, scene: s})
+          | None => acc // Should not happen if we rebuilt from inventory
+          }
         })
 
         // Ensure sceneOrder is populated from validScenes if it was empty
@@ -198,9 +183,17 @@ module Logic = {
           validScenes->Belt.Array.map(s => s.id)
         }
 
+        // Filter active scenes for the legacy array and order verification
+        let resolvedActiveScenes = finalOrder->Belt.Array.keepMap(id => {
+          switch updatedInventory->Belt.Map.String.get(id) {
+          | Some({scene, status: Active}) => Some(scene)
+          | _ => None
+          }
+        })
+
         let loadedProject: Types.project = {
           ...pd,
-          scenes: validScenes,
+          scenes: resolvedActiveScenes,
           inventory: updatedInventory,
           sceneOrder: finalOrder,
         }

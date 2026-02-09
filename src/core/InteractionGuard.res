@@ -10,11 +10,16 @@ type state = {
   mutable limiter: option<RateLimiter.t>,
 }
 
-let registry = Dict.make()
-let locks = Dict.make()
+let registry = ref(Dict.make())
+let locks = ref(Dict.make())
+
+let clear = () => {
+  registry := Dict.make()
+  locks := Dict.make()
+}
 
 let getState = id => {
-  switch Dict.get(registry, id) {
+  switch Dict.get(registry.contents, id) {
   | Some(s) => s
   | None =>
     let s = {
@@ -23,20 +28,20 @@ let getState = id => {
       pendingReject: None,
       limiter: None,
     }
-    Dict.set(registry, id, s)
+    Dict.set(registry.contents, id, s)
     s
   }
 }
 
 let isLocked = key => {
-  switch Dict.get(locks, key) {
+  switch Dict.get(locks.contents, key) {
   | Some(v) => v
   | None => false
   }
 }
 
 let setLock = (key, value) => {
-  Dict.set(locks, key, value)
+  Dict.set(locks.contents, key, value)
 }
 
 let attempt = (id: string, policy: policy, action: unit => Promise.t<'a>): Result.t<
