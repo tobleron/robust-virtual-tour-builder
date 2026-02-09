@@ -264,6 +264,12 @@ let saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) =
       }),
       ~retryable=true,
     )->Promise.then(journalId => {
+      Logger.debug(
+        ~module_="ProjectManager",
+        ~message="SAVE_OPERATION_LOGGED",
+        ~data=Some(Logger.castToJson({"journalId": journalId})),
+        (),
+      )
       let tourName = if state.tourName == "" {
         "Virtual_Tour"
       } else {
