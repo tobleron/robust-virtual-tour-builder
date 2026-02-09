@@ -18,7 +18,7 @@ module AboutContent = {
           message: "Diagnostic Mode Disabled",
           details: None,
           action: None,
-          duration: NotificationTypes.defaultTimeoutMs(Info),
+          duration: 10000,
           dismissible: true,
           createdAt: Date.now(),
         })
@@ -84,6 +84,7 @@ module AboutContent = {
 @react.component
 let make = React.memo(() => {
   let sceneSlice = AppContext.useSceneSlice()
+  let uiSlice = AppContext.useUiSlice()
   let dispatch = AppContext.useAppDispatch()
 
   let fileInputRef = React.useRef(Nullable.null)
@@ -226,40 +227,58 @@ let make = React.memo(() => {
 
   let handleSave = async (state: Types.state, ~signal, ~onCancel) => {
     try {
-      let _ = await ProjectManager.saveProject(state, ~signal, ~onProgress=(pct, _t, msg) => {
+      let success = await ProjectManager.saveProject(state, ~signal, ~onProgress=(pct, _t, msg) => {
         SidebarLogic.updateProgress(~onCancel, pct->Int.toFloat, msg, true, "Save")
       })
-      SidebarLogic.updateProgress(100.0, "Saved", false, "")
-      NotificationManager.dispatch({
-        id: "",
-        importance: Success,
-        context: Operation("sidebar_save"),
-        message: "Project Saved",
-        details: None,
-        action: None,
-        duration: NotificationTypes.defaultTimeoutMs(Success),
-        dismissible: true,
-        createdAt: Date.now(),
-      })
+
+      if success {
+        SidebarLogic.updateProgress(100.0, "Saved", false, "")
+        NotificationManager.dispatch({
+          id: "",
+          importance: Success,
+          context: Operation("sidebar_save"),
+          message: "Project saved successfully",
+          details: None,
+          action: None,
+          duration: NotificationTypes.defaultTimeoutMs(Success),
+          dismissible: true,
+          createdAt: Date.now(),
+        })
+      } // Check if it was cancelled via signal
+      else if BrowserBindings.AbortController.aborted(signal) {
+        SidebarLogic.updateProgress(0.0, "Cancelled", true, "Save")
+        NotificationManager.dispatch({
+          id: "save-cancelled-notification",
+          importance: Info,
+          context: Operation("sidebar_save"),
+          message: "Save Cancelled",
+          details: None,
+          action: None,
+          duration: 5000,
+          dismissible: true,
+          createdAt: Date.now(),
+        })
+        let _ = ReBindings.Window.setTimeout(() => {
+          SidebarLogic.updateProgress(0.0, "Cancelled", false, "")
+        }, 5000)
+      } else {
+        SidebarLogic.updateProgress(0.0, "Save Failed", false, "")
+      }
     } catch {
     | exn => {
         let (msg, _) = Logger.getErrorDetails(exn)
-        if String.includes(msg, "AbortError") {
-          SidebarLogic.updateProgress(0.0, "Cancelled", false, "")
-        } else {
-          SidebarLogic.updateProgress(0.0, "Error", false, "")
-          NotificationManager.dispatch({
-            id: "",
-            importance: Error,
-            context: Operation("sidebar_save"),
-            message: "Save failed: " ++ msg,
-            details: None,
-            action: None,
-            duration: NotificationTypes.defaultTimeoutMs(Error),
-            dismissible: true,
-            createdAt: Date.now(),
-          })
-        }
+        SidebarLogic.updateProgress(0.0, "Error", false, "")
+        NotificationManager.dispatch({
+          id: "",
+          importance: Error,
+          context: Operation("sidebar_save"),
+          message: "Save failed: " ++ msg,
+          details: None,
+          action: None,
+          duration: NotificationTypes.defaultTimeoutMs(Error),
+          dismissible: true,
+          createdAt: Date.now(),
+        })
       }
     }
   }
@@ -274,6 +293,7 @@ let make = React.memo(() => {
       <SidebarActions
         exportReady
         teaserReady
+        isLinking={uiSlice.isLinking}
         onNew={() => {
           if Array.length(sceneSlice.scenes) > 0 {
             EventBus.dispatch(

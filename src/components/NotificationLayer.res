@@ -60,11 +60,5 @@ let make = React.memo(() => {
     )
   })
 
-  <Shadcn.Sonner
-    position="top-right"
-    visibleToasts=Constants.toastVisibleToasts
-    duration=Constants.toastDisplayDuration
-    richColors=true
-    expand=true
-  />
+  React.null
 })
