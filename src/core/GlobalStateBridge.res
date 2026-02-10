@@ -17,6 +17,7 @@ let listeners: ref<array<Types.state => unit>> = ref([])
 let setDispatch = d => dispatchRef := d
 let setState = s => {
   stateRef := s
+  %raw(`window.__RE_STATE__ = s`)->ignore
   Belt.Array.forEach(listeners.contents, cb => cb(s))
 }
 
