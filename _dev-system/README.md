@@ -55,9 +55,9 @@ The analyzer utilizes a high-fidelity **Semantic Scanner** (e.g., `RescriptParse
 Advisory tasks are no longer bound to volatile line numbers. The system identifies **Symbols** (e.g., `Function: handleUpload`) as targets and calculates **Exactly how many modules** are required for an optimal split (aiming for a 300 LOC "Soft Floor").
 
 ### ⚖️ 3. Hysteresis (Stability Dead Zone)
-To prevent "Architectural Jitter" (Split/Merge loops), the system implements a **+/- 15% Buffer Zone**. 
-*   **Split**: Triggered at `Limit * 1.15`.
-*   **Merge**: Resulting file must be `< Limit * 0.85`.
+To prevent "Architectural Jitter" (Split/Merge loops), the system implements a **+/- 25% Buffer Zone**. 
+*   **Split**: Triggered at `Limit * 1.25`.
+*   **Merge**: Resulting file must be `< Limit * 0.75`.
 This ensures files only move when the architectural benefit is mathematically significant.
 
 ### 👤 4. Shadow Orchestrator Protection

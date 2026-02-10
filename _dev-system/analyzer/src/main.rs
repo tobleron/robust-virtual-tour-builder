@@ -182,7 +182,7 @@ fn generate_work_units(
         
         let mut is_surgical = false;
         if taxonomy != "unknown" && metrics.loc > limit {
-            let split_threshold = (limit as f64 * 1.15) as usize;
+            let split_threshold = (limit as f64 * 1.25) as usize;
             if metrics.loc > split_threshold {
                 is_surgical = true;
                 let nesting_factor = metrics.max_nesting as f64 * config.settings.nesting_weight;
