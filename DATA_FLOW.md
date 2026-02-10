@@ -296,6 +296,9 @@ Address/GPS Query
 - `[src/components/LockFeedback.res]`
 - `[src/components/NotificationCenter.res]`
 
+### 📂 src/components/VisualPipeline
+- `[src/components/VisualPipeline/VisualPipelineComponent.res]`
+
 ### 📂 src/core
 - `[src/core/NotificationManager.res]`
 - `[src/core/NotificationQueue.res]`

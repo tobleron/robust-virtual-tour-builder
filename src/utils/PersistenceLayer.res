@@ -109,7 +109,9 @@ let clearSession = () => {
 }
 
 let checkRecovery = () => {
+  Logger.info(~module_="Persistence", ~message="CHECK_RECOVERY_START", ())
   get(key)->Promise.then(item => {
+    Logger.info(~module_="Persistence", ~message="CHECK_RECOVERY_GOT_ITEM", ())
     switch Nullable.toOption(item) {
     | Some(raw) =>
       let json = asJson(raw)

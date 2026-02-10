@@ -8,8 +8,9 @@
 
 ---
 
-## ⚠️ PRECURSOR: AMBIGUITY RESOLUTION (1)
-- [ ] `../../src/hooks/UseInteraction.res`
-
----
-
+## 🧩 MERGE TASKS (1)
+### Merge Folder: `../../src/components/VisualPipeline`
+- **Reason:** Read Tax high (Score 2.00). Projected Limit: 300 (Drag 4.29)
+- **Files:**
+  - `../../src/components/VisualPipeline/VisualPipelineComponent.res`
+  - `../../src/components/VisualPipeline/VisualPipelineStyles.res`

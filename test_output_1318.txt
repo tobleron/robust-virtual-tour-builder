@@ -1,0 +1,54 @@
+
+Running 1 test using 1 worker
+
+Step 1: Uploading images...
+Scenes created: [33m3[39m
+Step 2: Linking scenes...
+  ✘  1 [chromium] › tests/e2e/upload-link-export-workflow.spec.ts:45:3 › Full Workflow: Upload -> Link -> Export › should complete full tour creation workflow (1.4m)
+
+
+  1) [chromium] › tests/e2e/upload-link-export-workflow.spec.ts:45:3 › Full Workflow: Upload -> Link -> Export › should complete full tour creation workflow 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeHidden[2m([22m[2m)[22m failed
+
+    Locator:  getByText('Link Destination')
+    Expected: hidden
+    Received: visible
+    Timeout:  30000ms
+
+    Call log:
+    [2m  - Expect "toBeHidden" with timeout 30000ms[22m
+    [2m  - waiting for getByText('Link Destination')[22m
+    [2m    34 × locator resolved to <h3 id="modal-title" class="modal-title-custom">Link Destination</h3>[22m
+    [2m       - unexpected value "visible"[22m
+
+
+      71 |     await page.selectOption('#link-target', { index: 0 });
+      72 |     await page.getByRole('button', { name: 'Save Link' }).click();
+    > 73 |     await expect(page.getByText('Link Destination')).toBeHidden();
+         |                                                      ^
+      74 |
+      75 |     // 3. Export Project
+      76 |     console.log('Step 3: Exporting project...');
+        at /Users/r2/Desktop/robust-virtual-tour-builder/tests/e2e/upload-link-export-workflow.spec.ts:73:54
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/upload-link-export-workflo-ab193-full-tour-creation-workflow-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/upload-link-export-workflo-ab193-full-tour-creation-workflow-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/upload-link-export-workflo-ab193-full-tour-creation-workflow-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/upload-link-export-workflo-ab193-full-tour-creation-workflow-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/upload-link-export-workflo-ab193-full-tour-creation-workflow-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › tests/e2e/upload-link-export-workflow.spec.ts:45:3 › Full Workflow: Upload -> Link -> Export › should complete full tour creation workflow 

@@ -101,9 +101,16 @@ module InternalRender = {
   open InternalLogic
 
   let render = (pipeline: t, state: Types.state) => {
+    Logger.info(
+      ~module_="VisualPipeline",
+      ~message="RENDER_CALLED_TIMELINE_" ++ Array.length(state.timeline)->Int.toString,
+      (),
+    )
     if Belt.Array.length(state.timeline) == 0 {
+      Logger.debug(~module_="VisualPipeline", ~message="DISPLAY_NONE", ())
       Dom.setDisplay(pipeline.wrapper, "none")
     } else {
+      Logger.debug(~module_="VisualPipeline", ~message="DISPLAY_FLEX", ())
       Dom.setDisplay(pipeline.wrapper, "flex")
 
       let track = Dom.querySelector(pipeline.wrapper, ".pipeline-track")
@@ -282,31 +289,35 @@ module InternalRender = {
 
 include InternalTypes
 
+let initByElement = (c: Dom.element) => {
+  Logger.info(~module_="VisualPipeline", ~message="INIT_BY_ELEMENT_START", ())
+  Logger.initialized(~module_="VisualPipeline")
+  VisualPipelineStyles.injectStyles()
+  let wrapper = Dom.createElement("div")
+  Dom.setClassName(wrapper, "visual-pipeline-wrapper")
+
+  let track = Dom.createElement("div")
+  Dom.setClassName(track, "pipeline-track")
+  Dom.appendChild(wrapper, track)
+
+  Dom.appendChild(c, wrapper)
+
+  let pipeline = {
+    container: c,
+    wrapper,
+    dragSourceId: ref(Nullable.null),
+    thumbCache: Dict.make(),
+  }
+
+  let unsubscribe = GlobalStateBridge.subscribe(state => InternalRender.render(pipeline, state))
+  InternalRender.render(pipeline, GlobalStateBridge.getState())
+  (pipeline, unsubscribe)
+}
+
 let init = (containerId: string) => {
   let container = Dom.getElementById(containerId)
   switch Nullable.toOption(container) {
-  | Some(c) =>
-    Logger.initialized(~module_="VisualPipeline")
-    VisualPipelineStyles.injectStyles()
-    let wrapper = Dom.createElement("div")
-    Dom.setClassName(wrapper, "visual-pipeline-wrapper")
-
-    let track = Dom.createElement("div")
-    Dom.setClassName(track, "pipeline-track")
-    Dom.appendChild(wrapper, track)
-
-    Dom.appendChild(c, wrapper)
-
-    let pipeline = {
-      container: c,
-      wrapper,
-      dragSourceId: ref(Nullable.null),
-      thumbCache: Dict.make(),
-    }
-
-    let _ = GlobalStateBridge.subscribe(state => InternalRender.render(pipeline, state))
-    InternalRender.render(pipeline, GlobalStateBridge.getState())
-    Some(pipeline)
+  | Some(c) => Some(initByElement(c))
   | None => None
   }
 }
