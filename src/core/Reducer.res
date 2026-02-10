@@ -162,7 +162,9 @@ module AppFsm = {
         Logger.info(
           ~module_="ReducerAppFsm",
           ~message="Processing Event: " ++
-          AppFSM.eventToString(event) ++ " in Mode: " ++ AppFSM.toString(state.appMode),
+          AppFSM.eventToString(event) ++
+          " in Mode: " ++
+          AppFSM.toString(state.appMode),
           (),
         )
         let nextAppMode = AppFSM.transition(state.appMode, event)

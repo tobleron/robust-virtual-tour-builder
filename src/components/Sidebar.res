@@ -109,7 +109,7 @@ let make = React.memo(() => {
     let local = localTourName
     let expected = expectedTourName.current
 
-    if (local == expected && actual != expected) {
+    if local == expected && actual != expected {
       Logger.debug(
         ~module_="Sidebar",
         ~message="SYNC_TOUR_NAME_FROM_STATE",
