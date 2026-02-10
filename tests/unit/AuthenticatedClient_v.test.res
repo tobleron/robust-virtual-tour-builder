@@ -94,7 +94,9 @@ describe("AuthenticatedClient", () => {
       m.mockResolvedValueOnce({
         ok: false,
         status: 500,
-        statusText: 'Internal Server Error'
+        statusText: 'Internal Server Error',
+        json: () => Promise.resolve({}),
+        text: () => Promise.resolve('Internal Server Error')
       })
       .mockResolvedValueOnce({
         ok: true,

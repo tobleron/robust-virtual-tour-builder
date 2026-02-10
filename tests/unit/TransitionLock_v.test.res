@@ -3,7 +3,7 @@ open Vitest
 
 describe("TransitionLock", () => {
   beforeEach(() => {
-    TransitionLock.release("cleanup")
+    TransitionLock.preempt("cleanup")
   })
 
   test("Initial state is idle", t => {

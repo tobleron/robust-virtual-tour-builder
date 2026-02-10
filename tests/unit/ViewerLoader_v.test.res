@@ -45,6 +45,7 @@ let _ = describe("ViewerLoader", () => {
                 contains: () => false
              },
              setAttribute: () => {},
+             addEventListener: (_, _1) => {},
              getBoundingClientRect: () => ({top: 0, left: 0}),
              appendChild: () => {}
           }
