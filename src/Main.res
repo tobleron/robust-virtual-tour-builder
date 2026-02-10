@@ -241,6 +241,7 @@ let init = async () => {
 
       // 8. Global click handler
       Dom.addEventListener(docToEl(Dom.document), "viewer-click", (e: Dom.event) => {
+        Logger.info(~module_="Main", ~message="VIEWER_CLICK_RECEIVED", ())
         let state = GlobalStateBridge.getState()
         if state.isLinking {
           let customEvent = ViewerClickEvent.fromEvent(e)
@@ -282,7 +283,7 @@ let init = async () => {
         }
       })
 
-      GlobalStateBridge.dispatch(DispatchAppFsmEvent(InitializeComplete))
+      Logger.info(~module_="Main", ~message="MAIN_INIT_DONE_WAITING_FOR_APP", ())
     } catch {
     | exn =>
       let (msg, stack) = Logger.getErrorDetails(exn)

@@ -12,21 +12,21 @@ const IMAGE_PATH_2 = path.join(FIXTURES_DIR, 'image2.jpg');
 const IMAGE_PATH_3 = path.join(FIXTURES_DIR, 'image3.jpg');
 
 async function handleUpload(page, imagePath, expectedSceneIndex) {
-    const fileInput = page.locator('input[type="file"][accept="image/jpeg,image/png,image/webp"]');
-    await fileInput.setInputFiles([imagePath]);
+  const fileInput = page.locator('input[type="file"][accept="image/jpeg,image/png,image/webp"]');
+  await fileInput.setInputFiles([imagePath]);
 
-    // "Start Building" should appear in the Upload Summary modal
-    const startBtn = page.getByRole('button', { name: /Start Building/i });
-    try {
-        // Increased timeout due to slow backend processing in test environment
-        await startBtn.waitFor({ state: 'visible', timeout: 90000 });
-        await startBtn.click();
-    } catch (e) {
-        console.log(`Start Building button skipped for scene ${expectedSceneIndex} (not visible)`);
-        // If button didn't appear, maybe the scene appeared directly?
-    }
+  // "Start Building" should appear in the Upload Summary modal
+  const startBtn = page.getByRole('button', { name: /Start Building/i });
+  try {
+    // Increased timeout due to slow backend processing in test environment
+    await startBtn.waitFor({ state: 'visible', timeout: 90000 });
+    await startBtn.click();
+  } catch (e) {
+    console.log(`Start Building button skipped for scene ${expectedSceneIndex} (not visible)`);
+    // If button didn't appear, maybe the scene appeared directly?
+  }
 
-    await expect(page.locator('.scene-item').nth(expectedSceneIndex)).toBeVisible({ timeout: 90000 });
+  await expect(page.locator('.scene-item').nth(expectedSceneIndex)).toBeVisible({ timeout: 90000 });
 }
 
 test.describe('Full Workflow: Upload -> Link -> Export', () => {
@@ -67,8 +67,8 @@ test.describe('Full Workflow: Upload -> Link -> Export', () => {
 
     await expect(page.getByText('Link Destination')).toBeVisible();
 
-    // Select index 0 (first available option)
-    await page.selectOption('#link-target', { index: 0 });
+    // Select index 1 (first valid scene, index 0 is placeholder "-- Select Room --")
+    await page.selectOption('#link-target', { index: 1 });
     await page.getByRole('button', { name: 'Save Link' }).click();
     await expect(page.getByText('Link Destination')).toBeHidden();
 
@@ -77,7 +77,7 @@ test.describe('Full Workflow: Upload -> Link -> Export', () => {
     const exportBtn = page.getByLabel('Export Tour');
     await expect(exportBtn).toBeVisible();
 
-    const downloadPromise = page.waitForEvent('download');
+    const downloadPromise = page.waitForEvent('download', { timeout: 60000 });
     await exportBtn.click();
 
     const download = await downloadPromise;

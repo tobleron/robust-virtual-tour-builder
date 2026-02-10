@@ -105,11 +105,19 @@ let make = React.memo(() => {
   let expectedTourName = React.useRef(sceneSlice.tourName)
 
   React.useEffect2(() => {
-    if (
-      localTourName == expectedTourName.current && sceneSlice.tourName != expectedTourName.current
-    ) {
-      setLocalTourName(_ => sceneSlice.tourName)
-      expectedTourName.current = sceneSlice.tourName
+    let actual = sceneSlice.tourName
+    let local = localTourName
+    let expected = expectedTourName.current
+
+    if (local == expected && actual != expected) {
+      Logger.debug(
+        ~module_="Sidebar",
+        ~message="SYNC_TOUR_NAME_FROM_STATE",
+        ~data=Some({"actual": actual, "local": local, "expected": expected}),
+        (),
+      )
+      setLocalTourName(_ => actual)
+      expectedTourName.current = actual
     }
     None
   }, (sceneSlice.tourName, localTourName))

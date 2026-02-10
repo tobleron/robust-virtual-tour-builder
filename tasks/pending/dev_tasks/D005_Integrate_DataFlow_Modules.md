@@ -14,6 +14,7 @@ Review the unmapped modules in the 'Unmapped Modules' section of `DATA_FLOW.md` 
 - [ ] [src/components/CriticalErrorMonitor.res]
 - [ ] [src/components/LockFeedback.res]
 - [ ] [src/components/NotificationCenter.res]
+- [ ] [src/components/VisualPipeline/VisualPipelineComponent.res]
 - [ ] [src/core/NotificationManager.res]
 - [ ] [src/core/NotificationQueue.res]
 - [ ] [src/core/NotificationTypes.res]

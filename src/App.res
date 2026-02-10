@@ -3,23 +3,22 @@ module InnerApp = {
   let make = () => {
     let state = AppContext.useAppState()
     let isSystemLocked = AppContext.useIsSystemLocked()
+    
+    React.useEffect1(() => {
+      Logger.info(~module_="App", ~message="SYSTEM_LOCKED_STATUS: " ++ (isSystemLocked ? "LOCKED" : "UNLOCKED"), ())
+      None
+    }, [isSystemLocked])
+
+    React.useEffect0(() => {
+      Logger.info(~module_="App", ~message="InnerApp Mounted - DISPATCHING_INIT_COMPLETE", ())
+      GlobalStateBridge.dispatch(DispatchAppFsmEvent(InitializeComplete))
+      None
+    })
 
     React.useEffect1(() => {
       let _ = %raw("((s) => { window.__RE_STATE__ = s })(state)")
       None
     }, [state])
-
-    let visualPipelineInitialized = React.useRef(false)
-    React.useEffect0(() => {
-      if !visualPipelineInitialized.current {
-        visualPipelineInitialized.current = true
-        // Initialize Visual Pipeline after first render to ensure container exists
-        let _ = setTimeout(() => {
-          VisualPipeline.init("visual-pipeline-container")->ignore
-        }, 500)
-      }
-      None
-    })
 
     <div className="flex h-screen w-screen overflow-hidden bg-slate-900">
       {if isSystemLocked {
@@ -60,7 +59,7 @@ module InnerApp = {
           </div>
         </div>
 
-        <div id="visual-pipeline-container" role="region" ariaLabel="Visual Pipeline" />
+        <VisualPipelineComponent />
 
         {if Belt.Array.length(state.scenes) == 0 {
           <div id="placeholder-text" className="viewer-placeholder" ariaLive=#polite>

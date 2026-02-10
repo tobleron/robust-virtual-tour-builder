@@ -30,6 +30,32 @@ let toString = (mode: appMode) => {
   }
 }
 
+let eventToString = (e: event) => {
+  switch e {
+  | InitializeComplete => "InitializeComplete"
+  | CriticalErrorOccurred(_) => "CriticalErrorOccurred"
+  | StartAuthoring => "StartAuthoring"
+  | StopAuthoring => "StopAuthoring"
+  | StartSimulation(_) => "StartSimulation"
+  | StopSimulation => "StopSimulation"
+  | StartTeasing => "StartTeasing"
+  | StopTeasing => "StopTeasing"
+  | StartUpload => "StartUpload"
+  | UploadProgress(_) => "UploadProgress"
+  | UploadComplete(_, _) => "UploadComplete"
+  | NavigationEvent(_) => "NavigationEvent"
+  | StartProjectLoad(_) => "StartProjectLoad"
+  | ProjectLoadComplete => "ProjectLoadComplete"
+  | ProjectLoadError(_) => "ProjectLoadError"
+  | StartExport => "StartExport"
+  | ExportComplete => "ExportComplete"
+  | ExportError(_) => "ExportError"
+  | CloseSummary => "CloseSummary"
+  | Reset => "Reset"
+  | SetUiMode(_) => "SetUiMode"
+  }
+}
+
 let rec transition = (currentMode: appMode, event: event): appMode => {
   let nextMode = switch (currentMode, event) {
   | (Initializing, InitializeComplete) =>
@@ -117,9 +143,9 @@ let rec transition = (currentMode: appMode, event: event): appMode => {
   }
 
   if nextMode != currentMode {
-    Logger.debug(
+    Logger.info(
       ~module_="AppFSM",
-      ~message="TRANSITION",
+      ~message="TRANSITION_MODE",
       ~data=Some({
         "from": toString(currentMode),
         "to": toString(nextMode),
