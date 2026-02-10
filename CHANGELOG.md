@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Feat(dev-system): relax architectural constraints and complexity weights
 - Fix teaser recording CSS selector and deprecated setTimeout
+- Finalize simulation and teaser fixes (Task 1316)
 
 ## [4.34.28] - 2026-02-10
 
