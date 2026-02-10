@@ -34,7 +34,7 @@ let subscribe = cb => {
 }
 
 let dispatch = action => {
-  if (dispatchRef.contents === noopDispatch) {
+  if dispatchRef.contents === noopDispatch {
     Logger.warn(~module_="GlobalStateBridge", ~message="DISPATCH_CALLED_BEFORE_READY", ())
   }
   // Logger.debug(~module_="GlobalStateBridge", ~message="DISPATCH_CALLED: " ++ Actions.actionToString(action), ())

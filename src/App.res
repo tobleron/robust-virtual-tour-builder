@@ -3,9 +3,13 @@ module InnerApp = {
   let make = () => {
     let state = AppContext.useAppState()
     let isSystemLocked = AppContext.useIsSystemLocked()
-    
+
     React.useEffect1(() => {
-      Logger.info(~module_="App", ~message="SYSTEM_LOCKED_STATUS: " ++ (isSystemLocked ? "LOCKED" : "UNLOCKED"), ())
+      Logger.info(
+        ~module_="App",
+        ~message="SYSTEM_LOCKED_STATUS: " ++ (isSystemLocked ? "LOCKED" : "UNLOCKED"),
+        (),
+      )
       None
     }, [isSystemLocked])
 

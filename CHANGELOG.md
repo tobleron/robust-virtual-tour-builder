@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Finalize simulation and teaser fixes (Task 1316)
 - Fix 401 Unauthorized during export and improve E2E observability
 - Sync MAP.md and clean up test artifacts
+- Fix 401 Unauthorized during export and improve E2E observability
 
 ## [4.34.28] - 2026-02-10
 

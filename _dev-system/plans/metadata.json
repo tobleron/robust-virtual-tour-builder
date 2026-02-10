@@ -1,19 +1,19 @@
 {
+  "system": [
+    {
+      "Merge": {
+        "folder": "../../src/components/VisualPipeline",
+        "files": [
+          "VisualPipelineStyles.res",
+          "VisualPipelineComponent.res"
+        ],
+        "reason": "Read Tax high (Score 2.00). Projected Limit: 300 (Drag 4.29)",
+        "strategy": "",
+        "platform": "frontend"
+      }
+    }
+  ],
   "rescript": [
-    {
-      "Violation": {
-        "file": "../../src/core/JsonParsersDecoders.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/hooks/UseInteraction.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
     {
       "Surgical": {
         "file": "../../src/components/Sidebar.res",
@@ -22,17 +22,6 @@
         "strategy": "",
         "platform": "frontend",
         "complexity": 13.895477386934674,
-        "recommended_splits": 2
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ProjectManager.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.20, Density: 0.21, Coupling: 0.10] | Drag: 5.41 | LOC: 395/300  🎯 Target: Function: `finalToken` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 14.905063291139241,
         "recommended_splits": 2
       }
     },
@@ -49,17 +38,6 @@
     },
     {
       "Surgical": {
-        "file": "../../src/core/Reducer.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.20, Density: 0.30, Coupling: 0.10] | Drag: 5.50 | LOC: 391/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 14.596675191815857,
-        "recommended_splits": 2
-      }
-    },
-    {
-      "Surgical": {
         "file": "../../src/systems/ViewerSystem.res",
         "action": "De-bloat",
         "reason": "[Nesting: 3.60, Density: 0.06, Coupling: 0.08] | Drag: 4.68 | LOC: 381/300  🎯 Target: Function: `elOpt` (High Local Complexity (4.0). Logic heavy.)",
@@ -71,23 +49,45 @@
     },
     {
       "Violation": {
-        "file": "../../src/systems/Api/AuthenticatedClient.res",
+        "file": "../../src/core/JsonParsersDecoders.res",
         "pattern": "Obj.magic",
         "strategy": ""
       }
-    }
-  ],
-  "system": [
+    },
     {
-      "Merge": {
-        "folder": "../../src/components/VisualPipeline",
-        "files": [
-          "VisualPipelineStyles.res",
-          "VisualPipelineComponent.res"
-        ],
-        "reason": "Read Tax high (Score 2.00). Projected Limit: 300 (Drag 4.29)",
+      "Surgical": {
+        "file": "../../src/core/Reducer.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.20, Density: 0.30, Coupling: 0.10] | Drag: 5.50 | LOC: 391/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.)",
         "strategy": "",
-        "platform": "frontend"
+        "platform": "frontend",
+        "complexity": 14.596675191815857,
+        "recommended_splits": 2
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ProjectManager.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.20, Density: 0.21, Coupling: 0.10] | Drag: 5.41 | LOC: 395/300  🎯 Target: Function: `finalToken` (High Local Complexity (2.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 14.905063291139241,
+        "recommended_splits": 2
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/hooks/UseInteraction.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/Api/AuthenticatedClient.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
       }
     }
   ],
