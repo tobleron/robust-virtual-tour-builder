@@ -193,6 +193,7 @@ let startAnimationLoop = (includeLogo, logoState) => {
 
 let startRecording = () => {
   initGhost()
+  let _ = Overlay.getOrCreate()
   switch internalState.contents.ghostCanvas {
   | None =>
     Logger.error(~module_="TeaserRecorder", ~message="GHOST_CANVAS_NOT_READY", ())

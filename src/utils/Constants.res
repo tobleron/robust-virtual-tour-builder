@@ -235,7 +235,7 @@ let useBSplineSmoothing = true // "Human-like" corner cutting for camera
 let waypointSmoothingFactor = 0.3 // 0.0 (raw) to 1.0 (max smoothing)
 
 module Simulation = {
-  let stepDelay = 800
+  let stepDelay = 3000
 }
 let sceneLoadTimeout = 30000
 

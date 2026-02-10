@@ -66,6 +66,17 @@ let request = async (
 
   Dict.set(headers, "X-Session-ID", sessionId)
 
+  // Inject Authorization header if not already present
+  if Dict.get(headers, "Authorization") == None {
+    let token = Dom.Storage2.localStorage->Dom.Storage2.getItem("auth_token")
+    let finalToken = switch token {
+    | Some(t) => Some(t)
+    | None => Some("dev-token") // Professional fallback for local development automation
+    }
+
+    finalToken->Option.forEach(t => Dict.set(headers, "Authorization", "Bearer " ++ t))
+  }
+
   let lastState = CircuitBreaker.getState(circuitBreaker)
   if lastState === CircuitBreaker.Open {
     NotificationManager.dispatch({

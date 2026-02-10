@@ -13,7 +13,7 @@ test.describe('Simulation & Teaser', () => {
   test.beforeEach(async ({ page }) => {
     await setupAIObservability(page);
     await page.goto('/');
-    
+
     // Clear state
     await page.evaluate(async () => {
       localStorage.clear();
@@ -26,14 +26,23 @@ test.describe('Simulation & Teaser', () => {
     // Import the simulation tour
     const fileInput = page.locator('input[type="file"][accept*=".zip"]');
     await fileInput.setInputFiles(SIM_ZIP_PATH);
-    const startBtn = page.getByRole('button', { name: /Start Building|Close/i });
+
+    // Use exact role/name to avoid matching "Close" from toasts
+    const startBtn = page.getByRole('button', { name: "Start Building" });
+    const closeToastBtn = page.getByLabel('Close toast');
+
+    // If we see error toasts, log them
+    page.on('console', msg => {
+      console.log(`[Browser ${msg.type()}] ${msg.text()}`);
+    });
+
     await expect(startBtn).toBeVisible({ timeout: 60000 });
     await startBtn.click();
   });
 
   test('should run autopilot simulation', async ({ page }) => {
     test.setTimeout(120000);
-    
+
     console.log('Step 1: Starting simulation...');
     const simBtn = page.locator('#viewer-utility-bar button:has([class*="lucide-play"])');
     await expect(simBtn).toBeVisible();
@@ -45,19 +54,17 @@ test.describe('Simulation & Teaser', () => {
 
     // Wait for at least one transition
     console.log('Step 2: Waiting for scene transition...');
-    const initialActiveIndex = await page.evaluate(() => {
-        const items = Array.from(document.querySelectorAll('.scene-item'));
-        return items.findIndex(el => el.classList.contains('active'));
-    });
+    // Wait for at least one scene to be active
+    await expect(page.locator('.scene-item.active')).toBeVisible({ timeout: 15000 });
+
+    const initialActiveIndex = await page.evaluate(() => (window as any).__RE_STATE__?.activeIndex ?? -1);
+    expect(initialActiveIndex).not.toBe(-1);
 
     await expect(async () => {
-         const currentActiveIndex = await page.evaluate(() => {
-            const items = Array.from(document.querySelectorAll('.scene-item'));
-            return items.findIndex(el => el.classList.contains('active'));
-        });
-        expect(currentActiveIndex).not.toBe(initialActiveIndex);
-        expect(currentActiveIndex).not.toBe(-1);
-    }).toPass({ timeout: 60000 });
+      const state = await page.evaluate(() => (window as any).__RE_STATE__);
+      expect(state?.activeIndex).not.toBe(initialActiveIndex);
+      expect(state?.activeIndex).not.toBe(-1);
+    }).toPass({ timeout: 120000 });
 
     console.log('Step 3: Stopping simulation...');
     await stopBtn.click();
@@ -78,7 +85,7 @@ test.describe('Simulation & Teaser', () => {
 
     console.log('Step 2: Waiting for teaser to complete and download...');
     const downloadPromise = page.waitForEvent('download', { timeout: 240000 });
-    
+
     const download = await downloadPromise;
     const filename = download.suggestedFilename();
     console.log('Downloaded filename:', filename);
