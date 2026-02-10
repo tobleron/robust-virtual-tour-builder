@@ -83,7 +83,7 @@ let make = React.memo((
   }
 
   let activeClasses = if isActive {
-    "border-slate-200 ring-0 bg-slate-50/50"
+    "active border-slate-200 ring-0 bg-slate-50/50"
   } else {
     "border-slate-100 hover:border-slate-200 bg-white"
   }

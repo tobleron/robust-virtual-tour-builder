@@ -44,7 +44,7 @@ module Playback = {
   let waitForViewerReady = async (sceneId: string) => {
     let start = Date.now()
     let rec check = async () => {
-      if Date.now() -. start > 12000.0 {
+      if Date.now() -. start > 45000.0 {
         false
       } else {
         switch Viewer.instance->Nullable.toOption {
