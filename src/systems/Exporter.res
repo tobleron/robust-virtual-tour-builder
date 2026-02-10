@@ -42,12 +42,17 @@ let uploadAndProcessRaw: (
   (float, float, string) => unit,
   string,
   ~signal: BrowserBindings.AbortController.signal,
+  ~token: option<string>,
 ) => Promise.t<Blob.t> = %raw(`
-  function(formData, onProgress, backendUrl, signal) {
+  function(formData, onProgress, backendUrl, signal, token) {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.open("POST", backendUrl + "/api/project/create-tour-package");
         xhr.timeout = 300000; // 5 minutes
+
+        if (token) {
+          xhr.setRequestHeader("Authorization", "Bearer " + token);
+        }
 
         if (signal) {
           signal.addEventListener('abort', () => {
@@ -215,8 +220,15 @@ let exportTour = async (
     currentPhase := "UPLOAD"
     Logger.info(~module_="Exporter", ~message="UPLOAD_START", ())
     let backendUrl = Constants.backendUrl
+
+    let token = Dom.Storage2.localStorage->Dom.Storage2.getItem("auth_token")
+    let finalToken = switch token {
+    | Some(t) => Some(t)
+    | None => Some("dev-token")
+    }
+
     let zipBlob = await RequestQueue.schedule(() =>
-      uploadAndProcessRaw(formData, progress, backendUrl, ~signal)
+      uploadAndProcessRaw(formData, progress, backendUrl, ~signal, ~token=finalToken)
     )
 
     progress(100.0, 100.0, "Saving...")

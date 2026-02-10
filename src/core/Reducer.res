@@ -159,6 +159,12 @@ module AppFsm = {
   let reduce = (state: state, action: action): option<state> => {
     switch action {
     | DispatchAppFsmEvent(event) => {
+        Logger.info(
+          ~module_="ReducerAppFsm",
+          ~message="Processing Event: " ++
+          AppFSM.eventToString(event) ++ " in Mode: " ++ AppFSM.toString(state.appMode),
+          (),
+        )
         let nextAppMode = AppFSM.transition(state.appMode, event)
         let nextState = {...state, appMode: nextAppMode}
 

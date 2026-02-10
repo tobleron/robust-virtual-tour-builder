@@ -10,9 +10,13 @@ export async function setupAIObservability(page: Page) {
     console.log(`[AI-DIAGNOSTIC][EXCEPTION] ${exception.stack || exception.message}`);
   });
 
-  // 2. Capture Failed Network Requests with specific detail
   page.on('requestfailed', (request) => {
     console.log(`[AI-DIAGNOSTIC][NET_FAIL] ${request.method()} ${request.url()} - ${request.failure()?.errorText}`);
+  });
+
+  // 3. Forward Browser Logs to Terminal
+  page.on('console', msg => {
+    console.log(`BROWSER: ${msg.text()}`);
   });
 
   // 3. Inject a state-dumping utility and log capture
@@ -36,8 +40,8 @@ export async function setupAIObservability(page: Page) {
     console.error = (...args: any[]) => {
       // Avoid infinite loops if error logging causes errors
       try {
-         (window as any).__debugLogs.push(args.map(a => String(a)).join(' '));
-      } catch (e) {}
+        (window as any).__debugLogs.push(args.map(a => String(a)).join(' '));
+      } catch (e) { }
       originalConsoleError.apply(console, args);
     };
 

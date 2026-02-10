@@ -1,0 +1,444 @@
+
+Running 1 test using 1 worker
+
+BROWSER: [rsbuild] WebSocket connecting...
+BROWSER: %c[TransitionLock]%c color: #64748b; font-weight: bold; color: inherit; TransitionLock initialized
+BROWSER: %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+BROWSER: %c[Logger]%c color: #64748b; font-weight: bold; color: inherit; Logger initialized
+BROWSER: %c[System]%c color: #64748b; font-weight: bold; color: inherit; Initializing Tour Builder...
+BROWSER: %c[Main]%c color: #64748b; font-weight: bold; color: inherit; Main Init Started
+BROWSER: %c[System]%c color: #64748b; font-weight: bold; color: inherit; Pannellum Global Found
+BROWSER: %c[Main]%c color: #64748b; font-weight: bold; color: inherit; Pannellum Found
+BROWSER: 🔍 State Inspector enabled. Access via window.store.state
+BROWSER: %c[System]%c color: #64748b; font-weight: bold; color: inherit; Application Startup {userAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWeb…ML, like Gecko) Chrome/145.0.7632.6 Safari/537.36, platform: MacIntel, cores: 10, memory: 8, screen: 1280x720 (1x)}
+BROWSER: %c[Main]%c color: #64748b; font-weight: bold; color: inherit; Mounting App...
+BROWSER: %c[Main]%c color: #64748b; font-weight: bold; color: inherit; App Mounted
+BROWSER: %c[Main]%c color: #64748b; font-weight: bold; color: inherit; Systems Initialized
+BROWSER: %c[ImageOptimizer]%c color: #64748b; font-weight: bold; color: inherit; ImageOptimizer initialized
+BROWSER: %c[Main]%c color: #64748b; font-weight: bold; color: inherit; Service Worker Unregistered (Dev Mode)
+BROWSER: %c[Persistence]%c color: #64748b; font-weight: bold; color: inherit; Initializing Persistence Layer
+BROWSER: %c[Persistence]%c color: #64748b; font-weight: bold; color: inherit; CHECK_RECOVERY_START
+BROWSER: [.WebGL-0x104001c9600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[SidebarBranding]%c color: #64748b; font-weight: bold; color: inherit; SidebarBranding initialized
+BROWSER: %c[SidebarActions]%c color: #64748b; font-weight: bold; color: inherit; SidebarActions initialized
+BROWSER: %c[SidebarProjectInfo]%c color: #64748b; font-weight: bold; color: inherit; SidebarProjectInfo initialized
+BROWSER: %c[SidebarProcessing]%c color: #64748b; font-weight: bold; color: inherit; SidebarProcessing initialized
+BROWSER: %c[SceneListMain]%c color: #64748b; font-weight: bold; color: inherit; SceneListMain initialized
+BROWSER: %c[Sidebar]%c color: #64748b; font-weight: bold; color: inherit; Sidebar initialized
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; INIT_BY_ELEMENT_START
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; VisualPipeline initialized
+BROWSER: %c[VisualPipelineStyles]%c color: #64748b; font-weight: bold; color: inherit; INJECT_STYLES
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[NotificationCenter]%c color: #64748b; font-weight: bold; color: inherit; MOUNTED_AND_SUBSCRIBING
+BROWSER: [RECOVERY_CHECK] Started checking...
+BROWSER: [RECOVERY_CHECK] About to call OperationJournal.load()
+BROWSER: [JOURNAL_LOAD_START]
+BROWSER: %c[InputSystem]%c color: #64748b; font-weight: bold; color: inherit; InputSystem initialized
+BROWSER: %c[App]%c color: #64748b; font-weight: bold; color: inherit; SYSTEM_LOCKED_STATUS: LOCKED
+BROWSER: %c[App]%c color: #64748b; font-weight: bold; color: inherit; InnerApp Mounted - DISPATCHING_INIT_COMPLETE
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: InitializeComplete in Mode: Initializing
+BROWSER: %c[AppFSM]%c color: #64748b; font-weight: bold; color: inherit; TRANSITION_MODE {from: Initializing, to: Interactive(Viewing, Idle, None)}
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[App]%c color: #64748b; font-weight: bold; color: inherit; SYSTEM_LOCKED_STATUS: UNLOCKED
+BROWSER: [rsbuild] WebSocket connected.
+BROWSER: %c[Persistence]%c color: #64748b; font-weight: bold; color: inherit; CHECK_RECOVERY_GOT_ITEM
+BROWSER: %c[Main]%c color: #64748b; font-weight: bold; color: inherit; MAIN_INIT_DONE_WAITING_FOR_APP
+BROWSER: [JOURNAL_GET_SUCCESS] undefined
+BROWSER: [JOURNAL_NO_DATA]
+BROWSER: [RECOVERY_CHECK] Got journal, entries: {entries: Array(0), version: 1}
+BROWSER: [RECOVERY_CHECK] Got interrupted, count: 0
+BROWSER: [rsbuild] WebSocket connecting...
+BROWSER: %c[TransitionLock]%c color: #64748b; font-weight: bold; color: inherit; TransitionLock initialized
+BROWSER: %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+BROWSER: %c[Logger]%c color: #64748b; font-weight: bold; color: inherit; Logger initialized
+BROWSER: %c[System]%c color: #64748b; font-weight: bold; color: inherit; Initializing Tour Builder...
+BROWSER: %c[Main]%c color: #64748b; font-weight: bold; color: inherit; Main Init Started
+BROWSER: %c[System]%c color: #64748b; font-weight: bold; color: inherit; Pannellum Global Found
+BROWSER: %c[Main]%c color: #64748b; font-weight: bold; color: inherit; Pannellum Found
+BROWSER: 🔍 State Inspector enabled. Access via window.store.state
+BROWSER: %c[System]%c color: #64748b; font-weight: bold; color: inherit; Application Startup {userAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWeb…ML, like Gecko) Chrome/145.0.7632.6 Safari/537.36, platform: MacIntel, cores: 10, memory: 8, screen: 1280x720 (1x)}
+BROWSER: %c[Main]%c color: #64748b; font-weight: bold; color: inherit; Mounting App...
+BROWSER: %c[Main]%c color: #64748b; font-weight: bold; color: inherit; App Mounted
+BROWSER: %c[Main]%c color: #64748b; font-weight: bold; color: inherit; Systems Initialized
+BROWSER: %c[ImageOptimizer]%c color: #64748b; font-weight: bold; color: inherit; ImageOptimizer initialized
+BROWSER: %c[Main]%c color: #64748b; font-weight: bold; color: inherit; Service Worker Unregistered (Dev Mode)
+BROWSER: %c[Persistence]%c color: #64748b; font-weight: bold; color: inherit; Initializing Persistence Layer
+BROWSER: %c[Persistence]%c color: #64748b; font-weight: bold; color: inherit; CHECK_RECOVERY_START
+BROWSER: [.WebGL-0x104001d7400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[SidebarBranding]%c color: #64748b; font-weight: bold; color: inherit; SidebarBranding initialized
+BROWSER: %c[SidebarActions]%c color: #64748b; font-weight: bold; color: inherit; SidebarActions initialized
+BROWSER: %c[SidebarProjectInfo]%c color: #64748b; font-weight: bold; color: inherit; SidebarProjectInfo initialized
+BROWSER: %c[SidebarProcessing]%c color: #64748b; font-weight: bold; color: inherit; SidebarProcessing initialized
+BROWSER: %c[SceneListMain]%c color: #64748b; font-weight: bold; color: inherit; SceneListMain initialized
+BROWSER: %c[Sidebar]%c color: #64748b; font-weight: bold; color: inherit; Sidebar initialized
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; INIT_BY_ELEMENT_START
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; VisualPipeline initialized
+BROWSER: %c[VisualPipelineStyles]%c color: #64748b; font-weight: bold; color: inherit; INJECT_STYLES
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[NotificationCenter]%c color: #64748b; font-weight: bold; color: inherit; MOUNTED_AND_SUBSCRIBING
+BROWSER: [RECOVERY_CHECK] Started checking...
+BROWSER: [RECOVERY_CHECK] About to call OperationJournal.load()
+BROWSER: [JOURNAL_LOAD_START]
+BROWSER: %c[InputSystem]%c color: #64748b; font-weight: bold; color: inherit; InputSystem initialized
+BROWSER: %c[App]%c color: #64748b; font-weight: bold; color: inherit; SYSTEM_LOCKED_STATUS: LOCKED
+BROWSER: %c[App]%c color: #64748b; font-weight: bold; color: inherit; InnerApp Mounted - DISPATCHING_INIT_COMPLETE
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: InitializeComplete in Mode: Initializing
+BROWSER: %c[AppFSM]%c color: #64748b; font-weight: bold; color: inherit; TRANSITION_MODE {from: Initializing, to: Interactive(Viewing, Idle, None)}
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[App]%c color: #64748b; font-weight: bold; color: inherit; SYSTEM_LOCKED_STATUS: UNLOCKED
+BROWSER: [rsbuild] WebSocket connected.
+Step 1: Uploading images...
+BROWSER: %c[Persistence]%c color: #64748b; font-weight: bold; color: inherit; CHECK_RECOVERY_GOT_ITEM
+BROWSER: %c[Main]%c color: #64748b; font-weight: bold; color: inherit; MAIN_INIT_DONE_WAITING_FOR_APP
+BROWSER: [JOURNAL_GET_SUCCESS] undefined
+BROWSER: [JOURNAL_NO_DATA]
+BROWSER: [RECOVERY_CHECK] Got journal, entries: {entries: Array(0), version: 1}
+BROWSER: [RECOVERY_CHECK] Got interrupted, count: 0
+BROWSER: %c[NotificationManager]%c color: #64748b; font-weight: bold; color: inherit; DISPATCHING_NOTIFICATION {message: Upload Started...}
+BROWSER: %c[NotificationManager]%c color: #64748b; font-weight: bold; color: inherit; STATE_AFTER_DISPATCH {pendingCount: 0, activeCount: 1}
+BROWSER: [JOURNAL_EMERGENCY] Saving to localStorage emergency queue
+BROWSER: [JOURNAL_SAVE] Saving journal entries: 1
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: StartUpload in Mode: Interactive(Viewing, Idle, None)
+BROWSER: %c[AppFSM]%c color: #64748b; font-weight: bold; color: inherit; TRANSITION_MODE {from: Interactive(Viewing, Idle, None), to: Interactive(Viewing, Idle, Uploading(0))}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(0))
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[NotificationCenter]%c color: #64748b; font-weight: bold; color: inherit; RENDERED_TOAST {id: notif-1224551191-183588, importance: info, message: Upload Started...}
+BROWSER: %c[UploadLogic]%c color: #64748b; font-weight: bold; color: inherit; START_FINGERPRINTING
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(0))
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[UploadLogic]%c color: #64748b; font-weight: bold; color: inherit; EXECUTE_PROCESSING_CHAIN_START
+BROWSER: %c[UploadLogic]%c color: #64748b; font-weight: bold; color: inherit; PROCESS_ITEM_INVOKED {filename: image.jpg}
+BROWSER: %c[Resizer]%c color: #64748b; font-weight: bold; color: inherit; BACKEND_PROCESS_FULL_START {file: image.jpg, size: 46669, memory: Object}
+BROWSER: %c[ImageOptimizer]%c color: #64748b; font-weight: bold; color: inherit; COMPRESS_WEBP_START
+BROWSER: %c[ImageOptimizer]%c color: #64748b; font-weight: bold; color: inherit; LOADING_IMAGE {name: image.jpg, size: 46669, type: image/jpeg, url: blob:http://localhost:3000/531da66d-b882-4c03-b090-c3b2b780b498}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(0))
+BROWSER: %c[AppFSM]%c color: #64748b; font-weight: bold; color: inherit; TRANSITION_MODE {from: Interactive(Viewing, Idle, Uploading(0)), to: Interactive(Viewing, Idle, Uploading(18))}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(18))
+BROWSER: %c[AppFSM]%c color: #64748b; font-weight: bold; color: inherit; TRANSITION_MODE {from: Interactive(Viewing, Idle, Uploading(18)), to: Interactive(Viewing, Idle, Uploading(20))}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(20))
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(20))
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(20))
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[ExifParser]%c color: #64748b; font-weight: bold; color: inherit; GPS_EXTRACTION_TRACE {latRaw: , lonRaw: , latRefRaw: , lonRefRaw: , latParsed: NONE}
+BROWSER: %c[ExifParser]%c color: #64748b; font-weight: bold; color: inherit; GPS_MISSING_DIAGNOSTIC {availableKeys: Array(11), make: , model: }
+BROWSER: %c[ExifParser]%c color: #64748b; font-weight: bold; color: inherit; GPS_OBJECT_NULL {reason: Missing lat or lon}
+BROWSER: %c[ImageOptimizer]%c color: #64748b; font-weight: bold; color: inherit; COMPRESS_WEBP_COMPLETE {originalSize: 46669, newSize: 9662, durationMs: 11, reduction: 79.3%}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(20))
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(20))
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: [JOURNAL_SAVE] Saving journal entries: 1
+BROWSER: %c[UploadLogic]%c color: #64748b; font-weight: bold; color: inherit; DISPATCHING_ADD_SCENES {count: 1}
+BROWSER: %c[ExifReportGenerator]%c color: #64748b; font-weight: bold; color: inherit; ExifReportGenerator initialized
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(20))
+BROWSER: %c[AppFSM]%c color: #64748b; font-weight: bold; color: inherit; TRANSITION_MODE {from: Interactive(Viewing, Idle, Uploading(20)), to: Interactive(Viewing, Idle, Uploading(95))}
+BROWSER: %c[SceneMutations]%c color: #64748b; font-weight: bold; color: inherit; ADD_SCENES_CALLED count=1 appMode=Interactive
+BROWSER: %c[SceneMutations]%c color: #64748b; font-weight: bold; color: inherit; ADD_SCENES_START {count: 1}
+BROWSER: %c[SceneMutations]%c color: #64748b; font-weight: bold; color: inherit; ADD_SCENES_DONE {added: 1}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(95))
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(95))
+BROWSER: %c[AppFSM]%c color: #64748b; font-weight: bold; color: inherit; TRANSITION_MODE {from: Interactive(Viewing, Idle, Uploading(95)), to: Interactive(Viewing, Idle, Uploading(98))}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(98))
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[SceneItem]%c color: #64748b; font-weight: bold; color: inherit; SceneItem initialized
+BROWSER: %c[ViewerManagerLogic]%c color: #64748b; font-weight: bold; color: inherit; SCENE_CHANGE_DETECTED {targetId: 690338be2d0d04a26c7b643666af905703b4c5ec588d0b9687602bdf1b820fc2_46669, prevId: undefined}
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[SceneLoader]%c color: #64748b; font-weight: bold; color: inherit; INITIALIZING_VIEWER_INSTANCE {containerId: panorama-a, targetSceneId: 690338be2d0d04a26c7b643666af905703b4c5ec588d0b9687602bdf1b820fc2_46669, panorama: blob:http://localhost:3000/00cd0154-3e66-4d60-aea6-c52dd0915e85, fileType: File(113914)}
+BROWSER: %c[SceneLoader]%c color: #64748b; font-weight: bold; color: inherit; VIEWER_INITIALIZED_SUCCESS {containerId: panorama-a, targetSceneId: 690338be2d0d04a26c7b643666af905703b4c5ec588d0b9687602bdf1b820fc2_46669}
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[ExifParser]%c color: #64748b; font-weight: bold; color: inherit; GPS_EXTRACTION_TRACE {latRaw: , lonRaw: , latRefRaw: , lonRefRaw: , latParsed: NONE}
+BROWSER: %c[ExifParser]%c color: #64748b; font-weight: bold; color: inherit; GPS_MISSING_DIAGNOSTIC {availableKeys: Array(11), make: , model: }
+BROWSER: %c[ExifParser]%c color: #64748b; font-weight: bold; color: inherit; GPS_OBJECT_NULL {reason: Missing lat or lon}
+BROWSER: %c[ExifReport]%c color: #64748b; font-weight: bold; color: inherit; NO_GPS_DATA_FOUND {totalImages: 1, reason: No GPS coordinates in EXIF metadata}
+BROWSER: %c[ExifReport]%c color: #64748b; font-weight: bold; color: inherit; PROJECT_NAME_GENERATED_FROM_EXIF {suggestedName: Tour_100226_2118, hasAddress: false, hasDateTime: false, address: None, dateTime: None}
+BROWSER: [JOURNAL_SAVE] Saving journal entries: 0
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[Modal]%c color: #64748b; font-weight: bold; color: inherit; Opening Modal: Upload Summary
+BROWSER: %c[NotificationManager]%c color: #64748b; font-weight: bold; color: inherit; DISPATCHING_NOTIFICATION {message: Upload Complete}
+BROWSER: %c[NotificationManager]%c color: #64748b; font-weight: bold; color: inherit; STATE_AFTER_DISPATCH {pendingCount: 0, activeCount: 1}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadComplete in Mode: Interactive(Viewing, Preloading, Uploading(98))
+BROWSER: %c[AppFSM]%c color: #64748b; font-weight: bold; color: inherit; TRANSITION_MODE {from: Interactive(Viewing, Preloading, Uploading(98)), to: SystemBlocking(Summary)}
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[NotificationCenter]%c color: #64748b; font-weight: bold; color: inherit; RENDERED_TOAST {id: notif-1224566786-589670, importance: success, message: Upload Complete}
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: [.WebGL-0x104001cfc00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)
+BROWSER: %c[SceneTransition]%c color: #64748b; font-weight: bold; color: inherit; NO_INACTIVE_VIEWER_FOR_SWAP
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: CloseSummary in Mode: SystemBlocking(Summary)
+BROWSER: %c[AppFSM]%c color: #64748b; font-weight: bold; color: inherit; TRANSITION_MODE {from: SystemBlocking(Summary), to: Interactive(Viewing, Idle, None)}
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[NotificationManager]%c color: #64748b; font-weight: bold; color: inherit; DISPATCHING_NOTIFICATION {message: Upload Started...}
+BROWSER: %c[NotificationManager]%c color: #64748b; font-weight: bold; color: inherit; STATE_AFTER_DISPATCH {pendingCount: 0, activeCount: 2}
+BROWSER: [JOURNAL_EMERGENCY] Saving to localStorage emergency queue
+BROWSER: [JOURNAL_SAVE] Saving journal entries: 1
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: StartUpload in Mode: Interactive(Viewing, Idle, None)
+BROWSER: %c[AppFSM]%c color: #64748b; font-weight: bold; color: inherit; TRANSITION_MODE {from: Interactive(Viewing, Idle, None), to: Interactive(Viewing, Idle, Uploading(0))}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(0))
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[NotificationCenter]%c color: #64748b; font-weight: bold; color: inherit; RENDERED_TOAST {id: notif-1224567204-425856, importance: info, message: Upload Started...}
+BROWSER: %c[UploadLogic]%c color: #64748b; font-weight: bold; color: inherit; START_FINGERPRINTING
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(0))
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[UploadLogic]%c color: #64748b; font-weight: bold; color: inherit; EXECUTE_PROCESSING_CHAIN_START
+BROWSER: %c[UploadLogic]%c color: #64748b; font-weight: bold; color: inherit; PROCESS_ITEM_INVOKED {filename: image2.jpg}
+BROWSER: %c[Resizer]%c color: #64748b; font-weight: bold; color: inherit; BACKEND_PROCESS_FULL_START {file: image2.jpg, size: 46670, memory: Object}
+BROWSER: %c[ImageOptimizer]%c color: #64748b; font-weight: bold; color: inherit; COMPRESS_WEBP_START
+BROWSER: %c[ImageOptimizer]%c color: #64748b; font-weight: bold; color: inherit; LOADING_IMAGE {name: image2.jpg, size: 46670, type: image/jpeg, url: blob:http://localhost:3000/85b3423d-7f6a-4686-ab7c-c5e1d2301c24}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(0))
+BROWSER: %c[AppFSM]%c color: #64748b; font-weight: bold; color: inherit; TRANSITION_MODE {from: Interactive(Viewing, Idle, Uploading(0)), to: Interactive(Viewing, Idle, Uploading(18))}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(18))
+BROWSER: %c[AppFSM]%c color: #64748b; font-weight: bold; color: inherit; TRANSITION_MODE {from: Interactive(Viewing, Idle, Uploading(18)), to: Interactive(Viewing, Idle, Uploading(20))}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(20))
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(20))
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(20))
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[ExifParser]%c color: #64748b; font-weight: bold; color: inherit; GPS_EXTRACTION_TRACE {latRaw: , lonRaw: , latRefRaw: , lonRefRaw: , latParsed: NONE}
+BROWSER: %c[ExifParser]%c color: #64748b; font-weight: bold; color: inherit; GPS_MISSING_DIAGNOSTIC {availableKeys: Array(11), make: , model: }
+BROWSER: %c[ExifParser]%c color: #64748b; font-weight: bold; color: inherit; GPS_OBJECT_NULL {reason: Missing lat or lon}
+BROWSER: %c[ImageOptimizer]%c color: #64748b; font-weight: bold; color: inherit; COMPRESS_WEBP_COMPLETE {originalSize: 46670, newSize: 9662, durationMs: 9, reduction: 79.3%}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(20))
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(20))
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: [JOURNAL_SAVE] Saving journal entries: 1
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(20))
+BROWSER: %c[AppFSM]%c color: #64748b; font-weight: bold; color: inherit; TRANSITION_MODE {from: Interactive(Viewing, Idle, Uploading(20)), to: Interactive(Viewing, Idle, Uploading(95))}
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[UploadLogic]%c color: #64748b; font-weight: bold; color: inherit; DISPATCHING_ADD_SCENES {count: 1}
+BROWSER: %c[SceneMutations]%c color: #64748b; font-weight: bold; color: inherit; ADD_SCENES_CALLED count=1 appMode=Interactive
+BROWSER: %c[SceneMutations]%c color: #64748b; font-weight: bold; color: inherit; ADD_SCENES_START {count: 1}
+BROWSER: %c[SceneMutations]%c color: #64748b; font-weight: bold; color: inherit; ADD_SCENES_DONE {added: 1}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(95))
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[SceneItem]%c color: #64748b; font-weight: bold; color: inherit; SceneItem initialized
+BROWSER: %c[ExifReportGenerator]%c color: #64748b; font-weight: bold; color: inherit; ExifReportGenerator initialized
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(95))
+BROWSER: %c[AppFSM]%c color: #64748b; font-weight: bold; color: inherit; TRANSITION_MODE {from: Interactive(Viewing, Idle, Uploading(95)), to: Interactive(Viewing, Idle, Uploading(98))}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(98))
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[ExifParser]%c color: #64748b; font-weight: bold; color: inherit; GPS_EXTRACTION_TRACE {latRaw: , lonRaw: , latRefRaw: , lonRefRaw: , latParsed: NONE}
+BROWSER: %c[ExifParser]%c color: #64748b; font-weight: bold; color: inherit; GPS_MISSING_DIAGNOSTIC {availableKeys: Array(11), make: , model: }
+BROWSER: %c[ExifParser]%c color: #64748b; font-weight: bold; color: inherit; GPS_OBJECT_NULL {reason: Missing lat or lon}
+BROWSER: %c[ExifReport]%c color: #64748b; font-weight: bold; color: inherit; NO_GPS_DATA_FOUND {totalImages: 1, reason: No GPS coordinates in EXIF metadata}
+BROWSER: %c[ExifReport]%c color: #64748b; font-weight: bold; color: inherit; PROJECT_NAME_GENERATED_FROM_EXIF {suggestedName: Tour_100226_2118, hasAddress: false, hasDateTime: false, address: None, dateTime: None}
+BROWSER: [JOURNAL_SAVE] Saving journal entries: 0
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[Modal]%c color: #64748b; font-weight: bold; color: inherit; Opening Modal: Upload Summary
+BROWSER: %c[NotificationManager]%c color: #64748b; font-weight: bold; color: inherit; DISPATCHING_NOTIFICATION {message: Upload Complete}
+BROWSER: %c[NotificationManager]%c color: #64748b; font-weight: bold; color: inherit; STATE_AFTER_DISPATCH {pendingCount: 0, activeCount: 1}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadComplete in Mode: Interactive(Viewing, Idle, Uploading(98))
+BROWSER: %c[AppFSM]%c color: #64748b; font-weight: bold; color: inherit; TRANSITION_MODE {from: Interactive(Viewing, Idle, Uploading(98)), to: SystemBlocking(Summary)}
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[NotificationCenter]%c color: #64748b; font-weight: bold; color: inherit; RENDERED_TOAST {id: notif-1224582614-488902, importance: success, message: Upload Complete}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: CloseSummary in Mode: SystemBlocking(Summary)
+BROWSER: %c[AppFSM]%c color: #64748b; font-weight: bold; color: inherit; TRANSITION_MODE {from: SystemBlocking(Summary), to: Interactive(Viewing, Idle, None)}
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[NotificationManager]%c color: #64748b; font-weight: bold; color: inherit; DISPATCHING_NOTIFICATION {message: Upload Started...}
+BROWSER: %c[NotificationManager]%c color: #64748b; font-weight: bold; color: inherit; STATE_AFTER_DISPATCH {pendingCount: 0, activeCount: 2}
+BROWSER: [JOURNAL_EMERGENCY] Saving to localStorage emergency queue
+BROWSER: [JOURNAL_SAVE] Saving journal entries: 1
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: StartUpload in Mode: Interactive(Viewing, Idle, None)
+BROWSER: %c[AppFSM]%c color: #64748b; font-weight: bold; color: inherit; TRANSITION_MODE {from: Interactive(Viewing, Idle, None), to: Interactive(Viewing, Idle, Uploading(0))}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(0))
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[NotificationCenter]%c color: #64748b; font-weight: bold; color: inherit; RENDERED_TOAST {id: notif-1224583106-868283, importance: info, message: Upload Started...}
+BROWSER: %c[UploadLogic]%c color: #64748b; font-weight: bold; color: inherit; START_FINGERPRINTING
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(0))
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[UploadLogic]%c color: #64748b; font-weight: bold; color: inherit; EXECUTE_PROCESSING_CHAIN_START
+BROWSER: %c[UploadLogic]%c color: #64748b; font-weight: bold; color: inherit; PROCESS_ITEM_INVOKED {filename: image3.jpg}
+BROWSER: %c[Resizer]%c color: #64748b; font-weight: bold; color: inherit; BACKEND_PROCESS_FULL_START {file: image3.jpg, size: 46670, memory: Object}
+BROWSER: %c[ImageOptimizer]%c color: #64748b; font-weight: bold; color: inherit; COMPRESS_WEBP_START
+BROWSER: %c[ImageOptimizer]%c color: #64748b; font-weight: bold; color: inherit; LOADING_IMAGE {name: image3.jpg, size: 46670, type: image/jpeg, url: blob:http://localhost:3000/2cb33fed-1155-4f8e-bb21-e22650016ff1}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(0))
+BROWSER: %c[AppFSM]%c color: #64748b; font-weight: bold; color: inherit; TRANSITION_MODE {from: Interactive(Viewing, Idle, Uploading(0)), to: Interactive(Viewing, Idle, Uploading(18))}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(18))
+BROWSER: %c[AppFSM]%c color: #64748b; font-weight: bold; color: inherit; TRANSITION_MODE {from: Interactive(Viewing, Idle, Uploading(18)), to: Interactive(Viewing, Idle, Uploading(20))}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(20))
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(20))
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(20))
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[ExifParser]%c color: #64748b; font-weight: bold; color: inherit; GPS_EXTRACTION_TRACE {latRaw: , lonRaw: , latRefRaw: , lonRefRaw: , latParsed: NONE}
+BROWSER: %c[ExifParser]%c color: #64748b; font-weight: bold; color: inherit; GPS_MISSING_DIAGNOSTIC {availableKeys: Array(11), make: , model: }
+BROWSER: %c[ExifParser]%c color: #64748b; font-weight: bold; color: inherit; GPS_OBJECT_NULL {reason: Missing lat or lon}
+BROWSER: %c[ImageOptimizer]%c color: #64748b; font-weight: bold; color: inherit; COMPRESS_WEBP_COMPLETE {originalSize: 46670, newSize: 9662, durationMs: 10, reduction: 79.3%}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(20))
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(20))
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: [JOURNAL_SAVE] Saving journal entries: 1
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(20))
+BROWSER: %c[AppFSM]%c color: #64748b; font-weight: bold; color: inherit; TRANSITION_MODE {from: Interactive(Viewing, Idle, Uploading(20)), to: Interactive(Viewing, Idle, Uploading(95))}
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[UploadLogic]%c color: #64748b; font-weight: bold; color: inherit; DISPATCHING_ADD_SCENES {count: 1}
+BROWSER: %c[SceneMutations]%c color: #64748b; font-weight: bold; color: inherit; ADD_SCENES_CALLED count=1 appMode=Interactive
+BROWSER: %c[SceneMutations]%c color: #64748b; font-weight: bold; color: inherit; ADD_SCENES_START {count: 1}
+BROWSER: %c[SceneMutations]%c color: #64748b; font-weight: bold; color: inherit; ADD_SCENES_DONE {added: 1}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(95))
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[SceneItem]%c color: #64748b; font-weight: bold; color: inherit; SceneItem initialized
+BROWSER: %c[ExifReportGenerator]%c color: #64748b; font-weight: bold; color: inherit; ExifReportGenerator initialized
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(95))
+BROWSER: %c[AppFSM]%c color: #64748b; font-weight: bold; color: inherit; TRANSITION_MODE {from: Interactive(Viewing, Idle, Uploading(95)), to: Interactive(Viewing, Idle, Uploading(98))}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: Interactive(Viewing, Idle, Uploading(98))
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[ExifParser]%c color: #64748b; font-weight: bold; color: inherit; GPS_EXTRACTION_TRACE {latRaw: , lonRaw: , latRefRaw: , lonRefRaw: , latParsed: NONE}
+BROWSER: %c[ExifParser]%c color: #64748b; font-weight: bold; color: inherit; GPS_MISSING_DIAGNOSTIC {availableKeys: Array(11), make: , model: }
+BROWSER: %c[ExifParser]%c color: #64748b; font-weight: bold; color: inherit; GPS_OBJECT_NULL {reason: Missing lat or lon}
+BROWSER: %c[ExifReport]%c color: #64748b; font-weight: bold; color: inherit; NO_GPS_DATA_FOUND {totalImages: 1, reason: No GPS coordinates in EXIF metadata}
+BROWSER: %c[ExifReport]%c color: #64748b; font-weight: bold; color: inherit; PROJECT_NAME_GENERATED_FROM_EXIF {suggestedName: Tour_100226_2118, hasAddress: false, hasDateTime: false, address: None, dateTime: None}
+BROWSER: [JOURNAL_SAVE] Saving journal entries: 0
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[Modal]%c color: #64748b; font-weight: bold; color: inherit; Opening Modal: Upload Summary
+BROWSER: %c[NotificationManager]%c color: #64748b; font-weight: bold; color: inherit; DISPATCHING_NOTIFICATION {message: Upload Complete}
+BROWSER: %c[NotificationManager]%c color: #64748b; font-weight: bold; color: inherit; STATE_AFTER_DISPATCH {pendingCount: 0, activeCount: 1}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadComplete in Mode: Interactive(Viewing, Idle, Uploading(98))
+BROWSER: %c[AppFSM]%c color: #64748b; font-weight: bold; color: inherit; TRANSITION_MODE {from: Interactive(Viewing, Idle, Uploading(98)), to: SystemBlocking(Summary)}
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[NotificationCenter]%c color: #64748b; font-weight: bold; color: inherit; RENDERED_TOAST {id: notif-1224598773-203680, importance: success, message: Upload Complete}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: CloseSummary in Mode: SystemBlocking(Summary)
+BROWSER: %c[AppFSM]%c color: #64748b; font-weight: bold; color: inherit; TRANSITION_MODE {from: SystemBlocking(Summary), to: Interactive(Viewing, Idle, None)}
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+Scenes created: [33m3[39m
+Step 2: Linking scenes...
+BROWSER: %c[ViewerSystem]%c color: #64748b; font-weight: bold; color: inherit; MOUSE_UP_CHECK_NATIVE {diffX: 0, diffY: 0, diffT: 2}
+BROWSER: %c[Main]%c color: #64748b; font-weight: bold; color: inherit; VIEWER_CLICK_RECEIVED
+BROWSER: %c[ViewerSystem]%c color: #64748b; font-weight: bold; color: inherit; VIEWER_CLICK_DISPATCHED
+BROWSER: %c[Modal]%c color: #64748b; font-weight: bold; color: inherit; Opening Modal: Link Destination
+BROWSER: %c[AppFSM]%c color: #64748b; font-weight: bold; color: inherit; TRANSITION_MODE {from: Interactive(Viewing, Idle, None), to: Interactive(EditingHotspots, Idle, None)}
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_0
+BROWSER: %c[LinkModal]%c color: #64748b; font-weight: bold; color: inherit; SAVING_LINK {targetName: image2, newLinkId: A00, beforeState: false}
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_1
+BROWSER: %c[LinkModal]%c color: #64748b; font-weight: bold; color: inherit; EXIT_SEQUENCE_START {stateBeforeExit: true}
+BROWSER: %c[LinkModal]%c color: #64748b; font-weight: bold; color: inherit; MODAL_CLOSED
+BROWSER: %c[LinkModal]%c color: #64748b; font-weight: bold; color: inherit; DRAFT_LINES_HIDDEN
+BROWSER: %c[LinkModal]%c color: #64748b; font-weight: bold; color: inherit; STOP_LINKING_DISPATCHED {stateAfterDispatch: true}
+BROWSER: %c[AppFSM]%c color: #64748b; font-weight: bold; color: inherit; TRANSITION_MODE {from: Interactive(EditingHotspots, Idle, None), to: Interactive(Viewing, Idle, None)}
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_1
+BROWSER: %c[ViewerManagerLifecycle]%c color: #64748b; font-weight: bold; color: inherit; CLEARING_LINK_DRAFT_LINES
+Step 3: Exporting project...
+BROWSER: [SIDEBAR] onExport triggered
+BROWSER: [SIDEBAR_LOGIC] handleExport called 3
+BROWSER: %c[NotificationManager]%c color: #64748b; font-weight: bold; color: inherit; DISPATCHING_NOTIFICATION {message: Export Started...}
+BROWSER: %c[NotificationManager]%c color: #64748b; font-weight: bold; color: inherit; STATE_AFTER_DISPATCH {pendingCount: 0, activeCount: 2}
+BROWSER: %c[Exporter]%c color: #64748b; font-weight: bold; color: inherit; EXPORT_START {sceneCount: 3, tourName: Untitled Tour}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: StartExport in Mode: Interactive(Viewing, Idle, None)
+BROWSER: %c[AppFSM]%c color: #64748b; font-weight: bold; color: inherit; TRANSITION_MODE {from: Interactive(Viewing, Idle, None), to: SystemBlocking(Exporting)}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: SystemBlocking(Exporting)
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: SystemBlocking(Exporting)
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_1
+BROWSER: %c[NotificationCenter]%c color: #64748b; font-weight: bold; color: inherit; RENDERED_TOAST {id: notif-1224600296-356261, importance: info, message: Export Started...}
+BROWSER: %c[App]%c color: #64748b; font-weight: bold; color: inherit; SYSTEM_LOCKED_STATUS: LOCKED
+BROWSER: %c[Exporter]%c color: #64748b; font-weight: bold; color: inherit; UPLOAD_START
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: SystemBlocking(Exporting)
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: SystemBlocking(Exporting)
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_1
+BROWSER: %c[Exporter]%c color: #64748b; font-weight: bold; color: inherit; EXPORT_COMPLETE {filename: Export_RMX_untitled_tour_v4.36.0.zip, durationMs: 24489}
+BROWSER: %c[Exporter]%c color: #64748b; font-weight: bold; color: inherit; DOWNLOAD_TRIGGERED {filename: Export_RMX_untitled_tour_v4.36.0.zip}
+BROWSER: %c[Download]%c color: #64748b; font-weight: bold; color: inherit; SAVING_FILE {filename: Export_RMX_untitled_tour_v4.36.0.zip, size: 1309031}
+BROWSER: %c[NotificationManager]%c color: #64748b; font-weight: bold; color: inherit; DISPATCHING_NOTIFICATION {message: Export complete}
+BROWSER: %c[NotificationManager]%c color: #64748b; font-weight: bold; color: inherit; STATE_AFTER_DISPATCH {pendingCount: 0, activeCount: 1}
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: SystemBlocking(Exporting)
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: UploadProgress in Mode: SystemBlocking(Exporting)
+BROWSER: %c[ReducerAppFsm]%c color: #64748b; font-weight: bold; color: inherit; Processing Event: ExportComplete in Mode: SystemBlocking(Exporting)
+BROWSER: %c[AppFSM]%c color: #64748b; font-weight: bold; color: inherit; TRANSITION_MODE {from: SystemBlocking(Exporting), to: Interactive(Viewing, Idle, None)}
+BROWSER: %c[VisualPipelineComponent]%c color: #64748b; font-weight: bold; color: inherit; MAKE_CALLED
+BROWSER: %c[GlobalStateBridge]%c color: #64748b; font-weight: bold; color: inherit; DISPATCH_FUNCTION_SET
+BROWSER: %c[VisualPipeline]%c color: #64748b; font-weight: bold; color: inherit; RENDER_CALLED_TIMELINE_1
+BROWSER: %c[NotificationCenter]%c color: #64748b; font-weight: bold; color: inherit; RENDERED_TOAST {id: notif-1224624786-494697, importance: success, message: Export complete}
+BROWSER: %c[App]%c color: #64748b; font-weight: bold; color: inherit; SYSTEM_LOCKED_STATUS: UNLOCKED
+Downloaded to: /var/folders/t4/g5l8ht0j09d154lt0npsyt9h0000gn/T/playwright-artifacts-wq3SK9/eb105bce-981c-4f06-b411-a2e5b8a699f3
+  ✓  1 [chromium] › tests/e2e/upload-link-export-workflow.spec.ts:45:3 › Full Workflow: Upload -> Link -> Export › should complete full tour creation workflow (1.2m)
+
+  1 passed (1.3m)

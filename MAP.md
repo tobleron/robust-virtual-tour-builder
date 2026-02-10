@@ -301,3 +301,6 @@ This map provides a semantic overview of the project structure to optimize conte
 
 
 
+
+## 🆕 Unmapped Modules
+* [src/components/VisualPipeline/VisualPipelineComponent.res](src/components/VisualPipeline/VisualPipelineComponent.res): New module detected. Please classify. #new

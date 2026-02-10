@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import { setupAIObservability } from './ai-helper';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,6 +13,7 @@ const IMAGE_PATH_2 = path.join(FIXTURES_DIR, 'image2.jpg');
 
 test.describe('Editor Interactions', () => {
   test.beforeEach(async ({ page }) => {
+    await setupAIObservability(page);
     page.on('console', msg => console.log('BROWSER:', msg.text()));
     await page.goto('/');
     await page.evaluate(async () => {
@@ -72,9 +74,11 @@ test.describe('Editor Interactions', () => {
     if (!box) throw new Error('Viewer not found');
 
     // Create Hotspot (Alt + Click)
-    await page.keyboard.down('Alt');
-    await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
-    await page.keyboard.up('Alt');
+    const activePanorama = page.locator('#panorama-a.active');
+    await activePanorama.click({
+      position: { x: box.width / 2, y: box.height / 2 },
+      modifiers: ['Alt']
+    });
 
     // Expect Modal
     await expect(page.getByText('Link Destination')).toBeVisible({ timeout: 15000 });
