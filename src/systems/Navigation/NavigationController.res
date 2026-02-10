@@ -6,7 +6,7 @@ open ReBindings
 
 module ControllerHooks = {
   let useNavigationFSM = (state: state, dispatch) => {
-    React.useEffect3(() => {
+    React.useEffect2(() => {
       switch state.navigationFsm {
       | Preloading({targetSceneId, isAnticipatory}) =>
         Logger.debug(
@@ -88,7 +88,7 @@ module ControllerHooks = {
         None
       | _ => None
       }
-    }, (state.navigationFsm, state.scenes, state.activeIndex))
+    }, (state.navigationFsm, state.activeIndex))
   }
 
   let useNavigationAnimation = (state: state, dispatch) => {
