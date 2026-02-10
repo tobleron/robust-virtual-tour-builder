@@ -159,6 +159,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/components/FloorNavigation.res](src/components/FloorNavigation.res): Interactive floor and level switcher for the viewer HUD. `#ui` `#navigation`
 *   [src/components/UtilityBar.res](src/components/UtilityBar.res): Top-level action bar for viewer tools and settings. `#ui` `#hud`
 *   [src/components/VisualPipeline.res](src/components/VisualPipeline.res): Consolidated visualizer pipeline module. `#ui` `#visual-pipeline` `#logic` `#rendering`
+    *   [src/components/VisualPipeline/VisualPipelineComponent.res](src/components/VisualPipeline/VisualPipelineComponent.res): Functional React component for the visualizer pipeline. `#ui` `#visual-pipeline`
     *   [src/components/VisualPipeline/VisualPipelineStyles.res](src/components/VisualPipeline/VisualPipelineStyles.res): CSS-in-JS definitions for the visual pipeline. `#styling`
 *   [src/components/SnapshotOverlay.res](src/components/SnapshotOverlay.res): Visual transition "flash" layer. `#ui` `#transition`
 *   [src/components/NotificationLayer.res](src/components/NotificationLayer.res): Centralized notification and processing status layer. `#ui` `#notifications`
@@ -303,4 +304,4 @@ This map provides a semantic overview of the project structure to optimize conte
 
 
 ## 🆕 Unmapped Modules
-* [src/components/VisualPipeline/VisualPipelineComponent.res](src/components/VisualPipeline/VisualPipelineComponent.res): New module detected. Please classify. #new
+* None detected.
