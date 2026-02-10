@@ -129,7 +129,7 @@ describe("Retry", () => {
       // Loop calls itself recursively (loop 2).
       // Loop 2 checks aborted(signal). True.
       // Returns Exhausted("Aborted").
-      t->expect(e)->Expect.toBe("Aborted")
+      t->expect(e)->Expect.toBe("AbortError")
     }
   })
 })

@@ -25,12 +25,12 @@ describe("TransitionLock Timeout", () => {
     t->expect(result)->Expect.toEqual(Ok())
     t->expect(TransitionLock.isIdle())->Expect.toBe(false)
 
-    // 2. Advance time by 14s (should still be locked)
-    Vi.vi->Vi.advanceTimersByTime(14000)
+    // 2. Advance time by 60s (should still be locked)
+    Vi.vi->Vi.advanceTimersByTime(60000)
     t->expect(TransitionLock.isIdle())->Expect.toBe(false)
 
-    // 3. Advance time by 2s (total 16s > 15s timeout)
-    Vi.vi->Vi.advanceTimersByTime(2000)
+    // 3. Advance time by 6s (total 66s > 65s timeout)
+    Vi.vi->Vi.advanceTimersByTime(6000)
 
     // 4. Verify lock is released
     t->expect(TransitionLock.isIdle())->Expect.toBe(true)
@@ -65,18 +65,18 @@ describe("TransitionLock Time Tracking", () => {
     let result = TransitionLock.acquire("test", Loading("scene1"))
     t->expect(result)->Expect.toEqual(Ok())
 
-    // 2. At start, remaining should be 15000ms
+    // 2. At start, remaining should be 65000ms
     let remaining = TransitionLock.getRemainingMs()
-    t->expect(remaining)->Expect.toBe(15000)
+    t->expect(remaining)->Expect.toBe(65000)
 
-    // 3. Advance time by 5s - should have ~10000ms left
+    // 3. Advance time by 5s - should have ~60000ms left
     Vi.vi->Vi.advanceTimersByTime(5000)
     let remaining = TransitionLock.getRemainingMs()
-    let isInRange = remaining > 9900 && remaining <= 10000
+    let isInRange = remaining > 59900 && remaining <= 60000
     t->expect(isInRange)->Expect.toBe(true)
 
-    // 4. Advance time by 8 more seconds - should have ~2000ms left
-    Vi.vi->Vi.advanceTimersByTime(8000)
+    // 4. Advance time by 58 more seconds - should have ~2000ms left
+    Vi.vi->Vi.advanceTimersByTime(58000)
     let remaining = TransitionLock.getRemainingMs()
     let isInRange = remaining > 1900 && remaining <= 2000
     t->expect(isInRange)->Expect.toBe(true)
@@ -96,10 +96,10 @@ describe("TransitionLock Time Tracking", () => {
     t->expect(remaining)->Expect.toBe(0)
   })
 
-  test("getTotalTimeoutMs returns 15000", t => {
+  test("getTotalTimeoutMs returns 65000", t => {
     let _ = TransitionLock.acquire("test", Loading("scene1"))
     let total = TransitionLock.getTotalTimeoutMs()
-    t->expect(total)->Expect.toBe(15000)
+    t->expect(total)->Expect.toBe(65000)
   })
 })
 
@@ -125,7 +125,7 @@ describe("TransitionLock Recovery Listeners", () => {
     let _ = TransitionLock.acquire("test", Loading("scene1"))
 
     // 2. Advance past timeout to trigger forceRelease
-    Vi.vi->Vi.advanceTimersByTime(16000)
+    Vi.vi->Vi.advanceTimersByTime(66000)
 
     // 3. Verify lock is idle and recovery listener fired
     t->expect(TransitionLock.isIdle())->Expect.toBe(true)
