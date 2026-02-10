@@ -14918,8 +14918,7 @@
 │   │       ├── D003_Surgical_Refactor_SYSTEMS_FRONTEND.md
 │   │       ├── D005_Integrate_DataFlow_Modules.md
 │   │       ├── D007_Surgical_Refactor_COMPONENTS_FRONTEND.md
-│   │       ├── D008_Fix_Violations_BACKEND.md
-│   │       └── D009_Surgical_Refactor_SCENE_FRONTEND.md
+│   │       └── D008_Fix_Violations_BACKEND.md
 │   └── postponed
 │       ├── 1243_Fix_Operation_Cancellation_Feedback.md
 │       ├── 1246_Handle_Malformed_Project_Files_Gracefully.md
@@ -15324,4 +15323,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-657 directories, 14668 files
+657 directories, 14667 files
