@@ -129,8 +129,8 @@ pub fn detect_recursive_clusters(
                 &cluster.root_folder
             );
             
-            // HYSTERESIS: Only merge if total LOC is < 85% of projected limit
-            let merge_max = (projected_limit as f64 * 0.85) as usize;
+            // HYSTERESIS: Only merge if total LOC is < 75% of projected limit
+            let merge_max = (projected_limit as f64 * 0.75) as usize;
             
             if cluster.total_loc > merge_max {
                 continue; // Too close to limit, avoid yoyo

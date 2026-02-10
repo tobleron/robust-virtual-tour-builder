@@ -95,11 +95,11 @@
         "->": 0.0,
         "=>": 0.5,
         "if ": 0.5,
-        "switch": 0.5,
+        "switch": 0.2,
         "| ": 0.1,
         "mutable": 3.0,
         "Obj.magic": 10.0,
-        "useState": 2.0,
+        "useState": 0.5,
         "useReducer": 3.0
       },
       "forbidden_patterns": [
@@ -132,7 +132,7 @@
       "desc": "Pure business logic, entities, and domain services."
     },
     "ui-component": {
-      "multiplier": 1.3,
+      "multiplier": 1.5,
       "desc": "Visual presentation and user interaction layers."
     },
     "infra-adapter": {
@@ -140,7 +140,7 @@
       "desc": "External API clients, database drivers, and third-party bindings."
     },
     "infra-binding": {
-      "multiplier": 2.5,
+      "multiplier": 3.0,
       "desc": "External JS/FFI bindings. High LOC permitted due to low logic density."
     },
     "data-model": {
@@ -156,7 +156,7 @@
       "desc": "Complex coordination between multiple domain services."
     },
     "state-reducer": {
-      "multiplier": 0.5,
+      "multiplier": 1.2,
       "desc": "Deterministic state transitions (Redux/Store style)."
     },
     "state-hook": {
