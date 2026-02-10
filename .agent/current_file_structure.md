@@ -9304,6 +9304,12 @@
 │   │   │   │   ├── ViewerUI.cmt
 │   │   │   │   ├── ViewerUI.res
 │   │   │   │   ├── VisualPipeline
+│   │   │   │   │   ├── VisualPipelineComponent.ast
+│   │   │   │   │   ├── VisualPipelineComponent.bs.js
+│   │   │   │   │   ├── VisualPipelineComponent.cmi
+│   │   │   │   │   ├── VisualPipelineComponent.cmj
+│   │   │   │   │   ├── VisualPipelineComponent.cmt
+│   │   │   │   │   ├── VisualPipelineComponent.res
 │   │   │   │   │   ├── VisualPipelineStyles.ast
 │   │   │   │   │   ├── VisualPipelineStyles.bs.js
 │   │   │   │   │   ├── VisualPipelineStyles.cmi
@@ -12924,6 +12930,11 @@
 │   │   ├── VisualPipeline.cmj
 │   │   ├── VisualPipeline.cmt
 │   │   ├── VisualPipeline.res
+│   │   ├── VisualPipelineComponent.ast
+│   │   ├── VisualPipelineComponent.cmi
+│   │   ├── VisualPipelineComponent.cmj
+│   │   ├── VisualPipelineComponent.cmt
+│   │   ├── VisualPipelineComponent.res
 │   │   ├── VisualPipelineStyles.ast
 │   │   ├── VisualPipelineStyles.cmi
 │   │   ├── VisualPipelineStyles.cmj
@@ -12946,8 +12957,7 @@
 │   │   └── WebApiBindings.res
 │   └── rescript.lock
 ├── logs
-│   ├── log_changes.txt
-│   └── project-guard.log
+│   └── log_changes.txt
 ├── old_ref
 │   ├── 7aadee4
 │   │   ├── CHANGELOG.md
@@ -14320,7 +14330,25 @@
 │   ├── logical_inconsistencies_analysis.md
 │   └── step1_cleanup_notes.md
 ├── playwright-report
-│   └── index.html
+│   ├── index.html
+│   └── trace
+│       ├── assets
+│       │   ├── codeMirrorModule-a5XoALAZ.js
+│       │   └── defaultSettingsView-CJSZINFr.js
+│       ├── codeMirrorModule.DYBRYzYX.css
+│       ├── codicon.DCmgc-ay.ttf
+│       ├── defaultSettingsView.7ch9cixO.css
+│       ├── index.BVu7tZDe.css
+│       ├── index.BiGyQqiM.js
+│       ├── index.html
+│       ├── manifest.webmanifest
+│       ├── playwright-logo.svg
+│       ├── snapshot.html
+│       ├── sw.bundle.js
+│       ├── uiMode.Btcz36p_.css
+│       ├── uiMode.CQJ9SCIQ.js
+│       ├── uiMode.html
+│       └── xtermModule.DYP7pi_n.css
 ├── playwright.config.ts
 ├── postcss.config.js
 ├── preview.log
@@ -14487,6 +14515,8 @@
 │   │   ├── ViewerUI.bs.js
 │   │   ├── ViewerUI.res
 │   │   ├── VisualPipeline
+│   │   │   ├── VisualPipelineComponent.bs.js
+│   │   │   ├── VisualPipelineComponent.res
 │   │   │   ├── VisualPipelineStyles.bs.js
 │   │   │   └── VisualPipelineStyles.res
 │   │   ├── VisualPipeline.bs.js
@@ -14897,6 +14927,8 @@
 │   │   ├── 1314_Investigate_E2E_Failure_Persistence.md
 │   │   ├── 1315_Investigate_E2E_Failure_Resiliency.md
 │   │   ├── 1316_Investigate_E2E_Failure_Simulation_DONE.md
+│   │   ├── 1317_Investigate_E2E_Failure_Core_UI_DONE.md
+│   │   ├── 1318_Investigate_E2E_Failure_Full_Workflow_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
 │   │       ├── 1195_Test_Teaser_DONE.md
@@ -14907,15 +14939,14 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 1317_Investigate_E2E_Failure_Core_UI.md
-│   │   ├── 1318_Investigate_E2E_Failure_Full_Workflow.md
 │   │   └── dev_tasks
 │   │       ├── D001_Fix_Violations_FRONTEND.md
 │   │       ├── D002_Surgical_Refactor_CORE_FRONTEND.md
 │   │       ├── D003_Surgical_Refactor_SYSTEMS_FRONTEND.md
 │   │       ├── D005_Integrate_DataFlow_Modules.md
 │   │       ├── D007_Surgical_Refactor_COMPONENTS_FRONTEND.md
-│   │       └── D008_Fix_Violations_BACKEND.md
+│   │       ├── D008_Fix_Violations_BACKEND.md
+│   │       └── D009_Merge_Folders_FRONTEND.md
 │   └── postponed
 │       ├── 1243_Fix_Operation_Cancellation_Feedback.md
 │       ├── 1246_Handle_Malformed_Project_Files_Gracefully.md
@@ -14923,6 +14954,7 @@
 │       └── 1306_ARCH_Navigation_Supervisor_Pattern_Research_DEFERRED.md
 ├── test-results
 ├── test_output.log
+├── test_output.txt
 ├── test_run.log
 ├── test_run_2.log
 ├── test_run_rapid.log
@@ -15316,4 +15348,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-655 directories, 14662 files
+657 directories, 14692 files
