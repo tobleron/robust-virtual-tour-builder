@@ -300,6 +300,7 @@ module Manager = {
               }
             }
             Recorder.stopRecording()
+            await wait(500)
             let safeName =
               String.replaceRegExp(
                 GlobalStateBridge.getState().tourName,

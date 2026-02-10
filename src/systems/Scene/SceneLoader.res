@@ -119,6 +119,16 @@ module Events = {
 }
 
 let retryScheduled: ref<option<timeoutId>> = ref(None)
+let currentLoadTimeout: ref<option<timeoutId>> = ref(None)
+
+let cleanupLoadTimeout = () => {
+  switch currentLoadTimeout.contents {
+  | Some(id) =>
+    clearTimeout(id)
+    currentLoadTimeout := None
+  | None => ()
+  }
+}
 
 let rec loadNewScene = (
   ~sourceSceneId as _sourceSceneId: option<string>=?,
@@ -163,41 +173,56 @@ let rec loadNewScene = (
     if !isAnticipatory {
       // Log at DEBUG level - acquire failure is expected when lock is held
       // (not a warning condition, just normal during rapid scene clicks)
-      Logger.debug(
-        ~module_="SceneLoader",
-        ~message="LOCK_ACQUIRE_FAILED_RETRY_SCHEDULED",
-        ~data=Some({
-          "targetId": targetSceneId,
-        }),
-        (),
-      )
-      // Schedule a retry after 100ms to allow previous operation to finish
-      switch retryScheduled.contents {
-      | Some(id) => clearTimeout(id)
-      | None => ()
+      let isAlreadyLoadingSame = switch TransitionLock.current.contents {
+      | Loading(id) if id == targetSceneId => true
+      | _ => false
       }
-      let retryId = setTimeout(() => {
-        retryScheduled := None
-        let state = GlobalStateBridge.getState()
-        let isRelevant = switch state.navigationFsm {
-        | Preloading({targetSceneId: activeTarget}) => activeTarget == targetSceneId
-        | _ => false
-        }
 
-        if isRelevant {
-          loadNewScene(~targetSceneId, ~isAnticipatory)
-        } else {
-          Logger.debug(
-            ~module_="SceneLoader",
-            ~message="ABORTING_OBSOLETE_RETRY",
-            ~data=Some({"targetId": targetSceneId}),
-            (),
-          )
+      if !isAlreadyLoadingSame {
+        Logger.debug(
+          ~module_="SceneLoader",
+          ~message="LOCK_ACQUIRE_FAILED_RETRY_SCHEDULED",
+          ~data=Some({
+            "targetId": targetSceneId,
+          }),
+          (),
+        )
+        // Schedule a retry after 100ms to allow previous operation to finish
+        switch retryScheduled.contents {
+        | Some(id) => clearTimeout(id)
+        | None => ()
         }
-      }, 100)
-      retryScheduled := Some(retryId)
+        let retryId = setTimeout(() => {
+          retryScheduled := None
+          let state = GlobalStateBridge.getState()
+          let isRelevant = switch state.navigationFsm {
+          | Preloading({targetSceneId: activeTarget}) => activeTarget == targetSceneId
+          | _ => false
+          }
+
+          if isRelevant {
+            loadNewScene(~targetSceneId, ~isAnticipatory)
+          } else {
+            Logger.debug(
+              ~module_="SceneLoader",
+              ~message="ABORTING_OBSOLETE_RETRY",
+              ~data=Some({"targetId": targetSceneId}),
+              (),
+            )
+          }
+        }, 100)
+        retryScheduled := Some(retryId)
+      } else {
+        Logger.debug(
+          ~module_="SceneLoader",
+          ~message="ALREADY_LOADING_TARGET_IGNORING_REDUNDANT_CALL",
+          ~data=Some({"targetId": targetSceneId}),
+          (),
+        )
+      }
     }
   | Ok() =>
+    cleanupLoadTimeout()
     let state = GlobalStateBridge.getState()
     let targetSceneOpt = state.scenes->Belt.Array.getBy(s => s.id == targetSceneId)
 
@@ -268,6 +293,7 @@ let rec loadNewScene = (
 
           // Safety timeout to prevent permanent hangs if Pannellum fails to fire events
           let safetyTimeoutId = setTimeout(() => {
+            currentLoadTimeout := None
             Logger.error(
               ~module_="SceneLoader",
               ~message="PANNELLUM_LOAD_TIMEOUT",
@@ -276,11 +302,12 @@ let rec loadNewScene = (
             )
             Events.onSceneError("Resource load timeout (Safety)", targetScene.id)
           }, 60000)
+          currentLoadTimeout := Some(safetyTimeoutId)
 
           try {
             let initialConfig = Config.makeInitialConfig(targetScene)
 
-            Logger.debug(
+            Logger.info(
               ~module_="SceneLoader",
               ~message="INITIALIZING_VIEWER_INSTANCE",
               ~data=Some({
@@ -289,13 +316,12 @@ let rec loadNewScene = (
                 "panorama": SceneCache.getSourceUrl(targetScene.id, targetScene.file),
                 "fileType": switch targetScene.file {
                 | Url(_) => "Url"
-                | Blob(_) => "Blob"
-                | File(_) => "File"
+                | Blob(b) => "Blob(" ++ Float.toString(ReBindings.Blob.size(b)) ++ ")"
+                | File(f) => "File(" ++ Float.toString(ReBindings.File.size(f)) ++ ")"
                 },
               }),
               (),
             )
-
             let newInstance = ViewerSystem.Adapter.initialize(
               v.containerId,
               initialConfig->asDynamic,
@@ -304,17 +330,22 @@ let rec loadNewScene = (
             ViewerSystem.Adapter.setMetaData(newInstance, "isLoaded", boolToUnknown(false))
 
             newInstance->ViewerSystem.Adapter.on("texture-loaded", _ => {
-              clearTimeout(safetyTimeoutId)
+              cleanupLoadTimeout()
+              Events.onSceneLoad(newInstance, targetScene)
+            })
+
+            newInstance->ViewerSystem.Adapter.on("load", _ => {
+              cleanupLoadTimeout()
               Events.onSceneLoad(newInstance, targetScene)
             })
 
             newInstance->ViewerSystem.Adapter.on("error", msg => {
-              clearTimeout(safetyTimeoutId)
+              cleanupLoadTimeout()
               Events.onSceneError(msg, targetScene.id)
             })
 
             if ViewerSystem.Adapter.isLoaded(newInstance) {
-              clearTimeout(safetyTimeoutId)
+              cleanupLoadTimeout()
               Events.onSceneLoad(newInstance, targetScene)
             }
 
