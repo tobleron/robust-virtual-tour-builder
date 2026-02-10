@@ -181,10 +181,7 @@ let renderFrame = (sourceCanvas, includeLogo, logoState: logoResult) => {
 
 let startAnimationLoop = (includeLogo, logoState) => {
   let rec draw = () => {
-    switch Dom.querySelector(
-      Dom.documentBody,
-      ".pnlm-render-container.active canvas",
-    )->Nullable.toOption {
+    switch Dom.querySelector(Dom.documentBody, ".panorama-layer.active canvas")->Nullable.toOption {
     | Some(sc) => renderFrame(sc, includeLogo, logoState)
     | None => ()
     }
@@ -229,12 +226,21 @@ let startRecording = () => {
           isTeasing: true,
         }
       r->ondataavailable(e => {
-        if e["data"]["size"] > 0 {
+        let size = e["data"]["size"]
+        if size > 0 {
           let b = castToBlob(e["data"])
           internalState := {
               ...internalState.contents,
               chunks: Array.concat(internalState.contents.chunks, [b]),
             }
+          if mod(Array.length(internalState.contents.chunks), 50) == 0 {
+            Logger.debug(
+              ~module_="TeaserRecorder",
+              ~message="CHUNK_RECEIVED",
+              ~data={"size": size, "count": Array.length(internalState.contents.chunks)},
+              (),
+            )
+          }
         }
       })
       r->start(100)
@@ -252,12 +258,18 @@ let stopRecording = () => {
     internalState := {...internalState.contents, isTeasing: false}
     internalState.contents.streamLoopId->Option.forEach(cancelAnimationFrame)
     internalState := {...internalState.contents, streamLoopId: None}
-    Logger.info(
-      ~module_="TeaserRecorder",
-      ~message="RECORDING_STOP",
-      ~data={"chunkCount": Array.length(internalState.contents.chunks)},
-      (),
-    )
+
+    // Defer logging to see if chunks come in
+    let _ = setTimeout(() => {
+      Logger.info(
+        ~module_="TeaserRecorder",
+        ~message="RECORDING_STOP_ASYNC",
+        ~data={"chunkCount": Array.length(internalState.contents.chunks)},
+        (),
+      )
+    }, 200)
+
+    Logger.info(~module_="TeaserRecorder", ~message="RECORDING_STOP_SENT", ())
   | None => ()
   }
 }

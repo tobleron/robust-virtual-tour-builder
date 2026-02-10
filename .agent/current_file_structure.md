@@ -14320,9 +14320,6 @@
 │   ├── logical_inconsistencies_analysis.md
 │   └── step1_cleanup_notes.md
 ├── playwright-report
-│   ├── data
-│   │   ├── 2aa7328c3831a4d6337fc5ea20cb114efb09d279.md
-│   │   └── 4f0665819041ab31b10c64cf4bd054dc8175b902.png
 │   └── index.html
 ├── playwright.config.ts
 ├── postcss.config.js
@@ -14811,7 +14808,6 @@
 ├── tasks
 │   ├── TASKS.md
 │   ├── active
-│   │   └── 1316_Investigate_E2E_Failure_Simulation.md
 │   ├── completed
 │   │   ├── 1231_Surgical_Refactor_CORE_FRONTEND_DONE.md
 │   │   ├── 1232_Merge_Folders_FRONTEND_DONE.md
@@ -14900,6 +14896,7 @@
 │   │   ├── 1313_Investigate_E2E_Failure_FSM_Rapid_Switching_DONE.md
 │   │   ├── 1314_Investigate_E2E_Failure_Persistence.md
 │   │   ├── 1315_Investigate_E2E_Failure_Resiliency.md
+│   │   ├── 1316_Investigate_E2E_Failure_Simulation_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
 │   │       ├── 1195_Test_Teaser_DONE.md
@@ -14925,10 +14922,6 @@
 │       ├── 1299_ERR_Performance_LoadTimeAndMemory.md
 │       └── 1306_ARCH_Navigation_Supervisor_Pattern_Research_DEFERRED.md
 ├── test-results
-│   └── simulation-teaser-Simulati-4ee6a-un-auto-teaser-and-download-chromium
-│       ├── error-context.md
-│       ├── test-failed-1.png
-│       └── trace.zip
 ├── test_output.log
 ├── test_run.log
 ├── test_run_2.log
@@ -15323,4 +15316,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-657 directories, 14667 files
+655 directories, 14662 files

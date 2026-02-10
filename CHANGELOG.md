@@ -5,10 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.36.1] - 2026-02-10
+
+### Fixed
+- Resolve E2E teaser recording failure by correcting the CSS selector for the active canvas in `TeaserRecorder.res`.
+- Fix deprecated `Js.Global.setTimeout` usage in `TeaserRecorder.res`.
+
 ## [4.36.0] - 2026-02-10
 
 ### Changed
 - Feat(dev-system): relax architectural constraints and complexity weights
+- Fix teaser recording CSS selector and deprecated setTimeout
 
 ## [4.34.28] - 2026-02-10
 
