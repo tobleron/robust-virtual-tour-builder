@@ -153,7 +153,7 @@ describe("TeaserRecorder", () => {
     let _ = startRecording()
     stopRecording()
 
-    let stopped = %raw(`mockInfo.mock.calls.some(args => args[1] === "RECORDING_STOP")`)
+    let stopped = %raw(`mockInfo.mock.calls.some(args => args[1] === "RECORDING_STOP_SENT")`)
     t->expect(stopped)->Expect.toBe(true)
   })
 

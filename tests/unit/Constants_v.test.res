@@ -127,7 +127,7 @@ describe("Constants", _ => {
     t->expect(Constants.blinkDurationSimulation)->Expect.toBe(1200)
     t->expect(Constants.blinkRatePreview)->Expect.toBe(300)
     t->expect(Constants.blinkRateSimulation)->Expect.toBe(600)
-    t->expect(Constants.Simulation.stepDelay)->Expect.toBe(800)
+    t->expect(Constants.Simulation.stepDelay)->Expect.toBe(5000)
     t->expect(Constants.idleSnapshotDelay)->Expect.toBe(2000)
     t->expect(Constants.sceneLoadTimeout)->Expect.toBe(30000)
   })
