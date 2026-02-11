@@ -15101,7 +15101,6 @@
 │   │       ├── D001_Fix_Violations_FRONTEND.md
 │   │       ├── D002_Surgical_Refactor_CORE_FRONTEND.md
 │   │       ├── D003_Surgical_Refactor_SYSTEMS_FRONTEND.md
-│   │       ├── D005_Integrate_DataFlow_Modules.md
 │   │       ├── D007_Surgical_Refactor_COMPONENTS_FRONTEND.md
 │   │       ├── D008_Fix_Violations_BACKEND.md
 │   │       ├── D009_Merge_Folders_FRONTEND.md
@@ -15539,4 +15538,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-671 directories, 14869 files
+671 directories, 14868 files
