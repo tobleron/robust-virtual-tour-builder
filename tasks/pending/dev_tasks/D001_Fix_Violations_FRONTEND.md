@@ -9,6 +9,11 @@
 
 ## Tasks
 
+### 🔧 Action: Fix Pattern `!important`
+**Directive:** Pattern Fix: Replace the forbidden '!important' pattern with the recommended functional alternative.
+
+- [ ] `../../css/components/ui.css`
+
 ### 🔧 Action: Fix Pattern `Obj.magic`
 **Directive:** CSP Compliance: Replace 'Obj.magic' with `rescript-json-combinators` (Zero-Eval).
 
