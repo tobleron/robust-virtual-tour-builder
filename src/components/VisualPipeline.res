@@ -56,7 +56,7 @@ module InternalLogic = {
 
     switch (dropIndex, Nullable.toOption(pipeline.dragSourceId.contents)) {
     | (dropIndex, Some(sourceId)) if dropIndex != -1 =>
-      let state = GlobalStateBridge.getState()
+      let state = AppStateBridge.getState()
       let sourceIndex =
         state.timeline->Belt.Array.getIndexBy(t => t.id == sourceId)->Option.getOr(-1)
 
@@ -73,7 +73,7 @@ module InternalLogic = {
             ~data=Some({"from": sourceIndex, "to": finalIndex}),
             (),
           )
-          GlobalStateBridge.dispatch(ReorderTimeline(sourceIndex, finalIndex))
+          AppStateBridge.dispatch(ReorderTimeline(sourceIndex, finalIndex))
         }
       }
     | _ => ()
@@ -138,7 +138,7 @@ module InternalRender = {
               ~data=Some({"id": item.id}),
               (),
             )
-            GlobalStateBridge.dispatch(SetActiveTimelineStep(Some(item.id)))
+            AppStateBridge.dispatch(SetActiveTimelineStep(Some(item.id)))
             let sceneIdx =
               state.scenes
               ->Belt.Array.getIndexBy(s => s.id == item.sceneId)
@@ -148,9 +148,8 @@ module InternalRender = {
               | Some(s) =>
                 let hotspot = s.hotspots->Belt.Array.getBy(h => h.linkId == item.linkId)
                 switch hotspot {
-                | Some(h) =>
-                  GlobalStateBridge.dispatch(SetActiveScene(sceneIdx, h.yaw, h.pitch, None))
-                | None => GlobalStateBridge.dispatch(SetActiveScene(sceneIdx, 0.0, 0.0, None))
+                | Some(h) => AppStateBridge.dispatch(SetActiveScene(sceneIdx, h.yaw, h.pitch, None))
+                | None => AppStateBridge.dispatch(SetActiveScene(sceneIdx, 0.0, 0.0, None))
                 }
               | None => ()
               }
@@ -210,7 +209,7 @@ module InternalRender = {
                 ~data=Some({"id": item.id}),
                 (),
               )
-              GlobalStateBridge.dispatch(RemoveFromTimeline(item.id))
+              AppStateBridge.dispatch(RemoveFromTimeline(item.id))
             }
           })
 
@@ -309,8 +308,8 @@ let initByElement = (c: Dom.element) => {
     thumbCache: Dict.make(),
   }
 
-  let unsubscribe = GlobalStateBridge.subscribe(state => InternalRender.render(pipeline, state))
-  InternalRender.render(pipeline, GlobalStateBridge.getState())
+  let unsubscribe = AppStateBridge.subscribe(state => InternalRender.render(pipeline, state))
+  InternalRender.render(pipeline, AppStateBridge.getState())
   (pipeline, unsubscribe)
 }
 

@@ -1,10 +1,15 @@
 {
-  "css": [
+  "system": [
     {
-      "Violation": {
-        "file": "../../css/components/ui.css",
-        "pattern": "!important",
-        "strategy": ""
+      "Merge": {
+        "folder": "../../src/components/VisualPipeline",
+        "files": [
+          "VisualPipelineComponent.res",
+          "VisualPipelineStyles.res"
+        ],
+        "reason": "Read Tax high (Score 2.00). Projected Limit: 300 (Drag 4.29)",
+        "strategy": "",
+        "platform": "frontend"
       }
     }
   ],
@@ -14,20 +19,6 @@
         "file": "../../backend/src/api/media/video_logic.rs",
         "pattern": "unwrap()",
         "strategy": ""
-      }
-    }
-  ],
-  "system": [
-    {
-      "Merge": {
-        "folder": "../../src/components/VisualPipeline",
-        "files": [
-          "VisualPipelineStyles.res",
-          "VisualPipelineComponent.res"
-        ],
-        "reason": "Read Tax high (Score 2.00). Projected Limit: 300 (Drag 4.29)",
-        "strategy": "",
-        "platform": "frontend"
       }
     }
   ],
@@ -41,30 +32,12 @@
     },
     {
       "Surgical": {
-        "file": "../../src/systems/ProjectManager.res",
+        "file": "../../src/systems/UploadProcessorLogic.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 4.20, Density: 0.20, Coupling: 0.10] | Drag: 5.40 | LOC: 402/300  🎯 Target: Function: `finalToken` (High Local Complexity (2.0). Logic heavy.)",
+        "reason": "[Nesting: 2.40, Density: 0.04, Coupling: 0.11] | Drag: 3.44 | LOC: 378/300  🎯 Target: Function: `getNotificationType` (High Local Complexity (4.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 15.601492537313433,
-        "recommended_splits": 2
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/core/JsonParsersDecoders.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/Reducer.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 5.40, Density: 0.28, Coupling: 0.10] | Drag: 6.68 | LOC: 408/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 17.484313725490196,
+        "complexity": 11.239682539682539,
         "recommended_splits": 2
       }
     },
@@ -91,8 +64,37 @@
       }
     },
     {
+      "Surgical": {
+        "file": "../../src/core/Reducer.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 5.40, Density: 0.28, Coupling: 0.10] | Drag: 6.68 | LOC: 408/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 17.484313725490196,
+        "recommended_splits": 2
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ProjectManager.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.20, Density: 0.20, Coupling: 0.10] | Drag: 5.40 | LOC: 402/300  🎯 Target: Function: `finalToken` (High Local Complexity (2.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 15.601492537313433,
+        "recommended_splits": 2
+      }
+    },
+    {
       "Violation": {
         "file": "../../src/systems/Api/AuthenticatedClient.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/core/JsonParsersDecoders.res",
         "pattern": "Obj.magic",
         "strategy": ""
       }
@@ -106,6 +108,15 @@
         "platform": "frontend",
         "complexity": 13.676923076923076,
         "recommended_splits": 2
+      }
+    }
+  ],
+  "css": [
+    {
+      "Violation": {
+        "file": "../../css/components/ui.css",
+        "pattern": "!important",
+        "strategy": ""
       }
     }
   ]
