@@ -1,4 +1,9 @@
-/* src/core/TransitionLock.res */
+/* src/core/TransitionLock.res
+
+   @deprecated — Navigation is now coordinated by NavigationSupervisor.res.
+   This module is retained only for potential non-navigation locking use cases.
+   See task 1306 for migration history.
+*/
 
 type phase =
   | Idle

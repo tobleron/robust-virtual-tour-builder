@@ -23,15 +23,6 @@ let finalizeSwap = () => {
       }
     }
   })
-
-  // Release lock if we were still in Swapping phase (safety)
-  // We use releaseIf to ensure we only release if it's still Swapping
-  TransitionLock.releaseIf("SceneTransition_Finalize", p =>
-    switch p {
-    | Swapping(_) => true
-    | _ => false
-    }
-  )
 }
 
 let assignGlobalViewer = nv => {
@@ -109,16 +100,12 @@ let cleanupViewerInstance = (ov, vp: viewport, ~taskId: option<string>=?) => {
     NavigationSupervisor.getCurrentTask()
     ->Option.map(t => t.targetSceneId)
     ->Option.getOr("unknown")
-  | None =>
-    switch TransitionLock.current.contents {
-    | Swapping(id) | Cleanup(id) => id
-    | _ => "unknown"
-    }
+  | None => "unknown"
   }
 
   switch taskId {
   | Some(tid) => NavigationSupervisor.transitionTo(tid, Stabilizing(tid, sceneId))
-  | None => TransitionLock.transition("SceneTransition_Cleanup", Cleanup(sceneId))
+  | None => ()
   }
 
   // 1. Resource Lifecycle (Cancellable)
@@ -127,7 +114,6 @@ let cleanupViewerInstance = (ov, vp: viewport, ~taskId: option<string>=?) => {
   let resourceCleanupId = Window.setTimeout(() => {
     ov->Nullable.toOption->Option.forEach(ViewerSystem.Adapter.destroy)
     ViewerSystem.Pool.clearInstance(vp.containerId)
-    // We only clear the timeout ref, we don't touch the lock here anymore
     ViewerSystem.Pool.clearCleanupTimeout(vp.id)
   }, 500)
 
@@ -135,14 +121,11 @@ let cleanupViewerInstance = (ov, vp: viewport, ~taskId: option<string>=?) => {
   ViewerSystem.Pool.setCleanupTimeout(vp.id, Some(resourceCleanupId))
 
   // 2. State Lifecycle (Guaranteed)
-  // This runs independently of the resource cleanup. Even if the viewer is reused
-  // (and resourceCleanupId is cleared), the lock MUST be released to unblock the UI.
-  // CRITICAL: We only release if the phase is still the Cleanup we started.
-  let targetPhase = TransitionLock.Cleanup(sceneId)
+  // This runs independently of the resource cleanup. The Supervisor completes the task.
   let _ = Window.setTimeout(() => {
     switch taskId {
     | Some(tid) => NavigationSupervisor.complete(tid)
-    | None => TransitionLock.release("SceneTransition_CleanupDone", ~onlyIfPhase=targetPhase)
+    | None => ()
     }
   }, 550) // Small buffer to ensure it runs after cleanup if both proceed
 }
@@ -179,7 +162,7 @@ let performSwap = (loadedScene: scene, _loadStartTime, ~taskId: option<string>=?
 
   switch taskId {
   | Some(tid) => NavigationSupervisor.transitionTo(tid, Swapping(tid, loadedScene.id))
-  | None => TransitionLock.transition("SceneTransition_StartSwap", Swapping(loadedScene.id))
+  | None => ()
   }
 
   let (av, iv) = (ViewerSystem.Pool.getActive(), ViewerSystem.Pool.getInactive())
@@ -197,7 +180,7 @@ let performSwap = (loadedScene: scene, _loadStartTime, ~taskId: option<string>=?
     GlobalStateBridge.dispatch(SyncSceneNames) // Force some state change
     switch taskId {
     | Some(tid) => NavigationSupervisor.abort(tid)
-    | None => TransitionLock.release("SceneTransition_NoViewerFailsafe")
+    | None => ()
     }
   }
 

@@ -50,7 +50,7 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [src/core/JsonParsersEncoders.res](src/core/JsonParsersEncoders.res): Domain-specific JSON encoders using rescript-json-combinators. `#json` `#encoding`
 *   [src/core/JsonParsersShared.res](src/core/JsonParsersShared.res): Shared JSON parsers for cross-domain metadata (Exif, Quality). `#json` `#shared` `#parsing`
 *   [src/core/JsonEncoders.res](src/core/JsonEncoders.res): Centralized JSON encoders using rescript-json-combinators for CSP compliance. `#json` `#encoding` `#csp`
-*   [src/core/TransitionLock.res](src/core/TransitionLock.res): Global lock for scene transitions and viewer swaps. `#concurrency` `#locking` `#safety`
+*   [src/core/TransitionLock.res](src/core/TransitionLock.res): ~~Global lock for scene transitions.~~ DEPRECATED — replaced by NavigationSupervisor for navigation flows. `#deprecated` `#concurrency`
 *   [src/core/InteractionGuard.res](src/core/InteractionGuard.res): Cooldown and multi-click prevention for UI actions. `#concurrency` `#safety`
 *   [src/core/InteractionPolicies.res](src/core/InteractionPolicies.res): Configuration for interaction cooldowns and limits. `#configuration` `#safety`
 *   [src/core/NotificationManager.res](src/core/NotificationManager.res): Core logic for dispatching and managing notifications. `#logic` `#notifications`
@@ -90,6 +90,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/systems/Simulation.res](src/systems/Simulation.res): Core logic for autopilot simulations. `#simulation` `#autopilot`
 
 *   [src/systems/Navigation.res](src/systems/Navigation.res): Orchestrator for the centralized navigation system. `#navigation` `#orchestration`
+    *   [src/systems/Navigation/NavigationSupervisor.res](src/systems/Navigation/NavigationSupervisor.res): Centralized coordinator for scene transitions using structured concurrency with AbortSignal. `#navigation` `#orchestration` `#concurrency`
     *   [src/systems/Navigation/NavigationFSM.res](src/systems/Navigation/NavigationFSM.res): Pure deterministic Finite State Machine for navigation lifecycle. `#logic` `#reliability`
     *   [src/systems/Navigation/NavigationGraph.res](src/systems/Navigation/NavigationGraph.res): Viewport math and link projection logic. `#math` `#navigation`
     *   [src/systems/Navigation/NavigationRenderer.res](src/systems/Navigation/NavigationRenderer.res): Specialized renderer for interactive navigation elements. `#rendering`
@@ -306,5 +307,4 @@ This map provides a semantic overview of the project structure to optimize conte
 
 
 ## 🆕 Unmapped Modules
-* [src/systems/Navigation/NavigationSupervisor.res](src/systems/Navigation/NavigationSupervisor.res): New module detected. Please classify. #new
 * None detected.

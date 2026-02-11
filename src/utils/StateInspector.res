@@ -13,7 +13,7 @@ type stateSnapshot = {
   isLinking: bool,
   ui: stateUiSnapshot,
   simulationStatus: string,
-  transitionLock: string,
+  navigationSupervisor: string,
   timestamp: float,
 }
 
@@ -36,7 +36,7 @@ let createSnapshot = (state: Types.state): stateSnapshot => {
     | Paused => "Paused"
     | Stopping => "Stopping"
     },
-    transitionLock: TransitionLock.phaseToString(TransitionLock.current.contents),
+    navigationSupervisor: NavigationSupervisor.statusToString(NavigationSupervisor.getStatus()),
     timestamp: Date.now(),
   }
 }
