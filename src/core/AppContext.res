@@ -5,6 +5,13 @@ type dispatch = action => unit
 
 let defaultDispatch: dispatch = _ => ()
 
+let stateBridgeRef: ref<state> = ref(State.initialState)
+let dispatchBridgeRef: ref<dispatch> = ref(defaultDispatch)
+
+let getBridgeState = () => stateBridgeRef.contents
+let getBridgeDispatch = () => dispatchBridgeRef.contents
+let restoreState = (nextState: state) => dispatchBridgeRef.contents(Actions.RestoreState(nextState))
+
 // Slices definitions for optimized subscriptions
 type sceneSlice = {
   scenes: array<scene>,
@@ -130,11 +137,21 @@ module Provider = {
       state.navigationState.incomingLink,
     ))
 
-    React.useLayoutEffect1(() => {
-      GlobalStateBridge.setDispatch(dispatch)
-      GlobalStateBridge.setState(state)
+    React.useEffect1(() => {
+      stateBridgeRef := state
+      AppStateBridge.updateState(state)
       None
     }, [state])
+
+    React.useEffect1(() => {
+      dispatchBridgeRef := dispatch
+      None
+    }, [dispatch])
+
+    React.useEffect0(() => {
+      AppStateBridge.registerDispatch(dispatch)
+      None
+    })
 
     React.useEffect1(() => {
       let timerId = setTimeout(() => {

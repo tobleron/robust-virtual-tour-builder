@@ -28,6 +28,7 @@ type rec action =
   | ReorderTimeline(int, int)
   | UpdateTimelineStep(string, JSON.t)
   | LoadProject(JSON.t)
+  | RestoreState(state)
   | Reset
   | SetSimulationMode(bool)
   | SetNavigationStatus(navigationStatus)
@@ -133,6 +134,7 @@ let uiActionToString = (action: action): option<string> =>
   | SetIsTeasing(b) => Some(`SetIsTeasing(${b ? "true" : "false"})`)
   | SetTourName(name) => Some(`SetTourName(${name})`)
   | LoadProject(_) => Some("LoadProject")
+  | RestoreState(_) => Some("RestoreState")
   | Reset => Some("Reset")
   | SetExifReport(_) => Some("SetExifReport")
   | SetSessionId(id) => Some(`SetSessionId(${id})`)

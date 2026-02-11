@@ -2,10 +2,11 @@
 
 open Types
 open ReBindings
+open React
 @@warning("-45")
 
 module ControllerHooks = {
-  let useNavigationFSM = (state: state, dispatch) => {
+  let useNavigationFSM = (state: state, dispatch, getState) => {
     React.useEffect2(() => {
       switch state.navigationState.navigationFsm {
       | Preloading({targetSceneId, isAnticipatory}) =>
@@ -22,6 +23,8 @@ module ControllerHooks = {
         let taskInfo = NavigationSupervisor.getCurrentTask()
 
         Scene.Loader.loadNewScene(
+          ~state=Scene.Loader.toPathRequest(state),
+          ~dispatch,
           ~sourceSceneId?,
           ~targetSceneId,
           ~isAnticipatory,
@@ -65,7 +68,14 @@ module ControllerHooks = {
               (),
             )
             let taskInfo = NavigationSupervisor.getCurrentTask()
-            Scene.Transition.performSwap(ts, 0.0, ~taskId=?taskInfo->Option.map(t => t.id))
+            Scene.Transition.performSwap(
+              ts,
+              0.0,
+              ~taskId=?taskInfo->Option.map(t => t.id),
+              ~getState,
+              ~dispatch,
+              ~transition=state.transition,
+            )
           | None =>
             Logger.error(
               ~module_="NavigationController",
@@ -82,7 +92,7 @@ module ControllerHooks = {
             | Some(t) => NavigationSupervisor.abort(t.id)
             | None => ()
             }
-            GlobalStateBridge.dispatch(Actions.DispatchNavigationFsmEvent(StabilizeComplete))
+            dispatch(Actions.DispatchNavigationFsmEvent(StabilizeComplete))
           }
         })
         None
@@ -184,7 +194,13 @@ module ControllerHooks = {
 let make = () => {
   let state = AppContext.useAppState()
   let dispatch = AppContext.useAppDispatch()
-  ControllerHooks.useNavigationFSM(state, dispatch)
+  let stateRef = React.useRef(state)
+  React.useEffect1(() => {
+    stateRef.current = state
+    None
+  }, [state])
+  let getState = () => stateRef.current
+  ControllerHooks.useNavigationFSM(state, dispatch, getState)
   ControllerHooks.useNavigationAnimation(state, dispatch)
   React.null
 }

@@ -7,14 +7,17 @@ type optimisticResult<'a> =
 let execute = (
   ~action: Actions.action,
   ~apiCall: unit => Promise.t<result<'a, string>>,
-  ~onRollback: Types.state => unit=state => GlobalStateBridge.setState(state),
+  ~getState: unit => Types.state=AppContext.getBridgeState,
+  ~getDispatch: unit => Actions.action => unit=AppContext.getBridgeDispatch,
+  ~onRollback: Types.state => unit=AppContext.restoreState,
 ): Promise.t<optimisticResult<'a>> => {
   // 1. Capture state
-  let currentState = GlobalStateBridge.getState()
+  let currentState = getState()
   let snapshotId = StateSnapshot.capture(currentState, action)
 
   // 2. Optimistic dispatch
-  GlobalStateBridge.dispatch(action)
+  let dispatch = getDispatch()
+  dispatch(action)
 
   // 3. API Call
   apiCall()

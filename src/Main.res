@@ -168,15 +168,24 @@ let init = async () => {
         ServiceWorker.unregisterServiceWorker()
       }
 
-      // 8. Global click handler
-      // 9. Persistence & Session Recovery
-      PersistenceLayer.initSubscriber()
+      AppStateBridge.onReady(() => {
+        PersistenceLayer.initSubscriber(
+          ~getState=AppStateBridge.getState,
+          ~onChange=PersistenceLayer.notifyStateChange,
+        )
 
-      // Register Recovery Handlers
-      RecoveryManager.registerHandler("SaveProject", ProjectManager.recoverSaveProject)
-      RecoveryManager.registerHandler("UploadImages", UploadProcessorLogic.recoverUpload)
+        RecoveryManager.registerHandler(
+          "SaveProject",
+          ProjectManager.recoverSaveProject(
+            ~getState=AppStateBridge.getState,
+            ~dispatch=AppStateBridge.dispatch,
+            ~subscribe=AppStateBridge.subscribe,
+          ),
+        )
+        RecoveryManager.registerHandler("UploadImages", UploadProcessorLogic.recoverUpload)
 
-      let _recovered = await PersistenceLayer.checkRecovery()
+        let _ = PersistenceLayer.checkRecovery()->Promise.catch(_ => Promise.resolve(None))
+      })
 
       /*
       switch recovered {
@@ -242,43 +251,48 @@ let init = async () => {
       // 8. Global click handler
       Dom.addEventListener(docToEl(Dom.document), "viewer-click", (e: Dom.event) => {
         Logger.info(~module_="Main", ~message="VIEWER_CLICK_RECEIVED", ())
-        let state = GlobalStateBridge.getState()
-        if state.isLinking {
-          let customEvent = ViewerClickEvent.fromEvent(e)
-          let detail = ViewerClickEvent.detail(customEvent)
+        if !AppStateBridge.isReady() {
+          Logger.warn(~module_="Main", ~message="VIEWER_CLICK_BEFORE_CONTEXT_READY", ())
+          ()
+        } else {
+          let state = AppStateBridge.getState()
+          if state.isLinking {
+            let customEvent = ViewerClickEvent.fromEvent(e)
+            let detail = ViewerClickEvent.detail(customEvent)
 
-          switch state.linkDraft {
-          | None =>
-            let newDraft: Types.linkDraft = {
-              pitch: detail.pitch,
-              yaw: detail.yaw,
-              camPitch: detail.camPitch,
-              camYaw: detail.camYaw,
-              camHfov: detail.camHfov,
-              intermediatePoints: Some([]),
-            }
-            GlobalStateBridge.dispatch(Actions.UpdateLinkDraft(newDraft))
+            switch state.linkDraft {
+            | None =>
+              let newDraft: Types.linkDraft = {
+                pitch: detail.pitch,
+                yaw: detail.yaw,
+                camPitch: detail.camPitch,
+                camYaw: detail.camYaw,
+                camHfov: detail.camHfov,
+                intermediatePoints: Some([]),
+              }
+              AppStateBridge.dispatch(Actions.UpdateLinkDraft(newDraft))
 
-          | Some(current) =>
-            let newPoint: Types.linkDraft = {
-              pitch: detail.pitch,
-              yaw: detail.yaw,
-              camPitch: detail.camPitch,
-              camYaw: detail.camYaw,
-              camHfov: detail.camHfov,
-              intermediatePoints: None,
-            }
+            | Some(current) =>
+              let newPoint: Types.linkDraft = {
+                pitch: detail.pitch,
+                yaw: detail.yaw,
+                camPitch: detail.camPitch,
+                camYaw: detail.camYaw,
+                camHfov: detail.camHfov,
+                intermediatePoints: None,
+              }
 
-            let currentPoints = switch current.intermediatePoints {
-            | Some(pts) => pts
-            | None => []
-            }
+              let currentPoints = switch current.intermediatePoints {
+              | Some(pts) => pts
+              | None => []
+              }
 
-            let updatedDraft = {
-              ...current,
-              intermediatePoints: Some(Belt.Array.concat(currentPoints, [newPoint])),
+              let updatedDraft = {
+                ...current,
+                intermediatePoints: Some(Belt.Array.concat(currentPoints, [newPoint])),
+              }
+              AppStateBridge.dispatch(Actions.UpdateLinkDraft(updatedDraft))
             }
-            GlobalStateBridge.dispatch(Actions.UpdateLinkDraft(updatedDraft))
           }
         }
       })

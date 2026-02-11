@@ -9774,6 +9774,48 @@
 │   │           │   │   └── 162557_040.webp
 │   │           │   ├── project.json
 │   │           │   └── summary.txt
+│   │           ├── f4df373a-21f9-42aa-a408-45306a1efe1f
+│   │           │   ├── images
+│   │           │   │   ├── 154407_002.webp
+│   │           │   │   ├── 154618_004.webp
+│   │           │   │   ├── 154744_005.webp
+│   │           │   │   ├── 154859_006.webp
+│   │           │   │   ├── 155038_007.webp
+│   │           │   │   ├── 155139_008.webp
+│   │           │   │   ├── 155241_009.webp
+│   │           │   │   ├── 155456_010.webp
+│   │           │   │   ├── 155613_011.webp
+│   │           │   │   ├── 155754_012.webp
+│   │           │   │   ├── 155927_013.webp
+│   │           │   │   ├── 160058_014.webp
+│   │           │   │   ├── 160223_015.webp
+│   │           │   │   ├── 160339_016.webp
+│   │           │   │   ├── 160509_017.webp
+│   │           │   │   ├── 160552_018.webp
+│   │           │   │   ├── 160634_019.webp
+│   │           │   │   ├── 160715_020.webp
+│   │           │   │   ├── 160825_021.webp
+│   │           │   │   ├── 160926_022.webp
+│   │           │   │   ├── 161026_023.webp
+│   │           │   │   ├── 161123_024.webp
+│   │           │   │   ├── 161213_025.webp
+│   │           │   │   ├── 161309_026.webp
+│   │           │   │   ├── 161358_027.webp
+│   │           │   │   ├── 161456_028.webp
+│   │           │   │   ├── 161628_029.webp
+│   │           │   │   ├── 161706_030.webp
+│   │           │   │   ├── 161739_031.webp
+│   │           │   │   ├── 161824_032.webp
+│   │           │   │   ├── 161910_033.webp
+│   │           │   │   ├── 162015_034.webp
+│   │           │   │   ├── 162106_035.webp
+│   │           │   │   ├── 162215_036.webp
+│   │           │   │   ├── 162251_037.webp
+│   │           │   │   ├── 162400_038.webp
+│   │           │   │   ├── 162456_039.webp
+│   │           │   │   └── 162557_040.webp
+│   │           │   ├── project.json
+│   │           │   └── summary.txt
 │   │           ├── f5fa67f7-3b77-4237-9a4e-b3b31793d25f
 │   │           │   ├── images
 │   │           │   │   ├── 154407_002.webp
@@ -10549,18 +10591,6 @@
 │   │   │   │   ├── NotificationCenter.cmj
 │   │   │   │   ├── NotificationCenter.cmt
 │   │   │   │   ├── NotificationCenter.res
-│   │   │   │   ├── NotificationContext.ast
-│   │   │   │   ├── NotificationContext.bs.js
-│   │   │   │   ├── NotificationContext.cmi
-│   │   │   │   ├── NotificationContext.cmj
-│   │   │   │   ├── NotificationContext.cmt
-│   │   │   │   ├── NotificationContext.res
-│   │   │   │   ├── NotificationLayer.ast
-│   │   │   │   ├── NotificationLayer.bs.js
-│   │   │   │   ├── NotificationLayer.cmi
-│   │   │   │   ├── NotificationLayer.cmj
-│   │   │   │   ├── NotificationLayer.cmt
-│   │   │   │   ├── NotificationLayer.res
 │   │   │   │   ├── PersistentLabel.ast
 │   │   │   │   ├── PersistentLabel.bs.js
 │   │   │   │   ├── PersistentLabel.cmi
@@ -10783,6 +10813,12 @@
 │   │   │   │   ├── AppFSM.cmj
 │   │   │   │   ├── AppFSM.cmt
 │   │   │   │   ├── AppFSM.res
+│   │   │   │   ├── AppStateBridge.ast
+│   │   │   │   ├── AppStateBridge.bs.js
+│   │   │   │   ├── AppStateBridge.cmi
+│   │   │   │   ├── AppStateBridge.cmj
+│   │   │   │   ├── AppStateBridge.cmt
+│   │   │   │   ├── AppStateBridge.res
 │   │   │   │   ├── GlobalStateBridge.ast
 │   │   │   │   ├── GlobalStateBridge.bs.js
 │   │   │   │   ├── GlobalStateBridge.cmi
@@ -12021,18 +12057,6 @@
 │   │           ├── NavigationSupervisor_v.test.cmj
 │   │           ├── NavigationSupervisor_v.test.cmt
 │   │           ├── NavigationSupervisor_v.test.res
-│   │           ├── NotificationContext_v.test.ast
-│   │           ├── NotificationContext_v.test.bs.js
-│   │           ├── NotificationContext_v.test.cmi
-│   │           ├── NotificationContext_v.test.cmj
-│   │           ├── NotificationContext_v.test.cmt
-│   │           ├── NotificationContext_v.test.res
-│   │           ├── NotificationLayer_v.test.ast
-│   │           ├── NotificationLayer_v.test.bs.js
-│   │           ├── NotificationLayer_v.test.cmi
-│   │           ├── NotificationLayer_v.test.cmj
-│   │           ├── NotificationLayer_v.test.cmt
-│   │           ├── NotificationLayer_v.test.res
 │   │           ├── NotificationManager_v.test.ast
 │   │           ├── NotificationManager_v.test.bs.js
 │   │           ├── NotificationManager_v.test.cmi
@@ -12664,6 +12688,11 @@
 │   │   ├── AppFSM.cmj
 │   │   ├── AppFSM.cmt
 │   │   ├── AppFSM.res
+│   │   ├── AppStateBridge.ast
+│   │   ├── AppStateBridge.cmi
+│   │   ├── AppStateBridge.cmj
+│   │   ├── AppStateBridge.cmt
+│   │   ├── AppStateBridge.res
 │   │   ├── App_v.test.ast
 │   │   ├── App_v.test.cmi
 │   │   ├── App_v.test.cmj
@@ -13365,10 +13394,6 @@
 │   │   ├── NotificationCenter.cmj
 │   │   ├── NotificationCenter.cmt
 │   │   ├── NotificationCenter.res
-│   │   ├── NotificationContext.res
-│   │   ├── NotificationContext_v.test.res
-│   │   ├── NotificationLayer.res
-│   │   ├── NotificationLayer_v.test.res
 │   │   ├── NotificationManager.ast
 │   │   ├── NotificationManager.cmi
 │   │   ├── NotificationManager.cmj
@@ -15966,6 +15991,8 @@
 │   │   ├── AppContext.res
 │   │   ├── AppFSM.bs.js
 │   │   ├── AppFSM.res
+│   │   ├── AppStateBridge.bs.js
+│   │   ├── AppStateBridge.res
 │   │   ├── GlobalStateBridge.bs.js
 │   │   ├── GlobalStateBridge.res
 │   │   ├── HotspotHelpers.bs.js
@@ -16260,13 +16287,13 @@
 │       ├── UrlUtils.bs.js
 │       ├── UrlUtils.res
 │       ├── Version.bs.js
-│       └── Version.res
+│       ├── Version.res
+│       └── ViewerClickEventShared.bs.js
 ├── start_prod.sh
 ├── tailwind.config.js
 ├── tasks
 │   ├── TASKS.md
 │   ├── active
-│   │   └── 1343_ARCH_Domain_Sliced_State_Phase1_Finalization.md
 │   ├── completed
 │   │   ├── 1231_Surgical_Refactor_CORE_FRONTEND_DONE.md
 │   │   ├── 1232_Merge_Folders_FRONTEND_DONE.md
@@ -16367,11 +16394,16 @@
 │   │   ├── 1333_NAV_SUP_6_Migrate_LockFeedback_And_Update_MAP_DONE.md
 │   │   ├── 1334_ARCH_Consolidate_Notification_System_DONE.md
 │   │   ├── 1335_ARCH_Domain_Sliced_State_Migration_PHASE1_FOUNDATION.md
+│   │   ├── 1336_ARCH_Replace_GlobalStateBridge_With_Context_ABORTED.md
 │   │   ├── 1337_PERF_Code_Splitting_Lazy_Loading_DONE.md
 │   │   ├── 1338_DOC_Reconcile_JSON_Validation_Library_References_DONE.md
 │   │   ├── 1339_ARCH_Split_Backend_Models_Module_DONE.md
 │   │   ├── 1340_SEC_IndexedDB_Quota_Monitoring_DONE.md
 │   │   ├── 1341_DOC_Create_Architecture_Diagram_DONE.md
+│   │   ├── 1343_ARCH_Domain_Sliced_State_Phase1_Finalization_ABORTED.md
+│   │   ├── 1344_ARCH_Prevent_Race_Conditions_Unify_Async_Lifecycle_DONE.md
+│   │   ├── 1345_GlobalStateBridge_Persistence_Recovery_DONE.md
+│   │   ├── 1346_GlobalStateBridge_Core_Context_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
 │   │       ├── 1195_Test_Teaser_DONE.md
@@ -16391,7 +16423,7 @@
 │   │   ├── 1325_E2E_Test_Robustness_Resilience.md
 │   │   ├── 1326_E2E_Test_Performance_Regression.md
 │   │   ├── 1327_Refactor_Notification_Logic.md
-│   │   ├── 1336_ARCH_Replace_GlobalStateBridge_With_Context.md
+│   │   ├── 1347_GlobalStateBridge_Systems_Hooks.md
 │   │   └── dev_tasks
 │   │       ├── D001_Fix_Violations_FRONTEND.md
 │   │       ├── D002_Surgical_Refactor_CORE_FRONTEND.md
@@ -16802,4 +16834,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-724 directories, 16079 files
+726 directories, 16109 files

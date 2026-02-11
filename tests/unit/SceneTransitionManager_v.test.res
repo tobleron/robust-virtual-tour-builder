@@ -1,5 +1,5 @@
 open Vitest
-
+open Types
 // Mock Modules
 %%raw(`
   import { vi } from "vitest";
@@ -72,8 +72,15 @@ describe("Scene.Transition", () => {
 
   test("performSwap swaps active class", t => {
     let s1 = TestUtils.createMockScene(~id="s1", ~name="s1", ())
+    let dispatch = _ => ()
+    let getState = () => State.initialState
+    let transition = {
+      type_: Fade,
+      targetHotspotIndex: -1,
+      fromSceneName: None,
+    }
 
-    Scene.Transition.performSwap(s1, 0.0)
+    Scene.Transition.performSwap(s1, 0.0, ~getState, ~dispatch, ~transition)
 
     let classLists: dict<array<string>> = %raw(`globalThis.classLists`)
     let c1Classes = Dict.get(classLists, "c1")->Belt.Option.getWithDefault([])
