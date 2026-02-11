@@ -72,18 +72,17 @@ module InnerApp = {
         } else {
           React.null
         }}
+
+        /* Modal & Notification Containers */
+        <div id="modal-container">
+          <ModalContext />
+          <NotificationContext />
+          <NotificationLayer />
+          <NotificationCenter />
+          <RecoveryCheck />
+          <CriticalErrorMonitor />
+        </div>
       </main>
-
-      /* Modal & Notification Containers */
-      <div id="modal-container">
-        <ModalContext />
-        <NotificationContext />
-        <NotificationLayer />
-        <NotificationCenter />
-
-        <RecoveryCheck />
-        <CriticalErrorMonitor />
-      </div>
 
       /* Logic Controllers */
       <Navigation.Controller />

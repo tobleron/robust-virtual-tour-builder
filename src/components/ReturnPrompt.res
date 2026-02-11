@@ -58,7 +58,7 @@ let make = React.memo((~incomingLink, ~scenes) => {
 
   <div
     id="return-link-prompt"
-    className="hidden fixed bottom-24 left-1/2 -translate-x-1/2 glass-panel rounded-full px-5 py-2.5 items-center gap-3 shadow-2xl z-[4000] border border-brand-gold/20 cursor-pointer transition-all hover:scale-105 active:scale-95 animate-fade-in-centered"
+    className="hidden absolute bottom-24 left-1/2 -translate-x-1/2 glass-panel rounded-full px-5 py-2.5 items-center gap-3 shadow-2xl z-[4000] border border-brand-gold/20 cursor-pointer transition-all hover:scale-105 active:scale-95 animate-fade-in-centered"
     onClick={handleReturnPromptClick}
     role="button"
     tabIndex=0
