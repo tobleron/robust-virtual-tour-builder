@@ -76,11 +76,11 @@ module ControllerHooks = {
               }),
               (),
             )
-            // Force release lock and complete even if scene not found
+            // Abort task if in Supervisor mode
             let taskInfo = NavigationSupervisor.getCurrentTask()
             switch taskInfo {
             | Some(t) => NavigationSupervisor.abort(t.id)
-            | None => TransitionLock.release("NavigationController_NotFound")
+            | None => ()
             }
             GlobalStateBridge.dispatch(Actions.DispatchNavigationFsmEvent(StabilizeComplete))
           }

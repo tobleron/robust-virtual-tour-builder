@@ -102,13 +102,17 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
         Scene.Switcher.cancelNavigation()
         dispatch(Actions.SetActiveScene(0, 0.0, 0.0, None))
 
-        // Force hide snapshot overlay and release locks for maximum robustness
+        // Force hide snapshot overlay and abort any active navigation
         switch ReBindings.Dom.getElementById("viewer-snapshot-overlay") {
         | Nullable.Value(el) =>
           ReBindings.Dom.ClassList.remove(ReBindings.Dom.classList(el), "snapshot-visible")
         | _ => ()
         }
-        TransitionLock.release("UtilityBar_StopSim")
+        // Abort any active Supervisor navigation task
+        switch NavigationSupervisor.getCurrentTask() {
+        | Some(t) => NavigationSupervisor.abort(t.id)
+        | None => ()
+        }
         dispatch(Actions.DispatchNavigationFsmEvent(Reset))
       } else {
         dispatch(Actions.StartAutoPilot(currentJourneyId, false))

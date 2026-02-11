@@ -106,13 +106,7 @@ module Events = {
 
     switch taskId {
     | Some(tid) => NavigationSupervisor.abort(tid)
-    | None =>
-      TransitionLock.releaseIf("SceneLoader_Error", p => {
-        switch p {
-        | Loading(id) => id == targetSceneId
-        | _ => false
-        }
-      })
+    | None => ()
     }
 
     NotificationManager.dispatch({
@@ -130,7 +124,6 @@ module Events = {
   }
 }
 
-let retryScheduled: ref<option<timeoutId>> = ref(None)
 let currentLoadTimeout: ref<option<timeoutId>> = ref(None)
 
 let cleanupLoadTimeout = () => {
@@ -142,110 +135,24 @@ let cleanupLoadTimeout = () => {
   }
 }
 
-let rec loadNewScene = (
+let loadNewScene = (
   ~sourceSceneId as _sourceSceneId: option<string>=?,
   ~targetSceneId: string,
   ~isAnticipatory=false,
   ~taskId: option<string>=?,
   ~signal: option<BrowserBindings.AbortSignal.t>=?,
 ) => {
-  let canProceed = if isAnticipatory {
-    Ok()
-  } else {
+  // Update Supervisor status if taskId is provided (Supervisor mode)
+  if !isAnticipatory {
     switch taskId {
-    | Some(tid) =>
-      // In Supervisor mode: always proceed — the Supervisor already cancelled the previous task
-      NavigationSupervisor.transitionTo(tid, Loading(tid, targetSceneId))
-      Ok()
-    | None =>
-      let result = TransitionLock.acquire("SceneLoader", Loading(targetSceneId))
-      switch result {
-      | Error(_) =>
-        // Pre-emption logic: if the lock is held by a different LOADING phase, we can override it
-        // because the FSM has moved on to a new target.
-        switch TransitionLock.current.contents {
-        | Loading(otherId) if otherId != targetSceneId =>
-          Logger.info(
-            ~module_="SceneLoader",
-            ~message="PREEMPTING_OBSOLETE_LOADING_LOCK",
-            ~data=Some({"oldTarget": otherId, "newTarget": targetSceneId}),
-            (),
-          )
-          TransitionLock.preempt("SceneLoader")
-          TransitionLock.acquire("SceneLoader", Loading(targetSceneId))
-        | Cleanup(_) =>
-          Logger.info(
-            ~module_="SceneLoader",
-            ~message="PREEMPTING_CLEANUP_LOCK",
-            ~data=Some({"newTarget": targetSceneId}),
-            (),
-          )
-          TransitionLock.preempt("SceneLoader")
-          TransitionLock.acquire("SceneLoader", Loading(targetSceneId))
-        | _ => result
-        }
-      | Ok() => result
-      }
+    | Some(tid) => NavigationSupervisor.transitionTo(tid, Loading(tid, targetSceneId))
+    | None => ()
     }
   }
 
-  switch canProceed {
-  | Error(_msg) =>
-    if !isAnticipatory && taskId == None {
-      // Log at DEBUG level - acquire failure is expected when lock is held
-      // (not a warning condition, just normal during rapid scene clicks)
-      let isAlreadyLoadingSame = switch TransitionLock.current.contents {
-      | Loading(id) if id == targetSceneId => true
-      | _ => false
-      }
-
-      if !isAlreadyLoadingSame {
-        Logger.debug(
-          ~module_="SceneLoader",
-          ~message="LOCK_ACQUIRE_FAILED_RETRY_SCHEDULED",
-          ~data=Some({
-            "targetId": targetSceneId,
-          }),
-          (),
-        )
-        // Schedule a retry after 100ms to allow previous operation to finish
-        switch retryScheduled.contents {
-        | Some(id) => clearTimeout(id)
-        | None => ()
-        }
-        let retryId = setTimeout(() => {
-          retryScheduled := None
-          let state = GlobalStateBridge.getState()
-          let isRelevant = switch state.navigationFsm {
-          | Preloading({targetSceneId: activeTarget}) => activeTarget == targetSceneId
-          | _ => false
-          }
-
-          if isRelevant {
-            loadNewScene(~targetSceneId, ~isAnticipatory)
-          } else {
-            Logger.debug(
-              ~module_="SceneLoader",
-              ~message="ABORTING_OBSOLETE_RETRY",
-              ~data=Some({"targetId": targetSceneId}),
-              (),
-            )
-          }
-        }, 100)
-        retryScheduled := Some(retryId)
-      } else {
-        Logger.debug(
-          ~module_="SceneLoader",
-          ~message="ALREADY_LOADING_TARGET_IGNORING_REDUNDANT_CALL",
-          ~data=Some({"targetId": targetSceneId}),
-          (),
-        )
-      }
-    }
-  | Ok() =>
-    cleanupLoadTimeout()
-    let state = GlobalStateBridge.getState()
-    let targetSceneOpt = state.scenes->Belt.Array.getBy(s => s.id == targetSceneId)
+  cleanupLoadTimeout()
+  let state = GlobalStateBridge.getState()
+  let targetSceneOpt = state.scenes->Belt.Array.getBy(s => s.id == targetSceneId)
 
     switch targetSceneOpt {
     | None =>
@@ -258,7 +165,7 @@ let rec loadNewScene = (
         )
         switch taskId {
         | Some(tid) => NavigationSupervisor.abort(tid)
-        | None => TransitionLock.release("SceneLoader_NotFound")
+        | None => ()
         }
         GlobalStateBridge.dispatch(DispatchNavigationFsmEvent(Aborted))
       }
@@ -346,7 +253,7 @@ let rec loadNewScene = (
             currentLoadTimeout := None
             switch taskId {
             | Some(tid) => NavigationSupervisor.abort(tid)
-            | None => TransitionLock.release("SceneLoader_Aborted")
+            | None => ()
             }
           } else {
             try {
@@ -427,18 +334,11 @@ let rec loadNewScene = (
               )
               switch taskId {
               | Some(tid) => NavigationSupervisor.abort(tid)
-              | None =>
-                TransitionLock.releaseIf("SceneLoader_InitError", p => {
-                  switch p {
-                  | Loading(id) => id == targetScene.id
-                  | _ => false
-                  }
-                })
+              | None => ()
               }
             }
           }
         })
       }
     }
-  }
 }

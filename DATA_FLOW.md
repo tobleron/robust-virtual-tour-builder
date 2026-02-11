@@ -14,29 +14,29 @@ This document maps critical data flows through the system to help AI understand 
 User Click Event
   → [src/components/SceneList/SceneItem.res] or [src/components/HotspotLayer.res] handles click
   → [src/core/InteractionGuard.res] checks cooldowns using [src/core/InteractionPolicies.res]
-  → dispatch(UserClickedScene) via [src/core/AppContext.res] and [src/core/Actions.res]
-  → [src/core/TransitionLock.res] acquires lock (Loading phase)
-      → [src/components/LockFeedback.res] renders visual progress/recovery feedback
+  → [src/systems/Navigation/NavigationSupervisor.res] receives intent (auto-cancels previous task)
+      → Creates AbortSignal for structured concurrency
+      → dispatch(UserClickedScene) FSM event for UI reactivity
+      → [src/components/LockFeedback.res] renders progress via NavigationSupervisor.addStatusListener()
   → [src/App.res] and [src/components/AppErrorBoundary.res] provide the top-level container
       → [src/components/ErrorFallbackUI.res] and [src/components/CriticalErrorMonitor.res] provide the crash UI and error monitoring
       → [src/Hooks.res] and [src/core/UiHelpers.res] manage top-level component lifecycle
   → [src/core/AppFSM.res] handles top-level state transition (e.g. Editing → Navigation)
-  → [src/core/Reducer.res] processes action using [src/core/Types.res], [src/core/ViewerState.res] and [src/core/ViewerTypes.res]
+  → [src/core/Reducer.res] processes FSM action using [src/core/Types.res], [src/core/ViewerState.res] and [src/core/ViewerTypes.res]
   → [src/systems/Navigation/NavigationFSM.res] state transition (IdleFsm → Preloading)
   → [src/systems/Navigation/NavigationController.res] subscribes to FSM changes
-  → [src/systems/Navigation.res], [src/systems/NavigationLogic.res], and [src/core/NavigationHelpers.res] orchestrate the transition sequence
-    → [src/systems/Navigation/NavigationGraph.res] manages scene adjacency
-  → [src/systems/Navigation/NavigationUI.res] and [src/components/FloorNavigation.res] update navigation state
-  → [src/systems/Scene.res] and [src/systems/Scene/SceneLoader.res] coordindates viewer loading
+      → Calls SceneLoader with taskId and AbortSignal from Supervisor
+  → [src/systems/Scene.res] and [src/systems/Scene/SceneLoader.res] coordinates viewer loading (with AbortSignal support)
       → [src/core/SceneCache.res] manages preloaded scene state
       → [src/components/ViewerManager.res], [src/components/ViewerManagerLogic.res], and [src/components/ViewerManager/ViewerManagerLifecycle.res] manage active viewers
       → [src/components/ViewerUI.res], [src/components/ViewerHUD.res], and [src/components/ViewerLoader.res] render interactive overlays
       → [src/systems/ViewerSystem.res], [src/systems/ViewerPool.res], and [src/systems/ViewerLogic.res] manage viewer instance lifecycle
       → [src/systems/PannellumAdapter.res] and [src/systems/PannellumLifecycle.res] interface with engine
   → [src/systems/Scene/SceneSwitcher.res] handles journey initialization and auto-forwarding
-  → [src/systems/Scene/SceneTransition.res] performs CSS crossfade and viewport swapping
+  → [src/systems/Scene/SceneTransition.res] performs CSS crossfade and viewport swapping (with Supervisor coordination)
   → [src/systems/Navigation/NavigationRenderer.res] updates interactive navigation markers (using [src/components/Tooltip.res], [src/components/PreviewArrow.res], and [src/components/PersistentLabel.res])
   → [src/systems/AudioManager.res] triggers spatial audio transitions
+  → [src/systems/Navigation/NavigationSupervisor.res] completes task and marks status Idle
 ```
 
 ### Upload Pipeline
@@ -271,7 +271,7 @@ Address/GPS Query
 
 ### Concurrent Utility primitives
 **Purpose:** Flow control and performance management.
-- [src/utils/AsyncQueue.res], [src/utils/RequestQueue.res], [src/utils/CircuitBreaker.res], [src/utils/RateLimiter.res], [src/utils/Retry.res], [src/utils/Debounce.res], [src/core/TransitionLock.res], [src/core/InteractionGuard.res]
+- [src/utils/AsyncQueue.res], [src/utils/RequestQueue.res], [src/utils/CircuitBreaker.res], [src/utils/RateLimiter.res], [src/utils/Retry.res], [src/utils/Debounce.res], [src/core/InteractionGuard.res], [src/systems/Navigation/NavigationSupervisor.res] (navigation-specific concurrency)
 
 ### Interaction & Perception
 - [src/systems/InputSystem.res], [src/systems/CursorPhysics.res], [src/systems/ViewerFollow.res], [src/utils/ProgressBar.res], [src/utils/ColorPalette.res], [src/utils/SessionStore.res], [src/utils/StateInspector.res], [src/systems/TourTemplates.res]
