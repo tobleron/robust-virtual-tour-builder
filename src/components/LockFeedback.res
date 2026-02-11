@@ -50,7 +50,7 @@ let make = () => {
 
   if showRecovery {
     <div
-      className="fixed top-4 right-4 z-[9999] px-4 py-2 rounded-lg shadow-lg font-medium text-sm pointer-events-none transition-all duration-300 bg-green-500/90 text-white"
+      className="absolute top-4 right-4 z-[9999] px-4 py-2 rounded-lg shadow-lg font-medium text-sm pointer-events-none transition-all duration-300 bg-green-500/90 text-white"
     >
       {React.string("Scene transition recovered")}
     </div>
@@ -67,7 +67,7 @@ let make = () => {
     }
 
     <div
-      className={`fixed top-4 right-4 z-[9999] px-4 py-2 rounded-lg shadow-lg font-medium text-sm pointer-events-none transition-all duration-300 ${color}`}
+      className={`absolute top-4 right-4 z-[9999] px-4 py-2 rounded-lg shadow-lg font-medium text-sm pointer-events-none transition-all duration-300 ${color}`}
     >
       {React.string(message)}
     </div>

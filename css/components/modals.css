@@ -1,10 +1,12 @@
 #modal-container {
-    position: relative;
+    position: absolute;
+    inset: 0;
     z-index: 20000;
+    pointer-events: none;
 }
 
 .modal-overlay {
-    position: fixed;
+    position: absolute;
     inset: 0;
     background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(12px);
@@ -14,6 +16,7 @@
     align-items: center;
     z-index: 30000;
     transition: opacity 0.3s ease-in-out;
+    pointer-events: auto;
 }
 
 .modal-box-premium {
