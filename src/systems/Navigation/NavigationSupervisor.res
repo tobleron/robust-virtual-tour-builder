@@ -68,6 +68,10 @@ let getStatus = (): status => {
   status.contents
 }
 
+let getCurrentTask = (): option<task> => {
+  currentTask.contents
+}
+
 let statusToString = (s: status): string => {
   switch s {
   | Idle => "Idle"

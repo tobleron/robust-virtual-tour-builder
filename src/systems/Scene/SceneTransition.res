@@ -103,12 +103,23 @@ let updateDomTransitions = (av, iv) => {
   }
 }
 
-let cleanupViewerInstance = (ov, vp: viewport) => {
-  let sceneId = switch TransitionLock.current.contents {
-  | Swapping(id) | Cleanup(id) => id
-  | _ => "unknown"
+let cleanupViewerInstance = (ov, vp: viewport, ~taskId: option<string>=?) => {
+  let sceneId = switch taskId {
+  | Some(_tid) =>
+    NavigationSupervisor.getCurrentTask()
+    ->Option.map(t => t.targetSceneId)
+    ->Option.getOr("unknown")
+  | None =>
+    switch TransitionLock.current.contents {
+    | Swapping(id) | Cleanup(id) => id
+    | _ => "unknown"
+    }
   }
-  TransitionLock.transition("SceneTransition_Cleanup", Cleanup(sceneId))
+
+  switch taskId {
+  | Some(tid) => NavigationSupervisor.transitionTo(tid, Stabilizing(tid, sceneId))
+  | None => TransitionLock.transition("SceneTransition_Cleanup", Cleanup(sceneId))
+  }
 
   // 1. Resource Lifecycle (Cancellable)
   // We schedule the destruction of the viewer but allow it to be cancelled
@@ -129,7 +140,10 @@ let cleanupViewerInstance = (ov, vp: viewport) => {
   // CRITICAL: We only release if the phase is still the Cleanup we started.
   let targetPhase = TransitionLock.Cleanup(sceneId)
   let _ = Window.setTimeout(() => {
-    TransitionLock.release("SceneTransition_CleanupDone", ~onlyIfPhase=targetPhase)
+    switch taskId {
+    | Some(tid) => NavigationSupervisor.complete(tid)
+    | None => TransitionLock.release("SceneTransition_CleanupDone", ~onlyIfPhase=targetPhase)
+    }
   }, 550) // Small buffer to ensure it runs after cleanup if both proceed
 }
 
@@ -146,16 +160,16 @@ let cleanupSnapshotOverlay = () => {
   })
 }
 
-let scheduleCleanup = ov => {
+let scheduleCleanup = (ov, ~taskId: option<string>=?) => {
   let clv = ViewerSystem.Pool.getInactive()
   switch clv {
-  | Some(vp) => cleanupViewerInstance(ov, vp)
+  | Some(vp) => cleanupViewerInstance(ov, vp, ~taskId?)
   | None => ()
   }
   cleanupSnapshotOverlay()
 }
 
-let performSwap = (loadedScene: scene, _loadStartTime) => {
+let performSwap = (loadedScene: scene, _loadStartTime, ~taskId: option<string>=?) => {
   Logger.debug(
     ~module_="SceneTransition",
     ~message="PERFORM_SWAP",
@@ -163,7 +177,10 @@ let performSwap = (loadedScene: scene, _loadStartTime) => {
     (),
   )
 
-  TransitionLock.transition("SceneTransition_StartSwap", Swapping(loadedScene.id))
+  switch taskId {
+  | Some(tid) => NavigationSupervisor.transitionTo(tid, Swapping(tid, loadedScene.id))
+  | None => TransitionLock.transition("SceneTransition_StartSwap", Swapping(loadedScene.id))
+  }
 
   let (av, iv) = (ViewerSystem.Pool.getActive(), ViewerSystem.Pool.getInactive())
   let (ov, nv) = (ViewerSystem.getActiveViewer(), ViewerSystem.getInactiveViewer())
@@ -173,12 +190,15 @@ let performSwap = (loadedScene: scene, _loadStartTime) => {
     Logger.debug(~module_="SceneTransition", ~message="SWAPPING_VIEWERS", ())
     updateGlobalStateAndViewer(nv)
     updateDomTransitions(av, iv)
-    scheduleCleanup(ov)
+    scheduleCleanup(ov, ~taskId?)
   | None =>
     Logger.warn(~module_="SceneTransition", ~message="NO_INACTIVE_VIEWER_FOR_SWAP", ())
     // Failsafe: if we don't have a second viewer, we still need to finish the transition
     GlobalStateBridge.dispatch(SyncSceneNames) // Force some state change
-    TransitionLock.release("SceneTransition_NoViewerFailsafe")
+    switch taskId {
+    | Some(tid) => NavigationSupervisor.abort(tid)
+    | None => TransitionLock.release("SceneTransition_NoViewerFailsafe")
+    }
   }
 
   ViewerSnapshot.requestIdleSnapshot()
