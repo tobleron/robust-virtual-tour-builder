@@ -2,7 +2,7 @@
 open Types
 
 @react.component
-let make = React.memo((~scenesLoaded, ~activeIndex, ~isLinking) => {
+let make = React.memo((~scenesLoaded, ~activeIndex, ~isLinking, ~simActive=false) => {
   let dispatch = AppContext.useAppDispatch()
   let sceneSlice = AppContext.useSceneSlice()
 
@@ -40,7 +40,7 @@ let make = React.memo((~scenesLoaded, ~activeIndex, ~isLinking) => {
 
   let floorNavClass =
     "absolute bottom-6 left-5 z-[5002] flex flex-col-reverse gap-2 items-center transition-all duration-500" ++ if (
-      !scenesLoaded
+      !scenesLoaded && !simActive
     ) {
       " grayscale opacity-60 pointer-events-none"
     } else {
@@ -50,7 +50,7 @@ let make = React.memo((~scenesLoaded, ~activeIndex, ~isLinking) => {
   <div id="viewer-floor-nav" className={floorNavClass}>
     {Constants.Scene.floorLevels
     ->Belt.Array.map(f => {
-      let isSelected = scenesLoaded && f.id == currentFloor
+      let isSelected = (scenesLoaded || simActive) && f.id == currentFloor
 
       <Tooltip key={f.id} content={f.label} alignment=#Right disabled={isLinking}>
         <Shadcn.Button
