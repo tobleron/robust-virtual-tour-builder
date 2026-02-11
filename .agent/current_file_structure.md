@@ -11628,6 +11628,12 @@
 │   │           ├── NavigationReducer_v.test.cmj
 │   │           ├── NavigationReducer_v.test.cmt
 │   │           ├── NavigationReducer_v.test.res
+│   │           ├── NavigationSupervisor_v.test.ast
+│   │           ├── NavigationSupervisor_v.test.bs.js
+│   │           ├── NavigationSupervisor_v.test.cmi
+│   │           ├── NavigationSupervisor_v.test.cmj
+│   │           ├── NavigationSupervisor_v.test.cmt
+│   │           ├── NavigationSupervisor_v.test.res
 │   │           ├── NotificationContext_v.test.ast
 │   │           ├── NotificationContext_v.test.bs.js
 │   │           ├── NotificationContext_v.test.cmi
@@ -12947,6 +12953,11 @@
 │   │   ├── NavigationRenderer.cmj
 │   │   ├── NavigationRenderer.cmt
 │   │   ├── NavigationRenderer.res
+│   │   ├── NavigationSupervisor_v.test.ast
+│   │   ├── NavigationSupervisor_v.test.cmi
+│   │   ├── NavigationSupervisor_v.test.cmj
+│   │   ├── NavigationSupervisor_v.test.cmt
+│   │   ├── NavigationSupervisor_v.test.res
 │   │   ├── NavigationSupervisor.ast
 │   │   ├── NavigationSupervisor.cmi
 │   │   ├── NavigationSupervisor.cmj
@@ -16019,6 +16030,8 @@
 │   │   ├── 1329_NAV_SUP_2_Add_AbortSignal_Bindings_UPDATED.md
 │   │   ├── 1330_NAV_SUP_3_Wire_SceneLoader_To_Supervisor_DONE.md
 │   │   ├── 1331_NAV_SUP_4_Switch_Entry_Points_To_Supervisor_DONE.md
+│   │   ├── 1332_NAV_SUP_5_Remove_TransitionLock_From_Navigation_DONE.md
+│   │   ├── 1333_NAV_SUP_6_Migrate_LockFeedback_And_Update_MAP_DONE.md
 │   │   └── tests
 │   │       ├── 1195_Test_Teaser_DONE.md
 │   │       ├── 1196_Test_ViewerLogic_DONE.md
@@ -16038,8 +16051,6 @@
 │   │   ├── 1325_E2E_Test_Robustness_Resilience.md
 │   │   ├── 1326_E2E_Test_Performance_Regression.md
 │   │   ├── 1327_Refactor_Notification_Logic.md
-│   │   ├── 1332_NAV_SUP_5_Remove_TransitionLock_From_Navigation.md
-│   │   ├── 1333_NAV_SUP_6_Migrate_LockFeedback_And_Update_MAP.md
 │   │   └── dev_tasks
 │   │       ├── D001_Fix_Violations_FRONTEND.md
 │   │       ├── D002_Surgical_Refactor_CORE_FRONTEND.md
@@ -16048,9 +16059,7 @@
 │   │       ├── D008_Fix_Violations_BACKEND.md
 │   │       ├── D009_Merge_Folders_FRONTEND.md
 │   │       ├── D010_Aggregate_Completed_Tasks.md
-│   │       ├── D011_Classify_Map_Entries.md
-│   │       ├── D012_Integrate_DataFlow_Modules.md
-│   │       └── D013_Surgical_Refactor_SCENE_FRONTEND.md
+│   │       └── D012_Integrate_DataFlow_Modules.md
 │   ├── postponed
 │   │   ├── 1243_Fix_Operation_Cancellation_Feedback.md
 │   │   ├── 1246_Handle_Malformed_Project_Files_Gracefully.md
@@ -16265,6 +16274,8 @@
 │   │   ├── NavigationLogic_v.test.res
 │   │   ├── NavigationReducer_v.test.bs.js
 │   │   ├── NavigationReducer_v.test.res
+│   │   ├── NavigationSupervisor_v.test.bs.js
+│   │   ├── NavigationSupervisor_v.test.res
 │   │   ├── NotificationContext_v.test.bs.js
 │   │   ├── NotificationContext_v.test.res
 │   │   ├── NotificationLayer_v.test.bs.js
@@ -16484,4 +16495,4 @@
 │       └── test_run.json
 └── vitest.config.mjs
 
-715 directories, 15770 files
+715 directories, 15781 files

@@ -294,8 +294,21 @@ Address/GPS Query
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)
 
+### 📂 src/components
+- `[src/components/FloorNavigation.res]`
+
+### 📂 src/core
+- `[src/core/Actions.res]`
+- `[src/core/NavigationHelpers.res]`
+- `[src/core/TransitionLock.res]`
+
+### 📂 src/systems
+- `[src/systems/Navigation.res]`
+- `[src/systems/NavigationLogic.res]`
+
 ### 📂 src/systems/Navigation
-- `[src/systems/Navigation/NavigationSupervisor.res]`
+- `[src/systems/Navigation/NavigationGraph.res]`
+- `[src/systems/Navigation/NavigationUI.res]`
 
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)

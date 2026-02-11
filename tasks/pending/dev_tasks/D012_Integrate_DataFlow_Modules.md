@@ -11,4 +11,11 @@ Review the unmapped modules in the 'Unmapped Modules' section of `DATA_FLOW.md` 
 3. Leave them unmapped if they're utilities/helpers that don't fit flow documentation
 
 ## Unmapped Modules
-- [ ] [src/systems/Navigation/NavigationSupervisor.res]
+- [ ] [src/components/FloorNavigation.res]
+- [ ] [src/core/Actions.res]
+- [ ] [src/core/NavigationHelpers.res]
+- [ ] [src/core/TransitionLock.res]
+- [ ] [src/systems/Navigation.res]
+- [ ] [src/systems/NavigationLogic.res]
+- [ ] [src/systems/Navigation/NavigationGraph.res]
+- [ ] [src/systems/Navigation/NavigationUI.res]

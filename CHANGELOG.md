@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - V4.4.0: Pre Supervisor Stable version
 - Tasks 1328-1329 completed: NavigationSupervisor created and AbortSignal bindings integrated
 - 1331: [NAV-SUP 4/6] Switch Entry Points to Supervisor
+- 1332-1333: Remove TransitionLock, migrate LockFeedback, update documentation
 
 ## [4.38.3] - 2026-02-11
 

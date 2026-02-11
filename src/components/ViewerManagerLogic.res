@@ -110,7 +110,7 @@ let handleMainSceneLoad = (state: state, scene: Types.scene, dispatch: action =>
     let v = ViewerSystem.getActiveViewer()
     switch Nullable.toOption(v) {
     | Some(viewer) =>
-      if !state.isLinking && !!NavigationSupervisor.isIdle() {
+      if !state.isLinking && !(!NavigationSupervisor.isIdle()) {
         // Orientation Sync: Force view position if state changed but scene didn't (e.g. ESC/Stop)
         let currentYaw = Viewer.getYaw(viewer)
         let currentPitch = Viewer.getPitch(viewer)
@@ -155,7 +155,7 @@ let useMainSceneLoading = (state: state, dispatch: action => unit) => {
 let useHotspotSync = (state: state, dispatch: action => unit) => {
   React.useEffect3(() => {
     // Only run if we are NOT in linking mode (to avoid wiping the draft lines)
-    if state.activeIndex != -1 && !state.isLinking && !!NavigationSupervisor.isIdle() {
+    if state.activeIndex != -1 && !state.isLinking && !(!NavigationSupervisor.isIdle()) {
       switch Belt.Array.get(state.scenes, state.activeIndex) {
       | Some(scene) =>
         let v = ViewerSystem.getActiveViewer()
@@ -237,7 +237,7 @@ let useHotspotLineLoop = (_state: state, dispatch: action => unit) => {
           Belt.Array.get(currentState.scenes, currentState.activeIndex),
         ) {
         | (Some(viewer), Some(scene)) =>
-          if !!NavigationSupervisor.isIdle() {
+          if !(!NavigationSupervisor.isIdle()) {
             try {
               HotspotManager.syncHotspots(viewer, currentState, scene, dispatch)
             } catch {
@@ -264,7 +264,7 @@ let useHotspotLineLoop = (_state: state, dispatch: action => unit) => {
 
         // CRITICAL: Skip updates during viewer swap to prevent race condition
 
-        if !!NavigationSupervisor.isIdle() {
+        if !(!NavigationSupervisor.isIdle()) {
           let p = Viewer.getPitch(viewer)
           let y = Viewer.getYaw(viewer)
           let h = Viewer.getHfov(viewer)
