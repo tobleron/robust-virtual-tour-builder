@@ -1,5 +1,42 @@
 {
+  "rust": [
+    {
+      "Violation": {
+        "file": "../../backend/src/api/media/video_logic.rs",
+        "pattern": "unwrap()",
+        "strategy": ""
+      }
+    }
+  ],
+  "system": [
+    {
+      "Merge": {
+        "folder": "../../src/components/VisualPipeline",
+        "files": [
+          "VisualPipelineComponent.res",
+          "VisualPipelineStyles.res"
+        ],
+        "reason": "Read Tax high (Score 2.00). Projected Limit: 300 (Drag 4.29)",
+        "strategy": "",
+        "platform": "frontend"
+      }
+    }
+  ],
   "rescript": [
+    {
+      "Violation": {
+        "file": "../../src/systems/Api/AuthenticatedClient.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/hooks/UseInteraction.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
     {
       "Surgical": {
         "file": "../../src/core/Reducer.res",
@@ -8,6 +45,35 @@
         "strategy": "",
         "platform": "frontend",
         "complexity": 14.795165394402037,
+        "recommended_splits": 2
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ProjectManager.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.20, Density: 0.21, Coupling: 0.10] | Drag: 5.41 | LOC: 395/300  🎯 Target: Function: `finalToken` (High Local Complexity (2.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 14.905063291139241,
+        "recommended_splits": 2
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/core/JsonParsersDecoders.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/SceneMutations.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 5.40, Density: 0.26, Coupling: 0.04] | Drag: 6.68 | LOC: 394/300  🎯 Target: Function: `getDeletedIds` (High Local Complexity (3.5). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 16.081725888324872,
         "recommended_splits": 2
       }
     },
@@ -31,72 +97,6 @@
         "platform": "frontend",
         "complexity": 13.774168797953964,
         "recommended_splits": 2
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/core/JsonParsersDecoders.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/SceneMutations.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 5.40, Density: 0.26, Coupling: 0.04] | Drag: 6.68 | LOC: 394/300  🎯 Target: Function: `getDeletedIds` (High Local Complexity (3.5). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 16.081725888324872,
-        "recommended_splits": 2
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/hooks/UseInteraction.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/systems/Api/AuthenticatedClient.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ProjectManager.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.20, Density: 0.21, Coupling: 0.10] | Drag: 5.41 | LOC: 395/300  🎯 Target: Function: `finalToken` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 14.905063291139241,
-        "recommended_splits": 2
-      }
-    }
-  ],
-  "rust": [
-    {
-      "Violation": {
-        "file": "../../backend/src/api/media/video_logic.rs",
-        "pattern": "unwrap()",
-        "strategy": ""
-      }
-    }
-  ],
-  "system": [
-    {
-      "Merge": {
-        "folder": "../../src/components/VisualPipeline",
-        "files": [
-          "VisualPipelineComponent.res",
-          "VisualPipelineStyles.res"
-        ],
-        "reason": "Read Tax high (Score 2.00). Projected Limit: 300 (Drag 4.29)",
-        "strategy": "",
-        "platform": "frontend"
       }
     }
   ]

@@ -16,8 +16,9 @@ User Click Event
   → [src/core/InteractionGuard.res] checks cooldowns using [src/core/InteractionPolicies.res]
   → dispatch(UserClickedScene) via [src/core/AppContext.res] and [src/core/Actions.res]
   → [src/core/TransitionLock.res] acquires lock (Loading phase)
+      → [src/components/LockFeedback.res] renders visual progress/recovery feedback
   → [src/App.res] and [src/components/AppErrorBoundary.res] provide the top-level container
-      → [src/components/ErrorFallbackUI.res] provides the crash UI
+      → [src/components/ErrorFallbackUI.res] and [src/components/CriticalErrorMonitor.res] provide the crash UI and error monitoring
       → [src/Hooks.res] and [src/core/UiHelpers.res] manage top-level component lifecycle
   → [src/core/AppFSM.res] handles top-level state transition (e.g. Editing → Navigation)
   → [src/core/Reducer.res] processes action using [src/core/Types.res], [src/core/ViewerState.res] and [src/core/ViewerTypes.res]
@@ -47,7 +48,7 @@ User file selection
   → [src/components/Sidebar.res] (using [src/components/Sidebar/SidebarActions.res], [src/components/Sidebar/SidebarBranding.res], [src/components/Sidebar/SidebarProcessing.res], [src/components/Sidebar/SidebarProjectInfo.res])
     → [src/components/Sidebar/SidebarSearch.res], [src/components/Sidebar/SidebarFilters.res], [src/components/Sidebar/SidebarBatchManagement.res], [src/components/Sidebar/SidebarSorting.res] for view orchestration
   → [src/components/Sidebar/SidebarLogic.res] and [src/components/SceneList.res] handle file input and display
-  → [src/components/VisualPipeline.res] (assisted by [src/components/VisualPipeline/VisualPipelineStyles.res]) shows progress (using [src/utils/ProgressBar.res])
+  → [src/components/VisualPipeline/VisualPipelineComponent.res] (assisted by [src/components/VisualPipeline/VisualPipelineStyles.res]) shows progress (using [src/utils/ProgressBar.res])
   → [src/systems/UploadProcessor.res] orchestrates the pipeline
   → [src/systems/UploadProcessorLogic.res] manages batch state (using [src/systems/UploadTypes.res])
   → [src/systems/FingerprintService.res] calculates unique image hashes
@@ -153,8 +154,9 @@ User clicks "Generate Report"
 ```
 Trigger Event
   → [src/systems/EventBus.res] dispatches notification
-  → [src/components/ModalContext.res] and [src/components/NotificationContext.res] process queue
-  → [src/components/NotificationLayer.res] renders toast notifications
+  → [src/core/NotificationManager.res] processes queue (using [src/core/NotificationQueue.res] and [src/core/NotificationTypes.res])
+  → [src/components/NotificationCenter.res] subscribes to manager and renders via [Shadcn.Sonner]
+  → [src/components/NotificationLayer.res] (Legacy) handles internal progress events
 ```
 
 ---
@@ -292,17 +294,9 @@ Address/GPS Query
 (This section auto-populated by _dev-system analyzer)
 
 ### 📂 src/components
-- `[src/components/CriticalErrorMonitor.res]`
-- `[src/components/LockFeedback.res]`
-- `[src/components/NotificationCenter.res]`
-
-### 📂 src/components/VisualPipeline
-- `[src/components/VisualPipeline/VisualPipelineComponent.res]`
-
-### 📂 src/core
-- `[src/core/NotificationManager.res]`
-- `[src/core/NotificationQueue.res]`
-- `[src/core/NotificationTypes.res]`
+- `[src/components/ModalContext.res]`
+- `[src/components/NotificationContext.res]`
+- `[src/components/VisualPipeline.res]`
 
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)

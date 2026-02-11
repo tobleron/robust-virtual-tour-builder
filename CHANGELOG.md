@@ -5,10 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.38.1] - 2026-02-11
+
+### Changed
+- Docs: Integrate unmapped modules into DATA_FLOW.md (D005)
+
 ## [4.38.0] - 2026-02-11
 
 ### Changed
 - Refactor: Center modals and dialogs relative to viewer container
+- Docs: Integrate unmapped modules into DATA_FLOW.md and unify notification flows (Task D005)
 
 ## [4.36.0] - 2026-02-11
 
