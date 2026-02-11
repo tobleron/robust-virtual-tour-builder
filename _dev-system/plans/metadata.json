@@ -1,28 +1,5 @@
 {
-  "rust": [
-    {
-      "Violation": {
-        "file": "../../backend/src/api/media/video_logic.rs",
-        "pattern": "unwrap()",
-        "strategy": ""
-      }
-    }
-  ],
   "rescript": [
-    {
-      "Violation": {
-        "file": "../../src/systems/Api/AuthenticatedClient.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/hooks/UseInteraction.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
     {
       "Surgical": {
         "file": "../../src/core/SceneMutations.res",
@@ -36,18 +13,18 @@
     },
     {
       "Surgical": {
-        "file": "../../src/components/Sidebar.res",
+        "file": "../../src/systems/ViewerSystem.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.04, Coupling: 0.09] | Drag: 4.10 | LOC: 398/300  🎯 Target: Function: `make` (High Local Complexity (13.5). Logic heavy.)",
+        "reason": "[Nesting: 3.60, Density: 0.05, Coupling: 0.08] | Drag: 4.67 | LOC: 391/300  🎯 Target: Function: `elOpt` (High Local Complexity (4.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 13.895477386934674,
+        "complexity": 13.774168797953964,
         "recommended_splits": 2
       }
     },
     {
       "Violation": {
-        "file": "../../src/core/JsonParsersDecoders.res",
+        "file": "../../src/systems/Api/AuthenticatedClient.res",
         "pattern": "Obj.magic",
         "strategy": ""
       }
@@ -64,14 +41,10 @@
       }
     },
     {
-      "Surgical": {
-        "file": "../../src/systems/ViewerSystem.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.60, Density: 0.05, Coupling: 0.08] | Drag: 4.67 | LOC: 391/300  🎯 Target: Function: `elOpt` (High Local Complexity (4.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 13.774168797953964,
-        "recommended_splits": 2
+      "Violation": {
+        "file": "../../src/core/JsonParsersDecoders.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
       }
     },
     {
@@ -84,19 +57,23 @@
         "complexity": 14.795165394402037,
         "recommended_splits": 2
       }
-    }
-  ],
-  "system": [
+    },
     {
-      "Merge": {
-        "folder": "../../src/components/VisualPipeline",
-        "files": [
-          "VisualPipelineStyles.res",
-          "VisualPipelineComponent.res"
-        ],
-        "reason": "Read Tax high (Score 2.00). Projected Limit: 300 (Drag 4.29)",
+      "Surgical": {
+        "file": "../../src/components/Sidebar.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.04, Coupling: 0.09] | Drag: 4.10 | LOC: 398/300  🎯 Target: Function: `make` (High Local Complexity (13.5). Logic heavy.)",
         "strategy": "",
-        "platform": "frontend"
+        "platform": "frontend",
+        "complexity": 13.895477386934674,
+        "recommended_splits": 2
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/hooks/UseInteraction.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
       }
     }
   ],
@@ -105,6 +82,29 @@
       "Violation": {
         "file": "../../css/components/ui.css",
         "pattern": "!important",
+        "strategy": ""
+      }
+    }
+  ],
+  "system": [
+    {
+      "Merge": {
+        "folder": "../../src/components/VisualPipeline",
+        "files": [
+          "VisualPipelineComponent.res",
+          "VisualPipelineStyles.res"
+        ],
+        "reason": "Read Tax high (Score 2.00). Projected Limit: 300 (Drag 4.29)",
+        "strategy": "",
+        "platform": "frontend"
+      }
+    }
+  ],
+  "rust": [
+    {
+      "Violation": {
+        "file": "../../backend/src/api/media/video_logic.rs",
+        "pattern": "unwrap()",
         "strategy": ""
       }
     }

@@ -306,4 +306,5 @@ This map provides a semantic overview of the project structure to optimize conte
 
 
 ## 🆕 Unmapped Modules
+* [src/systems/Navigation/NavigationSupervisor.res](src/systems/Navigation/NavigationSupervisor.res): New module detected. Please classify. #new
 * None detected.

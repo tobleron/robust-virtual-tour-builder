@@ -294,5 +294,8 @@ Address/GPS Query
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)
 
+### 📂 src/systems/Navigation
+- `[src/systems/Navigation/NavigationSupervisor.res]`
+
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)
