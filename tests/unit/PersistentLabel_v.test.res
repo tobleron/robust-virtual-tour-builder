@@ -48,4 +48,27 @@ describe("PersistentLabel", () => {
 
     Dom.removeElement(container)
   })
+
+  testAsync("should default to unlabeled and be hidden if label is empty", async t => {
+    let container = Dom.createElement("div")
+    Dom.appendChild(Dom.documentBody, container)
+
+    let unlabeledScene = {...defaultScene, label: ""}
+    let scenes = [unlabeledScene]
+
+    let root = ReactDOMClient.createRoot(container)
+    ReactDOMClient.Root.render(root, <PersistentLabel activeIndex=0 scenes />)
+
+    await wait(50)
+
+    let labelEl = Dom.getElementById("v-scene-persistent-label")
+    switch Nullable.toOption(labelEl) {
+    | Some(el) =>
+      t->expect(Dom.getTextContent(el))->Expect.toBe("# unlabeled")
+      t->expect(Dom.classList(el)->Dom.ClassList.contains("state-hidden"))->Expect.toBe(true)
+    | None => t->expect(false)->Expect.toBe(true)
+    }
+
+    Dom.removeElement(container)
+  })
 })

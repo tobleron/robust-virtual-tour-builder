@@ -30,6 +30,8 @@ let make = React.memo(() => {
     /* Return Prompt Banner */
     <ReturnPrompt incomingLink={simSlice.incomingLink} scenes={sceneSlice.scenes} />
 
+    <NotificationCenter />
+
     /* Permanent Branding */
     <div
       id="viewer-logo"

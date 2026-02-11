@@ -163,7 +163,7 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [src/components/VisualPipeline/VisualPipelineStyles.res](src/components/VisualPipeline/VisualPipelineStyles.res): CSS-in-JS definitions for the visual pipeline. `#styling`
 *   [src/components/SnapshotOverlay.res](src/components/SnapshotOverlay.res): Visual transition "flash" layer. `#ui` `#transition`
 *   [src/components/NotificationLayer.res](src/components/NotificationLayer.res): Centralized notification and processing status layer. `#ui` `#notifications`
-    *   [src/components/NotificationCenter.res](src/components/NotificationCenter.res): High-level notification center UI orchestrator. `#ui` `#notifications`
+    *   [src/components/NotificationCenter.res](src/components/NotificationCenter.res): High-level notification center UI orchestrator (Custom ReScript implementation). `#ui` `#notifications` `#custom-system`
 *   [src/components/LockFeedback.res](src/components/LockFeedback.res): Visual feedback for transition locks and blocking states. `#ui` `#feedback`
 *   [src/components/Sidebar.res](src/components/Sidebar.res): Consolidated sidebar module for project management and UI. `#sidebar` `#scene-management` `#ui` `#logic`
     * [src/components/Sidebar/SidebarLogic.res](src/components/Sidebar/SidebarLogic.res): Core sidebar logic and upload orchestration. `#logic`
