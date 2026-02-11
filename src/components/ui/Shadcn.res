@@ -199,6 +199,8 @@ module Sonner = {
     ~expand: bool=?,
     ~duration: int=?,
     ~visibleToasts: int=?,
+    ~container: Dom.element=?,
+    ~dir: string=?,
   ) => React.element = "Toaster"
 
   type toastOptions = {

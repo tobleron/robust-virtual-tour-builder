@@ -111,70 +111,69 @@
 
 /* NUCLEAR OVERRIDE FOR SONNER */
 
-/* Target by the data attribute directly for absolute victory */
-html body [data-sonner-toaster] {
+/* Target by the data attribute relative to the viewer container for precise layout */
+#viewer-container [data-sonner-toaster] {
     position: absolute;
-    top: 24px;
-    right: 24px;
+    top: 48px;
+    /* Move it down to clear the utility bar and avoid clipping */
+    right: 32px;
+    /* Increased padding from the right edge of the viewer */
     z-index: 100000;
 }
 
-html body [data-sonner-toaster]>ol {
+#viewer-container [data-sonner-toaster]>ol {
     display: flex;
     flex-direction: column;
     gap: 0;
-    /* The 5px gap the user wants */
     position: absolute;
     right: 0;
     top: 0;
     align-items: flex-end;
 }
 
-html body [data-sonner-toast][data-sonner-toast] {
-    --toast-width: 360px;
-    width: 360px;
-    height: 42px;
-    background: #1e293b;
-    /* DEFAULT TO INFO COLOR */
+#viewer-container [data-sonner-toast][data-sonner-toast] {
+    --toast-width: 300px;
+    width: 300px;
+    height: 48px;
+    background: #0e2d52;
+    backdrop-filter: blur(8px);
     color: #ffffff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    border: none;
-    border-radius: 9px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
     position: relative;
-    /* Allow normal document flow for gap */
     inset: auto;
     transform: none;
-    margin-bottom: calc(var(--toast-stack-gap, 8) * 1px);
-    /* MATCHING FLOOR BUTTON GAP (gap-2 = 8px) */
-    transition: transform calc(var(--toast-animation-duration, 1000) * 1ms) cubic-bezier(0.4, 0, 0.2, 1), opacity calc(var(--toast-animation-duration, 1000) * 1ms) ease;
+    margin-bottom: 8px;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
 }
 
 /* Override Sonner's internal success/error/etc. backgrounds if they exist as attributes */
-html body [data-sonner-toast][data-sonner-toast][data-type="success"] {
+#viewer-container [data-sonner-toast][data-sonner-toast][data-type="success"] {
     background: #065f46;
 }
 
-html body [data-sonner-toast][data-sonner-toast][data-type="error"] {
+#viewer-container [data-sonner-toast][data-sonner-toast][data-type="error"] {
     background: #991b1b;
 }
 
-html body [data-sonner-toast][data-sonner-toast][data-type="warning"] {
+#viewer-container [data-sonner-toast][data-sonner-toast][data-type="warning"] {
     background: #92400e;
 }
 
-html body [data-sonner-toast][data-sonner-toast][data-type="info"] {
+#viewer-container [data-sonner-toast][data-sonner-toast][data-type="info"] {
     background: #1e293b;
 }
 
 /* Ensure text is white even with sonner's default styles */
-html body [data-sonner-toast][data-sonner-toast] [data-content],
-html body [data-sonner-toast][data-sonner-toast] [data-title],
-html body [data-sonner-toast][data-sonner-toast] [data-description] {
+#viewer-container [data-sonner-toast][data-sonner-toast] [data-content],
+#viewer-container [data-sonner-toast][data-sonner-toast] [data-title],
+#viewer-container [data-sonner-toast][data-sonner-toast] [data-description] {
     color: #ffffff;
 }
 
 /* Icon sizing and color - ensure strokes are white and no fill interferes */
-html body [data-sonner-toast][data-sonner-toast] [data-icon] {
+#viewer-container [data-sonner-toast][data-sonner-toast] [data-icon] {
     width: 20px;
     height: 20px;
     min-width: 20px;
@@ -184,7 +183,7 @@ html body [data-sonner-toast][data-sonner-toast] [data-icon] {
     justify-content: center;
 }
 
-html body [data-sonner-toast][data-sonner-toast] [data-icon] svg {
+#viewer-container [data-sonner-toast][data-sonner-toast] [data-icon] svg {
     width: 18px;
     height: 18px;
     color: #ffffff;
@@ -192,15 +191,48 @@ html body [data-sonner-toast][data-sonner-toast] [data-icon] svg {
     fill: none;
 }
 
-/* Ensure no default icon background circle from sonner is visible or black */
-html body [data-sonner-toast][data-sonner-toast] [data-icon]>div {
+#viewer-container [data-sonner-toast][data-sonner-toast] [data-icon]>div {
     background: transparent;
     border: none;
 }
 
-html body [data-sonner-toast][data-sonner-toast] [data-content] {
+#viewer-container [data-sonner-toast][data-sonner-toast] [data-content] {
     font-size: 13px;
     line-height: normal;
+}
+
+/* Close Button - Orange Bubble Badge Anchored to Corner */
+#viewer-container [data-sonner-toast] [data-close-button] {
+    display: none !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    transform: translate(-35%, -35%) !important;
+    background: var(--orange-brand) !important;
+    color: #ffffff !important;
+    border: 1.5px solid #ffffff !important;
+    border-radius: 50% !important;
+    opacity: 1 !important;
+    width: 22px !important;
+    height: 22px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+    z-index: 10 !important;
+    transition: transform var(--transition-fast) ease-in-out !important;
+}
+
+#viewer-container [data-sonner-toast] [data-close-button]:hover {
+    transform: scale(1.15) !important;
+    background: var(--delete-hover) !important;
+}
+
+#viewer-container [data-sonner-toast] [data-close-button] svg {
+    width: 10px !important;
+    height: 10px !important;
+    stroke: #ffffff !important;
+    stroke-width: 3px !important;
 }
 
 /* Interaction Lock Overlay */
