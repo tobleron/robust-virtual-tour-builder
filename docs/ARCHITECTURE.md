@@ -20,4 +20,90 @@
 ---
 
 ## 🏗️ System Architecture
-*(To be populated with overall system diagram)*
+
+```mermaid
+graph TB
+    %% --- Frontend Subgraph ---
+    subgraph Frontend["Frontend (ReScript/React)"]
+        direction TB
+
+        subgraph FE_Core["Core (State Flow)"]
+            Actions[Actions] --> Reducer[Reducer]
+            Reducer --> State[State]
+            State -.-> FE_Components
+            Types[Types]
+        end
+
+        subgraph FE_Systems["Systems"]
+            Navigation[Navigation]
+            Upload[Upload]
+            Simulation[Simulation]
+            Teaser[Teaser]
+            ProjectManager[ProjectManager]
+        end
+
+        subgraph FE_Components["Components"]
+            Sidebar[Sidebar]
+            ViewerUI[Viewer UI]
+            SceneList[Scene List]
+            HotspotLayer[Hotspot Layer]
+            Pannellum[[Pannellum Viewer]]
+        end
+
+        subgraph FE_Infra["Infrastructure"]
+            EventBus[EventBus]
+            Logger[Logger]
+            InteractionGuard[InteractionGuard]
+            PersistenceLayer[PersistenceLayer]
+        end
+    end
+
+    %% --- Browser Persistence ---
+    subgraph Browser["Browser Context"]
+        IDB[(IndexedDB)]
+    end
+
+    %% --- Backend Subgraph ---
+    subgraph Backend["Backend (Rust/Actix-web)"]
+        direction TB
+
+        subgraph BE_API["API Layer"]
+            ProjHandlers[Project]
+            MediaHandlers[Media]
+            PathfinderHandlers[Pathfinder]
+        end
+
+        subgraph BE_Services["Services"]
+            UploadQuota[Upload Quota]
+            Geocoding[Geocoding]
+            ImageAnalysis[Image Analysis]
+        end
+
+        subgraph BE_Storage["Storage"]
+            FS[(File System - Images)]
+            ProjectData[(JSON - Project Data)]
+        end
+    end
+
+    %% --- Major Interactions ---
+    FE_Components <--> FE_Systems
+    FE_Systems <--> FE_Core
+    FE_Systems <--> FE_Infra
+    PersistenceLayer <--> IDB
+
+    FE_Systems <--> BE_API
+    BE_API <--> BE_Services
+    BE_Services <--> BE_Storage
+
+    %% --- Data Flow Overlays ---
+    %% Upload Pipeline: Files → Resizer → API → Backend Image Processing
+    Upload -.-> |"Files → Resizer"| MediaHandlers
+    MediaHandlers -.-> |"Image Processing"| ImageAnalysis
+
+    %% Persistence: State → PersistenceLayer → IndexedDB
+    State -.-> |"Persistence"| PersistenceLayer
+    PersistenceLayer -.-> IDB
+
+    %% Navigation: User Click → FSM → SceneLoader → ViewerPool → SceneTransition
+    Navigation -.-> |"FSM → SceneLoader → ViewerPool → SceneTransition"| Pannellum
+```
