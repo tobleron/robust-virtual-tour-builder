@@ -10806,6 +10806,12 @@
 │   │   │   │   │   ├── NavigationRenderer.cmj
 │   │   │   │   │   ├── NavigationRenderer.cmt
 │   │   │   │   │   ├── NavigationRenderer.res
+│   │   │   │   │   ├── NavigationSupervisor.ast
+│   │   │   │   │   ├── NavigationSupervisor.bs.js
+│   │   │   │   │   ├── NavigationSupervisor.cmi
+│   │   │   │   │   ├── NavigationSupervisor.cmj
+│   │   │   │   │   ├── NavigationSupervisor.cmt
+│   │   │   │   │   ├── NavigationSupervisor.res
 │   │   │   │   │   ├── NavigationUI.ast
 │   │   │   │   │   ├── NavigationUI.bs.js
 │   │   │   │   │   ├── NavigationUI.cmi
@@ -12941,6 +12947,11 @@
 │   │   ├── NavigationRenderer.cmj
 │   │   ├── NavigationRenderer.cmt
 │   │   ├── NavigationRenderer.res
+│   │   ├── NavigationSupervisor.ast
+│   │   ├── NavigationSupervisor.cmi
+│   │   ├── NavigationSupervisor.cmj
+│   │   ├── NavigationSupervisor.cmt
+│   │   ├── NavigationSupervisor.res
 │   │   ├── NavigationUI.ast
 │   │   ├── NavigationUI.cmi
 │   │   ├── NavigationUI.cmj
@@ -15764,6 +15775,8 @@
 │   │   │   ├── NavigationGraph.res
 │   │   │   ├── NavigationRenderer.bs.js
 │   │   │   ├── NavigationRenderer.res
+│   │   │   ├── NavigationSupervisor.bs.js
+│   │   │   ├── NavigationSupervisor.res
 │   │   │   ├── NavigationUI.bs.js
 │   │   │   └── NavigationUI.res
 │   │   ├── Navigation.bs.js
@@ -16002,6 +16015,8 @@
 │   │   ├── 1316_Investigate_E2E_Failure_Simulation_DONE.md
 │   │   ├── 1317_Investigate_E2E_Failure_Core_UI_DONE.md
 │   │   ├── 1318_Investigate_E2E_Failure_Full_Workflow_DONE.md
+│   │   ├── 1328_NAV_SUP_1_Create_Supervisor_Module_DONE.md
+│   │   ├── 1329_NAV_SUP_2_Add_AbortSignal_Bindings_UPDATED.md
 │   │   └── tests
 │   │       ├── 1195_Test_Teaser_DONE.md
 │   │       ├── 1196_Test_ViewerLogic_DONE.md
@@ -16021,8 +16036,6 @@
 │   │   ├── 1325_E2E_Test_Robustness_Resilience.md
 │   │   ├── 1326_E2E_Test_Performance_Regression.md
 │   │   ├── 1327_Refactor_Notification_Logic.md
-│   │   ├── 1328_NAV_SUP_1_Create_Supervisor_Module.md
-│   │   ├── 1329_NAV_SUP_2_Add_AbortSignal_Bindings.md
 │   │   ├── 1330_NAV_SUP_3_Wire_SceneLoader_To_Supervisor.md
 │   │   ├── 1331_NAV_SUP_4_Switch_Entry_Points_To_Supervisor.md
 │   │   ├── 1332_NAV_SUP_5_Remove_TransitionLock_From_Navigation.md
@@ -16034,7 +16047,9 @@
 │   │       ├── D007_Surgical_Refactor_COMPONENTS_FRONTEND.md
 │   │       ├── D008_Fix_Violations_BACKEND.md
 │   │       ├── D009_Merge_Folders_FRONTEND.md
-│   │       └── D010_Aggregate_Completed_Tasks.md
+│   │       ├── D010_Aggregate_Completed_Tasks.md
+│   │       ├── D011_Classify_Map_Entries.md
+│   │       └── D012_Integrate_DataFlow_Modules.md
 │   ├── postponed
 │   │   ├── 1243_Fix_Operation_Cancellation_Feedback.md
 │   │   ├── 1246_Handle_Malformed_Project_Files_Gracefully.md
@@ -16468,4 +16483,4 @@
 │       └── test_run.json
 └── vitest.config.mjs
 
-715 directories, 15754 files
+715 directories, 15769 files

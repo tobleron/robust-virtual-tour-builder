@@ -3,19 +3,10 @@
 @react.component
 let make = React.memo((
   ~onNew: unit => unit,
-  ~onSave: (
-    ~signal: BrowserBindings.AbortSignal.t,
-    ~onCancel: unit => unit,
-  ) => Promise.t<unit>,
-  ~onLoad: (
-    ~signal: BrowserBindings.AbortSignal.t,
-    ~onCancel: unit => unit,
-  ) => Promise.t<unit>,
+  ~onSave: (~signal: BrowserBindings.AbortSignal.t, ~onCancel: unit => unit) => Promise.t<unit>,
+  ~onLoad: (~signal: BrowserBindings.AbortSignal.t, ~onCancel: unit => unit) => Promise.t<unit>,
   ~onAbout: unit => unit,
-  ~onExport: (
-    ~signal: BrowserBindings.AbortSignal.t,
-    ~onCancel: unit => unit,
-  ) => Promise.t<unit>,
+  ~onExport: (~signal: BrowserBindings.AbortSignal.t, ~onCancel: unit => unit) => Promise.t<unit>,
   ~onTeaser: unit => unit,
   ~exportReady: bool,
   ~teaserReady: bool,
