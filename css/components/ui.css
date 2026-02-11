@@ -109,130 +109,133 @@
     pointer-events: auto;
 }
 
-/* NUCLEAR OVERRIDE FOR SONNER */
+/* CUSTOM NOTIFICATION SYSTEM */
 
-/* Target by the data attribute relative to the viewer container for precise layout */
-#viewer-container [data-sonner-toaster] {
+#viewer-notifications-container {
     position: absolute;
-    top: 48px;
-    /* Move it down to clear the utility bar and avoid clipping */
-    right: 32px;
-    /* Increased padding from the right edge of the viewer */
+    top: 24px;
+    /* Standardized: top-6 */
+    right: 24px;
+    /* Standardized: right-6 */
     z-index: 100000;
-}
-
-#viewer-container [data-sonner-toaster]>ol {
+    pointer-events: none;
     display: flex;
     flex-direction: column;
-    gap: 0;
-    position: absolute;
-    right: 0;
-    top: 0;
+    gap: 8px;
     align-items: flex-end;
+    width: 300px;
 }
 
-#viewer-container [data-sonner-toast][data-sonner-toast] {
-    --toast-width: 300px;
+.viewer-toast {
+    pointer-events: auto;
     width: 300px;
     height: 48px;
     background: #0e2d52;
     backdrop-filter: blur(8px);
     color: #ffffff;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: none;
     border-radius: 8px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 12px;
     position: relative;
-    inset: auto;
-    transform: none;
-    margin-bottom: 8px;
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+    z-index: 100001;
+    animation: toast-slide-in 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
-/* Override Sonner's internal success/error/etc. backgrounds if they exist as attributes */
-#viewer-container [data-sonner-toast][data-sonner-toast][data-type="success"] {
-    background: #065f46;
+@keyframes toast-slide-in {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
-#viewer-container [data-sonner-toast][data-sonner-toast][data-type="error"] {
-    background: #991b1b;
+.viewer-toast.dismissing {
+    opacity: 0;
+    transform: translateX(20px);
+    pointer-events: none;
 }
 
-#viewer-container [data-sonner-toast][data-sonner-toast][data-type="warning"] {
-    background: #92400e;
+/* Importance Variations */
+.viewer-toast.success {
+    background: #065f46 !important;
 }
 
-#viewer-container [data-sonner-toast][data-sonner-toast][data-type="info"] {
-    background: #1e293b;
+.viewer-toast.error {
+    background: #991b1b !important;
 }
 
-/* Ensure text is white even with sonner's default styles */
-#viewer-container [data-sonner-toast][data-sonner-toast] [data-content],
-#viewer-container [data-sonner-toast][data-sonner-toast] [data-title],
-#viewer-container [data-sonner-toast][data-sonner-toast] [data-description] {
-    color: #ffffff;
+.viewer-toast.warning {
+    background: #92400e !important;
 }
 
-/* Icon sizing and color - ensure strokes are white and no fill interferes */
-#viewer-container [data-sonner-toast][data-sonner-toast] [data-icon] {
-    width: 20px;
-    height: 20px;
-    min-width: 20px;
-    color: #ffffff;
+.viewer-toast.info,
+.viewer-toast.transient {
+    background: #1e293b !important;
+}
+
+.viewer-toast.critical {
+    background: #991b1b !important;
+    border: 2px solid var(--accent);
+}
+
+.viewer-toast-icon {
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 20px;
+    height: 20px;
 }
 
-#viewer-container [data-sonner-toast][data-sonner-toast] [data-icon] svg {
-    width: 18px;
-    height: 18px;
-    color: #ffffff;
-    stroke: #ffffff;
-    fill: none;
-}
-
-#viewer-container [data-sonner-toast][data-sonner-toast] [data-icon]>div {
-    background: transparent;
-    border: none;
-}
-
-#viewer-container [data-sonner-toast][data-sonner-toast] [data-content] {
+.viewer-toast-content {
+    flex: 1;
     font-size: 13px;
+    font-weight: 500;
     line-height: normal;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-/* Close Button - Orange Bubble Badge Anchored to Corner */
-#viewer-container [data-sonner-toast] [data-close-button] {
-    display: none !important;
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-    transform: translate(-35%, -35%) !important;
-    background: var(--orange-brand) !important;
-    color: #ffffff !important;
-    border: 1.5px solid #ffffff !important;
-    border-radius: 50% !important;
-    opacity: 1 !important;
-    width: 22px !important;
-    height: 22px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
-    z-index: 10 !important;
-    transition: transform var(--transition-fast) ease-in-out !important;
+/* Close Button - Orange Bubble Badge */
+.viewer-toast-close {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: translate(-35%, -35%);
+    background: var(--orange-brand);
+    color: #ffffff;
+    border: 1.5px solid #ffffff;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+    z-index: 10;
+    transition: transform var(--transition-fast) ease-in-out;
 }
 
-#viewer-container [data-sonner-toast] [data-close-button]:hover {
-    transform: scale(1.15) !important;
-    background: var(--delete-hover) !important;
+.viewer-toast-close:hover {
+    transform: translate(-35%, -35%) scale(1.15);
+    background: var(--delete-hover);
 }
 
-#viewer-container [data-sonner-toast] [data-close-button] svg {
-    width: 10px !important;
-    height: 10px !important;
-    stroke: #ffffff !important;
-    stroke-width: 3px !important;
+.viewer-toast-close svg {
+    width: 10px;
+    height: 10px;
+    stroke: #ffffff;
+    stroke-width: 3px;
 }
 
 /* Interaction Lock Overlay */
