@@ -26,7 +26,7 @@ let showLinkModal = (
   ~linkDraft: Nullable.t<Types.linkDraft>=Nullable.null,
   (),
 ) => {
-  let state = GlobalStateBridge.getState()
+  let state = AppStateBridge.getState()
 
   // Determine next sequential index for smart selection
   let nextIndex = state.activeIndex + 1
@@ -206,14 +206,14 @@ let showLinkModal = (
             transition: "fade",
             duration: 1000,
           })
-          GlobalStateBridge.dispatch(Actions.AddToTimeline(timelineItemJson))
+          AppStateBridge.dispatch(Actions.AddToTimeline(timelineItemJson))
 
           // Use setTimeout to ensure state updates properly after hotspot is added
           let _ = setTimeout(() => {
             Logger.info(
               ~module_="LinkModal",
               ~message="EXIT_SEQUENCE_START",
-              ~data=Some({"stateBeforeExit": GlobalStateBridge.getState().isLinking}),
+              ~data=Some({"stateBeforeExit": AppStateBridge.getState().isLinking}),
               (),
             )
 
@@ -227,11 +227,11 @@ let showLinkModal = (
             Logger.info(~module_="LinkModal", ~message="DRAFT_LINES_HIDDEN", ())
 
             // Step 3: Exit linking mode
-            GlobalStateBridge.dispatch(Actions.StopLinking)
+            AppStateBridge.dispatch(Actions.StopLinking)
             Logger.info(
               ~module_="LinkModal",
               ~message="STOP_LINKING_DISPATCHED",
-              ~data=Some({"stateAfterDispatch": GlobalStateBridge.getState().isLinking}),
+              ~data=Some({"stateAfterDispatch": AppStateBridge.getState().isLinking}),
               (),
             )
           }, 50)
@@ -253,7 +253,7 @@ let showLinkModal = (
           // Explicitly hide draft lines on modal close
           SvgManager.hide("link_draft_red")
           SvgManager.hide("link_draft_yellow")
-          GlobalStateBridge.dispatch(Actions.StopLinking)
+          AppStateBridge.dispatch(Actions.StopLinking)
         },
       ),
       className: Some("modal-blue"),

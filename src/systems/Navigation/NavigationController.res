@@ -158,6 +158,19 @@ module ControllerHooks = {
               dispatch(Actions.DispatchNavigationFsmEvent(TransitionComplete))
             }
           })
+
+          if viewerOpt->Option.isNone {
+            Logger.warn(
+              ~module_="NavigationController",
+              ~message="NO_ACTIVE_VIEWER_FALLBACK",
+              ~data=Some({
+                "journeyId": j.journeyId,
+                "hasPathData": j.pathData->Option.isSome,
+              }),
+              (),
+            )
+            dispatch(Actions.DispatchNavigationFsmEvent(TransitionComplete))
+          }
         }
       | Idle =>
         if ajid.current != None {

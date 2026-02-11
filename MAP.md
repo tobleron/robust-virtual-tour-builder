@@ -37,7 +37,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/core/ViewerTypes.res](src/core/ViewerTypes.res): Types specialized for 360 viewer state and configuration. `#viewer` `#types`
 *   [src/core/ViewerState.res](src/core/ViewerState.res): Localized state for the active viewer instance. `#state` `#viewer`
 *   [src/core/SceneCache.res](src/core/SceneCache.res): In-memory cache for processed scene assets and metadata. `#cache` `#performance`
-*   [src/core/GlobalStateBridge.res](src/core/GlobalStateBridge.res): Bridge for synchronizing state across different contexts. `#state` `#sync`
+*   [src/core/AppStateBridge.res](src/core/AppStateBridge.res): Canonical bridge for synchronizing global state/dispatch with non-React systems and readiness callbacks. `#state` `#sync` `#bridge`
 *   [src/core/StateSnapshot.res](src/core/StateSnapshot.res): Manager for capturing and rolling back application state snapshots. `#state` `#rollback` `#reliability`
 *   [src/core/OptimisticAction.res](src/core/OptimisticAction.res): Wrapper for executing actions optimistically with automatic rollback on failure. `#actions` `#optimistic-update` `#reliability`
 *   [src/core/AppFSM.res](src/core/AppFSM.res): Global Finite State Machine orchestrating top-level application modes. `#fsm` `#state` `#architecture`
@@ -305,6 +305,6 @@ This map provides a semantic overview of the project structure to optimize conte
 
 
 ## 🆕 Unmapped Modules
-* [src/core/AppStateBridge.res](src/core/AppStateBridge.res): New module detected. Please classify. #new
+* [src/core/GlobalStateBridge.res](src/core/GlobalStateBridge.res): New module detected. Please classify. #new
 * [src/core/NavigationState.res](src/core/NavigationState.res): New module detected. Please classify. #new
 * None detected.

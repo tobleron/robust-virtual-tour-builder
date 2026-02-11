@@ -207,7 +207,7 @@ let init = async () => {
                 label: "Restore",
                 class_: "bg-blue-500/20 text-white hover:bg-blue-500/40",
                 onClick: () => {
-                  GlobalStateBridge.dispatch(LoadProject(session.projectData))
+                  AppStateBridge.dispatch(LoadProject(session.projectData))
                   NotificationManager.dispatch({
                     id: "",
                     importance: Success,
