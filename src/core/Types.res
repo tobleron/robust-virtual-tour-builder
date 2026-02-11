@@ -86,6 +86,15 @@ type navigationFsmState =
   | Stabilizing({targetSceneId: string})
   | ErrorFsm(errorInfo)
 
+// Navigation domain slice type
+type navigationState = {
+  navigationFsm: navigationFsmState,
+  navigation: navigationStatus,
+  incomingLink: option<linkInfo>,
+  autoForwardChain: array<int>,
+  currentJourneyId: int,
+}
+
 type transition = {
   @as("type") type_: transitionType,
   targetHotspotIndex: int,
@@ -299,15 +308,11 @@ type state = {
   deletedSceneIds: array<string>, // TODO: Deprecate
   timeline: array<timelineItem>,
   activeTimelineStepId: option<string>,
-  // Navigation State
-  navigation: navigationStatus,
-  navigationFsm: navigationFsmState,
+  // Domain Slices
+  navigationState: navigationState,
   // isSimulationMode: bool, // DEPRECATED in favor of simulation.status
   simulation: simulationState,
-  incomingLink: option<linkInfo>,
-  autoForwardChain: array<int>,
   pendingReturnSceneName: option<string>,
-  currentJourneyId: int,
   lastUsedCategory: string,
   sessionId: option<string>,
 }

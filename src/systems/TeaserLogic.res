@@ -2,6 +2,7 @@
 
 open ReBindings
 open Types
+external identity: 'a => 'b = "%identity"
 
 // --- CONSTANTS ---
 let canvasWidth = Constants.Teaser.canvasWidth
@@ -44,13 +45,25 @@ module Playback = {
   let waitForViewerReady = async (sceneId: string) => {
     let start = Date.now()
     let rec check = async () => {
-      if Date.now() -. start > 45000.0 {
+      if Date.now() -. start > 30000.0 {
+        Logger.error(
+          ~module_="TeaserLogic",
+          ~message="WAIT_FOR_VIEWER_TIMEOUT",
+          ~data=Some({"targetSceneId": sceneId}),
+          (),
+        )
         false
       } else {
-        switch Viewer.instance->Nullable.toOption {
-        | Some(v) if Viewer.isLoaded(v) && Viewer.getScene(v) == sceneId =>
-          await wait(200)
-          true
+        switch ViewerSystem.getActiveViewer()->Nullable.toOption {
+        | Some(v) if Viewer.isLoaded(v) =>
+          let currentId = ViewerSystem.Adapter.getMetaData(v, "sceneId")
+          if currentId == Some(identity(sceneId)) {
+            await wait(200)
+            true
+          } else {
+            await wait(100)
+            await check()
+          }
         | _ =>
           await wait(100)
           await check()
@@ -65,7 +78,7 @@ module Playback = {
     let rec loop = async () => {
       let p = (Date.now() -. start) /. duration
       if p < 1.0 {
-        Viewer.instance
+        ViewerSystem.getActiveViewer()
         ->Nullable.toOption
         ->Option.forEach(v => {
           Viewer.setYaw(v, fromYaw +. (toYaw -. fromYaw) *. p, false)
@@ -74,7 +87,7 @@ module Playback = {
         await wait(16)
         await loop()
       } else {
-        Viewer.instance
+        ViewerSystem.getActiveViewer()
         ->Nullable.toOption
         ->Option.forEach(v => {
           Viewer.setYaw(v, toYaw, false)
@@ -99,7 +112,7 @@ module Playback = {
       GlobalStateBridge.dispatch(SetActiveScene(step.idx, iy, ip, None))
       await wait(500)
       let _ = await waitForViewerReady(scene.id)
-      Viewer.instance
+      ViewerSystem.getActiveViewer()
       ->Nullable.toOption
       ->Option.forEach(v => {
         Viewer.setYaw(v, iy, false)
@@ -148,7 +161,7 @@ module Playback = {
       GlobalStateBridge.dispatch(SetActiveScene(nextStep.idx, ny, np, None))
       await wait(500)
       let _ = await waitForViewerReady(scene.id)
-      Viewer.instance
+      ViewerSystem.getActiveViewer()
       ->Nullable.toOption
       ->Option.forEach(v => {
         Viewer.setYaw(v, ny, false)
@@ -205,7 +218,10 @@ module Manager = {
     Recorder.startAnimationLoop(includeLogo, logoState)
     if Recorder.startRecording() {
       GlobalStateBridge.dispatch(
-        StartAutoPilot(GlobalStateBridge.getState().currentJourneyId, skipAutoForward),
+        StartAutoPilot(
+          GlobalStateBridge.getState().navigationState.currentJourneyId,
+          skipAutoForward,
+        ),
       )
       let rec check = async () => {
         await wait(1000)

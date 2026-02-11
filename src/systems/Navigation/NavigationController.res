@@ -7,7 +7,7 @@ open ReBindings
 module ControllerHooks = {
   let useNavigationFSM = (state: state, dispatch) => {
     React.useEffect2(() => {
-      switch state.navigationFsm {
+      switch state.navigationState.navigationFsm {
       | Preloading({targetSceneId, isAnticipatory}) =>
         Logger.debug(
           ~module_="NavigationController",
@@ -38,7 +38,7 @@ module ControllerHooks = {
         }, Constants.sceneLoadTimeout)
         Some(() => Window.clearTimeout(timeoutId))
       | Transitioning({progress}) if progress == 0.0 =>
-        let shouldFinalize = switch state.navigation {
+        let shouldFinalize = switch state.navigationState.navigation {
         | Idle => true
         | Navigating(j) if j.pathData == None => true
         | _ => false
@@ -87,7 +87,7 @@ module ControllerHooks = {
         })
         None
       | IdleFsm =>
-        switch state.navigation {
+        switch state.navigationState.navigation {
         | Navigating(j) =>
           Logger.info(
             ~module_="NavigationController",
@@ -101,7 +101,7 @@ module ControllerHooks = {
         None
       | _ => None
       }
-    }, (state.navigationFsm, state.activeIndex))
+    }, (state.navigationState.navigationFsm, state.activeIndex))
   }
 
   let useNavigationAnimation = (state: state, dispatch) => {
@@ -109,7 +109,7 @@ module ControllerHooks = {
     let req = React.useRef(None)
 
     React.useEffect1(() => {
-      switch state.navigation {
+      switch state.navigationState.navigation {
       | Navigating(j) =>
         if ajid.current != Some(j.journeyId) {
           // NEW JOURNEY DETECTED: Cancel previous and start new
@@ -159,7 +159,7 @@ module ControllerHooks = {
       | _ => ()
       }
       None
-    }, [state.navigation])
+    }, [state.navigationState.navigation])
 
     // Cleanup ONLY on unmount to prevent ghost animations
     React.useEffect0(() => {

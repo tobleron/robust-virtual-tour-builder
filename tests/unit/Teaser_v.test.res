@@ -80,7 +80,8 @@ let makeMockScene = (~id) => {
   globalThis.vi.mock('../../src/utils/ProgressBar.bs.js', () => progressBarMock);
 
   // Mock Viewer instance
-  globalThis.pannellumViewer = {
+  const mockV = {
+    _sceneId: "s1",
     isLoaded: globalThis.vi.fn().mockReturnValue(true),
     getScene: globalThis.vi.fn().mockReturnValue("s1"),
     setYaw: globalThis.vi.fn(),
@@ -88,6 +89,7 @@ let makeMockScene = (~id) => {
     on: globalThis.vi.fn(),
     destroy: globalThis.vi.fn(),
   };
+  globalThis.pannellumViewer = mockV;
 
   // Mock GlobalStateBridge
   const globalStateMock = {
@@ -110,6 +112,28 @@ describe("Teaser System", () => {
   beforeEach(() => {
     ignore(%raw(`globalThis.vi.clearAllMocks()`))
     ignore(%raw(`globalThis.vi.useFakeTimers()`))
+
+    // Set up active viewport in Pool
+    ViewerSystem.Pool.pool := [
+        {
+          id: "primary-a",
+          containerId: "panorama-a",
+          status: #Active,
+          instance: None,
+          cleanupTimeout: None,
+        },
+        {
+          id: "primary-b",
+          containerId: "panorama-b",
+          status: #Background,
+          instance: None,
+          cleanupTimeout: None,
+        },
+      ]
+
+    // Register the mock instance from global scope
+    let v = %raw(`globalThis.pannellumViewer`)
+    ViewerSystem.Pool.registerInstance("panorama-a", v)
   })
 
   afterEach(() => {

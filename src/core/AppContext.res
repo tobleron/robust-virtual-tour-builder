@@ -42,9 +42,9 @@ let defaultUiSlice: uiSlice = {
 
 let defaultSimSlice: simSlice = {
   simulation: State.initialState.simulation,
-  navigation: State.initialState.navigation,
-  currentJourneyId: State.initialState.currentJourneyId,
-  incomingLink: State.initialState.incomingLink,
+  navigation: State.initialState.navigationState.navigation,
+  currentJourneyId: State.initialState.navigationState.currentJourneyId,
+  incomingLink: State.initialState.navigationState.incomingLink,
 }
 
 // Specialized Contexts
@@ -119,11 +119,16 @@ module Provider = {
     let simSlice = React.useMemo4(() => {
       {
         simulation: state.simulation,
-        navigation: state.navigation,
-        currentJourneyId: state.currentJourneyId,
-        incomingLink: state.incomingLink,
+        navigation: state.navigationState.navigation,
+        currentJourneyId: state.navigationState.currentJourneyId,
+        incomingLink: state.navigationState.incomingLink,
       }
-    }, (state.simulation, state.navigation, state.currentJourneyId, state.incomingLink))
+    }, (
+      state.simulation,
+      state.navigationState.navigation,
+      state.navigationState.currentJourneyId,
+      state.navigationState.incomingLink,
+    ))
 
     React.useLayoutEffect1(() => {
       GlobalStateBridge.setDispatch(dispatch)
@@ -169,9 +174,15 @@ let useSceneState = () => React.useContext(globalContext) // Temporary fallback
 let useUiState = () => React.useContext(globalContext) // Temporary fallback
 let useSimState = () => React.useContext(globalContext) // Temporary fallback
 
+// Phase 1: Navigation State Slice
+let useNavigationState = () => {
+  let state = React.useContext(globalContext)
+  state.navigationState
+}
+
 let useNavigationFsm = () => {
   let state = React.useContext(globalContext)
-  state.navigationFsm
+  state.navigationState.navigationFsm
 }
 
 // Interaction Queue Hook

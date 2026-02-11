@@ -20,7 +20,7 @@ let navigateToScene = (
   let action = () => {
     navStartTime := Date.now()
     if (
-      state.navigation->(
+      state.navigationState.navigation->(
         s =>
           switch s {
           | Navigating(_) => true
@@ -30,7 +30,7 @@ let navigateToScene = (
     ) {
       ()
     } else {
-      let njid = state.currentJourneyId + 1
+      let njid = state.navigationState.currentJourneyId + 1
       let currView = NavigationGraph.getCurrentView()
       let actions = []
       let _ = Js.Array.push(Actions.IncrementJourneyId, actions)
@@ -127,9 +127,11 @@ let navigateToScene = (
 
 let handleAutoForward = (dispatch, state: state, currentScene: scene) => {
   if state.simulation.status != Running && currentScene.isAutoForward && !state.isLinking {
-    let chain = state.autoForwardChain
+    let chain = state.navigationState.autoForwardChain
     if Array.length(chain) == 0 {
-      state.incomingLink->Option.forEach(l => dispatch(Actions.AddToAutoForwardChain(l.sceneIndex)))
+      state.navigationState.incomingLink->Option.forEach(l =>
+        dispatch(Actions.AddToAutoForwardChain(l.sceneIndex))
+      )
     }
     if Array.includes(chain, state.activeIndex) {
       dispatch(ResetAutoForwardChain)

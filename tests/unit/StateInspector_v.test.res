@@ -27,7 +27,7 @@ describe("StateInspector", _ => {
     | Stopping => "Stopping"
     }
 
-    t->expect(snapshot.simulationStatus)->Expect.toBe(expectedSim)
+    t->expect(snapshot.simulation.status)->Expect.toBe(expectedSim)
     t->expect(snapshot.timestamp > 0.0)->Expect.toBe(true)
   })
 

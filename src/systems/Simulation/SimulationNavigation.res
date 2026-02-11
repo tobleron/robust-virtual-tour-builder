@@ -14,7 +14,7 @@ module InternalDate = {
 }
 
 let getGlobalViewerForScene = (sceneId: string): option<Viewer.t> => {
-  let globalViewer = Nullable.toOption(Viewer.instance)
+  let globalViewer = Nullable.toOption(ViewerSystem.getActiveViewer())
   switch globalViewer {
   | Some(v) if ViewerSystem.Adapter.getSceneId(ViewerSystem.Adapter.asCustom(v)) == Some(sceneId) =>
     Some(v)
@@ -154,6 +154,18 @@ let findBestNextLink = (currentScene: scene, state: state, visited: array<int>):
         }
       })
       ->Belt.Array.keepMap(x => x)
+
+    Logger.debug(
+      ~module_="SimulationNavigation",
+      ~message="FIND_BEST_NEXT_LINK",
+      ~data=Some({
+        "currentScene": currentScene.name,
+        "hotspotCount": Array.length(hotspots),
+        "allLinksCount": Belt.Array.length(allLinks),
+        "visited": visited,
+      }),
+      (),
+    )
 
     let p1 = Array.find(allLinks, l => !l.isVisited && !l.isReturn && !l.isBridge)
     switch p1 {

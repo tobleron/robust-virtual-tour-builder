@@ -49,18 +49,35 @@ describe("ReturnPrompt", () => {
     let lastAction = ref(None)
     let mockDispatch = action => lastAction := Some(action)
 
+    // Set up active viewport in Pool
+    ViewerSystem.Pool.pool := [
+        {
+          id: "primary-a",
+          containerId: "panorama-a",
+          status: #Active,
+          instance: None,
+          cleanupTimeout: None,
+        },
+      ]
+
     // Mock Viewer instance
-    let _ = %raw(`
+    let mockV = %raw(`
       (function() {
-        window.pannellumViewer = {
+        const v = {
           getYaw: () => 45.0,
           setPitch: function() {},
           setYaw: function() {},
+          setYawWithDuration: function() {}, 
           getPitch: () => 0.0,
-          getHfov: () => 90.0
+          getHfov: () => 90.0,
+          on: function() {},
+          isLoaded: () => true
         };
+        window.pannellumViewer = v;
+        return v;
       })()
     `)
+    ViewerSystem.Pool.registerInstance("panorama-a", mockV)
 
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(

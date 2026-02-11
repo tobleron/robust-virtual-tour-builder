@@ -22,8 +22,8 @@ let initialState: state = {
   deletedSceneIds: [],
   timeline: [],
   activeTimelineStepId: None,
-  navigation: Idle,
-  navigationFsm: IdleFsm,
+  // Domain Slices
+  navigationState: NavigationState.initial(),
   // isSimulationMode: false,
   simulation: {
     status: Idle,
@@ -34,10 +34,7 @@ let initialState: state = {
     pendingAdvanceId: None,
     autoPilotJourneyId: 0,
   },
-  incomingLink: None,
-  autoForwardChain: [],
   pendingReturnSceneName: None,
-  currentJourneyId: 0,
   lastUsedCategory: "outdoor",
   sessionId: None,
 }

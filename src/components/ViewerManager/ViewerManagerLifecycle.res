@@ -122,5 +122,5 @@ let useLinkingAndSimUI = (state: state, dispatch: action => unit) => {
       Dom.classList(body)->Dom.ClassList.remove("auto-pilot-active")
     }
     None
-  }, (state.isLinking, state.simulation.status, state.navigation))
+  }, (state.isLinking, state.simulation.status, state.navigationState.navigation))
 }
