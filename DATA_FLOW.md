@@ -48,7 +48,7 @@ User file selection
   → [src/components/Sidebar.res] (using [src/components/Sidebar/SidebarActions.res], [src/components/Sidebar/SidebarBranding.res], [src/components/Sidebar/SidebarProcessing.res], [src/components/Sidebar/SidebarProjectInfo.res])
     → [src/components/Sidebar/SidebarSearch.res], [src/components/Sidebar/SidebarFilters.res], [src/components/Sidebar/SidebarBatchManagement.res], [src/components/Sidebar/SidebarSorting.res] for view orchestration
   → [src/components/Sidebar/SidebarLogic.res] and [src/components/SceneList.res] handle file input and display
-  → [src/components/VisualPipeline/VisualPipelineComponent.res] (assisted by [src/components/VisualPipeline/VisualPipelineStyles.res]) shows progress (using [src/utils/ProgressBar.res])
+  → [src/components/VisualPipeline/VisualPipelineComponent.res] (assisted by [src/components/VisualPipeline.res] and [src/components/VisualPipeline/VisualPipelineStyles.res]) shows progress (using [src/utils/ProgressBar.res])
   → [src/systems/UploadProcessor.res] orchestrates the pipeline
   → [src/systems/UploadProcessorLogic.res] manages batch state (using [src/systems/UploadTypes.res])
   → [src/systems/FingerprintService.res] calculates unique image hashes
@@ -101,7 +101,7 @@ User clicks to add hotspot
   → [src/components/HotspotManager.res] handles click event
   → [src/components/HotspotActionMenu.res] and [src/components/HotspotMenuLayer.res] provide UI via [src/components/Portal.res] and [src/components/PopOver.res]
   → [src/components/ViewerLabelMenu.res] and [src/components/LabelMenu.res] for advanced labeling
-  → [src/components/LinkModal.res] and [src/systems/LinkEditorLogic.res] handle scene linking
+  → [src/components/LinkModal.res], [src/components/ModalContext.res], and [src/systems/LinkEditorLogic.res] handle scene linking via modals
   → [src/core/HotspotHelpers.res] calculates pitch/yaw coordinates
   → dispatch(AddHotspot) via [src/core/AppContext.res]
   → [src/core/Reducer.res] updates state using [src/core/SceneMutations.res]
@@ -156,6 +156,7 @@ Trigger Event
   → [src/systems/EventBus.res] dispatches notification
   → [src/core/NotificationManager.res] processes queue (using [src/core/NotificationQueue.res] and [src/core/NotificationTypes.res])
   → [src/components/NotificationCenter.res] subscribes to manager and renders via [Shadcn.Sonner]
+  → [src/components/ModalContext.res] and [src/components/NotificationContext.res] (Legacy) handle secondary UI/Event routing
   → [src/components/NotificationLayer.res] (Legacy) handles internal progress events
 ```
 
@@ -292,11 +293,6 @@ Address/GPS Query
 
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)
-
-### 📂 src/components
-- `[src/components/ModalContext.res]`
-- `[src/components/NotificationContext.res]`
-- `[src/components/VisualPipeline.res]`
 
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)
