@@ -19,7 +19,7 @@ type mockFn
 /* Mocks */
 %%raw(`
   vi.mock('../../src/systems/InputSystem.bs.js', () => ({
-    initInputSystem: vi.fn(),
+    initInputSystem: vi.fn(() => () => {}),
     handleMouseMove: vi.fn(),
   }))
 `)
@@ -70,10 +70,11 @@ external mockHandleStagePointerDown: mockFn = "handleStagePointerDown"
        simulation: { status: 'Idle' },
        activeIndex: -1,
        scenes: [],
-       navigation: 'Idle',
+       navigationState: {
+         navigation: 'Idle',
+         navigationFsm: 'Idle'
+       },
        linkDraft: undefined,
-       simulation: { status: 'Idle' },
-       navigationFsm: 'Idle'
     };
     let localDispatch = vi.fn();
 

@@ -23,7 +23,7 @@ let createHotspotConfig = (
   ~dispatch: Actions.action => unit,
 ) => {
   let isSimulationMode = state.simulation.status != Idle
-  let incomingLink = state.incomingLink
+  let incomingLink = state.navigationState.incomingLink
   let targetSceneOpt = Belt.Array.getBy(state.scenes, s => s.name == hotspot.target)
 
   // NAVIGATION LOGIC
@@ -42,7 +42,7 @@ let createHotspotConfig = (
   }
 
   // Determine if this specific hotspot is the one we are currently navigating towards
-  let isTargetOfActiveNav = switch state.navigation {
+  let isTargetOfActiveNav = switch state.navigationState.navigation {
   | Navigating(data) => data.hotspotIndex == index
   | _ => false
   }

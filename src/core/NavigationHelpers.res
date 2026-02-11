@@ -1,18 +1,35 @@
 open Types
 
 let handleAddToAutoForwardChain = (state: state, idx: int): state => {
-  let chain = state.autoForwardChain
+  let chain = state.navigationState.autoForwardChain
   if !Array.includes(chain, idx) {
-    {...state, autoForwardChain: Belt.Array.concat(chain, [idx])}
+    {
+      ...state,
+      navigationState: {
+        ...state.navigationState,
+        autoForwardChain: Belt.Array.concat(chain, [idx]),
+      },
+    }
   } else {
     state
   }
 }
 
 let handleNavigationCompleted = (state: state, journey: journeyData): state => {
-  if journey.journeyId == state.currentJourneyId {
+  if journey.journeyId == state.navigationState.currentJourneyId {
+    let nextJourneyId = state.navigationState.currentJourneyId + 1
+    let baseNavState = {
+      ...state.navigationState,
+      navigation: Idle,
+      autoForwardChain: [],
+      currentJourneyId: nextJourneyId,
+    }
+
     if journey.previewOnly {
-      {...state, navigation: Idle}
+      {
+        ...state,
+        navigationState: {...baseNavState, incomingLink: None},
+      }
     } else {
       let incomingLinkVal: linkInfo = {
         sceneIndex: journey.sourceIndex,
@@ -26,8 +43,10 @@ let handleNavigationCompleted = (state: state, journey: journeyData): state => {
       }
       {
         ...state,
-        navigation: Idle,
-        incomingLink: Some(incomingLinkVal),
+        navigationState: {
+          ...baseNavState,
+          incomingLink: Some(incomingLinkVal),
+        },
         activeIndex: journey.targetIndex,
         activeYaw: journey.arrivalYaw,
         activePitch: journey.arrivalPitch,
@@ -40,9 +59,12 @@ let handleNavigationCompleted = (state: state, journey: journeyData): state => {
 }
 
 let handleDispatchNavigationFsmEvent = (state: state, event: NavigationFSM.event): state => {
-  let nextFsmState = NavigationFSM.reducer(state.navigationFsm, event)
-  if nextFsmState != state.navigationFsm {
-    {...state, navigationFsm: nextFsmState}
+  let nextFsmState = NavigationFSM.reducer(state.navigationState.navigationFsm, event)
+  if nextFsmState != state.navigationState.navigationFsm {
+    {
+      ...state,
+      navigationState: {...state.navigationState, navigationFsm: nextFsmState},
+    }
   } else {
     state
   }

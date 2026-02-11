@@ -1,6 +1,7 @@
 /* src/systems/ViewerSystem.res - Consolidated Viewer System */
 
 open ReBindings
+open Types
 
 // --- ADAPTER (from PannellumAdapter.res) ---
 
@@ -9,6 +10,7 @@ module Adapter = {
   type customViewerProps
   external asCustom: Viewer.t => customViewerProps = "%identity"
   external identity: 'a => 'b = "%identity"
+  external asAny: 'a => {..} = "%identity"
 
   @get @return(nullable) external getSceneId: customViewerProps => option<string> = "_sceneId"
   @set external setSceneId: (customViewerProps, string) => unit = "_sceneId"
@@ -95,33 +97,23 @@ module Adapter = {
   let initializeViewer = initialize
 
   let destroy = v => {
-    try {
-      Viewer.destroy(v)
-      // Aggressive cleanup to assist Garbage Collection
-      let _ = %raw(`
-        (function(v) {
-          if (v) {
-            // Clear custom properties
-            v._sceneId = null;
-            v._isLoaded = null;
-
-            // Clear internal caches if accessible (Pannellum specific)
-            if (v.clearRenderer) {
-              try { v.clearRenderer(); } catch(e) {}
-            }
+    let _ = %raw(`
+      (v) => {
+        if (!v) return;
+        try {
+          if (v.destroy) {
+            v.destroy();
           }
-        })(v)
-      `)
-    } catch {
-    | exn =>
-      let (msg, _) = Logger.getErrorDetails(exn)
-      Logger.warn(
-        ~module_="ViewerSystem",
-        ~message="VIEWER_DESTROY_WARNING",
-        ~data=Some({"error": msg}),
-        (),
-      )
-    }
+        } catch(e) {
+          console.warn("[ViewerSystem] Pannellum destroy error caught:", e);
+        }
+        
+        try {
+          v._sceneId = null;
+          v._isLoaded = null;
+        } catch(e) {}
+      }
+    `)(v)
   }
 
   let getPitch = v => Viewer.getPitch(v)
@@ -307,9 +299,13 @@ module Follow = {
       } else {
         false
       }
-      let fsmBusy = switch s.navigationFsm {
-      | Preloading(_) | Transitioning(_) | Stabilizing(_) => true
-      | _ => false
+      let fsmBusy = switch Nullable.toOption(Adapter.asAny(s)["navigationState"]) {
+      | Some(ns) =>
+        switch ns["navigationFsm"] {
+        | Preloading(_) | Transitioning(_) | Stabilizing(_) => true
+        | _ => false
+        }
+      | None => false
       }
 
       if (

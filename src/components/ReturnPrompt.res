@@ -6,7 +6,7 @@ let make = React.memo((~incomingLink, ~scenes) => {
   let dispatch = AppContext.useAppDispatch()
 
   let processReturnPrompt = () => {
-    let v = Nullable.toOption(ReBindings.Viewer.instance)
+    let v = Nullable.toOption(ViewerSystem.getActiveViewer())
 
     switch (v, incomingLink) {
     | (Some(viewer), Some(inc)) =>

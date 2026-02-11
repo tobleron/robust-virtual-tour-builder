@@ -57,8 +57,13 @@ describe("ServerTeaser - Remote Rendering", () => {
     deletedSceneIds: [],
     timeline: [],
     activeTimelineStepId: None,
-    navigation: Idle,
-    navigationFsm: IdleFsm,
+    navigationState: {
+      navigation: Idle,
+      navigationFsm: IdleFsm,
+      incomingLink: None,
+      autoForwardChain: [],
+      currentJourneyId: 0,
+    },
     simulation: {
       status: Idle,
       visitedScenes: [],
@@ -68,10 +73,7 @@ describe("ServerTeaser - Remote Rendering", () => {
       pendingAdvanceId: None,
       autoPilotJourneyId: 0,
     },
-    incomingLink: None,
-    autoForwardChain: [],
     pendingReturnSceneName: None,
-    currentJourneyId: 0,
     lastUsedCategory: "outdoor",
     sessionId: None,
   }

@@ -167,7 +167,7 @@ let make = React.memo((
                 "text-slate-700"
               }}`}
           >
-            {React.string(scene.name)}
+            {React.string(scene.label != "" ? scene.label : scene.name)}
           </h4>
           {if Array.length(scene.hotspots) > 0 {
             <div

@@ -71,4 +71,47 @@ let navState = AppContext.useNavigationState()        // Only navigation fields
 - [ ] `npm run build` passes cleanly after each phase
 - [ ] All E2E tests pass after final phase
 
+## Status: PHASE 1 FOUNDATION COMPLETE
+
+### Phase 1 Completion Summary (Feb 11, 2026)
+
+**✅ COMPLETED:**
+1. Created `src/core/NavigationState.res` with:
+   - Reducer function for all navigation actions
+   - Initial state factory
+   - Utility functions (isNavigating, isLoading, isTransitioning)
+
+2. Refactored `src/core/Types.res`:
+   - Defined `navigationState` type containing: navigationFsm, navigation, incomingLink, autoForwardChain, currentJourneyId
+   - Updated `state` record to include `navigationState: navigationState`
+
+3. Updated `src/core/Reducer.res`:
+   - Navigation module now delegates to `NavigationState.reduce()`
+   - Maintains synchronization with `appMode.interactive.navigation`
+
+4. Refactored critical modules:
+   - `State.rs`: Updated initialState to use NavigationState.initial()
+   - `NavigationHelpers.res`: Updated to access navigationState.* fields
+   - `SimulationHelpers.res`: Updated to access navigationState.* fields
+   - `App.res`: Removed legacy NotificationContext/NotificationLayer (Task 1334 integration)
+
+5. Updated AppContext:
+   - Added `useNavigationState()` selector hook for Phase 2 component migration
+   - Updated useNavigationFsm() to use navigationState
+
+6. Updated ~30 files:
+   - Reducer.rs, AppContext.res, NavigationUI.res, ViewerSystem.res, SceneSwitcher.res
+   - Test files: Types_v.test.res, NavigationGraph_v.test.res, NavigationReducer_v.test.res, OptimisticAction_v.test.res, ServerTeaser_v.test.res, State_v.test.res, RootReducer_v.test.res, BatchAction_v.test.res, InteractionsRobustness_v.test.res, SceneSwitcher_v.test.res
+
+**⏳ REMAINING FOR PHASE 1 COMPLETION:**
+- Fix final 3-4 field accessor updates in NavigationController.res, InputSystem.res, HotspotManager_v.test.res
+- Verify `npm run build` passes
+- Run E2E tests to confirm behavior unchanged
+
+**ARCHITECTURE ACHIEVED:**
+- Navigation state is now isolated as a domain slice
+- Reducer complexity reduced (navigation actions delegated to sub-reducer)
+- Foundation in place for Phase 2: Component migration to `useNavigationState()` selector hook
+- Foundation in place for Phases 3-5: Extracting ViewerState, EditorState, ProjectState
+
 ## Estimated Effort: 5 days (incrementally across sprints)

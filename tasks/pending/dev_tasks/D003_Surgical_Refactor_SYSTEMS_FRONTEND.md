@@ -17,5 +17,5 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 - [ ] - **../../src/systems/ProjectManager.res** (Metric: [Nesting: 4.20, Density: 0.21, Coupling: 0.10] | Drag: 5.41 | LOC: 395/300  🎯 Target: Function: `finalToken` (High Local Complexity (2.0). Logic heavy.))
 
-- [ ] - **../../src/systems/ViewerSystem.res** (Metric: [Nesting: 3.60, Density: 0.05, Coupling: 0.08] | Drag: 4.67 | LOC: 391/300  🎯 Target: Function: `elOpt` (High Local Complexity (4.0). Logic heavy.))
+- [ ] - **../../src/systems/ViewerSystem.res** (Metric: [Nesting: 3.60, Density: 0.06, Coupling: 0.08] | Drag: 4.68 | LOC: 390/300  🎯 Target: Function: `elOpt` (High Local Complexity (4.0). Logic heavy.))
 

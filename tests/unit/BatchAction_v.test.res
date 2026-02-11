@@ -13,7 +13,9 @@ describe("Batch Action", () => {
     let newState = Reducer.reducer(initialState, batchAction)
 
     t->expect(newState.tourName)->Expect.toEqual("New_Tour")
-    t->expect(newState.currentJourneyId)->Expect.toEqual(initialState.currentJourneyId + 1)
+    t
+    ->expect(newState.navigationState.currentJourneyId)
+    ->Expect.toEqual(initialState.navigationState.currentJourneyId + 1)
   })
 
   test("Handles nested batches", t => {
@@ -23,7 +25,9 @@ describe("Batch Action", () => {
     let newState = Reducer.reducer(initialState, batchAction)
 
     t->expect(newState.tourName)->Expect.toEqual("Nested_Tour")
-    t->expect(newState.currentJourneyId)->Expect.toEqual(initialState.currentJourneyId + 1)
+    t
+    ->expect(newState.navigationState.currentJourneyId)
+    ->Expect.toEqual(initialState.navigationState.currentJourneyId + 1)
   })
 
   test("State is passed correctly through sequence", t => {
@@ -32,6 +36,8 @@ describe("Batch Action", () => {
     let batchAction = Batch(actions)
     let newState = Reducer.reducer(initialState, batchAction)
 
-    t->expect(newState.currentJourneyId)->Expect.toEqual(initialState.currentJourneyId + 3)
+    t
+    ->expect(newState.navigationState.currentJourneyId)
+    ->Expect.toEqual(initialState.navigationState.currentJourneyId + 3)
   })
 })

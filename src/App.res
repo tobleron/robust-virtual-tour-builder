@@ -76,8 +76,6 @@ module InnerApp = {
         /* Modal & Notification Containers */
         <div id="modal-container">
           <ModalContext />
-          <NotificationContext />
-          <NotificationLayer />
           <RecoveryCheck />
           <CriticalErrorMonitor />
         </div>

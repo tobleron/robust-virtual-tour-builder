@@ -136,17 +136,20 @@ describe("HotspotManager", () => {
     let scene = createScene("SourceScene")
     let state = {
       ...State.initialState,
-      navigation: Navigating({
-        journeyId: 1,
-        targetIndex: 1,
-        sourceIndex: 0,
-        hotspotIndex: 0, // matches our index
-        arrivalYaw: 0.0,
-        arrivalPitch: 0.0,
-        arrivalHfov: 0.0,
-        previewOnly: false,
-        pathData: None,
-      }),
+      navigationState: {
+        ...NavigationState.initial(),
+        navigation: Navigating({
+          journeyId: 1,
+          targetIndex: 1,
+          sourceIndex: 0,
+          hotspotIndex: 0, // matches our index
+          arrivalYaw: 0.0,
+          arrivalPitch: 0.0,
+          arrivalHfov: 0.0,
+          previewOnly: false,
+          pathData: None,
+        }),
+      },
     }
 
     let config = HotspotManager.createHotspotConfig(
@@ -170,7 +173,10 @@ describe("HotspotManager", () => {
       ...State.initialState,
       scenes: [scene1, scene2],
       activeIndex: 1, // At Scene2
-      incomingLink: Some({sceneIndex: 0, hotspotIndex: 0}), // Came from Scene1
+      navigationState: {
+        ...NavigationState.initial(),
+        incomingLink: Some({sceneIndex: 0, hotspotIndex: 0}), // Came from Scene1
+      },
     }
 
     let config = HotspotManager.createHotspotConfig(

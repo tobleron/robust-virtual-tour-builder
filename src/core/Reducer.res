@@ -170,9 +170,13 @@ module AppFsm = {
         let nextAppMode = AppFSM.transition(state.appMode, event)
         let nextState = {...state, appMode: nextAppMode}
 
-        // Unify navigation state: sync internal FSM state to top-level for components that depend on it
+        // Unify navigation state: sync internal FSM state to navigationState for components that depend on it
         switch nextAppMode {
-        | Interactive(s) => Some({...nextState, navigationFsm: s.navigation})
+        | Interactive(s) =>
+          Some({
+            ...nextState,
+            navigationState: {...state.navigationState, navigationFsm: s.navigation},
+          })
         | _ => Some(nextState)
         }
       }
@@ -185,48 +189,67 @@ module Navigation = {
   let reduce = (state: state, action: action): option<state> => {
     switch action {
     | SetSimulationMode(_val) =>
-      Some({
-        ...state,
+      // Reset navigation state when changing simulation mode
+      let resetNavState = {
+        ...state.navigationState,
         autoForwardChain: [],
         incomingLink: None,
-        currentJourneyId: state.currentJourneyId + 1,
+        currentJourneyId: state.navigationState.currentJourneyId + 1,
         navigation: Idle,
-      })
-    | SetNavigationStatus(status) =>
-      Some({
-        ...state,
-        navigation: status,
-      })
-    | SetIncomingLink(link) => Some({...state, incomingLink: link})
-    | ResetAutoForwardChain => Some({...state, autoForwardChain: []})
+      }
+      Some({...state, navigationState: resetNavState})
+
     | AddToAutoForwardChain(idx) => Some(NavigationHelpers.handleAddToAutoForwardChain(state, idx))
-    | SetPendingReturnSceneName(name) => Some({...state, pendingReturnSceneName: name})
-    | IncrementJourneyId => Some({...state, currentJourneyId: state.currentJourneyId + 1})
-    | SetCurrentJourneyId(id) => Some({...state, currentJourneyId: id})
+
     | NavigationCompleted(journey) =>
       Some(NavigationHelpers.handleNavigationCompleted(state, journey))
-    | SetNavigationFsmState(fsmState) => Some({...state, navigationFsm: fsmState})
-    | DispatchNavigationFsmEvent(event) => {
-        let nextFsmState = NavigationFSM.reducer(state.navigationFsm, event)
-        let nextState = {...state, navigationFsm: nextFsmState}
 
-        // Sync back to appMode if interactive
-        let finalState = switch state.appMode {
-        | Interactive(s) => {...nextState, appMode: Interactive({...s, navigation: nextFsmState})}
-        | _ => nextState
+    | SetNavigationStatus(_)
+    | SetIncomingLink(_)
+    | ResetAutoForwardChain
+    | IncrementJourneyId
+    | SetCurrentJourneyId(_)
+    | SetNavigationFsmState(_)
+    | DispatchNavigationFsmEvent(_) =>
+      // Delegate all navigation actions to NavigationState reducer
+      switch NavigationState.reduce(state.navigationState, action) {
+      | Some(nextNavState) => {
+          let nextState = {...state, navigationState: nextNavState}
+
+          // Special handling: sync navigationFsm back to appMode.interactive if present
+          switch action {
+          | DispatchNavigationFsmEvent(_) =>
+            switch nextState.appMode {
+            | Interactive(s) =>
+              Some({
+                ...nextState,
+                appMode: Interactive({...s, navigation: nextNavState.navigationFsm}),
+              })
+            | _ => Some(nextState)
+            }
+          | _ => Some(nextState)
+          }
         }
-        Some(finalState)
+      | None => None
       }
+
+    | SetPendingReturnSceneName(name) => Some({...state, pendingReturnSceneName: name})
+
     | DispatchAppFsmEvent(event) => {
         let nextAppMode = AppFSM.transition(state.appMode, event)
         let nextState = {...state, appMode: nextAppMode}
 
-        // Unify navigation state: sync internal FSM state to top-level for components that depend on it
-        switch nextAppMode {
-        | Interactive(s) => Some({...nextState, navigationFsm: s.navigation})
-        | _ => Some(nextState)
+        // Sync navigationFsm from appMode if interactive
+        let finalState = switch nextAppMode {
+        | Interactive(s) => {
+            ...nextState,
+            navigationState: {...state.navigationState, navigationFsm: s.navigation},
+          }
+        | _ => nextState
         }
+        Some(finalState)
       }
+
     | _ => None
     }
   }
@@ -358,8 +381,7 @@ module Project = {
             // Important: Reset views when loading new project
             activeYaw: 0.0,
             activePitch: 0.0,
-            navigation: Idle,
-            navigationFsm: IdleFsm,
+            navigationState: NavigationState.initial(),
             simulation: State.initialState.simulation,
             isTeasing: false,
             isLinking: false,

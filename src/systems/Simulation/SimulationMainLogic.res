@@ -23,7 +23,28 @@ let getNextMove = (state: state): nextMove => {
 
   switch Belt.Array.get(state.scenes, state.activeIndex) {
   | Some(currentScene) =>
+    Logger.debug(
+      ~module_="SimulationMainLogic",
+      ~message="GET_NEXT_MOVE",
+      ~data=Some({
+        "currentSceneId": currentScene.id,
+        "currentSceneName": currentScene.name,
+        "activeIndex": state.activeIndex,
+        "visitedScenes": visitedScenes,
+        "hotspotCount": Belt.Array.length(currentScene.hotspots),
+      }),
+      (),
+    )
     let nextLinkFound = SimulationNavigation.findBestNextLink(currentScene, state, visitedScenes)
+    Logger.debug(
+      ~module_="SimulationMainLogic",
+      ~message="NEXT_LINK_RESULT",
+      ~data=Some({
+        "found": Belt.Option.isSome(nextLinkFound),
+        "targetIndex": nextLinkFound->Belt.Option.map(l => l.targetIndex),
+      }),
+      (),
+    )
     switch nextLinkFound {
     | Some(link) =>
       let (finalLink, extraVisited) = if simulation.skipAutoForwardGlobal {

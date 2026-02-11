@@ -22,6 +22,7 @@ type task = {
 }
 
 // Module-level refs
+let taskCounter = ref(0)
 let currentTask: ref<option<task>> = ref(None)
 let status: ref<status> = ref(Idle)
 let listeners: ref<array<status => unit>> = ref([])
@@ -102,7 +103,8 @@ let requestNavigation = (targetSceneId: string): unit => {
   // Create new task with AbortController
   let controller = BrowserBindings.AbortController.make()
   let abortSignal = BrowserBindings.AbortController.signal(controller)
-  let taskId = `task_${Date.now()->Float.toString}`
+  taskCounter := taskCounter.contents + 1
+  let taskId = `task_${Date.now()->Float.toString}_${taskCounter.contents->Belt.Int.toString}`
   let task = {
     id: taskId,
     targetSceneId,

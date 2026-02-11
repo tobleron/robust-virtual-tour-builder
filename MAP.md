@@ -163,8 +163,7 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [src/components/VisualPipeline/VisualPipelineComponent.res](src/components/VisualPipeline/VisualPipelineComponent.res): Functional React component for the visualizer pipeline. `#ui` `#visual-pipeline`
     *   [src/components/VisualPipeline/VisualPipelineStyles.res](src/components/VisualPipeline/VisualPipelineStyles.res): CSS-in-JS definitions for the visual pipeline. `#styling`
 *   [src/components/SnapshotOverlay.res](src/components/SnapshotOverlay.res): Visual transition "flash" layer. `#ui` `#transition`
-*   [src/components/NotificationLayer.res](src/components/NotificationLayer.res): Centralized notification and processing status layer. `#ui` `#notifications`
-    *   [src/components/NotificationCenter.res](src/components/NotificationCenter.res): High-level notification center UI orchestrator (Custom ReScript implementation). `#ui` `#notifications` `#custom-system`
+*   [src/components/NotificationCenter.res](src/components/NotificationCenter.res): High-level notification center UI orchestrator (Custom ReScript implementation). `#ui` `#notifications` `#custom-system`
 *   [src/components/LockFeedback.res](src/components/LockFeedback.res): Visual feedback for transition locks and blocking states. `#ui` `#feedback`
 *   [src/components/Sidebar.res](src/components/Sidebar.res): Consolidated sidebar module for project management and UI. `#sidebar` `#scene-management` `#ui` `#logic`
     * [src/components/Sidebar/SidebarLogic.res](src/components/Sidebar/SidebarLogic.res): Core sidebar logic and upload orchestration. `#logic`
@@ -184,7 +183,6 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/components/LabelMenu.res](src/components/LabelMenu.res): Interface for adding and editing persistent labels. `#ui` `#labels`
 *   [src/components/LinkModal.res](src/components/LinkModal.res): Modal for configuring inter-scene navigation links. `#ui` `#navigation` `#modal`
 *   [src/components/ModalContext.res](src/components/ModalContext.res): Context provider for managing application-wide modals. `#state` `#ui` `#modal`
-*   [src/components/NotificationContext.res](src/components/NotificationContext.res): Context for dispatching and managing notifications. `#state` `#ui` `#notifications`
 *   [src/components/PersistentLabel.res](src/components/PersistentLabel.res): Visual representation of fixed spatial labels in the viewer. `#ui` `#labels`
 *   [src/components/PopOver.res](src/components/PopOver.res): Generic popup/hover overlay component. `#ui` `#popover`
 *   [src/components/Portal.res](src/components/Portal.res): React portal utility for detached DOM rendering. `#ui` `#dom`
@@ -307,4 +305,5 @@ This map provides a semantic overview of the project structure to optimize conte
 
 
 ## 🆕 Unmapped Modules
+* [src/core/NavigationState.res](src/core/NavigationState.res): New module detected. Please classify. #new
 * None detected.

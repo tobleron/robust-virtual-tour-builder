@@ -33,7 +33,7 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
             }),
           }
 
-        let v = Nullable.toOption(ReBindings.Viewer.instance)
+        let v = Nullable.toOption(ViewerSystem.getActiveViewer())
         switch v {
         | Some(viewer) =>
           let currentYaw = ReBindings.Viewer.getYaw(viewer)
