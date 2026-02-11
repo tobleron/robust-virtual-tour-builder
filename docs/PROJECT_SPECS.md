@@ -15,7 +15,7 @@ The project follows a **System 2 Thinking** architecture, partitioned between a 
 ### Component Breakdown
 - **Frontend (ReScript)**: Handles UI state management, user interactions, and orchestration of complex workflows (Simulation, Teaser Generation).
 - **Backend (Rust)**: Executes CPU-intensive tasks including image processing (WebP encoding), parallel quality analysis, and project packaging (ZIP).
-- **Data Validation Layer**: Uses `rescript-schema` to enforce strict runtime validation at the IO boundary, ensuring 100% type safety for API responses and preventing runtime crashes.
+- **Data Validation Layer**: Uses `rescript-json-combinators` (module `JsonCombinators`) to enforce strict runtime validation at the IO boundary, ensuring 100% type safety for API responses and preventing runtime crashes.
 - **Security Logic**: Memory-safe Rust eliminates common vulnerabilities like buffer overflows.
 
 ## 2. Performance Engineering
