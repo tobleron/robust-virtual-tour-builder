@@ -106,10 +106,10 @@ module Playback = {
       ->Option.map(t => (t.yaw -. config.cameraPanOffset, t.pitch))
       ->Option.getOr((0.0, 0.0))
     }
-    let scenes = GlobalStateBridge.getState().scenes
+    let scenes = AppStateBridge.getState().scenes
     switch Belt.Array.get(scenes, step.idx) {
     | Some(scene) =>
-      GlobalStateBridge.dispatch(SetActiveScene(step.idx, iy, ip, None))
+      AppStateBridge.dispatch(SetActiveScene(step.idx, iy, ip, None))
       await wait(500)
       let _ = await waitForViewerReady(scene.id)
       ViewerSystem.getActiveViewer()
@@ -155,10 +155,10 @@ module Playback = {
       ->Option.map(t => (t.yaw -. config.cameraPanOffset, t.pitch))
       ->Option.getOr((nextStep.arrivalView.yaw, nextStep.arrivalView.pitch))
     }
-    let scenes = GlobalStateBridge.getState().scenes
+    let scenes = AppStateBridge.getState().scenes
     switch Belt.Array.get(scenes, nextStep.idx) {
     | Some(scene) =>
-      GlobalStateBridge.dispatch(SetActiveScene(nextStep.idx, ny, np, None))
+      AppStateBridge.dispatch(SetActiveScene(nextStep.idx, ny, np, None))
       await wait(500)
       let _ = await waitForViewerReady(scene.id)
       ViewerSystem.getActiveViewer()
@@ -217,15 +217,12 @@ module Manager = {
     let logoState = await Recorder.loadLogo()
     Recorder.startAnimationLoop(includeLogo, logoState)
     if Recorder.startRecording() {
-      GlobalStateBridge.dispatch(
-        StartAutoPilot(
-          GlobalStateBridge.getState().navigationState.currentJourneyId,
-          skipAutoForward,
-        ),
+      AppStateBridge.dispatch(
+        StartAutoPilot(AppStateBridge.getState().navigationState.currentJourneyId, skipAutoForward),
       )
       let rec check = async () => {
         await wait(1000)
-        if GlobalStateBridge.getState().simulation.status == Running {
+        if AppStateBridge.getState().simulation.status == Running {
           await check()
         }
       }
@@ -234,7 +231,7 @@ module Manager = {
       Recorder.stopRecording()
       let safeName =
         String.replaceRegExp(
-          GlobalStateBridge.getState().tourName,
+          AppStateBridge.getState().tourName,
           /[^a-z0-9]/gi,
           "_",
         )->String.toLowerCase
@@ -243,13 +240,13 @@ module Manager = {
   }
 
   let startAutoTeaser = async (style, includeLogo, format, skipAutoForward) => {
-    let state = GlobalStateBridge.getState()
+    let state = AppStateBridge.getState()
     if state.isLinking {
       Logger.warn(~module_="TeaserLogic", ~message="TEASER_BLOCKED_BY_LINKING", ())
     } else if Array.length(state.scenes) == 0 {
       ()
     } else if style == "cinematic" && format == "mp4" {
-      GlobalStateBridge.dispatch(SetIsTeasing(true))
+      AppStateBridge.dispatch(SetIsTeasing(true))
       ProgressBar.updateProgressBar(
         0.0,
         "Server Generating...",
@@ -271,7 +268,7 @@ module Manager = {
           },
         ),
       )->Promise.then(res => {
-        GlobalStateBridge.dispatch(SetIsTeasing(false))
+        AppStateBridge.dispatch(SetIsTeasing(false))
         ProgressBar.updateProgressBar(0.0, "", ~visible=false, ~title="", ())
         switch res {
         | Ok(blob) =>
@@ -319,7 +316,7 @@ module Manager = {
             await wait(500)
             let safeName =
               String.replaceRegExp(
-                GlobalStateBridge.getState().tourName,
+                AppStateBridge.getState().tourName,
                 /[^a-z0-9]/gi,
                 "_",
               )->String.toLowerCase

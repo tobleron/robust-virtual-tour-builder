@@ -14,7 +14,7 @@ let make = () => {
 
         let handleReset = () => {
           hasShown.current = false
-          GlobalStateBridge.dispatch(DispatchAppFsmEvent(Reset))
+          AppStateBridge.dispatch(DispatchAppFsmEvent(Reset))
           EventBus.dispatch(CloseModal)
         }
 

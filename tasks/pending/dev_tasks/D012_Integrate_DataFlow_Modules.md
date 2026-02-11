@@ -13,7 +13,7 @@ Review the unmapped modules in the 'Unmapped Modules' section of `DATA_FLOW.md` 
 ## Unmapped Modules
 - [ ] [src/components/FloorNavigation.res]
 - [ ] [src/core/Actions.res]
-- [ ] [src/core/AppStateBridge.res]
+- [ ] [src/core/GlobalStateBridge.res]
 - [ ] [src/core/NavigationHelpers.res]
 - [ ] [src/core/NavigationState.res]
 - [ ] [src/core/TransitionLock.res]

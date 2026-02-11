@@ -78,7 +78,7 @@ User file selection
 **Flow:**
 ```
 State changes
-  → [src/core/GlobalStateBridge.res] notifies subscribers
+  → [src/core/AppStateBridge.res] notifies subscribers
   → [src/utils/PersistenceLayer.res] debounced save (2s)
   → [src/core/State.res] and [src/core/StateSnapshot.res] serialized by [src/core/JsonParsers.res], [src/core/JsonParsersEncoders.res], [src/core/JsonEncoders.res], and [src/core/JsonParsersShared.res]
   → IndexedDB storage [src/bindings/IdbBindings.res]
@@ -298,7 +298,7 @@ Address/GPS Query
 
 ### 📂 src/core
 - `[src/core/Actions.res]`
-- `[src/core/AppStateBridge.res]`
+- `[src/core/GlobalStateBridge.res]`
 - `[src/core/NavigationHelpers.res]`
 - `[src/core/NavigationState.res]`
 - `[src/core/TransitionLock.res]`

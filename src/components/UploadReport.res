@@ -21,11 +21,11 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
         {
           label: "Close",
           class_: "btn-secondary",
-          onClick: () => GlobalStateBridge.dispatch(DispatchAppFsmEvent(CloseSummary)),
+          onClick: () => AppStateBridge.dispatch(DispatchAppFsmEvent(CloseSummary)),
           autoClose: Some(true),
         },
       ],
-      onClose: Some(() => GlobalStateBridge.dispatch(DispatchAppFsmEvent(CloseSummary))),
+      onClose: Some(() => AppStateBridge.dispatch(DispatchAppFsmEvent(CloseSummary))),
       allowClose: Some(true),
       className: None,
     }
@@ -140,7 +140,7 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
       label: "Download Data Report",
       class_: "bg-slate-100/10 text-white hover:bg-white/20",
       onClick: () => {
-        let state = GlobalStateBridge.getState()
+        let state = AppStateBridge.getState()
         switch state.exifReport {
         | Some(reportJson) =>
           switch JsonCombinators.Json.decode(reportJson, JsonCombinators.Json.Decode.string) {
@@ -169,10 +169,10 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
       label: "Start Building",
       class_: "bg-blue-500/20 text-white hover:bg-blue-500/40",
       onClick: () => {
-        let state = GlobalStateBridge.getState()
-        GlobalStateBridge.dispatch(DispatchAppFsmEvent(CloseSummary))
+        let state = AppStateBridge.getState()
+        AppStateBridge.dispatch(DispatchAppFsmEvent(CloseSummary))
         if state.activeIndex == -1 && Array.length(state.scenes) > 0 {
-          GlobalStateBridge.dispatch(Actions.SetActiveScene(0, 0.0, 0.0, None))
+          AppStateBridge.dispatch(Actions.SetActiveScene(0, 0.0, 0.0, None))
         }
       },
       autoClose: Some(true),
@@ -184,7 +184,7 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
       icon: None,
       content: Some(content),
       buttons: [btnDownload, btnStart],
-      onClose: Some(() => GlobalStateBridge.dispatch(DispatchAppFsmEvent(CloseSummary))),
+      onClose: Some(() => AppStateBridge.dispatch(DispatchAppFsmEvent(CloseSummary))),
       allowClose: Some(true),
       className: Some("modal-blue"),
     }

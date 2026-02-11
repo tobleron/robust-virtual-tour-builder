@@ -59,7 +59,7 @@ let request = async (
   ~signal: option<ReBindings.AbortSignal.t>=?,
   (),
 ) => {
-  let sessionId = switch GlobalStateBridge.getState().sessionId {
+  let sessionId = switch AppStateBridge.getState().sessionId {
   | Some(id) => id
   | None => "anonymous"
   }
