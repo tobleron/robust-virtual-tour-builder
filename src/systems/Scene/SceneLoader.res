@@ -420,7 +420,11 @@ let rec loadNewScene = (
                 }),
                 (),
               )
-              Events.onSceneError("Failed to initialize viewer: " ++ errMsg, targetScene.id, ~taskId?)
+              Events.onSceneError(
+                "Failed to initialize viewer: " ++ errMsg,
+                targetScene.id,
+                ~taskId?,
+              )
               switch taskId {
               | Some(tid) => NavigationSupervisor.abort(tid)
               | None =>

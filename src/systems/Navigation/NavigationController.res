@@ -65,11 +65,7 @@ module ControllerHooks = {
               (),
             )
             let taskInfo = NavigationSupervisor.getCurrentTask()
-            Scene.Transition.performSwap(
-              ts,
-              0.0,
-              ~taskId=?taskInfo->Option.map(t => t.id),
-            )
+            Scene.Transition.performSwap(ts, 0.0, ~taskId=?taskInfo->Option.map(t => t.id))
           | None =>
             Logger.error(
               ~module_="NavigationController",
