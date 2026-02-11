@@ -22,9 +22,8 @@ let make = React.memo(() => {
     <PersistentLabel activeIndex={sceneSlice.activeIndex} scenes={sceneSlice.scenes} />
     <QualityIndicator activeIndex={sceneSlice.activeIndex} scenes={sceneSlice.scenes} />
 
-    /* Floor Selection */
     <FloorNavigation
-      scenesLoaded activeIndex={sceneSlice.activeIndex} isLinking={uiSlice.isLinking}
+      scenesLoaded activeIndex={sceneSlice.activeIndex} isLinking={uiSlice.isLinking} simActive
     />
 
     /* Return Prompt Banner */
