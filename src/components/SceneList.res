@@ -117,17 +117,21 @@ let make = React.memo(() => {
           (),
         )
 
-        dispatch(Actions.SetNavigationStatus(Types.Idle))
         if uiSlice.isLinking {
           dispatch(Actions.StopLinking)
         }
-        let trans: Types.transition = {
-          type_: Cut,
-          targetHotspotIndex: -1,
-          fromSceneName: None,
+
+        // Get target scene and call Supervisor - it handles FSM events and navigation coordination
+        switch Belt.Array.get(sceneSlice.scenes, index) {
+        | Some(targetScene) =>
+          NavigationSupervisor.requestNavigation(targetScene.id)
+
+          // Update state for editor mode (non-animated transition)
+          let trans: Types.transition = {type_: Cut, targetHotspotIndex: -1, fromSceneName: None}
+          dispatch(Actions.SetActiveTimelineStep(None))
+          dispatch(Actions.SetActiveScene(index, 0.0, 0.0, Some(trans)))
+        | None => ()
         }
-        dispatch(Actions.SetActiveTimelineStep(None))
-        dispatch(Actions.SetActiveScene(index, 0.0, 0.0, Some(trans)))
       }
     }
   , (sceneSlice.activeIndex, uiSlice.isLinking))

@@ -74,7 +74,16 @@ let handleKeyDown = e => {
     // 0b. Handle Navigation Interruption
     switch storeState.navigationFsm {
     | IdleFsm | ErrorFsm(_) => ()
-    | _ => GlobalStateBridge.dispatch(Actions.DispatchNavigationFsmEvent(Aborted))
+    | _ =>
+      // Check if Supervisor is managing this navigation
+      switch NavigationSupervisor.getCurrentTask() {
+      | Some(task) =>
+        // Abort via Supervisor (which handles FSM dispatch and AbortController)
+        NavigationSupervisor.abort(task.id)
+      | None =>
+        // Fallback: Direct FSM dispatch for non-Supervisor navigations
+        GlobalStateBridge.dispatch(Actions.DispatchNavigationFsmEvent(Aborted))
+      }
     }
 
     // 1. Close Modals

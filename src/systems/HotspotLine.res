@@ -112,9 +112,26 @@ let updateLines = (viewer, state: Types.state, ~mouseEvent: option<Dom.event>=?,
 }
 
 let handleHotspotClick = (targetSceneId: string) => {
-  GlobalStateBridge.dispatch(
-    Actions.DispatchNavigationFsmEvent(UserClickedScene({targetSceneId: targetSceneId})),
-  )
+  let action = () => {
+    NavigationSupervisor.requestNavigation(targetSceneId)
+    Promise.resolve()
+  }
+
+  switch InteractionGuard.attempt("scene_navigation", InteractionPolicies.sceneNavigation, action) {
+  | Ok(_) => ()
+  | Error(_) =>
+    NotificationManager.dispatch({
+      id: "",
+      importance: Warning,
+      context: Operation("hotspot_click"),
+      message: "Switching too fast...",
+      details: None,
+      action: None,
+      duration: NotificationTypes.defaultTimeoutMs(Warning),
+      dismissible: true,
+      createdAt: Date.now(),
+    })
+  }
 }
 
 // --- COMPATIBILITY ALIASES ---
