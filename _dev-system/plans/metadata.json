@@ -1,19 +1,23 @@
 {
-  "rust": [
+  "css": [
     {
       "Violation": {
-        "file": "../../backend/src/api/media/video_logic.rs",
-        "pattern": "unwrap()",
+        "file": "../../css/components/ui.css",
+        "pattern": "!important",
         "strategy": ""
       }
     }
   ],
   "rescript": [
     {
-      "Violation": {
-        "file": "../../src/systems/Api/AuthenticatedClient.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
+      "Surgical": {
+        "file": "../../src/components/Sidebar.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.04, Coupling: 0.09] | Drag: 4.10 | LOC: 398/300  🎯 Target: Function: `make` (High Local Complexity (13.5). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 13.895477386934674,
+        "recommended_splits": 2
       }
     },
     {
@@ -25,12 +29,12 @@
     },
     {
       "Surgical": {
-        "file": "../../src/core/Reducer.res",
+        "file": "../../src/core/SceneMutations.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 4.20, Density: 0.30, Coupling: 0.10] | Drag: 5.50 | LOC: 393/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.)",
+        "reason": "[Nesting: 5.40, Density: 0.26, Coupling: 0.04] | Drag: 6.68 | LOC: 394/300  🎯 Target: Function: `getDeletedIds` (High Local Complexity (3.5). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 14.795165394402037,
+        "complexity": 16.081725888324872,
         "recommended_splits": 2
       }
     },
@@ -47,23 +51,12 @@
     },
     {
       "Surgical": {
-        "file": "../../src/core/SceneMutations.res",
+        "file": "../../src/core/Reducer.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 5.40, Density: 0.26, Coupling: 0.04] | Drag: 6.68 | LOC: 394/300  🎯 Target: Function: `getDeletedIds` (High Local Complexity (3.5). Logic heavy.)",
+        "reason": "[Nesting: 4.20, Density: 0.30, Coupling: 0.10] | Drag: 5.50 | LOC: 393/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 16.081725888324872,
-        "recommended_splits": 2
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/Sidebar.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.04, Coupling: 0.09] | Drag: 4.10 | LOC: 398/300  🎯 Target: Function: `make` (High Local Complexity (13.5). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 13.895477386934674,
+        "complexity": 14.795165394402037,
         "recommended_splits": 2
       }
     },
@@ -76,6 +69,13 @@
         "platform": "frontend",
         "complexity": 14.905063291139241,
         "recommended_splits": 2
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/Api/AuthenticatedClient.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
       }
     },
     {
@@ -97,6 +97,15 @@
         "reason": "Read Tax high (Score 2.00). Projected Limit: 300 (Drag 4.29)",
         "strategy": "",
         "platform": "frontend"
+      }
+    }
+  ],
+  "rust": [
+    {
+      "Violation": {
+        "file": "../../backend/src/api/media/video_logic.rs",
+        "pattern": "unwrap()",
+        "strategy": ""
       }
     }
   ]

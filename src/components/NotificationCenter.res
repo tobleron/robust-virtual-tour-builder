@@ -79,5 +79,17 @@ let make = React.memo(() => {
     None
   }, [state.active])
 
-  <Shadcn.Sonner richColors=true closeButton=true position="bottom-right" />
+  let (container, setContainer) = React.useState(_ => None)
+
+  React.useEffect0(() => {
+    // We wait for mount to ensure the DOM element exists
+    setContainer(_ => DomBindings.Dom.getElementById("viewer-container")->Nullable.toOption)
+    None
+  })
+
+  switch container {
+  | Some(el) =>
+    <Shadcn.Sonner container=el richColors=true closeButton=false position="top-right" dir="ltr" />
+  | None => React.null
+  }
 })

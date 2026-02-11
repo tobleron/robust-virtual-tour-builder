@@ -12,7 +12,7 @@ const Toaster = ({ visibleToasts = 3, duration = 4000, ...props }) => {
             toastOptions={{
                 classNames: {
                     toast:
-                        "group toast group-[.vtb-toaster-root]:bg-[#0e2d52] group-[.vtb-toaster-root]:backdrop-blur-[8px] group-[.vtb-toaster-root]:text-white group-[.vtb-toaster-root]:border-none group-[.vtb-toaster-root]:shadow-none group-[.vtb-toaster-root]:py-2.5 group-[.vtb-toaster-root]:px-4 group-[.vtb-toaster-root]:text-[13px] group-[.vtb-toaster-root]:rounded-md group-[.vtb-toaster-root]:min-w-[360px] group-[.vtb-toaster-root]:max-w-[360px] group-[.vtb-toaster-root]:h-[42px] font-medium",
+                        "group toast group-[.vtb-toaster-root]:bg-[#0e2d52] group-[.vtb-toaster-root]:backdrop-blur-[8px] group-[.vtb-toaster-root]:text-white group-[.vtb-toaster-root]:border-none group-[.vtb-toaster-root]:shadow-none group-[.vtb-toaster-root]:py-3 group-[.vtb-toaster-root]:px-5 group-[.vtb-toaster-root]:text-[13px] group-[.vtb-toaster-root]:rounded-lg group-[.vtb-toaster-root]:min-w-[300px] group-[.vtb-toaster-root]:max-w-[300px] group-[.vtb-toaster-root]:h-[48px] font-medium flex items-center gap-3",
                     description: "group-[.toast]:text-slate-400 group-[.toast]:text-[8px]",
                     actionButton:
                         "group-[.toast]:bg-[var(--primary)] group-[.toast]:text-white group-[.toast]:text-[8px] group-[.toast]:px-1.5 group-[.toast]:h-5",
