@@ -102,6 +102,9 @@ let handleMainSceneLoad = (state: state, scene: Types.scene, dispatch: action =>
       ~data=Some({"targetId": scene.id, "prevId": currentLastId}),
       (),
     )
+    // NOTE: This is a recovery/initialization path, not user-initiated navigation.
+    // We dispatch FSM event directly to synchronize viewer state with Redux.
+    // This does NOT go through Supervisor to avoid circular dependencies during init.
     dispatch(DispatchNavigationFsmEvent(UserClickedScene({targetSceneId: scene.id})))
   } else {
     let v = ViewerSystem.getActiveViewer()

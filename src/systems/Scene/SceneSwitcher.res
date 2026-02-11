@@ -67,10 +67,8 @@ let navigateToScene = (
         let _ = Js.Array.push(SetNavigationStatus(Navigating(j)), actions)
 
         state.scenes[targetIdx]->Option.forEach(ts => {
-          let _ = Js.Array.push(
-            DispatchNavigationFsmEvent(UserClickedScene({targetSceneId: ts.id})),
-            actions,
-          )
+          // Call Supervisor to manage navigation lifecycle and dispatch FSM event
+          NavigationSupervisor.requestNavigation(ts.id)
         })
 
         pd->Option.forEach(p =>
@@ -101,10 +99,8 @@ let navigateToScene = (
           actions,
         )
         state.scenes[targetIdx]->Option.forEach(ts => {
-          let _ = Js.Array.push(
-            DispatchNavigationFsmEvent(UserClickedScene({targetSceneId: ts.id})),
-            actions,
-          )
+          // Call Supervisor to manage navigation lifecycle and dispatch FSM event
+          NavigationSupervisor.requestNavigation(ts.id)
         })
       }
       dispatch(Batch(actions))
