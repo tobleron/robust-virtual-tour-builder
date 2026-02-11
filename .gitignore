@@ -57,3 +57,6 @@ playwright/.cache/
 
 # Ensure tasks are always tracked
 !tasks/
+
+# Temporary reports
+docs/_tmp_test_reports/
