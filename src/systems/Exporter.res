@@ -41,7 +41,7 @@ let uploadAndProcessRaw: (
   FormData.t,
   (float, float, string) => unit,
   string,
-  ~signal: BrowserBindings.AbortController.signal,
+  ~signal: BrowserBindings.AbortSignal.t,
   ~token: option<string>,
 ) => Promise.t<Blob.t> = %raw(`
   function(formData, onProgress, backendUrl, signal, token) {
@@ -111,7 +111,7 @@ let uploadAndProcessRaw: (
 
 let exportTour = async (
   scenes: array<scene>,
-  ~signal: BrowserBindings.AbortController.signal,
+  ~signal: BrowserBindings.AbortSignal.t,
   onProgress: option<(float, float, string) => unit>,
 ): result<unit, string> => {
   let progress = (p, t, m) => {

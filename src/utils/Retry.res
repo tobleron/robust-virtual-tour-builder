@@ -47,7 +47,7 @@ let defaultShouldRetry = (error: string) => {
   String.includes(error, "504")
 }
 
-@get external aborted: ReBindings.AbortController.signal => bool = "aborted"
+@get external aborted: ReBindings.AbortSignal.t => bool = "aborted"
 
 let rec loop = async (fn, signal, config, shouldRetry, onRetry, attempt) => {
   if aborted(signal) {
