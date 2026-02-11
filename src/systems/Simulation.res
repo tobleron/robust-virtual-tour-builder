@@ -120,6 +120,7 @@ let make = () => {
                 let waitResult = await Navigation.waitForViewerScene(
                   stateRef.current.activeIndex,
                   () => isCurrentRun() && stateRef.current.simulation.status == Running,
+                  ~getState=() => stateRef.current,
                   (),
                 )
 

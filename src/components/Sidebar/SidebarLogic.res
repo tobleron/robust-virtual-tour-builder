@@ -25,7 +25,14 @@ module SidebarTypes = {
 
 open ReBindings
 
-let updateProgress = (~onCancel=() => (), pct, msg, active, phase) => {
+let updateProgress = (
+  ~dispatch: Actions.action => unit=AppContext.getBridgeDispatch(),
+  ~onCancel=() => (),
+  pct,
+  msg,
+  active,
+  phase,
+) => {
   EventBus.dispatch(
     UpdateProcessing({
       "active": active,
@@ -37,11 +44,14 @@ let updateProgress = (~onCancel=() => (), pct, msg, active, phase) => {
     }),
   )
   if active {
-    GlobalStateBridge.dispatch(DispatchAppFsmEvent(UploadProgress(pct)))
+    dispatch(DispatchAppFsmEvent(UploadProgress(pct)))
   }
 }
 
-let performUpload = async files => {
+let performUpload = async (
+  files,
+  ~dispatch: Actions.action => unit=AppContext.getBridgeDispatch(),
+) => {
   let fileArray = JsHelpers.from(files)
 
   try {
@@ -49,7 +59,7 @@ let performUpload = async files => {
       fileArray,
       Some(
         (pct, msg, isProc, phase) => {
-          updateProgress(pct, msg, isProc, phase)
+          updateProgress(~dispatch, pct, msg, isProc, phase)
         },
       ),
     )
@@ -57,7 +67,7 @@ let performUpload = async files => {
     let qualityResults = result.qualityResults
     let report = result.report
 
-    GlobalStateBridge.dispatch(DispatchAppFsmEvent(UploadComplete(report, qualityResults)))
+    dispatch(DispatchAppFsmEvent(UploadComplete(report, qualityResults)))
     UploadReport.show(report, qualityResults)
     NotificationManager.dispatch({
       id: "",
@@ -76,9 +86,7 @@ let performUpload = async files => {
     | Some(m) => m
     | None => "Unknown error"
     }
-    GlobalStateBridge.dispatch(
-      Actions.DispatchAppFsmEvent(CriticalErrorOccurred("Upload Failed: " ++ msg)),
-    )
+    dispatch(Actions.DispatchAppFsmEvent(CriticalErrorOccurred("Upload Failed: " ++ msg)))
     NotificationManager.dispatch({
       id: "",
       importance: Error,
@@ -90,18 +98,19 @@ let performUpload = async files => {
       dismissible: true,
       createdAt: Date.now(),
     })
-    updateProgress(0.0, "Error: " ++ msg, false, "")
-  | _ =>
-    GlobalStateBridge.dispatch(
-      Actions.DispatchAppFsmEvent(CriticalErrorOccurred("Unknown Upload Error")),
-    )
+    updateProgress(~dispatch, 0.0, "Error: " ++ msg, false, "")
+  | _ => dispatch(Actions.DispatchAppFsmEvent(CriticalErrorOccurred("Unknown Upload Error")))
   }
 }
 
-let handleUpload = async filesOpt => {
+let handleUpload = async (
+  filesOpt,
+  ~getState: unit => Types.state=AppContext.getBridgeState,
+  ~dispatch: Actions.action => unit=AppContext.getBridgeDispatch(),
+) => {
   switch filesOpt {
   | Some(files) if FileList.length(files) > 0 =>
-    let state = GlobalStateBridge.getState()
+    let state = getState()
     // Guard: Only start if not already blocking
     switch state.appMode {
     | SystemBlocking(Uploading(_))
@@ -120,7 +129,7 @@ let handleUpload = async filesOpt => {
         createdAt: Date.now(),
       })
     | _ =>
-      GlobalStateBridge.dispatch(DispatchAppFsmEvent(StartUpload))
+      dispatch(DispatchAppFsmEvent(StartUpload))
       NotificationManager.dispatch({
         id: "",
         importance: Info,
@@ -132,7 +141,7 @@ let handleUpload = async filesOpt => {
         dismissible: true,
         createdAt: Date.now(),
       })
-      await performUpload(files)
+      await performUpload(files, ~dispatch)
     }
   | _ => ()
   }
@@ -245,9 +254,12 @@ let getProjectData = (state: Types.state) => {
   JsonParsers.Encoders.project(project)
 }
 
-let handleDeleteScene = async (index: int) => {
+let handleDeleteScene = async (
+  index: int,
+  ~getState: unit => Types.state=AppContext.getBridgeState,
+) => {
   let _ = await OptimisticAction.execute(~action=Actions.DeleteScene(index), ~apiCall=() => {
-    let state = GlobalStateBridge.getState()
+    let state = getState()
     switch state.sessionId {
     | Some(sid) =>
       let projectData = getProjectData(state)
@@ -257,9 +269,15 @@ let handleDeleteScene = async (index: int) => {
   })
 }
 
-let handleExport = async (scenes, ~signal, ~onCancel) => {
-  GlobalStateBridge.dispatch(DispatchAppFsmEvent(StartExport))
-  updateProgress(~onCancel, 0.0, "Exporting...", true, "Export")
+let handleExport = async (
+  scenes,
+  ~tourName: string,
+  ~dispatch: Actions.action => unit=AppContext.getBridgeDispatch(),
+  ~signal,
+  ~onCancel,
+) => {
+  dispatch(DispatchAppFsmEvent(StartExport))
+  updateProgress(~dispatch, ~onCancel, 0.0, "Exporting...", true, "Export")
   NotificationManager.dispatch({
     id: "",
     importance: Info,
@@ -274,8 +292,9 @@ let handleExport = async (scenes, ~signal, ~onCancel) => {
   try {
     let exportResult = await Exporter.exportTour(
       scenes,
+      ~tourName,
       ~signal,
-      Some((pct, _, msg) => updateProgress(~onCancel, pct, msg, true, "Export")),
+      Some((pct, _, msg) => updateProgress(~dispatch, ~onCancel, pct, msg, true, "Export")),
     )
     switch exportResult {
     | Ok() => {
@@ -290,16 +309,16 @@ let handleExport = async (scenes, ~signal, ~onCancel) => {
           dismissible: true,
           createdAt: Date.now(),
         })
-        updateProgress(100.0, "Done", false, "")
-        GlobalStateBridge.dispatch(DispatchAppFsmEvent(ExportComplete))
+        updateProgress(~dispatch, 100.0, "Done", false, "")
+        dispatch(DispatchAppFsmEvent(ExportComplete))
       }
     | Error("CANCELLED") => {
         Logger.info(~module_="SidebarLogic", ~message="EXPORT_CANCELLED_HANDLED", ())
-        updateProgress(0.0, "Cancelled", false, "")
-        GlobalStateBridge.dispatch(DispatchAppFsmEvent(ExportComplete))
+        updateProgress(~dispatch, 0.0, "Cancelled", false, "")
+        dispatch(DispatchAppFsmEvent(ExportComplete))
       }
     | Error(msg) => {
-        GlobalStateBridge.dispatch(DispatchAppFsmEvent(ExportError(msg)))
+        dispatch(DispatchAppFsmEvent(ExportError(msg)))
         NotificationManager.dispatch({
           id: "",
           importance: Error,
@@ -311,12 +330,12 @@ let handleExport = async (scenes, ~signal, ~onCancel) => {
           dismissible: true,
           createdAt: Date.now(),
         })
-        updateProgress(0.0, "Error: " ++ msg, false, "")
+        updateProgress(~dispatch, 0.0, "Error: " ++ msg, false, "")
       }
     }
   } catch {
   | _ =>
-    GlobalStateBridge.dispatch(DispatchAppFsmEvent(ExportError("Unexpected Error")))
-    updateProgress(0.0, "Error", false, "")
+    dispatch(DispatchAppFsmEvent(ExportError("Unexpected Error")))
+    updateProgress(~dispatch, 0.0, "Error", false, "")
   }
 }

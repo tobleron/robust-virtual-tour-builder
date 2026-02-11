@@ -33,7 +33,9 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
             label: "Delete",
             class_: "bg-red-500/20 text-white hover:bg-red-500/40",
             onClick: () => {
-              HotspotManager.handleDeleteHotspot(state.activeIndex, index)->ignore
+              HotspotManager.handleDeleteHotspot(state.activeIndex, index, ~getState=() =>
+                state
+              )->ignore
               NotificationManager.dispatch({
                 id: "",
                 importance: Success,
@@ -64,6 +66,7 @@ let make = (~hotspot: hotspot, ~index: int, ~onClose: unit => unit) => {
         HotspotManager.handleUpdateSceneMetadata(
           idx,
           Logger.castToJson({"isAutoForward": !currentVal}),
+          ~getState=() => state,
         )->ignore
         NotificationManager.dispatch({
           id: "",

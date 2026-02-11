@@ -1,6 +1,7 @@
 open Vitest
 
 describe("ViewerFollow", () => {
+  let getState = () => GlobalStateBridge.getState()
   test("updateFollowLoop should stop if followLoopActive is false", t => {
     ViewerState.state := {...ViewerState.state.contents, followLoopActive: false}
 
@@ -9,7 +10,7 @@ describe("ViewerFollow", () => {
       (function(){ document.body.innerHTML = '<div id="processing-ui" class="hidden"></div>' })()
     `)
 
-    ViewerSystem.Follow.updateFollowLoop()
+    ViewerSystem.Follow.updateFollowLoop(~getState)
 
     t->expect(ViewerState.state.contents.followLoopActive)->Expect.toBe(false)
   })
@@ -26,7 +27,7 @@ describe("ViewerFollow", () => {
     }
     GlobalStateBridge.setState(mockState)
 
-    ViewerSystem.Follow.updateFollowLoop()
+    ViewerSystem.Follow.updateFollowLoop(~getState)
 
     t->expect(ViewerState.state.contents.followLoopActive)->Expect.toBe(false)
   })
@@ -76,7 +77,7 @@ describe("ViewerFollow", () => {
       })()
     `)
 
-    ViewerSystem.Follow.updateFollowLoop()
+    ViewerSystem.Follow.updateFollowLoop(~getState)
 
     // It should have called setYaw because mouseXNorm is 0.8
     t->expect(yawValue.contents > 0.0)->Expect.toBe(true)

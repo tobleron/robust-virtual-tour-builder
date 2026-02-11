@@ -22,7 +22,7 @@ let make = () => {
   ViewerManagerLogic.useRatchetState(state)
   ViewerManagerLogic.useSimulationArrival(state)
   ViewerManagerLifecycle.useLinkingAndSimUI(state, dispatch)
-  ViewerManagerLogic.useHotspotLineLoop(state, dispatch)
+  ViewerManagerLogic.useHotspotLineLoop(~getState, dispatch)
 
   React.null
 }

@@ -22,9 +22,10 @@ module AnimationLoop = {
     cft,
     dispatch,
     req: React.ref<option<int>>,
+    getState: unit => Types.state,
     (),
   ) => {
-    let state = GlobalStateBridge.getState()
+    let state = getState()
     if activeJourneyId.contents == Some(j.journeyId) && !cft.contents {
       try {
         let prog = Math.min((Date.now() -. st) /. pd.panDuration, 1.0)
@@ -106,7 +107,9 @@ module AnimationLoop = {
           )
           if bel < dur {
             req.current = Some(
-              Window.requestAnimationFrame(() => loop(v, j, pd, st, cft, dispatch, req, ())),
+              Window.requestAnimationFrame(() =>
+                loop(v, j, pd, st, cft, dispatch, req, getState, ())
+              ),
             )
           } else {
             // SYNC GUARD: Only finalize if FSM has moved past Preloading (i.e. texture is loaded)
@@ -148,7 +151,9 @@ module AnimationLoop = {
             | _ =>
               // Texture not loaded yet (Preloading), keep blinking at the waypoint
               req.current = Some(
-                Window.requestAnimationFrame(() => loop(v, j, pd, st, cft, dispatch, req, ())),
+                Window.requestAnimationFrame(() =>
+                  loop(v, j, pd, st, cft, dispatch, req, getState, ())
+                ),
               )
             }
           }
@@ -178,7 +183,9 @@ module AnimationLoop = {
           }
 
           req.current = Some(
-            Window.requestAnimationFrame(() => loop(v, j, pd, st, cft, dispatch, req, ())),
+            Window.requestAnimationFrame(() =>
+              loop(v, j, pd, st, cft, dispatch, req, getState, ())
+            ),
           )
         }
       } catch {
@@ -193,7 +200,9 @@ module AnimationLoop = {
 
           // Always attempt to continue the loop unless journey changed
           req.current = Some(
-            Window.requestAnimationFrame(() => loop(v, j, pd, st, cft, dispatch, req, ())),
+            Window.requestAnimationFrame(() =>
+              loop(v, j, pd, st, cft, dispatch, req, getState, ())
+            ),
           )
         }
       }
@@ -215,6 +224,7 @@ module AnimationLoop = {
     v,
     j: journeyData,
     pd: Types.pathData,
+    getState: unit => Types.state,
     dispatch,
     req: React.ref<option<int>>,
   ) => {
@@ -227,7 +237,7 @@ module AnimationLoop = {
     Viewer.setHfov(v, pd.startHfov, false)
 
     req.current = Some(
-      Window.requestAnimationFrame(() => loop(v, j, pd, st, cft, dispatch, req, ())),
+      Window.requestAnimationFrame(() => loop(v, j, pd, st, cft, dispatch, req, getState, ())),
     )
   }
 }

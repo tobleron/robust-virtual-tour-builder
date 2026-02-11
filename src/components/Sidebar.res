@@ -83,6 +83,7 @@ module AboutContent = {
 
 @react.component
 let make = React.memo(() => {
+  let appState = AppContext.useAppState()
   let sceneSlice = AppContext.useSceneSlice()
   let uiSlice = AppContext.useUiSlice()
   let dispatch = AppContext.useAppDispatch()
@@ -236,11 +237,11 @@ let make = React.memo(() => {
   let handleSave = async (state: Types.state, ~signal, ~onCancel) => {
     try {
       let success = await ProjectManager.saveProject(state, ~signal, ~onProgress=(pct, _t, msg) => {
-        SidebarLogic.updateProgress(~onCancel, pct->Int.toFloat, msg, true, "Save")
+        SidebarLogic.updateProgress(~dispatch, ~onCancel, pct->Int.toFloat, msg, true, "Save")
       })
 
       if success {
-        SidebarLogic.updateProgress(100.0, "Saved", false, "")
+        SidebarLogic.updateProgress(~dispatch, 100.0, "Saved", false, "")
         NotificationManager.dispatch({
           id: "",
           importance: Success,
@@ -254,7 +255,7 @@ let make = React.memo(() => {
         })
       } // Check if it was cancelled via signal
       else if BrowserBindings.AbortSignal.aborted(signal) {
-        SidebarLogic.updateProgress(0.0, "Cancelled", true, "Save")
+        SidebarLogic.updateProgress(~dispatch, 0.0, "Cancelled", true, "Save")
         NotificationManager.dispatch({
           id: "save-cancelled-notification",
           importance: Info,
@@ -267,15 +268,15 @@ let make = React.memo(() => {
           createdAt: Date.now(),
         })
         let _ = ReBindings.Window.setTimeout(() => {
-          SidebarLogic.updateProgress(0.0, "Cancelled", false, "")
+          SidebarLogic.updateProgress(~dispatch, 0.0, "Cancelled", false, "")
         }, 5000)
       } else {
-        SidebarLogic.updateProgress(0.0, "Save Failed", false, "")
+        SidebarLogic.updateProgress(~dispatch, 0.0, "Save Failed", false, "")
       }
     } catch {
     | exn => {
         let (msg, _) = Logger.getErrorDetails(exn)
-        SidebarLogic.updateProgress(0.0, "Error", false, "")
+        SidebarLogic.updateProgress(~dispatch, 0.0, "Error", false, "")
         NotificationManager.dispatch({
           id: "",
           importance: Error,
@@ -342,11 +343,8 @@ let make = React.memo(() => {
         onSave={(~signal, ~onCancel) => {
           // Unconditionally stop linking to ensure visual artifacts (yellow lines) are cleared
           Logger.info(~module_="Sidebar", ~message="FORCE_STOP_LINKING_ON_SAVE", ())
-          GlobalStateBridge.dispatch(Actions.StopLinking)
-
-          // Grab state again (best effort) but usually handled by Reducer async update
-          let state = GlobalStateBridge.getState()
-          handleSave(state, ~signal, ~onCancel)
+          dispatch(Actions.StopLinking)
+          handleSave(appState, ~signal, ~onCancel)
         }}
         onLoad={(~signal as _, ~onCancel as _) => {
           switch Nullable.toOption(projectFileInputRef.current) {
@@ -377,7 +375,13 @@ let make = React.memo(() => {
           )
         }}
         onExport={(~signal, ~onCancel) => {
-          SidebarLogic.handleExport(sceneSlice.scenes, ~signal, ~onCancel)
+          SidebarLogic.handleExport(
+            sceneSlice.scenes,
+            ~tourName=sceneSlice.tourName,
+            ~dispatch,
+            ~signal,
+            ~onCancel,
+          )
         }}
         onTeaser={() => {
           Teaser.startAutoTeaser("fast", false, "mp4", false)->ignore
@@ -392,7 +396,11 @@ let make = React.memo(() => {
         className="hidden"
         onChange={e => {
           let target = JsxEvent.Form.target(e)->ReBindings.Dom.unsafeToElement
-          SidebarLogic.handleUpload(ReBindings.Dom.getFiles(target))->ignore
+          SidebarLogic.handleUpload(
+            ReBindings.Dom.getFiles(target),
+            ~getState=() => appState,
+            ~dispatch,
+          )->ignore
         }}
       />
       <input

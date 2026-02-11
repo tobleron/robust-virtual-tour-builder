@@ -3,9 +3,18 @@
 open ReBindings
 
 open Types
+open Actions
+
+let getStateRef: ref<unit => state> = ref(AppContext.getBridgeState)
+let dispatchRef: ref<unit => action => unit> = ref(AppContext.getBridgeDispatch)
+
+let configure = (~getState: unit => state, ~dispatch: action => unit) => {
+  getStateRef := getState
+  dispatchRef := (() => dispatch)
+}
 
 let handleStageClick = (e: Dom.event) => {
-  let currentState = GlobalStateBridge.getState()
+  let currentState = getStateRef.contents()
   let isModifier = Dom.altKey(e) || Dom.metaKey(e)
 
   if (currentState.isLinking || isModifier) && currentState.simulation.status != Running {
@@ -49,7 +58,7 @@ let handleStageClick = (e: Dom.event) => {
           }
 
           if isModifier {
-            GlobalStateBridge.dispatch(Actions.StartLinking(Some(initialDraft)))
+            dispatchRef.contents()(Actions.StartLinking(Some(initialDraft)))
             LinkModal.showLinkModal(
               ~pitch,
               ~yaw,
@@ -60,7 +69,7 @@ let handleStageClick = (e: Dom.event) => {
               (),
             )
           } else {
-            GlobalStateBridge.dispatch(Actions.StartLinking(Some(initialDraft)))
+            dispatchRef.contents()(Actions.StartLinking(Some(initialDraft)))
 
             // Force update lines immediately for the very first click
             let mockState = {...currentState, linkDraft: Some(initialDraft)}
@@ -88,7 +97,7 @@ let handleStageClick = (e: Dom.event) => {
           let newPoints = Belt.Array.concat(currentPoints, [newPoint])
 
           let updatedDraft = {...d, intermediatePoints: Some(newPoints)}
-          GlobalStateBridge.dispatch(Actions.UpdateLinkDraft(updatedDraft))
+          dispatchRef.contents()(Actions.UpdateLinkDraft(updatedDraft))
 
           // Force update lines immediately
           let mockState = {...currentState, linkDraft: Some(updatedDraft)}
@@ -105,7 +114,7 @@ let handleStageClick = (e: Dom.event) => {
 }
 
 let handleStagePointerDown = (e: Dom.event) => {
-  let currentState = GlobalStateBridge.getState()
+  let currentState = getStateRef.contents()
   if currentState.isLinking && currentState.simulation.status != Running {
     Logger.debug(
       ~module_="LinkEditorLogic",
@@ -117,8 +126,8 @@ let handleStagePointerDown = (e: Dom.event) => {
   }
 }
 
-let handleEnter = () => {
-  let currentState = GlobalStateBridge.getState()
+let handleEnter = (~getState: unit => state=getStateRef.contents) => {
+  let currentState = getState()
 
   if currentState.isLinking && currentState.simulation.status != Running {
     let viewer = ViewerSystem.getActiveViewer()

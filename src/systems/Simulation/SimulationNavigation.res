@@ -75,10 +75,11 @@ let pollForViewer = async (expectedSceneId, expectedSceneName, isAutoPilotActive
 let waitForViewerScene = async (
   sceneIndex: int,
   isAutoPilotActive: unit => bool,
+  ~getState: unit => state=AppContext.getBridgeState,
   ~maxRetries=3,
   (),
 ): result<unit, string> => {
-  let state = GlobalStateBridge.getState()
+  let state = getState()
   switch Belt.Array.get(state.scenes, sceneIndex) {
   | Some(expectedScene) =>
     let rec attemptLoad = async (attempt: int) => {
