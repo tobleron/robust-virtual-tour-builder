@@ -126,6 +126,11 @@ let requestNavigation = (targetSceneId: string): unit => {
     }),
     (),
   )
+
+  // Dispatch FSM event to update UI state (LockFeedback, ViewerHUD, etc.)
+  GlobalStateBridge.dispatch(
+    Actions.DispatchNavigationFsmEvent(UserClickedScene({targetSceneId: targetSceneId})),
+  )
 }
 
 let transitionTo = (taskId: taskId, newStatus: status): unit => {
@@ -218,6 +223,9 @@ let abort = (taskId: taskId): unit => {
       }),
       (),
     )
+
+    // Dispatch FSM abort event to update UI state
+    GlobalStateBridge.dispatch(Actions.DispatchNavigationFsmEvent(Aborted))
   } else {
     Logger.debug(
       ~module_="NavigationSupervisor",
