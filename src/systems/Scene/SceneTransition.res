@@ -177,6 +177,10 @@ let performSwap = (loadedScene: scene, _loadStartTime, ~taskId: option<string>=?
   | None =>
     Logger.warn(~module_="SceneTransition", ~message="NO_INACTIVE_VIEWER_FOR_SWAP", ())
     // Failsafe: if we don't have a second viewer, we still need to finish the transition
+    let activeViewer = ViewerSystem.getActiveViewer()
+    if activeViewer->Nullable.toOption->Option.isSome {
+      assignGlobalViewer(activeViewer)
+    }
     GlobalStateBridge.dispatch(SyncSceneNames) // Force some state change
     switch taskId {
     | Some(tid) => NavigationSupervisor.abort(tid)

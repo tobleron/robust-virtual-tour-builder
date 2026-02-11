@@ -22,8 +22,13 @@ let makeInitialState = (): Types.state => {
     deletedSceneIds: [],
     timeline: [],
     activeTimelineStepId: None,
-    navigation: Idle,
-    navigationFsm: IdleFsm,
+    navigationState: {
+      navigation: Idle,
+      navigationFsm: IdleFsm,
+      incomingLink: None,
+      autoForwardChain: [],
+      currentJourneyId: 0,
+    },
     simulation: {
       status: Idle,
       visitedScenes: [],
@@ -33,10 +38,7 @@ let makeInitialState = (): Types.state => {
       pendingAdvanceId: None,
       autoPilotJourneyId: 0,
     },
-    incomingLink: None,
-    autoForwardChain: [],
     pendingReturnSceneName: None,
-    currentJourneyId: 0,
     lastUsedCategory: "outdoor",
     sessionId: None,
   }

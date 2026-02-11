@@ -129,10 +129,30 @@ let make = () => {
                   ->Option.map(ss => ss.id) == Some(sceneId)
 
                 switch waitResult {
-                | Ok() if stillOk && sAfterWait.navigation == Idle =>
+                | Ok() if stillOk && sAfterWait.navigationState.navigationFsm == IdleFsm =>
+                  Logger.debug(
+                    ~module_="Simulation",
+                    ~message="SIM_READY_TO_ADVANCE",
+                    ~data=Some({
+                      "activeIndex": sAfterWait.activeIndex,
+                      "sceneId": sceneId,
+                      "fsmState": "IdleFsm",
+                    }),
+                    (),
+                  )
                   let move = Logic.getNextMove(sAfterWait)
                   switch move {
                   | Move({targetIndex, hotspotIndex, yaw, pitch, hfov, triggerActions}) =>
+                    Logger.info(
+                      ~module_="Simulation",
+                      ~message="SIM_ADVANCING",
+                      ~data=Some({
+                        "from": sAfterWait.activeIndex,
+                        "to": targetIndex,
+                        "hotspotIndex": hotspotIndex,
+                      }),
+                      (),
+                    )
                     triggerActions->Belt.Array.forEach(a => dispatch(a))
                     Scene.Switcher.navigateToScene(
                       dispatch,
@@ -176,7 +196,22 @@ let make = () => {
                     dispatch(StopAutoPilot)
                   }
                 | Ok() =>
-                  Logger.debug(~module_="Simulation", ~message="SIM_TICK_ABORTED_OR_BUSY", ())
+                  Logger.debug(
+                    ~module_="Simulation",
+                    ~message="SIM_TICK_ABORTED_OR_BUSY",
+                    ~data=Some({
+                      "stillOk": stillOk,
+                      "fsmState": switch sAfterWait.navigationState.navigationFsm {
+                      | IdleFsm => "IdleFsm"
+                      | Preloading(_) => "Preloading"
+                      | Transitioning(_) => "Transitioning"
+                      | Stabilizing(_) => "Stabilizing"
+                      | ErrorFsm(_) => "ErrorFsm"
+                      },
+                      "activeIndex": sAfterWait.activeIndex,
+                    }),
+                    (),
+                  )
                 | Error(msg) =>
                   Logger.error(
                     ~module_="Simulation",
@@ -208,10 +243,6 @@ let make = () => {
                 )
                 dispatch(StopAutoPilot)
               }
-            }
-
-            if advancingForIndex.current == stateRef.current.activeIndex {
-              advancingForIndex.current = -1
             }
           }
         }

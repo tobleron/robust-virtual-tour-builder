@@ -11,7 +11,7 @@ let updateReturnPrompt = (state: state, scene: scene) => {
       Dom.add(p, "hidden")
       Dom.remove(p, "flex")
     } else {
-      switch state.incomingLink {
+      switch state.navigationState.incomingLink {
       | Some(inc) =>
         state.scenes[inc.sceneIndex]->Option.forEach(src => {
           let has = Array.some(

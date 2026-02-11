@@ -72,7 +72,7 @@ let handleKeyDown = e => {
     }
 
     // 0b. Handle Navigation Interruption
-    switch storeState.navigationFsm {
+    switch storeState.navigationState.navigationFsm {
     | IdleFsm | ErrorFsm(_) => ()
     | _ =>
       // Check if Supervisor is managing this navigation

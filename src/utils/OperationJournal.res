@@ -185,7 +185,7 @@ let load = () => {
       try {
         switch JsonCombinators.Json.decode(json, journalDecoder) {
         | Ok(journal) =>
-          let _ = %raw(`console.log("[JOURNAL_DECODE_SUCCESS] Entries count:", journal.entries ? journal.entries.length : -1)`)
+          let _ = %raw(`console.log("[JOURNAL_DECODE_SUCCESS] Entries count:", journal._0.entries ? journal._0.entries.length : -1)`)
           // Check emergency queue first - if anything is there, an operation was interrupted
           let _ = %raw(`console.log("[JOURNAL_CHECK_EMERGENCY_START]")`)
           let afterEmergency = checkEmergencyQueue(journal)

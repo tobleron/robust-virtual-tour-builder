@@ -156,8 +156,7 @@ Trigger Event
   → [src/systems/EventBus.res] dispatches notification
   → [src/core/NotificationManager.res] processes queue (using [src/core/NotificationQueue.res] and [src/core/NotificationTypes.res])
   → [src/components/NotificationCenter.res] subscribes to manager and renders via custom ReScript toasts (confined to viewer)
-  → [src/components/ModalContext.res] and [src/components/NotificationContext.res] (Legacy) handle secondary UI/Event routing
-  → [src/components/NotificationLayer.res] (Legacy) handles internal progress events
+  → [src/components/ModalContext.res] handles modal UI/Event routing
 ```
 
 ---
@@ -300,6 +299,7 @@ Address/GPS Query
 ### 📂 src/core
 - `[src/core/Actions.res]`
 - `[src/core/NavigationHelpers.res]`
+- `[src/core/NavigationState.res]`
 - `[src/core/TransitionLock.res]`
 
 ### 📂 src/systems

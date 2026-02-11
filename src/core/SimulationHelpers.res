@@ -17,7 +17,7 @@ let handleStartAutoPilot = (state: state, journeyId: int, skip: bool): state => 
 let handleStartLinking = (state: state, _draft: option<linkDraft>): state => {
   {
     ...state,
-    navigation: Idle,
+    navigationState: {...state.navigationState, navigation: Idle},
     simulation: {
       ...state.simulation,
       status: Idle,
@@ -32,8 +32,11 @@ let handleStartLinking = (state: state, _draft: option<linkDraft>): state => {
 let handleStopAutoPilot = (state: state): state => {
   {
     ...state,
-    navigation: Idle,
-    currentJourneyId: state.currentJourneyId + 1,
+    navigationState: {
+      ...state.navigationState,
+      navigation: Idle,
+      currentJourneyId: state.navigationState.currentJourneyId + 1,
+    },
     simulation: {
       ...state.simulation,
       status: Idle,

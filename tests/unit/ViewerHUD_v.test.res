@@ -18,9 +18,9 @@ module WrappedViewerHUD = {
     }
     let simSlice: AppContext.simSlice = {
       simulation: mockState.simulation,
-      navigation: mockState.navigation,
-      currentJourneyId: mockState.currentJourneyId,
-      incomingLink: mockState.incomingLink,
+      navigation: mockState.navigationState.navigation,
+      currentJourneyId: mockState.navigationState.currentJourneyId,
+      incomingLink: mockState.navigationState.incomingLink,
     }
 
     <AppContext.GlobalProvider value=mockState>

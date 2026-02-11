@@ -20,13 +20,16 @@ let createJourney = (journeyId, targetIndex, sourceIndex, hotspotIndex, previewO
 
 test("NavigationReducer: SetSimulationMode resets chain and increments journeyId", t => {
   let state = createMockState(~activeIndex=0, ())
-  let state = {...state, autoForwardChain: [1, 2], currentJourneyId: 5}
+  let state = {
+    ...state,
+    navigationState: {...state.navigationState, autoForwardChain: [1, 2], currentJourneyId: 5},
+  }
 
   let action = SetSimulationMode(true)
   let result = Reducer.reducer(state, action)
 
-  t->expect(result.autoForwardChain->Array.length)->Expect.toBe(0)
-  t->expect(result.currentJourneyId)->Expect.toBe(6)
+  t->expect(result.navigationState.autoForwardChain->Array.length)->Expect.toBe(0)
+  t->expect(result.navigationState.currentJourneyId)->Expect.toBe(6)
 })
 
 test("NavigationReducer: SetNavigationStatus updates state", t => {
@@ -37,7 +40,7 @@ test("NavigationReducer: SetNavigationStatus updates state", t => {
   let action = SetNavigationStatus(status)
   let result = Reducer.reducer(state, action)
 
-  let isNavigating = switch result.navigation {
+  let isNavigating = switch result.navigationState.navigation {
   | Navigating(_) => true
   | _ => false
   }
@@ -46,16 +49,16 @@ test("NavigationReducer: SetNavigationStatus updates state", t => {
 
 test("NavigationReducer: AddToAutoForwardChain prevents duplicates", t => {
   let state = createMockState()
-  let state = {...state, autoForwardChain: [1, 2]}
+  let state = {...state, navigationState: {...state.navigationState, autoForwardChain: [1, 2]}}
 
   let action = AddToAutoForwardChain(2) // Duplicate
   let result = Reducer.reducer(state, action)
 
-  t->expect(result.autoForwardChain->Array.length)->Expect.toBe(2)
+  t->expect(result.navigationState.autoForwardChain->Array.length)->Expect.toBe(2)
 
   let actionNew = AddToAutoForwardChain(3)
   let resultNew = Reducer.reducer(result, actionNew)
-  t->expect(resultNew.autoForwardChain->Array.length)->Expect.toBe(3)
+  t->expect(resultNew.navigationState.autoForwardChain->Array.length)->Expect.toBe(3)
 })
 
 test("NavigationReducer: NavigationCompleted updates state for non-preview", t => {
@@ -71,16 +74,23 @@ test("NavigationReducer: NavigationCompleted updates state for non-preview", t =
     ],
     (),
   )
-  let state = {...state, currentJourneyId: 10, navigation: Navigating(journey)}
+  let state = {
+    ...state,
+    navigationState: {
+      ...state.navigationState,
+      currentJourneyId: 10,
+      navigation: Navigating(journey),
+    },
+  }
 
   let action = NavigationCompleted(journey)
   let result = Reducer.reducer(state, action)
 
-  t->expect(result.navigation)->Expect.toEqual(Idle)
+  t->expect(result.navigationState.navigation)->Expect.toEqual(Idle)
   t->expect(result.activeIndex)->Expect.toBe(5)
   t->expect(result.activeYaw)->Expect.toBe(90.0)
 
-  let incoming = result.incomingLink->Option.getOrThrow
+  let incoming = result.navigationState.incomingLink->Option.getOrThrow
   t->expect(incoming.sceneIndex)->Expect.toBe(3)
   t->expect(incoming.hotspotIndex)->Expect.toBe(2)
 
@@ -90,7 +100,7 @@ test("NavigationReducer: NavigationCompleted updates state for non-preview", t =
 test("NavigationReducer: NavigationCompleted ignores mismatched journeyId", t => {
   let journey = createJourney(10, 5, 3, 2, false)
   let state = createMockState(~activeIndex=2, ())
-  let state = {...state, currentJourneyId: 15}
+  let state = {...state, navigationState: {...state.navigationState, currentJourneyId: 15}}
 
   let action = NavigationCompleted(journey)
   let result = Reducer.reducer(state, action)
@@ -102,12 +112,19 @@ test("NavigationReducer: NavigationCompleted ignores mismatched journeyId", t =>
 test("NavigationReducer: NavigationCompleted handles previewOnly", t => {
   let journey = createJourney(10, 5, 3, 2, true)
   let state = createMockState(~activeIndex=2, ())
-  let state = {...state, currentJourneyId: 10, navigation: Navigating(journey)}
+  let state = {
+    ...state,
+    navigationState: {
+      ...state.navigationState,
+      currentJourneyId: 10,
+      navigation: Navigating(journey),
+    },
+  }
 
   let action = NavigationCompleted(journey)
   let result = Reducer.reducer(state, action)
 
-  t->expect(result.navigation)->Expect.toEqual(Idle)
+  t->expect(result.navigationState.navigation)->Expect.toEqual(Idle)
   t->expect(result.activeIndex)->Expect.toBe(2) // Unchanged
 })
 
@@ -117,7 +134,7 @@ test("NavigationReducer: SetIncomingLink updates state", t => {
   let action = SetIncomingLink(Some(link))
   let result = Reducer.reducer(state, action)
 
-  switch result.incomingLink {
+  switch result.navigationState.incomingLink {
   | Some(l) => {
       t->expect(l.sceneIndex)->Expect.toBe(1)
       t->expect(l.hotspotIndex)->Expect.toBe(2)
@@ -128,10 +145,10 @@ test("NavigationReducer: SetIncomingLink updates state", t => {
 
 test("NavigationReducer: ResetAutoForwardChain clears chain", t => {
   let state = createMockState()
-  let state = {...state, autoForwardChain: [1, 2, 3]}
+  let state = {...state, navigationState: {...state.navigationState, autoForwardChain: [1, 2, 3]}}
   let action = ResetAutoForwardChain
   let result = Reducer.reducer(state, action)
-  t->expect(result.autoForwardChain->Array.length)->Expect.toBe(0)
+  t->expect(result.navigationState.autoForwardChain->Array.length)->Expect.toBe(0)
 })
 
 test("NavigationReducer: SetPendingReturnSceneName updates state", t => {
@@ -143,15 +160,15 @@ test("NavigationReducer: SetPendingReturnSceneName updates state", t => {
 
 test("NavigationReducer: IncrementJourneyId increments id", t => {
   let state = createMockState()
-  let state = {...state, currentJourneyId: 10}
+  let state = {...state, navigationState: {...state.navigationState, currentJourneyId: 10}}
   let action = IncrementJourneyId
   let result = Reducer.reducer(state, action)
-  t->expect(result.currentJourneyId)->Expect.toBe(11)
+  t->expect(result.navigationState.currentJourneyId)->Expect.toBe(11)
 })
 
 test("NavigationReducer: SetCurrentJourneyId sets id", t => {
   let state = createMockState()
   let action = SetCurrentJourneyId(99)
   let result = Reducer.reducer(state, action)
-  t->expect(result.currentJourneyId)->Expect.toBe(99)
+  t->expect(result.navigationState.currentJourneyId)->Expect.toBe(99)
 })

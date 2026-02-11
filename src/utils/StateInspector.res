@@ -6,13 +6,14 @@
  */
 type stateUiSnapshot = {isLinking: bool}
 
+type stateSimSnapshot = {status: string}
 type stateSnapshot = {
   tourName: string,
   sceneCount: int,
   activeSceneIndex: int,
   isLinking: bool,
   ui: stateUiSnapshot,
-  simulationStatus: string,
+  simulation: stateSimSnapshot,
   navigationSupervisor: string,
   timestamp: float,
 }
@@ -30,11 +31,13 @@ let createSnapshot = (state: Types.state): stateSnapshot => {
     ui: {
       isLinking: state.isLinking,
     },
-    simulationStatus: switch state.simulation.status {
-    | Running => "Running"
-    | Idle => "Idle"
-    | Paused => "Paused"
-    | Stopping => "Stopping"
+    simulation: {
+      status: switch state.simulation.status {
+      | Running => "Running"
+      | Idle => "Idle"
+      | Paused => "Paused"
+      | Stopping => "Stopping"
+      },
     },
     navigationSupervisor: NavigationSupervisor.statusToString(NavigationSupervisor.getStatus()),
     timestamp: Date.now(),

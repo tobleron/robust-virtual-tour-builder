@@ -103,7 +103,7 @@ describe("Reducer", () => {
     let actionStatus = SetNavigationStatus(Idle)
     let resultStatus = Reducer.reducer(State.initialState, actionStatus)
 
-    t->expect(resultStatus.navigation)->Expect.toEqual(Idle)
+    t->expect(resultStatus.navigationState.navigation)->Expect.toEqual(Idle)
   })
 
   test("TimelineReducer actions are handled", t => {
@@ -147,7 +147,7 @@ describe("Reducer", () => {
 
     t->expect(state3.tourName)->Expect.toEqual("Test_Tour")
     t->expect(state3.isLinking)->Expect.toEqual(true)
-    t->expect(state3.navigation)->Expect.toEqual(Idle)
+    t->expect(state3.navigationState.navigation)->Expect.toEqual(Idle)
   })
 
   test("State immutability", t => {
@@ -159,11 +159,14 @@ describe("Reducer", () => {
   })
 
   test("Journey ID increment", t => {
-    let stateWithJourney = {...State.initialState, currentJourneyId: 5}
+    let stateWithJourney = {
+      ...State.initialState,
+      navigationState: {...State.initialState.navigationState, currentJourneyId: 5},
+    }
     let actionIncrement = IncrementJourneyId
     let resultIncrement = Reducer.reducer(stateWithJourney, actionIncrement)
 
-    t->expect(resultIncrement.currentJourneyId)->Expect.toEqual(6)
+    t->expect(resultIncrement.navigationState.currentJourneyId)->Expect.toEqual(6)
   })
 
   test("Reset action", t => {

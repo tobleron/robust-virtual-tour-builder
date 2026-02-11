@@ -32,7 +32,7 @@ let calculateSmartArrivalTarget = (scenes: array<scene>, targetIndex: int) => {
 }
 
 let getCurrentView = () => {
-  switch Viewer.instance->Nullable.toOption {
+  switch ViewerSystem.getActiveViewer()->Nullable.toOption {
   | Some(v) => (Viewer.getYaw(v), Viewer.getPitch(v), Viewer.getHfov(v))
   | None => (0.0, 0.0, Constants.globalHfov)
   }

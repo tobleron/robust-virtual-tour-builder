@@ -1,37 +1,29 @@
 #!/bin/bash
-# scripts/tail-diagnostics.sh
-# Tail and format diagnostic logs (Frontend + Backend)
+# Script to monitor simulation diagnostic logs in real-time
 
-LOG_FILE="logs/diagnostic.log"
+echo "=== Simulation Diagnostic Monitor ==="
+echo "Watching for simulation events..."
+echo "Press Ctrl+C to stop"
+echo ""
 
-if [ ! -f "$LOG_FILE" ]; then
-    echo "Creating log file..."
-    mkdir -p logs
-    touch "$LOG_FILE"
-fi
+# This will be populated by browser console logs
+# For now, just show instructions
+cat << 'EOF'
+INSTRUCTIONS:
+1. Open your browser's Developer Console (F12 or Cmd+Option+I)
+2. Filter logs by typing: SIM_
+3. Start the tour preview mode
+4. Watch for these key messages:
 
-echo "🔍 Tailing $LOG_FILE in Diagnostic Mode..."
-echo "Press Ctrl+C to stop."
+   - SIM_TICK_WAIT: Simulation is waiting before advancing
+   - SIM_WAIT_FOR_VIEWER: Waiting for viewer to be ready
+   - SIM_READY_TO_ADVANCE: FSM is idle, about to check next move
+   - SIM_ADVANCING: Actually navigating to next scene
+   - SIM_TICK_ABORTED_OR_BUSY: Blocked (check fsmState in the log)
+   - SIM_NO_MOVE: No valid next move found
+   - SIM_COMPLETE: Tour finished
 
-tail -f "$LOG_FILE" | jq -R -r '
-  try (
-    fromjson | 
-    (
-      if .timestampMs then
-        # Raw Frontend Log (Legacy or direct)
-        "[\(.timestamp | .[11:19])] \u001b[36mFRONTEND\u001b[0m [\(.level | ascii_upcase)] \u001b[35m\(.module)\u001b[0m \(.message) " + 
-        (if .requestId then "\u001b[90m[\(.requestId)]\u001b[0m" else "" end) +
-        (if .data then "\n    \u001b[90m\(.data)\u001b[0m" else "" end)
-      elif .target == "frontend" then
-        # Unified Frontend Log (Via Backend Tracing)
-        "[\(.timestamp | .[11:19])] \u001b[36mFRONTEND\u001b[0m [\(.level | ascii_upcase)] \u001b[35m\(.fields.module // "Unknown")\u001b[0m \(.fields.message // .message) " +
-        (if .fields.request_id then "\u001b[90m[\(.fields.request_id)]\u001b[0m" else "" end) +
-        (if .fields.json_data then "\n    \u001b[90m\(.fields.json_data)\u001b[0m" else "" end)
-      else
-        # Backend Log
-        "[\(.timestamp | .[11:19])] \u001b[32mBACKEND \u001b[0m [\(.level)] \u001b[33m\(.target)\u001b[0m \(.fields.message // .message) " +
-        (if .fields.request_id then "\u001b[90m[\(.fields.request_id)]\u001b[0m" else "" end)
-      end
-    )
-  ) catch .
-'
+If you see SIM_TICK_ABORTED_OR_BUSY repeatedly, note the fsmState value.
+If you see SIM_READY_TO_ADVANCE but no SIM_ADVANCING, the issue is in getNextMove().
+
+EOF

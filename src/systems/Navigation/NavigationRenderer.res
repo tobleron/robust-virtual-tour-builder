@@ -110,7 +110,7 @@ module AnimationLoop = {
             )
           } else {
             // SYNC GUARD: Only finalize if FSM has moved past Preloading (i.e. texture is loaded)
-            let currentFsm = state.navigationFsm
+            let currentFsm = state.navigationState.navigationFsm
             Logger.debug(
               ~module_="NavigationRenderer",
               ~message="BLINK_COMPLETE_FSM_CHECK",

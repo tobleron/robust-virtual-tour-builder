@@ -89,7 +89,7 @@ describe("Scene.Switcher", () => {
     let state = {
       ...State.initialState,
       scenes: [s1],
-      navigation: Navigating(journey),
+      navigationState: {...State.initialState.navigationState, navigation: Navigating(journey)},
     }
 
     Scene.Switcher.navigateToScene(dispatch, state, 1, 0, -1, ())
