@@ -154,191 +154,187 @@ let loadNewScene = (
   let state = GlobalStateBridge.getState()
   let targetSceneOpt = state.scenes->Belt.Array.getBy(s => s.id == targetSceneId)
 
-    switch targetSceneOpt {
-    | None =>
+  switch targetSceneOpt {
+  | None =>
+    if !isAnticipatory {
+      Logger.warn(
+        ~module_="SceneLoader",
+        ~message="TARGET_SCENE_NOT_FOUND",
+        ~data=Some({"targetId": targetSceneId}),
+        (),
+      )
+      switch taskId {
+      | Some(tid) => NavigationSupervisor.abort(tid)
+      | None => ()
+      }
+      GlobalStateBridge.dispatch(DispatchNavigationFsmEvent(Aborted))
+    }
+  | Some(targetScene) =>
+    if !isAnticipatory {
+      loadStartTime := Date.now()
+      GlobalStateBridge.dispatch(
+        DispatchNavigationFsmEvent(PreloadStarted({targetSceneId: targetScene.id})),
+      )
+    }
+
+    let tIdx = state.scenes->Belt.Array.getIndexBy(s => s.id == targetSceneId)->Option.getOr(-1)
+
+    switch if isAnticipatory {
+      None
+    } else {
+      Reuse.findReusableInstance(tIdx)
+    } {
+    | Some(inst) =>
       if !isAnticipatory {
-        Logger.warn(
+        ViewerSystem.Adapter.setMetaData(inst, "sceneId", idToUnknown(targetScene.id))
+        let config = Config.makeSceneConfig(targetScene)
+
+        Logger.debug(
           ~module_="SceneLoader",
-          ~message="TARGET_SCENE_NOT_FOUND",
-          ~data=Some({"targetId": targetSceneId}),
+          ~message="LOADING_SCENE_IN_REUSABLE_INSTANCE",
+          ~data=Some({
+            "targetSceneId": targetScene.id,
+            "panorama": config["panorama"],
+            "fileType": switch targetScene.file {
+            | Url(_) => "Url"
+            | Blob(_) => "Blob"
+            | File(_) => "File"
+            },
+          }),
           (),
         )
+
+        ViewerSystem.Adapter.addScene(inst, targetScene.id, config->asDynamic)
+        ViewerSystem.Adapter.loadScene(inst, targetScene.id, ())
+
         switch taskId {
-        | Some(tid) => NavigationSupervisor.abort(tid)
+        | Some(tid) => NavigationSupervisor.transitionTo(tid, Swapping(tid, targetScene.id))
         | None => ()
         }
-        GlobalStateBridge.dispatch(DispatchNavigationFsmEvent(Aborted))
-      }
-    | Some(targetScene) =>
-      if !isAnticipatory {
-        loadStartTime := Date.now()
+
         GlobalStateBridge.dispatch(
-          DispatchNavigationFsmEvent(PreloadStarted({targetSceneId: targetScene.id})),
+          DispatchNavigationFsmEvent(TextureLoaded({targetSceneId: targetScene.id})),
         )
       }
+    | None =>
+      let activeVp = ViewerSystem.Pool.getActive()
+      let inactiveVp = ViewerSystem.Pool.getInactive()
 
-      let tIdx = state.scenes->Belt.Array.getIndexBy(s => s.id == targetSceneId)->Option.getOr(-1)
+      let vp = switch activeVp {
+      | Some(v) if v.instance == None => activeVp
+      | _ => inactiveVp
+      }
 
-      switch if isAnticipatory {
-        None
-      } else {
-        Reuse.findReusableInstance(tIdx)
-      } {
-      | Some(inst) =>
-        if !isAnticipatory {
-          ViewerSystem.Adapter.setMetaData(inst, "sceneId", idToUnknown(targetScene.id))
-          let config = Config.makeSceneConfig(targetScene)
+      vp->Option.forEach(v => {
+        v.instance->Option.forEach(i => ViewerSystem.Adapter.destroy(i))
 
-          Logger.debug(
+        // Safety timeout to prevent permanent hangs if Pannellum fails to fire events
+        let safetyTimeoutId = setTimeout(() => {
+          currentLoadTimeout := None
+          Logger.error(
             ~module_="SceneLoader",
-            ~message="LOADING_SCENE_IN_REUSABLE_INSTANCE",
-            ~data=Some({
-              "targetSceneId": targetScene.id,
-              "panorama": config["panorama"],
-              "fileType": switch targetScene.file {
-              | Url(_) => "Url"
-              | Blob(_) => "Blob"
-              | File(_) => "File"
-              },
-            }),
+            ~message="PANNELLUM_LOAD_TIMEOUT",
+            ~data=Some({"scene": targetScene.id}),
             (),
           )
+          Events.onSceneError("Resource load timeout (Safety)", targetScene.id, ~taskId?)
+        }, 60000)
+        currentLoadTimeout := Some(safetyTimeoutId)
 
-          ViewerSystem.Adapter.addScene(inst, targetScene.id, config->asDynamic)
-          ViewerSystem.Adapter.loadScene(inst, targetScene.id, ())
+        // Before creating a new Pannellum viewer instance (the expensive operation):
+        let isAborted = switch signal {
+        | Some(s) if BrowserBindings.AbortSignal.aborted(s) => true
+        | _ => false
+        }
 
+        if isAborted {
+          Logger.info(~module_="SceneLoader", ~message="LOAD_ABORTED_BEFORE_VIEWER_CREATION", ())
+          clearTimeout(safetyTimeoutId)
+          currentLoadTimeout := None
           switch taskId {
-          | Some(tid) => NavigationSupervisor.transitionTo(tid, Swapping(tid, targetScene.id))
+          | Some(tid) => NavigationSupervisor.abort(tid)
           | None => ()
           }
+        } else {
+          try {
+            let initialConfig = Config.makeInitialConfig(targetScene)
 
-          GlobalStateBridge.dispatch(
-            DispatchNavigationFsmEvent(TextureLoaded({targetSceneId: targetScene.id})),
-          )
-        }
-      | None =>
-        let activeVp = ViewerSystem.Pool.getActive()
-        let inactiveVp = ViewerSystem.Pool.getInactive()
-
-        let vp = switch activeVp {
-        | Some(v) if v.instance == None => activeVp
-        | _ => inactiveVp
-        }
-
-        vp->Option.forEach(v => {
-          v.instance->Option.forEach(i => ViewerSystem.Adapter.destroy(i))
-
-          // Safety timeout to prevent permanent hangs if Pannellum fails to fire events
-          let safetyTimeoutId = setTimeout(() => {
-            currentLoadTimeout := None
-            Logger.error(
+            Logger.info(
               ~module_="SceneLoader",
-              ~message="PANNELLUM_LOAD_TIMEOUT",
-              ~data=Some({"scene": targetScene.id}),
+              ~message="INITIALIZING_VIEWER_INSTANCE",
+              ~data=Some({
+                "containerId": v.containerId,
+                "targetSceneId": targetScene.id,
+                "panorama": SceneCache.getSourceUrl(targetScene.id, targetScene.file),
+                "fileType": switch targetScene.file {
+                | Url(_) => "Url"
+                | Blob(b) => "Blob(" ++ Float.toString(ReBindings.Blob.size(b)) ++ ")"
+                | File(f) => "File(" ++ Float.toString(ReBindings.File.size(f)) ++ ")"
+                },
+              }),
               (),
             )
-            Events.onSceneError("Resource load timeout (Safety)", targetScene.id, ~taskId?)
-          }, 60000)
-          currentLoadTimeout := Some(safetyTimeoutId)
+            let newInstance = ViewerSystem.Adapter.initialize(
+              v.containerId,
+              initialConfig->asDynamic,
+            )
+            ViewerSystem.Adapter.setMetaData(newInstance, "sceneId", idToUnknown(targetScene.id))
+            ViewerSystem.Adapter.setMetaData(newInstance, "isLoaded", boolToUnknown(false))
 
-          // Before creating a new Pannellum viewer instance (the expensive operation):
-          let isAborted = switch signal {
-          | Some(s) if BrowserBindings.AbortSignal.aborted(s) => true
-          | _ => false
-          }
+            newInstance->ViewerSystem.Adapter.on("texture-loaded", _ => {
+              cleanupLoadTimeout()
+              Events.onSceneLoad(newInstance, targetScene, ~taskId?)
+            })
 
-          if isAborted {
-            Logger.info(~module_="SceneLoader", ~message="LOAD_ABORTED_BEFORE_VIEWER_CREATION", ())
+            newInstance->ViewerSystem.Adapter.on("load", _ => {
+              cleanupLoadTimeout()
+              Events.onSceneLoad(newInstance, targetScene, ~taskId?)
+            })
+
+            newInstance->ViewerSystem.Adapter.on("error", msg => {
+              cleanupLoadTimeout()
+              Events.onSceneError(msg, targetScene.id, ~taskId?)
+            })
+
+            if ViewerSystem.Adapter.isLoaded(newInstance) {
+              cleanupLoadTimeout()
+              Events.onSceneLoad(newInstance, targetScene, ~taskId?)
+            }
+
+            ViewerSystem.Pool.registerInstance(v.containerId, newInstance)
+
+            Logger.info(
+              ~module_="SceneLoader",
+              ~message="VIEWER_INITIALIZED_SUCCESS",
+              ~data=Some({
+                "containerId": v.containerId,
+                "targetSceneId": targetScene.id,
+              }),
+              (),
+            )
+          } catch {
+          | exn =>
             clearTimeout(safetyTimeoutId)
-            currentLoadTimeout := None
+            let (errMsg, errStack) = Logger.getErrorDetails(exn)
+            Logger.error(
+              ~module_="SceneLoader",
+              ~message="VIEWER_INITIALIZATION_ERROR",
+              ~data=Some({
+                "containerId": v.containerId,
+                "targetSceneId": targetScene.id,
+                "error": errMsg,
+                "stack": errStack,
+              }),
+              (),
+            )
+            Events.onSceneError("Failed to initialize viewer: " ++ errMsg, targetScene.id, ~taskId?)
             switch taskId {
             | Some(tid) => NavigationSupervisor.abort(tid)
             | None => ()
             }
-          } else {
-            try {
-              let initialConfig = Config.makeInitialConfig(targetScene)
-
-              Logger.info(
-                ~module_="SceneLoader",
-                ~message="INITIALIZING_VIEWER_INSTANCE",
-                ~data=Some({
-                  "containerId": v.containerId,
-                  "targetSceneId": targetScene.id,
-                  "panorama": SceneCache.getSourceUrl(targetScene.id, targetScene.file),
-                  "fileType": switch targetScene.file {
-                  | Url(_) => "Url"
-                  | Blob(b) => "Blob(" ++ Float.toString(ReBindings.Blob.size(b)) ++ ")"
-                  | File(f) => "File(" ++ Float.toString(ReBindings.File.size(f)) ++ ")"
-                  },
-                }),
-                (),
-              )
-              let newInstance = ViewerSystem.Adapter.initialize(
-                v.containerId,
-                initialConfig->asDynamic,
-              )
-              ViewerSystem.Adapter.setMetaData(newInstance, "sceneId", idToUnknown(targetScene.id))
-              ViewerSystem.Adapter.setMetaData(newInstance, "isLoaded", boolToUnknown(false))
-
-              newInstance->ViewerSystem.Adapter.on("texture-loaded", _ => {
-                cleanupLoadTimeout()
-                Events.onSceneLoad(newInstance, targetScene, ~taskId?)
-              })
-
-              newInstance->ViewerSystem.Adapter.on("load", _ => {
-                cleanupLoadTimeout()
-                Events.onSceneLoad(newInstance, targetScene, ~taskId?)
-              })
-
-              newInstance->ViewerSystem.Adapter.on("error", msg => {
-                cleanupLoadTimeout()
-                Events.onSceneError(msg, targetScene.id, ~taskId?)
-              })
-
-              if ViewerSystem.Adapter.isLoaded(newInstance) {
-                cleanupLoadTimeout()
-                Events.onSceneLoad(newInstance, targetScene, ~taskId?)
-              }
-
-              ViewerSystem.Pool.registerInstance(v.containerId, newInstance)
-
-              Logger.info(
-                ~module_="SceneLoader",
-                ~message="VIEWER_INITIALIZED_SUCCESS",
-                ~data=Some({
-                  "containerId": v.containerId,
-                  "targetSceneId": targetScene.id,
-                }),
-                (),
-              )
-            } catch {
-            | exn =>
-              clearTimeout(safetyTimeoutId)
-              let (errMsg, errStack) = Logger.getErrorDetails(exn)
-              Logger.error(
-                ~module_="SceneLoader",
-                ~message="VIEWER_INITIALIZATION_ERROR",
-                ~data=Some({
-                  "containerId": v.containerId,
-                  "targetSceneId": targetScene.id,
-                  "error": errMsg,
-                  "stack": errStack,
-                }),
-                (),
-              )
-              Events.onSceneError(
-                "Failed to initialize viewer: " ++ errMsg,
-                targetScene.id,
-                ~taskId?,
-              )
-              switch taskId {
-              | Some(tid) => NavigationSupervisor.abort(tid)
-              | None => ()
-              }
-            }
           }
-        })
-      }
+        }
+      })
     }
+  }
 }

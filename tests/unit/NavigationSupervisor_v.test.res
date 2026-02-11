@@ -84,9 +84,9 @@ describe("NavigationSupervisor", () => {
       // Attempt to complete with stale taskId should not change current status
       NavigationSupervisor.complete(t1.id)
       testCtx->expect(NavigationSupervisor.isIdle())->Expect.toBe(false) // Still busy
-      testCtx->expect(NavigationSupervisor.getCurrentTask()->Option.map(t => t.id))->Expect.toEqual(
-        task2->Option.map(t => t.id),
-      )
+      testCtx
+      ->expect(NavigationSupervisor.getCurrentTask()->Option.map(t => t.id))
+      ->Expect.toEqual(task2->Option.map(t => t.id))
     | None => testCtx->expect(true)->Expect.toBe(false)
     }
   })
@@ -94,9 +94,11 @@ describe("NavigationSupervisor", () => {
   test("addStatusListener notifies on status changes", testCtx => {
     let statusChanges: ref<array<NavigationSupervisor.status>> = ref([])
 
-    let unsub = NavigationSupervisor.addStatusListener(status => {
-      statusChanges := Belt.Array.concat(statusChanges.contents, [status])
-    })
+    let unsub = NavigationSupervisor.addStatusListener(
+      status => {
+        statusChanges := Belt.Array.concat(statusChanges.contents, [status])
+      },
+    )
 
     NavigationSupervisor.requestNavigation("scene1")
     let task = NavigationSupervisor.getCurrentTask()
