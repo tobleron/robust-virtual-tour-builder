@@ -190,6 +190,11 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
         className="w-[32px] h-[32px] rounded-full border border-transparent hover:border-[#0e2d52]"
         onClick={handleSimClick}
         disabled={isLinking && !simActive}
+        ariaLabel={if simActive {
+          "Stop Tour Preview"
+        } else {
+          "Tour Preview"
+        }}
       >
         {if simActive {
           <LucideIcons.Square size=18 strokeWidth=3.0 />
