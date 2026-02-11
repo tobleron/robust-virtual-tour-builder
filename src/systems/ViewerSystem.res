@@ -283,7 +283,7 @@ module Follow = {
     }
   }
 
-  let rec updateFollowLoop = () => {
+  let rec updateFollowLoop = (~getState: unit => state) => {
     let busy =
       Dom.getElementById("processing-ui")
       ->Nullable.toOption
@@ -291,7 +291,7 @@ module Follow = {
       ->Option.getOr(false)
     if !busy {
       let vOpt = Pool.getActiveViewer()
-      let s = GlobalStateBridge.getState()
+      let s = getState()
       let hasHotspots = if s.activeIndex >= 0 && s.activeIndex < Array.length(s.scenes) {
         s.scenes[s.activeIndex]
         ->Option.map(sc => Array.length(sc.hotspots) > 0)
@@ -363,7 +363,7 @@ module Follow = {
             }
           })
         }
-        let _ = Window.requestAnimationFrame(updateFollowLoop)
+        let _ = Window.requestAnimationFrame(() => updateFollowLoop(~getState))
       }
     }
   }

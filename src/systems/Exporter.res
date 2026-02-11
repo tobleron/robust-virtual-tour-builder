@@ -111,6 +111,7 @@ let uploadAndProcessRaw: (
 
 let exportTour = async (
   scenes: array<scene>,
+  ~tourName: string,
   ~signal: BrowserBindings.AbortSignal.t,
   onProgress: option<(float, float, string) => unit>,
 ): result<unit, string> => {
@@ -121,8 +122,6 @@ let exportTour = async (
     }
   }
 
-  /* Get Tour Name */
-  let tourName = GlobalStateBridge.getState().tourName
   let tourName = if tourName == "" {
     "Virtual_Tour"
   } else {
