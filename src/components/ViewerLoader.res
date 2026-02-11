@@ -27,13 +27,26 @@ module Loader = {
   let initializeViewer = ViewerSystem.Adapter.initialize
   let destroyViewer = ViewerSystem.Adapter.destroy
 
-  let performSwap = loadedScene => {
-    Scene.Transition.performSwap(loadedScene, loadStartTime.contents)
+  let performSwap = (~taskId=?, ~getState, ~dispatch, ~transition, loadedScene) => {
+    Scene.Transition.performSwap(
+      loadedScene,
+      loadStartTime.contents,
+      ~taskId?,
+      ~getState,
+      ~dispatch,
+      ~transition,
+    )
   }
 
   let loadNewScene = (_prev, target, ~isAnticipatory=false) => {
     switch target {
-    | Some(id) => Scene.Loader.loadNewScene(~targetSceneId=id, ~isAnticipatory)
+    | Some(id) =>
+      Scene.Loader.loadNewScene(
+        ~state=Scene.Loader.toPathRequest(AppStateBridge.getState()),
+        ~dispatch=AppStateBridge.dispatch,
+        ~targetSceneId=id,
+        ~isAnticipatory,
+      )
     | None => ()
     }
   }

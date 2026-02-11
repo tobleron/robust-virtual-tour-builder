@@ -37,6 +37,7 @@ let make = () => {
     state.activeIndex
   }
   let stateRef = React.useRef(state)
+  let runIdRef = React.useRef(0)
 
   React.useEffect1(() => {
     stateRef.current = state
@@ -60,7 +61,10 @@ let make = () => {
     )
 
     if simulation.status == Running {
+      runIdRef.current = runIdRef.current + 1
+      let currentRunId = runIdRef.current
       let runTick = async () => {
+        let isCurrentRun = () => !cancel.contents && runIdRef.current == currentRunId
         let s = stateRef.current
         let currentSceneId = s.scenes->Belt.Array.get(s.activeIndex)->Option.map(ss => ss.id)
 
@@ -102,7 +106,7 @@ let make = () => {
             // Re-resolve state after delay
             let sAfterDelay = stateRef.current
             let stillRunning =
-              !cancel.contents &&
+              isCurrentRun() &&
               sAfterDelay.simulation.status == Running &&
               !sAfterDelay.simulation.stoppingOnArrival
             let stillInSameScene =
@@ -115,14 +119,14 @@ let make = () => {
                 Logger.debug(~module_="Simulation", ~message="SIM_WAIT_FOR_VIEWER", ())
                 let waitResult = await Navigation.waitForViewerScene(
                   stateRef.current.activeIndex,
-                  () => !cancel.contents && stateRef.current.simulation.status == Running,
+                  () => isCurrentRun() && stateRef.current.simulation.status == Running,
                   (),
                 )
 
                 // Re-resolve again after viewer wait
                 let sAfterWait = stateRef.current
                 let stillOk =
-                  !cancel.contents &&
+                  isCurrentRun() &&
                   sAfterWait.simulation.status == Running &&
                   sAfterWait.scenes
                   ->Belt.Array.get(sAfterWait.activeIndex)
@@ -196,6 +200,8 @@ let make = () => {
                     dispatch(StopAutoPilot)
                   }
                 | Ok() =>
+                  // Re-arm current scene when navigation is still busy so we can retry on IdleFsm.
+                  advancingForIndex.current = -1
                   Logger.debug(
                     ~module_="Simulation",
                     ~message="SIM_TICK_ABORTED_OR_BUSY",
@@ -230,6 +236,7 @@ let make = () => {
                     dismissible: true,
                     createdAt: Date.now(),
                   })
+                  advancingForIndex.current = -1
                   Scene.Switcher.cancelNavigation()
                   dispatch(StopAutoPilot)
                 }
@@ -241,14 +248,19 @@ let make = () => {
                   ~data={"error": "TODO"},
                   (),
                 )
+                advancingForIndex.current = -1
                 dispatch(StopAutoPilot)
               }
+            } else if isCurrentRun() {
+              // No-op wait cycle on same scene; allow re-check on next effect pass.
+              advancingForIndex.current = -1
             }
           }
         }
       }
       let _ = runTick()
     } else {
+      runIdRef.current = runIdRef.current + 1
       advancingForIndex.current = -1
     }
 

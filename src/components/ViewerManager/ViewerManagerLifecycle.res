@@ -4,14 +4,14 @@ open ReBindings
 open Types
 open Actions
 
-let useInitialization = () => {
+let useInitialization = (~getState, ~dispatch) => {
   React.useEffect0(() => {
-    let cleanupInput = InputSystem.initInputSystem()
+    let cleanupInput = InputSystem.initInputSystem(~getState, ~dispatch)
 
     let handleResize = _ => {
       let v = ViewerSystem.getActiveViewer()
       switch Nullable.toOption(v) {
-      | Some(viewer) => HotspotLine.updateLines(viewer, GlobalStateBridge.getState(), ())
+      | Some(viewer) => HotspotLine.updateLines(viewer, getState(), ())
       | None => ()
       }
     }
@@ -20,6 +20,7 @@ let useInitialization = () => {
     // Initialize Guide
     ViewerState.state := {...ViewerState.state.contents, guide: Dom.getElementById("cursor-guide")}
 
+    let moveHandler = e => InputSystem.handleMouseMove(~getState, e)
     let stage = Dom.getElementById("viewer-stage")
     switch Nullable.toOption(stage) {
     | Some(el) =>
@@ -29,7 +30,7 @@ let useInitialization = () => {
         ~data=Some({"element": "viewer-stage"}),
         (),
       )
-      Dom.addEventListener(el, "mousemove", InputSystem.handleMouseMove)
+      Dom.addEventListener(el, "mousemove", moveHandler)
       Dom.addEventListenerCapture(el, "pointerdown", LinkEditorLogic.handleStagePointerDown, true)
       Dom.addEventListenerCapture(el, "click", LinkEditorLogic.handleStageClick, true)
     | None => Logger.error(~module_="ViewerManagerLogic", ~message="STAGE_NOT_FOUND", ())
@@ -50,7 +51,7 @@ let useInitialization = () => {
 
         switch Nullable.toOption(stage) {
         | Some(el) =>
-          Dom.removeEventListener(el, "mousemove", InputSystem.handleMouseMove)
+          Dom.removeEventListener(el, "mousemove", moveHandler)
           Dom.removeEventListenerCapture(
             el,
             "pointerdown",
@@ -108,7 +109,7 @@ let useLinkingAndSimUI = (state: state, dispatch: action => unit) => {
       // Sync Hotspots immediately to apply hidden-in-sim class
       let v = ViewerSystem.getActiveViewer()
       switch (Nullable.toOption(v), Belt.Array.get(state.scenes, state.activeIndex)) {
-      | (Some(viewer), Some(scene)) if !TransitionLock.isSwapping() =>
+      | (Some(viewer), Some(scene)) if NavigationSupervisor.isIdle() =>
         Logger.debug(
           ~module_="ViewerManagerLogic",
           ~message="SIMULATION_STATE_SYNC",

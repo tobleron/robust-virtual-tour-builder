@@ -7,5 +7,7 @@ type optimisticResult<'a> =
 let execute: (
   ~action: Actions.action,
   ~apiCall: unit => Promise.t<result<'a, string>>,
+  ~getState: unit => Types.state=?,
+  ~getDispatch: unit => Actions.action => unit=?,
   ~onRollback: Types.state => unit=?,
 ) => Promise.t<optimisticResult<'a>>

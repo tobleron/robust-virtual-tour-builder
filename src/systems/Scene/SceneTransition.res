@@ -2,21 +2,23 @@
 
 open ReBindings
 open Types
+open Actions
 
 type viewport = ViewerSystem.Pool.viewport
 
-let finalizeSwap = () => {
+type getStateFn = unit => state
+
+let finalizeSwap = (~getState) => {
   ViewerSystem.getActiveViewer()
   ->Nullable.toOption
   ->Option.forEach(v => {
     if ViewerSystem.isViewerReady(v) {
-      let state = GlobalStateBridge.getState()
-      if state.activeIndex != -1 {
-        // Break direct dependency on HotspotManager by using EventBus
+      let currentState: state = getState()
+      if currentState.activeIndex != -1 {
         EventBus.dispatch(ForceHotspotSync)
         HotspotLine.updateLines(
           v,
-          state,
+          currentState,
           ~mouseEvent=?ViewerState.state.contents.lastMouseEvent->Nullable.toOption,
           (),
         )
@@ -38,18 +40,18 @@ let clearHotspotLines = () => {
   ->Option.forEach(svg => Dom.setTextContent(svg, ""))
 }
 
-let updateGlobalStateAndViewer = nv => {
+let updateGlobalStateAndViewer = (~getState, nv) => {
   ViewerSystem.Pool.swapActive()
   ViewerSystem.Pool.getActive()->Option.forEach(v => ViewerSystem.Pool.clearCleanupTimeout(v.id))
 
   assignGlobalViewer(nv)
   clearHotspotLines()
 
-  let _ = Window.setTimeout(finalizeSwap, 50)
+  let _ = Window.setTimeout(() => finalizeSwap(~getState), 50)
 }
 
-let updateDomTransitions = (av, iv) => {
-  let isCut = GlobalStateBridge.getState().transition.type_ == Cut
+let updateDomTransitions = (~transition: transition, av, iv) => {
+  let isCut = transition.type_ == Cut
   switch (av, iv) {
   | (Some(act: viewport), Some(inact: viewport)) =>
     let (actEl, inactEl) = (
@@ -108,26 +110,29 @@ let cleanupViewerInstance = (ov, vp: viewport, ~taskId: option<string>=?) => {
   | None => ()
   }
 
-  // 1. Resource Lifecycle (Cancellable)
-  // We schedule the destruction of the viewer but allow it to be cancelled
-  // if SceneLoader decides to reuse this instance.
+  // Single-owner completion lifecycle:
+  // Cleanup and supervisor completion are tied to the same timer callback
+  // so stale timers cannot complete a newer task.
   let resourceCleanupId = Window.setTimeout(() => {
-    ov->Nullable.toOption->Option.forEach(ViewerSystem.Adapter.destroy)
-    ViewerSystem.Pool.clearInstance(vp.containerId)
-    ViewerSystem.Pool.clearCleanupTimeout(vp.id)
+    let shouldFinalize = switch taskId {
+    | Some(tid) => NavigationSupervisor.isCurrentTask(tid)
+    | None => true
+    }
+    if !shouldFinalize {
+      ViewerSystem.Pool.clearCleanupTimeout(vp.id)
+    } else {
+      ov->Nullable.toOption->Option.forEach(ViewerSystem.Adapter.destroy)
+      ViewerSystem.Pool.clearInstance(vp.containerId)
+      ViewerSystem.Pool.clearCleanupTimeout(vp.id)
+      switch taskId {
+      | Some(tid) => NavigationSupervisor.complete(tid)
+      | None => ()
+      }
+    }
   }, 500)
 
   // Register the resource cleanup task so it can be cancelled
   ViewerSystem.Pool.setCleanupTimeout(vp.id, Some(resourceCleanupId))
-
-  // 2. State Lifecycle (Guaranteed)
-  // This runs independently of the resource cleanup. The Supervisor completes the task.
-  let _ = Window.setTimeout(() => {
-    switch taskId {
-    | Some(tid) => NavigationSupervisor.complete(tid)
-    | None => ()
-    }
-  }, 550) // Small buffer to ensure it runs after cleanup if both proceed
 }
 
 let cleanupSnapshotOverlay = () => {
@@ -152,7 +157,14 @@ let scheduleCleanup = (ov, ~taskId: option<string>=?) => {
   cleanupSnapshotOverlay()
 }
 
-let performSwap = (loadedScene: scene, _loadStartTime, ~taskId: option<string>=?) => {
+let performSwap = (
+  loadedScene: scene,
+  _loadStartTime,
+  ~taskId: option<string>=?,
+  ~getState: getStateFn,
+  ~dispatch,
+  ~transition,
+) => {
   Logger.debug(
     ~module_="SceneTransition",
     ~message="PERFORM_SWAP",
@@ -171,8 +183,8 @@ let performSwap = (loadedScene: scene, _loadStartTime, ~taskId: option<string>=?
   switch Nullable.toOption(nv) {
   | Some(_newViewer) =>
     Logger.debug(~module_="SceneTransition", ~message="SWAPPING_VIEWERS", ())
-    updateGlobalStateAndViewer(nv)
-    updateDomTransitions(av, iv)
+    updateGlobalStateAndViewer(~getState, nv)
+    updateDomTransitions(~transition, av, iv)
     scheduleCleanup(ov, ~taskId?)
   | None =>
     Logger.warn(~module_="SceneTransition", ~message="NO_INACTIVE_VIEWER_FOR_SWAP", ())
@@ -181,7 +193,7 @@ let performSwap = (loadedScene: scene, _loadStartTime, ~taskId: option<string>=?
     if activeViewer->Nullable.toOption->Option.isSome {
       assignGlobalViewer(activeViewer)
     }
-    GlobalStateBridge.dispatch(SyncSceneNames) // Force some state change
+    dispatch(SyncSceneNames) // Force some state change
     switch taskId {
     | Some(tid) => NavigationSupervisor.abort(tid)
     | None => ()
@@ -192,5 +204,5 @@ let performSwap = (loadedScene: scene, _loadStartTime, ~taskId: option<string>=?
   ViewerState.state := {...ViewerState.state.contents, lastSceneId: Nullable.make(loadedScene.id)}
 
   Logger.debug(~module_="SceneTransition", ~message="SWAP_COMPLETE_FSM_SIGNAL", ())
-  GlobalStateBridge.dispatch(DispatchNavigationFsmEvent(StabilizeComplete))
+  dispatch(DispatchNavigationFsmEvent(StabilizeComplete))
 }

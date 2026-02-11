@@ -23,7 +23,7 @@ let normalizeMouseCoords = (e: Dom.event, element: Dom.element) => {
   }
 }
 
-let handleMouseMove = (e: Dom.event) => {
+let handleMouseMove = (~getState: unit => state, e: Dom.event) => {
   ViewerState.state := {...ViewerState.state.contents, lastMouseEvent: Nullable.make(e)}
 
   let stage = Dom.getElementById("viewer-stage")
@@ -41,23 +41,23 @@ let handleMouseMove = (e: Dom.event) => {
     CursorPhysics.calculateVelocity(coords["x"], coords["y"])
 
     // Rod UI Update
-    let currentState = GlobalStateBridge.getState()
+    let currentState = getState()
     CursorPhysics.updateRodPosition(coords["x"], coords["y"], currentState.isLinking)
 
   | None => ()
   }
 }
 
-let handleKeyDown = e => {
+let handleKeyDown = (~getState: unit => state, ~dispatch, e) => {
   let key = Dom.key(e)
   let ctrlKey = Dom.ctrlKey(e)
   let shiftKey = Dom.shiftKey(e)
 
   if key == "Escape" {
     // 0. Handle Link Cancellation
-    let storeState = GlobalStateBridge.getState()
+    let storeState = getState()
     if storeState.isLinking {
-      GlobalStateBridge.dispatch(StopLinking)
+      dispatch(StopLinking)
       NotificationManager.dispatch({
         id: "",
         importance: Info,
@@ -82,7 +82,7 @@ let handleKeyDown = e => {
         NavigationSupervisor.abort(task.id)
       | None =>
         // Fallback: Direct FSM dispatch for non-Supervisor navigations
-        GlobalStateBridge.dispatch(Actions.DispatchNavigationFsmEvent(Aborted))
+        dispatch(Actions.DispatchNavigationFsmEvent(Aborted))
       }
     }
 
@@ -118,9 +118,10 @@ let handleKeyDown = e => {
   }
 }
 
-let initInputSystem = () => {
+let initInputSystem = (~getState: unit => state, ~dispatch) => {
   Logger.initialized(~module_="InputSystem")
   Logger.debug(~module_="InputSystem", ~message="KEYBOARD_LISTENERS_ATTACHED", ())
-  Window.addEventListener("keydown", handleKeyDown)
-  () => Window.removeEventListener("keydown", handleKeyDown)
+  let keyDown = e => handleKeyDown(~getState, ~dispatch, e)
+  Window.addEventListener("keydown", keyDown)
+  () => Window.removeEventListener("keydown", keyDown)
 }

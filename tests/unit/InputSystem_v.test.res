@@ -22,7 +22,9 @@ describe("InputSystem", () => {
   }
 
   beforeAll(() => {
-    ignore(InputSystem.initInputSystem())
+    let getState = () => State.initialState
+    let dispatch = _ => ()
+    ignore(InputSystem.initInputSystem(~getState, ~dispatch))
   })
 
   testAsync("should close modal on Escape", async t => {
@@ -94,7 +96,7 @@ describe("InputSystem", () => {
     // clientY: 50 -> y = 50 -> yNorm = (50 + Constants.linkingRodHeight)/100 * 2 - 1 = 1.6
     // Constants.linkingRodHeight is 80.0
     let mockEvent = %raw(`{ clientX: 75, clientY: 50 }`)
-    InputSystem.handleMouseMove(mockEvent)
+    InputSystem.handleMouseMove(~getState=() => State.initialState, mockEvent)
 
     t->expect(ViewerState.state.contents.mouseXNorm)->Expect.toBe(0.5)
     t->expect(ViewerState.state.contents.mouseYNorm)->Expect.toBe(1.6)

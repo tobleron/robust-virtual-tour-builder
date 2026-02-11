@@ -7,4 +7,5 @@ New modules were detected and added to the 'Unmapped Modules' section of `MAP.md
 Move the entries from 'Unmapped Modules' to their appropriate semantic sections in `MAP.md`.
 
 ## Tasks
+- [ ] [src/core/AppStateBridge.res](src/core/AppStateBridge.res): New module detected. Please classify. #new
 - [ ] [src/core/NavigationState.res](src/core/NavigationState.res): New module detected. Please classify. #new
