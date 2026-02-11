@@ -45,7 +45,7 @@ let createSnapshot = (state: Types.state): stateSnapshot => {
 }
 
 let getDebugSnapshot = () => {
-  createSnapshot(GlobalStateBridge.getState())
+  createSnapshot(AppContext.getBridgeState())
 }
 
 /**
@@ -54,10 +54,10 @@ let getDebugSnapshot = () => {
  */
 let exposeToWindow = () => {
   if Constants.enableStateInspector() {
-    let getState = GlobalStateBridge.getState
+    let getState = AppContext.getBridgeState
     let loadProject = data => {
       Logger.info(~module_="StateInspector", ~message="HEADLESS_LOAD_START", ())
-      GlobalStateBridge.dispatch(Actions.LoadProject(data))
+      AppContext.getBridgeDispatch()(Actions.LoadProject(data))
     }
     let getSnapshot = getDebugSnapshot
 

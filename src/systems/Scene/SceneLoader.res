@@ -59,9 +59,18 @@ module Config = {
   }
 }
 
+let toPathRequest = (state: state): pathRequest => {
+  {
+    type_: "navigation",
+    scenes: state.scenes,
+    skipAutoForward: state.simulation.skipAutoForwardGlobal,
+    timeline: Some(state.timeline),
+  }
+}
+
 module Reuse = {
-  let findReusableInstance = (targetIdx: int): option<ViewerSystem.Adapter.t> => {
-    let targetSceneId = GlobalStateBridge.getState().scenes[targetIdx]->Option.map(s => s.id)
+  let findReusableInstance = (pathRequest, targetIdx: int): option<ViewerSystem.Adapter.t> => {
+    let targetSceneId = pathRequest.scenes[targetIdx]->Option.map(s => s.id)
     ViewerSystem.Pool.pool.contents
     ->Belt.Array.getBy(v => {
       v.instance
@@ -76,51 +85,96 @@ module Reuse = {
 }
 
 module Events = {
-  let onSceneLoad = (v, loadedScene: scene, ~taskId: option<string>=?) => {
-    let vId = castToDict(v)->Dict.get("container")->Option.getOr("")
-    let entry = ViewerSystem.Pool.pool.contents->Belt.Array.getBy(e => e.containerId == vId)
-    entry->Option.forEach(e => {
-      e.instance->Option.forEach(inst => {
-        ViewerSystem.Adapter.setMetaData(inst, "isLoaded", boolToUnknown(true))
-        ViewerSystem.Adapter.setMetaData(inst, "sceneId", idToUnknown(loadedScene.id))
-      })
-    })
-    ViewerSystem.Pool.setCleanupTimeout(vId, None)
-
-    switch taskId {
-    | Some(tid) => NavigationSupervisor.transitionTo(tid, Swapping(tid, loadedScene.id))
-    | None => ()
+  let isStaleTask = (
+    ~taskId: option<string>=?,
+    ~signal: option<BrowserBindings.AbortSignal.t>=?,
+  ) => {
+    let taskMismatch = switch taskId {
+    | Some(tid) => !NavigationSupervisor.isCurrentTask(tid)
+    | None => false
     }
-
-    GlobalStateBridge.dispatch(
-      DispatchNavigationFsmEvent(TextureLoaded({targetSceneId: loadedScene.id})),
-    )
+    let signalAborted = switch signal {
+    | Some(s) => BrowserBindings.AbortSignal.aborted(s)
+    | None => false
+    }
+    taskMismatch || signalAborted
   }
-  let onSceneError = (msg, targetSceneId, ~taskId: option<string>=?) => {
-    Logger.error(
-      ~module_="SceneLoader",
-      ~message="LOAD_ERROR",
-      ~data={"error": msg, "targetId": targetSceneId},
-      (),
-    )
 
-    switch taskId {
-    | Some(tid) => NavigationSupervisor.abort(tid)
-    | None => ()
+  let onSceneLoad = (
+    ~dispatch,
+    v,
+    loadedScene: scene,
+    ~taskId: option<string>=?,
+    ~signal: option<BrowserBindings.AbortSignal.t>=?,
+  ) => {
+    if isStaleTask(~taskId?, ~signal?) {
+      Logger.debug(
+        ~module_="SceneLoader",
+        ~message="STALE_SCENE_LOAD_IGNORED",
+        ~data=Some({"sceneId": loadedScene.id, "taskId": taskId->Option.getOr("none")}),
+        (),
+      )
+      ()
+    } else {
+      let vId = castToDict(v)->Dict.get("container")->Option.getOr("")
+      let entry = ViewerSystem.Pool.pool.contents->Belt.Array.getBy(e => e.containerId == vId)
+      entry->Option.forEach(e => {
+        e.instance->Option.forEach(inst => {
+          ViewerSystem.Adapter.setMetaData(inst, "isLoaded", boolToUnknown(true))
+          ViewerSystem.Adapter.setMetaData(inst, "sceneId", idToUnknown(loadedScene.id))
+        })
+      })
+      ViewerSystem.Pool.setCleanupTimeout(vId, None)
+
+      switch taskId {
+      | Some(tid) => NavigationSupervisor.transitionTo(tid, Swapping(tid, loadedScene.id))
+      | None => ()
+      }
+
+      dispatch(DispatchNavigationFsmEvent(TextureLoaded({targetSceneId: loadedScene.id})))
     }
+  }
+  let onSceneError = (
+    ~dispatch,
+    msg,
+    targetSceneId,
+    ~taskId: option<string>=?,
+    ~signal: option<BrowserBindings.AbortSignal.t>=?,
+  ) => {
+    if isStaleTask(~taskId?, ~signal?) {
+      Logger.debug(
+        ~module_="SceneLoader",
+        ~message="STALE_SCENE_ERROR_IGNORED",
+        ~data=Some({"targetId": targetSceneId, "taskId": taskId->Option.getOr("none")}),
+        (),
+      )
+      ()
+    } else {
+      Logger.error(
+        ~module_="SceneLoader",
+        ~message="LOAD_ERROR",
+        ~data={"error": msg, "targetId": targetSceneId},
+        (),
+      )
 
-    NotificationManager.dispatch({
-      id: "",
-      importance: Error,
-      context: Operation("scene_loader"),
-      message: msg,
-      details: None,
-      action: None,
-      duration: NotificationTypes.defaultTimeoutMs(Error),
-      dismissible: true,
-      createdAt: Date.now(),
-    })
-    GlobalStateBridge.dispatch(DispatchNavigationFsmEvent(LoadTimeout))
+      switch taskId {
+      | Some(tid) => NavigationSupervisor.abort(tid)
+      | None => ()
+      }
+
+      NotificationManager.dispatch({
+        id: "",
+        importance: Error,
+        context: Operation("scene_loader"),
+        message: msg,
+        details: None,
+        action: None,
+        duration: NotificationTypes.defaultTimeoutMs(Error),
+        dismissible: true,
+        createdAt: Date.now(),
+      })
+      dispatch(DispatchNavigationFsmEvent(LoadTimeout))
+    }
   }
 }
 
@@ -136,6 +190,8 @@ let cleanupLoadTimeout = () => {
 }
 
 let loadNewScene = (
+  ~state: pathRequest,
+  ~dispatch,
   ~sourceSceneId as _sourceSceneId: option<string>=?,
   ~targetSceneId: string,
   ~isAnticipatory=false,
@@ -151,7 +207,6 @@ let loadNewScene = (
   }
 
   cleanupLoadTimeout()
-  let state = GlobalStateBridge.getState()
   let targetSceneOpt = state.scenes->Belt.Array.getBy(s => s.id == targetSceneId)
 
   switch targetSceneOpt {
@@ -167,14 +222,12 @@ let loadNewScene = (
       | Some(tid) => NavigationSupervisor.abort(tid)
       | None => ()
       }
-      GlobalStateBridge.dispatch(DispatchNavigationFsmEvent(Aborted))
+      dispatch(DispatchNavigationFsmEvent(Aborted))
     }
   | Some(targetScene) =>
     if !isAnticipatory {
       loadStartTime := Date.now()
-      GlobalStateBridge.dispatch(
-        DispatchNavigationFsmEvent(PreloadStarted({targetSceneId: targetScene.id})),
-      )
+      dispatch(DispatchNavigationFsmEvent(PreloadStarted({targetSceneId: targetScene.id})))
     }
 
     let tIdx = state.scenes->Belt.Array.getIndexBy(s => s.id == targetSceneId)->Option.getOr(-1)
@@ -182,7 +235,7 @@ let loadNewScene = (
     switch if isAnticipatory {
       None
     } else {
-      Reuse.findReusableInstance(tIdx)
+      Reuse.findReusableInstance(state, tIdx)
     } {
     | Some(inst) =>
       if !isAnticipatory {
@@ -212,9 +265,7 @@ let loadNewScene = (
         | None => ()
         }
 
-        GlobalStateBridge.dispatch(
-          DispatchNavigationFsmEvent(TextureLoaded({targetSceneId: targetScene.id})),
-        )
+        dispatch(DispatchNavigationFsmEvent(TextureLoaded({targetSceneId: targetScene.id})))
       }
     | None =>
       let activeVp = ViewerSystem.Pool.getActive()
@@ -230,14 +281,24 @@ let loadNewScene = (
 
         // Safety timeout to prevent permanent hangs if Pannellum fails to fire events
         let safetyTimeoutId = setTimeout(() => {
-          currentLoadTimeout := None
-          Logger.error(
-            ~module_="SceneLoader",
-            ~message="PANNELLUM_LOAD_TIMEOUT",
-            ~data=Some({"scene": targetScene.id}),
-            (),
-          )
-          Events.onSceneError("Resource load timeout (Safety)", targetScene.id, ~taskId?)
+          if Events.isStaleTask(~taskId?, ~signal?) {
+            currentLoadTimeout := None
+          } else {
+            currentLoadTimeout := None
+            Logger.error(
+              ~module_="SceneLoader",
+              ~message="PANNELLUM_LOAD_TIMEOUT",
+              ~data=Some({"scene": targetScene.id}),
+              (),
+            )
+            Events.onSceneError(
+              ~dispatch,
+              "Resource load timeout (Safety)",
+              targetScene.id,
+              ~taskId?,
+              ~signal?,
+            )
+          }
         }, 60000)
         currentLoadTimeout := Some(safetyTimeoutId)
 
@@ -283,22 +344,22 @@ let loadNewScene = (
 
             newInstance->ViewerSystem.Adapter.on("texture-loaded", _ => {
               cleanupLoadTimeout()
-              Events.onSceneLoad(newInstance, targetScene, ~taskId?)
+              Events.onSceneLoad(~dispatch, newInstance, targetScene, ~taskId?, ~signal?)
             })
 
             newInstance->ViewerSystem.Adapter.on("load", _ => {
               cleanupLoadTimeout()
-              Events.onSceneLoad(newInstance, targetScene, ~taskId?)
+              Events.onSceneLoad(~dispatch, newInstance, targetScene, ~taskId?, ~signal?)
             })
 
             newInstance->ViewerSystem.Adapter.on("error", msg => {
               cleanupLoadTimeout()
-              Events.onSceneError(msg, targetScene.id, ~taskId?)
+              Events.onSceneError(~dispatch, msg, targetScene.id, ~taskId?, ~signal?)
             })
 
             if ViewerSystem.Adapter.isLoaded(newInstance) {
               cleanupLoadTimeout()
-              Events.onSceneLoad(newInstance, targetScene, ~taskId?)
+              Events.onSceneLoad(~dispatch, newInstance, targetScene, ~taskId?, ~signal?)
             }
 
             ViewerSystem.Pool.registerInstance(v.containerId, newInstance)
@@ -327,7 +388,13 @@ let loadNewScene = (
               }),
               (),
             )
-            Events.onSceneError("Failed to initialize viewer: " ++ errMsg, targetScene.id, ~taskId?)
+            Events.onSceneError(
+              ~dispatch,
+              "Failed to initialize viewer: " ++ errMsg,
+              targetScene.id,
+              ~taskId?,
+              ~signal?,
+            )
             switch taskId {
             | Some(tid) => NavigationSupervisor.abort(tid)
             | None => ()

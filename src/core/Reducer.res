@@ -448,6 +448,7 @@ module Mod = {
 
 let rec reducer = (state: state, action: action): state => {
   switch action {
+  | RestoreState(nextState) => nextState
   | Batch(actions) => Belt.Array.reduce(actions, state, (s, a) => reducer(s, a))
   | _ =>
     state

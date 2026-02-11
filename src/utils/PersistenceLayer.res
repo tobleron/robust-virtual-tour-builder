@@ -1,6 +1,7 @@
 /* src/utils/PersistenceLayer.res */
 
 open IdbBindings
+open Types
 
 type serializedSession = {
   timestamp: float,
@@ -15,7 +16,10 @@ let debounceMs = 2000
 
 external asJson: unknown => JSON.t = "%identity"
 
+let stateGetterRef: ref<unit => state> = ref(() => State.initialState)
 let lastSaveTimeout = ref(None)
+let beforeUnloadListener: ref<option<DomBindings.Dom.event => unit>> = ref(None)
+let subscriberRef: ref<option<unit => unit>> = ref(None)
 
 let performSave = (state: Types.state) => {
   /* Only save if we have scenes or a project name that differs from default */
@@ -71,7 +75,7 @@ let performSave = (state: Types.state) => {
   }
 }
 
-let onStateChange = (state: Types.state) => {
+let handleStateChange = (state: state) => {
   switch lastSaveTimeout.contents {
   | Some(id) => clearTimeout(id)
   | None => ()
@@ -86,22 +90,29 @@ let onStateChange = (state: Types.state) => {
       }, debounceMs))
 }
 
-let unsub = ref(None)
+let notifyStateChange = (state: state) => handleStateChange(state)
 
-let initSubscriber = () => {
-  /* We subscribe to the GlobalStateBridge to detect changes */
+let initSubscriber = (~getState: unit => state, ~onChange: state => unit) => {
   Logger.info(~module_="Persistence", ~message="Initializing Persistence Layer", ())
 
-  unsub.contents->Option.forEach(f => f())
-  unsub := Some(GlobalStateBridge.subscribe(onStateChange))
+  stateGetterRef := getState
 
-  DomBindings.Window.addEventListener("beforeunload", _ => {
+  beforeUnloadListener.contents->Option.forEach(listener =>
+    DomBindings.Window.removeEventListener("beforeunload", listener)
+  )
+
+  let listener = _event => {
     switch lastSaveTimeout.contents {
-    | Some(_) =>
-      let _ = performSave(GlobalStateBridge.getState())
+    | Some(_) => performSave(stateGetterRef.contents())
     | None => ()
     }
-  })
+  }
+
+  beforeUnloadListener := Some(listener)
+  DomBindings.Window.addEventListener("beforeunload", listener)
+
+  subscriberRef.contents->Option.forEach(f => f())
+  subscriberRef := Some(AppStateBridge.subscribe(onChange))
 }
 
 let clearSession = () => {

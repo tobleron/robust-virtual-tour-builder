@@ -26,6 +26,7 @@ let taskCounter = ref(0)
 let currentTask: ref<option<task>> = ref(None)
 let status: ref<status> = ref(Idle)
 let listeners: ref<array<status => unit>> = ref([])
+let runId = ref(0)
 
 // Initialize module
 let () = {
@@ -73,6 +74,17 @@ let getCurrentTask = (): option<task> => {
   currentTask.contents
 }
 
+let getRunId = (): int => {
+  runId.contents
+}
+
+let isCurrentTask = (taskId: taskId): bool => {
+  switch currentTask.contents {
+  | Some(task) => task.id == taskId
+  | None => false
+  }
+}
+
 let statusToString = (s: status): string => {
   switch s {
   | Idle => "Idle"
@@ -104,6 +116,7 @@ let requestNavigation = (targetSceneId: string): unit => {
   let controller = BrowserBindings.AbortController.make()
   let abortSignal = BrowserBindings.AbortController.signal(controller)
   taskCounter := taskCounter.contents + 1
+  runId := runId.contents + 1
   let taskId = `task_${Date.now()->Float.toString}_${taskCounter.contents->Belt.Int.toString}`
   let task = {
     id: taskId,

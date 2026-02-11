@@ -2,6 +2,7 @@ module InnerApp = {
   @react.component
   let make = () => {
     let state = AppContext.useAppState()
+    let dispatch = AppContext.useAppDispatch()
     let isSystemLocked = AppContext.useIsSystemLocked()
 
     React.useEffect1(() => {
@@ -15,7 +16,7 @@ module InnerApp = {
 
     React.useEffect0(() => {
       Logger.info(~module_="App", ~message="InnerApp Mounted - DISPATCHING_INIT_COMPLETE", ())
-      GlobalStateBridge.dispatch(DispatchAppFsmEvent(InitializeComplete))
+      dispatch(DispatchAppFsmEvent(InitializeComplete))
       None
     })
 
