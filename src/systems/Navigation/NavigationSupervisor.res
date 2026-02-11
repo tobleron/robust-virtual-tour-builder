@@ -101,7 +101,7 @@ let requestNavigation = (targetSceneId: string): unit => {
   let taskId = `task_${Date.now()->Float.toString}`
   let task = {
     id: taskId,
-    targetSceneId: targetSceneId,
+    targetSceneId,
     signal: abortSignal,
     abort: () => {
       BrowserBindings.AbortController.abort(controller)

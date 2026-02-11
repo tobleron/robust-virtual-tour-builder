@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - V4.4.0: Pre Supervisor Stable version
+- Tasks 1328-1329 completed: NavigationSupervisor created and AbortSignal bindings integrated
 
 ## [4.38.3] - 2026-02-11
 
