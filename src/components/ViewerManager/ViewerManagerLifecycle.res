@@ -6,6 +6,7 @@ open Actions
 
 let useInitialization = (~getState, ~dispatch) => {
   React.useEffect0(() => {
+    LinkEditorLogic.configure(~getState, ~dispatch)
     let cleanupInput = InputSystem.initInputSystem(~getState, ~dispatch)
 
     let handleResize = _ => {

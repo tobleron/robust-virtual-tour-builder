@@ -5,6 +5,7 @@ open ViewerState
 open CursorPhysics
 
 describe("CursorPhysics", () => {
+  let getState = () => State.initialState
   test("calculateVelocity updates viewer state", t => {
     // Reset state
     ViewerState.state := {
@@ -28,7 +29,7 @@ describe("CursorPhysics", () => {
       document.body.innerHTML = '<div id="cursor-guide"></div>'
     `)
 
-    updateRodPosition(100.0, 200.0, true)
+    updateRodPosition(~getState, 100.0, 200.0, true)
 
     let guide = Dom.getElementById("cursor-guide")
     switch Nullable.toOption(guide) {
@@ -39,7 +40,7 @@ describe("CursorPhysics", () => {
     | None => t->expect(true)->Expect.toBe(false)
     }
 
-    updateRodPosition(100.0, 200.0, false)
+    updateRodPosition(~getState, 100.0, 200.0, false)
     // Check if display is set to none (note the !important in the code which might make getProperty tricky in a mock Dom)
     // but in jsdom it should work.
   })

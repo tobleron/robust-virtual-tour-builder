@@ -2,7 +2,7 @@ open ReBindings
 open ViewerState
 open InteractionPolicies
 
-let performSnapshot = () => {
+let performSnapshot = (~getState: unit => Types.state=AppContext.getBridgeState) => {
   Promise.make((resolve, _reject) => {
     let viewer = ViewerSystem.getActiveViewer()
 
@@ -28,7 +28,7 @@ let performSnapshot = () => {
             switch Nullable.toOption(blob) {
             | Some(b) =>
               let snapshotUrl = UrlUtils.safeCreateObjectURL(b)
-              let storeState = GlobalStateBridge.getState()
+              let storeState = getState()
               let activeIndex = storeState.activeIndex
 
               switch Belt.Array.get(storeState.scenes, activeIndex) {
@@ -58,11 +58,11 @@ let performSnapshot = () => {
   })
 }
 
+let snapshotGetterRef = ref(AppContext.getBridgeState)
+
 let debouncedSnapshot = Debounce.make(~fn=() => {
-  switch InteractionGuard.attempt(
-    "viewer_snapshot_limit",
-    SlidingWindow(10, 60000, 2000),
-    performSnapshot,
+  switch InteractionGuard.attempt("viewer_snapshot_limit", SlidingWindow(10, 60000, 2000), () =>
+    performSnapshot(~getState=snapshotGetterRef.contents)
   ) {
   | Ok(p) => p
   | Error(_) =>
@@ -82,13 +82,14 @@ let debouncedSnapshot = Debounce.make(~fn=() => {
   }
 }, ~wait=1000, ~leading=false, ~trailing=true)
 
-let requestIdleSnapshot = () => {
+let requestIdleSnapshot = (~getState: unit => Types.state=AppContext.getBridgeState) => {
   switch Nullable.toOption(state.contents.idleSnapshotTimeout) {
   | Some(t) => Window.clearTimeout(t)
   | None => ()
   }
 
   state := {...state.contents, idleSnapshotTimeout: Nullable.null}
+  snapshotGetterRef := getState
 
   let _ = debouncedSnapshot.call()
 }

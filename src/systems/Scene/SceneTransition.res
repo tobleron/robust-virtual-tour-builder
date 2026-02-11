@@ -200,7 +200,7 @@ let performSwap = (
     }
   }
 
-  ViewerSnapshot.requestIdleSnapshot()
+  ViewerSnapshot.requestIdleSnapshot(~getState)
   ViewerState.state := {...ViewerState.state.contents, lastSceneId: Nullable.make(loadedScene.id)}
 
   Logger.debug(~module_="SceneTransition", ~message="SWAP_COMPLETE_FSM_SIGNAL", ())

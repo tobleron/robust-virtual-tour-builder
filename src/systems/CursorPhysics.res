@@ -2,6 +2,7 @@
 
 open ReBindings
 open ViewerState
+open Types
 
 let calculateVelocity = (x: float, y: float) => {
   let now = Date.now()
@@ -34,7 +35,7 @@ let calculateVelocity = (x: float, y: float) => {
     }
 }
 
-let updateRodPosition = (x: float, y: float, isLinking: bool) => {
+let updateRodPosition = (~getState: unit => state, x: float, y: float, isLinking: bool) => {
   let guide = Dom.getElementById("cursor-guide")
 
   switch Nullable.toOption(guide) {
@@ -61,7 +62,7 @@ let updateRodPosition = (x: float, y: float, isLinking: bool) => {
       // Re-enable follow loop for wider waypoints navigation (Stage 2)
       if !ViewerState.state.contents.followLoopActive {
         ViewerState.state := {...ViewerState.state.contents, followLoopActive: true}
-        ViewerSystem.Follow.updateFollowLoop()
+        ViewerSystem.Follow.updateFollowLoop(~getState)
       }
     } else {
       Dom.setProperty(g, "display", "none !important")

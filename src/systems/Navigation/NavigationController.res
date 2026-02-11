@@ -114,7 +114,7 @@ module ControllerHooks = {
     }, (state.navigationState.navigationFsm, state.activeIndex))
   }
 
-  let useNavigationAnimation = (state: state, dispatch) => {
+  let useNavigationAnimation = (state: state, dispatch, getState) => {
     let ajid = React.useRef(None)
     let req = React.useRef(None)
 
@@ -152,7 +152,7 @@ module ControllerHooks = {
                 ~data=Some({"journeyId": j.journeyId}),
                 (),
               )
-              NavigationRenderer.AnimationLoop.startLoop(v, j, pd, dispatch, req)
+              NavigationRenderer.AnimationLoop.startLoop(v, j, pd, getState, dispatch, req)
             | None =>
               Logger.warn(~module_="NavigationController", ~message="NO_PATH_DATA_FALLBACK", ())
               dispatch(Actions.DispatchNavigationFsmEvent(TransitionComplete))
@@ -201,6 +201,6 @@ let make = () => {
   }, [state])
   let getState = () => stateRef.current
   ControllerHooks.useNavigationFSM(state, dispatch, getState)
-  ControllerHooks.useNavigationAnimation(state, dispatch)
+  ControllerHooks.useNavigationAnimation(state, dispatch, getState)
   React.null
 }

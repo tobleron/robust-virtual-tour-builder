@@ -190,7 +190,9 @@ let showLinkModal = (
             (),
           )
 
-          HotspotManager.handleAddHotspot(state.activeIndex, newHotspot)->ignore
+          HotspotManager.handleAddHotspot(state.activeIndex, newHotspot, ~getState=() =>
+            state
+          )->ignore
 
           // Part 5 Helper: Auto-register in timeline for Visual Pipeline visibility
           let timelineItemJson = JsonParsers.Encoders.timelineItem({

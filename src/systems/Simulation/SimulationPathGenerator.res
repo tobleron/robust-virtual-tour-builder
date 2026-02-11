@@ -5,8 +5,11 @@ open Types
 
 open SimulationTypes
 
-let getSimulationPath = (skipAutoForward: bool): array<pathStep> => {
-  let state = GlobalStateBridge.getState()
+let getSimulationPath = (
+  skipAutoForward: bool,
+  ~getState: unit => state=AppContext.getBridgeState,
+): array<pathStep> => {
+  let state = getState()
   if Array.length(state.scenes) == 0 {
     []
   } else {

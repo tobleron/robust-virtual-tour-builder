@@ -202,7 +202,7 @@ let useRatchetState = (state: state) => {
 
       if !ViewerState.state.contents.followLoopActive {
         ViewerState.state := {...ViewerState.state.contents, followLoopActive: true}
-        ViewerSystem.Follow.updateFollowLoop()
+        ViewerSystem.Follow.updateFollowLoop(~getState=AppContext.getBridgeState)
       }
     }
     None
@@ -220,7 +220,7 @@ let useSimulationArrival = (state: state) => {
 }
 
 // Hook 9: Hotspot Line Render Loop
-let useHotspotLineLoop = (_state: state, dispatch: action => unit) => {
+let useHotspotLineLoop = (~getState: unit => state, dispatch: action => unit) => {
   React.useEffect0(() => {
     let animationFrameId = ref(None)
     let lastPitch = ref(-999.0)
@@ -231,7 +231,7 @@ let useHotspotLineLoop = (_state: state, dispatch: action => unit) => {
     let unsub = EventBus.subscribe(e => {
       if e == ForceHotspotSync {
         let v = ViewerSystem.getActiveViewer()
-        let currentState = GlobalStateBridge.getState()
+        let currentState = getState()
         switch (
           Nullable.toOption(v),
           Belt.Array.get(currentState.scenes, currentState.activeIndex),
@@ -260,7 +260,7 @@ let useHotspotLineLoop = (_state: state, dispatch: action => unit) => {
       let v = ViewerSystem.getActiveViewer()
       switch Nullable.toOption(v) {
       | Some(viewer) =>
-        let currentState = GlobalStateBridge.getState()
+        let currentState = getState()
 
         // CRITICAL: Skip updates during viewer swap to prevent race condition
 

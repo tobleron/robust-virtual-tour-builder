@@ -136,6 +136,8 @@ let createScenePayload = (items: array<UploadTypes.uploadItem>) => {
 let handleExifReport = (
   processedWithClusters: array<UploadTypes.uploadItem>,
   skippedCount: int,
+  ~getState: unit => Types.state=AppContext.getBridgeState,
+  ~dispatch: Actions.action => unit=AppContext.getBridgeDispatch(),
 ) => {
   let reportData = Belt.Array.map(processedWithClusters, i => {
     let item: ExifReportGenerator.sceneDataItem = {
@@ -151,12 +153,12 @@ let handleExifReport = (
   let report: Types.uploadReport = {success: successNames, skipped: skippedNames}
 
   ExifReportGenerator.generateExifReport(reportData)->Promise.then(res => {
-    GlobalStateBridge.dispatch(SetExifReport(JsonCombinators.Json.Encode.string(res.report)))
+    dispatch(SetExifReport(JsonCombinators.Json.Encode.string(res.report)))
     switch res.suggestedProjectName {
     | Some(name) if name != "" && !RegExp.test(/Unknown/i, name) =>
-      let currentName = GlobalStateBridge.getState().tourName
+      let currentName = getState().tourName
       if currentName == "" || TourLogic.isUnknownName(currentName) {
-        GlobalStateBridge.dispatch(SetTourName(name))
+        dispatch(SetTourName(name))
       }
     | _ => ()
     }
@@ -170,12 +172,14 @@ let finalizeUploads = (
   startTime: float,
   updateProgress: (float, string, bool, string) => unit,
   skippedCount: int,
+  ~getState: unit => Types.state=AppContext.getBridgeState,
+  ~dispatch: Actions.action => unit=AppContext.getBridgeDispatch(),
 ) => {
   // NOTE: Scenes are now added incrementally during processing.
   // We just need to cluster (maybe re-cluster?) and generate report.
   // For now, we assume incremental clustering was sufficient for persistence.
 
-  let existingScenes = GlobalStateBridge.getState().scenes
+  let existingScenes = getState().scenes
 
   // We perform a final cluster pass just to be safe for the report data structure,
   // but we do NOT dispatch AddScenes again.
@@ -187,15 +191,20 @@ let finalizeUploads = (
     updateProgress(98.0, "Updating Sidebar...", true, "Finalizing")
 
     // Check if we need to set preloading scene (first run)
-    let wasEmpty = GlobalStateBridge.getState().activeIndex == -1
+    let wasEmpty = getState().activeIndex == -1
     if wasEmpty {
-      let currentScenes = GlobalStateBridge.getState().scenes
+      let currentScenes = getState().scenes
       if Belt.Array.length(currentScenes) > 0 {
-        GlobalStateBridge.dispatch(SetPreloadingScene(0))
+        dispatch(SetPreloadingScene(0))
       }
     }
 
-    handleExifReport(processedWithClusters, skippedCount)->Promise.then(report => {
+    handleExifReport(
+      processedWithClusters,
+      skippedCount,
+      ~getState,
+      ~dispatch,
+    )->Promise.then(report => {
       updateProgress(100.0, "Completed", false, "Done")
       let durationStr = ((Date.now() -. startTime) /. 1000.0)->Float.toFixed(~digits=1)
 
@@ -275,6 +284,8 @@ let executeProcessingChain = (
   updateProgress: (float, string, bool, string) => unit,
   skippedCount: int,
   journalId: string,
+  ~getState: unit => Types.state=AppContext.getBridgeState,
+  ~dispatch: Actions.action => unit=AppContext.getBridgeDispatch(),
 ) => {
   Logger.info(~module_="UploadLogic", ~message="EXECUTE_PROCESSING_CHAIN_START", ())
   updateProgress(20.0, "Processing images...", true, "Processing")
@@ -287,7 +298,7 @@ let executeProcessingChain = (
     let itemsToFlush = buffer.contents
     if Belt.Array.length(itemsToFlush) > 0 {
       buffer := []
-      let existingScenes = GlobalStateBridge.getState().scenes
+      let existingScenes = getState().scenes
       PanoramaClusterer.clusterScenes(itemsToFlush, ~existingScenes, ~updateProgress=(_, _, _, _) =>
         ()
       )->Promise.then(clustered => {
@@ -298,8 +309,8 @@ let executeProcessingChain = (
           ~data=Some({"count": Belt.Array.length(jsonPayload)}),
           (),
         )
-        GlobalStateBridge.dispatch(AddScenes(jsonPayload))
-        PersistenceLayer.performSave(GlobalStateBridge.getState())
+        dispatch(AddScenes(jsonPayload))
+        PersistenceLayer.performSave(getState())
         Promise.resolve()
       })
     } else {
@@ -364,7 +375,14 @@ let executeProcessingChain = (
           ),
         )
       } else {
-        finalizeUploads(validProcessed, startTime, updateProgress, skippedCount)
+        finalizeUploads(
+          validProcessed,
+          startTime,
+          updateProgress,
+          skippedCount,
+          ~getState,
+          ~dispatch,
+        )
       }
     })
   })
@@ -375,17 +393,19 @@ let handleFingerprinting = (
   startTime: float,
   updateProgress: (float, string, bool, string) => unit,
   journalId: string,
+  ~getState: unit => Types.state=AppContext.getBridgeState,
+  ~dispatch: Actions.action => unit=AppContext.getBridgeDispatch(),
 ) => {
   Logger.info(~module_="UploadLogic", ~message="START_FINGERPRINTING", ())
   updateProgress(0.0, "Scanning files...", true, "Fingerprinting")
   FingerprintService.fingerprintFiles(validFiles)->Promise.then(results => {
     updateProgress(18.0, "Cleaning up scanning...", true, "Fingerprinting")
-    let currentState = GlobalStateBridge.getState()
+    let currentState = getState()
     let uniqueItems = FingerprintService.filterDuplicates(
       results,
       ~inventory=currentState.inventory,
       ~onDuplicate=c => Utils.notify("Skipped " ++ Belt.Int.toString(c) ++ " duplicates.", "info"),
-      ~onRestore=id => GlobalStateBridge.dispatch(RemoveDeletedSceneId(id)),
+      ~onRestore=id => dispatch(RemoveDeletedSceneId(id)),
     )
     let skippedFromFingerprint = Belt.Array.length(results) - Belt.Array.length(uniqueItems)
     executeProcessingChain(
@@ -395,6 +415,8 @@ let handleFingerprinting = (
       updateProgress,
       skippedFromFingerprint,
       journalId,
+      ~getState,
+      ~dispatch,
     )
   })
 }

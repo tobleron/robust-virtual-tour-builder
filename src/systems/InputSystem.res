@@ -42,7 +42,7 @@ let handleMouseMove = (~getState: unit => state, e: Dom.event) => {
 
     // Rod UI Update
     let currentState = getState()
-    CursorPhysics.updateRodPosition(coords["x"], coords["y"], currentState.isLinking)
+    CursorPhysics.updateRodPosition(~getState, coords["x"], coords["y"], currentState.isLinking)
 
   | None => ()
   }
@@ -103,7 +103,7 @@ let handleKeyDown = (~getState: unit => state, ~dispatch, e) => {
 
   if key == "Enter" {
     Logger.debug(~module_="InputSystem", ~message="ENTER_KEY_PRESSED", ())
-    LinkEditorLogic.handleEnter()
+    LinkEditorLogic.handleEnter(~getState)
   }
 
   // 3. Debug Toggle
