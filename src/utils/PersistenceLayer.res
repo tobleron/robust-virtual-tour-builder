@@ -16,6 +16,8 @@ let debounceMs = 2000
 external asJson: unknown => JSON.t = "%identity"
 
 let lastSaveTimeout = ref(None)
+let lastQuotaCheck = ref(0.0)
+let quotaCheckInterval = 60000.0 // 1 minute
 
 let performSave = (state: Types.state) => {
   /* Only save if we have scenes or a project name that differs from default */
@@ -51,16 +53,32 @@ let performSave = (state: Types.state) => {
           ~data={"timestamp": payload.timestamp, "scenes": Array.length(state.scenes)},
           (),
         )
+
+        // Throttled quota check
+        let now = Date.now()
+        if now -. lastQuotaCheck.contents > quotaCheckInterval {
+          lastQuotaCheck := now
+          ignore(QuotaMonitor.checkQuota())
+        }
+
         Promise.resolve()
       })
       ->Promise.catch(e => {
-        Logger.error(~module_="Persistence", ~message="Auto-save failed", ~data={"error": e}, ())
+        let (msg, _) = Logger.getErrorDetails(e)
+        Logger.error(~module_="Persistence", ~message="Auto-save failed", ~data={"error": msg}, ())
+
+        let message = if String.includes(msg, "QuotaExceeded") {
+          "Save failed: Storage full. Please free space by deleting old projects."
+        } else {
+          "Auto-save failed! Please backup your data."
+        }
+
         NotificationManager.dispatch({
           id: "",
           importance: Error,
           context: SystemEvent("persistence"),
-          message: "Auto-save failed! Please backup your data.",
-          details: None,
+          message,
+          details: Some(msg),
           action: None,
           duration: NotificationTypes.defaultTimeoutMs(Error),
           dismissible: true,
@@ -91,6 +109,9 @@ let unsub = ref(None)
 let initSubscriber = () => {
   /* We subscribe to the GlobalStateBridge to detect changes */
   Logger.info(~module_="Persistence", ~message="Initializing Persistence Layer", ())
+
+  // Initial quota check
+  ignore(QuotaMonitor.checkQuota())
 
   unsub.contents->Option.forEach(f => f())
   unsub := Some(GlobalStateBridge.subscribe(onStateChange))
