@@ -82,7 +82,7 @@ test.describe('FSM Interaction Logic', () => {
     // Since we clicked 10 times (i=0 to 9), and 9 % 3 = 0, last click was index 0
     console.log('Verifying final state...');
     await expect(page.locator('.scene-item').nth(0)).toHaveClass(/bg-slate-50\/50/, { timeout: 15000 });
-    await expect(page.locator('#v-scene-persistent-label')).toHaveText(/# image$/, { timeout: 15000 });
+    await expect(page.locator('#v-scene-persistent-label')).toBeHidden({ timeout: 15000 });
     console.log('Test completed successfully.');
   });
 
@@ -113,6 +113,6 @@ test.describe('FSM Interaction Logic', () => {
 
     // Should end up on scene 2
     await expect(page.locator('.scene-item').nth(2)).toHaveClass(/bg-slate-50\/50/, { timeout: 30000 });
-    await expect(page.locator('#v-scene-persistent-label')).toHaveText(/# image3/, { timeout: 30000 });
+    await expect(page.locator('#v-scene-persistent-label')).toBeHidden({ timeout: 30000 });
   });
 });

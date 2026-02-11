@@ -1,95 +1,92 @@
 // src/components/NotificationCenter.res
-// React component that subscribes to NotificationManager and renders notifications as Sonner toasts
+// Custom ReScript notification system scoped strictly to the viewer
+// Standardized padding: top-6 (24px), right-6 (24px)
+// Standardized sizes: width 300px, height 48px
+
+// open NotificationTypes (Removed to avoid shadowing Error global)
+
+module Toast = {
+  @react.component
+  let make = (~notification: NotificationTypes.notification) => {
+    let (isDismissing, setIsDismissing) = React.useState(_ => false)
+
+    let handleDismiss = _ => {
+      setIsDismissing(_ => true)
+      // Small delay for animation before logic removal
+      let _ = ReBindings.Window.setTimeout(() => {
+        NotificationManager.dismiss(notification.id)
+      }, 300)
+    }
+
+    let icon = switch notification.importance {
+    | NotificationTypes.Success => <LucideIcons.CircleCheck size=20 strokeWidth=2.5 />
+    | NotificationTypes.Error | NotificationTypes.Critical =>
+      <LucideIcons.CircleAlert size=20 strokeWidth=2.5 />
+    | NotificationTypes.Warning => <LucideIcons.TriangleAlert size=20 strokeWidth=2.5 />
+    | NotificationTypes.Info | NotificationTypes.Transient =>
+      <LucideIcons.Info size=20 strokeWidth=2.5 />
+    }
+
+    let importanceKey = NotificationTypes.importanceToString(notification.importance)
+
+    <div className={"viewer-toast " ++ importanceKey ++ (isDismissing ? " dismissing" : "")}>
+      /* Close Button - Orange Bubble Badge */
+      {if notification.dismissible {
+        <button
+          className="viewer-toast-close" onClick=handleDismiss ariaLabel="Dismiss notification"
+        >
+          <LucideIcons.X size=10 strokeWidth=3.0 />
+        </button>
+      } else {
+        React.null
+      }}
+
+      <div className="viewer-toast-icon"> icon </div>
+
+      <div className="viewer-toast-content"> {React.string(notification.message)} </div>
+
+      /* Optional Action Button */
+      {switch notification.action {
+      | Some(action) =>
+        <Shadcn.Button
+          variant="secondary"
+          className="h-7 px-3 text-[10px] ml-auto bg-white/10 hover:bg-white/20 border-none text-white"
+          onClick={_ => action.onClick()}
+        >
+          {React.string(action.label)}
+        </Shadcn.Button>
+      | None => React.null
+      }}
+    </div>
+  }
+}
 
 @react.component
 let make = React.memo(() => {
-  // Track queue state in component
   let (state, setState) = React.useState(_ => {
     NotificationManager.getState()
   })
 
-  // Track which notifications have been rendered as toasts to avoid duplicates
-  let renderedIdsRef = React.useRef(Set.make())
-
-  // Subscribe to manager on mount, unsubscribe on unmount
+  // Subscribe to manager
   React.useEffect0(() => {
-    Logger.info(~module_="NotificationCenter", ~message="MOUNTED_AND_SUBSCRIBING", ())
     let unsubscribe = NotificationManager.subscribe(
       newState => {
         setState(_ => newState)
       },
     )
-
-    // Cleanup: unsubscribe on unmount
-    Some(
-      () => {
-        Logger.info(~module_="NotificationCenter", ~message="UNMOUNTING", ())
-        unsubscribe()
-      },
-    )
+    Some(() => unsubscribe())
   })
 
-  // Render active notifications as Sonner toasts
-  React.useEffect1(() => {
-    state.active->Belt.Array.forEach(
-      notification => {
-        let renderedIds = renderedIdsRef.current
-
-        if !Set.has(renderedIds, notification.id) {
-          // Mark as rendered to avoid duplicate toasts
-          Set.add(renderedIds, notification.id)->ignore
-
-          let message = notification.message
-
-          let options: Shadcn.Sonner.toastOptions = {
-            duration: notification.duration,
-            description: notification.details,
-          }
-
-          // Dispatch appropriate toast based on importance
-          switch notification.importance {
-          | NotificationTypes.Success => Shadcn.Sonner.success(message, options)
-          | NotificationTypes.Error => Shadcn.Sonner.error(message, options)
-          | NotificationTypes.Warning => Shadcn.Sonner.warning(message, options)
-          | NotificationTypes.Info => Shadcn.Sonner.info(message, options)
-          | NotificationTypes.Critical => Shadcn.Sonner.error(message, options)
-          | NotificationTypes.Transient => Shadcn.Sonner.toast(message, options)
-          }
-
-          Logger.info(
-            ~module_="NotificationCenter",
-            ~message="RENDERED_TOAST",
-            ~data=Some({
-              "id": notification.id,
-              "importance": switch notification.importance {
-              | NotificationTypes.Info => "info"
-              | NotificationTypes.Success => "success"
-              | NotificationTypes.Warning => "warning"
-              | NotificationTypes.Error => "error"
-              | NotificationTypes.Critical => "critical"
-              | NotificationTypes.Transient => "transient"
-              },
-              "message": message,
-            }),
-            (),
-          )
-        }
-      },
-    )
-    None
-  }, [state.active])
-
-  let (container, setContainer) = React.useState(_ => None)
-
-  React.useEffect0(() => {
-    // We wait for mount to ensure the DOM element exists
-    setContainer(_ => DomBindings.Dom.getElementById("viewer-container")->Nullable.toOption)
-    None
-  })
-
-  switch container {
-  | Some(el) =>
-    <Shadcn.Sonner container=el richColors=true closeButton=false position="top-right" dir="ltr" />
-  | None => React.null
+  if Array.length(state.active) == 0 {
+    React.null
+  } else {
+    /* Scoped to the viewer container */
+    <div id="viewer-notifications-container">
+      {state.active
+      ->Belt.Array.map(notif => {
+        <Toast key=notif.id notification=notif />
+      })
+      ->React.array}
+    </div>
   }
 })

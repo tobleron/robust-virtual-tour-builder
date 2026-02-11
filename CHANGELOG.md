@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Docs: Finalize DATA_FLOW.md structure cleanup
 - Refactor toast notifications: confine to viewer-container, adjust sizing and padding, and remove close button bubble.
+- Standardize viewer padding and migrate to custom notification system
 
 ## [4.38.2] - 2026-02-11
 
