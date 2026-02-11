@@ -56,7 +56,7 @@ let request = async (
   ~body: option<JSON.t>=?,
   ~formData: option<FormData.t>=?,
   ~headers=Dict.make(),
-  ~signal: option<ReBindings.AbortController.signal>=?,
+  ~signal: option<ReBindings.AbortSignal.t>=?,
   (),
 ) => {
   let sessionId = switch GlobalStateBridge.getState().sessionId {
@@ -181,7 +181,7 @@ let requestWithRetry = (
   ~body=?,
   ~formData=?,
   ~headers=Dict.make(),
-  ~signal: option<ReBindings.AbortController.signal>=?,
+  ~signal: option<ReBindings.AbortSignal.t>=?,
   ~retryConfig: option<Retry.config>=?,
   (),
 ) => {
@@ -197,7 +197,7 @@ let requestWithRetry = (
       request(url, ~method=method->Option.getOr("GET"), ~body?, ~formData?, ~headers, ~signal, ()),
     ~signal=switch signal {
     | Some(s) => s
-    | None => ReBindings.AbortController.signal(ReBindings.AbortController.newAbortController())
+    | None => ReBindings.AbortController.signal(ReBindings.AbortController.make())
     },
     ~config=Option.getOr(retryConfig, {...Retry.defaultConfig, maxRetries: 3}),
     ~onRetry=(attempt, error, delay) => {

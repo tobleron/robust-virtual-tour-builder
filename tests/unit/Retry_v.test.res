@@ -5,7 +5,7 @@ open Retry
 
 describe("Retry", () => {
   testAsync("execute returns success immediately if fn succeeds", async t => {
-    let controller = ReBindings.AbortController.newAbortController()
+    let controller = ReBindings.AbortController.make()
     let signal = ReBindings.AbortController.signal(controller)
 
     let result = await execute(
@@ -24,7 +24,7 @@ describe("Retry", () => {
   })
 
   testAsync("execute retries on failure and eventually succeeds", async t => {
-    let controller = ReBindings.AbortController.newAbortController()
+    let controller = ReBindings.AbortController.make()
     let signal = ReBindings.AbortController.signal(controller)
     let count = ref(0)
 
@@ -57,7 +57,7 @@ describe("Retry", () => {
   })
 
   testAsync("execute exhausted after maxRetries", async t => {
-    let controller = ReBindings.AbortController.newAbortController()
+    let controller = ReBindings.AbortController.make()
     let signal = ReBindings.AbortController.signal(controller)
     let count = ref(0)
 
@@ -86,7 +86,7 @@ describe("Retry", () => {
   })
 
   testAsync("shouldRetry respects boolean return", async t => {
-    let controller = ReBindings.AbortController.newAbortController()
+    let controller = ReBindings.AbortController.make()
     let signal = ReBindings.AbortController.signal(controller)
 
     let fn = async (~signal as _) => Error("404 Not Found")
@@ -101,7 +101,7 @@ describe("Retry", () => {
   })
 
   testAsync("aborted signal stops retrying", async t => {
-    let controller = ReBindings.AbortController.newAbortController()
+    let controller = ReBindings.AbortController.make()
     let signal = ReBindings.AbortController.signal(controller)
 
     let fn = async (~signal as _) => {

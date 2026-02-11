@@ -49,12 +49,18 @@ module JSZip = {
   @send external generateAsync: (t, {..}) => Promise.t<Blob.t> = "generateAsync"
 }
 
+module AbortSignal = {
+  type t
+
+  @get external aborted: t => bool = "aborted"
+  @send external addEventListener: (t, string, unit => unit) => unit = "addEventListener"
+  @send external removeEventListener: (t, string, unit => unit) => unit = "removeEventListener"
+}
+
 module AbortController = {
   type t
-  type signal
 
-  @new external newAbortController: unit => t = "AbortController"
-  @get external signal: t => signal = "signal"
+  @new external make: unit => t = "AbortController"
+  @get external signal: t => AbortSignal.t = "signal"
   @send external abort: t => unit = "abort"
-  @get external aborted: signal => bool = "aborted"
 }

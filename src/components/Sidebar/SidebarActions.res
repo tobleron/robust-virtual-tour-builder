@@ -4,16 +4,16 @@
 let make = React.memo((
   ~onNew: unit => unit,
   ~onSave: (
-    ~signal: BrowserBindings.AbortController.signal,
+    ~signal: BrowserBindings.AbortSignal.t,
     ~onCancel: unit => unit,
   ) => Promise.t<unit>,
   ~onLoad: (
-    ~signal: BrowserBindings.AbortController.signal,
+    ~signal: BrowserBindings.AbortSignal.t,
     ~onCancel: unit => unit,
   ) => Promise.t<unit>,
   ~onAbout: unit => unit,
   ~onExport: (
-    ~signal: BrowserBindings.AbortController.signal,
+    ~signal: BrowserBindings.AbortSignal.t,
     ~onCancel: unit => unit,
   ) => Promise.t<unit>,
   ~onTeaser: unit => unit,
@@ -28,7 +28,7 @@ let make = React.memo((
     ~id="project_save",
     ~policy=InteractionPolicies.projectMutation,
     ~action=async () => {
-      let ctrl = BrowserBindings.AbortController.newAbortController()
+      let ctrl = BrowserBindings.AbortController.make()
       saveAbortRef.current = Some(ctrl)
       let signal = BrowserBindings.AbortController.signal(ctrl)
       let onCancel = () => {
@@ -47,7 +47,7 @@ let make = React.memo((
     ~id="project_load",
     ~policy=InteractionPolicies.projectMutation,
     ~action=async () => {
-      let ctrl = BrowserBindings.AbortController.newAbortController()
+      let ctrl = BrowserBindings.AbortController.make()
       loadAbortRef.current = Some(ctrl)
       let signal = BrowserBindings.AbortController.signal(ctrl)
       let onCancel = () => {
@@ -70,7 +70,7 @@ let make = React.memo((
     ~id="project_export",
     ~policy=InteractionPolicies.projectMutation,
     ~action=async () => {
-      let ctrl = BrowserBindings.AbortController.newAbortController()
+      let ctrl = BrowserBindings.AbortController.make()
       exportAbortRef.current = Some(ctrl)
       let signal = BrowserBindings.AbortController.signal(ctrl)
       let onCancel = () => {

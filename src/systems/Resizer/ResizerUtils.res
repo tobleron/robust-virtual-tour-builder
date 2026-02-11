@@ -83,7 +83,7 @@ let sleep = (delayMs: int): Promise.t<unit> => {
 let checkBackendHealth = () => {
   // Retry logic with exponential backoff (up to 3 attempts)
   let rec attemptHealthCheck = (~attempt=0, ~maxAttempts=3) => {
-    let controller = AbortController.newAbortController()
+    let controller = AbortController.make()
     let _signal = AbortController.signal(controller)
     let timeoutId = Window.setTimeout(() => AbortController.abort(controller), 5000)
     let timestamp = Date.now()->Float.toString

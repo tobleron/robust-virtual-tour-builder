@@ -253,7 +253,7 @@ let make = React.memo(() => {
           createdAt: Date.now(),
         })
       } // Check if it was cancelled via signal
-      else if BrowserBindings.AbortController.aborted(signal) {
+      else if BrowserBindings.AbortSignal.aborted(signal) {
         SidebarLogic.updateProgress(0.0, "Cancelled", true, "Save")
         NotificationManager.dispatch({
           id: "save-cancelled-notification",

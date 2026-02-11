@@ -67,7 +67,7 @@ let scheduleWithRetry = (
   ~onRetry: option<(int, string, int) => unit>=?,
 ) => {
   schedule(() => {
-    let controller = ReBindings.AbortController.newAbortController()
+    let controller = ReBindings.AbortController.make()
 
     Retry.execute(
       ~fn=(~signal as _) => task(),

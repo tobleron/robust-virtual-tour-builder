@@ -87,7 +87,7 @@ describe("BrowserBindings", () => {
     let _ = mockAbortController->Vi.mockImplementation(mockImpl)
     Vi.stubGlobal("AbortController", mockAbortController)
 
-    let ac = AbortController.newAbortController()
+    let ac = AbortController.make()
     let _ = AbortController.signal(ac)
     AbortController.abort(ac)
 
