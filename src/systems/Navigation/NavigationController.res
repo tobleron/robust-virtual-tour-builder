@@ -19,7 +19,15 @@ module ControllerHooks = {
           (),
         )
         let sourceSceneId = state.scenes->Belt.Array.get(state.activeIndex)->Option.map(s => s.id)
-        Scene.Loader.loadNewScene(~sourceSceneId?, ~targetSceneId, ~isAnticipatory)
+        let taskInfo = NavigationSupervisor.getCurrentTask()
+
+        Scene.Loader.loadNewScene(
+          ~sourceSceneId?,
+          ~targetSceneId,
+          ~isAnticipatory,
+          ~taskId=?taskInfo->Option.map(t => t.id),
+          ~signal=?taskInfo->Option.map(t => t.signal),
+        )
 
         let timeoutId = Window.setTimeout(() => {
           if isAnticipatory {
@@ -56,7 +64,12 @@ module ControllerHooks = {
               ~data=Some({"sceneId": ts.id, "sceneName": ts.name}),
               (),
             )
-            Scene.Transition.performSwap(ts, 0.0)
+            let taskInfo = NavigationSupervisor.getCurrentTask()
+            Scene.Transition.performSwap(
+              ts,
+              0.0,
+              ~taskId=?taskInfo->Option.map(t => t.id),
+            )
           | None =>
             Logger.error(
               ~module_="NavigationController",
@@ -68,7 +81,11 @@ module ControllerHooks = {
               (),
             )
             // Force release lock and complete even if scene not found
-            TransitionLock.release("NavigationController_NotFound")
+            let taskInfo = NavigationSupervisor.getCurrentTask()
+            switch taskInfo {
+            | Some(t) => NavigationSupervisor.abort(t.id)
+            | None => TransitionLock.release("NavigationController_NotFound")
+            }
             GlobalStateBridge.dispatch(Actions.DispatchNavigationFsmEvent(StabilizeComplete))
           }
         })
