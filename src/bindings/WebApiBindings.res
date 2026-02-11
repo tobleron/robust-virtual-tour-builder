@@ -32,7 +32,7 @@ module Fetch = {
     ~method: string,
     ~body: 'body=?,
     ~headers: dict<string>=?,
-    ~signal: BrowserBindings.AbortController.signal=?,
+    ~signal: BrowserBindings.AbortSignal.t=?,
     unit,
   ) => requestInit<'body> = ""
 

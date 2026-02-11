@@ -16,6 +16,7 @@ type status =
 type task = {
   id: taskId,
   targetSceneId: string,
+  signal: BrowserBindings.AbortSignal.t, // AbortSignal for cancellation
   abort: unit => unit, // Calls AbortController.abort()
   startedAt: float,
 }
@@ -95,11 +96,13 @@ let requestNavigation = (targetSceneId: string): unit => {
   }
 
   // Create new task with AbortController
-  let controller = BrowserBindings.AbortController.newAbortController()
+  let controller = BrowserBindings.AbortController.make()
+  let abortSignal = BrowserBindings.AbortController.signal(controller)
   let taskId = `task_${Date.now()->Float.toString}`
   let task = {
     id: taskId,
     targetSceneId: targetSceneId,
+    signal: abortSignal,
     abort: () => {
       BrowserBindings.AbortController.abort(controller)
     },

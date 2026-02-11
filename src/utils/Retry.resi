@@ -15,8 +15,8 @@ type retryResult<'a> =
 let defaultConfig: config
 
 let execute: (
-  ~fn: (~signal: ReBindings.AbortController.signal) => Promise.t<result<'a, string>>,
-  ~signal: ReBindings.AbortController.signal,
+  ~fn: (~signal: ReBindings.AbortSignal.t) => Promise.t<result<'a, string>>,
+  ~signal: ReBindings.AbortSignal.t,
   ~config: config=?,
   ~shouldRetry: string => bool=?,
   ~onRetry: (int, string, int) => unit=?,
