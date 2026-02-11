@@ -359,7 +359,7 @@ module Follow = {
             }
           })
         }
-        if !TransitionLock.isSwapping() {
+        if NavigationSupervisor.isIdle() {
           let me = ViewerState.state.contents.lastMouseEvent->Nullable.toOption
           vOpt->Option.forEach(v => {
             try {HotspotLine.updateLines(v, s, ~mouseEvent=?me, ())} catch {

@@ -106,7 +106,7 @@ let make = React.memo(() => {
         Logger.debug(
           ~module_="SceneList",
           ~message="SCENE_CLICK_REJECTED_LOCK_HELD",
-          ~data=Some({"index": index, "remainingMs": TransitionLock.getRemainingMs()}),
+          ~data=Some({"index": index, "supervisorStatus": NavigationSupervisor.statusToString(NavigationSupervisor.getStatus())}),
           (),
         )
       } else {
