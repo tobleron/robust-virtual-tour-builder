@@ -16052,6 +16052,14 @@
 │   │   ├── 1325_E2E_Test_Robustness_Resilience.md
 │   │   ├── 1326_E2E_Test_Performance_Regression.md
 │   │   ├── 1327_Refactor_Notification_Logic.md
+│   │   ├── 1334_ARCH_Consolidate_Notification_System.md
+│   │   ├── 1335_ARCH_Domain_Sliced_State_Migration.md
+│   │   ├── 1336_ARCH_Replace_GlobalStateBridge_With_Context.md
+│   │   ├── 1337_PERF_Code_Splitting_Lazy_Loading.md
+│   │   ├── 1338_DOC_Reconcile_JSON_Validation_Library_References.md
+│   │   ├── 1339_ARCH_Split_Backend_Models_Module.md
+│   │   ├── 1340_SEC_IndexedDB_Quota_Monitoring.md
+│   │   ├── 1341_DOC_Create_Architecture_Diagram.md
 │   │   └── dev_tasks
 │   │       ├── D001_Fix_Violations_FRONTEND.md
 │   │       ├── D002_Surgical_Refactor_CORE_FRONTEND.md
@@ -16495,4 +16503,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-715 directories, 15781 files
+715 directories, 15789 files
