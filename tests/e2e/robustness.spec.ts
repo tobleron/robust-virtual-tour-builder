@@ -84,9 +84,9 @@ test.describe('Application Robustness', () => {
     });
 
     // TODO: Fix button state update in Firefox/Webkit
-    test.fixme('Mode Exclusivity: Linking vs Simulation', async ({ page }) => {
+    test('Mode Exclusivity: Linking vs Simulation', async ({ page }) => {
       // 1. Enter Linking Mode
-      const addLinkBtn = page.getByRole('button', { name: /Add Link|Link/i });
+      const addLinkBtn = page.getByRole('button', { name: "Add Link" });
       // Ensure button exists and Click
       await expect(addLinkBtn).toBeVisible();
       await addLinkBtn.click();
@@ -94,24 +94,24 @@ test.describe('Application Robustness', () => {
       // Verify Linking Mode Active
       await expect(page.getByText('Link Mode: Choose Destination')).toBeVisible();
 
-      // 2. Try to Start Simulation (Auto-Pilot) while in Linking Mode
-      const autoPilotBtn = page.getByRole('button', { name: /Teaser/i });
+      // 2. Try to Start Simulation (Tour Preview) while in Linking Mode
+      const autoPilotBtn = page.getByRole('button', { name: "Tour Preview" });
 
-      // Expected: Auto-Pilot button should be disabled OR clicking it should do nothing/show warning
-      if (await autoPilotBtn.isVisible()) {
-        await expect(autoPilotBtn).toBeDisabled();
-        await autoPilotBtn.click({ force: true });
+      // Expected: Auto-Pilot button should be disabled
+      await expect(autoPilotBtn).toBeDisabled();
 
-        // Verify we are STILL in Linking Mode (Did not switch)
-        await expect(page.getByText('Link Mode: Choose Destination')).toBeVisible();
+      // Force click should still be blocked or do nothing
+      await autoPilotBtn.click({ force: true });
 
-        // Verify Simulation DID NOT start (UI check of store check)
-        const isSimActive = await page.evaluate(() => {
-          // @ts-ignore
-          return window.store && window.store.state.simulation.status === 'Running';
-        });
-        expect(isSimActive).toBe(false);
-      }
+      // Verify we are STILL in Linking Mode (Did not switch)
+      await expect(page.getByText('Link Mode: Choose Destination')).toBeVisible();
+
+      // Verify Simulation DID NOT start
+      const isSimActive = await page.evaluate(() => {
+        // @ts-ignore
+        return window.store && window.store.state.simulation.status === 'Running';
+      });
+      expect(isSimActive).toBe(false);
     });
 
     test('LoadProject Barrier Blocks Other Actions', async ({ page }) => {
