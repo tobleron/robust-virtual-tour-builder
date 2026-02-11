@@ -23,3 +23,11 @@
 
 /* 4. Legacy Compatibility */
 @import './legacy.css';
+
+.lazy-loading-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100px;
+  /* Use existing design system spinner if available */
+}

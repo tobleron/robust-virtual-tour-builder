@@ -2,6 +2,7 @@
 
 open ReBindings
 open SharedTypes
+open Types
 open ResizerTypes
 open ResizerUtils
 
@@ -109,7 +110,8 @@ let processAndAnalyzeImage = (file: File.t, ~onStatus: option<statusCallback>): 
   reportStatus("Optimizing")
   let _fetchStart = now()
 
-  Promise.all2((ExifParser.extractExifTags(File(file)), ImageOptimizer.compressToWebP(file, 0.90)))
+  let runExif = %raw(`(f) => import("../ExifParser.bs.js").then(m => m.extractExifTags(f))`)
+  Promise.all2((runExif(File(file)), ImageOptimizer.compressToWebP(file, 0.90)))
   ->Promise.then(((exifResult, compressionResult)) => {
     let exifData = switch exifResult {
     | Ok((exif, _pano)) => Some(exif)

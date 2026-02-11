@@ -63,7 +63,24 @@ module InnerApp = {
           </div>
         </div>
 
-        <VisualPipelineComponent />
+        {if Array.length(state.timeline) > 0 {
+          <LazyVisualPipeline />
+        } else {
+          React.null
+        }}
+
+        /* Lazy System Controllers */
+        {if state.isTeasing {
+          <LazyTeaserRecorder />
+        } else {
+          React.null
+        }}
+
+        {switch state.appMode {
+        | SystemBlocking(Exporting(_)) => <LazyTourTemplates />
+        | SystemBlocking(Uploading(_)) | SystemBlocking(Summary(_, _)) => <LazyExifParser />
+        | _ => React.null
+        }}
 
         {if Belt.Array.length(state.scenes) == 0 {
           <div id="placeholder-text" className="viewer-placeholder" ariaLive=#polite>

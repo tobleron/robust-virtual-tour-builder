@@ -313,3 +313,8 @@ module Recorder = {
   let startAnimationLoop = startAnimationLoop
   let internalState = internalState
 }
+
+@react.component
+let make = () => {
+  React.null
+}

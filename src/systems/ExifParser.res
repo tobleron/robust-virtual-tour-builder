@@ -315,3 +315,8 @@ let calculateAverageLocation = (gpsPoints, ~maxDistanceKm=0.5, ()) => {
 let reverseGeocode = (lat, lon) => {
   BackendApi.reverseGeocode(lat, lon)
 }
+
+@react.component
+let make = () => {
+  React.null
+}

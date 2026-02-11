@@ -272,7 +272,8 @@ let handleExport = async (scenes, ~signal, ~onCancel) => {
     createdAt: Date.now(),
   })
   try {
-    let exportResult = await Exporter.exportTour(
+    let exporterModule = await %raw(`import("../../systems/Exporter.bs.js")`)
+    let exportResult = await asDynamic(exporterModule)["exportTour"](
       scenes,
       ~signal,
       Some((pct, _, msg) => updateProgress(~onCancel, pct, msg, true, "Export")),

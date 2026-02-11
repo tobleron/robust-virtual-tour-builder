@@ -8,6 +8,7 @@ open UploadTypes
 open Actions
 
 external castToJson: 'a => JSON.t = "%identity"
+external asDynamic: 'a => {..} = "%identity"
 
 module Utils = {
   // We can duplicate or move Utils here, or pass callbacks.
@@ -138,7 +139,7 @@ let handleExifReport = (
   skippedCount: int,
 ) => {
   let reportData = Belt.Array.map(processedWithClusters, i => {
-    let item: ExifReportGenerator.sceneDataItem = {
+    let item: ExifReportGeneratorLogicTypes.sceneDataItem = {
       original: i.original,
       metadataJson: i.metadata,
       qualityJson: i.quality,
@@ -150,9 +151,12 @@ let handleExifReport = (
   let skippedNames = Belt.Array.makeBy(skippedCount, i => "Duplicate " ++ Belt.Int.toString(i + 1))
   let report: Types.uploadReport = {success: successNames, skipped: skippedNames}
 
-  ExifReportGenerator.generateExifReport(reportData)->Promise.then(res => {
-    GlobalStateBridge.dispatch(SetExifReport(JsonCombinators.Json.Encode.string(res.report)))
-    switch res.suggestedProjectName {
+  let runReport = %raw(`(data) => import("./ExifReportGenerator.bs.js").then(m => m.generateExifReport(data))`)
+  runReport(reportData)->Promise.then(res => {
+    let reportStr: string = asDynamic(res)["report"]
+    let suggestedProjectName: option<string> = asDynamic(res)["suggestedProjectName"]
+    GlobalStateBridge.dispatch(SetExifReport(JsonCombinators.Json.Encode.string(reportStr)))
+    switch suggestedProjectName {
     | Some(name) if name != "" && !RegExp.test(/Unknown/i, name) =>
       let currentName = GlobalStateBridge.getState().tourName
       if currentName == "" || TourLogic.isUnknownName(currentName) {

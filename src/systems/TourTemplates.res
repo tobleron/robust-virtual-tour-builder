@@ -317,3 +317,8 @@ module TourTemplateScripts = Scripts
 
 let generateEmbedCodes = Assets.generateEmbedCodes
 let generateExportIndex = Assets.generateExportIndex
+
+@react.component
+let make = () => {
+  React.null
+}

@@ -380,7 +380,11 @@ let make = React.memo(() => {
           SidebarLogic.handleExport(sceneSlice.scenes, ~signal, ~onCancel)
         }}
         onTeaser={() => {
-          Teaser.startAutoTeaser("fast", false, "mp4", false)->ignore
+          dispatch(SetIsTeasing(true))
+          %raw(`import("../systems/Teaser.bs.js").then(m => {
+            m.startAutoTeaser("fast", false, "mp4", false);
+          })`)
+          ->ignore
         }}
       />
 
