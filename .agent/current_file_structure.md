@@ -16453,7 +16453,6 @@
 ├── tasks
 │   ├── TASKS.md
 │   ├── active
-│   │   └── 1348_ARCH_Enterprise_Reliability_Performance_Hardening.md
 │   ├── completed
 │   │   ├── 1231_Surgical_Refactor_CORE_FRONTEND_DONE.md
 │   │   ├── 1232_Merge_Folders_FRONTEND_DONE.md
@@ -16565,6 +16564,7 @@
 │   │   ├── 1345_GlobalStateBridge_Persistence_Recovery_DONE.md
 │   │   ├── 1346_GlobalStateBridge_Core_Context_DONE.md
 │   │   ├── 1347_GlobalStateBridge_Systems_Hooks_DONE.md
+│   │   ├── 1348_ARCH_Enterprise_Reliability_Performance_Hardening_DONE.md
 │   │   ├── 1349_ARCH_Baseline_SLO_and_Observability_Foundation_DONE.md
 │   │   ├── 1350_ARCH_Navigation_RunToken_Foundation_DONE.md
 │   │   ├── 1351_ARCH_SceneLoader_Transition_Idempotence_DONE.md
@@ -16575,6 +16575,7 @@
 │   │   ├── 1356_ARCH_Persistence_Recovery_Durability_DONE.md
 │   │   ├── 1357_ARCH_Backend_Production_Hardening_DONE.md
 │   │   ├── 1358_PERF_Budgets_Stress_Gates_and_Program_Closeout_DONE.md
+│   │   ├── 1359_FIX_Backend_Service_Startup_Robustness_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
 │   │       ├── 1195_Test_Teaser_DONE.md
@@ -16594,6 +16595,8 @@
 │   │   ├── 1325_E2E_Test_Robustness_Resilience.md
 │   │   ├── 1326_E2E_Test_Performance_Regression.md
 │   │   ├── 1327_Refactor_Notification_Logic.md
+│   │   ├── 1360_FIX_CI_Environment_Budget_Thresholds.md
+│   │   ├── 1361_FIX_E2E_Browser_Provisioning.md
 │   │   └── dev_tasks
 │   │       ├── D001_Fix_Violations_FRONTEND.md
 │   │       ├── D002_Surgical_Refactor_CORE_FRONTEND.md
@@ -17004,4 +17007,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-734 directories, 16271 files
+734 directories, 16274 files

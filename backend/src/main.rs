@@ -112,6 +112,7 @@ async fn main() -> io::Result<()> {
     let session_key = startup::session_key()?;
     let shutdown_manager_server = shutdown_manager.clone();
     let db_pool_server = db_pool.clone();
+    let worker_count = startup::server_worker_count();
 
     let server = HttpServer::new(move || {
         App::new()
@@ -161,9 +162,22 @@ async fn main() -> io::Result<()> {
             )
             .default_service(web::get().to(|| async { fs::NamedFile::open("../dist/index.html") }))
     })
-    .shutdown_timeout(shutdown_timeout.as_secs() as u64)
-    .bind(("0.0.0.0", 8080))?
-    .run();
+    .workers(worker_count)
+    .shutdown_timeout(shutdown_timeout.as_secs() as u64);
+
+    tracing::info!(
+        worker_count,
+        "Configured backend HTTP worker count before binding"
+    );
+
+    let server = server.bind(("0.0.0.0", 8080)).map_err(|err| {
+        tracing::error!(%err, "Failed to bind backend HTTP server to 0.0.0.0:8080");
+        err
+    })?;
+
+    tracing::info!("Backend HTTP server bound to 0.0.0.0:8080");
+
+    let server = server.run();
 
     // Get server handle for graceful shutdown
     let server_handle = server.handle();
@@ -193,9 +207,22 @@ async fn main() -> io::Result<()> {
     });
 
     // Wait for server to finish
-    server_task
-        .await
-        .map_err(|e| io::Error::new(io::ErrorKind::Other, e))??;
+    match server_task.await {
+        Ok(Ok(())) => {
+            tracing::info!("Backend HTTP server exited normally");
+        }
+        Ok(Err(server_err)) => {
+            tracing::error!(error = ?server_err, "Backend HTTP server terminated with an error");
+            return Err(io::Error::new(
+                io::ErrorKind::Other,
+                format!("Backend HTTP server failed: {}", server_err),
+            ));
+        }
+        Err(join_err) => {
+            tracing::error!(error = ?join_err, "Backend HTTP server task panicked");
+            return Err(io::Error::new(io::ErrorKind::Other, join_err));
+        }
+    }
 
     Ok(())
 }
