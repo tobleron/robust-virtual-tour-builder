@@ -1,7 +1,9 @@
 // @efficiency-role: orchestrator
 use actix_cors::Cors;
 use actix_web::cookie::Key;
+use actix_web::http::Uri;
 use actix_web::middleware::DefaultHeaders;
+use std::convert::TryFrom;
 use std::io;
 use std::time::Duration;
 use tracing_subscriber::prelude::*;
@@ -122,9 +124,46 @@ pub fn cors() -> Cors {
             return cors;
         }
 
+        let mut valid_origin_count = 0;
+        let mut invalid_origins = Vec::new();
+        let mut wildcard_requested = false;
+
         for origin in configured_origins {
-            cors = cors.allowed_origin(&origin);
+            if origin == "*" {
+                wildcard_requested = true;
+                continue;
+            }
+
+            match Uri::try_from(origin.as_str()) {
+                Ok(_) => {
+                    cors = cors.allowed_origin(&origin);
+                    valid_origin_count += 1;
+                }
+                Err(err) => {
+                    invalid_origins.push(origin.clone());
+                    tracing::warn!(
+                        origin = %origin,
+                        error = %err,
+                        "Ignoring invalid CORS origin from CORS_ALLOWED_ORIGINS"
+                    );
+                }
+            }
         }
+
+        if wildcard_requested {
+            tracing::warn!(
+                "CORS_ALLOWED_ORIGINS contains '*' entry; enabling wildcard Access-Control-Allow-Origin"
+            );
+            cors = cors.send_wildcard();
+        }
+
+        if valid_origin_count == 0 && !wildcard_requested {
+            tracing::warn!(
+                invalid_origins = ?invalid_origins,
+                "CORS_ALLOWED_ORIGINS did not yield any valid origins; cross-origin requests remain restricted"
+            );
+        }
+
         cors
     } else {
         cors.allowed_origin("http://localhost:5173")
@@ -167,6 +206,18 @@ pub fn rate_limit_settings() -> (u64, u32) {
 pub fn shutdown_timeout() -> Duration {
     let secs = read_env_usize("SHUTDOWN_TIMEOUT_SECS", 30) as u64;
     Duration::from_secs(secs)
+}
+
+pub fn server_worker_count() -> usize {
+    let default_workers = std::thread::available_parallelism()
+        .map(|n| n.get())
+        .unwrap_or(1);
+
+    std::env::var("BACKEND_SERVER_WORKERS")
+        .ok()
+        .and_then(|v| v.parse::<usize>().ok())
+        .filter(|&v| v > 0)
+        .unwrap_or(default_workers)
 }
 
 pub fn session_key() -> io::Result<Key> {
