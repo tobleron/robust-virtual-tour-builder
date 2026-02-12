@@ -1,4 +1,104 @@
 {
+  "rescript": [
+    {
+      "Surgical": {
+        "file": "../../src/utils/OperationJournal.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 1.80, Density: 0.02, Coupling: 0.04] | Drag: 2.82 | LOC: 405/300  🎯 Target: Function: `isTerminalStatus` (High Local Complexity (3.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 13.322222222222223,
+        "recommended_splits": 2
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/Reducer.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 5.40, Density: 0.28, Coupling: 0.10] | Drag: 6.68 | LOC: 408/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 17.484313725490196,
+        "recommended_splits": 2
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/hooks/UseInteraction.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/SceneMutations.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 5.40, Density: 0.26, Coupling: 0.04] | Drag: 6.68 | LOC: 394/300  🎯 Target: Function: `getDeletedIds` (High Local Complexity (3.5). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 16.081725888324872,
+        "recommended_splits": 2
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/Sidebar.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.04, Coupling: 0.08] | Drag: 4.10 | LOC: 412/300  🎯 Target: Function: `make` (High Local Complexity (15.5). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 15.297087378640775,
+        "recommended_splits": 2
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/Api/AuthenticatedClient.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ProjectManager.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.20, Density: 0.20, Coupling: 0.10] | Drag: 5.40 | LOC: 402/300  🎯 Target: Function: `finalToken` (High Local Complexity (2.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 15.601492537313433,
+        "recommended_splits": 2
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/UploadProcessorLogic.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.40, Density: 0.04, Coupling: 0.11] | Drag: 3.44 | LOC: 378/300  🎯 Target: Function: `getNotificationType` (High Local Complexity (4.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 11.239682539682539,
+        "recommended_splits": 2
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ViewerSystem.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.60, Density: 0.06, Coupling: 0.08] | Drag: 4.68 | LOC: 390/300  🎯 Target: Function: `elOpt` (High Local Complexity (4.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 13.676923076923076,
+        "recommended_splits": 2
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/core/JsonParsersDecoders.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    }
+  ],
   "system": [
     {
       "Merge": {
@@ -19,106 +119,6 @@
         "file": "../../css/components/ui.css",
         "pattern": "!important",
         "strategy": ""
-      }
-    }
-  ],
-  "rescript": [
-    {
-      "Surgical": {
-        "file": "../../src/components/Sidebar.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.04, Coupling: 0.08] | Drag: 4.10 | LOC: 412/300  🎯 Target: Function: `make` (High Local Complexity (15.5). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 15.297087378640775,
-        "recommended_splits": 2
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/Reducer.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 5.40, Density: 0.28, Coupling: 0.10] | Drag: 6.68 | LOC: 408/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 17.484313725490196,
-        "recommended_splits": 2
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/core/JsonParsersDecoders.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ProjectManager.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.20, Density: 0.20, Coupling: 0.10] | Drag: 5.40 | LOC: 402/300  🎯 Target: Function: `finalToken` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 15.601492537313433,
-        "recommended_splits": 2
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/hooks/UseInteraction.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/UploadProcessorLogic.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 2.40, Density: 0.04, Coupling: 0.11] | Drag: 3.44 | LOC: 378/300  🎯 Target: Function: `getNotificationType` (High Local Complexity (4.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 11.239682539682539,
-        "recommended_splits": 2
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/SceneMutations.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 5.40, Density: 0.26, Coupling: 0.04] | Drag: 6.68 | LOC: 394/300  🎯 Target: Function: `getDeletedIds` (High Local Complexity (3.5). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 16.081725888324872,
-        "recommended_splits": 2
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/utils/OperationJournal.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 1.80, Density: 0.02, Coupling: 0.04] | Drag: 2.82 | LOC: 405/300  🎯 Target: Function: `isTerminalStatus` (High Local Complexity (3.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 13.322222222222223,
-        "recommended_splits": 2
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/systems/Api/AuthenticatedClient.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ViewerSystem.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.60, Density: 0.06, Coupling: 0.08] | Drag: 4.68 | LOC: 390/300  🎯 Target: Function: `elOpt` (High Local Complexity (4.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 13.676923076923076,
-        "recommended_splits": 2
       }
     }
   ],
