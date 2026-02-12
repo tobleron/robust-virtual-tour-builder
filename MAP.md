@@ -305,6 +305,5 @@ This map provides a semantic overview of the project structure to optimize conte
 
 
 ## 🆕 Unmapped Modules
-* [src/core/GlobalStateBridge.res](src/core/GlobalStateBridge.res): New module detected. Please classify. #new
 * [src/core/NavigationState.res](src/core/NavigationState.res): New module detected. Please classify. #new
 * None detected.

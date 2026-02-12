@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.4.2] - 2026-02-12
+
+### Changed
+- ARCH progress: reliability hardening across 1349-1356 (SLO observability baseline, navigation run-token foundation, scene transition idempotence, simulation stale-work guards, state-boundary migration phases 1-2, API reliability contracts, and persistence/recovery durability with schema-versioned autosave migration plus idempotent operation replay)
+
 ## [4.4.2] - 2026-02-11
 
 ### Fixed

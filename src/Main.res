@@ -78,6 +78,7 @@ let init = async () => {
     try {
       // 1. Logger (Now handles all global error trapping)
       Logger.init()
+      NavigationSupervisor.configure(AppStateBridge.dispatch)
 
       Logger.info(~module_="System", ~message="Initializing Tour Builder...", ())
       Logger.info(~module_="Main", ~message="Main Init Started", ())
@@ -172,6 +173,7 @@ let init = async () => {
         PersistenceLayer.initSubscriber(
           ~getState=AppStateBridge.getState,
           ~onChange=PersistenceLayer.notifyStateChange,
+          ~subscribe=AppStateBridge.subscribe,
         )
 
         RecoveryManager.registerHandler(

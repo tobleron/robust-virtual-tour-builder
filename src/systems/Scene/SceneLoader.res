@@ -90,7 +90,7 @@ module Events = {
     ~signal: option<BrowserBindings.AbortSignal.t>=?,
   ) => {
     let taskMismatch = switch taskId {
-    | Some(tid) => !NavigationSupervisor.isCurrentTask(tid)
+    | Some(tid) => !NavigationSupervisor.isCurrentTaskId(tid)
     | None => false
     }
     let signalAborted = switch signal {

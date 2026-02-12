@@ -27,7 +27,7 @@ describe("NavigationSupervisor", () => {
 
     // Verify task was replaced
     switch (task1, task2) {
-    | (Some(t1), Some(t2)) => t->expect(t1.id != t2.id)->Expect.toBe(true)
+    | (Some(t1), Some(t2)) => t->expect(t1.token.id != t2.token.id)->Expect.toBe(true)
     | _ => t->expect(true)->Expect.toBe(false)
     }
   })
@@ -38,7 +38,7 @@ describe("NavigationSupervisor", () => {
 
     switch task {
     | Some(t) =>
-      NavigationSupervisor.transitionTo(t.id, Swapping(t.id, "scene1"))
+      NavigationSupervisor.transitionTo(t.token.id, Swapping(t.token.id, "scene1"))
       switch NavigationSupervisor.getStatus() {
       | Swapping(_, sceneId) => testCtx->expect(sceneId)->Expect.toBe("scene1")
       | _ => testCtx->expect(true)->Expect.toBe(false)
@@ -53,7 +53,7 @@ describe("NavigationSupervisor", () => {
 
     switch task {
     | Some(t) =>
-      NavigationSupervisor.complete(t.id)
+      NavigationSupervisor.complete(t.token.id)
       testCtx->expect(NavigationSupervisor.isIdle())->Expect.toBe(true)
       testCtx->expect(NavigationSupervisor.getCurrentTask())->Expect.toEqual(None)
     | None => testCtx->expect(true)->Expect.toBe(false)
@@ -66,7 +66,7 @@ describe("NavigationSupervisor", () => {
 
     switch task {
     | Some(t) =>
-      NavigationSupervisor.abort(t.id)
+      NavigationSupervisor.abort(t.token.id)
       testCtx->expect(NavigationSupervisor.isIdle())->Expect.toBe(true)
     | None => testCtx->expect(true)->Expect.toBe(false)
     }
@@ -82,11 +82,11 @@ describe("NavigationSupervisor", () => {
     switch task1 {
     | Some(t1) =>
       // Attempt to complete with stale taskId should not change current status
-      NavigationSupervisor.complete(t1.id)
+      NavigationSupervisor.complete(t1.token.id)
       testCtx->expect(NavigationSupervisor.isIdle())->Expect.toBe(false) // Still busy
       testCtx
-      ->expect(NavigationSupervisor.getCurrentTask()->Option.map(t => t.id))
-      ->Expect.toEqual(task2->Option.map(t => t.id))
+      ->expect(NavigationSupervisor.getCurrentTask()->Option.map(t => t.token.id))
+      ->Expect.toEqual(task2->Option.map(t => t.token.id))
     | None => testCtx->expect(true)->Expect.toBe(false)
     }
   })
@@ -105,8 +105,8 @@ describe("NavigationSupervisor", () => {
 
     switch task {
     | Some(t) =>
-      NavigationSupervisor.transitionTo(t.id, Swapping(t.id, "scene1"))
-      NavigationSupervisor.complete(t.id)
+      NavigationSupervisor.transitionTo(t.token.id, Swapping(t.token.id, "scene1"))
+      NavigationSupervisor.complete(t.token.id)
 
       // Should have recorded: Loading, Swapping, Idle (at least 3 status changes)
       testCtx->expect(Belt.Array.length(statusChanges.contents) >= 3)->Expect.toBe(true)
@@ -122,7 +122,7 @@ describe("NavigationSupervisor", () => {
 
     switch task {
     | Some(t) =>
-      let signal = t.signal
+      let signal = t.token.signal
       // Signal should exist and be usable with abort
       testCtx->expect(signal->BrowserBindings.AbortSignal.aborted)->Expect.toBe(false)
       t.abort()

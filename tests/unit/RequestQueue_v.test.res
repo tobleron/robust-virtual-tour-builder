@@ -14,6 +14,10 @@ describe("RequestQueue", () => {
     t->expect(maxConcurrent)->Expect.toBe(6)
   })
 
+  test("maxQueued is defined", t => {
+    t->expect(maxQueued > 0)->Expect.toBe(true)
+  })
+
   test("activeCount is accessible and non-negative", t => {
     t->expect(activeCount.contents >= 0)->Expect.toBe(true)
   })
@@ -52,5 +56,32 @@ describe("RequestQueue", () => {
 
     t->expect(Array.length(results))->Expect.toBe(10)
     t->expect(activeCount.contents)->Expect.toBe(0)
+  })
+
+  testAsync("schedule rejects when queue is over capacity", async t => {
+    let started = ref(0)
+    let blocker = async () => {
+      started := started.contents + 1
+      let _ = await Promise.make(
+        (resolve, _) => {
+          let _ = ReBindings.Window.setTimeout(() => resolve(ignore()), 250)
+        },
+      )
+    }
+
+    // Fill active workers.
+    for _i in 1 to maxConcurrent {
+      let _ = schedule(blocker)
+    }
+    // Fill pending queue.
+    for _i in 1 to maxQueued {
+      let _ = schedule(blocker)
+    }
+
+    let overflowResult = await schedule(blocker)
+    ->Promise.then(_ => Promise.resolve("resolved"))
+    ->Promise.catch(_ => Promise.resolve("rejected"))
+
+    t->expect(overflowResult)->Expect.toBe("rejected")
   })
 })

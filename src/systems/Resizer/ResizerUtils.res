@@ -71,110 +71,84 @@ let getChecksum = (file: File.t): Promise.t<string> => {
   internalGetChecksum(file)
 }
 
-// Helper to sleep for specified milliseconds
-let sleep = (delayMs: int): Promise.t<unit> => {
-  Promise.make((resolve, _reject) => {
-    let _ = setTimeout(() => {
-      resolve()
-    }, delayMs)
-  })
-}
-
 let checkBackendHealth = () => {
-  // Retry logic with exponential backoff (up to 3 attempts)
-  let rec attemptHealthCheck = (~attempt=0, ~maxAttempts=3) => {
-    let controller = AbortController.make()
-    let _signal = AbortController.signal(controller)
-    let timeoutId = Window.setTimeout(() => AbortController.abort(controller), 5000)
-    let timestamp = Date.now()->Float.toString
+  let controller = AbortController.make()
+  let signal = AbortController.signal(controller)
+  let requestUrl = Constants.backendUrl ++ "/health?t=" ++ Date.now()->Float.toString
+  // Health checks should fail fast to avoid blocking upload start.
+  let timeoutId = Window.setTimeout(() => AbortController.abort(controller), 5000)
 
-    Logger.debug(
-      ~module_="Resizer",
-      ~message="CHECKING_HEALTH",
-      ~data=Some({
-        "url": Constants.backendUrl ++ "/health?t=" ++ timestamp,
-        "attempt": attempt + 1,
-      }),
-      (),
-    )
+  Logger.debug(~module_="Resizer", ~message="CHECKING_HEALTH", ~data=Some({"url": requestUrl}), ())
 
-    RequestQueue.schedule(() => {
-      Fetch.fetch(
-        Constants.backendUrl ++ "/health?t=" ++ timestamp,
-        Fetch.requestInit(~method="GET", ~signal=_signal, ()),
+  RequestQueue.scheduleWithRetry(
+    ~task=() => {
+      Fetch.fetch(requestUrl, Fetch.requestInit(~method="GET", ~signal, ()))
+      ->Promise.then(res => {
+        let status = Fetch.status(res)
+        if Fetch.ok(res) {
+          Promise.resolve(Ok(true))
+        } else if status == 429 || status == 408 || status >= 500 {
+          Promise.resolve(
+            Error(
+              "HttpError: Status " ++ Belt.Int.toString(status) ++ " - " ++ Fetch.statusText(res),
+            ),
+          )
+        } else {
+          Logger.warn(
+            ~module_="Resizer",
+            ~message="HEALTH_CHECK_FAILED_NON_RETRYABLE",
+            ~data={
+              "status": status,
+              "statusText": Fetch.statusText(res),
+              "url": Constants.backendUrl ++ "/health",
+            },
+            (),
+          )
+          Promise.resolve(Ok(false))
+        }
+      })
+      ->Promise.catch(err => {
+        let (msg, _) = Logger.getErrorDetails(err)
+        Promise.resolve(Error(msg))
+      })
+    },
+    ~signal,
+    ~retryConfig={
+      maxRetries: 2,
+      initialDelayMs: 150,
+      maxDelayMs: 1200,
+      backoffMultiplier: 2.0,
+      jitter: true,
+    },
+    ~onRetry=(attempt, error, delayMs) => {
+      Logger.warn(
+        ~module_="Resizer",
+        ~message="HEALTH_CHECK_RETRY",
+        ~data=Some({
+          "attempt": attempt,
+          "error": error,
+          "nextDelayMs": delayMs,
+        }),
+        (),
       )
-    })
-    ->Promise.then(res => {
-      Window.clearTimeout(timeoutId)
-      let status = Fetch.status(res)
-
-      // Success (200 OK)
-      if Fetch.ok(res) {
-        Promise.resolve(true)
-      } // Rate limited (429) - retry with backoff
-      else if status == 429 && attempt < maxAttempts - 1 {
-        Logger.warn(
-          ~module_="Resizer",
-          ~message="HEALTH_CHECK_RATE_LIMITED",
-          ~data={
-            "status": status,
-            "attempt": attempt + 1,
-            "retrying": true,
-          },
-          (),
-        )
-        // Exponential backoff: 100ms * 2^attempt
-        let delayMs = 100.0 *. %raw(`Math.pow(2, attempt)`)
-        let delayInt = Int.fromFloat(delayMs)
-        sleep(delayInt)->Promise.then(() => attemptHealthCheck(~attempt=attempt + 1, ~maxAttempts))
-      } else {
-        // Other errors
-
-        Logger.warn(
-          ~module_="Resizer",
-          ~message="HEALTH_CHECK_FAILED",
-          ~data={
-            "status": status,
-            "statusText": Fetch.statusText(res),
-            "url": Constants.backendUrl ++ "/health",
-            "attempt": attempt + 1,
-          },
-          (),
-        )
-        Promise.resolve(Fetch.ok(res))
-      }
-    })
-    ->Promise.catch(err => {
-      Window.clearTimeout(timeoutId)
-      let (msg, stack) = Logger.getErrorDetails(err)
-
-      // Retry on network errors too
-      if attempt < maxAttempts - 1 {
-        Logger.warn(
-          ~module_="Resizer",
-          ~message="HEALTH_CHECK_NETWORK_ERROR",
-          ~data={"error": msg, "attempt": attempt + 1, "retrying": true},
-          (),
-        )
-        let delayMs = 100.0 *. %raw(`Math.pow(2, attempt)`)
-        let delayInt = Int.fromFloat(delayMs)
-        sleep(delayInt)->Promise.then(() => attemptHealthCheck(~attempt=attempt + 1, ~maxAttempts))
-      } else {
-        Logger.warn(
-          ~module_="Resizer",
-          ~message="HEALTH_CHECK_ERROR",
-          ~data={
-            "error": msg,
-            "stack": stack,
-            "url": Constants.backendUrl ++ "/health",
-            "attempt": attempt + 1,
-          },
-          (),
-        )
-        Promise.resolve(false)
-      }
-    })
-  }
-
-  attemptHealthCheck()
+    },
+  )
+  ->Promise.then(result => {
+    Window.clearTimeout(timeoutId)
+    switch result {
+    | Retry.Success(isHealthy, _) => Promise.resolve(isHealthy)
+    | Retry.Exhausted(msg) =>
+      Logger.warn(
+        ~module_="Resizer",
+        ~message="HEALTH_CHECK_EXHAUSTED",
+        ~data=Some({"error": msg, "url": Constants.backendUrl ++ "/health"}),
+        (),
+      )
+      Promise.resolve(false)
+    }
+  })
+  ->Promise.catch(_ => {
+    Window.clearTimeout(timeoutId)
+    Promise.resolve(false)
+  })
 }

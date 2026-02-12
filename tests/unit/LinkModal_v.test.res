@@ -34,7 +34,7 @@ describe("LinkModal", () => {
       activeIndex: 0,
       tourName: "Test Tour",
     }
-    GlobalStateBridge.setState(initialState)
+    AppStateBridge.updateState(initialState)
 
     // Capture EventBus
     let receivedConfig = ref(None)
@@ -47,7 +47,16 @@ describe("LinkModal", () => {
       },
     )
 
-    LinkModal.showLinkModal(~pitch=10.0, ~yaw=20.0, ~camPitch=0.0, ~camYaw=0.0, ~camHfov=90.0, ())
+    LinkModal.showLinkModal(
+      ~pitch=10.0,
+      ~yaw=20.0,
+      ~camPitch=0.0,
+      ~camYaw=0.0,
+      ~camHfov=90.0,
+      ~getState=AppStateBridge.getState,
+      ~dispatch=AppStateBridge.dispatch,
+      (),
+    )
     unsubscribe()
 
     switch receivedConfig.contents {
@@ -73,11 +82,11 @@ describe("LinkModal", () => {
       scenes: [scene1, scene2],
       activeIndex: 0,
     }
-    GlobalStateBridge.setState(initialState)
+    AppStateBridge.updateState(initialState)
 
     // Capture Dispatch
     let dispatchedActions = ref([])
-    GlobalStateBridge.setDispatch(
+    AppStateBridge.registerDispatch(
       action => {
         Array.push(dispatchedActions.contents, action)
       },
@@ -94,7 +103,16 @@ describe("LinkModal", () => {
       },
     )
 
-    LinkModal.showLinkModal(~pitch=10.0, ~yaw=20.0, ~camPitch=0.0, ~camYaw=0.0, ~camHfov=90.0, ())
+    LinkModal.showLinkModal(
+      ~pitch=10.0,
+      ~yaw=20.0,
+      ~camPitch=0.0,
+      ~camYaw=0.0,
+      ~camHfov=90.0,
+      ~getState=AppStateBridge.getState,
+      ~dispatch=AppStateBridge.dispatch,
+      (),
+    )
     unsubscribe()
 
     // Setup Mock DOM
@@ -155,10 +173,10 @@ describe("LinkModal", () => {
       scenes: [scene1, scene2],
       activeIndex: 0,
     }
-    GlobalStateBridge.setState(initialState)
+    AppStateBridge.updateState(initialState)
 
     let dispatchedActions = ref([])
-    GlobalStateBridge.setDispatch(action => Array.push(dispatchedActions.contents, action))
+    AppStateBridge.registerDispatch(action => Array.push(dispatchedActions.contents, action))
 
     let receivedConfig = ref(None)
     let unsubscribe = EventBus.subscribe(
@@ -190,6 +208,8 @@ describe("LinkModal", () => {
       ~camHfov=90.0,
       ~pendingReturnSceneName=Nullable.make("Scene1"),
       ~linkDraft=Nullable.make(draft),
+      ~getState=AppStateBridge.getState,
+      ~dispatch=AppStateBridge.dispatch,
       (),
     )
     unsubscribe()

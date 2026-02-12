@@ -18,6 +18,12 @@ let option = Decode.option
 let map = Decode.map
 let id = Decode.id
 
+type persistedSessionEnvelope = {
+  version: int,
+  timestamp: float,
+  projectData: JSON.t,
+}
+
 // Helper for cleaner optional fields
 let opt = (field: Decode.fieldDecoders, key, decoder, default) => {
   field.optional(key, option(decoder))->Option.flatMap(x => x)->Option.getOr(default)
@@ -200,6 +206,14 @@ let project = object(field => {
     sessionId: field.optional("sessionId", option(string))->Option.flatMap(x => x),
     deletedSceneIds: field->opt("deletedSceneIds", array(string), []),
     timeline: field->opt("timeline", array(timelineItem), []),
+  }
+})
+
+let persistedSession = object((field): persistedSessionEnvelope => {
+  {
+    version: field.optional("version", int)->Option.getOr(1),
+    timestamp: field.required("timestamp", float),
+    projectData: field.required("projectData", id),
   }
 })
 

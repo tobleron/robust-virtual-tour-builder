@@ -55,7 +55,7 @@ let _ = describe("ViewerLoader", () => {
 
   beforeEach(() => {
     let _ = %raw("vi.clearAllMocks()")
-    GlobalStateBridge.setState(State.initialState)
+    AppStateBridge.updateState(State.initialState)
   })
 
   test("getPanoramaUrl handles URL object", t => {
@@ -63,15 +63,15 @@ let _ = describe("ViewerLoader", () => {
     t->expect(url)->Expect.toBe("test.jpg")
   })
 
-  test("Loader.initializeViewer calls Pannellum", t => {
-    let _ = Loader.initializeViewer("test-container", %raw("{}"))
+  test("ViewerSystem.Adapter.initialize calls Pannellum", t => {
+    let _ = ViewerSystem.Adapter.initialize("test-container", %raw("{}"))
     let calls = %raw("mockViewerCtor.mock.calls")
     t->expect(Array.length(calls) > 0)->Expect.toBe(true)
   })
 
-  test("Loader.destroyViewer calls destroy", t => {
-    let v = Loader.initializeViewer("test-container", %raw("{}"))
-    Loader.destroyViewer(v)
+  test("ViewerSystem.Adapter.destroy calls destroy", t => {
+    let v = ViewerSystem.Adapter.initialize("test-container", %raw("{}"))
+    ViewerSystem.Adapter.destroy(v)
     let calls = %raw("mockDestroy.mock.calls")
     t->expect(Array.length(calls) > 0)->Expect.toBe(true)
   })

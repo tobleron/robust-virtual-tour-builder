@@ -55,6 +55,8 @@ async fn process_entry(entry: &TelemetryEntry) {
                 priority = ?entry.priority,
                 json_data = ?entry.data,
                 request_id = ?entry.request_id,
+                operation_id = ?entry.operation_id,
+                session_id = ?entry.session_id,
                 "{} {}", entry.module, entry.message
             );
         }
@@ -67,6 +69,8 @@ async fn process_entry(entry: &TelemetryEntry) {
                 priority = ?entry.priority,
                 json_data = ?entry.data,
                 request_id = ?entry.request_id,
+                operation_id = ?entry.operation_id,
+                session_id = ?entry.session_id,
                 "{} {}", entry.module, entry.message
             );
         }
@@ -78,6 +82,8 @@ async fn process_entry(entry: &TelemetryEntry) {
                 priority = ?entry.priority,
                 json_data = ?entry.data,
                 request_id = ?entry.request_id,
+                operation_id = ?entry.operation_id,
+                session_id = ?entry.session_id,
                 "{} {}", entry.module, entry.message
             );
         }

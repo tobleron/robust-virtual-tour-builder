@@ -8,23 +8,30 @@ type viewport = ViewerSystem.Pool.viewport
 
 type getStateFn = unit => state
 
-let finalizeSwap = (~getState) => {
-  ViewerSystem.getActiveViewer()
-  ->Nullable.toOption
-  ->Option.forEach(v => {
-    if ViewerSystem.isViewerReady(v) {
-      let currentState: state = getState()
-      if currentState.activeIndex != -1 {
-        EventBus.dispatch(ForceHotspotSync)
-        HotspotLine.updateLines(
-          v,
-          currentState,
-          ~mouseEvent=?ViewerState.state.contents.lastMouseEvent->Nullable.toOption,
-          (),
-        )
+let finalizeSwap = (~getState, ~taskId: option<string>=?) => {
+  let shouldFinalize = switch taskId {
+  | Some(tid) => NavigationSupervisor.isCurrentTaskId(tid)
+  | None => true
+  }
+
+  if shouldFinalize {
+    ViewerSystem.getActiveViewer()
+    ->Nullable.toOption
+    ->Option.forEach(v => {
+      if ViewerSystem.isViewerReady(v) {
+        let currentState: state = getState()
+        if currentState.activeIndex != -1 {
+          EventBus.dispatch(ForceHotspotSync)
+          HotspotLine.updateLines(
+            v,
+            currentState,
+            ~mouseEvent=?ViewerState.state.contents.lastMouseEvent->Nullable.toOption,
+            (),
+          )
+        }
       }
-    }
-  })
+    })
+  }
 }
 
 let assignGlobalViewer = nv => {
@@ -40,14 +47,14 @@ let clearHotspotLines = () => {
   ->Option.forEach(svg => Dom.setTextContent(svg, ""))
 }
 
-let updateGlobalStateAndViewer = (~getState, nv) => {
+let updateGlobalStateAndViewer = (~getState, nv, ~taskId: option<string>=?) => {
   ViewerSystem.Pool.swapActive()
   ViewerSystem.Pool.getActive()->Option.forEach(v => ViewerSystem.Pool.clearCleanupTimeout(v.id))
 
   assignGlobalViewer(nv)
   clearHotspotLines()
 
-  let _ = Window.setTimeout(() => finalizeSwap(~getState), 50)
+  let _ = Window.setTimeout(() => finalizeSwap(~getState, ~taskId?), 50)
 }
 
 let updateDomTransitions = (~transition: transition, av, iv) => {
@@ -115,7 +122,7 @@ let cleanupViewerInstance = (ov, vp: viewport, ~taskId: option<string>=?) => {
   // so stale timers cannot complete a newer task.
   let resourceCleanupId = Window.setTimeout(() => {
     let shouldFinalize = switch taskId {
-    | Some(tid) => NavigationSupervisor.isCurrentTask(tid)
+    | Some(tid) => NavigationSupervisor.isCurrentTaskId(tid)
     | None => true
     }
     if !shouldFinalize {
@@ -183,7 +190,7 @@ let performSwap = (
   switch Nullable.toOption(nv) {
   | Some(_newViewer) =>
     Logger.debug(~module_="SceneTransition", ~message="SWAPPING_VIEWERS", ())
-    updateGlobalStateAndViewer(~getState, nv)
+    updateGlobalStateAndViewer(~getState, nv, ~taskId?)
     updateDomTransitions(~transition, av, iv)
     scheduleCleanup(ov, ~taskId?)
   | None =>

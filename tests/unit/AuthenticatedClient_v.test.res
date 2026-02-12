@@ -70,20 +70,20 @@ describe("AuthenticatedClient", () => {
     let _ = fetchMock // use fetchMock to avoid unused warning
   })
 
-  testAsync("dispatches notification on first retry", async t => {
+  testAsync("retries on 500 and keeps one incident notification chain", async t => {
     // 1. Subscribe to notifications
-    let notificationReceived = ref(false)
+    let sawRetryIncident = ref(false)
     let unsubscribe = NotificationManager.subscribe(
       state => {
         let messages = Belt.Array.concat(state.active, state.pending)
         let hasRetryMessage = Belt.Array.some(
           messages,
           n =>
-            String.includes(n.message, "Retrying request...") &&
-            String.includes(n.message, "(attempt 1)"),
+            String.includes(n.message, "Retrying request") &&
+            String.includes(n.id, "api-incident-"),
         )
         if hasRetryMessage {
-          notificationReceived := true
+          sawRetryIncident := true
         }
       },
     )
@@ -122,8 +122,70 @@ describe("AuthenticatedClient", () => {
     let _ = await AuthenticatedClient.requestWithRetry("/test-retry", ~retryConfig, ())
 
     // 4. Assert
-    t->expect(notificationReceived.contents)->Expect.toBe(true)
+    t->expect(sawRetryIncident.contents)->Expect.toBe(true)
+    let finalState = NotificationManager.getState()
+    let visible = Belt.Array.concat(finalState.active, finalState.pending)
+    let incidentIds =
+      visible
+      ->Belt.Array.keepMap(
+        n =>
+          if String.includes(n.id, "api-incident-") {
+            Some(n.id)
+          } else {
+            None
+          },
+      )
+      ->Belt.Set.String.fromArray
+      ->Belt.Set.String.toArray
+    t->expect(Belt.Array.length(incidentIds) <= 1)->Expect.toBe(true)
 
     unsubscribe()
+  })
+
+  testAsync("retries on 429 and succeeds", async t => {
+    Dom.Storage2.localStorage->Dom.Storage2.setItem("auth_token", "test-token")
+
+    let fetchMock = %raw("global.fetch")
+    let _ = %raw(`function(m){
+      m.mockResolvedValueOnce({
+        ok: false,
+        status: 429,
+        statusText: 'Too Many Requests',
+        json: () => Promise.resolve({}),
+        text: () => Promise.resolve('Rate limited')
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({}),
+        text: () => Promise.resolve('')
+      })
+    }`)(fetchMock)
+
+    let retryConfig: Retry.config = {
+      maxRetries: 2,
+      initialDelayMs: 1,
+      maxDelayMs: 10,
+      backoffMultiplier: 1.0,
+      jitter: false,
+    }
+
+    let result = await AuthenticatedClient.requestWithRetry("/test-429", ~retryConfig, ())
+    switch result {
+    | Retry.Success(_response, attempts) => t->expect(attempts)->Expect.toBe(2)
+    | Retry.Exhausted(_) => t->expect(true)->Expect.toBe(false)
+    }
+  })
+
+  testAsync("abort signal terminates retries immediately", async t => {
+    let controller = ReBindings.AbortController.make()
+    ReBindings.AbortController.abort(controller)
+    let signal = ReBindings.AbortController.signal(controller)
+
+    let result = await AuthenticatedClient.requestWithRetry("/test-abort", ~signal, ())
+    switch result {
+    | Retry.Success(_, _) => t->expect(true)->Expect.toBe(false)
+    | Retry.Exhausted(msg) => t->expect(msg)->Expect.toBe("AbortError")
+    }
   })
 })

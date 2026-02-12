@@ -8,11 +8,11 @@ describe("StateInspector", _ => {
   beforeEach(() => {
     // Reset window.store before each test
     let _ = %raw(`delete globalThis.window.store`)
-    GlobalStateBridge.setState(State.initialState)
+    AppStateBridge.updateState(State.initialState)
   })
 
   test("createSnapshot verified", t => {
-    let state = GlobalStateBridge.getState()
+    let state = AppStateBridge.getState()
     let snapshot = createSnapshot(state)
 
     t->expect(snapshot.tourName)->Expect.toBe(state.tourName)
@@ -33,7 +33,7 @@ describe("StateInspector", _ => {
 
   test("getDebugSnapshot returns snapshot of current state", t => {
     let snapshot = getDebugSnapshot()
-    let state = GlobalStateBridge.getState()
+    let state = AppStateBridge.getState()
     t->expect(snapshot.tourName)->Expect.toBe(state.tourName)
   })
 

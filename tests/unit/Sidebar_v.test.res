@@ -91,8 +91,8 @@ describe("Sidebar", () => {
 
     let mockState = State.initialState
     let mockDispatch = _ => ()
-    GlobalStateBridge.setDispatch(mockDispatch)
-    GlobalStateBridge.setState(mockState)
+    AppStateBridge.registerDispatch(mockDispatch)
+    AppStateBridge.updateState(mockState)
     let sidebarCmp = await loadSidebar()
 
     let root = ReactDOMClient.createRoot(container)
@@ -122,8 +122,8 @@ describe("Sidebar", () => {
     let mockState = {...State.initialState, tourName: "Initial Name"}
     let lastAction = ref(None)
     let mockDispatch = action => lastAction := Some(action)
-    GlobalStateBridge.setDispatch(mockDispatch)
-    GlobalStateBridge.setState(mockState)
+    AppStateBridge.registerDispatch(mockDispatch)
+    AppStateBridge.updateState(mockState)
     let sidebarCmp = await loadSidebar()
 
     let root = ReactDOMClient.createRoot(container)
@@ -206,8 +206,8 @@ describe("Sidebar", () => {
       appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
     }
     let mockDispatch = _ => ()
-    GlobalStateBridge.setDispatch(mockDispatch)
-    GlobalStateBridge.setState(mockState)
+    AppStateBridge.registerDispatch(mockDispatch)
+    AppStateBridge.updateState(mockState)
     let sidebarCmp = await loadSidebar()
 
     let dispatchedEvent = ref(None)
@@ -243,8 +243,8 @@ describe("Sidebar", () => {
 
     let mockState = State.initialState
     let mockDispatch = _ => ()
-    GlobalStateBridge.setDispatch(mockDispatch)
-    GlobalStateBridge.setState(mockState)
+    AppStateBridge.registerDispatch(mockDispatch)
+    AppStateBridge.updateState(mockState)
     let sidebarCmp = await loadSidebar()
 
     let root = ReactDOMClient.createRoot(container)
@@ -293,8 +293,8 @@ describe("Sidebar", () => {
       appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
     }
     let mockDispatch = _ => ()
-    GlobalStateBridge.setDispatch(mockDispatch)
-    GlobalStateBridge.setState(mockState)
+    AppStateBridge.registerDispatch(mockDispatch)
+    AppStateBridge.updateState(mockState)
     let sidebarCmp = await loadSidebar()
 
     let root = ReactDOMClient.createRoot(container)
@@ -369,8 +369,8 @@ describe("Sidebar", () => {
       appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
     }
     let mockDispatch = _ => ()
-    GlobalStateBridge.setDispatch(mockDispatch)
-    GlobalStateBridge.setState(mockState)
+    AppStateBridge.registerDispatch(mockDispatch)
+    AppStateBridge.updateState(mockState)
     let sidebarCmp = await loadSidebar()
 
     let root = ReactDOMClient.createRoot(container)
@@ -446,8 +446,8 @@ describe("Sidebar", () => {
       appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
     }
     let mockDispatch = _ => ()
-    GlobalStateBridge.setDispatch(mockDispatch)
-    GlobalStateBridge.setState(mockState)
+    AppStateBridge.registerDispatch(mockDispatch)
+    AppStateBridge.updateState(mockState)
     let sidebarCmp = await loadSidebar()
 
     let root = ReactDOMClient.createRoot(container)
@@ -483,8 +483,8 @@ describe("Sidebar", () => {
       appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
     }
     let mockDispatch = _ => ()
-    GlobalStateBridge.setDispatch(mockDispatch)
-    GlobalStateBridge.setState(mockState)
+    AppStateBridge.registerDispatch(mockDispatch)
+    AppStateBridge.updateState(mockState)
     let sidebarCmp = await loadSidebar()
 
     let root = ReactDOMClient.createRoot(container)

@@ -39,7 +39,7 @@ describe("CriticalErrorMonitor", () => {
       appMode: SystemBlocking(CriticalError("Test Critical Error")),
     }
     let mockDispatch = _ => ()
-    GlobalStateBridge.setDispatch(mockDispatch)
+    AppStateBridge.registerDispatch(mockDispatch)
 
     let monitorCmp = await loadMonitor()
 
@@ -83,7 +83,7 @@ describe("CriticalErrorMonitor", () => {
       appMode: Interactive({uiMode: Viewing, navigation: IdleFsm, backgroundTask: None}),
     }
     let mockDispatch = _ => ()
-    GlobalStateBridge.setDispatch(mockDispatch)
+    AppStateBridge.registerDispatch(mockDispatch)
 
     let monitorCmp = await loadMonitor()
 

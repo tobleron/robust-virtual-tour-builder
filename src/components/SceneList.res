@@ -8,6 +8,13 @@ let make = React.memo(() => {
   let uiSlice = AppContext.useUiSlice()
   let isSystemLocked = AppContext.useIsSystemLocked()
   let dispatch = AppContext.useAppDispatch()
+  let appState = AppContext.useAppState()
+  let stateRef = React.useRef(appState)
+  React.useEffect1(() => {
+    stateRef.current = appState
+    None
+  }, [appState])
+  let getState = () => stateRef.current
 
   let (_draggedIndex, setDraggedIndex) = React.useState(_ => None)
 
@@ -169,7 +176,7 @@ let make = React.memo(() => {
               label: "Delete",
               class_: "bg-red-500/20 text-white hover:bg-red-500/40",
               onClick: () => {
-                SidebarLogic.handleDeleteScene(index)->ignore
+                SidebarLogic.handleDeleteScene(index, ~getState)->ignore
                 NotificationManager.dispatch({
                   id: "",
                   importance: Success,

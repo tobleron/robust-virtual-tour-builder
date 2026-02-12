@@ -44,7 +44,12 @@ module InternalLogic = {
     Dom.remove(target, "drag-over")
   }
 
-  let handleDrop = (pipeline: t, e) => {
+  let handleDrop = (
+    pipeline: t,
+    e,
+    ~getState: unit => Types.state,
+    ~dispatch: Actions.action => unit,
+  ) => {
     Dom.preventDefault(e)
     let target = Dom.target(e)
     Dom.remove(target, "drag-over")
@@ -56,7 +61,7 @@ module InternalLogic = {
 
     switch (dropIndex, Nullable.toOption(pipeline.dragSourceId.contents)) {
     | (dropIndex, Some(sourceId)) if dropIndex != -1 =>
-      let state = AppStateBridge.getState()
+      let state = getState()
       let sourceIndex =
         state.timeline->Belt.Array.getIndexBy(t => t.id == sourceId)->Option.getOr(-1)
 
@@ -73,7 +78,7 @@ module InternalLogic = {
             ~data=Some({"from": sourceIndex, "to": finalIndex}),
             (),
           )
-          AppStateBridge.dispatch(ReorderTimeline(sourceIndex, finalIndex))
+          dispatch(ReorderTimeline(sourceIndex, finalIndex))
         }
       }
     | _ => ()
@@ -81,7 +86,7 @@ module InternalLogic = {
     handleDragEnd(pipeline, e)
   }
 
-  let createDropZone = (pipeline: t, index: int) => {
+  let createDropZone = (pipeline: t, index: int, ~getState, ~dispatch) => {
     let zone = Dom.createElement("div")
     Dom.setClassName(zone, "drop-zone")
     Dict.set(Dom.dataset(zone), "index", Belt.Int.toString(index))
@@ -91,7 +96,7 @@ module InternalLogic = {
     })
     Dom.addEventListener(zone, "dragenter", handleDragEnter)
     Dom.addEventListener(zone, "dragleave", handleDragLeave)
-    Dom.addEventListener(zone, "drop", e => handleDrop(pipeline, e))
+    Dom.addEventListener(zone, "drop", e => handleDrop(pipeline, e, ~getState, ~dispatch))
     zone
   }
 }
@@ -100,7 +105,7 @@ module InternalRender = {
   open InternalTypes
   open InternalLogic
 
-  let render = (pipeline: t, state: Types.state) => {
+  let render = (pipeline: t, state: Types.state, ~getState, ~dispatch) => {
     Logger.info(
       ~module_="VisualPipeline",
       ~message="RENDER_CALLED_TIMELINE_" ++ Array.length(state.timeline)->Int.toString,
@@ -118,7 +123,7 @@ module InternalRender = {
       | Some(t) =>
         let fragment = Dom.createDocumentFragment()
 
-        let firstZone = createDropZone(pipeline, 0)
+        let firstZone = createDropZone(pipeline, 0, ~getState, ~dispatch)
         Dom.add(firstZone, "is-endpoint")
         Dom.appendChild(fragment, firstZone)
 
@@ -138,7 +143,7 @@ module InternalRender = {
               ~data=Some({"id": item.id}),
               (),
             )
-            AppStateBridge.dispatch(SetActiveTimelineStep(Some(item.id)))
+            dispatch(SetActiveTimelineStep(Some(item.id)))
             let sceneIdx =
               state.scenes
               ->Belt.Array.getIndexBy(s => s.id == item.sceneId)
@@ -148,8 +153,8 @@ module InternalRender = {
               | Some(s) =>
                 let hotspot = s.hotspots->Belt.Array.getBy(h => h.linkId == item.linkId)
                 switch hotspot {
-                | Some(h) => AppStateBridge.dispatch(SetActiveScene(sceneIdx, h.yaw, h.pitch, None))
-                | None => AppStateBridge.dispatch(SetActiveScene(sceneIdx, 0.0, 0.0, None))
+                | Some(h) => dispatch(SetActiveScene(sceneIdx, h.yaw, h.pitch, None))
+                | None => dispatch(SetActiveScene(sceneIdx, 0.0, 0.0, None))
                 }
               | None => ()
               }
@@ -209,7 +214,7 @@ module InternalRender = {
                 ~data=Some({"id": item.id}),
                 (),
               )
-              AppStateBridge.dispatch(RemoveFromTimeline(item.id))
+              dispatch(RemoveFromTimeline(item.id))
             }
           })
 
@@ -270,7 +275,7 @@ module InternalRender = {
 
           Dom.appendChild(fragment, node)
 
-          let nextZone = InternalLogic.createDropZone(pipeline, index + 1)
+          let nextZone = InternalLogic.createDropZone(pipeline, index + 1, ~getState, ~dispatch)
           if index == Belt.Array.length(state.timeline) - 1 {
             Dom.add(nextZone, "is-endpoint")
           }
@@ -287,6 +292,8 @@ module InternalRender = {
 }
 
 include InternalTypes
+
+let render = InternalRender.render
 
 let initByElement = (c: Dom.element) => {
   Logger.info(~module_="VisualPipeline", ~message="INIT_BY_ELEMENT_START", ())
@@ -308,9 +315,7 @@ let initByElement = (c: Dom.element) => {
     thumbCache: Dict.make(),
   }
 
-  let unsubscribe = AppStateBridge.subscribe(state => InternalRender.render(pipeline, state))
-  InternalRender.render(pipeline, AppStateBridge.getState())
-  (pipeline, unsubscribe)
+  pipeline
 }
 
 let init = (containerId: string) => {

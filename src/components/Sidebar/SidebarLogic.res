@@ -26,7 +26,7 @@ module SidebarTypes = {
 open ReBindings
 
 let updateProgress = (
-  ~dispatch: Actions.action => unit=AppContext.getBridgeDispatch(),
+  ~dispatch: Actions.action => unit,
   ~onCancel=() => (),
   pct,
   msg,
@@ -50,7 +50,8 @@ let updateProgress = (
 
 let performUpload = async (
   files,
-  ~dispatch: Actions.action => unit=AppContext.getBridgeDispatch(),
+  ~getState: unit => Types.state,
+  ~dispatch: Actions.action => unit,
 ) => {
   let fileArray = JsHelpers.from(files)
 
@@ -62,13 +63,15 @@ let performUpload = async (
           updateProgress(~dispatch, pct, msg, isProc, phase)
         },
       ),
+      ~getState,
+      ~dispatch,
     )
 
     let qualityResults = result.qualityResults
     let report = result.report
 
     dispatch(DispatchAppFsmEvent(UploadComplete(report, qualityResults)))
-    UploadReport.show(report, qualityResults)
+    UploadReport.show(report, qualityResults, ~getState, ~dispatch)
     NotificationManager.dispatch({
       id: "",
       importance: Success,
@@ -105,8 +108,8 @@ let performUpload = async (
 
 let handleUpload = async (
   filesOpt,
-  ~getState: unit => Types.state=AppContext.getBridgeState,
-  ~dispatch: Actions.action => unit=AppContext.getBridgeDispatch(),
+  ~getState: unit => Types.state,
+  ~dispatch: Actions.action => unit,
 ) => {
   switch filesOpt {
   | Some(files) if FileList.length(files) > 0 =>
@@ -141,13 +144,13 @@ let handleUpload = async (
         dismissible: true,
         createdAt: Date.now(),
       })
-      await performUpload(files, ~dispatch)
+      await performUpload(files, ~getState, ~dispatch)
     }
   | _ => ()
   }
 }
 
-let handleLoadProject = async (filesOpt, dispatch, _sceneCount, target) => {
+let handleLoadProject = async (filesOpt, ~getState, ~dispatch, _sceneCount, target) => {
   switch filesOpt {
   | Some(files) if FileList.length(files) > 0 =>
     SessionStore.clearState()
@@ -155,7 +158,7 @@ let handleLoadProject = async (filesOpt, dispatch, _sceneCount, target) => {
       switch FileList.item(files, 0) {
       | Some(file) =>
         dispatch(Actions.DispatchAppFsmEvent(StartProjectLoad({name: File.name(file)})))
-        updateProgress(0.0, "Loading Project...", true, "Loading")
+        updateProgress(~dispatch, 0.0, "Loading Project...", true, "Loading")
 
         Logger.startOperation(
           ~module_="Sidebar",
@@ -171,7 +174,7 @@ let handleLoadProject = async (filesOpt, dispatch, _sceneCount, target) => {
           _t,
           msg,
         ) => {
-          updateProgress(pct->Int.toFloat, msg, true, "Loading")
+          updateProgress(~dispatch, pct->Int.toFloat, msg, true, "Loading")
         })
 
         switch projectDataResult {
@@ -179,7 +182,7 @@ let handleLoadProject = async (filesOpt, dispatch, _sceneCount, target) => {
             ViewerSystem.resetState()
             dispatch(Actions.SetSessionId(sessionId))
             dispatch(Actions.LoadProject(projectData))
-            UploadReport.showFromProjectData(projectData)
+            UploadReport.showFromProjectData(projectData, ~getState, ~dispatch)
 
             Logger.endOperation(
               ~module_="Sidebar",
@@ -187,7 +190,7 @@ let handleLoadProject = async (filesOpt, dispatch, _sceneCount, target) => {
               ~data={"success": true},
               (),
             )
-            updateProgress(100.0, "Done", false, "")
+            updateProgress(~dispatch, 100.0, "Done", false, "")
             dispatch(Actions.DispatchAppFsmEvent(ProjectLoadComplete))
             NotificationManager.dispatch({
               id: "",
@@ -220,7 +223,7 @@ let handleLoadProject = async (filesOpt, dispatch, _sceneCount, target) => {
               dismissible: true,
               createdAt: Date.now(),
             })
-            updateProgress(0.0, "Error: " ++ msg, false, "")
+            updateProgress(~dispatch, 0.0, "Error: " ++ msg, false, "")
             Logger.endOperation(
               ~module_="Sidebar",
               ~operation="PROJECT_LOAD",
@@ -232,7 +235,7 @@ let handleLoadProject = async (filesOpt, dispatch, _sceneCount, target) => {
       | None => ()
       }
     } catch {
-    | _ => updateProgress(0.0, "Error", false, "")
+    | _ => updateProgress(~dispatch, 0.0, "Error", false, "")
     }
     asDynamic(target)["value"] = ""
   | _ => ()
@@ -254,10 +257,7 @@ let getProjectData = (state: Types.state) => {
   JsonParsers.Encoders.project(project)
 }
 
-let handleDeleteScene = async (
-  index: int,
-  ~getState: unit => Types.state=AppContext.getBridgeState,
-) => {
+let handleDeleteScene = async (index: int, ~getState: unit => Types.state) => {
   let _ = await OptimisticAction.execute(~action=Actions.DeleteScene(index), ~apiCall=() => {
     let state = getState()
     switch state.sessionId {

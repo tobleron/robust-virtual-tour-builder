@@ -114,6 +114,14 @@ let project = (p: Types.project) => {
   ])
 }
 
+let persistedSession = (~version: int, ~timestamp: float, ~projectData: JSON.t) => {
+  Encode.object([
+    ("version", Encode.int(version)),
+    ("timestamp", Encode.float(timestamp)),
+    ("projectData", projectData),
+  ])
+}
+
 let pathRequest = (req: Types.pathRequest) => {
   Encode.object([
     ("type", Encode.string(req.type_)),

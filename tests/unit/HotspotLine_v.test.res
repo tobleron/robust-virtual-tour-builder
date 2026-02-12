@@ -15,7 +15,7 @@ let mockViewerNotLoaded: ReBindings.Viewer.t = Obj.magic({
 describe("HotspotLine Facade", () => {
   beforeEach(() => {
     ViewerSystem.Pool.registerInstance("panorama-a", mockViewer)
-    GlobalStateBridge.setState(State.initialState)
+    AppStateBridge.updateState(State.initialState)
   })
 
   test("getScreenCoords should proxy to Logic", t => {

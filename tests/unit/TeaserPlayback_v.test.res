@@ -41,8 +41,8 @@ type internalStateRef = {mutable contents: internalStateContent}
 @module("../../src/systems/TeaserRecorder.bs.js")
 external mockInternalState: internalStateRef = "internalState"
 
-@module("../../src/core/GlobalStateBridge.bs.js") external mockGetState: mockFn = "getState"
-@module("../../src/core/GlobalStateBridge.bs.js") external mockDispatch: mockFn = "dispatch"
+@module("../../src/core/AppStateBridge.bs.js") external mockGetState: mockFn = "getState"
+@module("../../src/core/AppStateBridge.bs.js") external mockDispatch: mockFn = "dispatch"
 
 @module("../../src/utils/Logger.bs.js") external mockDebug: mockFn = "debug"
 
@@ -72,7 +72,7 @@ external mockInternalState: internalStateRef = "internalState"
     };
   });
 
-  vi.mock('../../src/core/GlobalStateBridge.bs.js', () => ({
+  vi.mock('../../src/core/AppStateBridge.bs.js', () => ({
     getState: vi.fn(),
     dispatch: vi.fn(),
     SetIsTeasing: (v) => ({ type: 'SetIsTeasing', payload: v })
@@ -143,7 +143,13 @@ describe("TeaserPlayback", () => {
       }),
     }
 
-    let p = prepareFirstScene(step, "fast", fastConfig)
+    let p = prepareFirstScene(
+      step,
+      "fast",
+      fastConfig,
+      ~getState=AppStateBridge.getState,
+      ~dispatch=AppStateBridge.dispatch,
+    )
     await advanceTimersByTimeAsync(2000)
     await p
 
@@ -176,7 +182,14 @@ describe("TeaserPlayback", () => {
     // Next scene must be "scene2" for waitForViewerReady
     let _ = %raw(`global.window.pannellumViewer.getScene = () => "scene2"`)
 
-    let p = transitionToNextShot(0, step, "fast", fastConfig)
+    let p = transitionToNextShot(
+      0,
+      step,
+      "fast",
+      fastConfig,
+      ~getState=AppStateBridge.getState,
+      ~dispatch=AppStateBridge.dispatch,
+    )
     await advanceTimersByTimeAsync(3000) // 1000ms fade + waits
     await p
 
