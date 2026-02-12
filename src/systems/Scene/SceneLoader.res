@@ -14,21 +14,11 @@ external idToUnknown: string => unknown = "%identity"
 let loadStartTime = ref(0.0)
 
 module Config = {
-  let getHotspots = (scene: scene) =>
+  let getHotspots = (scene: scene, ~state, ~dispatch) =>
     scene.hotspots->Belt.Array.mapWithIndex((idx, h) => {
-      let pitch = h.displayPitch->Option.getOr(h.pitch)
-      {
-        "id": "hs_" ++ Belt.Int.toString(idx),
-        "pitch": pitch,
-        "yaw": h.yaw,
-        "type": "info",
-        "cssClass": "pnlm-hotspot flat-arrow arrow-gold",
-        "createTooltipArgs": {
-          "targetSceneId": h.target,
-        },
-      }
+      HotspotManager.createHotspotConfig(~hotspot=h, ~index=idx, ~state, ~scene, ~dispatch)
     })
-  let makeSceneConfig = (scene: scene) => {
+  let makeSceneConfig = (scene: scene, ~state, ~dispatch) => {
     let url = SceneCache.getSourceUrl(scene.id, scene.file)
     Logger.debug(
       ~module_="SceneLoader",
@@ -38,12 +28,12 @@ module Config = {
     )
     {
       "panorama": url,
-      "hotSpots": getHotspots(scene),
+      "hotSpots": getHotspots(scene, ~state, ~dispatch),
     }
   }
 
-  let makeInitialConfig = (scene: scene) => {
-    let inner = makeSceneConfig(scene)
+  let makeInitialConfig = (scene: scene, ~state, ~dispatch) => {
+    let inner = makeSceneConfig(scene, ~state, ~dispatch)
     {
       "default": {"firstScene": scene.id},
       "scenes": Dict.fromArray([(scene.id, inner)]),
@@ -190,7 +180,7 @@ let cleanupLoadTimeout = () => {
 }
 
 let loadNewScene = (
-  ~state: pathRequest,
+  ~state: state,
   ~dispatch,
   ~sourceSceneId as _sourceSceneId: option<string>=?,
   ~targetSceneId: string,
@@ -235,12 +225,13 @@ let loadNewScene = (
     switch if isAnticipatory {
       None
     } else {
-      Reuse.findReusableInstance(state, tIdx)
+      Reuse.findReusableInstance(toPathRequest(state), tIdx)
     } {
     | Some(inst) =>
       if !isAnticipatory {
         ViewerSystem.Adapter.setMetaData(inst, "sceneId", idToUnknown(targetScene.id))
-        let config = Config.makeSceneConfig(targetScene)
+        ViewerSystem.Adapter.setMetaData(inst, "isLoaded", boolToUnknown(false))
+        let config = Config.makeSceneConfig(targetScene, ~state, ~dispatch)
 
         Logger.debug(
           ~module_="SceneLoader",
@@ -257,6 +248,29 @@ let loadNewScene = (
           (),
         )
 
+        // Safety timeout for reuse path
+        let safetyTimeoutId = setTimeout(() => {
+          if !Events.isStaleTask(~taskId?, ~signal?) {
+            Logger.warn(
+              ~module_="SceneLoader",
+              ~message="REUSE_LOAD_TIMEOUT",
+              ~data=Some({"scene": targetScene.id}),
+              (),
+            )
+            Events.onSceneLoad(~dispatch, inst, targetScene, ~taskId?, ~signal?)
+          }
+        }, 10000)
+
+        inst->ViewerSystem.Adapter.on("texture-loaded", _ => {
+          clearTimeout(safetyTimeoutId)
+          Events.onSceneLoad(~dispatch, inst, targetScene, ~taskId?, ~signal?)
+        })
+
+        inst->ViewerSystem.Adapter.on("load", _ => {
+          clearTimeout(safetyTimeoutId)
+          Events.onSceneLoad(~dispatch, inst, targetScene, ~taskId?, ~signal?)
+        })
+
         ViewerSystem.Adapter.addScene(inst, targetScene.id, config->asDynamic)
         ViewerSystem.Adapter.loadScene(inst, targetScene.id, ())
 
@@ -264,8 +278,6 @@ let loadNewScene = (
         | Some(tid) => NavigationSupervisor.transitionTo(tid, Swapping(tid, targetScene.id))
         | None => ()
         }
-
-        dispatch(DispatchNavigationFsmEvent(TextureLoaded({targetSceneId: targetScene.id})))
       }
     | None =>
       let activeVp = ViewerSystem.Pool.getActive()
@@ -318,7 +330,7 @@ let loadNewScene = (
           }
         } else {
           try {
-            let initialConfig = Config.makeInitialConfig(targetScene)
+            let initialConfig = Config.makeInitialConfig(targetScene, ~state, ~dispatch)
 
             Logger.info(
               ~module_="SceneLoader",

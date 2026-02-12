@@ -237,7 +237,14 @@ let useHotspotLineLoop = (~getState: unit => state, dispatch: action => unit) =>
           Belt.Array.get(currentState.scenes, currentState.activeIndex),
         ) {
         | (Some(viewer), Some(scene)) =>
-          if !(!NavigationSupervisor.isIdle()) {
+          // During forced sync, we allow it even if Stabilizing as long as it's not Loading/Swapping
+          let status = NavigationSupervisor.getStatus()
+          let isBusy = switch status {
+          | Loading(_) | Swapping(_) => true
+          | _ => false
+          }
+
+          if !isBusy {
             try {
               HotspotManager.syncHotspots(viewer, currentState, scene, dispatch)
             } catch {

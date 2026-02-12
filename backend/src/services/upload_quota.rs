@@ -263,11 +263,16 @@ impl UploadQuotaManager {
     async fn check_disk_space(&self) -> Result<(), String> {
         use std::path::Path;
 
-        // Get disk space for temp directory
-        let temp_path = std::env::var("TEMP_DIR").unwrap_or_else(|_| "../tmp".to_string());
         let fail_open = std::env::var("ALLOW_DISK_CHECK_BYPASS")
             .map(|v| v == "1" || v.eq_ignore_ascii_case("true"))
             .unwrap_or(false);
+
+        if fail_open {
+            return Ok(());
+        }
+
+        // Get disk space for temp directory
+        let temp_path = std::env::var("TEMP_DIR").unwrap_or_else(|_| "../tmp".to_string());
 
         match fs2::available_space(Path::new(&temp_path)) {
             Ok(available) => {
@@ -283,11 +288,7 @@ impl UploadQuotaManager {
             }
             Err(e) => {
                 tracing::warn!("Failed to check disk space: {}", e);
-                if fail_open {
-                    Ok(())
-                } else {
-                    Err("Failed to verify available disk space".to_string())
-                }
+                Err("Failed to verify available disk space".to_string())
             }
         }
     }
