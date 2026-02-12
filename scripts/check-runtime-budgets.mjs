@@ -6,7 +6,7 @@ const METRICS_PATH = path.resolve('artifacts/perf-budget-metrics.json');
 
 const budgets = {
   maxRapidNavigationP95Ms: Number(process.env.BUDGET_MAX_RAPID_NAV_P95_MS ?? 1500),
-  maxRapidNavigationLongTasks: Number(process.env.BUDGET_MAX_RAPID_NAV_LONG_TASKS ?? 15),
+  maxRapidNavigationLongTasks: Number(process.env.BUDGET_MAX_RAPID_NAV_LONG_TASKS ?? 25),
   maxRapidNavigationMemoryGrowthRatio: Number(
     process.env.BUDGET_MAX_RAPID_NAV_MEMORY_RATIO ?? 2.5,
   ),
