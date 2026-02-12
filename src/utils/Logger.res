@@ -31,6 +31,13 @@ let maxEntries = 2000
 let appLog: array<string> = []
 let maxAppLogEntries = 1000
 
+let sessionId = ref(None)
+let currentOperationId = ref(None)
+
+let setOperationId = id => currentOperationId := id
+let getOperationId = () => currentOperationId.contents
+let getSessionId = () => sessionId.contents
+
 let createLogEntry = (
   ~module_: string,
   ~level: level,
@@ -48,7 +55,9 @@ let createLogEntry = (
     message,
     data,
     priority: priorityToString(p),
-    requestId: None, // Populated by caller if needed, or via context later?
+    requestId: None,
+    operationId: currentOperationId.contents,
+    sessionId: sessionId.contents,
   }
 }
 
@@ -246,6 +255,18 @@ external toUnhandledEvent: 'a => UnhandledRejectionEvent.t = "%identity"
 let batchTimer = ref(None)
 
 let init = () => {
+  /* Initialize Session ID */
+  if sessionId.contents == None {
+    sessionId :=
+      Some(
+        try {
+          Crypto.randomUUID()
+        } catch {
+        | _ => "sess_" ++ Float.toString(Date.now())
+        },
+      )
+  }
+
   /* Expose to Window */
   let debugObj = {
     "enable": enable,
@@ -319,6 +340,34 @@ let init = () => {
     if !(Window.window["location"]["hostname"]->String.includes("localhost")) {
       UnhandledRejectionEvent.preventDefault(evt)
     }
+  })
+
+  /* Track Long Tasks for SLO */
+  let _ = %raw(`
+    (function() {
+      if (typeof PerformanceObserver !== 'undefined') {
+        const observer = new PerformanceObserver((list) => {
+          list.getEntries().forEach((entry) => {
+            if (entry.duration > 50) {
+              window.dispatchEvent(new CustomEvent('vtb-long-task', {
+                detail: {
+                  durationMs: entry.duration,
+                  startTime: entry.startTime,
+                  name: entry.name
+                }
+              }));
+            }
+          });
+        });
+        observer.observe({ entryTypes: ["longtask"] });
+      }
+    })()
+  `)
+
+  /* Listen for long tasks and log them */
+  let _ = Window.addEventListener("vtb-long-task", (_e: Dom.event) => {
+    let detail = %raw(`_e.detail`)
+    info(~module_="Performance", ~message="LONG_TASK_DETECTED", ~data=Some(castToJson(detail)), ())
   })
 
   initialized(~module_="Logger")

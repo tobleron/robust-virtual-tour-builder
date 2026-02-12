@@ -3,6 +3,13 @@
 @react.component
 let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId) => {
   let dispatch = AppContext.useAppDispatch()
+  let appState = AppContext.useAppState()
+  let stateRef = React.useRef(appState)
+  React.useEffect1(() => {
+    stateRef.current = appState
+    None
+  }, [appState])
+  let getState = () => stateRef.current
 
   let handleFabClick = React.useMemo1(() =>
     e => {
@@ -60,6 +67,8 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
                 ~camYaw=currentYaw,
                 ~camHfov=currentHfov,
                 ~linkDraft=Nullable.make(initialDraft),
+                ~getState,
+                ~dispatch,
                 (),
               )
             },
@@ -110,7 +119,7 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
         }
         // Abort any active Supervisor navigation task
         switch NavigationSupervisor.getCurrentTask() {
-        | Some(t) => NavigationSupervisor.abort(t.id)
+        | Some(t) => NavigationSupervisor.abort(t.token.id)
         | None => ()
         }
         dispatch(Actions.DispatchNavigationFsmEvent(Reset))

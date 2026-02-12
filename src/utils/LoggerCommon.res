@@ -29,6 +29,8 @@ type logEntry = {
   data: option<JSON.t>,
   priority: string,
   requestId: option<string>,
+  operationId: option<string>,
+  sessionId: option<string>,
 }
 
 type telemetryBatch = {entries: array<logEntry>}

@@ -100,6 +100,31 @@ describe("Retry", () => {
     }
   })
 
+  testAsync("retries on retryable http status (429)", async t => {
+    let controller = ReBindings.AbortController.make()
+    let signal = ReBindings.AbortController.signal(controller)
+    let attempts = ref(0)
+
+    let result = await execute(
+      ~fn=async (~signal as _) => {
+        attempts := attempts.contents + 1
+        if attempts.contents < 2 {
+          Error("HttpError: Status 429 - Too Many Requests")
+        } else {
+          Ok("ok")
+        }
+      },
+      ~signal,
+      ~config={...defaultConfig, maxRetries: 3, initialDelayMs: 1, jitter: false},
+    )
+
+    switch result {
+    | Success(value, _) => t->expect(value)->Expect.toBe("ok")
+    | Exhausted(_) => t->expect(true)->Expect.toBe(false)
+    }
+    t->expect(attempts.contents)->Expect.toBe(2)
+  })
+
   testAsync("aborted signal stops retrying", async t => {
     let controller = ReBindings.AbortController.make()
     let signal = ReBindings.AbortController.signal(controller)

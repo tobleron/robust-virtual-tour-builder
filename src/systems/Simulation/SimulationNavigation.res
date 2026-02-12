@@ -40,12 +40,19 @@ let findViewerForScene = (sceneId: string): option<Viewer.t> => {
   }
 }
 
-let pollForViewer = async (expectedSceneId, expectedSceneName, isAutoPilotActive) => {
+let pollForViewer = async (
+  expectedSceneId,
+  expectedSceneName,
+  isAutoPilotActive,
+  ~currentRunId: int,
+  ~getRunId: unit => int,
+) => {
   let timeout = Float.fromInt(Constants.sceneLoadTimeout)
   let start = InternalDate.now()
 
   let rec pollLoop = async () => {
-    if !isAutoPilotActive() {
+    let stillRunning = isAutoPilotActive() && getRunId() == currentRunId
+    if !stillRunning {
       Ok()
     } else if InternalDate.now() -. start > timeout {
       Error("Timeout waiting for viewer to load scene " ++ expectedSceneName)
@@ -75,6 +82,8 @@ let pollForViewer = async (expectedSceneId, expectedSceneName, isAutoPilotActive
 let waitForViewerScene = async (
   sceneIndex: int,
   isAutoPilotActive: unit => bool,
+  ~currentRunId: int,
+  ~getRunId: unit => int,
   ~getState: unit => state=AppContext.getBridgeState,
   ~maxRetries=3,
   (),
@@ -83,7 +92,13 @@ let waitForViewerScene = async (
   switch Belt.Array.get(state.scenes, sceneIndex) {
   | Some(expectedScene) =>
     let rec attemptLoad = async (attempt: int) => {
-      let result = await pollForViewer(expectedScene.id, expectedScene.name, isAutoPilotActive)
+      let result = await pollForViewer(
+        expectedScene.id,
+        expectedScene.name,
+        isAutoPilotActive,
+        ~currentRunId,
+        ~getRunId,
+      )
 
       switch result {
       | Ok() => Ok()

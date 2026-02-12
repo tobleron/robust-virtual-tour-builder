@@ -91,15 +91,15 @@ let makeMockScene = (~id) => {
   };
   globalThis.pannellumViewer = mockV;
 
-  // Mock GlobalStateBridge
+  // Mock AppStateBridge
   const globalStateMock = {
     getState: globalThis.vi.fn().mockReturnValue({scenes: [], tourName: ""}),
     dispatch: globalThis.vi.fn(),
-    setDispatch: globalThis.vi.fn(),
-    setState: globalThis.vi.fn(),
+    registerDispatch: globalThis.vi.fn(),
+    updateState: globalThis.vi.fn(),
   };
   globalThis.globalStateMock = globalStateMock;
-  globalThis.vi.mock('../../src/core/GlobalStateBridge.bs.js', () => globalStateMock);
+  globalThis.vi.mock('../../src/core/AppStateBridge.bs.js', () => globalStateMock);
 })()
 `)
 
@@ -145,8 +145,22 @@ describe("Teaser System", () => {
     let _ = %raw(`(s) => globalThis.globalStateMock.getState.mockReturnValue(s)`)(mockState)
 
     let teaser = await loadTeaser()
-    let startAutoTeaser: (string, bool, string, bool) => promise<unit> = teaser["startAutoTeaser"]
-    await startAutoTeaser("fast", false, "webm", false)
+    let startAutoTeaser: (
+      string,
+      bool,
+      string,
+      bool,
+      ~getState: unit => Types.state,
+      ~dispatch: Actions.action => unit,
+    ) => promise<unit> = teaser["startAutoTeaser"]
+    await startAutoTeaser(
+      "fast",
+      false,
+      "webm",
+      false,
+      ~getState=AppStateBridge.getState,
+      ~dispatch=AppStateBridge.dispatch,
+    )
 
     let called = %raw(`globalThis.serverMock.Server.generateServerTeaser.mock.calls.length`)
     t->expect(called)->Expect.toBe(0)
@@ -169,9 +183,23 @@ describe("Teaser System", () => {
     )
 
     let teaser = await loadTeaser()
-    let startAutoTeaser: (string, bool, string, bool) => promise<unit> = teaser["startAutoTeaser"]
+    let startAutoTeaser: (
+      string,
+      bool,
+      string,
+      bool,
+      ~getState: unit => Types.state,
+      ~dispatch: Actions.action => unit,
+    ) => promise<unit> = teaser["startAutoTeaser"]
     // Start async operation
-    let promise = startAutoTeaser("cinematic", false, "mp4", false)
+    let promise = startAutoTeaser(
+      "cinematic",
+      false,
+      "mp4",
+      false,
+      ~getState=AppStateBridge.getState,
+      ~dispatch=AppStateBridge.dispatch,
+    )
 
     // Wait for promise chain
     await (%raw(`Promise.resolve()`): promise<unit>)
@@ -207,8 +235,22 @@ describe("Teaser System", () => {
     )
 
     let teaser = await loadTeaser()
-    let startAutoTeaser: (string, bool, string, bool) => promise<unit> = teaser["startAutoTeaser"]
-    let promise = startAutoTeaser("fast", false, "webm", false)
+    let startAutoTeaser: (
+      string,
+      bool,
+      string,
+      bool,
+      ~getState: unit => Types.state,
+      ~dispatch: Actions.action => unit,
+    ) => promise<unit> = teaser["startAutoTeaser"]
+    let promise = startAutoTeaser(
+      "fast",
+      false,
+      "webm",
+      false,
+      ~getState=AppStateBridge.getState,
+      ~dispatch=AppStateBridge.dispatch,
+    )
 
     // Advance timers to simulate playback duration
     let rec advance = async count => {
@@ -248,8 +290,22 @@ describe("Teaser System", () => {
     )
 
     let teaser = await loadTeaser()
-    let startAutoTeaser: (string, bool, string, bool) => promise<unit> = teaser["startAutoTeaser"]
-    await startAutoTeaser("fast", false, "webm", false)
+    let startAutoTeaser: (
+      string,
+      bool,
+      string,
+      bool,
+      ~getState: unit => Types.state,
+      ~dispatch: Actions.action => unit,
+    ) => promise<unit> = teaser["startAutoTeaser"]
+    await startAutoTeaser(
+      "fast",
+      false,
+      "webm",
+      false,
+      ~getState=AppStateBridge.getState,
+      ~dispatch=AppStateBridge.dispatch,
+    )
 
     let startRecCalled = %raw(`globalThis.recorderMock.Recorder.startRecording.mock.calls.length`)
     t->expect(startRecCalled)->Expect.toBe(0)

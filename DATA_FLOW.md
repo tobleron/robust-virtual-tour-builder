@@ -298,7 +298,6 @@ Address/GPS Query
 
 ### 📂 src/core
 - `[src/core/Actions.res]`
-- `[src/core/GlobalStateBridge.res]`
 - `[src/core/NavigationHelpers.res]`
 - `[src/core/NavigationState.res]`
 - `[src/core/TransitionLock.res]`

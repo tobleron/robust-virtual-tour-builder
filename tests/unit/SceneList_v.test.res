@@ -156,8 +156,8 @@ describe("SceneList", () => {
     }
     let lastAction = ref(None)
     let mockDispatch = action => lastAction.contents = Some(action)
-    GlobalStateBridge.setDispatch(mockDispatch)
-    GlobalStateBridge.setState(mockState)
+    AppStateBridge.registerDispatch(mockDispatch)
+    AppStateBridge.updateState(mockState)
 
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(root, <WrappedSceneList mockState mockDispatch />)
@@ -243,8 +243,8 @@ describe("SceneList", () => {
     }
     let lastAction = ref(None)
     let mockDispatch = action => lastAction.contents = Some(action)
-    GlobalStateBridge.setDispatch(mockDispatch)
-    GlobalStateBridge.setState(mockState)
+    AppStateBridge.registerDispatch(mockDispatch)
+    AppStateBridge.updateState(mockState)
 
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(root, <WrappedSceneList mockState mockDispatch />)

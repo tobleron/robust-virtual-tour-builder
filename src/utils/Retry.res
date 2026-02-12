@@ -25,29 +25,126 @@ let calculateDelay = (attempt, config) => {
     Float.fromInt(config.initialDelayMs) *.
     Math.pow(config.backoffMultiplier, ~exp=Float.fromInt(attempt - 1)),
   )
-  let capped = Math.Int.min(baseDelay, config.maxDelayMs)
+  let cappedBase = Math.Int.min(baseDelay, config.maxDelayMs)
 
   if config.jitter {
-    let jitterRange = Float.fromInt(capped) *. 0.2
-    capped + Float.toInt(Math.random() *. jitterRange)
+    // Bound jitter to +/-20% while never exceeding maxDelayMs.
+    let jitterFactor = 0.8 +. Math.random() *. 0.4
+    let jittered = Float.toInt(Float.fromInt(cappedBase) *. jitterFactor)
+    let nonNegative = if jittered < 0 {
+      0
+    } else {
+      jittered
+    }
+    Math.Int.min(nonNegative, config.maxDelayMs)
   } else {
-    capped
+    cappedBase
+  }
+}
+
+type retryClass =
+  | Retryable
+  | NonRetryable
+  | Aborted
+
+let parseHttpStatusCode: string => option<int> = %raw(`
+  (error) => {
+    const match = /HttpError:\s*Status\s*(\d+)/i.exec(error);
+    if (!match) return undefined;
+    const parsed = Number.parseInt(match[1], 10);
+    return Number.isNaN(parsed) ? undefined : parsed;
+  }
+`)
+
+let isAbortError = (error: string): bool => {
+  String.includes(error, "AbortError") || String.includes(error, "aborted")
+}
+
+let isRetryableStatus = (status: int): bool => {
+  switch status {
+  | 408
+  | 425
+  | 429
+  | 500
+  | 502
+  | 503
+  | 504 => true
+  | _ => false
+  }
+}
+
+let classifyError = (error: string): retryClass => {
+  if isAbortError(error) {
+    Aborted
+  } else {
+    switch parseHttpStatusCode(error) {
+    | Some(status) =>
+      if isRetryableStatus(status) {
+        Retryable
+      } else {
+        NonRetryable
+      }
+    | None =>
+      if (
+        String.includes(error, "NetworkError") ||
+        String.includes(error, "fetch failed") ||
+        String.includes(error, "Failed to fetch") ||
+        String.includes(error, "Network request failed") ||
+        String.includes(error, "connection refused") ||
+        String.includes(error, "ETIMEDOUT") ||
+        String.includes(error, "TimeoutError")
+      ) {
+        Retryable
+      } else {
+        NonRetryable
+      }
+    }
   }
 }
 
 let defaultShouldRetry = (error: string) => {
-  String.includes(error, "NetworkError") ||
-  String.includes(error, "fetch failed") ||
-  String.includes(error, "Failed to fetch") ||
-  String.includes(error, "Network request failed") ||
-  String.includes(error, "connection refused") ||
-  String.includes(error, "500") ||
-  String.includes(error, "502") ||
-  String.includes(error, "503") ||
-  String.includes(error, "504")
+  switch classifyError(error) {
+  | Retryable => true
+  | NonRetryable
+  | Aborted => false
+  }
 }
 
 @get external aborted: ReBindings.AbortSignal.t => bool = "aborted"
+
+let waitForDelay = (signal: ReBindings.AbortSignal.t, delay: int): Promise.t<bool> => {
+  Promise.make((resolve, _reject) => {
+    if aborted(signal) {
+      resolve(false)
+    } else {
+      let timeoutId = ref(None)
+      let done = ref(false)
+
+      let rec onAbort = () => {
+        if !done.contents {
+          done := true
+          switch timeoutId.contents {
+          | Some(id) => ReBindings.Window.clearTimeout(id)
+          | None => ()
+          }
+          signal->ReBindings.AbortSignal.removeEventListener("abort", onAbort)
+          resolve(false)
+        }
+      }
+
+      signal->ReBindings.AbortSignal.addEventListener("abort", onAbort)
+      let tid = ReBindings.Window.setTimeout(() => {
+        if !done.contents {
+          done := true
+          signal->ReBindings.AbortSignal.removeEventListener("abort", onAbort)
+          resolve(true)
+        }
+      }, delay)
+
+      timeoutId := Some(tid)
+    }
+  })
+}
 
 let rec loop = async (fn, signal, config, shouldRetry, onRetry, attempt) => {
   if aborted(signal) {
@@ -58,7 +155,9 @@ let rec loop = async (fn, signal, config, shouldRetry, onRetry, attempt) => {
     switch result {
     | Ok(val) => Success(val, attempt)
     | Error(err) =>
-      if attempt > config.maxRetries {
+      if isAbortError(err) {
+        Exhausted("AbortError")
+      } else if attempt > config.maxRetries {
         Exhausted(err)
       } else if !shouldRetry(err) {
         Exhausted(err)
@@ -70,12 +169,13 @@ let rec loop = async (fn, signal, config, shouldRetry, onRetry, attempt) => {
         | None => ()
         }
 
-        // Wait for delay
-        let _ = await Promise.make((resolve, _) => {
-          let _ = ReBindings.Window.setTimeout(() => resolve(), delay)
-        })
-
-        await loop(fn, signal, config, shouldRetry, onRetry, attempt + 1)
+        // Abort-aware delay wait. Do not retry if cancelled while backing off.
+        let canContinue = await waitForDelay(signal, delay)
+        if canContinue {
+          await loop(fn, signal, config, shouldRetry, onRetry, attempt + 1)
+        } else {
+          Exhausted("AbortError")
+        }
       }
     }
   }

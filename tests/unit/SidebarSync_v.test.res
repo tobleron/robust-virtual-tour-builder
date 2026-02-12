@@ -92,8 +92,8 @@ describe("Sidebar Sync", () => {
     let mockState = {...State.initialState, tourName: "Initial Name"}
     let lastAction = ref(None)
     let mockDispatch = action => lastAction := Some(action)
-    GlobalStateBridge.setDispatch(mockDispatch)
-    GlobalStateBridge.setState(mockState)
+    AppStateBridge.registerDispatch(mockDispatch)
+    AppStateBridge.updateState(mockState)
     let sidebarCmp = await loadSidebar()
 
     let root = ReactDOMClient.createRoot(container)
@@ -130,7 +130,7 @@ describe("Sidebar Sync", () => {
 
       // Now simulate external update (e.g. from Exif)
       let newState = {...mockState, tourName: "External Update"}
-      GlobalStateBridge.setState(newState)
+      AppStateBridge.updateState(newState)
       render(newState) // Force re-render with new state
 
       await wait(50)

@@ -62,6 +62,36 @@ lazy_static! {
         "geocoding_cache_misses_total",
         "Cache misses for geocoding"
     ).expect("Failed to register GEOCODING_CACHE_MISSES_TOTAL metric");
+    // Scene switch latency
+    pub static ref SCENE_SWITCH_DURATION: Histogram = register_histogram!(
+        "scene_switch_duration_seconds",
+        "Scene switch duration in seconds"
+    ).expect("Failed to register SCENE_SWITCH_DURATION metric");
+
+    // Project save latency
+    pub static ref PROJECT_SAVE_DURATION: Histogram = register_histogram!(
+        "project_save_duration_seconds",
+        "Project save duration in seconds"
+    ).expect("Failed to register PROJECT_SAVE_DURATION metric");
+
+    // Project load latency
+    pub static ref PROJECT_LOAD_DURATION: Histogram = register_histogram!(
+        "project_load_duration_seconds",
+        "Project load duration in seconds"
+    ).expect("Failed to register PROJECT_LOAD_DURATION metric");
+
+    // Error rate by type
+    pub static ref ERRORS_TOTAL: CounterVec = register_counter_vec!(
+        "errors_total",
+        "Total errors by module and type",
+        &["module", "error_type"]
+    ).expect("Failed to register ERRORS_TOTAL metric");
+
+    // Frontend long tasks (received via telemetry)
+    pub static ref FE_LONG_TASKS_TOTAL: Counter = register_counter!(
+        "frontend_long_tasks_total",
+        "Total frontend long tasks > 50ms"
+    ).expect("Failed to register FE_LONG_TASKS_TOTAL metric");
 }
 
 #[cfg(test)]

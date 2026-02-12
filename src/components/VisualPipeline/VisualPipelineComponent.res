@@ -3,25 +3,39 @@ let make = () => {
   Logger.info(~module_="VisualPipelineComponent", ~message="MAKE_CALLED", ())
   let containerRef = React.useRef(Nullable.null)
 
-  React.useEffect0(() => {
-    let unsubRef = ref(None)
+  let appState = AppContext.useAppState()
+  let dispatch = AppContext.useAppDispatch()
+  let stateRef = React.useRef(appState)
+  React.useEffect1(() => {
+    stateRef.current = appState
+    None
+  }, [appState])
+  let getState = () => stateRef.current
 
+  let pipelineRef = React.useRef(None)
+
+  React.useEffect0(() => {
     switch Nullable.toOption(containerRef.current) {
     | Some(c) =>
-      let (_, unsubscribe) = VisualPipeline.initByElement(c)
-      unsubRef := Some(unsubscribe)
+      let pipeline = VisualPipeline.initByElement(c)
+      pipelineRef.current = Some(pipeline)
     | None => ()
     }
 
     Some(
       () => {
-        switch unsubRef.contents {
-        | Some(u) => u()
-        | None => ()
-        }
+        pipelineRef.current = None
       },
     )
   })
+
+  React.useEffect1(() => {
+    switch pipelineRef.current {
+    | Some(p) => VisualPipeline.render(p, appState, ~getState, ~dispatch)
+    | None => ()
+    }
+    None
+  }, [appState])
 
   <div
     ref={ReactDOM.Ref.domRef(containerRef)}

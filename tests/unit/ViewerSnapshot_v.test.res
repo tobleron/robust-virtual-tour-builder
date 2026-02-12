@@ -61,7 +61,7 @@ describe("ViewerSnapshot", () => {
     // Setup State
     let scene = TestUtils.createMockScene(~id="s1", ~name="Scene 1", ())
     let mockState = TestUtils.createMockState(~scenes=[scene], ~activeIndex=0, ())
-    GlobalStateBridge.setState(mockState)
+    AppStateBridge.updateState(mockState)
 
     // Mock Viewer
     ViewerSystem.Pool.registerInstance("panorama-a", Obj.magic({"id": "mock_viewer"}))
@@ -106,7 +106,7 @@ describe("ViewerSnapshot", () => {
 
     let scene = TestUtils.createMockScene(~id="s1", ~name="Scene 1", ())
     let mockState = TestUtils.createMockState(~scenes=[scene], ~activeIndex=0, ())
-    GlobalStateBridge.setState(mockState)
+    AppStateBridge.updateState(mockState)
 
     ViewerSystem.Pool.registerInstance("panorama-a", Obj.magic({"id": "mock_viewer"}))
 

@@ -8,7 +8,12 @@ type qualityGroups = {
   pr: array<qualityItem>,
 }
 
-let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
+let show = (
+  report: uploadReport,
+  qualityResults: array<qualityItem>,
+  ~getState: unit => state,
+  ~dispatch: Actions.action => unit,
+) => {
   if Array.length(report.success) == 0 && Array.length(report.skipped) == 0 {
     let options: EventBus.modalConfig = {
       title: "Upload Failed",
@@ -21,11 +26,11 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
         {
           label: "Close",
           class_: "btn-secondary",
-          onClick: () => AppStateBridge.dispatch(DispatchAppFsmEvent(CloseSummary)),
+          onClick: () => dispatch(DispatchAppFsmEvent(CloseSummary)),
           autoClose: Some(true),
         },
       ],
-      onClose: Some(() => AppStateBridge.dispatch(DispatchAppFsmEvent(CloseSummary))),
+      onClose: Some(() => dispatch(DispatchAppFsmEvent(CloseSummary))),
       allowClose: Some(true),
       className: None,
     }
@@ -140,7 +145,7 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
       label: "Download Data Report",
       class_: "bg-slate-100/10 text-white hover:bg-white/20",
       onClick: () => {
-        let state = AppStateBridge.getState()
+        let state = getState()
         switch state.exifReport {
         | Some(reportJson) =>
           switch JsonCombinators.Json.decode(reportJson, JsonCombinators.Json.Decode.string) {
@@ -169,10 +174,10 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
       label: "Start Building",
       class_: "bg-blue-500/20 text-white hover:bg-blue-500/40",
       onClick: () => {
-        let state = AppStateBridge.getState()
-        AppStateBridge.dispatch(DispatchAppFsmEvent(CloseSummary))
+        let state = getState()
+        dispatch(DispatchAppFsmEvent(CloseSummary))
         if state.activeIndex == -1 && Array.length(state.scenes) > 0 {
-          AppStateBridge.dispatch(Actions.SetActiveScene(0, 0.0, 0.0, None))
+          dispatch(Actions.SetActiveScene(0, 0.0, 0.0, None))
         }
       },
       autoClose: Some(true),
@@ -184,7 +189,7 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
       icon: None,
       content: Some(content),
       buttons: [btnDownload, btnStart],
-      onClose: Some(() => AppStateBridge.dispatch(DispatchAppFsmEvent(CloseSummary))),
+      onClose: Some(() => dispatch(DispatchAppFsmEvent(CloseSummary))),
       allowClose: Some(true),
       className: Some("modal-blue"),
     }
@@ -192,7 +197,7 @@ let show = (report: uploadReport, qualityResults: array<qualityItem>) => {
   }
 }
 
-let showFromProjectData = (projectDataJson: JSON.t) => {
+let showFromProjectData = (projectDataJson: JSON.t, ~getState, ~dispatch) => {
   let project = switch JsonCombinators.Json.decode(projectDataJson, JsonParsers.Domain.project) {
   | Ok(p) => p
   | Error(e) => {
@@ -229,5 +234,5 @@ let showFromProjectData = (projectDataJson: JSON.t) => {
     }
     {quality: q, newName: s.name}
   })
-  show({success: successNames, skipped: []}, qualityResults)
+  show({success: successNames, skipped: []}, qualityResults, ~getState, ~dispatch)
 }

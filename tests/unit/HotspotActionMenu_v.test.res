@@ -117,7 +117,7 @@ describe("HotspotActionMenu", () => {
     }
     let lastAction = ref(None)
     let mockDispatch = action => lastAction := Some(action)
-    GlobalStateBridge.setDispatch(mockDispatch)
+    AppStateBridge.registerDispatch(mockDispatch)
 
     let hotspot: hotspot = {
       ...defaultHotspot,
@@ -192,7 +192,7 @@ describe("HotspotActionMenu", () => {
     }
     let lastAction = ref(None)
     let mockDispatch = action => lastAction := Some(action)
-    GlobalStateBridge.setDispatch(mockDispatch)
+    AppStateBridge.registerDispatch(mockDispatch)
 
     let hotspot: hotspot = {
       ...defaultHotspot,

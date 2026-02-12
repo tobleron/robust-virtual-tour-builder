@@ -98,7 +98,13 @@ module Playback = {
     await loop()
   }
 
-  let prepareFirstScene = async (step: Pathfinder.step, style, config: State.teaserConfig) => {
+  let prepareFirstScene = async (
+    step: Pathfinder.step,
+    style,
+    config: State.teaserConfig,
+    ~getState: unit => Types.state,
+    ~dispatch: Actions.action => unit,
+  ) => {
     let (iy, ip) = if style == "punchy" || style == "cinematic" {
       (step.arrivalView.yaw, step.arrivalView.pitch)
     } else {
@@ -106,10 +112,10 @@ module Playback = {
       ->Option.map(t => (t.yaw -. config.cameraPanOffset, t.pitch))
       ->Option.getOr((0.0, 0.0))
     }
-    let scenes = AppStateBridge.getState().scenes
+    let scenes = getState().scenes
     switch Belt.Array.get(scenes, step.idx) {
     | Some(scene) =>
-      AppStateBridge.dispatch(SetActiveScene(step.idx, iy, ip, None))
+      dispatch(Actions.SetActiveScene(step.idx, iy, ip, None))
       await wait(500)
       let _ = await waitForViewerReady(scene.id)
       ViewerSystem.getActiveViewer()
@@ -140,6 +146,8 @@ module Playback = {
     nextStep: Pathfinder.step,
     style,
     config: State.teaserConfig,
+    ~getState: unit => Types.state,
+    ~dispatch: Actions.action => unit,
   ) => {
     let internalState = Recorder.internalState
     internalState.contents.ghostCanvas->Option.forEach(g =>
@@ -155,10 +163,10 @@ module Playback = {
       ->Option.map(t => (t.yaw -. config.cameraPanOffset, t.pitch))
       ->Option.getOr((nextStep.arrivalView.yaw, nextStep.arrivalView.pitch))
     }
-    let scenes = AppStateBridge.getState().scenes
+    let scenes = getState().scenes
     switch Belt.Array.get(scenes, nextStep.idx) {
     | Some(scene) =>
-      AppStateBridge.dispatch(SetActiveScene(nextStep.idx, ny, np, None))
+      dispatch(Actions.SetActiveScene(nextStep.idx, ny, np, None))
       await wait(500)
       let _ = await waitForViewerReady(scene.id)
       ViewerSystem.getActiveViewer()
@@ -213,16 +221,20 @@ module Manager = {
     }
   }
 
-  let startCinematicTeaser = async (includeLogo, format, skipAutoForward) => {
+  let startCinematicTeaser = async (
+    includeLogo,
+    format,
+    skipAutoForward,
+    ~getState: unit => Types.state,
+    ~dispatch: Actions.action => unit,
+  ) => {
     let logoState = await Recorder.loadLogo()
     Recorder.startAnimationLoop(includeLogo, logoState)
     if Recorder.startRecording() {
-      AppStateBridge.dispatch(
-        StartAutoPilot(AppStateBridge.getState().navigationState.currentJourneyId, skipAutoForward),
-      )
+      dispatch(Actions.StartAutoPilot(getState().navigationState.currentJourneyId, skipAutoForward))
       let rec check = async () => {
         await wait(1000)
-        if AppStateBridge.getState().simulation.status == Running {
+        if getState().simulation.status == Running {
           await check()
         }
       }
@@ -230,23 +242,26 @@ module Manager = {
       await wait(500)
       Recorder.stopRecording()
       let safeName =
-        String.replaceRegExp(
-          AppStateBridge.getState().tourName,
-          /[^a-z0-9]/gi,
-          "_",
-        )->String.toLowerCase
+        String.replaceRegExp(getState().tourName, /[^a-z0-9]/gi, "_")->String.toLowerCase
       await finalizeTeaser(format, "Teaser_Cinematic_" ++ safeName)
     }
   }
 
-  let startAutoTeaser = async (style, includeLogo, format, skipAutoForward) => {
-    let state = AppStateBridge.getState()
+  let startAutoTeaser = async (
+    style,
+    includeLogo,
+    format,
+    skipAutoForward,
+    ~getState: unit => Types.state,
+    ~dispatch: Actions.action => unit,
+  ) => {
+    let state = getState()
     if state.isLinking {
       Logger.warn(~module_="TeaserLogic", ~message="TEASER_BLOCKED_BY_LINKING", ())
     } else if Array.length(state.scenes) == 0 {
       ()
     } else if style == "cinematic" && format == "mp4" {
-      AppStateBridge.dispatch(SetIsTeasing(true))
+      dispatch(Actions.SetIsTeasing(true))
       ProgressBar.updateProgressBar(
         0.0,
         "Server Generating...",
@@ -268,7 +283,7 @@ module Manager = {
           },
         ),
       )->Promise.then(res => {
-        AppStateBridge.dispatch(SetIsTeasing(false))
+        dispatch(Actions.SetIsTeasing(false))
         ProgressBar.updateProgressBar(0.0, "", ~visible=false, ~title="", ())
         switch res {
         | Ok(blob) =>
@@ -300,7 +315,13 @@ module Manager = {
         Recorder.startAnimationLoop(includeLogo, logoState)
         if Recorder.startRecording() {
           try {
-            await Playback.prepareFirstScene(steps[0]->Option.getOrThrow, style, config)
+            await Playback.prepareFirstScene(
+              steps[0]->Option.getOrThrow,
+              style,
+              config,
+              ~getState,
+              ~dispatch,
+            )
             for i in 0 to Array.length(steps) - 1 {
               await Playback.recordShot(i, steps[i]->Option.getOrThrow, style, config)
               if i < Array.length(steps) - 1 {
@@ -309,17 +330,15 @@ module Manager = {
                   steps[i + 1]->Option.getOrThrow,
                   style,
                   config,
+                  ~getState,
+                  ~dispatch,
                 )
               }
             }
             Recorder.stopRecording()
             await wait(500)
             let safeName =
-              String.replaceRegExp(
-                AppStateBridge.getState().tourName,
-                /[^a-z0-9]/gi,
-                "_",
-              )->String.toLowerCase
+              String.replaceRegExp(getState().tourName, /[^a-z0-9]/gi, "_")->String.toLowerCase
             await finalizeTeaser(format, "Teaser_" ++ style ++ "_" ++ safeName)
           } catch {
           | _ => Recorder.stopRecording()

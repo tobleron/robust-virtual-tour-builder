@@ -5,7 +5,7 @@ open Actions
 
 describe("Scene.Switcher", () => {
   beforeEach(() => {
-    GlobalStateBridge.setState(State.initialState)
+    AppStateBridge.updateState(State.initialState)
     // Mock Viewer
     let _ = %raw(`
       (function(){

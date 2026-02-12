@@ -13,11 +13,16 @@ type status =
   | Swapping(taskId, string) // (taskId, sceneId)
   | Stabilizing(taskId, string) // (taskId, sceneId)
 
-type task = {
+type runToken = {
   id: taskId,
+  epoch: int,
+  signal: BrowserBindings.AbortSignal.t,
+}
+
+type task = {
+  token: runToken,
   targetSceneId: string,
-  signal: BrowserBindings.AbortSignal.t, // AbortSignal for cancellation
-  abort: unit => unit, // Calls AbortController.abort()
+  abort: unit => unit,
   startedAt: float,
 }
 
@@ -78,10 +83,31 @@ let getRunId = (): int => {
   runId.contents
 }
 
-let isCurrentTask = (taskId: taskId): bool => {
+let isCurrentToken = (token: runToken): bool => {
   switch currentTask.contents {
-  | Some(task) => task.id == taskId
+  | Some(task) => task.token.id == token.id && task.token.epoch == token.epoch
   | None => false
+  }
+}
+
+let isCurrentTaskId = (taskId: taskId): bool => {
+  switch currentTask.contents {
+  | Some(task) => task.token.id == taskId
+  | None => false
+  }
+}
+
+// Internal dispatch helper
+let dispatchRef: ref<option<Actions.action => unit>> = ref(None)
+
+let configure = (d: Actions.action => unit) => {
+  dispatchRef := Some(d)
+}
+
+let dispatchInternal = (action: Actions.action) => {
+  switch dispatchRef.contents {
+  | Some(d) => d(action)
+  | None => AppStateBridge.dispatch(action)
   }
 }
 
@@ -103,7 +129,7 @@ let requestNavigation = (targetSceneId: string): unit => {
       ~module_="NavigationSupervisor",
       ~message="PREVIOUS_TASK_CANCELLED",
       ~data=Some({
-        "previousTaskId": task.id,
+        "previousTaskId": task.token.id,
         "previousSceneId": task.targetSceneId,
         "newSceneId": targetSceneId,
       }),
@@ -118,10 +144,14 @@ let requestNavigation = (targetSceneId: string): unit => {
   taskCounter := taskCounter.contents + 1
   runId := runId.contents + 1
   let taskId = `task_${Date.now()->Float.toString}_${taskCounter.contents->Belt.Int.toString}`
-  let task = {
+  let token = {
     id: taskId,
-    targetSceneId,
+    epoch: runId.contents,
     signal: abortSignal,
+  }
+  let task = {
+    token,
+    targetSceneId,
     abort: () => {
       BrowserBindings.AbortController.abort(controller)
     },
@@ -143,33 +173,32 @@ let requestNavigation = (targetSceneId: string): unit => {
   )
 
   // Dispatch FSM event to update UI state (LockFeedback, ViewerHUD, etc.)
-  AppStateBridge.dispatch(
+  dispatchInternal(
     Actions.DispatchNavigationFsmEvent(UserClickedScene({targetSceneId: targetSceneId})),
   )
 }
 
 let transitionTo = (taskId: taskId, newStatus: status): unit => {
   // Only process if taskId matches current task (stale-task guard)
-  let shouldProcess = switch currentTask.contents {
-  | Some(task) => task.id == taskId
-  | None => false
-  }
+  if isCurrentTaskId(taskId) {
+    if status.contents == newStatus {
+      ()
+    } else {
+      let prevStatus = status.contents
+      status := newStatus
+      notifyListeners()
 
-  if shouldProcess {
-    let prevStatus = status.contents
-    status := newStatus
-    notifyListeners()
-
-    Logger.info(
-      ~module_="NavigationSupervisor",
-      ~message="STATUS_TRANSITION",
-      ~data=Some({
-        "taskId": taskId,
-        "from": statusToString(prevStatus),
-        "to": statusToString(newStatus),
-      }),
-      (),
-    )
+      Logger.info(
+        ~module_="NavigationSupervisor",
+        ~message="STATUS_TRANSITION",
+        ~data=Some({
+          "taskId": taskId,
+          "from": statusToString(prevStatus),
+          "to": statusToString(newStatus),
+        }),
+        (),
+      )
+    }
   } else {
     Logger.debug(
       ~module_="NavigationSupervisor",
@@ -177,7 +206,7 @@ let transitionTo = (taskId: taskId, newStatus: status): unit => {
       ~data=Some({
         "staleTaskId": taskId,
         "currentTaskId": switch currentTask.contents {
-        | Some(t) => t.id
+        | Some(t) => t.token.id
         | None => "none"
         },
       }),
@@ -188,12 +217,7 @@ let transitionTo = (taskId: taskId, newStatus: status): unit => {
 
 let complete = (taskId: taskId): unit => {
   // Only process if taskId matches current task
-  let shouldComplete = switch currentTask.contents {
-  | Some(task) => task.id == taskId
-  | None => false
-  }
-
-  if shouldComplete {
+  if isCurrentTaskId(taskId) {
     currentTask := None
     status := Idle
     notifyListeners()
@@ -220,12 +244,7 @@ let complete = (taskId: taskId): unit => {
 
 let abort = (taskId: taskId): unit => {
   // Only process if taskId matches current task
-  let shouldAbort = switch currentTask.contents {
-  | Some(task) => task.id == taskId
-  | None => false
-  }
-
-  if shouldAbort {
+  if isCurrentTaskId(taskId) {
     currentTask := None
     status := Idle
     notifyListeners()
@@ -240,7 +259,7 @@ let abort = (taskId: taskId): unit => {
     )
 
     // Dispatch FSM abort event to update UI state
-    AppStateBridge.dispatch(Actions.DispatchNavigationFsmEvent(Aborted))
+    dispatchInternal(Actions.DispatchNavigationFsmEvent(Aborted))
   } else {
     Logger.debug(
       ~module_="NavigationSupervisor",

@@ -47,7 +47,7 @@ describe("Simulation.PathGenerator", () => {
   }
 
   beforeEach(() => {
-    GlobalStateBridge.setState(State.initialState)
+    AppStateBridge.updateState(State.initialState)
   })
 
   test("getSimulationPath: handles empty state correctly", t => {
@@ -62,7 +62,7 @@ describe("Simulation.PathGenerator", () => {
     }
     let scene1 = createScene("1", "scene1", false)
 
-    GlobalStateBridge.setState({
+    AppStateBridge.updateState({
       ...State.initialState,
       scenes: [scene0, scene1],
     })
@@ -94,7 +94,7 @@ describe("Simulation.PathGenerator", () => {
     let scene0 = {...createScene("0", "scene0", false), hotspots: [hotspot]}
     let scene1 = createScene("1", "scene1", false)
 
-    GlobalStateBridge.setState({
+    AppStateBridge.updateState({
       ...State.initialState,
       scenes: [scene0, scene1],
     })
@@ -115,7 +115,7 @@ describe("Simulation.PathGenerator", () => {
     }
     let scene2 = createScene("2", "scene2", false)
 
-    GlobalStateBridge.setState({
+    AppStateBridge.updateState({
       ...State.initialState,
       scenes: [scene0, scene1_auto, scene2],
     })
@@ -142,7 +142,7 @@ describe("Simulation.PathGenerator", () => {
       hotspots: [createHotspot("scene0", ())],
     }
 
-    GlobalStateBridge.setState({
+    AppStateBridge.updateState({
       ...State.initialState,
       scenes: [scene0, scene1],
     })

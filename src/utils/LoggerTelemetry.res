@@ -27,6 +27,8 @@ let encodeLogEntry = (entry: logEntry) => {
     ("data", option(id)(entry.data)),
     ("priority", string(entry.priority)),
     ("requestId", option(string)(entry.requestId)),
+    ("operationId", option(string)(entry.operationId)),
+    ("sessionId", option(string)(entry.sessionId)),
   ])
 }
 

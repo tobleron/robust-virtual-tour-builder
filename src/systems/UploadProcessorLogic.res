@@ -136,8 +136,8 @@ let createScenePayload = (items: array<UploadTypes.uploadItem>) => {
 let handleExifReport = (
   processedWithClusters: array<UploadTypes.uploadItem>,
   skippedCount: int,
-  ~getState: unit => Types.state=AppContext.getBridgeState,
-  ~dispatch: Actions.action => unit=AppContext.getBridgeDispatch(),
+  ~getState: unit => Types.state,
+  ~dispatch: Actions.action => unit,
 ) => {
   let reportData = Belt.Array.map(processedWithClusters, i => {
     let item: ExifReportGenerator.sceneDataItem = {
@@ -172,8 +172,8 @@ let finalizeUploads = (
   startTime: float,
   updateProgress: (float, string, bool, string) => unit,
   skippedCount: int,
-  ~getState: unit => Types.state=AppContext.getBridgeState,
-  ~dispatch: Actions.action => unit=AppContext.getBridgeDispatch(),
+  ~getState: unit => Types.state,
+  ~dispatch: Actions.action => unit,
 ) => {
   // NOTE: Scenes are now added incrementally during processing.
   // We just need to cluster (maybe re-cluster?) and generate report.
@@ -284,8 +284,8 @@ let executeProcessingChain = (
   updateProgress: (float, string, bool, string) => unit,
   skippedCount: int,
   journalId: string,
-  ~getState: unit => Types.state=AppContext.getBridgeState,
-  ~dispatch: Actions.action => unit=AppContext.getBridgeDispatch(),
+  ~getState: unit => Types.state,
+  ~dispatch: Actions.action => unit,
 ) => {
   Logger.info(~module_="UploadLogic", ~message="EXECUTE_PROCESSING_CHAIN_START", ())
   updateProgress(20.0, "Processing images...", true, "Processing")
@@ -393,8 +393,8 @@ let handleFingerprinting = (
   startTime: float,
   updateProgress: (float, string, bool, string) => unit,
   journalId: string,
-  ~getState: unit => Types.state=AppContext.getBridgeState,
-  ~dispatch: Actions.action => unit=AppContext.getBridgeDispatch(),
+  ~getState: unit => Types.state,
+  ~dispatch: Actions.action => unit,
 ) => {
   Logger.info(~module_="UploadLogic", ~message="START_FINGERPRINTING", ())
   updateProgress(0.0, "Scanning files...", true, "Fingerprinting")

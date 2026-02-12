@@ -64,7 +64,7 @@ external mockHandleStagePointerDown: mockFn = "handleStagePointerDown"
 `)
 
 %%raw(`
-  vi.mock('../../src/core/GlobalStateBridge.bs.js', () => {
+  vi.mock('../../src/core/AppStateBridge.bs.js', () => {
     let localState = {
        isLinking: false,
        simulation: { status: 'Idle' },
@@ -81,16 +81,16 @@ external mockHandleStagePointerDown: mockFn = "handleStagePointerDown"
     return {
       getState: vi.fn(() => localState),
       dispatch: vi.fn((action) => localDispatch(action)),
-      setDispatch: vi.fn((fn) => { localDispatch = fn; }),
-      setState: vi.fn((s) => { localState = s; }),
+      registerDispatch: vi.fn((fn) => { localDispatch = fn; }),
+      updateState: vi.fn((s) => { localState = s; }),
     }
   })
 `)
 
-@module("../../src/core/GlobalStateBridge.bs.js") external mockGetState: mockFn = "getState"
-@module("../../src/core/GlobalStateBridge.bs.js") external mockGlobalDispatch: mockFn = "dispatch"
-@module("../../src/core/GlobalStateBridge.bs.js") external mockSetDispatch: mockFn = "setDispatch"
-@module("../../src/core/GlobalStateBridge.bs.js") external mockSetState: mockFn = "setState"
+@module("../../src/core/AppStateBridge.bs.js") external mockGetState: mockFn = "getState"
+@module("../../src/core/AppStateBridge.bs.js") external mockGlobalDispatch: mockFn = "dispatch"
+@module("../../src/core/AppStateBridge.bs.js") external mockSetDispatch: mockFn = "registerDispatch"
+@module("../../src/core/AppStateBridge.bs.js") external mockSetState: mockFn = "updateState"
 
 %%raw(`
   vi.mock('../../src/systems/HotspotLine.bs.js', () => ({
@@ -229,8 +229,8 @@ describe("ViewerManager", () => {
       activeIndex: -1,
     }
     let mockDispatch = %raw(`vi.fn()`)
-    GlobalStateBridge.setDispatch(mockDispatch)
-    GlobalStateBridge.setState(mockState)
+    AppStateBridge.registerDispatch(mockDispatch)
+    AppStateBridge.updateState(mockState)
 
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(
@@ -269,8 +269,8 @@ describe("ViewerManager", () => {
       isLinking: true,
     }
     let mockDispatch = %raw(`vi.fn()`)
-    GlobalStateBridge.setDispatch(mockDispatch)
-    GlobalStateBridge.setState(mockState)
+    AppStateBridge.registerDispatch(mockDispatch)
+    AppStateBridge.updateState(mockState)
 
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(
@@ -296,8 +296,8 @@ describe("ViewerManager", () => {
 
     let mockState = State.initialState
     let _mockDispatch = %raw(`vi.fn()`)
-    GlobalStateBridge.setDispatch(_mockDispatch)
-    GlobalStateBridge.setState(mockState)
+    AppStateBridge.registerDispatch(_mockDispatch)
+    AppStateBridge.updateState(mockState)
 
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(
@@ -326,7 +326,7 @@ describe("ViewerManager", () => {
   testAsync("should handle stage click during linking", async _t => {
     let scene1 = makeMockScene(~id="scene-1", ~name="Scene 1", ())
 
-    // Mock GlobalStateBridge.getState to return isLinking: true
+    // Mock AppStateBridge.getState to return isLinking: true
     mockGetState->mockReturnValue({
       "isLinking": true,
       "simulation": {"status": "Idle"},
@@ -355,8 +355,8 @@ describe("ViewerManager", () => {
       scenes: [scene1],
     }
     let mockDispatch = %raw(`vi.fn()`)
-    GlobalStateBridge.setDispatch(mockDispatch)
-    GlobalStateBridge.setState(mockState)
+    AppStateBridge.registerDispatch(mockDispatch)
+    AppStateBridge.updateState(mockState)
 
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(
@@ -395,8 +395,8 @@ describe("ViewerManager", () => {
       scenes: [scene1],
     }
     let mockDispatch = %raw(`vi.fn()`)
-    GlobalStateBridge.setDispatch(mockDispatch)
-    GlobalStateBridge.setState(mockState)
+    AppStateBridge.registerDispatch(mockDispatch)
+    AppStateBridge.updateState(mockState)
 
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(
@@ -425,8 +425,8 @@ describe("ViewerManager", () => {
       simulation: {...State.initialState.simulation, status: Running},
     }
     let mockDispatch = %raw(`vi.fn()`)
-    GlobalStateBridge.setDispatch(mockDispatch)
-    GlobalStateBridge.setState(mockState)
+    AppStateBridge.registerDispatch(mockDispatch)
+    AppStateBridge.updateState(mockState)
 
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(
@@ -457,8 +457,8 @@ describe("ViewerManager", () => {
       scenes: [makeMockScene(~id="s1", ~name="S1", ()), makeMockScene(~id="s2", ~name="S2", ())],
     }
     let mockDispatch = %raw(`vi.fn()`)
-    GlobalStateBridge.setDispatch(mockDispatch)
-    GlobalStateBridge.setState(mockState)
+    AppStateBridge.registerDispatch(mockDispatch)
+    AppStateBridge.updateState(mockState)
 
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(

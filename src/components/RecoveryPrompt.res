@@ -5,6 +5,7 @@ let make = (~entries: array<OperationJournal.journalEntry>) => {
     <div className="flex flex-col gap-2 max-h-60 overflow-y-auto">
       {entries
       ->Belt.Array.map(entry => {
+        let resumable = RecoveryManager.canRetry(entry)
         let statusStr = switch entry.status {
         | Pending => "Pending"
         | InProgress => "In Progress"
@@ -24,6 +25,11 @@ let make = (~entries: array<OperationJournal.journalEntry>) => {
             <span className="text-xs text-red-600"> {React.string(dateStr)} </span>
           </div>
           <div className="text-xs text-red-700"> {React.string("Status: " ++ statusStr)} </div>
+          <div className="text-xs text-slate-600">
+            {React.string(
+              resumable ? "Recovery: available" : "Recovery: unavailable (dismiss only)",
+            )}
+          </div>
           <div className="text-xs font-mono bg-white/50 p-1 mt-1 rounded text-slate-600 break-all">
             {React.string(JsonCombinators.Json.stringify(entry.context))}
           </div>
@@ -33,7 +39,7 @@ let make = (~entries: array<OperationJournal.journalEntry>) => {
     </div>
     <p className="text-xs text-slate-500 mt-2">
       {React.string(
-        "You can attempt to retry these operations, or dismiss this message to clear the journal.",
+        "Retry is only offered for entries with registered recovery handlers. Others can be dismissed.",
       )}
     </p>
   </div>

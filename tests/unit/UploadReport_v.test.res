@@ -56,7 +56,12 @@ describe("UploadReport", () => {
       },
     )
 
-    UploadReport.show(report, qualityResults)
+    UploadReport.show(
+      report,
+      qualityResults,
+      ~getState=AppStateBridge.getState,
+      ~dispatch=AppStateBridge.dispatch,
+    )
     unsubscribe()
 
     switch receivedConfig.contents {
@@ -88,7 +93,12 @@ describe("UploadReport", () => {
       },
     )
 
-    UploadReport.show(report, qualityResults)
+    UploadReport.show(
+      report,
+      qualityResults,
+      ~getState=AppStateBridge.getState,
+      ~dispatch=AppStateBridge.dispatch,
+    )
     unsubscribe()
 
     switch receivedConfig.contents {
@@ -114,7 +124,12 @@ describe("UploadReport", () => {
       },
     )
 
-    UploadReport.show(report, qualityResults)
+    UploadReport.show(
+      report,
+      qualityResults,
+      ~getState=AppStateBridge.getState,
+      ~dispatch=AppStateBridge.dispatch,
+    )
     unsubscribe()
 
     switch receivedConfig.contents {
@@ -144,7 +159,12 @@ describe("UploadReport", () => {
       },
     )
 
-    UploadReport.show(report, qualityResults)
+    UploadReport.show(
+      report,
+      qualityResults,
+      ~getState=AppStateBridge.getState,
+      ~dispatch=AppStateBridge.dispatch,
+    )
 
     switch receivedConfig.contents {
     | Some(config) =>
@@ -206,7 +226,11 @@ describe("UploadReport", () => {
       },
     )
 
-    UploadReport.showFromProjectData(projectJson)
+    UploadReport.showFromProjectData(
+      projectJson,
+      ~getState=AppStateBridge.getState,
+      ~dispatch=AppStateBridge.dispatch,
+    )
 
     t->expect(receivedConfig.contents !== None)->Expect.toBe(true)
   })
@@ -228,7 +252,12 @@ describe("UploadReport", () => {
       },
     )
 
-    UploadReport.show(report, qualityResults)
+    UploadReport.show(
+      report,
+      qualityResults,
+      ~getState=AppStateBridge.getState,
+      ~dispatch=AppStateBridge.dispatch,
+    )
 
     switch receivedConfig.contents {
     | Some(config) =>

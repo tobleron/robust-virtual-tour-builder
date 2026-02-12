@@ -1,6 +1,5 @@
 /* src/systems/Api/AuthenticatedClient.res */
 open ReBindings
-open Types
 
 type response = {
   status: int,
@@ -17,26 +16,67 @@ let fetchText = (res: response) => res.text()
 let fetchBlob = (res: response) => res.blob()
 
 external castBody: 'a => JSON.t = "%identity"
+let toUpper: string => string = %raw("(s) => String(s || '').toUpperCase()")
 
 let circuitBreaker = CircuitBreaker.make()
 
-let lastNotificationTime = ref(0.0)
-let throttledNotification = (message, importance) => {
-  let now = Date.now()
-  if now -. lastNotificationTime.contents > 5000.0 {
-    lastNotificationTime := now
-    NotificationManager.dispatch({
-      id: "cb-status-notification",
-      importance,
-      context: Operation("api"),
-      message,
-      details: None,
-      action: None,
-      duration: 5000,
-      dismissible: true,
-      createdAt: now,
-    })
+module TimeoutPolicy = {
+  let getTimeoutMs = (method: string): int => {
+    switch toUpper(method) {
+    | "GET"
+    | "HEAD" => 10000
+    | "DELETE" => 15000
+    | "POST"
+    | "PUT"
+    | "PATCH" => 25000
+    | _ => 15000
+    }
   }
+}
+
+type requestSignalScope = {
+  signal: ReBindings.AbortSignal.t,
+  cleanup: unit => unit,
+  wasTimedOut: unit => bool,
+}
+
+let prepareRequestSignal = (
+  ~parentSignal: option<ReBindings.AbortSignal.t>,
+  ~timeoutMs: int,
+): requestSignalScope => {
+  let controller = ReBindings.AbortController.make()
+  let requestSignal = ReBindings.AbortController.signal(controller)
+  let timedOut = ref(false)
+  let cleaned = ref(false)
+
+  let timeoutId = ReBindings.Window.setTimeout(() => {
+    timedOut := true
+    ReBindings.AbortController.abort(controller)
+  }, timeoutMs)
+
+  let detachParentAbort = ref(None)
+  switch parentSignal {
+  | Some(s) =>
+    if ReBindings.AbortSignal.aborted(s) {
+      ReBindings.AbortController.abort(controller)
+    } else {
+      let onAbort = () => ReBindings.AbortController.abort(controller)
+      s->ReBindings.AbortSignal.addEventListener("abort", onAbort)
+      detachParentAbort :=
+        Some(() => s->ReBindings.AbortSignal.removeEventListener("abort", onAbort))
+    }
+  | None => ()
+  }
+
+  let cleanup = () => {
+    if !cleaned.contents {
+      cleaned := true
+      ReBindings.Window.clearTimeout(timeoutId)
+      detachParentAbort.contents->Option.forEach(fn => fn())
+    }
+  }
+
+  {signal: requestSignal, cleanup, wasTimedOut: () => timedOut.contents}
 }
 
 let prepareRequestBody = (body: option<JSON.t>, headers: Dict.t<string>): option<string> => {
@@ -57,14 +97,16 @@ let request = async (
   ~formData: option<FormData.t>=?,
   ~headers=Dict.make(),
   ~signal: option<ReBindings.AbortSignal.t>=?,
+  ~requestId: option<string>=?,
   (),
 ) => {
-  let sessionId = switch AppStateBridge.getState().sessionId {
+  let sessionId = switch Logger.getSessionId() {
   | Some(id) => id
   | None => "anonymous"
   }
 
   Dict.set(headers, "X-Session-ID", sessionId)
+  Logger.getOperationId()->Option.forEach(opId => Dict.set(headers, "X-Operation-ID", opId))
 
   // Inject Authorization header if not already present
   if Dict.get(headers, "Authorization") == None {
@@ -93,12 +135,20 @@ let request = async (
     Error("Circuit breaker is open")
   } else {
     // Inject Request ID for distributed tracing
-    let requestId = try {
-      Crypto.randomUUID()
-    } catch {
-    | _ => "req_" ++ Float.toString(Date.now())
+    let finalRequestId = switch requestId {
+    | Some(id) => id
+    | None =>
+      try {
+        Crypto.randomUUID()
+      } catch {
+      | _ => "req_" ++ Float.toString(Date.now())
+      }
     }
-    Dict.set(headers, "X-Request-ID", requestId)
+    Dict.set(headers, "X-Request-ID", finalRequestId)
+    Logger.setOperationId(Some(finalRequestId)) // Link telemetry to this request as well
+
+    let timeoutMs = TimeoutPolicy.getTimeoutMs(method)
+    let signalScope = prepareRequestSignal(~parentSignal=signal, ~timeoutMs)
 
     let bodyVal = switch (body, formData) {
     | (Some(b), Some(f)) =>
@@ -116,12 +166,13 @@ let request = async (
       "method": method,
       "headers": headers,
       "body": bodyVal,
-      "signal": signal,
+      "signal": Some(signalScope.signal),
     }
 
     try {
       let res = await fetch(url, options)
       if res.status >= 400 {
+        signalScope.cleanup()
         CircuitBreaker.recordFailure(circuitBreaker)
         let currentState = CircuitBreaker.getState(circuitBreaker)
 
@@ -139,18 +190,18 @@ let request = async (
             dismissible: true,
             createdAt: Date.now(),
           })
-        } else if lastState === CircuitBreaker.Closed && currentState === CircuitBreaker.Closed {
-          throttledNotification("Connection issues detected. Retrying automatically...", Error)
         }
 
         let errorText = await res.text()
         Error(`HttpError: Status ${Belt.Int.toString(res.status)} - ${errorText}`)
       } else {
+        signalScope.cleanup()
         CircuitBreaker.recordSuccess(circuitBreaker)
         Ok(res)
       }
     } catch {
     | e =>
+      signalScope.cleanup()
       let errObj: {..} = Obj.magic(e)
       let name: string = try {errObj["name"]} catch {
       | _ => "Unknown"
@@ -160,7 +211,11 @@ let request = async (
       }
 
       if name == "AbortError" || name == "Abort" {
-        Error("AbortError")
+        if signalScope.wasTimedOut() {
+          Error("TimeoutError: Request timed out after " ++ Belt.Int.toString(timeoutMs) ++ "ms")
+        } else {
+          Error("AbortError")
+        }
       } else {
         CircuitBreaker.recordFailure(circuitBreaker)
         Error(
@@ -191,15 +246,33 @@ let requestWithRetry = (
   } catch {
   | _ => "req_" ++ Float.toString(Date.now())
   }
+  let incidentNotificationId = "api-incident-" ++ requestId
+  let resolvedSignal = switch signal {
+  | Some(s) => s
+  | None => ReBindings.AbortController.signal(ReBindings.AbortController.make())
+  }
+  let defaultRetryConfig: Retry.config = {
+    maxRetries: 3,
+    initialDelayMs: 500,
+    maxDelayMs: 8000,
+    backoffMultiplier: 2.0,
+    jitter: true,
+  }
 
   Retry.execute(
     ~fn=(~signal) =>
-      request(url, ~method=method->Option.getOr("GET"), ~body?, ~formData?, ~headers, ~signal, ()),
-    ~signal=switch signal {
-    | Some(s) => s
-    | None => ReBindings.AbortController.signal(ReBindings.AbortController.make())
-    },
-    ~config=Option.getOr(retryConfig, {...Retry.defaultConfig, maxRetries: 3}),
+      request(
+        url,
+        ~method=method->Option.getOr("GET"),
+        ~body?,
+        ~formData?,
+        ~headers,
+        ~signal,
+        ~requestId,
+        (),
+      ),
+    ~signal=resolvedSignal,
+    ~config=Option.getOr(retryConfig, defaultRetryConfig),
     ~onRetry=(attempt, error, delay) => {
       Logger.warn(
         ~module_="AuthenticatedClient",
@@ -213,16 +286,52 @@ let requestWithRetry = (
       )
 
       NotificationManager.dispatch({
-        id: `retry-${requestId}-${Belt.Int.toString(attempt)}`,
+        id: incidentNotificationId,
         importance: Warning,
         context: Operation("api"),
-        message: `Retrying request... (attempt ${Belt.Int.toString(attempt)})`,
-        details: Some(`Next attempt in ${Float.toString(Float.fromInt(delay) /. 1000.0)}s`),
+        message: "Connection issue detected. Retrying request.",
+        details: Some(
+          `Attempt ${Belt.Int.toString(
+              attempt,
+            )} failed (${error}). Next attempt in ${Float.toString(
+              Float.fromInt(delay) /. 1000.0,
+            )}s`,
+        ),
         action: None,
         duration: 10000,
         dismissible: true,
         createdAt: Date.now(),
       })
     },
-  )
+  )->Promise.then(result => {
+    switch result {
+    | Retry.Success(_, attempts) if attempts > 1 =>
+      NotificationManager.dispatch({
+        id: incidentNotificationId,
+        importance: Success,
+        context: Operation("api"),
+        message: "Connection recovered.",
+        details: Some("Request succeeded after retries."),
+        action: None,
+        duration: 4000,
+        dismissible: true,
+        createdAt: Date.now(),
+      })
+    | Retry.Exhausted("AbortError") => NotificationManager.dismiss(incidentNotificationId)
+    | Retry.Exhausted(error) =>
+      NotificationManager.dispatch({
+        id: incidentNotificationId,
+        importance: Error,
+        context: Operation("api"),
+        message: "Request failed.",
+        details: Some(error),
+        action: None,
+        duration: NotificationTypes.defaultTimeoutMs(Error),
+        dismissible: true,
+        createdAt: Date.now(),
+      })
+    | _ => ()
+    }
+    Promise.resolve(result)
+  })
 }

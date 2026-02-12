@@ -24,9 +24,11 @@ let showLinkModal = (
   ~camHfov: float,
   ~pendingReturnSceneName: Nullable.t<string>=Nullable.null,
   ~linkDraft: Nullable.t<Types.linkDraft>=Nullable.null,
+  ~getState: unit => Types.state,
+  ~dispatch: Actions.action => unit,
   (),
 ) => {
-  let state = AppStateBridge.getState()
+  let state = getState()
 
   // Determine next sequential index for smart selection
   let nextIndex = state.activeIndex + 1
@@ -206,14 +208,14 @@ let showLinkModal = (
             transition: "fade",
             duration: 1000,
           })
-          AppStateBridge.dispatch(Actions.AddToTimeline(timelineItemJson))
+          dispatch(Actions.AddToTimeline(timelineItemJson))
 
           // Use setTimeout to ensure state updates properly after hotspot is added
           let _ = setTimeout(() => {
             Logger.info(
               ~module_="LinkModal",
               ~message="EXIT_SEQUENCE_START",
-              ~data=Some({"stateBeforeExit": AppStateBridge.getState().isLinking}),
+              ~data=Some({"stateBeforeExit": getState().isLinking}),
               (),
             )
 
@@ -227,11 +229,11 @@ let showLinkModal = (
             Logger.info(~module_="LinkModal", ~message="DRAFT_LINES_HIDDEN", ())
 
             // Step 3: Exit linking mode
-            AppStateBridge.dispatch(Actions.StopLinking)
+            dispatch(Actions.StopLinking)
             Logger.info(
               ~module_="LinkModal",
               ~message="STOP_LINKING_DISPATCHED",
-              ~data=Some({"stateAfterDispatch": AppStateBridge.getState().isLinking}),
+              ~data=Some({"stateAfterDispatch": getState().isLinking}),
               (),
             )
           }, 50)
@@ -253,7 +255,7 @@ let showLinkModal = (
           // Explicitly hide draft lines on modal close
           SvgManager.hide("link_draft_red")
           SvgManager.hide("link_draft_yellow")
-          AppStateBridge.dispatch(Actions.StopLinking)
+          dispatch(Actions.StopLinking)
         },
       ),
       className: Some("modal-blue"),

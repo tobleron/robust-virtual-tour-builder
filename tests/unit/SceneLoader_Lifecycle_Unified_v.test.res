@@ -32,12 +32,12 @@ describe("SceneLoader Lifecycle Unified", () => {
     mockState := State.initialState
     dispatchedActions := []
 
-    GlobalStateBridge.setDispatch(
+    AppStateBridge.registerDispatch(
       action => {
         let _ = Array.push(dispatchedActions.contents, action)
       },
     )
-    GlobalStateBridge.setState(mockState.contents)
+    AppStateBridge.updateState(mockState.contents)
 
     let _ = %raw(`
       (() => {
@@ -107,12 +107,12 @@ describe("SceneLoader Lifecycle Unified", () => {
     let s2 = TestUtils.createMockScene(~id="s2", ~name="Scene 2", ())
 
     let newState = {...State.initialState, scenes: [s1, s2], activeIndex: 0}
-    GlobalStateBridge.setState(newState)
+    AppStateBridge.updateState(newState)
 
     let pathRequest = Scene.Loader.toPathRequest(State.initialState)
     Scene.Loader.loadNewScene(
       ~state=pathRequest,
-      ~dispatch=GlobalStateBridge.dispatch,
+      ~dispatch=AppStateBridge.dispatch,
       ~targetSceneId="s2",
       ~isAnticipatory=false,
     )

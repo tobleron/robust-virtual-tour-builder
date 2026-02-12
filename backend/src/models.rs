@@ -404,6 +404,7 @@ pub enum TelemetryPriority {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct TelemetryEntry {
     pub level: String,
     pub module: String,
@@ -413,6 +414,10 @@ pub struct TelemetryEntry {
     pub priority: TelemetryPriority,
     #[serde(default)]
     pub request_id: Option<String>,
+    #[serde(default)]
+    pub operation_id: Option<String>,
+    #[serde(default)]
+    pub session_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

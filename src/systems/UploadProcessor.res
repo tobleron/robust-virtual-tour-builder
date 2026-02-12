@@ -10,6 +10,8 @@ open UploadTypes
 let processUploads = (
   files: array<UploadTypes.file>,
   progressCallback: option<(float, string, bool, string) => unit>,
+  ~getState: unit => Types.state,
+  ~dispatch: Actions.action => unit,
 ): Promise.t<UploadTypes.processResult> => {
   let updateProgress = (pct, msg, isProc, phase) => {
     switch progressCallback {
@@ -65,6 +67,8 @@ let processUploads = (
               startTime,
               updateProgress,
               journalId,
+              ~getState,
+              ~dispatch,
             )
             ->Promise.then(
               result => {

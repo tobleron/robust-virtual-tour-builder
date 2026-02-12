@@ -1,7 +1,7 @@
 open Vitest
 
 describe("ViewerFollow", () => {
-  let getState = () => GlobalStateBridge.getState()
+  let getState = () => AppStateBridge.getState()
   test("updateFollowLoop should stop if followLoopActive is false", t => {
     ViewerState.state := {...ViewerState.state.contents, followLoopActive: false}
 
@@ -25,7 +25,7 @@ describe("ViewerFollow", () => {
       isLinking: false,
       scenes: [],
     }
-    GlobalStateBridge.setState(mockState)
+    AppStateBridge.updateState(mockState)
 
     ViewerSystem.Follow.updateFollowLoop(~getState)
 
@@ -47,7 +47,7 @@ describe("ViewerFollow", () => {
       isLinking: true,
       scenes: [],
     }
-    GlobalStateBridge.setState(mockState)
+    AppStateBridge.updateState(mockState)
 
     // Mock Viewer
     let yawValue = ref(0.0)

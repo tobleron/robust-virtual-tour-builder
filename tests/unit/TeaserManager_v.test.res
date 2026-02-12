@@ -24,8 +24,8 @@ external mockStopRecording: mockFn = "stopRecording"
 @module("../../src/systems/TeaserRecorder.bs.js") external mockLoadLogo: mockFn = "loadLogo"
 @module("../../src/systems/TeaserRecorder.bs.js")
 external mockStartAnimationLoop: mockFn = "startAnimationLoop"
-@module("../../src/core/GlobalStateBridge.bs.js") external mockGetState: mockFn = "getState"
-@module("../../src/core/GlobalStateBridge.bs.js") external mockDispatch: mockFn = "dispatch"
+@module("../../src/core/AppStateBridge.bs.js") external mockGetState: mockFn = "getState"
+@module("../../src/core/AppStateBridge.bs.js") external mockDispatch: mockFn = "dispatch"
 @module("../../src/systems/ServerTeaser.bs.js")
 external mockGenerateServerTeaser: mockFn = "generateServerTeaser"
 
@@ -74,7 +74,7 @@ external mockGenerateServerTeaser: mockFn = "generateServerTeaser"
     };
   });
 
-  vi.mock('../../src/core/GlobalStateBridge.bs.js', () => ({
+  vi.mock('../../src/core/AppStateBridge.bs.js', () => ({
     getState: vi.fn(),
     dispatch: vi.fn(),
     SetIsTeasing: (v) => ({ type: 'SetIsTeasing', payload: v })
@@ -161,7 +161,14 @@ describe("TeaserManager", () => {
     let format = "webm"
     let skipAutoForward = false
 
-    await startAutoTeaser(style, includeLogo, format, skipAutoForward)
+    await startAutoTeaser(
+      style,
+      includeLogo,
+      format,
+      skipAutoForward,
+      ~getState=AppStateBridge.getState,
+      ~dispatch=AppStateBridge.dispatch,
+    )
 
     expectCall(mockGetWalkPath)->toHaveBeenCalledWith2(
       [makeMockScene(~id="scene1", ~name="S1", ()), makeMockScene(~id="scene2", ~name="S1", ())],
@@ -181,14 +188,21 @@ describe("TeaserManager", () => {
     let format = "mp4"
     let skipAutoForward = false
 
-    await startAutoTeaser(style, includeLogo, format, skipAutoForward)
+    await startAutoTeaser(
+      style,
+      includeLogo,
+      format,
+      skipAutoForward,
+      ~getState=AppStateBridge.getState,
+      ~dispatch=AppStateBridge.dispatch,
+    )
 
     // Verify ServerTeaser.generateServerTeaser called
     let calls = %raw(`mockGenerateServerTeaser.mock.calls`)
     t->expect(Array.length(calls))->Expect.toBe(1)
 
     // Verify SetIsTeasing dispatch
-    // We mocked GlobalStateBridge to verify dispatch
+    // We mocked AppStateBridge to verify dispatch
     // First arg of generateServerTeaser is state.
     // We should check if dispatch called with SetIsTeasing(true)
     // The mock for SetIsTeasing returns an object.
