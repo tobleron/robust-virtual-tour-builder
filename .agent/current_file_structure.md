@@ -16602,8 +16602,6 @@
 │   │       ├── D008_Fix_Violations_BACKEND.md
 │   │       ├── D009_Merge_Folders_FRONTEND.md
 │   │       ├── D010_Aggregate_Completed_Tasks.md
-│   │       ├── D012_Integrate_DataFlow_Modules.md
-│   │       ├── D013_Classify_Map_Entries.md
 │   │       └── D014_Surgical_Refactor_UTILS_FRONTEND.md
 │   └── postponed
 │       ├── 1243_Fix_Operation_Cancellation_Feedback.md
@@ -17006,4 +17004,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-734 directories, 16273 files
+734 directories, 16271 files
