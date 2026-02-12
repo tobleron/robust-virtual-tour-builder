@@ -98,11 +98,16 @@ pub fn init_logging() -> (
 /// Configure CORS for the application.
 pub fn cors() -> Cors {
     let mut cors = Cors::default()
-        .allowed_methods(vec!["GET", "POST", "DELETE"])
+        .allowed_methods(vec!["GET", "POST", "DELETE", "OPTIONS"])
         .allowed_headers(vec![
             actix_web::http::header::CONTENT_TYPE,
             actix_web::http::header::ACCEPT,
+            actix_web::http::header::AUTHORIZATION,
+            actix_web::http::header::HeaderName::from_static("x-session-id"),
+            actix_web::http::header::HeaderName::from_static("x-operation-id"),
+            actix_web::http::header::HeaderName::from_static("x-request-id"),
         ])
+        .supports_credentials()
         .max_age(3600);
 
     if is_production() {

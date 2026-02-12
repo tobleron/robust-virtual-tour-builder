@@ -23,7 +23,7 @@ module ControllerHooks = {
         let sourceSceneId = state.scenes->Belt.Array.get(state.activeIndex)->Option.map(s => s.id)
 
         Scene.Loader.loadNewScene(
-          ~state=Scene.Loader.toPathRequest(state),
+          ~state,
           ~dispatch,
           ~sourceSceneId?,
           ~targetSceneId,
@@ -83,11 +83,20 @@ module ControllerHooks = {
                 ~transition=state.transition,
               )
             | _ =>
-              Logger.debug(
+              // Failsafe: Perform swap even if no task exists (e.g., initial load or recovery)
+              // to prevent FSM from getting stuck in Stabilizing.
+              Logger.info(
                 ~module_="NavigationController",
-                ~message="STALE_STABILIZE_IGNORED",
+                ~message="STABILIZING_WITHOUT_TASK_FALLBACK",
                 ~data=Some({"targetSceneId": targetSceneId}),
                 (),
+              )
+              Scene.Transition.performSwap(
+                ts,
+                0.0,
+                ~getState,
+                ~dispatch,
+                ~transition=state.transition,
               )
             }
           | None =>
