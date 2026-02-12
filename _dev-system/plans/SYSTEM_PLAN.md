@@ -12,5 +12,5 @@
 ### Merge Folder: `../../src/components/VisualPipeline`
 - **Reason:** Read Tax high (Score 2.00). Projected Limit: 300 (Drag 3.30)
 - **Files:**
-  - `../../src/components/VisualPipeline/VisualPipelineComponent.res`
   - `../../src/components/VisualPipeline/VisualPipelineStyles.res`
+  - `../../src/components/VisualPipeline/VisualPipelineComponent.res`

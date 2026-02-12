@@ -1,7 +1,7 @@
 {
   "name": "robust-virtual-tour-builder",
   "version": "4.4.2",
-  "buildNumber": 10,
+  "buildNumber": 11,
   "description": "A high-performance, professional-grade virtual tour creation platform designed for real estate and immersive space documentation. This application combines a fluid web-based frontend with a powerful Rust-driven backend to deliver seamless panoramic processing and tour management.",
   "main": "index.js",
   "directories": {
@@ -14,8 +14,12 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:e2e": "playwright test",
+    "test:e2e:budgets": "PW_BUDGET_MODE=1 playwright test tests/e2e/perf-budgets.spec.ts --project=chromium-budget --workers=1",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headless": "playwright test",
+    "budget:bundle": "node scripts/check-bundle-budgets.mjs",
+    "budget:runtime": "node scripts/check-runtime-budgets.mjs",
+    "budget:ci": "npm run build && npm run budget:bundle && npm run test:e2e:budgets && npm run budget:runtime",
     "res:build": "rescript",
     "res:watch": "rescript watch",
     "res:clean": "rescript clean",
