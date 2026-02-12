@@ -66,6 +66,8 @@ let handleStageClick = (e: Dom.event) => {
               ~camYaw,
               ~camHfov=hfov,
               ~linkDraft=Nullable.make(initialDraft),
+              ~getState=getStateRef.contents,
+              ~dispatch=dispatchRef.contents(),
               (),
             )
           } else {
@@ -160,6 +162,8 @@ let handleEnter = (~getState: unit => state=getStateRef.contents) => {
         ~camYaw,
         ~camHfov,
         ~linkDraft=Nullable.make(d),
+        ~getState=getStateRef.contents,
+        ~dispatch=dispatchRef.contents(),
         (),
       )
     | _ =>

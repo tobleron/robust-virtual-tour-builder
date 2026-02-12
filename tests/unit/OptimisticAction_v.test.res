@@ -53,7 +53,7 @@ testAsync("OptimisticAction commits on success", async t => {
   StateSnapshot.clear()
 
   let initialState = makeInitialState()
-  GlobalStateBridge.setState(initialState)
+  AppStateBridge.updateState(initialState)
 
   let action = Actions.SetTourName("New Name")
 
@@ -72,14 +72,14 @@ testAsync("OptimisticAction rolls back on failure", async t => {
   StateSnapshot.clear()
 
   let initialState = makeInitialState()
-  GlobalStateBridge.setState(initialState)
+  AppStateBridge.updateState(initialState)
 
   let action = Actions.SetTourName("Optimistic Name")
 
   let rolledBackState = ref(None)
   let onRollback = s => {
     rolledBackState := Some(s)
-    GlobalStateBridge.setState(s)
+    AppStateBridge.updateState(s)
   }
 
   let result = await OptimisticAction.execute(~action, ~apiCall=MockApi.failure, ~onRollback)
@@ -94,7 +94,7 @@ testAsync("OptimisticAction rolls back on failure", async t => {
   | None => t->expect(false)->Expect.toBe(true)
   }
 
-  let current = GlobalStateBridge.getState()
+  let current = AppStateBridge.getState()
   t->expect(current.tourName)->Expect.toBe("Original Name")
 
   let latest = StateSnapshot.getLatest()

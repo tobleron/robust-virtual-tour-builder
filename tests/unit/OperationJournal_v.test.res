@@ -24,7 +24,7 @@ describe("OperationJournal", () => {
     t->expect(entry.status)->Expect.toBe(Interrupted)
   })
 
-  testAsync("completes and prunes an operation", async t => {
+  testAsync("completes an operation without pruning history", async t => {
     await setup()
     let context = JsonCombinators.Json.Encode.null
     let id = await startOperation(~operation="TestOp", ~context, ~retryable=true)
@@ -34,7 +34,12 @@ describe("OperationJournal", () => {
     let journal = await load()
     let found = Belt.Array.getBy(journal.entries, e => e.id == id)
 
-    t->expect(found)->Expect.toBe(None)
+    t->expect(found->Option.isSome)->Expect.toBe(true)
+    let entry = found->Belt.Option.getExn
+    switch entry.status {
+    | Completed => t->expect(true)->Expect.toBe(true)
+    | _ => t->expect(false)->Expect.toBe(true)
+    }
   })
 
   testAsync("fails an operation and persists failure", async t => {
@@ -70,7 +75,7 @@ describe("OperationJournal", () => {
     ->Expect.toBe("InterruptedOp")
   })
 
-  testAsync("cleans up failed operations on completion of another operation", async t => {
+  testAsync("retains terminal outcomes for deterministic replay history", async t => {
     await setup()
     let context = JsonCombinators.Json.Encode.null
     let id1 = await startOperation(~operation="FailedOp", ~context, ~retryable=true)
@@ -83,7 +88,7 @@ describe("OperationJournal", () => {
     let found1 = Belt.Array.getBy(journal.entries, e => e.id == id1)
     let found2 = Belt.Array.getBy(journal.entries, e => e.id == id2)
 
-    t->expect(found1)->Expect.toBe(None)
-    t->expect(found2)->Expect.toBe(None)
+    t->expect(found1->Option.isSome)->Expect.toBe(true)
+    t->expect(found2->Option.isSome)->Expect.toBe(true)
   })
 })

@@ -4,12 +4,14 @@ open IdbBindings
 open Types
 
 type serializedSession = {
+  version: int,
   timestamp: float,
   projectData: JSON.t,
 }
 
 let key = "autosave_session_latest"
 let debounceMs = 2000
+let currentSchemaVersion = 2
 
 @val external requestIdleCallback: (unit => unit) => int = "requestIdleCallback"
 @val external cancelIdleCallback: int => unit = "cancelIdleCallback"
@@ -20,6 +22,20 @@ let stateGetterRef: ref<unit => state> = ref(() => State.initialState)
 let lastSaveTimeout = ref(None)
 let beforeUnloadListener: ref<option<DomBindings.Dom.event => unit>> = ref(None)
 let subscriberRef: ref<option<unit => unit>> = ref(None)
+
+let normalizeProjectData = (projectData: JSON.t): option<JSON.t> => {
+  switch JsonCombinators.Json.decode(projectData, JsonParsers.Domain.project) {
+  | Ok(project) => Some(JsonParsers.Encoders.project(project))
+  | Error(e) =>
+    Logger.warn(
+      ~module_="Persistence",
+      ~message="Persisted project payload failed validation",
+      ~data={"error": e},
+      (),
+    )
+    None
+  }
+}
 
 let performSave = (state: Types.state) => {
   /* Only save if we have scenes or a project name that differs from default */
@@ -40,11 +56,13 @@ let performSave = (state: Types.state) => {
 
     // Encoded to JSON value using combinators
     let projectData = JsonParsers.Encoders.project(project)
+    let timestamp = Date.now()
 
-    let payload = {
-      timestamp: Date.now(),
-      projectData,
-    }
+    let payload = JsonParsers.Encoders.persistedSession(
+      ~version=currentSchemaVersion,
+      ~timestamp,
+      ~projectData,
+    )
 
     let _ =
       set(key, payload)
@@ -52,7 +70,11 @@ let performSave = (state: Types.state) => {
         Logger.debug(
           ~module_="Persistence",
           ~message="Auto-saved session via IndexedDB",
-          ~data={"timestamp": payload.timestamp, "scenes": Array.length(state.scenes)},
+          ~data={
+            "timestamp": timestamp,
+            "scenes": Array.length(state.scenes),
+            "version": currentSchemaVersion,
+          },
           (),
         )
         Promise.resolve()
@@ -92,7 +114,11 @@ let handleStateChange = (state: state) => {
 
 let notifyStateChange = (state: state) => handleStateChange(state)
 
-let initSubscriber = (~getState: unit => state, ~onChange: state => unit) => {
+let initSubscriber = (
+  ~getState: unit => state,
+  ~onChange: state => unit,
+  ~subscribe: (state => unit) => unit => unit,
+) => {
   Logger.info(~module_="Persistence", ~message="Initializing Persistence Layer", ())
 
   stateGetterRef := getState
@@ -112,7 +138,7 @@ let initSubscriber = (~getState: unit => state, ~onChange: state => unit) => {
   DomBindings.Window.addEventListener("beforeunload", listener)
 
   subscriberRef.contents->Option.forEach(f => f())
-  subscriberRef := Some(AppStateBridge.subscribe(onChange))
+  subscriberRef := Some(subscribe(onChange))
 }
 
 let clearSession = () => {
@@ -126,15 +152,28 @@ let checkRecovery = () => {
     switch Nullable.toOption(item) {
     | Some(raw) =>
       let json = asJson(raw)
-      let decoder = JsonCombinators.Json.Decode.object(field => {
-        {
-          timestamp: field.required("timestamp", JsonCombinators.Json.Decode.float),
-          projectData: field.required("projectData", JsonCombinators.Json.Decode.id),
+      switch JsonCombinators.Json.decode(json, JsonParsers.Domain.persistedSession) {
+      | Ok(savedEnvelope) =>
+        if savedEnvelope.version > currentSchemaVersion {
+          Logger.warn(
+            ~module_="Persistence",
+            ~message="Autosave schema is newer than supported",
+            ~data={"version": savedEnvelope.version, "supported": currentSchemaVersion},
+            (),
+          )
+          Promise.resolve(None)
+        } else {
+          switch normalizeProjectData(savedEnvelope.projectData) {
+          | Some(normalizedProjectData) =>
+            let migrated: serializedSession = {
+              version: currentSchemaVersion,
+              timestamp: savedEnvelope.timestamp,
+              projectData: normalizedProjectData,
+            }
+            Promise.resolve(Some(migrated))
+          | None => Promise.resolve(None)
+          }
         }
-      })
-
-      switch JsonCombinators.Json.decode(json, decoder) {
-      | Ok(saved) => Promise.resolve(Some(saved))
       | Error(e) => {
           Logger.warn(
             ~module_="Persistence",

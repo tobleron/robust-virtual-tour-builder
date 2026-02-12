@@ -28,8 +28,8 @@ module ControllerHooks = {
           ~sourceSceneId?,
           ~targetSceneId,
           ~isAnticipatory,
-          ~taskId=?taskInfo->Option.map(t => t.id),
-          ~signal=?taskInfo->Option.map(t => t.signal),
+          ~taskId=?taskInfo->Option.map(t => t.token.id),
+          ~signal=?taskInfo->Option.map(t => t.token.signal),
         )
 
         let timeoutId = Window.setTimeout(() => {
@@ -71,7 +71,7 @@ module ControllerHooks = {
             Scene.Transition.performSwap(
               ts,
               0.0,
-              ~taskId=?taskInfo->Option.map(t => t.id),
+              ~taskId=?taskInfo->Option.map(t => t.token.id),
               ~getState,
               ~dispatch,
               ~transition=state.transition,
@@ -89,7 +89,7 @@ module ControllerHooks = {
             // Abort task if in Supervisor mode
             let taskInfo = NavigationSupervisor.getCurrentTask()
             switch taskInfo {
-            | Some(t) => NavigationSupervisor.abort(t.id)
+            | Some(t) => NavigationSupervisor.abort(t.token.id)
             | None => ()
             }
             dispatch(Actions.DispatchNavigationFsmEvent(StabilizeComplete))

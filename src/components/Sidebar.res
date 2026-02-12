@@ -87,6 +87,12 @@ let make = React.memo(() => {
   let sceneSlice = AppContext.useSceneSlice()
   let uiSlice = AppContext.useUiSlice()
   let dispatch = AppContext.useAppDispatch()
+  let stateRef = React.useRef(appState)
+  React.useEffect1(() => {
+    stateRef.current = appState
+    None
+  }, [appState])
+  let getState = () => stateRef.current
 
   let fileInputRef = React.useRef(Nullable.null)
   let projectFileInputRef = React.useRef(Nullable.null)
@@ -234,8 +240,9 @@ let make = React.memo(() => {
   let teaserReady = totalHotspots >= 3
   let exportReady = totalHotspots > 0
 
-  let handleSave = async (state: Types.state, ~signal, ~onCancel) => {
+  let handleSave = async (~getState, ~signal, ~onCancel) => {
     try {
+      let state = getState()
       let success = await ProjectManager.saveProject(state, ~signal, ~onProgress=(pct, _t, msg) => {
         SidebarLogic.updateProgress(~dispatch, ~onCancel, pct->Int.toFloat, msg, true, "Save")
       })
@@ -344,7 +351,7 @@ let make = React.memo(() => {
           // Unconditionally stop linking to ensure visual artifacts (yellow lines) are cleared
           Logger.info(~module_="Sidebar", ~message="FORCE_STOP_LINKING_ON_SAVE", ())
           dispatch(Actions.StopLinking)
-          handleSave(appState, ~signal, ~onCancel)
+          handleSave(~getState, ~signal, ~onCancel)
         }}
         onLoad={(~signal as _, ~onCancel as _) => {
           switch Nullable.toOption(projectFileInputRef.current) {
@@ -384,7 +391,7 @@ let make = React.memo(() => {
           )
         }}
         onTeaser={() => {
-          Teaser.startAutoTeaser("fast", false, "mp4", false)->ignore
+          Teaser.startAutoTeaser("fast", false, "mp4", false, ~getState, ~dispatch)->ignore
         }}
       />
 
@@ -396,11 +403,7 @@ let make = React.memo(() => {
         className="hidden"
         onChange={e => {
           let target = JsxEvent.Form.target(e)->ReBindings.Dom.unsafeToElement
-          SidebarLogic.handleUpload(
-            ReBindings.Dom.getFiles(target),
-            ~getState=() => appState,
-            ~dispatch,
-          )->ignore
+          SidebarLogic.handleUpload(ReBindings.Dom.getFiles(target), ~getState, ~dispatch)->ignore
         }}
       />
       <input
@@ -412,7 +415,8 @@ let make = React.memo(() => {
           let target = JsxEvent.Form.target(e)->ReBindings.Dom.unsafeToElement
           SidebarLogic.handleLoadProject(
             ReBindings.Dom.getFiles(target),
-            dispatch, // This now uses queue-aware dispatch!
+            ~getState,
+            ~dispatch, // This now uses queue-aware dispatch!
             Array.length(sceneSlice.scenes),
             target,
           )->ignore

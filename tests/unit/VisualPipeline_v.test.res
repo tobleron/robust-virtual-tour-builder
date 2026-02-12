@@ -89,7 +89,7 @@ describe("VisualPipeline", () => {
       timeline: [item1],
       scenes: [scene1],
     }
-    GlobalStateBridge.setState(state)
+    AppStateBridge.updateState(state)
 
     let node = Dom.querySelector(container, ".pipeline-node")
     switch Nullable.toOption(node) {
@@ -119,7 +119,7 @@ describe("VisualPipeline", () => {
       timeline: [item1],
       scenes: [scene1],
     }
-    GlobalStateBridge.setState(state)
+    AppStateBridge.updateState(state)
 
     let tooltip = Dom.querySelector(container, ".node-tooltip")
     let exists = Nullable.toOption(tooltip)->Belt.Option.isSome
@@ -151,14 +151,14 @@ describe("VisualPipeline", () => {
       timeline: [item1],
       activeTimelineStepId: Some("1"),
     }
-    GlobalStateBridge.setState(state)
+    AppStateBridge.updateState(state)
 
     let node = Dom.querySelector(container, ".pipeline-node")
     let cl = Dom.classList(Nullable.toOption(node)->Belt.Option.getExn)
     t->expect(Dom.ClassList.contains(cl, "active"))->Expect.toBe(true)
 
     let stateInactive = {...state, activeTimelineStepId: Some("other")}
-    GlobalStateBridge.setState(stateInactive)
+    AppStateBridge.updateState(stateInactive)
     // Node is re-rendered, so we need to query it again
     let nodeInactive = Dom.querySelector(container, ".pipeline-node")
     let cl2 = Dom.classList(Nullable.toOption(nodeInactive)->Belt.Option.getExn)
@@ -181,10 +181,10 @@ describe("VisualPipeline", () => {
       timeline: [item1, item2],
       scenes: [scene1, scene2],
     }
-    GlobalStateBridge.setState(state)
+    AppStateBridge.updateState(state)
 
     let lastAction = ref(None)
-    GlobalStateBridge.setDispatch(action => lastAction := Some(action))
+    AppStateBridge.registerDispatch(action => lastAction := Some(action))
 
     let nodes = Dom.querySelectorAll(container, ".pipeline-node")
     t->expect(Dom.nodeListLength(nodes))->Expect.toBe(2)

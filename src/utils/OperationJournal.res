@@ -26,56 +26,161 @@ type t = {
 
 let journalKey = "operation_journal"
 let emergencyQueueKey = "operation_journal_emergency_queue"
+let journalVersion = 2
+
+type emergencySnapshot = {
+  id: string,
+  operation: string,
+  startTime: float,
+  retryable: bool,
+}
+
+let emergencySnapshotEncoder = (snapshot: emergencySnapshot) => {
+  Encode.object([
+    ("id", Encode.string(snapshot.id)),
+    ("operation", Encode.string(snapshot.operation)),
+    ("startTime", Encode.float(snapshot.startTime)),
+    ("retryable", Encode.bool(snapshot.retryable)),
+  ])
+}
+
+let emergencySnapshotDecoder = Decode.object(field => {
+  {
+    id: field.required("id", Decode.string),
+    operation: field.required("operation", Decode.string),
+    startTime: field.required("startTime", Decode.float),
+    retryable: field.required("retryable", Decode.bool),
+  }
+})
+
+let isTerminalStatus = (status: operationStatus) => {
+  switch status {
+  | Completed | Failed(_) | Cancelled => true
+  | Pending | InProgress | Interrupted => false
+  }
+}
 
 // Emergency synchronous backup using localStorage for entries that might be lost in IDB
-let saveToEmergencyQueue = (_entry: journalEntry) => {
+let saveToEmergencyQueue = (entry: journalEntry) => {
   try {
-    let _ = %raw(`console.log("[JOURNAL_EMERGENCY] Saving to localStorage emergency queue")`)
-    // Just set a simple flag that an operation is in progress
-    Dom.Storage2.localStorage->Dom.Storage2.setItem(emergencyQueueKey, "pending")
+    let snapshot: emergencySnapshot = {
+      id: entry.id,
+      operation: entry.operation,
+      startTime: entry.startTime,
+      retryable: entry.retryable,
+    }
+    let raw = JsonCombinators.Json.stringify(emergencySnapshotEncoder(snapshot))
+    Dom.Storage2.localStorage->Dom.Storage2.setItem(emergencyQueueKey, raw)
   } catch {
-  | _ =>
-    let _ = %raw(`console.warn("[JOURNAL_EMERGENCY_FAILED] Could not save to emergency queue")`)
+  | exn =>
+    let (msg, _) = Logger.getErrorDetails(exn)
+    Logger.warn(
+      ~module_="OperationJournal",
+      ~message="Failed to write emergency snapshot",
+      ~data={"error": msg},
+      (),
+    )
+  }
+}
+
+let clearEmergencyQueueForId = (id: string) => {
+  try {
+    switch Dom.Storage2.localStorage->Dom.Storage2.getItem(emergencyQueueKey) {
+    | Some(raw) =>
+      switch JsonCombinators.Json.parse(raw) {
+      | Ok(json) =>
+        switch JsonCombinators.Json.decode(json, emergencySnapshotDecoder) {
+        | Ok(snapshot) =>
+          if snapshot.id == id {
+            Dom.Storage2.localStorage->Dom.Storage2.removeItem(emergencyQueueKey)
+          }
+        | Error(_) => Dom.Storage2.localStorage->Dom.Storage2.removeItem(emergencyQueueKey)
+        }
+      | Error(_) => Dom.Storage2.localStorage->Dom.Storage2.removeItem(emergencyQueueKey)
+      }
+    | None => ()
+    }
+  } catch {
+  | _ => ()
   }
 }
 
 let checkEmergencyQueue = (journal: t): t => {
   try {
-    let _ = %raw(`console.log("[JOURNAL_EMERGENCY_CHECK_START]")`)
-    let emergency = Dom.Storage2.localStorage->Dom.Storage2.getItem(emergencyQueueKey)
-    let _ = %raw(`console.log("[JOURNAL_EMERGENCY_CHECK] Emergency queue value:", emergency)`)
-    switch emergency {
-    | Some(_) =>
-      let _ = %raw(`console.log("[JOURNAL_EMERGENCY_CHECK] Found emergency queue, creating synthetic interrupted entry")`)
-      // Create a synthetic interrupted operation since we detected the emergency flag
-      let syntheticId = Date.now()->Float.toString ++ "_synthetic"
-      let syntheticEntry: journalEntry = {
-        id: syntheticId,
-        operation: "UnknownOperation",
-        status: Interrupted,
-        startTime: Date.now(),
-        endTime: Some(Date.now()),
-        context: Encode.object([]),
-        retryable: false,
+    switch Dom.Storage2.localStorage->Dom.Storage2.getItem(emergencyQueueKey) {
+    | Some(raw) =>
+      Dom.Storage2.localStorage->Dom.Storage2.removeItem(emergencyQueueKey)
+      switch JsonCombinators.Json.parse(raw) {
+      | Ok(json) =>
+        switch JsonCombinators.Json.decode(json, emergencySnapshotDecoder) {
+        | Ok(snapshot) =>
+          let hasEntry = journal.entries->Belt.Array.some(entry => entry.id == snapshot.id)
+          if hasEntry {
+            journal
+          } else {
+            let syntheticEntry: journalEntry = {
+              id: snapshot.id,
+              operation: snapshot.operation,
+              status: Interrupted,
+              startTime: snapshot.startTime,
+              endTime: Some(Date.now()),
+              context: Encode.object([]),
+              retryable: snapshot.retryable,
+            }
+            let newEntries = Belt.Array.concat(journal.entries, [syntheticEntry])
+            {...journal, entries: newEntries}
+          }
+        | Error(e) =>
+          Logger.warn(
+            ~module_="OperationJournal",
+            ~message="Failed to decode emergency snapshot",
+            ~data={"error": e},
+            (),
+          )
+          journal
+        }
+      | Error(_) =>
+        Logger.warn(~module_="OperationJournal", ~message="Failed to parse emergency snapshot", ())
+        journal
       }
-      // Clear the emergency queue
-      let _ = Dom.Storage2.localStorage->Dom.Storage2.removeItem(emergencyQueueKey)
-      let _ = %raw(`console.log("[JOURNAL_EMERGENCY_CLEARED]")`)
-      let newEntries = Array.concat(journal.entries, [syntheticEntry])
-      {...journal, entries: newEntries}
-    | None =>
-      let _ = %raw(`console.log("[JOURNAL_EMERGENCY_CHECK] No emergency queue found")`)
-      journal
+    | None => journal
     }
   } catch {
-  | _exn =>
-    let _ = %raw(`console.warn("[JOURNAL_EMERGENCY_CHECK_FAILED]")`)
+  | exn =>
+    let (msg, _) = Logger.getErrorDetails(exn)
+    Logger.warn(
+      ~module_="OperationJournal",
+      ~message="Emergency snapshot check failed",
+      ~data={"error": msg},
+      (),
+    )
     journal
   }
 }
 
+let normalizeEntry = (entry: journalEntry) => {
+  switch entry.status {
+  | InProgress => {
+      ...entry,
+      status: Interrupted,
+      endTime: switch entry.endTime {
+      | Some(ts) => Some(ts)
+      | None => Some(Date.now())
+      },
+    }
+  | Pending | Interrupted | Completed | Failed(_) | Cancelled => entry
+  }
+}
+
 let make = () => {
-  {entries: [], version: 1}
+  {entries: [], version: journalVersion}
+}
+
+let normalizeJournal = (journal: t): t => {
+  {
+    entries: journal.entries->Belt.Array.map(normalizeEntry),
+    version: journalVersion,
+  }
 }
 
 let currentJournal = ref(make())
@@ -154,7 +259,7 @@ let journalEntryDecoder = Decode.object(field => {
 let journalDecoder = Decode.object(field => {
   {
     entries: field.required("entries", Decode.array(journalEntryDecoder)),
-    version: field.required("version", Decode.int),
+    version: field.optional("version", Decode.int)->Option.getOr(1),
   }
 })
 
@@ -162,7 +267,12 @@ let journalDecoder = Decode.object(field => {
 
 let save = (journal: t) => {
   let json = journalEncoder(journal)
-  let _ = %raw(`console.log("[JOURNAL_SAVE] Saving journal entries:", journal.entries.length)`)
+  Logger.debug(
+    ~module_="OperationJournal",
+    ~message="Saving journal",
+    ~data={"entries": Belt.Array.length(journal.entries), "version": journal.version},
+    (),
+  )
   set(journalKey, json)
 }
 
@@ -173,51 +283,29 @@ let saveCurrent = () => {
 external asJson: 'a => JSON.t = "%identity"
 
 let load = () => {
-  let _ = %raw(`console.log("[JOURNAL_LOAD_START]")`)
   get(journalKey)
   ->Promise.then(raw => {
-    let _ = %raw(`console.log("[JOURNAL_GET_SUCCESS]", raw)`)
-    let hasData = %raw(`raw != null && raw !== undefined`)
-    if hasData {
-      let _ = %raw(`console.log("[JOURNAL_HAS_DATA]")`)
-      let json = asJson(raw)
-      let _ = %raw(`console.log("[JOURNAL_CONVERT_TO_JSON_DONE]")`)
+    switch Nullable.toOption(raw) {
+    | Some(stored) =>
+      let json = asJson(stored)
       try {
         switch JsonCombinators.Json.decode(json, journalDecoder) {
-        | Ok(journal) =>
-          let _ = %raw(`console.log("[JOURNAL_DECODE_SUCCESS] Entries count:", journal._0.entries ? journal._0.entries.length : -1)`)
-          // Check emergency queue first - if anything is there, an operation was interrupted
-          let _ = %raw(`console.log("[JOURNAL_CHECK_EMERGENCY_START]")`)
-          let afterEmergency = checkEmergencyQueue(journal)
-          let _ = %raw(`console.log("[JOURNAL_CHECK_EMERGENCY_DONE]")`)
-          // Mark any remaining InProgress as Interrupted (they were interrupted by app reload)
-          let fixedEntries = if Belt.Array.length(afterEmergency.entries) > 0 {
-            Belt.Array.map(afterEmergency.entries, entry => {
-              switch entry.status {
-              | InProgress =>
-                let _ = %raw(`console.log("[JOURNAL_FIX_INTERRUPTED] Entry was InProgress, marking as Interrupted:", entry.id)`)
-                {...entry, status: Interrupted}
-              | _ => entry
-              }
-            })
-          } else {
-            afterEmergency.entries
-          }
-          let fixedJournal = {...afterEmergency, entries: fixedEntries}
+        | Ok(decodedJournal) =>
+          let fixedJournal = decodedJournal->checkEmergencyQueue->normalizeJournal
           currentJournal := fixedJournal
-          let _ = %raw(`console.log("[JOURNAL_SAVE_CURRENT_START]")`)
-          // Save the fixed journal back to IDB to persist the Interrupted status
           saveCurrent()
-          ->Promise.then(() => {
-            let _ = %raw(`console.log("[JOURNAL_FIXED_SAVED] Fixed journal saved with Interrupted statuses")`)
-            Promise.resolve(fixedJournal)
-          })
-          ->Promise.catch(_e => {
-            let _ = %raw(`console.error("[JOURNAL_SAVE_CURRENT_ERROR]")`)
+          ->Promise.then(() => Promise.resolve(fixedJournal))
+          ->Promise.catch(exn => {
+            let (msg, _) = Logger.getErrorDetails(exn)
+            Logger.warn(
+              ~module_="OperationJournal",
+              ~message="Failed to persist normalized journal",
+              ~data={"error": msg},
+              (),
+            )
             Promise.resolve(fixedJournal)
           })
         | Error(e) =>
-          let _ = %raw(`console.error("[JOURNAL_DECODE_ERROR]", e)`)
           Logger.warn(
             ~module_="OperationJournal",
             ~message="Failed to decode journal",
@@ -229,21 +317,32 @@ let load = () => {
           Promise.resolve(newJournal)
         }
       } catch {
-      | _decodeError =>
-        let _ = %raw(`console.error("[JOURNAL_DECODE_EXCEPTION]", _decodeError)`)
+      | decodeError =>
+        let (msg, _) = Logger.getErrorDetails(decodeError)
+        Logger.warn(
+          ~module_="OperationJournal",
+          ~message="Journal decode exception",
+          ~data={"error": msg},
+          (),
+        )
         let newJournal = make()
         currentJournal := newJournal
         Promise.resolve(newJournal)
       }
-    } else {
-      let _ = %raw(`console.log("[JOURNAL_NO_DATA]")`)
+    | None =>
       let newJournal = make()
       currentJournal := newJournal
       Promise.resolve(newJournal)
     }
   })
-  ->Promise.catch(_e => {
-    let _ = %raw(`console.error("[JOURNAL_LOAD_FATAL_ERROR]")`)
+  ->Promise.catch(exn => {
+    let (msg, _) = Logger.getErrorDetails(exn)
+    Logger.error(
+      ~module_="OperationJournal",
+      ~message="Journal load fatal error",
+      ~data={"error": msg},
+      (),
+    )
     let newJournal = make()
     currentJournal := newJournal
     Promise.resolve(newJournal)
@@ -272,28 +371,51 @@ let startOperation = (~operation: string, ~context: JSON.t, ~retryable: bool) =>
   // Immediately save to emergency queue (synchronous) in case IDB write doesn't complete before reload
   saveToEmergencyQueue(entry)
 
-  let newEntries = Array.concat(currentJournal.contents.entries, [entry])
+  let newEntries = Belt.Array.concat(currentJournal.contents.entries, [entry])
   currentJournal := {...currentJournal.contents, entries: newEntries}
 
   saveCurrent()->Promise.then(() => Promise.resolve(id))
 }
 
 let updateStatus = (id: string, status: operationStatus): Promise.t<unit> => {
-  let newEntries = Belt.Array.map(currentJournal.contents.entries, entry => {
+  let now = Date.now()
+  let found = ref(false)
+  let newEntries = currentJournal.contents.entries->Belt.Array.map(entry => {
     if entry.id == id {
-      {...entry, status, endTime: Some(Date.now())}
+      found := true
+      if isTerminalStatus(entry.status) {
+        entry
+      } else {
+        let nextEndTime = switch status {
+        | Pending | InProgress => entry.endTime
+        | Interrupted | Completed | Failed(_) | Cancelled => Some(now)
+        }
+        {...entry, status, endTime: nextEndTime}
+      }
     } else {
       entry
     }
   })
-  currentJournal := {...currentJournal.contents, entries: newEntries}
-  saveCurrent()
+
+  if !found.contents {
+    Promise.resolve()
+  } else {
+    if isTerminalStatus(status) {
+      clearEmergencyQueueForId(id)
+    }
+    currentJournal := {...currentJournal.contents, entries: newEntries}
+    saveCurrent()
+  }
 }
 
 let updateContext = (id: string, context: JSON.t): Promise.t<unit> => {
   let newEntries = Belt.Array.map(currentJournal.contents.entries, entry => {
     if entry.id == id {
-      {...entry, context}
+      if isTerminalStatus(entry.status) {
+        entry
+      } else {
+        {...entry, context}
+      }
     } else {
       entry
     }
@@ -303,22 +425,7 @@ let updateContext = (id: string, context: JSON.t): Promise.t<unit> => {
 }
 
 let completeOperation = (id: string): Promise.t<unit> => {
-  let newEntries = Belt.Array.map(currentJournal.contents.entries, entry => {
-    if entry.id == id {
-      {...entry, status: Completed, endTime: Some(Date.now())}
-    } else {
-      entry
-    }
-  })
-
-  let pendingOnly = Belt.Array.keep(newEntries, e =>
-    switch e.status {
-    | InProgress | Pending | Interrupted => true
-    | Failed(_) | Completed | Cancelled => false
-    }
-  )
-  currentJournal := {...currentJournal.contents, entries: pendingOnly}
-  saveCurrent()
+  updateStatus(id, Completed)
 }
 
 let failOperation = (id: string, reason: string): Promise.t<unit> => {

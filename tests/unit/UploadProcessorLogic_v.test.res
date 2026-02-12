@@ -32,7 +32,7 @@ open UploadTypes
 
 describe("UploadProcessorLogic", () => {
   beforeEach(() => {
-    GlobalStateBridge.setState(State.initialState)
+    AppStateBridge.updateState(State.initialState)
   })
 
   let mockFile = (name): File.t => {
@@ -80,6 +80,8 @@ describe("UploadProcessorLogic", () => {
       onProgress,
       0, // skippedCount
       "test_journal_id",
+      ~getState=AppStateBridge.getState,
+      ~dispatch=AppStateBridge.dispatch,
     )
 
     t->expect(Array.length(results.report.success))->Expect.toBe(2)
@@ -95,8 +97,8 @@ describe("UploadProcessorLogic", () => {
     async t => {
       let dispatchedActions = []
 
-      // We need to override the dispatch in GlobalStateBridge
-      GlobalStateBridge.setDispatch(
+      // We need to override the dispatch in AppStateBridge
+      AppStateBridge.registerDispatch(
         action => {
           let _ = Array.push(dispatchedActions, action)
         },
@@ -123,7 +125,7 @@ describe("UploadProcessorLogic", () => {
 
       // Set state with activeIndex = -1 and one scene (simulating added scene)
       let stateWithScenes = {...State.initialState, scenes: [scene], activeIndex: -1}
-      GlobalStateBridge.setState(stateWithScenes)
+      AppStateBridge.updateState(stateWithScenes)
 
       let item1 = {
         id: Nullable.null,
@@ -136,7 +138,14 @@ describe("UploadProcessorLogic", () => {
         colorGroup: None,
       }
 
-      let _ = await UploadProcessorLogic.finalizeUploads([item1], Date.now(), (_, _, _, _) => (), 0)
+      let _ = await UploadProcessorLogic.finalizeUploads(
+        [item1],
+        Date.now(),
+        (_, _, _, _) => (),
+        0,
+        ~getState=AppStateBridge.getState,
+        ~dispatch=AppStateBridge.dispatch,
+      )
 
       let found = Belt.Array.getBy(
         dispatchedActions,

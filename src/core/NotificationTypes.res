@@ -84,7 +84,11 @@ let defaultTimeoutMs = (imp: importance): int => {
 // Deduplication key - combines context and message to detect duplicates
 // Used to prevent toast storms (same operation triggering identical notifications)
 let dedupKey = (notif: notification): string => {
-  contextToString(notif.context) ++ "|" ++ notif.message
+  if notif.id != "" {
+    "id:" ++ notif.id
+  } else {
+    contextToString(notif.context) ++ "|" ++ notif.message
+  }
 }
 
 // Priority ordering for sort comparisons (lower number = higher priority)

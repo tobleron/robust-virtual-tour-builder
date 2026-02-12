@@ -4,6 +4,7 @@ open Actions
 @react.component
 let make = () => {
   let {appMode} = AppContext.useUiSlice()
+  let dispatch = AppContext.useAppDispatch()
   let hasShown = React.useRef(false)
 
   React.useEffect1(() => {
@@ -14,7 +15,7 @@ let make = () => {
 
         let handleReset = () => {
           hasShown.current = false
-          AppStateBridge.dispatch(DispatchAppFsmEvent(Reset))
+          dispatch(DispatchAppFsmEvent(Reset))
           EventBus.dispatch(CloseModal)
         }
 

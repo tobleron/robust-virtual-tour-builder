@@ -62,6 +62,20 @@ let generateId = (): string => {
   "notif-" ++ timestamp ++ "-" ++ random
 }
 
+let upsertById = (notif: notification, currentState: queueState): queueState => {
+  let replaceIfMatch = n =>
+    if n.id == notif.id {
+      notif
+    } else {
+      n
+    }
+  {
+    ...currentState,
+    pending: Belt.Array.map(currentState.pending, replaceIfMatch),
+    active: Belt.Array.map(currentState.active, replaceIfMatch),
+  }
+}
+
 // ============================================================================
 // PUBLIC API
 // ============================================================================
@@ -87,13 +101,20 @@ let dispatch = (notif: notification): unit => {
     },
   }
 
-  // Add to queue
-  state := NotificationQueue.enqueue(withId, state.contents)
+  let existing = NotificationQueue.getById(withId.id, state.contents)
 
-  // Try to move from pending to active if space is available
-  state := NotificationQueue.dequeue(state.contents)
+  switch existing {
+  | Some(_) => state := upsertById(withId, state.contents)
+  | None =>
+    // Add to queue
+    state := NotificationQueue.enqueue(withId, state.contents)
+
+    // Try to move from pending to active if space is available
+    state := NotificationQueue.dequeue(state.contents)
+  }
 
   // Schedule auto-dismiss if needed
+  cancelTimer(withId.id)
   scheduleAutoDismiss(withId.id, withId.duration)
 
   // Notify listeners of new state

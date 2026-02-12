@@ -79,7 +79,7 @@ let handleKeyDown = (~getState: unit => state, ~dispatch, e) => {
       switch NavigationSupervisor.getCurrentTask() {
       | Some(task) =>
         // Abort via Supervisor (which handles FSM dispatch and AbortController)
-        NavigationSupervisor.abort(task.id)
+        NavigationSupervisor.abort(task.token.id)
       | None =>
         // Fallback: Direct FSM dispatch for non-Supervisor navigations
         dispatch(Actions.DispatchNavigationFsmEvent(Aborted))

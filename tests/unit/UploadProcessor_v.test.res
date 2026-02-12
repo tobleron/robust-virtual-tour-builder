@@ -20,7 +20,7 @@ describe("UploadProcessor", () => {
         return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
       }
     `)
-    GlobalStateBridge.setState(State.initialState)
+    AppStateBridge.updateState(State.initialState)
   })
 
   let mockFile = (name): File.t => {
@@ -32,7 +32,12 @@ describe("UploadProcessor", () => {
   }
 
   testAsync("processUploads: should handle empty file array", async t => {
-    let result = await UploadProcessor.processUploads([], None)
+    let result = await UploadProcessor.processUploads(
+      [],
+      None,
+      ~getState=AppStateBridge.getState,
+      ~dispatch=AppStateBridge.dispatch,
+    )
 
     let report: uploadReport = result.report
     t->expect(Array.length(report.success))->Expect.toBe(0)
@@ -51,7 +56,12 @@ describe("UploadProcessor", () => {
     `)
 
     let f1 = mockFile("test.jpg")
-    let result = await UploadProcessor.processUploads([f1], None)
+    let result = await UploadProcessor.processUploads(
+      [f1],
+      None,
+      ~getState=AppStateBridge.getState,
+      ~dispatch=AppStateBridge.dispatch,
+    )
 
     let report: uploadReport = result.report
     t->expect(Array.length(report.success))->Expect.toBe(0)
@@ -66,7 +76,12 @@ describe("UploadProcessor", () => {
     let f1 = mockFile("test.jpg")
     // This will likely complete or fail based on other logic,
     // but the first progress call is synchronous or very early.
-    let _ = await UploadProcessor.processUploads([f1], Some(cb))
+    let _ = await UploadProcessor.processUploads(
+      [f1],
+      Some(cb),
+      ~getState=AppStateBridge.getState,
+      ~dispatch=AppStateBridge.dispatch,
+    )
 
     t->expect(Array.length(progressLog) > 0)->Expect.toBe(true)
     let (firstPct, _, _, firstPhase) = Belt.Array.getExn(progressLog, 0)

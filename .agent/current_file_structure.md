@@ -2508,6 +2508,48 @@
 │   │           │   │   └── 162557_040.webp
 │   │           │   ├── project.json
 │   │           │   └── summary.txt
+│   │           ├── 3d7b6c16-e393-44bf-bc28-28c615109aee
+│   │           │   ├── images
+│   │           │   │   ├── 154407_002.webp
+│   │           │   │   ├── 154618_004.webp
+│   │           │   │   ├── 154744_005.webp
+│   │           │   │   ├── 154859_006.webp
+│   │           │   │   ├── 155038_007.webp
+│   │           │   │   ├── 155139_008.webp
+│   │           │   │   ├── 155241_009.webp
+│   │           │   │   ├── 155456_010.webp
+│   │           │   │   ├── 155613_011.webp
+│   │           │   │   ├── 155754_012.webp
+│   │           │   │   ├── 155927_013.webp
+│   │           │   │   ├── 160058_014.webp
+│   │           │   │   ├── 160223_015.webp
+│   │           │   │   ├── 160339_016.webp
+│   │           │   │   ├── 160509_017.webp
+│   │           │   │   ├── 160552_018.webp
+│   │           │   │   ├── 160634_019.webp
+│   │           │   │   ├── 160715_020.webp
+│   │           │   │   ├── 160825_021.webp
+│   │           │   │   ├── 160926_022.webp
+│   │           │   │   ├── 161026_023.webp
+│   │           │   │   ├── 161123_024.webp
+│   │           │   │   ├── 161213_025.webp
+│   │           │   │   ├── 161309_026.webp
+│   │           │   │   ├── 161358_027.webp
+│   │           │   │   ├── 161456_028.webp
+│   │           │   │   ├── 161628_029.webp
+│   │           │   │   ├── 161706_030.webp
+│   │           │   │   ├── 161739_031.webp
+│   │           │   │   ├── 161824_032.webp
+│   │           │   │   ├── 161910_033.webp
+│   │           │   │   ├── 162015_034.webp
+│   │           │   │   ├── 162106_035.webp
+│   │           │   │   ├── 162215_036.webp
+│   │           │   │   ├── 162251_037.webp
+│   │           │   │   ├── 162400_038.webp
+│   │           │   │   ├── 162456_039.webp
+│   │           │   │   └── 162557_040.webp
+│   │           │   ├── project.json
+│   │           │   └── summary.txt
 │   │           ├── 3de78251-9a37-463d-97ae-0110ea08f3a9
 │   │           │   ├── images
 │   │           │   │   ├── 154407_002.webp
@@ -10543,7 +10585,8 @@
 │   │   ├── DEV_SYSTEM_EVALUATION.md
 │   │   ├── DEV_SYSTEM_SUMMARY.md
 │   │   ├── FORMULA_ANALYSIS.md
-│   │   └── FORMULA_V2_IMPLEMENTATION.md
+│   │   ├── FORMULA_V2_IMPLEMENTATION.md
+│   │   └── enterprise_slo_baseline.md
 │   ├── _tmp_test_reports
 │   ├── architecture
 │   │   ├── JSON_ENCODING_STANDARDS.md
@@ -11817,6 +11860,12 @@
 │   │           ├── AppErrorBoundary_v.test.cmj
 │   │           ├── AppErrorBoundary_v.test.cmt
 │   │           ├── AppErrorBoundary_v.test.res
+│   │           ├── AppStateBridge_v.test.ast
+│   │           ├── AppStateBridge_v.test.bs.js
+│   │           ├── AppStateBridge_v.test.cmi
+│   │           ├── AppStateBridge_v.test.cmj
+│   │           ├── AppStateBridge_v.test.cmt
+│   │           ├── AppStateBridge_v.test.res
 │   │           ├── App_v.test.ast
 │   │           ├── App_v.test.bs.js
 │   │           ├── App_v.test.cmi
@@ -12819,6 +12868,11 @@
 │   │   ├── AppStateBridge.cmj
 │   │   ├── AppStateBridge.cmt
 │   │   ├── AppStateBridge.res
+│   │   ├── AppStateBridge_v.test.ast
+│   │   ├── AppStateBridge_v.test.cmi
+│   │   ├── AppStateBridge_v.test.cmj
+│   │   ├── AppStateBridge_v.test.cmt
+│   │   ├── AppStateBridge_v.test.res
 │   │   ├── App_v.test.ast
 │   │   ├── App_v.test.cmi
 │   │   ├── App_v.test.cmj
@@ -13092,15 +13146,7 @@
 │   │   ├── GeoUtils_v.test.cmj
 │   │   ├── GeoUtils_v.test.cmt
 │   │   ├── GeoUtils_v.test.res
-│   │   ├── GlobalStateBridge.ast
-│   │   ├── GlobalStateBridge.cmi
-│   │   ├── GlobalStateBridge.cmj
-│   │   ├── GlobalStateBridge.cmt
 │   │   ├── GlobalStateBridge.res
-│   │   ├── GlobalStateBridge_v.test.ast
-│   │   ├── GlobalStateBridge_v.test.cmi
-│   │   ├── GlobalStateBridge_v.test.cmj
-│   │   ├── GlobalStateBridge_v.test.cmt
 │   │   ├── GlobalStateBridge_v.test.res
 │   │   ├── GraphicsBindings.ast
 │   │   ├── GraphicsBindings.cmi
@@ -16119,8 +16165,6 @@
 │   │   ├── AppFSM.res
 │   │   ├── AppStateBridge.bs.js
 │   │   ├── AppStateBridge.res
-│   │   ├── GlobalStateBridge.bs.js
-│   │   ├── GlobalStateBridge.res
 │   │   ├── HotspotHelpers.bs.js
 │   │   ├── HotspotHelpers.res
 │   │   ├── InteractionGuard.bs.js
@@ -16531,6 +16575,14 @@
 │   │   ├── 1345_GlobalStateBridge_Persistence_Recovery_DONE.md
 │   │   ├── 1346_GlobalStateBridge_Core_Context_DONE.md
 │   │   ├── 1347_GlobalStateBridge_Systems_Hooks_DONE.md
+│   │   ├── 1349_ARCH_Baseline_SLO_and_Observability_Foundation_DONE.md
+│   │   ├── 1350_ARCH_Navigation_RunToken_Foundation_DONE.md
+│   │   ├── 1351_ARCH_SceneLoader_Transition_Idempotence_DONE.md
+│   │   ├── 1352_ARCH_Simulation_Async_StaleWork_Guards_DONE.md
+│   │   ├── 1353_ARCH_StateBoundary_Migration_Phase1_DONE.md
+│   │   ├── 1354_ARCH_StateBoundary_Migration_Phase2_Bridge_Decommission_DONE.md
+│   │   ├── 1355_ARCH_API_Reliability_Contracts_DONE.md
+│   │   ├── 1356_ARCH_Persistence_Recovery_Durability_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
 │   │       ├── 1195_Test_Teaser_DONE.md
@@ -16550,6 +16602,9 @@
 │   │   ├── 1325_E2E_Test_Robustness_Resilience.md
 │   │   ├── 1326_E2E_Test_Performance_Regression.md
 │   │   ├── 1327_Refactor_Notification_Logic.md
+│   │   ├── 1348_ARCH_Enterprise_Reliability_Performance_Hardening.md
+│   │   ├── 1357_ARCH_Backend_Production_Hardening.md
+│   │   ├── 1358_PERF_Budgets_Stress_Gates_and_Program_Closeout.md
 │   │   └── dev_tasks
 │   │       ├── D001_Fix_Violations_FRONTEND.md
 │   │       ├── D002_Surgical_Refactor_CORE_FRONTEND.md
@@ -16559,7 +16614,8 @@
 │   │       ├── D009_Merge_Folders_FRONTEND.md
 │   │       ├── D010_Aggregate_Completed_Tasks.md
 │   │       ├── D012_Integrate_DataFlow_Modules.md
-│   │       └── D013_Classify_Map_Entries.md
+│   │       ├── D013_Classify_Map_Entries.md
+│   │       └── D014_Surgical_Refactor_UTILS_FRONTEND.md
 │   └── postponed
 │       ├── 1243_Fix_Operation_Cancellation_Feedback.md
 │       ├── 1246_Handle_Malformed_Project_Files_Gracefully.md
@@ -16618,6 +16674,8 @@
 │   │   ├── AppContext_v.test.res
 │   │   ├── AppErrorBoundary_v.test.bs.js
 │   │   ├── AppErrorBoundary_v.test.res
+│   │   ├── AppStateBridge_v.test.bs.js
+│   │   ├── AppStateBridge_v.test.res
 │   │   ├── App_v.test.bs.js
 │   │   ├── App_v.test.res
 │   │   ├── AsyncQueue_Order_v.test.bs.js
@@ -16675,8 +16733,6 @@
 │   │   ├── GeoUtils_v.test.bs.js
 │   │   ├── GeoUtils_v.test.res
 │   │   ├── GlobalStateBridgeTest.bs.js
-│   │   ├── GlobalStateBridge_v.test.bs.js
-│   │   ├── GlobalStateBridge_v.test.res
 │   │   ├── HotspotActionMenu_v.test.bs.js
 │   │   ├── HotspotActionMenu_v.test.res
 │   │   ├── HotspotLayer_v.test.bs.js
@@ -16960,4 +17016,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-732 directories, 16229 files
+734 directories, 16283 files
