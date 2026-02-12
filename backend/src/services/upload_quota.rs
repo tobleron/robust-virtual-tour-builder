@@ -29,10 +29,26 @@ pub struct QuotaConfig {
 
 impl Default for QuotaConfig {
     fn default() -> Self {
+        let is_production = std::env::var("NODE_ENV")
+            .map(|v| v.eq_ignore_ascii_case("production"))
+            .unwrap_or(false);
+
+        if is_production {
+            // Safe-by-default production limits.
+            return Self {
+                max_payload_size: 100 * 1024 * 1024, // 100MB
+                max_concurrent_per_ip: 4,
+                max_total_concurrent_size: 2 * 1024 * 1024 * 1024, // 2GB total
+                min_free_disk_space: 2 * 1024 * 1024 * 1024,       // 2GB free required
+                rate_limit_window: Duration::from_secs(3600),      // 1 hour
+                max_uploads_per_window: 120,
+            };
+        }
+
         Self {
-            max_payload_size: 2 * 1024 * 1024 * 1024, // 2GB
+            max_payload_size: 2 * 1024 * 1024 * 1024, // 2GB (dev)
             max_concurrent_per_ip: 24,
-            max_total_concurrent_size: 10 * 1024 * 1024 * 1024, // 10GB total
+            max_total_concurrent_size: 10 * 1024 * 1024 * 1024, // 10GB total (dev)
             min_free_disk_space: 5 * 1024 * 1024 * 1024,        // 5GB free required
             rate_limit_window: Duration::from_secs(3600),       // 1 hour
             max_uploads_per_window: 2000,
@@ -41,40 +57,44 @@ impl Default for QuotaConfig {
 }
 
 impl QuotaConfig {
+    fn env_usize(key: &str, default: usize) -> usize {
+        std::env::var(key)
+            .ok()
+            .and_then(|s| s.parse().ok())
+            .filter(|v| *v > 0)
+            .unwrap_or(default)
+    }
+
+    fn env_u64(key: &str, default: u64) -> u64 {
+        std::env::var(key)
+            .ok()
+            .and_then(|s| s.parse().ok())
+            .filter(|v| *v > 0)
+            .unwrap_or(default)
+    }
+
     /// Load configuration from environment variables
     pub fn from_env() -> Self {
+        let defaults = Self::default();
         Self {
-            max_payload_size: std::env::var("MAX_PAYLOAD_SIZE")
-                .ok()
-                .and_then(|s| s.parse().ok())
-                .unwrap_or(2 * 1024 * 1024 * 1024),
-
-            max_concurrent_per_ip: std::env::var("MAX_CONCURRENT_PER_IP")
-                .ok()
-                .and_then(|s| s.parse().ok())
-                .unwrap_or(24),
-
-            max_total_concurrent_size: std::env::var("MAX_TOTAL_CONCURRENT_SIZE")
-                .ok()
-                .and_then(|s| s.parse().ok())
-                .unwrap_or(10 * 1024 * 1024 * 1024),
-
-            min_free_disk_space: std::env::var("MIN_FREE_DISK_SPACE")
-                .ok()
-                .and_then(|s| s.parse().ok())
-                .unwrap_or(5 * 1024 * 1024 * 1024),
-
-            rate_limit_window: Duration::from_secs(
-                std::env::var("RATE_LIMIT_WINDOW_SECS")
-                    .ok()
-                    .and_then(|s| s.parse().ok())
-                    .unwrap_or(3600),
+            max_payload_size: Self::env_usize("MAX_PAYLOAD_SIZE", defaults.max_payload_size),
+            max_concurrent_per_ip: Self::env_usize(
+                "MAX_CONCURRENT_PER_IP",
+                defaults.max_concurrent_per_ip,
             ),
-
-            max_uploads_per_window: std::env::var("MAX_UPLOADS_PER_WINDOW")
-                .ok()
-                .and_then(|s| s.parse().ok())
-                .unwrap_or(2000),
+            max_total_concurrent_size: Self::env_usize(
+                "MAX_TOTAL_CONCURRENT_SIZE",
+                defaults.max_total_concurrent_size,
+            ),
+            min_free_disk_space: Self::env_u64("MIN_FREE_DISK_SPACE", defaults.min_free_disk_space),
+            rate_limit_window: Duration::from_secs(Self::env_u64(
+                "RATE_LIMIT_WINDOW_SECS",
+                defaults.rate_limit_window.as_secs(),
+            )),
+            max_uploads_per_window: Self::env_usize(
+                "MAX_UPLOADS_PER_WINDOW",
+                defaults.max_uploads_per_window,
+            ),
         }
     }
 }
@@ -245,6 +265,9 @@ impl UploadQuotaManager {
 
         // Get disk space for temp directory
         let temp_path = std::env::var("TEMP_DIR").unwrap_or_else(|_| "../tmp".to_string());
+        let fail_open = std::env::var("ALLOW_DISK_CHECK_BYPASS")
+            .map(|v| v == "1" || v.eq_ignore_ascii_case("true"))
+            .unwrap_or(false);
 
         match fs2::available_space(Path::new(&temp_path)) {
             Ok(available) => {
@@ -260,7 +283,11 @@ impl UploadQuotaManager {
             }
             Err(e) => {
                 tracing::warn!("Failed to check disk space: {}", e);
-                Ok(()) // Don't block uploads if we can't check
+                if fail_open {
+                    Ok(())
+                } else {
+                    Err("Failed to verify available disk space".to_string())
+                }
             }
         }
     }

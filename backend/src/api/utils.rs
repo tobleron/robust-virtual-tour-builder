@@ -1,7 +1,7 @@
 use crate::models::AppError;
 use crate::services::shutdown::ShutdownManager;
 use crate::services::upload_quota::UploadQuotaManager;
-use actix_web::{HttpResponse, web};
+use actix_web::{HttpResponse, http::StatusCode, web};
 use std::fs;
 use std::path::{Path, PathBuf};
 use uuid::Uuid;
@@ -17,23 +17,40 @@ pub const MAX_LOG_SIZE: u64 = 10 * 1024 * 1024; // 10 MB
 pub const MAX_LOG_FILES: usize = 5;
 pub const LOG_RETENTION_DAYS: u64 = 7;
 
+fn temp_root() -> PathBuf {
+    std::env::var("TEMP_DIR")
+        .map(PathBuf::from)
+        .unwrap_or_else(|_| PathBuf::from(TEMP_DIR))
+}
+
+fn safe_extension(extension: &str) -> &str {
+    if extension
+        .chars()
+        .all(|c| c.is_ascii_alphanumeric() || c == '_')
+    {
+        extension
+    } else {
+        "tmp"
+    }
+}
+
 pub fn get_temp_path(extension: &str) -> PathBuf {
-    let mut path = PathBuf::from(TEMP_DIR);
+    let mut path = temp_root();
     if !path.exists()
         && let Err(e) = fs::create_dir_all(&path)
     {
         tracing::error!("Failed to create temp directory {:?}: {}", path, e);
     }
-    path.push(format!("{}.{}", Uuid::new_v4(), extension));
+    path.push(format!("{}.{}", Uuid::new_v4(), safe_extension(extension)));
     path
 }
 
 pub async fn get_temp_path_async(extension: &str) -> PathBuf {
-    let mut path = PathBuf::from(TEMP_DIR);
+    let mut path = temp_root();
     if let Err(e) = tokio::fs::create_dir_all(&path).await {
         tracing::error!("Failed to create temp directory {:?}: {}", path, e);
     }
-    path.push(format!("{}.{}", Uuid::new_v4(), extension));
+    path.push(format!("{}.{}", Uuid::new_v4(), safe_extension(extension)));
     path
 }
 
@@ -80,12 +97,26 @@ pub fn sanitize_filename(fname: &str) -> Result<String, String> {
 /// Trigger graceful shutdown (admin only in production)
 pub async fn trigger_shutdown(shutdown_manager: web::Data<ShutdownManager>) -> HttpResponse {
     tracing::warn!("Shutdown triggered via API");
+    shutdown_manager.begin_shutdown();
 
     let active = shutdown_manager.active_count().await;
 
     HttpResponse::Ok().json(serde_json::json!({
         "message": "Shutdown initiated",
         "active_requests": active
+    }))
+}
+
+pub fn json_error_response(
+    status: StatusCode,
+    error: &str,
+    message: &str,
+    request_id: Option<&str>,
+) -> HttpResponse {
+    HttpResponse::build(status).json(serde_json::json!({
+        "error": error,
+        "message": message,
+        "requestId": request_id.unwrap_or("unknown"),
     }))
 }
 

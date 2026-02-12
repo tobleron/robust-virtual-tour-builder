@@ -1,6 +1,9 @@
 // @efficiency-role: orchestrator
 use actix_cors::Cors;
+use actix_web::cookie::Key;
 use actix_web::middleware::DefaultHeaders;
+use std::io;
+use std::time::Duration;
 use tracing_subscriber::prelude::*;
 
 /// Initialize the unified logging system.
@@ -92,11 +95,39 @@ pub fn init_logging() -> (
 
 /// Configure CORS for the application.
 pub fn cors() -> Cors {
-    if cfg!(debug_assertions) {
-        Cors::permissive()
+    let mut cors = Cors::default()
+        .allowed_methods(vec!["GET", "POST", "DELETE"])
+        .allowed_headers(vec![
+            actix_web::http::header::CONTENT_TYPE,
+            actix_web::http::header::ACCEPT,
+        ])
+        .max_age(3600);
+
+    if is_production() {
+        let configured_origins = std::env::var("CORS_ALLOWED_ORIGINS")
+            .ok()
+            .map(|v| {
+                v.split(',')
+                    .map(str::trim)
+                    .filter(|v| !v.is_empty())
+                    .map(str::to_owned)
+                    .collect::<Vec<_>>()
+            })
+            .unwrap_or_default();
+
+        if configured_origins.is_empty() {
+            tracing::warn!(
+                "CORS_ALLOWED_ORIGINS is not set in production; cross-origin requests are disabled"
+            );
+            return cors;
+        }
+
+        for origin in configured_origins {
+            cors = cors.allowed_origin(&origin);
+        }
+        cors
     } else {
-        Cors::default()
-            .allowed_origin("http://localhost:5173")
+        cors.allowed_origin("http://localhost:5173")
             .allowed_origin("http://127.0.0.1:5173")
             .allowed_origin("http://localhost:3000")
             .allowed_origin("http://127.0.0.1:3000")
@@ -104,13 +135,64 @@ pub fn cors() -> Cors {
             .allowed_origin("http://127.0.0.1:9999")
             .allowed_origin("http://localhost:8080")
             .allowed_origin("http://127.0.0.1:8080")
-            .allowed_origin_fn(|origin, _req_head| origin.as_bytes().starts_with(b"file://"))
-            .allowed_methods(vec!["GET", "POST", "DELETE"])
-            .allowed_headers(vec![
-                actix_web::http::header::CONTENT_TYPE,
-                actix_web::http::header::ACCEPT,
-            ])
-            .max_age(3600)
+            .allowed_origin("file://")
+    }
+}
+
+pub fn is_production() -> bool {
+    std::env::var("NODE_ENV")
+        .map(|v| v.eq_ignore_ascii_case("production"))
+        .unwrap_or(false)
+}
+
+fn read_env_usize(name: &str, default: usize) -> usize {
+    std::env::var(name)
+        .ok()
+        .and_then(|v| v.parse::<usize>().ok())
+        .filter(|v| *v > 0)
+        .unwrap_or(default)
+}
+
+pub fn rate_limit_settings() -> (u64, u32) {
+    let (default_rps, default_burst) = if is_production() {
+        (30_u64, 60_u32)
+    } else {
+        (500_u64, 1000_u32)
+    };
+
+    let rps = read_env_usize("RATE_LIMIT_PER_SECOND", default_rps as usize) as u64;
+    let burst = read_env_usize("RATE_LIMIT_BURST_SIZE", default_burst as usize) as u32;
+    (rps, burst)
+}
+
+pub fn shutdown_timeout() -> Duration {
+    let secs = read_env_usize("SHUTDOWN_TIMEOUT_SECS", 30) as u64;
+    Duration::from_secs(secs)
+}
+
+pub fn session_key() -> io::Result<Key> {
+    let min_len = 64;
+    match std::env::var("SESSION_KEY") {
+        Ok(raw) => {
+            if raw.len() < min_len {
+                Err(io::Error::new(
+                    io::ErrorKind::InvalidInput,
+                    format!("SESSION_KEY must be at least {min_len} bytes"),
+                ))
+            } else {
+                Ok(Key::from(raw.as_bytes()))
+            }
+        }
+        Err(_) if is_production() => Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "SESSION_KEY must be set in production",
+        )),
+        Err(_) => {
+            tracing::warn!(
+                "SESSION_KEY not set in non-production environment; using ephemeral key"
+            );
+            Ok(Key::generate())
+        }
     }
 }
 

@@ -15,5 +15,5 @@ The Semantic Engine has identified the following specific symbols for refactorin
 ### 🔧 Action: De-bloat
 **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions. 🏗️ ARCHITECTURAL TARGET: Split into exactly 2 cohesive modules to respect the Read Tax (avg 300 LOC/module).
 
-- [ ] - **../../src/components/Sidebar.res** (Metric: [Nesting: 3.00, Density: 0.04, Coupling: 0.08] | Drag: 4.10 | LOC: 416/300  🎯 Target: Function: `make` (High Local Complexity (15.5). Logic heavy.))
+- [ ] - **../../src/components/Sidebar.res** (Metric: [Nesting: 3.00, Density: 0.04, Coupling: 0.08] | Drag: 4.10 | LOC: 412/300  🎯 Target: Function: `make` (High Local Complexity (15.5). Logic heavy.))
 
