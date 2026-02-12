@@ -1,11 +1,20 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
+import { setupAIObservability } from './ai-helper';
 
 test.describe('Operation Recovery', () => {
   const desktopPath = path.resolve('./tests/e2e/fixtures/tour.vt.zip');
 
   test.beforeEach(async ({ page }) => {
+    await setupAIObservability(page);
     await page.goto('/');
+    await page.evaluate(async () => {
+      localStorage.clear();
+      sessionStorage.clear();
+      const dbs = await window.indexedDB.databases();
+      dbs.forEach((db) => { if (db.name) window.indexedDB.deleteDatabase(db.name); });
+    });
+    await page.reload();
     const fileInput = page.locator('input[type="file"][accept*=".zip"]');
     await fileInput.setInputFiles(desktopPath);
     const startBtn = page.getByRole('button', { name: /Start Building|Close/i });

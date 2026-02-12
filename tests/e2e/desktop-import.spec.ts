@@ -1,9 +1,18 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
 import os from 'os';
+import { setupAIObservability } from './ai-helper';
 
 test('comprehensive import and interaction with xyz.zip', async ({ page }) => {
+  await setupAIObservability(page);
   await page.goto('/');
+  await page.evaluate(async () => {
+    localStorage.clear();
+    sessionStorage.clear();
+    const dbs = await window.indexedDB.databases();
+    dbs.forEach(db => { if (db.name) window.indexedDB.deleteDatabase(db.name); });
+  });
+  await page.reload();
 
   const fixturePath = path.resolve('tests/e2e/fixtures/tour.vt.zip');
   const fileInput = page.locator('input[type="file"][accept*=".zip"]');

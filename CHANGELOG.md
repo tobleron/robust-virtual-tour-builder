@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Harden CI budgets & E2E browser provisioning
 
+### Changed
+- E2E tests updated
+
 ## [4.4.3] - 2026-02-12
 
 ### Fixed
