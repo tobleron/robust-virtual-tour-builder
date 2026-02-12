@@ -26,6 +26,7 @@ type mockFn
 
 %%raw(`
   vi.mock('../../src/systems/LinkEditorLogic.bs.js', () => ({
+    configure: vi.fn(),
     handleStageClick: vi.fn(),
     handleStagePointerDown: vi.fn(),
   }))

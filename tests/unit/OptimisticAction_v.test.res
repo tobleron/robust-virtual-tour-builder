@@ -73,6 +73,7 @@ testAsync("OptimisticAction rolls back on failure", async t => {
 
   let initialState = makeInitialState()
   AppStateBridge.updateState(initialState)
+  let expectedTourName = AppStateBridge.getState().tourName
 
   let action = Actions.SetTourName("Optimistic Name")
 
@@ -82,7 +83,13 @@ testAsync("OptimisticAction rolls back on failure", async t => {
     AppStateBridge.updateState(s)
   }
 
-  let result = await OptimisticAction.execute(~action, ~apiCall=MockApi.failure, ~onRollback)
+  let result = await OptimisticAction.execute(
+    ~action,
+    ~apiCall=MockApi.failure,
+    ~getState=AppStateBridge.getState,
+    ~getDispatch=() => AppStateBridge.dispatch,
+    ~onRollback,
+  )
 
   switch result {
   | RolledBack(msg) => t->expect(msg)->Expect.toBe("Network Error")
@@ -90,12 +97,12 @@ testAsync("OptimisticAction rolls back on failure", async t => {
   }
 
   switch rolledBackState.contents {
-  | Some(s) => t->expect(s.tourName)->Expect.toBe("Original Name")
+  | Some(s) => t->expect(s.tourName)->Expect.toBe(expectedTourName)
   | None => t->expect(false)->Expect.toBe(true)
   }
 
   let current = AppStateBridge.getState()
-  t->expect(current.tourName)->Expect.toBe("Original Name")
+  t->expect(current.tourName)->Expect.toBe(expectedTourName)
 
   let latest = StateSnapshot.getLatest()
   t->expect(latest)->Expect.toBe(None)

@@ -67,7 +67,7 @@ describe("ViewerSnapshot", () => {
     ViewerSystem.Pool.registerInstance("panorama-a", Obj.magic({"id": "mock_viewer"}))
 
     // Trigger
-    ViewerSnapshot.requestIdleSnapshot()
+    ViewerSnapshot.requestIdleSnapshot(~getState=AppStateBridge.getState)
 
     // Trigger the captured callback manually
     let _ = %raw(`global.capturedCallback && global.capturedCallback()`)
@@ -112,7 +112,7 @@ describe("ViewerSnapshot", () => {
 
     SceneCache.clearAll()
     SceneCache.setSnapshot("s1", "blob:old-url")
-    ViewerSnapshot.requestIdleSnapshot()
+    ViewerSnapshot.requestIdleSnapshot(~getState=AppStateBridge.getState)
     let _ = %raw(`global.capturedCallback && global.capturedCallback()`)
 
     await wait(100)
@@ -140,7 +140,7 @@ describe("ViewerSnapshot", () => {
     ViewerSystem.Pool.clearInstance("panorama-b")
 
     SceneCache.clearAll()
-    ViewerSnapshot.requestIdleSnapshot()
+    ViewerSnapshot.requestIdleSnapshot(~getState=AppStateBridge.getState)
     let _ = %raw(`global.capturedCallback && global.capturedCallback()`)
 
     await wait(20)
@@ -168,7 +168,7 @@ describe("ViewerSnapshot", () => {
     ViewerSystem.Pool.registerInstance("panorama-a", Obj.magic({"id": "mock_viewer"}))
 
     SceneCache.clearAll()
-    ViewerSnapshot.requestIdleSnapshot()
+    ViewerSnapshot.requestIdleSnapshot(~getState=AppStateBridge.getState)
     let _ = %raw(`global.capturedCallback && global.capturedCallback()`)
 
     await wait(20)
@@ -225,7 +225,7 @@ describe("ViewerSnapshot", () => {
 
     // Call 12 times to hit rate limit (limit is 10)
     for _ in 1 to 12 {
-      ViewerSnapshot.requestIdleSnapshot()
+      ViewerSnapshot.requestIdleSnapshot(~getState=AppStateBridge.getState)
       let _ = %raw(`global.capturedCallback && global.capturedCallback()`)
     }
 

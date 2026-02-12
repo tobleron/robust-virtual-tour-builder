@@ -43,6 +43,11 @@ external mockInternalState: internalStateRef = "internalState"
 
 @module("../../src/core/AppStateBridge.bs.js") external mockGetState: mockFn = "getState"
 @module("../../src/core/AppStateBridge.bs.js") external mockDispatch: mockFn = "dispatch"
+@module("../../src/systems/ViewerSystem.bs.js")
+external setCurrentViewerSceneId: string => unit = "__setCurrentSceneId"
+@module("../../src/systems/ViewerSystem.bs.js") external mockViewerSetYaw: mockFn = "__mockSetYaw"
+@module("../../src/systems/ViewerSystem.bs.js")
+external mockViewerSetPitch: mockFn = "__mockSetPitch"
 
 @module("../../src/utils/Logger.bs.js") external mockDebug: mockFn = "debug"
 
@@ -78,10 +83,34 @@ external mockInternalState: internalStateRef = "internalState"
     SetIsTeasing: (v) => ({ type: 'SetIsTeasing', payload: v })
   }));
 
+  vi.mock('../../src/systems/ViewerSystem.bs.js', () => {
+    const Primitive_option = require('@rescript/runtime/lib/es6/Primitive_option.js');
+    let currentSceneId = "scene1";
+    const mockSetYaw = vi.fn();
+    const mockSetPitch = vi.fn();
+    const viewer = {
+      isLoaded: () => true,
+      setYaw: mockSetYaw,
+      setPitch: mockSetPitch,
+    };
+    return {
+      __setCurrentSceneId: (id) => { currentSceneId = id; },
+      __mockSetYaw: mockSetYaw,
+      __mockSetPitch: mockSetPitch,
+      getActiveViewer: vi.fn(() => viewer),
+      Adapter: {
+        getMetaData: vi.fn((_viewer, key) =>
+          key === "sceneId" ? Primitive_option.some(currentSceneId) : undefined
+        ),
+      },
+    };
+  });
+
   vi.mock('../../src/utils/Logger.bs.js', () => ({
     debug: vi.fn(),
     info: vi.fn(),
     error: vi.fn(),
+    initialized: vi.fn(),
     startOperation: vi.fn(),
     endOperation: vi.fn(),
     getErrorDetails: () => ["", ""],
@@ -125,6 +154,7 @@ describe("TeaserPlayback", () => {
 
     // Setup Viewer
     let _ = %raw(`global.window.pannellumViewer.getScene = () => "scene1"`)
+    setCurrentViewerSceneId("scene1")
   })
 
   afterEach(() => {
@@ -157,8 +187,8 @@ describe("TeaserPlayback", () => {
     let dispatchCalls = %raw(`mockDispatch.mock.calls`)
     t->expect(Array.length(dispatchCalls))->Expect.Int.toBeGreaterThan(0)
 
-    // Verify Viewer.setYaw was called
-    let setYawCalls = %raw(`global.window.pannellumViewer.setYaw.mock.calls`)
+    // Verify active viewer orientation was set through ViewerSystem path
+    let setYawCalls = %raw(`mockViewerSetYaw.mock.calls`)
     t->expect(Array.length(setYawCalls))->Expect.Int.toBeGreaterThan(0)
   })
 
@@ -181,6 +211,7 @@ describe("TeaserPlayback", () => {
 
     // Next scene must be "scene2" for waitForViewerReady
     let _ = %raw(`global.window.pannellumViewer.getScene = () => "scene2"`)
+    setCurrentViewerSceneId("scene2")
 
     let p = transitionToNextShot(
       0,

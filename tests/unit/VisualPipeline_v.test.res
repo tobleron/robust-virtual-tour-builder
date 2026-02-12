@@ -76,7 +76,7 @@ describe("VisualPipeline", () => {
 
   test("render should apply color group colors to nodes", t => {
     let container = setupDOM()
-    let _ = VisualPipeline.init("pipeline-container")
+    let pipeline = VisualPipeline.init("pipeline-container")->Belt.Option.getExn
 
     let item1 = createTimelineItem("1", "Living Room")
     let scene1 = {
@@ -89,7 +89,7 @@ describe("VisualPipeline", () => {
       timeline: [item1],
       scenes: [scene1],
     }
-    AppStateBridge.updateState(state)
+    VisualPipeline.render(pipeline, state, ~getState=() => state, ~dispatch=_ => ())
 
     let node = Dom.querySelector(container, ".pipeline-node")
     switch Nullable.toOption(node) {
@@ -106,7 +106,7 @@ describe("VisualPipeline", () => {
 
   test("render should create tooltip with correct info", t => {
     let container = setupDOM()
-    let _ = VisualPipeline.init("pipeline-container")
+    let pipeline = VisualPipeline.init("pipeline-container")->Belt.Option.getExn
 
     let item1 = createTimelineItem("1", "Kitchen")
     let scene1 = {
@@ -119,7 +119,7 @@ describe("VisualPipeline", () => {
       timeline: [item1],
       scenes: [scene1],
     }
-    AppStateBridge.updateState(state)
+    VisualPipeline.render(pipeline, state, ~getState=() => state, ~dispatch=_ => ())
 
     let tooltip = Dom.querySelector(container, ".node-tooltip")
     let exists = Nullable.toOption(tooltip)->Belt.Option.isSome
@@ -143,7 +143,7 @@ describe("VisualPipeline", () => {
 
   test("node active state should track activeTimelineStepId", t => {
     let container = setupDOM()
-    let _ = VisualPipeline.init("pipeline-container")
+    let pipeline = VisualPipeline.init("pipeline-container")->Belt.Option.getExn
 
     let item1 = createTimelineItem("1", "Living Room")
     let state = {
@@ -151,14 +151,14 @@ describe("VisualPipeline", () => {
       timeline: [item1],
       activeTimelineStepId: Some("1"),
     }
-    AppStateBridge.updateState(state)
+    VisualPipeline.render(pipeline, state, ~getState=() => state, ~dispatch=_ => ())
 
     let node = Dom.querySelector(container, ".pipeline-node")
     let cl = Dom.classList(Nullable.toOption(node)->Belt.Option.getExn)
     t->expect(Dom.ClassList.contains(cl, "active"))->Expect.toBe(true)
 
     let stateInactive = {...state, activeTimelineStepId: Some("other")}
-    AppStateBridge.updateState(stateInactive)
+    VisualPipeline.render(pipeline, stateInactive, ~getState=() => stateInactive, ~dispatch=_ => ())
     // Node is re-rendered, so we need to query it again
     let nodeInactive = Dom.querySelector(container, ".pipeline-node")
     let cl2 = Dom.classList(Nullable.toOption(nodeInactive)->Belt.Option.getExn)
@@ -169,7 +169,7 @@ describe("VisualPipeline", () => {
 
   test("drag interaction should update state and dispatch reorder", t => {
     let container = setupDOM()
-    let _ = VisualPipeline.init("pipeline-container")
+    let pipeline = VisualPipeline.init("pipeline-container")->Belt.Option.getExn
 
     let item1 = createTimelineItem("1", "A")
     let item2 = createTimelineItem("2", "B")
@@ -181,10 +181,13 @@ describe("VisualPipeline", () => {
       timeline: [item1, item2],
       scenes: [scene1, scene2],
     }
-    AppStateBridge.updateState(state)
-
     let lastAction = ref(None)
-    AppStateBridge.registerDispatch(action => lastAction := Some(action))
+    VisualPipeline.render(
+      pipeline,
+      state,
+      ~getState=() => state,
+      ~dispatch=action => lastAction := Some(action),
+    )
 
     let nodes = Dom.querySelectorAll(container, ".pipeline-node")
     t->expect(Dom.nodeListLength(nodes))->Expect.toBe(2)

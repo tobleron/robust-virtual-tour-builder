@@ -32,6 +32,17 @@ describe("UtilityBar", () => {
         };
       })()
     `)
+    ViewerSystem.Pool.pool := [
+        {
+          id: "primary-a",
+          containerId: "panorama-a",
+          status: #Active,
+          instance: None,
+          cleanupTimeout: None,
+        },
+      ]
+    let viewer = %raw(`window.pannellumViewer`)
+    ViewerSystem.Pool.registerInstance("panorama-a", viewer)
 
     let lastAction = ref(None)
     let mockDispatch = action => lastAction := Some(action)
