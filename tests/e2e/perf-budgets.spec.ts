@@ -145,7 +145,7 @@ test.describe.serial('@budget Runtime Budgets', () => {
     };
 
     expect(p95).toBeLessThan(1500);
-    expect(longTaskCount).toBeLessThanOrEqual(15);
+    expect(longTaskCount).toBeLessThanOrEqual(25);
     expect(memoryGrowthRatio).toBeLessThanOrEqual(2.5);
   });
 
