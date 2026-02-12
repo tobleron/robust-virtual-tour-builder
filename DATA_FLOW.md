@@ -12,8 +12,10 @@ This document maps critical data flows through the system to help AI understand 
 **Flow:**
 ```
 User Click Event
-  → [src/components/SceneList/SceneItem.res] or [src/components/HotspotLayer.res] handles click
+  → [src/components/SceneList/SceneItem.res], [src/components/HotspotLayer.res], or [src/components/FloorNavigation.res] handles click
+  → [src/core/Actions.res] defines navigation action contracts dispatched by UI and systems
   → [src/core/InteractionGuard.res] checks cooldowns using [src/core/InteractionPolicies.res]
+  → [src/systems/Navigation.res] and [src/systems/NavigationLogic.res] normalize/route navigation intents
   → [src/systems/Navigation/NavigationSupervisor.res] receives intent (auto-cancels previous task)
       → Creates AbortSignal for structured concurrency
       → dispatch(UserClickedScene) FSM event for UI reactivity
@@ -22,8 +24,10 @@ User Click Event
       → [src/components/ErrorFallbackUI.res] and [src/components/CriticalErrorMonitor.res] provide the crash UI and error monitoring
       → [src/Hooks.res] and [src/core/UiHelpers.res] manage top-level component lifecycle
   → [src/core/AppFSM.res] handles top-level state transition (e.g. Editing → Navigation)
-  → [src/core/Reducer.res] processes FSM action using [src/core/Types.res], [src/core/ViewerState.res] and [src/core/ViewerTypes.res]
+  → [src/core/Reducer.res] processes FSM action using [src/core/Types.res], [src/core/ViewerState.res], [src/core/ViewerTypes.res], and [src/core/NavigationState.res]
+      → [src/core/NavigationHelpers.res] computes target-aware transition metadata
   → [src/systems/Navigation/NavigationFSM.res] state transition (IdleFsm → Preloading)
+  → [src/systems/Navigation/NavigationUI.res] manages prompt-level navigation UX during transitions
   → [src/systems/Navigation/NavigationController.res] subscribes to FSM changes
       → Calls SceneLoader with taskId and AbortSignal from Supervisor
   → [src/systems/Scene.res] and [src/systems/Scene/SceneLoader.res] coordinates viewer loading (with AbortSignal support)
@@ -34,6 +38,7 @@ User Click Event
       → [src/systems/PannellumAdapter.res] and [src/systems/PannellumLifecycle.res] interface with engine
   → [src/systems/Scene/SceneSwitcher.res] handles journey initialization and auto-forwarding
   → [src/systems/Scene/SceneTransition.res] performs CSS crossfade and viewport swapping (with Supervisor coordination)
+  → [src/systems/Navigation/NavigationGraph.res] projects link geometry and scene graph candidates
   → [src/systems/Navigation/NavigationRenderer.res] updates interactive navigation markers (using [src/components/Tooltip.res], [src/components/PreviewArrow.res], and [src/components/PersistentLabel.res])
   → [src/systems/AudioManager.res] triggers spatial audio transitions
   → [src/systems/Navigation/NavigationSupervisor.res] completes task and marks status Idle
@@ -291,7 +296,7 @@ CI job
 
 ### Concurrent Utility primitives
 **Purpose:** Flow control and performance management.
-- [src/utils/AsyncQueue.res], [src/utils/RequestQueue.res], [src/utils/CircuitBreaker.res], [src/utils/RateLimiter.res], [src/utils/Retry.res], [src/utils/Debounce.res], [src/core/InteractionGuard.res], [src/systems/Navigation/NavigationSupervisor.res] (navigation-specific concurrency)
+- [src/utils/AsyncQueue.res], [src/utils/RequestQueue.res], [src/utils/CircuitBreaker.res], [src/utils/RateLimiter.res], [src/utils/Retry.res], [src/utils/Debounce.res], [src/core/InteractionGuard.res], [src/core/TransitionLock.res] (deprecated compatibility lock), [src/systems/Navigation/NavigationSupervisor.res] (navigation-specific concurrency)
 
 ### Interaction & Perception
 - [src/systems/InputSystem.res], [src/systems/CursorPhysics.res], [src/systems/ViewerFollow.res], [src/utils/ProgressBar.res], [src/utils/ColorPalette.res], [src/utils/SessionStore.res], [src/utils/StateInspector.res], [src/systems/TourTemplates.res]
@@ -313,23 +318,6 @@ CI job
 
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)
-
-### 📂 src/components
-- `[src/components/FloorNavigation.res]`
-
-### 📂 src/core
-- `[src/core/Actions.res]`
-- `[src/core/NavigationHelpers.res]`
-- `[src/core/NavigationState.res]`
-- `[src/core/TransitionLock.res]`
-
-### 📂 src/systems
-- `[src/systems/Navigation.res]`
-- `[src/systems/NavigationLogic.res]`
-
-### 📂 src/systems/Navigation
-- `[src/systems/Navigation/NavigationGraph.res]`
-- `[src/systems/Navigation/NavigationUI.res]`
 
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ARCH 1357: backend production hardening (safe env defaults for session/CORS/rate limits/timeouts, middleware resilience under quota+shutdown stress, standardized safe temp-path and error responses, and graceful shutdown request draining semantics)
 - Task 1358: add CI bundle/runtime budget gates, perf stress suite, SLO-aligned runbook, and archive task closeout
 - Task 1348 progress: stabilized unit tests by fixing stale mocks/expectations and bridge-state wiring, removed zombie low-signal tests, frontend suite now green (812/812). Remaining: complete Tracks A-G acceptance criteria, run full verification matrix (npm run build, backend release build, npm test, e2e/perf), and archive task from active to completed.
+- Dev tasks D012+D013: integrated navigation modules into DATA_FLOW (FloorNavigation, Actions, NavigationHelpers/State, Navigation/Logic/UI/Graph, TransitionLock context) and classified NavigationState in MAP; cleared unmapped sections. Remaining: execute unresolved enterprise hardening implementation for task 1348 Tracks A-G and complete full verification matrix before archiving 1348.
 
 ## [4.4.2] - 2026-02-11
 
