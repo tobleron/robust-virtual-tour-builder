@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const isBudgetMode = process.env.PW_BUDGET_MODE === '1';
+
 export default defineConfig({
   testDir: './tests/e2e',
   /* Run tests in files in parallel */
@@ -39,23 +41,31 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
+      grepInvert: /@budget/,
       use: { ...devices['Desktop Chrome'] },
     },
 
     {
       name: 'firefox',
+      grepInvert: /@budget/,
       use: { ...devices['Desktop Firefox'] },
     },
 
     {
       name: 'webkit',
+      grepInvert: /@budget/,
       use: { ...devices['Desktop Safari'] },
+    },
+    {
+      name: 'chromium-budget',
+      grep: /@budget/,
+      use: { ...devices['Desktop Chrome'] },
     },
   ],
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'npm run dev:all',
+    command: isBudgetMode ? 'npm run dev:frontend' : 'npm run dev:all',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,

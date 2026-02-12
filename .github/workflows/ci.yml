@@ -35,3 +35,15 @@ jobs:
 
       - name: Build Frontend (Production)
         run: npm run build
+
+      - name: Enforce Bundle Budgets
+        run: npm run budget:bundle
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Runtime Budget Suite
+        run: npm run test:e2e:budgets
+
+      - name: Enforce Runtime Budgets
+        run: npm run budget:runtime

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - ARCH progress: reliability hardening across 1349-1356 (SLO observability baseline, navigation run-token foundation, scene transition idempotence, simulation stale-work guards, state-boundary migration phases 1-2, API reliability contracts, and persistence/recovery durability with schema-versioned autosave migration plus idempotent operation replay)
 - ARCH 1357: backend production hardening (safe env defaults for session/CORS/rate limits/timeouts, middleware resilience under quota+shutdown stress, standardized safe temp-path and error responses, and graceful shutdown request draining semantics)
+- Task 1358: add CI bundle/runtime budget gates, perf stress suite, SLO-aligned runbook, and archive task closeout
 
 ## [4.4.2] - 2026-02-11
 

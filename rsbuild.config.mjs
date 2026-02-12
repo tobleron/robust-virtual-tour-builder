@@ -1,6 +1,12 @@
 import { defineConfig } from '@rsbuild/core';
 import { pluginReact } from '@rsbuild/plugin-react';
 
+export const BUNDLE_BUDGETS = {
+  maxTotalJsBytes: 4_500_000,
+  maxTotalGzipBytes: 750_000,
+  maxLargestChunkBytes: 2_000_000,
+};
+
 export default defineConfig({
   plugins: [pluginReact()],
   source: {
