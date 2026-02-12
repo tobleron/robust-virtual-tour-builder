@@ -72,11 +72,14 @@ async fn main() -> io::Result<()> {
     let quota_config = QuotaConfig::from_env();
     let quota_manager = web::Data::new(UploadQuotaManager::new(quota_config.clone()));
 
+    let disk_bypass = std::env::var("ALLOW_DISK_CHECK_BYPASS").unwrap_or_default();
+
     tracing::info!(
-        "Upload quotas: max_payload={} MB, max_concurrent_per_ip={}, max_total={} GB",
+        "Upload quotas: max_payload={} MB, max_concurrent_per_ip={}, max_total={} GB, disk_bypass={}",
         quota_config.max_payload_size / (1024 * 1024),
         quota_config.max_concurrent_per_ip,
-        quota_config.max_total_concurrent_size / (1024 * 1024 * 1024)
+        quota_config.max_total_concurrent_size / (1024 * 1024 * 1024),
+        disk_bypass
     );
 
     let prometheus = PrometheusMetricsBuilder::new("vtb_api")

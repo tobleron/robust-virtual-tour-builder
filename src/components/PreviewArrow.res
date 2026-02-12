@@ -104,7 +104,7 @@ let make = (
         | Some(tIdx) =>
           let (ny, np, nh) = Logic.calculateNavParams(hotspot)
 
-          Scene.Switcher.navigateToScene(
+          SceneSwitcher.navigateToScene(
             dispatch,
             state,
             tIdx,

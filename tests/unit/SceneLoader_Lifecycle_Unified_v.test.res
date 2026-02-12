@@ -109,9 +109,8 @@ describe("SceneLoader Lifecycle Unified", () => {
     let newState = {...State.initialState, scenes: [s1, s2], activeIndex: 0}
     AppStateBridge.updateState(newState)
 
-    let pathRequest = Scene.Loader.toPathRequest(State.initialState)
     Scene.Loader.loadNewScene(
-      ~state=pathRequest,
+      ~state=newState,
       ~dispatch=AppStateBridge.dispatch,
       ~targetSceneId="s2",
       ~isAnticipatory=false,

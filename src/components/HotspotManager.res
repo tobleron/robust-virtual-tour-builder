@@ -76,7 +76,9 @@ let createHotspotConfig = (
     "type": "info",
     "text": " " /* Ensure trigger */,
     "cssClass": cssClass.contents,
+    "tooltipAlwaysVisible": true,
     "createTooltipFunc": (div: Dom.element) => {
+      Logger.debug(~module_="HotspotManager", ~message="CREATE_TOOLTIP_FUNC_CALLED", ())
       // Create Container - APPEND classes, don't overwrite to preserve Pannellum positioning
       Dom.classList(div)->Dom.ClassList.add("pnlm-hotspot-base")
       Dom.classList(div)->Dom.ClassList.add("group")
@@ -139,7 +141,7 @@ let syncHotspots = (v: Viewer.t, state: state, scene: scene, dispatch: Actions.a
       }
     })
 
-    Logger.debug(
+    Logger.info(
       ~module_="HotspotManager",
       ~message="SYNC_HOTSPOTS_NUKE",
       ~data=Some({
