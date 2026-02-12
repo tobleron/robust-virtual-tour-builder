@@ -382,7 +382,14 @@ touch logs/.gitkeep
 
 # 5. Cleanup stale ports
 echo "🧹 Cleaning up stale ports (8080, 3000)..."
-lsof -ti:8080,3000 | xargs kill -9 2>/dev/null || true
+-lsof -ti:8080,3000 | xargs kill -9 2>/dev/null || true
+
+if [ "${SKIP_BROWSER_PROVISIONING:-0}" != "1" ]; then
+    echo "🧪 Ensuring Playwright browsers are provisioned..."
+    ./scripts/install-browsers.sh
+else
+    echo "⚙️ Browser provisioning disabled via SKIP_BROWSER_PROVISIONING=1."
+fi
 
 echo ""
 echo "✨ Environment Ready!"

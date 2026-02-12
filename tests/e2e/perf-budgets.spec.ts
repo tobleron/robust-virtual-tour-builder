@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'node:fs/promises';
 import { setupAIObservability } from './ai-helper';
+import { getBudgetConfig } from '../../scripts/runtime-budget-config.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -10,6 +11,7 @@ const FIXTURES_DIR = path.join(__dirname, 'fixtures');
 
 const METRICS_PATH = path.resolve('artifacts/perf-budget-metrics.json');
 
+const { budgets, presetName } = getBudgetConfig();
 const budgetMetrics: Record<string, unknown> = {};
 
 async function installLongTaskProbe(page) {
@@ -144,9 +146,11 @@ test.describe.serial('@budget Runtime Budgets', () => {
       memFinal,
     };
 
-    expect(p95).toBeLessThan(1500);
-    expect(longTaskCount).toBeLessThanOrEqual(25);
-    expect(memoryGrowthRatio).toBeLessThanOrEqual(2.5);
+    expect(p95).toBeLessThanOrEqual(budgets.maxRapidNavigationP95Ms);
+    expect(longTaskCount).toBeLessThanOrEqual(budgets.maxRapidNavigationLongTasks);
+    expect(memoryGrowthRatio).toBeLessThanOrEqual(
+      budgets.maxRapidNavigationMemoryGrowthRatio,
+    );
   });
 
   test('bulk upload latency budget', async ({ page }) => {
@@ -175,7 +179,7 @@ test.describe.serial('@budget Runtime Budgets', () => {
     };
 
     expect(sceneCount).toBeGreaterThanOrEqual(100);
-    expect(latencyMs).toBeLessThan(90000);
+    expect(latencyMs).toBeLessThanOrEqual(budgets.maxBulkUploadLatencyMs);
   });
 
   test('long simulation session budget', async ({ page }) => {
@@ -251,9 +255,13 @@ test.describe.serial('@budget Runtime Budgets', () => {
       memFinal,
     };
 
-    expect([...visited].filter((x) => x >= 0).length).toBeGreaterThanOrEqual(2);
-    expect(longTaskCount).toBeLessThanOrEqual(30);
-    expect(memoryGrowthRatio).toBeLessThanOrEqual(2.2);
+    expect([...visited].filter((x) => x >= 0).length).toBeGreaterThanOrEqual(
+      budgets.minSimulationDistinctSceneSwitches,
+    );
+    expect(longTaskCount).toBeLessThanOrEqual(budgets.maxSimulationLongTasks);
+    expect(memoryGrowthRatio).toBeLessThanOrEqual(
+      budgets.maxSimulationMemoryGrowthRatio,
+    );
   });
 
   test.afterAll(async () => {
