@@ -16453,6 +16453,7 @@
 ├── tasks
 │   ├── TASKS.md
 │   ├── active
+│   │   └── 1348_ARCH_Enterprise_Reliability_Performance_Hardening.md
 │   ├── completed
 │   │   ├── 1231_Surgical_Refactor_CORE_FRONTEND_DONE.md
 │   │   ├── 1232_Merge_Folders_FRONTEND_DONE.md
@@ -16593,7 +16594,6 @@
 │   │   ├── 1325_E2E_Test_Robustness_Resilience.md
 │   │   ├── 1326_E2E_Test_Performance_Regression.md
 │   │   ├── 1327_Refactor_Notification_Logic.md
-│   │   ├── 1348_ARCH_Enterprise_Reliability_Performance_Hardening.md
 │   │   └── dev_tasks
 │   │       ├── D001_Fix_Violations_FRONTEND.md
 │   │       ├── D002_Surgical_Refactor_CORE_FRONTEND.md

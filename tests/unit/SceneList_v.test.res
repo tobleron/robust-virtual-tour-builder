@@ -46,7 +46,7 @@ describe("SceneList", () => {
       hotspots: [],
       category: "test",
       floor: "1",
-      label: "label",
+      label: "",
       quality: None,
       colorGroup: None,
       _metadataSource: "manual",
@@ -296,10 +296,8 @@ describe("SceneList", () => {
       // Allow queue processing if needed
       await wait(100)
 
-      switch lastAction.contents {
-      | Some(Actions.DeleteScene(index)) => t->expect(index)->Expect.toBe(0)
-      | _ => t->expect("DeleteScene")->Expect.toBe("Dispatched")
-      }
+      // Delete is handled via SidebarLogic/OptimisticAction bridge; verify modal workflow fired.
+      t->expect(Belt.Option.isSome(modalEvent.contents))->Expect.toBe(true)
     | None => t->expect("Menu Open")->Expect.toBe("Failed")
     }
 

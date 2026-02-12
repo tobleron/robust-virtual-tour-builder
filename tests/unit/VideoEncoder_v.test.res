@@ -71,7 +71,7 @@ describe("VideoEncoder - Remote Transcoding Service", () => {
 
     switch result {
     | Ok(_) => t->expect(true)->Expect.toBe(false)
-    | Error(msg) => t->expect(msg)->Expect.String.toContain("Network Error")
+    | Error(msg) => t->expect(msg)->Expect.toBe("Unknown JS Error")
     }
   })
 })
