@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - E2E tests updated
+- 1319 E2E Test Ingestion Import DONE and ServiceWorkerMain formatting fix
 
 ## [4.4.3] - 2026-02-12
 
