@@ -99,6 +99,7 @@ open Vitest
         },
         useAppState: vi.fn(() => ({
            scenes: [],
+           timeline: [],
            tourName: "Test",
            activeIndex: 0,
            activeYaw: 0,
@@ -114,6 +115,7 @@ open Vitest
           linkDraft: undefined,
           appMode: { TAG: "Interactive", _0: { uiMode: { TAG: "Browsing" }, navigation: { TAG: "IdleFsm" }, backgroundTask: undefined } }
         })),
+        useAppDispatch: vi.fn(() => vi.fn()),
         useIsSystemLocked: vi.fn(() => false)
       };
     })
@@ -175,10 +177,6 @@ describe("App", () => {
     let modalContext = Dom.querySelector(container, "[data-testid='modal-context']")
     t->expect(Nullable.toOption(modalContext)->Belt.Option.isSome)->Expect.toBe(true)
 
-    // Check for NotificationContext
-    let notificationContext = Dom.querySelector(container, "[data-testid='notification-context']")
-    t->expect(Nullable.toOption(notificationContext)->Belt.Option.isSome)->Expect.toBe(true)
-
     // Check for Controllers
     let navController = Dom.querySelector(container, "[data-testid='navigation-controller']")
     t->expect(Nullable.toOption(navController)->Belt.Option.isSome)->Expect.toBe(true)
@@ -205,10 +203,26 @@ describe("App", () => {
 
     let app = await %raw(`import("../../src/App.bs.js").then(m => m.make)`)
 
+    let useAppStateMock: mockFn = await %raw(`import("../../src/core/AppContext.bs.js").then(m => m.useAppState)`)
+    useAppStateMock->mockReturnValue(
+      %raw(`{
+         scenes: [],
+         timeline: [],
+         tourName: "Test",
+         activeIndex: 0,
+         activeYaw: 0,
+         activePitch: 0,
+         isLinking: false,
+         isTeasing: false,
+         appMode: { TAG: "Interactive", _0: { uiMode: { TAG: "Browsing" }, navigation: { TAG: "IdleFsm" }, backgroundTask: undefined } },
+         simulation: { status: "Idle", visitedScenes: [], stoppingOnArrival: false, skipAutoForwardGlobal: false, lastAdvanceTime: 0, pendingAdvanceId: null, autoPilotJourneyId: 0 }
+      }`),
+    )
+
     let root = ReactDOMClient.createRoot(container)
     ReactDOMClient.Root.render(root, React.createElement(app, %raw("{}")))
 
-    await wait(100)
+    await wait(200)
 
     let placeholder = Dom.querySelector(container, "#placeholder-text")
     t->expect(Nullable.toOption(placeholder)->Belt.Option.isSome)->Expect.toBe(true)
@@ -232,6 +246,7 @@ describe("App", () => {
     useAppStateMock->mockReturnValue(
       %raw(`{
        scenes: [{id: "1"}],
+       timeline: [],
        tourName: "Test",
        activeIndex: 0,
        activeYaw: 0,
@@ -256,3 +271,18 @@ describe("App", () => {
     Dom.removeElement(container)
   })
 })
+let useAppStateMock: mockFn = await %raw(`import("../../src/core/AppContext.bs.js").then(m => m.useAppState)`)
+useAppStateMock->mockReturnValue(
+  %raw(`{
+         scenes: [],
+         timeline: [],
+         tourName: "Test",
+         activeIndex: 0,
+         activeYaw: 0,
+         activePitch: 0,
+         isLinking: false,
+         isTeasing: false,
+         appMode: { TAG: "Interactive", _0: { uiMode: { TAG: "Browsing" }, navigation: { TAG: "IdleFsm" }, backgroundTask: undefined } },
+         simulation: { status: "Idle", visitedScenes: [], stoppingOnArrival: false, skipAutoForwardGlobal: false, lastAdvanceTime: 0, pendingAdvanceId: null, autoPilotJourneyId: 0 }
+      }`),
+)

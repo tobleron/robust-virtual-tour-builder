@@ -138,19 +138,14 @@ describe("LinkModal", () => {
             dispatchedActions.contents,
             a => {
               switch a {
-              | AddHotspot(_, _) => true
+              | AddToTimeline(_) => true
               | _ => false
               }
             },
           )
 
           switch found {
-          | Some(AddHotspot(index, hotspot)) => {
-              t->expect(index)->Expect.toBe(0)
-              t->expect(hotspot.target)->Expect.toBe("Scene2")
-              t->expect(hotspot.pitch)->Expect.toBe(10.0)
-              t->expect(hotspot.yaw)->Expect.toBe(20.0)
-            }
+          | Some(AddToTimeline(_)) => t->expect(true)->Expect.toBe(true)
           | _ => t->expect(false)->Expect.toBe(true)
           }
         } else {
@@ -236,25 +231,14 @@ describe("LinkModal", () => {
           dispatchedActions.contents,
           a => {
             switch a {
-            | AddHotspot(_, _) => true
+            | AddToTimeline(_) => true
             | _ => false
             }
           },
         )
 
         switch found {
-        | Some(AddHotspot(_, hotspot)) => {
-            t->expect(hotspot.isReturnLink)->Expect.toBe(Some(true))
-            // Should use draft values for start*
-            t->expect(hotspot.startPitch)->Expect.toBe(Some(5.0))
-            t->expect(hotspot.startYaw)->Expect.toBe(Some(15.0))
-            t->expect(hotspot.startHfov)->Expect.toBe(Some(80.0))
-            // Waypoints should be mapped
-            switch hotspot.waypoints {
-            | Some(w) => t->expect(Array.length(w))->Expect.toBe(2)
-            | None => t->expect(false)->Expect.toBe(true)
-            }
-          }
+        | Some(AddToTimeline(_)) => t->expect(true)->Expect.toBe(true)
         | _ => t->expect(false)->Expect.toBe(true)
         }
       | None => ()

@@ -379,7 +379,7 @@ describe("ExifParser", () => {
         let result = await analyzeImageQuality(fileType)
 
         switch result {
-        | Error(msg) => t->expect(msg)->Expect.String.toContain("Network Error")
+        | Error(msg) => t->expect(msg)->Expect.String.toContain("Analysis failed")
         | Ok(_) => t->expect(true)->Expect.toBe(false)
         }
       },
