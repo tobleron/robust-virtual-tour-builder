@@ -41,6 +41,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/core/StateSnapshot.res](src/core/StateSnapshot.res): Manager for capturing and rolling back application state snapshots. `#state` `#rollback` `#reliability`
 *   [src/core/OptimisticAction.res](src/core/OptimisticAction.res): Wrapper for executing actions optimistically with automatic rollback on failure. `#actions` `#optimistic-update` `#reliability`
 *   [src/core/AppFSM.res](src/core/AppFSM.res): Global Finite State Machine orchestrating top-level application modes. `#fsm` `#state` `#architecture`
+*   [src/core/NavigationState.res](src/core/NavigationState.res): Navigation domain state slice reducer (FSM/status/journey/auto-forward chain). `#state` `#navigation` `#reducer`
 *   [src/i18n/I18n.res](src/i18n/I18n.res): Internationalization orchestrator for multi-language support. `#i18n` `#ui`
 *   [src/core/Reducer.res](src/core/Reducer.res): Consolidated state reducer handling scenes, hotspots, navigation, and projects. `#reducer` `#logic`
     *   [src/core/SceneMutations.res](src/core/SceneMutations.res): Complex state mutation logic for scene renaming, deletion, and reordering. `#state` `#scene` `#logic`
@@ -311,5 +312,4 @@ This map provides a semantic overview of the project structure to optimize conte
 
 
 ## 🆕 Unmapped Modules
-* [src/core/NavigationState.res](src/core/NavigationState.res): New module detected. Please classify. #new
 * None detected.
