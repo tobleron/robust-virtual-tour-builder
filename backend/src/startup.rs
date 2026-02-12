@@ -135,7 +135,6 @@ pub fn cors() -> Cors {
             .allowed_origin("http://127.0.0.1:9999")
             .allowed_origin("http://localhost:8080")
             .allowed_origin("http://127.0.0.1:8080")
-            .allowed_origin("file://")
     }
 }
 
