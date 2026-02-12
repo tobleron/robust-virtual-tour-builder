@@ -4,21 +4,9 @@ import path from 'node:path';
 
 const METRICS_PATH = path.resolve('artifacts/perf-budget-metrics.json');
 
-const budgets = {
-  maxRapidNavigationP95Ms: Number(process.env.BUDGET_MAX_RAPID_NAV_P95_MS ?? 1500),
-  maxRapidNavigationLongTasks: Number(process.env.BUDGET_MAX_RAPID_NAV_LONG_TASKS ?? 25),
-  maxRapidNavigationMemoryGrowthRatio: Number(
-    process.env.BUDGET_MAX_RAPID_NAV_MEMORY_RATIO ?? 2.5,
-  ),
-  maxBulkUploadLatencyMs: Number(process.env.BUDGET_MAX_BULK_UPLOAD_MS ?? 90000),
-  minSimulationDistinctSceneSwitches: Number(
-    process.env.BUDGET_MIN_SIMULATION_DISTINCT_SCENES ?? 2,
-  ),
-  maxSimulationLongTasks: Number(process.env.BUDGET_MAX_SIMULATION_LONG_TASKS ?? 30),
-  maxSimulationMemoryGrowthRatio: Number(
-    process.env.BUDGET_MAX_SIMULATION_MEMORY_RATIO ?? 2.2,
-  ),
-};
+import { getBudgetConfig } from './runtime-budget-config.mjs';
+
+const { budgets, presetName } = getBudgetConfig();
 
 function assertBudget(condition, message, failures) {
   if (!condition) failures.push(message);
@@ -28,6 +16,9 @@ async function main() {
   const raw = await fs.readFile(METRICS_PATH, 'utf8');
   const metrics = JSON.parse(raw);
   const failures = [];
+
+  console.log(`[budget][runtime] Using preset '${presetName}' with thresholds:`);
+  console.table(budgets);
 
   assertBudget(
     metrics.rapidNavigation?.p95Ms <= budgets.maxRapidNavigationP95Ms,
@@ -85,4 +76,3 @@ main().catch((err) => {
   console.error('[budget][runtime][ERROR]', err);
   process.exit(1);
 });
-

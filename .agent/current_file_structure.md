@@ -10587,7 +10587,8 @@
 │   │   ├── FORMULA_ANALYSIS.md
 │   │   ├── FORMULA_V2_IMPLEMENTATION.md
 │   │   ├── enterprise_reliability_performance_runbook.md
-│   │   └── enterprise_slo_baseline.md
+│   │   ├── enterprise_slo_baseline.md
+│   │   └── perf_budget_environment_expectations.md
 │   ├── _tmp_test_reports
 │   ├── architecture
 │   │   ├── JSON_ENCODING_STANDARDS.md
@@ -15995,10 +15996,12 @@
 │   ├── dev-system.sh
 │   ├── fast-commit.sh
 │   ├── generate-test-tasks.cjs.deprecated
+│   ├── install-browsers.sh
 │   ├── pre-push.sh
 │   ├── project-guard.sh
 │   ├── prune-snapshots.sh
 │   ├── restore-snapshot.sh
+│   ├── runtime-budget-config.mjs
 │   ├── setup.sh
 │   ├── strip_zombie_tags.cjs
 │   ├── sync-sw.cjs
@@ -16576,6 +16579,8 @@
 │   │   ├── 1357_ARCH_Backend_Production_Hardening_DONE.md
 │   │   ├── 1358_PERF_Budgets_Stress_Gates_and_Program_Closeout_DONE.md
 │   │   ├── 1359_FIX_Backend_Service_Startup_Robustness_DONE.md
+│   │   ├── 1360_FIX_CI_Environment_Budget_Thresholds_DONE.md
+│   │   ├── 1361_FIX_E2E_Browser_Provisioning_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
 │   │       ├── 1195_Test_Teaser_DONE.md
@@ -16595,8 +16600,6 @@
 │   │   ├── 1325_E2E_Test_Robustness_Resilience.md
 │   │   ├── 1326_E2E_Test_Performance_Regression.md
 │   │   ├── 1327_Refactor_Notification_Logic.md
-│   │   ├── 1360_FIX_CI_Environment_Budget_Thresholds.md
-│   │   ├── 1361_FIX_E2E_Browser_Provisioning.md
 │   │   └── dev_tasks
 │   │       ├── D001_Fix_Violations_FRONTEND.md
 │   │       ├── D002_Surgical_Refactor_CORE_FRONTEND.md
@@ -17007,4 +17010,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-734 directories, 16274 files
+734 directories, 16277 files
