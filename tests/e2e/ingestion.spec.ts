@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { setupAIObservability } from './ai-helper';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,6 +12,7 @@ const IMAGE_PATH = path.join(FIXTURES_DIR, 'image.jpg');
 
 test.describe('Ingestion Pipeline', () => {
   test.beforeEach(async ({ page }) => {
+    await setupAIObservability(page);
     await page.goto('/');
     await page.evaluate(async () => {
       localStorage.clear();

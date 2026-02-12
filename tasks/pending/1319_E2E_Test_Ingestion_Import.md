@@ -14,7 +14,7 @@ Validation of the initial entry points of the application (uploading and importi
 1. Ensure the development environment is running (`npm run dev` and backend).
 2. Run the specified E2E tests: `npx playwright test tests/e2e/ingestion.spec.ts tests/e2e/desktop-import.spec.ts`
 3. Analyze any failures or flakiness.
-4. Prepare a detailed report in `docs/_tmp_test_reports/report_ingestion_import.md`.
+4. Prepare a detailed report in `docs/_pending_integration/e2e_ingestion_import_report.md`.
 5. The report MUST include:
    - Pass/Fail status for each test file.
    - Trace logs or screenshots for failures (if available).
@@ -22,4 +22,4 @@ Validation of the initial entry points of the application (uploading and importi
    - Proposed technical fixes.
 
 ## Report File
-`docs/_tmp_test_reports/report_ingestion_import.md`
+`docs/_pending_integration/e2e_ingestion_import_report.md`

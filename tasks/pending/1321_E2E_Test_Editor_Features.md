@@ -13,7 +13,7 @@ Validation of the UI components, manual scene manipulations, and specific featur
 ## Steps
 1. Run the specified E2E tests: `npx playwright test tests/e2e/editor.spec.ts tests/e2e/feature-deep-dive.spec.ts`
 2. Analyze UI interaction issues or state synchronization bugs.
-3. Prepare a detailed report in `docs/_tmp_test_reports/report_editor_features.md`.
+3. Prepare a detailed report in `docs/_pending_integration/e2e_editor_features_report.md`.
 4. The report MUST include:
    - Pass/Fail status.
    - Specific UI elements that failed to interact or render correctly.
@@ -21,4 +21,4 @@ Validation of the UI components, manual scene manipulations, and specific featur
    - Proposed technical fixes.
 
 ## Report File
-`docs/_tmp_test_reports/report_editor_features.md`
+`docs/_pending_integration/e2e_editor_features_report.md`

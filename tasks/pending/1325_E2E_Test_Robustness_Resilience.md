@@ -13,7 +13,7 @@ The `robustness.spec.ts` file contains intensive tests designed to break the app
 1. Run the specified E2E test: `npx playwright test tests/e2e/robustness.spec.ts`
 2. Analyze system stability under heavy load or rapid-fire actions.
 3. Identify memory leaks or CPU spikes if possible (via test logs).
-4. Prepare a detailed report in `docs/_tmp_test_reports/report_robustness.md`.
+4. Prepare a detailed report in `docs/_pending_integration/e2e_robustness_report.md`.
 5. The report MUST include:
    - Pass/Fail status.
    - Specific failure points under stress.
@@ -21,4 +21,4 @@ The `robustness.spec.ts` file contains intensive tests designed to break the app
    - Proposed technical fixes.
 
 ## Report File
-`docs/_tmp_test_reports/report_robustness.md`
+`docs/_pending_integration/e2e_robustness_report.md`

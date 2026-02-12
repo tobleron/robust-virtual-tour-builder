@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { setupAIObservability } from './ai-helper';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,6 +48,7 @@ async function uploadThreeScenes(page) {
 
 test.describe('FSM Interaction Logic', () => {
   test.beforeEach(async ({ page }) => {
+    await setupAIObservability(page);
     await page.goto('/');
     await page.evaluate(async () => {
       localStorage.clear();

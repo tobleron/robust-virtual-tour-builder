@@ -15,7 +15,7 @@ Validation of the system's ability to recover from interrupted operations and ma
 1. Run the specified E2E tests: `npx playwright test tests/e2e/error-recovery.spec.ts tests/e2e/operation-recovery.spec.ts tests/e2e/save-load-recovery.spec.ts`
 2. Verify that the recovery modal appears when expected.
 3. Check for data loss during refresh or simulated network failures.
-4. Prepare a detailed report in `docs/_tmp_test_reports/report_recovery_persistence.md`.
+4. Prepare a detailed report in `docs/_pending_integration/e2e_recovery_persistence_report.md`.
 5. The report MUST include:
    - Pass/Fail status.
    - Effectiveness of the recovery mechanisms.
@@ -23,4 +23,4 @@ Validation of the system's ability to recover from interrupted operations and ma
    - Proposed technical fixes.
 
 ## Report File
-`docs/_tmp_test_reports/report_recovery_persistence.md`
+`docs/_pending_integration/e2e_recovery_persistence_report.md`

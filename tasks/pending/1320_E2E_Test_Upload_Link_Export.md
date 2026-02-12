@@ -13,7 +13,7 @@ This test covers the critical end-to-end path of creating a tour and exporting i
 1. Run the specified E2E test: `npx playwright test tests/e2e/upload-link-export-workflow.spec.ts`
 2. Monitor for timeouts or race conditions during the multi-step process.
 3. Analyze any failures in the export generation or download phase.
-4. Prepare a detailed report in `docs/_tmp_test_reports/report_upload_link_export.md`.
+4. Prepare a detailed report in `docs/_pending_integration/e2e_upload_link_export_report.md`.
 5. The report MUST include:
    - Pass/Fail status.
    - Breakdown of which stage failed (Upload, Linking, or Export).
@@ -21,4 +21,4 @@ This test covers the critical end-to-end path of creating a tour and exporting i
    - Proposed technical fixes.
 
 ## Report File
-`docs/_tmp_test_reports/report_upload_link_export.md`
+`docs/_pending_integration/e2e_upload_link_export_report.md`
