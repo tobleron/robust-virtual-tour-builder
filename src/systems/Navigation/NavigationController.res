@@ -8,6 +8,7 @@ open React
 module ControllerHooks = {
   let useNavigationFSM = (state: state, dispatch, getState) => {
     React.useEffect2(() => {
+      let taskInfo = NavigationSupervisor.getCurrentTask()
       switch state.navigationState.navigationFsm {
       | Preloading({targetSceneId, isAnticipatory}) =>
         Logger.debug(
@@ -20,7 +21,6 @@ module ControllerHooks = {
           (),
         )
         let sourceSceneId = state.scenes->Belt.Array.get(state.activeIndex)->Option.map(s => s.id)
-        let taskInfo = NavigationSupervisor.getCurrentTask()
 
         Scene.Loader.loadNewScene(
           ~state=Scene.Loader.toPathRequest(state),
@@ -33,10 +33,14 @@ module ControllerHooks = {
         )
 
         let timeoutId = Window.setTimeout(() => {
-          if isAnticipatory {
-            dispatch(Actions.DispatchNavigationFsmEvent(Reset))
-          } else {
-            dispatch(Actions.DispatchNavigationFsmEvent(LoadTimeout))
+          switch taskInfo {
+          | Some(t) if NavigationSupervisor.isCurrentToken(t.token) =>
+            if isAnticipatory {
+              dispatch(Actions.DispatchNavigationFsmEvent(Reset))
+            } else {
+              dispatch(Actions.DispatchNavigationFsmEvent(LoadTimeout))
+            }
+          | _ => ()
           }
         }, Constants.sceneLoadTimeout)
         Some(() => Window.clearTimeout(timeoutId))
@@ -67,15 +71,25 @@ module ControllerHooks = {
               ~data=Some({"sceneId": ts.id, "sceneName": ts.name}),
               (),
             )
-            let taskInfo = NavigationSupervisor.getCurrentTask()
-            Scene.Transition.performSwap(
-              ts,
-              0.0,
-              ~taskId=?taskInfo->Option.map(t => t.token.id),
-              ~getState,
-              ~dispatch,
-              ~transition=state.transition,
-            )
+            let current = NavigationSupervisor.getCurrentTask()
+            switch current {
+            | Some(t) if NavigationSupervisor.isCurrentToken(t.token) =>
+              Scene.Transition.performSwap(
+                ts,
+                0.0,
+                ~taskId=?Some(t.token.id),
+                ~getState,
+                ~dispatch,
+                ~transition=state.transition,
+              )
+            | _ =>
+              Logger.debug(
+                ~module_="NavigationController",
+                ~message="STALE_STABILIZE_IGNORED",
+                ~data=Some({"targetSceneId": targetSceneId}),
+                (),
+              )
+            }
           | None =>
             Logger.error(
               ~module_="NavigationController",

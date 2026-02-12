@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Task 1358: add CI bundle/runtime budget gates, perf stress suite, SLO-aligned runbook, and archive task closeout
 - Task 1348 progress: stabilized unit tests by fixing stale mocks/expectations and bridge-state wiring, removed zombie low-signal tests, frontend suite now green (812/812). Remaining: complete Tracks A-G acceptance criteria, run full verification matrix (npm run build, backend release build, npm test, e2e/perf), and archive task from active to completed.
 - Dev tasks D012+D013: integrated navigation modules into DATA_FLOW (FloorNavigation, Actions, NavigationHelpers/State, Navigation/Logic/UI/Graph, TransitionLock context) and classified NavigationState in MAP; cleared unmapped sections. Remaining: execute unresolved enterprise hardening implementation for task 1348 Tracks A-G and complete full verification matrix before archiving 1348.
+- Task 1348 Track A: added run-token guards in NavigationController to ignore stale preload/stabilize callbacks; frontend suite green (812/812). Remaining: Tracks B-G and full verification matrix (npm run build, backend release, npm test, e2e/perf) before archiving task.
 
 ## [4.4.2] - 2026-02-11
 
