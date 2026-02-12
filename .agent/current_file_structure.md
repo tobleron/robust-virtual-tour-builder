@@ -10586,6 +10586,7 @@
 │   │   ├── DEV_SYSTEM_SUMMARY.md
 │   │   ├── FORMULA_ANALYSIS.md
 │   │   ├── FORMULA_V2_IMPLEMENTATION.md
+│   │   ├── enterprise_reliability_performance_runbook.md
 │   │   └── enterprise_slo_baseline.md
 │   ├── _tmp_test_reports
 │   ├── architecture
@@ -15986,6 +15987,8 @@
 ├── rsbuild.config.mjs
 ├── scripts
 │   ├── bump-version.js
+│   ├── check-bundle-budgets.mjs
+│   ├── check-runtime-budgets.mjs
 │   ├── cleanup_logs.sh
 │   ├── commit.sh
 │   ├── debug-connectivity.js
@@ -16570,6 +16573,7 @@
 │   │   ├── 1355_ARCH_API_Reliability_Contracts_DONE.md
 │   │   ├── 1356_ARCH_Persistence_Recovery_Durability_DONE.md
 │   │   ├── 1357_ARCH_Backend_Production_Hardening_DONE.md
+│   │   ├── 1358_PERF_Budgets_Stress_Gates_and_Program_Closeout_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
 │   │       ├── 1195_Test_Teaser_DONE.md
@@ -16590,7 +16594,6 @@
 │   │   ├── 1326_E2E_Test_Performance_Regression.md
 │   │   ├── 1327_Refactor_Notification_Logic.md
 │   │   ├── 1348_ARCH_Enterprise_Reliability_Performance_Hardening.md
-│   │   ├── 1358_PERF_Budgets_Stress_Gates_and_Program_Closeout.md
 │   │   └── dev_tasks
 │   │       ├── D001_Fix_Violations_FRONTEND.md
 │   │       ├── D002_Surgical_Refactor_CORE_FRONTEND.md
@@ -16639,6 +16642,7 @@
 │   │   ├── navigation.spec.ts
 │   │   ├── operation-recovery.spec.ts
 │   │   ├── optimistic-rollback.spec.ts
+│   │   ├── perf-budgets.spec.ts
 │   │   ├── performance.spec.ts
 │   │   ├── rapid-scene-switching.spec.ts
 │   │   ├── robustness.spec.ts
@@ -17002,4 +17006,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-734 directories, 16269 files
+734 directories, 16273 files

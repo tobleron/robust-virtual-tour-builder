@@ -238,6 +238,27 @@ Address/GPS Query
   → [backend/src/middleware.rs] and [backend/src/auth.rs] handle CORS and Auth
   → [backend/src/services/database.rs] connection pool
   → [backend/src/services/upload_quota.rs] and [backend/src/services/upload_quota_tests.rs] enforce limits
+
+### CI Budget Governance
+**Trigger:** Pull request / CI execution
+
+**Flow:**
+```
+CI job
+  → [npm run build] produces dist artifacts
+  → [scripts/check-bundle-budgets.mjs] validates bundle ceilings (raw/gzip/largest chunk)
+  → [playwright.config.ts] routes @budget tests to chromium-budget project
+  → [tests/e2e/perf-budgets.spec.ts] captures runtime metrics:
+      - rapid navigation p95 latency
+      - long task counts
+      - memory growth ratios
+      - bulk upload completion latency
+      - long simulation stability
+  → writes [artifacts/perf-budget-metrics.json]
+  → [scripts/check-runtime-budgets.mjs] enforces runtime thresholds
+  → [docs/_pending_integration/enterprise_reliability_performance_runbook.md] records threshold contract and before/after SLO evidence
+  → CI fails on budget regression
+```
   → [backend/src/services/shutdown.rs] graceful exit orchestration
   → [backend/src/metrics.rs] processes performance metrics
 ```
