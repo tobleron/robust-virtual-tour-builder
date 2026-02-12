@@ -1,11 +1,13 @@
 // @efficiency: infra-adapter
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 use tokio::sync::RwLock;
 
 /// Manages graceful shutdown procedures
 pub struct ShutdownManager {
     active_requests: Arc<RwLock<usize>>,
+    is_shutting_down: Arc<AtomicBool>,
     shutdown_timeout: Duration,
 }
 
@@ -13,8 +15,19 @@ impl ShutdownManager {
     pub fn new(shutdown_timeout: Duration) -> Self {
         Self {
             active_requests: Arc::new(RwLock::new(0)),
+            is_shutting_down: Arc::new(AtomicBool::new(false)),
             shutdown_timeout,
         }
+    }
+
+    /// Mark shutdown as started. New requests should be rejected.
+    pub fn begin_shutdown(&self) {
+        self.is_shutting_down.store(true, Ordering::SeqCst);
+        tracing::info!("Shutdown flag enabled");
+    }
+
+    pub fn is_shutting_down(&self) -> bool {
+        self.is_shutting_down.load(Ordering::SeqCst)
     }
 
     /// Register a new active request
@@ -159,4 +172,26 @@ pub async fn perform_shutdown_cleanup(shutdown_manager: &ShutdownManager) {
     }
 
     tracing::info!("✅ Graceful shutdown complete");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn wait_for_completion_returns_false_on_timeout() {
+        let manager = ShutdownManager::new(Duration::from_millis(50));
+        manager.register_request().await;
+
+        let completed = manager.wait_for_completion().await;
+        assert!(!completed);
+    }
+
+    #[tokio::test]
+    async fn begin_shutdown_blocks_new_requests() {
+        let manager = ShutdownManager::new(Duration::from_secs(1));
+        assert!(!manager.is_shutting_down());
+        manager.begin_shutdown();
+        assert!(manager.is_shutting_down());
+    }
 }

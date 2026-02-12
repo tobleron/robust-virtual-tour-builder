@@ -1,9 +1,8 @@
 use actix_files as fs;
 use actix_session::{SessionMiddleware, storage::CookieSessionStore};
-use actix_web::{App, HttpResponse, HttpServer, Responder, cookie::Key, web};
+use actix_web::{App, HttpResponse, HttpServer, Responder, web};
 use actix_web_prom::PrometheusMetricsBuilder;
 use std::io;
-use std::time::Duration;
 use tokio::signal;
 use tracing_actix_web::TracingLogger;
 
@@ -61,12 +60,7 @@ async fn main() -> io::Result<()> {
     }
 
     // Initialize shutdown manager
-    let shutdown_timeout = Duration::from_secs(
-        std::env::var("SHUTDOWN_TIMEOUT_SECS")
-            .ok()
-            .and_then(|s| s.parse().ok())
-            .unwrap_or(30),
-    );
+    let shutdown_timeout = startup::shutdown_timeout();
     let shutdown_manager = web::Data::new(ShutdownManager::new(shutdown_timeout));
 
     tracing::info!(
@@ -96,17 +90,7 @@ async fn main() -> io::Result<()> {
             )
         })?;
 
-    // Rate limiting configuration: allow generous limits for dev/test environments
-    // Production: 100 req/sec | Dev/Test: 10000 req/sec (unlimited for E2E testing)
-    let is_production = std::env::var("NODE_ENV")
-        .map(|v| v == "production")
-        .unwrap_or(false);
-
-    let (requests_per_sec, burst_size) = if is_production {
-        (100, 200) // Strict production limits
-    } else {
-        (10000, 20000) // Very generous dev/test limits for concurrent E2E test startup
-    };
+    let (requests_per_sec, burst_size) = startup::rate_limit_settings();
 
     let governor_conf = actix_governor::GovernorConfigBuilder::default()
         .per_second(requests_per_sec)
@@ -117,7 +101,7 @@ async fn main() -> io::Result<()> {
     tracing::info!(
         requests_per_second = requests_per_sec,
         burst_size = burst_size,
-        environment = if is_production {
+        environment = if startup::is_production() {
             "production"
         } else {
             "development"
@@ -125,6 +109,7 @@ async fn main() -> io::Result<()> {
         "Rate limiter configured"
     );
 
+    let session_key = startup::session_key()?;
     let shutdown_manager_server = shutdown_manager.clone();
     let db_pool_server = db_pool.clone();
 
@@ -141,11 +126,7 @@ async fn main() -> io::Result<()> {
             .wrap(actix_governor::Governor::new(&governor_conf))
             .wrap(SessionMiddleware::new(
                 CookieSessionStore::default(),
-                Key::from(
-                    std::env::var("SESSION_KEY")
-                        .expect("SESSION_KEY must be set")
-                        .as_bytes(),
-                ),
+                session_key.clone(),
             ))
             .wrap(startup::cors())
             .wrap(prometheus.clone())
@@ -180,6 +161,7 @@ async fn main() -> io::Result<()> {
             )
             .default_service(web::get().to(|| async { fs::NamedFile::open("../dist/index.html") }))
     })
+    .shutdown_timeout(shutdown_timeout.as_secs() as u64)
     .bind(("0.0.0.0", 8080))?
     .run();
 
@@ -200,6 +182,8 @@ async fn main() -> io::Result<()> {
                 tracing::error!("Failed to listen for Ctrl+C: {}", err);
             }
         }
+
+        shutdown_manager_clone.begin_shutdown();
 
         // Stop accepting new connections
         server_handle.stop(true).await;

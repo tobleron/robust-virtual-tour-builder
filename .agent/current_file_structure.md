@@ -10988,12 +10988,6 @@
 │   │   │   │   ├── AppStateBridge.cmj
 │   │   │   │   ├── AppStateBridge.cmt
 │   │   │   │   ├── AppStateBridge.res
-│   │   │   │   ├── GlobalStateBridge.ast
-│   │   │   │   ├── GlobalStateBridge.bs.js
-│   │   │   │   ├── GlobalStateBridge.cmi
-│   │   │   │   ├── GlobalStateBridge.cmj
-│   │   │   │   ├── GlobalStateBridge.cmt
-│   │   │   │   ├── GlobalStateBridge.res
 │   │   │   │   ├── HotspotHelpers.ast
 │   │   │   │   ├── HotspotHelpers.bs.js
 │   │   │   │   ├── HotspotHelpers.cmi
@@ -12028,12 +12022,6 @@
 │   │           ├── GeoUtils_v.test.cmj
 │   │           ├── GeoUtils_v.test.cmt
 │   │           ├── GeoUtils_v.test.res
-│   │           ├── GlobalStateBridge_v.test.ast
-│   │           ├── GlobalStateBridge_v.test.bs.js
-│   │           ├── GlobalStateBridge_v.test.cmi
-│   │           ├── GlobalStateBridge_v.test.cmj
-│   │           ├── GlobalStateBridge_v.test.cmt
-│   │           ├── GlobalStateBridge_v.test.res
 │   │           ├── HotspotActionMenu_v.test.ast
 │   │           ├── HotspotActionMenu_v.test.bs.js
 │   │           ├── HotspotActionMenu_v.test.cmi
@@ -13146,8 +13134,6 @@
 │   │   ├── GeoUtils_v.test.cmj
 │   │   ├── GeoUtils_v.test.cmt
 │   │   ├── GeoUtils_v.test.res
-│   │   ├── GlobalStateBridge.res
-│   │   ├── GlobalStateBridge_v.test.res
 │   │   ├── GraphicsBindings.ast
 │   │   ├── GraphicsBindings.cmi
 │   │   ├── GraphicsBindings.cmj
@@ -16583,6 +16569,7 @@
 │   │   ├── 1354_ARCH_StateBoundary_Migration_Phase2_Bridge_Decommission_DONE.md
 │   │   ├── 1355_ARCH_API_Reliability_Contracts_DONE.md
 │   │   ├── 1356_ARCH_Persistence_Recovery_Durability_DONE.md
+│   │   ├── 1357_ARCH_Backend_Production_Hardening_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
 │   │       ├── 1195_Test_Teaser_DONE.md
@@ -16603,7 +16590,6 @@
 │   │   ├── 1326_E2E_Test_Performance_Regression.md
 │   │   ├── 1327_Refactor_Notification_Logic.md
 │   │   ├── 1348_ARCH_Enterprise_Reliability_Performance_Hardening.md
-│   │   ├── 1357_ARCH_Backend_Production_Hardening.md
 │   │   ├── 1358_PERF_Budgets_Stress_Gates_and_Program_Closeout.md
 │   │   └── dev_tasks
 │   │       ├── D001_Fix_Violations_FRONTEND.md
@@ -17016,4 +17002,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-734 directories, 16283 files
+734 directories, 16269 files

@@ -1,10 +1,11 @@
 // @efficiency-role: service-orchestrator
+use crate::api::utils::json_error_response;
 use crate::metrics::ACTIVE_SESSIONS;
 
 use crate::services::shutdown::ShutdownManager;
 use crate::services::upload_quota::UploadQuotaManager;
 use actix_web::{
-    Error, HttpResponse,
+    Error,
     body::{BoxBody, EitherBody},
     dev::{Service, ServiceRequest, ServiceResponse, Transform, forward_ready},
     web,
@@ -89,11 +90,11 @@ where
                         tracing::warn!(ip = %ip, size = content_length, error = %e, "Upload rejected");
 
                         Ok(req
-                            .into_response(HttpResponse::TooManyRequests().json(
-                                serde_json::json!({
-                                    "error": "Quota exceeded",
-                                    "message": e
-                                }),
+                            .into_response(json_error_response(
+                                actix_web::http::StatusCode::TOO_MANY_REQUESTS,
+                                "Quota exceeded",
+                                &e,
+                                None,
                             ))
                             .map_body(|_, b| EitherBody::Right { body: b }))
                     }
@@ -125,10 +126,27 @@ fn should_check_quota(req: &ServiceRequest) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use actix_web::test;
 
-    #[test]
-    fn test_quota_check_middleware_exists() {
+    #[actix_web::test]
+    async fn test_quota_check_middleware_exists() {
         let _ = QuotaCheck;
+    }
+
+    #[actix_web::test]
+    async fn test_should_check_quota_paths() {
+        let req = test::TestRequest::post()
+            .uri("/api/media/upload")
+            .to_srv_request();
+        assert!(should_check_quota(&req));
+
+        let req = test::TestRequest::post()
+            .uri("/api/project/save")
+            .to_srv_request();
+        assert!(should_check_quota(&req));
+
+        let req = test::TestRequest::get().uri("/health").to_srv_request();
+        assert!(!should_check_quota(&req));
     }
 }
 
@@ -144,7 +162,7 @@ where
     S::Future: 'static,
     B: 'static,
 {
-    type Response = ServiceResponse<B>;
+    type Response = ServiceResponse<EitherBody<B, BoxBody>>;
     type Error = Error;
     type InitError = ();
     type Transform = RequestTrackerMiddleware<S>;
@@ -165,7 +183,7 @@ where
     S::Future: 'static,
     B: 'static,
 {
-    type Response = ServiceResponse<B>;
+    type Response = ServiceResponse<EitherBody<B, BoxBody>>;
     type Error = Error;
     type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
 
@@ -181,6 +199,21 @@ where
             .map(|s| s.to_string())
             .unwrap_or_else(|| uuid::Uuid::new_v4().to_string());
 
+        if let Some(manager) = &shutdown_manager
+            && manager.is_shutting_down()
+        {
+            return Box::pin(async move {
+                Ok(req
+                    .into_response(json_error_response(
+                        actix_web::http::StatusCode::SERVICE_UNAVAILABLE,
+                        "Service Unavailable",
+                        "Server is shutting down. Please retry shortly.",
+                        Some(&request_id),
+                    ))
+                    .map_body(|_, b| EitherBody::Right { body: b }))
+            });
+        }
+
         let fut = self.service.call(req);
 
         let span = tracing::info_span!("request", request_id = %request_id);
@@ -193,11 +226,11 @@ where
                     let res = fut.await;
                     manager.unregister_request().await;
                     ACTIVE_SESSIONS.dec();
-                    res
+                    res.map(|res| res.map_body(|_, b| EitherBody::Left { body: b }))
                 } else {
                     let res = fut.await;
                     ACTIVE_SESSIONS.dec();
-                    res
+                    res.map(|res| res.map_body(|_, b| EitherBody::Left { body: b }))
                 }
             }
             .instrument(span),
@@ -208,7 +241,9 @@ where
 #[cfg(test)]
 mod request_tracker_tests {
     use super::*;
-    use actix_web::{App, HttpResponse, test, web};
+    use crate::services::shutdown::ShutdownManager;
+    use actix_web::{App, HttpResponse, http::StatusCode, test, web};
+    use std::time::Duration;
 
     #[actix_web::test]
     async fn test_request_tracker_middleware() {
@@ -223,5 +258,42 @@ mod request_tracker_tests {
         let resp = test::call_service(&app, req).await;
 
         assert!(resp.status().is_success());
+    }
+
+    #[actix_web::test]
+    async fn test_request_tracker_rejects_when_shutdown_started() {
+        let shutdown = web::Data::new(ShutdownManager::new(Duration::from_secs(1)));
+        shutdown.begin_shutdown();
+
+        let app = test::init_service(
+            App::new()
+                .app_data(shutdown)
+                .wrap(RequestTracker)
+                .route("/", web::get().to(HttpResponse::Ok)),
+        )
+        .await;
+
+        let req = test::TestRequest::get().uri("/").to_request();
+        let resp = test::call_service(&app, req).await;
+
+        assert_eq!(resp.status(), StatusCode::SERVICE_UNAVAILABLE);
+    }
+
+    #[actix_web::test]
+    async fn test_request_tracker_drains_on_error_response() {
+        let shutdown = web::Data::new(ShutdownManager::new(Duration::from_secs(1)));
+        let shutdown_ref = shutdown.clone();
+
+        let app = test::init_service(App::new().app_data(shutdown).wrap(RequestTracker).route(
+            "/",
+            web::get().to(|| async { HttpResponse::InternalServerError().finish() }),
+        ))
+        .await;
+
+        let req = test::TestRequest::get().uri("/").to_request();
+        let resp = test::call_service(&app, req).await;
+
+        assert_eq!(resp.status(), StatusCode::INTERNAL_SERVER_ERROR);
+        assert_eq!(shutdown_ref.active_count().await, 0);
     }
 }
