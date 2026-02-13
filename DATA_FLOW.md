@@ -296,7 +296,7 @@ CI job
 
 ### Concurrent Utility primitives
 **Purpose:** Flow control and performance management.
-- [src/utils/AsyncQueue.res], [src/utils/RequestQueue.res], [src/utils/CircuitBreaker.res], [src/utils/RateLimiter.res], [src/utils/Retry.res], [src/utils/Debounce.res], [src/core/InteractionGuard.res], [src/core/TransitionLock.res] (deprecated compatibility lock), [src/systems/Navigation/NavigationSupervisor.res] (navigation-specific concurrency)
+- [src/utils/AsyncQueue.res], [src/utils/RequestQueue.res], [src/utils/CircuitBreaker.res], [src/utils/RateLimiter.res], [src/utils/Retry.res], [src/utils/Debounce.res], [src/core/InteractionGuard.res], [src/systems/Navigation/NavigationSupervisor.res] (navigation-specific concurrency)
 
 ### Interaction & Perception
 - [src/systems/InputSystem.res], [src/systems/CursorPhysics.res], [src/systems/ViewerFollow.res], [src/utils/ProgressBar.res], [src/utils/ColorPalette.res], [src/utils/SessionStore.res], [src/utils/StateInspector.res], [src/systems/TourTemplates.res]

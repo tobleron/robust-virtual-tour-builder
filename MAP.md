@@ -51,7 +51,6 @@ This map provides a semantic overview of the project structure to optimize conte
     *   [src/core/JsonParsersEncoders.res](src/core/JsonParsersEncoders.res): Domain-specific JSON encoders using rescript-json-combinators. `#json` `#encoding`
 *   [src/core/JsonParsersShared.res](src/core/JsonParsersShared.res): Shared JSON parsers for cross-domain metadata (Exif, Quality). `#json` `#shared` `#parsing`
 *   [src/core/JsonEncoders.res](src/core/JsonEncoders.res): Centralized JSON encoders using rescript-json-combinators for CSP compliance. `#json` `#encoding` `#csp`
-*   [src/core/TransitionLock.res](src/core/TransitionLock.res): ~~Global lock for scene transitions.~~ DEPRECATED — replaced by NavigationSupervisor for navigation flows. `#deprecated` `#concurrency`
 *   [src/core/InteractionGuard.res](src/core/InteractionGuard.res): Cooldown and multi-click prevention for UI actions. `#concurrency` `#safety`
 *   [src/core/InteractionPolicies.res](src/core/InteractionPolicies.res): Configuration for interaction cooldowns and limits. `#configuration` `#safety`
 *   [src/core/NotificationManager.res](src/core/NotificationManager.res): Core logic for dispatching and managing notifications. `#logic` `#notifications`
@@ -214,6 +213,7 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/utils/GeoUtils.res](src/utils/GeoUtils.res): Geospatial calculation utilities for tour locations. `#utils` `#geo`
 *   [src/utils/ImageOptimizer.res](src/utils/ImageOptimizer.res): Client-side image optimization and compression helpers. `#utils` `#image`
 *   [src/utils/PathInterpolation.res](src/utils/PathInterpolation.res): Smooth path interpolation for cinematic movements. `#utils` `#math`
+*   [src/utils/Easing.res](src/utils/Easing.res): Premium easing functions for smooth cinematic transitions. `#utils` `#math` `#animation`
 *   [src/utils/ProgressBar.res](src/utils/ProgressBar.res): Logic for managing multi-step progress indicators. `#utils` `#ui`
 *   [src/utils/StateInspector.res](src/utils/StateInspector.res): Debug utilities for inspecting the application state tree. `#utils` `#debug`
 *   [src/utils/TourLogic.res](src/utils/TourLogic.res): Core domain logic for tour structure and state validation. `#utils` `#logic`
@@ -312,5 +312,4 @@ This map provides a semantic overview of the project structure to optimize conte
 
 
 ## 🆕 Unmapped Modules
-* [src/utils/Easing.res](src/utils/Easing.res): New module detected. Please classify. #new
 * None detected.
