@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Fix build errors and refine single-scene preview logic for clickable arrows
+- Implement smooth cinematic intro pan, leveled arrival, and waypoint visibility hardening
 
 ## [4.4.4] - 2026-02-13
 

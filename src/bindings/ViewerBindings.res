@@ -20,6 +20,7 @@ module Viewer = {
 
   @send external mouseEventToCoords: (t, mouseEvent) => array<float> = "mouseEventToCoords"
   @send external setYawWithDuration: (t, float, int) => unit = "setYaw"
+  @send external setPitchWithDuration: (t, float, int) => unit = "setPitch"
 
   @send external getConfig: t => config = "getConfig"
   @send external removeHotSpot: (t, string) => unit = "removeHotSpot"
