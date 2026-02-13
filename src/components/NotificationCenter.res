@@ -7,7 +7,7 @@
 
 module Toast = {
   @react.component
-  let make = (~notification: NotificationTypes.notification) => {
+  let make = (~notification: NotificationTypes.notification, ~isFadingOut: bool) => {
     let (isDismissing, setIsDismissing) = React.useState(_ => false)
 
     let handleDismiss = _ => {
@@ -29,7 +29,14 @@ module Toast = {
 
     let importanceKey = NotificationTypes.importanceToString(notification.importance)
 
-    <div className={"viewer-toast " ++ importanceKey ++ (isDismissing ? " dismissing" : "")}>
+    <div
+      className={"viewer-toast " ++
+      importanceKey ++ if isFadingOut || isDismissing {
+        " dismissing"
+      } else {
+        ""
+      }}
+    >
       /* Close Button - Orange Bubble Badge */
       {if notification.dismissible {
         <button
@@ -77,6 +84,8 @@ let make = React.memo(() => {
     Some(() => unsubscribe())
   })
 
+  let isFadingOut = id => Belt.Array.some(state.fadingOut, fadingId => fadingId === id)
+
   if Array.length(state.active) == 0 {
     React.null
   } else {
@@ -84,7 +93,7 @@ let make = React.memo(() => {
     <div id="viewer-notifications-container">
       {state.active
       ->Belt.Array.map(notif => {
-        <Toast key=notif.id notification=notif />
+        <Toast key=notif.id notification=notif isFadingOut={isFadingOut(notif.id)} />
       })
       ->React.array}
     </div>
