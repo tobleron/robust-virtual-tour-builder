@@ -78,7 +78,7 @@ module Dom = {
   @scope("document") @val external createElement: string => element = "createElement"
   @set external setId: (element, string) => unit = "id"
   @send external setAttribute: (element, string, string) => unit = "setAttribute"
-  @send external getAttribute: (element, string) => string = "getAttribute"
+  @send external getAttribute: (element, string) => Nullable.t<string> = "getAttribute"
   @send external removeAttribute: (element, string) => unit = "removeAttribute"
   @send external appendChild: (element, element) => unit = "appendChild"
   @send external addEventListener: (element, string, event => unit) => unit = "addEventListener"

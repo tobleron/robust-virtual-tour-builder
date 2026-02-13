@@ -44,7 +44,7 @@ module ControllerHooks = {
           }
         }, Constants.sceneLoadTimeout)
         Some(() => Window.clearTimeout(timeoutId))
-      | Transitioning({progress}) if progress == 0.0 =>
+      | Transitioning({progress, isPreview: _isPreview}) if progress == 0.0 =>
         let shouldFinalize = switch state.navigationState.navigation {
         | Idle => true
         | Navigating(j) if j.pathData == None => true
@@ -128,6 +128,13 @@ module ControllerHooks = {
             ~data=Some({"journeyId": j.journeyId}),
             (),
           )
+          if j.previewOnly {
+            NavigationSupervisor.getCurrentTask()->Option.forEach(t => {
+              if NavigationSupervisor.isCurrentToken(t.token) {
+                NavigationSupervisor.complete(t.token.id)
+              }
+            })
+          }
           dispatch(NavigationCompleted(j))
         | _ => ()
         }

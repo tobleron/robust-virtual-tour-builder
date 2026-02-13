@@ -7,7 +7,7 @@ open Types
 describe("NavigationFSM", () => {
   test("Idle state transitions to Preloading on UserClickedScene", t => {
     let state = IdleFsm
-    let event: navigationEvent = UserClickedScene({targetSceneId: "scene-1"})
+    let event: navigationEvent = UserClickedScene({targetSceneId: "scene-1", previewOnly: false})
     let nextState = NavigationFSM.reducer(state, event)
 
     switch nextState {
@@ -38,6 +38,7 @@ describe("NavigationFSM", () => {
       fromSceneId: None,
       toSceneId: "scene-1",
       progress: 1.0,
+      isPreview: false,
     })
     let event: navigationEvent = TransitionComplete
     let nextState = NavigationFSM.reducer(state, event)
@@ -62,7 +63,7 @@ describe("NavigationFSM", () => {
       attempt: 1,
       isAnticipatory: false,
     })
-    let event: navigationEvent = UserClickedScene({targetSceneId: "scene-2"})
+    let event: navigationEvent = UserClickedScene({targetSceneId: "scene-2", previewOnly: false})
     let nextState = NavigationFSM.reducer(state, event)
 
     switch nextState {
@@ -76,8 +77,9 @@ describe("NavigationFSM", () => {
       fromSceneId: None,
       toSceneId: "scene-1",
       progress: 0.5,
+      isPreview: false,
     })
-    let event: navigationEvent = UserClickedScene({targetSceneId: "scene-2"})
+    let event: navigationEvent = UserClickedScene({targetSceneId: "scene-2", previewOnly: false})
     let nextState = NavigationFSM.reducer(state, event)
 
     switch nextState {
@@ -142,6 +144,7 @@ describe("NavigationFSM", () => {
         fromSceneId: None,
         toSceneId: "s1",
         progress: 0.5,
+        isPreview: false,
       }),
       Stabilizing({targetSceneId: "s1"}),
       ErrorFsm({code: "ERR", recoveryTarget: None}),

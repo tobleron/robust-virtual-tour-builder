@@ -35,6 +35,7 @@ open Types
 
 describe("Scene.Transition", () => {
   beforeEach(() => {
+    ViewerState.resetState()
     let _ = %raw(`
       (() => {
         globalThis.mockDomElements = {};
@@ -80,6 +81,10 @@ describe("Scene.Transition", () => {
       fromSceneName: None,
     }
 
+    ViewerState.state := {
+        ...ViewerState.state.contents,
+        lastSceneId: Nullable.make("initial-scene"),
+      }
     Scene.Transition.performSwap(s1, 0.0, ~getState, ~dispatch, ~transition)
 
     let classLists: dict<array<string>> = %raw(`globalThis.classLists`)

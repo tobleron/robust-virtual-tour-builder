@@ -8,7 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [4.5.0] - 2026-02-13
 
 ### Added
-- Unify transition notification toasts
+- Clickable Tour Preview Arrows in waypoints (limited to single-scene panning)
+- Panning status to NavigationSupervisor for seamless single-scene previews without notification noise
+
+### Fixed
+- Build errors related to `Dom.getAttribute` nullable return type alignment
+- Regression in `PopOver_v.test.res` and `SceneTransitionManager_v.test.res`
+- Premature FSM completion during single-scene previews
+- Clickable arrow animation ID mismatch causing static arrows during preview
+- Use correct `String.slice` parameters in `HotspotLayer.res`
+- Syntax error in `LockFeedback.res` and unused variable warnings in `NavigationController.res`
+- Unified transition notification toasts
+
+### Changed
+- Fix build errors and refine single-scene preview logic for clickable arrows
 
 ## [4.4.4] - 2026-02-13
 

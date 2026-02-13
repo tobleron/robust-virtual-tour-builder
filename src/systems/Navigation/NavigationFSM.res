@@ -33,20 +33,28 @@ let eventToString = (event: event) => {
 
 let reducer = (state: distinctState, action: event): distinctState => {
   let nextState = switch (state, action) {
-  | (IdleFsm, UserClickedScene({targetSceneId})) =>
-    Preloading({targetSceneId, attempt: 1, isAnticipatory: false})
+  | (IdleFsm, UserClickedScene({targetSceneId, previewOnly})) =>
+    if previewOnly {
+      Transitioning({fromSceneId: None, toSceneId: targetSceneId, progress: 0.0, isPreview: true})
+    } else {
+      Preloading({targetSceneId, attempt: 1, isAnticipatory: false})
+    }
   | (IdleFsm, PreloadStarted({targetSceneId})) =>
     Preloading({targetSceneId, attempt: 1, isAnticipatory: false})
   | (IdleFsm, StartAnticipatoryLoad({targetSceneId})) =>
     Preloading({targetSceneId, attempt: 1, isAnticipatory: true})
 
-  | (Preloading(_), UserClickedScene({targetSceneId})) =>
-    Preloading({targetSceneId, attempt: 1, isAnticipatory: false})
+  | (Preloading(_), UserClickedScene({targetSceneId, previewOnly})) =>
+    if previewOnly {
+      Transitioning({fromSceneId: None, toSceneId: targetSceneId, progress: 0.0, isPreview: true})
+    } else {
+      Preloading({targetSceneId, attempt: 1, isAnticipatory: false})
+    }
   | (Preloading(t), TextureLoaded({targetSceneId})) if t.targetSceneId == targetSceneId =>
     if t.isAnticipatory {
       IdleFsm
     } else {
-      Transitioning({fromSceneId: None, toSceneId: targetSceneId, progress: 0.0})
+      Transitioning({fromSceneId: None, toSceneId: targetSceneId, progress: 0.0, isPreview: false})
     }
   | (Preloading(t), TextureLoaded({targetSceneId: loadedId})) if t.targetSceneId != loadedId =>
     // MISMATCH: TextureLoaded arrived for a different scene than we're waiting for
@@ -67,10 +75,24 @@ let reducer = (state: distinctState, action: event): distinctState => {
     state
 
   | (Transitioning(s), AnimationProgress(p)) => Transitioning({...s, progress: p})
-  | (Transitioning(s), TransitionComplete) => Stabilizing({targetSceneId: s.toSceneId})
-  | (Transitioning(s), StabilizeComplete) => Stabilizing({targetSceneId: s.toSceneId})
-  | (Transitioning(_), UserClickedScene({targetSceneId})) =>
-    Preloading({targetSceneId, attempt: 1, isAnticipatory: false})
+  | (Transitioning(s), TransitionComplete) =>
+    if s.isPreview {
+      IdleFsm
+    } else {
+      Stabilizing({targetSceneId: s.toSceneId})
+    }
+  | (Transitioning(s), StabilizeComplete) =>
+    if s.isPreview {
+      IdleFsm
+    } else {
+      Stabilizing({targetSceneId: s.toSceneId})
+    }
+  | (Transitioning(_), UserClickedScene({targetSceneId, previewOnly})) =>
+    if previewOnly {
+      Transitioning({fromSceneId: None, toSceneId: targetSceneId, progress: 0.0, isPreview: true})
+    } else {
+      Preloading({targetSceneId, attempt: 1, isAnticipatory: false})
+    }
 
   | (Stabilizing(_), TransitionComplete) => IdleFsm
   | (Stabilizing(_), StabilizeComplete) => IdleFsm

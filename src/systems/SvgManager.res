@@ -197,6 +197,8 @@ module Renderer = {
           Float.toString(angle) ++ ")",
         )
         Dom.setProperty(arrow, "display", "block")
+        Svg.setAttribute(arrow, "cursor", "pointer")
+        Svg.setAttribute(arrow, "pointer-events", "auto")
         if opacity < 1.0 {
           Svg.setAttribute(arrow, "opacity", Float.toString(opacity))
         } else {

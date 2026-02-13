@@ -77,6 +77,15 @@ module AnimationLoop = {
             Viewer.setHfov(v, pd.targetHfovForPan, false)
 
             HotspotLine.updateLines(v, state, ())
+            let arrowId = switch state.scenes[j.sourceIndex] {
+            | Some(s) =>
+              switch s.hotspots[j.hotspotIndex] {
+              | Some(h) => "arrow_" ++ h.linkId
+              | None => "sim_arrow"
+              }
+            | None => "sim_arrow"
+            }
+
             HotspotLine.updateSimulationArrow(
               v,
               pd.startPitch,
@@ -90,6 +99,7 @@ module AnimationLoop = {
                 pitch: w.pitch,
               }),
               ~colorOverride=?j.previewOnly ? Some("red") : None,
+              ~id=arrowId,
               (),
             )
           }
@@ -166,6 +176,15 @@ module AnimationLoop = {
             Viewer.setYaw(v, cy, false)
             Viewer.setHfov(v, pd.startHfov +. (pd.targetHfovForPan -. pd.startHfov) *. prog, false)
             HotspotLine.updateLines(v, state, ())
+            let arrowId = switch state.scenes[j.sourceIndex] {
+            | Some(s) =>
+              switch s.hotspots[j.hotspotIndex] {
+              | Some(h) => "arrow_" ++ h.linkId
+              | None => "sim_arrow"
+              }
+            | None => "sim_arrow"
+            }
+
             HotspotLine.updateSimulationArrow(
               v,
               pd.startPitch,
@@ -178,6 +197,7 @@ module AnimationLoop = {
                 PathInterpolation.yaw: w.yaw,
                 pitch: w.pitch,
               }),
+              ~id=arrowId,
               (),
             )
           }

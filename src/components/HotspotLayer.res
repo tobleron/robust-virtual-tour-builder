@@ -1,4 +1,5 @@
 /* src/components/HotspotLayer.res */
+open ReBindings
 
 module StaticDiv = {
   @react.component
@@ -32,6 +33,40 @@ module MemoStaticSvg = {
 
 @react.component
 let make = React.memo(() => {
+  React.useEffect0(() => {
+    Logger.info(~module_="HotspotLayer", ~message="INITIALIZING_CLICK_LISTENER", ())
+    let container = Dom.getElementById("viewer-hotspot-lines")
+    switch Nullable.toOption(container) {
+    | Some(svg) =>
+      let handleContainerClick = ev => {
+        let target = Dom.target(ev)
+        let id = switch Nullable.toOption(Dom.getAttribute(target, "id")) {
+        | Some(id) => Some(id)
+        | None =>
+          // Try parent in case click was on a sub-element (though path doesn't have sub-elements)
+          None
+        }
+
+        switch id {
+        | Some(idString) if idString->String.startsWith("arrow_") =>
+          Dom.stopPropagation(ev)
+          let linkId = idString->String.slice(~start=6)
+          Logger.info(
+            ~module_="HotspotLayer",
+            ~message="ARROW_CLICKED",
+            ~data=Some({"linkId": linkId}),
+            (),
+          )
+          EventBus.dispatch(PreviewLinkId(linkId))
+        | _ => ()
+        }
+      }
+      Dom.addEventListener(svg, "click", handleContainerClick)
+      Some(() => Dom.removeEventListener(svg, "click", handleContainerClick))
+    | None => None
+    }
+  })
+
   <>
     <MemoStaticDiv.make
       id="viewer-center-indicator"
