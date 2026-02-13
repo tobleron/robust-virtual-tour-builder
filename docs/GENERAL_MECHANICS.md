@@ -12,7 +12,7 @@ This section outlines the protocols, standards, and automated workflows required
 
 ### Type Safety & Functional Principles
 - **ReScript/Rust First**: All new logic must be written in ReScript (Frontend) or Rust (Backend).
-- **Schema Validation**: Use `rescript-schema` for all JSON decoding (API/File IO). Manual `Obj.magic` casting for data parsing is strictly forbidden.
+- **Schema Validation**: Use `rescript-json-combinators` (module `JsonCombinators`) for all JSON decoding (API/File IO) to ensure CSP compliance (avoids `eval()`). Manual `Obj.magic` casting for data parsing is strictly forbidden.
 - **No Side Effects**: Isolate side effects to React Effects or API handlers. Use pure functions for business logic.
 - **Handling Failure**: Never use `panic!` in Rust or throw exceptions in ReScript. Return `Result` or `Option` types.
 

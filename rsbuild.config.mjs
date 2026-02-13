@@ -14,7 +14,6 @@ export default defineConfig({
       index: './src/index.js',
     },
     include: [
-      /[\\/]node_modules[\\/]rescript-schema[\\/]/,
       /[\\/]node_modules[\\/]@rescript[\\/]react[\\/]/,
       /[\\/]node_modules[\\/]rescript-vitest[\\/]/,
     ],
