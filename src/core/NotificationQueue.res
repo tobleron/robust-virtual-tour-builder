@@ -86,6 +86,14 @@ let findFirst = (predicate: 'a => bool, arr: array<'a>): option<'a> => {
   result.contents
 }
 
+let findByContextKey = (key: string, state: queueState): option<notification> => {
+  let matchKey = notif => NotificationTypes.contextMessageKey(notif) == key
+  switch findFirst(matchKey, state.active) {
+  | Some(existing) => Some(existing)
+  | None => findFirst(matchKey, state.pending)
+  }
+}
+
 // Dismiss a notification by ID
 // Remove from active, add to archived (keep max 10)
 let dismiss = (notifId: string, state: queueState): queueState => {
