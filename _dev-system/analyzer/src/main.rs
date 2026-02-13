@@ -228,7 +228,18 @@ fn generate_work_units(
         if let Some(profile) = config.profiles.get(d_name) {
             let treat_single_quote = d_name != "rescript" && d_name != "rust";
             let stripped = drivers::strip_code_modular(content, treat_single_quote);
+            
+            // Check for per-file violation overrides
+            let skip_pattern = match drivers::parse_header(content) {
+                drivers::EfficiencyOverride::SkipViolation(p) => Some(p),
+                _ => None
+            };
+
             for pattern in &profile.forbidden_patterns {
+                if Some(pattern.to_string()) == skip_pattern {
+                    continue;
+                }
+                
                 if stripped.contains(pattern) {
                     buffer.entry(d_name.clone()).or_default().push(WorkUnit::Violation {
                         file: p_str.clone(),
