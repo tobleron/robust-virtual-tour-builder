@@ -29,8 +29,18 @@ let extractLocationName = (addr: string): option<string> => {
     ->Belt.Array.flatMap(w => String.split(w, ","))
     ->Belt.Array.keep(w => String.length(String.trim(w)) > 0)
 
+  // Skip leading numeric words (like house numbers) to get to the actual location name
+  let rec skipNumeric = (arr: array<string>) => {
+    switch Belt.Array.get(arr, 0) {
+    | Some(w) if RegExp.test(/^\d+$/, w) => skipNumeric(Belt.Array.sliceToEnd(arr, 1))
+    | _ => arr
+    }
+  }
+
+  let locationWords = skipNumeric(words)
+
   let selectedWords =
-    Belt.Array.slice(words, ~offset=0, ~len=3)
+    Belt.Array.slice(locationWords, ~offset=0, ~len=3)
     ->Belt.Array.map(cleanLocationWord)
     ->Belt.Array.keep(w => String.length(w) > 0)
 
@@ -65,9 +75,8 @@ let generateProjectName = (address: option<string>, dateTime: option<string>): o
             let day = get(2)
             let hour = get(3)
             let minute = get(4)
-            // Short format DDMM_HHMM as per requirements
-            let _ = year // Unused but captured
-            Some(`${day}${month}_${hour}${minute}`)
+            let shortYear = String.slice(year, ~start=2, ~end=4)
+            Some(`${day}${month}${shortYear}_${hour}${minute}`)
           } else {
             None
           }
@@ -84,10 +93,10 @@ let generateProjectName = (address: option<string>, dateTime: option<string>): o
       let now = Date.make()
       let day = String.padStart(Belt.Int.toString(Date.getDate(now)), 2, "0")
       let month = String.padStart(Belt.Int.toString(Date.getMonth(now) + 1), 2, "0")
-      // Short format DDMM_HHMM
+      let year = String.slice(Belt.Int.toString(Date.getFullYear(now)), ~start=2, ~end=4)
       let hour = String.padStart(Belt.Int.toString(Date.getHours(now)), 2, "0")
       let minute = String.padStart(Belt.Int.toString(Date.getMinutes(now)), 2, "0")
-      `${day}${month}_${hour}${minute}`
+      `${day}${month}${year}_${hour}${minute}`
     }
   }
 
