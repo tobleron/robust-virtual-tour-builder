@@ -16,6 +16,8 @@ let listeners: ref<array<queueState => unit>> = ref([])
 
 // Map of notification IDs to timeout IDs for auto-dismiss
 let timerIds: ref<Belt.Map.String.t<timeoutId>> = ref(Belt.Map.String.empty)
+let fadeTimers: ref<Belt.Map.String.t<timeoutId>> = ref(Belt.Map.String.empty)
+let fadeDurationMs = 360
 
 // ============================================================================
 // INTERNAL HELPERS
@@ -51,6 +53,46 @@ let cancelTimer = (notifId: string): unit => {
       timerIds := Belt.Map.String.remove(timerIds.contents, notifId)
     }
   | None => ()
+  }
+}
+
+let cancelFadeTimer = (notifId: string): unit => {
+  switch Belt.Map.String.get(fadeTimers.contents, notifId) {
+  | Some(timeoutId) => {
+      clearTimeout(timeoutId)
+      fadeTimers := Belt.Map.String.remove(fadeTimers.contents, notifId)
+    }
+  | None => ()
+  }
+}
+
+let markForFadeOut = (notifId: string): unit => {
+  let alreadyFading = Belt.Array.some(state.contents.fadingOut, id => id === notifId)
+
+  if !alreadyFading {
+    state := {
+        ...state.contents,
+        fadingOut: Belt.Array.concat(state.contents.fadingOut, [notifId]),
+      }
+
+    cancelFadeTimer(notifId)
+    let timeoutId = setTimeout(() => {
+      fadeTimers := Belt.Map.String.remove(fadeTimers.contents, notifId)
+      dismissImpl.contents(notifId)
+    }, fadeDurationMs)
+    fadeTimers := Belt.Map.String.set(fadeTimers.contents, notifId, timeoutId)
+  }
+}
+
+let maybeFadeOldest = (): unit => {
+  let activeCount = Belt.Array.length(state.contents.active)
+  let pendingCount = Belt.Array.length(state.contents.pending)
+
+  if activeCount >= NotificationTypes.activeSlotLimit && pendingCount > 0 {
+    switch Belt.Array.get(state.contents.active, 0) {
+    | Some(notif) => markForFadeOut(notif.id)
+    | None => ()
+    }
   }
 }
 
@@ -113,6 +155,8 @@ let dispatch = (notif: notification): unit => {
     state := NotificationQueue.dequeue(state.contents)
   }
 
+  maybeFadeOldest()
+
   // Schedule auto-dismiss if needed
   cancelTimer(withId.id)
   scheduleAutoDismiss(withId.id, withId.duration)
@@ -153,6 +197,7 @@ let getState = (): queueState => {
 // - Notifies listeners
 let dismiss = (notifId: string): unit => {
   cancelTimer(notifId)
+  cancelFadeTimer(notifId)
   state := NotificationQueue.dismiss(notifId, state.contents)
   // Pull next notification from pending
   state := NotificationQueue.dequeue(state.contents)
@@ -170,6 +215,11 @@ let clear = (): unit => {
     clearTimeout(timeoutId)
   })
   timerIds := Belt.Map.String.empty
+
+  Belt.Map.String.forEach(fadeTimers.contents, (_key, timeoutId) => {
+    clearTimeout(timeoutId)
+  })
+  fadeTimers := Belt.Map.String.empty
 
   // Clear queue state
   state := NotificationQueue.empty()
