@@ -28,8 +28,9 @@ module AnimationLoop = {
     let state = getState()
     if activeJourneyId.contents == Some(j.journeyId) && !cft.contents {
       try {
-        let prog = Math.min((Date.now() -. st) /. pd.panDuration, 1.0)
-        if prog >= 1.0 {
+        let linearProg = Math.min((Date.now() -. st) /. pd.panDuration, 1.0)
+        let prog = Easing.trapezoidal(linearProg, 0.12)
+        if linearProg >= 1.0 {
           Logger.debug(
             ~module_="NavigationRenderer",
             ~message="ANIMATION_COMPLETE_START_BLINK",
@@ -99,6 +100,14 @@ module AnimationLoop = {
                 pitch: w.pitch,
               }),
               ~colorOverride=?j.previewOnly ? Some("red") : None,
+              ~preComputedSegments=pd.segments->Belt.Array.map(s => (
+                s.dist,
+                s.yawDiff,
+                s.pitchDiff,
+                {PathInterpolation.yaw: s.p1.yaw, pitch: s.p1.pitch},
+                {PathInterpolation.yaw: s.p2.yaw, pitch: s.p2.pitch},
+              )),
+              ~preComputedTotalDistance=pd.totalPathDistance,
               ~id=arrowId,
               (),
             )
@@ -197,6 +206,14 @@ module AnimationLoop = {
                 PathInterpolation.yaw: w.yaw,
                 pitch: w.pitch,
               }),
+              ~preComputedSegments=pd.segments->Belt.Array.map(s => (
+                s.dist,
+                s.yawDiff,
+                s.pitchDiff,
+                {PathInterpolation.yaw: s.p1.yaw, pitch: s.p1.pitch},
+                {PathInterpolation.yaw: s.p2.yaw, pitch: s.p2.pitch},
+              )),
+              ~preComputedTotalDistance=pd.totalPathDistance,
               ~id=arrowId,
               (),
             )
