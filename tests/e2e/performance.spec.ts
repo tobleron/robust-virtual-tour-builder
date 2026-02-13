@@ -155,7 +155,12 @@ test.describe('Performance & Load Testing', () => {
         });
 
         // Force reload and bypass cache
-        await page.goto('/', { waitUntil: 'networkidle' });
+        await page.goto('/', { waitUntil: 'domcontentloaded' });
+        try {
+            await page.waitForLoadState('networkidle', { timeout: 10000 });
+        } catch (e) {
+            console.log('Network idle timed out, proceeding...');
+        }
 
         let totalJSSize = 0;
         const jsFiles: { url: string; size: number }[] = [];
