@@ -1,8 +1,8 @@
 // @efficiency: infra-adapter
 use lazy_static::lazy_static;
 use prometheus::{
-    Counter, CounterVec, Gauge, Histogram, register_counter, register_counter_vec, register_gauge,
-    register_histogram,
+    Counter, CounterVec, Gauge, Histogram, HistogramOpts, Opts, register_counter,
+    register_counter_vec, register_gauge, register_histogram,
 };
 
 lazy_static! {
@@ -15,25 +15,37 @@ lazy_static! {
         "image_processing_total",
         "Total images processed",
         &["type"]
-    ).expect("Failed to register IMAGE_PROCESSING_TOTAL metric");
+    ).unwrap_or_else(|e| {
+        tracing::error!("Failed to register IMAGE_PROCESSING_TOTAL metric: {}", e);
+        CounterVec::new(Opts::new("image_processing_total", "Total images processed"), &["type"]).unwrap()
+    });
 
     // Image processing time
     pub static ref IMAGE_PROCESSING_DURATION: Histogram = register_histogram!(
         "image_processing_duration_seconds",
         "Image processing duration in seconds"
-    ).expect("Failed to register IMAGE_PROCESSING_DURATION metric");
+    ).unwrap_or_else(|e| {
+        tracing::error!("Failed to register IMAGE_PROCESSING_DURATION metric: {}", e);
+        Histogram::with_opts(HistogramOpts::new("image_processing_duration_seconds", "Image processing duration in seconds")).unwrap()
+    });
 
     // Total bytes uploaded
     pub static ref UPLOAD_BYTES_TOTAL: Counter = register_counter!(
         "upload_bytes_total",
         "Total bytes uploaded"
-    ).expect("Failed to register UPLOAD_BYTES_TOTAL metric");
+    ).unwrap_or_else(|e| {
+        tracing::error!("Failed to register UPLOAD_BYTES_TOTAL metric: {}", e);
+        Counter::with_opts(Opts::new("upload_bytes_total", "Total bytes uploaded")).unwrap()
+    });
 
     // Currently active sessions
     pub static ref ACTIVE_SESSIONS: Gauge = register_gauge!(
         "active_sessions",
         "Currently active sessions"
-    ).expect("Failed to register ACTIVE_SESSIONS metric");
+    ).unwrap_or_else(|e| {
+        tracing::error!("Failed to register ACTIVE_SESSIONS metric: {}", e);
+        Gauge::with_opts(Opts::new("active_sessions", "Currently active sessions")).unwrap()
+    });
 
     /*
      * Resource Metrics
@@ -43,55 +55,82 @@ lazy_static! {
     pub static ref QUOTA_CURRENT_UPLOADS: Gauge = register_gauge!(
         "quota_current_uploads",
         "Current concurrent uploads"
-    ).expect("Failed to register QUOTA_CURRENT_UPLOADS metric");
+    ).unwrap_or_else(|e| {
+        tracing::error!("Failed to register QUOTA_CURRENT_UPLOADS metric: {}", e);
+        Gauge::with_opts(Opts::new("quota_current_uploads", "Current concurrent uploads")).unwrap()
+    });
 
     // Current upload size in bytes
     pub static ref QUOTA_CURRENT_SIZE_BYTES: Gauge = register_gauge!(
         "quota_current_size_bytes",
         "Current upload size in bytes"
-    ).expect("Failed to register QUOTA_CURRENT_SIZE_BYTES metric");
+    ).unwrap_or_else(|e| {
+        tracing::error!("Failed to register QUOTA_CURRENT_SIZE_BYTES metric: {}", e);
+        Gauge::with_opts(Opts::new("quota_current_size_bytes", "Current upload size in bytes")).unwrap()
+    });
 
     // Cache hits for geocoding
     pub static ref GEOCODING_CACHE_HITS_TOTAL: Counter = register_counter!(
         "geocoding_cache_hits_total",
         "Cache hits for geocoding"
-    ).expect("Failed to register GEOCODING_CACHE_HITS_TOTAL metric");
+    ).unwrap_or_else(|e| {
+        tracing::error!("Failed to register GEOCODING_CACHE_HITS_TOTAL metric: {}", e);
+        Counter::with_opts(Opts::new("geocoding_cache_hits_total", "Cache hits for geocoding")).unwrap()
+    });
 
     // Cache misses for geocoding
     pub static ref GEOCODING_CACHE_MISSES_TOTAL: Counter = register_counter!(
         "geocoding_cache_misses_total",
         "Cache misses for geocoding"
-    ).expect("Failed to register GEOCODING_CACHE_MISSES_TOTAL metric");
+    ).unwrap_or_else(|e| {
+        tracing::error!("Failed to register GEOCODING_CACHE_MISSES_TOTAL metric: {}", e);
+        Counter::with_opts(Opts::new("geocoding_cache_misses_total", "Cache misses for geocoding")).unwrap()
+    });
     // Scene switch latency
     pub static ref SCENE_SWITCH_DURATION: Histogram = register_histogram!(
         "scene_switch_duration_seconds",
         "Scene switch duration in seconds"
-    ).expect("Failed to register SCENE_SWITCH_DURATION metric");
+    ).unwrap_or_else(|e| {
+        tracing::error!("Failed to register SCENE_SWITCH_DURATION metric: {}", e);
+        Histogram::with_opts(HistogramOpts::new("scene_switch_duration_seconds", "Scene switch duration in seconds")).unwrap()
+    });
 
     // Project save latency
     pub static ref PROJECT_SAVE_DURATION: Histogram = register_histogram!(
         "project_save_duration_seconds",
         "Project save duration in seconds"
-    ).expect("Failed to register PROJECT_SAVE_DURATION metric");
+    ).unwrap_or_else(|e| {
+        tracing::error!("Failed to register PROJECT_SAVE_DURATION metric: {}", e);
+        Histogram::with_opts(HistogramOpts::new("project_save_duration_seconds", "Project save duration in seconds")).unwrap()
+    });
 
     // Project load latency
     pub static ref PROJECT_LOAD_DURATION: Histogram = register_histogram!(
         "project_load_duration_seconds",
         "Project load duration in seconds"
-    ).expect("Failed to register PROJECT_LOAD_DURATION metric");
+    ).unwrap_or_else(|e| {
+        tracing::error!("Failed to register PROJECT_LOAD_DURATION metric: {}", e);
+        Histogram::with_opts(HistogramOpts::new("project_load_duration_seconds", "Project load duration in seconds")).unwrap()
+    });
 
     // Error rate by type
     pub static ref ERRORS_TOTAL: CounterVec = register_counter_vec!(
         "errors_total",
         "Total errors by module and type",
         &["module", "error_type"]
-    ).expect("Failed to register ERRORS_TOTAL metric");
+    ).unwrap_or_else(|e| {
+        tracing::error!("Failed to register ERRORS_TOTAL metric: {}", e);
+        CounterVec::new(Opts::new("errors_total", "Total errors by module and type"), &["module", "error_type"]).unwrap()
+    });
 
     // Frontend long tasks (received via telemetry)
     pub static ref FE_LONG_TASKS_TOTAL: Counter = register_counter!(
         "frontend_long_tasks_total",
         "Total frontend long tasks > 50ms"
-    ).expect("Failed to register FE_LONG_TASKS_TOTAL metric");
+    ).unwrap_or_else(|e| {
+        tracing::error!("Failed to register FE_LONG_TASKS_TOTAL metric: {}", e);
+        Counter::with_opts(Opts::new("frontend_long_tasks_total", "Total frontend long tasks > 50ms")).unwrap()
+    });
 }
 
 #[cfg(test)]

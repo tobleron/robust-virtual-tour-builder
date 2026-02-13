@@ -40,22 +40,42 @@ let createResultFiles = (extractedResult, originalName) => {
           | Some(name) => name
           | None =>
             let baseName = String.replaceRegExp(originalName, /\.[^/.]+$/, "")
-            switch String.match(originalName, /_(\d{6})_\d{2}_(\d{3})/) {
+            // Try PureShot format first: IMG_YYYYMMDD_HHMMSS_XX_SSS -> IMG_MMSS_SSS
+            switch String.match(originalName, /IMG_\d{8}_(\d{6})_\d{2}_(\d{3})/) {
             | Some(captures) =>
-              let p1 = switch Belt.Array.get(captures, 1) {
+              let hhmmss = switch Belt.Array.get(captures, 1) {
               | Some(Some(v)) => v
               | _ => ""
               }
-              let p2 = switch Belt.Array.get(captures, 2) {
+              let sss = switch Belt.Array.get(captures, 2) {
               | Some(Some(v)) => v
               | _ => ""
               }
-              if p1 != "" && p2 != "" {
-                p1 ++ "_" ++ p2
+              if hhmmss != "" && sss != "" {
+                let mmss = String.slice(hhmmss, ~start=2, ~end=6)
+                "IMG_" ++ mmss ++ "_" ++ sss
               } else {
                 baseName
               }
-            | None => baseName
+            | None =>
+              // Fallback to legacy format
+              switch String.match(originalName, /_(\d{6})_\d{2}_(\d{3})/) {
+              | Some(captures) =>
+                let p1 = switch Belt.Array.get(captures, 1) {
+                | Some(Some(v)) => v
+                | _ => ""
+                }
+                let p2 = switch Belt.Array.get(captures, 2) {
+                | Some(Some(v)) => v
+                | _ => ""
+                }
+                if p1 != "" && p2 != "" {
+                  p1 ++ "_" ++ p2
+                } else {
+                  baseName
+                }
+              | None => baseName
+              }
             }
           }
         }

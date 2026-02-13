@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Resolve type error in ResizerLogic and prepare for task 1363
 
+### Changed
+- V4.5.4: Integrate and unify architecture (Naming, Sidebar Perf, Backend Hardening, TransitionLock Cleanup)
+
 ## [4.5.2] - 2026-02-13
 
 ### Fixed

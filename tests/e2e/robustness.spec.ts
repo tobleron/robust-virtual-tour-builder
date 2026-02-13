@@ -178,31 +178,30 @@ test.describe('Application Robustness', () => {
         }
 
         // 3. Verify we eventually stabilize
-        // The lock timeout is 15s max, so we wait enough to ensure forceRelease would have fired
+        // The NavigationSupervisor auto-cancels previous tasks, so we wait for the final one to complete
         console.log('Waiting for stabilization...');
 
-        // We verify that the "TransitionLock" eventually releases
+        // We verify that the "NavigationSupervisor" eventually completes a task
         await expect.poll(async () => {
           const logs = await page.evaluate(() => (window as any).__debugLogs || []);
-          const lastRelease = logs.slice().reverse().find((l: string) => l.includes('LOCK_RELEASED'));
-          return !!lastRelease;
+          const lastComplete = logs.slice().reverse().find((l: string) => l.includes('TASK_COMPLETED'));
+          return !!lastComplete;
         }, { timeout: 20000 }).toBeTruthy();
 
         // 4. Verification: Viewer should be visible and interactive
         await expect(page.locator('#viewer-stage')).toBeVisible();
         await expect(page.locator('text=/Something went wrong/i')).not.toBeVisible();
 
-        // 5. Explicit check that we are NOT stuck in a lock
-        // We can check if we can trigger a new transition successfully
-        console.log('Verifying lock is free...');
+        // 5. Explicit check that we can start a new navigation
+        console.log('Verifying navigation system is free...');
         const initialLogs = await page.evaluate(() => (window as any).__debugLogs?.length || 0);
         await sceneItems.last().click({ force: true });
 
-        // Should produce new logs indicating successful acquisition
+        // Should produce new logs indicating successful navigation request
         await expect.poll(async () => {
           const logs = await page.evaluate(() => (window as any).__debugLogs || []);
           const newLogs = logs.slice(initialLogs);
-          return newLogs.some((l: string) => l.includes('LOCK_ACQUIRED'));
+          return newLogs.some((l: string) => l.includes('NAVIGATION_REQUESTED'));
         }, { timeout: 5000 }).toBeTruthy();
       }
     });

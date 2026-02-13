@@ -83,16 +83,10 @@ module AboutContent = {
 
 @react.component
 let make = React.memo(() => {
-  let appState = AppContext.useAppState()
   let sceneSlice = AppContext.useSceneSlice()
   let uiSlice = AppContext.useUiSlice()
   let dispatch = AppContext.useAppDispatch()
-  let stateRef = React.useRef(appState)
-  React.useEffect1(() => {
-    stateRef.current = appState
-    None
-  }, [appState])
-  let getState = () => stateRef.current
+  let getState = AppContext.getBridgeState
 
   let fileInputRef = React.useRef(Nullable.null)
   let projectFileInputRef = React.useRef(Nullable.null)
