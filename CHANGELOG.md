@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.5.7] - 2026-02-13
+
+### Fixed
+- Restore tour naming (EXIF integration, numeric skip logic, year restoration), unify sanitized filenames in upload summary; NOTE: upload summary dialog box needs UI revision
+
 ## [4.5.5] - 2026-02-13
 
 ### Fixed
