@@ -19,92 +19,80 @@ let navigateToScene = (
 ) => {
   let action = () => {
     navStartTime := Date.now()
-    if (
-      state.navigationState.navigation->(
-        s =>
-          switch s {
-          | Navigating(_) => true
-          | _ => false
-          }
+    let njid = state.navigationState.currentJourneyId + 1
+    let currView = NavigationGraph.getCurrentView()
+    let actions = []
+    let _ = Js.Array.push(Actions.IncrementJourneyId, actions)
+
+    if previewOnly {
+      let _ = Js.Array.push(
+        SetNavigationStatus(Previewing({sceneIndex: sourceIdx, hotspotIndex: sourceHIdx})),
+        actions,
       )
-    ) {
-      ()
-    } else {
-      let njid = state.navigationState.currentJourneyId + 1
-      let currView = NavigationGraph.getCurrentView()
-      let actions = []
-      let _ = Js.Array.push(Actions.IncrementJourneyId, actions)
-
-      if previewOnly {
-        let _ = Js.Array.push(
-          SetNavigationStatus(Previewing({sceneIndex: sourceIdx, hotspotIndex: sourceHIdx})),
-          actions,
-        )
-      }
-
-      if state.simulation.status == Running || previewOnly {
-        let pd = NavigationGraph.calculatePathData(
-          state,
-          sourceIdx,
-          sourceHIdx,
-          targetIdx,
-          targetYaw,
-          targetPitch,
-          targetHfov,
-          currView,
-        )
-        let j: journeyData = {
-          journeyId: njid,
-          targetIndex: targetIdx,
-          sourceIndex: sourceIdx,
-          hotspotIndex: sourceHIdx,
-          arrivalYaw: pd->Option.map(p => p.arrivalYaw)->Option.getOr(targetYaw),
-          arrivalPitch: pd->Option.map(p => p.arrivalPitch)->Option.getOr(targetPitch),
-          arrivalHfov: pd->Option.map(p => p.arrivalHfov)->Option.getOr(targetHfov),
-          previewOnly,
-          pathData: pd,
-        }
-        let _ = Js.Array.push(SetNavigationStatus(Navigating(j)), actions)
-
-        state.scenes[targetIdx]->Option.forEach(ts => {
-          // Call Supervisor to manage navigation lifecycle and dispatch FSM event
-          NavigationSupervisor.requestNavigation(ts.id)
-        })
-
-        pd->Option.forEach(p =>
-          EventBus.dispatch(
-            NavStart({
-              journeyId: njid,
-              targetIndex: targetIdx,
-              sourceIndex: sourceIdx,
-              hotspotIndex: sourceHIdx,
-              previewOnly,
-              pathData: p,
-            }),
-          )
-        )
-      } else {
-        let (ay, ap, _) = NavigationGraph.calculateSmartArrivalTarget(state.scenes, targetIdx)
-        let _ = Js.Array.push(
-          SetIncomingLink(Some({sceneIndex: sourceIdx, hotspotIndex: sourceHIdx})),
-          actions,
-        )
-        let _ = Js.Array.push(
-          SetActiveScene(
-            targetIdx,
-            ay,
-            ap,
-            Some({type_: Link, targetHotspotIndex: -1, fromSceneName: None}),
-          ),
-          actions,
-        )
-        state.scenes[targetIdx]->Option.forEach(ts => {
-          // Call Supervisor to manage navigation lifecycle and dispatch FSM event
-          NavigationSupervisor.requestNavigation(ts.id)
-        })
-      }
-      dispatch(Batch(actions))
     }
+
+    if state.simulation.status == Running || previewOnly {
+      let pd = NavigationGraph.calculatePathData(
+        state,
+        sourceIdx,
+        sourceHIdx,
+        targetIdx,
+        targetYaw,
+        targetPitch,
+        targetHfov,
+        currView,
+      )
+      let j: journeyData = {
+        journeyId: njid,
+        targetIndex: targetIdx,
+        sourceIndex: sourceIdx,
+        hotspotIndex: sourceHIdx,
+        arrivalYaw: pd->Option.map(p => p.arrivalYaw)->Option.getOr(targetYaw),
+        arrivalPitch: pd->Option.map(p => p.arrivalPitch)->Option.getOr(targetPitch),
+        arrivalHfov: pd->Option.map(p => p.arrivalHfov)->Option.getOr(targetHfov),
+        previewOnly,
+        pathData: pd,
+      }
+      let _ = Js.Array.push(SetNavigationStatus(Navigating(j)), actions)
+
+      state.scenes[targetIdx]->Option.forEach(ts => {
+        // Call Supervisor to manage navigation lifecycle and dispatch FSM event
+        NavigationSupervisor.requestNavigation(ts.id, ~previewOnly)
+      })
+
+      pd->Option.forEach(p =>
+        EventBus.dispatch(
+          NavStart({
+            journeyId: njid,
+            targetIndex: targetIdx,
+            sourceIndex: sourceIdx,
+            hotspotIndex: sourceHIdx,
+            previewOnly,
+            pathData: p,
+          }),
+        )
+      )
+    } else {
+      let (ay, ap, _) = NavigationGraph.calculateSmartArrivalTarget(state.scenes, targetIdx)
+      let _ = Js.Array.push(
+        SetIncomingLink(Some({sceneIndex: sourceIdx, hotspotIndex: sourceHIdx})),
+        actions,
+      )
+      let _ = Js.Array.push(
+        SetActiveScene(
+          targetIdx,
+          ay,
+          ap,
+          Some({type_: Link, targetHotspotIndex: -1, fromSceneName: None}),
+        ),
+        actions,
+      )
+      state.scenes[targetIdx]->Option.forEach(ts => {
+        // Call Supervisor to manage navigation lifecycle and dispatch FSM event
+        NavigationSupervisor.requestNavigation(ts.id)
+      })
+    }
+    dispatch(Batch(actions))
     Promise.resolve()
   }
 

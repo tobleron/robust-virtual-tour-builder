@@ -12,6 +12,7 @@ type status =
   | Loading(taskId, string) // (taskId, sceneId)
   | Swapping(taskId, string) // (taskId, sceneId)
   | Stabilizing(taskId, string) // (taskId, sceneId)
+  | Panning(taskId, string) // (taskId, sceneId)
 
 type runToken = {
   id: taskId,
@@ -117,10 +118,11 @@ let statusToString = (s: status): string => {
   | Loading(taskId, sceneId) => `Loading(${taskId}, ${sceneId})`
   | Swapping(taskId, sceneId) => `Swapping(${taskId}, ${sceneId})`
   | Stabilizing(taskId, sceneId) => `Stabilizing(${taskId}, ${sceneId})`
+  | Panning(taskId, sceneId) => `Panning(${taskId}, ${sceneId})`
   }
 }
 
-let requestNavigation = (targetSceneId: string): unit => {
+let requestNavigation = (targetSceneId: string, ~previewOnly=false): unit => {
   // Cancel previous task if it exists
   switch currentTask.contents {
   | Some(task) =>
@@ -159,7 +161,11 @@ let requestNavigation = (targetSceneId: string): unit => {
   }
 
   currentTask := Some(task)
-  status := Loading(taskId, targetSceneId)
+  status := if previewOnly {
+      Panning(taskId, targetSceneId)
+    } else {
+      Loading(taskId, targetSceneId)
+    }
   notifyListeners()
 
   Logger.info(
@@ -168,13 +174,14 @@ let requestNavigation = (targetSceneId: string): unit => {
     ~data=Some({
       "taskId": taskId,
       "targetSceneId": targetSceneId,
+      "previewOnly": previewOnly,
     }),
     (),
   )
 
   // Dispatch FSM event to update UI state (LockFeedback, ViewerHUD, etc.)
   dispatchInternal(
-    Actions.DispatchNavigationFsmEvent(UserClickedScene({targetSceneId: targetSceneId})),
+    Actions.DispatchNavigationFsmEvent(UserClickedScene({targetSceneId, previewOnly})),
   )
 }
 

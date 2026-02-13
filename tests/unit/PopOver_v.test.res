@@ -82,7 +82,7 @@ describe("PopOver", () => {
 
       switch Nullable.toOption(popover) {
       | Some(el) =>
-        let style = Dom.getAttribute(el, "style")
+        let style = Dom.getAttribute(el, "style")->Nullable.toOption->Option.getOr("")
         t->expect(String.includes(style, "top: 128px"))->Expect.toBe(true)
         t->expect(String.includes(style, "left: 100px"))->Expect.toBe(true)
       | None => ()
@@ -155,7 +155,7 @@ describe("PopOver", () => {
       let popover = Dom.querySelector(rootEl, ".popover-root")
       switch Nullable.toOption(popover) {
       | Some(el) =>
-        let style = Dom.getAttribute(el, "style")
+        let style = Dom.getAttribute(el, "style")->Nullable.toOption->Option.getOr("")
         // top = anchorRect.top (700) - popoverRect.height (100) - offset (8) = 592
         t->expect(String.includes(style, "top: 592px"))->Expect.toBe(true)
         // left = anchorRect.left (800)
@@ -204,7 +204,7 @@ describe("PopOver", () => {
       let popover = Dom.querySelector(rootEl, ".popover-root")
       switch Nullable.toOption(popover) {
       | Some(el) =>
-        let style = Dom.getAttribute(el, "style")
+        let style = Dom.getAttribute(el, "style")->Nullable.toOption->Option.getOr("")
         // Should be clamped to offset (8)
         t->expect(String.includes(style, "top: 8px"))->Expect.toBe(true)
         t->expect(String.includes(style, "left: 8px"))->Expect.toBe(true)

@@ -36,11 +36,21 @@ describe("SvgManager.Renderer", () => {
   test("updateLine sets attributes correctly", t => {
     SvgManager.Renderer.updateLine("line1", 10.0, 20.0, 30.0, 40.0, "red", 2.0, 0.5, ())
     let el = Option.getOrThrow(SvgManager.getElement("line1"))
-    t->expect(ReBindings.Dom.getAttribute(el, "x1"))->Expect.toBe("10")
-    t->expect(ReBindings.Dom.getAttribute(el, "y1"))->Expect.toBe("20")
-    t->expect(ReBindings.Dom.getAttribute(el, "stroke"))->Expect.toBe("red")
-    t->expect(ReBindings.Dom.getAttribute(el, "stroke-width"))->Expect.toBe("2")
-    t->expect(ReBindings.Dom.getAttribute(el, "stroke-opacity"))->Expect.toBe("0.5")
+    t
+    ->expect(ReBindings.Dom.getAttribute(el, "x1")->Nullable.toOption->Option.getOr(""))
+    ->Expect.toBe("10")
+    t
+    ->expect(ReBindings.Dom.getAttribute(el, "y1")->Nullable.toOption->Option.getOr(""))
+    ->Expect.toBe("20")
+    t
+    ->expect(ReBindings.Dom.getAttribute(el, "stroke")->Nullable.toOption->Option.getOr(""))
+    ->Expect.toBe("red")
+    t
+    ->expect(ReBindings.Dom.getAttribute(el, "stroke-width")->Nullable.toOption->Option.getOr(""))
+    ->Expect.toBe("2")
+    t
+    ->expect(ReBindings.Dom.getAttribute(el, "stroke-opacity")->Nullable.toOption->Option.getOr(""))
+    ->Expect.toBe("0.5")
   })
 
   test("drawPolyLine builds 'd' string correctly", t => {
@@ -48,10 +58,12 @@ describe("SvgManager.Renderer", () => {
     SvgManager.Renderer.drawPolyLine("poly1", points, "blue", 1.0, 1.0, ())
 
     let el = Option.getOrThrow(SvgManager.getElement("poly1"))
-    let d = ReBindings.Dom.getAttribute(el, "d")
+    let d = ReBindings.Dom.getAttribute(el, "d")->Nullable.toOption->Option.getOr("")
     // Note: math rounding in SvgManager.Renderer: Math.round(coords.x * 10.0) / 10.0
     t->expect(d)->Expect.toBe("M 0 0 L 100 50 L 200 0")
-    t->expect(ReBindings.Dom.getAttribute(el, "stroke"))->Expect.toBe("blue")
+    t
+    ->expect(ReBindings.Dom.getAttribute(el, "stroke")->Nullable.toOption->Option.getOr(""))
+    ->Expect.toBe("blue")
   })
 
   test("drawArrow sets transform correctly", t => {
@@ -59,9 +71,11 @@ describe("SvgManager.Renderer", () => {
 
     let el = Option.getOrThrow(SvgManager.getElement("arrow1"))
     t
-    ->expect(ReBindings.Dom.getAttribute(el, "transform"))
+    ->expect(ReBindings.Dom.getAttribute(el, "transform")->Nullable.toOption->Option.getOr(""))
     ->Expect.toBe("translate(100, 200) rotate(45)")
-    t->expect(ReBindings.Dom.getAttribute(el, "fill"))->Expect.toBe("green")
+    t
+    ->expect(ReBindings.Dom.getAttribute(el, "fill")->Nullable.toOption->Option.getOr(""))
+    ->Expect.toBe("green")
   })
 
   test("hide calls manager hide", t => {
@@ -89,8 +103,14 @@ describe("SvgManager.Renderer", () => {
     )
 
     let el = Option.getOrThrow(SvgManager.getElement("line_opt"))
-    t->expect(ReBindings.Dom.getAttribute(el, "stroke-dasharray"))->Expect.toBe("5,5")
-    t->expect(ReBindings.Dom.getAttribute(el, "class"))->Expect.toBe("custom-line")
+    t
+    ->expect(
+      ReBindings.Dom.getAttribute(el, "stroke-dasharray")->Nullable.toOption->Option.getOr(""),
+    )
+    ->Expect.toBe("5,5")
+    t
+    ->expect(ReBindings.Dom.getAttribute(el, "class")->Nullable.toOption->Option.getOr(""))
+    ->Expect.toBe("custom-line")
   })
 
   test("drawPolyLine handles optional attributes", t => {
@@ -107,8 +127,14 @@ describe("SvgManager.Renderer", () => {
     )
 
     let el = Option.getOrThrow(SvgManager.getElement("poly_opt"))
-    t->expect(ReBindings.Dom.getAttribute(el, "stroke-dasharray"))->Expect.toBe("2,2")
-    t->expect(ReBindings.Dom.getAttribute(el, "class"))->Expect.toBe("custom-poly")
+    t
+    ->expect(
+      ReBindings.Dom.getAttribute(el, "stroke-dasharray")->Nullable.toOption->Option.getOr(""),
+    )
+    ->Expect.toBe("2,2")
+    t
+    ->expect(ReBindings.Dom.getAttribute(el, "class")->Nullable.toOption->Option.getOr(""))
+    ->Expect.toBe("custom-poly")
   })
 
   test("drawPolyLine hides element if less than 2 points", t => {

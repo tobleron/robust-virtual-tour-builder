@@ -105,7 +105,9 @@ let handleMainSceneLoad = (state: state, scene: Types.scene, dispatch: action =>
     // NOTE: This is a recovery/initialization path, not user-initiated navigation.
     // We dispatch FSM event directly to synchronize viewer state with Redux.
     // This does NOT go through Supervisor to avoid circular dependencies during init.
-    dispatch(DispatchNavigationFsmEvent(UserClickedScene({targetSceneId: scene.id})))
+    dispatch(
+      DispatchNavigationFsmEvent(UserClickedScene({targetSceneId: scene.id, previewOnly: false})),
+    )
   } else {
     let v = ViewerSystem.getActiveViewer()
     switch Nullable.toOption(v) {
@@ -229,7 +231,8 @@ let useHotspotLineLoop = (~getState: unit => state, dispatch: action => unit) =>
 
     // Handle Forced Sync from EventBus (breaks dependencies)
     let unsub = EventBus.subscribe(e => {
-      if e == ForceHotspotSync {
+      switch e {
+      | ForceHotspotSync =>
         let v = ViewerSystem.getActiveViewer()
         let currentState = getState()
         switch (
@@ -260,6 +263,38 @@ let useHotspotLineLoop = (~getState: unit => state, dispatch: action => unit) =>
           }
         | _ => ()
         }
+      | PreviewLinkId(linkId) =>
+        let currentState = getState()
+        switch Belt.Array.get(currentState.scenes, currentState.activeIndex) {
+        | Some(currentScene) =>
+          switch Belt.Array.getIndexBy(currentScene.hotspots, h => h.linkId == linkId) {
+          | Some(hIdx) =>
+            switch currentScene.hotspots[hIdx] {
+            | Some(hotspot) =>
+              switch Belt.Array.getIndexBy(currentState.scenes, s => s.name == hotspot.target) {
+              | Some(tIdx) =>
+                let (ny, np, nh) = PreviewArrow.Logic.calculateNavParams(hotspot)
+                Scene.Switcher.navigateToScene(
+                  dispatch,
+                  currentState,
+                  tIdx,
+                  currentState.activeIndex,
+                  hIdx,
+                  ~targetYaw=ny,
+                  ~targetPitch=np,
+                  ~targetHfov=nh,
+                  ~previewOnly=true,
+                  (),
+                )
+              | None => ()
+              }
+            | None => ()
+            }
+          | None => ()
+          }
+        | None => ()
+        }
+      | _ => ()
       }
     })
 

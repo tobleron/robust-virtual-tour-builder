@@ -221,7 +221,9 @@ describe("SceneList", () => {
     let item = Dom.querySelector(container, ".scene-item")
     switch Nullable.toOption(item) {
     | Some(el) =>
-      t->expect(Dom.getAttribute(el, "draggable"))->Expect.toBe("true")
+      t
+      ->expect(Dom.getAttribute(el, "draggable")->Nullable.toOption->Option.getOr(""))
+      ->Expect.toBe("true")
 
       let qualityText = Dom.querySelector(el, ".text-danger")
       // Should be text-danger because score 5.0 < 6.5
