@@ -51,7 +51,19 @@ describe("Reducer (Root Re-export)", () => {
     t->expect(state1.activePitch)->Expect.toEqual(10.0)
   })
 
-  test("SetActiveScene out of bounds", t => t->expect(true)->Expect.toBe(true)) // Skip out-of-bounds check for now or fix it
+  test("SetActiveScene out of bounds", t => {
+    let stateWithScenes = mockState(~scenes=[createScene("scene1.webp")], ~activeIndex=0, ())
+
+    // Test negative index
+    let actionNegative = SetActiveScene(-1, 0.0, 0.0, None)
+    let stateNegative = Reducer.reducer(stateWithScenes, actionNegative)
+    t->expect(stateNegative.activeIndex)->Expect.toEqual(0)
+
+    // Test index too large
+    let actionTooLarge = SetActiveScene(1, 0.0, 0.0, None)
+    let stateTooLarge = Reducer.reducer(stateWithScenes, actionTooLarge)
+    t->expect(stateTooLarge.activeIndex)->Expect.toEqual(0)
+  })
 
   test("SetTourName", t => {
     let action3 = SetTourName("My awesome tour")

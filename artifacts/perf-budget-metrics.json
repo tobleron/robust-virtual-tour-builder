@@ -1,0 +1,24 @@
+{
+  "generatedAt": "2026-02-12T20:42:18.255Z",
+  "rapidNavigation": {
+    "samples": 20,
+    "p95Ms": 443,
+    "longTaskCount": 21,
+    "memoryGrowthRatio": 1,
+    "memInitial": 31200000,
+    "memFinal": 31200000
+  },
+  "bulkUpload": {
+    "importedScenes": 120,
+    "latencyMs": 1049,
+    "longTaskCount": 2
+  },
+  "longSimulation": {
+    "durationMs": 46591,
+    "distinctActiveScenes": 12,
+    "longTaskCount": 30,
+    "memoryGrowthRatio": 1,
+    "memInitial": 26000000,
+    "memFinal": 26000000
+  }
+}
