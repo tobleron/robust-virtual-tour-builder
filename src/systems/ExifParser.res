@@ -311,7 +311,41 @@ let calculateAverageLocation = (gpsPoints, ~maxDistanceKm=0.5, ()) => {
   GeoUtils.calculateAverageLocation(gpsPoints, maxDistanceKm)
 }
 
-/* reverseGeocode - NOW PROXIED THROUGH BACKEND */
-let reverseGeocode = (lat, lon) => {
-  BackendApi.reverseGeocode(lat, lon)
+/* fetchFromOsm - Fallback when backend is unavailable */
+let fetchFromOsm = async (lat, lon) => {
+  let url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${Float.toString(
+      lat,
+    )}&lon=${Float.toString(lon)}`
+  try {
+    let res = await Fetch.fetchSimple(url)
+    let json = await Fetch.json(res)
+    // Simple manual decode or use JsonCombinators if preferred.
+    // Assuming simple dict access for robustness without strict schema here
+    let d = (Obj.magic(json): {..})
+    switch Nullable.toOption(d["display_name"]) {
+    | Some(addr) => Ok({address: addr})
+    | None => Error("OSM response missing display_name")
+    }
+  } catch {
+  | exn =>
+    let (msg, _) = Logger.getErrorDetails(exn)
+    Error("OSM fetch failed: " ++ msg)
+  }
+}
+
+/* reverseGeocode - PROXIED THROUGH BACKEND WITH CLIENT-SIDE FALLBACK */
+let reverseGeocode = async (lat, lon) => {
+  let backendResult = await BackendApi.reverseGeocode(lat, lon)
+  switch backendResult {
+  | Ok(res) => Ok(res)
+  | Error(msg) => {
+      Logger.warn(
+        ~module_="ExifParser",
+        ~message="BACKEND_GEOCODE_FAILED_FALLBACK_OSM",
+        ~data=Logger.castToJson({"lat": lat, "lon": lon, "backendError": msg}),
+        (),
+      )
+      await fetchFromOsm(lat, lon)
+    }
+  }
 }
