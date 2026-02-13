@@ -16,9 +16,11 @@ let calculateSmartArrivalTarget = (scenes: array<scene>, targetIndex: int) => {
       switch t {
       | Some(hotspot) =>
         switch (hotspot.startYaw, hotspot.startPitch) {
-        | (Some(sy), Some(sp)) =>
-          ay := sy
-          ap := sp
+        | (Some(_sy), Some(_sp)) =>
+          // To enable the "Intro Pan" visual effect, we land at a neutral offset
+          // then the intro-pan hook will gently move us to the exact waypoint center.
+          ay := hotspot.yaw -. 35.0
+          ap := 0.0
           hotspot.startHfov->Option.forEach(sh => ah := sh)
         | _ =>
           ay := hotspot.yaw -. 35.0
@@ -50,14 +52,11 @@ let getPreviousScene = (scenes, cur) => {
   len == 0 ? None : Some(mod(cur - 1 + len, len))
 }
 
-let calculatePathData = (state: state, sIdx, sHIdx, tIdx, tYaw, tPitch, tHfov, currView) => {
+let calculatePathData = (state: state, sIdx, sHIdx, tIdx, tYaw, tPitch, _tHfov, currView) => {
   state.scenes[sIdx]->Option.flatMap(src => {
     src.hotspots[sHIdx]->Option.flatMap(h => {
       let (cy, cp, ch) = currView
-      let (ay, ap, ah) =
-        state.simulation.status == Running
-          ? calculateSmartArrivalTarget(state.scenes, tIdx)
-          : (tYaw, tPitch, tHfov)
+      let (ay, ap, ah) = calculateSmartArrivalTarget(state.scenes, tIdx)
       let (sy, sp) = (h.startYaw->Option.getOr(cy), h.startPitch->Option.getOr(cp))
       let (ty, tp) = h.viewFrame->Option.map(vf => (vf.yaw, vf.pitch))->Option.getOr((tYaw, tPitch))
       let p0: PathInterpolation.point = {yaw: sy, pitch: sp}

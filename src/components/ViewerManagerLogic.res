@@ -306,7 +306,13 @@ let useHotspotLineLoop = (~getState: unit => state, dispatch: action => unit) =>
 
         // CRITICAL: Skip updates during viewer swap to prevent race condition
 
-        if !(!NavigationSupervisor.isIdle()) {
+        let status = NavigationSupervisor.getStatus()
+        let isCriticalBusy = switch status {
+        | Loading(_) | Swapping(_) => true
+        | _ => false
+        }
+
+        if !isCriticalBusy {
           let p = Viewer.getPitch(viewer)
           let y = Viewer.getYaw(viewer)
           let h = Viewer.getHfov(viewer)
@@ -338,4 +344,60 @@ let useHotspotLineLoop = (~getState: unit => state, dispatch: action => unit) =>
       },
     )
   })
+}
+// Hook 10: Intro Pan logic
+let useIntroPan = (state: state) => {
+  let lastPannedSceneId = React.useRef(Nullable.null)
+
+  React.useEffect3(() => {
+    let isIdle = state.navigationState.navigationFsm == IdleFsm
+
+    if isIdle && state.activeIndex != -1 && !state.isLinking && !state.isTeasing {
+      switch Belt.Array.get(state.scenes, state.activeIndex) {
+      | Some(scene) =>
+        if lastPannedSceneId.current != Nullable.make(scene.id) {
+          let hotspotsWithWaypoints = scene.hotspots->Belt.Array.keep(h =>
+            switch h.waypoints {
+            | Some(w) => Array.length(w) > 0
+            | None => false
+            }
+          )
+
+          if Array.length(hotspotsWithWaypoints) == 0 {
+            lastPannedSceneId.current = Nullable.make(scene.id)
+          } else {
+            let v = ViewerSystem.getActiveViewer()
+            switch Nullable.toOption(v) {
+            | Some(viewer) =>
+              if ViewerSystem.isViewerReady(viewer) {
+                let targetHotspot =
+                  hotspotsWithWaypoints
+                  ->Belt.Array.getBy(h => h.isReturnLink != Some(true))
+                  ->Option.getOr(hotspotsWithWaypoints->Belt.Array.get(0)->Option.getOrThrow)
+
+                let ty = targetHotspot.startYaw->Option.getOr(targetHotspot.yaw)
+                let tp = targetHotspot.startPitch->Option.getOr(targetHotspot.pitch)
+
+                Logger.info(
+                  ~module_="ViewerManagerLogic",
+                  ~message="INTRO_PAN_TRIGGERED",
+                  ~data=Some({"sceneId": scene.id, "targetYaw": ty, "targetPitch": tp}),
+                  (),
+                )
+
+                lastPannedSceneId.current = Nullable.make(scene.id)
+
+                // Slow, gentle pan (2000ms duration)
+                Viewer.setYawWithDuration(viewer, ty, 2000)
+                Viewer.setPitchWithDuration(viewer, tp, 2000)
+              }
+            | None => ()
+            }
+          }
+        }
+      | None => ()
+      }
+    }
+    None
+  }, (state.activeIndex, state.navigationState.navigationFsm, state.simulation.status))
 }
