@@ -117,13 +117,11 @@
         ".css"
       ],
       "complexity_dictionary": {
-        "!important": 5.0,
+        "!important": 1.5,
         "@media": 1.0,
         "{": 0.2
       },
-      "forbidden_patterns": [
-        "!important"
-      ]
+      "forbidden_patterns": []
     }
   },
   "taxonomy": {
