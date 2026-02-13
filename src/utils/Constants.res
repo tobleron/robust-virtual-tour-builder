@@ -250,6 +250,8 @@ module Telemetry = {
   // User: "Micro management when needed" -> Set this to false, then use traceFilterModules
   let startInDiagnosticMode = true
 
+  let enabled = getEnv("VITE_TELEMETRY_ENABLED", "true") == "true"
+
   // Micro-management: Add keys here to allow Trace/Debug logs for specific modules only
   // If array is empty ["*"] or diagnosticMode is true, ALL logs are sent.
   // Example: ["Teaser", "Navigation"]
@@ -262,6 +264,7 @@ module Telemetry = {
   let retryMaxAttempts = 3
   let retryBackoffMs = 1000
   let diagnosticMode = ref(startInDiagnosticMode)
+  let suspendDurationMs = 30000.0
 }
 
 // ============================================
