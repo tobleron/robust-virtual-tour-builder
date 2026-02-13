@@ -109,9 +109,9 @@ let uiYieldDelay = 10
 // ============================================
 
 let modalFadeDuration = 100
-let panningVelocity = 40.0 // Degrees per second
-let panningMinDuration = 500.0 // 0.5s - minimal snap time
-let panningMaxDuration = 15000.0 // 15s - allow very long slow journeys
+let panningVelocity = 25.0 // Degrees per second - Slower for majesty
+let panningMinDuration = 1000.0 // 1.0s - Minimum time to allow perceptible acceleration/deceleration
+let panningMaxDuration = 20000.0 // 20s - Allow very long slow journeys
 let sceneStabilizationDelay = 1000
 let viewerLoadCheckInterval = 100
 let tooltipDelayDuration = 900

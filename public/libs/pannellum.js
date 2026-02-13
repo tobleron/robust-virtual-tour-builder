@@ -1242,6 +1242,9 @@ window.pannellum = (function (E, g, p) {
               (0 > aa.indexOf("horizonPitch") && (b.horizonPitch = m),
               0 > aa.indexOf("horizonRoll") && (b.horizonRoll = e)));
         }
+        if (!P) {
+          P = new Image();
+        }
         P.src = E.URL.createObjectURL(a);
       });
       f.readAsBinaryString !== p ? f.readAsBinaryString(a) : f.readAsText(a);

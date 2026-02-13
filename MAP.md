@@ -312,4 +312,5 @@ This map provides a semantic overview of the project structure to optimize conte
 
 
 ## 🆕 Unmapped Modules
+* [src/utils/Easing.res](src/utils/Easing.res): New module detected. Please classify. #new
 * None detected.
