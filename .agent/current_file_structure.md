@@ -11970,6 +11970,12 @@
 │   │   │   │   ├── SceneList.cmt
 │   │   │   │   ├── SceneList.res
 │   │   │   │   ├── Sidebar
+│   │   │   │   │   ├── SidebarAbout.ast
+│   │   │   │   │   ├── SidebarAbout.bs.js
+│   │   │   │   │   ├── SidebarAbout.cmi
+│   │   │   │   │   ├── SidebarAbout.cmj
+│   │   │   │   │   ├── SidebarAbout.cmt
+│   │   │   │   │   ├── SidebarAbout.res
 │   │   │   │   │   ├── SidebarActions.ast
 │   │   │   │   │   ├── SidebarActions.bs.js
 │   │   │   │   │   ├── SidebarActions.cmi
@@ -11999,7 +12005,13 @@
 │   │   │   │   │   ├── SidebarProjectInfo.cmi
 │   │   │   │   │   ├── SidebarProjectInfo.cmj
 │   │   │   │   │   ├── SidebarProjectInfo.cmt
-│   │   │   │   │   └── SidebarProjectInfo.res
+│   │   │   │   │   ├── SidebarProjectInfo.res
+│   │   │   │   │   ├── UseSidebarProcessing.ast
+│   │   │   │   │   ├── UseSidebarProcessing.bs.js
+│   │   │   │   │   ├── UseSidebarProcessing.cmi
+│   │   │   │   │   ├── UseSidebarProcessing.cmj
+│   │   │   │   │   ├── UseSidebarProcessing.cmt
+│   │   │   │   │   └── UseSidebarProcessing.res
 │   │   │   │   ├── Sidebar.ast
 │   │   │   │   ├── Sidebar.bs.js
 │   │   │   │   ├── Sidebar.cmi
@@ -15182,6 +15194,11 @@
 │   │   ├── Sidebar.cmj
 │   │   ├── Sidebar.cmt
 │   │   ├── Sidebar.res
+│   │   ├── SidebarAbout.ast
+│   │   ├── SidebarAbout.cmi
+│   │   ├── SidebarAbout.cmj
+│   │   ├── SidebarAbout.cmt
+│   │   ├── SidebarAbout.res
 │   │   ├── SidebarActions.ast
 │   │   ├── SidebarActions.cmi
 │   │   ├── SidebarActions.cmj
@@ -15545,6 +15562,11 @@
 │   │   ├── UseInteraction.cmj
 │   │   ├── UseInteraction.cmt
 │   │   ├── UseInteraction.res
+│   │   ├── UseSidebarProcessing.ast
+│   │   ├── UseSidebarProcessing.cmi
+│   │   ├── UseSidebarProcessing.cmj
+│   │   ├── UseSidebarProcessing.cmt
+│   │   ├── UseSidebarProcessing.res
 │   │   ├── UtilityBar_v.test.ast
 │   │   ├── UtilityBar_v.test.cmi
 │   │   ├── UtilityBar_v.test.cmj
@@ -17238,6 +17260,7 @@
 │   │   ├── SceneList.bs.js
 │   │   ├── SceneList.res
 │   │   ├── Sidebar
+│   │   │   ├── SidebarAbout.bs.js
 │   │   │   ├── SidebarActions.bs.js
 │   │   │   ├── SidebarActions.res
 │   │   │   ├── SidebarBranding.bs.js
@@ -17247,7 +17270,8 @@
 │   │   │   ├── SidebarProcessing.bs.js
 │   │   │   ├── SidebarProcessing.res
 │   │   │   ├── SidebarProjectInfo.bs.js
-│   │   │   └── SidebarProjectInfo.res
+│   │   │   ├── SidebarProjectInfo.res
+│   │   │   └── UseSidebarProcessing.bs.js
 │   │   ├── Sidebar.bs.js
 │   │   ├── Sidebar.res
 │   │   ├── SnapshotOverlay.bs.js
@@ -17776,7 +17800,6 @@
 │   │       ├── D010_Aggregate_Completed_Tasks.md
 │   │       ├── D014_Surgical_Refactor_UTILS_FRONTEND.md
 │   │       ├── D015_Surgical_Refactor_SCENE_FRONTEND.md
-│   │       ├── D016_Integrate_DataFlow_Modules.md
 │   │       └── D017_Evaluate_Automated_Tasks.md
 │   ├── postponed
 │   │   ├── 1243_Fix_Operation_Cancellation_Feedback.md
@@ -18175,4 +18198,4 @@
 │       └── test_run.json
 └── vitest.config.mjs
 
-791 directories, 17385 files
+791 directories, 17408 files
