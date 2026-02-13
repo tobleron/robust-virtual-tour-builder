@@ -71,7 +71,7 @@ let debouncedSnapshot = Debounce.make(~fn=() => {
       id: "",
       importance: Info,
       context: Operation("viewer_snapshot"),
-      message: "Please wait before taking another snapshot",
+      message: "Rendering...please wait",
       details: None,
       action: None,
       duration: NotificationTypes.defaultTimeoutMs(Info),

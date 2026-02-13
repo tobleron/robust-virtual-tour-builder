@@ -143,35 +143,57 @@ let dispatch = (notif: notification): unit => {
     },
   }
 
-  let existing = NotificationQueue.getById(withId.id, state.contents)
+  let contextKey = NotificationTypes.contextMessageKey(withId)
+  let existingByContext = NotificationQueue.findByContextKey(contextKey, state.contents)
 
-  switch existing {
-  | Some(_) => state := upsertById(withId, state.contents)
+  switch existingByContext {
+  | Some(existing) =>
+    let refreshed = {
+      ...existing,
+      createdAt: Date.now(),
+      duration: withId.duration,
+    }
+    state := upsertById(refreshed, state.contents)
+    cancelTimer(existing.id)
+    scheduleAutoDismiss(existing.id, withId.duration)
+    Logger.info(
+      ~module_="NotificationManager",
+      ~message="REFRESHING_NOTIFICATION",
+      ~data=Some({"notifId": existing.id}),
+      (),
+    )
+    notifyListeners(state.contents)
+    ()
   | None =>
-    // Add to queue
-    state := NotificationQueue.enqueue(withId, state.contents)
+    let existingById = NotificationQueue.getById(withId.id, state.contents)
 
-    // Try to move from pending to active if space is available
-    state := NotificationQueue.dequeue(state.contents)
+    switch existingById {
+    | Some(_) => state := upsertById(withId, state.contents)
+    | None =>
+      // Add to queue
+      state := NotificationQueue.enqueue(withId, state.contents)
+
+      // Try to move from pending to active if space is available
+      state := NotificationQueue.dequeue(state.contents)
+    }
+
+    maybeFadeOldest()
+
+    // Schedule auto-dismiss if needed
+    cancelTimer(withId.id)
+    scheduleAutoDismiss(withId.id, withId.duration)
+
+    Logger.info(
+      ~module_="NotificationManager",
+      ~message="STATE_AFTER_DISPATCH",
+      ~data=Some({
+        "pendingCount": Belt.Array.length(state.contents.pending),
+        "activeCount": Belt.Array.length(state.contents.active),
+      }),
+      (),
+    )
+    notifyListeners(state.contents)
   }
-
-  maybeFadeOldest()
-
-  // Schedule auto-dismiss if needed
-  cancelTimer(withId.id)
-  scheduleAutoDismiss(withId.id, withId.duration)
-
-  // Notify listeners of new state
-  Logger.info(
-    ~module_="NotificationManager",
-    ~message="STATE_AFTER_DISPATCH",
-    ~data=Some({
-      "pendingCount": Belt.Array.length(state.contents.pending),
-      "activeCount": Belt.Array.length(state.contents.active),
-    }),
-    (),
-  )
-  notifyListeners(state.contents)
 }
 
 // Subscribe to state changes

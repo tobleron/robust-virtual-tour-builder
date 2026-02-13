@@ -95,6 +95,9 @@ let dedupKey = (notif: notification): string => {
   }
 }
 
+let contextMessageKey = (notif: notification): string =>
+  contextToString(notif.context) ++ "|" ++ notif.message
+
 // Priority ordering for sort comparisons (lower number = higher priority)
 // Used to sort notifications so errors appear before success messages
 let importancePriority = (imp: importance): int => {

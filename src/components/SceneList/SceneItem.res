@@ -35,23 +35,6 @@ let make = React.memo((
     ~action=async () => onItemClick(index),
   )
 
-  React.useEffect1(() => {
-    if wasThrottled {
-      NotificationManager.dispatch({
-        id: "",
-        importance: Warning,
-        context: Operation("scene_navigation"),
-        message: "Switching too fast - Please wait...",
-        details: None,
-        action: None,
-        duration: NotificationTypes.defaultTimeoutMs(Warning),
-        dismissible: true,
-        createdAt: Date.now(),
-      })
-    }
-    None
-  }, [wasThrottled])
-
   React.useEffect0(() => {
     Logger.initialized(~module_="SceneItem")
     None
@@ -61,6 +44,24 @@ let make = React.memo((
 
   let (isMenuOpen, setMenuOpen) = React.useState(_ => false)
   let (flickerState, setFlickerState) = React.useState(_ => #None)
+  React.useEffect1(() => {
+    if wasThrottled {
+      setFlickerState(_ => #Throttled)
+      let timeoutId = ReBindings.Window.setTimeout(
+        () => {
+          setFlickerState(_ => #None)
+        },
+        600,
+      )
+      Some(
+        () => {
+          ReBindings.Window.clearTimeout(timeoutId)
+        },
+      )
+    } else {
+      None
+    }
+  }, [wasThrottled])
 
   let handleClearClick = e => {
     JsxEvent.Mouse.preventDefault(e)
@@ -105,25 +106,36 @@ let make = React.memo((
 
   let groupColorClass = ColorPalette.getGroupClass(scene.colorGroup)
 
+  let throttleClasses = switch flickerState {
+  | #Throttled => "ring-2 ring-primary/40 opacity-80 cursor-wait"
+  | _ => ""
+  }
+  let isBusy = flickerState == #Throttled
+
   <div
     key={scene.id}
-    className={`scene-item group relative flex items-center border rounded-lg mb-2 overflow-hidden transition-all duration-200 select-none touch-pan-y active-push h-16 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none ${activeClasses}`}
+    className={`scene-item group relative flex items-center border rounded-lg mb-2 overflow-hidden transition-all duration-200 select-none touch-pan-y active-push h-16 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none ${activeClasses} ${throttleClasses}`}
     draggable=true
     onDragStart={e => onItemDragStart(index, e)}
     onDragOver={e => onItemDragOver(index, e)}
     onDrop={e => onItemDrop(index, e)}
     onClick={_ => {
-      let _ = handleSceneClick()
+      if !isActive {
+        let _ = handleSceneClick()
+      }
     }}
     tabIndex=0
     onKeyDown={e => {
       if JsxEvent.Keyboard.key(e) == "Enter" || JsxEvent.Keyboard.key(e) == " " {
         JsxEvent.Keyboard.preventDefault(e)
-        let _ = handleSceneClick()
+        if !isActive {
+          let _ = handleSceneClick()
+        }
       }
     }}
     role="button"
     ariaLabel={`Select scene ${scene.name}`}
+    ariaBusy=isBusy
   >
     <div
       className="flex items-center justify-center w-5 text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing transition-colors self-stretch"
