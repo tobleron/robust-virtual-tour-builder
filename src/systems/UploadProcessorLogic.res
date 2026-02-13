@@ -122,7 +122,7 @@ let createScenePayload = (items: array<UploadTypes.uploadItem>) => {
     JsonEncoders.Upload.sceneItem(
       ~id=Nullable.toOption(item.id)->Option.getOr(""),
       ~originalName=File.name(item.original),
-      ~name=UrlUtils.stripExtension(File.name(item.original)),
+      ~name=UrlUtils.stripExtension(File.name(preview)),
       ~original=Types.File(item.original),
       ~preview=Types.File(preview),
       ~tiny=Types.File(tiny),
