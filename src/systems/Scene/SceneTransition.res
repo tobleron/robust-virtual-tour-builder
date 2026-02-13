@@ -164,13 +164,16 @@ let scheduleCleanup = (ov, ~taskId: option<string>=?) => {
   cleanupSnapshotOverlay()
 }
 
-let performSwap = (
+let maxSwapRetries = 3
+
+let rec performSwap = (
   loadedScene: scene,
   _loadStartTime,
   ~taskId: option<string>=?,
   ~getState: getStateFn,
   ~dispatch,
   ~transition,
+  ~retryCount: int=?,
 ) => {
   Logger.debug(
     ~module_="SceneTransition",
@@ -194,16 +197,39 @@ let performSwap = (
     updateDomTransitions(~transition, av, iv)
     scheduleCleanup(ov, ~taskId?)
   | None =>
-    Logger.warn(~module_="SceneTransition", ~message="NO_INACTIVE_VIEWER_FOR_SWAP", ())
-    // Failsafe: if we don't have a second viewer, we still need to finish the transition
-    let activeViewer = ViewerSystem.getActiveViewer()
-    if activeViewer->Nullable.toOption->Option.isSome {
-      assignGlobalViewer(activeViewer)
-    }
-    dispatch(SyncSceneNames) // Force some state change
-    switch taskId {
-    | Some(tid) => NavigationSupervisor.abort(tid)
-    | None => ()
+    let attemptCount = retryCount->Option.getOr(0)
+    if attemptCount < maxSwapRetries {
+      Logger.warn(
+        ~module_="SceneTransition",
+        ~message="RETRY_SWAP_BECAUSE_NO_INACTIVE_VIEWER",
+        ~data=Some({"attempt": attemptCount + 1}),
+        (),
+      )
+      let delay = 50 * (attemptCount + 1)
+      let _ = Window.setTimeout(() =>
+        performSwap(
+          loadedScene,
+          _loadStartTime,
+          ~taskId?,
+          ~getState,
+          ~dispatch,
+          ~transition,
+          ~retryCount=Some(attemptCount + 1),
+        ),
+        delay,
+      )
+    } else {
+      Logger.warn(~module_="SceneTransition", ~message="NO_INACTIVE_VIEWER_FOR_SWAP", ())
+      // Failsafe: if we don't have a second viewer, we still need to finish the transition
+      let activeViewer = ViewerSystem.getActiveViewer()
+      if activeViewer->Nullable.toOption->Option.isSome {
+        assignGlobalViewer(activeViewer)
+      }
+      dispatch(SyncSceneNames) // Force some state change
+      switch taskId {
+      | Some(tid) => NavigationSupervisor.abort(tid)
+      | None => ()
+      }
     }
   }
 
