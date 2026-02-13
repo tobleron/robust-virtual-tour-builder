@@ -35,9 +35,7 @@ let finalizeSwap = (~getState, ~taskId: option<string>=?) => {
 }
 
 let assignGlobalViewer = nv => {
-  let assignGlobal: Nullable.t<ReBindings.Viewer.t> => unit = %raw(
-    "(v) => window.pannellumViewer = v"
-  )
+  let assignGlobal: ReBindings.Viewer.t => unit = %raw("(v) => window.pannellumViewer = v")
   assignGlobal(nv)
 }
 
@@ -166,76 +164,74 @@ let scheduleCleanup = (ov, ~taskId: option<string>=?) => {
 
 let maxSwapRetries = 3
 
-let rec performSwap = (
+let completeSwapTransition = (~getState, ~loadedScene: scene, ~dispatch) => {
+  ViewerSnapshot.requestIdleSnapshot(~getState)
+  ViewerState.state := {...ViewerState.state.contents, lastSceneId: Nullable.make(loadedScene.id)}
+  Logger.debug(~module_="SceneTransition", ~message="SWAP_COMPLETE_FSM_SIGNAL", ())
+  dispatch(DispatchNavigationFsmEvent(StabilizeComplete))
+}
+
+let performSwap = (
   loadedScene: scene,
   _loadStartTime,
   ~taskId: option<string>=?,
   ~getState: getStateFn,
   ~dispatch,
   ~transition,
-  ~retryCount: int=?,
 ) => {
-  Logger.debug(
-    ~module_="SceneTransition",
-    ~message="PERFORM_SWAP",
-    ~data=Some({"targetScene": loadedScene.name}),
-    (),
-  )
+  let rec attemptSwap = (~retryCount: int) => {
+    Logger.debug(
+      ~module_="SceneTransition",
+      ~message="PERFORM_SWAP",
+      ~data=Some({"targetScene": loadedScene.name, "attempt": retryCount + 1}),
+      (),
+    )
 
-  switch taskId {
-  | Some(tid) => NavigationSupervisor.transitionTo(tid, Swapping(tid, loadedScene.id))
-  | None => ()
-  }
+    switch taskId {
+    | Some(tid) => NavigationSupervisor.transitionTo(tid, Swapping(tid, loadedScene.id))
+    | None => ()
+    }
 
-  let (av, iv) = (ViewerSystem.Pool.getActive(), ViewerSystem.Pool.getInactive())
-  let (ov, nv) = (ViewerSystem.getActiveViewer(), ViewerSystem.getInactiveViewer())
+    let (av, iv) = (ViewerSystem.Pool.getActive(), ViewerSystem.Pool.getInactive())
+    let (ov, nv) = (ViewerSystem.getActiveViewer(), ViewerSystem.getInactiveViewer())
+    let firstLoad =
+      ViewerState.state.contents.lastSceneId->Nullable.toOption->Option.isNone && retryCount == 0
 
-  switch Nullable.toOption(nv) {
-  | Some(_newViewer) =>
-    Logger.debug(~module_="SceneTransition", ~message="SWAPPING_VIEWERS", ())
-    updateGlobalStateAndViewer(~getState, nv, ~taskId?)
-    updateDomTransitions(~transition, av, iv)
-    scheduleCleanup(ov, ~taskId?)
-  | None =>
-    let attemptCount = retryCount->Option.getOr(0)
-    if attemptCount < maxSwapRetries {
-      Logger.warn(
-        ~module_="SceneTransition",
-        ~message="RETRY_SWAP_BECAUSE_NO_INACTIVE_VIEWER",
-        ~data=Some({"attempt": attemptCount + 1}),
-        (),
-      )
-      let delay = 50 * (attemptCount + 1)
-      let _ = Window.setTimeout(() =>
-        performSwap(
-          loadedScene,
-          _loadStartTime,
-          ~taskId?,
-          ~getState,
-          ~dispatch,
-          ~transition,
-          ~retryCount=Some(attemptCount + 1),
-        ),
-        delay,
-      )
+    if firstLoad {
+      Logger.debug(~module_="SceneTransition", ~message="INITIAL_SWAP_NO_INACTIVE", ())
+      ViewerSystem.getActiveViewer()
+      ->Nullable.toOption
+      ->Option.forEach(assignGlobalViewer)
+      completeSwapTransition(~getState, ~loadedScene, ~dispatch)
     } else {
-      Logger.warn(~module_="SceneTransition", ~message="NO_INACTIVE_VIEWER_FOR_SWAP", ())
-      // Failsafe: if we don't have a second viewer, we still need to finish the transition
-      let activeViewer = ViewerSystem.getActiveViewer()
-      if activeViewer->Nullable.toOption->Option.isSome {
-        assignGlobalViewer(activeViewer)
-      }
-      dispatch(SyncSceneNames) // Force some state change
-      switch taskId {
-      | Some(tid) => NavigationSupervisor.abort(tid)
-      | None => ()
+      switch Nullable.toOption(nv) {
+      | Some(newViewer) =>
+        Logger.debug(~module_="SceneTransition", ~message="SWAPPING_VIEWERS", ())
+        updateGlobalStateAndViewer(~getState, newViewer, ~taskId?)
+        updateDomTransitions(~transition, av, iv)
+        scheduleCleanup(ov, ~taskId?)
+        completeSwapTransition(~getState, ~loadedScene, ~dispatch)
+      | None =>
+        if retryCount < maxSwapRetries {
+          Logger.warn(
+            ~module_="SceneTransition",
+            ~message="RETRY_SWAP_BECAUSE_NO_INACTIVE_VIEWER",
+            ~data=Some({"attempt": retryCount + 1}),
+            (),
+          )
+          let delay = 50 * (retryCount + 1)
+          let _ = Window.setTimeout(() => attemptSwap(~retryCount=retryCount + 1), delay)
+        } else {
+          Logger.warn(~module_="SceneTransition", ~message="NO_INACTIVE_VIEWER_FOR_SWAP", ())
+          ViewerSystem.getActiveViewer()
+          ->Nullable.toOption
+          ->Option.forEach(assignGlobalViewer)
+          dispatch(SyncSceneNames)
+          completeSwapTransition(~getState, ~loadedScene, ~dispatch)
+        }
       }
     }
   }
 
-  ViewerSnapshot.requestIdleSnapshot(~getState)
-  ViewerState.state := {...ViewerState.state.contents, lastSceneId: Nullable.make(loadedScene.id)}
-
-  Logger.debug(~module_="SceneTransition", ~message="SWAP_COMPLETE_FSM_SIGNAL", ())
-  dispatch(DispatchNavigationFsmEvent(StabilizeComplete))
+  attemptSwap(~retryCount=0)
 }

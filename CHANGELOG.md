@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - E2E tests finished
+- E2E tests finished
 
 ## [4.4.4] - 2026-02-12
 

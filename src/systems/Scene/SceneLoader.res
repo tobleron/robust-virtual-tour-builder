@@ -49,6 +49,39 @@ module Config = {
   }
 }
 
+let blankPanorama = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
+
+let backgroundViewerConfig = () => {
+  {
+    "panorama": blankPanorama,
+    "hotSpots": [],
+    "autoLoad": false,
+    "hfov": Constants.globalHfov,
+    "minHfov": Constants.globalHfov,
+    "maxHfov": Constants.globalHfov,
+    "mouseZoom": false,
+    "doubleClickZoom": false,
+    "keyboardZoom": false,
+    "showZoomCtrl": false,
+  }
+}
+
+let ensureBackgroundViewer = (~_state: state, ~_dispatch) => {
+  ViewerSystem.Pool.getInactive()->Option.forEach(vp => {
+    switch vp.instance {
+    | Some(_) => ()
+    | None =>
+      let instance = ViewerSystem.Adapter.initialize(
+        vp.containerId,
+        backgroundViewerConfig()->asDynamic,
+      )
+      ViewerSystem.Adapter.setMetaData(instance, "sceneId", idToUnknown(""))
+      ViewerSystem.Adapter.setMetaData(instance, "isLoaded", boolToUnknown(false))
+      ViewerSystem.Pool.registerInstance(vp.containerId, instance)
+    }
+  })
+}
+
 let toPathRequest = (state: state): pathRequest => {
   {
     type_: "navigation",
@@ -385,6 +418,7 @@ let loadNewScene = (
               }),
               (),
             )
+            ensureBackgroundViewer(~_state=state, ~_dispatch=dispatch)
           } catch {
           | exn =>
             clearTimeout(safetyTimeoutId)
