@@ -41,7 +41,11 @@ type queueState = {
   pending: array<notification>, // Queued but not yet active
   active: array<notification>, // Currently visible (max 3)
   archived: array<notification>, // Recently dismissed (max 10, for undo/history)
+  fadingOut: array<string>, // Notifications currently animating out
 }
+
+// Maximum number of toasts visible at once
+let activeSlotLimit = 3
 
 // ============================================================================
 // HELPER FUNCTIONS

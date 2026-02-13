@@ -1,10 +1,37 @@
 /* src/components/LockFeedback.res */
 
+open NotificationTypes
+
 @react.component
 let make = () => {
+  let transitionToastId = "scene-transition-toast"
   let (status, setStatus) = React.useState(_ => NavigationSupervisor.Idle)
-  let (showWarning, setShowWarning) = React.useState(_ => false)
-  let (showLongWarning, setShowLongWarning) = React.useState(_ => false)
+
+  let dispatchProcessingToast = () =>
+    NotificationManager.dispatch({
+      id: transitionToastId,
+      importance: NotificationTypes.Info,
+      context: NotificationTypes.SystemEvent("scene_transition"),
+      message: "Processing scene transition...",
+      details: None,
+      action: None,
+      duration: 0,
+      dismissible: false,
+      createdAt: Date.now(),
+    })
+
+  let dispatchDelayedToast = () =>
+    NotificationManager.dispatch({
+      id: transitionToastId,
+      importance: NotificationTypes.Warning,
+      context: NotificationTypes.SystemEvent("scene_transition"),
+      message: "Scene transition delayed. Please wait...",
+      details: None,
+      action: None,
+      duration: 0,
+      dismissible: false,
+      createdAt: Date.now(),
+    })
 
   React.useEffect0(() => {
     let cleanup = NavigationSupervisor.addStatusListener(newStatus => {
@@ -14,37 +41,22 @@ let make = () => {
   })
 
   React.useEffect1(() => {
+    NotificationManager.dismiss(transitionToastId)
+
     switch status {
-    | Idle =>
-      setShowWarning(_ => false)
-      setShowLongWarning(_ => false)
-      None
+    | Idle => None
     | _ =>
-      let t1 = setTimeout(() => setShowWarning(_ => true), 3000)
-      let t2 = setTimeout(() => setShowLongWarning(_ => true), 8000)
+      let shortId = ReBindings.Window.setTimeout(dispatchProcessingToast, 3000)
+      let longId = ReBindings.Window.setTimeout(dispatchDelayedToast, 8000)
 
       Some(
         () => {
-          clearTimeout(t1)
-          clearTimeout(t2)
+          ReBindings.Window.clearTimeout(shortId)
+          ReBindings.Window.clearTimeout(longId)
         },
       )
     }
   }, [status])
 
-  if !showWarning {
-    React.null
-  } else {
-    let (message, color) = if showLongWarning {
-      ("Scene transition delayed. Please wait...", "bg-red-500/90 text-white")
-    } else {
-      ("Processing scene transition...", "bg-blue-500/90 text-white")
-    }
-
-    <div
-      className={`absolute top-4 right-4 z-[9999] px-4 py-2 rounded-lg shadow-lg font-medium text-sm pointer-events-none transition-all duration-300 ${color}`}
-    >
-      {React.string(message)}
-    </div>
-  }
+  React.null
 }

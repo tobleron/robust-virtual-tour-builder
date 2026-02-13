@@ -5,11 +5,14 @@
 
 open NotificationTypes
 
+let maxActive = NotificationTypes.activeSlotLimit
+
 // Create an empty queue state
 let empty = (): queueState => {
   pending: [],
   active: [],
   archived: [],
+  fadingOut: [],
 }
 
 // Sort notifications by importance priority (lower number = higher priority)
@@ -55,14 +58,11 @@ let dequeue = (state: queueState): queueState => {
   let activeCount = Belt.Array.length(state.active)
   let pendingCount = Belt.Array.length(state.pending)
 
-  if activeCount >= 3 || pendingCount === 0 {
-    // Can't add more to active (full) or nothing to dequeue
+  if activeCount >= maxActive || pendingCount === 0 {
     state
   } else {
-    // Move first pending to active
     switch Belt.Array.get(state.pending, 0) {
     | Some(notif) => {
-        // Take all except first element
         let rest = Belt.Array.slice(state.pending, ~offset=1, ~len=pendingCount - 1)
         {
           ...state,
@@ -89,13 +89,12 @@ let findFirst = (predicate: 'a => bool, arr: array<'a>): option<'a> => {
 // Dismiss a notification by ID
 // Remove from active, add to archived (keep max 10)
 let dismiss = (notifId: string, state: queueState): queueState => {
-  // Find notification to dismiss
   let newActive = Belt.Array.keep(state.active, notif => notif.id !== notifId)
   let dismissedOpt = findFirst(notif => notif.id === notifId, state.active)
+  let newFadingOut = Belt.Array.keep(state.fadingOut, id => id !== notifId)
 
   switch dismissedOpt {
   | Some(dismissed) => {
-      // Add to archived, keep only last 10
       let newArchived = Belt.Array.concat(state.archived, [dismissed])
       let archivedCount = Belt.Array.length(newArchived)
       let trimmedArchived = if archivedCount > 10 {
@@ -107,9 +106,15 @@ let dismiss = (notifId: string, state: queueState): queueState => {
         pending: state.pending,
         active: newActive,
         archived: trimmedArchived,
+        fadingOut: newFadingOut,
       }
     }
-  | None => state // Not found in active, no change
+  | None => {
+      pending: state.pending,
+      active: newActive,
+      archived: state.archived,
+      fadingOut: newFadingOut,
+    }
   }
 }
 
