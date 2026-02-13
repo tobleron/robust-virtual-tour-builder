@@ -89,7 +89,7 @@ let drawSingleHotspotLine = (
   cam,
   rect,
   currentFrameIds,
-  simulationStatus: Types.simulationStatus,
+  _simulationStatus: Types.simulationStatus,
 ) => {
   switch (h.startYaw, h.startPitch, h.viewFrame) {
   | (Some(sy), Some(sp), Some(vf)) =>
@@ -137,24 +137,23 @@ let drawSingleHotspotLine = (
       )
     }
 
-    if simulationStatus == Idle {
-      let arrowId = "arrow_" ++ h.linkId
-      Belt.MutableSet.String.add(currentFrameIds, arrowId)
-      updateSimulationArrow(
-        cam,
-        sp,
-        sy,
-        vf.pitch,
-        vf.yaw,
-        0.0,
-        rect,
-        ~opacity=0.9,
-        ~waypoints,
-        ~colorOverride="var(--orange-brand)",
-        ~id=arrowId,
-        (),
-      )
-    }
+    // Draw the simulation arrow if it highlights a waypoint path
+    let arrowId = "arrow_" ++ h.linkId
+    Belt.MutableSet.String.add(currentFrameIds, arrowId)
+    updateSimulationArrow(
+      cam,
+      sp,
+      sy,
+      vf.pitch,
+      vf.yaw,
+      0.0,
+      rect,
+      ~opacity=0.9,
+      ~waypoints,
+      ~colorOverride="var(--orange-brand)",
+      ~id=arrowId,
+      (),
+    )
   | _ => ()
   }
 }
@@ -164,11 +163,11 @@ let drawPersistentLines = (
   rect,
   hotspots: array<Types.hotspot>,
   currentFrameIds,
-  simulationStatus: Types.simulationStatus,
+  _simulationStatus: Types.simulationStatus,
 ) => {
   for i in 0 to Array.length(hotspots) - 1 {
     switch Belt.Array.get(hotspots, i) {
-    | Some(h) => drawSingleHotspotLine(h, cam, rect, currentFrameIds, simulationStatus)
+    | Some(h) => drawSingleHotspotLine(h, cam, rect, currentFrameIds, _simulationStatus)
     | None => ()
     }
   }

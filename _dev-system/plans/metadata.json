@@ -1,10 +1,15 @@
 {
-  "rust": [
+  "system": [
     {
-      "Violation": {
-        "file": "../../backend/src/api/media/video_logic.rs",
-        "pattern": "unwrap()",
-        "strategy": ""
+      "Merge": {
+        "folder": "../../src/components/VisualPipeline",
+        "files": [
+          "VisualPipelineComponent.res",
+          "VisualPipelineStyles.res"
+        ],
+        "reason": "Read Tax high (Score 2.00). Projected Limit: 300 (Drag 3.30)",
+        "strategy": "",
+        "platform": "frontend"
       }
     }
   ],
@@ -19,13 +24,6 @@
   ],
   "rescript": [
     {
-      "Violation": {
-        "file": "../../src/core/JsonParsersDecoders.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
       "Surgical": {
         "file": "../../src/systems/ProjectManager.res",
         "action": "De-bloat",
@@ -37,13 +35,45 @@
       }
     },
     {
+      "Violation": {
+        "file": "../../src/core/JsonParsersDecoders.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/hooks/UseInteraction.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
       "Surgical": {
-        "file": "../../src/systems/UploadProcessorLogic.res",
+        "file": "../../src/systems/Scene/SceneLoader.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 2.40, Density: 0.04, Coupling: 0.11] | Drag: 3.44 | LOC: 378/300  🎯 Target: Function: `getNotificationType` (High Local Complexity (4.0). Logic heavy.)",
+        "reason": "[Nesting: 4.20, Density: 0.10, Coupling: 0.07] | Drag: 5.32 | LOC: 408/300  🎯 Target: Function: `taskMismatch` (High Local Complexity (2.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 11.239682539682539,
+        "complexity": 16.115196078431374,
+        "recommended_splits": 2
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/Api/AuthenticatedClient.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/SceneMutations.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 5.40, Density: 0.26, Coupling: 0.04] | Drag: 6.68 | LOC: 394/300  🎯 Target: Function: `getDeletedIds` (High Local Complexity (3.5). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 16.081725888324872,
         "recommended_splits": 2
       }
     },
@@ -60,17 +90,6 @@
     },
     {
       "Surgical": {
-        "file": "../../src/components/Sidebar.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.04, Coupling: 0.08] | Drag: 4.10 | LOC: 412/300  🎯 Target: Function: `make` (High Local Complexity (15.5). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 15.297087378640775,
-        "recommended_splits": 2
-      }
-    },
-    {
-      "Surgical": {
         "file": "../../src/core/Reducer.res",
         "action": "De-bloat",
         "reason": "[Nesting: 5.40, Density: 0.28, Coupling: 0.10] | Drag: 6.68 | LOC: 408/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.)",
@@ -81,17 +100,25 @@
       }
     },
     {
-      "Violation": {
-        "file": "../../src/hooks/UseInteraction.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
+      "Surgical": {
+        "file": "../../src/systems/UploadProcessorLogic.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 2.40, Density: 0.04, Coupling: 0.11] | Drag: 3.44 | LOC: 378/300  🎯 Target: Function: `getNotificationType` (High Local Complexity (4.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 11.239682539682539,
+        "recommended_splits": 2
       }
     },
     {
-      "Violation": {
-        "file": "../../src/systems/Api/AuthenticatedClient.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
+      "Surgical": {
+        "file": "../../src/components/Sidebar.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.04, Coupling: 0.08] | Drag: 4.10 | LOC: 412/300  🎯 Target: Function: `make` (High Local Complexity (15.5). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 15.297087378640775,
+        "recommended_splits": 2
       }
     },
     {
@@ -104,41 +131,14 @@
         "complexity": 13.322222222222223,
         "recommended_splits": 2
       }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/Scene/SceneLoader.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.20, Density: 0.10, Coupling: 0.07] | Drag: 5.32 | LOC: 408/300  🎯 Target: Function: `taskMismatch` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 16.115196078431374,
-        "recommended_splits": 2
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/SceneMutations.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 5.40, Density: 0.26, Coupling: 0.04] | Drag: 6.68 | LOC: 394/300  🎯 Target: Function: `getDeletedIds` (High Local Complexity (3.5). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 16.081725888324872,
-        "recommended_splits": 2
-      }
     }
   ],
-  "system": [
+  "rust": [
     {
-      "Merge": {
-        "folder": "../../src/components/VisualPipeline",
-        "files": [
-          "VisualPipelineComponent.res",
-          "VisualPipelineStyles.res"
-        ],
-        "reason": "Read Tax high (Score 2.00). Projected Limit: 300 (Drag 3.30)",
-        "strategy": "",
-        "platform": "frontend"
+      "Violation": {
+        "file": "../../backend/src/api/media/video_logic.rs",
+        "pattern": "unwrap()",
+        "strategy": ""
       }
     }
   ]

@@ -23,6 +23,7 @@ let make = () => {
   ViewerManagerLogic.useSimulationArrival(state)
   ViewerManagerLifecycle.useLinkingAndSimUI(state, dispatch)
   ViewerManagerLogic.useHotspotLineLoop(~getState, dispatch)
+  ViewerManagerLogic.useIntroPan(state)
 
   React.null
 }
