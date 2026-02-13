@@ -37,7 +37,9 @@ describe("SvgManager", () => {
     t->expect(Option.isSome(elOption))->Expect.toBe(true)
 
     let el = Option.getOrThrow(elOption)
-    t->expect(ReBindings.Dom.getAttribute(el, "id"))->Expect.toBe("test-id")
+    t
+    ->expect(ReBindings.Dom.getAttribute(el, "id")->Nullable.toOption->Option.getOr(""))
+    ->Expect.toBe("test-id")
 
     let container = ReBindings.Dom.getElementById("viewer-hotspot-lines")
     let found = ReBindings.Dom.querySelector(Nullable.getOrThrow(container), "#test-id")

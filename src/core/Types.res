@@ -72,6 +72,7 @@ type transitioningState = {
   fromSceneId: option<string>,
   toSceneId: string,
   progress: float,
+  isPreview: bool,
 }
 
 type errorInfo = {
@@ -237,7 +238,7 @@ type backgroundTask =
   | GeneratingPreviews
 
 type navigationEvent =
-  | UserClickedScene({targetSceneId: string})
+  | UserClickedScene({targetSceneId: string, previewOnly: bool})
   | PreloadStarted({targetSceneId: string})
   | StartAnticipatoryLoad({targetSceneId: string})
   | TextureLoaded({targetSceneId: string})

@@ -44,7 +44,9 @@ let make = () => {
     NotificationManager.dismiss(transitionToastId)
 
     switch status {
-    | Idle => None
+    | Idle
+    | Panning(_, _) =>
+      None
     | _ =>
       let shortId = ReBindings.Window.setTimeout(dispatchProcessingToast, 3000)
       let longId = ReBindings.Window.setTimeout(dispatchDelayedToast, 8000)
