@@ -17776,7 +17776,8 @@
 │   │       ├── D010_Aggregate_Completed_Tasks.md
 │   │       ├── D014_Surgical_Refactor_UTILS_FRONTEND.md
 │   │       ├── D015_Surgical_Refactor_SCENE_FRONTEND.md
-│   │       └── D016_Integrate_DataFlow_Modules.md
+│   │       ├── D016_Integrate_DataFlow_Modules.md
+│   │       └── D017_Evaluate_Automated_Tasks.md
 │   ├── postponed
 │   │   ├── 1243_Fix_Operation_Cancellation_Feedback.md
 │   │   ├── 1246_Handle_Malformed_Project_Files_Gracefully.md
@@ -18174,4 +18175,4 @@
 │       └── test_run.json
 └── vitest.config.mjs
 
-791 directories, 17384 files
+791 directories, 17385 files

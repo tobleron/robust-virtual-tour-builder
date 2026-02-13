@@ -24,16 +24,22 @@ pub enum EfficiencyOverride {
     Ignore,
     Strict,
     Role(String),
+    SkipViolation(String),
 }
 
 pub fn parse_header(content: &str) -> EfficiencyOverride {
-    let prefixes = ["@efficiency:", "@efficiency-role:", "@efficiency-role "];
+    let prefixes = [
+        "@efficiency:", 
+        "@efficiency-role:", 
+        "@efficiency-role ",
+        "@efficiency-skip-violation:"
+    ];
     for prefix in &prefixes {
         if let Some(pos) = content.find(prefix) {
             let start = pos + prefix.len();
             let mut val = String::new();
             for c in content[start..].chars() {
-                if c.is_alphanumeric() || c == '-' || c == '_' {
+                if c.is_alphanumeric() || c == '-' || c == '_' || c == '!' {
                     val.push(c);
                 } else if !val.is_empty() {
                     break;
@@ -41,6 +47,9 @@ pub fn parse_header(content: &str) -> EfficiencyOverride {
             }
 
             let tag = val.trim();
+            if prefix.contains("skip-violation") {
+                return EfficiencyOverride::SkipViolation(tag.to_string());
+            }
             if tag == "ignore" || tag == "ignored" {
                 return EfficiencyOverride::Ignore;
             }
