@@ -48,6 +48,7 @@ let isUnknownName = name => {
   n == "" ||
   String.includes(n, "unknown") ||
   n == "untitled" ||
+  n == "untitled tour" ||
   n == "imported tour" ||
   n == "tour" ||
   n == "tour name" ||
@@ -55,8 +56,8 @@ let isUnknownName = name => {
   n == "virtual tour" ||
   n == "new tour" ||
   n == "new tour..." ||
-  RegExp.test(/^tour_\d{6}_\d{4}$/i, name) ||
-  // Matches Tour_DDMMYY_HHMM
+  RegExp.test(/^tour_\d{4,6}_\d{4}$/i, name) ||
+  // Matches Tour_DDMM_HHMM or Tour_DDMMYY_HHMM
   RegExp.test(/^saved_rmx_/i, name)
 }
 
