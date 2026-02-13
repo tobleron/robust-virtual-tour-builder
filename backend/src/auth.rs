@@ -112,7 +112,7 @@ pub fn encode_token(sub: &str) -> Result<String, AppError> {
         .map_err(|_| AppError::InternalError("JWT_SECRET must be set".to_string()))?;
     let expiration = Utc::now()
         .checked_add_signed(Duration::hours(24))
-        .expect("valid timestamp")
+        .ok_or_else(|| AppError::InternalError("Timestamp overflow".to_string()))?
         .timestamp();
 
     let claims = Claims {

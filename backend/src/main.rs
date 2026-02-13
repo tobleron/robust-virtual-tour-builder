@@ -99,7 +99,12 @@ async fn main() -> io::Result<()> {
         .per_second(requests_per_sec)
         .burst_size(burst_size)
         .finish()
-        .expect("Failed to initialize rate limiter configuration.");
+        .ok_or_else(|| {
+            io::Error::new(
+                io::ErrorKind::Other,
+                "Failed to initialize rate limiter configuration.",
+            )
+        })?;
 
     tracing::info!(
         requests_per_second = requests_per_sec,

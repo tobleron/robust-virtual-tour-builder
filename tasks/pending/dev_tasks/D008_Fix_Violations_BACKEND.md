@@ -12,4 +12,5 @@
 ### 🔧 Action: Fix Pattern `unwrap()`
 **Directive:** Pattern Fix: Replace the forbidden 'unwrap()' pattern with the recommended functional alternative.
 
-- [ ] `../../backend/src/api/media/video_logic.rs`
+- [ ] `../../backend/src/metrics.rs`
+- [ ] `../../backend/src/services/media/naming.rs`

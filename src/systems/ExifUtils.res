@@ -65,8 +65,9 @@ let generateProjectName = (address: option<string>, dateTime: option<string>): o
             let day = get(2)
             let hour = get(3)
             let minute = get(4)
-            let shortYear = String.slice(year, ~start=2, ~end=4)
-            Some(`${day}${month}${shortYear}_${hour}${minute}`)
+            // Short format DDMM_HHMM as per requirements
+            let _ = year // Unused but captured
+            Some(`${day}${month}_${hour}${minute}`)
           } else {
             None
           }
@@ -83,10 +84,10 @@ let generateProjectName = (address: option<string>, dateTime: option<string>): o
       let now = Date.make()
       let day = String.padStart(Belt.Int.toString(Date.getDate(now)), 2, "0")
       let month = String.padStart(Belt.Int.toString(Date.getMonth(now) + 1), 2, "0")
-      let year = String.slice(Belt.Int.toString(Date.getFullYear(now)), ~start=2, ~end=4)
+      // Short format DDMM_HHMM
       let hour = String.padStart(Belt.Int.toString(Date.getHours(now)), 2, "0")
       let minute = String.padStart(Belt.Int.toString(Date.getMinutes(now)), 2, "0")
-      `${day}${month}${year}_${hour}${minute}`
+      `${day}${month}_${hour}${minute}`
     }
   }
 

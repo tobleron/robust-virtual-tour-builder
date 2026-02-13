@@ -6,7 +6,10 @@ use regex::Regex;
 use std::path::Path;
 
 static FILENAME_REGEX: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"_(\d{6})_\d{2}_(\d{3})").expect("Invalid regex pattern in source code")
+    Regex::new(r"_(\d{6})_\d{2}_(\d{3})").unwrap_or_else(|_| {
+        // Fallback to a regex that matches nothing to prevent panic
+        Regex::new(r"$^").unwrap()
+    })
 });
 
 /// Extracts a suggested human-readable name from a camera-generated filename.

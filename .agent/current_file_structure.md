@@ -55,6 +55,7 @@
 │   │   └── WEB_PLAN.md
 │   └── README.md
 ├── AGENTS.md
+├── ARCHITECTURE_REVIEW_PROMPT.md
 ├── artifacts
 │   └── perf-budget-metrics.json
 ├── backend
@@ -14528,10 +14529,6 @@
 │   │   ├── LockFeedback.cmj
 │   │   ├── LockFeedback.cmt
 │   │   ├── LockFeedback.res
-│   │   ├── LockTimeout_v.test.ast
-│   │   ├── LockTimeout_v.test.cmi
-│   │   ├── LockTimeout_v.test.cmj
-│   │   ├── LockTimeout_v.test.cmt
 │   │   ├── LockTimeout_v.test.res
 │   │   ├── Logger_v.test.ast
 │   │   ├── Logger_v.test.cmi
@@ -15445,15 +15442,7 @@
 │   │   ├── TourTemplateStyles_v.test.cmj
 │   │   ├── TourTemplateStyles_v.test.cmt
 │   │   ├── TourTemplateStyles_v.test.res
-│   │   ├── TransitionLock_v.test.ast
-│   │   ├── TransitionLock_v.test.cmi
-│   │   ├── TransitionLock_v.test.cmj
-│   │   ├── TransitionLock_v.test.cmt
 │   │   ├── TransitionLock_v.test.res
-│   │   ├── TransitionLock.ast
-│   │   ├── TransitionLock.cmi
-│   │   ├── TransitionLock.cmj
-│   │   ├── TransitionLock.cmt
 │   │   ├── TransitionLock.res
 │   │   ├── Types_v.test.ast
 │   │   ├── Types_v.test.cmi
@@ -17349,8 +17338,6 @@
 │   │   ├── StateSnapshot.bs.js
 │   │   ├── StateSnapshot.res
 │   │   ├── StateSnapshot.resi
-│   │   ├── TransitionLock.bs.js
-│   │   ├── TransitionLock.res
 │   │   ├── Types.bs.js
 │   │   ├── Types.res
 │   │   ├── UiHelpers.bs.js
@@ -17753,6 +17740,11 @@
 │   │   ├── 001_troubleshoot_teaser_encoding.md
 │   │   ├── 1321_E2E_Test_Editor_Features.md
 │   │   ├── 1363_restore_tour_naming_and_filename_sanitization.md
+│   │   ├── 1364_refactor_sidebar_state_subscriptions.md
+│   │   ├── 1365_harden_backend_error_handling.md
+│   │   ├── 1366_unify_async_cancellation_abortsignal.md
+│   │   ├── 1367_decommission_transition_lock.md
+│   │   ├── 1368_state_density_monitoring_and_optimization.md
 │   │   └── dev_tasks
 │   │       ├── D001_Fix_Violations_FRONTEND.md
 │   │       ├── D002_Surgical_Refactor_CORE_FRONTEND.md
@@ -17763,8 +17755,7 @@
 │   │       ├── D010_Aggregate_Completed_Tasks.md
 │   │       ├── D014_Surgical_Refactor_UTILS_FRONTEND.md
 │   │       ├── D015_Surgical_Refactor_SCENE_FRONTEND.md
-│   │       ├── D016_Classify_Map_Entries.md
-│   │       └── D017_Integrate_DataFlow_Modules.md
+│   │       └── D016_Integrate_DataFlow_Modules.md
 │   ├── postponed
 │   │   ├── 1243_Fix_Operation_Cancellation_Feedback.md
 │   │   ├── 1246_Handle_Malformed_Project_Files_Gracefully.md
@@ -17923,8 +17914,6 @@
 │   │   ├── LazyLoad_v.test.res
 │   │   ├── LinkModal_v.test.bs.js
 │   │   ├── LinkModal_v.test.res
-│   │   ├── LockTimeout_v.test.bs.js
-│   │   ├── LockTimeout_v.test.res
 │   │   ├── Logger_v.test.bs.js
 │   │   ├── Logger_v.test.res
 │   │   ├── LoggerLogic_v.test.bs.js
@@ -18089,8 +18078,6 @@
 │   │   ├── TourTemplateScripts_v.test.res
 │   │   ├── TourTemplateStyles_v.test.bs.js
 │   │   ├── TourTemplateStyles_v.test.res
-│   │   ├── TransitionLock_v.test.bs.js
-│   │   ├── TransitionLock_v.test.res
 │   │   ├── Types_v.test.bs.js
 │   │   ├── Types_v.test.res
 │   │   ├── UiHelpers_v.test.bs.js
@@ -18166,4 +18153,4 @@
 │       └── test_run.json
 └── vitest.config.mjs
 
-789 directories, 17378 files
+789 directories, 17365 files

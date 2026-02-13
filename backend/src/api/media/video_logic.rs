@@ -274,7 +274,13 @@ pub fn generate_teaser_sync(
 
     // Now wait for ffmpeg to finish
     // We take child out of guard so guard doesn't kill it
-    let mut child = guard.0.take().unwrap();
+    let mut child = match guard.0.take() {
+        Some(c) => c,
+        None => {
+            drop(browser);
+            return Err("Failed to retrieve ffmpeg child process".to_string());
+        }
+    };
 
     let start_wait = std::time::Instant::now();
     let wait_timeout = Duration::from_secs(60);

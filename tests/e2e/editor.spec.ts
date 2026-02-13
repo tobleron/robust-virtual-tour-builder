@@ -38,13 +38,14 @@ test.describe('Editor Interactions', () => {
       throw e;
     }
 
-    // Wait for scene item and viewer lock release
+    // Wait for scene item and viewer stabilization
     await expect(page.locator('.scene-item').filter({ hasText: 'image' }).first()).toBeVisible({ timeout: 30000 });
-    // Ensure TransitionLock has released the viewer for interaction
+    // Ensure NavigationFSM has reached Idle state
     await page.waitForFunction(() => {
       // @ts-ignore
-      return window.store && window.store.state && window.store.state.transitionLock === 'Idle';
-    }, { timeout: 30000 }).catch(() => console.log("Warning: TransitionLock check timed out, proceeding anyway..."));
+      const state = window.store?.state;
+      return state?.navigationState?.navigationFsm === 'IdleFsm' || state?.navigationState?.navigationFsm?.TAG === 0;
+    }, { timeout: 30000 }).catch(() => console.log("Warning: Navigation stabilization check timed out, proceeding anyway..."));
 
 
     await fileInput.setInputFiles([IMAGE_PATH_2]);
@@ -66,7 +67,7 @@ test.describe('Editor Interactions', () => {
     await page.locator('.scene-item').filter({ hasText: 'image' }).first().click();
 
     await page.waitForSelector('#panorama-a.active', { state: 'visible', timeout: 30000 });
-    // Wait for viewer logic to stabilize (TransitionLock)
+    // Wait for viewer logic to stabilize
     await page.waitForTimeout(2000);
 
     const viewer = page.locator('#viewer-stage');

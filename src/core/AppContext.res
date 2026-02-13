@@ -205,8 +205,8 @@ let useNavigationFsm = () => {
 // Interaction Queue Hook
 
 let useIsSystemLocked = () => {
-  let state = useAppState()
-  switch state.appMode {
+  let uiSlice = useUiSlice()
+  switch uiSlice.appMode {
   | Initializing => true
   | SystemBlocking(Uploading(_)) => false // Now Ambient in Interactive, but still handled for compatibility if triggered
   | SystemBlocking(ProjectLoading(_))
