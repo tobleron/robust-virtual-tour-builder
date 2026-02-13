@@ -118,11 +118,12 @@ let createScenePayload = (items: array<UploadTypes.uploadItem>) => {
   Belt.Array.map(items, item => {
     let preview = Option.getOr(item.preview, item.original)
     let tiny = Option.getOr(item.tiny, preview)
+    let sanitizedName = UrlUtils.stripExtension(File.name(preview))
 
     JsonEncoders.Upload.sceneItem(
       ~id=Nullable.toOption(item.id)->Option.getOr(""),
       ~originalName=File.name(item.original),
-      ~name=UrlUtils.stripExtension(File.name(preview)),
+      ~name=sanitizedName,
       ~original=Types.File(item.original),
       ~preview=Types.File(preview),
       ~tiny=Types.File(tiny),
@@ -148,7 +149,10 @@ let handleExifReport = (
     item
   })
 
-  let successNames = Belt.Array.map(processedWithClusters, i => File.name(i.original))
+  let successNames = Belt.Array.map(processedWithClusters, i => {
+    let preview = Option.getOr(i.preview, i.original)
+    UrlUtils.stripExtension(File.name(preview))
+  })
   let skippedNames = Belt.Array.makeBy(skippedCount, i => "Duplicate " ++ Belt.Int.toString(i + 1))
   let report: Types.uploadReport = {success: successNames, skipped: skippedNames}
 
@@ -221,7 +225,9 @@ let finalizeUploads = (
                 },
             )
             ->Option.getOr(SharedTypes.defaultQuality("No quality data"))
-          ({quality: q, newName: File.name(i.original)}: Types.qualityItem)
+          let preview = Option.getOr(i.preview, i.original)
+          let sanitizedName = UrlUtils.stripExtension(File.name(preview))
+          ({quality: q, newName: sanitizedName}: Types.qualityItem)
         },
       )
 
