@@ -12,6 +12,7 @@ let processUploads = (
   progressCallback: option<(float, string, bool, string) => unit>,
   ~getState: unit => Types.state,
   ~dispatch: Actions.action => unit,
+  ~signal: option<ReBindings.AbortSignal.t>=?,
 ): Promise.t<UploadTypes.processResult> => {
   let updateProgress = (pct, msg, isProc, phase) => {
     switch progressCallback {
@@ -69,6 +70,7 @@ let processUploads = (
               journalId,
               ~getState,
               ~dispatch,
+              ~signal?,
             )
             ->Promise.then(
               result => {

@@ -32,7 +32,7 @@ let useInteraction = (~id: string, ~policy: policy, ~action: unit => Promise.t<'
       if isMounted.current {
         setThrottled(_ => false)
       }
-      p
+      p->Promise.then(val => Promise.resolve(Some(val)))
     | Error(msg) =>
       if isMounted.current {
         setThrottled(_ => true)
@@ -57,9 +57,7 @@ let useInteraction = (~id: string, ~policy: policy, ~action: unit => Promise.t<'
           }
         }, 1000)
       }
-      // Return a dummy promise that resolves to null/undefined
-      // We use Obj.magic because we can't construct a Promise.t<'a> from nothing
-      Promise.resolve(Obj.magic(null))
+      Promise.resolve(None)
     }
   }, [action])
 

@@ -219,7 +219,7 @@ module Logic = {
     }
   }
 
-  let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?) => {
+  let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?, ~signal=?) => {
     let progress = (curr, total, msg) => {
       switch onProgress {
       | Some(cb) => cb(curr, total, msg)
@@ -235,7 +235,7 @@ module Logic = {
       (),
     )
 
-    BackendApi.importProject(zipFile)
+    BackendApi.importProject(zipFile, ~signal?)
     ->Promise.then(resultRes => {
       switch resultRes {
       | Ok(response) =>
@@ -443,8 +443,8 @@ let recoverSaveProject = (
     })
   }
 
-let loadProject = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promise.t<
+let loadProject = (zipFile: File.t, ~onProgress: option<onProgress>=?, ~signal=?): Promise.t<
   BackendApi.apiResult<(string, JSON.t)>,
 > => {
-  Logic.loadProjectZip(zipFile, ~onProgress?)
+  Logic.loadProjectZip(zipFile, ~onProgress?, ~signal?)
 }

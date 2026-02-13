@@ -52,6 +52,8 @@ let performUpload = async (
   files,
   ~getState: unit => Types.state,
   ~dispatch: Actions.action => unit,
+  ~signal: option<BrowserBindings.AbortSignal.t>,
+  ~onCancel: unit => unit,
 ) => {
   let fileArray = JsHelpers.from(files)
 
@@ -60,11 +62,12 @@ let performUpload = async (
       fileArray,
       Some(
         (pct, msg, isProc, phase) => {
-          updateProgress(~dispatch, pct, msg, isProc, phase)
+          updateProgress(~dispatch, ~onCancel, pct, msg, isProc, phase)
         },
       ),
       ~getState,
       ~dispatch,
+      ~signal?,
     )
 
     let qualityResults = result.qualityResults
@@ -144,7 +147,25 @@ let handleUpload = async (
         dismissible: true,
         createdAt: Date.now(),
       })
-      await performUpload(files, ~getState, ~dispatch)
+
+      let controller = BrowserBindings.AbortController.make()
+      let signal = BrowserBindings.AbortController.signal(controller)
+      let onCancel = () => {
+        BrowserBindings.AbortController.abort(controller)
+        NotificationManager.dispatch({
+          id: "",
+          importance: Info,
+          context: Operation("sidebar_upload"),
+          message: "Upload Cancelled",
+          details: None,
+          action: None,
+          duration: 3000,
+          dismissible: true,
+          createdAt: Date.now(),
+        })
+      }
+
+      await performUpload(files, ~getState, ~dispatch, ~signal=Some(signal), ~onCancel)
     }
   | _ => ()
   }
@@ -154,11 +175,29 @@ let handleLoadProject = async (filesOpt, ~getState, ~dispatch, _sceneCount, targ
   switch filesOpt {
   | Some(files) if FileList.length(files) > 0 =>
     SessionStore.clearState()
+
+    let controller = BrowserBindings.AbortController.make()
+    let signal = BrowserBindings.AbortController.signal(controller)
+    let onCancel = () => {
+      BrowserBindings.AbortController.abort(controller)
+      NotificationManager.dispatch({
+        id: "",
+        importance: Info,
+        context: Operation("sidebar_load_project"),
+        message: "Load Cancelled",
+        details: None,
+        action: None,
+        duration: 3000,
+        dismissible: true,
+        createdAt: Date.now(),
+      })
+    }
+
     try {
       switch FileList.item(files, 0) {
       | Some(file) =>
         dispatch(Actions.DispatchAppFsmEvent(StartProjectLoad({name: File.name(file)})))
-        updateProgress(~dispatch, 0.0, "Loading Project...", true, "Loading")
+        updateProgress(~dispatch, ~onCancel, 0.0, "Loading Project...", true, "Loading")
 
         Logger.startOperation(
           ~module_="Sidebar",
@@ -174,8 +213,8 @@ let handleLoadProject = async (filesOpt, ~getState, ~dispatch, _sceneCount, targ
           _t,
           msg,
         ) => {
-          updateProgress(~dispatch, pct->Int.toFloat, msg, true, "Loading")
-        })
+          updateProgress(~dispatch, ~onCancel, pct->Int.toFloat, msg, true, "Loading")
+        }, ~signal=signal)
 
         switch projectDataResult {
         | Ok((sessionId, projectData)) => {
@@ -205,31 +244,38 @@ let handleLoadProject = async (filesOpt, ~getState, ~dispatch, _sceneCount, targ
             })
           }
         | Error(msg) => {
-            Logger.info(
-              ~module_="SidebarLogic",
-              ~message="PROJECT_LOAD_FAILED_DISPATCHING_NOTIF",
-              ~data=Some({"error": msg}),
-              (),
-            )
-            dispatch(Actions.DispatchAppFsmEvent(ProjectLoadError(msg)))
-            NotificationManager.dispatch({
-              id: "",
-              importance: Error,
-              context: Operation("sidebar_load_project"),
-              message: "Failed to load project: " ++ msg,
-              details: None,
-              action: None,
-              duration: NotificationTypes.defaultTimeoutMs(Error),
-              dismissible: true,
-              createdAt: Date.now(),
-            })
-            updateProgress(~dispatch, 0.0, "Error: " ++ msg, false, "")
-            Logger.endOperation(
-              ~module_="Sidebar",
-              ~operation="PROJECT_LOAD",
-              ~data={"success": false, "error": msg},
-              (),
-            )
+            let isAborted = BrowserBindings.AbortSignal.aborted(signal)
+            if isAborted {
+               Logger.info(~module_="SidebarLogic", ~message="PROJECT_LOAD_CANCELLED", ())
+               updateProgress(~dispatch, 0.0, "Cancelled", false, "")
+               dispatch(Actions.DispatchAppFsmEvent(ProjectLoadError("Cancelled")))
+            } else {
+              Logger.info(
+                ~module_="SidebarLogic",
+                ~message="PROJECT_LOAD_FAILED_DISPATCHING_NOTIF",
+                ~data=Some({"error": msg}),
+                (),
+              )
+              dispatch(Actions.DispatchAppFsmEvent(ProjectLoadError(msg)))
+              NotificationManager.dispatch({
+                id: "",
+                importance: Error,
+                context: Operation("sidebar_load_project"),
+                message: "Failed to load project: " ++ msg,
+                details: None,
+                action: None,
+                duration: NotificationTypes.defaultTimeoutMs(Error),
+                dismissible: true,
+                createdAt: Date.now(),
+              })
+              updateProgress(~dispatch, 0.0, "Error: " ++ msg, false, "")
+              Logger.endOperation(
+                ~module_="Sidebar",
+                ~operation="PROJECT_LOAD",
+                ~data={"success": false, "error": msg},
+                (),
+              )
+            }
           }
         }
       | None => ()
@@ -337,5 +383,64 @@ let handleExport = async (
   | _ =>
     dispatch(DispatchAppFsmEvent(ExportError("Unexpected Error")))
     updateProgress(~dispatch, 0.0, "Error", false, "")
+  }
+}
+
+let handleSave = async (~getState: unit => Types.state, ~signal, ~onCancel, ~dispatch) => {
+  try {
+    let state = getState()
+    let success = await ProjectManager.saveProject(state, ~signal, ~onProgress=(pct, _t, msg) => {
+      updateProgress(~dispatch, ~onCancel, pct->Int.toFloat, msg, true, "Save")
+    })
+
+    if success {
+      updateProgress(~dispatch, 100.0, "Saved", false, "")
+      NotificationManager.dispatch({
+        id: "",
+        importance: Success,
+        context: Operation("sidebar_save"),
+        message: "Project saved successfully",
+        details: None,
+        action: None,
+        duration: NotificationTypes.defaultTimeoutMs(Success),
+        dismissible: true,
+        createdAt: Date.now(),
+      })
+    } // Check if it was cancelled via signal
+    else if BrowserBindings.AbortSignal.aborted(signal) {
+      updateProgress(~dispatch, 0.0, "Cancelled", true, "Save")
+      NotificationManager.dispatch({
+        id: "save-cancelled-notification",
+        importance: Info,
+        context: Operation("sidebar_save"),
+        message: "Save Cancelled",
+        details: None,
+        action: None,
+        duration: 5000,
+        dismissible: true,
+        createdAt: Date.now(),
+      })
+      let _ = ReBindings.Window.setTimeout(() => {
+        updateProgress(~dispatch, 0.0, "Cancelled", false, "")
+      }, 5000)
+    } else {
+      updateProgress(~dispatch, 0.0, "Save Failed", false, "")
+    }
+  } catch {
+  | exn => {
+      let (msg, _) = Logger.getErrorDetails(exn)
+      updateProgress(~dispatch, 0.0, "Error", false, "")
+      NotificationManager.dispatch({
+        id: "",
+        importance: Error,
+        context: Operation("sidebar_save"),
+        message: "Save failed: " ++ msg,
+        details: None,
+        action: None,
+        duration: NotificationTypes.defaultTimeoutMs(Error),
+        dismissible: true,
+        createdAt: Date.now(),
+      })
+    }
   }
 }

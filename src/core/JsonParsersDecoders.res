@@ -29,16 +29,21 @@ let opt = (field: Decode.fieldDecoders, key, decoder, default) => {
   field.optional(key, option(decoder))->Option.flatMap(x => x)->Option.getOr(default)
 }
 
+external castToFile: JSON.t => ReBindings.File.t = "%identity"
+external castToBlob: JSON.t => ReBindings.Blob.t = "%identity"
+
 let file = id->map(json => {
-  if %raw("(t => typeof t === 'string')")(json) {
-    Types.Url(Obj.magic(json))
-  } else if %raw("(t => t instanceof File)")(json) {
-    Types.File(Obj.magic(json))
-  } else if %raw("(t => t instanceof Blob)")(json) {
-    Types.Blob(Obj.magic(json))
-  } else {
-    Console.warn2("File Decoder Fallback triggered for:", json)
-    Types.Url("")
+  switch JsonCombinators.Json.decode(json, string) {
+  | Ok(s) => Types.Url(s)
+  | Error(_) =>
+    if %raw("(t => t instanceof File)")(json) {
+      Types.File(castToFile(json))
+    } else if %raw("(t => t instanceof Blob)")(json) {
+      Types.Blob(castToBlob(json))
+    } else {
+      Console.warn2("File Decoder Fallback triggered for:", json)
+      Types.Url("")
+    }
   }
 })
 
@@ -111,15 +116,14 @@ let timelineItem = object(field => {
 })
 
 let sceneStatus = map(id, json => {
-  let isString = %raw("(t => typeof t === 'string')")(json)
-  if isString {
-    let s = Obj.magic(json)
+  switch JsonCombinators.Json.decode(json, string) {
+  | Ok(s) =>
     if s == "Active" {
       Types.Active
     } else {
       Types.Deleted(0.0)
     }
-  } else {
+  | Error(_) =>
     let raw = JsonCombinators.Json.decode(
       json,
       object(f => {

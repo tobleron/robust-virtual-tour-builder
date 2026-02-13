@@ -8,7 +8,7 @@ use std::path::Path;
 static FILENAME_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"_(\d{6})_\d{2}_(\d{3})").unwrap_or_else(|_| {
         // Fallback to a regex that matches nothing to prevent panic
-        Regex::new(r"$^").unwrap()
+        Regex::new(r"$^").expect("Fallback regex is invalid")
     })
 });
 

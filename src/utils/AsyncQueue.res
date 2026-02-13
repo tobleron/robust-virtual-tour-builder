@@ -26,11 +26,14 @@ let computeStatus = (activeStatuses, completedCount, total) => {
   }
 }
 
+let makeError: string => exn = %raw("(msg) => new Error(msg)")
+
 let execute = (
   items: array<'item>,
   maxConcurrency: int,
   worker: (int, 'item, string => unit) => Promise.t<'result>,
   onProgress: (float, string) => unit,
+  ~signal: option<ReBindings.AbortSignal.t>=?,
 ) => {
   let total = Array.length(items)
   let results = Belt.Array.make(total, None)
@@ -48,14 +51,27 @@ let execute = (
     onProgress(pct, msg)
   }
 
-  let (resolve, _) = (ref(ignore), ref(ignore))
-  let promise = Promise.make((res, _rej) => {
+  let (resolve, reject) = (ref(ignore), ref(ignore))
+  let promise = Promise.make((res, rej) => {
     resolve := res
-    // No reject handling needed for now
+    reject := rej
   })
 
+  let isAborted = () => {
+    switch signal {
+    | Some(s) => ReBindings.AbortSignal.aborted(s)
+    | None => false
+    }
+  }
+
   let rec next = () => {
-    if currentIndex.contents >= total {
+    if isAborted() {
+      // If aborted, we reject the promise immediately.
+      // Active workers will complete but their results will be ignored by the queue promise (since it's settled).
+      // We rely on the caller to handle the rejection.
+      // We assume "CANCELLED" string is what SidebarLogic expects.
+      reject.contents(makeError("CANCELLED"))
+    } else if currentIndex.contents >= total {
       if completedCount.contents == total {
         resolve.contents(Belt.Array.keepMap(results, x => x))
       }

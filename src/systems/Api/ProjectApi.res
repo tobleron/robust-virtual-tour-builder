@@ -52,7 +52,7 @@ let getAuthHeaders = () => {
   headers
 }
 
-let importProject = (file: File.t): Promise.t<apiResult<importResponse>> => {
+let importProject = (file: File.t, ~signal: option<AbortSignal.t>=?): Promise.t<apiResult<importResponse>> => {
   RequestQueue.schedule(() => {
     let formData = FormData.newFormData()
     // Backend expects 'file' field for multipart imports
@@ -62,6 +62,7 @@ let importProject = (file: File.t): Promise.t<apiResult<importResponse>> => {
       Constants.backendUrl ++ "/api/project/import",
       ~method="POST",
       ~formData,
+      ~signal?,
       (),
     )
     ->Promise.then(resultResponse => {
@@ -82,11 +83,12 @@ let importProject = (file: File.t): Promise.t<apiResult<importResponse>> => {
   })
 }
 
-let loadProject = (sessionId: string): Promise.t<apiResult<importResponse>> => {
+let loadProject = (sessionId: string, ~signal: option<AbortSignal.t>=?): Promise.t<apiResult<importResponse>> => {
   RequestQueue.schedule(() => {
     AuthenticatedClient.requestWithRetry(
       Constants.backendUrl ++ "/api/project/load/" ++ sessionId,
       ~method="GET",
+      ~signal?,
       (),
     )
     ->Promise.then(resultResponse => {

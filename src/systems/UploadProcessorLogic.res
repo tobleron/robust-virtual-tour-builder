@@ -8,6 +8,7 @@ open UploadTypes
 open Actions
 
 external castToJson: 'a => JSON.t = "%identity"
+let makeError: string => exn = %raw("(msg) => new Error(msg)")
 
 module Utils = {
   // We can duplicate or move Utils here, or pass callbacks.
@@ -292,6 +293,7 @@ let executeProcessingChain = (
   journalId: string,
   ~getState: unit => Types.state,
   ~dispatch: Actions.action => unit,
+  ~signal: option<ReBindings.AbortSignal.t>=?,
 ) => {
   Logger.info(~module_="UploadLogic", ~message="EXECUTE_PROCESSING_CHAIN_START", ())
   updateProgress(20.0, "Processing images...", true, "Processing")
@@ -366,6 +368,7 @@ let executeProcessingChain = (
       let scaledPct = 20.0 +. 75.0 *. pct
       updateProgress(scaledPct, msg, true, "Processing")
     },
+    ~signal?,
   )->Promise.then(processedItems => {
     flushBuffer()->Promise.then(() => {
       let validProcessed = Belt.Array.keep(processedItems, i => i.error == None)
@@ -401,28 +404,39 @@ let handleFingerprinting = (
   journalId: string,
   ~getState: unit => Types.state,
   ~dispatch: Actions.action => unit,
+  ~signal: option<ReBindings.AbortSignal.t>=?,
 ) => {
   Logger.info(~module_="UploadLogic", ~message="START_FINGERPRINTING", ())
-  updateProgress(0.0, "Scanning files...", true, "Fingerprinting")
-  FingerprintService.fingerprintFiles(validFiles)->Promise.then(results => {
-    updateProgress(18.0, "Cleaning up scanning...", true, "Fingerprinting")
-    let currentState = getState()
-    let uniqueItems = FingerprintService.filterDuplicates(
-      results,
-      ~inventory=currentState.inventory,
-      ~onDuplicate=c => Utils.notify("Skipped " ++ Belt.Int.toString(c) ++ " duplicates.", "info"),
-      ~onRestore=id => dispatch(RemoveDeletedSceneId(id)),
-    )
-    let skippedFromFingerprint = Belt.Array.length(results) - Belt.Array.length(uniqueItems)
-    executeProcessingChain(
-      uniqueItems,
-      6,
-      startTime,
-      updateProgress,
-      skippedFromFingerprint,
-      journalId,
-      ~getState,
-      ~dispatch,
-    )
-  })
+
+  if (switch signal { | Some(s) => ReBindings.AbortSignal.aborted(s) | None => false }) {
+    Promise.reject(makeError("CANCELLED"))
+  } else {
+    updateProgress(0.0, "Scanning files...", true, "Fingerprinting")
+    FingerprintService.fingerprintFiles(validFiles)->Promise.then(results => {
+      if (switch signal { | Some(s) => ReBindings.AbortSignal.aborted(s) | None => false }) {
+        Promise.reject(makeError("CANCELLED"))
+      } else {
+        updateProgress(18.0, "Cleaning up scanning...", true, "Fingerprinting")
+        let currentState = getState()
+        let uniqueItems = FingerprintService.filterDuplicates(
+          results,
+          ~inventory=currentState.inventory,
+          ~onDuplicate=c => Utils.notify("Skipped " ++ Belt.Int.toString(c) ++ " duplicates.", "info"),
+          ~onRestore=id => dispatch(RemoveDeletedSceneId(id)),
+        )
+        let skippedFromFingerprint = Belt.Array.length(results) - Belt.Array.length(uniqueItems)
+        executeProcessingChain(
+          uniqueItems,
+          6,
+          startTime,
+          updateProgress,
+          skippedFromFingerprint,
+          journalId,
+          ~getState,
+          ~dispatch,
+          ~signal?,
+        )
+      }
+    })
+  }
 }
