@@ -299,7 +299,7 @@ CI job
 - [src/utils/AsyncQueue.res], [src/utils/RequestQueue.res], [src/utils/CircuitBreaker.res], [src/utils/RateLimiter.res], [src/utils/Retry.res], [src/utils/Debounce.res], [src/core/InteractionGuard.res], [src/systems/Navigation/NavigationSupervisor.res] (navigation-specific concurrency)
 
 ### Interaction & Perception
-- [src/systems/InputSystem.res], [src/systems/CursorPhysics.res], [src/systems/ViewerFollow.res], [src/utils/ProgressBar.res], [src/utils/ColorPalette.res], [src/utils/SessionStore.res], [src/utils/StateInspector.res], [src/systems/TourTemplates.res]
+- [src/systems/InputSystem.res], [src/systems/CursorPhysics.res], [src/systems/ViewerFollow.res], [src/utils/ProgressBar.res], [src/utils/ColorPalette.res], [src/utils/SessionStore.res], [src/utils/StateInspector.res], [src/systems/TourTemplates.res], [src/utils/Easing.res]
 
 ### Geometric & Projection Math
 **Purpose:** 3D viewport calculations and coordinate mapping.
@@ -318,9 +318,6 @@ CI job
 
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)
-
-### 📂 src/utils
-- `[src/utils/Easing.res]`
 
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)
