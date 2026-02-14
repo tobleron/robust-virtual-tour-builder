@@ -38,7 +38,7 @@ let make = React.memo(() => {
     /* Permanent Branding with Format Fallback */
     <div
       id="viewer-logo"
-      className="absolute bottom-6 right-6 z-[5002] flex items-center justify-center max-w-[126px] max-h-[66px] overflow-hidden viewer-logo-masked pointer-events-none p-[1px] rounded bg-white/10 backdrop-blur-md border border-orange-500 shadow-lg"
+      className="absolute bottom-6 right-6 z-[5002] flex items-center justify-center max-w-[126px] max-h-[66px] overflow-hidden viewer-logo-masked pointer-events-none p-[1px] rounded-[2px] bg-white/10 backdrop-blur-md border border-orange-500 shadow-lg"
     >
       <img
         src=logoSrc

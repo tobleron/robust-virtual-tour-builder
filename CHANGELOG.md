@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Ui: reduce watermark glass border padding to 1px
 - Ui: reduce watermark border radius to 4px
 - Ui: make logo border 100% opacity
+- Ui: reduce logo border radius to 2px
 
 ## [4.6.4] - 2026-02-14
 
