@@ -8,8 +8,10 @@ mod flusher;
 mod graph;
 mod guard;
 mod merger;
+mod spec_snapshot;
 mod state;
 mod task_generator;
+mod verification;
 
 use anyhow::Result;
 use efficiency_analyzer::resolver::Resolver;
@@ -24,6 +26,7 @@ use discovery::discover_and_analyze;
 use flusher::flush_plans;
 use merger::{detect_merge_candidates, detect_recursive_clusters};
 use task_generator::{sync_all_architectural_tasks, WorkUnit};
+use verification::VerificationBundle;
 
 fn main() -> Result<()> {
     // Load configuration and state
@@ -34,6 +37,7 @@ fn main() -> Result<()> {
     // Phase 1: Discovery & Analysis
     let (registry, file_resolver, all_files_set, dynamic_base) =
         discover_and_analyze(&config, &mut state)?;
+    let spec_map = spec_snapshot::build_snapshots(&registry);
 
     // Phase 2: Graph Construction
     let mut dep_graph = DependencyGraph::new();
@@ -94,11 +98,18 @@ fn main() -> Result<()> {
         &mut buffer,
         &mut dir_stats,
         &mut feature_map,
+        &spec_map,
     )?;
 
     // Phase 4: Merge Analysis
-    let (cluster_units, mut processed_merge_files) =
-        detect_recursive_clusters(&registry, &dead_files, &buffer, &config, dynamic_base);
+    let (cluster_units, mut processed_merge_files) = detect_recursive_clusters(
+        &registry,
+        &dead_files,
+        &buffer,
+        &config,
+        dynamic_base,
+        &spec_map,
+    );
     buffer
         .entry("system".to_string())
         .or_default()
@@ -112,6 +123,7 @@ fn main() -> Result<()> {
         &state,
         dynamic_base,
         &config,
+        &spec_map,
     );
     buffer
         .entry("system".to_string())
@@ -149,6 +161,7 @@ fn generate_work_units(
     buffer: &mut HashMap<String, Vec<WorkUnit>>,
     dir_stats: &mut HashMap<(String, String), Vec<(String, usize, String, f64, f64)>>,
     feature_map: &mut HashMap<String, Vec<(String, String)>>,
+    spec_map: &HashMap<String, spec_snapshot::SpecSnapshot>,
 ) -> Result<()> {
     for (p_str, (path, content, taxonomy, metrics, platform, d_name)) in registry {
         // Ambiguity check
@@ -229,6 +242,7 @@ fn generate_work_units(
                     platform: platform.clone(),
                     complexity: 0.0,
                     recommended_splits: 1,
+                    verification: None,
                 });
         }
 
@@ -259,6 +273,10 @@ fn generate_work_units(
 
                 let complexity = ((metrics.loc - limit) as f64 / 10.0) + drag;
                 let recommended_splits = (metrics.loc as f64 / 300.0).ceil().max(2.0) as usize;
+                let verification = spec_map.get(p_str).map(|snapshot| VerificationBundle {
+                    headline: format!("Pre-split snapshot for `{}`", snapshot.path),
+                    snapshots: vec![snapshot.clone()],
+                });
 
                 buffer
                     .entry(d_name.clone())
@@ -271,6 +289,7 @@ fn generate_work_units(
                         platform: platform.clone(),
                         complexity,
                         recommended_splits,
+                        verification,
                     });
             }
         }

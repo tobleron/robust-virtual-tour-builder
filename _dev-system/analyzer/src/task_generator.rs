@@ -1,5 +1,7 @@
 use crate::config::EfficiencyConfig;
+use crate::verification::{VerificationBundle, VerificationReport};
 use anyhow::Result;
+use serde_json;
 use std::collections::{HashMap, HashSet};
 use std::fs::{self, OpenOptions};
 use std::io::Write;
@@ -24,6 +26,7 @@ pub enum WorkUnit {
         platform: String,
         complexity: f64,
         recommended_splits: usize,
+        verification: Option<VerificationBundle>,
     },
     Merge {
         folder: String,
@@ -31,6 +34,7 @@ pub enum WorkUnit {
         reason: String,
         strategy: String,
         platform: String,
+        verification: Option<VerificationBundle>,
     },
     Structural {
         file: String,
@@ -39,6 +43,12 @@ pub enum WorkUnit {
         strategy: String,
         platform: String,
     },
+}
+
+#[derive(Debug)]
+struct BaselineInfo {
+    root_relative: PathBuf,
+    report_relative: PathBuf,
 }
 
 /// Generate strategic directive for a work unit
@@ -82,11 +92,56 @@ pub fn generate_strategic_directive(unit: &WorkUnit) -> String {
     }
 }
 
+fn persist_verification_baseline(
+    id: &str,
+    category: &str,
+    verification: &[VerificationBundle],
+) -> Result<BaselineInfo> {
+    let repo_root = Path::new("../..");
+    let baseline_root = repo_root.join("_dev-system").join("tmp").join(id);
+    let files_root = baseline_root.join("files");
+    fs::create_dir_all(&files_root)?;
+
+    let mut seen_files = HashSet::new();
+    for bundle in verification {
+        for snapshot in &bundle.snapshots {
+            if !seen_files.insert(snapshot.path.clone()) {
+                continue;
+            }
+            let source = repo_root.join(&snapshot.path);
+            if !source.exists() {
+                continue;
+            }
+            let target = files_root.join(&snapshot.path);
+            if let Some(parent) = target.parent() {
+                fs::create_dir_all(parent)?;
+            }
+            fs::copy(&source, &target)?;
+        }
+    }
+
+    let relative_root = Path::new("_dev-system").join("tmp").join(id);
+    let report = VerificationReport {
+        task: id.to_string(),
+        category: category.to_string(),
+        baseline_dir: relative_root.to_string_lossy().to_string(),
+        bundles: verification.to_vec(),
+    };
+    let report_path = baseline_root.join("verification.json");
+    fs::write(&report_path, serde_json::to_string_pretty(&report)?)?;
+
+    Ok(BaselineInfo {
+        root_relative: relative_root.clone(),
+        report_relative: relative_root.join("verification.json"),
+    })
+}
+
 fn sync_architectural_category(
     category_name: &str,
     platform: &str,
     units: &[String],
     objective: &str,
+    verification: &[VerificationBundle],
 ) -> Result<Option<PathBuf>> {
     let dev_tasks_dir = "../../tasks/pending/dev_tasks";
     let platform_label = if platform.is_empty() {
@@ -174,6 +229,44 @@ fn sync_architectural_category(
         };
         file.write_all(line.as_bytes())?;
     }
+    if !verification.is_empty() {
+        let baseline = persist_verification_baseline(&id, &full_category_name, verification)?;
+        file.write_all("\n## 🔎 Programmatic Verification\n".as_bytes())?;
+        file.write_all(
+            format!(
+                "Baseline artifacts: `{}` (files at `{}/files/`).\n",
+                baseline.report_relative.display(),
+                baseline.root_relative.display()
+            )
+            .as_bytes(),
+        )?;
+        file.write_all(
+            format!(
+                "Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline {} --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.\n\n",
+                baseline.report_relative.display()
+            )
+            .as_bytes(),
+        )?;
+        for bundle in verification {
+            file.write_all(format!("### {}\n", bundle.headline).as_bytes())?;
+            for snapshot in &bundle.snapshots {
+                file.write_all(
+                    format!(
+                        "- `{}` ({} functions, fingerprint {})\n",
+                        snapshot.path,
+                        snapshot.functions.len(),
+                        snapshot.fingerprint
+                    )
+                    .as_bytes(),
+                )?;
+                for func in &snapshot.functions {
+                    file.write_all(
+                        format!("    - {} — {}\n", func.name, func.signature).as_bytes(),
+                    )?;
+                }
+            }
+        }
+    }
     Ok(Some(path))
 }
 
@@ -189,8 +282,21 @@ pub fn sync_all_architectural_tasks(
     let mut structural_be_grouped: HashMap<(String, String), Vec<String>> = HashMap::new();
     let mut merges_fe_grouped: HashMap<(String, String), Vec<String>> = HashMap::new();
     let mut merges_be_grouped: HashMap<(String, String), Vec<String>> = HashMap::new();
-    let mut surgical_fe_units = Vec::new();
-    let mut surgical_be_units = Vec::new();
+    let mut merges_fe_verification_map: HashMap<(String, String), Vec<VerificationBundle>> =
+        HashMap::new();
+    let mut merges_be_verification_map: HashMap<(String, String), Vec<VerificationBundle>> =
+        HashMap::new();
+    type SurgicalEntry = (
+        String,
+        String,
+        String,
+        String,
+        f64,
+        usize,
+        Option<VerificationBundle>,
+    );
+    let mut surgical_fe_units: Vec<SurgicalEntry> = Vec::new();
+    let mut surgical_be_units: Vec<SurgicalEntry> = Vec::new();
 
     for units in buffer.values() {
         for unit in units {
@@ -221,6 +327,7 @@ pub fn sync_all_architectural_tasks(
                     complexity,
                     action,
                     recommended_splits,
+                    verification,
                     ..
                 } => {
                     let clean_reason = reason
@@ -236,6 +343,7 @@ pub fn sync_all_architectural_tasks(
                             strategy,
                             *complexity,
                             *recommended_splits,
+                            verification.clone(),
                         ));
                     } else {
                         surgical_fe_units.push((
@@ -245,6 +353,7 @@ pub fn sync_all_architectural_tasks(
                             strategy,
                             *complexity,
                             *recommended_splits,
+                            verification.clone(),
                         ));
                     }
                 }
@@ -270,6 +379,7 @@ pub fn sync_all_architectural_tasks(
                     files,
                     reason,
                     platform,
+                    verification,
                     ..
                 } => {
                     let mut sorted_files = files.clone();
@@ -284,10 +394,16 @@ pub fn sync_all_architectural_tasks(
                     } else {
                         &mut merges_fe_grouped
                     };
-                    groups
-                        .entry(("Merge Fragmented Folders".to_string(), strategy))
-                        .or_default()
-                        .push(item);
+                    let key = ("Merge Fragmented Folders".to_string(), strategy.clone());
+                    groups.entry(key.clone()).or_default().push(item);
+                    if let Some(bundle) = verification {
+                        let target = if platform == "backend" {
+                            &mut merges_be_verification_map
+                        } else {
+                            &mut merges_fe_verification_map
+                        };
+                        target.entry(key).or_default().push(bundle.clone());
+                    }
                 }
             }
         }
@@ -330,6 +446,15 @@ pub fn sync_all_architectural_tasks(
         &format!("{:.2}", config.settings.merge_score_threshold),
     );
 
+    let merges_fe_verification: Vec<VerificationBundle> = merges_fe_verification_map
+        .values()
+        .flat_map(|bundles| bundles.iter().cloned())
+        .collect();
+    let merges_be_verification: Vec<VerificationBundle> = merges_be_verification_map
+        .values()
+        .flat_map(|bundles| bundles.iter().cloned())
+        .collect();
+
     let mut role_list = String::new();
     for (role, data) in &config.taxonomy {
         role_list.push_str(&format!(
@@ -345,12 +470,30 @@ pub fn sync_all_architectural_tasks(
 
     let mut active_tasks = HashSet::new();
 
-    let sync_surgical = |units: Vec<(String, String, String, String, f64, usize)>,
+    let sync_surgical = |units: Vec<(
+        String,
+        String,
+        String,
+        String,
+        f64,
+        usize,
+        Option<VerificationBundle>,
+    )>,
                          platform: &str|
      -> Result<Vec<PathBuf>> {
         let mut paths = Vec::new();
-        let mut domain_groups: HashMap<String, Vec<(String, String, String, String, f64, usize)>> =
-            HashMap::new();
+        let mut domain_groups: HashMap<
+            String,
+            Vec<(
+                String,
+                String,
+                String,
+                String,
+                f64,
+                usize,
+                Option<VerificationBundle>,
+            )>,
+        > = HashMap::new();
         for unit in units {
             let parent = Path::new(&unit.0)
                 .parent()
@@ -360,14 +503,19 @@ pub fn sync_all_architectural_tasks(
         }
 
         for (domain, domain_units) in domain_groups {
-            let mut action_groups: HashMap<String, Vec<(String, String, String, usize)>> =
-                HashMap::new();
+            let mut action_groups: HashMap<
+                String,
+                Vec<(String, String, String, usize, Option<VerificationBundle>)>,
+            > = HashMap::new();
 
-            for (file, reason, action, strategy, _comp, splits) in domain_units {
-                action_groups
-                    .entry(action)
-                    .or_default()
-                    .push((file, reason, strategy, splits));
+            for (file, reason, action, strategy, _comp, splits, verification) in domain_units {
+                action_groups.entry(action).or_default().push((
+                    file,
+                    reason,
+                    strategy,
+                    splits,
+                    verification,
+                ));
             }
 
             let domain_name = Path::new(&domain)
@@ -377,24 +525,37 @@ pub fn sync_all_architectural_tasks(
             let category_name = format!("Surgical_Refactor_{}", domain_name);
 
             let mut lines = Vec::new();
+            let mut domain_verification = Vec::new();
 
             for (action, mut items) in action_groups {
-                items.sort();
+                items.sort_by(|a, b| a.0.cmp(&b.0));
                 let strategy = &items[0].2;
                 lines.push(format!(
                     "\n### 🔧 Action: {}\n**Directive:** {}\n",
                     action, strategy
                 ));
 
-                for (file, reason, _, _) in items {
+                for (file, reason, _, _, maybe_bundle) in &items {
                     let entry = format!("- **{}** (Metric: {})\n", file, reason);
                     lines.push(entry);
+                    if let Some(bundle) = maybe_bundle {
+                        domain_verification.push(bundle.clone());
+                    }
                 }
             }
 
-            if let Some(path) =
-                sync_architectural_category(&category_name, platform, &lines, &surgical_obj)?
-            {
+            let path_opt = if domain_verification.is_empty() {
+                sync_architectural_category(&category_name, platform, &lines, &surgical_obj, &[])?
+            } else {
+                sync_architectural_category(
+                    &category_name,
+                    platform,
+                    &lines,
+                    &surgical_obj,
+                    &domain_verification,
+                )?
+            };
+            if let Some(path) = path_opt {
                 paths.push(path);
             }
         }
@@ -407,6 +568,7 @@ pub fn sync_all_architectural_tasks(
         "",
         &format_groups(ambiguities_grouped),
         &ambiguity_obj,
+        &[],
     )? {
         active_tasks.insert(p);
     }
@@ -416,6 +578,7 @@ pub fn sync_all_architectural_tasks(
         "Frontend",
         &format_groups(structural_fe_grouped),
         &config.templates.structural_objective,
+        &[],
     )? {
         active_tasks.insert(p);
     }
@@ -424,6 +587,7 @@ pub fn sync_all_architectural_tasks(
         "Backend",
         &format_groups(structural_be_grouped),
         &config.templates.structural_objective,
+        &[],
     )? {
         active_tasks.insert(p);
     }
@@ -433,6 +597,7 @@ pub fn sync_all_architectural_tasks(
         "Frontend",
         &format_groups(violations_fe_grouped),
         &config.templates.violation_objective,
+        &[],
     )? {
         active_tasks.insert(p);
     }
@@ -441,6 +606,7 @@ pub fn sync_all_architectural_tasks(
         "Backend",
         &format_groups(violations_be_grouped),
         &config.templates.violation_objective,
+        &[],
     )? {
         active_tasks.insert(p);
     }
@@ -453,6 +619,7 @@ pub fn sync_all_architectural_tasks(
         "Frontend",
         &format_groups(merges_fe_grouped),
         &merge_obj,
+        &merges_fe_verification,
     )? {
         active_tasks.insert(p);
     }
@@ -461,6 +628,7 @@ pub fn sync_all_architectural_tasks(
         "Backend",
         &format_groups(merges_be_grouped),
         &merge_obj,
+        &merges_be_verification,
     )? {
         active_tasks.insert(p);
     }

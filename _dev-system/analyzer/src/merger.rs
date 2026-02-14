@@ -2,7 +2,9 @@ use crate::analysis::calculate_dynamic_limit;
 use crate::config::EfficiencyConfig;
 use crate::consolidator::{calculate_merge_score, find_recursive_clusters, FileInfo, FolderStats};
 use crate::discovery::RegistryEntry;
+use crate::spec_snapshot::SpecSnapshot;
 use crate::task_generator::WorkUnit;
+use crate::verification::VerificationBundle;
 use std::collections::HashMap;
 use std::path::Path;
 
@@ -15,6 +17,7 @@ pub fn detect_merge_candidates(
     state: &crate::state::AnalyzerState,
     dynamic_base: f64,
     config: &EfficiencyConfig,
+    spec_map: &HashMap<String, SpecSnapshot>,
 ) -> Vec<WorkUnit> {
     let mut merge_units = Vec::new();
 
@@ -66,6 +69,21 @@ pub fn detect_merge_candidates(
         };
 
         if score > config.settings.merge_score_threshold {
+            let snapshots: Vec<SpecSnapshot> = eligible_files
+                .iter()
+                .filter_map(|(name, _, _, _, _)| {
+                    let full_path = Path::new(&dir).join(name).to_string_lossy().to_string();
+                    spec_map.get(&full_path).cloned()
+                })
+                .collect();
+            let verification = if snapshots.is_empty() {
+                None
+            } else {
+                Some(VerificationBundle {
+                    headline: format!("Pre-merge snapshots for `{}`", dir),
+                    snapshots,
+                })
+            };
             merge_units.push(WorkUnit::Merge {
                 folder: dir.clone(),
                 files: eligible_files
@@ -78,6 +96,7 @@ pub fn detect_merge_candidates(
                     score, projected_limit, safe_drag
                 ),
                 strategy: String::new(),
+                verification,
             });
         }
     }
@@ -92,6 +111,7 @@ pub fn detect_recursive_clusters(
     buffer: &HashMap<String, Vec<WorkUnit>>,
     config: &EfficiencyConfig,
     dynamic_base: f64,
+    spec_map: &HashMap<String, SpecSnapshot>,
 ) -> (Vec<WorkUnit>, std::collections::HashSet<String>) {
     let mut recursive_groups: HashMap<(String, String), Vec<FileInfo>> = HashMap::new();
     let mut processed_merge_files = std::collections::HashSet::new();
@@ -163,13 +183,30 @@ pub fn detect_recursive_clusters(
             for f in &cluster.files {
                 processed_merge_files.insert(f.clone());
             }
+            let snapshots: Vec<SpecSnapshot> = cluster
+                .files
+                .iter()
+                .filter_map(|f| spec_map.get(f).cloned())
+                .collect();
+            let verification = if snapshots.is_empty() {
+                None
+            } else {
+                Some(VerificationBundle {
+                    headline: format!(
+                        "Pre-merge snapshots for recursive cluster `{}`",
+                        cluster.root_folder
+                    ),
+                    snapshots,
+                })
+            };
             cluster_units.push(WorkUnit::Merge {
                 folder: cluster.root_folder.clone(),
                 files: cluster.files.clone(),
                 platform: platform.clone(),
                 reason: format!("Recursive Feature Pod: {} files in subtree sum to {} LOC (fits in context). Max Drag: {:.2}", 
                     cluster.files.len(), cluster.total_loc, cluster.max_drag),
-                strategy: String::new()
+                strategy: String::new(),
+                verification,
             });
         }
     }

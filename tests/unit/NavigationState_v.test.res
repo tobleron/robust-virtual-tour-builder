@@ -72,7 +72,8 @@ test("NavigationState: reduce SetNavigationStatus", t => {
   let next = NavigationState.reduce(state, SetNavigationStatus(Navigating(journey)))
 
   switch next {
-  | Some(s) => switch s.navigation {
+  | Some(s) =>
+    switch s.navigation {
     | Navigating(j) => t->expect(j.journeyId)->Expect.toBe(1)
     | _ => t->expect(false)->Expect.toBe(true)
     }

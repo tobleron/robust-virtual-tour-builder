@@ -9,6 +9,8 @@
 │   │   │   ├── analysis.rs
 │   │   │   ├── append_part2.pl
 │   │   │   ├── append_part2.py
+│   │   │   ├── bin
+│   │   │   │   └── spec_diff.rs
 │   │   │   ├── chunk3b.rs
 │   │   │   ├── config.rs
 │   │   │   ├── consolidator.rs
@@ -32,8 +34,10 @@
 │   │   │   ├── part2.rs
 │   │   │   ├── rescript_auto_discovery.rs
 │   │   │   ├── resolver.rs
+│   │   │   ├── spec_snapshot.rs
 │   │   │   ├── state.rs
-│   │   │   └── task_generator.rs
+│   │   │   ├── task_generator.rs
+│   │   │   └── verification.rs
 │   │   ├── test_manual_resolver
 │   │   └── tests
 │   │       ├── dependency_test.rs
@@ -53,7 +57,50 @@
 │   │   ├── RUST_PLAN.md
 │   │   ├── SYSTEM_PLAN.md
 │   │   └── WEB_PLAN.md
-│   └── README.md
+│   ├── README.md
+│   └── tmp
+│       ├── D002
+│       │   ├── files
+│       │   │   └── src
+│       │   │       └── core
+│       │   │           ├── Reducer.res
+│       │   │           └── SceneMutations.res
+│       │   └── verification.json
+│       ├── D003
+│       │   ├── files
+│       │   │   └── src
+│       │   │       └── systems
+│       │   │           ├── ProjectManager.res
+│       │   │           ├── UploadProcessorLogic.res
+│       │   │           └── ViewerSystem.res
+│       │   └── verification.json
+│       ├── D007
+│       │   ├── files
+│       │   │   └── src
+│       │   │       └── components
+│       │   │           └── Sidebar.res
+│       │   └── verification.json
+│       ├── D009
+│       │   ├── files
+│       │   │   └── src
+│       │   │       └── components
+│       │   │           └── VisualPipeline
+│       │   │               ├── VisualPipelineComponent.res
+│       │   │               └── VisualPipelineStyles.res
+│       │   └── verification.json
+│       ├── D014
+│       │   ├── files
+│       │   │   └── src
+│       │   │       └── utils
+│       │   │           └── OperationJournal.res
+│       │   └── verification.json
+│       └── D015
+│           ├── files
+│           │   └── src
+│           │       └── systems
+│           │           └── Scene
+│           │               └── SceneLoader.res
+│           └── verification.json
 ├── AGENTS.md
 ├── ARCHITECTURE_REVIEW_PROMPT.md
 ├── artifacts
@@ -13416,12 +13463,6 @@
 │   │           ├── ExifReportGeneratorLogicLocation_v.test.cmj
 │   │           ├── ExifReportGeneratorLogicLocation_v.test.cmt
 │   │           ├── ExifReportGeneratorLogicLocation_v.test.res
-│   │           ├── ExifReportGeneratorUtils_v.test.ast
-│   │           ├── ExifReportGeneratorUtils_v.test.bs.js
-│   │           ├── ExifReportGeneratorUtils_v.test.cmi
-│   │           ├── ExifReportGeneratorUtils_v.test.cmj
-│   │           ├── ExifReportGeneratorUtils_v.test.cmt
-│   │           ├── ExifReportGeneratorUtils_v.test.res
 │   │           ├── ExifUtils_v.test.ast
 │   │           ├── ExifUtils_v.test.bs.js
 │   │           ├── ExifUtils_v.test.cmi
@@ -13938,12 +13979,6 @@
 │   │           ├── SimulationChainSkipper_v.test.cmj
 │   │           ├── SimulationChainSkipper_v.test.cmt
 │   │           ├── SimulationChainSkipper_v.test.res
-│   │           ├── SimulationDriver_v.test.ast
-│   │           ├── SimulationDriver_v.test.bs.js
-│   │           ├── SimulationDriver_v.test.cmi
-│   │           ├── SimulationDriver_v.test.cmj
-│   │           ├── SimulationDriver_v.test.cmt
-│   │           ├── SimulationDriver_v.test.res
 │   │           ├── SimulationHelpers_v.test.ast
 │   │           ├── SimulationHelpers_v.test.bs.js
 │   │           ├── SimulationHelpers_v.test.cmi
@@ -14004,12 +14039,6 @@
 │   │           ├── SvgManager_v.test.cmj
 │   │           ├── SvgManager_v.test.cmt
 │   │           ├── SvgManager_v.test.res
-│   │           ├── SvgRenderer_v.test.ast
-│   │           ├── SvgRenderer_v.test.bs.js
-│   │           ├── SvgRenderer_v.test.cmi
-│   │           ├── SvgRenderer_v.test.cmj
-│   │           ├── SvgRenderer_v.test.cmt
-│   │           ├── SvgRenderer_v.test.res
 │   │           ├── Teaser_v.test.ast
 │   │           ├── Teaser_v.test.bs.js
 │   │           ├── Teaser_v.test.cmi
@@ -14052,12 +14081,6 @@
 │   │           ├── Timeline_v.test.cmj
 │   │           ├── Timeline_v.test.cmt
 │   │           ├── Timeline_v.test.res
-│   │           ├── TimelineReducer_v.test.ast
-│   │           ├── TimelineReducer_v.test.bs.js
-│   │           ├── TimelineReducer_v.test.cmi
-│   │           ├── TimelineReducer_v.test.cmj
-│   │           ├── TimelineReducer_v.test.cmt
-│   │           ├── TimelineReducer_v.test.res
 │   │           ├── Tooltip_v.test.ast
 │   │           ├── Tooltip_v.test.bs.js
 │   │           ├── Tooltip_v.test.cmi
@@ -14554,7 +14577,6 @@
 │   │   ├── ExifReportGeneratorLogicTypes.cmj
 │   │   ├── ExifReportGeneratorLogicTypes.cmt
 │   │   ├── ExifReportGeneratorLogicTypes.res
-│   │   ├── ExifReportGeneratorUtils_v.test.res
 │   │   ├── ExifUtils_v.test.ast
 │   │   ├── ExifUtils_v.test.cmi
 │   │   ├── ExifUtils_v.test.cmj
@@ -15557,7 +15579,6 @@
 │   │   ├── SimulationChainSkipper.cmj
 │   │   ├── SimulationChainSkipper.cmt
 │   │   ├── SimulationChainSkipper.res
-│   │   ├── SimulationDriver_v.test.res
 │   │   ├── SimulationHelpers_v.test.ast
 │   │   ├── SimulationHelpers_v.test.cmi
 │   │   ├── SimulationHelpers_v.test.cmj
@@ -15666,7 +15687,6 @@
 │   │   ├── SvgManager.cmj
 │   │   ├── SvgManager.cmt
 │   │   ├── SvgManager.res
-│   │   ├── SvgRenderer_v.test.res
 │   │   ├── Teaser_v.test.ast
 │   │   ├── Teaser_v.test.cmi
 │   │   ├── Teaser_v.test.cmj
@@ -15742,7 +15762,6 @@
 │   │   ├── Timeline_v.test.cmj
 │   │   ├── Timeline_v.test.cmt
 │   │   ├── Timeline_v.test.res
-│   │   ├── TimelineReducer_v.test.res
 │   │   ├── Tooltip_v.test.ast
 │   │   ├── Tooltip_v.test.cmi
 │   │   ├── Tooltip_v.test.cmj
@@ -16066,8 +16085,7 @@
 │   └── rescript.lock
 ├── LICENSE
 ├── logs
-│   ├── log_changes.txt
-│   └── project-guard.log
+│   └── log_changes.txt
 ├── MAP.md
 ├── old_ref
 │   ├── 7aadee4
@@ -18387,4 +18405,4 @@
 │       └── test_run.json
 └── vitest.config.mjs
 
-817 directories, 17571 files
+845 directories, 17561 files

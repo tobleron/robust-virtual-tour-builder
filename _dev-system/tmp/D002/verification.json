@@ -1,0 +1,524 @@
+{
+  "task": "D002",
+  "category": "Surgical_Refactor_CORE_FRONTEND",
+  "baseline_dir": "_dev-system/tmp/D002",
+  "bundles": [
+    {
+      "headline": "Pre-split snapshot for `src/core/Reducer.res`",
+      "snapshots": [
+        {
+          "path": "src/core/Reducer.res",
+          "functions": [
+            {
+              "name": "updateInteractive",
+              "signature": "let updateInteractive = (state: state, updater: interactiveState => interactiveState): state => {",
+              "line": 7
+            },
+            {
+              "name": "updateUiMode",
+              "signature": "let updateUiMode = (state: state, mode: uiMode): state => {",
+              "line": 14
+            },
+            {
+              "name": "updateNavigation",
+              "signature": "let updateNavigation = (state: state, nav: NavigationFSM.distinctState): state => {",
+              "line": 18
+            },
+            {
+              "name": "updateBackgroundTask",
+              "signature": "let updateBackgroundTask = (state: state, task: option<backgroundTask>): state => {",
+              "line": 22
+            },
+            {
+              "name": "handleAddScenes",
+              "signature": "let handleAddScenes = (state: state, scenesData): state => {",
+              "line": 28
+            },
+            {
+              "name": "handleDeleteScene",
+              "signature": "let handleDeleteScene = (state: state, index: int): state => {",
+              "line": 32
+            },
+            {
+              "name": "handleReorderScenes",
+              "signature": "let handleReorderScenes = (state: state, fromIndex: int, toIndex: int): state => {",
+              "line": 36
+            },
+            {
+              "name": "handleSetActiveScene",
+              "signature": "let handleSetActiveScene = (",
+              "line": 40
+            },
+            {
+              "name": "handleUpdateSceneMetadata",
+              "signature": "let handleUpdateSceneMetadata = (state: state, index: int, metaJson): state => {",
+              "line": 50
+            },
+            {
+              "name": "handleSyncSceneNames",
+              "signature": "let handleSyncSceneNames = (state: state): state => {",
+              "line": 54
+            },
+            {
+              "name": "handleApplyLazyRename",
+              "signature": "let handleApplyLazyRename = (state: state, index: int, name: string): state => {",
+              "line": 58
+            },
+            {
+              "name": "reduce",
+              "signature": "let reduce = (state: state, action: action): option<state> => {",
+              "line": 62
+            },
+            {
+              "name": "reduce",
+              "signature": "let reduce = (state: state, action: action): option<state> => {",
+              "line": 79
+            },
+            {
+              "name": "reduce",
+              "signature": "let reduce = (state: state, action: action): option<state> => {",
+              "line": 122
+            },
+            {
+              "name": "reduce",
+              "signature": "let reduce = (state: state, action: action): option<state> => {",
+              "line": 159
+            },
+            {
+              "name": "nextAppMode",
+              "signature": "let nextAppMode = AppFSM.transition(state.appMode, event)",
+              "line": 170
+            },
+            {
+              "name": "nextState",
+              "signature": "let nextState = {...state, appMode: nextAppMode}",
+              "line": 171
+            },
+            {
+              "name": "reduce",
+              "signature": "let reduce = (state: state, action: action): option<state> => {",
+              "line": 189
+            },
+            {
+              "name": "resetNavState",
+              "signature": "let resetNavState = {",
+              "line": 193
+            },
+            {
+              "name": "nextState",
+              "signature": "let nextState = {...state, navigationState: nextNavState}",
+              "line": 217
+            },
+            {
+              "name": "nextAppMode",
+              "signature": "let nextAppMode = AppFSM.transition(state.appMode, event)",
+              "line": 239
+            },
+            {
+              "name": "nextState",
+              "signature": "let nextState = {...state, appMode: nextAppMode}",
+              "line": 240
+            },
+            {
+              "name": "finalState",
+              "signature": "let finalState = switch nextAppMode {",
+              "line": 243
+            },
+            {
+              "name": "reduce",
+              "signature": "let reduce = (state: state, action: action): option<state> => {",
+              "line": 259
+            },
+            {
+              "name": "reduce",
+              "signature": "let reduce = (state: state, action: action): option<state> => {",
+              "line": 312
+            },
+            {
+              "name": "item",
+              "signature": "let item = SimHelpers.parseTimelineItem(json)",
+              "line": 315
+            },
+            {
+              "name": "itemOpt",
+              "signature": "let itemOpt = Belt.Array.get(state.timeline, fromIdx)",
+              "line": 325
+            },
+            {
+              "name": "rest",
+              "signature": "let rest = Belt.Array.keepWithIndex(state.timeline, (_, i) => i != fromIdx)",
+              "line": 328
+            },
+            {
+              "name": "newTimeline",
+              "signature": "let newTimeline = UiHelpers.insertAt(rest, toIdx, item)",
+              "line": 329
+            },
+            {
+              "name": "reduce",
+              "signature": "let reduce = (state: state, action: action): option<state> => {",
+              "line": 346
+            },
+            {
+              "name": "apply",
+              "signature": "let apply = (state: state, action: action, reducerFn: (state, action) => option<state>): state => {",
+              "line": 432
+            }
+          ],
+          "fingerprint": "c5fce2ba8a4621fb10b9c0996ca69e777e076092fde7d4e6fb290730ea5fd239"
+        }
+      ]
+    },
+    {
+      "headline": "Pre-split snapshot for `src/core/SceneMutations.res`",
+      "snapshots": [
+        {
+          "path": "src/core/SceneMutations.res",
+          "functions": [
+            {
+              "name": "getActiveScenes",
+              "signature": "let getActiveScenes = (inventory, sceneOrder) => {",
+              "line": 3
+            },
+            {
+              "name": "getDeletedIds",
+              "signature": "let getDeletedIds = inventory => {",
+              "line": 12
+            },
+            {
+              "name": "syncInventoryNames",
+              "signature": "let syncInventoryNames = (inventory, sceneOrder) => {",
+              "line": 23
+            },
+            {
+              "name": "renameMap",
+              "signature": "let renameMap = Belt.MutableMap.String.make()",
+              "line": 24
+            },
+            {
+              "name": "updatedRef",
+              "signature": "let updatedRef = ref(inventory)",
+              "line": 25
+            },
+            {
+              "name": "oldName",
+              "signature": "let oldName = scene.name",
+              "line": 31
+            },
+            {
+              "name": "baseName",
+              "signature": "let baseName = TourLogic.recoverBaseName(scene.name, scene.label)",
+              "line": 32
+            },
+            {
+              "name": "newName",
+              "signature": "let newName = TourLogic.computeSceneFilename(index, scene.label, baseName)",
+              "line": 33
+            },
+            {
+              "name": "_",
+              "signature": "let _ = Belt.MutableMap.String.set(renameMap, oldName, newName)",
+              "line": 35
+            },
+            {
+              "name": "inventoryWithRenames",
+              "signature": "let inventoryWithRenames = if Belt.MutableMap.String.size(renameMap) > 0 {",
+              "line": 47
+            },
+            {
+              "name": "s",
+              "signature": "let s = entry.scene",
+              "line": 49
+            },
+            {
+              "name": "updatedHotspots",
+              "signature": "let updatedHotspots = s.hotspots->Belt.Array.map(h => {",
+              "line": 50
+            },
+            {
+              "name": "rebuildLegacyFields",
+              "signature": "let rebuildLegacyFields = (state: state): state => {",
+              "line": 64
+            },
+            {
+              "name": "calculateActiveIndexAfterDelete",
+              "signature": "let calculateActiveIndexAfterDelete = (",
+              "line": 72
+            },
+            {
+              "name": "handleDeleteScene",
+              "signature": "let handleDeleteScene = (state: state, index: int): state => {",
+              "line": 92
+            },
+            {
+              "name": "targetName",
+              "signature": "let targetName = entry.scene.name",
+              "line": 99
+            },
+            {
+              "name": "updatedInventory",
+              "signature": "let updatedInventory =",
+              "line": 102
+            },
+            {
+              "name": "updatedOrder",
+              "signature": "let updatedOrder = state.sceneOrder->Belt.Array.keep(id => id != idToDelete)",
+              "line": 106
+            },
+            {
+              "name": "inventoryWithCleanHotspots",
+              "signature": "let inventoryWithCleanHotspots = updatedInventory->Belt.Map.String.map(e => {",
+              "line": 109
+            },
+            {
+              "name": "s",
+              "signature": "let s = e.scene",
+              "line": 110
+            },
+            {
+              "name": "newHotspots",
+              "signature": "let newHotspots = s.hotspots->Belt.Array.keep(h => h.target != targetName)",
+              "line": 111
+            },
+            {
+              "name": "newLen",
+              "signature": "let newLen = Belt.Array.length(updatedOrder)",
+              "line": 116
+            },
+            {
+              "name": "newActiveIndex",
+              "signature": "let newActiveIndex = calculateActiveIndexAfterDelete(state.activeIndex, index, newLen)",
+              "line": 117
+            },
+            {
+              "name": "finalizedInventory",
+              "signature": "let finalizedInventory = syncInventoryNames(inventoryWithCleanHotspots, updatedOrder)",
+              "line": 120
+            },
+            {
+              "name": "handleReorderScenes",
+              "signature": "let handleReorderScenes = (state: state, fromIndex: int, toIndex: int): state => {",
+              "line": 140
+            },
+            {
+              "name": "rest",
+              "signature": "let rest = state.sceneOrder->Belt.Array.keepWithIndex((_, i) => i != fromIndex)",
+              "line": 146
+            },
+            {
+              "name": "updatedOrder",
+              "signature": "let updatedOrder = UiHelpers.insertAt(rest, toIndex, movedId)",
+              "line": 147
+            },
+            {
+              "name": "newActiveIndex",
+              "signature": "let newActiveIndex = if state.activeIndex == fromIndex {",
+              "line": 149
+            },
+            {
+              "name": "finalizedInventory",
+              "signature": "let finalizedInventory = syncInventoryNames(state.inventory, updatedOrder)",
+              "line": 159
+            },
+            {
+              "name": "updateSceneCategories",
+              "signature": "let updateSceneCategories = (",
+              "line": 175
+            },
+            {
+              "name": "handleAddScenes",
+              "signature": "let handleAddScenes = (state: state, scenesData: array<JSON.t>): state => {",
+              "line": 192
+            },
+            {
+              "name": "modeStr",
+              "signature": "let modeStr = state.appMode->(",
+              "line": 193
+            },
+            {
+              "name": "wasEmpty",
+              "signature": "let wasEmpty = Belt.Map.String.isEmpty(state.inventory)",
+              "line": 217
+            },
+            {
+              "name": "newScene",
+              "signature": "let newScene = SceneHelpers.parseScene(dataJson)",
+              "line": 230
+            },
+            {
+              "name": "mergedOrder",
+              "signature": "let mergedOrder = Belt.Array.concat(state.sceneOrder, addedIds)",
+              "line": 248
+            },
+            {
+              "name": "sortedOrder",
+              "signature": "let sortedOrder = Array.copy(mergedOrder)",
+              "line": 249
+            },
+            {
+              "name": "nameA",
+              "signature": "let nameA = switch updatedInventory->Belt.Map.String.get(a) {",
+              "line": 251
+            },
+            {
+              "name": "nameB",
+              "signature": "let nameB = switch updatedInventory->Belt.Map.String.get(b) {",
+              "line": 255
+            },
+            {
+              "name": "finalizedInventory",
+              "signature": "let finalizedInventory = syncInventoryNames(updatedInventory, sortedOrder)",
+              "line": 263
+            },
+            {
+              "name": "activeIndex",
+              "signature": "let activeIndex = if (",
+              "line": 266
+            },
+            {
+              "name": "nextState",
+              "signature": "let nextState = {",
+              "line": 276
+            },
+            {
+              "name": "handleUpdateSceneMetadata",
+              "signature": "let handleUpdateSceneMetadata = (state: state, index: int, metaJson: JSON.t): state => {",
+              "line": 293
+            },
+            {
+              "name": "meta",
+              "signature": "let meta = switch JsonCombinators.Json.decode(metaJson, JsonParsers.Domain.updateMetadata) {",
+              "line": 300
+            },
+            {
+              "name": "newCategory",
+              "signature": "let newCategory = switch meta.category {",
+              "line": 310
+            },
+            {
+              "name": "newFloor",
+              "signature": "let newFloor = switch meta.floor {",
+              "line": 314
+            },
+            {
+              "name": "newLabel",
+              "signature": "let newLabel = switch meta.label {",
+              "line": 318
+            },
+            {
+              "name": "newIsAutoForward",
+              "signature": "let newIsAutoForward = switch meta.isAutoForward {",
+              "line": 322
+            },
+            {
+              "name": "categorySet",
+              "signature": "let categorySet = switch meta.category {",
+              "line": 326
+            },
+            {
+              "name": "manualBaseName",
+              "signature": "let manualBaseName = switch JSON.Decode.object(metaJson) {",
+              "line": 332
+            },
+            {
+              "name": "updatedScene",
+              "signature": "let updatedScene = {",
+              "line": 341
+            },
+            {
+              "name": "finalScene",
+              "signature": "let finalScene = switch manualBaseName {",
+              "line": 351
+            },
+            {
+              "name": "newName",
+              "signature": "let newName = TourLogic.computeSceneFilename(index, newLabel, base)",
+              "line": 353
+            },
+            {
+              "name": "updatedInventory",
+              "signature": "let updatedInventory =",
+              "line": 358
+            },
+            {
+              "name": "finalizedInventory",
+              "signature": "let finalizedInventory = syncInventoryNames(updatedInventory, state.sceneOrder)",
+              "line": 362
+            },
+            {
+              "name": "calculateTransition",
+              "signature": "let calculateTransition = (transition: option<transition>): transition => {",
+              "line": 381
+            },
+            {
+              "name": "handleSetActiveScene",
+              "signature": "let handleSetActiveScene = (",
+              "line": 388
+            },
+            {
+              "name": "newTransition",
+              "signature": "let newTransition = calculateTransition(transition)",
+              "line": 396
+            },
+            {
+              "name": "updatedInventory",
+              "signature": "let updatedInventory = updateSceneCategories(",
+              "line": 397
+            },
+            {
+              "name": "handleApplyLazyRename",
+              "signature": "let handleApplyLazyRename = (state: state, index: int, name: string): state => {",
+              "line": 417
+            },
+            {
+              "name": "updatedInventory",
+              "signature": "let updatedInventory =",
+              "line": 422
+            },
+            {
+              "name": "finalizedInventory",
+              "signature": "let finalizedInventory = syncInventoryNames(updatedInventory, state.sceneOrder)",
+              "line": 424
+            },
+            {
+              "name": "syncSceneNames",
+              "signature": "let syncSceneNames = (scenes: array<Types.scene>) => {",
+              "line": 432
+            },
+            {
+              "name": "renameMap",
+              "signature": "let renameMap = Belt.MutableMap.String.make()",
+              "line": 434
+            },
+            {
+              "name": "updatedScenes",
+              "signature": "let updatedScenes = Belt.Array.mapWithIndex(scenes, (index, scene) => {",
+              "line": 435
+            },
+            {
+              "name": "oldName",
+              "signature": "let oldName = scene.name",
+              "line": 436
+            },
+            {
+              "name": "newName",
+              "signature": "let newName = TourLogic.computeSceneFilename(index, scene.label, \"\")",
+              "line": 437
+            },
+            {
+              "name": "_",
+              "signature": "let _ = Belt.MutableMap.String.set(renameMap, oldName, newName)",
+              "line": 439
+            },
+            {
+              "name": "updatedHotspots",
+              "signature": "let updatedHotspots = Belt.Array.map(s.hotspots, h => {",
+              "line": 448
+            }
+          ],
+          "fingerprint": "3b8bb04ad3b2575b2e33ecdca530659a7fb2b8f9d24cc028cf03bbbc404d4961"
+        }
+      ]
+    }
+  ]
+}

@@ -1061,7 +1061,6 @@ pub fn check_tasks_count(config: &GuardConfig) -> Result<()> {
                 next_id, count
             );
 
-
             fs::write(&task_path, task_content)?;
             println!("🧹 Created Maintenance Task: {}", task_path.display());
         }
