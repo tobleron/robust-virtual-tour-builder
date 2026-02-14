@@ -196,8 +196,8 @@ describe("SceneHelpers", () => {
     let scenes = [sceneA, sceneB]
     let synced = syncSceneNames(scenes)
 
-    let expectedNameA = TourLogic.computeSceneFilename(0, "Living Room")
-    let expectedNameB = TourLogic.computeSceneFilename(1, "Kitchen")
+    let expectedNameA = TourLogic.computeSceneFilename(0, "Living Room", "a")
+    let expectedNameB = TourLogic.computeSceneFilename(1, "Kitchen", "b")
 
     let syncedA = Belt.Array.getExn(synced, 0)
     let syncedB = Belt.Array.getExn(synced, 1)
