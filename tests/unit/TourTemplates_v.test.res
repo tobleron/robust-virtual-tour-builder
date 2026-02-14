@@ -74,7 +74,7 @@ let _ = describe("TourTemplates", () => {
 
   test("generateTourHTML builds correct HTML structure", t => {
     let tourName = "My Awesome Tour"
-    let hasLogo = true
+    let logoFilename = Some("logo.png")
     let exportType = "4k"
     let baseSize = 4000
     let logoSize = 150
@@ -83,7 +83,7 @@ let _ = describe("TourTemplates", () => {
     let html = generateTourHTML(
       [mockScene1, mockScene2],
       tourName,
-      hasLogo,
+      logoFilename,
       exportType,
       baseSize,
       logoSize,
@@ -110,7 +110,7 @@ let _ = describe("TourTemplates", () => {
 
   test("generateTourHTML handles AutoForward", t => {
     let autoScene = {...mockScene2, isAutoForward: true}
-    let html = generateTourHTML([autoScene], "Auto Tour", false, "hd", 2000, 100, "1.0")
+    let html = generateTourHTML([autoScene], "Auto Tour", None, "hd", 2000, 100, "1.0")
     t->expectToContain(html, "\"isAutoForward\":true")
   })
 
@@ -125,13 +125,13 @@ let _ = describe("TourTemplates", () => {
   })
 
   test("generateTourHTML integrates correct CSS for 4k", t => {
-    let html = generateTourHTML([mockScene1], "4k Tour", false, "4k", 32, 40, "1.0")
+    let html = generateTourHTML([mockScene1], "4k Tour", None, "4k", 32, 40, "1.0")
     // 4k max-width is 1024px
     t->expectToContain(html, "max-width: 1024px")
   })
 
   test("generateTourHTML integrates correct CSS for hd (mobile)", t => {
-    let html = generateTourHTML([mockScene1], "HD Tour", false, "hd", 32, 40, "1.0")
+    let html = generateTourHTML([mockScene1], "HD Tour", None, "hd", 32, 40, "1.0")
     // hd mobile width is 375px
     t->expectToContain(html, "width: 375px")
     t->expectToContain(html, "height: 667px")

@@ -236,7 +236,6 @@ let encodeSceneData = (s: sceneData) => {
 let generateTourHTML = (
   scenes: array<scene>,
   tourName,
-  tourName,
   logoFilename: option<string>,
   exportType,
   baseSize,
