@@ -21,7 +21,13 @@ let make = (
 
     <Shadcn.Tooltip ?delayDuration>
       <Shadcn.Tooltip.Trigger asChild=true> children </Shadcn.Tooltip.Trigger>
-      <Shadcn.Tooltip.Content side sideOffset=8> {React.string(content)} </Shadcn.Tooltip.Content>
+      <Shadcn.Tooltip.Content
+        side
+        sideOffset=8
+        className="text-[10px] py-0.5 px-2 min-h-0 bg-slate-900 text-white border-none shadow-md"
+      >
+        {React.string(content)}
+      </Shadcn.Tooltip.Content>
     </Shadcn.Tooltip>
   }
 }

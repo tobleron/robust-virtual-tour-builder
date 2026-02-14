@@ -97,7 +97,6 @@ toSlug = (label, maxLength) => {
   sanitizeName(label, ~maxLength)
   ->String.replaceRegExp(/[\s-]+/g, "_")
   ->String.replaceRegExp(/[^a-z0-9_]/gi, "")
-  ->String.toLowerCase
 }
 
 /**
@@ -109,7 +108,7 @@ let recoverBaseName = (currentName, currentLabel) => {
   let nameWithoutExt = UrlUtils.stripExtension(currentName)
 
   if currentLabel == "" {
-    nameWithoutExt
+    nameWithoutExt ++ ".webp"
   } else {
     let slug = toSlug(currentLabel, 200)
 
@@ -155,25 +154,13 @@ let getBaseNameFromId = id => {
 /**
  * Calculate the standardized filename for a scene based on its index, label, and original base name.
  */
-let computeSceneFilename = (index, label, baseName) => {
-  let prefix = Belt.Int.toString(index + 1)->padStart(2, "0")
+let computeSceneFilename = (index, label, _baseName) => {
+  let prefix = Belt.Int.toString(index + 1)->padStart(3, "0")
   if label == "" {
-    prefix ++ "_" ++ baseName ++ ".webp"
+    prefix ++ ".webp"
   } else {
-    let baseSlug = toSlug(label, 200)
-    let sanitizedBase = toSlug(baseName, 200)
-
-    // USER REQUESTED FORMAT: Label_Prefix_ExistingName
-    // e.g. entrance_01_154407_002.webp
-
-    // Avoid duplication if label already contains the base name
-    if baseSlug == sanitizedBase || String.endsWith(baseSlug, "_" ++ sanitizedBase) {
-      // If redundancy detected, fallback to simpler format
-      prefix ++ "_" ++ baseSlug ++ ".webp"
-    } else {
-      // New format: Label first
-      baseSlug ++ "_" ++ prefix ++ "_" ++ baseName ++ ".webp"
-    }
+    let slug = toSlug(label, 200)
+    prefix ++ "_" ++ slug ++ ".webp"
   }
 }
 

@@ -433,16 +433,11 @@ let syncSceneNames = (scenes: array<Types.scene>) => {
   // LEGACY: Keeping to avoid breaking tests that depend on it
   let renameMap = Belt.MutableMap.String.make()
   let updatedScenes = Belt.Array.mapWithIndex(scenes, (index, scene) => {
-    if scene.label != "" {
-      let oldName = scene.name
-      let baseName = TourLogic.recoverBaseName(scene.name, scene.label)
-      let newName = TourLogic.computeSceneFilename(index, scene.label, baseName)
-      if newName != oldName {
-        let _ = Belt.MutableMap.String.set(renameMap, oldName, newName)
-        {...scene, name: newName}
-      } else {
-        scene
-      }
+    let oldName = scene.name
+    let newName = TourLogic.computeSceneFilename(index, scene.label, "")
+    if newName != oldName {
+      let _ = Belt.MutableMap.String.set(renameMap, oldName, newName)
+      {...scene, name: newName}
     } else {
       scene
     }
