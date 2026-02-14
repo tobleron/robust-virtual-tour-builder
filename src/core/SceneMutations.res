@@ -331,10 +331,10 @@ let handleUpdateSceneMetadata = (state: state, index: int, metaJson: JSON.t): st
         }
 
         // Check for manual baseName override in metadata (from LabelMenu)
-        let manualBaseName = switch Js.Json.decodeObject(metaJson) {
+        let manualBaseName = switch JSON.Decode.object(metaJson) {
         | Some(obj) =>
-          switch Js.Dict.get(obj, "_baseName") {
-          | Some(v) => Js.Json.decodeString(v)
+          switch Dict.get(obj, "_baseName") {
+          | Some(v) => JSON.Decode.string(v)
           | None => None
           }
         | None => None
