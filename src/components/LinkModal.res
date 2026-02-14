@@ -192,8 +192,14 @@ let showLinkModal = (
             (),
           )
 
+          let optimisticState = HotspotHelpers.handleAddHotspot(
+            state,
+            state.activeIndex,
+            newHotspot,
+          )
+
           HotspotManager.handleAddHotspot(state.activeIndex, newHotspot, ~getState=() =>
-            state
+            optimisticState
           )->ignore
 
           // Part 5 Helper: Auto-register in timeline for Visual Pipeline visibility
