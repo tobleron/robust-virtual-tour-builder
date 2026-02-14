@@ -64,7 +64,7 @@ module InnerApp = {
           </div>
         </div>
 
-        <VisualPipelineComponent />
+        <VisualPipeline />
 
         {if Belt.Array.length(state.scenes) == 0 {
           <div id="placeholder-text" className="viewer-placeholder" ariaLive=#polite>
