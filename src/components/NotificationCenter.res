@@ -8,16 +8,6 @@
 module Toast = {
   @react.component
   let make = (~notification: NotificationTypes.notification, ~isFadingOut: bool) => {
-    let (isDismissing, setIsDismissing) = React.useState(_ => false)
-
-    let handleDismiss = _ => {
-      setIsDismissing(_ => true)
-      // Small delay for animation before logic removal
-      let _ = ReBindings.Window.setTimeout(() => {
-        NotificationManager.dismiss(notification.id)
-      }, 300)
-    }
-
     let icon = switch notification.importance {
     | NotificationTypes.Success => <LucideIcons.CircleCheck size=20 strokeWidth=2.5 />
     | NotificationTypes.Error | NotificationTypes.Critical =>
@@ -31,23 +21,12 @@ module Toast = {
 
     <div
       className={"viewer-toast " ++
-      importanceKey ++ if isFadingOut || isDismissing {
+      importanceKey ++ if isFadingOut {
         " dismissing"
       } else {
         ""
       }}
     >
-      /* Close Button - Orange Bubble Badge */
-      {if notification.dismissible {
-        <button
-          className="viewer-toast-close" onClick=handleDismiss ariaLabel="Dismiss notification"
-        >
-          <LucideIcons.X size=10 strokeWidth=3.0 />
-        </button>
-      } else {
-        React.null
-      }}
-
       <div className="viewer-toast-icon"> icon </div>
 
       <div className="viewer-toast-content"> {React.string(notification.message)} </div>

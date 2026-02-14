@@ -77,7 +77,7 @@ describe("Constants", _ => {
     t->expect(Constants.panningMaxDuration)->Expect.toBe(15000.0)
     t->expect(Constants.sceneStabilizationDelay)->Expect.toBe(1000)
     t->expect(Constants.viewerLoadCheckInterval)->Expect.toBe(100)
-    t->expect(Constants.tooltipDelayDuration)->Expect.toBe(900)
+    t->expect(Constants.tooltipDelayDuration)->Expect.toBe(1200)
   })
 
   test("scene floor levels", t => {

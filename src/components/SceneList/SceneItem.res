@@ -169,15 +169,15 @@ let make = React.memo((
       </div>
     </div>
 
-    <div className="flex-1 min-w-0 py-1.5 px-2 flex flex-col justify-center cursor-pointer">
-      <div className="flex items-center justify-between gap-2 overflow-hidden">
-        <Tooltip
-          content={switch scene.originalFile {
-          | Some(File(f)) => "original image name: " ++ BrowserBindings.File.name(f)
-          | _ => "original image name: unavailable"
-          }}
-          delayDuration=500
-        >
+    <Tooltip
+      content={switch scene.originalFile {
+      | Some(File(f)) => "original image name: " ++ BrowserBindings.File.name(f)
+      | _ => "original image name: unavailable"
+      }}
+      delayDuration=500
+    >
+      <div className="flex-1 min-w-0 py-1.5 px-2 flex flex-col justify-center cursor-pointer">
+        <div className="flex items-center justify-between gap-2 overflow-hidden">
           <h4
             className={`text-[12px] font-medium truncate tracking-tight ${if isActive {
                 "text-primary"
@@ -187,7 +187,7 @@ let make = React.memo((
           >
             {React.string(UrlUtils.stripExtension(scene.name))}
           </h4>
-        </Tooltip>
+        </div>
         {if Array.length(scene.hotspots) > 0 {
           <div
             className="flex items-center gap-1 text-slate-400 group-hover:text-primary transition-colors shrink-0"
@@ -200,60 +200,60 @@ let make = React.memo((
         } else {
           React.null
         }}
-      </div>
 
-      <div className="flex items-center gap-2 mt-1">
-        /* Format & Technical Meta */
-        {
-          let (format, size) = switch scene.file {
-          | Url(url) =>
-            let pieces = url->String.split(".")
-            let ext = pieces->Belt.Array.get(Belt.Array.length(pieces) - 1)->Option.getOr("JPG")
-            (ext->String.toUpperCase, 0.0)
-          | Blob(b) =>
-            let mime = BrowserBindings.Blob.type_(b)
-            let ext = mime->String.split("/")->Belt.Array.get(1)->Option.getOr("JPG")
-            (ext->String.toUpperCase, BrowserBindings.Blob.size(b))
-          | File(f) =>
-            let mime = BrowserBindings.File.type_(f)
-            let ext = mime->String.split("/")->Belt.Array.get(1)->Option.getOr("JPG")
-            (ext->String.toUpperCase, BrowserBindings.File.size(f))
-          }
-
-          let (badgeColor, formatLabel) = switch format {
-          | "WEBP" => ("text-orange-600 bg-orange-50", "WEBP")
-          | "PNG" => ("text-indigo-600 bg-indigo-50", "PNG")
-          | "JPEG" | "JPG" => ("text-blue-600 bg-blue-50", "JPG")
-          | f => ("text-slate-600 bg-slate-50", f)
-          }
-
-          let formattedSize = if size > 0.0 {
-            let mb = size /. (1024.0 *. 1024.0)
-            if mb >= 1.0 {
-              Float.toFixed(mb, ~digits=1) ++ "MB"
-            } else {
-              let kb = size /. 1024.0
-              Float.toFixed(kb, ~digits=0) ++ "KB"
+        <div className="flex items-center gap-2 mt-1">
+          /* Format & Technical Meta */
+          {
+            let (format, size) = switch scene.file {
+            | Url(url) =>
+              let pieces = url->String.split(".")
+              let ext = pieces->Belt.Array.get(Belt.Array.length(pieces) - 1)->Option.getOr("JPG")
+              (ext->String.toUpperCase, 0.0)
+            | Blob(b) =>
+              let mime = BrowserBindings.Blob.type_(b)
+              let ext = mime->String.split("/")->Belt.Array.get(1)->Option.getOr("JPG")
+              (ext->String.toUpperCase, BrowserBindings.Blob.size(b))
+            | File(f) =>
+              let mime = BrowserBindings.File.type_(f)
+              let ext = mime->String.split("/")->Belt.Array.get(1)->Option.getOr("JPG")
+              (ext->String.toUpperCase, BrowserBindings.File.size(f))
             }
-          } else {
-            ""
-          }
 
-          <div className="flex items-center gap-1.5 shrink-0">
-            <span
-              className={`px-1 py-0.5 rounded-[3px] text-[8px] font-bold tracking-tight border border-current/10 ${badgeColor}`}
-            >
-              {React.string(formatLabel)}
-            </span>
-            {if formattedSize != "" {
-              <span className="text-[9px] font-medium text-slate-400">
-                {React.string(formattedSize)}
-              </span>
+            let (badgeColor, formatLabel) = switch format {
+            | "WEBP" => ("text-orange-600 bg-orange-50", "WEBP")
+            | "PNG" => ("text-indigo-600 bg-indigo-50", "PNG")
+            | "JPEG" | "JPG" => ("text-blue-600 bg-blue-50", "JPG")
+            | f => ("text-slate-600 bg-slate-50", f)
+            }
+
+            let formattedSize = if size > 0.0 {
+              let mb = size /. (1024.0 *. 1024.0)
+              if mb >= 1.0 {
+                Float.toFixed(mb, ~digits=1) ++ "MB"
+              } else {
+                let kb = size /. 1024.0
+                Float.toFixed(kb, ~digits=0) ++ "KB"
+              }
             } else {
-              React.null
-            }}
-          </div>
-        }
+              ""
+            }
+
+            <div className="flex items-center gap-1.5 shrink-0">
+              <span
+                className={`px-1 py-0.5 rounded-[3px] text-[8px] font-bold tracking-tight border border-current/10 ${badgeColor}`}
+              >
+                {React.string(formatLabel)}
+              </span>
+              {if formattedSize != "" {
+                <span className="text-[9px] font-medium text-slate-400">
+                  {React.string(formattedSize)}
+                </span>
+              } else {
+                React.null
+              }}
+            </div>
+          }
+        </div>
         <div className="flex-1">
           <div className="w-full bg-slate-100 h-0.5 rounded-full overflow-hidden">
             <div
@@ -274,7 +274,7 @@ let make = React.memo((
           </span>
         </div>
       </div>
-    </div>
+    </Tooltip>
 
     <div
       className="w-8 flex flex-col items-center justify-center gap-0 border-l border-slate-50 bg-slate-50/50 group-hover:bg-slate-100 transition-colors self-stretch"
