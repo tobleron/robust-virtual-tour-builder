@@ -12,43 +12,67 @@
 ### 🔧 Action: Merge Fragmented Folders
 **Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module file (e.g., `Loader.rs`). CRITICAL: Delete the now-empty `src/systems/Scene/Loader/` folder to reduce directory nesting tax and strip any existing '@efficiency' tags.
 
-- [ ] Folder: `src/systems/Scene/Loader` (Metric: Recursive Feature Pod: 3 files in subtree sum to 157 LOC (fits in context). Max Drag: 7.30)
+- [ ] Folder: `src/systems/Scene/Loader` (Metric: Recursive Feature Pod: 3 files in subtree sum to 156 LOC (fits in context). Max Drag: 6.80)
     - `src/systems/Scene/Loader/../../src/systems/Scene/Loader/SceneLoaderConfig.res`
     - `src/systems/Scene/Loader/../../src/systems/Scene/Loader/SceneLoaderEvents.res`
     - `src/systems/Scene/Loader/../../src/systems/Scene/Loader/SceneLoaderReuse.res`
 
 ### 🔧 Action: Merge Fragmented Folders
-**Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module file (e.g., `Project.rs`). CRITICAL: Delete the now-empty `src/systems/Project/` folder to reduce directory nesting tax and strip any existing '@efficiency' tags.
+**Directive:** Unified Context: Consolidate these fragmented files into a single cohesive module file (e.g., `Project.rs`). CRITICAL: Delete the now-empty `../../src/systems/Project/` folder to reduce directory nesting tax and strip any existing '@efficiency' tags.
 
-- [ ] Folder: `src/systems/Project` (Metric: Recursive Feature Pod: 3 files in subtree sum to 223 LOC (fits in context). Max Drag: 7.87)
-    - `src/systems/Project/../../src/systems/Project/ProjectLoader.res`
-    - `src/systems/Project/../../src/systems/Project/ProjectSaver.res`
-    - `src/systems/Project/../../src/systems/Project/ProjectValidator.res`
+- [ ] Folder: `../../src/systems/Project` (Metric: Read Tax high (Score 3.00). Projected Limit: 300 (Drag 4.92))
+    - `../../src/systems/Project/ProjectLoader.res`
+    - `../../src/systems/Project/ProjectSaver.res`
+    - `../../src/systems/Project/ProjectValidator.res`
 
 ## 🔎 Programmatic Verification
 Baseline artifacts: `_dev-system/tmp/D009/verification.json` (files at `_dev-system/tmp/D009/files/`).
 Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline _dev-system/tmp/D009/verification.json --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.
 
-### Pre-merge snapshots for recursive cluster `src/systems/Project`
-- `src/systems/Project/ProjectValidator.res` (2 functions, fingerprint ffb8b47d9fa96368ea312d8169dd5eaa1483015d1303878c72ff2a41db8f1d2d)
-    - validationReportWrapperDecoder — let validationReportWrapperDecoder = JsonCombinators.Json.Decode.object(field => {
-    - validateProjectStructure — let validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {
-- `src/systems/Project/ProjectSaver.res` (1 functions, fingerprint c42113cfd078e9ae6337cfc42f8b2eafb4e6f41cb00b16fb9261f47629dd3230)
-    - createSavePackage — let createSavePackage = (state: state, ~signal=?, ~onProgress: option<onProgress>=?): Promise.t<
-- `src/systems/Project/ProjectLoader.res` (2 functions, fingerprint 7bb47c70e88fecbb9936fbaa6c783733acc07b4ab8b3b0a360dd97d8289cc7cd)
-    - processLoadedProjectData — let processLoadedProjectData = (
-    - loadProjectZip — let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?) => {
 ### Pre-merge snapshots for recursive cluster `src/systems/Scene/Loader`
-- `src/systems/Scene/Loader/SceneLoaderReuse.res` (1 functions, fingerprint d82b4f05f066c46c12afa9b4b0f92dde0d042b5f7870965b09bda5c82bcf7c81)
-    - findReusableInstance — let findReusableInstance = (pathRequest: pathRequest, targetIdx: int): option<ViewerSystem.Adapter.t> => {
-- `src/systems/Scene/Loader/SceneLoaderEvents.res` (4 functions, fingerprint 0522ec5cc5a313c9df2046fa17f18930e7862610a72fba6b1196b6eef969920c)
-    - isStaleTask — let isStaleTask = (
-    - castToDict — let castToDict: 'a => dict<string> = %raw("(x) => (typeof x === 'object' && x !== null) ? x : {}")
-    - onSceneLoad — let onSceneLoad = (
-    - onSceneError — let onSceneError = (
-- `src/systems/Scene/Loader/SceneLoaderConfig.res` (5 functions, fingerprint d93e3bc007bec00c94aaf62232e9bf3cf65185510088b069d046c18cd8854d67)
-    - getHotspots — let getHotspots = (scene: scene, ~state, ~dispatch) =>
-    - makeSceneConfig — let makeSceneConfig = (scene: scene, ~state, ~dispatch) => {
-    - makeInitialConfig — let makeInitialConfig = (scene: scene, ~state, ~dispatch) => {
-    - blankPanorama — let blankPanorama = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
-    - backgroundViewerConfig — let backgroundViewerConfig = () => {
+- `src/systems/Scene/Loader/SceneLoaderEvents.res` (8 functions, fingerprint 4e8ceea824741cd661707f741fc1a482d4e2cb0595ac9fae388e6936f365aa26)
+    - isStaleTask — isStaleTask = (~taskId: option<string>=?, ~signal: option<BrowserBindings.AbortSignal.t>=?) => {
+    - taskMismatch — taskMismatch = switch taskId {
+    - signalAborted — signalAborted = switch signal {
+    - castToDict — castToDict: 'a => dict<string> = %raw("(x) => (typeof x === 'object' && x !== null) ? x : {}")
+    - onSceneLoad — onSceneLoad = (
+    - vId — vId = castToDict(v)->Dict.get("container")->Option.getOr("")
+    - entry — entry = ViewerSystem.Pool.pool.contents->Belt.Array.getBy(e => e.containerId == vId)
+    - onSceneError — onSceneError = (
+- `src/systems/Scene/Loader/SceneLoaderConfig.res` (7 functions, fingerprint f4fd398f9137c60604b95ef249805b3adedf31eb810a43146a408204173e13c5)
+    - getHotspots — getHotspots = (scene: scene, ~state, ~dispatch) =>
+    - makeSceneConfig — makeSceneConfig = (scene: scene, ~state, ~dispatch) => {
+    - url — url = SceneCache.getSourceUrl(scene.id, scene.file)
+    - makeInitialConfig — makeInitialConfig = (scene: scene, ~state, ~dispatch) => {
+    - inner — inner = makeSceneConfig(scene, ~state, ~dispatch)
+    - blankPanorama — blankPanorama = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
+    - backgroundViewerConfig — backgroundViewerConfig = () => {
+- `src/systems/Scene/Loader/SceneLoaderReuse.res` (3 functions, fingerprint afe56389cbe21f3f18e6d254e8e228cbf835daaab5fa18214bb9579bb725550e)
+    - findReusableInstance — findReusableInstance = (pathRequest: pathRequest, targetIdx: int): option<
+    - targetSceneId — targetSceneId = pathRequest.scenes[targetIdx]->Option.map(s => s.id)
+    - metaId — metaId = ViewerSystem.Adapter.getMetaData(inst, "sceneId")
+### Pre-merge snapshots for `../../src/systems/Project`
+- `src/systems/Project/ProjectSaver.res` (5 functions, fingerprint 2e2e031360c1b2b4cda97833635631c1e5f7fb29df5cb770c75eb0d98b06cb1b)
+    - createSavePackage — createSavePackage = (state: state, ~signal=?, ~onProgress: option<onProgress>=?): Promise.t<
+    - progress — progress = (curr, total, msg) => {
+    - project — project: Types.project = {
+    - jsonStr — jsonStr = JsonCombinators.Json.stringify(JsonParsers.Encoders.project(project))
+    - formData — formData = FormData.newFormData()
+- `src/systems/Project/ProjectValidator.res` (2 functions, fingerprint c1da22b92cfb43a237f871bf8fcf11b5c39ff3c7931fb85fa73bbe455169f84d)
+    - validationReportWrapperDecoder — validationReportWrapperDecoder = JsonCombinators.Json.Decode.object(field => {
+    - validateProjectStructure — validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {
+- `src/systems/Project/ProjectLoader.res` (14 functions, fingerprint c19f172c88f9105107deeeceaad5008a1b9efdf270fc00f7b0d0659afb92402b)
+    - processLoadedProjectData — processLoadedProjectData = (
+    - progress — progress = (curr, total, msg) => {
+    - token — token = Dom.Storage2.localStorage->Dom.Storage2.getItem("auth_token")
+    - finalToken — finalToken = switch token {
+    - tokenQuery — tokenQuery = "?token=" ++ finalToken
+    - allInventoryScenes — allInventoryScenes =
+    - validScenes — validScenes = ProjectManagerUrl.rebuildSceneUrls(
+    - updatedInventory — updatedInventory = validScenes->Belt.Array.reduce(pd.inventory, (acc, s) => {
+    - finalOrder — finalOrder = if Array.length(pd.sceneOrder) > 0 {
+    - resolvedActiveScenes — resolvedActiveScenes = finalOrder->Belt.Array.keepMap(id => {
+    - loadedProject — loadedProject: Types.project = {
+    - loadProjectZip — loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?) => {
+    - progress — progress = (curr, total, msg) => {
+    - loadStartTime — loadStartTime = Date.now()

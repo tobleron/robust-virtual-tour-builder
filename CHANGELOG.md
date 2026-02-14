@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Merge and verify jules unit test coverage tasks 1372-1375
 - _dev-system enhanced, will process dev tasks
 - V4.10.4+2 [TRIPLE]: merge Jules surgical refactors D002-D015
+- V4.10.4+3 [TRIPLE]: upgrade spec_diff to Semantic AST (Tree-sitter) & implement 30-day baseline expiry
 
 ## [4.10.3] - 2026-02-14
 

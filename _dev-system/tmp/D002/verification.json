@@ -11,113 +11,169 @@
           "functions": [
             {
               "name": "updateInteractive",
-              "signature": "let updateInteractive = (state: state, updater: interactiveState => interactiveState): state => {",
+              "signature": "updateInteractive = (state: state, updater: interactiveState => interactiveState): state => {",
               "line": 7
             },
             {
               "name": "updateUiMode",
-              "signature": "let updateUiMode = (state: state, mode: uiMode): state => {",
+              "signature": "updateUiMode = (state: state, mode: uiMode): state => {",
               "line": 14
             },
             {
               "name": "updateNavigation",
-              "signature": "let updateNavigation = (state: state, nav: NavigationFSM.distinctState): state => {",
+              "signature": "updateNavigation = (state: state, nav: NavigationFSM.distinctState): state => {",
               "line": 18
             },
             {
               "name": "updateBackgroundTask",
-              "signature": "let updateBackgroundTask = (state: state, task: option<backgroundTask>): state => {",
+              "signature": "updateBackgroundTask = (state: state, task: option<backgroundTask>): state => {",
               "line": 22
             },
             {
               "name": "handleAddScenes",
-              "signature": "let handleAddScenes = (state: state, scenesData): state => {",
+              "signature": "handleAddScenes = (state: state, scenesData): state => {",
               "line": 28
             },
             {
               "name": "handleDeleteScene",
-              "signature": "let handleDeleteScene = (state: state, index: int): state => {",
+              "signature": "handleDeleteScene = (state: state, index: int): state => {",
               "line": 32
             },
             {
               "name": "handleReorderScenes",
-              "signature": "let handleReorderScenes = (state: state, fromIndex: int, toIndex: int): state => {",
+              "signature": "handleReorderScenes = (state: state, fromIndex: int, toIndex: int): state => {",
               "line": 36
             },
             {
               "name": "handleSetActiveScene",
-              "signature": "let handleSetActiveScene = (",
+              "signature": "handleSetActiveScene = (",
               "line": 40
             },
             {
               "name": "handleUpdateSceneMetadata",
-              "signature": "let handleUpdateSceneMetadata = (state: state, index: int, metaJson): state => {",
+              "signature": "handleUpdateSceneMetadata = (state: state, index: int, metaJson): state => {",
               "line": 50
             },
             {
               "name": "handleSyncSceneNames",
-              "signature": "let handleSyncSceneNames = (state: state): state => {",
+              "signature": "handleSyncSceneNames = (state: state): state => {",
               "line": 54
             },
             {
               "name": "handleApplyLazyRename",
-              "signature": "let handleApplyLazyRename = (state: state, index: int, name: string): state => {",
+              "signature": "handleApplyLazyRename = (state: state, index: int, name: string): state => {",
               "line": 58
             },
             {
               "name": "reduce",
-              "signature": "let reduce = (state: state, action: action): option<state> => {",
+              "signature": "reduce = (state: state, action: action): option<state> => {",
               "line": 62
             },
             {
               "name": "reduce",
-              "signature": "let reduce = (state: state, action: action): option<state> => {",
+              "signature": "reduce = (state: state, action: action): option<state> => {",
               "line": 79
             },
             {
               "name": "reduce",
-              "signature": "let reduce = (state: state, action: action): option<state> => {",
+              "signature": "reduce = (state: state, action: action): option<state> => {",
               "line": 122
             },
             {
               "name": "reduce",
-              "signature": "let reduce = (state: state, action: action): option<state> => {",
+              "signature": "reduce = (state: state, action: action): option<state> => {",
               "line": 159
             },
             {
-              "name": "reduce",
-              "signature": "let reduce = (state: state, action: action): option<state> => {",
-              "line": 189
+              "name": "nextAppMode",
+              "signature": "nextAppMode = AppFSM.transition(state.appMode, event)",
+              "line": 170
+            },
+            {
+              "name": "nextState",
+              "signature": "nextState = {...state, appMode: nextAppMode}",
+              "line": 171
             },
             {
               "name": "reduce",
-              "signature": "let reduce = (state: state, action: action): option<state> => {",
+              "signature": "reduce = (state: state, action: action): option<state> => {",
+              "line": 189
+            },
+            {
+              "name": "resetNavState",
+              "signature": "resetNavState = {",
+              "line": 193
+            },
+            {
+              "name": "nextState",
+              "signature": "nextState = {...state, navigationState: nextNavState}",
+              "line": 217
+            },
+            {
+              "name": "nextAppMode",
+              "signature": "nextAppMode = AppFSM.transition(state.appMode, event)",
+              "line": 239
+            },
+            {
+              "name": "nextState",
+              "signature": "nextState = {...state, appMode: nextAppMode}",
+              "line": 240
+            },
+            {
+              "name": "finalState",
+              "signature": "finalState = switch nextAppMode {",
+              "line": 243
+            },
+            {
+              "name": "reduce",
+              "signature": "reduce = (state: state, action: action): option<state> => {",
               "line": 259
             },
             {
               "name": "reduce",
-              "signature": "let reduce = (state: state, action: action): option<state> => {",
+              "signature": "reduce = (state: state, action: action): option<state> => {",
               "line": 312
             },
             {
+              "name": "item",
+              "signature": "item = SimHelpers.parseTimelineItem(json)",
+              "line": 315
+            },
+            {
+              "name": "itemOpt",
+              "signature": "itemOpt = Belt.Array.get(state.timeline, fromIdx)",
+              "line": 325
+            },
+            {
+              "name": "rest",
+              "signature": "rest = Belt.Array.keepWithIndex(state.timeline, (_, i) => i != fromIdx)",
+              "line": 328
+            },
+            {
+              "name": "newTimeline",
+              "signature": "newTimeline = UiHelpers.insertAt(rest, toIdx, item)",
+              "line": 329
+            },
+            {
               "name": "reduce",
-              "signature": "let reduce = (state: state, action: action): option<state> => {",
+              "signature": "reduce = (state: state, action: action): option<state> => {",
               "line": 346
             },
             {
               "name": "apply",
-              "signature": "let apply = (state: state, action: action, reducerFn: (state, action) => option<state>): state => {",
+              "signature": "apply = (state: state, action: action, reducerFn: (state, action) => option<state>): state => {",
               "line": 432
             },
             {
               "name": "reducer",
-              "signature": "let rec reducer = (state: state, action: action): state => {",
+              "signature": "reducer = (state: state, action: action): state => {",
               "line": 450
             }
           ],
-          "fingerprint": "821ce3f0a666d2face059a3d21bef6494d628027af877d44a0069274d62529af"
+          "fingerprint": "f83955b3476ee464a4e3f334a2ee9209e771cb20e1bd367da123e284e28696c0"
         }
       ]
     }
-  ]
+  ],
+  "timestamp": "2026-02-14T20:31:01.228167Z"
 }
