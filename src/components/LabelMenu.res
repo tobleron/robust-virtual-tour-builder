@@ -32,8 +32,23 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
     setFlickeringLabel(_ => Some(label))
 
     let suffix = switch currentScene {
-    | Some(s) => "_" ++ TourLogic.getBaseNameFromId(s.id)
-    | None => ""
+    | Some(s) =>
+      let base = TourLogic.getBaseNameFromId(s.id)
+      Logger.debug(
+        ~module_="LabelMenu",
+        ~message="SUFFIX_DEBUG",
+        ~data=Some({"id": s.id, "base": base, "raw": s.name}),
+        (),
+      )
+      "_" ++ base
+    | None =>
+      Logger.error(
+        ~module_="LabelMenu",
+        ~message="SUFFIX_DEBUG_NO_SCENE",
+        ~data=Some({"index": targetIndex, "count": Array.length(state.scenes)}),
+        (),
+      )
+      ""
     }
     let newLabel = label ++ suffix
 
@@ -43,7 +58,7 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
       Logger.info(
         ~module_="LabelMenu",
         ~message="LABEL_SET",
-        ~data=Some({"label": newLabel, "index": targetIndex}),
+        ~data=Some({"label": newLabel, "index": targetIndex, "suffix": suffix}),
         (),
       )
       NotificationManager.dispatch({
