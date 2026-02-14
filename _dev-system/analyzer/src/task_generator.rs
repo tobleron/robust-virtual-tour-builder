@@ -7,11 +7,38 @@ use std::path::{Path, PathBuf};
 
 #[derive(Debug, Clone, serde::Serialize)]
 pub enum WorkUnit {
-    Ambiguity { file: String, strategy: String },
-    Violation { file: String, pattern: String, strategy: String },
-    Surgical { file: String, action: String, reason: String, strategy: String, platform: String, complexity: f64, recommended_splits: usize },
-    Merge { folder: String, files: Vec<String>, reason: String, strategy: String, platform: String },
-    Structural { file: String, action: String, reason: String, strategy: String, platform: String },
+    Ambiguity {
+        file: String,
+        strategy: String,
+    },
+    Violation {
+        file: String,
+        pattern: String,
+        strategy: String,
+    },
+    Surgical {
+        file: String,
+        action: String,
+        reason: String,
+        strategy: String,
+        platform: String,
+        complexity: f64,
+        recommended_splits: usize,
+    },
+    Merge {
+        folder: String,
+        files: Vec<String>,
+        reason: String,
+        strategy: String,
+        platform: String,
+    },
+    Structural {
+        file: String,
+        action: String,
+        reason: String,
+        strategy: String,
+        platform: String,
+    },
 }
 
 /// Generate strategic directive for a work unit
@@ -59,7 +86,7 @@ fn sync_architectural_category(
     category_name: &str,
     platform: &str,
     units: &[String],
-    objective: &str
+    objective: &str,
 ) -> Result<Option<PathBuf>> {
     let dev_tasks_dir = "../../tasks/pending/dev_tasks";
     let platform_label = if platform.is_empty() {
@@ -90,7 +117,8 @@ fn sync_architectural_category(
     }
 
     let (path, id) = if let Some(p) = existing_path {
-        let id_str = p.file_name()
+        let id_str = p
+            .file_name()
             .and_then(|n| n.to_str())
             .and_then(|s| s.split('_').next())
             .unwrap_or("D0")
@@ -115,7 +143,10 @@ fn sync_architectural_category(
         }
         let next_id = max_id + 1;
         let id_str = format!("D{:03}", next_id);
-        (Path::new(dev_tasks_dir).join(format!("{}_{}.md", id_str, full_category_name)), id_str)
+        (
+            Path::new(dev_tasks_dir).join(format!("{}_{}.md", id_str, full_category_name)),
+            id_str,
+        )
     };
 
     // Idempotent: Overwrite the file to ensure dead tasks are removed and structure is clean
@@ -125,8 +156,15 @@ fn sync_architectural_category(
         .truncate(true)
         .open(&path)?;
 
-    file.write_all(format!("# Task {}: {}\n\n## Objective\n{}\n\n## Tasks\n",
-        id, full_category_name.replace("_", " "), objective).as_bytes())?;
+    file.write_all(
+        format!(
+            "# Task {}: {}\n\n## Objective\n{}\n\n## Tasks\n",
+            id,
+            full_category_name.replace("_", " "),
+            objective
+        )
+        .as_bytes(),
+    )?;
 
     for f in units {
         let line = if f.trim().starts_with("#") {
@@ -141,8 +179,8 @@ fn sync_architectural_category(
 
 /// Synchronize all architectural tasks with the task management system
 pub fn sync_all_architectural_tasks(
-    buffer: &HashMap<String, Vec<WorkUnit>>, 
-    config: &EfficiencyConfig
+    buffer: &HashMap<String, Vec<WorkUnit>>,
+    config: &EfficiencyConfig,
 ) -> Result<()> {
     let mut ambiguities_grouped: HashMap<(String, String), Vec<String>> = HashMap::new();
     let mut violations_fe_grouped: HashMap<(String, String), Vec<String>> = HashMap::new();
@@ -159,40 +197,81 @@ pub fn sync_all_architectural_tasks(
             let strategy = generate_strategic_directive(unit);
             match unit {
                 WorkUnit::Ambiguity { file, .. } => {
-                    ambiguities_grouped.entry(("Classify Ambiguous Files".to_string(), strategy))
+                    ambiguities_grouped
+                        .entry(("Classify Ambiguous Files".to_string(), strategy))
                         .or_default()
                         .push(format!("`{}`", file));
-                },
+                }
                 WorkUnit::Violation { file, pattern, .. } => {
                     let action = format!("Fix Pattern `{}`", pattern);
-                    let groups = if file.contains("backend") || file.ends_with(".rs") { 
-                        &mut violations_be_grouped 
-                    } else { 
-                        &mut violations_fe_grouped 
+                    let groups = if file.contains("backend") || file.ends_with(".rs") {
+                        &mut violations_be_grouped
+                    } else {
+                        &mut violations_fe_grouped
                     };
-                    groups.entry((action, strategy))
+                    groups
+                        .entry((action, strategy))
                         .or_default()
                         .push(format!("`{}`", file));
-                },
-                WorkUnit::Surgical { file, reason, platform, complexity, action, recommended_splits, .. } => {
-                    let clean_reason = reason.split(" (AI Context Fog").next().unwrap_or(reason).to_string();
-                    if platform == "backend" { 
-                        surgical_be_units.push((file.clone(), clean_reason, action.clone(), strategy, *complexity, *recommended_splits)); 
-                    } else { 
-                        surgical_fe_units.push((file.clone(), clean_reason, action.clone(), strategy, *complexity, *recommended_splits)); 
+                }
+                WorkUnit::Surgical {
+                    file,
+                    reason,
+                    platform,
+                    complexity,
+                    action,
+                    recommended_splits,
+                    ..
+                } => {
+                    let clean_reason = reason
+                        .split(" (AI Context Fog")
+                        .next()
+                        .unwrap_or(reason)
+                        .to_string();
+                    if platform == "backend" {
+                        surgical_be_units.push((
+                            file.clone(),
+                            clean_reason,
+                            action.clone(),
+                            strategy,
+                            *complexity,
+                            *recommended_splits,
+                        ));
+                    } else {
+                        surgical_fe_units.push((
+                            file.clone(),
+                            clean_reason,
+                            action.clone(),
+                            strategy,
+                            *complexity,
+                            *recommended_splits,
+                        ));
                     }
-                },
-                WorkUnit::Structural { file, reason, platform, action, .. } => {
-                    let groups = if platform == "backend" { 
-                        &mut structural_be_grouped 
-                    } else { 
-                        &mut structural_fe_grouped 
+                }
+                WorkUnit::Structural {
+                    file,
+                    reason,
+                    platform,
+                    action,
+                    ..
+                } => {
+                    let groups = if platform == "backend" {
+                        &mut structural_be_grouped
+                    } else {
+                        &mut structural_fe_grouped
                     };
-                    groups.entry((action.clone(), strategy))
+                    groups
+                        .entry((action.clone(), strategy))
                         .or_default()
                         .push(format!("**{}** (Metric: {})", file, reason));
-                },
-                WorkUnit::Merge { folder, files, reason, platform, .. } => {
+                }
+                WorkUnit::Merge {
+                    folder,
+                    files,
+                    reason,
+                    platform,
+                    ..
+                } => {
                     let mut sorted_files = files.clone();
                     sorted_files.sort();
                     let mut item = format!("Folder: `{}` (Metric: {})", folder, reason);
@@ -200,15 +279,16 @@ pub fn sync_all_architectural_tasks(
                         let full_path = Path::new(folder).join(f);
                         item.push_str(&format!("\n    - `{}`", full_path.to_string_lossy()));
                     }
-                    let groups = if platform == "backend" { 
-                        &mut merges_be_grouped 
-                    } else { 
-                        &mut merges_fe_grouped 
+                    let groups = if platform == "backend" {
+                        &mut merges_be_grouped
+                    } else {
+                        &mut merges_fe_grouped
                     };
-                    groups.entry(("Merge Fragmented Folders".to_string(), strategy))
+                    groups
+                        .entry(("Merge Fragmented Folders".to_string(), strategy))
                         .or_default()
                         .push(item);
-                },
+                }
             }
         }
     }
@@ -219,7 +299,10 @@ pub fn sync_all_architectural_tasks(
         sorted_keys.sort();
 
         for key in sorted_keys {
-            lines.push(format!("\n### 🔧 Action: {}\n**Directive:** {}\n", key.0, key.1));
+            lines.push(format!(
+                "\n### 🔧 Action: {}\n**Directive:** {}\n",
+                key.0, key.1
+            ));
             let mut items = groups.get(key).unwrap().clone();
             items.sort();
             for item in items {
@@ -229,40 +312,66 @@ pub fn sync_all_architectural_tasks(
         lines
     };
 
-    let surgical_obj = config.templates.surgical_objective
-        .replace("{nesting_w}", &format!("{:.2}", config.settings.nesting_weight))
-        .replace("{density_w}", &format!("{:.2}", config.settings.density_weight))
+    let surgical_obj = config
+        .templates
+        .surgical_objective
+        .replace(
+            "{nesting_w}",
+            &format!("{:.2}", config.settings.nesting_weight),
+        )
+        .replace(
+            "{density_w}",
+            &format!("{:.2}", config.settings.density_weight),
+        )
         .replace("{drag_t}", &format!("{:.2}", config.settings.drag_target));
 
-    let merge_obj = config.templates.merge_objective
-        .replace("{merge_t}", &format!("{:.2}", config.settings.merge_score_threshold));
+    let merge_obj = config.templates.merge_objective.replace(
+        "{merge_t}",
+        &format!("{:.2}", config.settings.merge_score_threshold),
+    );
 
     let mut role_list = String::new();
     for (role, data) in &config.taxonomy {
-        role_list.push_str(&format!("*   **{}**: {}\n", role, data.desc.as_ref().cloned().unwrap_or_default()));
+        role_list.push_str(&format!(
+            "*   **{}**: {}\n",
+            role,
+            data.desc.as_ref().cloned().unwrap_or_default()
+        ));
     }
-    let ambiguity_obj = config.templates.ambiguity_objective.replace("{roles}", &role_list);
+    let ambiguity_obj = config
+        .templates
+        .ambiguity_objective
+        .replace("{roles}", &role_list);
 
     let mut active_tasks = HashSet::new();
 
-    let sync_surgical = |units: Vec<(String, String, String, String, f64, usize)>, platform: &str| -> Result<Vec<PathBuf>> {
+    let sync_surgical = |units: Vec<(String, String, String, String, f64, usize)>,
+                         platform: &str|
+     -> Result<Vec<PathBuf>> {
         let mut paths = Vec::new();
-        let mut domain_groups: HashMap<String, Vec<(String, String, String, String, f64, usize)>> = HashMap::new();
+        let mut domain_groups: HashMap<String, Vec<(String, String, String, String, f64, usize)>> =
+            HashMap::new();
         for unit in units {
-            let parent = Path::new(&unit.0).parent()
+            let parent = Path::new(&unit.0)
+                .parent()
                 .map(|p| p.to_string_lossy().to_string())
                 .unwrap_or_default();
             domain_groups.entry(parent).or_default().push(unit);
         }
 
         for (domain, domain_units) in domain_groups {
-            let mut action_groups: HashMap<String, Vec<(String, String, String, usize)>> = HashMap::new();
-            
+            let mut action_groups: HashMap<String, Vec<(String, String, String, usize)>> =
+                HashMap::new();
+
             for (file, reason, action, strategy, _comp, splits) in domain_units {
-                action_groups.entry(action).or_default().push((file, reason, strategy, splits));
+                action_groups
+                    .entry(action)
+                    .or_default()
+                    .push((file, reason, strategy, splits));
             }
 
-            let domain_name = Path::new(&domain).file_name()
+            let domain_name = Path::new(&domain)
+                .file_name()
                 .map(|n| n.to_string_lossy().to_uppercase())
                 .unwrap_or_default();
             let category_name = format!("Surgical_Refactor_{}", domain_name);
@@ -272,7 +381,10 @@ pub fn sync_all_architectural_tasks(
             for (action, mut items) in action_groups {
                 items.sort();
                 let strategy = &items[0].2;
-                lines.push(format!("\n### 🔧 Action: {}\n**Directive:** {}\n", action, strategy));
+                lines.push(format!(
+                    "\n### 🔧 Action: {}\n**Directive:** {}\n",
+                    action, strategy
+                ));
 
                 for (file, reason, _, _) in items {
                     let entry = format!("- **{}** (Metric: {})\n", file, reason);
@@ -280,7 +392,9 @@ pub fn sync_all_architectural_tasks(
                 }
             }
 
-            if let Some(path) = sync_architectural_category(&category_name, platform, &lines, &surgical_obj)? {
+            if let Some(path) =
+                sync_architectural_category(&category_name, platform, &lines, &surgical_obj)?
+            {
                 paths.push(path);
             }
         }
@@ -288,43 +402,87 @@ pub fn sync_all_architectural_tasks(
     };
 
     // Priority Order Enforcement
-    if let Some(p) = sync_architectural_category("Classify_Ambiguous_Files", "", &format_groups(ambiguities_grouped), &ambiguity_obj)? { 
-        active_tasks.insert(p); 
+    if let Some(p) = sync_architectural_category(
+        "Classify_Ambiguous_Files",
+        "",
+        &format_groups(ambiguities_grouped),
+        &ambiguity_obj,
+    )? {
+        active_tasks.insert(p);
     }
 
-    if let Some(p) = sync_architectural_category("Structural_Refactor", "Frontend", &format_groups(structural_fe_grouped), &config.templates.structural_objective)? { 
-        active_tasks.insert(p); 
+    if let Some(p) = sync_architectural_category(
+        "Structural_Refactor",
+        "Frontend",
+        &format_groups(structural_fe_grouped),
+        &config.templates.structural_objective,
+    )? {
+        active_tasks.insert(p);
     }
-    if let Some(p) = sync_architectural_category("Structural_Refactor", "Backend", &format_groups(structural_be_grouped), &config.templates.structural_objective)? { 
-        active_tasks.insert(p); 
+    if let Some(p) = sync_architectural_category(
+        "Structural_Refactor",
+        "Backend",
+        &format_groups(structural_be_grouped),
+        &config.templates.structural_objective,
+    )? {
+        active_tasks.insert(p);
     }
 
-    if let Some(p) = sync_architectural_category("Fix_Violations", "Frontend", &format_groups(violations_fe_grouped), &config.templates.violation_objective)? { 
-        active_tasks.insert(p); 
+    if let Some(p) = sync_architectural_category(
+        "Fix_Violations",
+        "Frontend",
+        &format_groups(violations_fe_grouped),
+        &config.templates.violation_objective,
+    )? {
+        active_tasks.insert(p);
     }
-    if let Some(p) = sync_architectural_category("Fix_Violations", "Backend", &format_groups(violations_be_grouped), &config.templates.violation_objective)? { 
-        active_tasks.insert(p); 
+    if let Some(p) = sync_architectural_category(
+        "Fix_Violations",
+        "Backend",
+        &format_groups(violations_be_grouped),
+        &config.templates.violation_objective,
+    )? {
+        active_tasks.insert(p);
     }
 
     active_tasks.extend(sync_surgical(surgical_fe_units, "Frontend")?);
     active_tasks.extend(sync_surgical(surgical_be_units, "Backend")?);
 
-    if let Some(p) = sync_architectural_category("Merge_Folders", "Frontend", &format_groups(merges_fe_grouped), &merge_obj)? { 
-        active_tasks.insert(p); 
+    if let Some(p) = sync_architectural_category(
+        "Merge_Folders",
+        "Frontend",
+        &format_groups(merges_fe_grouped),
+        &merge_obj,
+    )? {
+        active_tasks.insert(p);
     }
-    if let Some(p) = sync_architectural_category("Merge_Folders", "Backend", &format_groups(merges_be_grouped), &merge_obj)? { 
-        active_tasks.insert(p); 
+    if let Some(p) = sync_architectural_category(
+        "Merge_Folders",
+        "Backend",
+        &format_groups(merges_be_grouped),
+        &merge_obj,
+    )? {
+        active_tasks.insert(p);
     }
 
     // Zombie Elimination (only in dev_tasks folder)
     let dev_tasks_dir = "../../tasks/pending/dev_tasks";
-    let arch_patterns = ["Surgical_Refactor_", "Merge_Folders_", "Fix_Violations_", "Structural_Refactor_", "Classify_Ambiguous_Files"];
+    let arch_patterns = [
+        "Surgical_Refactor_",
+        "Merge_Folders_",
+        "Fix_Violations_",
+        "Structural_Refactor_",
+        "Classify_Ambiguous_Files",
+    ];
 
     if let Ok(entries) = fs::read_dir(dev_tasks_dir) {
         for entry in entries.filter_map(|e| e.ok()) {
             let path = entry.path();
-            if !path.is_file() { continue; }
-            let name = path.file_name()
+            if !path.is_file() {
+                continue;
+            }
+            let name = path
+                .file_name()
                 .map(|n| n.to_string_lossy())
                 .unwrap_or_default();
 

@@ -1,3 +1,28 @@
+# 📂 Project Directory Tree
+
+```
+/ 
+├── [src/](src/) – ReScript frontend (components, systems, hooks, utils, bindings, and FSMs).
+│   ├── [components/](src/components/) – UI widgets and HUD overlays.
+│   ├── [systems/](src/systems/) – Business logic, navigation, upload, and viewer orchestration.
+│   ├── [core/](src/core/) – Immutable state, reducers, actions, helpers, and JSON parsers.
+│   ├── [hooks/](src/hooks/) – Shared React hooks and policies.
+│   ├── [utils/](src/utils/) – Persistence, logging, concurrency, and math utilities.
+│   ├── [bindings/](src/bindings/) – Browser and viewer bindings.
+│   ├── [i18n/](src/i18n/) – Internationalization resources.
+│   └── [ReBindings.res](src/ReBindings.res), [Main.res](src/Main.res), and service worker entrypoints.
+├── [public/](public/) – Static assets and manifest files for PWA deployment.
+├── [css/](css/) – Tailwind CSS config, global styles, and generated artifacts.
+├── [backend/](backend/) – Rust backend (Actix-web) with [src/](backend/src/) for API, services, and pathfinding.
+├── [tests/](tests/) – Vitest unit suites and Playwright end-to-end tests.
+├── [docs/](docs/) – Supplemental documentation, runbooks, and guides.
+├── [scripts/](scripts/) – Automation helpers (lint, fast-commit, diagnostics).
+├── [tasks/](tasks/) – Workflow definitions and pending/active/completed tasks.
+├── [dist/](dist/) – Built artifacts.
+├── [data/](data/) & [cache/](cache/) – Supporting datasets and caches.
+└── [node_modules/](node_modules/) – Installed dependencies (generated).
+```
+
 # 🗺️ Robust Virtual Tour Builder - Codebase Map
 
 This map provides a semantic overview of the project structure to optimize context acquisition and pinpoint intent through tagging.

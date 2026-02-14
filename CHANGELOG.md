@@ -5,10 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.10.2] - 2026-02-14
+## [4.10.3] - 2026-02-14
 
 ### Changed
-- Add testing coverage tasks 1372-1375
+- Harden task aggregation policy and perform massive cleanup
+
+## [4.11.0] - 2026-02-14
+
+### Changed
+- **Task Maintenance Policy**: Hardened `_dev-system` analyzer to trigger completed task aggregation at >20 files (was 90) and maintain only the 10 most recent tasks for extreme directory leaness.
+- **Project History**: Aggregated 130+ legacy task files (1230-1357) into `_CONCISE_SUMMARY.md` and purged archived `.md` artifacts.
+
+## [4.10.2] - 2026-02-14
 
 ## [4.10.1] - 2026-02-14
 

@@ -1,55 +1,5 @@
 {
-  "system": [
-    {
-      "Merge": {
-        "folder": "../../src/components/VisualPipeline",
-        "files": [
-          "VisualPipelineStyles.res",
-          "VisualPipelineComponent.res"
-        ],
-        "reason": "Read Tax high (Score 2.00). Projected Limit: 300 (Drag 3.30)",
-        "strategy": "",
-        "platform": "frontend"
-      }
-    }
-  ],
   "rescript": [
-    {
-      "Surgical": {
-        "file": "../../src/systems/ViewerSystem.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.20, Density: 0.51, Coupling: 0.08] | Drag: 5.75 | LOC: 379/300  🎯 Target: Function: `elOpt` (High Local Complexity (6.9). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 13.648812664907652,
-        "recommended_splits": 2
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/hooks/UseInteraction.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/SceneMutations.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 5.40, Density: 0.25, Coupling: 0.05] | Drag: 6.67 | LOC: 405/300  🎯 Target: Function: `getDeletedIds` (High Local Complexity (3.5). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 17.174074074074074,
-        "recommended_splits": 2
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/components/ViewerHUD.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
     {
       "Violation": {
         "file": "../../src/systems/Api/AuthenticatedClient.res",
@@ -58,20 +8,13 @@
       }
     },
     {
-      "Violation": {
-        "file": "../../src/core/JsonParsersDecoders.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
       "Surgical": {
-        "file": "../../src/core/Reducer.res",
+        "file": "../../src/components/Sidebar.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 5.40, Density: 0.28, Coupling: 0.10] | Drag: 6.68 | LOC: 409/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.)",
+        "reason": "[Nesting: 3.00, Density: 0.03, Coupling: 0.08] | Drag: 4.09 | LOC: 406/300  🎯 Target: Function: `make` (High Local Complexity (13.5). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 17.58361858190709,
+        "complexity": 14.6935960591133,
         "recommended_splits": 2
       }
     },
@@ -88,17 +31,6 @@
     },
     {
       "Surgical": {
-        "file": "../../src/components/Sidebar.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.03, Coupling: 0.08] | Drag: 4.09 | LOC: 406/300  🎯 Target: Function: `make` (High Local Complexity (13.5). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 14.6935960591133,
-        "recommended_splits": 2
-      }
-    },
-    {
-      "Surgical": {
         "file": "../../src/systems/Scene/SceneLoader.res",
         "action": "De-bloat",
         "reason": "[Nesting: 4.20, Density: 0.10, Coupling: 0.07] | Drag: 5.32 | LOC: 408/300  🎯 Target: Function: `taskMismatch` (High Local Complexity (2.0). Logic heavy.)",
@@ -106,6 +38,13 @@
         "platform": "frontend",
         "complexity": 16.115196078431374,
         "recommended_splits": 2
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/components/ViewerHUD.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
       }
     },
     {
@@ -117,6 +56,53 @@
         "platform": "frontend",
         "complexity": 15.700992555831267,
         "recommended_splits": 2
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/SceneMutations.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 5.40, Density: 0.25, Coupling: 0.05] | Drag: 6.67 | LOC: 405/300  🎯 Target: Function: `getDeletedIds` (High Local Complexity (3.5). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 17.174074074074074,
+        "recommended_splits": 2
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/Reducer.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 5.40, Density: 0.28, Coupling: 0.10] | Drag: 6.68 | LOC: 409/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 17.58361858190709,
+        "recommended_splits": 2
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/hooks/UseInteraction.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ViewerSystem.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.20, Density: 0.51, Coupling: 0.08] | Drag: 5.75 | LOC: 379/300  🎯 Target: Function: `elOpt` (High Local Complexity (6.9). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 13.648812664907652,
+        "recommended_splits": 2
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/core/JsonParsersDecoders.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
       }
     },
     {
@@ -138,17 +124,31 @@
       }
     }
   ],
+  "system": [
+    {
+      "Merge": {
+        "folder": "../../src/components/VisualPipeline",
+        "files": [
+          "VisualPipelineStyles.res",
+          "VisualPipelineComponent.res"
+        ],
+        "reason": "Read Tax high (Score 2.00). Projected Limit: 300 (Drag 3.30)",
+        "strategy": "",
+        "platform": "frontend"
+      }
+    }
+  ],
   "rust": [
     {
       "Violation": {
-        "file": "../../backend/src/services/media/naming.rs",
+        "file": "../../backend/src/metrics.rs",
         "pattern": "unwrap()",
         "strategy": ""
       }
     },
     {
       "Violation": {
-        "file": "../../backend/src/metrics.rs",
+        "file": "../../backend/src/services/media/naming.rs",
         "pattern": "unwrap()",
         "strategy": ""
       }

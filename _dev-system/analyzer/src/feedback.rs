@@ -1,6 +1,6 @@
+use regex::Regex;
 use std::collections::HashSet;
 use std::fs;
-use regex::Regex;
 
 pub fn get_recent_failures() -> HashSet<String> {
     let mut failed_modules = HashSet::new();
@@ -46,8 +46,12 @@ fn extract_failures(content: &str, set: &mut HashSet<String>) {
                 if let Some(m) = cap.get(1) {
                     let module = m.as_str();
                     // Basic filtering of common words that look like modules
-                    if module != "Error" && module != "Fail" && module != "Test" && module != "React" {
-                         set.insert(module.to_string());
+                    if module != "Error"
+                        && module != "Fail"
+                        && module != "Test"
+                        && module != "React"
+                    {
+                        set.insert(module.to_string());
                     }
                 }
             }

@@ -70,8 +70,9 @@ impl AnalyzerState {
         if let Some(entry) = self.files.get(file_path) {
             // If recently failed, increase drag significantly
             if let Some(ts) = entry.last_failure_timestamp {
-                if now().saturating_sub(ts) < 86400 { // Failed in last 24h
-                     return 1.5;
+                if now().saturating_sub(ts) < 86400 {
+                    // Failed in last 24h
+                    return 1.5;
                 }
             }
         }
@@ -81,9 +82,9 @@ impl AnalyzerState {
     pub fn is_locked(&self, file_path: &str) -> bool {
         if let Some(entry) = self.files.get(file_path) {
             // Lock if action was taken less than 1 hour ago
-             if now().saturating_sub(entry.last_action_timestamp) < 3600 {
-                 return true;
-             }
+            if now().saturating_sub(entry.last_action_timestamp) < 3600 {
+                return true;
+            }
         }
         false
     }

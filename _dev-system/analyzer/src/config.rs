@@ -1,6 +1,6 @@
+use anyhow::{Context, Result};
 use serde::Deserialize;
 use std::collections::HashMap;
-use anyhow::{Context, Result};
 use std::fs;
 
 #[derive(Debug, Deserialize)]
@@ -14,6 +14,8 @@ pub struct EfficiencyConfig {
     pub taxonomy: HashMap<String, TaxonomyRole>,
     pub exceptions: Option<Vec<ExceptionRule>>,
     pub protected_patterns: Option<Vec<String>>,
+    #[serde(default)]
+    pub map_tree: Option<MapTreeConfig>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -61,6 +63,22 @@ pub struct TaxonomyRole {
     pub desc: Option<String>,
 }
 
+fn default_map_tree_bool() -> bool {
+    true
+}
+
+#[derive(Debug, Deserialize)]
+pub struct MapTreeConfig {
+    #[serde(default)]
+    pub ignored_entries: Vec<String>,
+    #[serde(default)]
+    pub ignored_prefixes: Vec<String>,
+    #[serde(default = "default_map_tree_bool")]
+    pub ignore_hidden: bool,
+    #[serde(default = "default_map_tree_bool")]
+    pub detect_extra_entries: bool,
+}
+
 impl EfficiencyConfig {
     /// Load configuration from the default path
     pub fn load() -> Result<Self> {
@@ -71,10 +89,10 @@ impl EfficiencyConfig {
     pub fn load_from(path: &str) -> Result<Self> {
         let config_raw = fs::read_to_string(path)
             .with_context(|| format!("Failed to read config file: {}", path))?;
-        
+
         let config: EfficiencyConfig = serde_json::from_str(&config_raw)
             .with_context(|| format!("Failed to parse config file: {}", path))?;
-        
+
         Ok(config)
     }
 }
