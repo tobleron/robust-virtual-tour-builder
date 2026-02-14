@@ -249,7 +249,7 @@ describe("ViewerManager", () => {
     let active = ViewerSystem.Pool.getActive()
     t->expect(active->Belt.Option.isSome)->Expect.toBe(true)
     let viewport = active->Belt.Option.getExn
-    t->expect(viewport.ViewerSystem.Pool.instance)->Expect.toBe(None)
+    t->expect(viewport.instance)->Expect.toBe(None)
 
     let panoA = Dom.getElementById("panorama-a")
     let isActive = switch Nullable.toOption(panoA) {
