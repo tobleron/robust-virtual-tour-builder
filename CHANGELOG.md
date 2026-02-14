@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Ui: reduce watermark border radius to 4px
 - Ui: make logo border 100% opacity
 - Ui: reduce logo border radius to 2px
+- Ui: implement perfect mask clipping for logo corners
 
 ## [4.6.4] - 2026-02-14
 
