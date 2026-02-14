@@ -8,13 +8,7 @@ let make = React.memo(() => {
   let uiSlice = AppContext.useUiSlice()
   let isSystemLocked = AppContext.useIsSystemLocked()
   let dispatch = AppContext.useAppDispatch()
-  let appState = AppContext.useAppState()
-  let stateRef = React.useRef(appState)
-  React.useEffect1(() => {
-    stateRef.current = appState
-    None
-  }, [appState])
-  let getState = () => stateRef.current
+  let getState = AppContext.getBridgeState
 
   let (_draggedIndex, setDraggedIndex) = React.useState(_ => None)
 

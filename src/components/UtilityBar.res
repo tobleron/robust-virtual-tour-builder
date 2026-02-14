@@ -3,13 +3,6 @@
 @react.component
 let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId) => {
   let dispatch = AppContext.useAppDispatch()
-  let appState = AppContext.useAppState()
-  let stateRef = React.useRef(appState)
-  React.useEffect1(() => {
-    stateRef.current = appState
-    None
-  }, [appState])
-  let getState = () => stateRef.current
 
   let handleFabClick = React.useMemo1(() =>
     e => {
@@ -42,44 +35,14 @@ let make = React.memo((~scenesLoaded, ~isLinking, ~simActive, ~currentJourneyId)
 
         let v = Nullable.toOption(ViewerSystem.getActiveViewer())
         switch v {
-        | Some(viewer) =>
-          let currentYaw = ReBindings.Viewer.getYaw(viewer)
-          let currentPitch = ReBindings.Viewer.getPitch(viewer)
-          let currentHfov = ReBindings.Viewer.getHfov(viewer)
-
-          let initialDraft: Types.linkDraft = {
-            yaw: currentYaw,
-            pitch: currentPitch,
-            camYaw: currentYaw,
-            camPitch: currentPitch,
-            camHfov: currentHfov,
-            intermediatePoints: None,
-          }
-
-          dispatch(Actions.StartLinking(Some(initialDraft)))
-
-          let _ = ReBindings.Window.setTimeout(
-            () => {
-              LinkModal.showLinkModal(
-                ~pitch=currentPitch,
-                ~yaw=currentYaw,
-                ~camPitch=currentPitch,
-                ~camYaw=currentYaw,
-                ~camHfov=currentHfov,
-                ~linkDraft=Nullable.make(initialDraft),
-                ~getState,
-                ~dispatch,
-                (),
-              )
-            },
-            50,
-          )
+        | Some(_viewer) =>
+          dispatch(Actions.StartLinking(None))
 
           NotificationManager.dispatch({
             id: "linking-info",
             importance: Info,
             context: Operation("utility_bar"),
-            message: "Link Mode: Choose Destination",
+            message: "Link Mode: Click viewer to place link, ENTER to save",
             details: None,
             action: None,
             duration: NotificationTypes.defaultTimeoutMs(Info),
