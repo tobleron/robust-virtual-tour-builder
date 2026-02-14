@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Support fast logo format detection (jpeg/png/webp) in viewer HUD and exporter
 
+### Changed
+- Ui: remove white border from viewer logo and use transparent overlay
+
 ## [4.6.2] - 2026-02-14
 
 ### Changed
