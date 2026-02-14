@@ -18,6 +18,6 @@
 ### Merge Folder: `../../src/systems/Project`
 - **Reason:** Read Tax high (Score 3.00). Projected Limit: 300 (Drag 4.92)
 - **Files:**
-  - `../../src/systems/Project/ProjectLoader.res`
   - `../../src/systems/Project/ProjectValidator.res`
+  - `../../src/systems/Project/ProjectLoader.res`
   - `../../src/systems/Project/ProjectSaver.res`

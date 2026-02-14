@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - V4.10.4+3 [TRIPLE]: upgrade spec_diff to Semantic AST (Tree-sitter) & implement 30-day baseline expiry
 - V4.10.4+4 [TRIPLE]: analyzer audit complete, tasks refreshed, D003 resolved
 - V4.10.4+5 [TRIPLE]: documentation alignment complete - modules classified in MAP.md and integrated into DATA_FLOW.md
+- V4.10.4+6 [TRIPLE]: resolve D018 by fixing analyzer tree check bug, finalize VisualPipeline merge, and refresh tasks
 
 ## [4.10.3] - 2026-02-14
 

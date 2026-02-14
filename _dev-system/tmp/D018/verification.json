@@ -1,0 +1,339 @@
+{
+  "task": "D018",
+  "category": "Surgical_Refactor_COMPONENTS_FRONTEND",
+  "baseline_dir": "_dev-system/tmp/D018",
+  "bundles": [
+    {
+      "headline": "Pre-split snapshot for `src/components/VisualPipeline.res`",
+      "snapshots": [
+        {
+          "path": "src/components/VisualPipeline.res",
+          "functions": [
+            {
+              "name": "handleDragStart",
+              "signature": "handleDragStart = (pipeline: t, e) => {",
+              "line": 18
+            },
+            {
+              "name": "target",
+              "signature": "target = Dom.target(e)",
+              "line": 19
+            },
+            {
+              "name": "id",
+              "signature": "id = Dict.get(Dom.dataset(target), \"id\")->Option.getOr(\"\")",
+              "line": 20
+            },
+            {
+              "name": "handleDragEnd",
+              "signature": "handleDragEnd = (pipeline: t, e) => {",
+              "line": 26
+            },
+            {
+              "name": "target",
+              "signature": "target = Dom.target(e)",
+              "line": 27
+            },
+            {
+              "name": "handleDragOver",
+              "signature": "handleDragOver = e => {",
+              "line": 33
+            },
+            {
+              "name": "handleDragEnter",
+              "signature": "handleDragEnter = e => {",
+              "line": 37
+            },
+            {
+              "name": "target",
+              "signature": "target = Dom.target(e)",
+              "line": 38
+            },
+            {
+              "name": "handleDragLeave",
+              "signature": "handleDragLeave = e => {",
+              "line": 42
+            },
+            {
+              "name": "target",
+              "signature": "target = Dom.target(e)",
+              "line": 43
+            },
+            {
+              "name": "handleDrop",
+              "signature": "handleDrop = (",
+              "line": 47
+            },
+            {
+              "name": "target",
+              "signature": "target = Dom.target(e)",
+              "line": 54
+            },
+            {
+              "name": "dropIndex",
+              "signature": "dropIndex =",
+              "line": 57
+            },
+            {
+              "name": "state",
+              "signature": "state = getState()",
+              "line": 64
+            },
+            {
+              "name": "sourceIndex",
+              "signature": "sourceIndex =",
+              "line": 65
+            },
+            {
+              "name": "finalIndex",
+              "signature": "finalIndex = if dropIndex > sourceIndex {",
+              "line": 69
+            },
+            {
+              "name": "createDropZone",
+              "signature": "createDropZone = (pipeline: t, index: int, ~getState, ~dispatch) => {",
+              "line": 89
+            },
+            {
+              "name": "zone",
+              "signature": "zone = Dom.createElement(\"div\")",
+              "line": 90
+            },
+            {
+              "name": "_",
+              "signature": "_ = handleDragOver(e)",
+              "line": 95
+            },
+            {
+              "name": "render",
+              "signature": "render = (pipeline: t, state: Types.state, ~getState, ~dispatch) => {",
+              "line": 108
+            },
+            {
+              "name": "track",
+              "signature": "track = Dom.querySelector(pipeline.wrapper, \".pipeline-track\")",
+              "line": 121
+            },
+            {
+              "name": "fragment",
+              "signature": "fragment = Dom.createDocumentFragment()",
+              "line": 124
+            },
+            {
+              "name": "firstZone",
+              "signature": "firstZone = createDropZone(pipeline, 0, ~getState, ~dispatch)",
+              "line": 126
+            },
+            {
+              "name": "node",
+              "signature": "node = Dom.createElement(\"div\")",
+              "line": 131
+            },
+            {
+              "name": "activateNode",
+              "signature": "activateNode = () => {",
+              "line": 139
+            },
+            {
+              "name": "sceneIdx",
+              "signature": "sceneIdx =",
+              "line": 147
+            },
+            {
+              "name": "hotspot",
+              "signature": "hotspot = s.hotspots->Belt.Array.getBy(h => h.linkId == item.linkId)",
+              "line": 154
+            },
+            {
+              "name": "scene",
+              "signature": "scene = state.scenes->Belt.Array.getBy(s => s.id == item.sceneId)",
+              "line": 164
+            },
+            {
+              "name": "color",
+              "signature": "color = ref(\"var(--success-dark)\")",
+              "line": 165
+            },
+            {
+              "name": "isActive",
+              "signature": "isActive = switch state.activeTimelineStepId {",
+              "line": 178
+            },
+            {
+              "name": "firstMatchIdx",
+              "signature": "firstMatchIdx =",
+              "line": 183
+            },
+            {
+              "name": "key",
+              "signature": "key = Dom.key(e)",
+              "line": 198
+            },
+            {
+              "name": "thumbUrl",
+              "signature": "thumbUrl = ref(\"\")",
+              "line": 221
+            },
+            {
+              "name": "thumbName",
+              "signature": "thumbName = ref(\"Unknown Scene\")",
+              "line": 222
+            },
+            {
+              "name": "file",
+              "signature": "file = switch sc.tinyFile {",
+              "line": 229
+            },
+            {
+              "name": "url",
+              "signature": "url = UrlUtils.fileToUrl(file)",
+              "line": 233
+            },
+            {
+              "name": "targetScene",
+              "signature": "targetScene = state.scenes->Belt.Array.getBy(s => s.name == item.targetScene)",
+              "line": 240
+            },
+            {
+              "name": "isAutoForward",
+              "signature": "isAutoForward = switch targetScene {",
+              "line": 241
+            },
+            {
+              "name": "tooltip",
+              "signature": "tooltip = Dom.createElement(\"div\")",
+              "line": 246
+            },
+            {
+              "name": "linkIdSpan",
+              "signature": "linkIdSpan = Dom.createElement(\"span\")",
+              "line": 249
+            },
+            {
+              "name": "img",
+              "signature": "img = Dom.createElement(\"img\")",
+              "line": 255
+            },
+            {
+              "name": "textSpan",
+              "signature": "textSpan = Dom.createElement(\"span\")",
+              "line": 262
+            },
+            {
+              "name": "indicator",
+              "signature": "indicator = Dom.createElement(\"span\")",
+              "line": 270
+            },
+            {
+              "name": "nextZone",
+              "signature": "nextZone = InternalLogic.createDropZone(pipeline, index + 1, ~getState, ~dispatch)",
+              "line": 278
+            },
+            {
+              "name": "nodeSize",
+              "signature": "nodeSize = 22",
+              "line": 295
+            },
+            {
+              "name": "styles",
+              "signature": "styles =",
+              "line": 297
+            },
+            {
+              "name": "render",
+              "signature": "render = InternalRender.render",
+              "line": 454
+            },
+            {
+              "name": "injectStyles",
+              "signature": "injectStyles = () => {",
+              "line": 456
+            },
+            {
+              "name": "existing",
+              "signature": "existing = Dom.getElementById(\"visual-pipeline-styles\")",
+              "line": 457
+            },
+            {
+              "name": "style",
+              "signature": "style = Dom.createElement(\"style\")",
+              "line": 462
+            },
+            {
+              "name": "initByElement",
+              "signature": "initByElement = (c: Dom.element) => {",
+              "line": 469
+            },
+            {
+              "name": "wrapper",
+              "signature": "wrapper = Dom.createElement(\"div\")",
+              "line": 473
+            },
+            {
+              "name": "track",
+              "signature": "track = Dom.createElement(\"div\")",
+              "line": 476
+            },
+            {
+              "name": "pipeline",
+              "signature": "pipeline = {",
+              "line": 482
+            },
+            {
+              "name": "init",
+              "signature": "init = (containerId: string) => {",
+              "line": 492
+            },
+            {
+              "name": "container",
+              "signature": "container = Dom.getElementById(containerId)",
+              "line": 493
+            },
+            {
+              "name": "make",
+              "signature": "make = () => {",
+              "line": 501
+            },
+            {
+              "name": "containerRef",
+              "signature": "containerRef = React.useRef(Nullable.null)",
+              "line": 504
+            },
+            {
+              "name": "appState",
+              "signature": "appState = AppContext.useAppState()",
+              "line": 506
+            },
+            {
+              "name": "dispatch",
+              "signature": "dispatch = AppContext.useAppDispatch()",
+              "line": 507
+            },
+            {
+              "name": "stateRef",
+              "signature": "stateRef = React.useRef(appState)",
+              "line": 508
+            },
+            {
+              "name": "getState",
+              "signature": "getState = () => stateRef.current",
+              "line": 513
+            },
+            {
+              "name": "pipelineRef",
+              "signature": "pipelineRef = React.useRef(None)",
+              "line": 515
+            },
+            {
+              "name": "pipeline",
+              "signature": "pipeline = initByElement(c)",
+              "line": 520
+            }
+          ],
+          "fingerprint": "5793ffa219c836c4dcc899ef337a7e1c086bc12bf52a465811a1e09c147a8b90"
+        }
+      ]
+    }
+  ],
+  "timestamp": "2026-02-14T20:42:11.711260Z"
+}
