@@ -21,89 +21,12 @@ module Adapter = {
   let name = "Pannellum"
 
   let initialize = (id, config) => {
-    let v = Pannellum.viewer(id, config)
-
-    let lastDown = ref(None)
-
-    let elOpt = Dom.getElementById(id)
-    switch Nullable.toOption(elOpt) {
-    | Some(element) =>
-      Dom.addEventListener(element, "mousedown", e => {
-        let clientX = e->Dom.clientX->Int.toFloat
-        let clientY = e->Dom.clientY->Int.toFloat
-        lastDown := Some((clientX, clientY, Date.now()))
-      })
-
-      Dom.addEventListener(element, "mouseup", e => {
-        // CRITICAL: Guard against interaction before viewer is ready or after destruction
-        if Viewer.isLoaded(v) {
-          let clientX = e->Dom.clientX->Int.toFloat
-          let clientY = e->Dom.clientY->Int.toFloat
-
-          switch lastDown.contents {
-          | Some((x, y, t)) =>
-            let diffX = Math.abs(clientX -. x)
-            let diffY = Math.abs(clientY -. y)
-            let diffT = Date.now() -. t
-
-            if diffX < 5.0 && diffY < 5.0 && diffT < 500.0 {
-              let asEvent: Dom.event => Viewer.mouseEvent = %raw(`function(e) { return { clientX: e.clientX, clientY: e.clientY }; }`)
-              let coords = Viewer.mouseEventToCoords(v, asEvent(e))
-
-              let p = Belt.Array.get(coords, 0)->Option.getOr(0.0)
-              let y = Belt.Array.get(coords, 1)->Option.getOr(0.0)
-
-              let cp = Viewer.getPitch(v)
-              let cy = Viewer.getYaw(v)
-              let hf = Viewer.getHfov(v)
-
-              let dispatchEvent: (float, float, float, float, float) => unit = %raw(`
-                     function(p, y, cp, cy, hf) {
-                       window.document.dispatchEvent(new CustomEvent("viewer-click", {
-                         detail: {
-                           pitch: p,
-                           yaw: y,
-                           camPitch: cp,
-                           camYaw: cy,
-                           camHfov: hf
-                         }
-                       }));
-                     }
-                   `)
-              dispatchEvent(p, y, cp, cy, hf)
-
-              Logger.info(~module_="ViewerSystem", ~message="VIEWER_CLICK_DISPATCHED", ())
-            }
-          | None => ()
-          }
-        }
-        lastDown := None
-      })
-    | None => Logger.warn(~module_="ViewerSystem", ~message="CONTAINER_NOT_FOUND_FOR_EVENTS", ())
-    }
-
-    v
+    ViewerAdapter.initialize(id, config)
   }
   let initializeViewer = initialize
 
   let destroy = v => {
-    let _ = %raw(`
-      (v) => {
-        if (!v) return;
-        try {
-          if (v.destroy) {
-            v.destroy();
-          }
-        } catch(e) {
-          console.warn("[ViewerSystem] Pannellum destroy error caught:", e);
-        }
-        
-        try {
-          v._sceneId = null;
-          v._isLoaded = null;
-        } catch(e) {}
-      }
-    `)(v)
+    ViewerAdapter.destroy(v)
   }
 
   let getPitch = v => Viewer.getPitch(v)
@@ -113,143 +36,54 @@ module Adapter = {
   let setYaw = (v, y, a) => Viewer.setYaw(v, y, a)
   let setHfov = (v, h, a) => Viewer.setHfov(v, h, a)
   let setView = (v, ~pitch=?, ~yaw=?, ~hfov=?, ~animated=false, ()) => {
-    pitch->Option.forEach(p => Viewer.setPitch(v, p, animated))
-    yaw->Option.forEach(y => Viewer.setYaw(v, y, animated))
-    hfov->Option.forEach(h => Viewer.setHfov(v, h, animated))
+    ViewerAdapter.setView(v, ~pitch?, ~yaw?, ~hfov?, ~animated, ())
   }
   let addHotSpot = (v, config) => Viewer.addHotSpot(v, config)
   let removeHotSpot = (v, id) => Viewer.removeHotSpot(v, id)
   let getScene = v => Viewer.getScene(v)
   let loadScene = (v, sceneId, ~pitch=?, ~yaw=?, ~hfov=?, ()) => {
-    let p = pitch->Option.getOr(Viewer.getPitch(v))
-    let y = yaw->Option.getOr(Viewer.getYaw(v))
-    let h = hfov->Option.getOr(Viewer.getHfov(v))
-    Viewer.loadScene(v, sceneId, p, y, h)
+    ViewerAdapter.loadScene(v, sceneId, ~pitch?, ~yaw?, ~hfov?, ())
   }
   let addScene = (v, id, config) => Viewer.addScene(v, id, config)
   let on = (v, ev, cb) => Viewer.on(v, ev, cb)
   let isLoaded = v => Viewer.isLoaded(v)
   let setMetaData = (v, key, value) => {
-    let c = asCustom(v)
-    if key == "sceneId" {
-      setSceneId(c, identity(value))
-    } else if key == "isLoaded" {
-      setIsLoaded(c, identity(value))
-    }
+    ViewerAdapter.setMetaData(v, key, value)
   }
   let getMetaData = (v, key) => {
-    let c = asCustom(v)
-    if key == "sceneId" {
-      Some(identity(getSceneId(c)))
-    } else if key == "isLoaded" {
-      Some(identity(getIsLoaded(c)))
-    } else {
-      None
-    }
+    ViewerAdapter.getMetaData(v, key)
   }
 }
 
 // --- POOL (from ViewerPool.res) ---
 
 module Pool = {
-  type status = [#Free | #Active | #Background]
-  type viewport = {
-    id: string,
-    containerId: string,
-    instance: option<Adapter.t>,
-    status: status,
-    cleanupTimeout: option<int>,
-  }
-  let pool = ref([
-    {
-      id: "primary-a",
-      containerId: "panorama-a",
-      instance: None,
-      status: #Active,
-      cleanupTimeout: None,
-    },
-    {
-      id: "primary-b",
-      containerId: "panorama-b",
-      instance: None,
-      status: #Background,
-      cleanupTimeout: None,
-    },
-  ])
+  type status = ViewerPool.status
+  type viewport = ViewerPool.viewport
+
+  let pool = ViewerPool.pool
+
+  // Revert accessors to original logic, but using the aliased 'pool' ref
   let getViewport = id => pool.contents->Belt.Array.getBy(v => v.id == id)
   let getViewportByContainer = cId => pool.contents->Belt.Array.getBy(v => v.containerId == cId)
   let getActive = () => pool.contents->Belt.Array.getBy(v => v.status == #Active)
   let getActiveViewer = () => getActive()->Option.flatMap(v => v.instance)
   let getInactive = () => pool.contents->Belt.Array.getBy(v => v.status == #Background)
   let getInactiveViewer = () => getInactive()->Option.flatMap(v => v.instance)
+
   let swapActive = () =>
-    pool :=
-      pool.contents->Belt.Array.map(v => {
-        ...v,
-        status: switch v.status {
-        | #Active => #Background
-        | #Background => #Active
-        | #Free => #Free
-        },
-      })
+    ViewerPool.swapActive()
   let registerInstance = (cId, inst) =>
-    pool :=
-      pool.contents->Belt.Array.map(v =>
-        if v.containerId == cId {
-          {...v, instance: Some(inst)}
-        } else {
-          v
-        }
-      )
+    ViewerPool.registerInstance(cId, inst)
   let clearInstance = cId =>
-    pool :=
-      pool.contents->Belt.Array.map(v =>
-        if v.containerId == cId {
-          {...v, instance: None}
-        } else {
-          v
-        }
-      )
+    ViewerPool.clearInstance(cId)
   let setCleanupTimeout = (id, t) =>
-    pool :=
-      pool.contents->Belt.Array.map(v =>
-        if v.id == id {
-          v.cleanupTimeout->Option.forEach(Window.clearTimeout)
-          {...v, cleanupTimeout: t}
-        } else {
-          v
-        }
-      )
+    ViewerPool.setCleanupTimeout(id, t)
   let clearCleanupTimeout = id =>
-    pool :=
-      pool.contents->Belt.Array.map(v =>
-        if v.id == id {
-          v.cleanupTimeout->Option.forEach(Window.clearTimeout)
-          {...v, cleanupTimeout: None}
-        } else {
-          v
-        }
-      )
+    ViewerPool.clearCleanupTimeout(id)
 
   let reset = () => {
-    pool :=
-      pool.contents->Belt.Array.map(v => {
-        switch v.instance {
-        | Some(i) => i->Adapter.destroy
-        | None => ()
-        }
-        {
-          ...v,
-          instance: None,
-          status: if v.id == "primary-a" {
-            #Active
-          } else if v.id == "primary-b" {
-            #Background
-          } else {
-            #Free
-          },
-        }
-      })
+    ViewerPool.reset()
   }
 }
 
@@ -257,105 +91,11 @@ module Pool = {
 
 module Follow = {
   let isInsideDeadZone = (startPt, lastMouse) => {
-    switch (startPt, lastMouse) {
-    | (Some(st), Some(ev)) =>
-      let d = Math.sqrt(
-        (Belt.Int.toFloat(Dom.clientX(ev)) -. st["x"]) ** 2.0 +.
-          (Belt.Int.toFloat(Dom.clientY(ev)) -. st["y"]) ** 2.0,
-      )
-      if d > 150.0 {
-        (false, true)
-      } else {
-        (true, false)
-      }
-    | (Some(_), None) => (true, false)
-    | _ => (false, false)
-    }
+    ViewerFollow.isInsideDeadZone(startPt, lastMouse)
   }
 
-  let rec updateFollowLoop = (~getState: unit => state) => {
-    let busy =
-      Dom.getElementById("processing-ui")
-      ->Nullable.toOption
-      ->Option.map(el => !(Dom.classList(el)->Dom.ClassList.contains("hidden")))
-      ->Option.getOr(false)
-    if !busy {
-      let vOpt = Pool.getActiveViewer()
-      let s = getState()
-      let hasHotspots = if s.activeIndex >= 0 && s.activeIndex < Array.length(s.scenes) {
-        s.scenes[s.activeIndex]
-        ->Option.map(sc => Array.length(sc.hotspots) > 0)
-        ->Option.getOr(false)
-      } else {
-        false
-      }
-      let fsmBusy = switch Nullable.toOption(Adapter.asAny(s)["navigationState"]) {
-      | Some(ns) =>
-        switch ns["navigationFsm"] {
-        | Preloading(_) | Transitioning(_) | Stabilizing(_) => true
-        | _ => false
-        }
-      | None => false
-      }
-
-      if (
-        !ViewerState.state.contents.followLoopActive ||
-        vOpt == None ||
-        (!s.isLinking && !hasHotspots)
-      ) {
-        if !fsmBusy {
-          Dom.getElementById("viewer-hotspot-lines")
-          ->Nullable.toOption
-          ->Option.forEach(el => Dom.setTextContent(el, ""))
-        }
-        ViewerState.state := {...ViewerState.state.contents, followLoopActive: false}
-      } else {
-        if s.isLinking {
-          let startPt = ViewerState.state.contents.linkingStartPoint->Nullable.toOption
-          let lastMouse = ViewerState.state.contents.lastMouseEvent->Nullable.toOption
-          let (insideDz, shouldReset) = isInsideDeadZone(startPt, lastMouse)
-
-          if shouldReset {
-            ViewerState.state := {...ViewerState.state.contents, linkingStartPoint: Nullable.null}
-          }
-
-          let yb = ViewerLogic.getBoost(ViewerState.state.contents.mouseVelocityX)
-          let pb = ViewerLogic.getBoost(ViewerState.state.contents.mouseVelocityY)
-          let yd = insideDz
-            ? 0.0
-            : ViewerLogic.getEdgePower(ViewerState.state.contents.mouseXNorm, 0.5) *.
-              1.5 *.
-              (1.0 +. yb)
-          let pd = insideDz
-            ? 0.0
-            : -.ViewerLogic.getEdgePower(ViewerState.state.contents.mouseYNorm, 0.5) *.
-              1.0 *.
-              (1.0 +. pb)
-          ViewerState.state := {
-              ...ViewerState.state.contents,
-              lastAppliedYaw: Nullable.null,
-              lastAppliedPitch: Nullable.null,
-            }
-          vOpt->Option.forEach(v => {
-            if yd != 0.0 {
-              Viewer.setYaw(v, Viewer.getYaw(v) +. yd, false)
-            }
-            if pd != 0.0 {
-              Viewer.setPitch(v, Viewer.getPitch(v) +. pd, false)
-            }
-          })
-        }
-        if NavigationSupervisor.isIdle() {
-          let me = ViewerState.state.contents.lastMouseEvent->Nullable.toOption
-          vOpt->Option.forEach(v => {
-            try {HotspotLine.updateLines(v, s, ~mouseEvent=?me, ())} catch {
-            | _ => ()
-            }
-          })
-        }
-        let _ = Window.requestAnimationFrame(() => updateFollowLoop(~getState))
-      }
-    }
+  let updateFollowLoop = (~getState: unit => state) => {
+    ViewerFollow.updateFollowLoop(~getState)
   }
 }
 
