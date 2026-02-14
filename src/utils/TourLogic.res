@@ -92,12 +92,12 @@ let generateLinkId = (usedIds: Belt.Set.String.t) => {
 /**
  * Calculate the standardized filename for a scene based on its index and label.
  */
-// Helper to generate consistent slugs
-let toSlug = (label, maxLength) => {
+let // Helper to generate consistent slugs
+toSlug = (label, maxLength) => {
   sanitizeName(label, ~maxLength)
-    ->String.replaceRegExp(/[\s-]+/g, "_")
-    ->String.replaceRegExp(/[^a-z0-9_]/gi, "")
-    ->String.toLowerCase
+  ->String.replaceRegExp(/[\s-]+/g, "_")
+  ->String.replaceRegExp(/[^a-z0-9_]/gi, "")
+  ->String.toLowerCase
 }
 
 /**
@@ -112,7 +112,7 @@ let recoverBaseName = (currentName, currentLabel) => {
     nameWithoutExt
   } else {
     let slug = toSlug(currentLabel, 200)
-    
+
     // Try matching new format: Slug_Prefix_Base (e.g. "living_room_01_DSC001")
     let patternNew = "^" ++ slug ++ "_\\d{2}_(.+)$"
     let matchNew = %raw(`(str, p) => {
@@ -124,7 +124,7 @@ let recoverBaseName = (currentName, currentLabel) => {
 
     switch Nullable.toOption(matchNew) {
     | Some(base) => base
-    | None => 
+    | None =>
       // Try matching old format: Prefix_Slug_Base (e.g. "01_living_room_DSC001")
       let patternOld = "^\\d{2}_" ++ slug ++ "_(.+)$"
       let matchOld = %raw(`(str, p) => {
@@ -133,7 +133,7 @@ let recoverBaseName = (currentName, currentLabel) => {
               return m ? m[1] : null;
           } catch (e) { return null; }
       }`)(nameWithoutExt, patternOld)
-      
+
       switch Nullable.toOption(matchOld) {
       | Some(base) => base
       | None => nameWithoutExt
@@ -143,7 +143,7 @@ let recoverBaseName = (currentName, currentLabel) => {
 }
 
 // Helper to extract base name from ID (centralized logic)
-let getBaseNameFromId = (id) => {
+let getBaseNameFromId = id => {
   let raw = if String.startsWith(id, "legacy_") {
     String.substring(id, ~start=7, ~end=String.length(id))
   } else {

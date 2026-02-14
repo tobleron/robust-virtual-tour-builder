@@ -20,8 +20,6 @@ let getDeletedIds = inventory => {
   })
 }
 
-
-
 let syncInventoryNames = (inventory, sceneOrder) => {
   let renameMap = Belt.MutableMap.String.make()
   let updatedRef = ref(inventory)
@@ -352,16 +350,14 @@ let handleUpdateSceneMetadata = (state: state, index: int, metaJson: JSON.t): st
         // Check if we need to update filename based on manual base name preservation
         let finalScene = switch manualBaseName {
         | Some(base) if base != "" =>
-           let newName = TourLogic.computeSceneFilename(index, newLabel, base)
-           {...updatedScene, name: newName}
+          let newName = TourLogic.computeSceneFilename(index, newLabel, base)
+          {...updatedScene, name: newName}
         | _ => updatedScene
         }
 
-        let updatedInventory = state.inventory->Belt.Map.String.set(
-          targetId,
-          {...entry, scene: finalScene},
-        )
-        
+        let updatedInventory =
+          state.inventory->Belt.Map.String.set(targetId, {...entry, scene: finalScene})
+
         // Sync everything to handle dependencies
         let finalizedInventory = syncInventoryNames(updatedInventory, state.sceneOrder)
 
