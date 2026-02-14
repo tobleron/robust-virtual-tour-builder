@@ -83,7 +83,7 @@ impl Resolver {
             }
         }
 
-        // Strategy 6: ReScript JSX component resolution (handled by Stem Match above, 
+        // Strategy 6: ReScript JSX component resolution (handled by Stem Match above,
         // but preserved as a documented hook for future specific JSX resolution rules if needed)
 
         if std::env::var("DEBUG_RESOLVER").is_ok() {

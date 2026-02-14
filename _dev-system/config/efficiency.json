@@ -68,6 +68,23 @@
       ".bs.js"
     ]
   },
+  "map_tree": {
+    "ignored_entries": [
+      "artifacts",
+      "bin",
+      "lib",
+      "logs",
+      "old_ref",
+      "plans",
+      "playwright-report",
+      "test-results",
+      "tmp",
+      "_dev-system"
+    ],
+    "ignored_prefixes": [],
+    "ignore_hidden": true,
+    "detect_extra_entries": true
+  },
   "profiles": {
     "rust": {
       "extensions": [

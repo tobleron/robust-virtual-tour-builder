@@ -28,12 +28,15 @@ This document provides a consolidated, extremely concise history of all complete
 - **1157-1193: Folder Consolidation** — Merged fragmented backend and frontend directories (`backend/src/api/utils/types`, `src/features/LinkEditor`) into cohesive structures.
 - **1159-1176: Surgical Refactor Phase 2** — Decomposed "God Objects" including `Main.res`, `UploadProcessor`, and `backend/main.rs` into specialized Logic/Types/Facade modules.
 - **1200: System Robustness V2** — Implemented global interaction locks and modal guards to prevent race conditions during critical operations.
+- **1231-1233, 1251-1256: Global FSM & Refactoring** — Decomposed oversized modules and migrated to a formal State Machine for deterministic interaction logic.
+- **1343-1354: State Boundary Migration** — Hardened architectural boundaries by migrating `GlobalStateBridge` to explicit interfaces and enforcing strict state isolation.
 
 ## ⚙️ Backend & API
 - **016: Backend Geocoding Cache** — Implemented persistent LRU caching for reverse geocoding to reduce API dependency and improve performance.
 - **017: Backend Geocoding Proxy** — Added a secure proxy endpoint for external geocoding services with rate limiting and logging.
 - **584: Backend API Refactor** — Split monolithic `BackendApi` into domain-specific clients (`ProjectApi`, `MediaApi`) with shared type-safe decoders.
 - **738-742: Backend Service Decomposition** — Refactored oversized Rust modules for Image, Video, Storage, and Geocoding into modular structures.
+- **1355-1357: Enterprise Production Hardening** — Standardized backend security, operational resilience, and graceful shutdown to align with production standards.
 
 ## 🛡️ Runtime Safety & Error Handling
 - **019: Fix Security (innerHTML)** — Audited and removed unsafe `dangerouslySetInnerHTML` usage, replacing with safe React nodes and text content.
@@ -105,6 +108,7 @@ This document provides a consolidated, extremely concise history of all complete
 - **1201: Circuit Breaker Pattern** — Implemented fail-fast mechanisms to prevent cascading system failures during network outages.
 - **1202-1204: Resilient Networking & Optimistic Updates** — Implemented optimistic UI with rollback, client-side debouncing, and exponential backoff.
 - **1205-1228: Crash Recovery System** — Implemented `OperationJournal` and `RecoveryManager` to restore interrupted saves and uploads.
+- **1238-1241, 1300-1340: Stability & Recovery** — Resolved race conditions in imports and transitions with robust recovery mechanisms and enhanced error handling.
 
 ## 🧪 Tests & Quality Assurance
 - **001-004: Core & Systems Tests** — Aggregated 100% test coverage for Core State, Simulation Systems, and Utilities.
@@ -137,6 +141,7 @@ This document provides a consolidated, extremely concise history of all complete
 - **1076: Classify Ambiguous Files** — Classified ambiguous files.
 - **1207: JSON Combinators Audit** — Enforced standardized JSON encoding/decoding across the entire codebase.
 - **1208: Analyzer Improvements** — Enhanced `_dev-system` logic for precise dependency tracking and LOC analysis.
+- **1340-1341: Security & Documentation** — Implemented security monitoring for storage quotas and created formal system architecture documentation.
 
 ## 🚫 Aborted Efforts (For Historical Context)
 - **178-181, 268, 309**: De-prioritized or superseded by newer architectural decisions (e.g., PWA offline support, v4.2.0 rollbacks).
