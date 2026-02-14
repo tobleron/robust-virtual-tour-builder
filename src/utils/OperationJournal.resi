@@ -29,5 +29,4 @@ let updateStatus: (string, operationStatus) => Promise.t<unit>
 let updateContext: (string, JSON.t) => Promise.t<unit>
 let getInterrupted: t => array<journalEntry>
 let getPending: t => array<journalEntry>
-let save: t => Promise.t<unit>
 let load: unit => Promise.t<t>

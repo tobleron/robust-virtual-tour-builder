@@ -1,89 +1,37 @@
 {
-  "task": "D009",
-  "category": "Merge_Folders_FRONTEND",
-  "baseline_dir": "_dev-system/tmp/D009",
-  "bundles": [
+  "headline": "Verification Snapshot",
+  "snapshots": [
     {
-      "headline": "Pre-merge snapshots for `../../src/components/VisualPipeline`",
-      "snapshots": [
+      "path": "src/components/VisualPipeline/VisualPipelineComponent.res",
+      "functions": [
         {
-          "path": "src/components/VisualPipeline/VisualPipelineStyles.res",
-          "functions": [
-            {
-              "name": "nodeSize",
-              "signature": "let nodeSize = 22",
-              "line": 5
-            },
-            {
-              "name": "styles",
-              "signature": "let styles =",
-              "line": 7
-            },
-            {
-              "name": "injectStyles",
-              "signature": "let injectStyles = () => {",
-              "line": 161
-            },
-            {
-              "name": "existing",
-              "signature": "let existing = Dom.getElementById(\"visual-pipeline-styles\")",
-              "line": 162
-            },
-            {
-              "name": "style",
-              "signature": "let style = Dom.createElement(\"style\")",
-              "line": 167
-            }
-          ],
-          "fingerprint": "d1e5a4671f88d34fe9ad1530b0133db00980e46a1faca44b00c69f81269aa9af"
+          "name": "make",
+          "signature": "let make = () => {",
+          "line": 2
+        }
+      ],
+      "fingerprint": "bd8c315b5b34119c7b1f5c9add0dd0025e0924189d9113b78a48b14984fd2b94"
+    },
+    {
+      "path": "src/components/VisualPipeline/VisualPipelineStyles.res",
+      "functions": [
+        {
+          "name": "nodeSize",
+          "signature": "let nodeSize = 22",
+          "line": 5
         },
         {
-          "path": "src/components/VisualPipeline/VisualPipelineComponent.res",
-          "functions": [
-            {
-              "name": "make",
-              "signature": "let make = () => {",
-              "line": 2
-            },
-            {
-              "name": "containerRef",
-              "signature": "let containerRef = React.useRef(Nullable.null)",
-              "line": 4
-            },
-            {
-              "name": "appState",
-              "signature": "let appState = AppContext.useAppState()",
-              "line": 6
-            },
-            {
-              "name": "dispatch",
-              "signature": "let dispatch = AppContext.useAppDispatch()",
-              "line": 7
-            },
-            {
-              "name": "stateRef",
-              "signature": "let stateRef = React.useRef(appState)",
-              "line": 8
-            },
-            {
-              "name": "getState",
-              "signature": "let getState = () => stateRef.current",
-              "line": 13
-            },
-            {
-              "name": "pipelineRef",
-              "signature": "let pipelineRef = React.useRef(None)",
-              "line": 15
-            },
-            {
-              "name": "pipeline",
-              "signature": "let pipeline = VisualPipeline.initByElement(c)",
-              "line": 20
-            }
-          ],
-          "fingerprint": "8889bc9bb4a75c8eb8356cd0aa22db80d22e02897a81c0fea3f02af216e3ac3c"
+          "name": "styles",
+          "signature": "let styles =",
+          "line": 7
+        },
+        {
+          "name": "injectStyles",
+          "signature": "let injectStyles = () => {",
+          "line": 161
         }
-      ]
+      ],
+      "fingerprint": "e51eb98c179a8a8bcedc9d17af8df94d6c46e2c3046c561d8bc4b93b78ad30cf"
     }
   ]
 }
