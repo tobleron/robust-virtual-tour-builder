@@ -7,6 +7,8 @@ open SharedTypes
 open UploadTypes
 open Actions
 
+type filenameItem = {item: uploadItem, name: string, index: int}
+
 external castToJson: 'a => JSON.t = "%identity"
 
 module Utils = {
@@ -367,34 +369,26 @@ let executeProcessingChain = (
         ),
       )
     } else {
-      // SORT BY EXIF DATE
-      let sortedItems = Belt.Array.copy(validProcessed)
-      Belt.SortArray.stableSortInPlaceBy(sortedItems, (a, b) => {
-        let getDate = (item: uploadItem) => {
-          switch item.metadata {
-          | Some(json) =>
-            switch JsonCombinators.Json.decode(
-              json,
-              JsonCombinators.Json.Decode.object(
-                d => d.optional("dateTime", JsonCombinators.Json.Decode.string),
-              ),
-            ) {
-            | Ok(Some(dt)) => dt
-            | _ => ""
-            }
-          | None => ""
+      let scored: array<filenameItem> = Belt.Array.mapWithIndex(validProcessed, (idx, item) => {
+        {item, name: File.name(item.original), index: idx}
+      })
+
+      Belt.SortArray.stableSortInPlaceBy(scored, (a, b) => {
+        let nameCmp = Float.toInt(String.localeCompare(a.name, b.name))
+        if nameCmp == 0 {
+          if a.index < b.index {
+            -1
+          } else if a.index > b.index {
+            1
+          } else {
+            0
           }
-        }
-        let da = getDate(a)
-        let db = getDate(b)
-        if da < db {
-          -1
-        } else if da > db {
-          1
         } else {
-          0
+          nameCmp
         }
       })
+
+      let sortedItems = Belt.Array.map(scored, scored => scored.item)
 
       // Assign Names 001, 002...
       let existingScenesCount = Belt.Array.length(getState().scenes)
