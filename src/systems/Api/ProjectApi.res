@@ -143,11 +143,15 @@ let validateProject = (sessionId: string, projectData: JSON.t): Promise.t<
 }
 
 let saveProject = (sessionId: string, projectData: JSON.t): Promise.t<apiResult<unit>> => {
+  let formData = FormData.newFormData()
+  FormData.append(formData, "project_data", JsonCombinators.Json.stringify(projectData))
+  FormData.append(formData, "session_id", sessionId)
+
   RequestQueue.schedule(() => {
     AuthenticatedClient.requestWithRetry(
-      Constants.backendUrl ++ "/api/project/save/" ++ sessionId,
+      Constants.backendUrl ++ "/api/project/save",
       ~method="POST",
-      ~body=projectData,
+      ~formData,
       (),
     )
     ->Promise.then(resultResponse => {
