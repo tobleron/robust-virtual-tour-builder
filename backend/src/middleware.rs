@@ -220,16 +220,22 @@ where
 
         Box::pin(
             async move {
-                ACTIVE_SESSIONS.inc();
+                if let Some(m) = &*ACTIVE_SESSIONS {
+                    m.inc();
+                }
                 if let Some(manager) = shutdown_manager {
                     manager.register_request().await;
                     let res = fut.await;
                     manager.unregister_request().await;
-                    ACTIVE_SESSIONS.dec();
+                    if let Some(m) = &*ACTIVE_SESSIONS {
+                        m.dec();
+                    }
                     res.map(|res| res.map_body(|_, b| EitherBody::Left { body: b }))
                 } else {
                     let res = fut.await;
-                    ACTIVE_SESSIONS.dec();
+                    if let Some(m) = &*ACTIVE_SESSIONS {
+                        m.dec();
+                    }
                     res.map(|res| res.map_body(|_, b| EitherBody::Left { body: b }))
                 }
             }

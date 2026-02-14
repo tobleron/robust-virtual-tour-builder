@@ -19,13 +19,13 @@ module Logic = {
   })
 
   let validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {
-    ProjectValidator.validateProjectStructure(data)
+    ProjectSystem.validateProjectStructure(data)
   }
 
   let createSavePackage = (state: state, ~signal=?, ~onProgress: option<onProgress>=?): Promise.t<
     result<Blob.t, apiError>,
   > => {
-    ProjectSaver.createSavePackage(state, ~signal?, ~onProgress?)
+    ProjectSystem.createSavePackage(state, ~signal?, ~onProgress?)
   }
 
   let processLoadedProjectData = (
@@ -33,11 +33,11 @@ module Logic = {
     ~loadStartTime: float,
     ~onProgress: option<onProgress>=?,
   ): Promise.t<BackendApi.apiResult<(string, JSON.t)>> => {
-    ProjectLoader.processLoadedProjectData(resultSessionData, ~loadStartTime, ~onProgress?)
+    ProjectSystem.processLoadedProjectData(resultSessionData, ~loadStartTime, ~onProgress?)
   }
 
   let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?) => {
-    ProjectLoader.loadProjectZip(zipFile, ~onProgress?)
+    ProjectSystem.loadProjectZip(zipFile, ~onProgress?)
   }
 }
 

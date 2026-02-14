@@ -158,12 +158,16 @@ pub async fn check_cache(key: GeocodeKey) -> Option<String> {
         entry.access_count += 1;
         let mut stats = CACHE_STATS.write().await;
         stats.hits += 1;
-        GEOCODING_CACHE_HITS_TOTAL.inc();
+        if let Some(m) = &*GEOCODING_CACHE_HITS_TOTAL {
+            m.inc();
+        }
         return Some(entry.address.clone());
     }
     let mut stats = CACHE_STATS.write().await;
     stats.misses += 1;
-    GEOCODING_CACHE_MISSES_TOTAL.inc();
+    if let Some(m) = &*GEOCODING_CACHE_MISSES_TOTAL {
+        m.inc();
+    }
     None
 }
 

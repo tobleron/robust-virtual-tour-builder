@@ -16,7 +16,9 @@ pub async fn extract_metadata(payload: Multipart) -> Result<HttpResponse, AppErr
     let multipart_data = image_multipart::read_multipart_image(payload).await?;
     let total_size = multipart_data.data.len();
 
-    UPLOAD_BYTES_TOTAL.inc_by(total_size as f64);
+    if let Some(m) = &*UPLOAD_BYTES_TOTAL {
+        m.inc_by(total_size as f64);
+    }
 
     let start = Instant::now();
     let result = web::block(move || -> Result<MetadataResponse, String> {
@@ -33,10 +35,12 @@ pub async fn extract_metadata(payload: Multipart) -> Result<HttpResponse, AppErr
                 duration_ms = duration,
                 "EXTRACT_METADATA_COMPLETE"
             );
-            IMAGE_PROCESSING_TOTAL
-                .with_label_values(&["extract_metadata"])
-                .inc();
-            IMAGE_PROCESSING_DURATION.observe(start.elapsed().as_secs_f64());
+            if let Some(m) = &*IMAGE_PROCESSING_TOTAL {
+                m.with_label_values(&["extract_metadata"]).inc();
+            }
+            if let Some(m) = &*IMAGE_PROCESSING_DURATION {
+                m.observe(start.elapsed().as_secs_f64());
+            }
             Ok(HttpResponse::Ok().json(data))
         }
         Err(e) => {
@@ -53,7 +57,9 @@ pub async fn optimize_image(payload: Multipart) -> Result<HttpResponse, AppError
     let multipart_data = image_multipart::read_multipart_image(payload).await?;
     let total_size = multipart_data.data.len();
 
-    UPLOAD_BYTES_TOTAL.inc_by(total_size as f64);
+    if let Some(m) = &*UPLOAD_BYTES_TOTAL {
+        m.inc_by(total_size as f64);
+    }
 
     let result_bytes = web::block(move || -> Result<Vec<u8>, String> {
         image_logic::optimize_image_sync(multipart_data.data)
@@ -69,10 +75,12 @@ pub async fn optimize_image(payload: Multipart) -> Result<HttpResponse, AppError
                 duration_ms = duration,
                 "OPTIMIZE_IMAGE_COMPLETE"
             );
-            IMAGE_PROCESSING_TOTAL
-                .with_label_values(&["optimize"])
-                .inc();
-            IMAGE_PROCESSING_DURATION.observe(start.elapsed().as_secs_f64());
+            if let Some(m) = &*IMAGE_PROCESSING_TOTAL {
+                m.with_label_values(&["optimize"]).inc();
+            }
+            if let Some(m) = &*IMAGE_PROCESSING_DURATION {
+                m.observe(start.elapsed().as_secs_f64());
+            }
             Ok(HttpResponse::Ok().content_type("image/webp").body(bytes))
         }
         Err(e) => {
@@ -88,7 +96,9 @@ pub async fn process_image_full(payload: Multipart) -> Result<HttpResponse, AppE
     let multipart_data = image_multipart::read_multipart_image(payload).await?;
     let total_size = multipart_data.data.len();
 
-    UPLOAD_BYTES_TOTAL.inc_by(total_size as f64);
+    if let Some(m) = &*UPLOAD_BYTES_TOTAL {
+        m.inc_by(total_size as f64);
+    }
 
     let total_start = Instant::now();
     let result_zip = web::block(move || -> Result<Vec<u8>, String> {
@@ -110,10 +120,12 @@ pub async fn process_image_full(payload: Multipart) -> Result<HttpResponse, AppE
                 duration_ms = duration,
                 "PROCESS_IMAGE_FULL_COMPLETE"
             );
-            IMAGE_PROCESSING_TOTAL
-                .with_label_values(&["process_full"])
-                .inc();
-            IMAGE_PROCESSING_DURATION.observe(total_start.elapsed().as_secs_f64());
+            if let Some(m) = &*IMAGE_PROCESSING_TOTAL {
+                m.with_label_values(&["process_full"]).inc();
+            }
+            if let Some(m) = &*IMAGE_PROCESSING_DURATION {
+                m.observe(total_start.elapsed().as_secs_f64());
+            }
             Ok(HttpResponse::Ok()
                 .content_type("application/zip")
                 .body(zip_bytes))
@@ -130,7 +142,9 @@ pub async fn resize_image_batch(payload: Multipart) -> Result<HttpResponse, AppE
     let multipart_data = image_multipart::read_multipart_image(payload).await?;
     let total_size = multipart_data.data.len();
 
-    UPLOAD_BYTES_TOTAL.inc_by(total_size as f64);
+    if let Some(m) = &*UPLOAD_BYTES_TOTAL {
+        m.inc_by(total_size as f64);
+    }
 
     let result_zip = web::block(move || -> Result<Vec<u8>, String> {
         image_logic::resize_image_batch_sync(multipart_data.data)
@@ -146,10 +160,12 @@ pub async fn resize_image_batch(payload: Multipart) -> Result<HttpResponse, AppE
                 duration_ms = duration,
                 "RESIZE_BATCH_COMPLETE"
             );
-            IMAGE_PROCESSING_TOTAL
-                .with_label_values(&["resize_batch"])
-                .inc();
-            IMAGE_PROCESSING_DURATION.observe(start.elapsed().as_secs_f64());
+            if let Some(m) = &*IMAGE_PROCESSING_TOTAL {
+                m.with_label_values(&["resize_batch"]).inc();
+            }
+            if let Some(m) = &*IMAGE_PROCESSING_DURATION {
+                m.observe(start.elapsed().as_secs_f64());
+            }
             Ok(HttpResponse::Ok()
                 .content_type("application/zip")
                 .body(zip_bytes))

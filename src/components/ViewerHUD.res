@@ -1,5 +1,7 @@
 /* src/components/ViewerHUD.res */
 
+external unsafeCastToFile: 'a => ReBindings.File.t = "%identity"
+
 @react.component
 let make = React.memo(() => {
   let sceneSlice = AppContext.useSceneSlice()
@@ -30,7 +32,7 @@ let make = React.memo(() => {
     let files = ReactEvent.Form.target(e)["files"]
     if Belt.Array.length(files) > 0 {
       let file = files[0]
-      dispatch(SetLogo(Some(Types.File(file->Obj.magic))))
+      dispatch(SetLogo(Some(Types.File(file->unsafeCastToFile))))
     }
   }
 

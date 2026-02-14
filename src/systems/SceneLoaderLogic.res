@@ -1,6 +1,62 @@
-/* src/systems/Scene/Loader/SceneLoaderEvents.res */
+/* src/systems/SceneLoader.res - Consolidated Scene Loading System */
 open Types
 open Actions
+
+/* --- Config --- */
+
+let getHotspots = (scene: scene, ~state, ~dispatch) =>
+  scene.hotspots->Belt.Array.mapWithIndex((idx, h) => {
+    HotspotManager.createHotspotConfig(~hotspot=h, ~index=idx, ~state, ~scene, ~dispatch)
+  })
+
+let makeSceneConfig = (scene: scene, ~state, ~dispatch) => {
+  let url = SceneCache.getSourceUrl(scene.id, scene.file)
+  Logger.debug(
+    ~module_="SceneLoader",
+    ~message="PREPARING_SCENE_INNER",
+    ~data={"id": scene.id, "url": url},
+    (),
+  )
+  {
+    "panorama": url,
+    "hotSpots": getHotspots(scene, ~state, ~dispatch),
+  }
+}
+
+let makeInitialConfig = (scene: scene, ~state, ~dispatch) => {
+  let inner = makeSceneConfig(scene, ~state, ~dispatch)
+  {
+    "default": {"firstScene": scene.id},
+    "scenes": Dict.fromArray([(scene.id, inner)]),
+    "autoLoad": true,
+    "hfov": Constants.globalHfov,
+    "minHfov": Constants.globalHfov,
+    "maxHfov": Constants.globalHfov,
+    "mouseZoom": false,
+    "doubleClickZoom": false,
+    "keyboardZoom": false,
+    "showZoomCtrl": false,
+  }
+}
+
+let blankPanorama = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
+
+let backgroundViewerConfig = () => {
+  {
+    "panorama": blankPanorama,
+    "hotSpots": [],
+    "autoLoad": false,
+    "hfov": Constants.globalHfov,
+    "minHfov": Constants.globalHfov,
+    "maxHfov": Constants.globalHfov,
+    "mouseZoom": false,
+    "doubleClickZoom": false,
+    "keyboardZoom": false,
+    "showZoomCtrl": false,
+  }
+}
+
+/* --- Events --- */
 
 let isStaleTask = (~taskId: option<string>=?, ~signal: option<BrowserBindings.AbortSignal.t>=?) => {
   let taskMismatch = switch taskId {
@@ -94,4 +150,22 @@ let onSceneError = (
     })
     dispatch(DispatchNavigationFsmEvent(LoadTimeout))
   }
+}
+
+/* --- Reuse --- */
+
+let findReusableInstance = (pathRequest: pathRequest, targetIdx: int): option<
+  ViewerSystem.Adapter.t,
+> => {
+  let targetSceneId = pathRequest.scenes[targetIdx]->Option.map(s => s.id)
+  ViewerSystem.Pool.pool.contents
+  ->Belt.Array.getBy(v => {
+    v.instance
+    ->Option.map(inst => {
+      let metaId = ViewerSystem.Adapter.getMetaData(inst, "sceneId")
+      metaId == targetSceneId->Option.map(idToUnknown)
+    })
+    ->Option.getOr(false)
+  })
+  ->Option.flatMap(v => v.instance)
 }

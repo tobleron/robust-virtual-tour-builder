@@ -1,0 +1,44 @@
+{
+  "backend/src/metrics.rs": {
+    "path": "backend/src/metrics.rs",
+    "functions": [
+      {
+        "name": "test_metrics_initialization",
+        "signature": "fn test_metrics_initialization() {",
+        "line": 141
+      }
+    ],
+    "fingerprint": "9185e449c1d35d4ab17e7b66d2667d478f0f9cc8095ddb06083f037f0bc40bbd"
+  },
+  "backend/src/services/media/naming.rs": {
+    "path": "backend/src/services/media/naming.rs",
+    "functions": [
+      {
+        "name": "get_suggested_name",
+        "signature": "pub fn get_suggested_name(original: &str) -> String {",
+        "line": 16
+      },
+      {
+        "name": "sanitize_asset_path",
+        "signature": "pub fn sanitize_asset_path(path: &str) -> String {",
+        "line": 37
+      },
+      {
+        "name": "normalize_project_entry_path",
+        "signature": "pub fn normalize_project_entry_path(filename: &str) -> Option<String> {",
+        "line": 52
+      },
+      {
+        "name": "test_sanitize_asset_path_removes_traversal",
+        "signature": "fn test_sanitize_asset_path_removes_traversal() {",
+        "line": 75
+      },
+      {
+        "name": "test_normalize_project_entry_path",
+        "signature": "fn test_normalize_project_entry_path() {",
+        "line": 89
+      }
+    ],
+    "fingerprint": "43eec149bc6bf2c7e80ae1da5ffd217918733e504f561a6db143f1d97529167a"
+  }
+}
