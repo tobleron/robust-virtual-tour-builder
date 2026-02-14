@@ -31,34 +31,23 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
     JsxEvent.Mouse.preventDefault(e)
     setFlickeringLabel(_ => Some(label))
 
-    let suffix = switch currentScene {
-    | Some(s) =>
-      let base = TourLogic.recoverBaseName(s.name, s.label)
-      Logger.debug(
-        ~module_="LabelMenu",
-        ~message="SUFFIX_DEBUG",
-        ~data=Some({"id": s.id, "base": base, "raw": s.name, "oldLabel": s.label}),
-        (),
-      )
-      "_" ++ base
-    | None =>
-      Logger.error(
-        ~module_="LabelMenu",
-        ~message="SUFFIX_DEBUG_NO_SCENE",
-        ~data=Some({"index": targetIndex, "count": Array.length(state.scenes)}),
-        (),
-      )
-      ""
+    // Recover base name using current state (before label change)
+    let baseName = switch currentScene {
+    | Some(s) => TourLogic.recoverBaseName(s.name, s.label)
+    | None => ""
     }
-    let newLabel = label ++ suffix
 
     let _ = ReBindings.Window.setTimeout(() => {
       setFlickeringLabel(_ => None)
-      dispatch(UpdateSceneMetadata(targetIndex, Logger.castToJson({"label": newLabel})))
+      // Pass _baseName to help the reducer preserve it during rename
+      dispatch(UpdateSceneMetadata(targetIndex, Logger.castToJson({
+        "label": label, 
+        "_baseName": baseName
+      })))
       Logger.info(
         ~module_="LabelMenu",
         ~message="LABEL_SET",
-        ~data=Some({"label": newLabel, "index": targetIndex, "suffix": suffix}),
+        ~data=Some({"label": label, "index": targetIndex, "preservedBase": baseName}),
         (),
       )
       NotificationManager.dispatch({
