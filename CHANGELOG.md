@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Ui: add glassmorphism effect (backdrop blur) to logo container
 - Ui: reduce logo border radius from 12px to 8px
+- Ui: modernize watermark with 6px radius and translucent gold border
 
 ## [4.6.4] - 2026-02-14
 
