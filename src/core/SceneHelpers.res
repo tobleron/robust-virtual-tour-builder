@@ -55,6 +55,7 @@ let parseProject = (projectDataJson: JSON.t): result<project, string> => {
       sessionId: pd.sessionId,
       deletedSceneIds: pd.deletedSceneIds,
       timeline: pd.timeline,
+      logo: pd.logo,
     })
   | Error(msg) =>
     Logger.error(

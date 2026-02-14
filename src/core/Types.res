@@ -214,6 +214,7 @@ type project = {
   sessionId: option<string>,
   deletedSceneIds: array<string>, // TODO: Deprecate
   timeline: array<timelineItem>,
+  logo: option<file>,
 }
 
 type editorState =
@@ -316,6 +317,7 @@ type state = {
   pendingReturnSceneName: option<string>,
   lastUsedCategory: string,
   sessionId: option<string>,
+  logo: option<file>,
 }
 
 /* --- Pathfinder API Types --- */

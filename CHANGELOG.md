@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Ui: make logo border 100% opacity
 - Ui: reduce logo border radius to 2px
 - Ui: implement perfect mask clipping for logo corners
+- Initial Global Logo Implementation
 
 ## [4.6.4] - 2026-02-14
 

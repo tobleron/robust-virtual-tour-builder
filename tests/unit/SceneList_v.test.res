@@ -16,6 +16,7 @@ module WrappedSceneList = {
       isTeasing: mockState.isTeasing,
       linkDraft: mockState.linkDraft,
       appMode: mockState.appMode,
+      logo: mockState.logo,
     }
 
     <AppContext.DispatchProvider value=mockDispatch>

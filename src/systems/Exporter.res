@@ -112,6 +112,7 @@ let uploadAndProcessRaw: (
 let exportTour = async (
   scenes: array<scene>,
   ~tourName: string,
+  ~logo: option<file>,
   ~signal: BrowserBindings.AbortSignal.t,
   onProgress: option<(float, float, string) => unit>,
 ): result<unit, string> => {
@@ -146,33 +147,48 @@ let exportTour = async (
     let formData = FormData.newFormData()
     let version = Version.version
 
-    /* 1. Append Logo (moved up to determine validation) */
+    /* 1. Set Logo (prioritize custom uploaded logo) */
     currentPhase := "LOGO"
     Logger.debug(~module_="Exporter", ~message="PHASE_LOGO", ())
 
     let logoFilename = ref(None)
 
-    try {
-      let extensions = ["png", "jpg", "jpeg", "webp"]
-      let rec findLogo = async exts => {
-        switch exts {
-        | list{} => ()
-        | list{ext, ...rest} => {
-            let filename = "logo." ++ ext
-            let res = await Fetch.fetchSimple("images/" ++ filename)
-            if Fetch.ok(res) {
-              let logoBlob = await Fetch.blob(res)
-              FormData.appendWithFilename(formData, filename, logoBlob, filename)
-              logoFilename := Some(filename)
-            } else {
-              await findLogo(rest)
+    switch logo {
+    | Some(File(f)) => {
+        let name =
+          "logo." ++ f->File.name->String.split(".")->Belt.Array.get(1)->Option.getOr("png")
+        FormData.appendWithFilename(formData, name, f, name)
+        logoFilename := Some(name)
+      }
+    | Some(Blob(b)) => {
+        let name = "logo.png" // Default extension for blobs if unknown
+        FormData.appendWithFilename(formData, name, b, name)
+        logoFilename := Some(name)
+      }
+    | Some(Url(_u)) => () // Url logos are currently assumed to be external or already handled
+    | None =>
+      try {
+        let extensions = ["png", "jpg", "jpeg", "webp"]
+        let rec findLogo = async exts => {
+          switch exts {
+          | list{} => ()
+          | list{ext, ...rest} => {
+              let filename = "logo." ++ ext
+              let res = await Fetch.fetchSimple("images/" ++ filename)
+              if Fetch.ok(res) {
+                let logoBlob = await Fetch.blob(res)
+                FormData.appendWithFilename(formData, filename, logoBlob, filename)
+                logoFilename := Some(filename)
+              } else {
+                await findLogo(rest)
+              }
             }
           }
         }
+        await findLogo(Belt.List.fromArray(extensions))
+      } catch {
+      | _ => Logger.warn(~module_="Exporter", ~message="LOGO_NOT_FOUND", ())
       }
-      await findLogo(Belt.List.fromArray(extensions))
-    } catch {
-    | _ => Logger.warn(~module_="Exporter", ~message="LOGO_NOT_FOUND", ())
     }
 
     /* 2. Generate HTML Templates */

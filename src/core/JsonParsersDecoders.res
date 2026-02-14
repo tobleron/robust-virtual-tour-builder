@@ -206,6 +206,7 @@ let project = object(field => {
     sessionId: field.optional("sessionId", option(string))->Option.flatMap(x => x),
     deletedSceneIds: field->opt("deletedSceneIds", array(string), []),
     timeline: field->opt("timeline", array(timelineItem), []),
+    logo: field.optional("logo", option(file))->Option.flatMap(x => x),
   }
 })
 

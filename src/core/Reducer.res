@@ -423,6 +423,7 @@ module Project = {
       }
 
     | SetSessionId(id) => Some({...state, sessionId: Some(id)})
+    | SetLogo(logo) => Some({...state, logo})
     | _ => None
     }
   }

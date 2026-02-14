@@ -37,9 +37,12 @@ pub fn create_tour_package(
             .unix_permissions(0o755);
 
         // 1. Add Static Assets (Logo)
-        if let Some((_, logo_bytes)) = image_files.iter().find(|(name, _)| name == "logo.png") {
+        if let Some((name, logo_bytes)) = image_files
+            .iter()
+            .find(|(name, _)| name.starts_with("logo."))
+        {
             for folder in &["tour_4k", "tour_2k", "tour_hd"] {
-                zip.start_file(format!("{}/assets/logo.png", folder), options)
+                zip.start_file(format!("{}/assets/{}", folder, name), options)
                     .map_err(|e| e.to_string())?;
                 zip.write_all(logo_bytes).map_err(|e| e.to_string())?;
             }

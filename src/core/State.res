@@ -37,4 +37,5 @@ let initialState: state = {
   pendingReturnSceneName: None,
   lastUsedCategory: "outdoor",
   sessionId: None,
+  logo: None,
 }

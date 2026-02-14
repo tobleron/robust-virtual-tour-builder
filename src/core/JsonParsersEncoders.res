@@ -111,6 +111,7 @@ let project = (p: Types.project) => {
     ("sessionId", Encode.option(Encode.string)(p.sessionId)),
     ("deletedSceneIds", Encode.array(Encode.string)(p.deletedSceneIds)),
     ("timeline", Encode.array(timelineItem)(p.timeline)),
+    ("logo", Encode.option(file)(p.logo)),
   ])
 }
 
@@ -258,6 +259,7 @@ let state = (s: Types.state) => {
     ("currentJourneyId", Encode.int(s.navigationState.currentJourneyId)),
     ("lastUsedCategory", Encode.string(s.lastUsedCategory)),
     ("sessionId", Encode.option(Encode.string)(s.sessionId)),
+    ("logo", Encode.option(file)(s.logo)),
     (
       "appMode",
       switch s.appMode {
