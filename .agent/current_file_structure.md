@@ -18260,9 +18260,7 @@
 │   │       ├── D008_Fix_Violations_BACKEND.md
 │   │       ├── D009_Merge_Folders_FRONTEND.md
 │   │       ├── D017_Evaluate_Automated_Tasks.md
-│   │       ├── D018_Update_Map_Tree.md
-│   │       ├── D019_Classify_Map_Entries.md
-│   │       └── D020_Integrate_DataFlow_Modules.md
+│   │       └── D018_Update_Map_Tree.md
 │   ├── postponed
 │   │   ├── 1243_Fix_Operation_Cancellation_Feedback.md
 │   │   ├── 1246_Handle_Malformed_Project_Files_Gracefully.md
@@ -18670,4 +18668,4 @@
 │       └── test_run.json
 └── vitest.config.mjs
 
-859 directories, 17812 files
+859 directories, 17810 files
