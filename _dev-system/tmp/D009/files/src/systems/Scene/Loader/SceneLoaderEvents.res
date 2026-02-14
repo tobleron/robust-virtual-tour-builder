@@ -2,7 +2,10 @@
 open Types
 open Actions
 
-let isStaleTask = (~taskId: option<string>=?, ~signal: option<BrowserBindings.AbortSignal.t>=?) => {
+let isStaleTask = (
+  ~taskId: option<string>=?,
+  ~signal: option<BrowserBindings.AbortSignal.t>=?,
+) => {
   let taskMismatch = switch taskId {
   | Some(tid) => !NavigationSupervisor.isCurrentTaskId(tid)
   | None => false

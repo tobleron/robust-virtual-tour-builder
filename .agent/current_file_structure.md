@@ -83,10 +83,20 @@
 │       ├── D009
 │       │   ├── files
 │       │   │   └── src
-│       │   │       └── components
-│       │   │           └── VisualPipeline
-│       │   │               ├── VisualPipelineComponent.res
-│       │   │               └── VisualPipelineStyles.res
+│       │   │       ├── components
+│       │   │       │   └── VisualPipeline
+│       │   │       │       ├── VisualPipelineComponent.res
+│       │   │       │       └── VisualPipelineStyles.res
+│       │   │       └── systems
+│       │   │           ├── Project
+│       │   │           │   ├── ProjectLoader.res
+│       │   │           │   ├── ProjectSaver.res
+│       │   │           │   └── ProjectValidator.res
+│       │   │           └── Scene
+│       │   │               └── Loader
+│       │   │                   ├── SceneLoaderConfig.res
+│       │   │                   ├── SceneLoaderEvents.res
+│       │   │                   └── SceneLoaderReuse.res
 │       │   └── verification.json
 │       ├── D014
 │       │   ├── files
@@ -12257,6 +12267,12 @@
 │   │   │   │   ├── SceneList.cmt
 │   │   │   │   ├── SceneList.res
 │   │   │   │   ├── Sidebar
+│   │   │   │   │   ├── SidebarAbout.ast
+│   │   │   │   │   ├── SidebarAbout.bs.js
+│   │   │   │   │   ├── SidebarAbout.cmi
+│   │   │   │   │   ├── SidebarAbout.cmj
+│   │   │   │   │   ├── SidebarAbout.cmt
+│   │   │   │   │   ├── SidebarAbout.res
 │   │   │   │   │   ├── SidebarActions.ast
 │   │   │   │   │   ├── SidebarActions.bs.js
 │   │   │   │   │   ├── SidebarActions.cmi
@@ -12286,7 +12302,13 @@
 │   │   │   │   │   ├── SidebarProjectInfo.cmi
 │   │   │   │   │   ├── SidebarProjectInfo.cmj
 │   │   │   │   │   ├── SidebarProjectInfo.cmt
-│   │   │   │   │   └── SidebarProjectInfo.res
+│   │   │   │   │   ├── SidebarProjectInfo.res
+│   │   │   │   │   ├── UseSidebarProcessing.ast
+│   │   │   │   │   ├── UseSidebarProcessing.bs.js
+│   │   │   │   │   ├── UseSidebarProcessing.cmi
+│   │   │   │   │   ├── UseSidebarProcessing.cmj
+│   │   │   │   │   ├── UseSidebarProcessing.cmt
+│   │   │   │   │   └── UseSidebarProcessing.res
 │   │   │   │   ├── Sidebar.ast
 │   │   │   │   ├── Sidebar.bs.js
 │   │   │   │   ├── Sidebar.cmi
@@ -12535,12 +12557,30 @@
 │   │   │   │   ├── SceneHelpers.cmj
 │   │   │   │   ├── SceneHelpers.cmt
 │   │   │   │   ├── SceneHelpers.res
+│   │   │   │   ├── SceneInventory.ast
+│   │   │   │   ├── SceneInventory.bs.js
+│   │   │   │   ├── SceneInventory.cmi
+│   │   │   │   ├── SceneInventory.cmj
+│   │   │   │   ├── SceneInventory.cmt
+│   │   │   │   ├── SceneInventory.res
 │   │   │   │   ├── SceneMutations.ast
 │   │   │   │   ├── SceneMutations.bs.js
 │   │   │   │   ├── SceneMutations.cmi
 │   │   │   │   ├── SceneMutations.cmj
 │   │   │   │   ├── SceneMutations.cmt
 │   │   │   │   ├── SceneMutations.res
+│   │   │   │   ├── SceneNaming.ast
+│   │   │   │   ├── SceneNaming.bs.js
+│   │   │   │   ├── SceneNaming.cmi
+│   │   │   │   ├── SceneNaming.cmj
+│   │   │   │   ├── SceneNaming.cmt
+│   │   │   │   ├── SceneNaming.res
+│   │   │   │   ├── SceneOperations.ast
+│   │   │   │   ├── SceneOperations.bs.js
+│   │   │   │   ├── SceneOperations.cmi
+│   │   │   │   ├── SceneOperations.cmj
+│   │   │   │   ├── SceneOperations.cmt
+│   │   │   │   ├── SceneOperations.res
 │   │   │   │   ├── SharedTypes.ast
 │   │   │   │   ├── SharedTypes.bs.js
 │   │   │   │   ├── SharedTypes.cmi
@@ -12893,6 +12933,25 @@
 │   │   │   │   ├── PanoramaClusterer.cmj
 │   │   │   │   ├── PanoramaClusterer.cmt
 │   │   │   │   ├── PanoramaClusterer.res
+│   │   │   │   ├── Project
+│   │   │   │   │   ├── ProjectLoader.ast
+│   │   │   │   │   ├── ProjectLoader.bs.js
+│   │   │   │   │   ├── ProjectLoader.cmi
+│   │   │   │   │   ├── ProjectLoader.cmj
+│   │   │   │   │   ├── ProjectLoader.cmt
+│   │   │   │   │   ├── ProjectLoader.res
+│   │   │   │   │   ├── ProjectSaver.ast
+│   │   │   │   │   ├── ProjectSaver.bs.js
+│   │   │   │   │   ├── ProjectSaver.cmi
+│   │   │   │   │   ├── ProjectSaver.cmj
+│   │   │   │   │   ├── ProjectSaver.cmt
+│   │   │   │   │   ├── ProjectSaver.res
+│   │   │   │   │   ├── ProjectValidator.ast
+│   │   │   │   │   ├── ProjectValidator.bs.js
+│   │   │   │   │   ├── ProjectValidator.cmi
+│   │   │   │   │   ├── ProjectValidator.cmj
+│   │   │   │   │   ├── ProjectValidator.cmt
+│   │   │   │   │   └── ProjectValidator.res
 │   │   │   │   ├── ProjectManager.ast
 │   │   │   │   ├── ProjectManager.bs.js
 │   │   │   │   ├── ProjectManager.cmi
@@ -12931,6 +12990,25 @@
 │   │   │   │   ├── Resizer.cmt
 │   │   │   │   ├── Resizer.res
 │   │   │   │   ├── Scene
+│   │   │   │   │   ├── Loader
+│   │   │   │   │   │   ├── SceneLoaderConfig.ast
+│   │   │   │   │   │   ├── SceneLoaderConfig.bs.js
+│   │   │   │   │   │   ├── SceneLoaderConfig.cmi
+│   │   │   │   │   │   ├── SceneLoaderConfig.cmj
+│   │   │   │   │   │   ├── SceneLoaderConfig.cmt
+│   │   │   │   │   │   ├── SceneLoaderConfig.res
+│   │   │   │   │   │   ├── SceneLoaderEvents.ast
+│   │   │   │   │   │   ├── SceneLoaderEvents.bs.js
+│   │   │   │   │   │   ├── SceneLoaderEvents.cmi
+│   │   │   │   │   │   ├── SceneLoaderEvents.cmj
+│   │   │   │   │   │   ├── SceneLoaderEvents.cmt
+│   │   │   │   │   │   ├── SceneLoaderEvents.res
+│   │   │   │   │   │   ├── SceneLoaderReuse.ast
+│   │   │   │   │   │   ├── SceneLoaderReuse.bs.js
+│   │   │   │   │   │   ├── SceneLoaderReuse.cmi
+│   │   │   │   │   │   ├── SceneLoaderReuse.cmj
+│   │   │   │   │   │   ├── SceneLoaderReuse.cmt
+│   │   │   │   │   │   └── SceneLoaderReuse.res
 │   │   │   │   │   ├── SceneLoader.ast
 │   │   │   │   │   ├── SceneLoader.bs.js
 │   │   │   │   │   ├── SceneLoader.cmi
@@ -13052,6 +13130,43 @@
 │   │   │   │   ├── TourTemplates.cmj
 │   │   │   │   ├── TourTemplates.cmt
 │   │   │   │   ├── TourTemplates.res
+│   │   │   │   ├── Upload
+│   │   │   │   │   ├── UploadFinalizer.ast
+│   │   │   │   │   ├── UploadFinalizer.bs.js
+│   │   │   │   │   ├── UploadFinalizer.cmi
+│   │   │   │   │   ├── UploadFinalizer.cmj
+│   │   │   │   │   ├── UploadFinalizer.cmt
+│   │   │   │   │   ├── UploadFinalizer.res
+│   │   │   │   │   ├── UploadItemProcessor.ast
+│   │   │   │   │   ├── UploadItemProcessor.bs.js
+│   │   │   │   │   ├── UploadItemProcessor.cmi
+│   │   │   │   │   ├── UploadItemProcessor.cmj
+│   │   │   │   │   ├── UploadItemProcessor.cmt
+│   │   │   │   │   ├── UploadItemProcessor.res
+│   │   │   │   │   ├── UploadRecovery.ast
+│   │   │   │   │   ├── UploadRecovery.bs.js
+│   │   │   │   │   ├── UploadRecovery.cmi
+│   │   │   │   │   ├── UploadRecovery.cmj
+│   │   │   │   │   ├── UploadRecovery.cmt
+│   │   │   │   │   ├── UploadRecovery.res
+│   │   │   │   │   ├── UploadReporting.ast
+│   │   │   │   │   ├── UploadReporting.bs.js
+│   │   │   │   │   ├── UploadReporting.cmi
+│   │   │   │   │   ├── UploadReporting.cmj
+│   │   │   │   │   ├── UploadReporting.cmt
+│   │   │   │   │   ├── UploadReporting.res
+│   │   │   │   │   ├── UploadScanner.ast
+│   │   │   │   │   ├── UploadScanner.bs.js
+│   │   │   │   │   ├── UploadScanner.cmi
+│   │   │   │   │   ├── UploadScanner.cmj
+│   │   │   │   │   ├── UploadScanner.cmt
+│   │   │   │   │   ├── UploadScanner.res
+│   │   │   │   │   ├── UploadUtils.ast
+│   │   │   │   │   ├── UploadUtils.bs.js
+│   │   │   │   │   ├── UploadUtils.cmi
+│   │   │   │   │   ├── UploadUtils.cmj
+│   │   │   │   │   ├── UploadUtils.cmt
+│   │   │   │   │   └── UploadUtils.res
 │   │   │   │   ├── UploadProcessor.ast
 │   │   │   │   ├── UploadProcessor.bs.js
 │   │   │   │   ├── UploadProcessor.cmi
@@ -13076,6 +13191,25 @@
 │   │   │   │   ├── VideoEncoder.cmj
 │   │   │   │   ├── VideoEncoder.cmt
 │   │   │   │   ├── VideoEncoder.res
+│   │   │   │   ├── Viewer
+│   │   │   │   │   ├── ViewerAdapter.ast
+│   │   │   │   │   ├── ViewerAdapter.bs.js
+│   │   │   │   │   ├── ViewerAdapter.cmi
+│   │   │   │   │   ├── ViewerAdapter.cmj
+│   │   │   │   │   ├── ViewerAdapter.cmt
+│   │   │   │   │   ├── ViewerAdapter.res
+│   │   │   │   │   ├── ViewerFollow.ast
+│   │   │   │   │   ├── ViewerFollow.bs.js
+│   │   │   │   │   ├── ViewerFollow.cmi
+│   │   │   │   │   ├── ViewerFollow.cmj
+│   │   │   │   │   ├── ViewerFollow.cmt
+│   │   │   │   │   ├── ViewerFollow.res
+│   │   │   │   │   ├── ViewerPool.ast
+│   │   │   │   │   ├── ViewerPool.bs.js
+│   │   │   │   │   ├── ViewerPool.cmi
+│   │   │   │   │   ├── ViewerPool.cmj
+│   │   │   │   │   ├── ViewerPool.cmt
+│   │   │   │   │   └── ViewerPool.res
 │   │   │   │   ├── ViewerFollow.ast
 │   │   │   │   ├── ViewerFollow.bs.js
 │   │   │   │   ├── ViewerFollow.cmi
@@ -13191,6 +13325,25 @@
 │   │   │       ├── LoggerTelemetry.cmj
 │   │   │       ├── LoggerTelemetry.cmt
 │   │   │       ├── LoggerTelemetry.res
+│   │   │       ├── OperationJournal
+│   │   │       │   ├── JournalLogic.ast
+│   │   │       │   ├── JournalLogic.bs.js
+│   │   │       │   ├── JournalLogic.cmi
+│   │   │       │   ├── JournalLogic.cmj
+│   │   │       │   ├── JournalLogic.cmt
+│   │   │       │   ├── JournalLogic.res
+│   │   │       │   ├── JournalPersistence.ast
+│   │   │       │   ├── JournalPersistence.bs.js
+│   │   │       │   ├── JournalPersistence.cmi
+│   │   │       │   ├── JournalPersistence.cmj
+│   │   │       │   ├── JournalPersistence.cmt
+│   │   │       │   ├── JournalPersistence.res
+│   │   │       │   ├── JournalTypes.ast
+│   │   │       │   ├── JournalTypes.bs.js
+│   │   │       │   ├── JournalTypes.cmi
+│   │   │       │   ├── JournalTypes.cmj
+│   │   │       │   ├── JournalTypes.cmt
+│   │   │       │   └── JournalTypes.res
 │   │   │       ├── OperationJournal.ast
 │   │   │       ├── OperationJournal.bs.js
 │   │   │       ├── OperationJournal.cmi
@@ -14795,6 +14948,21 @@
 │   │   ├── InteractionsRobustness_v.test.cmj
 │   │   ├── InteractionsRobustness_v.test.cmt
 │   │   ├── InteractionsRobustness_v.test.res
+│   │   ├── JournalLogic.ast
+│   │   ├── JournalLogic.cmi
+│   │   ├── JournalLogic.cmj
+│   │   ├── JournalLogic.cmt
+│   │   ├── JournalLogic.res
+│   │   ├── JournalPersistence.ast
+│   │   ├── JournalPersistence.cmi
+│   │   ├── JournalPersistence.cmj
+│   │   ├── JournalPersistence.cmt
+│   │   ├── JournalPersistence.res
+│   │   ├── JournalTypes.ast
+│   │   ├── JournalTypes.cmi
+│   │   ├── JournalTypes.cmj
+│   │   ├── JournalTypes.cmt
+│   │   ├── JournalTypes.res
 │   │   ├── JsonEncoders_File_v.test.ast
 │   │   ├── JsonEncoders_File_v.test.cmi
 │   │   ├── JsonEncoders_File_v.test.cmj
@@ -15106,10 +15274,6 @@
 │   │   ├── PannellumAdapter_v.test.cmj
 │   │   ├── PannellumAdapter_v.test.cmt
 │   │   ├── PannellumAdapter_v.test.res
-│   │   ├── PannellumAdapter.ast
-│   │   ├── PannellumAdapter.cmi
-│   │   ├── PannellumAdapter.cmj
-│   │   ├── PannellumAdapter.cmt
 │   │   ├── PannellumAdapter.res
 │   │   ├── PannellumLifecycle_v.test.ast
 │   │   ├── PannellumLifecycle_v.test.cmi
@@ -15211,6 +15375,11 @@
 │   │   ├── ProjectionMath.cmj
 │   │   ├── ProjectionMath.cmt
 │   │   ├── ProjectionMath.res
+│   │   ├── ProjectLoader.ast
+│   │   ├── ProjectLoader.cmi
+│   │   ├── ProjectLoader.cmj
+│   │   ├── ProjectLoader.cmt
+│   │   ├── ProjectLoader.res
 │   │   ├── ProjectManager_v.test.ast
 │   │   ├── ProjectManager_v.test.cmi
 │   │   ├── ProjectManager_v.test.cmj
@@ -15231,6 +15400,16 @@
 │   │   ├── ProjectReducer_v.test.cmj
 │   │   ├── ProjectReducer_v.test.cmt
 │   │   ├── ProjectReducer_v.test.res
+│   │   ├── ProjectSaver.ast
+│   │   ├── ProjectSaver.cmi
+│   │   ├── ProjectSaver.cmj
+│   │   ├── ProjectSaver.cmt
+│   │   ├── ProjectSaver.res
+│   │   ├── ProjectValidator.ast
+│   │   ├── ProjectValidator.cmi
+│   │   ├── ProjectValidator.cmj
+│   │   ├── ProjectValidator.cmt
+│   │   ├── ProjectValidator.res
 │   │   ├── QualityIndicator_v.test.ast
 │   │   ├── QualityIndicator_v.test.cmi
 │   │   ├── QualityIndicator_v.test.cmj
@@ -15384,6 +15563,11 @@
 │   │   ├── SceneHelpers.cmj
 │   │   ├── SceneHelpers.cmt
 │   │   ├── SceneHelpers.res
+│   │   ├── SceneInventory.ast
+│   │   ├── SceneInventory.cmi
+│   │   ├── SceneInventory.cmj
+│   │   ├── SceneInventory.cmt
+│   │   ├── SceneInventory.res
 │   │   ├── SceneItem.ast
 │   │   ├── SceneItem.cmi
 │   │   ├── SceneItem.cmj
@@ -15414,6 +15598,21 @@
 │   │   ├── SceneLoader.cmj
 │   │   ├── SceneLoader.cmt
 │   │   ├── SceneLoader.res
+│   │   ├── SceneLoaderConfig.ast
+│   │   ├── SceneLoaderConfig.cmi
+│   │   ├── SceneLoaderConfig.cmj
+│   │   ├── SceneLoaderConfig.cmt
+│   │   ├── SceneLoaderConfig.res
+│   │   ├── SceneLoaderEvents.ast
+│   │   ├── SceneLoaderEvents.cmi
+│   │   ├── SceneLoaderEvents.cmj
+│   │   ├── SceneLoaderEvents.cmt
+│   │   ├── SceneLoaderEvents.res
+│   │   ├── SceneLoaderReuse.ast
+│   │   ├── SceneLoaderReuse.cmi
+│   │   ├── SceneLoaderReuse.cmj
+│   │   ├── SceneLoaderReuse.cmt
+│   │   ├── SceneLoaderReuse.res
 │   │   ├── SceneMutations_v.test.ast
 │   │   ├── SceneMutations_v.test.cmi
 │   │   ├── SceneMutations_v.test.cmj
@@ -15424,6 +15623,16 @@
 │   │   ├── SceneMutations.cmj
 │   │   ├── SceneMutations.cmt
 │   │   ├── SceneMutations.res
+│   │   ├── SceneNaming.ast
+│   │   ├── SceneNaming.cmi
+│   │   ├── SceneNaming.cmj
+│   │   ├── SceneNaming.cmt
+│   │   ├── SceneNaming.res
+│   │   ├── SceneOperations.ast
+│   │   ├── SceneOperations.cmi
+│   │   ├── SceneOperations.cmj
+│   │   ├── SceneOperations.cmt
+│   │   ├── SceneOperations.res
 │   │   ├── SceneReducer_v.test.ast
 │   │   ├── SceneReducer_v.test.cmi
 │   │   ├── SceneReducer_v.test.cmj
@@ -15519,6 +15728,11 @@
 │   │   ├── Sidebar.cmj
 │   │   ├── Sidebar.cmt
 │   │   ├── Sidebar.res
+│   │   ├── SidebarAbout.ast
+│   │   ├── SidebarAbout.cmi
+│   │   ├── SidebarAbout.cmj
+│   │   ├── SidebarAbout.cmt
+│   │   ├── SidebarAbout.res
 │   │   ├── SidebarActions.ast
 │   │   ├── SidebarActions.cmi
 │   │   ├── SidebarActions.cmj
@@ -15832,6 +16046,16 @@
 │   │   ├── UiReducer_v.test.cmj
 │   │   ├── UiReducer_v.test.cmt
 │   │   ├── UiReducer_v.test.res
+│   │   ├── UploadFinalizer.ast
+│   │   ├── UploadFinalizer.cmi
+│   │   ├── UploadFinalizer.cmj
+│   │   ├── UploadFinalizer.cmt
+│   │   ├── UploadFinalizer.res
+│   │   ├── UploadItemProcessor.ast
+│   │   ├── UploadItemProcessor.cmi
+│   │   ├── UploadItemProcessor.cmj
+│   │   ├── UploadItemProcessor.cmt
+│   │   ├── UploadItemProcessor.res
 │   │   ├── UploadProcessor_v.test.ast
 │   │   ├── UploadProcessor_v.test.cmi
 │   │   ├── UploadProcessor_v.test.cmj
@@ -15857,6 +16081,11 @@
 │   │   ├── UploadProcessorTypes_v.test.cmj
 │   │   ├── UploadProcessorTypes_v.test.cmt
 │   │   ├── UploadProcessorTypes_v.test.res
+│   │   ├── UploadRecovery.ast
+│   │   ├── UploadRecovery.cmi
+│   │   ├── UploadRecovery.cmj
+│   │   ├── UploadRecovery.cmt
+│   │   ├── UploadRecovery.res
 │   │   ├── UploadReport_v.test.ast
 │   │   ├── UploadReport_v.test.cmi
 │   │   ├── UploadReport_v.test.cmj
@@ -15867,11 +16096,26 @@
 │   │   ├── UploadReport.cmj
 │   │   ├── UploadReport.cmt
 │   │   ├── UploadReport.res
+│   │   ├── UploadReporting.ast
+│   │   ├── UploadReporting.cmi
+│   │   ├── UploadReporting.cmj
+│   │   ├── UploadReporting.cmt
+│   │   ├── UploadReporting.res
+│   │   ├── UploadScanner.ast
+│   │   ├── UploadScanner.cmi
+│   │   ├── UploadScanner.cmj
+│   │   ├── UploadScanner.cmt
+│   │   ├── UploadScanner.res
 │   │   ├── UploadTypes.ast
 │   │   ├── UploadTypes.cmi
 │   │   ├── UploadTypes.cmj
 │   │   ├── UploadTypes.cmt
 │   │   ├── UploadTypes.res
+│   │   ├── UploadUtils.ast
+│   │   ├── UploadUtils.cmi
+│   │   ├── UploadUtils.cmj
+│   │   ├── UploadUtils.cmt
+│   │   ├── UploadUtils.res
 │   │   ├── UrlUtils_v.test.ast
 │   │   ├── UrlUtils_v.test.cmi
 │   │   ├── UrlUtils_v.test.cmj
@@ -15887,6 +16131,11 @@
 │   │   ├── UseInteraction.cmj
 │   │   ├── UseInteraction.cmt
 │   │   ├── UseInteraction.res
+│   │   ├── UseSidebarProcessing.ast
+│   │   ├── UseSidebarProcessing.cmi
+│   │   ├── UseSidebarProcessing.cmj
+│   │   ├── UseSidebarProcessing.cmt
+│   │   ├── UseSidebarProcessing.res
 │   │   ├── UtilityBar_v.test.ast
 │   │   ├── UtilityBar_v.test.cmi
 │   │   ├── UtilityBar_v.test.cmj
@@ -15917,6 +16166,11 @@
 │   │   ├── VideoEncoder.cmj
 │   │   ├── VideoEncoder.cmt
 │   │   ├── VideoEncoder.res
+│   │   ├── ViewerAdapter.ast
+│   │   ├── ViewerAdapter.cmi
+│   │   ├── ViewerAdapter.cmj
+│   │   ├── ViewerAdapter.cmt
+│   │   ├── ViewerAdapter.res
 │   │   ├── ViewerBindings.ast
 │   │   ├── ViewerBindings.cmi
 │   │   ├── ViewerBindings.cmj
@@ -16062,10 +16316,6 @@
 │   │   ├── VisualPipeline.cmj
 │   │   ├── VisualPipeline.cmt
 │   │   ├── VisualPipeline.res
-│   │   ├── VisualPipelineComponent.ast
-│   │   ├── VisualPipelineComponent.cmi
-│   │   ├── VisualPipelineComponent.cmj
-│   │   ├── VisualPipelineComponent.cmt
 │   │   ├── VisualPipelineComponent.res
 │   │   ├── VisualPipelineStyles.ast
 │   │   ├── VisualPipelineStyles.cmi
@@ -17580,6 +17830,8 @@
 │   │   ├── SceneList.bs.js
 │   │   ├── SceneList.res
 │   │   ├── Sidebar
+│   │   │   ├── SidebarAbout.bs.js
+│   │   │   ├── SidebarAbout.res
 │   │   │   ├── SidebarActions.bs.js
 │   │   │   ├── SidebarActions.res
 │   │   │   ├── SidebarBranding.bs.js
@@ -17589,7 +17841,9 @@
 │   │   │   ├── SidebarProcessing.bs.js
 │   │   │   ├── SidebarProcessing.res
 │   │   │   ├── SidebarProjectInfo.bs.js
-│   │   │   └── SidebarProjectInfo.res
+│   │   │   ├── SidebarProjectInfo.res
+│   │   │   ├── UseSidebarProcessing.bs.js
+│   │   │   └── UseSidebarProcessing.res
 │   │   ├── Sidebar.bs.js
 │   │   ├── Sidebar.res
 │   │   ├── SnapshotOverlay.bs.js
@@ -17632,8 +17886,6 @@
 │   │   ├── ViewerUI.bs.js
 │   │   ├── ViewerUI.res
 │   │   ├── VisualPipeline
-│   │   │   ├── VisualPipelineComponent.bs.js
-│   │   │   ├── VisualPipelineComponent.res
 │   │   │   ├── VisualPipelineStyles.bs.js
 │   │   │   └── VisualPipelineStyles.res
 │   │   ├── VisualPipeline.bs.js
@@ -17685,8 +17937,14 @@
 │   │   ├── SceneCache.res
 │   │   ├── SceneHelpers.bs.js
 │   │   ├── SceneHelpers.res
+│   │   ├── SceneInventory.bs.js
+│   │   ├── SceneInventory.res
 │   │   ├── SceneMutations.bs.js
 │   │   ├── SceneMutations.res
+│   │   ├── SceneNaming.bs.js
+│   │   ├── SceneNaming.res
+│   │   ├── SceneOperations.bs.js
+│   │   ├── SceneOperations.res
 │   │   ├── SchemaDefinitions.bs.js
 │   │   ├── SchemaParsers.bs.js
 │   │   ├── Schemas.bs.js
@@ -17813,12 +18071,17 @@
 │   │   ├── Navigation.res
 │   │   ├── NavigationLogic.bs.js
 │   │   ├── NavigationLogic.res
-│   │   ├── PannellumAdapter.bs.js
-│   │   ├── PannellumAdapter.res
 │   │   ├── PannellumLifecycle.bs.js
 │   │   ├── PannellumLifecycle.res
 │   │   ├── PanoramaClusterer.bs.js
 │   │   ├── PanoramaClusterer.res
+│   │   ├── Project
+│   │   │   ├── ProjectLoader.bs.js
+│   │   │   ├── ProjectLoader.res
+│   │   │   ├── ProjectSaver.bs.js
+│   │   │   ├── ProjectSaver.res
+│   │   │   ├── ProjectValidator.bs.js
+│   │   │   └── ProjectValidator.res
 │   │   ├── ProjectManager.bs.js
 │   │   ├── ProjectManager.res
 │   │   ├── ProjectManagerUrl.bs.js
@@ -17833,6 +18096,13 @@
 │   │   ├── Resizer.bs.js
 │   │   ├── Resizer.res
 │   │   ├── Scene
+│   │   │   ├── Loader
+│   │   │   │   ├── SceneLoaderConfig.bs.js
+│   │   │   │   ├── SceneLoaderConfig.res
+│   │   │   │   ├── SceneLoaderEvents.bs.js
+│   │   │   │   ├── SceneLoaderEvents.res
+│   │   │   │   ├── SceneLoaderReuse.bs.js
+│   │   │   │   └── SceneLoaderReuse.res
 │   │   │   ├── SceneLoader.bs.js
 │   │   │   ├── SceneLoader.res
 │   │   │   ├── SceneSwitcher.bs.js
@@ -17874,6 +18144,19 @@
 │   │   ├── TeaserState.res
 │   │   ├── TourTemplates.bs.js
 │   │   ├── TourTemplates.res
+│   │   ├── Upload
+│   │   │   ├── UploadFinalizer.bs.js
+│   │   │   ├── UploadFinalizer.res
+│   │   │   ├── UploadItemProcessor.bs.js
+│   │   │   ├── UploadItemProcessor.res
+│   │   │   ├── UploadRecovery.bs.js
+│   │   │   ├── UploadRecovery.res
+│   │   │   ├── UploadReporting.bs.js
+│   │   │   ├── UploadReporting.res
+│   │   │   ├── UploadScanner.bs.js
+│   │   │   ├── UploadScanner.res
+│   │   │   ├── UploadUtils.bs.js
+│   │   │   └── UploadUtils.res
 │   │   ├── UploadProcessor.bs.js
 │   │   ├── UploadProcessor.res
 │   │   ├── UploadProcessorLogic.bs.js
@@ -17882,12 +18165,15 @@
 │   │   ├── UploadTypes.res
 │   │   ├── VideoEncoder.bs.js
 │   │   ├── VideoEncoder.res
-│   │   ├── ViewerFollow.bs.js
-│   │   ├── ViewerFollow.res
+│   │   ├── Viewer
+│   │   │   ├── ViewerAdapter.bs.js
+│   │   │   ├── ViewerAdapter.res
+│   │   │   ├── ViewerFollow.bs.js
+│   │   │   ├── ViewerFollow.res
+│   │   │   ├── ViewerPool.bs.js
+│   │   │   └── ViewerPool.res
 │   │   ├── ViewerLogic.bs.js
 │   │   ├── ViewerLogic.res
-│   │   ├── ViewerPool.bs.js
-│   │   ├── ViewerPool.res
 │   │   ├── ViewerSystem.bs.js
 │   │   └── ViewerSystem.res
 │   └── utils
@@ -17921,6 +18207,13 @@
 │       ├── LoggerLogic.res
 │       ├── LoggerTelemetry.bs.js
 │       ├── LoggerTelemetry.res
+│       ├── OperationJournal
+│       │   ├── JournalLogic.bs.js
+│       │   ├── JournalLogic.res
+│       │   ├── JournalPersistence.bs.js
+│       │   ├── JournalPersistence.res
+│       │   ├── JournalTypes.bs.js
+│       │   └── JournalTypes.res
 │       ├── OperationJournal.bs.js
 │       ├── OperationJournal.res
 │       ├── OperationJournal.resi
@@ -17990,14 +18283,12 @@
 │   │   └── dev_tasks
 │   │       ├── D001_Fix_Violations_FRONTEND.md
 │   │       ├── D002_Surgical_Refactor_CORE_FRONTEND.md
-│   │       ├── D003_Surgical_Refactor_SYSTEMS_FRONTEND.md
-│   │       ├── D007_Surgical_Refactor_COMPONENTS_FRONTEND.md
 │   │       ├── D008_Fix_Violations_BACKEND.md
 │   │       ├── D009_Merge_Folders_FRONTEND.md
-│   │       ├── D014_Surgical_Refactor_UTILS_FRONTEND.md
-│   │       ├── D015_Surgical_Refactor_SCENE_FRONTEND.md
 │   │       ├── D017_Evaluate_Automated_Tasks.md
-│   │       └── D018_Update_Map_Tree.md
+│   │       ├── D018_Update_Map_Tree.md
+│   │       ├── D019_Classify_Map_Entries.md
+│   │       └── D020_Integrate_DataFlow_Modules.md
 │   ├── postponed
 │   │   ├── 1243_Fix_Operation_Cancellation_Feedback.md
 │   │   ├── 1246_Handle_Malformed_Project_Files_Gracefully.md
@@ -18405,4 +18696,4 @@
 │       └── test_run.json
 └── vitest.config.mjs
 
-845 directories, 17561 files
+859 directories, 17838 files
