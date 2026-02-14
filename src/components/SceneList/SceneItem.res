@@ -171,15 +171,23 @@ let make = React.memo((
 
     <div className="flex-1 min-w-0 py-1.5 px-2 flex flex-col justify-center cursor-pointer">
       <div className="flex items-center justify-between gap-2 overflow-hidden">
-        <h4
-          className={`text-[12px] font-medium truncate tracking-tight ${if isActive {
-              "text-primary"
-            } else {
-              "text-slate-700"
-            }}`}
+        <Tooltip
+          content={switch scene.originalFile {
+          | Some(File(f)) => "original image name: " ++ BrowserBindings.File.name(f)
+          | _ => "original image name: unavailable"
+          }}
+          delayDuration=500
         >
-          {React.string(UrlUtils.stripExtension(scene.name))}
-        </h4>
+          <h4
+            className={`text-[12px] font-medium truncate tracking-tight ${if isActive {
+                "text-primary"
+              } else {
+                "text-slate-700"
+              }}`}
+          >
+            {React.string(UrlUtils.stripExtension(scene.name))}
+          </h4>
+        </Tooltip>
         {if Array.length(scene.hotspots) > 0 {
           <div
             className="flex items-center gap-1 text-slate-400 group-hover:text-primary transition-colors shrink-0"

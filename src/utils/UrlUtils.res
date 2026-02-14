@@ -48,3 +48,12 @@ let stripExtension = (filename: string): string => {
     String.substring(filename, ~start=0, ~end=lastDot)
   }
 }
+
+let getExtension = (filename: string): string => {
+  let lastDot = String.lastIndexOf(filename, ".")
+  if lastDot == -1 {
+    "webp" // Default fallback or empty
+  } else {
+    String.substring(filename, ~start=lastDot + 1, ~end=String.length(filename))
+  }
+}

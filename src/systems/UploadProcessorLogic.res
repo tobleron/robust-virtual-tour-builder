@@ -118,7 +118,8 @@ let createScenePayload = (items: array<UploadTypes.uploadItem>) => {
   Belt.Array.map(items, item => {
     let preview = Option.getOr(item.preview, item.original)
     let tiny = Option.getOr(item.tiny, preview)
-    let sanitizedName = UrlUtils.stripExtension(File.name(preview))
+    // Use full name (with extension) for consistency with computeSceneFilename
+    let sanitizedName = File.name(preview)
 
     JsonEncoders.Upload.sceneItem(
       ~id=Nullable.toOption(item.id)->Option.getOr(""),
@@ -311,32 +312,9 @@ let executeProcessingChain = (
   updateProgress(20.0, "Processing images...", true, "Processing")
 
   let processedCount = ref(0)
-  let buffer = ref([])
+  // Accumulate ALL items to sort them later
+  let allProcessedItems = ref([])
   let lastJournalUpdate = ref(Date.now())
-
-  let flushBuffer = () => {
-    let itemsToFlush = buffer.contents
-    if Belt.Array.length(itemsToFlush) > 0 {
-      buffer := []
-      let existingScenes = getState().scenes
-      PanoramaClusterer.clusterScenes(itemsToFlush, ~existingScenes, ~updateProgress=(_, _, _, _) =>
-        ()
-      )->Promise.then(clustered => {
-        let jsonPayload = createScenePayload(clustered)
-        Logger.info(
-          ~module_="UploadLogic",
-          ~message="DISPATCHING_ADD_SCENES",
-          ~data=Some({"count": Belt.Array.length(jsonPayload)}),
-          (),
-        )
-        dispatch(AddScenes(jsonPayload))
-        PersistenceLayer.performSave(getState())
-        Promise.resolve()
-      })
-    } else {
-      Promise.resolve()
-    }
-  }
 
   AsyncQueue.execute(
     uniqueItems,
@@ -345,7 +323,7 @@ let executeProcessingChain = (
       updateStatus("Optimizing")
       processItem(i, item, updateStatus)->Promise.then(processedItem => {
         if processedItem.error == None {
-          buffer := Belt.Array.concat(buffer.contents, [processedItem])
+          allProcessedItems := Belt.Array.concat(allProcessedItems.contents, [processedItem])
           processedCount := processedCount.contents + 1
 
           let now = Date.now()
@@ -362,14 +340,7 @@ let executeProcessingChain = (
           } else {
             Promise.resolve()
           }
-
-          if Belt.Array.length(buffer.contents) >= 5 {
-            flushBuffer()
-            ->Promise.then(() => journalPromise)
-            ->Promise.then(() => Promise.resolve(processedItem))
-          } else {
-            journalPromise->Promise.then(() => Promise.resolve(processedItem))
-          }
+          journalPromise->Promise.then(() => Promise.resolve(processedItem))
         } else {
           Promise.resolve(processedItem)
         }
@@ -380,31 +351,81 @@ let executeProcessingChain = (
       let scaledPct = 20.0 +. 75.0 *. pct
       updateProgress(scaledPct, msg, true, "Processing")
     },
-  )->Promise.then(processedItems => {
-    flushBuffer()->Promise.then(() => {
-      let validProcessed = Belt.Array.keep(processedItems, i => i.error == None)
-      if Belt.Array.length(validProcessed) == 0 && Belt.Array.length(uniqueItems) > 0 {
-        Utils.notify("All uploads failed.", "error")
-        Promise.resolve(
-          (
-            {
-              qualityResults: [],
-              duration: "0.0",
-              report: {success: [], skipped: []},
-            }: UploadTypes.processResult
+  )->Promise.then(_ => {
+    // All items processed. Now SORT and DISPATCH.
+    let validProcessed = Belt.Array.keep(allProcessedItems.contents, i => i.error == None)
+
+    if Belt.Array.length(validProcessed) == 0 && Belt.Array.length(uniqueItems) > 0 {
+      Utils.notify("All uploads failed.", "error")
+      Promise.resolve(
+        (
+          {
+            qualityResults: [],
+            duration: "0.0",
+            report: {success: [], skipped: []},
+          }: UploadTypes.processResult
+        ),
+      )
+    } else {
+      // SORT BY EXIF DATE
+      let sortedItems = Belt.Array.copy(validProcessed)
+      Belt.SortArray.stableSortInPlaceBy(sortedItems, (a, b) => {
+        let getDate = (item: uploadItem) => {
+          switch item.metadata {
+          | Some(json) =>
+            switch JsonCombinators.Json.decode(
+              json,
+              JsonCombinators.Json.Decode.object(
+                d => d.optional("dateTime", JsonCombinators.Json.Decode.string),
+              ),
+            ) {
+            | Ok(Some(dt)) => dt
+            | _ => ""
+            }
+          | None => ""
+          }
+        }
+        let da = getDate(a)
+        let db = getDate(b)
+        if da < db {
+          -1
+        } else if da > db {
+          1
+        } else {
+          0
+        }
+      })
+
+      // Assign Names 001, 002...
+      let existingScenesCount = Belt.Array.length(getState().scenes)
+
+      let finalItems = Belt.Array.mapWithIndex(sortedItems, (i, item) => {
+        let newIndex = existingScenesCount + i
+        // computeSceneFilename returns name with .webp extension e.g. "001.webp"
+        let newName = TourLogic.computeSceneFilename(newIndex, "", "")
+
+        {
+          ...item,
+          preview: item.preview->Option.map(
+            f => {
+              File.newFile([f], newName, {"type": File.type_(f)})
+            },
           ),
-        )
-      } else {
-        finalizeUploads(
-          validProcessed,
-          startTime,
-          updateProgress,
-          skippedCount,
-          ~getState,
-          ~dispatch,
-        )
-      }
-    })
+        }
+      })
+
+      // Re-cluster and Dispatch
+      let existingScenes = getState().scenes
+      PanoramaClusterer.clusterScenes(finalItems, ~existingScenes, ~updateProgress=(_, _, _, _) =>
+        ()
+      )->Promise.then(clustered => {
+        let jsonPayload = createScenePayload(clustered)
+        dispatch(AddScenes(jsonPayload))
+        PersistenceLayer.performSave(getState())
+
+        finalizeUploads(clustered, startTime, updateProgress, skippedCount, ~getState, ~dispatch) // Use the re-named clustered items
+      })
+    }
   })
 }
 
