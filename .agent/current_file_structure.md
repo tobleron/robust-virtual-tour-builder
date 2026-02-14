@@ -17256,7 +17256,8 @@
 │   ├── images
 │   │   ├── icon-192.png
 │   │   ├── icon-512.png
-│   │   ├── logo.png
+│   │   ├── logo.jpeg
+│   │   ├── logo_old.png
 │   │   └── og-preview.png
 │   ├── libs
 │   │   ├── FileSaver.min.js
@@ -18300,4 +18301,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-797 directories, 17504 files
+797 directories, 17505 files

@@ -63,14 +63,15 @@ module URL = {
 }
 
 /* Constants - Updated by scripts/sync-sw.cjs */
-let cacheName = "vtb-cache-v4.6.2"
+let cacheName = "vtb-cache-v4.6.4"
 let manualAssets = [
   "/",
   "/index.html",
   "/early-boot.js",
   "/images/icon-192.png",
   "/images/icon-512.png",
-  "/images/logo.png",
+  "/images/logo.jpeg",
+  "/images/logo_old.png",
   "/images/og-preview.png",
   "/libs/FileSaver.min.js",
   "/libs/jszip.min.js",
@@ -78,7 +79,7 @@ let manualAssets = [
   "/libs/pannellum.js",
   "/manifest.json",
   "/robots.txt",
-  "/sounds/click.wav",
+  "/sounds/click.wav"
 ]
 
 addEventListener("install", (event: ExtendableEvent.t) => {
