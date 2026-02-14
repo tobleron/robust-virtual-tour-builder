@@ -12,6 +12,7 @@
 ### 🔧 Action: Fix Pattern `Obj.magic`
 **Directive:** CSP Compliance: Replace 'Obj.magic' with `rescript-json-combinators` (Zero-Eval).
 
+- [ ] `../../src/components/ViewerHUD.res`
 - [ ] `../../src/core/JsonParsersDecoders.res`
 - [ ] `../../src/hooks/UseInteraction.res`
 - [ ] `../../src/systems/Api/AuthenticatedClient.res`

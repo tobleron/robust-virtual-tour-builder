@@ -253,6 +253,7 @@ let getProjectData = (state: Types.state) => {
     sessionId: state.sessionId,
     deletedSceneIds: state.deletedSceneIds,
     timeline: state.timeline,
+    logo: state.logo,
   }
   JsonParsers.Encoders.project(project)
 }
@@ -293,6 +294,7 @@ let handleExport = async (
     let exportResult = await Exporter.exportTour(
       scenes,
       ~tourName,
+      ~logo=AppContext.getBridgeState().logo,
       ~signal,
       Some((pct, _, msg) => updateProgress(~dispatch, ~onCancel, pct, msg, true, "Export")),
     )

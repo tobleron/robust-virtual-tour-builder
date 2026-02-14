@@ -53,6 +53,7 @@ type rec action =
   | SetNavigationFsmState(NavigationFSM.distinctState)
   | DispatchNavigationFsmEvent(NavigationFSM.event)
   | DispatchAppFsmEvent(AppFSM.event)
+  | SetLogo(option<file>)
   | Batch(array<action>)
 
 let sceneActionToString = (action: action): option<string> =>
@@ -138,6 +139,7 @@ let uiActionToString = (action: action): option<string> =>
   | Reset => Some("Reset")
   | SetExifReport(_) => Some("SetExifReport")
   | SetSessionId(id) => Some(`SetSessionId(${id})`)
+  | SetLogo(_) => Some("SetLogo")
   | DispatchAppFsmEvent(_) => Some("DispatchAppFsmEvent")
   | _ => None
   }

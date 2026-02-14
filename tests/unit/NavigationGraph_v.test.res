@@ -93,6 +93,7 @@ describe("NavigationGraph", () => {
       pendingReturnSceneName: None,
       lastUsedCategory: "indoor",
       sessionId: None,
+      logo: None,
     }
   }
 

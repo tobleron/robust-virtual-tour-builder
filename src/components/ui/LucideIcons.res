@@ -375,3 +375,13 @@ module Flag = {
     ~fill: string=?,
   ) => React.element = "Flag"
 }
+
+module Upload = {
+  @module("lucide-react") @react.component
+  external make: (
+    ~className: string=?,
+    ~size: int=?,
+    ~strokeWidth: float=?,
+    ~fill: string=?,
+  ) => React.element = "Upload"
+}
