@@ -1,3 +1,4 @@
+use crate::config::MapTreeConfig;
 use anyhow::Result;
 use regex::Regex;
 use std::collections::HashSet;
@@ -271,16 +272,17 @@ pub fn check_map(config: &GuardConfig, rules: &ExclusionRules) -> Result<()> {
 
                 if is_project_source(path, rules) && !mapped_paths.contains(clean_p) {
                     if path.exists() {
-                         // Check for ignore tag in content
-                         let is_ignored = if let Ok(content) = fs::read_to_string(path) {
-                             content.contains("@efficiency-role: ignored") || content.contains("@efficiency-role ignored")
-                         } else {
-                             false
-                         };
+                        // Check for ignore tag in content
+                        let is_ignored = if let Ok(content) = fs::read_to_string(path) {
+                            content.contains("@efficiency-role: ignored")
+                                || content.contains("@efficiency-role ignored")
+                        } else {
+                            false
+                        };
 
-                         if !is_ignored {
-                             unmapped_files.push(clean_p.to_string());
-                         }
+                        if !is_ignored {
+                            unmapped_files.push(clean_p.to_string());
+                        }
                     }
                 }
             }
@@ -297,7 +299,7 @@ pub fn check_map(config: &GuardConfig, rules: &ExclusionRules) -> Result<()> {
 
     for line in lines.into_iter() {
         let mut is_zombie = false;
-        
+
         // Only check lines that look like structural map entries (bullet points with links)
         if line.trim_start().starts_with("* [") || line.trim_start().starts_with("- [") {
             // Find the FIRST link in the line (usually the file path)
@@ -305,7 +307,7 @@ pub fn check_map(config: &GuardConfig, rules: &ExclusionRules) -> Result<()> {
                 let raw_path = cap[1].to_string();
                 // Handle anchors (e.g., src/Main.res#anchor)
                 let p_no_anchor = raw_path.split('#').next().unwrap_or(&raw_path);
-                
+
                 let mut p = p_no_anchor.to_string();
 
                 // Clean path (remove file:// prefix if present)
@@ -314,20 +316,20 @@ pub fn check_map(config: &GuardConfig, rules: &ExclusionRules) -> Result<()> {
                         p = p[idx + "/robust-virtual-tour-builder/".len()..].to_string();
                     }
                 }
-                
+
                 // Ignore external links or empty paths
                 if !p.starts_with("http") && !p.is_empty() {
-                     let full_path = Path::new("../../").join(&p);
-                     // If file does not exist, mark for deletion
-                     if !full_path.exists() {
-                         println!("🧹 Removing zombie entry: {}", p);
-                         is_zombie = true;
-                         changed = true;
-                     }
+                    let full_path = Path::new("../../").join(&p);
+                    // If file does not exist, mark for deletion
+                    if !full_path.exists() {
+                        println!("🧹 Removing zombie entry: {}", p);
+                        is_zombie = true;
+                        changed = true;
+                    }
                 }
             }
         }
-        
+
         if !is_zombie {
             new_lines.push(line);
         }
@@ -415,12 +417,22 @@ pub fn check_map(config: &GuardConfig, rules: &ExclusionRules) -> Result<()> {
         }
 
         let (id, path) = if let Some(p) = existing_task_path {
-            let id = p.file_name().unwrap().to_string_lossy().split('_').next().unwrap_or("D0").to_string();
+            let id = p
+                .file_name()
+                .unwrap()
+                .to_string_lossy()
+                .split('_')
+                .next()
+                .unwrap_or("D0")
+                .to_string();
             (id, p)
         } else {
             let next_id = get_next_dev_id(config);
             let id_str = format!("D{:03}", next_id);
-            (id_str.clone(), PathBuf::from(&dev_tasks_dir).join(format!("{}_{}.md", id_str, task_pattern)))
+            (
+                id_str.clone(),
+                PathBuf::from(&dev_tasks_dir).join(format!("{}_{}.md", id_str, task_pattern)),
+            )
         };
 
         let mut task_content = format!(
@@ -449,6 +461,283 @@ pub fn check_map(config: &GuardConfig, rules: &ExclusionRules) -> Result<()> {
     Ok(())
 }
 
+pub fn check_map_tree(config: &GuardConfig, tree_config: &MapTreeConfig) -> Result<()> {
+    let map_path = Path::new(&config.map_file);
+    if !map_path.exists() {
+        return Ok(());
+    }
+
+    let map_content = fs::read_to_string(map_path)?;
+    let tree_entries = parse_map_tree_entries(&map_content);
+    if tree_entries.is_empty() {
+        return Ok(());
+    }
+
+    let root_dir = map_path.parent().unwrap_or_else(|| Path::new("../.."));
+    let tree_dirs: HashSet<String> = tree_entries
+        .iter()
+        .filter(|entry| entry.entry_type == MapTreeEntryType::Directory)
+        .map(|entry| entry.path.clone())
+        .collect();
+
+    let tree_files: HashSet<String> = tree_entries
+        .iter()
+        .filter(|entry| entry.entry_type == MapTreeEntryType::File)
+        .map(|entry| entry.path.clone())
+        .collect();
+
+    let actual_dirs = collect_root_directories(root_dir, tree_config)?;
+    let mut missing_dirs = tree_dirs
+        .difference(&actual_dirs)
+        .cloned()
+        .collect::<Vec<_>>();
+    missing_dirs.sort();
+
+    let mut extra_dirs = Vec::new();
+    if tree_config.detect_extra_entries {
+        extra_dirs = actual_dirs
+            .difference(&tree_dirs)
+            .cloned()
+            .collect::<Vec<_>>();
+        extra_dirs.sort();
+    }
+
+    let mut missing_files: Vec<String> = tree_files
+        .into_iter()
+        .filter(|file| !root_dir.join(file).exists())
+        .collect();
+    missing_files.sort();
+
+    if missing_dirs.is_empty() && extra_dirs.is_empty() && missing_files.is_empty() {
+        cleanup_map_tree_task(config)?;
+        return Ok(());
+    }
+
+    create_or_update_map_tree_task(config, missing_dirs, extra_dirs, missing_files)?;
+
+    Ok(())
+}
+
+#[derive(Debug, PartialEq, Eq)]
+enum MapTreeEntryType {
+    Directory,
+    File,
+}
+
+#[derive(Debug)]
+struct MapTreeEntry {
+    path: String,
+    entry_type: MapTreeEntryType,
+}
+
+fn parse_map_tree_entries(map_content: &str) -> Vec<MapTreeEntry> {
+    let mut entries = Vec::new();
+    let block_lines = extract_map_tree_block(map_content);
+    if block_lines.is_empty() {
+        return entries;
+    }
+
+    let link_regex = Regex::new(r"\[([^\]]+)\]\(([^)]+)\)").unwrap();
+
+    for line in block_lines {
+        for cap in link_regex.captures_iter(&line) {
+            let mut target = cap[2].trim().to_string();
+            if target.is_empty() {
+                continue;
+            }
+            target = target
+                .trim_start_matches("./")
+                .trim_start_matches('/')
+                .to_string();
+            if target.is_empty() {
+                continue;
+            }
+
+            let entry_type = if target.ends_with('/') {
+                MapTreeEntryType::Directory
+            } else {
+                MapTreeEntryType::File
+            };
+
+            let normalized = if entry_type == MapTreeEntryType::Directory {
+                target.trim_end_matches('/').to_string()
+            } else {
+                target
+            };
+
+            if normalized.is_empty() {
+                continue;
+            }
+
+            entries.push(MapTreeEntry {
+                path: normalized,
+                entry_type,
+            });
+        }
+    }
+
+    entries
+}
+
+fn extract_map_tree_block(map_content: &str) -> Vec<String> {
+    let mut block_lines = Vec::new();
+    let mut in_block = false;
+
+    for line in map_content.lines() {
+        let trimmed = line.trim();
+        if trimmed.starts_with("```") {
+            if in_block {
+                break;
+            }
+            in_block = true;
+            continue;
+        }
+        if in_block {
+            block_lines.push(line.to_string());
+        }
+    }
+
+    block_lines
+}
+
+fn collect_root_directories(
+    root_path: &Path,
+    tree_config: &MapTreeConfig,
+) -> Result<HashSet<String>> {
+    let mut directories = HashSet::new();
+
+    if !root_path.exists() {
+        return Ok(directories);
+    }
+
+    for entry in fs::read_dir(root_path)? {
+        let entry = entry?;
+        let file_type = match entry.file_type() {
+            Ok(typ) => typ,
+            Err(_) => continue,
+        };
+
+        if !file_type.is_dir() {
+            continue;
+        }
+
+        let name = entry.file_name().to_string_lossy().into_owned();
+        if name.is_empty() {
+            continue;
+        }
+
+        if tree_config.ignore_hidden && name.starts_with('.') {
+            continue;
+        }
+
+        if tree_config
+            .ignored_entries
+            .iter()
+            .any(|ignored| ignored.eq_ignore_ascii_case(&name))
+        {
+            continue;
+        }
+
+        if tree_config
+            .ignored_prefixes
+            .iter()
+            .any(|prefix| name.starts_with(prefix))
+        {
+            continue;
+        }
+
+        directories.insert(name);
+    }
+
+    Ok(directories)
+}
+
+fn cleanup_map_tree_task(config: &GuardConfig) -> Result<()> {
+    let dev_tasks_dir = Path::new(&config.tasks_dir).join("pending/dev_tasks");
+    if let Ok(entries) = fs::read_dir(&dev_tasks_dir) {
+        for entry in entries.filter_map(|e| e.ok()) {
+            if entry
+                .file_name()
+                .to_string_lossy()
+                .contains("Update_Map_Tree")
+            {
+                let _ = fs::remove_file(entry.path());
+            }
+        }
+    }
+    Ok(())
+}
+
+fn create_or_update_map_tree_task(
+    config: &GuardConfig,
+    missing_dirs: Vec<String>,
+    extra_dirs: Vec<String>,
+    missing_files: Vec<String>,
+) -> Result<()> {
+    let dev_tasks_dir = Path::new(&config.tasks_dir).join("pending/dev_tasks");
+    if !dev_tasks_dir.exists() {
+        fs::create_dir_all(&dev_tasks_dir)?;
+    }
+
+    let task_pattern = "Update_Map_Tree";
+    let mut existing_path = None;
+    let mut task_id = String::new();
+
+    if let Ok(entries) = fs::read_dir(&dev_tasks_dir) {
+        for entry in entries.filter_map(|e| e.ok()) {
+            let name = entry.file_name().to_string_lossy().into_owned();
+            if name.contains(task_pattern) {
+                task_id = name.split('_').next().unwrap_or("D0").to_string();
+                existing_path = Some(entry.path());
+                break;
+            }
+        }
+    }
+
+    if existing_path.is_none() {
+        let next_id = get_next_dev_id(config);
+        task_id = format!("D{:03}", next_id);
+        existing_path = Some(dev_tasks_dir.join(format!("{}_{}.md", task_id, task_pattern)));
+    }
+
+    let path = existing_path.unwrap();
+    let mut task_content = format!(
+        "# Task {}: Update MAP Directory Tree\n\n\
+        ## 🚨 Trigger\n\
+        The tree block at the top of `MAP.md` no longer matches the actual repository layout.\n\n\
+        ## Objective\n\
+        Bring the first code block in `MAP.md` into sync with the tracked root directories and files.\n\n\
+        ## Differences\n",
+        task_id
+    );
+
+    for dir in missing_dirs {
+        task_content.push_str(&format!(
+            "- [ ] Remove or rename `{}` in the tree block (directory missing on disk).\n",
+            dir
+        ));
+    }
+
+    for file in missing_files {
+        task_content.push_str(&format!(
+            "- [ ] Remove `{}` from the tree block (file missing from the repo root).\n",
+            file
+        ));
+    }
+
+    for dir in extra_dirs {
+        task_content.push_str(&format!(
+            "- [ ] Add `{}` to the tree block (new root directory that should be documented).\n",
+            dir
+        ));
+    }
+
+    task_content.push_str("\n## Notes\n- Update the tree block so this task disappears the next time `_dev-system` runs.\n");
+    fs::write(&path, task_content)?;
+    println!("🗂️ Updated MAP tree task: {}", path.display());
+    Ok(())
+}
+
 pub fn check_data_flow(config: &GuardConfig, rules: &ExclusionRules) -> Result<()> {
     if !Path::new(&config.data_flow_file).exists() {
         println!("⚠️  DATA_FLOW.md not found. Skipping data flow check.");
@@ -457,7 +746,7 @@ pub fn check_data_flow(config: &GuardConfig, rules: &ExclusionRules) -> Result<(
 
     let flow_content = fs::read_to_string(&config.data_flow_file)?;
     let regex = Regex::new(r"\[([^\]]+\.(?:res|rs|js|jsx|ts|tsx))\]").unwrap();
-    
+
     // --- Split and Reconcile ---
     let header_marker = "## 🆕 Unmapped Modules";
     let (top_content, _) = match flow_content.find(header_marker) {
@@ -480,11 +769,16 @@ pub fn check_data_flow(config: &GuardConfig, rules: &ExclusionRules) -> Result<(
             let path = entry.path();
             if path.is_file() {
                 let p_str = path.to_string_lossy().to_string().replace("\\", "/");
-                let clean_p = if p_str.starts_with("../../") { &p_str[6..] } else { &p_str };
+                let clean_p = if p_str.starts_with("../../") {
+                    &p_str[6..]
+                } else {
+                    &p_str
+                };
 
                 if is_project_source(path, rules) && !real_references.contains(clean_p) {
                     let is_ignored = if let Ok(content) = fs::read_to_string(path) {
-                        content.contains("@efficiency-role: ignored") || content.contains("@efficiency-role ignored")
+                        content.contains("@efficiency-role: ignored")
+                            || content.contains("@efficiency-role ignored")
                     } else {
                         false
                     };
@@ -500,7 +794,8 @@ pub fn check_data_flow(config: &GuardConfig, rules: &ExclusionRules) -> Result<(
     truly_missing.sort();
 
     // --- Group by Directory for Token Efficiency ---
-    let mut grouped: std::collections::BTreeMap<String, Vec<String>> = std::collections::BTreeMap::new();
+    let mut grouped: std::collections::BTreeMap<String, Vec<String>> =
+        std::collections::BTreeMap::new();
     for path in truly_missing {
         let parent = Path::new(&path)
             .parent()
@@ -511,7 +806,7 @@ pub fn check_data_flow(config: &GuardConfig, rules: &ExclusionRules) -> Result<(
 
     // --- Reconstruct lines ---
     let mut final_lines: Vec<String> = top_content.lines().map(|s| s.to_string()).collect();
-    
+
     // Ensure spacing
     if !final_lines.is_empty() && !final_lines.last().unwrap().is_empty() {
         final_lines.push("".to_string());
@@ -521,11 +816,12 @@ pub fn check_data_flow(config: &GuardConfig, rules: &ExclusionRules) -> Result<(
     final_lines.push("(This section auto-populated by _dev-system analyzer)".to_string());
 
     if !grouped.is_empty() {
-        println!("🌊 Reconciling: {} modules remain unmapped across {} directories.", 
+        println!(
+            "🌊 Reconciling: {} modules remain unmapped across {} directories.",
             grouped.values().map(|v| v.len()).sum::<usize>(),
             grouped.len()
         );
-        
+
         for (dir, files) in grouped {
             final_lines.push("".to_string());
             final_lines.push(format!("### 📂 {}", dir));
@@ -539,7 +835,10 @@ pub fn check_data_flow(config: &GuardConfig, rules: &ExclusionRules) -> Result<(
 
     final_lines.push("".to_string());
     final_lines.push("---".to_string());
-    final_lines.push("(Utilities and Infrastructure modules are excluded from flow documentation by design)".to_string());
+    final_lines.push(
+        "(Utilities and Infrastructure modules are excluded from flow documentation by design)"
+            .to_string(),
+    );
 
     let mut changed = false;
     let new_content = final_lines.join("\n");
@@ -602,14 +901,22 @@ pub fn check_data_flow(config: &GuardConfig, rules: &ExclusionRules) -> Result<(
         }
 
         let (id, path) = if let Some(p) = existing_task_path {
-            let id = p.file_name().unwrap().to_string_lossy()
-                .split('_').next().unwrap_or("D0").to_string();
+            let id = p
+                .file_name()
+                .unwrap()
+                .to_string_lossy()
+                .split('_')
+                .next()
+                .unwrap_or("D0")
+                .to_string();
             (id, p)
         } else {
             let next_id = get_next_dev_id(config);
             let id_str = format!("D{:03}", next_id);
-            (id_str.clone(), PathBuf::from(&dev_tasks_dir)
-                .join(format!("{}_{}.md", id_str, task_pattern)))
+            (
+                id_str.clone(),
+                PathBuf::from(&dev_tasks_dir).join(format!("{}_{}.md", id_str, task_pattern)),
+            )
         };
 
         let mut task_content = format!(
@@ -722,7 +1029,7 @@ pub fn check_tasks_count(config: &GuardConfig) -> Result<()> {
         }
     }
 
-    if count > 90 {
+    if count > 20 {
         // Check dev_tasks directory for existing maintenance task
         let dev_tasks_dir = format!("{}/pending/dev_tasks", config.tasks_dir);
         let task_pattern = "Aggregate_Completed_Tasks";
@@ -750,9 +1057,10 @@ pub fn check_tasks_count(config: &GuardConfig) -> Result<()> {
             let task_path = PathBuf::from(&dev_tasks_dir).join(&task_filename);
 
             let task_content = format!(
-                "# Task D{:03}: Aggregate Completed Tasks\n\n## 🚨 Trigger\nCompleted tasks count exceeds 90 (Current: {}).\n\n## Objective\nAggregate the oldest 50 completed tasks into `tasks/completed/_CONCISE_SUMMARY.md` and cleanup.\n\n## AI Prompt\n\"Please perform the following maintenance on the task system:\n1. Identify the oldest 50 task files in `tasks/completed/` (based on their numerical prefix).\n2. Read these 50 files and the existing `tasks/completed/_CONCISE_SUMMARY.md`.\n3. Integrate the core accomplishments from these 50 tasks into `tasks/completed/_CONCISE_SUMMARY.md`, following its established style (categorized, bullet points, extremely concise).\n4. After successful integration and verification, delete the 50 original task files from `tasks/completed/`.\n5. Ensure the `_CONCISE_SUMMARY.md` remains the definitive high-level history of the project.\"\n",
+                "# Task D{:03}: Aggregate Completed Tasks\n\n## 🚨 Trigger\nCompleted tasks count exceeds 20 (Current: {}).\n\n## Objective\nAggregate all but the last 10 completed tasks into `tasks/completed/_CONCISE_SUMMARY.md` and cleanup.\n\n## AI Prompt\n\"Please perform the following maintenance on the task system:\n1. Identify all completed task files in `tasks/completed/` except for the 10 most recent ones (based on their numerical prefix).\n2. Read these older files and the existing `tasks/completed/_CONCISE_SUMMARY.md`.\n3. Integrate the core accomplishments from these older tasks into `tasks/completed/_CONCISE_SUMMARY.md`, following its established style (categorized, bullet points, extremely concise).\n4. After successful integration and verification, delete the processed original task files from `tasks/completed/`.\n5. Ensure the `_CONCISE_SUMMARY.md` remains the definitive high-level history of the project.\"\n",
                 next_id, count
             );
+
 
             fs::write(&task_path, task_content)?;
             println!("🧹 Created Maintenance Task: {}", task_path.display());

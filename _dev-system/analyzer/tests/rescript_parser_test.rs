@@ -1,4 +1,3 @@
-
 #[test]
 fn test_rescript_include_stripping() {
     let content = r#"
@@ -16,13 +15,16 @@ fn test_rescript_include_stripping() {
     for line in stripped.lines() {
         let trim = line.trim();
         if trim.starts_with("include ") {
-             if let Some(dep) = trim.split_whitespace().nth(1) {
-                 includes.push(dep.replace(";", "").to_string());
-             }
+            if let Some(dep) = trim.split_whitespace().nth(1) {
+                includes.push(dep.replace(";", "").to_string());
+            }
         }
     }
 
-    assert!(includes.contains(&"ApiLogic".to_string()), "Failed to parse include from stripped code");
+    assert!(
+        includes.contains(&"ApiLogic".to_string()),
+        "Failed to parse include from stripped code"
+    );
 }
 
 #[test]
@@ -39,6 +41,12 @@ fn test_rescript_dot_dependency_extraction() {
     let dict = std::collections::HashMap::new();
     let metrics = efficiency_analyzer::drivers::rescript::analyze_rescript(content, &dict).unwrap();
 
-    assert!(metrics.dependencies.contains(&"Logger".to_string()), "Failed to extract Logger dependency");
-    assert!(metrics.dependencies.contains(&"Constants".to_string()), "Failed to extract Constants dependency");
+    assert!(
+        metrics.dependencies.contains(&"Logger".to_string()),
+        "Failed to extract Logger dependency"
+    );
+    assert!(
+        metrics.dependencies.contains(&"Constants".to_string()),
+        "Failed to extract Constants dependency"
+    );
 }
