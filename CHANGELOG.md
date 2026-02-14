@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Ui: modernize watermark with 6px radius and translucent gold border
 - Ui: reduce watermark glass border padding to 1px
 - Ui: reduce watermark border radius to 4px
+- Ui: make logo border 100% opacity
 
 ## [4.6.4] - 2026-02-14
 
