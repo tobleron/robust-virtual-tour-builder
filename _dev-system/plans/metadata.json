@@ -1,21 +1,12 @@
 {
-  "rust": [
+  "rescript": [
     {
       "Violation": {
-        "file": "../../backend/src/services/media/naming.rs",
-        "pattern": "unwrap()",
+        "file": "../../src/systems/Api/AuthenticatedClient.res",
+        "pattern": "Obj.magic",
         "strategy": ""
       }
     },
-    {
-      "Violation": {
-        "file": "../../backend/src/metrics.rs",
-        "pattern": "unwrap()",
-        "strategy": ""
-      }
-    }
-  ],
-  "rescript": [
     {
       "Surgical": {
         "file": "../../src/systems/Scene/SceneLoader.res",
@@ -28,24 +19,6 @@
       }
     },
     {
-      "Violation": {
-        "file": "../../src/core/JsonParsersDecoders.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/systems/ProjectManager.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.20, Density: 0.20, Coupling: 0.10] | Drag: 5.40 | LOC: 402/300  🎯 Target: Function: `finalToken` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 15.601492537313433,
-        "recommended_splits": 2
-      }
-    },
-    {
       "Surgical": {
         "file": "../../src/core/Reducer.res",
         "action": "De-bloat",
@@ -54,13 +27,6 @@
         "platform": "frontend",
         "complexity": 17.484313725490196,
         "recommended_splits": 2
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/systems/Api/AuthenticatedClient.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
       }
     },
     {
@@ -79,28 +45,6 @@
         "file": "../../src/systems/UploadProcessorLogic.res",
         "pattern": "Obj.magic",
         "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/Sidebar.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 3.00, Density: 0.03, Coupling: 0.08] | Drag: 4.09 | LOC: 406/300  🎯 Target: Function: `make` (High Local Complexity (13.5). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 14.6935960591133,
-        "recommended_splits": 2
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/core/SceneMutations.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 5.40, Density: 0.26, Coupling: 0.04] | Drag: 6.68 | LOC: 394/300  🎯 Target: Function: `getDeletedIds` (High Local Complexity (3.5). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 16.081725888324872,
-        "recommended_splits": 2
       }
     },
     {
@@ -131,6 +75,46 @@
         "complexity": 13.322222222222223,
         "recommended_splits": 2
       }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/components/Sidebar.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 3.00, Density: 0.03, Coupling: 0.08] | Drag: 4.09 | LOC: 406/300  🎯 Target: Function: `make` (High Local Complexity (13.5). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 14.6935960591133,
+        "recommended_splits": 2
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/core/SceneMutations.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 5.40, Density: 0.26, Coupling: 0.04] | Drag: 6.68 | LOC: 394/300  🎯 Target: Function: `getDeletedIds` (High Local Complexity (3.5). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 16.081725888324872,
+        "recommended_splits": 2
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/core/JsonParsersDecoders.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/ProjectManager.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.20, Density: 0.20, Coupling: 0.10] | Drag: 5.40 | LOC: 402/300  🎯 Target: Function: `finalToken` (High Local Complexity (2.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 15.601492537313433,
+        "recommended_splits": 2
+      }
     }
   ],
   "system": [
@@ -144,6 +128,22 @@
         "reason": "Read Tax high (Score 2.00). Projected Limit: 300 (Drag 3.30)",
         "strategy": "",
         "platform": "frontend"
+      }
+    }
+  ],
+  "rust": [
+    {
+      "Violation": {
+        "file": "../../backend/src/metrics.rs",
+        "pattern": "unwrap()",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/services/media/naming.rs",
+        "pattern": "unwrap()",
+        "strategy": ""
       }
     }
   ]
