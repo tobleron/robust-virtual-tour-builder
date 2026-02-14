@@ -171,10 +171,10 @@ let make = React.memo((
 
     <Tooltip
       content={switch scene.originalFile {
-      | Some(File(f)) => "original image name: " ++ BrowserBindings.File.name(f)
-      | _ => "original image name: unavailable"
+      | Some(File(f)) => BrowserBindings.File.name(f)
+      | _ => "filename unavailable"
       }}
-      delayDuration=500
+      delayDuration=Constants.tooltipDelayDuration
     >
       <div className="flex-1 min-w-0 py-1.5 px-2 flex flex-col justify-center cursor-pointer">
         <div className="flex items-center justify-between gap-2 overflow-hidden">

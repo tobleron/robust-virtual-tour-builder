@@ -7971,6 +7971,14 @@
 │   │           │   │   └── 162557_040.webp
 │   │           │   ├── project.json
 │   │           │   └── summary.txt
+│   │           ├── af6c9c65-c717-4eee-af38-b2a6aee2a192
+│   │           │   ├── images
+│   │           │   │   ├── 001_Zoom_Out_View.webp
+│   │           │   │   ├── 002_Entrance.webp
+│   │           │   │   ├── 003_Garden.webp
+│   │           │   │   └── 004.webp
+│   │           │   ├── project.json
+│   │           │   └── summary.txt
 │   │           ├── b292e0e0-6769-437a-8e90-7995bd70db77
 │   │           │   ├── images
 │   │           │   │   ├── 154407_002.webp
@@ -17920,6 +17928,8 @@
 │   │   ├── 1362_Update_E2E_Test_Catalog_and_Tasks_DONE.md
 │   │   ├── 1363_restore_tour_naming_and_filename_sanitization_DONE.md
 │   │   ├── 1364_refactor_sidebar_state_subscriptions_DONE.md
+│   │   ├── 1369_refine_upload_sorting_fallbacks_DONE.md
+│   │   ├── 1370_filename_order_uploads_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
 │   │       ├── 1195_Test_Teaser_DONE.md
@@ -18343,4 +18353,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-799 directories, 17545 files
+801 directories, 17553 files

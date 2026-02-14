@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Enlarge tooltips & hide toasts (scene order needs fixing)
 
+### Changed
+- Refine upload sorting and tooltip delay
+
 ## [4.9.0] - 2026-02-14
 
 ### Added

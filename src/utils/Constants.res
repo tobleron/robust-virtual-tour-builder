@@ -114,7 +114,7 @@ let panningMinDuration = 1000.0 // 1.0s - Minimum time to allow perceptible acce
 let panningMaxDuration = 20000.0 // 20s - Allow very long slow journeys
 let sceneStabilizationDelay = 1000
 let viewerLoadCheckInterval = 100
-let tooltipDelayDuration = 1200
+let tooltipDelayDuration = 2400
 
 // ============================================
 // SCENE ORGANIZATION
