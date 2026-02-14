@@ -15,15 +15,15 @@ The Semantic Engine has identified the following specific symbols for refactorin
 ### 🔧 Action: De-bloat
 **Directive:** Decompose & Flatten: Use guard clauses to reduce nesting and extract dense logic into private helper functions. 🏗️ ARCHITECTURAL TARGET: Split into exactly 2 cohesive modules to respect the Read Tax (avg 300 LOC/module).
 
-- [ ] - **../../src/core/Reducer.res** (Metric: [Nesting: 5.40, Density: 0.28, Coupling: 0.10] | Drag: 6.68 | LOC: 409/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.))
+- [ ] - **../../src/core/ReducerModules.res** (Metric: [Nesting: 5.40, Density: 0.31, Coupling: 0.08] | Drag: 6.71 | LOC: 378/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.))
 
 
 ## 🔎 Programmatic Verification
 Baseline artifacts: `_dev-system/tmp/D002/verification.json` (files at `_dev-system/tmp/D002/files/`).
 Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline _dev-system/tmp/D002/verification.json --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.
 
-### Pre-split snapshot for `src/core/Reducer.res`
-- `src/core/Reducer.res` (32 functions, fingerprint f83955b3476ee464a4e3f334a2ee9209e771cb20e1bd367da123e284e28696c0)
+### Pre-split snapshot for `src/core/ReducerModules.res`
+- `src/core/ReducerModules.res` (19 functions, fingerprint 3754ee13e6cb99ee7b3bd930493e64da3945d934077ac074aafd06e2f3813c85)
     - updateInteractive — updateInteractive = (state: state, updater: interactiveState => interactiveState): state => {
     - updateUiMode — updateUiMode = (state: state, mode: uiMode): state => {
     - updateNavigation — updateNavigation = (state: state, nav: NavigationFSM.distinctState): state => {
@@ -39,20 +39,7 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
     - reduce — reduce = (state: state, action: action): option<state> => {
     - reduce — reduce = (state: state, action: action): option<state> => {
     - reduce — reduce = (state: state, action: action): option<state> => {
-    - nextAppMode — nextAppMode = AppFSM.transition(state.appMode, event)
-    - nextState — nextState = {...state, appMode: nextAppMode}
-    - reduce — reduce = (state: state, action: action): option<state> => {
-    - resetNavState — resetNavState = {
-    - nextState — nextState = {...state, navigationState: nextNavState}
-    - nextAppMode — nextAppMode = AppFSM.transition(state.appMode, event)
-    - nextState — nextState = {...state, appMode: nextAppMode}
-    - finalState — finalState = switch nextAppMode {
     - reduce — reduce = (state: state, action: action): option<state> => {
     - reduce — reduce = (state: state, action: action): option<state> => {
-    - item — item = SimHelpers.parseTimelineItem(json)
-    - itemOpt — itemOpt = Belt.Array.get(state.timeline, fromIdx)
-    - rest — rest = Belt.Array.keepWithIndex(state.timeline, (_, i) => i != fromIdx)
-    - newTimeline — newTimeline = UiHelpers.insertAt(rest, toIdx, item)
     - reduce — reduce = (state: state, action: action): option<state> => {
-    - apply — apply = (state: state, action: action, reducerFn: (state, action) => option<state>): state => {
-    - reducer — reducer = (state: state, action: action): state => {
+    - reduce — reduce = (state: state, action: action): option<state> => {

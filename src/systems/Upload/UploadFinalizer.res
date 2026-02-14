@@ -58,9 +58,12 @@ let finalizeUploads = (
                       (),
                     )
 
-                    let score = switch JsonCombinators.Json.decode(q, JsonCombinators.Json.Decode.field("score", JsonCombinators.Json.Decode.float)) {
-                      | Ok(s) => s
-                      | Error(_) => -1.0
+                    let score = switch JsonCombinators.Json.decode(
+                      q,
+                      JsonCombinators.Json.Decode.field("score", JsonCombinators.Json.Decode.float),
+                    ) {
+                    | Ok(s) => s
+                    | Error(_) => -1.0
                     }
 
                     if score >= 0.0 {

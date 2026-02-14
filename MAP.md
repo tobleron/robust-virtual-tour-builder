@@ -358,3 +358,9 @@ This map provides a semantic overview of the project structure to optimize conte
 * [tests/e2e/feature-deep-dive.spec.ts](tests/e2e/feature-deep-dive.spec.ts): Deep dive into advanced editor features and UI components. `#testing` `#e2e` `#features`
 * [tests/e2e/visual-regression.spec.ts](tests/e2e/visual-regression.spec.ts): Visual regression and screenshot comparison suite. `#testing` `#e2e` `#visual`
 * [tests/e2e/ai-helper.ts](tests/e2e/ai-helper.ts): Diagnostic helper for AI-observable E2E testing. `#testing` `#utils` `#ai`
+
+## 🆕 Unmapped Modules
+* [src/systems/ProjectSystem.res](src/systems/ProjectSystem.res): New module detected. Please classify. #new
+* [src/systems/SceneLoaderLogic.res](src/systems/SceneLoaderLogic.res): New module detected. Please classify. #new
+* [src/components/VisualPipelineLogic.res](src/components/VisualPipelineLogic.res): New module detected. Please classify. #new
+* [src/core/ReducerModules.res](src/core/ReducerModules.res): New module detected. Please classify. #new

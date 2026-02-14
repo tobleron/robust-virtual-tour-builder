@@ -9,10 +9,10 @@
 ---
 
 ## 🛠️ SURGICAL REFACTOR TASKS (2)
-- [ ] **../../src/core/Reducer.res**
-  - *Reason:* [Nesting: 5.40, Density: 0.28, Coupling: 0.10] | Drag: 6.68 | LOC: 409/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.)
-- [ ] **../../src/components/VisualPipeline.res**
-  - *Reason:* [Nesting: 4.80, Density: 0.05, Coupling: 0.06] | Drag: 5.86 | LOC: 469/300
+- [ ] **../../src/components/VisualPipelineLogic.res**
+  - *Reason:* [Nesting: 4.80, Density: 0.06, Coupling: 0.05] | Drag: 5.88 | LOC: 384/300
+- [ ] **../../src/core/ReducerModules.res**
+  - *Reason:* [Nesting: 5.40, Density: 0.31, Coupling: 0.08] | Drag: 6.71 | LOC: 378/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.)
 
 ---
 
