@@ -41,6 +41,10 @@ let make = React.memo((~scenesLoaded, ~isLinking) => {
         </Shadcn.Button>
       </Shadcn.DropdownMenu.Trigger>
     </Tooltip>
+    <Shadcn.DropdownMenu.Content
+      side="right"
+      align="start"
+      sideOffset=12
       className="p-0 bg-white rounded-2xl shadow-2xl border border-slate-200 z-[30000]"
     >
       <LabelMenu
