@@ -31,7 +31,7 @@ let syncInventoryNames = (inventory, sceneOrder) => {
     | Some({scene, status: Active} as entry) =>
       if scene.label != "" {
         let oldName = scene.name
-        let baseName = TourLogic.getBaseNameFromId(scene.id)
+        let baseName = TourLogic.recoverBaseName(scene.name, scene.label)
         let newName = TourLogic.computeSceneFilename(index, scene.label, baseName)
         if newName != oldName {
           let _ = Belt.MutableMap.String.set(renameMap, oldName, newName)
@@ -439,7 +439,7 @@ let syncSceneNames = (scenes: array<Types.scene>) => {
   let updatedScenes = Belt.Array.mapWithIndex(scenes, (index, scene) => {
     if scene.label != "" {
       let oldName = scene.name
-      let baseName = TourLogic.getBaseNameFromId(scene.id)
+      let baseName = TourLogic.recoverBaseName(scene.name, scene.label)
       let newName = TourLogic.computeSceneFilename(index, scene.label, baseName)
       if newName != oldName {
         let _ = Belt.MutableMap.String.set(renameMap, oldName, newName)
