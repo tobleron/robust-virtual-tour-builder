@@ -31,20 +31,26 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
     JsxEvent.Mouse.preventDefault(e)
     setFlickeringLabel(_ => Some(label))
 
+    let suffix = switch currentScene {
+    | Some(s) => "_" ++ TourLogic.getBaseNameFromId(s.id)
+    | None => ""
+    }
+    let newLabel = label ++ suffix
+
     let _ = ReBindings.Window.setTimeout(() => {
       setFlickeringLabel(_ => None)
-      dispatch(UpdateSceneMetadata(targetIndex, Logger.castToJson({"label": label})))
+      dispatch(UpdateSceneMetadata(targetIndex, Logger.castToJson({"label": newLabel})))
       Logger.info(
         ~module_="LabelMenu",
         ~message="LABEL_SET",
-        ~data=Some({"label": label, "index": targetIndex}),
+        ~data=Some({"label": newLabel, "index": targetIndex}),
         (),
       )
       NotificationManager.dispatch({
         id: "",
         importance: Success,
         context: Operation("label_menu"),
-        message: "Label Set: " ++ label,
+        message: "Label Set: " ++ newLabel,
         details: None,
         action: None,
         duration: NotificationTypes.defaultTimeoutMs(Success),
