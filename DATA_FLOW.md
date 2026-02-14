@@ -31,10 +31,12 @@ User Click Event
   → [src/systems/Navigation/NavigationController.res] subscribes to FSM changes
       → Calls SceneLoader with taskId and AbortSignal from Supervisor
   → [src/systems/Scene.res] and [src/systems/Scene/SceneLoader.res] coordinates viewer loading (with AbortSignal support)
+      → [src/systems/Scene/Loader/SceneLoaderConfig.res], [src/systems/Scene/Loader/SceneLoaderEvents.res], and [src/systems/Scene/Loader/SceneLoaderReuse.res] handle configuration, events, and instance reuse
       → [src/core/SceneCache.res] manages preloaded scene state
       → [src/components/ViewerManager.res], [src/components/ViewerManagerLogic.res], and [src/components/ViewerManager/ViewerManagerLifecycle.res] manage active viewers
       → [src/components/ViewerUI.res], [src/components/ViewerHUD.res], and [src/components/ViewerLoader.res] render interactive overlays
-      → [src/systems/ViewerSystem.res], [src/systems/ViewerPool.res], and [src/systems/ViewerLogic.res] manage viewer instance lifecycle
+      → [src/systems/ViewerSystem.res], [src/systems/ViewerPool.res], [src/systems/ViewerLogic.res] manage viewer instance lifecycle
+          → [src/systems/Viewer/ViewerAdapter.res], [src/systems/Viewer/ViewerPool.res], and [src/systems/Viewer/ViewerFollow.res] provide the underlying implementation
       → [src/systems/PannellumAdapter.res] and [src/systems/PannellumLifecycle.res] interface with engine
   → [src/systems/Scene/SceneSwitcher.res] handles journey initialization and auto-forwarding
   → [src/systems/Scene/SceneTransition.res] performs CSS crossfade and viewport swapping (with Supervisor coordination)
@@ -50,18 +52,19 @@ User Click Event
 **Flow:**
 ```
 User file selection
-  → [src/components/Sidebar.res] (using [src/components/Sidebar/SidebarActions.res], [src/components/Sidebar/SidebarBranding.res], [src/components/Sidebar/SidebarProcessing.res], [src/components/Sidebar/SidebarProjectInfo.res])
-    → [src/components/Sidebar/SidebarSearch.res], [src/components/Sidebar/SidebarFilters.res], [src/components/Sidebar/SidebarBatchManagement.res], [src/components/Sidebar/SidebarSorting.res] for view orchestration
+  → [src/components/Sidebar.res] (using [src/components/Sidebar/SidebarActions.res], [src/components/Sidebar/SidebarBranding.res], [src/components/Sidebar/SidebarProcessing.res], [src/components/Sidebar/SidebarProjectInfo.res], and [src/components/Sidebar/SidebarAbout.res])
+    → [src/components/Sidebar/SidebarSearch.res], [src/components/Sidebar/SidebarFilters.res], [src/components/Sidebar/SidebarBatchManagement.res], [src/components/Sidebar/SidebarSorting.res], and [src/components/Sidebar/UseSidebarProcessing.res] for view orchestration
   → [src/components/Sidebar/SidebarLogic.res] and [src/components/SceneList.res] handle file input and display
   → [src/components/VisualPipeline/VisualPipelineComponent.res] (assisted by [src/components/VisualPipeline.res] and [src/components/VisualPipeline/VisualPipelineStyles.res]) shows progress (using [src/utils/ProgressBar.res])
   → [src/systems/UploadProcessor.res] orchestrates the pipeline
-  → [src/systems/UploadProcessorLogic.res] manages batch state (using [src/systems/UploadTypes.res])
+  → [src/systems/UploadProcessorLogic.res] manages batch state (using [src/systems/UploadTypes.res] and [src/systems/Upload/UploadScanner.res])
   → [src/systems/FingerprintService.res] calculates unique image hashes
   → [src/systems/ImageValidator.res] validates formats and dimensions
   → [src/systems/Resizer.res] performs client-side pre-processing
       → [src/systems/Resizer/ResizerLogic.res] and [src/systems/Resizer/ResizerUtils.res] manage resizing tasks with [src/systems/Resizer/ResizerTypes.res]
+      → [src/systems/Upload/UploadItemProcessor.res] and [src/systems/Upload/UploadUtils.res] handle per-item transformations
   → [src/utils/ImageOptimizer.res] applies final compression
-  → [src/utils/OperationJournal.res] starts transaction (startOperation)
+  → [src/utils/OperationJournal.res] starts transaction (startOperation) using [src/utils/OperationJournal/JournalLogic.res] and [src/utils/OperationJournal/JournalPersistence.res]
   → [src/systems/Api/MediaApi.res] sends to backend
   → [backend/src/api/media/image_multipart.rs] and [backend/src/api/media/image.rs] receive files
     → [backend/src/api/project_multipart.rs] for project-level uploads
@@ -72,9 +75,12 @@ User file selection
     → [backend/src/services/media/mod.rs], [backend/src/services/media/naming.rs] handle file naming
     → [backend/src/api/media/similarity.rs] identifies duplicate uploads
   → Returns analysis results to frontend
-  → [src/core/Reducer.res] updates state using [src/core/SceneHelpers.res]
+  → [src/core/Reducer.res] updates state using [src/core/SceneHelpers.res], [src/core/SceneInventory.res], [src/core/SceneNaming.res], and [src/core/SceneOperations.res]
     → [src/components/QualityIndicator.res] updates based on results
+    → [src/systems/Upload/UploadFinalizer.res] handles post-upload state sync
+    → [src/systems/Upload/UploadReporting.res] generates final batch summaries
   → [src/utils/OperationJournal.res] completes transaction
+  → [src/systems/Upload/UploadRecovery.res] checks for interrupted tasks on retry
 ```
 
 ### Custom Branding / Logo Upload
@@ -106,7 +112,7 @@ State changes
 On startup ([src/Main.res]):
   → [src/components/RecoveryCheck.res], [src/components/RecoveryPrompt.res], and [src/components/ReturnPrompt.res] mount
   → [src/utils/RecoveryManager.res] checks for interrupted operations
-  → [src/utils/OperationJournal.res] checks journal for active transactions
+  → [src/utils/OperationJournal.res] checks journal for active transactions using [src/utils/OperationJournal/JournalLogic.res] and [src/utils/OperationJournal/JournalTypes.res]
   → [src/utils/PersistenceLayer.res] loads last session
   → [src/core/JsonParsersDecoders.res] deserializes
   → [src/core/Reducer.res] dispatches LoadProject
@@ -221,6 +227,7 @@ Trigger Event
 ```
 Save/Export Trigger:
   → [src/systems/ProjectManager.res] and [src/systems/ProjectManagerUrl.res] package project data
+      → [src/systems/Project/ProjectSaver.res] handles ZIP assembly and export packaging
   → [src/systems/Exporter.res] prepares local archive
   → [src/systems/DownloadSystem.res] triggers client-side saving
   → [backend/src/api/mod.rs] and [backend/src/api/project.rs] receive request
@@ -232,6 +239,8 @@ Load Trigger:
   → [backend/src/services/project/load.rs] fetches project data
   → [backend/src/services/project/validate.rs] performs deep structural validation
   → Returns metadata to client
+  → [src/systems/Project/ProjectLoader.res] patches and initializes project state
+  → [src/systems/Project/ProjectValidator.res] validates integrity on the client side
 ```
 
 ### Geocoding & Search
@@ -333,43 +342,6 @@ CI job
 
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)
-
-### 📂 src/components/Sidebar
-- `[src/components/Sidebar/SidebarAbout.res]`
-- `[src/components/Sidebar/UseSidebarProcessing.res]`
-
-### 📂 src/core
-- `[src/core/SceneInventory.res]`
-- `[src/core/SceneNaming.res]`
-- `[src/core/SceneOperations.res]`
-
-### 📂 src/systems/Project
-- `[src/systems/Project/ProjectLoader.res]`
-- `[src/systems/Project/ProjectSaver.res]`
-- `[src/systems/Project/ProjectValidator.res]`
-
-### 📂 src/systems/Scene/Loader
-- `[src/systems/Scene/Loader/SceneLoaderConfig.res]`
-- `[src/systems/Scene/Loader/SceneLoaderEvents.res]`
-- `[src/systems/Scene/Loader/SceneLoaderReuse.res]`
-
-### 📂 src/systems/Upload
-- `[src/systems/Upload/UploadFinalizer.res]`
-- `[src/systems/Upload/UploadItemProcessor.res]`
-- `[src/systems/Upload/UploadRecovery.res]`
-- `[src/systems/Upload/UploadReporting.res]`
-- `[src/systems/Upload/UploadScanner.res]`
-- `[src/systems/Upload/UploadUtils.res]`
-
-### 📂 src/systems/Viewer
-- `[src/systems/Viewer/ViewerAdapter.res]`
-- `[src/systems/Viewer/ViewerFollow.res]`
-- `[src/systems/Viewer/ViewerPool.res]`
-
-### 📂 src/utils/OperationJournal
-- `[src/utils/OperationJournal/JournalLogic.res]`
-- `[src/utils/OperationJournal/JournalPersistence.res]`
-- `[src/utils/OperationJournal/JournalTypes.res]`
 
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)

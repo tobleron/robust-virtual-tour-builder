@@ -70,6 +70,9 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/i18n/I18n.res](src/i18n/I18n.res): Internationalization orchestrator for multi-language support. `#i18n` `#ui`
 *   [src/core/Reducer.res](src/core/Reducer.res): Consolidated state reducer handling scenes, hotspots, navigation, and projects. `#reducer` `#logic`
     *   [src/core/SceneMutations.res](src/core/SceneMutations.res): Complex state mutation logic for scene renaming, deletion, and reordering. `#state` `#scene` `#logic`
+    *   [src/core/SceneInventory.res](src/core/SceneInventory.res): Internal logic for scene collection and inventory management. `#state` `#inventory`
+    *   [src/core/SceneNaming.res](src/core/SceneNaming.res): Specialized logic for unique scene name generation and collision detection. `#logic` `#naming`
+    *   [src/core/SceneOperations.res](src/core/SceneOperations.res): Atomic operations for scene data manipulation. `#logic` `#operations`
 *   [src/core/AppContext.res](src/core/AppContext.res): Typed React Context for state and dispatch accessibility. `#react-context` `#hooks`
 *   [src/core/JsonParsers.res](src/core/JsonParsers.res): Facade for domain-specific JSON decoders and encoders. `#json` `#parsing` `#facade`
     *   [src/core/JsonParsersDecoders.res](src/core/JsonParsersDecoders.res): Domain-specific JSON decoders using rescript-json-combinators. `#json` `#parsing` `#decoding`
@@ -94,10 +97,19 @@ This map provides a semantic overview of the project structure to optimize conte
 ### 🌐 System Layer (Business Logic)
 *   [src/systems/UploadProcessor.res](src/systems/UploadProcessor.res): Consolidated orchestrator for image processing and upload pipeline. `#upload` `#orchestration` `#logic`
     *   [src/systems/UploadProcessorLogic.res](src/systems/UploadProcessorLogic.res): Core logic and state management for upload processing. `#upload` `#logic`
+    *   [src/systems/Upload/UploadFinalizer.res](src/systems/Upload/UploadFinalizer.res): Logic for finalizing scene creation and state synchronization after upload. `#upload` `#lifecycle`
+    *   [src/systems/Upload/UploadItemProcessor.res](src/systems/Upload/UploadItemProcessor.res): Transformation and resizing logic for individual upload items. `#upload` `#processing`
+    *   [src/systems/Upload/UploadRecovery.res](src/systems/Upload/UploadRecovery.res): Logic for resuming interrupted uploads using the operation journal. `#upload` `#reliability`
+    *   [src/systems/Upload/UploadReporting.res](src/systems/Upload/UploadReporting.res): Generation of batch upload reports and duplicate detection summaries. `#upload` `#reporting`
+    *   [src/systems/Upload/UploadScanner.res](src/systems/Upload/UploadScanner.res): File scanning and MIME-type validation for batch imports. `#upload` `#validation`
+    *   [src/systems/Upload/UploadUtils.res](src/systems/Upload/UploadUtils.res): Shared utilities for the upload pipeline. `#upload` `#utils`
 *   [src/systems/UploadTypes.res](src/systems/UploadTypes.res): Types for upload processing system. `#types`
 
 *   [src/systems/Scene.res](src/systems/Scene.res): Orchestrator for scene management, transitions, and loading. `#scene` `#orchestration`
     *   [src/systems/Scene/SceneLoader.res](src/systems/Scene/SceneLoader.res): Scene transition logic and viewer loading coordination. `#scene-loading` `#lifecycle`
+    *   [src/systems/Scene/Loader/SceneLoaderConfig.res](src/systems/Scene/Loader/SceneLoaderConfig.res): Configuration factory for viewer instances and blank panoramas. `#scene-loading` `#config`
+    *   [src/systems/Scene/Loader/SceneLoaderEvents.res](src/systems/Scene/Loader/SceneLoaderEvents.res): Handling of stage-level load/error events and task status. `#scene-loading` `#events`
+    *   [src/systems/Scene/Loader/SceneLoaderReuse.res](src/systems/Scene/Loader/SceneLoaderReuse.res): Optimization logic for reusing existing viewer instances across transitions. `#scene-loading` `#performance`
     *   [src/systems/Scene/SceneTransition.res](src/systems/Scene/SceneTransition.res): DOM transitions and viewport swapping management. `#transition` `#dom`
     *   [src/systems/Scene/SceneSwitcher.res](src/systems/Scene/SceneSwitcher.res): High-level scene switching, journey initialization, and auto-forwarding. `#scene-switching`
 *   [src/systems/HotspotLine.res](src/systems/HotspotLine.res): Orchestrator for visual hotspot connections and simulation arrows. `#hotspots` `#rendering` `#orchestration`
@@ -105,6 +117,9 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/systems/PannellumAdapter.res](src/systems/PannellumAdapter.res): Pannellum-specific implementation of ViewerDriver. `#adapter`
 *   [src/systems/PannellumLifecycle.res](src/systems/PannellumLifecycle.res): Management of Pannellum instance creation and destruction. `#lifecycle` `#adapter`
 *   [src/systems/ViewerSystem.res](src/systems/ViewerSystem.res): Unified viewer system orchestrator. `#viewer` `#orchestration`
+    *   [src/systems/Viewer/ViewerAdapter.res](src/systems/Viewer/ViewerAdapter.res): Platform-agnostic adapter for the underlying 360 renderer. `#viewer` `#adapter`
+    *   [src/systems/Viewer/ViewerPool.res](src/systems/Viewer/ViewerPool.res): Lifecycle management for the dual-viewport instance pool. `#viewer` `#performance`
+    *   [src/systems/Viewer/ViewerFollow.res](src/systems/Viewer/ViewerFollow.res): Logic for synchronizing viewer orientations and animation frames. `#viewer` `#sync`
 *   [src/systems/ViewerLogic.res](src/systems/ViewerLogic.res): Core logic for viewer interactions and state. `#viewer` `#logic`
 *   [src/systems/ViewerPool.res](src/systems/ViewerPool.res): Manager for multiple viewport instances and their lifecycles. `#orchestration` `#efficiency`
 *   [src/systems/HotspotLineLogic.res](src/systems/HotspotLineLogic.res): Orchestrator for coordinate projection and SVG drawing. `#math` `#rendering` `#orchestration`
@@ -128,6 +143,9 @@ This map provides a semantic overview of the project structure to optimize conte
 *   [src/systems/TeaserState.res](src/systems/TeaserState.res): State management for the teaser system. `#teaser` `#state`
 *   [src/systems/TeaserManager.res](src/systems/TeaserManager.res): Manager for teaser recording and playback sessions. `#teaser` `#manager`
 *   [src/systems/ProjectManager.res](src/systems/ProjectManager.res): Consolidated project save/load operations. `#persistence` `#save-load` `#consolidated`
+    *   [src/systems/Project/ProjectLoader.res](src/systems/Project/ProjectLoader.res): Logic for importing and patching project data from ZIP archives. `#persistence` `#loading`
+    *   [src/systems/Project/ProjectSaver.res](src/systems/Project/ProjectSaver.res): Logic for packaging and exporting tour data into ZIP files. `#persistence` `#saving`
+    *   [src/systems/Project/ProjectValidator.res](src/systems/Project/ProjectValidator.res): Deep structural validation for tour projects and schemas. `#validation` `#project`
     *   [src/systems/ProjectManagerUrl.res](src/systems/ProjectManagerUrl.res): Specialized logic for rebuilding and validating tour URLs. `#persistence` `#url` `#logic`
 *   [src/systems/Exporter.res](src/systems/Exporter.res): Generates production-ready tour clusters. `#export` `#deployment`
 *   [src/systems/Api.res](src/systems/Api.res): Consolidated API module for media, projects, and authentication. `#api` `#client` `#consolidated`
@@ -194,6 +212,8 @@ This map provides a semantic overview of the project structure to optimize conte
     * [src/components/Sidebar/SidebarLogic.res](src/components/Sidebar/SidebarLogic.res): Core sidebar logic and upload orchestration. `#logic`
     * [src/components/Sidebar/SidebarProjectInfo.res](src/components/Sidebar/SidebarProjectInfo.res): UI for tour name and upload triggers. `#ui`
     * [src/components/Sidebar/SidebarProcessing.res](src/components/Sidebar/SidebarProcessing.res): Global processing status and progress tracking. `#ui` `#notifications`
+    * [src/components/Sidebar/SidebarAbout.res](src/components/Sidebar/SidebarAbout.res): Modal and information about the application. `#ui` `#about`
+    * [src/components/Sidebar/UseSidebarProcessing.res](src/components/Sidebar/UseSidebarProcessing.res): Reactive hook for tracking processing state within the sidebar. `#hooks` `#processing`
     * [src/components/Sidebar/SidebarBranding.res](src/components/Sidebar/SidebarBranding.res): Application branding and version information. `#ui`
     * [src/components/Sidebar/SidebarActions.res](src/components/Sidebar/SidebarActions.res): Primary toolbar for project operations. `#ui`
 *   [src/components/SceneList.res](src/components/SceneList.res): Virtualized list of tour scenes. `#ui` `#virtualization` `#facade`
@@ -228,6 +248,9 @@ This map provides a semantic overview of the project structure to optimize conte
 
 *   [src/utils/PersistenceLayer.res](src/utils/PersistenceLayer.res): Advanced persistence layer with IndexedDB and session fallback. `#utils` `#storage` `#indexeddb`
 *   [src/utils/OperationJournal.res](src/utils/OperationJournal.res): Persistent journal for tracking long-running operations and recovery. `#utils` `#persistence` `#journal`
+    *   [src/utils/OperationJournal/JournalLogic.res](src/utils/OperationJournal/JournalLogic.res): Core logic for journal entry management and state transitions. `#logic` `#reliability`
+    *   [src/utils/OperationJournal/JournalPersistence.res](src/utils/OperationJournal/JournalPersistence.res): Logic for synchronizing the journal with local storage. `#persistence`
+    *   [src/utils/OperationJournal/JournalTypes.res](src/utils/OperationJournal/JournalTypes.res): Type definitions and encoders/decoders for the journal system. `#types` `#json`
 *   [src/utils/RecoveryManager.res](src/utils/RecoveryManager.res): Orchestrator for operation recovery handlers and retry logic. `#recovery` `#persistence` `#orchestration`
 *   [src/utils/SessionStore.res](src/utils/SessionStore.res): Session-based storage and state persistence. `#utils` `#storage`
 *   [src/utils/RequestQueue.res](src/utils/RequestQueue.res): Queue management for network requests. `#utils` `#network`
@@ -335,35 +358,3 @@ This map provides a semantic overview of the project structure to optimize conte
 * [tests/e2e/feature-deep-dive.spec.ts](tests/e2e/feature-deep-dive.spec.ts): Deep dive into advanced editor features and UI components. `#testing` `#e2e` `#features`
 * [tests/e2e/visual-regression.spec.ts](tests/e2e/visual-regression.spec.ts): Visual regression and screenshot comparison suite. `#testing` `#e2e` `#visual`
 * [tests/e2e/ai-helper.ts](tests/e2e/ai-helper.ts): Diagnostic helper for AI-observable E2E testing. `#testing` `#utils` `#ai`
-
-
-
-
-
-
-
-## 🆕 Unmapped Modules
-* [src/systems/Upload/UploadRecovery.res](src/systems/Upload/UploadRecovery.res): New module detected. Please classify. #new
-* [src/systems/Upload/UploadFinalizer.res](src/systems/Upload/UploadFinalizer.res): New module detected. Please classify. #new
-* [src/systems/Upload/UploadUtils.res](src/systems/Upload/UploadUtils.res): New module detected. Please classify. #new
-* [src/systems/Upload/UploadItemProcessor.res](src/systems/Upload/UploadItemProcessor.res): New module detected. Please classify. #new
-* [src/systems/Upload/UploadReporting.res](src/systems/Upload/UploadReporting.res): New module detected. Please classify. #new
-* [src/systems/Upload/UploadScanner.res](src/systems/Upload/UploadScanner.res): New module detected. Please classify. #new
-* [src/systems/Scene/Loader/SceneLoaderConfig.res](src/systems/Scene/Loader/SceneLoaderConfig.res): New module detected. Please classify. #new
-* [src/systems/Scene/Loader/SceneLoaderEvents.res](src/systems/Scene/Loader/SceneLoaderEvents.res): New module detected. Please classify. #new
-* [src/systems/Scene/Loader/SceneLoaderReuse.res](src/systems/Scene/Loader/SceneLoaderReuse.res): New module detected. Please classify. #new
-* [src/systems/Viewer/ViewerAdapter.res](src/systems/Viewer/ViewerAdapter.res): New module detected. Please classify. #new
-* [src/systems/Viewer/ViewerPool.res](src/systems/Viewer/ViewerPool.res): New module detected. Please classify. #new
-* [src/systems/Viewer/ViewerFollow.res](src/systems/Viewer/ViewerFollow.res): New module detected. Please classify. #new
-* [src/systems/Project/ProjectLoader.res](src/systems/Project/ProjectLoader.res): New module detected. Please classify. #new
-* [src/systems/Project/ProjectSaver.res](src/systems/Project/ProjectSaver.res): New module detected. Please classify. #new
-* [src/systems/Project/ProjectValidator.res](src/systems/Project/ProjectValidator.res): New module detected. Please classify. #new
-* [src/components/Sidebar/SidebarAbout.res](src/components/Sidebar/SidebarAbout.res): New module detected. Please classify. #new
-* [src/components/Sidebar/UseSidebarProcessing.res](src/components/Sidebar/UseSidebarProcessing.res): New module detected. Please classify. #new
-* [src/utils/OperationJournal/JournalPersistence.res](src/utils/OperationJournal/JournalPersistence.res): New module detected. Please classify. #new
-* [src/utils/OperationJournal/JournalTypes.res](src/utils/OperationJournal/JournalTypes.res): New module detected. Please classify. #new
-* [src/utils/OperationJournal/JournalLogic.res](src/utils/OperationJournal/JournalLogic.res): New module detected. Please classify. #new
-* [src/core/SceneOperations.res](src/core/SceneOperations.res): New module detected. Please classify. #new
-* [src/core/SceneNaming.res](src/core/SceneNaming.res): New module detected. Please classify. #new
-* [src/core/SceneInventory.res](src/core/SceneInventory.res): New module detected. Please classify. #new
-* None detected.
