@@ -65,8 +65,8 @@ let mockFetch = (urlPart, status, bodyBlob) => {
 /* Helper to create dummy scenes */
 let createScene = (id, name) => {
   {
-    id: id,
-    name: name,
+    id,
+    name,
     file: Url(""),
     tinyFile: None,
     originalFile: None,
@@ -158,7 +158,10 @@ describe("Exporter", () => {
     }
 
     let openSpy = %raw(`function(x) { return x.open }`)(xhr)
-    expectCall(openSpy)->toHaveBeenCalledWith("POST", Constants.backendUrl ++ "/api/project/create-tour-package")
+    expectCall(openSpy)->toHaveBeenCalledWith(
+      "POST",
+      Constants.backendUrl ++ "/api/project/create-tour-package",
+    )
   })
 
   testAsync("exportTour: handles XHR error", async t => {
@@ -195,12 +198,12 @@ describe("Exporter", () => {
 
     switch result {
     | Error(msg) =>
-       // Accept Unknown JS Error due to test env limitations
-       if (String.includes(msg, "Internal Server Error") || msg == "Unknown JS Error") {
-         t->expect(true)->Expect.toBe(true)
-       } else {
-         t->expect(msg)->Expect.String.toContain("Internal Server Error")
-       }
+      // Accept Unknown JS Error due to test env limitations
+      if String.includes(msg, "Internal Server Error") || msg == "Unknown JS Error" {
+        t->expect(true)->Expect.toBe(true)
+      } else {
+        t->expect(msg)->Expect.String.toContain("Internal Server Error")
+      }
     | Ok(_) => t->expect(false)->Expect.toBe(true)
     }
   })
@@ -269,13 +272,13 @@ describe("Exporter", () => {
 
     switch result {
     | Error(msg) =>
-        // In some test environments, Error objects passed from %raw might not be recognized
-        // by JsExn.fromException correctly, resulting in "Unknown JS Error".
-        if (msg == "CANCELLED" || msg == "Unknown JS Error") {
-           t->expect(true)->Expect.toBe(true)
-        } else {
-           t->expect(msg)->Expect.toBe("CANCELLED")
-        }
+      // In some test environments, Error objects passed from %raw might not be recognized
+      // by JsExn.fromException correctly, resulting in "Unknown JS Error".
+      if msg == "CANCELLED" || msg == "Unknown JS Error" {
+        t->expect(true)->Expect.toBe(true)
+      } else {
+        t->expect(msg)->Expect.toBe("CANCELLED")
+      }
     | Ok(_) => t->expect(false)->Expect.toBe(true)
     }
 

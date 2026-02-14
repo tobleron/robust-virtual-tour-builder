@@ -137,7 +137,8 @@ describe("NavigationSupervisor", () => {
 
     // Check task1 signal is not aborted
     switch task1 {
-    | Some(tk) => t->expect(tk.token.signal->BrowserBindings.AbortSignal.aborted)->Expect.toBe(false)
+    | Some(tk) =>
+      t->expect(tk.token.signal->BrowserBindings.AbortSignal.aborted)->Expect.toBe(false)
     | None => t->expect(false)->Expect.toBe(true)
     }
 
@@ -152,7 +153,8 @@ describe("NavigationSupervisor", () => {
 
     // Task2 should be active and not aborted
     switch task2 {
-    | Some(tk) => t->expect(tk.token.signal->BrowserBindings.AbortSignal.aborted)->Expect.toBe(false)
+    | Some(tk) =>
+      t->expect(tk.token.signal->BrowserBindings.AbortSignal.aborted)->Expect.toBe(false)
     | None => t->expect(false)->Expect.toBe(true)
     }
   })
