@@ -17,10 +17,8 @@ let loadStartTime = ref(0.0)
 
 // --- SUBMODULES (Compatibility) ---
 
-module Config = SceneLoaderConfig
-
-let blankPanorama = SceneLoaderConfig.blankPanorama
-let backgroundViewerConfig = SceneLoaderConfig.backgroundViewerConfig
+let blankPanorama = SceneLoaderLogic.blankPanorama
+let backgroundViewerConfig = SceneLoaderLogic.backgroundViewerConfig
 
 let ensureBackgroundViewer = (~_state: state, ~_dispatch) => {
   ViewerSystem.Pool.getInactive()->Option.forEach(vp => {
@@ -49,10 +47,14 @@ let toPathRequest = (state: state): pathRequest => {
 
 module Reuse = {
   let findReusableInstance = (pathRequest, targetIdx) =>
-    SceneLoaderReuse.findReusableInstance(pathRequest, targetIdx)
+    SceneLoaderLogic.findReusableInstance(pathRequest, targetIdx)
 }
 
-module Events = SceneLoaderEvents
+module Events = {
+  let onSceneLoad = SceneLoaderLogic.onSceneLoad
+  let onSceneError = SceneLoaderLogic.onSceneError
+  let isStaleTask = SceneLoaderLogic.isStaleTask
+}
 
 // --- MAIN LOGIC ---
 
@@ -119,7 +121,7 @@ let loadNewScene = (
       if !isAnticipatory {
         ViewerSystem.Adapter.setMetaData(inst, "sceneId", idToUnknown(targetScene.id))
         ViewerSystem.Adapter.setMetaData(inst, "isLoaded", boolToUnknown(false))
-        let config = Config.makeSceneConfig(targetScene, ~state, ~dispatch)
+        let config = SceneLoaderLogic.makeSceneConfig(targetScene, ~state, ~dispatch)
 
         Logger.debug(
           ~module_="SceneLoader",
@@ -218,7 +220,7 @@ let loadNewScene = (
           }
         } else {
           try {
-            let initialConfig = Config.makeInitialConfig(targetScene, ~state, ~dispatch)
+            let initialConfig = SceneLoaderLogic.makeInitialConfig(targetScene, ~state, ~dispatch)
 
             Logger.info(
               ~module_="SceneLoader",

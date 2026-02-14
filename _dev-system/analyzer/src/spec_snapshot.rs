@@ -82,6 +82,20 @@ fn parse_rescript_functions_ast(content: &str) -> Vec<FunctionDetail> {
     while let Some(m) = matches.next() {
         let binding_node: Node = m.nodes_for_capture_index(0).next().unwrap();
         
+        // Check for nesting (skip local variables)
+        let mut parent = binding_node.parent();
+        let mut is_nested = false;
+        while let Some(p) = parent {
+            if p.kind() == "let_binding" {
+                is_nested = true;
+                break;
+            }
+            parent = p.parent();
+        }
+        if is_nested {
+            continue;
+        }
+
         let mut name = "unknown".to_string();
         let mut cursor = binding_node.walk();
         for child in binding_node.children(&mut cursor) {
