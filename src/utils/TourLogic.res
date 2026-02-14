@@ -150,11 +150,16 @@ let computeSceneFilename = (index, label, baseName) => {
     let baseSlug = toSlug(label, 200)
     let sanitizedBase = toSlug(baseName, 200)
 
-    // Avoid duplication if label already contains the base name (e.g. "Kitchen_123" + "123")
+    // USER REQUESTED FORMAT: Label_Prefix_ExistingName
+    // e.g. entrance_01_154407_002.webp
+
+    // Avoid duplication if label already contains the base name
     if baseSlug == sanitizedBase || String.endsWith(baseSlug, "_" ++ sanitizedBase) {
+      // If redundancy detected, fallback to simpler format
       prefix ++ "_" ++ baseSlug ++ ".webp"
     } else {
-      prefix ++ "_" ++ baseSlug ++ "_" ++ baseName ++ ".webp"
+      // New format: Label first
+      baseSlug ++ "_" ++ prefix ++ "_" ++ baseName ++ ".webp"
     }
   }
 }
