@@ -236,7 +236,8 @@ let encodeSceneData = (s: sceneData) => {
 let generateTourHTML = (
   scenes: array<scene>,
   tourName,
-  hasLogo,
+  tourName,
+  logoFilename: option<string>,
   exportType,
   baseSize,
   logoSize,
@@ -277,7 +278,10 @@ let generateTourHTML = (
   let isMobile = exportType == "hd"
   let css = Styles.generateCSS(firstSceneName, isMobile, exportType, baseSize, logoSize)
   let renderScript = Scripts.generateRenderScript(baseSize)
-  let logoDiv = hasLogo ? `<div class="watermark"><img src="assets/logo.png"></div>` : ""
+  let logoDiv = switch logoFilename {
+  | Some(filename) => `<div class="watermark"><img src="assets/${filename}"></div>`
+  | None => ""
+  }
 
   let (defPitch, defYaw) =
     scenes[0]

@@ -5,7 +5,7 @@
     height: 100dvh;
     overflow: hidden;
     background: var(--slate-900);
-    border-top: 1px solid var(--color-danger);
+    border-top: 1px solid var(--border-accent);
 }
 
 #viewer-container {
@@ -31,7 +31,7 @@
     height: 100%;
     flex-shrink: 0;
     border-radius: var(--radius-sm);
-    border: 1px solid var(--color-danger);
+    border: 1px solid var(--border-accent);
     overflow: hidden;
     background: var(--viewer-stage-bg);
     touch-action: none;

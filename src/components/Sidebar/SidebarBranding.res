@@ -18,7 +18,7 @@ let make = React.memo(() => {
       {React.string("Virtual Tour Builder")}
     </div>
     <div
-      className="flex items-center gap-2 text-white mt-1 sidebar-version-line font-normal font-mono"
+      className="flex items-center gap-2 text-slate-400 mt-1 sidebar-version-line font-normal font-mono"
     >
       <span className="text-[10px] tracking-wider"> {React.string("V " ++ Version.version)} </span>
       <span className="text-[10px]"> {React.string("\u2022")} </span>

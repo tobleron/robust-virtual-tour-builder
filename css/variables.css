@@ -25,6 +25,9 @@
     --danger-dark: #b44409;
     /* Deeper Orange */
 
+    --border-accent: #b44409;
+    /* Premium Dim Orange for Layout */
+
     --success: #059669;
     /* Emerald 600 - WCAG AA Compliant */
     --success-light: #34d399;
