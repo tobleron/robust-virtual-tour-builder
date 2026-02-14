@@ -15871,6 +15871,8 @@
 │   │   └── WebApiBindings.res
 │   └── rescript.lock
 ├── logs
+│   ├── log_changes.txt
+│   └── project-guard.log
 ├── old_ref
 │   ├── 7aadee4
 │   │   ├── CHANGELOG.md
@@ -18298,4 +18300,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-797 directories, 17502 files
+797 directories, 17504 files
