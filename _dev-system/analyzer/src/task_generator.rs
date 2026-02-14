@@ -126,6 +126,7 @@ fn persist_verification_baseline(
         category: category.to_string(),
         baseline_dir: relative_root.to_string_lossy().to_string(),
         bundles: verification.to_vec(),
+        timestamp: chrono::Utc::now(),
     };
     let report_path = baseline_root.join("verification.json");
     fs::write(&report_path, serde_json::to_string_pretty(&report)?)?;

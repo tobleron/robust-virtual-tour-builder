@@ -12402,12 +12402,6 @@
 │   │   │   │   ├── ViewerUI.cmt
 │   │   │   │   ├── ViewerUI.res
 │   │   │   │   ├── VisualPipeline
-│   │   │   │   │   ├── VisualPipelineComponent.ast
-│   │   │   │   │   ├── VisualPipelineComponent.bs.js
-│   │   │   │   │   ├── VisualPipelineComponent.cmi
-│   │   │   │   │   ├── VisualPipelineComponent.cmj
-│   │   │   │   │   ├── VisualPipelineComponent.cmt
-│   │   │   │   │   ├── VisualPipelineComponent.res
 │   │   │   │   │   ├── VisualPipelineStyles.ast
 │   │   │   │   │   ├── VisualPipelineStyles.bs.js
 │   │   │   │   │   ├── VisualPipelineStyles.cmi
@@ -12915,12 +12909,6 @@
 │   │   │   │   ├── NavigationLogic.cmj
 │   │   │   │   ├── NavigationLogic.cmt
 │   │   │   │   ├── NavigationLogic.res
-│   │   │   │   ├── PannellumAdapter.ast
-│   │   │   │   ├── PannellumAdapter.bs.js
-│   │   │   │   ├── PannellumAdapter.cmi
-│   │   │   │   ├── PannellumAdapter.cmj
-│   │   │   │   ├── PannellumAdapter.cmt
-│   │   │   │   ├── PannellumAdapter.res
 │   │   │   │   ├── PannellumLifecycle.ast
 │   │   │   │   ├── PannellumLifecycle.bs.js
 │   │   │   │   ├── PannellumLifecycle.cmi
@@ -13210,24 +13198,12 @@
 │   │   │   │   │   ├── ViewerPool.cmj
 │   │   │   │   │   ├── ViewerPool.cmt
 │   │   │   │   │   └── ViewerPool.res
-│   │   │   │   ├── ViewerFollow.ast
-│   │   │   │   ├── ViewerFollow.bs.js
-│   │   │   │   ├── ViewerFollow.cmi
-│   │   │   │   ├── ViewerFollow.cmj
-│   │   │   │   ├── ViewerFollow.cmt
-│   │   │   │   ├── ViewerFollow.res
 │   │   │   │   ├── ViewerLogic.ast
 │   │   │   │   ├── ViewerLogic.bs.js
 │   │   │   │   ├── ViewerLogic.cmi
 │   │   │   │   ├── ViewerLogic.cmj
 │   │   │   │   ├── ViewerLogic.cmt
 │   │   │   │   ├── ViewerLogic.res
-│   │   │   │   ├── ViewerPool.ast
-│   │   │   │   ├── ViewerPool.bs.js
-│   │   │   │   ├── ViewerPool.cmi
-│   │   │   │   ├── ViewerPool.cmj
-│   │   │   │   ├── ViewerPool.cmt
-│   │   │   │   ├── ViewerPool.res
 │   │   │   │   ├── ViewerSystem.ast
 │   │   │   │   ├── ViewerSystem.bs.js
 │   │   │   │   ├── ViewerSystem.cmi
@@ -15274,7 +15250,6 @@
 │   │   ├── PannellumAdapter_v.test.cmj
 │   │   ├── PannellumAdapter_v.test.cmt
 │   │   ├── PannellumAdapter_v.test.res
-│   │   ├── PannellumAdapter.res
 │   │   ├── PannellumLifecycle_v.test.ast
 │   │   ├── PannellumLifecycle_v.test.cmi
 │   │   ├── PannellumLifecycle_v.test.cmj
@@ -16316,7 +16291,6 @@
 │   │   ├── VisualPipeline.cmj
 │   │   ├── VisualPipeline.cmt
 │   │   ├── VisualPipeline.res
-│   │   ├── VisualPipelineComponent.res
 │   │   ├── VisualPipelineStyles.ast
 │   │   ├── VisualPipelineStyles.cmi
 │   │   ├── VisualPipelineStyles.cmj
@@ -18696,4 +18670,4 @@
 │       └── test_run.json
 └── vitest.config.mjs
 
-859 directories, 17838 files
+859 directories, 17812 files
