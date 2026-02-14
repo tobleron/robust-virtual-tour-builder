@@ -103,6 +103,7 @@ pub fn get_next_dev_id(config: &GuardConfig) -> usize {
     max_id + 1
 }
 
+/*
 pub fn task_exists(config: &GuardConfig, pattern: &str) -> bool {
     let scan_dirs = vec![
         format!("{}/pending", config.tasks_dir),
@@ -122,7 +123,9 @@ pub fn task_exists(config: &GuardConfig, pattern: &str) -> bool {
     }
     false
 }
+*/
 
+#[allow(dead_code)]
 pub fn create_task(config: &GuardConfig, filename: &str, content: &str) -> Result<bool> {
     let file_path = if filename.contains("/") {
         PathBuf::from(&config.tasks_dir)
