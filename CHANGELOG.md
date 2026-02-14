@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Resolve rescript build lock and remove white border from logo
 
+### Changed
+- Ui: add glassmorphism effect (backdrop blur) to logo container
+
 ## [4.6.4] - 2026-02-14
 
 ### Fixed

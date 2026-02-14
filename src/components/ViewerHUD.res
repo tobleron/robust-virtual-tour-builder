@@ -38,12 +38,12 @@ let make = React.memo(() => {
     /* Permanent Branding with Format Fallback */
     <div
       id="viewer-logo"
-      className="absolute bottom-6 right-6 z-[5002] bg-transparent flex items-center justify-center max-w-[120px] max-h-[60px] overflow-hidden viewer-logo-masked pointer-events-none"
+      className="absolute bottom-6 right-6 z-[5002] flex items-center justify-center max-w-[126px] max-h-[66px] overflow-hidden viewer-logo-masked pointer-events-none p-[3px] rounded-xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg"
     >
       <img
         src=logoSrc
         alt="Logo"
-        className="w-full h-auto object-contain block drop-shadow-md"
+        className="w-full h-auto object-contain block rounded-lg"
         onError={_ => {
           if extIndex < Array.length(extensions) - 1 {
             setExtIndex(prev => prev + 1)
