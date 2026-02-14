@@ -330,6 +330,16 @@ let handleUpdateSceneMetadata = (state: state, index: int, metaJson: JSON.t): st
         | None => scene.categorySet
         }
 
+        // Check for manual baseName override in metadata (from LabelMenu)
+        let manualBaseName = switch Js.Json.decodeObject(metaJson) {
+        | Some(obj) =>
+          switch Js.Dict.get(obj, "_baseName") {
+          | Some(v) => Js.Json.decodeString(v)
+          | None => None
+          }
+        | None => None
+        }
+
         let updatedScene = {
           ...scene,
           category: newCategory,
@@ -339,12 +349,25 @@ let handleUpdateSceneMetadata = (state: state, index: int, metaJson: JSON.t): st
           categorySet,
         }
 
+        // Check if we need to update filename based on manual base name preservation
+        let finalScene = switch manualBaseName {
+        | Some(base) if base != "" =>
+           let newName = TourLogic.computeSceneFilename(index, newLabel, base)
+           {...updatedScene, name: newName}
+        | _ => updatedScene
+        }
+
+        let updatedInventory = state.inventory->Belt.Map.String.set(
+          targetId,
+          {...entry, scene: finalScene},
+        )
+        
+        // Sync everything to handle dependencies
+        let finalizedInventory = syncInventoryNames(updatedInventory, state.sceneOrder)
+
         {
           ...state,
-          inventory: state.inventory->Belt.Map.String.set(
-            targetId,
-            {...entry, scene: updatedScene},
-          ),
+          inventory: finalizedInventory,
           lastUsedCategory: switch meta.category {
           | Some(c) => c
           | None => state.lastUsedCategory
