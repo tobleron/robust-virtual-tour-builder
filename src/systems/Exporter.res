@@ -146,12 +146,65 @@ let exportTour = async (
     let formData = FormData.newFormData()
     let version = Version.version
 
-    /* 1. Generate HTML Templates */
+    /* 1. Append Logo (moved up to determine validation) */
+    currentPhase := "LOGO"
+    Logger.debug(~module_="Exporter", ~message="PHASE_LOGO", ())
+
+    let logoFilename = ref(None)
+
+    try {
+      let extensions = ["png", "jpg", "jpeg", "webp"]
+      let rec findLogo = async exts => {
+        switch exts {
+        | list{} => ()
+        | list{ext, ...rest} => {
+            let filename = "logo." ++ ext
+            let res = await Fetch.fetchSimple("images/" ++ filename)
+            if Fetch.ok(res) {
+              let logoBlob = await Fetch.blob(res)
+              FormData.appendWithFilename(formData, filename, logoBlob, filename)
+              logoFilename := Some(filename)
+            } else {
+              await findLogo(rest)
+            }
+          }
+        }
+      }
+      await findLogo(Belt.List.fromArray(extensions))
+    } catch {
+    | _ => Logger.warn(~module_="Exporter", ~message="LOGO_NOT_FOUND", ())
+    }
+
+    /* 2. Generate HTML Templates */
     currentPhase := "TEMPLATES"
     Logger.debug(~module_="Exporter", ~message="PHASE_TEMPLATES", ())
-    let html4k = TourTemplates.generateTourHTML(scenes, tourName, true, "4k", 120, 60, version)
-    let html2k = TourTemplates.generateTourHTML(scenes, tourName, true, "2k", 90, 50, version)
-    let htmlHd = TourTemplates.generateTourHTML(scenes, tourName, true, "hd", 60, 40, version)
+    let html4k = TourTemplates.generateTourHTML(
+      scenes,
+      tourName,
+      logoFilename.contents,
+      "4k",
+      120,
+      60,
+      version,
+    )
+    let html2k = TourTemplates.generateTourHTML(
+      scenes,
+      tourName,
+      logoFilename.contents,
+      "2k",
+      90,
+      50,
+      version,
+    )
+    let htmlHd = TourTemplates.generateTourHTML(
+      scenes,
+      tourName,
+      logoFilename.contents,
+      "hd",
+      60,
+      40,
+      version,
+    )
     let htmlIndex = TourTemplates.generateExportIndex(tourName, version)
     let embed = TourTemplates.generateEmbedCodes(tourName, Version.version)
 
@@ -161,7 +214,7 @@ let exportTour = async (
     FormData.append(formData, "html_index", htmlIndex)
     FormData.append(formData, "embed_codes", embed)
 
-    /* 2. Append Libraries */
+    /* 3. Append Libraries */
     currentPhase := "LIBRARIES"
     Logger.debug(~module_="Exporter", ~message="PHASE_LIBRARIES", ())
     try {
@@ -184,19 +237,6 @@ let exportTour = async (
         ~data={"error": msg, "stack": stack},
         (),
       )
-    }
-
-    /* 3. Append Logo */
-    currentPhase := "LOGO"
-    Logger.debug(~module_="Exporter", ~message="PHASE_LOGO", ())
-    try {
-      let logoRes = await Fetch.fetchSimple("images/logo.png")
-      if Fetch.ok(logoRes) {
-        let logoBlob = await Fetch.blob(logoRes)
-        FormData.appendWithFilename(formData, "logo.png", logoBlob, "logo.png")
-      }
-    } catch {
-    | _ => Logger.warn(~module_="Exporter", ~message="LOGO_NOT_FOUND", ())
     }
 
     /* 4. Append Scene Images */
