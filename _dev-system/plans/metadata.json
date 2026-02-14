@@ -1,305 +1,8 @@
 {
-  "system": [
-    {
-      "Merge": {
-        "folder": "src/systems/Scene/Loader",
-        "files": [
-          "../../src/systems/Scene/Loader/SceneLoaderConfig.res",
-          "../../src/systems/Scene/Loader/SceneLoaderEvents.res",
-          "../../src/systems/Scene/Loader/SceneLoaderReuse.res"
-        ],
-        "reason": "Recursive Feature Pod: 3 files in subtree sum to 156 LOC (fits in context). Max Drag: 6.80",
-        "strategy": "",
-        "platform": "frontend",
-        "verification": {
-          "headline": "Pre-merge snapshots for recursive cluster `src/systems/Scene/Loader`",
-          "snapshots": [
-            {
-              "path": "src/systems/Scene/Loader/SceneLoaderConfig.res",
-              "functions": [
-                {
-                  "name": "getHotspots",
-                  "signature": "getHotspots = (scene: scene, ~state, ~dispatch) =>",
-                  "line": 4
-                },
-                {
-                  "name": "makeSceneConfig",
-                  "signature": "makeSceneConfig = (scene: scene, ~state, ~dispatch) => {",
-                  "line": 9
-                },
-                {
-                  "name": "url",
-                  "signature": "url = SceneCache.getSourceUrl(scene.id, scene.file)",
-                  "line": 10
-                },
-                {
-                  "name": "makeInitialConfig",
-                  "signature": "makeInitialConfig = (scene: scene, ~state, ~dispatch) => {",
-                  "line": 23
-                },
-                {
-                  "name": "inner",
-                  "signature": "inner = makeSceneConfig(scene, ~state, ~dispatch)",
-                  "line": 24
-                },
-                {
-                  "name": "blankPanorama",
-                  "signature": "blankPanorama = \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==\"",
-                  "line": 39
-                },
-                {
-                  "name": "backgroundViewerConfig",
-                  "signature": "backgroundViewerConfig = () => {",
-                  "line": 41
-                }
-              ],
-              "fingerprint": "f4fd398f9137c60604b95ef249805b3adedf31eb810a43146a408204173e13c5"
-            },
-            {
-              "path": "src/systems/Scene/Loader/SceneLoaderEvents.res",
-              "functions": [
-                {
-                  "name": "isStaleTask",
-                  "signature": "isStaleTask = (~taskId: option<string>=?, ~signal: option<BrowserBindings.AbortSignal.t>=?) => {",
-                  "line": 5
-                },
-                {
-                  "name": "taskMismatch",
-                  "signature": "taskMismatch = switch taskId {",
-                  "line": 6
-                },
-                {
-                  "name": "signalAborted",
-                  "signature": "signalAborted = switch signal {",
-                  "line": 10
-                },
-                {
-                  "name": "castToDict",
-                  "signature": "castToDict: 'a => dict<string> = %raw(\"(x) => (typeof x === 'object' && x !== null) ? x : {}\")",
-                  "line": 17
-                },
-                {
-                  "name": "onSceneLoad",
-                  "signature": "onSceneLoad = (",
-                  "line": 21
-                },
-                {
-                  "name": "vId",
-                  "signature": "vId = castToDict(v)->Dict.get(\"container\")->Option.getOr(\"\")",
-                  "line": 37
-                },
-                {
-                  "name": "entry",
-                  "signature": "entry = ViewerSystem.Pool.pool.contents->Belt.Array.getBy(e => e.containerId == vId)",
-                  "line": 38
-                },
-                {
-                  "name": "onSceneError",
-                  "signature": "onSceneError = (",
-                  "line": 56
-                }
-              ],
-              "fingerprint": "4e8ceea824741cd661707f741fc1a482d4e2cb0595ac9fae388e6936f365aa26"
-            },
-            {
-              "path": "src/systems/Scene/Loader/SceneLoaderReuse.res",
-              "functions": [
-                {
-                  "name": "findReusableInstance",
-                  "signature": "findReusableInstance = (pathRequest: pathRequest, targetIdx: int): option<",
-                  "line": 6
-                },
-                {
-                  "name": "targetSceneId",
-                  "signature": "targetSceneId = pathRequest.scenes[targetIdx]->Option.map(s => s.id)",
-                  "line": 9
-                },
-                {
-                  "name": "metaId",
-                  "signature": "metaId = ViewerSystem.Adapter.getMetaData(inst, \"sceneId\")",
-                  "line": 14
-                }
-              ],
-              "fingerprint": "afe56389cbe21f3f18e6d254e8e228cbf835daaab5fa18214bb9579bb725550e"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Merge": {
-        "folder": "../../src/systems/Project",
-        "files": [
-          "ProjectSaver.res",
-          "ProjectLoader.res",
-          "ProjectValidator.res"
-        ],
-        "reason": "Read Tax high (Score 3.00). Projected Limit: 300 (Drag 4.92)",
-        "strategy": "",
-        "platform": "frontend",
-        "verification": {
-          "headline": "Pre-merge snapshots for `../../src/systems/Project`",
-          "snapshots": [
-            {
-              "path": "src/systems/Project/ProjectSaver.res",
-              "functions": [
-                {
-                  "name": "createSavePackage",
-                  "signature": "createSavePackage = (state: state, ~signal=?, ~onProgress: option<onProgress>=?): Promise.t<",
-                  "line": 7
-                },
-                {
-                  "name": "progress",
-                  "signature": "progress = (curr, total, msg) => {",
-                  "line": 10
-                },
-                {
-                  "name": "project",
-                  "signature": "project: Types.project = {",
-                  "line": 18
-                },
-                {
-                  "name": "jsonStr",
-                  "signature": "jsonStr = JsonCombinators.Json.stringify(JsonParsers.Encoders.project(project))",
-                  "line": 31
-                },
-                {
-                  "name": "formData",
-                  "signature": "formData = FormData.newFormData()",
-                  "line": 32
-                }
-              ],
-              "fingerprint": "2e2e031360c1b2b4cda97833635631c1e5f7fb29df5cb770c75eb0d98b06cb1b"
-            },
-            {
-              "path": "src/systems/Project/ProjectLoader.res",
-              "functions": [
-                {
-                  "name": "processLoadedProjectData",
-                  "signature": "processLoadedProjectData = (",
-                  "line": 7
-                },
-                {
-                  "name": "progress",
-                  "signature": "progress = (curr, total, msg) => {",
-                  "line": 12
-                },
-                {
-                  "name": "token",
-                  "signature": "token = Dom.Storage2.localStorage->Dom.Storage2.getItem(\"auth_token\")",
-                  "line": 74
-                },
-                {
-                  "name": "finalToken",
-                  "signature": "finalToken = switch token {",
-                  "line": 75
-                },
-                {
-                  "name": "tokenQuery",
-                  "signature": "tokenQuery = \"?token=\" ++ finalToken",
-                  "line": 79
-                },
-                {
-                  "name": "allInventoryScenes",
-                  "signature": "allInventoryScenes =",
-                  "line": 82
-                },
-                {
-                  "name": "validScenes",
-                  "signature": "validScenes = ProjectManagerUrl.rebuildSceneUrls(",
-                  "line": 85
-                },
-                {
-                  "name": "updatedInventory",
-                  "signature": "updatedInventory = validScenes->Belt.Array.reduce(pd.inventory, (acc, s) => {",
-                  "line": 92
-                },
-                {
-                  "name": "finalOrder",
-                  "signature": "finalOrder = if Array.length(pd.sceneOrder) > 0 {",
-                  "line": 100
-                },
-                {
-                  "name": "resolvedActiveScenes",
-                  "signature": "resolvedActiveScenes = finalOrder->Belt.Array.keepMap(id => {",
-                  "line": 107
-                },
-                {
-                  "name": "loadedProject",
-                  "signature": "loadedProject: Types.project = {",
-                  "line": 114
-                },
-                {
-                  "name": "loadProjectZip",
-                  "signature": "loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?) => {",
-                  "line": 139
-                },
-                {
-                  "name": "progress",
-                  "signature": "progress = (curr, total, msg) => {",
-                  "line": 140
-                },
-                {
-                  "name": "loadStartTime",
-                  "signature": "loadStartTime = Date.now()",
-                  "line": 147
-                }
-              ],
-              "fingerprint": "c19f172c88f9105107deeeceaad5008a1b9efdf270fc00f7b0d0659afb92402b"
-            },
-            {
-              "path": "src/systems/Project/ProjectValidator.res",
-              "functions": [
-                {
-                  "name": "validationReportWrapperDecoder",
-                  "signature": "validationReportWrapperDecoder = JsonCombinators.Json.Decode.object(field => {",
-                  "line": 3
-                },
-                {
-                  "name": "validateProjectStructure",
-                  "signature": "validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {",
-                  "line": 7
-                }
-              ],
-              "fingerprint": "c1da22b92cfb43a237f871bf8fcf11b5c39ff3c7931fb85fa73bbe455169f84d"
-            }
-          ]
-        }
-      }
-    }
-  ],
   "rescript": [
     {
       "Violation": {
-        "file": "../../src/hooks/UseInteraction.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
         "file": "../../src/systems/Upload/UploadFinalizer.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/core/JsonParsersDecoders.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/systems/Api/AuthenticatedClient.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/components/ViewerHUD.res",
         "pattern": "Obj.magic",
         "strategy": ""
       }
@@ -485,6 +188,34 @@
           ]
         }
       }
+    },
+    {
+      "Violation": {
+        "file": "../../src/systems/Api/AuthenticatedClient.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/components/ViewerHUD.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/hooks/UseInteraction.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../src/core/JsonParsersDecoders.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
+      }
     }
   ],
   "rust": [
@@ -500,6 +231,275 @@
         "file": "../../backend/src/metrics.rs",
         "pattern": "unwrap()",
         "strategy": ""
+      }
+    }
+  ],
+  "system": [
+    {
+      "Merge": {
+        "folder": "src/systems/Scene/Loader",
+        "files": [
+          "../../src/systems/Scene/Loader/SceneLoaderEvents.res",
+          "../../src/systems/Scene/Loader/SceneLoaderConfig.res",
+          "../../src/systems/Scene/Loader/SceneLoaderReuse.res"
+        ],
+        "reason": "Recursive Feature Pod: 3 files in subtree sum to 156 LOC (fits in context). Max Drag: 6.80",
+        "strategy": "",
+        "platform": "frontend",
+        "verification": {
+          "headline": "Pre-merge snapshots for recursive cluster `src/systems/Scene/Loader`",
+          "snapshots": [
+            {
+              "path": "src/systems/Scene/Loader/SceneLoaderEvents.res",
+              "functions": [
+                {
+                  "name": "isStaleTask",
+                  "signature": "isStaleTask = (~taskId: option<string>=?, ~signal: option<BrowserBindings.AbortSignal.t>=?) => {",
+                  "line": 5
+                },
+                {
+                  "name": "taskMismatch",
+                  "signature": "taskMismatch = switch taskId {",
+                  "line": 6
+                },
+                {
+                  "name": "signalAborted",
+                  "signature": "signalAborted = switch signal {",
+                  "line": 10
+                },
+                {
+                  "name": "castToDict",
+                  "signature": "castToDict: 'a => dict<string> = %raw(\"(x) => (typeof x === 'object' && x !== null) ? x : {}\")",
+                  "line": 17
+                },
+                {
+                  "name": "onSceneLoad",
+                  "signature": "onSceneLoad = (",
+                  "line": 21
+                },
+                {
+                  "name": "vId",
+                  "signature": "vId = castToDict(v)->Dict.get(\"container\")->Option.getOr(\"\")",
+                  "line": 37
+                },
+                {
+                  "name": "entry",
+                  "signature": "entry = ViewerSystem.Pool.pool.contents->Belt.Array.getBy(e => e.containerId == vId)",
+                  "line": 38
+                },
+                {
+                  "name": "onSceneError",
+                  "signature": "onSceneError = (",
+                  "line": 56
+                }
+              ],
+              "fingerprint": "4e8ceea824741cd661707f741fc1a482d4e2cb0595ac9fae388e6936f365aa26"
+            },
+            {
+              "path": "src/systems/Scene/Loader/SceneLoaderConfig.res",
+              "functions": [
+                {
+                  "name": "getHotspots",
+                  "signature": "getHotspots = (scene: scene, ~state, ~dispatch) =>",
+                  "line": 4
+                },
+                {
+                  "name": "makeSceneConfig",
+                  "signature": "makeSceneConfig = (scene: scene, ~state, ~dispatch) => {",
+                  "line": 9
+                },
+                {
+                  "name": "url",
+                  "signature": "url = SceneCache.getSourceUrl(scene.id, scene.file)",
+                  "line": 10
+                },
+                {
+                  "name": "makeInitialConfig",
+                  "signature": "makeInitialConfig = (scene: scene, ~state, ~dispatch) => {",
+                  "line": 23
+                },
+                {
+                  "name": "inner",
+                  "signature": "inner = makeSceneConfig(scene, ~state, ~dispatch)",
+                  "line": 24
+                },
+                {
+                  "name": "blankPanorama",
+                  "signature": "blankPanorama = \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==\"",
+                  "line": 39
+                },
+                {
+                  "name": "backgroundViewerConfig",
+                  "signature": "backgroundViewerConfig = () => {",
+                  "line": 41
+                }
+              ],
+              "fingerprint": "f4fd398f9137c60604b95ef249805b3adedf31eb810a43146a408204173e13c5"
+            },
+            {
+              "path": "src/systems/Scene/Loader/SceneLoaderReuse.res",
+              "functions": [
+                {
+                  "name": "findReusableInstance",
+                  "signature": "findReusableInstance = (pathRequest: pathRequest, targetIdx: int): option<",
+                  "line": 6
+                },
+                {
+                  "name": "targetSceneId",
+                  "signature": "targetSceneId = pathRequest.scenes[targetIdx]->Option.map(s => s.id)",
+                  "line": 9
+                },
+                {
+                  "name": "metaId",
+                  "signature": "metaId = ViewerSystem.Adapter.getMetaData(inst, \"sceneId\")",
+                  "line": 14
+                }
+              ],
+              "fingerprint": "afe56389cbe21f3f18e6d254e8e228cbf835daaab5fa18214bb9579bb725550e"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "Merge": {
+        "folder": "../../src/systems/Project",
+        "files": [
+          "ProjectLoader.res",
+          "ProjectValidator.res",
+          "ProjectSaver.res"
+        ],
+        "reason": "Read Tax high (Score 3.00). Projected Limit: 300 (Drag 4.92)",
+        "strategy": "",
+        "platform": "frontend",
+        "verification": {
+          "headline": "Pre-merge snapshots for `../../src/systems/Project`",
+          "snapshots": [
+            {
+              "path": "src/systems/Project/ProjectLoader.res",
+              "functions": [
+                {
+                  "name": "processLoadedProjectData",
+                  "signature": "processLoadedProjectData = (",
+                  "line": 7
+                },
+                {
+                  "name": "progress",
+                  "signature": "progress = (curr, total, msg) => {",
+                  "line": 12
+                },
+                {
+                  "name": "token",
+                  "signature": "token = Dom.Storage2.localStorage->Dom.Storage2.getItem(\"auth_token\")",
+                  "line": 74
+                },
+                {
+                  "name": "finalToken",
+                  "signature": "finalToken = switch token {",
+                  "line": 75
+                },
+                {
+                  "name": "tokenQuery",
+                  "signature": "tokenQuery = \"?token=\" ++ finalToken",
+                  "line": 79
+                },
+                {
+                  "name": "allInventoryScenes",
+                  "signature": "allInventoryScenes =",
+                  "line": 82
+                },
+                {
+                  "name": "validScenes",
+                  "signature": "validScenes = ProjectManagerUrl.rebuildSceneUrls(",
+                  "line": 85
+                },
+                {
+                  "name": "updatedInventory",
+                  "signature": "updatedInventory = validScenes->Belt.Array.reduce(pd.inventory, (acc, s) => {",
+                  "line": 92
+                },
+                {
+                  "name": "finalOrder",
+                  "signature": "finalOrder = if Array.length(pd.sceneOrder) > 0 {",
+                  "line": 100
+                },
+                {
+                  "name": "resolvedActiveScenes",
+                  "signature": "resolvedActiveScenes = finalOrder->Belt.Array.keepMap(id => {",
+                  "line": 107
+                },
+                {
+                  "name": "loadedProject",
+                  "signature": "loadedProject: Types.project = {",
+                  "line": 114
+                },
+                {
+                  "name": "loadProjectZip",
+                  "signature": "loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?) => {",
+                  "line": 139
+                },
+                {
+                  "name": "progress",
+                  "signature": "progress = (curr, total, msg) => {",
+                  "line": 140
+                },
+                {
+                  "name": "loadStartTime",
+                  "signature": "loadStartTime = Date.now()",
+                  "line": 147
+                }
+              ],
+              "fingerprint": "c19f172c88f9105107deeeceaad5008a1b9efdf270fc00f7b0d0659afb92402b"
+            },
+            {
+              "path": "src/systems/Project/ProjectValidator.res",
+              "functions": [
+                {
+                  "name": "validationReportWrapperDecoder",
+                  "signature": "validationReportWrapperDecoder = JsonCombinators.Json.Decode.object(field => {",
+                  "line": 3
+                },
+                {
+                  "name": "validateProjectStructure",
+                  "signature": "validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {",
+                  "line": 7
+                }
+              ],
+              "fingerprint": "c1da22b92cfb43a237f871bf8fcf11b5c39ff3c7931fb85fa73bbe455169f84d"
+            },
+            {
+              "path": "src/systems/Project/ProjectSaver.res",
+              "functions": [
+                {
+                  "name": "createSavePackage",
+                  "signature": "createSavePackage = (state: state, ~signal=?, ~onProgress: option<onProgress>=?): Promise.t<",
+                  "line": 7
+                },
+                {
+                  "name": "progress",
+                  "signature": "progress = (curr, total, msg) => {",
+                  "line": 10
+                },
+                {
+                  "name": "project",
+                  "signature": "project: Types.project = {",
+                  "line": 18
+                },
+                {
+                  "name": "jsonStr",
+                  "signature": "jsonStr = JsonCombinators.Json.stringify(JsonParsers.Encoders.project(project))",
+                  "line": 31
+                },
+                {
+                  "name": "formData",
+                  "signature": "formData = FormData.newFormData()",
+                  "line": 32
+                }
+              ],
+              "fingerprint": "2e2e031360c1b2b4cda97833635631c1e5f7fb29df5cb770c75eb0d98b06cb1b"
+            }
+          ]
+        }
       }
     }
   ]
