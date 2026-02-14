@@ -105,7 +105,6 @@ module InternalRender = {
   open InternalTypes
   open InternalLogic
 
-
   let render = (pipeline: t, state: Types.state, ~getState, ~dispatch) => {
     Logger.info(
       ~module_="VisualPipeline",

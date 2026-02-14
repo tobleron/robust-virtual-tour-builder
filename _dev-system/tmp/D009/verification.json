@@ -1,37 +1,128 @@
 {
-  "headline": "Verification Snapshot",
-  "snapshots": [
+  "task": "D009",
+  "category": "Merge_Folders_FRONTEND",
+  "baseline_dir": "_dev-system/tmp/D009",
+  "bundles": [
     {
-      "path": "src/components/VisualPipeline/VisualPipelineComponent.res",
-      "functions": [
+      "headline": "Pre-merge snapshots for recursive cluster `src/systems/Project`",
+      "snapshots": [
         {
-          "name": "make",
-          "signature": "let make = () => {",
-          "line": 2
+          "path": "src/systems/Project/ProjectValidator.res",
+          "functions": [
+            {
+              "name": "validationReportWrapperDecoder",
+              "signature": "let validationReportWrapperDecoder = JsonCombinators.Json.Decode.object(field => {",
+              "line": 3
+            },
+            {
+              "name": "validateProjectStructure",
+              "signature": "let validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {",
+              "line": 7
+            }
+          ],
+          "fingerprint": "ffb8b47d9fa96368ea312d8169dd5eaa1483015d1303878c72ff2a41db8f1d2d"
+        },
+        {
+          "path": "src/systems/Project/ProjectSaver.res",
+          "functions": [
+            {
+              "name": "createSavePackage",
+              "signature": "let createSavePackage = (state: state, ~signal=?, ~onProgress: option<onProgress>=?): Promise.t<",
+              "line": 7
+            }
+          ],
+          "fingerprint": "c42113cfd078e9ae6337cfc42f8b2eafb4e6f41cb00b16fb9261f47629dd3230"
+        },
+        {
+          "path": "src/systems/Project/ProjectLoader.res",
+          "functions": [
+            {
+              "name": "processLoadedProjectData",
+              "signature": "let processLoadedProjectData = (",
+              "line": 7
+            },
+            {
+              "name": "loadProjectZip",
+              "signature": "let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?) => {",
+              "line": 136
+            }
+          ],
+          "fingerprint": "7bb47c70e88fecbb9936fbaa6c783733acc07b4ab8b3b0a360dd97d8289cc7cd"
         }
-      ],
-      "fingerprint": "bd8c315b5b34119c7b1f5c9add0dd0025e0924189d9113b78a48b14984fd2b94"
+      ]
     },
     {
-      "path": "src/components/VisualPipeline/VisualPipelineStyles.res",
-      "functions": [
+      "headline": "Pre-merge snapshots for recursive cluster `src/systems/Scene/Loader`",
+      "snapshots": [
         {
-          "name": "nodeSize",
-          "signature": "let nodeSize = 22",
-          "line": 5
+          "path": "src/systems/Scene/Loader/SceneLoaderReuse.res",
+          "functions": [
+            {
+              "name": "findReusableInstance",
+              "signature": "let findReusableInstance = (pathRequest: pathRequest, targetIdx: int): option<ViewerSystem.Adapter.t> => {",
+              "line": 6
+            }
+          ],
+          "fingerprint": "d82b4f05f066c46c12afa9b4b0f92dde0d042b5f7870965b09bda5c82bcf7c81"
         },
         {
-          "name": "styles",
-          "signature": "let styles =",
-          "line": 7
+          "path": "src/systems/Scene/Loader/SceneLoaderEvents.res",
+          "functions": [
+            {
+              "name": "isStaleTask",
+              "signature": "let isStaleTask = (",
+              "line": 5
+            },
+            {
+              "name": "castToDict",
+              "signature": "let castToDict: 'a => dict<string> = %raw(\"(x) => (typeof x === 'object' && x !== null) ? x : {}\")",
+              "line": 20
+            },
+            {
+              "name": "onSceneLoad",
+              "signature": "let onSceneLoad = (",
+              "line": 24
+            },
+            {
+              "name": "onSceneError",
+              "signature": "let onSceneError = (",
+              "line": 59
+            }
+          ],
+          "fingerprint": "0522ec5cc5a313c9df2046fa17f18930e7862610a72fba6b1196b6eef969920c"
         },
         {
-          "name": "injectStyles",
-          "signature": "let injectStyles = () => {",
-          "line": 161
+          "path": "src/systems/Scene/Loader/SceneLoaderConfig.res",
+          "functions": [
+            {
+              "name": "getHotspots",
+              "signature": "let getHotspots = (scene: scene, ~state, ~dispatch) =>",
+              "line": 4
+            },
+            {
+              "name": "makeSceneConfig",
+              "signature": "let makeSceneConfig = (scene: scene, ~state, ~dispatch) => {",
+              "line": 9
+            },
+            {
+              "name": "makeInitialConfig",
+              "signature": "let makeInitialConfig = (scene: scene, ~state, ~dispatch) => {",
+              "line": 23
+            },
+            {
+              "name": "blankPanorama",
+              "signature": "let blankPanorama = \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==\"",
+              "line": 39
+            },
+            {
+              "name": "backgroundViewerConfig",
+              "signature": "let backgroundViewerConfig = () => {",
+              "line": 41
+            }
+          ],
+          "fingerprint": "d93e3bc007bec00c94aaf62232e9bf3cf65185510088b069d046c18cd8854d67"
         }
-      ],
-      "fingerprint": "e51eb98c179a8a8bcedc9d17af8df94d6c46e2c3046c561d8bc4b93b78ad30cf"
+      ]
     }
   ]
 }

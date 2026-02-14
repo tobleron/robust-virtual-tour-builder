@@ -71,16 +71,11 @@ module Pool = {
   let getInactive = () => pool.contents->Belt.Array.getBy(v => v.status == #Background)
   let getInactiveViewer = () => getInactive()->Option.flatMap(v => v.instance)
 
-  let swapActive = () =>
-    ViewerPool.swapActive()
-  let registerInstance = (cId, inst) =>
-    ViewerPool.registerInstance(cId, inst)
-  let clearInstance = cId =>
-    ViewerPool.clearInstance(cId)
-  let setCleanupTimeout = (id, t) =>
-    ViewerPool.setCleanupTimeout(id, t)
-  let clearCleanupTimeout = id =>
-    ViewerPool.clearCleanupTimeout(id)
+  let swapActive = () => ViewerPool.swapActive()
+  let registerInstance = (cId, inst) => ViewerPool.registerInstance(cId, inst)
+  let clearInstance = cId => ViewerPool.clearInstance(cId)
+  let setCleanupTimeout = (id, t) => ViewerPool.setCleanupTimeout(id, t)
+  let clearCleanupTimeout = id => ViewerPool.clearCleanupTimeout(id)
 
   let reset = () => {
     ViewerPool.reset()
