@@ -20,6 +20,15 @@ let getDeletedIds = inventory => {
   })
 }
 
+let getBaseName = (scene: Types.scene) => {
+  let raw = if Js.String2.startsWith(scene.id, "legacy_") {
+    Js.String2.substring(scene.id, ~from=7, ~to_=Js.String2.length(scene.id))
+  } else {
+    scene.id
+  }
+  UrlUtils.stripExtension(raw)
+}
+
 let syncInventoryNames = (inventory, sceneOrder) => {
   let renameMap = Belt.MutableMap.String.make()
   let updatedRef = ref(inventory)
@@ -29,7 +38,8 @@ let syncInventoryNames = (inventory, sceneOrder) => {
     | Some({scene, status: Active} as entry) =>
       if scene.label != "" {
         let oldName = scene.name
-        let newName = TourLogic.computeSceneFilename(index, scene.label)
+        let baseName = getBaseName(scene)
+        let newName = TourLogic.computeSceneFilename(index, scene.label, baseName)
         if newName != oldName {
           let _ = Belt.MutableMap.String.set(renameMap, oldName, newName)
           updatedRef.contents =
@@ -413,7 +423,8 @@ let syncSceneNames = (scenes: array<Types.scene>) => {
   let updatedScenes = Belt.Array.mapWithIndex(scenes, (index, scene) => {
     if scene.label != "" {
       let oldName = scene.name
-      let newName = TourLogic.computeSceneFilename(index, scene.label)
+      let baseName = getBaseName(scene)
+      let newName = TourLogic.computeSceneFilename(index, scene.label, baseName)
       if newName != oldName {
         let _ = Belt.MutableMap.String.set(renameMap, oldName, newName)
         {...scene, name: newName}

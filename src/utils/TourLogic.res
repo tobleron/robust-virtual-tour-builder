@@ -92,19 +92,70 @@ let generateLinkId = (usedIds: Belt.Set.String.t) => {
 /**
  * Calculate the standardized filename for a scene based on its index and label.
  */
-let computeSceneFilename = (index, label) => {
+// Helper to generate consistent slugs
+let toSlug = (label, maxLength) => {
+  sanitizeName(label, ~maxLength)
+    ->String.replaceRegExp(/[\s-]+/g, "_")
+    ->String.replaceRegExp(/[^a-z0-9_]/gi, "")
+    ->String.toLowerCase
+}
+
+/**
+ * Attempts to extract the ORIGINAL base name from a potentially computed filename.
+ * If the current name matches the pattern "Index_Label_BaseName", it returns BaseName.
+ * Otherwise, it returns the current name (stripped of extension).
+ */
+let recoverBaseName = (currentName, currentLabel) => {
+  let nameWithoutExt = UrlUtils.stripExtension(currentName)
+
+  if currentLabel == "" {
+    nameWithoutExt
+  } else {
+    let slug = toSlug(currentLabel, 200)
+    // Match pattern: XX_slug_BASENAME
+    // usage of %raw for regex capture which is simpler than ReBindings here
+    let pattern = "^\\d{2}_" ++ slug ++ "_(.+)$"
+    let match = %raw(`(str, p) => {
+        try {
+            const m = str.match(new RegExp(p));
+            return m ? m[1] : null;
+        } catch (e) { return null; }
+    }`)(nameWithoutExt, pattern)
+
+    switch Js.Nullable.toOption(match) {
+    | Some(base) => base
+    | None => nameWithoutExt
+    }
+  }
+}
+
+// Helper to extract base name from ID (centralized logic)
+let getBaseNameFromId = (id) => {
+  let raw = if Js.String2.startsWith(id, "legacy_") {
+    Js.String2.substring(id, ~from=7, ~to_=Js.String2.length(id))
+  } else {
+    id
+  }
+  UrlUtils.stripExtension(raw)
+}
+
+/**
+ * Calculate the standardized filename for a scene based on its index, label, and original base name.
+ */
+let computeSceneFilename = (index, label, baseName) => {
   let prefix = Belt.Int.toString(index + 1)->padStart(2, "0")
   if label == "" {
-    prefix ++ "_unnamed.webp"
+    prefix ++ "_" ++ baseName ++ ".webp"
   } else {
-    let sanitizedLabel = sanitizeName(label, ~maxLength=200)
-    let baseSlug =
-      sanitizedLabel
-      ->String.replaceRegExp(/[\\s-]+/g, "_")
-      ->String.replaceRegExp(/[^a-z0-9_]/gi, "")
-      ->String.toLowerCase
+    let baseSlug = toSlug(label, 200)
+    let sanitizedBase = toSlug(baseName, 200)
 
-    prefix ++ "_" ++ baseSlug ++ ".webp"
+    // Avoid duplication if label already contains the base name (e.g. "Kitchen_123" + "123")
+    if baseSlug == sanitizedBase || Js.String2.endsWith(baseSlug, "_" ++ sanitizedBase) {
+      prefix ++ "_" ++ baseSlug ++ ".webp"
+    } else {
+      prefix ++ "_" ++ baseSlug ++ "_" ++ baseName ++ ".webp"
+    }
   }
 }
 
