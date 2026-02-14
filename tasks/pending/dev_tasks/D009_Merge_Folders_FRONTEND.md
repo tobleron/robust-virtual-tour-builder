@@ -30,6 +30,14 @@ Baseline artifacts: `_dev-system/tmp/D009/verification.json` (files at `_dev-sys
 Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline _dev-system/tmp/D009/verification.json --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.
 
 ### Pre-merge snapshots for recursive cluster `src/systems/Scene/Loader`
+- `src/systems/Scene/Loader/SceneLoaderConfig.res` (7 functions, fingerprint f4fd398f9137c60604b95ef249805b3adedf31eb810a43146a408204173e13c5)
+    - getHotspots — getHotspots = (scene: scene, ~state, ~dispatch) =>
+    - makeSceneConfig — makeSceneConfig = (scene: scene, ~state, ~dispatch) => {
+    - url — url = SceneCache.getSourceUrl(scene.id, scene.file)
+    - makeInitialConfig — makeInitialConfig = (scene: scene, ~state, ~dispatch) => {
+    - inner — inner = makeSceneConfig(scene, ~state, ~dispatch)
+    - blankPanorama — blankPanorama = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
+    - backgroundViewerConfig — backgroundViewerConfig = () => {
 - `src/systems/Scene/Loader/SceneLoaderEvents.res` (8 functions, fingerprint 4e8ceea824741cd661707f741fc1a482d4e2cb0595ac9fae388e6936f365aa26)
     - isStaleTask — isStaleTask = (~taskId: option<string>=?, ~signal: option<BrowserBindings.AbortSignal.t>=?) => {
     - taskMismatch — taskMismatch = switch taskId {
@@ -39,14 +47,6 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
     - vId — vId = castToDict(v)->Dict.get("container")->Option.getOr("")
     - entry — entry = ViewerSystem.Pool.pool.contents->Belt.Array.getBy(e => e.containerId == vId)
     - onSceneError — onSceneError = (
-- `src/systems/Scene/Loader/SceneLoaderConfig.res` (7 functions, fingerprint f4fd398f9137c60604b95ef249805b3adedf31eb810a43146a408204173e13c5)
-    - getHotspots — getHotspots = (scene: scene, ~state, ~dispatch) =>
-    - makeSceneConfig — makeSceneConfig = (scene: scene, ~state, ~dispatch) => {
-    - url — url = SceneCache.getSourceUrl(scene.id, scene.file)
-    - makeInitialConfig — makeInitialConfig = (scene: scene, ~state, ~dispatch) => {
-    - inner — inner = makeSceneConfig(scene, ~state, ~dispatch)
-    - blankPanorama — blankPanorama = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
-    - backgroundViewerConfig — backgroundViewerConfig = () => {
 - `src/systems/Scene/Loader/SceneLoaderReuse.res` (3 functions, fingerprint afe56389cbe21f3f18e6d254e8e228cbf835daaab5fa18214bb9579bb725550e)
     - findReusableInstance — findReusableInstance = (pathRequest: pathRequest, targetIdx: int): option<
     - targetSceneId — targetSceneId = pathRequest.scenes[targetIdx]->Option.map(s => s.id)
@@ -58,9 +58,6 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
     - project — project: Types.project = {
     - jsonStr — jsonStr = JsonCombinators.Json.stringify(JsonParsers.Encoders.project(project))
     - formData — formData = FormData.newFormData()
-- `src/systems/Project/ProjectValidator.res` (2 functions, fingerprint c1da22b92cfb43a237f871bf8fcf11b5c39ff3c7931fb85fa73bbe455169f84d)
-    - validationReportWrapperDecoder — validationReportWrapperDecoder = JsonCombinators.Json.Decode.object(field => {
-    - validateProjectStructure — validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {
 - `src/systems/Project/ProjectLoader.res` (14 functions, fingerprint c19f172c88f9105107deeeceaad5008a1b9efdf270fc00f7b0d0659afb92402b)
     - processLoadedProjectData — processLoadedProjectData = (
     - progress — progress = (curr, total, msg) => {
@@ -76,3 +73,6 @@ Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -
     - loadProjectZip — loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?) => {
     - progress — progress = (curr, total, msg) => {
     - loadStartTime — loadStartTime = Date.now()
+- `src/systems/Project/ProjectValidator.res` (2 functions, fingerprint c1da22b92cfb43a237f871bf8fcf11b5c39ff3c7931fb85fa73bbe455169f84d)
+    - validationReportWrapperDecoder — validationReportWrapperDecoder = JsonCombinators.Json.Decode.object(field => {
+    - validateProjectStructure — validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {

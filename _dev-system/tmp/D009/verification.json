@@ -7,6 +7,47 @@
       "headline": "Pre-merge snapshots for recursive cluster `src/systems/Scene/Loader`",
       "snapshots": [
         {
+          "path": "src/systems/Scene/Loader/SceneLoaderConfig.res",
+          "functions": [
+            {
+              "name": "getHotspots",
+              "signature": "getHotspots = (scene: scene, ~state, ~dispatch) =>",
+              "line": 4
+            },
+            {
+              "name": "makeSceneConfig",
+              "signature": "makeSceneConfig = (scene: scene, ~state, ~dispatch) => {",
+              "line": 9
+            },
+            {
+              "name": "url",
+              "signature": "url = SceneCache.getSourceUrl(scene.id, scene.file)",
+              "line": 10
+            },
+            {
+              "name": "makeInitialConfig",
+              "signature": "makeInitialConfig = (scene: scene, ~state, ~dispatch) => {",
+              "line": 23
+            },
+            {
+              "name": "inner",
+              "signature": "inner = makeSceneConfig(scene, ~state, ~dispatch)",
+              "line": 24
+            },
+            {
+              "name": "blankPanorama",
+              "signature": "blankPanorama = \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==\"",
+              "line": 39
+            },
+            {
+              "name": "backgroundViewerConfig",
+              "signature": "backgroundViewerConfig = () => {",
+              "line": 41
+            }
+          ],
+          "fingerprint": "f4fd398f9137c60604b95ef249805b3adedf31eb810a43146a408204173e13c5"
+        },
+        {
           "path": "src/systems/Scene/Loader/SceneLoaderEvents.res",
           "functions": [
             {
@@ -51,47 +92,6 @@
             }
           ],
           "fingerprint": "4e8ceea824741cd661707f741fc1a482d4e2cb0595ac9fae388e6936f365aa26"
-        },
-        {
-          "path": "src/systems/Scene/Loader/SceneLoaderConfig.res",
-          "functions": [
-            {
-              "name": "getHotspots",
-              "signature": "getHotspots = (scene: scene, ~state, ~dispatch) =>",
-              "line": 4
-            },
-            {
-              "name": "makeSceneConfig",
-              "signature": "makeSceneConfig = (scene: scene, ~state, ~dispatch) => {",
-              "line": 9
-            },
-            {
-              "name": "url",
-              "signature": "url = SceneCache.getSourceUrl(scene.id, scene.file)",
-              "line": 10
-            },
-            {
-              "name": "makeInitialConfig",
-              "signature": "makeInitialConfig = (scene: scene, ~state, ~dispatch) => {",
-              "line": 23
-            },
-            {
-              "name": "inner",
-              "signature": "inner = makeSceneConfig(scene, ~state, ~dispatch)",
-              "line": 24
-            },
-            {
-              "name": "blankPanorama",
-              "signature": "blankPanorama = \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==\"",
-              "line": 39
-            },
-            {
-              "name": "backgroundViewerConfig",
-              "signature": "backgroundViewerConfig = () => {",
-              "line": 41
-            }
-          ],
-          "fingerprint": "f4fd398f9137c60604b95ef249805b3adedf31eb810a43146a408204173e13c5"
         },
         {
           "path": "src/systems/Scene/Loader/SceneLoaderReuse.res",
@@ -149,22 +149,6 @@
             }
           ],
           "fingerprint": "2e2e031360c1b2b4cda97833635631c1e5f7fb29df5cb770c75eb0d98b06cb1b"
-        },
-        {
-          "path": "src/systems/Project/ProjectValidator.res",
-          "functions": [
-            {
-              "name": "validationReportWrapperDecoder",
-              "signature": "validationReportWrapperDecoder = JsonCombinators.Json.Decode.object(field => {",
-              "line": 3
-            },
-            {
-              "name": "validateProjectStructure",
-              "signature": "validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {",
-              "line": 7
-            }
-          ],
-          "fingerprint": "c1da22b92cfb43a237f871bf8fcf11b5c39ff3c7931fb85fa73bbe455169f84d"
         },
         {
           "path": "src/systems/Project/ProjectLoader.res",
@@ -241,9 +225,25 @@
             }
           ],
           "fingerprint": "c19f172c88f9105107deeeceaad5008a1b9efdf270fc00f7b0d0659afb92402b"
+        },
+        {
+          "path": "src/systems/Project/ProjectValidator.res",
+          "functions": [
+            {
+              "name": "validationReportWrapperDecoder",
+              "signature": "validationReportWrapperDecoder = JsonCombinators.Json.Decode.object(field => {",
+              "line": 3
+            },
+            {
+              "name": "validateProjectStructure",
+              "signature": "validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {",
+              "line": 7
+            }
+          ],
+          "fingerprint": "c1da22b92cfb43a237f871bf8fcf11b5c39ff3c7931fb85fa73bbe455169f84d"
         }
       ]
     }
   ],
-  "timestamp": "2026-02-14T20:31:01.229749Z"
+  "timestamp": "2026-02-14T20:34:49.707374Z"
 }
