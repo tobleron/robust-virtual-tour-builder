@@ -12407,13 +12407,6 @@
 │   │   │   │   ├── ViewerUI.cmj
 │   │   │   │   ├── ViewerUI.cmt
 │   │   │   │   ├── ViewerUI.res
-│   │   │   │   ├── VisualPipeline
-│   │   │   │   │   ├── VisualPipelineStyles.ast
-│   │   │   │   │   ├── VisualPipelineStyles.bs.js
-│   │   │   │   │   ├── VisualPipelineStyles.cmi
-│   │   │   │   │   ├── VisualPipelineStyles.cmj
-│   │   │   │   │   ├── VisualPipelineStyles.cmt
-│   │   │   │   │   └── VisualPipelineStyles.res
 │   │   │   │   ├── VisualPipeline.ast
 │   │   │   │   ├── VisualPipeline.bs.js
 │   │   │   │   ├── VisualPipeline.cmi
@@ -16297,11 +16290,6 @@
 │   │   ├── VisualPipeline.cmj
 │   │   ├── VisualPipeline.cmt
 │   │   ├── VisualPipeline.res
-│   │   ├── VisualPipelineStyles.ast
-│   │   ├── VisualPipelineStyles.cmi
-│   │   ├── VisualPipelineStyles.cmj
-│   │   ├── VisualPipelineStyles.cmt
-│   │   ├── VisualPipelineStyles.res
 │   │   ├── VitestSmoke.test.ast
 │   │   ├── VitestSmoke.test.cmi
 │   │   ├── VitestSmoke.test.cmj
@@ -18671,4 +18659,4 @@
 │       └── test_run.json
 └── vitest.config.mjs
 
-862 directories, 17810 files
+861 directories, 17799 files
