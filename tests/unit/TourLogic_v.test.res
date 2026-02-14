@@ -36,9 +36,17 @@ describe("TourLogic", () => {
   })
 
   test("computeSceneFilename", t => {
-    t->expect(computeSceneFilename(0, "Living Room"))->Expect.toBe("01_living_room.webp")
-    t->expect(computeSceneFilename(9, ""))->Expect.toBe("10_unnamed.webp")
-    t->expect(computeSceneFilename(1, "Kitchen/Dining"))->Expect.toBe("02_kitchen_dining.webp")
+    // Standard case: Label + BaseName
+    t->expect(computeSceneFilename(0, "Living Room", "DSC001"))->Expect.toBe("01_living_room_DSC001.webp")
+    
+    // Empty label case: Uses BaseName
+    t->expect(computeSceneFilename(9, "", "img_555"))->Expect.toBe("10_img_555.webp")
+    
+    // Dedup case: Label contains BaseName
+    t->expect(computeSceneFilename(1, "Kitchen", "Kitchen"))->Expect.toBe("02_kitchen.webp")
+    
+    // Sanitization check
+    t->expect(computeSceneFilename(2, "Bed/Bath", "orig"))->Expect.toBe("03_bed_bath_orig.webp")
   })
 
   test("validateTourIntegrity", t => {

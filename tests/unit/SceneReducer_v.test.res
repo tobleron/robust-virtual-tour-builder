@@ -96,6 +96,6 @@ test("SceneReducer: ApplyLazyRename updates label and syncs name", t => {
   let updatedScene = result.scenes[0]->Option.getOrThrow
   t->expect(updatedScene.label)->Expect.toBe("New Label")
   // It should also sync the name based on label
-  let expectedName = TourLogic.computeSceneFilename(0, "New Label")
+  let expectedName = TourLogic.computeSceneFilename(0, "New Label", "s1")
   t->expect(updatedScene.name)->Expect.toBe(expectedName)
 })
