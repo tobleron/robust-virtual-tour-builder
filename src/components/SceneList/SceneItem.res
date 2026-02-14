@@ -170,44 +170,93 @@ let make = React.memo((
     </div>
 
     <div className="flex-1 min-w-0 py-1.5 px-2 flex flex-col justify-center cursor-pointer">
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center justify-between gap-2">
-          <h4
-            className={`text-[12px] font-medium truncate tracking-tight ${if isActive {
-                "text-primary"
-              } else {
-                "text-slate-700"
-              }}`}
+      <div className="flex items-center justify-between gap-2 overflow-hidden">
+        <h4
+          className={`text-[12px] font-medium truncate tracking-tight ${if isActive {
+              "text-primary"
+            } else {
+              "text-slate-700"
+            }}`}
+        >
+          {React.string(scene.label != "" ? scene.label : scene.name)}
+        </h4>
+        {if Array.length(scene.hotspots) > 0 {
+          <div
+            className="flex items-center gap-1 text-slate-400 group-hover:text-primary transition-colors shrink-0"
           >
-            {React.string(scene.label != "" ? scene.label : scene.name)}
-          </h4>
-          {if Array.length(scene.hotspots) > 0 {
-            <div
-              className="flex items-center gap-1 text-slate-400 group-hover:text-primary transition-colors shrink-0"
-            >
-              <LucideIcons.Link size=10 />
-              <span className="text-[10px] font-semibold">
-                {React.int(Array.length(scene.hotspots))}
-              </span>
-            </div>
-          } else {
-            React.null
-          }}
-        </div>
-
-        <div className="flex items-center gap-1.5 mt-1">
-          <div className="flex-1">
-            <div className="w-full bg-slate-100 h-0.5 rounded-full overflow-hidden">
-              <div
-                className={`h-full transition-all duration-1000 ease-out rounded-full ${qualityColor}`}
-                style={makeStyle({"width": Float.toString(qualityScore *. 10.0) ++ "%"})}
-              />
-            </div>
+            <LucideIcons.Link size=10 />
+            <span className="text-[10px] font-semibold">
+              {React.int(Array.length(scene.hotspots))}
+            </span>
           </div>
+        } else {
+          React.null
+        }}
+      </div>
+
+      <div className="flex items-center gap-2 mt-1">
+        /* Format & Technical Meta */
+        {
+          let (format, size) = switch scene.file {
+          | Url(url) =>
+            let pieces = url->String.split(".")
+            let ext = pieces->Belt.Array.get(Belt.Array.length(pieces) - 1)->Option.getOr("JPG")
+            (ext->String.toUpperCase, 0.0)
+          | Blob(b) =>
+            let mime = BrowserBindings.Blob.type_(b)
+            let ext = mime->String.split("/")->Belt.Array.get(1)->Option.getOr("JPG")
+            (ext->String.toUpperCase, BrowserBindings.Blob.size(b))
+          | File(f) =>
+            let mime = BrowserBindings.File.type_(f)
+            let ext = mime->String.split("/")->Belt.Array.get(1)->Option.getOr("JPG")
+            (ext->String.toUpperCase, BrowserBindings.File.size(f))
+          }
+
+          let (badgeColor, formatLabel) = switch format {
+          | "WEBP" => ("text-orange-600 bg-orange-50", "WEBP")
+          | "PNG" => ("text-indigo-600 bg-indigo-50", "PNG")
+          | "JPEG" | "JPG" => ("text-blue-600 bg-blue-50", "JPG")
+          | f => ("text-slate-600 bg-slate-50", f)
+          }
+
+          let formattedSize = if size > 0.0 {
+            let mb = size /. (1024.0 *. 1024.0)
+            if mb >= 1.0 {
+              Float.toFixed(mb, ~digits=1) ++ "MB"
+            } else {
+              let kb = size /. 1024.0
+              Float.toFixed(kb, ~digits=0) ++ "KB"
+            }
+          } else {
+            ""
+          }
+
+          <div className="flex items-center gap-1.5 shrink-0">
+            <span
+              className={`px-1 py-0.5 rounded-[3px] text-[8px] font-bold tracking-tight border border-current/10 ${badgeColor}`}
+            >
+              {React.string(formatLabel)}
+            </span>
+            {if formattedSize != "" {
+              <span className="text-[9px] font-medium text-slate-400">
+                {React.string(formattedSize)}
+              </span>
+            } else {
+              React.null
+            }}
+          </div>
+        }
+        <div className="flex-1">
+          <div className="w-full bg-slate-100 h-0.5 rounded-full overflow-hidden">
+            <div
+              className={`h-full transition-all duration-1000 ease-out rounded-full ${qualityColor}`}
+              style={makeStyle({"width": Float.toString(qualityScore *. 10.0) ++ "%"})}
+            />
+          </div>
+        </div>
+        <div className="flex items-center gap-1 shrink-0">
           <span
-            className={`text-[10px] font-semibold uppercase tracking-wide leading-none ${if (
-                isLowQuality
-              ) {
+            className={`text-[9px] font-bold uppercase tracking-wider ${if isLowQuality {
                 "text-danger"
               } else {
                 "text-slate-400"
