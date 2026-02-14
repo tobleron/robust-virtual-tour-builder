@@ -18,6 +18,7 @@ let generateServerTeaser = (state: state, onProgress) => {
     sessionId: state.sessionId,
     deletedSceneIds: state.deletedSceneIds,
     timeline: state.timeline,
+    logo: state.logo,
   }
 
   // Encoded with strict combinators

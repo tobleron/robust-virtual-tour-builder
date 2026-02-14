@@ -45,6 +45,7 @@ module Logic = {
       sessionId: state.sessionId,
       deletedSceneIds: state.deletedSceneIds,
       timeline: state.timeline,
+      logo: state.logo,
     }
 
     let jsonStr = JsonCombinators.Json.stringify(JsonParsers.Encoders.project(project))

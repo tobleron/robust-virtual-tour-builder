@@ -76,6 +76,7 @@ describe("ServerTeaser - Remote Rendering", () => {
     pendingReturnSceneName: None,
     lastUsedCategory: "outdoor",
     sessionId: None,
+    logo: None,
   }
 
   testAsync("generateServerTeaser sends correct FormData to backend", async t => {

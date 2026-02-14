@@ -24,6 +24,7 @@ type uiSlice = {
   isTeasing: bool,
   linkDraft: option<linkDraft>,
   appMode: appMode,
+  logo: option<file>,
 }
 
 type simSlice = {
@@ -45,6 +46,7 @@ let defaultUiSlice: uiSlice = {
   isTeasing: State.initialState.isTeasing,
   linkDraft: State.initialState.linkDraft,
   appMode: State.initialState.appMode,
+  logo: State.initialState.logo,
 }
 
 let defaultSimSlice: simSlice = {
@@ -114,14 +116,15 @@ module Provider = {
       }
     }, (state.scenes, state.activeIndex, state.tourName))
 
-    let uiSlice = React.useMemo4(() => {
+    let uiSlice = React.useMemo5(() => {
       {
         isLinking: state.isLinking,
         isTeasing: state.isTeasing,
         linkDraft: state.linkDraft,
         appMode: state.appMode,
+        logo: state.logo,
       }
-    }, (state.isLinking, state.isTeasing, state.linkDraft, state.appMode))
+    }, (state.isLinking, state.isTeasing, state.linkDraft, state.appMode, state.logo))
 
     let simSlice = React.useMemo4(() => {
       {

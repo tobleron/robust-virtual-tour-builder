@@ -66,6 +66,7 @@ describe("ProjectManager.Logic", () => {
       sessionId: Some("sess1"),
       deletedSceneIds: [],
       timeline: [],
+      logo: None,
     }
     let projectJson = JsonParsers.Encoders.project(project)
 
@@ -116,6 +117,7 @@ describe("ProjectManager.Logic", () => {
       sessionId: Some(sessionId),
       deletedSceneIds: [],
       timeline: [],
+      logo: None,
     }
     let projectJson = JsonParsers.Encoders.project(project)
 

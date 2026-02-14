@@ -189,6 +189,7 @@ let showFromProjectData = (projectDataJson: JSON.t, ~getState, ~dispatch) => {
         sessionId: None,
         deletedSceneIds: [],
         timeline: [],
+        logo: None,
       }
     }
   }

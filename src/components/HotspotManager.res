@@ -170,6 +170,7 @@ let getProjectData = (state: Types.state) => {
     sessionId: state.sessionId,
     deletedSceneIds: state.deletedSceneIds,
     timeline: state.timeline,
+    logo: state.logo,
   }
   JsonParsers.Encoders.project(project)
 }

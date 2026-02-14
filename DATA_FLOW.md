@@ -77,6 +77,21 @@ User file selection
   → [src/utils/OperationJournal.res] completes transaction
 ```
 
+### Custom Branding / Logo Upload
+**Trigger:** User clicks on the project logo in the viewer HUD
+
+**Flow:**
+```
+User Click on Viewer Logo
+  → [src/components/ViewerHUD.res] handles click and triggers hidden file input
+  → [src/core/Actions.res] (SetLogo) dispatched with Selected File
+  → [src/core/Reducer.res] updates global Types.state.logo
+  → [src/core/AppContext.res] broadcasts updated logo to all subscribers
+  → [src/core/JsonParsersEncoders.res] / [src/core/JsonParsersDecoders.res] handle persistence in session
+  → [src/systems/Exporter.res] prioritizes custom logo during ZIP assembly
+  → [backend/src/services/project/package.rs] detects any "logo.*" format and bundles it
+```
+
 ### State Persistence & Recovery
 **Trigger:** App initialization or state change
 

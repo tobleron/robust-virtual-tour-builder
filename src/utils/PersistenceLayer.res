@@ -52,6 +52,7 @@ let performSave = (state: Types.state) => {
       sessionId: state.sessionId,
       deletedSceneIds: state.deletedSceneIds,
       timeline: state.timeline,
+      logo: state.logo,
     }
 
     // Encoded to JSON value using combinators
