@@ -112,19 +112,32 @@ let recoverBaseName = (currentName, currentLabel) => {
     nameWithoutExt
   } else {
     let slug = toSlug(currentLabel, 200)
-    // Match pattern: XX_slug_BASENAME
-    // usage of %raw for regex capture which is simpler than ReBindings here
-    let pattern = "^\\d{2}_" ++ slug ++ "_(.+)$"
-    let match = %raw(`(str, p) => {
+    
+    // Try matching new format: Slug_Prefix_Base (e.g. "living_room_01_DSC001")
+    let patternNew = "^" ++ slug ++ "_\\d{2}_(.+)$"
+    let matchNew = %raw(`(str, p) => {
         try {
             const m = str.match(new RegExp(p));
             return m ? m[1] : null;
         } catch (e) { return null; }
-    }`)(nameWithoutExt, pattern)
+    }`)(nameWithoutExt, patternNew)
 
-    switch Nullable.toOption(match) {
+    switch Nullable.toOption(matchNew) {
     | Some(base) => base
-    | None => nameWithoutExt
+    | None => 
+      // Try matching old format: Prefix_Slug_Base (e.g. "01_living_room_DSC001")
+      let patternOld = "^\\d{2}_" ++ slug ++ "_(.+)$"
+      let matchOld = %raw(`(str, p) => {
+          try {
+              const m = str.match(new RegExp(p));
+              return m ? m[1] : null;
+          } catch (e) { return null; }
+      }`)(nameWithoutExt, patternOld)
+      
+      switch Nullable.toOption(matchOld) {
+      | Some(base) => base
+      | None => nameWithoutExt
+      }
     }
   }
 }
