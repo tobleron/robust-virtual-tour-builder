@@ -89,7 +89,7 @@ describe("VisualPipeline", () => {
       timeline: [item1],
       scenes: [scene1],
     }
-    VisualPipeline.render(pipeline, state, ~getState=() => state, ~dispatch=_ => ())
+VisualPipelineLogic.Render.render(pipeline, state, ~getState=() => state, ~dispatch=_ => ())
 
     let node = Dom.querySelector(container, ".pipeline-node")
     switch Nullable.toOption(node) {
@@ -119,7 +119,7 @@ describe("VisualPipeline", () => {
       timeline: [item1],
       scenes: [scene1],
     }
-    VisualPipeline.render(pipeline, state, ~getState=() => state, ~dispatch=_ => ())
+VisualPipelineLogic.Render.render(pipeline, state, ~getState=() => state, ~dispatch=_ => ())
 
     let tooltip = Dom.querySelector(container, ".node-tooltip")
     let exists = Nullable.toOption(tooltip)->Belt.Option.isSome
@@ -151,14 +151,14 @@ describe("VisualPipeline", () => {
       timeline: [item1],
       activeTimelineStepId: Some("1"),
     }
-    VisualPipeline.render(pipeline, state, ~getState=() => state, ~dispatch=_ => ())
+    VisualPipelineLogic.Render.render(pipeline, state, ~getState=() => state, ~dispatch=_ => ())
 
     let node = Dom.querySelector(container, ".pipeline-node")
     let cl = Dom.classList(Nullable.toOption(node)->Belt.Option.getExn)
     t->expect(Dom.ClassList.contains(cl, "active"))->Expect.toBe(true)
 
     let stateInactive = {...state, activeTimelineStepId: Some("other")}
-    VisualPipeline.render(pipeline, stateInactive, ~getState=() => stateInactive, ~dispatch=_ => ())
+    VisualPipelineLogic.Render.render(pipeline, stateInactive, ~getState=() => stateInactive, ~dispatch=_ => ())
     // Node is re-rendered, so we need to query it again
     let nodeInactive = Dom.querySelector(container, ".pipeline-node")
     let cl2 = Dom.classList(Nullable.toOption(nodeInactive)->Belt.Option.getExn)
@@ -182,7 +182,7 @@ describe("VisualPipeline", () => {
       scenes: [scene1, scene2],
     }
     let lastAction = ref(None)
-    VisualPipeline.render(
+    VisualPipelineLogic.Render.render(
       pipeline,
       state,
       ~getState=() => state,

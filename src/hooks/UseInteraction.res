@@ -1,6 +1,8 @@
 /* @efficiency-role: state-hook */
 open InteractionPolicies
 
+exception InteractionBlocked
+
 let useInteraction = (~id: string, ~policy: policy, ~action: unit => Promise.t<'a>) => {
   let (isPending, setPending) = React.useState(() => false)
   let (wasThrottled, setThrottled) = React.useState(() => false)
@@ -57,9 +59,8 @@ let useInteraction = (~id: string, ~policy: policy, ~action: unit => Promise.t<'
           }
         }, 1000)
       }
-      // Return a dummy promise that resolves to null/undefined
-      // We use Obj.magic because we can't construct a Promise.t<'a> from nothing
-      Promise.resolve(Obj.magic(null))
+      // Return a rejected promise instead of a magic null value
+      Promise.reject(InteractionBlocked)
     }
   }, [action])
 

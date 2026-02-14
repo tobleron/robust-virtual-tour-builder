@@ -234,8 +234,12 @@ impl UploadQuotaManager {
         );
 
         // Metrics
-        QUOTA_CURRENT_UPLOADS.inc();
-        QUOTA_CURRENT_SIZE_BYTES.add(size as f64);
+        if let Some(m) = &*QUOTA_CURRENT_UPLOADS {
+            m.inc();
+        }
+        if let Some(m) = &*QUOTA_CURRENT_SIZE_BYTES {
+            m.add(size as f64);
+        }
 
         Ok(upload_id)
     }
@@ -249,8 +253,12 @@ impl UploadQuotaManager {
                 tracing::info!(ip = ip, size = size, "Upload completed");
 
                 // Metrics
-                QUOTA_CURRENT_UPLOADS.dec();
-                QUOTA_CURRENT_SIZE_BYTES.sub(size as f64);
+                if let Some(m) = &*QUOTA_CURRENT_UPLOADS {
+                    m.dec();
+                }
+                if let Some(m) = &*QUOTA_CURRENT_SIZE_BYTES {
+                    m.sub(size as f64);
+                }
             }
 
             if uploads.is_empty() {

@@ -202,12 +202,13 @@ let request = async (
     } catch {
     | e =>
       signalScope.cleanup()
-      let errObj: {..} = Obj.magic(e)
-      let name: string = try {errObj["name"]} catch {
-      | _ => "Unknown"
-      }
-      let msg: string = try {errObj["message"]} catch {
-      | _ => String.make(e)
+      // Use JsExn as suggested by deprecation warning
+      let (name, msg) = switch JsExn.fromException(e) {
+      | Some(err) => (
+          Option.getOr(JsExn.name(err), "Unknown"),
+          Option.getOr(JsExn.message(err), "Unknown Error"),
+        )
+      | None => ("Unknown", String.make(e))
       }
 
       if name == "AbortError" || name == "Abort" {

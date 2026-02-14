@@ -1,0 +1,13 @@
+{
+  "_dev-system/tmp/test/test.res": {
+    "path": "_dev-system/tmp/test/test.res",
+    "functions": [
+      {
+        "name": "add",
+        "signature": "add = (a, b) => a + b",
+        "line": 1
+      }
+    ],
+    "fingerprint": "7b55e58da90bbc66bc71cac32ccc7019d2582f3b38ccbd5c2a85436931efa64d"
+  }
+}

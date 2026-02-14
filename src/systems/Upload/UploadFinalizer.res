@@ -5,6 +5,8 @@ open Actions
 
 type filenameItem = {item: uploadItem, name: string, index: int}
 
+external unsafeCastToQuality: JSON.t => SharedTypes.qualityAnalysis = "%identity"
+
 let finalizeUploads = (
   validProcessed: array<uploadItem>,
   startTime: float,
@@ -55,9 +57,14 @@ let finalizeUploads = (
                       ~data=Some({"error": msg}),
                       (),
                     )
-                    let score = %raw("(q => q && typeof q.score === 'number' ? q.score : -1)")(q)
+
+                    let score = switch JsonCombinators.Json.decode(q, JsonCombinators.Json.Decode.field("score", JsonCombinators.Json.Decode.float)) {
+                      | Ok(s) => s
+                      | Error(_) => -1.0
+                    }
+
                     if score >= 0.0 {
-                      Some(Obj.magic(q))
+                      Some(unsafeCastToQuality(q))
                     } else {
                       None
                     }

@@ -1,0 +1,252 @@
+{
+  "src/systems/Upload/UploadFinalizer.res": {
+    "path": "src/systems/Upload/UploadFinalizer.res",
+    "functions": [
+      {
+        "name": "finalizeUploads",
+        "signature": "finalizeUploads = (",
+        "line": 10
+      },
+      {
+        "name": "executeProcessingChain",
+        "signature": "executeProcessingChain = (",
+        "line": 94
+      }
+    ],
+    "fingerprint": "1a244c6c20dd628e5939b5210700ec0b6c00c2eedbd284878de5dd8c2788a61f"
+  },
+  "src/hooks/UseInteraction.res": {
+    "path": "src/hooks/UseInteraction.res",
+    "functions": [
+      {
+        "name": "useInteraction",
+        "signature": "useInteraction = (~id: string, ~policy: policy, ~action: unit => Promise.t<'a>) => {",
+        "line": 6
+      }
+    ],
+    "fingerprint": "8004a4937a69fcd75a7d8b5f0d42dd8410b0f405ad8bf5c534e6fe5a14be71c9"
+  },
+  "src/components/ViewerHUD.res": {
+    "path": "src/components/ViewerHUD.res",
+    "functions": [
+      {
+        "name": "make",
+        "signature": "make = React.memo(() => {",
+        "line": 6
+      }
+    ],
+    "fingerprint": "7ba27c5780e31cfa890dd972b350e03214b32992ee110f04307b2dfbb00aad5a"
+  },
+  "src/core/JsonParsersDecoders.res": {
+    "path": "src/core/JsonParsersDecoders.res",
+    "functions": [
+      {
+        "name": "object",
+        "signature": "object = Decode.object",
+        "line": 10
+      },
+      {
+        "name": "field",
+        "signature": "field = Decode.field",
+        "line": 11
+      },
+      {
+        "name": "array",
+        "signature": "array = Decode.array",
+        "line": 12
+      },
+      {
+        "name": "int",
+        "signature": "int = Decode.int",
+        "line": 13
+      },
+      {
+        "name": "float",
+        "signature": "float = Decode.float",
+        "line": 14
+      },
+      {
+        "name": "string",
+        "signature": "string = Decode.string",
+        "line": 15
+      },
+      {
+        "name": "bool",
+        "signature": "bool = Decode.bool",
+        "line": 16
+      },
+      {
+        "name": "option",
+        "signature": "option = Decode.option",
+        "line": 17
+      },
+      {
+        "name": "map",
+        "signature": "map = Decode.map",
+        "line": 18
+      },
+      {
+        "name": "id",
+        "signature": "id = Decode.id",
+        "line": 19
+      },
+      {
+        "name": "opt",
+        "signature": "opt = (field: Decode.fieldDecoders, key, decoder, default) => {",
+        "line": 28
+      },
+      {
+        "name": "file",
+        "signature": "file = id->map(json => {",
+        "line": 36
+      },
+      {
+        "name": "viewFrame",
+        "signature": "viewFrame = object(field => {",
+        "line": 49
+      },
+      {
+        "name": "hotspot",
+        "signature": "hotspot = object(field => {",
+        "line": 57
+      },
+      {
+        "name": "scene",
+        "signature": "scene = object(field => {",
+        "line": 81
+      },
+      {
+        "name": "timelineItem",
+        "signature": "timelineItem = object(field => {",
+        "line": 103
+      },
+      {
+        "name": "sceneStatus",
+        "signature": "sceneStatus = map(id, json => {",
+        "line": 117
+      },
+      {
+        "name": "sceneEntry",
+        "signature": "sceneEntry = object(field => {",
+        "line": 142
+      },
+      {
+        "name": "inventoryEntry",
+        "signature": "inventoryEntry = object(field => {",
+        "line": 149
+      },
+      {
+        "name": "inventory",
+        "signature": "inventory = array(id)->map(items => {",
+        "line": 153
+      },
+      {
+        "name": "project",
+        "signature": "project = object(field => {",
+        "line": 162
+      },
+      {
+        "name": "persistedSession",
+        "signature": "persistedSession = object((field): persistedSessionEnvelope => {",
+        "line": 217
+      },
+      {
+        "name": "transitionTarget",
+        "signature": "transitionTarget = object(field => {",
+        "line": 225
+      },
+      {
+        "name": "arrivalView",
+        "signature": "arrivalView = object(field => {",
+        "line": 234
+      },
+      {
+        "name": "step",
+        "signature": "step = object(field => {",
+        "line": 241
+      },
+      {
+        "name": "steps",
+        "signature": "steps = array(step)",
+        "line": 252
+      },
+      {
+        "name": "importScene",
+        "signature": "importScene = object(field => {",
+        "line": 254
+      },
+      {
+        "name": "updateMetadata",
+        "signature": "updateMetadata = object(field => {",
+        "line": 274
+      },
+      {
+        "name": "decode",
+        "signature": "decode = object(field => {",
+        "line": 284
+      },
+      {
+        "name": "encode",
+        "signature": "encode = (state: Types.sessionState) => {",
+        "line": 295
+      }
+    ],
+    "fingerprint": "a8fa1038ac072e93bea7c77f306d99ea8dc2fc7e3eb439d5dc236354fc659169"
+  },
+  "src/systems/Api/AuthenticatedClient.res": {
+    "path": "src/systems/Api/AuthenticatedClient.res",
+    "functions": [
+      {
+        "name": "fetchJson",
+        "signature": "fetchJson = (res: response) => res.json()",
+        "line": 14
+      },
+      {
+        "name": "fetchText",
+        "signature": "fetchText = (res: response) => res.text()",
+        "line": 15
+      },
+      {
+        "name": "fetchBlob",
+        "signature": "fetchBlob = (res: response) => res.blob()",
+        "line": 16
+      },
+      {
+        "name": "toUpper",
+        "signature": "toUpper: string => string = %raw(\"(s) => String(s || '').toUpperCase()\")",
+        "line": 19
+      },
+      {
+        "name": "circuitBreaker",
+        "signature": "circuitBreaker = CircuitBreaker.make()",
+        "line": 21
+      },
+      {
+        "name": "getTimeoutMs",
+        "signature": "getTimeoutMs = (method: string): int => {",
+        "line": 24
+      },
+      {
+        "name": "prepareRequestSignal",
+        "signature": "prepareRequestSignal = (",
+        "line": 43
+      },
+      {
+        "name": "prepareRequestBody",
+        "signature": "prepareRequestBody = (body: option<JSON.t>, headers: Dict.t<string>): option<string> => {",
+        "line": 82
+      },
+      {
+        "name": "request",
+        "signature": "request = async (",
+        "line": 93
+      },
+      {
+        "name": "requestWithRetry",
+        "signature": "requestWithRetry = (",
+        "line": 234
+      }
+    ],
+    "fingerprint": "54025c386ca048345d2c27981094b399c701320923e2f1dcef1f5c2d74f1ca8a"
+  }
+}

@@ -29,13 +29,17 @@ let opt = (field: Decode.fieldDecoders, key, decoder, default) => {
   field.optional(key, option(decoder))->Option.flatMap(x => x)->Option.getOr(default)
 }
 
+external unsafeCastToFile: JSON.t => ReBindings.File.t = "%identity"
+external unsafeCastToBlob: JSON.t => ReBindings.Blob.t = "%identity"
+external unsafeCastToString: JSON.t => string = "%identity"
+
 let file = id->map(json => {
   if %raw("(t => typeof t === 'string')")(json) {
-    Types.Url(Obj.magic(json))
+    Types.Url(unsafeCastToString(json))
   } else if %raw("(t => t instanceof File)")(json) {
-    Types.File(Obj.magic(json))
+    Types.File(unsafeCastToFile(json))
   } else if %raw("(t => t instanceof Blob)")(json) {
-    Types.Blob(Obj.magic(json))
+    Types.Blob(unsafeCastToBlob(json))
   } else {
     Console.warn2("File Decoder Fallback triggered for:", json)
     Types.Url("")
