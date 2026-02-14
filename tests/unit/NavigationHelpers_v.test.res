@@ -36,8 +36,8 @@ test("NavigationHelpers: handleNavigationCompleted success", t => {
     navigationState: {
       ...state.navigationState,
       currentJourneyId: 10,
-      navigation: Navigating(journey)
-    }
+      navigation: Navigating(journey),
+    },
   }
 
   let next = NavigationHelpers.handleNavigationCompleted(state, journey)
@@ -81,8 +81,8 @@ test("NavigationHelpers: handleNavigationCompleted previewOnly", t => {
     navigationState: {
       ...state.navigationState,
       currentJourneyId: 10,
-      navigation: Navigating(journey)
-    }
+      navigation: Navigating(journey),
+    },
   }
 
   let next = NavigationHelpers.handleNavigationCompleted(state, journey)
@@ -118,8 +118,8 @@ test("NavigationHelpers: handleNavigationCompleted mismatch id", t => {
     navigationState: {
       ...state.navigationState,
       currentJourneyId: 10,
-      navigation: Navigating(journey)
-    }
+      navigation: Navigating(journey),
+    },
   }
 
   let next = NavigationHelpers.handleNavigationCompleted(state, journey)

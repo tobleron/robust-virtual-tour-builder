@@ -168,7 +168,7 @@ test("AppFSM: CriticalError is terminal state mostly", t => {
   // Reset should work
   let reset = AppFSM.transition(mode, Reset)
   switch reset {
-    | Initializing => t->expect(true)->Expect.toBe(true)
-    | _ => t->expect(false)->Expect.toBe(true)
+  | Initializing => t->expect(true)->Expect.toBe(true)
+  | _ => t->expect(false)->Expect.toBe(true)
   }
 })
