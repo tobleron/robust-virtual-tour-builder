@@ -1,4 +1,4 @@
-/* tests/unit/Reducer.Timeline_v.test.res */
+/* tests/unit/Timeline_v.test.res */
 open Vitest
 open Actions
 
