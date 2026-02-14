@@ -4,6 +4,134 @@
   "baseline_dir": "_dev-system/tmp/D009",
   "bundles": [
     {
+      "headline": "Pre-merge snapshots for `../../src/systems/Project`",
+      "snapshots": [
+        {
+          "path": "src/systems/Project/ProjectValidator.res",
+          "functions": [
+            {
+              "name": "validationReportWrapperDecoder",
+              "signature": "validationReportWrapperDecoder = JsonCombinators.Json.Decode.object(field => {",
+              "line": 3
+            },
+            {
+              "name": "validateProjectStructure",
+              "signature": "validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {",
+              "line": 7
+            }
+          ],
+          "fingerprint": "c1da22b92cfb43a237f871bf8fcf11b5c39ff3c7931fb85fa73bbe455169f84d"
+        },
+        {
+          "path": "src/systems/Project/ProjectLoader.res",
+          "functions": [
+            {
+              "name": "processLoadedProjectData",
+              "signature": "processLoadedProjectData = (",
+              "line": 7
+            },
+            {
+              "name": "progress",
+              "signature": "progress = (curr, total, msg) => {",
+              "line": 12
+            },
+            {
+              "name": "token",
+              "signature": "token = Dom.Storage2.localStorage->Dom.Storage2.getItem(\"auth_token\")",
+              "line": 74
+            },
+            {
+              "name": "finalToken",
+              "signature": "finalToken = switch token {",
+              "line": 75
+            },
+            {
+              "name": "tokenQuery",
+              "signature": "tokenQuery = \"?token=\" ++ finalToken",
+              "line": 79
+            },
+            {
+              "name": "allInventoryScenes",
+              "signature": "allInventoryScenes =",
+              "line": 82
+            },
+            {
+              "name": "validScenes",
+              "signature": "validScenes = ProjectManagerUrl.rebuildSceneUrls(",
+              "line": 85
+            },
+            {
+              "name": "updatedInventory",
+              "signature": "updatedInventory = validScenes->Belt.Array.reduce(pd.inventory, (acc, s) => {",
+              "line": 92
+            },
+            {
+              "name": "finalOrder",
+              "signature": "finalOrder = if Array.length(pd.sceneOrder) > 0 {",
+              "line": 100
+            },
+            {
+              "name": "resolvedActiveScenes",
+              "signature": "resolvedActiveScenes = finalOrder->Belt.Array.keepMap(id => {",
+              "line": 107
+            },
+            {
+              "name": "loadedProject",
+              "signature": "loadedProject: Types.project = {",
+              "line": 114
+            },
+            {
+              "name": "loadProjectZip",
+              "signature": "loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?) => {",
+              "line": 139
+            },
+            {
+              "name": "progress",
+              "signature": "progress = (curr, total, msg) => {",
+              "line": 140
+            },
+            {
+              "name": "loadStartTime",
+              "signature": "loadStartTime = Date.now()",
+              "line": 147
+            }
+          ],
+          "fingerprint": "c19f172c88f9105107deeeceaad5008a1b9efdf270fc00f7b0d0659afb92402b"
+        },
+        {
+          "path": "src/systems/Project/ProjectSaver.res",
+          "functions": [
+            {
+              "name": "createSavePackage",
+              "signature": "createSavePackage = (state: state, ~signal=?, ~onProgress: option<onProgress>=?): Promise.t<",
+              "line": 7
+            },
+            {
+              "name": "progress",
+              "signature": "progress = (curr, total, msg) => {",
+              "line": 10
+            },
+            {
+              "name": "project",
+              "signature": "project: Types.project = {",
+              "line": 18
+            },
+            {
+              "name": "jsonStr",
+              "signature": "jsonStr = JsonCombinators.Json.stringify(JsonParsers.Encoders.project(project))",
+              "line": 31
+            },
+            {
+              "name": "formData",
+              "signature": "formData = FormData.newFormData()",
+              "line": 32
+            }
+          ],
+          "fingerprint": "2e2e031360c1b2b4cda97833635631c1e5f7fb29df5cb770c75eb0d98b06cb1b"
+        }
+      ]
+    },
+    {
       "headline": "Pre-merge snapshots for recursive cluster `src/systems/Scene/Loader`",
       "snapshots": [
         {
@@ -115,135 +243,7 @@
           "fingerprint": "afe56389cbe21f3f18e6d254e8e228cbf835daaab5fa18214bb9579bb725550e"
         }
       ]
-    },
-    {
-      "headline": "Pre-merge snapshots for `../../src/systems/Project`",
-      "snapshots": [
-        {
-          "path": "src/systems/Project/ProjectLoader.res",
-          "functions": [
-            {
-              "name": "processLoadedProjectData",
-              "signature": "processLoadedProjectData = (",
-              "line": 7
-            },
-            {
-              "name": "progress",
-              "signature": "progress = (curr, total, msg) => {",
-              "line": 12
-            },
-            {
-              "name": "token",
-              "signature": "token = Dom.Storage2.localStorage->Dom.Storage2.getItem(\"auth_token\")",
-              "line": 74
-            },
-            {
-              "name": "finalToken",
-              "signature": "finalToken = switch token {",
-              "line": 75
-            },
-            {
-              "name": "tokenQuery",
-              "signature": "tokenQuery = \"?token=\" ++ finalToken",
-              "line": 79
-            },
-            {
-              "name": "allInventoryScenes",
-              "signature": "allInventoryScenes =",
-              "line": 82
-            },
-            {
-              "name": "validScenes",
-              "signature": "validScenes = ProjectManagerUrl.rebuildSceneUrls(",
-              "line": 85
-            },
-            {
-              "name": "updatedInventory",
-              "signature": "updatedInventory = validScenes->Belt.Array.reduce(pd.inventory, (acc, s) => {",
-              "line": 92
-            },
-            {
-              "name": "finalOrder",
-              "signature": "finalOrder = if Array.length(pd.sceneOrder) > 0 {",
-              "line": 100
-            },
-            {
-              "name": "resolvedActiveScenes",
-              "signature": "resolvedActiveScenes = finalOrder->Belt.Array.keepMap(id => {",
-              "line": 107
-            },
-            {
-              "name": "loadedProject",
-              "signature": "loadedProject: Types.project = {",
-              "line": 114
-            },
-            {
-              "name": "loadProjectZip",
-              "signature": "loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?) => {",
-              "line": 139
-            },
-            {
-              "name": "progress",
-              "signature": "progress = (curr, total, msg) => {",
-              "line": 140
-            },
-            {
-              "name": "loadStartTime",
-              "signature": "loadStartTime = Date.now()",
-              "line": 147
-            }
-          ],
-          "fingerprint": "c19f172c88f9105107deeeceaad5008a1b9efdf270fc00f7b0d0659afb92402b"
-        },
-        {
-          "path": "src/systems/Project/ProjectValidator.res",
-          "functions": [
-            {
-              "name": "validationReportWrapperDecoder",
-              "signature": "validationReportWrapperDecoder = JsonCombinators.Json.Decode.object(field => {",
-              "line": 3
-            },
-            {
-              "name": "validateProjectStructure",
-              "signature": "validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {",
-              "line": 7
-            }
-          ],
-          "fingerprint": "c1da22b92cfb43a237f871bf8fcf11b5c39ff3c7931fb85fa73bbe455169f84d"
-        },
-        {
-          "path": "src/systems/Project/ProjectSaver.res",
-          "functions": [
-            {
-              "name": "createSavePackage",
-              "signature": "createSavePackage = (state: state, ~signal=?, ~onProgress: option<onProgress>=?): Promise.t<",
-              "line": 7
-            },
-            {
-              "name": "progress",
-              "signature": "progress = (curr, total, msg) => {",
-              "line": 10
-            },
-            {
-              "name": "project",
-              "signature": "project: Types.project = {",
-              "line": 18
-            },
-            {
-              "name": "jsonStr",
-              "signature": "jsonStr = JsonCombinators.Json.stringify(JsonParsers.Encoders.project(project))",
-              "line": 31
-            },
-            {
-              "name": "formData",
-              "signature": "formData = FormData.newFormData()",
-              "line": 32
-            }
-          ],
-          "fingerprint": "2e2e031360c1b2b4cda97833635631c1e5f7fb29df5cb770c75eb0d98b06cb1b"
-        }
-      ]
     }
   ],
-  "timestamp": "2026-02-14T20:37:49.031848Z"
+  "timestamp": "2026-02-14T20:42:11.712670Z"
 }
