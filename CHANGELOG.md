@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Refine upload sorting and tooltip delay
+- Fix scene list tooltip + quality badge
 
 ## [4.9.0] - 2026-02-14
 
