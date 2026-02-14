@@ -103,6 +103,16 @@ let make = React.memo((
   } else {
     "bg-success"
   }
+  let progressPercent = {
+    let raw = qualityScore *. 10.0
+    if raw < 0.0 {
+      0.0
+    } else if raw > 100.0 {
+      100.0
+    } else {
+      raw
+    }
+  }
 
   let groupColorClass = ColorPalette.getGroupClass(scene.colorGroup)
 
@@ -111,6 +121,32 @@ let make = React.memo((
   | _ => ""
   }
   let isBusy = flickerState == #Throttled
+  let fallbackSceneFileName = switch scene.file {
+  | Url(url) => UrlUtils.getFileNameFromUrl(url)
+  | _ => ""
+  }
+
+  let tooltipNameCandidate = switch scene.originalFile {
+  | Some(File(f)) => BrowserBindings.File.name(f)
+  | Some(Url(url)) =>
+    let name = UrlUtils.getFileNameFromUrl(url)
+    if name != "" {
+      name
+    } else {
+      fallbackSceneFileName
+    }
+  | _ => fallbackSceneFileName
+  }
+
+  let tooltipName = if tooltipNameCandidate == "" {
+    if fallbackSceneFileName == "" {
+      scene.name
+    } else {
+      fallbackSceneFileName
+    }
+  } else {
+    tooltipNameCandidate
+  }
 
   <div
     key={scene.id}
@@ -169,13 +205,7 @@ let make = React.memo((
       </div>
     </div>
 
-    <Tooltip
-      content={switch scene.originalFile {
-      | Some(File(f)) => BrowserBindings.File.name(f)
-      | _ => "filename unavailable"
-      }}
-      delayDuration=Constants.tooltipDelayDuration
-    >
+    <Tooltip content={tooltipName} delayDuration=Constants.tooltipDelayDuration>
       <div className="flex-1 min-w-0 py-1.5 px-2 flex flex-col justify-center cursor-pointer">
         <div className="flex items-center justify-between gap-2 overflow-hidden">
           <h4
@@ -187,26 +217,27 @@ let make = React.memo((
           >
             {React.string(UrlUtils.stripExtension(scene.name))}
           </h4>
+          {if Array.length(scene.hotspots) > 0 {
+            <div
+              className="flex items-center gap-1 text-slate-400 group-hover:text-primary transition-colors shrink-0"
+            >
+              <LucideIcons.Link size=10 />
+              <span className="text-[10px] font-semibold">
+                {React.int(Array.length(scene.hotspots))}
+              </span>
+            </div>
+          } else {
+            React.null
+          }}
         </div>
-        {if Array.length(scene.hotspots) > 0 {
-          <div
-            className="flex items-center gap-1 text-slate-400 group-hover:text-primary transition-colors shrink-0"
-          >
-            <LucideIcons.Link size=10 />
-            <span className="text-[10px] font-semibold">
-              {React.int(Array.length(scene.hotspots))}
-            </span>
-          </div>
-        } else {
-          React.null
-        }}
 
         <div className="flex items-center gap-2 mt-1">
           /* Format & Technical Meta */
           {
             let (format, size) = switch scene.file {
             | Url(url) =>
-              let pieces = url->String.split(".")
+              let cleanUrl = UrlUtils.stripQueryAndFragment(url)
+              let pieces = cleanUrl->String.split(".")
               let ext = pieces->Belt.Array.get(Belt.Array.length(pieces) - 1)->Option.getOr("JPG")
               (ext->String.toUpperCase, 0.0)
             | Blob(b) =>
@@ -254,24 +285,30 @@ let make = React.memo((
             </div>
           }
         </div>
-        <div className="flex-1">
-          <div className="w-full bg-slate-100 h-0.5 rounded-full overflow-hidden">
-            <div
-              className={`h-full transition-all duration-1000 ease-out rounded-full ${qualityColor}`}
-              style={makeStyle({"width": Float.toString(qualityScore *. 10.0) ++ "%"})}
-            />
+        <div className="flex items-center mt-2">
+          <div className="flex-1 relative">
+            <div className="w-full bg-slate-100 h-0.5 rounded-full overflow-hidden">
+              <div
+                className={`h-full transition-all duration-1000 ease-out rounded-full ${qualityColor}`}
+                style={makeStyle({"width": Float.toString(progressPercent) ++ "%"})}
+              />
+            </div>
+            <span
+              className={`absolute -top-4 text-[9px] font-bold uppercase tracking-wider whitespace-nowrap pointer-events-none ${if (
+                  isLowQuality
+                ) {
+                  "text-danger"
+                } else {
+                  "text-slate-400"
+                }}`}
+              style={makeStyle({
+                "left": Float.toString(progressPercent) ++ "%",
+                "transform": "translateX(-50%)",
+              })}
+            >
+              {React.string(Float.toFixed(qualityScore, ~digits=1))}
+            </span>
           </div>
-        </div>
-        <div className="flex items-center gap-1 shrink-0">
-          <span
-            className={`text-[9px] font-bold uppercase tracking-wider ${if isLowQuality {
-                "text-danger"
-              } else {
-                "text-slate-400"
-              }}`}
-          >
-            {React.string(Float.toFixed(qualityScore, ~digits=1))}
-          </span>
         </div>
       </div>
     </Tooltip>

@@ -3,6 +3,8 @@
  */
 open ReBindings
 
+@val external decodeUriComponent: string => string = "decodeURIComponent"
+
 let safeCreateObjectURL = (obj: 'a): string => {
   try {
     URL.createObjectURL(obj)
@@ -55,5 +57,36 @@ let getExtension = (filename: string): string => {
     "webp" // Default fallback or empty
   } else {
     String.substring(filename, ~start=lastDot + 1, ~end=String.length(filename))
+  }
+}
+
+let stripQuery = (url: string): string => {
+  let parts = String.split(url, "?")
+  Belt.Array.get(parts, 0)->Option.getOr(url)
+}
+
+let stripQueryAndFragment = (url: string): string => {
+  let withoutQuery = stripQuery(url)
+  let parts = String.split(withoutQuery, "#")
+  Belt.Array.get(parts, 0)->Option.getOr(withoutQuery)
+}
+
+let decodeURIComponentSafely = (value: string): string => {
+  try {
+    decodeUriComponent(value)
+  } catch {
+  | _ => value
+  }
+}
+
+let getFileNameFromUrl = (url: string): string => {
+  let cleaned = stripQueryAndFragment(url)
+  let segments = String.split(cleaned, "/")
+  let lastSegment = Belt.Array.get(segments, Belt.Array.length(segments) - 1)->Option.getOr(cleaned)
+
+  if lastSegment == "" {
+    ""
+  } else {
+    decodeURIComponentSafely(lastSegment)
   }
 }
