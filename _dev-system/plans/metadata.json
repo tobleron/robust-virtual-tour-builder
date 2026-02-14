@@ -1,4 +1,20 @@
 {
+  "rust": [
+    {
+      "Violation": {
+        "file": "../../backend/src/metrics.rs",
+        "pattern": "unwrap()",
+        "strategy": ""
+      }
+    },
+    {
+      "Violation": {
+        "file": "../../backend/src/services/media/naming.rs",
+        "pattern": "unwrap()",
+        "strategy": ""
+      }
+    }
+  ],
   "system": [
     {
       "Merge": {
@@ -26,20 +42,6 @@
       }
     },
     {
-      "Violation": {
-        "file": "../../src/core/JsonParsersDecoders.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/hooks/UseInteraction.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
       "Surgical": {
         "file": "../../src/systems/ProjectManager.res",
         "action": "De-bloat",
@@ -58,6 +60,17 @@
         "strategy": "",
         "platform": "frontend",
         "complexity": 14.6935960591133,
+        "recommended_splits": 2
+      }
+    },
+    {
+      "Surgical": {
+        "file": "../../src/systems/Scene/SceneLoader.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.20, Density: 0.10, Coupling: 0.07] | Drag: 5.32 | LOC: 408/300  🎯 Target: Function: `taskMismatch` (High Local Complexity (2.0). Logic heavy.)",
+        "strategy": "",
+        "platform": "frontend",
+        "complexity": 16.115196078431374,
         "recommended_splits": 2
       }
     },
@@ -102,19 +115,15 @@
       }
     },
     {
-      "Surgical": {
-        "file": "../../src/systems/Scene/SceneLoader.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.20, Density: 0.10, Coupling: 0.07] | Drag: 5.32 | LOC: 408/300  🎯 Target: Function: `taskMismatch` (High Local Complexity (2.0). Logic heavy.)",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 16.115196078431374,
-        "recommended_splits": 2
+      "Violation": {
+        "file": "../../src/systems/Api/AuthenticatedClient.res",
+        "pattern": "Obj.magic",
+        "strategy": ""
       }
     },
     {
       "Violation": {
-        "file": "../../src/systems/Api/AuthenticatedClient.res",
+        "file": "../../src/core/JsonParsersDecoders.res",
         "pattern": "Obj.magic",
         "strategy": ""
       }
@@ -129,20 +138,11 @@
         "complexity": 13.648812664907652,
         "recommended_splits": 2
       }
-    }
-  ],
-  "rust": [
-    {
-      "Violation": {
-        "file": "../../backend/src/services/media/naming.rs",
-        "pattern": "unwrap()",
-        "strategy": ""
-      }
     },
     {
       "Violation": {
-        "file": "../../backend/src/metrics.rs",
-        "pattern": "unwrap()",
+        "file": "../../src/hooks/UseInteraction.res",
+        "pattern": "Obj.magic",
         "strategy": ""
       }
     }
