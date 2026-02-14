@@ -488,13 +488,15 @@ pub fn check_map_tree(config: &GuardConfig, tree_config: &MapTreeConfig) -> Resu
 
     let actual_dirs = collect_root_directories(root_dir, tree_config)?;
     let mut missing_dirs = tree_dirs
-        .difference(&actual_dirs)
+        .iter()
+        .filter(|dir| !root_dir.join(dir).is_dir())
         .cloned()
         .collect::<Vec<_>>();
     missing_dirs.sort();
 
     let mut extra_dirs = Vec::new();
     if tree_config.detect_extra_entries {
+        // Extra directories check remains root-level only by design
         extra_dirs = actual_dirs
             .difference(&tree_dirs)
             .cloned()

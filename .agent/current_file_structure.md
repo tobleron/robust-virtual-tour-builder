@@ -104,12 +104,18 @@
 │       │   │       └── utils
 │       │   │           └── OperationJournal.res
 │       │   └── verification.json
-│       └── D015
+│       ├── D015
+│       │   ├── files
+│       │   │   └── src
+│       │   │       └── systems
+│       │   │           └── Scene
+│       │   │               └── SceneLoader.res
+│       │   └── verification.json
+│       └── D018
 │           ├── files
 │           │   └── src
-│           │       └── systems
-│           │           └── Scene
-│           │               └── SceneLoader.res
+│           │       └── components
+│           │           └── VisualPipeline.res
 │           └── verification.json
 ├── AGENTS.md
 ├── ARCHITECTURE_REVIEW_PROMPT.md
@@ -17859,9 +17865,6 @@
 │   │   ├── ViewerSnapshot.res
 │   │   ├── ViewerUI.bs.js
 │   │   ├── ViewerUI.res
-│   │   ├── VisualPipeline
-│   │   │   ├── VisualPipelineStyles.bs.js
-│   │   │   └── VisualPipelineStyles.res
 │   │   ├── VisualPipeline.bs.js
 │   │   └── VisualPipeline.res
 │   ├── core
@@ -18260,7 +18263,7 @@
 │   │       ├── D008_Fix_Violations_BACKEND.md
 │   │       ├── D009_Merge_Folders_FRONTEND.md
 │   │       ├── D017_Evaluate_Automated_Tasks.md
-│   │       └── D018_Update_Map_Tree.md
+│   │       └── D018_Surgical_Refactor_COMPONENTS_FRONTEND.md
 │   ├── postponed
 │   │   ├── 1243_Fix_Operation_Cancellation_Feedback.md
 │   │   ├── 1246_Handle_Malformed_Project_Files_Gracefully.md
@@ -18668,4 +18671,4 @@
 │       └── test_run.json
 └── vitest.config.mjs
 
-859 directories, 17810 files
+862 directories, 17810 files
