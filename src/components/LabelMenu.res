@@ -40,10 +40,15 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
     let _ = ReBindings.Window.setTimeout(() => {
       setFlickeringLabel(_ => None)
       // Pass _baseName to help the reducer preserve it during rename
-      dispatch(UpdateSceneMetadata(targetIndex, Logger.castToJson({
-        "label": label, 
-        "_baseName": baseName
-      })))
+      dispatch(
+        UpdateSceneMetadata(
+          targetIndex,
+          Logger.castToJson({
+            "label": label,
+            "_baseName": baseName,
+          }),
+        ),
+      )
       Logger.info(
         ~module_="LabelMenu",
         ~message="LABEL_SET",
