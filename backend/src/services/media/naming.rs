@@ -5,9 +5,8 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 use std::path::Path;
 
-static FILENAME_REGEX: Lazy<Option<Regex>> = Lazy::new(|| {
-    Regex::new(r"_(\d{6})_\d{2}_(\d{3})").ok()
-});
+static FILENAME_REGEX: Lazy<Option<Regex>> =
+    Lazy::new(|| Regex::new(r"_(\d{6})_\d{2}_(\d{3})").ok());
 
 /// Extracts a suggested human-readable name from a camera-generated filename.
 pub fn get_suggested_name(original: &str) -> String {

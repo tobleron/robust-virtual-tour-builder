@@ -343,5 +343,15 @@ CI job
 ## 🆕 Unmapped Modules
 (This section auto-populated by _dev-system analyzer)
 
+### 📂 src/components
+- `[src/components/VisualPipelineLogic.res]`
+
+### 📂 src/core
+- `[src/core/ReducerModules.res]`
+
+### 📂 src/systems
+- `[src/systems/ProjectSystem.res]`
+- `[src/systems/SceneLoaderLogic.res]`
+
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)
