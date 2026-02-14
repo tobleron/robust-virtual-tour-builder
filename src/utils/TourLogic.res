@@ -122,7 +122,7 @@ let recoverBaseName = (currentName, currentLabel) => {
         } catch (e) { return null; }
     }`)(nameWithoutExt, pattern)
 
-    switch Js.Nullable.toOption(match) {
+    switch Nullable.toOption(match) {
     | Some(base) => base
     | None => nameWithoutExt
     }
@@ -131,8 +131,8 @@ let recoverBaseName = (currentName, currentLabel) => {
 
 // Helper to extract base name from ID (centralized logic)
 let getBaseNameFromId = (id) => {
-  let raw = if Js.String2.startsWith(id, "legacy_") {
-    Js.String2.substring(id, ~from=7, ~to_=Js.String2.length(id))
+  let raw = if String.startsWith(id, "legacy_") {
+    String.substring(id, ~start=7, ~end=String.length(id))
   } else {
     id
   }
@@ -151,7 +151,7 @@ let computeSceneFilename = (index, label, baseName) => {
     let sanitizedBase = toSlug(baseName, 200)
 
     // Avoid duplication if label already contains the base name (e.g. "Kitchen_123" + "123")
-    if baseSlug == sanitizedBase || Js.String2.endsWith(baseSlug, "_" ++ sanitizedBase) {
+    if baseSlug == sanitizedBase || String.endsWith(baseSlug, "_" ++ sanitizedBase) {
       prefix ++ "_" ++ baseSlug ++ ".webp"
     } else {
       prefix ++ "_" ++ baseSlug ++ "_" ++ baseName ++ ".webp"

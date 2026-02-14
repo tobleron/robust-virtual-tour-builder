@@ -17,5 +17,5 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 - [ ] - **../../src/core/Reducer.res** (Metric: [Nesting: 5.40, Density: 0.28, Coupling: 0.10] | Drag: 6.68 | LOC: 409/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.))
 
-- [ ] - **../../src/core/SceneMutations.res** (Metric: [Nesting: 5.40, Density: 0.26, Coupling: 0.05] | Drag: 6.68 | LOC: 404/300  🎯 Target: Function: `getDeletedIds` (High Local Complexity (3.5). Logic heavy.))
+- [ ] - **../../src/core/SceneMutations.res** (Metric: [Nesting: 5.40, Density: 0.26, Coupling: 0.04] | Drag: 6.68 | LOC: 396/300  🎯 Target: Function: `getDeletedIds` (High Local Complexity (3.5). Logic heavy.))
 
