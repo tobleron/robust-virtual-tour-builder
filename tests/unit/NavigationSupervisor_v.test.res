@@ -130,4 +130,30 @@ describe("NavigationSupervisor", () => {
     | None => testCtx->expect(true)->Expect.toBe(false)
     }
   })
+
+  test("concurrent requests abort the previous one", t => {
+    NavigationSupervisor.requestNavigation("scene1")
+    let task1 = NavigationSupervisor.getCurrentTask()
+
+    // Check task1 signal is not aborted
+    switch task1 {
+    | Some(tk) => t->expect(tk.token.signal->BrowserBindings.AbortSignal.aborted)->Expect.toBe(false)
+    | None => t->expect(false)->Expect.toBe(true)
+    }
+
+    NavigationSupervisor.requestNavigation("scene2")
+    let task2 = NavigationSupervisor.getCurrentTask()
+
+    // Task1 should be aborted now
+    switch task1 {
+    | Some(tk) => t->expect(tk.token.signal->BrowserBindings.AbortSignal.aborted)->Expect.toBe(true)
+    | None => ()
+    }
+
+    // Task2 should be active and not aborted
+    switch task2 {
+    | Some(tk) => t->expect(tk.token.signal->BrowserBindings.AbortSignal.aborted)->Expect.toBe(false)
+    | None => t->expect(false)->Expect.toBe(true)
+    }
+  })
 })
