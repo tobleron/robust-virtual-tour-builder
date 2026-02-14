@@ -35,21 +35,23 @@ let make = React.memo(() => {
 
     <NotificationCenter />
 
-    /* Permanent Branding with Format Fallback */
+    /* Permanent Branding with Perfect Masking */
     <div
       id="viewer-logo"
-      className="absolute bottom-6 right-6 z-[5002] flex items-center justify-center max-w-[126px] max-h-[66px] overflow-hidden viewer-logo-masked pointer-events-none p-[1px] rounded-[2px] bg-white/10 backdrop-blur-md border border-orange-500 shadow-lg"
+      className="absolute bottom-6 right-6 z-[5002] flex items-center justify-center max-w-[126px] max-h-[66px] viewer-logo-masked pointer-events-none p-[3px] rounded-lg bg-white/10 backdrop-blur-md border border-orange-500 shadow-xl overflow-hidden"
     >
-      <img
-        src=logoSrc
-        alt="Logo"
-        className="w-full h-auto object-contain block rounded-lg"
-        onError={_ => {
-          if extIndex < Array.length(extensions) - 1 {
-            setExtIndex(prev => prev + 1)
-          }
-        }}
-      />
+      <div className="w-full h-full overflow-hidden rounded-[5px] flex items-center justify-center">
+        <img
+          src=logoSrc
+          alt="Logo"
+          className="w-full h-auto object-contain block"
+          onError={_ => {
+            if extIndex < Array.length(extensions) - 1 {
+              setExtIndex(prev => prev + 1)
+            }
+          }}
+        />
+      </div>
     </div>
   </>
 })
