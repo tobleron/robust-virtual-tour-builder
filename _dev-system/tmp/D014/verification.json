@@ -1,0 +1,283 @@
+{
+  "task": "D014",
+  "category": "Surgical_Refactor_UTILS_FRONTEND",
+  "baseline_dir": "_dev-system/tmp/D014",
+  "bundles": [
+    {
+      "headline": "Pre-split snapshot for `src/utils/OperationJournal.res`",
+      "snapshots": [
+        {
+          "path": "src/utils/OperationJournal.res",
+          "functions": [
+            {
+              "name": "journalKey",
+              "signature": "let journalKey = \"operation_journal\"",
+              "line": 27
+            },
+            {
+              "name": "emergencyQueueKey",
+              "signature": "let emergencyQueueKey = \"operation_journal_emergency_queue\"",
+              "line": 28
+            },
+            {
+              "name": "journalVersion",
+              "signature": "let journalVersion = 2",
+              "line": 29
+            },
+            {
+              "name": "emergencySnapshotEncoder",
+              "signature": "let emergencySnapshotEncoder = (snapshot: emergencySnapshot) => {",
+              "line": 38
+            },
+            {
+              "name": "emergencySnapshotDecoder",
+              "signature": "let emergencySnapshotDecoder = Decode.object(field => {",
+              "line": 47
+            },
+            {
+              "name": "isTerminalStatus",
+              "signature": "let isTerminalStatus = (status: operationStatus) => {",
+              "line": 56
+            },
+            {
+              "name": "saveToEmergencyQueue",
+              "signature": "let saveToEmergencyQueue = (entry: journalEntry) => {",
+              "line": 64
+            },
+            {
+              "name": "snapshot",
+              "signature": "let snapshot: emergencySnapshot = {",
+              "line": 66
+            },
+            {
+              "name": "raw",
+              "signature": "let raw = JsonCombinators.Json.stringify(emergencySnapshotEncoder(snapshot))",
+              "line": 72
+            },
+            {
+              "name": "clearEmergencyQueueForId",
+              "signature": "let clearEmergencyQueueForId = (id: string) => {",
+              "line": 86
+            },
+            {
+              "name": "checkEmergencyQueue",
+              "signature": "let checkEmergencyQueue = (journal: t): t => {",
+              "line": 108
+            },
+            {
+              "name": "hasEntry",
+              "signature": "let hasEntry = journal.entries->Belt.Array.some(entry => entry.id == snapshot.id)",
+              "line": 117
+            },
+            {
+              "name": "syntheticEntry",
+              "signature": "let syntheticEntry: journalEntry = {",
+              "line": 121
+            },
+            {
+              "name": "newEntries",
+              "signature": "let newEntries = Belt.Array.concat(journal.entries, [syntheticEntry])",
+              "line": 130
+            },
+            {
+              "name": "normalizeEntry",
+              "signature": "let normalizeEntry = (entry: journalEntry) => {",
+              "line": 161
+            },
+            {
+              "name": "make",
+              "signature": "let make = () => {",
+              "line": 175
+            },
+            {
+              "name": "normalizeJournal",
+              "signature": "let normalizeJournal = (journal: t): t => {",
+              "line": 179
+            },
+            {
+              "name": "currentJournal",
+              "signature": "let currentJournal = ref(make())",
+              "line": 186
+            },
+            {
+              "name": "statusEncoder",
+              "signature": "let statusEncoder = (status: operationStatus) => {",
+              "line": 190
+            },
+            {
+              "name": "journalEntryEncoder",
+              "signature": "let journalEntryEncoder = (entry: journalEntry) => {",
+              "line": 202
+            },
+            {
+              "name": "journalEncoder",
+              "signature": "let journalEncoder = (journal: t) => {",
+              "line": 214
+            },
+            {
+              "name": "statusDecoder",
+              "signature": "let statusDecoder = {",
+              "line": 223
+            },
+            {
+              "name": "status",
+              "signature": "let status = field.required(\"status\", Decode.string)",
+              "line": 236
+            },
+            {
+              "name": "error",
+              "signature": "let error = field.required(\"error\", Decode.string)",
+              "line": 237
+            },
+            {
+              "name": "journalEntryDecoder",
+              "signature": "let journalEntryDecoder = Decode.object(field => {",
+              "line": 247
+            },
+            {
+              "name": "journalDecoder",
+              "signature": "let journalDecoder = Decode.object(field => {",
+              "line": 259
+            },
+            {
+              "name": "save",
+              "signature": "let save = (journal: t) => {",
+              "line": 268
+            },
+            {
+              "name": "json",
+              "signature": "let json = journalEncoder(journal)",
+              "line": 269
+            },
+            {
+              "name": "saveCurrent",
+              "signature": "let saveCurrent = () => {",
+              "line": 279
+            },
+            {
+              "name": "load",
+              "signature": "let load = () => {",
+              "line": 285
+            },
+            {
+              "name": "json",
+              "signature": "let json = asJson(stored)",
+              "line": 290
+            },
+            {
+              "name": "fixedJournal",
+              "signature": "let fixedJournal = decodedJournal->checkEmergencyQueue->normalizeJournal",
+              "line": 294
+            },
+            {
+              "name": "newJournal",
+              "signature": "let newJournal = make()",
+              "line": 315
+            },
+            {
+              "name": "newJournal",
+              "signature": "let newJournal = make()",
+              "line": 328
+            },
+            {
+              "name": "newJournal",
+              "signature": "let newJournal = make()",
+              "line": 333
+            },
+            {
+              "name": "newJournal",
+              "signature": "let newJournal = make()",
+              "line": 346
+            },
+            {
+              "name": "generateId",
+              "signature": "let generateId = () => {",
+              "line": 354
+            },
+            {
+              "name": "random",
+              "signature": "let random = Math.random() *. 1000000.0",
+              "line": 355
+            },
+            {
+              "name": "startOperation",
+              "signature": "let startOperation = (~operation: string, ~context: JSON.t, ~retryable: bool) => {",
+              "line": 359
+            },
+            {
+              "name": "id",
+              "signature": "let id = generateId()",
+              "line": 360
+            },
+            {
+              "name": "entry",
+              "signature": "let entry: journalEntry = {",
+              "line": 361
+            },
+            {
+              "name": "newEntries",
+              "signature": "let newEntries = Belt.Array.concat(currentJournal.contents.entries, [entry])",
+              "line": 374
+            },
+            {
+              "name": "updateStatus",
+              "signature": "let updateStatus = (id: string, status: operationStatus): Promise.t<unit> => {",
+              "line": 380
+            },
+            {
+              "name": "now",
+              "signature": "let now = Date.now()",
+              "line": 381
+            },
+            {
+              "name": "found",
+              "signature": "let found = ref(false)",
+              "line": 382
+            },
+            {
+              "name": "newEntries",
+              "signature": "let newEntries = currentJournal.contents.entries->Belt.Array.map(entry => {",
+              "line": 383
+            },
+            {
+              "name": "nextEndTime",
+              "signature": "let nextEndTime = switch status {",
+              "line": 389
+            },
+            {
+              "name": "updateContext",
+              "signature": "let updateContext = (id: string, context: JSON.t): Promise.t<unit> => {",
+              "line": 411
+            },
+            {
+              "name": "newEntries",
+              "signature": "let newEntries = Belt.Array.map(currentJournal.contents.entries, entry => {",
+              "line": 412
+            },
+            {
+              "name": "completeOperation",
+              "signature": "let completeOperation = (id: string): Promise.t<unit> => {",
+              "line": 427
+            },
+            {
+              "name": "failOperation",
+              "signature": "let failOperation = (id: string, reason: string): Promise.t<unit> => {",
+              "line": 431
+            },
+            {
+              "name": "getInterrupted",
+              "signature": "let getInterrupted = (journal: t) => {",
+              "line": 435
+            },
+            {
+              "name": "getPending",
+              "signature": "let getPending = (journal: t) => {",
+              "line": 445
+            }
+          ],
+          "fingerprint": "c359888c7391be20d409dd61d7e9718e7adb211764adf4f1c564a2caa3ec336a"
+        }
+      ]
+    }
+  ]
+}
