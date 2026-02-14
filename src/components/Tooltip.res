@@ -24,7 +24,7 @@ let make = (
       <Shadcn.Tooltip.Content
         side
         sideOffset=8
-        className="text-[10px] py-0.5 px-2 min-h-0 bg-slate-900 text-white border-none shadow-md"
+        className="text-[12px] leading-tight py-1 px-3 min-h-0 bg-slate-900 text-white border-none shadow-lg"
       >
         {React.string(content)}
       </Shadcn.Tooltip.Content>
