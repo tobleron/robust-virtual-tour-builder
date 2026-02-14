@@ -1,4 +1,4 @@
-# Task: Refactor Sidebar State Subscriptions for Performance
+q# Task: Refactor Sidebar State Subscriptions for Performance
 
 ## Objective
 Decouple `Sidebar.res` from the global application state to prevent unnecessary re-renders during camera movement (exploration).

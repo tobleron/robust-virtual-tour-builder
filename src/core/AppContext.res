@@ -95,8 +95,8 @@ module Provider = {
             ...State.initialState,
             activeYaw: s.activeYaw,
             activePitch: s.activePitch,
-            isLinking: s.isLinking,
-            isTeasing: s.isTeasing,
+            isLinking: false,
+            isTeasing: false,
           }
         | None => State.initialState
         }
