@@ -1,4 +1,12 @@
 pub mod drivers;
 pub mod graph;
 pub mod rescript_auto_discovery;
-pub mod resolver; // Expose graph if needed for tests, but mainly resolver
+pub mod resolver;
+pub mod spec_snapshot;
+pub mod verification;
+pub mod discovery;
+pub mod config;
+pub mod state;
+pub mod analysis;
+pub mod feedback;
+pub mod guard;

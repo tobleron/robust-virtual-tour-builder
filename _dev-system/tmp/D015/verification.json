@@ -1,203 +1,96 @@
 {
-  "task": "D015",
-  "category": "Surgical_Refactor_SCENE_FRONTEND",
-  "baseline_dir": "_dev-system/tmp/D015",
-  "bundles": [
+  "headline": "Verification Snapshot",
+  "snapshots": [
     {
-      "headline": "Pre-split snapshot for `src/systems/Scene/SceneLoader.res`",
-      "snapshots": [
+      "path": "src/systems/Scene/SceneLoader.res",
+      "functions": [
         {
-          "path": "src/systems/Scene/SceneLoader.res",
-          "functions": [
-            {
-              "name": "castToString",
-              "signature": "let castToString: 'a => string = %raw(\"(x) => typeof x === 'string' ? x : ''\")",
-              "line": 6
-            },
-            {
-              "name": "castToDict",
-              "signature": "let castToDict: 'a => dict<string> = %raw(\"(x) => (typeof x === 'object' && x !== null) ? x : {}\")",
-              "line": 7
-            },
-            {
-              "name": "loadStartTime",
-              "signature": "let loadStartTime = ref(0.0)",
-              "line": 14
-            },
-            {
-              "name": "getHotspots",
-              "signature": "let getHotspots = (scene: scene, ~state, ~dispatch) =>",
-              "line": 17
-            },
-            {
-              "name": "makeSceneConfig",
-              "signature": "let makeSceneConfig = (scene: scene, ~state, ~dispatch) => {",
-              "line": 21
-            },
-            {
-              "name": "url",
-              "signature": "let url = SceneCache.getSourceUrl(scene.id, scene.file)",
-              "line": 22
-            },
-            {
-              "name": "makeInitialConfig",
-              "signature": "let makeInitialConfig = (scene: scene, ~state, ~dispatch) => {",
-              "line": 35
-            },
-            {
-              "name": "inner",
-              "signature": "let inner = makeSceneConfig(scene, ~state, ~dispatch)",
-              "line": 36
-            },
-            {
-              "name": "blankPanorama",
-              "signature": "let blankPanorama = \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==\"",
-              "line": 52
-            },
-            {
-              "name": "backgroundViewerConfig",
-              "signature": "let backgroundViewerConfig = () => {",
-              "line": 54
-            },
-            {
-              "name": "ensureBackgroundViewer",
-              "signature": "let ensureBackgroundViewer = (~_state: state, ~_dispatch) => {",
-              "line": 69
-            },
-            {
-              "name": "instance",
-              "signature": "let instance = ViewerSystem.Adapter.initialize(",
-              "line": 74
-            },
-            {
-              "name": "toPathRequest",
-              "signature": "let toPathRequest = (state: state): pathRequest => {",
-              "line": 85
-            },
-            {
-              "name": "findReusableInstance",
-              "signature": "let findReusableInstance = (pathRequest, targetIdx: int): option<ViewerSystem.Adapter.t> => {",
-              "line": 95
-            },
-            {
-              "name": "targetSceneId",
-              "signature": "let targetSceneId = pathRequest.scenes[targetIdx]->Option.map(s => s.id)",
-              "line": 96
-            },
-            {
-              "name": "metaId",
-              "signature": "let metaId = ViewerSystem.Adapter.getMetaData(inst, \"sceneId\")",
-              "line": 101
-            },
-            {
-              "name": "isStaleTask",
-              "signature": "let isStaleTask = (",
-              "line": 111
-            },
-            {
-              "name": "taskMismatch",
-              "signature": "let taskMismatch = switch taskId {",
-              "line": 115
-            },
-            {
-              "name": "signalAborted",
-              "signature": "let signalAborted = switch signal {",
-              "line": 119
-            },
-            {
-              "name": "onSceneLoad",
-              "signature": "let onSceneLoad = (",
-              "line": 126
-            },
-            {
-              "name": "vId",
-              "signature": "let vId = castToDict(v)->Dict.get(\"container\")->Option.getOr(\"\")",
-              "line": 142
-            },
-            {
-              "name": "entry",
-              "signature": "let entry = ViewerSystem.Pool.pool.contents->Belt.Array.getBy(e => e.containerId == vId)",
-              "line": 143
-            },
-            {
-              "name": "onSceneError",
-              "signature": "let onSceneError = (",
-              "line": 160
-            },
-            {
-              "name": "currentLoadTimeout",
-              "signature": "let currentLoadTimeout: ref<option<timeoutId>> = ref(None)",
-              "line": 204
-            },
-            {
-              "name": "cleanupLoadTimeout",
-              "signature": "let cleanupLoadTimeout = () => {",
-              "line": 206
-            },
-            {
-              "name": "loadNewScene",
-              "signature": "let loadNewScene = (",
-              "line": 215
-            },
-            {
-              "name": "targetSceneOpt",
-              "signature": "let targetSceneOpt = state.scenes->Belt.Array.getBy(s => s.id == targetSceneId)",
-              "line": 233
-            },
-            {
-              "name": "tIdx",
-              "signature": "let tIdx = state.scenes->Belt.Array.getIndexBy(s => s.id == targetSceneId)->Option.getOr(-1)",
-              "line": 256
-            },
-            {
-              "name": "config",
-              "signature": "let config = Config.makeSceneConfig(targetScene, ~state, ~dispatch)",
-              "line": 267
-            },
-            {
-              "name": "safetyTimeoutId",
-              "signature": "let safetyTimeoutId = setTimeout(() => {",
-              "line": 285
-            },
-            {
-              "name": "activeVp",
-              "signature": "let activeVp = ViewerSystem.Pool.getActive()",
-              "line": 316
-            },
-            {
-              "name": "inactiveVp",
-              "signature": "let inactiveVp = ViewerSystem.Pool.getInactive()",
-              "line": 317
-            },
-            {
-              "name": "vp",
-              "signature": "let vp = switch activeVp {",
-              "line": 319
-            },
-            {
-              "name": "safetyTimeoutId",
-              "signature": "let safetyTimeoutId = setTimeout(() => {",
-              "line": 328
-            },
-            {
-              "name": "isAborted",
-              "signature": "let isAborted = switch signal {",
-              "line": 351
-            },
-            {
-              "name": "initialConfig",
-              "signature": "let initialConfig = Config.makeInitialConfig(targetScene, ~state, ~dispatch)",
-              "line": 366
-            },
-            {
-              "name": "newInstance",
-              "signature": "let newInstance = ViewerSystem.Adapter.initialize(",
-              "line": 383
-            }
-          ],
-          "fingerprint": "689e265a59a8353b85dfc6f97a234bfab85418210d900af4ba62cc227ad145e3"
+          "name": "castToString",
+          "signature": "let castToString: 'a => string = %raw(\"(x) => typeof x === 'string' ? x : ''\")",
+          "line": 6
+        },
+        {
+          "name": "castToDict",
+          "signature": "let castToDict: 'a => dict<string> = %raw(\"(x) => (typeof x === 'object' && x !== null) ? x : {}\")",
+          "line": 7
+        },
+        {
+          "name": "loadStartTime",
+          "signature": "let loadStartTime = ref(0.0)",
+          "line": 14
+        },
+        {
+          "name": "getHotspots",
+          "signature": "let getHotspots = (scene: scene, ~state, ~dispatch) =>",
+          "line": 17
+        },
+        {
+          "name": "makeSceneConfig",
+          "signature": "let makeSceneConfig = (scene: scene, ~state, ~dispatch) => {",
+          "line": 21
+        },
+        {
+          "name": "makeInitialConfig",
+          "signature": "let makeInitialConfig = (scene: scene, ~state, ~dispatch) => {",
+          "line": 35
+        },
+        {
+          "name": "blankPanorama",
+          "signature": "let blankPanorama = \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==\"",
+          "line": 52
+        },
+        {
+          "name": "backgroundViewerConfig",
+          "signature": "let backgroundViewerConfig = () => {",
+          "line": 54
+        },
+        {
+          "name": "ensureBackgroundViewer",
+          "signature": "let ensureBackgroundViewer = (~_state: state, ~_dispatch) => {",
+          "line": 69
+        },
+        {
+          "name": "toPathRequest",
+          "signature": "let toPathRequest = (state: state): pathRequest => {",
+          "line": 85
+        },
+        {
+          "name": "findReusableInstance",
+          "signature": "let findReusableInstance = (pathRequest, targetIdx: int): option<ViewerSystem.Adapter.t> => {",
+          "line": 95
+        },
+        {
+          "name": "isStaleTask",
+          "signature": "let isStaleTask = (",
+          "line": 111
+        },
+        {
+          "name": "onSceneLoad",
+          "signature": "let onSceneLoad = (",
+          "line": 126
+        },
+        {
+          "name": "onSceneError",
+          "signature": "let onSceneError = (",
+          "line": 160
+        },
+        {
+          "name": "currentLoadTimeout",
+          "signature": "let currentLoadTimeout: ref<option<timeoutId>> = ref(None)",
+          "line": 204
+        },
+        {
+          "name": "cleanupLoadTimeout",
+          "signature": "let cleanupLoadTimeout = () => {",
+          "line": 206
+        },
+        {
+          "name": "loadNewScene",
+          "signature": "let loadNewScene = (",
+          "line": 215
         }
-      ]
+      ],
+      "fingerprint": "af650528507d28eca34a76e3a0f78c464419bf63e4eba96cbbd8c52621f57175"
     }
   ]
 }
