@@ -25,10 +25,17 @@ let handleDeleteScene = (state: state, index: int): state => {
 
         // 4. Adjust activeIndex
         let newLen = Belt.Array.length(updatedOrder)
-        let newActiveIndex = SceneInventory.calculateActiveIndexAfterDelete(state.activeIndex, index, newLen)
+        let newActiveIndex = SceneInventory.calculateActiveIndexAfterDelete(
+          state.activeIndex,
+          index,
+          newLen,
+        )
 
         // 5. Sync names & Rebuild legacy
-        let finalizedInventory = SceneNaming.syncInventoryNames(inventoryWithCleanHotspots, updatedOrder)
+        let finalizedInventory = SceneNaming.syncInventoryNames(
+          inventoryWithCleanHotspots,
+          updatedOrder,
+        )
         {
           ...state,
           inventory: finalizedInventory,

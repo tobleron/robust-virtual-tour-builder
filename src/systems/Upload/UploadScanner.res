@@ -16,7 +16,8 @@ let handleFingerprinting = (
     let uniqueItems = FingerprintService.filterDuplicates(
       results,
       ~inventory=currentState.inventory,
-      ~onDuplicate=c => UploadUtils.notify("Skipped " ++ Belt.Int.toString(c) ++ " duplicates.", "info"),
+      ~onDuplicate=c =>
+        UploadUtils.notify("Skipped " ++ Belt.Int.toString(c) ++ " duplicates.", "info"),
       ~onRestore=id => dispatch(RemoveDeletedSceneId(id)),
     )
     let skippedFromFingerprint = Belt.Array.length(results) - Belt.Array.length(uniqueItems)

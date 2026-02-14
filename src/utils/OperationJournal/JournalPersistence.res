@@ -23,7 +23,8 @@ let load = (currentJournal: ref<t>) => {
       try {
         switch JsonCombinators.Json.decode(json, journalDecoder) {
         | Ok(decodedJournal) =>
-          let fixedJournal = decodedJournal->JournalLogic.checkEmergencyQueue->JournalLogic.normalizeJournal
+          let fixedJournal =
+            decodedJournal->JournalLogic.checkEmergencyQueue->JournalLogic.normalizeJournal
           currentJournal := fixedJournal
           save(fixedJournal)
           ->Promise.then(() => Promise.resolve(fixedJournal))

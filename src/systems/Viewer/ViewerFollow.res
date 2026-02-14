@@ -44,9 +44,7 @@ let rec updateFollowLoop = (~getState: unit => state) => {
     }
 
     if (
-      !ViewerState.state.contents.followLoopActive ||
-      vOpt == None ||
-      (!s.isLinking && !hasHotspots)
+      !ViewerState.state.contents.followLoopActive || vOpt == None || (!s.isLinking && !hasHotspots)
     ) {
       if !fsmBusy {
         Dom.getElementById("viewer-hotspot-lines")

@@ -16,4 +16,4 @@
 - [ ] `../../src/core/JsonParsersDecoders.res`
 - [ ] `../../src/hooks/UseInteraction.res`
 - [ ] `../../src/systems/Api/AuthenticatedClient.res`
-- [ ] `../../src/systems/UploadProcessorLogic.res`
+- [ ] `../../src/systems/Upload/UploadFinalizer.res`
