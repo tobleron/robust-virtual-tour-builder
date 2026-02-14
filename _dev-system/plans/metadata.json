@@ -1,304 +1,99 @@
 {
-  "rust": [
+  "system": [],
+  "rescript": [
     {
       "Violation": {
-        "file": "../../backend/src/services/media/naming.rs",
-        "pattern": "unwrap()",
+        "file": "../../src/core/JsonParsersDecoders.res",
+        "pattern": "Obj.magic",
         "strategy": ""
       }
     },
     {
-      "Violation": {
-        "file": "../../backend/src/metrics.rs",
-        "pattern": "unwrap()",
-        "strategy": ""
-      }
-    }
-  ],
-  "system": [
-    {
-      "Merge": {
-        "folder": "src/systems/Scene/Loader",
-        "files": [
-          "../../src/systems/Scene/Loader/SceneLoaderReuse.res",
-          "../../src/systems/Scene/Loader/SceneLoaderConfig.res",
-          "../../src/systems/Scene/Loader/SceneLoaderEvents.res"
-        ],
-        "reason": "Recursive Feature Pod: 3 files in subtree sum to 156 LOC (fits in context). Max Drag: 6.80",
+      "Surgical": {
+        "file": "../../src/components/VisualPipelineLogic.res",
+        "action": "De-bloat",
+        "reason": "[Nesting: 4.80, Density: 0.06, Coupling: 0.05] | Drag: 5.88 | LOC: 384/300",
         "strategy": "",
         "platform": "frontend",
+        "complexity": 14.278125,
+        "recommended_splits": 2,
         "verification": {
-          "headline": "Pre-merge snapshots for recursive cluster `src/systems/Scene/Loader`",
+          "headline": "Pre-split snapshot for `src/components/VisualPipelineLogic.res`",
           "snapshots": [
             {
-              "path": "src/systems/Scene/Loader/SceneLoaderReuse.res",
+              "path": "src/components/VisualPipelineLogic.res",
               "functions": [
                 {
-                  "name": "findReusableInstance",
-                  "signature": "findReusableInstance = (pathRequest: pathRequest, targetIdx: int): option<",
-                  "line": 6
+                  "name": "handleDragStart",
+                  "signature": "handleDragStart = (pipeline: t, e) => {",
+                  "line": 13
                 },
                 {
-                  "name": "targetSceneId",
-                  "signature": "targetSceneId = pathRequest.scenes[targetIdx]->Option.map(s => s.id)",
-                  "line": 9
-                },
-                {
-                  "name": "metaId",
-                  "signature": "metaId = ViewerSystem.Adapter.getMetaData(inst, \"sceneId\")",
-                  "line": 14
-                }
-              ],
-              "fingerprint": "afe56389cbe21f3f18e6d254e8e228cbf835daaab5fa18214bb9579bb725550e"
-            },
-            {
-              "path": "src/systems/Scene/Loader/SceneLoaderConfig.res",
-              "functions": [
-                {
-                  "name": "getHotspots",
-                  "signature": "getHotspots = (scene: scene, ~state, ~dispatch) =>",
-                  "line": 4
-                },
-                {
-                  "name": "makeSceneConfig",
-                  "signature": "makeSceneConfig = (scene: scene, ~state, ~dispatch) => {",
-                  "line": 9
-                },
-                {
-                  "name": "url",
-                  "signature": "url = SceneCache.getSourceUrl(scene.id, scene.file)",
-                  "line": 10
-                },
-                {
-                  "name": "makeInitialConfig",
-                  "signature": "makeInitialConfig = (scene: scene, ~state, ~dispatch) => {",
-                  "line": 23
-                },
-                {
-                  "name": "inner",
-                  "signature": "inner = makeSceneConfig(scene, ~state, ~dispatch)",
-                  "line": 24
-                },
-                {
-                  "name": "blankPanorama",
-                  "signature": "blankPanorama = \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==\"",
-                  "line": 39
-                },
-                {
-                  "name": "backgroundViewerConfig",
-                  "signature": "backgroundViewerConfig = () => {",
-                  "line": 41
-                }
-              ],
-              "fingerprint": "f4fd398f9137c60604b95ef249805b3adedf31eb810a43146a408204173e13c5"
-            },
-            {
-              "path": "src/systems/Scene/Loader/SceneLoaderEvents.res",
-              "functions": [
-                {
-                  "name": "isStaleTask",
-                  "signature": "isStaleTask = (~taskId: option<string>=?, ~signal: option<BrowserBindings.AbortSignal.t>=?) => {",
-                  "line": 5
-                },
-                {
-                  "name": "taskMismatch",
-                  "signature": "taskMismatch = switch taskId {",
-                  "line": 6
-                },
-                {
-                  "name": "signalAborted",
-                  "signature": "signalAborted = switch signal {",
-                  "line": 10
-                },
-                {
-                  "name": "castToDict",
-                  "signature": "castToDict: 'a => dict<string> = %raw(\"(x) => (typeof x === 'object' && x !== null) ? x : {}\")",
-                  "line": 17
-                },
-                {
-                  "name": "onSceneLoad",
-                  "signature": "onSceneLoad = (",
+                  "name": "handleDragEnd",
+                  "signature": "handleDragEnd = (pipeline: t, e) => {",
                   "line": 21
                 },
                 {
-                  "name": "vId",
-                  "signature": "vId = castToDict(v)->Dict.get(\"container\")->Option.getOr(\"\")",
+                  "name": "handleDragOver",
+                  "signature": "handleDragOver = e => {",
+                  "line": 28
+                },
+                {
+                  "name": "handleDragEnter",
+                  "signature": "handleDragEnter = e => {",
+                  "line": 32
+                },
+                {
+                  "name": "handleDragLeave",
+                  "signature": "handleDragLeave = e => {",
                   "line": 37
                 },
                 {
-                  "name": "entry",
-                  "signature": "entry = ViewerSystem.Pool.pool.contents->Belt.Array.getBy(e => e.containerId == vId)",
-                  "line": 38
+                  "name": "handleDrop",
+                  "signature": "handleDrop = (",
+                  "line": 42
                 },
                 {
-                  "name": "onSceneError",
-                  "signature": "onSceneError = (",
-                  "line": 56
+                  "name": "createDropZone",
+                  "signature": "createDropZone = (pipeline: t, index: int, ~getState, ~dispatch) => {",
+                  "line": 84
+                },
+                {
+                  "name": "nodeSize",
+                  "signature": "nodeSize = 22",
+                  "line": 100
+                },
+                {
+                  "name": "styles",
+                  "signature": "styles =",
+                  "line": 102
+                },
+                {
+                  "name": "render",
+                  "signature": "render = (pipeline: t, state: Types.state, ~getState, ~dispatch) => {",
+                  "line": 260
                 }
               ],
-              "fingerprint": "4e8ceea824741cd661707f741fc1a482d4e2cb0595ac9fae388e6936f365aa26"
+              "fingerprint": "f0aa9b3813c2c2a0508d06ff20499e1f10e44ede557ed08b5c526588dc0c13b7"
             }
           ]
         }
       }
     },
     {
-      "Merge": {
-        "folder": "../../src/systems/Project",
-        "files": [
-          "ProjectValidator.res",
-          "ProjectLoader.res",
-          "ProjectSaver.res"
-        ],
-        "reason": "Read Tax high (Score 3.00). Projected Limit: 300 (Drag 4.92)",
-        "strategy": "",
-        "platform": "frontend",
-        "verification": {
-          "headline": "Pre-merge snapshots for `../../src/systems/Project`",
-          "snapshots": [
-            {
-              "path": "src/systems/Project/ProjectValidator.res",
-              "functions": [
-                {
-                  "name": "validationReportWrapperDecoder",
-                  "signature": "validationReportWrapperDecoder = JsonCombinators.Json.Decode.object(field => {",
-                  "line": 3
-                },
-                {
-                  "name": "validateProjectStructure",
-                  "signature": "validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {",
-                  "line": 7
-                }
-              ],
-              "fingerprint": "c1da22b92cfb43a237f871bf8fcf11b5c39ff3c7931fb85fa73bbe455169f84d"
-            },
-            {
-              "path": "src/systems/Project/ProjectLoader.res",
-              "functions": [
-                {
-                  "name": "processLoadedProjectData",
-                  "signature": "processLoadedProjectData = (",
-                  "line": 7
-                },
-                {
-                  "name": "progress",
-                  "signature": "progress = (curr, total, msg) => {",
-                  "line": 12
-                },
-                {
-                  "name": "token",
-                  "signature": "token = Dom.Storage2.localStorage->Dom.Storage2.getItem(\"auth_token\")",
-                  "line": 74
-                },
-                {
-                  "name": "finalToken",
-                  "signature": "finalToken = switch token {",
-                  "line": 75
-                },
-                {
-                  "name": "tokenQuery",
-                  "signature": "tokenQuery = \"?token=\" ++ finalToken",
-                  "line": 79
-                },
-                {
-                  "name": "allInventoryScenes",
-                  "signature": "allInventoryScenes =",
-                  "line": 82
-                },
-                {
-                  "name": "validScenes",
-                  "signature": "validScenes = ProjectManagerUrl.rebuildSceneUrls(",
-                  "line": 85
-                },
-                {
-                  "name": "updatedInventory",
-                  "signature": "updatedInventory = validScenes->Belt.Array.reduce(pd.inventory, (acc, s) => {",
-                  "line": 92
-                },
-                {
-                  "name": "finalOrder",
-                  "signature": "finalOrder = if Array.length(pd.sceneOrder) > 0 {",
-                  "line": 100
-                },
-                {
-                  "name": "resolvedActiveScenes",
-                  "signature": "resolvedActiveScenes = finalOrder->Belt.Array.keepMap(id => {",
-                  "line": 107
-                },
-                {
-                  "name": "loadedProject",
-                  "signature": "loadedProject: Types.project = {",
-                  "line": 114
-                },
-                {
-                  "name": "loadProjectZip",
-                  "signature": "loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?) => {",
-                  "line": 139
-                },
-                {
-                  "name": "progress",
-                  "signature": "progress = (curr, total, msg) => {",
-                  "line": 140
-                },
-                {
-                  "name": "loadStartTime",
-                  "signature": "loadStartTime = Date.now()",
-                  "line": 147
-                }
-              ],
-              "fingerprint": "c19f172c88f9105107deeeceaad5008a1b9efdf270fc00f7b0d0659afb92402b"
-            },
-            {
-              "path": "src/systems/Project/ProjectSaver.res",
-              "functions": [
-                {
-                  "name": "createSavePackage",
-                  "signature": "createSavePackage = (state: state, ~signal=?, ~onProgress: option<onProgress>=?): Promise.t<",
-                  "line": 7
-                },
-                {
-                  "name": "progress",
-                  "signature": "progress = (curr, total, msg) => {",
-                  "line": 10
-                },
-                {
-                  "name": "project",
-                  "signature": "project: Types.project = {",
-                  "line": 18
-                },
-                {
-                  "name": "jsonStr",
-                  "signature": "jsonStr = JsonCombinators.Json.stringify(JsonParsers.Encoders.project(project))",
-                  "line": 31
-                },
-                {
-                  "name": "formData",
-                  "signature": "formData = FormData.newFormData()",
-                  "line": 32
-                }
-              ],
-              "fingerprint": "2e2e031360c1b2b4cda97833635631c1e5f7fb29df5cb770c75eb0d98b06cb1b"
-            }
-          ]
-        }
-      }
-    }
-  ],
-  "rescript": [
-    {
       "Surgical": {
-        "file": "../../src/core/Reducer.res",
+        "file": "../../src/core/ReducerModules.res",
         "action": "De-bloat",
-        "reason": "[Nesting: 5.40, Density: 0.28, Coupling: 0.10] | Drag: 6.68 | LOC: 409/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.)",
+        "reason": "[Nesting: 5.40, Density: 0.31, Coupling: 0.08] | Drag: 6.71 | LOC: 378/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.)",
         "strategy": "",
         "platform": "frontend",
-        "complexity": 17.58361858190709,
+        "complexity": 14.506878306878306,
         "recommended_splits": 2,
         "verification": {
-          "headline": "Pre-split snapshot for `src/core/Reducer.res`",
+          "headline": "Pre-split snapshot for `src/core/ReducerModules.res`",
           "snapshots": [
             {
-              "path": "src/core/Reducer.res",
+              "path": "src/core/ReducerModules.res",
               "functions": [
                 {
                   "name": "updateInteractive",
@@ -376,44 +171,9 @@
                   "line": 159
                 },
                 {
-                  "name": "nextAppMode",
-                  "signature": "nextAppMode = AppFSM.transition(state.appMode, event)",
-                  "line": 170
-                },
-                {
-                  "name": "nextState",
-                  "signature": "nextState = {...state, appMode: nextAppMode}",
-                  "line": 171
-                },
-                {
                   "name": "reduce",
                   "signature": "reduce = (state: state, action: action): option<state> => {",
                   "line": 189
-                },
-                {
-                  "name": "resetNavState",
-                  "signature": "resetNavState = {",
-                  "line": 193
-                },
-                {
-                  "name": "nextState",
-                  "signature": "nextState = {...state, navigationState: nextNavState}",
-                  "line": 217
-                },
-                {
-                  "name": "nextAppMode",
-                  "signature": "nextAppMode = AppFSM.transition(state.appMode, event)",
-                  "line": 239
-                },
-                {
-                  "name": "nextState",
-                  "signature": "nextState = {...state, appMode: nextAppMode}",
-                  "line": 240
-                },
-                {
-                  "name": "finalState",
-                  "signature": "finalState = switch nextAppMode {",
-                  "line": 243
                 },
                 {
                   "name": "reduce",
@@ -426,419 +186,12 @@
                   "line": 312
                 },
                 {
-                  "name": "item",
-                  "signature": "item = SimHelpers.parseTimelineItem(json)",
-                  "line": 315
-                },
-                {
-                  "name": "itemOpt",
-                  "signature": "itemOpt = Belt.Array.get(state.timeline, fromIdx)",
-                  "line": 325
-                },
-                {
-                  "name": "rest",
-                  "signature": "rest = Belt.Array.keepWithIndex(state.timeline, (_, i) => i != fromIdx)",
-                  "line": 328
-                },
-                {
-                  "name": "newTimeline",
-                  "signature": "newTimeline = UiHelpers.insertAt(rest, toIdx, item)",
-                  "line": 329
-                },
-                {
                   "name": "reduce",
                   "signature": "reduce = (state: state, action: action): option<state> => {",
                   "line": 346
-                },
-                {
-                  "name": "apply",
-                  "signature": "apply = (state: state, action: action, reducerFn: (state, action) => option<state>): state => {",
-                  "line": 432
-                },
-                {
-                  "name": "reducer",
-                  "signature": "reducer = (state: state, action: action): state => {",
-                  "line": 450
                 }
               ],
-              "fingerprint": "f83955b3476ee464a4e3f334a2ee9209e771cb20e1bd367da123e284e28696c0"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/core/JsonParsersDecoders.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/hooks/UseInteraction.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/systems/Upload/UploadFinalizer.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/components/ViewerHUD.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Violation": {
-        "file": "../../src/systems/Api/AuthenticatedClient.res",
-        "pattern": "Obj.magic",
-        "strategy": ""
-      }
-    },
-    {
-      "Surgical": {
-        "file": "../../src/components/VisualPipeline.res",
-        "action": "De-bloat",
-        "reason": "[Nesting: 4.80, Density: 0.05, Coupling: 0.06] | Drag: 5.86 | LOC: 469/300",
-        "strategy": "",
-        "platform": "frontend",
-        "complexity": 22.763965884861406,
-        "recommended_splits": 2,
-        "verification": {
-          "headline": "Pre-split snapshot for `src/components/VisualPipeline.res`",
-          "snapshots": [
-            {
-              "path": "src/components/VisualPipeline.res",
-              "functions": [
-                {
-                  "name": "handleDragStart",
-                  "signature": "handleDragStart = (pipeline: t, e) => {",
-                  "line": 18
-                },
-                {
-                  "name": "target",
-                  "signature": "target = Dom.target(e)",
-                  "line": 19
-                },
-                {
-                  "name": "id",
-                  "signature": "id = Dict.get(Dom.dataset(target), \"id\")->Option.getOr(\"\")",
-                  "line": 20
-                },
-                {
-                  "name": "handleDragEnd",
-                  "signature": "handleDragEnd = (pipeline: t, e) => {",
-                  "line": 26
-                },
-                {
-                  "name": "target",
-                  "signature": "target = Dom.target(e)",
-                  "line": 27
-                },
-                {
-                  "name": "handleDragOver",
-                  "signature": "handleDragOver = e => {",
-                  "line": 33
-                },
-                {
-                  "name": "handleDragEnter",
-                  "signature": "handleDragEnter = e => {",
-                  "line": 37
-                },
-                {
-                  "name": "target",
-                  "signature": "target = Dom.target(e)",
-                  "line": 38
-                },
-                {
-                  "name": "handleDragLeave",
-                  "signature": "handleDragLeave = e => {",
-                  "line": 42
-                },
-                {
-                  "name": "target",
-                  "signature": "target = Dom.target(e)",
-                  "line": 43
-                },
-                {
-                  "name": "handleDrop",
-                  "signature": "handleDrop = (",
-                  "line": 47
-                },
-                {
-                  "name": "target",
-                  "signature": "target = Dom.target(e)",
-                  "line": 54
-                },
-                {
-                  "name": "dropIndex",
-                  "signature": "dropIndex =",
-                  "line": 57
-                },
-                {
-                  "name": "state",
-                  "signature": "state = getState()",
-                  "line": 64
-                },
-                {
-                  "name": "sourceIndex",
-                  "signature": "sourceIndex =",
-                  "line": 65
-                },
-                {
-                  "name": "finalIndex",
-                  "signature": "finalIndex = if dropIndex > sourceIndex {",
-                  "line": 69
-                },
-                {
-                  "name": "createDropZone",
-                  "signature": "createDropZone = (pipeline: t, index: int, ~getState, ~dispatch) => {",
-                  "line": 89
-                },
-                {
-                  "name": "zone",
-                  "signature": "zone = Dom.createElement(\"div\")",
-                  "line": 90
-                },
-                {
-                  "name": "_",
-                  "signature": "_ = handleDragOver(e)",
-                  "line": 95
-                },
-                {
-                  "name": "render",
-                  "signature": "render = (pipeline: t, state: Types.state, ~getState, ~dispatch) => {",
-                  "line": 108
-                },
-                {
-                  "name": "track",
-                  "signature": "track = Dom.querySelector(pipeline.wrapper, \".pipeline-track\")",
-                  "line": 121
-                },
-                {
-                  "name": "fragment",
-                  "signature": "fragment = Dom.createDocumentFragment()",
-                  "line": 124
-                },
-                {
-                  "name": "firstZone",
-                  "signature": "firstZone = createDropZone(pipeline, 0, ~getState, ~dispatch)",
-                  "line": 126
-                },
-                {
-                  "name": "node",
-                  "signature": "node = Dom.createElement(\"div\")",
-                  "line": 131
-                },
-                {
-                  "name": "activateNode",
-                  "signature": "activateNode = () => {",
-                  "line": 139
-                },
-                {
-                  "name": "sceneIdx",
-                  "signature": "sceneIdx =",
-                  "line": 147
-                },
-                {
-                  "name": "hotspot",
-                  "signature": "hotspot = s.hotspots->Belt.Array.getBy(h => h.linkId == item.linkId)",
-                  "line": 154
-                },
-                {
-                  "name": "scene",
-                  "signature": "scene = state.scenes->Belt.Array.getBy(s => s.id == item.sceneId)",
-                  "line": 164
-                },
-                {
-                  "name": "color",
-                  "signature": "color = ref(\"var(--success-dark)\")",
-                  "line": 165
-                },
-                {
-                  "name": "isActive",
-                  "signature": "isActive = switch state.activeTimelineStepId {",
-                  "line": 178
-                },
-                {
-                  "name": "firstMatchIdx",
-                  "signature": "firstMatchIdx =",
-                  "line": 183
-                },
-                {
-                  "name": "key",
-                  "signature": "key = Dom.key(e)",
-                  "line": 198
-                },
-                {
-                  "name": "thumbUrl",
-                  "signature": "thumbUrl = ref(\"\")",
-                  "line": 221
-                },
-                {
-                  "name": "thumbName",
-                  "signature": "thumbName = ref(\"Unknown Scene\")",
-                  "line": 222
-                },
-                {
-                  "name": "file",
-                  "signature": "file = switch sc.tinyFile {",
-                  "line": 229
-                },
-                {
-                  "name": "url",
-                  "signature": "url = UrlUtils.fileToUrl(file)",
-                  "line": 233
-                },
-                {
-                  "name": "targetScene",
-                  "signature": "targetScene = state.scenes->Belt.Array.getBy(s => s.name == item.targetScene)",
-                  "line": 240
-                },
-                {
-                  "name": "isAutoForward",
-                  "signature": "isAutoForward = switch targetScene {",
-                  "line": 241
-                },
-                {
-                  "name": "tooltip",
-                  "signature": "tooltip = Dom.createElement(\"div\")",
-                  "line": 246
-                },
-                {
-                  "name": "linkIdSpan",
-                  "signature": "linkIdSpan = Dom.createElement(\"span\")",
-                  "line": 249
-                },
-                {
-                  "name": "img",
-                  "signature": "img = Dom.createElement(\"img\")",
-                  "line": 255
-                },
-                {
-                  "name": "textSpan",
-                  "signature": "textSpan = Dom.createElement(\"span\")",
-                  "line": 262
-                },
-                {
-                  "name": "indicator",
-                  "signature": "indicator = Dom.createElement(\"span\")",
-                  "line": 270
-                },
-                {
-                  "name": "nextZone",
-                  "signature": "nextZone = InternalLogic.createDropZone(pipeline, index + 1, ~getState, ~dispatch)",
-                  "line": 278
-                },
-                {
-                  "name": "nodeSize",
-                  "signature": "nodeSize = 22",
-                  "line": 295
-                },
-                {
-                  "name": "styles",
-                  "signature": "styles =",
-                  "line": 297
-                },
-                {
-                  "name": "render",
-                  "signature": "render = InternalRender.render",
-                  "line": 454
-                },
-                {
-                  "name": "injectStyles",
-                  "signature": "injectStyles = () => {",
-                  "line": 456
-                },
-                {
-                  "name": "existing",
-                  "signature": "existing = Dom.getElementById(\"visual-pipeline-styles\")",
-                  "line": 457
-                },
-                {
-                  "name": "style",
-                  "signature": "style = Dom.createElement(\"style\")",
-                  "line": 462
-                },
-                {
-                  "name": "initByElement",
-                  "signature": "initByElement = (c: Dom.element) => {",
-                  "line": 469
-                },
-                {
-                  "name": "wrapper",
-                  "signature": "wrapper = Dom.createElement(\"div\")",
-                  "line": 473
-                },
-                {
-                  "name": "track",
-                  "signature": "track = Dom.createElement(\"div\")",
-                  "line": 476
-                },
-                {
-                  "name": "pipeline",
-                  "signature": "pipeline = {",
-                  "line": 482
-                },
-                {
-                  "name": "init",
-                  "signature": "init = (containerId: string) => {",
-                  "line": 492
-                },
-                {
-                  "name": "container",
-                  "signature": "container = Dom.getElementById(containerId)",
-                  "line": 493
-                },
-                {
-                  "name": "make",
-                  "signature": "make = () => {",
-                  "line": 501
-                },
-                {
-                  "name": "containerRef",
-                  "signature": "containerRef = React.useRef(Nullable.null)",
-                  "line": 504
-                },
-                {
-                  "name": "appState",
-                  "signature": "appState = AppContext.useAppState()",
-                  "line": 506
-                },
-                {
-                  "name": "dispatch",
-                  "signature": "dispatch = AppContext.useAppDispatch()",
-                  "line": 507
-                },
-                {
-                  "name": "stateRef",
-                  "signature": "stateRef = React.useRef(appState)",
-                  "line": 508
-                },
-                {
-                  "name": "getState",
-                  "signature": "getState = () => stateRef.current",
-                  "line": 513
-                },
-                {
-                  "name": "pipelineRef",
-                  "signature": "pipelineRef = React.useRef(None)",
-                  "line": 515
-                },
-                {
-                  "name": "pipeline",
-                  "signature": "pipeline = initByElement(c)",
-                  "line": 520
-                }
-              ],
-              "fingerprint": "5793ffa219c836c4dcc899ef337a7e1c086bc12bf52a465811a1e09c147a8b90"
+              "fingerprint": "3754ee13e6cb99ee7b3bd930493e64da3945d934077ac074aafd06e2f3813c85"
             }
           ]
         }

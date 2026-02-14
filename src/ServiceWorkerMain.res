@@ -63,7 +63,7 @@ module URL = {
 }
 
 /* Constants - Updated by scripts/sync-sw.cjs */
-let cacheName = "vtb-cache-v4.10.4"
+let cacheName = "vtb-cache-v4.10.5"
 let manualAssets = [
   "/",
   "/index.html",
