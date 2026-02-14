@@ -63,7 +63,7 @@ module Styles = {
     __MEDIA_QUERY_CSS__
     #panorama { width: 100%; height: 100%; border-radius: inherit; }
     .pnlm-controls-container, .pnlm-zoom-controls, .pnlm-fullscreen-toggle-button, .pnlm-zoom-in, .pnlm-zoom-out, .pnlm-controls { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
-    .watermark { position: absolute; bottom: 25px; right: 25px; z-index: 10; pointer-events: none; background: white; border-radius: 12px; padding: 2px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 1px solid rgba(0,0,0,0.1); overflow: hidden; -webkit-mask-image: -webkit-radial-gradient(white, black); }
+    .watermark { position: absolute; bottom: 25px; right: 25px; z-index: 10; pointer-events: none; background: transparent; display: flex; align-items: center; justify-content: center; overflow: hidden; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); }
     .watermark img { height: __LOGO_SIZE__px; width: auto; display: block; object-fit: contain; }
     @keyframes glow-sequence { 0%, 100% { fill-opacity: 0; filter: brightness(1); } 10%, 30% { fill-opacity: 0.8; filter: brightness(1.5); } 40% { fill-opacity: 0; filter: brightness(1); } }
     .pnlm-hotspot.flat-arrow { display: block !important; background: rgba(255, 255, 255, 0.01) !important; border: 1px solid transparent !important; padding: 0 !important; pointer-events: auto !important; width: __BASE_SIZE__px !important; height: __BASE_SIZE__px !important; margin-left: -__BASE_SIZE_HALF__px !important; margin-top: -__BASE_SIZE_HALF__px !important; overflow: visible !important; cursor: pointer; perspective: 1500px; z-index: 2000 !important; transform-style: preserve-3d; }
