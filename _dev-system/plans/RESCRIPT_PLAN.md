@@ -9,22 +9,22 @@
 ---
 
 ## 🛠️ SURGICAL REFACTOR TASKS (8)
+- [ ] **../../src/core/Reducer.res**
+  - *Reason:* [Nesting: 5.40, Density: 0.28, Coupling: 0.10] | Drag: 6.68 | LOC: 408/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.)
+- [ ] **../../src/core/SceneMutations.res**
+  - *Reason:* [Nesting: 5.40, Density: 0.26, Coupling: 0.04] | Drag: 6.68 | LOC: 394/300  🎯 Target: Function: `getDeletedIds` (High Local Complexity (3.5). Logic heavy.)
+- [ ] **../../src/systems/ProjectManager.res**
+  - *Reason:* [Nesting: 4.20, Density: 0.20, Coupling: 0.10] | Drag: 5.40 | LOC: 402/300  🎯 Target: Function: `finalToken` (High Local Complexity (2.0). Logic heavy.)
 - [ ] **../../src/systems/UploadProcessorLogic.res**
   - *Reason:* [Nesting: 2.40, Density: 0.04, Coupling: 0.10] | Drag: 3.44 | LOC: 397/300  🎯 Target: Function: `getNotificationType` (High Local Complexity (4.0). Logic heavy.)
 - [ ] **../../src/systems/Scene/SceneLoader.res**
   - *Reason:* [Nesting: 4.20, Density: 0.10, Coupling: 0.07] | Drag: 5.32 | LOC: 408/300  🎯 Target: Function: `taskMismatch` (High Local Complexity (2.0). Logic heavy.)
-- [ ] **../../src/utils/OperationJournal.res**
-  - *Reason:* [Nesting: 1.80, Density: 0.02, Coupling: 0.04] | Drag: 2.82 | LOC: 405/300  🎯 Target: Function: `isTerminalStatus` (High Local Complexity (3.0). Logic heavy.)
-- [ ] **../../src/systems/ViewerSystem.res**
-  - *Reason:* [Nesting: 4.20, Density: 0.51, Coupling: 0.08] | Drag: 5.75 | LOC: 379/300  🎯 Target: Function: `elOpt` (High Local Complexity (6.9). Logic heavy.)
-- [ ] **../../src/core/Reducer.res**
-  - *Reason:* [Nesting: 5.40, Density: 0.28, Coupling: 0.10] | Drag: 6.68 | LOC: 408/300  🎯 Target: Function: `finalState` (High Local Complexity (2.0). Logic heavy.)
-- [ ] **../../src/systems/ProjectManager.res**
-  - *Reason:* [Nesting: 4.20, Density: 0.20, Coupling: 0.10] | Drag: 5.40 | LOC: 402/300  🎯 Target: Function: `finalToken` (High Local Complexity (2.0). Logic heavy.)
-- [ ] **../../src/core/SceneMutations.res**
-  - *Reason:* [Nesting: 5.40, Density: 0.26, Coupling: 0.04] | Drag: 6.68 | LOC: 394/300  🎯 Target: Function: `getDeletedIds` (High Local Complexity (3.5). Logic heavy.)
 - [ ] **../../src/components/Sidebar.res**
   - *Reason:* [Nesting: 3.00, Density: 0.03, Coupling: 0.08] | Drag: 4.09 | LOC: 406/300  🎯 Target: Function: `make` (High Local Complexity (13.5). Logic heavy.)
+- [ ] **../../src/systems/ViewerSystem.res**
+  - *Reason:* [Nesting: 4.20, Density: 0.51, Coupling: 0.08] | Drag: 5.75 | LOC: 379/300  🎯 Target: Function: `elOpt` (High Local Complexity (6.9). Logic heavy.)
+- [ ] **../../src/utils/OperationJournal.res**
+  - *Reason:* [Nesting: 1.80, Density: 0.02, Coupling: 0.04] | Drag: 2.82 | LOC: 405/300  🎯 Target: Function: `isTerminalStatus` (High Local Complexity (3.0). Logic heavy.)
 
 ---
 
