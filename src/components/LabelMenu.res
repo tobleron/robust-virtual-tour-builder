@@ -33,11 +33,11 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
 
     let suffix = switch currentScene {
     | Some(s) =>
-      let base = TourLogic.getBaseNameFromId(s.id)
+      let base = TourLogic.recoverBaseName(s.name, s.label)
       Logger.debug(
         ~module_="LabelMenu",
         ~message="SUFFIX_DEBUG",
-        ~data=Some({"id": s.id, "base": base, "raw": s.name}),
+        ~data=Some({"id": s.id, "base": base, "raw": s.name, "oldLabel": s.label}),
         (),
       )
       "_" ++ base
