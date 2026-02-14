@@ -20,7 +20,10 @@ let processLoadedProjectData = (
     progress(70, 100, "Resolving scenes...")
 
     // Check validation report
-    switch JsonCombinators.Json.decode(projectData, ProjectValidator.validationReportWrapperDecoder) {
+    switch JsonCombinators.Json.decode(
+      projectData,
+      ProjectValidator.validationReportWrapperDecoder,
+    ) {
     | Ok(r) =>
       if r.brokenLinksRemoved > 0 {
         NotificationManager.dispatch({

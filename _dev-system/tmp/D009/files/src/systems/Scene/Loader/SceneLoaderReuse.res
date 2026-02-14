@@ -3,7 +3,9 @@ open Types
 
 external idToUnknown: string => unknown = "%identity"
 
-let findReusableInstance = (pathRequest: pathRequest, targetIdx: int): option<ViewerSystem.Adapter.t> => {
+let findReusableInstance = (pathRequest: pathRequest, targetIdx: int): option<
+  ViewerSystem.Adapter.t,
+> => {
   let targetSceneId = pathRequest.scenes[targetIdx]->Option.map(s => s.id)
   ViewerSystem.Pool.pool.contents
   ->Belt.Array.getBy(v => {
