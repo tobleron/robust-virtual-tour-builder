@@ -54,7 +54,7 @@ let make = (~onClose: unit => unit, ~sceneIndex: option<int>=?) => {
         id: "",
         importance: Success,
         context: Operation("label_menu"),
-        message: "Label Set: " ++ newLabel,
+        message: "Label Set: " ++ label,
         details: None,
         action: None,
         duration: NotificationTypes.defaultTimeoutMs(Success),
