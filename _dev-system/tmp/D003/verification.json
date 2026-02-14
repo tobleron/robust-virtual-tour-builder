@@ -1,0 +1,930 @@
+{
+  "task": "D003",
+  "category": "Surgical_Refactor_SYSTEMS_FRONTEND",
+  "baseline_dir": "_dev-system/tmp/D003",
+  "bundles": [
+    {
+      "headline": "Pre-split snapshot for `src/systems/ProjectManager.res`",
+      "snapshots": [
+        {
+          "path": "src/systems/ProjectManager.res",
+          "functions": [
+            {
+              "name": "validationReportWrapperDecoder",
+              "signature": "let validationReportWrapperDecoder = JsonCombinators.Json.Decode.object(field => {",
+              "line": 16
+            },
+            {
+              "name": "validateProjectStructure",
+              "signature": "let validateProjectStructure = (data: JSON.t): result<JSON.t, apiError> => {",
+              "line": 20
+            },
+            {
+              "name": "createSavePackage",
+              "signature": "let createSavePackage = (state: state, ~signal=?, ~onProgress: option<onProgress>=?): Promise.t<",
+              "line": 27
+            },
+            {
+              "name": "progress",
+              "signature": "let progress = (curr, total, msg) => {",
+              "line": 30
+            },
+            {
+              "name": "project",
+              "signature": "let project: Types.project = {",
+              "line": 38
+            },
+            {
+              "name": "jsonStr",
+              "signature": "let jsonStr = JsonCombinators.Json.stringify(JsonParsers.Encoders.project(project))",
+              "line": 51
+            },
+            {
+              "name": "formData",
+              "signature": "let formData = FormData.newFormData()",
+              "line": 52
+            },
+            {
+              "name": "processLoadedProjectData",
+              "signature": "let processLoadedProjectData = (",
+              "line": 94
+            },
+            {
+              "name": "progress",
+              "signature": "let progress = (curr, total, msg) => {",
+              "line": 99
+            },
+            {
+              "name": "token",
+              "signature": "let token = Dom.Storage2.localStorage->Dom.Storage2.getItem(\"auth_token\")",
+              "line": 158
+            },
+            {
+              "name": "finalToken",
+              "signature": "let finalToken = switch token {",
+              "line": 159
+            },
+            {
+              "name": "tokenQuery",
+              "signature": "let tokenQuery = \"?token=\" ++ finalToken",
+              "line": 163
+            },
+            {
+              "name": "allInventoryScenes",
+              "signature": "let allInventoryScenes =",
+              "line": 166
+            },
+            {
+              "name": "validScenes",
+              "signature": "let validScenes = ProjectManagerUrl.rebuildSceneUrls(",
+              "line": 169
+            },
+            {
+              "name": "updatedInventory",
+              "signature": "let updatedInventory = validScenes->Belt.Array.reduce(pd.inventory, (acc, s) => {",
+              "line": 176
+            },
+            {
+              "name": "finalOrder",
+              "signature": "let finalOrder = if Array.length(pd.sceneOrder) > 0 {",
+              "line": 184
+            },
+            {
+              "name": "resolvedActiveScenes",
+              "signature": "let resolvedActiveScenes = finalOrder->Belt.Array.keepMap(id => {",
+              "line": 191
+            },
+            {
+              "name": "loadedProject",
+              "signature": "let loadedProject: Types.project = {",
+              "line": 198
+            },
+            {
+              "name": "loadProjectZip",
+              "signature": "let loadProjectZip = (zipFile: File.t, ~onProgress: option<onProgress>=?) => {",
+              "line": 223
+            },
+            {
+              "name": "progress",
+              "signature": "let progress = (curr, total, msg) => {",
+              "line": 224
+            },
+            {
+              "name": "loadStartTime",
+              "signature": "let loadStartTime = Date.now()",
+              "line": 231
+            },
+            {
+              "name": "saveProject",
+              "signature": "let saveProject = (state: state, ~signal=?, ~onProgress: option<onProgress>=?) => {",
+              "line": 258
+            },
+            {
+              "name": "tourName",
+              "signature": "let tourName = if state.tourName == \"\" {",
+              "line": 276
+            },
+            {
+              "name": "safeName",
+              "signature": "let safeName = String.replaceRegExp(tourName, /[^a-z0-9]/gi, \"_\")->String.toLowerCase",
+              "line": 281
+            },
+            {
+              "name": "dateParts",
+              "signature": "let dateParts = String.split(Date.toISOString(Date.make()), \"T\")",
+              "line": 282
+            },
+            {
+              "name": "dateStr",
+              "signature": "let dateStr = Belt.Array.get(dateParts, 0)->Option.getOr(\"unknown_date\")",
+              "line": 283
+            },
+            {
+              "name": "filename",
+              "signature": "let filename =",
+              "line": 284
+            },
+            {
+              "name": "useFileHandle",
+              "signature": "let useFileHandle = %raw(`typeof window.showSaveFilePicker !== 'undefined'`)",
+              "line": 287
+            },
+            {
+              "name": "handlePromise",
+              "signature": "let handlePromise = if useFileHandle {",
+              "line": 288
+            },
+            {
+              "name": "saveStartTime",
+              "signature": "let saveStartTime = Date.now()",
+              "line": 303
+            },
+            {
+              "name": "progress",
+              "signature": "let progress = (curr, total, msg) => {",
+              "line": 307
+            },
+            {
+              "name": "recoverSaveProject",
+              "signature": "let recoverSaveProject = (",
+              "line": 396
+            },
+            {
+              "name": "waitForStateUpdate",
+              "signature": "let waitForStateUpdate = () => {",
+              "line": 402
+            },
+            {
+              "name": "unsubscribeRef",
+              "signature": "let unsubscribeRef = ref(() => ())",
+              "line": 404
+            },
+            {
+              "name": "timerId",
+              "signature": "let timerId: ref<int> = ref(0)",
+              "line": 405
+            },
+            {
+              "name": "callback",
+              "signature": "let callback = (newState: state) => {",
+              "line": 407
+            },
+            {
+              "name": "state",
+              "signature": "let state = getState()",
+              "line": 424
+            },
+            {
+              "name": "restorePromise",
+              "signature": "let restorePromise = if Array.length(state.scenes) > 0 {",
+              "line": 426
+            },
+            {
+              "name": "loadProject",
+              "signature": "let loadProject = (zipFile: File.t, ~onProgress: option<onProgress>=?): Promise.t<",
+              "line": 447
+            }
+          ],
+          "fingerprint": "f72840fd2299661eca8e73fafe88dbd59b97158a00797ae3f9f581bea7fe6ee2"
+        }
+      ]
+    },
+    {
+      "headline": "Pre-split snapshot for `src/systems/UploadProcessorLogic.res`",
+      "snapshots": [
+        {
+          "path": "src/systems/UploadProcessorLogic.res",
+          "functions": [
+            {
+              "name": "getNotificationType",
+              "signature": "let getNotificationType = (typeStr: string) => {",
+              "line": 19
+            },
+            {
+              "name": "notify",
+              "signature": "let notify = (msg, typeStr) => {",
+              "line": 29
+            },
+            {
+              "name": "importance",
+              "signature": "let importance = switch typeStr {",
+              "line": 30
+            },
+            {
+              "name": "handleProcessSuccess",
+              "signature": "let handleProcessSuccess = (res: Resizer.processResult, item: uploadItem) => {",
+              "line": 51
+            },
+            {
+              "name": "handleProcessError",
+              "signature": "let handleProcessError = (msg, item: uploadItem) => {",
+              "line": 71
+            },
+            {
+              "name": "processItem",
+              "signature": "let processItem = (i, item: uploadItem, onStatus: string => unit) => {",
+              "line": 81
+            },
+            {
+              "name": "newItem",
+              "signature": "let newItem = switch processResult {",
+              "line": 100
+            },
+            {
+              "name": "createScenePayload",
+              "signature": "let createScenePayload = (items: array<UploadTypes.uploadItem>) => {",
+              "line": 119
+            },
+            {
+              "name": "preview",
+              "signature": "let preview = Option.getOr(item.preview, item.original)",
+              "line": 121
+            },
+            {
+              "name": "tiny",
+              "signature": "let tiny = Option.getOr(item.tiny, preview)",
+              "line": 122
+            },
+            {
+              "name": "sanitizedName",
+              "signature": "let sanitizedName = File.name(preview)",
+              "line": 124
+            },
+            {
+              "name": "handleExifReport",
+              "signature": "let handleExifReport = (",
+              "line": 140
+            },
+            {
+              "name": "reportData",
+              "signature": "let reportData = Belt.Array.map(processedWithClusters, i => {",
+              "line": 146
+            },
+            {
+              "name": "item",
+              "signature": "let item: ExifReportGenerator.sceneDataItem = {",
+              "line": 147
+            },
+            {
+              "name": "successNames",
+              "signature": "let successNames = Belt.Array.map(processedWithClusters, i => {",
+              "line": 155
+            },
+            {
+              "name": "preview",
+              "signature": "let preview = Option.getOr(i.preview, i.original)",
+              "line": 156
+            },
+            {
+              "name": "skippedNames",
+              "signature": "let skippedNames = Belt.Array.makeBy(skippedCount, i => \"Duplicate \" ++ Belt.Int.toString(i + 1))",
+              "line": 159
+            },
+            {
+              "name": "report",
+              "signature": "let report: Types.uploadReport = {success: successNames, skipped: skippedNames}",
+              "line": 160
+            },
+            {
+              "name": "currentName",
+              "signature": "let currentName = getState().tourName",
+              "line": 166
+            },
+            {
+              "name": "finalizeUploads",
+              "signature": "let finalizeUploads = (",
+              "line": 177
+            },
+            {
+              "name": "existingScenes",
+              "signature": "let existingScenes = getState().scenes",
+              "line": 189
+            },
+            {
+              "name": "wasEmpty",
+              "signature": "let wasEmpty = getState().activeIndex == -1",
+              "line": 201
+            },
+            {
+              "name": "currentScenes",
+              "signature": "let currentScenes = getState().scenes",
+              "line": 203
+            },
+            {
+              "name": "durationStr",
+              "signature": "let durationStr = ((Date.now() -. startTime) /. 1000.0)->Float.toFixed(~digits=1)",
+              "line": 216
+            },
+            {
+              "name": "qualityResults",
+              "signature": "let qualityResults = Belt.Array.map(",
+              "line": 218
+            },
+            {
+              "name": "q",
+              "signature": "let q =",
+              "line": 221
+            },
+            {
+              "name": "score",
+              "signature": "let score = %raw(\"(q => q && typeof q.score === 'number' ? q.score : -1)\")(q)",
+              "line": 235
+            },
+            {
+              "name": "preview",
+              "signature": "let preview = Option.getOr(i.preview, i.original)",
+              "line": 245
+            },
+            {
+              "name": "sanitizedName",
+              "signature": "let sanitizedName = UrlUtils.stripExtension(File.name(preview))",
+              "line": 246
+            },
+            {
+              "name": "recoverUpload",
+              "signature": "let recoverUpload = (entry: OperationJournal.journalEntry) => {",
+              "line": 264
+            },
+            {
+              "name": "count",
+              "signature": "let count = switch JsonCombinators.Json.decode(",
+              "line": 265
+            },
+            {
+              "name": "executeProcessingChain",
+              "signature": "let executeProcessingChain = (",
+              "line": 303
+            },
+            {
+              "name": "processedCount",
+              "signature": "let processedCount = ref(0)",
+              "line": 316
+            },
+            {
+              "name": "allProcessedItems",
+              "signature": "let allProcessedItems = ref([])",
+              "line": 318
+            },
+            {
+              "name": "lastJournalUpdate",
+              "signature": "let lastJournalUpdate = ref(Date.now())",
+              "line": 319
+            },
+            {
+              "name": "now",
+              "signature": "let now = Date.now()",
+              "line": 331
+            },
+            {
+              "name": "shouldUpdateJournal",
+              "signature": "let shouldUpdateJournal = now -. lastJournalUpdate.contents > 1000.0",
+              "line": 332
+            },
+            {
+              "name": "journalPromise",
+              "signature": "let journalPromise = if shouldUpdateJournal {",
+              "line": 334
+            },
+            {
+              "name": "scaledPct",
+              "signature": "let scaledPct = 20.0 +. 75.0 *. pct",
+              "line": 353
+            },
+            {
+              "name": "validProcessed",
+              "signature": "let validProcessed = Belt.Array.keep(allProcessedItems.contents, i => i.error == None)",
+              "line": 358
+            },
+            {
+              "name": "scored",
+              "signature": "let scored: array<filenameItem> = Belt.Array.mapWithIndex(validProcessed, (idx, item) => {",
+              "line": 372
+            },
+            {
+              "name": "nameCmp",
+              "signature": "let nameCmp = Float.toInt(String.localeCompare(a.name, b.name))",
+              "line": 377
+            },
+            {
+              "name": "sortedItems",
+              "signature": "let sortedItems = Belt.Array.map(scored, scored => scored.item)",
+              "line": 391
+            },
+            {
+              "name": "existingScenesCount",
+              "signature": "let existingScenesCount = Belt.Array.length(getState().scenes)",
+              "line": 394
+            },
+            {
+              "name": "finalItems",
+              "signature": "let finalItems = Belt.Array.mapWithIndex(sortedItems, (i, item) => {",
+              "line": 396
+            },
+            {
+              "name": "newIndex",
+              "signature": "let newIndex = existingScenesCount + i",
+              "line": 397
+            },
+            {
+              "name": "newName",
+              "signature": "let newName = TourLogic.computeSceneFilename(newIndex, \"\", \"\")",
+              "line": 399
+            },
+            {
+              "name": "existingScenes",
+              "signature": "let existingScenes = getState().scenes",
+              "line": 412
+            },
+            {
+              "name": "jsonPayload",
+              "signature": "let jsonPayload = createScenePayload(clustered)",
+              "line": 416
+            },
+            {
+              "name": "handleFingerprinting",
+              "signature": "let handleFingerprinting = (",
+              "line": 426
+            },
+            {
+              "name": "currentState",
+              "signature": "let currentState = getState()",
+              "line": 438
+            },
+            {
+              "name": "uniqueItems",
+              "signature": "let uniqueItems = FingerprintService.filterDuplicates(",
+              "line": 439
+            },
+            {
+              "name": "skippedFromFingerprint",
+              "signature": "let skippedFromFingerprint = Belt.Array.length(results) - Belt.Array.length(uniqueItems)",
+              "line": 445
+            }
+          ],
+          "fingerprint": "a70b893efe954ef90729a98fa3001cbc1f06a7dc1256b9c16cc368833bbd637d"
+        }
+      ]
+    },
+    {
+      "headline": "Pre-split snapshot for `src/systems/ViewerSystem.res`",
+      "snapshots": [
+        {
+          "path": "src/systems/ViewerSystem.res",
+          "functions": [
+            {
+              "name": "name",
+              "signature": "let name = \"Pannellum\"",
+              "line": 21
+            },
+            {
+              "name": "initialize",
+              "signature": "let initialize = (id, config) => {",
+              "line": 23
+            },
+            {
+              "name": "v",
+              "signature": "let v = Pannellum.viewer(id, config)",
+              "line": 24
+            },
+            {
+              "name": "lastDown",
+              "signature": "let lastDown = ref(None)",
+              "line": 26
+            },
+            {
+              "name": "elOpt",
+              "signature": "let elOpt = Dom.getElementById(id)",
+              "line": 28
+            },
+            {
+              "name": "clientX",
+              "signature": "let clientX = e->Dom.clientX->Int.toFloat",
+              "line": 32
+            },
+            {
+              "name": "clientY",
+              "signature": "let clientY = e->Dom.clientY->Int.toFloat",
+              "line": 33
+            },
+            {
+              "name": "clientX",
+              "signature": "let clientX = e->Dom.clientX->Int.toFloat",
+              "line": 40
+            },
+            {
+              "name": "clientY",
+              "signature": "let clientY = e->Dom.clientY->Int.toFloat",
+              "line": 41
+            },
+            {
+              "name": "diffX",
+              "signature": "let diffX = Math.abs(clientX -. x)",
+              "line": 45
+            },
+            {
+              "name": "diffY",
+              "signature": "let diffY = Math.abs(clientY -. y)",
+              "line": 46
+            },
+            {
+              "name": "diffT",
+              "signature": "let diffT = Date.now() -. t",
+              "line": 47
+            },
+            {
+              "name": "asEvent",
+              "signature": "let asEvent: Dom.event => Viewer.mouseEvent = %raw(`function(e) { return { clientX: e.clientX, clientY: e.clientY }; }`)",
+              "line": 50
+            },
+            {
+              "name": "coords",
+              "signature": "let coords = Viewer.mouseEventToCoords(v, asEvent(e))",
+              "line": 51
+            },
+            {
+              "name": "p",
+              "signature": "let p = Belt.Array.get(coords, 0)->Option.getOr(0.0)",
+              "line": 53
+            },
+            {
+              "name": "y",
+              "signature": "let y = Belt.Array.get(coords, 1)->Option.getOr(0.0)",
+              "line": 54
+            },
+            {
+              "name": "cp",
+              "signature": "let cp = Viewer.getPitch(v)",
+              "line": 56
+            },
+            {
+              "name": "cy",
+              "signature": "let cy = Viewer.getYaw(v)",
+              "line": 57
+            },
+            {
+              "name": "hf",
+              "signature": "let hf = Viewer.getHfov(v)",
+              "line": 58
+            },
+            {
+              "name": "dispatchEvent",
+              "signature": "let dispatchEvent: (float, float, float, float, float) => unit = %raw(`",
+              "line": 60
+            },
+            {
+              "name": "initializeViewer",
+              "signature": "let initializeViewer = initialize",
+              "line": 87
+            },
+            {
+              "name": "destroy",
+              "signature": "let destroy = v => {",
+              "line": 89
+            },
+            {
+              "name": "_",
+              "signature": "let _ = %raw(`",
+              "line": 90
+            },
+            {
+              "name": "getPitch",
+              "signature": "let getPitch = v => Viewer.getPitch(v)",
+              "line": 109
+            },
+            {
+              "name": "getYaw",
+              "signature": "let getYaw = v => Viewer.getYaw(v)",
+              "line": 110
+            },
+            {
+              "name": "getHfov",
+              "signature": "let getHfov = v => Viewer.getHfov(v)",
+              "line": 111
+            },
+            {
+              "name": "setPitch",
+              "signature": "let setPitch = (v, p, a) => Viewer.setPitch(v, p, a)",
+              "line": 112
+            },
+            {
+              "name": "setYaw",
+              "signature": "let setYaw = (v, y, a) => Viewer.setYaw(v, y, a)",
+              "line": 113
+            },
+            {
+              "name": "setHfov",
+              "signature": "let setHfov = (v, h, a) => Viewer.setHfov(v, h, a)",
+              "line": 114
+            },
+            {
+              "name": "setView",
+              "signature": "let setView = (v, ~pitch=?, ~yaw=?, ~hfov=?, ~animated=false, ()) => {",
+              "line": 115
+            },
+            {
+              "name": "addHotSpot",
+              "signature": "let addHotSpot = (v, config) => Viewer.addHotSpot(v, config)",
+              "line": 120
+            },
+            {
+              "name": "removeHotSpot",
+              "signature": "let removeHotSpot = (v, id) => Viewer.removeHotSpot(v, id)",
+              "line": 121
+            },
+            {
+              "name": "getScene",
+              "signature": "let getScene = v => Viewer.getScene(v)",
+              "line": 122
+            },
+            {
+              "name": "loadScene",
+              "signature": "let loadScene = (v, sceneId, ~pitch=?, ~yaw=?, ~hfov=?, ()) => {",
+              "line": 123
+            },
+            {
+              "name": "p",
+              "signature": "let p = pitch->Option.getOr(Viewer.getPitch(v))",
+              "line": 124
+            },
+            {
+              "name": "y",
+              "signature": "let y = yaw->Option.getOr(Viewer.getYaw(v))",
+              "line": 125
+            },
+            {
+              "name": "h",
+              "signature": "let h = hfov->Option.getOr(Viewer.getHfov(v))",
+              "line": 126
+            },
+            {
+              "name": "addScene",
+              "signature": "let addScene = (v, id, config) => Viewer.addScene(v, id, config)",
+              "line": 129
+            },
+            {
+              "name": "on",
+              "signature": "let on = (v, ev, cb) => Viewer.on(v, ev, cb)",
+              "line": 130
+            },
+            {
+              "name": "isLoaded",
+              "signature": "let isLoaded = v => Viewer.isLoaded(v)",
+              "line": 131
+            },
+            {
+              "name": "setMetaData",
+              "signature": "let setMetaData = (v, key, value) => {",
+              "line": 132
+            },
+            {
+              "name": "c",
+              "signature": "let c = asCustom(v)",
+              "line": 133
+            },
+            {
+              "name": "getMetaData",
+              "signature": "let getMetaData = (v, key) => {",
+              "line": 140
+            },
+            {
+              "name": "c",
+              "signature": "let c = asCustom(v)",
+              "line": 141
+            },
+            {
+              "name": "pool",
+              "signature": "let pool = ref([",
+              "line": 163
+            },
+            {
+              "name": "getViewport",
+              "signature": "let getViewport = id => pool.contents->Belt.Array.getBy(v => v.id == id)",
+              "line": 179
+            },
+            {
+              "name": "getViewportByContainer",
+              "signature": "let getViewportByContainer = cId => pool.contents->Belt.Array.getBy(v => v.containerId == cId)",
+              "line": 180
+            },
+            {
+              "name": "getActive",
+              "signature": "let getActive = () => pool.contents->Belt.Array.getBy(v => v.status == #Active)",
+              "line": 181
+            },
+            {
+              "name": "getActiveViewer",
+              "signature": "let getActiveViewer = () => getActive()->Option.flatMap(v => v.instance)",
+              "line": 182
+            },
+            {
+              "name": "getInactive",
+              "signature": "let getInactive = () => pool.contents->Belt.Array.getBy(v => v.status == #Background)",
+              "line": 183
+            },
+            {
+              "name": "getInactiveViewer",
+              "signature": "let getInactiveViewer = () => getInactive()->Option.flatMap(v => v.instance)",
+              "line": 184
+            },
+            {
+              "name": "swapActive",
+              "signature": "let swapActive = () =>",
+              "line": 185
+            },
+            {
+              "name": "registerInstance",
+              "signature": "let registerInstance = (cId, inst) =>",
+              "line": 195
+            },
+            {
+              "name": "clearInstance",
+              "signature": "let clearInstance = cId =>",
+              "line": 204
+            },
+            {
+              "name": "setCleanupTimeout",
+              "signature": "let setCleanupTimeout = (id, t) =>",
+              "line": 213
+            },
+            {
+              "name": "clearCleanupTimeout",
+              "signature": "let clearCleanupTimeout = id =>",
+              "line": 223
+            },
+            {
+              "name": "reset",
+              "signature": "let reset = () => {",
+              "line": 234
+            },
+            {
+              "name": "isInsideDeadZone",
+              "signature": "let isInsideDeadZone = (startPt, lastMouse) => {",
+              "line": 259
+            },
+            {
+              "name": "d",
+              "signature": "let d = Math.sqrt(",
+              "line": 262
+            },
+            {
+              "name": "busy",
+              "signature": "let busy =",
+              "line": 277
+            },
+            {
+              "name": "vOpt",
+              "signature": "let vOpt = Pool.getActiveViewer()",
+              "line": 283
+            },
+            {
+              "name": "s",
+              "signature": "let s = getState()",
+              "line": 284
+            },
+            {
+              "name": "hasHotspots",
+              "signature": "let hasHotspots = if s.activeIndex >= 0 && s.activeIndex < Array.length(s.scenes) {",
+              "line": 285
+            },
+            {
+              "name": "fsmBusy",
+              "signature": "let fsmBusy = switch Nullable.toOption(Adapter.asAny(s)[\"navigationState\"]) {",
+              "line": 292
+            },
+            {
+              "name": "startPt",
+              "signature": "let startPt = ViewerState.state.contents.linkingStartPoint->Nullable.toOption",
+              "line": 314
+            },
+            {
+              "name": "lastMouse",
+              "signature": "let lastMouse = ViewerState.state.contents.lastMouseEvent->Nullable.toOption",
+              "line": 315
+            },
+            {
+              "name": "yb",
+              "signature": "let yb = ViewerLogic.getBoost(ViewerState.state.contents.mouseVelocityX)",
+              "line": 322
+            },
+            {
+              "name": "pb",
+              "signature": "let pb = ViewerLogic.getBoost(ViewerState.state.contents.mouseVelocityY)",
+              "line": 323
+            },
+            {
+              "name": "yd",
+              "signature": "let yd = insideDz",
+              "line": 324
+            },
+            {
+              "name": "pd",
+              "signature": "let pd = insideDz",
+              "line": 329
+            },
+            {
+              "name": "me",
+              "signature": "let me = ViewerState.state.contents.lastMouseEvent->Nullable.toOption",
+              "line": 349
+            },
+            {
+              "name": "_",
+              "signature": "let _ = Window.requestAnimationFrame(() => updateFollowLoop(~getState))",
+              "line": 356
+            },
+            {
+              "name": "getActiveViewer",
+              "signature": "let getActiveViewer = () => Pool.getActiveViewer()->Nullable.fromOption",
+              "line": 364
+            },
+            {
+              "name": "getInactiveViewer",
+              "signature": "let getInactiveViewer = () => Pool.getInactiveViewer()->Nullable.fromOption",
+              "line": 365
+            },
+            {
+              "name": "getActiveContainerId",
+              "signature": "let getActiveContainerId = () =>",
+              "line": 366
+            },
+            {
+              "name": "getInactiveContainerId",
+              "signature": "let getInactiveContainerId = () =>",
+              "line": 371
+            },
+            {
+              "name": "resetState",
+              "signature": "let resetState = () => {",
+              "line": 377
+            },
+            {
+              "name": "isViewerValid",
+              "signature": "let isViewerValid = (viewer: Viewer.t): bool => {",
+              "line": 387
+            },
+            {
+              "name": "loaded",
+              "signature": "let loaded = Viewer.isLoaded(viewer)",
+              "line": 388
+            },
+            {
+              "name": "hfov",
+              "signature": "let hfov = Viewer.getHfov(viewer)",
+              "line": 392
+            },
+            {
+              "name": "yaw",
+              "signature": "let yaw = Viewer.getYaw(viewer)",
+              "line": 393
+            },
+            {
+              "name": "pitch",
+              "signature": "let pitch = Viewer.getPitch(viewer)",
+              "line": 394
+            },
+            {
+              "name": "isActiveViewer",
+              "signature": "let isActiveViewer = (viewer: Viewer.t): bool => {",
+              "line": 399
+            },
+            {
+              "name": "activeViewer",
+              "signature": "let activeViewer = getActiveViewer()",
+              "line": 400
+            },
+            {
+              "name": "isViewerReady",
+              "signature": "let isViewerReady = (viewer: Viewer.t): bool => {",
+              "line": 407
+            },
+            {
+              "name": "destroyViewer",
+              "signature": "let destroyViewer = Adapter.destroy",
+              "line": 417
+            }
+          ],
+          "fingerprint": "77eef4d0afc38fe63c86ae9b740035bb6edff1c25f74ebbd990af67856dbe5e8"
+        }
+      ]
+    }
+  ]
+}

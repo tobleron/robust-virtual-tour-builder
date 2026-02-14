@@ -1,0 +1,178 @@
+{
+  "task": "D007",
+  "category": "Surgical_Refactor_COMPONENTS_FRONTEND",
+  "baseline_dir": "_dev-system/tmp/D007",
+  "bundles": [
+    {
+      "headline": "Pre-split snapshot for `src/components/Sidebar.res`",
+      "snapshots": [
+        {
+          "path": "src/components/Sidebar.res",
+          "functions": [
+            {
+              "name": "make",
+              "signature": "let make = () => {",
+              "line": 7
+            },
+            {
+              "name": "toggleDiagnostic",
+              "signature": "let toggleDiagnostic = _ => {",
+              "line": 10
+            },
+            {
+              "name": "make",
+              "signature": "let make = React.memo(() => {",
+              "line": 85
+            },
+            {
+              "name": "sceneSlice",
+              "signature": "let sceneSlice = AppContext.useSceneSlice()",
+              "line": 86
+            },
+            {
+              "name": "uiSlice",
+              "signature": "let uiSlice = AppContext.useUiSlice()",
+              "line": 87
+            },
+            {
+              "name": "dispatch",
+              "signature": "let dispatch = AppContext.useAppDispatch()",
+              "line": 88
+            },
+            {
+              "name": "getState",
+              "signature": "let getState = AppContext.getBridgeState",
+              "line": 89
+            },
+            {
+              "name": "fileInputRef",
+              "signature": "let fileInputRef = React.useRef(Nullable.null)",
+              "line": 91
+            },
+            {
+              "name": "projectFileInputRef",
+              "signature": "let projectFileInputRef = React.useRef(Nullable.null)",
+              "line": 92
+            },
+            {
+              "name": "expectedTourName",
+              "signature": "let expectedTourName = React.useRef(sceneSlice.tourName)",
+              "line": 106
+            },
+            {
+              "name": "actual",
+              "signature": "let actual = sceneSlice.tourName",
+              "line": 109
+            },
+            {
+              "name": "local",
+              "signature": "let local = localTourName",
+              "line": 110
+            },
+            {
+              "name": "expected",
+              "signature": "let expected = expectedTourName.current",
+              "line": 111
+            },
+            {
+              "name": "timerId",
+              "signature": "let timerId = ReBindings.Window.setTimeout(",
+              "line": 127
+            },
+            {
+              "name": "appearanceTimerRef",
+              "signature": "let appearanceTimerRef = React.useRef(Nullable.null)",
+              "line": 139
+            },
+            {
+              "name": "hideTimerRef",
+              "signature": "let hideTimerRef = React.useRef(Nullable.null)",
+              "line": 140
+            },
+            {
+              "name": "isBarVisible",
+              "signature": "let isBarVisible = React.useRef(false)",
+              "line": 141
+            },
+            {
+              "name": "unsubscribe",
+              "signature": "let unsubscribe = EventBus.subscribe(",
+              "line": 146
+            },
+            {
+              "name": "wantedActive",
+              "signature": "let wantedActive = payload[\"active\"]",
+              "line": 155
+            },
+            {
+              "name": "tid",
+              "signature": "let tid = ReBindings.Window.setTimeout(",
+              "line": 171
+            },
+            {
+              "name": "tid",
+              "signature": "let tid = ReBindings.Window.setTimeout(",
+              "line": 203
+            },
+            {
+              "name": "next",
+              "signature": "let next = Object.assign(Object.make(), prev)",
+              "line": 207
+            },
+            {
+              "name": "totalHotspots",
+              "signature": "let totalHotspots =",
+              "line": 232
+            },
+            {
+              "name": "teaserReady",
+              "signature": "let teaserReady = totalHotspots >= 3",
+              "line": 234
+            },
+            {
+              "name": "exportReady",
+              "signature": "let exportReady = totalHotspots > 0",
+              "line": 235
+            },
+            {
+              "name": "handleSave",
+              "signature": "let handleSave = async (~getState, ~signal, ~onCancel) => {",
+              "line": 237
+            },
+            {
+              "name": "state",
+              "signature": "let state = getState()",
+              "line": 239
+            },
+            {
+              "name": "success",
+              "signature": "let success = await ProjectManager.saveProject(state, ~signal, ~onProgress=(pct, _t, msg) => {",
+              "line": 240
+            },
+            {
+              "name": "_",
+              "signature": "let _ = ReBindings.Window.setTimeout(() => {",
+              "line": 271
+            },
+            {
+              "name": "target",
+              "signature": "let target = JsxEvent.Form.target(e)->ReBindings.Dom.unsafeToElement",
+              "line": 399
+            },
+            {
+              "name": "target",
+              "signature": "let target = JsxEvent.Form.target(e)->ReBindings.Dom.unsafeToElement",
+              "line": 409
+            },
+            {
+              "name": "val",
+              "signature": "let val = JsxEvent.Form.target(e)[\"value\"]",
+              "line": 424
+            }
+          ],
+          "fingerprint": "cb5f7ce22384a688f2531aa2fa7a216e1427ce3cec3eea5d041b1043d3636a28"
+        }
+      ]
+    }
+  ]
+}
