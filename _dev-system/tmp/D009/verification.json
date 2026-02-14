@@ -135,6 +135,68 @@
       "headline": "Pre-merge snapshots for recursive cluster `src/systems/Scene/Loader`",
       "snapshots": [
         {
+          "path": "src/systems/Scene/Loader/SceneLoaderReuse.res",
+          "functions": [
+            {
+              "name": "findReusableInstance",
+              "signature": "findReusableInstance = (pathRequest: pathRequest, targetIdx: int): option<",
+              "line": 6
+            },
+            {
+              "name": "targetSceneId",
+              "signature": "targetSceneId = pathRequest.scenes[targetIdx]->Option.map(s => s.id)",
+              "line": 9
+            },
+            {
+              "name": "metaId",
+              "signature": "metaId = ViewerSystem.Adapter.getMetaData(inst, \"sceneId\")",
+              "line": 14
+            }
+          ],
+          "fingerprint": "afe56389cbe21f3f18e6d254e8e228cbf835daaab5fa18214bb9579bb725550e"
+        },
+        {
+          "path": "src/systems/Scene/Loader/SceneLoaderConfig.res",
+          "functions": [
+            {
+              "name": "getHotspots",
+              "signature": "getHotspots = (scene: scene, ~state, ~dispatch) =>",
+              "line": 4
+            },
+            {
+              "name": "makeSceneConfig",
+              "signature": "makeSceneConfig = (scene: scene, ~state, ~dispatch) => {",
+              "line": 9
+            },
+            {
+              "name": "url",
+              "signature": "url = SceneCache.getSourceUrl(scene.id, scene.file)",
+              "line": 10
+            },
+            {
+              "name": "makeInitialConfig",
+              "signature": "makeInitialConfig = (scene: scene, ~state, ~dispatch) => {",
+              "line": 23
+            },
+            {
+              "name": "inner",
+              "signature": "inner = makeSceneConfig(scene, ~state, ~dispatch)",
+              "line": 24
+            },
+            {
+              "name": "blankPanorama",
+              "signature": "blankPanorama = \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==\"",
+              "line": 39
+            },
+            {
+              "name": "backgroundViewerConfig",
+              "signature": "backgroundViewerConfig = () => {",
+              "line": 41
+            }
+          ],
+          "fingerprint": "f4fd398f9137c60604b95ef249805b3adedf31eb810a43146a408204173e13c5"
+        },
+        {
           "path": "src/systems/Scene/Loader/SceneLoaderEvents.res",
           "functions": [
             {
@@ -179,71 +241,9 @@
             }
           ],
           "fingerprint": "4e8ceea824741cd661707f741fc1a482d4e2cb0595ac9fae388e6936f365aa26"
-        },
-        {
-          "path": "src/systems/Scene/Loader/SceneLoaderConfig.res",
-          "functions": [
-            {
-              "name": "getHotspots",
-              "signature": "getHotspots = (scene: scene, ~state, ~dispatch) =>",
-              "line": 4
-            },
-            {
-              "name": "makeSceneConfig",
-              "signature": "makeSceneConfig = (scene: scene, ~state, ~dispatch) => {",
-              "line": 9
-            },
-            {
-              "name": "url",
-              "signature": "url = SceneCache.getSourceUrl(scene.id, scene.file)",
-              "line": 10
-            },
-            {
-              "name": "makeInitialConfig",
-              "signature": "makeInitialConfig = (scene: scene, ~state, ~dispatch) => {",
-              "line": 23
-            },
-            {
-              "name": "inner",
-              "signature": "inner = makeSceneConfig(scene, ~state, ~dispatch)",
-              "line": 24
-            },
-            {
-              "name": "blankPanorama",
-              "signature": "blankPanorama = \"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==\"",
-              "line": 39
-            },
-            {
-              "name": "backgroundViewerConfig",
-              "signature": "backgroundViewerConfig = () => {",
-              "line": 41
-            }
-          ],
-          "fingerprint": "f4fd398f9137c60604b95ef249805b3adedf31eb810a43146a408204173e13c5"
-        },
-        {
-          "path": "src/systems/Scene/Loader/SceneLoaderReuse.res",
-          "functions": [
-            {
-              "name": "findReusableInstance",
-              "signature": "findReusableInstance = (pathRequest: pathRequest, targetIdx: int): option<",
-              "line": 6
-            },
-            {
-              "name": "targetSceneId",
-              "signature": "targetSceneId = pathRequest.scenes[targetIdx]->Option.map(s => s.id)",
-              "line": 9
-            },
-            {
-              "name": "metaId",
-              "signature": "metaId = ViewerSystem.Adapter.getMetaData(inst, \"sceneId\")",
-              "line": 14
-            }
-          ],
-          "fingerprint": "afe56389cbe21f3f18e6d254e8e228cbf835daaab5fa18214bb9579bb725550e"
         }
       ]
     }
   ],
-  "timestamp": "2026-02-14T20:42:11.712670Z"
+  "timestamp": "2026-02-14T20:46:47.592717Z"
 }
