@@ -120,11 +120,11 @@ pub fn analyze_quality(src_rgba: &[u8], src_w: u32, src_h: u32) -> Result<Qualit
         0.0
     };
 
-    let is_blurry = laplace_var < 100.0;
-    let is_soft = !is_blurry && laplace_var < 120.0;
+    let is_blurry = laplace_var < 85.0;
+    let is_soft = !is_blurry && laplace_var < 110.0;
     let is_severely_dark = avg_lum < 50;
     let is_severely_bright = avg_lum > 200;
-    let is_dim = !is_severely_dark && avg_lum < 60;
+    let is_dim = !is_severely_dark && avg_lum < 65;
     let has_black_clipping = black_clipping > 15.0;
     let has_white_clipping = white_clipping > 15.0;
 
@@ -153,11 +153,11 @@ pub fn analyze_quality(src_rgba: &[u8], src_w: u32, src_h: u32) -> Result<Qualit
         issues += 1;
     }
     if is_dim {
-        score -= 1.0;
+        score -= 0.5; // Reduced penalty
         warnings += 1;
     }
     if is_soft {
-        score -= 1.0;
+        score -= 0.5; // Reduced penalty
         warnings += 1;
     }
     if issues == 0 && warnings == 0 {

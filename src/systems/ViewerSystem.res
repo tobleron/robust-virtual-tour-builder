@@ -19,6 +19,7 @@ module Adapter = {
   @set external setIsLoaded: (customViewerProps, bool) => unit = "_isLoaded"
 
   let name = "Pannellum"
+
   let initialize = (id, config) => {
     let v = Pannellum.viewer(id, config)
 
@@ -34,58 +35,47 @@ module Adapter = {
       })
 
       Dom.addEventListener(element, "mouseup", e => {
-        let clientX = e->Dom.clientX->Int.toFloat
-        let clientY = e->Dom.clientY->Int.toFloat
+        // CRITICAL: Guard against interaction before viewer is ready or after destruction
+        if Viewer.isLoaded(v) {
+          let clientX = e->Dom.clientX->Int.toFloat
+          let clientY = e->Dom.clientY->Int.toFloat
 
-        switch lastDown.contents {
-        | Some((x, y, t)) =>
-          let diffX = Math.abs(clientX -. x)
-          let diffY = Math.abs(clientY -. y)
-          let diffT = Date.now() -. t
+          switch lastDown.contents {
+          | Some((x, y, t)) =>
+            let diffX = Math.abs(clientX -. x)
+            let diffY = Math.abs(clientY -. y)
+            let diffT = Date.now() -. t
 
-          Logger.info(
-            ~module_="ViewerSystem",
-            ~message="MOUSE_UP_CHECK_NATIVE",
-            ~data=Some({"diffX": diffX, "diffY": diffY, "diffT": diffT}),
-            (),
-          )
+            if diffX < 5.0 && diffY < 5.0 && diffT < 500.0 {
+              let asEvent: Dom.event => Viewer.mouseEvent = %raw(`function(e) { return { clientX: e.clientX, clientY: e.clientY }; }`)
+              let coords = Viewer.mouseEventToCoords(v, asEvent(e))
 
-          if diffX < 5.0 && diffY < 5.0 && diffT < 500.0 {
-            let asEvent: Dom.event => Viewer.mouseEvent = %raw(`function(e) { return { clientX: e.clientX, clientY: e.clientY }; }`)
-            let coords = Viewer.mouseEventToCoords(v, asEvent(e))
+              let p = Belt.Array.get(coords, 0)->Option.getOr(0.0)
+              let y = Belt.Array.get(coords, 1)->Option.getOr(0.0)
 
-            let p = Belt.Array.get(coords, 0)->Option.getOr(0.0)
-            let y = Belt.Array.get(coords, 1)->Option.getOr(0.0)
+              let cp = Viewer.getPitch(v)
+              let cy = Viewer.getYaw(v)
+              let hf = Viewer.getHfov(v)
 
-            let cp = Viewer.getPitch(v)
-            let cy = Viewer.getYaw(v)
-            let hf = Viewer.getHfov(v)
+              let dispatchEvent: (float, float, float, float, float) => unit = %raw(`
+                     function(p, y, cp, cy, hf) {
+                       window.document.dispatchEvent(new CustomEvent("viewer-click", {
+                         detail: {
+                           pitch: p,
+                           yaw: y,
+                           camPitch: cp,
+                           camYaw: cy,
+                           camHfov: hf
+                         }
+                       }));
+                     }
+                   `)
+              dispatchEvent(p, y, cp, cy, hf)
 
-            let dispatchEvent: (float, float, float, float, float) => unit = %raw(`
-                   function(p, y, cp, cy, hf) {
-                     window.document.dispatchEvent(new CustomEvent("viewer-click", {
-                       detail: {
-                         pitch: p,
-                         yaw: y,
-                         camPitch: cp,
-                         camYaw: cy,
-                         camHfov: hf
-                       }
-                     }));
-                   }
-                 `)
-            dispatchEvent(p, y, cp, cy, hf)
-
-            Logger.info(~module_="ViewerSystem", ~message="VIEWER_CLICK_DISPATCHED", ())
-          } else {
-            Logger.info(
-              ~module_="ViewerSystem",
-              ~message="CLICK_REJECTED",
-              ~data=Some({"diffX": diffX, "diffY": diffY, "diffT": diffT}),
-              (),
-            )
+              Logger.info(~module_="ViewerSystem", ~message="VIEWER_CLICK_DISPATCHED", ())
+            }
+          | None => ()
           }
-        | None => ()
         }
         lastDown := None
       })

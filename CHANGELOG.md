@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - FIX: Linking mode bug + UI: Creative format/size badges in sidebar. NOTE: Image analysis seems broken and should be revisited.
+- Extreemly stable state
 
 ## [4.6.1] - 2026-02-13
 

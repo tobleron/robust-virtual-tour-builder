@@ -48,9 +48,9 @@ let show = (
       avgScore := totalScore /. Int.toFloat(Array.length(qualityResults))
 
       Belt.Array.forEach(qualityResults, r => {
-        if r.quality.score >= 8.5 {
+        if r.quality.score >= 8.0 {
           Array.push(groups.ex, r)
-        } else if r.quality.score >= 6.5 {
+        } else if r.quality.score >= 6.0 {
           Array.push(groups.md, r)
         } else {
           Array.push(groups.pr, r)
@@ -92,34 +92,6 @@ let show = (
           )}
         </div>
 
-        /* {if Array.length(groups.pr) > 0 {
-          <div className="upload-report-action-container">
-            <div className="upload-report-action-title">
-              <LucideIcons.Flag size=12 className="mr-1" />
-              {React.string(`Action Required (${Int.toString(Array.length(groups.pr))})`)}
-            </div>
-            <div className="upload-report-action-list">
-              {groups.pr
-              ->Belt.Array.map(r => {
-                <div key={r.newName} className="upload-report-item">
-                  <div className="upload-report-item-header">
-                    <span className="upload-report-filename"> {React.string(r.newName)} </span>
-                    <span className="upload-report-item-score">
-                      {React.string(Float.toString(r.quality.score))}
-                    </span>
-                  </div>
-                  {switch Nullable.toOption(r.quality.analysis) {
-                  | Some(a) => <div className="upload-report-analysis"> {React.string(a)} </div>
-                  | None => React.null
-                  }}
-                </div>
-              })
-              ->React.array}
-            </div>
-          </div>
-        } else {
-          React.null
-        }} */
         {if Array.length(report.skipped) > 0 {
           <div className="upload-report-skipped-container">
             <div className="upload-report-skipped-badge">
@@ -131,7 +103,6 @@ let show = (
           React.null
         }}
 
-        /* Batch Health moved to bottom */
         <div className="upload-report-footer-score">
           <div className="upload-report-title"> {React.string("Batch Health")} </div>
           <div className="upload-report-score">

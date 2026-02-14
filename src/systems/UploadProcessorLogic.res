@@ -221,7 +221,21 @@ let finalizeUploads = (
               q =>
                 switch JsonCombinators.Json.decode(q, JsonParsers.Shared.qualityAnalysis) {
                 | Ok(qa) => Some(qa)
-                | Error(_) => None
+                | Error(msg) => {
+                    Logger.debug(
+                      ~module_="UploadLogic",
+                      ~message="DECODE_FALLBACK_TRIGGERED",
+                      ~data=Some({"error": msg}),
+                      (),
+                    )
+                    // Fallback: If decode fails but it looks like a record, try to recover
+                    let score = %raw("(q => q && typeof q.score === 'number' ? q.score : -1)")(q)
+                    if score >= 0.0 {
+                      Some(Obj.magic(q))
+                    } else {
+                      None
+                    }
+                  }
                 },
             )
             ->Option.getOr(SharedTypes.defaultQuality("No quality data"))
