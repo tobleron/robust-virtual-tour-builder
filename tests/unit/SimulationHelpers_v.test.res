@@ -8,8 +8,8 @@ test("SimulationHelpers: handleStartAutoPilot starts simulation", t => {
   let next = SimulationHelpers.handleStartAutoPilot(state, 123, true)
 
   switch next.simulation.status {
-    | Running => t->expect(true)->Expect.toBe(true)
-    | _ => t->expect(false)->Expect.toBe(true)
+  | Running => t->expect(true)->Expect.toBe(true)
+  | _ => t->expect(false)->Expect.toBe(true)
   }
 
   t->expect(next.simulation.autoPilotJourneyId)->Expect.toBe(123)
@@ -25,36 +25,38 @@ test("SimulationHelpers: handleStopAutoPilot resets simulation and increments jo
     simulation: {
       ...state.simulation,
       status: Running,
-      autoPilotJourneyId: 123
-    }
+      autoPilotJourneyId: 123,
+    },
   }
 
   let next = SimulationHelpers.handleStopAutoPilot(state)
 
   switch next.simulation.status {
-    | Idle => t->expect(true)->Expect.toBe(true)
-    | _ => t->expect(false)->Expect.toBe(true)
+  | Idle => t->expect(true)->Expect.toBe(true)
+  | _ => t->expect(false)->Expect.toBe(true)
   }
 
   t->expect(next.navigationState.navigation)->Expect.toEqual(Idle)
-  t->expect(next.navigationState.currentJourneyId)->Expect.toBe(state.navigationState.currentJourneyId + 1)
+  t
+  ->expect(next.navigationState.currentJourneyId)
+  ->Expect.toBe(state.navigationState.currentJourneyId + 1)
 })
 
 test("SimulationHelpers: handleStartLinking resets simulation", t => {
   let state = createMockState()
   let state = {
-      ...state,
-      simulation: {
-          ...state.simulation,
-          status: Running
-      }
+    ...state,
+    simulation: {
+      ...state.simulation,
+      status: Running,
+    },
   }
   let next = SimulationHelpers.handleStartLinking(state, None)
 
   t->expect(next.navigationState.navigation)->Expect.toEqual(Idle)
   switch next.simulation.status {
-    | Idle => t->expect(true)->Expect.toBe(true)
-    | _ => t->expect(false)->Expect.toBe(true)
+  | Idle => t->expect(true)->Expect.toBe(true)
+  | _ => t->expect(false)->Expect.toBe(true)
   }
 })
 

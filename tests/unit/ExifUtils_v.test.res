@@ -21,38 +21,53 @@ type mockFn
 
 describe("ExifUtils", () => {
   describe("Location Utils", () => {
-    test("cleanLocationWord cleans and capitalizes", t => {
-      t->expect(cleanLocationWord("pa@ris!"))->Expect.toBe("Paris")
-      t->expect(cleanLocationWord("NEW-YORK"))->Expect.toBe("Newyork")
-      t->expect(cleanLocationWord("abc"))->Expect.toBe("Abc")
-    })
+    test(
+      "cleanLocationWord cleans and capitalizes",
+      t => {
+        t->expect(cleanLocationWord("pa@ris!"))->Expect.toBe("Paris")
+        t->expect(cleanLocationWord("NEW-YORK"))->Expect.toBe("Newyork")
+        t->expect(cleanLocationWord("abc"))->Expect.toBe("Abc")
+      },
+    )
 
-    test("extractLocationName pulls words from address (skips numerics)", t => {
-      let addr = "123 Main St, Springfield, IL"
-      // selectedWords will be ["Main", "St", "Springfield"] (limit 3, 123 skipped)
-      t->expect(extractLocationName(addr))->Expect.toBe(Some("Main_St_Springfield"))
-    })
+    test(
+      "extractLocationName pulls words from address (skips numerics)",
+      t => {
+        let addr = "123 Main St, Springfield, IL"
+        // selectedWords will be ["Main", "St", "Springfield"] (limit 3, 123 skipped)
+        t->expect(extractLocationName(addr))->Expect.toBe(Some("Main_St_Springfield"))
+      },
+    )
 
-    test("extractLocationName handles messy address", t => {
-      let addr = "Area 51 , Secret Base"
-      t->expect(extractLocationName(addr))->Expect.toBe(Some("Area_51_Secret"))
-    })
+    test(
+      "extractLocationName handles messy address",
+      t => {
+        let addr = "Area 51 , Secret Base"
+        t->expect(extractLocationName(addr))->Expect.toBe(Some("Area_51_Secret"))
+      },
+    )
   })
 
   describe("generateProjectName", () => {
-    test("combines location and date", t => {
-      let address = Some("White House, DC")
-      let dateTime = Some("2024:05:20 14:30:00")
-      // Result: White_House_Dc_200524_1430
-      t
-      ->expect(generateProjectName(address, dateTime))
-      ->Expect.toBe(Some("White_House_Dc_200524_1430"))
-    })
+    test(
+      "combines location and date",
+      t => {
+        let address = Some("White House, DC")
+        let dateTime = Some("2024:05:20 14:30:00")
+        // Result: White_House_Dc_200524_1430
+        t
+        ->expect(generateProjectName(address, dateTime))
+        ->Expect.toBe(Some("White_House_Dc_200524_1430"))
+      },
+    )
 
-    test("handles missing address (defaults to Tour)", t => {
-      let dateTime = Some("2024:01:01 12:00:00")
-      t->expect(generateProjectName(None, dateTime))->Expect.toBe(Some("Tour_010124_1200"))
-    })
+    test(
+      "handles missing address (defaults to Tour)",
+      t => {
+        let dateTime = Some("2024:01:01 12:00:00")
+        t->expect(generateProjectName(None, dateTime))->Expect.toBe(Some("Tour_010124_1200"))
+      },
+    )
 
     // From ExifReportGeneratorUtils
     test(

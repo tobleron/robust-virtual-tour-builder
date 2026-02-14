@@ -3,7 +3,7 @@ open Vitest
 open Types
 open Actions
 
-let createJourney = (journeyId) => {
+let createJourney = journeyId => {
   {
     journeyId,
     targetIndex: 1,
@@ -21,7 +21,10 @@ test("NavigationState: isNavigating checks FSM state", t => {
   let state = NavigationState.initial()
   t->expect(NavigationState.isNavigating(state))->Expect.toBe(false)
 
-  let state = {...state, navigationFsm: Preloading({targetSceneId: "1", attempt: 1, isAnticipatory: false})}
+  let state = {
+    ...state,
+    navigationFsm: Preloading({targetSceneId: "1", attempt: 1, isAnticipatory: false}),
+  }
   t->expect(NavigationState.isNavigating(state))->Expect.toBe(true)
 })
 
@@ -29,10 +32,21 @@ test("NavigationState: isLoading checks for Preloading", t => {
   let state = NavigationState.initial()
   t->expect(NavigationState.isLoading(state))->Expect.toBe(false)
 
-  let loading = {...state, navigationFsm: Preloading({targetSceneId: "1", attempt: 1, isAnticipatory: false})}
+  let loading = {
+    ...state,
+    navigationFsm: Preloading({targetSceneId: "1", attempt: 1, isAnticipatory: false}),
+  }
   t->expect(NavigationState.isLoading(loading))->Expect.toBe(true)
 
-  let transitioning = {...state, navigationFsm: Transitioning({fromSceneId: None, toSceneId: "2", progress: 0.0, isPreview: false})}
+  let transitioning = {
+    ...state,
+    navigationFsm: Transitioning({
+      fromSceneId: None,
+      toSceneId: "2",
+      progress: 0.0,
+      isPreview: false,
+    }),
+  }
   t->expect(NavigationState.isLoading(transitioning))->Expect.toBe(false)
 })
 
@@ -40,7 +54,15 @@ test("NavigationState: isTransitioning checks for Transitioning", t => {
   let state = NavigationState.initial()
   t->expect(NavigationState.isTransitioning(state))->Expect.toBe(false)
 
-  let transitioning = {...state, navigationFsm: Transitioning({fromSceneId: None, toSceneId: "2", progress: 0.0, isPreview: false})}
+  let transitioning = {
+    ...state,
+    navigationFsm: Transitioning({
+      fromSceneId: None,
+      toSceneId: "2",
+      progress: 0.0,
+      isPreview: false,
+    }),
+  }
   t->expect(NavigationState.isTransitioning(transitioning))->Expect.toBe(true)
 })
 
@@ -50,11 +72,9 @@ test("NavigationState: reduce SetNavigationStatus", t => {
   let next = NavigationState.reduce(state, SetNavigationStatus(Navigating(journey)))
 
   switch next {
-  | Some(s) => {
-      switch s.navigation {
-      | Navigating(j) => t->expect(j.journeyId)->Expect.toBe(1)
-      | _ => t->expect(false)->Expect.toBe(true)
-      }
+  | Some(s) => switch s.navigation {
+    | Navigating(j) => t->expect(j.journeyId)->Expect.toBe(1)
+    | _ => t->expect(false)->Expect.toBe(true)
     }
   | None => t->expect(false)->Expect.toBe(true)
   }
@@ -86,7 +106,7 @@ test("NavigationState: reduce NavigationCompleted resets state", t => {
     navigation: Navigating(createJourney(10)),
     currentJourneyId: 10,
     autoForwardChain: [1, 2],
-    incomingLink: Some({sceneIndex: 0, hotspotIndex: 0})
+    incomingLink: Some({sceneIndex: 0, hotspotIndex: 0}),
   }
 
   let next = NavigationState.reduce(state, NavigationCompleted(createJourney(10)))
