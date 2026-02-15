@@ -3,6 +3,13 @@
 
 open Types
 
+let buildProjectFileUrl = (~sessionId: string, ~filename: string) =>
+  if Constants.isDebugBuild() {
+    "/api/project/" ++ sessionId ++ "/file/" ++ filename
+  } else {
+    Constants.backendUrl ++ "/api/project/" ++ sessionId ++ "/file/" ++ filename
+  }
+
 let rebuildUrl = (f: Types.file, ~sessionId: string) => {
   switch f {
   | Url(url) =>
@@ -19,7 +26,7 @@ let rebuildUrl = (f: Types.file, ~sessionId: string) => {
       switch Belt.Array.get(parts, 1) {
       | Some(afterFile) =>
         let filename = String.split(afterFile, "?")->Belt.Array.get(0)->Option.getOr(afterFile)
-        Types.Url(Constants.backendUrl ++ "/api/project/" ++ sessionId ++ "/file/" ++ filename)
+        Types.Url(buildProjectFileUrl(~sessionId, ~filename))
       | None => f
       }
     } else if isFullUrl {
@@ -32,13 +39,7 @@ let rebuildUrl = (f: Types.file, ~sessionId: string) => {
       } else {
         url
       }
-      Types.Url(
-        Constants.backendUrl ++
-        "/api/project/" ++
-        sessionId ++
-        "/file/" ++
-        encodeURIComponent(filename),
-      )
+      Types.Url(buildProjectFileUrl(~sessionId, ~filename=encodeURIComponent(filename)))
     } else {
       f
     }
@@ -50,17 +51,15 @@ let rebuildSceneUrls = (scenes: array<Types.scene>, ~sessionId: string) => {
   Belt.Array.map(scenes, scene => {
     // 1. Rebuild primary file URL
     let file = switch rebuildUrl(scene.file, ~sessionId) {
-    | Url(u) if u != "" && (String.startsWith(u, "http") || String.startsWith(u, "blob:")) =>
+    | Url(u)
+      if u != "" &&
+        (String.startsWith(u, "http") ||
+        String.startsWith(u, "blob:") ||
+        String.startsWith(u, "/")) =>
       Types.Url(u)
     | _ =>
       // Fallback: Use scene name as filename
-      Types.Url(
-        Constants.backendUrl ++
-        "/api/project/" ++
-        sessionId ++
-        "/file/" ++
-        encodeURIComponent(scene.name),
-      )
+      Types.Url(buildProjectFileUrl(~sessionId, ~filename=encodeURIComponent(scene.name)))
     }
 
     let originalFile = scene.originalFile->Option.flatMap(f => {
