@@ -1,6 +1,7 @@
 module InnerApp = {
   @react.component
   let make = () => {
+    PerfUtils.useRenderBudget("InnerApp")
     let state = AppContext.useAppState()
     let dispatch = AppContext.useAppDispatch()
     let isSystemLocked = AppContext.useIsSystemLocked()

@@ -11,16 +11,21 @@ impl StorageManager {
         PathBuf::from("data/storage")
     }
 
-    pub fn get_user_path(user_id: &str) -> PathBuf {
-        Self::get_storage_root().join(user_id)
+    pub fn get_user_path(user_id: &str) -> io::Result<PathBuf> {
+        let safe_user = crate::api::utils::sanitize_id(user_id)
+            .map_err(|e| io::Error::new(io::ErrorKind::InvalidInput, e))?;
+        Ok(Self::get_storage_root().join(safe_user))
     }
 
-    pub fn get_user_project_path(user_id: &str, project_id: &str) -> PathBuf {
-        Self::get_user_path(user_id).join(project_id)
+    pub fn get_user_project_path(user_id: &str, project_id: &str) -> io::Result<PathBuf> {
+        let user_path = Self::get_user_path(user_id)?;
+        let safe_project = crate::api::utils::sanitize_id(project_id)
+            .map_err(|e| io::Error::new(io::ErrorKind::InvalidInput, e))?;
+        Ok(user_path.join(safe_project))
     }
 
     pub fn ensure_project_dir(user_id: &str, project_id: &str) -> io::Result<PathBuf> {
-        let path = Self::get_user_project_path(user_id, project_id);
+        let path = Self::get_user_project_path(user_id, project_id)?;
         if !path.exists() {
             fs::create_dir_all(&path)?;
         }

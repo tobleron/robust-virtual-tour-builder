@@ -353,5 +353,8 @@ CI job
 - `[src/systems/ProjectSystem.res]`
 - `[src/systems/SceneLoaderLogic.res]`
 
+### 📂 src/utils
+- `[src/utils/PerfUtils.res]`
+
 ---
 (Utilities and Infrastructure modules are excluded from flow documentation by design)

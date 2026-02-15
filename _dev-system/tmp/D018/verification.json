@@ -12,52 +12,52 @@
             {
               "name": "handleDragStart",
               "signature": "handleDragStart = (pipeline: t, e) => {",
-              "line": 13
+              "line": 14
             },
             {
               "name": "handleDragEnd",
               "signature": "handleDragEnd = (pipeline: t, e) => {",
-              "line": 21
+              "line": 22
             },
             {
               "name": "handleDragOver",
               "signature": "handleDragOver = e => {",
-              "line": 28
+              "line": 29
             },
             {
               "name": "handleDragEnter",
               "signature": "handleDragEnter = e => {",
-              "line": 32
+              "line": 33
             },
             {
               "name": "handleDragLeave",
               "signature": "handleDragLeave = e => {",
-              "line": 37
+              "line": 38
             },
             {
               "name": "handleDrop",
               "signature": "handleDrop = (",
-              "line": 42
+              "line": 43
             },
             {
               "name": "createDropZone",
               "signature": "createDropZone = (pipeline: t, index: int, ~getState, ~dispatch) => {",
-              "line": 84
+              "line": 85
             },
             {
               "name": "nodeSize",
               "signature": "nodeSize = 22",
-              "line": 100
+              "line": 101
             },
             {
               "name": "styles",
               "signature": "styles =",
-              "line": 102
+              "line": 103
             },
             {
               "name": "render",
               "signature": "render = (pipeline: t, state: Types.state, ~getState, ~dispatch) => {",
-              "line": 260
+              "line": 261
             }
           ],
           "fingerprint": "f0aa9b3813c2c2a0508d06ff20499e1f10e44ede557ed08b5c526588dc0c13b7"
@@ -65,5 +65,5 @@
       ]
     }
   ],
-  "timestamp": "2026-02-14T22:16:21.526695Z"
+  "timestamp": "2026-02-15T08:55:17.500606Z"
 }

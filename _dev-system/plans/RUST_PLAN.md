@@ -8,3 +8,9 @@
 
 ---
 
+## 🛠️ SURGICAL REFACTOR TASKS (1)
+- [ ] **../../backend/src/models.rs**
+  - *Reason:* [Nesting: 1.80, Density: 0.01, Coupling: 0.01] | Drag: 2.81 | LOC: 546/335
+
+---
+

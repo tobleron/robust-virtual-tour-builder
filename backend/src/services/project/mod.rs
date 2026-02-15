@@ -15,103 +15,120 @@ mod tests {
     use std::collections::HashSet;
 
     #[test]
-    fn test_validate_project_finds_broken_links() {
+    fn test_validate_and_clean_basic() -> Result<(), Box<dyn std::error::Error>> {
         let project = json!({
+            "id": "p1",
             "scenes": [
                 {
-                    "name": "A",
-                    "hotspots": [
-                        { "target": "B", "linkId": "link1" }
-                    ]
-                }
-            ]
-        });
-        let available_files = HashSet::from(["A".to_string()]);
-
-        let (cleaned, report) =
-            validate_and_clean_project(project, &available_files).expect("Validation failed");
-
-        assert_eq!(report.broken_links_removed, 1);
-        assert!(
-            report
-                .warnings
-                .iter()
-                .any(|w| w.contains("Removed 1 broken link"))
-        );
-        // Check that the link was actually removed
-        assert!(
-            cleaned["scenes"][0]["hotspots"]
-                .as_array()
-                .expect("Hotspots array missing")
-                .is_empty()
-        );
-    }
-
-    #[test]
-    fn test_validate_project_finds_orphaned_scenes() {
-        let project = json!({
-            "scenes": [
-                { "name": "A", "hotspots": [] },
-                { "name": "B", "hotspots": [] }
-            ]
-        });
-        // B is orphaned because there's no link to it (and it's not the first scene)
-        let available_files = HashSet::from(["A".to_string(), "B".to_string()]);
-
-        let (_, report) =
-            validate_and_clean_project(project, &available_files).expect("Validation failed");
-
-        assert!(report.orphaned_scenes.contains(&"B".to_string()));
-        assert!(!report.orphaned_scenes.contains(&"A".to_string())); // first scene is not orphaned
-    }
-
-    #[test]
-    fn test_validate_project_clean_project() {
-        let project = json!({
-            "scenes": [
-                {
-                    "name": "A",
-                    "id": "scene-a",
-                    "category": "indoor",
-                    "floor": "ground",
-                    "hotspots": [
-                        { "target": "B", "linkId": "link1" }
-                    ]
-                },
-                {
-                    "name": "B",
-                    "id": "scene-b",
-                    "category": "indoor",
-                    "floor": "ground",
+                    "id": "s1",
+                    "name": "img1.webp",
                     "hotspots": []
                 }
             ]
         });
-        let available_files = HashSet::from(["A".to_string(), "B".to_string()]);
-
-        let (_, report) =
-            validate_and_clean_project(project, &available_files).expect("Validation failed");
-
-        assert!(!report.has_issues());
-        assert_eq!(report.errors.len(), 0);
-        assert_eq!(report.warnings.len(), 0);
+        let available_files = HashSet::from(["img1.webp".to_string()]);
+        let (project, report) = validate_and_clean_project(project, &available_files)?;
+        assert_eq!(report.broken_links_removed, 0);
+        assert_eq!(
+            project["scenes"].as_array().ok_or("Scenes missing")?.len(),
+            1
+        );
+        Ok(())
     }
+
     #[test]
-    fn test_validate_project_handles_missing_hotspots_array() {
+    fn test_validate_and_clean_broken_link() -> Result<(), Box<dyn std::error::Error>> {
         let project = json!({
+            "id": "p1",
             "scenes": [
                 {
-                    "name": "A",
-                    // hotspots missing
+                    "id": "s1",
+                    "name": "img1.webp",
+                    "hotspots": [
+                        { "target": "missing" }
+                    ]
                 }
             ]
         });
-        let available_files = HashSet::from(["A".to_string()]);
+        let available_files = HashSet::from(["img1.webp".to_string()]);
+        let (project, report) = validate_and_clean_project(project, &available_files)?;
+        assert_eq!(report.broken_links_removed, 1);
+        assert_eq!(
+            project["scenes"][0]["hotspots"]
+                .as_array()
+                .ok_or("Hotspots array missing")?
+                .len(),
+            0
+        );
+        Ok(())
+    }
 
-        let (cleaned, report) =
-            validate_and_clean_project(project, &available_files).expect("Validation failed");
+    #[test]
+    fn test_validate_and_clean_orphaned_scene() -> Result<(), Box<dyn std::error::Error>> {
+        let project = json!({
+            "id": "p1",
+            "scenes": [
+                {
+                    "id": "s1",
+                    "name": "img1.webp",
+                    "hotspots": []
+                },
+                {
+                    "id": "s2",
+                    "name": "missing.webp",
+                    "hotspots": []
+                }
+            ]
+        });
+        let available_files = HashSet::from(["img1.webp".to_string()]);
+        let (project, report) = validate_and_clean_project(project, &available_files)?;
+        assert_eq!(report.orphaned_scenes.len(), 1);
+        assert_eq!(
+            project["scenes"]
+                .as_array()
+                .ok_or("Scenes array missing")?
+                .len(),
+            1
+        );
+        Ok(())
+    }
 
-        assert!(!report.has_issues());
-        assert_eq!(cleaned["scenes"][0]["name"], "A");
+    #[test]
+    fn test_validate_and_clean_circular_autoforward() -> Result<(), Box<dyn std::error::Error>> {
+        let project = json!({
+            "id": "p1",
+            "scenes": [
+                {
+                    "id": "s1",
+                    "name": "img1.webp",
+                    "isAutoForward": true,
+                    "hotspots": [{ "target": "img1.webp" }]
+                }
+            ]
+        });
+        let available_files = HashSet::from(["img1.webp".to_string()]);
+        let (project, report) = validate_and_clean_project(project, &available_files)?;
+        assert_eq!(project["scenes"][0]["isAutoForward"].as_bool(), Some(false));
+        assert!(report.warnings.iter().any(|w| w.contains("circular")));
+        Ok(())
+    }
+
+    #[test]
+    fn test_validate_and_clean_unused_files() -> Result<(), Box<dyn std::error::Error>> {
+        let project = json!({
+            "id": "p1",
+            "scenes": [
+                {
+                    "id": "s1",
+                    "name": "img1.webp",
+                    "hotspots": []
+                }
+            ]
+        });
+        let available_files = HashSet::from(["img1.webp".to_string(), "unused.webp".to_string()]);
+        let (_project, report) = validate_and_clean_project(project, &available_files)?;
+        assert_eq!(report.unused_files.len(), 1);
+        assert_eq!(report.unused_files[0], "unused.webp");
+        Ok(())
     }
 }

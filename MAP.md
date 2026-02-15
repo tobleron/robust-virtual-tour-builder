@@ -360,6 +360,7 @@ This map provides a semantic overview of the project structure to optimize conte
 * [tests/e2e/ai-helper.ts](tests/e2e/ai-helper.ts): Diagnostic helper for AI-observable E2E testing. `#testing` `#utils` `#ai`
 
 ## 🆕 Unmapped Modules
+* [src/utils/PerfUtils.res](src/utils/PerfUtils.res): New module detected. Please classify. #new
 * [src/systems/ProjectSystem.res](src/systems/ProjectSystem.res): New module detected. Please classify. #new
 * [src/systems/SceneLoaderLogic.res](src/systems/SceneLoaderLogic.res): New module detected. Please classify. #new
 * [src/components/VisualPipelineLogic.res](src/components/VisualPipelineLogic.res): New module detected. Please classify. #new

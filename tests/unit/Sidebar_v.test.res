@@ -56,6 +56,8 @@ module WrappedSidebar = {
       scenes: mockState.scenes,
       activeIndex: mockState.activeIndex,
       tourName: mockState.tourName,
+      activeYaw: mockState.activeYaw,
+      activePitch: mockState.activePitch,
     }
     let uiSlice: AppContext.uiSlice = {
       isLinking: mockState.isLinking,
@@ -63,6 +65,7 @@ module WrappedSidebar = {
       linkDraft: mockState.linkDraft,
       appMode: mockState.appMode,
       logo: mockState.logo,
+      preloadingSceneIndex: mockState.preloadingSceneIndex,
     }
 
     <AppContext.DispatchProvider value=mockDispatch>

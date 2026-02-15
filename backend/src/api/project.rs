@@ -39,9 +39,12 @@ pub async fn save_project(req: HttpRequest, payload: Multipart) -> Result<HttpRe
     let json_content = project_json.ok_or_else(|| {
         AppError::MultipartError(actix_multipart::MultipartError::Incomplete.to_string())
     })?;
-    let project_path = session_id
-        .as_ref()
-        .map(|pid| StorageManager::get_user_project_path(&user.id, pid));
+    let project_path = match &session_id {
+        Some(pid) => {
+            Some(StorageManager::get_user_project_path(&user.id, pid).map_err(AppError::IoError)?)
+        }
+        None => None,
+    };
 
     let (validated_json, _report, summary_content) = web::block({
         let temp_images = temp_images.clone();
@@ -188,7 +191,8 @@ pub async fn validate_project(
         .cloned()
         .ok_or(AppError::Unauthorized("Authentication required".into()))?;
     let payload = payload.into_inner();
-    let project_path = StorageManager::get_user_project_path(&user.id, &payload.session_id);
+    let project_path = StorageManager::get_user_project_path(&user.id, &payload.session_id)
+        .map_err(AppError::IoError)?;
 
     let result = web::block(move || {
         let available_files = project_logic::list_available_files(&project_path);
@@ -207,13 +211,59 @@ pub async fn validate_project(
 pub async fn create_tour_package(payload: Multipart) -> Result<HttpResponse, AppError> {
     tracing::info!(module = "Exporter", "CREATE_PACKAGE_START");
 
-    let (image_files, fields) = project_multipart::parse_tour_package_multipart(payload).await?;
+    let zip_path = get_temp_path("zip");
+    let zip_path_clone = zip_path.clone();
 
-    let result = web::block(move || project::create_tour_package(image_files, fields))
-        .await
-        .map_err(|e| AppError::InternalError(e.to_string()))??;
+    // Set a 10-minute timeout for the entire operation
+    let timeout_duration = std::time::Duration::from_secs(600);
 
-    Ok(HttpResponse::Ok()
-        .content_type("application/zip")
-        .body(result))
+    let result: Result<Result<(), AppError>, tokio::time::error::Elapsed> =
+        tokio::time::timeout(timeout_duration, async {
+            let (image_files, fields) =
+                project_multipart::parse_tour_package_multipart(payload).await?;
+
+            // Wrap image_files in a Guard for cleanup on early return/panic
+            struct CleanupGuard(Option<Vec<(String, std::path::PathBuf)>>);
+            impl Drop for CleanupGuard {
+                fn drop(&mut self) {
+                    if let Some(files) = &self.0 {
+                        for (_, path) in files {
+                            let _ = std::fs::remove_file(path);
+                        }
+                    }
+                }
+            }
+            let mut guard = CleanupGuard(Some(image_files));
+
+            web::block(move || {
+                let files = guard.0.take().unwrap_or_default();
+                project::create_tour_package(files, fields, zip_path_clone)
+            })
+            .await
+            .map_err(|e| AppError::InternalError(e.to_string()))?
+            .map_err(AppError::InternalError)
+        })
+        .await;
+
+    match result {
+        Ok(Ok(())) => {
+            let file_bytes = tokio::fs::read(&zip_path)
+                .await
+                .map_err(AppError::IoError)?;
+            let _ = tokio::fs::remove_file(&zip_path).await;
+            Ok(HttpResponse::Ok()
+                .content_type("application/zip")
+                .body(file_bytes))
+        }
+        Ok(Err(e)) => {
+            let _ = tokio::fs::remove_file(&zip_path).await;
+            Err(e)
+        }
+        Err(_) => {
+            let _ = tokio::fs::remove_file(&zip_path).await;
+            Err(AppError::InternalError(
+                "Export timed out after 10 minutes".into(),
+            ))
+        }
+    }
 }

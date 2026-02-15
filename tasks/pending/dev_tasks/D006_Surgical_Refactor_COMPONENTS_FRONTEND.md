@@ -1,4 +1,4 @@
-# Task D018: Surgical Refactor COMPONENTS FRONTEND
+# Task D006: Surgical Refactor COMPONENTS FRONTEND
 
 ## Objective
 ## ⚡ Surgical Objective
@@ -19,18 +19,20 @@ The Semantic Engine has identified the following specific symbols for refactorin
 
 
 ## 🔎 Programmatic Verification
-Baseline artifacts: `_dev-system/tmp/D018/verification.json` (files at `_dev-system/tmp/D018/files/`).
-Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline _dev-system/tmp/D018/verification.json --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.
+Baseline artifacts: `_dev-system/tmp/D006/verification.json` (files at `_dev-system/tmp/D006/files/`).
+Run `cargo run --manifest-path _dev-system/analyzer/Cargo.toml --bin spec_diff -- --baseline _dev-system/tmp/D006/verification.json --targets <refactored files>` once the refactor is ready to ensure the function surface matches the captured snapshots.
 
 ### Pre-split snapshot for `src/components/VisualPipelineLogic.res`
 - `src/components/VisualPipelineLogic.res` (10 functions, fingerprint f0aa9b3813c2c2a0508d06ff20499e1f10e44ede557ed08b5c526588dc0c13b7)
-    - handleDragStart — handleDragStart = (pipeline: t, e) => {
-    - handleDragEnd — handleDragEnd = (pipeline: t, e) => {
-    - handleDragOver — handleDragOver = e => {
-    - handleDragEnter — handleDragEnter = e => {
-    - handleDragLeave — handleDragLeave = e => {
-    - handleDrop — handleDrop = (
-    - createDropZone — createDropZone = (pipeline: t, index: int, ~getState, ~dispatch) => {
-    - nodeSize — nodeSize = 22
-    - styles — styles =
-    - render — render = (pipeline: t, state: Types.state, ~getState, ~dispatch) => {
+    - Grouped summary:
+        - createDropZone × 1 (lines: 84)
+        - handleDragEnd × 1 (lines: 21)
+        - handleDragEnter × 1 (lines: 32)
+        - handleDragLeave × 1 (lines: 37)
+        - handleDragOver × 1 (lines: 28)
+        - handleDragStart × 1 (lines: 13)
+        - handleDrop × 1 (lines: 42)
+        - nodeSize × 1 (lines: 100)
+        - render × 1 (lines: 260)
+        - styles × 1 (lines: 102)
+    - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.

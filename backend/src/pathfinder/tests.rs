@@ -26,7 +26,7 @@ fn create_scene(name: &str, auto_forward: bool, targets: Vec<(&str, bool)>) -> S
 }
 
 #[test]
-fn test_auto_forward_chain() {
+fn test_auto_forward_chain() -> Result<(), Box<dyn std::error::Error>> {
     let scenes = vec![
         create_scene("A", false, vec![("B", false)]),
         create_scene("B", true, vec![("C", false)]),
@@ -37,32 +37,32 @@ fn test_auto_forward_chain() {
     let mut visited = HashSet::new();
     // Start at B
     let start_idx = 1;
-    let result = utils::follow_auto_forward_chain(&scenes, start_idx, &mut visited, false);
-    assert!(result.is_ok());
-    assert_eq!(scenes[result.expect("Pathfinding failed")].name, "D");
+    let result_idx = utils::follow_auto_forward_chain(&scenes, start_idx, &mut visited, false)?;
+    assert_eq!(scenes[result_idx].name, "D");
+    Ok(())
 }
 
 #[test]
-fn test_auto_forward_loop() {
+fn test_auto_forward_loop() -> Result<(), Box<dyn std::error::Error>> {
     let scenes = vec![
         create_scene("A", true, vec![("B", false)]),
         create_scene("B", true, vec![("A", false)]),
     ];
 
     let mut visited = HashSet::new();
-    let result = utils::follow_auto_forward_chain(&scenes, 0, &mut visited, false);
+    let result_idx = utils::follow_auto_forward_chain(&scenes, 0, &mut visited, false)?;
     // Loop detected: 0 visited->jump to 1. 1 visited->jump to 0. 0 visited. stop.
-    assert!(result.is_ok());
-    assert_eq!(scenes[result.expect("Pathfinding failed")].name, "B");
+    assert_eq!(scenes[result_idx].name, "B");
+    Ok(())
 }
 
 #[test]
-fn test_broken_link_stops_chain() {
+fn test_broken_link_stops_chain() -> Result<(), Box<dyn std::error::Error>> {
     let scenes = vec![create_scene("A", true, vec![("B", false)])];
 
     let mut visited = HashSet::new();
-    let result = utils::follow_auto_forward_chain(&scenes, 0, &mut visited, false);
+    let result_idx = utils::follow_auto_forward_chain(&scenes, 0, &mut visited, false)?;
     // Should stop at A (0) because B is missing
-    assert!(result.is_ok());
-    assert_eq!(result.expect("Pathfinding failed"), 0);
+    assert_eq!(result_idx, 0);
+    Ok(())
 }

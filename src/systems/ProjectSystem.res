@@ -84,22 +84,11 @@ let processLoadedProjectData = (
 
     switch JsonCombinators.Json.decode(projectData, JsonParsers.Domain.project) {
     | Ok(pd) =>
-      let token = Dom.Storage2.localStorage->Dom.Storage2.getItem("auth_token")
-      let finalToken = switch token {
-      | Some(t) => t
-      | None => "dev-token" // Professional fallback for local development automation
-      }
-      let tokenQuery = "?token=" ++ finalToken
-
       // Rebuild URLs for ALL scenes in the inventory (Active and Deleted)
       let allInventoryScenes =
         pd.inventory->Belt.Map.String.toArray->Belt.Array.map(((_id, entry)) => entry.scene)
 
-      let validScenes = ProjectManagerUrl.rebuildSceneUrls(
-        allInventoryScenes,
-        ~sessionId,
-        ~tokenQuery,
-      )
+      let validScenes = ProjectManagerUrl.rebuildSceneUrls(allInventoryScenes, ~sessionId)
 
       // Sync valid scenes back into inventory, preserving their original status
       let updatedInventory = validScenes->Belt.Array.reduce(pd.inventory, (acc, s) => {

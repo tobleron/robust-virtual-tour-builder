@@ -208,18 +208,29 @@ fn extract_token(req: &ServiceRequest) -> Option<String> {
             }
         }
     }
+    if let Some(token) = req.cookie("auth_token") {
+        return Some(token.value().to_string());
+    }
 
-    req.query_string().split('&').find_map(|pair| {
-        let (key, value) = pair.split_once('=')?;
-        if key == "token" {
-            Some(value.to_string())
-        } else {
-            None
-        }
-    })
+    None
 }
 
 async fn attach_user_to_request(req: &ServiceRequest, user_id: &str) -> Result<(), HttpResponse> {
+    if user_id == "dev_user_id" {
+        let mock_admin = User {
+            id: "dev_user_id".to_string(),
+            email: "admin@dev.local".to_string(),
+            password_hash: "".to_string(),
+            name: "Dev Administrator".to_string(),
+            role: "admin".to_string(),
+            theme_preference: Some("dark".into()),
+            language_preference: Some("en".into()),
+            created_at: Utc::now(),
+        };
+        req.extensions_mut().insert(mock_admin);
+        return Ok(());
+    }
+
     let pool = req.app_data::<web::Data<SqlitePool>>().ok_or_else(|| {
         tracing::error!("Database pool not found in app_data");
         HttpResponse::InternalServerError().finish()
@@ -244,18 +255,32 @@ async fn attach_user_to_request(req: &ServiceRequest, user_id: &str) -> Result<(
 async fn process_authentication(req: &ServiceRequest) -> Result<(), HttpResponse> {
     let token = extract_token(req).ok_or_else(|| {
         HttpResponse::Unauthorized().json(serde_json::json!({
-            "error": "Missing Authorization header or token param"
+            "error": "Missing Authorization header or auth_token cookie"
         }))
     })?;
 
-    let dev_mode = cfg!(debug_assertions)
-        || std::env::var("BYPASS_AUTH")
+    let is_prod = crate::startup::is_production();
+    let bypass_allowed = !is_prod
+        && std::env::var("BYPASS_AUTH")
             .map(|v| v == "true")
             .unwrap_or(false);
 
-    if dev_mode && token.trim() == "dev-token" {
-        tracing::warn!("⚠️  Using DEV_TOKEN bypass for authentication");
+    if bypass_allowed && token.trim() == "dev-token" {
+        tracing::warn!(
+            target: "auth",
+            "⚠️  INSECURE: Using DEV_TOKEN bypass for authentication. This is only allowed in non-production environments."
+        );
         return attach_user_to_request(req, "dev_user_id").await;
+    }
+
+    if token.trim() == "dev-token" && is_prod {
+        tracing::error!(
+            target: "auth",
+            "🛑 SECURITY ALERT: Attempted to use dev-token in PRODUCTION environment. Request rejected."
+        );
+        return Err(HttpResponse::Unauthorized().json(serde_json::json!({
+            "error": "Insecure authentication method rejected in production"
+        })));
     }
 
     let claims = decode_token(&token).map_err(|e| {
@@ -272,17 +297,16 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_encode_decode_token() {
-        unsafe {
-            std::env::set_var("JWT_SECRET", "test_secret");
+    fn test_token_encode_decode() -> Result<(), Box<dyn std::error::Error>> {
+        if std::env::var("JWT_SECRET").is_err() {
+            unsafe {
+                std::env::set_var("JWT_SECRET", "test_secret_for_unit_tests_only");
+            }
         }
-
-        let sub = "test_user_id";
-        let token = encode_token(sub).expect("Token encoding failed");
-
-        assert!(!token.is_empty());
-
-        let claims = decode_token(&token).expect("Token decoding failed");
+        let sub = "user123";
+        let token = encode_token(sub)?;
+        let claims = decode_token(&token)?;
         assert_eq!(claims.sub, sub);
+        Ok(())
     }
 }

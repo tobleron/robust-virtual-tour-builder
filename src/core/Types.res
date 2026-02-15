@@ -318,6 +318,7 @@ type state = {
   lastUsedCategory: string,
   sessionId: option<string>,
   logo: option<file>,
+  structuralRevision: int,
 }
 
 /* --- Pathfinder API Types --- */

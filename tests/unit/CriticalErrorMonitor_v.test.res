@@ -12,6 +12,7 @@ module WrappedMonitor = {
       linkDraft: mockState.linkDraft,
       appMode: mockState.appMode,
       logo: mockState.logo,
+      preloadingSceneIndex: mockState.preloadingSceneIndex,
     }
 
     <AppContext.DispatchProvider value=mockDispatch>

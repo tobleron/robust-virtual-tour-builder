@@ -8,9 +8,9 @@ open Actions
 external idToUnknown: string => unknown = "%identity"
 
 // Hook 2: Scene Cleanup
-let useSceneCleanup = (state: state) => {
+let useSceneCleanup = (~scenes: array<scene>) => {
   React.useEffect1(() => {
-    if Belt.Array.length(state.scenes) == 0 {
+    if Belt.Array.length(scenes) == 0 {
       ViewerSystem.Pool.pool.contents->Belt.Array.forEach(vVp => {
         switch vVp.instance {
         | Some(instance) => ViewerSystem.Adapter.destroy(instance)
@@ -33,27 +33,34 @@ let useSceneCleanup = (state: state) => {
       }
     }
     None
-  }, [Belt.Array.length(state.scenes)])
+  }, [Belt.Array.length(scenes)])
 }
 
 // Hook 3: Preloading
-let usePreloading = (state: state, dispatch: action => unit) => {
+let usePreloading = (
+  ~preloadingSceneIndex: int,
+  ~scenes: array<scene>,
+  ~activeIndex: int,
+  ~dispatch: action => unit,
+) => {
   React.useEffect1(() => {
-    let preIndex = state.preloadingSceneIndex
     if (
-      preIndex != -1 &&
-      preIndex != ViewerState.state.contents.lastPreloadingIndex &&
-      preIndex != state.activeIndex
+      preloadingSceneIndex != -1 &&
+      preloadingSceneIndex != ViewerState.state.contents.lastPreloadingIndex &&
+      preloadingSceneIndex != activeIndex
     ) {
-      ViewerState.state := {...ViewerState.state.contents, lastPreloadingIndex: preIndex}
-      switch Belt.Array.get(state.scenes, preIndex) {
+      ViewerState.state := {
+          ...ViewerState.state.contents,
+          lastPreloadingIndex: preloadingSceneIndex,
+        }
+      switch Belt.Array.get(scenes, preloadingSceneIndex) {
       | Some(s) =>
         dispatch(DispatchNavigationFsmEvent(StartAnticipatoryLoad({targetSceneId: s.id})))
       | None => ()
       }
     }
     None
-  }, [state.preloadingSceneIndex])
+  }, [preloadingSceneIndex])
 }
 
 let handleMainSceneLoad = (state: state, scene: Types.scene, dispatch: action => unit) => {
@@ -135,30 +142,44 @@ let handleMainSceneLoad = (state: state, scene: Types.scene, dispatch: action =>
 }
 
 // Hook 4: Main Scene Loading
-let useMainSceneLoading = (state: state, dispatch: action => unit) => {
+let useMainSceneLoading = (
+  ~scenes: array<scene>,
+  ~activeIndex: int,
+  ~isLinking: bool,
+  ~activeYaw: float,
+  ~activePitch: float,
+  ~getState: unit => state,
+  ~dispatch: action => unit,
+) => {
   React.useEffect3(() => {
-    if state.activeIndex != -1 {
-      switch Belt.Array.get(state.scenes, state.activeIndex) {
-      | Some(scene) => handleMainSceneLoad(state, scene, dispatch)
+    if activeIndex != -1 {
+      switch Belt.Array.get(scenes, activeIndex) {
+      | Some(scene) =>
+        let currentState = getState()
+        handleMainSceneLoad(currentState, scene, dispatch)
       | None => ()
       }
     }
     None
   }, (
-    Belt.Int.toString(state.activeIndex) ++
-    "_" ++
-    Belt.Int.toString(Belt.Array.length(state.scenes)),
-    state.isLinking,
-    Float.toString(state.activeYaw) ++ "_" ++ Float.toString(state.activePitch),
+    Belt.Int.toString(activeIndex) ++ "_" ++ Belt.Int.toString(Belt.Array.length(scenes)),
+    isLinking,
+    Float.toString(activeYaw) ++ "_" ++ Float.toString(activePitch),
   ))
 }
 
 // Hook 5: Hotspot Sync
-let useHotspotSync = (state: state, dispatch: action => unit) => {
+let useHotspotSync = (
+  ~scenes: array<scene>,
+  ~activeIndex: int,
+  ~isLinking: bool,
+  ~getState: unit => state,
+  ~dispatch: action => unit,
+) => {
   React.useEffect3(() => {
     // Only run if we are NOT in linking mode (to avoid wiping the draft lines)
-    if state.activeIndex != -1 && !state.isLinking && !(!NavigationSupervisor.isIdle()) {
-      switch Belt.Array.get(state.scenes, state.activeIndex) {
+    if activeIndex != -1 && !isLinking && !(!NavigationSupervisor.isIdle()) {
+      switch Belt.Array.get(scenes, activeIndex) {
       | Some(scene) =>
         let v = ViewerSystem.getActiveViewer()
         switch Nullable.toOption(v) {
@@ -166,6 +187,7 @@ let useHotspotSync = (state: state, dispatch: action => unit) => {
           // Robustness: Only sync if the viewer actually belongs to this scene
           let viewerSceneId = ViewerSystem.Adapter.getMetaData(viewer, "sceneId")
           let targetId = idToUnknown(scene.id)
+          let currentState = getState()
 
           if viewerSceneId == Some(targetId) {
             Logger.debug(
@@ -174,8 +196,8 @@ let useHotspotSync = (state: state, dispatch: action => unit) => {
               ~data=Some({"sceneId": scene.id}),
               (),
             )
-            HotspotManager.syncHotspots(viewer, state, scene, dispatch)
-            HotspotLine.updateLines(viewer, state, ())
+            HotspotManager.syncHotspots(viewer, currentState, scene, dispatch)
+            HotspotLine.updateLines(viewer, currentState, ())
           }
         | None => ()
         }
@@ -183,13 +205,13 @@ let useHotspotSync = (state: state, dispatch: action => unit) => {
       }
     }
     None
-  }, (state.scenes, state.isLinking, state.activeIndex))
+  }, (scenes, isLinking, activeIndex))
 }
 
 // Hook 6: Ratchet State
-let useRatchetState = (state: state) => {
+let useRatchetState = (~isLinking: bool) => {
   React.useEffect1(() => {
-    if state.isLinking {
+    if isLinking {
       ViewerState.state := {
           ...ViewerState.state.contents,
           ratchetState: {
@@ -208,17 +230,17 @@ let useRatchetState = (state: state) => {
       }
     }
     None
-  }, [state.isLinking])
+  }, [isLinking])
 }
 
 // Hook 7: Simulation Arrival
-let useSimulationArrival = (state: state) => {
+let useSimulationArrival = (~activeIndex: int, ~simulationStatus: simulationStatus) => {
   React.useEffect2(() => {
-    if state.activeIndex != -1 && state.simulation.status == Running {
+    if activeIndex != -1 && simulationStatus == Running {
       ()
     }
     None
-  }, (state.activeIndex, state.simulation.status))
+  }, (activeIndex, simulationStatus))
 }
 
 // Hook 9: Hotspot Line Render Loop
@@ -346,14 +368,21 @@ let useHotspotLineLoop = (~getState: unit => state, dispatch: action => unit) =>
   })
 }
 // Hook 10: Intro Pan logic
-let useIntroPan = (state: state) => {
+let useIntroPan = (
+  ~navigationState: navigationState,
+  ~activeIndex: int,
+  ~isLinking: bool,
+  ~isTeasing: bool,
+  ~scenes: array<scene>,
+  ~simulationStatus: simulationStatus,
+) => {
   let lastPannedSceneId = React.useRef(Nullable.null)
 
   React.useEffect3(() => {
-    let isIdle = state.navigationState.navigationFsm == IdleFsm
+    let isIdle = navigationState.navigationFsm == IdleFsm
 
-    if isIdle && state.activeIndex != -1 && !state.isLinking && !state.isTeasing {
-      switch Belt.Array.get(state.scenes, state.activeIndex) {
+    if isIdle && activeIndex != -1 && !isLinking && !isTeasing {
+      switch Belt.Array.get(scenes, activeIndex) {
       | Some(scene) =>
         if lastPannedSceneId.current != Nullable.make(scene.id) {
           let hotspotsWithWaypoints = scene.hotspots->Belt.Array.keep(h =>
@@ -399,5 +428,5 @@ let useIntroPan = (state: state) => {
       }
     }
     None
-  }, (state.activeIndex, state.navigationState.navigationFsm, state.simulation.status))
+  }, (activeIndex, navigationState.navigationFsm, simulationStatus))
 }

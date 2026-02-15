@@ -86,6 +86,18 @@
 │       │   │           ├── UploadProcessorLogic.res
 │       │   │           └── ViewerSystem.res
 │       │   └── verification.json
+│       ├── D005
+│       │   ├── files
+│       │   │   └── src
+│       │   │       └── core
+│       │   │           └── ReducerModules.res
+│       │   └── verification.json
+│       ├── D006
+│       │   ├── files
+│       │   │   └── src
+│       │   │       └── components
+│       │   │           └── VisualPipelineLogic.res
+│       │   └── verification.json
 │       ├── D007
 │       │   ├── files
 │       │   │   └── src
@@ -93,6 +105,10 @@
 │       │   │           └── Sidebar.res
 │       │   └── verification.json
 │       ├── D008
+│       │   ├── files
+│       │   │   └── backend
+│       │   │       └── src
+│       │   │           └── models.rs
 │       │   └── verification.json
 │       ├── D009
 │       │   ├── files
@@ -2565,6 +2581,14 @@
 │   │           │   │   └── 162557_040.webp
 │   │           │   ├── project.json
 │   │           │   └── summary.txt
+│   │           ├── 34ad0472-6a17-4f9b-b233-3be14035f103
+│   │           │   ├── images
+│   │           │   │   ├── 001.webp
+│   │           │   │   ├── 002.webp
+│   │           │   │   ├── 003.webp
+│   │           │   │   └── 004.webp
+│   │           │   ├── project.json
+│   │           │   └── summary.txt
 │   │           ├── 34c3d6b7-22f0-4d8b-b57e-7117b07c78af
 │   │           │   ├── images
 │   │           │   │   ├── 001.webp
@@ -4243,6 +4267,14 @@
 │   │           │   │   └── 162557_040.webp
 │   │           │   ├── project.json
 │   │           │   └── summary.txt
+│   │           ├── 5cfc2bfb-9467-4c08-a65c-fafd37518a5e
+│   │           │   ├── images
+│   │           │   │   ├── 001.webp
+│   │           │   │   ├── 002.webp
+│   │           │   │   ├── 003.webp
+│   │           │   │   └── 004.webp
+│   │           │   ├── project.json
+│   │           │   └── summary.txt
 │   │           ├── 5da813b2-eaa0-4978-bab5-1c03299dcfa4
 │   │           │   ├── images
 │   │           │   │   ├── 154407_002.webp
@@ -5659,6 +5691,14 @@
 │   │           │   │   ├── 162400_038.webp
 │   │           │   │   ├── 162456_039.webp
 │   │           │   │   └── 162557_040.webp
+│   │           │   ├── project.json
+│   │           │   └── summary.txt
+│   │           ├── 82c1c238-3fef-4bda-bde5-eb17c6749c30
+│   │           │   ├── images
+│   │           │   │   ├── 001.webp
+│   │           │   │   ├── 002.webp
+│   │           │   │   ├── 003.webp
+│   │           │   │   └── 004.webp
 │   │           │   ├── project.json
 │   │           │   └── summary.txt
 │   │           ├── 833174b6-fc95-4078-bf4c-9494d14e19dd
@@ -7279,6 +7319,14 @@
 │   │           │   │   ├── 162400_038.webp
 │   │           │   │   ├── 162456_039.webp
 │   │           │   │   └── 162557_040.webp
+│   │           │   ├── project.json
+│   │           │   └── summary.txt
+│   │           ├── a35fa925-dafb-425a-a139-b53020c75655
+│   │           │   ├── images
+│   │           │   │   ├── 001.webp
+│   │           │   │   ├── 002.webp
+│   │           │   │   ├── 003.webp
+│   │           │   │   └── 004.webp
 │   │           │   ├── project.json
 │   │           │   └── summary.txt
 │   │           ├── a494598a-b9fa-4d9d-85d4-0f8cd3edd8c8
@@ -10663,6 +10711,14 @@
 │   │           │   │   └── 162557_040.webp
 │   │           │   ├── project.json
 │   │           │   └── summary.txt
+│   │           ├── e8958b68-ed07-4fc9-8d96-c65c67be2e7f
+│   │           │   ├── images
+│   │           │   │   ├── 001.webp
+│   │           │   │   ├── 002.webp
+│   │           │   │   ├── 003.webp
+│   │           │   │   └── 004.webp
+│   │           │   ├── project.json
+│   │           │   └── summary.txt
 │   │           ├── e8f46264-80a7-46c2-972d-cedbc8977f1f
 │   │           │   ├── images
 │   │           │   │   ├── 001.webp
@@ -11257,6 +11313,14 @@
 │   │           │   │   ├── 162400_038.webp
 │   │           │   │   ├── 162456_039.webp
 │   │           │   │   └── 162557_040.webp
+│   │           │   ├── project.json
+│   │           │   └── summary.txt
+│   │           ├── f093a109-0781-4d8f-b55c-66746b756561
+│   │           │   ├── images
+│   │           │   │   ├── 001.webp
+│   │           │   │   ├── 002.webp
+│   │           │   │   ├── 003.webp
+│   │           │   │   └── 004.webp
 │   │           │   ├── project.json
 │   │           │   └── summary.txt
 │   │           ├── f0b877f9-0549-45e1-aa91-3dd5b98e3e8f
@@ -12149,7 +12213,8 @@
 │   │   └── telemetry.log
 │   ├── migrations
 │   │   ├── 20260124000000_init.sql
-│   │   └── 20260128000000_core_schema.sql
+│   │   ├── 20260128000000_core_schema.sql
+│   │   └── 20260215000000_add_user_role.sql
 │   ├── sessions
 │   ├── src
 │   │   ├── api
@@ -12636,6 +12701,12 @@
 │   │   │   │   ├── VisualPipeline.cmj
 │   │   │   │   ├── VisualPipeline.cmt
 │   │   │   │   ├── VisualPipeline.res
+│   │   │   │   ├── VisualPipelineLogic.ast
+│   │   │   │   ├── VisualPipelineLogic.bs.js
+│   │   │   │   ├── VisualPipelineLogic.cmi
+│   │   │   │   ├── VisualPipelineLogic.cmj
+│   │   │   │   ├── VisualPipelineLogic.cmt
+│   │   │   │   ├── VisualPipelineLogic.res
 │   │   │   │   └── ui
 │   │   │   │       ├── LucideIcons.ast
 │   │   │   │       ├── LucideIcons.bs.js
@@ -12767,6 +12838,12 @@
 │   │   │   │   ├── Reducer.cmj
 │   │   │   │   ├── Reducer.cmt
 │   │   │   │   ├── Reducer.res
+│   │   │   │   ├── ReducerModules.ast
+│   │   │   │   ├── ReducerModules.bs.js
+│   │   │   │   ├── ReducerModules.cmi
+│   │   │   │   ├── ReducerModules.cmj
+│   │   │   │   ├── ReducerModules.cmt
+│   │   │   │   ├── ReducerModules.res
 │   │   │   │   ├── SceneCache.ast
 │   │   │   │   ├── SceneCache.bs.js
 │   │   │   │   ├── SceneCache.cmi
@@ -13126,25 +13203,6 @@
 │   │   │   │   ├── PanoramaClusterer.cmj
 │   │   │   │   ├── PanoramaClusterer.cmt
 │   │   │   │   ├── PanoramaClusterer.res
-│   │   │   │   ├── Project
-│   │   │   │   │   ├── ProjectLoader.ast
-│   │   │   │   │   ├── ProjectLoader.bs.js
-│   │   │   │   │   ├── ProjectLoader.cmi
-│   │   │   │   │   ├── ProjectLoader.cmj
-│   │   │   │   │   ├── ProjectLoader.cmt
-│   │   │   │   │   ├── ProjectLoader.res
-│   │   │   │   │   ├── ProjectSaver.ast
-│   │   │   │   │   ├── ProjectSaver.bs.js
-│   │   │   │   │   ├── ProjectSaver.cmi
-│   │   │   │   │   ├── ProjectSaver.cmj
-│   │   │   │   │   ├── ProjectSaver.cmt
-│   │   │   │   │   ├── ProjectSaver.res
-│   │   │   │   │   ├── ProjectValidator.ast
-│   │   │   │   │   ├── ProjectValidator.bs.js
-│   │   │   │   │   ├── ProjectValidator.cmi
-│   │   │   │   │   ├── ProjectValidator.cmj
-│   │   │   │   │   ├── ProjectValidator.cmt
-│   │   │   │   │   └── ProjectValidator.res
 │   │   │   │   ├── ProjectManager.ast
 │   │   │   │   ├── ProjectManager.bs.js
 │   │   │   │   ├── ProjectManager.cmi
@@ -13157,6 +13215,12 @@
 │   │   │   │   ├── ProjectManagerUrl.cmj
 │   │   │   │   ├── ProjectManagerUrl.cmt
 │   │   │   │   ├── ProjectManagerUrl.res
+│   │   │   │   ├── ProjectSystem.ast
+│   │   │   │   ├── ProjectSystem.bs.js
+│   │   │   │   ├── ProjectSystem.cmi
+│   │   │   │   ├── ProjectSystem.cmj
+│   │   │   │   ├── ProjectSystem.cmt
+│   │   │   │   ├── ProjectSystem.res
 │   │   │   │   ├── Resizer
 │   │   │   │   │   ├── ResizerLogic.ast
 │   │   │   │   │   ├── ResizerLogic.bs.js
@@ -13183,25 +13247,6 @@
 │   │   │   │   ├── Resizer.cmt
 │   │   │   │   ├── Resizer.res
 │   │   │   │   ├── Scene
-│   │   │   │   │   ├── Loader
-│   │   │   │   │   │   ├── SceneLoaderConfig.ast
-│   │   │   │   │   │   ├── SceneLoaderConfig.bs.js
-│   │   │   │   │   │   ├── SceneLoaderConfig.cmi
-│   │   │   │   │   │   ├── SceneLoaderConfig.cmj
-│   │   │   │   │   │   ├── SceneLoaderConfig.cmt
-│   │   │   │   │   │   ├── SceneLoaderConfig.res
-│   │   │   │   │   │   ├── SceneLoaderEvents.ast
-│   │   │   │   │   │   ├── SceneLoaderEvents.bs.js
-│   │   │   │   │   │   ├── SceneLoaderEvents.cmi
-│   │   │   │   │   │   ├── SceneLoaderEvents.cmj
-│   │   │   │   │   │   ├── SceneLoaderEvents.cmt
-│   │   │   │   │   │   ├── SceneLoaderEvents.res
-│   │   │   │   │   │   ├── SceneLoaderReuse.ast
-│   │   │   │   │   │   ├── SceneLoaderReuse.bs.js
-│   │   │   │   │   │   ├── SceneLoaderReuse.cmi
-│   │   │   │   │   │   ├── SceneLoaderReuse.cmj
-│   │   │   │   │   │   ├── SceneLoaderReuse.cmt
-│   │   │   │   │   │   └── SceneLoaderReuse.res
 │   │   │   │   │   ├── SceneLoader.ast
 │   │   │   │   │   ├── SceneLoader.bs.js
 │   │   │   │   │   ├── SceneLoader.cmi
@@ -13226,6 +13271,12 @@
 │   │   │   │   ├── Scene.cmj
 │   │   │   │   ├── Scene.cmt
 │   │   │   │   ├── Scene.res
+│   │   │   │   ├── SceneLoaderLogic.ast
+│   │   │   │   ├── SceneLoaderLogic.bs.js
+│   │   │   │   ├── SceneLoaderLogic.cmi
+│   │   │   │   ├── SceneLoaderLogic.cmj
+│   │   │   │   ├── SceneLoaderLogic.cmt
+│   │   │   │   ├── SceneLoaderLogic.res
 │   │   │   │   ├── ServerTeaser.ast
 │   │   │   │   ├── ServerTeaser.bs.js
 │   │   │   │   ├── ServerTeaser.cmi
@@ -13540,6 +13591,12 @@
 │   │   │       ├── PathInterpolation.cmj
 │   │   │       ├── PathInterpolation.cmt
 │   │   │       ├── PathInterpolation.res
+│   │   │       ├── PerfUtils.ast
+│   │   │       ├── PerfUtils.bs.js
+│   │   │       ├── PerfUtils.cmi
+│   │   │       ├── PerfUtils.cmj
+│   │   │       ├── PerfUtils.cmt
+│   │   │       ├── PerfUtils.res
 │   │   │       ├── PersistenceLayer.ast
 │   │   │       ├── PersistenceLayer.bs.js
 │   │   │       ├── PersistenceLayer.cmi
@@ -15485,6 +15542,11 @@
 │   │   ├── PathInterpolation_v.test.cmj
 │   │   ├── PathInterpolation_v.test.cmt
 │   │   ├── PathInterpolation_v.test.res
+│   │   ├── PerfUtils.ast
+│   │   ├── PerfUtils.cmi
+│   │   ├── PerfUtils.cmj
+│   │   ├── PerfUtils.cmt
+│   │   ├── PerfUtils.res
 │   │   ├── PersistenceLayer.ast
 │   │   ├── PersistenceLayer.cmi
 │   │   ├── PersistenceLayer.cmj
@@ -15545,11 +15607,6 @@
 │   │   ├── ProjectApi.cmj
 │   │   ├── ProjectApi.cmt
 │   │   ├── ProjectApi.res
-│   │   ├── ProjectLoader.ast
-│   │   ├── ProjectLoader.cmi
-│   │   ├── ProjectLoader.cmj
-│   │   ├── ProjectLoader.cmt
-│   │   ├── ProjectLoader.res
 │   │   ├── ProjectManager.ast
 │   │   ├── ProjectManager.cmi
 │   │   ├── ProjectManager.cmj
@@ -15570,16 +15627,11 @@
 │   │   ├── ProjectReducer_v.test.cmj
 │   │   ├── ProjectReducer_v.test.cmt
 │   │   ├── ProjectReducer_v.test.res
-│   │   ├── ProjectSaver.ast
-│   │   ├── ProjectSaver.cmi
-│   │   ├── ProjectSaver.cmj
-│   │   ├── ProjectSaver.cmt
-│   │   ├── ProjectSaver.res
-│   │   ├── ProjectValidator.ast
-│   │   ├── ProjectValidator.cmi
-│   │   ├── ProjectValidator.cmj
-│   │   ├── ProjectValidator.cmt
-│   │   ├── ProjectValidator.res
+│   │   ├── ProjectSystem.ast
+│   │   ├── ProjectSystem.cmi
+│   │   ├── ProjectSystem.cmj
+│   │   ├── ProjectSystem.cmt
+│   │   ├── ProjectSystem.res
 │   │   ├── ProjectionMath.ast
 │   │   ├── ProjectionMath.cmi
 │   │   ├── ProjectionMath.cmj
@@ -15645,6 +15697,11 @@
 │   │   ├── Reducer.cmj
 │   │   ├── Reducer.cmt
 │   │   ├── Reducer.res
+│   │   ├── ReducerModules.ast
+│   │   ├── ReducerModules.cmi
+│   │   ├── ReducerModules.cmj
+│   │   ├── ReducerModules.cmt
+│   │   ├── ReducerModules.res
 │   │   ├── Reducer_v.test.ast
 │   │   ├── Reducer_v.test.cmi
 │   │   ├── Reducer_v.test.cmj
@@ -15768,21 +15825,11 @@
 │   │   ├── SceneLoader.cmj
 │   │   ├── SceneLoader.cmt
 │   │   ├── SceneLoader.res
-│   │   ├── SceneLoaderConfig.ast
-│   │   ├── SceneLoaderConfig.cmi
-│   │   ├── SceneLoaderConfig.cmj
-│   │   ├── SceneLoaderConfig.cmt
-│   │   ├── SceneLoaderConfig.res
-│   │   ├── SceneLoaderEvents.ast
-│   │   ├── SceneLoaderEvents.cmi
-│   │   ├── SceneLoaderEvents.cmj
-│   │   ├── SceneLoaderEvents.cmt
-│   │   ├── SceneLoaderEvents.res
-│   │   ├── SceneLoaderReuse.ast
-│   │   ├── SceneLoaderReuse.cmi
-│   │   ├── SceneLoaderReuse.cmj
-│   │   ├── SceneLoaderReuse.cmt
-│   │   ├── SceneLoaderReuse.res
+│   │   ├── SceneLoaderLogic.ast
+│   │   ├── SceneLoaderLogic.cmi
+│   │   ├── SceneLoaderLogic.cmj
+│   │   ├── SceneLoaderLogic.cmt
+│   │   ├── SceneLoaderLogic.res
 │   │   ├── SceneLoader_Lifecycle_Unified_v.test.ast
 │   │   ├── SceneLoader_Lifecycle_Unified_v.test.cmi
 │   │   ├── SceneLoader_Lifecycle_Unified_v.test.cmj
@@ -16491,6 +16538,11 @@
 │   │   ├── VisualPipeline.cmj
 │   │   ├── VisualPipeline.cmt
 │   │   ├── VisualPipeline.res
+│   │   ├── VisualPipelineLogic.ast
+│   │   ├── VisualPipelineLogic.cmi
+│   │   ├── VisualPipelineLogic.cmj
+│   │   ├── VisualPipelineLogic.cmt
+│   │   ├── VisualPipelineLogic.res
 │   │   ├── VisualPipeline_v.test.ast
 │   │   ├── VisualPipeline_v.test.cmi
 │   │   ├── VisualPipeline_v.test.cmj
@@ -16508,7 +16560,6 @@
 │   │   └── WebApiBindings.res
 │   └── rescript.lock
 ├── logs
-│   └── log_changes.txt
 ├── old_ref
 │   ├── 7aadee4
 │   │   ├── CHANGELOG.md
@@ -18055,6 +18106,7 @@
 │   │   ├── ViewerUI.res
 │   │   ├── VisualPipeline.bs.js
 │   │   ├── VisualPipeline.res
+│   │   ├── VisualPipelineLogic.bs.js
 │   │   ├── VisualPipelineLogic.res
 │   │   └── ui
 │   │       ├── LucideIcons.bs.js
@@ -18110,6 +18162,7 @@
 │   │   ├── OptimisticAction.resi
 │   │   ├── Reducer.bs.js
 │   │   ├── Reducer.res
+│   │   ├── ReducerModules.bs.js
 │   │   ├── ReducerModules.res
 │   │   ├── SceneCache.bs.js
 │   │   ├── SceneCache.res
@@ -18246,13 +18299,11 @@
 │   │   ├── PanoramaClusterer.bs.js
 │   │   ├── PanoramaClusterer.res
 │   │   ├── Project
-│   │   │   ├── ProjectLoader.bs.js
-│   │   │   ├── ProjectSaver.bs.js
-│   │   │   └── ProjectValidator.bs.js
 │   │   ├── ProjectManager.bs.js
 │   │   ├── ProjectManager.res
 │   │   ├── ProjectManagerUrl.bs.js
 │   │   ├── ProjectManagerUrl.res
+│   │   ├── ProjectSystem.bs.js
 │   │   ├── ProjectSystem.res
 │   │   ├── Resizer
 │   │   │   ├── ResizerLogic.bs.js
@@ -18265,9 +18316,6 @@
 │   │   ├── Resizer.res
 │   │   ├── Scene
 │   │   │   ├── Loader
-│   │   │   │   ├── SceneLoaderConfig.bs.js
-│   │   │   │   ├── SceneLoaderEvents.bs.js
-│   │   │   │   └── SceneLoaderReuse.bs.js
 │   │   │   ├── SceneLoader.bs.js
 │   │   │   ├── SceneLoader.res
 │   │   │   ├── SceneSwitcher.bs.js
@@ -18276,6 +18324,7 @@
 │   │   │   └── SceneTransition.res
 │   │   ├── Scene.bs.js
 │   │   ├── Scene.res
+│   │   ├── SceneLoaderLogic.bs.js
 │   │   ├── SceneLoaderLogic.res
 │   │   ├── ServerTeaser.bs.js
 │   │   ├── ServerTeaser.res
@@ -18385,6 +18434,8 @@
 │       ├── OperationJournal.resi
 │       ├── PathInterpolation.bs.js
 │       ├── PathInterpolation.res
+│       ├── PerfUtils.bs.js
+│       ├── PerfUtils.res
 │       ├── PersistenceLayer.bs.js
 │       ├── PersistenceLayer.res
 │       ├── ProgressBar.bs.js
@@ -18416,6 +18467,7 @@
 ├── tasks
 │   ├── TASKS.md
 │   ├── active
+│   │   └── 1405_frontend_state_subscription_and_persistence_budget.md
 │   ├── completed
 │   │   ├── 1358_PERF_Budgets_Stress_Gates_and_Program_Closeout_DONE.md
 │   │   ├── 1359_FIX_Backend_Service_Startup_Robustness_DONE.md
@@ -18431,6 +18483,9 @@
 │   │   ├── 1373_Unit_Test_Coverage_Systems_API_DONE.md
 │   │   ├── 1374_Unit_Test_Coverage_UI_Hooks_DONE.md
 │   │   ├── 1375_Test_Suite_Cleanup_Alignment_DONE.md
+│   │   ├── 1401_harden_backend_error_handling.md
+│   │   ├── 1403_path_canonicalization_and_project_id_sanitization_DONE.md
+│   │   ├── 1404_export_pipeline_streaming_and_quota_coverage_DONE.md
 │   │   ├── _CONCISE_SUMMARY.md
 │   │   └── tests
 │   │       ├── 1195_Test_Teaser_DONE.md
@@ -18441,25 +18496,37 @@
 │   │       ├── 599_Test_SceneHelpers_Update.md
 │   │       └── 600_Test_ViewerSnapshot_Update.md
 │   ├── pending
-│   │   ├── 001_troubleshoot_teaser_encoding.md
-│   │   ├── 1321_E2E_Test_Editor_Features.md
-│   │   ├── 1365_harden_backend_error_handling.md
-│   │   ├── 1366_unify_async_cancellation_abortsignal.md
-│   │   ├── 1367_decommission_transition_lock.md
-│   │   ├── 1368_state_density_monitoring_and_optimization.md
+│   │   ├── 1402_auth_and_token_transport_hardening.md
+│   │   ├── 1406_visual_pipeline_render_path_optimization.md
+│   │   ├── 1407_troubleshoot_teaser_encoding.md
+│   │   ├── 1408_server_teaser_headless_pipeline_alignment.md
+│   │   ├── 1409_unify_async_cancellation_abortsignal.md
+│   │   ├── 1410_telemetry_backpressure_and_observability_governance.md
+│   │   ├── 1411_E2E_Test_Editor_Features.md
+│   │   ├── 1412_dead_code_and_api_contract_alignment.md
+│   │   ├── 1413_decommission_transition_lock.md
+│   │   ├── 1414_state_density_monitoring_and_optimization.md
 │   │   └── dev_tasks
 │   │       ├── D001_Fix_Violations_FRONTEND.md
-│   │       ├── D002_Surgical_Refactor_CORE_FRONTEND.md
-│   │       ├── D017_Evaluate_Automated_Tasks.md
-│   │       ├── D018_Surgical_Refactor_COMPONENTS_FRONTEND.md
-│   │       ├── D019_Classify_Map_Entries.md
-│   │       └── D020_Integrate_DataFlow_Modules.md
+│   │       ├── D002_Evaluate_Automated_Tasks.md
+│   │       ├── D003_Classify_Map_Entries.md
+│   │       ├── D004_Integrate_DataFlow_Modules.md
+│   │       ├── D005_Surgical_Refactor_CORE_FRONTEND.md
+│   │       ├── D006_Surgical_Refactor_COMPONENTS_FRONTEND.md
+│   │       ├── D007_Fix_Violations_BACKEND.md
+│   │       └── D008_Surgical_Refactor_SRC_BACKEND.md
 │   └── postponed
 │       ├── 1243_Fix_Operation_Cancellation_Feedback.md
 │       ├── 1246_Handle_Malformed_Project_Files_Gracefully.md
 │       └── 1299_ERR_Performance_LoadTimeAndMemory.md
 ├── test-results
+├── test_log.txt
+├── test_log_2.txt
+├── test_log_3.txt
+├── test_log_final.txt
 ├── test_output.log
+├── test_output.txt
+├── test_output_2.txt
 ├── test_run.log
 ├── test_run_2.log
 ├── test_run_rapid.log
@@ -18860,4 +18927,4 @@
 │       └── test_run_2.json
 └── vitest.config.mjs
 
-904 directories, 17957 files
+925 directories, 18003 files

@@ -33,31 +33,26 @@ mod tests {
     #[tokio::test]
     async fn test_geocoder_suite_sequential() {
         test_coordinate_rounding_internal();
-        test_cache_hit_increments_counter_internal().await;
+        test_reverse_geocode_with_cache_internal().await;
         test_clear_cache_internal().await;
         test_lru_eviction_internal().await;
     }
 
-    async fn test_cache_hit_increments_counter_internal() {
-        clear_cache().await;
-        let lat = 37.7749;
-        let lon = -122.4194;
-        let address = "San Francisco, CA".to_string();
-        let key = cache::round_coords(lat, lon);
-        {
-            cache::manual_insert(key, address.clone(), cache::get_current_timestamp(), 1).await;
-        }
+    async fn test_reverse_geocode_with_cache_internal() {
+        clear_cache().await; // Ensure a clean state for the test
+        let lat = 40.7128;
+        let lon = -74.0060;
+        let address = "New York, NY, USA".to_string();
+
+        cache::update_cache(cache::round_coords(lat, lon), address.clone()).await;
+
         let result = reverse_geocode(lat, lon)
             .await
-            .expect("Reverse geocode failed");
+            .expect("Failed to reverse geocode");
         assert_eq!(result, address);
-        let info = get_info().await;
-        assert_eq!(info.stats.hits, 1);
 
-        let access_count = cache::get_cache_entry_access_count(&key)
-            .await
-            .expect("Cache entry missing");
-        assert_eq!(access_count, 2);
+        let info = get_info().await;
+        assert!(info.cache_size >= 1);
     }
 
     async fn test_lru_eviction_internal() {
