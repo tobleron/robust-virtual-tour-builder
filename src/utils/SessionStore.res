@@ -11,16 +11,7 @@ external removeItem: string => unit = "removeItem"
 
 let storageKey = "vtb_session_store"
 
-let saveState = (state: state) => {
-  let sessionState: sessionState = {
-    tourName: state.tourName,
-    activeIndex: state.activeIndex,
-    activeYaw: state.activeYaw,
-    activePitch: state.activePitch,
-    isLinking: state.isLinking,
-    isTeasing: state.isTeasing,
-  }
-
+let save = (sessionState: sessionState) => {
   try {
     let str = JsonCombinators.Json.stringify(JsonParsers.Domain.SessionState.encode(sessionState))
     setItem(storageKey, str)
@@ -35,6 +26,19 @@ let saveState = (state: state) => {
       )
     }
   }
+}
+
+let saveState = (state: state) => {
+  let sessionState: sessionState = {
+    tourName: state.tourName,
+    activeIndex: state.activeIndex,
+    activeYaw: state.activeYaw,
+    activePitch: state.activePitch,
+    isLinking: state.isLinking,
+    isTeasing: state.isTeasing,
+  }
+
+  save(sessionState)
 }
 
 let decodeSessionState = (jsonStr: string): option<sessionState> => {

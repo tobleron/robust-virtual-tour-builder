@@ -3,7 +3,7 @@
 
 open Types
 
-let rebuildUrl = (f: Types.file, ~sessionId: string, ~tokenQuery: string) => {
+let rebuildUrl = (f: Types.file, ~sessionId: string) => {
   switch f {
   | Url(url) =>
     let isFullUrl = String.startsWith(url, "http")
@@ -19,14 +19,7 @@ let rebuildUrl = (f: Types.file, ~sessionId: string, ~tokenQuery: string) => {
       switch Belt.Array.get(parts, 1) {
       | Some(afterFile) =>
         let filename = String.split(afterFile, "?")->Belt.Array.get(0)->Option.getOr(afterFile)
-        Types.Url(
-          Constants.backendUrl ++
-          "/api/project/" ++
-          sessionId ++
-          "/file/" ++
-          filename ++
-          tokenQuery,
-        )
+        Types.Url(Constants.backendUrl ++ "/api/project/" ++ sessionId ++ "/file/" ++ filename)
       | None => f
       }
     } else if isFullUrl {
@@ -44,8 +37,7 @@ let rebuildUrl = (f: Types.file, ~sessionId: string, ~tokenQuery: string) => {
         "/api/project/" ++
         sessionId ++
         "/file/" ++
-        encodeURIComponent(filename) ++
-        tokenQuery,
+        encodeURIComponent(filename),
       )
     } else {
       f
@@ -54,10 +46,10 @@ let rebuildUrl = (f: Types.file, ~sessionId: string, ~tokenQuery: string) => {
   }
 }
 
-let rebuildSceneUrls = (scenes: array<Types.scene>, ~sessionId: string, ~tokenQuery: string) => {
+let rebuildSceneUrls = (scenes: array<Types.scene>, ~sessionId: string) => {
   Belt.Array.map(scenes, scene => {
     // 1. Rebuild primary file URL
-    let file = switch rebuildUrl(scene.file, ~sessionId, ~tokenQuery) {
+    let file = switch rebuildUrl(scene.file, ~sessionId) {
     | Url(u) if u != "" && (String.startsWith(u, "http") || String.startsWith(u, "blob:")) =>
       Types.Url(u)
     | _ =>
@@ -67,13 +59,12 @@ let rebuildSceneUrls = (scenes: array<Types.scene>, ~sessionId: string, ~tokenQu
         "/api/project/" ++
         sessionId ++
         "/file/" ++
-        encodeURIComponent(scene.name) ++
-        tokenQuery,
+        encodeURIComponent(scene.name),
       )
     }
 
     let originalFile = scene.originalFile->Option.flatMap(f => {
-      switch rebuildUrl(f, ~sessionId, ~tokenQuery) {
+      switch rebuildUrl(f, ~sessionId) {
       | Url("") => None
       | Url(u) => Some(Types.Url(u))
       | other => Some(other)
@@ -81,7 +72,7 @@ let rebuildSceneUrls = (scenes: array<Types.scene>, ~sessionId: string, ~tokenQu
     })
 
     let tinyFile = scene.tinyFile->Option.flatMap(f => {
-      switch rebuildUrl(f, ~sessionId, ~tokenQuery) {
+      switch rebuildUrl(f, ~sessionId) {
       | Url("") => None
       | Url(u) => Some(Types.Url(u))
       | other => Some(other)

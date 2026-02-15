@@ -68,11 +68,15 @@ where
             });
         }
 
-        let ip = req
+        let ip_raw = req
             .connection_info()
             .realip_remote_addr()
             .unwrap_or("unknown")
             .to_string();
+
+        // Normalize: strip port if present (handles IPv4 and some header formats)
+        // Note: realip_remote_addr usually provides just the IP, but we ensure consistency here.
+        let ip = ip_raw.split(':').next().unwrap_or("unknown").to_string();
 
         let content_length = req
             .headers()
@@ -120,7 +124,10 @@ where
 
 fn should_check_quota(req: &ServiceRequest) -> bool {
     let path = req.path();
-    path.contains("/media/") || path.contains("/project/save") || path.contains("/project/import")
+    path.contains("/media/")
+        || path.contains("/project/save")
+        || path.contains("/project/import")
+        || path.contains("/project/create-tour-package")
 }
 
 #[cfg(test)]

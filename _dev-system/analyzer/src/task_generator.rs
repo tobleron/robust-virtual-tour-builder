@@ -2,7 +2,7 @@ use crate::config::EfficiencyConfig;
 use crate::verification::{VerificationBundle, VerificationReport};
 use anyhow::Result;
 use serde_json;
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -260,11 +260,34 @@ fn sync_architectural_category(
                     )
                     .as_bytes(),
                 )?;
+                let mut grouped: BTreeMap<String, Vec<usize>> = BTreeMap::new();
                 for func in &snapshot.functions {
-                    file.write_all(
-                        format!("    - {} — {}\n", func.name, func.signature).as_bytes(),
-                    )?;
+                    grouped.entry(func.name.clone()).or_default().push(func.line);
                 }
+                if !grouped.is_empty() {
+                    file.write_all("    - Grouped summary:\n".as_bytes())?;
+                    for (name, mut lines) in grouped {
+                        lines.sort_unstable();
+                        let lines_text = lines
+                            .iter()
+                            .map(|line| line.to_string())
+                            .collect::<Vec<_>>()
+                            .join(", ");
+                        file.write_all(
+                            format!(
+                                "        - {} × {} (lines: {})\n",
+                                name,
+                                lines.len(),
+                                lines_text
+                            )
+                            .as_bytes(),
+                        )?;
+                    }
+                }
+                file.write_all(
+                    "    - Detailed entries are preserved in baseline JSON (`verification.json`) for machine-level diffs.\n"
+                        .as_bytes(),
+                )?;
             }
         }
     }

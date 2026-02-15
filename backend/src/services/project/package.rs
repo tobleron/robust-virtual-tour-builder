@@ -17,45 +17,46 @@ type ProcessedResult = Result<Vec<(String, Vec<u8>)>, String>;
 /// 3. Bundles external dependencies (Pannellum) and branding assets.
 ///
 /// # Arguments
-/// * `image_files` - A vector of (filename, bytes) for the tour assets.
+/// * `image_files` - A vector of (filename, path) for the tour assets.
 /// * `fields` - A map containing HTML templates and other metadata.
+/// * `output_zip_path` - The path where the generated ZIP should be saved.
 ///
 /// # Returns
-/// The binary data of the generated ZIP package.
-///
-/// # Errors
-/// * Returns a `String` error if image processing or ZIP creation fails.
+/// Success or a String error.
 pub fn create_tour_package(
-    image_files: Vec<(String, Vec<u8>)>,
+    image_files: Vec<(String, std::path::PathBuf)>,
     fields: HashMap<String, String>,
-) -> Result<Vec<u8>, String> {
-    let mut zip_buffer = Cursor::new(Vec::new());
+    output_zip_path: std::path::PathBuf,
+) -> Result<(), String> {
     {
-        let mut zip = zip::ZipWriter::new(&mut zip_buffer);
+        let file = std::fs::File::create(&output_zip_path).map_err(|e| e.to_string())?;
+        let mut zip = zip::ZipWriter::new(file);
         let options = FileOptions::default()
             .compression_method(zip::CompressionMethod::Stored)
             .unix_permissions(0o755);
 
         // 1. Add Static Assets (Logo)
-        if let Some((name, logo_bytes)) = image_files
+        if let Some((name, logo_path)) = image_files
             .iter()
             .find(|(name, _)| name.starts_with("logo."))
         {
+            let logo_bytes = std::fs::read(logo_path).map_err(|e| e.to_string())?;
             for folder in &["tour_4k", "tour_2k", "tour_hd"] {
                 zip.start_file(format!("{}/assets/{}", folder, name), options)
                     .map_err(|e| e.to_string())?;
-                zip.write_all(logo_bytes).map_err(|e| e.to_string())?;
+                zip.write_all(&logo_bytes).map_err(|e| e.to_string())?;
             }
         }
 
         // 2. Add Libraries
         let lib_files = ["pannellum.js", "pannellum.css"];
         for lib in lib_files {
-            if let Some((_, lib_bytes)) = image_files.iter().find(|(name, _)| name == lib) {
+            if let Some((_, lib_path)) = image_files.iter().find(|(name, _)| name == lib) {
+                let lib_bytes = std::fs::read(lib_path).map_err(|e| e.to_string())?;
                 for folder in &["tour_4k", "tour_2k", "tour_hd"] {
                     zip.start_file(format!("{}/libs/{}", folder, lib), options)
                         .map_err(|e| e.to_string())?;
-                    zip.write_all(lib_bytes).map_err(|e| e.to_string())?;
+                    zip.write_all(&lib_bytes).map_err(|e| e.to_string())?;
                 }
             }
         }
@@ -90,13 +91,14 @@ pub fn create_tour_package(
         // 4. Process Scenes (Resize)
         let scene_files: Vec<_> = image_files
             .iter()
-            .filter(|(name, _)| !name.starts_with("logo") && !name.starts_with("pannellum"))
+            .filter(|(name, _)| !name.starts_with("logo.") && !lib_files.contains(&name.as_str()))
             .collect();
 
         let processed_results: Vec<ProcessedResult> = scene_files
             .par_iter()
-            .map(|(name, data)| -> Result<Vec<(String, Vec<u8>)>, String> {
-                let img = image::ImageReader::new(Cursor::new(data))
+            .map(|(name, path)| -> Result<Vec<(String, Vec<u8>)>, String> {
+                let bytes = std::fs::read(path).map_err(|e| e.to_string())?;
+                let img = image::ImageReader::new(Cursor::new(bytes))
                     .with_guessed_format()
                     .map_err(|e| format!("Failed to guess format for {}: {}", name, e))?
                     .decode()
@@ -136,5 +138,10 @@ pub fn create_tour_package(
         zip.finish().map_err(|e| e.to_string())?;
     }
 
-    Ok(zip_buffer.into_inner())
+    // Cleanup temp files
+    for (_, path) in image_files {
+        let _ = std::fs::remove_file(path);
+    }
+
+    Ok(())
 }

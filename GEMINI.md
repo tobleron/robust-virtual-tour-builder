@@ -21,8 +21,16 @@
 
 ## 🛠️ WORKFLOW AUTOMATION
 
+### PHASE 0: TROUBLESHOOTING
+- **Trigger**: When asked to "troubleshoot", "debug", "fix", or investigate a bug.
+- **Action**: Create `tasks/active/T###_troubleshoot_[context].md` immediately (Sequential numbering with project tasks).
+- **Mandatory Content**:
+  - [ ] **Hypothesis**: Initial assumption.
+  - [ ] **Activity Log**: Checkbox list of experiments/edits.
+  - [ ] **Rollback Check**: [ ] (Confirmed CLEAN or REVERTED non-working changes).
+  - [ ] **Context Handoff**: 3-sentence summary for the next session if the window fills up.
+
 ### PHASE 1: EXECUTION
-- **Build**: For normal requests, skip (let dev server handle it).
 
 ### PHASE 2: COMMIT & PUSH
 - **Explicit Permission**: Only commit when the user provides a message or instruction.

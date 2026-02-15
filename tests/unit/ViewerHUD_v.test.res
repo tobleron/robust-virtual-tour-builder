@@ -9,6 +9,8 @@ module WrappedViewerHUD = {
       scenes: mockState.scenes,
       activeIndex: mockState.activeIndex,
       tourName: mockState.tourName,
+      activeYaw: mockState.activeYaw,
+      activePitch: mockState.activePitch,
     }
     let uiSlice: AppContext.uiSlice = {
       isLinking: mockState.isLinking,
@@ -16,6 +18,7 @@ module WrappedViewerHUD = {
       linkDraft: mockState.linkDraft,
       appMode: mockState.appMode,
       logo: mockState.logo,
+      preloadingSceneIndex: mockState.preloadingSceneIndex,
     }
     let simSlice: AppContext.simSlice = {
       simulation: mockState.simulation,

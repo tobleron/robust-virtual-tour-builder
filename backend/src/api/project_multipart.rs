@@ -94,7 +94,7 @@ pub async fn extract_file_from_multipart(
 /// Parses the multipart payload for creating a tour package.
 pub async fn parse_tour_package_multipart(
     mut payload: Multipart,
-) -> Result<(Vec<(String, Vec<u8>)>, HashMap<String, String>), AppError> {
+) -> Result<(Vec<(String, PathBuf)>, HashMap<String, String>), AppError> {
     let mut image_files = Vec::new();
     let mut fields = HashMap::new();
 
@@ -104,18 +104,8 @@ pub async fn parse_tour_package_multipart(
         if ["html_4k", "html_2k", "html_hd", "html_index", "embed_codes"].contains(&name.as_str()) {
             fields.insert(name, read_string_field(&mut field).await?);
         } else {
-            // It's a file
-            let filename = field
-                .content_disposition()
-                .and_then(|cd| cd.get_filename())
-                .map(|f| f.to_string())
-                .unwrap_or_else(|| name.clone());
-
-            let mut bytes = Vec::new();
-            while let Some(chunk) = field.try_next().await? {
-                bytes.extend_from_slice(&chunk);
-            }
-            image_files.push((filename, bytes));
+            // Use existing helper to stream to file
+            image_files.push(save_temp_file_field(&mut field).await?);
         }
     }
     Ok((image_files, fields))

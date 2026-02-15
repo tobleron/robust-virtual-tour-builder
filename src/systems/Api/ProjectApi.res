@@ -28,30 +28,6 @@ let handleJsonDecode = (json, decoder, logKey, errorMessage) => {
   }
 }
 
-let getAuthHeaders = () => {
-  let headers = Dict.make()
-  let token = Dom.Storage2.localStorage->Dom.Storage2.getItem("auth_token")
-
-  let finalToken = switch token {
-  | Some(t) => Some(t)
-  | None =>
-    // Professional fallback for local development automation
-    Logger.info(
-      ~module_="ProjectApi",
-      ~message="USING_DEV_TOKEN_FALLBACK",
-      ~data=Some({"context": "No auth_token found, using dev-token"}),
-      (),
-    )
-    Some("dev-token")
-  }
-
-  switch finalToken {
-  | Some(t) => Dict.set(headers, "Authorization", "Bearer " ++ t)
-  | None => ()
-  }
-  headers
-}
-
 let importProject = (file: File.t): Promise.t<apiResult<importResponse>> => {
   RequestQueue.schedule(() => {
     let formData = FormData.newFormData()

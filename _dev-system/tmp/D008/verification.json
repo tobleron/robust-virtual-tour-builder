@@ -1,44 +1,99 @@
 {
-  "backend/src/metrics.rs": {
-    "path": "backend/src/metrics.rs",
-    "functions": [
-      {
-        "name": "test_metrics_initialization",
-        "signature": "fn test_metrics_initialization() {",
-        "line": 141
-      }
-    ],
-    "fingerprint": "9185e449c1d35d4ab17e7b66d2667d478f0f9cc8095ddb06083f037f0bc40bbd"
-  },
-  "backend/src/services/media/naming.rs": {
-    "path": "backend/src/services/media/naming.rs",
-    "functions": [
-      {
-        "name": "get_suggested_name",
-        "signature": "pub fn get_suggested_name(original: &str) -> String {",
-        "line": 16
-      },
-      {
-        "name": "sanitize_asset_path",
-        "signature": "pub fn sanitize_asset_path(path: &str) -> String {",
-        "line": 37
-      },
-      {
-        "name": "normalize_project_entry_path",
-        "signature": "pub fn normalize_project_entry_path(filename: &str) -> Option<String> {",
-        "line": 52
-      },
-      {
-        "name": "test_sanitize_asset_path_removes_traversal",
-        "signature": "fn test_sanitize_asset_path_removes_traversal() {",
-        "line": 75
-      },
-      {
-        "name": "test_normalize_project_entry_path",
-        "signature": "fn test_normalize_project_entry_path() {",
-        "line": 89
-      }
-    ],
-    "fingerprint": "43eec149bc6bf2c7e80ae1da5ffd217918733e504f561a6db143f1d97529167a"
-  }
+  "task": "D008",
+  "category": "Surgical_Refactor_SRC_BACKEND",
+  "baseline_dir": "_dev-system/tmp/D008",
+  "bundles": [
+    {
+      "headline": "Pre-split snapshot for `backend/src/models.rs`",
+      "snapshots": [
+        {
+          "path": "backend/src/models.rs",
+          "functions": [
+            {
+              "name": "fmt",
+              "signature": "fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {",
+              "line": 31
+            },
+            {
+              "name": "error_response",
+              "signature": "fn error_response(&self) -> HttpResponse {",
+              "line": 48
+            },
+            {
+              "name": "from",
+              "signature": "fn from(err: std::io::Error) -> Self {",
+              "line": 111
+            },
+            {
+              "name": "from",
+              "signature": "fn from(err: actix_multipart::MultipartError) -> Self {",
+              "line": 116
+            },
+            {
+              "name": "from",
+              "signature": "fn from(err: zip::result::ZipError) -> Self {",
+              "line": 121
+            },
+            {
+              "name": "from",
+              "signature": "fn from(err: String) -> Self {",
+              "line": 126
+            },
+            {
+              "name": "from",
+              "signature": "fn from(s: String) -> Self {",
+              "line": 241
+            },
+            {
+              "name": "to_string",
+              "signature": "fn to_string(&self) -> String {",
+              "line": 251
+            },
+            {
+              "name": "create",
+              "signature": "pub async fn create(",
+              "line": 288
+            },
+            {
+              "name": "create",
+              "signature": "pub async fn create(",
+              "line": 331
+            },
+            {
+              "name": "create",
+              "signature": "pub async fn create(",
+              "line": 460
+            },
+            {
+              "name": "find_by_email",
+              "signature": "pub async fn find_by_email(",
+              "line": 487
+            },
+            {
+              "name": "default",
+              "signature": "fn default() -> Self {",
+              "line": 511
+            },
+            {
+              "name": "new",
+              "signature": "pub fn new() -> Self {",
+              "line": 517
+            },
+            {
+              "name": "has_issues",
+              "signature": "pub fn has_issues(&self) -> bool {",
+              "line": 527
+            },
+            {
+              "name": "test_app_error_response_format",
+              "signature": "fn test_app_error_response_format() {",
+              "line": 541
+            }
+          ],
+          "fingerprint": "3f59a286fa8a359f00d79824a53e2514ec37f5a95df0284d5b99ec6a3b495902"
+        }
+      ]
+    }
+  ],
+  "timestamp": "2026-02-15T20:17:38.557586Z"
 }

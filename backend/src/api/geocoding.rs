@@ -114,21 +114,37 @@ pub async fn clear_geocode_cache() -> impl actix_web::Responder {
 mod tests {
     use super::*;
     use crate::services::geocoding;
-    use actix_web::{Responder, http::StatusCode, test, web};
+    use actix_web::{App, Responder, http::StatusCode, test, web};
 
     #[actix_web::test]
-    async fn test_api_suite_sequential() {
+    async fn test_api_suite_sequential() -> Result<(), Box<dyn std::error::Error>> {
         // Run tests sequentially to avoid race conditions on the global singleton cache
-        test_reverse_geocode_structure_internal().await;
+        test_reverse_geocode_structure_internal().await?;
         test_geocode_stats_internal().await;
         test_clear_cache_internal().await;
+        Ok(())
     }
 
-    async fn test_reverse_geocode_structure_internal() {
-        let resp = reverse_geocode(web::Json(GeocodeRequest { lat: 0.0, lon: 0.0 })).await;
-        assert!(resp.is_ok());
-        let response = resp.expect("Geocode response was an error");
-        assert_eq!(response.status(), StatusCode::OK);
+    #[actix_web::test]
+    async fn test_geocode_success() -> Result<(), Box<dyn std::error::Error>> {
+        let app =
+            test::init_service(App::new().route("/geocode", web::post().to(reverse_geocode))).await;
+        let req = test::TestRequest::post()
+            .uri("/geocode")
+            .set_json(GeocodeRequest {
+                lat: 40.7128,
+                lon: -74.0060,
+            })
+            .to_request();
+        let resp = test::call_service(&app, req).await;
+        assert!(resp.status().is_success());
+        Ok(())
+    }
+
+    async fn test_reverse_geocode_structure_internal() -> Result<(), Box<dyn std::error::Error>> {
+        let resp = reverse_geocode(web::Json(GeocodeRequest { lat: 0.0, lon: 0.0 })).await?;
+        assert_eq!(resp.status(), StatusCode::OK);
+        Ok(())
     }
 
     async fn test_geocode_stats_internal() {

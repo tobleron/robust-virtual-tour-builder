@@ -32,24 +32,6 @@ let handleJsonDecode = (json, decoder, logKey, errorMessage) => {
   }
 }
 
-let getAuthHeaders = () => {
-  let headers = Dict.make()
-  let token = Dom.Storage2.localStorage->Dom.Storage2.getItem("auth_token")
-
-  let finalToken = switch token {
-  | Some(t) => Some(t)
-  | None =>
-    // Professional fallback for local development automation
-    Some("dev-token")
-  }
-
-  switch finalToken {
-  | Some(t) => Dict.set(headers, "Authorization", "Bearer " ++ t)
-  | None => ()
-  }
-  headers
-}
-
 let extractMetadata = (file: File.t): Promise.t<apiResult<metadataResponse>> => {
   RequestQueue.schedule(() => {
     let formData = FormData.newFormData()

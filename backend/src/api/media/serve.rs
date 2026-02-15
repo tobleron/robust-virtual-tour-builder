@@ -29,7 +29,13 @@ pub async fn serve_project_file(
         }
     };
 
-    let project_path = StorageManager::get_user_project_path(&user.id, &project_id);
+    let project_path = match StorageManager::get_user_project_path(&user.id, &project_id) {
+        Ok(path) => path,
+        Err(e) => {
+            tracing::error!(project_id = %project_id, error = %e, "PROJECT_ID_VALIDATION_FAILED");
+            return Err(AppError::ValidationError("Invalid project ID".into()));
+        }
+    };
     let images_path = project_path.join("images").join(&safe_filename);
     let root_path = project_path.join(&safe_filename);
 
@@ -82,6 +88,8 @@ pub async fn serve_project_file(
             }
         }
     };
+    let user_root = StorageManager::get_user_path(&user.id).map_err(AppError::IoError)?;
+    crate::api::utils::validate_path_safe(&user_root, &file_path)?;
 
     match actix_files::NamedFile::open(&file_path) {
         Ok(mut named_file) => {

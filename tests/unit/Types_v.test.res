@@ -261,6 +261,7 @@ describe("Types", () => {
       lastUsedCategory: "",
       sessionId: None,
       logo: None,
+      structuralRevision: 0,
     }
     t->expect(st.tourName)->Expect.toBe("Test Tour")
     t->expect(st.activeIndex)->Expect.toBe(0)

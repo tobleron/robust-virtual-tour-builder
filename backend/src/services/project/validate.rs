@@ -175,11 +175,35 @@ pub fn validate_and_clean_project(
                 .push(format!("Scene '{}': Missing floor metadata", scene_name));
             scene["floor"] = serde_json::json!("ground");
         }
+
+        // 4. Circular AutoForward Check
+        if let Some(true) = scene["isAutoForward"].as_bool() {
+            if let Some(hotspots) = scene["hotspots"].as_array() {
+                if hotspots
+                    .iter()
+                    .any(|h| h["target"].as_str() == Some(&scene_name))
+                {
+                    tracing::warn!(
+                        "Scene '{}': circular AutoForward detected, disabling",
+                        scene_name
+                    );
+                    scene["isAutoForward"] = serde_json::json!(false);
+                    report.warnings.push(format!(
+                        "Scene '{}': circular AutoForward loop detected and disabled",
+                        scene_name
+                    ));
+                }
+            }
+        }
     }
 
     // 4. Check for orphaned scenes (scenes with no incoming links)
-    for scene_name in &scene_names {
-        if !incoming_links.contains(scene_name) {
+    let mut scenes_to_keep = Vec::new();
+    for scene in scenes.drain(..) {
+        let scene_name = scene["name"].as_str().unwrap_or("unknown").to_string();
+        if incoming_links.contains(&scene_name) {
+            scenes_to_keep.push(scene);
+        } else {
             report.orphaned_scenes.push(scene_name.clone());
             report.warnings.push(format!(
                 "Orphaned scene detected (no incoming links): '{}'",
@@ -187,6 +211,7 @@ pub fn validate_and_clean_project(
             ));
         }
     }
+    *scenes = scenes_to_keep;
 
     // 5. Check for orphaned image files in the ZIP (files not used in project)
     for file in available_files {

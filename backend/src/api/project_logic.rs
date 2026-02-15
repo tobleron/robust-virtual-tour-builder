@@ -25,11 +25,15 @@ pub fn extract_project_metadata_from_zip(
         .map_err(AppError::IoError)?;
     let data: serde_json::Value =
         serde_json::from_str(&json_str).map_err(|e| AppError::InternalError(e.to_string()))?;
-    let id = data
+    let id_raw = data
         .get("id")
         .and_then(|v| v.as_str())
         .map(|s| s.to_string())
         .unwrap_or_else(|| Uuid::new_v4().to_string());
+
+    let id = crate::api::utils::sanitize_id(&id_raw)
+        .map_err(|e| AppError::ValidationError(format!("Invalid project ID in ZIP: {}", e)))?;
+
     Ok((id, data))
 }
 
@@ -62,21 +66,20 @@ pub fn extract_zip_to_project_dir(zip_path: &PathBuf, project_dir: &PathBuf) -> 
         let mut file = archive.by_index(i).map_err(|e| e.to_string())?;
         let outpath = match file.enclosed_name() {
             Some(path) => {
-                // Double-check sanitization using our robust util
-                if let Some(fname) = path.file_name().and_then(|s| s.to_str()) {
-                    if let Ok(safe_name) = crate::api::utils::sanitize_filename(fname) {
-                        // Reconstruct path with sanitized filename if it's a file
-                        if let Some(parent) = path.parent() {
-                            project_dir.join(parent).join(safe_name)
-                        } else {
-                            project_dir.join(safe_name)
+                let mut safe_path = project_dir.clone();
+                for component in path.components() {
+                    match component {
+                        std::path::Component::Normal(name) => {
+                            if let Some(name_str) = name.to_str() {
+                                let sanitized = crate::api::utils::sanitize_filename(name_str)
+                                    .map_err(|e| format!("Invalid path component: {}", e))?;
+                                safe_path.push(sanitized);
+                            }
                         }
-                    } else {
-                        project_dir.join(path)
+                        _ => {} // enclosed_name already handles .. and root
                     }
-                } else {
-                    project_dir.join(path)
                 }
+                safe_path
             }
             None => continue,
         };
@@ -285,4 +288,70 @@ pub fn validate_project_full_sync(
     let updated_json =
         serde_json::to_string_pretty(&validated_project).map_err(|e| e.to_string())?;
     Ok((updated_json, report, summary))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Write;
+    use tempfile::tempdir;
+
+    #[test]
+    fn test_extract_zip_path_traversal() {
+        let tmp = tempdir().unwrap();
+        let zip_path = tmp.path().join("malicious.zip");
+        let project_dir = tmp.path().join("project");
+        fs::create_dir_all(&project_dir).unwrap();
+
+        // Create malicious ZIP
+        let file = fs::File::create(&zip_path).unwrap();
+        let mut zip = zip::ZipWriter::new(file);
+        let options = zip::write::FileOptions::default();
+
+        // This name is malicious
+        zip.start_file("../outside.txt", options).unwrap();
+        zip.write_all(b"malicious").unwrap();
+        zip.finish().unwrap();
+
+        // Extractions should ignore outside.txt or sanitize it to project/outside.txt
+        // enclosed_name() actually returns None for "..", so it's skipped.
+        extract_zip_to_project_dir(&zip_path, &project_dir).unwrap();
+
+        assert!(!tmp.path().join("outside.txt").exists());
+        // Since it's skipped by enclosed_name, it shouldn't even exist in project_dir
+        assert!(!project_dir.join("outside.txt").exists());
+    }
+
+    #[test]
+    fn test_extract_zip_sanitizes_components() {
+        let tmp = tempdir().unwrap();
+        let zip_path = tmp.path().join("dodgy.zip");
+        let project_dir = tmp.path().join("project");
+        fs::create_dir_all(&project_dir).unwrap();
+
+        let file = fs::File::create(&zip_path).unwrap();
+        let mut zip = zip::ZipWriter::new(file);
+        let options = zip::write::FileOptions::default();
+
+        zip.start_file("images/safe.webp", options).unwrap();
+        zip.write_all(b"safe").unwrap();
+
+        // Use backslash which sanitize_filename replaces on all platforms
+        zip.start_file("images/dodgy\\file.webp", options).unwrap();
+        zip.write_all(b"dodgy").unwrap();
+
+        zip.finish().unwrap();
+
+        extract_zip_to_project_dir(&zip_path, &project_dir).unwrap();
+
+        assert!(project_dir.join("images").is_dir());
+        assert!(project_dir.join("images").join("safe.webp").exists());
+
+        let dodgy_path = project_dir.join("images").join("dodgy_file.webp");
+        assert!(
+            dodgy_path.exists(),
+            "Sanitized dodgy path should exist at {:?}",
+            dodgy_path
+        );
+    }
 }

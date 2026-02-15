@@ -35,6 +35,9 @@ async fn main() -> io::Result<()> {
     // Initialize Logging
     let _guards = startup::init_logging();
 
+    // Validate Auth Config
+    startup::validate_auth_config()?;
+
     // Initialize Database
     let pool = DatabaseManager::new().await.map_err(|e| {
         io::Error::new(

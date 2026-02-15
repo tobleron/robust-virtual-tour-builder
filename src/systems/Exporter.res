@@ -279,7 +279,8 @@ let exportTour = async (
     let token = Dom.Storage2.localStorage->Dom.Storage2.getItem("auth_token")
     let finalToken = switch token {
     | Some(t) => Some(t)
-    | None => Some("dev-token")
+    | None if Constants.isDebugBuild() => Some("dev-token")
+    | None => None
     }
 
     let zipBlob = await RequestQueue.schedule(() =>

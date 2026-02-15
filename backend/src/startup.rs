@@ -264,3 +264,28 @@ pub fn security_headers() -> DefaultHeaders {
         ))
         .add(("X-DNS-Prefetch-Control", "off"))
 }
+
+/// Validate authentication configuration to prevent unsafe defaults in production.
+pub fn validate_auth_config() -> io::Result<()> {
+    if is_production() {
+        if std::env::var("BYPASS_AUTH")
+            .map(|v| v == "true")
+            .unwrap_or(false)
+        {
+            tracing::error!("🛑 FATAL: BYPASS_AUTH=true is set in production environment!");
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "BYPASS_AUTH=true is forbidden in production",
+            ));
+        }
+
+        if std::env::var("JWT_SECRET").is_err() {
+            tracing::error!("🛑 FATAL: JWT_SECRET is not set in production environment!");
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "JWT_SECRET must be set in production",
+            ));
+        }
+    }
+    Ok(())
+}

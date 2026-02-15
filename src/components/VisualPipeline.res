@@ -51,17 +51,19 @@ let init = (containerId: string) => {
 
 @react.component
 let make = () => {
+  PerfUtils.useRenderBudget("VisualPipeline")
   Logger.info(~module_="VisualPipeline", ~message="MAKE_CALLED", ())
   injectStyles()
   let containerRef = React.useRef(Nullable.null)
 
-  let appState = AppContext.useAppState()
+  let pipelineSlice = AppContext.usePipelineSlice()
   let dispatch = AppContext.useAppDispatch()
-  let stateRef = React.useRef(appState)
+  let state = AppContext.useAppState() // Needed for full state in render
+  let stateRef = React.useRef(state)
   React.useEffect1(() => {
-    stateRef.current = appState
+    stateRef.current = state
     None
-  }, [appState])
+  }, [state])
   let getState = () => stateRef.current
 
   let pipelineRef = React.useRef(None)
@@ -83,11 +85,11 @@ let make = () => {
 
   React.useEffect1(() => {
     switch pipelineRef.current {
-    | Some(p) => Logic.Render.render(p, appState, ~getState, ~dispatch)
+    | Some(p) => Logic.Render.render(p, state, ~getState, ~dispatch)
     | None => ()
     }
     None
-  }, [appState])
+  }, [pipelineSlice])
 
   <div
     ref={ReactDOM.Ref.domRef(containerRef)}

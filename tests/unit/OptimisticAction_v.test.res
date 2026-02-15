@@ -42,6 +42,7 @@ let makeInitialState = (): Types.state => {
     lastUsedCategory: "outdoor",
     sessionId: None,
     logo: None,
+    structuralRevision: 0,
   }
 }
 

@@ -1,4 +1,4 @@
-# 1321: E2E Test - Editor & Feature Deep Dive
+# 1411: E2E Test - Editor & Feature Deep Dive
 
 ## Objective
 Run E2E tests for the core Editor functionality and advanced feature deep dives in isolation.

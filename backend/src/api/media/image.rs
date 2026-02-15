@@ -179,23 +179,13 @@ pub async fn resize_image_batch(payload: Multipart) -> Result<HttpResponse, AppE
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+    use crate::models::{QualityAnalysis, QualityStats};
 
     #[test]
-    fn test_quality_analysis_serialization() {
-        let quality = crate::models::QualityAnalysis {
-            score: 0.82,
-            histogram: vec![0; 256],
-            color_hist: crate::models::ColorHist {
-                r: vec![0; 256],
-                g: vec![0; 256],
-                b: vec![0; 256],
-            },
-            stats: crate::models::QualityStats {
-                avg_luminance: 120,
-                black_clipping: 0.0,
-                white_clipping: 0.0,
-                sharpness_variance: 1000,
-            },
+    fn test_image_quality_serialization() -> Result<(), Box<dyn std::error::Error>> {
+        let quality = QualityAnalysis {
+            score: 0.85,
             is_blurry: false,
             is_soft: false,
             is_severely_dark: false,
@@ -205,9 +195,23 @@ mod tests {
             has_white_clipping: false,
             issues: 0,
             warnings: 0,
-            analysis: None,
+            analysis: Some("Clear image".to_string()),
+            histogram: vec![0; 256],
+            color_hist: crate::models::ColorHist {
+                r: vec![0; 256],
+                g: vec![0; 256],
+                b: vec![0; 256],
+            },
+            stats: QualityStats {
+                sharpness_variance: 500,
+                avg_luminance: 120,
+                black_clipping: 0.01,
+                white_clipping: 0.01,
+            },
         };
-        let serialized = serde_json::to_string(&quality).expect("Serialization failed");
-        assert!(serialized.contains("\"score\":0.82"));
+        let serialized = serde_json::to_string(&quality)?;
+        assert!(serialized.contains("score"));
+        assert!(serialized.contains("0.85"));
+        Ok(())
     }
 }

@@ -1,4 +1,4 @@
-# Task: ARCH: Domain Slice Optimization for Global State
+# 1414: ARCH: Domain Slice Optimization for Global State
 
 ## Objective (Developer Decision Required)
 Evaluate the feasibility of splitting `src/core/State.res` into smaller, domain-specific sub-states to prevent "God Object" growth.

@@ -1,0 +1,33 @@
+
+[1m[46m RUN [49m[22m [36mv4.0.17 [39m[90m/Users/r2/Desktop/robust-virtual-tour-builder[39m
+
+ [31m❯[39m tests/unit/ViewerManager_v.test.bs.js [2m([22m[2m8 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 418[2mms[22m[39m
+   [32m✓[39m ViewerManager placeholder[32m 1[2mms[22m[39m
+     [32m✓[39m should handle cleanup when no scenes exist[32m 53[2mms[22m[39m
+     [32m✓[39m should handle Escape key to cancel linking[32m 51[2mms[22m[39m
+     [32m✓[39m should update ViewerState on mouse move on stage[32m 102[2mms[22m[39m
+     [32m✓[39m should handle stage click during linking[32m 51[2mms[22m[39m
+     [32m✓[39m should trigger project context reset if lastSceneId is invalid[32m 50[2mms[22m[39m
+     [32m✓[39m should sync simulation state with body classes[32m 53[2mms[22m[39m
+[31m     [31m×[31m should trigger preloading when preloadingSceneIndex changes[39m[32m 56[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/unit/ViewerManager_v.test.bs.js[2m > [22mViewerManager[2m > [22mshould trigger preloading when preloadingSceneIndex changes
+[31m[1mAssertionError[22m: expected "vi.fn()" to be called at least once[39m
+[36m [2m❯[22m tests/unit/ViewerManager_v.test.bs.js:[2m418:26[22m[39m
+    [90m416| [39m    }))[33m;[39m
+    [90m417| [39m    [35mawait[39m [34mwait[39m([34m50[39m)[33m;[39m
+    [90m418| [39m    [34mexpect[39m(mockDispatch)[33m.[39m[34mtoHaveBeenCalled[39m()[33m;[39m
+    [90m   | [39m                         [31m^[39m
+    [90m419| [39m    container[33m.[39m[34mremove[39m()[33m;[39m
+    [90m420| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m7 passed[39m[22m[90m (8)[39m
+[2m   Start at [22m 22:14:07
+[2m   Duration [22m 884ms[2m (transform 108ms, setup 36ms, import 151ms, tests 418ms, environment 158ms)[22m
+

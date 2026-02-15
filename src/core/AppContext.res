@@ -17,6 +17,8 @@ type sceneSlice = {
   scenes: array<scene>,
   activeIndex: int,
   tourName: string,
+  activeYaw: float,
+  activePitch: float,
 }
 
 type uiSlice = {
@@ -25,6 +27,7 @@ type uiSlice = {
   linkDraft: option<linkDraft>,
   appMode: appMode,
   logo: option<file>,
+  preloadingSceneIndex: int,
 }
 
 type simSlice = {
@@ -34,11 +37,22 @@ type simSlice = {
   incomingLink: option<linkInfo>,
 }
 
+type pipelineSlice = {
+  timeline: array<timelineItem>,
+  scenes: array<scene>,
+  activeIndex: int,
+  activeTimelineStepId: option<string>,
+}
+
+type navigationSlice = navigationState
+
 // Default values for initialization
 let defaultSceneSlice: sceneSlice = {
   scenes: State.initialState.scenes,
   activeIndex: State.initialState.activeIndex,
   tourName: State.initialState.tourName,
+  activeYaw: State.initialState.activeYaw,
+  activePitch: State.initialState.activePitch,
 }
 
 let defaultUiSlice: uiSlice = {
@@ -47,6 +61,7 @@ let defaultUiSlice: uiSlice = {
   linkDraft: State.initialState.linkDraft,
   appMode: State.initialState.appMode,
   logo: State.initialState.logo,
+  preloadingSceneIndex: State.initialState.preloadingSceneIndex,
 }
 
 let defaultSimSlice: simSlice = {
@@ -61,6 +76,13 @@ let globalContext = React.createContext(State.initialState)
 let sceneContext = React.createContext(defaultSceneSlice)
 let uiContext = React.createContext(defaultUiSlice)
 let simContext = React.createContext(defaultSimSlice)
+let navigationContext = React.createContext(NavigationState.initial())
+let pipelineContext = React.createContext({
+  timeline: State.initialState.timeline,
+  scenes: State.initialState.scenes,
+  activeIndex: State.initialState.activeIndex,
+  activeTimelineStepId: State.initialState.activeTimelineStepId,
+})
 let dispatchContext = React.createContext(defaultDispatch)
 
 module GlobalProvider = {
@@ -74,6 +96,12 @@ module UiSliceProvider = {
 }
 module SimSliceProvider = {
   let make = React.Context.provider(simContext)
+}
+module NavigationSliceProvider = {
+  let make = React.Context.provider(navigationContext)
+}
+module PipelineSliceProvider = {
+  let make = React.Context.provider(pipelineContext)
 }
 
 // Aliases for compatibility with existing tests
@@ -108,23 +136,33 @@ module Provider = {
     let (state, dispatch) = React.useReducer(Reducer.reducer, loadedState)
 
     // Domain-Specific Slices
-    let sceneSlice = React.useMemo3(() => {
+    let sceneSlice = React.useMemo5(() => {
       {
         scenes: state.scenes,
         activeIndex: state.activeIndex,
         tourName: state.tourName,
+        activeYaw: state.activeYaw,
+        activePitch: state.activePitch,
       }
-    }, (state.scenes, state.activeIndex, state.tourName))
+    }, (state.scenes, state.activeIndex, state.tourName, state.activeYaw, state.activePitch))
 
-    let uiSlice = React.useMemo5(() => {
+    let uiSlice = React.useMemo6(() => {
       {
         isLinking: state.isLinking,
         isTeasing: state.isTeasing,
         linkDraft: state.linkDraft,
         appMode: state.appMode,
         logo: state.logo,
+        preloadingSceneIndex: state.preloadingSceneIndex,
       }
-    }, (state.isLinking, state.isTeasing, state.linkDraft, state.appMode, state.logo))
+    }, (
+      state.isLinking,
+      state.isTeasing,
+      state.linkDraft,
+      state.appMode,
+      state.logo,
+      state.preloadingSceneIndex,
+    ))
 
     let simSlice = React.useMemo4(() => {
       {
@@ -139,6 +177,17 @@ module Provider = {
       state.navigationState.currentJourneyId,
       state.navigationState.incomingLink,
     ))
+
+    let pipelineSlice = React.useMemo4(() => {
+      {
+        timeline: state.timeline,
+        scenes: state.scenes,
+        activeIndex: state.activeIndex,
+        activeTimelineStepId: state.activeTimelineStepId,
+      }
+    }, (state.timeline, state.scenes, state.activeIndex, state.activeTimelineStepId))
+
+    let navigationSlice = React.useMemo1(() => state.navigationState, [state.navigationState])
 
     React.useEffect1(() => {
       stateBridgeRef := state
@@ -156,9 +205,28 @@ module Provider = {
       None
     })
 
+    let sessionSlice = React.useMemo6(() => {
+      let s: Types.sessionState = {
+        tourName: state.tourName,
+        activeIndex: state.activeIndex,
+        activeYaw: state.activeYaw,
+        activePitch: state.activePitch,
+        isLinking: state.isLinking,
+        isTeasing: state.isTeasing,
+      }
+      s
+    }, (
+      state.tourName,
+      state.activeIndex,
+      state.activeYaw,
+      state.activePitch,
+      state.isLinking,
+      state.isTeasing,
+    ))
+
     React.useEffect1(() => {
       let timerId = setTimeout(() => {
-        SessionStore.saveState(state)
+        SessionStore.save(sessionSlice)
       }, 500)
 
       Some(
@@ -166,13 +234,17 @@ module Provider = {
           clearTimeout(timerId)
         },
       )
-    }, [state])
+    }, [sessionSlice])
 
     <DispatchProvider value=dispatch>
       <GlobalProvider value=state>
         <SceneSliceProvider value=sceneSlice>
           <UiSliceProvider value=uiSlice>
-            <SimSliceProvider value=simSlice> children </SimSliceProvider>
+            <SimSliceProvider value=simSlice>
+              <NavigationSliceProvider value=navigationSlice>
+                <PipelineSliceProvider value=pipelineSlice> children </PipelineSliceProvider>
+              </NavigationSliceProvider>
+            </SimSliceProvider>
           </UiSliceProvider>
         </SceneSliceProvider>
       </GlobalProvider>
@@ -188,6 +260,8 @@ let useAppDispatch = () => React.useContext(dispatchContext)
 let useSceneSlice = () => React.useContext(sceneContext)
 let useUiSlice = () => React.useContext(uiContext)
 let useSimSlice = () => React.useContext(simContext)
+let useNavigationSlice = () => React.useContext(navigationContext)
+let usePipelineSlice = () => React.useContext(pipelineContext)
 
 // Legacy compatibility hooks - return global state but encouraged to use slices
 let useSceneState = () => React.useContext(globalContext) // Temporary fallback
@@ -195,14 +269,11 @@ let useUiState = () => React.useContext(globalContext) // Temporary fallback
 let useSimState = () => React.useContext(globalContext) // Temporary fallback
 
 // Phase 1: Navigation State Slice
-let useNavigationState = () => {
-  let state = React.useContext(globalContext)
-  state.navigationState
-}
+let useNavigationState = useNavigationSlice
 
 let useNavigationFsm = () => {
-  let state = React.useContext(globalContext)
-  state.navigationState.navigationFsm
+  let nav = useNavigationSlice()
+  nav.navigationFsm
 }
 
 // Interaction Queue Hook
